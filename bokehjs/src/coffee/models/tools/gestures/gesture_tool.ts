@@ -25,7 +25,6 @@ export abstract class GestureTool extends ButtonTool {
 
   button_view = OnOffButtonView
 
-  event_type: string | string[]
   default_order: number
 }
 

@@ -9,10 +9,11 @@ import {Plot} from "models/plots/plot"
 import {Range1d} from "models/ranges/range1d"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
 import {ColumnDataSource} from "models/sources/column_data_source"
-import {BkEv} from "models/tools/edit/edit_tool"
 import {PointDrawTool, PointDrawToolView} from "models/tools/edit/point_draw_tool"
 
 const utils = require("../../../utils")
+
+import {make_gesture_event, make_tap_event, make_move_event, make_key_event} from "./utils"
 
 export interface PointDrawTestCase {
   data: {[key: string]: (number | null)[]}
@@ -71,10 +72,6 @@ const make_testcase = function(): PointDrawTestCase {
   }
 }
 
-const make_event = function(sx: number, sy: number, shift: boolean = false, keyCode: number = 0): BkEv {
-  return {"bokeh": {sx: sx, sy: sy}, "srcEvent": {shiftKey: shift}, keyCode: keyCode, shiftKey: shift}
-}
-
 describe("PointDrawTool", (): void => {
 
   describe("View", function(): void {
@@ -92,7 +89,7 @@ describe("PointDrawTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
 
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
-      const tap_event = make_event(300, 300);
+      const tap_event = make_tap_event(300, 300);
       testcase.draw_tool_view._tap(tap_event);
 
       expect(testcase.data_source.selected.indices).to.be.deep.equal([1]);
@@ -103,10 +100,10 @@ describe("PointDrawTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
 
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
-      let tap_event = make_event(300, 300);
+      let tap_event = make_tap_event(300, 300);
       testcase.draw_tool_view._tap(tap_event);
       hit_test_stub.returns(create_hit_test_result_from_hits([[2, 0]]));
-      tap_event = make_event(560, 560, true);
+      tap_event = make_tap_event(560, 560, true);
       testcase.draw_tool_view._tap(tap_event);
 
       expect(testcase.data_source.selected.indices).to.be.deep.equal([2, 1]);
@@ -117,7 +114,7 @@ describe("PointDrawTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
 
       hit_test_stub.returns(null);
-      const tap_event: BkEv = make_event(300, 200);
+      const tap_event = make_tap_event(300, 200);
       testcase.draw_tool_view._tap(tap_event);
 
       expect(testcase.data_source.selected.indices).to.be.deep.equal([]);
@@ -130,7 +127,7 @@ describe("PointDrawTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
 
       hit_test_stub.returns(null);
-      const tap_event = make_event(300, 200);
+      const tap_event = make_tap_event(300, 200);
       testcase.draw_tool_view._tap(tap_event);
 
       expect(testcase.data_source.data['z']).to.be.deep.equal([null, null, null, 'Test']);
@@ -141,11 +138,12 @@ describe("PointDrawTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
 
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
-      const tap_event = make_event(300, 300);
+      const tap_event = make_tap_event(300, 300);
       testcase.draw_tool_view._tap(tap_event);
 
-      const keyup_event = make_event(300, 300, false, Keys.Backspace);
-      testcase.draw_tool_view._move_enter(keyup_event);
+      const moveenter_event = make_move_event(300, 300)
+      const keyup_event = make_key_event(Keys.Backspace);
+      testcase.draw_tool_view._move_enter(moveenter_event);
       testcase.draw_tool_view._keyup(keyup_event);
 
       expect(testcase.data_source.selected.indices).to.be.deep.equal([]);
@@ -159,11 +157,12 @@ describe("PointDrawTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
 
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
-      const tap_event = make_event(560, 560);
+      const tap_event = make_tap_event(560, 560);
       testcase.draw_tool_view._tap(tap_event);
 
-      const keyup_event = make_event(300, 300, false, Keys.Esc);
-      testcase.draw_tool_view._move_enter(keyup_event);
+      const moveenter_event = make_move_event(300, 300)
+      const keyup_event = make_key_event(Keys.Esc);
+      testcase.draw_tool_view._move_enter(moveenter_event);
       testcase.draw_tool_view._keyup(keyup_event);
 
       expect(testcase.data_source.selected.indices).to.be.deep.equal([]);
@@ -175,15 +174,15 @@ describe("PointDrawTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
 
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
-      let drag_event = make_event(300, 300);
+      let drag_event = make_gesture_event(300, 300);
       testcase.draw_tool_view._pan_start(drag_event);
       expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([300, 300]);
 
-      drag_event = make_event(200, 200);
+      drag_event = make_gesture_event(200, 200);
       testcase.draw_tool_view._pan(drag_event);
       expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([200, 200]);
 
-      drag_event = make_event(200, 200);
+      drag_event = make_gesture_event(200, 200);
       testcase.draw_tool_view._pan_end(drag_event);
       expect(testcase.draw_tool_view._basepoint).to.be.equal(null);
       expect(testcase.data_source.selected.indices).to.be.deep.equal([]);
@@ -197,19 +196,19 @@ describe("PointDrawTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
 
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
-      const tap_event = make_event(300, 300);
+      const tap_event = make_tap_event(300, 300);
       testcase.draw_tool_view._tap(tap_event);
 
       hit_test_stub.returns(null);
-      let drag_event = make_event(300, 300);
+      let drag_event = make_gesture_event(300, 300);
       testcase.draw_tool_view._pan_start(drag_event);
       expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([300, 300]);
 
-      drag_event = make_event(200, 200);
+      drag_event = make_gesture_event(200, 200);
       testcase.draw_tool_view._pan(drag_event);
       expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([200, 200]);
 
-      drag_event = make_event(200, 200);
+      drag_event = make_gesture_event(200, 200);
       testcase.draw_tool_view._pan_end(drag_event);
       expect(testcase.draw_tool_view._basepoint).to.be.equal(null);
       expect(testcase.data_source.selected.indices).to.be.deep.equal([]);
@@ -223,19 +222,19 @@ describe("PointDrawTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
 
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
-      const tap_event = make_event(300, 300);
+      const tap_event = make_tap_event(300, 300);
       testcase.draw_tool_view._tap(tap_event);
 
       hit_test_stub.returns(create_hit_test_result_from_hits([[2, 0]]));
-      let drag_event = make_event(300, 300, true);
+      let drag_event = make_gesture_event(300, 300, true);
       testcase.draw_tool_view._pan_start(drag_event);
       expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([300, 300]);
 
-      drag_event = make_event(200, 200);
+      drag_event = make_gesture_event(200, 200);
       testcase.draw_tool_view._pan(drag_event);
       expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([200, 200]);
 
-      drag_event = make_event(200, 200);
+      drag_event = make_gesture_event(200, 200);
       testcase.draw_tool_view._pan_end(drag_event);
       expect(testcase.draw_tool_view._basepoint).to.be.equal(null);
       expect(testcase.data_source.selected.indices).to.be.deep.equal([]);

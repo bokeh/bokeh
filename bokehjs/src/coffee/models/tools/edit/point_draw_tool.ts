@@ -1,22 +1,22 @@
 import {Keys} from "core/dom"
+import {GestureEvent, TapEvent, KeyEvent} from "core/ui_events"
 import * as p from "core/properties"
 import {copy} from "core/util/array"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
-import {EditTool, EditToolView, HasCDS, HasXYGlyph, BkEv} from "./edit_tool"
-
+import {EditTool, EditToolView, HasCDS, HasXYGlyph} from "./edit_tool"
 
 export class PointDrawToolView extends EditToolView {
   model: PointDrawTool
 
-  _tap(e: BkEv): void {
-    const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
-    const renderers = this._select_event(e, append, this.model.renderers);
+  _tap(ev: TapEvent): void {
+    const append = ev.shiftKey
+    const renderers = this._select_event(ev, append, this.model.renderers);
     if (renderers.length || !this.model.add) {
       return
     }
 
     const renderer = this.model.renderers[0];
-    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);
+    const point = this._map_drag(ev.sx, ev.sy, renderer);
     if (point == null) {
       return;
     }
@@ -46,12 +46,12 @@ export class PointDrawToolView extends EditToolView {
     ds.properties.data.change.emit(undefined);
   }
 
-  _keyup(e: BkEv): void {
+  _keyup(ev: KeyEvent): void {
     if (!this.model.active || !this._mouse_in_frame) { return; }
     for (const renderer of this.model.renderers) {
-      if (e.keyCode === Keys.Backspace) {
+      if (ev.keyCode === Keys.Backspace) {
         this._delete_selected(renderer);
-      } else if (e.keyCode == Keys.Esc) {
+      } else if (ev.keyCode == Keys.Esc) {
         // Type once selection_manager is typed
         const cds: any = renderer.data_source;
         cds.selection_manager.clear();
@@ -59,22 +59,22 @@ export class PointDrawToolView extends EditToolView {
     }
   }
 
-  _pan_start(e: BkEv): void {
+  _pan_start(ev: GestureEvent): void {
     if (!this.model.drag) { return; }
-    this._select_event(e, true, this.model.renderers);
-    this._basepoint = [e.bokeh.sx, e.bokeh.sy];
+    this._select_event(ev, true, this.model.renderers);
+    this._basepoint = [ev.sx, ev.sy];
   }
 
-  _pan(e: BkEv): void {
+  _pan(ev: GestureEvent): void {
     if (!this.model.drag || this._basepoint == null) {
       return;
     }
-    this._drag_points(e, this.model.renderers);
+    this._drag_points(ev, this.model.renderers);
   }
 
-  _pan_end(e: BkEv): void {
+  _pan_end(ev: GestureEvent): void {
     if (!this.model.drag) { return; }
-    this._pan(e);
+    this._pan(ev);
     for (const renderer of this.model.renderers) {
       renderer.data_source.selected.indices = [];
       renderer.data_source.properties.data.change.emit(undefined);
@@ -115,7 +115,7 @@ export class PointDrawTool extends EditTool {
 
   tool_name = "Point Draw Tool"
   icon = "bk-tool-icon-point-draw"
-  event_type = ["tap", "pan", "move"]
+  event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
   default_order = 2
 }
 PointDrawTool.initClass()

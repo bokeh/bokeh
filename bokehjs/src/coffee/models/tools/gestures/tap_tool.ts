@@ -1,30 +1,21 @@
 import {SelectTool, SelectToolView} from "./select_tool"
 import * as p from "core/properties"
+import {TapEvent} from "core/ui_events"
 import {isFunction} from "core/util/types"
 import {Geometry, PointGeometry} from "core/geometry"
 import {DataSource} from "../../sources/data_source"
 
-export interface BkEv {
-  bokeh: {
-    sx: number
-    sy: number
-  }
-  srcEvent: {
-    shiftKey?: boolean
-  }
-}
-
 export class TapToolView extends SelectToolView {
   model: TapTool
 
-  _tap(e: BkEv): void {
-    const {sx, sy} = e.bokeh
+  _tap(ev: TapEvent): void {
+    const {sx, sy} = ev
     const geometry: PointGeometry = {
       type: 'point',
       sx: sx,
       sy: sy,
     }
-    const append = e.srcEvent.shiftKey || false
+    const append = ev.shiftKey
     this._select(geometry, true, append)
   }
 
@@ -105,7 +96,7 @@ export class TapTool extends SelectTool {
 
   tool_name = "Tap"
   icon = "bk-tool-icon-tap-select"
-  event_type = "tap"
+  event_type = "tap" as "tap"
   default_order = 10
 }
 

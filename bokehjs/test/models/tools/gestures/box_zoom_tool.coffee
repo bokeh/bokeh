@@ -49,10 +49,10 @@ describe "BoxZoomTool", ->
       box_zoom_view = @plot_canvas_view.tool_views[box_zoom.id]
 
       # perform the tool action
-      zoom_event = {"bokeh": {sx: 200, sy: 100}}
+      zoom_event = {sx: 200, sy: 100}
       box_zoom_view._pan_start(zoom_event)
 
-      zoom_event = {"bokeh": {sx: 400, sy: 500}}
+      zoom_event = {sx: 400, sy: 500}
       box_zoom_view._pan_end(zoom_event)
 
       hr = @plot_canvas_view.frame.x_ranges['default']
@@ -69,10 +69,10 @@ describe "BoxZoomTool", ->
       box_zoom_view = @plot_canvas_view.tool_views[box_zoom.id]
 
       # perform the tool action
-      zoom_event = {"bokeh": {sx: 200, sy: 200}}
+      zoom_event = {sx: 200, sy: 200}
       box_zoom_view._pan_start(zoom_event)
 
-      zoom_event = {"bokeh": {sx: 400, sy: 300}}
+      zoom_event = {sx: 400, sy: 300}
       box_zoom_view._pan_end(zoom_event)
 
       hr = @plot_canvas_view.frame.x_ranges['default']

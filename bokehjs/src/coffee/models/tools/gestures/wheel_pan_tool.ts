@@ -1,18 +1,13 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import * as p from "core/properties"
+import {ScrollEvent} from "core/ui_events"
 import {Dimension} from "core/enums"
-
-export interface BkEv {
-  bokeh: {
-    delta: number
-  }
-}
 
 export class WheelPanToolView extends GestureToolView {
   model: WheelPanTool
 
-  _scroll(e: BkEv): void {
-    let factor = this.model.speed*e.bokeh.delta
+  _scroll(ev: ScrollEvent): void {
+    let factor = this.model.speed*ev.delta
 
     // clamp the magnitude of factor, if it is > 1 bad things happen
     if (factor > 0.9)
@@ -122,7 +117,7 @@ export class WheelPanTool extends GestureTool {
 
   tool_name = "Wheel Pan"
   icon = "bk-tool-icon-wheel-pan"
-  event_type = 'scroll'
+  event_type = "scroll" as "scroll"
   default_order = 12
 
   get tooltip(): string {

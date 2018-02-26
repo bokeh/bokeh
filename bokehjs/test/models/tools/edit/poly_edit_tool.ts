@@ -10,10 +10,11 @@ import {Plot} from "models/plots/plot"
 import {Range1d} from "models/ranges/range1d"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
 import {ColumnDataSource} from "models/sources/column_data_source"
-import {BkEv} from "models/tools/edit/edit_tool"
 import {PolyEditTool, PolyEditToolView} from "models/tools/edit/poly_edit_tool"
 
 const utils = require("../../../utils")
+
+import {make_gesture_event, make_tap_event, make_move_event, make_key_event} from "./utils"
 
 export interface PolyEditTestCase {
   data: {[key: string]: (number[] | null)[]}
@@ -104,10 +105,6 @@ const make_testcase = function(): PolyEditTestCase {
   }
 }
 
-const make_event = function(sx: number, sy: number, shift: boolean = false, keyCode: number = 0): BkEv {
-  return {"bokeh": {sx: sx, sy: sy}, "srcEvent": {shiftKey: shift}, keyCode: keyCode, shiftKey: shift}
-}
-
 describe("PolyEditTool", (): void => {
 
   describe("View", function(): void {
@@ -128,7 +125,7 @@ describe("PolyEditTool", (): void => {
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
       vertex_hit_test_stub.returns(null);
 
-      const tap_event = make_event(300, 300);
+      const tap_event = make_tap_event(300, 300);
       testcase.draw_tool_view._tap(tap_event);
 
       expect(testcase.data_source.selected.indices).to.be.deep.equal([1]);
@@ -142,10 +139,10 @@ describe("PolyEditTool", (): void => {
 
       vertex_hit_test_stub.returns(null);
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
-      let tap_event = make_event(300, 300);
+      let tap_event = make_tap_event(300, 300);
       testcase.draw_tool_view._tap(tap_event);
       hit_test_stub.returns(create_hit_test_result_from_hits([[0, 0]]));
-      tap_event = make_event(560, 560, true);
+      tap_event = make_tap_event(560, 560, true);
       testcase.draw_tool_view._tap(tap_event);
 
       expect(testcase.data_source.selected.indices).to.be.deep.equal([0, 1]);
@@ -158,11 +155,12 @@ describe("PolyEditTool", (): void => {
 
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
       vertex_hit_test_stub.returns(null);
-      const tap_event = make_event(300, 300);
+      const tap_event = make_tap_event(300, 300);
       testcase.draw_tool_view._tap(tap_event);
 
-      const keyup_event = make_event(300, 300, false, Keys.Backspace);
-      testcase.draw_tool_view._move_enter(keyup_event);
+      const moveenter_event = make_move_event(300, 300);
+      const keyup_event = make_key_event(Keys.Backspace);
+      testcase.draw_tool_view._move_enter(moveenter_event);
       testcase.draw_tool_view._keyup(keyup_event);
 
       expect(testcase.data_source.selected.indices).to.be.deep.equal([]);
@@ -178,11 +176,12 @@ describe("PolyEditTool", (): void => {
 
       vertex_hit_test_stub.returns(null);
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
-      const tap_event = make_event(300, 300);
+      const tap_event = make_tap_event(300, 300);
       testcase.draw_tool_view._tap(tap_event);
 
-      const keyup_event = make_event(300, 300, false, Keys.Esc);
-      testcase.draw_tool_view._move_enter(keyup_event);
+      const moveenter_event = make_move_event(300, 300);
+      const keyup_event = make_key_event(Keys.Esc);
+      testcase.draw_tool_view._move_enter(moveenter_event);
       testcase.draw_tool_view._keyup(keyup_event);
 
       expect(testcase.data_source.selected.indices).to.be.deep.equal([]);
@@ -195,7 +194,7 @@ describe("PolyEditTool", (): void => {
       sinon.stub(testcase.vertex_glyph_view, "hit_test").returns(null);
 
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
-      const tap_event = make_event(300, 300);
+      const tap_event = make_tap_event(300, 300);
       testcase.draw_tool_view._doubletap(tap_event);
 
       expect(testcase.vertex_source.data.x).to.be.deep.equal(testcase.data.xs[1]);
@@ -210,7 +209,7 @@ describe("PolyEditTool", (): void => {
 
       vertex_hit_test_stub.returns(null);
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
-      const tap_event = make_event(300, 300);
+      const tap_event = make_tap_event(300, 300);
       testcase.draw_tool_view._doubletap(tap_event);
       // Have to call CDSView.compute_indices manually for testing
       testcase.vertex_renderer.view.compute_indices();
@@ -226,7 +225,7 @@ describe("PolyEditTool", (): void => {
 
       vertex_hit_test_stub.returns(null);
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
-      const tap_event = make_event(300, 300);
+      const tap_event = make_tap_event(300, 300);
       testcase.draw_tool_view._doubletap(tap_event);
       // Have to call CDSView.compute_indices manually for testing
       testcase.vertex_renderer.view.compute_indices();
@@ -234,8 +233,9 @@ describe("PolyEditTool", (): void => {
       vertex_hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
       testcase.draw_tool_view._tap(tap_event);
 
-      const keyup_event = make_event(300, 300, false, Keys.Backspace);
-      testcase.draw_tool_view._move_enter(keyup_event);
+      const moveenter_event = make_move_event(300, 300);
+      const keyup_event = make_key_event(Keys.Backspace);
+      testcase.draw_tool_view._move_enter(moveenter_event);
       testcase.draw_tool_view._keyup(keyup_event);
 
       expect(testcase.vertex_source.selected.indices).to.be.deep.equal([]);
@@ -253,13 +253,14 @@ describe("PolyEditTool", (): void => {
 
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
       vertex_hit_test_stub.returns(null);
-      const tap_event = make_event(300, 300);
+      const tap_event = make_tap_event(300, 300);
       testcase.draw_tool_view._doubletap(tap_event);
       // Have to call CDSView.compute_indices manually for testing
       testcase.vertex_renderer.view.compute_indices();
       vertex_hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
-      testcase.draw_tool_view._pan_start(tap_event);
-      const pan_event = make_event(290, 290);
+      const panstart_event = make_gesture_event(300, 300);
+      testcase.draw_tool_view._pan_start(panstart_event);
+      const pan_event = make_gesture_event(290, 290);
       testcase.draw_tool_view._pan(pan_event);
       testcase.draw_tool_view._pan_end(pan_event);
 
@@ -278,13 +279,13 @@ describe("PolyEditTool", (): void => {
 
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
       vertex_hit_test_stub.returns(null);
-      const tap_event = make_event(300, 300);
+      const tap_event = make_tap_event(300, 300);
       testcase.draw_tool_view._doubletap(tap_event); // Poly selected
       vertex_hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
       testcase.vertex_renderer.view.compute_indices();
       testcase.draw_tool_view._doubletap(tap_event); // Vertex selected
       vertex_hit_test_stub.returns(create_hit_test_result_from_hits([[2, 0]]));
-      testcase.draw_tool_view._doubletap(make_event(290, 290)); // Add new vertex
+      testcase.draw_tool_view._doubletap(make_tap_event(290, 290)); // Add new vertex
 
       const xs = [0, 0.5, 0.008849557522123894, 1];
       const ys = [0, -0.5, 0.03389830508474576, -1];
@@ -303,15 +304,17 @@ describe("PolyEditTool", (): void => {
 
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
       vertex_hit_test_stub.returns(null);
-      const tap_event = make_event(300, 300);
+      const tap_event = make_tap_event(300, 300);
       testcase.draw_tool_view._doubletap(tap_event); // Poly selected
       vertex_hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]));
       testcase.vertex_renderer.view.compute_indices();
       testcase.draw_tool_view._doubletap(tap_event); // Vertex selected
       vertex_hit_test_stub.returns(create_hit_test_result_from_hits([[2, 0]]));
-      const key_event = make_event(290, 290, false, Keys.Esc);
-      testcase.draw_tool_view._tap(key_event); // Add new vertex
-      testcase.draw_tool_view._move_enter(key_event);
+      const tap_event2 = make_tap_event(290, 290);
+      const moveenter_event = make_move_event(290, 290);
+      const key_event = make_key_event(Keys.Esc);
+      testcase.draw_tool_view._tap(tap_event2); // Add new vertex
+      testcase.draw_tool_view._move_enter(moveenter_event);
       testcase.draw_tool_view._keyup(key_event); // Stop editing
 
       const xs = [0, 0.5, 0.008849557522123894, 1];

@@ -552,12 +552,12 @@ export class PlotCanvasView extends DOMView {
     this.update_range(null)
   }
 
-  build_levels() {
+  build_levels(): void {
     const renderer_models = this.model.plot.all_renderers;
 
     // should only bind events on NEW views
-    const old_renderers = Object.keys(this.renderer_views);
-    const new_renderer_views = build_views(this.renderer_views, renderer_models, this.view_options());
+    const old_renderers = Object.keys(this.renderer_views)
+    const new_renderer_views = build_views(this.renderer_views, renderer_models, this.view_options())
     const renderers_to_remove = difference(old_renderers, renderer_models.map((model) => model.id))
 
     for (const id_ of renderers_to_remove) {
@@ -568,19 +568,19 @@ export class PlotCanvasView extends DOMView {
       this.levels[view.model.level][view.model.id] = view;
     }
 
-    return this;
+    for (const view of new_renderer_views)
+      this.levels[view.model.level][view.model.id] = view
   }
 
   get_renderer_views() {
     return (this.model.plot.renderers.map((r) => this.levels[r.level][r.id]));
   }
 
-  build_tools() {
+  build_tools(): void {
     const tool_models = this.model.plot.toolbar.tools;
     const new_tool_views = build_views(this.tool_views, tool_models, this.view_options());
 
-    return new_tool_views.map((tool_view) =>
-      this.ui_event_bus.register_tool(tool_view));
+    new_tool_views.map((tool_view) => this.ui_event_bus.register_tool(tool_view))
   }
 
   connect_signals(): void {
@@ -600,7 +600,7 @@ export class PlotCanvasView extends DOMView {
     }
 
     this.connect(this.model.plot.properties.renderers.change, () => this.build_levels())
-    this.connect(this.model.plot.toolbar.properties.tools.change, () => { this.build_levels(); return this.build_tools() })
+    this.connect(this.model.plot.toolbar.properties.tools.change, () => { this.build_levels(); this.build_tools() })
     this.connect(this.model.plot.change, () => this.request_render())
   }
 

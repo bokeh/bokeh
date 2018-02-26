@@ -1,10 +1,11 @@
 import {Keys} from "core/dom"
+import {UIEvent, GestureEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
 import * as p from "core/properties"
 import {copy} from "core/util/array"
 import {MultiLine} from "../../glyphs/multi_line"
 import {Patches} from "../../glyphs/patches"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
-import {EditTool, EditToolView, HasCDS, BkEv} from "./edit_tool"
+import {EditTool, EditToolView, HasCDS} from "./edit_tool"
 
 export interface HasPolyGlyph {
   glyph: MultiLine | Patches
@@ -14,19 +15,19 @@ export class PolyDrawToolView extends EditToolView {
   model: PolyDrawTool
   _drawing: boolean = false
 
-  _tap(e: BkEv): void {
+  _tap(ev: TapEvent): void {
     if (this._drawing) {
-      this._draw(e, 'add');
+      this._draw(ev, 'add');
       this.model.renderers[0].data_source.properties.data.change.emit(undefined);
     } else {
-      const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
-      this._select_event(e, append, this.model.renderers);
+      const append = ev.shiftKey
+      this._select_event(ev, append, this.model.renderers);
     }
   }
 
-  _draw(e: BkEv, mode: string): void {
+  _draw(ev: UIEvent, mode: string): void {
     const renderer = this.model.renderers[0];
-    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);
+    const point = this._map_drag(ev.sx, ev.sy, renderer);
     if (point == null) {
       return;
     }
@@ -72,21 +73,21 @@ export class PolyDrawToolView extends EditToolView {
     ds.change.emit(undefined)
   }
 
-  _doubletap(e: BkEv): void {
+  _doubletap(ev: TapEvent): void {
     if (!this.model.active) { return; }
     if (this._drawing) {
       this._drawing = false;
-      this._draw(e, 'edit');
+      this._draw(ev, 'edit');
     } else {
       this._drawing = true;
-      this._draw(e, 'new');
+      this._draw(ev, 'new');
     }
     this.model.renderers[0].data_source.properties.data.change.emit(undefined);
   }
 
-  _move(e: BkEv): void {
+  _move(ev: MoveEvent): void {
     if (this._drawing) {
-      this._draw(e, 'edit');
+      this._draw(ev, 'edit');
     }
   }
 
@@ -116,12 +117,12 @@ export class PolyDrawToolView extends EditToolView {
     ds.properties.data.change.emit(undefined);
   }
 
-  _keyup(e: BkEv): void {
+  _keyup(ev: KeyEvent): void {
     if (!this.model.active || !this._mouse_in_frame) { return; }
     for (const renderer of this.model.renderers) {
-      if (e.keyCode === Keys.Backspace) {
+      if (ev.keyCode === Keys.Backspace) {
         this._delete_selected(renderer);
-      } else if (e.keyCode == Keys.Esc) {
+      } else if (ev.keyCode == Keys.Esc) {
         // Type once selection_manager is typed
         if (this._drawing) {
           this._remove();
@@ -133,19 +134,19 @@ export class PolyDrawToolView extends EditToolView {
     }
   }
 
-  _pan_start(e: BkEv): void {
+  _pan_start(ev: GestureEvent): void {
     if (!this.model.drag) { return; }
-    this._select_event(e, true, this.model.renderers);
-    this._basepoint = [e.bokeh.sx, e.bokeh.sy];
+    this._select_event(ev, true, this.model.renderers);
+    this._basepoint = [ev.sx, ev.sy];
   }
 
-  _pan(e: BkEv): void {
+  _pan(ev: GestureEvent): void {
     if (this._basepoint == null || !this.model.drag) { return; }
     const [bx, by] = this._basepoint;
     // Process polygon/line dragging
     for (const renderer of this.model.renderers) {
       const basepoint = this._map_drag(bx, by, renderer);
-      const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);
+      const point = this._map_drag(ev.sx, ev.sy, renderer);
       if (point == null || basepoint == null) {
         continue;
       }
@@ -174,12 +175,12 @@ export class PolyDrawToolView extends EditToolView {
       }
       ds.change.emit(undefined);
     }
-    this._basepoint = [e.bokeh.sx, e.bokeh.sy];
+    this._basepoint = [ev.sx, ev.sy];
   }
 
-  _pan_end(e: BkEv): void {
+  _pan_end(ev: GestureEvent): void {
     if (!this.model.drag) { return; }
-    this._pan(e);
+    this._pan(ev);
     for (const renderer of this.model.renderers) {
       renderer.data_source.selected.indices = [];
       renderer.data_source.properties.data.change.emit(undefined);
@@ -226,7 +227,7 @@ export class PolyDrawTool extends EditTool {
 
   tool_name = "Polygon Draw Tool"
   icon = "bk-tool-icon-poly-draw"
-  event_type = ["pan", "tap", "move"]
+  event_type = ["pan" as "pan", "tap" as "tap", "move" as "move"]
   default_order = 3
 }
 PolyDrawTool.initClass()
