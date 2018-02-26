@@ -23,33 +23,38 @@ export interface RenderItem {
   notebook_comms_target?: any
 }
 
-declare interface CommMessage {
+export declare interface CommMessage {
   buffers: DataView[],
   content: {
     data: string
   }
 }
 
-declare interface Comm {
+export declare interface Comm {
   target_name: string
   on_msg: (msg: CommMessage) => void
   onMsg: (this: Document, receiver: Receiver, comm_msg: CommMessage) => void
 }
 
+export declare interface Kernel {
+  comm_manager: {
+    comms: {[key: string]: Promise<Comm>},
+    register_target: (target: string, fn: (comm: Comm) => void) => void,
+  },
+  _comms: {[key: string]: Promise<Comm>},
+  registerCommTarget: (target: string, fn: (comm: Comm) => void) => void,
+}
+
 declare interface Jupyter {
   notebook: {
-    kernel: undefined | {
-      comm_manager: {
-        comms: {[key: string]: Promise<Comm>},
-        register_target: (target: string, fn: (comm: Comm) => void) => void,
-      }
-    }
+    kernel: Kernel | undefined
   }
 }
 
+
 declare var Jupyter: Jupyter | undefined
 
-export const kernels: {[key: string]: any} = {}
+export const kernels: {[key: string]: Kernel} = {}
 
 // Exported to allow external libraries to define custom message handlers
 export {Receiver}
