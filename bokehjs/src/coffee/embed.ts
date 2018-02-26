@@ -33,7 +33,7 @@ declare interface CommMessage {
 declare interface Comm {
   target_name: string
   on_msg: (msg: CommMessage) => void
-  onMsg: Function
+  onMsg: (this: Document, receiver: Receiver, comm_msg: CommMessage) => void
 }
 
 declare interface Jupyter {
@@ -51,6 +51,7 @@ declare var Jupyter: Jupyter | undefined
 
 export const kernels: {[key: string]: any} = {}
 
+// Exported to allow external libraries to define custom message handlers
 export {Receiver}
 
 // Matches Bokeh CSS class selector. Setting all Bokeh parent element class names
@@ -72,8 +73,10 @@ function _update_comms_callback(target: string, doc: Document, comm: Comm): void
   if (target == comm.target_name) {
     const r = new Receiver()
     if (comm.on_msg) {
+      // Classic Notebook
       comm.on_msg(_handle_notebook_comms.bind(doc, r))
     } else {
+      // JupyterLab
       comm.onMsg = _handle_notebook_comms.bind(doc, r)
     }
   }
@@ -97,7 +100,7 @@ function _init_comms(target: string, doc: Document): void {
     } catch (e) {
       logger.warn(`Jupyter comms failed to register. push_notebook() will not function. (exception reported: ${e})`)
     }
-  } else if (doc.roots()[0].id in kernels)) {
+  } else if (doc.roots()[0].id in kernels) {
     logger.info(`Registering JupyterLab comms for target ${target}`)
     const kernel = kernels[doc.roots()[0].id]
     for (const id in kernel._comms) {
