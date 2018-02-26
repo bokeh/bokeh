@@ -2,14 +2,8 @@ import {GestureTool, GestureToolView} from "./gesture_tool"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import {CartesianFrame} from "../../canvas/cartesian_frame"
 import * as p from "core/properties"
+import {GestureEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
-
-export interface BkEv {
-  bokeh: {
-    sx: number
-    sy: number
-  }
-}
 
 export class BoxZoomToolView extends GestureToolView {
   model: BoxZoomTool
@@ -84,12 +78,12 @@ export class BoxZoomToolView extends GestureToolView {
     return [[left, right], [bottom, top]]
   }
 
-  _pan_start(e: BkEv): void {
-    this._base_point = [e.bokeh.sx, e.bokeh.sy]
+  _pan_start(ev: GestureEvent): void {
+    this._base_point = [ev.sx, ev.sy]
   }
 
-  _pan(e: BkEv): void {
-    const curpoint: [number, number] = [e.bokeh.sx, e.bokeh.sy]
+  _pan(ev: GestureEvent): void {
+    const curpoint: [number, number] = [ev.sx, ev.sy]
     const frame = this.plot_model.frame
     const dims = this.model.dimensions
 
@@ -103,8 +97,8 @@ export class BoxZoomToolView extends GestureToolView {
     this.model.overlay.update({left: sx[0], right: sx[1], top: sy[0], bottom: sy[1]})
   }
 
-  _pan_end(e: BkEv): void {
-    const curpoint: [number, number] = [e.bokeh.sx, e.bokeh.sy]
+  _pan_end(ev: GestureEvent): void {
+    const curpoint: [number, number] = [ev.sx, ev.sy]
     const frame = this.plot_model.frame
     const dims = this.model.dimensions
 
@@ -202,7 +196,7 @@ export class BoxZoomTool extends GestureTool {
 
   tool_name = "Box Zoom"
   icon = "bk-tool-icon-box-zoom"
-  event_type = "pan"
+  event_type = "pan" as "pan"
   default_order = 20
 
   get tooltip(): string {

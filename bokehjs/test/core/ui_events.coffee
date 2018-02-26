@@ -55,8 +55,7 @@ describe "ui_events module", ->
         @spy_cursor.restore()
 
       beforeEach ->
-        @e = new Event("move")
-        @e.bokeh = {}
+        @e = {type: "move"}
 
         @spy_cursor = sinon.spy(@plot_canvas_view, "set_cursor")
 
@@ -140,9 +139,7 @@ describe "ui_events module", ->
     describe "base_type=tap", ->
 
       beforeEach ->
-        @e = new Event("tap")
-        @e.bokeh = {sx: 10, sy: 15}
-        @e.srcEvent = {shiftKey: false}
+        @e = {type: "tap", sx: 10, sy: 15, shiftKey: false}
 
       it "should not trigger tap event if no active tap tool", ->
         @ui_events._trigger(@ui_events.tap, @e)
@@ -178,15 +175,15 @@ describe "ui_events module", ->
         @stopPropagation.restore()
 
       beforeEach ->
-        @e = new Event("scroll")
-        @e.bokeh = {}
+        @e = {type: "scroll"}
+        @srcEvent = new Event("scroll")
 
-        @preventDefault = sinon.spy(@e, "preventDefault")
-        @stopPropagation = sinon.spy(@e, "stopPropagation")
+        @preventDefault = sinon.spy(@srcEvent, "preventDefault")
+        @stopPropagation = sinon.spy(@srcEvent, "stopPropagation")
 
       it "should not trigger scroll event if no active scroll tool", ->
         @plot.toolbar.gestures["scroll"].active = null
-        @ui_events._trigger(@ui_events.scroll, @e)
+        @ui_events._trigger(@ui_events.scroll, @e, @srcEvent)
         assert(@spy_trigger.notCalled)
 
         # assert that default scrolling isn't hijacked
@@ -199,7 +196,7 @@ describe "ui_events module", ->
         # unclear why add_tools doesn't activate the tool, so have to do it manually
         @plot.toolbar.gestures['scroll'].active = gesture
 
-        @ui_events._trigger(@ui_events.scroll, @e)
+        @ui_events._trigger(@ui_events.scroll, @e, @srcEvent)
 
         # assert that default scrolling is disabled
         assert(@preventDefault.calledOnce)
@@ -211,8 +208,7 @@ describe "ui_events module", ->
     describe "normally propagate other gesture base_types", ->
 
       beforeEach ->
-        @e = new Event("pan")
-        @e.bokeh = {}
+        @e = {type: "pan"}
 
       it "should not trigger event if no active tool", ->
         @ui_events._trigger(@ui_events.pan, @e)
@@ -238,11 +234,12 @@ describe "ui_events module", ->
       @spy = sinon.spy(@plot, "trigger_event")
 
     it "_bokify_hammer should trigger event with appropriate coords and model_id", ->
-      e = new Event("tap")
+      e = new Event("tap") # XXX: <- this is not a hammer event
       e.pointerType = "mouse"
       e.srcEvent = {pageX: 100, pageY: 200}
 
-      @ui_events._bokify_hammer(e)
+      ev = @ui_events._tap_event(e)
+      @ui_events._trigger_bokeh_event(ev)
 
       bk_event = @spy.args[0][0]
 
@@ -256,7 +253,8 @@ describe "ui_events module", ->
       e.pageX = 100
       e.pageY = 200
 
-      @ui_events._bokify_point_event(e)
+      ev = @ui_events._move_event(e)
+      @ui_events._trigger_bokeh_event(ev)
 
       bk_event = @spy.args[0][0]
 

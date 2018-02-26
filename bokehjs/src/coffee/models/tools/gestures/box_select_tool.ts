@@ -2,31 +2,22 @@ import {SelectTool, SelectToolView} from "./select_tool"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import * as p from "core/properties"
 import {Dimensions} from "core/enums"
+import {GestureEvent} from "core/ui_events"
 import {RectGeometry} from "core/geometry"
 import {extend} from "core/util/object"
-
-export interface BkEv {
-  bokeh: {
-    sx: number
-    sy: number
-  }
-  srcEvent: {
-    shiftKey?: boolean
-  }
-}
 
 export class BoxSelectToolView extends SelectToolView {
   model: BoxSelectTool
 
   protected _base_point: [number, number] | null
 
-  _pan_start(e: BkEv): void {
-    const {sx, sy} = e.bokeh
+  _pan_start(ev: GestureEvent): void {
+    const {sx, sy} = ev
     this._base_point = [sx, sy]
   }
 
-  _pan(e: BkEv): void {
-    const {sx, sy} = e.bokeh
+  _pan(ev: GestureEvent): void {
+    const {sx, sy} = ev
     const curpoint: [number, number] = [sx, sy]
 
     const frame = this.plot_model.frame
@@ -36,20 +27,20 @@ export class BoxSelectToolView extends SelectToolView {
     this.model.overlay.update({left: sxlim[0], right: sxlim[1], top: sylim[0], bottom: sylim[1]})
 
     if (this.model.select_every_mousemove) {
-      const append = e.srcEvent.shiftKey || false
+      const append = ev.shiftKey
       this._do_select(sxlim, sylim, false, append)
     }
   }
 
-  _pan_end(e: BkEv): void {
-    const {sx, sy} = e.bokeh
+  _pan_end(ev: GestureEvent): void {
+    const {sx, sy} = ev
     const curpoint: [number, number] = [sx, sy]
 
     const frame = this.plot_model.frame
     const dims = this.model.dimensions
 
     const [sxlim, sylim] = this.model._get_dim_limits(this._base_point!, curpoint, frame, dims)
-    const append = e.srcEvent.shiftKey || false
+    const append = ev.shiftKey
     this._do_select(sxlim, sylim, true, append)
 
     this.model.overlay.update({left: null, right: null, top: null, bottom: null})
@@ -137,7 +128,7 @@ export class BoxSelectTool extends SelectTool {
 
   tool_name = "Box Select"
   icon = "bk-tool-icon-box-select"
-  event_type = "pan"
+  event_type = "pan" as "pan"
   default_order = 30
 
   get tooltip(): string {

@@ -1,38 +1,33 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import {scale_range} from "core/util/zoom"
 import * as p from "core/properties"
+import {GestureEvent, ScrollEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
-
-export interface BkEv {
-  bokeh: {
-    sx: number
-    sy: number
-    delta: number
-  }
-  scale: number
-}
+import {is_mobile} from "core/ui_events"
 
 export class WheelZoomToolView extends GestureToolView {
   model: WheelZoomTool
 
-  _pinch(e: BkEv): void {
+  _pinch(ev: GestureEvent): void {
     // TODO (bev) this can probably be done much better
+    const {sx, sy, scale} = ev
+
     let delta: number
-    if (e.scale >= 1)
-      delta = (e.scale - 1) * 20.0
+    if (scale >= 1)
+      delta = (scale - 1) * 20.0
     else
-      delta = -20.0/e.scale
-    e.bokeh.delta = delta
-    this._scroll(e)
+      delta = -20.0/scale
+
+    this._scroll({type: "mousewheel", sx, sy, delta})
   }
 
-  _scroll(e: BkEv): void {
+  _scroll(ev: ScrollEvent): void {
     const frame = this.plot_model.frame
 
     const hr = frame.bbox.h_range
     const vr = frame.bbox.v_range
 
-    const {sx, sy} = e.bokeh
+    const {sx, sy} = ev
     const dims = this.model.dimensions
 
     // restrict to axis configured in tool's dimensions property and if
@@ -40,7 +35,7 @@ export class WheelZoomToolView extends GestureToolView {
     const h_axis = (dims == 'width' || dims == 'both') && hr.start < sx && sx < hr.end
     const v_axis = (dims == 'height' || dims == 'both') && vr.start < sy && sy < vr.end
 
-    const factor = this.model.speed*e.bokeh.delta
+    const factor = this.model.speed*ev.delta
 
     const zoom_info = scale_range(frame, factor, h_axis, v_axis, {x: sx, y: sy})
 
@@ -51,8 +46,6 @@ export class WheelZoomToolView extends GestureToolView {
       this.model.document.interactive_start(this.plot_model.plot)
   }
 }
-
-const is_mobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0
 
 export namespace WheelZoomTool {
   export interface Attrs extends GestureTool.Attrs {
@@ -87,7 +80,7 @@ export class WheelZoomTool extends GestureTool {
 
   tool_name = "Wheel Zoom"
   icon = "bk-tool-icon-wheel-zoom"
-  event_type = is_mobile ? 'pinch' : 'scroll'
+  event_type = is_mobile ? "pinch" as "pinch" : "scroll" as "scroll"
   default_order = 10
 
   get tooltip(): string {

@@ -50,7 +50,7 @@ describe "WheelZoomTool", ->
       wheel_zoom_view = @plot_canvas_view.tool_views[wheel_zoom.id]
 
       # positive delta will zoom in
-      zoom_event = {"bokeh": {sx: 300, sy: 300, delta: 100}}
+      zoom_event = {sx: 300, sy: 300, delta: 100}
 
       # perform the tool action
       wheel_zoom_view._scroll(zoom_event)
@@ -69,7 +69,7 @@ describe "WheelZoomTool", ->
       wheel_zoom_view = @plot_canvas_view.tool_views[wheel_zoom.id]
 
       # positive delta will zoom out
-      zoom_event = {"bokeh": {sx: 300, sy: 300, delta: -100}}
+      zoom_event = {sx: 300, sy: 300, delta: -100}
 
       # perform the tool action
       wheel_zoom_view._scroll(zoom_event)
@@ -88,7 +88,7 @@ describe "WheelZoomTool", ->
       wheel_zoom_view = @plot_canvas_view.tool_views[wheel_zoom.id]
 
       # positive delta will zoom in
-      zoom_event = {"bokeh": {sx: 300, sy: 300, delta: 100}}
+      zoom_event = {sx: 300, sy: 300, delta: 100}
 
       # perform the tool action
       wheel_zoom_view._scroll(zoom_event)
@@ -106,7 +106,7 @@ describe "WheelZoomTool", ->
       wheel_zoom_view = @plot_canvas_view.tool_views[wheel_zoom.id]
 
       # positive delta will zoom in
-      zoom_event = {"bokeh": {sx: 300, sy: 0, delta: 100}}
+      zoom_event = {sx: 300, sy: 0, delta: 100}
 
       # perform the tool action
       wheel_zoom_view._scroll(zoom_event)
@@ -124,7 +124,7 @@ describe "WheelZoomTool", ->
       wheel_zoom_view = @plot_canvas_view.tool_views[wheel_zoom.id]
 
       # positive delta will zoom in
-      zoom_event = {"bokeh": {sx: 300, sy: 300, delta: 100}}
+      zoom_event = {sx: 300, sy: 300, delta: 100}
 
       # perform the tool action
       wheel_zoom_view._scroll(zoom_event)
@@ -142,7 +142,7 @@ describe "WheelZoomTool", ->
       wheel_zoom_view = @plot_canvas_view.tool_views[wheel_zoom.id]
 
       # positive delta will zoom in
-      zoom_event = {"bokeh": {sx: 0, sy: 300, delta: 100}}
+      zoom_event = {sx: 0, sy: 300, delta: 100}
 
       # perform the tool action
       wheel_zoom_view._scroll(zoom_event)
@@ -160,7 +160,7 @@ describe "WheelZoomTool", ->
       wheel_zoom_view = @plot_canvas_view.tool_views[wheel_zoom.id]
 
       # positive delta will zoom in
-      zoom_event = {"bokeh": {sx: 100, sy: 100, delta: 100}}
+      zoom_event = {sx: 100, sy: 100, delta: 100}
 
       # perform the tool action
       wheel_zoom_view._scroll(zoom_event)

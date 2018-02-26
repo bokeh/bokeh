@@ -1,10 +1,11 @@
 import {Keys} from "core/dom"
+import {GestureEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
 import * as p from "core/properties"
 import {copy} from "core/util/array"
 import {MultiLine} from "../../glyphs/multi_line"
 import {Patches} from "../../glyphs/patches"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
-import {EditTool, EditToolView, HasCDS, HasXYGlyph, BkEv} from "./edit_tool"
+import {EditTool, EditToolView, HasCDS, HasXYGlyph} from "./edit_tool"
 
 export interface HasPolyGlyph {
   glyph: MultiLine | Patches
@@ -16,15 +17,15 @@ export class PolyEditToolView extends EditToolView {
   _basepoint: [number, number] | null
   _drawing: boolean = false
 
-  _doubletap(e: BkEv): void {
+  _doubletap(ev: TapEvent): void {
     if (!this.model.active) { return; }
-    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, this.model.vertex_renderer);
+    const point = this._map_drag(ev.sx, ev.sy, this.model.vertex_renderer);
     if (point == null) { return; }
     const [x, y] = point;
 
     // Perform hit testing
-    const renderers = this._select_event(e, false, this.model.renderers);
-    const vertex_selected = this._select_event(e, false, [this.model.vertex_renderer]);
+    const renderers = this._select_event(ev, false, this.model.renderers);
+    const vertex_selected = this._select_event(ev, false, [this.model.vertex_renderer]);
     const point_ds = this.model.vertex_renderer.data_source;
     // Type once dataspecs are typed
     const point_glyph: any = this.model.vertex_renderer.glyph;
@@ -91,10 +92,10 @@ export class PolyEditToolView extends EditToolView {
     point_ds.properties.data.change.emit(undefined);
   }
 
-  _move(e: BkEv): void {
+  _move(ev: MoveEvent): void {
     if (this._drawing && this._selected_renderer != null) {
       const renderer = this.model.vertex_renderer;
-      const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);
+      const point = this._map_drag(ev.sx, ev.sy, renderer);
       if (point == null) { return; }
       const [x, y] = point;
       const ds = renderer.data_source;
@@ -108,9 +109,9 @@ export class PolyEditToolView extends EditToolView {
     }
   }
 
-  _tap(e: BkEv): void {
+  _tap(ev: TapEvent): void {
     const renderer = this.model.vertex_renderer;
-    const point = this._map_drag(e.bokeh.sx, e.bokeh.sy, renderer);
+    const point = this._map_drag(ev.sx, ev.sy, renderer);
     if (point == null) {
       return;
     } else if (this._drawing && this._selected_renderer) {
@@ -139,9 +140,9 @@ export class PolyEditToolView extends EditToolView {
       selected_ds.properties.data.change.emit(undefined);
       return;
     }
-    const append = e.srcEvent.shiftKey != null ? e.srcEvent.shiftKey : false;
-    this._select_event(e, append, [renderer]);
-    this._select_event(e, append, this.model.renderers);
+    const append = ev.shiftKey
+    this._select_event(ev, append, [renderer]);
+    this._select_event(ev, append, this.model.renderers);
   }
 
   _remove_vertex(emit: boolean = true): void {
@@ -160,20 +161,20 @@ export class PolyEditToolView extends EditToolView {
     }
   }
 
-  _pan_start(e: BkEv): void {
-    this._select_event(e, true, [this.model.vertex_renderer]);
-    this._basepoint = [e.bokeh.sx, e.bokeh.sy];
+  _pan_start(ev: GestureEvent): void {
+    this._select_event(ev, true, [this.model.vertex_renderer]);
+    this._basepoint = [ev.sx, ev.sy];
   }
 
-  _pan(e: BkEv): void {
+  _pan(ev: GestureEvent): void {
     if (this._basepoint == null) { return; }
-    this._drag_points(e, [this.model.vertex_renderer]);
+    this._drag_points(ev, [this.model.vertex_renderer]);
     if (this._selected_renderer) {
       this._selected_renderer.data_source.change.emit(undefined);
     }
   }
 
-  _pan_end(_e: BkEv): void {
+  _pan_end(_e: GestureEvent): void {
     this.model.vertex_renderer.data_source.selected.indices = [];
     if (this._selected_renderer) {
       this._selected_renderer.data_source.properties.data.change.emit(undefined);
@@ -181,7 +182,7 @@ export class PolyEditToolView extends EditToolView {
     this._basepoint = null;
   }
 
-  _keyup(e: BkEv): void {
+  _keyup(ev: KeyEvent): void {
     if (!this.model.active || !this._mouse_in_frame) { return; }
     let renderers;
     if (this._selected_renderer) {
@@ -190,9 +191,9 @@ export class PolyEditToolView extends EditToolView {
       renderers = this.model.renderers
     }
     for (const renderer of renderers) {
-      if (e.keyCode === Keys.Backspace) {
+      if (ev.keyCode === Keys.Backspace) {
         this._delete_selected(renderer);
-      } else if (e.keyCode == Keys.Esc) {
+      } else if (ev.keyCode == Keys.Esc) {
         // Type once selection_manager is typed
         if (this._drawing) {
           this._remove_vertex();
@@ -257,7 +258,7 @@ export class PolyEditTool extends EditTool {
 
   tool_name = "Poly Edit Tool"
   icon = "bk-tool-icon-poly-edit"
-  event_type = ["tap", "pan", "move"]
+  event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
   default_order = 4
 }
 PolyEditTool.initClass()

@@ -1,19 +1,10 @@
 import {SelectTool, SelectToolView} from "./select_tool"
 import {PolyAnnotation} from "../../annotations/poly_annotation"
 import {PolyGeometry} from "core/geometry"
+import {GestureEvent, KeyEvent} from "core/ui_events"
+import {Keys} from "core/dom"
 import * as p from "core/properties"
 import {extend} from "core/util/object"
-
-export interface BkEv {
-  bokeh: {
-    sx: number
-    sy: number
-  }
-  srcEvent: {
-    shiftKey?: boolean
-  }
-  keyCode: number
-}
 
 export class LassoSelectToolView extends SelectToolView {
   model: LassoSelectTool
@@ -35,18 +26,18 @@ export class LassoSelectToolView extends SelectToolView {
       this._clear_overlay()
   }
 
-  _keyup(e: BkEv): void {
-    if (e.keyCode == 13)
+  _keyup(ev: KeyEvent): void {
+    if (ev.keyCode == Keys.Enter)
       this._clear_overlay()
   }
 
-  _pan_start(e: BkEv): void {
-    const {sx, sy} = e.bokeh
+  _pan_start(ev: GestureEvent): void {
+    const {sx, sy} = ev
     this.data = {sx: [sx], sy: [sy]}
   }
 
-  _pan(e: BkEv): void {
-    const {sx: _sx, sy: _sy} = e.bokeh
+  _pan(ev: GestureEvent): void {
+    const {sx: _sx, sy: _sy} = ev
     const [sx, sy] = this.plot_model.frame.bbox.clip(_sx, _sy)
 
     this.data!.sx.push(sx)
@@ -56,14 +47,14 @@ export class LassoSelectToolView extends SelectToolView {
     overlay.update({xs: this.data!.sx, ys: this.data!.sy})
 
     if (this.model.select_every_mousemove) {
-      const append = e.srcEvent.shiftKey || false
+      const append = ev.shiftKey
       this._do_select(this.data!.sx, this.data!.sy, false, append)
     }
   }
 
-  _pan_end(e: BkEv): void {
+  _pan_end(ev: GestureEvent): void {
     this._clear_overlay()
-    const append = e.srcEvent.shiftKey || false
+    const append = ev.shiftKey
     this._do_select(this.data!.sx, this.data!.sy, true, append)
     this.plot_view.push_state('lasso_select', {selection: this.plot_view.get_selection()})
   }
@@ -142,7 +133,7 @@ export class LassoSelectTool extends SelectTool {
 
   tool_name = "Lasso Select"
   icon = "bk-tool-icon-lasso-select"
-  event_type = "pan"
+  event_type = "pan" as "pan"
   default_order = 12
 }
 
