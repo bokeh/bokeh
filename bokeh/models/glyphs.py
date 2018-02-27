@@ -333,7 +333,7 @@ class Image(XYGlyph):
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class
-    _args = ('image', 'x', 'y', 'dw', 'dh', 'dilate')
+    _args = ('image', 'x', 'y', 'dw', 'dh', 'global_alpha', 'dilate')
 
     # a hook to specify any additional kwargs handled by an initializer
     _extra_kws = {
@@ -369,6 +369,11 @@ class Image(XYGlyph):
     .. note::
         This is not the number of pixels that an image is tall.
         That number is fixed by the image itself.
+    """)
+
+    global_alpha = Float(1.0, help="""
+    An overall opacity that each image is rendered with (in addition
+    to any alpha values applied explicitly in a color mapper).
     """)
 
     dilate = Bool(False, help="""
