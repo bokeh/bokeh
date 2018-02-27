@@ -372,7 +372,8 @@ class Image(XYGlyph):
     """)
 
     global_alpha = Float(1.0, help="""
-    An overall opacity that each image is rendered with.
+    An overall opacity that each image is rendered with (in addition
+    to any alpha values applied explicitly in a color mapper).
     """)
 
     dilate = Bool(False, help="""

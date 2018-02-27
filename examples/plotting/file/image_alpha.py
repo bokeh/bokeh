@@ -15,7 +15,8 @@ p = figure(x_range=(0, 10), y_range=(0, 10))
 p.line([0, 10], [0, 10], color='red', line_width=2)
 # Use global_alpha kwarg to set alpha value
 img = p.image(image=[d], x=0, y=0, dw=10, dh=10, global_alpha=0.7)
-# NaN color alpha can be set separately
+# Alpha for color mapper attributes can be set explicitly and is applied prior to global alpha,
+# e.g. NaN color:
 img.glyph.color_mapper.nan_color = (128, 128, 128, 0.1)
 
 output_file("image_alpha.html", title="image_alpha.py example")
