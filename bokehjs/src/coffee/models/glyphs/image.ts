@@ -13,6 +13,7 @@ export class ImageView extends XYGlyphView {
   initialize(options: any): void {
     super.initialize(options);
     this.connect(this.model.color_mapper.change, function() { return this._update_image(); });
+    this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_render());
   }
 
   _update_image() {
@@ -97,6 +98,8 @@ export class ImageView extends XYGlyphView {
     const old_smoothing = ctx.getImageSmoothingEnabled();
     ctx.setImageSmoothingEnabled(false);
 
+    ctx.globalAlpha = this.model.global_alpha;
+
     for (const i of indices) {
       if ((image_data[i] == null)) {
         continue;
@@ -135,6 +138,7 @@ export namespace Image {
     image: NumberSpec
     dw: DistanceSpec
     dh: DistanceSpec
+    global_alpha: number
     dilate: boolean
     color_mapper: ColorMapper
   }
@@ -159,6 +163,7 @@ export class Image extends XYGlyph {
       dw:           [ p.DistanceSpec     ],
       dh:           [ p.DistanceSpec     ],
       dilate:       [ p.Bool,      false ],
+      global_alpha: [ p.Number,    1.0   ],
       color_mapper: [ p.Instance,  () => new LinearColorMapper({palette: Greys9()}) ],
     });
   }
