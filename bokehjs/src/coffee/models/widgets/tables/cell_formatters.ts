@@ -1,7 +1,7 @@
 /* XXX: partial */
 import * as Numbro from "numbro";
 import * as compile_template from "underscore.template";
-import * as tz from "timezone";
+import tz = require("timezone")
 
 import * as p from "core/properties";
 import {span, i} from "core/dom";

@@ -15,7 +15,7 @@ import {isString, isFunction} from "core/util/types"
 import {build_views, remove_views} from "core/build_views"
 import {Anchor, TooltipAttachment} from "core/enums"
 import {Geometry, PointGeometry, SpanGeometry} from "core/geometry"
-import {DataSource} from "../../sources/data_source"
+import {ColumnarDataSource} from "../../sources/columnar_data_source"
 
 export type DataRenderer = GlyphRenderer | GraphRenderer
 
@@ -353,7 +353,7 @@ export class HoverToolView extends InspectToolView {
     }
   }
 
-  _render_tooltips(ds: DataSource, i: number, vars: any): HTMLElement {
+  _render_tooltips(ds: ColumnarDataSource, i: number, vars: any): HTMLElement {
     const tooltips = this.model.tooltips
     if (isString(tooltips)) {
       const el = div()
@@ -414,7 +414,7 @@ export class HoverToolView extends InspectToolView {
 
 export namespace HoverTool {
   export interface Attrs extends InspectTool.Attrs {
-    tooltips: string | [string, string][] | ((source: DataSource, vars: any) => HTMLElement)
+    tooltips: string | [string, string][] | ((source: ColumnarDataSource, vars: any) => HTMLElement)
     formatters: any // XXX
     renderers: DataRenderer[]
     names: string[]

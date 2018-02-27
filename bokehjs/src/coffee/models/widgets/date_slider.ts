@@ -1,5 +1,5 @@
 /* XXX: partial */
-import * as tz from "timezone"
+import tz = require("timezone")
 
 import {AbstractSlider, AbstractSliderView} from "./abstract_slider"
 
