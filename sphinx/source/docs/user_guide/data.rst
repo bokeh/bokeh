@@ -305,7 +305,7 @@ Linked selection
 Using the same |ColumnDataSource| in the two plots below allows their selections to be
 shared.
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_linked_brushing.py
+.. bokeh-plot:: source/docs/user_guide/examples/interaction_linked_brushing.py
     :source-position: above
 
 .. _userguide_data_linked_selection_with_filtering:
@@ -323,7 +323,7 @@ of data in which the y values are either greater than 250 or less than 100. Sele
 plot are automatically reflected in the other. And hovering on a point in one plot will highlight
 the corresponding point in the other plot if it exists.
 
-.. bokeh-plot:: docs/user_guide/examples/data_linked_brushing_subsets.py
+.. bokeh-plot:: source/docs/user_guide/examples/data_linked_brushing_subsets.py
     :source-position: above
 
 Other Data Types

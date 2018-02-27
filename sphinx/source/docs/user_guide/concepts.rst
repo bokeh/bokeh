@@ -214,7 +214,7 @@ users will want to create |Figure| objects by using the |figure| function.
 A prototypical example of the |bokeh.plotting| usage is show below, along
 with the resulting plot:
 
-.. bokeh-plot:: docs/user_guide/examples/concepts_plotting.py
+.. bokeh-plot:: source/docs/user_guide/examples/concepts_plotting.py
     :source-position: above
 
 The main observation is that the typical usage involves creating plots objects
