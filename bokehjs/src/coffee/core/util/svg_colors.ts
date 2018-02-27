@@ -1,147 +1,155 @@
-export const indianred            = "#CD5C5C"
-export const lightcoral           = "#F08080"
-export const salmon               = "#FA8072"
-export const darksalmon           = "#E9967A"
-export const lightsalmon          = "#FFA07A"
-export const crimson              = "#DC143C"
-export const red                  = "#FF0000"
-export const firebrick            = "#B22222"
-export const darkred              = "#8B0000"
-export const pink                 = "#FFC0CB"
-export const lightpink            = "#FFB6C1"
-export const hotpink              = "#FF69B4"
-export const deeppink             = "#FF1493"
-export const mediumvioletred      = "#C71585"
-export const palevioletred        = "#DB7093"
-export const coral                = "#FF7F50"
-export const tomato               = "#FF6347"
-export const orangered            = "#FF4500"
-export const darkorange           = "#FF8C00"
-export const orange               = "#FFA500"
-export const gold                 = "#FFD700"
-export const yellow               = "#FFFF00"
-export const lightyellow          = "#FFFFE0"
-export const lemonchiffon         = "#FFFACD"
-export const lightgoldenrodyellow = "#FAFAD2"
-export const papayawhip           = "#FFEFD5"
-export const moccasin             = "#FFE4B5"
-export const peachpuff            = "#FFDAB9"
-export const palegoldenrod        = "#EEE8AA"
-export const khaki                = "#F0E68C"
-export const darkkhaki            = "#BDB76B"
-export const lavender             = "#E6E6FA"
-export const thistle              = "#D8BFD8"
-export const plum                 = "#DDA0DD"
-export const violet               = "#EE82EE"
-export const orchid               = "#DA70D6"
-export const fuchsia              = "#FF00FF"
-export const magenta              = "#FF00FF"
-export const mediumorchid         = "#BA55D3"
-export const mediumpurple         = "#9370DB"
-export const blueviolet           = "#8A2BE2"
-export const darkviolet           = "#9400D3"
-export const darkorchid           = "#9932CC"
-export const darkmagenta          = "#8B008B"
-export const purple               = "#800080"
-export const indigo               = "#4B0082"
-export const slateblue            = "#6A5ACD"
-export const darkslateblue        = "#483D8B"
-export const mediumslateblue      = "#7B68EE"
-export const greenyellow          = "#ADFF2F"
-export const chartreuse           = "#7FFF00"
-export const lawngreen            = "#7CFC00"
-export const lime                 = "#00FF00"
-export const limegreen            = "#32CD32"
-export const palegreen            = "#98FB98"
-export const lightgreen           = "#90EE90"
-export const mediumspringgreen    = "#00FA9A"
-export const springgreen          = "#00FF7F"
-export const mediumseagreen       = "#3CB371"
-export const seagreen             = "#2E8B57"
-export const forestgreen          = "#228B22"
-export const green                = "#008000"
-export const darkgreen            = "#006400"
-export const yellowgreen          = "#9ACD32"
-export const olivedrab            = "#6B8E23"
-export const olive                = "#808000"
-export const darkolivegreen       = "#556B2F"
-export const mediumaquamarine     = "#66CDAA"
-export const darkseagreen         = "#8FBC8F"
-export const lightseagreen        = "#20B2AA"
-export const darkcyan             = "#008B8B"
-export const teal                 = "#008080"
-export const aqua                 = "#00FFFF"
-export const cyan                 = "#00FFFF"
-export const lightcyan            = "#E0FFFF"
-export const paleturquoise        = "#AFEEEE"
-export const aquamarine           = "#7FFFD4"
-export const turquoise            = "#40E0D0"
-export const mediumturquoise      = "#48D1CC"
-export const darkturquoise        = "#00CED1"
-export const cadetblue            = "#5F9EA0"
-export const steelblue            = "#4682B4"
-export const lightsteelblue       = "#B0C4DE"
-export const powderblue           = "#B0E0E6"
-export const lightblue            = "#ADD8E6"
-export const skyblue              = "#87CEEB"
-export const lightskyblue         = "#87CEFA"
-export const deepskyblue          = "#00BFFF"
-export const dodgerblue           = "#1E90FF"
-export const cornflowerblue       = "#6495ED"
-export const royalblue            = "#4169E1"
-export const blue                 = "#0000FF"
-export const mediumblue           = "#0000CD"
-export const darkblue             = "#00008B"
-export const navy                 = "#000080"
-export const midnightblue         = "#191970"
-export const cornsilk             = "#FFF8DC"
-export const blanchedalmond       = "#FFEBCD"
-export const bisque               = "#FFE4C4"
-export const navajowhite          = "#FFDEAD"
-export const wheat                = "#F5DEB3"
-export const burlywood            = "#DEB887"
-export const tan                  = "#D2B48C"
-export const rosybrown            = "#BC8F8F"
-export const sandybrown           = "#F4A460"
-export const goldenrod            = "#DAA520"
-export const darkgoldenrod        = "#B8860B"
-export const peru                 = "#CD853F"
-export const chocolate            = "#D2691E"
-export const saddlebrown          = "#8B4513"
-export const sienna               = "#A0522D"
-export const brown                = "#A52A2A"
-export const maroon               = "#800000"
-export const white                = "#FFFFFF"
-export const snow                 = "#FFFAFA"
-export const honeydew             = "#F0FFF0"
-export const mintcream            = "#F5FFFA"
-export const azure                = "#F0FFFF"
-export const aliceblue            = "#F0F8FF"
-export const ghostwhite           = "#F8F8FF"
-export const whitesmoke           = "#F5F5F5"
-export const seashell             = "#FFF5EE"
-export const beige                = "#F5F5DC"
-export const oldlace              = "#FDF5E6"
-export const floralwhite          = "#FFFAF0"
-export const ivory                = "#FFFFF0"
-export const antiquewhite         = "#FAEBD7"
-export const linen                = "#FAF0E6"
-export const lavenderblush        = "#FFF0F5"
-export const mistyrose            = "#FFE4E1"
-export const gainsboro            = "#DCDCDC"
-export const lightgray            = "#D3D3D3"
-export const lightgrey            = "#D3D3D3"
-export const silver               = "#C0C0C0"
-export const darkgray             = "#A9A9A9"
-export const darkgrey             = "#A9A9A9"
-export const gray                 = "#808080"
-export const grey                 = "#808080"
-export const dimgray              = "#696969"
-export const dimgrey              = "#696969"
-export const lightslategray       = "#778899"
-export const lightslategrey       = "#778899"
-export const slategray            = "#708090"
-export const slategrey            = "#708090"
-export const darkslategray        = "#2F4F4F"
-export const darkslategrey        = "#2F4F4F"
-export const black                = "#000000"
+export const svg_colors = {
+  indianred            : "#CD5C5C",
+  lightcoral           : "#F08080",
+  salmon               : "#FA8072",
+  darksalmon           : "#E9967A",
+  lightsalmon          : "#FFA07A",
+  crimson              : "#DC143C",
+  red                  : "#FF0000",
+  firebrick            : "#B22222",
+  darkred              : "#8B0000",
+  pink                 : "#FFC0CB",
+  lightpink            : "#FFB6C1",
+  hotpink              : "#FF69B4",
+  deeppink             : "#FF1493",
+  mediumvioletred      : "#C71585",
+  palevioletred        : "#DB7093",
+  coral                : "#FF7F50",
+  tomato               : "#FF6347",
+  orangered            : "#FF4500",
+  darkorange           : "#FF8C00",
+  orange               : "#FFA500",
+  gold                 : "#FFD700",
+  yellow               : "#FFFF00",
+  lightyellow          : "#FFFFE0",
+  lemonchiffon         : "#FFFACD",
+  lightgoldenrodyellow : "#FAFAD2",
+  papayawhip           : "#FFEFD5",
+  moccasin             : "#FFE4B5",
+  peachpuff            : "#FFDAB9",
+  palegoldenrod        : "#EEE8AA",
+  khaki                : "#F0E68C",
+  darkkhaki            : "#BDB76B",
+  lavender             : "#E6E6FA",
+  thistle              : "#D8BFD8",
+  plum                 : "#DDA0DD",
+  violet               : "#EE82EE",
+  orchid               : "#DA70D6",
+  fuchsia              : "#FF00FF",
+  magenta              : "#FF00FF",
+  mediumorchid         : "#BA55D3",
+  mediumpurple         : "#9370DB",
+  blueviolet           : "#8A2BE2",
+  darkviolet           : "#9400D3",
+  darkorchid           : "#9932CC",
+  darkmagenta          : "#8B008B",
+  purple               : "#800080",
+  indigo               : "#4B0082",
+  slateblue            : "#6A5ACD",
+  darkslateblue        : "#483D8B",
+  mediumslateblue      : "#7B68EE",
+  greenyellow          : "#ADFF2F",
+  chartreuse           : "#7FFF00",
+  lawngreen            : "#7CFC00",
+  lime                 : "#00FF00",
+  limegreen            : "#32CD32",
+  palegreen            : "#98FB98",
+  lightgreen           : "#90EE90",
+  mediumspringgreen    : "#00FA9A",
+  springgreen          : "#00FF7F",
+  mediumseagreen       : "#3CB371",
+  seagreen             : "#2E8B57",
+  forestgreen          : "#228B22",
+  green                : "#008000",
+  darkgreen            : "#006400",
+  yellowgreen          : "#9ACD32",
+  olivedrab            : "#6B8E23",
+  olive                : "#808000",
+  darkolivegreen       : "#556B2F",
+  mediumaquamarine     : "#66CDAA",
+  darkseagreen         : "#8FBC8F",
+  lightseagreen        : "#20B2AA",
+  darkcyan             : "#008B8B",
+  teal                 : "#008080",
+  aqua                 : "#00FFFF",
+  cyan                 : "#00FFFF",
+  lightcyan            : "#E0FFFF",
+  paleturquoise        : "#AFEEEE",
+  aquamarine           : "#7FFFD4",
+  turquoise            : "#40E0D0",
+  mediumturquoise      : "#48D1CC",
+  darkturquoise        : "#00CED1",
+  cadetblue            : "#5F9EA0",
+  steelblue            : "#4682B4",
+  lightsteelblue       : "#B0C4DE",
+  powderblue           : "#B0E0E6",
+  lightblue            : "#ADD8E6",
+  skyblue              : "#87CEEB",
+  lightskyblue         : "#87CEFA",
+  deepskyblue          : "#00BFFF",
+  dodgerblue           : "#1E90FF",
+  cornflowerblue       : "#6495ED",
+  royalblue            : "#4169E1",
+  blue                 : "#0000FF",
+  mediumblue           : "#0000CD",
+  darkblue             : "#00008B",
+  navy                 : "#000080",
+  midnightblue         : "#191970",
+  cornsilk             : "#FFF8DC",
+  blanchedalmond       : "#FFEBCD",
+  bisque               : "#FFE4C4",
+  navajowhite          : "#FFDEAD",
+  wheat                : "#F5DEB3",
+  burlywood            : "#DEB887",
+  tan                  : "#D2B48C",
+  rosybrown            : "#BC8F8F",
+  sandybrown           : "#F4A460",
+  goldenrod            : "#DAA520",
+  darkgoldenrod        : "#B8860B",
+  peru                 : "#CD853F",
+  chocolate            : "#D2691E",
+  saddlebrown          : "#8B4513",
+  sienna               : "#A0522D",
+  brown                : "#A52A2A",
+  maroon               : "#800000",
+  white                : "#FFFFFF",
+  snow                 : "#FFFAFA",
+  honeydew             : "#F0FFF0",
+  mintcream            : "#F5FFFA",
+  azure                : "#F0FFFF",
+  aliceblue            : "#F0F8FF",
+  ghostwhite           : "#F8F8FF",
+  whitesmoke           : "#F5F5F5",
+  seashell             : "#FFF5EE",
+  beige                : "#F5F5DC",
+  oldlace              : "#FDF5E6",
+  floralwhite          : "#FFFAF0",
+  ivory                : "#FFFFF0",
+  antiquewhite         : "#FAEBD7",
+  linen                : "#FAF0E6",
+  lavenderblush        : "#FFF0F5",
+  mistyrose            : "#FFE4E1",
+  gainsboro            : "#DCDCDC",
+  lightgray            : "#D3D3D3",
+  lightgrey            : "#D3D3D3",
+  silver               : "#C0C0C0",
+  darkgray             : "#A9A9A9",
+  darkgrey             : "#A9A9A9",
+  gray                 : "#808080",
+  grey                 : "#808080",
+  dimgray              : "#696969",
+  dimgrey              : "#696969",
+  lightslategray       : "#778899",
+  lightslategrey       : "#778899",
+  slategray            : "#708090",
+  slategrey            : "#708090",
+  darkslategray        : "#2F4F4F",
+  darkslategrey        : "#2F4F4F",
+  black                : "#000000",
+}
+
+export type SVGColor = keyof typeof svg_colors
+
+export function is_svg_color(color: string): color is SVGColor {
+  return color in svg_colors
+}

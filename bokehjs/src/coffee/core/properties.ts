@@ -1,7 +1,7 @@
 import {Signal, Signalable} from "./signaling"
 import {HasProps} from "./has_props"
 import * as enums from "./enums"
-import * as svg_colors from "./util/svg_colors"
+import {is_svg_color} from "./util/svg_colors"
 import {valid_rgb} from "./util/color"
 import {includes, repeat, map} from "./util/array"
 import {isBoolean, isNumber, isString, isArray, isObject} from "./util/types"
@@ -161,7 +161,7 @@ export class Array extends simple_prop("Array", (x) => isArray(x) || x instanceo
 export class Bool extends simple_prop("Bool", isBoolean) {}
 export const Boolean = Bool
 
-export class Color extends simple_prop("Color", (x) => (svg_colors as any)[x.toLowerCase()] != null || x.substring(0, 1) == "#" || valid_rgb(x)) {}
+export class Color extends simple_prop("Color", (x) => is_svg_color(x.toLowerCase()) || x.substring(0, 1) == "#" || valid_rgb(x)) {}
 
 export class Instance extends simple_prop("Instance", (x) => x.properties != null) {}
 
