@@ -430,7 +430,7 @@ def publish_display_data(*args, **kw):
     return publish_display_data(*args, **kw)
 
 @dev((1,0,0))
-def show_app(app, state, notebook_url):
+def show_app(app, state, notebook_url, port=0):
     ''' Embed a Bokeh serer application in a Jupyter Notebook output cell.
 
     Args:
@@ -439,6 +439,9 @@ def show_app(app, state, notebook_url):
         state (State) :
 
         notebook_url (str) :
+
+        port (int) : the port the embedded server will listen on. By default
+        the port is 0, which results in the server listening on a random dynamic port.
 
     Returns:
         None
@@ -452,7 +455,7 @@ def show_app(app, state, notebook_url):
     loop = IOLoop.current()
 
     origin = _origin_url(notebook_url)
-    server = Server({"/": app}, io_loop=loop, port=0,  allow_websocket_origin=[origin])
+    server = Server({"/": app}, io_loop=loop, port=port,  allow_websocket_origin=[origin])
 
     server_id = uuid4().hex
     curstate().uuid_to_server[server_id] = server
