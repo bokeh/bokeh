@@ -49,8 +49,10 @@ export class AjaxDataSource extends RemoteDataSource {
       this.initialized = true
       this.get_data(this.mode)
       if (this.polling_interval) {
-        this.interval = setInterval(this.get_data, this.polling_interval,
-                                    this.mode, this.max_size, this.if_modified)
+        this.interval = setInterval(
+          () => this.get_data(this.mode, this.max_size, this.if_modified),
+          this.polling_interval
+        )
       }
     }
   }
