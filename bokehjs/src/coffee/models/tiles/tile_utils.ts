@@ -1,11 +1,11 @@
-import {proj4, mercator, wgs84} from "core/util/proj4"
+import {wgs84_mercator} from "core/util/projections"
 
 export function geographic_to_meters(xLon: number, yLat: number): [number, number] {
-  return proj4(wgs84, mercator, [xLon, yLat])
+  return wgs84_mercator.forward([xLon, yLat])
 }
 
 export function meters_to_geographic(mx: number, my: number): [number, number] {
-  return proj4(mercator, wgs84, [mx, my])
+  return wgs84_mercator.inverse([mx, my])
 }
 
 export type Bounds = [number, number, number, number]

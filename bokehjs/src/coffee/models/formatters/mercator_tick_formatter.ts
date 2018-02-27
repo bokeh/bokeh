@@ -2,7 +2,7 @@
 import {BasicTickFormatter} from "./basic_tick_formatter";
 import {LatLon} from "core/enums"
 import * as p from "core/properties";
-import {proj4, mercator} from "core/util/proj4"
+import {wgs84_mercator} from "core/util/projections"
 
 export namespace MercatorTickFormatter {
   export interface Attrs extends BasicTickFormatter.Attrs {
@@ -41,12 +41,12 @@ export class MercatorTickFormatter extends BasicTickFormatter {
 
     if (this.dimension === "lon") {
       for (let i = 0, end = ticks.length; i < end; i++) {
-        const [lon,] = proj4(mercator).inverse([ticks[i], axis.loc]);
+        const [lon,] = wgs84_mercator.inverse([ticks[i], axis.loc]);
         proj_ticks[i] = lon;
       }
     } else {
       for (let i = 0, end = ticks.length; i < end; i++) {
-        const [, lat] = proj4(mercator).inverse([axis.loc, ticks[i]]);
+        const [, lat] = wgs84_mercator.inverse([axis.loc, ticks[i]]);
         proj_ticks[i] = lat;
       }
     }
