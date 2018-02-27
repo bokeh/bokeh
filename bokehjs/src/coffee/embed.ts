@@ -119,9 +119,7 @@ function _init_comms(target: string, doc: Document): void {
       logger.warn(`Jupyter comms failed to register. push_notebook() will not function. (exception reported: ${e})`)
     }
   } else {
-    console.warn('Jupyter notebooks comms not available. push_notebook() will not function.'
-                 'If running JupyterLab ensure the latest jupyterlab_bokeh extension is installed.'
-				 'In an exported notebook this warning is expected.');
+    console.warn(`Jupyter notebooks comms not available. push_notebook() will not function. If running JupyterLab ensure the latest jupyterlab_bokeh extension is installed. In an exported notebook this warning is expected.`);
   }
 }
 
