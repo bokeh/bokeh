@@ -50,5 +50,4 @@ Should now be:
 
     .. bokeh-plot:: source/docs/user_guide/examples/plotting_title_basic.py
 
-
 .. _project roadmap: https://bokehplots.com/pages/roadmap.html
