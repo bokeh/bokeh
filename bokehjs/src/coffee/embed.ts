@@ -56,9 +56,6 @@ declare var Jupyter: Jupyter | undefined
 
 export const kernels: {[key: string]: Kernel} = {}
 
-// Exported to allow external libraries to define custom message handlers
-export {Receiver}
-
 // Matches Bokeh CSS class selector. Setting all Bokeh parent element class names
 // with this var prevents user configurations where css styling is unset.
 export const BOKEH_ROOT = "bk-root"
