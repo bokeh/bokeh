@@ -38,10 +38,8 @@ export declare interface Comm {
 
 export declare interface Kernel {
   comm_manager: {
-    comms: {[key: string]: Promise<Comm>},
     register_target: (target: string, fn: (comm: Comm) => void) => void,
   },
-  _comms: {[key: string]: Promise<Comm>},
   registerCommTarget: (target: string, fn: (comm: Comm) => void) => void,
 }
 
@@ -71,28 +69,10 @@ function _handle_notebook_comms(this: Document, receiver: Receiver, comm_msg: Co
     this.apply_json_patch(msg.content, msg.buffers)
 }
 
-function _update_comms_callback(target: string, doc: Document, comm: Comm): void {
-  if (target == comm.target_name) {
-    const r = new Receiver()
-    if (comm.on_msg) {
-      // Classic Notebook
-      comm.on_msg(_handle_notebook_comms.bind(doc, r))
-    } else {
-      // JupyterLab
-      comm.onMsg = _handle_notebook_comms.bind(doc, r)
-    }
-  }
-}
-
 function _init_comms(target: string, doc: Document): void {
-  const update_comms = (comm: Comm) => _update_comms_callback(target, doc, comm)
   if (typeof Jupyter !== 'undefined' && Jupyter.notebook.kernel != null) {
     logger.info(`Registering Jupyter comms for target ${target}`)
     const comm_manager = Jupyter.notebook.kernel.comm_manager
-    for (const id in comm_manager.comms) {
-      const promise = comm_manager.comms[id]
-      promise.then(update_comms)
-    }
     try {
       comm_manager.register_target(target, (comm: Comm) => {
         logger.info(`Registering Jupyter comms for target ${target}`)
@@ -105,10 +85,6 @@ function _init_comms(target: string, doc: Document): void {
   } else if (doc.roots()[0].id in kernels) {
     logger.info(`Registering JupyterLab comms for target ${target}`)
     const kernel = kernels[doc.roots()[0].id]
-    for (const id in kernel._comms) {
-      const promise = kernel._comms[id]
-      promise.then(update_comms)
-    }
     try {
       kernel.registerCommTarget(target, (comm: Comm) => {
         logger.info(`Registering JupyterLab comms for target ${target}`)
