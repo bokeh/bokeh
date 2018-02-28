@@ -6,6 +6,7 @@ import {SelectionManager} from "core/selection_manager"
 import * as p from "core/properties"
 import {uniq, range} from "core/util/array"
 import {keys, values} from "core/util/object"
+import {Shape} from "core/util/serialization"
 import {Selection} from "../selections/selection"
 import {SelectionPolicy, UnionRenderers} from "../selections/interaction_policy"
 
@@ -18,7 +19,7 @@ export namespace ColumnarDataSource {
     selection_policy: SelectionPolicy
     selection_manager: SelectionManager
     inspected: Selection
-    _shapes: {[key: string]: any}
+    _shapes: {[key: string]: Shape | Shape[]}
   }
 
   export interface Opts extends DataSource.Opts {}

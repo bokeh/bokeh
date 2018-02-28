@@ -138,7 +138,7 @@ describe("has_properties module", () => {
 
     it("should collect shapes when they are present", () => {
       const r = new ColumnDataSource({data: {colname: [1, 2, 3, 4]}})
-      r._shapes.colname = [2, 2]
+      r._shapes["colname"] = [2, 2]
       const obj = new SubclassWithNumberSpec()
       const data = obj.materialize_dataspecs(r)
       expect(data).to.be.deep.equal({_foo: [1, 2, 3, 4], _foo_shape: [2, 2]})
@@ -151,7 +151,7 @@ describe("has_properties module", () => {
       const data0 = obj.materialize_dataspecs(r)
       expect(data0).to.be.deep.equal({_foo: [1, 2, 3, 4, 2], max_foo: 4})
 
-      r._shapes.colname = [2, 2]
+      r._shapes["colname"] = [2, 2]
       const data1 = obj.materialize_dataspecs(r)
       expect(data1).to.be.deep.equal({_foo: [1, 2, 3, 4, 2], _foo_shape: [2, 2], max_foo: 4})
     })

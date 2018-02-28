@@ -762,7 +762,7 @@ export class Document {
     }
   }
 
-  apply_json_patch(patch: Patch, buffers: any[], setter_id?: string): void {
+  apply_json_patch(patch: Patch, buffers: [any, any][], setter_id?: string): void {
     const references_json = patch.references
     const events_json = patch.events
     const references = Document._instantiate_references_json(references_json, this._all_models)
@@ -826,7 +826,7 @@ export class Document {
             throw new Error(`Cannot stream to ${column_source_id} which is not in the document`)
           }
           const column_source = this._all_models[column_source_id] as ColumnDataSource
-          const [data, shapes] = decode_column_data(event_json.new, buffers) as any
+          const [data, shapes] = decode_column_data(event_json.new, buffers)
           if (event_json.cols != null) {
             for (const k in column_source.data) {
               if (!(k in data)) {
