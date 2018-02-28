@@ -1,4 +1,9 @@
-{% extends "autoload_js.js" %}
+from os.path import abspath, join, split, pardir
+
+
+TOP_PATH = abspath(join(split(__file__)[0], pardir))
+
+pinned_template = """{% extends "autoload_js.js" %}
 
 {% block register_mimetype %}
 
@@ -60,7 +65,7 @@
       return
     }
 
-    var toinsert = output_area.element.find("." + CLASS_NAME.split(' ')[0]);
+    var toinsert = output_area.element.find(`.${CLASS_NAME.split(' ')[0]}`);
 
     if (output.metadata[EXEC_MIME_TYPE]["id"] !== undefined) {
       toinsert[toinsert.length - 1].firstChild.textContent = output.data[JS_MIME_TYPE];
@@ -134,19 +139,19 @@
   }
 
   var NB_LOAD_WARNING = {'data': {'text/html':
-     "<div style='background-color: #fdd'>\n"+
-     "<p>\n"+
-     "BokehJS does not appear to have successfully loaded. If loading BokehJS from CDN, this \n"+
-     "may be due to a slow or bad network connection. Possible fixes:\n"+
-     "</p>\n"+
-     "<ul>\n"+
-     "<li>re-rerun `output_notebook()` to attempt to load from CDN again, or</li>\n"+
-     "<li>use INLINE resources instead, as so:</li>\n"+
-     "</ul>\n"+
-     "<code>\n"+
-     "from bokeh.resources import INLINE\n"+
-     "output_notebook(resources=INLINE)\n"+
-     "</code>\n"+
+     "<div style='background-color: #fdd'>\\n"+
+     "<p>\\n"+
+     "BokehJS does not appear to have successfully loaded. If loading BokehJS from CDN, this \\n"+
+     "may be due to a slow or bad network connection. Possible fixes:\\n"+
+     "</p>\\n"+
+     "<ul>\\n"+
+     "<li>re-rerun `output_notebook()` to attempt to load from CDN again, or</li>\\n"+
+     "<li>use INLINE resources instead, as so:</li>\\n"+
+     "</ul>\\n"+
+     "<code>\\n"+
+     "from bokeh.resources import INLINE\\n"+
+     "output_notebook(resources=INLINE)\\n"+
+     "</code>\\n"+
      "</div>"}};
 
   function display_loaded() {
@@ -184,3 +189,16 @@
       cell.output_area.append_execute_result(NB_LOAD_WARNING)
     }
 {% endblock %}
+"""  # noqa
+def test_autoload_template_has_changed():
+    """This is not really a test but a reminder that if you change the
+    autoload_nb_js.js template then you should make sure that insertion of
+    plots into notebooks is working as expected. In particular, this test was
+    created as part of https://github.com/bokeh/bokeh/issues/7125.
+    """
+    with open(join(TOP_PATH, '_templates/autoload_nb_js.js'), mode='r') as f:
+        assert pinned_template == f.read(), \
+        """It seems that the template autoload_nb_js.js has changed.
+        If this is voluntary and that proper testing of plots insertion
+        in notebooks has been completed successfully, update this test
+        with the new file contents"""

@@ -83,7 +83,9 @@ def output_file(filename, title="Bokeh Plot", mode="cdn", root_dir=None):
 @general((1,0,0))
 def output_notebook(resources=None, verbose=False, hide_banner=False, load_timeout=5000, notebook_type='jupyter'):
     ''' Configure the default output state to generate output in notebook cells
-    when :func:`show` is called.
+    when :func:`show` is called. Note that, :func:`show` may be called multiple
+    times in a single cell to display multiple objects in the output cell. The
+    objects will be displayed in order.
 
     Args:
         resources (Resource, optional) :
