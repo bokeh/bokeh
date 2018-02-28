@@ -1,5 +1,6 @@
 import * as gulp from "gulp"
 import * as gutil from "gulp-util"
+import chalk from "chalk"
 import * as rename from "gulp-rename"
 const uglify_es = require("uglify-es")
 const uglify = require("gulp-uglify/composer")
@@ -39,6 +40,7 @@ function is_excluded(code: number): boolean {
 
 gulp.task("scripts:ts", () => {
   const errors: string[] = []
+  let n_errors = 0
 
   function error(err: {message: string}) {
     const text = stripAnsi(err.message)
@@ -59,6 +61,7 @@ gulp.task("scripts:ts", () => {
       return
 
     gutil.log(err.message)
+    n_errors++
   }
 
   const project = ts.createProject(join(paths.src_dir.coffee, "tsconfig.json"))
@@ -74,8 +77,14 @@ gulp.task("scripts:ts", () => {
     compiler.dts
       .pipe(gulp.dest(paths.build_dir.types)),
   ])
-  result.on("finish", () => {
+
+  result.on("finish", function() {
     fs.writeFileSync(join(paths.build_dir.js, "ts.log"), errors.join("\n"))
+
+    if (argv.emitError && n_errors > 0) {
+      gutil.log(`There were ${chalk.red("" + n_errors)} TypeScript errors.`)
+      process.exit(1)
+    }
   })
 
   return result
