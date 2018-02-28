@@ -76,7 +76,7 @@ dictionary of (x,y) coordinates for the nodes.
 
 This example adds a provider to the above code snippet:
 
-.. bokeh-plot:: docs/user_guide/examples/graph_customize.py
+.. bokeh-plot:: source/docs/user_guide/examples/graph_customize.py
     :source-position: above
 
 Explicit Paths
@@ -97,7 +97,7 @@ explicit paths.
 This example extends the example from above to draw quadratic bezier
 paths between the nodes:
 
-.. bokeh-plot:: docs/user_guide/examples/graph_static_paths.py
+.. bokeh-plot:: source/docs/user_guide/examples/graph_static_paths.py
     :source-position: above
 
 Networkx Integration
@@ -111,7 +111,7 @@ configured GraphRenderer instance.
 Here is an example of using the ``networkx.spring_layout`` method to
 layout networkx's built-in "Zachary's Karate Club graph" dataset:
 
-.. bokeh-plot:: docs/user_guide/examples/graph_networkx.py
+.. bokeh-plot:: source/docs/user_guide/examples/graph_networkx.py
     :source-position: above
 
 Interaction Policies
@@ -133,5 +133,5 @@ to add dynamic visual elements to their graph interactions.
 
 Here's a graph example with added node and edge interactions:
 
-.. bokeh-plot:: docs/user_guide/examples/graph_interaction.py
+.. bokeh-plot:: source/docs/user_guide/examples/graph_interaction.py
     :source-position: above

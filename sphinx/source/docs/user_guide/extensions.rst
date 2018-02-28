@@ -184,7 +184,7 @@ Which results in the output below. The JavaScript code for the implementation
 is automatically included in the rendered document. Scrub the slider to see
 the special header update as the slider moves:
 
-.. bokeh-plot:: docs/user_guide/examples/extensions_putting_together_ts.py
+.. bokeh-plot:: source/docs/user_guide/examples/extensions_putting_together_ts.py
     :source-position: none
 
 .. _userguide_extensions_specifying_implemenation_languages:

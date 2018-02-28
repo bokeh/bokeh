@@ -21,14 +21,22 @@ Grid Bounds
 
 Grids now automatically defer to any existing axis bounds when their
 own bounds are set to `"auto"`. Previously grids used always used the full
-range bounds. Thie change makes it simpler to have axes and grids both
+range bounds. This change makes it simpler to have axes and grids both
 use a consistent set of bounds.
 
 Minor Ticks
 ~~~~~~~~~~~
 
 Minor ticks are no longer displayed outside explicitly set axis bounds.
-Previously minor ticks would dislay one extra "major tick" distance outside
+Previously minor ticks would display one extra "major tick" distance outside
 explicit range bounds.
+
+Sphinx Plot Extension
+~~~~~~~~~~~~~~~~~~~~~
+
+The `bokeh-plot` Sphinx extension previously assumed the location of scripts was relative
+to a `source` subdirectory of the Sphinx project. This is no longer the case. Now, the full
+relative path from the Sphinx project (i.e. from the `Makefile`) should be provided.
+
 
 .. _project roadmap: https://bokehplots.com/pages/roadmap.html
