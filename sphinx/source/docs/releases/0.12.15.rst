@@ -38,16 +38,5 @@ The `bokeh-plot` Sphinx extension previously assumed the location of scripts was
 to a `source` subdirectory of the Sphinx project. This is no longer the case. Now, the full
 relative path from the Sphinx project (i.e. from the `Makefile`) should be provided.
 
-So what was once:
-
-.. code-block:: none
-
-    .. bokeh-plot:: docs/user_guide/examples/plotting_title_basic.py
-
-Should now be:
-
-.. code-block:: none
-
-    .. bokeh-plot:: source/docs/user_guide/examples/plotting_title_basic.py
 
 .. _project roadmap: https://bokehplots.com/pages/roadmap.html
