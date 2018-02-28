@@ -49,13 +49,25 @@ export class AjaxDataSource extends RemoteDataSource {
       this.initialized = true
       this.get_data(this.mode)
       if (this.polling_interval) {
-        this.interval = setInterval(this.get_data, this.polling_interval,
-                                    this.mode, this.max_size, this.if_modified)
+        this.interval = setInterval(
+          () => this.get_data(this.mode, this.max_size, this.if_modified),
+          this.polling_interval
+        )
       }
     }
   }
 
   get_data(mode: UpdateMode, max_size: number = 0, _if_modified: boolean = false): void {
+    const xhr = this.prepare_request()
+
+    // TODO: if_modified
+    xhr.addEventListener("load", () => this.do_load(xhr, mode, max_size))
+    xhr.addEventListener("error", () => this.do_error(xhr))
+
+    xhr.send()
+  }
+
+  prepare_request() : XMLHttpRequest {
     const xhr = new XMLHttpRequest()
     xhr.open(this.method, this.data_url, true)
     xhr.withCredentials = false
@@ -67,30 +79,32 @@ export class AjaxDataSource extends RemoteDataSource {
       xhr.setRequestHeader(name, value)
     }
 
-    // TODO: if_modified
-    xhr.addEventListener("load", () => {
-      if (xhr.status === 200) {
-        const data = JSON.parse(xhr.responseText)
-        switch (mode) {
-          case "replace": {
-            this.data = data
-            break
+    return xhr
+  }
+
+  do_load(xhr: XMLHttpRequest, mode: UpdateMode, max_size: number) : void {
+    if (xhr.status === 200) {
+      const data = JSON.parse(xhr.responseText)
+      switch (mode) {
+        case "replace": {
+          this.data = data
+          break
+        }
+        case "append": {
+          const original_data = this.data
+          for (const column of this.columns()) {
+            data[column] = original_data[column].concat(data[column]).slice(-max_size)
           }
-          case "append": {
-            const original_data = this.data
-            for (const column of this.columns()) {
-              data[column] = original_data[column].concat(data[column]).slice(-max_size)
-            }
-            this.data = data
-            break
-          }
+          this.data = data
+          break
         }
       }
-    })
-    xhr.addEventListener("error", () => {
-      logger.error(`Failed to fetch JSON from ${this.data_url} with code ${xhr.status}`)
-    })
-    xhr.send()
+    }
   }
+
+  do_error(xhr: XMLHttpRequest) : void {
+    logger.error(`Failed to fetch JSON from ${this.data_url} with code ${xhr.status}`)
+  }
+
 }
 AjaxDataSource.initClass()
