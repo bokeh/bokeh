@@ -23,30 +23,36 @@ export interface RenderItem {
   notebook_comms_target?: any
 }
 
-declare interface CommMessage {
+export declare interface CommMessage {
   buffers: DataView[],
   content: {
     data: string
   }
 }
 
-declare interface Comm {
+export declare interface Comm {
   target_name: string
   on_msg: (msg: CommMessage) => void
+  onMsg: (this: Document, receiver: Receiver, comm_msg: CommMessage) => void
+}
+
+export declare interface Kernel {
+  comm_manager: {
+    register_target: (target: string, fn: (comm: Comm) => void) => void,
+  },
+  registerCommTarget: (target: string, fn: (comm: Comm) => void) => void,
 }
 
 declare interface Jupyter {
   notebook: {
-    kernel: undefined | {
-      comm_manager: {
-        comms: {[key: string]: Promise<Comm>},
-        register_target: (target: string, fn: (comm: Comm) => void) => void,
-      }
-    }
+    kernel: Kernel | undefined
   }
 }
 
+
 declare var Jupyter: Jupyter | undefined
+
+export const kernels: {[key: string]: Kernel} = {}
 
 // Matches Bokeh CSS class selector. Setting all Bokeh parent element class names
 // with this var prevents user configurations where css styling is unset.
@@ -63,22 +69,10 @@ function _handle_notebook_comms(this: Document, receiver: Receiver, comm_msg: Co
     this.apply_json_patch(msg.content, msg.buffers)
 }
 
-function _update_comms_callback(target: string, doc: Document, comm: Comm): void {
-  if (target == comm.target_name) {
-    const r = new Receiver()
-    comm.on_msg(_handle_notebook_comms.bind(doc, r))
-  }
-}
-
 function _init_comms(target: string, doc: Document): void {
   if (typeof Jupyter !== 'undefined' && Jupyter.notebook.kernel != null) {
     logger.info(`Registering Jupyter comms for target ${target}`)
     const comm_manager = Jupyter.notebook.kernel.comm_manager
-    const update_comms = (comm: Comm) => _update_comms_callback(target, doc, comm)
-    for (const id in comm_manager.comms) {
-      const promise = comm_manager.comms[id]
-      promise.then(update_comms)
-    }
     try {
       comm_manager.register_target(target, (comm: Comm) => {
         logger.info(`Registering Jupyter comms for target ${target}`)
@@ -88,8 +82,21 @@ function _init_comms(target: string, doc: Document): void {
     } catch (e) {
       logger.warn(`Jupyter comms failed to register. push_notebook() will not function. (exception reported: ${e})`)
     }
-  } else
-    console.warn('Jupyter notebooks comms not available. push_notebook() will not function');
+  } else if (doc.roots()[0].id in kernels) {
+    logger.info(`Registering JupyterLab comms for target ${target}`)
+    const kernel = kernels[doc.roots()[0].id]
+    try {
+      kernel.registerCommTarget(target, (comm: Comm) => {
+        logger.info(`Registering JupyterLab comms for target ${target}`)
+        const r = new Receiver()
+        comm.onMsg = _handle_notebook_comms.bind(doc, r)
+      })
+    } catch (e) {
+      logger.warn(`Jupyter comms failed to register. push_notebook() will not function. (exception reported: ${e})`)
+    }
+  } else {
+    console.warn(`Jupyter notebooks comms not available. push_notebook() will not function. If running JupyterLab ensure the latest jupyterlab_bokeh extension is installed. In an exported notebook this warning is expected.`);
+  }
 }
 
 function _create_view(model: HasProps): DOMView {
