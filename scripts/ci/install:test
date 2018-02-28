@@ -10,9 +10,6 @@ if  [[ ! -z "${TRAVIS_TAG}" ]]; then
     exit 0
 fi
 
-# do the base install
-bash scripts/ci/install
-
 # if this is an external contributor then build assets were not uploaded
 if [[ -z "${SAUCE_USERNAME}" ]]; then
     echo
@@ -21,6 +18,9 @@ if [[ -z "${SAUCE_USERNAME}" ]]; then
     bash "scripts/ci/install:build"
     bash "scripts/ci/build"
 else
+    # do the base install
+    bash scripts/ci/install
+
     pushd ${HOME}
 
     # download the pre-built Bokeh package from the build phase
