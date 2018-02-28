@@ -32,7 +32,8 @@ export class FuncTickFormatter extends TickFormatter {
   }
 
   _make_func() {
-    return new Function("tick", ...Object.keys(this.args), "require", this.code);
+    const tick_arg = this.pass_all_ticks ? "ticks" : "tick";
+    return new Function(tick_arg, ...Object.keys(this.args), "require", this.code);
   }
 
   doFormat(ticks, _axis) {

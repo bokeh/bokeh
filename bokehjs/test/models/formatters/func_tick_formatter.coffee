@@ -50,7 +50,7 @@ describe "func_tick_formatter module", ->
 
     it "should handle array of ticks", ->
       formatter = new FuncTickFormatter({
-        code: "return tick.map(t => t * 10)"
+        code: "return ticks.map(t => t * 10)"
         pass_all_ticks: true
       })
       labels = formatter.doFormat([-10, -0.1, 0, 0.1, 10])
