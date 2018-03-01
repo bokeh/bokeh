@@ -33,6 +33,25 @@ export const DTYPES = {
   Float64Array: "float64" as "float64",
 }
 
+function arrayName(array: TypedArray): ArrayName {
+  if ("name" in array.constructor)
+    return array.constructor.name as ArrayName
+  else {
+    switch (true) {
+      case array instanceof Uint8Array:   return "Uint8Array"
+      case array instanceof Int8Array:    return "Int8Array"
+      case array instanceof Uint16Array:  return "Uint16Array"
+      case array instanceof Int16Array:   return "Int16Array"
+      case array instanceof Uint32Array:  return "Uint32Array"
+      case array instanceof Int32Array:   return "Int32Array"
+      case array instanceof Float32Array: return "Float32Array"
+      case array instanceof Float64Array: return "Float64Array"
+      default:
+        throw new Error("unsupported typed array")
+    }
+  }
+}
+
 export type ArrayName = keyof typeof DTYPES
 
 export type DType = keyof typeof ARRAY_TYPES
@@ -173,11 +192,11 @@ export function decode_base64(input: NDArray): [TypedArray, Shape] {
 
 export function encode_base64(array: TypedArray, shape?: Shape): NDArray {
   const b64 = arrayBufferToBase64(array.buffer)
-  const name = array.constructor.name
+  const name = arrayName(array)
 
   let dtype: DType
   if (name in DTYPES)
-    dtype = DTYPES[name as ArrayName]
+    dtype = DTYPES[name]
   else
     throw new Error(`unknown array type: ${name}`)
 
