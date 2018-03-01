@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import * as core_defaults from "./.generated_defaults/models_defaults"
-import * as widget_defaults from "./.generated_defaults/widgets_defaults"
+import models_defaults = require("./.generated_defaults/models_defaults.json")
+import widget_defaults = require("./.generated_defaults/widgets_defaults.json")
 
 import {isArray, isObject} from "core/util/types"
 import {difference, concat} from "core/util/array"
@@ -15,7 +15,7 @@ import {Widgets as widget_models} from "models/widgets/main"
 import {Tables as table_models} from "models/widgets/tables/main"
 
 function get_defaults(name: string) {
-  const defaults = core_defaults.get_defaults(name) || widget_defaults.get_defaults(name)
+  const defaults = models_defaults[name] || widget_defaults[name]
   if (defaults != null)
     return defaults
   else
@@ -177,7 +177,7 @@ describe("Defaults", () => {
   // in Bokeh or just leave it as a curated (or ad hoc?) subset
   it.skip("have all non-Widget view models from Python in the Models object", () => {
     const missing = []
-    for (const name of core_defaults.all_view_model_names()) {
+    for (const name of keys(models_defaults)) {
       if (!(name in Models.registered_names())) {
         missing.push(name)
       }
@@ -190,7 +190,7 @@ describe("Defaults", () => {
 
   it("have all Widget view models from Python in widget locations registry", () => {
     const missing = []
-    for (const name of widget_defaults.all_view_model_names()) {
+    for (const name of keys(widget_defaults)) {
       if (!(name in widget_models || name in table_models)) {
         missing.push(name)
       }
@@ -207,7 +207,7 @@ describe("Defaults", () => {
       registered[name] = true
     }
     const missing = []
-    const all_view_model_names = concat([core_defaults.all_view_model_names(), widget_defaults.all_view_model_names()])
+    const all_view_model_names = concat([keys(models_defaults), keys(widget_defaults)])
     for (const name of all_view_model_names) {
       if (!(name in registered)) {
         missing.push(name)
@@ -221,7 +221,7 @@ describe("Defaults", () => {
 
   it("match between Python and bokehjs", () => {
     let fail_count = 0
-    const all_view_model_names = concat([core_defaults.all_view_model_names(), widget_defaults.all_view_model_names()])
+    const all_view_model_names = concat([keys(models_defaults), keys(widget_defaults)])
     for (const name of all_view_model_names) {
       const model = Models(name)
       const instance = new model({}, {silent: true, defer_initialization: true})

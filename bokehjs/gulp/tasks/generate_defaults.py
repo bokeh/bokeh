@@ -73,33 +73,18 @@ for leaf_widget in leaves(all_tree, widget_class):
 
 def output_defaults_module(filename, defaults):
     output = serialize_json(defaults, indent=2)
-    ts_template = """\
-const all_defaults: {[key: string]: any} = %s
-
-export function get_defaults(name: string): {[key: string]: any} | null {
-  if (name in all_defaults) {
-    return all_defaults[name]
-  } else {
-    return null
-  }
-}
-
-export function all_view_model_names(): string[] {
-  return Object.keys(all_defaults)
-}
-"""
     try:
         os.makedirs(os.path.dirname(filename))
     except OSError:
         pass
     f = codecs.open(filename, 'w', 'utf-8')
-    f.write(ts_template % output)
+    f.write(output)
     f.close()
 
     print("Wrote %s with %d model classes" % (filename, len(defaults)))
 
 
-output_defaults_module(filename = os.path.join(dest_dir, '.generated_defaults/models_defaults.ts'),
+output_defaults_module(filename = os.path.join(dest_dir, '.generated_defaults/models_defaults.json'),
                        defaults = all_json)
-output_defaults_module(filename = os.path.join(dest_dir, '.generated_defaults/widgets_defaults.ts'),
+output_defaults_module(filename = os.path.join(dest_dir, '.generated_defaults/widgets_defaults.json'),
                        defaults = widgets_json)
