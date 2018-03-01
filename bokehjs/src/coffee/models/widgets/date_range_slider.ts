@@ -46,7 +46,9 @@ export class DateRangeSlider extends AbstractSlider {
   behaviour = "drag" as "drag"
   connected = [false, true, false]
 
-  _formatter = tz
+  protected _formatter(value: number, format: string): string {
+    return tz(value, format)
+  }
 }
 
 DateRangeSlider.initClass()

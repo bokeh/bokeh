@@ -111,8 +111,8 @@ export class DataProvider {
 export class DataTableView extends WidgetView {
   model: DataTable
 
-  protected data: DataProvider
-  protected grid: SlickGrid
+  private data: DataProvider
+  private grid: SlickGrid
 
   protected _in_selection_update = false
   protected _warned_not_reorderable = false

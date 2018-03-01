@@ -247,7 +247,7 @@ export abstract class AbstractSlider extends Widget {
   behaviour: "drag" | "tap"
   connected: false | boolean[] = false
 
-  _formatter = (value, _format) => {
+  protected _formatter(value: number, _format: string): string {
     return `${value}`
   }
 

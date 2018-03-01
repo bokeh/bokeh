@@ -46,7 +46,9 @@ export class DateSlider extends AbstractSlider {
   behaviour = "tap" as "tap"
   connected = [true, false]
 
-  _formatter = tz
+  protected _formatter(value: number, format: string): string {
+    return tz(value, format)
+  }
 }
 
 DateSlider.initClass()
