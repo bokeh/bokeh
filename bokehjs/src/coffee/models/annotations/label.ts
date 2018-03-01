@@ -105,7 +105,7 @@ export class Label extends TextAnnotation {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'Label';
     this.prototype.default_view = LabelView;
 

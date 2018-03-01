@@ -15,7 +15,7 @@ export abstract class LayoutProvider extends Model {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "LayoutProvider"
   }
 

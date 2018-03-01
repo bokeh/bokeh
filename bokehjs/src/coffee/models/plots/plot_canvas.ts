@@ -902,29 +902,29 @@ export class PlotCanvasView extends DOMView {
   }
 }
 
-class AbovePanel extends LayoutCanvas {
-  static initClass() {
+export class AbovePanel extends LayoutCanvas {
+  static initClass(): void {
     this.prototype.type = "AbovePanel";
   }
 }
 AbovePanel.initClass();
 
-class BelowPanel extends LayoutCanvas {
-  static initClass() {
+export class BelowPanel extends LayoutCanvas {
+  static initClass(): void {
     this.prototype.type = "BelowPanel";
   }
 }
 BelowPanel.initClass();
 
-class LeftPanel extends LayoutCanvas {
-  static initClass() {
+export class LeftPanel extends LayoutCanvas {
+  static initClass(): void {
     this.prototype.type = "LeftPanel";
   }
 }
 LeftPanel.initClass();
 
-class RightPanel extends LayoutCanvas {
-  static initClass() {
+export class RightPanel extends LayoutCanvas {
+  static initClass(): void {
     this.prototype.type = "RightPanel";
   }
 }
@@ -951,7 +951,7 @@ export class PlotCanvas extends LayoutDOM {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'PlotCanvas';
     this.prototype.default_view = PlotCanvasView;
 
@@ -967,6 +967,11 @@ export class PlotCanvas extends LayoutDOM {
       sizing_mode: 'stretch_both',
     });
   }
+
+  protected above_panel: AbovePanel
+  protected below_panel: BelowPanel
+  protected left_panel:  LeftPanel
+  protected right_panel: RightPanel
 
   initialize(): void {
     super.initialize();

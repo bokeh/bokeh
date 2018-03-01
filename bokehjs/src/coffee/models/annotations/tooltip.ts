@@ -146,7 +146,7 @@ export class Tooltip extends Annotation {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'Tooltip';
     this.prototype.default_view = TooltipView;
 

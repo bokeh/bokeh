@@ -1,5 +1,5 @@
 /* XXX: partial */
-import {format} from "numbro"
+import * as numbro from "numbro"
 
 import {AbstractSlider, AbstractSliderView} from "./abstract_slider"
 
@@ -37,7 +37,7 @@ export class Slider extends AbstractSlider {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "Slider"
     this.prototype.default_view = SliderView
 
@@ -49,7 +49,9 @@ export class Slider extends AbstractSlider {
   behaviour = "tap" as "tap"
   connected = [true, false]
 
-  _formatter = format
+  protected _formatter(value: number, format: string): string {
+    return numbro.format(value, format)
+  }
 }
 
 Slider.initClass()

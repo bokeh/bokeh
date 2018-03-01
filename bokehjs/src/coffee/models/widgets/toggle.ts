@@ -34,7 +34,7 @@ export class Toggle extends AbstractButton {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "Toggle"
     this.prototype.default_view = ToggleView
 

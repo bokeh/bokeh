@@ -16,7 +16,7 @@ export class YearsTicker extends SingleIntervalTicker {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "YearsTicker"
   }
 

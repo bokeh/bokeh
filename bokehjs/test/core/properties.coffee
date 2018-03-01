@@ -6,7 +6,7 @@ p = properties = utils.require "core/properties"
 {HasProps} = utils.require "core/has_props"
 enums = utils.require "core/enums"
 {ColumnDataSource} = utils.require("models/sources/column_data_source")
-svg_colors = utils.require "core/util/svg_colors"
+{svg_colors} = utils.require "core/util/svg_colors"
 {Transform} = utils.require "models/transforms/transform"
 {Expression} = utils.require "models/expressions/expression"
 

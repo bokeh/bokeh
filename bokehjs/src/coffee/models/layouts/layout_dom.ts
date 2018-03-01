@@ -368,7 +368,7 @@ export abstract class LayoutDOM extends Model {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "LayoutDOM"
 
     this.define({

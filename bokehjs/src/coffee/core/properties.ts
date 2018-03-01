@@ -1,7 +1,7 @@
 import {Signal, Signalable} from "./signaling"
 import {HasProps} from "./has_props"
 import * as enums from "./enums"
-import * as svg_colors from "./util/svg_colors"
+import {is_svg_color} from "./util/svg_colors"
 import {valid_rgb} from "./util/color"
 import {includes, repeat, map} from "./util/array"
 import {isBoolean, isNumber, isString, isArray, isObject} from "./util/types"
@@ -34,12 +34,22 @@ export class Property<T> extends Signalable() {
 
   dataspec: boolean // prototype
 
-  readonly change = new Signal<T, HasProps>(this.obj, "change")
+  // XXX: restore constructor properties when https://github.com/Microsoft/TypeScript/issues/21954
+  //      is fixed (probably in TypeScript 2.8)
+  readonly obj: HasProps
+  readonly attr: string
+  readonly default_value?: (obj: HasProps) => T
 
-  constructor(readonly obj: HasProps,
-              readonly attr: string,
-              readonly default_value?: (obj: HasProps) => T) {
+  readonly change: Signal<T, HasProps>
+
+  constructor(obj: HasProps,
+              attr: string,
+              default_value?: (obj: HasProps) => T) {
     super()
+    this.obj = obj
+    this.attr = attr
+    this.default_value = default_value
+    this.change = new Signal(this.obj, "change")
     this._init()
     this.connect(this.change, () => this._init())
   }
@@ -161,7 +171,7 @@ export class Array extends simple_prop("Array", (x) => isArray(x) || x instanceo
 export class Bool extends simple_prop("Bool", isBoolean) {}
 export const Boolean = Bool
 
-export class Color extends simple_prop("Color", (x) => (svg_colors as any)[x.toLowerCase()] != null || x.substring(0, 1) == "#" || valid_rgb(x)) {}
+export class Color extends simple_prop("Color", (x) => is_svg_color(x.toLowerCase()) || x.substring(0, 1) == "#" || valid_rgb(x)) {}
 
 export class Instance extends simple_prop("Instance", (x) => x.properties != null) {}
 

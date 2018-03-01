@@ -384,7 +384,7 @@ export class TileRenderer extends Renderer {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'TileRenderer'
     this.prototype.default_view = TileRendererView
 

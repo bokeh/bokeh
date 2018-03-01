@@ -27,7 +27,7 @@ export class LinearAxis extends ContinuousAxis {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "LinearAxis"
     this.prototype.default_view = LinearAxisView
 

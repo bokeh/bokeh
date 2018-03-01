@@ -113,7 +113,7 @@ export class PolySelectTool extends SelectTool {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "PolySelectTool"
     this.prototype.default_view = PolySelectToolView
 

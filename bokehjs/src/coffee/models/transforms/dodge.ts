@@ -1,6 +1,7 @@
 /* XXX: partial */
 import {Transform} from "./transform";
 import {Range} from "../ranges/range"
+import {FactorRange} from "../ranges/factor_range"
 import * as p from "core/properties"
 
 export namespace Dodge {
@@ -20,7 +21,7 @@ export class Dodge extends Transform {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "Dodge"
 
     this.define({
@@ -30,7 +31,7 @@ export class Dodge extends Transform {
   }
 
   compute(x, use_synthetic = true) {
-    if (((this.range != null ? this.range.synthetic : undefined) != null) && use_synthetic) {
+    if (this.range instanceof FactorRange && use_synthetic) {
       x = this.range.synthetic(x);
     }
     return x + this.value;

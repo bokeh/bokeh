@@ -53,7 +53,6 @@ describe "serialization module", ->
       swapped[2] = 3
       swapped[3] = 2
       r = ser.swap16(b)
-      expect(r).to.be.null
       expect(a).to.be.deep.equal swapped
 
     it "should have swap32 that swaps 4 bytes in place", ->
@@ -72,7 +71,6 @@ describe "serialization module", ->
       swapped[6] = 5
       swapped[7] = 4
       r = ser.swap32(b)
-      expect(r).to.be.null
       expect(a).to.be.deep.equal swapped
 
     it "should have swap64 that swaps 8 bytes in place", ->
@@ -99,7 +97,6 @@ describe "serialization module", ->
       swapped[14] = 9
       swapped[15] = 8
       r = ser.swap64(b)
-      expect(r).to.be.null
       expect(a).to.be.deep.equal swapped
 
   describe "process_buffer function", ->

@@ -1,6 +1,6 @@
 /* XXX: partial */
 import {sprintf} from "sprintf-js";
-import * as tz from "timezone";
+import tz = require("timezone")
 
 import {TickFormatter} from "./tick_formatter";
 import {logger} from "core/logging";
@@ -65,7 +65,7 @@ export class DatetimeTickFormatter extends TickFormatter {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'DatetimeTickFormatter';
 
     this.define({

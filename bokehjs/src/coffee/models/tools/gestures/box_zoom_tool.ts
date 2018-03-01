@@ -183,7 +183,7 @@ export class BoxZoomTool extends GestureTool {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "BoxZoomTool"
     this.prototype.default_view = BoxZoomToolView
 

@@ -27,7 +27,7 @@ export class InputWidget extends Widget {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "InputWidget"
     this.prototype.default_view = InputWidgetView
 

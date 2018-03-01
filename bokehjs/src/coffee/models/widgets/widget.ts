@@ -42,7 +42,7 @@ export abstract class Widget extends LayoutDOM {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "Widget"
   }
 }

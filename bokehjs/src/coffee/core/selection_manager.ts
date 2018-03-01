@@ -12,7 +12,7 @@ export type RendererView = any
 
 export class SelectionManager extends HasProps {
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "SelectionManager"
 
     this.internal({

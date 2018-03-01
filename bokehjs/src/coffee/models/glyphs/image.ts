@@ -154,7 +154,7 @@ export class Image extends XYGlyph {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'Image';
     this.prototype.default_view = ImageView;
 

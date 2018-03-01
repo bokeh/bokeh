@@ -20,7 +20,7 @@ export abstract class ArrowHead extends Annotation {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'ArrowHead'
 
     this.define({
@@ -57,7 +57,7 @@ export class OpenHead extends ArrowHead {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'OpenHead'
 
     this.mixins(['line'])
@@ -106,7 +106,7 @@ export class NormalHead extends ArrowHead {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'NormalHead'
 
     this.mixins(['line', 'fill'])
@@ -168,7 +168,7 @@ export class VeeHead extends ArrowHead {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'VeeHead'
 
     this.mixins(['line', 'fill'])
@@ -232,7 +232,7 @@ export class TeeHead extends ArrowHead {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'TeeHead'
 
     this.mixins(['line'])

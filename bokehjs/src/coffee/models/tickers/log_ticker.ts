@@ -15,7 +15,7 @@ export class LogTicker extends AdaptiveTicker {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "LogTicker"
 
     this.override({

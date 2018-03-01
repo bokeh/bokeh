@@ -23,7 +23,7 @@ export class Interpolator extends Transform {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "Interpolator"
 
     this.define({
@@ -33,6 +33,10 @@ export class Interpolator extends Transform {
       clip: [ p.Bool, true ],
     });
   }
+
+  protected _x_sorted: any[] = []
+  protected _y_sorted: any[] = []
+  protected _sorted_dirty = true
 
   initialize(): void {
     super.initialize();

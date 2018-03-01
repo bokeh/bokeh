@@ -18,7 +18,7 @@ export class StaticLayoutProvider extends LayoutProvider {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "StaticLayoutProvider"
 
     this.define({

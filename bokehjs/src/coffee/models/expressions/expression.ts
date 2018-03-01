@@ -1,4 +1,4 @@
-/* XXX: partial */
+import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {Model} from "../../model"
 
 export namespace Expression {
@@ -15,28 +15,33 @@ export abstract class Expression extends Model {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "Expression"
   }
 
+  protected _connected: {[key: string]: boolean} = {}
+  protected _result: {[key: string]: ArrayLike<any>} = {}
+
   initialize(): void {
-    super.initialize();
-    this._connected= {};
-    this._result = {};
+    super.initialize()
+    this._connected = {}
+    this._result = {}
   }
 
-  _v_compute(source) {
-    if ((this._connected[source.id] == null)) {
-      this.connect(source.change, function() { return this._result[source.id] = null; });
-      this._connected[source.id] = true;
+  abstract v_compute(source: ColumnarDataSource): ArrayLike<any>
+
+  protected _v_compute(source: ColumnarDataSource): ArrayLike<any> {
+    if (this._connected[source.id] == null) {
+      this.connect(source.change, () => delete this._result[source.id])
+      this._connected[source.id] = true
     }
 
-    if (this._result[source.id] != null) {
-      return this._result[source.id];
-    }
+    let result = this._result[source.id]
 
-    this._result[source.id] = this.v_compute(source);
-    return this._result[source.id];
+    if (result == null)
+      this._result[source.id] = result = this.v_compute(source)
+
+    return result
   }
 }
 Expression.initClass()

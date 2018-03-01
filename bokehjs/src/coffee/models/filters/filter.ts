@@ -21,7 +21,7 @@ export class Filter extends Model {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'Filter';
 
     this.define({

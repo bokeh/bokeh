@@ -20,7 +20,7 @@ export class PrintfTickFormatter extends TickFormatter {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'PrintfTickFormatter';
 
     this.define({

@@ -18,6 +18,8 @@ import {Selection} from "../selections/selection";
 export abstract class GlyphView extends View {
   model: Glyph
 
+  glglyph?: any
+
   initialize(options: any): void {
     super.initialize(options);
     this._nohit_warned = {};
@@ -370,7 +372,7 @@ export abstract class Glyph extends Model {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'Glyph';
 
     this.prototype._coords = [];

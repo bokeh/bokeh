@@ -21,7 +21,7 @@ export class Range1d extends Range {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "Range1d"
 
     this.define({

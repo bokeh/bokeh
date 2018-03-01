@@ -1,5 +1,5 @@
 /* XXX: partial */
-import {format} from "numbro"
+import * as numbro from "numbro"
 
 import {AbstractSlider, AbstractSliderView} from "./abstract_slider"
 
@@ -34,7 +34,7 @@ export class RangeSlider extends AbstractSlider {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "RangeSlider"
     this.prototype.default_view = RangeSliderView
 
@@ -46,7 +46,9 @@ export class RangeSlider extends AbstractSlider {
   behaviour = "drag" as "drag"
   connected = [false, true, false]
 
-  _formatter = format
+  protected _formatter(value: number, format: string): string {
+    return numbro.format(value, format)
+  }
 }
 
 RangeSlider.initClass()

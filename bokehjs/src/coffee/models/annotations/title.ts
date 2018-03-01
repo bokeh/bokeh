@@ -149,7 +149,7 @@ export class Title extends TextAnnotation {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'Title';
     this.prototype.default_view = TitleView;
 

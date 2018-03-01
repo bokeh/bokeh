@@ -195,7 +195,7 @@ export class ImageURL extends Glyph {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'ImageURL';
     this.prototype.default_view = ImageURLView;
 

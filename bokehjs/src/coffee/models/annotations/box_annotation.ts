@@ -146,7 +146,7 @@ export class BoxAnnotation extends Annotation {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'BoxAnnotation';
     this.prototype.default_view = BoxAnnotationView;
 

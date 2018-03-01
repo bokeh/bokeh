@@ -78,7 +78,7 @@ export abstract class Tool extends Model {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "Tool"
 
     this.internal({

@@ -217,14 +217,14 @@ const x = function(ctx: Context2d, i, _sx, _sy, r, line, _fill) {
 
 const _mk_model = function(type, f) {
   class view extends MarkerView {
-    static initClass() {
+    static initClass(): void {
       this.prototype._render_one = f;
     }
   }
   view.initClass();
 
   class model extends Marker {
-    static initClass() {
+    static initClass(): void {
       this.prototype.default_view = view;
       this.prototype.type = type;
     }

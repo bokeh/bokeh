@@ -90,6 +90,11 @@ gulp.task("scripts:ts", () => {
   return result
 })
 
+gulp.task("~scripts:ts", () => {
+  gulp.watch(join(paths.src_dir.ts, "**", "*.ts"), ["scripts:ts"])
+})
+
+
 gulp.task("scripts:tslint", () => {
   const srcs = [
     join(paths.src_dir.coffee),
@@ -98,7 +103,11 @@ gulp.task("scripts:tslint", () => {
   ]
   return gulp
     .src(srcs.map((dir) => join(dir, "**", "*.ts")))
-    .pipe(tslint({formatter: "stylish", fix: argv.fix || false}))
+    .pipe(tslint({
+      rulesDirectory: join(paths.base_dir, "tslint", "rules"),
+      formatter: "stylish",
+      fix: argv.fix || false,
+    }))
     .pipe(tslint.report({emitError: false}))
 })
 

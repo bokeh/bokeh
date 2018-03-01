@@ -42,7 +42,7 @@ export class ZoomInTool extends ActionTool {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "ZoomInTool"
     this.prototype.default_view = ZoomInToolView
 

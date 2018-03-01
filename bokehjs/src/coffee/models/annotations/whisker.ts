@@ -142,7 +142,7 @@ export class Whisker extends Annotation {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'Whisker';
     this.prototype.default_view = WhiskerView;
 

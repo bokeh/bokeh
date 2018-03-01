@@ -110,7 +110,7 @@ export class Oval extends XYGlyph {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'Oval';
     this.prototype.default_view = OvalView;
 

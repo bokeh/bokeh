@@ -77,7 +77,7 @@ export class Box extends LayoutDOM {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "Box"
     this.prototype.default_view = BoxView
 

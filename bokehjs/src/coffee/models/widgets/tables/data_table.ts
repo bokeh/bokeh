@@ -13,6 +13,8 @@ import {logger} from "core/logging";
 import {TableWidget} from "./table_widget";
 import {TableColumn} from "./table_column"
 import {WidgetView} from "../widget"
+import {ColumnarDataSource} from "../../sources/columnar_data_source"
+import {CDSView} from "../../sources/cds_view"
 
 export const DTINDEX_NAME = "__bkdt_internal_index__";
 
@@ -20,18 +22,20 @@ declare var $: any
 
 export class DataProvider {
 
-  constructor(source, view) {
-    this.source = source;
-    this.view = view;
-    if (DTINDEX_NAME in this.source.data) {
+  index: number[]
+
+  constructor(readonly source: ColumnarDataSource, readonly view: CDSView) {
+    if (DTINDEX_NAME in this.source.data)
       throw new Error(`special name ${DTINDEX_NAME} cannot be used as a data table column`);
-    }
+
     this.index = this.view.indices;
   }
 
-  getLength() { return this.index.length; }
+  getLength(): number {
+    return this.index.length
+  }
 
-  getItem(offset) {
+  getItem(offset: number) {
     const item = {};
     for (const field of Object.keys(this.source.data)) {
       item[field] = this.source.data[field][this.index[offset]];
@@ -100,25 +104,26 @@ export class DataProvider {
   }
 
   _update_source_inplace() {
-    this.source.properties.data.change.emit(this, this.source.attributes['data']);
+    this.source.properties.data.change.emit(this.source.attributes['data']);
   }
 }
 
 export class DataTableView extends WidgetView {
   model: DataTable
 
-  initialize(options: any): void {
-    super.initialize(options);
-    this.in_selection_update = false;
-  }
+  private data: DataProvider
+  private grid: SlickGrid
 
-  connect_signals() {
+  protected _in_selection_update = false
+  protected _warned_not_reorderable = false
+
+  connect_signals(): void {
     super.connect_signals();
     this.connect(this.model.change, () => this.render());
     this.connect(this.model.source.properties.data.change, () => this.updateGrid());
     this.connect(this.model.source.streaming, () => this.updateGrid());
     this.connect(this.model.source.patching, () => this.updateGrid());
-    return this.connect(this.model.source.change, () => this.updateSelection());
+    this.connect(this.model.source.change, () => this.updateSelection());
   }
 
   updateGrid(): void {
@@ -138,18 +143,17 @@ export class DataTableView extends WidgetView {
   }
 
   updateSelection() {
-    if (this.in_selection_update) {
+    if (this._in_selection_update)
       return;
-    }
 
     const { selected } = this.model.source;
     const selected_indices = selected['1d'].indices;
 
     const permuted_indices = (selected_indices.map((x) => this.data.index.indexOf(x)));
 
-    this.in_selection_update = true;
+    this._in_selection_update = true;
     this.grid.setSelectedRows(permuted_indices);
-    this.in_selection_update = false;
+    this._in_selection_update = false;
     // If the selection is not in the current slickgrid viewport, scroll the
     // datatable to start at the row before the first selected row, so that
     // the selection is immediately brought into view. We don't scroll when
@@ -198,7 +202,7 @@ export class DataTableView extends WidgetView {
     let { reorderable } = this.model;
 
     if (reorderable && (__guard__(typeof $ !== 'undefined' && $ !== null ? $.fn : undefined, x => x.sortable) == null)) {
-      if ((this._warned_not_reorderable == null)) {
+      if (!this._warned_not_reorderable) {
         logger.warn("jquery-ui is required to enable DataTable.reorderable");
         this._warned_not_reorderable = true;
       }
@@ -241,7 +245,7 @@ export class DataTableView extends WidgetView {
       if (checkboxSelector != null) { this.grid.registerPlugin(checkboxSelector); }
 
       this.grid.onSelectedRowsChanged.subscribe((_event, args) => {
-        if (this.in_selection_update) {
+        if (this._in_selection_update) {
           return;
         }
 
@@ -280,7 +284,7 @@ export class DataTable extends TableWidget {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'DataTable';
     this.prototype.default_view = DataTableView;
 
@@ -298,11 +302,9 @@ export class DataTable extends TableWidget {
     this.override({
       height: 400,
     });
-
-    this.internal({
-      default_width:        [ p.Number, 600   ],
-    });
   }
+
+  readonly default_width = 600
 
   get_scroll_index(grid_range, selected_indices) {
     if (!this.scroll_to_selection || (selected_indices.length === 0)) {

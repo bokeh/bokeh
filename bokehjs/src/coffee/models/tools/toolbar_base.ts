@@ -13,6 +13,8 @@ import {ButtonToolButtonView} from "./button_tool"
 export class ToolbarBaseView extends DOMView {
   model: ToolbarBase
 
+  protected _tool_button_views: {[key: string]: ButtonToolButtonView}
+
   initialize(options: any): void {
     super.initialize(options);
     this._tool_button_views = {};
@@ -24,68 +26,49 @@ export class ToolbarBaseView extends DOMView {
     this.connect(this.model.properties.tools.change, () => this._build_tool_button_views());
   }
 
-  remove() {
-    remove_views(this._tool_button_views);
-    return super.remove();
+  remove(): void {
+    remove_views(this._tool_button_views)
+    super.remove()
   }
 
-  _build_tool_button_views(): ButtonToolButtonView[] {
-    const tools = this.model._proxied_tools != null ? this.model._proxied_tools : this.model.tools; // XXX
-    return build_views(this._tool_button_views, tools, {parent: this}, tool => tool.button_view);
+  protected _build_tool_button_views(): void {
+    const tools = this.model._proxied_tools != null ? this.model._proxied_tools : this.model.tools // XXX
+    build_views(this._tool_button_views, tools, {parent: this}, (tool) => tool.button_view)
   }
 
-  render() {
-    let buttons
-    empty(this.el);
+  render(): void {
+    empty(this.el)
 
-    this.el.classList.add("bk-toolbar");
-    this.el.classList.add(`bk-toolbar-${this.model.toolbar_location}`);
+    this.el.classList.add("bk-toolbar")
+    this.el.classList.add(`bk-toolbar-${this.model.toolbar_location}`)
 
     if (this.model.logo != null) {
-      const cls = this.model.logo === "grey" ? "bk-grey" : null;
-      const logo = a({href: "https://bokeh.pydata.org/", target: "_blank", class: ["bk-logo", "bk-logo-small", cls]});
-      this.el.appendChild(logo);
+      const cls = this.model.logo === "grey" ? "bk-grey" : null
+      const logo = a({href: "https://bokeh.pydata.org/", target: "_blank", class: ["bk-logo", "bk-logo-small", cls]})
+      this.el.appendChild(logo)
     }
 
-    const bars = [];
+    const bars: HTMLElement[] = []
 
-    const { gestures } = this.model;
+    const el = (tool: Tool) => {
+      return this._tool_button_views[tool.id].el
+    }
+
+    const {gestures} = this.model
     for (const et in gestures) {
-      buttons = [];
-      for (const tool of gestures[et].tools) {
-        buttons.push(this._tool_button_views[tool.id].el);
-      }
-      bars.push(buttons);
+      bars.push(gestures[et].tools.map(el))
     }
 
-    buttons = [];
-    for (const tool of this.model.actions) {
-      buttons.push(this._tool_button_views[tool.id].el);
-    }
-    bars.push(buttons);
-
-    buttons = [];
-    for (const tool of this.model.inspectors) {
-      if (tool.toggleable) {
-        buttons.push(this._tool_button_views[tool.id].el);
-      }
-    }
-    bars.push(buttons);
-
-    buttons = [];
-    for (const tool of this.model.help) {
-      buttons.push(this._tool_button_views[tool.id].el);
-    }
-    bars.push(buttons);
+    bars.push(this.model.actions.map(el))
+    bars.push(this.model.inspectors.filter((tool) => tool.toggleable).map(el))
+    bars.push(this.model.help.map(el))
 
     for (const bar of bars) {
       if (bar.length !== 0) {
-        const el = div({class: 'bk-button-bar'}, bar);
-        this.el.appendChild(el);
+        const el = div({class: 'bk-button-bar'}, bar)
+        this.el.appendChild(el)
       }
     }
-
-    return this;
   }
 }
 
@@ -121,7 +104,7 @@ export class ToolbarBase extends Model {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'ToolbarBase';
     this.prototype.default_view = ToolbarBaseView;
 

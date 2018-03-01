@@ -47,7 +47,7 @@ export class DaysTicker extends SingleIntervalTicker {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "DaysTicker"
 
     this.define({

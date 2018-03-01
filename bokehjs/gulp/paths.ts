@@ -17,6 +17,7 @@ export const build_dir = {
 }
 
 export const src_dir = {
+  ts: join(base_dir, "src", "coffee"),
   coffee: join(base_dir, "src", "coffee"),
   compiler: join(base_dir, "src", "compiler"),
 }

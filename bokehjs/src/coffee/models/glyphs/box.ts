@@ -104,7 +104,7 @@ export abstract class Box extends Glyph {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "Box";
 
     this.mixins(['line', 'fill']);

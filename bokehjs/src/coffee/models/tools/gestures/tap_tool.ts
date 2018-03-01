@@ -84,7 +84,7 @@ export class TapTool extends SelectTool {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "TapTool"
     this.prototype.default_view = TapToolView
 

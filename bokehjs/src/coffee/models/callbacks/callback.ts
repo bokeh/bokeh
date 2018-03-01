@@ -14,7 +14,7 @@ export abstract class Callback extends Model {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'Callback'
   }
 

@@ -103,7 +103,7 @@ export class PointDrawTool extends EditTool {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "PointDrawTool"
     this.prototype.default_view = PointDrawToolView
 

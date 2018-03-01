@@ -29,7 +29,7 @@ export class TableColumn extends Model {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'TableColumn';
     this.prototype.default_view = null;
 

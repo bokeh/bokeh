@@ -160,7 +160,7 @@ export abstract class TextAnnotation extends Annotation {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'TextAnnotation';
   }
 }

@@ -83,7 +83,7 @@ export abstract class AbstractButton extends Widget {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "AbstractButton"
 
     this.define({

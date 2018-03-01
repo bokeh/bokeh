@@ -140,7 +140,7 @@ export class Bezier extends Glyph {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'Bezier';
     this.prototype.default_view = BezierView;
 

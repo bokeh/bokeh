@@ -33,7 +33,7 @@ export abstract class ContinuousTicker extends Ticker<number> {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "ContinuousTicker"
 
     this.define({

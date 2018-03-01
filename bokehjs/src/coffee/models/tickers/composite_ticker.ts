@@ -22,7 +22,7 @@ export class CompositeTicker extends ContinuousTicker {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "CompositeTicker"
 
     this.define({

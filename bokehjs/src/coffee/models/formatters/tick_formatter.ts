@@ -15,7 +15,7 @@ export abstract class TickFormatter extends Model {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'TickFormatter';
   }
 

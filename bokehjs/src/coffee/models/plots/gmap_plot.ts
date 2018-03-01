@@ -24,7 +24,7 @@ export class MapOptions extends Model {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "MapOptions"
 
     this.define({
@@ -54,7 +54,7 @@ export class GMapOptions extends MapOptions {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "GMapOptions"
 
     this.define({
@@ -87,7 +87,7 @@ export class GMapPlot extends Plot {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "GMapPlot"
     this.prototype.default_view = GMapPlotView
 

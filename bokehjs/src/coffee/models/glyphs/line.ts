@@ -146,7 +146,7 @@ export class Line extends XYGlyph {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'Line';
     this.prototype.default_view = LineView;
 

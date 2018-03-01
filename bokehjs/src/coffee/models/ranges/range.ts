@@ -21,7 +21,7 @@ export abstract class Range extends Model {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "Range"
 
     this.define({

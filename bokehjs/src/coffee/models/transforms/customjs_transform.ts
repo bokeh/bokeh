@@ -23,7 +23,7 @@ export class CustomJSTransform extends Transform {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'CustomJSTransform';
 
     this.define({

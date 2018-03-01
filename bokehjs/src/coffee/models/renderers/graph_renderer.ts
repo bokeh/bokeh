@@ -3,14 +3,21 @@ import {Renderer, RendererView} from "./renderer"
 import {GlyphRenderer, GlyphRendererView} from "./glyph_renderer"
 import {LayoutProvider} from "../graphs/layout_provider"
 import {GraphHitTestPolicy, NodesOnly} from "../graphs/graph_hit_test_policy";
+import {Scale} from "../scales/scale"
 import * as p from "core/properties";
 import {build_views} from "core/build_views";
 import {SelectionManager} from "core/selection_manager"
 
 export class GraphRendererView extends RendererView {
+  model: GraphRenderer
+
   node_view: GlyphRendererView
   edge_view: GlyphRendererView
-  model: GraphRenderer
+
+  xscale: Scale
+  yscale: Scale
+
+  protected _renderer_views: {[key: string]: GlyphRendererView}
 
   initialize(options: any): void {
     super.initialize(options);
@@ -95,7 +102,7 @@ export class GraphRenderer extends Renderer {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'GraphRenderer';
     this.prototype.default_view = GraphRendererView;
 

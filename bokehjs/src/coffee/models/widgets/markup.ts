@@ -8,6 +8,8 @@ import {Widget, WidgetView} from "./widget"
 export class MarkupView extends WidgetView {
   model: Markup
 
+  protected markupEl: HTMLElement
+
   initialize(options: any): void {
     super.initialize(options)
     this.render()
@@ -47,7 +49,7 @@ export class Markup extends Widget {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "Markup"
 
     this.define({

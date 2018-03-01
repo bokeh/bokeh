@@ -51,7 +51,7 @@ export abstract class ButtonTool extends Tool {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "ButtonTool"
 
     this.internal({

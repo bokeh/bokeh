@@ -1,81 +1,81 @@
-/* XXX: partial */
-import {sprintf} from "sprintf-js";
-import * as Numbro from "numbro";
-import * as tz from "timezone";
+import {sprintf} from "sprintf-js"
+import * as Numbro from "numbro"
+import tz = require("timezone")
 
-import {escape} from "./string";
+import {escape} from "./string"
 import {isNumber} from "./types"
 
-const _format_number = function(number) {
-  if (isNumber(number)) {
-    const format = (() => { switch (false) {
-      case Math.floor(number) !== number:
-        return "%d";
-      case !(Math.abs(number) > 0.1) || !(Math.abs(number) < 1000):
-        return "%0.3f";
-      default:
-        return "%0.3e";
-    } })();
+import {ColumnarDataSource} from "models/sources/columnar_data_source"
 
-    return sprintf(format, number);
-  } else {
-    return `${number}`; // get strings for categorical types
-  }
-};
-
-export const replace_placeholders = function(string, data_source, i, formatters = null, special_vars = {}) {
-  string = string.replace(/(^|[^\$])\$(\w+)/g, (_match, prefix, name) => `${prefix}@$${name}`);
-
-  string = string.replace(/(^|[^@])@(?:(\$?\w+)|{([^{}]+)})(?:{([^{}]+)})?/g, (_match, prefix, name, long_name, format) => {
-    name = (long_name != null) ? long_name : name;
-
-    const value =
-      name[0] === "$" ?
-        special_vars[name.substring(1)]
-      :
-
-        __guard__(data_source.get_column(name), x => x[i]);
-
-    let replacement = null;
-    if ((value == null)) {
-      replacement = "???";
-
-    } else {
-      // 'safe' format, just return the value as is
-      if (format === 'safe') {
-        return `${prefix}${value}`;
-
-      } else if (format != null) {
-
-        // see if the field has an entry in the formatters dict
-        if ((formatters != null) && name in formatters) {
-          if (formatters[name] === "numeral") {
-            replacement = Numbro.format(value, format);
-          } else if (formatters[name] === "datetime") {
-            replacement = tz(value, format);
-          } else if (formatters[name] === "printf") {
-            replacement = sprintf(format, value);
-          } else {
-            throw new Error(`Unknown tooltip field formatter type '${ formatters[name] }'`);
-          }
-
-        // if not assume the format string is Numbro
-        } else {
-          replacement = Numbro.format(value, format);
-        }
-
-      // no format supplied, just use a basic default numeric format
-      } else {
-        replacement = _format_number(value);
+function _format_number(num: string | number): string {
+  if (isNumber(num)) {
+    const format = (() => {
+      switch (false) {
+        case Math.floor(num) != num:
+          return "%d"
+        case !(Math.abs(num) > 0.1) || !(Math.abs(num) < 1000):
+          return "%0.3f"
+        default:
+          return "%0.3e"
       }
+    })()
+
+    return sprintf(format, num)
+  } else
+    return `${num}`  // get strings for categorical types
+}
+
+export function replace_placeholders(str: string, data_source: ColumnarDataSource, i: number,
+    formatters: {[key: string]: "numeral" | "printf" | "datetime"} | null = null, special_vars: {[key: string]: any} = {}): string {
+
+  str = str.replace(/(^|[^\$])\$(\w+)/g, (_match, prefix, name) => `${prefix}@$${name}`)
+
+  str = str.replace(/(^|[^@])@(?:(\$?\w+)|{([^{}]+)})(?:{([^{}]+)})?/g, (_match, prefix, name, long_name, format) => {
+    name = long_name != null ? long_name : name
+
+    let value: any
+    if (name[0] == "$")
+      value = special_vars[name.substring(1)]
+    else {
+      const column = data_source.get_column(name)
+      if (column != null)
+        value = column[i]
     }
 
-    return replacement = `${prefix}${escape(replacement)}`;
-  });
+    let replacement = null
+    if (value == null)
+      replacement = "???"
+    else {
+      // 'safe' format, just return the value as is
+      if (format == 'safe')
+        return `${prefix}${value}`
+      else if (format != null) {
+        // see if the field has an entry in the formatters dict
+        if (formatters != null && name in formatters) {
+          const formatter = formatters[name]
+          switch (formatter) {
+            case "numeral":
+              replacement = Numbro.format(value, format)
+              break
+            case "datetime":
+              replacement = tz(value, format)
+              break
+            case "printf":
+              replacement = sprintf(format, value)
+              break
+            default:
+              throw new Error(`Unknown tooltip field formatter type '${formatter}'`)
+          }
+        // if not assume the format string is Numbro
+        } else
+          replacement = Numbro.format(value, format)
+      // no format supplied, just use a basic default numeric format
+      } else
+        replacement = _format_number(value)
+    }
 
-  return string;
-};
+    return `${prefix}${escape(replacement)}`
+  })
 
-function __guard__(value, transform) {
-  return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
+  return str
 }

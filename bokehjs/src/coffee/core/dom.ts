@@ -69,7 +69,7 @@ export const
   style    = _createElement("style"),
   a        = _createElement("a"),
   p        = _createElement("p"),
-  i        = _createElement("i" as any), // XXX: TypeScript 2.7
+  i        = _createElement("i"),
   pre      = _createElement("pre"),
   button   = _createElement("button"),
   label    = _createElement("label"),
@@ -173,7 +173,9 @@ export enum Keys {
   Esc       = 27,
   PageUp    = 33,
   PageDown  = 34,
+  Left      = 37,
   Up        = 38,
+  Right     = 39,
   Down      = 40,
   Delete    = 46,
 }

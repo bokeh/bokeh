@@ -173,7 +173,7 @@ export class Marker extends XYGlyph {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.mixins(['line', 'fill']);
     this.define({
       size:  [ p.DistanceSpec, { units: "screen", value: 4 } ],

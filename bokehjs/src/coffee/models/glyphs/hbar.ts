@@ -56,7 +56,7 @@ export class HBar extends Box {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'HBar';
     this.prototype.default_view = HBarView;
 

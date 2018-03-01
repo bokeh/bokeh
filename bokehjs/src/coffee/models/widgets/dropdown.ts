@@ -100,7 +100,9 @@ export namespace Dropdown {
   export interface Opts extends AbstractButton.Opts {}
 }
 
-export interface Dropdown extends Dropdown.Attrs {}
+export interface Dropdown extends Dropdown.Attrs {
+  active: boolean
+}
 
 export class Dropdown extends AbstractButton {
 
@@ -108,7 +110,7 @@ export class Dropdown extends AbstractButton {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "Dropdown"
     this.prototype.default_view = DropdownView
 

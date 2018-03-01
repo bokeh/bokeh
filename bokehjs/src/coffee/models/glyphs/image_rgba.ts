@@ -135,7 +135,7 @@ export class ImageRGBA extends XYGlyph {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'ImageRGBA';
     this.prototype.default_view = ImageRGBAView;
 

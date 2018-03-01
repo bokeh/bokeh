@@ -67,7 +67,7 @@ export class Quad extends Box {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'Quad';
     this.prototype.default_view = QuadView;
 

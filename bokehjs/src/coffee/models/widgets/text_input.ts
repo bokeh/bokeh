@@ -8,6 +8,8 @@ import {InputWidget, InputWidgetView} from "./input_widget"
 export class TextInputView extends InputWidgetView {
   model: TextInput
 
+  protected inputEl: HTMLInputElement
+
   initialize(options: any): void {
     super.initialize(options)
     this.render()
@@ -72,7 +74,7 @@ export class TextInput extends InputWidget {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "TextInput"
     this.prototype.default_view = TextInputView
 

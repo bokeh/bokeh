@@ -1,5 +1,5 @@
 /* XXX: partial */
-import * as tz from "timezone"
+import tz = require("timezone")
 
 import {AbstractSlider, AbstractSliderView} from "./abstract_slider"
 
@@ -34,7 +34,7 @@ export class DateSlider extends AbstractSlider {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "DateSlider"
     this.prototype.default_view = DateSliderView
 
@@ -46,7 +46,9 @@ export class DateSlider extends AbstractSlider {
   behaviour = "tap" as "tap"
   connected = [true, false]
 
-  _formatter = tz
+  protected _formatter(value: number, format: string): string {
+    return tz(value, format)
+  }
 }
 
 DateSlider.initClass()

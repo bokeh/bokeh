@@ -347,7 +347,7 @@ export class Legend extends Annotation {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'Legend';
     this.prototype.default_view = LegendView;
 

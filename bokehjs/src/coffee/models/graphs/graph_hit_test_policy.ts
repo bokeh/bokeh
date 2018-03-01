@@ -42,7 +42,7 @@ export abstract class GraphHitTestPolicy extends Model {
 GraphHitTestPolicy.prototype.type = "GraphHitTestPolicy"
 
 export class NodesOnly extends GraphHitTestPolicy {
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'NodesOnly'
   }
 
@@ -78,7 +78,7 @@ export class NodesOnly extends GraphHitTestPolicy {
 NodesOnly.initClass()
 
 export class NodesAndLinkedEdges extends GraphHitTestPolicy {
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'NodesAndLinkedEdges'
   }
 
@@ -146,7 +146,7 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
 NodesAndLinkedEdges.initClass()
 
 export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'EdgesAndLinkedNodes'
   }
 

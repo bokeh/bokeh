@@ -1,9 +1,9 @@
 /* XXX: partial */
-import {proj4, mercator} from "core/util/proj4";
-import {Context2d} from "core/util/canvas"
-
-import {PlotCanvas, PlotCanvasView} from "./plot_canvas";
 import {Signal} from "core/signaling";
+import {wgs84_mercator} from "core/util/projections"
+import {Context2d} from "core/util/canvas"
+import {GMapPlot} from "./gmap_plot"
+import {PlotCanvas, PlotCanvasView} from "./plot_canvas";
 
 const gmaps_ready = new Signal(this, "gmaps_ready");
 
@@ -165,8 +165,8 @@ export class GMapPlotCanvasView extends PlotCanvasView {
 
   _get_projected_bounds() {
     const [xstart, xend, ystart, yend] = this._get_latlon_bounds();
-    const [proj_xstart, proj_ystart] = proj4(mercator, [xstart, ystart]);
-    const [proj_xend, proj_yend] = proj4(mercator, [xend, yend]);
+    const [proj_xstart, proj_ystart] = wgs84_mercator.forward([xstart, ystart]);
+    const [proj_xend, proj_yend] = wgs84_mercator.forward([xend, yend]);
     return [proj_xstart, proj_xend, proj_ystart, proj_yend];
   }
 
@@ -258,11 +258,13 @@ export interface GMapPlotCanvas extends GMapPlotCanvas.Attrs {}
 
 export class GMapPlotCanvas extends PlotCanvas {
 
+  plot: GMapPlot
+
   constructor(attrs?: Partial<GMapPlotCanvas.Attrs>, opts?: GMapPlotCanvas.Opts) {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'GMapPlotCanvas';
     this.prototype.default_view = GMapPlotCanvasView;
   }

@@ -35,7 +35,7 @@ export class AdaptiveTicker extends ContinuousTicker {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "AdaptiveTicker"
 
     this.define({

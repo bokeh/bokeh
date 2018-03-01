@@ -136,7 +136,7 @@ export class Grid extends GuideRenderer {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "Grid"
     this.prototype.default_view = GridView
 

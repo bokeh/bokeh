@@ -20,7 +20,7 @@ export class StepInterpolator extends Interpolator {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "StepInterpolator"
 
     this.define({

@@ -60,7 +60,7 @@ export class Arc extends XYGlyph {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'Arc';
     this.prototype.default_view = ArcView;
 

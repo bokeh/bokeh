@@ -154,7 +154,7 @@ export class Arrow extends Annotation {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'Arrow';
     this.prototype.default_view = ArrowView;
 

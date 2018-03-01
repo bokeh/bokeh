@@ -144,7 +144,7 @@ export abstract class EditTool extends GestureTool {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "EditTool"
 
     this.define({

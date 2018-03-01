@@ -1,15 +1,23 @@
 /* XXX: partial */
 import * as Numbro from "numbro";
 import * as compile_template from "underscore.template";
-import * as tz from "timezone";
+import tz = require("timezone")
 
 import * as p from "core/properties";
 import {span, i} from "core/dom";
+import {Color} from "core/types"
+import {FontStyle, TextAlign, RoundingFunction} from "core/enums"
 import {extend} from "core/util/object";
 import {isString} from "core/util/types";
 import {Model} from "../../../model"
 
-export class CellFormatter extends Model {
+export namespace CellFormatter {
+  export interface Attrs extends Model.Attrs {}
+}
+
+export interface CellFormatter extends CellFormatter.Attrs {}
+
+export abstract class CellFormatter extends Model {
   doFormat(_row, _cell, value, _columnDef, _dataContext): string {
     if ((value == null)) {
       return "";
@@ -19,8 +27,18 @@ export class CellFormatter extends Model {
   }
 }
 
+export namespace StringFormatter {
+  export interface Attrs extends CellFormatter.Attrs {
+    font_style: FontStyle
+    text_align: TextAlign
+    text_color: Color
+  }
+}
+
+export interface StringFormatter extends StringFormatter.Attrs {}
+
 export class StringFormatter extends CellFormatter {
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'StringFormatter';
 
     this.define({
@@ -58,8 +76,18 @@ export class StringFormatter extends CellFormatter {
 }
 StringFormatter.initClass();
 
+export namespace NumberFormatter {
+  export interface Attrs extends StringFormatter.Attrs {
+    format: string
+    language: string
+    rounding: RoundingFunction
+  }
+}
+
+export interface NumberFormatter extends NumberFormatter.Attrs {}
+
 export class NumberFormatter extends StringFormatter {
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'NumberFormatter';
 
     this.define({
@@ -83,8 +111,16 @@ export class NumberFormatter extends StringFormatter {
 }
 NumberFormatter.initClass();
 
+export namespace BooleanFormatter {
+  export interface Attrs extends CellFormatter.Attrs {
+    icon: string // XXX: enum
+  }
+}
+
+export interface BooleanFormatter extends BooleanFormatter.Attrs {}
+
 export class BooleanFormatter extends CellFormatter {
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'BooleanFormatter';
 
     this.define({
@@ -98,8 +134,16 @@ export class BooleanFormatter extends CellFormatter {
 }
 BooleanFormatter.initClass();
 
+export namespace DateFormatter {
+  export interface Attrs extends CellFormatter.Attrs {
+    format: string // XXX: enum
+  }
+}
+
+export interface DateFormatter extends DateFormatter.Attrs {}
+
 export class DateFormatter extends CellFormatter {
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'DateFormatter';
 
     this.define({
@@ -130,8 +174,16 @@ export class DateFormatter extends CellFormatter {
 }
 DateFormatter.initClass();
 
+export namespace HTMLTemplateFormatter {
+  export interface Attrs extends CellFormatter.Attrs {
+    template: string
+  }
+}
+
+export interface HTMLTemplateFormatter extends HTMLTemplateFormatter.Attrs {}
+
 export class HTMLTemplateFormatter extends CellFormatter {
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'HTMLTemplateFormatter';
 
     this.define({

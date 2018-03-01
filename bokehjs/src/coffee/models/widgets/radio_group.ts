@@ -82,7 +82,7 @@ export class RadioGroup extends Widget {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "RadioGroup"
     this.prototype.default_view = RadioGroupView
 

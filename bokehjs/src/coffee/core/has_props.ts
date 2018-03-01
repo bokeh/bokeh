@@ -36,7 +36,7 @@ export interface HasProps extends HasProps.Attrs {}
 
 export abstract class HasProps extends Signalable() {
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "HasProps"
 
     this.prototype.props = {}

@@ -24,7 +24,7 @@ export class LegendItem extends Model {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "LegendItem";
 
     this.define({

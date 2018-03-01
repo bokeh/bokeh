@@ -21,7 +21,7 @@ export class BooleanFilter extends Filter {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'BooleanFilter';
 
     this.define({

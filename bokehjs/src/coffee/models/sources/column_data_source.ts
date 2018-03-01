@@ -3,7 +3,7 @@ import {ColumnarDataSource} from "./columnar_data_source"
 import {HasProps} from "core/has_props"
 import * as p from "core/properties"
 import {Set} from "core/util/data_structures"
-import * as serialization from "core/util/serialization"
+import {Shape, encode_column_data, decode_column_data} from "core/util/serialization"
 import {isArray, isNumber, isObject} from "core/util/types"
 
 // exported for testing
@@ -68,7 +68,7 @@ export const slice = function(ind, length) {
 }
 
 // exported for testing
-export const patch_to_column = function(col, patch, shapes) {
+export function patch_to_column(col, patch, shapes: Shape[]) {
   const patched = new Set()
   let patched_range = false
 
@@ -140,7 +140,7 @@ export class ColumnDataSource extends ColumnarDataSource {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'ColumnDataSource'
 
     this.define({
@@ -150,7 +150,7 @@ export class ColumnDataSource extends ColumnarDataSource {
 
   initialize(): void {
     super.initialize();
-    [this.data, this._shapes] = serialization.decode_column_data(this.data)
+    [this.data, this._shapes] = decode_column_data(this.data)
   }
 
   attributes_as_json(include_defaults: boolean = true, value_to_json = ColumnDataSource._value_to_json) {
@@ -159,7 +159,7 @@ export class ColumnDataSource extends ColumnarDataSource {
     for (const key of Object.keys(object || {})) {
       let value = object[key]
       if (key === 'data') {
-        value = serialization.encode_column_data(value, this._shapes)
+        value = encode_column_data(value, this._shapes)
       }
       if (include_defaults) {
         attrs[key] = value
@@ -172,7 +172,7 @@ export class ColumnDataSource extends ColumnarDataSource {
 
   static _value_to_json(key, value, optional_parent_object) {
     if (isObject(value) && (key === 'data')) {
-      return serialization.encode_column_data(value, optional_parent_object._shapes)
+      return encode_column_data(value, optional_parent_object._shapes)
     } else {
       return HasProps._value_to_json(key, value, optional_parent_object)
     }

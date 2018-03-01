@@ -193,7 +193,7 @@ export class SidePanel extends LayoutCanvas {
     super(attrs, opts)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = "SidePanel"
 
     this.internal({
