@@ -2,6 +2,7 @@ import * as gulp from "gulp"
 import * as gutil from "gulp-util"
 import * as through from "through2"
 import * as cp from "child_process"
+import chalk from "chalk"
 import {argv} from "yargs"
 
 import * as paths from "../paths"
@@ -11,16 +12,30 @@ import {join} from "path"
 const ts = require('gulp-typescript')
 
 gulp.task("test:compile", () => {
+  let n_errors = 0
+
   function error(err: {message: string}) {
     gutil.log(err.message)
+    n_errors++
   }
 
   const project = ts.createProject("./test/tsconfig.json")
-  const result = project
+  const compiler = project
     .src()
     .pipe(project(ts.reporter.nullReporter()).on("error", error))
 
-  return result.js.pipe(gulp.dest(join("./build", "test")))
+  const result = compiler
+    .js
+    .pipe(gulp.dest(join("./build", "test")))
+
+  result.on("finish", function() {
+    if (argv.emitError && n_errors > 0) {
+      gutil.log(`There were ${chalk.red("" + n_errors)} TypeScript errors.`)
+      process.exit(1)
+    }
+  })
+
+  return result
 })
 
 function mocha(options: {coverage?: boolean} = {}) {
