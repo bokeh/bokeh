@@ -3,6 +3,8 @@
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 //     Underscore may be freely distributed under the MIT license.
 
+import {all} from "./array"
+
 const toString = Object.prototype.toString
 
 export function isBoolean(obj: any): obj is boolean {
@@ -31,6 +33,10 @@ export function isFunction(obj: any): obj is Function {
 
 export function isArray<T>(obj: any): obj is T[] {
   return Array.isArray(obj)
+}
+
+export function isArrayOf<T>(arr: any[], predicate: (item: any) => item is T): arr is T[] {
+  return all(arr, predicate)
 }
 
 export function isObject(obj: any): obj is Object {
