@@ -34,12 +34,22 @@ export class Property<T> extends Signalable() {
 
   dataspec: boolean // prototype
 
-  readonly change = new Signal<T, HasProps>(this.obj, "change")
+  // XXX: restore constructor properties when https://github.com/Microsoft/TypeScript/issues/21954
+  //      is fixed (probably in TypeScript 2.8)
+  readonly obj: HasProps
+  readonly attr: string
+  readonly default_value?: (obj: HasProps) => T
 
-  constructor(readonly obj: HasProps,
-              readonly attr: string,
-              readonly default_value?: (obj: HasProps) => T) {
+  readonly change: Signal<T, HasProps>
+
+  constructor(obj: HasProps,
+              attr: string,
+              default_value?: (obj: HasProps) => T) {
     super()
+    this.obj = obj
+    this.attr = attr
+    this.default_value = default_value
+    this.change = new Signal(this.obj, "change")
     this._init()
     this.connect(this.change, () => this._init())
   }
