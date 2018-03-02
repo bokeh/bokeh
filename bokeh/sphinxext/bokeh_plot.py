@@ -265,6 +265,9 @@ class BokehPlotDirective(Directive):
         return result
 
 def env_before_read_docs(app, env, docnames):
+    # sort to make sure the custom Python file parser gets to process any plot
+    # scripts first, since it will save the plot output for use later.
+    docnames.sort(key=lambda x: 0 if env.doc2path(x).endswith(".py") else 1)
     for name in [x for x in docnames if env.doc2path(x).endswith(".py")]:
         if not name.startswith(tuple(env.app.config.bokeh_plot_pyfile_include_dirs)):
             env.found_docs.remove(name)
