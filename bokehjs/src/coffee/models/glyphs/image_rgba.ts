@@ -123,16 +123,14 @@ export namespace ImageRGBA {
     dh: DistanceSpec
     dilate: boolean
   }
-
-  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface ImageRGBA extends ImageRGBA.Attrs {}
 
 export class ImageRGBA extends XYGlyph {
 
-  constructor(attrs?: Partial<ImageRGBA.Attrs>, opts?: ImageRGBA.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<ImageRGBA.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

@@ -89,16 +89,14 @@ export namespace Ellipse {
     width: DistanceSpec
     height: DistanceSpec
   }
-
-  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Ellipse extends Ellipse.Attrs {}
 
 export class Ellipse extends XYGlyph {
 
-  constructor(attrs?: Partial<Ellipse.Attrs>, opts?: Ellipse.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Ellipse.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

@@ -3,16 +3,14 @@ import {Model} from "../../model"
 
 export namespace Expression {
   export interface Attrs extends Model.Attrs {}
-
-  export interface Opts extends Model.Opts {}
 }
 
 export interface Expression extends Expression.Attrs {}
 
 export abstract class Expression extends Model {
 
-  constructor(attrs?: Partial<Expression.Attrs>, opts?: Expression.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Expression.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

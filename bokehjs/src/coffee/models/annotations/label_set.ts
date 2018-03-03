@@ -231,16 +231,14 @@ export namespace LabelSet {
     y_range_name: string
     render_mode: RenderMode
   }
-
-  export interface Opts extends TextAnnotation.Opts {}
 }
 
 export interface LabelSet extends LabelSet.Attrs {}
 
 export class LabelSet extends TextAnnotation {
 
-  constructor(attrs?: Partial<LabelSet.Attrs>, opts?: LabelSet.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<LabelSet.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

@@ -378,16 +378,14 @@ export namespace GlyphRenderer {
     muted_glyph: Glyph
     muted: boolean
   }
-
-  export interface Opts extends Renderer.Opts {}
 }
 
 export interface GlyphRenderer extends GlyphRenderer.Attrs {}
 
 export class GlyphRenderer extends Renderer {
 
-  constructor(attrs?: Partial<GlyphRenderer.Attrs>, opts?: GlyphRenderer.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<GlyphRenderer.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

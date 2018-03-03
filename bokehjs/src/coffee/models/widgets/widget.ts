@@ -30,16 +30,14 @@ export abstract class WidgetView extends LayoutDOMView {
 
 export namespace Widget {
   export interface Attrs extends LayoutDOM.Attrs {}
-
-  export interface Opts extends LayoutDOM.Opts {}
 }
 
 export interface Widget extends Widget.Attrs {}
 
 export abstract class Widget extends LayoutDOM {
 
-  constructor(attrs?: Partial<Widget.Attrs>, opts?: Widget.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Widget.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

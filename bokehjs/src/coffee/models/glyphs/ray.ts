@@ -61,16 +61,14 @@ export namespace Ray {
     length: DistanceSpec
     angle: AngleSpec
   }
-
-  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Ray extends Ray.Attrs {}
 
 export class Ray extends XYGlyph {
 
-  constructor(attrs?: Partial<Ray.Attrs>, opts?: Ray.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Ray.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

@@ -235,16 +235,14 @@ export namespace Circle {
     radius: DistanceSpec | null
     radius_dimension: Dimension
   }
-
-  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Circle extends Circle.Attrs {}
 
 export class Circle extends XYGlyph {
 
-  constructor(attrs?: Partial<Circle.Attrs>, opts?: Circle.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Circle.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void { // XXX: Marker

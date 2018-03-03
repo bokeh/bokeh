@@ -372,16 +372,14 @@ export namespace TileRenderer {
     tile_source: TileSource
     render_parents: boolean
   }
-
-  export interface Opts extends Renderer.Opts {}
 }
 
 export interface TileRenderer extends TileRenderer.Attrs {}
 
 export class TileRenderer extends Renderer {
 
-  constructor(attrs?: Partial<TileRenderer.Attrs>, opts?: TileRenderer.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<TileRenderer.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

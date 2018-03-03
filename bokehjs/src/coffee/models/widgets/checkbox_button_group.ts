@@ -59,16 +59,14 @@ export namespace CheckboxButtonGroup {
     button_type: ButtonType
     callback: any // XXX
   }
-
-  export interface Opts extends Widget.Opts {}
 }
 
 export interface CheckboxButtonGroup extends CheckboxButtonGroup.Attrs {}
 
 export class CheckboxButtonGroup extends Widget {
 
-  constructor(attrs?: Partial<CheckboxButtonGroup.Attrs>, opts?: CheckboxButtonGroup.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<CheckboxButtonGroup.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

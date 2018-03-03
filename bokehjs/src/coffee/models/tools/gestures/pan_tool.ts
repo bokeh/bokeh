@@ -128,16 +128,14 @@ export namespace PanTool {
   export interface Attrs extends GestureTool.Attrs {
     dimensions: Dimensions
   }
-
-  export interface Opts extends GestureTool.Opts {}
 }
 
 export interface PanTool extends PanTool.Attrs {}
 
 export class PanTool extends GestureTool {
 
-  constructor(attrs?: Partial<PanTool.Attrs>, opts?: PanTool.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<PanTool.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

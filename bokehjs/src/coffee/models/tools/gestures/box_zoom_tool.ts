@@ -171,16 +171,14 @@ export namespace BoxZoomTool {
     overlay: BoxAnnotation
     match_aspect: boolean
   }
-
-  export interface Opts extends GestureTool.Opts {}
 }
 
 export interface BoxZoomTool extends BoxZoomTool.Attrs {}
 
 export class BoxZoomTool extends GestureTool {
 
-  constructor(attrs?: Partial<BoxZoomTool.Attrs>, opts?: BoxZoomTool.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<BoxZoomTool.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

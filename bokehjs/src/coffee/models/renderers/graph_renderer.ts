@@ -77,7 +77,6 @@ export class GraphRendererView extends RendererView {
     this.edge_view.render();
     return this.node_view.render();
   }
-
 }
 
 export namespace GraphRenderer {
@@ -90,16 +89,14 @@ export namespace GraphRenderer {
     selection_policy: GraphHitTestPolicy
     inspection_policy: GraphHitTestPolicy
   }
-
-  export interface Opts extends Renderer.Opts {}
 }
 
 export interface GraphRenderer extends GraphRenderer.Attrs {}
 
 export class GraphRenderer extends Renderer {
 
-  constructor(attrs?: Partial<GraphRenderer.Attrs>, opts?: GraphRenderer.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<GraphRenderer.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

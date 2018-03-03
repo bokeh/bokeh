@@ -389,8 +389,6 @@ export namespace Axis {
     major_label_text: Text
     axis_label_text: Text
   }
-
-  export interface Opts extends GuideRenderer.Opts {}
 }
 
 export interface Axis extends Axis.Attrs {
@@ -399,8 +397,8 @@ export interface Axis extends Axis.Attrs {
 
 export class Axis extends GuideRenderer {
 
-  constructor(attrs?: Partial<Axis.Attrs>, opts?: Axis.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Axis.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

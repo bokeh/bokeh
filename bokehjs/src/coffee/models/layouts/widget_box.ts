@@ -89,16 +89,14 @@ export namespace WidgetBox {
   export interface Attrs extends LayoutDOM.Attrs {
     children: LayoutDOM[]
   }
-
-  export interface Opts extends LayoutDOM.Opts {}
 }
 
 export interface WidgetBox extends WidgetBox.Attrs {}
 
 export class WidgetBox extends LayoutDOM {
 
-  constructor(attrs?: Partial<WidgetBox.Attrs>, opts?: WidgetBox.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<WidgetBox.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

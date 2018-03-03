@@ -14,16 +14,14 @@ export namespace HelpTool {
     help_tooltip: string
     redirect: string
   }
-
-  export interface Opts extends ActionTool.Opts {}
 }
 
 export interface HelpTool extends HelpTool.Attrs {}
 
 export class HelpTool extends ActionTool {
 
-  constructor(attrs?: Partial<HelpTool.Attrs>, opts?: HelpTool.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<HelpTool.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

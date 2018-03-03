@@ -77,16 +77,14 @@ export namespace Quadratic {
     cx: NumberSpec
     cy: NumberSpec
   }
-
-  export interface Opts extends Glyph.Opts {}
 }
 
 export interface Quadratic extends Quadratic.Attrs {}
 
 export class Quadratic extends Glyph {
 
-  constructor(attrs?: Partial<Quadratic.Attrs>, opts?: Quadratic.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Quadratic.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

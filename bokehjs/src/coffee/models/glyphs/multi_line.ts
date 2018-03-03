@@ -165,16 +165,14 @@ export namespace MultiLine {
     xs: NumberSpec
     ys: NumberSpec
   }
-
-  export interface Opts extends Glyph.Opts {}
 }
 
 export interface MultiLine extends MultiLine.Attrs {}
 
 export class MultiLine extends Glyph {
 
-  constructor(attrs?: Partial<MultiLine.Attrs>, opts?: MultiLine.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<MultiLine.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

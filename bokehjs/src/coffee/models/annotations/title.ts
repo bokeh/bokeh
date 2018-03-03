@@ -137,16 +137,14 @@ export namespace Title {
     text_align: TextAlign
     text_baseline: TextBaseline
   }
-
-  export interface Opts extends TextAnnotation.Opts {}
 }
 
 export interface Title extends Title.Attrs {}
 
 export class Title extends TextAnnotation {
 
-  constructor(attrs?: Partial<Title.Attrs>, opts?: Title.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Title.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

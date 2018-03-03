@@ -93,16 +93,14 @@ export namespace DatePicker {
     min_date: string
     max_date: string
   }
-
-  export interface Opts extends InputWidget.Opts {}
 }
 
 export interface DatePicker extends DatePicker.Attrs {}
 
 export class DatePicker extends InputWidget {
 
-  constructor(attrs?: Partial<DatePicker.Attrs>, opts?: DatePicker.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<DatePicker.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

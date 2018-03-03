@@ -21,16 +21,14 @@ export namespace Div {
   export interface Attrs extends Markup.Attrs {
     render_as_text: boolean
   }
-
-  export interface Opts extends Markup.Opts {}
 }
 
 export interface Div extends Div.Attrs {}
 
 export class Div extends Markup {
 
-  constructor(attrs?: Partial<Div.Attrs>, opts?: Div.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Div.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

@@ -35,16 +35,14 @@ export namespace DaysTicker {
   export interface Attrs extends SingleIntervalTicker.Attrs {
     days: number[]
   }
-
-  export interface Opts extends SingleIntervalTicker.Opts {}
 }
 
 export interface DaysTicker extends DaysTicker.Attrs {}
 
 export class DaysTicker extends SingleIntervalTicker {
 
-  constructor(attrs?: Partial<DaysTicker.Attrs>, opts?: DaysTicker.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<DaysTicker.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

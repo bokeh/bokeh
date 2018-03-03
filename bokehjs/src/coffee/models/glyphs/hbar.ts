@@ -44,16 +44,14 @@ export namespace HBar {
     height: DistanceSpec
     right: NumberSpec
   }
-
-  export interface Opts extends Box.Opts {}
 }
 
 export interface HBar extends HBar.Attrs {}
 
 export class HBar extends Box {
 
-  constructor(attrs?: Partial<HBar.Attrs>, opts?: HBar.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<HBar.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

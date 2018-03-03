@@ -426,16 +426,14 @@ export namespace HoverTool {
     attachment: TooltipAttachment
     callback: any // XXX
   }
-
-  export interface Opts extends InspectTool.Opts {}
 }
 
 export interface HoverTool extends HoverTool.Attrs {}
 
 export class HoverTool extends InspectTool {
 
-  constructor(attrs?: Partial<HoverTool.Attrs>, opts?: HoverTool.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<HoverTool.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

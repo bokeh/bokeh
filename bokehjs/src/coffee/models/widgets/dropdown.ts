@@ -96,8 +96,6 @@ export namespace Dropdown {
     default_value: string
     menu: ([string, string] | null)[]
   }
-
-  export interface Opts extends AbstractButton.Opts {}
 }
 
 export interface Dropdown extends Dropdown.Attrs {
@@ -106,8 +104,8 @@ export interface Dropdown extends Dropdown.Attrs {
 
 export class Dropdown extends AbstractButton {
 
-  constructor(attrs?: Partial<Dropdown.Attrs>, opts?: Dropdown.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Dropdown.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

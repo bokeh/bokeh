@@ -227,16 +227,14 @@ export namespace Patches {
     xs: NumberSpec
     ys: NumberSpec
   }
-
-  export interface Opts extends Glyph.Opts {}
 }
 
 export interface Patches extends Patches.Attrs {}
 
 export class Patches extends Glyph {
 
-  constructor(attrs?: Partial<Patches.Attrs>, opts?: Patches.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Patches.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

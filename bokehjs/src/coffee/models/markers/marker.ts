@@ -161,16 +161,14 @@ export namespace Marker {
     size: DistanceSpec
     angle: AngleSpec
   }
-
-  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Marker extends Marker.Attrs {}
 
 export class Marker extends XYGlyph {
 
-  constructor(attrs?: Partial<Marker.Attrs>, opts?: Marker.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Marker.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

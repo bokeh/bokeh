@@ -101,16 +101,14 @@ export namespace PolySelectTool {
     callback: any // XXX
     overlay: PolyAnnotation
   }
-
-  export interface Opts extends SelectTool.Opts {}
 }
 
 export interface PolySelectTool extends PolySelectTool.Attrs {}
 
 export class PolySelectTool extends SelectTool {
 
-  constructor(attrs?: Partial<PolySelectTool.Attrs>, opts?: PolySelectTool.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<PolySelectTool.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

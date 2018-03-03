@@ -92,16 +92,14 @@ export namespace Box {
   export interface Mixins extends LineMixinVector, FillMixinVector {}
 
   export interface Attrs extends Glyph.Attrs, Mixins {}
-
-  export interface Opts extends Glyph.Opts {}
 }
 
 export interface Box extends Box.Attrs {}
 
 export abstract class Box extends Glyph {
 
-  constructor(attrs?: Partial<Box.Attrs>, opts?: Box.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Box.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

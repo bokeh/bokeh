@@ -55,16 +55,14 @@ export namespace Quad {
     left: NumberSpec
     top: NumberSpec
   }
-
-  export interface Opts extends Box.Opts {}
 }
 
 export interface Quad extends Quad.Attrs {}
 
 export class Quad extends Box {
 
-  constructor(attrs?: Partial<Quad.Attrs>, opts?: Quad.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Quad.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

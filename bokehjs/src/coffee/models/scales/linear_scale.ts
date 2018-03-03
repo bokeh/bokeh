@@ -2,16 +2,14 @@ import {Scale} from "./scale"
 
 export namespace LinearScale {
   export interface Attrs extends Scale.Attrs {}
-
-  export interface Opts extends Scale.Opts {}
 }
 
 export interface LinearScale extends LinearScale.Attrs {}
 
 export class LinearScale extends Scale {
 
-  constructor(attrs?: Partial<LinearScale.Attrs>, opts?: LinearScale.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<LinearScale.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

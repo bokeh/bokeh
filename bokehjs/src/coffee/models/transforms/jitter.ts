@@ -13,16 +13,14 @@ export namespace Jitter {
     distribution: Distribution
     range: Range
   }
-
-  export interface Opts extends Transform.Opts {}
 }
 
 export interface Jitter extends Jitter.Attrs {}
 
 export class Jitter extends Transform {
 
-  constructor(attrs?: Partial<Jitter.Attrs>, opts?: Jitter.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Jitter.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

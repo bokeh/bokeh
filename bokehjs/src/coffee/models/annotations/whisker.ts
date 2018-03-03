@@ -130,16 +130,14 @@ export namespace Whisker {
     x_range_name: string
     y_range_name: string
   }
-
-  export interface Opts extends Annotation.Opts {}
 }
 
 export interface Whisker extends Whisker.Attrs {}
 
 export class Whisker extends Annotation {
 
-  constructor(attrs?: Partial<Whisker.Attrs>, opts?: Whisker.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Whisker.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

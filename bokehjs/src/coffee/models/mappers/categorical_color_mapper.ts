@@ -23,16 +23,14 @@ export namespace CategoricalColorMapper {
     start: number
     end: number
   }
-
-  export interface Opts extends ColorMapper.Opts {}
 }
 
 export interface CategoricalColorMapper extends CategoricalColorMapper.Attrs {}
 
 export class CategoricalColorMapper extends ColorMapper {
 
-  constructor(attrs?: Partial<CategoricalColorMapper.Attrs>, opts?: CategoricalColorMapper.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<CategoricalColorMapper.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

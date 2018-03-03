@@ -122,16 +122,14 @@ export namespace Annulus {
     inner_radius: DistanceSpec
     outer_radius: DistanceSpec
   }
-
-  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Annulus extends Annulus.Attrs {}
 
 export class Annulus extends XYGlyph {
 
-  constructor(attrs?: Partial<Annulus.Attrs>, opts?: Annulus.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Annulus.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

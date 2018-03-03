@@ -194,7 +194,6 @@ export class PolyDrawToolView extends EditToolView {
       this._drawing = false;
     }
   }
-
 }
 
 export namespace PolyDrawTool {
@@ -203,7 +202,6 @@ export namespace PolyDrawTool {
     renderers: (GlyphRenderer & HasCDS & HasPolyGlyph)[]
   }
 
-  export interface Opts extends EditTool.Opts {}
 }
 
 export interface PolyDrawTool extends PolyDrawTool.Attrs {}
@@ -212,8 +210,8 @@ export class PolyDrawTool extends EditTool {
 
   renderers: (GlyphRenderer & HasCDS & HasPolyGlyph)[]
 
-  constructor(attrs?: Partial<PolyDrawTool.Attrs>, opts?: PolyDrawTool.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<PolyDrawTool.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

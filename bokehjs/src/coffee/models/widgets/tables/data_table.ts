@@ -272,16 +272,14 @@ export namespace DataTable {
     row_headers: boolean
     scroll_to_selection: boolean
   }
-
-  export interface Opts extends TableWidget.Opts {}
 }
 
 export interface DataTable extends DataTable.Attrs {}
 
 export class DataTable extends TableWidget {
 
-  constructor(attrs?: Partial<DataTable.Attrs>, opts?: DataTable.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<DataTable.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

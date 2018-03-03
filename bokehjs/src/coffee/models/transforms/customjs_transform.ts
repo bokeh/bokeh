@@ -11,16 +11,14 @@ export namespace CustomJSTransform {
     func: string
     v_func: string
   }
-
-  export interface Opts extends Transform.Opts {}
 }
 
 export interface CustomJSTransform extends CustomJSTransform.Attrs {}
 
 export class CustomJSTransform extends Transform {
 
-  constructor(attrs?: Partial<CustomJSTransform.Attrs>, opts?: CustomJSTransform.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<CustomJSTransform.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

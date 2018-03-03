@@ -13,16 +13,14 @@ export namespace Selection {
     get_view: () => GlyphView | null
     multiline_indices: {[key: string]: number[]}
   }
-
-  export interface Opts extends Model.Opts {}
 }
 
 export interface Selection extends Selection.Attrs {}
 
 export class Selection extends Model {
 
-  constructor(attrs?: Partial<Selection.Attrs>, opts?: Selection.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Selection.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

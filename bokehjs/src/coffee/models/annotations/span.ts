@@ -119,16 +119,14 @@ export namespace Span {
     for_hover: boolean
     computed_location: number | null
   }
-
-  export interface Opts extends Annotation.Opts {}
 }
 
 export interface Span extends Span.Attrs {}
 
 export class Span extends Annotation {
 
-  constructor(attrs?: Partial<Span.Attrs>, opts?: Span.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Span.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

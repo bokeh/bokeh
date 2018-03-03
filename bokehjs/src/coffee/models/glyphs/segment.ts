@@ -122,16 +122,14 @@ export namespace Segment {
     x1: NumberSpec
     y1: NumberSpec
   }
-
-  export interface Opts extends Glyph.Opts {}
 }
 
 export interface Segment extends Segment.Attrs {}
 
 export class Segment extends Glyph {
 
-  constructor(attrs?: Partial<Segment.Attrs>, opts?: Segment.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Segment.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

@@ -8,16 +8,14 @@ export namespace ArrowHead {
   export interface Attrs extends Annotation.Attrs {
     size: number
   }
-
-  export interface Opts extends Annotation.Opts {}
 }
 
 export interface ArrowHead extends ArrowHead.Attrs {}
 
 export abstract class ArrowHead extends Annotation {
 
-  constructor(attrs?: Partial<ArrowHead.Attrs>, opts?: ArrowHead.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<ArrowHead.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {
@@ -46,15 +44,14 @@ export namespace OpenHead {
 
   export interface Attrs extends ArrowHead.Attrs, Mixins {}
 
-  export interface Opts extends ArrowHead.Opts {}
 }
 
 export interface OpenHead extends OpenHead.Attrs {}
 
 export class OpenHead extends ArrowHead {
 
-  constructor(attrs?: Partial<OpenHead.Attrs>, opts?: OpenHead.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<OpenHead.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {
@@ -95,15 +92,14 @@ export namespace NormalHead {
 
   export interface Attrs extends ArrowHead.Attrs, Mixins {}
 
-  export interface Opts extends ArrowHead.Opts {}
 }
 
 export interface NormalHead extends NormalHead.Attrs {}
 
 export class NormalHead extends ArrowHead {
 
-  constructor(attrs?: Partial<NormalHead.Attrs>, opts?: NormalHead.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<NormalHead.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {
@@ -157,15 +153,14 @@ export namespace VeeHead {
 
   export interface Attrs extends ArrowHead.Attrs, Mixins {}
 
-  export interface Opts extends ArrowHead.Opts {}
 }
 
 export interface VeeHead extends VeeHead.Attrs {}
 
 export class VeeHead extends ArrowHead {
 
-  constructor(attrs?: Partial<VeeHead.Attrs>, opts?: VeeHead.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<VeeHead.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {
@@ -221,15 +216,14 @@ export namespace TeeHead {
 
   export interface Attrs extends ArrowHead.Attrs, Mixins {}
 
-  export interface Opts extends ArrowHead.Opts {}
 }
 
 export interface TeeHead extends TeeHead.Attrs {}
 
 export class TeeHead extends ArrowHead {
 
-  constructor(attrs?: Partial<TeeHead.Attrs>, opts?: TeeHead.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<TeeHead.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

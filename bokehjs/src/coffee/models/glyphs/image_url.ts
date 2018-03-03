@@ -183,16 +183,14 @@ export namespace ImageURL {
     retry_attempts: number
     retry_timeout: number
   }
-
-  export interface Opts extends Glyph.Opts {}
 }
 
 export interface ImageURL extends ImageURL.Attrs {}
 
 export class ImageURL extends Glyph {
 
-  constructor(attrs?: Partial<ImageURL.Attrs>, opts?: ImageURL.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<ImageURL.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

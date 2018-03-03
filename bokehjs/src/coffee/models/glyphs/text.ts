@@ -79,16 +79,14 @@ export namespace Text {
     x_offset: NumberSpec
     y_offset: NumberSpec
   }
-
-  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Text extends Text.Attrs {}
 
 export class Text extends XYGlyph {
 
-  constructor(attrs?: Partial<Text.Attrs>, opts?: Text.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Text.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

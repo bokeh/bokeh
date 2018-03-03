@@ -142,16 +142,14 @@ export namespace Image {
     dilate: boolean
     color_mapper: ColorMapper
   }
-
-  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Image extends Image.Attrs {}
 
 export class Image extends XYGlyph {
 
-  constructor(attrs?: Partial<Image.Attrs>, opts?: Image.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Image.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {
