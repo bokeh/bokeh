@@ -31,12 +31,4 @@ Minor ticks are no longer displayed outside explicitly set axis bounds.
 Previously minor ticks would display one extra "major tick" distance outside
 explicit range bounds.
 
-Sphinx Plot Extension
-~~~~~~~~~~~~~~~~~~~~~
-
-The `bokeh-plot` Sphinx extension previously assumed the location of scripts was relative
-to a `source` subdirectory of the Sphinx project. This is no longer the case. Now, the full
-relative path from the Sphinx project (i.e. from the `Makefile`) should be provided.
-
-
 .. _project roadmap: https://bokehplots.com/pages/roadmap.html
