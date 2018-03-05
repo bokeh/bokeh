@@ -3,6 +3,7 @@
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 //     Underscore may be freely distributed under the MIT license.
 
+import {TypedArray} from "../types"
 import {all} from "./array"
 
 const toString = Object.prototype.toString
@@ -37,6 +38,10 @@ export function isArray<T>(obj: any): obj is T[] {
 
 export function isArrayOf<T>(arr: any[], predicate: (item: any) => item is T): arr is T[] {
   return all(arr, predicate)
+}
+
+export function isTypedArray(obj: any): obj is TypedArray {
+  return obj != null && obj.buffer != null && obj.buffer instanceof ArrayBuffer
 }
 
 export function isObject(obj: any): obj is Object {

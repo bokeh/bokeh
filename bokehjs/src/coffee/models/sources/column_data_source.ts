@@ -1,97 +1,101 @@
-/* XXX: partial */
 import {ColumnarDataSource} from "./columnar_data_source"
 import {HasProps} from "core/has_props"
+import {Arrayable} from "core/types"
 import * as p from "core/properties"
 import {Set} from "core/util/data_structures"
 import {Shape, encode_column_data, decode_column_data} from "core/util/serialization"
-import {isArray, isNumber, isObject} from "core/util/types"
-
-// exported for testing
-export const concat_typed_arrays = function(a, b) {
-  const c = new (a.constructor)(a.length + b.length)
-  c.set(a, 0)
-  c.set(b, a.length)
-  return c
-}
+import {isTypedArray, isArray, isNumber, isObject} from "core/util/types"
+import {TypedArray} from "core/types"
+import * as typed_array from "core/util/typed_array"
+import {keys} from "core/util/object"
 
 //exported for testing
-export const stream_to_column = function(col, new_col, rollover?: number) {
-  // handle regular (non-typed) arrays
-  if (col.concat != null) {
-    col = col.concat(new_col)
+export function stream_to_column(col: Arrayable, new_col: Arrayable, rollover?: number): Arrayable {
+  if (isArray(col)) {
+    const result = col.concat(new_col)
 
-    if (rollover != null && col.length > rollover)
-      col = col.slice(-rollover)
+    if (rollover != null && result.length > rollover)
+      return result.slice(-rollover)
+    else
+      return result
+  } else if (isTypedArray(col)) {
+    const total_len = col.length + new_col.length
 
-    return col
-  }
+    // handle rollover case for typed arrays
+    if (rollover != null && total_len > rollover) {
+      const start = total_len - rollover
+      const end = col.length
 
-  const total_len = col.length + new_col.length
+      // resize col if it is shorter than the rollover length
+      let result: TypedArray
+      if (col.length < rollover) {
+        result = new ((col as any).constructor)(rollover)
+        result.set(col, 0)
+      } else
+        result = col
 
-  // handle rollover case for typed arrays
-  if (rollover != null && total_len > rollover) {
-    const start = total_len - rollover
-    const end = col.length
+      // shift values in original col to accommodate new_col
+      for (let i = start, endi = end; i < endi; i++) {
+        result[i-start] = result[i]
+      }
 
-    // resize col if it is shorter than the rollover length
-    if (col.length < rollover) {
-      const tmp = new (col.constructor)(rollover)
-      tmp.set(col, 0)
-      col = tmp
+      // update end values in col with new_col
+      for (let i = 0, endi = new_col.length; i < endi; i++) {
+        result[i+(end-start)] = new_col[i]
+      }
+
+      return result
+    } else {
+      const tmp = new ((col as any).constructor)(new_col)
+      return typed_array.concat(col, tmp)
     }
-
-    // shift values in original col to accommodate new_col
-    for (let i = start, endi = end; i < endi; i++) {
-      col[i-start] = col[i]
-    }
-
-    // update end values in col with new_col
-    for (let i = 0, endi = new_col.length; i < endi; i++) {
-      col[i+(end-start)] = new_col[i]
-    }
-
-    return col
-  }
-
-  // handle non-rollover case for typed arrays
-  const tmp = new col.constructor(new_col)
-  return concat_typed_arrays(col, tmp)
+  } else
+    throw new Error("unsupported array types")
 }
 
 // exported for testing
-export const slice = function(ind, length) {
-  let ref, start, step, stop
-  if (isObject(ind)) {
-    return [ind.start != null ? ind.start : 0, ind.stop != null ? ind.stop : length, ind.step != null ? ind.step : 1]
+export function slice(ind: number | {start?: number, stop?: number, step?: number}, length: number): [number, number, number] {
+  let start: number, step: number, stop: number
+
+  if (isNumber(ind)) {
+    start = ind
+    stop  = ind + 1
+    step  = 1
+  } else {
+    start = ind.start != null ? ind.start : 0
+    stop  = ind.stop  != null ? ind.stop  : length
+    step  = ind.step  != null ? ind.step  : 1
   }
-  return [start, stop, step] = ref = [ind, ind+1, 1], ref
+
+  return [start, stop, step]
 }
 
+export type Index = number | [number, number] | [number, number, number]
+
 // exported for testing
-export function patch_to_column(col, patch, shapes: Shape[]) {
-  const patched = new Set()
+export function patch_to_column(col: Arrayable, patch: [Index, any][], shapes: Shape[]): Set<number> {
+  const patched: Set<number> = new Set()
   let patched_range = false
 
   for (let [ind, value] of patch) {
 
     // make the single index case look like the length-3 multi-index case
-    let  item, shape
-    if (!isArray(ind)) {
+    let item: Arrayable, shape: Shape
+    if (isArray(ind)) {
+      const [i] = ind
+      patched.push(i)
+      shape = shapes[i]
+      item = col[i]
+    } else  {
       if (isNumber(ind)) {
         value = [value]
         patched.push(ind)
-      } else {
+      } else
         patched_range = true
-      }
 
       ind = [0, 0, ind]
       shape = [1, col.length]
       item = col
-
-    } else {
-      patched.push(ind[0])
-      shape = shapes[ind[0]]
-      item = col[ind[0]]
     }
 
     // this is basically like NumPy's "newaxis", inserting an empty dimension
@@ -126,7 +130,7 @@ export function patch_to_column(col, patch, shapes: Shape[]) {
 // Each column should be the same length.
 export namespace ColumnDataSource {
   export interface Attrs extends ColumnarDataSource.Attrs {
-    data: {[key: string]: any[]}
+    data: {[key: string]: Arrayable}
   }
 }
 
@@ -151,49 +155,47 @@ export class ColumnDataSource extends ColumnarDataSource {
     [this.data, this._shapes] = decode_column_data(this.data)
   }
 
-  attributes_as_json(include_defaults: boolean = true, value_to_json = ColumnDataSource._value_to_json) {
-    const attrs = {}
-    const object = this.serializable_attributes()
-    for (const key of Object.keys(object || {})) {
-      let value = object[key]
-      if (key === 'data') {
+  attributes_as_json(include_defaults: boolean = true, value_to_json = ColumnDataSource._value_to_json): any {
+    const attrs: {[key: string]: any} = {}
+    const obj = this.serializable_attributes()
+    for (const key of keys(obj)) {
+      let value = obj[key]
+      if (key === 'data')
         value = encode_column_data(value, this._shapes)
-      }
-      if (include_defaults) {
+
+      if (include_defaults)
         attrs[key] = value
-      } else if (key in this._set_after_defaults) {
+      else if (key in this._set_after_defaults)
         attrs[key] = value
-      }
     }
     return value_to_json("attributes", attrs, this)
   }
 
-  static _value_to_json(key, value, optional_parent_object) {
-    if (isObject(value) && (key === 'data')) {
+  static _value_to_json(key: string, value: any, optional_parent_object: any): any {
+    if (isObject(value) && key === 'data')
       return encode_column_data(value, optional_parent_object._shapes)
-    } else {
+    else
       return HasProps._value_to_json(key, value, optional_parent_object)
-    }
   }
 
-  stream(new_data, rollover) {
-    const { data } = this
+  stream(new_data: {[key: string]: any[]}, rollover?: number): void {
+    const {data} = this
     for (const k in new_data) {
       data[k] = stream_to_column(data[k], new_data[k], rollover)
     }
     this.setv({data}, {silent: true})
-    return this.streaming.emit(undefined)
+    this.streaming.emit(undefined)
   }
 
-  patch(patches) {
-    const { data } = this
-    let patched = new Set()
+  patch(patches: [Index, any][]): void {
+    const {data} = this
+    let patched: Set<number> = new Set()
     for (const k in patches) {
       const patch = patches[k]
-      patched = patched.union(patch_to_column(data[k], patch, this._shapes[k]))
+      patched = patched.union(patch_to_column(data[k], patch, this._shapes[k] as Shape[]))
     }
     this.setv({data}, {silent: true})
-    return this.patching.emit(patched.values)
+    this.patching.emit(patched.values)
   }
 }
 ColumnDataSource.initClass()

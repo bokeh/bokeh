@@ -1,15 +1,6 @@
-import {isArray, isObject} from "./types"
+import {TypedArray} from "../types"
+import {isTypedArray, isArray, isObject} from "./types"
 import {map} from "./array"
-
-export type TypedArray =
-  Uint8Array   | Int8Array    |
-  Uint16Array  | Int16Array   |
-  Uint32Array  | Int32Array   |
-  Float32Array | Float64Array
-
-export function isTypedArray(v: any): v is TypedArray {
-  return v != null && v.buffer != null && v.buffer instanceof ArrayBuffer
-}
 
 export const ARRAY_TYPES = {
   uint8:   Uint8Array,
