@@ -90,7 +90,7 @@ gulp.task("scripts:ts", () => {
   return result
 })
 
-gulp.task("~scripts:ts", () => {
+gulp.task("~scripts:ts", ["scripts:ts"], () => {
   gulp.watch(join(paths.src_dir.ts, "**", "*.ts"), ["scripts:ts"])
 })
 
