@@ -12,6 +12,7 @@ import {Anchor} from "core/enums"
 import {logger} from "core/logging";
 import {extend} from "core/util/object";
 import {isArray} from "core/util/types";
+import {SpatialIndex} from "core/util/spatial"
 import {LineView} from "./line";
 import {Selection} from "../selections/selection";
 
@@ -19,6 +20,8 @@ export abstract class GlyphView extends View {
   model: Glyph
 
   glglyph?: any
+
+  index: SpatialIndex | null = null
 
   initialize(options: any): void {
     super.initialize(options);
@@ -81,11 +84,10 @@ export abstract class GlyphView extends View {
   }
 
   bounds() {
-    if ((this.index == null)) {
-      return bbox.empty();
-    } else {
-      return this._bounds(this.index.bbox);
-    }
+    if (this.index == null)
+      return bbox.empty()
+    else
+      return this._bounds(this.index.bbox)
   }
 
   log_bounds() {
@@ -256,7 +258,7 @@ export abstract class GlyphView extends View {
     return result;
   }
 
-  set_data(source, indices, indices_to_update) {
+  set_data(source, indices, indices_to_update): void {
     let data = this.model.materialize_dataspecs(source);
 
     this.visuals.set_all_indices(indices);
@@ -307,12 +309,16 @@ export abstract class GlyphView extends View {
 
     this._set_data(source, indices_to_update); //TODO doesn't take subset indices into account
 
-    return this.index = this._index_data();
+    this.index_data()
   }
 
   _set_data(_source, _indices) {}
 
-  _index_data() {}
+  protected abstract _index_data(): SpatialIndex | null
+
+  index_data(): void {
+    this.index = this._index_data()
+  }
 
   mask_data(indices) {
     // WebGL can do the clipping much more efficiently
