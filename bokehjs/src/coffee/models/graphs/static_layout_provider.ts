@@ -27,9 +27,10 @@ export class StaticLayoutProvider extends LayoutProvider {
   get_node_coordinates(node_source: ColumnarDataSource): [number[], number[]] {
     const xs: number[] = []
     const ys: number[] = []
-    for (const i of node_source.data.index) {
-      const x = (this.graph_layout[i] != null) ? this.graph_layout[i][0] : NaN
-      const y = (this.graph_layout[i] != null) ? this.graph_layout[i][1] : NaN
+    const index = node_source.data.index
+    for (let i = 0, end = index.length; i < end; i++) {
+      const point = this.graph_layout[index[i]]
+      const [x, y] = point != null ? point : [NaN, NaN]
       xs.push(x)
       ys.push(y)
     }

@@ -1,9 +1,8 @@
 import {Keys} from "core/dom"
 import {GestureEvent, TapEvent, KeyEvent} from "core/ui_events"
 import * as p from "core/properties"
-import {copy} from "core/util/array"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
-import {EditTool, EditToolView, HasCDS, HasXYGlyph} from "./edit_tool"
+import {EditTool, EditToolView, HasXYGlyph} from "./edit_tool"
 
 export class PointDrawToolView extends EditToolView {
   model: PointDrawTool
@@ -26,20 +25,9 @@ export class PointDrawToolView extends EditToolView {
     const [xkey, ykey] = [glyph.x.field, glyph.y.field];
     const [x, y] = point;
 
-    if (xkey) {
-      let xs = ds.data[xkey];
-      if ((xs.push == null)) {
-        ds.data[xkey] = (xs = copy(xs));
-      }
-      xs.push(x);
-    }
-    if (ykey) {
-      let ys = ds.data[ykey];
-      if ((ys.push == null)) {
-        ds.data[ykey] = (ys = copy(ys));
-      }
-      ys.push(y);
-    }
+    if (xkey) ds.data[xkey].push(x)
+    if (ykey) ds.data[ykey].push(y);
+
     this._pad_empty_columns(ds, [xkey, ykey]);
 
     ds.change.emit(undefined);
@@ -53,7 +41,7 @@ export class PointDrawToolView extends EditToolView {
         this._delete_selected(renderer);
       } else if (ev.keyCode == Keys.Esc) {
         // Type once selection_manager is typed
-        const cds: any = renderer.data_source;
+        const cds = renderer.data_source;
         cds.selection_manager.clear();
       }
     }
@@ -87,7 +75,7 @@ export namespace PointDrawTool {
   export interface Attrs extends EditTool.Attrs {
     add: boolean
     drag: boolean
-    renderers: (GlyphRenderer & HasCDS & HasXYGlyph)[]
+    renderers: (GlyphRenderer & HasXYGlyph)[]
   }
 }
 
@@ -95,7 +83,7 @@ export interface PointDrawTool extends PointDrawTool.Attrs {}
 
 export class PointDrawTool extends EditTool {
 
-  renderers: (GlyphRenderer & HasCDS & HasXYGlyph)[]
+  renderers: (GlyphRenderer & HasXYGlyph)[]
 
   constructor(attrs?: Partial<PointDrawTool.Attrs>) {
     super(attrs)

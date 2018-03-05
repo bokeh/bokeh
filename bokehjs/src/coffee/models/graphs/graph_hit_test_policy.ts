@@ -166,7 +166,7 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
       nodes.push(edge_source.data.end[i])
     }
 
-    const node_indices = uniq(nodes).map((i: number) => node_source.data.index.indexOf(i))
+    const node_indices = uniq(nodes).map((i) => node_source.data.index.indexOf(i))
     const linked_nodes = create_empty_hit_test_result()
     linked_nodes.indices = node_indices
     return linked_nodes

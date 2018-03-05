@@ -91,7 +91,10 @@ export class AjaxDataSource extends RemoteDataSource {
         case "append": {
           const original_data = this.data
           for (const column of this.columns()) {
-            data[column] = original_data[column].concat(data[column]).slice(-max_size)
+            // XXX: support typed arrays
+            const old_col = Array.from(original_data[column])
+            const new_col = Array.from(data[column])
+            data[column] = old_col.concat(new_col).slice(-max_size)
           }
           this.data = data
           break

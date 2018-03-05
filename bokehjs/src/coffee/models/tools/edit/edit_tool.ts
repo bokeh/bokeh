@@ -1,15 +1,10 @@
 import * as p from "core/properties"
 import {UIEvent, MoveEvent} from "core/ui_events"
 import {PointGeometry} from "core/geometry"
-import {copy} from "core/util/array"
 import {XYGlyph} from "../../glyphs/xy_glyph"
-import {ColumnDataSource} from "../../sources/column_data_source"
+import {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GestureTool, GestureToolView} from "../gestures/gesture_tool"
-
-export interface HasCDS {
-  data_source: ColumnDataSource
-}
 
 export interface HasXYGlyph {
   glyph: XYGlyph
@@ -39,17 +34,13 @@ export abstract class EditToolView extends GestureToolView {
     return [x, y];
   }
 
-  _delete_selected(renderer: GlyphRenderer & HasCDS): void {
+  _delete_selected(renderer: GlyphRenderer): void {
     // Deletes all selected rows in the ColumnDataSource
-    const cds: any = renderer.data_source;
+    const cds = renderer.data_source;
     const indices = cds.selected.indices;
     indices.sort()
     for (const column of cds.columns()) {
-      let values = cds.data[column];
-      if ((values.splice == null)) {
-        // Convert typed arrays to regular arrays for editing
-        cds.data[column] = (values = copy(values));
-      }
+      const values = cds.data[column];
       for (let index = 0; index < indices.length; index++) {
         const ind = indices[index];
         values.splice(ind-index, 1);
@@ -60,7 +51,7 @@ export abstract class EditToolView extends GestureToolView {
     cds.selection_manager.clear();
   }
 
-  _drag_points(ev: UIEvent, renderers: (GlyphRenderer & HasCDS & HasXYGlyph)[]): void {
+  _drag_points(ev: UIEvent, renderers: (GlyphRenderer & HasXYGlyph)[]): void {
     if (this._basepoint == null) { return; };
     const [bx, by] = this._basepoint;
     for (const renderer of renderers) {
@@ -77,8 +68,8 @@ export abstract class EditToolView extends GestureToolView {
       const ds = renderer.data_source;
       const [xkey, ykey] = [glyph.x.field, glyph.y.field];
       for (const index of ds.selected.indices) {
-        if (xkey) { ds.data[xkey][index] += dx; }
-        if (ykey) { ds.data[ykey][index] += dy; }
+        if (xkey) ds.data[xkey][index] += dx
+        if (ykey) ds.data[ykey][index] += dy
       }
     }
     for (const renderer of renderers) {
@@ -87,20 +78,15 @@ export abstract class EditToolView extends GestureToolView {
     this._basepoint = [ev.sx, ev.sy];
   }
 
-  _pad_empty_columns(cds: ColumnDataSource, coord_columns: string[]): void {
+  _pad_empty_columns(cds: ColumnarDataSource, coord_columns: string[]): void {
     // Pad ColumnDataSource non-coordinate columns with empty_value
     for (const column of cds.columns()) {
-      if (coord_columns.indexOf(column) === -1) {
-        let values = cds.data[column];
-        if ((values.push == null)) {
-          cds.data[column] = (values = copy(values));
-        }
-        values.push(this.model.empty_value);
-      }
+      if (coord_columns.indexOf(column) === -1)
+        cds.data[column].push(this.model.empty_value)
     }
   }
 
-  _select_event(ev: UIEvent, append: boolean, renderers: (GlyphRenderer & HasCDS)[]): (GlyphRenderer & HasCDS)[] {
+  _select_event(ev: UIEvent, append: boolean, renderers: GlyphRenderer[]): GlyphRenderer[] {
     // Process selection event on the supplied renderers and return selected renderers
     const frame = this.plot_model.frame;
     const {sx, sy} = ev
@@ -130,7 +116,7 @@ export abstract class EditToolView extends GestureToolView {
 export namespace EditTool {
   export interface Attrs extends GestureTool.Attrs {
     empty_value: any
-    renderers: (GlyphRenderer & HasCDS)[]
+    renderers: GlyphRenderer[]
   }
 }
 
