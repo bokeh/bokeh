@@ -5,16 +5,14 @@ import * as p from "core/properties"
 
 export namespace Scale {
   export interface Attrs extends Transform.Attrs {}
-
-  export interface Opts extends Transform.Opts {}
 }
 
 export interface Scale extends Scale.Attrs {}
 
 export abstract class Scale extends Transform {
 
-  constructor(attrs?: Partial<Scale.Attrs>, opts?: Scale.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Scale.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

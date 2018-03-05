@@ -52,16 +52,14 @@ export namespace WheelZoomTool {
     dimensions: Dimensions
     speed: number
   }
-
-  export interface Opts extends GestureTool.Opts {}
 }
 
 export interface WheelZoomTool extends WheelZoomTool.Attrs {}
 
 export class WheelZoomTool extends GestureTool {
 
-  constructor(attrs?: Partial<WheelZoomTool.Attrs>, opts?: WheelZoomTool.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<WheelZoomTool.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

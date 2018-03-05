@@ -135,8 +135,6 @@ export namespace BoxEditTool {
     dimensions: Dimensions
     renderers: (GlyphRenderer & HasRectCDS)[]
   }
-
-  export interface Opts extends EditTool.Opts {}
 }
 
 export interface BoxEditTool extends BoxEditTool.Attrs {}
@@ -145,8 +143,8 @@ export class BoxEditTool extends EditTool {
 
   renderers: (GlyphRenderer & HasRectCDS)[]
 
-  constructor(attrs?: Partial<BoxEditTool.Attrs>, opts?: BoxEditTool.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<BoxEditTool.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

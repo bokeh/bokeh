@@ -265,16 +265,14 @@ export namespace Rect {
     height: DistanceSpec
     dilate: boolean
   }
-
-  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Rect extends Rect.Attrs {}
 
 export class Rect extends XYGlyph {
 
-  constructor(attrs?: Partial<Rect.Attrs>, opts?: Rect.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Rect.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

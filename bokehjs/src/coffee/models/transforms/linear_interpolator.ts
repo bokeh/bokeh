@@ -4,16 +4,14 @@ import {Interpolator} from "./interpolator"
 
 export namespace LinearInterpolator {
   export interface Attrs extends Interpolator.Attrs {}
-
-  export interface Opts extends Interpolator.Opts {}
 }
 
 export interface LinearInterpolator extends LinearInterpolator.Attrs {}
 
 export class LinearInterpolator extends Interpolator {
 
-  constructor(attrs?: Partial<LinearInterpolator.Attrs>, opts?: LinearInterpolator.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<LinearInterpolator.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

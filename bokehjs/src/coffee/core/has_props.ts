@@ -19,10 +19,6 @@ export module HasProps {
     id: string
   }
 
-  export interface Opts {
-    defer_initialization?: boolean
-  }
-
   export interface SetOptions {
     check_eq?: boolean
     silent?: boolean
@@ -160,7 +156,7 @@ export abstract class HasProps extends Signalable() {
 
   protected readonly _set_after_defaults: {[key: string]: boolean} = {}
 
-  constructor(attrs: {[key: string]: any} = {}, opts: HasProps.Opts = {}) {
+  constructor(attrs: {[key: string]: any} = {}) {
     super()
 
     for (const name in this.props) {
@@ -175,13 +171,19 @@ export abstract class HasProps extends Signalable() {
     if (attrs.id == null)
       this.setv({id: uniqueId()}, {silent: true})
 
+    const deferred = attrs.__deferred__ || false
+    if (deferred) {
+      attrs = clone(attrs)
+      delete attrs.__deferred__
+    }
+
     this.setv(attrs, {silent: true})
 
     // allowing us to defer initialization when loading many models
     // when loading a bunch of models, we want to do initialization as a second pass
     // because other objects that this one depends on might not be loaded yet
 
-    if (!opts.defer_initialization)
+    if (!deferred)
       this.finalize()
   }
 

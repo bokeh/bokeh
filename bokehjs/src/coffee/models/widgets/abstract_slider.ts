@@ -211,16 +211,14 @@ export namespace AbstractSlider {
     callback_policy: SliderCallbackPolicy
     bar_color: Color
   }
-
-  export interface Opts extends Widget.Opts {}
 }
 
 export interface AbstractSlider extends AbstractSlider.Attrs {}
 
 export abstract class AbstractSlider extends Widget {
 
-  constructor(attrs?: Partial<AbstractSlider.Attrs>, opts?: AbstractSlider.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<AbstractSlider.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

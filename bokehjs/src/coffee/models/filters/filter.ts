@@ -9,16 +9,14 @@ export namespace Filter {
   export interface Attrs extends Model.Attrs {
     filter: boolean[] | null
   }
-
-  export interface Opts extends Model.Opts {}
 }
 
 export interface Filter extends Filter.Attrs {}
 
 export class Filter extends Model {
 
-  constructor(attrs?: Partial<Filter.Attrs>, opts?: Filter.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Filter.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

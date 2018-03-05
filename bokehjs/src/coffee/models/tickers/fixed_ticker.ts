@@ -5,16 +5,14 @@ export namespace FixedTicker {
   export interface Attrs extends ContinuousTicker.Attrs {
     ticks: number[]
   }
-
-  export interface Opts extends ContinuousTicker.Opts {}
 }
 
 export interface FixedTicker extends FixedTicker.Attrs {}
 
 export class FixedTicker extends ContinuousTicker {
 
-  constructor(attrs?: Partial<FixedTicker.Attrs>, opts?: FixedTicker.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<FixedTicker.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

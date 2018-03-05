@@ -71,16 +71,14 @@ export namespace AbstractButton {
     button_type: ButtonType
     callback: any // XXX
   }
-
-  export interface Opts extends Widget.Opts {}
 }
 
 export interface AbstractButton extends AbstractButton.Attrs {}
 
 export abstract class AbstractButton extends Widget {
 
-  constructor(attrs?: Partial<AbstractButton.Attrs>, opts?: AbstractButton.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<AbstractButton.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

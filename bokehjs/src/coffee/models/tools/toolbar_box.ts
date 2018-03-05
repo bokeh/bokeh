@@ -17,16 +17,14 @@ import {build_views, remove_views} from "core/build_views"
 
 export namespace ProxyToolbar {
   export interface Attrs extends ToolbarBase.Attrs {}
-
-  export interface Opts extends ToolbarBase.Opts {}
 }
 
 export interface ProxyToolbar extends ProxyToolbar.Attrs {}
 
 export class ProxyToolbar extends ToolbarBase {
 
-  constructor(attrs?: Partial<ProxyToolbar.Attrs>, opts?: ProxyToolbar.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<ProxyToolbar.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {
@@ -217,15 +215,14 @@ export namespace ToolbarBox {
     toolbar_location: Location
   }
 
-  export interface Opts extends LayoutDOM.Opts {}
 }
 
 export interface ToolbarBox extends ToolbarBox.Attrs {}
 
 export class ToolbarBox extends LayoutDOM {
 
-  constructor(attrs?: Partial<ToolbarBox.Attrs>, opts?: ToolbarBox.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<ToolbarBox.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

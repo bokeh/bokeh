@@ -8,16 +8,14 @@ export namespace FuncTickFormatter {
     args: {[key: string]: any}
     code: string
   }
-
-  export interface Opts extends TickFormatter.Opts {}
 }
 
 export interface FuncTickFormatter extends FuncTickFormatter.Attrs {}
 
 export class FuncTickFormatter extends TickFormatter {
 
-  constructor(attrs?: Partial<FuncTickFormatter.Attrs>, opts?: FuncTickFormatter.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<FuncTickFormatter.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

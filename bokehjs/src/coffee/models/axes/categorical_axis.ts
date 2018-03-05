@@ -157,8 +157,6 @@ export namespace CategoricalAxis {
     group_text: Text,
     subgroup_text: Text,
   }
-
-  export interface Opts extends Axis.Opts {}
 }
 
 export interface CategoricalAxis extends CategoricalAxis.Attrs {}
@@ -168,8 +166,8 @@ export class CategoricalAxis extends Axis {
   ticker: CategoricalTicker
   formatter: CategoricalTickFormatter
 
-  constructor(attrs?: Partial<CategoricalAxis.Attrs>, opts?: CategoricalAxis.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<CategoricalAxis.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

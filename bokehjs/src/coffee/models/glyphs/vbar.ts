@@ -44,16 +44,14 @@ export namespace VBar {
     width: DistanceSpec
     top: NumberSpec
   }
-
-  export interface Opts extends Box.Opts {}
 }
 
 export interface VBar extends VBar.Attrs {}
 
 export class VBar extends Box {
 
-  constructor(attrs?: Partial<VBar.Attrs>, opts?: VBar.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<VBar.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

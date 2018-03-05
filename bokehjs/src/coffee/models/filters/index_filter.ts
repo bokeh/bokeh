@@ -9,16 +9,14 @@ export namespace IndexFilter {
   export interface Attrs extends Filter.Attrs {
     indices: number[] | null
   }
-
-  export interface Opts extends Filter.Opts {}
 }
 
 export interface IndexFilter extends IndexFilter.Attrs {}
 
 export class IndexFilter extends Filter {
 
-  constructor(attrs?: Partial<IndexFilter.Attrs>, opts?: IndexFilter.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<IndexFilter.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

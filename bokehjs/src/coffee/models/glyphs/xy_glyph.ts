@@ -27,16 +27,14 @@ export namespace XYGlyph {
     x: NumberSpec
     y: NumberSpec
   }
-
-  export interface Opts extends Glyph.Opts {}
 }
 
 export interface XYGlyph extends XYGlyph.Attrs {}
 
 export abstract class XYGlyph extends Glyph {
 
-  constructor(attrs?: Partial<XYGlyph.Attrs>, opts?: XYGlyph.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<XYGlyph.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

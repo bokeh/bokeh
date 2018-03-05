@@ -48,16 +48,14 @@ export namespace Arc {
     start_angle: AngleSpec
     end_angle: AngleSpec
   }
-
-  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Arc extends Arc.Attrs {}
 
 export class Arc extends XYGlyph {
 
-  constructor(attrs?: Partial<Arc.Attrs>, opts?: Arc.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Arc.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

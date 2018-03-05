@@ -11,16 +11,14 @@ export namespace NumeralTickFormatter {
     language: string
     rounding: RoundingFunction
   }
-
-  export interface Opts extends TickFormatter.Opts {}
 }
 
 export interface NumeralTickFormatter extends NumeralTickFormatter.Attrs {}
 
 export class NumeralTickFormatter extends TickFormatter {
 
-  constructor(attrs?: Partial<NumeralTickFormatter.Attrs>, opts?: NumeralTickFormatter.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<NumeralTickFormatter.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

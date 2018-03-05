@@ -136,16 +136,14 @@ export namespace Plot {
     match_aspect: boolean
     aspect_scale: number
   }
-
-  export interface Opts extends LayoutDOM.Opts {}
 }
 
 export interface Plot extends Plot.Attrs {}
 
 export class Plot extends LayoutDOM {
 
-  constructor(attrs?: Partial<Plot.Attrs>, opts?: Plot.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Plot.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

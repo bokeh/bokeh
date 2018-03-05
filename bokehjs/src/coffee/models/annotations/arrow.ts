@@ -142,16 +142,14 @@ export namespace Arrow {
     x_range_name: string
     y_range_name: string
   }
-
-  export interface Opts extends Annotation.Opts {}
 }
 
 export interface Arrow extends Arrow.Attrs {}
 
 export class Arrow extends Annotation {
 
-  constructor(attrs?: Partial<Arrow.Attrs>, opts?: Arrow.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Arrow.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

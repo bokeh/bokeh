@@ -8,16 +8,14 @@ export namespace GeoJSONDataSource {
   export interface Attrs extends ColumnarDataSource.Attrs {
     geojson: any
   }
-
-  export interface Opts extends ColumnarDataSource.Opts {}
 }
 
 export interface GeoJSONDataSource extends GeoJSONDataSource.Attrs {}
 
 export class GeoJSONDataSource extends ColumnarDataSource {
 
-  constructor(attrs?: Partial<GeoJSONDataSource.Attrs>, opts?: GeoJSONDataSource.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<GeoJSONDataSource.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

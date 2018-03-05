@@ -17,16 +17,14 @@ export namespace TableColumn {
     sortable: boolean
     default_sort: "ascending" | "descending"
   }
-
-  export interface Opts extends Model.Opts {}
 }
 
 export interface TableColumn extends TableColumn.Attrs {}
 
 export class TableColumn extends Model {
 
-  constructor(attrs?: Partial<TableColumn.Attrs>, opts?: TableColumn.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<TableColumn.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

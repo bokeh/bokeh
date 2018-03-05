@@ -2,16 +2,14 @@ import {MercatorTileSource} from './mercator_tile_source'
 
 export namespace QUADKEYTileSource {
   export interface Attrs extends MercatorTileSource.Attrs {}
-
-  export interface Opts extends MercatorTileSource.Opts {}
 }
 
 export interface QUADKEYTileSource extends QUADKEYTileSource.Attrs {}
 
 export class QUADKEYTileSource extends MercatorTileSource {
 
-  constructor(attrs?: Partial<QUADKEYTileSource.Attrs>, opts?: QUADKEYTileSource.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<QUADKEYTileSource.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

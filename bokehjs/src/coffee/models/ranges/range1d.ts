@@ -9,16 +9,14 @@ export namespace Range1d {
     min_interval: number
     max_interval: number
   }
-
-  export interface Opts extends Range.Opts {}
 }
 
 export interface Range1d extends Range1d.Attrs {}
 
 export class Range1d extends Range {
 
-  constructor(attrs?: Partial<Range1d.Attrs>, opts?: Range1d.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Range1d.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

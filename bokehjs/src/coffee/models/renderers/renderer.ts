@@ -40,16 +40,14 @@ export namespace Renderer {
   }
 
   export type Visuals = visuals.Visuals
-
-  export interface Opts extends Model.Opts {}
 }
 
 export interface Renderer extends Renderer.Attrs {}
 
 export abstract class Renderer extends Model {
 
-  constructor(attrs?: Partial<Renderer.Attrs>, opts?: Renderer.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Renderer.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

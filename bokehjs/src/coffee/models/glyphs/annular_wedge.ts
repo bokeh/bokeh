@@ -138,16 +138,14 @@ export namespace AnnularWedge {
     start_angle: AngleSpec
     end_angle:  AngleSpec
   }
-
-  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface AnnularWedge extends AnnularWedge.Attrs {}
 
 export class AnnularWedge extends XYGlyph {
 
-  constructor(attrs?: Partial<AnnularWedge.Attrs>, opts?: AnnularWedge.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<AnnularWedge.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

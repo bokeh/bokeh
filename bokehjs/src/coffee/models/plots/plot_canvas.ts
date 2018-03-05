@@ -937,8 +937,6 @@ export namespace PlotCanvas {
     canvas: Canvas
     frame: CartesianFrame
   }
-
-  export interface Opts extends LayoutDOM.Opts {}
 }
 
 export interface PlotCanvas extends PlotCanvas.Attrs {
@@ -947,8 +945,8 @@ export interface PlotCanvas extends PlotCanvas.Attrs {
 
 export class PlotCanvas extends LayoutDOM {
 
-  constructor(attrs?: Partial<PlotCanvas.Attrs>, opts?: PlotCanvas.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<PlotCanvas.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

@@ -19,16 +19,14 @@ export namespace Panel {
     child: LayoutDOM
     closable: boolean
   }
-
-  export interface Opts extends Widget.Opts {}
 }
 
 export interface Panel extends Panel.Attrs {}
 
 export class Panel extends Widget {
 
-  constructor(attrs?: Partial<Panel.Attrs>, opts?: Panel.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Panel.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

@@ -3,16 +3,14 @@ import {Model} from "../../model"
 
 export namespace Transform {
   export interface Attrs extends Model.Attrs {}
-
-  export interface Opts extends Model.Opts {}
 }
 
 export interface Transform extends Transform.Attrs {}
 
 export abstract class Transform extends Model {
 
-  constructor(attrs?: Partial<Transform.Attrs>, opts?: Transform.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Transform.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

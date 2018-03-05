@@ -5,16 +5,14 @@ export namespace BBoxTileSource {
   export interface Attrs extends MercatorTileSource.Attrs {
     use_latlon: boolean
   }
-
-  export interface Opts extends MercatorTileSource.Opts {}
 }
 
 export interface BBoxTileSource extends BBoxTileSource.Attrs {}
 
 export class BBoxTileSource extends MercatorTileSource {
 
-  constructor(attrs?: Partial<BBoxTileSource.Attrs>, opts?: BBoxTileSource.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<BBoxTileSource.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

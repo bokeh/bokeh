@@ -61,16 +61,14 @@ export namespace Step {
   export interface Attrs extends XYGlyph.Attrs, Mixins {
     mode: StepMode
   }
-
-  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Step extends Step.Attrs {}
 
 export class Step extends XYGlyph {
 
-  constructor(attrs?: Partial<Step.Attrs>, opts?: Step.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Step.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

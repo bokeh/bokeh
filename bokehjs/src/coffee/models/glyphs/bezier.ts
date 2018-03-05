@@ -128,16 +128,14 @@ export namespace Bezier {
     cx1: NumberSpec
     cy1: NumberSpec
   }
-
-  export interface Opts extends Glyph.Opts {}
 }
 
 export interface Bezier extends Bezier.Attrs {}
 
 export class Bezier extends Glyph {
 
-  constructor(attrs?: Partial<Bezier.Attrs>, opts?: Bezier.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Bezier.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

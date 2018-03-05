@@ -8,16 +8,14 @@ export namespace MercatorTickFormatter {
   export interface Attrs extends BasicTickFormatter.Attrs {
     dimension: LatLon
   }
-
-  export interface Opts extends BasicTickFormatter.Opts {}
 }
 
 export interface MercatorTickFormatter extends MercatorTickFormatter.Attrs {}
 
 export class MercatorTickFormatter extends BasicTickFormatter {
 
-  constructor(attrs?: Partial<MercatorTickFormatter.Attrs>, opts?: MercatorTickFormatter.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<MercatorTickFormatter.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

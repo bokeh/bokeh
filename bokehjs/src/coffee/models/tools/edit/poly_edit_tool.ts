@@ -233,8 +233,6 @@ export namespace PolyEditTool {
     vertex_renderer: (GlyphRenderer & HasCDS & HasXYGlyph)
     renderers: (GlyphRenderer & HasCDS & HasPolyGlyph)[]
   }
-
-  export interface Opts extends EditTool.Opts {}
 }
 
 export interface PolyEditTool extends PolyEditTool.Attrs {}
@@ -243,8 +241,8 @@ export class PolyEditTool extends EditTool {
 
   renderers: (GlyphRenderer & HasCDS & HasPolyGlyph)[]
 
-  constructor(attrs?: Partial<PolyEditTool.Attrs>, opts?: PolyEditTool.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<PolyEditTool.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

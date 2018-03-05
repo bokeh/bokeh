@@ -10,16 +10,14 @@ export class SaveToolView extends ActionToolView {
 
 export namespace SaveTool {
   export interface Attrs extends ActionTool.Attrs {}
-
-  export interface Opts extends ActionTool.Opts {}
 }
 
 export interface SaveTool extends SaveTool.Attrs {}
 
 export class SaveTool extends ActionTool {
 
-  constructor(attrs?: Partial<SaveTool.Attrs>, opts?: SaveTool.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<SaveTool.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

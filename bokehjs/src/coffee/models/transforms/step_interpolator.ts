@@ -8,16 +8,14 @@ export namespace StepInterpolator {
   export interface Attrs extends Interpolator.Attrs {
     mode: StepMode
   }
-
-  export interface Opts extends Interpolator.Opts {}
 }
 
 export interface StepInterpolator extends StepInterpolator.Attrs {}
 
 export class StepInterpolator extends Interpolator {
 
-  constructor(attrs?: Partial<StepInterpolator.Attrs>, opts?: StepInterpolator.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<StepInterpolator.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

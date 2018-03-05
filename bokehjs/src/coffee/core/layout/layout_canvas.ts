@@ -9,16 +9,14 @@ export interface ViewTransform {
 
 export namespace LayoutCanvas {
   export interface Attrs extends HasProps.Attrs {}
-
-  export interface Opts extends HasProps.Opts {}
 }
 
 export interface LayoutCanvas extends LayoutCanvas.Attrs {}
 
 export abstract class LayoutCanvas extends HasProps {
 
-  constructor(attrs?: Partial<LayoutCanvas.Attrs>, opts?: LayoutCanvas.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<LayoutCanvas.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

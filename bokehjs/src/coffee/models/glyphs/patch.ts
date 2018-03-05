@@ -61,16 +61,14 @@ export namespace Patch {
   export interface Mixins extends LineMixinVector, FillMixinVector {}
 
   export interface Attrs extends XYGlyph.Attrs, Mixins {}
-
-  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Patch extends Patch.Attrs {}
 
 export class Patch extends XYGlyph {
 
-  constructor(attrs?: Partial<Patch.Attrs>, opts?: Patch.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Patch.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

@@ -98,16 +98,14 @@ export namespace Oval {
     width: DistanceSpec
     height: DistanceSpec
   }
-
-  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Oval extends Oval.Attrs {}
 
 export class Oval extends XYGlyph {
 
-  constructor(attrs?: Partial<Oval.Attrs>, opts?: Oval.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Oval.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

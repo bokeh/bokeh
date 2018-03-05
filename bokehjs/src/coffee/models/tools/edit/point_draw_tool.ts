@@ -89,8 +89,6 @@ export namespace PointDrawTool {
     drag: boolean
     renderers: (GlyphRenderer & HasCDS & HasXYGlyph)[]
   }
-
-  export interface Opts extends EditTool.Opts {}
 }
 
 export interface PointDrawTool extends PointDrawTool.Attrs {}
@@ -99,8 +97,8 @@ export class PointDrawTool extends EditTool {
 
   renderers: (GlyphRenderer & HasCDS & HasXYGlyph)[]
 
-  constructor(attrs?: Partial<PointDrawTool.Attrs>, opts?: PointDrawTool.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<PointDrawTool.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

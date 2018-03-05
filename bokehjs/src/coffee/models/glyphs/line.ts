@@ -134,16 +134,14 @@ export namespace Line {
   export interface Mixins extends LineMixinVector {}
 
   export interface Attrs extends XYGlyph.Attrs, Mixins {}
-
-  export interface Opts extends XYGlyph.Opts {}
 }
 
 export interface Line extends Line.Attrs {}
 
 export class Line extends XYGlyph {
 
-  constructor(attrs?: Partial<Line.Attrs>, opts?: Line.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Line.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

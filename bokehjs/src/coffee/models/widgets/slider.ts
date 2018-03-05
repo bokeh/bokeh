@@ -25,16 +25,14 @@ export class SliderView extends AbstractSliderView {
 
 export namespace Slider {
   export interface Attrs extends AbstractSlider.Attrs {}
-
-  export interface Opts extends AbstractSlider.Opts {}
 }
 
 export interface Slider extends Slider.Attrs {}
 
 export class Slider extends AbstractSlider {
 
-  constructor(attrs?: Partial<Slider.Attrs>, opts?: Slider.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Slider.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

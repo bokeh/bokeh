@@ -21,8 +21,6 @@ export namespace ColumnarDataSource {
     inspected: Selection
     _shapes: {[key: string]: Shape | Shape[]}
   }
-
-  export interface Opts extends DataSource.Opts {}
 }
 
 export interface ColumnarDataSource extends ColumnarDataSource.Attrs {}
@@ -37,8 +35,8 @@ export abstract class ColumnarDataSource extends DataSource {
   streaming: Signal<any, this>
   patching: Signal<any, this> // <number[], ColumnarDataSource>
 
-  constructor(attrs?: Partial<ColumnarDataSource.Attrs>, opts?: ColumnarDataSource.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<ColumnarDataSource.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

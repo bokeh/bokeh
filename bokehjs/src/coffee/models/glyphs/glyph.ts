@@ -360,16 +360,14 @@ export namespace Glyph {
     x_range_name: string
     y_range_name: string
   }
-
-  export interface Opts extends Model.Opts {}
 }
 
 export interface Glyph extends Glyph.Attrs {}
 
 export abstract class Glyph extends Model {
 
-  constructor(attrs?: Partial<Glyph.Attrs>, opts?: Glyph.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Glyph.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

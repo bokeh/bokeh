@@ -250,8 +250,6 @@ export class GMapPlotCanvasView extends PlotCanvasView {
 
 export namespace GMapPlotCanvas {
   export interface Attrs extends PlotCanvas.Attrs {}
-
-  export interface Opts extends PlotCanvas.Opts {}
 }
 
 export interface GMapPlotCanvas extends GMapPlotCanvas.Attrs {}
@@ -260,8 +258,8 @@ export class GMapPlotCanvas extends PlotCanvas {
 
   plot: GMapPlot
 
-  constructor(attrs?: Partial<GMapPlotCanvas.Attrs>, opts?: GMapPlotCanvas.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<GMapPlotCanvas.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

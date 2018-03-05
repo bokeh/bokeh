@@ -93,16 +93,14 @@ export namespace Label {
     y_range_name: string
     render_mode: RenderMode
   }
-
-  export interface Opts extends TextAnnotation.Opts {}
 }
 
 export interface Label extends Label.Attrs {}
 
 export class Label extends TextAnnotation {
 
-  constructor(attrs?: Partial<Label.Attrs>, opts?: Label.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Label.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

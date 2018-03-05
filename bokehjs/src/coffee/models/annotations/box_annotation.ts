@@ -134,16 +134,14 @@ export namespace BoxAnnotation {
     right: number | null
     right_units: SpatialUnits
   }
-
-  export interface Opts extends Annotation.Opts {}
 }
 
 export interface BoxAnnotation extends BoxAnnotation.Attrs {}
 
 export class BoxAnnotation extends Annotation {
 
-  constructor(attrs?: Partial<BoxAnnotation.Attrs>, opts?: BoxAnnotation.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<BoxAnnotation.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

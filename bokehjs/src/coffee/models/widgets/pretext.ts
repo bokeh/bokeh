@@ -14,16 +14,14 @@ export class PreTextView extends MarkupView {
 
 export namespace PreText {
   export interface Attrs extends Markup.Attrs {}
-
-  export interface Opts extends Markup.Opts {}
 }
 
 export interface PreText extends PreText.Attrs {}
 
 export class PreText extends Markup {
 
-  constructor(attrs?: Partial<PreText.Attrs>, opts?: PreText.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<PreText.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

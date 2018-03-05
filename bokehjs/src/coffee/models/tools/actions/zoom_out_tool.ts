@@ -31,16 +31,14 @@ export namespace ZoomOutTool {
     factor: number
     dimensions: Dimensions
   }
-
-  export interface Opts extends ActionTool.Opts {}
 }
 
 export interface ZoomOutTool extends ZoomOutTool.Attrs {}
 
 export class ZoomOutTool extends ActionTool {
 
-  constructor(attrs?: Partial<ZoomOutTool.Attrs>, opts?: ZoomOutTool.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<ZoomOutTool.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

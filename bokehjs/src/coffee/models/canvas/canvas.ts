@@ -131,16 +131,14 @@ export namespace Canvas {
     pixel_ratio: number
     output_backend: OutputBackend
   }
-
-  export interface Opts extends LayoutCanvas.Opts {}
 }
 
 export interface Canvas extends Canvas.Attrs {}
 
 export class Canvas extends LayoutCanvas {
 
-  constructor(attrs?: Partial<Canvas.Attrs>, opts?: Canvas.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Canvas.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

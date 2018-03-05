@@ -124,16 +124,14 @@ export namespace Grid {
     minor_grid_line: Line
     band_fill: Fill
   }
-
-  export interface Opts extends GuideRenderer.Opts {}
 }
 
 export interface Grid extends Grid.Attrs {}
 
 export class Grid extends GuideRenderer {
 
-  constructor(attrs?: Partial<Grid.Attrs>, opts?: Grid.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<Grid.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

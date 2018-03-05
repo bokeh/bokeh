@@ -455,16 +455,14 @@ export namespace ColorBar {
     minor_tick_in: number
     minor_tick_out: number
   }
-
-  export interface Opts extends Annotation.Opts {}
 }
 
 export interface ColorBar extends ColorBar.Attrs {}
 
 export class ColorBar extends Annotation {
 
-  constructor(attrs?: Partial<ColorBar.Attrs>, opts?: ColorBar.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<ColorBar.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

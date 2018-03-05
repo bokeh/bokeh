@@ -7,16 +7,14 @@ export abstract class GestureToolView extends ButtonToolView {
 
 export namespace GestureTool {
   export interface Attrs extends ButtonTool.Attrs {}
-
-  export interface Opts extends ButtonTool.Opts {}
 }
 
 export interface GestureTool extends GestureTool.Attrs {}
 
 export abstract class GestureTool extends ButtonTool {
 
-  constructor(attrs?: Partial<GestureTool.Attrs>, opts?: GestureTool.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<GestureTool.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

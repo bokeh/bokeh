@@ -13,16 +13,14 @@ export namespace LinearColorMapper {
     high_color: Color
     low_color: Color
   }
-
-  export interface Opts extends ColorMapper.Opts {}
 }
 
 export interface LinearColorMapper extends LinearColorMapper.Attrs {}
 
 export class LinearColorMapper extends ColorMapper {
 
-  constructor(attrs?: Partial<LinearColorMapper.Attrs>, opts?: LinearColorMapper.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<LinearColorMapper.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {

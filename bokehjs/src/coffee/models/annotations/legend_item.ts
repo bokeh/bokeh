@@ -12,16 +12,14 @@ export namespace LegendItem {
     label: StringSpec | null
     renderers: GlyphRenderer[]
   }
-
-  export interface Opts extends Model.Opts {}
 }
 
 export interface LegendItem extends LegendItem.Attrs {}
 
 export class LegendItem extends Model {
 
-  constructor(attrs?: Partial<LegendItem.Attrs>, opts?: LegendItem.Opts) {
-    super(attrs, opts)
+  constructor(attrs?: Partial<LegendItem.Attrs>) {
+    super(attrs)
   }
 
   static initClass(): void {
