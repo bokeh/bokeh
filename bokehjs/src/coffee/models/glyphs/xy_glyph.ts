@@ -1,6 +1,6 @@
 import {Arrayable} from "core/types"
 import {NumberSpec} from "core/vectorization"
-import {SpatialIndex, IndexedRect, RBush} from "core/util/spatial"
+import {SpatialIndex, IndexedRect} from "core/util/spatial"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 
 export interface XYGlyphData extends GlyphData {
@@ -30,7 +30,7 @@ export abstract class XYGlyphView extends GlyphView {
       points.push({minX: x, minY: y, maxX: x, maxY: y, i})
     }
 
-    return new RBush(points)
+    return new SpatialIndex(points)
   }
 
   scenterx(i: number): number {

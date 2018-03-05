@@ -1,5 +1,5 @@
 import {IBBox} from "core/util/bbox"
-import {SpatialIndex, RBush} from "core/util/spatial"
+import {SpatialIndex} from "core/util/spatial"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_area_legend} from "./utils"
 import {min, max, copy, findLastIndex} from "core/util/array"
@@ -94,7 +94,7 @@ export class PatchesView extends GlyphView {
       }
     }
 
-    return new RBush(points)
+    return new SpatialIndex(points)
   }
 
   protected _mask_data(): number[] {
