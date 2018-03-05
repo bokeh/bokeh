@@ -8,6 +8,11 @@ import {Context2d} from "core/util/canvas"
 export class ImageRGBAView extends XYGlyphView {
   model: ImageRGBA
 
+  initialize(options: any): void {
+    super.initialize(options);
+    this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_render());
+  }
+
   _set_data(_source, indices) {
     if ((this.image_data == null) || (this.image_data.length !== this._image.length)) {
       this.image_data = new Array(this._image.length);
@@ -88,6 +93,8 @@ export class ImageRGBAView extends XYGlyphView {
     const old_smoothing = ctx.getImageSmoothingEnabled();
     ctx.setImageSmoothingEnabled(false);
 
+    ctx.globalAlpha = this.model.global_alpha;
+
     for (const i of indices) {
 
       if (isNaN(sx[i]+sy[i]+sw[i]+sh[i])) {
@@ -121,6 +128,7 @@ export namespace ImageRGBA {
     image:  NumberSpec
     dw: DistanceSpec
     dh: DistanceSpec
+    global_alpha: number
     dilate: boolean
   }
 }
@@ -141,6 +149,7 @@ export class ImageRGBA extends XYGlyph {
       image:  [ p.NumberSpec       ], // TODO (bev) array spec?
       dw:     [ p.DistanceSpec     ],
       dh:     [ p.DistanceSpec     ],
+      global_alpha:   [ p.Number, 1.0 ],
       dilate: [ p.Bool,      false ],
     });
   }
