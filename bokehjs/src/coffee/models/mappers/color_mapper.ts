@@ -1,8 +1,7 @@
 /* XXX: partial */
-import * as p from "core/properties";
-import {Color} from "core/types"
-
 import {Transform} from "../transforms/transform";
+import * as p from "core/properties";
+import {Arrayable, Color} from "core/types"
 import {isNumber} from "core/util/types"
 
 export namespace ColorMapper {
@@ -71,14 +70,14 @@ export abstract class ColorMapper extends Transform {
     return buf;
   }
 
-  compute(_x) {
+  compute(_x: number): never {
     // If it's just a single value, then a color mapper doesn't
     // really make sense, so return nothing
-    return null;
+    return null as never
   }
 
-  v_compute(xs) {
-    return this._get_values(xs, this.palette);
+  v_compute(xs: Arrayable<number>): Arrayable<number> {
+    return this._get_values(xs, this.palette) as any // XXX
   }
 
   abstract _get_values(data: number[] | string[], palette: number[], image_glyph?: boolean): number[]

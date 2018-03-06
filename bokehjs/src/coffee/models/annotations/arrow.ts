@@ -6,6 +6,7 @@ import {ColumnDataSource} from "../sources/column_data_source";
 import {NumberSpec} from "core/vectorization"
 import {LineMixinVector} from "core/property_mixins"
 import {SpatialUnits} from "core/enums"
+import {Arrayable} from "core/types"
 import * as p from "core/properties";
 import {atan2} from "core/util/math"
 import {Context2d} from "core/util/canvas"
@@ -35,7 +36,7 @@ export class ArrowView extends AnnotationView {
     this.plot_view.request_render();
   }
 
-  _map_data() {
+  _map_data(): [Arrayable<number>, Arrayable<number>] {
     let sx_end, sx_start, sy_end, sy_start;
     const { frame } = this.plot_view;
 

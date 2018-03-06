@@ -28,7 +28,7 @@ export class BandView extends AnnotationView {
     this.plot_view.request_render();
   }
 
-  _map_data() {
+  _map_data(): void {
     let _base_sx, _lower_sx, _upper_sx;
     const { frame } = this.plot_view;
     const dim = this.model.dimension;
@@ -69,7 +69,7 @@ export class BandView extends AnnotationView {
     this._lower_sy = _lower[j];
 
     this._upper_sx = _upper[i];
-    return this._upper_sy = _upper[j];
+    this._upper_sy = _upper[j];
   }
 
   render() {

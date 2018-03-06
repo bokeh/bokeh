@@ -1,4 +1,5 @@
 import {Scale} from "./scale"
+import {Arrayable} from "core/types"
 
 export namespace LinearScale {
   export interface Attrs extends Scale.Attrs {}
@@ -21,7 +22,7 @@ export class LinearScale extends Scale {
     return factor * x + offset
   }
 
-  v_compute(xs: number[] | Float64Array): Float64Array {
+  v_compute(xs: Arrayable<number>): Arrayable<number> {
     const [factor, offset] = this._compute_state()
     const result = new Float64Array(xs.length)
     for (let i = 0; i < xs.length; i++)
@@ -34,7 +35,7 @@ export class LinearScale extends Scale {
     return (xprime - offset) / factor
   }
 
-  v_invert(xprimes: number[] | Float64Array): Float64Array {
+  v_invert(xprimes: Arrayable<number>): Arrayable<number> {
     const [factor, offset] = this._compute_state()
     const result = new Float64Array(xprimes.length)
     for (let i = 0; i < xprimes.length; i++)

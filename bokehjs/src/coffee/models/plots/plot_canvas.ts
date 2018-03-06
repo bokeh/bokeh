@@ -8,6 +8,7 @@ import {LayoutDOM} from "../layouts/layout_dom";
 import {Toolbar} from "../tools/toolbar";
 import {Plot} from "./plot";
 
+import {Arrayable} from "core/types"
 import {Signal} from "core/signaling";
 import {build_views, remove_views} from "core/build_views";
 import {UIEvents} from "core/ui_events";
@@ -301,8 +302,8 @@ export class PlotCanvasView extends DOMView {
     return this.range_update_timestamp = Date.now();
   }
 
-  map_to_screen(x: number[] | Float64Array, y: number[] | Float64Array,
-                x_name: string = "default", y_name: string = "default"): [Float64Array, Float64Array] {
+  map_to_screen(x: Arrayable<number>, y: Arrayable<number>,
+                x_name: string = "default", y_name: string = "default"): [Arrayable<number>, Arrayable<number>] {
     return this.frame.map_to_screen(x, y, x_name, y_name);
   }
 
