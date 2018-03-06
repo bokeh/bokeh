@@ -1,7 +1,6 @@
-/* XXX: partial */
-import {Interpolator} from "./interpolator";
+import {Interpolator} from "./interpolator"
 import {StepMode} from "core/enums"
-import * as p from "core/properties";
+import * as p from "core/properties"
 import {min, findIndex, findLastIndex} from "core/util/array"
 
 export namespace StepInterpolator {
@@ -23,59 +22,43 @@ export class StepInterpolator extends Interpolator {
 
     this.define({
       mode: [ p.StepMode, "after"],
-    });
+    })
   }
 
-  compute(x) {
-    // Apply the transform to a single value
-    let descending, ret;
-    this.sort(descending = false);
+  compute(x: number): number {
+    this.sort(false)
 
-    if (this.clip === true) {
-      if ((x < this._x_sorted[0]) || (x > this._x_sorted[this._x_sorted.length-1])) {
-        return(null);
-      }
+    if (this.clip) {
+      if (x < this._x_sorted[0] || x > this._x_sorted[this._x_sorted.length-1])
+        return NaN
     } else {
-      if (x < this._x_sorted[0]) {
-        return this._y_sorted[0];
+      if (x < this._x_sorted[0])
+        return this._y_sorted[0]
+      if (x > this._x_sorted[this._x_sorted.length-1])
+        return this._y_sorted[this._y_sorted.length-1]
+    }
+
+    let ind: number
+    switch (this.mode) {
+      case "after": {
+        ind = findLastIndex(this._x_sorted, num => x >= num)
+        break
       }
-      if (x > this._x_sorted[this._x_sorted.length-1]) {
-        return this._y_sorted[this._y_sorted.length-1];
+      case "before": {
+        ind = findIndex(this._x_sorted, num => x <= num)
+        break
       }
+      case "center": {
+        const diffs = this._x_sorted.map((tx) => Math.abs(tx - x))
+        const mdiff = min(diffs)
+        ind = findIndex(diffs, num => mdiff === num)
+        break
+      }
+      default:
+        throw new Error(`unknown mode: ${this.mode}`)
     }
 
-    let ind = -1;
-    if (this.mode === "after") {
-      ind = findLastIndex(this._x_sorted, num => x >= num);
-    }
-
-    if (this.mode === "before") {
-      ind = findIndex(this._x_sorted, num => x <= num);
-    }
-
-    if (this.mode === "center") {
-      const diffs = (this._x_sorted.map((tx) => Math.abs(tx - x)));
-      const mdiff = min(diffs);
-      ind = findIndex(diffs, num => mdiff === num);
-    }
-
-    if (ind !== -1) {
-      ret = this._y_sorted[ind];
-    } else {
-      ret = null;
-    }
-
-    return(ret);
-  }
-
-  v_compute(xs) {
-    // Apply the tranform to a vector of values
-    const result = new Float64Array(xs.length);
-    for (let idx = 0; idx < xs.length; idx++) {
-      const x = xs[idx];
-      result[idx] = this.compute(x);
-    }
-    return result;
+    return ind != -1 ? this._y_sorted[ind] : NaN
   }
 }
-StepInterpolator.initClass();
+StepInterpolator.initClass()

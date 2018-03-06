@@ -1,7 +1,7 @@
-/* XXX: partial */
-import {Transform} from "./transform";
-import * as p from "core/properties";
-import {values} from "core/util/object"
+import {Transform} from "./transform"
+import * as p from "core/properties"
+import {Arrayable} from "core/types"
+import {keys, values} from "core/util/object"
 
 declare var exports: {[key: string]: any}
 
@@ -22,37 +22,39 @@ export class CustomJSTransform extends Transform {
   }
 
   static initClass(): void {
-    this.prototype.type = 'CustomJSTransform';
+    this.prototype.type = 'CustomJSTransform'
 
     this.define({
-      args:         [ p.Any,          {}       ], // TODO (bev) better type
-      func:         [ p.String,       ""       ],
-      v_func:       [ p.String,       ""       ],
-    });
+      args:   [ p.Any,    {} ], // TODO (bev) better type
+      func:   [ p.String, "" ],
+      v_func: [ p.String, "" ],
+    })
   }
 
-  get values() {
-    return this._make_values()
+  get values(): any[] {
+    return values(this.args)
   }
 
-  get scalar_transform() {
+  protected _make_transform(val: string, fn: string): Function {
+    // this relies on keys(args) and values(args) returning keys and values
+    // in the same order
+    return new Function(...keys(this.args), val, "require", "exports", fn)
+  }
+
+  get scalar_transform(): Function {
     return this._make_transform("x", this.func)
   }
 
-  get vector_transform() {
+  get vector_transform(): Function {
     return this._make_transform("xs", this.v_func)
   }
 
-  compute(x) { return this.scalar_transform(...this.values, x, require, exports); }
-
-  v_compute(xs) { return this.vector_transform(...this.values, xs, require, exports); }
-
-  _make_transform(val, fn) {
-    // this relies on Object.keys(args) and values(args) returning keys and values
-    // in the same order
-    return new Function(...Object.keys(this.args), val, "require", "exports", fn);
+  compute(x: number): number {
+    return this.scalar_transform(...this.values, x, require, exports)
   }
 
-  _make_values() { return values(this.args); }
+  v_compute(xs: Arrayable<number>): Arrayable<number> {
+    return this.vector_transform(...this.values, xs, require, exports)
+  }
 }
-CustomJSTransform.initClass();
+CustomJSTransform.initClass()
