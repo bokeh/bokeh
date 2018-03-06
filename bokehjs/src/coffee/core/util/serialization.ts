@@ -1,6 +1,5 @@
 import {TypedArray} from "../types"
 import {isTypedArray, isArray, isObject} from "./types"
-import {map} from "./array"
 
 export const ARRAY_TYPES = {
   uint8:   Uint8Array,
@@ -147,8 +146,8 @@ export function process_array(obj: NDArray | BufferSpec | ArrayLike<any>, buffer
 
 export function arrayBufferToBase64(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer)
-  const binary = map(bytes, (b) => String.fromCharCode(b))
-  return btoa(binary.join(""))
+  const chars = Array.from(bytes).map((b) => String.fromCharCode(b))
+  return btoa(chars.join(""))
 }
 
 export function base64ToArrayBuffer(base64: string): ArrayBuffer {
