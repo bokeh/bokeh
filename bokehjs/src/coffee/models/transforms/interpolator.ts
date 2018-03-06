@@ -78,9 +78,9 @@ export abstract class Interpolator extends Transform {
     }
 
     if (descending)
-      list.sort((a, b) => a.x < b.x ? -1 : (a.x == b.x ? 0 : 1))
-    else
       list.sort((a, b) => a.x > b.x ? -1 : (a.x == b.x ? 0 : 1))
+    else
+      list.sort((a, b) => a.x < b.x ? -1 : (a.x == b.x ? 0 : 1))
 
     this._x_sorted = []
     this._y_sorted = []
