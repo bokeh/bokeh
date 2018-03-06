@@ -26,16 +26,12 @@ def test_subscribe():
     s.unsubscribe('connection2')
     assert s.connection_count == 0
 
-def test_destroy():
+def test_destroy_calls():
     d = Document()
     s = bss.ServerSession('some-id', d, 'ioloop')
     with mock.patch('bokeh.document.Document.delete_modules') as docdm:
-        s.destroy()
-        assert s.destroyed
+        with mock.patch('bokeh.document.Document.remove_on_change') as docroc:
+            s.destroy()
+            assert s.destroyed
+            docroc.assert_called_with(s)
         docdm.assert_called_once()
-
-    s = bss.ServerSession('some-id', d, 'ioloop')
-    with mock.patch('bokeh.document.Document.remove_on_change') as docroc:
-        s.destroy()
-        assert s.destroyed
-        docroc.assert_called_with(s)
