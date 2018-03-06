@@ -40,9 +40,20 @@ p2 = figure(x_range=(0, 10), y_range=(0, 10))
 
 # Solid line to show effect of alpha
 p2.line([0, 10], [10, 0], color='red', line_width=2)
-# Use alpha kwarg to set alpha value. Alpha now 0, 0.25, 0.5, 0, 0.25...
+# Use alpha kwarg to set alpha value to 0.5: alpha now 0, 0.25, 0.5, 0, 0.25...
 p2.image_rgba(image=[img], x=0, y=0, dw=10, dh=10, alpha=0.5)
 
-output_file("image_alpha.html", title="image_alpha.py example")
+# 3. Adding alpha for the image_url method
 
-show(Column(p1, p2))  # open a browser
+url = 'http://bokeh.pydata.org/en/latest/_static/images/logo.png'
+
+p3 = figure(x_range=(0, 10), y_range=(0, 10))
+# Solid line to show effect of alpha
+p3.line([5, 5], [0, 10], color='red', line_width=2)
+# Use alpha kwarg to set alpha value
+p3.image_url(url=[url], x=0, y=0, w=10, h=10, anchor='bottom_left', alpha=0.3)
+
+# Display images
+
+output_file("image_alpha.html", title="image_alpha.py example")
+show(Column(p1, p2, p3))

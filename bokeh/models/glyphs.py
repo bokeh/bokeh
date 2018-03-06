@@ -340,6 +340,10 @@ class Image(XYGlyph):
         'palette': (
             'str or list[color value]',
             'a palette to construct a value for the color mapper property from'
+        ),
+        'alpha': (
+            'float',
+            'a convenience parameter to set the global_alpha'
         )
     }
 
@@ -404,6 +408,14 @@ class ImageRGBA(XYGlyph):
     # functions derived from this class
     _args = ('image', 'x', 'y', 'dw', 'dh', 'global_alpha', 'dilate')
 
+    # a hook to specify any additional kwargs handled by an initializer
+    _extra_kws = {
+        'alpha': (
+            'float',
+            'a convenience parameter to set the global_alpha'
+        )
+    }
+
     image = NumberSpec(help="""
     The arrays of RGBA data for the images.
     """)
@@ -458,6 +470,14 @@ class ImageURL(XYGlyph):
     # a canonical order for positional args that can be used for any
     # functions derived from this class
     _args = ('url', 'x', 'y', 'w', 'h', 'angle', 'global_alpha', 'dilate')
+
+    # a hook to specify any additional kwargs handled by an initializer
+    _extra_kws = {
+        'alpha': (
+            'float',
+            'a convenience parameter to set the global_alpha'
+        )
+    }
 
     # TODO (bev) Why is this a NumberSpec??
     url = NumberSpec(accept_datetime=False, help="""
