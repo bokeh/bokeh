@@ -13,6 +13,7 @@
 # Boilerplate
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
+from six import raise_from
 
 import logging
 log = logging.getLogger(__name__)
@@ -240,6 +241,17 @@ def wait_until_render_complete(driver):
     '''
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.common.exceptions import TimeoutException
+
+    def is_bokeh_loaded(driver):
+        return driver.execute_script('''
+            const b = window.Bokeh;
+            return b && b.documents && b.documents.length > 0;
+        ''')
+
+    try:
+        WebDriverWait(driver, 5, poll_frequency=0.1).until(is_bokeh_loaded)
+    except TimeoutException as e:
+        raise_from(RuntimeError('Bokeh was not loaded in time. Something may have gone wrong.'), e)
 
     driver.execute_script(_WAIT_SCRIPT)
 
