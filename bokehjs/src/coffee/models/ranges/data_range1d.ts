@@ -287,7 +287,7 @@ export class DataRange1d extends DataRange {
     if (this.bounds == 'auto')
       this.setv({bounds: [start, end]}, {silent: true})
 
-    this.change.emit(undefined)
+    this.change.emit()
   }
 
   reset(): void {
@@ -300,7 +300,7 @@ export class DataRange1d extends DataRange {
       follow_interval: this._initial_follow_interval,
       default_span: this._initial_default_span,
     }, {silent: true})
-    this.change.emit(undefined)
+    this.change.emit()
   }
 }
 

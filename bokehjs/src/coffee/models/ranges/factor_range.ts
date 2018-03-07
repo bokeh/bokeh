@@ -179,7 +179,7 @@ export class FactorRange extends Range {
 
   reset(): void {
     this._init()
-    this.change.emit(undefined)
+    this.change.emit()
   }
 
   protected _lookup(x: any): number {

@@ -1,5 +1,5 @@
 import {HasProps} from "./has_props"
-import {Signal, Signalable} from "./signaling"
+import {Signal0, Signal, Signalable} from "./signaling"
 import {uniqueId} from "./util/string"
 
 export interface ViewOptions {
@@ -11,7 +11,7 @@ export interface ViewOptions {
 
 export class View extends Signalable() {
 
-  readonly removed = new Signal<void, this>(this, "removed")
+  readonly removed = new Signal0<this>(this, "removed")
 
   readonly id: string
 
@@ -41,7 +41,7 @@ export class View extends Signalable() {
   remove(): void {
     this._parent = undefined
     this.disconnect_signals()
-    this.removed.emit(undefined)
+    this.removed.emit()
   }
 
   toString(): string {

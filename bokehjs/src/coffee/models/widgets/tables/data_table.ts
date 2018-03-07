@@ -104,7 +104,7 @@ export class DataProvider {
   }
 
   _update_source_inplace() {
-    this.source.properties.data.change.emit(this.source.attributes['data']);
+    this.source.properties.data.change.emit();
   }
 }
 
@@ -139,7 +139,7 @@ export class DataTableView extends WidgetView {
 
     // This is only needed to call @_tell_document_about_change()
     this.model.source.data = this.model.source.data;
-    this.model.source.change.emit(undefined);
+    this.model.source.change.emit();
   }
 
   updateSelection() {

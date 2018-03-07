@@ -45,7 +45,7 @@ export class CDSView extends Model {
     super.connect_signals()
     this.connect(this.properties.filters.change, () => {
       this.compute_indices()
-      this.change.emit(undefined)
+      this.change.emit()
     })
     if (this.source != null) {
       if (this.source.change != null)

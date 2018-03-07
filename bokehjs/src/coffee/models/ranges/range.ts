@@ -46,7 +46,7 @@ export abstract class Range extends Model {
      * This method should be reimplemented by subclasses and ensure that
      * the callback, if exists, is executed at completion.
      */
-    this.change.emit(undefined)
+    this.change.emit()
   }
 
   protected _emit_callback(): void {

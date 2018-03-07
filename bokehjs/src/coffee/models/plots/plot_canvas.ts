@@ -9,7 +9,7 @@ import {Toolbar} from "../tools/toolbar";
 import {Plot} from "./plot";
 
 import {Arrayable} from "core/types"
-import {Signal} from "core/signaling";
+import {Signal0} from "core/signaling";
 import {build_views, remove_views} from "core/build_views";
 import {UIEvents} from "core/ui_events";
 import {Visuals} from "core/visuals";
@@ -50,7 +50,9 @@ export class PlotCanvasView extends DOMView {
   canvas: Canvas
   canvas_view: CanvasView
 
-  state_changed: Signal<void, this>
+  force_paint: Signal0<this>
+  state_changed: Signal0<this>
+
   renderer_views: {[key: string]: RendererView}
 
   state: {history: any[], index: number}
@@ -113,8 +115,8 @@ export class PlotCanvasView extends DOMView {
 
     super.initialize(options);
 
-    this.force_paint = new Signal(this, "force_paint");
-    this.state_changed = new Signal(this, "state_changed");
+    this.force_paint = new Signal0(this, "force_paint");
+    this.state_changed = new Signal0(this, "state_changed");
 
     this.lod_started = false;
     this.visuals = new Visuals(this.model.plot);
@@ -143,7 +145,7 @@ export class PlotCanvasView extends DOMView {
       this.init_webgl();
     }
 
-    this.throttled_paint = throttle((() => this.force_paint.emit(undefined)), 15); // TODO (bev) configurable
+    this.throttled_paint = throttle((() => this.force_paint.emit()), 15); // TODO (bev) configurable
 
     this.ui_event_bus = new UIEvents(this, this.model.toolbar, this.canvas_view.el, this.model.plot);
 
@@ -315,12 +317,12 @@ export class PlotCanvasView extends DOMView {
     this.state.history.push({type, info});
     this.state.index = this.state.history.length - 1;
 
-    return this.state_changed.emit(undefined);
+    return this.state_changed.emit();
   }
 
   clear_state() {
     this.state = {history: [], index: -1};
-    return this.state_changed.emit(undefined);
+    return this.state_changed.emit();
   }
 
   can_undo() {
@@ -335,7 +337,7 @@ export class PlotCanvasView extends DOMView {
     if (this.can_undo()) {
       this.state.index -= 1;
       this._do_state_change(this.state.index);
-      return this.state_changed.emit(undefined);
+      return this.state_changed.emit();
     }
   }
 
@@ -343,7 +345,7 @@ export class PlotCanvasView extends DOMView {
     if (this.can_redo()) {
       this.state.index += 1;
       this._do_state_change(this.state.index);
-      return this.state_changed.emit(undefined);
+      return this.state_changed.emit();
     }
   }
 

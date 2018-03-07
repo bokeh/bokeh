@@ -48,8 +48,8 @@ export abstract class EditToolView extends GestureToolView {
         values.splice(ind-index, 1);
       }
     }
-    cds.change.emit(undefined);
-    cds.properties.data.change.emit(undefined);
+    cds.change.emit();
+    cds.properties.data.change.emit();
     cds.selection_manager.clear();
   }
 
@@ -75,7 +75,7 @@ export abstract class EditToolView extends GestureToolView {
       }
     }
     for (const renderer of renderers) {
-      renderer.data_source.change.emit(undefined);
+      renderer.data_source.change.emit();
     }
     this._basepoint = [ev.sx, ev.sy];
   }
@@ -109,7 +109,7 @@ export abstract class EditToolView extends GestureToolView {
       if (did_hit) {
         selected.push(renderer)
       }
-      cds.properties.selected.change.emit(undefined);
+      cds.properties.selected.change.emit();
     }
     return selected;
   }

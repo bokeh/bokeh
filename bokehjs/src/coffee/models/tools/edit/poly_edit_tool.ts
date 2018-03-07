@@ -37,15 +37,15 @@ export class PolyEditToolView extends EditToolView {
         if (pxkey) point_ds.data[pxkey][index] = x
         if (pykey) point_ds.data[pykey][index] = y
         this._drawing = false;
-        this._selected_renderer.data_source.properties.data.change.emit(undefined);
+        this._selected_renderer.data_source.properties.data.change.emit();
       } else {
         point_ds.selected.indices = [index+1];
         if (pxkey) point_ds.get_array(pxkey).splice(index+1, 0, x)
         if (pykey) point_ds.get_array(pykey).splice(index+1, 0, y)
         this._drawing = true;
       }
-      point_ds.change.emit(undefined);
-      this._selected_renderer.data_source.change.emit(undefined);
+      point_ds.change.emit();
+      this._selected_renderer.data_source.change.emit();
       return;
     } else if (!renderers.length) {
       // If we did not hit an existing line, clear node CDS
@@ -53,7 +53,7 @@ export class PolyEditToolView extends EditToolView {
       if (pykey) point_ds.data[pykey] = []
       this._selected_renderer = null;
       this._drawing = false;
-      point_ds.change.emit(undefined);
+      point_ds.change.emit();
       return;
     }
 
@@ -77,8 +77,8 @@ export class PolyEditToolView extends EditToolView {
       point_glyph.y = {value: glyph.ys.value};
     point_ds.selected.indices = [];
     this._selected_renderer = renderer;
-    point_ds.change.emit(undefined);
-    point_ds.properties.data.change.emit(undefined);
+    point_ds.change.emit();
+    point_ds.properties.data.change.emit();
   }
 
   _move(ev: MoveEvent): void {
@@ -93,8 +93,8 @@ export class PolyEditToolView extends EditToolView {
       const index = ds.selected.indices[0];
       if (xkey) ds.data[xkey][index] = x
       if (ykey) ds.data[ykey][index] = y
-      ds.change.emit(undefined);
-      this._selected_renderer.data_source.change.emit(undefined);
+      ds.change.emit();
+      this._selected_renderer.data_source.change.emit();
     }
   }
 
@@ -123,10 +123,10 @@ export class PolyEditToolView extends EditToolView {
         ys[index] = y;
         ys.splice(index+1, 0, ny)
       }
-      ds.change.emit(undefined);
+      ds.change.emit();
       const selected_ds = this._selected_renderer.data_source;
-      selected_ds.change.emit(undefined);
-      selected_ds.properties.data.change.emit(undefined);
+      selected_ds.change.emit();
+      selected_ds.properties.data.change.emit();
       return;
     }
     const append = ev.shiftKey
@@ -145,8 +145,8 @@ export class PolyEditToolView extends EditToolView {
     if (xkey) ds.get_array(xkey).splice(index, 1)
     if (ykey) ds.get_array(ykey).splice(index, 1)
     if (emit) {
-      ds.change.emit(undefined);
-      ds.properties.data.change.emit(undefined);
+      ds.change.emit();
+      ds.properties.data.change.emit();
     }
   }
 
@@ -159,14 +159,14 @@ export class PolyEditToolView extends EditToolView {
     if (this._basepoint == null) { return; }
     this._drag_points(ev, [this.model.vertex_renderer]);
     if (this._selected_renderer) {
-      this._selected_renderer.data_source.change.emit(undefined);
+      this._selected_renderer.data_source.change.emit();
     }
   }
 
   _pan_end(_e: GestureEvent): void {
     this.model.vertex_renderer.data_source.selected.indices = [];
     if (this._selected_renderer) {
-      this._selected_renderer.data_source.properties.data.change.emit(undefined);
+      this._selected_renderer.data_source.properties.data.change.emit();
     }
     this._basepoint = null;
   }
@@ -209,10 +209,10 @@ export class PolyEditToolView extends EditToolView {
     if (xkey) ds.data[xkey] = []
     if (ykey) ds.data[ykey] = []
     ds.selection_manager.clear();
-    ds.change.emit(undefined);
-    this._selected_renderer.data_source.change.emit(undefined);
-    ds.properties.data.change.emit(undefined);
-    this._selected_renderer.data_source.properties.data.change.emit(undefined);
+    ds.change.emit();
+    this._selected_renderer.data_source.change.emit();
+    ds.properties.data.change.emit();
+    this._selected_renderer.data_source.properties.data.change.emit();
     this._selected_renderer = null;
   }
 }

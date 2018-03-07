@@ -68,6 +68,12 @@ export class Signal<Args, Sender extends object> {
   }
 }
 
+export class Signal0<Sender extends object> extends Signal<void, Sender> {
+  emit(): void {
+    super.emit(undefined)
+  }
+}
+
 export namespace Signal {
   export function disconnectBetween(sender: object, receiver: object): void {
     const receivers = receiversForSender.get(sender)

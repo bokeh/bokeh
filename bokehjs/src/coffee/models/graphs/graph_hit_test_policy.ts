@@ -57,7 +57,7 @@ export class NodesOnly extends GraphHitTestPolicy {
 
     const node_selection = graph.node_renderer.data_source.selected
     node_selection.update(hit_test_result, final, append)
-    graph.node_renderer.data_source._select.emit(undefined)
+    graph.node_renderer.data_source._select.emit()
 
     return !node_selection.is_empty()
   }
@@ -120,7 +120,7 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
     const linked_edges_selection = this.get_linked_edges(graph.node_renderer.data_source, graph.edge_renderer.data_source, 'selection')
     edge_selection.update(linked_edges_selection, final, append)
 
-    graph.node_renderer.data_source._select.emit(undefined)
+    graph.node_renderer.data_source._select.emit()
 
     return !node_selection.is_empty()
   }
@@ -184,7 +184,7 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
     const linked_nodes = this.get_linked_nodes(graph.node_renderer.data_source, graph.edge_renderer.data_source, 'selection')
     node_selection.update(linked_nodes, final, append)
 
-    graph.edge_renderer.data_source._select.emit(undefined)
+    graph.edge_renderer.data_source._select.emit()
 
     return !edge_selection.is_empty()
   }

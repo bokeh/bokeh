@@ -30,8 +30,8 @@ export class PointDrawToolView extends EditToolView {
 
     this._pad_empty_columns(ds, [xkey, ykey]);
 
-    ds.change.emit(undefined);
-    ds.properties.data.change.emit(undefined);
+    ds.change.emit();
+    ds.properties.data.change.emit();
   }
 
   _keyup(ev: KeyEvent): void {
@@ -65,7 +65,7 @@ export class PointDrawToolView extends EditToolView {
     this._pan(ev);
     for (const renderer of this.model.renderers) {
       renderer.data_source.selected.indices = [];
-      renderer.data_source.properties.data.change.emit(undefined);
+      renderer.data_source.properties.data.change.emit();
     }
     this._basepoint = null;
   }

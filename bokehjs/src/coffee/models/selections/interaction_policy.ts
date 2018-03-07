@@ -21,7 +21,7 @@ export abstract class SelectionPolicy extends Model {
       selected.update(source.selected, final, false)
       source.selected = selected
 
-      source._select.emit(undefined)
+      source._select.emit()
       return !source.selected.is_empty()
     }
   }

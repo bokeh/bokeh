@@ -61,9 +61,9 @@ export class BoxEditToolView extends EditToolView {
       if (wkey) ds.data[wkey][index] = w
       if (hkey) ds.data[hkey][index] = h
     }
-    ds.change.emit(undefined);
+    ds.change.emit();
     if (emit) {
-      ds.properties.data.change.emit(undefined);
+      ds.properties.data.change.emit();
     }
   }
 
@@ -100,7 +100,7 @@ export class BoxEditToolView extends EditToolView {
     this._basepoint = null;
     for (const renderer of this.model.renderers) {
       renderer.data_source.selected.indices = [];
-      renderer.data_source.properties.data.change.emit(undefined);
+      renderer.data_source.properties.data.change.emit();
     }
   }
 }

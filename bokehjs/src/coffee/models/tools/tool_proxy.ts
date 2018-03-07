@@ -1,6 +1,6 @@
 /* XXX: partial */
 import * as p from "core/properties";
-import {Signal} from "core/signaling";
+import {Signal0} from "core/signaling";
 import {Class} from "core/class"
 import {Model} from "../../model"
 import {ButtonTool, ButtonToolButtonView} from "./button_tool"
@@ -31,7 +31,7 @@ export class ToolProxy extends Model {
     });
   }
 
-  do: Signal<void, this>
+  do: Signal0<this>
 
   // Operates all the tools given only one button
 
@@ -57,7 +57,7 @@ export class ToolProxy extends Model {
 
   initialize(): void {
     super.initialize();
-    this.do = new Signal(this, "do");
+    this.do = new Signal0(this, "do");
   }
 
   connect_signals(): void {
@@ -68,7 +68,7 @@ export class ToolProxy extends Model {
 
   doit(): void {
     for (const tool of this.tools) {
-      tool.do.emit(undefined);
+      tool.do.emit();
     }
   }
 

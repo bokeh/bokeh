@@ -184,7 +184,7 @@ export class ColumnDataSource extends ColumnarDataSource {
       data[k] = stream_to_column(data[k], new_data[k], rollover)
     }
     this.setv({data}, {silent: true})
-    this.streaming.emit(undefined)
+    this.streaming.emit()
   }
 
   patch(patches: [Index, any][]): void {
