@@ -1,4 +1,5 @@
 import {Model} from "../../model"
+import {indexOf} from "core/util/arrayable"
 import {contains, uniq} from "core/util/array"
 import {create_empty_hit_test_result, HitTestResult} from "core/hittest"
 import {Geometry} from "core/geometry"
@@ -166,7 +167,7 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
       nodes.push(edge_source.data.end[i])
     }
 
-    const node_indices = uniq(nodes).map((i) => node_source.data.index.indexOf(i))
+    const node_indices = uniq(nodes).map((i) => indexOf(node_source.data.index, i))
     const linked_nodes = create_empty_hit_test_result()
     linked_nodes.indices = node_indices
     return linked_nodes

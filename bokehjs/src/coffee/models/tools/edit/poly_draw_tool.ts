@@ -35,8 +35,8 @@ export class PolyDrawToolView extends EditToolView {
     const glyph: any = renderer.glyph;
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field];
     if (mode == 'new') {
-      if (xkey) ds.data[xkey].push([x, x])
-      if (ykey) ds.data[ykey].push([y, y])
+      if (xkey) ds.get_array(xkey).push([x, x])
+      if (ykey) ds.get_array(ykey).push([y, y])
       this._pad_empty_columns(ds, [xkey, ykey]);
     } else if (mode == 'edit') {
       if (xkey) {
@@ -50,14 +50,14 @@ export class PolyDrawToolView extends EditToolView {
     } else if (mode == 'add') {
       if (xkey) {
         const xidx = ds.data[xkey].length-1;
-        let xs = ds.data[xkey][xidx];
+        const xs = ds.get_array<number[]>(xkey)[xidx]
         const nx = xs[xs.length-1];
         xs[xs.length-1] = x;
         xs.push(nx);
       }
       if (ykey) {
         const yidx = ds.data[ykey].length-1;
-        let ys = ds.data[ykey][yidx];
+        const ys = ds.get_array<number[]>(ykey)[yidx]
         const ny = ys[ys.length-1];
         ys[ys.length-1] = y;
         ys.push(ny);
@@ -91,12 +91,12 @@ export class PolyDrawToolView extends EditToolView {
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field];
     if (xkey) {
       const xidx = ds.data[xkey].length-1;
-      let xs = ds.data[xkey][xidx];
+      const xs = ds.get_array<number[]>(xkey)[xidx]
       xs.splice(xs.length-1, 1)
     }
     if (ykey) {
       const yidx = ds.data[ykey].length-1;
-      let ys = ds.data[ykey][yidx];
+      const ys = ds.get_array<number[]>(ykey)[yidx];
       ys.splice(ys.length-1, 1)
     }
     ds.change.emit(undefined)

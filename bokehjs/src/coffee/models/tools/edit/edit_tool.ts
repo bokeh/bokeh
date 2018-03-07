@@ -1,6 +1,7 @@
 import * as p from "core/properties"
 import {UIEvent, MoveEvent} from "core/ui_events"
 import {PointGeometry} from "core/geometry"
+import {includes} from "core/util/array"
 import {XYGlyph} from "../../glyphs/xy_glyph"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
@@ -12,6 +13,7 @@ export interface HasXYGlyph {
 
 export abstract class EditToolView extends GestureToolView {
   model: EditTool
+
   _basepoint: [number, number] | null
   _mouse_in_frame: boolean = true
 
@@ -40,7 +42,7 @@ export abstract class EditToolView extends GestureToolView {
     const indices = cds.selected.indices;
     indices.sort()
     for (const column of cds.columns()) {
-      const values = cds.data[column];
+      const values = cds.get_array(column)
       for (let index = 0; index < indices.length; index++) {
         const ind = indices[index];
         values.splice(ind-index, 1);
@@ -81,8 +83,8 @@ export abstract class EditToolView extends GestureToolView {
   _pad_empty_columns(cds: ColumnarDataSource, coord_columns: string[]): void {
     // Pad ColumnDataSource non-coordinate columns with empty_value
     for (const column of cds.columns()) {
-      if (coord_columns.indexOf(column) === -1)
-        cds.data[column].push(this.model.empty_value)
+      if (!includes(coord_columns, column))
+        cds.get_array(column).push(this.model.empty_value)
     }
   }
 

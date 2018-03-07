@@ -8,6 +8,7 @@ import {CDSView} from "../sources/cds_view"
 import {Color} from "core/types"
 import {logger} from "core/logging"
 import * as p from "core/properties"
+import {indexOf} from "core/util/arrayable"
 import {difference, includes, range} from "core/util/array"
 import {extend, clone} from "core/util/object"
 import * as hittest from "core/hittest"
@@ -425,8 +426,8 @@ export class GlyphRenderer extends Renderer {
     if (field != null) {
       const data = this.data_source.get_column(field)
       if (data != null) {
-        const i = data.indexOf(value)
-        if (i > 0)
+        const i = indexOf(data, value)
+        if (i != -1)
           index = i
       }
     }

@@ -4,6 +4,7 @@ import {logger} from "core/logging"
 import {SelectionManager} from "core/selection_manager"
 import * as p from "core/properties"
 import {Arrayable} from "core/types"
+import {isArray} from "core/util/types"
 import {uniq, range} from "core/util/array"
 import {keys, values} from "core/util/object"
 import {Shape} from "core/util/serialization"
@@ -28,6 +29,17 @@ export interface ColumnarDataSource extends ColumnarDataSource.Attrs {}
 export abstract class ColumnarDataSource extends DataSource {
 
   data: {[key: string]: Arrayable}
+
+  get_array<T>(key: string): T[] {
+    let column = this.data[key]
+
+    if (column == null)
+      this.data[key] = column = []
+    else if (!isArray(column))
+      this.data[key] = column = Array.from(column)
+
+    return column as T[]
+  }
 
   _select: Signal<any, this>
   inspect: Signal<any, this> // XXX: <[indices, tool, renderer-view, source, data], this>

@@ -40,8 +40,8 @@ export class PolyEditToolView extends EditToolView {
         this._selected_renderer.data_source.properties.data.change.emit(undefined);
       } else {
         point_ds.selected.indices = [index+1];
-        if (pxkey) point_ds.data[pxkey].splice(index+1, 0, x)
-        if (pykey) point_ds.data[pykey].splice(index+1, 0, y)
+        if (pxkey) point_ds.get_array(pxkey).splice(index+1, 0, x)
+        if (pykey) point_ds.get_array(pykey).splice(index+1, 0, y)
         this._drawing = true;
       }
       point_ds.change.emit(undefined);
@@ -112,13 +112,13 @@ export class PolyEditToolView extends EditToolView {
       const index = ds.selected.indices[0];
       ds.selected.indices = [index+1];
       if (xkey) {
-        const xs = ds.data[xkey];
+        const xs = ds.get_array(xkey)
         const nx = xs[index];
         xs[index] = x;
         xs.splice(index+1, 0, nx)
       }
       if (ykey) {
-        const ys = ds.data[ykey];
+        const ys = ds.get_array(ykey);
         const ny = ys[index];
         ys[index] = y;
         ys.splice(index+1, 0, ny)
@@ -142,8 +142,8 @@ export class PolyEditToolView extends EditToolView {
     const glyph: any = renderer.glyph;
     const index = ds.selected.indices[0];
     const [xkey, ykey] = [glyph.x.field, glyph.y.field];
-    if (xkey) ds.data[xkey].splice(index, 1)
-    if (ykey) ds.data[ykey].splice(index, 1)
+    if (xkey) ds.get_array(xkey).splice(index, 1)
+    if (ykey) ds.get_array(ykey).splice(index, 1)
     if (emit) {
       ds.change.emit(undefined);
       ds.properties.data.change.emit(undefined);

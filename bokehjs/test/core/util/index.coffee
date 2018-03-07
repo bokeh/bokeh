@@ -1,4 +1,6 @@
 require "./array"
+require "./arrayable"
+require "./typed_array"
 require "./bbox"
 require "./color"
 require "./math"

@@ -49,10 +49,10 @@ export class BoxEditToolView extends EditToolView {
     const [xkey, ykey] = [glyph.x.field, glyph.y.field];
     const [wkey, hkey] = [glyph.width.field, glyph.height.field];
     if (append) {
-      if (xkey) ds.data[xkey].push(x)
-      if (ykey) ds.data[ykey].push(y)
-      if (wkey) ds.data[wkey].push(w)
-      if (hkey) ds.data[hkey].push(h)
+      if (xkey) ds.get_array(xkey).push(x)
+      if (ykey) ds.get_array(ykey).push(y)
+      if (wkey) ds.get_array(wkey).push(w)
+      if (hkey) ds.get_array(hkey).push(h)
       this._pad_empty_columns(ds, [xkey, ykey, wkey, hkey])
     } else {
       const index = ds.data[xkey].length - 1

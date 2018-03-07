@@ -1,8 +1,18 @@
 import {TypedArray} from "../types"
 
-export function concat<T extends TypedArray>(a: T, b: T): T {
-  const c = new a.constructor(a.length + b.length) as T
-  c.set(a, 0)
-  c.set(b, a.length)
-  return c
+export function concat<T extends TypedArray>(array0: T, ...arrays: T[]): T {
+  let n = array0.length
+  for (const array of arrays)
+    n += array.length
+
+  const result = new array0.constructor(n) as T
+  result.set(array0, 0)
+
+  let i = array0.length
+  for (const array of arrays) {
+    result.set(array, i)
+    i += array.length
+  }
+
+  return result
 }
