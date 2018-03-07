@@ -725,7 +725,7 @@ def _glyph_function(glyphclass, extra_docs=None):
         source = renderer_kws['data_source']
 
         # Assign global_alpha from alpha if glyph type is an image
-        if 'alpha' in kwargs and 'Image' in glyphclass.__view_model__:
+        if 'alpha' in kwargs and glyphclass.__name__ in ('Image', 'ImageRGBA', 'ImageURL'):
             kwargs['global_alpha'] = kwargs['alpha']
 
         # handle the main glyph, need to process literals
