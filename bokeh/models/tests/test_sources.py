@@ -257,6 +257,83 @@ Lime,Green,99,$0.39
         transformed_date = convert_datetime_array(new_date)
         self.assertTrue(np.array_equal(stuff['args'][2]['index'], transformed_date))
 
+    @skipIf(not is_pandas, "pandas not installed")
+    def test__stream_good_df_with_date_index_data(self):
+        df = pd.DataFrame(
+            index=pd.date_range('now', periods=30, freq='T'),
+            columns=['A'],
+            data=np.cumsum(np.random.standard_normal(30), axis=0)
+        )
+        ds = ColumnDataSource(data=df)
+        ds._document = "doc"
+        stuff = {}
+        mock_setter = object()
+
+        def mock(*args, **kw):
+            stuff['args'] = args
+            stuff['kw'] = kw
+        ds.data._stream = mock
+        new_df = pd.DataFrame(
+            index=df.index + pd.to_timedelta('30m'),
+            columns=df.columns,
+            data=np.random.standard_normal(30)
+        )
+        ds._stream(new_df, "foo", mock_setter)
+        self.assertTrue(np.array_equal(stuff['args'][2]['index'], new_df.index.values))
+        self.assertTrue(np.array_equal(stuff['args'][2]['A'], new_df.A.values))
+
+    @skipIf(not is_pandas, "pandas not installed")
+    def test__stream_good_dict_of_index_and_series_data(self):
+        df = pd.DataFrame(
+            index=pd.date_range('now', periods=30, freq='T'),
+            columns=['A'],
+            data=np.cumsum(np.random.standard_normal(30), axis=0)
+        )
+        ds = ColumnDataSource(data=df)
+        ds._document = "doc"
+        stuff = {}
+        mock_setter = object()
+
+        def mock(*args, **kw):
+            stuff['args'] = args
+            stuff['kw'] = kw
+        ds.data._stream = mock
+        new_df = pd.DataFrame(
+            index=df.index + pd.to_timedelta('30m'),
+            columns=df.columns,
+            data=np.random.standard_normal(30)
+        )
+        ds._stream({'index': new_df.index, 'A': new_df.A}, "foo", mock_setter)
+        self.assertTrue(np.array_equal(stuff['args'][2]['index'], new_df.index.values))
+        self.assertTrue(np.array_equal(stuff['args'][2]['A'], new_df.A.values))
+
+    @skipIf(not is_pandas, "pandas not installed")
+    def test__stream_good_dict_of_index_and_series_data_transformed(self):
+        df = pd.DataFrame(
+            index=pd.date_range('now', periods=30, freq='T'),
+            columns=['A'],
+            data=np.cumsum(np.random.standard_normal(30), axis=0)
+        )
+        ds = ColumnDataSource(data={'index': convert_datetime_array(df.index.values),
+                                    'A': df.A})
+        ds._document = "doc"
+        stuff = {}
+        mock_setter = object()
+
+        def mock(*args, **kw):
+            stuff['args'] = args
+            stuff['kw'] = kw
+        ds.data._stream = mock
+        new_df = pd.DataFrame(
+            index=df.index + pd.to_timedelta('30m'),
+            columns=df.columns,
+            data=np.random.standard_normal(30)
+        )
+        ds._stream({'index': new_df.index, 'A': new_df.A}, "foo", mock_setter)
+        self.assertTrue(np.array_equal(stuff['args'][2]['index'],
+                                       convert_datetime_array(new_df.index.values)))
+        self.assertTrue(np.array_equal(stuff['args'][2]['A'], new_df.A.values))
+
     def _assert_equal_dicts_of_arrays(self, d1, d2):
         self.assertEqual(d1.keys(), d2.keys())
         for k, v in d1.items():
