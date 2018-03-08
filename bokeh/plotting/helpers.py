@@ -724,6 +724,10 @@ def _glyph_function(glyphclass, extra_docs=None):
         renderer_kws = _pop_renderer_args(kwargs)
         source = renderer_kws['data_source']
 
+        # Assign global_alpha from alpha if glyph type is an image
+        if 'alpha' in kwargs and glyphclass.__name__ in ('Image', 'ImageRGBA', 'ImageURL'):
+            kwargs['global_alpha'] = kwargs['alpha']
+
         # handle the main glyph, need to process literals
         glyph_ca = _pop_colors_and_alpha(glyphclass, kwargs)
         _process_sequence_literals(glyphclass, kwargs, source, is_user_source)

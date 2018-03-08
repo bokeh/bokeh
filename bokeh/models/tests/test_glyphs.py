@@ -194,6 +194,7 @@ def test_ImageRGBA():
         "dw_units",
         "dh",
         "dh_units",
+        "global_alpha",
         "dilate",
     ], GLYPH)
 
