@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 import io
 import unittest
+import datetime as dt
 from unittest import skipIf
 import warnings
 
@@ -13,7 +14,7 @@ except ImportError as e:
     is_pandas = False
 
 from bokeh.models.sources import DataSource, ColumnDataSource
-from bokeh.util.serialization import transform_column_source_data
+from bokeh.util.serialization import transform_column_source_data, convert_datetime_array
 
 class TestColumnDataSource(unittest.TestCase):
 
@@ -220,10 +221,46 @@ Lime,Green,99,$0.39
         self.assertEqual(stuff['args'], ("doc", ds, dict(a=[11, 12], b=[21, 22]), "foo", None))
         self.assertEqual(stuff['kw'], {})
 
+    def test__stream_good_datetime64_data(self):
+        now = dt.datetime.now()
+        dates = np.array([now+dt.timedelta(i) for i in range(1, 10)], dtype='datetime64')
+        ds = ColumnDataSource(data=dict(index=dates, b=list(range(1, 10))))
+        ds._document = "doc"
+        stuff = {}
+        mock_setter = object()
+
+        def mock(*args, **kw):
+            stuff['args'] = args
+            stuff['kw'] = kw
+        ds.data._stream = mock
+        # internal implementation of stream
+        new_date = np.array([now+dt.timedelta(10)], dtype='datetime64')
+        ds._stream(dict(index=new_date, b=[10]), "foo", mock_setter)
+        self.assertTrue(np.array_equal(stuff['args'][2]['index'], new_date))
+
+    def test__stream_good_datetime64_data_transformed(self):
+        now = dt.datetime.now()
+        dates = np.array([now+dt.timedelta(i) for i in range(1, 10)], dtype='datetime64')
+        dates = convert_datetime_array(dates)
+        ds = ColumnDataSource(data=dict(index=dates, b=list(range(1, 10))))
+        ds._document = "doc"
+        stuff = {}
+        mock_setter = object()
+
+        def mock(*args, **kw):
+            stuff['args'] = args
+            stuff['kw'] = kw
+        ds.data._stream = mock
+        # internal implementation of stream
+        new_date = np.array([now+dt.timedelta(10)], dtype='datetime64')
+        ds._stream(dict(index=new_date, b=[10]), "foo", mock_setter)
+        transformed_date = convert_datetime_array(new_date)
+        self.assertTrue(np.array_equal(stuff['args'][2]['index'], transformed_date))
+
     def _assert_equal_dicts_of_arrays(self, d1, d2):
         self.assertEqual(d1.keys(), d2.keys())
         for k, v in d1.items():
-            self.assertEqual(type(v), type(d2[k]))
+            self.assertEqual(type(v), np.ndarray)
             self.assertTrue(np.array_equal(v, d2[k]))
 
     @skipIf(not is_pandas, "pandas not installed")
