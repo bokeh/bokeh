@@ -1,45 +1,60 @@
 /* XXX: partial */
-import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph";
 import {DistanceSpec, AngleSpec} from "core/vectorization"
 import {LineMixinVector, FillMixinVector} from "core/property_mixins"
+import {Line, Fill} from "core/visuals"
+import {Arrayable} from "core/types"
 import * as p from "core/properties"
+import {IBBox} from "core/util/bbox"
 import {Context2d} from "core/util/canvas"
+
+export interface OvalData extends XYGlyphData {
+  angle: Arrayable<number>
+  width: Arrayable<number>
+  height: Arrayable<number>
+
+  max_width: number
+  max_height: number
+
+  max_w2: number
+  max_h2: number
+}
+
+export interface OvalView extends OvalData {}
 
 export class OvalView extends XYGlyphView {
   model: Oval
+  visuals: Oval.Visuals
 
   _set_data() {
     this.max_w2 = 0;
-    if (this.model.properties.width.units === "data") {
+    if (this.model.properties.width.units == "data")
       this.max_w2 = this.max_width/2;
-    }
+
     this.max_h2 = 0;
-    if (this.model.properties.height.units === "data") {
-      return this.max_h2 = this.max_height/2;
-    }
+    if (this.model.properties.height.units == "data")
+      this.max_h2 = this.max_height/2;
   }
 
-  _map_data() {
-    if (this.model.properties.width.units === "data") {
+  protected _map_data(): void {
+    if (this.model.properties.width.units == "data")
       this.sw = this.sdist(this.renderer.xscale, this._x, this._width, 'center');
-    } else {
+    else
       this.sw = this._width;
-    }
-    if (this.model.properties.height.units === "data") {
-      return this.sh = this.sdist(this.renderer.yscale, this._y, this._height, 'center');
-    } else {
-      return this.sh = this._height;
-    }
+
+    if (this.model.properties.height.units == "data")
+      this.sh = this.sdist(this.renderer.yscale, this._y, this._height, 'center');
+    else
+      this.sh = this._height;
   }
 
-  _render(ctx: Context2d, indices, {sx, sy, sw, sh}) {
+  protected _render(ctx: Context2d, indices: number[], {sx, sy, sw, sh, _angle}: OvalData): void {
     for (const i of indices) {
-      if (isNaN(sx[i]+sy[i]+sw[i]+sh[i]+this._angle[i])) {
+      if (isNaN(sx[i] + sy[i] + sw[i] + sh[i] + _angle[i]))
         continue;
-      }
 
       ctx.translate(sx[i], sy[i]);
-      ctx.rotate(this._angle[i]);
+      ctx.rotate(_angle[i]);
 
       ctx.beginPath();
       ctx.moveTo(0, -sh[i]/2);
@@ -57,12 +72,12 @@ export class OvalView extends XYGlyphView {
         ctx.stroke();
       }
 
-      ctx.rotate(-this._angle[i]);
+      ctx.rotate(-_angle[i]);
       ctx.translate(-sx[i], -sy[i]);
     }
   }
 
-  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
+  draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: IBBox, index: number): void {
     const indices = [index];
     const sx = { };
     sx[index] = (x0+x1)/2;
@@ -82,7 +97,7 @@ export class OvalView extends XYGlyphView {
     }
 
     const data = {sx, sy, sw, sh};
-    return this._render(ctx, indices, data);
+    this._render(ctx, indices, data);
   }
 
   _bounds(bds) {
@@ -97,6 +112,11 @@ export namespace Oval {
     angle: AngleSpec
     width: DistanceSpec
     height: DistanceSpec
+  }
+
+  export interface Visuals extends XYGlyph.Visuals {
+    line: Line
+    fill: Fill
   }
 }
 

@@ -1,32 +1,46 @@
-/* XXX: partial */
-import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph";
 import {PointGeometry} from "core/geometry"
 import {DistanceSpec, AngleSpec} from "core/vectorization"
 import {LineMixinVector, FillMixinVector} from "core/property_mixins"
+import {Line, Fill} from "core/visuals"
+import {Arrayable} from "core/types"
 import {Direction} from "core/enums"
 import * as hittest from "core/hittest";
 import * as p from "core/properties";
+import {IBBox} from "core/util/bbox"
 import {angle_between} from "core/util/math"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection";
 
+export interface WedgeData extends XYGlyphData {
+  _radius: Arrayable<number>
+  _start_angle: Arrayable<number>
+  _end_angle: Arrayable<number>
+
+  sradius: Arrayable<number>
+
+  max_radius: number
+}
+
+export interface WedgeView extends WedgeData {}
+
 export class WedgeView extends XYGlyphView {
   model: Wedge
+  visuals: Wedge.Visuals
 
-  _map_data() {
-    if (this.model.properties.radius.units === "data") {
-      return this.sradius = this.sdist(this.renderer.xscale, this._x, this._radius);
-    } else {
-      return this.sradius = this._radius;
-    }
+  protected _map_data(): void {
+    if (this.model.properties.radius.units == "data")
+      this.sradius = this.sdist(this.renderer.xscale, this._x, this._radius);
+    else
+      this.sradius = this._radius;
   }
 
-  _render(ctx: Context2d, indices, {sx, sy, sradius, _start_angle, _end_angle}) {
+  protected _render(ctx: Context2d, indices: number[], {sx, sy, sradius, _start_angle, _end_angle}: WedgeData): void {
     const direction = this.model.properties.direction.value();
+
     for (const i of indices) {
-      if (isNaN(sx[i]+sy[i]+sradius[i]+_start_angle[i]+_end_angle[i])) {
+      if (isNaN(sx[i] + sy[i] + sradius[i] + _start_angle[i] + _end_angle[i]))
         continue;
-      }
 
       ctx.beginPath();
       ctx.arc(sx[i], sy[i], sradius[i], _start_angle[i], _end_angle[i], direction);
@@ -45,7 +59,7 @@ export class WedgeView extends XYGlyphView {
     }
   }
 
-  _hit_point(geometry: PointGeometry): Selection {
+  protected _hit_point(geometry: PointGeometry): Selection {
     let dist, sx0, sx1, sy0, sy1, x0, x1, y0, y1;
     const {sx, sy} = geometry;
     const x = this.renderer.xscale.invert(sx);
@@ -83,7 +97,7 @@ export class WedgeView extends XYGlyphView {
     }
 
     const direction = this.model.properties.direction.value();
-    const hits = [];
+    const hits: [number, number][] = [];
     for (const [i, dist] of candidates) {
       // NOTE: minus the angle because JS uses non-mathy convention for angles
       const angle = Math.atan2(sy-this.sy[i], sx-this.sx[i]);
@@ -95,8 +109,8 @@ export class WedgeView extends XYGlyphView {
     return hittest.create_hit_test_result_from_hits(hits);
   }
 
-  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
-    return this._generic_area_legend(ctx, x0, x1, y0, y1, index);
+  draw_legend_for_index(ctx: Context2d, bbox: IBBox, index: number): void {
+    this._generic_area_legend(ctx, bbox, index);
   }
 }
 
@@ -108,6 +122,11 @@ export namespace Wedge {
     radius: DistanceSpec
     start_angle: AngleSpec
     end_angle: AngleSpec
+  }
+
+  export interface Visuals extends XYGlyph.Visuals {
+    line: Line
+    fill: Fill
   }
 }
 

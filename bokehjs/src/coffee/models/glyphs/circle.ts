@@ -1,24 +1,32 @@
 /* XXX: partial */
-import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph";
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry";
 import {DistanceSpec, AngleSpec} from "core/vectorization"
 import {LineMixinVector, FillMixinVector} from "core/property_mixins"
+import {Line, Fill} from "core/visuals"
 import {Dimension} from "core/enums"
 import * as hittest from "core/hittest";
 import * as p from "core/properties"
+import {IBBox} from "core/util/bbox"
 import {range} from "core/util/array"
 import {map} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection";
 
+export interface CircleData extends XYGlyphData {
+}
+
+export interface CircleView extends CircleData {}
+
 export class CircleView extends XYGlyphView {
   model: Circle
+  visuals: Circle.Visuals
 
-  _map_data(): void {
-    // NOTE: Order is important here: size is always present (at least
-    // a default), but radius is only present if a user specifies it
+  protected _map_data(): void {
+    // XXX: Order is important here: size is always present (at least
+    // a default), but radius is only present if a user specifies it.
     if (this._radius != null) {
-      if (this.model.properties.radius.spec.units === "data") {
+      if (this.model.properties.radius.spec.units == "data") {
         const rd = this.model.properties.radius_dimension.spec.value;
         this.sradius = this.sdist(this.renderer[`${rd}scale`], this[`_${rd}`], this._radius);
       } else {
@@ -29,43 +37,40 @@ export class CircleView extends XYGlyphView {
       this.sradius = map(this._size, (s: number) => s/2)
   }
 
-  _mask_data(_all_indices) {
-    let sx0, sx1, sy0, sy1, x0, x1, y0, y1;
+  protected _mask_data(): number[] {
     const [hr, vr] = this.renderer.plot_view.frame.bbox.ranges;
 
-    // check for radius first
-    if ((this._radius != null) && (this.model.properties.radius.units === "data")) {
-      sx0 = hr.start;
-      sx1 = hr.end;
-      [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1);
+    let x0: number, y0: number
+    let x1: number, y1: number
+    if (this._radius != null && this.model.properties.radius.units == "data") {
+      const sx0 = hr.start;
+      const sx1 = hr.end;
+      ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1);
       x0 -= this.max_radius;
       x1 += this.max_radius;
 
-      sy0 = vr.start;
-      sy1 = vr.end;
-      [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1);
+      const sy0 = vr.start;
+      const sy1 = vr.end;
+      ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1);
       y0 -= this.max_radius;
       y1 += this.max_radius;
-
     } else {
-      sx0 = hr.start - this.max_size;
-      sx1 = hr.end + this.max_size;
-      [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1);
+      const sx0 = hr.start - this.max_size;
+      const sx1 = hr.end + this.max_size;
+      ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1);
 
-      sy0 = vr.start - this.max_size;
-      sy1 = vr.end + this.max_size;
-      [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1);
+      const sy0 = vr.start - this.max_size;
+      const sy1 = vr.end + this.max_size;
+      ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1);
     }
 
-    const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
-    return this.index.indices(bbox);
+    return this.index.indices({x0, y0, x1, y1});
   }
 
-  _render(ctx: Context2d, indices, {sx, sy, sradius}) {
+  protected _render(ctx: Context2d, indices: number[], {sx, sy, sradius}: CircleData): void {
     for (const i of indices) {
-      if (isNaN(sx[i]+sy[i]+sradius[i])) {
+      if (isNaN(sx[i] + sy[i] + sradius[i]))
         continue;
-      }
 
       ctx.beginPath();
       ctx.arc(sx[i], sy[i], sradius[i], 0, 2*Math.PI, false);
@@ -111,7 +116,7 @@ export class CircleView extends XYGlyphView {
     const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
     const candidates = this.index.indices(bbox);
 
-    const hits = [];
+    const hits: [number, number][] = [];
     if ((this._radius != null) && (this.model.properties.radius.units === "data")) {
       for (const i of candidates) {
         r2 = Math.pow(this.sradius[i], 2);
@@ -211,7 +216,7 @@ export class CircleView extends XYGlyphView {
 
   // circle does not inherit from marker (since it also accepts radius) so we
   // must supply a draw_legend for it  here
-  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
+  draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: IBBox, index: number): void {
     // using objects like this seems a little wonky, since the keys are coerced to
     // stings, but it works
     const indices = [index];
@@ -223,7 +228,7 @@ export class CircleView extends XYGlyphView {
     sradius[index] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.2;
 
     const data = {sx, sy, sradius};
-    return this._render(ctx, indices, data);
+    this._render(ctx, indices, data);
   }
 }
 
@@ -235,6 +240,11 @@ export namespace Circle {
     size: DistanceSpec
     radius: DistanceSpec | null
     radius_dimension: Dimension
+  }
+
+  export interface Visuals extends XYGlyph.Visuals {
+    line: Line
+    fill: Fill
   }
 }
 

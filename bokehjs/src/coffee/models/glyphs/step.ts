@@ -1,14 +1,22 @@
 /* XXX: partial */
-import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph";
 import {LineMixinVector} from "core/property_mixins"
+import {Line} from "core/visuals"
 import {StepMode} from "core/enums"
 import * as p from "core/properties"
+import {IBBox} from "core/util/bbox"
 import {Context2d} from "core/util/canvas"
+
+export interface StepData extends XYGlyphData {
+}
+
+export interface StepView extends StepData {}
 
 export class StepView extends XYGlyphView {
   model: Step
+  visuals: Step.Visuals
 
-  _render(ctx: Context2d, indices, {sx, sy}) {
+  protected _render(ctx: Context2d, indices: number[], {sx, sy}: StepData): void {
     this.visuals.line.set_value(ctx);
 
     const L = indices.length;
@@ -50,8 +58,8 @@ export class StepView extends XYGlyphView {
     return ctx.stroke();
   }
 
-  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
-    return this._generic_line_legend(ctx, x0, x1, y0, y1, index);
+  draw_legend_for_index(ctx: Context2d, bbox: IBBox, index: number): void {
+    this._generic_line_legend(ctx, bbox, index);
   }
 }
 
@@ -60,6 +68,10 @@ export namespace Step {
 
   export interface Attrs extends XYGlyph.Attrs, Mixins {
     mode: StepMode
+  }
+
+  export interface Visuals extends XYGlyph.Visuals {
+    line: Line
   }
 }
 

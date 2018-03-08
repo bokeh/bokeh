@@ -1,30 +1,42 @@
 /* XXX: partial */
-import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph";
 import {PointGeometry, RectGeometry} from "core/geometry";
 import {DistanceSpec, AngleSpec} from "core/vectorization"
 import {LineMixinVector, FillMixinVector} from "core/property_mixins"
+import {Line, Fill} from "core/visuals"
 import * as hittest from "core/hittest";
 import * as p from "core/properties";
+import {IBBox} from "core/util/bbox"
 import {max} from "core/util/array";
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection";
 
+export interface RectData extends XYGlyphData {
+  max_width: number
+  max_height: number
+
+  max_w2: number
+  max_h2: number
+}
+
+export interface RectView extends RectData {}
+
 export class RectView extends XYGlyphView {
   model: Rect
+  visuals: Rect.Visuals
 
-  _set_data() {
+  protected _set_data(): void {
     this.max_w2 = 0;
-    if (this.model.properties.width.units === "data") {
+    if (this.model.properties.width.units == "data")
       this.max_w2 = this.max_width/2;
-    }
+
     this.max_h2 = 0;
-    if (this.model.properties.height.units === "data") {
-      return this.max_h2 = this.max_height/2;
-    }
+    if (this.model.properties.height.units == "data")
+      this.max_h2 = this.max_height/2;
   }
 
-  _map_data() {
-    if (this.model.properties.width.units === "data") {
+  protected _map_data(): void {
+    if (this.model.properties.width.units == "data") {
       [this.sw, this.sx0] = this._map_dist_corner_for_data_side_length(this._x, this._width, this.renderer.xscale, 0);
     } else {
       this.sw = this._width;
@@ -36,7 +48,7 @@ export class RectView extends XYGlyphView {
         return result;
       })());
     }
-    if (this.model.properties.height.units === "data") {
+    if (this.model.properties.height.units == "data") {
       [this.sh, this.sy1] = this._map_dist_corner_for_data_side_length(this._y, this._height, this.renderer.yscale, 1);
     } else {
       this.sh = this._height;
@@ -57,12 +69,11 @@ export class RectView extends XYGlyphView {
     })());
   }
 
-  _render(ctx: Context2d, indices, {sx, sy, sx0, sy1, sw, sh, _angle}) {
+  protected _render(ctx: Context2d, indices: number[], {sx, sy, sx0, sy1, sw, sh, _angle}: RectData): void {
     if (this.visuals.fill.doit) {
       for (const i of indices) {
-        if (isNaN(sx[i] + sy[i] + sx0[i] + sy1[i] + sw[i] + sh[i] + _angle[i])) {
+        if (isNaN(sx[i] + sy[i] + sx0[i] + sy1[i] + sw[i] + sh[i] + _angle[i]))
           continue;
-        }
 
         //no need to test the return value, we call fillRect for every glyph anyway
         this.visuals.fill.set_vectorize(ctx, i);
@@ -73,9 +84,8 @@ export class RectView extends XYGlyphView {
           ctx.fillRect(-sw[i]/2, -sh[i]/2, sw[i], sh[i]);
           ctx.rotate(-_angle[i]);
           ctx.translate(-sx[i], -sy[i]);
-        } else {
+        } else
           ctx.fillRect(sx0[i], sy1[i], sw[i], sh[i]);
-        }
       }
     }
 
@@ -247,8 +257,8 @@ export class RectView extends XYGlyphView {
     })());
   }
 
-  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
-    return this._generic_area_legend(ctx, x0, x1, y0, y1, index);
+  draw_legend_for_index(ctx: Context2d, bbox: IBBox, index: number): void {
+    this._generic_area_legend(ctx, bbox, index);
   }
 
   _bounds(bds) {
@@ -264,6 +274,11 @@ export namespace Rect {
     width: DistanceSpec
     height: DistanceSpec
     dilate: boolean
+  }
+
+  export interface Visuals extends XYGlyph.Visuals {
+    line: Line
+    fill: Fill
   }
 }
 

@@ -1,9 +1,11 @@
 /* XXX: partial */
 import {NumberSpec} from "core/vectorization"
 import {LineMixinVector} from "core/property_mixins"
-import {RBush} from "core/util/spatial"
+import {Line} from "core/visuals"
+import {IBBox} from "core/util/bbox"
+import {SpatialIndex, RBush} from "core/util/spatial"
 import {Context2d} from "core/util/canvas"
-import {Glyph, GlyphView} from "./glyph"
+import {Glyph, GlyphView, GlyphData} from "./glyph"
 
 // algorithm adapted from http://stackoverflow.com/a/14429749/3406693
 const _cbb = function(x0, y0, x1, y1, x2, y2, x3, y3) {
@@ -76,10 +78,16 @@ const _cbb = function(x0, y0, x1, y1, x2, y2, x3, y3) {
   ];
 };
 
+export interface BezierData extends GlyphData {
+}
+
+export interface BezierView extends BezierData {}
+
 export class BezierView extends GlyphView {
   model: Bezier
+  visuals: Bezier.Visuals
 
-  _index_data() {
+  protected _index_data(): SpatialIndex {
     const points = [];
     for (let i = 0, end = this._x0.length; i < end; i++) {
       if (isNaN(this._x0[i]+this._x1[i]+this._y0[i]+this._y1[i]+this._cx0[i]+this._cy0[i]+this._cx1[i]+this._cy1[i])) {
@@ -93,12 +101,12 @@ export class BezierView extends GlyphView {
     return new RBush(points);
   }
 
-  _render(ctx: Context2d, indices, {sx0, sy0, sx1, sy1, scx0, scy0, scx1, scy1}) {
+  protected _render(ctx: Context2d, indices: number[],
+                    {sx0, sy0, sx1, sy1, scx0, scy0, scx1, scy1}: BezierData): void {
     if (this.visuals.line.doit) {
       for (const i of indices) {
-        if (isNaN(sx0[i]+sy0[i]+sx1[i]+sy1[i]+scx0[i]+scy0[i]+scx1[i]+scy1[i])) {
+        if (isNaN(sx0[i] + sy0[i] + sx1[i] + sy1[i] + scx0[i] + scy0[i] + scx1[i] + scy1[i]))
           continue;
-        }
 
         ctx.beginPath();
         ctx.moveTo(sx0[i], sy0[i]);
@@ -110,8 +118,8 @@ export class BezierView extends GlyphView {
     }
   }
 
-  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
-    return this._generic_line_legend(ctx, x0, x1, y0, y1, index);
+  draw_legend_for_index(ctx: Context2d, bbox: IBBox, index: number): void {
+    this._generic_line_legend(ctx, bbox, index);
   }
 }
 
@@ -127,6 +135,10 @@ export namespace Bezier {
     cy0: NumberSpec
     cx1: NumberSpec
     cy1: NumberSpec
+  }
+
+  export interface Visuals extends Glyph.Visuals {
+    line: Line
   }
 }
 

@@ -1,15 +1,21 @@
 /* XXX: partial */
-import {Box, BoxView} from "./box";
+import {Box, BoxView, BoxData} from "./box";
 import {NumberSpec, DistanceSpec} from "core/vectorization"
 import * as p from "core/properties"
-import {RBush} from "core/util/spatial"
+import {SpatialIndex} from "core/util/spatial"
+
+export interface VBarData extends BoxData {
+}
+
+export interface VBarView extends VBarData {}
 
 export class VBarView extends BoxView {
   model: VBar
+  visuals: VBar.Visuals
 
   scy(i) { return (this.stop[i] + this.sbottom[i])/2; }
 
-  _index_data(): RBush {
+  protected _index_data(): SpatialIndex {
     return this._index_box(this._x.length);
   }
 
@@ -21,7 +27,7 @@ export class VBarView extends BoxView {
     return [l, r, t, b];
   }
 
-  _map_data() {
+  protected _map_data(): void {
     this.sx = this.renderer.xscale.v_compute(this._x);
     this.stop = this.renderer.yscale.v_compute(this._top);
     this.sbottom = this.renderer.yscale.v_compute(this._bottom);
@@ -44,6 +50,8 @@ export namespace VBar {
     width: DistanceSpec
     top: NumberSpec
   }
+
+  export interface Visuals extends Box.Visuals {}
 }
 
 export interface VBar extends VBar.Attrs {}

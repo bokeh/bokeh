@@ -1,25 +1,44 @@
-/* XXX: partial */
-import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph";
 import {PointGeometry} from "core/geometry";
 import {DistanceSpec, AngleSpec} from "core/vectorization"
 import {LineMixinVector, FillMixinVector} from "core/property_mixins"
+import {Arrayable} from "core/types"
 import {Direction} from "core/enums"
+import {Line, Fill} from "core/visuals"
 import * as hittest from "core/hittest";
 import * as p from "core/properties";
+import {IBBox} from "core/util/bbox"
 import {angle_between} from "core/util/math"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection";
 
+export interface AnnularWedgeData extends XYGlyphData {
+  _inner_radius: Arrayable<number>
+  _outer_radius: Arrayable<number>
+  _start_angle: Arrayable<number>
+  _end_angle: Arrayable<number>
+  _angle: Arrayable<number>
+
+  sinner_radius: Arrayable<number>
+  souter_radius: Arrayable<number>
+
+  max_inner_radius: number
+  max_outer_radius: number
+}
+
+export interface AnnularWedgeView extends AnnularWedgeData {}
+
 export class AnnularWedgeView extends XYGlyphView {
   model: AnnularWedge
+  visuals: AnnularWedge.Visuals
 
-  _map_data(): void {
-    if (this.model.properties.inner_radius.units === "data")
+  protected _map_data(): void {
+    if (this.model.properties.inner_radius.units == "data")
       this.sinner_radius = this.sdist(this.renderer.xscale, this._x, this._inner_radius);
     else
       this.sinner_radius = this._inner_radius;
 
-    if (this.model.properties.outer_radius.units === "data")
+    if (this.model.properties.outer_radius.units == "data")
       this.souter_radius = this.sdist(this.renderer.xscale, this._x, this._outer_radius);
     else
       this.souter_radius = this._outer_radius;
@@ -31,12 +50,13 @@ export class AnnularWedgeView extends XYGlyphView {
     }
   }
 
-  _render(ctx: Context2d, indices, {sx, sy, _start_angle, _angle, sinner_radius, souter_radius}) {
+  protected _render(ctx: Context2d, indices: number[],
+                    {sx, sy, _start_angle, _angle, sinner_radius, souter_radius}: AnnularWedgeData): void {
     const direction = this.model.properties.direction.value();
+
     for (const i of indices) {
-      if (isNaN(sx[i]+sy[i]+sinner_radius[i]+souter_radius[i]+_start_angle[i]+_angle[i])) {
+      if (isNaN(sx[i] + sy[i] + sinner_radius[i] + souter_radius[i] + _start_angle[i] + _angle[i]))
         continue;
-      }
 
       ctx.translate(sx[i], sy[i]);
       ctx.rotate(_start_angle[i]);
@@ -64,14 +84,15 @@ export class AnnularWedgeView extends XYGlyphView {
     }
   }
 
-  _hit_point(geometry: PointGeometry): Selection {
+  protected _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry;
     const x = this.renderer.xscale.invert(sx);
     const y = this.renderer.yscale.invert(sy);
 
     // check radius first
-    let x0, x1, y0, y1
-    if (this.model.properties.outer_radius.units === "data") {
+    let x0: number, y0: number
+    let x1: number, y1: number
+    if (this.model.properties.outer_radius.units == "data") {
       x0 = x - this.max_outer_radius;
       x1 = x + this.max_outer_radius;
 
@@ -96,13 +117,12 @@ export class AnnularWedgeView extends XYGlyphView {
       const [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i]);
       const [sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i]);
       const dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2);
-      if ((dist <= or2) && (dist >= ir2)) {
+      if (dist <= or2 && dist >= ir2)
         candidates.push([i, dist]);
-      }
     }
 
     const direction = this.model.properties.direction.value();
-    const hits = [];
+    const hits: [number, number][] = [];
     for (const [i, dist] of candidates) {
       // NOTE: minus the angle because JS uses non-mathy convention for angles
       const angle = Math.atan2(sy-this.sy[i], sx-this.sx[i]);
@@ -114,18 +134,23 @@ export class AnnularWedgeView extends XYGlyphView {
     return hittest.create_hit_test_result_from_hits(hits);
   }
 
-  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
-    return this._generic_area_legend(ctx, x0, x1, y0, y1, index);
+  draw_legend_for_index(ctx: Context2d, bbox: IBBox, index: number): void {
+    this._generic_area_legend(ctx, bbox, index)
   }
 
-  _scxy(i) {
+  private _scxy(i: number): {x: number, y: number} {
     const r = (this.sinner_radius[i] + this.souter_radius[i])/2;
     const a = (this._start_angle[i]  + this._end_angle[i])   /2;
     return {x: this.sx[i] + (r*Math.cos(a)), y: this.sy[i] + (r*Math.sin(a))};
   }
 
-  scx(i) { return this._scxy(i).x; }
-  scy(i) { return this._scxy(i).y; }
+  scx(i: number): number {
+    return this._scxy(i).x
+  }
+
+  scy(i: number): number {
+    return this._scxy(i).y
+  }
 }
 
 export namespace AnnularWedge {
@@ -137,6 +162,11 @@ export namespace AnnularWedge {
     outer_radius: DistanceSpec
     start_angle: AngleSpec
     end_angle:  AngleSpec
+  }
+
+  export interface Visuals extends XYGlyph.Visuals {
+    line: Line
+    fill: Fill
   }
 }
 

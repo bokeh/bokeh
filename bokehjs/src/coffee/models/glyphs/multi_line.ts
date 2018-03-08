@@ -1,20 +1,28 @@
 /* XXX: partial */
-import {RBush} from "core/util/spatial";
+import {IBBox} from "core/util/bbox"
+import {SpatialIndex, RBush} from "core/util/spatial";
 import {PointGeometry, SpanGeometry} from "core/geometry"
 import {NumberSpec} from "core/vectorization"
 import {LineMixinVector} from "core/property_mixins"
+import {Line} from "core/visuals"
 import * as hittest from "core/hittest";
 import {keys} from "core/util/object";
 import {min, max} from "core/util/array";
 import {isStrictNaN} from "core/util/types";
 import {Context2d} from "core/util/canvas"
-import {Glyph, GlyphView} from "./glyph"
+import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {Selection} from "../selections/selection";
+
+export interface MultiLineData extends GlyphData {
+}
+
+export interface MultiLineView extends MultiLineData {}
 
 export class MultiLineView extends GlyphView {
   model: MultiLine
+  visuals: MultiLine.Visuals
 
-  _index_data() {
+  protected _index_data(): SpatialIndex {
     const points = [];
     for (let i = 0, end = this._xs.length; i < end; i++) {
       if ((this._xs[i] === null) || (this._xs[i].length === 0)) {
@@ -49,7 +57,7 @@ export class MultiLineView extends GlyphView {
     return new RBush(points);
   }
 
-  _render(ctx: Context2d, indices, {sxs, sys}) {
+  protected _render(ctx: Context2d, indices: number[], {sxs, sys}: MultiLineData): void {
     for (const i of indices) {
       const [sx, sy] = [sxs[i], sys[i]];
 
@@ -153,8 +161,8 @@ export class MultiLineView extends GlyphView {
     return [res.x, res.y];
   }
 
-  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
-    return this._generic_line_legend(ctx, x0, x1, y0, y1, index);
+  draw_legend_for_index(ctx: Context2d, bbox: IBBox, index: number): void {
+    this._generic_line_legend(ctx, bbox, index);
   }
 }
 
@@ -164,6 +172,10 @@ export namespace MultiLine {
   export interface Attrs extends Glyph.Attrs, Mixins {
     xs: NumberSpec
     ys: NumberSpec
+  }
+
+  export interface Visuals extends Glyph.Visuals {
+    line: Line
   }
 }
 

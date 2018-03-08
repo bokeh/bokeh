@@ -1,12 +1,18 @@
 /* XXX: partial */
-import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph";
 import {DistanceSpec, NumberSpec} from "core/vectorization"
 import * as p from "core/properties";
 import {max, concat} from "core/util/array"
 import {Context2d} from "core/util/canvas"
 
+export interface ImageRGBAData extends XYGlyphData {
+}
+
+export interface ImageRGBAView extends ImageRGBAData {}
+
 export class ImageRGBAView extends XYGlyphView {
   model: ImageRGBA
+  visuals: ImageRGBA.Visuals
 
   initialize(options: any): void {
     super.initialize(options);
@@ -77,7 +83,7 @@ export class ImageRGBAView extends XYGlyphView {
     }
   }
 
-  _map_data() {
+  protected _map_data(): void {
     switch (this.model.properties.dw.units) {
       case "data": this.sw = this.sdist(this.renderer.xscale, this._x, this._dw, 'edge', this.model.dilate); break;
       case "screen": this.sw = this._dw; break;
@@ -89,17 +95,15 @@ export class ImageRGBAView extends XYGlyphView {
     }
   }
 
-  _render(ctx: Context2d, indices, {image_data, sx, sy, sw, sh}) {
+  protected _render(ctx: Context2d, indices: number[], {image_data, sx, sy, sw, sh}: ImageRGBAData): void {
     const old_smoothing = ctx.getImageSmoothingEnabled();
     ctx.setImageSmoothingEnabled(false);
 
     ctx.globalAlpha = this.model.global_alpha;
 
     for (const i of indices) {
-
-      if (isNaN(sx[i]+sy[i]+sw[i]+sh[i])) {
+      if (isNaN(sx[i] + sy[i] + sw[i] + sh[i]))
         continue;
-      }
 
       const y_offset = sy[i];
 
@@ -112,7 +116,7 @@ export class ImageRGBAView extends XYGlyphView {
       ctx.translate(0, -y_offset);
     }
 
-    return ctx.setImageSmoothingEnabled(old_smoothing);
+    ctx.setImageSmoothingEnabled(old_smoothing);
   }
 
   bounds() {
@@ -131,6 +135,8 @@ export namespace ImageRGBA {
     global_alpha: number
     dilate: boolean
   }
+
+  export interface Visuals extends XYGlyph.Visuals {}
 }
 
 export interface ImageRGBA extends ImageRGBA.Attrs {}

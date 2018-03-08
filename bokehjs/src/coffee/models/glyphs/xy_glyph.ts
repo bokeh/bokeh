@@ -1,24 +1,36 @@
-/* XXX: partial */
+import {Arrayable} from "core/types"
 import {NumberSpec} from "core/vectorization"
-import {RBush} from "core/util/spatial";
-import {Glyph, GlyphView} from "./glyph";
+import {SpatialIndex, IndexedRect, RBush} from "core/util/spatial"
+import {Glyph, GlyphView, GlyphData} from "./glyph"
+
+export interface XYGlyphData extends GlyphData {
+  _x: Arrayable<number>
+  _y: Arrayable<number>
+
+  sx: Arrayable<number>
+  sy: Arrayable<number>
+}
+
+export interface XYGlyphView extends XYGlyphData {}
 
 export abstract class XYGlyphView extends GlyphView {
   model: XYGlyph
+  visuals: XYGlyph.Visuals
 
-  _index_data() {
-    const points = [];
+  protected _index_data(): SpatialIndex {
+    const points: IndexedRect[] = []
 
     for (let i = 0, end = this._x.length; i < end; i++) {
-      const x = this._x[i];
-      const y = this._y[i];
-      if (isNaN(x+y) || !isFinite(x+y)) {
-        continue;
-      }
-      points.push({minX: x, minY: y, maxX: x, maxY: y, i});
+      const x = this._x[i]
+      const y = this._y[i]
+
+      if (isNaN(x + y) || !isFinite(x + y))
+        continue
+
+      points.push({minX: x, minY: y, maxX: x, maxY: y, i})
     }
 
-    return new RBush(points);
+    return new RBush(points)
   }
 }
 
@@ -27,6 +39,8 @@ export namespace XYGlyph {
     x: NumberSpec
     y: NumberSpec
   }
+
+  export interface Visuals extends Glyph.Visuals {}
 }
 
 export interface XYGlyph extends XYGlyph.Attrs {}
@@ -38,10 +52,9 @@ export abstract class XYGlyph extends Glyph {
   }
 
   static initClass(): void {
-    this.prototype.type = "XYGlyph";
-    this.prototype.default_view = XYGlyphView;
+    this.prototype.type = "XYGlyph"
 
-    this.coords([['x', 'y']]);
+    this.coords([['x', 'y']])
   }
 }
-XYGlyph.initClass();
+XYGlyph.initClass()

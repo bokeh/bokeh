@@ -1,11 +1,17 @@
 /* XXX: partial */
-import {Box, BoxView} from "./box"
+import {Box, BoxView, BoxData} from "./box"
 import {NumberSpec} from "core/vectorization"
 import {Anchor} from "core/enums"
-import {RBush} from "core/util/spatial"
+import {SpatialIndex} from "core/util/spatial"
+
+export interface QuadData extends BoxData {
+}
+
+export interface QuadView extends QuadData {}
 
 export class QuadView extends BoxView {
   model: Quad
+  visuals: Quad.Visuals
 
   get_anchor_point(anchor: Anchor, i: number, _spt: [number, number]): {x: number, y: number} | null {
     const left = Math.min(this.sleft[i], this.sright[i]);
@@ -35,7 +41,7 @@ export class QuadView extends BoxView {
     return (this.stop[i] + this.sbottom[i])/2;
   }
 
-  _index_data(): RBush {
+  protected _index_data(): SpatialIndex {
     return this._index_box(this._right.length);
   }
 
@@ -55,6 +61,8 @@ export namespace Quad {
     left: NumberSpec
     top: NumberSpec
   }
+
+  export interface Visuals extends Box.Visuals {}
 }
 
 export interface Quad extends Quad.Attrs {}

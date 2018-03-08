@@ -1,19 +1,27 @@
 /* XXX: partial */
-import {RBush} from "core/util/spatial";
-import {Glyph, GlyphView} from "./glyph";
+import {IBBox} from "core/util/bbox"
+import {SpatialIndex, RBush} from "core/util/spatial";
+import {Glyph, GlyphView, GlyphData} from "./glyph";
 import {min, max, copy, findLastIndex} from "core/util/array";
 import {isStrictNaN} from "core/util/types";
 import {PointGeometry} from "core/geometry";
 import {Context2d} from "core/util/canvas"
 import {NumberSpec} from "core/vectorization"
 import {LineMixinVector, FillMixinVector} from "core/property_mixins"
+import {Line, Fill} from "core/visuals"
 import * as hittest from "core/hittest"
 import {Selection} from "../selections/selection";
 
+export interface PatchesData extends GlyphData {
+}
+
+export interface PatchesView extends PatchesData {}
+
 export class PatchesView extends GlyphView {
   model: Patches
+  visuals: Patches.Visuals
 
-  _build_discontinuous_object(nanned_qs) {
+  private _build_discontinuous_object(nanned_qs) {
     // _s is @xs, @ys, @sxs, @sys
     // an object of n 1-d arrays in either data or screen units
     //
@@ -35,13 +43,12 @@ export class PatchesView extends GlyphView {
       ds[i] = [];
       let qs = copy(nanned_qs[i]);
       while (qs.length > 0) {
-
-        let qs_part;
         const nan_index = findLastIndex(qs, (q) => isStrictNaN(q));
 
-        if (nan_index >= 0) {
+        let qs_part;
+        if (nan_index >= 0)
           qs_part = qs.splice(nan_index);
-        } else {
+        else {
           qs_part = qs;
           qs = [];
         }
@@ -54,7 +61,7 @@ export class PatchesView extends GlyphView {
   }
 
 
-  _index_data() {
+  protected _index_data(): SpatialIndex {
     const xss = this._build_discontinuous_object(this._xs);
     const yss = this._build_discontinuous_object(this._ys);
 
@@ -79,7 +86,7 @@ export class PatchesView extends GlyphView {
     return new RBush(points);
   }
 
-  _mask_data(_all_indices) {
+  protected _mask_data(): number[] {
     const xr = this.renderer.plot_view.frame.x_ranges.default;
     const [x0, x1] = [xr.min, xr.max];
 
@@ -93,7 +100,7 @@ export class PatchesView extends GlyphView {
     return indices.sort((a, b) => a-b);
   }
 
-  _render(ctx: Context2d, indices, {sxs, sys}) {
+  protected _render(ctx: Context2d, indices: number[], {sxs, sys}: PatchesData): void {
     // @sxss and @syss are used by _hit_point and sxc, syc
     // This is the earliest we can build them, and only build them once
     this.renderer.sxss = this._build_discontinuous_object(sxs);
@@ -173,12 +180,12 @@ export class PatchesView extends GlyphView {
   }
 
   _get_snap_coord(array) {
-      let sum = 0;
-      for (const s of array) {
-        sum += s;
-      }
-      return sum / array.length;
+    let sum = 0;
+    for (const s of array) {
+      sum += s;
     }
+    return sum / array.length;
+  }
 
   scx(i, sx, sy) {
     if (this.renderer.sxss[i].length === 1) {
@@ -215,8 +222,8 @@ export class PatchesView extends GlyphView {
     }
   }
 
-  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
-    return this._generic_area_legend(ctx, x0, x1, y0, y1, index);
+  draw_legend_for_index(ctx: Context2d, bbox: IBBox, index: number): void {
+    this._generic_area_legend(ctx, bbox, index);
   }
 }
 
@@ -226,6 +233,11 @@ export namespace Patches {
   export interface Attrs extends Glyph.Attrs, Mixins {
     xs: NumberSpec
     ys: NumberSpec
+  }
+
+  export interface Visuals extends Glyph.Visuals {
+    line: Line
+    fill: Fill
   }
 }
 

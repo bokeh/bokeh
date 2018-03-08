@@ -1,15 +1,23 @@
 /* XXX: partial */
-import {Box, BoxView} from "./box";
+import {Box, BoxView, BoxData} from "./box";
 import {DistanceSpec, NumberSpec} from "core/vectorization"
 import * as p from "core/properties"
-import {RBush} from "core/util/spatial"
+import {SpatialIndex} from "core/util/spatial"
+
+export interface HBarData extends BoxData {
+}
+
+export interface HBarView extends HBarData {}
 
 export class HBarView extends BoxView {
   model: HBar
+  visuals: HBar.Visuals
 
-  scx(i) { return (this.sleft[i] + this.sright[i])/2; }
+  scx(i: number): number {
+    return (this.sleft[i] + this.sright[i])/2
+  }
 
-  _index_data(): RBush {
+  protected _index_data(): SpatialIndex {
     return this._index_box(this._y.length);
   }
 
@@ -21,7 +29,7 @@ export class HBarView extends BoxView {
     return [l, r, t, b];
   }
 
-  _map_data() {
+  protected _map_data(): void {
     this.sy = this.renderer.yscale.v_compute(this._y);
     this.sright = this.renderer.xscale.v_compute(this._right);
     this.sleft = this.renderer.xscale.v_compute(this._left);
@@ -33,7 +41,6 @@ export class HBarView extends BoxView {
       this.stop.push(this.sy[i] - (this.sh[i]/2));
       this.sbottom.push(this.sy[i] + (this.sh[i]/2));
     }
-    return null;
   }
 }
 
@@ -44,6 +51,8 @@ export namespace HBar {
     height: DistanceSpec
     right: NumberSpec
   }
+
+  export interface Visuals extends Box.Visuals {}
 }
 
 export interface HBar extends HBar.Attrs {}

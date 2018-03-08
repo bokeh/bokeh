@@ -2,32 +2,44 @@
 import * as hittest from "core/hittest";
 import * as p from "core/properties";
 import * as bbox from "core/util/bbox";
+import {IBBox} from "core/util/bbox"
 import * as proj from "core/util/projections";
 import {Geometry, RectGeometry} from "core/geometry";
 import {Context2d} from "core/util/canvas"
 import {View} from "core/view";
 import {Model} from "../../model";
-import {Visuals} from "core/visuals";
+import * as visuals from "core/visuals";
 import {Anchor} from "core/enums"
 import {logger} from "core/logging";
+import {Arrayable} from "core/types"
 import {extend} from "core/util/object";
 import {isArray} from "core/util/types";
 import {SpatialIndex} from "core/util/spatial"
 import {LineView} from "./line";
 import {Selection} from "../selections/selection";
+import {GlyphRendererView} from "../renderers/glyph_renderer"
+import {ColumnarDataSource} from "../sources/columnar_data_source"
+
+export interface GlyphData {}
+
+export interface GlyphView extends GlyphData {}
 
 export abstract class GlyphView extends View {
   model: Glyph
+  visuals: Glyph.Visuals
 
   glglyph?: any
 
-  index: SpatialIndex | null = null
+  index: SpatialIndex
+
+  renderer: GlyphRendererView
+
 
   initialize(options: any): void {
     super.initialize(options);
     this._nohit_warned = {};
     this.renderer = options.renderer;
-    this.visuals = new Visuals(this.model);
+    this.visuals = new visuals.Visuals(this.model);
 
     // Init gl (this should really be done anytime renderer is set,
     // and not done if it isn't ever set, but for now it only
@@ -57,25 +69,26 @@ export abstract class GlyphView extends View {
     }
   }
 
-  set_visuals(source) {
+  set_visuals(source: ColumnarDataSource): void {
     this.visuals.warm_cache(source);
 
     if (this.glglyph != null) {
-      return this.glglyph.set_visuals_changed();
+      this.glglyph.set_visuals_changed();
     }
   }
 
-  render(ctx: Context2d, indices, data) {
+  render(ctx: Context2d, indices: number[], data) {
     ctx.beginPath();
 
     if (this.glglyph != null) {
-      if (this.glglyph.render(ctx, indices, data)) {
-        return;
-      }
+      if (this.glglyph.render(ctx, indices, data))
+        return
     }
 
     return this._render(ctx, indices, data);
   }
+
+  protected abstract _render(ctx: Context2d, indices: number[], data: any): void
 
   has_finished() { return true; }
 
@@ -195,9 +208,9 @@ export abstract class GlyphView extends View {
     }
   }
 
-  draw_legend_for_index(_ctx: Context2d, _x0: number, _x1: number, _y0: number, _y1: number, _index: number): void {}
+  draw_legend_for_index(_ctx: Context2d, _bbox: IBBox, _index: number): void {}
 
-  protected _generic_line_legend(ctx: Context2d, x0: number, x1: number, y0: number, y1: number, index: number): void {
+  protected _generic_line_legend(ctx: Context2d, {x0, x1, y0, y1}: IBBox, index: number): void {
     ctx.save();
     ctx.beginPath();
     ctx.moveTo(x0, (y0 + y1) /2);
@@ -209,10 +222,10 @@ export abstract class GlyphView extends View {
     ctx.restore();
   }
 
-  protected _generic_area_legend(ctx: Context2d, x0: number, x1: number, y0: number, y1: number, index: number): void {
-    const w = Math.abs(x1-x0);
+  protected _generic_area_legend(ctx: Context2d, {x0, x1, y0, y1}: IBBox, index: number): void {
+    const w = Math.abs(x1 - x0);
     const dw = w*0.1;
-    const h = Math.abs(y1-y0);
+    const h = Math.abs(y1 - y0);
     const dh = h*0.1;
 
     const sx0 = x0 + dw;
@@ -223,12 +236,12 @@ export abstract class GlyphView extends View {
 
     if (this.visuals.fill.doit) {
       this.visuals.fill.set_vectorize(ctx, index);
-      ctx.fillRect(sx0, sy0, sx1-sx0, sy1-sy0);
+      ctx.fillRect(sx0, sy0, sx1 - sx0, sy1 - sy0);
     }
 
     if (this.visuals.line.doit) {
       ctx.beginPath();
-      ctx.rect(sx0, sy0, sx1-sx0, sy1-sy0);
+      ctx.rect(sx0, sy0, sx1 - sx0, sy1 - sy0);
       this.visuals.line.set_vectorize(ctx, index);
       ctx.stroke();
     }
@@ -266,11 +279,10 @@ export abstract class GlyphView extends View {
       const data_subset = {};
       for (const k in data) {
         const v = data[k];
-        if (k.charAt(0) === '_') {
+        if (k.charAt(0) === '_')
           data_subset[k] = (indices.map((i) => v[i]));
-        } else {
+        else
           data_subset[k] = v;
-        }
       }
       data = data_subset;
     }
@@ -303,33 +315,35 @@ export abstract class GlyphView extends View {
       }
     }
 
-    if (this.glglyph != null) {
+    if (this.glglyph != null)
       this.glglyph.set_data_changed(this._x.length);
-    }
 
     this._set_data(source, indices_to_update); //TODO doesn't take subset indices into account
 
     this.index_data()
   }
 
-  _set_data(_source, _indices) {}
+  protected _set_data(_source, _indices): void {}
 
-  protected abstract _index_data(): SpatialIndex | null
+  protected abstract _index_data(): SpatialIndex
 
   index_data(): void {
     this.index = this._index_data()
   }
 
-  mask_data(indices) {
+  mask_data(indices: number[]): number[] {
     // WebGL can do the clipping much more efficiently
-    if (this.glglyph != null) { return indices; } else { return this._mask_data(indices); }
+    if (this.glglyph != null || this._mask_data == null)
+      return indices
+    else
+      return this._mask_data()
   }
 
-  _mask_data(indices) { return indices; }
+  protected _mask_data?(): number[]
 
   _bounds(bounds) { return bounds; }
 
-  map_data() {
+  map_data(): void {
     // todo: if using gl, skip this (when is this called?)
 
     // map all the coordinate fields
@@ -350,13 +364,13 @@ export abstract class GlyphView extends View {
       }
     }
 
-    return this._map_data();
+    this._map_data();
   }
 
   // This is where specs not included in coords are computed, e.g. radius.
-  _map_data() {}
+  protected _map_data() {}
 
-  map_to_screen(x, y) {
+  map_to_screen(x: Arrayable<number>, y: Arrayable<number>): [Arrayable<number>, Arrayable<number>] {
     return this.renderer.plot_view.map_to_screen(x, y, this.model.x_range_name, this.model.y_range_name);
   }
 }
@@ -366,6 +380,8 @@ export namespace Glyph {
     x_range_name: string
     y_range_name: string
   }
+
+  export interface Visuals extends visuals.Visuals {}
 }
 
 export interface Glyph extends Glyph.Attrs {}

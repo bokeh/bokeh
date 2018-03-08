@@ -1,60 +1,46 @@
 /* XXX: partial */
-import {XYGlyph, XYGlyphView} from "../glyphs/xy_glyph";
+import {XYGlyph, XYGlyphView, XYGlyphData} from "../glyphs/xy_glyph";
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry";
 import {DistanceSpec, AngleSpec} from "core/vectorization"
 import {LineMixinVector, FillMixinVector} from "core/property_mixins"
+import {Line, Fill} from "core/visuals"
 import * as hittest from "core/hittest";
 import * as p from "core/properties"
+import {IBBox} from "core/util/bbox"
 import {range} from "core/util/array"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection";
 
-export class MarkerView extends XYGlyphView {
+export interface MarkerData extends XYGlyphData {
+}
+
+export abstract class MarkerView extends XYGlyphView {
   model: Marker
+  visuals: Marker.Visuals
 
-  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
-    // using objects like this seems a little wonky, since the keys are coerced to
-    // stings, but it works
-    const indices = [index];
-    const sx = { };
-    sx[index] = (x0+x1)/2;
-    const sy = { };
-    sy[index] = (y0+y1)/2;
-    const size = { };
-    size[index] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.4;
-    const angle = { };
-    angle[index] = this._angle[index];
-
-    const data = {sx, sy, _size: size, _angle: angle};
-    return this._render(ctx, indices, data);
-  }
-
-  _render(ctx: Context2d, indices, {sx, sy, _size, _angle}) {
+  protected _render(ctx: Context2d, indices: number[], {sx, sy, _size, _angle}: MarkerData): void {
     for (const i of indices) {
-      if (isNaN(sx[i]+sy[i]+_size[i]+_angle[i])) {
+      if (isNaN(sx[i] + sy[i] + _size[i] + _angle[i]))
         continue;
-      }
 
       const r = _size[i]/2;
 
       ctx.beginPath();
       ctx.translate(sx[i], sy[i]);
 
-      if (_angle[i]) {
+      if (_angle[i])
         ctx.rotate(_angle[i]);
-      }
 
       this._render_one(ctx, i, sx[i], sy[i], r, this.visuals.line, this.visuals.fill);
 
-      if (_angle[i]) {
+      if (_angle[i])
         ctx.rotate(-_angle[i]);
-      }
 
       ctx.translate(-sx[i], -sy[i]);
     }
   }
 
-  _mask_data(_all_indices) {
+  protected _mask_data(): number[] {
     // dilate the inner screen region by max_size and map back to data space for use in
     // spatial query
     const hr = this.renderer.plot_view.frame.bbox.h_range;
@@ -71,7 +57,7 @@ export class MarkerView extends XYGlyphView {
     return this.index.indices(bbox);
   }
 
-  _hit_point(geometry: PointGeometry): Selection {
+  protected _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry;
 
     const sx0 = sx - this.max_size;
@@ -85,7 +71,7 @@ export class MarkerView extends XYGlyphView {
     const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
     const candidates = this.index.indices(bbox);
 
-    const hits = [];
+    const hits: [number, number][] = [];
     for (const i of candidates) {
       const s2 = this._size[i]/2;
       const dist = Math.abs(this.sx[i]-sx) + Math.abs(this.sy[i]-sy);
@@ -96,7 +82,7 @@ export class MarkerView extends XYGlyphView {
     return hittest.create_hit_test_result_from_hits(hits);
   }
 
-  _hit_span(geometry: SpanGeometry): Selection {
+  protected _hit_span(geometry: SpanGeometry): Selection {
     let ms, x0, x1, y0, y1;
     const {sx, sy} = geometry;
     const {minX, minY, maxX, maxY} = this.bounds();
@@ -125,7 +111,7 @@ export class MarkerView extends XYGlyphView {
     return result;
   }
 
-  _hit_rect(geometry: RectGeometry): Selection {
+  protected _hit_rect(geometry: RectGeometry): Selection {
     const {sx0, sx1, sy0, sy1} = geometry;
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1);
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1);
@@ -135,7 +121,7 @@ export class MarkerView extends XYGlyphView {
     return result;
   }
 
-  _hit_poly(geometry: PolyGeometry): Selection {
+  protected _hit_poly(geometry: PolyGeometry): Selection {
     const {sx, sy} = geometry;
 
     // TODO (bev) use spatial index to pare candidate list
@@ -152,6 +138,21 @@ export class MarkerView extends XYGlyphView {
     result.indices = hits;
     return result;
   }
+
+  draw_legend_for_index(ctx: Context2d, {x0, x1, y0, y1}: IBBox, index: number): void {
+    // using objects like this seems a little wonky, since the keys are coerced to
+    // stings, but it works
+    const sx = { };
+    sx[index] = (x0 + x1)/2;
+    const sy = { };
+    sy[index] = (y0 + y1)/2;
+    const size = { };
+    size[index] = Math.min(Math.abs(x1 - x0), Math.abs(y1 - y0))*0.4;
+    const angle = { };
+    angle[index] = this._angle[index];
+
+    this._render(ctx, [index], {sx, sy, _size: size, _angle: angle});
+  }
 }
 
 export namespace Marker {
@@ -161,11 +162,16 @@ export namespace Marker {
     size: DistanceSpec
     angle: AngleSpec
   }
+
+  export interface Visuals extends XYGlyph.Visuals {
+    line: Line
+    fill: Fill
+  }
 }
 
 export interface Marker extends Marker.Attrs {}
 
-export class Marker extends XYGlyph {
+export abstract class Marker extends XYGlyph {
 
   constructor(attrs?: Partial<Marker.Attrs>) {
     super(attrs)

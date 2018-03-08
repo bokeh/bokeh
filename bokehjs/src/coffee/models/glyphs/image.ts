@@ -1,5 +1,5 @@
 /* XXX: partial */
-import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph";
 import {DistanceSpec, NumberSpec} from "core/vectorization"
 import {ColorMapper} from "../mappers/color_mapper";
 import {LinearColorMapper} from "../mappers/linear_color_mapper";
@@ -7,8 +7,15 @@ import * as p from "core/properties";
 import {max, concat} from "core/util/array"
 import {Context2d} from "core/util/canvas"
 
+// XXX: because ImageData is a global
+export interface _ImageData extends XYGlyphData {
+}
+
+export interface ImageView extends _ImageData {}
+
 export class ImageView extends XYGlyphView {
   model: Image
+  visuals: Image.Visuals
 
   initialize(options: any): void {
     super.initialize(options);
@@ -82,31 +89,42 @@ export class ImageView extends XYGlyphView {
     }
   }
 
-  _map_data() {
+  protected _map_data(): void {
     switch (this.model.properties.dw.units) {
-      case "data": this.sw = this.sdist(this.renderer.xscale, this._x, this._dw, 'edge', this.model.dilate); break;
-      case "screen": this.sw = this._dw; break;
+      case "data": {
+        this.sw = this.sdist(this.renderer.xscale, this._x, this._dw, 'edge', this.model.dilate);
+        break;
+      }
+      case "screen": {
+        this.sw = this._dw
+        break;
+      }
     }
 
     switch (this.model.properties.dh.units) {
-      case "data": return this.sh = this.sdist(this.renderer.yscale, this._y, this._dh, 'edge', this.model.dilate);
-      case "screen": return this.sh = this._dh;
+      case "data": {
+        this.sh = this.sdist(this.renderer.yscale, this._y, this._dh, 'edge', this.model.dilate);
+        break
+      }
+      case "screen": {
+        this.sh = this._dh;
+        break
+      }
     }
   }
 
-  _render(ctx: Context2d, indices, {image_data, sx, sy, sw, sh}) {
+  protected _render(ctx: Context2d, indices: number[], {image_data, sx, sy, sw, sh}: _ImageData): void {
     const old_smoothing = ctx.getImageSmoothingEnabled();
     ctx.setImageSmoothingEnabled(false);
 
     ctx.globalAlpha = this.model.global_alpha;
 
     for (const i of indices) {
-      if ((image_data[i] == null)) {
+      if (image_data[i] == null)
         continue;
-      }
-      if (isNaN(sx[i]+sy[i]+sw[i]+sh[i])) {
+
+      if (isNaN(sx[i] + sy[i] + sw[i] + sh[i]))
         continue;
-      }
 
       const y_offset = sy[i];
 
@@ -119,7 +137,7 @@ export class ImageView extends XYGlyphView {
       ctx.translate(0, -y_offset);
     }
 
-    return ctx.setImageSmoothingEnabled(old_smoothing);
+    ctx.setImageSmoothingEnabled(old_smoothing);
   }
 
   bounds() {
@@ -142,6 +160,8 @@ export namespace Image {
     dilate: boolean
     color_mapper: ColorMapper
   }
+
+  export interface Visuals extends XYGlyph.Visuals {}
 }
 
 export interface Image extends Image.Attrs {}

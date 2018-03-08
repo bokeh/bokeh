@@ -1,16 +1,24 @@
 /* XXX: partial */
 import {LineMixinVector, FillMixinVector} from "core/property_mixins"
+import {Line, Fill} from "core/visuals"
+import {IBBox} from "core/util/bbox"
 import {RBush} from "core/util/spatial";
 import {Context2d} from "core/util/canvas"
-import {Glyph, GlyphView} from "./glyph";
+import {Glyph, GlyphView, GlyphData} from "./glyph";
 import {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry";
 import * as hittest from "core/hittest";
 import {Selection} from "../selections/selection";
 
 // Not a publicly exposed Glyph, exists to factor code for bars and quads
 
+export interface BoxData extends GlyphData {
+}
+
+export interface BoxView extends BoxData {}
+
 export abstract class BoxView extends GlyphView {
   model: Box
+  visuals: Box.Visuals
 
   _index_box(len): RBush {
     const points = [];
@@ -26,11 +34,11 @@ export abstract class BoxView extends GlyphView {
     return new RBush(points);
   }
 
-  _render(ctx: Context2d, indices, {sleft, sright, stop, sbottom}) {
+  protected _render(ctx: Context2d, indices: number[],
+                    {sleft, sright, stop, sbottom}: BoxData): void {
     for (const i of indices) {
-      if (isNaN(sleft[i]+stop[i]+sright[i]+sbottom[i])) {
+      if (isNaN(sleft[i] + stop[i] + sright[i] + sbottom[i]))
         continue;
-      }
 
       if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i);
@@ -83,8 +91,8 @@ export abstract class BoxView extends GlyphView {
     return result;
   }
 
-  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
-    return this._generic_area_legend(ctx, x0, x1, y0, y1, index);
+  draw_legend_for_index(ctx: Context2d, bbox: IBBox, index: number): void {
+    this._generic_area_legend(ctx, bbox, index);
   }
 }
 
@@ -92,6 +100,11 @@ export namespace Box {
   export interface Mixins extends LineMixinVector, FillMixinVector {}
 
   export interface Attrs extends Glyph.Attrs, Mixins {}
+
+  export interface Visuals extends Glyph.Visuals {
+    line: Line
+    fill: Fill
+  }
 }
 
 export interface Box extends Box.Attrs {}

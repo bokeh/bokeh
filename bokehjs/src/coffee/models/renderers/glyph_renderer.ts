@@ -350,7 +350,7 @@ export class GlyphRendererView extends RendererView {
 
   draw_legend(ctx: Context2d, x0: number, x1: number, y0: number, y1: number, field: string, label: string): void {
     const index = this.model.get_reference_point(field, label)
-    this.glyph.draw_legend_for_index(ctx, x0, x1, y0, y1, index)
+    this.glyph.draw_legend_for_index(ctx, {x0, x1, y0, y1}, index)
   }
 
   hit_test(geometry: Geometry): hittest.HitTestResult {

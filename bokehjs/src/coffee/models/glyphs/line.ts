@@ -1,22 +1,30 @@
 /* XXX: partial */
-import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph";
 import {PointGeometry, SpanGeometry} from "core/geometry";
 import {LineMixinVector} from "core/property_mixins"
+import * as visuals from "core/visuals"
 import * as hittest from "core/hittest"
+import {IBBox} from "core/util/bbox"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection";
 
+export interface LineData extends XYGlyphData {
+}
+
+export interface LineView extends LineData {}
+
 export class LineView extends XYGlyphView {
   model: Line
+  visuals: Line.Visuals
 
-  _render(ctx: Context2d, indices, {sx, sy}) {
+  protected _render(ctx: Context2d, indices: number[], {sx, sy}: LineData): void {
     let drawing = false;
     this.visuals.line.set_value(ctx);
     let last_index = null;
 
     for (const i of indices) {
       if (drawing) {
-        if (!isFinite(sx[i]+sy[i])) {
+        if (!isFinite(sx[i] + sy[i])) {
           ctx.stroke();
           ctx.beginPath();
           drawing = false;
@@ -30,9 +38,9 @@ export class LineView extends XYGlyphView {
         }
       }
 
-      if (drawing) {
+      if (drawing)
         ctx.lineTo(sx[i], sy[i]);
-      } else {
+      else {
         ctx.beginPath();
         ctx.moveTo(sx[i], sy[i]);
         drawing = true;
@@ -41,9 +49,8 @@ export class LineView extends XYGlyphView {
       last_index = i;
     }
 
-    if (drawing) {
-      return ctx.stroke();
-    }
+    if (drawing)
+      ctx.stroke();
   }
 
   _hit_point(geometry: PointGeometry): Selection {
@@ -125,8 +132,8 @@ export class LineView extends XYGlyphView {
     return [res.x, res.y];
   }
 
-  draw_legend_for_index(ctx: Context2d, x0, x1, y0, y1, index) {
-    return this._generic_line_legend(ctx, x0, x1, y0, y1, index);
+  draw_legend_for_index(ctx: Context2d, bbox: IBBox, index: number): void {
+    this._generic_line_legend(ctx, bbox, index);
   }
 }
 
@@ -134,6 +141,10 @@ export namespace Line {
   export interface Mixins extends LineMixinVector {}
 
   export interface Attrs extends XYGlyph.Attrs, Mixins {}
+
+  export interface Visuals extends XYGlyph.Visuals {
+    line: visuals.Line
+  }
 }
 
 export interface Line extends Line.Attrs {}

@@ -1,19 +1,25 @@
 /* XXX: partial */
-import {XYGlyph, XYGlyphView} from "./xy_glyph";
+import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph";
 import {NumberSpec, StringSpec, AngleSpec} from "core/vectorization"
 import {TextMixinVector} from "core/property_mixins"
+import * as visuals from "core/visuals"
 import * as p from "core/properties";
 import {get_text_height} from "core/util/text"
 import {Context2d} from "core/util/canvas"
 
+export interface TextData extends XYGlyphData {
+}
+
+export interface TextView extends TextData {}
+
 export class TextView extends XYGlyphView {
   model: Text
+  visuals: Text.Visuals
 
-  _render(ctx: Context2d, indices, {sx, sy, _x_offset, _y_offset, _angle, _text}) {
+  protected _render(ctx: Context2d, indices: number[], {sx, sy, _x_offset, _y_offset, _angle, _text}: TextData): void {
     for (const i of indices) {
-      if (isNaN(sx[i]+sy[i]+_x_offset[i]+_y_offset[i]+_angle[i]) || (_text[i] == null)) {
+      if (isNaN(sx[i] + sy[i] + _x_offset[i] + _y_offset[i] + _angle[i]) || _text[i] == null)
         continue;
-      }
 
       if (this.visuals.text.doit) {
         const text = `${_text[i]}`;
@@ -64,10 +70,6 @@ export class TextView extends XYGlyphView {
       }
     }
   }
-
-  draw_legend_for_index(_ctx: Context2d, _x0, _x1, _y0, _y1, _index) {
-    return null;
-  }
 }
 
 export namespace Text {
@@ -78,6 +80,10 @@ export namespace Text {
     angle: AngleSpec
     x_offset: NumberSpec
     y_offset: NumberSpec
+  }
+
+  export interface Visuals extends XYGlyph.Visuals {
+    text: visuals.Text
   }
 }
 
