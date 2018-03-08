@@ -265,7 +265,7 @@ Pass all data directly as literals:
 Or, put all data in a ColumnDataSource and pass column names:
 
     source = ColumnDataSource(data=dict(x=a_list, y=an_array))
-    p.circe(x='x', y='x', source=source, ...)
+    p.circe(x='x', y='y', source=source, ...)
 
 """
 
