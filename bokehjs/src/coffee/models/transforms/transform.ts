@@ -1,5 +1,5 @@
-/* XXX: partial */
 import {Model} from "../../model"
+import {Arrayable} from "core/types"
 
 export namespace Transform {
   export interface Attrs extends Model.Attrs {}
@@ -17,17 +17,15 @@ export abstract class Transform extends Model {
     this.prototype.type = "Transform"
   }
 
-  // default implementation based on compute
-  v_compute(xs) {
-    if ((this.range != null ? this.range.v_synthetic : undefined) != null) {
-      xs = this.range.v_synthetic(xs);
+  abstract compute(x: number): number
+
+  v_compute(xs: Arrayable<number>): Arrayable<number> {
+    const result = new Float64Array(xs.length)
+    for (let i = 0; i < xs.length; i++) {
+      const x = xs[i]
+      result[i] = this.compute(x)
     }
-    const result = new Float64Array(xs.length);
-    for (let idx = 0; idx < xs.length; idx++) {
-      const x = xs[idx];
-      result[idx] = this.compute(x, false);
-    }
-    return result;
+    return result
   }
 }
 Transform.initClass()

@@ -9,6 +9,7 @@ import {FactorRange} from "../ranges/factor_range"
 
 import {LayoutCanvas} from "core/layout/layout_canvas"
 import {Variable} from "core/layout/solver"
+import {Arrayable} from "core/types"
 import * as p from "core/properties"
 
 export type Ranges = {[key: string]: Range}
@@ -73,8 +74,8 @@ export class CartesianFrame extends LayoutCanvas {
     return super.get_editables().concat([this._width, this._height])
   }
 
-  map_to_screen(x: number[] | Float64Array, y: number[] | Float64Array,
-                x_name: string = "default", y_name: string = "default"): [Float64Array, Float64Array] {
+  map_to_screen(x: Arrayable<number>, y: Arrayable<number>,
+                x_name: string = "default", y_name: string = "default"): [Arrayable<number>, Arrayable<number>] {
     const sx = this.xscales[x_name].v_compute(x)
     const sy = this.yscales[y_name].v_compute(y)
     return [sx, sy]

@@ -1,9 +1,10 @@
-/* XXX: partial */
 import {DataSource} from "./data_source"
-import {Signal} from "core/signaling"
+import {Signal, Signal0} from "core/signaling"
 import {logger} from "core/logging"
 import {SelectionManager} from "core/selection_manager"
 import * as p from "core/properties"
+import {Arrayable} from "core/types"
+import {isArray} from "core/util/types"
 import {uniq, range} from "core/util/array"
 import {keys, values} from "core/util/object"
 import {Shape} from "core/util/serialization"
@@ -27,13 +28,24 @@ export interface ColumnarDataSource extends ColumnarDataSource.Attrs {}
 
 export abstract class ColumnarDataSource extends DataSource {
 
-  data: {[key: string]: any[]}
+  data: {[key: string]: Arrayable}
 
-  _select: Signal<any, this>
+  get_array<T>(key: string): T[] {
+    let column = this.data[key]
+
+    if (column == null)
+      this.data[key] = column = []
+    else if (!isArray(column))
+      this.data[key] = column = Array.from(column)
+
+    return column as T[]
+  }
+
+  _select: Signal0<this>
   inspect: Signal<any, this> // XXX: <[indices, tool, renderer-view, source, data], this>
 
-  streaming: Signal<any, this>
-  patching: Signal<any, this> // <number[], ColumnarDataSource>
+  streaming: Signal0<this>
+  patching: Signal<number[], this>
 
   constructor(attrs?: Partial<ColumnarDataSource.Attrs>) {
     super(attrs)
@@ -57,18 +69,18 @@ export abstract class ColumnarDataSource extends DataSource {
   initialize(): void {
     super.initialize()
 
-    this._select = new Signal(this, "select")
+    this._select = new Signal0(this, "select")
     this.inspect = new Signal(this, "inspect") // XXX: <[indices, tool, renderer-view, source, data], this>
 
-    this.streaming = new Signal(this, "streaming")
-    this.patching = new Signal(this, "patching") // <number[], ColumnarDataSource>
+    this.streaming = new Signal0(this, "streaming")
+    this.patching = new Signal(this, "patching")
 
     if (!this.selection_policy)
       this.selection_policy = new UnionRenderers() // added here instead of as default because can't set default
                                                    // on Python side without error
   }
 
-  get_column(colname: string): any[] | null {
+  get_column(colname: string): Arrayable | null {
     const column = this.data[colname]
     return column != null ? column : null
   }
@@ -93,9 +105,8 @@ export abstract class ColumnarDataSource extends DataSource {
         if (soft) {
           logger.warn(msg)
           return lengths.sort()[0]
-        } else {
+        } else
           throw new Error(msg)
-        }
       }
     }
   }

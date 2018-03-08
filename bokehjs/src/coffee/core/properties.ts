@@ -1,12 +1,16 @@
-import {Signal, Signalable} from "./signaling"
+import {Signal0, Signal, Signalable} from "./signaling"
 import {HasProps} from "./has_props"
 import * as enums from "./enums"
+import {Arrayable} from "./types"
 import {is_svg_color} from "./util/svg_colors"
 import {valid_rgb} from "./util/color"
-import {includes, repeat, map} from "./util/array"
+import {includes, repeat} from "./util/array"
+import {map} from "./util/arrayable"
 import {isBoolean, isNumber, isString, isArray, isObject} from "./util/types"
 //import {Transform} from "../models/transforms/transform"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
+
+Signal; // XXX: silence TS, because `Signal` appears in declarations due to Signalable
 
 function valueToString(value: any): string {
   try {
@@ -40,7 +44,7 @@ export class Property<T> extends Signalable() {
   readonly attr: string
   readonly default_value?: (obj: HasProps) => T
 
-  readonly change: Signal<T, HasProps>
+  readonly change: Signal0<HasProps>
 
   constructor(obj: HasProps,
               attr: string,
@@ -49,7 +53,7 @@ export class Property<T> extends Signalable() {
     this.obj = obj
     this.attr = attr
     this.default_value = default_value
-    this.change = new Signal(this.obj, "change")
+    this.change = new Signal0(this.obj, "change")
     this._init()
     this.connect(this.change, () => this._init())
   }
@@ -281,7 +285,7 @@ export function units_prop(name: string, valid_units: any, default_units: any) {
 }
 
 export class Angle extends units_prop("Angle", enums.AngleUnits, "rad") {
-  transform(values: any /* number[] | Float64Array */): any {
+  transform(values: Arrayable): Arrayable {
     if (this.spec.units == "deg")
       values = map(values, (x: number) => x * Math.PI/180.0)
     values = map(values, (x: number) => -x)

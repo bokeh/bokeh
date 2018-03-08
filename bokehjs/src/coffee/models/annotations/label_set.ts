@@ -8,6 +8,7 @@ import {LineJoin, LineCap} from "core/enums"
 import {SpatialUnits, RenderMode} from "core/enums"
 import {div, show, hide} from "core/dom";
 import * as p from "core/properties";
+import {Arrayable} from "core/types"
 import {isString, isArray} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 
@@ -72,7 +73,7 @@ export class LabelSetView extends TextAnnotationView {
     this.visuals.warm_cache(source);
   }
 
-  _map_data() {
+  _map_data(): [Arrayable<number>, Arrayable<number>] {
     const xscale = this.plot_view.frame.xscales[this.model.x_range_name];
     const yscale = this.plot_view.frame.yscales[this.model.y_range_name];
 

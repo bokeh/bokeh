@@ -1,4 +1,5 @@
 import {Scale} from "./scale"
+import {Arrayable} from "core/types"
 
 export namespace LogScale {
   export interface Attrs extends Scale.Attrs {}
@@ -33,7 +34,7 @@ export class LogScale extends Scale {
     return value
   }
 
-  v_compute(xs: number[] | Float64Array): Float64Array {
+  v_compute(xs: Arrayable<number>): Arrayable<number> {
     const [factor, offset, inter_factor, inter_offset] = this._compute_state()
 
     const result = new Float64Array(xs.length)
@@ -62,7 +63,7 @@ export class LogScale extends Scale {
     return Math.exp(inter_factor*value + inter_offset)
   }
 
-  v_invert(xprimes: number[] | Float64Array): Float64Array {
+  v_invert(xprimes: Arrayable<number>): Arrayable<number> {
     const [factor, offset, inter_factor, inter_offset] = this._compute_state()
     const result = new Float64Array(xprimes.length)
     for (let i = 0; i < xprimes.length; i++) {

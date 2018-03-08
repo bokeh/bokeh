@@ -5,32 +5,9 @@ utils = require "../../utils"
 {Set} = utils.require("core/util/data_structures")
 {set_log_level} = utils.require "core/logging"
 
-{ColumnDataSource, concat_typed_arrays, stream_to_column, slice, patch_to_column} = utils.require("models/sources/column_data_source")
+{ColumnDataSource, stream_to_column, slice, patch_to_column} = utils.require("models/sources/column_data_source")
 
 describe "column_data_source module", ->
-
-  describe "concat_typed_arrays", ->
-
-    it "should concat Float32 arrays", ->
-      a = new Float32Array([1,2])
-      b = new Float32Array([3,4])
-      c = concat_typed_arrays(a, b)
-      expect(c).to.be.instanceof Float32Array
-      expect(c).to.be.deep.equal new Float32Array([1,2,3,4])
-
-    it "should concat Float64 arrays", ->
-      a = new Float64Array([1,2])
-      b = new Float64Array([3,4])
-      c = concat_typed_arrays(a, b)
-      expect(c).to.be.instanceof Float64Array
-      expect(c).to.be.deep.equal new Float64Array([1,2,3,4])
-
-   it "should concat Int32 arrays", ->
-      a = new Int32Array([1,2])
-      b = new Int32Array([3,4])
-      c = concat_typed_arrays(a, b)
-      expect(c).to.be.instanceof Int32Array
-      expect(c).to.be.deep.equal new Int32Array([1,2,3,4])
 
   describe "slice", ->
 

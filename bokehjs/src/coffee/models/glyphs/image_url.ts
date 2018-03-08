@@ -5,6 +5,7 @@ import {Anchor} from "core/enums"
 import {logger} from "core/logging";
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
+import {SpatialIndex} from "core/util/spatial"
 
 export class ImageURLView extends GlyphView {
   model: ImageURL
@@ -14,7 +15,9 @@ export class ImageURLView extends GlyphView {
     this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_render());
   }
 
-  _index_data() {}
+  _index_data(): SpatialIndex | null {
+    return null
+  }
 
   _set_data() {
     if ((this.image == null) || (this.image.length !== this._url.length))

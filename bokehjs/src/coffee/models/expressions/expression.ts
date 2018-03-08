@@ -1,5 +1,6 @@
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {Model} from "../../model"
+import {Arrayable} from "core/types"
 
 export namespace Expression {
   export interface Attrs extends Model.Attrs {}
@@ -18,7 +19,7 @@ export abstract class Expression extends Model {
   }
 
   protected _connected: {[key: string]: boolean} = {}
-  protected _result: {[key: string]: ArrayLike<any>} = {}
+  protected _result: {[key: string]: Arrayable} = {}
 
   initialize(): void {
     super.initialize()
@@ -26,9 +27,9 @@ export abstract class Expression extends Model {
     this._result = {}
   }
 
-  abstract v_compute(source: ColumnarDataSource): ArrayLike<any>
+  abstract v_compute(source: ColumnarDataSource): Arrayable
 
-  protected _v_compute(source: ColumnarDataSource): ArrayLike<any> {
+  protected _v_compute(source: ColumnarDataSource): Arrayable {
     if (this._connected[source.id] == null) {
       this.connect(source.change, () => delete this._result[source.id])
       this._connected[source.id] = true

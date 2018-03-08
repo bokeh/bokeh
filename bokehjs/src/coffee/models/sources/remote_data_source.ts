@@ -1,4 +1,3 @@
-/* XXX: partial */
 import {ColumnDataSource} from "./column_data_source"
 import * as p from "core/properties"
 
@@ -21,8 +20,8 @@ export abstract class RemoteDataSource extends ColumnDataSource {
     this.prototype.type = 'RemoteDataSource'
 
     this.define({
-      data_url:         [ p.String    ],
-      polling_interval: [ p.Number    ],
+      data_url:         [ p.String ],
+      polling_interval: [ p.Number ],
     })
   }
 

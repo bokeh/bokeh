@@ -174,7 +174,7 @@ export class Tooltip extends Annotation {
     this.data = data;
 
     // TODO (bev) not sure why this is now necessary
-    this.properties.data.change.emit(undefined);
+    this.properties.data.change.emit();
   }
 }
 Tooltip.initClass();

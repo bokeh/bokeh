@@ -1,7 +1,7 @@
 //import {logger} from "./logging"
 import {View} from "./view"
 import {Class} from "./class"
-import {Signal, Signalable} from "./signaling"
+import {Signal0, Signal, Signalable} from "./signaling"
 import * as property_mixins from "./property_mixins"
 import {Ref, is_ref, create_ref} from "./util/refs"
 import * as p from "./properties"
@@ -147,9 +147,9 @@ export abstract class HasProps extends Signalable() {
 
   document: Document | null = null
 
-  readonly destroyed       = new Signal<void, this>(this, "destroyed")
-  readonly change          = new Signal<void, this>(this, "change")
-  readonly transformchange = new Signal<void, this>(this, "transformchange")
+  readonly destroyed       = new Signal0<this>(this, "destroyed")
+  readonly change          = new Signal0<this>(this, "change")
+  readonly transformchange = new Signal0<this>(this, "transformchange")
 
   readonly attributes: {[key: string]: any} = {}
   readonly properties: {[key: string]: Property<any>} = {}
@@ -201,7 +201,7 @@ export abstract class HasProps extends Signalable() {
       const prop = this.properties[name]
       prop.update()
       if (prop.spec.transform != null)
-        this.connect(prop.spec.transform.change, () => this.transformchange.emit(undefined))
+        this.connect(prop.spec.transform.change, () => this.transformchange.emit())
     }
 
     this.initialize()
@@ -218,7 +218,7 @@ export abstract class HasProps extends Signalable() {
 
   destroy(): void {
     this.disconnect_signals()
-    this.destroyed.emit(undefined)
+    this.destroyed.emit()
   }
 
   // Create a new model with identical attributes to this one.
@@ -258,7 +258,7 @@ export abstract class HasProps extends Signalable() {
       if (changes.length > 0)
         this._pending = true
       for (let i = 0; i < changes.length; i++)
-        this.properties[changes[i]].change.emit(current[changes[i]])
+        this.properties[changes[i]].change.emit()
     }
 
     // You might be wondering why there's a `while` loop here. Changes can
@@ -268,7 +268,7 @@ export abstract class HasProps extends Signalable() {
     if (!silent && !options.no_change) {
       while (this._pending) {
         this._pending = false
-        this.change.emit(undefined)
+        this.change.emit()
       }
     }
 

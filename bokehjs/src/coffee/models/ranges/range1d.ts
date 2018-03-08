@@ -68,7 +68,7 @@ export class Range1d extends Range {
     if (this.start != this._initial_start || this.end != this._initial_end)
       this.setv({start: this._initial_start, end: this._initial_end})
     else
-      this.change.emit(undefined)
+      this.change.emit()
   }
 }
 

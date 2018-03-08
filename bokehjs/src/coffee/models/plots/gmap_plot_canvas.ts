@@ -1,14 +1,14 @@
 /* XXX: partial */
-import {Signal} from "core/signaling";
+import {Signal0} from "core/signaling";
 import {wgs84_mercator} from "core/util/projections"
 import {Context2d} from "core/util/canvas"
 import {GMapPlot} from "./gmap_plot"
 import {PlotCanvas, PlotCanvasView} from "./plot_canvas";
 
-const gmaps_ready = new Signal(this, "gmaps_ready");
+const gmaps_ready = new Signal0(this, "gmaps_ready");
 
 const load_google_api = function(api_key) {
-  window._bokeh_gmaps_callback = () => gmaps_ready.emit(undefined);
+  window._bokeh_gmaps_callback = () => gmaps_ready.emit();
 
   const script = document.createElement('script');
   script.type = 'text/javascript';

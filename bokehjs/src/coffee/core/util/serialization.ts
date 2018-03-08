@@ -1,15 +1,5 @@
-import {isArray, isObject} from "./types"
-import {map} from "./array"
-
-export type TypedArray =
-  Uint8Array   | Int8Array    |
-  Uint16Array  | Int16Array   |
-  Uint32Array  | Int32Array   |
-  Float32Array | Float64Array
-
-export function isTypedArray(v: any): v is TypedArray {
-  return v != null && v.buffer != null && v.buffer instanceof ArrayBuffer
-}
+import {Arrayable, TypedArray} from "../types"
+import {isTypedArray, isArray, isObject} from "./types"
 
 export const ARRAY_TYPES = {
   uint8:   Uint8Array,
@@ -143,7 +133,7 @@ export function process_buffer(spec: BufferSpec, buffers: [any, any][]): [TypedA
   return [arr, shape]
 }
 
-export function process_array(obj: NDArray | BufferSpec | ArrayLike<any>, buffers: [any, any][]): [ArrayLike<any>, number[]] {
+export function process_array(obj: NDArray | BufferSpec | Arrayable, buffers: [any, any][]): [Arrayable, number[]] {
   if (isObject(obj) && '__ndarray__' in obj)
     return decode_base64(obj)
   else if (isObject(obj) && '__buffer__' in obj)
@@ -156,8 +146,8 @@ export function process_array(obj: NDArray | BufferSpec | ArrayLike<any>, buffer
 
 export function arrayBufferToBase64(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer)
-  const binary = map(bytes, (b) => String.fromCharCode(b))
-  return btoa(binary.join(""))
+  const chars = Array.from(bytes).map((b) => String.fromCharCode(b))
+  return btoa(chars.join(""))
 }
 
 export function base64ToArrayBuffer(base64: string): ArrayBuffer {
@@ -208,11 +198,11 @@ export function encode_base64(array: TypedArray, shape?: Shape): NDArray {
   return data
 }
 
-export type Data = {[key: string]: ArrayLike<any>}
+export type Data = {[key: string]: Arrayable}
 
 export type Shapes = {[key: string]: Shape | Shape[]}
 
-export type EncodedData = {[key: string]: NDArray | ArrayLike<any>}
+export type EncodedData = {[key: string]: NDArray | Arrayable}
 
 export function decode_column_data(data: EncodedData, buffers: [any, any][] = []): [Data, Shapes] {
   const new_data: Data = {}
@@ -231,7 +221,7 @@ export function decode_column_data(data: EncodedData, buffers: [any, any][] = []
       }
 
       // v is a ragged array of arrays
-      const arrays: ArrayLike<any>[] = []
+      const arrays: Arrayable[] = []
       const shapes: Shape[] = []
       for (const obj of v) {
         const [arr, shape] = process_array(obj as NDArray, buffers)
@@ -257,7 +247,7 @@ export function encode_column_data(data: Data, shapes?: Shapes): EncodedData {
   const new_data: EncodedData = {}
   for (const k in data) {
     let v = data[k]
-    let new_v: NDArray | ArrayLike<any>
+    let new_v: NDArray | Arrayable
     if (isTypedArray(v)) {
       new_v = encode_base64(v, shapes != null ? shapes[k] as Shape : undefined)
     } else if (isArray(v)) {

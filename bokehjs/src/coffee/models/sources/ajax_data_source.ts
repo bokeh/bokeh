@@ -1,4 +1,3 @@
-/* XXX: partial */
 import {RemoteDataSource} from "./remote_data_source"
 import {UpdateMode, HTTPMethod} from "core/enums"
 import {logger} from "core/logging"
@@ -37,6 +36,7 @@ export class AjaxDataSource extends RemoteDataSource {
   }
 
   protected interval: number
+  protected initialized: boolean = false
 
   destroy(): void {
     if (this.interval != null)
@@ -45,14 +45,12 @@ export class AjaxDataSource extends RemoteDataSource {
   }
 
   setup(): void {
-    if (this.initialized == null) {
+    if (!this.initialized) {
       this.initialized = true
       this.get_data(this.mode)
       if (this.polling_interval) {
-        this.interval = setInterval(
-          () => this.get_data(this.mode, this.max_size, this.if_modified),
-          this.polling_interval
-        )
+        const callback = () => this.get_data(this.mode, this.max_size, this.if_modified)
+        this.interval = setInterval(callback, this.polling_interval)
       }
     }
   }
@@ -67,7 +65,7 @@ export class AjaxDataSource extends RemoteDataSource {
     xhr.send()
   }
 
-  prepare_request() : XMLHttpRequest {
+  prepare_request(): XMLHttpRequest {
     const xhr = new XMLHttpRequest()
     xhr.open(this.method, this.data_url, true)
     xhr.withCredentials = false
@@ -82,7 +80,7 @@ export class AjaxDataSource extends RemoteDataSource {
     return xhr
   }
 
-  do_load(xhr: XMLHttpRequest, mode: UpdateMode, max_size: number) : void {
+  do_load(xhr: XMLHttpRequest, mode: UpdateMode, max_size: number): void {
     if (xhr.status === 200) {
       const data = JSON.parse(xhr.responseText)
       switch (mode) {
@@ -93,7 +91,10 @@ export class AjaxDataSource extends RemoteDataSource {
         case "append": {
           const original_data = this.data
           for (const column of this.columns()) {
-            data[column] = original_data[column].concat(data[column]).slice(-max_size)
+            // XXX: support typed arrays
+            const old_col = Array.from(original_data[column])
+            const new_col = Array.from(data[column])
+            data[column] = old_col.concat(new_col).slice(-max_size)
           }
           this.data = data
           break
@@ -102,9 +103,8 @@ export class AjaxDataSource extends RemoteDataSource {
     }
   }
 
-  do_error(xhr: XMLHttpRequest) : void {
+  do_error(xhr: XMLHttpRequest): void {
     logger.error(`Failed to fetch JSON from ${this.data_url} with code ${xhr.status}`)
   }
-
 }
 AjaxDataSource.initClass()

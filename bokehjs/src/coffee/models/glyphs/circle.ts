@@ -6,7 +6,8 @@ import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import {Dimension} from "core/enums"
 import * as hittest from "core/hittest";
 import * as p from "core/properties"
-import {range, map} from "core/util/array"
+import {range} from "core/util/array"
+import {map} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection";
 

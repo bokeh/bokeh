@@ -1,11 +1,10 @@
 import {Keys} from "core/dom"
 import {UIEvent, GestureEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
 import * as p from "core/properties"
-import {copy} from "core/util/array"
 import {MultiLine} from "../../glyphs/multi_line"
 import {Patches} from "../../glyphs/patches"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
-import {EditTool, EditToolView, HasCDS} from "./edit_tool"
+import {EditTool, EditToolView} from "./edit_tool"
 
 export interface HasPolyGlyph {
   glyph: MultiLine | Patches
@@ -18,7 +17,7 @@ export class PolyDrawToolView extends EditToolView {
   _tap(ev: TapEvent): void {
     if (this._drawing) {
       this._draw(ev, 'add');
-      this.model.renderers[0].data_source.properties.data.change.emit(undefined);
+      this.model.renderers[0].data_source.properties.data.change.emit();
     } else {
       const append = ev.shiftKey
       this._select_event(ev, append, this.model.renderers);
@@ -36,8 +35,8 @@ export class PolyDrawToolView extends EditToolView {
     const glyph: any = renderer.glyph;
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field];
     if (mode == 'new') {
-      if (xkey) { ds.data[xkey].push([x, x]); }
-      if (ykey) { ds.data[ykey].push([y, y]); }
+      if (xkey) ds.get_array(xkey).push([x, x])
+      if (ykey) ds.get_array(ykey).push([y, y])
       this._pad_empty_columns(ds, [xkey, ykey]);
     } else if (mode == 'edit') {
       if (xkey) {
@@ -51,26 +50,20 @@ export class PolyDrawToolView extends EditToolView {
     } else if (mode == 'add') {
       if (xkey) {
         const xidx = ds.data[xkey].length-1;
-        let xs = ds.data[xkey][xidx];
-        if (xs.push == null) {
-          ds.data[xkey][xidx] = (xs = copy(xs));
-        }
+        const xs = ds.get_array<number[]>(xkey)[xidx]
         const nx = xs[xs.length-1];
         xs[xs.length-1] = x;
         xs.push(nx);
       }
       if (ykey) {
         const yidx = ds.data[ykey].length-1;
-        let ys = ds.data[ykey][yidx];
-        if (ys.push == null) {
-          ds.data[ykey][yidx] = (ys = copy(ys));
-        }
+        const ys = ds.get_array<number[]>(ykey)[yidx]
         const ny = ys[ys.length-1];
         ys[ys.length-1] = y;
         ys.push(ny);
       }
     }
-    ds.change.emit(undefined)
+    ds.change.emit()
   }
 
   _doubletap(ev: TapEvent): void {
@@ -82,7 +75,7 @@ export class PolyDrawToolView extends EditToolView {
       this._drawing = true;
       this._draw(ev, 'new');
     }
-    this.model.renderers[0].data_source.properties.data.change.emit(undefined);
+    this.model.renderers[0].data_source.properties.data.change.emit();
   }
 
   _move(ev: MoveEvent): void {
@@ -98,23 +91,16 @@ export class PolyDrawToolView extends EditToolView {
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field];
     if (xkey) {
       const xidx = ds.data[xkey].length-1;
-      let xs = ds.data[xkey][xidx];
-      if (xs.splice == null) {
-          ds.data[xkey][xidx] = (xs = copy(xs));
-      }
-      xs.splice(xs.length-1, 1);
+      const xs = ds.get_array<number[]>(xkey)[xidx]
+      xs.splice(xs.length-1, 1)
     }
     if (ykey) {
       const yidx = ds.data[ykey].length-1;
-      let ys = ds.data[ykey][yidx];
-      if (ys.push == null) {
-          ds.data[ykey][yidx] = (ys = copy(ys));
-        }
-
-      ys.splice(ys.length-1, 1);
+      const ys = ds.get_array<number[]>(ykey)[yidx];
+      ys.splice(ys.length-1, 1)
     }
-    ds.change.emit(undefined)
-    ds.properties.data.change.emit(undefined);
+    ds.change.emit()
+    ds.properties.data.change.emit();
   }
 
   _keyup(ev: KeyEvent): void {
@@ -128,7 +114,7 @@ export class PolyDrawToolView extends EditToolView {
           this._remove();
           this._drawing = false;
         }
-        const cds: any = renderer.data_source;
+        const cds = renderer.data_source;
         cds.selection_manager.clear();
       }
     }
@@ -161,7 +147,7 @@ export class PolyDrawToolView extends EditToolView {
       const [dx, dy] = [x-px, y-py];
       for (const index of ds.selected.indices) {
         let length, xs, ys;
-        if (xkey) { xs = ds.data[xkey][index]; }
+        if (xkey) xs = ds.data[xkey][index]
         if (ykey) {
           ys = ds.data[ykey][index];
           length = ys.length;
@@ -173,7 +159,7 @@ export class PolyDrawToolView extends EditToolView {
           if (ys) { ys[i] += dy; }
         }
       }
-      ds.change.emit(undefined);
+      ds.change.emit();
     }
     this._basepoint = [ev.sx, ev.sy];
   }
@@ -183,7 +169,7 @@ export class PolyDrawToolView extends EditToolView {
     this._pan(ev);
     for (const renderer of this.model.renderers) {
       renderer.data_source.selected.indices = [];
-      renderer.data_source.properties.data.change.emit(undefined);
+      renderer.data_source.properties.data.change.emit();
     }
     this._basepoint = null;
   }
@@ -199,7 +185,7 @@ export class PolyDrawToolView extends EditToolView {
 export namespace PolyDrawTool {
   export interface Attrs extends EditTool.Attrs {
     drag: boolean
-    renderers: (GlyphRenderer & HasCDS & HasPolyGlyph)[]
+    renderers: (GlyphRenderer & HasPolyGlyph)[]
   }
 
 }
@@ -208,7 +194,7 @@ export interface PolyDrawTool extends PolyDrawTool.Attrs {}
 
 export class PolyDrawTool extends EditTool {
 
-  renderers: (GlyphRenderer & HasCDS & HasPolyGlyph)[]
+  renderers: (GlyphRenderer & HasPolyGlyph)[]
 
   constructor(attrs?: Partial<PolyDrawTool.Attrs>) {
     super(attrs)

@@ -3,7 +3,7 @@ import {version as js_version} from "./version"
 import {logger} from "./core/logging"
 import {LODStart, LODEnd} from "core/bokeh_events"
 import {HasProps} from "./core/has_props"
-import {Signal} from "./core/signaling"
+import {Signal0} from "./core/signaling"
 import {Ref, is_ref} from "./core/util/refs"
 import {decode_column_data} from "./core/util/serialization"
 import {MultiDict, Set} from "./core/util/data_structures"
@@ -199,7 +199,7 @@ export const DEFAULT_TITLE = "Bokeh Application"
 export class Document {
 
   readonly event_manager: EventManager
-  readonly idle: Signal<void, this>
+  readonly idle: Signal0<this>
 
   protected readonly _init_timestamp: number
   protected _title: string
@@ -222,7 +222,7 @@ export class Document {
     this._all_models_freeze_count = 0
     this._callbacks = []
     this.event_manager = new EventManager(this)
-    this.idle = new Signal(this, "idle")
+    this.idle = new Signal0(this, "idle")
     this._idle_roots = new WeakMap() // TODO: WeakSet would be better
     this._interactive_timestamp = null
     this._interactive_plot = null
@@ -244,7 +244,7 @@ export class Document {
     this._idle_roots.set(model, true)
     if (this.is_idle) {
       logger.info(`document idle at ${Date.now() - this._init_timestamp} ms`)
-      this.idle.emit(undefined)
+      this.idle.emit()
     }
   }
 

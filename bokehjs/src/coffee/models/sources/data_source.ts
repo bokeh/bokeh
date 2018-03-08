@@ -22,8 +22,8 @@ export abstract class DataSource extends Model {
     this.prototype.type = "DataSource"
 
     this.define({
-      selected: [ p.Instance                        ], // TODO (bev)
-      callback: [ p.Any                             ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
+      selected: [ p.Instance ], // TODO (bev)
+      callback: [ p.Any      ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
     })
   }
 

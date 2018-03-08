@@ -20,7 +20,7 @@ export function last<T>(array: T[]): T | undefined {
   return array[array.length-1]
 }
 
-export function copy<T>(array: T[] /*| TypedArray*/): T[] {
+export function copy<T>(array: T[]): T[] {
   return slice.call(array)
 }
 
@@ -355,16 +355,6 @@ export function repeat<T>(value: T, n: number): T[] {
   const result: T[] = new Array(n)
   for (let i = 0; i < n; i++) {
     result[i] = value
-  }
-  return result
-}
-
-
-export function map<T, U>(array: ArrayLike<T>, fn: (item: T) => U): U[] {
-  const n = array.length
-  const result: U[] = new Array(n)
-  for (let i = 0; i < n; i++) {
-    result[i] = fn(array[i])
   }
   return result
 }

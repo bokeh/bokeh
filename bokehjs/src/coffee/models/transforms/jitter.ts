@@ -1,9 +1,10 @@
-/* XXX: partial */
-import {Transform} from "./transform";
+import {Transform} from "./transform"
 import {Range} from "../ranges/range"
-import {FactorRange} from "../ranges/factor_range"
+import {Factor, FactorRange} from "../ranges/factor_range"
 import {Distribution} from "core/enums"
-import * as p from "core/properties";
+import {Arrayable} from "core/types"
+import {isNumber, isArrayableOf} from "core/util/types"
+import * as p from "core/properties"
 import * as bokeh_math from "core/util/math"
 
 export namespace Jitter {
@@ -31,20 +32,42 @@ export class Jitter extends Transform {
       width:        [ p.Number      , 1        ],
       distribution: [ p.Distribution, 'uniform'],
       range:        [ p.Instance               ],
-    });
+    })
   }
 
-  compute(x, use_synthetic = true) {
-    if (this.range instanceof FactorRange && use_synthetic) {
-      x = this.range.synthetic(x);
-    }
-    if (this.distribution === 'uniform') {
-      return(x + this.mean + ((bokeh_math.random() - 0.5) * this.width));
-    }
+  v_compute(xs0: Arrayable<number | Factor>): Arrayable<number> {
+    let xs: Arrayable<number>
+    if (this.range instanceof FactorRange)
+      xs = this.range.v_synthetic(xs0)
+    else if (isArrayableOf(xs0, isNumber))
+      xs = xs0
+    else
+      throw new Error("unexpected")
 
-    if (this.distribution === 'normal') {
-      return(x + bokeh_math.rnorm(this.mean, this.width));
+    const result = new Float64Array(xs.length)
+    for (let i = 0; i < xs.length; i++) {
+      const x = xs[i]
+      result[i] = this._compute(x)
+    }
+    return result
+  }
+
+  compute(x: number | Factor): number {
+    if (this.range instanceof FactorRange)
+      return this._compute(this.range.synthetic(x))
+    else if (isNumber(x))
+      return this._compute(x)
+    else
+      throw new Error("unexpected")
+  }
+
+  protected _compute(x: number): number {
+    switch (this.distribution) {
+      case "uniform":
+        return x + this.mean + (bokeh_math.random() - 0.5)*this.width
+      case "normal":
+        return x + bokeh_math.rnorm(this.mean, this.width)
     }
   }
 }
-Jitter.initClass();
+Jitter.initClass()

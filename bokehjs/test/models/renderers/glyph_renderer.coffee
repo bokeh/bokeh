@@ -39,12 +39,7 @@ describe "GlyphRenderer", ->
       index = @gr.get_reference_point('label', 'baz')
       expect(index).to.be.equal 0
 
-    it "should return 0 if data_source doesn't have get_column method", ->
-      source = new DataSource()
-      gr = new GlyphRenderer({'data_source': source})
-      index = gr.get_reference_point('label', 20)
-      expect(index).to.be.equal 0
-
+  ### XXX: TODO
   describe "hit_test_helper", ->
 
     ## Dummy GlyphView classes that implement `hit_test` method
@@ -81,3 +76,4 @@ describe "GlyphRenderer", ->
       @glyph_renderer.glyph = new HitTestHit()
       expect(@gr.hit_test_helper("geometry", @glyph_renderer)).to.be.instanceof(Selection)
       expect(@gr.hit_test_helper("geometry", @glyph_renderer).indices).to.be.deep.equal([0, 1])
+  ###
