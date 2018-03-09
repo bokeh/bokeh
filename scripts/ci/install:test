@@ -35,7 +35,7 @@ else
 fi
 
 # install the pre-built Bokeh package plus all test and runtime dependencies
-conda install --yes --quiet --use-local bokeh `python scripts/deps.py run test`
+conda install --yes --quiet --use-local bokeh `python scripts/deps.py run test` tornado=${TORNADO:-5}
 
 # regrettably need to have previous JS build in the source tree
 python setup.py --install-js
