@@ -6,10 +6,12 @@ from bokeh.models import ColumnDataSource, Slider
 from bokeh.plotting import figure
 from bokeh.server.server import Server
 from bokeh.themes import Theme
+from tornado.ioloop import IOLoop
 
 from bokeh.sampledata.sea_surface_temperature import sea_surface_temperature
 
 app = Flask(__name__)
+
 
 def modify_doc(doc):
     df = sea_surface_temperature.copy()
@@ -33,15 +35,17 @@ def modify_doc(doc):
 
     doc.theme = Theme(filename="theme.yaml")
 
+
 @app.route('/', methods=['GET'])
 def bkapp_page():
     script = server_document('http://localhost:5006/bkapp')
     return render_template("embed.html", script=script, template="Flask")
 
+
 def bk_worker():
     # Can't pass num_procs > 1 in this configuration. If you need to run multiple
     # processes, see e.g. flask_gunicorn_embed.py
-    server = Server({'/bkapp': modify_doc}, allow_websocket_origin=["localhost:8000"])
+    server = Server({'/bkapp': modify_doc}, io_loop=IOLoop(), allow_websocket_origin=["localhost:8000"])
     server.start()
     server.io_loop.start()
 
