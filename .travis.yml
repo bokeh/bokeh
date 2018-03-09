@@ -79,6 +79,7 @@ jobs:
       env:
       - GROUP=unit
       - PYTHON=3.5
+      - TORNADO=4
 
     - install: scripts/ci/install:test
       script: scripts/ci/test
