@@ -235,6 +235,8 @@ export namespace Patches {
     ys: NumberSpec
   }
 
+  export interface Props extends Glyph.Props {}
+
   export interface Visuals extends Glyph.Visuals {
     line: Line
     fill: Fill
@@ -244,6 +246,8 @@ export namespace Patches {
 export interface Patches extends Patches.Attrs {}
 
 export class Patches extends Glyph {
+
+  properties: Patches.Props
 
   constructor(attrs?: Partial<Patches.Attrs>) {
     super(attrs)

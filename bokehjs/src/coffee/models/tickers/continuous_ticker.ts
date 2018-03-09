@@ -21,11 +21,15 @@ export namespace ContinuousTicker {
     num_minor_ticks: number
     desired_num_ticks: number
   }
+
+  export interface Props extends Ticker.Props {}
 }
 
 export interface ContinuousTicker extends ContinuousTicker.Attrs {}
 
 export abstract class ContinuousTicker extends Ticker<number> {
+
+  properties: ContinuousTicker.Props
 
   constructor(attrs?: Partial<ContinuousTicker.Attrs>) {
     super(attrs)

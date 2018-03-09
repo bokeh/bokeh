@@ -69,11 +69,15 @@ export namespace CheckboxGroup {
     inline: boolean
     callback: any // XXX
   }
+
+  export interface Props extends Widget.Props {}
 }
 
 export interface CheckboxGroup extends CheckboxGroup.Attrs {}
 
 export class CheckboxGroup extends Widget {
+
+  properties: CheckboxGroup.Props
 
   constructor(attrs?: Partial<CheckboxGroup.Attrs>) {
     super(attrs)

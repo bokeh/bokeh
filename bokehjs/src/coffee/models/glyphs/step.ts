@@ -70,6 +70,8 @@ export namespace Step {
     mode: StepMode
   }
 
+  export interface Props extends XYGlyph.Props {}
+
   export interface Visuals extends XYGlyph.Visuals {
     line: Line
   }
@@ -78,6 +80,8 @@ export namespace Step {
 export interface Step extends Step.Attrs {}
 
 export class Step extends XYGlyph {
+
+  properties: Step.Props
 
   constructor(attrs?: Partial<Step.Attrs>) {
     super(attrs)

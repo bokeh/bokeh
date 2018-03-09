@@ -92,11 +92,15 @@ export namespace ToolbarBase {
     help: Tool[]
     toolbar_location: Location
   }
+
+  export interface Props extends Model.Props {}
 }
 
 export interface ToolbarBase extends ToolbarBase.Attrs {}
 
 export class ToolbarBase extends Model {
+
+  properties: ToolbarBase.Props
 
   constructor(attrs?: Partial<ToolbarBase.Attrs>) {
     super(attrs)

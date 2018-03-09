@@ -12,11 +12,15 @@ export namespace LinearAxis {
     ticker: BasicTicker
     formatters: BasicTickFormatter
   }
+
+  export interface Props extends ContinuousAxis.Props {}
 }
 
 export interface LinearAxis extends LinearAxis.Attrs {}
 
 export class LinearAxis extends ContinuousAxis {
+
+  properties: LinearAxis.Props
 
   ticker: BasicTicker
   formatters: BasicTickFormatter

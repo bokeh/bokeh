@@ -3,11 +3,15 @@ import {Arrayable} from "core/types"
 
 export namespace Transform {
   export interface Attrs extends Model.Attrs {}
+
+  export interface Props extends Model.Props {}
 }
 
 export interface Transform extends Transform.Attrs {}
 
 export abstract class Transform extends Model {
+
+  properties: Transform.Props
 
   constructor(attrs?: Partial<Transform.Attrs>) {
     super(attrs)

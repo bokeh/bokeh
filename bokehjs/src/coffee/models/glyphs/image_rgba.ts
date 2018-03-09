@@ -136,12 +136,16 @@ export namespace ImageRGBA {
     dilate: boolean
   }
 
+  export interface Props extends XYGlyph.Props {}
+
   export interface Visuals extends XYGlyph.Visuals {}
 }
 
 export interface ImageRGBA extends ImageRGBA.Attrs {}
 
 export class ImageRGBA extends XYGlyph {
+
+  properties: ImageRGBA.Props
 
   constructor(attrs?: Partial<ImageRGBA.Attrs>) {
     super(attrs)

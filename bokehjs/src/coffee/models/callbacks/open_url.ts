@@ -7,11 +7,15 @@ export namespace OpenURL {
   export interface Attrs extends Callback.Attrs {
     url: string
   }
+
+  export interface Props extends Callback.Props {}
 }
 
 export interface OpenURL extends OpenURL.Attrs {}
 
 export class OpenURL extends Callback {
+
+  properties: OpenURL.Props
 
   constructor(attrs?: Partial<OpenURL.Attrs>) {
     super(attrs)

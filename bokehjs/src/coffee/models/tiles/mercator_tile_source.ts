@@ -8,11 +8,15 @@ export namespace MercatorTileSource {
     snap_to_zoom: boolean
     wrap_around: boolean
   }
+
+  export interface Props extends TileSource.Props {}
 }
 
 export interface MercatorTileSource extends MercatorTileSource.Attrs {}
 
 export class MercatorTileSource extends TileSource {
+
+  properties: MercatorTileSource.Props
 
   constructor(attrs?: Partial<MercatorTileSource.Attrs>) {
     super(attrs)

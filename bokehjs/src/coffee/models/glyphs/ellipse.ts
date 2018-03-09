@@ -95,6 +95,8 @@ export namespace Ellipse {
     height: DistanceSpec
   }
 
+  export interface Props extends XYGlyph.Props {}
+
   export interface Visuals extends XYGlyph.Visuals {
     line: Line
     fill: Fill
@@ -104,6 +106,8 @@ export namespace Ellipse {
 export interface Ellipse extends Ellipse.Attrs {}
 
 export class Ellipse extends XYGlyph {
+
+  properties: Ellipse.Props
 
   constructor(attrs?: Partial<Ellipse.Attrs>) {
     super(attrs)

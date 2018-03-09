@@ -232,11 +232,15 @@ export namespace LabelSet {
     y_range_name: string
     render_mode: RenderMode
   }
+
+  export interface Props extends TextAnnotation.Props {}
 }
 
 export interface LabelSet extends LabelSet.Attrs {}
 
 export class LabelSet extends TextAnnotation {
+
+  properties: LabelSet.Props
 
   constructor(attrs?: Partial<LabelSet.Attrs>) {
     super(attrs)

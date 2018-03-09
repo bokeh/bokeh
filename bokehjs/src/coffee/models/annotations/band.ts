@@ -138,11 +138,23 @@ export namespace Band {
     x_range_name: string
     y_range_name: string
   }
+
+  export interface Props extends Annotation.Props {
+    lower: p.DistanceSpec
+    upper: p.DistanceSpec
+    base: p.DistanceSpec
+    dimension: p.Property<Dimension>
+    source: p.Property<DataSource>
+    x_range_name: p.Property<string>
+    y_range_name: p.Property<string>
+  }
 }
 
 export interface Band extends Band.Attrs {}
 
 export class Band extends Annotation {
+
+  properties: Band.Props
 
   constructor(attrs?: Partial<Band.Attrs>) {
     super(attrs)

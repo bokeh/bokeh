@@ -52,12 +52,16 @@ export namespace HBar {
     right: NumberSpec
   }
 
+  export interface Props extends Box.Props {}
+
   export interface Visuals extends Box.Visuals {}
 }
 
 export interface HBar extends HBar.Attrs {}
 
 export class HBar extends Box {
+
+  properties: HBar.Props
 
   constructor(attrs?: Partial<HBar.Attrs>) {
     super(attrs)

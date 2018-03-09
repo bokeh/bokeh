@@ -381,12 +381,16 @@ export namespace Glyph {
     y_range_name: string
   }
 
+  export interface Props extends Model.Props {}
+
   export interface Visuals extends visuals.Visuals {}
 }
 
 export interface Glyph extends Glyph.Attrs {}
 
 export abstract class Glyph extends Model {
+
+  properties: Glyph.Props
 
   constructor(attrs?: Partial<Glyph.Attrs>) {
     super(attrs)

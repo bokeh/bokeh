@@ -242,6 +242,8 @@ export namespace Circle {
     radius_dimension: Dimension
   }
 
+  export interface Props extends XYGlyph.Props {}
+
   export interface Visuals extends XYGlyph.Visuals {
     line: Line
     fill: Fill
@@ -251,6 +253,8 @@ export namespace Circle {
 export interface Circle extends Circle.Attrs {}
 
 export class Circle extends XYGlyph {
+
+  properties: Circle.Props
 
   constructor(attrs?: Partial<Circle.Attrs>) {
     super(attrs)

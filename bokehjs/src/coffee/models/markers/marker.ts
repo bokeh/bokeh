@@ -163,6 +163,8 @@ export namespace Marker {
     angle: AngleSpec
   }
 
+  export interface Props extends XYGlyph.Props {}
+
   export interface Visuals extends XYGlyph.Visuals {
     line: Line
     fill: Fill
@@ -172,6 +174,8 @@ export namespace Marker {
 export interface Marker extends Marker.Attrs {}
 
 export abstract class Marker extends XYGlyph {
+
+  properties: Marker.Props
 
   constructor(attrs?: Partial<Marker.Attrs>) {
     super(attrs)

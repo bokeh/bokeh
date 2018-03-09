@@ -22,11 +22,15 @@ export class DateRangeSliderView extends AbstractSliderView {
 
 export namespace DateRangeSlider {
   export interface Attrs extends AbstractSlider.Attrs {}
+
+  export interface Props extends AbstractSlider.Props {}
 }
 
 export interface DateRangeSlider extends DateRangeSlider.Attrs {}
 
 export class DateRangeSlider extends AbstractSlider {
+
+  properties: DateRangeSlider.Props
 
   constructor(attrs?: Partial<DateRangeSlider.Attrs>) {
     super(attrs)

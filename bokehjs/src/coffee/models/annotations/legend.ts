@@ -335,11 +335,15 @@ export namespace Legend {
     items: LegendItem[]
     click_policy: LegendClickPolicy
   }
+
+  export interface Props extends Annotation.Props {}
 }
 
 export interface Legend extends Legend.Attrs {}
 
 export class Legend extends Annotation {
+
+  properties: Legend.Props
 
   constructor(attrs?: Partial<Legend.Attrs>) {
     super(attrs)

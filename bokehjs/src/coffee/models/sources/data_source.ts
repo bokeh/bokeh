@@ -8,11 +8,18 @@ export namespace DataSource {
     selected: Selection
     callback: any // XXX
   }
+
+  export interface Props extends Model.Props {
+    selected: p.Property<Selection>
+    callback: p.Property<any> // XXX
+  }
 }
 
 export interface DataSource extends DataSource.Attrs {}
 
 export abstract class DataSource extends Model {
+
+  properties: DataSource.Props
 
   constructor(attrs?: Partial<DataSource.Attrs>) {
     super(attrs)

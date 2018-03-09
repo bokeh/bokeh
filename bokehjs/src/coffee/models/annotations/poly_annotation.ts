@@ -75,11 +75,15 @@ export namespace PolyAnnotation {
     y_range_name: string
     screen: boolean
   }
+
+  export interface Props extends Annotation.Props {}
 }
 
 export interface PolyAnnotation extends PolyAnnotation.Attrs {}
 
 export class PolyAnnotation extends Annotation {
+
+  properties: PolyAnnotation.Props
 
   constructor(attrs?: Partial<PolyAnnotation.Attrs>) {
     super(attrs)

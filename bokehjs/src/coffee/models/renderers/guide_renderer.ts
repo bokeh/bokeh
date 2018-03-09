@@ -12,12 +12,16 @@ export namespace GuideRenderer {
     plot: Plot
   }
 
+  export interface Props extends Renderer.Props {}
+
   export type Visuals = Renderer.Visuals
 }
 
 export interface GuideRenderer extends GuideRenderer.Attrs {}
 
 export abstract class GuideRenderer extends Renderer {
+
+  properties: GuideRenderer.Props
 
   constructor(attrs?: Partial<GuideRenderer.Attrs>) {
     super(attrs)

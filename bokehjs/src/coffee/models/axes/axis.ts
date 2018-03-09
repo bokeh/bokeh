@@ -382,6 +382,8 @@ export namespace Axis {
     minor_tick_out: number
   }
 
+  export interface Props extends GuideRenderer.Props {}
+
   export type Visuals = GuideRenderer.Visuals & {
     axis_line: Line
     major_tick_line: Line
@@ -396,6 +398,8 @@ export interface Axis extends Axis.Attrs {
 }
 
 export class Axis extends GuideRenderer {
+
+  properties: Axis.Props
 
   constructor(attrs?: Partial<Axis.Attrs>) {
     super(attrs)

@@ -23,11 +23,15 @@ export namespace CategoricalColorMapper {
     start: number
     end: number
   }
+
+  export interface Props extends ColorMapper.Props {}
 }
 
 export interface CategoricalColorMapper extends CategoricalColorMapper.Attrs {}
 
 export class CategoricalColorMapper extends ColorMapper {
+
+  properties: CategoricalColorMapper.Props
 
   constructor(attrs?: Partial<CategoricalColorMapper.Attrs>) {
     super(attrs)

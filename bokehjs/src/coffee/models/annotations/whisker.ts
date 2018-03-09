@@ -130,11 +130,15 @@ export namespace Whisker {
     x_range_name: string
     y_range_name: string
   }
+
+  export interface Props extends Annotation.Props {}
 }
 
 export interface Whisker extends Whisker.Attrs {}
 
 export class Whisker extends Annotation {
+
+  properties: Whisker.Props
 
   constructor(attrs?: Partial<Whisker.Attrs>) {
     super(attrs)

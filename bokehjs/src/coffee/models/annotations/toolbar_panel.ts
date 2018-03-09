@@ -55,11 +55,15 @@ export namespace ToolbarPanel {
   export interface Attrs extends Annotation.Attrs {
     toolbar: Toolbar
   }
+
+  export interface Props extends Annotation.Props {}
 }
 
 export interface ToolbarPanel extends ToolbarPanel.Attrs {}
 
 export class ToolbarPanel extends Annotation {
+
+  properties: ToolbarPanel.Props
 
   constructor(attrs?: Partial<ToolbarPanel.Attrs>) {
     super(attrs)

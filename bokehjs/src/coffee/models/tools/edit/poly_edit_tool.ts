@@ -222,11 +222,15 @@ export namespace PolyEditTool {
     vertex_renderer: (GlyphRenderer & HasXYGlyph)
     renderers: (GlyphRenderer & HasPolyGlyph)[]
   }
+
+  export interface Props extends EditTool.Props {}
 }
 
 export interface PolyEditTool extends PolyEditTool.Attrs {}
 
 export class PolyEditTool extends EditTool {
+
+  properties: PolyEditTool.Props
 
   renderers: (GlyphRenderer & HasPolyGlyph)[]
 

@@ -122,11 +122,15 @@ export namespace SelectTool {
     renderers: DataRenderer[]
     names: string[]
   }
+
+  export interface Props extends GestureTool.Props {}
 }
 
 export interface SelectTool extends SelectTool.Attrs {}
 
 export abstract class SelectTool extends GestureTool {
+
+  properties: SelectTool.Props
 
   constructor(attrs?: Partial<SelectTool.Attrs>) {
     super(attrs)

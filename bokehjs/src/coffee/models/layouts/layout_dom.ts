@@ -356,11 +356,21 @@ export namespace LayoutDOM {
     sizing_mode: SizingMode
     css_classes: string[]
   }
+
+  export interface Props extends Model.Props {
+    height: p.Property<number>
+    width: p.Property<number>
+    disabled: p.Property<boolean>
+    sizing_mode: p.Property<SizingMode>
+    css_classes: p.Property<string[]>
+  }
 }
 
 export interface LayoutDOM extends LayoutDOM.Attrs {}
 
 export abstract class LayoutDOM extends Model {
+
+  properties: LayoutDOM.Props
 
   constructor(attrs?: Partial<LayoutDOM.Attrs>) {
     super(attrs)

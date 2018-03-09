@@ -940,6 +940,8 @@ export namespace PlotCanvas {
     canvas: Canvas
     frame: CartesianFrame
   }
+
+  export interface Props extends LayoutDOM.Props {}
 }
 
 export interface PlotCanvas extends PlotCanvas.Attrs {
@@ -947,6 +949,8 @@ export interface PlotCanvas extends PlotCanvas.Attrs {
 }
 
 export class PlotCanvas extends LayoutDOM {
+
+  properties: PlotCanvas.Props
 
   constructor(attrs?: Partial<PlotCanvas.Attrs>) {
     super(attrs)

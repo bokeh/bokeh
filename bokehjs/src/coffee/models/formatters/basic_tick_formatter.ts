@@ -10,11 +10,15 @@ export namespace BasicTickFormatter {
     power_limit_high: number
     power_limit_low: number
   }
+
+  export interface Props extends TickFormatter.Props {}
 }
 
 export interface BasicTickFormatter extends BasicTickFormatter.Attrs {}
 
 export class BasicTickFormatter extends TickFormatter {
+
+  properties: BasicTickFormatter.Props
 
   constructor(attrs?: Partial<BasicTickFormatter.Attrs>) {
     super(attrs)

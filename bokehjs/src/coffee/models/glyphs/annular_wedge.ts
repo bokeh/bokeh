@@ -164,6 +164,14 @@ export namespace AnnularWedge {
     end_angle:  AngleSpec
   }
 
+  export interface Props extends XYGlyph.Props {
+    direction: p.Direction
+    inner_radius: p.DistanceSpec
+    outer_radius: p.DistanceSpec
+    start_angle: p.AngleSpec
+    end_angle: p.AngleSpec
+  }
+
   export interface Visuals extends XYGlyph.Visuals {
     line: Line
     fill: Fill
@@ -173,6 +181,8 @@ export namespace AnnularWedge {
 export interface AnnularWedge extends AnnularWedge.Attrs {}
 
 export class AnnularWedge extends XYGlyph {
+
+  properties: AnnularWedge.Props
 
   constructor(attrs?: Partial<AnnularWedge.Attrs>) {
     super(attrs)

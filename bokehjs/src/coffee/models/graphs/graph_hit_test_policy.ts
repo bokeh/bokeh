@@ -7,7 +7,25 @@ import {Selection} from "../selections/selection"
 import {GraphRenderer, GraphRendererView} from "../renderers/graph_renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 
+export namespace GraphHitTestPolicy {
+  export interface Attrs extends Model.Attrs {}
+
+  export interface Props extends Model.Props {}
+}
+
+export interface GraphHitTestPolicy extends Model.Attrs {}
+
 export abstract class GraphHitTestPolicy extends Model {
+
+  properties: GraphHitTestPolicy.Props
+
+  constructor(attrs?: Partial<GraphHitTestPolicy.Attrs>) {
+    super(attrs)
+  }
+
+  static initClass(): void {
+    this.prototype.type = "GraphHitTestPolicy"
+  }
 
   abstract hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult
 
@@ -40,9 +58,22 @@ export abstract class GraphHitTestPolicy extends Model {
   }
 }
 
-GraphHitTestPolicy.prototype.type = "GraphHitTestPolicy"
+export namespace NodesOnly {
+  export interface Attrs extends GraphHitTestPolicy.Attrs {}
+
+  export interface Props extends GraphHitTestPolicy.Props {}
+}
+
+export interface NodesOnly extends NodesOnly.Attrs {}
 
 export class NodesOnly extends GraphHitTestPolicy {
+
+  properties: NodesOnly.Props
+
+  constructor(attrs?: Partial<NodesOnly.Attrs>) {
+    super(attrs)
+  }
+
   static initClass(): void {
     this.prototype.type = 'NodesOnly'
   }
@@ -78,7 +109,22 @@ export class NodesOnly extends GraphHitTestPolicy {
 }
 NodesOnly.initClass()
 
+export namespace NodesAndLinkedEdges {
+  export interface Attrs extends GraphHitTestPolicy.Attrs {}
+
+  export interface Props extends GraphHitTestPolicy.Props {}
+}
+
+export interface NodesAndLinkedEdges extends NodesAndLinkedEdges.Attrs {}
+
 export class NodesAndLinkedEdges extends GraphHitTestPolicy {
+
+  properties: NodesAndLinkedEdges.Props
+
+  constructor(attrs?: Partial<NodesAndLinkedEdges.Attrs>) {
+    super(attrs)
+  }
+
   static initClass(): void {
     this.prototype.type = 'NodesAndLinkedEdges'
   }
@@ -146,7 +192,22 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
 }
 NodesAndLinkedEdges.initClass()
 
+export namespace EdgesAndLinkedNodes {
+  export interface Attrs extends GraphHitTestPolicy.Attrs {}
+
+  export interface Props extends GraphHitTestPolicy.Props {}
+}
+
+export interface EdgesAndLinkedNodes extends EdgesAndLinkedNodes.Attrs {}
+
 export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
+
+  properties: EdgesAndLinkedNodes.Props
+
+  constructor(attrs?: Partial<EdgesAndLinkedNodes.Attrs>) {
+    super(attrs)
+  }
+
   static initClass(): void {
     this.prototype.type = 'EdgesAndLinkedNodes'
   }

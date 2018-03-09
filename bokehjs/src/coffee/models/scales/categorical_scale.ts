@@ -4,11 +4,15 @@ import {Arrayable} from "core/types"
 
 export namespace CategoricalScale {
   export interface Attrs extends LinearScale.Attrs {}
+
+  export interface Props extends LinearScale.Props {}
 }
 
 export interface CategoricalScale extends CategoricalScale.Attrs {}
 
 export class CategoricalScale extends LinearScale {
+
+  properties: CategoricalScale.Props
 
   constructor(attrs?: Partial<CategoricalScale.Attrs>) {
     super(attrs)

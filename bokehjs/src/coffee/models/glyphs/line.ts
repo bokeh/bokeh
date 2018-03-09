@@ -142,6 +142,8 @@ export namespace Line {
 
   export interface Attrs extends XYGlyph.Attrs, Mixins {}
 
+  export interface Props extends XYGlyph.Props {}
+
   export interface Visuals extends XYGlyph.Visuals {
     line: visuals.Line
   }
@@ -150,6 +152,8 @@ export namespace Line {
 export interface Line extends Line.Attrs {}
 
 export class Line extends XYGlyph {
+
+  properties: Line.Props
 
   constructor(attrs?: Partial<Line.Attrs>) {
     super(attrs)

@@ -90,11 +90,15 @@ export namespace WheelPanTool {
     dimension: Dimension
     speed: number
   }
+
+  export interface Props extends GestureTool.Props {}
 }
 
 export interface WheelPanTool extends WheelPanTool.Attrs {}
 
 export class WheelPanTool extends GestureTool {
+
+  properties: WheelPanTool.Props
 
   constructor(attrs?: Partial<WheelPanTool.Attrs>) {
     super(attrs)

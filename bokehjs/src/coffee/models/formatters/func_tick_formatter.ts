@@ -8,11 +8,15 @@ export namespace FuncTickFormatter {
     args: {[key: string]: any}
     code: string
   }
+
+  export interface Props extends TickFormatter.Props {}
 }
 
 export interface FuncTickFormatter extends FuncTickFormatter.Attrs {}
 
 export class FuncTickFormatter extends TickFormatter {
+
+  properties: FuncTickFormatter.Props
 
   constructor(attrs?: Partial<FuncTickFormatter.Attrs>) {
     super(attrs)

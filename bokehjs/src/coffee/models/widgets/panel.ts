@@ -19,11 +19,15 @@ export namespace Panel {
     child: LayoutDOM
     closable: boolean
   }
+
+  export interface Props extends Widget.Props {}
 }
 
 export interface Panel extends Panel.Attrs {}
 
 export class Panel extends Widget {
+
+  properties: Panel.Props
 
   constructor(attrs?: Partial<Panel.Attrs>) {
     super(attrs)

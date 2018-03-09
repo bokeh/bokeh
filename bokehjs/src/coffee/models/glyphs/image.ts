@@ -161,12 +161,16 @@ export namespace Image {
     color_mapper: ColorMapper
   }
 
+  export interface Props extends XYGlyph.Props {}
+
   export interface Visuals extends XYGlyph.Visuals {}
 }
 
 export interface Image extends Image.Attrs {}
 
 export class Image extends XYGlyph {
+
+  properties: Image.Props
 
   constructor(attrs?: Partial<Image.Attrs>) {
     super(attrs)

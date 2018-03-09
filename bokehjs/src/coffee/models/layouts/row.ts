@@ -10,11 +10,15 @@ export class RowView extends BoxView {
 
 export namespace Row {
   export interface Attrs extends Box.Attrs {}
+
+  export interface Props extends Box.Props {}
 }
 
 export interface Row extends Row.Attrs {}
 
 export class Row extends Box {
+
+  properties: Row.Props
 
   constructor(attrs?: Partial<Row.Attrs>) {
     super(attrs)

@@ -15,11 +15,15 @@ export class UndoToolView extends ActionToolView {
 
 export namespace UndoTool {
   export interface Attrs extends ActionTool.Attrs {}
+
+  export interface Props extends ActionTool.Props {}
 }
 
 export interface UndoTool extends UndoTool.Attrs {}
 
 export class UndoTool extends ActionTool {
+
+  properties: UndoTool.Props
 
   constructor(attrs?: Partial<UndoTool.Attrs>) {
     super(attrs)

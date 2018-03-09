@@ -37,11 +37,15 @@ export namespace Markup {
     text: string
     style: {[key: string]: string}
   }
+
+  export interface Props extends Widget.Props {}
 }
 
 export interface Markup extends Markup.Attrs {}
 
 export class Markup extends Widget {
+
+  properties: Markup.Props
 
   constructor(attrs?: Partial<Markup.Attrs>) {
     super(attrs)

@@ -134,6 +134,11 @@ export namespace Annulus {
     outer_radius: DistanceSpec
   }
 
+  export interface Props extends XYGlyph.Props {
+    inner_radius: p.DistanceSpec
+    outer_radius: p.DistanceSpec
+  }
+
   export interface Visuals extends XYGlyph.Visuals {
     line: Line
     fill: Fill
@@ -143,6 +148,8 @@ export namespace Annulus {
 export interface Annulus extends Annulus.Attrs {}
 
 export class Annulus extends XYGlyph {
+
+  properties: Annulus.Props
 
   constructor(attrs?: Partial<Annulus.Attrs>) {
     super(attrs)

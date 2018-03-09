@@ -120,11 +120,15 @@ export namespace EditTool {
     empty_value: any
     renderers: GlyphRenderer[]
   }
+
+  export interface Props extends GestureTool.Props {}
 }
 
 export interface EditTool extends EditTool.Attrs {}
 
 export abstract class EditTool extends GestureTool {
+
+  properties: EditTool.Props
 
   constructor(attrs?: Partial<EditTool.Attrs>) {
     super(attrs)

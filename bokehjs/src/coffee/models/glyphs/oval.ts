@@ -114,6 +114,8 @@ export namespace Oval {
     height: DistanceSpec
   }
 
+  export interface Props extends XYGlyph.Props {}
+
   export interface Visuals extends XYGlyph.Visuals {
     line: Line
     fill: Fill
@@ -123,6 +125,8 @@ export namespace Oval {
 export interface Oval extends Oval.Attrs {}
 
 export class Oval extends XYGlyph {
+
+  properties: Oval.Props
 
   constructor(attrs?: Partial<Oval.Attrs>) {
     super(attrs)

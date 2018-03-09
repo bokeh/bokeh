@@ -70,6 +70,8 @@ export namespace Patch {
 
   export interface Attrs extends XYGlyph.Attrs, Mixins {}
 
+  export interface Props extends XYGlyph.Props {}
+
   export interface Visuals extends XYGlyph.Visuals {
     line: Line
     fill: Fill
@@ -79,6 +81,8 @@ export namespace Patch {
 export interface Patch extends Patch.Attrs {}
 
 export class Patch extends XYGlyph {
+
+  properties: Patch.Props
 
   constructor(attrs?: Partial<Patch.Attrs>) {
     super(attrs)

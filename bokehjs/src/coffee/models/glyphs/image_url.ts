@@ -193,12 +193,16 @@ export namespace ImageURL {
     retry_timeout: number
   }
 
+  export interface Props extends Glyph.Props {}
+
   export interface Visuals extends Glyph.Visuals {}
 }
 
 export interface ImageURL extends ImageURL.Attrs {}
 
 export class ImageURL extends Glyph {
+
+  properties: ImageURL.Props
 
   constructor(attrs?: Partial<ImageURL.Attrs>) {
     super(attrs)

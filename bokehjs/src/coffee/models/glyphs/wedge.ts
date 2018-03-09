@@ -124,6 +124,13 @@ export namespace Wedge {
     end_angle: AngleSpec
   }
 
+  export interface Props extends XYGlyph.Props {
+    direction: p.Property<Direction>
+    radius: p.DistanceSpec
+    start_angle: p.AngleSpec
+    end_angle: p.AngleSpec
+  }
+
   export interface Visuals extends XYGlyph.Visuals {
     line: Line
     fill: Fill
@@ -133,6 +140,8 @@ export namespace Wedge {
 export interface Wedge extends Wedge.Attrs {}
 
 export class Wedge extends XYGlyph {
+
+  properties: Wedge.Props
 
   constructor(attrs?: Partial<Wedge.Attrs>) {
     super(attrs)

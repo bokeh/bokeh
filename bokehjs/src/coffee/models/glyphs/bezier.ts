@@ -137,6 +137,8 @@ export namespace Bezier {
     cy1: NumberSpec
   }
 
+  export interface Props extends Glyph.Props {}
+
   export interface Visuals extends Glyph.Visuals {
     line: Line
   }
@@ -145,6 +147,8 @@ export namespace Bezier {
 export interface Bezier extends Bezier.Attrs {}
 
 export class Bezier extends Glyph {
+
+  properties: Bezier.Props
 
   constructor(attrs?: Partial<Bezier.Attrs>) {
     super(attrs)

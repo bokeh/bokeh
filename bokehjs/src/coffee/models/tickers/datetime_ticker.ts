@@ -15,11 +15,15 @@ import {ONE_MILLI,ONE_SECOND,ONE_MINUTE,ONE_HOUR} from "./util"
 
 export namespace DatetimeTicker {
   export interface Attrs extends CompositeTicker.Attrs {}
+
+  export interface Props extends CompositeTicker.Props {}
 }
 
 export interface DatetimeTicker extends DatetimeTicker.Attrs {}
 
 export class DatetimeTicker extends CompositeTicker {
+
+  properties: DatetimeTicker.Props
 
   constructor(attrs?: Partial<DatetimeTicker.Attrs>) {
     super(attrs)

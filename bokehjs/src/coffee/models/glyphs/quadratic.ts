@@ -85,6 +85,8 @@ export namespace Quadratic {
     cy: NumberSpec
   }
 
+  export interface Props extends Glyph.Props {}
+
   export interface Visuals extends Glyph.Visuals {
     line: Line
   }
@@ -93,6 +95,8 @@ export namespace Quadratic {
 export interface Quadratic extends Quadratic.Attrs {}
 
 export class Quadratic extends Glyph {
+
+  properties: Quadratic.Props
 
   constructor(attrs?: Partial<Quadratic.Attrs>) {
     super(attrs)

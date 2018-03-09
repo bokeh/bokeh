@@ -250,11 +250,15 @@ export class GMapPlotCanvasView extends PlotCanvasView {
 
 export namespace GMapPlotCanvas {
   export interface Attrs extends PlotCanvas.Attrs {}
+
+  export interface Props extends PlotCanvas.Props {}
 }
 
 export interface GMapPlotCanvas extends GMapPlotCanvas.Attrs {}
 
 export class GMapPlotCanvas extends PlotCanvas {
+
+  properties: GMapPlotCanvas.Props
 
   plot: GMapPlot
 

@@ -70,11 +70,15 @@ export namespace RadioGroup {
     inline: boolean
     callback: any // XXX
   }
+
+  export interface Props extends Widget.Props {}
 }
 
 export interface RadioGroup extends RadioGroup.Attrs {}
 
 export class RadioGroup extends Widget {
+
+  properties: RadioGroup.Props
 
   constructor(attrs?: Partial<RadioGroup.Attrs>) {
     super(attrs)

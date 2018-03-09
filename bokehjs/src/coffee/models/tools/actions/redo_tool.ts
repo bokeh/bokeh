@@ -15,11 +15,15 @@ export class RedoToolView extends ActionToolView {
 
 export namespace RedoTool {
   export interface Attrs extends ActionTool.Attrs {}
+
+  export interface Props extends ActionTool.Props {}
 }
 
 export interface RedoTool extends RedoTool.Attrs {}
 
 export class RedoTool extends ActionTool {
+
+  properties: RedoTool.Props
 
   constructor(attrs?: Partial<RedoTool.Attrs>) {
     super(attrs)

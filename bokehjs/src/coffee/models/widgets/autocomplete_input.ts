@@ -102,11 +102,15 @@ export namespace AutocompleteInput {
   export interface Attrs extends TextInput.Attrs {
     completions: string[]
   }
+
+  export interface Props extends TextInput.Props {}
 }
 
 export interface AutocompleteInput extends AutocompleteInput.Attrs {}
 
 export class AutocompleteInput extends TextInput {
+
+  properties: AutocompleteInput.Props
 
   constructor(attrs?: Partial<AutocompleteInput.Attrs>) {
     super(attrs)

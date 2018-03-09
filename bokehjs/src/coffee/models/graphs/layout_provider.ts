@@ -3,11 +3,15 @@ import {ColumnarDataSource} from "../sources/columnar_data_source"
 
 export namespace LayoutProvider {
   export interface Attrs extends Model.Attrs {}
+
+  export interface Props extends Model.Props {}
 }
 
 export interface LayoutProvider extends LayoutProvider.Attrs {}
 
 export abstract class LayoutProvider extends Model {
+
+  properties: LayoutProvider.Props
 
   constructor(attrs?: Partial<LayoutProvider.Attrs>) {
     super(attrs)

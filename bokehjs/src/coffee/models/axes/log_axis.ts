@@ -12,11 +12,15 @@ export namespace LogAxis {
     ticker:    LogTicker
     formatter: LogTickFormatter
   }
+
+  export interface Props extends ContinuousAxis.Props {}
 }
 
 export interface LogAxis extends LogAxis.Attrs {}
 
 export class LogAxis extends ContinuousAxis {
+
+  properties: LogAxis.Props
 
   ticker:    LogTicker
   formatter: LogTickFormatter

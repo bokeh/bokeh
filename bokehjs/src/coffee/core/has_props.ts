@@ -19,6 +19,10 @@ export module HasProps {
     id: string
   }
 
+  export interface Props {
+    id: p.Any
+  }
+
   export interface SetOptions {
     check_eq?: boolean
     silent?: boolean
@@ -152,7 +156,7 @@ export abstract class HasProps extends Signalable() {
   readonly transformchange = new Signal0<this>(this, "transformchange")
 
   readonly attributes: {[key: string]: any} = {}
-  readonly properties: {[key: string]: Property<any>} = {}
+  readonly properties: {[key: string]: any} = {}
 
   protected readonly _set_after_defaults: {[key: string]: boolean} = {}
 

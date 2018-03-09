@@ -130,6 +130,8 @@ export namespace Segment {
     y1: NumberSpec
   }
 
+  export interface Props extends Glyph.Props {}
+
   export interface Visuals extends Glyph.Visuals {
     line: Line
   }
@@ -138,6 +140,8 @@ export namespace Segment {
 export interface Segment extends Segment.Attrs {}
 
 export class Segment extends Glyph {
+
+  properties: Segment.Props
 
   constructor(attrs?: Partial<Segment.Attrs>) {
     super(attrs)

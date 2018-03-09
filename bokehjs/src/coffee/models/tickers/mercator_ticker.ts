@@ -7,11 +7,15 @@ export namespace MercatorTicker {
   export interface Attrs extends BasicTicker.Attrs {
     dimension: LatLon | null | undefined
   }
+
+  export interface Props extends BasicTicker.Props {}
 }
 
 export interface MercatorTicker extends MercatorTicker.Attrs {}
 
 export class MercatorTicker extends BasicTicker {
+
+  properties: MercatorTicker.Props
 
   constructor(attrs?: Partial<MercatorTicker.Attrs>) {
     super(attrs)

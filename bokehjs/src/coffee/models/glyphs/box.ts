@@ -101,6 +101,8 @@ export namespace Box {
 
   export interface Attrs extends Glyph.Attrs, Mixins {}
 
+  export interface Props extends Glyph.Props {}
+
   export interface Visuals extends Glyph.Visuals {
     line: Line
     fill: Fill
@@ -110,6 +112,8 @@ export namespace Box {
 export interface Box extends Box.Attrs {}
 
 export abstract class Box extends Glyph {
+
+  properties: Box.Props
 
   constructor(attrs?: Partial<Box.Attrs>) {
     super(attrs)

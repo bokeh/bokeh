@@ -6,11 +6,15 @@ import * as p from "core/properties"
 
 export namespace Scale {
   export interface Attrs extends Transform.Attrs {}
+
+  export interface Props extends Transform.Props {}
 }
 
 export interface Scale extends Scale.Attrs {}
 
 export abstract class Scale extends Transform {
+
+  properties: Scale.Props
 
   constructor(attrs?: Partial<Scale.Attrs>) {
     super(attrs)

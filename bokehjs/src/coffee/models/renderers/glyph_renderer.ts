@@ -380,11 +380,17 @@ export namespace GlyphRenderer {
     muted_glyph: Glyph
     muted: boolean
   }
+
+  export interface Props extends Renderer.Props {
+    view: p.Property<CDSView>
+  }
 }
 
 export interface GlyphRenderer extends GlyphRenderer.Attrs {}
 
 export class GlyphRenderer extends Renderer {
+
+  properties: GlyphRenderer.Props
 
   constructor(attrs?: Partial<GlyphRenderer.Attrs>) {
     super(attrs)

@@ -13,11 +13,22 @@ export namespace Selection {
     get_view: () => GlyphView | null
     multiline_indices: {[key: string]: number[]}
   }
+
+  export interface Props extends Model.Props {
+    indices: p.Property<number[]>
+    final: p.Property<boolean>
+    line_indices: p.Property<number[]>
+    selected_glyphs: p.Property<Glyph[]>
+    get_view: p.Property<() => GlyphView | null>
+    multiline_indices: p.Property<{[key: string]: number[]}>
+  }
 }
 
 export interface Selection extends Selection.Attrs {}
 
 export class Selection extends Model {
+
+  properties: Selection.Props
 
   constructor(attrs?: Partial<Selection.Attrs>) {
     super(attrs)

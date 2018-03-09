@@ -68,6 +68,8 @@ export namespace Ray {
     angle: AngleSpec
   }
 
+  export interface Props extends XYGlyph.Props {}
+
   export interface Visuals extends XYGlyph.Visuals {
     line: Line
   }
@@ -76,6 +78,8 @@ export namespace Ray {
 export interface Ray extends Ray.Attrs {}
 
 export class Ray extends XYGlyph {
+
+  properties: Ray.Props
 
   constructor(attrs?: Partial<Ray.Attrs>) {
     super(attrs)

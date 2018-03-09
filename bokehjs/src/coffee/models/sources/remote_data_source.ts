@@ -6,11 +6,15 @@ export namespace RemoteDataSource {
     data_url: string
     polling_interval: number
   }
+
+  export interface Props extends ColumnDataSource.Props {}
 }
 
 export interface RemoteDataSource extends RemoteDataSource.Attrs {}
 
 export abstract class RemoteDataSource extends ColumnDataSource {
+
+  properties: RemoteDataSource.Props
 
   constructor(attrs?: Partial<RemoteDataSource.Attrs>) {
     super(attrs)

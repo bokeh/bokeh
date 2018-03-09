@@ -57,6 +57,8 @@ export namespace Arc {
     end_angle: AngleSpec
   }
 
+  export interface Props extends XYGlyph.Props {}
+
   export interface Visuals extends XYGlyph.Visuals {
     line: Line
   }
@@ -65,6 +67,8 @@ export namespace Arc {
 export interface Arc extends Arc.Attrs {}
 
 export class Arc extends XYGlyph {
+
+  properties: Arc.Props
 
   constructor(attrs?: Partial<Arc.Attrs>) {
     super(attrs)

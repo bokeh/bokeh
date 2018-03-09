@@ -82,6 +82,8 @@ export namespace Text {
     y_offset: NumberSpec
   }
 
+  export interface Props extends XYGlyph.Props {}
+
   export interface Visuals extends XYGlyph.Visuals {
     text: visuals.Text
   }
@@ -90,6 +92,8 @@ export namespace Text {
 export interface Text extends Text.Attrs {}
 
 export class Text extends XYGlyph {
+
+  properties: Text.Props
 
   constructor(attrs?: Partial<Text.Attrs>) {
     super(attrs)

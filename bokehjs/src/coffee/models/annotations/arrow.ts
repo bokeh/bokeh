@@ -143,11 +143,27 @@ export namespace Arrow {
     x_range_name: string
     y_range_name: string
   }
+
+  export interface Props extends Annotation.Props {
+    x_start: p.NumberSpec
+    y_start: p.NumberSpec
+    start_units: p.Property<SpatialUnits>
+    start: p.Property<ArrowHead | null>
+    x_end: p.NumberSpec
+    y_end: p.NumberSpec
+    end_units: p.Property<SpatialUnits>
+    end: p.Property<ArrowHead | null>
+    source: p.Property<DataSource>
+    x_range_name: p.Property<string>
+    y_range_name: p.Property<string>
+  }
 }
 
 export interface Arrow extends Arrow.Attrs {}
 
 export class Arrow extends Annotation {
+
+  properties: Arrow.Props
 
   constructor(attrs?: Partial<Arrow.Attrs>) {
     super(attrs)

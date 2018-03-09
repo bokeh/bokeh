@@ -22,11 +22,15 @@ export namespace Toggle {
   export interface Attrs extends AbstractButton.Attrs {
     active: boolean
   }
+
+  export interface Props extends AbstractButton.Props {}
 }
 
 export interface Toggle extends Toggle.Attrs {}
 
 export class Toggle extends AbstractButton {
+
+  properties: Toggle.Props
 
   constructor(attrs?: Partial<Toggle.Attrs>) {
     super(attrs)

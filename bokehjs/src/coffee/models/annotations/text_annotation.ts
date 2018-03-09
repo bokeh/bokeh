@@ -148,11 +148,15 @@ export abstract class TextAnnotationView extends AnnotationView {
 
 export namespace TextAnnotation {
   export interface Attrs extends Annotation.Attrs {}
+
+  export interface Props extends Annotation.Props {}
 }
 
 export interface TextAnnotation extends TextAnnotation.Attrs {}
 
 export abstract class TextAnnotation extends Annotation {
+
+  properties: TextAnnotation.Props
 
   constructor(attrs?: Partial<TextAnnotation.Attrs>) {
     super(attrs)

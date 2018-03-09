@@ -9,11 +9,15 @@ export namespace Range {
     callback?: ((obj: Range) => void) | CustomJS // XXX: Callback
     plots: Plot[]
   }
+
+  export interface Props extends Model.Props {}
 }
 
 export interface Range extends Range.Attrs {}
 
 export abstract class Range extends Model {
+
+  properties: Range.Props
 
   constructor(attrs?: Partial<Range.Attrs>) {
     super(attrs)

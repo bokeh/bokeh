@@ -51,12 +51,16 @@ export namespace VBar {
     top: NumberSpec
   }
 
+  export interface Props extends Box.Props {}
+
   export interface Visuals extends Box.Visuals {}
 }
 
 export interface VBar extends VBar.Attrs {}
 
 export class VBar extends Box {
+
+  properties: VBar.Props
 
   constructor(attrs?: Partial<VBar.Attrs>) {
     super(attrs)

@@ -77,11 +77,15 @@ export namespace PointDrawTool {
     drag: boolean
     renderers: (GlyphRenderer & HasXYGlyph)[]
   }
+
+  export interface Props extends EditTool.Props {}
 }
 
 export interface PointDrawTool extends PointDrawTool.Attrs {}
 
 export class PointDrawTool extends EditTool {
+
+  properties: PointDrawTool.Props
 
   renderers: (GlyphRenderer & HasXYGlyph)[]
 

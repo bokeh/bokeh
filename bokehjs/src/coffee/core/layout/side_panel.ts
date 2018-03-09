@@ -181,11 +181,17 @@ export namespace SidePanel {
   export interface Attrs extends LayoutCanvas.Attrs {
     side: Side
   }
+
+  export interface Props extends LayoutCanvas.Props {
+    side: p.Property<Side>
+  }
 }
 
 export interface SidePanel extends SidePanel.Attrs {}
 
 export class SidePanel extends LayoutCanvas {
+
+  properties: SidePanel.Props
 
   constructor(attrs?: Partial<SidePanel.Attrs>) {
     super(attrs)

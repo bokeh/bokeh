@@ -11,11 +11,15 @@ export namespace DatetimeAxis {
     // XXX: ticker:    DatetimeTicker
     // XXX: formatter: DatetimeTickFormatter
   }
+
+  export interface Props extends LinearAxis.Props {}
 }
 
 export interface DatetimeAxis extends DatetimeAxis.Attrs {}
 
 export class DatetimeAxis extends LinearAxis {
+
+  properties: DatetimeAxis.Props
 
   constructor(attrs?: Partial<DatetimeAxis.Attrs>) {
     super(attrs)

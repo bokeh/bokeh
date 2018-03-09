@@ -101,11 +101,15 @@ export namespace BoxSelectTool {
     callback: any // XXX
     overlay: BoxAnnotation
   }
+
+  export interface Props extends SelectTool.Props {}
 }
 
 export interface BoxSelectTool extends BoxSelectTool.Attrs {}
 
 export class BoxSelectTool extends SelectTool {
+
+  properties: BoxSelectTool.Props
 
   constructor(attrs?: Partial<BoxSelectTool.Attrs>) {
     super(attrs)

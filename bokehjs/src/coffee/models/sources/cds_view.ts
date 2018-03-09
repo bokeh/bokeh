@@ -12,11 +12,20 @@ export namespace CDSView {
     indices: number[]
     indices_map: {[key: string]: number}
   }
+
+  export interface Props extends Model.Props {
+    filters: p.Property<Filter[]>
+    source: p.Property<ColumnarDataSource>
+    indices: p.Property<number[]>
+    indices_map: p.Property<{[key: string]: number}>
+  }
 }
 
 export interface CDSView extends CDSView.Attrs {}
 
 export class CDSView extends Model {
+
+  properties: CDSView.Props
 
   constructor(attrs?: Partial<CDSView.Attrs>) {
     super(attrs)

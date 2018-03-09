@@ -136,11 +136,19 @@ export namespace Plot {
     match_aspect: boolean
     aspect_scale: number
   }
+
+  export interface Props extends LayoutDOM.Props {
+    toolbar_location: p.Property<Location | null>
+    title: p.Property<Title | string | null>
+    outline_line_width: p.Property<number>
+  }
 }
 
 export interface Plot extends Plot.Attrs {}
 
 export class Plot extends LayoutDOM {
+
+  properties: Plot.Props
 
   constructor(attrs?: Partial<Plot.Attrs>) {
     super(attrs)

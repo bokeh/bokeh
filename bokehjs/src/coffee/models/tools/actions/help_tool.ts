@@ -14,11 +14,15 @@ export namespace HelpTool {
     help_tooltip: string
     redirect: string
   }
+
+  export interface Props extends ActionTool.Props {}
 }
 
 export interface HelpTool extends HelpTool.Attrs {}
 
 export class HelpTool extends ActionTool {
+
+  properties: HelpTool.Props
 
   constructor(attrs?: Partial<HelpTool.Attrs>) {
     super(attrs)

@@ -132,11 +132,17 @@ export namespace ColumnDataSource {
   export interface Attrs extends ColumnarDataSource.Attrs {
     data: {[key: string]: Arrayable}
   }
+
+  export interface Props extends ColumnarDataSource.Props {
+    data: p.Property<{[key: string]: Arrayable}>
+  }
 }
 
 export interface ColumnDataSource extends ColumnDataSource.Attrs {}
 
 export class ColumnDataSource extends ColumnarDataSource {
+
+  properties: ColumnDataSource.Props
 
   constructor(attrs?: Partial<ColumnDataSource.Attrs>) {
     super(attrs)

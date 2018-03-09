@@ -15,11 +15,15 @@ export class ParagraphView extends MarkupView {
 
 export namespace Paragraph {
   export interface Attrs extends Markup.Attrs {}
+
+  export interface Props extends Markup.Props {}
 }
 
 export interface Paragraph extends Paragraph.Attrs {}
 
 export class Paragraph extends Markup {
+
+  properties: Paragraph.Props
 
   constructor(attrs?: Partial<Paragraph.Attrs>) {
     super(attrs)

@@ -72,11 +72,15 @@ export namespace TapTool {
     behavior: "select" | "inspect"
     callback: any // XXX
   }
+
+  export interface Props extends SelectTool.Props {}
 }
 
 export interface TapTool extends TapTool.Attrs {}
 
 export class TapTool extends SelectTool {
+
+  properties: TapTool.Props
 
   constructor(attrs?: Partial<TapTool.Attrs>) {
     super(attrs)

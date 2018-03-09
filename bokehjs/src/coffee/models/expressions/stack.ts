@@ -7,11 +7,15 @@ export namespace Stack {
   export interface Attrs extends Expression.Attrs {
     fields: string[]
   }
+
+  export interface Props extends Expression.Props {}
 }
 
 export interface Stack extends Stack.Attrs {}
 
 export class Stack extends Expression {
+
+  properties: Stack.Props
 
   constructor(attrs?: Partial<Stack.Attrs>) {
     super(attrs)

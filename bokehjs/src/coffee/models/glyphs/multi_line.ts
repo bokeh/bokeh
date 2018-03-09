@@ -174,6 +174,8 @@ export namespace MultiLine {
     ys: NumberSpec
   }
 
+  export interface Props extends Glyph.Props {}
+
   export interface Visuals extends Glyph.Visuals {
     line: Line
   }
@@ -182,6 +184,8 @@ export namespace MultiLine {
 export interface MultiLine extends MultiLine.Attrs {}
 
 export class MultiLine extends Glyph {
+
+  properties: MultiLine.Props
 
   constructor(attrs?: Partial<MultiLine.Attrs>) {
     super(attrs)

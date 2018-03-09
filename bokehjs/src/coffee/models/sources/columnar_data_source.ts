@@ -22,11 +22,17 @@ export namespace ColumnarDataSource {
     inspected: Selection
     _shapes: {[key: string]: Shape | Shape[]}
   }
+
+  export interface Props extends DataSource.Props {
+    data: p.Property<{[key: string]: Arrayable}> // XXX: this is hack!!!
+  }
 }
 
 export interface ColumnarDataSource extends ColumnarDataSource.Attrs {}
 
 export abstract class ColumnarDataSource extends DataSource {
+
+  properties: ColumnarDataSource.Props
 
   data: {[key: string]: Arrayable}
 

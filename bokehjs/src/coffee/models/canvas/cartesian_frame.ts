@@ -24,6 +24,8 @@ export namespace CartesianFrame {
     x_scale: Scale
     y_scale: Scale
   }
+
+  export interface Props extends LayoutCanvas.Props {}
 }
 
 export interface CartesianFrame extends CartesianFrame.Attrs {}

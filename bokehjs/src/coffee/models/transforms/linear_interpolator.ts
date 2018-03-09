@@ -3,11 +3,15 @@ import {Interpolator} from "./interpolator"
 
 export namespace LinearInterpolator {
   export interface Attrs extends Interpolator.Attrs {}
+
+  export interface Props extends Interpolator.Props {}
 }
 
 export interface LinearInterpolator extends LinearInterpolator.Attrs {}
 
 export class LinearInterpolator extends Interpolator {
+
+  properties: LinearInterpolator.Props
 
   constructor(attrs?: Partial<LinearInterpolator.Attrs>) {
     super(attrs)

@@ -197,7 +197,7 @@ export class Font extends String {}
 // Enum properties
 //
 
-export function enum_prop(name: string, enum_values: string[]) {
+export function enum_prop<T>(name: string, enum_values: T[]) {
   return class extends simple_prop(name, (x) => includes(enum_values, x)) {}
 }
 

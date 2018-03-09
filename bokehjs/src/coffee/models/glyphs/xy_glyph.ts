@@ -40,12 +40,16 @@ export namespace XYGlyph {
     y: NumberSpec
   }
 
+  export interface Props extends Glyph.Props {}
+
   export interface Visuals extends Glyph.Visuals {}
 }
 
 export interface XYGlyph extends XYGlyph.Attrs {}
 
 export abstract class XYGlyph extends Glyph {
+
+  properties: XYGlyph.Props
 
   constructor(attrs?: Partial<XYGlyph.Attrs>) {
     super(attrs)

@@ -9,11 +9,15 @@ export namespace Filter {
   export interface Attrs extends Model.Attrs {
     filter: boolean[] | number[] | null
   }
+
+  export interface Props extends Model.Props {}
 }
 
 export interface Filter extends Filter.Attrs {}
 
 export class Filter extends Model {
+
+  properties: Filter.Props
 
   constructor(attrs?: Partial<Filter.Attrs>) {
     super(attrs)

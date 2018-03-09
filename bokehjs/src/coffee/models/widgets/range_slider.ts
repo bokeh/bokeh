@@ -22,11 +22,15 @@ export class RangeSliderView extends AbstractSliderView {
 
 export namespace RangeSlider {
   export interface Attrs extends AbstractSlider.Attrs {}
+
+  export interface Props extends AbstractSlider.Props {}
 }
 
 export interface RangeSlider extends RangeSlider.Attrs {}
 
 export class RangeSlider extends AbstractSlider {
+
+  properties: RangeSlider.Props
 
   constructor(attrs?: Partial<RangeSlider.Attrs>) {
     super(attrs)

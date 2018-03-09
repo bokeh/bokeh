@@ -62,12 +62,16 @@ export namespace Quad {
     top: NumberSpec
   }
 
+  export interface Props extends Box.Props {}
+
   export interface Visuals extends Box.Visuals {}
 }
 
 export interface Quad extends Quad.Attrs {}
 
 export class Quad extends Box {
+
+  properties: Quad.Props
 
   constructor(attrs?: Partial<Quad.Attrs>) {
     super(attrs)

@@ -14,11 +14,15 @@ export class ResetToolView extends ActionToolView {
 
 export namespace ResetTool {
   export interface Attrs extends ActionTool.Attrs {}
+
+  export interface Props extends ActionTool.Props {}
 }
 
 export interface ResetTool extends ResetTool.Attrs {}
 
 export class ResetTool extends ActionTool {
+
+  properties: ResetTool.Props
 
   constructor(attrs?: Partial<ResetTool.Attrs>) {
     super(attrs)

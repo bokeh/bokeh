@@ -8,6 +8,10 @@ export namespace ArrowHead {
   export interface Attrs extends Annotation.Attrs {
     size: number
   }
+
+  export interface Props extends Annotation.Props {
+    size: p.Property<number>
+  }
 }
 
 export interface ArrowHead extends ArrowHead.Attrs {}
@@ -44,11 +48,14 @@ export namespace OpenHead {
 
   export interface Attrs extends ArrowHead.Attrs, Mixins {}
 
+  export interface Props extends ArrowHead.Props {}
 }
 
 export interface OpenHead extends OpenHead.Attrs {}
 
 export class OpenHead extends ArrowHead {
+
+  properties: OpenHead.Props
 
   constructor(attrs?: Partial<OpenHead.Attrs>) {
     super(attrs)
@@ -92,11 +99,14 @@ export namespace NormalHead {
 
   export interface Attrs extends ArrowHead.Attrs, Mixins {}
 
+  export interface Props extends ArrowHead.Props {}
 }
 
 export interface NormalHead extends NormalHead.Attrs {}
 
 export class NormalHead extends ArrowHead {
+
+  properties: NormalHead.Props
 
   constructor(attrs?: Partial<NormalHead.Attrs>) {
     super(attrs)
@@ -153,11 +163,14 @@ export namespace VeeHead {
 
   export interface Attrs extends ArrowHead.Attrs, Mixins {}
 
+  export interface Props extends ArrowHead.Props {}
 }
 
 export interface VeeHead extends VeeHead.Attrs {}
 
 export class VeeHead extends ArrowHead {
+
+  properties: VeeHead.Props
 
   constructor(attrs?: Partial<VeeHead.Attrs>) {
     super(attrs)
@@ -216,11 +229,14 @@ export namespace TeeHead {
 
   export interface Attrs extends ArrowHead.Attrs, Mixins {}
 
+  export interface Props extends ArrowHead.Props {}
 }
 
 export interface TeeHead extends TeeHead.Attrs {}
 
 export class TeeHead extends ArrowHead {
+
+  properties: TeeHead.Props
 
   constructor(attrs?: Partial<TeeHead.Attrs>) {
     super(attrs)

@@ -152,6 +152,8 @@ export namespace CategoricalAxis {
     formatter: CategoricalTickFormatter
   }
 
+  export interface Props extends Axis.Props {}
+
   export type Visuals = Axis.Visuals & {
     separator_line: Line,
     group_text: Text,
@@ -162,6 +164,8 @@ export namespace CategoricalAxis {
 export interface CategoricalAxis extends CategoricalAxis.Attrs {}
 
 export class CategoricalAxis extends Axis {
+
+  properties: CategoricalAxis.Props
 
   ticker: CategoricalTicker
   formatter: CategoricalTickFormatter

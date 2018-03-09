@@ -17,11 +17,15 @@ export namespace LogColorMapper {
     high_color: Color
     low_color: Color
   }
+
+  export interface Props extends ColorMapper.Props {}
 }
 
 export interface LogColorMapper extends LogColorMapper.Attrs {}
 
 export class LogColorMapper extends ColorMapper {
+
+  properties: LogColorMapper.Props
 
   constructor(attrs?: Partial<LogColorMapper.Attrs>) {
     super(attrs)

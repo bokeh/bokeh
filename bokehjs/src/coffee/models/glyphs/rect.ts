@@ -276,6 +276,8 @@ export namespace Rect {
     dilate: boolean
   }
 
+  export interface Props extends XYGlyph.Props {}
+
   export interface Visuals extends XYGlyph.Visuals {
     line: Line
     fill: Fill
@@ -285,6 +287,8 @@ export namespace Rect {
 export interface Rect extends Rect.Attrs {}
 
 export class Rect extends XYGlyph {
+
+  properties: Rect.Props
 
   constructor(attrs?: Partial<Rect.Attrs>) {
     super(attrs)

@@ -23,11 +23,15 @@ export namespace AdaptiveTicker {
     min_interval: number
     max_interval: number
   }
+
+  export interface Props extends ContinuousTicker.Props {}
 }
 
 export interface AdaptiveTicker extends AdaptiveTicker.Attrs {}
 
 export class AdaptiveTicker extends ContinuousTicker {
+
+  properties: AdaptiveTicker.Props
 
   constructor(attrs?: Partial<AdaptiveTicker.Attrs>) {
     super(attrs)
