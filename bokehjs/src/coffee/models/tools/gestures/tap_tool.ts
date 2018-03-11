@@ -30,38 +30,30 @@ export class TapToolView extends SelectToolView {
       source: null,
     }
 
-    if (this.model.behavior == "select") {
-      const renderers_by_source = this._computed_renderers_by_data_source()
+    const renderers_by_source = this._computed_renderers_by_data_source()
 
-      for (const id in renderers_by_source) {
-        const renderers = renderers_by_source[id]
-        const sm = renderers[0].get_selection_manager()
-        const r_views = renderers.map((r) => this.plot_view.renderer_views[r.id])
-        const did_hit = sm.select(r_views, geometry, final, append)
+    for (const id in renderers_by_source) {
+      const renderers = renderers_by_source[id]
+      const sm = renderers[0].get_selection_manager()
+      const r_views = renderers.map((r) => this.plot_view.renderer_views[r.id])
 
-        if (did_hit && callback != null) {
-          cb_data.source = sm.source
-          if (isFunction(callback))
-            callback(this, cb_data)
-          else
-            callback.execute(this, cb_data)
-        }
+      let did_hit: boolean
+      if (this.model.behavior == "select")
+        did_hit = sm.select(r_views, geometry, final, append)
+      else
+        did_hit = sm.inspect(r_views, geometry)
+
+      if (did_hit && callback != null) {
+        cb_data.source = sm.source
+        if (isFunction(callback))
+          callback(this, cb_data)
+        else
+          callback.execute(this, cb_data)
       }
 
-      this._emit_selection_event(geometry)
-      this.plot_view.push_state('tap', {selection: this.plot_view.get_selection()})
-    } else {
-      for (const r of this.computed_renderers) {
-        const sm = r.get_selection_manager()
-        const did_hit = sm.inspect(this.plot_view.renderer_views[r.id], geometry)
-
-        if (did_hit && callback != null) {
-          cb_data.source = sm.source
-          if (isFunction(callback))
-            callback(this, cb_data)
-          else
-            callback.execute(this, cb_data)
-        }
+      if (this.model.behavior == "select") {
+        this._emit_selection_event(geometry)
+        this.plot_view.push_state('tap', {selection: this.plot_view.get_selection()})
       }
     }
   }
