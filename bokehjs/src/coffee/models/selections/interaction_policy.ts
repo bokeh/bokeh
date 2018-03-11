@@ -25,6 +25,20 @@ export abstract class SelectionPolicy extends Model {
       return !source.selected.is_empty()
     }
   }
+
+  do_inspection(hit_test_result: HitTestResult, source: ColumnarDataSource): boolean {
+    if (hit_test_result === null) {
+      return false
+    } else {
+      source.inspected.update(hit_test_result, true, false)
+
+      const inspected = new Selection()
+      inspected.update(source.inspected, true, false)
+      source.inspected = inspected
+
+      return !source.inspected.is_empty()
+    }
+  }
 }
 
 SelectionPolicy.prototype.type = "SelectionPolicy"

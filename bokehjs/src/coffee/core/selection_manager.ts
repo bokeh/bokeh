@@ -28,8 +28,8 @@ export class SelectionManager extends HasProps {
     this.inspectors = {}
   }
 
-  select(renderer_views: RendererView[], geometry: Geometry, final: boolean, append: boolean = false): boolean {
-    // divide renderers into glyph_renderers or graph_renderers
+  _split_renderer_views_by_type(renderer_views: RendererView[]): {[key: string]: RendererView[]} {
+    // TODO: return type, object values should be array of one type of renderer view
     const glyph_renderer_views: RendererView[] = []
     const graph_renderer_views: RendererView[] = []
     for (const r of renderer_views) {
@@ -41,6 +41,11 @@ export class SelectionManager extends HasProps {
         }
       }
     }
+    return {'glyph_renderer_views': glyph_renderer_views, 'graph_renderer_views': graph_renderer_views}
+  }
+
+  select(renderer_views: RendererView[], geometry: Geometry, final: boolean, append: boolean = false): boolean {
+    const {glyph_renderer_views, graph_renderer_views} = this._split_renderer_views_by_type(renderer_views)
 
     let did_hit = false
 
@@ -58,21 +63,30 @@ export class SelectionManager extends HasProps {
     return did_hit
   }
 
-  inspect(renderer_view: RendererView, geometry: Geometry): boolean {
+  inspect(renderer_views: RendererView[], geometry: Geometry): boolean {
+    const {glyph_renderer_views, graph_renderer_views} = this._split_renderer_views_by_type(renderer_views)
+
     let did_hit = false
 
-    if (renderer_view.model.type == 'GlyphRenderer') {
-      const hit_test_result = renderer_view.hit_test(geometry)
-      did_hit =  !hit_test_result.is_empty()
-      const inspection = this.get_or_create_inspector(renderer_view.model)
-      inspection.update(hit_test_result, true, false)
-      this.source.setv({inspected: inspection}, {silent: true})
-      this.source.inspect.emit([renderer_view, {geometry: geometry}])
-    } else {
-      if (renderer_view.model instanceof GraphRenderer) {
-        const hit_test_result = renderer_view.model.inspection_policy.hit_test(geometry, renderer_view)
-        did_hit = did_hit || renderer_view.model.inspection_policy.do_inspection(hit_test_result, geometry, renderer_view, false, false)
+    // glyph renderers
+    if (glyph_renderer_views.length > 0) {
+      const hit_test_result = this.source.inspection_policy.hit_test(geometry, renderer_views)
+      did_hit = did_hit || this.source.inspection_policy.do_inspection(hit_test_result, this.source)
+
+      for (const r of glyph_renderer_views) {
+        const hit_test_result = r.hit_test(geometry)
+        if (hit_test_result !== null) {
+          const inspection = this.get_or_create_inspector(r.model)
+          inspection.update(hit_test_result, true, false)
+          this.source.inspect.emit([r, {geometry: geometry}])
+        }
       }
+    }
+
+    // graph renderers
+    for (const r of graph_renderer_views) {
+      const hit_test_result = r.model.inspection_policy.hit_test(geometry, r)
+      did_hit = did_hit || r.model.inspection_policy.do_inspection(hit_test_result, geometry, r, false, false)
     }
 
     return did_hit

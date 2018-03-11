@@ -105,6 +105,25 @@ export class HoverToolView extends InspectToolView {
     return renderers
   }
 
+  protected _computed_renderers_by_data_source(): {[key: string]: DataRenderer[]} {
+    const renderers_by_source: {[key: string]: DataRenderer[]} = {}
+    for (const r of this.computed_renderers) {
+      let source_id: string
+      // XXX: needs typings for renderers
+      if (r instanceof GraphRenderer)
+        source_id = (r as any).node_renderer.data_source.id
+      else
+        source_id = (r as any).data_source.id
+
+      if (!(source_id in renderers_by_source))
+        renderers_by_source[source_id] = []
+
+      renderers_by_source[source_id].push(r)
+    }
+
+    return renderers_by_source
+  }
+
   protected _compute_ttmodels(): {[key: string]: Tooltip} {
     const ttmodels: {[key: string]: Tooltip} = {}
     const tooltips = this.model.tooltips
@@ -180,9 +199,18 @@ export class HoverToolView extends InspectToolView {
       geometry = {type: 'span', direction, sx, sy}
     }
 
-    for (const r of this.computed_renderers) {
-      const sm = r.get_selection_manager()
-      sm.inspect(this.plot_view.renderer_views[r.id], geometry)
+    const renderers_by_source = this._computed_renderers_by_data_source()
+
+    for (const id in renderers_by_source) {
+      const renderers = renderers_by_source[id]
+      const sm = renderers[0].get_selection_manager()
+
+      const r_views = []
+      for (const r of renderers) {
+        if (r.id in this.plot_view.renderer_views)
+          r_views.push(this.plot_view.renderer_views[r.id])
+      }
+      sm.inspect(r_views, geometry)
     }
 
     if (this.model.callback != null)

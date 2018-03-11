@@ -18,6 +18,7 @@ export namespace ColumnarDataSource {
   export interface Attrs extends DataSource.Attrs {
     column_names: string[]
     selection_policy: SelectionPolicy
+    inspection_policy: SelectionPolicy
     selection_manager: SelectionManager
     inspected: Selection
     _shapes: {[key: string]: Shape | Shape[]}
@@ -55,8 +56,9 @@ export abstract class ColumnarDataSource extends DataSource {
     this.prototype.type = 'ColumnarDataSource'
 
     this.define({
-      column_names:     [ p.Array, [] ],
-      selection_policy: [ p.Instance  ],
+      column_names:      [ p.Array, [] ],
+      selection_policy:  [ p.Instance  ],
+      inspection_policy: [ p.Instance  ],
     })
 
     this.internal({
@@ -78,6 +80,8 @@ export abstract class ColumnarDataSource extends DataSource {
     if (!this.selection_policy)
       this.selection_policy = new UnionRenderers() // added here instead of as default because can't set default
                                                    // on Python side without error
+    if (!this.inspection_policy)
+      this.inspection_policy = new UnionRenderers()
   }
 
   get_column(colname: string): Arrayable | null {
