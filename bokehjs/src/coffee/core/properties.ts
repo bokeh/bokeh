@@ -305,9 +305,6 @@ AngleSpec.prototype.dataspec = true
 export class ColorSpec extends Color {}
 ColorSpec.prototype.dataspec = true
 
-export class DirectionSpec extends Distance {}
-DirectionSpec.prototype.dataspec = true
-
 export class DistanceSpec extends Distance {}
 DistanceSpec.prototype.dataspec = true
 

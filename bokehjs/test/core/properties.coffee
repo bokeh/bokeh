@@ -746,7 +746,6 @@ describe "properties module", ->
     it "should have a class dataspec attribute set true", ->
       expect(properties.AngleSpec::dataspec).to.be.true
       expect(properties.ColorSpec::dataspec).to.be.true
-      expect(properties.DirectionSpec::dataspec).to.be.true
       expect(properties.DistanceSpec::dataspec).to.be.true
       expect(properties.FontSizeSpec::dataspec).to.be.true
       expect(properties.NumberSpec::dataspec).to.be.true
@@ -793,7 +792,6 @@ describe "properties module", ->
     it "should have dataspec property subclasses", ->
       expect("AngleSpec" of properties).to.be.true
       expect("ColorSpec" of properties).to.be.true
-      expect("DirectionSpec" of properties).to.be.true
       expect("DistanceSpec" of properties).to.be.true
       expect("FontSizeSpec" of properties).to.be.true
       expect("NumberSpec" of properties).to.be.true
