@@ -5,7 +5,7 @@ a Bokeh |Document|.
 from __future__ import absolute_import, print_function
 
 import logging
-logger = logging.getLogger(__file__)
+logger = logging.getLogger(__name__)
 
 from json import loads
 from operator import itemgetter
