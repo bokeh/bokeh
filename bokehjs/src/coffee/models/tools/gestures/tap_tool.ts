@@ -50,11 +50,11 @@ export class TapToolView extends SelectToolView {
         else
           callback.execute(this, cb_data)
       }
+    }
 
-      if (this.model.behavior == "select") {
-        this._emit_selection_event(geometry)
-        this.plot_view.push_state('tap', {selection: this.plot_view.get_selection()})
-      }
+    if (this.model.behavior == "select") {
+      this._emit_selection_event(geometry)
+      this.plot_view.push_state('tap', {selection: this.plot_view.get_selection()})
     }
   }
 }
