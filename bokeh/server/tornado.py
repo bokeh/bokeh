@@ -17,12 +17,24 @@ from tornado.web import StaticFileHandler
 from ..application import Application
 from ..resources import Resources
 from ..settings import settings
+from ..util.dependencies import import_optional
+from ..util.string import format_docstring
 
 from .application_context import ApplicationContext
 from .connection import ServerConnection
 from .urls import per_app_patterns, toplevel_patterns
 from .views.root_handler import RootHandler
 from .views.static_handler import StaticHandler
+
+DEFAULT_KEEP_ALIVE_MS      = 37000  # heroku, nginx default to 60s timeout, so use less than that
+DEFAULT_CHECK_UNUSED_MS    = 17000
+DEFAULT_UNUSED_LIFETIME_MS = 15000
+DEFAULT_STATS_LOG_FREQ_MS  = 15000
+DEFAULT_MEM_LOG_FREQ_MS    = 0
+
+# This is only needed because {} is alsp use for string formatting, so calling .format on
+# the docstring below will choke with '/' as an unrecognized key otherwise
+_DEFAULT_APP_MAP = "{ '/' : applications }"
 
 class BokehTornado(TornadoApplication):
     ''' A Tornado Application used to implement the Bokeh Server.
@@ -36,7 +48,7 @@ class BokehTornado(TornadoApplication):
 
             .. code-block:: python
 
-                applications = { '/' : applications }
+                applications = {DEFAULT_APP_MAP}
 
             When a connection comes in to a given path, the associate
             Application is used to generate a new document for the session.
@@ -80,20 +92,26 @@ class BokehTornado(TornadoApplication):
             (default: True)
 
         keep_alive_milliseconds (int, optional) :
-            Number of milliseconds between keep-alive pings (default: 37000)
+            Number of milliseconds between keep-alive pings (default: {DEFAULT_KEEP_ALIVE_MS})
 
             Pings normally required to keep the websocket open. Set to 0 to
             disable pings.
 
         check_unused_sessions_milliseconds (int, optional) :
             Number of milliseconds between checking for unused sessions
-            (default: 17000)
+            (default: {DEFAULT_CHECK_UNUSED_MS})
 
         unused_session_lifetime_milliseconds (int, optional) :
-            Number of milliseconds for unused session lifetime (default: 15000)
+            Number of milliseconds for unused session lifetime (default: {DEFAULT_UNUSED_LIFETIME_MS})
 
         stats_log_frequency_milliseconds (int, optional) :
-            Number of milliseconds between logging stats (default: 15000)
+            Number of milliseconds between logging stats (default: {DEFAULT_STATS_LOG_FREQ_MS})
+
+        mem_log_frequency_milliseconds (int, optional) :
+            Number of milliseconds between logging memory information (default: {DEFAULT_MEM_LOG_FREQ_MS})
+
+            Enabling this feature requires the optional depenency ``psutil`` to be
+            installed.
 
         use_index (bool, optional) :
             Whether to generate an index of running apps in the ``RootHandler``
@@ -117,10 +135,11 @@ class BokehTornado(TornadoApplication):
                  secret_key=settings.secret_key_bytes(),
                  sign_sessions=settings.sign_sessions(),
                  generate_session_ids=True,
-                 keep_alive_milliseconds=37000, # heroku, nginx default to 60s timeout, so use less than that
-                 check_unused_sessions_milliseconds=17000,
-                 unused_session_lifetime_milliseconds=15000,
-                 stats_log_frequency_milliseconds=15000,
+                 keep_alive_milliseconds=DEFAULT_KEEP_ALIVE_MS,
+                 check_unused_sessions_milliseconds=DEFAULT_CHECK_UNUSED_MS,
+                 unused_session_lifetime_milliseconds=DEFAULT_UNUSED_LIFETIME_MS,
+                 stats_log_frequency_milliseconds=DEFAULT_STATS_LOG_FREQ_MS,
+                 mem_log_frequency_milliseconds=DEFAULT_MEM_LOG_FREQ_MS,
                  use_index=True,
                  redirect_root=True):
 
@@ -141,20 +160,42 @@ class BokehTornado(TornadoApplication):
         if keep_alive_milliseconds < 0:
             # 0 means "disable"
             raise ValueError("keep_alive_milliseconds must be >= 0")
+        else:
+            if keep_alive_milliseconds == 0:
+                log.info("Keep-alive ping disabled")
+            elif keep_alive_milliseconds != DEFAULT_KEEP_ALIVE_MS:
+                log.info("Keep-alive ping configured every %d milliseconds", keep_alive_milliseconds)
+        self._keep_alive_milliseconds = keep_alive_milliseconds
 
         if check_unused_sessions_milliseconds <= 0:
             raise ValueError("check_unused_sessions_milliseconds must be > 0")
+        elif check_unused_sessions_milliseconds != DEFAULT_CHECK_UNUSED_MS:
+            log.info("Check for unused sessions every %d milliseconds", check_unused_sessions_milliseconds)
+        self._check_unused_sessions_milliseconds = check_unused_sessions_milliseconds
 
         if unused_session_lifetime_milliseconds <= 0:
             raise ValueError("check_unused_sessions_milliseconds must be > 0")
+        elif unused_session_lifetime_milliseconds != DEFAULT_UNUSED_LIFETIME_MS:
+            log.info("Unused sessions last for %d milliseconds", unused_session_lifetime_milliseconds)
+        self._unused_session_lifetime_milliseconds = unused_session_lifetime_milliseconds
 
         if stats_log_frequency_milliseconds <= 0:
             raise ValueError("stats_log_frequency_milliseconds must be > 0")
-
-        self._keep_alive_milliseconds = keep_alive_milliseconds
-        self._check_unused_sessions_milliseconds = check_unused_sessions_milliseconds
-        self._unused_session_lifetime_milliseconds = unused_session_lifetime_milliseconds
+        elif stats_log_frequency_milliseconds != DEFAULT_STATS_LOG_FREQ_MS:
+            log.info("Log statistics every %d milliseconds", stats_log_frequency_milliseconds)
         self._stats_log_frequency_milliseconds = stats_log_frequency_milliseconds
+
+        if mem_log_frequency_milliseconds < 0:
+            # 0 means "disable"
+            raise ValueError("mem_log_frequency_milliseconds must be >= 0")
+        else:
+            if import_optional('psutil') is None:
+                log.warn("Memory logging requested, but is disabled. Optional dependency 'psutil' is missing. "
+                         "Try 'pip install psutil' or 'conda install psutil'")
+                mem_log_frequency_milliseconds = 0
+            elif mem_log_frequency_milliseconds != DEFAULT_MEM_LOG_FREQ_MS:
+                log.info("Log memory usage every %d milliseconds", mem_log_frequency_milliseconds)
+        self._mem_log_frequency_milliseconds = mem_log_frequency_milliseconds
 
         if extra_websocket_origins is None:
             self._websocket_origins = set()
@@ -233,6 +274,13 @@ class BokehTornado(TornadoApplication):
 
         self._stats_job = PeriodicCallback(self._log_stats,
                                            self._stats_log_frequency_milliseconds)
+
+        if self._mem_log_frequency_milliseconds > 0:
+            self._mem_job = PeriodicCallback(self._log_mem,
+                                             self._mem_log_frequency_milliseconds)
+        else:
+            self._mem_job = None
+
 
         self._cleanup_job = PeriodicCallback(self._cleanup_sessions,
                                              self._check_unused_sessions_milliseconds)
@@ -321,6 +369,8 @@ class BokehTornado(TornadoApplication):
 
         '''
         self._stats_job.start()
+        if self._mem_job is not None:
+            self._mem_job.start()
         self._cleanup_job.start()
         if self._ping_job is not None:
             self._ping_job.start()
@@ -344,6 +394,8 @@ class BokehTornado(TornadoApplication):
             context.run_unload_hook()
 
         self._stats_job.stop()
+        if self._mem_job is not None:
+            self._mem_job.stop()
         self._cleanup_job.stop()
         if self._ping_job is not None:
             self._ping_job.stop()
@@ -404,9 +456,12 @@ class BokehTornado(TornadoApplication):
         raise gen.Return(None)
 
     def _log_stats(self):
+        log.trace("Running stats log job")
+
         if log.getEffectiveLevel() > logging.DEBUG:
             # avoid the work below if we aren't going to log anything
             return
+
         log.debug("[pid %d] %d clients connected", os.getpid(), len(self._clients))
         for app_path, app in self._applications.items():
             sessions = list(app.sessions)
@@ -417,6 +472,35 @@ class BokehTornado(TornadoApplication):
             log.debug("[pid %d]   %s has %d sessions with %d unused",
                       os.getpid(), app_path, len(sessions), unused_count)
 
+    def _log_mem(self):
+        import psutil
+
+        process = psutil.Process(os.getpid())
+        log.info("[pid %d] Memory usage: %0.2f MB (RSS), %0.2f MB (VMS)", os.getpid(), process.memory_info().rss//2**20, process.memory_info().vms//2**20)
+
+        if log.getEffectiveLevel() > logging.DEBUG:
+            # avoid the work below if we aren't going to log anything else
+            return
+
+        import gc
+        from ..document import Document
+        from ..model import Model
+        from .session import ServerSession
+        for name, typ in [('Documents', Document), ('Sessions', ServerSession), ('Models', Model)]:
+            objs = [x for x in gc.get_objects() if isinstance(x, typ)]
+            log.debug("  uncollected %s: %d", name, len(objs))
+
     def _keep_alive(self):
+        log.trace("Running keep alive job")
         for c in self._clients:
             c.send_ping()
+
+BokehTornado.__doc__ = format_docstring(
+    BokehTornado.__doc__,
+    DEFAULT_APP_MAP=_DEFAULT_APP_MAP,
+    DEFAULT_KEEP_ALIVE_MS=DEFAULT_KEEP_ALIVE_MS,
+    DEFAULT_CHECK_UNUSED_MS=DEFAULT_CHECK_UNUSED_MS,
+    DEFAULT_UNUSED_LIFETIME_MS=DEFAULT_UNUSED_LIFETIME_MS,
+    DEFAULT_STATS_LOG_FREQ_MS=DEFAULT_STATS_LOG_FREQ_MS,
+    DEFAULT_MEM_LOG_FREQ_MS=DEFAULT_MEM_LOG_FREQ_MS
+)

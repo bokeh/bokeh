@@ -132,6 +132,13 @@ def test_args():
             default=None,
         )),
 
+        ('--mem-log-frequency', dict(
+            metavar='MILLISECONDS',
+            type=int,
+            help="How often to log memory usage information",
+            default=None,
+        )),
+
         ('--use-xheaders', dict(
             action='store_true',
             help="Prefer X-headers for IP/protocol information",
