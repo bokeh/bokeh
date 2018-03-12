@@ -1,4 +1,5 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph";
+import {generic_area_legend} from "./utils"
 import {PointGeometry} from "core/geometry";
 import {DistanceSpec, AngleSpec} from "core/vectorization"
 import {LineMixinVector, FillMixinVector} from "core/property_mixins"
@@ -135,21 +136,21 @@ export class AnnularWedgeView extends XYGlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: IBBox, index: number): void {
-    this._generic_area_legend(ctx, bbox, index)
+    generic_area_legend(this.visuals, ctx, bbox, index)
   }
 
-  private _scxy(i: number): {x: number, y: number} {
+  private _scenterxy(i: number): {x: number, y: number} {
     const r = (this.sinner_radius[i] + this.souter_radius[i])/2;
     const a = (this._start_angle[i]  + this._end_angle[i])   /2;
     return {x: this.sx[i] + (r*Math.cos(a)), y: this.sy[i] + (r*Math.sin(a))};
   }
 
-  scx(i: number): number {
-    return this._scxy(i).x
+  scenterx(i: number): number {
+    return this._scenterxy(i).x
   }
 
-  scy(i: number): number {
-    return this._scxy(i).y
+  scentery(i: number): number {
+    return this._scenterxy(i).y
   }
 }
 

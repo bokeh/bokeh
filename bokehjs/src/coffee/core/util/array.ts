@@ -6,6 +6,9 @@
 import {randomIn} from "./math"
 import {assert} from "./assert"
 
+import {min, minBy, max, maxBy, sum} from "./arrayable"
+export {min, minBy, max, maxBy, sum}
+
 const slice = Array.prototype.slice
 
 export function head<T>(array: T[]): T {
@@ -106,79 +109,9 @@ export function transpose<T>(array: T[][]): T[][] {
   return transposed
 }
 
-export function sum(array: number[]): number {
-  return array.reduce((a, b) => a + b, 0)
-}
-
 export function cumsum(array: number[]): number[] {
   const result: number[] = []
   array.reduce((a, b, i) => result[i] = a + b, 0)
-  return result
-}
-
-export function min(array: number[]): number {
-  let value: number
-  let result = Infinity
-
-  for (let i = 0, length = array.length; i < length; i++) {
-    value = array[i]
-    if (value < result) {
-      result = value
-    }
-  }
-
-  return result
-}
-
-export function minBy<T>(array: T[], key: (item: T) => number): T {
-  if (array.length == 0)
-    throw new Error("minBy() called with an empty array")
-
-  let result = array[0]
-  let resultComputed = key(result)
-
-  for (let i = 1, length = array.length; i < length; i++) {
-    const value = array[i]
-    const computed = key(value)
-    if (computed < resultComputed) {
-      result = value
-      resultComputed = computed
-    }
-  }
-
-  return result
-}
-
-export function max(array: number[]): number {
-  let value: number
-  let result = -Infinity
-
-  for (let i = 0, length = array.length; i < length; i++) {
-    value = array[i]
-    if (value > result) {
-      result = value
-    }
-  }
-
-  return result
-}
-
-export function maxBy<T>(array: T[], key: (item: T) => number): T {
-  if (array.length == 0)
-    throw new Error("maxBy() called with an empty array")
-
-  let result = array[0]
-  let resultComputed = key(result)
-
-  for (let i = 1, length = array.length; i < length; i++) {
-    const value = array[i]
-    const computed = key(value)
-    if (computed > resultComputed) {
-      result = value
-      resultComputed = computed
-    }
-  }
-
   return result
 }
 

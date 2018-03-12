@@ -1,22 +1,24 @@
-/* XXX: partial */
-import * as hittest from "core/hittest";
-import * as p from "core/properties";
-import * as bbox from "core/util/bbox";
+import * as hittest from "core/hittest"
+import * as p from "core/properties"
+import * as bbox from "core/util/bbox"
 import {IBBox} from "core/util/bbox"
-import * as proj from "core/util/projections";
-import {Geometry, RectGeometry} from "core/geometry";
+import * as proj from "core/util/projections"
+import * as visuals from "core/visuals"
+import {Geometry, RectGeometry} from "core/geometry"
 import {Context2d} from "core/util/canvas"
-import {View} from "core/view";
-import {Model} from "../../model";
-import * as visuals from "core/visuals";
+import {View} from "core/view"
+import {Model} from "../../model"
 import {Anchor} from "core/enums"
-import {logger} from "core/logging";
+import {logger} from "core/logging"
 import {Arrayable} from "core/types"
-import {extend} from "core/util/object";
-import {isArray} from "core/util/types";
-import {SpatialIndex} from "core/util/spatial"
-import {LineView} from "./line";
-import {Selection} from "../selections/selection";
+import {map} from "core/util/arrayable"
+import {extend} from "core/util/object"
+import {isArray, isTypedArray} from "core/util/types"
+import {SpatialIndex, Rect} from "core/util/spatial"
+import {LineView} from "./line"
+import {Scale} from "../scales/scale"
+import {FactorRange} from "../ranges/factor_range"
+import {Selection} from "../selections/selection"
 import {GlyphRendererView} from "../renderers/glyph_renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 
@@ -31,299 +33,226 @@ export abstract class GlyphView extends View {
   glglyph?: any
 
   index: SpatialIndex
-
   renderer: GlyphRendererView
 
+  protected _nohit_warned: {[key: string]: boolean} = {}
 
   initialize(options: any): void {
-    super.initialize(options);
-    this._nohit_warned = {};
-    this.renderer = options.renderer;
-    this.visuals = new visuals.Visuals(this.model);
+    super.initialize(options)
+
+    this._nohit_warned = {}
+    this.renderer = options.renderer
+    this.visuals = new visuals.Visuals(this.model)
 
     // Init gl (this should really be done anytime renderer is set,
     // and not done if it isn't ever set, but for now it only
     // matters in the unit tests because we build a view without a
     // renderer there)
-    const { ctx } = this.renderer.plot_view.canvas_view;
+    const {glcanvas} = this.renderer.plot_view
 
-    if (ctx.glcanvas != null) {
-      let glglyphs;
+    if (glcanvas != null) {
+      let glglyphs
       try {
-        glglyphs = require("./webgl/index");
+        glglyphs = require("./webgl/index")
       } catch (e) {
         if (e.code === 'MODULE_NOT_FOUND') {
-          logger.warn('WebGL was requested and is supported, but bokeh-gl(.min).js is not available, falling back to 2D rendering.');
-          glglyphs = null;
-        } else {
-          throw e;
-        }
+          logger.warn('WebGL was requested and is supported, but bokeh-gl(.min).js is not available, falling back to 2D rendering.')
+          glglyphs = null
+        } else
+          throw e
       }
 
       if (glglyphs != null) {
-        const Cls = glglyphs[this.model.type + 'GLGlyph'];
-        if (Cls != null) {
-          this.glglyph = new Cls(ctx.glcanvas.gl, this);
-        }
+        const Cls = glglyphs[this.model.type + 'GLGlyph']
+        if (Cls != null)
+          this.glglyph = new Cls((glcanvas as any).gl, this) // XXX: gl
       }
     }
   }
 
   set_visuals(source: ColumnarDataSource): void {
-    this.visuals.warm_cache(source);
+    this.visuals.warm_cache(source)
 
-    if (this.glglyph != null) {
-      this.glglyph.set_visuals_changed();
-    }
+    if (this.glglyph != null)
+      this.glglyph.set_visuals_changed()
   }
 
-  render(ctx: Context2d, indices: number[], data) {
-    ctx.beginPath();
+  render(ctx: Context2d, indices: number[], data: any): void {
+    ctx.beginPath()
 
     if (this.glglyph != null) {
       if (this.glglyph.render(ctx, indices, data))
         return
     }
 
-    return this._render(ctx, indices, data);
+    this._render(ctx, indices, data)
   }
 
   protected abstract _render(ctx: Context2d, indices: number[], data: any): void
 
-  has_finished() { return true; }
-
-  notify_finished() {
-    return this.renderer.notify_finished();
+  has_finished(): boolean {
+    return true
   }
 
-  bounds() {
-    if (this.index == null)
-      return bbox.empty()
-    else
-      return this._bounds(this.index.bbox)
+  notify_finished(): void {
+    this.renderer.notify_finished()
   }
 
-  log_bounds() {
-    if ((this.index == null)) {
-      return bbox.empty();
-    }
+  protected _bounds(bounds: Rect) {
+    return bounds
+  }
 
-    const bb = bbox.empty();
-    const positive_x_bbs = this.index.search(bbox.positive_x());
-    const positive_y_bbs = this.index.search(bbox.positive_y());
+  bounds(): Rect {
+    return this._bounds(this.index.bbox)
+  }
+
+  log_bounds(): Rect {
+    const bb = bbox.empty()
+
+    const positive_x_bbs = this.index.search(bbox.positive_x())
     for (const x of positive_x_bbs) {
-      if (x.minX < bb.minX) {
-        bb.minX = x.minX;
-      }
-      if (x.maxX > bb.maxX) {
-        bb.maxX = x.maxX;
-      }
+      if (x.minX < bb.minX)
+        bb.minX = x.minX
+      if (x.maxX > bb.maxX)
+        bb.maxX = x.maxX
     }
+
+    const positive_y_bbs = this.index.search(bbox.positive_y())
     for (const y of positive_y_bbs) {
-      if (y.minY < bb.minY) {
-        bb.minY = y.minY;
-      }
-      if (y.maxY > bb.maxY) {
-        bb.maxY = y.maxY;
-      }
+      if (y.minY < bb.minY)
+        bb.minY = y.minY
+      if (y.maxY > bb.maxY)
+        bb.maxY = y.maxY
     }
 
-    return this._bounds(bb);
-  }
-
-  // this is available for subclasses to use, if appropriate.
-  max_wh2_bounds(bds) {
-    return {
-        minX: bds.minX - this.max_w2,
-        maxX: bds.maxX + this.max_w2,
-        minY: bds.minY - this.max_h2,
-        maxY: bds.maxY + this.max_h2,
-    };
+    return this._bounds(bb)
   }
 
   get_anchor_point(anchor: Anchor, i: number, [sx, sy]: [number, number]): {x: number, y: number} | null {
     switch (anchor) {
-      case "center": return {x: this.scx(i, sx, sy), y: this.scy(i, sx, sy)};
-      default:       return null;
+      case "center": return {x: this.scenterx(i, sx, sy), y: this.scentery(i, sx, sy)}
+      default:       return null
     }
   }
 
   // glyphs that need more sophisticated "snap to data" behaviour (like
   // snapping to a patch centroid, e.g, should override these
-  scx(i, _sx, _sy) { return this.sx[i]; }
-  scy(i, _sx, _sy) { return this.sy[i]; }
+  abstract scenterx(i: number, _sx: number, _sy: number): number
 
-  sdist(scale, pts, spans, pts_location = "edge", dilate = false) {
-    let pt0, pt1;
-    if (scale.source_range.v_synthetic != null) {
-      pts = scale.source_range.v_synthetic(pts);
-    }
+  abstract scentery(i: number, _sx: number, _sy: number): number
 
-    if (pts_location === 'center') {
-      const halfspan = (spans.map((d) => d / 2));
-      pt0 = ((() => {
-        const result = [];
-        for (let i = 0, end = pts.length; i < end; i++) {
-          result.push(pts[i] - halfspan[i]);
-        }
-        return result;
-      })());
-      pt1 = ((() => {
-        const result = [];
-        for (let i = 0, end = pts.length; i < end; i++) {
-          result.push(pts[i] + halfspan[i]);
-        }
-        return result;
-      })());
+  sdist(scale: Scale, pts: Arrayable<number>, spans: Arrayable<number>,
+        pts_location: "center" | "edge" = "edge", dilate: boolean = false): Arrayable<number> {
+    let pt0: Arrayable<number>
+    let pt1: Arrayable<number>
+
+    const n = pts.length
+    if (pts_location == 'center') {
+      const halfspan = map(spans, (d) => d/2)
+      pt0 = new Float64Array(n)
+      for (let i = 0; i < n; i++) {
+        pt0[i] = pts[i] - halfspan[i]
+      }
+      pt1 = new Float64Array(n)
+      for (let i = 0; i < n; i++) {
+        pt1[i] = pts[i] + halfspan[i]
+      }
     } else {
-      pt0 = pts;
-      pt1 = ((() => {
-        const result = [];
-        for (let i = 0, end = pt0.length; i < end; i++) {
-          result.push(pt0[i] + spans[i]);
-        }
-        return result;
-      })());
+      pt0 = pts
+      pt1 = new Float64Array(n)
+      for (let i = 0; i < n; i++) {
+        pt1[i] = pt0[i] + spans[i]
+      }
     }
 
-    const spt0 = scale.v_compute(pt0);
-    const spt1 = scale.v_compute(pt1);
+    const spt0 = scale.v_compute(pt0)
+    const spt1 = scale.v_compute(pt1)
 
-    if (dilate) {
-      return ((() => {
-        const result = [];
-        for (let i = 0, end = spt0.length; i < end; i++) {
-          result.push(Math.ceil(Math.abs(spt1[i] - spt0[i])));
-        }
-        return result;
-      })());
-    } else {
-      return ((() => {
-        const result = [];
-        for (let i = 0, end = spt0.length; i < end; i++) {
-          result.push(Math.abs(spt1[i] - spt0[i]));
-        }
-        return result;
-      })());
-    }
+    if (dilate)
+      return map(spt0, (_, i) => Math.ceil(Math.abs(spt1[i] - spt0[i])))
+    else
+      return map(spt0, (_, i) => Math.abs(spt1[i] - spt0[i]))
   }
 
   draw_legend_for_index(_ctx: Context2d, _bbox: IBBox, _index: number): void {}
 
-  protected _generic_line_legend(ctx: Context2d, {x0, x1, y0, y1}: IBBox, index: number): void {
-    ctx.save();
-    ctx.beginPath();
-    ctx.moveTo(x0, (y0 + y1) /2);
-    ctx.lineTo(x1, (y0 + y1) /2);
-    if (this.visuals.line.doit) {
-      this.visuals.line.set_vectorize(ctx, index);
-      ctx.stroke();
-    }
-    ctx.restore();
-  }
-
-  protected _generic_area_legend(ctx: Context2d, {x0, x1, y0, y1}: IBBox, index: number): void {
-    const w = Math.abs(x1 - x0);
-    const dw = w*0.1;
-    const h = Math.abs(y1 - y0);
-    const dh = h*0.1;
-
-    const sx0 = x0 + dw;
-    const sx1 = x1 - dw;
-
-    const sy0 = y0 + dh;
-    const sy1 = y1 - dh;
-
-    if (this.visuals.fill.doit) {
-      this.visuals.fill.set_vectorize(ctx, index);
-      ctx.fillRect(sx0, sy0, sx1 - sx0, sy1 - sy0);
-    }
-
-    if (this.visuals.line.doit) {
-      ctx.beginPath();
-      ctx.rect(sx0, sy0, sx1 - sx0, sy1 - sy0);
-      this.visuals.line.set_vectorize(ctx, index);
-      ctx.stroke();
-    }
-  }
-
   hit_test(geometry: Geometry): hittest.HitTestResult {
-    let result = null;
+    let result = null
 
-    const func = `_hit_${geometry.type}`;
-    if (this[func] != null) {
-      result = this[func](geometry);
-    } else if ((this._nohit_warned[geometry.type] == null)) {
-      logger.debug(`'${geometry.type}' selection not available for ${this.model.type}`);
-      this._nohit_warned[geometry.type] = true;
+    const func = `_hit_${geometry.type}`
+    if ((this as any)[func] != null) {
+      result = (this as any)[func](geometry)
+    } else if (this._nohit_warned[geometry.type] == null) {
+      logger.debug(`'${geometry.type}' selection not available for ${this.model.type}`)
+      this._nohit_warned[geometry.type] = true
     }
 
-    return result;
+    return result
   }
 
-  _hit_rect_against_index(geometry: RectGeometry): Selection {
-    const {sx0, sx1, sy0, sy1} = geometry;
-    const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1);
-    const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1);
-    const bb = hittest.validate_bbox_coords([x0, x1], [y0, y1]);
-    const result = hittest.create_empty_hit_test_result();
-    result.indices = this.index.indices(bb);
-    return result;
+  protected _hit_rect_against_index(geometry: RectGeometry): Selection {
+    const {sx0, sx1, sy0, sy1} = geometry
+    const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
+    const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+    const bb = hittest.validate_bbox_coords([x0, x1], [y0, y1])
+    const result = hittest.create_empty_hit_test_result()
+    result.indices = this.index.indices(bb)
+    return result
   }
 
-  set_data(source, indices, indices_to_update): void {
-    let data = this.model.materialize_dataspecs(source);
+  set_data(source: ColumnarDataSource, indices: number[], indices_to_update: number[] | null): void {
+    let data = this.model.materialize_dataspecs(source)
 
-    this.visuals.set_all_indices(indices);
+    this.visuals.set_all_indices(indices)
     if (indices && !(this instanceof LineView)) {
-      const data_subset = {};
+      const data_subset: {[key: string]: any} = {}
       for (const k in data) {
-        const v = data[k];
+        const v = data[k]
         if (k.charAt(0) === '_')
-          data_subset[k] = (indices.map((i) => v[i]));
+          data_subset[k] = indices.map((i) => v[i])
         else
-          data_subset[k] = v;
+          data_subset[k] = v
       }
-      data = data_subset;
+      data = data_subset
     }
 
-    extend(this, data);
+    const self = this as any
+    extend(self, data)
 
     if (this.renderer.plot_view.model.use_map) {
-      if (this._x != null) {
-        [this._x, this._y] = proj.project_xy(this._x, this._y);
-      }
-      if (this._xs != null) {
-        [this._xs, this._ys] = proj.project_xsys(this._xs, this._ys);
-      }
+      if (self._x != null)
+        [self._x, self._y] = proj.project_xy(self._x, self._y)
+
+      if (self._xs != null)
+        [self._xs, self._ys] = proj.project_xsys(self._xs, self._ys)
     }
 
     // if we have any coordinates that are categorical, convert them to
     // synthetic coords here
     if (this.renderer.plot_view.frame.x_ranges != null) {   // XXXX JUST TEMP FOR TESTS TO PASS
-      const xr = this.renderer.plot_view.frame.x_ranges[this.model.x_range_name];
-      const yr = this.renderer.plot_view.frame.y_ranges[this.model.y_range_name];
+      const xr = this.renderer.plot_view.frame.x_ranges[this.model.x_range_name]
+      const yr = this.renderer.plot_view.frame.y_ranges[this.model.y_range_name]
+
       for (let [xname, yname] of this.model._coords) {
-        xname = `_${xname}`;
-        yname = `_${yname}`;
-        if (xr.v_synthetic != null) {
-          this[xname] = xr.v_synthetic(this[xname]);
-        }
-        if (yr.v_synthetic != null) {
-          this[yname] = yr.v_synthetic(this[yname]);
-        }
+        xname = `_${xname}`
+        yname = `_${yname}`
+
+        if (xr instanceof FactorRange)
+          self[xname] = xr.v_synthetic(self[xname])
+        if (yr instanceof FactorRange)
+          self[yname] = yr.v_synthetic(self[yname])
       }
     }
 
     if (this.glglyph != null)
-      this.glglyph.set_data_changed(this._x.length);
+      this.glglyph.set_data_changed(self._x.length)
 
-    this._set_data(source, indices_to_update); //TODO doesn't take subset indices into account
+    this._set_data(indices_to_update)  //TODO doesn't take subset indices into account
 
     this.index_data()
   }
 
-  protected _set_data(_source, _indices): void {}
+  protected _set_data(_indices: number[] | null): void {}
 
   protected abstract _index_data(): SpatialIndex
 
@@ -341,37 +270,40 @@ export abstract class GlyphView extends View {
 
   protected _mask_data?(): number[]
 
-  _bounds(bounds) { return bounds; }
-
   map_data(): void {
-    // todo: if using gl, skip this (when is this called?)
-
+    // TODO: if using gl, skip this (when is this called?)
     // map all the coordinate fields
+    const self = this as any
+
     for (let [xname, yname] of this.model._coords) {
-      const sxname = `s${xname}`;
-      const syname = `s${yname}`;
-      xname = `_${xname}`;
-      yname = `_${yname}`;
-      if (isArray(this[xname] != null ? this[xname][0] : undefined) || __guard__(this[xname] != null ? this[xname][0] : undefined, x => x.buffer) instanceof ArrayBuffer) {
-        [ this[sxname], this[syname] ] = [ [], [] ];
-        for (let i = 0, end = this[xname].length; i < end; i++) {
-          const [sx, sy] = this.map_to_screen(this[xname][i], this[yname][i]);
-          this[sxname].push(sx);
-          this[syname].push(sy);
+      const sxname = `s${xname}`
+      const syname = `s${yname}`
+      xname = `_${xname}`
+      yname = `_${yname}`
+
+      if (self[xname] != null && (isArray(self[xname][0]) || isTypedArray(self[xname][0]))) {
+        const n = self[xname].length
+
+        self[sxname] = new Array(n)
+        self[syname] = new Array(n)
+
+        for (let i = 0; i < n; i++) {
+          const [sx, sy] = this.map_to_screen(self[xname][i], self[yname][i])
+          self[sxname][i] = sx
+          self[syname][i] = sy
         }
-      } else {
-        [ this[sxname], this[syname] ] = this.map_to_screen(this[xname], this[yname]);
-      }
+      } else
+        [self[sxname], self[syname]] = this.map_to_screen(self[xname], self[yname])
     }
 
-    this._map_data();
+    this._map_data()
   }
 
   // This is where specs not included in coords are computed, e.g. radius.
-  protected _map_data() {}
+  protected _map_data(): void {}
 
   map_to_screen(x: Arrayable<number>, y: Arrayable<number>): [Arrayable<number>, Arrayable<number>] {
-    return this.renderer.plot_view.map_to_screen(x, y, this.model.x_range_name, this.model.y_range_name);
+    return this.renderer.plot_view.map_to_screen(x, y, this.model.x_range_name, this.model.y_range_name)
   }
 }
 
@@ -392,36 +324,34 @@ export abstract class Glyph extends Model {
 
   properties: Glyph.Props
 
+  /* prototype */ _coords: [string, string][]
+
   constructor(attrs?: Partial<Glyph.Attrs>) {
     super(attrs)
   }
 
   static initClass(): void {
-    this.prototype.type = 'Glyph';
+    this.prototype.type = 'Glyph'
 
-    this.prototype._coords = [];
+    this.prototype._coords = []
 
     this.internal({
       x_range_name: [ p.String, 'default' ],
       y_range_name: [ p.String, 'default' ],
-    });
+    })
   }
 
-  static coords(coords) {
-    const _coords = this.prototype._coords.concat(coords);
-    this.prototype._coords = _coords;
+  static coords(coords: [string, string][]): void {
+    const _coords = this.prototype._coords.concat(coords)
+    this.prototype._coords = _coords
 
-    const result = {};
+    const result: any = {}
     for (const [x, y] of coords) {
-      result[x] = [ p.NumberSpec ];
-      result[y] = [ p.NumberSpec ];
+      result[x] = [ p.NumberSpec ]
+      result[y] = [ p.NumberSpec ]
     }
 
-    return this.define(result);
+    this.define(result)
   }
 }
-Glyph.initClass();
-
-function __guard__(value, transform) {
-  return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined;
-}
+Glyph.initClass()

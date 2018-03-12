@@ -35,7 +35,7 @@ import {Context2d} from "core/util/canvas"
 //
 // When the author or user wants to, we try to create a webgl canvas,
 // which is saved on the ctx object that gets passed around during drawing.
-// The presence (and not-being-false) of the ctx.glcanvas attribute is the
+// The presence (and not-being-false) of the this.glcanvas attribute is the
 // marker that we use throughout that determines whether we have gl support.
 
 let global_glcanvas: HTMLCanvasElement | null = null
@@ -49,6 +49,7 @@ export class PlotCanvasView extends DOMView {
 
   canvas: Canvas
   canvas_view: CanvasView
+  glcanvas?: HTMLCanvasElement
 
   force_paint: Signal0<this>
   state_changed: Signal0<this>
@@ -170,9 +171,7 @@ export class PlotCanvasView extends DOMView {
     return this.canvas_view.el.style.cursor = cursor;
   }
 
-  init_webgl() {
-    const { ctx } = this.canvas_view;
-
+  init_webgl(): void {
     // We use a global invisible canvas and gl context. By having a global context,
     // we avoid the limitation of max 16 contexts that most browsers have.
     let glcanvas = global_glcanvas;
@@ -184,24 +183,22 @@ export class PlotCanvasView extends DOMView {
 
     // If WebGL is available, we store a reference to the gl canvas on
     // the ctx object, because that's what gets passed everywhere.
-    if (glcanvas.gl != null) {
-      return ctx.glcanvas = glcanvas;
-    } else {
-      return logger.warn('WebGL is not supported, falling back to 2D canvas.');
-    }
+    if (glcanvas.gl != null)
+      this.glcanvas = glcanvas;
+    else
+      logger.warn('WebGL is not supported, falling back to 2D canvas.');
   }
 
   prepare_webgl(ratio: number, frame_box: FrameBox): void {
     // Prepare WebGL for a drawing pass
-    const { ctx } = this.canvas_view;
     const canvas = this.canvas_view.get_canvas_element();
-    if (ctx.glcanvas) {
+    if (this.glcanvas) {
       // Sync canvas size
-      ctx.glcanvas.width = canvas.width;
-      ctx.glcanvas.height = canvas.height;
+      this.glcanvas.width = canvas.width;
+      this.glcanvas.height = canvas.height;
       // Prepare GL for drawing
-      const { gl } = ctx.glcanvas;
-      gl.viewport(0, 0, ctx.glcanvas.width, ctx.glcanvas.height);
+      const { gl } = this.glcanvas;
+      gl.viewport(0, 0, this.glcanvas.width, this.glcanvas.height);
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT);
       // Clipping
@@ -214,20 +211,20 @@ export class PlotCanvasView extends DOMView {
   }
       //gl.blendFuncSeparate(gl.ONE_MINUS_DST_ALPHA, gl.DST_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)  # Without premultipliedAlpha == false
 
-  blit_webgl(ratio) {
+  blit_webgl(ratio: number): void {
     // This should be called when the ctx has no state except the HIDPI transform
-    const { ctx } = this.canvas_view;
-    if (ctx.glcanvas) {
+    const {ctx} = this.canvas_view;
+    if (this.glcanvas) {
       // Blit gl canvas into the 2D canvas. To do 1-on-1 blitting, we need
       // to remove the hidpi transform, then blit, then restore.
       // ctx.globalCompositeOperation = "source-over"  -> OK; is the default
       logger.debug('drawing with WebGL');
       ctx.restore();
-      ctx.drawImage(ctx.glcanvas, 0, 0);
+      ctx.drawImage(this.glcanvas, 0, 0);
       // Set back hidpi transform
       ctx.save();
       ctx.scale(ratio, ratio);
-      return ctx.translate(0.5, 0.5);
+      ctx.translate(0.5, 0.5);
     }
   }
 

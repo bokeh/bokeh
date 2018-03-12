@@ -5,6 +5,8 @@ export type IndexedRect = Rect & {i: number}
 
 export abstract class SpatialIndex {
   abstract indices(rect: Rect): number[]
+  abstract search(rect: Rect): IndexedRect[]
+  readonly bbox: Rect
 }
 
 export class RBush extends SpatialIndex {

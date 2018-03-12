@@ -1,4 +1,5 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph";
+import {generic_area_legend} from "./utils"
 import {PointGeometry} from "core/geometry"
 import {DistanceSpec, AngleSpec} from "core/vectorization"
 import {LineMixinVector, FillMixinVector} from "core/property_mixins"
@@ -110,7 +111,7 @@ export class WedgeView extends XYGlyphView {
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: IBBox, index: number): void {
-    this._generic_area_legend(ctx, bbox, index);
+    generic_area_legend(this.visuals, ctx, bbox, index);
   }
 }
 

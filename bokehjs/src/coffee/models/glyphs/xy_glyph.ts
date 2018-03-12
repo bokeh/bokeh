@@ -32,6 +32,14 @@ export abstract class XYGlyphView extends GlyphView {
 
     return new RBush(points)
   }
+
+  scenterx(i: number): number {
+    return this.sx[i]
+  }
+
+  scentery(i: number): number {
+    return this.sy[i]
+  }
 }
 
 export namespace XYGlyph {

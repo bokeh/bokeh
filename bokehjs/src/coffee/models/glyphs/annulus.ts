@@ -122,7 +122,7 @@ export class AnnulusView extends XYGlyphView {
     const souter_radius: number[] = new Array(len)
     souter_radius[index] = r*0.8
 
-    this._render(ctx, [index], {sx, sy, sinner_radius, souter_radius})
+    this._render(ctx, [index], {sx, sy, sinner_radius, souter_radius} as any) // XXX
   }
 }
 
