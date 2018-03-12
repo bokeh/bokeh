@@ -44,6 +44,10 @@ class ColumnarDataSource(DataSource):
     An instance of a SelectionPolicy that determines how selections are set.
     """)
 
+    inspection_policy = Instance(SelectionPolicy, help="""
+    An instance of a SelectionPolicy that determines how inspections are set.
+    """)
+
 class ColumnDataSource(ColumnarDataSource):
     ''' Maps names of columns to sequences or arrays.
 
