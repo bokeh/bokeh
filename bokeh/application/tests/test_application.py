@@ -21,16 +21,18 @@ from bokeh.util.testing import verify_api ; verify_api
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import logging
 
 # External imports
 import mock
 
 # Bokeh imports
-from bokeh.application.handlers import FunctionHandler
+from bokeh.application.handlers import CodeHandler, FunctionHandler
 from bokeh.core.properties import Int, Instance
 from bokeh.document import Document
 from bokeh.model import Model
 from bokeh.plotting import figure
+from bokeh.util.logconfig import basicConfig
 
 # Module under test
 import bokeh.application.application as baa
@@ -84,6 +86,9 @@ Test_api = verify_api(baa, api)
 # Setup
 #-----------------------------------------------------------------------------
 
+# needed for caplog tests to function
+basicConfig()
+
 class AnotherModelInTestApplication(Model):
     baar = Int(1)
 
@@ -130,16 +135,15 @@ class Test_Application(object):
         doc = a.create_document()
         assert len(doc.roots) == 3
 
-    # TODO (bev) something about our logging setup is causing this to fail
-    # def test_failed_handler(self, caplog):
-    #     a = baa.Application()
-    #     handler = CodeHandler(filename="junk", source="bad(")
-    #     a.add(handler)
-    #     d = Document()
-    #     with caplog.at_level(logging.ERROR):
-    #         assert len(caplog.records) == 0
-    #         a.initialize_document(d)
-    #         assert len(caplog.records) == 1
+    def test_failed_handler(self, caplog):
+        a = baa.Application()
+        handler = CodeHandler(filename="junk", source="bad(")
+        a.add(handler)
+        d = Document()
+        with caplog.at_level(logging.ERROR):
+            assert len(caplog.records) == 0
+            a.initialize_document(d)
+            assert len(caplog.records) == 1
 
     def test_no_static_path(self):
         a = baa.Application()

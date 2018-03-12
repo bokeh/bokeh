@@ -16,8 +16,12 @@ from bokeh.models import ColumnDataSource
 from bokeh.document.events import (ColumnsPatchedEvent, ColumnsStreamedEvent, ModelChangedEvent, RootAddedEvent,
                                    RootRemovedEvent, SessionCallbackAdded, SessionCallbackRemoved, TitleChangedEvent)
 from bokeh.protocol.messages.patch_doc import process_document_events
+from bokeh.util.logconfig import basicConfig
 
 from .setup import AnotherModelInTestDocument, SomeModelInTestDocument, ModelThatOverridesName, ModelWithSpecInTestDocument
+
+# needed for caplog tests to function
+basicConfig()
 
 class TestDocumentHold(object):
 
