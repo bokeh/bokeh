@@ -4,7 +4,7 @@
 from __future__ import absolute_import
 
 import logging
-logger = logging.getLogger(__file__)
+logger = logging.getLogger(__name__)
 
 def check_integrity(models):
     ''' Apply validation and integrity checks to a collection of Bokeh models.

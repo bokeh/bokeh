@@ -17,7 +17,7 @@ figure below:
 from __future__ import absolute_import
 
 import logging
-logger = logging.getLogger(__file__)
+logger = logging.getLogger(__name__)
 
 from collections import defaultdict
 from json import loads
