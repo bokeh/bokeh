@@ -115,9 +115,12 @@ class ServerSession(object):
 
     def destroy(self):
         self._destroyed = True
-        self._document.delete_modules()
-        self._document.remove_on_change(self)
+
+        self._document.destroy(self)
+        del self._document
+
         self._callbacks.remove_all_callbacks()
+        del self._callbacks
 
     def request_expiration(self):
         """ Used in test suite for now. Forces immediate expiration if no connections."""
