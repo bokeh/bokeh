@@ -11,7 +11,7 @@ import codecs
 from six.moves.urllib.parse import urlparse
 
 from tornado import gen, locks
-from tornado.websocket import WebSocketHandler, WebSocketClosedError
+from tornado.websocket import StreamClosedError, WebSocketHandler, WebSocketClosedError
 
 from ..protocol_handler import ProtocolHandler
 from ...protocol import Protocol
@@ -41,6 +41,19 @@ class WSHandler(WebSocketHandler):
         pass
 
     def check_origin(self, origin):
+        ''' Implement a check_origin policy for Tornado to call.
+
+        The suplied origin will be compared to the Bokeh server whitelist. If the
+        origin is not allow, an error will be logged and ``False`` will be returned.
+
+        Args:
+            origin (str) :
+                The URL of the connection origin
+
+        Returns:
+            bool, True if the connection is allowed, False otherwise
+
+        '''
         from ..util import check_whitelist
         parsed_origin = urlparse(origin)
         origin_host = parsed_origin.netloc.lower()
@@ -58,6 +71,9 @@ class WSHandler(WebSocketHandler):
 
     def open(self):
         ''' Initialize a connection to a client.
+
+        Returns:
+            None
 
         '''
         log.info('WebSocket connection opened')
@@ -87,11 +103,31 @@ class WSHandler(WebSocketHandler):
                 log.debug("Failed to fully open connection %r", e)
 
         future = self._async_open(session_id, proto_version)
-        self.application.io_loop.add_future(future,
-                                            on_fully_opened)
+        self.application.io_loop.add_future(future, on_fully_opened)
 
     @gen.coroutine
     def _async_open(self, session_id, proto_version):
+        ''' Perform the specific steps needed to open a connection to a Bokeh session
+
+        Sepcifically, this method coordinates:
+
+        * Getting a session for a session ID (creating a new one if needed)
+        * Creating a protocol receiver and hander
+        * Opening a new ServerConnection and sending it an ACK
+
+        Args:
+            session_id (str) :
+                A session ID to for a session to connect to
+
+                If no session exists with the given ID, a new session is made
+
+            proto_version (str):
+                The protocol version requested by the connecting client.
+
+        Returns:
+            None
+
+        '''
         try:
             yield self.application_context.create_session_if_needed(session_id, self.request)
             session = self.application_context.get_session(session_id)
@@ -120,20 +156,19 @@ class WSHandler(WebSocketHandler):
     def on_message(self, fragment):
         ''' Process an individual wire protocol fragment.
 
-            The websocket RFC specifies opcodes for distinguishing
-            text frames from binary frames. Tornado passes us either
-            a text or binary string depending on that opcode, we have
-            to look at the type of the fragment to see what we got.
+        The websocket RFC specifies opcodes for distinguishing text frames
+        from binary frames. Tornado passes us either a text or binary string
+        depending on that opcode, we have to look at the type of the fragment
+        to see what we got.
 
         Args:
             fragment (unicode or bytes) : wire fragment to process
 
         '''
 
-        # We shouldn't throw exceptions from on_message because
-        # the caller is just Tornado and it doesn't know what to
-        # do with them other than report them as an unhandled
-        # Future
+        # We shouldn't throw exceptions from on_message because the caller is
+        # just Tornado and it doesn't know what to do with them other than
+        # report them as an unhandled Future
 
         try:
             message = yield self._receive(fragment)
@@ -174,7 +209,7 @@ class WSHandler(WebSocketHandler):
         '''
         try:
             yield message.send(self)
-        except WebSocketClosedError:
+        except (WebSocketClosedError, StreamClosedError): # Tornado 4.x may raise StreamClosedError
             # on_close() is / will be called anyway
             log.warn("Failed sending message as connection was closed")
         raise gen.Return(None)
@@ -185,22 +220,17 @@ class WSHandler(WebSocketHandler):
         write lock before writing.
 
         '''
-        def write_message_unlocked():
-            future = super(WSHandler, self).write_message(message, binary)
-            # don't yield this future or we're blocking on ourselves!
-            raise gen.Return(future)
         if locked:
             with (yield self.write_lock.acquire()):
-                write_message_unlocked()
+                yield super(WSHandler, self).write_message(message, binary)
         else:
-            write_message_unlocked()
+            yield super(WSHandler, self).write_message(message, binary)
 
     def on_close(self):
         ''' Clean up when the connection is closed.
 
         '''
-        log.info('WebSocket connection closed: code=%s, reason=%r',
-                 self.close_code, self.close_reason)
+        log.info('WebSocket connection closed: code=%s, reason=%r', self.close_code, self.close_reason)
         if self.connection is not None:
             self.application.client_lost(self.connection)
 
