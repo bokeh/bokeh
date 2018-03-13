@@ -1,6 +1,7 @@
 from __future__ import absolute_import, print_function
 
 import os
+from os.path import basename
 import time
 import pytest
 import subprocess
@@ -76,7 +77,7 @@ def test_server_examples(server_example, example, report, bokeh_server):
     for session_callback in list(doc._session_callbacks.keys()):
         doc._remove_session_callback(session_callback)
 
-    session_id = "session_id"
+    session_id = basename(example.path)
     push_session(doc, session_id=session_id)
 
     if example.no_js:
