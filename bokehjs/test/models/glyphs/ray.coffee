@@ -30,7 +30,7 @@ describe "Ray", ->
 
         set_scales(glyph_view, "linear")
         glyph_view.map_data()
-        expect(glyph_view.slength).to.be.deep.equal([20])
+        expect(glyph_view.slength).to.be.deep.equal(Float64Array.of(20))
 
     it "`_map_data` should correctly map data if length units are 'screen'", ->
       for angle in [0,1,2,3]
@@ -52,7 +52,7 @@ describe "Ray", ->
 
         set_scales(glyph_view, "linear", true)
         glyph_view.map_data()
-        expect(glyph_view.slength).to.be.deep.equal([20])
+        expect(glyph_view.slength).to.be.deep.equal(Float64Array.of(20))
 
     it "`_map_data` should correctly map data if length units are 'screen' and scale is reversed", ->
       for angle in [0,1,2,3]
