@@ -133,7 +133,7 @@ appropriate version replacing ``x.y.z``:
         href="https://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.css"
         rel="stylesheet" type="text/css">
     <link
-        href="httsp://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.css"
+        href="https://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.css"
         rel="stylesheet" type="text/css">
     <link
         href="https://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.css"
