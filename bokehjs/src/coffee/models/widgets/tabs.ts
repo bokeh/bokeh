@@ -1,4 +1,3 @@
-/* XXX: partial */
 import {empty, ul, li, span, div} from "core/dom"
 import {zip} from "core/util/array"
 import * as p from "core/properties"
@@ -43,7 +42,7 @@ export class TabsView extends WidgetView {
         const el = event.target as HTMLElement
 
         const old_active = this.model.active
-        const new_active = parseInt(el.dataset.index)
+        const new_active = parseInt(el.dataset.index!)
 
         if (old_active != new_active) {
           tabs[old_active].classList.remove("bk-bs-active")
@@ -71,7 +70,10 @@ export namespace Tabs {
     callback: any // XXX
   }
 
-  export interface Props extends Widget.Props {}
+  export interface Props extends Widget.Props {
+    tabs: p.Property<Panel[]>
+    active: p.Property<number>
+  }
 }
 
 export interface Tabs extends Tabs.Attrs {}

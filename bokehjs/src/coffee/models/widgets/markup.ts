@@ -1,4 +1,3 @@
-/* XXX: partial */
 import * as p from "core/properties"
 import {empty, div} from "core/dom"
 import {extend} from "core/util/object"
@@ -55,8 +54,8 @@ export class Markup extends Widget {
     this.prototype.type = "Markup"
 
     this.define({
-      text: [ p.String, '' ],
-      style: [ p.Any, {} ],
+      text:  [ p.String, '' ],
+      style: [ p.Any,    {} ],
     })
   }
 }

@@ -1,4 +1,3 @@
-/* XXX: partial */
 import {empty, input, label, div} from "core/dom"
 import {uniqueId} from "core/util/string"
 import * as p from "core/properties"
@@ -58,7 +57,7 @@ export class RadioButtonGroupView extends WidgetView {
 
 export namespace RadioButtonGroup {
   export interface Attrs extends Widget.Attrs {
-    active: number[]
+    active: number
     labels: string[]
     button_type: ButtonType
     callback: any // XXX

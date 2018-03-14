@@ -1,4 +1,3 @@
-/* XXX: partial */
 import tz = require("timezone")
 
 import {AbstractSlider, AbstractSliderView} from "./abstract_slider"
@@ -6,7 +5,7 @@ import {AbstractSlider, AbstractSliderView} from "./abstract_slider"
 export class DateRangeSliderView extends AbstractSliderView {
   model: DateRangeSlider
 
-  _calc_to() {
+  protected _calc_to() {
     return {
       start: this.model.start,
       end: this.model.end,
@@ -15,7 +14,7 @@ export class DateRangeSliderView extends AbstractSliderView {
     }
   }
 
-  _calc_from(values) {
+  protected _calc_from(values: number[]): number[] {
     return values
   }
 }

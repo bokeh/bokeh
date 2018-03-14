@@ -1,7 +1,5 @@
-/* XXX: partial */
-import * as p from "core/properties"
-
 import {AbstractButton, AbstractButtonView} from "./abstract_button"
+import * as p from "core/properties"
 
 export class ToggleView extends AbstractButtonView {
   model: Toggle

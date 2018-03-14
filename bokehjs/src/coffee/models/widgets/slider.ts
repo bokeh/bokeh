@@ -1,4 +1,3 @@
-/* XXX: partial */
 import * as numbro from "numbro"
 
 import {AbstractSlider, AbstractSliderView} from "./abstract_slider"
@@ -6,7 +5,7 @@ import {AbstractSlider, AbstractSliderView} from "./abstract_slider"
 export class SliderView extends AbstractSliderView {
   model: Slider
 
-  _calc_to() {
+  protected _calc_to() {
     return {
       start: this.model.start,
       end: this.model.end,
@@ -15,7 +14,7 @@ export class SliderView extends AbstractSliderView {
     }
   }
 
-  _calc_from([value]) {
+  protected _calc_from([value]: number[]): number {
     if (Number.isInteger(this.model.start) && Number.isInteger(this.model.end) && Number.isInteger(this.model.step))
       return Math.round(value)
     else

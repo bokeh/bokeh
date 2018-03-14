@@ -1,11 +1,10 @@
-/* XXX: partial */
-import * as p from "core/properties";
-import {input, textarea, select, option, Keys} from "core/dom";
-import {extend} from "core/util/object";
+import * as p from "core/properties"
+import {input, textarea, select, option, Keys} from "core/dom"
+import {extend} from "core/util/object"
 
-import {DOMView} from "core/dom_view";
-import {Model} from "../../../model";
-import {DTINDEX_NAME} from "./data_table"
+import {DOMView} from "core/dom_view"
+import {Model} from "../../../model"
+import {DTINDEX_NAME, Item} from "./data_table"
 
 export abstract class CellEditorView extends DOMView {
   model: CellEditor
@@ -16,100 +15,119 @@ export abstract class CellEditorView extends DOMView {
     return null
   }
 
-  inputEl: HTMLElement
+  inputEl: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
 
   protected args: any
 
-  protected abstract _createInput(): HTMLElement
+  protected abstract _createInput(): HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
 
-  constructor(options) {
-    super(extend({model: options.column.model}, options));
+  constructor(options: any) {
+    super(extend({model: options.column.model}, options))
   }
 
   initialize(options: any): void {
-    super.initialize(options);
+    super.initialize(options)
     this.inputEl = this._createInput()
     this.defaultValue = null
-    this.args = options;
-    return this.render();
+    this.args = options
+    this.render()
   }
 
   css_classes(): string[] {
     return super.css_classes().concat("bk-cell-editor")
   }
 
-  render() {
-    super.render();
-    this.args.container.appendChild(this.el);
-    this.el.appendChild(this.inputEl);
-    this.renderEditor();
-    this.disableNavigation();
-    return this;
+  render(): void {
+    super.render()
+    this.args.container.appendChild(this.el)
+    this.el.appendChild(this.inputEl)
+    this.renderEditor()
+    this.disableNavigation()
   }
 
-  renderEditor() {}
+  renderEditor(): void {}
 
-  disableNavigation() {
-    return this.inputEl.addEventListener("keydown", event => {
+  disableNavigation(): void {
+    this.inputEl.addEventListener("keydown", (event: KeyboardEvent) => {
       switch (event.keyCode) {
-        case Keys.Left: case Keys.Right: case Keys.Up: case Keys.Down: case Keys.PageUp: case Keys.PageDown:
-          return event.stopImmediatePropagation();
+        case Keys.Left:
+        case Keys.Right:
+        case Keys.Up:
+        case Keys.Down:
+        case Keys.PageUp:
+        case Keys.PageDown:
+          event.stopImmediatePropagation()
       }
-    });
+    })
   }
 
-  destroy() { return this.remove(); }
-
-  focus() { return this.inputEl.focus(); }
-
-  show() {}
-
-  hide() {}
-
-  position() {}
-
-  getValue() { return this.inputEl.value; }
-
-  setValue(val) { return this.inputEl.value = val; }
-
-  serializeValue() { return this.getValue(); }
-
-  isValueChanged() { return !((this.getValue() === "") && (this.defaultValue == null)) && (this.getValue() !== this.defaultValue); }
-
-  applyValue(item, state) {
-    return this.args.grid.getData().setField(item[DTINDEX_NAME], this.args.column.field, state);
+  destroy(): void {
+    this.remove()
   }
 
-  loadValue(item): void {
-    const value = item[this.args.column.field];
-    this.defaultValue = (value != null) ? value : this.emptyValue;
-    this.setValue(this.defaultValue);
+  focus(): void {
+    this.inputEl.focus()
   }
 
-  validateValue(value) {
+  show(): void {}
+
+  hide(): void {}
+
+  position(): any {}
+
+  getValue(): any {
+    return this.inputEl.value
+  }
+
+  setValue(val: any) {
+    this.inputEl.value = val
+  }
+
+  serializeValue(): any {
+    return this.getValue()
+  }
+
+  isValueChanged(): boolean {
+    return !(this.getValue() == "" && this.defaultValue == null) && this.getValue() !== this.defaultValue
+  }
+
+  applyValue(item: Item, state: any): void {
+    this.args.grid.getData().setField(item[DTINDEX_NAME], this.args.column.field, state)
+  }
+
+  loadValue(item: Item): void {
+    const value = item[this.args.column.field]
+    this.defaultValue = value != null ? value : this.emptyValue
+    this.setValue(this.defaultValue)
+  }
+
+  validateValue(value: any): any {
     if (this.args.column.validator) {
-      const result = this.args.column.validator(value);
+      const result = this.args.column.validator(value)
       if (!result.valid) {
-        return result;
+        return result
       }
     }
 
-    return { valid: true, msg: null };
+    return { valid: true, msg: null }
   }
 
-  validate() { return this.validateValue(this.getValue()); }
+  validate(): any {
+    this.validateValue(this.getValue())
+  }
 }
 
-export class CellEditor extends Model {
+export abstract class CellEditor extends Model {
   static initClass(): void {
-    this.prototype.type = "CellEditor";
-    this.prototype.default_view = CellEditorView;
+    this.prototype.type = "CellEditor"
   }
 }
-CellEditor.initClass();
+CellEditor.initClass()
 
 export class StringEditorView extends CellEditorView {
   model: StringEditor
+
+  inputEl: HTMLInputElement
 
   get emptyValue(): string {
     return ""
@@ -119,36 +137,38 @@ export class StringEditorView extends CellEditorView {
     return input({type: "text"})
   }
 
-  renderEditor() {
+  renderEditor(): void {
     //completions = @model.completions
     //if completions.length != 0
     //  @inputEl.classList.add("bk-cell-editor-completion")
     //  $(@inputEl).autocomplete({source: completions})
     //  $(@inputEl).autocomplete("widget")
-    this.inputEl.focus();
-    return this.inputEl.select();
+    this.inputEl.focus()
+    this.inputEl.select()
   }
 
-  loadValue(item) {
-    super.loadValue(item);
-    this.inputEl.defaultValue = this.defaultValue;
-    return this.inputEl.select();
+  loadValue(item: Item): void {
+    super.loadValue(item)
+    this.inputEl.defaultValue = this.defaultValue
+    this.inputEl.select()
   }
 }
 
 export class StringEditor extends CellEditor {
   static initClass(): void {
-    this.prototype.type = 'StringEditor';
-    this.prototype.default_view = StringEditorView;
+    this.prototype.type = 'StringEditor'
+    this.prototype.default_view = StringEditorView
     this.define({
       completions: [ p.Array, [] ],
-    });
+    })
   }
 }
-StringEditor.initClass();
+StringEditor.initClass()
 
 export class TextEditorView extends CellEditorView {
   model: TextEditor
+
+  inputEl: HTMLTextAreaElement
 
   protected _createInput() {
     return textarea()
@@ -157,40 +177,46 @@ export class TextEditorView extends CellEditorView {
 
 export class TextEditor extends CellEditor {
   static initClass(): void {
-    this.prototype.type = 'TextEditor';
-    this.prototype.default_view = TextEditorView;
+    this.prototype.type = 'TextEditor'
+    this.prototype.default_view = TextEditorView
   }
 }
-TextEditor.initClass();
+TextEditor.initClass()
 
 export class SelectEditorView extends CellEditorView {
   model: SelectEditor
+
+  inputEl: HTMLSelectElement
 
   protected _createInput() {
     return select()
   }
 
-  renderEditor() {
+  renderEditor(): void {
     for (const opt of this.model.options) {
-      this.inputEl.appendChild(option({value: opt}, opt));
+      this.inputEl.appendChild(option({value: opt}, opt))
     }
-    return this.focus();
+    this.focus()
   }
 }
 
 export class SelectEditor extends CellEditor {
+  options: string[]
+
   static initClass(): void {
-    this.prototype.type = 'SelectEditor';
-    this.prototype.default_view = SelectEditorView;
+    this.prototype.type = 'SelectEditor'
+    this.prototype.default_view = SelectEditorView
     this.define({
       options: [ p.Array, [] ],
-    });
+    })
   }
 }
-SelectEditor.initClass();
+SelectEditor.initClass()
 
 export class PercentEditorView extends CellEditorView {
   model: PercentEditor
+
+  inputEl: HTMLInputElement
 
   protected _createInput() {
     return input({type: "text"})
@@ -199,137 +225,145 @@ export class PercentEditorView extends CellEditorView {
 
 export class PercentEditor extends CellEditor {
   static initClass(): void {
-    this.prototype.type = 'PercentEditor';
-    this.prototype.default_view = PercentEditorView;
+    this.prototype.type = 'PercentEditor'
+    this.prototype.default_view = PercentEditorView
   }
 }
-PercentEditor.initClass();
+PercentEditor.initClass()
 
 export class CheckboxEditorView extends CellEditorView {
   model: CheckboxEditor
+
+  inputEl: HTMLInputElement
 
   protected _createInput() {
     return input({type: "checkbox", value: "true"})
   }
 
-  renderEditor() { return this.focus(); }
-
-  loadValue(item) {
-    this.defaultValue = !!item[this.args.column.field];
-    return this.inputEl.checked = this.defaultValue;
+  renderEditor(): void {
+    this.focus()
   }
 
-  serializeValue() {
-    return this.inputEl.checked;
+  loadValue(item: Item): void {
+    this.defaultValue = !!item[this.args.column.field]
+    this.inputEl.checked = this.defaultValue
+  }
+
+  serializeValue(): any {
+    return this.inputEl.checked
   }
 }
 
 export class CheckboxEditor extends CellEditor {
   static initClass(): void {
-    this.prototype.type = 'CheckboxEditor';
-    this.prototype.default_view = CheckboxEditorView;
+    this.prototype.type = 'CheckboxEditor'
+    this.prototype.default_view = CheckboxEditorView
   }
 }
-CheckboxEditor.initClass();
+CheckboxEditor.initClass()
 
 export class IntEditorView extends CellEditorView {
   model: IntEditor
+
+  inputEl: HTMLInputElement
 
   protected _createInput() {
     return input({type: "text"})
   }
 
-  renderEditor() {
+  renderEditor(): void {
     //$(@inputEl).spinner({step: @model.step})
-    this.inputEl.focus();
-    return this.inputEl.select();
+    this.inputEl.focus()
+    this.inputEl.select()
   }
 
-  remove() {
+  remove(): void {
     //$(@inputEl).spinner("destroy")
-    return super.remove();
+    super.remove()
   }
 
   serializeValue() {
-    return parseInt(this.getValue(), 10) || 0;
+    return parseInt(this.getValue(), 10) || 0
   }
 
-  loadValue(item) {
-    super.loadValue(item);
-    this.inputEl.defaultValue = this.defaultValue;
-    return this.inputEl.select();
+  loadValue(item: Item): void {
+    super.loadValue(item)
+    this.inputEl.defaultValue = this.defaultValue
+    this.inputEl.select()
   }
 
-  validateValue(value) {
-    if (isNaN(value)) {
-      return { valid: false, msg: "Please enter a valid integer" };
-    } else {
-      return super.validateValue(value);
-    }
+  validateValue(value: any): any {
+    if (isNaN(value))
+      return { valid: false, msg: "Please enter a valid integer" }
+    else
+      return super.validateValue(value)
   }
 }
 
 export class IntEditor extends CellEditor {
   static initClass(): void {
-    this.prototype.type = 'IntEditor';
-    this.prototype.default_view = IntEditorView;
+    this.prototype.type = 'IntEditor'
+    this.prototype.default_view = IntEditorView
     this.define({
       step: [ p.Number, 1 ],
-    });
+    })
   }
 }
-IntEditor.initClass();
+IntEditor.initClass()
 
 export class NumberEditorView extends CellEditorView {
   model: NumberEditor
+
+  inputEl: HTMLInputElement
 
   protected _createInput() {
     return input({type: "text"})
   }
 
-  renderEditor() {
+  renderEditor(): void {
     //$(@inputEl).spinner({step: @model.step})
-    this.inputEl.focus();
-    return this.inputEl.select();
+    this.inputEl.focus()
+    this.inputEl.select()
   }
 
-  remove() {
+  remove(): void {
     //$(@inputEl).spinner("destroy")
-    return super.remove();
+    super.remove()
   }
 
-  serializeValue() {
-    return parseFloat(this.getValue()) || 0.0;
+  serializeValue(): any {
+    return parseFloat(this.getValue()) || 0.0
   }
 
-  loadValue(item) {
-    super.loadValue(item);
-    this.inputEl.defaultValue = this.defaultValue;
-    return this.inputEl.select();
+  loadValue(item: Item): void {
+    super.loadValue(item)
+    this.inputEl.defaultValue = this.defaultValue
+    this.inputEl.select()
   }
 
-  validateValue(value) {
-    if (isNaN(value)) {
-      return { valid: false, msg: "Please enter a valid number" };
-    } else {
-      return super.validateValue(value);
-    }
+  validateValue(value: any): any {
+    if (isNaN(value))
+      return { valid: false, msg: "Please enter a valid number" }
+    else
+      return super.validateValue(value)
   }
 }
 
 export class NumberEditor extends CellEditor {
   static initClass(): void {
-    this.prototype.type = 'NumberEditor';
-    this.prototype.default_view = NumberEditorView;
+    this.prototype.type = 'NumberEditor'
+    this.prototype.default_view = NumberEditorView
     this.define({
       step: [ p.Number, 0.01 ],
-    });
+    })
   }
 }
-NumberEditor.initClass();
+NumberEditor.initClass()
 
 export class TimeEditorView extends CellEditorView {
   model: TimeEditor
+
+  inputEl: HTMLInputElement
 
   protected _createInput() {
     return input({type: "text"})
@@ -338,14 +372,16 @@ export class TimeEditorView extends CellEditorView {
 
 export class TimeEditor extends CellEditor {
   static initClass(): void {
-    this.prototype.type = 'TimeEditor';
-    this.prototype.default_view = TimeEditorView;
+    this.prototype.type = 'TimeEditor'
+    this.prototype.default_view = TimeEditorView
   }
 }
-TimeEditor.initClass();
+TimeEditor.initClass()
 
 export class DateEditorView extends CellEditorView {
   model: DateEditor
+
+  inputEl: HTMLInputElement
 
   protected _createInput() {
     return input({type: "text"})
@@ -355,8 +391,8 @@ export class DateEditorView extends CellEditorView {
     return new Date()
   }
 
-  renderEditor() {
-    //this.calendarOpen = false;
+  renderEditor(): void {
+    //this.calendarOpen = false
 
     //@$datepicker = $(@inputEl).datepicker({
     //  showOn: "button"
@@ -366,46 +402,46 @@ export class DateEditorView extends CellEditorView {
     //})
     //@$datepicker.siblings(".ui-datepicker-trigger").css("vertical-align": "middle")
     //@$datepicker.width(@$datepicker.width() - (14 + 2*4 + 4)) # img width + margins + edge distance
-    this.inputEl.focus();
-    return this.inputEl.select();
+    this.inputEl.focus()
+    this.inputEl.select()
   }
 
-  destroy() {
+  destroy(): void {
     //$.datepicker.dpDiv.stop(true, true)
     //@$datepicker.datepicker("hide")
     //@$datepicker.datepicker("destroy")
-    return super.destroy();
+    super.destroy()
   }
 
-  show() {
+  show(): void {
     //if @calendarOpen
     //  $.datepicker.dpDiv.stop(true, true).show()
-    return super.show();
+    super.show()
   }
 
-  hide() {
+  hide(): void {
     //if @calendarOpen
     //  $.datepicker.dpDiv.stop(true, true).hide()
-    return super.hide();
+    super.hide()
   }
 
-  position(/*_position*/) {
+  position(/*_position*/): any {
     //if @calendarOpen
     //  $.datepicker.dpDiv.css(top: position.top + 30, left: position.left)
-    return super.position();
+    return super.position()
   }
 
-  getValue() {}
+  getValue(): any {}
     //return @$datepicker.datepicker("getDate").getTime()
 
-  setValue(_val) {}
+  setValue(_val: any): void {}
 }
     //@$datepicker.datepicker("setDate", new Date(val))
 
 export class DateEditor extends CellEditor {
   static initClass(): void {
-    this.prototype.type = 'DateEditor';
-    this.prototype.default_view = DateEditorView;
+    this.prototype.type = 'DateEditor'
+    this.prototype.default_view = DateEditorView
   }
 }
-DateEditor.initClass();
+DateEditor.initClass()

@@ -1,4 +1,3 @@
-/* XXX: partial */
 import {Widget, WidgetView} from "./widget"
 import {LayoutDOM} from "../layouts/layout_dom"
 import * as p from "core/properties"

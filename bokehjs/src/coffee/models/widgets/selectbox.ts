@@ -1,4 +1,3 @@
-/* XXX: partial */
 import {empty, label, select, option, optgroup} from "core/dom"
 import {isString, isArray} from "core/util/types"
 import {logger} from "core/logging"
@@ -21,7 +20,7 @@ export class SelectView extends InputWidgetView {
     this.connect(this.model.change, () => this.render())
   }
 
-  build_options(values): HTMLElement[] {
+  build_options(values: (string | [string, string])[]): HTMLElement[] {
     return values.map((el) => {
       let value, _label
       if (isString(el))
@@ -74,7 +73,7 @@ export class SelectView extends InputWidgetView {
 export namespace Select {
   export interface Attrs extends InputWidget.Attrs {
     value: string
-    options: string[] | {[key: string]: string | [string, string]}
+    options: (string | [string, string])[] | {[key: string]: (string | [string, string])[]}
   }
 
   export interface Props extends InputWidget.Props {}

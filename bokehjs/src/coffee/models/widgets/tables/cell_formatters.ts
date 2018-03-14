@@ -1,14 +1,13 @@
-/* XXX: partial */
-import * as Numbro from "numbro";
-import * as compile_template from "underscore.template";
+import * as Numbro from "numbro"
+import compile_template = require("underscore.template")
 import tz = require("timezone")
 
-import * as p from "core/properties";
-import {span, i} from "core/dom";
+import * as p from "core/properties"
+import {span, i} from "core/dom"
 import {Color} from "core/types"
 import {FontStyle, TextAlign, RoundingFunction} from "core/enums"
-import {extend} from "core/util/object";
-import {isString} from "core/util/types";
+import {extend} from "core/util/object"
+import {isString} from "core/util/types"
 import {Model} from "../../../model"
 
 export namespace CellFormatter {
@@ -23,12 +22,11 @@ export abstract class CellFormatter extends Model {
 
   properties: CellFormatter.Props
 
-  doFormat(_row, _cell, value, _columnDef, _dataContext): string {
-    if ((value == null)) {
-      return "";
-    } else {
-      return (value + "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    }
+  doFormat(_row: any, _cell: any, value: any, _columnDef: any, _dataContext: any): string {
+    if (value == null)
+      return ""
+    else
+      return (value + "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
   }
 }
 
@@ -49,42 +47,37 @@ export class StringFormatter extends CellFormatter {
   properties: StringFormatter.Props
 
   static initClass(): void {
-    this.prototype.type = 'StringFormatter';
+    this.prototype.type = 'StringFormatter'
 
     this.define({
       font_style: [ p.FontStyle, "normal" ],
       text_align: [ p.TextAlign, "left"   ],
       text_color: [ p.Color ],
-    });
+    })
   }
 
-  doFormat(_row, _cell, value, _columnDef, _dataContext): string {
-    const { font_style } = this;
-    const { text_align } = this;
-    const { text_color } = this;
+  doFormat(_row: any, _cell: any, value: any, _columnDef: any, _dataContext: any): string {
+    const {font_style, text_align, text_color} = this
 
-    let text = span({}, (value == null) ? "" : `${value}`);
+    let text = span({}, value == null ? "" : `${value}`)
     switch (font_style) {
       case "bold":
-        text.style.fontWeight = "bold";
-        break;
+        text.style.fontWeight = "bold"
+        break
       case "italic":
-        text.style.fontStyle = "italic";
-        break;
+        text.style.fontStyle = "italic"
+        break
     }
 
-    if (text_align != null) {
-      text.style.textAlign = text_align;
-    }
-    if (text_color != null) {
-      text.style.color = text_color;
-    }
+    if (text_align != null)
+      text.style.textAlign = text_align
+    if (text_color != null)
+      text.style.color = text_color
 
-    text = text.outerHTML;
-    return text;
+    return text.outerHTML
   }
 }
-StringFormatter.initClass();
+StringFormatter.initClass()
 
 export namespace NumberFormatter {
   export interface Attrs extends StringFormatter.Attrs {
@@ -103,28 +96,27 @@ export class NumberFormatter extends StringFormatter {
   properties: NumberFormatter.Props
 
   static initClass(): void {
-    this.prototype.type = 'NumberFormatter';
+    this.prototype.type = 'NumberFormatter'
 
     this.define({
       format:     [ p.String, '0,0'       ], // TODO (bev)
       language:   [ p.String, 'en'        ], // TODO (bev)
       rounding:   [ p.String, 'round'     ], // TODO (bev)
-    });
+    })
   }
 
-  doFormat(row, cell, value, columnDef, dataContext): string {
-    const { format } = this;
-    const { language } = this;
+  doFormat(row: any, cell: any, value: any, columnDef: any, dataContext: any): string {
+    const {format, language} = this
     const rounding = (() => { switch (this.rounding) {
-      case "round": case "nearest":   return Math.round;
-      case "floor": case "rounddown": return Math.floor;
-      case "ceil":  case "roundup":   return Math.ceil;
-    } })();
-    value = Numbro.format(value, format, language, rounding);
-    return super.doFormat(row, cell, value, columnDef, dataContext);
+      case "round": case "nearest":   return Math.round
+      case "floor": case "rounddown": return Math.floor
+      case "ceil":  case "roundup":   return Math.ceil
+    } })()
+    value = Numbro.format(value, format, language, rounding)
+    return super.doFormat(row, cell, value, columnDef, dataContext)
   }
 }
-NumberFormatter.initClass();
+NumberFormatter.initClass()
 
 export namespace BooleanFormatter {
   export interface Attrs extends CellFormatter.Attrs {
@@ -141,18 +133,18 @@ export class BooleanFormatter extends CellFormatter {
   properties: BooleanFormatter.Props
 
   static initClass(): void {
-    this.prototype.type = 'BooleanFormatter';
+    this.prototype.type = 'BooleanFormatter'
 
     this.define({
       icon: [ p.String, 'check' ],
-    });
+    })
   }
 
-  doFormat(_row, _cell, value, _columnDef, _dataContext): string {
-    if (!!value) { return i({class: this.icon}).outerHTML; } else { return ""; }
+  doFormat(_row: any, _cell: any, value: any, _columnDef: any, _dataContext: any): string {
+    return !!value ? i({class: this.icon}).outerHTML : ""
   }
 }
-BooleanFormatter.initClass();
+BooleanFormatter.initClass()
 
 export namespace DateFormatter {
   export interface Attrs extends CellFormatter.Attrs {
@@ -169,35 +161,47 @@ export class DateFormatter extends CellFormatter {
   properties: DateFormatter.Props
 
   static initClass(): void {
-    this.prototype.type = 'DateFormatter';
+    this.prototype.type = 'DateFormatter'
 
     this.define({
       format: [ p.String, 'ISO-8601' ],
-    });
+    })
   }
 
-  getFormat() {
+   getFormat(): string | undefined {
     // using definitions provided here: https://api.jqueryui.com/datepicker/
     // except not implementing TICKS
-    const fmt = (() => { switch (this.format) {
-      case "ATOM": case "W3C": case "RFC-3339": case "ISO-8601": return "%Y-%m-%d";
-      case "COOKIE":                              return "%a, %d %b %Y";
-      case "RFC-850":                             return "%A, %d-%b-%y";
-      case "RFC-1123": case "RFC-2822":                return "%a, %e %b %Y";
-      case "RSS": case "RFC-822": case "RFC-1036":          return "%a, %e %b %y";
-      case "TIMESTAMP":                           return null;
-      default:                                       return "__CUSTOM__";
-    } })();
-    if (fmt === "__CUSTOM__") { return this.format; } else { return fmt; }
+    switch (this.format) {
+      case "ATOM":
+      case "W3C":
+      case "RFC-3339":
+      case "ISO-8601":
+        return "%Y-%m-%d"
+      case "COOKIE":
+        return "%a, %d %b %Y"
+      case "RFC-850":
+        return "%A, %d-%b-%y"
+      case "RFC-1123":
+      case "RFC-2822":
+        return "%a, %e %b %Y"
+      case "RSS":
+      case "RFC-822":
+      case "RFC-1036":
+        return "%a, %e %b %y"
+      case "TIMESTAMP":
+        return undefined
+      default:
+        return this.format
+    }
   }
 
-  doFormat(row, cell, value, columnDef, dataContext): string {
-    value = isString(value) ? parseInt(value, 10) : value;
-    const date = tz(value, this.getFormat());
-    return super.doFormat(row, cell, date, columnDef, dataContext);
+  doFormat(row: any, cell: any, value: any, columnDef: any, dataContext: any): string {
+    value = isString(value) ? parseInt(value, 10) : value
+    const date = tz(value, this.getFormat())
+    return super.doFormat(row, cell, date, columnDef, dataContext)
   }
 }
-DateFormatter.initClass();
+DateFormatter.initClass()
 
 export namespace HTMLTemplateFormatter {
   export interface Attrs extends CellFormatter.Attrs {
@@ -214,22 +218,22 @@ export class HTMLTemplateFormatter extends CellFormatter {
   properties: HTMLTemplateFormatter.Props
 
   static initClass(): void {
-    this.prototype.type = 'HTMLTemplateFormatter';
+    this.prototype.type = 'HTMLTemplateFormatter'
 
     this.define({
       template: [ p.String, '<%= value %>' ],
-    });
+    })
   }
 
-  doFormat(_row, _cell, value, _columnDef, dataContext): string {
-    const { template } = this;
-    if (value === null) {
-      return "";
-    } else {
-      dataContext = extend({}, dataContext, {value});
-      const compiled_template = compile_template(template);
-      return compiled_template(dataContext);
+  doFormat(_row: any, _cell: any, value: any, _columnDef: any, dataContext: any): string {
+    const {template} = this
+    if (value == null)
+      return ""
+    else {
+      const compiled_template = compile_template(template)
+      const context = extend({}, dataContext, {value})
+      return compiled_template(context)
     }
   }
 }
-HTMLTemplateFormatter.initClass();
+HTMLTemplateFormatter.initClass()

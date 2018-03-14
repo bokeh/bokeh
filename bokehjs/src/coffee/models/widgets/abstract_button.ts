@@ -53,7 +53,7 @@ export abstract class AbstractButtonView extends WidgetView {
     }
   }
 
-  _button_click(event: Event): void {
+  protected _button_click(event: Event): void {
     event.preventDefault()
     this.change_input()
   }

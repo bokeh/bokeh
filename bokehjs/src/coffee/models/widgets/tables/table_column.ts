@@ -1,11 +1,27 @@
-/* XXX: partial */
-import {CellFormatter, StringFormatter} from "./cell_formatters";
-import {CellEditor, StringEditor} from "./cell_editors";
+import {CellFormatter, StringFormatter} from "./cell_formatters"
+import {CellEditor, StringEditor} from "./cell_editors"
 import {Class} from "core/class"
-import * as p from "core/properties";
-import {uniqueId} from "core/util/string";
+import * as p from "core/properties"
+import {uniqueId} from "core/util/string"
 import {View} from "core/view"
 import {Model} from "../../../model"
+
+export type Column = {
+  id: string
+  field: string
+  name: string
+  width?: number
+  formatter?: (...args: any[]) => HTMLElement
+  model?: CellEditor
+  editor?: Class<View>
+  sortable?: boolean
+  resizable?: boolean
+  selectable?: boolean
+  defaultSortAsc?: boolean
+  behavior?: "select" | "selectAndMove"
+  cannotTriggerInsert?: boolean
+  cssClass?: string
+}
 
 export namespace TableColumn {
   export interface Attrs extends Model.Attrs {
@@ -32,8 +48,7 @@ export class TableColumn extends Model {
   }
 
   static initClass(): void {
-    this.prototype.type = 'TableColumn';
-    this.prototype.default_view = null;
+    this.prototype.type = 'TableColumn'
 
     this.define({
       field:        [ p.String                                ],
@@ -43,31 +58,21 @@ export class TableColumn extends Model {
       editor:       [ p.Instance, () => new StringEditor()    ],
       sortable:     [ p.Bool,     true                        ],
       default_sort: [ p.String,   "ascending"                 ],
-    });
+    })
   }
 
-  toColumn(): {
-    id: string,
-    field: string,
-    name: string,
-    width: number,
-    formatter: (...args: any[]) => HTMLElement,
-    model: Class<CellEditor>,
-    editor: Class<View>,
-    sortable: boolean,
-    defaultSortAsc: boolean,
-  } {
+  toColumn(): Column {
     return {
       id: uniqueId(),
       field: this.field,
       name: this.title,
       width: this.width,
-      formatter: (this.formatter != null ? this.formatter.doFormat.bind(this.formatter) : undefined),
+      formatter: this.formatter != null ? this.formatter.doFormat.bind(this.formatter) : undefined,
       model: this.editor,
       editor: this.editor.default_view,
       sortable: this.sortable,
-      defaultSortAsc: this.default_sort === "ascending",
-    };
+      defaultSortAsc: this.default_sort == "ascending",
+    }
   }
 }
-TableColumn.initClass();
+TableColumn.initClass()

@@ -1,4 +1,3 @@
-/* XXX: partial */
 import * as p from "core/properties"
 import {register_with_event, ButtonClick} from "core/bokeh_events"
 

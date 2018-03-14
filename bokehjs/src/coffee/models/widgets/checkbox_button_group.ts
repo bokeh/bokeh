@@ -1,4 +1,3 @@
-/* XXX: partial */
 import {empty, input, label, div} from "core/dom"
 import * as p from "core/properties"
 import {includes} from "core/util/array"
