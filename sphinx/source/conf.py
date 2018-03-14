@@ -192,6 +192,7 @@ html_context = {
         ('Installation', 'installation'),
         ('User Guide', 'user_guide'),
         ('Gallery', 'gallery'),
+        ('Tutorial', 'https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb'),
         ('Reference', 'reference'),
         ('Releases', 'releases/%s' % version),
         ('Developer Guide', 'dev_guide'),

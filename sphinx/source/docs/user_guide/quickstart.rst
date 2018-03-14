@@ -562,7 +562,7 @@ information about how to create a new language binding, see the
 To see ready-made examples of how you might use Bokeh with your own data,
 check out the :ref:`gallery`. To see detailed examples and walkthroughs as
 well as find exercises for learning Bokeh by doing, work through the
-:ref:`userguide_tutorials`.
+`live Tutorial notebooks`_.
 
 For questions and technical assistance, come join the `Bokeh mailing list`_.
 

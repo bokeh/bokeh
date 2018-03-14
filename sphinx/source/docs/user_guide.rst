@@ -83,9 +83,6 @@ topic:
 :ref:`userguide_bokehjs`
     Create plots in JavaScript by using BokehJS directly.
 
-:ref:`userguide_tutorials`
-    Read tutorials on specific topics for using Bokeh.
-
 :ref:`userguide_info`
     See where to go next for more information and examples.
 

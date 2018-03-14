@@ -51,7 +51,6 @@ the :ref:`devguide`.
     docs/user_guide/compat
     docs/user_guide/webgl
     docs/user_guide/bokehjs
-    docs/user_guide/tutorials
     docs/user_guide/info
     docs/reference
     docs/reference/*
