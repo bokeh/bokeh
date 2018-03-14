@@ -37,4 +37,10 @@ NO_DATA_RENDERERS
 This validation warning resulted in false or irrelevant warnings in many
 reasonable configurations, and has been removed.
 
+Sphinx Version
+--------------
+
+The `bokeh.sphinxext` Sphinx extension has been updated to work with currnt
+versions. Sphinx >= 1.6 is now required to use the extension.
+
 .. _project roadmap: https://bokehplots.com/pages/roadmap.html

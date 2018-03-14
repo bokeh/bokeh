@@ -7,7 +7,7 @@ import json
 from os.path import abspath, dirname, join
 
 from sphinx.errors import SphinxError
-from sphinx.util import console, copyfile, ensuredir
+from sphinx.util import copyfile, ensuredir, status_iterator
 
 from .bokeh_directive import BokehDirective
 from .templates import GALLERY_PAGE
@@ -21,6 +21,9 @@ class BokehGalleryDirective(BokehDirective):
         env = self.state.document.settings.env
         app = env.app
 
+        # workaround (used below) for https://github.com/sphinx-doc/sphinx/issues/3924
+        current_docname = env.docname
+
         docdir = dirname(env.doc2path(env.docname))
 
         dest_dir = join(docdir, "gallery")
@@ -31,11 +34,11 @@ class BokehGalleryDirective(BokehDirective):
         spec = json.load(open(specpath))
         details = spec['details']
 
-        details_iter = app.status_iterator(details,
-                                           'copying gallery files... ',
-                                           console.brown,
-                                           len(details),
-                                           lambda x: x['name'] + ".py")
+        details_iter = status_iterator(details,
+                                       'copying gallery files... ',
+                                       'brown',
+                                       len(details),
+                                       stringify_func=lambda x: x['name'] + ".py")
 
         env.gallery_updated = []
         for detail in details_iter:
@@ -59,6 +62,9 @@ class BokehGalleryDirective(BokehDirective):
 
         names = [detail['name']for detail in details]
         rst_text = GALLERY_PAGE.render(names=names)
+
+        # workaround for https://github.com/sphinx-doc/sphinx/issues/3924
+        env.temp_data['docname'] = current_docname
 
         return self._parse(rst_text, "<bokeh-gallery>")
 
