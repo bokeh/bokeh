@@ -50,7 +50,7 @@ export class IonRangeSliderView extends InputWidgetView
     @render()
 
   render: () ->
-    # Backbone Views create <div> elements by default, accessible as @$el.
+    # BokehJS Views create <div> elements by default, accessible as @$el.
     # Many Bokeh views ignore this default <div>, and instead do things
     # like draw to the HTML canvas. In this case though, we change the
     # contents of the <div>, based on the current slider value.
