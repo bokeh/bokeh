@@ -108,9 +108,9 @@ def warning(code_or_name):
 
     .. code-block:: python
 
-        from bokeh.validation.warnings import NO_DATA_RENDERERS
+        from bokeh.validation.warnings import MISSING_RENDERERS
 
-        @warning(NO_DATA_RENDERERS)
+        @warning(MISSING_RENDERERS)
         def _check_no_glyph_renderers(self):
             if bad_condition: return "message"
 

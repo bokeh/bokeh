@@ -31,4 +31,10 @@ Minor ticks are no longer displayed outside explicitly set axis bounds.
 Previously minor ticks would display one extra "major tick" distance outside
 explicit range bounds.
 
+NO_DATA_RENDERERS
+-----------------
+
+This validation warning resulted in false or irrelevant warnings in many
+reasonable configurations, and has been removed.
+
 .. _project roadmap: https://bokehplots.com/pages/roadmap.html
