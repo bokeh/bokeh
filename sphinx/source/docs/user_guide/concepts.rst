@@ -238,7 +238,7 @@ cases of using the |bokeh.plotting| interface.
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 .. |bokeh.io|       replace:: :ref:`bokeh.io <bokeh.io>`
 
-.. |other languages| replace:: :ref:`other languages <quickstart_other_languages>`
+.. |other languages| replace:: :ref:`other languages <userguide_quickstart_other_languages>`
 
 .. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
 .. |Rect| replace:: :class:`~bokeh.models.glyphs.Rect`
