@@ -1,5 +1,5 @@
-/* XXX: partial */
 import {TickFormatter} from "./tick_formatter"
+import {Axis} from "../axes/axis"
 
 export namespace CategoricalTickFormatter {
   export interface Attrs extends TickFormatter.Attrs {}
@@ -18,11 +18,11 @@ export class CategoricalTickFormatter extends TickFormatter {
   }
 
   static initClass(): void {
-    this.prototype.type = 'CategoricalTickFormatter';
+    this.prototype.type = 'CategoricalTickFormatter'
   }
 
-  doFormat(ticks, _axis) {
-    return ticks;
+  doFormat(ticks: string[], _axis: Axis): string[] {
+    return ticks
   }
 }
-CategoricalTickFormatter.initClass();
+CategoricalTickFormatter.initClass()

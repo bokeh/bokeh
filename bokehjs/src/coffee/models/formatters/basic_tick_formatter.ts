@@ -1,6 +1,6 @@
-/* XXX: partial */
-import {TickFormatter} from "./tick_formatter";
-import * as p from "core/properties";
+import {TickFormatter} from "./tick_formatter"
+import {Axis} from "../axes/axis"
+import * as p from "core/properties"
 import {isNumber} from "core/util/types"
 
 export namespace BasicTickFormatter {
@@ -25,108 +25,98 @@ export class BasicTickFormatter extends TickFormatter {
   }
 
   static initClass(): void {
-    this.prototype.type = 'BasicTickFormatter';
+    this.prototype.type = 'BasicTickFormatter'
 
     this.define({
       precision:        [ p.Any,    'auto' ], // TODO (bev) better
       use_scientific:   [ p.Bool,   true   ],
       power_limit_high: [ p.Number, 5      ],
       power_limit_low:  [ p.Number, -3     ],
-    });
+    })
   }
 
-  get scientific_limit_low() {
+  protected last_precision: number = 3
+
+  get scientific_limit_low(): number {
     return Math.pow(10.0, this.power_limit_low)
   }
 
-  get scientific_limit_high() {
+  get scientific_limit_high(): number {
     return Math.pow(10.0, this.power_limit_high)
   }
 
-  initialize(): void {
-    super.initialize();
-    this.last_precision = 3;
-  }
+  doFormat(ticks: number[], _axis: Axis): string[] {
+    if (ticks.length == 0)
+      return []
 
-  doFormat(ticks, _axis) {
-    let labels;
-    if (ticks.length === 0) {
-      return [];
-    }
+    let zero_eps = 0
+    if (ticks.length >= 2)
+      zero_eps = Math.abs(ticks[1] - ticks[0]) / 10000
 
-    let zero_eps = 0;
-    if (ticks.length >= 2) {
-      zero_eps = Math.abs(ticks[1] - ticks[0]) / 10000;
-    }
-
-    let need_sci = false;
+    let need_sci = false
     if (this.use_scientific) {
       for (const tick of ticks) {
-        const tick_abs = Math.abs(tick);
-        if ((tick_abs > zero_eps) &&
-            ((tick_abs >= this.scientific_limit_high) ||
-            (tick_abs <= this.scientific_limit_low))) {
-          need_sci = true;
-          break;
+        const tick_abs = Math.abs(tick)
+        if (tick_abs > zero_eps && (tick_abs >= this.scientific_limit_high || tick_abs <= this.scientific_limit_low)) {
+          need_sci = true
+          break
         }
       }
     }
 
-    const { precision } = this;
+    const labels: string[] = new Array(ticks.length)
+    const {precision} = this
 
-    if ((precision == null) || isNumber(precision)) {
-      labels = new Array(ticks.length);
+    if (precision == null || isNumber(precision)) {
       if (need_sci) {
         for (let i = 0, end = ticks.length; i < end; i++) {
-          labels[i] = ticks[i].toExponential(precision || undefined);
+          labels[i] = ticks[i].toExponential(precision || undefined)
         }
       } else {
         for (let i = 0, end = ticks.length; i < end; i++) {
-          labels[i] = ticks[i].toFixed(precision || undefined).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "");
+          labels[i] = ticks[i].toFixed(precision || undefined).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
         }
       }
-      return labels;
-
-    } else if (precision === 'auto') {
-      labels = new Array(ticks.length);
+    } else {
       for (let x = this.last_precision, asc = this.last_precision <= 15; asc ? x <= 15 : x >= 15; asc ? x++ : x--) {
-        let is_ok = true;
+        let is_ok = true
+
         if (need_sci) {
           for (let i = 0, end = ticks.length; i < end; i++) {
-            labels[i] = ticks[i].toExponential(x);
+            labels[i] = ticks[i].toExponential(x)
             if (i > 0) {
               if (labels[i] === labels[i-1]) {
-                is_ok = false;
-                break;
+                is_ok = false
+                break
               }
             }
           }
           if (is_ok) {
-            break;
+            break
           }
         } else {
           for (let i = 0, end = ticks.length; i < end; i++) {
-            labels[i] = ticks[i].toFixed(x).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "");
+            labels[i] = ticks[i].toFixed(x).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
             if (i > 0) {
-              if (labels[i] === labels[i-1]) {
-                is_ok = false;
-                break;
+              if (labels[i] == labels[i-1]) {
+                is_ok = false
+                break
               }
             }
           }
           if (is_ok) {
-            break;
+            break
           }
         }
 
         if (is_ok) {
-          this.last_precision = x;
-          return labels;
+          this.last_precision = x
+          break
         }
       }
     }
 
-    return labels;
+    return labels
   }
 }
-BasicTickFormatter.initClass();
+BasicTickFormatter.initClass()

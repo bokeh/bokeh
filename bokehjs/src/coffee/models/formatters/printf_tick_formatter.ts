@@ -1,7 +1,7 @@
-/* XXX: partial */
-import {sprintf} from "sprintf-js";
+import {sprintf} from "sprintf-js"
 
-import {TickFormatter} from "./tick_formatter";
+import {TickFormatter} from "./tick_formatter"
+import {Axis} from "../axes/axis"
 import * as p from "core/properties"
 
 export namespace PrintfTickFormatter {
@@ -23,17 +23,15 @@ export class PrintfTickFormatter extends TickFormatter {
   }
 
   static initClass(): void {
-    this.prototype.type = 'PrintfTickFormatter';
+    this.prototype.type = 'PrintfTickFormatter'
 
     this.define({
       format: [ p.String, '%s' ],
-    });
+    })
   }
 
-  doFormat(ticks, _axis) {
-    const { format } = this;
-    const labels = (ticks.map((tick) => sprintf(format, tick)));
-    return labels;
+  doFormat(ticks: number[], _axis: Axis): string[] {
+    return ticks.map((tick) => sprintf(this.format, tick))
   }
 }
-PrintfTickFormatter.initClass();
+PrintfTickFormatter.initClass()

@@ -1,7 +1,7 @@
-/* XXX: partial */
-import * as Numbro from "numbro";
+import * as Numbro from "numbro"
 
-import {TickFormatter} from "./tick_formatter";
+import {TickFormatter} from "./tick_formatter"
+import {Axis} from "../axes/axis"
 import {RoundingFunction} from "core/enums"
 import * as p from "core/properties"
 
@@ -26,27 +26,33 @@ export class NumeralTickFormatter extends TickFormatter {
   }
 
   static initClass(): void {
-    this.prototype.type = 'NumeralTickFormatter';
+    this.prototype.type = 'NumeralTickFormatter'
 
     this.define({
       // TODO (bev) all of these could be tightened up
       format:   [ p.String, '0,0'   ],
       language: [ p.String, 'en'    ],
       rounding: [ p.String, 'round' ],
-    });
+    })
   }
 
-  doFormat(ticks, _axis) {
-    const { format } = this;
-    const { language } = this;
-    const rounding = (() => { switch (this.rounding) {
-      case "round": case "nearest":   return Math.round;
-      case "floor": case "rounddown": return Math.floor;
-      case "ceil":  case "roundup":   return Math.ceil;
-    } })();
+  private get _rounding_fn(): (v: number) => number {
+    switch (this.rounding) {
+      case "round":
+      case "nearest":
+        return Math.round
+      case "floor":
+      case "rounddown":
+        return Math.floor
+      case "ceil":
+      case "roundup":
+        return Math.ceil
+    }
+  }
 
-    const labels = (ticks.map((tick) => Numbro.format(tick, format, language, rounding)));
-    return labels;
+  doFormat(ticks: number[], _axis: Axis): string[] {
+    const {format, language, _rounding_fn} = this
+    return ticks.map((tick) => Numbro.format(tick, format, language, _rounding_fn))
   }
 }
-NumeralTickFormatter.initClass();
+NumeralTickFormatter.initClass()

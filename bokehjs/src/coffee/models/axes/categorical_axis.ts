@@ -5,9 +5,10 @@ import {CategoricalTickFormatter} from "../formatters/categorical_tick_formatter
 import {FactorRange, Factor} from "../ranges/factor_range"
 
 import {Text, Line} from "core/visuals"
-import {Context2d} from "core/util/canvas"
 import {Color} from "core/types"
 import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap} from "core/enums"
+import {Context2d} from "core/util/canvas"
+import {Orient} from "core/layout/side_panel"
 
 export type CategoricalTickCoords = TickCoords & {
   mids: Coords
@@ -80,7 +81,7 @@ export class CategoricalAxisView extends AxisView {
     return extents
   }
 
-  protected _get_factor_info() {
+  protected _get_factor_info(): [string[], Coords, Orient | number, Text][] {
     const [range,] = (this.model.ranges as any) as [FactorRange, FactorRange]
     const [start, end] = this.model.computed_bounds
     const loc = this.model.loc
@@ -88,21 +89,21 @@ export class CategoricalAxisView extends AxisView {
     const ticks = this.model.ticker.get_ticks(start, end, range, loc, {})
     const coords = this.model.tick_coords
 
-    const info = []
+    const info: [string[], Coords, Orient | number, Text][] = []
 
     if (range.levels == 1) {
-      const labels = this.model.formatter.doFormat(ticks.major, this)
+      const labels = this.model.formatter.doFormat(ticks.major as string[], this.model)
       info.push([labels, coords.major, this.model.major_label_orientation, this.visuals.major_label_text])
     } else if (range.levels == 2) {
-      const labels = this.model.formatter.doFormat(ticks.major.map((x) => x[1]), this)
+      const labels = this.model.formatter.doFormat(ticks.major.map((x) => x[1]), this.model)
       info.push([labels, coords.major, this.model.major_label_orientation, this.visuals.major_label_text])
-      info.push([ticks.tops, coords.tops, 'parallel', this.visuals.group_text])
+      info.push([ticks.tops as string[], coords.tops, 'parallel', this.visuals.group_text])
     } else if (range.levels == 3) {
-      const labels = this.model.formatter.doFormat(ticks.major.map((x) => x[2]), this)
+      const labels = this.model.formatter.doFormat(ticks.major.map((x) => x[2]), this.model)
       const mid_labels = ticks.mids.map((x) => x[1])
       info.push([labels, coords.major, this.model.major_label_orientation, this.visuals.major_label_text])
-      info.push([mid_labels, coords.mids, 'parallel', this.visuals.subgroup_text])
-      info.push([ticks.tops, coords.tops, 'parallel', this.visuals.group_text])
+      info.push([mid_labels as string[], coords.mids, 'parallel', this.visuals.subgroup_text])
+      info.push([ticks.tops as string[], coords.tops, 'parallel', this.visuals.group_text])
     }
 
     return info
