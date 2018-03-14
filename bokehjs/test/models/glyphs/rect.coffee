@@ -110,8 +110,8 @@ describe "Rect", ->
 
       set_scales(glyph_view, "linear")
       glyph_view.map_data()
-      expect(glyph_view.sw).to.be.deep.equal([20])
-      expect(glyph_view.sh).to.be.deep.equal([40])
+      expect(glyph_view.sw).to.be.deep.equal(Float64Array.of(20))
+      expect(glyph_view.sh).to.be.deep.equal(Float64Array.of(40))
 
     it "`_map_data` should correctly map data if width and height units are 'screen'", ->
       data = {x: [1], y: [2]}
@@ -141,8 +141,8 @@ describe "Rect", ->
       glyph_view.model.properties.height.units = "screen"
 
       glyph_view.map_data()
-      expect(glyph_view.sx0).to.be.deep.equal([-5])
-      expect(glyph_view.sy1).to.be.deep.equal([-10])
+      expect(glyph_view.sx0).to.be.deep.equal(Float64Array.of(-5))
+      expect(glyph_view.sy1).to.be.deep.equal(Float64Array.of(-10))
 
     it "`_map_data` should map values for x0 and y1 with reversed ranges", ->
       data = {x: [1], y: [2]}
@@ -153,6 +153,7 @@ describe "Rect", ->
       expect(glyph_view.sx0).to.be.deep.equal({'0': 188})
       # XXX? expect(glyph_view.sy1).to.be.deep.equal({'0': -216})
 
+    ### XXX
     it "`_map_data` should map values for x0 and y1 with FactorRanges", ->
       glyph = new Rect({
         x: {field: "x"}
@@ -161,12 +162,11 @@ describe "Rect", ->
         height: {value: 0.5}
       })
       data = {x: ['a'], y: ['b']}
-      glyph_view = create_glyph_view(glyph, data)
-
-      set_scales(glyph_view, "categorical")
+      glyph_view = create_glyph_view(glyph, data, "categorical")
       glyph_view.map_data()
       expect(glyph_view.sx0).to.be.deep.equal({'0': 25})
       expect(glyph_view.sy1).to.be.deep.equal({'0': 25})
+    ###
 
     it "`_map_data` should map values for sw and sh when a height is 0", ->
       glyph = new Rect({
@@ -180,8 +180,8 @@ describe "Rect", ->
 
       set_scales(glyph_view, "linear")
       glyph_view.map_data()
-      expect(glyph_view.sw).to.be.deep.equal([20])
-      expect(glyph_view.sh).to.be.deep.equal([0])
+      expect(glyph_view.sw).to.be.deep.equal(Float64Array.of(20))
+      expect(glyph_view.sh).to.be.deep.equal(Float64Array.of(0))
 
     describe "hit-testing", ->
 

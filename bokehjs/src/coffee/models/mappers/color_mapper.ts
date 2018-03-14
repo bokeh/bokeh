@@ -9,11 +9,15 @@ export namespace ColorMapper {
     palette: (number | string)[]
     nan_color: Color
   }
+
+  export interface Props extends Transform.Props {}
 }
 
 export interface ColorMapper extends ColorMapper.Attrs {}
 
 export abstract class ColorMapper extends Transform {
+
+  properties: ColorMapper.Props
 
   constructor(attrs?: Partial<ColorMapper.Attrs>) {
     super(attrs)

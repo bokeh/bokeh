@@ -117,11 +117,25 @@ export namespace FactorRange {
     tops: string[] | undefined
     tops_groups: string[]
   }
+
+  export interface Props extends Range.Props {
+    factors: p.Property<Factor[]>
+    factor_padding: p.Property<number>
+    subgroup_padding: p.Property<number>
+    group_padding: p.Property<number>
+    range_padding: p.Property<number>
+    range_padding_units: p.Property<PaddingUnits>
+    start: p.Property<number>
+    end: p.Property<number>
+    bounds: p.Property<[number, number] | "auto">
+  }
 }
 
 export interface FactorRange extends FactorRange.Attrs {}
 
 export class FactorRange extends Range {
+
+  properties: FactorRange.Props
 
   constructor(attrs?: Partial<FactorRange.Attrs>) {
     super(attrs)

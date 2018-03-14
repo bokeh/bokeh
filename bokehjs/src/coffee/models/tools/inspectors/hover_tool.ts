@@ -426,11 +426,19 @@ export namespace HoverTool {
     attachment: TooltipAttachment
     callback: any // XXX
   }
+
+  export interface Props extends InspectTool.Props {
+    tooltips: p.Property<string | [string, string][] | ((source: ColumnarDataSource, vars: any) => HTMLElement)>
+    renderers: p.Property<DataRenderer[]>
+    names: p.Property<string[]>
+  }
 }
 
 export interface HoverTool extends HoverTool.Attrs {}
 
 export class HoverTool extends InspectTool {
+
+  properties: HoverTool.Props
 
   constructor(attrs?: Partial<HoverTool.Attrs>) {
     super(attrs)

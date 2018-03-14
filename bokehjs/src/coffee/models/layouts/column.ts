@@ -10,11 +10,15 @@ export class ColumnView extends BoxView {
 
 export namespace Column {
   export interface Attrs extends Box.Attrs {}
+
+  export interface Props extends Box.Props {}
 }
 
 export interface Column extends Column.Attrs {}
 
 export class Column extends Box {
+
+  properties: Column.Props
 
   constructor(attrs?: Partial<Column.Attrs>) {
     super(attrs)

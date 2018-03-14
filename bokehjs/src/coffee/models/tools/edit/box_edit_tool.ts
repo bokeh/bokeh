@@ -110,11 +110,15 @@ export namespace BoxEditTool {
     dimensions: Dimensions
     renderers: (GlyphRenderer & HasRectCDS)[]
   }
+
+  export interface Props extends EditTool.Props {}
 }
 
 export interface BoxEditTool extends BoxEditTool.Attrs {}
 
 export class BoxEditTool extends EditTool {
+
+  properties: BoxEditTool.Props
 
   renderers: (GlyphRenderer & HasRectCDS)[]
 

@@ -134,11 +134,27 @@ export namespace BoxAnnotation {
     right: number | null
     right_units: SpatialUnits
   }
+
+  export interface Props extends Annotation.Props {
+    render_mode: p.Property<RenderMode>
+    x_range_name: p.Property<string>
+    y_range_name: p.Property<string>
+    top: p.Property<number | null>
+    top_units: p.Property<SpatialUnits>
+    bottom: p.Property<number | null>
+    bottom_units: p.Property<SpatialUnits>
+    left: p.Property<number | null>
+    left_units: p.Property<SpatialUnits>
+    right: p.Property<number | null>
+    right_units: p.Property<SpatialUnits>
+  }
 }
 
 export interface BoxAnnotation extends BoxAnnotation.Attrs {}
 
 export class BoxAnnotation extends Annotation {
+
+  properties: BoxAnnotation.Props
 
   constructor(attrs?: Partial<BoxAnnotation.Attrs>) {
     super(attrs)

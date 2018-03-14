@@ -94,11 +94,15 @@ export namespace MultiSelect {
     options: string[]
     size: number
   }
+
+  export interface Props extends InputWidget.Props {}
 }
 
 export interface MultiSelect extends MultiSelect.Attrs {}
 
 export class MultiSelect extends InputWidget {
+
+  properties: MultiSelect.Props
 
   constructor(attrs?: Partial<MultiSelect.Attrs>) {
     super(attrs)

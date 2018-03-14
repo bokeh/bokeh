@@ -13,11 +13,16 @@ import {Model} from "../../../model"
 
 export namespace CellFormatter {
   export interface Attrs extends Model.Attrs {}
+
+  export interface Props extends Model.Props {}
 }
 
 export interface CellFormatter extends CellFormatter.Attrs {}
 
 export abstract class CellFormatter extends Model {
+
+  properties: CellFormatter.Props
+
   doFormat(_row, _cell, value, _columnDef, _dataContext): string {
     if ((value == null)) {
       return "";
@@ -33,11 +38,16 @@ export namespace StringFormatter {
     text_align: TextAlign
     text_color: Color
   }
+
+  export interface Props extends CellFormatter.Props {}
 }
 
 export interface StringFormatter extends StringFormatter.Attrs {}
 
 export class StringFormatter extends CellFormatter {
+
+  properties: StringFormatter.Props
+
   static initClass(): void {
     this.prototype.type = 'StringFormatter';
 
@@ -82,11 +92,16 @@ export namespace NumberFormatter {
     language: string
     rounding: RoundingFunction
   }
+
+  export interface Props extends StringFormatter.Props {}
 }
 
 export interface NumberFormatter extends NumberFormatter.Attrs {}
 
 export class NumberFormatter extends StringFormatter {
+
+  properties: NumberFormatter.Props
+
   static initClass(): void {
     this.prototype.type = 'NumberFormatter';
 
@@ -115,11 +130,16 @@ export namespace BooleanFormatter {
   export interface Attrs extends CellFormatter.Attrs {
     icon: string // XXX: enum
   }
+
+  export interface Props extends CellFormatter.Props {}
 }
 
 export interface BooleanFormatter extends BooleanFormatter.Attrs {}
 
 export class BooleanFormatter extends CellFormatter {
+
+  properties: BooleanFormatter.Props
+
   static initClass(): void {
     this.prototype.type = 'BooleanFormatter';
 
@@ -138,11 +158,16 @@ export namespace DateFormatter {
   export interface Attrs extends CellFormatter.Attrs {
     format: string // XXX: enum
   }
+
+  export interface Props extends CellFormatter.Props {}
 }
 
 export interface DateFormatter extends DateFormatter.Attrs {}
 
 export class DateFormatter extends CellFormatter {
+
+  properties: DateFormatter.Props
+
   static initClass(): void {
     this.prototype.type = 'DateFormatter';
 
@@ -178,11 +203,16 @@ export namespace HTMLTemplateFormatter {
   export interface Attrs extends CellFormatter.Attrs {
     template: string
   }
+
+  export interface Props extends CellFormatter.Props {}
 }
 
 export interface HTMLTemplateFormatter extends HTMLTemplateFormatter.Attrs {}
 
 export class HTMLTemplateFormatter extends CellFormatter {
+
+  properties: HTMLTemplateFormatter.Props
+
   static initClass(): void {
     this.prototype.type = 'HTMLTemplateFormatter';
 

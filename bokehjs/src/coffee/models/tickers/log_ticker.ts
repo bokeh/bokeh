@@ -3,11 +3,15 @@ import {AdaptiveTicker} from "./adaptive_ticker"
 
 export namespace LogTicker {
   export interface Attrs extends AdaptiveTicker.Attrs {}
+
+  export interface Props extends AdaptiveTicker.Props {}
 }
 
 export interface LogTicker extends LogTicker.Attrs {}
 
 export class LogTicker extends AdaptiveTicker {
+
+  properties: LogTicker.Props
 
   constructor(attrs?: Partial<LogTicker.Attrs>) {
     super(attrs)

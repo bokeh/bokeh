@@ -62,11 +62,15 @@ export namespace TextInput {
     value: string
     placeholder: string
   }
+
+  export interface Props extends InputWidget.Props {}
 }
 
 export interface TextInput extends TextInput.Attrs {}
 
 export class TextInput extends InputWidget {
+
+  properties: TextInput.Props
 
   constructor(attrs?: Partial<TextInput.Attrs>) {
     super(attrs)

@@ -19,11 +19,15 @@ export namespace TileSource {
     y_origin_offset: number
     initial_resolution: number
   }
+
+  export interface Props extends Model.Props {}
 }
 
 export interface TileSource extends TileSource.Attrs {}
 
 export abstract class TileSource extends Model {
+
+  properties: TileSource.Props
 
   constructor(attrs?: Partial<TileSource.Attrs>) {
     super(attrs)

@@ -119,6 +119,8 @@ export namespace Grid {
     y_range_name: string
   }
 
+  export interface Props extends GuideRenderer.Props {}
+
   export type Visuals = GuideRenderer.Visuals & {
     grid_line: Line
     minor_grid_line: Line
@@ -129,6 +131,8 @@ export namespace Grid {
 export interface Grid extends Grid.Attrs {}
 
 export class Grid extends GuideRenderer {
+
+  properties: Grid.Props
 
   constructor(attrs?: Partial<Grid.Attrs>) {
     super(attrs)

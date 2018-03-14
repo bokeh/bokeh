@@ -24,11 +24,15 @@ export namespace Toolbar {
     active_scroll: Scroll | "auto"
     active_tap: Tap | "auto"
   }
+
+  export interface Props extends ToolbarBase.Props {}
 }
 
 export interface Toolbar extends Toolbar.Attrs {}
 
 export class Toolbar extends ToolbarBase {
+
+  properties: Toolbar.Props
 
   constructor(attrs?: Partial<Toolbar.Attrs>) {
     super(attrs)

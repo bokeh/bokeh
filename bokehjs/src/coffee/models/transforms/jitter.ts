@@ -14,11 +14,15 @@ export namespace Jitter {
     distribution: Distribution
     range: Range
   }
+
+  export interface Props extends Transform.Props {}
 }
 
 export interface Jitter extends Jitter.Attrs {}
 
 export class Jitter extends Transform {
+
+  properties: Jitter.Props
 
   constructor(attrs?: Partial<Jitter.Attrs>) {
     super(attrs)

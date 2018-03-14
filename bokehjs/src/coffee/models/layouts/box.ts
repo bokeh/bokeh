@@ -65,11 +65,18 @@ export namespace Box {
     children: LayoutDOM[]
     spacing: number
   }
+
+  export interface Props extends LayoutDOM.Props {
+    children: p.Property<LayoutDOM[]>
+    spacing: p.Property<number>
+  }
 }
 
 export interface Box extends Box.Attrs {}
 
 export class Box extends LayoutDOM {
+
+  properties: Box.Props
 
   constructor(attrs?: Partial<Box.Attrs>) {
     super(attrs)

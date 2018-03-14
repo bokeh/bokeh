@@ -1,18 +1,20 @@
-/// <reference types="@types/rbush" />
 import * as rbush from "rbush"
 
 export type Rect = {minX: number, minY: number, maxX: number, maxY: number}
+export type IndexedRect = Rect & {i: number}
 
 export abstract class SpatialIndex {
   abstract indices(rect: Rect): number[]
+  abstract search(rect: Rect): IndexedRect[]
+  readonly bbox: Rect
 }
 
 export class RBush extends SpatialIndex {
-  private readonly index: rbush.RBush<Rect & {i: number}>
+  private readonly index: rbush.RBush<IndexedRect>
 
-  constructor(points: (Rect & {i: number})[]) {
+  constructor(points: IndexedRect[]) {
     super()
-    this.index = rbush<Rect & {i: number}>()
+    this.index = rbush<IndexedRect>()
     this.index.load(points)
   }
 
@@ -21,14 +23,14 @@ export class RBush extends SpatialIndex {
     return {minX, minY, maxX, maxY}
   }
 
-  search(rect: Rect): (Rect & {i: number})[] {
+  search(rect: Rect): IndexedRect[] {
     return this.index.search(rect)
   }
 
   indices(rect: Rect): number[] {
     const points = this.search(rect)
     const n = points.length
-    const indices = new Array<number>(n)
+    const indices: number[] = new Array(n)
     for (let j = 0; j < n; j++) {
       indices[j] = points[j].i
     }

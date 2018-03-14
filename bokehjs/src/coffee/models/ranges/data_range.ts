@@ -7,11 +7,15 @@ export namespace DataRange {
     names: string[]
     renderers: Renderer[]
   }
+
+  export interface Props extends Range.Props {}
 }
 
 export interface DataRange extends DataRange.Attrs {}
 
 export abstract class DataRange extends Range {
+
+  properties: DataRange.Props
 
   constructor(attrs?: Partial<DataRange.Attrs>) {
     super(attrs)

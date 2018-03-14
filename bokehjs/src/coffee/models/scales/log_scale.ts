@@ -3,11 +3,15 @@ import {Arrayable} from "core/types"
 
 export namespace LogScale {
   export interface Attrs extends Scale.Attrs {}
+
+  export interface Props extends Scale.Props {}
 }
 
 export interface LogScale extends LogScale.Attrs {}
 
 export class LogScale extends Scale {
+
+  properties: LogScale.Props
 
   constructor(attrs?: Partial<LogScale.Attrs>) {
     super(attrs)

@@ -8,11 +8,15 @@ export namespace PrintfTickFormatter {
   export interface Attrs extends TickFormatter.Attrs {
     format: string
   }
+
+  export interface Props extends TickFormatter.Props {}
 }
 
 export interface PrintfTickFormatter extends PrintfTickFormatter.Attrs {}
 
 export class PrintfTickFormatter extends TickFormatter {
+
+  properties: PrintfTickFormatter.Props
 
   constructor(attrs?: Partial<PrintfTickFormatter.Attrs>) {
     super(attrs)

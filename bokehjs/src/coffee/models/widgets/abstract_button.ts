@@ -71,11 +71,15 @@ export namespace AbstractButton {
     button_type: ButtonType
     callback: any // XXX
   }
+
+  export interface Props extends Widget.Props {}
 }
 
 export interface AbstractButton extends AbstractButton.Attrs {}
 
 export abstract class AbstractButton extends Widget {
+
+  properties: AbstractButton.Props
 
   constructor(attrs?: Partial<AbstractButton.Attrs>) {
     super(attrs)

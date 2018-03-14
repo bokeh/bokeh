@@ -9,11 +9,15 @@ export namespace GroupFilter {
     column_name: string
     group: string
   }
+
+  export interface Props extends Filter.Props {}
 }
 
 export interface GroupFilter extends GroupFilter.Attrs {}
 
 export class GroupFilter extends Filter {
+
+  properties: GroupFilter.Props
 
   constructor(attrs?: Partial<GroupFilter.Attrs>) {
     super(attrs)

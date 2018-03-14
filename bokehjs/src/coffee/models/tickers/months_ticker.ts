@@ -32,11 +32,15 @@ export namespace MonthsTicker {
   export interface Attrs extends SingleIntervalTicker.Attrs {
     months: number[]
   }
+
+  export interface Props extends SingleIntervalTicker.Props {}
 }
 
 export interface MonthsTicker extends MonthsTicker.Attrs {}
 
 export class MonthsTicker extends SingleIntervalTicker {
+
+  properties: MonthsTicker.Props
 
   constructor(attrs?: Partial<MonthsTicker.Attrs>) {
     super(attrs)

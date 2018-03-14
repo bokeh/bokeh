@@ -17,8 +17,6 @@ export type AngleSpec = Vectorized<number> & { units?: AngleUnits }
 
 export type ColorSpec = Vectorized<Color>
 
-export type DirectionSpec = Vectorized<number> & { units?: SpatialUnits }
-
 export type DistanceSpec = Vectorized<number> & { units?: SpatialUnits }
 
 export type FontSizeSpec = Vectorized<string>

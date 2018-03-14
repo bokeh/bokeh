@@ -17,11 +17,15 @@ export namespace TableColumn {
     sortable: boolean
     default_sort: "ascending" | "descending"
   }
+
+  export interface Props extends Model.Props {}
 }
 
 export interface TableColumn extends TableColumn.Attrs {}
 
 export class TableColumn extends Model {
+
+  properties: TableColumn.Props
 
   constructor(attrs?: Partial<TableColumn.Attrs>) {
     super(attrs)

@@ -12,9 +12,9 @@ export class BaseGLGlyph {
     this.prototype.FRAG = '';
   }
 
-  constructor(gl, glyph) {
+  constructor(gl, glyph_view) {
     this.gl = gl;
-    this.glyph = glyph;
+    this.glyph = glyph_view;
 
     this.nvertices = 0;
     this.size_changed = false;
@@ -51,9 +51,10 @@ export class BaseGLGlyph {
       return false;
     }
     const [sx, sy] = [(dx[1]-dx[0]) / wx, (dy[1]-dy[0]) / wy];
+    const {glcanvas} = this.glyph.renderer.plot_view
     const trans = {
         pixel_ratio: ctx.pixel_ratio,  // pass pixel_ratio to webgl
-        width: ctx.glcanvas.width, height: ctx.glcanvas.height,
+        width: glcanvas.width, height: glcanvas.height,
         dx: dx[0]/sx, dy: dy[0]/sy, sx, sy,
       };
     this.draw(indices, mainglyph, trans);

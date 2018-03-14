@@ -46,11 +46,15 @@ export namespace CrosshairTool {
     render_mode: RenderMode
     spans: {width: Span, height: Span}
   }
+
+  export interface Props extends InspectTool.Props {}
 }
 
 export interface CrosshairTool extends CrosshairTool.Attrs {}
 
 export class CrosshairTool extends InspectTool {
+
+  properties: CrosshairTool.Props
 
   constructor(attrs?: Partial<CrosshairTool.Attrs>) {
     super(attrs)

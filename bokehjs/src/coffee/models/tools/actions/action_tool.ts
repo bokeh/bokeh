@@ -22,11 +22,15 @@ export abstract class ActionToolView extends ButtonToolView {
 
 export namespace ActionTool {
   export interface Attrs extends ButtonTool.Attrs {}
+
+  export interface Props extends ButtonTool.Props {}
 }
 
 export interface ActionTool extends ActionTool.Attrs {}
 
 export abstract class ActionTool extends ButtonTool {
+
+  properties: ActionTool.Props
 
   constructor(attrs?: Partial<ActionTool.Attrs>) {
     super(attrs)

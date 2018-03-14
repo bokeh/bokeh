@@ -23,13 +23,19 @@ export type GeoData = {
 
 export namespace GeoJSONDataSource {
   export interface Attrs extends ColumnarDataSource.Attrs {
-    geojson: any
+    geojson: string
+  }
+
+  export interface Props extends ColumnarDataSource.Props {
+    geojson: p.Property<string>
   }
 }
 
 export interface GeoJSONDataSource extends GeoJSONDataSource.Attrs {}
 
 export class GeoJSONDataSource extends ColumnarDataSource {
+
+  properties: GeoJSONDataSource.Props
 
   constructor(attrs?: Partial<GeoJSONDataSource.Attrs>) {
     super(attrs)

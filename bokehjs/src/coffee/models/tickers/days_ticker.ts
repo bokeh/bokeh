@@ -35,11 +35,15 @@ export namespace DaysTicker {
   export interface Attrs extends SingleIntervalTicker.Attrs {
     days: number[]
   }
+
+  export interface Props extends SingleIntervalTicker.Props {}
 }
 
 export interface DaysTicker extends DaysTicker.Attrs {}
 
 export class DaysTicker extends SingleIntervalTicker {
+
+  properties: DaysTicker.Props
 
   constructor(attrs?: Partial<DaysTicker.Attrs>) {
     super(attrs)

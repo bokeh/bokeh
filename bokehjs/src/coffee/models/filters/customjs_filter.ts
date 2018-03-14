@@ -8,11 +8,15 @@ export namespace CustomJSFilter {
     args: {[key: string]: any}
     code: string
   }
+
+  export interface Props extends Filter.Props {}
 }
 
 export interface CustomJSFilter extends CustomJSFilter.Attrs {}
 
 export class CustomJSFilter extends Filter {
+
+  properties: CustomJSFilter.Props
 
   constructor(attrs?: Partial<CustomJSFilter.Attrs>) {
     super(attrs)

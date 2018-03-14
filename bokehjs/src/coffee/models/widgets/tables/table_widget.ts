@@ -8,11 +8,15 @@ export namespace TableWidget {
     source: ColumnarDataSource
     view: CDSView
   }
+
+  export interface Props extends Widget.Props {}
 }
 
 export interface TableWidget extends TableWidget.Attrs {}
 
 export class TableWidget extends Widget {
+
+  properties: TableWidget.Props
 
   constructor(attrs?: Partial<TableWidget.Attrs>) {
     super(attrs)

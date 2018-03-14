@@ -107,11 +107,15 @@ export namespace LassoSelectTool {
     callback: any // XXX
     overlay: PolyAnnotation
   }
+
+  export interface Props extends SelectTool.Props {}
 }
 
 export interface LassoSelectTool extends LassoSelectTool.Attrs {}
 
 export class LassoSelectTool extends SelectTool {
+
+  properties: LassoSelectTool.Props
 
   constructor(attrs?: Partial<LassoSelectTool.Attrs>) {
     super(attrs)

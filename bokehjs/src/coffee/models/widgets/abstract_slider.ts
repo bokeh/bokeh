@@ -211,11 +211,15 @@ export namespace AbstractSlider {
     callback_policy: SliderCallbackPolicy
     bar_color: Color
   }
+
+  export interface Props extends Widget.Props {}
 }
 
 export interface AbstractSlider extends AbstractSlider.Attrs {}
 
 export abstract class AbstractSlider extends Widget {
+
+  properties: AbstractSlider.Props
 
   constructor(attrs?: Partial<AbstractSlider.Attrs>) {
     super(attrs)

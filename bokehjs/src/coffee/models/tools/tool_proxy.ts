@@ -11,11 +11,15 @@ export namespace ToolProxy {
     active: boolean
     disabled: boolean
   }
+
+  export interface Props extends Model.Props {}
 }
 
 export interface ToolProxy extends ToolProxy.Attrs {}
 
 export class ToolProxy extends Model {
+
+  properties: ToolProxy.Props
 
   constructor(attrs?: Partial<ToolProxy.Attrs>) {
     super(attrs)

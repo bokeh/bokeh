@@ -76,11 +76,15 @@ export namespace Select {
     value: string
     options: string[] | {[key: string]: string | [string, string]}
   }
+
+  export interface Props extends InputWidget.Props {}
 }
 
 export interface Select extends Select.Attrs {}
 
 export class Select extends InputWidget {
+
+  properties: Select.Props
 
   constructor(attrs?: Partial<Select.Attrs>) {
     super(attrs)

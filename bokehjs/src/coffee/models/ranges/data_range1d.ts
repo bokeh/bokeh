@@ -27,11 +27,15 @@ export namespace DataRange1d {
 
     scale_hint: "log" | "auto"
   }
+
+  export interface Props extends DataRange.Props {}
 }
 
 export interface DataRange1d extends DataRange1d.Attrs {}
 
 export class DataRange1d extends DataRange {
+
+  properties: DataRange1d.Props
 
   constructor(attrs?: Partial<DataRange1d.Attrs>) {
     super(attrs)

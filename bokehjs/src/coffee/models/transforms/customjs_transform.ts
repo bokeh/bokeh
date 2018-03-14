@@ -11,11 +11,15 @@ export namespace CustomJSTransform {
     func: string
     v_func: string
   }
+
+  export interface Props extends Transform.Props {}
 }
 
 export interface CustomJSTransform extends CustomJSTransform.Attrs {}
 
 export class CustomJSTransform extends Transform {
+
+  properties: CustomJSTransform.Props
 
   constructor(attrs?: Partial<CustomJSTransform.Attrs>) {
     super(attrs)

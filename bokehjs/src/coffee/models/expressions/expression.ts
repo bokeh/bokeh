@@ -4,11 +4,15 @@ import {Arrayable} from "core/types"
 
 export namespace Expression {
   export interface Attrs extends Model.Attrs {}
+
+  export interface Props extends Model.Props {}
 }
 
 export interface Expression extends Expression.Attrs {}
 
 export abstract class Expression extends Model {
+
+  properties: Expression.Props
 
   constructor(attrs?: Partial<Expression.Attrs>) {
     super(attrs)

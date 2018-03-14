@@ -3,11 +3,15 @@ import {Arrayable} from "core/types"
 
 export namespace LinearScale {
   export interface Attrs extends Scale.Attrs {}
+
+  export interface Props extends Scale.Props {}
 }
 
 export interface LinearScale extends LinearScale.Attrs {}
 
 export class LinearScale extends Scale {
+
+  properties: LinearScale.Props
 
   constructor(attrs?: Partial<LinearScale.Attrs>) {
     super(attrs)

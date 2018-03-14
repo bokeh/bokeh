@@ -2,11 +2,15 @@ import {MercatorTileSource} from './mercator_tile_source'
 
 export namespace TMSTileSource {
   export interface Attrs extends MercatorTileSource.Attrs {}
+
+  export interface Props extends MercatorTileSource.Props {}
 }
 
 export interface TMSTileSource extends TMSTileSource.Attrs {}
 
 export class TMSTileSource extends MercatorTileSource {
+
+  properties: TMSTileSource.Props
 
   constructor(attrs?: Partial<TMSTileSource.Attrs>) {
     super(attrs)

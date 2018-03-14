@@ -66,11 +66,17 @@ export namespace Tool {
   export interface Attrs extends Model.Attrs {
     active: boolean
   }
+
+  export interface Props extends Model.Props {
+    active: p.Property<boolean>
+  }
 }
 
 export interface Tool extends Tool.Attrs {}
 
 export abstract class Tool extends Model {
+
+  properties: Tool.Props
 
   constructor(attrs?: Partial<Tool.Attrs>) {
     super(attrs)

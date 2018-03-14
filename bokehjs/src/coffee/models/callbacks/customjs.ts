@@ -7,11 +7,15 @@ export namespace CustomJS {
     args: {[key: string]: any}
     code: string
   }
+
+  export interface Props extends Callback.Props {}
 }
 
 export interface CustomJS extends CustomJS.Attrs {}
 
 export class CustomJS extends Callback {
+
+  properties: CustomJS.Props
 
   constructor(attrs?: Partial<CustomJS.Attrs>) {
     super(attrs)

@@ -15,11 +15,15 @@ export namespace InputWidget {
     title: string
     callback: any | null // TODO
   }
+
+  export interface Props extends Widget.Props {}
 }
 
 export interface InputWidget extends InputWidget.Attrs {}
 
 export class InputWidget extends Widget {
+
+  properties: InputWidget.Props
 
   constructor(attrs?: Partial<InputWidget.Attrs>) {
     super(attrs)

@@ -9,11 +9,15 @@ export namespace Range1d {
     min_interval: number
     max_interval: number
   }
+
+  export interface Props extends Range.Props {}
 }
 
 export interface Range1d extends Range1d.Attrs {}
 
 export class Range1d extends Range {
+
+  properties: Range1d.Props
 
   constructor(attrs?: Partial<Range1d.Attrs>) {
     super(attrs)

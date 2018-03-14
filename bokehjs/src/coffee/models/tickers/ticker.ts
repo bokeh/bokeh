@@ -20,11 +20,15 @@ export type TickSpec<T> = {
 
 export namespace Ticker{
   export interface Attrs extends Model.Attrs {}
+
+  export interface Props extends Model.Props {}
 }
 
 export interface Ticker<T> extends Ticker.Attrs {}
 
 export abstract class Ticker<T> extends Model {
+
+  properties: Ticker.Props
 
   constructor(attrs?: Partial<Ticker.Attrs>) {
     super(attrs)

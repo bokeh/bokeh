@@ -6,11 +6,15 @@ export namespace StaticLayoutProvider {
   export interface Attrs extends LayoutProvider.Attrs {
     graph_layout: {[key: string]: [number, number]}
   }
+
+  export interface Props extends LayoutProvider.Props {}
 }
 
 export interface StaticLayoutProvider extends StaticLayoutProvider.Attrs {}
 
 export class StaticLayoutProvider extends LayoutProvider {
+
+  properties: StaticLayoutProvider.Props
 
   constructor(attrs?: Partial<StaticLayoutProvider.Attrs>) {
     super(attrs)

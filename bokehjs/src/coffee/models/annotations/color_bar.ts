@@ -455,11 +455,15 @@ export namespace ColorBar {
     minor_tick_in: number
     minor_tick_out: number
   }
+
+  export interface Props extends Annotation.Props {}
 }
 
 export interface ColorBar extends ColorBar.Attrs {}
 
 export class ColorBar extends Annotation {
+
+  properties: ColorBar.Props
 
   constructor(attrs?: Partial<ColorBar.Attrs>) {
     super(attrs)

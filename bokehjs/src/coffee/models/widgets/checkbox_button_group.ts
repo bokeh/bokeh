@@ -59,11 +59,15 @@ export namespace CheckboxButtonGroup {
     button_type: ButtonType
     callback: any // XXX
   }
+
+  export interface Props extends Widget.Props {}
 }
 
 export interface CheckboxButtonGroup extends CheckboxButtonGroup.Attrs {}
 
 export class CheckboxButtonGroup extends Widget {
+
+  properties: CheckboxButtonGroup.Props
 
   constructor(attrs?: Partial<CheckboxButtonGroup.Attrs>) {
     super(attrs)

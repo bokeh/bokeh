@@ -12,11 +12,15 @@ export namespace Interpolator {
     data: ColumnarDataSource | null
     clip: boolean
   }
+
+  export interface Props extends Transform.Props {}
 }
 
 export interface Interpolator extends Interpolator.Attrs {}
 
 export abstract class Interpolator extends Transform {
+
+  properties: Interpolator.Props
 
   constructor(attrs?: Partial<Interpolator.Attrs>) {
     super(attrs)

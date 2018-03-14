@@ -188,11 +188,15 @@ export namespace PolyDrawTool {
     renderers: (GlyphRenderer & HasPolyGlyph)[]
   }
 
+  export interface Props extends EditTool.Props {}
+
 }
 
 export interface PolyDrawTool extends PolyDrawTool.Attrs {}
 
 export class PolyDrawTool extends EditTool {
+
+  properties: PolyDrawTool.Props
 
   renderers: (GlyphRenderer & HasPolyGlyph)[]
 

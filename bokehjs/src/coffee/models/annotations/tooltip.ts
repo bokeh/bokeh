@@ -134,11 +134,15 @@ export namespace Tooltip {
     data: [number, number, HTMLElement][]
     custom: boolean
   }
+
+  export interface Props extends Annotation.Props {}
 }
 
 export interface Tooltip extends Tooltip.Attrs {}
 
 export class Tooltip extends Annotation {
+
+  properties: Tooltip.Props
 
   constructor(attrs?: Partial<Tooltip.Attrs>) {
     super(attrs)

@@ -12,11 +12,15 @@ export namespace AjaxDataSource {
     method: HTTPMethod
     if_modified: boolean
   }
+
+  export interface Props extends RemoteDataSource.Props {}
 }
 
 export interface AjaxDataSource extends AjaxDataSource.Attrs {}
 
 export class AjaxDataSource extends RemoteDataSource {
+
+  properties: AjaxDataSource.Props
 
   constructor(attrs?: Partial<AjaxDataSource.Attrs>) {
     super(attrs)

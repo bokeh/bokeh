@@ -98,7 +98,7 @@ export class Property<T> extends Signalable() {
     } else if (this.spec.expr != null) {
       ret = this.transform(this.spec.expr._v_compute(source))
     } else {
-      let length = source.get_length() as number | null
+      let length = source.get_length()
       if (length == null)
         length = 1
       const value = this.value(false) // don't apply any spec transform
@@ -197,7 +197,7 @@ export class Font extends String {}
 // Enum properties
 //
 
-export function enum_prop(name: string, enum_values: string[]) {
+export function enum_prop<T>(name: string, enum_values: T[]) {
   return class extends simple_prop(name, (x) => includes(enum_values, x)) {}
 }
 
@@ -263,7 +263,7 @@ export class StartEnd extends enum_prop("StartEnd", enums.StartEnd) {}
 //
 // Units Properties
 //
-export function units_prop(name: string, valid_units: any, default_units: any) {
+export function units_prop<Units>(name: string, valid_units: Units[], default_units: any) {
   return class extends Number {
     init(): void {
       if (this.spec.units == null)
@@ -274,11 +274,11 @@ export function units_prop(name: string, valid_units: any, default_units: any) {
         throw new Error(`${name} units must be one of ${valid_units}, given invalid value: ${units}`)
     }
 
-    get units(): any {
-      return this.spec.units
+    get units(): Units {
+      return this.spec.units as Units
     }
 
-    set units(units: any) {
+    set units(units: Units) {
       this.spec.units = units
     }
   }
@@ -304,9 +304,6 @@ AngleSpec.prototype.dataspec = true
 
 export class ColorSpec extends Color {}
 ColorSpec.prototype.dataspec = true
-
-export class DirectionSpec extends Distance {}
-DirectionSpec.prototype.dataspec = true
 
 export class DistanceSpec extends Distance {}
 DistanceSpec.prototype.dataspec = true

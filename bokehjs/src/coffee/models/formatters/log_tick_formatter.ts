@@ -9,11 +9,15 @@ export namespace LogTickFormatter {
   export interface Attrs extends TickFormatter.Attrs {
     ticker: LogTicker | null
   }
+
+  export interface Props extends TickFormatter.Props {}
 }
 
 export interface LogTickFormatter extends LogTickFormatter.Attrs {}
 
 export class LogTickFormatter extends TickFormatter {
+
+  properties: LogTickFormatter.Props
 
   constructor(attrs?: Partial<LogTickFormatter.Attrs>) {
     super(attrs)

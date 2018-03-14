@@ -52,11 +52,15 @@ export namespace WheelZoomTool {
     dimensions: Dimensions
     speed: number
   }
+
+  export interface Props extends GestureTool.Props {}
 }
 
 export interface WheelZoomTool extends WheelZoomTool.Attrs {}
 
 export class WheelZoomTool extends GestureTool {
+
+  properties: WheelZoomTool.Props
 
   constructor(attrs?: Partial<WheelZoomTool.Attrs>) {
     super(attrs)

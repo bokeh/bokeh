@@ -40,12 +40,16 @@ export namespace Renderer {
     visible: boolean
   }
 
+  export interface Props extends Model.Props {}
+
   export type Visuals = visuals.Visuals
 }
 
 export interface Renderer extends Renderer.Attrs {}
 
 export abstract class Renderer extends Model {
+
+  properties: Renderer.Props
 
   constructor(attrs?: Partial<Renderer.Attrs>) {
     super(attrs)

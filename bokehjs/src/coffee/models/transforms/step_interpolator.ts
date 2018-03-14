@@ -7,11 +7,15 @@ export namespace StepInterpolator {
   export interface Attrs extends Interpolator.Attrs {
     mode: StepMode
   }
+
+  export interface Props extends Interpolator.Props {}
 }
 
 export interface StepInterpolator extends StepInterpolator.Attrs {}
 
 export class StepInterpolator extends Interpolator {
+
+  properties: StepInterpolator.Props
 
   constructor(attrs?: Partial<StepInterpolator.Attrs>) {
     super(attrs)

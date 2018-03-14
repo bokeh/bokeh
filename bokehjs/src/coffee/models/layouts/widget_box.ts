@@ -89,11 +89,17 @@ export namespace WidgetBox {
   export interface Attrs extends LayoutDOM.Attrs {
     children: LayoutDOM[]
   }
+
+  export interface Props extends LayoutDOM.Props {
+    children: p.Property<LayoutDOM[]>
+  }
 }
 
 export interface WidgetBox extends WidgetBox.Attrs {}
 
 export class WidgetBox extends LayoutDOM {
+
+  properties: WidgetBox.Props
 
   constructor(attrs?: Partial<WidgetBox.Attrs>) {
     super(attrs)

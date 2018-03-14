@@ -372,11 +372,15 @@ export namespace TileRenderer {
     tile_source: TileSource
     render_parents: boolean
   }
+
+  export interface Props extends Renderer.Props {}
 }
 
 export interface TileRenderer extends TileRenderer.Attrs {}
 
 export class TileRenderer extends Renderer {
+
+  properties: TileRenderer.Props
 
   constructor(attrs?: Partial<TileRenderer.Attrs>) {
     super(attrs)

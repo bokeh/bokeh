@@ -93,11 +93,15 @@ export namespace GraphRenderer {
     selection_policy: GraphHitTestPolicy
     inspection_policy: GraphHitTestPolicy
   }
+
+  export interface Props extends Renderer.Props {}
 }
 
 export interface GraphRenderer extends GraphRenderer.Attrs {}
 
 export class GraphRenderer extends Renderer {
+
+  properties: GraphRenderer.Props
 
   constructor(attrs?: Partial<GraphRenderer.Attrs>) {
     super(attrs)

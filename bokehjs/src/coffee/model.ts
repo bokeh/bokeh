@@ -15,11 +15,21 @@ export namespace Model {
     js_event_callbacks: {[key: string]: CustomJS[]}
     subscribed_events: string[]
   }
+
+  export interface Props extends HasProps.Props {
+    tags: p.Array
+    name: p.String
+    js_property_callbacks: p.Any
+    js_event_callbacks: p.Any
+    subscribed_events: p.Array
+  }
 }
 
 export interface Model extends Model.Attrs {}
 
 export class Model extends HasProps {
+
+  properties: Model.Props
 
   constructor(attrs?: Partial<Model.Attrs>) {
     super(attrs)

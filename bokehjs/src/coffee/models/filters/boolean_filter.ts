@@ -9,11 +9,15 @@ export namespace BooleanFilter {
   export interface Attrs extends Filter.Attrs {
     booleans: boolean[] | null
   }
+
+  export interface Props extends Filter.Props {}
 }
 
 export interface BooleanFilter extends BooleanFilter.Attrs {}
 
 export class BooleanFilter extends Filter {
+
+  properties: BooleanFilter.Props
 
   constructor(attrs?: Partial<BooleanFilter.Attrs>) {
     super(attrs)

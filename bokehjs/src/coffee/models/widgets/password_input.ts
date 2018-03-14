@@ -12,11 +12,15 @@ export class PasswordInputView extends TextInputView {
 
 export namespace PasswordInput {
   export interface Attrs extends TextInput.Attrs {}
+
+  export interface Props extends TextInput.Props {}
 }
 
 export interface PasswordInput extends PasswordInput.Attrs {}
 
 export class PasswordInput extends TextInput {
+
+  properties: PasswordInput.Props
 
   constructor(attrs?: Partial<PasswordInput.Attrs>) {
     super(attrs)
