@@ -123,6 +123,37 @@ config file:
 
 will cause the sample data to be stored in ``/tmp/bokeh_data``.
 
+Verifying installation
+======================
+
+The first check you can make is to make sure you can ``import bokeh`` and
+verify ``bokeh.__version__`` from a running python interpreter. If you
+execute both of those lines in a python interpreter, the result should
+look something like this:
+
+.. image:: /_images/bokeh_import.png
+    :scale: 50 %
+    :align: center
+
+The next check you can make is to produce a very simple plot. Execute the
+following few lines of python code, either by copying them into a script and
+executing the script, or by running the lines by hand in a python interpreter:
+
+.. code-block:: python
+
+    from bokeh.plotting import figure, output_file, show
+    output_file("test.html")
+    p = figure()
+    p.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], line_width=2)
+    show(p)
+
+This should save a ``test.html`` file locally, and open a browser tab to
+view the file. The result should look like this:
+
+.. image:: /_images/bokeh_simple_test.png
+    :scale: 30 %
+    :align: center
+
 Advanced Cases
 ==============
 

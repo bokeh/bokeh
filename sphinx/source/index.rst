@@ -30,7 +30,6 @@ the :ref:`devguide`.
     docs/installation
     docs/user_guide
     docs/user_guide/quickstart
-    docs/user_guide/setup
     docs/user_guide/concepts
     docs/user_guide/plotting
     docs/user_guide/data

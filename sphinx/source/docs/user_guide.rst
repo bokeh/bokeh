@@ -10,9 +10,6 @@ topic:
 :ref:`userguide_quickstart`
     Get set up and running quickly.
 
-:ref:`userguide_setup`
-    Install Bokeh and verify your installation is working correctly.
-
 :ref:`userguide_concepts`
     Learn important foundational concepts about how Bokeh is organized.
 
