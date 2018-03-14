@@ -1,4 +1,3 @@
-/* XXX: partial */
 import * as noUiSlider from "nouislider"
 
 import * as p from "core/properties"
@@ -14,9 +13,9 @@ import {Widget, WidgetView} from "./widget"
 export abstract class AbstractSliderView extends WidgetView {
   model: AbstractSlider
 
-  protected sliderEl?: noUiSlider.Instance
-  protected titleEl?: HTMLElement
-  protected valueEl?: HTMLElement
+  protected sliderEl: noUiSlider.Instance
+  protected titleEl: HTMLElement
+  protected valueEl: HTMLElement
   protected callback_wrapper?: () => void
 
   initialize(options: any): void {
@@ -29,9 +28,9 @@ export abstract class AbstractSliderView extends WidgetView {
     this.connect(this.model.change, () => this.render())
   }
 
-  abstract _calc_to()
+  protected abstract _calc_to(): {start: number, end: number, value: number[], step: number}
 
-  abstract _calc_from(values: number[])
+  protected abstract _calc_from(values: number[]): number | number[]
 
   render(): void {
     if (this.sliderEl == null) {
@@ -61,7 +60,7 @@ export abstract class AbstractSliderView extends WidgetView {
     let tooltips: boolean | any[] // XXX
     if (this.model.tooltips) {
       const formatter = {
-        to: (value) => this.model.pretty(value),
+        to: (value: number): string => this.model.pretty(value),
       }
 
       tooltips = repeat(formatter, value.length)
@@ -71,7 +70,7 @@ export abstract class AbstractSliderView extends WidgetView {
     this.el.classList.add("bk-slider")
 
     if (this.sliderEl == null) {
-      this.sliderEl = div()
+      this.sliderEl = div() as any
       this.el.appendChild(this.sliderEl)
 
       noUiSlider.create(this.sliderEl, {
@@ -84,7 +83,7 @@ export abstract class AbstractSliderView extends WidgetView {
         tooltips: tooltips,
         orientation: this.model.orientation,
         direction: this.model.direction,
-      })
+      } as any) // XXX: bad typings; no cssPrefix
 
       this.sliderEl.noUiSlider.on('slide',  (_, __, values) => this._slide(values))
       this.sliderEl.noUiSlider.on('change', (_, __, values) => this._change(values))
@@ -115,13 +114,13 @@ export abstract class AbstractSliderView extends WidgetView {
           this.callback_wrapper()
       }
 
-      const handle = this.sliderEl.querySelector(`.${prefix}handle`)
-      handle.setAttribute('tabindex', 0)
+      const handle = this.sliderEl.querySelector(`.${prefix}handle`)!
+      handle.setAttribute('tabindex', '0')
       handle.addEventListener('keydown', keypress)
 
       const toggleTooltip = (i: number, show: boolean): void => {
         const handle = this.sliderEl.querySelectorAll(`.${prefix}handle`)[i]
-        const tooltip = handle.querySelector<HTMLElement>(`.${prefix}tooltip`)
+        const tooltip = handle.querySelector<HTMLElement>(`.${prefix}tooltip`)!
         tooltip.style.display = show ? 'block' : ''
       }
 
@@ -154,18 +153,18 @@ export abstract class AbstractSliderView extends WidgetView {
     }
 
     if (!this.model.disabled) {
-      this.sliderEl.querySelector<HTMLElement>(`.${prefix}connect`)
+      this.sliderEl.querySelector<HTMLElement>(`.${prefix}connect`)!
                    .style
                    .backgroundColor = this.model.bar_color
     }
 
     if (this.model.disabled)
-      this.sliderEl.setAttribute('disabled', true)
+      this.sliderEl.setAttribute('disabled', 'true')
     else
       this.sliderEl.removeAttribute('disabled')
   }
 
-  _slide(values): void {
+  protected _slide(values: number[]): void {
     const value = this._calc_from(values)
     const pretty = values.map((v) => this.model.pretty(v)).join(" .. ")
     logger.debug(`[slider slide] value = ${pretty}`)
@@ -176,7 +175,7 @@ export abstract class AbstractSliderView extends WidgetView {
       this.callback_wrapper()
   }
 
-  _change(values): void {
+  protected _change(values: number[]): void {
     const value = this._calc_from(values)
     const pretty = values.map((v) => this.model.pretty(v)).join(" .. ")
     logger.debug(`[slider change] value = ${pretty}`)
@@ -253,7 +252,7 @@ export abstract class AbstractSlider extends Widget {
     return `${value}`
   }
 
-  pretty(value) {
+  pretty(value: number): string {
     return this._formatter(value, this.format)
   }
 }

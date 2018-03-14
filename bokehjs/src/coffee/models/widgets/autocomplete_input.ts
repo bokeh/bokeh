@@ -1,4 +1,3 @@
-/* XXX: partial */
 import {TextInput, TextInputView} from "./text_input"
 import {clear_menus} from "./common"
 
@@ -28,7 +27,7 @@ export class AutocompleteInputView extends TextInputView {
     this.el.appendChild(this.menuEl)
   }
 
-  _render_items(completions): void {
+  protected _render_items(completions: string[]): void {
     empty(this.menuEl)
 
     for (const text of completions) {
@@ -37,28 +36,28 @@ export class AutocompleteInputView extends TextInputView {
     }
   }
 
-  _open_menu(): void {
+  protected _open_menu(): void {
     this.el.classList.add("bk-bs-open")
   }
 
-  _clear_menu(): void {
+  protected _clear_menu(): void {
     this.el.classList.remove("bk-bs-open")
   }
 
-  _item_click(event): void {
+  protected _item_click(event: MouseEvent): void {
     event.preventDefault()
 
     if (event.target != event.currentTarget) {
-      const el = event.target
-      const text = el.dataset.text
+      const el = event.target as HTMLElement
+      const text = el.dataset.text!
       this.model.value = text
       //this.inputEl.value = text
     }
   }
 
-  _keydown(_event): void {}
+  _keydown(_event: KeyboardEvent): void {}
 
-  _keyup(event): void {
+  _keyup(event: KeyboardEvent): void {
     switch (event.keyCode) {
       case Keys.Enter: {
         console.log("enter")

@@ -16,7 +16,9 @@ export namespace InputWidget {
     callback: any | null // TODO
   }
 
-  export interface Props extends Widget.Props {}
+  export interface Props extends Widget.Props {
+    title: p.Property<string>
+  }
 }
 
 export interface InputWidget extends InputWidget.Attrs {}

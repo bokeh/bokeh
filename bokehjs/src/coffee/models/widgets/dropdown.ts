@@ -1,4 +1,3 @@
-/* XXX: partial */
 import {span, ul, li, a} from "core/dom"
 import * as p from "core/properties"
 
@@ -49,18 +48,18 @@ export class DropdownView extends AbstractButtonView {
     this.el.appendChild(menuEl)
   }
 
-  _clear_menu(): void {
+  protected _clear_menu(): void {
     this.model.active = false
   }
 
-  _toggle_menu(): void {
+  protected _toggle_menu(): void {
     const active = this.model.active
     clear_menus.emit()
     if (!active)
       this.model.active = true
   }
 
-  _button_click(event): void {
+  protected _button_click(event: MouseEvent): void {
     event.preventDefault()
     event.stopPropagation()
 
@@ -72,19 +71,19 @@ export class DropdownView extends AbstractButtonView {
     }
   }
 
-  _caret_click(event): void {
+  protected _caret_click(event: MouseEvent): void {
     event.preventDefault()
     event.stopPropagation()
     this._toggle_menu()
   }
 
-  _item_click(event): void {
+  protected _item_click(event: MouseEvent): void {
     event.preventDefault()
     this._clear_menu()
-    this.set_value(event.currentTarget.dataset.value)
+    this.set_value((event.currentTarget as HTMLElement).dataset.value!)
   }
 
-  set_value(value): void {
+  set_value(value: string): void {
     this.buttonEl.value = this.model.value = value
     this.change_input()
   }

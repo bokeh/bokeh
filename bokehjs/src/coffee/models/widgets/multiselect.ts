@@ -1,4 +1,3 @@
-/* XXX: partial */
 import {empty, label, select, option} from "core/dom"
 import {isString} from "core/util/types"
 import * as p from "core/properties"
@@ -55,14 +54,15 @@ export class MultiSelectView extends InputWidgetView {
   }
 
   render_selection(): void {
-    const values = {}
-    for (const x of this.model.value) {
+    const values: {[key: string]: boolean} = {}
+    for (const x of this.model.value)
       values[x] = true
-    }
+
     for (const el of Array.from(this.el.querySelectorAll('option'))) {
       if (values[el.value])
-        el.selected = 'selected'
+        el.selected = true
     }
+
     // Note that some browser implementations might not reduce
     // the number of visible options for size <= 3.
     this.selectEl.size = this.model.size
@@ -95,7 +95,11 @@ export namespace MultiSelect {
     size: number
   }
 
-  export interface Props extends InputWidget.Props {}
+  export interface Props extends InputWidget.Props {
+    value: p.Property<string[]>
+    options: p.Property<string[]>
+    size: p.Property<number>
+  }
 }
 
 export interface MultiSelect extends MultiSelect.Attrs {}

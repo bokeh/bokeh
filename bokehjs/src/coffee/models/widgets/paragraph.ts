@@ -1,4 +1,3 @@
-/* XXX: partial */
 import {Markup, MarkupView} from "./markup"
 import {p} from "core/dom"
 

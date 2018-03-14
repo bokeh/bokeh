@@ -6,3 +6,8 @@ declare module "timezone" {
   function tz(value: any, format?: string): string
   export = tz
 }
+
+declare module "underscore.template" {
+  function compile_template(template: string): (context: {[key: string]: any}) => string
+  export = compile_template
+}
