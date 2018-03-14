@@ -1,5 +1,5 @@
-/* XXX: partial */
 import {Model} from "../../model"
+import {Axis} from "../axes/axis"
 
 export namespace TickFormatter {
   export interface Attrs extends Model.Attrs {}
@@ -14,9 +14,9 @@ export abstract class TickFormatter extends Model {
   }
 
   static initClass(): void {
-    this.prototype.type = 'TickFormatter';
+    this.prototype.type = "TickFormatter"
   }
 
-  abstract doFormat(ticks, axis)
+  abstract doFormat(ticks: string[] | number[], axis: Axis): string[]
 }
-TickFormatter.initClass();
+TickFormatter.initClass()

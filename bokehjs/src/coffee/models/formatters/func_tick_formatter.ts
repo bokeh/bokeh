@@ -1,7 +1,7 @@
-/* XXX: partial */
-import {TickFormatter} from "./tick_formatter";
-import * as p from "core/properties";
-import {values} from "core/util/object"
+import {TickFormatter} from "./tick_formatter"
+import {Axis} from "../axes/axis"
+import * as p from "core/properties"
+import {keys, values} from "core/util/object"
 
 export namespace FuncTickFormatter {
   export interface Attrs extends TickFormatter.Attrs {
@@ -19,22 +19,22 @@ export class FuncTickFormatter extends TickFormatter {
   }
 
   static initClass(): void {
-    this.prototype.type = 'FuncTickFormatter';
+    this.prototype.type = 'FuncTickFormatter'
 
     this.define({
       args: [ p.Any,     {} ], // TODO (bev) better type
       code: [ p.String,  '' ],
-    });
+    })
   }
 
-  _make_func() {
-    return new Function("tick", "index", "ticks", ...Object.keys(this.args), "require", this.code);
+  protected _make_func(): Function {
+    return new Function("tick", "index", "ticks", ...keys(this.args), "require", this.code)
   }
 
-  doFormat(ticks, _axis) {
-    const cache = {};
-    const func = this._make_func().bind(cache);
-    return ticks.map((tick, index, ticks) => func(tick, index, ticks, ...values(this.args), require));
+  doFormat(ticks: number[], _axis: Axis): string[] {
+    const cache = {}
+    const func = this._make_func().bind(cache)
+    return ticks.map((tick, index, ticks) => func(tick, index, ticks, ...values(this.args), require))
   }
 }
-FuncTickFormatter.initClass();
+FuncTickFormatter.initClass()
