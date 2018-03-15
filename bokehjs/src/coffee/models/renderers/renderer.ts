@@ -40,7 +40,10 @@ export namespace Renderer {
     visible: boolean
   }
 
-  export interface Props extends Model.Props {}
+  export interface Props extends Model.Props {
+    level: p.Property<RenderLevel>
+    visible: p.Property<boolean>
+  }
 
   export type Visuals = visuals.Visuals
 }

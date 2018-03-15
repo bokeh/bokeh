@@ -208,7 +208,7 @@ export class PatchesView extends GlyphView {
       }
     }
 
-    return null as never // XXX
+    throw new Error("unreachable code")
   }
 
   scentery(i: number, sx: number, sy: number): number {
@@ -226,7 +226,7 @@ export class PatchesView extends GlyphView {
       }
     }
 
-    return null as never // XXX
+    throw new Error("unreachable code")
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: IBBox, index: number): void {

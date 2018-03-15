@@ -216,7 +216,7 @@ export class FactorRange extends Range {
       }
       return m[x[0]].mapping[x[1]].mapping[x[2]].value
     } else
-      return undefined as never
+      throw new Error("unreachable code")
   }
 
   // convert a string factor into a synthetic coordinate

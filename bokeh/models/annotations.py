@@ -23,7 +23,7 @@ from .formatters import BasicTickFormatter, TickFormatter
 from .mappers import ContinuousColorMapper
 from .renderers import GlyphRenderer, Renderer
 from .sources import ColumnDataSource, DataSource
-from .tickers import BasicTicker, Ticker
+from .tickers import BasicTicker, ContinuousTicker
 
 @abstract
 class Annotation(Renderer):
@@ -42,6 +42,23 @@ class TextAnnotation(Annotation):
     ''' Base class for text annotation models such as labels and titles.
 
     '''
+
+    render_mode = Enum(RenderMode, default="canvas", help="""
+    Specifies whether the text is rendered as a canvas element or as an
+    css element overlaid on the canvas. The default mode is "canvas".
+
+    .. note::
+        The CSS labels won't be present in the output using the "save" tool.
+
+    .. warning::
+        Not all visual styling properties are supported if the render_mode is
+        set to "css". The border_line_dash property isn't fully supported and
+        border_line_dash_offset isn't supported at all. Setting text_alpha will
+        modify the opacity of the entire background box and border in addition
+        to the text. Finally, clipping Label annotations inside of the plot
+        area isn't supported in "css" mode.
+
+    """)
 
 class LegendItem(Model):
     '''
@@ -244,7 +261,7 @@ class ColorBar(Annotation):
     The distance (in pixels) to separate the title from the color bar.
     """)
 
-    ticker = Instance(Ticker, default=lambda: BasicTicker(), help="""
+    ticker = Instance(ContinuousTicker, default=lambda: BasicTicker(), help="""
     A Ticker to use for computing locations of axis components.
     """)
 
@@ -647,23 +664,6 @@ class Label(TextAnnotation):
     rendering an annotation on the plot. If unset, use the default y-range.
     """)
 
-    render_mode = Enum(RenderMode, default="canvas", help="""
-    Specifies whether the text is rendered as a canvas element or as an
-    css element overlaid on the canvas. The default mode is "canvas".
-
-    .. note::
-        The CSS labels won't be present in the output using the "save" tool.
-
-    .. warning::
-        Not all visual styling properties are supported if the render_mode is
-        set to "css". The border_line_dash property isn't fully supported and
-        border_line_dash_offset isn't supported at all. Setting text_alpha will
-        modify the opacity of the entire background box and border in addition
-        to the text. Finally, clipping Label annotations inside of the plot
-        area isn't supported in "css" mode.
-
-    """)
-
 class LabelSet(TextAnnotation):
     ''' Render multiple text labels as annotations.
 
@@ -763,23 +763,6 @@ class LabelSet(TextAnnotation):
     y_range_name = String('default', help="""
     A particular (named) y-range to use for computing screen locations when
     rendering annotations on the plot. If unset, use the default y-range.
-    """)
-
-    render_mode = Enum(RenderMode, default="canvas", help="""
-    Specifies whether the text is rendered as a canvas element or as an
-    css element overlaid on the canvas. The default mode is "canvas".
-
-    .. note::
-        The CSS labels won't be present in the output using the "save" tool.
-
-    .. warning::
-        Not all visual styling properties are supported if the render_mode is
-        set to "css". The border_line_dash property isn't fully supported and
-        border_line_dash_offset isn't supported at all. Setting text_alpha will
-        modify the opacity of the entire background box and border in addition
-        to the text. Finally, clipping Label annotations inside of the plot
-        area isn't supported in "css" mode.
-
     """)
 
 class PolyAnnotation(Annotation):
@@ -953,23 +936,6 @@ class Title(TextAnnotation):
     """)
 
     border_line_color = Override(default=None)
-
-    render_mode = Enum(RenderMode, default="canvas", help="""
-    Specifies whether the text is rendered as a canvas element or as an
-    css element overlaid on the canvas. The default mode is "canvas".
-
-    .. note::
-        The CSS labels won't be present in the output using the "save" tool.
-
-    .. warning::
-        Not all visual styling properties are supported if the render_mode is
-        set to "css". The border_line_dash property isn't fully supported and
-        border_line_dash_offset isn't supported at all. Setting text_alpha will
-        modify the opacity of the entire background box and border in addition
-        to the text. Finally, clipping Label annotations inside of the plot
-        area isn't supported in "css" mode.
-
-    """)
 
 class Tooltip(Annotation):
     ''' Render a tooltip.

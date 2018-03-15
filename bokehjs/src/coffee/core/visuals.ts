@@ -27,13 +27,15 @@ export abstract class ContextProperties {
       (this as any)[attr] = obj.properties[prefix + attr]
   }
 
-  warm_cache(source: ColumnarDataSource): void {
+  warm_cache(source?: ColumnarDataSource): void {
     for (const attr of this.attrs) {
       const prop = this.obj.properties[this.prefix + attr]
       if (prop.spec.value !== undefined) // TODO (bev) better test?
         this.cache[attr] = prop.spec.value
-      else
+      else if (source != null)
         this.cache[attr + "_array"] = prop.array(source)
+      else
+        throw new Error("source is required with a vectorized visual property")
     }
   }
 
@@ -234,7 +236,7 @@ export class Visuals {
     }
   }
 
-  warm_cache(source: ColumnarDataSource): void {
+  warm_cache(source?: ColumnarDataSource): void {
     for (const name in this) {
       if (this.hasOwnProperty(name)) {
         const prop: any = this[name]

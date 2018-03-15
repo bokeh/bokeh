@@ -24,7 +24,7 @@ export abstract class AnnotationView extends RendererView {
     extend(this as any, data)
 
     if (this.plot_model.use_map) {
-      const self: any = this
+      const self = this as any
       if (self._x != null)
         [self._x, self._y] = proj.project_xy(self._x, self._y)
       if (self._xs != null)
@@ -41,6 +41,8 @@ export namespace Annotation {
   export interface Props extends Renderer.Props {
     plot: p.Property<Plot>
   }
+
+  export type Visuals = Renderer.Visuals
 }
 
 export interface Annotation extends Annotation.Attrs {
