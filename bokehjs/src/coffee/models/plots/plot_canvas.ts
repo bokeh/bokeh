@@ -769,7 +769,7 @@ export class PlotCanvasView extends DOMView {
     this.model.frame.update_scales();
 
     const {ctx} = this.canvas_view
-    const ratio = this.canvas.pixel_ratio  // Also store on cts for WebGL
+    const ratio = this.canvas.pixel_ratio
 
     // Set hidpi-transform
     ctx.save();  // Save default state, do *after* getting ratio, cause setting canvas.width resets transforms
