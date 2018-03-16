@@ -1,14 +1,19 @@
-/* XXX: partial */
-import {logger} from "core/logging";
-import {empty, div, a} from "core/dom";
-import {build_views, remove_views} from "core/build_views";
-import * as p from "core/properties";
-
-import {DOMView} from "core/dom_view";
-import {Logo, Location} from "core/enums";
-import {Model} from "model";
+import {logger} from "core/logging"
+import {empty, div, a} from "core/dom"
+import {build_views, remove_views} from "core/build_views"
+import * as p from "core/properties"
+import {DOMView} from "core/dom_view"
+import {Logo, Location} from "core/enums"
+import {EventType} from "core/ui_events"
+import {isString} from "core/util/types"
+import {Model} from "model"
 import {Tool} from "./tool"
-import {ButtonToolButtonView} from "./button_tool"
+import {ButtonTool, ButtonToolButtonView} from "./button_tool"
+import {GestureTool} from "./gestures/gesture_tool"
+import {ActionTool} from "./actions/action_tool"
+import {HelpTool} from "./actions/help_tool"
+import {ToolProxy} from "./tool_proxy"
+import {InspectTool} from "./inspectors/inspect_tool"
 
 export class ToolbarBaseView extends DOMView {
   model: ToolbarBase
@@ -16,14 +21,14 @@ export class ToolbarBaseView extends DOMView {
   protected _tool_button_views: {[key: string]: ButtonToolButtonView}
 
   initialize(options: any): void {
-    super.initialize(options);
-    this._tool_button_views = {};
-    this._build_tool_button_views();
+    super.initialize(options)
+    this._tool_button_views = {}
+    this._build_tool_button_views()
   }
 
   connect_signals(): void {
-    super.connect_signals();
-    this.connect(this.model.properties.tools.change, () => this._build_tool_button_views());
+    super.connect_signals()
+    this.connect(this.model.properties.tools.change, () => this._build_tool_button_views())
   }
 
   remove(): void {
@@ -32,7 +37,7 @@ export class ToolbarBaseView extends DOMView {
   }
 
   protected _build_tool_button_views(): void {
-    const tools = this.model._proxied_tools != null ? this.model._proxied_tools : this.model.tools // XXX
+    const tools: ButtonTool[] = (this.model._proxied_tools != null ? this.model._proxied_tools : this.model.tools) as any // XXX
     build_views(this._tool_button_views, tools, {parent: this}, (tool) => tool.button_view)
   }
 
@@ -48,7 +53,7 @@ export class ToolbarBaseView extends DOMView {
       this.el.appendChild(logo)
     }
 
-    const bars: HTMLElement[] = []
+    const bars: HTMLElement[][] = []
 
     const el = (tool: Tool) => {
       return this._tool_button_views[tool.id].el
@@ -56,7 +61,7 @@ export class ToolbarBaseView extends DOMView {
 
     const {gestures} = this.model
     for (const et in gestures) {
-      bars.push(gestures[et].tools.map(el))
+      bars.push(gestures[et as EventType].tools.map(el))
     }
 
     bars.push(this.model.actions.map(el))
@@ -72,28 +77,32 @@ export class ToolbarBaseView extends DOMView {
   }
 }
 
+export type GestureType = "pan" | "scroll" | "pinch" | "tap" | "doubletap" | "press" | "rotate" | "move" | "multi"
+
 export namespace ToolbarBase {
   export interface Attrs extends Model.Attrs {
     tools: Tool[]
     logo: Logo
     gestures: {
-      pan:       { tools: Tool[], active: Tool | null },
-      scroll:    { tools: Tool[], active: Tool | null },
-      pinch:     { tools: Tool[], active: Tool | null },
-      tap:       { tools: Tool[], active: Tool | null },
-      doubletap: { tools: Tool[], active: Tool | null },
-      press:     { tools: Tool[], active: Tool | null },
-      rotate:    { tools: Tool[], active: Tool | null },
-      move:      { tools: Tool[], active: Tool | null },
-      multi:     { tools: Tool[], active: Tool | null },
+      pan:       { tools: GestureTool[], active: Tool | null },
+      scroll:    { tools: GestureTool[], active: Tool | null },
+      pinch:     { tools: GestureTool[], active: Tool | null },
+      tap:       { tools: GestureTool[], active: Tool | null },
+      doubletap: { tools: GestureTool[], active: Tool | null },
+      press:     { tools: GestureTool[], active: Tool | null },
+      rotate:    { tools: GestureTool[], active: Tool | null },
+      move:      { tools: GestureTool[], active: Tool | null },
+      multi:     { tools: GestureTool[], active: Tool | null },
     },
-    actions: Tool[]
-    inspectors: Tool[]
-    help: Tool[]
+    actions: ActionTool[]
+    inspectors: InspectTool[]
+    help: HelpTool[]
     toolbar_location: Location
   }
 
-  export interface Props extends Model.Props {}
+  export interface Props extends Model.Props {
+    tools: p.Property<Tool[]>
+  }
 }
 
 export interface ToolbarBase extends ToolbarBase.Attrs {}
@@ -107,13 +116,13 @@ export class ToolbarBase extends Model {
   }
 
   static initClass(): void {
-    this.prototype.type = 'ToolbarBase';
-    this.prototype.default_view = ToolbarBaseView;
+    this.prototype.type = 'ToolbarBase'
+    this.prototype.default_view = ToolbarBaseView
 
     this.define({
       tools: [ p.Array,    []       ],
       logo:  [ p.String,   'normal' ], // TODO (bev)
-    });
+    })
 
     this.internal({
       gestures: [ p.Any, () => ({
@@ -131,8 +140,10 @@ export class ToolbarBase extends Model {
       inspectors: [ p.Array, [] ],
       help:       [ p.Array, [] ],
       toolbar_location: [ p.Location, 'right' ],
-    });
+    })
   }
+
+  _proxied_tools?: (Tool | ToolProxy)[]
 
   get horizontal(): boolean {
     return this.toolbar_location === "above" || this.toolbar_location === "below"
@@ -142,28 +153,26 @@ export class ToolbarBase extends Model {
     return this.toolbar_location === "left" || this.toolbar_location === "right"
   }
 
-  _active_change(tool) {
-    let event_types = tool.event_type;
+  _active_change(tool: Tool): void {
+    const {event_type} = tool
 
-    if (typeof event_types === 'string') {
-      event_types = [event_types];
-    }
+    if (event_type == null)
+      return
+
+    const event_types = isString(event_type) ? [event_type] : event_type
 
     for (const et of event_types) {
       if (tool.active) {
-        const currently_active_tool = this.gestures[et].active;
-        if ((currently_active_tool != null) && (tool !== currently_active_tool)) {
-          logger.debug(`Toolbar: deactivating tool: ${currently_active_tool.type} (${currently_active_tool.id}) for event type '${et}'`);
-          currently_active_tool.active = false;
+        const currently_active_tool = this.gestures[et].active
+        if (currently_active_tool != null && tool != currently_active_tool) {
+          logger.debug(`Toolbar: deactivating tool: ${currently_active_tool.type} (${currently_active_tool.id}) for event type '${et}'`)
+          currently_active_tool.active = false
         }
-        this.gestures[et].active = tool;
-        logger.debug(`Toolbar: activating tool: ${tool.type} (${tool.id}) for event type '${et}'`);
-      } else {
-        this.gestures[et].active = null;
-      }
+        this.gestures[et].active = tool
+        logger.debug(`Toolbar: activating tool: ${tool.type} (${tool.id}) for event type '${et}'`)
+      } else
+        this.gestures[et].active = null
     }
-
-    return null;
   }
 }
-ToolbarBase.initClass();
+ToolbarBase.initClass()

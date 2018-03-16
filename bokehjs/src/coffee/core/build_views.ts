@@ -6,8 +6,8 @@ import {extend} from "./util/object"
 
 export type ViewStorage = {[key: string]: View}
 
-export function build_views(view_storage: ViewStorage, models: HasProps[],
-    options: object, cls: (model: HasProps) => Class<View> = (model) => model.default_view): View[] {
+export function build_views<T extends HasProps>(view_storage: ViewStorage, models: T[],
+    options: object, cls: (model: T) => Class<View> = (model) => model.default_view): View[] {
 
   const to_remove = difference(Object.keys(view_storage), models.map((model) => model.id))
 

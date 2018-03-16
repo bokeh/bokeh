@@ -1,6 +1,5 @@
-/* XXX: partial */
-import * as p from "core/properties";
-import {Signal0} from "core/signaling";
+import * as p from "core/properties"
+import {Signal0} from "core/signaling"
 import {Class} from "core/class"
 import {Model} from "../../model"
 import {ButtonTool, ButtonToolButtonView} from "./button_tool"
@@ -12,7 +11,11 @@ export namespace ToolProxy {
     disabled: boolean
   }
 
-  export interface Props extends Model.Props {}
+  export interface Props extends Model.Props {
+    tools: p.Property<ButtonTool[]>
+    active: p.Property<boolean>
+    disabled: p.Property<boolean>
+  }
 }
 
 export interface ToolProxy extends ToolProxy.Attrs {}
@@ -32,7 +35,7 @@ export class ToolProxy extends Model {
       tools:    [ p.Array, []    ],
       active:   [ p.Bool,  false ],
       disabled: [ p.Bool,  false ],
-    });
+    })
   }
 
   do: Signal0<this>
@@ -60,8 +63,8 @@ export class ToolProxy extends Model {
   }
 
   initialize(): void {
-    super.initialize();
-    this.do = new Signal0(this, "do");
+    super.initialize()
+    this.do = new Signal0(this, "do")
   }
 
   connect_signals(): void {
@@ -72,19 +75,21 @@ export class ToolProxy extends Model {
 
   doit(): void {
     for (const tool of this.tools) {
-      tool.do.emit();
+      (tool as any).do.emit()
     }
   }
 
   set_active(): void {
     for (const tool of this.tools) {
-      tool.active = this.active;
+      tool.active = this.active
     }
   }
 
+  /* XXX: this.model?
   protected _clicked(): void {
     const {active} = this.model
     this.model.active = !active
   }
+  */
 }
-ToolProxy.initClass();
+ToolProxy.initClass()
