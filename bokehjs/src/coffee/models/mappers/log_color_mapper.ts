@@ -1,29 +1,21 @@
 /* XXX: partial */
-import * as p from "core/properties";
-import {Color} from "core/types"
-
-import {color2hex} from "core/util/color";
-import {min, max} from "core/util/array";
-import {ColorMapper} from "./color_mapper"
+import {ContinuousColorMapper} from "./continuous_color_mapper"
+import {color2hex} from "core/util/color"
+import {min, max} from "core/util/array"
 
 // Math.log1p() is not supported by any version of IE, so let's use a polyfill based on
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/log1p.
 const log1p = Math.log1p != null ? Math.log1p : x => Math.log(1 + x);
 
 export namespace LogColorMapper {
-  export interface Attrs extends ColorMapper.Attrs {
-    high: number
-    low: number
-    high_color: Color
-    low_color: Color
-  }
+  export interface Attrs extends ContinuousColorMapper.Attrs {}
 
-  export interface Props extends ColorMapper.Props {}
+  export interface Props extends ContinuousColorMapper.Props {}
 }
 
 export interface LogColorMapper extends LogColorMapper.Attrs {}
 
-export class LogColorMapper extends ColorMapper {
+export class LogColorMapper extends ContinuousColorMapper {
 
   properties: LogColorMapper.Props
 
@@ -33,13 +25,6 @@ export class LogColorMapper extends ColorMapper {
 
   static initClass(): void {
     this.prototype.type = "LogColorMapper";
-
-    this.define({
-      high:       [ p.Number ],
-      low:        [ p.Number ],
-      high_color: [ p.Color  ],
-      low_color:  [ p.Color  ],
-    });
   }
 
   initialize(): void {

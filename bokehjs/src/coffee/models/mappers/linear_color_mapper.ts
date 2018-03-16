@@ -1,25 +1,17 @@
 /* XXX: partial */
-import * as p from "core/properties";
-import {Color} from "core/types"
-
-import {color2hex} from "core/util/color";
-import {min, max} from "core/util/array";
-import {ColorMapper} from "./color_mapper"
+import {ContinuousColorMapper} from "./continuous_color_mapper"
+import {color2hex} from "core/util/color"
+import {min, max} from "core/util/array"
 
 export namespace LinearColorMapper {
-  export interface Attrs extends ColorMapper.Attrs {
-    high: number
-    low: number
-    high_color: Color
-    low_color: Color
-  }
+  export interface Attrs extends ContinuousColorMapper.Attrs {}
 
-  export interface Props extends ColorMapper.Props {}
+  export interface Props extends ContinuousColorMapper.Props {}
 }
 
 export interface LinearColorMapper extends LinearColorMapper.Attrs {}
 
-export class LinearColorMapper extends ColorMapper {
+export class LinearColorMapper extends ContinuousColorMapper {
 
   properties: LinearColorMapper.Props
 
@@ -29,13 +21,6 @@ export class LinearColorMapper extends ColorMapper {
 
   static initClass(): void {
     this.prototype.type = "LinearColorMapper";
-
-    this.define({
-      high:       [ p.Number ],
-      low:        [ p.Number ],
-      high_color: [ p.Color  ],
-      low_color:  [ p.Color  ],
-    });
   }
 
   initialize(): void {
