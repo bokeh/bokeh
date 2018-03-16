@@ -1,6 +1,6 @@
 import {ColorMapper} from "./color_mapper"
 
-import {Color} from "core/types"
+import {Arrayable, Color} from "core/types"
 import * as p from "core/properties"
 
 export namespace ContinuousColorMapper {
@@ -34,5 +34,7 @@ export abstract class ContinuousColorMapper extends ColorMapper {
       low_color:  [ p.Color  ],
     })
   }
+
+  protected abstract _get_values(data: Arrayable<number>, palette: Float32Array, image_glyph?: boolean): Arrayable<number>
 }
 ContinuousColorMapper.initClass()

@@ -1,21 +1,22 @@
-/* XXX: partial */
-import {ColorMapper} from "./color_mapper";
+import {ColorMapper} from "./color_mapper"
+import {Factor} from "../ranges/factor_range"
 
-import * as p from "core/properties";
-import {findIndex} from "core/util/array";
+import * as p from "core/properties"
+import {Arrayable} from "core/types"
+import {findIndex} from "core/util/array"
 import {isString} from "core/util/types"
 
-const _equals = function(a, b) {
-  if (a.length !== b.length) {
-    return false;
-  }
+function _equals(a: Arrayable<any>, b: Arrayable<any>): boolean {
+  if (a.length != b.length)
+    return false
+
   for (let i = 0, end = a.length; i < end; i++) {
-    if (a[i] !== b[i]) {
-      return false;
-    }
+    if (a[i] !== b[i])
+      return false
   }
-  return true;
-};
+
+  return true
+}
 
 export namespace CategoricalColorMapper {
   export interface Attrs extends ColorMapper.Attrs {
@@ -38,50 +39,49 @@ export class CategoricalColorMapper extends ColorMapper {
   }
 
   static initClass(): void {
-    this.prototype.type = "CategoricalColorMapper";
+    this.prototype.type = "CategoricalColorMapper"
 
     this.define({
       factors: [ p.Array     ],
       start:   [ p.Number, 0 ],
       end:     [ p.Number    ],
-    });
+    })
   }
 
-  // XXX: not really string[], but Factor[]. This needs to be clarified across the repo.
-  _get_values(data: string[], palette: number[], _image_glyph: boolean = false): number[] {
-    const values = [];
+  protected _get_values(data: Arrayable<Factor>, palette: Uint32Array, _image_glyph: boolean = false): Arrayable<number> {
+    const values: number[] = []
 
-    for (let d of data) {
-      let color, key;
+    for (let i = 0, end = data.length; i < end; i++) {
+      let d = data[i]
 
-      if (isString(d)) {
-        key = this.factors.indexOf(d);
-      } else {
+      let key: number
+      if (isString(d))
+        key = this.factors.indexOf(d)
+      else {
         if (this.start != null) {
-          if (this.end != null) {
-            d = d.slice(this.start, this.end);
-          } else {
-            d = d.slice(this.start);
-          }
-        } else if (this.end != null) {
-          d = d.slice(0, this.end);
-        }
-        if (d.length === 1) {
-          key = this.factors.indexOf(d[0]);
-        } else {
-          key = findIndex(this.factors, x => _equals(x, d));
-        }
+          if (this.end != null)
+            d = d.slice(this.start, this.end) as Factor
+          else
+            d = d.slice(this.start) as Factor
+        } else if (this.end != null)
+          d = d.slice(0, this.end) as Factor
+
+        if (d.length == 1)
+          key = this.factors.indexOf(d[0])
+        else
+          key = findIndex(this.factors, (x) => _equals(x, d))
       }
 
-      if ((key < 0) || (key >= palette.length)) {
-        color = this.nan_color;
-      } else {
-        color = palette[key];
-      }
+      let color: number
+      if (key < 0 || key >= palette.length)
+        color = this.nan_color
+      else
+        color = palette[key]
 
-      values.push(color);
+      values.push(color)
     }
-    return values;
+
+    return values
   }
 }
-CategoricalColorMapper.initClass();
+CategoricalColorMapper.initClass()
