@@ -728,7 +728,6 @@ export class PlotCanvasView extends DOMView {
   }
 
   paint() {
-    let ratio;
     if (this.is_paused) {
       return;
     }
@@ -769,8 +768,8 @@ export class PlotCanvasView extends DOMView {
     // frame can't update its scales.
     this.model.frame.update_scales();
 
-    const { ctx } = this.canvas_view;
-    ctx.pixel_ratio = (ratio = this.canvas.pixel_ratio);  // Also store on cts for WebGL
+    const {ctx} = this.canvas_view
+    const ratio = this.canvas.pixel_ratio
 
     // Set hidpi-transform
     ctx.save();  // Save default state, do *after* getting ratio, cause setting canvas.width resets transforms

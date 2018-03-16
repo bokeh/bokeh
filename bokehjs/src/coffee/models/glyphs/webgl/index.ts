@@ -8,10 +8,10 @@ This module contains all gl-specific code to add gl support for the glyphs.
 By implementing it separetely, the GL functionality can be spun off in a
 separate library.
 Other locations where we work with GL, or prepare for GL-rendering:
-- canvas.coffee
-- plot.coffee
-- glyph.coffee
-- glyph_renderer.coffee
+- canvas.ts
+- plot.ts
+- glyph.ts
+- glyph_renderer.ts
 */
 
 export * from "./line"
