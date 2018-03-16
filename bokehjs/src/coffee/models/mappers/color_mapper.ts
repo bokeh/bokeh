@@ -2,6 +2,7 @@ import {Transform} from "../transforms/transform"
 import {Factor} from "../ranges/factor_range"
 import * as p from "core/properties"
 import {Arrayable, Color} from "core/types"
+import {map} from "core/util/arrayable"
 import {isNumber} from "core/util/types"
 import {color2hex} from "core/util/color"
 
@@ -16,7 +17,7 @@ export namespace ColorMapper {
 
 export interface ColorMapper extends ColorMapper.Attrs {}
 
-export abstract class ColorMapper extends Transform {
+export abstract class ColorMapper extends Transform<Color> {
 
   properties: ColorMapper.Props
 
@@ -52,8 +53,8 @@ export abstract class ColorMapper extends Transform {
   }
 
   // TODO (bev) This should not be needed, everything should use v_compute
-  v_map_screen(data: Arrayable<number> | Arrayable<Factor>, image_glyph: boolean = false): ArrayBuffer {
-    const values = this._get_values(data, this._palette, image_glyph)
+  v_map_screen(data: Arrayable<number> | Arrayable<Factor>): ArrayBuffer {
+    const values = this._get_values(data, this._palette)
     const buf = new ArrayBuffer(data.length * 4)
     if (this._little_endian) {
       const color = new Uint8Array(buf)
@@ -83,11 +84,12 @@ export abstract class ColorMapper extends Transform {
     return null as never
   }
 
-  v_compute(xs: Arrayable<number>): Arrayable<number> {
-    return this._get_values(xs, this.palette as any)
+  v_compute(xs: Arrayable<number> | Arrayable<Factor>): Arrayable<Color> {
+    const  values = this._get_values(xs, this._palette)
+    return map(values, (v) => "#" + v.toString(16).slice(0, 6))
   }
 
-  protected abstract _get_values(data: Arrayable<number> | Arrayable<Factor>, palette: Float32Array, image_glyph?: boolean): Arrayable<number>
+  protected abstract _get_values(data: Arrayable<number> | Arrayable<Factor>, palette: Float32Array): Arrayable<number>
 
   protected _is_little_endian(): boolean {
     const buf = new ArrayBuffer(4)

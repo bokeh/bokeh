@@ -48,7 +48,7 @@ export class CategoricalColorMapper extends ColorMapper {
     })
   }
 
-  protected _get_values(data: Arrayable<Factor>, palette: Uint32Array, _image_glyph: boolean = false): Arrayable<number> {
+  protected _get_values(data: Arrayable<Factor>, palette: Uint32Array): Arrayable<number> {
     const values: number[] = []
 
     for (let i = 0, end = data.length; i < end; i++) {
@@ -74,7 +74,7 @@ export class CategoricalColorMapper extends ColorMapper {
 
       let color: number
       if (key < 0 || key >= palette.length)
-        color = this.nan_color
+        color = this._nan_color
       else
         color = palette[key]
 

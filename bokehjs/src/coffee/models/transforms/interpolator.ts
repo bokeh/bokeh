@@ -46,6 +46,15 @@ export abstract class Interpolator extends Transform {
     this.connect(this.change, () => this._sorted_dirty = true)
   }
 
+  v_compute(xs: Arrayable<number>): Arrayable<number> {
+    const result = new Float64Array(xs.length)
+    for (let i = 0; i < xs.length; i++) {
+      const x = xs[i]
+      result[i] = this.compute(x)
+    }
+    return result
+  }
+
   sort(descending: boolean = false): void {
     if (!this._sorted_dirty)
       return

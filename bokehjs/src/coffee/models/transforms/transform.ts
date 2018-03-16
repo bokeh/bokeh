@@ -7,9 +7,9 @@ export namespace Transform {
   export interface Props extends Model.Props {}
 }
 
-export interface Transform extends Transform.Attrs {}
+export interface Transform<To = number> extends Transform.Attrs {}
 
-export abstract class Transform extends Model {
+export abstract class Transform<To = number> extends Model {
 
   properties: Transform.Props
 
@@ -21,15 +21,8 @@ export abstract class Transform extends Model {
     this.prototype.type = "Transform"
   }
 
-  abstract compute(x: number): number
+  abstract compute(x: number): To
 
-  v_compute(xs: Arrayable<number>): Arrayable<number> {
-    const result = new Float64Array(xs.length)
-    for (let i = 0; i < xs.length; i++) {
-      const x = xs[i]
-      result[i] = this.compute(x)
-    }
-    return result
-  }
+  abstract v_compute(xs: Arrayable<number>): Arrayable<To>
 }
 Transform.initClass()

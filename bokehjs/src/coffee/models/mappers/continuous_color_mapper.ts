@@ -43,6 +43,6 @@ export abstract class ContinuousColorMapper extends ColorMapper {
     this._low_color = this.low_color != null ? this._convert_color(this.low_color) : undefined
   }
 
-  protected abstract _get_values(data: Arrayable<number>, palette: Float32Array, image_glyph?: boolean): Arrayable<number>
+  protected abstract _get_values(data: Arrayable<number>, palette: Float32Array): Arrayable<number>
 }
 ContinuousColorMapper.initClass()
