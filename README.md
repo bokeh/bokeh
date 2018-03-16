@@ -7,7 +7,7 @@ Bokeh
 
 <tr>
   <td>Latest Release</td>
-  <td><img src="https://badge.fury.io/gh/bokeh%2Fbokeh.svg" 
+  <td><img src="https://badge.fury.io/gh/bokeh%2Fbokeh.svg"
            alt="Latest release version" /></td>
 </tr>
 
@@ -15,7 +15,7 @@ Bokeh
   <td>License</td>
   <td>
     <a href="https://github.com/bokeh/bokeh/blob/master/LICENSE.txt">
-    <img src="https://img.shields.io/github/license/bokeh/bokeh.svg" 
+    <img src="https://img.shields.io/github/license/bokeh/bokeh.svg"
          alt="Bokeh license (BSD 3-clause)" />
     </a>
   </td>
@@ -25,7 +25,7 @@ Bokeh
   <td>Sponsorship</td>
   <td>
     <a href="http://numfocus.org">
-    <img src="https://img.shields.io/badge/powered%20by-NumFOCUS-black.svg?style=flat&colorA=5B5B5B&colorB=007D8A" 
+    <img src="https://img.shields.io/badge/powered%20by-NumFOCUS-black.svg?style=flat&colorA=5B5B5B&colorB=007D8A"
          alt="Powered by NumFOCUS" />
     </a>
   </td>
@@ -35,7 +35,7 @@ Bokeh
   <td>Build Status</td>
   <td>
     <a href="https://travis-ci.org/bokeh/bokeh">
-    <img src="https://travis-ci.org/bokeh/bokeh.svg?branch=master" 
+    <img src="https://travis-ci.org/bokeh/bokeh.svg?branch=master"
          alt="Current TravisCI build status" />
     </a>
   </td>
@@ -55,7 +55,7 @@ Bokeh
   <td>Conda</td>
   <td>
     <a href="https://bokeh.pydata.org/en/latest/docs/installation.html">
-    <img src="https://s3.amazonaws.com/pubbadges/bokeh_current.svg" 
+    <img src="https://s3.amazonaws.com/pubbadges/bokeh_current.svg"
          alt="Conda downloads per month" />
     </a>
   </td>
@@ -64,7 +64,7 @@ Bokeh
 <tr>
   <td>PyPI</td>
   <td>
-    <img src="https://bokeh.pydata.org/pip-bokeh-badge.svg" 
+    <img src="https://bokeh.pydata.org/pip-bokeh-badge.svg"
          alt="PyPI downloads per month" />
   </td>
 </tr>
@@ -73,7 +73,7 @@ Bokeh
   <td>Live Tutorial</td>
   <td>
     <a href="https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb">
-    <img src="https://mybinder.org/badge.svg" 
+    <img src="https://mybinder.org/badge.svg"
          alt="Live Bokeh tutorial notebooks on MyBinder" />
     </a>
   </td>
@@ -83,7 +83,7 @@ Bokeh
   <td>Gitter</td>
   <td>
     <a href="https://gitter.im/bokeh/bokeh?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge">
-    <img src="https://badges.gitter.im/bokeh/bokeh.svg" 
+    <img src="https://badges.gitter.im/bokeh/bokeh.svg"
          alt="Chat on the Bokeh Gitter channel" />
     </a>
   </td>
@@ -93,7 +93,7 @@ Bokeh
   <td>Twitter</td>
   <td>
     <a href="https://twitter.com/BokehPlots">
-    <img src="https://img.shields.io/twitter/follow/bokehplots.svg?style=social&label=Follow" 
+    <img src="https://img.shields.io/twitter/follow/bokehplots.svg?style=social&label=Follow"
          alt="Follow BokehPlots on Twitter" />
     </a>
   </td>
@@ -106,8 +106,8 @@ meaningful visual presentation of data in modern web browsers. With Bokeh,
 you can quickly and easily create interactive plots, dashboards, and data
 applications.
 
-Bokeh helps provide elegant, concise construction of versatile graphics in the, 
-while also delivering **high-performance** interactivity over very large or 
+Bokeh helps provide elegant, concise construction of versatile graphics in the,
+while also delivering **high-performance** interactivity over very large or
 streaming datasets.
 
 [Interactive gallery](https://bokeh.pydata.org/en/latest/docs/gallery.html)
@@ -283,4 +283,3 @@ Follow us on Twitter [@bokehplots](https://twitter.com/BokehPlots) and on [YouTu
        alt="NumFocus Logo" width="400"/>
   </a>
 </p>
-
