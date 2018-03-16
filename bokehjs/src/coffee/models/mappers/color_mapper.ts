@@ -3,6 +3,7 @@ import {Factor} from "../ranges/factor_range"
 import * as p from "core/properties"
 import {Arrayable, Color} from "core/types"
 import {isNumber} from "core/util/types"
+import {color2hex} from "core/util/color"
 
 export namespace ColorMapper {
   export interface Attrs extends Transform.Attrs {
@@ -34,11 +35,13 @@ export abstract class ColorMapper extends Transform {
 
   protected _little_endian: boolean
   protected _palette: Uint32Array
+  protected _nan_color: number
 
   initialize(): void {
     super.initialize()
     this._little_endian = this._is_little_endian()
     this._palette       = this._build_palette(this.palette)
+    this._nan_color     = this._convert_color(this.nan_color)
   }
 
   connect_signals(): void {
@@ -81,7 +84,7 @@ export abstract class ColorMapper extends Transform {
   }
 
   v_compute(xs: Arrayable<number>): Arrayable<number> {
-    return this._get_values(xs, this._palette)
+    return this._get_values(xs, this.palette as any)
   }
 
   protected abstract _get_values(data: Arrayable<number> | Arrayable<Factor>, palette: Float32Array, image_glyph?: boolean): Arrayable<number>
@@ -99,19 +102,22 @@ export abstract class ColorMapper extends Transform {
     return little_endian
   }
 
+  protected _convert_color(color: number | string): number {
+    if (isNumber(color))
+      return color
+    else {
+      if (color.length > 0 && color[0] != "#")
+        color = color2hex(color)
+      if (color.length != 9)
+        color = color + 'ff'
+      return parseInt(color.slice(1), 16)
+    }
+  }
+
   protected _build_palette(palette: (number | string)[]): Uint32Array {
     const new_palette = new Uint32Array(palette.length)
-    const _convert = function(value: number | string): number {
-      if (isNumber(value))
-        return value
-      else {
-        if (value.length != 9)
-          value = value + 'ff'
-        return parseInt(value.slice(1), 16)
-      }
-    }
     for (let i = 0, end = palette.length; i < end; i++) {
-      new_palette[i] = _convert(palette[i])
+      new_palette[i] = this._convert_color(palette[i])
     }
     return new_palette
   }

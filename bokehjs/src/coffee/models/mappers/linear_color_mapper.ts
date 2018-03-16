@@ -1,7 +1,6 @@
 import {ContinuousColorMapper} from "./continuous_color_mapper"
 import {Arrayable} from "core/types"
-import {color2hex} from "core/util/color"
-import {min, max} from "core/util/array"
+import {min, max} from "core/util/arrayable"
 
 export namespace LinearColorMapper {
   export interface Attrs extends ContinuousColorMapper.Attrs {}
@@ -21,17 +20,6 @@ export class LinearColorMapper extends ContinuousColorMapper {
 
   static initClass(): void {
     this.prototype.type = "LinearColorMapper"
-  }
-
-  protected _nan_color: number
-  protected _high_color: number | undefined
-  protected _low_color: number | undefined
-
-  initialize(): void {
-    super.initialize()
-    this._nan_color = this._build_palette([color2hex(this.nan_color)])[0]
-    this._high_color = this.high_color != null ? this._build_palette([color2hex(this.high_color)])[0] : undefined
-    this._low_color = this.low_color != null ? this._build_palette([color2hex(this.low_color)])[0] : undefined
   }
 
   protected _get_values(data: Arrayable<number>, palette: Uint32Array, image_glyph: boolean = false): Arrayable<number> {
