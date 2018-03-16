@@ -276,3 +276,9 @@ To contribute to Bokeh, please review the [Developer Guide](https://bokeh.pydata
 Follow us
 ---------
 Follow us on Twitter [@bokehplots](https://twitter.com/BokehPlots) and on [YouTube](https://www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw).
+
+<p align="center">
+  <img src="https://github.com/bokeh/bokeh/blob/master/sphinx/source/_images/NumFocus_2C_CMYK.svg"
+       alt="NumFocus Logo" width="400"/>
+</p>
+
