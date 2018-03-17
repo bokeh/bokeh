@@ -1,5 +1,6 @@
 import {Arrayable, TypedArray} from "../types"
 import {isTypedArray, isArray, isObject} from "./types"
+import {is_little_endian} from "./compat"
 
 export const ARRAY_TYPES = {
   uint8:   Uint8Array,
@@ -48,18 +49,7 @@ export type DType = keyof typeof ARRAY_TYPES
 
 export type ByteOrder = "little" | "big"
 
-export const BYTE_ORDER: ByteOrder = (() => {
-  // record endian-ness
-  const buf = new ArrayBuffer(2)
-  const buf8 = new Uint8Array(buf)
-  const buf16 = new Uint16Array(buf)
-  buf8[0] = 0xAA
-  buf8[1] = 0xBB
-  if (buf16[0] === 0xBBAA)
-    return "little"
-  else
-    return "big"
-})()
+export const BYTE_ORDER: ByteOrder = is_little_endian ? "little" : "big"
 
 export function swap16(a: Int16Array | Uint16Array): void {
   const x = new Uint8Array(a.buffer, a.byteOffset, a.length * 2)

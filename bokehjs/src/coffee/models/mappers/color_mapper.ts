@@ -5,6 +5,7 @@ import {Arrayable, Color} from "core/types"
 import {map} from "core/util/arrayable"
 import {isNumber} from "core/util/types"
 import {color2hex} from "core/util/color"
+import {is_little_endian} from "core/util/compat"
 
 export namespace ColorMapper {
   export interface Attrs extends Transform.Attrs {
@@ -34,13 +35,11 @@ export abstract class ColorMapper extends Transform<Color> {
     })
   }
 
-  protected _little_endian: boolean
   protected _palette: Uint32Array
   protected _nan_color: number
 
   initialize(): void {
     super.initialize()
-    this._little_endian = this._is_little_endian()
     this._palette       = this._build_palette(this.palette)
     this._nan_color     = this._convert_color(this.nan_color)
   }
@@ -56,7 +55,7 @@ export abstract class ColorMapper extends Transform<Color> {
   v_map_screen(data: Arrayable<number> | Arrayable<Factor>): ArrayBuffer {
     const values = this._get_values(data, this._palette)
     const buf = new ArrayBuffer(data.length * 4)
-    if (this._little_endian) {
+    if (is_little_endian) {
       const color = new Uint8Array(buf)
       for (let i = 0, end = data.length; i < end; i++) {
         const value = values[i]
@@ -90,19 +89,6 @@ export abstract class ColorMapper extends Transform<Color> {
   }
 
   protected abstract _get_values(data: Arrayable<number> | Arrayable<Factor>, palette: Float32Array): Arrayable<number>
-
-  protected _is_little_endian(): boolean {
-    const buf = new ArrayBuffer(4)
-    const buf8 = new Uint8Array(buf)
-    const buf32 = new Uint32Array(buf)
-    buf32[1] = 0x0a0b0c0d
-
-    let little_endian = true
-    if (buf8[4] == 0x0a && buf8[5] == 0x0b && buf8[6] == 0x0c && buf8[7] == 0x0d) {
-      little_endian = false
-    }
-    return little_endian
-  }
 
   protected _convert_color(color: number | string): number {
     if (isNumber(color))

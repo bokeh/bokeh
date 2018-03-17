@@ -11,10 +11,6 @@ describe "ColorMapper module", ->
 
   describe "ColorMapper.initializer method", ->
 
-    it "Should set `_little_endian` private attribute", ->
-      # is_little_endian is platform (browser?) dependent, so we're just checking it's set
-      expect(@color_mapper).to.have.property("_little_endian")
-
     it "Should set `_palette` private attribute", ->
       # This method is explicitly tested next, we're just checking it's set here
       expect(@color_mapper).to.have.property("_palette")
