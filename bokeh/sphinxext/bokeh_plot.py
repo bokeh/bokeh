@@ -77,7 +77,7 @@ from docutils.parsers.rst import Directive, Parser
 from docutils.parsers.rst.directives import choice, flag
 
 from sphinx.errors import SphinxError
-from sphinx.util import console, copyfile, ensuredir
+from sphinx.util import copyfile, ensuredir, status_iterator
 from sphinx.util.nodes import set_source_info
 
 from ..document import Document
@@ -294,11 +294,11 @@ def build_finished(app, exception):
     for (script, js, js_path, source) in app.env.bokeh_plot_files.values():
         files.add(js_path)
 
-    files_iter = app.status_iterator(sorted(files),
-                                     'copying bokeh-plot files... ',
-                                     console.brown,
-                                     len(files),
-                                     lambda x: basename(x))
+    files_iter = status_iterator(sorted(files),
+                                 'copying bokeh-plot files... ',
+                                 'brown',
+                                 len(files),
+                                 stringify_func=lambda x: basename(x))
 
     for file in files_iter:
         target = join(app.builder.outdir, "scripts", basename(file))

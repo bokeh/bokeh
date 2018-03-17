@@ -14,7 +14,7 @@ from __future__ import absolute_import
 from os.path import join
 
 from sphinx.errors import SphinxError
-from sphinx.util import console
+from sphinx.util import status_iterator
 
 def html_page_context(app, pagename, templatename, context, doctree):
     """ Collect page names for the sitemap as HTML pages are built.
@@ -30,10 +30,10 @@ def build_finished(app, exception):
     """
     filename = join(app.outdir, "sitemap.txt")
 
-    links_iter = app.status_iterator(sorted(app.sitemap_links),
-                                     'adding links to sitemap... ',
-                                     console.brown,
-                                     len(app.sitemap_links))
+    links_iter = status_iterator(sorted(app.sitemap_links),
+                                 'adding links to sitemap... ',
+                                 'brown',
+                                 len(app.sitemap_links))
 
     try:
         with open(filename, 'w') as f:

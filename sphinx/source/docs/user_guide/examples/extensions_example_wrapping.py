@@ -39,14 +39,9 @@ OPTIONS =
     distance: 1.8
 
 # To create custom model extensions that will render on to the HTML canvas
-# or into the DOM, we must create a View subclass for the model. Currently
-# Bokeh models and views are based on BackBone. More information about
-# using Backbone can be found here:
+# or into the DOM, we must create a View subclass for the model.
 #
-#     http://backbonejs.org/
-#
-# In this case we will subclass from the existing BokehJS ``LayoutDOMView``,
-# corresponding to our
+# In this case we will subclass from the existing BokehJS ``LayoutDOMView``
 export class Surface3dView extends LayoutDOMView
 
   initialize: (options) ->
@@ -65,13 +60,13 @@ export class Surface3dView extends LayoutDOMView
     # already been loaded (e.g. in a custom app template). In the future Bokeh
     # models will be able to specify and load external scripts automatically.
     #
-    # Backbone Views create <div> elements by default, accessible as @el. Many
+    # BokehJS Views create <div> elements by default, accessible as @el. Many
     # Bokeh views ignore this default <div>, and instead do things like draw
     # to the HTML canvas. In this case though, we use the <div> to attach a
     # Graph3d to the DOM.
     @_graph = new vis.Graph3d(@el, @get_data(), OPTIONS)
 
-    # Set Backbone listener so that when the Bokeh data source has a change
+    # Set a listener so that when the Bokeh data source has a change
     # event, we can process the new data
     @connect(@model.data_source.change, () =>
         @_graph.setData(@get_data())
@@ -91,7 +86,7 @@ export class Surface3dView extends LayoutDOMView
       })
     return data
 
-# We must also create a corresponding JavaScript Backbone model sublcass to
+# We must also create a corresponding JavaScript BokehJS model subclass to
 # correspond to the python Bokeh model subclass. In this case, since we want
 # an element that can position itself in the DOM according to a Bokeh layout,
 # we subclass from ``LayoutDOM``

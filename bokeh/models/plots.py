@@ -9,7 +9,7 @@ from ..core.property_mixins import LineProps, FillProps
 from ..core.query import find
 from ..core.validation import error, warning
 from ..core.validation.errors import REQUIRED_RANGE, REQUIRED_SCALE, INCOMPATIBLE_SCALE_AND_RANGE
-from ..core.validation.warnings import MISSING_RENDERERS, NO_DATA_RENDERERS
+from ..core.validation.warnings import MISSING_RENDERERS
 from ..util.deprecation import deprecated
 from ..util.plot_utils import _list_attr_splat, _select_helper
 from ..util.string import nice_join
@@ -20,7 +20,7 @@ from .glyphs import Glyph
 from .grids import Grid
 from .layouts import LayoutDOM
 from .ranges import Range, FactorRange, DataRange1d, Range1d
-from .renderers import DataRenderer, GlyphRenderer, Renderer, TileRenderer
+from .renderers import GlyphRenderer, Renderer, TileRenderer
 from .scales import Scale, CategoricalScale, LinearScale, LogScale
 from .sources import DataSource, ColumnDataSource
 from .tools import Tool, Toolbar
@@ -352,11 +352,6 @@ class Plot(LayoutDOM):
     @warning(MISSING_RENDERERS)
     def _check_missing_renderers(self):
         if len(self.renderers) == 0:
-            return str(self)
-
-    @warning(NO_DATA_RENDERERS)
-    def _check_no_data_renderers(self):
-        if len(self.select(DataRenderer)) == 0:
             return str(self)
 
     x_range = Instance(Range, help="""

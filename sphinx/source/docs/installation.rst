@@ -3,51 +3,69 @@
 Installation
 ############
 
-This section gives more details about the installation process of Bokeh,
-for those who were unable to complete the process detailed in the
-:ref:`userguide_quickstart`, or who want more information about the process.
+This section provides complete details about Bokeh's required and
+optional dependencies as well as information about how to install
+Bokeh in different situations. To get up and running as fast as possible,
+see the :ref:`userguide_quickstart_install` section of the
+:ref:`userguide_quickstart`.
 
-.. _install_dependencies:
+.. _install_supported:
 
-Dependencies
-============
+Supported Platforms
+===================
 
 Bokeh is officially supported (and continuously tested) on CPython versions 2.7
-and 3.5+ only. Other Python versions may function, possibly in limited capacity.
-In particular, converting NumPy arrays to lists may be useful with other versions.
-However, this guidance is only provided as-is, in case it happens to be useful,
-and does not imply any level of official support for other Python versions. All
-issues opened related to unsupported Python versions will be closed as invalid.
+and 3.5+ only. Other Python versions or implementations may function, possiblly
+limited capacity, but no guarantees or support is provided.
+
+.. _install_required:
+
+Required Dependencies
+=====================
 
 For basic usage, have the following libraries installed:
 
-.. hlist::
-    :columns: 2
+.. code::
 
-    * NumPy
-    * Jinja2
-    * Six
-    * Requests
-    * Tornado >= 4.0
-    * PyYaml
-    * DateUtil
+    Jinja2 >=2.7
+    python-dateutil >=2.1
+    PyYAML >=3.10
+    numpy >=1.7.1
+    packaging >=16.8
+    six >=1.5.2
+    tornado >=4.3
 
-To use the Bokeh server with python 2.7, you also need to install Futures
+To use the Bokeh server with Python 2.7, you also must install the Futures
 package.
 
-Because the Bokeh client library is mostly concerned with providing a nice
-Python interface for generating JSON objects which are then consumed by the
-BokehJS library running in the browser, there shouldn't be a *hard* dependency
-on any of the standard NumPy/SciPy stack. It is entirely possible to use
-Bokeh with plain Python lists of values. However, the Bokeh plot server does
-make direct use of NumPy, and it is required to be installed for Bokeh apps
-to function. Additionally nodejs is required to allow compilation of custom
-bokeh extensions.
+.. _install_optional:
+
+Optional Dependencies
+=====================
+
+In addition to the required dependencies above, some additional packages are
+necessary for certain optional features:
+
+NodeJS
+    Necessary for :ref:`userguide_extensions` or for defining
+    ``CustomJS`` implementations in CoffeeScript or TypeScript.
+
+Pandas
+    Not strictly necessary for any particular feature, but some usage is
+    simpler when using Pandas e.g. Pandas DataFrames will be converted
+    automatically to Bokeh data sources by glyph functions.
+
+psutil
+    Necessary to enable detailed memory logging in the Bokeh server.
+
+Sphinx
+    Necessary to make use of the ``bokeh.sphinxext`` Sphinx extension for
+    including Bokeh plots in Sphinx documentation.
 
 .. _install_packages:
 
-Package Installs
-================
+Standard Releases
+=================
 
 These Bokeh dependencies are best obtained via the
 `Anaconda Python Distribution`_, which was designed to include robust
@@ -105,25 +123,62 @@ config file:
 
 will cause the sample data to be stored in ``/tmp/bokeh_data``.
 
-.. _install_source:
-
-Installing from Source
+Verifying installation
 ======================
 
+The first check you can make is to make sure you can ``import bokeh`` and
+verify ``bokeh.__version__`` from a running python interpreter. If you
+execute both of those lines in a python interpreter, the result should
+look something like this:
+
+.. image:: /_images/bokeh_import.png
+    :scale: 50 %
+    :align: center
+
+The next check you can make is to produce a very simple plot. Execute the
+following few lines of python code, either by copying them into a script and
+executing the script, or by running the lines by hand in a python interpreter:
+
+.. code-block:: python
+
+    from bokeh.plotting import figure, output_file, show
+    output_file("test.html")
+    p = figure()
+    p.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], line_width=2)
+    show(p)
+
+This should save a ``test.html`` file locally, and open a browser tab to
+view the file. The result should look like this:
+
+.. image:: /_images/bokeh_simple_test.png
+    :scale: 30 %
+    :align: center
+
+Advanced Cases
+==============
+
+In addition to the standard installation methods above, Bokeh can also
+be installed in some specialized ways for advanced usage or development.
+
+.. _install_source:
+
+Source Code
+-----------
+
 Installing Bokeh from source requires rebuilding the BokehJS library
-from its CoffeeScript sources. Some additional toolchain support is required.
+from its TypeScript sources. Some additional toolchain support is required.
 Please consult the :ref:`devguide_setup` section of the :ref:`devguide` for
 detailed instructions.
 
 .. _install_devbuild:
 
 Developer Builds
-================
+----------------
 
 And easier way to obtain the most recent Bokeh updates without having to worry
-about building Bokeh yourself is to install a developer build. We typically try
-to make a new developer build available at least once a week, and sometimes more
-often.
+about building Bokeh yourself is to install a developer build. Dev builds are not
+published on any particular schedule but often come out a few times a month or
+more.
 
 These builds are being made available on `anaconda.org`_. If you are using
 Anaconda, you can install with conda by issuing the command from a Bash or Windows
@@ -145,14 +200,12 @@ or issues reported on the GitHub issue tracker are appreciated.
 
 .. _install_bokehjs:
 
-BokehJS Standalone
-==================
+BokehJS
+-------
 
-If you would like to use BokehJS as a standalone JavaScript library, there are
-two easy ways to get any published release.
-
-First, released versions of BokehJS is available for download from CDN at
-pydata.org, under the following naming scheme::
+If you would like to use BokehJS as a standalone JavaScript library, released
+versions of BokehJS are available for download from CDN at pydata.org, under
+the following naming scheme::
 
     http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.css
     http://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.css
@@ -173,25 +226,21 @@ for the BokehJS Javascript files.
 The ``"-widgets"`` files are only necessary if you are using any of the widgets
 built into Bokeh in ``bokeh.models.widgets`` in your documents. Similarly, the
 ``"-tables"`` files are only necessary if you are using Bokeh data tables in
-your document.
+your document. The ``"bokeh-api"`` files are required to use the BokehJS API,
+and must be loaded *after* the core BokehJS library.
 
-As a concrete example, the links for version ``0.12.9`` are:
+As a concrete example, the links for version ``0.12.15`` are:
 
-* http://cdn.pydata.org/bokeh/release/bokeh-0.12.9.min.css
-* http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.9.min.css
-* http://cdn.pydata.org/bokeh/release/bokeh-tables-0.12.9.min.css
+* http://cdn.pydata.org/bokeh/release/bokeh-0.12.15.min.css
+* http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.15.min.css
+* http://cdn.pydata.org/bokeh/release/bokeh-tables-0.12.15.min.css
 
 and
 
-* http://cdn.pydata.org/bokeh/release/bokeh-0.12.9.min.js
-* http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.9.min.js
-* http://cdn.pydata.org/bokeh/release/bokeh-tables-0.12.9.min.js
-* http://cdn.pydata.org/bokeh/release/bokeh-api-0.12.9.min.js
-
-.. note::
-    For releases ``0.12.2`` and after, the BokehJS API has been branched to a separate file.
-    It is also available for download from CDN at pydata.org under the name bokeh-api using
-    the above naming scheme. It must be loaded *after* the JavaScript library.
+* http://cdn.pydata.org/bokeh/release/bokeh-0.12.15.min.js
+* http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.15.min.js
+* http://cdn.pydata.org/bokeh/release/bokeh-tables-0.12.15.min.js
+* http://cdn.pydata.org/bokeh/release/bokeh-api-0.12.15.min.js
 
 .. _Anaconda Python Distribution: http://anaconda.com/anaconda
 .. _anaconda.org: http://anaconda.org

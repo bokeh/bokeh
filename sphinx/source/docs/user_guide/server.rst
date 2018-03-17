@@ -398,7 +398,7 @@ It is critical to note that **no python code is ever executed when a CustomJS
 callback is used**. This is true even when the call back is supplied as python
 code to be translated to JavaScript. A ``CustomJS`` callback is only executed
 inside the browser's JavaScript interpreter, and thus can only directly interact
-with JavaScript data and functions (e.g., BokehJS Backbone models).
+with JavaScript data and functions (e.g., BokehJS models).
 
 Python Callbacks with Jupyter Interactors
 '''''''''''''''''''''''''''''''''''''''''

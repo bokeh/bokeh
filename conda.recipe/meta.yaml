@@ -49,7 +49,7 @@ test:
     # docs
     - colorcet
     - pygments
-    - sphinx <1.6
+    - sphinx >=1.6
     # pyyaml installed by bokeh
     # packaging installed by bokeh
 

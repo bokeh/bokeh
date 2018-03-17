@@ -76,7 +76,11 @@
             </ul>
         </li>
         {%- for name, link in NAV_DOCS  %}
+            {% if hasdoc('docs/' + link) %}
             <li class="nav-link doc-head"><a href="{{ pathto('docs/' + link) }}">{{ name }}</a></li>
+            {% else %}
+            <li class="nav-link doc-head"><a href="{{ link }}">{{ name }}</a></li>
+            {% endif %}
         {%- endfor %}
       </ul>
     </nav>

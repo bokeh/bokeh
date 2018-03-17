@@ -157,13 +157,13 @@ user interaction. Its input is a collection of declarative JSON objects that
 comprise a "scenegraph". The objects in this scenegraph describe everything
 that BokehJS should handle: what plots and widgets are present and in what
 arrangement, what tools and renderers and axes the plots will have, etc. These
-JSON objects are converted into Backbone_ Models in the browser, and are
-rendered by corresponding Backbone_ Views.
+JSON objects are converted into BokehJS Models in the browser, and are
+rendered by corresponding BokehJS Views.
 
 The second component is a library in Python (or |other languages|) that can
 generate the JSON described above. In the Python Bokeh library, this is
 accomplished at the lowest level by exposing a set of "model" classes
-that exactly mirror the set of Backbone_ Models that are created in the
+that exactly mirror the set of BokehJS Models that are created in the
 browser. These python model classes know how to validate their content and
 attributes, and also how to serialize themselves to JSON. All of
 these low level models live in the **low-level** |bokeh.models| interface.
@@ -230,7 +230,6 @@ laying out multiple plots together. The :ref:`userguide_plotting` section of
 this :ref:`userguide` will walk through many more examples and common use
 cases of using the |bokeh.plotting| interface.
 
-.. _Backbone: http://backbonejs.org
 .. _Matlab: http://www.mathworks.com/products/matlab/
 .. _Matplotlib: http://matplotlib.org
 
@@ -238,7 +237,7 @@ cases of using the |bokeh.plotting| interface.
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 .. |bokeh.io|       replace:: :ref:`bokeh.io <bokeh.io>`
 
-.. |other languages| replace:: :ref:`other languages <quickstart_other_languages>`
+.. |other languages| replace:: :ref:`other languages <userguide_quickstart_other_languages>`
 
 .. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
 .. |Rect| replace:: :class:`~bokeh.models.glyphs.Rect`

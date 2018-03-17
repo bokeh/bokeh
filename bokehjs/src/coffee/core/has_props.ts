@@ -369,10 +369,6 @@ export abstract class HasProps extends Signalable() {
 
   // Convert attributes to "shallow" JSON (values which are themselves models
   // are included as just references)
-  // TODO (havocp) can this just be toJSON (from Backbone / JSON.stingify?)
-  // backbone will have implemented a toJSON already that we may need to override
-  // optional value_to_json is for test to override with a "deep" version to replace the
-  // standard "shallow" HasProps._value_to_json
   attributes_as_json(include_defaults: boolean = true, value_to_json=HasProps._value_to_json): any {
     const serializable = this.serializable_attributes()
     const attrs: {[key: string]: any} = {}
