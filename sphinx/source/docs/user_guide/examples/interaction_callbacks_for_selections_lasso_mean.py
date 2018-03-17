@@ -16,7 +16,7 @@ s2 = ColumnDataSource(data=dict(x=[0, 1], ym=[0.5, 0.5]))
 p.line(x='x', y='ym', color="orange", line_width=5, alpha=0.6, source=s2)
 
 s.callback = CustomJS(args=dict(s2=s2), code="""
-        var inds = cb_obj.selected['1d'].indices;
+        var inds = cb_obj.selected.indices;
         var d = cb_obj.data;
         var ym = 0
 
