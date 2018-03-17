@@ -27,7 +27,7 @@ describe "LinearColorMapper module", ->
       expect(color_mapper._low_color).to.be.undefined
       expect(color_mapper._high_color).to.be.undefined
 
-  describe "LinearColorMapper._get_values method", ->
+  describe "LinearColorMapper.v_compute method", ->
 
     it "Should map values along linear scale with high/low unset", ->
       palette = ["red", "green", "blue"]
@@ -35,28 +35,28 @@ describe "LinearColorMapper module", ->
           palette: palette
         })
 
-      vals = color_mapper._get_values([99.999, 67, 50, 32, 0.0001], palette)
+      vals = color_mapper.v_compute([99.999, 67, 50, 32, 0.0001])
       expect(vals).to.be.deep.equal(["blue", "blue", "green", "red", "red"])
 
-      vals = color_mapper._get_values([0.0001, 32, 50, 67, 99.999], palette)
+      vals = color_mapper.v_compute([0.0001, 32, 50, 67, 99.999])
       expect(vals).to.be.deep.equal(["red", "red", "green", "blue", "blue"])
 
-      vals = color_mapper._get_values([1, 2, 3], palette)
+      vals = color_mapper.v_compute([1, 2, 3])
       expect(vals).to.be.deep.equal(["red", "green", "blue"])
 
-      vals = color_mapper._get_values([3, 2, 1], palette)
+      vals = color_mapper.v_compute([3, 2, 1])
       expect(vals).to.be.deep.equal(["blue", "green", "red"])
 
-      vals = color_mapper._get_values([0, 1, 2], palette)
+      vals = color_mapper.v_compute([0, 1, 2])
       expect(vals).to.be.deep.equal(["red", "green", "blue"])
 
-      vals = color_mapper._get_values([2, 1, 0], palette)
+      vals = color_mapper.v_compute([2, 1, 0])
       expect(vals).to.be.deep.equal(["blue", "green", "red"])
 
-      vals = color_mapper._get_values([-1, 0, 1], palette)
+      vals = color_mapper.v_compute([-1, 0, 1])
       expect(vals).to.be.deep.equal(["red", "green", "blue"])
 
-      vals = color_mapper._get_values([1, 0, -1], palette)
+      vals = color_mapper.v_compute([1, 0, -1])
       expect(vals).to.be.deep.equal(["blue", "green", "red"])
 
     it "Should map values along linear scale with high/low set", ->
@@ -67,7 +67,7 @@ describe "LinearColorMapper module", ->
           palette: palette
         })
 
-      vals = color_mapper._get_values([1, 2, 3], palette)
+      vals = color_mapper.v_compute([1, 2, 3])
       expect(vals).to.be.deep.equal(["red", "green", "blue"])
 
     it "Should map values along linear scale with high/low set in other direction", ->
@@ -78,7 +78,7 @@ describe "LinearColorMapper module", ->
           palette: palette
         })
 
-      vals = color_mapper._get_values([1, 2, 3], palette)
+      vals = color_mapper.v_compute([1, 2, 3])
       expect(vals).to.be.deep.equal(["blue", "green", "red"])
 
     it "Should map data below low value to low", ->
@@ -89,7 +89,7 @@ describe "LinearColorMapper module", ->
           palette: palette
         })
 
-      vals = color_mapper._get_values([0, 1, 2], palette)
+      vals = color_mapper.v_compute([0, 1, 2])
       expect(vals).to.be.deep.equal(["red", "red", "green"])
 
     it "Should map data above high value to high", ->
@@ -100,7 +100,7 @@ describe "LinearColorMapper module", ->
           palette: palette
         })
 
-      vals = color_mapper._get_values([2, 3, 4], palette)
+      vals = color_mapper.v_compute([2, 3, 4])
       expect(vals).to.be.deep.equal(["green", "blue", "blue"])
 
     it "Should map data NaN to nan_color value", ->
@@ -112,7 +112,7 @@ describe "LinearColorMapper module", ->
           nan_color: "gray"
         })
 
-      vals = color_mapper._get_values([1, NaN, 3], palette)
+      vals = color_mapper.v_compute([1, NaN, 3])
       expect(vals).to.be.deep.equal(["red", "gray", "blue"])
 
     it "Should map data NaN to nan_color value when high/low not set", ->
@@ -122,7 +122,7 @@ describe "LinearColorMapper module", ->
           nan_color: "gray"
         })
 
-      vals = color_mapper._get_values([1, NaN, 3], palette)
+      vals = color_mapper.v_compute([1, NaN, 3])
       expect(vals).to.be.deep.equal(["red", "gray", "blue"])
 
     it "Should map high/low values to high_color/low_color, if provided", ->
@@ -135,7 +135,7 @@ describe "LinearColorMapper module", ->
           high_color: "orange"
         })
 
-      vals = color_mapper._get_values([-1, 0, 1, 2, 3], palette)
+      vals = color_mapper.v_compute([-1, 0, 1, 2, 3])
       expect(vals).to.be.deep.equal(["pink", "red", "green", "blue", "orange"])
 
     it "Should map high/low values to _high_color/_low_color, if image_glyph=true", ->

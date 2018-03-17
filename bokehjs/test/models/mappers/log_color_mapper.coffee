@@ -52,7 +52,7 @@ describe "LogColorMapper module", ->
       buf8 = new Uint8ClampedArray(color_mapper.v_map_screen([0]))
       expect([buf8[0], buf8[1], buf8[2], buf8[3]]).to.be.deep.equal [50, 136, 189, 255]
 
-  describe "LogColorMapper._get_values method", ->
+  describe "LogColorMapper.v_compute method", ->
 
     it "Should map data below low value to low", ->
       palette = ["red", "green", "blue"]
@@ -62,7 +62,7 @@ describe "LogColorMapper module", ->
           palette: palette
         })
 
-      vals = color_mapper._get_values([0, 1, 10], palette)
+      vals = color_mapper.v_compute([0, 1, 10])
       expect(vals).to.be.deep.equal(["red", "red", "green"])
 
     it "Should map data above high value to high", ->
@@ -73,7 +73,7 @@ describe "LogColorMapper module", ->
           palette: palette
         })
 
-      vals = color_mapper._get_values([10, 100, 101], palette)
+      vals = color_mapper.v_compute([10, 100, 101])
       expect(vals).to.be.deep.equal(["green", "blue", "blue"])
 
     it "Should map data NaN to nan_color value", ->
@@ -85,7 +85,7 @@ describe "LogColorMapper module", ->
           nan_color: "gray"
         })
 
-      vals = color_mapper._get_values([1, NaN, 100], palette)
+      vals = color_mapper.v_compute([1, NaN, 100])
       expect(vals).to.be.deep.equal(["red", "gray", "blue"])
 
     it "Should map data NaN to nan_color value when high/low not set", ->
@@ -95,7 +95,7 @@ describe "LogColorMapper module", ->
           nan_color: "gray"
         })
 
-      vals = color_mapper._get_values([1, NaN, 100], palette)
+      vals = color_mapper.v_compute([1, NaN, 100])
       expect(vals).to.be.deep.equal(["red", "gray", "blue"])
 
     it "Should map high/low values to high_color/low_color, if provided", ->
@@ -108,7 +108,7 @@ describe "LogColorMapper module", ->
           palette: palette
         })
 
-      vals = color_mapper._get_values([0.5, 1, 10, 100, 101], palette)
+      vals = color_mapper.v_compute([0.5, 1, 10, 100, 101])
       expect(vals).to.be.deep.equal(["pink", "red", "green", "blue", "orange"])
 
     it "Should map high/low values to _high_color/_low_color, if image_glyph=true", ->
