@@ -21,6 +21,8 @@ conda install anaconda-client --yes --quiet
 conda install -c bokeh twine --yes --quiet
 conda install -c defaults -c conda-forge fabric3 --yes --quiet
 
+npm install -g npm
+
 # install NPM dependencies
 pushd bokehjs
 npm install --no-save --no-progress
