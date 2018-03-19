@@ -10,7 +10,6 @@ import * as fs from "fs"
 import {join} from "path"
 import {argv} from "yargs"
 import * as insert from 'gulp-insert'
-const stripAnsi = require('strip-ansi')
 const merge = require("merge2")
 
 const license = `/*!\n${fs.readFileSync('../LICENSE.txt', 'utf-8')}*/\n`
@@ -22,44 +21,10 @@ const minify = uglify(uglify_es, console)
 
 import {Linker, Bundle} from "../linker"
 
-function is_partial(file: string): boolean {
-  return fs.readFileSync(file, "utf8").split("\n")[0] == "/* XXX: partial */"
-}
-
-function is_excluded(code: number): boolean {
-  const excluded = [
-    2322, 2339, 2345, 2365,
-    2415, 2459, 2461,
-    2531, 2532, 2538, 2551,
-    2683,
-    4025,
-    7006, 7010, 7016, 7017, 7019, 7030, 7031,
-  ]
-  return excluded.includes(code)
-}
-
 gulp.task("scripts:ts", () => {
-  const errors: string[] = []
   let n_errors = 0
 
   function error(err: {message: string}) {
-    const text = stripAnsi(err.message)
-    errors.push(text)
-
-    const result = text.match(/(.*)(\(\d+,\d+\): error TS(\d+):.*)/)
-    if (result != null) {
-      const [, file, , code] = result
-      if (is_partial(file)) {
-        if (is_excluded(parseInt(code))) {
-          if (!(argv.include && text.includes(argv.include)))
-            return
-        }
-      }
-    }
-
-    if (argv.filter && !text.includes(argv.filter))
-      return
-
     gutil.log(err.message)
     n_errors++
   }
@@ -79,8 +44,6 @@ gulp.task("scripts:ts", () => {
   ])
 
   result.on("finish", function() {
-    fs.writeFileSync(join(paths.build_dir.js, "ts.log"), errors.join("\n"))
-
     if (argv.emitError && n_errors > 0) {
       gutil.log(`There were ${chalk.red("" + n_errors)} TypeScript errors.`)
       process.exit(1)
