@@ -79,4 +79,4 @@ the :ref:`devguide`.
     docs/releases/*
 
 .. _NumFOCUS: https://numfocus.org
-.. _donation: https://placeholder.org
+.. _donation: https://www.flipcause.com/secure/cause_pdetails/MzE5NjE=
