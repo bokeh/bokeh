@@ -168,15 +168,16 @@ export class DataTableView extends WidgetView {
   newIndexColumn(): Column {
     return {
       id: uniqueId(),
-      name: "#",
+      name: this.model.index_header,
       field: DTINDEX_NAME,
-      width: 40,
+      width: this.model.index_width,
       behavior: "select",
       cannotTriggerInsert: true,
       resizable: false,
       selectable: false,
       sortable: true,
       cssClass: "bk-cell-index",
+      headerCssClass: "bk-header-index",
     }
   }
 
@@ -277,6 +278,8 @@ export namespace DataTable {
     editable: boolean
     selectable: boolean | "checkbox"
     index_position: number | null
+    index_header: string
+    index_width: number
     scroll_to_selection: boolean
   }
 
@@ -305,6 +308,8 @@ export class DataTable extends TableWidget {
       editable:            [ p.Bool,   false ],
       selectable:          [ p.Bool,   true  ],
       index_position:      [ p.Int,    0     ],
+      index_header:        [ p.String, "#"   ],
+      index_width:         [ p.Int,    40    ],
       scroll_to_selection: [ p.Bool,   true  ],
     })
 

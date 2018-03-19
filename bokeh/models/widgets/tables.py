@@ -549,6 +549,14 @@ class DataTable(TableWidget):
     on the sign.
     """)
 
+    index_header = String("#", help="""
+    The column header to display for the index column, if it is present.
+    """)
+
+    index_width = Int(40, help="""
+    The width of the index column, if present.
+    """)
+
     scroll_to_selection = Bool(True, help="""
     Whenever a selection is made on the data source, scroll the selected
     rows into the table's viewport if none of the selected rows are already
