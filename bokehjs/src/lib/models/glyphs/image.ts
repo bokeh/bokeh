@@ -8,6 +8,9 @@ import {max, concat} from "core/util/array"
 import {Context2d} from "core/util/canvas"
 import {Rect} from "core/util/spatial"
 import {RBush} from "core/util/spatial"
+import * as hittest from "core/hittest";
+import {Selection} from "../selections/selection";
+
 
 // XXX: because ImageData is a global
 export interface _ImageData extends XYGlyphData {
@@ -27,6 +30,7 @@ export interface _ImageData extends XYGlyphData {
 }
 
 export interface ImageView extends _ImageData {}
+
 export class ImageView extends XYGlyphView {
   model: Image
   visuals: Image.Visuals
@@ -67,6 +71,35 @@ export class ImageView extends XYGlyphView {
     const t = b + this._dh[i]
     return [l, r, t, b]
   }
+
+  _image_index(index, x,y) {
+    let [l,r,t,b] = this._lrtb(index);
+    let width = this._width[index]
+    let height = this._height[index]
+    let dx = (r - l) / width;
+    let dy = (t - b) / height;
+    let dim1 = Math.floor((x-l) / dx)
+    let dim2 = Math.floor((y-b) / dy)
+    return [index, dim1,  dim2, (dim2 * width) + dim1]
+  }
+
+  _hit_point(geometry) : Selection {
+    let {sx, sy} = geometry;
+    const x = this.renderer.xscale.invert(sx);
+    const y = this.renderer.yscale.invert(sy);
+    const bbox = hittest.validate_bbox_coords([x, x], [y, y]);
+    const candidates = this.index.indices(bbox);
+    const result = hittest.create_empty_hit_test_result()
+
+    result['im2d']['indices'] = []
+    for (let index of candidates) {
+      if ((sx != Infinity) && (sy != Infinity)) {
+        result['im2d']['indices'].push(this._image_index(index, x,y))
+      }
+    }
+    return result;
+  }
+
 
   protected _set_data(): void {
     if (this.image_data == null || this.image_data.length != this._image.length)
