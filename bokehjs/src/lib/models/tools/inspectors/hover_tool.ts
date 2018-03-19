@@ -344,7 +344,7 @@ export class HoverToolView extends InspectToolView {
     }
   }
 
-  _render_tooltips(ds: ColumnarDataSource, i: number, vars: any): HTMLElement {
+  _render_tooltips(ds: ColumnarDataSource, i: any, vars: any): HTMLElement {
     const tooltips = this.model.tooltips
     if (isString(tooltips)) {
       const el = div()
