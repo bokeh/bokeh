@@ -35,7 +35,7 @@ the :ref:`devguide`.
     Bokeh is a fiscally sponsored project of `NumFOCUS`_, a nonprofit
     dedicated to supporting the open source scientific computing
     community. If you like Bokeh and want to support our mission, please
-    consider making a* `donation`_ to support our efforts.
+    consider making a `donation`_ to support our efforts.
 
 .. bokeh-index-toctree::
     :hidden:
