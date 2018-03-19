@@ -109,6 +109,7 @@
     "nouislider": "^10.0.0",
     "@types/nouislider": "^9.0.3",
     "@types/geojson": "^7946.0.1",
+    "@types/googlemaps": "^3.30.8",
     "timezone": "^1.0.6",
     "underscore.template": "^0.1.7",
     "canvas2svg": "https://github.com/bokeh/canvas2svg#v1.0.21",
