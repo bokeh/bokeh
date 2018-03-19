@@ -16,6 +16,18 @@ Migration Guide
 NOTE: the 0.12.x series is the last planned release series before a version
 1.0 release. For more information see the `project roadmap`_.
 
+DataTable
+~~~~~~~~~
+
+The mis-named property ``DataTable.row_header`` has been deprecated. This
+property confusingly controlled the presence of an index column in a
+DataTable. Now, use the ``index_position`` property to specify where
+an index column should be located in the table (use ``None`` to suppress
+the index column).
+
+Additionally, new properties ``index_header`` and ``index_width`` are
+now available to further customize the index column appearance.
+
 Selections
 ~~~~~~~~~~
 
