@@ -25,7 +25,8 @@ function _format_number(num: string | number): string {
     return `${num}`  // get strings for categorical types
 }
 
-export function replace_placeholders(str: string, data_source: ColumnarDataSource, i: number,
+
+export function replace_placeholders(str: string, data_source: ColumnarDataSource, i : any,
     formatters: {[key: string]: "numeral" | "printf" | "datetime"} | null = null, special_vars: {[key: string]: any} = {}): string {
 
   str = str.replace(/(^|[^\$])\$(\w+)/g, (_match, prefix, name) => `${prefix}@$${name}`)
