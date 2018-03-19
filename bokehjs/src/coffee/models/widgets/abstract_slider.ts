@@ -93,11 +93,11 @@ export abstract class AbstractSliderView extends WidgetView {
         let value = Number(this.sliderEl.noUiSlider.get())
         switch (e.which) {
           case 37: {
-            value -= step
+            value = Math.max(value - step, start)
             break
           }
           case 39: {
-            value += step
+            value = Math.min(value + step, end)
             break
           }
           default:
