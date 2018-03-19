@@ -21,6 +21,7 @@ export type Column = {
   behavior?: "select" | "selectAndMove"
   cannotTriggerInsert?: boolean
   cssClass?: string
+  headerCssClass?: string
 }
 
 export namespace TableColumn {

@@ -7,6 +7,7 @@ from ...core.enums import DateFormat, FontStyle, NumeralLanguage, TextAlign, Rou
 from ...core.has_props import abstract
 from ...core.properties import Bool, Color, Either, Enum, Float, Instance, Int, List, Override, String
 from ...model import Model
+from ...util.deprecation import deprecated
 
 from ..sources import DataSource, CDSView
 
@@ -500,6 +501,23 @@ class DataTable(TableWidget):
 
     '''
 
+    @property
+    def row_header(self):
+        deprecated("DataTable.row_header property is deprecated, use DataTable.index_position instead"\
+                   "In the future, accessing DataTable.row_header will result in an AttributeError.")
+        return self.index_position is not None
+
+    @row_header.setter
+    def row_header(self, val):
+        deprecated("DataTable.row_header property is deprecated, use DataTable.index_position instead."\
+                   "In the future, accessing DataTable.row_header will result in an AttributeError.")
+        if val is True:
+            self.index_position = 0
+        elif val is False:
+            self.index_position = None
+        else:
+            raise ValueError("Expected True or False for DataTable.row_header, got %s" % val)
+
     columns = List(Instance(TableColumn), help="""
     The list of child column widgets.
     """)
@@ -537,8 +555,24 @@ class DataTable(TableWidget):
     enabled) or using Shift + click on rows.
     """)
 
-    row_headers = Bool(True, help="""
-    Enable or disable row headers, i.e. the index column.
+    index_position = Int(0, help="""
+    Where among the list of columns to insert a column displaying the row
+    index. Negative indices are supported, and specify an index position
+    from the end of the list of columns (i.e. standard Python behaviour).
+
+    To prevent the index column from being added, set to None.
+
+    If the absolute value of index_position  is larger than the length of
+    the columns, then the index will appear at the beginning or end, depending
+    on the sign.
+    """)
+
+    index_header = String("#", help="""
+    The column header to display for the index column, if it is present.
+    """)
+
+    index_width = Int(40, help="""
+    The width of the index column, if present.
     """)
 
     scroll_to_selection = Bool(True, help="""

@@ -168,15 +168,16 @@ export class DataTableView extends WidgetView {
   newIndexColumn(): Column {
     return {
       id: uniqueId(),
-      name: "#",
+      name: this.model.index_header,
       field: DTINDEX_NAME,
-      width: 40,
+      width: this.model.index_width,
       behavior: "select",
       cannotTriggerInsert: true,
       resizable: false,
       selectable: false,
       sortable: true,
       cssClass: "bk-cell-index",
+      headerCssClass: "bk-header-index",
     }
   }
 
@@ -193,8 +194,20 @@ export class DataTableView extends WidgetView {
       columns.unshift(checkboxSelector.getColumnDefinition())
     }
 
-    if (this.model.row_headers) {
-      columns.unshift(this.newIndexColumn())
+    if (this.model.index_position != null) {
+      const index_position = this.model.index_position
+      const index = this.newIndexColumn()
+      // This is to be able to provide negative index behaviour that
+      // matches what python users will expect
+      if (index_position == -1) {
+        columns.push(index)
+      }
+      else if (index_position < -1) {
+        columns.splice(index_position+1, 0, index)
+      }
+      else {
+        columns.splice(index_position, 0, index)
+      }
     }
 
     let { reorderable } = this.model
@@ -264,7 +277,9 @@ export namespace DataTable {
     reorderable: boolean
     editable: boolean
     selectable: boolean | "checkbox"
-    row_headers: boolean
+    index_position: number | null
+    index_header: string
+    index_width: number
     scroll_to_selection: boolean
   }
 
@@ -292,7 +307,9 @@ export class DataTable extends TableWidget {
       reorderable:         [ p.Bool,   true  ],
       editable:            [ p.Bool,   false ],
       selectable:          [ p.Bool,   true  ],
-      row_headers:         [ p.Bool,   true  ],
+      index_position:      [ p.Int,    0     ],
+      index_header:        [ p.String, "#"   ],
+      index_width:         [ p.Int,    40    ],
       scroll_to_selection: [ p.Bool,   true  ],
     })
 

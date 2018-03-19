@@ -27,7 +27,8 @@ columns = [
     TableColumn(field="cty",          title="City MPG",     editor=IntEditor()),
     TableColumn(field="hwy",          title="Highway MPG",  editor=IntEditor()),
 ]
-data_table = DataTable(source=source, columns=columns, editable=True, width=1000)
+data_table = DataTable(source=source, columns=columns, editable=True, width=1000,
+                       index_position=-1, index_header="row index", index_width=60)
 
 plot = Plot(title=None, x_range= DataRange1d(), y_range=DataRange1d(), plot_width=1000, plot_height=300)
 
