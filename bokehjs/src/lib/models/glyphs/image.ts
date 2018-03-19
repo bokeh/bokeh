@@ -48,6 +48,14 @@ export class ImageView extends XYGlyphView {
     }
   }
 
+  _lrtb(i) {
+    const l = this._x[i]
+    const r = l + this._dw[i]
+    const b = this._y[i]
+    const t = b + this._dh[i]
+    return [l, r, t, b]
+  }
+
   protected _set_data(): void {
     if (this.image_data == null || this.image_data.length != this._image.length)
       this.image_data = new Array(this._image.length)
