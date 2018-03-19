@@ -1,7 +1,7 @@
 Bokeh
 =====
 
-*Bokeh is a fiscally sponsored project of [NumFOCUS](http://numfocus.org), a nonprofit dedicated to supporting the open source scientific computing community. If you like Bokeh and want to support our mission, please consider making a [donation]() to support our efforts.*
+*Bokeh is a fiscally sponsored project of [NumFOCUS](http://numfocus.org), a nonprofit dedicated to supporting the open source scientific computing community. If you like Bokeh and want to support our mission, please consider making a [donation](https://www.flipcause.com/secure/cause_pdetails/MzE5NjE=) to support our efforts.*
 
 <table>
 
