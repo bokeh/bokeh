@@ -3,6 +3,7 @@ import {LayoutCanvas} from "./layout_canvas"
 
 import * as p from "../properties"
 import {logger} from "../logging"
+import {HasProps} from "../has_props"
 import {DOMView} from "../dom_view"
 import {Side} from "../enums"
 import {isString} from "../util/types"
@@ -152,8 +153,21 @@ const _align_lookup_positive: {[key in Side]: string} = {
   right  : LEFT,
 }
 
+export type Sizeable = {
+  panel: SidePanel
+}
+
 export type SizeableView = DOMView & {
+  model: Sizeable
   get_size(): number
+}
+
+export function isSizeable<T extends HasProps>(model: T): model is T & Sizeable {
+  return "panel" in model
+}
+
+export function isSizeableView<T extends DOMView>(view: T): view is T & SizeableView {
+  return isSizeable(view.model) && "get_size" in view
 }
 
 export const _view_sizes = new WeakMap<SizeableView, number>()

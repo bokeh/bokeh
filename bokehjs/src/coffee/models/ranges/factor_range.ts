@@ -108,9 +108,6 @@ export namespace FactorRange {
     range_padding_units: PaddingUnits
     start: number
     end: number
-    bounds: [number, number] | "auto"
-    min_interval: any // XXX: what's this
-    max_interval: any // XXX: what's this
 
     levels: number
     mids: [string, string][] | undefined
@@ -127,7 +124,6 @@ export namespace FactorRange {
     range_padding_units: p.Property<PaddingUnits>
     start: p.Property<number>
     end: p.Property<number>
-    bounds: p.Property<[number, number] | "auto">
   }
 }
 
@@ -153,9 +149,6 @@ export class FactorRange extends Range {
       range_padding_units: [ p.PaddingUnits, "percent" ],
       start:               [ p.Number                  ],
       end:                 [ p.Number                  ],
-      bounds:              [ p.Any                     ],
-      min_interval:        [ p.Any                     ],
-      max_interval:        [ p.Any                     ],
     })
 
     this.internal({

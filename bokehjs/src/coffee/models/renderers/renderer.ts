@@ -3,6 +3,7 @@ import * as visuals from "core/visuals"
 import {RenderLevel} from "core/enums"
 import {Arrayable} from "core/types"
 import * as p from "core/properties"
+import {BBox} from "core/util/bbox"
 import {Model} from "../../model"
 
 import {PlotCanvas, PlotCanvasView} from "../plots/plot_canvas"
@@ -32,6 +33,8 @@ export abstract class RendererView extends DOMView {
   map_to_screen(x: Arrayable<number>, y: Arrayable<number>): [Arrayable<number>, Arrayable<number>] {
     return this.plot_view.map_to_screen(x, y, (this.model as any).x_range_name, (this.model as any).y_range_name)
   }
+
+  bbox?(): BBox
 }
 
 export namespace Renderer {

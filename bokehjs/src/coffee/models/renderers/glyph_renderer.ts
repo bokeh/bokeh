@@ -53,7 +53,7 @@ export class GlyphRendererView extends RendererView {
   protected all_indices: number[]
   protected decimated: number[]
 
-  protected set_data_timestamp: number
+  set_data_timestamp: number
   protected last_dtrender: number
 
   initialize(options: any): void {
