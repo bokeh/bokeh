@@ -64,7 +64,7 @@ export class ImageView extends XYGlyphView {
     return new RBush(points);
   }
 
-  _lrtb(i) {
+  _lrtb(i: any) {
     const l = this._x[i]
     const r = l + this._dw[i]
     const b = this._y[i]
@@ -72,7 +72,7 @@ export class ImageView extends XYGlyphView {
     return [l, r, t, b]
   }
 
-  _image_index(index, x,y) {
+  _image_index(index : any, x: any, y : any) {
     let [l,r,t,b] = this._lrtb(index);
     let width = this._width[index]
     let height = this._height[index]
@@ -83,7 +83,7 @@ export class ImageView extends XYGlyphView {
     return [index, dim1,  dim2, (dim2 * width) + dim1]
   }
 
-  _hit_point(geometry) : Selection {
+  _hit_point(geometry: any) : Selection {
     let {sx, sy} = geometry;
     const x = this.renderer.xscale.invert(sx);
     const y = this.renderer.yscale.invert(sy);
