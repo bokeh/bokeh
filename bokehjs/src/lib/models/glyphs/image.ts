@@ -7,6 +7,7 @@ import * as p from "core/properties"
 import {max, concat} from "core/util/array"
 import {Context2d} from "core/util/canvas"
 import {Rect} from "core/util/spatial"
+import {RBush} from "core/util/spatial"
 
 // XXX: because ImageData is a global
 export interface _ImageData extends XYGlyphData {
@@ -26,7 +27,6 @@ export interface _ImageData extends XYGlyphData {
 }
 
 export interface ImageView extends _ImageData {}
-
 export class ImageView extends XYGlyphView {
   model: Image
   visuals: Image.Visuals
@@ -46,6 +46,18 @@ export class ImageView extends XYGlyphView {
       this._set_data()
       this.renderer.plot_view.request_render()
     }
+  }
+
+  _index_data(): RBush {
+    const points = [];
+    for (let i = 0, end = this._x.length; i < end; i++) {
+      const [l, r, t, b] = this._lrtb(i);
+      if (isNaN(l+r+t+b) || !isFinite(l+r+t+b)) {
+        continue;
+      }
+      points.push({minX: l, minY: b, maxX: r, maxY: t, i});
+    }
+    return new RBush(points);
   }
 
   _lrtb(i) {
