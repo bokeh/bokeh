@@ -240,6 +240,12 @@ export class HoverToolView extends InspectToolView {
       tooltip.add(rx, ry, this._render_tooltips(ds, ii, vars))
     }
 
+    for (const [ind, dim1, dim2, linind] of indices['im2d']['indices']) {
+      const vars = {index:ind, x:x, y:y, sx: sx, sy: sy}
+      let rendered = this._render_tooltips(ds, [ind, dim1, dim2, linind], vars)
+      tooltip.add(sx, sy, rendered)
+    }
+
     for (const i of indices.indices) {
       // multiglyphs set additional indices, e.g. multiline_indices for different tooltips
       if (!isEmpty(indices.multiline_indices)) {
