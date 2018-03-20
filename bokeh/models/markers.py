@@ -146,6 +146,10 @@ class DiamondCross(Marker):
 
     __example__ = "examples/reference/models/DiamondCross.py"
 
+class Hex(Marker):
+    ''' Render hexagon markers. '''
+
+    __example__ = "examples/reference/models/Hexagon.py"
 
 class InvertedTriangle(Marker):
     ''' Render upside-down triangle markers. '''

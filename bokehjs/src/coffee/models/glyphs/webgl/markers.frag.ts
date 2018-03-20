@@ -57,7 +57,6 @@ void main()
 `
 
 export const circle = `
-// --- disc
 float marker(vec2 P, float size)
 {
     return length(P) - size/2.0;
@@ -65,7 +64,6 @@ float marker(vec2 P, float size)
 `
 
 export const square = `
-// --- square
 float marker(vec2 P, float size)
 {
     return max(abs(P.x), abs(P.y)) - size/2.0;
@@ -82,13 +80,20 @@ float marker(vec2 P, float size)
 `
 
 export const diamond = `
-// --- diamond
 float marker(vec2 P, float size)
 {
     float x = SQRT_2 / 2.0 * (P.x * 1.5 - P.y);
     float y = SQRT_2 / 2.0 * (P.x * 1.5 + P.y);
     float r1 = max(abs(x), abs(y)) - size / (2.0 * SQRT_2);
     return r1 / SQRT_2;
+}
+`
+
+export const hex = `
+float marker(vec2 P, float size)
+{
+    vec2 q = abs(P);
+    return max(q.y * 0.57735 + q.x - 1.0 * size/2.0, q.y - 0.866 * size/2.0);
 }
 `
 
@@ -100,7 +105,7 @@ float marker(vec2 P, float size)
     float y = SQRT_2 / 2.0 * (P.x * 1.7 + P.y);
     float r1 = max(abs(x), abs(y)) - size / 1.6;
     float r2 = P.y;
-    return max(r1 / SQRT_2, r2);  // Instersect diamond with rectangle
+    return max(r1 / SQRT_2, r2);  // Intersect diamond with rectangle
 }
 `
 
@@ -112,7 +117,7 @@ float marker(vec2 P, float size)
     float y = SQRT_2 / 2.0 * (P.x * 1.7 + P.y);
     float r1 = max(abs(x), abs(y)) - size / 1.6;
     float r2 = - P.y;
-    return max(r1 / SQRT_2, r2);  // Instersect diamond with rectangle
+    return max(r1 / SQRT_2, r2);  // Intersect diamond with rectangle
 }
 `
 

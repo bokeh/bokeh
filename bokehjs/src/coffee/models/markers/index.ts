@@ -27,11 +27,23 @@ function _one_diamond(ctx: Context2d, r: number): void {
   ctx.closePath()
 }
 
+function _one_hex(ctx: Context2d, r: number): void {
+  const r2 = r/2
+  const h = SQ3*r2
+
+  ctx.moveTo( r,   0)
+  ctx.lineTo( r2, -h)
+  ctx.lineTo(-r2, -h)
+  ctx.lineTo(-r,   0)
+  ctx.lineTo(-r2,  h)
+  ctx.lineTo( r2,  h)
+  ctx.closePath()
+}
+
 function _one_tri(ctx: Context2d, r: number): void {
-  const h = r * SQ3
+  const h = r*SQ3
   const a = h/3
 
-  // TODO (bev) use viewstate to take y-axis inversion into account
   ctx.moveTo(-r, a)
   ctx.lineTo(r, a)
   ctx.lineTo(0, a-h)
@@ -119,6 +131,21 @@ function diamond_cross(ctx: Context2d, i: number, r: number, line: Line, fill: F
   if (line.doit) {
     line.set_vectorize(ctx, i)
     _one_cross(ctx, r)
+    ctx.stroke()
+  }
+
+}
+
+function hex(ctx: Context2d, i: number, r: number, line: Line, fill: Fill): void {
+  _one_hex(ctx, r)
+
+  if (fill.doit) {
+    fill.set_vectorize(ctx, i)
+    ctx.fill()
+  }
+
+  if (line.doit) {
+    line.set_vectorize(ctx, i)
     ctx.stroke()
   }
 
@@ -241,6 +268,7 @@ export const CircleX          = _mk_model('CircleX',          circle_x)
 export const Cross            = _mk_model('Cross',            cross)
 export const Diamond          = _mk_model('Diamond',          diamond)
 export const DiamondCross     = _mk_model('DiamondCross',     diamond_cross)
+export const Hex              = _mk_model('Hex',              hex)
 export const InvertedTriangle = _mk_model('InvertedTriangle', inverted_triangle)
 export const Square           = _mk_model('Square',           square)
 export const SquareCross      = _mk_model('SquareCross',      square_cross)
