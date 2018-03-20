@@ -1,4 +1,5 @@
 require "./button"
+require "./checkbox_button_group"
 require "./multiselect"
 require "./paragraph"
 require "./slider"
