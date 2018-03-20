@@ -1,4 +1,5 @@
 require "./button"
+require "./multiselect"
 require "./paragraph"
 require "./slider"
 require "./tables"

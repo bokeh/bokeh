@@ -51,6 +51,7 @@ export class MultiSelectView extends InputWidgetView {
       disabled: this.model.disabled}, options)
     this.selectEl.addEventListener("change", () => this.change_input())
     this.el.appendChild(this.selectEl)
+    this.render_selection()
   }
 
   render_selection(): void {
