@@ -125,6 +125,10 @@ p = figure(title="Marker: diamond")
 p.scatter(x, y, marker="diamond", size=sizes, color="#1C9099", line_width=2)
 children.append(p)
 
+p = figure(title="hex")
+p.hex(x, y, size=sizes, color="#99D594")
+children.append(p)
+
 p = figure(title="Marker: inverted_triangle")
 p.scatter(x, y, marker="inverted_triangle", size=sizes, color="#DE2D26")
 children.append(p)
