@@ -15,7 +15,7 @@ def make_tab(title, marker, backend):
     return Panel(child=p, title=title)
 
 markers = ['asterisk', 'circle', 'square', 'diamond',
-           'triangle', 'inverted_triangle',
+           'triangle', 'inverted_triangle', 'hex',
            'cross', 'circle_cross', 'square_cross', 'diamond_cross',
            'x', 'square_x',  'circle_x']
 
