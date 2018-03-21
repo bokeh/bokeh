@@ -233,6 +233,9 @@ class Settings(object):
     def phantomjs_path(self, default=None):
         return self._get_str("PHANTOMJS_PATH", default)
 
+    def ignore_filename(self):
+        return self._get_bool("IGNORE_FILENAME", False)
+
 #: A global settings object that other parts of Bokeh can refer to.
 #:
 #:
