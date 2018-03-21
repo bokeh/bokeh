@@ -14,6 +14,7 @@ export interface HasRectCDS {
 
 export class BoxEditToolView extends EditToolView {
   model: BoxEditTool
+  _draw_basepoint: [number, number] | null
 
   _tap(ev: TapEvent): void {
     const append = ev.shiftKey
@@ -67,16 +68,29 @@ export class BoxEditToolView extends EditToolView {
     }
   }
 
+  _update_box(ev: UIEvent, append: boolean = false, emit: boolean = false): void {
+    if (this._draw_basepoint == null) { return; }
+    const curpoint: [number, number] = [ev.sx, ev.sy];
+
+    const frame = this.plot_model.frame;
+    const dims = this.model.dimensions;
+    const limits = this.model._get_dim_limits(this._draw_basepoint, curpoint, frame, dims);
+    if (limits != null) {
+      const [sxlim, sylim] = limits;
+      this._set_extent(sxlim, sylim, append, emit);
+    }
+  }
+
   _doubletap(ev: TapEvent): void {
-    if (this._basepoint != null) {
+    if (this._draw_basepoint != null) {
       this._update_box(ev, false, true)
-      this._basepoint = null;
+      this._draw_basepoint = null;
       for (const renderer of this.model.renderers) {
         renderer.data_source.selected.indices = [];
         renderer.data_source.properties.data.change.emit();
       }
     } else {
-      this._basepoint = [ev.sx, ev.sy];
+      this._draw_basepoint = [ev.sx, ev.sy];
       this._select_event(ev, true, this.model.renderers);
       this._update_box(ev, true, false);
     }
@@ -87,42 +101,34 @@ export class BoxEditToolView extends EditToolView {
   }
 
   _pan_start(ev: GestureEvent): void {
-    if (this._basepoint != null) { return }
-    this._basepoint = [ev.sx, ev.sy];
-    const shift = ev.shiftKey
     this._select_event(ev, true, this.model.renderers);
-    if (shift) {
+    if (ev.shiftKey) {
+      if (this._draw_basepoint != null) { return }
+      this._draw_basepoint = [ev.sx, ev.sy];
       this._update_box(ev, true, false);
+    } else {
+      if (this._basepoint != null) { return }
+      this._basepoint = [ev.sx, ev.sy];
     }
   }
 
   _pan(ev: GestureEvent, append: boolean = false, emit: boolean = false): void {
-    if (this._basepoint == null) { return; }
-
-    // Attempt to drag selected rects
-    if (!ev.shiftKey) {
+    if (ev.shiftKey) {
+      if (this._draw_basepoint == null) { return; }
+      this._update_box(ev, append, emit)
+    } else {
+      if (this._basepoint == null) { return; }
       this._drag_points(ev, this.model.renderers);
-      return;
-    }
-    this._update_box(ev, append, emit)
-  }
-
-  _update_box(ev: UIEvent, append: boolean = false, emit: boolean = false): void {
-    if (this._basepoint == null) { return; }
-    const curpoint: [number, number] = [ev.sx, ev.sy];
-
-    const frame = this.plot_model.frame;
-    const dims = this.model.dimensions;
-    const limits = this.model._get_dim_limits(this._basepoint, curpoint, frame, dims);
-    if (limits != null) {
-      const [sxlim, sylim] = limits;
-      this._set_extent(sxlim, sylim, append, emit);
     }
   }
 
   _pan_end(ev: GestureEvent): void {
     this._pan(ev, false, true)
-    this._basepoint = null;
+    if (ev.shiftKey) {
+      this._draw_basepoint = null;
+    } else {
+      this._basepoint = null;
+    }
     for (const renderer of this.model.renderers) {
       renderer.data_source.selected.indices = [];
       renderer.data_source.properties.data.change.emit();
