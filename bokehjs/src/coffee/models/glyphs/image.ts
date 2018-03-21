@@ -60,7 +60,7 @@ export class ImageView extends XYGlyphView {
 
     for (let i = 0, end = this._image.length; i < end; i++) {
       let img: Arrayable<number>
-      if (this._image_shape != null) {
+      if (this._image_shape != null && this._image_shape[i].length > 0) {
         img = this._image[i] as Arrayable<number>
         const shape = this._image_shape[i]
         this._height[i] = shape[0]

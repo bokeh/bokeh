@@ -51,7 +51,7 @@ export class ImageRGBAView extends XYGlyphView {
         continue
 
       let buf: ArrayBuffer
-      if (this._image_shape != null) {
+      if (this._image_shape != null && this._image_shape[i].length > 0) {
         buf = (this._image[i] as TypedArray).buffer
         const shape = this._image_shape[i]
         this._height[i] = shape[0]
