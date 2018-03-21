@@ -43,6 +43,7 @@ def get_all_examples(config):
         _examples = []
         _examples.extend(collect_examples(join(base_dir, "examples", "examples.yaml")))
         _examples.extend(collect_examples(join(base_dir, "bokehjs", "examples", "examples.yaml")))
+        _examples.extend(collect_examples(join(base_dir, "sphinx", "source", "docs", "user_guide", "examples", "examples.yaml")))
 
         for example in _examples:
             example._diff_ref = config.option.diff_ref

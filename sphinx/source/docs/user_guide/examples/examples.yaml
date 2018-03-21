@@ -1,0 +1,2 @@
+- path: "*"
+  skip: ["concepts_plotting.py", "geo_gmap.py"]
