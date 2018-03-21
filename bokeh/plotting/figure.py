@@ -75,11 +75,11 @@ class FigureOptions(Options):
     Which tap tool should initially be active.
     """)
 
-    x_axis_type = Either(Auto, Enum("linear", "log", "datetime"), default="auto", help="""
+    x_axis_type = Either(Auto, Enum("linear", "log", "datetime", "mercator"), default="auto", help="""
     The type of the x-axis.
     """)
 
-    y_axis_type = Either(Auto, Enum("linear", "log", "datetime"), default="auto", help="""
+    y_axis_type = Either(Auto, Enum("linear", "log", "datetime", "mercator"), default="auto", help="""
     The type of the y-axis.
     """)
 
