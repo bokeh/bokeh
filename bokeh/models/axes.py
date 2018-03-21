@@ -8,9 +8,9 @@ from ..core.has_props import abstract
 from ..core.properties import Auto, Datetime, Dict, Either, Enum, Float, Include, Instance, Int, Override, Seq, String, Tuple
 from ..core.property_mixins import LineProps, TextProps
 
-from .formatters import BasicTickFormatter, CategoricalTickFormatter, DatetimeTickFormatter, LogTickFormatter, TickFormatter
+from .formatters import BasicTickFormatter, CategoricalTickFormatter, DatetimeTickFormatter, LogTickFormatter, TickFormatter, MercatorTickFormatter
 from .renderers import GuideRenderer
-from .tickers import Ticker, BasicTicker, LogTicker, CategoricalTicker, DatetimeTicker, FixedTicker
+from .tickers import Ticker, BasicTicker, LogTicker, CategoricalTicker, DatetimeTicker, FixedTicker, MercatorTicker
 
 @abstract
 class Axis(GuideRenderer):
@@ -213,3 +213,27 @@ class DatetimeAxis(LinearAxis):
     ticker = Override(default=lambda: DatetimeTicker())
 
     formatter = Override(default=lambda: DatetimeTickFormatter())
+
+class MercatorAxis(LinearAxis):
+    ''' An axis that picks nice numbers for tick locations on a
+    Mercator scale. Configured with a ``MercatorTickFormatter`` by default.
+
+    Args:
+        dimension ('lat' or 'lon', optional) :
+            Whether this axis will display latitude or longitude values.
+            (default: 'lat')
+
+    '''
+    def __init__(self, dimension='lat', **kw):
+        super(MercatorAxis, self).__init__(**kw)
+
+        # Just being careful. It would be defeat the purpose for anyone to actually
+        # configure this axis with differnet kinds of tickers or formatters.
+        if isinstance(self.ticker, MercatorTicker):
+            self.ticker.dimension = dimension
+        if isinstance(self.formatter, MercatorTickFormatter):
+            self.formatter.dimension = dimension
+
+    ticker = Override(default=lambda: MercatorTicker())
+
+    formatter = Override(default=lambda: MercatorTickFormatter())

@@ -8,6 +8,8 @@ a number of powerful features already available, but we still have more to add.
 Please tell use your use cases through the `mailing list`_ or on `github`_ so that we
 can continue to build out these features to meet your needs.
 
+.. _userguide_geo_tile_provider_maps:
+
 Tile Provider Maps
 ------------------
 
@@ -18,6 +20,12 @@ appropriate attribution which can be added to a plot using the
 
 .. bokeh-plot:: docs/user_guide/examples/geo_tile_source.py
     :source-position: below
+
+Notice also that passing ``x_axis_type="mercator"`` and ``y_axis_type="mercator"``
+to ``figure`` generate axes with latitude and longitute labels, instead of raw Web
+Mercator coordinates.
+
+.. _userguide_geo_google_maps:
 
 Google Maps
 -----------
@@ -33,6 +41,8 @@ underlay.
 .. note::
     Google has its own terms of service for using Google Maps API and any use
     of Bokeh with Google Maps must be within Google's Terms of Service
+
+.. _userguide_geo_geojson_data:
 
 GeoJSON Data
 ------------
