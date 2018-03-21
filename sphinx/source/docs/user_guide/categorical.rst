@@ -189,6 +189,17 @@ stacked bar chart that is split by positive and negative values:
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_stacked_split.py
     :source-position: above
 
+Hover Tools
+'''''''''''
+
+Sometimes when stacking bars, it's desirable to have a different hover tool
+for each layer in the stack. The ``hbar_stack`` and ``vbar_stack`` functions
+return a list of all the renderers created (one for each stack). These can
+be used to customize different hover tools as shown below
+
+.. bokeh-plot:: docs/user_guide/examples/categorical_bar_stacked_hover.py
+    :source-position: above
+
 .. _userguide_categorical_bars_mixed:
 
 Mixed Factors
