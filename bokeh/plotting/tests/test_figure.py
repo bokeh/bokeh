@@ -243,6 +243,42 @@ class TestMarkers(unittest.TestCase):
             p.circle([1, 2, 3], [1, 2, 3], level="bad_input")
 
 
+def test_hbar_stack_returns_renderers():
+    fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
+    years = ["2015", "2016", "2017"]
+    colors = ["#c9d9d3", "#718dbf", "#e84d60"]
+    data = {'fruits' : fruits,
+        '2015'   : [2, 1, 4, 3, 2, 4],
+        '2016'   : [5, 3, 4, 2, 4, 6],
+        '2017'   : [3, 2, 4, 4, 5, 3]}
+    source = ColumnDataSource(data=data)
+
+    p = plt.figure()
+    renderers = p.hbar_stack(years, y='fruits', height=0.9, color=colors, source=source,
+                         legend=[value(x) for x in years], name=years)
+    assert len(renderers) == 3
+    assert renderers[0].name == "2015"
+    assert renderers[1].name == "2016"
+    assert renderers[2].name == "2017"
+
+def test_vbar_stack_returns_renderers():
+    fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
+    years = ["2015", "2016", "2017"]
+    colors = ["#c9d9d3", "#718dbf", "#e84d60"]
+    data = {'fruits' : fruits,
+        '2015'   : [2, 1, 4, 3, 2, 4],
+        '2016'   : [5, 3, 4, 2, 4, 6],
+        '2017'   : [3, 2, 4, 4, 5, 3]}
+    source = ColumnDataSource(data=data)
+
+    p = plt.figure()
+    renderers = p.vbar_stack(years, x='fruits', width=0.9, color=colors, source=source,
+                         legend=[value(x) for x in years], name=years)
+    assert len(renderers) == 3
+    assert renderers[0].name == "2015"
+    assert renderers[1].name == "2016"
+    assert renderers[2].name == "2017"
+
 def test_title_kwarg_no_warning(recwarn):
     plt.figure(title="title")
     assert len(recwarn) == 0
