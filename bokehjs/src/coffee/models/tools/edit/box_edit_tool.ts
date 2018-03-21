@@ -17,6 +17,7 @@ export class BoxEditToolView extends EditToolView {
   _draw_basepoint: [number, number] | null
 
   _tap(ev: TapEvent): void {
+    if ((this._draw_basepoint != null) || (this._basepoint != null)) { return; }
     const append = ev.shiftKey
     this._select_event(ev, append, this.model.renderers);
   }
@@ -71,7 +72,6 @@ export class BoxEditToolView extends EditToolView {
   _update_box(ev: UIEvent, append: boolean = false, emit: boolean = false): void {
     if (this._draw_basepoint == null) { return; }
     const curpoint: [number, number] = [ev.sx, ev.sy];
-
     const frame = this.plot_model.frame;
     const dims = this.model.dimensions;
     const limits = this.model._get_dim_limits(this._draw_basepoint, curpoint, frame, dims);
@@ -101,13 +101,13 @@ export class BoxEditToolView extends EditToolView {
   }
 
   _pan_start(ev: GestureEvent): void {
-    this._select_event(ev, true, this.model.renderers);
     if (ev.shiftKey) {
       if (this._draw_basepoint != null) { return }
       this._draw_basepoint = [ev.sx, ev.sy];
       this._update_box(ev, true, false);
     } else {
       if (this._basepoint != null) { return }
+      this._select_event(ev, true, this.model.renderers);
       this._basepoint = [ev.sx, ev.sy];
     }
   }
