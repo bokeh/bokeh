@@ -185,13 +185,13 @@ describe("BoxEditTool", () =>
 
       let drag_event = make_gesture_event(300, 300, true);
       testcase.draw_tool_view._pan_start(drag_event);
-      expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([300, 300]);
+      expect(testcase.draw_tool_view._draw_basepoint).to.be.deep.equal([300, 300]);
       drag_event = make_gesture_event(200, 200, true);
       testcase.draw_tool_view._pan(drag_event);
-      expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([300, 300]);
+      expect(testcase.draw_tool_view._draw_basepoint).to.be.deep.equal([300, 300]);
       testcase.draw_tool_view._pan_end(drag_event);
 
-      expect(testcase.draw_tool_view._basepoint).to.be.equal(null);
+      expect(testcase.draw_tool_view._draw_basepoint).to.be.equal(null);
       expect(testcase.data_source.selected.indices).to.be.deep.equal([]);
       expect(testcase.data_source.data['x']).to.be.deep.equal([0, 0.5, 1, -0.1327433628318584]);
       expect(testcase.data_source.data['y']).to.be.deep.equal([0, 0.5, 1, 0.1694915254237288]);
@@ -207,13 +207,13 @@ describe("BoxEditTool", () =>
 
       let drag_event = make_gesture_event(300, 300, true);
       testcase.draw_tool_view._doubletap(drag_event);
-      expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([300, 300]);
+      expect(testcase.draw_tool_view._draw_basepoint).to.be.deep.equal([300, 300]);
       drag_event = make_gesture_event(200, 200, true);
       testcase.draw_tool_view._move(drag_event);
-      expect(testcase.draw_tool_view._basepoint).to.be.deep.equal([300, 300]);
+      expect(testcase.draw_tool_view._draw_basepoint).to.be.deep.equal([300, 300]);
       testcase.draw_tool_view._doubletap(drag_event);
 
-      expect(testcase.draw_tool_view._basepoint).to.be.equal(null);
+      expect(testcase.draw_tool_view._draw_basepoint).to.be.equal(null);
       expect(testcase.data_source.selected.indices).to.be.deep.equal([]);
       expect(testcase.data_source.data['x']).to.be.deep.equal([0, 0.5, 1, -0.1327433628318584]);
       expect(testcase.data_source.data['y']).to.be.deep.equal([0, 0.5, 1, 0.1694915254237288]);
