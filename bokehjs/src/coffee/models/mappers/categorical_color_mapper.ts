@@ -48,8 +48,8 @@ export class CategoricalColorMapper extends ColorMapper {
     })
   }
 
-  protected _get_values(data: Arrayable<Factor>, palette: Uint32Array): Arrayable<number> {
-    const values: number[] = []
+  protected _v_compute<T>(data: Arrayable<Factor>, values: Arrayable<T>,
+      palette: Arrayable<T>, {nan_color}: {nan_color: T}): void {
 
     for (let i = 0, end = data.length; i < end; i++) {
       let d = data[i]
@@ -72,16 +72,14 @@ export class CategoricalColorMapper extends ColorMapper {
           key = findIndex(this.factors, (x) => _equals(x, d))
       }
 
-      let color: number
+      let color: T
       if (key < 0 || key >= palette.length)
-        color = this._nan_color
+        color = nan_color
       else
         color = palette[key]
 
-      values.push(color)
+      values[i] = color
     }
-
-    return values
   }
 }
 CategoricalColorMapper.initClass()

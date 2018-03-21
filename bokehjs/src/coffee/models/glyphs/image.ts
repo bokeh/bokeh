@@ -58,6 +58,8 @@ export class ImageView extends XYGlyphView {
     if (this._height == null || this._height.length != this._image.length)
       this._height = new Array(this._image.length)
 
+    const cmap = this.model.color_mapper.rgba_mapper
+
     for (let i = 0, end = this._image.length; i < end; i++) {
       let img: Arrayable<number>
       if (this._image_shape != null && this._image_shape[i].length > 0) {
@@ -85,9 +87,7 @@ export class ImageView extends XYGlyphView {
 
       const ctx = canvas.getContext('2d')!
       const image_data = ctx.getImageData(0, 0, this._width[i], this._height[i])
-      const cmap = this.model.color_mapper
-      const buf = cmap.v_map_screen(img)
-      const buf8 = new Uint8Array(buf)
+      const buf8 = cmap.v_compute(img)
       image_data.data.set(buf8)
       ctx.putImageData(image_data, 0, 0)
       this.image_data[i] = canvas
@@ -162,7 +162,7 @@ export class ImageView extends XYGlyphView {
 }
 
 // NOTE: this needs to be redefined here, because palettes are located in bokeh-api.js bundle
-const Greys9 = () => [0x000000, 0x252525, 0x525252, 0x737373, 0x969696, 0xbdbdbd, 0xd9d9d9, 0xf0f0f0, 0xffffff]
+const Greys9 = () => ["#000000", "#252525", "#525252", "#737373", "#969696", "#bdbdbd", "#d9d9d9", "#f0f0f0", "#ffffff"]
 
 export namespace Image {
   export interface Attrs extends XYGlyph.Attrs {

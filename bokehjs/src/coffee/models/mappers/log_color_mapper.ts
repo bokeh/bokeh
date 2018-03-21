@@ -26,25 +26,27 @@ export class LogColorMapper extends ContinuousColorMapper {
     this.prototype.type = "LogColorMapper"
   }
 
-  protected _get_values(data: Arrayable<number>, palette: Uint32Array): Arrayable<number> {
+  protected _v_compute<T>(data: Arrayable<number>, values: Arrayable<T>,
+      palette: Arrayable<T>, colors: {nan_color: T, low_color?: T, high_color?: T}): void {
+    const {nan_color, low_color, high_color} = colors
+
     const n = palette.length
     const low = this.low != null ? this.low : min(data)
     const high = this.high != null ? this.high : max(data)
     const scale = n / (log1p(high) - log1p(low))  // subtract the low offset
     const max_key = palette.length - 1
-    const values: number[] = []
 
     for (let i = 0, end = data.length; i < end; i++) {
       const d = data[i]
 
       // Check NaN
       if (isNaN(d)) {
-        values.push(this._nan_color)
+        values[i] = nan_color
         continue
       }
 
       if (d > high) {
-        values.push(this._high_color != null ? this._high_color : palette[max_key])
+        values[i] = high_color != null ? high_color : palette[max_key]
         continue
       }
 
@@ -52,12 +54,12 @@ export class LogColorMapper extends ContinuousColorMapper {
       // values exactly equal to high to palette.length, which is greater than
       // max_key
       if (d == high) {
-        values.push(palette[max_key])
+        values[i] = palette[max_key]
         continue
       }
 
       if (d < low) {
-        values.push(this._low_color != null ? this._low_color : palette[0])
+        values[i] = low_color != null ? low_color : palette[0]
         continue
       }
 
@@ -69,10 +71,8 @@ export class LogColorMapper extends ContinuousColorMapper {
       if (key > max_key)
         key = max_key
 
-      values.push(palette[key])
+      values[i] = palette[key]
     }
-
-    return values
   }
 }
 LogColorMapper.initClass()

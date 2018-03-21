@@ -108,9 +108,8 @@ export class ColorBarView extends AnnotationView {
     // We always want to draw the entire palette linearly, so we create a new
     // LinearColorMapper instance and map a monotonic range of values with
     // length = palette.length to get each palette color in order.
-    const cmap = new LinearColorMapper({palette})
-    const buf = cmap.v_map_screen(range(0, palette.length))
-    const buf8 = new Uint8Array(buf)
+    const cmap = new LinearColorMapper({palette}).rgba_mapper
+    const buf8 = cmap.v_compute(range(0, palette.length))
     image_data.data.set(buf8)
     image_ctx.putImageData(image_data, 0, 0)
 

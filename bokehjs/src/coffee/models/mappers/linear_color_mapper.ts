@@ -22,11 +22,13 @@ export class LinearColorMapper extends ContinuousColorMapper {
     this.prototype.type = "LinearColorMapper"
   }
 
-  protected _get_values(data: Arrayable<number>, palette: Uint32Array): Arrayable<number> {
+  protected _v_compute<T>(data: Arrayable<number>, values: Arrayable<T>,
+      palette: Arrayable<T>, colors: {nan_color: T, low_color?: T, high_color?: T}): void {
+    const {nan_color, low_color, high_color} = colors
+
     const low = this.low != null ? this.low : min(data)
     const high = this.high != null ? this.high : max(data)
     const max_key = palette.length - 1
-    const values: number[] = []
 
     const norm_factor = 1 / (high - low)
     const normed_interval = 1 / palette.length
@@ -35,7 +37,7 @@ export class LinearColorMapper extends ContinuousColorMapper {
       const d = data[i]
 
       if (isNaN(d)) {
-        values.push(this._nan_color)
+        values[i] = nan_color
         continue
       }
 
@@ -43,21 +45,19 @@ export class LinearColorMapper extends ContinuousColorMapper {
       // values exactly equal to high to palette.length, which is greater than
       // max_key
       if (d == high) {
-        values.push(palette[max_key])
+        values[i] = palette[max_key]
         continue
       }
 
       const normed_d = (d - low) * norm_factor
       const key = Math.floor(normed_d / normed_interval)
       if (key < 0)
-        values.push(this._low_color != null ? this._low_color : palette[0])
+        values[i] = low_color != null ? low_color : palette[0]
       else if (key > max_key)
-        values.push(this._high_color != null ? this._high_color : palette[max_key])
+        values[i] = high_color != null ? high_color : palette[max_key]
       else
-        values.push(palette[key])
+        values[i] = palette[key]
     }
-
-    return values
   }
 }
 LinearColorMapper.initClass()

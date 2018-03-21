@@ -34,15 +34,15 @@ export abstract class ContinuousColorMapper extends ColorMapper {
     })
   }
 
-  protected _high_color: number | undefined
-  protected _low_color: number | undefined
-
-  initialize(): void {
-    super.initialize()
-    this._high_color = this.high_color != null ? this._convert_color(this.high_color) : undefined
-    this._low_color = this.low_color != null ? this._convert_color(this.low_color) : undefined
+  protected _colors<T>(conv: (c: Color) => T): {nan_color: T, low_color?: T, high_color?: T} {
+    return {
+      ...super._colors(conv),
+      low_color: this.low_color != null ? conv(this.low_color) : undefined,
+      high_color: this.high_color != null ? conv(this.high_color) : undefined,
+    }
   }
 
-  protected abstract _get_values(data: Arrayable<number>, palette: Float32Array): Arrayable<number>
+  protected abstract _v_compute<T>(data: Arrayable<number>, values: Arrayable<T>,
+    palette: Arrayable<T>, colors: {nan_color: T, low_color?: T, high_color?: T}): void
 }
 ContinuousColorMapper.initClass()
