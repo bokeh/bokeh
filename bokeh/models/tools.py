@@ -909,7 +909,9 @@ class BoxEditTool(EditTool, Drag, Tap):
 
     The supported actions include:
 
-    * Add box: Hold shift then click and drag anywhere on the plot.
+    * Add box: Hold shift then click and drag anywhere on the plot or
+      double tap once to start drawing, move the mouse and double tap
+      again to finish drawing.
 
     * Move box: Click and drag an existing box, the box will be
       dropped once you let go of the mouse button.

@@ -1,5 +1,5 @@
 import {Keys} from "core/dom"
-import {GestureEvent, TapEvent, KeyEvent} from "core/ui_events"
+import {GestureEvent, TapEvent, KeyEvent, UIEvent, MoveEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
 import * as p from "core/properties"
 import {Rect} from "../../glyphs/rect"
@@ -67,24 +67,49 @@ export class BoxEditToolView extends EditToolView {
     }
   }
 
+  _doubletap(ev: TapEvent): void {
+    if (this._basepoint != null) {
+      this._update_box(ev, false, true)
+      this._basepoint = null;
+      for (const renderer of this.model.renderers) {
+        renderer.data_source.selected.indices = [];
+        renderer.data_source.properties.data.change.emit();
+      }
+    } else {
+      this._basepoint = [ev.sx, ev.sy];
+      this._select_event(ev, true, this.model.renderers);
+      this._update_box(ev, true, false);
+    }
+  }
+
+  _move(ev: MoveEvent): void {
+    this._update_box(ev, false, false);
+  }
+
   _pan_start(ev: GestureEvent): void {
+    if (this._basepoint != null) { return }
     this._basepoint = [ev.sx, ev.sy];
     const shift = ev.shiftKey
     this._select_event(ev, true, this.model.renderers);
     if (shift) {
-      this._pan(ev, true, false);
+      this._update_box(ev, true, false);
     }
   }
 
   _pan(ev: GestureEvent, append: boolean = false, emit: boolean = false): void {
     if (this._basepoint == null) { return; }
-    const curpoint: [number, number] = [ev.sx, ev.sy];
 
     // Attempt to drag selected rects
     if (!ev.shiftKey) {
       this._drag_points(ev, this.model.renderers);
       return;
     }
+    this._update_box(ev, append, emit)
+  }
+
+  _update_box(ev: UIEvent, append: boolean = false, emit: boolean = false): void {
+    if (this._basepoint == null) { return; }
+    const curpoint: [number, number] = [ev.sx, ev.sy];
 
     const frame = this.plot_model.frame;
     const dims = this.model.dimensions;
