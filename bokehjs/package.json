@@ -95,7 +95,7 @@
     "es6-set": "^0.1.5",
     "es6-promise": "3.0.2",
     "@types/es6-promise": "^0.0.33",
-    "flatbush": "^1.1.2",
+    "flatbush": "^2.0.4",
     "proj4": "<2.4",
     "@types/proj4": "^2.3.2",
     "sprintf-js": "^1.1.1",

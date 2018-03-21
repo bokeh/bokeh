@@ -35,7 +35,7 @@ export function create_hit_test_result_from_hits(hits: [number, number][]): Sele
 }
 
 export function validate_bbox_coords([x0, x1]: [number, number], [y0, y1]: [number, number]): Rect {
-  // rbush expects x0, y0 to be min, x1, y1 max
+  // spatial index (flatbush) expects x0, y0 to be min, x1, y1 max
   if (x0 > x1) [x0, x1] = [x1, x0]
   if (y0 > y1) [y0, y1] = [y1, y0]
   return {minX: x0, minY: y0, maxX: x1, maxY: y1}

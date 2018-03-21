@@ -4,17 +4,14 @@ declare module "flatbush" {
     constructor(numItems: number)
 
     add(minX: number, minY: number, maxX: number, maxY: number): void
+    search(minX: number, minY: number, maxX: number, maxY: number, filterFn?: (i: number) => boolean): number[]
     finish(): void
 
-    data: Float64Array
-
-    _minX: number
-    _minY: number
-    _maxX: number
-    _maxY: number
+    minX: number
+    minY: number
+    maxX: number
+    maxY: number
   }
 
-  function flatbush(numItems: number): FlatBush
-
-  export = flatbush
+  export = FlatBush
 }
