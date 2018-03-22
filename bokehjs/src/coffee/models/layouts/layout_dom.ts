@@ -1,6 +1,6 @@
 import {Model} from "../../model"
 import {SizingMode} from "core/enums"
-import {empty, margin} from "core/dom"
+import {empty, margin, padding} from "core/dom"
 import * as p from "core/properties"
 import {LayoutCanvas} from "core/layout/layout_canvas"
 import {Solver, GE, EQ, Strength, Variable, Constraint} from "core/layout/solver"
@@ -89,7 +89,11 @@ export abstract class LayoutDOMView extends DOMView {
       }
 
       // stop on first element with sensible dimensions
-      const {width, height} = measuring.getBoundingClientRect()
+      const {left, right, top, bottom} = padding(measuring)
+      const rect = measuring.getBoundingClientRect()
+      const width  = rect.width  - left - right
+      const height = rect.height - top  - bottom
+
       if(width != 0 && height != 0)
         return [width, height]
     }
