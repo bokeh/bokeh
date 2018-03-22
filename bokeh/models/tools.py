@@ -22,6 +22,9 @@ always be active regardless of what other tools are currently active.
 '''
 from __future__ import absolute_import
 
+from textwrap import dedent
+from types import FunctionType
+
 from ..core.enums import (Anchor, Dimension, Dimensions, Location,
                           TooltipFieldFormatter, TooltipAttachment)
 from ..core.has_props import abstract
@@ -29,6 +32,9 @@ from ..core.properties import (
     Auto, Bool, Color, Date, Datetime, Dict, Either, Enum, Int, Float,
     Percent, Instance, List, Seq, String, Tuple
 )
+from ..util.compiler import nodejs_compile, CompilationError
+from ..util.dependencies import import_required
+from ..util.future import get_param_info, signature
 from ..core.validation import error
 from ..core.validation.errors import (
     INCOMPATIBLE_BOX_EDIT_RENDERER, INCOMPATIBLE_POINT_DRAW_RENDERER,
@@ -616,6 +622,118 @@ class PolySelectTool(Tap):
     A shaded annotation drawn to indicate the selection region.
     """)
 
+class CustomJSHover(Model):
+    ''' Apply a custom defined formatter to a hover tool field.
+
+    .. warning::
+        The explicit purpose of this Bokeh Model is to embed *raw JavaScript
+        code* for a browser to execute. If any part of the code is derived
+        from untrusted user inputs, then you must take appropriate care to
+        sanitize the user input prior to passing to Bokeh.
+
+    '''
+
+    @classmethod
+    def from_py_func(cls, formatter):
+        ''' Create a CustomJSHover instance from a Python functions. The
+        function is translated to JavaScript using PyScript.
+
+        The python functions must have no positional arguments. It's
+        possible to pass Bokeh models (e.g. a ColumnDataSource) as keyword
+        arguments to the functions.
+
+        The ``formatter`` function namespace will contain the variable ``value``
+        (the untransformed value) at render time.
+
+        Args:
+            formatter (function) : a scalar function to transform a single ``x`` value
+
+        Returns:
+            CustomJSHover
+
+        '''
+        if not isinstance(formatter, FunctionType):
+            raise ValueError('CustomJSHover.from_py_func only accepts function objects.')
+
+        pyscript = import_required(
+            'flexx.pyscript',
+            dedent("""\
+                To use Python functions for CustomJSHover, you need Flexx
+                '("conda install -c conda-forge flexx" or "pip install flexx")""")
+            )
+
+        def pyscript_compile(formatter):
+            sig = signature(formatter)
+
+            all_names, default_values = get_param_info(sig)
+
+            if len(all_names) - len(default_values) != 0:
+                raise ValueError("Function may only contain keyword arguments.")
+
+            if default_values and not any([isinstance(value, Model) for value in default_values]):
+                raise ValueError("Default value must be a Bokeh Model.")
+
+            func_kwargs = dict(zip(all_names, default_values))
+
+            # Wrap the code attr in a function named `formatter` and call it
+            # with arguments that match the `args` attr
+            code = pyscript.py2js(formatter, 'transformer') + 'return transformer(%s);\n' % ', '.join(all_names)
+            return code, func_kwargs
+
+        jsfunc, func_kwargs = pyscript_compile(formatter)
+
+        return cls(formatter=jsfunc, args=func_kwargs)
+
+    @classmethod
+    def from_coffeescript(cls, formatter, args={}):
+        ''' Create a CustomJSHover instance from a CoffeeScript snippet.
+        The function bodies are translated to JavaScript functions using
+        node and therefore require return statements.
+
+        The ``formatter`` snippet namespace will contain the variable ``value``
+        (the untransformed value) at render time.
+
+        Example:
+
+        .. code-block:: coffeescript
+
+            formatter = CustomJSHover.from_coffeescript("return value + " total")
+
+        Args:
+            formatter (str) :
+                A coffeescript snippet to transform a single ``value`` value
+
+        Returns:
+            CustomJSHover
+
+        '''
+        compiled = nodejs_compile(formatter, lang="coffeescript", file="???")
+        if "error" in compiled:
+            raise CompilationError(compiled.error)
+
+        return cls(formatter=compiled.code, args=args)
+
+    args = Dict(String, Instance(Model), help="""
+    A mapping of names to Bokeh plot objects. These objects are made
+    available to the callback code snippet as the values of named
+    parameters to the callback.
+    """)
+
+    formatter = String(default="", help="""
+    A snippet of JavaScript code to transform a single value. The variable
+    ``value`` will contain the untransformed value and can be expected to be
+    present in the function namespace at render time. The snippet will be
+    into the body of a function and therefore requires a return statement.
+
+    Example:
+
+        .. code-block:: javascript
+
+            formatter = '''
+            return value + " total"
+            '''
+    """)
+
 class HoverTool(Inspection):
     ''' *toolbar icon*: |crosshair_icon|
 
@@ -760,7 +878,7 @@ class HoverTool(Inspection):
 
     """).accepts(Dict(String, String), lambda d: list(d.items()))
 
-    formatters = Dict(String, Enum(TooltipFieldFormatter), default=lambda: dict(), help="""
+    formatters = Dict(String, Either(Enum(TooltipFieldFormatter), Instance(CustomJSHover)), default=lambda: dict(), help="""
     Specify the formatting scheme for data source columns, e.g.
 
     .. code-block:: python
