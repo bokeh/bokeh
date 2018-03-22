@@ -53,7 +53,7 @@ export class GlyphRendererView extends RendererView {
   protected all_indices: number[]
   protected decimated: number[]
 
-  protected set_data_timestamp: number
+  set_data_timestamp: number
   protected last_dtrender: number
 
   initialize(options: any): void {
@@ -348,7 +348,7 @@ export class GlyphRendererView extends RendererView {
     return ctx.restore()
   }
 
-  draw_legend(ctx: Context2d, x0: number, x1: number, y0: number, y1: number, field: string, label: string): void {
+  draw_legend(ctx: Context2d, x0: number, x1: number, y0: number, y1: number, field: string | null, label: string): void {
     const index = this.model.get_reference_point(field, label)
     this.glyph.draw_legend_for_index(ctx, {x0, x1, y0, y1}, index)
   }

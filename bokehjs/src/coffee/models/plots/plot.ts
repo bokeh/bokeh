@@ -1,5 +1,6 @@
 import {EQ, Constraint, Variable} from "core/layout/solver"
 import {logger} from "core/logging"
+import * as visuals from "core/visuals"
 import * as p from "core/properties"
 import {Color} from "core/types"
 import {LineJoin, LineCap} from "core/enums"
@@ -140,7 +141,18 @@ export namespace Plot {
   export interface Props extends LayoutDOM.Props {
     toolbar_location: p.Property<Location | null>
     title: p.Property<Title | string | null>
+    above: p.Property<Renderer[]>
+    below: p.Property<Renderer[]>
+    left: p.Property<Renderer[]>
+    right: p.Property<Renderer[]>
+    renderers: p.Property<Renderer[]>
     outline_line_width: p.Property<number>
+  }
+
+  export type Visuals = visuals.Visuals & {
+    outline_line: visuals.Line
+    background_fill: visuals.Fill
+    border_fill: visuals.Fill
   }
 }
 

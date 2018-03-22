@@ -1,12 +1,39 @@
-/* XXX: partial */
-import {Transform} from "../transforms/transform";
-import * as p from "core/properties";
+import {Transform} from "../transforms/transform"
+import {Factor} from "../ranges/factor_range"
+import * as p from "core/properties"
 import {Arrayable, Color} from "core/types"
-import {isNumber} from "core/util/types"
+
+import {color2hex} from "core/util/color"
+import {is_little_endian} from "core/util/compat"
+
+export function _convert_color(color: string): number {
+  if (color[0] != "#")
+    color = color2hex(color)
+  if (color.length != 9)
+    color = color + 'ff'
+  return parseInt(color.slice(1), 16)
+}
+
+export function _convert_palette(palette: Color[]): Uint32Array {
+  const new_palette = new Uint32Array(palette.length)
+  for (let i = 0, end = palette.length; i < end; i++)
+    new_palette[i] = _convert_color(palette[i])
+  return new_palette
+}
+
+export function _uint32_to_rgba(values: Uint32Array): Uint8Array {
+  if (is_little_endian) {
+    const view = new DataView(values.buffer)
+    for (let i = 0, end = values.length; i < end; i++)
+      view.setUint32(i*4, values[i])
+  }
+
+  return new Uint8Array(values.buffer)
+}
 
 export namespace ColorMapper {
   export interface Attrs extends Transform.Attrs {
-    palette: (number | string)[]
+    palette: Color[]
     nan_color: Color
   }
 
@@ -15,7 +42,7 @@ export namespace ColorMapper {
 
 export interface ColorMapper extends ColorMapper.Attrs {}
 
-export abstract class ColorMapper extends Transform {
+export abstract class ColorMapper extends Transform<Color> {
 
   properties: ColorMapper.Props
 
@@ -24,97 +51,43 @@ export abstract class ColorMapper extends Transform {
   }
 
   static initClass(): void {
-    this.prototype.type = "ColorMapper";
+    this.prototype.type = "ColorMapper"
 
     this.define({
       palette:   [ p.Any           ], // TODO (bev)
       nan_color: [ p.Color, "gray" ],
-    });
-  }
-
-  protected _little_endian: boolean
-  protected _palette: number[]
-
-  initialize(): void {
-    super.initialize();
-    this._little_endian = this._is_little_endian();
-    this._palette       = this._build_palette(this.palette);
-  }
-
-  connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.change, function() {
-      this._palette = this._build_palette(this.palette);
-    });
-  }
-
-  // TODO (bev) This should not be needed, everything should use v_compute
-  v_map_screen(data, image_glyph: boolean = false) {
-    const values = this._get_values(data, this._palette, image_glyph);
-    const buf = new ArrayBuffer(data.length * 4);
-    if (this._little_endian) {
-      const color = new Uint8Array(buf);
-      for (let i = 0, end = data.length; i < end; i++) {
-        const value = values[i];
-        const ind = i*4;
-        // Bitwise math in JS is limited to 31-bits, to handle 32-bit value
-        // this uses regular math to compute alpha instead (see issue #6755)
-        color[ind] = Math.floor((value/4278190080.0) * 255);
-        color[ind+1] = (value & 0xff0000) >> 16;
-        color[ind+2] = (value & 0xff00) >> 8;
-        color[ind+3] = value & 0xff;
-      }
-    } else {
-      const color = new Uint32Array(buf);
-      for (let i = 0, end = data.length; i < end; i++) {
-        const value = values[i];
-        color[i] = (value << 8) | 0xff;
-      }     // alpha
-    }
-    return buf;
+    })
   }
 
   compute(_x: number): never {
-    // If it's just a single value, then a color mapper doesn't
-    // really make sense, so return nothing
-    return null as never
+    // If it's just a single value, then a color mapper doesn't really make sense.
+    throw new Error("not supported")
   }
 
-  v_compute(xs: Arrayable<number>): Arrayable<number> {
-    return this._get_values(xs, this.palette) as any // XXX
+  v_compute(xs: Arrayable<number> | Arrayable<Factor>): Arrayable<Color> {
+    const values: Color[] = new Array(xs.length)
+    this._v_compute(xs, values, this.palette, this._colors((c) => c))
+    return values
   }
 
-  abstract _get_values(data: number[] | string[], palette: number[], image_glyph?: boolean): number[]
-
-  _is_little_endian() {
-    const buf = new ArrayBuffer(4);
-    const buf8 = new Uint8Array(buf);
-    const buf32 = new Uint32Array(buf);
-    buf32[1] = 0x0a0b0c0d;
-
-    let little_endian = true;
-    if ((buf8[4]===0x0a) && (buf8[5]===0x0b) && (buf8[6]===0x0c) && (buf8[7]===0x0d)) {
-      little_endian = false;
-    }
-    return little_endian;
-  }
-
-  _build_palette(palette): number[] {
-    const new_palette = new Uint32Array(palette.length);
-    const _convert = function(value) {
-      if (isNumber(value)) {
-        return value;
-      } else {
-        if (value.length !== 9) {
-          value = value + 'ff';
-        }
-        return parseInt(value.slice(1), 16);
+  get rgba_mapper() {
+    const self = this
+    const palette = _convert_palette(this.palette)
+    const colors = this._colors(_convert_color)
+    return {
+      v_compute(xs: Arrayable<number> | Arrayable<Factor>): Uint8Array {
+        const values = new Uint32Array(xs.length)
+        self._v_compute(xs, values, palette, colors)
+        return _uint32_to_rgba(values)
       }
-    };
-    for (let i = 0, end = palette.length; i < end; i++) {
-      new_palette[i] = _convert(palette[i]);
     }
-    return new_palette;
   }
+
+  protected _colors<T>(conv: (c: Color) => T): {nan_color: T} {
+    return {nan_color: conv(this.nan_color)}
+  }
+
+  protected abstract _v_compute<T>(xs: Arrayable<number> | Arrayable<Factor>, values: Arrayable<T>,
+                                   palette: Arrayable<T>, colors: {nan_color: T}): void
 }
-ColorMapper.initClass();
+ColorMapper.initClass()

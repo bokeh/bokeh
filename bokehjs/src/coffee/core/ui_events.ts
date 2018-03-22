@@ -214,7 +214,7 @@ export class UIEvents {
 
     for (const view of reversed(views)) {
       const {level} = view.model
-      if ((level == 'annotation' || level == 'overlay') && "bbox" in view) {
+      if ((level == 'annotation' || level == 'overlay') && view.bbox != null) {
         if (view.bbox().contains(sx, sy))
           return view
       }

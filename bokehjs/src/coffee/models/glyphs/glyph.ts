@@ -48,24 +48,23 @@ export abstract class GlyphView extends View {
     // and not done if it isn't ever set, but for now it only
     // matters in the unit tests because we build a view without a
     // renderer there)
-    const {glcanvas} = this.renderer.plot_view
+    const {gl} = this.renderer.plot_view
 
-    if (glcanvas != null) {
-      let glglyphs
+    if (gl != null) {
+      let webgl_module = null
       try {
-        glglyphs = require("./webgl/index")
+        webgl_module = require("./webgl/index")
       } catch (e) {
         if (e.code === 'MODULE_NOT_FOUND') {
           logger.warn('WebGL was requested and is supported, but bokeh-gl(.min).js is not available, falling back to 2D rendering.')
-          glglyphs = null
         } else
           throw e
       }
 
-      if (glglyphs != null) {
-        const Cls = glglyphs[this.model.type + 'GLGlyph']
+      if (webgl_module != null) {
+        const Cls = webgl_module[this.model.type + 'GLGlyph']
         if (Cls != null)
-          this.glglyph = new Cls((glcanvas as any).gl, this) // XXX: gl
+          this.glglyph = new Cls(gl.ctx, this)
       }
     }
   }

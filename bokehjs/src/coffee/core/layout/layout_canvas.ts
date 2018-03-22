@@ -1,10 +1,11 @@
 import {GE, EQ, Variable, Constraint} from "./solver"
 import {HasProps} from "../has_props"
+import {Arrayable} from "../types"
 import {BBox} from "../util/bbox"
 
 export interface ViewTransform {
   compute: (v: number) => number
-  v_compute: (vv: number[] | Float64Array) => Float64Array
+  v_compute: (vv: Arrayable<number>) => Arrayable<number>
 }
 
 export namespace LayoutCanvas {
@@ -96,7 +97,7 @@ export abstract class LayoutCanvas extends HasProps {
       compute: (x: number): number => {
         return this._left.value + x
       },
-      v_compute: (xx: number[] | Float64Array): Float64Array => {
+      v_compute: (xx: Arrayable<number>): Arrayable<number> => {
         const _xx = new Float64Array(xx.length)
         const left = this._left.value
         for (let i = 0; i < xx.length; i++) {
@@ -112,7 +113,7 @@ export abstract class LayoutCanvas extends HasProps {
       compute: (y: number): number => {
         return this._bottom.value - y
       },
-      v_compute: (yy: number[] | Float64Array): Float64Array => {
+      v_compute: (yy: Arrayable<number>): Arrayable<number> => {
         const _yy = new Float64Array(yy.length)
         const bottom = this._bottom.value
         for (let i = 0; i < yy.length; i++) {

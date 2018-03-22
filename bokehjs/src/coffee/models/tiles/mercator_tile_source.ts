@@ -98,7 +98,7 @@ export class MercatorTileSource extends TileSource {
       i += 1
     }
 
-    return undefined as never // XXX
+    throw new Error("unreachable code")
   }
 
   get_closest_level_by_extent(extent: Extent, height: number, width: number): number {

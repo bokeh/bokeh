@@ -1,25 +1,16 @@
-/* XXX: partial */
-import * as p from "core/properties";
-import {Color} from "core/types"
-
-import {color2hex} from "core/util/color";
-import {min, max} from "core/util/array";
-import {ColorMapper} from "./color_mapper"
+import {ContinuousColorMapper} from "./continuous_color_mapper"
+import {Arrayable} from "core/types"
+import {min, max} from "core/util/arrayable"
 
 export namespace LinearColorMapper {
-  export interface Attrs extends ColorMapper.Attrs {
-    high: number
-    low: number
-    high_color: Color
-    low_color: Color
-  }
+  export interface Attrs extends ContinuousColorMapper.Attrs {}
 
-  export interface Props extends ColorMapper.Props {}
+  export interface Props extends ContinuousColorMapper.Props {}
 }
 
 export interface LinearColorMapper extends LinearColorMapper.Attrs {}
 
-export class LinearColorMapper extends ColorMapper {
+export class LinearColorMapper extends ContinuousColorMapper {
 
   properties: LinearColorMapper.Props
 
@@ -28,69 +19,45 @@ export class LinearColorMapper extends ColorMapper {
   }
 
   static initClass(): void {
-    this.prototype.type = "LinearColorMapper";
-
-    this.define({
-      high:       [ p.Number ],
-      low:        [ p.Number ],
-      high_color: [ p.Color  ],
-      low_color:  [ p.Color  ],
-    });
+    this.prototype.type = "LinearColorMapper"
   }
 
-  initialize(): void {
-    super.initialize();
-    this._nan_color = this._build_palette([color2hex(this.nan_color)])[0];
-    this._high_color = (this.high_color != null) ? this._build_palette([color2hex(this.high_color)])[0] : undefined;
-    this._low_color = (this.low_color != null) ? this._build_palette([color2hex(this.low_color)])[0] : undefined;
-  }
+  protected _v_compute<T>(data: Arrayable<number>, values: Arrayable<T>,
+      palette: Arrayable<T>, colors: {nan_color: T, low_color?: T, high_color?: T}): void {
+    const {nan_color, low_color, high_color} = colors
 
-  _get_values(data: number[], palette: number[], image_glyph: boolean = false): number[] {
-    const low = this.low != null ? this.low : min(data);
-    const high = this.high != null ? this.high : max(data);
-    const max_key = palette.length - 1;
-    const values = [];
+    const low = this.low != null ? this.low : min(data)
+    const high = this.high != null ? this.high : max(data)
+    const max_key = palette.length - 1
 
-    const nan_color = image_glyph ? this._nan_color : this.nan_color;
-    const low_color = image_glyph ? this._low_color : this.low_color;
-    const high_color = image_glyph ? this._high_color : this.high_color;
+    const norm_factor = 1 / (high - low)
+    const normed_interval = 1 / palette.length
 
-    const norm_factor = 1 / (high - low);
-    const normed_interval = 1 / palette.length;
+    for (let i = 0, end = data.length; i < end; i++) {
+      const d = data[i]
 
-    for (const d of data) {
       if (isNaN(d)) {
-        values.push(nan_color);
-        continue;
+        values[i] = nan_color
+        continue
       }
 
       // This handles the edge case where d == high, since the code below maps
       // values exactly equal to high to palette.length, which is greater than
       // max_key
-      if (d === high) {
-        values.push(palette[max_key]);
-        continue;
+      if (d == high) {
+        values[i] = palette[max_key]
+        continue
       }
 
-      const normed_d = (d - low) * norm_factor;
-      const key = Math.floor(normed_d / normed_interval);
-      if (key < 0) {
-        if (this.low_color != null) {
-          values.push(low_color);
-        } else {
-          values.push(palette[0]);
-        }
-      } else if (key > max_key) {
-        if (this.high_color != null) {
-          values.push(high_color);
-        } else {
-          values.push(palette[max_key]);
-        }
-      } else {
-        values.push(palette[key]);
-      }
+      const normed_d = (d - low) * norm_factor
+      const key = Math.floor(normed_d / normed_interval)
+      if (key < 0)
+        values[i] = low_color != null ? low_color : palette[0]
+      else if (key > max_key)
+        values[i] = high_color != null ? high_color : palette[max_key]
+      else
+        values[i] = palette[key]
     }
-    return values;
   }
 }
-LinearColorMapper.initClass();
+LinearColorMapper.initClass()

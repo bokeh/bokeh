@@ -5,9 +5,6 @@ export namespace Range1d {
   export interface Attrs extends Range.Attrs {
     start: number
     end: number
-    bounds: [number, number] | "auto"
-    min_interval: number
-    max_interval: number
   }
 
   export interface Props extends Range.Props {}
@@ -29,9 +26,6 @@ export class Range1d extends Range {
     this.define({
       start:  [ p.Number, 0 ],
       end:    [ p.Number, 1 ],
-      bounds: [ p.Any       ], // TODO (bev)
-      min_interval: [ p.Any ],
-      max_interval: [ p.Any ],
     })
   }
 

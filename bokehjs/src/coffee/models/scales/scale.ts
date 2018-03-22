@@ -5,7 +5,10 @@ import {Arrayable} from "core/types"
 import * as p from "core/properties"
 
 export namespace Scale {
-  export interface Attrs extends Transform.Attrs {}
+  export interface Attrs extends Transform.Attrs {
+    source_range: Range
+    target_range: Range1d
+  }
 
   export interface Props extends Transform.Props {}
 }
@@ -28,9 +31,6 @@ export abstract class Scale extends Transform {
       target_range: [ p.Any ], // p.Instance(Range1d)
     })
   }
-
-  source_range: Range
-  target_range: Range1d
 
   abstract compute(x: number): number
 

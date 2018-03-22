@@ -21,9 +21,6 @@ export namespace DataRange1d {
     follow: StartEnd
     follow_interval: number
     default_span: number
-    bounds: [number, number] | "auto"
-    min_interval: any // XXX: what's this?
-    max_interval: any // XXX: what's this?
 
     scale_hint: "log" | "auto"
   }
@@ -53,9 +50,6 @@ export class DataRange1d extends DataRange {
       follow:              [ p.StartEnd,               ],
       follow_interval:     [ p.Number                  ],
       default_span:        [ p.Number,       2         ],
-      bounds:              [ p.Any                     ],
-      min_interval:        [ p.Any                     ],
-      max_interval:        [ p.Any                     ],
     })
 
     this.internal({

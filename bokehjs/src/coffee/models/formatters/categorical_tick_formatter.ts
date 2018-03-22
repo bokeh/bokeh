@@ -1,5 +1,6 @@
 import {TickFormatter} from "./tick_formatter"
 import {Axis} from "../axes/axis"
+import {copy} from "core/util/array"
 
 export namespace CategoricalTickFormatter {
   export interface Attrs extends TickFormatter.Attrs {}
@@ -22,7 +23,7 @@ export class CategoricalTickFormatter extends TickFormatter {
   }
 
   doFormat(ticks: string[], _axis: Axis): string[] {
-    return ticks
+    return copy(ticks)
   }
 }
 CategoricalTickFormatter.initClass()

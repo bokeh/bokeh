@@ -13,7 +13,11 @@ export namespace MapOptions {
     zoom: number
   }
 
-  export interface Props extends Model.Props {}
+  export interface Props extends Model.Props {
+    lat: p.Property<number>
+    lng: p.Property<number>
+    zoom: p.Property<number>
+  }
 }
 
 export interface MapOptions extends MapOptions.Attrs {}
@@ -45,7 +49,11 @@ export namespace GMapOptions {
     styles: string
   }
 
-  export interface Props extends MapOptions.Props {}
+  export interface Props extends MapOptions.Props {
+    map_type: p.Property<string>
+    scale_control: p.Property<boolean>
+    styles: p.Property<string>
+  }
 }
 
 export interface GMapOptions extends GMapOptions.Attrs {}
@@ -80,7 +88,10 @@ export namespace GMapPlot {
     api_key: string
   }
 
-  export interface Props extends Plot.Props {}
+  export interface Props extends Plot.Props {
+    map_options: p.Property<GMapOptions>
+    api_key: p.Property<string>
+  }
 }
 
 export interface GMapPlot extends GMapPlot.Attrs {}
