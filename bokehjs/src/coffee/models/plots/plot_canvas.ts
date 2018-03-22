@@ -202,8 +202,12 @@ export class PlotCanvasView extends DOMView {
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT);
       // Clipping
-      gl.enable(gl.SCISSOR_TEST);
-      gl.scissor(ratio*frame_box[0], ratio*frame_box[1], ratio*frame_box[2], ratio*frame_box[3]);
+      gl.enable(gl.SCISSOR_TEST)
+      const [sx, sy, w, h] = frame_box
+      const {xview, yview} = this.model.canvas
+      const vx = xview.compute(sx)
+      const vy = yview.compute(sy + h)
+      gl.scissor(ratio*vx, ratio*vy, ratio*w, ratio*h) // lower left corner, width, height
       // Setup blending
       gl.enable(gl.BLEND);
       gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE);  // premultipliedAlpha == true
