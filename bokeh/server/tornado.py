@@ -124,6 +124,7 @@ class BokehTornado(TornadoApplication):
             If there are multiple Bokeh applications configured, this option
             has no effect.
 
+    Any additional keyword arguments are passed to ``tornado.web.Application``.
     '''
 
     def __init__(self,
@@ -140,7 +141,8 @@ class BokehTornado(TornadoApplication):
                  stats_log_frequency_milliseconds=DEFAULT_STATS_LOG_FREQ_MS,
                  mem_log_frequency_milliseconds=DEFAULT_MEM_LOG_FREQ_MS,
                  use_index=True,
-                 redirect_root=True):
+                 redirect_root=True,
+                 **kwargs):
 
         # This will be set when initialize is called
         self._loop = None
@@ -258,7 +260,7 @@ class BokehTornado(TornadoApplication):
         for line in pformat(all_patterns, width=60).split("\n"):
             log.debug("  " + line)
 
-        super(BokehTornado, self).__init__(all_patterns)
+        super(BokehTornado, self).__init__(all_patterns, **kwargs)
 
     def initialize(self, io_loop):
         ''' Start a Bokeh Server Tornado Application on a given Tornado IOLoop.
