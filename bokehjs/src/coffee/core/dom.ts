@@ -166,6 +166,16 @@ export function margin(el: HTMLElement): Sizing {
   }
 }
 
+export function padding(el: HTMLElement): Sizing {
+  const style = getComputedStyle(el)
+  return {
+    top:    parseFloat(style.paddingTop!)    || 0,
+    bottom: parseFloat(style.paddingBottom!) || 0,
+    left:   parseFloat(style.paddingLeft!)   || 0,
+    right:  parseFloat(style.paddingRight!)  || 0,
+  }
+}
+
 export enum Keys {
   Backspace = 8,
   Tab       = 9,
