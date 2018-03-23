@@ -41,7 +41,12 @@ import {Context2d} from "core/util/canvas"
 // The presence (and not-being-false) of the this.glcanvas attribute is the
 // marker that we use throughout that determines whether we have gl support.
 
-let global_glcanvas: HTMLCanvasElement | null = null
+export type WebGLState = {
+  canvas: HTMLCanvasElement
+  ctx: WebGLRenderingContext
+}
+
+let global_gl: WebGLState | null = null
 
 export type FrameBox = [number, number, number, number]
 
@@ -67,10 +72,7 @@ export class PlotCanvasView extends DOMView {
 
   canvas_view: CanvasView
 
-  gl?: {
-    canvas: HTMLCanvasElement,
-    ctx: WebGLRenderingContext,
-  }
+  gl?: WebGLState
 
   force_paint: Signal0<this>
   state_changed: Signal0<this>
@@ -213,20 +215,22 @@ export class PlotCanvasView extends DOMView {
   init_webgl(): void {
     // We use a global invisible canvas and gl context. By having a global context,
     // we avoid the limitation of max 16 contexts that most browsers have.
-    if (global_glcanvas == null) {
+    if (global_gl == null) {
       const canvas = document.createElement('canvas')
-      global_glcanvas = canvas
 
       const opts: WebGLContextAttributes = {premultipliedAlpha: true}
       const ctx = canvas.getContext("webgl", opts) || canvas.getContext("experimental-webgl", opts)
 
       // If WebGL is available, we store a reference to the gl canvas on
       // the ctx object, because that's what gets passed everywhere.
-      if (ctx != null) {
-        this.gl = {canvas, ctx}
-      } else
-        logger.warn('WebGL is not supported, falling back to 2D canvas.')
+      if (ctx != null)
+        global_gl = {canvas, ctx}
     }
+
+    if (global_gl != null)
+      this.gl = global_gl
+    else
+      logger.warn('WebGL is not supported, falling back to 2D canvas.')
   }
 
   prepare_webgl(ratio: number, frame_box: FrameBox): void {
