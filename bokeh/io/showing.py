@@ -38,7 +38,7 @@ from .state import curstate
 #-----------------------------------------------------------------------------
 
 @general((1,0,0))
-def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="localhost:8888"):
+def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="localhost:8888", proxy_url_func=None):
     ''' Immediately display a Bokeh object or application.
 
         :func:`show` may be called multiple times in a single Jupyter notebook
@@ -99,6 +99,12 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
             standard checks, so that applications will display regardless of
             the current notebook location, however a warning will appear.
 
+        proxy_url_func (func(string,int), optional):
+            Function that receives notebook_url and the bound server port
+            for a Server instance and returns the public url to connect to
+            the server on.  This is useful when behind reverse proxies and
+            in a notebook.
+
 
     Some parameters are only useful when certain output modes are active:
 
@@ -125,7 +131,7 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
     # This ugliness is to prevent importing bokeh.application (which would bring
     # in Tornado) just in order to show a non-server object
     if getattr(obj, '_is_a_bokeh_application_class', False) or callable(obj):
-        return run_notebook_hook(state.notebook_type, 'app', obj, state, notebook_url)
+        return run_notebook_hook(state.notebook_type, 'app', obj, state, notebook_url, proxy_url_func=proxy_url_func)
 
     if obj not in state.document.roots:
         state.document.add_root(obj)
