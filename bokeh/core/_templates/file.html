@@ -17,16 +17,39 @@ Users can customize the file output by providing their own Jinja2 template
 that accepts these same parameters.
 
 #}
+
+{% macro embed(root) -%}
+<div class="bk-root">
+    <div class="bk-plotdiv" id="{{ root.elementid }}"></div>
+</div>
+{%- endmacro %}
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
+    {% block head %}
         <meta charset="utf-8">
-        <title>{{ title|e if title else "Bokeh Plot" }}</title>
-        {{ bokeh_css }}
-        {{ bokeh_js }}
+        <title>{% block title %}{{ title | e if title else "Bokeh Plot" }}{% endblock %}</title>
+        {% block preamble %}{% endblock %}
+        {% block resources %}
+          {% block js_resources %}
+            {{ bokeh_css | indent(8) if bokeh_css }}
+          {% endblock %}
+          {% block css_resources %}
+            {{ bokeh_js | indent(8) if bokeh_js }}
+          {% endblock %}
+        {% endblock %}
+        {% block postamble %}{% endblock %}
+    {% endblock %}
     </head>
     <body>
-        {{ plot_div|indent(8) }}
-        {{ plot_script|indent(8) }}
+    {% block body %}
+        {% block contents %}
+          {% for root in roots %}
+            {{ embed(root) | indent(8) if root }}
+          {% endfor %}
+        {% endblock %}
+        {{ plot_script | indent(8) }}
+    {% endblock %}
     </body>
 </html>

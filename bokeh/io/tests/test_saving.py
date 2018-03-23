@@ -107,12 +107,12 @@ def test__save_helper(mock_file_html, mock_io_open):
     obj = Plot()
     filename, resources, title = bis._get_save_args(curstate(), "filename", "resources", "title")
 
-    bis._save_helper(obj, filename, resources, title)
+    bis._save_helper(obj, filename, resources, title, None)
 
     assert mock_file_html.call_count == 1
     assert mock_file_html.call_args[0] == (obj, resources)
-    assert mock_file_html.call_args[1] == {"title": "title"}
+    assert mock_file_html.call_args[1] == dict(title="title", template=None)
 
     assert mock_io_open.call_count == 1
     assert mock_io_open.call_args[0] == (filename,)
-    assert mock_io_open.call_args[1] == {"mode":"w", "encoding":"utf-8"}
+    assert mock_io_open.call_args[1] == dict(mode="w", encoding="utf-8")

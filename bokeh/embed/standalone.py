@@ -280,7 +280,7 @@ def file_html(models,
         title = _title_from_models(models, title)
         bundle = bundle_for_objs_and_resources([doc], resources)
         return html_page_for_render_items(bundle, docs_json, render_items, title=title,
-                                           template=template, template_variables=template_variables)
+                                          template=template, template_variables=template_variables)
 
 #-----------------------------------------------------------------------------
 # Dev API

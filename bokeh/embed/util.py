@@ -29,7 +29,7 @@ from six import string_types
 
 # Bokeh imports
 from ..core.json_encoder import serialize_json
-from ..core.templates import DOC_JS, FILE, PLOT_DIV, SCRIPT_TAG
+from ..core.templates import _env, DOC_JS, FILE, PLOT_DIV, SCRIPT_TAG
 from ..document.document import DEFAULT_TITLE, Document
 from ..model import Model, collect_models
 from ..settings import settings
@@ -135,7 +135,7 @@ def find_existing_docs(models):
     return doc
 
 def html_page_for_render_items(bundle, docs_json, render_items, title,
-                               template=FILE, template_variables={}):
+                               template=None, template_variables={}):
     '''
 
     '''
@@ -152,17 +152,26 @@ def html_page_for_render_items(bundle, docs_json, render_items, title,
     script += script_for_render_items(json_id, render_items)
     script = wrap_in_script_tag(script)
 
-    template_variables_full = template_variables.copy()
+    context = template_variables.copy()
 
-    template_variables_full.update(dict(
+    context.update(dict(
         title = title,
         bokeh_js = bokeh_js,
         bokeh_css = bokeh_css,
         plot_script = json + script,
-        plot_div = "\n".join(div_for_render_item(item) for item in render_items)
+        roots = render_items,
+        FILE = FILE,
     ))
 
-    html = template.render(template_variables_full)
+    if len(render_items) == 1:
+        context["root"] = render_items[0]
+
+    if template is None:
+        template = FILE
+    elif isinstance(template, string_types):
+        template = _env.from_string("{% extends FILE %}\n" + template)
+
+    html = template.render(context)
     return encode_utf8(html)
 
 def script_for_render_items(docs_json_or_id, render_items, app_path=None, absolute_url=None):
@@ -237,8 +246,8 @@ def standalone_docs_json_and_render_items(models):
             'docid' : docid,
             'elementid' : elementid,
             # if modelid is None, that means the entire document
-            'modelid' : modelid
-            })
+            'modelid' : modelid,
+        })
 
     docs_json = {}
     for k, v in docs_by_id.items():

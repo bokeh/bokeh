@@ -181,7 +181,9 @@ class Test_file_html(object):
                     "bokeh_js",
                     "bokeh_css",
                     "plot_script",
-                    "plot_div"
+                    "root",
+                    "roots",
+                    "FILE",
                 }
                 if user_template_variables is not None:
                     self.template_variables.update(user_template_variables)

@@ -44,7 +44,7 @@ DEFAULT_TITLE = "Bokeh Plot"
 # General API
 #-----------------------------------------------------------------------------
 
-def save(obj, filename=None, resources=None, title=None, state=None, **kwargs):
+def save(obj, filename=None, resources=None, title=None, template=None, state=None, **kwargs):
     ''' Save an HTML file with the data for the current document.
 
     Will fall back to the default output state (or an explicitly provided
@@ -80,7 +80,7 @@ def save(obj, filename=None, resources=None, title=None, state=None, **kwargs):
         state = curstate()
 
     filename, resources, title = _get_save_args(state, filename, resources, title)
-    _save_helper(obj, filename, resources, title)
+    _save_helper(obj, filename, resources, title, template)
     return abspath(filename)
 
 #-----------------------------------------------------------------------------
@@ -137,12 +137,12 @@ def _get_save_title(state, title, suppress_warning):
 
     return DEFAULT_TITLE
 
-def _save_helper(obj, filename, resources, title):
+def _save_helper(obj, filename, resources, title, template):
     '''
 
     '''
     from ..embed import file_html
-    html = file_html(obj, resources, title=title)
+    html = file_html(obj, resources, title=title, template=template)
 
     with io.open(filename, mode="w", encoding="utf-8") as f:
         f.write(decode_utf8(html))
