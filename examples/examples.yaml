@@ -24,3 +24,4 @@
 - path: "integration/glyphs"
 - path: "integration/layout"
 - path: "integration/security"
+- path: "integration/webgl"
