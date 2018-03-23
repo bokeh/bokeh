@@ -7,6 +7,8 @@ export interface XYGlyphData extends GlyphData {
   _x: Arrayable<number>
   _y: Arrayable<number>
 
+  scale: Arrayable<number>
+
   sx: Arrayable<number>
   sy: Arrayable<number>
 }

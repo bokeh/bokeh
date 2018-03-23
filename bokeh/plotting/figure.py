@@ -7,12 +7,15 @@ from six import string_types
 
 from ..core.properties import Any, Auto, Either, Enum, Int, Seq, Instance, String
 from ..core.enums import HorizontalLocation, VerticalLocation
-from ..models import Plot, Title, Tool, GraphRenderer
+from ..models import ColumnDataSource, Plot, Title, Tool, GraphRenderer
 from ..models import glyphs, markers
 from ..models.tools import Drag, Inspection, Scroll, Tap
+from ..palettes import Viridis256
+from ..util.hex import hexbin
 from ..util.options import Options
 from ..util.string import format_docstring
 from ..util._plot_arg_helpers import _convert_responsive
+from ..transform import linear_cmap
 from .helpers import (
     _get_range, _get_scale, _process_axis_and_grid, _process_tools_arg,
     _glyph_function, _process_active_tools, _stack, _graph)
@@ -326,6 +329,21 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.hex(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,30], color="#74ADD1")
+
+        show(plot)
+
+""")
+
+    hex_tile = _glyph_function(glyphs.HexTile, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(plot_width=300, plot_height=300, match_aspect=True)
+        plot.hex_tile(r=[0, 0, 1], q=[1, 2, 2], fill_color="#74ADD1")
 
         show(plot)
 
@@ -690,6 +708,46 @@ Examples:
             markertype = conversions[markertype]
 
         return getattr(self, markertype)(*args, **kwargs)
+
+    def hexbin(self, x, y, size, orientation="pointytop", palette=Viridis256, line_color=None, fill_color=None, aspect_scale=1, **kwargs):
+        '''
+
+        Args:
+            x
+
+            y
+
+            size
+
+            orientation
+
+            palette
+
+            line_color
+
+            fill_color
+
+            aspect_scale
+
+        Any additional keyword arguments are passed to :func:`hextile`.
+
+        Returns
+            (Glyphrender, DataFrame)
+
+        '''
+
+
+        bins = hexbin(x, y, size, orientation, aspect_scale=aspect_scale)
+
+        if fill_color is None:
+            fill_color = linear_cmap('c', palette, 0, max(bins.counts))
+
+        source = ColumnDataSource(data=dict(q=bins.q, r=bins.r, c=bins.counts))
+
+        r = self.hex_tile(q="q", r="r", size=size, orientation=orientation, aspect_scale=aspect_scale,
+                          source=source, line_color=line_color, fill_color=fill_color, **kwargs)
+
+        return (r, bins)
 
     def hbar_stack(self, stackers, **kw):
         ''' Generate multiple ``HBar`` renderers for levels stacked left to right.
