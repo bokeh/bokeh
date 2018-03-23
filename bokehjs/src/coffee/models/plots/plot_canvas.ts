@@ -447,7 +447,8 @@ export class PlotCanvasView extends DOMView {
     }
   }
 
-  protected _update_ranges_individually(range_info_iter: [Range, Interval][], is_panning: boolean, is_scrolling: boolean): void {
+  protected _update_ranges_individually(range_info_iter: [Range, Interval][],
+                                        is_panning: boolean, is_scrolling: boolean, maintain_focus: boolean): void {
     let hit_bound = false
     for (const [rng, range_info] of range_info_iter) {
       // Is this a reversed range?
@@ -512,10 +513,10 @@ export class PlotCanvasView extends DOMView {
     }
 
     // Cancel the event when hitting a bound while scrolling. This ensures that
-    // the scroll-zoom tool maintains its focus position. Disabling the next
-    // two lines would result in a more "gliding" behavior, allowing one to
+    // the scroll-zoom tool maintains its focus position. Setting `maintain_focus`
+    // to false results in a more "gliding" behavior, allowing one to
     // zoom out more smoothly, at the cost of losing the focus position.
-    if (is_scrolling && hit_bound)
+    if (is_scrolling && hit_bound && maintain_focus)
       return
 
     for (const [rng, range_info] of range_info_iter) {
@@ -557,7 +558,8 @@ export class PlotCanvasView extends DOMView {
     return weight
   }
 
-  update_range(range_info: RangeInfo | null, is_panning: boolean = false, is_scrolling: boolean = false): void {
+  update_range(range_info: RangeInfo | null,
+               is_panning: boolean = false, is_scrolling: boolean = false, maintain_focus: boolean = true): void {
     this.pause()
     const {x_ranges, y_ranges} = this.frame
     if (range_info == null) {
@@ -583,7 +585,7 @@ export class PlotCanvasView extends DOMView {
       if (is_scrolling) {
         this._update_ranges_together(range_info_iter)   // apply interval bounds while keeping aspect
       }
-      this._update_ranges_individually(range_info_iter, is_panning, is_scrolling)
+      this._update_ranges_individually(range_info_iter, is_panning, is_scrolling, maintain_focus)
     }
     this.unpause()
   }

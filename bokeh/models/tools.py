@@ -218,6 +218,12 @@ class WheelZoomTool(Scroll):
     vertically across the height of the plot.
     """)
 
+    maintain_focus = Bool(default=True, help="""
+    Whether or not zooming tool maintains its focus position. Setting it
+    to False results in a more "gliding" behavior, allowing one to
+    zoom out more smoothly, at the cost of losing the focus position.
+    """)
+
 
 class SaveTool(Action):
     ''' *toolbar icon*: |save_icon|
