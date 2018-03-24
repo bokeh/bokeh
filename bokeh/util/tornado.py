@@ -4,11 +4,15 @@
 from __future__ import absolute_import, print_function
 
 import logging
+import threading
+
 log = logging.getLogger(__name__)
 
 from traceback import format_exception
 
 from tornado import gen
+from ..util.serialization import make_id
+
 
 @gen.coroutine
 def yield_for_all_futures(result):
@@ -34,6 +38,7 @@ def yield_for_all_futures(result):
 
     raise gen.Return(result)
 
+
 class _AsyncPeriodic(object):
     """Like ioloop.PeriodicCallback except the 'func' can be async and
         return a Future, and we wait for func to finish each time
@@ -41,6 +46,7 @@ class _AsyncPeriodic(object):
         can "pile up" invocations if they are taking too long.
 
     """
+
     def __init__(self, func, period, io_loop):
         self._func = func
         self._loop = io_loop
@@ -59,6 +65,7 @@ class _AsyncPeriodic(object):
         if self._started:
             raise RuntimeError("called start() twice on _AsyncPeriodic")
         self._started = True
+
         def invoke():
             # important to start the sleep before starting callback
             # so any initial time spent in callback "counts against"
@@ -78,16 +85,19 @@ class _AsyncPeriodic(object):
                 return sleep_future
             else:
                 return gen.multi([sleep_future, callback_future])
+
         def on_done(future):
             if not self._stopped:
                 self._loop.add_future(invoke(), on_done)
             if future.exception() is not None:
                 log.error("Error thrown from periodic callback:")
                 log.error("".join(format_exception(*future.exc_info())))
+
         self._loop.add_future(self.sleep(), on_done)
 
     def stop(self):
         self._stopped = True
+
 
 class _CallbackGroup(object):
     """ A collection of callbacks added to a Tornado IOLoop that we may
@@ -100,103 +110,94 @@ class _CallbackGroup(object):
         # dicts from callback to remove callable. These are
         # separate only because it's allowed to add the same
         # callback as multiple kinds of callback at once.
-        self._next_tick_callbacks = {}
-        self._timeout_callbacks = {}
-        self._periodic_callbacks = {}
+        self._next_tick_callback_removers = {}
+        self._timeout_callback_removers = {}
+        self._periodic_callback_removers = {}
+        self._removers_lock = threading.Lock()
 
     def remove_all_callbacks(self):
         """ Removes all registered callbacks."""
-        for cb in list(self._next_tick_callbacks.keys()):
-            self.remove_next_tick_callback(cb)
-        for cb in list(self._timeout_callbacks.keys()):
-            self.remove_timeout_callback(cb)
-        for cb in list(self._periodic_callbacks.keys()):
-            self.remove_periodic_callback(cb)
+        for cb_id in list(self._next_tick_callback_removers.keys()):
+            self.remove_next_tick_callback(cb_id)
+        for cb_id in list(self._timeout_callback_removers.keys()):
+            self.remove_timeout_callback(cb_id)
+        for cb_id in list(self._periodic_callback_removers.keys()):
+            self.remove_periodic_callback(cb_id)
 
-    def _error_on_double_remove(self, callback, callbacks):
-        if callback not in callbacks:
+    def _assign_remover(self, callback_id, removers, remover):
+        with self._removers_lock:
+            if callback_id is None:
+                callback_id = make_id()
+            elif callback_id in removers:
+                raise ValueError("A callback of the same type has already been added with this ID")
+            removers[callback_id] = remover
+            return callback_id
+
+    @staticmethod
+    def _execute_remover(callback_id, removers):
+        try:
+            remover = removers.pop(callback_id)
+        except KeyError:
             raise ValueError("Removing a callback twice (or after it's already been run)")
+        remover()
 
-    def _remover(self, callback, callbacks, cleanup):
-        self._error_on_double_remove(callback, callbacks)
-        del callbacks[callback]
-        if cleanup is not None:
-            cleanup(callback)
-
-    def _wrap_next_tick(self, callback, cleanup):
-        # this 'removed' flag is a hack because Tornado has no way
-        # to remove a "next tick" callback added with
-        # IOLoop.add_callback. So instead we make our wrapper skip
-        # invoking the callback.
-        handle = { 'removed' : False }
+    def add_next_tick_callback(self, callback, callback_id=None):
+        """ Adds a callback to be run on the next tick.
+        Returns an ID that can be used with remove_next_tick_callback."""
         def wrapper(*args, **kwargs):
-            was_removed = handle['removed']
-            if not was_removed:
-                self.remove_next_tick_callback(callback)
+            # this 'removed' flag is a hack because Tornado has no way
+            # to remove a "next tick" callback added with
+            # IOLoop.add_callback. So instead we make our wrapper skip
+            # invoking the callback.
+            if not wrapper.removed:
+                self.remove_next_tick_callback(callback_id)
                 return callback(*args, **kwargs)
             else:
                 return None
-        wrapper.handle = handle
-        return wrapper
 
-    def add_next_tick_callback(self, callback, cleanup=None):
-        """ Adds a callback to be run on the next tick.
-        Returns a callable that removes the callback if called."""
-        if callback in self._next_tick_callbacks:
-            raise ValueError("Next-tick callback added twice")
-        wrapper = self._wrap_next_tick(callback, cleanup)
+        wrapper.removed = False
+
+        def remover():
+            wrapper.removed = True
+
+        callback_id = self._assign_remover(callback_id, self._next_tick_callback_removers, remover)
         self._loop.add_callback(wrapper)
-        def remover():
-            wrapper.handle['removed'] = True
-            self._remover(callback, self._next_tick_callbacks, cleanup)
-        self._next_tick_callbacks[callback] = remover
-        return remover
+        return callback_id
 
-    def _remove(self, callback, callbacks):
-        self._error_on_double_remove(callback, callbacks)
-        callbacks[callback]()
-
-    def remove_next_tick_callback(self, callback):
+    def remove_next_tick_callback(self, callback_id):
         """ Removes a callback added with add_next_tick_callback."""
-        self._remove(callback, self._next_tick_callbacks)
+        self._execute_remover(callback_id, self._next_tick_callback_removers)
 
-    def _wrap_timeout(self, callback):
-        def wrapper(*args, **kwargs):
-            self.remove_timeout_callback(callback)
-            return callback(*args, **kwargs)
-        return wrapper
-
-    def add_timeout_callback(self, callback, timeout_milliseconds, cleanup=None):
+    def add_timeout_callback(self, callback, timeout_milliseconds, callback_id=None):
         """ Adds a callback to be run once after timeout_milliseconds.
-        Returns a callable that removes the callback if called."""
-        if callback in self._timeout_callbacks:
-            raise ValueError("Callback added as a timeout twice")
-        handle = self._loop.call_later(timeout_milliseconds / 1000.0,
-                                       self._wrap_timeout(callback))
-        def remover():
-            self._loop.remove_timeout(handle)
-            self._remover(callback, self._timeout_callbacks, cleanup)
-        self._timeout_callbacks[callback] = remover
-        return remover
+        Returns an ID that can be used with remove_timeout_callback."""
+        def wrapper(*args, **kwargs):
+            self.remove_timeout_callback(callback_id)
+            return callback(*args, **kwargs)
 
-    def remove_timeout_callback(self, callback):
+        handle = None
+
+        def remover():
+            if handle is not None:
+                self._loop.remove_timeout(handle)
+
+        callback_id = self._assign_remover(callback_id, self._timeout_callback_removers, remover)
+        handle = self._loop.call_later(timeout_milliseconds / 1000.0, wrapper)
+        return callback_id
+
+    def remove_timeout_callback(self, callback_id):
         """ Removes a callback added with add_timeout_callback, before it runs."""
-        self._remove(callback, self._timeout_callbacks)
+        self._execute_remover(callback_id, self._timeout_callback_removers)
 
-    def add_periodic_callback(self, callback, period_milliseconds, cleanup=None):
-        """ Adds a callback to be run every period_milliseconds until it is removed."""
-        if callback in self._periodic_callbacks:
-            raise ValueError("Callback added as a periodic callback twice")
-        cb = _AsyncPeriodic(
-            callback, period_milliseconds, io_loop=self._loop
-        )
-        def remover():
-            cb.stop()
-            self._remover(callback, self._periodic_callbacks, cleanup)
-        self._periodic_callbacks[callback] = remover
+    def add_periodic_callback(self, callback, period_milliseconds, callback_id=None):
+        """ Adds a callback to be run every period_milliseconds until it is removed.
+        Returns an ID that can be used with remove_periodic_callback."""
+
+        cb = _AsyncPeriodic(callback, period_milliseconds, io_loop=self._loop)
+        callback_id = self._assign_remover(callback_id, self._periodic_callback_removers, cb.stop)
         cb.start()
-        return remover
+        return callback_id
 
-    def remove_periodic_callback(self, callback):
+    def remove_periodic_callback(self, callback_id):
         """ Removes a callback added with add_periodic_callback."""
-        self._remove(callback, self._periodic_callbacks)
+        self._execute_remover(callback_id, self._periodic_callback_removers)

@@ -1,6 +1,8 @@
 from __future__ import absolute_import, print_function
 
 import unittest
+from concurrent.futures import ThreadPoolExecutor
+from itertools import repeat
 
 from tornado.ioloop import IOLoop
 
@@ -49,75 +51,54 @@ class TestCallbackGroup(unittest.TestCase):
     def test_next_tick_runs(self):
         with (LoopAndGroup()) as ctx:
             func = _make_invocation_counter(ctx.io_loop)
-            self.assertEqual(0, len(ctx.group._next_tick_callbacks))
+            self.assertEqual(0, len(ctx.group._next_tick_callback_removers))
             ctx.group.add_next_tick_callback(func)
-            self.assertEqual(1, len(ctx.group._next_tick_callbacks))
+            self.assertEqual(1, len(ctx.group._next_tick_callback_removers))
         self.assertEqual(1, func.count())
         # check for leaks
-        self.assertEqual(0, len(ctx.group._next_tick_callbacks))
+        self.assertEqual(0, len(ctx.group._next_tick_callback_removers))
 
     def test_timeout_runs(self):
         with (LoopAndGroup()) as ctx:
             func = _make_invocation_counter(ctx.io_loop)
-            self.assertEqual(0, len(ctx.group._timeout_callbacks))
+            self.assertEqual(0, len(ctx.group._timeout_callback_removers))
             ctx.group.add_timeout_callback(func, timeout_milliseconds=1)
-            self.assertEqual(1, len(ctx.group._timeout_callbacks))
+            self.assertEqual(1, len(ctx.group._timeout_callback_removers))
         self.assertEqual(1, func.count())
         # check for leaks
-        self.assertEqual(0, len(ctx.group._timeout_callbacks))
+        self.assertEqual(0, len(ctx.group._timeout_callback_removers))
 
     def test_periodic_runs(self):
         with (LoopAndGroup()) as ctx:
             func = _make_invocation_counter(ctx.io_loop, stop_after=5)
-            self.assertEqual(0, len(ctx.group._periodic_callbacks))
-            ctx.group.add_periodic_callback(func, period_milliseconds=1)
-            self.assertEqual(1, len(ctx.group._periodic_callbacks))
+            self.assertEqual(0, len(ctx.group._periodic_callback_removers))
+            cb_id = ctx.group.add_periodic_callback(func, period_milliseconds=1)
+            self.assertEqual(1, len(ctx.group._periodic_callback_removers))
         self.assertEqual(5, func.count())
         # check for leaks... periodic doesn't self-remove though
-        self.assertEqual(1, len(ctx.group._periodic_callbacks))
-        ctx.group.remove_periodic_callback(func)
-        self.assertEqual(0, len(ctx.group._periodic_callbacks))
+        self.assertEqual(1, len(ctx.group._periodic_callback_removers))
+        ctx.group.remove_periodic_callback(cb_id)
+        self.assertEqual(0, len(ctx.group._periodic_callback_removers))
 
     def test_next_tick_does_not_run_if_removed_immediately(self):
         with (LoopAndGroup(quit_after=15)) as ctx:
             func = _make_invocation_counter(ctx.io_loop)
-            ctx.group.add_next_tick_callback(func)
-            ctx.group.remove_next_tick_callback(func)
+            cb_id = ctx.group.add_next_tick_callback(func)
+            ctx.group.remove_next_tick_callback(cb_id)
         self.assertEqual(0, func.count())
 
     def test_timeout_does_not_run_if_removed_immediately(self):
         with (LoopAndGroup(quit_after=15)) as ctx:
             func = _make_invocation_counter(ctx.io_loop)
-            ctx.group.add_timeout_callback(func, timeout_milliseconds=1)
-            ctx.group.remove_timeout_callback(func)
+            cb_id = ctx.group.add_timeout_callback(func, timeout_milliseconds=1)
+            ctx.group.remove_timeout_callback(cb_id)
         self.assertEqual(0, func.count())
 
     def test_periodic_does_not_run_if_removed_immediately(self):
         with (LoopAndGroup(quit_after=15)) as ctx:
             func = _make_invocation_counter(ctx.io_loop, stop_after=5)
-            ctx.group.add_periodic_callback(func, period_milliseconds=1)
-            ctx.group.remove_periodic_callback(func)
-        self.assertEqual(0, func.count())
-
-    def test_next_tick_remove_with_returned_callable(self):
-        with (LoopAndGroup(quit_after=15)) as ctx:
-            func = _make_invocation_counter(ctx.io_loop)
-            remover = ctx.group.add_next_tick_callback(func)
-            remover()
-        self.assertEqual(0, func.count())
-
-    def test_timeout_remove_with_returned_callable(self):
-        with (LoopAndGroup(quit_after=15)) as ctx:
-            func = _make_invocation_counter(ctx.io_loop)
-            remover = ctx.group.add_timeout_callback(func, timeout_milliseconds=1)
-            remover()
-        self.assertEqual(0, func.count())
-
-    def test_periodic_remove_with_returned_callable(self):
-        with (LoopAndGroup(quit_after=15)) as ctx:
-            func = _make_invocation_counter(ctx.io_loop, stop_after=5)
-            remover = ctx.group.add_periodic_callback(func, period_milliseconds=1)
-            remover()
+            cb_id = ctx.group.add_periodic_callback(func, period_milliseconds=1)
+            ctx.group.remove_periodic_callback(cb_id)
         self.assertEqual(0, func.count())
 
     def test_same_callback_as_all_three_types(self):
@@ -131,33 +112,24 @@ class TestCallbackGroup(unittest.TestCase):
 
     def test_adding_next_tick_twice(self):
         with (LoopAndGroup()) as ctx:
-            def func():
-                pass
-            with (self.assertRaises(ValueError)) as manager:
-                ctx.group.add_next_tick_callback(func)
-                ctx.group.add_next_tick_callback(func)
-            ctx.io_loop.add_callback(lambda: ctx.io_loop.stop())
-        self.assertTrue("twice" in repr(manager.exception))
+            func = _make_invocation_counter(ctx.io_loop, stop_after=2)
+            ctx.group.add_next_tick_callback(func)
+            ctx.group.add_next_tick_callback(func)
+        self.assertEqual(2, func.count())
 
     def test_adding_timeout_twice(self):
         with (LoopAndGroup()) as ctx:
-            def func():
-                pass
-            with (self.assertRaises(ValueError)) as manager:
-                ctx.group.add_timeout_callback(func, timeout_milliseconds=1)
-                ctx.group.add_timeout_callback(func, timeout_milliseconds=2)
-            ctx.io_loop.add_callback(lambda: ctx.io_loop.stop())
-        self.assertTrue("twice" in repr(manager.exception))
+            func = _make_invocation_counter(ctx.io_loop, stop_after=2)
+            ctx.group.add_timeout_callback(func, timeout_milliseconds=1)
+            ctx.group.add_timeout_callback(func, timeout_milliseconds=2)
+        self.assertEqual(2, func.count())
 
     def test_adding_periodic_twice(self):
         with (LoopAndGroup()) as ctx:
-            def func():
-                pass
-            with (self.assertRaises(ValueError)) as manager:
-                ctx.group.add_periodic_callback(func, period_milliseconds=1)
-                ctx.group.add_periodic_callback(func, period_milliseconds=2)
-            ctx.io_loop.add_callback(lambda: ctx.io_loop.stop())
-        self.assertTrue("twice" in repr(manager.exception))
+            func = _make_invocation_counter(ctx.io_loop, stop_after=2)
+            ctx.group.add_periodic_callback(func, period_milliseconds=3)
+            ctx.group.add_periodic_callback(func, period_milliseconds=2)
+        self.assertEqual(2, func.count())
 
     def test_remove_all_callbacks(self):
         with (LoopAndGroup(quit_after=15)) as ctx:
@@ -175,87 +147,38 @@ class TestCallbackGroup(unittest.TestCase):
     def test_removing_next_tick_twice(self):
         with (LoopAndGroup(quit_after=15)) as ctx:
             func = _make_invocation_counter(ctx.io_loop)
-            remover = ctx.group.add_next_tick_callback(func)
-            remover()
+            cb_id = ctx.group.add_next_tick_callback(func)
+            ctx.group.remove_next_tick_callback(cb_id)
             with (self.assertRaises(ValueError)) as manager:
-                remover()
+                ctx.group.remove_next_tick_callback(cb_id)
         self.assertEqual(0, func.count())
         self.assertTrue("twice" in repr(manager.exception))
 
     def test_removing_timeout_twice(self):
         with (LoopAndGroup(quit_after=15)) as ctx:
             func = _make_invocation_counter(ctx.io_loop)
-            remover = ctx.group.add_timeout_callback(func, timeout_milliseconds=1)
-            remover()
+            cb_id = ctx.group.add_timeout_callback(func, timeout_milliseconds=1)
+            ctx.group.remove_timeout_callback(cb_id)
             with (self.assertRaises(ValueError)) as manager:
-                remover()
+                ctx.group.remove_timeout_callback(cb_id)
         self.assertEqual(0, func.count())
         self.assertTrue("twice" in repr(manager.exception))
 
     def test_removing_periodic_twice(self):
         with (LoopAndGroup(quit_after=15)) as ctx:
             func = _make_invocation_counter(ctx.io_loop, stop_after=5)
-            remover = ctx.group.add_periodic_callback(func, period_milliseconds=1)
-            remover()
+            cb_id = ctx.group.add_periodic_callback(func, period_milliseconds=1)
+            ctx.group.remove_periodic_callback(cb_id)
             with (self.assertRaises(ValueError)) as manager:
-                remover()
+                ctx.group.remove_periodic_callback(cb_id)
         self.assertEqual(0, func.count())
         self.assertTrue("twice" in repr(manager.exception))
 
-    def test_next_tick_cleanup_when_removed(self):
-        result = { 'ok' : False }
-        with (LoopAndGroup(quit_after=15)) as ctx:
-            func = _make_invocation_counter(ctx.io_loop)
-            def cleanup(callback):
-                self.assertIs(callback, func)
-                result['ok'] = True
-            remover = ctx.group.add_next_tick_callback(func, cleanup=cleanup)
-            remover()
-        self.assertEqual(0, func.count())
-        self.assertTrue(result['ok'])
-
-    def test_timeout_cleanup_when_removed(self):
-        result = { 'ok' : False }
-        with (LoopAndGroup(quit_after=15)) as ctx:
-            func = _make_invocation_counter(ctx.io_loop)
-            def cleanup(callback):
-                self.assertIs(callback, func)
-                result['ok'] = True
-            remover = ctx.group.add_timeout_callback(func, timeout_milliseconds=1, cleanup=cleanup)
-            remover()
-        self.assertEqual(0, func.count())
-        self.assertTrue(result['ok'])
-
-    def test_periodic_cleanup_when_removed(self):
-        result = { 'ok' : False }
-        with (LoopAndGroup(quit_after=15)) as ctx:
-            func = _make_invocation_counter(ctx.io_loop, stop_after=5)
-            def cleanup(callback):
-                self.assertIs(callback, func)
-                result['ok'] = True
-            remover = ctx.group.add_periodic_callback(func, period_milliseconds=1, cleanup=cleanup)
-            remover()
-        self.assertEqual(0, func.count())
-        self.assertTrue(result['ok'])
-
-    def test_next_tick_cleanup_when_run(self):
-        result = { 'ok' : False }
-        with (LoopAndGroup()) as ctx:
-            func = _make_invocation_counter(ctx.io_loop)
-            def cleanup(callback):
-                self.assertIs(callback, func)
-                result['ok'] = True
-            ctx.group.add_next_tick_callback(func, cleanup=cleanup)
-        self.assertEqual(1, func.count())
-        self.assertTrue(result['ok'])
-
-    def test_timeout_cleanup_when_run(self):
-        result = { 'ok' : False }
-        with (LoopAndGroup()) as ctx:
-            func = _make_invocation_counter(ctx.io_loop)
-            def cleanup(callback):
-                self.assertIs(callback, func)
-                result['ok'] = True
-            ctx.group.add_timeout_callback(func, timeout_milliseconds=1, cleanup=cleanup)
-        self.assertEqual(1, func.count())
-        self.assertTrue(result['ok'])
+    def test_adding_next_tick_from_another_thread(self):
+        # The test has probabilistic nature - there's a slight change it'll give a false negative
+        with LoopAndGroup(quit_after=15) as ctx:
+            n = 1000
+            func = _make_invocation_counter(ctx.io_loop, stop_after=n)
+            tpe = ThreadPoolExecutor(n)
+            list(tpe.map(ctx.group.add_next_tick_callback, repeat(func, n)))
+        self.assertEqual(n, func.count())

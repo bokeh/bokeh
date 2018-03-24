@@ -9,6 +9,7 @@ import signal
 
 from os.path import dirname, exists, split
 
+from bokeh.server.callbacks import NextTickCallback, PeriodicCallback, TimeoutCallback
 from tests.plugins.utils import trace, info, fail, ok, red, warn, white
 from tests.plugins.screenshot import get_screenshot
 from tests.plugins.image_diff import image_diff
@@ -73,9 +74,16 @@ def test_server_examples(server_example, example, report, bokeh_server):
     app = build_single_handler_application(example.path)
     doc = app.create_document()
 
-    # remove all periodic and timeout callbacks
-    for session_callback in list(doc._session_callbacks.keys()):
-        doc._remove_session_callback(session_callback)
+    # remove all next-tick, periodic, and timeout callbacks
+    for session_callback in doc.session_callbacks:
+        if isinstance(session_callback, NextTickCallback):
+            doc.remove_next_tick_callback(session_callback)
+        elif isinstance(session_callback, PeriodicCallback):
+            doc.remove_periodic_callback(session_callback)
+        elif isinstance(session_callback, TimeoutCallback):
+            doc.remove_timeout_callback(session_callback)
+        else:
+            raise RuntimeError('Unhandled callback type', type(session_callback))
 
     session_id = basename(example.path)
     push_session(doc, session_id=session_id)
