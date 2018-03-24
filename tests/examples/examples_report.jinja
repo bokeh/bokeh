@@ -77,9 +77,7 @@
               {% if not skipped and not example.no_js %}
                 <a href="{{ example.img_path_or_url }}"><img class="thumbnail" src="{{ example.img_path_or_url }}"></img></a>
                 {% if not example.no_diff %}
-                  {% if example.dimensions_differ %}
-                  <div class="thumbnail">Dimensions differ</div>
-                  {% elif example.images_differ %}
+                  {% if example.images_differ %}
                   <a href="{{ example.diff_path_or_url }}"><img class="thumbnail" src="{{ example.diff_path_or_url }}"></img></a>
                   {% else %}
                   <div class="thumbnail">No diff</div>

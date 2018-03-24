@@ -179,10 +179,6 @@ class Example(object):
     def images_differ(self):
         return self.pixels != 0
 
-    @property
-    def dimensions_differ(self):
-        return self.pixels == -1
-
 def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=None, skip=None, no_js=None, no_diff=None):
     if path == '*':
         example_path = examples_dir

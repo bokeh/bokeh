@@ -113,7 +113,7 @@ def _get_pdiff(example):
 
         example.pixels = image_diff(diff_path, img_path, ref_path)
         if example.pixels != 0:
-            comment = "dimensions don't match" if example.pixels == -1 else white("%.02f%%" % example.pixels) + " of pixels"
+            comment = white("%.02f%%" % example.pixels) + " of pixels"
             warn("generated and reference images differ: %s" % comment)
         else:
             ok("generated and reference images match")
