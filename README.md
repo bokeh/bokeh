@@ -1,7 +1,7 @@
 Bokeh
 =====
 
-*Bokeh is a fiscally sponsored project of [NumFOCUS](http://numfocus.org), a nonprofit dedicated to supporting the open-source scientific computing community. If you like Bokeh and would like to support our mission, please consider [donating](https://www.flipcause.com/secure/cause_pdetails/MzE5NjE=).*
+*Bokeh is a fiscally sponsored project of [NumFOCUS](http://numfocus.org), a nonprofit dedicated to supporting the open-source scientific computing community. If you like Bokeh and would like to support our mission, please consider [making a donation](https://www.flipcause.com/secure/cause_pdetails/MzE5NjE=).*
 
 <table>
 
@@ -106,8 +106,8 @@ and meaningful visual presentation of data in modern web browsers. With Bokeh,
 you can quickly and easily create interactive plots, dashboards, and data
 applications.
 
-Bokeh provides an elegant and concise way to construct versatile graphics. It
-delivers **high-performance** interactivity for large or streamed datasets.
+Bokeh provides an elegant and concise way to construct versatile graphics while
+delivering **high-performance** interactivity for large or streamed datasets.
 
 [Interactive gallery](https://bokeh.pydata.org/en/latest/docs/gallery.html)
 ---------------------------------------------------------------------------
@@ -254,19 +254,23 @@ delivers **high-performance** interactivity for large or streamed datasets.
 
 Installation
 ------------
-The easiest way to install Bokeh is using the [Anaconda Python distribution](https://www.anaconda.com/what-is-anaconda/) and its included *Conda* package management system. This allows Bokeh and its required dependencies to be installed by entering the following command at a Bash or Windows command prompt:
+The easiest way to install Bokeh is using the [Anaconda Python distribution](https://www.anaconda.com/what-is-anaconda/) and its included *Conda* package management system. To install Bokeh and its required dependencies, enter the following command at a Bash or Windows command prompt:
 
 ```
 conda install bokeh
 ```
 
-The Bokeh [quickstart documentation](https://bokeh.pydata.org/en/latest/docs/user_guide/quickstart.html) provides information on installing Bokeh using [`pip`](https://bokeh.pydata.org/en/latest/docs/user_guide/quickstart.html#quick-installation). It also includes a [getting started](https://bokeh.pydata.org/en/latest/docs/user_guide/quickstart.html#getting-started) guide.
+To install using pip, enter the following command at a Bash or Windows command prompt:
+```
+pip install bokeh
+```
+For more information, refer to the [installation documentation](https://bokeh.pydata.org/en/latest/docs/user_guide/quickstart.html#quick-installation).
+
+Once Bokeh is installed, check out the [Getting Started](https://bokeh.pydata.org/en/latest/docs/user_guide/quickstart.html#getting-started) section of the [Quickstart guide](https://bokeh.pydata.org/en/latest/docs/user_guide/quickstart.html).
 
 Documentation
 -------------
-The [Bokeh web page](https://bokeh.pydata.org/en/latest) contains full library documentation and more information about Bokeh.
-
-Jupyter Notebooks hosts a live [Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb).
+Visit the [Bokeh site](https://bokeh.pydata.org/en/latest) for information and full documentation, or [launch the Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb) to learn about Bokeh in live Jupyter Notebooks.
 
 Contribute to Bokeh
 -------------------
@@ -274,7 +278,7 @@ If you would like to contribute to Bokeh, please review the [Developer Guide](ht
 
 Follow us
 ---------
-Bokeh can be found on Twitter [@bokehplots](https://twitter.com/BokehPlots) and [YouTube](https://www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw).
+Follow us on Twitter [@bokehplots](https://twitter.com/BokehPlots) and on [YouTube](https://www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw).
 
 <p align="center">
   <a href="https://www.numfocus.org/">
