@@ -1,7 +1,7 @@
 Bokeh
 =====
 
-*Bokeh is a fiscally sponsored project of [NumFOCUS](http://numfocus.org), a nonprofit dedicated to supporting the open source scientific computing community. If you like Bokeh and want to support our mission, please consider making a [donation](https://www.flipcause.com/secure/cause_pdetails/MzE5NjE=) to support our efforts.*
+*Bokeh is a fiscally sponsored project of [NumFOCUS](http://numfocus.org), a nonprofit dedicated to supporting the open-source scientific computing community. If you like Bokeh and would like to support our mission, please consider [making a donation](https://www.flipcause.com/secure/cause_pdetails/MzE5NjE=).*
 
 <table>
 
@@ -101,14 +101,13 @@ Bokeh
 
 </table>
 
-Bokeh, a Python interactive visualization library, enables beautiful and
-meaningful visual presentation of data in modern web browsers. With Bokeh,
+Bokeh is an interactive visualization library for Python that enables beautiful
+and meaningful visual presentation of data in modern web browsers. With Bokeh,
 you can quickly and easily create interactive plots, dashboards, and data
 applications.
 
-Bokeh helps provide elegant, concise construction of versatile graphics in the,
-while also delivering **high-performance** interactivity over very large or
-streaming datasets.
+Bokeh provides an elegant and concise way to construct versatile graphics while
+delivering **high-performance** interactivity for large or streamed datasets.
 
 [Interactive gallery](https://bokeh.pydata.org/en/latest/docs/gallery.html)
 ---------------------------------------------------------------------------
@@ -255,23 +254,27 @@ streaming datasets.
 
 Installation
 ------------
-We recommend using the [Anaconda Python distribution](https://www.anaconda.com/what-is-anaconda/) and conda to install Bokeh. Enter this command at a Bash or Windows command prompt:
+The easiest way to install Bokeh is using the [Anaconda Python distribution](https://www.anaconda.com/what-is-anaconda/) and its included *Conda* package management system. To install Bokeh and its required dependencies, enter the following command at a Bash or Windows command prompt:
 
 ```
 conda install bokeh
 ```
 
-This installs Bokeh and all needed dependencies.
+To install using pip, enter the following command at a Bash or Windows command prompt:
+```
+pip install bokeh
+```
+For more information, refer to the [installation documentation](https://bokeh.pydata.org/en/latest/docs/user_guide/quickstart.html#quick-installation).
 
-To begin using Bokeh or to install using `pip`, follow the [Quickstart](https://bokeh.pydata.org/en/latest/docs/user_guide/quickstart.html) documentation.
+Once Bokeh is installed, check out the [Getting Started](https://bokeh.pydata.org/en/latest/docs/user_guide/quickstart.html#getting-started) section of the [Quickstart guide](https://bokeh.pydata.org/en/latest/docs/user_guide/quickstart.html).
 
 Documentation
 -------------
-Visit the [Bokeh web page](https://bokeh.pydata.org/en/latest) for information and full documentation, or [launch the Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb) in live Jupyter Notebooks
+Visit the [Bokeh site](https://bokeh.pydata.org/en/latest) for information and full documentation, or [launch the Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb) to learn about Bokeh in live Jupyter Notebooks.
 
 Contribute to Bokeh
 -------------------
-To contribute to Bokeh, please review the [Developer Guide](https://bokeh.pydata.org/en/latest/docs/dev_guide.html).
+If you would like to contribute to Bokeh, please review the [Developer Guide](https://bokeh.pydata.org/en/latest/docs/dev_guide.html).
 
 Follow us
 ---------
