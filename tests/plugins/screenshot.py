@@ -3,24 +3,12 @@ from __future__ import absolute_import, print_function
 import os
 import sys
 import json
-import pytest
 import subprocess
 
 from os.path import abspath, dirname, join, pardir, split
 from .utils import trace, fail
 
 TOP_PATH = abspath(join(split(__file__)[0], pardir, pardir))
-
-def pytest_addoption(parser):
-    parser.addoption(
-        "--phantomjs", type=str,
-        default=join(TOP_PATH, 'bokehjs', 'node_modules', '.bin', 'phantomjs'),
-        help="phantomjs executable"
-    )
-
-def _get_phantomjs():
-    phantomjs = pytest.config.getoption('phantomjs') if hasattr(pytest, "config") else "phantomjs"
-    return [phantomjs, join(dirname(__file__), "phantomjs_screenshot.js")]
 
 def _get_chrome():
     return ["node", join(dirname(__file__), "chrome_screenshot.js")]
