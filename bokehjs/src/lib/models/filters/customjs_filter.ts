@@ -2,6 +2,7 @@ import {Filter} from "./filter"
 import * as p from "core/properties"
 import {keys, values} from "core/util/object"
 import {DataSource} from "../sources/data_source"
+import {use_strict} from "core/util/string"
 
 export namespace CustomJSFilter {
   export interface Attrs extends Filter.Attrs {
@@ -31,14 +32,16 @@ export class CustomJSFilter extends Filter {
     })
   }
 
+  get names(): string[] {
+    return keys(this.args)
+  }
+
   get values(): any[] {
     return values(this.args)
   }
 
   get func(): Function {
-    // this relies on keys(args) and values(args) returning keys and values
-    // in the same order
-    return new Function(...keys(this.args), "source", "require", "exports", this.code)
+    return new Function(...this.names, "source", "require", "exports", use_strict(this.code))
   }
 
   compute_indices(source: DataSource): number[] | null {

@@ -2,8 +2,7 @@ import {Transform} from "./transform"
 import * as p from "core/properties"
 import {Arrayable} from "core/types"
 import {keys, values} from "core/util/object"
-
-declare var exports: {[key: string]: any}
+import {use_strict} from "core/util/string"
 
 export namespace CustomJSTransform {
   export interface Attrs extends Transform.Attrs {
@@ -35,14 +34,18 @@ export class CustomJSTransform extends Transform {
     })
   }
 
+  get names(): string[] {
+    return keys(this.args)
+  }
+
   get values(): any[] {
     return values(this.args)
   }
 
-  protected _make_transform(val: string, fn: string): Function {
+  protected _make_transform(name: string, code: string): Function {
     // this relies on keys(args) and values(args) returning keys and values
     // in the same order
-    return new Function(...keys(this.args), val, "require", "exports", fn)
+    return new Function(...this.names, name, "require", "exports", use_strict(code))
   }
 
   get scalar_transform(): Function {
@@ -54,11 +57,11 @@ export class CustomJSTransform extends Transform {
   }
 
   compute(x: number): number {
-    return this.scalar_transform(...this.values, x, require, exports)
+    return this.scalar_transform(...this.values, x, require, {})
   }
 
   v_compute(xs: Arrayable<number>): Arrayable<number> {
-    return this.vector_transform(...this.values, xs, require, exports)
+    return this.vector_transform(...this.values, xs, require, {})
   }
 }
 CustomJSTransform.initClass()

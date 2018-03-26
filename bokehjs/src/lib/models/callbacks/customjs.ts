@@ -1,6 +1,7 @@
 import {Callback} from "./callback"
 import * as p from "core/properties"
 import {keys, values} from "core/util/object"
+import {use_strict} from "core/util/string"
 
 export namespace CustomJS {
   export interface Attrs extends Callback.Attrs {
@@ -39,8 +40,7 @@ export class CustomJS extends Callback {
   }
 
   get func(): Function {
-    // this relies on keys(args) and values(args) returning keys and values in the same order
-    return new Function(...this.names, "cb_obj", "cb_data", "require", "exports", this.code)
+    return new Function(...this.names, "cb_obj", "cb_data", "require", "exports", use_strict(this.code))
   }
 
   execute(cb_obj: any, cb_data: {[key: string]: any}): any {

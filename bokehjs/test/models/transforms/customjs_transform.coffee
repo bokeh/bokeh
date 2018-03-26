@@ -38,14 +38,14 @@ describe "customjs_transform module", ->
 
     it "should have func property as function body", ->
       r = new CustomJSTransform({func: "return x"})
-      f = new Function("x", "require", "exports", "return x")
+      f = new Function("x", "require", "exports", "'use strict';\nreturn x")
       expect(r.scalar_transform.toString()).to.be.equal(f.toString())
 
     it "should include args values in order in function signature", ->
       rng1 = new Range1d()
       rng2 = new Range1d()
       r = new CustomJSTransform({args: {foo: rng1, bar: rng2}, func: "return x"})
-      f = new Function("foo", "bar", "x", "require", "exports", "return x")
+      f = new Function("foo", "bar", "x", "require", "exports", "'use strict';\nreturn x")
       expect(r.scalar_transform.toString()).to.be.equal(f.toString())
 
   describe "vector_transform property", ->
@@ -56,14 +56,14 @@ describe "customjs_transform module", ->
 
     it "should have v_func property as function body", ->
       r = new CustomJSTransform({v_func: "return xs"})
-      f = new Function("xs", "require", "exports", "return xs")
+      f = new Function("xs", "require", "exports", "'use strict';\nreturn xs")
       expect(r.vector_transform.toString()).to.be.equal(f.toString())
 
     it "should include args values in order in function signature", ->
       rng1 = new Range1d()
       rng2 = new Range1d()
       r = new CustomJSTransform({args: {foo: rng1, bar: rng2}, v_func: "return xs"})
-      f = new Function("foo", "bar", "xs", "require", "exports", "return xs")
+      f = new Function("foo", "bar", "xs", "require", "exports", "'use strict';\nreturn xs")
       expect(r.vector_transform.toString()).to.be.equal(f.toString())
 
   describe "compute method", ->
@@ -81,9 +81,9 @@ describe "customjs_transform module", ->
 
     it "should properly transform an array of values", ->
       v_func = """
-      new_xs = new Array(xs.length)
-      for (i = 0; i < xs.length; i++) {
-          new_xs[i] = xs[i] + 10
+      var new_xs = new Array(xs.length)
+      for (var i = 0; i < xs.length; i++) {
+        new_xs[i] = xs[i] + 10
       }
       return new_xs
       """
@@ -92,9 +92,9 @@ describe "customjs_transform module", ->
 
     it "should properly transform an array of values using an arg property", ->
       v_func = """
-      new_xs = new Array(xs.length)
-      for(i = 0; i < xs.length; i++) {
-          new_xs[i] = xs[i] + foo.start
+      var new_xs = new Array(xs.length)
+      for(var i = 0; i < xs.length; i++) {
+        new_xs[i] = xs[i] + foo.start
       }
       return new_xs
       """

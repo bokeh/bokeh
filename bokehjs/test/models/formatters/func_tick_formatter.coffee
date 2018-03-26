@@ -12,13 +12,13 @@ describe "func_tick_formatter module", ->
       expect(formatter._make_func()).to.be.an.instanceof(Function)
 
     it "should have code property as function body", ->
-      func = new Function("tick", "index", "ticks", "require", "return 10")
+      func = new Function("tick", "index", "ticks", "require", "exports", "'use strict';\nreturn 10")
       expect(formatter._make_func().toString()).to.be.equal(func.toString())
 
     it "should have values as function args", ->
       rng = new Range1d()
       formatter.args = {foo: rng.ref()}
-      func = new Function("tick", "index", "ticks", "foo", "require", "return 10")
+      func = new Function("tick", "index", "ticks", "foo", "require", "exports", "'use strict';\nreturn 10")
       expect(formatter._make_func().toString()).to.be.equal(func.toString())
 
   describe "doFormat method", ->

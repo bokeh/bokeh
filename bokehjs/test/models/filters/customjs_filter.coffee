@@ -36,13 +36,13 @@ describe "CustomJSFilter", ->
 
     it "should have code property as function body", ->
       filter = new CustomJSFilter({code: "return 10"})
-      f = new Function("source", "require", "exports", "return 10")
+      f = new Function("source", "require", "exports", "'use strict';\nreturn 10")
       expect(filter.func.toString()).to.be.equal f.toString()
 
     it "should have values as function args", ->
       rng = new Range1d()
       filter = new CustomJSFilter({args: {foo: rng.ref()}, code: "return 10"})
-      f = new Function("foo", "source", "require", "exports", "return 10")
+      f = new Function("foo", "source", "require", "exports", "'use strict';\nreturn 10")
       expect(filter.func.toString()).to.be.equal f.toString()
 
   describe "compute_indices", ->
