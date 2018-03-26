@@ -24,6 +24,7 @@ from bokeh.util.testing import verify_api ; verify_api
 from mock import patch
 from tempfile import NamedTemporaryFile
 import os
+import re
 
 # External imports
 from PIL import Image
@@ -138,36 +139,45 @@ def test_get_svgs_no_svg_present():
 @pytest.mark.unit
 @pytest.mark.selenium
 def test_get_svgs_with_svg_present():
+
+    def fix_ids(svg):
+        svg = re.sub(r'id="\w{12}"', 'id="X"', svg)
+        svg = re.sub(r'url\(#\w{12}\)', 'url(#X)', svg)
+        return svg
+
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
                   plot_height=20, plot_width=20, toolbar_location=None,
                   outline_line_color=None, border_fill_color=None,
                   background_fill_color="red", output_backend="svg")
 
-    svgs = bie.get_svgs(layout)
-    assert svgs[0] == ('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
-                       'width="20" height="20" style="width: 20px; height: 20px;"><defs/><g><g transform="scale(1,1) '
-                       'translate(0.5,0.5)"><rect fill="#FFFFFF" stroke="none" x="0" y="0" width="20" height="20"/>'
-                       '<rect fill="red" stroke="none" x="5" y="5" width="10" height="10"/><g/><g/><g/><g/></g></g></svg>')
-
-@pytest.mark.unit
-@pytest.mark.selenium
-def test_get_svgs_with_svg_present_with_driver():
-    layout = Plot(x_range=Range1d(), y_range=Range1d(),
-                  plot_height=20, plot_width=20, toolbar_location=None,
-                  outline_line_color=None, border_fill_color=None,
-                  background_fill_color="red", output_backend="svg")
+    svg0 = fix_ids(bie.get_svgs(layout)[0])
 
     driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
+    svg1 = fix_ids(bie.get_svgs(layout)[0])
+    terminate_web_driver(driver) # Have to manually clean up the driver session
 
-    svgs = bie.get_svgs(layout)
+    svg2 = (
+        '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
+        'width="20" height="20" style="width: 20px; height: 20px;">'
+        '<defs>'
+            '<clipPath id="X"><path fill="none" stroke="none" d=" M 5 5 L 15 5 L 15 15 L 5 15 L 5 5 Z"/></clipPath>'
+            '<clipPath id="X"><path fill="none" stroke="none" d=" M 5 5 L 15 5 L 15 15 L 5 15 L 5 5 Z"/></clipPath>'
+        '</defs>'
+        '<g>'
+            '<g transform="scale(1,1) translate(0.5,0.5)">'
+                '<rect fill="#FFFFFF" stroke="none" x="0" y="0" width="20" height="20"/>'
+                '<rect fill="red" stroke="none" x="5" y="5" width="10" height="10"/>'
+                '<g/>'
+                '<g clip-path="url(#X)"><g/></g>'
+                '<g clip-path="url(#X)"><g/></g>'
+                '<g/>'
+            '</g>'
+        '</g>'
+        '</svg>'
+    )
 
-    # Have to manually clean up the driver session
-    terminate_web_driver(driver)
-
-    assert svgs[0] == ('<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
-                       'width="20" height="20" style="width: 20px; height: 20px;"><defs/><g><g transform="scale(1,1) '
-                       'translate(0.5,0.5)"><rect fill="#FFFFFF" stroke="none" x="0" y="0" width="20" height="20"/>'
-                       '<rect fill="red" stroke="none" x="5" y="5" width="10" height="10"/><g/><g/><g/><g/></g></g></svg>')
+    assert svg0 == svg2
+    assert svg1 == svg2
 
 def test_save_layout_html_resets_plot_dims():
     initial_height, initial_width = 200, 250

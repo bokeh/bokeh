@@ -70,15 +70,6 @@ float marker(vec2 P, float size)
 }
 `
 
-export const annulus = `
-float marker(vec2 P, float size)
-{
-    float r1 = length(P) - size/2.0;
-    float r2 = length(P) - size/4.0;  // half width
-    return max(r1, -r2);
-}
-`
-
 export const diamond = `
 float marker(vec2 P, float size)
 {
