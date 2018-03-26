@@ -12,18 +12,16 @@ from tornado.ioloop import PeriodicCallback, IOLoop
 from tornado.httpclient import HTTPError
 from tornado.httpserver import HTTPServer
 
-import bokeh.server.server as server
-
 from bokeh.application import Application
 from bokeh.application.handlers import Handler
 from bokeh.model import Model
 from bokeh.core.properties import List, String
 from bokeh.client import pull_session
-from bokeh.server.server import BaseServer, Server
+from bokeh.server.server import BaseServer
 from bokeh.server.tornado import BokehTornado
 from bokeh.util.session_id import check_session_id_signature
 
-from .utils import ManagedServerLoop, url, ws_url, http_get, websocket_open
+from .utils import ManagedServerLoop, url, ws_url, http_get, websocket_open, RetryingServer
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -578,7 +576,7 @@ def test__server_multiple_processes():
     with mock.patch('tornado.httpserver.HTTPServer.add_sockets'):
         with mock.patch('tornado.process.fork_processes') as tornado_fp:
             application = Application()
-            server.Server(application, num_procs=3, port=0)
+            RetryingServer(application, num_procs=3)
 
         tornado_fp.assert_called_with(3)
 
@@ -591,7 +589,7 @@ def test__existing_ioloop_with_multiple_processes_exception():
 
 def test__actual_port_number():
     application = Application()
-    with ManagedServerLoop(application, port=0) as server:
+    with ManagedServerLoop(application) as server:
         port = server.port
         assert port > 0
         http_get(server.io_loop, url(server))
@@ -601,7 +599,7 @@ def test__ioloop_not_forcibly_stopped():
     application = Application()
     loop = IOLoop()
     loop.make_current()
-    server = Server(application, io_loop=loop)
+    server = RetryingServer(application, io_loop=loop)
     server.start()
     result = []
 

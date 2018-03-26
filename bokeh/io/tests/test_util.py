@@ -21,6 +21,10 @@ from bokeh.util.testing import verify_api ; verify_api
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from subprocess import check_output
+from tempfile import NamedTemporaryFile
+import sys
+
 from mock import Mock, patch, PropertyMock
 
 # External imports
@@ -63,7 +67,13 @@ Test_api = verify_api(biu, api)
 #-----------------------------------------------------------------------------
 
 def test_detect_current_filename():
-    assert biu.detect_current_filename().endswith(("py.test", "pytest"))
+    with NamedTemporaryFile(mode='wt', suffix='.py') as f:
+        f.write("""from __future__ import print_function
+import bokeh.io.util as biu
+print(biu.detect_current_filename(), end='')""")
+        f.flush()
+        filename = check_output([sys.executable, f.name]).decode('utf-8')
+    assert filename == f.name
 
 @patch('bokeh.io.util.NamedTemporaryFile')
 def test_temp_filename(mock_tmp):

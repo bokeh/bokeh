@@ -40,9 +40,17 @@ def verify_all(module, ALL):
 def verify_api(module, api):
 
     class Test_api(object):
+        if api[GENERAL]:
+            @pytest.mark.parametrize('name,version', api[GENERAL], ids=str)
+            @pytest.mark.api
+            def test_general_api(self, name, version):
+                _test_api(module, GENERAL, name, version)
 
-        test_general_api = _generate_api_check(module, api, GENERAL)
-        test_dev_api = _generate_api_check(module, api, DEV)
+        if api[DEV]:
+            @pytest.mark.parametrize('name,version', api[DEV], ids=str)
+            @pytest.mark.api
+            def test_dev_api(self, name, version):
+                _test_api(module, DEV, name, version)
 
         @pytest.mark.api
         def test_all_declared(self):
@@ -85,36 +93,28 @@ def verify_api(module, api):
 
     return Test_api
 
-def _generate_api_check(module, api, level):
-    if len(api[level]) > 0:
-        @pytest.mark.parametrize('name,version', api[level], ids=str)
-        @pytest.mark.api
-        def test_api(self, name, version):
-            assert isinstance(version, tuple)
-            assert len(version) == 3
-            assert version >= (1, 0, 0)
-            elts = name.split(".")
-            # property
-            if len(elts) == 3:
-                (clsname, propname, proptype) = elts
-                prop = getattr(module, clsname).__dict__[propname]
-                obj = getattr(prop, proptype)
-            # method
-            elif len(elts) == 2:
-                (clsname, attr) = elts
-                obj = getattr(getattr(module, clsname), attr)
-            # function
-            else:
-                obj = getattr(module, name)
 
-            assert is_level(obj, level), "%s expected to declare api level %r" % (name, level)
-            assert is_version(obj, version), "%s expected to declare first-version %s" % (name, version)
-
+def _test_api(module, level, name, version):
+    assert isinstance(version, tuple)
+    assert len(version) == 3
+    assert version >= (1, 0, 0)
+    elts = name.split(".")
+    # property
+    if len(elts) == 3:
+        (clsname, propname, proptype) = elts
+        prop = getattr(module, clsname).__dict__[propname]
+        obj = getattr(prop, proptype)
+    # method
+    elif len(elts) == 2:
+        (clsname, attr) = elts
+        obj = getattr(getattr(module, clsname), attr)
+    # function
     else:
-        @pytest.mark.api
-        def test_api(self): assert True
+        obj = getattr(module, name)
 
-    return test_api
+    assert is_level(obj, level), "%s expected to declare api level %r" % (name, level)
+    assert is_version(obj, version), "%s expected to declare first-version %s" % (name, version)
+
 
 def makedirs_ok_if_exists(path):
     try:

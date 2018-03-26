@@ -63,7 +63,7 @@ def test_prefix():
 def test_websocket_origins():
     application = Application()
     with ManagedServerLoop(application) as server:
-        assert server._tornado.websocket_origins == set(["localhost:5006"])
+        assert server._tornado.websocket_origins == set(["localhost:{}".format(server.port)])
 
     # OK this is a bit of a confusing mess. The user-facing arg for server is
     # "allow_websocket_origin" which gets converted to "extra_websocket_origins"
