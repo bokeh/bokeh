@@ -49,7 +49,7 @@ class CustomJSTransform(Transform):
     @classmethod
     def from_py_func(cls, func, v_func):
         ''' Create a CustomJSTransform instance from a pair of Python
-        functions. The function is translated to JavaScript using PyScript.
+        functions. The function is translated to JavaScript using PScript.
 
         The python functions must have no positional arguments. It's
         possible to pass Bokeh models (e.g. a ColumnDataSource) as keyword
@@ -69,11 +69,11 @@ class CustomJSTransform(Transform):
         .. code-block:: python
 
             def transform():
-                from flexx.pyscript.stubs import Math
+                from pscript.stubs import Math
                 return Math.cos(x)
 
             def v_transform():
-                from flexx.pyscript.stubs import Math
+                from pscript.stubs import Math
                 return [Math.cos(x) for x in xs]
 
             customjs_transform = CustomJSTransform.from_py_func(transform, v_transform)
@@ -90,14 +90,14 @@ class CustomJSTransform(Transform):
         if not isinstance(func, FunctionType) or not isinstance(v_func, FunctionType):
             raise ValueError('CustomJSTransform.from_py_func only accepts function objects.')
 
-        pyscript = import_required(
-            'flexx.pyscript',
+        pscript = import_required(
+            'pscript',
             dedent("""\
-                To use Python functions for CustomJSTransform, you need Flexx
-                '("conda install -c conda-forge flexx" or "pip install flexx")""")
+                To use Python functions for CustomJSTransform, you need PScript
+                '("conda install -c conda-forge pscript" or "pip install pscript")""")
             )
 
-        def pyscript_compile(func):
+        def pscript_compile(func):
             sig = signature(func)
 
             all_names, default_values = get_param_info(sig)
@@ -112,11 +112,11 @@ class CustomJSTransform(Transform):
 
             # Wrap the code attr in a function named `formatter` and call it
             # with arguments that match the `args` attr
-            code = pyscript.py2js(func, 'transformer') + 'return transformer(%s);\n' % ', '.join(all_names)
+            code = pscript.py2js(func, 'transformer') + 'return transformer(%s);\n' % ', '.join(all_names)
             return code, func_kwargs
 
-        jsfunc, func_kwargs = pyscript_compile(func)
-        v_jsfunc, v_func_kwargs = pyscript_compile(v_func)
+        jsfunc, func_kwargs = pscript_compile(func)
+        v_jsfunc, v_func_kwargs = pscript_compile(v_func)
 
         # Have to merge the function arguments
         func_kwargs.update(v_func_kwargs)
