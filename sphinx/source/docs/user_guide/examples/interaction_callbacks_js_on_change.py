@@ -15,9 +15,9 @@ plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
 callback = CustomJS(args=dict(source=source), code="""
     var data = source.data;
     var f = cb_obj.value
-    x = data['x']
-    y = data['y']
-    for (i = 0; i < x.length; i++) {
+    var x = data['x']
+    var y = data['y']
+    for (var i = 0; i < x.length; i++) {
         y[i] = Math.pow(x[i], f)
     }
     source.change.emit();

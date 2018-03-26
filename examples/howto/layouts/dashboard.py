@@ -48,9 +48,9 @@ def slider():
         var k = freq.value;
         var phi = phase.value;
         var B = offset.value;
-        x = data['x']
-        y = data['y']
-        for (i = 0; i < x.length; i++) {
+        var x = data['x']
+        var y = data['y']
+        for (var i = 0; i < x.length; i++) {
             y[i] = B + A*Math.sin(k*x[i]+phi);
         }
         source.change.emit();

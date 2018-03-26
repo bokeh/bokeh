@@ -17,7 +17,7 @@ t = np.linspace(0, 0.1, 100)
 
 code = """
 // cb_data = {geometries: ..., source: ...}
-v = cb_data.source.selected.get_view();
+var v = cb_data.source.selected.get_view();
 if (v) {
     var color = v.visuals.line.line_color.value();
     var data = source.data;

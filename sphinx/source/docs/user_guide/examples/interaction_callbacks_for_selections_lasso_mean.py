@@ -20,12 +20,13 @@ s.callback = CustomJS(args=dict(s2=s2), code="""
         var d = cb_obj.data;
         var ym = 0
 
-        if (inds.length == 0) { return; }
+        if (inds.length == 0)
+            return;
 
-        for (i = 0; i < d['color'].length; i++) {
+        for (var i = 0; i < d['color'].length; i++) {
             d['color'][i] = "navy"
         }
-        for (i = 0; i < inds.length; i++) {
+        for (var i = 0; i < inds.length; i++) {
             d['color'][inds[i]] = "firebrick"
             ym += d['y'][inds[i]]
         }

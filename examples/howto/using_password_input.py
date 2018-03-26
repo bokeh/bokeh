@@ -21,7 +21,7 @@ secret = PreText() # Secret information displayed if correct password entered
 ## Verify if the password typed is bokeh using a JS script
 verify_pwd = CustomJS(args=dict(user=user, pwd=pwd, secret=secret), code="""
     secret.text = 'Wrong Password.';
-    if ( user.value == %r && pwd.value == %r) {
+    if (user.value == %r && pwd.value == %r) {
         secret.text = 'Right Password. The Secret is 42.';
     }
 """ % (USER, PASSWD))
