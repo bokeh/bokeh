@@ -12,9 +12,6 @@ from ..plugins.upload_to_s3 import S3_URL, upload_file_to_s3
 
 from ..plugins.utils import trace, green
 
-import logging
-logging.getLogger('requests.packages.urllib3.connectionpool').setLevel(logging.INFO)
-
 class Flags(object):
     js       = 1 << 0
     file     = 1 << 1
@@ -178,10 +175,6 @@ class Example(object):
     @property
     def images_differ(self):
         return self.pixels != 0
-
-    @property
-    def dimensions_differ(self):
-        return self.pixels == -1
 
 def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=None, skip=None, no_js=None, no_diff=None):
     if path == '*':

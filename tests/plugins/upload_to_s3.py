@@ -9,6 +9,8 @@ from .utils import trace, ok, fail
 
 import logging
 logging.getLogger('boto').setLevel(logging.INFO)
+logging.getLogger('urllib3.connectionpool').setLevel(logging.INFO)
+logging.getLogger('requests.packages.urllib3.connectionpool').setLevel(logging.INFO)
 
 S3_BUCKET = "bokeh-travis"
 S3_URL = "https://s3.amazonaws.com/%s" % S3_BUCKET

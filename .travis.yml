@@ -45,6 +45,10 @@ jobs:
 
       install: scripts/ci/install:test
       script: scripts/ci/test
+      addons:
+        chrome: stable
+      before_script:
+        - google-chrome-stable --no-sandbox --headless --remote-debugging-port=9222 &
       env:
       - GROUP=examples
       - PYTHON=2.7

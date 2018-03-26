@@ -10,7 +10,7 @@ import signal
 from os.path import dirname, exists, split
 
 from tests.plugins.utils import trace, info, fail, ok, red, warn, white
-from tests.plugins.phantomjs_screenshot import get_phantomjs_screenshot
+from tests.plugins.screenshot import get_screenshot
 from tests.plugins.image_diff import image_diff
 
 from bokeh.client import push_session
@@ -113,7 +113,7 @@ def _get_pdiff(example):
 
         example.pixels = image_diff(diff_path, img_path, ref_path)
         if example.pixels != 0:
-            comment = "dimensions don't match" if example.pixels == -1 else white("%.02f%%" % example.pixels) + " of pixels"
+            comment = white("%.02f%%" % example.pixels) + " of pixels"
             warn("generated and reference images differ: %s" % comment)
         else:
             ok("generated and reference images match")
@@ -131,32 +131,23 @@ def _get_path_parts(path):
     return parts
 
 
-def _print_phantomjs_output(result):
+def _print_webengine_output(result):
     errors = result['errors']
     messages = result['messages']
-    resources = result['resources']
 
     for message in messages:
-        msg = message['msg']
-        line = message.get('line')
-        source = message.get('source')
+        level = message['level']
+        text = message['text']
+        url = message['url']
+        line = message['line']
+        col = message['col']
 
-        if source and line:
-            msg = "%s:%s: %s" % (source, line, msg)
-
+        msg = "{%s} %s:%s:%s %s" % (level, url, line, col, text)
         info(msg, label="JS")
 
-    for resource in resources:
-        fail(resource['errorString'], label="JS")
-
     for error in errors:
-        fail(error['msg'], label="JS")
-        for item in error['trace']:
-            file = item['file']
-            line = item['line']
-
-            if file and line:
-                fail("  %s: %d" % (file, line), label="JS")
+        for line in error['text'].split("\n"):
+            fail(line, label="JS")
 
 
 def _assert_snapshot(example, url, example_type):
@@ -166,10 +157,10 @@ def _assert_snapshot(example, url, example_type):
     height = 2000 if example_type == 'notebook' else 1000
 
     local_wait = 100
-    global_wait = 30000
+    global_wait = 15000
 
     start = time.time()
-    result = get_phantomjs_screenshot(url, screenshot_path, local_wait, global_wait, width, height)
+    result = get_screenshot(url, screenshot_path, local_wait, global_wait, width, height)
     end = time.time()
 
     info("Example rendered in %s" % white("%.3fs" % (end - start)))
@@ -177,19 +168,16 @@ def _assert_snapshot(example, url, example_type):
     success = result['success']
     timeout = result['timeout']
     errors = result['errors']
-    resources = result['resources']
 
     no_errors = len(errors) == 0
-    no_resources = len(resources) == 0
 
     if timeout:
         warn("%s %s" % (red("TIMEOUT:"), "bokehjs did not finish in %s ms" % global_wait))
 
     if pytest.config.option.verbose:
-        _print_phantomjs_output(result)
+        _print_webengine_output(result)
 
     assert success, "%s failed to load" % example.relpath
-    assert no_resources, "%s failed with %d missing resources" % (example.relpath, len(resources))
     assert no_errors, "%s failed with %d errors" % (example.relpath, len(errors))
 
 
