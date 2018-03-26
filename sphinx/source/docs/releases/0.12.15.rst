@@ -82,6 +82,24 @@ NO_DATA_RENDERERS
 This validation warning resulted in false or irrelevant warnings in many
 reasonable configurations, and has been removed.
 
+Document and ServerContext callbacks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+All `Document` and `ServerContext` methods that add callbacks can now add
+the same callback multiple times.
+Methods that remove callbacks now receive the value returned from a previous
+method call that added the callback. Example:
+
+.. code-block:: python
+
+    # Was
+    doc.add_next_tick_callback(my_cb)
+    doc.remove_next_tick_callback(my_cb)
+
+    # Now
+    cb_id = doc.add_next_tick_callback(my_cb)
+    doc.remove_next_tick_callback(cb_id)
+
 Sphinx Version
 --------------
 
