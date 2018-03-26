@@ -860,7 +860,7 @@ export class PlotCanvasView extends DOMView {
   protected _paint_levels(ctx: Context2d, levels: string[], clip_region?: FrameBox): void {
     ctx.save()
 
-    if (clip_region != null && this.model.plot.output_backend == "canvas") {
+    if (clip_region != null) {
       ctx.beginPath()
       ctx.rect.apply(ctx, clip_region)
       ctx.clip()
