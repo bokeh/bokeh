@@ -204,7 +204,6 @@ import * as glsl from "./markers.frag"
 
 export const CircleGLGlyph           = mk_marker(glsl.circle)
 export const SquareGLGlyph           = mk_marker(glsl.square)
-export const AnnulusGLGlyph          = mk_marker(glsl.annulus)
 export const DiamondGLGlyph          = mk_marker(glsl.diamond)
 export const TriangleGLGlyph         = mk_marker(glsl.triangle)
 export const InvertedTriangleGLGlyph = mk_marker(glsl.invertedtriangle)
