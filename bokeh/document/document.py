@@ -17,6 +17,9 @@ figure below:
 from __future__ import absolute_import
 
 import logging
+
+from bokeh.util import deprecation
+
 logger = logging.getLogger(__name__)
 
 from collections import defaultdict
@@ -76,6 +79,10 @@ class Document(object):
 
         # set of models subscribed to user events
         self._subscribed_models = defaultdict(set)
+
+        self._callback_objs_by_callable = {self.add_next_tick_callback: defaultdict(set),
+                                           self.add_periodic_callback: defaultdict(set),
+                                           self.add_timeout_callback: defaultdict(set)}
 
     # Properties --------------------------------------------------------------
 
@@ -180,7 +187,7 @@ class Document(object):
         '''
         from ..server.callbacks import NextTickCallback
         cb = NextTickCallback(self, None)
-        return self._add_session_callback(cb, callback, one_shot=True)
+        return self._add_session_callback(cb, callback, one_shot=True, originator=self.add_next_tick_callback)
 
     def add_periodic_callback(self, callback, period_milliseconds):
         ''' Add a callback to be invoked on a session periodically.
@@ -205,7 +212,7 @@ class Document(object):
         cb = PeriodicCallback(self,
                               None,
                               period_milliseconds)
-        return self._add_session_callback(cb, callback, one_shot=False)
+        return self._add_session_callback(cb, callback, one_shot=False, originator=self.add_periodic_callback)
 
     def add_root(self, model, setter=None):
         ''' Add a model as a root of this Document.
@@ -266,7 +273,7 @@ class Document(object):
         cb = TimeoutCallback(self,
                              None,
                              timeout_milliseconds)
-        return self._add_session_callback(cb, callback, one_shot=True)
+        return self._add_session_callback(cb, callback, one_shot=True, originator=self.add_timeout_callback)
 
     def apply_json_event(self, json):
         event = loads(json, object_hook=Event.decode_json)
@@ -619,7 +626,7 @@ class Document(object):
             ValueError, if the callback was never added or has already been run or removed
 
         '''
-        self._remove_session_callback(callback_obj)
+        self._remove_session_callback(callback_obj, self.add_next_tick_callback)
 
     def remove_on_change(self, *callbacks):
         ''' Remove a callback added earlier with ``on_change``.
@@ -644,7 +651,7 @@ class Document(object):
             ValueError, if the callback was never added or has already been removed
 
         '''
-        self._remove_session_callback(callback_obj)
+        self._remove_session_callback(callback_obj, self.add_periodic_callback)
 
     def remove_root(self, model, setter=None):
         ''' Remove a model as root model from this Document.
@@ -691,7 +698,7 @@ class Document(object):
             ValueError, if the callback was never added or has alraedy been run or removed
 
         '''
-        self._remove_session_callback(callback_obj)
+        self._remove_session_callback(callback_obj, self.add_timeout_callback)
 
     def replace_with_json(self, json):
         ''' Overwrite everything in this document with the JSON-encoded
@@ -815,7 +822,7 @@ class Document(object):
 
     # Private methods ---------------------------------------------------------
 
-    def _add_session_callback(self, callback_obj, callback, one_shot):
+    def _add_session_callback(self, callback_obj, callback, one_shot, originator):
         ''' Internal implementation for adding session callbacks.
 
         Args:
@@ -841,7 +848,7 @@ class Document(object):
             @wraps(callback)
             def remove_then_invoke(*args, **kwargs):
                 if callback_obj in self._session_callbacks:
-                    self._remove_session_callback(callback_obj)
+                    self._remove_session_callback(callback_obj, originator)
                 return callback(*args, **kwargs)
             actual_callback = remove_then_invoke
         else:
@@ -849,6 +856,7 @@ class Document(object):
 
         callback_obj._callback = self._wrap_with_self_as_curdoc(actual_callback)
         self._session_callbacks.add(callback_obj)
+        self._callback_objs_by_callable[originator][callback].add(callback_obj)
 
         # emit event so the session is notified of the new callback
         self._trigger_on_change(SessionCallbackAdded(self, callback_obj))
@@ -971,7 +979,17 @@ class Document(object):
         self._all_models = recomputed
         self._all_models_by_name = recomputed_by_name
 
-    def _remove_session_callback(self, callback_obj):
+    def _deprecated_remove_session_callback(self, callback, originator):
+        deprecation.deprecated((0, 12, 15),
+                               'The ability to remove a callback function using its value',
+                               'a value returned from the function that adds a callback')
+
+        cb_objs = self._callback_objs_by_callable[originator].pop(callback)
+        for cb_obj in cb_objs:
+            self._session_callbacks.remove(cb_obj)
+        return cb_objs
+
+    def _remove_session_callback(self, callback_obj, originator):
         ''' Remove a callback added earlier with ``add_periodic_callback``,
         ``add_timeout_callback``, or ``add_next_tick_callback``.
 
@@ -983,11 +1001,21 @@ class Document(object):
 
         '''
         try:
-            self._session_callbacks.remove(callback_obj)
+            if callable(callback_obj):
+                callback_objs = self._deprecated_remove_session_callback(callback_obj, originator)
+            else:
+                callback_objs = [callback_obj]
+                self._session_callbacks.remove(callback_obj)
+                for cb_objs in self._callback_objs_by_callable[originator].values():
+                    try:
+                        cb_objs.remove(callback_obj)
+                    except KeyError:
+                        pass
         except KeyError:
             raise ValueError("callback already ran or was already removed, cannot be removed again")
         # emit event so the session is notified and can remove the callback
-        self._trigger_on_change(SessionCallbackRemoved(self, callback_obj))
+        for callback_obj in callback_objs:
+            self._trigger_on_change(SessionCallbackRemoved(self, callback_obj))
 
     def _set_title(self, title, setter=None):
         '''

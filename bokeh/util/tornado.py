@@ -5,6 +5,7 @@ from __future__ import absolute_import, print_function
 
 import logging
 import threading
+from collections import defaultdict
 
 log = logging.getLogger(__name__)
 
@@ -12,6 +13,7 @@ from traceback import format_exception
 
 from tornado import gen
 from ..util.serialization import make_id
+from ..util import deprecation
 
 
 @gen.coroutine
@@ -115,6 +117,10 @@ class _CallbackGroup(object):
         self._periodic_callback_removers = {}
         self._removers_lock = threading.Lock()
 
+        self._next_tick_removers_by_callable = defaultdict(set)
+        self._timeout_removers_by_callable = defaultdict(set)
+        self._periodic_removers_by_callable = defaultdict(set)
+
     def remove_all_callbacks(self):
         """ Removes all registered callbacks."""
         for cb_id in list(self._next_tick_callback_removers.keys()):
@@ -124,22 +130,57 @@ class _CallbackGroup(object):
         for cb_id in list(self._periodic_callback_removers.keys()):
             self.remove_periodic_callback(cb_id)
 
-    def _assign_remover(self, callback_id, removers, remover):
+    def _get_removers_ids_by_callable(self, removers):
+        if removers is self._next_tick_callback_removers:
+            return self._next_tick_removers_by_callable
+        elif removers is self._timeout_callback_removers:
+            return self._timeout_removers_by_callable
+        elif removers is self._periodic_callback_removers:
+            return self._periodic_removers_by_callable
+        else:
+            raise RuntimeError('Unhandled removers', removers)
+
+    def _assign_deprecated_remover(self, callback, callback_id, removers):
+        self._get_removers_ids_by_callable(removers)[callback].add(callback_id)
+
+    def _assign_remover(self, callback, callback_id, removers, remover):
         with self._removers_lock:
             if callback_id is None:
                 callback_id = make_id()
             elif callback_id in removers:
                 raise ValueError("A callback of the same type has already been added with this ID")
             removers[callback_id] = remover
+            self._assign_deprecated_remover(callback, callback_id, removers)
             return callback_id
 
-    @staticmethod
-    def _execute_remover(callback_id, removers):
-        try:
-            remover = removers.pop(callback_id)
-        except KeyError:
-            raise ValueError("Removing a callback twice (or after it's already been run)")
-        remover()
+    def _create_deprecated_remover(self, callback, removers):
+        deprecation.deprecated((0, 12, 15),
+                               'The ability to remove a callback function using its value',
+                               'a value returned from the function that adds a callback')
+        callback_ids = self._get_removers_ids_by_callable(removers).pop(callback)
+        to_run = [removers.pop(i) for i in callback_ids]
+
+        def remover():
+            for f in to_run:
+                f()
+
+        return remover
+
+    def _execute_remover(self, callback_id, removers):
+            try:
+                with self._removers_lock:
+                    if callable(callback_id):
+                        remover = self._create_deprecated_remover(callback_id, removers)
+                    else:
+                        remover = removers.pop(callback_id)
+                        for cb_ids in self._get_removers_ids_by_callable(removers).values():
+                            try:
+                                cb_ids.remove(callback_id)
+                            except KeyError:
+                                pass
+            except KeyError:
+                raise ValueError("Removing a callback twice (or after it's already been run)")
+            remover()
 
     def add_next_tick_callback(self, callback, callback_id=None):
         """ Adds a callback to be run on the next tick.
@@ -160,7 +201,7 @@ class _CallbackGroup(object):
         def remover():
             wrapper.removed = True
 
-        callback_id = self._assign_remover(callback_id, self._next_tick_callback_removers, remover)
+        callback_id = self._assign_remover(callback, callback_id, self._next_tick_callback_removers, remover)
         self._loop.add_callback(wrapper)
         return callback_id
 
@@ -181,7 +222,7 @@ class _CallbackGroup(object):
             if handle is not None:
                 self._loop.remove_timeout(handle)
 
-        callback_id = self._assign_remover(callback_id, self._timeout_callback_removers, remover)
+        callback_id = self._assign_remover(callback, callback_id, self._timeout_callback_removers, remover)
         handle = self._loop.call_later(timeout_milliseconds / 1000.0, wrapper)
         return callback_id
 
@@ -194,7 +235,7 @@ class _CallbackGroup(object):
         Returns an ID that can be used with remove_periodic_callback."""
 
         cb = _AsyncPeriodic(callback, period_milliseconds, io_loop=self._loop)
-        callback_id = self._assign_remover(callback_id, self._periodic_callback_removers, cb.stop)
+        callback_id = self._assign_remover(callback, callback_id, self._periodic_callback_removers, cb.stop)
         cb.start()
         return callback_id
 

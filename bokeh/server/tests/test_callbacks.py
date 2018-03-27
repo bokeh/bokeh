@@ -4,9 +4,11 @@ import unittest
 from concurrent.futures import ThreadPoolExecutor
 from itertools import repeat
 
+import pytest
 from tornado.ioloop import IOLoop
 
 from bokeh.util.tornado import _CallbackGroup
+from bokeh.util.warnings import BokehDeprecationWarning
 
 def _make_invocation_counter(loop, stop_after=1):
     from types import MethodType
@@ -182,3 +184,27 @@ class TestCallbackGroup(unittest.TestCase):
             tpe = ThreadPoolExecutor(n)
             list(tpe.map(ctx.group.add_next_tick_callback, repeat(func, n)))
         self.assertEqual(n, func.count())
+
+    def test_deprecated_remove_next_tick_callback(self):
+        with LoopAndGroup(quit_after=15) as ctx:
+            func = _make_invocation_counter(ctx.io_loop, stop_after=1)
+            ctx.group.add_next_tick_callback(func)
+            with pytest.warns(BokehDeprecationWarning):
+                ctx.group.remove_next_tick_callback(func)
+        self.assertEqual(0, func.count())
+
+    def test_deprecated_remove_periodic_callback(self):
+        with LoopAndGroup(quit_after=15) as ctx:
+            func = _make_invocation_counter(ctx.io_loop, stop_after=1)
+            ctx.group.add_periodic_callback(func, 1)
+            with pytest.warns(BokehDeprecationWarning):
+                ctx.group.remove_periodic_callback(func)
+        self.assertEqual(0, func.count())
+
+    def test_deprecated_remove_timeout_callback(self):
+        with LoopAndGroup(quit_after=15) as ctx:
+            func = _make_invocation_counter(ctx.io_loop, stop_after=1)
+            ctx.group.add_timeout_callback(func, 1)
+            with pytest.warns(BokehDeprecationWarning):
+                ctx.group.remove_timeout_callback(func)
+        self.assertEqual(0, func.count())
