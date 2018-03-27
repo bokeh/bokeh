@@ -3,6 +3,7 @@ import {Program, VertexBuffer} from "gloo2"
 import {Arrayable} from "core/types"
 import {color2rgba} from "core/util/color"
 import {Context2d} from "core/util/canvas"
+import {logger} from "core/logging"
 import {GlyphView} from "../glyph"
 
 export abstract class BaseGLGlyph {
@@ -33,16 +34,22 @@ export abstract class BaseGLGlyph {
 
   render(_ctx: Context2d, indices: number[], mainglyph: GlyphView): boolean {
     // Get transform
-    let wx = 1;  // Weights to scale our vectors
+    const [a, b, c] = [0, 1, 2]
+    let wx = 1   // Weights to scale our vectors
     let wy = 1
-    let [dx, dy] = this.glyph.renderer.map_to_screen([0*wx, 1*wx, 2*wx], [0*wy, 1*wy, 2*wy])
+    let [dx, dy] = this.glyph.renderer.map_to_screen([a*wx, b*wx, c*wx], [a*wy, b*wy, c*wy])
+    if (isNaN(dx[0] + dx[1] + dx[2] + dy[0] + dy[1] + dy[2])) {
+      logger.warn(`WebGL backend (${this.glyph.model.type}): falling back to canvas rendering`)
+      return false
+    }
     // Try again, but with weighs so we're looking at ~100 in screen coordinates
     wx = 100 / Math.min(Math.max(Math.abs(dx[1] - dx[0]), 1e-12), 1e12)
     wy = 100 / Math.min(Math.max(Math.abs(dy[1] - dy[0]), 1e-12), 1e12)
-    ;[dx, dy] = this.glyph.renderer.map_to_screen([0*wx, 1*wx, 2*wx], [0*wy, 1*wy, 2*wy])
+    ;[dx, dy] = this.glyph.renderer.map_to_screen([a*wx, b*wx, c*wx], [a*wy, b*wy, c*wy])
     // Test how linear it is
     if ((Math.abs((dx[1] - dx[0]) - (dx[2] - dx[1])) > 1e-6) ||
         (Math.abs((dy[1] - dy[0]) - (dy[2] - dy[1])) > 1e-6)) {
+      logger.warn(`WebGL backend (${this.glyph.model.type}): falling back to canvas rendering`)
       return false
     }
     const [sx, sy] = [(dx[1]-dx[0]) / wx, (dy[1]-dy[0]) / wy]
