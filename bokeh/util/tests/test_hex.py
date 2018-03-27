@@ -38,11 +38,11 @@ api = {
 
     GENERAL: (
 
-        ( 'hexbin', (1,0,0) ),
+        ( 'axial_to_cartesian',  (1,0,0) ),
+        ( 'cartesian_to_axial',  (1,0,0) ),
+        ( 'hexbin',              (1,0,0) ),
 
     ), DEV: (
-
-        ( 'cartesian_to_axial',  (1,0,0) ),
 
     )
 
@@ -83,13 +83,36 @@ class Test_hexbin(object):
 # Dev API
 #-----------------------------------------------------------------------------
 
+class Test_axial_to_cartesian(object):
+
+    def test_default_aspect_pointytop(self):
+        q = np.array([0, 0, 0, 1, -1, 1, -1])
+        r = np.array([0, 1, -1, 0, 1, -1, 0])
+
+        x, y = buh.axial_to_cartesian(q, r, 1, "pointytop")
+
+        sq3 = np.sqrt(3)
+        assert list(x) == [0, sq3/2, -sq3/2, sq3, -sq3/2, sq3/2, -sq3]
+        assert list(y) == [-0.0, -1.5, 1.5, -0.0, -1.5, 1.5, -0.0]
+
+
+    def test_default_aspect_flattop(self):
+        q = np.array([0, 0, 0, 1, -1, 1, -1])
+        r = np.array([0, 1, -1, 0, 1, -1, 0])
+
+        x, y = buh.axial_to_cartesian(q, r, 1, "flattop")
+
+        sq3 = np.sqrt(3)
+        assert list(x) == [0.0, 0.0, 0.0, 1.5, -1.5, 1.5, -1.5]
+        assert list(y) == [0, -sq3, sq3, -sq3/2, -sq3/2, sq3/2, sq3/2]
+
 class Test_cartesian_to_axial(object):
 
     def test_default_aspect_pointytop(self):
         x = np.array([0, -2, 2, -1.5, -1.5, 1.5, 1.5])
         y = np.array([0, 0, 0, 1.5, -1.5, 1.5, -1.5])
 
-        q,r = buh.cartesian_to_axial(x, y, 1, "pointytop")
+        q, r = buh.cartesian_to_axial(x, y, 1, "pointytop")
 
         assert list(zip(q, r)) == [
             (0,0), (-1, 0), (1,0), (0,-1), (-1, 1), (1, -1), (0,1)
@@ -99,7 +122,7 @@ class Test_cartesian_to_axial(object):
         x = np.array([0, 0, 0, 1.5, -1.5, 1.5, -1.5])
         y = np.array([0, -2, 2, -1.5, -1.5, 1.5, 1.5])
 
-        q,r = buh.cartesian_to_axial(x, y, 1, "flattop")
+        q, r = buh.cartesian_to_axial(x, y, 1, "flattop")
 
         assert list(zip(q, r)) == [
             (0,0), (0,1), (0,-1), (1, 0), (-1, 1), (1, -1), (-1,0)

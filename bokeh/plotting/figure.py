@@ -765,7 +765,7 @@ Examples:
             aspect_scale (float) :
                 Match a plot's aspect ratio scaling.
 
-                If adding to a plot with ``aspect_scale != 1``, then this
+                When working with a plot with ``aspect_scale != 1``, this
                 parameter can be set to match the plot, in order to draw
                 regular hexagons (insted of "stretched" ones).
 
