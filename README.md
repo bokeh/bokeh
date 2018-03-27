@@ -9,6 +9,14 @@ Bokeh
   <td>Latest Release</td>
   <td><img src="https://badge.fury.io/gh/bokeh%2Fbokeh.svg"
            alt="Latest release version" /></td>
+  
+  <td>Conda</td>
+  <td>
+    <a href="https://bokeh.pydata.org/en/latest/docs/installation.html">
+    <img src="https://s3.amazonaws.com/pubbadges/bokeh_current.svg"
+         alt="Conda downloads per month" />
+    </a>
+  </td>
 </tr>
 
 <tr>
@@ -19,6 +27,12 @@ Bokeh
          alt="Bokeh license (BSD 3-clause)" />
     </a>
   </td>
+  
+  <td>PyPI</td>
+  <td>
+    <img src="https://bokeh.pydata.org/pip-bokeh-badge.svg"
+         alt="PyPI downloads per month" />
+  </td>
 </tr>
 
 <tr>
@@ -27,6 +41,14 @@ Bokeh
     <a href="http://numfocus.org">
     <img src="https://img.shields.io/badge/powered%20by-NumFOCUS-black.svg?style=flat&colorA=5B5B5B&colorB=007D8A"
          alt="Powered by NumFOCUS" />
+    </a>
+  </td>
+  
+  <td>Live Tutorial</td>
+  <td>
+    <a href="https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb">
+    <img src="https://mybinder.org/badge.svg"
+         alt="Live Bokeh tutorial notebooks on MyBinder" />
     </a>
   </td>
 </tr>
@@ -39,47 +61,7 @@ Bokeh
          alt="Current TravisCI build status" />
     </a>
   </td>
-</tr>
-
-<tr>
-  <td>Static Analyis</td>
-  <td>
-    <a href="https://bettercodehub.com/edge/badge/bokeh/bokeh?branch=master">
-    <img src="https://bettercodehub.com/edge/badge/bokeh/bokeh?branch=master"
-         alt="BetterCodeHub static analysis" >
-    </a>
-  </td>
-</tr>
-
-<tr>
-  <td>Conda</td>
-  <td>
-    <a href="https://bokeh.pydata.org/en/latest/docs/installation.html">
-    <img src="https://s3.amazonaws.com/pubbadges/bokeh_current.svg"
-         alt="Conda downloads per month" />
-    </a>
-  </td>
-</tr>
-
-<tr>
-  <td>PyPI</td>
-  <td>
-    <img src="https://bokeh.pydata.org/pip-bokeh-badge.svg"
-         alt="PyPI downloads per month" />
-  </td>
-</tr>
-
-<tr>
-  <td>Live Tutorial</td>
-  <td>
-    <a href="https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb">
-    <img src="https://mybinder.org/badge.svg"
-         alt="Live Bokeh tutorial notebooks on MyBinder" />
-    </a>
-  </td>
-</tr>
-
-<tr>
+  
   <td>Gitter</td>
   <td>
     <a href="https://gitter.im/bokeh/bokeh?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge">
@@ -90,6 +72,14 @@ Bokeh
 </tr>
 
 <tr>
+  <td>Static Analyis</td>
+  <td>
+    <a href="https://bettercodehub.com/edge/badge/bokeh/bokeh?branch=master">
+    <img src="https://bettercodehub.com/edge/badge/bokeh/bokeh?branch=master"
+         alt="BetterCodeHub static analysis" >
+    </a>
+  </td>
+  
   <td>Twitter</td>
   <td>
     <a href="https://twitter.com/BokehPlots">
