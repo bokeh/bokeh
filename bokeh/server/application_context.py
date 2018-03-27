@@ -41,22 +41,22 @@ class BokehServerContext(ServerContext):
         return result
 
     def add_next_tick_callback(self, callback):
-        self._callbacks.add_next_tick_callback(callback)
+        return self._callbacks.add_next_tick_callback(callback)
 
-    def remove_next_tick_callback(self, callback):
-        self._callbacks.remove_next_tick_callback(callback)
+    def remove_next_tick_callback(self, callback_id):
+        self._callbacks.remove_next_tick_callback(callback_id)
 
     def add_timeout_callback(self, callback, timeout_milliseconds):
-        self._callbacks.add_timeout_callback(callback, timeout_milliseconds)
+        return self._callbacks.add_timeout_callback(callback, timeout_milliseconds)
 
-    def remove_timeout_callback(self, callback):
-        self._callbacks.remove_timeout_callback(callback)
+    def remove_timeout_callback(self, callback_id):
+        self._callbacks.remove_timeout_callback(callback_id)
 
     def add_periodic_callback(self, callback, period_milliseconds):
-        self._callbacks.add_periodic_callback(callback, period_milliseconds)
+        return self._callbacks.add_periodic_callback(callback, period_milliseconds)
 
-    def remove_periodic_callback(self, callback):
-        self._callbacks.remove_periodic_callback(callback)
+    def remove_periodic_callback(self, callback_id):
+        self._callbacks.remove_periodic_callback(callback_id)
 
 class BokehSessionContext(SessionContext):
     def __init__(self, session_id, server_context, document):

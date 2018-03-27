@@ -60,9 +60,11 @@ class HookTestHandler(Handler):
 
         server_context.add_next_tick_callback(self.on_next_tick_server)
         server_context.add_timeout_callback(self.on_timeout_server, 2)
-        server_context.add_periodic_callback(self.on_periodic_server, 3)
+        periodic_cb_id = server_context.add_periodic_callback(self.on_periodic_server, 3)
+
         def remover():
-            server_context.remove_periodic_callback(self.on_periodic_server)
+            server_context.remove_periodic_callback(periodic_cb_id)
+
         self.server_periodic_remover = remover
 
     def on_server_unloaded(self, server_context):
@@ -92,9 +94,11 @@ class HookTestHandler(Handler):
         server_context = session_context.server_context
         server_context.add_next_tick_callback(self.on_next_tick_session)
         server_context.add_timeout_callback(self.on_timeout_session, 2)
-        server_context.add_periodic_callback(self.on_periodic_session, 3)
+        periodic_cb_id = server_context.add_periodic_callback(self.on_periodic_session, 3)
+
         def remover():
-            server_context.remove_periodic_callback(self.on_periodic_session)
+            server_context.remove_periodic_callback(periodic_cb_id)
+
         self.session_periodic_remover = remover
 
         self.hooks.append("session_created")

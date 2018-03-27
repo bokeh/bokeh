@@ -11,26 +11,21 @@ def test_next_tick_callback_works():
     curdoc_from_cb = []
     def cb():
         curdoc_from_cb.append(curdoc())
-    callback = d.add_next_tick_callback(cb)
-    callback.callback()
+    callback_obj = d.add_next_tick_callback(cb)
+    callback_obj.callback()
     assert len(curdoc_from_cb) == 1
     assert curdoc_from_cb[0] is d._doc
     def cb2(): pass
-    callback = d.add_next_tick_callback(cb2)
-    d.remove_next_tick_callback(cb2)
+    callback_obj = d.add_next_tick_callback(cb2)
+    d.remove_next_tick_callback(callback_obj)
 
 def test_other_attrs_raise():
     d = locking.UnlockedDocumentProxy(Document())
     assert curdoc() is not d
-    with pytest.raises(RuntimeError) as e:
-        d.foo
-        assert str(e) == "Only add_next_tick_callback may be used safely without taking the document lock; "
-        "to make other changes to the document, add a next tick callback and make your changes "
-        "from that callback."
-    for attr in dir(d._doc):
-        if attr in ["add_next_tick_callback", "remove_next_tick_callback"]: continue
+    for attr in (set(dir(d._doc)) - set(dir(d))) | {'foo'}:
         with pytest.raises(RuntimeError) as e:
-            getattr(d, "foo")
+            getattr(d, attr)
+        assert e.value.args[0] == locking.UNSAFE_DOC_ATTR_USAGE_MSG
 
 def test_without_document_lock():
     d = Document()
@@ -39,9 +34,9 @@ def test_without_document_lock():
     @locking.without_document_lock
     def cb():
         curdoc_from_cb.append(curdoc())
-    callback = d.add_next_tick_callback(cb)
-    callback._callback()
-    assert callback.callback.nolock == True
+    callback_obj = d.add_next_tick_callback(cb)
+    callback_obj.callback()
+    assert callback_obj.callback.nolock == True
     assert len(curdoc_from_cb) == 1
     assert curdoc_from_cb[0]._doc is d
     assert isinstance(curdoc_from_cb[0], locking.UnlockedDocumentProxy)

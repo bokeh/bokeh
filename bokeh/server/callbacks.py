@@ -41,12 +41,6 @@ class SessionCallback(object):
         '''
         return self._callback
 
-    def remove(self):
-        ''' Remove this session callback its document.
-
-        '''
-        self.document._remove_session_callback(self)
-
     def _copy_with_changed_callback(self, new_callback):
         ''' Dev API used to wrap the callback with decorators. '''
         raise NotImplementedError("_copy_with_changed_callback")
@@ -146,15 +140,12 @@ class _DocumentCallbackGroup(object):
 
         '''
         self._group = _CallbackGroup(io_loop)
-        # from callback ids to removers
-        self._removers = dict()
 
     def remove_all_callbacks(self):
         '''
 
         '''
-        for r in list(self._removers.values()):
-            r()
+        self._group.remove_all_callbacks()
 
     def add_session_callbacks(self, callbacks):
         '''
@@ -163,24 +154,20 @@ class _DocumentCallbackGroup(object):
         for cb in callbacks:
             self.add_session_callback(cb)
 
-    def add_session_callback(self, callback):
+    def add_session_callback(self, callback_obj):
         '''
 
         '''
-        def cleanup(func):
-            if callback.id in self._removers:
-                del self._removers[callback.id]
-        if isinstance(callback, PeriodicCallback):
-            remover = self._group.add_periodic_callback(callback.callback, callback.period, cleanup)
-        elif isinstance(callback, TimeoutCallback):
-            remover = self._group.add_timeout_callback(callback.callback, callback.timeout, cleanup)
-        elif isinstance(callback, NextTickCallback):
-            remover = self._group.add_next_tick_callback(callback.callback, cleanup)
+        if isinstance(callback_obj, PeriodicCallback):
+            self._group.add_periodic_callback(callback_obj.callback, callback_obj.period, callback_obj.id)
+        elif isinstance(callback_obj, TimeoutCallback):
+            self._group.add_timeout_callback(callback_obj.callback, callback_obj.timeout, callback_obj.id)
+        elif isinstance(callback_obj, NextTickCallback):
+            self._group.add_next_tick_callback(callback_obj.callback, callback_obj.id)
         else:
-            raise ValueError("Expected callback of type PeriodicCallback, TimeoutCallback, NextTickCallback, got: %s" % callback.callback)
-        self._removers[callback.id] = remover
+            raise ValueError("Expected callback of type PeriodicCallback, TimeoutCallback, NextTickCallback, got: %s" % callback_obj.callback)
 
-    def remove_session_callback(self, callback):
+    def remove_session_callback(self, callback_obj):
         '''
 
         '''
@@ -189,5 +176,12 @@ class _DocumentCallbackGroup(object):
         # the callback was removed even if only one view invoked
         # it. So we need to silently no-op if we're already
         # removed.
-        if callback.id in self._removers:
-            self._removers[callback.id]()
+        try:
+            if isinstance(callback_obj, PeriodicCallback):
+                self._group.remove_periodic_callback(callback_obj.id)
+            elif isinstance(callback_obj, TimeoutCallback):
+                self._group.remove_timeout_callback(callback_obj.id)
+            elif isinstance(callback_obj, NextTickCallback):
+                self._group.remove_next_tick_callback(callback_obj.id)
+        except ValueError:
+            pass

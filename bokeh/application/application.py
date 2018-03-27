@@ -284,6 +284,9 @@ class ServerContext(with_metaclass(ABCMeta)):
                 and should have the form ``def callback()`` (i.e. it should
                 not accept any arguments)
 
+        Returns:
+            an ID that can be used with ``remove_next_tick_callback``.
+
         '''
         pass
 
@@ -303,6 +306,9 @@ class ServerContext(with_metaclass(ABCMeta)):
 
             period_milliseconds (int) : number of milliseconds to wait
                 between executing the callback.
+
+        Returns:
+            an ID that can be used with ``remove_periodic_callback``.
 
         '''
         pass
@@ -324,46 +330,49 @@ class ServerContext(with_metaclass(ABCMeta)):
             timeout_milliseconds (int) : number of milliseconds to wait before
                 executing the callback.
 
+        Returns:
+            an ID that can be used with ``remove_timeout_callback``.
+
         '''
         pass
 
     @abstractmethod
     @dev((1,0,0))
-    def remove_next_tick_callback(self, callback):
+    def remove_next_tick_callback(self, callback_id):
         ''' Remove a callback added with ``add_next_tick_callback``, before
         it runs.
 
          *Subclasses must implement this method.*
 
         Args:
-            callback (callable) : the callback to remove
+            callback_id : the ID returned from ``add_next_tick_callback``
 
         '''
         pass
 
     @abstractmethod
     @dev((1,0,0))
-    def remove_periodic_callback(self, callback):
+    def remove_periodic_callback(self, callback_id):
         ''' Removes a callback added with ``add_periodic_callback``.
 
         *Subclasses must implement this method.*
 
         Args:
-            callback (callable) : the callback to remove
+            callback_id : the ID returned from ``add_periodic_callback``
 
         '''
         pass
 
     @abstractmethod
     @dev((1,0,0))
-    def remove_timeout_callback(self, callback):
+    def remove_timeout_callback(self, callback_id):
         ''' Remove a callback added with ``add_timeout_callback``, before it
         runs.
 
         *Subclasses must implement this method.*
 
         Args:
-            callback (callable) : the callback to remove
+            callback_id : the ID returned from ``add_timeout_callback``
 
         '''
         pass

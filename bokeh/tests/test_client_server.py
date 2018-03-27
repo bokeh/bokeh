@@ -399,12 +399,12 @@ class TestClientServer(unittest.TestCase):
                 client_session.close()
                 raise gen.Return(5)
 
-            doc.add_timeout_callback(cb, 10)
+            cb_id = doc.add_timeout_callback(cb, 10)
 
             client_session.loop_until_closed(suppress_warning=True)
 
             with (self.assertRaises(ValueError)) as manager:
-                doc.remove_timeout_callback(cb)
+                doc.remove_timeout_callback(cb_id)
             self.assertTrue('already removed' in repr(manager.exception))
 
             self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
@@ -427,7 +427,7 @@ class TestClientServer(unittest.TestCase):
                 client_session.close()
                 raise gen.Return(5)
 
-            doc.add_timeout_callback(cb, 10)
+            cb_id = doc.add_timeout_callback(cb, 10)
 
             client_session = push_session(doc,
                                           session_id='test_client_session_timeout_async',
@@ -437,7 +437,7 @@ class TestClientServer(unittest.TestCase):
             client_session.loop_until_closed(suppress_warning=True)
 
             with (self.assertRaises(ValueError)) as manager:
-                doc.remove_timeout_callback(cb)
+                doc.remove_timeout_callback(cb_id)
             self.assertTrue('already removed' in repr(manager.exception))
 
             self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
@@ -468,12 +468,12 @@ class TestClientServer(unittest.TestCase):
                 client_session.close()
                 raise gen.Return(5)
 
-            server_session.document.add_timeout_callback(cb, 10)
+            cb_id = server_session.document.add_timeout_callback(cb, 10)
 
             client_session.loop_until_closed(suppress_warning=True)
 
             with (self.assertRaises(ValueError)) as manager:
-                server_session.document.remove_timeout_callback(cb)
+                server_session.document.remove_timeout_callback(cb_id)
             self.assertTrue('already removed' in repr(manager.exception))
 
             self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
@@ -501,12 +501,12 @@ class TestClientServer(unittest.TestCase):
                 client_session.close()
                 raise gen.Return(5)
 
-            doc.add_next_tick_callback(cb)
+            cb_id = doc.add_next_tick_callback(cb)
 
             client_session.loop_until_closed(suppress_warning=True)
 
             with (self.assertRaises(ValueError)) as manager:
-                doc.remove_next_tick_callback(cb)
+                doc.remove_next_tick_callback(cb_id)
             self.assertTrue('already removed' in repr(manager.exception))
 
             self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
@@ -529,7 +529,7 @@ class TestClientServer(unittest.TestCase):
                 client_session.close()
                 raise gen.Return(5)
 
-            doc.add_next_tick_callback(cb)
+            cb_id = doc.add_next_tick_callback(cb)
 
             client_session = push_session(doc,
                                           session_id='test_client_session_next_tick_async',
@@ -539,7 +539,7 @@ class TestClientServer(unittest.TestCase):
             client_session.loop_until_closed(suppress_warning=True)
 
             with (self.assertRaises(ValueError)) as manager:
-                doc.remove_next_tick_callback(cb)
+                doc.remove_next_tick_callback(cb_id)
             self.assertTrue('already removed' in repr(manager.exception))
 
             self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
@@ -570,12 +570,12 @@ class TestClientServer(unittest.TestCase):
                 client_session.close()
                 raise gen.Return(5)
 
-            server_session.document.add_next_tick_callback(cb)
+            cb_id = server_session.document.add_next_tick_callback(cb)
 
             client_session.loop_until_closed(suppress_warning=True)
 
             with (self.assertRaises(ValueError)) as manager:
-                server_session.document.remove_next_tick_callback(cb)
+                server_session.document.remove_next_tick_callback(cb_id)
             self.assertTrue('already removed' in repr(manager.exception))
 
             self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
@@ -603,11 +603,11 @@ class TestClientServer(unittest.TestCase):
                 client_session.close()
                 raise gen.Return(5)
 
-            doc.add_periodic_callback(cb, 10)
+            cb_id = doc.add_periodic_callback(cb, 10)
 
             client_session.loop_until_closed(suppress_warning=True)
 
-            doc.remove_periodic_callback(cb)
+            doc.remove_periodic_callback(cb_id)
 
             self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
 
@@ -629,7 +629,7 @@ class TestClientServer(unittest.TestCase):
                 client_session.close()
                 raise gen.Return(5)
 
-            doc.add_periodic_callback(cb, 10)
+            cb_id = doc.add_periodic_callback(cb, 10)
 
             client_session = push_session(doc,
                                           session_id='test_client_session_periodic_async',
@@ -638,7 +638,7 @@ class TestClientServer(unittest.TestCase):
 
             client_session.loop_until_closed(suppress_warning=True)
 
-            doc.remove_periodic_callback(cb)
+            doc.remove_periodic_callback(cb_id)
 
             self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
 
@@ -668,11 +668,11 @@ class TestClientServer(unittest.TestCase):
                 client_session.close()
                 raise gen.Return(5)
 
-            server_session.document.add_periodic_callback(cb, 10)
+            cb_id = server_session.document.add_periodic_callback(cb, 10)
 
             client_session.loop_until_closed(suppress_warning=True)
 
-            server_session.document.remove_periodic_callback(cb)
+            server_session.document.remove_periodic_callback(cb_id)
 
             self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
 
@@ -687,18 +687,18 @@ class TestClientServer(unittest.TestCase):
             doc.add_root(m3)
             def timeout1():
                 m1.bar += 1
-            doc.add_timeout_callback(timeout1, 1)
+            timeout1_cb_id = doc.add_timeout_callback(timeout1, 1)
             def timeout2():
                 m2.foo +=1
-            doc.add_timeout_callback(timeout2, 3)
+            timeout2_cb_id = doc.add_timeout_callback(timeout2, 3)
             def periodic1():
                 m1.bar += 1
-                doc.remove_timeout_callback(timeout1)
+                doc.remove_timeout_callback(timeout1_cb_id)
                 doc.add_timeout_callback(timeout1, m1.bar % 7)
             doc.add_periodic_callback(periodic1, 3)
             def periodic2():
                 m2.foo += 1
-                doc.remove_timeout_callback(timeout2)
+                doc.remove_timeout_callback(timeout2_cb_id)
                 doc.add_timeout_callback(timeout2, m2.foo % 7)
             doc.add_periodic_callback(periodic2, 1)
 
@@ -724,12 +724,12 @@ class TestClientServer(unittest.TestCase):
             def client_timeout():
                 m = session.document.roots[0]
                 m.name = m.name[::-1]
-            session.document.add_timeout_callback(client_timeout, 3)
+            cb_id = session.document.add_timeout_callback(client_timeout, 3)
 
             def client_periodic():
                 m = session.document.roots[1]
                 m.name = m.name[::-1]
-                session.document.remove_timeout_callback(client_timeout)
+                session.document.remove_timeout_callback(cb_id)
                 session.document.add_timeout_callback(client_timeout, 3)
 
             session.document.add_periodic_callback(client_periodic, 1)
