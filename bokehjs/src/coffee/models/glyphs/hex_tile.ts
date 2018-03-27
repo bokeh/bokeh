@@ -16,16 +16,19 @@ import {Selection} from "../selections/selection"
 
 
 export interface HexTileData extends GlyphData {
+  _q: Arrayable<number>
+  _r: Arrayable<number>
+
   _x: Arrayable<number>
   _y: Arrayable<number>
+
+  _scale: Arrayable<number>
 
   sx: Arrayable<number>
   sy: Arrayable<number>
 
   svx: number[]
   svy: number[]
-
-  scale: Arrayable<number>
 
   minX: number
   maxX: number
@@ -46,30 +49,27 @@ export class HexTileView extends GlyphView {
   scentery(i: number): number { return this.sy[i] }
 
   protected _set_data(): void {
-    const self = this as any
-
-    const n = self._q.length
+    const n = this._q.length
 
     const size = this.model.size
     const aspect_scale = this.model.aspect_scale
 
-    self._x = new Float64Array(n)
-    self._y = new Float64Array(n)
+    this._x = new Float64Array(n)
+    this._y = new Float64Array(n)
 
     if (this.model.orientation == "pointytop") {
       for (let i = 0; i < n; i++) {
-        self._x[i] = size * Math.sqrt(3) * (self._q[i] + self._r[i]/2) / aspect_scale
-        self._y[i] = -size * 3/2 * self._r[i]
+        this._x[i] = size * Math.sqrt(3) * (this._q[i] + this._r[i]/2) / aspect_scale
+        this._y[i] = -size * 3/2 * this._r[i]
       }
     }
     else {
       for (let i = 0; i < n; i++) {
-        self._x[i] = size * 3/2 * self._q[i]
-        self._y[i] = -size * Math.sqrt(3) * (self._r[i] + self._q[i]/2) * aspect_scale
+        this._x[i] = size * 3/2 * this._q[i]
+        this._y[i] = -size * Math.sqrt(3) * (this._r[i] + this._q[i]/2) * aspect_scale
       }
     }
 
-    self.scale = self._scale
   }
 
 
@@ -99,11 +99,9 @@ export class HexTileView extends GlyphView {
   // overriding map_data instead of _map_data because the default automatic mappings
   // for other glyphs (with cartesian coordinates) is not useful
   map_data(): void {
-    const self = this as any
+    [this.sx, this.sy] = this.map_to_screen(this._x, this._y);
 
-    [self.sx, self.sy] = this.map_to_screen(self._x, self._y);
-
-    [self.svx, self.svy] = this._get_unscaled_vertices()
+    [this.svx, this.svy] = this._get_unscaled_vertices()
 
   }
 
@@ -141,18 +139,15 @@ export class HexTileView extends GlyphView {
 
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sx, sy, scale}: HexTileData): void {
-
-    const [svx, svy] = this._get_unscaled_vertices()
-
+  protected _render(ctx: Context2d, indices: number[], {sx, sy, svx, svy, _scale}: HexTileData): void {
     for (const i of indices) {
-      if (isNaN(sx[i] + sy[i] + scale[i]))
+      if (isNaN(sx[i] + sy[i] + _scale[i]))
         continue;
 
       ctx.translate(sx[i], sy[i])
       ctx.beginPath();
       for (let j = 0; j < 6; j++) {
-        ctx.lineTo(svx[j]*scale[i], svy[j]*scale[i])
+        ctx.lineTo(svx[j]*_scale[i], svy[j]*_scale[i])
       }
       ctx.closePath()
       ctx.translate(-sx[i], -sy[i])
@@ -177,7 +172,7 @@ export class HexTileView extends GlyphView {
 
     const candidates = this.index.indices({minX: x, minY: y, maxX: x, maxY: y})
 
-    const hits = Array()
+    const hits = []
     for (const i of candidates) {
 
       if (hittest.point_in_poly(sx-this.sx[i], sy-this.sy[i], this.svx, this.svy)) {

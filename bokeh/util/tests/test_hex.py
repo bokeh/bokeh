@@ -63,26 +63,6 @@ y = 2 + np.random.standard_normal(n)
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_hexbin(object):
-
-    def test_gaussian_pointytop(self):
-        bins = buh.hexbin(x, y, 2)
-        assert list(bins.q) == [0,0,1,1,1,2,2]
-        assert list(bins.r) == [-1,0,-2,-1,0,-2,-1]
-        assert list(bins.counts) == [9,54,1,313,98,3,22]
-
-        assert bins.equals(buh.hexbin(x, y, 2, "pointytop"))
-
-    def test_gaussian_flattop(self):
-        bins = buh.hexbin(x, y, 2, "flattop")
-        assert list(bins.q) == [0, 0, 1, 1, 1, 2]
-        assert list(bins.r) == [-1, 0, -2, -1, 0, -2]
-        assert list(bins.counts) == [95, 57, 14, 324, 8, 2]
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
-
 class Test_axial_to_cartesian(object):
 
     def test_default_aspect_pointytop(self):
@@ -127,6 +107,26 @@ class Test_cartesian_to_axial(object):
         assert list(zip(q, r)) == [
             (0,0), (0,1), (0,-1), (1, 0), (-1, 1), (1, -1), (-1,0)
         ]
+
+class Test_hexbin(object):
+
+    def test_gaussian_pointytop(self):
+        bins = buh.hexbin(x, y, 2)
+        assert list(bins.q) == [0,0,1,1,1,2,2]
+        assert list(bins.r) == [-1,0,-2,-1,0,-2,-1]
+        assert list(bins.counts) == [9,54,1,313,98,3,22]
+
+        assert bins.equals(buh.hexbin(x, y, 2, "pointytop"))
+
+    def test_gaussian_flattop(self):
+        bins = buh.hexbin(x, y, 2, "flattop")
+        assert list(bins.q) == [0, 0, 1, 1, 1, 2]
+        assert list(bins.r) == [-1, 0, -2, -1, 0, -2]
+        assert list(bins.counts) == [95, 57, 14, 324, 8, 2]
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Private API

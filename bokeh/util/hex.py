@@ -142,7 +142,6 @@ def cartesian_to_axial(x, y, size, orientation, aspect_scale=1):
 
     x =  x / size * (aspect_scale if orientation == "pointytop" else 1)
     y = -y / size / (aspect_scale if orientation == "flattop" else 1)
-    print(y)
 
     q = coords[0] * x + coords[1] * y
     r = coords[2] * x + coords[3] * y
