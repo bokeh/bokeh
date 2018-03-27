@@ -9,7 +9,7 @@ Bokeh
   <td>Latest Release</td>
   <td><img src="https://badge.fury.io/gh/bokeh%2Fbokeh.svg"
            alt="Latest release version" /></td>
-  
+
   <td>Conda</td>
   <td>
     <a href="https://bokeh.pydata.org/en/latest/docs/installation.html">
@@ -27,7 +27,7 @@ Bokeh
          alt="Bokeh license (BSD 3-clause)" />
     </a>
   </td>
-  
+
   <td>PyPI</td>
   <td>
     <img src="https://bokeh.pydata.org/pip-bokeh-badge.svg"
@@ -43,7 +43,7 @@ Bokeh
          alt="Powered by NumFOCUS" />
     </a>
   </td>
-  
+
   <td>Live Tutorial</td>
   <td>
     <a href="https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb">
@@ -61,7 +61,7 @@ Bokeh
          alt="Current TravisCI build status" />
     </a>
   </td>
-  
+
   <td>Gitter</td>
   <td>
     <a href="https://gitter.im/bokeh/bokeh?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge">
@@ -79,7 +79,7 @@ Bokeh
          alt="BetterCodeHub static analysis" >
     </a>
   </td>
-  
+
   <td>Twitter</td>
   <td>
     <a href="https://twitter.com/BokehPlots">
