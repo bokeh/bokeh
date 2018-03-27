@@ -10,8 +10,6 @@ from ..core.enums import HorizontalLocation, VerticalLocation
 from ..models import ColumnDataSource, Plot, Title, Tool, GraphRenderer
 from ..models import glyphs, markers
 from ..models.tools import Drag, Inspection, Scroll, Tap
-from ..palettes import Viridis256
-from ..util.hex import hexbin
 from ..util.options import Options
 from ..util.string import format_docstring
 from ..util._plot_arg_helpers import _convert_responsive
@@ -99,9 +97,13 @@ class Figure(Plot):
 {glyph_methods}
 
     There are also two specialized methods for stacking bars:
-    :func:`~bokeh.plotting.figure.Figure.hbar_stack` and
-    :func:`~bokeh.plotting.figure.Figure.vbar_stack`
 
+    * :func:`~bokeh.plotting.figure.Figure.hbar_stack`
+    * :func:`~bokeh.plotting.figure.Figure.vbar_stack`
+
+    And one specialized method for making simple hexbin plots:
+
+    * :func:`~bokeh.plotting.figure.Figure.hexbin`
 
     In addition to all the Bokeh model property attributes documented below,
     the ``Figure`` initializer also accepts the following options, which can
@@ -709,33 +711,104 @@ Examples:
 
         return getattr(self, markertype)(*args, **kwargs)
 
-    def hexbin(self, x, y, size, orientation="pointytop", palette=Viridis256, line_color=None, fill_color=None, aspect_scale=1, **kwargs):
-        '''
+    def hexbin(self, x, y, size, orientation="pointytop", palette="Viridis256", line_color=None, fill_color=None, aspect_scale=1, **kwargs):
+        ''' Perform a simple equal-weight hexagonal binning.
+
+        A :class:`~bokeh.models.glyphs.HexTile` glyph will be added to display
+        the binning. The :class:`~bokeh.models.sources.ColumnDataSource` for
+        the glyph will have columns ``q``, ``r``, and ``count``, where ``q``
+        and ``r`` are `axial coordinates`_ for a tile, and ``count`` is the
+        associated bin count.
+
+        It is often useful to set ``match_aspect=True`` on the associated plot,
+        so that hexagonal tiles are all regular (i.e. not "stretched") in
+        screen space.
+
+        For more sophisicated use-cases, e.g. weighted binning or individually
+        scaling hex tiles, use :func:`hex_tile` directly, or consider a higher
+        level library such as HoloViews.
 
         Args:
-            x
+            x (array[float]) :
+                A NumPy array of x-coordinates to bin into haxagonal tiles.
 
-            y
+            y (array[float]) :
+                A NumPy array of y-coordinates to bin into haxagonal tiles
 
-            size
+            size (float) :
+                The size of the hexagonal tiling to use. The size is defined as
+                distance from the center of a hexagon to a corner.
 
-            orientation
+                In case the apsect scaling is not 1-1, then specifically `size`
+                is the distance from the center to the "top" corner with the
+                `"pointytop"` orientation, and the distance from the center to
+                a "side" corner with the "flattop" orientation.
 
-            palette
+            orientation ("pointytop" or "flattop", optional) :
+                Whether the hexagonal tiles should be oriented with a pointed
+                corner on top, or a flat side on top. (default: "pointytop")
 
-            line_color
+            palette (str or seq[color], optional) :
+                A palette (or palette name) to use to colormap the bins according
+                to count. (default: 'Viridis256')
 
-            fill_color
+                If ``fill_color`` is supplied, it overrides this value.
 
-            aspect_scale
+            line_color (color, optional) :
+                The outline color for hex tiles, or None (default: None)
 
-        Any additional keyword arguments are passed to :func:`hextile`.
+            fill_color (color, optional) :
+                An optional fill color for hex tiles, or None. If None, then
+                the ``palette`` will be used to color map the tiles by
+                count. (default: None)
+
+            aspect_scale (float) :
+                Match a plot's aspect ratio scaling.
+
+                If adding to a plot with ``aspect_scale != 1``, then this
+                parameter can be set to match the plot, in order to draw
+                regular hexagons (insted of "stretched" ones).
+
+                This is roughly equivalent to binning in "screen space", and
+                it may be better to use axis-aligned rectangular bins when
+                plot aspect scales are not one.
+
+        Any additional keyword arguments are passed to :func:`hex_tile`.
 
         Returns
             (Glyphrender, DataFrame)
+                A tuple with the ``HexTile`` renderer generated to display the
+                binning, and a Pandas DataFrame with columns ``q``, ``r``,
+                and ``count``, where ``q`` and ``r`` are `axial coordinates`_
+                for a tile, and ``count`` is the associated bin count.
+
+        Example:
+
+            .. bokeh-plot::
+                :source-position: above
+
+                import numpy as np
+                from bokeh.models import HoverTool
+                from bokeh.plotting import figure, show
+
+                x = 2 + 2*np.random.standard_normal(500)
+                y = 2 + 2*np.random.standard_normal(500)
+
+                p = figure(match_aspect=True, tools="wheel_zoom,reset")
+                p.background_fill_color = '#440154'
+                p.grid.visible = False
+
+                p.hexbin(x, y, size=0.5, hover_color="pink", hover_alpha=0.8)
+
+                hover = HoverTool(tooltips=[("count", "@c"), ("(q,r)", "(@q, @r)")])
+                p.add_tools(hover)
+
+                show(p)
+
+        .. _axial coordinates: https://www.redblobgames.com/grids/hexagons/#coordinates-axial
 
         '''
-
+        from ..util.hex import hexbin
 
         bins = hexbin(x, y, size, orientation, aspect_scale=aspect_scale)
 
@@ -858,8 +931,13 @@ def figure(**kwargs):
 {glyph_methods}
 
     There are also two specialized methods for stacking bars:
-    :func:`~bokeh.plotting.figure.Figure.hbar_stack` and
-    :func:`~bokeh.plotting.figure.Figure.vbar_stack`
+
+    * :func:`~bokeh.plotting.figure.Figure.hbar_stack`
+    * :func:`~bokeh.plotting.figure.Figure.vbar_stack`
+
+    And one specialized method for making simple hexbin plots:
+
+    * :func:`~bokeh.plotting.figure.Figure.hexbin`
 
     In addition to the standard :class:`~bokeh.plotting.figure.Figure`
     property values (e.g. ``plot_width`` or ``sizing_mode``) the following

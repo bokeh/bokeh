@@ -20,6 +20,7 @@ from ..models import (
     WheelPanTool, WheelZoomTool, ColumnarDataSource, ColumnDataSource,
     LogScale, LinearScale, CategoricalScale, Circle, MultiLine,
     BoxEditTool, PointDrawTool, PolyDrawTool, PolyEditTool)
+from bokeh.models.markers import Marker
 from ..models.renderers import GlyphRenderer
 
 from ..core.properties import ColorSpec, Datetime, value, field
@@ -633,7 +634,7 @@ def _get_sigfunc(func_name, func, argspecs):
 _arg_template = """    %s (%s) : %s
         (default: %r)
 """
-_doc_template = """ Configure and add %s glyphs to this Figure.
+_doc_template = """ Configure and add :class:`~bokeh.models.%s.%s` glyphs to this Figure.
 
 Args:
 %s
@@ -659,7 +660,7 @@ Returns:
 """
 
 def _add_sigfunc_info(func, argspecs, glyphclass, extra_docs):
-    func.__name__ = glyphclass.__name__.lower()
+    func.__name__ = glyphclass.__name__
 
     omissions = {'js_event_callbacks', 'js_property_callbacks', 'subscribed_events'}
 
@@ -685,7 +686,8 @@ def _add_sigfunc_info(func, argspecs, glyphclass, extra_docs):
     for arg, spec in argspecs.items():
         arglines.append(_arg_template % (arg, spec['type'], spec['desc'], spec['default']))
 
-    func.__doc__ = _doc_template % (func.__name__, "\n".join(arglines), "\n".join(kwlines))
+    mod = "markers" if issubclass(glyphclass, Marker) else "glyphs"
+    func.__doc__ = _doc_template % (mod, func.__name__, "\n".join(arglines), "\n".join(kwlines))
     if extra_docs:
         func.__doc__ += extra_docs
 

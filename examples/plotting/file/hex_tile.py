@@ -18,7 +18,7 @@ y = 2 + 5*np.random.standard_normal(n)
 bins = hexbin(x, y, size, orientation, 5)
 
 p = figure(title="Manual hex bin for 50000 points", match_aspect=True, aspect_scale=5,
-           tools="tap,wheel_zoom,box_select", background_fill_color='#440154')
+           tools="wheel_zoom,reset", background_fill_color='#440154')
 p.grid.visible = False
 
 source = ColumnDataSource(data=dict(q=bins.q, r=bins.r, c=bins.counts))
