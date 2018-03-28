@@ -38,7 +38,7 @@ from .state import curstate
 #-----------------------------------------------------------------------------
 
 @general((1,0,0))
-def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="localhost:8888", proxy_url_func=None):
+def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="localhost:8888"):
     ''' Immediately display a Bokeh object or application.
 
         :func:`show` may be called multiple times in a single Jupyter notebook
