@@ -480,7 +480,7 @@ export class Document {
 
   // if v looks like a ref, or a collection, resolve it, otherwise return it unchanged
   // recurse into collections but not into HasProps
-  static _resolve_refs(value: any, old_references: References, new_references: References) {
+  static _resolve_refs(value: any, old_references: References, new_references: References): any {
     function resolve_ref(v: any): any {
       if (is_ref(v)) {
         if (v.id in old_references)

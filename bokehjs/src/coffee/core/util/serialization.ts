@@ -236,7 +236,7 @@ export function decode_column_data(data: EncodedData, buffers: [any, any][] = []
 export function encode_column_data(data: Data, shapes?: Shapes): EncodedData {
   const new_data: EncodedData = {}
   for (const k in data) {
-    let v = data[k]
+    const v = data[k]
     let new_v: NDArray | Arrayable
     if (isTypedArray(v)) {
       new_v = encode_base64(v, shapes != null ? shapes[k] as Shape : undefined)

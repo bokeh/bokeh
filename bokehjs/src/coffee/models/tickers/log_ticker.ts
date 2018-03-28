@@ -1,5 +1,6 @@
-import {range} from "core/util/array"
+import {TickSpec} from "./ticker"
 import {AdaptiveTicker} from "./adaptive_ticker"
+import {range} from "core/util/array"
 
 export namespace LogTicker {
   export interface Attrs extends AdaptiveTicker.Attrs {}
@@ -25,7 +26,7 @@ export class LogTicker extends AdaptiveTicker {
     })
   }
 
-  get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: any, desired_n_ticks: number) {
+  get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: any, desired_n_ticks: number): TickSpec<number> {
     const num_minor_ticks = this.num_minor_ticks
     const minor_ticks = []
 

@@ -34,7 +34,7 @@ export class LegendItem extends Model {
     })
   }
 
-  protected _check_data_sources_on_renderers() {
+  protected _check_data_sources_on_renderers(): boolean {
     const field = this.get_field_from_label_prop()
     if (field != null) {
       if (this.renderers.length < 1) {
@@ -52,7 +52,7 @@ export class LegendItem extends Model {
     return true
   }
 
-  protected _check_field_label_on_data_source() {
+  protected _check_field_label_on_data_source(): boolean {
     const field = this.get_field_from_label_prop()
     if (field != null) {
       if (this.renderers.length < 1) {

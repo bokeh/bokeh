@@ -69,7 +69,7 @@ export class AdaptiveTicker extends ContinuousTicker {
     this.base_factor = this.get_min_interval() === 0.0 ? 1.0 : this.get_min_interval()
   }
 
-  get_interval(data_low: number, data_high: number, desired_n_ticks: number) {
+  get_interval(data_low: number, data_high: number, desired_n_ticks: number): number {
     const data_range = data_high - data_low
     const ideal_interval = this.get_ideal_interval(data_low, data_high, desired_n_ticks)
 

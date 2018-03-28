@@ -108,11 +108,11 @@ export /* TODO abstract */ class PointEvent extends UIEvent {
     this.y = null
   }
 
-  static from_event(e: any, model_id: string | null = null) {
+  static from_event(e: any, model_id: string | null = null): PointEvent {
     return new this({ sx: e.sx, sy: e.sy, model_id: model_id })
   }
 
-  _customize_event(plot: any) {
+  _customize_event(plot: any): this {
     const xscale = plot.plot_canvas.frame.xscales['default']
     const yscale = plot.plot_canvas.frame.yscales['default']
     this.x = xscale.invert(this.sx)
@@ -126,7 +126,7 @@ export /* TODO abstract */ class PointEvent extends UIEvent {
 @register_event_class("pan")
 export class Pan extends PointEvent {
 
-  static from_event(e: any, model_id: string | null = null) {
+  static from_event(e: any, model_id: string | null = null): Pan {
     return new this({
       sx: e.sx,
       sy: e.sy,
@@ -150,7 +150,7 @@ export class Pan extends PointEvent {
 @register_event_class("pinch")
 export class Pinch extends PointEvent {
 
-  static from_event(e: any, model_id: string | null = null) {
+  static from_event(e: any, model_id: string | null = null): Pinch {
     return new this({
       sx: e.sx,
       sy: e.sy,
@@ -170,7 +170,7 @@ export class Pinch extends PointEvent {
 @register_event_class("wheel")
 export class MouseWheel extends PointEvent {
 
-  static from_event(e: any, model_id: string | null = null) {
+  static from_event(e: any, model_id: string | null = null): MouseWheel {
     return new this({
       sx: e.sx,
       sy: e.sy,

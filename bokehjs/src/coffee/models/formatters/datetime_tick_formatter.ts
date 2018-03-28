@@ -161,8 +161,7 @@ export class DatetimeTickFormatter extends TickFormatter {
     const r = span / (ticks.length - 1)
     const resol = this._get_resolution_str(r, span)
 
-    const [, formats] = this._width_formats[resol]
-    let format = formats[0]
+    const [, [format]] = this._width_formats[resol]
 
     // Apply the format to the tick values
     const labels: string[] = []

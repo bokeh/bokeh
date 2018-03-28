@@ -1,4 +1,5 @@
 import * as p from "core/properties"
+import {EventType} from "core/ui_events"
 import {Signal0} from "core/signaling"
 import {Class} from "core/class"
 import {Model} from "../../model"
@@ -46,19 +47,19 @@ export class ToolProxy extends Model {
     return this.tools[0].button_view
   }
 
-  get event_type() {
+  get event_type(): undefined | EventType | EventType[] {
     return this.tools[0].event_type
   }
 
-  get tooltip() {
+  get tooltip(): string {
     return this.tools[0].tool_name
   }
 
-  get tool_name() {
+  get tool_name(): string {
     return this.tools[0].tool_name
   }
 
-  get icon() {
+  get icon(): string {
     return this.tools[0].icon
   }
 

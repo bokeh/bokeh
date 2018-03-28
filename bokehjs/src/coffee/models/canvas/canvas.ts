@@ -157,7 +157,7 @@ export class Canvas extends LayoutCanvas {
     })
   }
 
-  get panel() {
+  get panel(): LayoutCanvas {
     return this
   }
 }

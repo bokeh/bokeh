@@ -454,7 +454,7 @@ export class Axis extends GuideRenderer {
     this.panel.attach_document(this.document!) // XXX!
   }
 
-  get normals() {
+  get normals(): [number, number] {
     return this.panel.normals
   }
 
@@ -469,16 +469,6 @@ export class Axis extends GuideRenderer {
         labels[i] = this.major_label_overrides[ticks[i]]
     }
     return labels
-  }
-
-  label_info(coords: Coords) {
-    return {
-      dim: this.dimension,
-      coords: coords,
-      side: this.panel.side,
-      orient: this.major_label_orientation,
-      standoff: this.major_label_standoff,
-    }
   }
 
   get offsets(): [number, number] {

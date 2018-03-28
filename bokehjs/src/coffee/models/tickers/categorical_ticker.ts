@@ -1,5 +1,10 @@
-import {Ticker} from "./ticker"
+import {Ticker, TickSpec} from "./ticker"
 import {FactorRange, Factor} from "../ranges/factor_range"
+
+export interface FactorTickSpec extends TickSpec<Factor> {
+  tops: Factor[]
+  mids: Factor[]
+}
 
 export namespace CategoricalTicker {
   export interface Attrs extends Ticker.Attrs {}
@@ -21,7 +26,7 @@ export class CategoricalTicker extends Ticker<Factor> {
     this.prototype.type = "CategoricalTicker"
   }
 
-  get_ticks(start: number, end: number, range: FactorRange, _cross_loc: any, _: any) {
+  get_ticks(start: number, end: number, range: FactorRange, _cross_loc: any, _: any): FactorTickSpec {
     const majors = this._collect(range.factors, range, start, end)
 
     const tops = this._collect(range.tops || [], range, start, end)

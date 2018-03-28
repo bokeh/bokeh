@@ -97,7 +97,7 @@ export abstract class GlyphView extends View {
     this.renderer.notify_finished()
   }
 
-  protected _bounds(bounds: Rect) {
+  protected _bounds(bounds: Rect): Rect {
     return bounds
   }
 
