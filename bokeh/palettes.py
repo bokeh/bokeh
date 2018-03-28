@@ -143,7 +143,7 @@ larger palettes with 256 colors. These are shown below:
 :Viridis256: :bokeh-palette:`viridis(256)` (mpl)
 
 
-Additional, several 256-color perceptually uniform palettes are
+Many other 256-color perceptually uniform palettes are
 available in the external `colorcet`_ package.
 
 Other Attributes
