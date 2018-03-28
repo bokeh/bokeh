@@ -7,6 +7,7 @@ export namespace CustomJS {
   export interface Attrs extends Callback.Attrs {
     args: {[key: string]: any}
     code: string
+    use_strict: boolean
   }
 
   export interface Props extends Callback.Props {}
@@ -26,8 +27,9 @@ export class CustomJS extends Callback {
     this.prototype.type = 'CustomJS'
 
     this.define({
-      args: [ p.Any,     {} ], // TODO (bev) better type
-      code: [ p.String,  '' ],
+      args:       [ p.Any,     {}    ], // TODO (bev) better type
+      code:       [ p.String,  ''    ],
+      use_strict: [ p.Boolean, false ],
     })
   }
 
@@ -40,7 +42,8 @@ export class CustomJS extends Callback {
   }
 
   get func(): Function {
-    return new Function(...this.names, "cb_obj", "cb_data", "require", "exports", use_strict(this.code))
+    const code = this.use_strict ? use_strict(this.code) : this.code
+    return new Function(...this.names, "cb_obj", "cb_data", "require", "exports", code)
   }
 
   execute(cb_obj: any, cb_data: {[key: string]: any}): any {

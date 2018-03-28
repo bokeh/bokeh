@@ -8,6 +8,7 @@ export namespace FuncTickFormatter {
   export interface Attrs extends TickFormatter.Attrs {
     args: {[key: string]: any}
     code: string
+    use_strict: boolean
   }
 
   export interface Props extends TickFormatter.Props {}
@@ -27,8 +28,9 @@ export class FuncTickFormatter extends TickFormatter {
     this.prototype.type = 'FuncTickFormatter'
 
     this.define({
-      args: [ p.Any,     {} ], // TODO (bev) better type
-      code: [ p.String,  '' ],
+      args:       [ p.Any,     {}    ], // TODO (bev) better type
+      code:       [ p.String,  ''    ],
+      use_strict: [ p.Boolean, false ],
     })
   }
 
@@ -41,7 +43,8 @@ export class FuncTickFormatter extends TickFormatter {
   }
 
   protected _make_func(): Function {
-    return new Function("tick", "index", "ticks", ...this.names, "require", "exports", use_strict(this.code))
+    const code = this.use_strict ? use_strict(this.code) : this.code
+    return new Function("tick", "index", "ticks", ...this.names, "require", "exports", code)
   }
 
   doFormat(ticks: number[], _axis: Axis): string[] {

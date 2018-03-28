@@ -17,7 +17,7 @@ describe "customjs module", ->
     utils.stub_solver()
 
   describe "default creation", ->
-    r = new CustomJS()
+    r = new CustomJS({use_strict: true})
 
     it "should have empty args", ->
       expect(r.args).to.be.deep.equal {}
@@ -27,7 +27,7 @@ describe "customjs module", ->
 
   describe "values property", ->
     rng = new Range1d()
-    r = new CustomJS({args: {foo: rng }})
+    r = new CustomJS({args: {foo: rng }, use_strict: true})
 
     it "should contain the args values", ->
       expect(r.values).to.be.deep.equal [rng]
@@ -52,40 +52,40 @@ describe "customjs module", ->
   describe "func property", ->
 
     it "should return a Function", ->
-      r = new CustomJS()
+      r = new CustomJS({use_strict: true, use_strict: true})
       expect(r.func).to.be.an.instanceof Function
 
     it "should have code property as function body", ->
-      r = new CustomJS({code: "return 10"})
+      r = new CustomJS({code: "return 10", use_strict: true})
       f = new Function("cb_obj", "cb_data", "require", "exports", "'use strict';\nreturn 10")
       expect(r.func.toString()).to.be.equal f.toString()
 
     it "should have values as function args", ->
       rng = new Range1d()
-      r = new CustomJS({args: {foo: rng.ref()}, code: "return 10"})
+      r = new CustomJS({args: {foo: rng.ref()}, code: "return 10", use_strict: true})
       f = new Function("foo", "cb_obj", "cb_data", "require", "exports", "'use strict';\nreturn 10")
       expect(r.func.toString()).to.be.equal f.toString()
 
   describe "execute method", ->
 
     it "should execute the code and return the result", ->
-       r = new CustomJS({code: "return 10"})
+       r = new CustomJS({code: "return 10", use_strict: true})
        expect(r.execute()).to.be.equal 10
 
     it "should execute the code with args parameters passed", ->
-      r = new CustomJS({args: {foo: 5}, code: "return 10 + foo"})
+      r = new CustomJS({args: {foo: 5}, code: "return 10 + foo", use_strict: true})
       expect(r.execute()).to.be.equal 15
 
     it "should return the cb_obj passed an args parameter to execute", ->
-      r = new CustomJS({code: "return cb_obj"})
+      r = new CustomJS({code: "return cb_obj", use_strict: true})
       expect(r.execute('foo')).to.be.equal 'foo'
 
     it "should return cb_data with value of null if cb_data kwarg is unset", ->
-      r = new CustomJS({code: "return cb_data"})
+      r = new CustomJS({code: "return cb_data", use_strict: true})
       expect(r.execute('foo')).to.be.equal undefined
 
     it "should return cb_data with value of kwarg parameter to execute", ->
-      r = new CustomJS({code: "return cb_data"})
+      r = new CustomJS({code: "return cb_data", use_strict: true})
       expect(r.execute('foo', 'bar')).to.be.equal 'bar'
 
     it "should execute the code with args parameters correctly mapped", ->
@@ -95,5 +95,5 @@ describe "customjs module", ->
       r = new CustomJS({args: {
           foo4: "foo4", foo5: "foo5", foo6: "foo6",
           foo1: "foo1", foo2: "foo2", foo3: "foo3"
-        }, code: "return foo1 + foo2 + foo3 + foo4 + foo5 + foo6"})
+        }, code: "return foo1 + foo2 + foo3 + foo4 + foo5 + foo6", use_strict: true})
       expect(r.execute()).to.be.equal "foo1foo2foo3foo4foo5foo6"

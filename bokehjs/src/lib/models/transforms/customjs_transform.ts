@@ -9,6 +9,7 @@ export namespace CustomJSTransform {
     args: {[key: string]: any}
     func: string
     v_func: string
+    use_strict: boolean
   }
 
   export interface Props extends Transform.Props {}
@@ -28,9 +29,10 @@ export class CustomJSTransform extends Transform {
     this.prototype.type = 'CustomJSTransform'
 
     this.define({
-      args:   [ p.Any,    {} ], // TODO (bev) better type
-      func:   [ p.String, "" ],
-      v_func: [ p.String, "" ],
+      args:       [ p.Any,    {}     ], // TODO (bev) better type
+      func:       [ p.String, ""     ],
+      v_func:     [ p.String, ""     ],
+      use_strict: [ p.Boolean, false ],
     })
   }
 
@@ -42,10 +44,9 @@ export class CustomJSTransform extends Transform {
     return values(this.args)
   }
 
-  protected _make_transform(name: string, code: string): Function {
-    // this relies on keys(args) and values(args) returning keys and values
-    // in the same order
-    return new Function(...this.names, name, "require", "exports", use_strict(code))
+  protected _make_transform(name: string, func: string): Function {
+    const code = this.use_strict ? use_strict(func) : func
+    return new Function(...this.names, name, "require", "exports", code)
   }
 
   get scalar_transform(): Function {

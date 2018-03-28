@@ -8,6 +8,7 @@ export namespace CustomJSFilter {
   export interface Attrs extends Filter.Attrs {
     args: {[key: string]: any}
     code: string
+    use_strict: boolean
   }
 
   export interface Props extends Filter.Props {}
@@ -27,8 +28,9 @@ export class CustomJSFilter extends Filter {
     this.prototype.type = 'CustomJSFilter'
 
     this.define({
-      args: [ p.Any,    {} ], // TODO (bev) better type
-      code: [ p.String, '' ],
+      args:       [ p.Any,     {}    ], // TODO (bev) better type
+      code:       [ p.String,  ''    ],
+      use_strict: [ p.Boolean, false ],
     })
   }
 
@@ -41,7 +43,8 @@ export class CustomJSFilter extends Filter {
   }
 
   get func(): Function {
-    return new Function(...this.names, "source", "require", "exports", use_strict(this.code))
+    const code = this.use_strict ? use_strict(this.code) : this.code
+    return new Function(...this.names, "source", "require", "exports", code)
   }
 
   compute_indices(source: DataSource): number[] | null {
