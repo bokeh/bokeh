@@ -17,9 +17,7 @@ bash scripts/ci/install
 conda install --yes --quiet `python scripts/deps.py build test run`
 
 # install some additional dependencies needed only for deploys
-conda install anaconda-client --yes --quiet
-conda install -c bokeh twine --yes --quiet
-conda install -c defaults -c conda-forge fabric3 --yes --quiet
+conda install anaconda-client fabric3 setuptools>=0.39 twine>=1.11 --yes --quiet
 
 npm install -g npm
 

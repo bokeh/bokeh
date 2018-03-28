@@ -122,6 +122,8 @@ setup(
     name='bokeh',
     version=get_version(),
     description='Interactive plots and applications in the browser from Python',
+    long_description=open("README.md").read(),
+    long_description_content_type="text/markdown",
     license='New BSD',
     author='Anaconda',
     author_email='info@anaconda.com',
