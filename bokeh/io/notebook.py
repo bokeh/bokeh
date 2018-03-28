@@ -434,22 +434,28 @@ def show_app(app, state, notebook_url, port=0):
     ''' Embed a Bokeh serer application in a Jupyter Notebook output cell.
 
     Args:
-        app (Application) :
-
+        app (Application or callable) :
+            A Bokeh Application to embed inline in a Jupyter notebook.
+            
         state (State) :
+            ** Unused **
 
-        notebook_url (str or function) :
-        If notebook_url is a string, this string is parsed to construct
-        the origin and server URLs for the server.
-        If notebook_url is a function, it takes one parameter, the port.
-        If the port is present, generate the server URL, otherwise
-        generate the origin URL for the server.
+        notebook_url (str or callable) :
+            The URL of the notebook server that is running the embedded app.
+            
+            If ``notebook_url`` is a string, the value string is parsed to 
+            construct the origin and full server URLs.
 
-        port (int) : the port the embedded server will listen on. By default
-        the port is 0, which results in the server listening on a random dynamic port.
+            If notebook_url is a callable, it must accept one parameter,
+            which will be the server port, or None. If passed a port,
+            the callable must generate the server URL, otherwise if passed
+            None, it must generate the origin URL for the server.
 
-        proxy_url_func (function(string,int)): function that takes the notebook_url
-        and server port and returns the server url to connect to.
+        port (int) : 
+            A port for the embedded server will listen on.
+
+            By default the port is 0, which results in the server listening
+            on a random dynamic port.
 
     Returns:
         None
