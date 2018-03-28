@@ -210,6 +210,7 @@ with open(filename, 'rb') as example:
     cwd = dirname(example.path)
 
     env = os.environ.copy()
+    env['BOKEH_IGNORE_FILENAME'] = 'true'
     env['BOKEH_RESOURCES'] = 'relative'
     env['BOKEH_MINIFIED'] = 'false'
     env['BOKEH_BROWSER'] = 'none'

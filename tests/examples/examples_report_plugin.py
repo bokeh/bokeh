@@ -40,9 +40,7 @@ def get_all_examples(config):
     if _examples is None:
         base_dir = abspath(join(dirname(__file__), pardir, pardir))
 
-        _examples = []
-        _examples.extend(collect_examples(join(base_dir, "examples", "examples.yaml")))
-        _examples.extend(collect_examples(join(base_dir, "bokehjs", "examples", "examples.yaml")))
+        _examples = collect_examples(join(base_dir, "examples.yaml"))
 
         for example in _examples:
             example._diff_ref = config.option.diff_ref
