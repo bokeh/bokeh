@@ -436,14 +436,14 @@ def show_app(app, state, notebook_url, port=0):
     Args:
         app (Application or callable) :
             A Bokeh Application to embed inline in a Jupyter notebook.
-            
+
         state (State) :
             ** Unused **
 
         notebook_url (str or callable) :
             The URL of the notebook server that is running the embedded app.
-            
-            If ``notebook_url`` is a string, the value string is parsed to 
+
+            If ``notebook_url`` is a string, the value string is parsed to
             construct the origin and full server URLs.
 
             If notebook_url is a callable, it must accept one parameter,
@@ -451,7 +451,7 @@ def show_app(app, state, notebook_url, port=0):
             the callable must generate the server URL, otherwise if passed
             None, it must generate the origin URL for the server.
 
-        port (int) : 
+        port (int) :
             A port for the embedded server will listen on.
 
             By default the port is 0, which results in the server listening
