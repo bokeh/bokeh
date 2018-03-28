@@ -93,7 +93,7 @@ def test_show_with_app(mock_run_notebook_hook):
     assert mock_run_notebook_hook.call_count == 1
     assert mock_run_notebook_hook.call_args[0][0] == curstate().notebook_type
     assert mock_run_notebook_hook.call_args[0][1:] == ("app", app, curstate(), "baz")
-    assert mock_run_notebook_hook.call_args[1] == {'proxy_url_func': None}
+    assert mock_run_notebook_hook.call_args[1] == {}
 
 @patch('bokeh.io.showing._show_with_state')
 def test_show_adds_obj_to_document_if_not_already_there(m):

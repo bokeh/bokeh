@@ -430,7 +430,7 @@ def publish_display_data(*args, **kw):
     return publish_display_data(*args, **kw)
 
 @dev((1,0,0))
-def show_app(app, state, notebook_url, port=0, proxy_url_func=None):
+def show_app(app, state, notebook_url, port=0):
     ''' Embed a Bokeh serer application in a Jupyter Notebook output cell.
 
     Args:
@@ -438,7 +438,12 @@ def show_app(app, state, notebook_url, port=0, proxy_url_func=None):
 
         state (State) :
 
-        notebook_url (str) :
+        notebook_url (str or function) :
+        If notebook_url is a string, this string is parsed to construct
+        the origin and server URLs for the server.
+        If notebook_url is a function, it takes one parameter, the port.
+        If the port is present, generate the server URL, otherwise
+        generate the origin URL for the server.
 
         port (int) : the port the embedded server will listen on. By default
         the port is 0, which results in the server listening on a random dynamic port.
@@ -457,17 +462,22 @@ def show_app(app, state, notebook_url, port=0, proxy_url_func=None):
 
     loop = IOLoop.current()
 
-    if not proxy_url_func:
-        proxy_url_func = _server_url
+    if callable(notebook_url):
+        origin = notebook_url(None)
+    else:
+        origin = _origin_url(notebook_url)
 
-    origin = _origin_url(notebook_url)
     server = Server({"/": app}, io_loop=loop, port=port,  allow_websocket_origin=[origin])
 
     server_id = uuid4().hex
     curstate().uuid_to_server[server_id] = server
 
     server.start()
-    url = proxy_url_func(notebook_url, server.port)
+
+    if callable(notebook_url):
+        url = notebook_url(server.port)
+    else:
+        url = _server_url(notebook_url, server.port)
 
     logging.debug("Server URL is %s" % url)
     logging.debug("Origin URL is %s" % origin)
