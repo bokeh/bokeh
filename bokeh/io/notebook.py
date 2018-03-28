@@ -434,14 +434,28 @@ def show_app(app, state, notebook_url, port=0):
     ''' Embed a Bokeh serer application in a Jupyter Notebook output cell.
 
     Args:
-        app (Application) :
+        app (Application or callable) :
+            A Bokeh Application to embed inline in a Jupyter notebook.
 
         state (State) :
+            ** Unused **
 
-        notebook_url (str) :
+        notebook_url (str or callable) :
+            The URL of the notebook server that is running the embedded app.
 
-        port (int) : the port the embedded server will listen on. By default
-        the port is 0, which results in the server listening on a random dynamic port.
+            If ``notebook_url`` is a string, the value string is parsed to
+            construct the origin and full server URLs.
+
+            If notebook_url is a callable, it must accept one parameter,
+            which will be the server port, or None. If passed a port,
+            the callable must generate the server URL, otherwise if passed
+            None, it must generate the origin URL for the server.
+
+        port (int) :
+            A port for the embedded server will listen on.
+
+            By default the port is 0, which results in the server listening
+            on a random dynamic port.
 
     Returns:
         None
@@ -454,17 +468,28 @@ def show_app(app, state, notebook_url, port=0):
 
     loop = IOLoop.current()
 
-    origin = _origin_url(notebook_url)
+    if callable(notebook_url):
+        origin = notebook_url(None)
+    else:
+        origin = _origin_url(notebook_url)
+
     server = Server({"/": app}, io_loop=loop, port=port,  allow_websocket_origin=[origin])
 
     server_id = uuid4().hex
     curstate().uuid_to_server[server_id] = server
 
     server.start()
-    url = _server_url(notebook_url, server.port)
+
+    if callable(notebook_url):
+        url = notebook_url(server.port)
+    else:
+        url = _server_url(notebook_url, server.port)
+
+    logging.debug("Server URL is %s" % url)
+    logging.debug("Origin URL is %s" % origin)
 
     from ..embed import server_document
-    script = server_document(url)
+    script = server_document(url, resources=None)
 
     publish_display_data({
         HTML_MIME_TYPE: script,

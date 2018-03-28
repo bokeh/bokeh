@@ -99,6 +99,11 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
             standard checks, so that applications will display regardless of
             the current notebook location, however a warning will appear.
 
+            notebook_url can also be a function that takes one int for the
+            bound server port.  If the port is provided, the function needs
+            to generate the full public URL to the bokeh server.  If None
+            is passed, the function is to generate the origin URL.
+
 
     Some parameters are only useful when certain output modes are active:
 
