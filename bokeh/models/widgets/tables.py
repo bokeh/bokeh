@@ -7,7 +7,6 @@ from ...core.enums import DateFormat, FontStyle, NumeralLanguage, TextAlign, Rou
 from ...core.has_props import abstract
 from ...core.properties import Bool, Color, Either, Enum, Float, Instance, Int, List, Override, String
 from ...model import Model
-from ...util.deprecation import deprecated
 
 from ..sources import DataSource, CDSView
 
@@ -500,23 +499,6 @@ class DataTable(TableWidget):
     of data.
 
     '''
-
-    @property
-    def row_header(self):
-        deprecated("DataTable.row_header property is deprecated, use DataTable.index_position instead"\
-                   "In the future, accessing DataTable.row_header will result in an AttributeError.")
-        return self.index_position is not None
-
-    @row_header.setter
-    def row_header(self, val):
-        deprecated("DataTable.row_header property is deprecated, use DataTable.index_position instead."\
-                   "In the future, accessing DataTable.row_header will result in an AttributeError.")
-        if val is True:
-            self.index_position = 0
-        elif val is False:
-            self.index_position = None
-        else:
-            raise ValueError("Expected True or False for DataTable.row_header, got %s" % val)
 
     columns = List(Instance(TableColumn), help="""
     The list of child column widgets.
