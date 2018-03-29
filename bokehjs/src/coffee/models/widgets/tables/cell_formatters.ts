@@ -59,7 +59,7 @@ export class StringFormatter extends CellFormatter {
   doFormat(_row: any, _cell: any, value: any, _columnDef: any, _dataContext: any): string {
     const {font_style, text_align, text_color} = this
 
-    let text = span({}, value == null ? "" : `${value}`)
+    const text = span({}, value == null ? "" : `${value}`)
     switch (font_style) {
       case "bold":
         text.style.fontWeight = "bold"

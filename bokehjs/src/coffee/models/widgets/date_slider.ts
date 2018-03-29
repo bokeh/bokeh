@@ -1,11 +1,11 @@
 import tz = require("timezone")
 
-import {AbstractSlider, AbstractSliderView} from "./abstract_slider"
+import {AbstractSlider, AbstractSliderView, SliderSpec} from "./abstract_slider"
 
 export class DateSliderView extends AbstractSliderView {
   model: DateSlider
 
-  protected _calc_to() {
+  protected _calc_to(): SliderSpec {
     return {
       start: this.model.start,
       end: this.model.end,

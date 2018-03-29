@@ -40,7 +40,7 @@ export class ImageView extends XYGlyphView {
     this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_render())
   }
 
-  protected _update_image() {
+  protected _update_image(): void {
     // Only reset image_data if already initialized
     if (this.image_data != null) {
       this._set_data()

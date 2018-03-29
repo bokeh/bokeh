@@ -5,7 +5,7 @@ import {ContinuousTicker} from "models/tickers/continuous_ticker"
 describe("ContinuousTicker Model", () => {
 
   class MyTicker extends ContinuousTicker {
-    get_interval(_data_low: number, _data_high: number, _desired_n_ticks: number) {
+    get_interval(_data_low: number, _data_high: number, _desired_n_ticks: number): number {
       return 100
     }
   }

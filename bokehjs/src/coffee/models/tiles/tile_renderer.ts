@@ -4,10 +4,14 @@ import {Extent, Bounds} from "./tile_utils"
 import {TileSource} from "./tile_source"
 import {WMTSTileSource} from "./wmts_tile_source"
 import {Renderer, RendererView} from "../renderers/renderer"
+import {Plot} from "../plots/plot"
+import {CartesianFrame} from "../canvas/cartesian_frame"
+import {Range} from "../ranges/range"
 import {div} from "core/dom"
 import * as p from "core/properties"
 import {includes} from "core/util/array"
 import {isString} from "core/util/types"
+import {Context2d} from "core/util/canvas"
 
 export interface TileData {
   img: Image
@@ -53,23 +57,23 @@ export class TileRendererView extends RendererView {
     return [this.x_range.start, this.y_range.start, this.x_range.end, this.y_range.end]
   }
 
-  private get map_plot() {
+  private get map_plot(): Plot {
     return this.plot_model.plot
   }
 
-  private get map_canvas() {
+  private get map_canvas(): Context2d {
     return this.plot_view.canvas_view.ctx
   }
 
-  private get map_frame() {
+  private get map_frame(): CartesianFrame {
     return this.plot_model.frame
   }
 
-  private get x_range() {
+  private get x_range(): Range {
     return this.map_plot.x_range
   }
 
-  private get y_range() {
+  private get y_range(): Range {
     return this.map_plot.y_range
   }
 

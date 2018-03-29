@@ -143,7 +143,7 @@ export class ClientConnection {
     )
   }
 
-  protected _repull_session_doc() {
+  protected _repull_session_doc(): void {
     if (this.session == null)
       logger.debug("Pulling session for first time")
     else

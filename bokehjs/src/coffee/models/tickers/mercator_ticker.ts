@@ -1,3 +1,4 @@
+import {TickSpec} from "./ticker"
 import {BasicTicker} from "./basic_ticker"
 import {LatLon} from "core/enums"
 import * as p from "core/properties"
@@ -29,7 +30,7 @@ export class MercatorTicker extends BasicTicker {
     })
   }
 
-  get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: any, desired_n_ticks: number) {
+  get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: any, desired_n_ticks: number): TickSpec<number> {
     if (this.dimension == null) {
       throw new Error("MercatorTicker.dimension not configured")
     }

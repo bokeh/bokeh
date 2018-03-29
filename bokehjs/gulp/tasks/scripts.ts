@@ -57,8 +57,7 @@ gulp.task("~scripts:ts", ["scripts:ts"], () => {
   gulp.watch(join(paths.src_dir.ts, "**", "*.ts"), ["scripts:ts"])
 })
 
-
-gulp.task("scripts:tslint", () => {
+gulp.task("tslint", () => {
   const srcs = [
     join(paths.src_dir.coffee),
     join(paths.base_dir, "test"),
@@ -71,7 +70,7 @@ gulp.task("scripts:tslint", () => {
       formatter: "stylish",
       fix: argv.fix || false,
     }))
-    .pipe(tslint.report({emitError: false}))
+    .pipe(tslint.report({summarizeFailureOutput: true}))
 })
 
 gulp.task("scripts:compile", ["scripts:ts"])

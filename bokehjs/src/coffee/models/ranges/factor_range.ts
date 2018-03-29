@@ -161,11 +161,11 @@ export class FactorRange extends Range {
 
   protected _mapping: L1Mapping | L2Mapping | L3Mapping
 
-  get min() {
+  get min(): number {
     return this.start
   }
 
-  get max() {
+  get max(): number {
     return this.end
   }
 

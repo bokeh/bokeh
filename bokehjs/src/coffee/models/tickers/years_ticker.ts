@@ -1,3 +1,4 @@
+import {TickSpec} from "./ticker"
 import {BasicTicker} from "./basic_ticker"
 import {SingleIntervalTicker} from "./single_interval_ticker"
 import {last_year_no_later_than, ONE_YEAR} from "./util"
@@ -30,7 +31,7 @@ export class YearsTicker extends SingleIntervalTicker {
     this.basic_ticker = new BasicTicker({num_minor_ticks: 0})
   }
 
-  get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: any, desired_n_ticks: number) {
+  get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: any, desired_n_ticks: number): TickSpec<number> {
     const start_year = last_year_no_later_than(new Date(data_low)).getUTCFullYear()
     const end_year = last_year_no_later_than(new Date(data_high)).getUTCFullYear()
 

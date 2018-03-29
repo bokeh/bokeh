@@ -10,6 +10,13 @@ import {Orientation, SliderCallbackPolicy} from "core/enums"
 
 import {Widget, WidgetView} from "./widget"
 
+export interface SliderSpec {
+  start: number
+  end: number
+  value: number[]
+  step: number
+}
+
 export abstract class AbstractSliderView extends WidgetView {
   model: AbstractSlider
 
@@ -28,7 +35,7 @@ export abstract class AbstractSliderView extends WidgetView {
     this.connect(this.model.change, () => this.render())
   }
 
-  protected abstract _calc_to(): {start: number, end: number, value: number[], step: number}
+  protected abstract _calc_to(): SliderSpec
 
   protected abstract _calc_from(values: number[]): number | number[]
 

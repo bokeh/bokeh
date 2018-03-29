@@ -1,3 +1,4 @@
+import {TickSpec} from "./ticker"
 import {SingleIntervalTicker} from "./single_interval_ticker"
 import {copy_date,last_month_no_later_than,ONE_DAY} from "./util"
 import * as p from "core/properties"
@@ -70,7 +71,7 @@ export class DaysTicker extends SingleIntervalTicker {
       this.interval = 31*ONE_DAY
   }
 
-  get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: any, _desired_n_ticks: number) {
+  get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: any, _desired_n_ticks: number): TickSpec<number> {
     const month_dates = date_range_by_month(data_low, data_high)
 
     const days = this.days

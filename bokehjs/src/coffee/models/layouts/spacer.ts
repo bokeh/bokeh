@@ -5,7 +5,7 @@ import {Variable} from "core/layout/solver"
 export class SpacerView extends LayoutDOMView {
   model: Spacer
 
-  render() {
+  render(): void {
     super.render()
     if (this.model.sizing_mode == "fixed") {
       this.el.style.width = `${this.model.width}px`
@@ -18,11 +18,11 @@ export class SpacerView extends LayoutDOMView {
   }
 
   // spacer must always have some width/height
-  get_width() {
+  get_width(): number {
     return 1
   }
 
-  get_height() {
+  get_height(): number {
     return 1
   }
 }

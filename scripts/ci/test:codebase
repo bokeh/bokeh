@@ -5,7 +5,10 @@ set -x # echo commands
 
 pushd bokehjs
 node_modules/.bin/gulp scripts:compile --emit-error
+
 node_modules/.bin/gulp test:compile --emit-error
+
+node_modules/.bin/gulp tslint
 popd
 
 py.test -m api

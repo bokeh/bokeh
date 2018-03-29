@@ -1,11 +1,11 @@
 import * as numbro from "numbro"
 
-import {AbstractSlider, AbstractSliderView} from "./abstract_slider"
+import {AbstractSlider, AbstractSliderView, SliderSpec} from "./abstract_slider"
 
 export class RangeSliderView extends AbstractSliderView {
   model: RangeSlider
 
-  protected _calc_to() {
+  protected _calc_to(): SliderSpec {
     return {
       start: this.model.start,
       end: this.model.end,

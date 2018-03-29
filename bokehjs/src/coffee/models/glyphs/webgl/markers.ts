@@ -29,7 +29,7 @@ export abstract class MarkerGLGlyph extends BaseGLGlyph {
 
   protected _baked_offset: [number, number]
 
-  protected init() {
+  protected init(): void {
     const {gl} = this
 
     const vert = vertex_shader
@@ -54,7 +54,7 @@ export abstract class MarkerGLGlyph extends BaseGLGlyph {
     this.index_buffer = new IndexBuffer(gl)
   }
 
-  draw(indices: number[], mainGlyph: MarkerView | CircleView, trans: Transform) {
+  draw(indices: number[], mainGlyph: MarkerView | CircleView, trans: Transform): void {
     // The main glyph has the data, *this* glyph has the visuals.
     const mainGlGlyph = mainGlyph.glglyph
     const {nvertices} = mainGlGlyph
@@ -194,7 +194,7 @@ export abstract class MarkerGLGlyph extends BaseGLGlyph {
 
 function mk_marker(code: string): Class<MarkerGLGlyph> {
   return class extends MarkerGLGlyph {
-    protected get _marker_code() {
+    protected get _marker_code(): string {
       return code
     }
   }
