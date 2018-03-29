@@ -19,7 +19,7 @@ export class DrawToolView extends GestureToolView
   _pan: (e) ->
     frame = @plot_model.frame
 
-    {sx, sy} = e.bokeh
+    {sx, sy} = e
     if not frame.bbox.contains(sx, sy)
       return null
 
