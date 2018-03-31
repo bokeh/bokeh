@@ -115,7 +115,7 @@ method call that added the callback. Example:
     doc.remove_next_tick_callback(cb_id)
 
 Sphinx Version
---------------
+~~~~~~~~~~~~~~
 
 The `bokeh.sphinxext` Sphinx extension has been updated to work with currnt
 versions. Sphinx >= 1.6 is now required to use the extension.
