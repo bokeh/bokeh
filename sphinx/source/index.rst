@@ -37,7 +37,7 @@ the :ref:`devguide`.
     community. If you like Bokeh and want to support our mission, please
     consider making a `donation`_ to support our efforts.
 
-.. bokeh-index-toctree::
+.. toctree::
     :hidden:
     :glob:
 
@@ -76,7 +76,7 @@ the :ref:`devguide`.
     docs/dev_guide/server
     docs/dev_guide/bindings
     docs/dev_guide/bokehjs
-    docs/releases/*
+    docs/releases
 
 .. _NumFOCUS: https://numfocus.org
 .. _donation: https://www.flipcause.com/secure/cause_pdetails/MzE5NjE=

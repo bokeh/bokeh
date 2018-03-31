@@ -23,7 +23,7 @@ from os.path import abspath, dirname, join
 # -- General configuration -----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-needs_sphinx = '1.4'
+needs_sphinx = '1.7'
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
@@ -40,13 +40,13 @@ extensions = [
     'bokeh.sphinxext.bokeh_gallery',
     'bokeh.sphinxext.bokeh_github',
     'bokeh.sphinxext.bokeh_jinja',
-    'bokeh.sphinxext.bokeh_index_toctree',
     'bokeh.sphinxext.bokeh_model',
     'bokeh.sphinxext.bokeh_options',
     'bokeh.sphinxext.bokeh_palette',
     'bokeh.sphinxext.bokeh_palette_group',
     'bokeh.sphinxext.bokeh_plot',
     'bokeh.sphinxext.bokeh_prop',
+    'bokeh.sphinxext.bokeh_releases',
     'bokeh.sphinxext.bokeh_sitemap',
     'bokeh.sphinxext.collapsible_code_block',
 ]
@@ -129,6 +129,9 @@ pygments_style = 'sphinx'
 # Sort members by type
 autodoc_member_order = 'groupwise'
 
+# patterns to exclude
+exclude_patterns = ['docs/releases/*']
+
 # This would more properly be done with rst_epilog but something about
 # the combination of this with the bokeh-gallery directive breaks the build
 rst_prolog = """
@@ -194,7 +197,7 @@ html_context = {
         ('Gallery', 'gallery'),
         ('Tutorial', 'https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb'),
         ('Reference', 'reference'),
-        ('Releases', 'releases/%s' % version),
+        ('Releases', 'releases'),
         ('Developer Guide', 'dev_guide'),
     ),
     'ALL_VERSIONS': all_versions,

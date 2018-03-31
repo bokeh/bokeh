@@ -37,13 +37,6 @@ bokeh_github
 
 .. automodule:: bokeh.sphinxext.bokeh_github
 
-.. _bokeh.sphinxext.bokeh_index_toctree:
-
-bokeh_index_toctree
--------------------
-
-.. automodule:: bokeh.sphinxext.bokeh_index_toctree
-
 .. _bokeh.sphinxext.bokeh_model:
 
 bokeh_model
@@ -79,6 +72,12 @@ bokeh_prop
 
 .. automodule:: bokeh.sphinxext.bokeh_prop
 
+.. _bokeh.sphinxext.bokeh_releases:
+
+bokeh_releases
+-------------------
+
+.. automodule:: bokeh.sphinxext.bokeh_releases
 
 .. _bokeh.sphinxext.bokeh_sitemap:
 
