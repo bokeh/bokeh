@@ -44,6 +44,12 @@ requirements:
     # needed in order to be able to build no-arch conda packages
     - futures-compat
 
+  deploy:
+    - anaconda-client
+    - fabric3
+    - setuptools >=0.39
+    - twine >=1.11
+
 test:
   requires:
     # docs
