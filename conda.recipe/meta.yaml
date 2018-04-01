@@ -99,3 +99,10 @@ about:
   home: {{ data['url'] }}
   license: {{ data['license'] }}
   summary: {{ data['description'] }}
+
+extra:
+  deploy:
+    - anaconda-client
+    - fabric3
+    - setuptools >=0.39
+    - twine >=1.11
