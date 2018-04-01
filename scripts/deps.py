@@ -18,7 +18,7 @@ meta_src = yaml.load(meta_src.render(load_setup_py_data=load_setup_py_data))
 
 section = {
     "build"  : meta_src["requirements"]["build"],
-    "deploy" : meta_src["requirements"]["deploy"],
+    "deploy" : meta_src["extra"]["deploy"],
     "run"    : meta_src["requirements"]["run"],
     "test"   : meta_src["test"]["requires"],
 }
