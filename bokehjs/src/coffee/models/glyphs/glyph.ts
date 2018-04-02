@@ -240,16 +240,10 @@ export abstract class GlyphView extends View {
         // hand multi glyph case
         if (self._xs != null) {
           if (xr instanceof FactorRange) {
-            const result = []
-            for (const arr of self[xname])
-              result.push(xr.v_synthetic(arr))
-            self[xname] = result
+            self[xname] = map(self[xname], (arr: any) => xr.v_synthetic(arr))
           }
           if (yr instanceof FactorRange) {
-            const result = []
-            for (const arr of self[yname])
-              result.push(yr.v_synthetic(arr))
-            self[yname] = result
+            self[yname] = map(self[yname], (arr: any) => yr.v_synthetic(arr))
           }
         }
 
