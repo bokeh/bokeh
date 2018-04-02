@@ -236,10 +236,33 @@ export abstract class GlyphView extends View {
         xname = `_${xname}`
         yname = `_${yname}`
 
-        if (xr instanceof FactorRange)
-          self[xname] = xr.v_synthetic(self[xname])
-        if (yr instanceof FactorRange)
-          self[yname] = yr.v_synthetic(self[yname])
+        // TODO (bev) more robust detection of multi-glyph case
+        // hand multi glyph case
+        if (self._xs != null) {
+          if (xr instanceof FactorRange) {
+            const result = []
+            for (const arr of self[xname])
+              result.push(xr.v_synthetic(arr))
+            self[xname] = result
+          }
+          if (yr instanceof FactorRange) {
+            const result = []
+            for (const arr of self[yname])
+              result.push(yr.v_synthetic(arr))
+            self[yname] = result
+          }
+        }
+
+        // hand standard glyph case
+        else {
+          if (xr instanceof FactorRange) {
+            self[xname] = xr.v_synthetic(self[xname])
+          }
+          if (yr instanceof FactorRange) {
+            self[yname] = yr.v_synthetic(self[yname])
+          }
+        }
+
       }
     }
 
