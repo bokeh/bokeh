@@ -6,7 +6,7 @@ import {Range} from "../ranges/range"
 import * as p from "core/properties"
 import {Arrayable, Color} from "core/types"
 import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap} from "core/enums"
-import {Side, Orientation, SpatialUnits} from "core/enums"
+import {Side, TickLabelOrientation, SpatialUnits} from "core/enums"
 import {Text, Line} from "core/visuals"
 import {SidePanel, Orient} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
@@ -374,7 +374,7 @@ export namespace Axis {
     axis_label: string
     axis_label_standoff: number
     major_label_standoff: number
-    major_label_orientation: Orientation | number
+    major_label_orientation: TickLabelOrientation | number
     major_label_overrides: {[key: string]: string}
     major_tick_in: number
     major_tick_out: number
@@ -426,7 +426,7 @@ export class Axis extends GuideRenderer {
       axis_label:              [ p.String,   ''           ],
       axis_label_standoff:     [ p.Int,      5            ],
       major_label_standoff:    [ p.Int,      5            ],
-      major_label_orientation: [ p.Any,      "horizontal" ], // TODO: p.Orientation | p.Number
+      major_label_orientation: [ p.Any,      "horizontal" ], // TODO: p.TickLabelOrientation | p.Number
       major_label_overrides:   [ p.Any,      {}           ],
       major_tick_in:           [ p.Number,   2            ],
       major_tick_out:          [ p.Number,   6            ],

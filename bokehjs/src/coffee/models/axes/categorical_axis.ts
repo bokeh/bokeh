@@ -7,7 +7,7 @@ import {FactorRange, Factor} from "../ranges/factor_range"
 import * as p from "core/properties"
 import {Text, Line} from "core/visuals"
 import {Color} from "core/types"
-import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap, Orientation} from "core/enums"
+import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap, TickLabelOrientation} from "core/enums"
 import {Context2d} from "core/util/canvas"
 import {Orient} from "core/layout/side_panel"
 
@@ -152,8 +152,8 @@ export namespace CategoricalAxis {
   export interface Attrs extends Axis.Attrs, Mixins {
     ticker: CategoricalTicker
     formatter: CategoricalTickFormatter
-    group_label_orientation: Orientation | number
-    subgroup_label_orientation: Orientation | number
+    group_label_orientation: TickLabelOrientation | number
+    subgroup_label_orientation: TickLabelOrientation | number
   }
 
   export interface Props extends Axis.Props {}
@@ -189,8 +189,8 @@ export class CategoricalAxis extends Axis {
     ])
 
     this.define({
-      group_label_orientation:    [ p.Any, "parallel" ], // TODO: p.Orientation | p.Number
-      subgroup_label_orientation: [ p.Any, "parallel" ], // TODO: p.Orientation | p.Number
+      group_label_orientation:    [ p.Any, "parallel" ], // TODO: p.TickLabelOrientation | p.Number
+      subgroup_label_orientation: [ p.Any, "parallel" ], // TODO: p.TickLabelOrientation | p.Number
     })
 
     this.override({

@@ -41,8 +41,8 @@ export const LegendLocation: LegendLocation[] = [
 export type Anchor = LegendLocation
 export const Anchor: Anchor[] = LegendLocation
 
-export type Orientation = "vertical" | "horizontal" | "parallel" | "normal"
-export const Orientation: Orientation[] = ["vertical", "horizontal", "parallel", "normal"]
+export type Orientation = "vertical" | "horizontal"
+export const Orientation: Orientation[] = ["vertical", "horizontal"]
 
 export type OutputBackend = "canvas" | "svg" | "webgl"
 export const OutputBackend: OutputBackend[] = ["canvas", "svg", "webgl"]
@@ -73,6 +73,9 @@ export const TextAlign: TextAlign[] = ["left", "right", "center"]
 
 export type TextBaseline = "top" | "middle" | "bottom" | "alphabetic" | "hanging" | "ideographic"
 export const TextBaseline: TextBaseline[] = ["top", "middle", "bottom", "alphabetic", "hanging", "ideographic"]
+
+export type TickLabelOrientation = "vertical" | "horizontal" | "parallel" | "normal"
+export const TickLabelOrientation: TickLabelOrientation[] = ["vertical", "horizontal", "parallel", "normal"]
 
 export type TooltipAttachment = "horizontal" | "vertical" | "left" | "right" | "above" | "below"
 export const TooltipAttachment: TooltipAttachment[] = ["horizontal", "vertical", "left", "right", "above", "below"]

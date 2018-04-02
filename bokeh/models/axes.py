@@ -175,7 +175,7 @@ class CategoricalAxis(Axis):
     ''' An axis that displays ticks and labels for categorical ranges.
 
     The ``CategoricalAxis`` can handle factor ranges with up to two levels of
-    nesting, including draving a seperator line between top-level groups of
+    nesting, including drawing a seperator line between top-level groups of
     factors.
 
     '''
