@@ -4,6 +4,7 @@ Bokeh plots
 '''
 from __future__ import absolute_import
 
+from ..core.enums import TickLabelOrientation
 from ..core.has_props import abstract
 from ..core.properties import Auto, Datetime, Dict, Either, Enum, Float, Include, Instance, Int, Override, Seq, String, Tuple
 from ..core.property_mixins import LineProps, TextProps
@@ -171,8 +172,11 @@ class LogAxis(ContinuousAxis):
     formatter = Override(default=lambda: LogTickFormatter())
 
 class CategoricalAxis(Axis):
-    ''' An axis that picks evenly spaced tick locations for a
-    collection of categories/factors.
+    ''' An axis that displays ticks and labels for categorical ranges.
+
+    The ``CategoricalAxis`` can handle factor ranges with up to two levels of
+    nesting, including draving a seperator line between top-level groups of
+    factors.
 
     '''
     ticker = Override(default=lambda: CategoricalTicker())
@@ -181,14 +185,29 @@ class CategoricalAxis(Axis):
 
     separator_props = Include(LineProps, help="""
     The %s of the separator line between top-level categorical groups.
+
+    This property always applies to factors in the outermost level of nesting.
     """)
 
     separator_line_color = Override(default="lightgrey")
-
     separator_line_width = Override(default=2)
 
     group_props = Include(TextProps, help="""
-    The %s of the group top-level categorical groups.
+    The %s of the group categorical labels.
+
+    This property always applies to factors in the outermost level of nesting.
+    If the list of categorical factors is flat (i.e. no nesting) then this
+    property has no effect.
+    """)
+
+    group_label_orientation = Either(Enum(TickLabelOrientation), Float, default="parallel", help="""
+    What direction the group label text should be oriented.
+
+    If a number is supplied, the angle of the text is measured from horizontal.
+
+    This property always applies to factors in the outermost level of nesting.
+    If the list of categorical factors is flat (i.e. no nesting) then this
+    property has no effect.
     """)
 
     group_text_font_size = Override(default={'value': "8pt"})
@@ -196,12 +215,25 @@ class CategoricalAxis(Axis):
     group_text_color = Override(default="grey")
 
     subgroup_props = Include(TextProps, help="""
-    The %s of the group top-level categorical groups.
+    The %s of the subgroup categorical labels.
+
+    This property always applies to factors in the middle level of nesting.
+    If the list of categorical factors is has only zero or one levels of nesting,
+    then this property has no effect.
+    """)
+
+    subgroup_label_orientation = Either(Enum(TickLabelOrientation), Float, default="parallel", help="""
+    What direction the subgroup label text should be oriented.
+
+    If a number is supplied, the angle of the text is measured from horizontal.
+
+    This property always applies to factors in the middle level of nesting.
+    If the list of categorical factors is has only zero or one levels of nesting,
+    then this property has no effect.
     """)
 
     subgroup_text_font_size = Override(default={'value': "8pt"})
     subgroup_text_font_style = Override(default="bold")
-
 
 class DatetimeAxis(LinearAxis):
     ''' An LinearAxis that picks nice numbers for tick locations on

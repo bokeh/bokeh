@@ -109,3 +109,4 @@ win-64
 /bokeh/LICENSE.txt
 /examples/refs
 .cache/
+.pytest_cache

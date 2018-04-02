@@ -69,6 +69,7 @@ def test_enums_contents():
         'StepMode',
         'TextAlign',
         'TextBaseline',
+        'TickLabelOrientation',
         'TooltipAttachment',
         'TooltipFieldFormatter',
         'VerticalAlign',

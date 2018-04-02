@@ -4,9 +4,10 @@ import {CategoricalTicker} from "../tickers/categorical_ticker"
 import {CategoricalTickFormatter} from "../formatters/categorical_tick_formatter"
 import {FactorRange, Factor} from "../ranges/factor_range"
 
+import * as p from "core/properties"
 import {Text, Line} from "core/visuals"
 import {Color} from "core/types"
-import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap} from "core/enums"
+import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap, Orientation} from "core/enums"
 import {Context2d} from "core/util/canvas"
 import {Orient} from "core/layout/side_panel"
 
@@ -97,13 +98,13 @@ export class CategoricalAxisView extends AxisView {
     } else if (range.levels == 2) {
       const labels = this.model.formatter.doFormat(ticks.major.map((x) => x[1]), this.model)
       info.push([labels, coords.major, this.model.major_label_orientation, this.visuals.major_label_text])
-      info.push([ticks.tops as string[], coords.tops, 'parallel', this.visuals.group_text])
+      info.push([ticks.tops as string[], coords.tops, this.model.group_label_orientation, this.visuals.group_text])
     } else if (range.levels == 3) {
       const labels = this.model.formatter.doFormat(ticks.major.map((x) => x[2]), this.model)
       const mid_labels = ticks.mids.map((x) => x[1])
       info.push([labels, coords.major, this.model.major_label_orientation, this.visuals.major_label_text])
-      info.push([mid_labels as string[], coords.mids, 'parallel', this.visuals.subgroup_text])
-      info.push([ticks.tops as string[], coords.tops, 'parallel', this.visuals.group_text])
+      info.push([mid_labels as string[], coords.mids, this.model.subgroup_label_orientation, this.visuals.subgroup_text])
+      info.push([ticks.tops as string[], coords.tops, this.model.group_label_orientation, this.visuals.group_text])
     }
 
     return info
@@ -151,6 +152,8 @@ export namespace CategoricalAxis {
   export interface Attrs extends Axis.Attrs, Mixins {
     ticker: CategoricalTicker
     formatter: CategoricalTickFormatter
+    group_label_orientation: Orientation | number
+    subgroup_label_orientation: Orientation | number
   }
 
   export interface Props extends Axis.Props {}
@@ -184,6 +187,11 @@ export class CategoricalAxis extends Axis {
       "text:group_",
       "text:subgroup_",
     ])
+
+    this.define({
+      group_label_orientation:    [ p.Any, "parallel" ], // TODO: p.Orientation | p.Number
+      subgroup_label_orientation: [ p.Any, "parallel" ], // TODO: p.Orientation | p.Number
+    })
 
     this.override({
       ticker: () => new CategoricalTicker(),

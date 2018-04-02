@@ -41,8 +41,8 @@ export const LegendLocation: LegendLocation[] = [
 export type Anchor = LegendLocation
 export const Anchor: Anchor[] = LegendLocation
 
-export type Orientation = "vertical" | "horizontal"
-export const Orientation: Orientation[] = ["vertical", "horizontal"]
+export type Orientation = "vertical" | "horizontal" | "parallel" | "normal"
+export const Orientation: Orientation[] = ["vertical", "horizontal", "parallel", "normal"]
 
 export type OutputBackend = "canvas" | "svg" | "webgl"
 export const OutputBackend: OutputBackend[] = ["canvas", "svg", "webgl"]

@@ -256,5 +256,8 @@ LegendClickPolicy = enumeration("none", "hide", "mute")
 #: Whether range padding should be interpreted a percentage or and absolute quantity
 PaddingUnits = enumeration("percent", "absolute")
 
+#: Specify how axis tick labels are oriented with respect to the axis
+TickLabelOrientation = enumeration("horizontal", "vertical", "parallel", "normal")
+
 #: Specify how a format string for a tooltip field should be interpreted
 TooltipFieldFormatter = enumeration("numeral", "datetime", "printf")
