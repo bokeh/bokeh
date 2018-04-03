@@ -273,7 +273,9 @@ class HasProps(with_metaclass(MetaHasProps, object)):
     def __str__(self):
         return "%s(...)" % self.__class__.__name__
 
-    __repr__ = __str__
+    # we need to define the __repr__ this way because of https://github.com/bokeh/bokeh/issues/7729
+    def __repr__(self):
+        return self.__str__()
 
     def equals(self, other):
         ''' Structural equality of models.
@@ -661,7 +663,14 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         else:
             stream = StringIO()
             printer = _BokehPrettyPrinter(stream, verbose, max_width, newline)
+
+            # temporarily deleting the old repr to make ipython not use it, see:
+            # https://github.com/ipython/ipython/issues/11066
+            old_repr = self.__repr__
+            self.__repr__ = None
             printer.pretty(self)
+            self.__repr__ = old_repr
+
             printer.flush()
             return stream.getvalue()
 
