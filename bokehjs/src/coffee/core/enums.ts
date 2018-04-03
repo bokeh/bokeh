@@ -74,6 +74,9 @@ export const TextAlign: TextAlign[] = ["left", "right", "center"]
 export type TextBaseline = "top" | "middle" | "bottom" | "alphabetic" | "hanging" | "ideographic"
 export const TextBaseline: TextBaseline[] = ["top", "middle", "bottom", "alphabetic", "hanging", "ideographic"]
 
+export type TickLabelOrientation = "vertical" | "horizontal" | "parallel" | "normal"
+export const TickLabelOrientation: TickLabelOrientation[] = ["vertical", "horizontal", "parallel", "normal"]
+
 export type TooltipAttachment = "horizontal" | "vertical" | "left" | "right" | "above" | "below"
 export const TooltipAttachment: TooltipAttachment[] = ["horizontal", "vertical", "left", "right", "above", "below"]
 
