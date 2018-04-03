@@ -222,9 +222,6 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
     def __str__(self):
         return "%s(id=%r, ...)" % (self.__class__.__name__, getattr(self, "_id", None))
 
-    __repr__ = __str__
-
-
     name = String(help="""
     An arbitrary, user-supplied name for this model.
 
