@@ -113,7 +113,7 @@ export abstract class CellEditorView extends DOMView {
   }
 
   validate(): any {
-    this.validateValue(this.getValue())
+    return this.validateValue(this.getValue())
   }
 }
 
