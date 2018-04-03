@@ -68,7 +68,6 @@ test:
     - pytest-html
     - selenium >=3
     - pytest-xdist
-    - pytest-rerunfailures
     - requests >=1.2.3
     - beautifulsoup4
     - scipy
