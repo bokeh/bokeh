@@ -195,9 +195,9 @@ class WSHandler(WebSocketHandler):
         try:
             self.latest_pong = int(codecs.decode(data, 'utf-8'))
         except UnicodeDecodeError:
-            log.error("received invalid unicode in pong %r", data, exc_info=True)
+            log.trace("received invalid unicode in pong %r", data, exc_info=True)
         except ValueError:
-            log.error("received invalid integer in pong %r", data, exc_info=True)
+            log.trace("received invalid integer in pong %r", data, exc_info=True)
 
     @gen.coroutine
     def send_message(self, message):
