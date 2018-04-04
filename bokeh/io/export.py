@@ -25,7 +25,6 @@ from bokeh.util.api import general, dev ; general, dev
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import os
 import io
 import signal
 from os.path import abspath, devnull
@@ -269,8 +268,14 @@ def wait_until_render_complete(driver):
 
 @dev((1,0,0))
 def terminate_web_driver(driver):
-    driver.service.process.send_signal(signal.SIGTERM)
-    driver.quit()
+    if driver.name == "phantomjs":
+        # https://github.com/seleniumhq/selenium/issues/767
+        driver.service.process.send_signal(signal.SIGTERM)
+
+    try:
+        driver.quit()
+    except (IOError, OSError): # IOError for Python 2.7
+        pass
 
 #-----------------------------------------------------------------------------
 # Private API
@@ -320,7 +325,7 @@ def _create_default_webdriver():
     return webdriver.PhantomJS(executable_path=phantomjs_path, service_log_path=devnull)
 
 def _tmp_html():
-    return NamedTemporaryFile(prefix=".bokeh", suffix=".html", dir=os.getcwd())
+    return NamedTemporaryFile(prefix=".bokeh", suffix=".html")
 
 #-----------------------------------------------------------------------------
 # Code
