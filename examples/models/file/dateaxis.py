@@ -36,7 +36,7 @@ plot.add_glyph(source, circle)
 plot.add_layout(DatetimeAxis(), 'below')
 plot.add_layout(DatetimeAxis(), 'left')
 
-plot.add_tools(PanTool(), WheelZoomTool(zoom_on_axis=False))
+plot.add_tools(PanTool(), WheelZoomTool(zoom_on_axis=False, speed=1/5000.))
 
 doc = Document()
 doc.add_root(plot)

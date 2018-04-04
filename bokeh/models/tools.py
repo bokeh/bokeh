@@ -229,6 +229,10 @@ class WheelZoomTool(Scroll):
     zoom that dimension.
     """)
 
+    speed = Float(default=1/600, help="""
+    Speed at which the wheel zooms. Default is 1/600. Optimal range is between
+    0.001 and 0.09. High values will be clipped. Speed may very between browsers.
+    """)
 
 class SaveTool(Action):
     ''' *toolbar icon*: |save_icon|

@@ -81,11 +81,9 @@ export class WheelZoomTool extends GestureTool {
       dimensions:     [ p.Dimensions, "both" ],
       maintain_focus: [ p.Boolean,    true   ],
       zoom_on_axis:   [ p.Boolean,    true   ],
+      speed:          [ p.Number,     1/600  ],
     })
 
-    this.internal({
-      speed: [ p.Number, 1/600 ],
-    })
   }
 
   tool_name = "Wheel Zoom"
