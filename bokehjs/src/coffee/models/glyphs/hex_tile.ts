@@ -7,7 +7,7 @@ import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import {Arrayable} from "core/types"
 import {IBBox} from "core/util/bbox"
 import {Context2d} from "core/util/canvas"
-import {SpatialIndex, RBush} from "core/util/spatial"
+import {SpatialIndex} from "core/util/spatial"
 import {NumberSpec} from "core/vectorization"
 import {Line, Fill} from "core/visuals"
 
@@ -93,7 +93,7 @@ export class HexTileView extends GlyphView {
         continue
       points.push({minX: x-xsize, minY: y-ysize, maxX: x+xsize, maxY: y+ysize, i})
     }
-    return new RBush(points)
+    return new SpatialIndex(points)
   }
 
   // overriding map_data instead of _map_data because the default automatic mappings
