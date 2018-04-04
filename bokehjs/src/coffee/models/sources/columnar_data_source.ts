@@ -16,7 +16,6 @@ import {SelectionPolicy, UnionRenderers} from "../selections/interaction_policy"
 
 export namespace ColumnarDataSource {
   export interface Attrs extends DataSource.Attrs {
-    column_names: string[]
     selection_policy: SelectionPolicy
     selection_manager: SelectionManager
     inspected: Selection
@@ -35,6 +34,10 @@ export abstract class ColumnarDataSource extends DataSource {
   properties: ColumnarDataSource.Props
 
   data: {[key: string]: Arrayable}
+
+  get column_names(): string[] {
+    return keys(this.data)
+  }
 
   get_array<T>(key: string): T[] {
     let column = this.data[key]
@@ -61,7 +64,6 @@ export abstract class ColumnarDataSource extends DataSource {
     this.prototype.type = 'ColumnarDataSource'
 
     this.define({
-      column_names:     [ p.Array, [] ],
       selection_policy: [ p.Instance  ],
     })
 

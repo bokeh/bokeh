@@ -36,10 +36,6 @@ class ColumnarDataSource(DataSource):
 
     '''
 
-    column_names = List(String, help="""
-    An list of names for all the columns in this DataSource.
-    """)
-
     selection_policy = Instance(SelectionPolicy, help="""
     An instance of a SelectionPolicy that determines how selections are set.
     """)
@@ -132,8 +128,14 @@ class ColumnDataSource(ColumnarDataSource):
             else:
                 raise ValueError("expected a dict or pandas.DataFrame, got %s" % raw_data)
         super(ColumnDataSource, self).__init__(**kw)
-        self.column_names[:] = list(raw_data.keys())
         self.data.update(raw_data)
+
+    @property
+    def column_names(self):
+        ''' A list of the column names in this data source.
+
+        '''
+        return list(self.data)
 
     @staticmethod
     def _data_from_df(df):
@@ -243,20 +245,13 @@ class ColumnDataSource(ColumnarDataSource):
     def to_df(self):
         ''' Convert this data source to pandas dataframe.
 
-        If ``column_names`` is set, use those. Otherwise let Pandas
-        infer the column names. The ``column_names`` property can be
-        used both to order and filter the columns.
-
         Returns:
             DataFrame
 
         '''
         if not pd:
             raise RuntimeError('Pandas must be installed to convert to a Pandas Dataframe')
-        if self.column_names:
-            return pd.DataFrame(self.data, columns=self.column_names)
-        else:
-            return pd.DataFrame(self.data)
+        return pd.DataFrame(self.data)
 
     def add(self, data, name=None):
         ''' Appends a new column of data to the data source.
@@ -275,7 +270,6 @@ class ColumnDataSource(ColumnarDataSource):
             while "Series %d"%n in self.data:
                 n += 1
             name = "Series %d"%n
-        self.column_names.append(name)
         self.data[name] = data
         return name
 
@@ -294,7 +288,6 @@ class ColumnDataSource(ColumnarDataSource):
 
         '''
         try:
-            self.column_names.remove(name)
             del self.data[name]
         except (ValueError, KeyError):
             import warnings
