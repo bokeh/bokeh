@@ -25,6 +25,7 @@ from bokeh.util.api import general, dev ; general, dev
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import os
 import io
 import signal
 from os.path import abspath, devnull
@@ -162,13 +163,11 @@ def get_screenshot_as_png(obj, driver=None, **kwargs):
                             'To use bokeh.io.export_png you need pillow ' +
                             '("conda install pillow" or "pip install pillow")')
 
-    with _tmp_file() as tmp:
-        html_path = tmp.name
-
-        save_layout_html(obj, html_path, **kwargs)
+    with _tmp_html() as tmp:
+        save_layout_html(obj, tmp.name, **kwargs)
 
         web_driver = driver if driver is not None else _create_default_webdriver()
-        web_driver.get("file:///" + html_path)
+        web_driver.get("file:///" + tmp.name)
         web_driver.maximize_window()
 
         ## resize for PhantomJS compat
@@ -193,13 +192,11 @@ def get_svgs(obj, driver=None, **kwargs):
     '''
 
     '''
-    with _tmp_file() as tmp:
-        html_path = tmp.name
-
-        save_layout_html(obj, html_path, **kwargs)
+    with _tmp_html() as tmp:
+        save_layout_html(obj, tmp.name, **kwargs)
 
         web_driver = driver if driver is not None else _create_default_webdriver()
-        web_driver.get("file:///" + html_path)
+        web_driver.get("file:///" + tmp.name)
 
         wait_until_render_complete(web_driver)
 
@@ -322,8 +319,8 @@ def _create_default_webdriver():
     phantomjs_path = detect_phantomjs()
     return webdriver.PhantomJS(executable_path=phantomjs_path, service_log_path=devnull)
 
-def _tmp_file():
-    return NamedTemporaryFile(suffix=".html")
+def _tmp_html():
+    return NamedTemporaryFile(prefix=".bokeh", suffix=".html", dir=os.getcwd())
 
 #-----------------------------------------------------------------------------
 # Code
