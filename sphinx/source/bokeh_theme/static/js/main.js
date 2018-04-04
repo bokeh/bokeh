@@ -76,12 +76,15 @@ $(document).ready(function() {
     var nav_links = $('.nav-link.doc-head a');
     nav_links.each(function(i, nav_link) {
       var href = nav_link.href;
-      var href_part = href.split('docs/')[1].split('.html')[0];
-      if (href_part.split('/').length > 1) {
-        href_part = href_part.split('/')[0]
-      }
-      if (loc_part == href_part) {
-        $(this).addClass('current');
+      // skip links to external sites
+      if (href.startsWith("https://bokeh.pydata.org")) {
+        var href_part = href.split('docs/')[1].split('.html')[0];
+        if (href_part.split('/').length > 1) {
+          href_part = href_part.split('/')[0]
+        }
+        if (loc_part == href_part) {
+          $(this).addClass('current');
+        }
       }
     });
   }
