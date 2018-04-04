@@ -211,10 +211,23 @@ def show_session(session_id=None, url='default', session=None, browser=None, new
 class ClientSession(object):
     ''' Represents a websocket connection to a server-side session.
 
-    Each server session stores a Document, which is kept in sync
-    with the document in this ClientSession instance.
-    Always call either pull() or push() immediately after
-    creating the session, if you construct a session by hand.
+    Each server session stores a Document, which is kept in sync with the
+    corresponding Document for this ClientSession instance. Udates on either
+    side of the connection will automatically propagate to the other side, as
+    long as the connectiion is open.
+
+    ClientSession objects can (and usually should) be used as a context manager
+    so that the sesssion is properly closed:
+
+    .. code-block:: python
+
+        with pull_session(url=app_url) as session:
+            # customize session here
+            script = server_session(session_id=mysession.id, url=app_url)
+            return render_template("embed.html", script=script, template="Flask")
+
+    If you do not use ClientSesssion in this way, it is up to you to ensure
+    that ``session.close()`` is called.
 
     '''
 
@@ -239,6 +252,7 @@ class ClientSession(object):
 
             io_loop (IOLoop, optional) :
                 The IOLoop to use for the websocket
+
         '''
         self._document = None
         self._id = self._ensure_session_id(session_id)
@@ -248,6 +262,18 @@ class ClientSession(object):
 
         from ..server.callbacks import _DocumentCallbackGroup
         self._callbacks = _DocumentCallbackGroup(self._connection.io_loop)
+
+    def __enter__(self):
+        '''
+
+        '''
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        '''
+
+        '''
+        self.close()
 
     # Properties --------------------------------------------------------------
 

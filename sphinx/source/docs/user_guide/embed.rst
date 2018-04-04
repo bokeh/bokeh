@@ -400,7 +400,7 @@ server session. This can be accomplished with the |server_session|
 function which accepts a specific model to embed (or ``None`` for an
 entire session document), session ID, and a URL to the Bokeh appllication.
 
-Here is a complete example using |server_session| and Flask:
+Here is an example of how to use |server_session| and Flask:
 
 .. code-block:: python
 
@@ -415,14 +415,16 @@ Here is a complete example using |server_session| and Flask:
     def bkapp_page():
 
         # pull a new session from a running Bokeh server
-        session = pull_session(url="http://localhost:5006/sliders")
+        with pull_session(url="http://localhost:5006/sliders") as session:
 
-        # update or customize that session
-        session.document.roots[0].children[1].title.text = "Special Sliders For A Specific User!"
+            # update or customize that session
+            session.document.roots[0].children[1].title.text = "Special Sliders For A Specific User!"
 
-        # generate a script to load the customized session
-        script = server_session(None, session.id, url='http://localhost:5006/sliders')
-        return render_template("embed.html", script=script, template="Flask")
+            # generate a script to load the customized session
+            script = server_session(session_id=session.id, url='http://localhost:5006/sliders')
+
+            # use the script in the rendered page
+            return render_template("embed.html", script=script, template="Flask")
 
     if __name__ == '__main__':
         app.run(port=8080)

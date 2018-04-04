@@ -670,10 +670,17 @@ embeds the sliders app, but changes the plot title *before* passing to the user:
 
     @app.route('/', methods=['GET'])
     def bkapp_page():
-        session = pull_session(url="http://localhost:5006/sliders")
-        session.document.roots[0].children[1].title.text = "Special Sliders For A Specific User!"
-        script = server_session(None, session.id, url='http://localhost:5006/sliders')
-        return render_template("embed.html", script=script, template="Flask")
+
+        with pull_session(url="http://localhost:5006/sliders") as session:
+
+            # update or customize that session
+            session.document.roots[0].children[1].title.text = "Special Sliders For A Specific User!"
+
+            # generate a script to load the customized session
+            script = server_session(session_id=session.id, url='http://localhost:5006/sliders')
+
+            # use the script in the rendered page
+            return render_template("embed.html", script=script, template="Flask")
 
     if __name__ == '__main__':
         app.run(port=8080)
