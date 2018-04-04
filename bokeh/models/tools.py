@@ -224,6 +224,11 @@ class WheelZoomTool(Scroll):
     zoom out more smoothly, at the cost of losing the focus position.
     """)
 
+    zoom_on_axis = Bool(default=True, help="""
+    Whether scrolling on an axis (outside the central plot area) should
+    zoom that dimension.
+    """)
+
 
 class SaveTool(Action):
     ''' *toolbar icon*: |save_icon|
