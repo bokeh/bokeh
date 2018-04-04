@@ -37,6 +37,12 @@ def without_document_lock(func):
     wrapper.nolock = True
     return wrapper
 
+
+UNSAFE_DOC_ATTR_USAGE_MSG = ("Only 'add_next_tick_callback' may be used safely without taking the document lock; "
+                             "to make other changes to the document, add a next tick callback and make your changes "
+                             "from that callback.")
+
+
 class UnlockedDocumentProxy(object):
     ''' Wrap a Document object so that only methods that can safely be used
     from unlocked callbacks or threads are exposed. Attempts to otherwise
@@ -54,10 +60,7 @@ class UnlockedDocumentProxy(object):
         '''
 
         '''
-        raise RuntimeError(
-            "Only 'add_next_tick_callback' may be used safely without taking the document lock; "
-            "to make other changes to the document, add a next tick callback and make your changes "
-            "from that callback.")
+        raise RuntimeError(UNSAFE_DOC_ATTR_USAGE_MSG)
 
     def add_next_tick_callback(self, callback):
         ''' Add a "next tick" callback.

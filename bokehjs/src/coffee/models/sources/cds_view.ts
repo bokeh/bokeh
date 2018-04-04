@@ -111,8 +111,8 @@ export class CDSView extends Model {
     return selection_subset
   }
 
-  convert_indices_from_subset(indices: number[]) {
-    return (indices.map((i) => this.indices[i]))
+  convert_indices_from_subset(indices: number[]): number[] {
+    return indices.map((i) => this.indices[i])
   }
 }
 CDSView.initClass()

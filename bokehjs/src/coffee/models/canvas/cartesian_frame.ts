@@ -68,7 +68,7 @@ export class CartesianFrame extends LayoutCanvas {
     this.connect(this.change, () => this._configure_scales())
   }
 
-  get panel() {
+  get panel(): LayoutCanvas {
     return this
   }
 

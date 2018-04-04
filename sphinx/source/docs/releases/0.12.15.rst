@@ -5,10 +5,24 @@ Bokeh Version ``0.12.15`` is an incremental update that adds a few
 important features and fixes several bugs. Some of the highlights
 include:
 
+* Addressed several WebGL bugs :bokeh-issue:`6867`, :bokeh-issue:`7087`, :bokeh-issue:`7211`, :bokeh-issue:`7681`
 
+* Switched to Chrome headless for CI image tests, will support better WebGL testing :bokeh-issue:`6594`
+
+* Updated data source selections to be proper Bokeh models :bokeh-issue:`6845`
+
+* Fixed memory leaks with certain kinds of Bokeh server usage :bokeh-issue:`7468`
+
+* Added new glyphs for hexagon markers and hex tiles, and a new `hexbin` method :bokeh-issue:`7638`, :bokeh-issue:`4786`
+
+* Completed BokehJS port to TypeScript :bokeh-issue:`6481`
 
 Many other small bugfixes and docs additions. For full details see the
 :bokeh-tree:`CHANGELOG`.
+
+Additionally, we are pleased to announce `Bokeh joins NumFOCUS Sponsored Projects`_.
+
+.. _Bokeh joins NumFOCUS Sponsored Projects: https://www.numfocus.org/blog/bokeh-joins-sponsored-projects/).
 
 Migration Guide
 ---------------
@@ -82,8 +96,26 @@ NO_DATA_RENDERERS
 This validation warning resulted in false or irrelevant warnings in many
 reasonable configurations, and has been removed.
 
+Document and ServerContext callbacks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+All `Document` and `ServerContext` methods that add callbacks can now add
+the same callback multiple times.
+Methods that remove callbacks now receive the value returned from a previous
+method call that added the callback. Example:
+
+.. code-block:: python
+
+    # Was
+    doc.add_next_tick_callback(my_cb)
+    doc.remove_next_tick_callback(my_cb)
+
+    # Now
+    cb_id = doc.add_next_tick_callback(my_cb)
+    doc.remove_next_tick_callback(cb_id)
+
 Sphinx Version
---------------
+~~~~~~~~~~~~~~
 
 The `bokeh.sphinxext` Sphinx extension has been updated to work with currnt
 versions. Sphinx >= 1.6 is now required to use the extension.

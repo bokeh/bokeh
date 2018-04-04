@@ -301,8 +301,8 @@ export class HoverToolView extends InspectToolView {
         }
       } else {
         // handle non-multiglyphs
-        const data_x = glyph._x != null ? glyph._x[i] : undefined // XXX: glyph._x?[i]
-        const data_y = glyph._y != null ? glyph._y[i] : undefined // XXX: glyph._y?[i]
+        const data_x = glyph._x != null ? glyph._x[i] : undefined
+        const data_y = glyph._y != null ? glyph._y[i] : undefined
 
         let rx: number
         let ry: number

@@ -646,24 +646,18 @@ class HasProps(with_metaclass(MetaHasProps, object)):
 
         '''
         IPython = import_optional('IPython')
+        cls = self.__class__
 
         if IPython:
             from IPython.lib.pretty import RepresentationPrinter
 
-        class _BokehPrettyPrinter(RepresentationPrinter):
-            def __init__(self, output, verbose=False, max_width=79, newline='\n'):
-                super(_BokehPrettyPrinter, self).__init__(output, verbose, max_width, newline)
-                self.type_pprinters[HasProps] = lambda obj, p, cycle: obj._repr_pretty(p, cycle)
-
-        if not IPython:
-            cls = self.__class__
-            raise RuntimeError("%s.%s.pretty() requires IPython" % (cls.__module__, cls.__name__))
-        else:
             stream = StringIO()
-            printer = _BokehPrettyPrinter(stream, verbose, max_width, newline)
+            printer = RepresentationPrinter(stream, verbose, max_width, newline)
             printer.pretty(self)
             printer.flush()
             return stream.getvalue()
+        else:
+            raise RuntimeError("%s.%s.pretty() requires IPython" % (cls.__module__, cls.__name__))
 
     def pprint(self, verbose=False, max_width=79, newline='\n'):
         ''' Print a "pretty" string representation of the object to stdout.
@@ -723,7 +717,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         '''
         return self.__class__(**self._property_values)
 
-    def _repr_pretty(self, p, cycle):
+    def _repr_pretty_(self, p, cycle):
         '''
 
         '''

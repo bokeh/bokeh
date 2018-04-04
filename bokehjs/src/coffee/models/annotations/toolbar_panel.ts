@@ -17,7 +17,7 @@ export class ToolbarPanelView extends AnnotationView {
     build_views(this._toolbar_views, [this.model.toolbar], {parent: this})
   }
 
-  remove() {
+  remove(): void {
     remove_views(this._toolbar_views)
     super.remove()
   }

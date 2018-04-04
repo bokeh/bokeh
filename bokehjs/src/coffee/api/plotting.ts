@@ -184,40 +184,40 @@ export class Figure extends Plot {
     this.add_renderers(this._legend)
   }
 
-  annular_wedge(...args: any[])     { return this._glyph(models.AnnularWedge, "x,y,inner_radius,outer_radius,start_angle,end_angle", args); }
-  annulus(...args: any[])           { return this._glyph(models.Annulus,      "x,y,inner_radius,outer_radius",                       args); }
-  arc(...args: any[])               { return this._glyph(models.Arc,          "x,y,radius,start_angle,end_angle",                    args); }
-  bezier(...args: any[])            { return this._glyph(models.Bezier,       "x0,y0,x1,y1,cx0,cy0,cx1,cy1",                         args); }
-  circle(...args: any[])            { return this._glyph(models.Circle,       "x,y",                                                 args); }
-  ellipse(...args: any[])           { return this._glyph(models.Ellipse,      "x,y,width,height",                                    args); }
-  image(...args: any[])             { return this._glyph(models.Image,        "color_mapper,image,rows,cols,x,y,dw,dh",              args); }
-  image_rgba(...args: any[])        { return this._glyph(models.ImageRGBA,    "image,rows,cols,x,y,dw,dh",                           args); }
-  image_url(...args: any[])         { return this._glyph(models.ImageURL,     "url,x,y,w,h",                                         args); }
-  line(...args: any[])              { return this._glyph(models.Line,         "x,y",                                                 args); }
-  multi_line(...args: any[])        { return this._glyph(models.MultiLine,    "xs,ys",                                               args); }
-  oval(...args: any[])              { return this._glyph(models.Oval,         "x,y,width,height",                                    args); }
-  patch(...args: any[])             { return this._glyph(models.Patch,        "x,y",                                                 args); }
-  patches(...args: any[])           { return this._glyph(models.Patches,      "xs,ys",                                               args); }
-  quad(...args: any[])              { return this._glyph(models.Quad,         "left,right,bottom,top",                               args); }
-  quadratic(...args: any[])         { return this._glyph(models.Quadratic,    "x0,y0,x1,y1,cx,cy",                                   args); }
-  ray(...args: any[])               { return this._glyph(models.Ray,          "x,y,length",                                          args); }
-  rect(...args: any[])              { return this._glyph(models.Rect,         "x,y,width,height",                                    args); }
-  segment(...args: any[])           { return this._glyph(models.Segment,      "x0,y0,x1,y1",                                         args); }
-  text(...args: any[])              { return this._glyph(models.Text,         "x,y,text",                                            args); }
-  wedge(...args: any[])             { return this._glyph(models.Wedge,        "x,y,radius,start_angle,end_angle",                    args); }
+  annular_wedge(...args: any[]): GlyphRenderer     { return this._glyph(models.AnnularWedge, "x,y,inner_radius,outer_radius,start_angle,end_angle", args); }
+  annulus(...args: any[]): GlyphRenderer           { return this._glyph(models.Annulus,      "x,y,inner_radius,outer_radius",                       args); }
+  arc(...args: any[]): GlyphRenderer               { return this._glyph(models.Arc,          "x,y,radius,start_angle,end_angle",                    args); }
+  bezier(...args: any[]): GlyphRenderer            { return this._glyph(models.Bezier,       "x0,y0,x1,y1,cx0,cy0,cx1,cy1",                         args); }
+  circle(...args: any[]): GlyphRenderer            { return this._glyph(models.Circle,       "x,y",                                                 args); }
+  ellipse(...args: any[]): GlyphRenderer           { return this._glyph(models.Ellipse,      "x,y,width,height",                                    args); }
+  image(...args: any[]): GlyphRenderer             { return this._glyph(models.Image,        "color_mapper,image,rows,cols,x,y,dw,dh",              args); }
+  image_rgba(...args: any[]): GlyphRenderer        { return this._glyph(models.ImageRGBA,    "image,rows,cols,x,y,dw,dh",                           args); }
+  image_url(...args: any[]): GlyphRenderer         { return this._glyph(models.ImageURL,     "url,x,y,w,h",                                         args); }
+  line(...args: any[]): GlyphRenderer              { return this._glyph(models.Line,         "x,y",                                                 args); }
+  multi_line(...args: any[]): GlyphRenderer        { return this._glyph(models.MultiLine,    "xs,ys",                                               args); }
+  oval(...args: any[]): GlyphRenderer              { return this._glyph(models.Oval,         "x,y,width,height",                                    args); }
+  patch(...args: any[]): GlyphRenderer             { return this._glyph(models.Patch,        "x,y",                                                 args); }
+  patches(...args: any[]): GlyphRenderer           { return this._glyph(models.Patches,      "xs,ys",                                               args); }
+  quad(...args: any[]): GlyphRenderer              { return this._glyph(models.Quad,         "left,right,bottom,top",                               args); }
+  quadratic(...args: any[]): GlyphRenderer         { return this._glyph(models.Quadratic,    "x0,y0,x1,y1,cx,cy",                                   args); }
+  ray(...args: any[]): GlyphRenderer               { return this._glyph(models.Ray,          "x,y,length",                                          args); }
+  rect(...args: any[]): GlyphRenderer              { return this._glyph(models.Rect,         "x,y,width,height",                                    args); }
+  segment(...args: any[]): GlyphRenderer           { return this._glyph(models.Segment,      "x0,y0,x1,y1",                                         args); }
+  text(...args: any[]): GlyphRenderer              { return this._glyph(models.Text,         "x,y,text",                                            args); }
+  wedge(...args: any[]): GlyphRenderer             { return this._glyph(models.Wedge,        "x,y,radius,start_angle,end_angle",                    args); }
 
-  asterisk(...args: any[])          { return this._marker(models.Asterisk,         args); }
-  circle_cross(...args: any[])      { return this._marker(models.CircleCross,      args); }
-  circle_x(...args: any[])          { return this._marker(models.CircleX,          args); }
-  cross(...args: any[])             { return this._marker(models.Cross,            args); }
-  diamond(...args: any[])           { return this._marker(models.Diamond,          args); }
-  diamond_cross(...args: any[])     { return this._marker(models.DiamondCross,     args); }
-  inverted_triangle(...args: any[]) { return this._marker(models.InvertedTriangle, args); }
-  square(...args: any[])            { return this._marker(models.Square,           args); }
-  square_cross(...args: any[])      { return this._marker(models.SquareCross,      args); }
-  square_x(...args: any[])          { return this._marker(models.SquareX,          args); }
-  triangle(...args: any[])          { return this._marker(models.Triangle,         args); }
-  x(...args: any[])                 { return this._marker(models.X,                args); }
+  asterisk(...args: any[]): GlyphRenderer          { return this._marker(models.Asterisk,         args); }
+  circle_cross(...args: any[]): GlyphRenderer      { return this._marker(models.CircleCross,      args); }
+  circle_x(...args: any[]): GlyphRenderer          { return this._marker(models.CircleX,          args); }
+  cross(...args: any[]): GlyphRenderer             { return this._marker(models.Cross,            args); }
+  diamond(...args: any[]): GlyphRenderer           { return this._marker(models.Diamond,          args); }
+  diamond_cross(...args: any[]): GlyphRenderer     { return this._marker(models.DiamondCross,     args); }
+  inverted_triangle(...args: any[]): GlyphRenderer { return this._marker(models.InvertedTriangle, args); }
+  square(...args: any[]): GlyphRenderer            { return this._marker(models.Square,           args); }
+  square_cross(...args: any[]): GlyphRenderer      { return this._marker(models.SquareCross,      args); }
+  square_x(...args: any[]): GlyphRenderer          { return this._marker(models.SquareX,          args); }
+  triangle(...args: any[]): GlyphRenderer          { return this._marker(models.Triangle,         args); }
+  x(...args: any[]): GlyphRenderer                 { return this._marker(models.X,                args); }
 
   _pop_colors_and_alpha(cls: Class<HasProps>, attrs: {[key: string]: any}, prefix: string = "",
                         default_color: string = _default_color, default_alpha: number = _default_alpha): {[key: string]: any} {
@@ -259,7 +259,7 @@ export class Figure extends Plot {
     }
   }
 
-  _fixup_values(cls: Class<HasProps>, data: {[key: string]: any}, attrs: {[key: string]: any}) {
+  _fixup_values(cls: Class<HasProps>, data: {[key: string]: any}, attrs: {[key: string]: any}): void {
     for (const name in attrs) {
       const value = attrs[name]
       const prop = cls.prototype.props[name]
@@ -356,7 +356,7 @@ export class Figure extends Plot {
     return glyph_renderer
   }
 
-  _marker(cls: Class<Glyph>, args: any) {
+  _marker(cls: Class<Glyph>, args: any): GlyphRenderer {
     return this._glyph(cls, "x,y", args)
   }
 

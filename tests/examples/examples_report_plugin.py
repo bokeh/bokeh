@@ -18,9 +18,6 @@ from .collect_examples import collect_examples, Flags
 
 def pytest_addoption(parser):
     parser.addoption(
-        "--notebook-phantom-wait", dest="notebook_phantom_wait", action="store", type=int, default=10,
-        help="How long should PhantomJS wait before taking a snapshot of a notebook (in seconds)")
-    parser.addoption(
         "--output-cells", type=str, choices=['complain', 'remove', 'ignore'], default='complain',
         help="what to do with notebooks' output cells")
     parser.addoption(
@@ -43,9 +40,7 @@ def get_all_examples(config):
     if _examples is None:
         base_dir = abspath(join(dirname(__file__), pardir, pardir))
 
-        _examples = []
-        _examples.extend(collect_examples(join(base_dir, "examples", "examples.yaml")))
-        _examples.extend(collect_examples(join(base_dir, "bokehjs", "examples", "examples.yaml")))
+        _examples = collect_examples(join(base_dir, "examples.yaml"))
 
         for example in _examples:
             example._diff_ref = config.option.diff_ref

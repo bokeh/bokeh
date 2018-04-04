@@ -151,6 +151,28 @@ and left and right endpoints, use the |hbar| glyph function:
     :source-position: above
 
 
+.. userguide_plotting_hex
+
+Hex Tiles
+~~~~~~~~~
+
+Bokeh can plot hexagonal tiles, which are often used for showing binned
+aggregations. The :func:`~bokeh.plotting.figure.Figure.hex_tile` method
+takes a `size` parameter to define the size of the hex grid, and
+`axial coordinates`_ to specify which tiles are present.
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_hex_tile_basic.py
+    :source-position: above
+
+A more realistic example below computes counts per bin using the
+:func:`~bokeh.util.hex.hexbin` funtion and plots the colormapped counts:
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_hex_tile_binning.py
+    :source-position: above
+
+The above code can be made even simpler by calling the :func:`~bokeh.plotting.figure.Figure.hexbin`
+method of ``Figure``.
+
 .. _userguide_plotting_patch_glyphs:
 
 Patch Glyphs
@@ -432,6 +454,8 @@ Adding Annotations
 
 The section on adding annotations to plots has moved.  Please see
 :ref:`userguide_annotations`
+
+.. _axial coordinates: https://www.redblobgames.com/grids/hexagons/#coordinates-axial
 
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 .. |Figure| replace:: :class:`~bokeh.plotting.figure.Figure`

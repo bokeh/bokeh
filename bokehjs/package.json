@@ -1,6 +1,6 @@
 {
   "name": "bokehjs",
-  "version": "0.12.15dev6",
+  "version": "0.12.15",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -51,7 +51,7 @@
     "@types/through2": "^2.0.33",
     "jsdom": "^9.8.3",
     "websocket": "^1.0.22",
-    "typescript": "2.7.2",
+    "typescript": "2.8.1",
     "tslib": "^1.6.0",
     "tslint": "^5.9.1",
     "coffeescript": "2.0.2",
@@ -66,6 +66,7 @@
     "esprima": "^4.0.0",
     "escodegen": "^1.8.1",
     "estraverse": "^4.2.0",
+    "chrome-remote-interface": "^0.25.5",
     "@types/node": "^7.0.18",
     "@types/mocha": "^2.2.41",
     "@types/chai": "^3.5.2",
@@ -88,7 +89,8 @@
     "@types/combine-source-map": "^0.8.0",
     "convert-source-map": "^1.5.0",
     "@types/convert-source-map": "^1.3.33",
-    "merge-source-map": "^1.0.4"
+    "merge-source-map": "^1.0.4",
+    "mkdirp": "^0.5.1"
   },
   "dependencies": {
     "es6-weak-map": "^2.0.2",

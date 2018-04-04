@@ -68,7 +68,6 @@ test:
     - pytest-html
     - selenium >=3
     - pytest-xdist
-    - pytest-rerunfailures
     - requests >=1.2.3
     - beautifulsoup4
     - scipy
@@ -99,3 +98,10 @@ about:
   home: {{ data['url'] }}
   license: {{ data['license'] }}
   summary: {{ data['description'] }}
+
+extra:
+  deploy:
+    - anaconda-client
+    - fabric3
+    - setuptools >=0.39
+    - twine >=1.11

@@ -1,3 +1,4 @@
+import {TickSpec} from "./ticker"
 import {SingleIntervalTicker} from "./single_interval_ticker"
 import {copy_date, last_year_no_later_than, ONE_MONTH} from "./util"
 import * as p from "core/properties"
@@ -63,7 +64,7 @@ export class MonthsTicker extends SingleIntervalTicker {
       this.interval = 12*ONE_MONTH
   }
 
-  get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: any, _desired_n_ticks: number) {
+  get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: any, _desired_n_ticks: number): TickSpec<number> {
     const year_dates = date_range_by_year(data_low, data_high)
 
     const months = this.months

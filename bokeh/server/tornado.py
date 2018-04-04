@@ -189,7 +189,7 @@ class BokehTornado(TornadoApplication):
         if mem_log_frequency_milliseconds < 0:
             # 0 means "disable"
             raise ValueError("mem_log_frequency_milliseconds must be >= 0")
-        else:
+        elif mem_log_frequency_milliseconds > 0:
             if import_optional('psutil') is None:
                 log.warn("Memory logging requested, but is disabled. Optional dependency 'psutil' is missing. "
                          "Try 'pip install psutil' or 'conda install psutil'")

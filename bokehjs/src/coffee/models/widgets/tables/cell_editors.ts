@@ -79,7 +79,7 @@ export abstract class CellEditorView extends DOMView {
     return this.inputEl.value
   }
 
-  setValue(val: any) {
+  setValue(val: any): void {
     this.inputEl.value = val
   }
 
@@ -113,7 +113,7 @@ export abstract class CellEditorView extends DOMView {
   }
 
   validate(): any {
-    this.validateValue(this.getValue())
+    return this.validateValue(this.getValue())
   }
 }
 
@@ -133,7 +133,7 @@ export class StringEditorView extends CellEditorView {
     return ""
   }
 
-  protected _createInput() {
+  protected _createInput(): HTMLInputElement {
     return input({type: "text"})
   }
 
@@ -170,7 +170,7 @@ export class TextEditorView extends CellEditorView {
 
   inputEl: HTMLTextAreaElement
 
-  protected _createInput() {
+  protected _createInput(): HTMLTextAreaElement {
     return textarea()
   }
 }
@@ -188,7 +188,7 @@ export class SelectEditorView extends CellEditorView {
 
   inputEl: HTMLSelectElement
 
-  protected _createInput() {
+  protected _createInput(): HTMLSelectElement {
     return select()
   }
 
@@ -218,7 +218,7 @@ export class PercentEditorView extends CellEditorView {
 
   inputEl: HTMLInputElement
 
-  protected _createInput() {
+  protected _createInput(): HTMLInputElement {
     return input({type: "text"})
   }
 }
@@ -236,7 +236,7 @@ export class CheckboxEditorView extends CellEditorView {
 
   inputEl: HTMLInputElement
 
-  protected _createInput() {
+  protected _createInput(): HTMLInputElement {
     return input({type: "checkbox", value: "true"})
   }
 
@@ -267,7 +267,7 @@ export class IntEditorView extends CellEditorView {
 
   inputEl: HTMLInputElement
 
-  protected _createInput() {
+  protected _createInput(): HTMLInputElement {
     return input({type: "text"})
   }
 
@@ -282,7 +282,7 @@ export class IntEditorView extends CellEditorView {
     super.remove()
   }
 
-  serializeValue() {
+  serializeValue(): any {
     return parseInt(this.getValue(), 10) || 0
   }
 
@@ -316,7 +316,7 @@ export class NumberEditorView extends CellEditorView {
 
   inputEl: HTMLInputElement
 
-  protected _createInput() {
+  protected _createInput(): HTMLInputElement {
     return input({type: "text"})
   }
 
@@ -365,7 +365,7 @@ export class TimeEditorView extends CellEditorView {
 
   inputEl: HTMLInputElement
 
-  protected _createInput() {
+  protected _createInput(): HTMLInputElement {
     return input({type: "text"})
   }
 }
@@ -383,7 +383,7 @@ export class DateEditorView extends CellEditorView {
 
   inputEl: HTMLInputElement
 
-  protected _createInput() {
+  protected _createInput(): HTMLInputElement {
     return input({type: "text"})
   }
 

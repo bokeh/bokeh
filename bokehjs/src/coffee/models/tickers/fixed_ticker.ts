@@ -1,3 +1,4 @@
+import {TickSpec} from "./ticker"
 import {ContinuousTicker} from "./continuous_ticker"
 import * as p from "core/properties"
 
@@ -27,7 +28,7 @@ export class FixedTicker extends ContinuousTicker {
     })
   }
 
-  get_ticks_no_defaults(_data_low: number, _data_high: number, _cross_loc: any, _desired_n_ticks: number) {
+  get_ticks_no_defaults(_data_low: number, _data_high: number, _cross_loc: any, _desired_n_ticks: number): TickSpec<number> {
     return {
       major: this.ticks,
       minor: [],

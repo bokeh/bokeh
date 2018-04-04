@@ -31,15 +31,15 @@ export class SingleIntervalTicker extends ContinuousTicker {
     })
   }
 
-  get_interval(_data_low: number, _data_high: number, _n_desired_ticks: number) {
+  get_interval(_data_low: number, _data_high: number, _n_desired_ticks: number): number {
     return this.interval
   }
 
-  get min_interval() {
+  get min_interval(): number {
     return this.interval
   }
 
-  get max_interval() {
+  get max_interval(): number {
     return this.interval
   }
 }

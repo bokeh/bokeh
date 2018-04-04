@@ -6,6 +6,10 @@ import {Arrayable, Color} from "core/types"
 import {color2hex} from "core/util/color"
 import {is_little_endian} from "core/util/compat"
 
+export interface RGBAMapper {
+  v_compute(xs: Arrayable<number> | Arrayable<Factor>): Uint8Array
+}
+
 export function _convert_color(color: string): number {
   if (color[0] != "#")
     color = color2hex(color)
@@ -70,7 +74,7 @@ export abstract class ColorMapper extends Transform<Color> {
     return values
   }
 
-  get rgba_mapper() {
+  get rgba_mapper(): RGBAMapper {
     const self = this
     const palette = _convert_palette(this.palette)
     const colors = this._colors(_convert_color)
@@ -79,7 +83,7 @@ export abstract class ColorMapper extends Transform<Color> {
         const values = new Uint32Array(xs.length)
         self._v_compute(xs, values, palette, colors)
         return _uint32_to_rgba(values)
-      }
+      },
     }
   }
 

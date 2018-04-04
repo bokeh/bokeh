@@ -13,7 +13,7 @@ export class MultiDict<T> {
       return null
   }
 
-  add_value(key: string, value: T) {
+  add_value(key: string, value: T): void {
     /*
     if value == null
       throw new Error("Can't put null in this dict")
@@ -30,7 +30,7 @@ export class MultiDict<T> {
     }
   }
 
-  remove_value(key: string, value: T) {
+  remove_value(key: string, value: T): void {
     const existing = this._existing(key)
     if (isArray(existing)) {
       const new_array = difference(existing, [value])

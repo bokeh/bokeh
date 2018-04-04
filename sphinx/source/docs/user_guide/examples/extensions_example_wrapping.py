@@ -157,6 +157,6 @@ value = np.sin(xx/50) * np.cos(yy/50) * 50 + 50
 
 source = ColumnDataSource(data=dict(x=xx, y=yy, z=value, color=value))
 
-surface = Surface3d(x="x", y="y", z="z", color="color", data_source=source)
+surface = Surface3d(x="x", y="y", z="z", color="color", data_source=source, width=600, height=600)
 
 show(surface)

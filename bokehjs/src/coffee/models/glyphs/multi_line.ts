@@ -139,7 +139,7 @@ export class MultiLineView extends GlyphView {
     return result
   }
 
-  get_interpolation_hit(i: number, point_i: number, geometry: PointGeometry | SpanGeometry){
+  get_interpolation_hit(i: number, point_i: number, geometry: PointGeometry | SpanGeometry): [number, number] {
     const {sx, sy} = geometry
     const x2 = this._xs[i][point_i]
     const y2 = this._ys[i][point_i]

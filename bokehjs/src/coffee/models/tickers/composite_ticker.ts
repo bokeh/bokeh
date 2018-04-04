@@ -1,3 +1,4 @@
+import {TickSpec} from "./ticker"
 import {ContinuousTicker} from "./continuous_ticker"
 import * as p from "core/properties"
 import {argmin, sortedIndex} from "core/util/array"
@@ -37,12 +38,23 @@ export class CompositeTicker extends ContinuousTicker {
   // S.get_max_interval() < T.get_min_interval().
   // FIXME Enforce this automatically.
 
-  get min_intervals() { return this.tickers.map((ticker) => ticker.get_min_interval()) }
-  get max_intervals() { return this.tickers.map((ticker) => ticker.get_max_interval()) }
-  get min_interval() { return this.min_intervals[0] }
-  get max_interval() { return this.max_intervals[0] }
+  get min_intervals(): number[] {
+    return this.tickers.map((ticker) => ticker.get_min_interval())
+  }
 
-  get_best_ticker(data_low: number, data_high: number, desired_n_ticks: number) {
+  get max_intervals(): number[] {
+    return this.tickers.map((ticker) => ticker.get_max_interval())
+  }
+
+  get min_interval(): number {
+    return this.min_intervals[0]
+  }
+
+  get max_interval(): number {
+    return this.max_intervals[0]
+  }
+
+  get_best_ticker(data_low: number, data_high: number, desired_n_ticks: number): ContinuousTicker {
     const data_range = data_high - data_low
     const ideal_interval = this.get_ideal_interval(data_low, data_high, desired_n_ticks)
     const ticker_ndxs = [
@@ -71,12 +83,12 @@ export class CompositeTicker extends ContinuousTicker {
     return best_ticker
   }
 
-  get_interval(data_low: number, data_high: number, desired_n_ticks: number) {
+  get_interval(data_low: number, data_high: number, desired_n_ticks: number): number {
     const best_ticker = this.get_best_ticker(data_low, data_high, desired_n_ticks)
     return best_ticker.get_interval(data_low, data_high, desired_n_ticks)
   }
 
-  get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: any, desired_n_ticks: number) {
+  get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: any, desired_n_ticks: number): TickSpec<number> {
     const best_ticker = this.get_best_ticker(data_low, data_high, desired_n_ticks)
     return best_ticker.get_ticks_no_defaults(data_low, data_high, cross_loc, desired_n_ticks)
   }

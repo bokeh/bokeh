@@ -1,0 +1,27 @@
+0.12.16 (Apr 2018)
+==================
+
+Bokeh Version ``0.12.16`` is an incremental update that adds a few
+important features and fixes several bugs. Some of the highlights
+include:
+
+
+Many other small bugfixes and docs additions. For full details see the
+:bokeh-tree:`CHANGELOG`.
+
+
+Migration Guide
+---------------
+
+NOTE: the 0.12.x series is the last planned release series before a version
+1.0 release. For more information see the `project roadmap`_.
+
+Release History
+~~~~~~~~~~~~~~~
+
+To support publishing all release information on one page, the
+``bokeh_index_toctree`` module and contents have been immediately moved to
+``bokeh_releases``. Since this facility had no use outside building
+official Bokeh documenation, no deprecation was given.
+
+.. _project roadmap: https://bokehplots.com/pages/roadmap.html

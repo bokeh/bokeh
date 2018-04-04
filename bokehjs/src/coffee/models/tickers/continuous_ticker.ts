@@ -1,4 +1,4 @@
-import {Ticker} from "./ticker"
+import {Ticker, TickSpec} from "./ticker"
 import * as p from "core/properties"
 import {range} from "core/util/array"
 import {isStrictNaN} from "core/util/types"
@@ -47,7 +47,7 @@ export abstract class ContinuousTicker extends Ticker<number> {
   min_interval: number
   max_interval: number
 
-  get_ticks(data_low: number, data_high: number, _range: any, cross_loc: any, _: any) {
+  get_ticks(data_low: number, data_high: number, _range: any, cross_loc: any, _: any): TickSpec<number> {
     return this.get_ticks_no_defaults(data_low, data_high, cross_loc, this.desired_num_ticks)
   }
 
@@ -64,7 +64,7 @@ export abstract class ContinuousTicker extends Ticker<number> {
 
   // The version of get_ticks() that does the work (and the version that
   // should be overridden in subclasses).
-  get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: any, desired_n_ticks: number) {
+  get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: any, desired_n_ticks: number): TickSpec<number> {
     const interval = this.get_interval(data_low, data_high, desired_n_ticks)
     const start_factor = Math.floor(data_low / interval)
     const end_factor   = Math.ceil(data_high / interval)
@@ -103,19 +103,19 @@ export abstract class ContinuousTicker extends Ticker<number> {
   }
 
   // Returns the smallest interval that can be returned by get_interval().
-  get_min_interval() {
+  get_min_interval(): number {
     return this.min_interval
   }
 
   // Returns the largest interval that can be returned by get_interval().
-  get_max_interval() {
+  get_max_interval(): number {
     return this.max_interval != null ? this.max_interval : Infinity
   }
 
   // Returns the interval size that would produce exactly the number of
   // desired ticks.  (In general we won't use exactly this interval, because
   // we want the ticks to be round numbers.)
-  get_ideal_interval(data_low: number, data_high: number, desired_n_ticks: number) {
+  get_ideal_interval(data_low: number, data_high: number, desired_n_ticks: number): number {
     const data_range = data_high - data_low
     return data_range / desired_n_ticks
   }

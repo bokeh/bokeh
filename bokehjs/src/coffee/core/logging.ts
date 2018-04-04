@@ -28,7 +28,7 @@ export class Logger {
     off:   Logger.OFF,
   }
 
-  static get levels() {
+  static get levels(): string[] {
     return Object.keys(Logger.log_levels)
   }
 

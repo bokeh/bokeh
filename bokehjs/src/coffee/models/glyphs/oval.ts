@@ -29,7 +29,7 @@ export class OvalView extends XYGlyphView {
   model: Oval
   visuals: Oval.Visuals
 
-  _set_data() {
+  _set_data(): void {
     this.max_w2 = 0
     if (this.model.properties.width.units == "data")
       this.max_w2 = this.max_width/2

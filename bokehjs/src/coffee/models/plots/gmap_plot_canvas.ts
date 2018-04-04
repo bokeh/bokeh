@@ -46,8 +46,8 @@ export class GMapPlotCanvasView extends PlotCanvasView {
 
     this.canvas_view.map_el!.style.position = "absolute"
 
-    if (typeof google !== "undefined" && google.maps != null) {
-      if (typeof _bokeh_gmaps_callback !== "undefined") {
+    if (typeof google === "undefined" || google.maps == null) {
+      if (typeof _bokeh_gmaps_callback === "undefined") {
         load_google_api(this.model.plot.api_key)
       }
       gmaps_ready.connect(() => this.request_render())
