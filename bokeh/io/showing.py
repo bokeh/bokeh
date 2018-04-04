@@ -28,6 +28,7 @@ from bokeh.util.api import general, dev ; general, dev
 # External imports
 
 # Bokeh imports
+from ..models.layouts import LayoutDOM
 from ..util.browser import get_browser_controller, NEW_PARAM
 from .notebook import run_notebook_hook
 from .saving import save
@@ -45,7 +46,7 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
         cell to display multiple objects. The objects are displayed in order.
 
     Args:
-        obj (LayoutDOM or Application) :
+        obj (LayoutDOM or Application or callable) :
             A Bokeh object to display.
 
             Bokeh plots, widgets, layouts (i.e. rows and columns) may be
@@ -127,9 +128,16 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
     '''
     state = curstate()
 
+    is_application = getattr(obj, '_is_a_bokeh_application_class', False)
+
+    if not (isinstance(obj, LayoutDOM) or is_application or callable(obj)):
+        raise ValueError(_BAD_SHOW_MSG)
+
+    # TODO (bev) check callable signature more thoroughly
+
     # This ugliness is to prevent importing bokeh.application (which would bring
     # in Tornado) just in order to show a non-server object
-    if getattr(obj, '_is_a_bokeh_application_class', False) or callable(obj):
+    if is_application or callable(obj):
         return run_notebook_hook(state.notebook_type, 'app', obj, state, notebook_url)
 
     if obj not in state.document.roots:
@@ -143,6 +151,13 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+_BAD_SHOW_MSG = """"Invalid object to show. The object to passed to show must be one of:
+
+* a LayoutDOM (e.g. a Plot or Widget or Layout)
+* a Bokeh Application
+* a callable suitable to an application FunctionHandler
+"""
 
 def _show_file_with_state(obj, state, new, controller):
     '''
