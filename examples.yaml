@@ -20,11 +20,7 @@
   type: server
   skip: ["gapminder", "pivot", "simple_hdf5", "spectrogram", "surface3d", "stocks"]
 
-- path: "examples/integration/annotations"
-- path: "examples/integration/glyphs"
-- path: "examples/integration/layout"
-- path: "examples/integration/security"
-- path: "examples/integration/webgl"
+- path: "examples/integration/*"
 
 - path: "bokehjs/examples"
   type: js

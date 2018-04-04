@@ -5,7 +5,7 @@ import os
 import yaml
 import requests
 
-from os.path import join, dirname, basename, relpath, splitext, isfile
+from os.path import join, exists, dirname, basename, relpath, splitext, isfile, isdir
 
 from ..plugins.constants import __version__, job_id
 from ..plugins.upload_to_s3 import S3_URL, upload_file_to_s3
@@ -177,10 +177,16 @@ class Example(object):
         return self.pixels != 0
 
 def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=None, skip=None, no_js=None, no_diff=None):
-    if path == '*':
-        example_path = examples_dir
-    else:
-        example_path = join(examples_dir, path)
+    if path.endswith("*"):
+        star_path = join(examples_dir, path[:-1])
+
+        for name in sorted(os.listdir(star_path)):
+            if isdir(join(star_path, name)):
+                add_examples(list_of_examples, join(path[:-1], name), examples_dir, example_type, slow, skip, no_js, no_diff)
+
+        return
+
+    example_path = join(examples_dir, path)
 
     for name in sorted(os.listdir(example_path)):
         flags = 0
@@ -192,14 +198,14 @@ def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=N
             flags |= example_type if example_type else Flags.file
         elif name.endswith(".ipynb"):
             flags |= Flags.notebook
-        elif os.path.isdir(join(example_path, name)):
-            if os.path.exists(join(example_path, name, name + ".html")):
+        elif isdir(join(example_path, name)):
+            if exists(join(example_path, name, name + ".html")):
                 name = join(name, name + ".html")
                 flags |= example_type if example_type else Flags.js
-            elif os.path.exists(join(example_path, name, name + ".py")):
+            elif exists(join(example_path, name, name + ".py")):
                 name = join(name, name + ".py")
                 flags |= example_type if example_type else Flags.file
-            elif os.path.exists(join(example_path, name, "main.py")):
+            elif exists(join(example_path, name, "main.py")):
                 # name is unchanged and passed as the example name
                 flags |= example_type if example_type else Flags.server
             else:
@@ -221,8 +227,6 @@ def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=N
 
         list_of_examples.append(Example(join(example_path, name), flags, examples_dir))
 
-    return list_of_examples
-
 
 def collect_examples(config_path):
     examples_dir = dirname(config_path)
@@ -243,8 +247,7 @@ def collect_examples(config_path):
         no_js_status = example.get("no_js")
         no_diff_status = example.get("no_diff")
 
-        list_of_examples = add_examples(list_of_examples, path, examples_dir,
+        add_examples(list_of_examples, path, examples_dir,
             example_type=example_type, slow=slow_status, skip=skip_status, no_js=no_js_status, no_diff=no_diff_status)
-
 
     return list_of_examples
