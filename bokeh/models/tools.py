@@ -224,6 +224,15 @@ class WheelZoomTool(Scroll):
     zoom out more smoothly, at the cost of losing the focus position.
     """)
 
+    zoom_on_axis = Bool(default=True, help="""
+    Whether scrolling on an axis (outside the central plot area) should
+    zoom that dimension.
+    """)
+
+    speed = Float(default=1/600, help="""
+    Speed at which the wheel zooms. Default is 1/600. Optimal range is between
+    0.001 and 0.09. High values will be clipped. Speed may very between browsers.
+    """)
 
 class SaveTool(Action):
     ''' *toolbar icon*: |save_icon|
