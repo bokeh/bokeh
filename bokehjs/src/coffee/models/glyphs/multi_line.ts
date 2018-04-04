@@ -1,5 +1,5 @@
 import {IBBox} from "core/util/bbox"
-import {SpatialIndex, RBush} from "core/util/spatial"
+import {SpatialIndex} from "core/util/spatial"
 import {PointGeometry, SpanGeometry} from "core/geometry"
 import {NumberSpec} from "core/vectorization"
 import {LineMixinVector} from "core/property_mixins"
@@ -56,7 +56,7 @@ export class MultiLineView extends GlyphView {
       points.push({minX, minY, maxX, maxY, i})
     }
 
-    return new RBush(points)
+    return new SpatialIndex(points)
   }
 
   protected _render(ctx: Context2d, indices: number[], {sxs, sys}: MultiLineData): void {

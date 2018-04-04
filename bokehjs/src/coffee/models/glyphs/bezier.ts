@@ -3,7 +3,7 @@ import {LineMixinVector} from "core/property_mixins"
 import {Line} from "core/visuals"
 import {Arrayable} from "core/types"
 import {IBBox} from "core/util/bbox"
-import {SpatialIndex, RBush} from "core/util/spatial"
+import {SpatialIndex} from "core/util/spatial"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_line_legend} from "./utils"
@@ -113,7 +113,7 @@ export class BezierView extends GlyphView {
       points.push({minX: x0, minY: y0, maxX: x1, maxY: y1, i})
     }
 
-    return new RBush(points)
+    return new SpatialIndex(points)
   }
 
   protected _render(ctx: Context2d, indices: number[],

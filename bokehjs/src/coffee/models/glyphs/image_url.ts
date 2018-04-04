@@ -6,7 +6,7 @@ import {logger} from "core/logging"
 import * as p from "core/properties"
 import {map} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
-import {SpatialIndex, RBush} from "core/util/spatial"
+import {SpatialIndex} from "core/util/spatial"
 
 export type CanvasImage = HTMLImageElement
 export const CanvasImage = Image
@@ -43,7 +43,7 @@ export class ImageURLView extends XYGlyphView {
   }
 
   protected _index_data(): SpatialIndex {
-    return new RBush([])
+    return new SpatialIndex([])
   }
 
   protected _set_data(): void {

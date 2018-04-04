@@ -1,4 +1,3 @@
-/// <reference types="@types/rbush" />
 /// <reference types="@types/proj4" />
 /// <reference types="@types/sprintf-js" />
 /// <reference types="@types/hammerjs" />

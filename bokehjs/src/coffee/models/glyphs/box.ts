@@ -2,7 +2,7 @@ import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import {Arrayable} from "core/types"
 import {Line, Fill} from "core/visuals"
 import {IBBox} from "core/util/bbox"
-import {SpatialIndex, RBush} from "core/util/spatial"
+import {SpatialIndex} from "core/util/spatial"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_area_legend} from "./utils"
@@ -40,7 +40,7 @@ export abstract class BoxView extends GlyphView {
       points.push({minX: l, minY: b, maxX: r, maxY: t, i})
     }
 
-    return new RBush(points)
+    return new SpatialIndex(points)
   }
 
   protected _render(ctx: Context2d, indices: number[],
