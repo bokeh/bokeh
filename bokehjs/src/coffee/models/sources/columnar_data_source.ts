@@ -35,7 +35,7 @@ export abstract class ColumnarDataSource extends DataSource {
 
   data: {[key: string]: Arrayable}
 
-  get column_names(): String[] {
+  get column_names(): string[] {
     return keys(this.data)
   }
 
