@@ -24,4 +24,15 @@ To support publishing all release information on one page, the
 ``bokeh_releases``. Since this facility had no use outside building
 official Bokeh documenation, no deprecation was given.
 
+CDS ``column_names`` property
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ColumnDataSource models had a Bokeh property ``column_names`` for specifying
+the list of column names in ``source.data``. This information was duplicative
+and had to be explicitly maintained in a fragile way. It has been replaced by
+read-only properties in both Python and JavaScript that always accurately
+report the current column names automatically. Setting ``column_names`` is
+no longer supported, however as this possibility has never been officially
+documented or demonstrated, it is not expected to affect any standard usage.
+
 .. _project roadmap: https://bokehplots.com/pages/roadmap.html
