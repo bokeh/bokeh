@@ -65,6 +65,13 @@ def test_args():
             help    = "A standard Python logging format string (default: %r)" % scserve.DEFAULT_LOG_FORMAT.replace("%", "%%"),
         )),
 
+        ('--log-file', dict(
+            metavar ='LOG-FILE',
+            action  = 'store',
+            default = None,
+            help    = "A filename to write logs to, or None to write to the standard stream (default: None)",
+        )),
+
         ('files', dict(
             metavar='DIRECTORY-OR-SCRIPT',
             nargs='*',

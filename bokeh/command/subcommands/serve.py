@@ -368,6 +368,13 @@ base_serve_args = (
         default = DEFAULT_LOG_FORMAT,
         help    = "A standard Python logging format string (default: %r)" % DEFAULT_LOG_FORMAT.replace("%", "%%"),
     )),
+
+    ('--log-file', dict(
+        metavar ='LOG-FILE',
+        action  = 'store',
+        default = None,
+        help    = "A filename to write logs to, or None to write to the standard stream (default: None)",
+    )),
 )
 
 class Serve(Subcommand):
@@ -502,7 +509,7 @@ class Serve(Subcommand):
         applications = build_single_handler_applications(args.files, argvs)
 
         log_level = getattr(logging, args.log_level.upper())
-        basicConfig(level=log_level, format=args.log_format)
+        basicConfig(level=log_level, format=args.log_format, filename=args.log_file)
 
         # This should remain here until --host is removed entirely
         _fixup_deprecated_host_args(args)
