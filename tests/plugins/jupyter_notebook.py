@@ -26,8 +26,6 @@ def jupyter_notebook(request, log_file):
     Adds custom.js that runs all the cells on notebook opening. Cleans out
     this custom.js at the end of the test run.
 
-    WARNING: Tramples on user's existing custom.js
-
     Returns the url that the jupyter notebook is running at.
 
     """
@@ -51,13 +49,19 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
         os.makedirs(custom)
 
     customjs = join(custom, "custom.js")
+
+    old_customjs = None
+    if exists(customjs):
+        old_customjs =  open(customjs, "r").read()
+
     with open(customjs, "w") as f:
         f.write(body)
 
     # Add in the clean-up code
     def clean_up_customjs():
+        text = old_customjs if old_customjs is not None else ""
         with open(customjs, "w") as f:
-            f.write("")
+            f.write(text)
 
     request.addfinalizer(clean_up_customjs)
 
