@@ -1,14 +1,10 @@
 import {ActionTool, ActionToolView} from "./action_tool"
-import {Reset} from "core/bokeh_events"
 
 export class ResetToolView extends ActionToolView {
   model: ResetTool
 
   doit(): void {
-    this.plot_view.clear_state()
-    this.plot_view.reset_range()
-    this.plot_view.reset_selection()
-    this.plot_model.plot.trigger_event(new Reset())
+    this.plot_view.reset()
   }
 }
 

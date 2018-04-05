@@ -2,6 +2,7 @@ import {EQ, Constraint, Variable} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
+import {Signal0} from "core/signaling"
 import {Color} from "core/types"
 import {LineJoin, LineCap} from "core/enums"
 import {Place, Location, OutputBackend} from "core/enums"
@@ -159,6 +160,8 @@ export namespace Plot {
 export interface Plot extends Plot.Attrs {}
 
 export class Plot extends LayoutDOM {
+
+  reset = new Signal0(this, "reset")
 
   properties: Plot.Props
 
