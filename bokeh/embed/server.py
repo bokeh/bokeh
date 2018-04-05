@@ -107,7 +107,7 @@ def server_document(url="default", relative_urls=False, resources="default", arg
     return encode_utf8(tag)
 
 @general((1,0,0))
-def server_session(model, session_id, url="default", relative_urls=False, resources="default", arguments=None):
+def server_session(model=None, session_id=None, url="default", relative_urls=False, resources="default", arguments=None):
     ''' Return a script tag that embeds content from a specific existing session on
     a Bokeh server.
 
@@ -121,13 +121,13 @@ def server_session(model, session_id, url="default", relative_urls=False, resour
         function for different or multiple page loads.
 
     Args:
-        model (Model or None) :
-            The object to render from the session, or None.
+        model (Model or None, optional) :
+            The object to render from the session, or None. (default: None)
 
             If None, the entire document will be rendered.
 
         session_id (str) :
-            A server session ID (default: None)
+            A server session ID
 
         url (str, optional) :
             A URL to a Bokeh application on a Bokeh server (default: "default")
@@ -170,6 +170,9 @@ def server_session(model, session_id, url="default", relative_urls=False, resour
             probably not desired.
 
     '''
+    if session_id is None:
+        raise ValueError("Must supply a session_id")
+
     url = _clean_url(url)
 
     app_path = _get_app_path(url)

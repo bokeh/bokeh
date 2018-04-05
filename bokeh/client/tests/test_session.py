@@ -128,6 +128,14 @@ class Test_ClientSession(object):
         assert mock_close.call_args[1] == {}
 
     @patch("bokeh.client.connection.ClientConnection.close")
+    def test_context_manager(self, mock_close):
+        with bcs.ClientSession() as session:
+            assert isinstance(session, bcs.ClientSession)
+        assert mock_close.call_count == 1
+        assert mock_close.call_args[0] == ("closed",)
+        assert mock_close.call_args[1] == {}
+
+    @patch("bokeh.client.connection.ClientConnection.close")
     def test_close_with_why(self, mock_close):
         s = bcs.ClientSession()
         s.close("foo")
