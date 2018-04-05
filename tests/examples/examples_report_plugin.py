@@ -11,7 +11,7 @@ from py.xml import html
 
 from tests.plugins.constants import __version__
 from tests.plugins.utils import get_version_from_git as resolve_ref
-from tests.plugins.upload_to_s3 import upload_file_to_s3_by_job_id
+from tests.plugins.upload_to_s3 import connect_to_s3, upload_file_to_s3_by_job_id
 from ..plugins.utils import warn
 
 from .collect_examples import collect_examples, Flags
@@ -190,6 +190,9 @@ class ExamplesTestReport(object):
         if pytest.config.option.upload:
             if pytest.config.option.verbose:
                 print()
+
+            if connect_to_s3() is None:
+                return
 
             for (example, _, _) in self.entries:
                 example.upload_imgs()
