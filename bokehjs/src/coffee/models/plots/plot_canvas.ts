@@ -10,6 +10,7 @@ import {ToolView} from "../tools/tool"
 import {Selection} from "../selections/selection"
 import {Plot} from "./plot"
 
+import {Reset} from "core/bokeh_events"
 import {Arrayable} from "core/types"
 import {Signal0} from "core/signaling"
 import {build_views, remove_views} from "core/build_views"
@@ -145,6 +146,13 @@ export class PlotCanvasView extends DOMView {
   request_paint(): void {
     if (!this.is_paused)
       this.throttled_paint()
+  }
+
+  reset(): void {
+    this.clear_state()
+    this.reset_range()
+    this.reset_selection()
+    this.model.plot.trigger_event(new Reset())
   }
 
   remove(): void {
@@ -645,6 +653,7 @@ export class PlotCanvasView extends DOMView {
     this.connect(this.model.plot.properties.renderers.change, () => this.build_levels())
     this.connect(this.model.plot.toolbar.properties.tools.change, () => { this.build_levels(); this.build_tools() })
     this.connect(this.model.plot.change, () => this.request_render())
+    this.connect(this.model.plot.reset, () => this.reset())
   }
 
   set_initial_range(): void {

@@ -2,6 +2,7 @@ import {EQ, Constraint, Variable} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
+import {Signal0} from "core/signaling"
 import {Color} from "core/types"
 import {LineJoin, LineCap} from "core/enums"
 import {Place, Location, OutputBackend} from "core/enums"
@@ -159,7 +160,7 @@ export namespace Plot {
 export interface Plot extends Plot.Attrs {}
 
 export class Plot extends LayoutDOM {
-
+  reset: Signal0<this>
   properties: Plot.Props
 
   constructor(attrs?: Partial<Plot.Attrs>) {
@@ -237,6 +238,8 @@ export class Plot extends LayoutDOM {
 
   initialize(): void {
     super.initialize()
+
+    this.reset = new Signal0(this, "reset")
 
     for (const xr of values(this.extra_x_ranges).concat(this.x_range)) {
       let plots = xr.plots
