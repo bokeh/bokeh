@@ -25,10 +25,11 @@ from bokeh.util.api import general, dev ; general, dev
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import os
 import io
 import signal
 from os.path import abspath, devnull
-from tempfile import NamedTemporaryFile
+from tempfile import mkstemp
 from warnings import warn
 
 # External imports
@@ -163,10 +164,12 @@ def get_screenshot_as_png(obj, driver=None, **kwargs):
                             '("conda install pillow" or "pip install pillow")')
 
     with _tmp_html() as tmp:
-        save_layout_html(obj, tmp.file, **kwargs)
+        html = get_layout_html(obj, **kwargs)
+        with io.open(tmp.fd, mode="wb", closefd=False) as file:
+            file.write(b(html))
 
         web_driver = driver if driver is not None else _create_default_webdriver()
-        web_driver.get("file:///" + tmp.name)
+        web_driver.get("file:///" + tmp.path)
         web_driver.maximize_window()
 
         ## resize for PhantomJS compat
@@ -192,10 +195,12 @@ def get_svgs(obj, driver=None, **kwargs):
 
     '''
     with _tmp_html() as tmp:
-        save_layout_html(obj, tmp.file, **kwargs)
+        html = get_layout_html(obj, **kwargs)
+        with io.open(tmp.fd, mode="wb", closefd=False) as file:
+            file.write(b(html))
 
         web_driver = driver if driver is not None else _create_default_webdriver()
-        web_driver.get("file:///" + tmp.name)
+        web_driver.get("file:///" + tmp.path)
 
         wait_until_render_complete(web_driver)
 
@@ -207,7 +212,7 @@ def get_svgs(obj, driver=None, **kwargs):
     return svgs
 
 @dev((1,0,0))
-def save_layout_html(obj, file, resources=INLINE, **kwargs):
+def get_layout_html(obj, resources=INLINE, **kwargs):
     '''
 
     '''
@@ -225,12 +230,12 @@ def save_layout_html(obj, file, resources=INLINE, **kwargs):
             obj.plot_width = kwargs.get('width', old_width)
 
     html = file_html(obj, resources, title="")
-    file.write(b(html))
-    file.flush()
 
     if resize:
         obj.plot_height = old_height
         obj.plot_width = old_width
+
+    return html
 
 @dev((1,0,0))
 def wait_until_render_complete(driver):
@@ -326,8 +331,33 @@ def _create_default_webdriver():
     phantomjs_path = detect_phantomjs()
     return webdriver.PhantomJS(executable_path=phantomjs_path, service_log_path=devnull)
 
+class _TempFile(object):
+
+    def __init__(self, prefix="tmp", suffix=""):
+        self.fd, self.path = mkstemp(prefix=prefix, suffix=suffix)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc, value, tb):
+        self.close()
+
+    def __del__(self):
+        self.close()
+
+    def close(self):
+        try:
+            os.close(self.fd)
+        except (OSError, IOError):
+            pass
+
+        try:
+            os.unlink(self.path)
+        except (OSError, IOError):
+            pass
+
 def _tmp_html():
-    return NamedTemporaryFile(mode="wb", prefix="bokeh", suffix=".html")
+    return _TempFile(prefix="bokeh", suffix=".html")
 
 #-----------------------------------------------------------------------------
 # Code
