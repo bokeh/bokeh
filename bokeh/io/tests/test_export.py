@@ -185,8 +185,8 @@ def test_save_layout_html_resets_plot_dims():
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
                   plot_height=initial_height, plot_width=initial_width)
 
-    with NamedTemporaryFile() as tmp:
-        bie.save_layout_html(layout, tmp.name, height=100, width=100)
+    with NamedTemporaryFile(mode="wb") as tmp:
+        bie.save_layout_html(layout, tmp.file, height=100, width=100)
 
     assert layout.plot_height == initial_height
     assert layout.plot_width == initial_width
