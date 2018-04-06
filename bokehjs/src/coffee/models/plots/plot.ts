@@ -160,9 +160,7 @@ export namespace Plot {
 export interface Plot extends Plot.Attrs {}
 
 export class Plot extends LayoutDOM {
-
-  reset = new Signal0(this, "reset")
-
+  reset: Signal0<this>
   properties: Plot.Props
 
   constructor(attrs?: Partial<Plot.Attrs>) {
@@ -240,6 +238,8 @@ export class Plot extends LayoutDOM {
 
   initialize(): void {
     super.initialize()
+
+    this.reset = new Signal0(this, "reset")
 
     for (const xr of values(this.extra_x_ranges).concat(this.x_range)) {
       let plots = xr.plots
