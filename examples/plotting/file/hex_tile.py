@@ -11,7 +11,7 @@ y = np.random.standard_normal(n)
 
 bins = hexbin(x, y, 0.1)
 
-p = figure(title="Manual hex bin for 50000 points", tools="wheel_zoom,reset",
+p = figure(title="Manual hex bin for 50000 points", tools="wheel_zoom,pan,reset",
            match_aspect=True, background_fill_color='#440154')
 p.grid.visible = False
 
