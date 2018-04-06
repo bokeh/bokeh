@@ -2,7 +2,6 @@ import {Renderer, RendererView} from "./renderer"
 import {LineView} from "../glyphs/line"
 import {Glyph, GlyphView} from "../glyphs/glyph"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
-import {RemoteDataSource} from "../sources/remote_data_source"
 import {Scale} from "../scales/scale"
 import {CDSView} from "../sources/cds_view"
 import {Color} from "core/types"
@@ -104,7 +103,7 @@ export class GlyphRendererView extends RendererView {
 
     this.set_data(false)
 
-    if (this.model.data_source instanceof RemoteDataSource)
+    if (this.model.data_source.setup != null)
       this.model.data_source.setup()
   }
 

@@ -54,5 +54,7 @@ export abstract class DataSource extends Model {
       }
     })
   }
+
+  setup?(): void
 }
 DataSource.initClass()
