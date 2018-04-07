@@ -293,8 +293,9 @@ class TapTool(Tap):
     have a matching value for their ``name`` attribute will be used.
     """)
 
-    renderers = List(Instance(Renderer), help="""
-    An explicit list of renderers to hit test again. If unset,
+
+    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
+    An explicit list of renderers to hit test against. If unset,
     defaults to all renderers on a plot.
     """)
 
@@ -499,8 +500,8 @@ class BoxSelectTool(Drag):
     have a matching value for their ``name`` attribute will be used.
     """)
 
-    renderers = List(Instance(Renderer), help="""
-    An explicit list of renderers to hit test again. If unset,
+    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
+    An explicit list of renderers to hit test against. If unset,
     defaults to all renderers on a plot.
     """)
 
@@ -570,8 +571,8 @@ class LassoSelectTool(Drag):
     have a matching value for their ``name`` attribute will be used.
     """)
 
-    renderers = List(Instance(Renderer), help="""
-    An explicit list of renderers to hit test again. If unset,
+    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
+    An explicit list of renderers to hit test against. If unset,
     defaults to all renderers on a plot.
     """)
 
@@ -621,8 +622,8 @@ class PolySelectTool(Tap):
     have a matching value for their ``name`` attribute will be used.
     """)
 
-    renderers = List(Instance(Renderer), help="""
-    An explicit list of renderers to hit test again. If unset,
+    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
+    An explicit list of renderers to hit test against. If unset,
     defaults to all renderers on a plot.
     """)
 
@@ -704,8 +705,8 @@ class HoverTool(Inspection):
     have a matching value for their ``name`` attribute will be used.
     """)
 
-    renderers = List(Instance(Renderer), help="""
-    An explicit list of renderers to hit test again. If unset,
+    renderers = Either(Auto, List(Instance(Renderer)), help="""
+    An explicit list of renderers to hit test against. If unset,
     defaults to all renderers on a plot.
     """)
 
