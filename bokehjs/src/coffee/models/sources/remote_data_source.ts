@@ -28,7 +28,5 @@ export abstract class RemoteDataSource extends ColumnDataSource {
       polling_interval: [ p.Number ],
     })
   }
-
-  abstract setup(): void
 }
 RemoteDataSource.initClass()
