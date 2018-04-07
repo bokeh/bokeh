@@ -22,7 +22,6 @@ from bokeh.util.testing import verify_api ; verify_api
 
 # Standard library imports
 from mock import patch
-from tempfile import NamedTemporaryFile
 import os
 import re
 
@@ -53,7 +52,7 @@ api = {
 
         ( 'get_screenshot_as_png',      (1, 0, 0) ),
         ( 'get_svgs',                   (1, 0, 0) ),
-        ( 'save_layout_html',           (1, 0, 0) ),
+        ( 'get_layout_html',            (1, 0, 0) ),
         ( 'wait_until_render_complete', (1, 0, 0) ),
         ( 'terminate_web_driver',       (1, 0, 0) ),
 
@@ -179,14 +178,13 @@ def test_get_svgs_with_svg_present():
     assert svg0 == svg2
     assert svg1 == svg2
 
-def test_save_layout_html_resets_plot_dims():
+def test_get_layout_html_resets_plot_dims():
     initial_height, initial_width = 200, 250
 
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
                   plot_height=initial_height, plot_width=initial_width)
 
-    with NamedTemporaryFile(mode="wb") as tmp:
-        bie.save_layout_html(layout, tmp.file, height=100, width=100)
+    bie.get_layout_html(layout, height=100, width=100)
 
     assert layout.plot_height == initial_height
     assert layout.plot_width == initial_width

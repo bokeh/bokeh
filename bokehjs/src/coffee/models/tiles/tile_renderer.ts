@@ -235,6 +235,7 @@ export class TileRendererView extends RendererView {
       const sx = sxmin
       const sy = symin
       this.map_canvas.drawImage(tile_obj.img, sx, sy, sw, sh)
+      tile_obj.finished = true
     }
   }
 
