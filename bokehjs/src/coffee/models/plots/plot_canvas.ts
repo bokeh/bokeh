@@ -614,8 +614,10 @@ export class PlotCanvasView extends DOMView {
     const new_renderer_views = build_views(this.renderer_views, renderer_models, this.view_options()) as RendererView[]
     const renderers_to_remove = difference(old_renderers, renderer_models.map((model) => model.id))
 
-    for (const id_ of renderers_to_remove) {
-      delete this.levels.glyph[id_]
+    for (const level in this.levels) {
+      for (const id of renderers_to_remove) {
+        delete this.levels[level][id]
+      }
     }
 
     for (const view of new_renderer_views) {
