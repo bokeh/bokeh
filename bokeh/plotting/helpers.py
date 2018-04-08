@@ -766,9 +766,6 @@ def _glyph_function(glyphclass, extra_docs=None):
         if legend_item_label:
             _update_legend(self, legend_item_label, glyph_renderer)
 
-        for tool in self.select(type=BoxSelectTool):
-            tool.renderers.append(glyph_renderer)
-
         self.renderers.append(glyph_renderer)
 
         return glyph_renderer
