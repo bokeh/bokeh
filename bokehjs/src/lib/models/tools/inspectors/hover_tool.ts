@@ -1,8 +1,8 @@
 import {InspectTool, InspectToolView} from "./inspect_tool"
 import {Tooltip, TooltipView} from "../../annotations/tooltip"
 import {RendererView} from "../../renderers/renderer"
-import {GlyphRenderer} from "../../renderers/glyph_renderer"
-import {GraphRenderer} from "../../renderers/graph_renderer"
+import {GlyphRenderer, GlyphRendererView} from "../../renderers/glyph_renderer"
+import {GraphRendererView} from "../../renderers/graph_renderer"
 import {compute_renderers, DataRenderer, RendererSpec} from "../util"
 import * as hittest from "core/hittest"
 import {MoveEvent} from "core/ui_events"
@@ -72,19 +72,18 @@ export class HoverToolView extends InspectToolView {
     super.connect_signals()
 
     for (const r of this.computed_renderers) {
-      // XXX: no typings
-      if (r instanceof GlyphRenderer) {
-        this.connect((r as any).data_source.inspect, this._update)
-      } else if (r instanceof GraphRenderer) {
-        this.connect((r as any).node_renderer.data_source.inspect, this._update)
-        this.connect((r as any).edge_renderer.data_source.inspect, this._update)
+      if (r instanceof GlyphRenderer)
+        this.connect(r.data_source.inspect, this._update)
+      else {
+        this.connect(r.node_renderer.data_source.inspect, this._update)
+        this.connect(r.edge_renderer.data_source.inspect, this._update)
       }
     }
 
     // TODO: this.connect(this.plot_model.plot.properties.renderers.change, () => this._computed_renderers = this._ttmodels = null)
-    this.connect(this.model.properties.renderers.change,      () => this._computed_renderers = this._ttmodels = null)
-    this.connect(this.model.properties.names.change,          () => this._computed_renderers = this._ttmodels = null)
-    this.connect(this.model.properties.tooltips.change,       () => this._ttmodels = null)
+    this.connect(this.model.properties.renderers.change, () => this._computed_renderers = this._ttmodels = null)
+    this.connect(this.model.properties.names.change,     () => this._computed_renderers = this._ttmodels = null)
+    this.connect(this.model.properties.tooltips.change,  () => this._ttmodels = null)
   }
 
   protected _compute_ttmodels(): {[key: string]: Tooltip} {
@@ -100,15 +99,14 @@ export class HoverToolView extends InspectToolView {
             show_arrow: this.model.show_arrow,
           })
           ttmodels[r.id] = tooltip
-        } else if (r instanceof GraphRenderer) {
+        } else {
           const tooltip = new Tooltip({
             custom: isString(tooltips) || isFunction(tooltips),
             attachment: this.model.attachment,
             show_arrow: this.model.show_arrow,
           })
-          /// XXX: no typings
-          ttmodels[(r as any).node_renderer.id] = tooltip
-          ttmodels[(r as any).edge_renderer.id] = tooltip
+          ttmodels[r.node_renderer.id] = tooltip
+          ttmodels[r.edge_renderer.id] = tooltip
         }
       }
     }
@@ -179,26 +177,31 @@ export class HoverToolView extends InspectToolView {
     if (!this.model.active)
       return
 
-    const tooltip = this.ttmodels[renderer_view.model.id]
+    if (!(renderer_view instanceof GlyphRendererView || renderer_view instanceof GraphRendererView))
+      return
+
+    const {model: renderer} = renderer_view
+
+    const tooltip = this.ttmodels[renderer.id]
     if (tooltip == null)
       return
     tooltip.clear()
 
-    let indices = (renderer_view.model as any).get_selection_manager().inspectors[renderer_view.model.id]
-    if (renderer_view.model instanceof GlyphRenderer)
-      indices = (renderer_view.model as any).view.convert_selection_to_subset(indices)
+    const selection_manager = renderer.get_selection_manager()
 
-    const ds = (renderer_view.model as any).get_selection_manager().source
+    let indices = selection_manager.inspectors[renderer.id]
+    if (renderer instanceof GlyphRenderer)
+      indices = renderer.view.convert_selection_to_subset(indices)
 
     if (indices.is_empty())
       return
 
+    const ds = selection_manager.source
+
     const frame = this.plot_model.frame
-
     const {sx, sy} = geometry
-
-    const xscale = frame.xscales[(renderer_view.model as any).x_range_name] // XXX: bad class structure
-    const yscale = frame.yscales[(renderer_view.model as any).y_range_name]
+    const xscale = frame.xscales[renderer.x_range_name]
+    const yscale = frame.yscales[renderer.y_range_name]
     const x = xscale.invert(sx)
     const y = yscale.invert(sy)
 
@@ -283,10 +286,10 @@ export class HoverToolView extends InspectToolView {
           }
 
           let index: number
-          if (renderer_view.model instanceof GlyphRenderer)
-            index = (renderer_view.model as any).view.convert_indices_from_subset([i])[0]
+          if (renderer instanceof GlyphRenderer)
+            index = renderer.view.convert_indices_from_subset([i])[0]
           else
-            index = (i as any) as number // XXX: ???
+            index = i
 
           const vars = {index: index, segment_index: jj, x: x, y: y, sx: sx, sy: sy, data_x: data_x, data_y: data_y, indices: indices.multiline_indices}
           tooltip.add(rx, ry, this._render_tooltips(ds, index, vars))
@@ -311,8 +314,8 @@ export class HoverToolView extends InspectToolView {
           [rx, ry] = [sx, sy]
 
         let index: number
-        if (renderer_view.model instanceof GlyphRenderer)
-          index = (renderer_view.model as any).view.convert_indices_from_subset([i])[0]
+        if (renderer instanceof GlyphRenderer)
+          index = renderer.view.convert_indices_from_subset([i])[0]
         else
           index = i
 
@@ -369,7 +372,7 @@ export class HoverToolView extends InspectToolView {
 
         if (value.indexOf("$color") >= 0) {
           const [, opts="", colname] = value.match(/\$color(\[.*\])?:(\w*)/)! // XXX!
-          const column = (ds as any).get_column(colname) // XXX: change to columnar ds
+          const column = ds.get_column(colname) // XXX: change to columnar ds
           if (column == null) {
             const el = span({}, `${colname} unknown`)
             cell.appendChild(el)
@@ -405,7 +408,7 @@ export class HoverToolView extends InspectToolView {
 
 export namespace HoverTool {
   export interface Attrs extends InspectTool.Attrs {
-    tooltips: string | [string, string][] | ((source: ColumnarDataSource, vars: any) => HTMLElement)
+    tooltips: string | [string, string][] | ((source: ColumnarDataSource, vars: Vars) => HTMLElement)
     formatters: any // XXX
     renderers: RendererSpec
     names: string[]
@@ -419,7 +422,7 @@ export namespace HoverTool {
   }
 
   export interface Props extends InspectTool.Props {
-    tooltips: p.Property<string | [string, string][] | ((source: ColumnarDataSource, vars: any) => HTMLElement)>
+    tooltips: p.Property<string | [string, string][] | ((source: ColumnarDataSource, vars: Vars) => HTMLElement)>
     renderers: p.Property<RendererSpec>
     names: p.Property<string[]>
   }
