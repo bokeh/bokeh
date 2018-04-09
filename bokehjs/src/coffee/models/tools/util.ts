@@ -29,5 +29,4 @@ export function compute_renderers(renderers: RendererSpec, all_renderers: Render
       result = result.filter((r) => includes(names, r.name))
 
     return result
-
   }
