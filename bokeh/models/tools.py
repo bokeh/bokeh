@@ -705,7 +705,7 @@ class HoverTool(Inspection):
     have a matching value for their ``name`` attribute will be used.
     """)
 
-    renderers = Either(Auto, List(Instance(Renderer)), help="""
+    renderers = Either(Auto, List(Instance(Renderer)), defatult="autp", help="""
     An explicit list of renderers to hit test against. If unset,
     defaults to all renderers on a plot.
     """)
