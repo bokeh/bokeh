@@ -44,7 +44,6 @@ from .glyphs import XYGlyph, Rect, Patches, MultiLine
 from .renderers import Renderer, GlyphRenderer
 from .layouts import LayoutDOM
 
-
 @abstract
 class Tool(Model):
     ''' A base class for all interactive tool types.
@@ -89,7 +88,6 @@ class Tap(Tool):
     '''
     pass
 
-
 @abstract
 class Inspection(Tool):
     ''' A base class for tools that perform "inspections", e.g. ``HoverTool``.
@@ -115,7 +113,6 @@ class ToolbarBase(Model):
     tools = List(Instance(Tool), help="""
     A list of tools to add to the plot.
     """)
-
 
 class Toolbar(ToolbarBase):
     ''' Collect tools to display for a single plot.
@@ -194,7 +191,6 @@ class WheelPanTool(Scroll):
     default the wheel pan tool will pan the plot along the x-axis.
     """)
 
-
 class WheelZoomTool(Scroll):
     ''' *toolbar icon*: |wheel_zoom_icon|
 
@@ -249,7 +245,6 @@ class SaveTool(Action):
 
     '''
 
-
 class ResetTool(Action):
     ''' *toolbar icon*: |reset_icon|
 
@@ -266,7 +261,6 @@ class ResetTool(Action):
     '''
 
     pass
-
 
 class TapTool(Tap):
     ''' *toolbar icon*: |tap_icon|
@@ -293,8 +287,8 @@ class TapTool(Tap):
     have a matching value for their ``name`` attribute will be used.
     """)
 
-    renderers = List(Instance(Renderer), help="""
-    An explicit list of renderers to hit test again. If unset,
+    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
+    An explicit list of renderers to hit test against. If unset,
     defaults to all renderers on a plot.
     """)
 
@@ -327,9 +321,6 @@ class TapTool(Tap):
         please see :ref:`userguide_interaction_jscallbacks_customjs_interactions`.
 
     """)
-
-
-
 
 class CrosshairTool(Inspection):
     ''' *toolbar icon*: |crosshair_icon|
@@ -476,7 +467,6 @@ class ZoomOutTool(Action):
     Percentage to zoom for each click of the zoom-in tool.
     """)
 
-
 class BoxSelectTool(Drag):
     ''' *toolbar icon*: |box_select_icon|
 
@@ -499,8 +489,8 @@ class BoxSelectTool(Drag):
     have a matching value for their ``name`` attribute will be used.
     """)
 
-    renderers = List(Instance(Renderer), help="""
-    An explicit list of renderers to hit test again. If unset,
+    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
+    An explicit list of renderers to hit test against. If unset,
     defaults to all renderers on a plot.
     """)
 
@@ -570,8 +560,8 @@ class LassoSelectTool(Drag):
     have a matching value for their ``name`` attribute will be used.
     """)
 
-    renderers = List(Instance(Renderer), help="""
-    An explicit list of renderers to hit test again. If unset,
+    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
+    An explicit list of renderers to hit test against. If unset,
     defaults to all renderers on a plot.
     """)
 
@@ -591,7 +581,6 @@ class LassoSelectTool(Drag):
     overlay = Instance(PolyAnnotation, default=DEFAULT_POLY_OVERLAY, help="""
     A shaded annotation drawn to indicate the selection region.
     """)
-
 
 class PolySelectTool(Tap):
     ''' *toolbar icon*: |poly_select_icon|
@@ -621,8 +610,8 @@ class PolySelectTool(Tap):
     have a matching value for their ``name`` attribute will be used.
     """)
 
-    renderers = List(Instance(Renderer), help="""
-    An explicit list of renderers to hit test again. If unset,
+    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
+    An explicit list of renderers to hit test against. If unset,
     defaults to all renderers on a plot.
     """)
 
@@ -704,8 +693,8 @@ class HoverTool(Inspection):
     have a matching value for their ``name`` attribute will be used.
     """)
 
-    renderers = List(Instance(Renderer), help="""
-    An explicit list of renderers to hit test again. If unset,
+    renderers = Either(Auto, List(Instance(Renderer)), defatult="auto", help="""
+    An explicit list of renderers to hit test against. If unset,
     defaults to all renderers on a plot.
     """)
 
@@ -1058,7 +1047,6 @@ class PolyDrawTool(EditTool, Drag, Tap):
         if incompatible_renderers:
             glyph_types = ', '.join([type(renderer.glyph).__name__ for renderer in incompatible_renderers])
             return "%s glyph type(s) found." % glyph_types
-
 
 class PolyEditTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |poly_edit_icon|

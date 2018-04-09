@@ -1,34 +1,21 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
-import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GraphRenderer} from "../../renderers/graph_renderer"
+import {compute_renderers, DataRenderer, RendererSpec} from "../util"
 import * as p from "core/properties"
 import {extend} from "core/util/object"
-import {includes} from "core/util/array"
 import {KeyEvent} from "core/ui_events"
 import {Keys} from "core/dom"
 import {SelectionGeometry} from "core/bokeh_events"
 import {Geometry} from "core/geometry"
 
-export type DataRenderer = GlyphRenderer | GraphRenderer
-
 export abstract class SelectToolView extends GestureToolView {
   model: SelectTool
 
   get computed_renderers(): DataRenderer[] {
-    let renderers = this.model.renderers
+    const renderers = this.model.renderers
+    const all_renderers = this.plot_model.plot.renderers
     const names = this.model.names
-
-    if (renderers.length == 0) {
-      const all_renderers = this.plot_model.plot.renderers
-      renderers = all_renderers.filter((r): r is DataRenderer => {
-        return r instanceof GlyphRenderer || r instanceof GraphRenderer
-      })
-    }
-
-    if (names.length > 0)
-      renderers = renderers.filter((r) => includes(names, r.name))
-
-    return renderers
+    return compute_renderers(renderers, all_renderers, names)
   }
 
   _computed_renderers_by_data_source(): {[key: string]: DataRenderer[]} {
@@ -119,7 +106,7 @@ export abstract class SelectToolView extends GestureToolView {
 
 export namespace SelectTool {
   export interface Attrs extends GestureTool.Attrs {
-    renderers: DataRenderer[]
+    renderers: RendererSpec
     names: string[]
   }
 
@@ -140,8 +127,8 @@ export abstract class SelectTool extends GestureTool {
     this.prototype.type = "SelectTool"
 
     this.define({
-      renderers: [ p.Array, [] ],
-      names:     [ p.Array, [] ],
+      renderers: [ p.Any,   'auto' ],
+      names:     [ p.Array, []     ],
     })
   }
 }

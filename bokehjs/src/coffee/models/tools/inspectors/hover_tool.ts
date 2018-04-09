@@ -3,21 +3,19 @@ import {Tooltip, TooltipView} from "../../annotations/tooltip"
 import {RendererView} from "../../renderers/renderer"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GraphRenderer} from "../../renderers/graph_renderer"
+import {compute_renderers, DataRenderer, RendererSpec} from "../util"
 import * as hittest from "core/hittest"
 import {MoveEvent} from "core/ui_events"
 import {replace_placeholders} from "core/util/templating"
 import {div, span} from "core/dom"
 import * as p from "core/properties"
 import {color2hex} from "core/util/color"
-import {includes} from "core/util/array"
 import {values, isEmpty, extend} from "core/util/object"
 import {isString, isFunction} from "core/util/types"
 import {build_views, remove_views} from "core/build_views"
 import {Anchor, TooltipAttachment} from "core/enums"
 import {Geometry, PointGeometry, SpanGeometry} from "core/geometry"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
-
-export type DataRenderer = GlyphRenderer | GraphRenderer
 
 export function _nearest_line_hit(i: number, geometry: Geometry,
     sx: number, sy: number, dx: number[], dy: number[]): [[number, number], number] {
@@ -88,23 +86,6 @@ export class HoverToolView extends InspectToolView {
     this.connect(this.model.properties.tooltips.change,       () => this._ttmodels = null)
   }
 
-  protected _compute_renderers(): DataRenderer[] {
-    let renderers = this.model.renderers
-    const names = this.model.names
-
-    if (renderers.length == 0) {
-      const all_renderers = this.plot_model.plot.renderers
-      renderers = all_renderers.filter((r): r is DataRenderer => {
-        return r instanceof GlyphRenderer || r instanceof GraphRenderer
-      })
-    }
-
-    if (names.length > 0)
-      renderers = renderers.filter((r) => includes(names, r.name))
-
-    return renderers
-  }
-
   protected _compute_ttmodels(): {[key: string]: Tooltip} {
     const ttmodels: {[key: string]: Tooltip} = {}
     const tooltips = this.model.tooltips
@@ -137,8 +118,12 @@ export class HoverToolView extends InspectToolView {
   }
 
   get computed_renderers(): DataRenderer[] {
-    if (this._computed_renderers == null)
-      this._computed_renderers = this._compute_renderers()
+    if (this._computed_renderers == null) {
+      const renderers = this.model.renderers
+      const all_renderers = this.plot_model.plot.renderers
+      const names = this.model.names
+      this._computed_renderers = compute_renderers(renderers, all_renderers, names)
+    }
     return this._computed_renderers
   }
 
@@ -416,7 +401,7 @@ export namespace HoverTool {
   export interface Attrs extends InspectTool.Attrs {
     tooltips: string | [string, string][] | ((source: ColumnarDataSource, vars: any) => HTMLElement)
     formatters: any // XXX
-    renderers: DataRenderer[]
+    renderers: RendererSpec
     names: string[]
     mode: "mouse" | "hline" | "vline"
     point_policy: "snap_to_data" | "follow_mouse" | "none"
@@ -429,7 +414,7 @@ export namespace HoverTool {
 
   export interface Props extends InspectTool.Props {
     tooltips: p.Property<string | [string, string][] | ((source: ColumnarDataSource, vars: any) => HTMLElement)>
-    renderers: p.Property<DataRenderer[]>
+    renderers: p.Property<RendererSpec>
     names: p.Property<string[]>
   }
 }
@@ -455,7 +440,7 @@ export class HoverTool extends InspectTool {
         ["screen (x, y)", "($sx, $sy)"],
       ]],
       formatters:   [ p.Any,    {}             ],
-      renderers:    [ p.Array,  []             ],
+      renderers:    [ p.Any,    'auto'         ],
       names:        [ p.Array,  []             ],
       mode:         [ p.String, 'mouse'        ], // TODO (bev)
       point_policy: [ p.String, 'snap_to_data' ], // TODO (bev) "follow_mouse", "none"
