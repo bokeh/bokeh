@@ -74,7 +74,7 @@ template = Template('''<!DOCTYPE html>
 
 resources = INLINE.render()
 
-filename = 'embed_simple.html'
+filename = 'embed_themed.html'
 
 html = template.render(resources=resources,
                        script=script,

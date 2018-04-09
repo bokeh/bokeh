@@ -16,6 +16,9 @@
 
 - path: "examples/howto/layouts"
 
+- path: "examples/embed"
+  skip: ["arguments", "autoload_static.py", "custom_server", "server_session", "simple"]
+
 - path: "examples/app"
   type: server
   skip: ["gapminder", "pivot", "simple_hdf5", "spectrogram", "surface3d", "stocks"]
