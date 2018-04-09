@@ -37,12 +37,12 @@ documented or demonstrated, it is not expected to affect any standard usage.
 
 Tools ``renderers`` property
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Previously a the default value, an empty list, corresponded to automatically
+Previously the default value, an empty list, corresponded to automatically
 choosing all available renderers for hit testing. Now, a new default value
 ``"auto"`` is used for that, so that an empty list can mean "hit test no
 renderers". A value of ``None`` may also be used to indicate no hit testing
 should occur. Since there is typically no reason to explicity set a property
-to its default value, it is not expected that his change impacts any standard
+to its default value, it is not expected that this change impacts any standard
 usage.
 
 .. _project roadmap: https://bokehplots.com/pages/roadmap.html
