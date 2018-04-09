@@ -50,8 +50,7 @@ template = Template('''<!DOCTYPE html>
     <head>
         <meta charset="utf-8">
         <title>Bokeh Scatter Plots</title>
-        {{ js_resources }}
-        {{ css_resources }}
+        {{ resources }}
         {{ script }}
         <style>
             body {
@@ -73,13 +72,11 @@ template = Template('''<!DOCTYPE html>
 </html>
 ''')
 
-js_resources = INLINE.render_js()
-css_resources = INLINE.render_css()
+resources = INLINE.render()
 
 filename = 'embed_simple.html'
 
-html = template.render(js_resources=js_resources,
-                       css_resources=css_resources,
+html = template.render(resources=resources,
                        script=script,
                        div=div)
 
