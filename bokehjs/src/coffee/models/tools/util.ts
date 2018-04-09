@@ -17,12 +17,14 @@ export function compute_renderers(renderers: RendererSpec, all_renderers: Render
       return []
     }
 
-    let result = renderers as DataRenderer[]
+    let result = []
 
     if (renderers == 'auto') {
-      result = all_renderers.filter((r): r is DataRenderer => {
-        return r instanceof GlyphRenderer || r instanceof GraphRenderer
-      })
+      for (const r of all_renderers) {
+        if (r instanceof GlyphRenderer || r instanceof GraphRenderer) {
+          result.push(r)
+        }
+      }
     }
 
     if (names.length > 0)
