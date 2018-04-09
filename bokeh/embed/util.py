@@ -160,7 +160,7 @@ def html_page_for_render_items(bundle, docs_json, render_items, title,
         bokeh_css = bokeh_css,
         plot_script = json + script,
         roots = render_items,
-        FILE = FILE,
+        base = FILE,
     ))
 
     if len(render_items) == 1:
@@ -169,7 +169,7 @@ def html_page_for_render_items(bundle, docs_json, render_items, title,
     if template is None:
         template = FILE
     elif isinstance(template, string_types):
-        template = _env.from_string("{% extends FILE %}\n" + template)
+        template = _env.from_string("{% extends base %}\n" + template)
 
     html = template.render(context)
     return encode_utf8(html)

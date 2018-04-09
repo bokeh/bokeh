@@ -183,7 +183,7 @@ class Test_file_html(object):
                     "plot_script",
                     "root",
                     "roots",
-                    "FILE",
+                    "base",
                 }
                 if user_template_variables is not None:
                     self.template_variables.update(user_template_variables)
