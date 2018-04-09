@@ -21,9 +21,6 @@
   skip: ["gapminder", "pivot", "simple_hdf5", "spectrogram", "surface3d", "stocks"]
 
 - path: "examples/integration/*"
-  skip: [
-    "no_border_or_background_fill.py", # needs PR #7708
-  ]
 
 - path: "bokehjs/examples"
   type: js
