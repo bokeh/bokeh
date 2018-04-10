@@ -10,7 +10,6 @@ from ..core.query import find
 from ..core.validation import error, warning
 from ..core.validation.errors import REQUIRED_RANGE, REQUIRED_SCALE, INCOMPATIBLE_SCALE_AND_RANGE
 from ..core.validation.warnings import MISSING_RENDERERS
-from ..util.deprecation import deprecated
 from ..util.plot_utils import _list_attr_splat, _select_helper
 from ..util.string import nice_join
 
@@ -194,17 +193,6 @@ class Plot(LayoutDOM):
     @tools.setter
     def tools(self, tools):
         self.toolbar.tools = tools
-
-    @property
-    def toolbar_sticky(self):
-        deprecated("Plot.toolbar_sticky property is no longer needed, and its use is deprecated."\
-                   "In the future, accessing Plot.toolbar_sticky will result in an AttributeError.")
-        return True
-
-    @toolbar_sticky.setter
-    def toolbar_sticky(self, val):
-        deprecated("Plot.toolbar_sticky property is no longer needed, and its use is deprecated."\
-                   "In the future, accessing Plot.toolbar_sticky will result in an AttributeError.")
 
     def add_layout(self, obj, place='center'):
         ''' Adds an object to the plot in a specified place.

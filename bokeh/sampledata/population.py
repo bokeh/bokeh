@@ -28,7 +28,6 @@ from bokeh.util.api import general, dev ; general, dev
 # External imports
 
 # Bokeh imports
-from ..util.deprecation import deprecated
 from ..util.sampledata import external_csv
 
 #-----------------------------------------------------------------------------
@@ -42,14 +41,6 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-
-def load_population():
-    '''
-
-    '''
-    deprecated((0, 12, 10), 'bokeh.sampledata.population.load_population()', 'bokeh.sampledata.population.data')
-    return data
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -12,7 +12,6 @@ from ..models import glyphs, markers
 from ..models.tools import Drag, Inspection, Scroll, Tap
 from ..util.options import Options
 from ..util.string import format_docstring
-from ..util._plot_arg_helpers import _convert_responsive
 from ..transform import linear_cmap
 from .helpers import (
     _get_range, _get_scale, _process_axis_and_grid, _process_tools_arg,
@@ -127,12 +126,6 @@ class Figure(Plot):
             kw['plot_height'] = kw.pop('height')
         if 'width' in kw:
             kw['plot_width'] = kw.pop('width')
-
-        if 'responsive' in kw and 'sizing_mode' in kw:
-            raise ValueError("Figure called with both 'responsive' and 'sizing_mode' supplied, supply only one")
-        if 'responsive' in kw:
-            kw['sizing_mode'] = _convert_responsive(kw['responsive'])
-            del kw['responsive']
 
         opts = FigureOptions(kw)
 

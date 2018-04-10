@@ -301,7 +301,6 @@ import logging
 log = logging.getLogger(__name__)
 
 import argparse
-import warnings
 
 from bokeh.application import Application
 from bokeh.resources import DEFAULT_SERVER_PORT
@@ -324,20 +323,6 @@ __doc__ = format_docstring(__doc__,
     SESSION_ID_MODES=nice_join(SESSION_ID_MODES),
     DEFAULT_LOG_FORMAT=DEFAULT_LOG_FORMAT
 )
-
-def _fixup_deprecated_host_args(args):
-    if args.host is not None and len(args.host) > 0:
-        if args.allow_websocket_origin is None:
-            args.allow_websocket_origin = []
-        args.allow_websocket_origin += args.host
-        args.allow_websocket_origin = list(set(args.allow_websocket_origin))
-        warnings.warn(
-            "The --host parameter is deprecated because it is no longer needed. "
-            "It will be removed and trigger an error in a future release. "
-            "Values set now will be copied to --allow-websocket-origin. "
-            "Depending on your use case, you may need to set current --host "
-            "values for 'allow_websocket_origin' instead."
-        )
 
 base_serve_args = (
     ('--port', dict(
@@ -411,13 +396,6 @@ class Serve(Subcommand):
             action='append',
             type=str,
             help="Public hostnames which may connect to the Bokeh websocket",
-        )),
-
-        ('--host', dict(
-            metavar='HOST[:PORT]',
-            action='append',
-            type=str,
-            help="*** DEPRECATED ***",
         )),
 
         ('--prefix', dict(
@@ -510,9 +488,6 @@ class Serve(Subcommand):
 
         log_level = getattr(logging, args.log_level.upper())
         basicConfig(level=log_level, format=args.log_format, filename=args.log_file)
-
-        # This should remain here until --host is removed entirely
-        _fixup_deprecated_host_args(args)
 
         if len(applications) == 0:
             # create an empty application by default
