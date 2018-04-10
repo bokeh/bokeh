@@ -16,6 +16,20 @@ Migration Guide
 NOTE: the 0.12.x series is the last planned release series before a version
 1.0 release. For more information see the `project roadmap`_.
 
+Deprecations Removed
+~~~~~~~~~~~~~~~~~~~~
+
+The following functions, arguments, or features have were previously deprecated
+with warnings and instructions for new usage, and have now been permanently
+removed:
+
+* ``--host`` argument to ``bokeh serve``
+* ``responsive`` argument to plots and layout functions
+* ``Plot.toolbar_sticky`` property
+* ``Tool.plot`` property
+* ``bokeh.sampledata.population.load_population`` function
+* ``bokeh.util.notebook`` module
+
 Release History
 ~~~~~~~~~~~~~~~
 

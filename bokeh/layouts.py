@@ -12,8 +12,6 @@ from .models.tools import ProxyToolbar, ToolbarBox
 from .models.plots import Plot
 from .models.layouts import LayoutDOM, Row, Column, Spacer, WidgetBox
 from .models.widgets import Widget
-from .util._plot_arg_helpers import _convert_responsive
-
 
 #-----------------------------------------------------------------------------
 # Common helper functions
@@ -60,10 +58,6 @@ def row(*args, **kwargs):
             modes see :attr:`~bokeh.models.layouts.LayoutDOM.sizing_mode`
             description on :class:`~bokeh.models.layouts.LayoutDOM`.
 
-        responsive (``True``, ``False``): True sets ``sizing_mode`` to
-            ``"width_ar"``. ``False`` sets sizing_mode to ``"fixed"``. Using
-            responsive will override sizing_mode.
-
     Returns:
         Row: A row of LayoutDOM objects all with the same sizing_mode.
 
@@ -73,12 +67,9 @@ def row(*args, **kwargs):
         >>> row(children=[widget_box_1, plot_1], sizing_mode='stretch_both')
     """
 
-    responsive = kwargs.pop('responsive', None)
     sizing_mode = kwargs.pop('sizing_mode', 'fixed')
     children = kwargs.pop('children', None)
 
-    if responsive:
-        sizing_mode = _convert_responsive(responsive)
     _verify_sizing_mode(sizing_mode)
     children = _handle_children(*args, children=children)
 
@@ -114,10 +105,6 @@ def column(*args, **kwargs):
             modes see :attr:`~bokeh.models.layouts.LayoutDOM.sizing_mode`
             description on :class:`~bokeh.models.layouts.LayoutDOM`.
 
-        responsive (``True``, ``False``): True sets ``sizing_mode`` to
-            ``"width_ar"``. ``False`` sets sizing_mode to ``"fixed"``. Using
-            responsive will override sizing_mode.
-
     Returns:
         Column: A column of LayoutDOM objects all with the same sizing_mode.
 
@@ -127,12 +114,9 @@ def column(*args, **kwargs):
         >>> column(children=[widget_box_1, plot_1], sizing_mode='stretch_both')
     """
 
-    responsive = kwargs.pop('responsive', None)
     sizing_mode = kwargs.pop('sizing_mode', 'fixed')
     children = kwargs.pop('children', None)
 
-    if responsive:
-        sizing_mode = _convert_responsive(responsive)
     _verify_sizing_mode(sizing_mode)
     children = _handle_children(*args, children=children)
 
@@ -163,10 +147,6 @@ def widgetbox(*args, **kwargs):
             modes see :attr:`~bokeh.models.layouts.LayoutDOM.sizing_mode`
             description on :class:`~bokeh.models.layouts.LayoutDOM`.
 
-        responsive (``True``, ``False``): True sets ``sizing_mode`` to
-            ``"width_ar"``. ``False`` sets sizing_mode to ``"fixed"``. Using
-            responsive will override sizing_mode.
-
     Returns:
         WidgetBox: A WidgetBox of Widget instances all with the same sizing_mode.
 
@@ -176,12 +156,9 @@ def widgetbox(*args, **kwargs):
         >>> widgetbox(children=[slider], sizing_mode='scale_width')
     """
 
-    responsive = kwargs.pop('responsive', None)
     sizing_mode = kwargs.pop('sizing_mode', 'fixed')
     children = kwargs.pop('children', None)
 
-    if responsive:
-        sizing_mode = _convert_responsive(responsive)
     _verify_sizing_mode(sizing_mode)
     children = _handle_children(*args, children=children)
 
@@ -218,10 +195,6 @@ def layout(*args, **kwargs):
             modes see :attr:`~bokeh.models.layouts.LayoutDOM.sizing_mode`
             description on :class:`~bokeh.models.layouts.LayoutDOM`.
 
-        responsive (``True``, ``False``): True sets ``sizing_mode`` to
-            ``"width_ar"``. ``False`` sets sizing_mode to ``"fixed"``. Using
-            responsive will override sizing_mode.
-
     Returns:
         Column: A column of ``Row`` layouts of the children, all with the same sizing_mode.
 
@@ -238,12 +211,9 @@ def layout(*args, **kwargs):
             )
 
     """
-    responsive = kwargs.pop('responsive', None)
     sizing_mode = kwargs.pop('sizing_mode', 'fixed')
     children = kwargs.pop('children', None)
 
-    if responsive:
-        sizing_mode = _convert_responsive(responsive)
     _verify_sizing_mode(sizing_mode)
     children = _handle_children(*args, children=children)
 
@@ -305,10 +275,6 @@ def gridplot(*args, **kwargs):
             You must only pass an un-nested list of plots (as opposed to a list of lists of plots)
             when using ncols.
 
-        responsive (``True``, ``False``): True sets ``sizing_mode`` to
-            ``"width_ar"``. ``False`` sets sizing_mode to ``"fixed"``. Using
-            responsive will override sizing_mode.
-
         plot_width (int, optional): The width you would like all your plots to be
 
         plot_height (int, optional): The height you would like all your plots to be.
@@ -341,7 +307,6 @@ def gridplot(*args, **kwargs):
     toolbar_location = kwargs.get('toolbar_location', 'above')
     sizing_mode = kwargs.get('sizing_mode', 'fixed')
     children = kwargs.get('children')
-    responsive = kwargs.get('responsive')
     toolbar_options = kwargs.get('toolbar_options', {})
     plot_width = kwargs.get('plot_width')
     plot_height = kwargs.get('plot_height')
@@ -349,8 +314,6 @@ def gridplot(*args, **kwargs):
     merge_tools = kwargs.get('merge_tools', True)
 
     # Integrity checks & set-up
-    if responsive:
-        sizing_mode = _convert_responsive(responsive)
     _verify_sizing_mode(sizing_mode)
 
     if toolbar_location:

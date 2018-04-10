@@ -36,7 +36,6 @@ from ..core.validation.errors import (
     INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER
 )
 from ..model import Model
-from ..util.deprecation import deprecated
 
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
@@ -49,16 +48,6 @@ class Tool(Model):
     ''' A base class for all interactive tool types.
 
     '''
-
-    @property
-    def plot(self):
-        deprecated("Tool.plot property is no longer needed, and any use deprecated. In the future, accessing Tool.plot will result in an AttributeError")
-        return None
-
-    @plot.setter
-    def plot(self, val):
-        deprecated("Tool.plot property is no longer needed, and any use is deprecated. In the future, accessing Tool.plot will result in an AttributeError")
-        return None
 
 @abstract
 class Action(Tool):
