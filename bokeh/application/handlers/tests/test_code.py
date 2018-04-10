@@ -13,9 +13,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
-from bokeh.util.testing import verify_api ; verify_api
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -30,32 +27,6 @@ from bokeh.util.testing import skipIfPy3
 
 # Module under test
 import bokeh.application.handlers.code as bahc
-
-#-----------------------------------------------------------------------------
-# API Definition
-#-----------------------------------------------------------------------------
-
-api = {
-
-    GENERAL: (
-
-        ( 'CodeHandler',                   (1,0,0) ),
-
-        ( 'CodeHandler.error.fget',        (1,0,0) ),
-        ( 'CodeHandler.error_detail.fget', (1,0,0) ),
-        ( 'CodeHandler.failed.fget',       (1,0,0) ),
-        ( 'CodeHandler.safe_to_fork.fget', (1,0,0) ),
-
-        ( 'CodeHandler.modify_document',   (1,0,0) ),
-        ( 'CodeHandler.url_path',          (1,0,0) ),
-
-    ), DEV: (
-
-    )
-
-}
-
-Test_api = verify_api(bahc, api)
 
 #-----------------------------------------------------------------------------
 # Setup

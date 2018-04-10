@@ -38,8 +38,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.util.api import general, dev ; general, dev
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -60,7 +58,6 @@ from .handler import Handler
 # General API
 #-----------------------------------------------------------------------------
 
-@general((1,0,0))
 class FunctionHandler(Handler):
     ''' A Handler that accepts a plain python function to use for modifying
     Bokeh Documents.
@@ -109,7 +106,6 @@ class FunctionHandler(Handler):
     # Properties --------------------------------------------------------------
 
     @property
-    @general((1,0,0))
     def safe_to_fork(self):
         ''' Whether it is still safe for the Bokeh server to fork new workers.
 
@@ -120,7 +116,6 @@ class FunctionHandler(Handler):
 
     # Public methods ----------------------------------------------------------
 
-    @general((1,0,0))
     def modify_document(self, doc):
         ''' Execute the configured ``func`` to modify the document.
 

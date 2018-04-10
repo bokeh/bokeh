@@ -34,8 +34,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.util.api import general, dev ; general, dev
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -65,7 +63,6 @@ DEFAULT_SERVER_WEBSOCKET_URL = websocket_url_for_server_url(DEFAULT_SERVER_HTTP_
 # General API
 #-----------------------------------------------------------------------------
 
-@general((1,0,0))
 def pull_session(session_id=None, url='default', io_loop=None):
     ''' Create a session by loading the current server-side document.
 
@@ -116,7 +113,6 @@ def pull_session(session_id=None, url='default', io_loop=None):
     session.pull()
     return session
 
-@general((1,0,0))
 def push_session(document, session_id=None, url='default', io_loop=None):
     ''' Create a session by pushing the given document to the server,
     overwriting any existing server-side document.
@@ -161,7 +157,6 @@ def push_session(document, session_id=None, url='default', io_loop=None):
     session.push(document)
     return session
 
-@general((1,0,0))
 def show_session(session_id=None, url='default', session=None, browser=None, new="tab", controller=None):
         ''' Open a browser displaying a session document.
 
@@ -207,7 +202,6 @@ def show_session(session_id=None, url='default', session=None, browser=None, new
         controller.open(server_url + "?bokeh-session-id=" + quote_plus(session_id),
                         new=NEW_PARAM[new])
 
-@general((1,0,0))
 class ClientSession(object):
     ''' Represents a websocket connection to a server-side session.
 
@@ -278,13 +272,11 @@ class ClientSession(object):
     # Properties --------------------------------------------------------------
 
     @property
-    @general((1,0,0))
     def connected(self):
         ''' Whether this session is currently connected. '''
         return self._connection.connected
 
     @property
-    @general((1,0,0))
     def document(self):
         ''' A :class:`~bokeh.document.Document` that will be kept in sync with
         the corresponding Document on the server.
@@ -296,24 +288,20 @@ class ClientSession(object):
         return self._document
 
     @property
-    @general((1,0,0))
     def id(self):
         ''' A unique ID for this session. '''
         return self._id
 
     # Public methods ----------------------------------------------------------
 
-    @general((1,0,0))
     def connect(self):
         ''' Connect to a Bokeh server at the configured URL. '''
         self._connection.connect()
 
-    @general((1,0,0))
     def close(self, why="closed"):
         ''' Close the connection to the server. '''
         self._connection.close(why)
 
-    @general((1,0,0))
     def force_roundtrip(self):
         ''' Force a round-trip request/reply to the server, sometimes needed to
         avoid race conditions. Mostly useful for testing.
@@ -327,7 +315,6 @@ class ClientSession(object):
         '''
         self._connection.force_roundtrip()
 
-    @general((1,0,0))
     def loop_until_closed(self, suppress_warning=False):
         ''' Execute a blocking loop that runs and exectutes event callbacks
         until the connection is closed (e.g. by hitting Ctrl-C).
@@ -342,7 +329,6 @@ class ClientSession(object):
             warnings.warn(_BOKEH_CLIENT_APP_WARNING_FULL)
         self._connection.loop_until_closed()
 
-    @general((1,0,0))
     def pull(self):
         ''' Pull the server's state and set it as session.document.
 
@@ -364,7 +350,6 @@ class ClientSession(object):
         if self.document is None:
             self._attach_document(doc)
 
-    @general((1,0,0))
     def push(self, document=None):
         ''' Push the given document to the server and record it as session.document.
 
@@ -398,7 +383,6 @@ class ClientSession(object):
         if self._document is None:
             self._attach_document(doc)
 
-    @general((1,0,0))
     def request_server_info(self):
         ''' Ask for information about the server.
 
@@ -408,7 +392,6 @@ class ClientSession(object):
         '''
         return self._connection.request_server_info()
 
-    @general((1,0,0))
     def show(self, obj=None, browser=None, new="tab"):
         ''' Open a browser displaying this session.
 

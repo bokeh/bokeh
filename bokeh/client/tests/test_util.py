@@ -13,9 +13,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
-from bokeh.util.testing import verify_api ; verify_api
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -28,25 +25,6 @@ from bokeh.util.testing import verify_api ; verify_api
 
 # Module under test
 import bokeh.client.util as bcu
-
-#-----------------------------------------------------------------------------
-# API Definition
-#-----------------------------------------------------------------------------
-
-api = {
-
-    GENERAL: (
-
-    ), DEV: (
-
-        ( 'server_url_for_websocket_url', (1, 0, 0) ),
-        ( 'websocket_url_for_server_url', (1, 0, 0) ),
-
-    )
-
-}
-
-Test_api = verify_api(bcu, api)
 
 #-----------------------------------------------------------------------------
 # Setup

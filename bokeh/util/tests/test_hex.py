@@ -13,9 +13,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
-from bokeh.util.testing import verify_api ; verify_api
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -29,26 +26,6 @@ import numpy as np
 
 # Module under test
 import bokeh.util.hex as buh
-
-#-----------------------------------------------------------------------------
-# API Definition
-#-----------------------------------------------------------------------------
-
-api = {
-
-    GENERAL: (
-
-        ( 'axial_to_cartesian',  (1,0,0) ),
-        ( 'cartesian_to_axial',  (1,0,0) ),
-        ( 'hexbin',              (1,0,0) ),
-
-    ), DEV: (
-
-    )
-
-}
-
-Test_api = verify_api(buh, api)
 
 #-----------------------------------------------------------------------------
 # Setup

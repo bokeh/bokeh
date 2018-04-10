@@ -13,9 +13,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
-from bokeh.util.testing import verify_api ; verify_api
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -32,37 +29,6 @@ from bokeh.io.state import State
 
 # Module under test
 import bokeh.io.notebook as binb
-
-#-----------------------------------------------------------------------------
-# API Definition
-#-----------------------------------------------------------------------------
-
-api = {
-
-    GENERAL: (
-
-        ( 'CommsHandle',           (1, 0, 0) ),
-        ( 'install_notebook_hook', (1, 0, 0) ),
-        ( 'push_notebook',         (1, 0, 0) ),
-        ( 'run_notebook_hook',     (1, 0, 0) ),
-
-    ), DEV: (
-
-        ( 'CommsHandle.comms.fget', (1, 0, 0) ),
-        ( 'CommsHandle.doc.fget',   (1, 0, 0) ),
-        ( 'destroy_server',         (1, 0, 0) ),
-        ( 'get_comms',              (1, 0, 0) ),
-        ( 'install_jupyter_hooks',  (1, 0, 0) ),
-        ( 'load_notebook',          (1, 0, 0) ),
-        ( 'publish_display_data',   (1, 0, 0) ),
-        ( 'show_app',               (1, 0, 0) ),
-        ( 'show_doc',               (1, 0, 0) ),
-
-    )
-
-}
-
-Test_api = verify_api(binb, api)
 
 #-----------------------------------------------------------------------------
 # Setup

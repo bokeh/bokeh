@@ -13,9 +13,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
-from bokeh.util.testing import verify_api ; verify_api
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -30,35 +27,6 @@ from bokeh.util.testing import with_file_contents
 
 # Module under test
 import bokeh.application.handlers.server_lifecycle as bahs
-
-#-----------------------------------------------------------------------------
-# API Definition
-#-----------------------------------------------------------------------------
-
-api = {
-
-    GENERAL: (
-
-        ( 'ServerLifecycleHandler',                      (1,0,0) ),
-
-        ( 'ServerLifecycleHandler.error.fget',           (1,0,0) ),
-        ( 'ServerLifecycleHandler.error_detail.fget',    (1,0,0) ),
-        ( 'ServerLifecycleHandler.failed.fget',          (1,0,0) ),
-
-        ( 'ServerLifecycleHandler.modify_document',      (1,0,0) ),
-        ( 'ServerLifecycleHandler.on_server_loaded',     (1,0,0) ),
-        ( 'ServerLifecycleHandler.on_server_unloaded',   (1,0,0) ),
-        ( 'ServerLifecycleHandler.on_session_created',   (1,0,0) ),
-        ( 'ServerLifecycleHandler.on_session_destroyed', (1,0,0) ),
-        ( 'ServerLifecycleHandler.url_path',             (1,0,0) ),
-
-    ), DEV: (
-
-    )
-
-}
-
-Test_api = verify_api(bahs, api)
 
 #-----------------------------------------------------------------------------
 # Setup

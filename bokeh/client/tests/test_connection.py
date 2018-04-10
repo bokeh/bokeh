@@ -13,9 +13,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
-from bokeh.util.testing import verify_api ; verify_api
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -30,35 +27,6 @@ from bokeh.client.states import NOT_YET_CONNECTED
 
 # Module under test
 import bokeh.client.connection as bcc
-
-#-----------------------------------------------------------------------------
-# API Definition
-#-----------------------------------------------------------------------------
-
-api = {
-
-    GENERAL: (
-
-    ), DEV: (
-
-        ( 'ClientConnection',                     (1, 0, 0) ),
-        ( 'ClientConnection.connected.fget',      (1, 0, 0) ),
-        ( 'ClientConnection.io_loop.fget',        (1, 0, 0) ),
-        ( 'ClientConnection.url.fget',            (1, 0, 0) ),
-        ( 'ClientConnection.connect',             (1, 0, 0) ),
-        ( 'ClientConnection.close',               (1, 0, 0) ),
-        ( 'ClientConnection.force_roundtrip',     (1, 0, 0) ),
-        ( 'ClientConnection.loop_until_closed',   (1, 0, 0) ),
-        ( 'ClientConnection.pull_doc',            (1, 0, 0) ),
-        ( 'ClientConnection.push_doc',            (1, 0, 0) ),
-        ( 'ClientConnection.request_server_info', (1, 0, 0) ),
-        ( 'ClientConnection.send_message',        (1, 0, 0) ),
-
-    )
-
-}
-
-Test_api = verify_api(bcc, api)
 
 #-----------------------------------------------------------------------------
 # Setup

@@ -13,9 +13,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
-from bokeh.util.testing import verify_api ; verify_api
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -31,24 +28,6 @@ from bokeh.core.json_encoder import serialize_json
 
 # Module under test
 import bokeh.embed.notebook as ben
-
-#-----------------------------------------------------------------------------
-# API Definition
-#-----------------------------------------------------------------------------
-
-api = {
-
-    GENERAL: (
-
-    ), DEV: (
-
-        ( 'notebook_content', (1,0,0) ),
-
-    )
-
-}
-
-Test_api = verify_api(ben, api)
 
 #-----------------------------------------------------------------------------
 # Setup

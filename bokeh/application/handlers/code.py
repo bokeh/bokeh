@@ -35,8 +35,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.util.api import general, dev ; general, dev
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -60,7 +58,6 @@ from .handler import Handler
 # General API
 #-----------------------------------------------------------------------------
 
-@general((1,0,0))
 class CodeHandler(Handler):
     ''' Run source code which modifies a Document
 
@@ -103,7 +100,6 @@ class CodeHandler(Handler):
     # Properties --------------------------------------------------------------
 
     @property
-    @general((1,0,0))
     def error(self):
         ''' If the handler fails, may contain a related error message.
 
@@ -111,7 +107,6 @@ class CodeHandler(Handler):
         return self._runner.error
 
     @property
-    @general((1,0,0))
     def error_detail(self):
         ''' If the handler fails, may contain a traceback or other details.
 
@@ -119,7 +114,6 @@ class CodeHandler(Handler):
         return self._runner.error_detail
 
     @property
-    @general((1,0,0))
     def failed(self):
         ''' ``True`` if the handler failed to modify the doc
 
@@ -127,7 +121,6 @@ class CodeHandler(Handler):
         return self._runner.failed
 
     @property
-    @general((1,0,0))
     def safe_to_fork(self):
         ''' Whether it is still safe for the Bokeh server to fork new workers.
 
@@ -138,7 +131,6 @@ class CodeHandler(Handler):
 
     # Public methods ----------------------------------------------------------
 
-    @general((1,0,0))
     def modify_document(self, doc):
         '''
 
@@ -171,7 +163,6 @@ class CodeHandler(Handler):
             self._unmonkeypatch_io(old_io)
             set_curdoc(old_doc)
 
-    @general((1,0,0))
     def url_path(self):
         ''' The last path component for the basename of the configured filename.
 

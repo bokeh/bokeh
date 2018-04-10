@@ -13,9 +13,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
-from bokeh.util.testing import verify_api ; verify_api
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -30,25 +27,6 @@ from bokeh.io.state import curstate
 
 # Module under test
 import bokeh.io.doc as bid
-
-#-----------------------------------------------------------------------------
-# API Definition
-#-----------------------------------------------------------------------------
-
-api = {
-
-    GENERAL: (
-
-        ( 'curdoc', (1, 0, 0) ),
-
-    ), DEV: (
-
-        ( 'set_curdoc', (1, 0, 0) ),
-    )
-
-}
-
-Test_api = verify_api(bid, api)
 
 #-----------------------------------------------------------------------------
 # Setup

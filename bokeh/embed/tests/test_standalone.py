@@ -13,9 +13,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
-from bokeh.util.testing import verify_api ; verify_api
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -39,26 +36,6 @@ from bokeh.util.string import encode_utf8
 
 # Module under test
 import bokeh.embed.standalone as bes
-
-#-----------------------------------------------------------------------------
-# API Definition
-#-----------------------------------------------------------------------------
-
-api = {
-
-    GENERAL: (
-
-        ( 'autoload_static', (1,0,0) ),
-        ( 'components',      (1,0,0) ),
-        ( 'file_html',       (1,0,0) ),
-
-    ), DEV: (
-
-    )
-
-}
-
-Test_api = verify_api(bes, api)
 
 #-----------------------------------------------------------------------------
 # Setup

@@ -18,8 +18,6 @@ from six import raise_from, b
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.util.api import general, dev ; general, dev
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -48,7 +46,6 @@ from .util import default_filename
 # General API
 #-----------------------------------------------------------------------------
 
-@general((1,0,0))
 def export_png(obj, filename=None, height=None, width=None, webdriver=None):
     ''' Export the LayoutDOM object or document as a PNG.
 
@@ -92,8 +89,6 @@ def export_png(obj, filename=None, height=None, width=None, webdriver=None):
 
     return abspath(filename)
 
-
-@general((1,0,0))
 def export_svgs(obj, filename=None, height=None, width=None, webdriver=None):
     ''' Export the SVG-enabled plots within a layout. Each plot will result
     in a distinct SVG file.
@@ -154,7 +149,6 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None):
 # Dev API
 #-----------------------------------------------------------------------------
 
-@dev((1,0,0))
 def get_screenshot_as_png(obj, driver=None, **kwargs):
     '''
 
@@ -189,7 +183,6 @@ def get_screenshot_as_png(obj, driver=None, **kwargs):
 
     return cropped_image
 
-@dev((1,0,0))
 def get_svgs(obj, driver=None, **kwargs):
     '''
 
@@ -211,7 +204,6 @@ def get_svgs(obj, driver=None, **kwargs):
 
     return svgs
 
-@dev((1,0,0))
 def get_layout_html(obj, resources=INLINE, **kwargs):
     '''
 
@@ -237,7 +229,6 @@ def get_layout_html(obj, resources=INLINE, **kwargs):
 
     return html
 
-@dev((1,0,0))
 def wait_until_render_complete(driver):
     '''
 
@@ -273,7 +264,6 @@ def wait_until_render_complete(driver):
         if len(severe_errors) > 0:
             log.warn("There were severe browser errors that may have affected your export: {}".format(severe_errors))
 
-@dev((1,0,0))
 def terminate_web_driver(driver):
     if driver.name == "phantomjs":
         # https://github.com/seleniumhq/selenium/issues/767

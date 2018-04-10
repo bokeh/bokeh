@@ -18,8 +18,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.util.api import general, dev ; general, dev
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -47,7 +45,6 @@ from ...util.serialization import make_id
 # Dev API
 #-----------------------------------------------------------------------------
 
-@dev((1,0,0))
 class CodeRunner(object):
     ''' Compile and run Python source code.
 
@@ -89,7 +86,6 @@ class CodeRunner(object):
     # Properties --------------------------------------------------------------
 
     @property
-    @dev((1,0,0))
     def error(self):
         ''' If code execution fails, may contain a related error message.
 
@@ -97,7 +93,6 @@ class CodeRunner(object):
         return self._error
 
     @property
-    @dev((1,0,0))
     def error_detail(self):
         ''' If code execution fails, may contain a traceback or other details.
 
@@ -105,7 +100,6 @@ class CodeRunner(object):
         return self._error_detail
 
     @property
-    @dev((1,0,0))
     def failed(self):
         ''' ``True`` if code execution failed
 
@@ -113,7 +107,6 @@ class CodeRunner(object):
         return self._failed
 
     @property
-    @dev((1,0,0))
     def path(self):
         ''' The path that new modules will be configured with.
 
@@ -121,7 +114,6 @@ class CodeRunner(object):
         return self._path
 
     @property
-    @dev((1,0,0))
     def source(self):
         ''' The configured source code that will be executed when ``run`` is
         called.
@@ -131,7 +123,6 @@ class CodeRunner(object):
 
     # Public methods ----------------------------------------------------------
 
-    @dev((1,0,0))
     def new_module(self):
         ''' Make a fresh module to run in.
 
@@ -148,7 +139,6 @@ class CodeRunner(object):
 
         return module
 
-    @dev((1,0,0))
     def run(self, module, post_check):
         ''' Execute the configured source code in a module and run any post
         checks.

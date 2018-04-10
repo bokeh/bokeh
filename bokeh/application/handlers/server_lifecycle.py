@@ -18,8 +18,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.util.api import general, dev ; general, dev
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -43,7 +41,6 @@ from .handler import Handler
 # General API
 #-----------------------------------------------------------------------------
 
-@general((1,0,0))
 class ServerLifecycleHandler(Handler):
     ''' Load a script which contains server lifecycle callbacks.
 
@@ -100,7 +97,6 @@ class ServerLifecycleHandler(Handler):
     # Properties --------------------------------------------------------------
 
     @property
-    @general((1,0,0))
     def error(self):
         ''' If the handler fails, may contain a related error message.
 
@@ -108,7 +104,6 @@ class ServerLifecycleHandler(Handler):
         return self._runner.error
 
     @property
-    @general((1,0,0))
     def error_detail(self):
         ''' If the handler fails, may contain a traceback or other details.
 
@@ -116,7 +111,6 @@ class ServerLifecycleHandler(Handler):
         return self._runner.error_detail
 
     @property
-    @general((1,0,0))
     def failed(self):
         ''' ``True`` if the lifecycle callbacks failed to execute
 
@@ -125,7 +119,6 @@ class ServerLifecycleHandler(Handler):
 
     # Public methods ----------------------------------------------------------
 
-    @general((1,0,0))
     def modify_document(self, doc):
         ''' This handler does not make any modifications to the Document.
 
@@ -141,7 +134,6 @@ class ServerLifecycleHandler(Handler):
         # we could support a modify_document function, might be weird though.
         pass
 
-    @general((1,0,0))
     def on_server_loaded(self, server_context):
         ''' Execute `on_server_unloaded`` from the configured module (if
         it is defined) when the server is first started.
@@ -152,7 +144,6 @@ class ServerLifecycleHandler(Handler):
         '''
         return self._on_server_loaded(server_context)
 
-    @general((1,0,0))
     def on_server_unloaded(self, server_context):
         ''' Execute ``on_server_unloaded`` from the configured module (if
         it is defined) when the server cleanly exits. (Before stopping the
@@ -168,7 +159,6 @@ class ServerLifecycleHandler(Handler):
         '''
         return self._on_server_unloaded(server_context)
 
-    @general((1,0,0))
     def on_session_created(self, session_context):
         ''' Execute ``on_session_created`` from the configured module (if
         it is defined) when a new session is created.
@@ -179,7 +169,6 @@ class ServerLifecycleHandler(Handler):
         '''
         return self._on_session_created(session_context)
 
-    @general((1,0,0))
     def on_session_destroyed(self, session_context):
         ''' Execute ``on_session_destroyed`` from the configured module (if
         it is defined) when a new session is destroyed.
@@ -190,7 +179,6 @@ class ServerLifecycleHandler(Handler):
         '''
         return self._on_session_destroyed(session_context)
 
-    @general((1,0,0))
     def url_path(self):
         ''' The last path component for the basename of the path to the
         callback module.

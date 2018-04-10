@@ -4,7 +4,6 @@ from __future__ import absolute_import, print_function
 
 import codecs
 import errno
-from inspect import isclass, isfunction, getmembers
 import os
 import importlib
 import shutil
@@ -13,9 +12,6 @@ import tempfile
 
 import pytest
 from six import string_types
-
-from .api import DEV, GENERAL
-from .api import is_declared, is_level, is_version
 
 def verify_all(module, ALL):
 
@@ -36,85 +32,6 @@ def verify_all(module, ALL):
                 mod = module
             assert hasattr(mod, name)
     return Test___all__
-
-def verify_api(module, api):
-
-    class Test_api(object):
-
-        test_general_api = _generate_api_check(module, api, GENERAL)
-        test_dev_api = _generate_api_check(module, api, DEV)
-
-        @pytest.mark.api
-        def test_all_declared(self):
-            to_check = []
-            for name, obj in getmembers(module):
-
-                # only test objects defined in this module
-                if getattr(obj, '__module__', None) != module.__name__: continue
-
-                # pure private objects are not versioned
-                if name.startswith('_'): continue
-                to_check.append((name, obj))
-
-                if isclass(obj):
-                    for cname, cobj in getmembers(obj):
-                        # pure private methods are not versioned
-                        if cname.startswith('_'): continue
-                        to_check.append((name + "." + cname, cobj))
-
-            for (name, obj) in to_check:
-
-                if isfunction(obj):
-                    assert is_declared(obj), "visible function %r is not API declared" % name
-
-                elif isclass(obj):
-                    assert is_declared(obj), "visible class %r is not API declared" % name
-
-                elif isinstance(obj, property):
-                    assert is_declared(obj.fget), "visible Python property getter %r is not API declared" % name
-                    if obj.fdel is not None:
-                        assert is_declared(obj.fset), "visible Python property getter %r is not API declared" % name
-                    if obj.fdel is not None:
-                        assert is_declared(obj.fdel), "visible Python property getter %r is not API declared" % name
-
-        @pytest.mark.api
-        def test_all_tested(self):
-            for level in (DEV, GENERAL):
-                recorded = module.__bkapi__[level]
-                assert len(api[level]) == recorded, "expected %d tests for %s API objects in %s, got %d" % (recorded, level, module.__name__, len(api[level]))
-
-    return Test_api
-
-def _generate_api_check(module, api, level):
-    if len(api[level]) > 0:
-        @pytest.mark.parametrize('name,version', api[level], ids=str)
-        @pytest.mark.api
-        def test_api(self, name, version):
-            assert isinstance(version, tuple)
-            assert len(version) == 3
-            assert version >= (1, 0, 0)
-            elts = name.split(".")
-            # property
-            if len(elts) == 3:
-                (clsname, propname, proptype) = elts
-                prop = getattr(module, clsname).__dict__[propname]
-                obj = getattr(prop, proptype)
-            # method
-            elif len(elts) == 2:
-                (clsname, attr) = elts
-                obj = getattr(getattr(module, clsname), attr)
-            # function
-            else:
-                obj = getattr(module, name)
-
-            assert is_level(obj, level), "%s expected to declare api level %r" % (name, level)
-            assert is_version(obj, version), "%s expected to declare first-version %s" % (name, version)
-
-    else:
-        @pytest.mark.api
-        def test_api(self): assert True
-
-    return test_api
 
 def makedirs_ok_if_exists(path):
     try:
