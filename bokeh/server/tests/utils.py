@@ -1,5 +1,7 @@
 from __future__ import absolute_import, print_function
 
+import errno
+
 from bokeh.server.server import Server
 from tornado.ioloop import IOLoop
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest
@@ -54,21 +56,36 @@ def websocket_open(io_loop, url, origin=None):
         future.result().close()
         return None
 
+
+class RetryingServer(Server):
+    def __init__(self, applications, port=0, **kwargs):
+        # This convoluted piece of code is needed because on rare occasions
+        # when you run tests in parallel, you can get the "Address already
+        # in use" error despite using port=0.
+        n_retries = 5 if port == 0 else 1
+        for retry in range(n_retries):
+            try:
+                super(RetryingServer, self).__init__(applications, port=port, **kwargs)
+            except OSError as e:
+                if e.errno != errno.EADDRINUSE or retry == n_retries - 1:
+                    raise
+            else:
+                break
+
 # lets us use a current IOLoop with "with"
 # and ensures the server unlistens
 class ManagedServerLoop(object):
-    def __init__(self, application, **server_kwargs):
+    def __init__(self, applications, port=0, **server_kwargs):
         loop = IOLoop()
         loop.make_current()
         server_kwargs['io_loop'] = loop
-        self._server = Server(application, **server_kwargs)
+        self._server = RetryingServer(applications, port=port, **server_kwargs)
+
     def __exit__(self, type, value, traceback):
         self._server.unlisten()
         self._server.stop()
         self._server.io_loop.close()
+
     def __enter__(self):
         self._server.start()
         return self._server
-    @property
-    def io_loop(self):
-        return self.s_server.io_loop

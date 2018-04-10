@@ -11,8 +11,4 @@ node_modules/.bin/gulp test:compile --emit-error
 node_modules/.bin/gulp tslint
 popd
 
-py.test -m api
-
-py.test -m sampledata
-
-py.test -m quality
+py.test -m "api and sampledata and quality" -n 2

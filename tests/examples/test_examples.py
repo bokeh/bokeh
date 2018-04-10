@@ -5,7 +5,6 @@ from os.path import basename
 import time
 import pytest
 import subprocess
-import signal
 
 from os.path import dirname, exists, split
 
@@ -215,24 +214,20 @@ with open(filename, 'rb') as example:
     env['BOKEH_MINIFIED'] = 'false'
     env['BOKEH_BROWSER'] = 'none'
 
-    class Timeout(Exception):
-        pass
-
-    def alarm_handler(sig, frame):
-        raise Timeout
-
-    signal.signal(signal.SIGALRM, alarm_handler)
-    signal.alarm(20 if not example.is_slow else 60)
+    timeout = 60 if example.is_slow else 20
+    delay = 1
 
     start = time.time()
-    try:
-        proc = subprocess.Popen(cmd, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        status = proc.wait()
-    except Timeout:
+    proc = subprocess.Popen(cmd, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    status = proc.poll()
+    while status is None and timeout > 0:
+        time.sleep(delay)
+        timeout -= delay
+        status = proc.poll()
+    if status is None:
         proc.kill()
         status = 'timeout'
-    finally:
-        signal.alarm(0)
+
     end = time.time()
 
     out = proc.stdout.read().decode("utf-8")

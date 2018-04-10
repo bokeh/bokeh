@@ -5,4 +5,5 @@ set -x # echo commands
 
 py.test -m 'unit'                   \
     --cov=bokeh                     \
-    --cov-config=bokeh/.coveragerc
+    --cov-config=bokeh/.coveragerc  \
+    -n 2

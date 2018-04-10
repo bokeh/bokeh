@@ -119,27 +119,30 @@ def test_DEV():
     # not like this couldn't ever change, but should be intentional
     assert bua.DEV == "dev"
 
-@pytest.mark.parametrize('obj', pub_objs, ids=str)
+def _func_id(f):
+    return None if f is None else '<function {}>'.format(f.__name__)
+
+@pytest.mark.parametrize('obj', pub_objs, ids=_func_id)
 def test_general_sets_level(obj):
     assert bua.is_level(obj, bua.GENERAL)
 
-@pytest.mark.parametrize('obj', int_objs, ids=str)
+@pytest.mark.parametrize('obj', int_objs, ids=_func_id)
 def test_dev_sets_level(obj):
     assert bua.is_level(obj, bua.DEV)
 
-@pytest.mark.parametrize('obj', pub_objs, ids=str)
+@pytest.mark.parametrize('obj', pub_objs, ids=_func_id)
 def test_general_sets_version(obj):
     assert bua.is_version(obj, "foo")
 
-@pytest.mark.parametrize('obj', int_objs, ids=str)
+@pytest.mark.parametrize('obj', int_objs, ids=_func_id)
 def test_dev_sets_version(obj):
     assert bua.is_version(obj, "foo")
 
-@pytest.mark.parametrize('obj', plain_objs, ids=str)
+@pytest.mark.parametrize('obj', plain_objs, ids=_func_id)
 def test_is_declared_is_false_for_undeclared(obj):
     assert bua.is_declared(obj) is False
 
-@pytest.mark.parametrize('obj', pub_objs+int_objs, ids=str)
+@pytest.mark.parametrize('obj', pub_objs+int_objs, ids=_func_id)
 def test_is_declared_is_false_for_general_or_dev(obj):
     assert bua.is_declared(obj) is True
 
@@ -206,11 +209,11 @@ def test__access_sets___bkapi__():
     # undeclared __bkapi__
     assert globals()['__bkapi__'] == {bua.GENERAL: 5, bua.DEV:5}
 
-@pytest.mark.parametrize('obj', pub_objs+int_objs, ids=str)
+@pytest.mark.parametrize('obj', pub_objs+int_objs, ids=_func_id)
 def test__access_preserves___doc__(obj):
     assert obj.__doc__ == "doc"
 
-@pytest.mark.parametrize('obj', plain_objs, ids=str)
+@pytest.mark.parametrize('obj', plain_objs, ids=_func_id)
 def test__get_module(obj):
     m = bua._get_module(afunc)
     assert m is sys.modules[__name__]

@@ -16,4 +16,5 @@ py.test -s -v -m examples       \
     --self-contained-html       \
     --upload                    \
     --report-path=examples.html \
+    -n 2                        \
     ${EXTRA_CMD}
