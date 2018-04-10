@@ -26,9 +26,9 @@ log = logging.getLogger(__name__)
 import os
 import io
 import signal
+import warnings
 from os.path import abspath, devnull
 from tempfile import mkstemp
-from warnings import warn
 
 # External imports
 
@@ -162,21 +162,23 @@ def get_screenshot_as_png(obj, driver=None, **kwargs):
         with io.open(tmp.fd, mode="wb", closefd=False) as file:
             file.write(b(html))
 
-        web_driver = driver if driver is not None else _create_default_webdriver()
-        web_driver.get("file:///" + tmp.path)
-        web_driver.maximize_window()
+        web_driver = driver if driver is not None else create_webdriver()
 
-        ## resize for PhantomJS compat
-        web_driver.execute_script("document.body.style.width = '100%';")
+        try:
+            web_driver.get("file:///" + tmp.path)
+            web_driver.maximize_window()
 
-        wait_until_render_complete(web_driver)
+            ## resize for PhantomJS compat
+            web_driver.execute_script("document.body.style.width = '100%';")
 
-        png = web_driver.get_screenshot_as_png()
+            wait_until_render_complete(web_driver)
 
-        b_rect = web_driver.execute_script(_BOUNDING_RECT_SCRIPT)
+            png = web_driver.get_screenshot_as_png()
 
-        if driver is None: # only quit webdriver if not passed in as arg
-            terminate_web_driver(web_driver)
+            b_rect = web_driver.execute_script(_BOUNDING_RECT_SCRIPT)
+        finally:
+            if driver is None: # only quit webdriver if not passed in as arg
+                terminate_webdriver(web_driver)
 
     image = Image.open(io.BytesIO(png))
     cropped_image = _crop_image(image, **b_rect)
@@ -192,15 +194,17 @@ def get_svgs(obj, driver=None, **kwargs):
         with io.open(tmp.fd, mode="wb", closefd=False) as file:
             file.write(b(html))
 
-        web_driver = driver if driver is not None else _create_default_webdriver()
-        web_driver.get("file:///" + tmp.path)
+        web_driver = driver if driver is not None else create_webdriver()
 
-        wait_until_render_complete(web_driver)
+        try:
+            web_driver.get("file:///" + tmp.path)
 
-        svgs = web_driver.execute_script(_SVG_SCRIPT)
+            wait_until_render_complete(web_driver)
 
-        if driver is None: # only quit webdriver if not passed in as arg
-            terminate_web_driver(web_driver)
+            svgs = web_driver.execute_script(_SVG_SCRIPT)
+        finally:
+            if driver is None: # only quit webdriver if not passed in as arg
+                terminate_webdriver(web_driver)
 
     return svgs
 
@@ -213,7 +217,7 @@ def get_layout_html(obj, resources=INLINE, **kwargs):
         # Defer this import, it is expensive
         from ..models.plots import Plot
         if not isinstance(obj, Plot):
-            warn("Export method called with height or width kwargs on a non-Plot layout. The size values will be ignored.")
+            warnings.warn("Export method called with height or width kwargs on a non-Plot layout. The size values will be ignored.")
         else:
             resize = True
             old_height = obj.plot_height
@@ -264,7 +268,18 @@ def wait_until_render_complete(driver):
         if len(severe_errors) > 0:
             log.warn("There were severe browser errors that may have affected your export: {}".format(severe_errors))
 
-def terminate_web_driver(driver):
+def create_webdriver():
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", ".*", UserWarning, "selenium.webdriver.phantomjs.webdriver")
+
+        webdriver = import_required('selenium.webdriver',
+                                    'To use bokeh.io image export functions you need selenium ' +
+                                    '("conda install -c bokeh selenium" or "pip install selenium")')
+
+        phantomjs_path = detect_phantomjs()
+        return webdriver.PhantomJS(executable_path=phantomjs_path, service_log_path=devnull)
+
+def terminate_webdriver(driver):
     if driver.name == "phantomjs":
         # https://github.com/seleniumhq/selenium/issues/767
         driver.service.process.send_signal(signal.SIGTERM)
@@ -312,14 +327,6 @@ def _crop_image(image, left=0, top=0, right=0, bottom=0, **kwargs):
 
     '''
     return image.crop((left, top, right, bottom))
-
-def _create_default_webdriver():
-    webdriver = import_required('selenium.webdriver',
-                                'To use bokeh.io image export functions you need selenium ' +
-                                '("conda install -c bokeh selenium" or "pip install selenium")')
-
-    phantomjs_path = detect_phantomjs()
-    return webdriver.PhantomJS(executable_path=phantomjs_path, service_log_path=devnull)
 
 class _TempFile(object):
 

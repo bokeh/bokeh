@@ -19,17 +19,15 @@ import pytest ; pytest
 
 # Standard library imports
 from mock import patch
-import os
 import re
 
 # External imports
 from PIL import Image
-import selenium.webdriver as webdriver
 
 # Bokeh imports
 from bokeh.models.plots import Plot
 from bokeh.models.ranges import Range1d
-from bokeh.io.export import terminate_web_driver
+from bokeh.io.export import create_webdriver, terminate_webdriver
 
 # Module under test
 import bokeh.io.export as bie
@@ -67,12 +65,11 @@ def test_get_screenshot_as_png_with_driver():
                   outline_line_color=None, background_fill_color=None,
                   border_fill_color=None)
 
-    driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
-
-    png = bie.get_screenshot_as_png(layout, driver=driver)
-
-    # Have to manually clean up the driver session
-    terminate_web_driver(driver)
+    driver = create_webdriver()
+    try:
+        png = bie.get_screenshot_as_png(layout, driver=driver)
+    finally:
+        terminate_webdriver(driver)
 
     assert png.size == (20, 20)
     # a 20x20px image of transparent pixels
@@ -86,17 +83,18 @@ def test_get_screenshot_as_png_large_plot():
                   outline_line_color=None, background_fill_color=None,
                   border_fill_color=None)
 
-    driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
-    assert driver.get_window_size() == {'width': 400, 'height': 300}
+    driver = create_webdriver()
+    try:
+        assert driver.get_window_size() == {'width': 400, 'height': 300}
 
-    bie.get_screenshot_as_png(layout, driver=driver)
+        bie.get_screenshot_as_png(layout, driver=driver)
 
-    # LC: Although the window size doesn't match the plot dimensions (unclear
-    # why), the window resize allows for the whole plot to be captured
-    assert driver.get_window_size() == {'width': 1366, 'height': 768}
-
-    # Have to manually clean up the driver session
-    terminate_web_driver(driver)
+        # LC: Although the window size doesn't match the plot dimensions (unclear
+        # why), the window resize allows for the whole plot to be captured
+        assert driver.get_window_size() == {'width': 1366, 'height': 768}
+    finally:
+        # Have to manually clean up the driver session
+        terminate_webdriver(driver)
 
 @pytest.mark.unit
 @pytest.mark.selenium
@@ -123,9 +121,11 @@ def test_get_svgs_with_svg_present():
 
     svg0 = fix_ids(bie.get_svgs(layout)[0])
 
-    driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
-    svg1 = fix_ids(bie.get_svgs(layout)[0])
-    terminate_web_driver(driver) # Have to manually clean up the driver session
+    driver = create_webdriver()
+    try:
+        svg1 = fix_ids(bie.get_svgs(layout)[0])
+    finally:
+        terminate_webdriver(driver) # Have to manually clean up the driver session
 
     svg2 = (
         '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
