@@ -13,9 +13,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
-from bokeh.util.testing import verify_api ; verify_api
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -36,51 +33,6 @@ from bokeh.util.logconfig import basicConfig
 
 # Module under test
 import bokeh.application.application as baa
-
-#-----------------------------------------------------------------------------
-# API Definition
-#-----------------------------------------------------------------------------
-
-api = {
-
-    GENERAL: (
-
-        ( 'Application',                      (1,0,0) ),
-        ( 'Application.handlers.fget',        (1,0,0) ),
-        ( 'Application.metadata.fget',        (1,0,0) ),
-        ( 'Application.safe_to_fork.fget',    (1,0,0) ),
-        ( 'Application.static_path.fget',     (1,0,0) ),
-        ( 'Application.add',                  (1,0,0) ),
-        ( 'Application.create_document',      (1,0,0) ),
-        ( 'Application.initialize_document',  (1,0,0) ),
-
-    ), DEV: (
-
-        ( 'Application.on_server_loaded',     (1,0,0) ),
-        ( 'Application.on_server_unloaded',   (1,0,0) ),
-        ( 'Application.on_session_created',   (1,0,0) ),
-        ( 'Application.on_session_destroyed', (1,0,0) ),
-
-        ( 'ServerContext',                           (1,0,0) ),
-        ( 'ServerContext.sessions.fget',             (1,0,0) ),
-        ( 'ServerContext.add_next_tick_callback',    (1,0,0) ),
-        ( 'ServerContext.add_periodic_callback',     (1,0,0) ),
-        ( 'ServerContext.add_timeout_callback',      (1,0,0) ),
-        ( 'ServerContext.remove_next_tick_callback', (1,0,0) ),
-        ( 'ServerContext.remove_periodic_callback',  (1,0,0) ),
-        ( 'ServerContext.remove_timeout_callback',   (1,0,0) ),
-
-        ( 'SessionContext',                      (1,0,0) ),
-        ( 'SessionContext.destroyed.fget',       (1,0,0) ),
-        ( 'SessionContext.id.fget',              (1,0,0) ),
-        ( 'SessionContext.server_context.fget',  (1,0,0) ),
-        ( 'SessionContext.with_locked_document', (1,0,0) ),
-
-    )
-
-}
-
-Test_api = verify_api(baa, api)
 
 #-----------------------------------------------------------------------------
 # Setup

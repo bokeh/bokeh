@@ -25,8 +25,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.util.api import general, dev ; general, dev
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -51,7 +49,6 @@ from ..util.tornado import yield_for_all_futures
 # General API
 #-----------------------------------------------------------------------------
 
-@general((1,0,0))
 class Application(object):
     ''' An Application is a factory for Document instances.
 
@@ -104,7 +101,6 @@ class Application(object):
     # Properties --------------------------------------------------------------
 
     @property
-    @general((1,0,0))
     def handlers(self):
         ''' The ordered list of handlers this Application is configured with.
 
@@ -112,7 +108,6 @@ class Application(object):
         return tuple(self._handlers)
 
     @property
-    @general((1,0,0))
     def metadata(self):
         ''' Arbitrary user-supplied metadata to associate with this application.
 
@@ -120,7 +115,6 @@ class Application(object):
         return self._metadata
 
     @property
-    @general((1,0,0))
     def safe_to_fork(self):
         '''
 
@@ -128,7 +122,6 @@ class Application(object):
         return all(handler.safe_to_fork for handler in self._handlers)
 
     @property
-    @general((1,0,0))
     def static_path(self):
         ''' Path to any (optional) static resources specified by handlers.
 
@@ -137,7 +130,6 @@ class Application(object):
 
     # Public methods ----------------------------------------------------------
 
-    @general((1,0,0))
     def add(self, handler):
         ''' Add a handler to the pipeline used to initialize new documents.
 
@@ -158,7 +150,6 @@ class Application(object):
         else:
             self._static_path = None
 
-    @general((1,0,0))
     def create_document(self):
         ''' Creates and initializes a document using the Application's handlers.
 
@@ -167,7 +158,6 @@ class Application(object):
         self.initialize_document(doc)
         return doc
 
-    @general((1,0,0))
     def initialize_document(self, doc):
         ''' Fills in a new document using the Application's handlers.
 
@@ -183,7 +173,6 @@ class Application(object):
         if settings.perform_document_validation():
             doc.validate()
 
-    @dev((1,0,0))
     def on_server_loaded(self, server_context):
         ''' Invoked to execute code when a new session is created.
 
@@ -194,7 +183,6 @@ class Application(object):
         for h in self._handlers:
             h.on_server_loaded(server_context)
 
-    @dev((1,0,0))
     def on_server_unloaded(self, server_context):
         ''' Invoked to execute code when the server cleanly exits. (Before
         stopping the server's ``IOLoop``.)
@@ -211,7 +199,6 @@ class Application(object):
             h.on_server_unloaded(server_context)
 
     @gen.coroutine
-    @dev((1,0,0))
     def on_session_created(self, session_context):
         ''' Invoked to execute code when a new session is created.
 
@@ -228,7 +215,6 @@ class Application(object):
         raise gen.Return(None)
 
     @gen.coroutine
-    @dev((1,0,0))
     def on_session_destroyed(self, session_context):
         ''' Invoked to execute code when a session is destroyed.
 
@@ -247,7 +233,6 @@ class Application(object):
 # Dev API
 #-----------------------------------------------------------------------------
 
-@dev((1,0,0))
 class ServerContext(with_metaclass(ABCMeta)):
     ''' A harness for server-specific information and tasks related to
     collections of Bokeh sessions.
@@ -259,7 +244,6 @@ class ServerContext(with_metaclass(ABCMeta)):
     # Properties --------------------------------------------------------------
 
     @abstractproperty
-    @dev((1,0,0))
     def sessions(self):
         ''' SessionContext instances belonging to this application.
 
@@ -271,7 +255,6 @@ class ServerContext(with_metaclass(ABCMeta)):
     # Public methods ----------------------------------------------------------
 
     @abstractmethod
-    @dev((1,0,0))
     def add_next_tick_callback(self, callback):
         ''' Add a callback to be run on the next tick of the event loop.
 
@@ -291,7 +274,6 @@ class ServerContext(with_metaclass(ABCMeta)):
         pass
 
     @abstractmethod
-    @dev((1,0,0))
     def add_periodic_callback(self, callback, period_milliseconds):
         ''' Add a callback to be run periodically until it is removed.
 
@@ -314,7 +296,6 @@ class ServerContext(with_metaclass(ABCMeta)):
         pass
 
     @abstractmethod
-    @dev((1,0,0))
     def add_timeout_callback(self, callback, timeout_milliseconds):
         ''' Add a callback to be run once after timeout_milliseconds.
 
@@ -337,7 +318,6 @@ class ServerContext(with_metaclass(ABCMeta)):
         pass
 
     @abstractmethod
-    @dev((1,0,0))
     def remove_next_tick_callback(self, callback_id):
         ''' Remove a callback added with ``add_next_tick_callback``, before
         it runs.
@@ -351,7 +331,6 @@ class ServerContext(with_metaclass(ABCMeta)):
         pass
 
     @abstractmethod
-    @dev((1,0,0))
     def remove_periodic_callback(self, callback_id):
         ''' Removes a callback added with ``add_periodic_callback``.
 
@@ -364,7 +343,6 @@ class ServerContext(with_metaclass(ABCMeta)):
         pass
 
     @abstractmethod
-    @dev((1,0,0))
     def remove_timeout_callback(self, callback_id):
         ''' Remove a callback added with ``add_timeout_callback``, before it
         runs.
@@ -377,7 +355,6 @@ class ServerContext(with_metaclass(ABCMeta)):
         '''
         pass
 
-@dev((1,0,0))
 class SessionContext(with_metaclass(ABCMeta)):
     ''' A harness for server-specific information and tasks related to
     Bokeh sessions.
@@ -396,7 +373,6 @@ class SessionContext(with_metaclass(ABCMeta)):
     # Properties --------------------------------------------------------------
 
     @abstractproperty
-    @dev((1,0,0))
     def destroyed(self):
         ''' If ``True``, the session has been discarded and cannot be used.
 
@@ -407,7 +383,6 @@ class SessionContext(with_metaclass(ABCMeta)):
         pass
 
     @property
-    @dev((1,0,0))
     def id(self):
         ''' The unique ID for the session associated with this context.
 
@@ -415,7 +390,6 @@ class SessionContext(with_metaclass(ABCMeta)):
         return self._id
 
     @property
-    @dev((1,0,0))
     def server_context(self):
         ''' The server context for this session context
 
@@ -425,7 +399,6 @@ class SessionContext(with_metaclass(ABCMeta)):
     # Public methods ----------------------------------------------------------
 
     @abstractmethod
-    @dev((1,0,0))
     def with_locked_document(self, func):
         ''' Runs a function with the document lock held, passing the
         document to the function.

@@ -44,8 +44,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.util.api import general, dev ; general, dev
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -69,23 +67,6 @@ from .server_lifecycle import ServerLifecycleHandler
 # General API
 #-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
-
-
-
-
-
-@general((1,0,0))
 class DirectoryHandler(Handler):
     ''' Load an application directory which modifies a Document.
 
@@ -147,7 +128,6 @@ class DirectoryHandler(Handler):
     # Properties --------------------------------------------------------------
 
     @property
-    @general((1,0,0))
     def error(self):
         ''' If the handler fails, may contain a related error message.
 
@@ -155,7 +135,6 @@ class DirectoryHandler(Handler):
         return self._main_handler.error or self._lifecycle_handler.error
 
     @property
-    @general((1,0,0))
     def error_detail(self):
         ''' If the handler fails, may contain a traceback or other details.
 
@@ -163,7 +142,6 @@ class DirectoryHandler(Handler):
         return self._main_handler.error_detail or self._lifecycle_handler.error_detail
 
     @property
-    @general((1,0,0))
     def failed(self):
         ''' ``True`` if the handler failed to modify the doc
 
@@ -171,7 +149,6 @@ class DirectoryHandler(Handler):
         return self._main_handler.failed or self._lifecycle_handler.failed
 
     @property
-    @general((1,0,0))
     def safe_to_fork(self):
         ''' Whether it is still safe for the Bokeh server to fork new workers.
 
@@ -183,7 +160,6 @@ class DirectoryHandler(Handler):
 
     # Public methods ----------------------------------------------------------
 
-    @general((1,0,0))
     def modify_document(self, doc):
         ''' Execute the configured ``main.py`` or ``main.ipynb`` to modify the
         document.
@@ -206,7 +182,6 @@ class DirectoryHandler(Handler):
         # This internal handler should never add a template
         self._main_handler.modify_document(doc)
 
-    @general((1,0,0))
     def on_server_loaded(self, server_context):
         ''' Execute `on_server_unloaded`` from ``server_lifecycle.py`` (if
         it is defined) when the server is first started.
@@ -217,7 +192,6 @@ class DirectoryHandler(Handler):
         '''
         return self._lifecycle_handler.on_server_loaded(server_context)
 
-    @general((1,0,0))
     def on_server_unloaded(self, server_context):
         ''' Execute ``on_server_unloaded`` from ``server_lifecycle.py`` (if
         it is defined) when the server cleanly exits. (Before stopping the
@@ -234,7 +208,6 @@ class DirectoryHandler(Handler):
         '''
         return self._lifecycle_handler.on_server_unloaded(server_context)
 
-    @general((1,0,0))
     def on_session_created(self, session_context):
         ''' Execute ``on_session_created`` from ``server_lifecycle.py`` (if
         it is defined) when a new session is created.
@@ -245,7 +218,6 @@ class DirectoryHandler(Handler):
         '''
         return self._lifecycle_handler.on_session_created(session_context)
 
-    @general((1,0,0))
     def on_session_destroyed(self, session_context):
         ''' Execute ``on_session_destroyed`` from ``server_lifecycle.py`` (if
         it is defined) when a session is destroyed.
@@ -256,7 +228,6 @@ class DirectoryHandler(Handler):
         '''
         return self._lifecycle_handler.on_session_destroyed(session_context)
 
-    @general((1,0,0))
     def url_path(self):
         ''' The last path component for the basename of the path to the
         configured directory.
@@ -267,3 +238,15 @@ class DirectoryHandler(Handler):
         else:
             # TODO should fix invalid URL characters
             return '/' + basename(self._path)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

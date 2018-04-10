@@ -13,9 +13,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
-from bokeh.util.testing import verify_api ; verify_api
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -29,33 +26,6 @@ from bokeh.colors.hsl import HSL
 
 # Module under test
 import bokeh.colors.color as bcc
-
-#-----------------------------------------------------------------------------
-# API Definition
-#-----------------------------------------------------------------------------
-
-api = {
-
-    GENERAL: (
-
-        ( 'Color',          (1, 0, 0) ),
-        ( 'Color.clamp',    (1, 0, 0) ),
-        ( 'Color.copy',     (1, 0, 0) ),
-        ( 'Color.darken',   (1, 0, 0) ),
-        ( 'Color.from_hsl', (1, 0, 0) ),
-        ( 'Color.from_rgb', (1, 0, 0) ),
-        ( 'Color.lighten',  (1, 0, 0) ),
-        ( 'Color.to_css',   (1, 0, 0) ),
-        ( 'Color.to_hsl',   (1, 0, 0) ),
-        ( 'Color.to_rgb',   (1, 0, 0) ),
-
-    ), DEV: (
-
-    )
-
-}
-
-Test_api = verify_api(bcc, api)
 
 #-----------------------------------------------------------------------------
 # Setup

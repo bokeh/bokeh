@@ -13,9 +13,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
-from bokeh.util.testing import verify_api ; verify_api
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -31,26 +28,6 @@ from bokeh.resources import Resources
 
 # Module under test
 import bokeh.io.output as bio
-
-#-----------------------------------------------------------------------------
-# API Definition
-#-----------------------------------------------------------------------------
-
-api = {
-
-    GENERAL: (
-
-        ( 'output_file',     (1, 0, 0) ),
-        ( 'output_notebook', (1, 0, 0) ),
-        ( 'reset_output',    (1, 0, 0) ),
-
-    ), DEV: (
-
-    )
-
-}
-
-Test_api = verify_api(bio, api)
 
 #-----------------------------------------------------------------------------
 # Setup

@@ -13,9 +13,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
-from bokeh.util.testing import verify_api ; verify_api
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -36,31 +33,6 @@ from bokeh.io.export import terminate_web_driver
 
 # Module under test
 import bokeh.io.export as bie
-
-#-----------------------------------------------------------------------------
-# API Definition
-#-----------------------------------------------------------------------------
-
-api = {
-
-    GENERAL: (
-
-        ( 'export_png',  (1, 0, 0) ),
-        ( 'export_svgs', (1, 0, 0) ),
-
-    ), DEV: (
-
-        ( 'get_screenshot_as_png',      (1, 0, 0) ),
-        ( 'get_svgs',                   (1, 0, 0) ),
-        ( 'get_layout_html',            (1, 0, 0) ),
-        ( 'wait_until_render_complete', (1, 0, 0) ),
-        ( 'terminate_web_driver',       (1, 0, 0) ),
-
-    ),
-
-}
-
-Test_api = verify_api(bie, api)
 
 #-----------------------------------------------------------------------------
 # Setup

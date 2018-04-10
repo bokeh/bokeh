@@ -17,8 +17,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.util.api import general, dev ; general, dev
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -48,7 +46,6 @@ from .util import check_one_model_or_doc, div_for_render_item, find_existing_doc
 # Dev API
 #-----------------------------------------------------------------------------
 
-@dev((1,0,0))
 def notebook_content(model, notebook_comms_target=None, theme=FromCurdoc):
     ''' Return script and div that will display a Bokeh plot in a Jupyter
     Notebook.

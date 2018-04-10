@@ -13,9 +13,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
-from bokeh.util.testing import verify_api ; verify_api
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -30,31 +27,6 @@ from bokeh.util.testing import verify_all
 
 # Module under test
 import bokeh.driving as bd
-
-#-----------------------------------------------------------------------------
-# API Definition
-#-----------------------------------------------------------------------------
-
-api = {
-
-    GENERAL: (
-
-        ( 'bounce', (1, 0, 0) ),
-        ( 'cosine', (1, 0, 0) ),
-        ( 'count',  (1, 0, 0) ),
-        ( 'force',  (1, 0, 0) ),
-        ( 'linear', (1, 0, 0) ),
-        ( 'repeat', (1, 0, 0) ),
-        ( 'sine',   (1, 0, 0) ),
-
-    ), DEV: (
-
-    )
-
-}
-
-Test_api = verify_api(bd, api)
-
 
 #-----------------------------------------------------------------------------
 # Setup

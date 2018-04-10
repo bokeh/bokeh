@@ -13,9 +13,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
-from bokeh.util.testing import verify_api ; verify_api
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -29,35 +26,6 @@ from bokeh.model import Model
 
 # Module under test
 import bokeh.embed.util as beu
-
-#-----------------------------------------------------------------------------
-# API Definition
-#-----------------------------------------------------------------------------
-
-api = {
-
-    GENERAL: (
-
-    ), DEV: (
-
-        ( 'FromCurdoc',                            (1,0,0) ),
-        ( 'check_models_or_docs',                  (1,0,0) ),
-        ( 'check_one_model_or_doc',                (1,0,0) ),
-        ( 'div_for_render_item',                   (1,0,0) ),
-        ( 'find_existing_docs',                    (1,0,0) ),
-        ( 'html_page_for_render_items',            (1,0,0) ),
-        ( 'script_for_render_items',               (1,0,0) ),
-        ( 'standalone_docs_json_and_render_items', (1,0,0) ),
-        ( 'wrap_in_onload',                        (1,0,0) ),
-        ( 'wrap_in_safely',                        (1,0,0) ),
-        ( 'wrap_in_script_tag',                    (1,0,0) ),
-        ( 'escape',                                (1,0,0) ),
-
-    )
-
-}
-
-Test_api = verify_api(beu, api)
 
 #-----------------------------------------------------------------------------
 # Setup

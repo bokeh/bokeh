@@ -13,9 +13,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
-from bokeh.util.testing import verify_api ; verify_api
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -29,24 +26,6 @@ from bokeh.document import Document
 
 # Module under test
 import bokeh.embed.bundle as beb
-
-#-----------------------------------------------------------------------------
-# API Definition
-#-----------------------------------------------------------------------------
-
-api = {
-
-    GENERAL: (
-
-    ), DEV: (
-
-        ( 'bundle_for_objs_and_resources', (1,0,0) ),
-
-    )
-
-}
-
-Test_api = verify_api(beb, api)
 
 #-----------------------------------------------------------------------------
 # Setup

@@ -13,9 +13,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
-from bokeh.util.testing import verify_api ; verify_api
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -29,27 +26,6 @@ import bs4
 
 # Module under test
 import bokeh.embed.server as bes
-
-#-----------------------------------------------------------------------------
-# API Definition
-#-----------------------------------------------------------------------------
-
-api = {
-
-    GENERAL: (
-
-        ( 'server_document', (1, 0, 0) ),
-        ( 'server_session',  (1, 0, 0) ),
-
-    ), DEV: (
-
-        ( 'server_html_page_for_session', (1, 0, 0) ),
-
-    )
-
-}
-
-Test_api = verify_api(bes, api)
 
 #-----------------------------------------------------------------------------
 # Setup

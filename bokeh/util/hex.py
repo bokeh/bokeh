@@ -21,8 +21,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.util.api import general, dev ; general, dev
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -43,7 +41,6 @@ from .dependencies import import_optional
 # General API
 #-----------------------------------------------------------------------------
 
-@general((1,0,0))
 def axial_to_cartesian(q, r, size, orientation, aspect_scale=1):
     ''' Map axial *(q,r)* coordinates to cartesian *(x,y)* coordinates of
     tiles centers.
@@ -95,7 +92,6 @@ def axial_to_cartesian(q, r, size, orientation, aspect_scale=1):
 
     return (x, y)
 
-@general((1,0,0))
 def cartesian_to_axial(x, y, size, orientation, aspect_scale=1):
     ''' Map Cartesion *(x,y)* points to axial *(q,r)* coordinates of enclosing
     tiles.
@@ -148,7 +144,6 @@ def cartesian_to_axial(x, y, size, orientation, aspect_scale=1):
 
     return _round_hex(q, r)
 
-@general((1,0,0))
 def hexbin(x, y, size, orientation="pointytop", aspect_scale=1):
     ''' Perform an equal-weight binning of data points into hexagonal tiles.
 

@@ -21,8 +21,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 logger = logging.getLogger(__name__)
 
-from bokeh.util.api import general, dev ; general, dev
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -54,7 +52,6 @@ from .websocket import WebSocketClientConnectionWrapper
 # Dev API
 #-----------------------------------------------------------------------------
 
-@dev((1,0,0))
 class ClientConnection(object):
     ''' A Bokeh low-level class used to implement ClientSession; use ClientSession to connect to the server.
 
@@ -81,7 +78,6 @@ class ClientConnection(object):
     # Properties --------------------------------------------------------------
 
     @property
-    @dev((1,0,0))
     def connected(self):
         ''' Whether we've connected the Websocket and have exchanged initial
         handshake messages.
@@ -90,21 +86,18 @@ class ClientConnection(object):
         return isinstance(self._state, CONNECTED_AFTER_ACK)
 
     @property
-    @dev((1,0,0))
     def io_loop(self):
         ''' The Tornado ``IOLoop`` this connection is using. '''
         return self._loop
 
 
     @property
-    @dev((1,0,0))
     def url(self):
         ''' The URL of the websocket this Connection is to. '''
         return self._url
 
     # Internal methods --------------------------------------------------------
 
-    @dev((1,0,0))
     def connect(self):
         def connected_or_closed():
             # we should be looking at the same state here as the 'connected' property above, so connected
@@ -112,7 +105,6 @@ class ClientConnection(object):
             return isinstance(self._state, CONNECTED_AFTER_ACK) or isinstance(self._state, DISCONNECTED)
         self._loop_until(connected_or_closed)
 
-    @dev((1,0,0))
     def close(self, why="closed"):
         ''' Close the Websocket connection.
 
@@ -120,7 +112,6 @@ class ClientConnection(object):
         if self._socket is not None:
             self._socket.close(1000, why)
 
-    @dev((1,0,0))
     def force_roundtrip(self):
         ''' Force a round-trip request/reply to the server, sometimes needed to
         avoid race conditions. Mostly useful for testing.
@@ -134,7 +125,6 @@ class ClientConnection(object):
         '''
         self._send_request_server_info()
 
-    @dev((1,0,0))
     def loop_until_closed(self):
         ''' Execute a blocking loop that runs and exectutes event callbacks
         until the connection is closed (e.g. by hitting Ctrl-C).
@@ -154,7 +144,6 @@ class ClientConnection(object):
                 return isinstance(self._state, DISCONNECTED)
             self._loop_until(closed)
 
-    @dev((1,0,0))
     def pull_doc(self, document):
         ''' Pull a document from the server, overwriting the passed-in document
 
@@ -175,7 +164,6 @@ class ClientConnection(object):
         else:
             reply.push_to_document(document)
 
-    @dev((1,0,0))
     def push_doc(self, document):
         ''' Push a document to the server, overwriting any existing server-side doc.
 
@@ -196,7 +184,6 @@ class ClientConnection(object):
         else:
             return reply
 
-    @dev((1,0,0))
     def request_server_info(self):
         ''' Ask for information about the server.
 
@@ -209,7 +196,6 @@ class ClientConnection(object):
         return self._server_info
 
     @gen.coroutine
-    @dev((1,0,0))
     def send_message(self, message):
         if self._socket is None:
             logger.info("We're disconnected, so not sending message %r", message)
