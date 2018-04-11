@@ -931,6 +931,7 @@ export class PlotCanvasView extends DOMView {
           link.target = "_blank"
           link.dispatchEvent(new MouseEvent('click'))
         }
+        break
       }
       case "svg": {
         const svg = (this.canvas_view.ctx as any).getSerializedSvg(true)
@@ -943,6 +944,7 @@ export class PlotCanvasView extends DOMView {
         downloadLink.style.display = "none"
         document.body.appendChild(downloadLink)
         downloadLink.click()
+        break
       }
     }
   }
