@@ -20,6 +20,13 @@ function valueToString(value: any): string {
   }
 }
 
+function isSpec(obj: any): boolean {
+  return !(obj instanceof HasProps) && isObject(obj) &&
+          ((obj.value === undefined ? 0 : 1) +
+           (obj.field === undefined ? 0 : 1) +
+           (obj.expr  === undefined ? 0 : 1) == 1) // garbage JS XOR
+}
+
 //
 // Property base class
 //
@@ -128,13 +135,8 @@ export class Property<T> extends Signalable() {
 
     if (isArray(attr_value))
       this.spec = {value: attr_value}
-
-    else if (isObject(attr_value) &&
-             ((attr_value.value === undefined ? 0 : 1) +
-              (attr_value.field === undefined ? 0 : 1) +
-              (attr_value.expr  === undefined ? 0 : 1) == 1)) // garbage JS XOR
+    else if (isSpec(attr_value))
       this.spec = attr_value
-
     else
       this.spec = {value: attr_value}
 
