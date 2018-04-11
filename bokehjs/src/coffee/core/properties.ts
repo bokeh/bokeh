@@ -20,7 +20,7 @@ function valueToString(value: any): string {
   }
 }
 
-function isSpec(obj: any): boolean {
+export function isSpec(obj: any): boolean {
   return !(obj instanceof HasProps) && isObject(obj) &&
           ((obj.value === undefined ? 0 : 1) +
            (obj.field === undefined ? 0 : 1) +
