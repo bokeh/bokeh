@@ -8,11 +8,11 @@ const {join} = require("path");
 
 const config = {
   entry: {
-    "bokeh":         paths.coffee.bokehjs.main,
-    "bokeh-api":     paths.coffee.api.main,
-    "bokeh-widgets": paths.coffee.widgets.main,
-    "bokeh-tables":  paths.coffee.tables.main,
-    "bokeh-gl":      paths.coffee.gl.main
+    "bokeh":         paths.lib.bokehjs.main,
+    "bokeh-api":     paths.lib.api.main,
+    "bokeh-widgets": paths.lib.widgets.main,
+    "bokeh-tables":  paths.lib.tables.main,
+    "bokeh-gl":      paths.lib.gl.main
   },
   output: {
     filename: "[name].js",
