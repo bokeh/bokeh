@@ -149,8 +149,28 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None):
 # Dev API
 #-----------------------------------------------------------------------------
 
+
 def get_screenshot_as_png(obj, driver=None, **kwargs):
-    '''
+    ''' Get a screenshot of a LayoutDOM object.
+
+    Args:
+        obj (LayoutDOM or Document) : a Layout (Row/Column), Plot or Widget
+            object or Document to export.
+
+        driver (selenium.webdriver) : a selenium webdriver instance to use
+            to export the image.
+
+    Returns:
+        cropped_image (PIL.Image.Image) : a pillow image loaded from PNG.
+
+    .. warning::
+        Responsive sizing_modes may generate layouts with unexpected size and
+        aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
+
+    .. warning::
+        Glyphs that are rendered via webgl won't be included in the generated PNG.
+
+
 
     '''
     Image = import_required('PIL.Image',
