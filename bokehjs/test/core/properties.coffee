@@ -60,6 +60,46 @@ describe "properties module", ->
   spec_value_trans = {a: {value: 2, transform: new TestTransform()}}
   spec_value_null  = {a: {value: null}}
 
+  describe "isSpec", ->
+
+    it "should identify field specs", ->
+      prop = new properties.Property(new SomeHasProps(a: {field: "foo"}), 'a')
+      expect(p.isSpec(prop.spec)).to.be.true
+
+    it "should identify value specs", ->
+      prop = new properties.Property(new SomeHasProps(a: {value: "foo"}), 'a')
+      expect(p.isSpec(prop.spec)).to.be.true
+
+    it "should identify expr specs", ->
+      prop = new properties.Property(new SomeHasProps(a: {expr: "foo"}), 'a')
+      expect(p.isSpec(prop.spec)).to.be.true
+
+    it "should reject non-specs", ->
+      expect(p.isSpec(1)).to.be.false
+      expect(p.isSpec({})).to.be.false
+      expect(p.isSpec([])).to.be.false
+      expect(p.isSpec(null)).to.be.false
+      expect(p.isSpec(undefined)).to.be.false
+
+    it "should reject bad specs", ->
+      prop = new properties.Property(new SomeHasProps(a: {expr: "foo"}), 'a')
+      prop.spec.value = "bar"
+      expect(p.isSpec(prop.spec)).to.be.false
+      prop.spec.expr = "bar"
+      expect(p.isSpec(prop.spec)).to.be.false
+
+      prop = new properties.Property(new SomeHasProps(a: {value: "foo"}), 'a')
+      prop.spec.field = "bar"
+      expect(p.isSpec(prop.spec)).to.be.false
+      prop.spec.expr = "bar"
+      expect(p.isSpec(prop.spec)).to.be.false
+
+      prop = new properties.Property(new SomeHasProps(a: {field: "foo"}), 'a')
+      prop.spec.value = "bar"
+      expect(p.isSpec(prop.spec)).to.be.false
+      prop.spec.expr = "bar"
+      expect(p.isSpec(prop.spec)).to.be.false
+
   describe "Property", ->
 
     describe "construction", ->
