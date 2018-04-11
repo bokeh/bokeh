@@ -29,7 +29,7 @@ gulp.task("scripts:ts", () => {
     n_errors++
   }
 
-  const project = ts.createProject(join(paths.src_dir.coffee, "tsconfig.json"))
+  const project = ts.createProject(join(paths.src_dir.lib, "tsconfig.json"))
   const compiler = project
     .src()
     .pipe(sourcemaps.init())
@@ -54,12 +54,12 @@ gulp.task("scripts:ts", () => {
 })
 
 gulp.task("~scripts:ts", ["scripts:ts"], () => {
-  gulp.watch(join(paths.src_dir.ts, "**", "*.ts"), ["scripts:ts"])
+  gulp.watch(join(paths.src_dir.lib, "**", "*.ts"), ["scripts:ts"])
 })
 
 gulp.task("tslint", () => {
   const srcs = [
-    join(paths.src_dir.coffee),
+    join(paths.src_dir.lib),
     join(paths.base_dir, "test"),
     join(paths.base_dir, "examples"),
   ]
@@ -77,11 +77,11 @@ gulp.task("scripts:compile", ["scripts:ts"])
 
 gulp.task("scripts:bundle", ["scripts:compile"], (next: () => void) => {
   const entries = [
-    paths.coffee.bokehjs.main,
-    paths.coffee.api.main,
-    paths.coffee.widgets.main,
-    paths.coffee.tables.main,
-    paths.coffee.gl.main,
+    paths.lib.bokehjs.main,
+    paths.lib.api.main,
+    paths.lib.widgets.main,
+    paths.lib.tables.main,
+    paths.lib.gl.main,
   ]
   const bases = [paths.build_dir.tree, './node_modules']
   const excludes = ["node_modules/moment/moment.js"]
@@ -92,11 +92,11 @@ gulp.task("scripts:bundle", ["scripts:compile"], (next: () => void) => {
 
   const [bokehjs, api, widgets, tables, gl] = bundles
 
-  bokehjs.write(paths.coffee.bokehjs.output)
-  api.write(paths.coffee.api.output)
-  widgets.write(paths.coffee.widgets.output)
-  tables.write(paths.coffee.tables.output)
-  gl.write(paths.coffee.gl.output)
+  bokehjs.write(paths.lib.bokehjs.output)
+  api.write(paths.lib.api.output)
+  widgets.write(paths.lib.widgets.output)
+  tables.write(paths.lib.tables.output)
+  gl.write(paths.lib.gl.output)
 
   if (argv.stats) {
     const minify_opts = {

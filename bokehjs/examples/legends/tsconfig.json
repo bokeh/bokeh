@@ -1,7 +1,7 @@
 {
   "extends": "../tsconfig.json",
   "files": [
-    "../../src/coffee/api/typings.d.ts",
+    "../../src/lib/api/typings.d.ts",
     "legends.ts"
   ]
 }
