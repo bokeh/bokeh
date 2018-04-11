@@ -104,7 +104,7 @@ export function fill_array_with_vec(n: number, m: number, val: Arrayable<number>
 
 export function visual_prop_is_singular(visual: any, propname: string): boolean {
   // This touches the internals of the visual, so we limit use in this function
-  // See renderer.coffee:cache_select() for similar code
+  // See renderer.ts:cache_select() for similar code
   return visual[propname].spec.value !== undefined
 }
 
