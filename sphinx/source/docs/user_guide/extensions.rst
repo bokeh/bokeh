@@ -263,7 +263,7 @@ Here we present some complete examples to serve as a reference. It is hoped
 that the information in this section is a useful point of departure for anyone
 creating a custom extensions. However, creating extensions is a somewhat
 advanced topic. In many cases, it will be required to study the source code
-of the base classes in :bokeh-tree:`bokehjs/src/coffee/models`.
+of the base classes in :bokeh-tree:`bokehjs/src/lib/models`.
 
 For any questions that remain, please contact any of the sources in
 :ref:`userguide_info`.Collaborating with the community will help make additions

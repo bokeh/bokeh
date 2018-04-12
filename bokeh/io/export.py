@@ -159,7 +159,7 @@ def get_screenshot_as_png(obj, driver=None, **kwargs):
 
     with _tmp_html() as tmp:
         html = get_layout_html(obj, **kwargs)
-        with io.open(tmp.fd, mode="wb", closefd=False) as file:
+        with io.open(tmp.path, mode="wb") as file:
             file.write(b(html))
 
         web_driver = driver if driver is not None else create_webdriver()
@@ -191,7 +191,7 @@ def get_svgs(obj, driver=None, **kwargs):
     '''
     with _tmp_html() as tmp:
         html = get_layout_html(obj, **kwargs)
-        with io.open(tmp.fd, mode="wb", closefd=False) as file:
+        with io.open(tmp.path, mode="wb") as file:
             file.write(b(html))
 
         web_driver = driver if driver is not None else create_webdriver()
@@ -330,6 +330,8 @@ def _crop_image(image, left=0, top=0, right=0, bottom=0, **kwargs):
 
 class _TempFile(object):
 
+    _closed = False
+
     def __init__(self, prefix="tmp", suffix=""):
         self.fd, self.path = mkstemp(prefix=prefix, suffix=suffix)
 
@@ -343,15 +345,24 @@ class _TempFile(object):
         self.close()
 
     def close(self):
+        if self._closed:
+            return
+
         try:
             os.close(self.fd)
         except (OSError, IOError):
             pass
+        finally:
+            self.fd = None
 
         try:
             os.unlink(self.path)
         except (OSError, IOError):
             pass
+        finally:
+            self.path = None
+
+        self._closed = True
 
 def _tmp_html():
     return _TempFile(prefix="bokeh", suffix=".html")

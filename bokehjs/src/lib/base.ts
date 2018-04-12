@@ -56,7 +56,7 @@ export const register_models = Models.register_models
 Models.registered_names = () => Object.keys(_all_models)
 
 // "index" is a map from the toplevel model IDs rendered by
-// embed.coffee, to the view objects for those models. It doesn't
+// embed.ts, to the view objects for those models. It doesn't
 // contain all views, only those explicitly rendered to an element
-// by embed.coffee.
+// by embed.ts.
 export const index: {[key: string]: View} = {}

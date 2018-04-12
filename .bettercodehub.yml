@@ -4,8 +4,8 @@ exclude:
 - /bokeh/sphinxext/.*
 - /bokeh/_version.py
 - /bokehjs/examples/.*
-- /bokehjs/src/coffee/api/palettes.ts
-- /bokehjs/src/coffee/core/util/svg_colors.ts
+- /bokehjs/src/lib/api/palettes.ts
+- /bokehjs/src/lib/core/util/svg_colors.ts
 - /conda.recipe/.*
 - /conftest.py
 - /docker-tools/.*

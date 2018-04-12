@@ -39,7 +39,7 @@ Unlike the hierarchical organization of the Python library, all of the
 JavaScript models are all in one flat ``Bokeh`` module.  Typically any
 Python ``ClassName`` is available as ``Bokeh.ClassName`` from JavaScript.
 The complete list of models available from JavaScript can be seen at
-:bokeh-tree:`bokehjs/src/coffee/api/models.coffee`.
+:bokeh-tree:`bokehjs/src/lib/api/models.ts`.
 
 When creating models from JavaScript, all of the keyword arguments that
 would get passed to the Python object initializer are passed as a
