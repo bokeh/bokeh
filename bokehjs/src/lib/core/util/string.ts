@@ -56,3 +56,7 @@ export function unescape(s: string): string {
     }
   })
 }
+
+export function use_strict(code: string): string {
+  return `'use strict';\n${code}`
+}

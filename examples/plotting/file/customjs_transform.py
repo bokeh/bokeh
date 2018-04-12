@@ -26,7 +26,7 @@ goog_source = ColumnDataSource(data=dict(
 v_func = """\
     var first = xs[0]
     var norm = new Float64Array(xs.length)
-    for (i = 0; i < xs.length; i++) {
+    for (var i = 0; i < xs.length; i++) {
         norm[i] = xs[i] / first
     }
     return norm

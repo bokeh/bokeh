@@ -2,11 +2,13 @@ import {Filter} from "./filter"
 import * as p from "core/properties"
 import {keys, values} from "core/util/object"
 import {DataSource} from "../sources/data_source"
+import {use_strict} from "core/util/string"
 
 export namespace CustomJSFilter {
   export interface Attrs extends Filter.Attrs {
     args: {[key: string]: any}
     code: string
+    use_strict: boolean
   }
 
   export interface Props extends Filter.Props {}
@@ -26,9 +28,14 @@ export class CustomJSFilter extends Filter {
     this.prototype.type = 'CustomJSFilter'
 
     this.define({
-      args: [ p.Any,    {} ], // TODO (bev) better type
-      code: [ p.String, '' ],
+      args:       [ p.Any,     {}    ], // TODO (bev) better type
+      code:       [ p.String,  ''    ],
+      use_strict: [ p.Boolean, false ],
     })
+  }
+
+  get names(): string[] {
+    return keys(this.args)
   }
 
   get values(): any[] {
@@ -36,9 +43,8 @@ export class CustomJSFilter extends Filter {
   }
 
   get func(): Function {
-    // this relies on keys(args) and values(args) returning keys and values
-    // in the same order
-    return new Function(...keys(this.args), "source", "require", "exports", this.code)
+    const code = this.use_strict ? use_strict(this.code) : this.code
+    return new Function(...this.names, "source", "require", "exports", code)
   }
 
   compute_indices(source: DataSource): number[] | null {

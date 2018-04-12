@@ -1,6 +1,6 @@
 var data = source.data;
 var filetext = 'name,income,years_experience\n';
-for (i=0; i < data['name'].length; i++) {
+for (var i = 0; i < data['name'].length; i++) {
     var currRow = [data['name'][i].toString(),
                    data['salary'][i].toString(),
                    data['years_experience'][i].toString().concat('\n')];
@@ -15,9 +15,7 @@ var blob = new Blob([filetext], { type: 'text/csv;charset=utf-8;' });
 //addresses IE
 if (navigator.msSaveBlob) {
     navigator.msSaveBlob(blob, filename);
-}
-
-else {
+} else {
     var link = document.createElement("a");
     link = document.createElement('a')
     link.href = URL.createObjectURL(blob);

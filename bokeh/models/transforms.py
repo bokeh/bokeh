@@ -194,8 +194,8 @@ class CustomJSTransform(Transform):
         .. code-block:: javascript
 
             v_func = '''
-            new_xs = new Array(xs.length)
-            for(i = 0; i < xs.length; i++) {
+            var new_xs = new Array(xs.length)
+            for(var i = 0; i < xs.length; i++) {
                 new_xs[i] = xs[i] + 0.5
             }
             return new_xs
@@ -204,6 +204,10 @@ class CustomJSTransform(Transform):
     .. warning::
         The vectorized function, ``v_func``, must return an array of the
         same length as the input ``xs`` array.
+    """)
+
+    use_strict = Bool(default=False, help="""
+    Enables or disables automatic insertion of ``"use strict";`` into ``func`` or ``v_func``.
     """)
 
 

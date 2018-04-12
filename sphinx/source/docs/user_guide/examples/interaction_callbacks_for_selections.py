@@ -24,7 +24,7 @@ s1.callback = CustomJS(args=dict(s2=s2), code="""
         var d2 = s2.data;
         d2['x'] = []
         d2['y'] = []
-        for (i = 0; i < inds.length; i++) {
+        for (var i = 0; i < inds.length; i++) {
             d2['x'].push(d1['x'][inds[i]])
             d2['y'].push(d1['y'][inds[i]])
         }

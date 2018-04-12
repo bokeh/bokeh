@@ -1,11 +1,13 @@
 import {Callback} from "./callback"
 import * as p from "core/properties"
 import {keys, values} from "core/util/object"
+import {use_strict} from "core/util/string"
 
 export namespace CustomJS {
   export interface Attrs extends Callback.Attrs {
     args: {[key: string]: any}
     code: string
+    use_strict: boolean
   }
 
   export interface Props extends Callback.Props {}
@@ -25,8 +27,9 @@ export class CustomJS extends Callback {
     this.prototype.type = 'CustomJS'
 
     this.define({
-      args: [ p.Any,     {} ], // TODO (bev) better type
-      code: [ p.String,  '' ],
+      args:       [ p.Any,     {}    ], // TODO (bev) better type
+      code:       [ p.String,  ''    ],
+      use_strict: [ p.Boolean, false ],
     })
   }
 
@@ -39,8 +42,8 @@ export class CustomJS extends Callback {
   }
 
   get func(): Function {
-    // this relies on keys(args) and values(args) returning keys and values in the same order
-    return new Function(...this.names, "cb_obj", "cb_data", "require", "exports", this.code)
+    const code = this.use_strict ? use_strict(this.code) : this.code
+    return new Function(...this.names, "cb_obj", "cb_data", "require", "exports", code)
   }
 
   execute(cb_obj: any, cb_data: {[key: string]: any}): any {

@@ -20,8 +20,8 @@ def display_event(div, attributes=[]):
     return CustomJS(args=dict(div=div), code="""
         var attrs = %s;
         var args = [];
-        for (var i=0; i<attrs.length; i++ ) {
-            val = JSON.stringify(cb_obj[attrs[i]], function(key, val) {
+        for (var i = 0; i < attrs.length; i++) {
+            var val = JSON.stringify(cb_obj[attrs[i]], function(key, val) {
                 return val.toFixed ? Number(val.toFixed(2)) : val;
             })
             args.push(attrs[i] + '=' + val)
@@ -29,7 +29,8 @@ def display_event(div, attributes=[]):
         var line = "<span style=%r><b>" + cb_obj.event_name + "</b>(" + args.join(", ") + ")</span>\\n";
         var text = div.text.concat(line);
         var lines = text.split("\\n")
-        if ( lines.length > 35 ) { lines.shift(); }
+        if (lines.length > 35)
+            lines.shift();
         div.text = lines.join("\\n");
     """ % (attributes, style))
 
