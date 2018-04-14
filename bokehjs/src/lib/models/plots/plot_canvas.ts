@@ -197,7 +197,7 @@ export class PlotCanvasView extends DOMView {
 
     this.throttled_paint = throttle((() => this.force_paint.emit()), 15)  // TODO (bev) configurable
 
-    this.ui_event_bus = new UIEvents(this, this.model.toolbar, this.canvas_view.el, this.model.plot)
+    this.ui_event_bus = new UIEvents(this, this.model.toolbar, this.canvas_view.events_el, this.model.plot)
 
     this.levels = {}
     for (const level of enums.RenderLevel) {
