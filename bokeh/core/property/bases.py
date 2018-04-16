@@ -61,9 +61,6 @@ class Property(PropertyDescriptorFactory):
         self.alternatives = []
         self.assertions = []
 
-        # "fail early" when a default is invalid
-        self.validate(self._raw_default())
-
     def __str__(self):
         return self.__class__.__name__
 
