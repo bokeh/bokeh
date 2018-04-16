@@ -227,10 +227,7 @@ export class UIEvents {
     return this.plot_view.frame.bbox.contains(sx, sy)
   }
 
-  // XXX: srcEvent is an effect of the overall mess this method is.
-  _trigger<E extends UIEvent>(signal: UISignal<E>, e: E, srcEvent?: Event): void {
-    this._trigger_bokeh_event(e)
-
+  _trigger<E extends UIEvent>(signal: UISignal<E>, e: E, srcEvent: Event): void {
     const gestures = this.toolbar.gestures
     type BaseType = keyof typeof gestures
 
@@ -269,6 +266,10 @@ export class UIEvents {
         break
       }
       case "tap": {
+        const {target} = srcEvent
+        if (target != null && target != this.hit_area)
+          return // don't trigger bokeh events
+
         if (view != null && view.on_hit != null)
           view.on_hit(e.sx, e.sy)
 
@@ -285,8 +286,8 @@ export class UIEvents {
         const base = is_mobile ? "pinch" : "scroll"
         const active_gesture = gestures[base].active
         if (active_gesture != null) {
-          srcEvent!.preventDefault()
-          srcEvent!.stopPropagation()
+          srcEvent.preventDefault()
+          srcEvent.stopPropagation()
           this.trigger(signal, e, active_gesture.id)
         }
         break
@@ -297,6 +298,8 @@ export class UIEvents {
           this.trigger(signal, e, active_gesture.id)
       }
     }
+
+    this._trigger_bokeh_event(e)
   }
 
   trigger<E>(signal: UISignal<E>, e: E, id: string | null = null): void {
@@ -360,43 +363,43 @@ export class UIEvents {
     // back out delta to get original center point
     ev.sx -= e.deltaX
     ev.sy -= e.deltaY
-    this._trigger(this.pan_start, ev)
+    this._trigger(this.pan_start, ev, e.srcEvent)
   }
 
   protected _pan(e: HammerEvent): void {
-    this._trigger(this.pan, this._gesture_event(e))
+    this._trigger(this.pan, this._gesture_event(e), e.srcEvent)
   }
 
   protected _pan_end(e: HammerEvent): void {
-    this._trigger(this.pan_end, this._gesture_event(e))
+    this._trigger(this.pan_end, this._gesture_event(e), e.srcEvent)
   }
 
   protected _pinch_start(e: HammerEvent): void {
-    this._trigger(this.pinch_start, this._gesture_event(e))
+    this._trigger(this.pinch_start, this._gesture_event(e), e.srcEvent)
   }
 
   protected _pinch(e: HammerEvent): void {
-    this._trigger(this.pinch, this._gesture_event(e))
+    this._trigger(this.pinch, this._gesture_event(e), e.srcEvent)
   }
 
   protected _pinch_end(e: HammerEvent): void {
-    this._trigger(this.pinch_end, this._gesture_event(e))
+    this._trigger(this.pinch_end, this._gesture_event(e), e.srcEvent)
   }
 
   protected _rotate_start(e: HammerEvent): void {
-    this._trigger(this.rotate_start, this._gesture_event(e))
+    this._trigger(this.rotate_start, this._gesture_event(e), e.srcEvent)
   }
 
   protected _rotate(e: HammerEvent): void {
-    this._trigger(this.rotate, this._gesture_event(e))
+    this._trigger(this.rotate, this._gesture_event(e), e.srcEvent)
   }
 
   protected _rotate_end(e: HammerEvent): void {
-    this._trigger(this.rotate_end, this._gesture_event(e))
+    this._trigger(this.rotate_end, this._gesture_event(e), e.srcEvent)
   }
 
   protected _tap(e: HammerEvent): void {
-    this._trigger(this.tap, this._tap_event(e))
+    this._trigger(this.tap, this._tap_event(e), e.srcEvent)
   }
 
   protected _doubletap(e: HammerEvent): void {
@@ -407,19 +410,19 @@ export class UIEvents {
   }
 
   protected _press(e: HammerEvent): void {
-    this._trigger(this.press, this._tap_event(e))
+    this._trigger(this.press, this._tap_event(e), e.srcEvent)
   }
 
   protected _mouse_enter(e: MouseEvent): void {
-    this._trigger(this.move_enter, this._move_event(e))
+    this._trigger(this.move_enter, this._move_event(e), e)
   }
 
   protected _mouse_move(e: MouseEvent): void {
-    this._trigger(this.move, this._move_event(e))
+    this._trigger(this.move, this._move_event(e), e)
   }
 
   protected _mouse_exit(e: MouseEvent): void {
-    this._trigger(this.move_exit, this._move_event(e))
+    this._trigger(this.move_exit, this._move_event(e), e)
   }
 
   protected _mouse_wheel(e: WheelEvent): void {

@@ -25,7 +25,6 @@ export class TooltipView extends AnnotationView {
     super.initialize(options)
     // TODO (bev) really probably need multiple divs
     this.plot_view.canvas_overlays.appendChild(this.el)
-    this.el.style.zIndex = "1010"
     hide(this.el)
   }
 

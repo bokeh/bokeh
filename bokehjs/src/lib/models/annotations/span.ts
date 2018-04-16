@@ -85,7 +85,6 @@ export class SpanView extends AnnotationView {
       this.el.style.left = `${sleft}px`
       this.el.style.width = `${width}px`
       this.el.style.height = `${height}px`
-      this.el.style.zIndex = "1000"
       this.el.style.backgroundColor = this.model.properties.line_color.value()
       this.el.style.opacity = this.model.properties.line_alpha.value()
       show(this.el)
