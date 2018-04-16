@@ -51,7 +51,9 @@ def main(argv):
     if len(argv) == 1:
         die("ERROR: Must specify subcommand, one of: %s" % nice_join(x.name for x in subcommands.all))
 
-    parser = argparse.ArgumentParser(prog=argv[0])
+    parser = argparse.ArgumentParser(
+        prog=argv[0],
+        epilog="See '<command> --help' to read about a specific subcommand.")
 
     # we don't use settings.version() because the point of this option
     # is to report the actual version of Bokeh, while settings.version()
