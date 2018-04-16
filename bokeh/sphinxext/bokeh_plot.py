@@ -123,7 +123,7 @@ class PlotScriptError(SphinxError):
 
     category = 'PlotScript error'
 
-def _process_script(source, filename, auxdir, js_name):
+def _process_script(source, filename, auxdir, js_name, use_relative_paths=False):
     # This is lame, but seems to be required for python 2
     source = CODING.sub("", source)
 
@@ -139,7 +139,12 @@ def _process_script(source, filename, auxdir, js_name):
     if c.error:
         raise PlotScriptError(c.error_detail)
 
-    script_path = join("/scripts", js_name)
+    script_path = None
+    if(use_relative_paths):
+        script_path = join("$REL_PATH$", js_name)
+    else:
+        script_path = join("/scripts", js_name)
+
     js_path = join(auxdir, js_name)
     js, script = autoload_static(d.roots[0], resources, script_path)
 
@@ -147,6 +152,17 @@ def _process_script(source, filename, auxdir, js_name):
         f.write(js)
 
     return (script, js, js_path, source)
+
+def _get_file_depth_string(docname):
+    """Get relative path string of file containing directive"""
+    pre_path = ''
+
+    depth = docname.count('/')
+    if depth is None:
+        pre_path = ''
+    else:
+        pre_path = ''.join(['../'] * depth)
+    return pre_path
 
 class PlotScriptParser(Parser):
     """ This Parser recognizes .py files in the Sphinx source tree,
@@ -180,7 +196,7 @@ class PlotScriptParser(Parser):
 
         js_name = "bokeh-plot-%s.js" % uuid4().hex
 
-        (script, js, js_path, source) = _process_script(source, filename, env.bokeh_plot_auxdir, js_name)
+        (script, js, js_path, source) = _process_script(source, filename, env.bokeh_plot_auxdir, js_name, env.config.bokeh_plot_use_relative_paths)
 
         env.bokeh_plot_files[env.docname] = (script, js, js_path, source)
 
@@ -223,7 +239,9 @@ class BokehPlotDirective(Directive):
             # the code runner just needs a real path to cd to, this will do
             path = join(env.bokeh_plot_auxdir, js_name)
 
-            (script, js, js_path, source) = _process_script(source, path, env.bokeh_plot_auxdir, js_name)
+            (script, js, js_path, source) = _process_script(source, path, env.bokeh_plot_auxdir, js_name, env.config.bokeh_plot_use_relative_paths)
+            if(env.config.bokeh_plot_use_relative_paths):
+                script = script.replace('$REL_PATH$', _get_file_depth_string(env.docname) + 'scripts')
             env.bokeh_plot_files[js_name] = (script, js, js_path, source)
 
         # process example files here
@@ -234,6 +252,8 @@ class BokehPlotDirective(Directive):
             if example_path in env.bokeh_plot_files:
                 app.debug("[bokeh-plot] handling internal example in %r: %s", env.docname, self.arguments[0])
                 (script, js, js_path, source) = env.bokeh_plot_files[example_path]
+                if(env.config.bokeh_plot_use_relative_paths):
+                    script = script.replace('$REL_PATH$', _get_file_depth_string(env.docname) + 'scripts')
 
             # handle examples external to the docs source, e.g. gallery examples
             else:
@@ -242,7 +262,9 @@ class BokehPlotDirective(Directive):
                 source = decode_utf8(source)
                 docname = env.docname.replace("/", "-")
                 js_name = "bokeh-plot-%s-external-%s.js" % (docname, uuid4().hex)
-                (script, js, js_path, source) = _process_script(source, self.arguments[0], env.bokeh_plot_auxdir, js_name)
+                (script, js, js_path, source) = _process_script(source, self.arguments[0], env.bokeh_plot_auxdir, js_name, env.config.bokeh_plot_use_relative_paths)
+                if(env.config.bokeh_plot_use_relative_paths):
+                    script = script.replace('$REL_PATH$', _get_file_depth_string(env.docname) + 'scripts')
                 env.bokeh_plot_files[js_name] = (script, js, js_path, source)
 
         # use the source file name to construct a friendly target_id
@@ -318,6 +340,7 @@ def env_purge_doc(app, env, docname):
 def setup(app):
     """ sphinx config variable to scan .py files in provided directories only """
     app.add_config_value('bokeh_plot_pyfile_include_dirs', [], 'html')
+    app.add_config_value('bokeh_plot_use_relative_paths', False, 'html')
 
     app.add_source_parser('.py', PlotScriptParser)
 
