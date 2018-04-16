@@ -34,8 +34,8 @@ export class MercatorAxis extends LinearAxis {
     this.prototype.default_view = MercatorAxisView
 
     this.override({
-      ticker:    () => new MercatorTicker(),
-      formatter: () => new MercatorTickFormatter(),
+      ticker:    () => new MercatorTicker({dimension: "lat"}),
+      formatter: () => new MercatorTickFormatter({dimension: "lat"}),
     })
   }
 }

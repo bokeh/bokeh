@@ -64,7 +64,7 @@ export abstract class ColumnarDataSource extends DataSource {
     this.prototype.type = 'ColumnarDataSource'
 
     this.define({
-      selection_policy: [ p.Instance  ],
+      selection_policy: [ p.Instance, () => new UnionRenderers() ],
     })
 
     this.internal({
@@ -82,10 +82,6 @@ export abstract class ColumnarDataSource extends DataSource {
 
     this.streaming = new Signal0(this, "streaming")
     this.patching = new Signal(this, "patching")
-
-    if (!this.selection_policy)
-      this.selection_policy = new UnionRenderers() // added here instead of as default because can't set default
-                                                   // on Python side without error
   }
 
   get_column(colname: string): Arrayable | null {
