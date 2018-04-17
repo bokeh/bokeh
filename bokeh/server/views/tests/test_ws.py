@@ -11,6 +11,7 @@ from bokeh.util.logconfig import basicConfig
 basicConfig()
 
 @pytest.mark.parametrize('exc', [StreamClosedError, WebSocketClosedError])
+@pytest.mark.unit
 def test_send_message_raises(caplog, exc):
     class ExcMessage(object):
         def send(self, handler):

@@ -25,6 +25,7 @@ def verify_all(module, ALL):
             assert mod.__all__ == ALL
 
         @pytest.mark.parametrize('name', ALL)
+        @pytest.mark.unit
         def test_contents(self, name):
             if isinstance(module, string_types):
                 mod = importlib.import_module(module)

@@ -94,6 +94,7 @@ def test_show_doesnt_duplicate_if_already_there(m):
     assert curstate().document.roots == [p]
 
 @pytest.mark.parametrize('obj', [1, 2.3, None, "str", GlyphRenderer()])
+@pytest.mark.unit
 def test_show_with_bad_object(obj):
     with pytest.raises(ValueError):
         bis.show(obj)

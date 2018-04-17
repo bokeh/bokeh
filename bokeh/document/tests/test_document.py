@@ -27,6 +27,7 @@ basicConfig()
 class TestDocumentHold(object):
 
     @pytest.mark.parametrize('policy', document.HoldPolicy)
+    @pytest.mark.unit
     def test_hold(self, policy):
         d = document.Document()
         assert d._hold == None
@@ -41,6 +42,7 @@ class TestDocumentHold(object):
             d.hold("junk")
 
     @pytest.mark.parametrize('first,second', [('combine', 'collect'), ('collect', 'combine')])
+    @pytest.mark.unit
     def test_rehold(self, first, second, caplog):
         d = document.Document()
         with caplog.at_level(logging.WARN):
@@ -62,6 +64,7 @@ class TestDocumentHold(object):
             assert len(caplog.records) == 1
 
     @pytest.mark.parametrize('policy', document.HoldPolicy)
+    @pytest.mark.unit
     def test_unhold(self, policy):
         d = document.Document()
         assert d._hold == None
