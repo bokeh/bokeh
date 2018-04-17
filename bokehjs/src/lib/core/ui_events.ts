@@ -319,7 +319,7 @@ export class UIEvents {
     function is_touch(event: TouchEvent | MouseEvent | PointerEvent): event is TouchEvent {
       return typeof TouchEvent !== "undefined" && event instanceof TouchEvent
     }
-    const {pageX, pageY} = is_touch(event) ? event.touches[0] : event // XXX: assuming at last one touch
+    const {pageX, pageY} = is_touch(event) ? (event.touches.length != 0 ? event.touches : event.changedTouches)[0] : event
     const {left, top} = offset(this.hit_area)
     return {
       sx: pageX - left,
