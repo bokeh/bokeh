@@ -12,6 +12,7 @@ function _burst_into_flames(error: any): void {
   box.style.marginTop = "5px"
   box.style.minWidth = "200px"
   box.style.padding = "5px 5px 5px 10px"
+  box.classList.add("bokeh-error-box-into-flames")
 
   // Make button
   const button = document.createElement("span")
