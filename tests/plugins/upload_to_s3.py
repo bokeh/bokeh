@@ -9,10 +9,23 @@ from .utils import trace, ok, fail
 
 import logging
 logging.getLogger('boto').setLevel(logging.INFO)
+logging.getLogger('urllib3.connectionpool').setLevel(logging.INFO)
+logging.getLogger('requests.packages.urllib3.connectionpool').setLevel(logging.INFO)
 
 S3_BUCKET = "bokeh-travis"
 S3_URL = "https://s3.amazonaws.com/%s" % S3_BUCKET
 
+def connect_to_s3():
+    """
+    Returns the connection object or None if connection failed.
+    """
+    try:
+        return boto.connect_s3()
+    except NoAuthHandlerFound:
+        fail("Upload was requested but could not connect to S3.")
+        fail("This is expected if you are an external contributor submitting a PR to Bokeh.")
+        fail("This could also happen if S3 credentials are not available on the machine where this test is running.")
+        return None
 
 def upload_file_to_s3_by_job_id(file_path, content_type="text/html", extra_message=None):
     """
@@ -26,18 +39,12 @@ def upload_file_to_s3(file_path, s3_filename, content_type="text/html", extra_me
     """
     Uploads a file to bokeh-travis s3 bucket.
     """
+    conn = connect_to_s3()
+    upload = conn is not None
+
     try:
-        conn = boto.connect_s3()
         with open(file_path, "rb") as f:
             contents = f.read()
-        upload = True
-
-    except NoAuthHandlerFound:
-        fail("Upload was requested but could not connect to S3.")
-        fail("This is expected if you are an external contributor submitting a PR to Bokeh.")
-        fail("This could also happen if S3 credentials are not available on the machine where this test is running.")
-        upload = False
-
     except OSError:
         fail("Upload was requested but file %s was not available." % file_path)
         upload = False

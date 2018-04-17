@@ -36,7 +36,6 @@ from ..core.validation.errors import (
     INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER
 )
 from ..model import Model
-from ..util.deprecation import deprecated
 
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
@@ -44,22 +43,11 @@ from .glyphs import XYGlyph, Rect, Patches, MultiLine
 from .renderers import Renderer, GlyphRenderer
 from .layouts import LayoutDOM
 
-
 @abstract
 class Tool(Model):
     ''' A base class for all interactive tool types.
 
     '''
-
-    @property
-    def plot(self):
-        deprecated("Tool.plot property is no longer needed, and any use deprecated. In the future, accessing Tool.plot will result in an AttributeError")
-        return None
-
-    @plot.setter
-    def plot(self, val):
-        deprecated("Tool.plot property is no longer needed, and any use is deprecated. In the future, accessing Tool.plot will result in an AttributeError")
-        return None
 
 @abstract
 class Action(Tool):
@@ -89,7 +77,6 @@ class Tap(Tool):
     '''
     pass
 
-
 @abstract
 class Inspection(Tool):
     ''' A base class for tools that perform "inspections", e.g. ``HoverTool``.
@@ -115,7 +102,6 @@ class ToolbarBase(Model):
     tools = List(Instance(Tool), help="""
     A list of tools to add to the plot.
     """)
-
 
 class Toolbar(ToolbarBase):
     ''' Collect tools to display for a single plot.
@@ -194,7 +180,6 @@ class WheelPanTool(Scroll):
     default the wheel pan tool will pan the plot along the x-axis.
     """)
 
-
 class WheelZoomTool(Scroll):
     ''' *toolbar icon*: |wheel_zoom_icon|
 
@@ -218,6 +203,21 @@ class WheelZoomTool(Scroll):
     vertically across the height of the plot.
     """)
 
+    maintain_focus = Bool(default=True, help="""
+    Whether or not zooming tool maintains its focus position. Setting it
+    to False results in a more "gliding" behavior, allowing one to
+    zoom out more smoothly, at the cost of losing the focus position.
+    """)
+
+    zoom_on_axis = Bool(default=True, help="""
+    Whether scrolling on an axis (outside the central plot area) should
+    zoom that dimension.
+    """)
+
+    speed = Float(default=1/600, help="""
+    Speed at which the wheel zooms. Default is 1/600. Optimal range is between
+    0.001 and 0.09. High values will be clipped. Speed may very between browsers.
+    """)
 
 class SaveTool(Action):
     ''' *toolbar icon*: |save_icon|
@@ -233,7 +233,6 @@ class SaveTool(Action):
         :height: 18pt
 
     '''
-
 
 class ResetTool(Action):
     ''' *toolbar icon*: |reset_icon|
@@ -251,7 +250,6 @@ class ResetTool(Action):
     '''
 
     pass
-
 
 class TapTool(Tap):
     ''' *toolbar icon*: |tap_icon|
@@ -278,8 +276,8 @@ class TapTool(Tap):
     have a matching value for their ``name`` attribute will be used.
     """)
 
-    renderers = List(Instance(Renderer), help="""
-    An explicit list of renderers to hit test again. If unset,
+    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
+    An explicit list of renderers to hit test against. If unset,
     defaults to all renderers on a plot.
     """)
 
@@ -312,9 +310,6 @@ class TapTool(Tap):
         please see :ref:`userguide_interaction_jscallbacks_customjs_interactions`.
 
     """)
-
-
-
 
 class CrosshairTool(Inspection):
     ''' *toolbar icon*: |crosshair_icon|
@@ -461,7 +456,6 @@ class ZoomOutTool(Action):
     Percentage to zoom for each click of the zoom-in tool.
     """)
 
-
 class BoxSelectTool(Drag):
     ''' *toolbar icon*: |box_select_icon|
 
@@ -484,8 +478,8 @@ class BoxSelectTool(Drag):
     have a matching value for their ``name`` attribute will be used.
     """)
 
-    renderers = List(Instance(Renderer), help="""
-    An explicit list of renderers to hit test again. If unset,
+    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
+    An explicit list of renderers to hit test against. If unset,
     defaults to all renderers on a plot.
     """)
 
@@ -555,8 +549,8 @@ class LassoSelectTool(Drag):
     have a matching value for their ``name`` attribute will be used.
     """)
 
-    renderers = List(Instance(Renderer), help="""
-    An explicit list of renderers to hit test again. If unset,
+    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
+    An explicit list of renderers to hit test against. If unset,
     defaults to all renderers on a plot.
     """)
 
@@ -576,7 +570,6 @@ class LassoSelectTool(Drag):
     overlay = Instance(PolyAnnotation, default=DEFAULT_POLY_OVERLAY, help="""
     A shaded annotation drawn to indicate the selection region.
     """)
-
 
 class PolySelectTool(Tap):
     ''' *toolbar icon*: |poly_select_icon|
@@ -606,8 +599,8 @@ class PolySelectTool(Tap):
     have a matching value for their ``name`` attribute will be used.
     """)
 
-    renderers = List(Instance(Renderer), help="""
-    An explicit list of renderers to hit test again. If unset,
+    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
+    An explicit list of renderers to hit test against. If unset,
     defaults to all renderers on a plot.
     """)
 
@@ -689,8 +682,8 @@ class HoverTool(Inspection):
     have a matching value for their ``name`` attribute will be used.
     """)
 
-    renderers = List(Instance(Renderer), help="""
-    An explicit list of renderers to hit test again. If unset,
+    renderers = Either(Auto, List(Instance(Renderer)), defatult="auto", help="""
+    An explicit list of renderers to hit test against. If unset,
     defaults to all renderers on a plot.
     """)
 
@@ -909,7 +902,9 @@ class BoxEditTool(EditTool, Drag, Tap):
 
     The supported actions include:
 
-    * Add box: Hold shift then click and drag anywhere on the plot.
+    * Add box: Hold shift then click and drag anywhere on the plot or
+      double tap once to start drawing, move the mouse and double tap
+      again to finish drawing.
 
     * Move box: Click and drag an existing box, the box will be
       dropped once you let go of the mouse button.
@@ -1041,7 +1036,6 @@ class PolyDrawTool(EditTool, Drag, Tap):
         if incompatible_renderers:
             glyph_types = ', '.join([type(renderer.glyph).__name__ for renderer in incompatible_renderers])
             return "%s glyph type(s) found." % glyph_types
-
 
 class PolyEditTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |poly_edit_icon|

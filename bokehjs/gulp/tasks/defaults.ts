@@ -6,7 +6,7 @@ import {argv} from "yargs"
 
 gulp.task("defaults:generate", (cb: (arg?: any) => void) => {
   if (argv.verbose) {
-    gutil.log("Generating defaults.coffee")
+    gutil.log("Generating defaults.ts")
   }
 
   const bokehjsdir = path.normalize(process.cwd())

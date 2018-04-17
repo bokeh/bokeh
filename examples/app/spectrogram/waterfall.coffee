@@ -75,7 +75,7 @@ export class WaterfallRendererView extends RendererView
       @x[@tile] = -@model.tile_width
 
     # apply the lastest column to the current tile image
-    buf32 = new Uint32Array(@cmap.v_map_screen(@model.latest))
+    buf32 = new Uint32Array(@cmap.rgba_mapper.v_compute(@model.latest).buffer)
     for i in [0...@model.gram_length]
       @image[@tile][i*@model.tile_width+@col] = buf32[i]
 

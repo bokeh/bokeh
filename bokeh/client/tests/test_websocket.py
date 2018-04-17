@@ -13,9 +13,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
-from bokeh.util.testing import verify_api ; verify_api
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -29,27 +26,6 @@ from tornado import locks
 
 # Module under test
 import bokeh.client.websocket as bcw
-
-#-----------------------------------------------------------------------------
-# API Definition
-#-----------------------------------------------------------------------------
-
-api = {
-
-    GENERAL: (
-
-    ), DEV: (
-
-        ( 'WebSocketClientConnectionWrapper',               (1, 0, 0) ),
-        ( 'WebSocketClientConnectionWrapper.write_message', (1, 0, 0) ),
-        ( 'WebSocketClientConnectionWrapper.close',         (1, 0, 0) ),
-        ( 'WebSocketClientConnectionWrapper.read_message',  (1, 0, 0) ),
-
-    )
-
-}
-
-Test_api = verify_api(bcw, api)
 
 #-----------------------------------------------------------------------------
 # Setup

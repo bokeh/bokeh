@@ -40,8 +40,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.util.api import general, dev ; general, dev
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -64,7 +62,6 @@ from ..resources import Resources
 # General API
 #-----------------------------------------------------------------------------
 
-@general((1,0,0))
 class State(object):
     ''' Manage state related to controlling Bokeh output.
 
@@ -77,7 +74,6 @@ class State(object):
     # Properties --------------------------------------------------------------
 
     @property
-    @general((1,0,0))
     def document(self):
         ''' A default :class:`~bokeh.document.Document` to use for all
         output operations.
@@ -86,12 +82,10 @@ class State(object):
         return self._document
 
     @document.setter
-    @general((1,0,0))
     def document(self, doc):
         self._document = doc
 
     @property
-    @general((1,0,0))
     def file(self):
         ''' A dict with the default configuration for file output (READ ONLY)
 
@@ -109,7 +103,6 @@ class State(object):
         return self._file
 
     @property
-    @general((1,0,0))
     def notebook(self):
         ''' Whether to generate notebook output on show operations. (READ ONLY)
 
@@ -117,7 +110,6 @@ class State(object):
         return self._notebook
 
     @property
-    @general((1,0,0))
     def notebook_type(self):
         ''' Notebook type
 
@@ -125,7 +117,6 @@ class State(object):
         return self._notebook_type
 
     @notebook_type.setter
-    @general((1,0,0))
     def notebook_type(self, notebook_type):
         ''' Notebook type, acceptable values are 'jupyter' as well as any names
         defined by external notebook hooks that have been installed.
@@ -137,7 +128,6 @@ class State(object):
 
     # Public methods ----------------------------------------------------------
 
-    @general((1,0,0))
     def output_file(self, filename, title="Bokeh Plot", mode="cdn", root_dir=None):
         ''' Configure output to a standalone HTML file.
 
@@ -176,7 +166,6 @@ class State(object):
         if os.path.isfile(filename):
             log.info("Session output file '%s' already exists, will be overwritten." % filename)
 
-    @general((1,0,0))
     def output_notebook(self, notebook_type='jupyter'):
         ''' Generate output in notebook cells.
 
@@ -192,7 +181,6 @@ class State(object):
         self._notebook = True
         self.notebook_type = notebook_type
 
-    @general((1,0,0))
     def reset(self):
         ''' Deactivate all currently active output modes and set ``curdoc()``
         to a fresh empty ``Document``.
@@ -223,7 +211,6 @@ class State(object):
         self._document = doc
         self._reset_keeping_doc()
 
-@general((1,0,0))
 def curstate():
     ''' Return the current State object
 

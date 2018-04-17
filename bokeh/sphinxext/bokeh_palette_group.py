@@ -19,9 +19,9 @@ Generates the output:
 from __future__ import absolute_import
 
 from docutils import nodes
+from docutils.parsers.rst import Directive
 
 from sphinx.errors import SphinxError
-from sphinx.util.compat import Directive
 
 from .. import palettes as bp
 from .templates import PALETTE_GROUP_DETAIL

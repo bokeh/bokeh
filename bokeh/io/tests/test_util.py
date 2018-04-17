@@ -13,9 +13,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
-from bokeh.util.testing import verify_api ; verify_api
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -29,26 +26,6 @@ from mock import Mock, patch, PropertyMock
 
 # Module under test
 import bokeh.io.util as biu
-
-#-----------------------------------------------------------------------------
-# API Definition
-#-----------------------------------------------------------------------------
-
-api = {
-
-    GENERAL: (
-
-    ), DEV: (
-
-        ( 'default_filename',        (1, 0, 0) ),
-        ( 'detect_current_filename', (1, 0, 0) ),
-        ( 'temp_filename',           (1, 0, 0) ),
-
-    )
-
-}
-
-Test_api = verify_api(biu, api)
 
 #-----------------------------------------------------------------------------
 # Setup

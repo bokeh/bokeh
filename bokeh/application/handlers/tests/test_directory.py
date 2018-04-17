@@ -13,9 +13,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
-from bokeh.util.testing import verify_api ; verify_api
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -32,36 +29,6 @@ from bokeh.util.testing import with_directory_contents
 
 # Module under test
 import bokeh.application.handlers.directory as bahd
-
-#-----------------------------------------------------------------------------
-# API Definition
-#-----------------------------------------------------------------------------
-
-api = {
-
-    GENERAL: (
-
-        ( 'DirectoryHandler',                      (1,0,0) ),
-
-        ( 'DirectoryHandler.error.fget',           (1,0,0) ),
-        ( 'DirectoryHandler.error_detail.fget',    (1,0,0) ),
-        ( 'DirectoryHandler.failed.fget',          (1,0,0) ),
-        ( 'DirectoryHandler.safe_to_fork.fget',    (1,0,0) ),
-
-        ( 'DirectoryHandler.modify_document',      (1,0,0) ),
-        ( 'DirectoryHandler.on_server_loaded',     (1,0,0) ),
-        ( 'DirectoryHandler.on_server_unloaded',   (1,0,0) ),
-        ( 'DirectoryHandler.on_session_created',   (1,0,0) ),
-        ( 'DirectoryHandler.on_session_destroyed', (1,0,0) ),
-        ( 'DirectoryHandler.url_path',             (1,0,0) ),
-
-    ), DEV: (
-
-    )
-
-}
-
-Test_api = verify_api(bahd, api)
 
 #-----------------------------------------------------------------------------
 # Setup

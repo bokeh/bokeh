@@ -13,9 +13,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
-from bokeh.util.testing import verify_api ; verify_api
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -30,30 +27,6 @@ from bokeh.util.testing import verify_all
 
 # Module under test
 import bokeh.transform as bt
-
-#-----------------------------------------------------------------------------
-# API Definition
-#-----------------------------------------------------------------------------
-
-api = {
-
-    GENERAL: (
-
-        ( 'dodge',       (1, 0, 0) ),
-        ( 'factor_cmap', (1, 0, 0) ),
-        ( 'jitter',      (1, 0, 0) ),
-        ( 'linear_cmap', (1, 0, 0) ),
-        ( 'log_cmap',    (1, 0, 0) ),
-        ( 'stack',       (1, 0, 0) ),
-        ( 'transform',   (1, 0, 0) ),
-
-    ), DEV: (
-
-    )
-
-}
-
-Test_api = verify_api(bt, api)
 
 #-----------------------------------------------------------------------------
 # Setup

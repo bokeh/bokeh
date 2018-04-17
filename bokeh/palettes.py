@@ -97,7 +97,7 @@ Matplotlib Palettes
 ~~~~~~~~~~~~~~~~~~~
 
 Bokeh includes the `Matplotlib`_ palettes Magma, Inferno, Plasma, and
-Viridis. This section shows the pre-defined small palettes in this groups.
+Viridis. This section shows the pre-defined small palettes in this group.
 There are also large 256-color versions of these palettes, shown below
 in the `Large Palettes`_ section.
 
@@ -121,9 +121,7 @@ Usability Palettes
 ~~~~~~~~~~~~~~~~~~
 
 Bokeh includes some palettes that are useful for addressing color
-deficiencies. These are shown below. Additional, several 256-color
-perceptually uniform palettes are available in the external
-`colorcet`_ package.
+deficiencies. These are shown below.
 
 .. bokeh-palette-group:: colorblind
 
@@ -144,6 +142,10 @@ larger palettes with 256 colors. These are shown below:
 
 :Viridis256: :bokeh-palette:`viridis(256)` (mpl)
 
+
+Many other 256-color perceptually uniform palettes are
+available in the external `colorcet`_ package.
+
 Other Attributes
 ----------------
 
@@ -152,11 +154,10 @@ following notable attributes in the ``bokeh.palettes`` module:
 
 .. data:: __palettes__
 
-    A alphabetical list of the names of all individual palettes in this
+    An alphabetical list of the names of all individual palettes in this
     module.
 
-    For example, a the lists of the first eight palette names is given
-    by:
+    For example, the first eight palette names are:
 
     .. code-block:: python
 

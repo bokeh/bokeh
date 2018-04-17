@@ -17,8 +17,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.util.api import general, dev ; general, dev
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -51,7 +49,6 @@ from ..util.string import encode_utf8, indent
 # Dev API
 #-----------------------------------------------------------------------------
 
-@dev((1,0,0))
 class FromCurdoc(object):
     ''' This class merely provides a non-None default value for ``theme``
     arguments, since ``None`` itself is a meaningful value for users to pass.
@@ -59,7 +56,6 @@ class FromCurdoc(object):
     '''
     pass
 
-@dev((1,0,0))
 def check_models_or_docs(models, allow_dict=False):
     '''
 
@@ -90,7 +86,6 @@ def check_models_or_docs(models, allow_dict=False):
 
     return models
 
-@dev((1,0,0))
 def check_one_model_or_doc(model):
     '''
 
@@ -100,14 +95,12 @@ def check_one_model_or_doc(model):
         raise ValueError("Input must be exactly one Model or Document")
     return models[0]
 
-@dev((1,0,0))
 def div_for_render_item(item):
     '''
 
     '''
     return PLOT_DIV.render(elementid=item['elementid'])
 
-@dev((1,0,0))
 def find_existing_docs(models):
     '''
 
@@ -129,7 +122,6 @@ def find_existing_docs(models):
         raise RuntimeError(msg)
     return doc
 
-@dev((1,0,0))
 def html_page_for_render_items(bundle, docs_json, render_items, title,
                                template=FILE, template_variables={}):
     '''
@@ -161,7 +153,6 @@ def html_page_for_render_items(bundle, docs_json, render_items, title,
     html = template.render(template_variables_full)
     return encode_utf8(html)
 
-@dev((1,0,0))
 def script_for_render_items(docs_json_or_id, render_items, app_path=None, absolute_url=None):
     '''
 
@@ -190,7 +181,6 @@ def script_for_render_items(docs_json_or_id, render_items, app_path=None, absolu
 
     return wrap_in_onload(js)
 
-@dev((1,0,0))
 def standalone_docs_json_and_render_items(models):
     '''
 
@@ -231,21 +221,18 @@ def standalone_docs_json_and_render_items(models):
 
     return (docs_json, render_items)
 
-@dev((1,0,0))
 def wrap_in_onload(code):
     '''
 
     '''
     return _ONLOAD % dict(code=indent(code, 4))
 
-@dev((1,0,0))
 def wrap_in_safely(code):
     '''
 
     '''
     return _SAFELY % dict(code=indent(code, 2))
 
-@dev((1,0,0))
 def wrap_in_script_tag(js, type="text/javascript", id=None):
     '''
 
@@ -253,7 +240,6 @@ def wrap_in_script_tag(js, type="text/javascript", id=None):
     return SCRIPT_TAG.render(js_code=indent(js, 2), type=type, id=id)
 
 # based on `html` stdlib module (3.2+)
-@dev((1,0,0))
 def escape(s, quote=("'", '"')):
     """
     Replace special characters "&", "<" and ">" to HTML-safe sequences.

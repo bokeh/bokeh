@@ -1,0 +1,71 @@
+0.12.16 (Apr 2018)
+==================
+
+Bokeh Version ``0.12.16`` is an incremental update that adds a few
+important features and fixes several bugs. Some of the highlights
+include:
+
+
+Many other small bug fixes and docs additions. For full details see the
+:bokeh-tree:`CHANGELOG`.
+
+
+Migration Guide
+---------------
+
+NOTE: the 0.12.x series is the last planned release series before a version
+1.0 release. For more information see the `project roadmap`_.
+
+Deprecations Removed
+~~~~~~~~~~~~~~~~~~~~
+
+The following functions, arguments, or features have were previously deprecated
+with warnings and instructions for new usage, and have now been permanently
+removed:
+
+* ``--host`` argument to ``bokeh serve``
+* ``responsive`` argument to plots and layout functions
+* ``Plot.toolbar_sticky`` property
+* ``Tool.plot`` property
+* ``bokeh.sampledata.population.load_population`` function
+* ``bokeh.util.notebook`` module
+
+Release History
+~~~~~~~~~~~~~~~
+
+To support publishing all release information on one page, the
+``bokeh_index_toctree`` module and contents have been immediately moved to
+``bokeh_releases``. Since this facility had no use outside building
+official Bokeh documentation, no deprecation was given.
+
+CDS ``column_names`` property
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``ColumnDataSource`` models had a Bokeh property ``column_names`` for specifying
+the list of column names in ``source.data``. This information was duplicative
+and had to be explicitly maintained in a fragile way. It has been replaced by
+read-only properties in both Python and JavaScript that always accurately
+report the current column names automatically. Setting ``column_names`` is
+no longer supported, however as this possibility has never been officially
+documented or demonstrated, it is not expected to affect any standard usage.
+
+Tools ``renderers`` property
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously the default value, an empty list, corresponded to automatically
+choosing all available renderers for hit testing. Now, a new default value
+``"auto"`` is used for that, so that an empty list can mean "hit test no
+renderers". A value of ``None`` may also be used to indicate no hit testing
+should occur. Since there is typically no reason to explicitly set a property
+to its default value, it is not expected that this change impacts any standard
+usage.
+
+bokehjs' source directory renamed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To finalize the rewrite of bokehjs in TypeScript, the source directory was
+renamed from ``src/coffee`` to ``src/lib``. This change affects only bokehjs'
+contributors or other advanced users (e.g. when repackaging bokehjs with
+Webpack or other JavaScript module bundler).
+
+.. _project roadmap: https://bokehplots.com/pages/roadmap.html

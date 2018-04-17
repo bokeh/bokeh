@@ -1,3 +1,85 @@
+2018-03-29  0.12.15:
+--------------------
+  * bugfixes:
+    - #6525 [component: tests] Py.test bokeh/tests/test_io.py doesn't kill phantomjs precesses
+    - #6787 [component: bokehjs] Svg output bleeds past axis
+    - #6867 [webgl] Rect shape gets out of figure when panned or zoomed with webgl
+    - #6871 [component: examples] Examples/howto/{js_events,events_app} contain bad css
+    - #7054 [component: bokehjs] [component: examples] Line_select.py broken again
+    - #7087 [webgl] Log scale graph will be blank if output_backend is webgl
+    - #7168 Webdriverexception when using export_png
+    - #7211 [webgl] Webgl incorrect clipping, 0.12.11 onwards
+    - #7219 [component: server] Tornado next tick callback issue
+    - #7416 [component: bokehjs] Excess text when multi_line hover hits two or more lines
+    - #7468 [component: server] Increasing memory consumption of bokeh server
+    - #7508 [component: docs] Fix typo in docs
+    - #7515 [component: bokehjs] Bokeh 0.12.14 doesn't highlight initially selected options in multiselect widget
+    - #7518 [component: bokehjs] [regression] Is ajaxdatasource losing the endpoint?
+    - #7523 Out of range float values are not json compliant with numpy arrays
+    - #7537 Export_png does not clean up temporary files before exit 
+    - #7538 [component: bokehjs] [regression] Adding a title to layout removes toolbar from top of plot
+    - #7546 [component: bokehjs] [performance] Stream_to_column() doesn't implement rollover properly
+    - #7562 [component: bokehjs] [widgets] Checkboxbuttongroup active list broken in 0.12.14
+    - #7587 [regression] Regression streaming datetime columns
+    - #7608 [component: docs] Fix typo in docstring
+    - #7614 [component: examples] Fix io_loop paramenter in examples/howto/server_embed/flask_embed.py
+    - #7619 [component: server] Issue with rapid page reloads with tornado 5
+    - #7622 [component: bokehjs] [widgets] Slider violates start and end when using keyboard navigation
+    - #7624 [component: docs] Doc: bug: fix user guide docs on embed - link schema typo
+    - #7645 [component: bokehjs] [layout] Sizing_mode='scale_width' makes plot 1 or 2 pixels too wide in notebook
+    - #7652 [regression] Regression when plotting images with non-binary array types
+    - #7681 [regression] [webgl] Webgl initialization broken after pr #7637
+    - #7688 [component: bokehjs] [geo] [regression] Gmapplot not rendering
+  * features:
+    - #2507 [component: bokehjs] Have grid that respects bounds of axis
+    - #4786 [component: bokehjs] Add a hex tiling glyph
+    - #7466 [component: server] [notebook] Notebook_embed.ipynb works locally but not remotely via ssh tunnel
+    - #7563 [component: bokehjs] Functickformatter option to receive all ticks at once
+    - #7566 [notebook] Add support for push_notebook in jupyterlab
+    - #7600 [component: bokehjs] Global alpha for image_rgba plot
+    - #7638 [component: bokehjs] Add a hex scatter marker
+    - #7642 [API: plotting] [component: bokehjs] Add mercatoraxis class
+    - #7685 [component: server] [notebook] Bokeh server compatibility with running behind jupyterhub
+  * tasks:
+    - #2644 [component: docs] Enable image diff testing for user's guide source example
+    - #3723 [component: tests] Write unittest for ajaxdatasource
+    - #5386 [BEP] Clean up beps and migrate to google docs
+    - #6481 [typescript] Rewrite bokehjs in typescript
+    - #6562 [component: server] Propagate settings to tornado application from bokeh server
+    - #6594 [component: bokehjs] Add support for headless chrome/chromium for image diff tests
+    - #6845 [component: bokehjs] Make .selected a proper bokeh model
+    - #7125 [notebook] Only first plot in jupyter notebook cell is shown
+    - #7474 Alpha not working on images
+    - #7483 [component: build] [component: server] Add tornado 5 to ci testing 
+    - #7492 In a stacked bar chart there is no way to add tolltips for segments in column
+    - #7494 [component: build] Specify compilation inputs in tsconfig.json
+    - #7495 [component: build] [typescript] Upgrade typescript to version 2.7.1
+    - #7502 [component: build] Resolve compilation errors around number.isinteger
+    - #7505 [component: docs] Sphinx bokeh extension script directory sorting
+    - #7509 [component: build] Remove pytest-catchlog dependency
+    - #7513 [component: bokehjs] [component: build] Check if package.json changed before proceeding with build
+    - #7516 [component: docs] [component: examples] Update examples and add documentation for selection model
+    - #7520 [component: docs] Bokeh-plot directive incomptable with sphinx 1.7
+    - #7522 [component: docs] Fix typo
+    - #7526 Jsonencoder warning when using latest numpy
+    - #7530 [component: examples] Add axis names to scatterplot matrix
+    - #7531 [component: bokehjs] [component: docs] Update documentation after removal of `range1d(start, end) syntax`
+    - #7542 [component: docs] Fix typo in figure.vbar_stack docstring
+    - #7549 Bokeh channel on anaconda.org contains broken version of packaging?
+    - #7550 [component: docs] 'conda install flexx -c bokeh' fails on windows 7
+    - #7553 [component: bokehjs] Make boxedittool match polydrawtool ui
+    - #7559 [component: tests] Fail travis ci tests when there are ts compilation errors
+    - #7571 [component: build] [component: docs] Enforce usage of npm >= 5.6
+    - #7584 [component: build] Don't repeat base install for external prs
+    - #7585 [component: build] Rev conda_reqs and ignore built python files for docker images
+    - #7588 [component: docs] Sort all sphinx docs by file suffix. 'py' first
+    - #7602 Bokeh should not instance its loggers using: logging.getlogger(__file__)
+    - #7654 [component: bokehjs] [widgets] Datatable index column enhancements
+    - #7662 [component: docs] Anonymize google analytics collection
+    - #7690 [component: docs] The readme.md contains typos and could be written more concisely
+    - #7711 [component: docs] Typos on palettes page
+    - #7716 [component: docs] Release docs for 0.12.15
+
 2018-02-07  0.12.14:
 --------------------
   * bugfixes:

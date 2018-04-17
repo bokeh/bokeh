@@ -29,14 +29,13 @@ callback = CustomJS(args=dict(source=source, linear=linear, step=step), code="""
         else if (mode == 'Step (center)') { interp = step; step.mode = 'center'; }
         else if (mode == 'Step (after)')  { interp = step; step.mode = 'after';  }
 
-        for (i=0; i < %d; i++) {
+        for (var i = 0; i < %d; i++) {
             data['x'][i] = i * dx
             data['y'][i] = interp.compute(data['x'][i])
         }
     }
 
     source.change.emit()
-
 """ % (N, N))
 
 mode = Select(

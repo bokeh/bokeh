@@ -537,8 +537,24 @@ class DataTable(TableWidget):
     enabled) or using Shift + click on rows.
     """)
 
-    row_headers = Bool(True, help="""
-    Enable or disable row headers, i.e. the index column.
+    index_position = Int(0, help="""
+    Where among the list of columns to insert a column displaying the row
+    index. Negative indices are supported, and specify an index position
+    from the end of the list of columns (i.e. standard Python behaviour).
+
+    To prevent the index column from being added, set to None.
+
+    If the absolute value of index_position  is larger than the length of
+    the columns, then the index will appear at the beginning or end, depending
+    on the sign.
+    """)
+
+    index_header = String("#", help="""
+    The column header to display for the index column, if it is present.
+    """)
+
+    index_width = Int(40, help="""
+    The width of the index column, if present.
     """)
 
     scroll_to_selection = Bool(True, help="""

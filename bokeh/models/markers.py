@@ -10,6 +10,7 @@ The full list of markers built into Bokeh is given below:
 * :class:`~bokeh.models.markers.Cross`
 * :class:`~bokeh.models.markers.Diamond`
 * :class:`~bokeh.models.markers.DiamondCross`
+* :class:`~bokeh.models.markers.Hex`
 * :class:`~bokeh.models.markers.InvertedTriangle`
 * :class:`~bokeh.models.markers.Square`
 * :class:`~bokeh.models.markers.SquareCross`
@@ -146,6 +147,10 @@ class DiamondCross(Marker):
 
     __example__ = "examples/reference/models/DiamondCross.py"
 
+class Hex(Marker):
+    ''' Render hexagon markers. '''
+
+    __example__ = "examples/reference/models/Hex.py"
 
 class InvertedTriangle(Marker):
     ''' Render upside-down triangle markers. '''

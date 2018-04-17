@@ -182,8 +182,17 @@ class GMap(GMapPlot):
 def gmap(google_api_key, map_options, **kwargs):
     ''' Create a new :class:`~bokeh.plotting.gmap.GMap` for plotting.
 
-    In addition to the standard :class:`~bokeh.plotting.gmap.GMap`
-    property values (e.g. ``plot_width`` or ``sizing_mode``) the following
+    Args:
+        google_api_key (str):
+            Google requires an API key be supplied for maps to function. See:
+
+            https://developers.google.com/maps/documentation/javascript/get-api-key
+
+        map_options: (GMapOptions)
+            Configuration specific to a Google Map
+
+    In addition to the standard :class:`~bokeh.plotting.gmap.GMap` keyword
+    arguments (e.g. ``plot_width`` or ``sizing_mode``), the following
     additional options can be passed as well:
 
     .. bokeh-options:: GMapFigureOptions

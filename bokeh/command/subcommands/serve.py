@@ -148,7 +148,7 @@ The value is specified in milliseconds. The default keep-alive interval
 is 37 seconds. Give a value of 0 to disable keep-alive pings.
 
 To control how often statistic logs are written, set the
---stats-log-frequency option:
+``--stats-log-frequency`` option:
 
 .. code-block:: sh
 
@@ -156,6 +156,17 @@ To control how often statistic logs are written, set the
 
 The value is specified in milliseconds. The default interval for
 logging stats is 15 seconds. Only positive integer values are accepted.
+
+Bokeh can also optionally log process memory usage. This feature requires
+the optional ``psutil`` package to be installed. To enable memory logging
+set the ``--mem-log-frequency`` option:
+
+. code-block:: sh
+
+    bokeh serve app_script.py --mem-log-frequency 30000
+
+The value is specified in milliseconds. The default interval for
+logging stats is 0 (disabled). Only positive integer values are accepted.
 
 To have the Bokeh server override the remote IP and URI scheme/protocol for
 all requests with ``X-Real-Ip``, ``X-Forwarded-For``, ``X-Scheme``,
@@ -290,7 +301,6 @@ import logging
 log = logging.getLogger(__name__)
 
 import argparse
-import warnings
 
 from bokeh.application import Application
 from bokeh.resources import DEFAULT_SERVER_PORT
@@ -313,20 +323,6 @@ __doc__ = format_docstring(__doc__,
     SESSION_ID_MODES=nice_join(SESSION_ID_MODES),
     DEFAULT_LOG_FORMAT=DEFAULT_LOG_FORMAT
 )
-
-def _fixup_deprecated_host_args(args):
-    if args.host is not None and len(args.host) > 0:
-        if args.allow_websocket_origin is None:
-            args.allow_websocket_origin = []
-        args.allow_websocket_origin += args.host
-        args.allow_websocket_origin = list(set(args.allow_websocket_origin))
-        warnings.warn(
-            "The --host parameter is deprecated because it is no longer needed. "
-            "It will be removed and trigger an error in a future release. "
-            "Values set now will be copied to --allow-websocket-origin. "
-            "Depending on your use case, you may need to set current --host "
-            "values for 'allow_websocket_origin' instead."
-        )
 
 base_serve_args = (
     ('--port', dict(
@@ -356,6 +352,13 @@ base_serve_args = (
         action  = 'store',
         default = DEFAULT_LOG_FORMAT,
         help    = "A standard Python logging format string (default: %r)" % DEFAULT_LOG_FORMAT.replace("%", "%%"),
+    )),
+
+    ('--log-file', dict(
+        metavar ='LOG-FILE',
+        action  = 'store',
+        default = None,
+        help    = "A filename to write logs to, or None to write to the standard stream (default: None)",
     )),
 )
 
@@ -395,13 +398,6 @@ class Serve(Subcommand):
             help="Public hostnames which may connect to the Bokeh websocket",
         )),
 
-        ('--host', dict(
-            metavar='HOST[:PORT]',
-            action='append',
-            type=str,
-            help="*** DEPRECATED ***",
-        )),
-
         ('--prefix', dict(
             metavar='PREFIX',
             type=str,
@@ -434,6 +430,13 @@ class Serve(Subcommand):
             metavar='MILLISECONDS',
             type=int,
             help="How often to log stats",
+            default=None,
+        )),
+
+        ('--mem-log-frequency', dict(
+            metavar='MILLISECONDS',
+            type=int,
+            help="How often to log memory usage information",
             default=None,
         )),
 
@@ -484,37 +487,27 @@ class Serve(Subcommand):
         applications = build_single_handler_applications(args.files, argvs)
 
         log_level = getattr(logging, args.log_level.upper())
-        basicConfig(level=log_level, format=args.log_format)
-
-        # This should remain here until --host is removed entirely
-        _fixup_deprecated_host_args(args)
+        basicConfig(level=log_level, format=args.log_format, filename=args.log_file)
 
         if len(applications) == 0:
             # create an empty application by default
             applications['/'] = Application()
 
+        # rename args to be compatible with Server
         if args.keep_alive is not None:
-            if args.keep_alive == 0:
-                log.info("Keep-alive ping disabled")
-            else:
-                log.info("Keep-alive ping configured every %d milliseconds", args.keep_alive)
-            # rename to be compatible with Server
             args.keep_alive_milliseconds = args.keep_alive
 
         if args.check_unused_sessions is not None:
-            log.info("Check for unused sessions every %d milliseconds", args.check_unused_sessions)
-            # rename to be compatible with Server
             args.check_unused_sessions_milliseconds = args.check_unused_sessions
 
         if args.unused_session_lifetime is not None:
-            log.info("Unused sessions last for %d milliseconds", args.unused_session_lifetime)
-            # rename to be compatible with Server
             args.unused_session_lifetime_milliseconds = args.unused_session_lifetime
 
         if args.stats_log_frequency is not None:
-            log.info("Log statistics every %d milliseconds", args.stats_log_frequency)
-            # rename to be compatible with Server
             args.stats_log_frequency_milliseconds = args.stats_log_frequency
+
+        if args.mem_log_frequency is not None:
+            args.mem_log_frequency_milliseconds = args.mem_log_frequency
 
         server_kwargs = { key: getattr(args, key) for key in ['port',
                                                               'address',
@@ -525,6 +518,7 @@ class Serve(Subcommand):
                                                               'check_unused_sessions_milliseconds',
                                                               'unused_session_lifetime_milliseconds',
                                                               'stats_log_frequency_milliseconds',
+                                                              'mem_log_frequency_milliseconds',
                                                               'use_xheaders',
                                                             ]
                           if getattr(args, key, None) is not None }

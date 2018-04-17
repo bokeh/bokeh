@@ -17,12 +17,11 @@ export const build_dir = {
 }
 
 export const src_dir = {
-  ts: join(base_dir, "src", "coffee"),
-  coffee: join(base_dir, "src", "coffee"),
+  lib: join(base_dir, "src", "lib"),
   compiler: join(base_dir, "src", "compiler"),
 }
 
-export const coffee = {
+export const lib = {
   bokehjs: {
     main: join(build_dir.tree, "main.js"),
     output: join(build_dir.js, "bokeh.js"),
@@ -44,7 +43,7 @@ export const coffee = {
     output: join(build_dir.js, "bokeh-gl.js"),
   },
   watchSources: [
-    join(base_dir, "src/coffee/**/**"),
+    join(base_dir, "src/lib/**/**"),
   ],
 }
 
@@ -75,6 +74,6 @@ export const less = {
 export const test = {
   watchSources: [
     join(base_dir, "test/**/**"),
-    join(base_dir, "src/coffee/**/**"),
+    join(base_dir, "src/lib/**/**"),
   ]
 }

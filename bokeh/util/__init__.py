@@ -48,6 +48,12 @@ functionality.
 .. automodule:: bokeh.util.future
   :members:
 
+``bokeh.util.hex``
+------------------
+
+.. automodule:: bokeh.util.hex
+  :members:
+
 .. _bokeh.util.logconfig:
 
 ``bokeh.util.logconfig``

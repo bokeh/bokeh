@@ -10,7 +10,6 @@ import * as fs from "fs"
 import {join} from "path"
 import {argv} from "yargs"
 import * as insert from 'gulp-insert'
-const stripAnsi = require('strip-ansi')
 const merge = require("merge2")
 
 const license = `/*!\n${fs.readFileSync('../LICENSE.txt', 'utf-8')}*/\n`
@@ -22,49 +21,15 @@ const minify = uglify(uglify_es, console)
 
 import {Linker, Bundle} from "../linker"
 
-function is_partial(file: string): boolean {
-  return fs.readFileSync(file, "utf8").split("\n")[0] == "/* XXX: partial */"
-}
-
-function is_excluded(code: number): boolean {
-  const excluded = [
-    2322, 2339, 2345, 2365,
-    2415, 2459, 2461,
-    2531, 2532, 2538, 2551,
-    2683,
-    4025,
-    7006, 7010, 7016, 7017, 7019, 7030, 7031,
-  ]
-  return excluded.includes(code)
-}
-
 gulp.task("scripts:ts", () => {
-  const errors: string[] = []
   let n_errors = 0
 
   function error(err: {message: string}) {
-    const text = stripAnsi(err.message)
-    errors.push(text)
-
-    const result = text.match(/(.*)(\(\d+,\d+\): error TS(\d+):.*)/)
-    if (result != null) {
-      const [, file, , code] = result
-      if (is_partial(file)) {
-        if (is_excluded(parseInt(code))) {
-          if (!(argv.include && text.includes(argv.include)))
-            return
-        }
-      }
-    }
-
-    if (argv.filter && !text.includes(argv.filter))
-      return
-
     gutil.log(err.message)
     n_errors++
   }
 
-  const project = ts.createProject(join(paths.src_dir.coffee, "tsconfig.json"))
+  const project = ts.createProject(join(paths.src_dir.lib, "tsconfig.json"))
   const compiler = project
     .src()
     .pipe(sourcemaps.init())
@@ -79,8 +44,6 @@ gulp.task("scripts:ts", () => {
   ])
 
   result.on("finish", function() {
-    fs.writeFileSync(join(paths.build_dir.js, "ts.log"), errors.join("\n"))
-
     if (argv.emitError && n_errors > 0) {
       gutil.log(`There were ${chalk.red("" + n_errors)} TypeScript errors.`)
       process.exit(1)
@@ -91,13 +54,12 @@ gulp.task("scripts:ts", () => {
 })
 
 gulp.task("~scripts:ts", ["scripts:ts"], () => {
-  gulp.watch(join(paths.src_dir.ts, "**", "*.ts"), ["scripts:ts"])
+  gulp.watch(join(paths.src_dir.lib, "**", "*.ts"), ["scripts:ts"])
 })
 
-
-gulp.task("scripts:tslint", () => {
+gulp.task("tslint", () => {
   const srcs = [
-    join(paths.src_dir.coffee),
+    join(paths.src_dir.lib),
     join(paths.base_dir, "test"),
     join(paths.base_dir, "examples"),
   ]
@@ -108,18 +70,18 @@ gulp.task("scripts:tslint", () => {
       formatter: "stylish",
       fix: argv.fix || false,
     }))
-    .pipe(tslint.report({emitError: false}))
+    .pipe(tslint.report({summarizeFailureOutput: true}))
 })
 
 gulp.task("scripts:compile", ["scripts:ts"])
 
 gulp.task("scripts:bundle", ["scripts:compile"], (next: () => void) => {
   const entries = [
-    paths.coffee.bokehjs.main,
-    paths.coffee.api.main,
-    paths.coffee.widgets.main,
-    paths.coffee.tables.main,
-    paths.coffee.gl.main,
+    paths.lib.bokehjs.main,
+    paths.lib.api.main,
+    paths.lib.widgets.main,
+    paths.lib.tables.main,
+    paths.lib.gl.main,
   ]
   const bases = [paths.build_dir.tree, './node_modules']
   const excludes = ["node_modules/moment/moment.js"]
@@ -130,11 +92,11 @@ gulp.task("scripts:bundle", ["scripts:compile"], (next: () => void) => {
 
   const [bokehjs, api, widgets, tables, gl] = bundles
 
-  bokehjs.write(paths.coffee.bokehjs.output)
-  api.write(paths.coffee.api.output)
-  widgets.write(paths.coffee.widgets.output)
-  tables.write(paths.coffee.tables.output)
-  gl.write(paths.coffee.gl.output)
+  bokehjs.write(paths.lib.bokehjs.output)
+  api.write(paths.lib.api.output)
+  widgets.write(paths.lib.widgets.output)
+  tables.write(paths.lib.tables.output)
+  gl.write(paths.lib.gl.output)
 
   if (argv.stats) {
     const minify_opts = {

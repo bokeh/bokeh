@@ -17,8 +17,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.util.api import general, dev ; general, dev
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -28,6 +26,7 @@ from bokeh.util.api import general, dev ; general, dev
 # External imports
 
 # Bokeh imports
+from ..models.layouts import LayoutDOM
 from ..util.browser import get_browser_controller, NEW_PARAM
 from .notebook import run_notebook_hook
 from .saving import save
@@ -37,12 +36,14 @@ from .state import curstate
 # General API
 #-----------------------------------------------------------------------------
 
-@general((1,0,0))
 def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="localhost:8888"):
     ''' Immediately display a Bokeh object or application.
 
+        :func:`show` may be called multiple times in a single Jupyter notebook
+        cell to display multiple objects. The objects are displayed in order.
+
     Args:
-        obj (LayoutDOM or Application) :
+        obj (LayoutDOM or Application or callable) :
             A Bokeh object to display.
 
             Bokeh plots, widgets, layouts (i.e. rows and columns) may be
@@ -96,6 +97,11 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
             standard checks, so that applications will display regardless of
             the current notebook location, however a warning will appear.
 
+            notebook_url can also be a function that takes one int for the
+            bound server port.  If the port is provided, the function needs
+            to generate the full public URL to the bokeh server.  If None
+            is passed, the function is to generate the origin URL.
+
 
     Some parameters are only useful when certain output modes are active:
 
@@ -119,9 +125,16 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
     '''
     state = curstate()
 
+    is_application = getattr(obj, '_is_a_bokeh_application_class', False)
+
+    if not (isinstance(obj, LayoutDOM) or is_application or callable(obj)):
+        raise ValueError(_BAD_SHOW_MSG)
+
+    # TODO (bev) check callable signature more thoroughly
+
     # This ugliness is to prevent importing bokeh.application (which would bring
     # in Tornado) just in order to show a non-server object
-    if getattr(obj, '_is_a_bokeh_application_class', False) or callable(obj):
+    if is_application or callable(obj):
         return run_notebook_hook(state.notebook_type, 'app', obj, state, notebook_url)
 
     if obj not in state.document.roots:
@@ -135,6 +148,13 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+_BAD_SHOW_MSG = """"Invalid object to show. The object to passed to show must be one of:
+
+* a LayoutDOM (e.g. a Plot or Widget or Layout)
+* a Bokeh Application
+* a callable suitable to an application FunctionHandler
+"""
 
 def _show_file_with_state(obj, state, new, controller):
     '''

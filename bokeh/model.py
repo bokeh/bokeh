@@ -5,7 +5,7 @@ a Bokeh |Document|.
 from __future__ import absolute_import, print_function
 
 import logging
-logger = logging.getLogger(__file__)
+logger = logging.getLogger(__name__)
 
 from json import loads
 from operator import itemgetter
@@ -649,7 +649,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
 
         return html
 
-    def _repr_pretty(self, p, cycle):
+    def _repr_pretty_(self, p, cycle):
         '''
 
         '''

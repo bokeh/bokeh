@@ -11,10 +11,12 @@ This will print general information to standard output, such as Python and Bokeh
 
 .. code-block:: none
 
-    Python version      :  2.7.11
-    IPython version     :  4.0.1
-    Bokeh version       :  0.11.0
-    BokehJS static path :  /opt/anaconda/lib/python3.4/site-packages/bokeh/server/static
+    Python version      :  3.6.5
+    IPython version     :  6.3.1
+    Bokeh version       :  0.12.15
+    BokehJS static path :  /opt/anaconda/lib/python3.6/site-packages/bokeh/server/static
+    node.js version     :  v8.11.1
+    npm version         :  5.8.0
 
 Sometimes it can be useful to get just paths to the BokehJS static files in order
 to configure other servers or processes. To do this, use the ``--static`` option
@@ -27,7 +29,7 @@ This will produce output like what is shown below
 
 .. code-block:: none
 
-    /opt/anaconda/lib/python3.4/site-packages/bokeh/server/static
+    /opt/anaconda/lib/python3.6/site-packages/bokeh/server/static
 
 '''
 from __future__ import absolute_import

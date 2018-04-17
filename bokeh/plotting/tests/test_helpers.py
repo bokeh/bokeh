@@ -1,13 +1,15 @@
+import datetime
 from mock import mock
 
 import pandas as pd
 import pytest
 
 from bokeh.models import ColumnDataSource, CDSView, Marker
+from bokeh.models.axes import CategoricalAxis, LinearAxis, LogAxis, MercatorAxis, DatetimeAxis
 from bokeh.models.ranges import Range1d, DataRange1d, FactorRange
 from bokeh.models.scales import LinearScale, LogScale, CategoricalScale
 from bokeh.plotting import Figure
-from bokeh.plotting.helpers import _get_scale,_get_range, _stack, _graph, _glyph_function, _RENDERER_ARGS
+from bokeh.plotting.helpers import _get_scale,_get_range, _stack, _graph, _glyph_function, _RENDERER_ARGS, _get_axis_class
 
 import bokeh.plotting.helpers as bph
 
@@ -163,6 +165,53 @@ def test__graph_properly_handle_edge_property_mixins():
     assert r.nonselection_glyph.line_width == 23
     assert r.hover_glyph.line_width == 23
     assert r.muted_glyph.line_width == 23
+
+_RANGES = [Range1d(), DataRange1d(), FactorRange()]
+
+class Test__get_axis_class(object):
+
+    @pytest.mark.parametrize('range', _RANGES)
+    def test_axis_type_None(self, range):
+        assert(_get_axis_class(None, range, 0)) == (None, {})
+        assert(_get_axis_class(None, range, 1)) == (None, {})
+
+    @pytest.mark.parametrize('range', _RANGES)
+    def test_axis_type_linear(self, range):
+        assert(_get_axis_class("linear", range, 0)) == (LinearAxis, {})
+        assert(_get_axis_class("linear", range, 1)) == (LinearAxis, {})
+
+    @pytest.mark.parametrize('range', _RANGES)
+    def test_axis_type_log(self, range):
+        assert(_get_axis_class("log", range, 0)) == (LogAxis, {})
+        assert(_get_axis_class("log", range, 1)) == (LogAxis, {})
+
+    @pytest.mark.parametrize('range', _RANGES)
+    def test_axis_type_datetime(self, range):
+        assert(_get_axis_class("datetime", range, 0)) == (DatetimeAxis, {})
+        assert(_get_axis_class("datetime", range, 1)) == (DatetimeAxis, {})
+
+    @pytest.mark.parametrize('range', _RANGES)
+    def test_axis_type_mercator(self, range):
+        assert(_get_axis_class("mercator", range, 0)) == (MercatorAxis, {'dimension': 'lon'})
+        assert(_get_axis_class("mercator", range, 1)) == (MercatorAxis, {'dimension': 'lat'})
+
+    def test_axis_type_auto(self):
+        assert(_get_axis_class("auto", FactorRange(), 0)) == (CategoricalAxis, {})
+        assert(_get_axis_class("auto", FactorRange(), 1)) == (CategoricalAxis, {})
+        assert(_get_axis_class("auto", DataRange1d(), 0)) == (LinearAxis, {})
+        assert(_get_axis_class("auto", DataRange1d(), 1)) == (LinearAxis, {})
+        assert(_get_axis_class("auto", Range1d(), 0)) == (LinearAxis, {})
+        assert(_get_axis_class("auto", Range1d(), 1)) == (LinearAxis, {})
+        assert(_get_axis_class("auto", Range1d(start=datetime.datetime(2018, 3, 21)), 0)) == (DatetimeAxis, {})
+        assert(_get_axis_class("auto", Range1d(start=datetime.datetime(2018, 3, 21)), 1)) == (DatetimeAxis, {})
+
+
+    @pytest.mark.parametrize('range', _RANGES)
+    def test_axis_type_error(self, range):
+        with pytest.raises(ValueError):
+            _get_axis_class("junk", range, 0)
+        with pytest.raises(ValueError):
+            _get_axis_class("junk", range, 1)
 
 def test__get_scale_numeric_range_linear_axis():
     s = _get_scale(Range1d(), "linear")

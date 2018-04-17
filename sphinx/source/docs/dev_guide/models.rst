@@ -23,8 +23,8 @@ Models and Properties
 
 The primary components of the low-level API are models, which are objects
 that have attributes that can be automatically serialized in a way that
-lets them be reconstituted as Backbone objects within BokehJS. Technically,
-models are classes that inherit from `HasProps` at some point::
+lets them be reconstituted as BokehJS models. Technically, models are classes
+that inherit from `HasProps` at some point::
 
     from bokeh.core.properties import HasProps, Int
 

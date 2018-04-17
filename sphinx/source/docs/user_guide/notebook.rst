@@ -18,6 +18,13 @@ the next notebook output cell. You can see a Jupyter screenshot below:
     :scale: 50 %
     :align: center
 
+Multiple plots can be displayed in a single notebook output cell by calling
+|show| multiple times in the input cell. The plots will be displayed in order.
+
+.. image:: /_images/notebook_inline_multiple.png
+    :scale: 50 %
+    :align: center
+
 In order to embed Bokeh plots inside of JupyterLab, you need to install
 the "jupyterlab_bokeh" JupyterLab extension. This can be done by running
 the command: ``jupyter labextension install jupyterlab_bokeh``.

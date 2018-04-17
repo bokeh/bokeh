@@ -13,9 +13,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
-from bokeh.util.testing import verify_api ; verify_api
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -30,38 +27,6 @@ from six import string_types
 
 # Module under test
 import bokeh.client.session as bcs
-
-#-----------------------------------------------------------------------------
-# API Definition
-#-----------------------------------------------------------------------------
-
-api = {
-
-    GENERAL: (
-
-        ( 'pull_session',                      (1, 0, 0) ),
-        ( 'push_session',                      (1, 0, 0) ),
-        ( 'show_session',                      (1, 0, 0) ),
-        ( 'ClientSession',                     (1, 0, 0) ),
-        ( 'ClientSession.connected.fget',      (1, 0, 0) ),
-        ( 'ClientSession.document.fget',       (1, 0, 0) ),
-        ( 'ClientSession.id.fget',             (1, 0, 0) ),
-        ( 'ClientSession.connect',             (1, 0, 0) ),
-        ( 'ClientSession.close',               (1, 0, 0) ),
-        ( 'ClientSession.force_roundtrip',     (1, 0, 0) ),
-        ( 'ClientSession.loop_until_closed',   (1, 0, 0) ),
-        ( 'ClientSession.pull',                (1, 0, 0) ),
-        ( 'ClientSession.push',                (1, 0, 0) ),
-        ( 'ClientSession.request_server_info', (1, 0, 0) ),
-        ( 'ClientSession.show',                (1, 0, 0) ),
-
-    ), DEV: (
-
-    )
-
-}
-
-Test_api = verify_api(bcs, api)
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -123,6 +88,14 @@ class Test_ClientSession(object):
     def test_close(self, mock_close):
         s = bcs.ClientSession()
         s.close()
+        assert mock_close.call_count == 1
+        assert mock_close.call_args[0] == ("closed",)
+        assert mock_close.call_args[1] == {}
+
+    @patch("bokeh.client.connection.ClientConnection.close")
+    def test_context_manager(self, mock_close):
+        with bcs.ClientSession() as session:
+            assert isinstance(session, bcs.ClientSession)
         assert mock_close.call_count == 1
         assert mock_close.call_args[0] == ("closed",)
         assert mock_close.call_args[1] == {}

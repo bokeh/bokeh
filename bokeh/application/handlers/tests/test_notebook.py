@@ -13,9 +13,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
-from bokeh.util.testing import verify_api ; verify_api
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -31,24 +28,6 @@ from bokeh.util.testing import with_temporary_file
 
 # Module under test
 import bokeh.application.handlers.notebook as bahn
-
-#-----------------------------------------------------------------------------
-# API Definition
-#-----------------------------------------------------------------------------
-
-api = {
-
-    GENERAL: (
-
-        ( 'NotebookHandler', (1,0,0) ),
-
-    ), DEV: (
-
-    )
-
-}
-
-Test_api = verify_api(bahn, api)
 
 #-----------------------------------------------------------------------------
 # Setup

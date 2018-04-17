@@ -65,8 +65,8 @@ callback = CustomJS(args=dict(source=source), code="""
        return v | 0;
     }
     var data = source.data;
-    color = data['color'];
-    text_color = data['text_color'];
+    var color = data['color'];
+    var text_color = data['text_color'];
     var R = toInt(red_slider.value);
     var G = toInt(green_slider.value);
     var B = toInt(blue_slider.value);

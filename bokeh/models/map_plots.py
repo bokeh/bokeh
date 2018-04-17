@@ -7,7 +7,7 @@ from ..core.enums import MapType
 from ..core.has_props import abstract
 from ..core.properties import Bool, Enum, Float, Instance, Int, JSON, Override, String
 from ..core.validation import error, warning
-from ..core.validation.warnings import MISSING_RENDERERS, NO_DATA_RENDERERS
+from ..core.validation.warnings import MISSING_RENDERERS
 from ..core.validation.errors import INCOMPATIBLE_MAP_RANGE_TYPE, REQUIRED_RANGE, MISSING_GOOGLE_API_KEY
 from ..model import Model
 from .plots import Plot
@@ -96,10 +96,6 @@ class GMapPlot(MapPlot):
 
     @warning(MISSING_RENDERERS)
     def _check_missing_renderers(self):
-        pass
-
-    @warning(NO_DATA_RENDERERS)
-    def _check_no_data_renderers(self):
         pass
 
     @error(MISSING_GOOGLE_API_KEY)

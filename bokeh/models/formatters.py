@@ -345,6 +345,10 @@ class FuncTickFormatter(TickFormatter):
             '''
     """)
 
+    use_strict = Bool(default=False, help="""
+    Enables or disables automatic insertion of ``"use strict";`` into ``code``.
+    """)
+
 def _DATETIME_TICK_FORMATTER_HELP(field):
     return """
     Formats for displaying datetime values in the %s range.

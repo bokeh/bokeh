@@ -43,10 +43,9 @@ For all cases, it's required to explicitly add a Bokeh layout to
 from __future__ import absolute_import
 
 import io
-import os
 import warnings
 
-from ...io.export import get_svgs, terminate_web_driver
+from ...io.export import get_svgs, create_webdriver, terminate_webdriver
 from ...models.plots import Plot
 from ...util.string import decode_utf8
 from .file_output import FileOutputSubcommand
@@ -88,10 +87,11 @@ class SVG(FileOutputSubcommand):
         '''
 
         '''
-        import selenium.webdriver as webdriver
-        self.driver = webdriver.PhantomJS(service_log_path=os.path.devnull)
-        super(SVG, self).invoke(args)
-        terminate_web_driver(self.driver)
+        self.driver = create_webdriver()
+        try:
+            super(SVG, self).invoke(args)
+        finally:
+            terminate_webdriver(self.driver)
 
     def write_file(self, args, filename, doc):
         '''

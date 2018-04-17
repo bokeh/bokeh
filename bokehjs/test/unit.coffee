@@ -1,6 +1,6 @@
 # if adding or removing tests, remember to update
 #
-#     gulp/tasks/test.coffee
+#     gulp/tasks/test.ts
 
 require "./client"
 require "./core"

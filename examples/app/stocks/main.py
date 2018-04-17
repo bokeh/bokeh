@@ -125,7 +125,7 @@ ticker2.on_change('value', ticker2_change)
 def selection_change(attrname, old, new):
     t1, t2 = ticker1.value, ticker2.value
     data = get_data(t1, t2)
-    selected = source.selected['1d']['indices']
+    selected = source.selected.indices
     if selected:
         data = data.iloc[selected, :]
     update_stats(data, t1, t2)

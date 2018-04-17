@@ -30,8 +30,8 @@ describe "Image module", ->
       image_view.map_data()
       # sw and sh will be equal to zero because the scale state isn't complete
       # this is ok - it just shouldn't be equal to the initial values
-      expect(image_view.sw).to.be.deep.equal([0])
-      expect(image_view.sh).to.be.deep.equal([0])
+      expect(image_view.sw).to.be.deep.equal(Float64Array.of(0))
+      expect(image_view.sh).to.be.deep.equal(Float64Array.of(0))
 
     it "`_map_data` should correctly map data if w and h units are 'screen'", ->
       # ImageView._map_data is called by ImageView.map_data

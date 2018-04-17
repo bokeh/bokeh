@@ -38,12 +38,15 @@ def open_browser():
     time.sleep(0.5)
     webbrowser.open("http://localhost:%d/en/latest/index.html" % PORT, new="tab")
 
+data = {}
+
 def serve_http():
+    data['ioloop'] = IOLoop()
     http_server.listen(PORT)
     IOLoop.instance().start()
 
 def shutdown_server():
-    ioloop = IOLoop.instance()
+    ioloop = data['ioloop']
     ioloop.add_callback(ioloop.stop)
     print("Asked Server to shut down.")
 

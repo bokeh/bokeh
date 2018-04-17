@@ -73,9 +73,9 @@ any Bokeh model, using the ``js_on_change`` method of Bokeh models:
     p.x_range.js_on_change('start', callback)
 
 It should be mentioned that the first parameter to ``js_on_change`` is the
-name of actually the name of a Backbone event. The full format for a property
+name of actually the name of a BokehJS event. The full format for a property
 change event is, e.g. ``"change:start"`` but Bokeh will automatically
-convert any property name into one of these Backbone change events for you.
+convert any property name into one of these BokehJS change events for you.
 Additionally, some Bokeh models have additional specialized events. For
 example, the ``ColumnDataSource`` also supports ``"patch"`` and ``"stream"``
 events, for executing ``CustomJS`` callbacks whenever the data source is
@@ -240,7 +240,7 @@ JavaScript. To use this functionality you need the Flexx library
     supplied as python code to be translated to JavaScript as described in
     this section. A ``CustomJS`` callback is only executed inside a browser
     JavaScript interpreter, and can only directly interact JavaScript data
-    and functions (e.g., BokehJS Backbone models).
+    and functions (e.g., BokehJS models).
 
 For more information about the subset of Python that is supported in
 callbacks, see the `PyScript documentation`_.

@@ -10,6 +10,7 @@ The full list of glyphs built into Bokeh is given below:
 * :class:`~bokeh.models.glyphs.Bezier`
 * :class:`~bokeh.models.glyphs.Ellipse`
 * :class:`~bokeh.models.glyphs.HBar`
+* :class:`~bokeh.models.glyphs.HexTile`
 * :class:`~bokeh.models.glyphs.Image`
 * :class:`~bokeh.models.glyphs.ImageRGBA`
 * :class:`~bokeh.models.glyphs.ImageURL`
@@ -39,8 +40,8 @@ from __future__ import absolute_import
 
 from ..core.enums import Anchor, Direction, StepMode
 from ..core.has_props import abstract
-from ..core.properties import (AngleSpec, Bool, DistanceSpec, Enum, Float,
-                               Include, Instance, Int, NumberSpec, StringSpec)
+from ..core.properties import (AngleSpec, Bool, DistanceSpec, Enum, Float, String,
+                               Include, Instance, Int, NumberSpec, Override, StringSpec)
 from ..core.property_mixins import FillProps, LineProps, ScalarFillProps, ScalarLineProps, TextProps
 from ..model import Model
 
@@ -304,6 +305,59 @@ class HBar(Glyph):
     fill_props = Include(FillProps, use_prefix=False, help="""
     The %s values for the horizontal bars.
     """)
+
+class HexTile(Glyph):
+    ''' Render horizontal tiles on a regular hexagonal grid.
+
+    '''
+
+    __example__ = "examples/reference/models/HexTile.py"
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('q', 'r')
+
+    size = Float(1.0, help="""
+    The radius (in data space units) of the hex tiling.
+
+    The radius is always measured along the cartesian y-axis for "pointy_top"
+    orientation, and along the cartesian x-axis for "flat_top" orientation. If
+    the aspect ratio of the underlying cartesian system is not 1-1, then the
+    tiles may be "squished" in one direction. To ensure that the tiles are
+    always regular hexagons, consider setting the ``match_aspect`` property of
+    the plot to True.
+    """)
+
+    aspect_scale = Float(1.0, help="""
+
+    """)
+
+    r = NumberSpec(help="""
+    The "row" axial coordinates of the tile centers.
+    """)
+
+    q = NumberSpec(help="""
+    The "column" axial coordinates of the tile centers.
+    """)
+
+    scale = NumberSpec(1.0, help="""
+    A scale factor for individual tiles.
+    """)
+
+    orientation = String("pointytop", help="""
+
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the horizontal bars.
+    """)
+
+    line_color = Override(default=None)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the horizontal bars.
+    """)
+
 
 class Image(XYGlyph):
     ''' Render images given as scalar data together with a color mapper.
@@ -1044,8 +1098,8 @@ class Wedge(XYGlyph):
 
 # XXX: allow `from bokeh.models.glyphs import *`
 from .markers import (Asterisk, Circle, CircleCross, CircleX, Cross, Diamond, DiamondCross,
-                      InvertedTriangle, Marker, Square, SquareCross, SquareX, Triangle, X)
+                      Hex, InvertedTriangle, Marker, Square, SquareCross, SquareX, Triangle, X)
 
 # Fool pyflakes
 (Asterisk, Circle, CircleCross, CircleX, Cross, Diamond, DiamondCross,
-InvertedTriangle, Marker, Square, SquareCross, SquareX, Triangle, X)
+Hex, InvertedTriangle, Marker, Square, SquareCross, SquareX, Triangle, X)

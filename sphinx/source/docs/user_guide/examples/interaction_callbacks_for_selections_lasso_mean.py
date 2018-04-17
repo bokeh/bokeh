@@ -16,16 +16,17 @@ s2 = ColumnDataSource(data=dict(x=[0, 1], ym=[0.5, 0.5]))
 p.line(x='x', y='ym', color="orange", line_width=5, alpha=0.6, source=s2)
 
 s.callback = CustomJS(args=dict(s2=s2), code="""
-        var inds = cb_obj.selected['1d'].indices;
+        var inds = cb_obj.selected.indices;
         var d = cb_obj.data;
         var ym = 0
 
-        if (inds.length == 0) { return; }
+        if (inds.length == 0)
+            return;
 
-        for (i = 0; i < d['color'].length; i++) {
+        for (var i = 0; i < d['color'].length; i++) {
             d['color'][i] = "navy"
         }
-        for (i = 0; i < inds.length; i++) {
+        for (var i = 0; i < inds.length; i++) {
             d['color'][inds[i]] = "firebrick"
             ym += d['y'][inds[i]]
         }

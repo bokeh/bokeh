@@ -63,7 +63,7 @@
     var toinsert = output_area.element.find("." + CLASS_NAME.split(' ')[0]);
 
     if (output.metadata[EXEC_MIME_TYPE]["id"] !== undefined) {
-      toinsert[0].firstChild.textContent = output.data[JS_MIME_TYPE];
+      toinsert[toinsert.length - 1].firstChild.textContent = output.data[JS_MIME_TYPE];
       // store reference to embed id on output_area
       output_area._bokeh_element_id = output.metadata[EXEC_MIME_TYPE]["id"];
     }
@@ -72,7 +72,7 @@
       bk_div.innerHTML = output.data[HTML_MIME_TYPE];
       var script_attrs = bk_div.children[0].attributes;
       for (var i = 0; i < script_attrs.length; i++) {
-        toinsert[0].firstChild.setAttribute(script_attrs[i].name, script_attrs[i].value);
+        toinsert[toinsert.length - 1].firstChild.setAttribute(script_attrs[i].name, script_attrs[i].value);
       }
       // store reference to server id on output_area
       output_area._bokeh_server_id = output.metadata[EXEC_MIME_TYPE]["server_id"];
@@ -91,7 +91,7 @@
       this.keyboard_manager.register_events(toinsert);
       // Render to node
       var props = {data: data, metadata: metadata[EXEC_MIME_TYPE]};
-      render(props, toinsert[0]);
+      render(props, toinsert[toinsert.length - 1]);
       element.append(toinsert);
       return toinsert
     }

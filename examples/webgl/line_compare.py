@@ -47,9 +47,9 @@ for p in (p1, p2, p3):
 
 def add_callback(widget, prop):
     widget.callback = CustomJS(args=dict(widget=widget), code="""
-        for ( var i = 0; i < %s; i++ ) {
-            var g = eval( 'line' + i ).get( 'glyph' );
-            g.set( '%s', widget.get( 'value' ) );
+        for (var i = 0; i < %s; i++) {
+            var g = eval('line' + i).get('glyph');
+            g.set('%s', widget.get('value'));
             window.g = g;
         }
         """ % (len(lines), prop))

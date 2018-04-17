@@ -13,9 +13,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
-from bokeh.util.testing import verify_api ; verify_api
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -27,34 +24,7 @@ from bokeh.util.testing import verify_api ; verify_api
 # Bokeh imports
 
 # Module under test
-import bokeh.application.handlers.code_runner as bahc
-
-#-----------------------------------------------------------------------------
-# API Definition
-#-----------------------------------------------------------------------------
-
-api = {
-
-    GENERAL: (
-
-    ), DEV: (
-
-        ( 'CodeRunner',                   (1,0,0) ),
-
-        ( 'CodeRunner.error.fget',        (1,0,0) ),
-        ( 'CodeRunner.error_detail.fget', (1,0,0) ),
-        ( 'CodeRunner.failed.fget',       (1,0,0) ),
-        ( 'CodeRunner.path.fget',         (1,0,0) ),
-        ( 'CodeRunner.source.fget',       (1,0,0) ),
-
-        ( 'CodeRunner.new_module',        (1,0,0) ),
-        ( 'CodeRunner.run',               (1,0,0) ),
-
-    )
-
-}
-
-Test_api = verify_api(bahc, api)
+#import bokeh.application.handlers.code_runner as bahc
 
 #-----------------------------------------------------------------------------
 # Setup

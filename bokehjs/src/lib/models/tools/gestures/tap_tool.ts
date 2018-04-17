@@ -1,0 +1,98 @@
+import {SelectTool, SelectToolView} from "./select_tool"
+import * as p from "core/properties"
+import {TapEvent} from "core/ui_events"
+import {isFunction} from "core/util/types"
+import {Geometry, PointGeometry} from "core/geometry"
+import {DataSource} from "../../sources/data_source"
+import {computed_renderers_by_data_source} from "../util"
+
+export class TapToolView extends SelectToolView {
+  model: TapTool
+
+  _tap(ev: TapEvent): void {
+    const {sx, sy} = ev
+    const geometry: PointGeometry = {
+      type: 'point',
+      sx: sx,
+      sy: sy,
+    }
+    const append = ev.shiftKey
+    this._select(geometry, true, append)
+  }
+
+  _select(geometry: PointGeometry, final: boolean, append: boolean): void {
+    const callback = this.model.callback
+
+    const cb_data: {
+      geometries: Geometry,
+      source: DataSource | null,
+    } = {
+      geometries: geometry,
+      source: null,
+    }
+
+    const renderers_by_source = computed_renderers_by_data_source(this.computed_renderers)
+
+    for (const id in renderers_by_source) {
+      const renderers = renderers_by_source[id]
+      const sm = renderers[0].get_selection_manager()
+      const r_views = renderers.map((r) => this.plot_view.renderer_views[r.id])
+
+      let did_hit: boolean
+      if (this.model.behavior == "select")
+        did_hit = sm.select(r_views, geometry, final, append)
+      else
+        did_hit = sm.inspect(r_views, geometry)
+
+      if (did_hit && callback != null) {
+        cb_data.source = sm.source
+        if (isFunction(callback))
+          callback(this, cb_data)
+        else
+          callback.execute(this, cb_data)
+      }
+    }
+
+    if (this.model.behavior == "select") {
+      this._emit_selection_event(geometry)
+      this.plot_view.push_state('tap', {selection: this.plot_view.get_selection()})
+    }
+  }
+}
+
+export namespace TapTool {
+  export interface Attrs extends SelectTool.Attrs {
+    behavior: "select" | "inspect"
+    callback: any // XXX
+  }
+
+  export interface Props extends SelectTool.Props {}
+}
+
+export interface TapTool extends TapTool.Attrs {}
+
+export class TapTool extends SelectTool {
+
+  properties: TapTool.Props
+
+  constructor(attrs?: Partial<TapTool.Attrs>) {
+    super(attrs)
+  }
+
+  static initClass(): void {
+    this.prototype.type = "TapTool"
+    this.prototype.default_view = TapToolView
+
+    this.define({
+      behavior: [ p.String, "select" ], // TODO: Enum("select", "inspect")
+      callback: [ p.Any ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
+    })
+  }
+
+  tool_name = "Tap"
+  icon = "bk-tool-icon-tap-select"
+  event_type = "tap" as "tap"
+  default_order = 10
+}
+
+TapTool.initClass()

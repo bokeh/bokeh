@@ -6,7 +6,7 @@ from __future__ import absolute_import
 from types import FunctionType
 
 from ..core.has_props import abstract
-from ..core.properties import Dict, Instance, String
+from ..core.properties import Dict, Instance, String, Bool
 from ..model import Model
 from ..util.dependencies import import_required
 from ..util.compiler import nodejs_compile, CompilationError
@@ -87,4 +87,8 @@ class CustomJS(Callback):
 
     .. note:: Use ``CustomJS.from_coffeescript()`` for CoffeeScript source code.
 
+    """)
+
+    use_strict = Bool(default=False, help="""
+    Enables or disables automatic insertion of ``"use strict";`` into ``code``.
     """)

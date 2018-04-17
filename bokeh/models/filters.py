@@ -170,3 +170,7 @@ class CustomJSFilter(Filter):
     .. note:: Use ``CustomJS.from_coffeescript()`` for CoffeeScript source code.
 
     """)
+
+    use_strict = Bool(default=False, help="""
+    Enables or disables automatic insertion of ``"use strict";`` into ``code``.
+    """)

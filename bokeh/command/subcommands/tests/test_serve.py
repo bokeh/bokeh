@@ -65,6 +65,13 @@ def test_args():
             help    = "A standard Python logging format string (default: %r)" % scserve.DEFAULT_LOG_FORMAT.replace("%", "%%"),
         )),
 
+        ('--log-file', dict(
+            metavar ='LOG-FILE',
+            action  = 'store',
+            default = None,
+            help    = "A filename to write logs to, or None to write to the standard stream (default: None)",
+        )),
+
         ('files', dict(
             metavar='DIRECTORY-OR-SCRIPT',
             nargs='*',
@@ -88,13 +95,6 @@ def test_args():
             action='append',
             type=str,
             help="Public hostnames which may connect to the Bokeh websocket",
-        )),
-
-        ('--host', dict(
-            metavar='HOST[:PORT]',
-            action='append',
-            type=str,
-            help="*** DEPRECATED ***",
         )),
 
         ('--prefix', dict(
@@ -129,6 +129,13 @@ def test_args():
             metavar='MILLISECONDS',
             type=int,
             help="How often to log stats",
+            default=None,
+        )),
+
+        ('--mem-log-frequency', dict(
+            metavar='MILLISECONDS',
+            type=int,
+            help="How often to log memory usage information",
             default=None,
         )),
 
@@ -192,49 +199,6 @@ def check_error(args):
     else:
         pytest.fail("command %s unexpected successful" % (cmd,))
     return out
-
-def test__fixup_deprecated_host_args():
-    from argparse import Namespace
-
-    args = Namespace(host=None, allow_websocket_origin=None)
-    scserve._fixup_deprecated_host_args(args)
-    assert args.allow_websocket_origin == None
-
-    args = Namespace(host=[], allow_websocket_origin=None)
-    scserve._fixup_deprecated_host_args(args)
-    assert args.allow_websocket_origin == None
-
-    args = Namespace(host=[], allow_websocket_origin=[])
-    scserve._fixup_deprecated_host_args(args)
-    assert set(args.allow_websocket_origin) == set([])
-
-    args = Namespace(host=['*'], allow_websocket_origin=[])
-    scserve._fixup_deprecated_host_args(args)
-    assert set(args.allow_websocket_origin) == set(['*'])
-
-    args = Namespace(host=['*'], allow_websocket_origin=['*'])
-    scserve._fixup_deprecated_host_args(args)
-    assert set(args.allow_websocket_origin) == set(['*'])
-
-    args = Namespace(host=['*'], allow_websocket_origin=['*', 'foo'])
-    scserve._fixup_deprecated_host_args(args)
-    assert set(args.allow_websocket_origin) == set(['*', 'foo'])
-
-    args = Namespace(host=[], allow_websocket_origin=['*'])
-    scserve._fixup_deprecated_host_args(args)
-    assert set(args.allow_websocket_origin) == set(['*'])
-
-    args = Namespace(host=[], allow_websocket_origin=['*', 'foo'])
-    scserve._fixup_deprecated_host_args(args)
-    assert set(args.allow_websocket_origin) == set(['*', 'foo'])
-
-    args = Namespace(host=None, allow_websocket_origin=['*'])
-    scserve._fixup_deprecated_host_args(args)
-    assert set(args.allow_websocket_origin) == set(['*'])
-
-    args = Namespace(host=None, allow_websocket_origin=['*', 'foo'])
-    scserve._fixup_deprecated_host_args(args)
-    assert set(args.allow_websocket_origin) == set(['*', 'foo'])
 
 def test_host_not_available():
     host = "8.8.8.8"

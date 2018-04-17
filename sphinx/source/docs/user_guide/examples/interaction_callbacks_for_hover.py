@@ -27,10 +27,10 @@ var links = %s;
 var data = {'x0': [], 'y0': [], 'x1': [], 'y1': []};
 var cdata = circle.data;
 var indices = cb_data.index['1d'].indices;
-for (i=0; i < indices.length; i++) {
-    ind0 = indices[i]
-    for (j=0; j < links[ind0].length; j++) {
-        ind1 = links[ind0][j];
+for (var i = 0; i < indices.length; i++) {
+    var ind0 = indices[i]
+    for (var j = 0; j < links[ind0].length; j++) {
+        var ind1 = links[ind0][j];
         data['x0'].push(cdata.x[ind0]);
         data['y0'].push(cdata.y[ind0]);
         data['x1'].push(cdata.x[ind1]);

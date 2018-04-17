@@ -13,9 +13,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
-from bokeh.util.testing import verify_api ; verify_api
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -30,34 +27,6 @@ from bokeh.document import Document
 
 # Module under test
 import bokeh.io.state as bis
-
-#-----------------------------------------------------------------------------
-# API Definition
-#-----------------------------------------------------------------------------
-
-api = {
-
-    GENERAL: (
-
-        ( 'State',                    (1, 0, 0) ),
-        ( 'State.document.fget',      (1, 0, 0) ),
-        ( 'State.document.fset',      (1, 0, 0) ),
-        ( 'State.notebook.fget',      (1, 0, 0) ),
-        ( 'State.notebook_type.fget', (1, 0, 0) ),
-        ( 'State.notebook_type.fset', (1, 0, 0) ),
-        ( 'State.file.fget',          (1, 0, 0) ),
-        ( 'State.output_file',        (1, 0, 0) ),
-        ( 'State.output_notebook',    (1, 0, 0) ),
-        ( 'State.reset',              (1, 0, 0) ),
-        ( 'curstate',                 (1, 0, 0) ),
-
-    ), DEV: (
-
-    )
-
-}
-
-Test_api = verify_api(bis, api)
 
 #-----------------------------------------------------------------------------
 # Setup

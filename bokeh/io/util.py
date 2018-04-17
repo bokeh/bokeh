@@ -17,8 +17,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import logging
 log = logging.getLogger(__name__)
 
-from bokeh.util.api import general, dev ; general, dev
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -44,7 +42,6 @@ from tempfile import NamedTemporaryFile
 # Dev API
 #-----------------------------------------------------------------------------
 
-@dev((1,0,0))
 def default_filename(ext):
     ''' Generate a default filename with a given extension, attempting to use
     the filename of the currently running process, if possible.
@@ -79,7 +76,6 @@ def default_filename(ext):
     name, _ = splitext(basename(filename))
     return join(basedir, name + "." + ext)
 
-@dev((1,0,0))
 def detect_current_filename():
     ''' Attempt to return the filename of the currently running Python process
 
@@ -99,7 +95,6 @@ def detect_current_filename():
 
     return filename
 
-@dev((1,0,0))
 def temp_filename(ext):
     ''' Generate a temporary, writable filename with the given extension
 

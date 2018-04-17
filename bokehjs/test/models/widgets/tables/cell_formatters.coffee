@@ -55,7 +55,7 @@ describe "cell_formatters module", ->
 
       it "should map TIMESTAMP", ->
         df = new cf.DateFormatter({format: "TIMESTAMP"})
-        expect(df.getFormat()).to.be.null
+        expect(df.getFormat()).to.be.undefined
 
       it "should map custom formats to themselves", ->
         df = new cf.DateFormatter({format: "CUST"})

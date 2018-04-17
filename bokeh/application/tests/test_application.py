@@ -13,76 +13,33 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-from bokeh.util.api import DEV, GENERAL ; DEV, GENERAL
-from bokeh.util.testing import verify_api ; verify_api
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import logging
 
 # External imports
 import mock
 
 # Bokeh imports
-from bokeh.application.handlers import FunctionHandler
+from bokeh.application.handlers import CodeHandler, FunctionHandler
 from bokeh.core.properties import Int, Instance
 from bokeh.document import Document
 from bokeh.model import Model
 from bokeh.plotting import figure
+from bokeh.util.logconfig import basicConfig
 
 # Module under test
 import bokeh.application.application as baa
 
 #-----------------------------------------------------------------------------
-# API Definition
-#-----------------------------------------------------------------------------
-
-api = {
-
-    GENERAL: (
-
-        ( 'Application',                      (1,0,0) ),
-        ( 'Application.handlers.fget',        (1,0,0) ),
-        ( 'Application.metadata.fget',        (1,0,0) ),
-        ( 'Application.safe_to_fork.fget',    (1,0,0) ),
-        ( 'Application.static_path.fget',     (1,0,0) ),
-        ( 'Application.add',                  (1,0,0) ),
-        ( 'Application.create_document',      (1,0,0) ),
-        ( 'Application.initialize_document',  (1,0,0) ),
-
-    ), DEV: (
-
-        ( 'Application.on_server_loaded',     (1,0,0) ),
-        ( 'Application.on_server_unloaded',   (1,0,0) ),
-        ( 'Application.on_session_created',   (1,0,0) ),
-        ( 'Application.on_session_destroyed', (1,0,0) ),
-
-        ( 'ServerContext',                           (1,0,0) ),
-        ( 'ServerContext.sessions.fget',             (1,0,0) ),
-        ( 'ServerContext.add_next_tick_callback',    (1,0,0) ),
-        ( 'ServerContext.add_periodic_callback',     (1,0,0) ),
-        ( 'ServerContext.add_timeout_callback',      (1,0,0) ),
-        ( 'ServerContext.remove_next_tick_callback', (1,0,0) ),
-        ( 'ServerContext.remove_periodic_callback',  (1,0,0) ),
-        ( 'ServerContext.remove_timeout_callback',   (1,0,0) ),
-
-        ( 'SessionContext',                      (1,0,0) ),
-        ( 'SessionContext.destroyed.fget',       (1,0,0) ),
-        ( 'SessionContext.id.fget',              (1,0,0) ),
-        ( 'SessionContext.server_context.fget',  (1,0,0) ),
-        ( 'SessionContext.with_locked_document', (1,0,0) ),
-
-    )
-
-}
-
-Test_api = verify_api(baa, api)
-
-#-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
+
+# needed for caplog tests to function
+basicConfig()
 
 class AnotherModelInTestApplication(Model):
     baar = Int(1)
@@ -130,16 +87,15 @@ class Test_Application(object):
         doc = a.create_document()
         assert len(doc.roots) == 3
 
-    # TODO (bev) something about our logging setup is causing this to fail
-    # def test_failed_handler(self, caplog):
-    #     a = baa.Application()
-    #     handler = CodeHandler(filename="junk", source="bad(")
-    #     a.add(handler)
-    #     d = Document()
-    #     with caplog.at_level(logging.ERROR):
-    #         assert len(caplog.records) == 0
-    #         a.initialize_document(d)
-    #         assert len(caplog.records) == 1
+    def test_failed_handler(self, caplog):
+        a = baa.Application()
+        handler = CodeHandler(filename="junk", source="bad(")
+        a.add(handler)
+        d = Document()
+        with caplog.at_level(logging.ERROR):
+            assert len(caplog.records) == 0
+            a.initialize_document(d)
+            assert len(caplog.records) == 1
 
     def test_no_static_path(self):
         a = baa.Application()

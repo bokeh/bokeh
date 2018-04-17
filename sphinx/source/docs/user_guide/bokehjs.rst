@@ -6,12 +6,12 @@ Developing with JavaScript
 In order to create interactive plots and applications in the browser, Bokeh
 has a client-side library, BokehJS, to do all the work of drawing and rendering
 and event handling in a browser. The Bokeh Python library, and libraries for
-:ref:`quickstart_other_languages` such as R, Scala, and Julia, are primarily
-a means to interact with BokehJS conveniently at a high level, without needing
-to explicitly worry about JavaScript or web development. However, BokehJS has
-its own API, and it is possible to do pure JavaScript development using BokehJS
-directly. Additionally, :ref:`userguide_extensions` with custom models
-typically requires interacting with BokehJS directly as well.
+:ref:`userguide_quickstart_other_languages` such as R, Scala, and Julia, are
+primarily a means to interact with BokehJS conveniently at a high level,
+without needing to explicitly worry about JavaScript or web development.
+However, BokehJS hasits own API, and it is possible to do pure JavaScript
+development using BokehJSdirectly. Additionally, :ref:`userguide_extensions`
+with custom models typically requires interacting with BokehJS directly as well.
 
 .. warning::
     The BokehJS APIs are new as of version ``0.12`` and may undergo some
@@ -39,7 +39,7 @@ Unlike the hierarchical organization of the Python library, all of the
 JavaScript models are all in one flat ``Bokeh`` module.  Typically any
 Python ``ClassName`` is available as ``Bokeh.ClassName`` from JavaScript.
 The complete list of models available from JavaScript can be seen at
-:bokeh-tree:`bokehjs/src/coffee/api/models.coffee`.
+:bokeh-tree:`bokehjs/src/lib/api/models.ts`.
 
 When creating models from JavaScript, all of the keyword arguments that
 would get passed to the Python object initializer are passed as a
