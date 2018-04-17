@@ -41,7 +41,7 @@ export class SelectionManager extends HasProps {
         }
       }
     }
-    return {'glyph_renderer_views': glyph_renderer_views, 'graph_renderer_views': graph_renderer_views}
+    return {glyph_renderer_views: glyph_renderer_views, graph_renderer_views: graph_renderer_views}
   }
 
   select(renderer_views: RendererView[], geometry: Geometry, final: boolean, append: boolean = false): boolean {
