@@ -170,7 +170,7 @@ class TestColumnDataSource(unittest.TestCase):
         df = pd.DataFrame(dict(a=[10], b=[20], c=[30]))
         assert ColumnDataSource._df_index_name(df) == "index"
 
-    skipIf(not is_pandas, "pandas not installed")
+    @skipIf(not is_pandas, "pandas not installed")
     def test__df_index_name_with_named_multi_index(self):
         data = io.StringIO(u'''
 Fruit,Color,Count,Price
@@ -184,7 +184,7 @@ Lime,Green,99,$0.39
         assert df.index.names == ['Fruit', 'Color']
         assert ColumnDataSource._df_index_name(df) == "Fruit_Color"
 
-    skipIf(not is_pandas, "pandas not installed")
+    @skipIf(not is_pandas, "pandas not installed")
     def test__df_index_name_with_unnamed_multi_index(self):
         arrays = [np.array(['bar', 'bar', 'baz', 'baz', 'foo', 'foo', 'qux', 'qux']),
                   np.array(['one', 'two', 'one', 'two', 'one', 'two', 'one', 'two'])]
