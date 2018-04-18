@@ -14,29 +14,42 @@ p = figure(x_range=(0, 6), y_range=(0, 10))
 p.circle(x='x', y='y', source=controls, size=15, alpha=0.5, color="firebrick")
 p.circle(x='x', y='y', source=source, size=1, alpha=0.2, color="navy")
 
-callback = CustomJS(args=dict(source=source, linear=linear, step=step), code="""
+callback = CustomJS(args=dict(source=source, linear=linear, step=step, N=N), code="""
     var mode = cb_obj.value;
     var data = source.data;
-    var dx = 6 / %d;
+    var dx = 6 / N;
 
     if (mode == 'None') {
         data['x'] = [];
         data['y'] = [];
-    }
-    else {
-        if (mode == 'Linear') { interp = linear; }
-        else if (mode == 'Step (before)') { interp = step; step.mode = 'before'; }
-        else if (mode == 'Step (center)') { interp = step; step.mode = 'center'; }
-        else if (mode == 'Step (after)')  { interp = step; step.mode = 'after';  }
+    } else {
+        var interp;
+        switch (mode) {
+            case 'Linear':
+                interp = linear;
+                break;
+            case 'Step (before)':
+                interp = step;
+                step.mode = 'before';
+                break;
+            case 'Step (center)':
+                interp = step;
+                step.mode = 'center';
+                break;
+            case 'Step (after)':
+                interp = step;
+                step.mode = 'after';
+                break;
+        }
 
-        for (var i = 0; i < %d; i++) {
+        for (var i = 0; i < N; i++) {
             data['x'][i] = i * dx
             data['y'][i] = interp.compute(data['x'][i])
         }
     }
 
     source.change.emit()
-""" % (N, N))
+""")
 
 mode = Select(
     title='Interpolation Mode',
@@ -45,4 +58,4 @@ mode = Select(
     callback=callback)
 output_file("transform_interpolator.html", title="Example Transforms")
 
-show(Column(WidgetBox(mode,width=300), p))
+show(Column(WidgetBox(mode, width=300), p))
