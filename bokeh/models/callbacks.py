@@ -6,7 +6,7 @@ from __future__ import absolute_import
 from types import FunctionType
 
 from ..core.has_props import abstract
-from ..core.properties import Dict, String, Bool, Any
+from ..core.properties import Dict, String, Bool, AnyRef
 from ..model import Model
 from ..util.dependencies import import_required
 from ..util.compiler import nodejs_compile, CompilationError
@@ -71,7 +71,7 @@ class CustomJS(Callback):
         else:
             return cls(code=compiled.code, args=args)
 
-    args = Dict(String, Any, help="""
+    args = Dict(String, AnyRef, help="""
     A mapping of names to Python objects. In particular those can be bokeh's models.
     These objects are made available to the callback's code snippet as the values of
     named parameters to the callback.

@@ -8,7 +8,7 @@ from types import FunctionType
 
 from ..core.enums import StepMode, JitterRandomDistribution
 from ..core.has_props import abstract
-from ..core.properties import Bool, Dict, Either, Enum, Float, Instance, Seq, String, Any
+from ..core.properties import Bool, Dict, Either, Enum, Float, Instance, Seq, String, AnyRef
 from ..model import Model
 from ..util.compiler import nodejs_compile, CompilationError
 from ..util.dependencies import import_required
@@ -162,7 +162,7 @@ class CustomJSTransform(Transform):
 
         return cls(func=compiled.code, v_func=v_compiled.code, args=args)
 
-    args = Dict(String, Any, help="""
+    args = Dict(String, AnyRef, help="""
     A mapping of names to Python objects. In particular those can be bokeh's models.
     These objects are made available to the transform' code snippet as the values of
     named parameters to the callback.
