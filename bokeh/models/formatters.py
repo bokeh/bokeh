@@ -253,7 +253,7 @@ class FuncTickFormatter(TickFormatter):
     @classmethod
     def from_py_func(cls, func):
         ''' Create a FuncTickFormatter instance from a Python function. The
-        function is translated to JavaScript using PyScript. The variable
+        function is translated to JavaScript using PScript. The variable
         ``tick`` will contain the unformatted tick value and can be expected to
         be present in the function namespace at render time.
 
@@ -273,9 +273,9 @@ class FuncTickFormatter(TickFormatter):
         '''
         if not isinstance(func, FunctionType):
             raise ValueError('CustomJS.from_py_func needs function object.')
-        pyscript = import_required('flexx.pyscript',
-                                   'To use Python functions for CustomJS, you need Flexx ' +
-                                   '("conda install -c conda-forge flexx" or "pip install flexx")')
+        pscript = import_required('pscript',
+                                  'To use Python functions for CustomJS, you need PScript ' +
+                                  '("conda install -c conda-forge pscript" or "pip install pscript")')
         sig = signature(func)
 
         all_names, default_values = get_param_info(sig)
@@ -290,7 +290,7 @@ class FuncTickFormatter(TickFormatter):
 
         # Wrap the code attr in a function named `formatter` and call it
         # with arguments that match the `args` attr
-        code = pyscript.py2js(func, 'formatter') + 'return formatter(%s);\n' % ', '.join(all_names)
+        code = pscript.py2js(func, 'formatter') + 'return formatter(%s);\n' % ', '.join(all_names)
 
         return cls(code=code, args=func_kwargs)
 

@@ -87,7 +87,7 @@ class CustomJSFilter(Filter):
     @classmethod
     def from_py_func(cls, func):
         ''' Create a CustomJSFilter instance from a Python function. The
-        fucntion is translated to JavaScript using PyScript.
+        fucntion is translated to JavaScript using PScript.
 
         The ``func`` function namespace will contain the variable ``source``
         at render time. This will be the data source associated with the CDSView
@@ -96,11 +96,11 @@ class CustomJSFilter(Filter):
         if not isinstance(func, FunctionType):
             raise ValueError('CustomJSFilter.from_py_func only accepts function objects.')
 
-        pyscript = import_required(
-            'flexx.pyscript',
+        pscript = import_required(
+            'pscript',
             dedent("""\
-                To use Python functions for CustomJSFilter, you need Flexx
-                '("conda install -c conda-forge flexx" or "pip install flexx")""")
+                To use Python functions for CustomJSFilter, you need PScript
+                '("conda install -c conda-forge pscript" or "pip install pscript")""")
             )
 
         argspec = inspect.getargspec(func)
@@ -116,7 +116,7 @@ class CustomJSFilter(Filter):
             raise ValueError("Default value must be a plot object.")
 
         func_kwargs = dict(zip(default_names, default_values))
-        code = pyscript.py2js(func, 'filter') + 'return filter(%s);\n' % ', '.join(default_names)
+        code = pscript.py2js(func, 'filter') + 'return filter(%s);\n' % ', '.join(default_names)
 
         return cls(code=code, args=func_kwargs)
 

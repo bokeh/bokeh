@@ -344,4 +344,4 @@ For more information about how to set up the data for these types of plots, see
 .. |DataTable| replace:: :class:`~bokeh.models.widgets.tables.DataTable`
 
 .. _CoffeeScript: http://coffeescript.org
-.. _PyScript documentation: http://flexx.readthedocs.org/en/stable/pyscript
+.. _PScript documentation: http://pscript.readthedocs.org

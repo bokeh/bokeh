@@ -1,8 +1,8 @@
 """ Version of slider example that uses a Python function as a callback,
-which is transpiled to JavaScript using PyScript. Read more on PyScript
+which is transpiled to JavaScript using PScript. Read more on PScript
 here:
 
-    http://flexx.readthedocs.org/en/stable/pyscript
+    http://pscript.readthedocs.org
 
 """
 

@@ -4,7 +4,7 @@ import pytest
 
 from bokeh.models import FuncTickFormatter, Slider
 
-flexx = pytest.importorskip("flexx")
+pscript = pytest.importorskip("pscript")
 
 def test_functickformatter_from_py_func_no_args():
 
@@ -12,7 +12,7 @@ def test_functickformatter_from_py_func_no_args():
         return tick * 60 # noqa
 
     formatter = FuncTickFormatter.from_py_func(convert_to_minutes)
-    js_code = flexx.pyscript.py2js(convert_to_minutes, 'formatter')
+    js_code = pscript.py2js(convert_to_minutes, 'formatter')
 
     function_wrapper = formatter.code.replace(js_code, '')
 
@@ -26,7 +26,7 @@ def test_functickformatter_from_py_func_with_args():
         return tick * 60 # noqa
 
     formatter = FuncTickFormatter.from_py_func(convert_to_minutes)
-    js_code = flexx.pyscript.py2js(convert_to_minutes, 'formatter')
+    js_code = pscript.py2js(convert_to_minutes, 'formatter')
 
     function_wrapper = formatter.code.replace(js_code, '')
 
