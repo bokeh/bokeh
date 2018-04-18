@@ -46,15 +46,12 @@ for p in (p1, p2, p3):
     lines.extend([l1, l2, l3, l4])
 
 def add_callback(widget, prop):
-    widget.callback = CustomJS(args=dict(widget=widget), code="""
-        for (var i = 0; i < %s; i++) {
-            var g = eval('line' + i).get('glyph');
-            g.set('%s', widget.get('value'));
-            window.g = g;
+    widget.callback = CustomJS(args=dict(widget=widget, lines=lines, prop=prop), code="""
+        for (var i = 0; i < lines.length; i++) {
+            var glyph = lines[i].glyph;
+            glyph[prop] = widget.value;
         }
-        """ % (len(lines), prop))
-    for i, line in enumerate(lines):
-        widget.callback.args['line%i' % i] = line
+    """)
 
 def make_slider(prop, start, end, value):
     slider = Slider(title=prop, start=start, end=end, value=value)

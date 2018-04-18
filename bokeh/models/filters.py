@@ -4,7 +4,7 @@ import inspect
 from textwrap import dedent
 from types import FunctionType
 
-from ..core.properties import Bool, Dict, Either, Instance, Int, Seq, String
+from ..core.properties import Bool, Dict, Either, Int, Seq, String, AnyRef
 from ..model import Model
 from ..util.dependencies import import_required
 from ..util.compiler import nodejs_compile, CompilationError
@@ -137,10 +137,10 @@ class CustomJSFilter(Filter):
         else:
             return cls(code=compiled.code, args=args)
 
-    args = Dict(String, Instance(Model), help="""
-    A mapping of names to Bokeh plot objects. These objects are made
-    available to the callback code snippet as the values of named
-    parameters to the callback.
+    args = Dict(String, AnyRef, help="""
+    A mapping of names to Python objects. In particular those can be bokeh's models.
+    These objects are made available to the callback's code snippet as the values of
+    named parameters to the callback.
     """)
 
     code = String(default="", help="""

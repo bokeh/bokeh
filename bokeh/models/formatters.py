@@ -9,7 +9,7 @@ from types import FunctionType
 from bokeh.util.string import format_docstring
 from ..core.enums import LatLon, NumeralLanguage, RoundingFunction
 from ..core.has_props import abstract
-from ..core.properties import Auto, Bool, Dict, Either, Enum, Instance, Int, List, String
+from ..core.properties import Auto, Bool, Dict, Either, Enum, Instance, Int, List, String, AnyRef
 from ..core.validation import error
 from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
 from ..model import Model
@@ -315,10 +315,10 @@ class FuncTickFormatter(TickFormatter):
         else:
             return cls(code=compiled.code, args=args)
 
-    args = Dict(String, Instance(Model), help="""
-    A mapping of names to Bokeh plot objects. These objects are made
-    available to the formatter code snippet as the values of named
-    parameters to the callback.
+    args = Dict(String, AnyRef, help="""
+    A mapping of names to Python objects. In particular those can be bokeh's models.
+    These objects are made available to the formatter's code snippet as the values of
+    named parameters to the callback.
     """)
 
     code = String(default="", help="""
