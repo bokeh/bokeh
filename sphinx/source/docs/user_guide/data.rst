@@ -297,6 +297,46 @@ use the ``from_coffeescript`` class method, which accepts the ``code`` parameter
     return indices
     ''')
 
+.. _userguide_data_ajax_data_source:
+
+AjaxDataSource
+--------------
+
+Bokeh server applications make it simple to update and stream data to data
+sources, but sometimes it is desirable to have similar functionality in
+standalone documents. The :class:`~bokeh.models.sources.AjaxDataSource`
+provides this cabability.
+
+The ``AjaxDataSource`` is configured with a URL to a REST endoint and a
+polling interval. In the browser, the data source will request data from the
+endpoint at the specified interval and update the data locally. Existing
+data may either be replaced entirely, or appened to (up to a configurable
+``max_size``). The endpoint that is supplied should return a JSON dict that
+matches the standard ``ColumnDataSource`` format:
+
+.. code-block:: python
+
+    {
+        'x' : [1, 2, 3, ...],
+        'y' : [9, 3, 2, ...]
+    }
+
+Otherwise, using an ``AjaxDataSource`` is identical to using a standard
+``ColumnDataSource``:
+
+.. code-block:: python
+
+    source = AjaxDataSource(data_url='http://some.api.com/data',
+                            polling_interval=100)
+
+    # Use just like a ColumnDataSource
+    p.circle('x', 'y', source=source)
+
+A full example (shown below) can be seen at
+:bokeh-tree:`examples/howto/ajax_source.py`
+
+.. image:: /_images/ajax_streaming.gif
+
 .. _userguide_data_linked_selection:
 
 Linked selection

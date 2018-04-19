@@ -32,7 +32,7 @@ export class AjaxDataSource extends RemoteDataSource {
     this.define({
       mode:         [ p.String, 'replace'          ],
       content_type: [ p.String, 'application/json' ],
-      http_headers: [ p.Any,    {}                 ], // TODO (bev)
+      http_headers: [ p.Any,    {}                 ],
       max_size:     [ p.Number                     ],
       method:       [ p.String, 'POST'             ], // TODO (bev)  enum?
       if_modified:  [ p.Bool,   false              ],
