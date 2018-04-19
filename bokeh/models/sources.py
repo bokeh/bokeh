@@ -11,7 +11,7 @@ from ..util.warnings import BokehUserWarning
 
 from .callbacks import Callback
 from .filters import Filter
-from .selections import Selection, SelectionPolicy
+from .selections import Selection, SelectionPolicy, UnionRenderers
 
 pd = import_optional('pandas')
 
@@ -21,7 +21,7 @@ class DataSource(Model):
 
     '''
 
-    selected = Instance(Selection, help="""
+    selected = Instance(Selection, default=lambda: Selection(), help="""
     A Selection that indicates selected indices on this DataSource.
     """)
 
@@ -36,7 +36,7 @@ class ColumnarDataSource(DataSource):
 
     '''
 
-    selection_policy = Instance(SelectionPolicy, help="""
+    selection_policy = Instance(SelectionPolicy, default=lambda: UnionRenderers(), help="""
     An instance of a SelectionPolicy that determines how selections are set.
     """)
 

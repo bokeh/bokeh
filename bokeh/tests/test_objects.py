@@ -46,9 +46,14 @@ def large_plot(n):
         plot.add_tools(*tools)
         col.children.append(plot)
         objects |= set([
-            source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid, renderer, renderer.view, glyph, plot.x_scale, plot.y_scale,
-            plot.toolbar, plot.title, box_zoom.overlay, box_select.overlay] +
-            tickers + tools)
+            xdr, ydr,
+            xaxis, yaxis,
+            xgrid, ygrid,
+            renderer, renderer.view, glyph,
+            source, source.selected, source.selection_policy,
+            plot, plot.x_scale, plot.y_scale, plot.toolbar, plot.title,
+            box_zoom.overlay, box_select.overlay,
+        ] + tickers + tools)
 
     return col, objects
 

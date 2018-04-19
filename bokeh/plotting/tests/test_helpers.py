@@ -171,26 +171,31 @@ _RANGES = [Range1d(), DataRange1d(), FactorRange()]
 class Test__get_axis_class(object):
 
     @pytest.mark.parametrize('range', _RANGES)
+    @pytest.mark.unit
     def test_axis_type_None(self, range):
         assert(_get_axis_class(None, range, 0)) == (None, {})
         assert(_get_axis_class(None, range, 1)) == (None, {})
 
     @pytest.mark.parametrize('range', _RANGES)
+    @pytest.mark.unit
     def test_axis_type_linear(self, range):
         assert(_get_axis_class("linear", range, 0)) == (LinearAxis, {})
         assert(_get_axis_class("linear", range, 1)) == (LinearAxis, {})
 
     @pytest.mark.parametrize('range', _RANGES)
+    @pytest.mark.unit
     def test_axis_type_log(self, range):
         assert(_get_axis_class("log", range, 0)) == (LogAxis, {})
         assert(_get_axis_class("log", range, 1)) == (LogAxis, {})
 
     @pytest.mark.parametrize('range', _RANGES)
+    @pytest.mark.unit
     def test_axis_type_datetime(self, range):
         assert(_get_axis_class("datetime", range, 0)) == (DatetimeAxis, {})
         assert(_get_axis_class("datetime", range, 1)) == (DatetimeAxis, {})
 
     @pytest.mark.parametrize('range', _RANGES)
+    @pytest.mark.unit
     def test_axis_type_mercator(self, range):
         assert(_get_axis_class("mercator", range, 0)) == (MercatorAxis, {'dimension': 'lon'})
         assert(_get_axis_class("mercator", range, 1)) == (MercatorAxis, {'dimension': 'lat'})
@@ -207,6 +212,7 @@ class Test__get_axis_class(object):
 
 
     @pytest.mark.parametrize('range', _RANGES)
+    @pytest.mark.unit
     def test_axis_type_error(self, range):
         with pytest.raises(ValueError):
             _get_axis_class("junk", range, 0)
@@ -293,8 +299,8 @@ _renderer_args_values = {
     'visible': [None, False, True],
     'muted': [None, False, True]
 }
-@pytest.mark.parametrize('arg,values', [(arg, _renderer_args_values[arg])
-                                        for arg in _RENDERER_ARGS])
+@pytest.mark.parametrize('arg,values', [(arg, _renderer_args_values[arg]) for arg in _RENDERER_ARGS])
+@pytest.mark.unit
 def test__glyph_receives_renderer_arg(arg, values):
     for value in values:
         with mock.patch('bokeh.plotting.helpers.GlyphRenderer', autospec=True) as gr_mock:

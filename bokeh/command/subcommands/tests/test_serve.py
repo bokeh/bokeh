@@ -179,11 +179,16 @@ def run_bokeh_serve(args):
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     try:
         yield p
-    except Exception:
+    except Exception as e:
         p.terminate()
         p.wait()
-        print("---- An error occurred, subprocess stdout follows ----")
-        print(p.stdout.read().decode())
+        print("An error occurred: %s", e)
+        try:
+            out = p.stdout.read().decode()
+            print("\n---- subprocess stdout follows ----\n")
+            print(out)
+        except Exception:
+            pass
         raise
     else:
         p.terminate()
