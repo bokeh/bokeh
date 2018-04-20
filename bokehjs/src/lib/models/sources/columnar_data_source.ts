@@ -17,6 +17,7 @@ import {SelectionPolicy, UnionRenderers} from "../selections/interaction_policy"
 export namespace ColumnarDataSource {
   export interface Attrs extends DataSource.Attrs {
     selection_policy: SelectionPolicy
+    inspection_policy: SelectionPolicy
     selection_manager: SelectionManager
     inspected: Selection
     _shapes: {[key: string]: Shape | Shape[]}
@@ -64,7 +65,8 @@ export abstract class ColumnarDataSource extends DataSource {
     this.prototype.type = 'ColumnarDataSource'
 
     this.define({
-      selection_policy: [ p.Instance, () => new UnionRenderers() ],
+      selection_policy:  [ p.Instance, () => new UnionRenderers() ],
+      inspection_policy: [ p.Instance, () => new UnionRenderers() ],
     })
 
     this.internal({

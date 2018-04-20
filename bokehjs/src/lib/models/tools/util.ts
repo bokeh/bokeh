@@ -29,3 +29,21 @@ export function compute_renderers(renderers: RendererSpec, all_renderers: Render
 
   return result
 }
+
+export function computed_renderers_by_data_source(computed_renderers: DataRenderer[]): {[key: string]: DataRenderer[]} {
+  const renderers_by_source: {[key: string]: DataRenderer[]} = {}
+  for (const r of computed_renderers) {
+    let source_id: string
+    if (r instanceof GraphRenderer)
+      source_id = (r as any).node_renderer.data_source.id
+    else
+      source_id = (r as any).data_source.id
+
+    if (!(source_id in renderers_by_source))
+      renderers_by_source[source_id] = []
+
+    renderers_by_source[source_id].push(r)
+  }
+
+  return renderers_by_source
+}

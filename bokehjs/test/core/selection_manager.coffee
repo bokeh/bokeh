@@ -60,7 +60,7 @@ describe "SelectionManager", ->
       @glyph_stub.returns(create_hit_test_result_from_hits([[1, 2]]))
       source = @renderer_view.model.data_source
 
-      did_hit = source.selection_manager.inspect(@renderer_view, "geometry")
+      did_hit = source.selection_manager.inspect([@renderer_view], "geometry")
       expect(did_hit).to.be.true
       expect(source.inspected.indices).to.be.deep.equal([1])
 
@@ -70,6 +70,6 @@ describe "SelectionManager", ->
       source.inspected.indices = [0, 1]
       expect(source.inspected.is_empty()).to.be.false
 
-      did_hit = source.selection_manager.inspect(@renderer_view, "geometry")
+      did_hit = source.selection_manager.inspect([@renderer_view], "geometry")
       expect(did_hit).to.be.false
       expect(source.inspected.is_empty()).to.be.true

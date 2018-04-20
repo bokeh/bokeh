@@ -3,7 +3,7 @@ import {Tooltip, TooltipView} from "../../annotations/tooltip"
 import {RendererView} from "../../renderers/renderer"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GraphRenderer} from "../../renderers/graph_renderer"
-import {compute_renderers, DataRenderer, RendererSpec} from "../util"
+import {compute_renderers, DataRenderer, RendererSpec, computed_renderers_by_data_source} from "../util"
 import * as hittest from "core/hittest"
 import {MoveEvent} from "core/ui_events"
 import {replace_placeholders} from "core/util/templating"
@@ -165,9 +165,18 @@ export class HoverToolView extends InspectToolView {
       geometry = {type: 'span', direction, sx, sy}
     }
 
-    for (const r of this.computed_renderers) {
-      const sm = r.get_selection_manager()
-      sm.inspect(this.plot_view.renderer_views[r.id], geometry)
+    const renderers_by_source = computed_renderers_by_data_source(this.computed_renderers)
+
+    for (const id in renderers_by_source) {
+      const renderers = renderers_by_source[id]
+      const sm = renderers[0].get_selection_manager()
+
+      const r_views = []
+      for (const r of renderers) {
+        if (r.id in this.plot_view.renderer_views)
+          r_views.push(this.plot_view.renderer_views[r.id])
+      }
+      sm.inspect(r_views, geometry)
     }
 
     if (this.model.callback != null)
