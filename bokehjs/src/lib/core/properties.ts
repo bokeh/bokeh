@@ -94,13 +94,11 @@ export class Property<T> extends Signalable() {
     if (!this.dataspec)
       throw new Error("attempted to retrieve property array for non-dataspec property")
 
-    const data = source.data
     let ret: any
 
     if (this.spec.field != null) {
-      if (this.spec.field in data)
-        ret = this.transform(source.get_column(this.spec.field))
-      else
+      ret = this.transform(source.get_column(this.spec.field))
+      if (ret == null)
         throw new Error(`attempted to retrieve property array for nonexistent field '${this.spec.field}'`)
     } else if (this.spec.expr != null) {
       ret = this.transform(this.spec.expr._v_compute(source))
