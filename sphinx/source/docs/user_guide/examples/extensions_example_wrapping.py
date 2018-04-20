@@ -82,7 +82,6 @@ export class Surface3dView extends LayoutDOMView
         x:     source.get_column(@model.x)[i]
         y:     source.get_column(@model.y)[i]
         z:     source.get_column(@model.z)[i]
-        style: source.get_column(@model.color)[i]
       })
     return data
 
@@ -108,7 +107,6 @@ export class Surface3d extends LayoutDOM
     x:           [ p.String           ]
     y:           [ p.String           ]
     z:           [ p.String           ]
-    color:       [ p.String           ]
     data_source: [ p.Instance         ]
   }
 """
@@ -136,17 +134,15 @@ class Surface3d(LayoutDOM):
     # server by Python code
     data_source = Instance(ColumnDataSource)
 
-    # The vis.js library that we are wrapping expects data for x, y, z, and
-    # color. The data will actually be stored in the ColumnDataSource, but
-    # these properties let us specify the *name* of the column that should
-    # be used for each field.
+    # The vis.js library that we are wrapping expects data for x, y, and z.
+    # The data will actually be stored in the ColumnDataSource, but these
+    # properties let us specify the *name* of the column that should be
+    # used for each field.
     x = String
 
     y = String
 
     z = String
-
-    color = String
 
 x = np.arange(0, 300, 10)
 y = np.arange(0, 300, 10)
@@ -155,8 +151,8 @@ xx = xx.ravel()
 yy = yy.ravel()
 value = np.sin(xx/50) * np.cos(yy/50) * 50 + 50
 
-source = ColumnDataSource(data=dict(x=xx, y=yy, z=value, color=value))
+source = ColumnDataSource(data=dict(x=xx, y=yy, z=value))
 
-surface = Surface3d(x="x", y="y", z="z", color="color", data_source=source, width=600, height=600)
+surface = Surface3d(x="x", y="y", z="z", data_source=source, width=600, height=600)
 
 show(surface)
