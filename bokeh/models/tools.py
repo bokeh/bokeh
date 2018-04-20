@@ -950,16 +950,22 @@ class PointDrawTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |point_draw_icon|
 
     The PointDrawTool allows adding, dragging and deleting point-like
-    glyphs (of ``XYGlyph`` type) on one or more renderers by editing
-    the underlying ``ColumnDataSource`` data. Like other drawing
-    tools, the renderers that are to be edited must be supplied
-    explicitly as a list. Any newly added points will be inserted on
-    the ``ColumnDataSource`` of the first supplied renderer.
+    glyphs (of ``XYGlyph`` type) on one or more renderers by editing the
+    underlying ``ColumnDataSource`` data. Like other drawing tools, the
+    renderers that are to be edited must be supplied explicitly as a list.
+    Any newly added points will be inserted on the ``ColumnDataSource`` of
+    the first supplied renderer.
 
     The tool will automatically modify the columns on the data source
-    corresponding to the ``x`` and ``y`` values of the glyph. Any
-    additional columns in the data source will be padded with the
-    declared ``empty_value``, when adding a new point.
+    corresponding to the ``x`` and ``y`` values of the glyph. Any additional
+    columns in the data source will be padded with the given ``empty_value``
+    when adding a new point.
+
+    .. note::
+        The data source updates will trigger data change events continuously
+        throughout the edit operations on the BokehJS side. In Bokeh server
+        apps, the data source will only be synced once, when the edit operation
+        finishes.
 
     The supported actions include:
 
