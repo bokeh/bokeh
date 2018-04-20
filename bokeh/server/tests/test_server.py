@@ -355,6 +355,7 @@ def test_use_xheaders():
     ("&resources=whatever", True),
     ("&resources=none", False),
 ])
+@pytest.mark.unit
 def test__resource_files_requested(querystring, requested):
     """
     Checks if the loading of resource files is requested by the autoload.js

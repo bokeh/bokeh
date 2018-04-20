@@ -69,7 +69,6 @@ export class Surface3dView extends LayoutDOMView
         x:     source.get_column(@model.x)[i]
         y:     source.get_column(@model.y)[i]
         z:     source.get_column(@model.z)[i]
-        style: source.get_column(@model.color)[i]
       })
     return data
 
@@ -95,7 +94,6 @@ export class Surface3d extends LayoutDOM
     x:           [ p.String           ]
     y:           [ p.String           ]
     z:           [ p.String           ]
-    color:       [ p.String           ]
     data_source: [ p.Instance         ]
     options :    [ p.Any,     OPTIONS ]
   }

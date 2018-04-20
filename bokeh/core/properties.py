@@ -534,7 +534,13 @@ class Any(Property):
             >>> m.prop = [1, 2, 3]
 
     '''
-    pass
+
+class AnyRef(Property):
+    ''' Accept all values and force reference discovery. '''
+
+    @property
+    def has_ref(self):
+        return True
 
 class Interval(ParameterizedProperty):
     ''' Accept numeric values that are contained within a given interval.

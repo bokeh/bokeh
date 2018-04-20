@@ -78,14 +78,6 @@ functionality.
 .. automodule:: bokeh.util.paths
   :members:
 
-.. _bokeh.util.platform:
-
-``bokeh.util.platform``
------------------------
-
-.. automodule:: bokeh.util.platform
-  :members:
-
 .. _bokeh.util.plot_utils:
 
 ``bokeh.util.plot_utils``

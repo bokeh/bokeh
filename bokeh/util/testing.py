@@ -25,6 +25,7 @@ def verify_all(module, ALL):
             assert mod.__all__ == ALL
 
         @pytest.mark.parametrize('name', ALL)
+        @pytest.mark.unit
         def test_contents(self, name):
             if isinstance(module, string_types):
                 mod = importlib.import_module(module)
@@ -116,11 +117,3 @@ def with_file_contents(contents, func, dir=None):
         func(f.name)
 
     with_temporary_file(with_file_object, dir=dir)
-
-def skipIfPy3(message):
-    ''' unittest decorator to skip a test for Python 3
-
-    '''
-    from unittest import skipIf
-    from .platform import is_py3
-    return skipIf(is_py3(), message)

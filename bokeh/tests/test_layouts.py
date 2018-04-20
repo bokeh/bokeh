@@ -81,6 +81,7 @@ def test_layout_nested():
 
 
 @pytest.mark.parametrize('sizing_mode', SizingMode)
+@pytest.mark.unit
 def test_layout_sizing_mode(sizing_mode):
     p1, p2, p3, p4 = figure(), figure(), figure(), figure()
 

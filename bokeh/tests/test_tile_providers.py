@@ -70,6 +70,7 @@ _STAMEN_LIC = {
 Test___all__ = verify_all(bt, ALL)
 
 @pytest.mark.parametrize('name', [ 'STAMEN_TERRAIN',  'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER', 'STAMEN_TONER_BACKGROUND', 'STAMEN_TONER_LABELS',])
+@pytest.mark.unit
 class Test_StamenProviders(object):
     def test_type(self, name):
         p = getattr(bt, name)
@@ -94,6 +95,7 @@ class Test_StamenProviders(object):
         assert p1 is not p2
 
 @pytest.mark.parametrize('name', ['CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA'])
+@pytest.mark.unit
 class Test_CartoProviders(object):
     def test_type(self, name):
         p = getattr(bt, name)

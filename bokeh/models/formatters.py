@@ -9,7 +9,7 @@ from types import FunctionType
 from bokeh.util.string import format_docstring
 from ..core.enums import LatLon, NumeralLanguage, RoundingFunction
 from ..core.has_props import abstract
-from ..core.properties import Auto, Bool, Dict, Either, Enum, Instance, Int, List, String
+from ..core.properties import Auto, Bool, Dict, Either, Enum, Instance, Int, List, String, AnyRef
 from ..core.validation import error
 from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
 from ..model import Model
@@ -253,7 +253,7 @@ class FuncTickFormatter(TickFormatter):
     @classmethod
     def from_py_func(cls, func):
         ''' Create a FuncTickFormatter instance from a Python function. The
-        function is translated to JavaScript using PyScript. The variable
+        function is translated to JavaScript using PScript. The variable
         ``tick`` will contain the unformatted tick value and can be expected to
         be present in the function namespace at render time.
 
@@ -273,9 +273,9 @@ class FuncTickFormatter(TickFormatter):
         '''
         if not isinstance(func, FunctionType):
             raise ValueError('CustomJS.from_py_func needs function object.')
-        pyscript = import_required('flexx.pyscript',
-                                   'To use Python functions for CustomJS, you need Flexx ' +
-                                   '("conda install -c conda-forge flexx" or "pip install flexx")')
+        pscript = import_required('pscript',
+                                  'To use Python functions for CustomJS, you need PScript ' +
+                                  '("conda install -c conda-forge pscript" or "pip install pscript")')
         sig = signature(func)
 
         all_names, default_values = get_param_info(sig)
@@ -290,7 +290,7 @@ class FuncTickFormatter(TickFormatter):
 
         # Wrap the code attr in a function named `formatter` and call it
         # with arguments that match the `args` attr
-        code = pyscript.py2js(func, 'formatter') + 'return formatter(%s);\n' % ', '.join(all_names)
+        code = pscript.py2js(func, 'formatter') + 'return formatter(%s);\n' % ', '.join(all_names)
 
         return cls(code=code, args=func_kwargs)
 
@@ -315,10 +315,10 @@ class FuncTickFormatter(TickFormatter):
         else:
             return cls(code=compiled.code, args=args)
 
-    args = Dict(String, Instance(Model), help="""
-    A mapping of names to Bokeh plot objects. These objects are made
-    available to the formatter code snippet as the values of named
-    parameters to the callback.
+    args = Dict(String, AnyRef, help="""
+    A mapping of names to Python objects. In particular those can be bokeh's models.
+    These objects are made available to the formatter's code snippet as the values of
+    named parameters to the callback.
     """)
 
     code = String(default="", help="""

@@ -44,17 +44,15 @@ class Surface3d(LayoutDOM):
     # server by Python code
     data_source = Instance(ColumnDataSource)
 
-    # The vis.js library that we are wrapping expects data for x, y, z, and
-    # color. The data will actually be stored in the ColumnDataSource, but
-    # these properties let us specify the *name* of the column that should
-    # be used for each field.
+    # The vis.js library that we are wrapping expects data for x, y, and z.
+    # The data will actually be stored in the ColumnDataSource, but these
+    # properties let us specify the *name* of the column that should be
+    # used for each field.
     x = String
 
     y = String
 
     z = String
-
-    color = String
 
     # Any of the available vis.js options for Graph3d can be set by changing
     # the contents of this dictionary.

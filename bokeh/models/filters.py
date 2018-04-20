@@ -4,7 +4,7 @@ import inspect
 from textwrap import dedent
 from types import FunctionType
 
-from ..core.properties import Bool, Dict, Either, Instance, Int, Seq, String
+from ..core.properties import Bool, Dict, Either, Int, Seq, String, AnyRef
 from ..model import Model
 from ..util.dependencies import import_required
 from ..util.compiler import nodejs_compile, CompilationError
@@ -87,7 +87,7 @@ class CustomJSFilter(Filter):
     @classmethod
     def from_py_func(cls, func):
         ''' Create a CustomJSFilter instance from a Python function. The
-        fucntion is translated to JavaScript using PyScript.
+        fucntion is translated to JavaScript using PScript.
 
         The ``func`` function namespace will contain the variable ``source``
         at render time. This will be the data source associated with the CDSView
@@ -96,11 +96,11 @@ class CustomJSFilter(Filter):
         if not isinstance(func, FunctionType):
             raise ValueError('CustomJSFilter.from_py_func only accepts function objects.')
 
-        pyscript = import_required(
-            'flexx.pyscript',
+        pscript = import_required(
+            'pscript',
             dedent("""\
-                To use Python functions for CustomJSFilter, you need Flexx
-                '("conda install -c conda-forge flexx" or "pip install flexx")""")
+                To use Python functions for CustomJSFilter, you need PScript
+                '("conda install -c conda-forge pscript" or "pip install pscript")""")
             )
 
         argspec = inspect.getargspec(func)
@@ -116,7 +116,7 @@ class CustomJSFilter(Filter):
             raise ValueError("Default value must be a plot object.")
 
         func_kwargs = dict(zip(default_names, default_values))
-        code = pyscript.py2js(func, 'filter') + 'return filter(%s);\n' % ', '.join(default_names)
+        code = pscript.py2js(func, 'filter') + 'return filter(%s);\n' % ', '.join(default_names)
 
         return cls(code=code, args=func_kwargs)
 
@@ -137,10 +137,10 @@ class CustomJSFilter(Filter):
         else:
             return cls(code=compiled.code, args=args)
 
-    args = Dict(String, Instance(Model), help="""
-    A mapping of names to Bokeh plot objects. These objects are made
-    available to the callback code snippet as the values of named
-    parameters to the callback.
+    args = Dict(String, AnyRef, help="""
+    A mapping of names to Python objects. In particular those can be bokeh's models.
+    These objects are made available to the callback's code snippet as the values of
+    named parameters to the callback.
     """)
 
     code = String(default="", help="""

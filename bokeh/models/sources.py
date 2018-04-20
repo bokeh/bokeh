@@ -11,7 +11,7 @@ from ..util.warnings import BokehUserWarning
 
 from .callbacks import Callback
 from .filters import Filter
-from .selections import Selection, SelectionPolicy
+from .selections import Selection, SelectionPolicy, UnionRenderers
 
 pd = import_optional('pandas')
 
@@ -21,7 +21,7 @@ class DataSource(Model):
 
     '''
 
-    selected = Instance(Selection, help="""
+    selected = Instance(Selection, default=lambda: Selection(), help="""
     A Selection that indicates selected indices on this DataSource.
     """)
 
@@ -36,11 +36,11 @@ class ColumnarDataSource(DataSource):
 
     '''
 
-    selection_policy = Instance(SelectionPolicy, help="""
+    selection_policy = Instance(SelectionPolicy, default=lambda: UnionRenderers(), help="""
     An instance of a SelectionPolicy that determines how selections are set.
     """)
 
-    inspection_policy = Instance(SelectionPolicy, help="""
+    inspection_policy = Instance(SelectionPolicy, default=lambda: UnionRenderers(), help="""
     An instance of a SelectionPolicy that determines how inspections are set.
     """)
 
@@ -642,37 +642,61 @@ class GeoJSONDataSource(ColumnarDataSource):
 
 @abstract
 class RemoteSource(ColumnDataSource):
-    '''
+    ''' Base class for remote column data sources that can update from data
+    URLs at prescribed time intervals.
+
+    .. note::
+        This base class is typically not useful to instantiate on its own.
 
     '''
 
     data_url = String(help="""
-    The URL to the endpoint for the data.
+    A URL to to fetch data from.
     """)
 
     polling_interval = Int(help="""
-    polling interval for updating data source in milliseconds
+    A polling interval (in milliseconds) for updating data source.
     """)
 
 class AjaxDataSource(RemoteSource):
-    '''
+    ''' A data source that can populate columns by making Ajax calls to REST
+    enpoints.
+
+    The ``AjaxDataSource`` can be especially useful if you want to make a
+    standalone document (i.e. not backed by the Bokeh server) that can still
+    dynamically update using an existing REST API.
+
+    The response from the REST API should match the ``.data`` proeprty of a
+    standard ``ColumnDataSource``, i.e. a JSON dict that maps names to arrays
+    of values:
+
+    .. code-block:: python
+
+        {
+            'x' : [1, 2, 3, ...],
+            'y' : [9, 3, 2, ...]
+        }
+
+    A full example can be seen at :bokeh-tree:`examples/howto/ajax_source.py`
 
     '''
 
-    method = Enum('POST', 'GET', help="http method - GET or POST")
+    method = Enum('POST', 'GET', help="""
+    Specifiy the the HTTP method to use for the Ajax request (GET or POST)
+    """)
 
     mode = Enum("replace", "append", help="""
-    Whether to append new data to existing data (up to ``max_size``),
-    or to replace existing data entirely.
+    Whether to append new data to existing data (up to ``max_size``), or to
+    replace existing data entirely.
     """)
 
     max_size = Int(help="""
-    Maximum size of the data array being kept after each pull requests.
-    Larger than that size, the data will be right shifted.
+    Maximum size of the data columns. If a new fetch would result in columns
+    larger than ``max_size``, then earlier data is dropped to make room.
     """)
 
     if_modified = Bool(False, help="""
-    Whether to include an ``If-Modified-Since`` header in AJAX requests
+    Whether to include an ``If-Modified-Since`` header in Ajax requests
     to the server. If this header is supported by the server, then only
     new data since the last request will be returned.
     """)
@@ -682,5 +706,12 @@ class AjaxDataSource(RemoteSource):
     """)
 
     http_headers = Dict(String, String, help="""
-    HTTP headers to set for the Ajax request.
+    Specify HTTP headers to set for the Ajax request.
+
+    Example:
+
+    .. code-block:: python
+
+        ajax_source.headers = { 'x-my-custom-header': 'some value' }
+
     """)

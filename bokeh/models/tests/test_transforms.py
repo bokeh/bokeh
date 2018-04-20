@@ -4,25 +4,25 @@ import pytest
 
 from bokeh.models import CustomJSTransform, Slider
 
-flexx = pytest.importorskip("flexx")
+pscript = pytest.importorskip("pscript")
 
 def test_customjstransform_from_py_func_no_args():
 
     def cosine():
-        from flexx.pyscript import window
+        from pscript import window
         return window.Math.cos(x) # noqa
 
     def v_cosine():
-        from flexx.pyscript import window
+        from pscript import window
         return [window.Math.cos(x) for x in xs] # noqa
 
     transform = CustomJSTransform.from_py_func(cosine, v_cosine)
 
-    js_code = flexx.pyscript.py2js(cosine, 'transformer')
+    js_code = pscript.py2js(cosine, 'transformer')
     function_wrapper = transform.func.replace(js_code, '')
     assert function_wrapper == "return transformer();\n"
 
-    v_js_code = flexx.pyscript.py2js(v_cosine, 'transformer')
+    v_js_code = pscript.py2js(v_cosine, 'transformer')
     v_function_wrapper = transform.v_func.replace(v_js_code, '')
     assert v_function_wrapper == "return transformer();\n"
 
@@ -31,22 +31,22 @@ def test_customjstransform_from_py_func_with_args():
     slider = Slider()
 
     def cosine(foo=slider):
-        from flexx.pyscript import window
+        from pscript import window
         return window.Math.cos(x) # noqa
 
     def v_cosine(foo=slider):
-        from flexx.pyscript import window
+        from pscript import window
         return [window.Math.cos(x) for x in xs] # noqa
 
     transform = CustomJSTransform.from_py_func(cosine, v_cosine)
 
     assert transform.args['foo'] is slider
 
-    js_code = flexx.pyscript.py2js(cosine, 'transformer')
+    js_code = pscript.py2js(cosine, 'transformer')
     function_wrapper = transform.func.replace(js_code, '')
     assert function_wrapper == "return transformer(foo);\n"
 
-    v_js_code = flexx.pyscript.py2js(v_cosine, 'transformer')
+    v_js_code = pscript.py2js(v_cosine, 'transformer')
     v_function_wrapper = transform.v_func.replace(v_js_code, '')
     assert v_function_wrapper == "return transformer(foo);\n"
 

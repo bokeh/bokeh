@@ -1,5 +1,6 @@
 import {ColumnDataSource} from "./column_data_source"
 import * as p from "core/properties"
+import {Arrayable} from "core/types"
 
 export namespace RemoteDataSource {
   export interface Attrs extends ColumnDataSource.Attrs {
@@ -18,6 +19,11 @@ export abstract class RemoteDataSource extends ColumnDataSource {
 
   constructor(attrs?: Partial<RemoteDataSource.Attrs>) {
     super(attrs)
+  }
+
+  get_column(colname: string): Arrayable {
+    const column = this.data[colname]
+    return column != null ? column : []
   }
 
   static initClass(): void {

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# disable set -e, just run to generate a report
+#set -e # exit on error
+
+set -x # echo commands
+
+pushd `python -c "import site; print(site.getsitepackages()[0])"`
+py.test distributed/bokeh
+popd
+
+exit 0

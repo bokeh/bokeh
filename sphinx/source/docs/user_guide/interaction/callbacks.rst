@@ -229,10 +229,10 @@ CustomJS with a Python function
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A CustomJS callback can also be implemented as a Python function, which
-is then translated to JavaScript using PyScript. This makes it easier
+is then translated to JavaScript using PScript. This makes it easier
 for users to define client-side interactions without having to learn
-JavaScript. To use this functionality you need the Flexx library
-(install with ``conda install -c conda-forge flexx`` or ``pip install flexx``).
+JavaScript. To use this functionality you need the PScript library
+(install with ``conda install -c conda-forge pscript`` or ``pip install pscript``).
 
 .. warning::
     It is critical to note that **no python code is ever executed when
@@ -243,7 +243,7 @@ JavaScript. To use this functionality you need the Flexx library
     and functions (e.g., BokehJS models).
 
 For more information about the subset of Python that is supported in
-callbacks, see the `PyScript documentation`_.
+callbacks, see the `PScript documentation`_.
 
 We recommend using ``window.x`` for variables specific to JavaScript
 to avoid confusion and help static code analysis tools. You can add
@@ -304,4 +304,4 @@ execute on every tap. If you would like to execute a callback on every
 mouse tap, please see :ref:`userguide_interaction_jscallbacks_customjs_interactions`.
 
 .. _CoffeeScript: http://coffeescript.org
-.. _PyScript documentation: http://flexx.readthedocs.org/en/stable/pyscript
+.. _PScript documentation: http://pscript.readthedocs.org

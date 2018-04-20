@@ -6,7 +6,7 @@ from __future__ import absolute_import
 from types import FunctionType
 
 from ..core.has_props import abstract
-from ..core.properties import Dict, Instance, String, Bool
+from ..core.properties import Dict, String, Bool, AnyRef
 from ..model import Model
 from ..util.dependencies import import_required
 from ..util.compiler import nodejs_compile, CompilationError
@@ -43,13 +43,13 @@ class CustomJS(Callback):
     @classmethod
     def from_py_func(cls, func):
         """ Create a CustomJS instance from a Python function. The
-        function is translated to JavaScript using PyScript.
+        function is translated to JavaScript using PScript.
         """
         if not isinstance(func, FunctionType):
             raise ValueError('CustomJS.from_py_func needs function object.')
-        pyscript = import_required('flexx.pyscript',
-                                   'To use Python functions for CustomJS, you need Flexx ' +
-                                   '("conda install -c conda-forge flexx" or "pip install flexx")')
+        pscript = import_required('pscript',
+                                  'To use Python functions for CustomJS, you need PScript ' +
+                                  '("conda install -c conda-forge pscript" or "pip install pscript")')
         # Collect default values
         default_values = func.__defaults__  # Python 2.6+
         default_names = func.__code__.co_varnames[:len(default_values)]
@@ -57,7 +57,7 @@ class CustomJS(Callback):
         args.pop('window', None)  # Clear window, so we use the global window object
         # Get JS code, we could rip out the function def, or just
         # call the function. We do the latter.
-        code = pyscript.py2js(func, 'cb') + 'cb(%s);\n' % ', '.join(default_names)
+        code = pscript.py2js(func, 'cb') + 'cb(%s);\n' % ', '.join(default_names)
         return cls(code=code, args=args)
 
     @classmethod
@@ -71,10 +71,10 @@ class CustomJS(Callback):
         else:
             return cls(code=compiled.code, args=args)
 
-    args = Dict(String, Instance(Model), help="""
-    A mapping of names to Bokeh plot objects. These objects are made
-    available to the callback code snippet as the values of named
-    parameters to the callback.
+    args = Dict(String, AnyRef, help="""
+    A mapping of names to Python objects. In particular those can be bokeh's models.
+    These objects are made available to the callback's code snippet as the values of
+    named parameters to the callback.
     """)
 
     code = String(default="", help="""
