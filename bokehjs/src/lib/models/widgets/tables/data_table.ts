@@ -119,13 +119,14 @@ export class DataTableView extends WidgetView {
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.render())
-    this.connect(this.model.source.properties.data.change, () => this.updateGrid())
     this.connect(this.model.source.streaming, () => this.updateGrid())
     this.connect(this.model.source.patching, () => this.updateGrid())
-    this.connect(this.model.source.change, () => this.updateSelection())
+    this.connect(this.model.source.change, () => this.updateGrid(true))
+    this.connect(this.model.source.properties.data.change, () => this.updateGrid())
+    this.connect(this.model.source.selected.change, () => this.updateSelection())
   }
 
-  updateGrid(): void {
+  updateGrid(from_source_change=false): void {
     // TODO (bev) This is to enure that CDSView indices are properly computed
     // before passing to the DataProvider. This will result in extra calls to
     // compute_indices. This "over execution" will be addressed in a more
@@ -136,9 +137,11 @@ export class DataTableView extends WidgetView {
     this.grid.invalidate()
     this.grid.render()
 
-    // This is only needed to call @_tell_document_about_change()
-    this.model.source.data = this.model.source.data
-    this.model.source.change.emit()
+    if (!from_source_change) {
+      // This is only needed to call @_tell_document_about_change()
+      this.model.source.data = this.model.source.data
+      this.model.source.change.emit()
+    }
   }
 
   updateSelection(): void {

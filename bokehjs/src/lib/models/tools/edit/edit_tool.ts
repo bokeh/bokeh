@@ -75,7 +75,8 @@ export abstract class EditToolView extends GestureToolView {
       }
     }
     for (const renderer of renderers) {
-      renderer.data_source.change.emit();
+      renderer.data_source.change.emit()
+      renderer.data_source.properties.data.change.emit()
     }
     this._basepoint = [ev.sx, ev.sy];
   }
