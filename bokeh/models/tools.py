@@ -373,7 +373,7 @@ DEFAULT_BOX_OVERLAY = lambda: BoxAnnotation(
     line_color="black",
     line_alpha=1.0,
     line_width=2,
-    line_dash=[4, 4]
+    line_dash=[4, 4],
 )
 
 class BoxZoomTool(Drag):
@@ -411,6 +411,11 @@ class BoxZoomTool(Drag):
         If the tool is restricted to one dimension, this value has
         no effect.
 
+    """)
+
+    origin = Enum("corner", "center", default="corner", help="""
+    Indicates whether the rectangular zoom area should originate from a corner
+    (top-left or bottom-right depending on direction) or the center of the box.
     """)
 
 class ZoomInTool(Action):
@@ -508,6 +513,11 @@ class BoxSelectTool(Drag):
 
     overlay = Instance(BoxAnnotation, default=DEFAULT_BOX_OVERLAY, help="""
     A shaded annotation drawn to indicate the selection region.
+    """)
+
+    origin = Enum("corner", "center", default="corner", help="""
+    Indicates whether the rectangular selection area should originate from a corner
+    (top-left or bottom-right depending on direction) or the center of the box.
     """)
 
 DEFAULT_POLY_OVERLAY = lambda: PolyAnnotation(
