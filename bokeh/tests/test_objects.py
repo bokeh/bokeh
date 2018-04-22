@@ -50,7 +50,7 @@ def large_plot(n):
             xaxis, yaxis,
             xgrid, ygrid,
             renderer, renderer.view, glyph,
-            source, source.selected, source.selection_policy, source.inspection_policy,
+            source, source.selected, source.selection_policy,
             plot, plot.x_scale, plot.y_scale, plot.toolbar, plot.title,
             box_zoom.overlay, box_select.overlay,
         ] + tickers + tools)

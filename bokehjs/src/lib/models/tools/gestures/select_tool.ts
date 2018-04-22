@@ -1,5 +1,6 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
-import {compute_renderers, DataRenderer, RendererSpec, computed_renderers_by_data_source} from "../util"
+import {GraphRenderer} from "../../renderers/graph_renderer"
+import {compute_renderers, DataRenderer, RendererSpec} from "../util"
 import * as p from "core/properties"
 import {extend} from "core/util/object"
 import {KeyEvent} from "core/ui_events"
@@ -17,6 +18,25 @@ export abstract class SelectToolView extends GestureToolView {
     return compute_renderers(renderers, all_renderers, names)
   }
 
+  _computed_renderers_by_data_source(): {[key: string]: DataRenderer[]} {
+    const renderers_by_source: {[key: string]: DataRenderer[]} = {}
+    for (const r of this.computed_renderers) {
+      let source_id: string
+      // XXX: needs typings for renderers
+      if (r instanceof GraphRenderer)
+        source_id = (r as any).node_renderer.data_source.id
+      else
+        source_id = (r as any).data_source.id
+
+      if (!(source_id in renderers_by_source))
+        renderers_by_source[source_id] = []
+
+      renderers_by_source[source_id].push(r)
+    }
+
+    return renderers_by_source
+  }
+
   _keyup(ev: KeyEvent): void {
     if (ev.keyCode == Keys.Esc) {
       for (const r of this.computed_renderers) {
@@ -29,7 +49,7 @@ export abstract class SelectToolView extends GestureToolView {
   }
 
   _select(geometry: Geometry, final: boolean, append: boolean): void {
-    const renderers_by_source = computed_renderers_by_data_source(this.computed_renderers)
+    const renderers_by_source = this._computed_renderers_by_data_source()
 
     for (const id in renderers_by_source) {
       const renderers = renderers_by_source[id]
