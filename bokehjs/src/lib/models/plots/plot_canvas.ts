@@ -852,10 +852,10 @@ export class PlotCanvasView extends DOMView {
     }
     ctx.restore()
 
-    this._paint_levels(ctx, ['image', 'underlay', 'glyph'], frame_box)
+    this._paint_levels(ctx, ['image', 'underlay', 'glyph'], frame_box, true)
     this.blit_webgl(ratio)
-    this._paint_levels(ctx, ['annotation'], frame_box)
-    this._paint_levels(ctx, ['overlay'])
+    this._paint_levels(ctx, ['annotation'], frame_box, true)
+    this._paint_levels(ctx, ['overlay'], frame_box, false)
 
     if (this._initial_state_info.range == null)
       this.set_initial_range()
@@ -868,10 +868,10 @@ export class PlotCanvasView extends DOMView {
     }
   }
 
-  protected _paint_levels(ctx: Context2d, levels: string[], clip_region?: FrameBox): void {
+  protected _paint_levels(ctx: Context2d, levels: string[], clip_region: FrameBox, global_clip: boolean): void {
     ctx.save()
 
-    if (clip_region != null) {
+    if (global_clip) {
       ctx.beginPath()
       ctx.rect.apply(ctx, clip_region)
       ctx.clip()
@@ -889,7 +889,18 @@ export class PlotCanvasView extends DOMView {
       const renderer_views = sortBy(values(this.levels[level]), sortKey)
 
       for (const renderer_view of renderer_views) {
+        if (!global_clip && renderer_view.needs_clip) {
+          ctx.save()
+          ctx.beginPath()
+          ctx.rect.apply(ctx, clip_region)
+          ctx.clip()
+        }
+
         renderer_view.render()
+
+        if (!global_clip && renderer_view.needs_clip) {
+          ctx.restore()
+        }
       }
     }
 

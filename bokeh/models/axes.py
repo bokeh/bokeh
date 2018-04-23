@@ -146,6 +146,16 @@ class Axis(GuideRenderer):
     main plot area.
     """)
 
+    fixed_location = Either(String, Float, help="""
+    Set to specify a fixed coordinate location to draw the axis. The direction
+    of ticks and major labels is determined by the side panel that the axis
+    belongs to.
+
+    .. note::
+        Axes labels are suppressed when axes are positioned at fixed locations
+        inside the central plot area.
+    """)
+
 @abstract
 class ContinuousAxis(Axis):
     ''' A base class for all numeric, non-categorical axes types.

@@ -70,7 +70,14 @@ export class AxisView extends GuideRendererView {
   }
 
   protected _get_size(): number {
+    if (this.model.fixed_location != null) {
+      return 0
+    }
     return this._tick_extent() + this._tick_label_extent() + this._axis_label_extent()
+  }
+
+  get needs_clip() : boolean {
+    return this.model.fixed_location != null
   }
 
   // drawing sub functions -----------------------------------------------------
@@ -123,7 +130,7 @@ export class AxisView extends GuideRendererView {
   }
 
   protected _draw_axis_label(ctx: Context2d, extents: Extents, _tick_coords: TickCoords): void {
-    if (this.model.axis_label == null || this.model.axis_label.length == 0)
+    if (this.model.axis_label == null || this.model.axis_label.length == 0 || this.model.fixed_location != null)
       return
 
     let sx: number
@@ -380,6 +387,7 @@ export namespace Axis {
     major_tick_out: number
     minor_tick_in: number
     minor_tick_out: number
+    fixed_location: any
   }
 
   export interface Props extends GuideRenderer.Props {}
@@ -432,6 +440,7 @@ export class Axis extends GuideRenderer {
       major_tick_out:          [ p.Number,   6            ],
       minor_tick_in:           [ p.Number,   0            ],
       minor_tick_out:          [ p.Number,   4            ],
+      fixed_location:          [ p.Any,      null         ],
     })
 
     this.override({
@@ -594,6 +603,10 @@ export class Axis extends GuideRenderer {
   }
 
   get loc(): number {
+    if (this.fixed_location != null) {
+      return this.fixed_location
+    }
+
     const [, cross_range] = this.ranges
 
     switch (this.panel.side) {
