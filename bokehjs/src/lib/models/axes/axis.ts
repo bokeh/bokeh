@@ -11,7 +11,8 @@ import {Text, Line} from "core/visuals"
 import {SidePanel, Orient} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
 import {sum} from "core/util/array"
-import {isString, isArray} from "core/util/types"
+import {isString, isArray, isNumber} from "core/util/types"
+import {Factor, FactorRange} from "models/ranges/factor_range"
 
 const {abs, min, max} = Math
 
@@ -387,7 +388,7 @@ export namespace Axis {
     major_tick_out: number
     minor_tick_in: number
     minor_tick_out: number
-    fixed_location: any
+    fixed_location: number | Factor | null
   }
 
   export interface Props extends GuideRenderer.Props {}
@@ -604,7 +605,15 @@ export class Axis extends GuideRenderer {
 
   get loc(): number {
     if (this.fixed_location != null) {
-      return this.fixed_location
+      if (isNumber(this.fixed_location)) {
+        return this.fixed_location
+      }
+      const [, cross_range] = this.ranges
+      if (cross_range instanceof FactorRange) {
+        return cross_range.synthetic(this.fixed_location)
+      }
+      throw new Error("unexpected")
+
     }
 
     const [, cross_range] = this.ranges
