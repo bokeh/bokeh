@@ -35,6 +35,10 @@ export abstract class RendererView extends DOMView {
   }
 
   bbox?(): BBox
+
+  get needs_clip(): boolean {
+    return false
+  }
 }
 
 export namespace Renderer {
