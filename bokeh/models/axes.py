@@ -146,7 +146,7 @@ class Axis(GuideRenderer):
     main plot area.
     """)
 
-    fixed_location = Either(Float, String, Tuple(String, String), Tuple(String, String, String), help="""
+    fixed_location = Either(Float, String, Tuple(String, String), Tuple(String, String, String), default=None, help="""
     Set to specify a fixed coordinate location to draw the axis. The direction
     of ticks and major labels is determined by the side panel that the axis
     belongs to.
