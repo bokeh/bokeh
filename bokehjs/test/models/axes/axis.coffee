@@ -8,8 +8,10 @@ sinon = require 'sinon'
 {Plot} = utils.require("models/plots/plot")
 {PlotCanvas} = utils.require("models/plots/plot_canvas")
 {PlotView} = utils.require("models/plots/plot")
+{FactorRange} = utils.require("models/ranges/factor_range")
 {Range1d} = utils.require("models/ranges/range1d")
 {SidePanel} = utils.require("core/layout/side_panel")
+{CategoricalScale} = utils.require("models/scales/categorical_scale")
 {Toolbar} = utils.require("models/tools/toolbar")
 {Document} = utils.require "document"
 
@@ -31,6 +33,43 @@ describe "Axis", ->
       major_label_overrides: {0: "zero", 4: "four", 10: "ten"}
     })
     expect(axis.compute_labels([0,2,4.0,6,8,10])).to.be.deep.equal ["zero", "2", "four", "6", "8", "ten"]
+
+  it "loc should return numeric fixed_location", ->
+    doc = new Document()
+    p = new Plot({
+      x_range: new Range1d({start: 0, end: 10})
+      y_range: new Range1d({start: 0, end: 10})
+    })
+    doc.add_root(p)
+    ticker = new BasicTicker()
+    formatter = new BasicTickFormatter()
+    axis = new Axis({
+      ticker: ticker
+      formatter: formatter
+      plot: p
+      fixed_location: 10
+    })
+    expect(axis.loc).to.equal 10
+
+  it "loc should return synthetic for categorical fixed_location", ->
+    doc = new Document()
+    p = new Plot({
+      x_range: new FactorRange({factors: ["foo", "bar"]})
+      x_scale: new CategoricalScale()
+      y_range: new Range1d({start: 0, end: 10})
+    })
+    doc.add_root(p)
+    ticker = new BasicTicker()
+    formatter = new BasicTickFormatter()
+    axis = new Axis({
+      ticker: ticker
+      formatter: formatter
+      plot: p
+      fixed_location: "foo"
+    })
+    axis.attach_document(p.document)
+    axis.add_panel('left')
+    expect(axis.loc).to.equal 0.5
 
   it "should have a SidePanel after add_panel is called", ->
     doc = new Document()
@@ -102,6 +141,13 @@ describe "AxisView", ->
       plot_view: plot_canvas_view
       parent: plot_canvas_view
     })
+
+  it "needs_clip should return the false when fixed_location null", ->
+    expect(@axis_view.needs_clip).to.be.equal false
+
+  it "needs_clip should return the false when fixed_location null", ->
+    @axis.fixed_location = 10
+    expect(@axis_view.needs_clip).to.be.equal true
 
   it "_tick_extent should return the major_tick_out property", ->
     expect(@axis_view._tick_extent()).to.be.equal @axis.major_tick_out
