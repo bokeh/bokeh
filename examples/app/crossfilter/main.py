@@ -45,7 +45,7 @@ def create_figure():
         if len(set(df[size.value])) > len(SIZES):
             groups = pd.qcut(df[size.value].values, len(SIZES), duplicates='drop')
         else:
-            groups = pd.Categorical(df[size.value])    
+            groups = pd.Categorical(df[size.value])
         sz = [SIZES[xx] for xx in groups.codes]
 
     c = "#31AADE"
