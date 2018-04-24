@@ -19,7 +19,6 @@ del df['name']
 columns = sorted(df.columns)
 discrete = [x for x in columns if df[x].dtype == object]
 continuous = [x for x in columns if x not in discrete]
-quantileable = [x for x in continuous if len(df[x].unique()) > 20]
 
 def create_figure():
     xs = df[x.value].values
@@ -43,13 +42,20 @@ def create_figure():
 
     sz = 9
     if size.value != 'None':
-        groups = pd.qcut(df[size.value].values, len(SIZES))
+        if len(set(df[size.value])) > len(SIZES):
+            groups = pd.qcut(df[size.value].values, len(SIZES), duplicates='drop')
+        else:
+            groups = pd.Categorical(df[size.value])    
         sz = [SIZES[xx] for xx in groups.codes]
 
     c = "#31AADE"
     if color.value != 'None':
-        groups = pd.qcut(df[color.value].values, len(COLORS))
+        if len(set(df[color.value])) > len(SIZES):
+            groups = pd.qcut(df[color.value].values, len(COLORS), duplicates='drop')
+        else:
+            groups = pd.Categorical(df[color.value])
         c = [COLORS[xx] for xx in groups.codes]
+
     p.circle(x=xs, y=ys, color=c, size=sz, line_color="white", alpha=0.6, hover_color='white', hover_alpha=0.5)
 
     return p
@@ -65,10 +71,10 @@ x.on_change('value', update)
 y = Select(title='Y-Axis', value='hp', options=columns)
 y.on_change('value', update)
 
-size = Select(title='Size', value='None', options=['None'] + quantileable)
+size = Select(title='Size', value='None', options=['None'] + continuous)
 size.on_change('value', update)
 
-color = Select(title='Color', value='None', options=['None'] + quantileable)
+color = Select(title='Color', value='None', options=['None'] + continuous)
 color.on_change('value', update)
 
 controls = widgetbox([x, y, color, size], width=200)
