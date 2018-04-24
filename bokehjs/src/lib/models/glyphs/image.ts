@@ -7,7 +7,7 @@ import * as p from "core/properties"
 import {max, concat} from "core/util/array"
 import {Context2d} from "core/util/canvas"
 import {Rect} from "core/util/spatial"
-import {RBush} from "core/util/spatial"
+import {SpatialIndex} from "core/util/spatial"
 import * as hittest from "core/hittest";
 import {Selection} from "../selections/selection";
 
@@ -52,7 +52,7 @@ export class ImageView extends XYGlyphView {
     }
   }
 
-  _index_data(): RBush {
+  _index_data(): SpatialIndex {
     const points = [];
     for (let i = 0, end = this._x.length; i < end; i++) {
       const [l, r, t, b] = this._lrtb(i);
@@ -61,7 +61,7 @@ export class ImageView extends XYGlyphView {
       }
       points.push({minX: l, minY: b, maxX: r, maxY: t, i});
     }
-    return new RBush(points);
+    return new SpatialIndex(points);
   }
 
   _lrtb(i: any) {
