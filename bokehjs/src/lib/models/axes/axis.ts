@@ -77,7 +77,7 @@ export class AxisView extends GuideRendererView {
     return this._tick_extent() + this._tick_label_extent() + this._axis_label_extent()
   }
 
-  get needs_clip() : boolean {
+  get needs_clip(): boolean {
     return this.model.fixed_location != null
   }
 
