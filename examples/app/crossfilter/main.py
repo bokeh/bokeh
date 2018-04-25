@@ -10,6 +10,8 @@ df = df.copy()
 
 SIZES = list(range(6, 22, 3))
 COLORS = Spectral5
+N_SIZES = len(SIZES)
+N_COLORS = len(COLORS)
 
 # data cleanup
 df.cyl = df.cyl.astype(str)
@@ -42,16 +44,16 @@ def create_figure():
 
     sz = 9
     if size.value != 'None':
-        if len(set(df[size.value])) > len(SIZES):
-            groups = pd.qcut(df[size.value].values, len(SIZES), duplicates='drop')
+        if len(set(df[size.value])) > N_SIZES:
+            groups = pd.qcut(df[size.value].values, N_SIZES, duplicates='drop')
         else:
             groups = pd.Categorical(df[size.value])
         sz = [SIZES[xx] for xx in groups.codes]
 
     c = "#31AADE"
     if color.value != 'None':
-        if len(set(df[color.value])) > len(SIZES):
-            groups = pd.qcut(df[color.value].values, len(COLORS), duplicates='drop')
+        if len(set(df[color.value])) > N_SIZES:
+            groups = pd.qcut(df[color.value].values, N_COLORS, duplicates='drop')
         else:
             groups = pd.Categorical(df[color.value])
         c = [COLORS[xx] for xx in groups.codes]
