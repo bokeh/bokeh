@@ -72,7 +72,8 @@ export class ImageView extends XYGlyphView {
     return [l, r, t, b]
   }
 
-  _image_index(index : number, x: number, y : number) : [number, number, number, number] {
+
+  _image_index(index : number, x: number, y : number) : any {
     const [l,r,t,b] = this._lrtb(index);
     const width = this._width[index]
     const height = this._height[index]
@@ -80,7 +81,7 @@ export class ImageView extends XYGlyphView {
     const dy = (t - b) / height;
     const dim1 = Math.floor((x-l) / dx)
     const dim2 = Math.floor((y-b) / dy)
-    return [index, dim1,  dim2, (dim2 * width) + dim1]
+    return {index:index, dim1:dim1, dim2:dim2, flat_index :((dim2 * width) + dim1)}
   }
 
   _hit_point(geometry: PointGeometry) : Selection {
