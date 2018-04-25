@@ -39,7 +39,7 @@ export function replace_placeholders(str: string, data_source: ColumnarDataSourc
       value = special_vars[name.substring(1)]
     else {
       const column = data_source.get_column(name)
-      let [ind, dim1, dim2, linind] = Array.isArray(i) ? i : [i, null, null, null]
+      const [ind, dim1, dim2, linind] = Array.isArray(i) ? i : [i, null, null, null]
       if ((data_source._shapes[name] != undefined) && (column != null)) {
         if (ArrayBuffer.isView(column[ind])) { // Typed arrays use the linear index
           value = column[ind][linind]

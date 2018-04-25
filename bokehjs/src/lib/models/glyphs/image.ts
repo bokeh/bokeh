@@ -73,18 +73,18 @@ export class ImageView extends XYGlyphView {
   }
 
   _image_index(index : any, x: any, y : any) {
-    let [l,r,t,b] = this._lrtb(index);
-    let width = this._width[index]
-    let height = this._height[index]
-    let dx = (r - l) / width;
-    let dy = (t - b) / height;
-    let dim1 = Math.floor((x-l) / dx)
-    let dim2 = Math.floor((y-b) / dy)
+    const [l,r,t,b] = this._lrtb(index);
+    const width = this._width[index]
+    const height = this._height[index]
+    const dx = (r - l) / width;
+    const dy = (t - b) / height;
+    const dim1 = Math.floor((x-l) / dx)
+    const dim2 = Math.floor((y-b) / dy)
     return [index, dim1,  dim2, (dim2 * width) + dim1]
   }
 
   _hit_point(geometry: any) : Selection {
-    let {sx, sy} = geometry;
+    const {sx, sy} = geometry;
     const x = this.renderer.xscale.invert(sx);
     const y = this.renderer.yscale.invert(sy);
     const bbox = hittest.validate_bbox_coords([x, x], [y, y]);
@@ -92,7 +92,7 @@ export class ImageView extends XYGlyphView {
     const result = hittest.create_empty_hit_test_result()
 
     result['im2d']['indices'] = []
-    for (let index of candidates) {
+    for (const index of candidates) {
       if ((sx != Infinity) && (sy != Infinity)) {
         result['im2d']['indices'].push(this._image_index(index, x,y))
       }
