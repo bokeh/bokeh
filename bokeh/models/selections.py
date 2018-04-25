@@ -20,6 +20,9 @@ class Selection(Model):
     line_indices = Seq(Int, default=[], help="""
     """)
 
+    image_indices = Seq(Int, default=[], help="""
+    """)
+
     multiline_indices = Dict(String, Seq(Int), default={}, help="""
     """)
 
