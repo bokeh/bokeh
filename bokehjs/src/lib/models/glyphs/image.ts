@@ -73,7 +73,7 @@ export class ImageView extends XYGlyphView {
   }
 
 
-  _image_index(index : number, x: number, y : number) : any {
+  _image_index(index : number, x: number, y : number) : {[key: string]: number} {
     const [l,r,t,b] = this._lrtb(index);
     const width = this._width[index]
     const height = this._height[index]
