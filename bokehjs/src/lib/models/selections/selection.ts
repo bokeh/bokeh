@@ -40,7 +40,7 @@ export class Selection extends Model {
     this.define({
       indices:           [ p.Array,   [] ],
       line_indices:      [ p.Array,   [] ],
-      image_indices:     [ p.Any,   [] ],
+      image_indices:     [ p.Array,   [] ],
       multiline_indices: [ p.Any,     {} ],
     });
 
