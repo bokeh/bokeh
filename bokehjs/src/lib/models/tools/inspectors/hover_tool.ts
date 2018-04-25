@@ -11,11 +11,12 @@ import {div, span} from "core/dom"
 import * as p from "core/properties"
 import {color2hex} from "core/util/color"
 import {values, isEmpty, extend} from "core/util/object"
-import {isString, isFunction} from "core/util/types"
+import {isString, isFunction, isNumber} from "core/util/types"
 import {build_views, remove_views} from "core/build_views"
 import {Anchor, TooltipAttachment} from "core/enums"
 import {Geometry, PointGeometry, SpanGeometry} from "core/geometry"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
+import {ImageIndex} from "../../glyphs/image"
 
 export function _nearest_line_hit(i: number, geometry: Geometry,
     sx: number, sy: number, dx: number[], dy: number[]): [[number, number], number] {
@@ -344,7 +345,7 @@ export class HoverToolView extends InspectToolView {
     }
   }
 
-  _render_tooltips(ds: ColumnarDataSource, i: any, vars: any): HTMLElement {
+  _render_tooltips(ds: ColumnarDataSource, i: number | ImageIndex, vars: any): HTMLElement {
     const tooltips = this.model.tooltips
     if (isString(tooltips)) {
       const el = div()
@@ -377,7 +378,7 @@ export class HoverToolView extends InspectToolView {
           }
           const hex = opts.indexOf("hex") >= 0
           const swatch = opts.indexOf("swatch") >= 0
-          let color = column[i]
+          let color = isNumber(i) ? column[i] : null
           if (color == null) {
             const el = span({}, "(null)")
             cell.appendChild(el)
