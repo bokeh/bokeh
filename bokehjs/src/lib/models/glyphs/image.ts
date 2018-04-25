@@ -64,7 +64,7 @@ export class ImageView extends XYGlyphView {
     return new SpatialIndex(points);
   }
 
-  _lrtb(i: any) {
+  _lrtb(i: any) : any{
     const l = this._x[i]
     const r = l + this._dw[i]
     const b = this._y[i]
@@ -72,7 +72,7 @@ export class ImageView extends XYGlyphView {
     return [l, r, t, b]
   }
 
-  _image_index(index : any, x: any, y : any) {
+  _image_index(index : any, x: any, y : any) : any {
     const [l,r,t,b] = this._lrtb(index);
     const width = this._width[index]
     const height = this._height[index]
