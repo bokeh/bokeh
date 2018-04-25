@@ -6,6 +6,8 @@ import {escape} from "./string"
 import {isNumber} from "./types"
 
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
+import {ImageIndex} from "../../models/glyphs/image"
+
 
 function _format_number(num: string | number): string {
   if (isNumber(num)) {
@@ -26,7 +28,7 @@ function _format_number(num: string | number): string {
 }
 
 
-export function replace_placeholders(str: string, data_source: ColumnarDataSource, i : any,
+export function replace_placeholders(str: string, data_source: ColumnarDataSource, i : number | ImageIndex,
     formatters: {[key: string]: "numeral" | "printf" | "datetime"} | null = null, special_vars: {[key: string]: any} = {}): string {
 
   str = str.replace(/(^|[^\$])\$(\w+)/g, (_match, prefix, name) => `${prefix}@$${name}`)
@@ -34,22 +36,23 @@ export function replace_placeholders(str: string, data_source: ColumnarDataSourc
   str = str.replace(/(^|[^@])@(?:(\$?\w+)|{([^{}]+)})(?:{([^{}]+)})?/g, (_match, prefix, name, long_name, format) => {
     name = long_name != null ? long_name : name
 
+    let j = isNumber(i) ? {index:i, dim1:0, dim2:0, flat_index:0} : i
+
     let value: any
     if (name[0] == "$")
       value = special_vars[name.substring(1)]
     else {
       const column = data_source.get_column(name)
       if ((data_source._shapes[name] != undefined) && (column != null)) {
-        let {index, dim1, dim2, flat_index} = i
-        if (ArrayBuffer.isView(column[index])) { // Typed arrays use the linear index
-          value = column[index][flat_index]
+        if (ArrayBuffer.isView(column[j['index']])) { // Typed arrays use the linear index
+          value = column[j['index']][j['flat_index']]
         }
         else {
-          value = column[index][dim2][dim1]
+          value = column[j['index']][j['dim2']][j['dim1']]
         }
       }
       else if (column != null) {
-        value = column[i]
+        value = column[j['index']]
       }
     }
 
