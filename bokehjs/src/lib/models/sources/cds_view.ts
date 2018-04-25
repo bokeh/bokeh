@@ -100,7 +100,7 @@ export class CDSView extends Model {
     selection_full.update_through_union(selection_subset)
     const indices_1d = (selection_subset.indices.map((i) => this.indices[i]))
     selection_full.indices = indices_1d
-    selection_full['im2d']['indices'] = selection_subset['im2d']['indices']
+    selection_full.image_indices = selection_subset.image_indices
     return selection_full
   }
 
@@ -109,7 +109,7 @@ export class CDSView extends Model {
     selection_subset.update_through_union(selection_full)
     const indices_1d = (selection_full.indices.map((i) => this.indices_map[i]))
     selection_subset.indices = indices_1d
-    selection_subset['im2d']['indices'] = selection_full['im2d']['indices']
+    selection_subset.image_indices = selection_full.image_indices
     return selection_subset
   }
 

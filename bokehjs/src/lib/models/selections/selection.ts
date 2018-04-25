@@ -40,6 +40,7 @@ export class Selection extends Model {
     this.define({
       indices:           [ p.Array,   [] ],
       line_indices:      [ p.Array,   [] ],
+      image_indices:      [ p.Array,   [] ],
       multiline_indices: [ p.Any,     {} ],
     });
 
@@ -59,7 +60,6 @@ export class Selection extends Model {
                   'get_view': () => null}
     this['2d'] = {'indices': {}}
     this['1d'] = {'indices': this.indices}
-    this['im2d'] = {'indices': []}
 
     this.get_view = () => null
 
@@ -101,7 +101,7 @@ export class Selection extends Model {
       this.selected_glyphs = selection.selected_glyphs
       this.get_view = selection.get_view
       this.multiline_indices = selection.multiline_indices
-      this['im2d']['indices'] = selection['im2d']['indices']
+      this.image_indices = selection.image_indices
     }
   }
 
@@ -115,7 +115,7 @@ export class Selection extends Model {
   }
 
   is_empty (): boolean {
-    return this.indices.length == 0 && this.line_indices.length == 0 && this['im2d']['indices'] == 0
+    return this.indices.length == 0 && this.line_indices.length == 0 && this.image_indices.length == 0
   }
 
   update_through_union(other: Selection): void {

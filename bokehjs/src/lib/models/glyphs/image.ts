@@ -91,10 +91,10 @@ export class ImageView extends XYGlyphView {
     const candidates = this.index.indices(bbox);
     const result = hittest.create_empty_hit_test_result()
 
-    result['im2d']['indices'] = []
+    result.image_indices = []
     for (const index of candidates) {
       if ((sx != Infinity) && (sy != Infinity)) {
-        result['im2d']['indices'].push(this._image_index(index, x,y))
+        result.image_indices.push(this._image_index(index, x,y))
       }
     }
     return result;
