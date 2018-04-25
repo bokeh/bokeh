@@ -10,7 +10,7 @@ import {Rect} from "core/util/spatial"
 import {SpatialIndex} from "core/util/spatial"
 import * as hittest from "core/hittest";
 import {Selection} from "../selections/selection";
-
+import {PointGeometry} from "core/geometry"
 
 // XXX: because ImageData is a global
 export interface _ImageData extends XYGlyphData {
@@ -64,7 +64,7 @@ export class ImageView extends XYGlyphView {
     return new SpatialIndex(points);
   }
 
-  _lrtb(i: any) : any{
+  _lrtb(i: number) : [number, number, number, number]{
     const l = this._x[i]
     const r = l + this._dw[i]
     const b = this._y[i]
@@ -72,7 +72,7 @@ export class ImageView extends XYGlyphView {
     return [l, r, t, b]
   }
 
-  _image_index(index : any, x: any, y : any) : any {
+  _image_index(index : number, x: number, y : number) : [number, number, number, number] {
     const [l,r,t,b] = this._lrtb(index);
     const width = this._width[index]
     const height = this._height[index]
@@ -83,7 +83,7 @@ export class ImageView extends XYGlyphView {
     return [index, dim1,  dim2, (dim2 * width) + dim1]
   }
 
-  _hit_point(geometry: any) : Selection {
+  _hit_point(geometry: PointGeometry) : Selection {
     const {sx, sy} = geometry;
     const x = this.renderer.xscale.invert(sx);
     const y = this.renderer.yscale.invert(sy);
