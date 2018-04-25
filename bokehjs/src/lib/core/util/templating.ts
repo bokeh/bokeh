@@ -36,7 +36,7 @@ export function replace_placeholders(str: string, data_source: ColumnarDataSourc
   str = str.replace(/(^|[^@])@(?:(\$?\w+)|{([^{}]+)})(?:{([^{}]+)})?/g, (_match, prefix, name, long_name, format) => {
     name = long_name != null ? long_name : name
 
-    let j = isNumber(i) ? {index:i, dim1:0, dim2:0, flat_index:0} : i
+    const j = isNumber(i) ? {index:i, dim1:0, dim2:0, flat_index:0} : i
 
     let value: any
     if (name[0] == "$")
