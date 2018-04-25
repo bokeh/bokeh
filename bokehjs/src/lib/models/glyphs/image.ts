@@ -31,6 +31,14 @@ export interface _ImageData extends XYGlyphData {
 
 export interface ImageView extends _ImageData {}
 
+
+export interface ImageIndex {
+  index: number,
+  dim1: number,
+  dim2: number,
+  flat_index: number
+}
+
 export class ImageView extends XYGlyphView {
   model: Image
   visuals: Image.Visuals
@@ -73,7 +81,7 @@ export class ImageView extends XYGlyphView {
   }
 
 
-  _image_index(index : number, x: number, y : number) : {[key: string]: number} {
+  _image_index(index : number, x: number, y : number) : ImageIndex {
     const [l,r,t,b] = this._lrtb(index);
     const width = this._width[index]
     const height = this._height[index]
