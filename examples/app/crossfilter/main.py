@@ -35,7 +35,7 @@ def create_figure():
         kw['y_range'] = sorted(set(ys))
     kw['title'] = "%s vs %s" % (x_title, y_title)
 
-    p = figure(plot_height=600, plot_width=800, tools='pan,box_zoom,reset', **kw)
+    p = figure(plot_height=600, plot_width=800, tools='pan,box_zoom,hover,reset', **kw)
     p.xaxis.axis_label = x_title
     p.yaxis.axis_label = y_title
 
