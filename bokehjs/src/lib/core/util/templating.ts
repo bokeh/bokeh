@@ -3,7 +3,7 @@ import * as Numbro from "numbro"
 import tz = require("timezone")
 
 import {escape} from "./string"
-import {isNumber} from "./types"
+import {isNumber, isArray, isTypedArray} from "./types"
 
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
 import {ImageIndex} from "../../models/glyphs/image"
@@ -35,24 +35,39 @@ export function replace_placeholders(str: string, data_source: ColumnarDataSourc
 
   str = str.replace(/(^|[^@])@(?:(\$?\w+)|{([^{}]+)})(?:{([^{}]+)})?/g, (_match, prefix, name, long_name, format) => {
     name = long_name != null ? long_name : name
-
-    const j = isNumber(i) ? {index:i, dim1:0, dim2:0, flat_index:0} : i
-
     let value: any
-    if (name[0] == "$")
-      value = special_vars[name.substring(1)]
-    else {
-      const column = data_source.get_column(name)
-      if ((data_source._shapes[name] != undefined) && (column != null)) {
-        if (ArrayBuffer.isView(column[j['index']])) { // Typed arrays use the linear index
-          value = column[j['index']][j['flat_index']]
-        }
-        else {
-          value = column[j['index']][j['dim2']][j['dim1']]
+    if (!isNumber(i)) { // An ImageIndex
+      console.log(name);
+      if (name[0] == "$") {
+        value = special_vars[name.substring(1)]
+      }
+      else {
+        const column = data_source.get_column(name)
+        if (column != null) {
+          const data = column[i['index']]
+          if (isTypedArray(data) || isArray(data)) {
+            if (isArray(data[0])) { // Array of arrays format
+              let row : any
+              row = data[i['dim2']]
+              value = row[i['dim1']]
+            }
+            else {
+              value = data[i['flat_index']]
+            }
+          }
+          else {
+            value = data
+          }
         }
       }
-      else if (column != null) {
-        value = column[j['index']]
+    }
+    else {
+      if (name[0] == "$")
+        value = special_vars[name.substring(1)]
+      else {
+        const column = data_source.get_column(name)
+        if (column != null)
+          value = column[i]
       }
     }
 
