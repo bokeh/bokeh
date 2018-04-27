@@ -1,7 +1,7 @@
 import {TextInput, TextInputView} from "./text_input"
-import {clear_menus} from "./common"
 
 import {empty, ul, li, a, Keys} from "core/dom"
+import {clear_menus} from "core/menus"
 import * as p from "core/properties"
 
 export class AutocompleteInputView extends TextInputView {
