@@ -35,40 +35,34 @@ export function replace_placeholders(str: string, data_source: ColumnarDataSourc
 
   str = str.replace(/(^|[^@])@(?:(\$?\w+)|{([^{}]+)})(?:{([^{}]+)})?/g, (_match, prefix, name, long_name, format) => {
     name = long_name != null ? long_name : name
+
     let value: any
+    if (name[0] == "$")
+      value = special_vars[name.substring(1)]
+
+    const column = data_source.get_column(name)
 
     if (!isNumber(i)) { // An ImageIndex
-      if (name[0] == "$") {
-        value = special_vars[name.substring(1)]
-      }
-      else {
-        const column = data_source.get_column(name)
-        if (column != null) {
-          const data = column[i['index']]
-          if (isTypedArray(data) || isArray(data)) {
-            if (isArray(data[0])) { // Array of arrays format
-              let row : any
-              row = data[i['dim2']]
-              value = row[i['dim1']]
-            }
-            else {
-              value = data[i['flat_index']]
-            }
+      if (column != null) {
+        const data = column[i['index']]
+        if (isTypedArray(data) || isArray(data)) {
+          if (isArray(data[0])) { // Array of arrays format
+            let row : any
+            row = data[i['dim2']]
+            value = row[i['dim1']]
           }
           else {
-            value = data
+            value = data[i['flat_index']]
           }
+        }
+        else {
+          value = data
         }
       }
     }
     else {
-      if (name[0] == "$")
-        value = special_vars[name.substring(1)]
-      else {
-        const column = data_source.get_column(name)
-        if (column != null)
-          value = column[i]
-      }
+      if (column != null)
+        value = column[i]
     }
 
     let replacement = null
