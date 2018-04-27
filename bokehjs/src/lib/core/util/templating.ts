@@ -36,8 +36,8 @@ export function replace_placeholders(str: string, data_source: ColumnarDataSourc
   str = str.replace(/(^|[^@])@(?:(\$?\w+)|{([^{}]+)})(?:{([^{}]+)})?/g, (_match, prefix, name, long_name, format) => {
     name = long_name != null ? long_name : name
     let value: any
+
     if (!isNumber(i)) { // An ImageIndex
-      console.log(name);
       if (name[0] == "$") {
         value = special_vars[name.substring(1)]
       }
