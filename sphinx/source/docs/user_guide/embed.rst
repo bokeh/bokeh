@@ -237,7 +237,7 @@ Running ``python scatter.py`` will print out:
 
 .. code-block:: shell
 
-    script type="text/javascript">
+    <script type="text/javascript">
         var docs_json = { DOCUMENT DATA HERE }
         var render_items = [{
           "docid":"33961aa6-fd96-4055-886f-b2afec7ff193",
