@@ -77,14 +77,15 @@ export class BoxAnnotationView extends AnnotationView {
   }
 
   protected _css_box(sleft: number, sright: number, sbottom: number, stop: number): void {
-    const sw = Math.abs(sright - sleft)
-    const sh = Math.abs(sbottom - stop)
+    const line_width = this.model.properties.line_width.value()
+    const sw = Math.floor(sright - sleft) - line_width
+    const sh = Math.floor(sbottom - stop) - line_width
 
     this.el.style.left = `${sleft}px`
     this.el.style.width = `${sw}px`
     this.el.style.top = `${stop}px`
     this.el.style.height = `${sh}px`
-    this.el.style.borderWidth = `${this.model.properties.line_width.value()}px`
+    this.el.style.borderWidth = `${line_width}px`
     this.el.style.borderColor = this.model.properties.line_color.value()
     this.el.style.backgroundColor = this.model.properties.fill_color.value()
     this.el.style.opacity = this.model.properties.fill_alpha.value()
