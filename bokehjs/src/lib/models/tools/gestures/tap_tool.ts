@@ -110,7 +110,7 @@ export class TapTool extends SelectTool {
 
   tool_name = "Tap"
   icon = "bk-tool-icon-tap-select"
-  event_type = "tap" as "tap"
+  event_type = ["tap" as "tap", "doubletap" as "doubletap"]
   default_order = 10
 }
 

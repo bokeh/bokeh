@@ -47,7 +47,7 @@ export interface KeyEvent {
   keyCode: Keys
 }
 
-export type EventType = "pan" | "pinch" | "rotate" | "move" | "tap" | "press" | "scroll"
+export type EventType = "pan" | "pinch" | "rotate" | "move" | "tap" | "doubletap" | "press" | "scroll"
 
 export type UISignal<E> = Signal<{id: string | null, e: E}, UIEvents>
 
@@ -91,8 +91,8 @@ export class UIEvents {
     this.hammer.get('tap').requireFailure('doubletap')
     this.hammer.get('doubletap').dropRequireFailure('tap')
 
-    this.hammer.on('doubletap', (e) => this._doubletap(e))
     this.hammer.on('tap', (e) => this._tap(e))
+    this.hammer.on('doubletap', (e) => this._doubletap(e))
     this.hammer.on('press', (e) => this._press(e))
 
     this.hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL })
@@ -174,6 +174,10 @@ export class UIEvents {
         if (v._tap != null)          v.connect(this.tap,          conditionally(v._tap.bind(v)))
         break
       }
+      case "doubletap": {
+        if (v._doubletap != null)    v.connect(this.doubletap,    conditionally(v._doubletap.bind(v)))
+        break
+      }
       case "press": {
         if (v._press != null)        v.connect(this.press,        conditionally(v._press.bind(v)))
         break
@@ -189,9 +193,6 @@ export class UIEvents {
     // Skip shared events if registering multi-tool
     if (!shared)
       return
-
-    if (v._doubletap != null)
-      v.connect(this.doubletap, unconditionally(v._doubletap.bind(v)))
 
     if (v._keydown != null)
       v.connect(this.keydown, unconditionally(v._keydown.bind(v)))
@@ -403,10 +404,7 @@ export class UIEvents {
   }
 
   protected _doubletap(e: HammerEvent): void {
-    // NOTE: doubletap event triggered unconditionally
-    const ev = this._tap_event(e)
-    this._trigger_bokeh_event(ev)
-    this.trigger(this.doubletap, ev)
+    this._trigger(this.doubletap, this._tap_event(e), e.srcEvent)
   }
 
   protected _press(e: HammerEvent): void {
