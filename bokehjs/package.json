@@ -27,7 +27,6 @@
     "del": "^1.1.1",
     "istanbul": "^0.4.5",
     "gulp": "^3.9.0",
-    "gulp-change": "^1.0.0",
     "gulp-insert": "^0.5.0",
     "gulp-less": "^4.0.0",
     "gulp-rename": "^1.2.0",
