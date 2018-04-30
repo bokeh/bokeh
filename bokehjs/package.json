@@ -62,7 +62,6 @@
     "btoa": "^1.1.2",
     "chalk": "^2.3.0",
     "ts-node": "^3.1.0",
-    "webpack": "^3.0.0",
     "esprima": "^4.0.0",
     "escodegen": "^1.8.1",
     "estraverse": "^4.2.0",
