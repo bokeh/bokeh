@@ -289,6 +289,11 @@ class TapTool(Tap):
     configure `callback` when setting `behavior='inspect'`.
     """)
 
+    gesture = Enum("tap", "doubletap", default="tap", help="""
+    Specifies which kind of gesture will be used to trigger the tool,
+    either a single or double tap.
+    """)
+
     callback = Instance(Callback, help="""
     A callback to execute *whenever a glyph is "hit"* by a mouse click
     or tap.

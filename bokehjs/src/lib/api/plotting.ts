@@ -36,7 +36,7 @@ export type ToolName =
   "xwheel_zoom" | "ywheel_zoom" |
   "zoom_in" | "xzoom_in" | "yzoom_in" |
   "zoom_out" | "xzoom_out" | "yzoom_out" |
-  "click" | "tap" |
+  "click" | "tap" | "doubletap" |
   "box_select" | "xbox_select" | "ybox_select" |
   "poly_select" | "lasso_select" |
   "box_zoom" | "xbox_zoom" | "ybox_zoom" |
@@ -64,6 +64,7 @@ const _known_tools: {[key in ToolName]: () => Tool} = {
   yzoom_out:    () => new models.ZoomOutTool({dimensions: 'height'}),
   click:        () => new models.TapTool({behavior: "inspect"}),
   tap:          () => new models.TapTool(),
+  doubletap:    () => new models.TapTool({gesture: "doubletap"}),
   crosshair:    () => new models.CrosshairTool(),
   box_select:   () => new models.BoxSelectTool(),
   xbox_select:  () => new models.BoxSelectTool({dimensions: 'width'}),

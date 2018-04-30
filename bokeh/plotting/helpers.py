@@ -423,6 +423,7 @@ _known_tools = {
     "yzoom_out": lambda: ZoomOutTool(dimensions='height'),
     "click": lambda: TapTool(behavior="inspect"),
     "tap": lambda: TapTool(),
+    "doubletap": lambda: TapTool(gesture="doubletap"),
     "crosshair": lambda: CrosshairTool(),
     "box_select": lambda: BoxSelectTool(),
     "xbox_select": lambda: BoxSelectTool(dimensions='width'),

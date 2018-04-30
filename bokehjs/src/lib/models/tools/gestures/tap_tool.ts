@@ -9,6 +9,16 @@ export class TapToolView extends SelectToolView {
   model: TapTool
 
   _tap(ev: TapEvent): void {
+    if (this.model.gesture == "tap")
+      this._handle_tap(ev)
+  }
+
+  _doubletap(ev: TapEvent): void {
+    if (this.model.gesture == "doubletap")
+      this._handle_tap(ev)
+  }
+
+  private _handle_tap(ev: TapEvent): void {
     const {sx, sy} = ev
     const geometry: PointGeometry = {
       type: 'point',
@@ -70,6 +80,7 @@ export class TapToolView extends SelectToolView {
 export namespace TapTool {
   export interface Attrs extends SelectTool.Attrs {
     behavior: "select" | "inspect"
+    gesture: "tap" | "doubletap"
     callback: any // XXX
   }
 
@@ -92,6 +103,7 @@ export class TapTool extends SelectTool {
 
     this.define({
       behavior: [ p.String, "select" ], // TODO: Enum("select", "inspect")
+      gesture: [ p.String, "tap" ], // TODO: Enum("tap", "doubletap")
       callback: [ p.Any ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
     })
   }
