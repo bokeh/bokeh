@@ -56,7 +56,6 @@
     "coffeescript": "2.0.2",
     "detective": "^4.3.1",
     "less": "^3.0.2",
-    "request": "^2.74.0",
     "atob": "^2.0.0",
     "btoa": "^1.1.2",
     "chalk": "^2.3.0",
