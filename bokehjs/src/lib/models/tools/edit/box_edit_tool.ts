@@ -168,7 +168,7 @@ export class BoxEditTool extends EditTool {
 
   tool_name = "Box Edit Tool"
   icon = "bk-tool-icon-box-edit"
-  event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
+  event_type = ["tap" as "tap", "doubletap" as "doubletap", "pan" as "pan", "move" as "move"]
   default_order = 1
 }
 BoxEditTool.initClass()

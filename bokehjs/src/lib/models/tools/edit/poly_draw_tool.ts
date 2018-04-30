@@ -215,7 +215,7 @@ export class PolyDrawTool extends EditTool {
 
   tool_name = "Polygon Draw Tool"
   icon = "bk-tool-icon-poly-draw"
-  event_type = ["pan" as "pan", "tap" as "tap", "move" as "move"]
+  event_type = ["pan" as "pan", "doubletap" as "doubletap", "tap" as "tap", "move" as "move"]
   default_order = 3
 }
 PolyDrawTool.initClass()

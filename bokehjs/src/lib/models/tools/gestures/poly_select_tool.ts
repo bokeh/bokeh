@@ -127,7 +127,7 @@ export class PolySelectTool extends SelectTool {
 
   tool_name = "Poly Select"
   icon = "bk-tool-icon-polygon-select"
-  event_type = "tap" as "tap"
+  event_type = ["tap" as "tap", "doubletap" as "doubletap"]
   default_order = 11
 }
 

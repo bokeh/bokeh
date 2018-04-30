@@ -249,7 +249,7 @@ export class PolyEditTool extends EditTool {
 
   tool_name = "Poly Edit Tool"
   icon = "bk-tool-icon-poly-edit"
-  event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
+  event_type = ["tap" as "tap", "doubletap" as "doubletap", "pan" as "pan", "move" as "move"]
   default_order = 4
 }
 PolyEditTool.initClass()
