@@ -42,7 +42,6 @@
     "merge2": "^1.2.0",
     "logtrap": "^0.0.1",
     "mocha": "^2.2.5",
-    "phantomjs-prebuilt": "^2.1.14",
     "run-sequence": "^1.0.0",
     "sinon": "^1.15.4",
     "vinyl-source-stream": "^1.1.0",
