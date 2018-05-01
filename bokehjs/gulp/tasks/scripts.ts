@@ -1,25 +1,16 @@
 import * as gulp from "gulp"
 import * as gutil from "gulp-util"
 import chalk from "chalk"
-import * as rename from "gulp-rename"
-const uglify_es = require("uglify-es")
-const uglify = require("gulp-uglify/composer")
 import * as sourcemaps from "gulp-sourcemaps"
 import * as paths from "../paths"
-import * as fs from "fs"
-import {join} from "path"
+import {join, dirname, basename} from "path"
 import {argv} from "yargs"
-import * as insert from 'gulp-insert'
 const merge = require("merge2")
-
-const license = `/*!\n${fs.readFileSync('../LICENSE.txt', 'utf-8')}*/\n`
 
 const ts = require('gulp-typescript')
 const tslint = require('gulp-tslint')
 
-const minify = uglify(uglify_es, console)
-
-import {Linker, Bundle} from "../linker"
+import {Linker} from "../linker"
 
 gulp.task("scripts:ts", () => {
   let n_errors = 0
@@ -75,7 +66,7 @@ gulp.task("tslint", () => {
 
 gulp.task("scripts:compile", ["scripts:ts"])
 
-gulp.task("scripts:bundle", ["scripts:compile"], (next: () => void) => {
+function bundle(minify: boolean) {
   const entries = [
     paths.lib.bokehjs.main,
     paths.lib.api.main,
@@ -87,61 +78,30 @@ gulp.task("scripts:bundle", ["scripts:compile"], (next: () => void) => {
   const excludes = ["node_modules/moment/moment.js"]
   const sourcemaps = argv.sourcemaps === true
 
-  const linker = new Linker({entries, bases, excludes, sourcemaps})
+  const linker = new Linker({entries, bases, excludes, sourcemaps, minify})
   const bundles = linker.link()
+
+  function ext(path: string): string {
+    return !minify ? path : join(dirname(path), basename(path, ".js") + ".min.js")
+  }
 
   const [bokehjs, api, widgets, tables, gl] = bundles
 
-  bokehjs.write(paths.lib.bokehjs.output)
-  api.write(paths.lib.api.output)
-  widgets.write(paths.lib.widgets.output)
-  tables.write(paths.lib.tables.output)
-  gl.write(paths.lib.gl.output)
+  bokehjs.write(ext(paths.lib.bokehjs.output))
+  api.write(ext(paths.lib.api.output))
+  widgets.write(ext(paths.lib.widgets.output))
+  tables.write(ext(paths.lib.tables.output))
+  gl.write(ext(paths.lib.gl.output))
+}
 
-  if (argv.stats) {
-    const minify_opts = {
-      output: {
-        comments: /^!|copyright|license|\(c\)/i
-      }
-    }
-
-    const entries: [string, string, boolean, number][] = []
-
-    function collect_entries(name: string, bundle: Bundle): void {
-      for (const mod of bundle.modules) {
-        const minified = uglify_es.minify(mod.source, minify_opts)
-        if (minified.error != null) {
-          const {error: {message, line, col}} = minified
-          throw new Error(`${mod.canonical}:${line-1}:${col}: ${message}`)
-        } else
-          entries.push([name, mod.canonical, mod.is_external, minified.code.length])
-      }
-    }
-
-    collect_entries("bokehjs", bokehjs)
-    collect_entries("api", api)
-    collect_entries("widgets", widgets)
-    collect_entries("tables", tables)
-    collect_entries("gl", gl)
-
-    const csv = entries.map(([name, mod, external, minified]) => `${name},${mod},${external},${minified}`).join("\n")
-    const header = "bundle,module,external,minified\n"
-    fs.writeFileSync(join(paths.build_dir.js, "stats.csv"), header + csv)
-  }
-
+gulp.task("scripts:bundle", ["scripts:compile"], (next: () => void) => {
+  bundle(false)
   next()
 })
 
-gulp.task("scripts:build", ["scripts:bundle"])
-
-gulp.task("scripts:minify", ["scripts:bundle"], () => {
-  return gulp.src(`${paths.build_dir.js}/!(*.min|compiler).js`)
-    .pipe(sourcemaps.init({loadMaps: true}))
-    .pipe(rename((path) => path.basename += '.min'))
-    .pipe(minify({ output: { comments: /^!|copyright|license|\(c\)/i } }))
-    .pipe(insert.append(license))
-    .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest(paths.build_dir.js))
+gulp.task("scripts:build", ["scripts:bundle"], (next: () => void) => {
+  bundle(true)
+  next()
 })
 
-gulp.task("scripts", ["scripts:build", "scripts:minify"])
+gulp.task("scripts", ["scripts:build"])

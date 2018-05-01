@@ -10,6 +10,8 @@ import * as combine from "combine-source-map"
 import * as convert from "convert-source-map"
 const merge = require("merge-source-map")
 
+const uglify_es = require("uglify-es")
+
 import {prelude, plugin_prelude} from "./prelude"
 
 const str = JSON.stringify
@@ -52,6 +54,7 @@ export interface LinkerOpts {
   bases?: string[]
   excludes?: string[]
   sourcemaps?: boolean
+  minify?: boolean
 }
 
 export class Linker {
@@ -59,12 +62,14 @@ export class Linker {
   readonly bases: string[]
   readonly excludes: Set<string>
   readonly sourcemaps: boolean
+  readonly minify: boolean
 
   constructor(opts: LinkerOpts) {
     this.entries = opts.entries
     this.bases = (opts.bases || []).map((path) => resolve(path))
     this.excludes = new Set((opts.excludes || []).map((path) => resolve(path)))
     this.sourcemaps = opts.sourcemaps || false
+    this.minify = opts.minify || false
 
     for (const base of this.bases) {
       if (!exists(base) || !is_dir(base))
@@ -397,9 +402,11 @@ export class Module {
   }
 
   protected generate_source(): string {
+    let source: string
+
     if (!this.linker.sourcemaps || this.is_external) {
-      const source = escodegen.generate(this.ast, {comment: true})
-      return convert.removeMapFileComments(source)
+      source = escodegen.generate(this.ast, {comment: true})
+      source = convert.removeMapFileComments(source)
     } else {
       const old_map = convert.fromMapFileSource(this.input, dirname(this.file))
       const result: any = escodegen.generate(this.ast, {
@@ -410,10 +417,29 @@ export class Module {
       })
       const new_map = JSON.parse(result.map.toString())
       const map = old_map ? merge(old_map.toObject(), new_map) : new_map
-      const source = convert.removeMapFileComments(result.code)
+      const bare_source = convert.removeMapFileComments(result.code)
       const comment = convert.fromObject(map).toComment()
-      return `${source}\n${comment}\n`
+      source = `${bare_source}\n${comment}\n`
     }
+
+    if (this.linker.minify) {
+      const minify_opts = {
+        output: {
+          comments: /^!|copyright|license|\(c\)/i
+        }
+      }
+
+      const minified = uglify_es.minify(source, minify_opts)
+
+      if (minified.error == null)
+        source = minified.code
+      else {
+        const {error: {message, line, col}} = minified
+        throw new Error(`${this.canonical}:${line-1}:${col}: ${message}`)
+      }
+    }
+
+    return source
   }
 
   get source(): string {
