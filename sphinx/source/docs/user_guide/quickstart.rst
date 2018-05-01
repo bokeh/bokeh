@@ -105,10 +105,10 @@ Call |figure|
 
 Add renderers
     In this case, we use |Figure.line| for our data, specifying visual
-    customizations like colors, legends and widthss.
+    customizations like colors, legends and widths.
 
 Ask Bokeh to |show| or |save| the results.
-    These functions save the plot HTML to a file and optionally display it in
+    These functions save the plot to an HTML file and optionally display it in
     a browser.
 
 Steps three and four can be repeated to create more than one plot, as shown in
@@ -156,10 +156,10 @@ plot as shown below:
 Jupyter Notebooks
 =================
 
-At this point we should mention Jupyternotebooks.
+At this point we should mention Jupyter notebooks.
 
 Jupyter notebooks are a fantastic tool for exploratory data analysis, widely
-used across the "PyData" community. Bokeh integrates seamlessly with Jupyter
+used across the SciPy/PyData community. Bokeh integrates seamlessly with Jupyter
 notebooks. To view the above examples in a notebook, you would only
 change |output_file| to a call to |output_notebook| instead.
 
@@ -184,7 +184,7 @@ which show how Bokeh can be used together with Jupyter interactive widgets:
 
 :bokeh-tree:`examples/howto/notebook_comms/Numba Image Example.ipynb`
     A more advanced example that uses Numba to efficiently perform image
-    processing interctively based on Jupyter widget controls.
+    processing interactively based on Jupyter widget controls.
 
 .. note::
 
@@ -241,7 +241,7 @@ Glyphs are the basic visual marks that Bokeh can display. At the lowest level,
 there are **glyph objects**, such as |Line|. If you are using the low-level
 |bokeh.models| interface, it is your responsibility to create and coordinate
 all the various Bokeh objects, including glyph objects and their data sources.
-To make life easier, the |bokeh.plotting| interface exposes higher level
+To make life easier, the |bokeh.plotting| interface exposes higher-level
 **glyph methods** such as the |Figure.line| method used in the first example.
 The second example also adds in calls to |Figure.circle| to display circle
 and line glyphs together on the same plot. Besides lines and circles, Bokeh
@@ -289,7 +289,7 @@ by passing the argument ``mode="inline"`` to the |output_file| function.
 More examples
 =============
 
-Here are a few more examples to demonstrate other common tasks and use-cases
+Here are a few more examples to demonstrate other common tasks and use cases
 with the |bokeh.plotting| interface.
 
 .. _userguide_quickstart_vectorized:
@@ -326,13 +326,13 @@ for in this example:
     # output to static HTML file (with CDN resources)
     output_file("color_scatter.html", title="color_scatter.py example", mode="cdn")
 
-    TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,box_select,lasso_select"
+    TOOLS = "crosshair,pan,wheel_zoom,box_zoom,reset,box_select,lasso_select"
 
     # create a new plot with the tools above, and explicit ranges
-    p = figure(tools=TOOLS, x_range=(0,100), y_range=(0,100))
+    p = figure(tools=TOOLS, x_range=(0, 100), y_range=(0, 100))
 
     # add a circle renderer with vectorized colors and sizes
-    p.circle(x,y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
+    p.circle(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
 
     # show the results
     show(p)
@@ -489,10 +489,10 @@ of interest to look out for in this example:
     # NEW: customize by setting attributes
     p.title.text = "AAPL One-Month Average"
     p.legend.location = "top_left"
-    p.grid.grid_line_alpha=0
+    p.grid.grid_line_alpha = 0
     p.xaxis.axis_label = 'Date'
     p.yaxis.axis_label = 'Price'
-    p.ygrid.band_fill_color="olive"
+    p.ygrid.band_fill_color = "olive"
     p.ygrid.band_fill_alpha = 0.1
 
     # show the results
@@ -503,7 +503,7 @@ of interest to look out for in this example:
 Bokeh Application Server
 ========================
 
-Bokeh also comes with an optional server component, the Bokeh Server. It
+Bokeh also comes with an optional server component, the Bokeh Server. It is
 possible to create many interesting and interactive visualizations without
 using the Bokeh server, as we have seen above. However, the Bokeh server
 affords many novel and powerful capabilities, including:
