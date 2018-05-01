@@ -1,4 +1,11 @@
+import * as fs from "fs"
+
+const license = fs.readFileSync('../LICENSE.txt', 'utf-8')
+
 export const prelude = `\
+/*!
+${license}
+*/
 (function(root, factory) {
 //  if(typeof exports === 'object' && typeof module === 'object')
 //    module.exports = factory();
@@ -56,6 +63,9 @@ export const prelude = `\
 `
 
 export const plugin_prelude = `\
+/*!
+${license}
+*/
 (function(root, factory) {
 //  if(typeof exports === 'object' && typeof module === 'object')
 //    factory(require("Bokeh"));

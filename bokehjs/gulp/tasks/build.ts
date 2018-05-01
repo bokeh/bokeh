@@ -6,5 +6,5 @@ gulp.task("build", [], (cb: (arg?: any) => void) => {
 })
 
 gulp.task("dev-build", [], (cb: (arg?: any) => void) => {
-  runSequence(["scripts:build", "styles:build"], cb)
+  runSequence(["scripts:bundle", "styles:build"], cb)
 })
