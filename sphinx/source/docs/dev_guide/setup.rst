@@ -48,6 +48,23 @@ is available.
 To install Conda on any platform, see the `Download conda`_ section of the
 `conda documentation`_.
 
+Conda environment
+~~~~~~~~~~~~~~~~~
+
+Setting up an isolated conda environment to guarantee package compatibility
+is considered best practice. To set up a clean environment, issue the following
+command:
+
+.. code-block:: sh
+
+    conda create --name bokeh-dev
+
+Then, to activate the environment:
+
+.. code-block:: sh
+
+    conda activate bokeh-dev
+
 .. _devguide_cloning:
 
 Cloning the Repository
@@ -91,7 +108,8 @@ sources:
     If you do not wish to make configuration changes to your ``conda``
     configuration, then the channels above can be added on a per-command
     basis with the ``-c`` command line option to ``conda``, e.g.
-    ``conda install -c bokeh -c conda-forge <pkgs>``
+    ``conda install -c bokeh -c conda-forge <pkgs>``. Alternatively, add the
+    channels to the current active conda environment with the ``--env`` flag.
 
 It's also necessary to install `jinja2` and `pyyaml` first, to bootstrap
 the rest of these instructions. To do that, execute:
@@ -103,13 +121,19 @@ the rest of these instructions. To do that, execute:
 From the top level of the *source checkout* directory, execute the following
 command at your command prompt to install all the required packages:
 
-* OSX / Linux
+* OSX / Linux (bash / sh)
 
     .. code-block:: sh
 
         conda install `python scripts/deps.py build run test`
 
     Note the required backticks in the command.
+
+* OSX / Linux (fish)
+
+    .. code-block:: fish
+
+        conda install (python scripts/deps.py build run test | string replace -ar '\s\s+' ' ' | string split ' ' | string escape)
 
 * Windows (Powershell)
 
@@ -222,9 +246,11 @@ on git hooks, see `this turorial`_.
 Git Aliases
 ~~~~~~~~~~~
 
-There are also some useful aliases that can be added to the ``.gitconfig`` file located in your home directory.
+There are also some useful aliases that can be added to the ``.gitconfig``
+file located in your home directory.
 
-The following alias adds a ``git resolve`` command that will automatically open up your editor to resolve any merge conflicts.
+The following alias adds a ``git resolve`` command that will automatically
+open up your editor to resolve any merge conflicts.
 
 .. code-block:: sh
 
