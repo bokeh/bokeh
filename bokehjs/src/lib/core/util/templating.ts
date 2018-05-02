@@ -69,7 +69,7 @@ export function replace_placeholders(str: string, data_source: ColumnarDataSourc
                 throw new Error(`Unknown tooltip field formatter type '${formatter}'`)
             }
           } else {
-            replacement = formatter.format(value)
+            replacement = formatter.format(value, format, special_vars)
           }
         // if not assume the format string is Numbro
         } else

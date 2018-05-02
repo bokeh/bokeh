@@ -36,15 +36,15 @@ export class CustomJSHover extends Model {
     return values(this.args)
   }
 
-  protected _make_formatter(val: string, fn: string): Function {
+  protected _make_formatter(valname: string, formatname: string, varsname: string, fn: string): Function {
     // this relies on keys(args) and values(args) returning keys and values
     // in the same order
-    return new Function(...keys(this.args), val, "require", "exports", fn)
+    return new Function(...keys(this.args), valname, formatname, varsname, "require", "exports", fn)
   }
 
-  format(value: any): string {
-    const formatter = this._make_formatter("value", this.formatter)
-    return formatter(...this.values, value, require, exports)
+  format(value: any, format: string, special_vars: {[key: string]: any}): string {
+    const formatter = this._make_formatter("value", "format", "special_vars", this.formatter)
+    return formatter(...this.values, value, format, special_vars, require, exports)
   }
 
 }
