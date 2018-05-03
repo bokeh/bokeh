@@ -356,6 +356,8 @@ class HTMLTemplateFormatter(CellFormatter):
     The formatter has access other items in the row via the `dataContext` object passed to the formatter.
     So, for example, if another column in the datasource was named `url`, the template could access it as:
 
+    .. code-block:: jinja
+
         <a href="<%= url %>"><%= value %></a>
 
     To use a different set of template delimiters, pass the appropriate values for `evaluate`, `interpolate',
@@ -363,11 +365,17 @@ class HTMLTemplateFormatter(CellFormatter):
 
     Example: Simple HTML template to format the column value as code.
 
+    .. code-block:: python
+
         HTMLTemplateFormatter(template='<code><%= value %></code>')
 
     Example: Use values from other columns (`manufacturer` and `model`) to build a hyperlink.
 
-        HTMLTemplateFormatter(template='<a href="https:/www.google.com/search?q=<%= manufacturer %>+<%= model %>" target="_blank"><%= value %></a>')
+    .. code-block:: python
+
+        HTMLTemplateFormatter(template=
+            '<a href="https:/www.google.com/search?q=<%= manufacturer %>+<%= model %>" target="_blank"><%= value %></a>'
+        )
 
     '''
     template = String('<%= value %>', help="""

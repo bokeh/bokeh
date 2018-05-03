@@ -108,14 +108,6 @@ else:
     else:
         resources = Resources(mode="cdn", version=docs_cdn)
 
-GOOGLE_API_KEY = getenv('GOOGLE_API_KEY')
-if GOOGLE_API_KEY is None:
-    if settings.docs_missing_api_key_ok():
-        GOOGLE_API_KEY = "MISSING_API_KEY"
-    else:
-        raise SphinxError("The GOOGLE_API_KEY environment variable is not set. Set GOOGLE_API_KEY to a valid API key, "
-                          "or set BOKEH_DOCS_MISSING_API_KEY_OK=yes to build anyway (with broken GMaps)")
-
 CODING = re.compile(r"^# -\*- coding: (.*) -\*-$", re.M)
 
 class PlotScriptError(SphinxError):
@@ -123,12 +115,19 @@ class PlotScriptError(SphinxError):
 
     category = 'PlotScript error'
 
-def _process_script(source, filename, auxdir, js_name, use_relative_paths=False):
+def _process_script(source, filename, env, js_name, use_relative_paths=False):
     # This is lame, but seems to be required for python 2
     source = CODING.sub("", source)
 
     # quick and dirty way to inject Google API key
     if "GOOGLE_API_KEY" in source:
+        GOOGLE_API_KEY = getenv('GOOGLE_API_KEY')
+        if GOOGLE_API_KEY is None:
+            if env.config.bokeh_missing_google_api_key_ok:
+                GOOGLE_API_KEY = "MISSING_API_KEY"
+            else:
+                raise SphinxError("The GOOGLE_API_KEY environment variable is not set. Set GOOGLE_API_KEY to a valid API key, "
+                                  "or set BOKEH_DOCS_MISSING_API_KEY_OK=yes to build anyway (with broken GMaps)")
         run_source = source.replace("GOOGLE_API_KEY", GOOGLE_API_KEY)
     else:
         run_source = source
@@ -145,7 +144,7 @@ def _process_script(source, filename, auxdir, js_name, use_relative_paths=False)
     else:
         script_path = join("/scripts", js_name)
 
-    js_path = join(auxdir, js_name)
+    js_path = join(env.bokeh_plot_auxdir, js_name)
     js, script = autoload_static(d.roots[0], resources, script_path)
 
     with open(js_path, "w") as f:
@@ -196,7 +195,7 @@ class PlotScriptParser(Parser):
 
         js_name = "bokeh-plot-%s.js" % uuid4().hex
 
-        (script, js, js_path, source) = _process_script(source, filename, env.bokeh_plot_auxdir, js_name, env.config.bokeh_plot_use_relative_paths)
+        (script, js, js_path, source) = _process_script(source, filename, env, js_name, env.config.bokeh_plot_use_relative_paths)
 
         env.bokeh_plot_files[env.docname] = (script, js, js_path, source)
 
@@ -239,7 +238,7 @@ class BokehPlotDirective(Directive):
             # the code runner just needs a real path to cd to, this will do
             path = join(env.bokeh_plot_auxdir, js_name)
 
-            (script, js, js_path, source) = _process_script(source, path, env.bokeh_plot_auxdir, js_name, env.config.bokeh_plot_use_relative_paths)
+            (script, js, js_path, source) = _process_script(source, path, env, js_name, env.config.bokeh_plot_use_relative_paths)
             if(env.config.bokeh_plot_use_relative_paths):
                 script = script.replace('$REL_PATH$', _get_file_depth_string(env.docname) + 'scripts')
             env.bokeh_plot_files[js_name] = (script, js, js_path, source)
@@ -262,7 +261,7 @@ class BokehPlotDirective(Directive):
                 source = decode_utf8(source)
                 docname = env.docname.replace("/", "-")
                 js_name = "bokeh-plot-%s-external-%s.js" % (docname, uuid4().hex)
-                (script, js, js_path, source) = _process_script(source, self.arguments[0], env.bokeh_plot_auxdir, js_name, env.config.bokeh_plot_use_relative_paths)
+                (script, js, js_path, source) = _process_script(source, self.arguments[0], env, js_name, env.config.bokeh_plot_use_relative_paths)
                 if(env.config.bokeh_plot_use_relative_paths):
                     script = script.replace('$REL_PATH$', _get_file_depth_string(env.docname) + 'scripts')
                 env.bokeh_plot_files[js_name] = (script, js, js_path, source)
@@ -341,6 +340,7 @@ def setup(app):
     """ sphinx config variable to scan .py files in provided directories only """
     app.add_config_value('bokeh_plot_pyfile_include_dirs', [], 'html')
     app.add_config_value('bokeh_plot_use_relative_paths', False, 'html')
+    app.add_config_value('bokeh_missing_google_api_key_ok', True, 'html')
 
     app.add_source_parser('.py', PlotScriptParser)
 

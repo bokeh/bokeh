@@ -164,12 +164,25 @@ the Node Package Manager. If you have followed the instructions above,
 ``conda`` has already installed the necessary ``npm`` and ``node.js``
 packages to your system.
 
-Starting from the top level of the *source checkout* directory, execute
-the following commands
+Bokeh is typically updated to require the latest major revision of ``npm``
+in order to build. To install the lastest version globally, start from the
+top level of the *source checkout* directory, and execute the following
+commands
 
 .. code-block:: sh
 
     cd bokehjs
+    npm install -g npm
+
+If you do not wish to install globally (i.e. with ``-g``) then all
+subsequent ``npm`` commands will need to be adjusted to use the local
+version installed under ``bokehjs/node_modules``.
+
+Next, still in the ``bokehjs`` subdirectory, execute the following command
+to install all of BokehJS JavaScript dependencies:
+
+.. code-block:: sh
+
     npm install --no-save
 
 This command will install the necessary packages into the ``node_modules``
