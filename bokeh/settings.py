@@ -96,13 +96,6 @@ class Settings(object):
         '''
         return self._get_str("DOCS_VERSION", default)
 
-    def docs_missing_api_key_ok(self, default=False):
-        ''' Control whether a missing google API key should cause the
-        docs build to fail immediately.
-
-        '''
-        return self._get_str("DOCS_MISSING_API_KEY_OK", default)
-
     def minified(self, default=None):
         ''' Set whether Bokeh should use minified BokehJS resources.
 
@@ -284,13 +277,6 @@ class Settings(object):
 #:       development version.
 #:
 #:   Set to ``"local"`` to use a locally built dev version of BokehJS.
-#:
-#: ``BOKEH_DOCS_MISSING_API_KEY_OK`` --- Whether the docs build should fail without GOOGLE_API_KEY set.
-#:
-#:   By default, set to `no`, which means the docs build will stop immediately
-#:   if the GOOGLE_API_KEY  environment variable is missing. Set to `yes` to
-#:   enable docs builds to proceed (but with non-functional Google Maps examples).
-#:   Useful for development.
 #:
 #: ``BOKEH_LOG_LEVEL`` --- The BokehJS console logging level to use.
 #:
