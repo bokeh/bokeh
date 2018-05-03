@@ -8,7 +8,10 @@ Working in the Notebook
 Inline Plots
 ------------
 
-To display Bokeh plots inline in a Jupyter/Zeppelin notebook, use the
+Classic Notebook
+~~~~~~~~~~~~~~~~
+
+To display Bokeh plots inline in a classic Jupyter notebooks, use the
 |output_notebook| function from |bokeh.io| instead of (or in addition to)
 the |output_file| function we have seen previously. No other modifications
 are required. When |show| is called, the plot will be displayed inline in
@@ -25,6 +28,9 @@ Multiple plots can be displayed in a single notebook output cell by calling
     :scale: 50 %
     :align: center
 
+JupyterLab
+~~~~~~~~~~
+
 In order to embed Bokeh plots inside of JupyterLab, you need to install
 the "jupyterlab_bokeh" JupyterLab extension. This can be done by running
 the command: ``jupyter labextension install jupyterlab_bokeh``.
@@ -33,16 +39,31 @@ the command: ``jupyter labextension install jupyterlab_bokeh``.
     :scale: 25 %
     :align: center
 
-By defaults, |output_notebook| apply to Juypter. If you want to use bokeh
-to display inline plots in Zeppelin, you need to use `bkzep`_ package and
-specify `notebook_type` to `zeppelin` in |output_notebook|.
-Here's one Zeppelin screenshot.
+Zeppelin
+~~~~~~~~
+
+By defaults, |output_notebook| apply to only to Juypter. If you want to
+use Bokeh to display inline plots in Zeppelin notebooks, you need to install
+the separate `bkzep`_ package, and specify `notebook_type` to `zeppelin` in
+|output_notebook|:
 
 .. image:: /_images/bokeh_simple_test_zeppelin.png
     :scale: 50 %
     :align: center
 
 .. _userguide_notebook_slides:
+
+Trusting notebooks
+------------------
+
+Depending on the version of the Notebook in use, it may be necessary to
+"trust" the notebook in order for Bokeh plots to re-render when the
+notebook is closed and subsequently re-opened. The "Trust Notebook" option
+is typically located under the "File" menu:
+
+.. image:: /_images/notebook_trust.png
+    :scale: 50 %
+    :align: center
 
 Notebook Slides
 ---------------
