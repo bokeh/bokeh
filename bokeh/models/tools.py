@@ -651,7 +651,7 @@ class CustomJSHover(Model):
 
         .. code-block:: python
 
-            lat_custom = CustomJSHover(formatter="""
+            lat_custom = CustomJSHover(code="""
                 var projections = require("core/util/projections");
                 var x = special_vars.x
                 var y = special_vars.y
@@ -661,7 +661,7 @@ class CustomJSHover(Model):
 
             p.add_tools(HoverTool(
                 tooltips=[( 'lat','@y{custom}' )],
-                formatters={'y' : lat_custom}
+                formatter=dict(y=lat_custom)
             ))
 
     .. warning::
@@ -673,7 +673,7 @@ class CustomJSHover(Model):
     '''
 
     @classmethod
-    def from_py_func(cls, formatter):
+    def from_py_func(cls, code):
         ''' Create a CustomJSHover instance from a Python functions. The
         function is translated to JavaScript using PScript.
 
@@ -681,25 +681,26 @@ class CustomJSHover(Model):
         possible to pass Bokeh models (e.g. a ColumnDataSource) as keyword
         arguments to the functions.
 
-        The ``formatter`` function namespace will contain the variable ``value``
-        (the untransformed value) at render time.
+        The ``code`` function namespace will contain the variable ``value``
+        (the untransformed value) at render time as well as ``format`` and
+        ``special_vars`` as described in the class description.
 
         Args:
-            formatter (function) : a scalar function to transform a single ``x`` value
+            code (function) : a scalar function to transform a single ``value``
 
         Returns:
             CustomJSHover
 
         '''
-        if not isinstance(formatter, FunctionType):
+        if not isinstance(code, FunctionType):
             raise ValueError('CustomJSHover.from_py_func only accepts function objects.')
 
         pscript = import_required('pscript',
                                   'To use Python functions for CustomJSHover, you need PScript ' +
                                   '("conda install -c conda-forge pscript" or "pip install pscript")')
 
-        def pscript_compile(formatter):
-            sig = signature(formatter)
+        def pscript_compile(code):
+            sig = signature(code)
 
             all_names, default_values = get_param_info(sig)
 
@@ -711,23 +712,24 @@ class CustomJSHover(Model):
 
             func_kwargs = dict(zip(all_names, default_values))
 
-            # Wrap the code attr in a function named `formatter` and call it
+            # Wrap the code attr in a function named `code` and call it
             # with arguments that match the `args` attr
-            code = pscript.py2js(formatter, 'transformer') + 'return transformer(%s);\n' % ', '.join(all_names)
+            code = pscript.py2js(code, 'transformer') + 'return transformer(%s);\n' % ', '.join(all_names)
             return code, func_kwargs
 
-        jsfunc, func_kwargs = pscript_compile(formatter)
+        jsfunc, func_kwargs = pscript_compile(code)
 
-        return cls(formatter=jsfunc, args=func_kwargs)
+        return cls(code=jsfunc, args=func_kwargs)
 
     @classmethod
-    def from_coffeescript(cls, formatter, args={}):
+    def from_coffeescript(cls, code, args={}):
         ''' Create a CustomJSHover instance from a CoffeeScript snippet.
         The function bodies are translated to JavaScript functions using
         node and therefore require return statements.
 
-        The ``formatter`` snippet namespace will contain the variable ``value``
-        (the untransformed value) at render time.
+        The ``code`` snippet namespace will contain the variable ``value``
+        (the untransformed value) at render time as well as ``format`` and
+        ``special_vars`` as described in the class description.
 
         Example:
 
@@ -736,18 +738,18 @@ class CustomJSHover(Model):
             formatter = CustomJSHover.from_coffeescript("return value + " total")
 
         Args:
-            formatter (str) :
+            code (str) :
                 A coffeescript snippet to transform a single ``value`` value
 
         Returns:
             CustomJSHover
 
         '''
-        compiled = nodejs_compile(formatter, lang="coffeescript", file="???")
+        compiled = nodejs_compile(code, lang="coffeescript", file="???")
         if "error" in compiled:
             raise CompilationError(compiled.error)
 
-        return cls(formatter=compiled.code, args=args)
+        return cls(code=compiled.code, args=args)
 
     args = Dict(String, Instance(Model), help="""
     A mapping of names to Bokeh plot objects. These objects are made
@@ -755,7 +757,7 @@ class CustomJSHover(Model):
     parameters to the callback.
     """)
 
-    formatter = String(default="", help="""
+    code = String(default="", help="""
     A snippet of JavaScript code to transform a single value. The variable
     ``value`` will contain the untransformed value and can be expected to be
     present in the function namespace at render time. Additionally, the
@@ -783,7 +785,7 @@ class CustomJSHover(Model):
 
         .. code-block:: javascript
 
-            formatter = '''
+            code = '''
             return value + " total"
             '''
     """)

@@ -70,7 +70,7 @@ describe "templating module", ->
       expect(s).to.be.equal "stuff 100.200 %"
 
     it "should use a customjs hover formatter if specified", ->
-      custom = new CustomJSHover({formatter:"return format + ' ' + special_vars.special + ' ' + value"})
+      custom = new CustomJSHover({code:"return format + ' ' + special_vars.special + ' ' + value"})
       s = replace_placeholders("stuff @foo{custom}", source, 0, {"foo": custom}, {special: "vars"})
       expect(s).to.be.equal "stuff custom vars 10"
 

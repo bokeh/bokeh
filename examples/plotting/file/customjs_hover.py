@@ -27,8 +27,8 @@ p.add_tools(HoverTool(
     ],
 
     formatters={
-        'x' : CustomJSHover(formatter=code % 0),
-        'y' : CustomJSHover(formatter=code % 1),
+        'x' : CustomJSHover(code=code % 0),
+        'y' : CustomJSHover(code=code % 1),
     }
 ))
 
