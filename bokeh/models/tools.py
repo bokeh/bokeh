@@ -22,7 +22,6 @@ always be active regardless of what other tools are currently active.
 '''
 from __future__ import absolute_import
 
-from textwrap import dedent
 from types import FunctionType
 
 from ..core.enums import (Anchor, Dimension, Dimensions, Location,
@@ -623,7 +622,47 @@ class PolySelectTool(Tap):
     """)
 
 class CustomJSHover(Model):
-    ''' Apply a custom defined formatter to a hover tool field.
+    ''' Define a custom formatter to apply to a hover tool field.
+
+    This model can be configured with JavaScript code to format hover tooltips.
+    The JavaScript code has access to the current value to format, some special
+    variables, and any format configured on the tooltip. The variable ``value``
+    will contain the untransformed value. The variable ``special_vars`` will
+    provide a dict with the following contents:
+
+    * ``x`` data-space x-coordinate of the mouse
+    * ``y`` data-space y-coordinate of the mouse
+    * ``sx`` screen-space x-coordinate of the mouse
+    * ``sy`` screen-space y-coordinate of the mouse
+    * ``data_x`` data-space x-coordinate of the hovered glyph
+    * ``data_y`` data-space y-coordinate of the hovered glyph
+    * ``indices`` column indices of all currently hovered glyphs
+
+    If the hover is over a "multi" glyph such as ``Patches`` or ``MultiLine``
+    then a ``segment_index`` key will also be present.
+
+    Finally, the value of the format passed in the tooltip specification is
+    available as the ``format`` variable.
+
+    Example:
+
+        As an example, the following code adds a custom formatter to format
+        WebMercator northing coordinates (in meters) as a latitude:
+
+        .. code-block:: python
+
+            lat_custom = CustomJSHover(formatter="""
+                var projections = require("core/util/projections");
+                var x = special_vars.x
+                var y = special_vars.y
+                var coords = projections.wgs84_mercator.inverse([x, y])
+                return "" + coords[1]
+            """)
+
+            p.add_tools(HoverTool(
+                tooltips=[( 'lat','@y{custom}' )],
+                formatters={'y' : lat_custom}
+            ))
 
     .. warning::
         The explicit purpose of this Bokeh Model is to embed *raw JavaScript
@@ -636,7 +675,7 @@ class CustomJSHover(Model):
     @classmethod
     def from_py_func(cls, formatter):
         ''' Create a CustomJSHover instance from a Python functions. The
-        function is translated to JavaScript using PyScript.
+        function is translated to JavaScript using PScript.
 
         The python functions must have no positional arguments. It's
         possible to pass Bokeh models (e.g. a ColumnDataSource) as keyword
@@ -655,14 +694,11 @@ class CustomJSHover(Model):
         if not isinstance(formatter, FunctionType):
             raise ValueError('CustomJSHover.from_py_func only accepts function objects.')
 
-        pyscript = import_required(
-            'flexx.pyscript',
-            dedent("""\
-                To use Python functions for CustomJSHover, you need Flexx
-                '("conda install -c conda-forge flexx" or "pip install flexx")""")
-            )
+        pscript = import_required('pscript',
+                                  'To use Python functions for CustomJSHover, you need PScript ' +
+                                  '("conda install -c conda-forge pscript" or "pip install pscript")')
 
-        def pyscript_compile(formatter):
+        def pscript_compile(formatter):
             sig = signature(formatter)
 
             all_names, default_values = get_param_info(sig)
@@ -677,10 +713,10 @@ class CustomJSHover(Model):
 
             # Wrap the code attr in a function named `formatter` and call it
             # with arguments that match the `args` attr
-            code = pyscript.py2js(formatter, 'transformer') + 'return transformer(%s);\n' % ', '.join(all_names)
+            code = pscript.py2js(formatter, 'transformer') + 'return transformer(%s);\n' % ', '.join(all_names)
             return code, func_kwargs
 
-        jsfunc, func_kwargs = pyscript_compile(formatter)
+        jsfunc, func_kwargs = pscript_compile(formatter)
 
         return cls(formatter=jsfunc, args=func_kwargs)
 
@@ -722,8 +758,26 @@ class CustomJSHover(Model):
     formatter = String(default="", help="""
     A snippet of JavaScript code to transform a single value. The variable
     ``value`` will contain the untransformed value and can be expected to be
-    present in the function namespace at render time. The snippet will be
-    into the body of a function and therefore requires a return statement.
+    present in the function namespace at render time. Additionally, the
+    variable ``special_vars`` will be available, and will provide a dict
+    with the following contents:
+
+    * ``x`` data-space x-coordinate of the mouse
+    * ``y`` data-space y-coordinate of the mouse
+    * ``sx`` screen-space x-coordinate of the mouse
+    * ``sy`` screen-space y-coordinate of the mouse
+    * ``data_x`` data-space x-coordinate of the hovered glyph
+    * ``data_y`` data-space y-coordinate of the hovered glyph
+    * ``indices`` column indices of all currently hovered glyphs
+
+    If the hover is over a "multi" glyph such as ``Patches`` or ``MultiLine``
+    then a ``segment_index`` key will also be present.
+
+    Finally, the value of the format passed in the tooltip specification is
+    available as the ``format`` variable.
+
+    The snippet will be made into the body of a function and therefore requires
+    a return statement.
 
     Example:
 

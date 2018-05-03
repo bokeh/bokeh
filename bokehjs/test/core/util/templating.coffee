@@ -4,6 +4,7 @@ utils = require "../../utils"
 {replace_placeholders} = utils.require "core/util/templating"
 
 {ColumnDataSource} = utils.require("models/sources/column_data_source")
+{CustomJSHover} = utils.require("models/tools/inspectors/customjs_hover")
 
 describe "templating module", ->
 
@@ -67,6 +68,11 @@ describe "templating module", ->
 
       s = replace_placeholders("stuff @foo{(0.000 %)}", source, 1, {"foo": "numeral"})
       expect(s).to.be.equal "stuff 100.200 %"
+
+    it "should use a customjs hover formatter if specified", ->
+      custom = new CustomJSHover({formatter:"return format + ' ' + special_vars.special + ' ' + value"})
+      s = replace_placeholders("stuff @foo{custom}", source, 0, {"foo": custom}, {special: "vars"})
+      expect(s).to.be.equal "stuff custom vars 10"
 
     it "should replace field names with tz formatted values with datetime formatter", ->
       # just picking a random and uniquely tz format to test with

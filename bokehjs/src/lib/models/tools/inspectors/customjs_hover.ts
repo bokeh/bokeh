@@ -1,6 +1,7 @@
 import {Model} from "../../../model"
 import * as p from "core/properties"
 import {keys, values} from "core/util/object"
+import {use_strict} from "core/util/string"
 
 declare var exports: {[key: string]: any}
 
@@ -39,7 +40,7 @@ export class CustomJSHover extends Model {
   protected _make_formatter(valname: string, formatname: string, varsname: string, fn: string): Function {
     // this relies on keys(args) and values(args) returning keys and values
     // in the same order
-    return new Function(...keys(this.args), valname, formatname, varsname, "require", "exports", fn)
+    return new Function(...keys(this.args), valname, formatname, varsname, "require", "exports", use_strict(fn))
   }
 
   format(value: any, format: string, special_vars: {[key: string]: any}): string {
