@@ -22,6 +22,8 @@ always be active regardless of what other tools are currently active.
 '''
 from __future__ import absolute_import
 
+from types import FunctionType
+
 from ..core.enums import (Anchor, Dimension, Dimensions, Location,
                           TooltipFieldFormatter, TooltipAttachment)
 from ..core.has_props import abstract
@@ -29,6 +31,9 @@ from ..core.properties import (
     Auto, Bool, Color, Date, Datetime, Dict, Either, Enum, Int, Float,
     Percent, Instance, List, Seq, String, Tuple
 )
+from ..util.compiler import nodejs_compile, CompilationError
+from ..util.dependencies import import_required
+from ..util.future import get_param_info, signature
 from ..core.validation import error
 from ..core.validation.errors import (
     INCOMPATIBLE_BOX_EDIT_RENDERER, INCOMPATIBLE_POINT_DRAW_RENDERER,
@@ -616,6 +621,175 @@ class PolySelectTool(Tap):
     A shaded annotation drawn to indicate the selection region.
     """)
 
+class CustomJSHover(Model):
+    ''' Define a custom formatter to apply to a hover tool field.
+
+    This model can be configured with JavaScript code to format hover tooltips.
+    The JavaScript code has access to the current value to format, some special
+    variables, and any format configured on the tooltip. The variable ``value``
+    will contain the untransformed value. The variable ``special_vars`` will
+    provide a dict with the following contents:
+
+    * ``x`` data-space x-coordinate of the mouse
+    * ``y`` data-space y-coordinate of the mouse
+    * ``sx`` screen-space x-coordinate of the mouse
+    * ``sy`` screen-space y-coordinate of the mouse
+    * ``data_x`` data-space x-coordinate of the hovered glyph
+    * ``data_y`` data-space y-coordinate of the hovered glyph
+    * ``indices`` column indices of all currently hovered glyphs
+
+    If the hover is over a "multi" glyph such as ``Patches`` or ``MultiLine``
+    then a ``segment_index`` key will also be present.
+
+    Finally, the value of the format passed in the tooltip specification is
+    available as the ``format`` variable.
+
+    Example:
+
+        As an example, the following code adds a custom formatter to format
+        WebMercator northing coordinates (in meters) as a latitude:
+
+        .. code-block:: python
+
+            lat_custom = CustomJSHover(code="""
+                var projections = require("core/util/projections");
+                var x = special_vars.x
+                var y = special_vars.y
+                var coords = projections.wgs84_mercator.inverse([x, y])
+                return "" + coords[1]
+            """)
+
+            p.add_tools(HoverTool(
+                tooltips=[( 'lat','@y{custom}' )],
+                formatter=dict(y=lat_custom)
+            ))
+
+    .. warning::
+        The explicit purpose of this Bokeh Model is to embed *raw JavaScript
+        code* for a browser to execute. If any part of the code is derived
+        from untrusted user inputs, then you must take appropriate care to
+        sanitize the user input prior to passing to Bokeh.
+
+    '''
+
+    @classmethod
+    def from_py_func(cls, code):
+        ''' Create a CustomJSHover instance from a Python functions. The
+        function is translated to JavaScript using PScript.
+
+        The python functions must have no positional arguments. It's
+        possible to pass Bokeh models (e.g. a ColumnDataSource) as keyword
+        arguments to the functions.
+
+        The ``code`` function namespace will contain the variable ``value``
+        (the untransformed value) at render time as well as ``format`` and
+        ``special_vars`` as described in the class description.
+
+        Args:
+            code (function) : a scalar function to transform a single ``value``
+
+        Returns:
+            CustomJSHover
+
+        '''
+        if not isinstance(code, FunctionType):
+            raise ValueError('CustomJSHover.from_py_func only accepts function objects.')
+
+        pscript = import_required('pscript',
+                                  'To use Python functions for CustomJSHover, you need PScript ' +
+                                  '("conda install -c conda-forge pscript" or "pip install pscript")')
+
+        def pscript_compile(code):
+            sig = signature(code)
+
+            all_names, default_values = get_param_info(sig)
+
+            if len(all_names) - len(default_values) != 0:
+                raise ValueError("Function may only contain keyword arguments.")
+
+            if default_values and not any([isinstance(value, Model) for value in default_values]):
+                raise ValueError("Default value must be a Bokeh Model.")
+
+            func_kwargs = dict(zip(all_names, default_values))
+
+            # Wrap the code attr in a function named `code` and call it
+            # with arguments that match the `args` attr
+            code = pscript.py2js(code, 'transformer') + 'return transformer(%s);\n' % ', '.join(all_names)
+            return code, func_kwargs
+
+        jsfunc, func_kwargs = pscript_compile(code)
+
+        return cls(code=jsfunc, args=func_kwargs)
+
+    @classmethod
+    def from_coffeescript(cls, code, args={}):
+        ''' Create a CustomJSHover instance from a CoffeeScript snippet.
+        The function bodies are translated to JavaScript functions using
+        node and therefore require return statements.
+
+        The ``code`` snippet namespace will contain the variable ``value``
+        (the untransformed value) at render time as well as ``format`` and
+        ``special_vars`` as described in the class description.
+
+        Example:
+
+        .. code-block:: coffeescript
+
+            formatter = CustomJSHover.from_coffeescript("return value + " total")
+
+        Args:
+            code (str) :
+                A coffeescript snippet to transform a single ``value`` value
+
+        Returns:
+            CustomJSHover
+
+        '''
+        compiled = nodejs_compile(code, lang="coffeescript", file="???")
+        if "error" in compiled:
+            raise CompilationError(compiled.error)
+
+        return cls(code=compiled.code, args=args)
+
+    args = Dict(String, Instance(Model), help="""
+    A mapping of names to Bokeh plot objects. These objects are made
+    available to the callback code snippet as the values of named
+    parameters to the callback.
+    """)
+
+    code = String(default="", help="""
+    A snippet of JavaScript code to transform a single value. The variable
+    ``value`` will contain the untransformed value and can be expected to be
+    present in the function namespace at render time. Additionally, the
+    variable ``special_vars`` will be available, and will provide a dict
+    with the following contents:
+
+    * ``x`` data-space x-coordinate of the mouse
+    * ``y`` data-space y-coordinate of the mouse
+    * ``sx`` screen-space x-coordinate of the mouse
+    * ``sy`` screen-space y-coordinate of the mouse
+    * ``data_x`` data-space x-coordinate of the hovered glyph
+    * ``data_y`` data-space y-coordinate of the hovered glyph
+    * ``indices`` column indices of all currently hovered glyphs
+
+    If the hover is over a "multi" glyph such as ``Patches`` or ``MultiLine``
+    then a ``segment_index`` key will also be present.
+
+    Finally, the value of the format passed in the tooltip specification is
+    available as the ``format`` variable.
+
+    The snippet will be made into the body of a function and therefore requires
+    a return statement.
+
+    Example:
+
+        .. code-block:: javascript
+
+            code = '''
+            return value + " total"
+            '''
+    """)
+
 class HoverTool(Inspection):
     ''' *toolbar icon*: |crosshair_icon|
 
@@ -760,7 +934,7 @@ class HoverTool(Inspection):
 
     """).accepts(Dict(String, String), lambda d: list(d.items()))
 
-    formatters = Dict(String, Enum(TooltipFieldFormatter), default=lambda: dict(), help="""
+    formatters = Dict(String, Either(Enum(TooltipFieldFormatter), Instance(CustomJSHover)), default=lambda: dict(), help="""
     Specify the formatting scheme for data source columns, e.g.
 
     .. code-block:: python

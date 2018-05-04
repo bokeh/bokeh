@@ -237,7 +237,7 @@ export class HoverToolView extends InspectToolView {
         }
       }
 
-      const vars = {index: ii, x: x, y: y, sx: sx, sy: sy, data_x: data_x, data_y: data_y, rx: rx, ry: ry}
+      const vars = {index: ii, x: x, y: y, sx: sx, sy: sy, data_x: data_x, data_y: data_y, rx: rx, ry: ry, indices: indices.line_indices}
       tooltip.add(rx, ry, this._render_tooltips(ds, ii, vars))
     }
 
@@ -288,7 +288,7 @@ export class HoverToolView extends InspectToolView {
           else
             index = (i as any) as number // XXX: ???
 
-          const vars = {index: index, segment_index: jj, x: x, y: y, sx: sx, sy: sy, data_x: data_x, data_y: data_y}
+          const vars = {index: index, segment_index: jj, x: x, y: y, sx: sx, sy: sy, data_x: data_x, data_y: data_y, indices: indices.multiline_indices}
           tooltip.add(rx, ry, this._render_tooltips(ds, index, vars))
         }
       } else {
@@ -299,9 +299,8 @@ export class HoverToolView extends InspectToolView {
         let rx: number
         let ry: number
         if (this.model.point_policy == 'snap_to_data') { // and renderer.glyph.sx? and renderer.glyph.sy?
-          // Pass in our screen position so we can determine
-          // which patch we're over if there are discontinuous
-          // patches.
+          // Pass in our screen position so we can determine which patch we're
+          // over if there are discontinuous patches.
           let pt = glyph.get_anchor_point(this.model.anchor, i, [sx, sy])
           if (pt == null)
             pt = glyph.get_anchor_point("center", i, [sx, sy])
@@ -317,7 +316,7 @@ export class HoverToolView extends InspectToolView {
         else
           index = i
 
-        const vars = {index: index, x: x, y: y, sx: sx, sy: sy, data_x: data_x, data_y: data_y}
+        const vars = {index: index, x: x, y: y, sx: sx, sy: sy, data_x: data_x, data_y: data_y, indices: indices.indices}
         tooltip.add(rx, ry, this._render_tooltips(ds, index, vars))
       }
     }

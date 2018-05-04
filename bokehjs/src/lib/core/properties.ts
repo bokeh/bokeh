@@ -101,7 +101,7 @@ export class Property<T> extends Signalable() {
       if (ret == null)
         throw new Error(`attempted to retrieve property array for nonexistent field '${this.spec.field}'`)
     } else if (this.spec.expr != null) {
-      ret = this.transform(this.spec.expr._v_compute(source))
+      ret = this.transform(this.spec.expr.v_compute(source))
     } else {
       let length = source.get_length()
       if (length == null)

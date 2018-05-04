@@ -18,7 +18,7 @@
   },
   "engines": {
     "node": ">=8.8 <9.0",
-    "npm": ">=5.6 <6.0"
+    "npm": ">=6.0 <7.0"
   },
   "devDependencies": {
     "browserify": "^11.1.0",
@@ -27,9 +27,8 @@
     "del": "^1.1.1",
     "istanbul": "^0.4.5",
     "gulp": "^3.9.0",
-    "gulp-change": "^1.0.0",
     "gulp-insert": "^0.5.0",
-    "gulp-less": "^3.0.2",
+    "gulp-less": "^4.0.0",
     "gulp-rename": "^1.2.0",
     "gulp-sourcemaps": "^1.5.2",
     "gulp-task-listing": "^1.0.0",
@@ -42,7 +41,6 @@
     "merge2": "^1.2.0",
     "logtrap": "^0.0.1",
     "mocha": "^2.2.5",
-    "phantomjs-prebuilt": "^2.1.14",
     "run-sequence": "^1.0.0",
     "sinon": "^1.15.4",
     "vinyl-source-stream": "^1.1.0",
@@ -56,13 +54,11 @@
     "tslint": "^5.9.1",
     "coffeescript": "2.0.2",
     "detective": "^4.3.1",
-    "less": "^2.7.1",
-    "request": "^2.74.0",
+    "less": "^3.0.2",
     "atob": "^2.0.0",
     "btoa": "^1.1.2",
     "chalk": "^2.3.0",
     "ts-node": "^3.1.0",
-    "webpack": "^3.0.0",
     "esprima": "^4.0.0",
     "escodegen": "^1.8.1",
     "estraverse": "^4.2.0",

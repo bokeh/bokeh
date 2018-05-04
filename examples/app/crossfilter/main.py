@@ -10,6 +10,8 @@ df = df.copy()
 
 SIZES = list(range(6, 22, 3))
 COLORS = Spectral5
+N_SIZES = len(SIZES)
+N_COLORS = len(COLORS)
 
 # data cleanup
 df.cyl = df.cyl.astype(str)
@@ -19,7 +21,6 @@ del df['name']
 columns = sorted(df.columns)
 discrete = [x for x in columns if df[x].dtype == object]
 continuous = [x for x in columns if x not in discrete]
-quantileable = [x for x in continuous if len(df[x].unique()) > 20]
 
 def create_figure():
     xs = df[x.value].values
@@ -34,7 +35,7 @@ def create_figure():
         kw['y_range'] = sorted(set(ys))
     kw['title'] = "%s vs %s" % (x_title, y_title)
 
-    p = figure(plot_height=600, plot_width=800, tools='pan,box_zoom,reset', **kw)
+    p = figure(plot_height=600, plot_width=800, tools='pan,box_zoom,hover,reset', **kw)
     p.xaxis.axis_label = x_title
     p.yaxis.axis_label = y_title
 
@@ -43,13 +44,20 @@ def create_figure():
 
     sz = 9
     if size.value != 'None':
-        groups = pd.qcut(df[size.value].values, len(SIZES))
+        if len(set(df[size.value])) > N_SIZES:
+            groups = pd.qcut(df[size.value].values, N_SIZES, duplicates='drop')
+        else:
+            groups = pd.Categorical(df[size.value])
         sz = [SIZES[xx] for xx in groups.codes]
 
     c = "#31AADE"
     if color.value != 'None':
-        groups = pd.qcut(df[color.value].values, len(COLORS))
+        if len(set(df[color.value])) > N_SIZES:
+            groups = pd.qcut(df[color.value].values, N_COLORS, duplicates='drop')
+        else:
+            groups = pd.Categorical(df[color.value])
         c = [COLORS[xx] for xx in groups.codes]
+
     p.circle(x=xs, y=ys, color=c, size=sz, line_color="white", alpha=0.6, hover_color='white', hover_alpha=0.5)
 
     return p
@@ -65,10 +73,10 @@ x.on_change('value', update)
 y = Select(title='Y-Axis', value='hp', options=columns)
 y.on_change('value', update)
 
-size = Select(title='Size', value='None', options=['None'] + quantileable)
+size = Select(title='Size', value='None', options=['None'] + continuous)
 size.on_change('value', update)
 
-color = Select(title='Color', value='None', options=['None'] + quantileable)
+color = Select(title='Color', value='None', options=['None'] + continuous)
 color.on_change('value', update)
 
 controls = widgetbox([x, y, color, size], width=200)

@@ -39,11 +39,9 @@ class Expression(Model):
         v_compute: (source) ->
             # compute an array of values
 
-    Note that the result of this call will be automatically saved and re-used
-    for each ``source`` that is passed in. If a ``source`` is changed, then
-    the saved value for that source is discarded, and the next call will
-    re-compute (and save) a new value. If you wish to prevent this caching, you
-    may implement ``_v_compute: (source)`` instead.
+    .. note::
+        If you wish for results to be cached per source, and updated only if
+        the source changes, implement `_v_compute: (souce)` instead.
 
     '''
     pass

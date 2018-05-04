@@ -68,4 +68,16 @@ renamed from ``src/coffee`` to ``src/lib``. This change affects only bokehjs'
 contributors or other advanced users (e.g. when repackaging bokehjs with
 Webpack or other JavaScript module bundler).
 
+``BOKEH_DOCS_MISSING_API_KEY_OK`` environment variable
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This environment variable is no longer used by Bokeh. Previously, the
+``bokeh.sphinxext`` plot directive would always fail by default if a
+``GOOGLE_API_KEY`` environment variable was not defined, and this environment
+variable could be set to override that default behavior. Now, builds will
+succeed by default, even witout a Google API key defined (but Google Maps plots
+will not fully render). To require an API be defined (i.e. to restore the
+previous behavior) you can now set ``bokeh_missing_google_api_key_ok = False``
+in the Sphinx config file.
+
 .. _project roadmap: https://bokehplots.com/pages/roadmap.html

@@ -3,11 +3,11 @@ import * as Numbro from "numbro"
 import tz = require("timezone")
 
 import {escape} from "./string"
-import {isNumber, isArray, isTypedArray} from "./types"
+import {isNumber, isString, isArray, isTypedArray} from "./types"
 
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
 import {ImageIndex} from "../../models/glyphs/image"
-
+import {CustomJSHover} from 'models/tools/inspectors/customjs_hover'
 
 function _format_number(num: string | number): string {
   if (isNumber(num)) {
@@ -28,8 +28,8 @@ function _format_number(num: string | number): string {
 }
 
 
-export function replace_placeholders(str: string, data_source: ColumnarDataSource, i : number | ImageIndex,
-    formatters: {[key: string]: "numeral" | "printf" | "datetime"} | null = null, special_vars: {[key: string]: any} = {}): string {
+export function replace_placeholders(str: string, data_source: ColumnarDataSource, i: number | ImageIndex,
+    formatters: {[key: string]: CustomJSHover | "numeral" | "printf" | "datetime"} | null = null, special_vars: {[key: string]: any} = {}): string {
 
   str = str.replace(/(^|[^\$])\$(\w+)/g, (_match, prefix, name) => `${prefix}@$${name}`)
 
@@ -76,18 +76,22 @@ export function replace_placeholders(str: string, data_source: ColumnarDataSourc
         // see if the field has an entry in the formatters dict
         if (formatters != null && name in formatters) {
           const formatter = formatters[name]
-          switch (formatter) {
-            case "numeral":
-              replacement = Numbro.format(value, format)
-              break
-            case "datetime":
-              replacement = tz(value, format)
-              break
-            case "printf":
-              replacement = sprintf(format, value)
-              break
-            default:
-              throw new Error(`Unknown tooltip field formatter type '${formatter}'`)
+          if (isString(formatter)) {
+            switch (formatter) {
+              case "numeral":
+                replacement = Numbro.format(value, format)
+                break
+              case "datetime":
+                replacement = tz(value, format)
+                break
+              case "printf":
+                replacement = sprintf(format, value)
+                break
+              default:
+                throw new Error(`Unknown tooltip field formatter type '${formatter}'`)
+            }
+          } else {
+            replacement = formatter.format(value, format, special_vars)
           }
         // if not assume the format string is Numbro
         } else
