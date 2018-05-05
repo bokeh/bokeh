@@ -167,3 +167,10 @@ notebook is shown below:
 .. _interactors: http://ipywidgets.readthedocs.io/en/latest/examples/Using%20Interact.html
 
 .. _bkzep: https://github.com/zjffdu/bkzep
+
+More Example Notebooks
+----------------------
+
+- `Bokeh tutorial`_
+
+.. _Bokeh tutorial: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb
