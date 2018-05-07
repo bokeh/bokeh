@@ -20,7 +20,7 @@ export interface SliderSpec {
 export abstract class AbstractSliderView extends WidgetView {
   model: AbstractSlider
 
-  protected sliderEl: noUiSlider.Instance
+  protected sliderEl: any // To allow for extention for IonRangeSlider
   protected titleEl: HTMLElement
   protected valueEl: HTMLElement
   protected callback_wrapper?: () => void
