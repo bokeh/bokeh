@@ -61,15 +61,15 @@ export class ImageView extends XYGlyphView {
   }
 
   _index_data(): SpatialIndex {
-    const points = [];
+    const points = []
     for (let i = 0, end = this._x.length; i < end; i++) {
-      const [l, r, t, b] = this._lrtb(i);
-      if (isNaN(l+r+t+b) || !isFinite(l+r+t+b)) {
-        continue;
+      const [l, r, t, b] = this._lrtb(i)
+      if (isNaN(l + r + t + b) || !isFinite(l + r + t + b)) {
+        continue
       }
-      points.push({minX: l, minY: b, maxX: r, maxY: t, i});
+      points.push({minX: l, minY: b, maxX: r, maxY: t, i})
     }
-    return new SpatialIndex(points);
+    return new SpatialIndex(points)
   }
 
   _lrtb(i: number) : [number, number, number, number]{
@@ -80,24 +80,23 @@ export class ImageView extends XYGlyphView {
     return [l, r, t, b]
   }
 
-
   _image_index(index : number, x: number, y : number) : ImageIndex {
-    const [l,r,t,b] = this._lrtb(index);
+    const [l,r,t,b] = this._lrtb(index)
     const width = this._width[index]
     const height = this._height[index]
-    const dx = (r - l) / width;
-    const dy = (t - b) / height;
-    const dim1 = Math.floor((x-l) / dx)
-    const dim2 = Math.floor((y-b) / dy)
-    return {index:index, dim1:dim1, dim2:dim2, flat_index :((dim2 * width) + dim1)}
+    const dx = (r - l) / width
+    const dy = (t - b) / height
+    const dim1 = Math.floor((x - l) / dx)
+    const dim2 = Math.floor((y - b) / dy)
+    return {index: index, dim1: dim1, dim2: dim2, flat_index: ((dim2 * width) + dim1)}
   }
 
   _hit_point(geometry: PointGeometry) : Selection {
-    const {sx, sy} = geometry;
-    const x = this.renderer.xscale.invert(sx);
-    const y = this.renderer.yscale.invert(sy);
-    const bbox = hittest.validate_bbox_coords([x, x], [y, y]);
-    const candidates = this.index.indices(bbox);
+    const {sx, sy} = geometry
+    const x = this.renderer.xscale.invert(sx)
+    const y = this.renderer.yscale.invert(sy)
+    const bbox = hittest.validate_bbox_coords([x, x], [y, y])
+    const candidates = this.index.indices(bbox)
     const result = hittest.create_empty_hit_test_result()
 
     result.image_indices = []
@@ -106,7 +105,7 @@ export class ImageView extends XYGlyphView {
         result.image_indices.push(this._image_index(index, x,y))
       }
     }
-    return result;
+    return result
   }
 
 
