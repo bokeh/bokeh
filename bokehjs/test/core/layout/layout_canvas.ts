@@ -1,13 +1,14 @@
-{expect} = require "chai"
-utils = require "../../utils"
+import {expect} from "chai"
 
-{LayoutCanvas} = utils.require("core/layout/layout_canvas")
-{Strength, Variable}  = utils.require "core/layout/solver"
+import {LayoutCanvas} from "core/layout/layout_canvas"
+import {Variable} from "core/layout/solver"
 
-describe "LayoutCanvas", ->
+class SomeLayoutCanvas extends LayoutCanvas {}
 
-  it "should get new variables on initialize", ->
-    c = new LayoutCanvas()
+describe("LayoutCanvas", () => {
+
+  it("should get new variables on initialize", () => {
+    const c = new SomeLayoutCanvas()
     expect(c).to.have.property('_top')
     expect(c).to.have.property('_left')
     expect(c).to.have.property('_width')
@@ -16,3 +17,5 @@ describe "LayoutCanvas", ->
     expect(c._left).to.be.an.instanceOf(Variable)
     expect(c._width).to.be.an.instanceOf(Variable)
     expect(c._height).to.be.an.instanceOf(Variable)
+  })
+})
