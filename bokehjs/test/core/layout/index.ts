@@ -1,2 +1,2 @@
-require "./layout_canvas"
-require "./side_panel"
+import "./layout_canvas"
+import "./side_panel"
