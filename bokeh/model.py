@@ -406,10 +406,16 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
 
         Args:
             attr (str) : an attribute name on this object
-            callback (callable) : a callback function to register
+            *callbacks (callable) : callback functions to register
 
         Returns:
             None
+
+        Example:
+
+        .. code-block:: python
+
+            widget.on_change('value', callback1, callback2, ..., callback_n)
 
         '''
         if attr not in self.properties():
