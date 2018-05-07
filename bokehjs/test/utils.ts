@@ -1,62 +1,63 @@
-sinon = require 'sinon'
+import * as sinon from "sinon"
 
-moduleRequire = (name) ->
-  require "#{__dirname}/../build/js/tree/#{name}"
+function moduleRequire(name: string) {
+  return require(`${__dirname}/../build/js/tree/${name}`)
+}
 
-{CanvasView} = moduleRequire("models/canvas/canvas")
-{Solver}  = moduleRequire("core/layout/solver")
+export {moduleRequire as require}
 
-stub_canvas = () ->
-  # Stub the canvas context
-  MockCanvasContext = {
-    beginPath: () -> null
-    clearRect: () -> null
-    clip: () -> null
-    drawImage: () -> null
-    fillRect: () -> null
-    fillText: () -> null
-    lineTo: () -> null
-    measureText: () -> {'width': 1, 'ascent': 1}
-    moveTo: () -> null
-    rect: () -> null
-    restore: () -> null
-    rotate: () -> null
-    save: () -> null
-    scale: () -> null
-    stroke: () -> null
-    strokeRect: () -> null
-    translate: () -> null
+import {CanvasView} from "models/canvas/canvas"
+import {Solver} from "core/layout/solver"
+
+export function stub_canvas(): void {
+  // Stub the canvas context
+  const MockCanvasContext = {
+    beginPath()  : any { return null },
+    clearRect()  : any { return null },
+    clip()       : any { return null },
+    drawImage()  : any { return null },
+    fillRect()   : any { return null },
+    fillText()   : any { return null },
+    lineTo()     : any { return null },
+    measureText(): any { return {width: 1, ascent: 1} },
+    moveTo()     : any { return null },
+    rect()       : any { return null },
+    restore()    : any { return null },
+    rotate()     : any { return null },
+    save()       : any { return null },
+    scale()      : any { return null },
+    stroke()     : any { return null },
+    strokeRect() : any { return null },
+    translate()  : any { return null },
   }
-  sinon.stub(CanvasView.prototype, 'get_ctx', () -> MockCanvasContext)
+  sinon.stub(CanvasView.prototype, 'get_ctx', () => MockCanvasContext)
+}
 
-stub_solver = () ->
-  # Stub solver methods we want to count
-  suggest_stub = sinon.stub(Solver.prototype, 'suggest_value')
-  add_stub = sinon.stub(Solver.prototype, 'add_constraint')
-  remove_stub = sinon.stub(Solver.prototype, 'remove_constraint')
-  update_stub = sinon.stub(Solver.prototype, 'update_variables')
-  # Stub other solver methods
+export function stub_solver(): any {
+  // Stub solver methods we want to count
+  const add = sinon.stub(Solver.prototype, 'add_constraint')
+  const remove = sinon.stub(Solver.prototype, 'remove_constraint')
+  const update = sinon.stub(Solver.prototype, 'update_variables')
+  const suggest = sinon.stub(Solver.prototype, 'suggest_value')
+  // Stub other solver methods
   sinon.stub(Solver.prototype, 'clear')
   sinon.stub(Solver.prototype, 'add_edit_variable')
   sinon.stub(Solver.prototype, 'remove_edit_variable')
-  return {'add': add_stub, 'remove': remove_stub, 'suggest': suggest_stub, 'update': update_stub}
+  return {add, remove, update, suggest}
+}
 
-unstub_canvas = () ->
-    CanvasView.prototype.get_ctx.restore()
+export function unstub_canvas(): void {
+  const canvas_view = CanvasView as any
+  canvas_view.prototype.get_ctx.restore()
+}
 
-unstub_solver = () ->
-    Solver.prototype.suggest_value.restore()
-    Solver.prototype.add_constraint.restore()
-    Solver.prototype.remove_constraint.restore()
-    Solver.prototype.update_variables.restore()
-    Solver.prototype.clear.restore()
-    Solver.prototype.add_edit_variable.restore()
-    Solver.prototype.remove_edit_variable.restore()
-
-module.exports = {
-  require: moduleRequire
-  stub_canvas: stub_canvas
-  stub_solver: stub_solver
-  unstub_canvas: unstub_canvas
-  unstub_solver: unstub_solver
+export function unstub_solver(): void {
+  const solver = Solver as any
+  solver.prototype.suggest_value.restore()
+  solver.prototype.add_constraint.restore()
+  solver.prototype.remove_constraint.restore()
+  solver.prototype.update_variables.restore()
+  solver.prototype.clear.restore()
+  solver.prototype.add_edit_variable.restore()
+  solver.prototype.remove_edit_variable.restore()
 }
