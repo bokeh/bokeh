@@ -594,7 +594,7 @@ class DatetimeTickFormatter(TickFormatter):
 
     months       = List(String,
                         help=_DATETIME_TICK_FORMATTER_HELP("``months``"),
-                        default=['%m/%Y', '%b%y']).accepts(String, lambda fmt: [fmt])
+                        default=['%m/%Y', '%b %Y']).accepts(String, lambda fmt: [fmt])
 
     years        = List(String,
                         help=_DATETIME_TICK_FORMATTER_HELP("``years``"),
