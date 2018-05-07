@@ -28,43 +28,9 @@ function _format_number(num: string | number): string {
 }
 
 
-export function replace_placeholders(str: string, data_source: ColumnarDataSource, i: number | ImageIndex,
-    formatters: {[key: string]: CustomJSHover | "numeral" | "printf" | "datetime"} | null = null, special_vars: {[key: string]: any} = {}): string {
 
-  str = str.replace(/(^|[^\$])\$(\w+)/g, (_match, prefix, name) => `${prefix}@$${name}`)
-
-  str = str.replace(/(^|[^@])@(?:(\$?\w+)|{([^{}]+)})(?:{([^{}]+)})?/g, (_match, prefix, name, long_name, format) => {
-    name = long_name != null ? long_name : name
-
-    let value: any
-    if (name[0] == "$")
-      value = special_vars[name.substring(1)]
-
-    const column = data_source.get_column(name)
-
-    if (!isNumber(i)) { // An ImageIndex
-      if (column != null) {
-        const data = column[i['index']]
-        if (isTypedArray(data) || isArray(data)) {
-          if (isArray(data[0])) { // Array of arrays format
-            let row : any
-            row = data[i['dim2']]
-            value = row[i['dim1']]
-          }
-          else {
-            value = data[i['flat_index']]
-          }
-        }
-        else {
-          value = data
-        }
-      }
-    }
-    else {
-      if (column != null)
-        value = column[i]
-    }
-
+function _apply_format(name: string, value: any, prefix: string, format: string,
+                       formatters: {[key: string]: CustomJSHover | "numeral" | "printf" | "datetime"} | null = null, special_vars: {[key: string]: any} = {}) : string {
     let replacement = null
     if (value == null)
       replacement = "???"
@@ -102,7 +68,48 @@ export function replace_placeholders(str: string, data_source: ColumnarDataSourc
     }
 
     return `${prefix}${escape(replacement)}`
+}
+
+export function replace_placeholders(str: string, data_source: ColumnarDataSource, i: number | ImageIndex,
+    formatters: {[key: string]: CustomJSHover | "numeral" | "printf" | "datetime"} | null = null, special_vars: {[key: string]: any} = {}): string {
+
+
+  str = str.replace(/(^|[^\$])\$(\w+)/g, (_match, prefix, name) => `${prefix}@$${name}`)
+
+  str = str.replace(/(^|[^@])@(?:(\$?\w+)|{([^{}]+)})(?:{([^{}]+)})?/g, (_match, prefix, name, long_name, format) => {
+    name = long_name != null ? long_name : name
+
+    let value: any
+    if (name[0] == "$")
+      value = special_vars[name.substring(1)]
+
+    const column = data_source.get_column(name)
+
+    if (!isNumber(i)) { // An ImageIndex
+      if (column != null) {
+        const data = column[i['index']]
+        if (isTypedArray(data) || isArray(data)) {
+          if (isArray(data[0])) { // Array of arrays format
+            let row : any
+            row = data[i['dim2']]
+            value = row[i['dim1']]
+          }
+          else {
+            value = data[i['flat_index']]
+          }
+        }
+        else {
+          value = data
+        }
+      }
+    }
+    else {
+      if (column != null)
+        value = column[i]
+    }
+
+    return _apply_format(name, value, prefix, format, formatters, special_vars)
   })
 
   return str
-}
+    }
