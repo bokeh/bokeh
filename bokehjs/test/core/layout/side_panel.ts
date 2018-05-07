@@ -1,101 +1,99 @@
-{expect} = require "chai"
-utils = require "../../utils"
-sinon = require 'sinon'
+import {expect} from "chai"
+import * as sinon from "sinon"
 
-{SidePanel} = utils.require("core/layout/side_panel")
-{update_panel_constraints} = utils.require("core/layout/side_panel")
+import * as utils from "../../utils"
 
-{Annotation} = utils.require("models/annotations/annotation")
-{Axis} = utils.require("models/axes/axis")
-{BasicTicker} = utils.require("models/tickers/basic_ticker")
-{BasicTickFormatter} = utils.require("models/formatters/basic_tick_formatter")
-{Plot} = utils.require("models/plots/plot")
-{PlotView} = utils.require("models/plots/plot")
-{Range1d} = utils.require("models/ranges/range1d")
-{Toolbar} = utils.require("models/tools/toolbar")
+import {SidePanel} from "core/layout/side_panel"
+import {update_panel_constraints} from "core/layout/side_panel"
 
-describe "SidePanel", ->
+import {Axis} from "models/axes/axis"
+import {BasicTicker} from "models/tickers/basic_ticker"
+import {BasicTickFormatter} from "models/formatters/basic_tick_formatter"
+import {Plot} from "models/plots/plot"
+import {Range1d} from "models/ranges/range1d"
 
-  describe "apply_location_heuristics", ->
+describe("SidePanel", () => {
 
-    it "should calculate appropriate axis_label text properties based on location", ->
-      p = new SidePanel({side: 'left'})
-      ctx = {}
-      p.apply_label_text_heuristics(ctx, 'parallel')
-      expect(ctx.textBaseline).to.be.equal "alphabetic"
-      expect(ctx.textAlign).to.be.equal "center"
+  describe("apply_location_heuristics", () => {
 
-      p2 = new SidePanel({side: 'below'})
-      ctx = {}
-      p2.apply_label_text_heuristics(ctx, Math.PI/2)
-      expect(ctx.textBaseline).to.be.equal "middle"
-      expect(ctx.textAlign).to.be.equal "right"
+    it("should calculate appropriate axis_label text properties based on location", () => {
+      const p1 = new SidePanel({side: 'left'})
+      const ctx1 = {} as any
+      p1.apply_label_text_heuristics(ctx1, 'parallel')
+      expect(ctx1.textBaseline).to.be.equal("alphabetic")
+      expect(ctx1.textAlign).to.be.equal("center")
 
-  describe "get_label_angle_heuristic", ->
+      const p2 = new SidePanel({side: 'below'})
+      const ctx2 = {} as any
+      p2.apply_label_text_heuristics(ctx2, Math.PI/2)
+      expect(ctx2.textBaseline).to.be.equal("middle")
+      expect(ctx2.textAlign).to.be.equal("right")
+    })
+  })
 
-    it "should calculate appropriate axis_label angle rotation based on location", ->
-      p = new SidePanel({side: 'left'})
-      angle = p.get_label_angle_heuristic('parallel')
-      expect(angle).to.be.equal -Math.PI/2
+  describe("get_label_angle_heuristic", () => {
 
-      p2 = new SidePanel({side: 'below'})
-      angle = p.get_label_angle_heuristic('horizontal')
-      expect(angle).to.be.equal 0
+    it("should calculate appropriate axis_label angle rotation based on location", () => {
+      const p1 = new SidePanel({side: 'left'})
+      const angle1 = p1.get_label_angle_heuristic('parallel')
+      expect(angle1).to.be.equal(-Math.PI/2)
 
-  describe "update_panel_constraints", ->
-    # Using axis_view as the view to pass into update_panel_constraints
+      const p2 = new SidePanel({side: 'below'})
+      const angle2 = p2.get_label_angle_heuristic('horizontal')
+      expect(angle2).to.be.equal(0)
+    })
+  })
 
-    afterEach ->
+  describe("update_panel_constraints", () => {
+
+    // Using axis_view as the view to pass into update_panel_constraints
+    afterEach(() => {
       utils.unstub_canvas()
       utils.unstub_solver()
+    })
 
-    beforeEach ->
+    beforeEach(function() {
       utils.stub_canvas()
-      solver_stubs = utils.stub_solver()
-      @solver_add_constraint = solver_stubs['add']
-      @solver_remove_constraint = solver_stubs['remove']
+      const solver_stubs = utils.stub_solver()
+      this.solver_add_constraint = solver_stubs.add
+      this.solver_remove_constraint = solver_stubs.remove
 
-      plot = new Plot({
-        x_range: new Range1d({start: 0, end: 1})
-        y_range: new Range1d({start: 0, end: 1})
+      const plot = new Plot({
+        x_range: new Range1d({start: 0, end: 1}),
+        y_range: new Range1d({start: 0, end: 1}),
       })
-      axis = new Axis({
+      const axis = new Axis({
         ticker: new BasicTicker(),
         formatter: new BasicTickFormatter(),
       })
       plot.add_layout(axis, 'below')
-      plot_view = new plot.default_view({model: plot, parent: null})
-      @axis_view = plot_view.plot_canvas_view.renderer_views[axis.id]
+      const plot_view = new plot.default_view({model: plot, parent: null}) as any
+      this.axis_view = plot_view.plot_canvas_view.renderer_views[axis.id]
+    })
 
-    ### XXX: no more _size_constraint
-    it "should set last_size", ->
-      sinon.stub(@axis_view, '_tick_extent', () -> 10)
-      sinon.stub(@axis_view, '_axis_label_extent', () -> 15)
-      sinon.stub(@axis_view, '_tick_label_extent', () -> 5)
-      expect(@axis_view._size_constraint).to.be.undefined
-      update_panel_constraints(@axis_view)
-      expect(@axis_view._size_constraint.expression.constant).to.be.equal(-30)
-    ###
+    it("should add two constraints on first call (one for size, one for full)", function() {
+      const add_constraint_call_count = this.solver_add_constraint.callCount
+      update_panel_constraints(this.axis_view)
+      expect(this.solver_add_constraint.callCount).to.be.equal(add_constraint_call_count + 1)
+    })
 
-    it "should add two constraints on first call (one for size, one for full)", ->
-      add_constraint_call_count = @solver_add_constraint.callCount
-      update_panel_constraints(@axis_view)
-      expect(@solver_add_constraint.callCount).to.be.equal add_constraint_call_count + 1
+    it("should add and remove a constraint if the size changes", function() {
+      this.axis_view._tick_extent = sinon.stub()
+      this.axis_view._tick_extent.onCall(0).returns(10)
+      this.axis_view._tick_extent.onCall(1).returns(20)
 
-    it "should add and remove a constraint if the size changes", ->
-      @axis_view._tick_extent = sinon.stub()
-      @axis_view._tick_extent.onCall(0).returns(10)
-      @axis_view._tick_extent.onCall(1).returns(20)
+      const add_constraint_call_count = this.solver_add_constraint.callCount
+      const remove_constraint_call_count = this.solver_remove_constraint.callCount
 
-      add_constraint_call_count = @solver_add_constraint.callCount
-      remove_constraint_call_count = @solver_remove_constraint.callCount
+      update_panel_constraints(this.axis_view)
 
-      update_panel_constraints(@axis_view)
+      expect(this.solver_add_constraint.callCount).to.be.equal(add_constraint_call_count + 1)
+      expect(this.solver_remove_constraint.callCount).to.be.equal(remove_constraint_call_count + 0)
 
-      expect(@solver_add_constraint.callCount).to.be.equal(add_constraint_call_count + 1)
-      expect(@solver_remove_constraint.callCount).to.be.equal(remove_constraint_call_count + 0)
+      update_panel_constraints(this.axis_view)
 
-      update_panel_constraints(@axis_view)
-
-      expect(@solver_add_constraint.callCount).to.be.equal(add_constraint_call_count + 2)
-      expect(@solver_remove_constraint.callCount).to.be.equal(remove_constraint_call_count + 0)
+      expect(this.solver_add_constraint.callCount).to.be.equal(add_constraint_call_count + 2)
+      expect(this.solver_remove_constraint.callCount).to.be.equal(remove_constraint_call_count + 0)
+    })
+  })
+})
