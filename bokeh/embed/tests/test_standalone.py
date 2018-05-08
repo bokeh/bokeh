@@ -237,6 +237,23 @@ class Test_file_html(object):
         r = bes.file_html(test_plot, CDN, "&<")
         assert "<title>&amp;&lt;</title>" in r
 
+    def test_entire_doc_is_used(self):
+        from bokeh.document import Document
+        from bokeh.models import Button
+
+        fig = figure()
+        fig.x([0], [0])
+
+        button = Button(label="Button")
+
+        d = Document()
+        d.add_root(fig)
+        d.add_root(button)
+        out = bes.file_html([fig], CDN)
+
+        # this is a very coarse test but it will do
+        assert "bokeh-widgets" in out
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
