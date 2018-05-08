@@ -17,13 +17,12 @@ export type Index = number | ImageIndex
 export type Vars = {[key: string]: any}
 
 export const DEFAULT_FORMATTERS = {
-  "numeral"  : function(value:any, format:string, special_vars: Vars) { special_vars; return Numbro.format(value, format) },
-  "datetime" : function(value:any, format:string, special_vars: Vars) { special_vars; return tz(value, format)            },
-  "printf"   : function(value:any, format:string, special_vars: Vars) { special_vars; return sprintf(format, value)       },
+  "numeral"  : function(value:any, format:string, _special_vars: Vars) { return Numbro.format(value, format) },
+  "datetime" : function(value:any, format:string, _special_vars: Vars) { return tz(value, format)            },
+  "printf"   : function(value:any, format:string, _special_vars: Vars) { return sprintf(format, value)       },
 }
 
-export function basic_formatter(value:any, format:string, special_vars: Vars): string {
-  format; special_vars;
+export function basic_formatter(value:any, _format:string, _special_vars: Vars): string {
   if (isNumber(value)) {
     const format = (() => {
       switch (false) {
@@ -77,7 +76,7 @@ export function get_formatter(name: string, raw_spec: string, format: string, fo
 export function get_value(name: string, data_source: ColumnarDataSource, i: Index, special_vars: Vars) {
 
   if (name[0] == "$")
-    if (name[0] in special_vars)
+    if (name.substring(1) in special_vars)
       return special_vars[name.substring(1)]
     else
       throw new Error(`Unknown special variable '${name}'`)
