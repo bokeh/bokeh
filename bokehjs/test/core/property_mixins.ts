@@ -1,16 +1,19 @@
-{expect} = require "chai"
-utils = require "../utils"
+import {expect} from "chai"
 
-mixins = utils.require "core/property_mixins"
+import * as mixins from "core/property_mixins"
 
-describe "property_mixins module", ->
+describe("property_mixins module", () => {
 
-  describe "exports", ->
+  describe("exports", () => {
 
-    it "should have mixins", ->
-      expect("line" of mixins).to.be.true
-      expect("fill" of mixins).to.be.true
-      expect("text" of mixins).to.be.true
+    it("should have mixins", () => {
+      expect("line" in mixins).to.be.true
+      expect("fill" in mixins).to.be.true
+      expect("text" in mixins).to.be.true
+    })
 
-    it "should have a create function", ->
-       expect("create" of mixins).to.be.true
+    it("should have a create function", () => {
+      expect("create" in mixins).to.be.true
+    })
+  })
+})
