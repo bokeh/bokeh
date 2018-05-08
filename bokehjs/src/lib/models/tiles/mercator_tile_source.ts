@@ -90,7 +90,7 @@ export class MercatorTileSource extends TileSource {
     let i = 0
     for (const r of this._resolutions) {
       if (resolution > r) {
-        if (i === 0)
+        if (i == 0)
           return 0
         if (i > 0)
           return i - 1
@@ -98,7 +98,8 @@ export class MercatorTileSource extends TileSource {
       i += 1
     }
 
-    throw new Error("unreachable code")
+    // otherwise return the highest available resolution
+    return (i-1)
   }
 
   get_closest_level_by_extent(extent: Extent, height: number, width: number): number {
