@@ -78,37 +78,40 @@ export class BoxZoomToolView extends GestureToolView {
     return [[left, right], [bottom, top]]
   }
 
+  protected _compute_limits(curpoint: [number, number]): [[number, number], [number, number]] {
+    const frame = this.plot_model.frame
+    const dims = this.model.dimensions
+
+    let base_point = this._base_point!
+    if (this.model.origin == "center") {
+      const [cx, cy] = base_point
+      const [dx, dy] = curpoint
+      base_point = [cx - (dx - cx), cy - (dy - cy)]
+    }
+
+    let sx: [number, number]
+    let sy: [number, number]
+    if (this.model.match_aspect && dims == 'both')
+      [sx, sy] = this._match_aspect(base_point, curpoint, frame)
+    else
+      [sx, sy] = this.model._get_dim_limits(base_point, curpoint, frame, dims)
+
+    return [sx, sy]
+  }
+
   _pan_start(ev: GestureEvent): void {
     this._base_point = [ev.sx, ev.sy]
   }
 
   _pan(ev: GestureEvent): void {
     const curpoint: [number, number] = [ev.sx, ev.sy]
-    const frame = this.plot_model.frame
-    const dims = this.model.dimensions
-
-    let sx: [number, number]
-    let sy: [number, number]
-    if (this.model.match_aspect && dims == 'both')
-      [sx, sy] = this._match_aspect(this._base_point!, curpoint, frame)
-    else
-      [sx, sy] = this.model._get_dim_limits(this._base_point!, curpoint, frame, dims)
-
+    const [sx, sy] = this._compute_limits(curpoint)
     this.model.overlay.update({left: sx[0], right: sx[1], top: sy[0], bottom: sy[1]})
   }
 
   _pan_end(ev: GestureEvent): void {
     const curpoint: [number, number] = [ev.sx, ev.sy]
-    const frame = this.plot_model.frame
-    const dims = this.model.dimensions
-
-    let sx: [number, number]
-    let sy: [number, number]
-    if (this.model.match_aspect && dims == 'both')
-      [sx, sy] = this._match_aspect(this._base_point!, curpoint, frame)
-    else
-      [sx, sy] = this.model._get_dim_limits(this._base_point!, curpoint, frame, dims)
-
+    const [sx, sy] = this._compute_limits(curpoint)
     this._update(sx, sy)
 
     this.model.overlay.update({left: null, right: null, top: null, bottom: null})
@@ -170,6 +173,7 @@ export namespace BoxZoomTool {
     dimensions: Dimensions
     overlay: BoxAnnotation
     match_aspect: boolean
+    origin: "corner" | "center"
   }
 
   export interface Props extends GestureTool.Props {}
@@ -193,6 +197,7 @@ export class BoxZoomTool extends GestureTool {
       dimensions:   [ p.Dimensions, "both"            ],
       overlay:      [ p.Instance, DEFAULT_BOX_OVERLAY ],
       match_aspect: [ p.Bool,     false               ],
+      origin:       [ p.String,   "corner"            ], // Enum
     })
   }
 

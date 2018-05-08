@@ -11,6 +11,20 @@ export class BoxSelectToolView extends SelectToolView {
 
   protected _base_point: [number, number] | null
 
+  protected _compute_limits(curpoint: [number, number]): [[number, number], [number, number]] {
+    const frame = this.plot_model.frame
+    const dims = this.model.dimensions
+
+    let base_point = this._base_point!
+    if (this.model.origin == "center") {
+      const [cx, cy] = base_point
+      const [dx, dy] = curpoint
+      base_point = [cx - (dx - cx), cy - (dy - cy)]
+    }
+
+    return this.model._get_dim_limits(base_point, curpoint, frame, dims)
+  }
+
   _pan_start(ev: GestureEvent): void {
     const {sx, sy} = ev
     this._base_point = [sx, sy]
@@ -20,10 +34,7 @@ export class BoxSelectToolView extends SelectToolView {
     const {sx, sy} = ev
     const curpoint: [number, number] = [sx, sy]
 
-    const frame = this.plot_model.frame
-    const dims = this.model.dimensions
-
-    const [sxlim, sylim] = this.model._get_dim_limits(this._base_point!, curpoint, frame, dims)
+    const [sxlim, sylim] = this._compute_limits(curpoint)
     this.model.overlay.update({left: sxlim[0], right: sxlim[1], top: sylim[0], bottom: sylim[1]})
 
     if (this.model.select_every_mousemove) {
@@ -36,10 +47,7 @@ export class BoxSelectToolView extends SelectToolView {
     const {sx, sy} = ev
     const curpoint: [number, number] = [sx, sy]
 
-    const frame = this.plot_model.frame
-    const dims = this.model.dimensions
-
-    const [sxlim, sylim] = this.model._get_dim_limits(this._base_point!, curpoint, frame, dims)
+    const [sxlim, sylim] = this._compute_limits(curpoint)
     const append = ev.shiftKey
     this._do_select(sxlim, sylim, true, append)
 
@@ -100,6 +108,7 @@ export namespace BoxSelectTool {
     select_every_mousemove: boolean
     callback: any // XXX
     overlay: BoxAnnotation
+    origin: "corner" | "center"
   }
 
   export interface Props extends SelectTool.Props {}
@@ -121,10 +130,11 @@ export class BoxSelectTool extends SelectTool {
     this.prototype.default_view = BoxSelectToolView
 
     this.define({
-      dimensions:             [ p.Dimensions, "both"            ],
-      select_every_mousemove: [ p. Bool,    false               ],
-      callback:               [ p.Instance                      ],
-      overlay:                [ p.Instance, DEFAULT_BOX_OVERLAY ],
+      dimensions:             [ p.Dimensions, "both"              ],
+      select_every_mousemove: [ p.Bool,       false               ],
+      callback:               [ p.Instance                        ],
+      overlay:                [ p.Instance,   DEFAULT_BOX_OVERLAY ],
+      origin:                 [ p.String,     "corner"            ], // Enum
     })
   }
 
