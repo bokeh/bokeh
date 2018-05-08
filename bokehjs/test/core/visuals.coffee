@@ -1,6 +1,6 @@
 {expect} = require "chai"
 utils = require "../utils"
-{create_glyph_view} = require "../models/glyphs/glyph_utils"
+{create_glyph_renderer_view} = require "../models/glyphs/glyph_utils"
 
 {Visuals} = utils.require "core/visuals"
 {ColumnDataSource} = utils.require "models/sources/column_data_source"
@@ -58,7 +58,7 @@ describe "Visuals", ->
         fill_alpha: {"field": "fill_alpha"}
 
       circle = new Circle(attrs)
-      renderer_view = create_glyph_view(circle, {"fill_alpha": [0, 0.5, 1]}, true)
+      renderer_view = create_glyph_renderer_view(circle, {fill_alpha: [0, 0.5, 1]})
 
       filter = new IndexFilter({"indices": [1, 2]})
       renderer_view.model.view = new CDSView({'source': renderer_view.model.data_source, 'filters': [filter]})

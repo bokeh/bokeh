@@ -1,88 +1,103 @@
-utils = require "../../utils"
-sinon = require 'sinon'
+import * as sinon from "sinon"
 
-{Document} = utils.require("document")
-{Range1d} = utils.require("models/ranges/range1d")
-{Plot} = utils.require("models/plots/plot")
-{GlyphRenderer} = utils.require("models/renderers/glyph_renderer")
-{ColumnDataSource} = utils.require('models/sources/column_data_source')
-{PlotCanvasView} = utils.require('models/plots/plot_canvas')
-{Range1d} = utils.require("models/ranges/range1d")
-{LinearScale} = utils.require("models/scales/linear_scale")
-{LogScale} = utils.require("models/scales/log_scale")
-{CategoricalScale} = utils.require("models/scales/categorical_scale")
-{Range1d} = utils.require("models/ranges/range1d")
-{FactorRange} = utils.require("models/ranges/factor_range")
+import {Arrayable} from "core/types"
+import {Document} from "document"
+import {Range1d} from "models/ranges/range1d"
+import {Plot, PlotView} from "models/plots/plot"
+import {Glyph, GlyphView} from "models/glyphs/glyph"
+import {GlyphRenderer, GlyphRendererView} from "models/renderers/glyph_renderer"
+import {ColumnDataSource} from "models/sources/column_data_source"
+import {Scale} from "models/scales/scale"
+import {LinearScale} from "models/scales/linear_scale"
+import {LogScale} from "models/scales/log_scale"
+import {CategoricalScale} from "models/scales/categorical_scale"
+import {FactorRange} from "models/ranges/factor_range"
 
-create_glyph_view = (glyph, data={}, return_renderer_view=false) ->
-  ###
-  Requires stubbing the canvas and solver before calling
-  ###
-  doc = new Document()
-  plot = new Plot({
-    x_range: new Range1d({start: 0, end: 1})
-    y_range: new Range1d({start: 0, end: 1})
+export function create_glyph_renderer_view(glyph: Glyph, data: {[key: string]: Arrayable} = {}): GlyphRendererView {
+  /*
+   * Requires stubbing the canvas and solver before calling.
+   */
+  const doc = new Document()
+  const plot = new Plot({
+    x_range: new Range1d({start: 0, end: 1}),
+    y_range: new Range1d({start: 0, end: 1}),
   })
-  plot_view = new plot.default_view({model: plot, parent: null})
+  const plot_view = new plot.default_view({model: plot, parent: null}) as PlotView
   doc.add_root(plot)
-  plot_canvas_view = new plot.plot_canvas.default_view({model: plot.plot_canvas, parent: plot_view})
-  sinon.stub(plot_canvas_view, 'update_constraints')
 
-  @data_source = new ColumnDataSource({data: data})
+  const plot_canvas_view = plot_view.plot_canvas_view
+  sinon.stub(plot_canvas_view, "update_constraints")
 
-  glyph_renderer = new GlyphRenderer({
-    glyph: glyph
-    data_source: @data_source
+  const data_source = new ColumnDataSource({data})
+
+  const glyph_renderer = new GlyphRenderer({
+    glyph,
+    data_source: data_source,
   })
 
-  glyph_renderer_view = new glyph_renderer.default_view({
-    model: glyph_renderer
-    plot_view: plot_canvas_view
-    parent: plot_canvas_view
-  })
+  const glyph_renderer_view = new glyph_renderer.default_view({
+    model: glyph_renderer,
+    plot_view: plot_canvas_view,
+    parent: plot_canvas_view,
+  }) as GlyphRendererView
 
-  if return_renderer_view
-    return glyph_renderer_view
-  else
-    return glyph_renderer_view.glyph
+  return glyph_renderer_view
+}
 
-make_scale = (axis, type, reversed) ->
-  switch axis
-    when "x" then [start, end] = [0, 200]
-    when "y" then [start, end] = [200, 0]
+export function create_glyph_view(glyph: Glyph, data: {[key: string]: Arrayable} = {}): GlyphView {
+  return create_glyph_renderer_view(glyph, data).glyph /* glyph_view */
+}
 
-  if reversed
+export type AxisType = "linear" | "log" | "categorical"
+
+function make_scale(axis: "x" | "y", axis_type: AxisType, reversed: boolean): Scale {
+  let end: number, start: number
+
+  switch (axis) {
+    case "x": {
+      [start, end] = [0, 200]
+      break
+    }
+    case "y": {
+      [start, end] = [200, 0]
+      break
+    }
+    default:
+      throw new Error("unrechable code")
+  }
+
+  if (reversed) {
     [start, end] = [end, start]
+  }
 
-  switch type
-    when "linear"
+  switch (axis_type) {
+    case "linear":
       return new LinearScale({
-        source_range: new Range1d({start: 0, end: 100})
-        target_range: new Range1d({start: start, end: end})
+        source_range: new Range1d({start: 0, end: 100}),
+        target_range: new Range1d({start, end}),
       })
-    when "log"
+    case "log":
       return new LogScale({
-        source_range: new Range1d({start: 1, end: 1000})
-        target_range: new Range1d({start: start, end: end})
+        source_range: new Range1d({start: 1, end: 1000}),
+        target_range: new Range1d({start, end}),
       })
-    when "categorical"
+    case "categorical":
       return new CategoricalScale({
-        source_range: new FactorRange({factors:['a', 'b'], range_padding: 0})
-        target_range: new Range1d({start: start, end: end})
+        source_range: new FactorRange({factors:["a", "b"], range_padding: 0}),
+        target_range: new Range1d({start, end}),
       })
-    else
-      throw new Error("unknown scale type: #{type}")
+    default:
+      throw new Error(`unknown scale type: ${axis_type}`)
+  }
+}
 
-set_scales = (glyph_view, type, reversed=false) ->
-  xscale = make_scale("x", type, reversed)
-  yscale = make_scale("y", type, reversed)
+export function set_scales(glyph_view: GlyphView, axis_type: AxisType, reversed: boolean = false): void {
+  const xscale = make_scale("x", axis_type, reversed)
+  const yscale = make_scale("y", axis_type, reversed)
 
   glyph_view.renderer.xscale = xscale
   glyph_view.renderer.yscale = yscale
-  glyph_view.renderer.plot_view.frame.xscales['default'] = xscale
-  glyph_view.renderer.plot_view.frame.yscales['default'] = yscale
 
-module.exports = {
-  create_glyph_view: create_glyph_view,
-  set_scales: set_scales,
+  glyph_view.renderer.plot_view.frame.xscales["default"] = xscale
+  glyph_view.renderer.plot_view.frame.yscales["default"] = yscale
 }

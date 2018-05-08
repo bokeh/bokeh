@@ -162,7 +162,7 @@ describe "Rect", ->
         height: {value: 0.5}
       })
       data = {x: ['a'], y: ['b']}
-      glyph_view = create_glyph_view(glyph, data, "categorical")
+      glyph_view = create_glyph_view(glyph, data)
       glyph_view.map_data()
       expect(glyph_view.sx0).to.be.deep.equal({'0': 25})
       expect(glyph_view.sy1).to.be.deep.equal({'0': 25})

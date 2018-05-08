@@ -10,7 +10,7 @@ utils = require "../utils"
 {IndexFilter} = utils.require("models/filters/index_filter")
 
 {create_hit_test_result_from_hits, create_empty_hit_test_result} = utils.require("core/hittest")
-{create_glyph_view} = require("../models/glyphs/glyph_utils")
+{create_glyph_renderer_view} = require("../models/glyphs/glyph_utils")
 
 describe "SelectionManager", ->
 
@@ -20,7 +20,7 @@ describe "SelectionManager", ->
   beforeEach ->
     utils.stub_canvas()
     @glyph = new Rect()
-    @renderer_view = create_glyph_view(@glyph, {'x': [1, 2, 3]}, true)
+    @renderer_view = create_glyph_renderer_view(@glyph, {'x': [1, 2, 3]})
     @glyph_stub = sinon.stub(@renderer_view.glyph, "hit_test")
 
   describe "select", ->
