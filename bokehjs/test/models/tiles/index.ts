@@ -1,1 +1,1 @@
-require "./tile_renderer"
+import "./tile_renderer"

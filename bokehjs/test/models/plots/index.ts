@@ -1,2 +1,2 @@
-require "./plot"
-require "./plot_canvas"
+import "./plot"
+import "./plot_canvas"

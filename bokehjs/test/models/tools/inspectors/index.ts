@@ -1,2 +1,2 @@
-require "./crosshair_tool"
-require "./customjs_hover"
+import "./crosshair_tool"
+import "./customjs_hover"

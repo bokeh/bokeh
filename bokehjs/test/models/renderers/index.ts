@@ -1,2 +1,2 @@
-require "./glyph_renderer"
-require "./renderer"
+import "./glyph_renderer"
+import "./renderer"

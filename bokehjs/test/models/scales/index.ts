@@ -1,3 +1,3 @@
-require "./categorical_scale"
-require "./linear_scale"
-require "./log_scale"
+import "./categorical_scale"
+import "./linear_scale"
+import "./log_scale"

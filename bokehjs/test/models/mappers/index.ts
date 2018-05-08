@@ -1,4 +1,4 @@
-require "./categorical_color_mapper"
-require "./color_mapper"
-require "./linear_color_mapper"
-require "./log_color_mapper"
+import "./categorical_color_mapper"
+import "./color_mapper"
+import "./linear_color_mapper"
+import "./log_color_mapper"

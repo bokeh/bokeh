@@ -1,3 +1,3 @@
-require "./box_zoom_tool"
-require "./wheel_pan_tool"
-require "./wheel_zoom_tool"
+import "./box_zoom_tool"
+import "./wheel_pan_tool"
+import "./wheel_zoom_tool"

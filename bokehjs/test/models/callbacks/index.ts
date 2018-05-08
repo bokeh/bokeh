@@ -1,2 +1,2 @@
-require "./customjs"
-require "./openurl"
+import "./customjs"
+import "./openurl"

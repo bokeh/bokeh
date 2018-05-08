@@ -1,2 +1,2 @@
-require "./zoom_in_tool"
-require "./zoom_out_tool"
+import "./zoom_in_tool"
+import "./zoom_out_tool"

@@ -1,1 +1,1 @@
-require "./axis"
+import "./axis"

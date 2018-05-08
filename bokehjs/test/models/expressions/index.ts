@@ -1,1 +1,1 @@
-require "./stack"
+import "./stack"

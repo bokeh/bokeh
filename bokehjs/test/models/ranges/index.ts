@@ -1,3 +1,3 @@
-require "./data_range1d"
-require "./factor_range"
-require "./range1d"
+import "./data_range1d"
+import "./factor_range"
+import "./range1d"

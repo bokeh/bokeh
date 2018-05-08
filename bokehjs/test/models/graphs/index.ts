@@ -1,2 +1,2 @@
-require "./graph_hit_test_policy"
-require "./static_layout_provider"
+import "./graph_hit_test_policy"
+import "./static_layout_provider"

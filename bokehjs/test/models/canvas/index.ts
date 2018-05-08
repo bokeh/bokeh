@@ -1,2 +1,2 @@
-require "./canvas"
-require "./cartesian_frame"
+import "./canvas"
+import "./cartesian_frame"

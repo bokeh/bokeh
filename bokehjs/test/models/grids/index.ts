@@ -1,1 +1,1 @@
-require "./grid"
+import "./grid"
