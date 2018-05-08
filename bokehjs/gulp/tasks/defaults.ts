@@ -4,6 +4,8 @@ import * as gulp from "gulp"
 import * as gutil from "gulp-util"
 import {argv} from "yargs"
 
+import {build_dir} from "../paths"
+
 gulp.task("defaults:generate", (cb: (arg?: any) => void) => {
   if (argv.verbose) {
     gutil.log("Generating defaults.ts")
@@ -14,7 +16,7 @@ gulp.task("defaults:generate", (cb: (arg?: any) => void) => {
   const oldpath = process.env['PYTHONPATH']
   const pypath = oldpath != null ? `${basedir}:${oldpath}` : basedir
   const env = Object.assign({}, process.env, {PYTHONPATH: pypath})
-  const handle = child_process.spawn("python", ['./gulp/tasks/generate_defaults.py', './test/'], {
+  const handle = child_process.spawn("python", ['./gulp/tasks/generate_defaults.py', build_dir.test], {
     env: env,
     cwd: bokehjsdir
   })

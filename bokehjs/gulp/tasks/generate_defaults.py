@@ -1,8 +1,8 @@
-import codecs
-import inspect
-from json import loads
+import io
 import os
 import sys
+import inspect
+from json import loads
 
 from bokeh.model import Model
 import bokeh.models as models
@@ -72,19 +72,19 @@ for leaf_widget in leaves(all_tree, widget_class):
         del all_json[vm_name]
 
 def output_defaults_module(filename, defaults):
-    output = serialize_json(defaults, indent=2)
+    dest = os.path.join(dest_dir, ".generated_defaults", filename)
+
     try:
-        os.makedirs(os.path.dirname(filename))
+        os.makedirs(os.path.dirname(dest))
     except OSError:
         pass
-    f = codecs.open(filename, 'w', 'utf-8')
-    f.write(output)
-    f.close()
+
+    output = serialize_json(defaults, indent=2)
+
+    with io.open(dest, "w", encoding="utf-8") as f:
+        f.write(output)
 
     print("Wrote %s with %d model classes" % (filename, len(defaults)))
 
-
-output_defaults_module(filename = os.path.join(dest_dir, '.generated_defaults/models_defaults.json'),
-                       defaults = all_json)
-output_defaults_module(filename = os.path.join(dest_dir, '.generated_defaults/widgets_defaults.json'),
-                       defaults = widgets_json)
+output_defaults_module('models_defaults.json', all_json)
+output_defaults_module('widgets_defaults.json', widgets_json)
