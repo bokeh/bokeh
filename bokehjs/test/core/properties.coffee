@@ -1,5 +1,4 @@
 {expect} = require "chai"
-utils = require "../utils"
 
 p = properties = require "core/properties"
 

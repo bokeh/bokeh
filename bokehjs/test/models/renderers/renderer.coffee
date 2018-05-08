@@ -1,5 +1,4 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
 {Renderer, RendererView} = require("models/renderers/renderer")
 

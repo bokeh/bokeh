@@ -1,5 +1,4 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
 {LinearScale} = require("models/scales/linear_scale")
 {Range1d} = require("models/ranges/range1d")

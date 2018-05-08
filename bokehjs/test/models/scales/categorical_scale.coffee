@@ -1,5 +1,4 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
 {CategoricalScale} = require("models/scales/categorical_scale")
 {FactorRange} = require("models/ranges/factor_range")

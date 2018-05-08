@@ -1,5 +1,4 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
 {IndexFilter} = require("models/filters/index_filter")
 

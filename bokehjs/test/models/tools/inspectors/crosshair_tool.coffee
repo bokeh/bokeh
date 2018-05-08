@@ -1,5 +1,4 @@
 {expect} = require "chai"
-utils = require "../../../utils"
 
 {CrosshairTool} = require("models/tools/inspectors/crosshair_tool")
 {DataRange1d} = require("models/ranges/data_range1d")

@@ -1,6 +1,5 @@
 {expect} = require "chai"
 sinon = require "sinon"
-utils = require "../../utils"
 
 {_convert_color, _convert_palette} = require("models/mappers/color_mapper")
 

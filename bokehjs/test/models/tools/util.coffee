@@ -1,5 +1,4 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
 {compute_renderers} = require("models/tools/util")
 {GlyphRenderer} = require("models/renderers/glyph_renderer")

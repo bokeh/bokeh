@@ -1,5 +1,4 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
 {SidePanel} = require("core/layout/side_panel")
 

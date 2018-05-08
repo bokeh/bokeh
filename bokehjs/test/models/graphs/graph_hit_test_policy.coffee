@@ -1,6 +1,6 @@
 {expect} = require "chai"
 sinon = require "sinon"
-utils = require "../../utils"
+stubs = require "../../stubs"
 
 {build_views} = require("core/build_views")
 {create_hit_test_result_from_hits, create_empty_hit_test_result} = require("core/hittest")
@@ -29,12 +29,12 @@ class TrivialLayoutProvider extends LayoutProvider
 describe "GraphHitTestPolicy", ->
 
   afterEach ->
-    utils.unstub_canvas()
+    stubs.unstub_canvas()
     @gv.node_view.glyph.hit_test.restore()
     @gv.edge_view.glyph.hit_test.restore()
 
   beforeEach ->
-    utils.stub_canvas()
+    stubs.stub_canvas()
     doc = new Document()
 
     @plot = new Plot({

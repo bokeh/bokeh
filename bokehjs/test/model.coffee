@@ -1,5 +1,4 @@
 {expect} = require "chai"
-utils = require "./utils"
 sinon = require "sinon"
 
 {CustomJS} = require("models/callbacks/customjs")

@@ -1,5 +1,5 @@
 {expect} = require "chai"
-utils = require "../../utils"
+stubs = require "../../stubs"
 sinon = require 'sinon'
 
 {Solver, Variable} = require("core/layout/solver")
@@ -30,12 +30,12 @@ sinon = require 'sinon'
 describe "PlotCanvas", ->
 
   afterEach ->
-    utils.unstub_canvas()
-    utils.unstub_solver()
+    stubs.unstub_canvas()
+    stubs.unstub_solver()
 
   beforeEach ->
-    utils.stub_canvas()
-    utils.stub_solver()
+    stubs.stub_canvas()
+    stubs.stub_solver()
     @doc = new Document()
     @plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
@@ -99,12 +99,12 @@ describe "PlotCanvas", ->
 describe "PlotCanvasView pause", ->
 
   afterEach ->
-    utils.unstub_canvas()
-    utils.unstub_solver()
+    stubs.unstub_canvas()
+    stubs.unstub_solver()
 
   beforeEach ->
-    utils.stub_canvas()
-    utils.stub_solver()
+    stubs.stub_canvas()
+    stubs.stub_solver()
     @doc = new Document()
     @plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
@@ -142,12 +142,12 @@ describe "PlotCanvasView pause", ->
 describe "PlotCanvas constraints", ->
 
   afterEach ->
-    utils.unstub_canvas()
-    utils.unstub_solver()
+    stubs.unstub_canvas()
+    stubs.unstub_solver()
 
   beforeEach ->
-    utils.stub_canvas()
-    utils.stub_solver()
+    stubs.stub_canvas()
+    stubs.stub_solver()
     doc = new Document()
     plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
@@ -180,12 +180,12 @@ describe "PlotCanvas constraints", ->
 describe "PlotCanvasView render", ->
 
   afterEach ->
-    utils.unstub_canvas()
-    utils.unstub_solver()
+    stubs.unstub_canvas()
+    stubs.unstub_solver()
 
   beforeEach ->
-    utils.stub_canvas()
-    utils.stub_solver()
+    stubs.stub_canvas()
+    stubs.stub_solver()
 
     doc = new Document()
     plot = new Plot({
@@ -215,12 +215,12 @@ describe "PlotCanvasView resize", ->
   wb = 33
 
   afterEach ->
-    utils.unstub_canvas()
-    utils.unstub_solver()
+    stubs.unstub_canvas()
+    stubs.unstub_solver()
 
   beforeEach ->
-    utils.stub_canvas()
-    solver_stubs = utils.stub_solver()
+    stubs.stub_canvas()
+    solver_stubs = stubs.stub_solver()
     @solver_suggest = solver_stubs['suggest']
 
     doc = new Document()
@@ -282,12 +282,12 @@ describe "PlotCanvasView resize", ->
 describe "PlotCanvasView update_constraints", ->
 
   afterEach ->
-    utils.unstub_canvas()
-    utils.unstub_solver()
+    stubs.unstub_canvas()
+    stubs.unstub_solver()
 
   beforeEach ->
-    utils.stub_canvas()
-    solver_stubs = utils.stub_solver()
+    stubs.stub_canvas()
+    solver_stubs = stubs.stub_solver()
     @solver_suggest_stub = solver_stubs['suggest']
     @solver_update_stub = solver_stubs['update']
 
@@ -335,12 +335,12 @@ describe "PlotCanvasView update_constraints", ->
 describe "PlotCanvasView get_canvas_element", ->
 
   afterEach ->
-    utils.unstub_canvas()
-    utils.unstub_solver()
+    stubs.unstub_canvas()
+    stubs.unstub_solver()
 
   beforeEach ->
-    utils.stub_canvas()
-    solver_stubs = utils.stub_solver()
+    stubs.stub_canvas()
+    solver_stubs = stubs.stub_solver()
     @solver_suggest_stub = solver_stubs['suggest']  # This isn't necessary but an attempt to make tests more robust
 
     doc = new Document()
@@ -365,12 +365,12 @@ describe "PlotCanvasView get_canvas_element", ->
 describe "PlotCanvasView dimensions", ->
 
   afterEach ->
-    utils.unstub_canvas()
-    utils.unstub_solver()
+    stubs.unstub_canvas()
+    stubs.unstub_solver()
 
   beforeEach ->
-    utils.stub_canvas()
-    utils.stub_solver()
+    stubs.stub_canvas()
+    stubs.stub_solver()
 
     @doc = new Document()
     plot = new Plot({

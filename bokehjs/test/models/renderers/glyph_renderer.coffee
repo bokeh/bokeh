@@ -1,5 +1,4 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
 {create_hit_test_result_from_hits} = require("core/hittest")
 

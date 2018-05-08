@@ -1,5 +1,4 @@
 {expect} = require "chai"
-utils = require "../../utils"
 sinon = require "sinon"
 
 {ColumnDataSource} = require("models/sources/column_data_source")

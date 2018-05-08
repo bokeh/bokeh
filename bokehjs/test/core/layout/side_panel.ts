@@ -1,7 +1,7 @@
 import {expect} from "chai"
 import * as sinon from "sinon"
 
-import * as utils from "../../utils"
+import * as stubs from "../../stubs"
 
 import {SidePanel} from "core/layout/side_panel"
 import {update_panel_constraints} from "core/layout/side_panel"
@@ -48,13 +48,13 @@ describe("SidePanel", () => {
 
     // Using axis_view as the view to pass into update_panel_constraints
     afterEach(() => {
-      utils.unstub_canvas()
-      utils.unstub_solver()
+      stubs.unstub_canvas()
+      stubs.unstub_solver()
     })
 
     beforeEach(function() {
-      utils.stub_canvas()
-      const solver_stubs = utils.stub_solver()
+      stubs.stub_canvas()
+      const solver_stubs = stubs.stub_solver()
       this.solver_add_constraint = solver_stubs.add
       this.solver_remove_constraint = solver_stubs.remove
 

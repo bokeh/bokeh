@@ -1,6 +1,5 @@
 {expect} = require "chai"
 sinon = require 'sinon'
-utils = require "../../utils"
 
 {ColumnDataSource} = require("models/sources/column_data_source")
 {GlyphRenderer} = require("models/renderers/glyph_renderer")

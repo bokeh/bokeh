@@ -1,5 +1,4 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
 {CustomJSFilter} = require("models/filters/customjs_filter")
 {Range1d} = require("models/ranges/range1d")

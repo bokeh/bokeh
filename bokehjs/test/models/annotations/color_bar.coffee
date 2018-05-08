@@ -1,5 +1,5 @@
 {expect} = require "chai"
-utils = require "../../utils"
+stubs = require "../../stubs"
 sinon = require 'sinon'
 
 {SidePanel} = require("core/layout/side_panel")
@@ -18,11 +18,11 @@ bokeh_text  = require("core/util/text")
 describe "ColorBar module", ->
 
   afterEach ->
-    utils.unstub_canvas()
+    stubs.unstub_canvas()
     bokeh_text.get_text_height.restore()
 
   beforeEach ->
-    utils.stub_canvas()
+    stubs.stub_canvas()
     sinon.stub(bokeh_text, "get_text_height", () -> {height: 15, ascent: 10, descent: 5})
 
     @plot = new Plot({
@@ -284,7 +284,7 @@ describe "ColorBar module", ->
       expect(@color_bar_view._get_image_offset()).to.be.deep.equal({ x: 10, y: 27 })
 
     it "ColorBarView._get_label_extent method (orientation='vertical')", ->
-      # Note: ctx.measureText is stubbed to return {'width': 1, 'ascent': 1} in test/utils
+      # Note: ctx.measureText is stubbed to return {'width': 1, 'ascent': 1} in test/stubs
       expect(@color_bar_view._get_label_extent()).to.be.equal(6)
 
     it "ColorBarView._get_label_extent method (orientation='vertical') and no major_labels", ->
@@ -298,7 +298,7 @@ describe "ColorBar module", ->
       expect(@color_bar_view._get_label_extent()).to.be.equal(20)
 
     it "ColorBarView.compute_legend_dimensions method (orientation='vertical')", ->
-      # Note: ctx.measureText is stubbed to return {'width': 1, 'ascent': 1} in test/utils
+      # Note: ctx.measureText is stubbed to return {'width': 1, 'ascent': 1} in test/stubs
       @color_bar.height = 100
       @color_bar.width = 25
 

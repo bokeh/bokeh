@@ -1,5 +1,4 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
 {LinearInterpolator} = require("models/transforms/linear_interpolator")
 {ColumnDataSource} = require("models/sources/column_data_source")

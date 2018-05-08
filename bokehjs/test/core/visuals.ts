@@ -1,5 +1,5 @@
 import {expect} from "chai"
-import * as utils from "../utils"
+import * as stubs from "../stubs"
 import {create_glyph_renderer_view} from "../models/glyphs/glyph_utils"
 
 import {Visuals, Fill} from "core/visuals"
@@ -42,13 +42,13 @@ describe("Visuals", () => {
   describe("interacting with GlyphViews", () => {
 
     afterEach(() => {
-      utils.unstub_canvas()
-      utils.unstub_solver()
+      stubs.unstub_canvas()
+      stubs.unstub_solver()
     })
 
     beforeEach(() => {
-      utils.stub_canvas()
-      utils.stub_solver()
+      stubs.stub_canvas()
+      stubs.stub_solver()
     })
 
     it("set_all_indices should be called by the glyph view", () => {

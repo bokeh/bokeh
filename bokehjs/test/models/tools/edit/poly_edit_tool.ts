@@ -12,7 +12,7 @@ import {GlyphRenderer} from "models/renderers/glyph_renderer"
 import {ColumnDataSource} from "models/sources/column_data_source"
 import {PolyEditTool, PolyEditToolView} from "models/tools/edit/poly_edit_tool"
 
-const utils = require("../../../utils")
+const stubs = require("../../../stubs")
 
 import {make_gesture_event, make_tap_event, make_move_event, make_key_event} from "./utils"
 
@@ -110,11 +110,11 @@ describe("PolyEditTool", (): void => {
   describe("View", function(): void {
 
     afterEach(function(): void {
-      utils.unstub_canvas();
+      stubs.unstub_canvas();
     });
 
     beforeEach(function(): void {
-      utils.stub_canvas();
+      stubs.stub_canvas();
     });
 
     it("should select patches on tap", function(): void {

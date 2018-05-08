@@ -1,5 +1,5 @@
 {expect} = require "chai"
-utils = require "../../../utils"
+stubs = require "../../../stubs"
 
 {Document} = require("document")
 {ZoomOutTool} = require("models/tools/actions/zoom_out_tool")
@@ -24,10 +24,10 @@ describe "ZoomOutTool", ->
   describe "View", ->
 
     afterEach ->
-      utils.unstub_canvas()
+      stubs.unstub_canvas()
 
     beforeEach ->
-      utils.stub_canvas()
+      stubs.stub_canvas()
 
       @plot = new Plot({
          x_range: new Range1d({start: -1, end: 1})

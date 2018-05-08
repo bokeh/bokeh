@@ -1,5 +1,4 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
 {compute_side} = require("models/annotations/tooltip")
 

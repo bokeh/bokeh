@@ -1,5 +1,4 @@
 {expect} = require "chai"
-utils = require "../../utils"
 { stdoutTrap, stderrTrap } = require 'logtrap'
 
 {Set} = require("core/util/data_structures")

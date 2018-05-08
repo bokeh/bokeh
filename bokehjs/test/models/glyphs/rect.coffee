@@ -1,5 +1,5 @@
 {expect} = require "chai"
-utils = require "../../utils"
+stubs = require "../../stubs"
 sinon = require "sinon"
 
 {create_glyph_view, set_scales} = require("./glyph_utils")
@@ -12,11 +12,11 @@ describe "Glyph (using Rect as a concrete Glyph)", ->
   describe "GlyphView", ->
 
     afterEach ->
-      utils.unstub_canvas()
+      stubs.unstub_canvas()
       @stub.restore()
 
     beforeEach ->
-      utils.stub_canvas()
+      stubs.stub_canvas()
 
       @stub = sinon.stub(RectView.prototype, '_bounds', (bounds) -> bounds )
 
@@ -78,10 +78,10 @@ describe "Rect", ->
   describe "RectView", ->
 
     afterEach ->
-      utils.unstub_canvas()
+      stubs.unstub_canvas()
 
     beforeEach ->
-      utils.stub_canvas()
+      stubs.stub_canvas()
 
       @glyph = new Rect({
         x: {field: "x"}

@@ -1,5 +1,4 @@
 {expect} = require "chai"
-utils = require "../../utils"
 sinon = require "sinon"
 
 {CheckboxButtonGroup} = require("models/widgets/checkbox_button_group")

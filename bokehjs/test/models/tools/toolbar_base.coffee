@@ -1,5 +1,4 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
 {ToolbarBase} = require("models/tools/toolbar_base")
 {PanTool} = require("models/tools/gestures/pan_tool")

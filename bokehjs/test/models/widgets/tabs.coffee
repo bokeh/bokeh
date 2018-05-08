@@ -1,5 +1,5 @@
 {expect} = require "chai"
-utils = require "../../utils"
+stubs = require "../../stubs"
 sinon = require 'sinon'
 
 {Document} = require("document")
@@ -15,10 +15,10 @@ sinon = require 'sinon'
 describe "Tabs", ->
 
   afterEach ->
-    utils.unstub_solver()
+    stubs.unstub_solver()
 
   beforeEach ->
-    utils.stub_solver()
+    stubs.stub_solver()
     @tab_plot = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), toolbar: new Toolbar()})
     @tab_plot.attach_document(new Document())
     @panel = new Panel({child: @tab_plot})

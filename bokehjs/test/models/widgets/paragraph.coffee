@@ -1,5 +1,5 @@
 {expect} = require "chai"
-utils = require "../../utils"
+stubs = require "../../stubs"
 
 {Paragraph} = require("models/widgets/paragraph")
 {ParagraphView} = require("models/widgets/paragraph")
@@ -8,10 +8,10 @@ utils = require "../../utils"
 describe "Paragraph.View render", ->
 
   afterEach ->
-    utils.unstub_solver()
+    stubs.unstub_solver()
 
   beforeEach ->
-    utils.stub_solver()
+    stubs.stub_solver()
 
   it "should set the margin to 0", ->
     p = new Paragraph()

@@ -1,5 +1,4 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
 {shuffle} = require "core/util/array"
 {TileRenderer} = require "models/tiles/tile_renderer"
@@ -11,7 +10,7 @@ utils = require "../../utils"
 {BBoxTileSource} = require "models/tiles/bbox_tile_source"
 tile_utils = require "models/tiles/tile_utils"
 
-describe "projection utils", ->
+describe "projection utilities", ->
 
   tol = 0.01
 

@@ -1,5 +1,4 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
 {CategoricalColorMapper} = require("models/mappers/categorical_color_mapper")
 

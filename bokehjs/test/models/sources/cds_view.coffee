@@ -1,5 +1,4 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
 {CDSView} = require("models/sources/cds_view")
 {ColumnDataSource} = require("models/sources/column_data_source")

@@ -1,5 +1,5 @@
 {expect} = require "chai"
-utils = require "../../utils"
+stubs = require "../../stubs"
 sinon = require "sinon"
 
 {HasProps} = require "core/has_props"
@@ -19,12 +19,12 @@ class TestObject extends HasProps
 describe "datarange1d module", ->
 
   afterEach ->
-    utils.unstub_canvas()
-    utils.unstub_solver()
+    stubs.unstub_canvas()
+    stubs.unstub_solver()
 
   beforeEach ->
-    utils.stub_canvas()
-    utils.stub_solver()
+    stubs.stub_canvas()
+    stubs.stub_solver()
 
   describe "default creation", ->
     r = new DataRange1d()

@@ -1,5 +1,5 @@
 {expect} = require "chai"
-utils = require "../../utils"
+stubs = require "../../stubs"
 sinon = require 'sinon'
 
 {Document} = require("document")
@@ -23,12 +23,12 @@ describe "Plot", ->
   describe "PlotView", ->
 
     afterEach ->
-      utils.unstub_canvas()
-      utils.unstub_solver()
+      stubs.unstub_canvas()
+      stubs.unstub_solver()
 
     beforeEach ->
-      utils.stub_canvas()
-      solver_stubs = utils.stub_solver()
+      stubs.stub_canvas()
+      solver_stubs = stubs.stub_solver()
       @solver_suggest = solver_stubs['suggest']
       doc = new Document()
       doc.add_root(@p)
@@ -127,12 +127,12 @@ describe "Plot", ->
   describe "Plot", ->
 
     afterEach ->
-      utils.unstub_canvas()
-      utils.unstub_solver()
+      stubs.unstub_canvas()
+      stubs.unstub_solver()
 
     beforeEach ->
-      utils.stub_canvas()
-      utils.stub_solver()
+      stubs.stub_canvas()
+      stubs.stub_solver()
 
     it "should have a PlotCanvas set on initialization with plot on it", sinon.test () ->
       expect(@p.plot_canvas).to.exist

@@ -1,5 +1,4 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
 {GeoJSONDataSource} = require("models/sources/geojson_data_source")
 

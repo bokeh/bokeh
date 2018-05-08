@@ -1,5 +1,5 @@
 {expect} = require "chai"
-utils = require "../../../utils"
+stubs = require "../../../stubs"
 
 {Document} = require("document")
 {WheelPanTool} = require("models/tools/gestures/wheel_pan_tool")
@@ -22,10 +22,10 @@ describe "WheelPanTool", ->
   describe "View", ->
 
     afterEach ->
-      utils.unstub_canvas()
+      stubs.unstub_canvas()
 
     beforeEach ->
-      utils.stub_canvas()
+      stubs.stub_canvas()
 
       @plot = new Plot({
          x_range: new Range1d({start: 0, end: 1})

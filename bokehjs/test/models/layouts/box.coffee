@@ -1,5 +1,5 @@
 {expect} = require "chai"
-utils = require "../../utils"
+stubs = require "../../stubs"
 sinon = require "sinon"
 
 {clone} = require("core/util/object")
@@ -12,10 +12,10 @@ sinon = require "sinon"
 describe "BoxView", ->
 
   afterEach ->
-    utils.unstub_solver()
+    stubs.unstub_solver()
 
   beforeEach ->
-    solver_stubs = utils.stub_solver()
+    solver_stubs = stubs.stub_solver()
     @box = new Box()
     @doc = new Document()
     @doc.add_root(@box)

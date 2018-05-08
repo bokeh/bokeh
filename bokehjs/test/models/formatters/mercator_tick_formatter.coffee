@@ -1,5 +1,4 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
 {MercatorTickFormatter} = require "models/formatters/mercator_tick_formatter"
 {wgs84_mercator} = require "core/util/projections"

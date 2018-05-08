@@ -1,5 +1,4 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
 {FuncTickFormatter} = require("models/formatters/func_tick_formatter")
 {Range1d} = require("models/ranges/range1d")

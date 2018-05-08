@@ -1,5 +1,4 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
 {OpenURL} = require("models/callbacks/open_url")
 

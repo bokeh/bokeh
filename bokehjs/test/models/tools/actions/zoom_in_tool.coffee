@@ -1,5 +1,5 @@
 {expect} = require "chai"
-utils = require "../../../utils"
+stubs = require "../../../stubs"
 
 {Document} = require("document")
 {ZoomInTool} = require("models/tools/actions/zoom_in_tool")
@@ -24,10 +24,10 @@ describe "ZoomInTool", ->
   describe "View", ->
 
     afterEach ->
-      utils.unstub_canvas()
+      stubs.unstub_canvas()
 
     beforeEach ->
-      utils.stub_canvas()
+      stubs.stub_canvas()
 
       @plot = new Plot({
          x_range: new Range1d({start: -1, end: 1})

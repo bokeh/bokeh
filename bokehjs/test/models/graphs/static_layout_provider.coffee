@@ -1,5 +1,4 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
 {StaticLayoutProvider} = require("models/graphs/static_layout_provider")
 {ColumnDataSource} = require("models/sources/column_data_source")

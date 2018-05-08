@@ -1,6 +1,5 @@
 {expect} = require "chai"
 sinon = require "sinon"
-utils = require "../../utils"
 
 {Strength, Variable}  = require("core/layout/solver")
 
