@@ -3,7 +3,7 @@ utils = require "../../utils"
 sinon = require "sinon"
 
 {create_glyph_view, set_scales} = require("./glyph_utils")
-{Ray, RayView} = utils.require("models/glyphs/ray")
+{Ray, RayView} = require("models/glyphs/ray")
 
 describe "Ray", ->
 

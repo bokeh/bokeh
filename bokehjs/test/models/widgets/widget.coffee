@@ -2,10 +2,10 @@
 utils = require "../../utils"
 sinon = require "sinon"
 
-{Strength, Variable}  = utils.require("core/layout/solver")
+{Strength, Variable}  = require("core/layout/solver")
 
-{Document} = utils.require("document")
-{Widget} = utils.require("models/widgets/widget")
+{Document} = require("document")
+{Widget} = require("models/widgets/widget")
 
 describe "Widget", ->
 

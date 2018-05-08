@@ -2,10 +2,10 @@
 sinon = require 'sinon'
 utils = require "../../utils"
 
-{ColumnDataSource} = utils.require("models/sources/column_data_source")
-{GlyphRenderer} = utils.require("models/renderers/glyph_renderer")
-{LegendItem} = utils.require("models/annotations/legend_item")
-{logger} = utils.require("core/logging")
+{ColumnDataSource} = require("models/sources/column_data_source")
+{GlyphRenderer} = require("models/renderers/glyph_renderer")
+{LegendItem} = require("models/annotations/legend_item")
+{logger} = require("core/logging")
 
 describe "LegendItem", ->
 

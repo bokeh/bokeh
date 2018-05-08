@@ -1,11 +1,5 @@
 import * as sinon from "sinon"
 
-function moduleRequire(name: string) {
-  return require(`${__dirname}/../build/js/tree/${name}`)
-}
-
-export {moduleRequire as require}
-
 import {CanvasView} from "models/canvas/canvas"
 import {Solver} from "core/layout/solver"
 

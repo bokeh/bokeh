@@ -1,11 +1,11 @@
 {expect} = require "chai"
 utils = require "../../../utils"
 
-{Document} = utils.require("document")
-{BoxZoomTool} = utils.require("models/tools/gestures/box_zoom_tool")
-{Range1d} = utils.require("models/ranges/range1d")
-{Plot} = utils.require("models/plots/plot")
-{Toolbar} = utils.require("models/tools/toolbar")
+{Document} = require("document")
+{BoxZoomTool} = require("models/tools/gestures/box_zoom_tool")
+{Range1d} = require("models/ranges/range1d")
+{Plot} = require("models/plots/plot")
+{Toolbar} = require("models/tools/toolbar")
 
 describe "BoxZoomTool", ->
 

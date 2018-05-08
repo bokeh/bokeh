@@ -1,14 +1,14 @@
 {expect} = require "chai"
 utils = require "../utils"
 
-p = properties = utils.require "core/properties"
+p = properties = require "core/properties"
 
-{HasProps} = utils.require "core/has_props"
-enums = utils.require "core/enums"
-{ColumnDataSource} = utils.require("models/sources/column_data_source")
-{svg_colors} = utils.require "core/util/svg_colors"
-{Transform} = utils.require "models/transforms/transform"
-{Expression} = utils.require "models/expressions/expression"
+{HasProps} = require "core/has_props"
+enums = require "core/enums"
+{ColumnDataSource} = require("models/sources/column_data_source")
+{svg_colors} = require "core/util/svg_colors"
+{Transform} = require "models/transforms/transform"
+{Expression} = require "models/expressions/expression"
 
 class TestTransform extends Transform
   compute: (x) -> x+1

@@ -2,11 +2,11 @@
 sinon = require "sinon"
 utils = require "../../utils"
 
-{Strength, Variable}  = utils.require("core/layout/solver")
+{Strength, Variable}  = require("core/layout/solver")
 
-{Document} = utils.require("document")
-{LayoutDOM} = utils.require("models/layouts/layout_dom")
-{LayoutDOMView} = utils.require("models/layouts/layout_dom")
+{Document} = require("document")
+{LayoutDOM} = require("models/layouts/layout_dom")
+{LayoutDOMView} = require("models/layouts/layout_dom")
 
 dom_left = 12
 dom_top = 13

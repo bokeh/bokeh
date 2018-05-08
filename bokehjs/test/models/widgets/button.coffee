@@ -2,8 +2,8 @@
 utils = require "../../utils"
 sinon = require "sinon"
 
-{Button} = utils.require("models/widgets/button")
-{Document} = utils.require("document")
+{Button} = require("models/widgets/button")
+{Document} = require("document")
 
 describe "Button.click", ->
 

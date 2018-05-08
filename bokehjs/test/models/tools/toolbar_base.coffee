@@ -1,8 +1,8 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-{ToolbarBase} = utils.require("models/tools/toolbar_base")
-{PanTool} = utils.require("models/tools/gestures/pan_tool")
+{ToolbarBase} = require("models/tools/toolbar_base")
+{PanTool} = require("models/tools/gestures/pan_tool")
 
 
 describe "ToolbarBase", ->

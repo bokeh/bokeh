@@ -2,12 +2,12 @@
 utils = require "../../utils"
 sinon = require "sinon"
 
-{clone} = utils.require("core/util/object")
-{Strength, Variable}  = utils.require("core/layout/solver")
-{Document} = utils.require("document")
-{Box} = utils.require("models/layouts/box")
-{BoxView} = utils.require("models/layouts/box")
-{LayoutDOMView} = utils.require("models/layouts/layout_dom")
+{clone} = require("core/util/object")
+{Strength, Variable}  = require("core/layout/solver")
+{Document} = require("document")
+{Box} = require("models/layouts/box")
+{BoxView} = require("models/layouts/box")
+{LayoutDOMView} = require("models/layouts/layout_dom")
 
 describe "BoxView", ->
 

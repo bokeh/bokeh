@@ -1,8 +1,8 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-{MercatorTickFormatter} = utils.require "models/formatters/mercator_tick_formatter"
-{wgs84_mercator} = utils.require "core/util/projections"
+{MercatorTickFormatter} = require "models/formatters/mercator_tick_formatter"
+{wgs84_mercator} = require "core/util/projections"
 
 describe "mercator_tick_formatter module", ->
 

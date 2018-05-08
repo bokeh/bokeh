@@ -2,11 +2,11 @@
 utils = require "../../utils"
 sinon = require 'sinon'
 
-{Canvas, CanvasView} = utils.require("models/canvas/canvas")
-{Plot} = utils.require("models/plots/plot")
-{Range1d} = utils.require("models/ranges/range1d")
-{Document} = utils.require("document")
-{Variable}  = utils.require("core/layout/solver")
+{Canvas, CanvasView} = require("models/canvas/canvas")
+{Plot} = require("models/plots/plot")
+{Range1d} = require("models/ranges/range1d")
+{Document} = require("document")
+{Variable}  = require("core/layout/solver")
 
 describe "Canvas", ->
 

@@ -2,8 +2,8 @@
 utils = require "../../utils"
 sinon = require "sinon"
 
-{Slider} = utils.require("models/widgets/slider")
-{Document} = utils.require("document")
+{Slider} = require("models/widgets/slider")
+{Document} = require("document")
 
 describe "SliderView", ->
 

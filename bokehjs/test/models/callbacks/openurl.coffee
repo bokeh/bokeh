@@ -1,7 +1,7 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-{OpenURL} = utils.require("models/callbacks/open_url")
+{OpenURL} = require("models/callbacks/open_url")
 
 describe "OpenURL", ->
 

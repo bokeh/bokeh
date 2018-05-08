@@ -1,7 +1,7 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-{LinearColorMapper} = utils.require("models/mappers/linear_color_mapper")
+{LinearColorMapper} = require("models/mappers/linear_color_mapper")
 
 describe "LinearColorMapper module", ->
 

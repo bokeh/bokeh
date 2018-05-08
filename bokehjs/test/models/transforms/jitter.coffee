@@ -2,9 +2,9 @@
 utils = require "../../utils"
 sinon = require "sinon"
 
-{FactorRange} = utils.require("models/ranges/factor_range")
-{Jitter} = utils.require("models/transforms/jitter")
-bokeh_math  = utils.require("core/util/math")
+{FactorRange} = require("models/ranges/factor_range")
+{Jitter} = require("models/transforms/jitter")
+bokeh_math  = require("core/util/math")
 
 describe "Jitter transform module", ->
   source = {start: 0, end: 10}

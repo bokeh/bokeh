@@ -2,8 +2,8 @@
 utils = require "../../utils"
 sinon = require "sinon"
 
-{ColumnDataSource} = utils.require("models/sources/column_data_source")
-{Stack} = utils.require("models/expressions/stack")
+{ColumnDataSource} = require("models/sources/column_data_source")
+{Stack} = require("models/expressions/stack")
 
 describe "Stack", ->
 

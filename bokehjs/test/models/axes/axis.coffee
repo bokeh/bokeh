@@ -2,18 +2,18 @@
 utils = require "../../utils"
 sinon = require 'sinon'
 
-{Axis} = utils.require("models/axes/axis")
-{BasicTicker} = utils.require("models/tickers/basic_ticker")
-{BasicTickFormatter} = utils.require("models/formatters/basic_tick_formatter")
-{Plot} = utils.require("models/plots/plot")
-{PlotCanvas} = utils.require("models/plots/plot_canvas")
-{PlotView} = utils.require("models/plots/plot")
-{FactorRange} = utils.require("models/ranges/factor_range")
-{Range1d} = utils.require("models/ranges/range1d")
-{SidePanel} = utils.require("core/layout/side_panel")
-{CategoricalScale} = utils.require("models/scales/categorical_scale")
-{Toolbar} = utils.require("models/tools/toolbar")
-{Document} = utils.require "document"
+{Axis} = require("models/axes/axis")
+{BasicTicker} = require("models/tickers/basic_ticker")
+{BasicTickFormatter} = require("models/formatters/basic_tick_formatter")
+{Plot} = require("models/plots/plot")
+{PlotCanvas} = require("models/plots/plot_canvas")
+{PlotView} = require("models/plots/plot")
+{FactorRange} = require("models/ranges/factor_range")
+{Range1d} = require("models/ranges/range1d")
+{SidePanel} = require("core/layout/side_panel")
+{CategoricalScale} = require("models/scales/categorical_scale")
+{Toolbar} = require("models/tools/toolbar")
+{Document} = require "document"
 
 describe "Axis", ->
 

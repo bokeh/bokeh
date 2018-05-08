@@ -2,24 +2,24 @@
 utils = require "../utils"
 sinon = require 'sinon'
 
-dom = utils.require("core/dom")
-{Tap, MouseMove} = utils.require("core/bokeh_events")
+dom = require("core/dom")
+{Tap, MouseMove} = require("core/bokeh_events")
 
-{CrosshairTool} = utils.require("models/tools/inspectors/crosshair_tool")
-{PanTool} = utils.require("models/tools/gestures/pan_tool")
-{PolySelectTool} = utils.require("models/tools/gestures/poly_select_tool")
-{SelectTool, SelectToolView} = utils.require("models/tools/gestures/select_tool")
-{TapTool} = utils.require("models/tools/gestures/tap_tool")
-{WheelZoomTool} = utils.require("models/tools/gestures/wheel_zoom_tool")
+{CrosshairTool} = require("models/tools/inspectors/crosshair_tool")
+{PanTool} = require("models/tools/gestures/pan_tool")
+{PolySelectTool} = require("models/tools/gestures/poly_select_tool")
+{SelectTool, SelectToolView} = require("models/tools/gestures/select_tool")
+{TapTool} = require("models/tools/gestures/tap_tool")
+{WheelZoomTool} = require("models/tools/gestures/wheel_zoom_tool")
 
-{Canvas} = utils.require("models/canvas/canvas")
-{Document} = utils.require("document")
-{Legend} = utils.require("models/annotations/legend")
-{Plot} = utils.require("models/plots/plot")
-{PlotCanvas} = utils.require("models/plots/plot_canvas")
-{Range1d} = utils.require("models/ranges/range1d")
-{Toolbar} = utils.require("models/tools/toolbar")
-{UIEvents} = utils.require "core/ui_events"
+{Canvas} = require("models/canvas/canvas")
+{Document} = require("document")
+{Legend} = require("models/annotations/legend")
+{Plot} = require("models/plots/plot")
+{PlotCanvas} = require("models/plots/plot_canvas")
+{Range1d} = require("models/ranges/range1d")
+{Toolbar} = require("models/tools/toolbar")
+{UIEvents} = require "core/ui_events"
 
 describe "ui_events module", ->
 

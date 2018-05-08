@@ -1,7 +1,7 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-{Renderer, RendererView} = utils.require("models/renderers/renderer")
+{Renderer, RendererView} = require("models/renderers/renderer")
 
 describe "RendererView", ->
 

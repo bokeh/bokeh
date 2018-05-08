@@ -1,9 +1,9 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-{clone} = utils.require("core/util/object")
-{Document} = utils.require("document")
-{Spacer} = utils.require("models/layouts/spacer")
+{clone} = require("core/util/object")
+{Document} = require("document")
+{Spacer} = require("models/layouts/spacer")
 
 describe "WidgetBoxView", ->
   afterEach ->

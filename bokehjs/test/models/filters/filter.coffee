@@ -1,7 +1,7 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-{Filter} = utils.require("models/filters/filter")
+{Filter} = require("models/filters/filter")
 
 describe "Filter", ->
 

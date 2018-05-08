@@ -2,7 +2,7 @@
 utils = require "../utils"
 sinon = require "sinon"
 
-{Message} = utils.require "protocol/message"
+{Message} = require "protocol/message"
 
 class MockSock
   constructor: () -> @sent = []

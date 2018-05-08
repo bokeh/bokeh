@@ -2,18 +2,18 @@
 utils = require "../../utils"
 sinon = require 'sinon'
 
-{clone} = utils.require("core/util/object")
-{Document} = utils.require("document")
-{DataRange1d} = utils.require("models/ranges/data_range1d")
-{LayoutDOM} = utils.require("models/layouts/layout_dom")
-{LayoutDOMView} = utils.require("models/layouts/layout_dom")
-{Panel} = utils.require("models/widgets/panel")
-{Plot} = utils.require("models/plots/plot")
-{Button} = utils.require("models/widgets/button")
-{Tabs} = utils.require("models/widgets/tabs")
-{Toolbar} = utils.require("models/tools/toolbar")
-{WidgetBox} = utils.require("models/layouts/widget_box")
-{WidgetBoxView} = utils.require("models/layouts/widget_box")
+{clone} = require("core/util/object")
+{Document} = require("document")
+{DataRange1d} = require("models/ranges/data_range1d")
+{LayoutDOM} = require("models/layouts/layout_dom")
+{LayoutDOMView} = require("models/layouts/layout_dom")
+{Panel} = require("models/widgets/panel")
+{Plot} = require("models/plots/plot")
+{Button} = require("models/widgets/button")
+{Tabs} = require("models/widgets/tabs")
+{Toolbar} = require("models/tools/toolbar")
+{WidgetBox} = require("models/layouts/widget_box")
+{WidgetBoxView} = require("models/layouts/widget_box")
 
 describe "WidgetBox", ->
   beforeEach ->

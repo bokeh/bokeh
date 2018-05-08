@@ -10,9 +10,9 @@ net = require "net"
 # node.js compat shim for WebSocket
 global.WebSocket = require("websocket").w3cwebsocket
 
-{Document, ModelChangedEvent} = utils.require "document"
-{pull_session} = utils.require "client/connection"
-{Range1d} = utils.require "models/ranges/range1d"
+{Document, ModelChangedEvent} = require "document"
+{pull_session} = require "client/connection"
+{Range1d} = require "models/ranges/range1d"
 
 # Promise works in a very annoying way, make it
 # have resolve and reject methods instead

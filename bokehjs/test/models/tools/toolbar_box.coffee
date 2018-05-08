@@ -1,19 +1,19 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-{Document} = utils.require("document")
+{Document} = require("document")
 
-{LayoutDOM} = utils.require("models/layouts/layout_dom")
-{ToolbarBox, ProxyToolbar} = utils.require("models/tools/toolbar_box")
-{Toolbar} = utils.require("models/tools/toolbar")
-{ToolProxy} = utils.require("models/tools/tool_proxy")
-{ResetTool} = utils.require("models/tools/actions/reset_tool")
-{SaveTool} = utils.require("models/tools/actions/save_tool")
-{SelectTool, SelectToolView} = utils.require("models/tools/gestures/select_tool")
-{PanTool} = utils.require("models/tools/gestures/pan_tool")
-{TapTool} = utils.require("models/tools/gestures/tap_tool")
-{CrosshairTool} = utils.require("models/tools/inspectors/crosshair_tool")
-{HoverTool} = utils.require("models/tools/inspectors/hover_tool")
+{LayoutDOM} = require("models/layouts/layout_dom")
+{ToolbarBox, ProxyToolbar} = require("models/tools/toolbar_box")
+{Toolbar} = require("models/tools/toolbar")
+{ToolProxy} = require("models/tools/tool_proxy")
+{ResetTool} = require("models/tools/actions/reset_tool")
+{SaveTool} = require("models/tools/actions/save_tool")
+{SelectTool, SelectToolView} = require("models/tools/gestures/select_tool")
+{PanTool} = require("models/tools/gestures/pan_tool")
+{TapTool} = require("models/tools/gestures/tap_tool")
+{CrosshairTool} = require("models/tools/inspectors/crosshair_tool")
+{HoverTool} = require("models/tools/inspectors/hover_tool")
 
 describe "ToolbarBoxView", ->
 

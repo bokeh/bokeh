@@ -1,7 +1,7 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-{Row} = utils.require("models/layouts/row")
+{Row} = require("models/layouts/row")
 
 describe "Row", ->
 

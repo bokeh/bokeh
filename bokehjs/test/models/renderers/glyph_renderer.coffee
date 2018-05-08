@@ -1,12 +1,12 @@
 {expect} = require "chai"
 utils = require "../../utils"
 
-{create_hit_test_result_from_hits} = utils.require("core/hittest")
+{create_hit_test_result_from_hits} = require("core/hittest")
 
-{Selection} = utils.require("models/selections/selection")
-{ColumnDataSource} = utils.require("models/sources/column_data_source")
-{DataSource} = utils.require("models/sources/data_source")
-{GlyphRenderer} = utils.require("models/renderers/glyph_renderer")
+{Selection} = require("models/selections/selection")
+{ColumnDataSource} = require("models/sources/column_data_source")
+{DataSource} = require("models/sources/data_source")
+{GlyphRenderer} = require("models/renderers/glyph_renderer")
 
 describe "GlyphRenderer", ->
 

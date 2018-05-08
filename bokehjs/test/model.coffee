@@ -2,9 +2,9 @@
 utils = require "./utils"
 sinon = require "sinon"
 
-{CustomJS} = utils.require("models/callbacks/customjs")
-{Model} = utils.require("model")
-p = utils.require "core/properties"
+{CustomJS} = require("models/callbacks/customjs")
+{Model} = require("model")
+p = require "core/properties"
 
 class SomeModel extends Model
   type: 'SomeModel'

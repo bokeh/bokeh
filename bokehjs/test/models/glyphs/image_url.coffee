@@ -2,7 +2,7 @@
 utils = require "../../utils"
 
 {create_glyph_view} = require("./glyph_utils")
-{ImageURL} = utils.require('models/glyphs/image_url')
+{ImageURL} = require('models/glyphs/image_url')
 
 describe "ImageURL module", ->
 

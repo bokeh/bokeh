@@ -2,18 +2,18 @@
 utils = require "../../utils"
 sinon = require 'sinon'
 
-{SidePanel} = utils.require("core/layout/side_panel")
-{ColorBar, ColorBarView} = utils.require('models/annotations/color_bar')
-{LinearColorMapper} = utils.require("models/mappers/linear_color_mapper")
-{LinearScale} = utils.require("models/scales/linear_scale")
-{LogColorMapper} = utils.require("models/mappers/log_color_mapper")
-{LogScale} = utils.require("models/scales/log_scale")
-{LogTicker} = utils.require("models/tickers/log_ticker")
-{Viridis} = utils.require("api/palettes")
-{Plot} = utils.require("models/plots/plot")
-{Range1d} = utils.require("models/ranges/range1d")
-{Document} = utils.require "document"
-bokeh_text  = utils.require("core/util/text")
+{SidePanel} = require("core/layout/side_panel")
+{ColorBar, ColorBarView} = require('models/annotations/color_bar')
+{LinearColorMapper} = require("models/mappers/linear_color_mapper")
+{LinearScale} = require("models/scales/linear_scale")
+{LogColorMapper} = require("models/mappers/log_color_mapper")
+{LogScale} = require("models/scales/log_scale")
+{LogTicker} = require("models/tickers/log_ticker")
+{Viridis} = require("api/palettes")
+{Plot} = require("models/plots/plot")
+{Range1d} = require("models/ranges/range1d")
+{Document} = require "document"
+bokeh_text  = require("core/util/text")
 
 describe "ColorBar module", ->
 

@@ -2,15 +2,15 @@
 utils = require "../../utils"
 sinon = require 'sinon'
 
-{Document} = utils.require("document")
+{Document} = require("document")
 
-{LayoutDOM} = utils.require("models/layouts/layout_dom")
-{DataRange1d} = utils.require("models/ranges/data_range1d")
-{Panel} = utils.require("models/widgets/panel")
-{Plot} = utils.require("models/plots/plot")
-{Tabs} = utils.require("models/widgets/tabs")
-{Toolbar} = utils.require("models/tools/toolbar")
-{Widget} = utils.require("models/widgets/widget")
+{LayoutDOM} = require("models/layouts/layout_dom")
+{DataRange1d} = require("models/ranges/data_range1d")
+{Panel} = require("models/widgets/panel")
+{Plot} = require("models/plots/plot")
+{Tabs} = require("models/widgets/tabs")
+{Toolbar} = require("models/tools/toolbar")
+{Widget} = require("models/widgets/widget")
 
 describe "Tabs", ->
 

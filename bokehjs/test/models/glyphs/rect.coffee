@@ -3,9 +3,9 @@ utils = require "../../utils"
 sinon = require "sinon"
 
 {create_glyph_view, set_scales} = require("./glyph_utils")
-{Rect, RectView} = utils.require("models/glyphs/rect")
-{LinearScale} = utils.require("models/scales/linear_scale")
-{Range1d} = utils.require("models/ranges/range1d")
+{Rect, RectView} = require("models/glyphs/rect")
+{LinearScale} = require("models/scales/linear_scale")
+{Range1d} = require("models/ranges/range1d")
 
 describe "Glyph (using Rect as a concrete Glyph)", ->
 

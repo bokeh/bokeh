@@ -3,7 +3,7 @@ utils = require "../../utils"
 sinon = require "sinon"
 
 {create_glyph_view} = require("./glyph_utils")
-{ImageRGBA, ImageRGBAView} = utils.require('models/glyphs/image_rgba')
+{ImageRGBA, ImageRGBAView} = require('models/glyphs/image_rgba')
 
 describe "ImageRGBA module", ->
 

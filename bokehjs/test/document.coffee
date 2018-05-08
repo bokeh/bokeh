@@ -3,15 +3,15 @@ utils = require "./utils"
 sinon = require "sinon"
 { stdoutTrap, stderrTrap } = require 'logtrap'
 
-{values, size} = utils.require("core/util/object")
-{Document, ModelChangedEvent, TitleChangedEvent, RootAddedEvent, RootRemovedEvent, DEFAULT_TITLE} = utils.require "document"
-{GE, Strength, Variable}  = utils.require "core/layout/solver"
-js_version = utils.require("version").version
-{Models} = utils.require "base"
-{Model} = utils.require "model"
-{LayoutDOM} = utils.require "models/layouts/layout_dom"
-logging = utils.require "core/logging"
-p = utils.require "core/properties"
+{values, size} = require("core/util/object")
+{Document, ModelChangedEvent, TitleChangedEvent, RootAddedEvent, RootRemovedEvent, DEFAULT_TITLE} = require "document"
+{GE, Strength, Variable}  = require "core/layout/solver"
+js_version = require("version").version
+{Models} = require "base"
+{Model} = require "model"
+{LayoutDOM} = require "models/layouts/layout_dom"
+logging = require "core/logging"
+p = require "core/properties"
 
 class AnotherModel extends Model
   type: 'AnotherModel'

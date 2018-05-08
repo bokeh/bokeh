@@ -2,12 +2,12 @@
 utils = require "../../utils"
 sinon = require "sinon"
 
-{HasProps} = utils.require "core/has_props"
-p = utils.require "core/properties"
+{HasProps} = require "core/has_props"
+p = require "core/properties"
 
-{CustomJS} = utils.require("models/callbacks/customjs")
-{DataRange1d} = utils.require("models/ranges/data_range1d")
-{GlyphRenderer} = utils.require("models/renderers/glyph_renderer")
+{CustomJS} = require("models/callbacks/customjs")
+{DataRange1d} = require("models/ranges/data_range1d")
+{GlyphRenderer} = require("models/renderers/glyph_renderer")
 
 class TestObject extends HasProps
   type: 'TestObject'

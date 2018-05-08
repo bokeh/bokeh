@@ -2,16 +2,16 @@
 utils = require "../../utils"
 sinon = require 'sinon'
 
-{Document} = utils.require("document")
+{Document} = require("document")
 
-{clone} = utils.require("core/util/object")
-{CustomJS} = utils.require("models/callbacks/customjs")
-{DataRange1d} = utils.require("models/ranges/data_range1d")
-{Range1d} = utils.require("models/ranges/range1d")
-{PlotCanvas} = utils.require("models/plots/plot_canvas")
-{Plot} = utils.require("models/plots/plot")
-{PlotView} = utils.require("models/plots/plot")
-{Toolbar} = utils.require("models/tools/toolbar")
+{clone} = require("core/util/object")
+{CustomJS} = require("models/callbacks/customjs")
+{DataRange1d} = require("models/ranges/data_range1d")
+{Range1d} = require("models/ranges/range1d")
+{PlotCanvas} = require("models/plots/plot_canvas")
+{Plot} = require("models/plots/plot")
+{PlotView} = require("models/plots/plot")
+{Toolbar} = require("models/tools/toolbar")
 
 describe "Plot", ->
   beforeEach ->
