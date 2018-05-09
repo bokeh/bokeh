@@ -1,11 +1,11 @@
 {expect} = require "chai"
-utils = require "../../../utils"
+stubs = require "../../../stubs"
 
-{Document} = utils.require("document")
-{WheelZoomTool} = utils.require("models/tools/gestures/wheel_zoom_tool")
-{Range1d} = utils.require("models/ranges/range1d")
-{Plot} = utils.require("models/plots/plot")
-{Toolbar} = utils.require("models/tools/toolbar")
+{Document} = require("document")
+{WheelZoomTool} = require("models/tools/gestures/wheel_zoom_tool")
+{Range1d} = require("models/ranges/range1d")
+{Plot} = require("models/plots/plot")
+{Toolbar} = require("models/tools/toolbar")
 
 describe "WheelZoomTool", ->
 
@@ -24,10 +24,10 @@ describe "WheelZoomTool", ->
   describe "View", ->
 
     afterEach ->
-      utils.unstub_canvas()
+      stubs.unstub_canvas()
 
     beforeEach ->
-      utils.stub_canvas()
+      stubs.stub_canvas()
 
       # Note default plot dimensions is 600 x 600 (height x width)
       # This is why zooming at {sx: 300, sy: 300} causes the x/y ranges to zoom equally

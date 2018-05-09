@@ -1,9 +1,8 @@
 {expect} = require "chai"
-utils = require "../../utils"
 sinon = require "sinon"
 
-{CustomJS} = utils.require("models/callbacks/customjs")
-{FactorRange, map_one_level, map_two_levels, map_three_levels} = utils.require("models/ranges/factor_range")
+{CustomJS} = require("models/callbacks/customjs")
+{FactorRange, map_one_level, map_two_levels, map_three_levels} = require("models/ranges/factor_range")
 
 describe "factor_range module", ->
 

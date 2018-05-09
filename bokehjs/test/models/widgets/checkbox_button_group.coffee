@@ -1,10 +1,9 @@
 {expect} = require "chai"
-utils = require "../../utils"
 sinon = require "sinon"
 
-{CheckboxButtonGroup} = utils.require("models/widgets/checkbox_button_group")
-{CustomJS} = utils.require("models/callbacks/customjs")
-{Document} = utils.require("document")
+{CheckboxButtonGroup} = require("models/widgets/checkbox_button_group")
+{CustomJS} = require("models/callbacks/customjs")
+{Document} = require("document")
 
 describe "CheckboxButtonGroup", ->
 

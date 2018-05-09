@@ -1,15 +1,14 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
-{CategoricalScale} = utils.require("models/scales/categorical_scale")
-{LinearScale} = utils.require("models/scales/linear_scale")
-{LogScale} = utils.require("models/scales/log_scale")
-{CartesianFrame} = utils.require("models/canvas/cartesian_frame")
-{DataRange1d} = utils.require("models/ranges/data_range1d")
-{FactorRange} = utils.require("models/ranges/factor_range")
-{Range1d} = utils.require("models/ranges/range1d")
-{Document} = utils.require "document"
-{Variable}  = utils.require("core/layout/solver")
+{CategoricalScale} = require("models/scales/categorical_scale")
+{LinearScale} = require("models/scales/linear_scale")
+{LogScale} = require("models/scales/log_scale")
+{CartesianFrame} = require("models/canvas/cartesian_frame")
+{DataRange1d} = require("models/ranges/data_range1d")
+{FactorRange} = require("models/ranges/factor_range")
+{Range1d} = require("models/ranges/range1d")
+{Document} = require "document"
+{Variable}  = require("core/layout/solver")
 
 describe "CartesianFrame", ->
 

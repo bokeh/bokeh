@@ -1,12 +1,12 @@
 {expect} = require "chai"
-utils = require "../../utils"
+stubs = require "../../stubs"
 sinon = require 'sinon'
 
-{Canvas, CanvasView} = utils.require("models/canvas/canvas")
-{Plot} = utils.require("models/plots/plot")
-{Range1d} = utils.require("models/ranges/range1d")
-{Document} = utils.require("document")
-{Variable}  = utils.require("core/layout/solver")
+{Canvas, CanvasView} = require("models/canvas/canvas")
+{Plot} = require("models/plots/plot")
+{Range1d} = require("models/ranges/range1d")
+{Document} = require("document")
+{Variable}  = require("core/layout/solver")
 
 describe "Canvas", ->
 
@@ -24,12 +24,12 @@ describe "Canvas", ->
 describe "CanvasView", ->
 
   afterEach ->
-    utils.unstub_canvas()
-    utils.unstub_solver()
+    stubs.unstub_canvas()
+    stubs.unstub_solver()
 
   beforeEach ->
-    utils.stub_canvas()
-    solver_stubs = utils.stub_solver()
+    stubs.stub_canvas()
+    solver_stubs = stubs.stub_solver()
     @solver_add_stub = solver_stubs['add']
     @solver_remove_stub = solver_stubs['remove']
 

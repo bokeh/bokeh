@@ -1,11 +1,10 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
-{SidePanel} = utils.require("core/layout/side_panel")
+{SidePanel} = require("core/layout/side_panel")
 
-{Document} = utils.require "document"
+{Document} = require "document"
 
-{Annotation} = utils.require("models/annotations/annotation")
+{Annotation} = require("models/annotations/annotation")
 
 
 describe "Annotation", ->

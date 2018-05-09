@@ -1,14 +1,13 @@
 {expect} = require "chai"
-utils = require "../../utils"
 sinon = require 'sinon'
 
-{Axis} = utils.require("models/axes/axis")
-{BasicTicker} = utils.require("models/tickers/basic_ticker")
-{BasicTickFormatter} = utils.require("models/formatters/basic_tick_formatter")
-{Grid} = utils.require("models/grids/grid")
-{Plot} = utils.require("models/plots/plot")
-{Range1d} = utils.require("models/ranges/range1d")
-{Document} = utils.require "document"
+{Axis} = require("models/axes/axis")
+{BasicTicker} = require("models/tickers/basic_ticker")
+{BasicTickFormatter} = require("models/formatters/basic_tick_formatter")
+{Grid} = require("models/grids/grid")
+{Plot} = require("models/plots/plot")
+{Range1d} = require("models/ranges/range1d")
+{Document} = require "document"
 
 describe "Grid", ->
 

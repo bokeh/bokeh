@@ -1,9 +1,8 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
-{CustomJSFilter} = utils.require("models/filters/customjs_filter")
-{Range1d} = utils.require("models/ranges/range1d")
-{ColumnDataSource} = utils.require("models/sources/column_data_source")
+{CustomJSFilter} = require("models/filters/customjs_filter")
+{Range1d} = require("models/ranges/range1d")
+{ColumnDataSource} = require("models/sources/column_data_source")
 
 describe "CustomJSFilter", ->
 

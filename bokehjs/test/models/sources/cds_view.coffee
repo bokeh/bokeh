@@ -1,11 +1,10 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
-{CDSView} = utils.require("models/sources/cds_view")
-{ColumnDataSource} = utils.require("models/sources/column_data_source")
-{Filter} = utils.require("models/filters/filter")
-{GroupFilter} = utils.require("models/filters/group_filter")
-hittest = utils.require("core/hittest")
+{CDSView} = require("models/sources/cds_view")
+{ColumnDataSource} = require("models/sources/column_data_source")
+{Filter} = require("models/filters/filter")
+{GroupFilter} = require("models/filters/group_filter")
+hittest = require("core/hittest")
 
 describe "CDSView", ->
 

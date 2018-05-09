@@ -1,8 +1,7 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
-{LogScale} = utils.require("models/scales/log_scale")
-{Range1d} = utils.require("models/ranges/range1d")
+{LogScale} = require("models/scales/log_scale")
+{Range1d} = require("models/ranges/range1d")
 
 describe "LogScale module", ->
 

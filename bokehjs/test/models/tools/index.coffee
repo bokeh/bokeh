@@ -1,8 +1,0 @@
-require "./actions"
-require "./edit"
-require "./inspectors"
-require "./gestures"
-require "./toolbar"
-require "./toolbar_base"
-require "./toolbar_box"
-require "./util"

@@ -1,9 +1,9 @@
 {expect} = require "chai"
-utils = require "../../utils"
+stubs = require "../../stubs"
 sinon = require "sinon"
 
-{CustomJS} = utils.require("models/callbacks/customjs")
-{Range1d} = utils.require("models/ranges/range1d")
+{CustomJS} = require("models/callbacks/customjs")
+{Range1d} = require("models/ranges/range1d")
 
 describe "range1d module", ->
 

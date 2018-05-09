@@ -1,7 +1,6 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
-{NumeralTickFormatter} = utils.require "models/formatters/numeral_tick_formatter"
+{NumeralTickFormatter} = require "models/formatters/numeral_tick_formatter"
 
 describe "numeral_tick_formatter module", ->
 

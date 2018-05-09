@@ -1,7 +1,6 @@
 {expect} = require "chai"
-utils = require "../../../utils"
 
-cf = utils.require("models/widgets/tables/cell_formatters")
+cf = require("models/widgets/tables/cell_formatters")
 
 describe "cell_formatters module", ->
 

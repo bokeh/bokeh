@@ -1,9 +1,8 @@
 {expect} = require "chai"
-utils = require "../utils"
 sinon = require "sinon"
 
-{Message} = utils.require "protocol/message"
-{Receiver} = utils.require "protocol/receiver"
+{Message} = require "protocol/message"
+{Receiver} = require "protocol/receiver"
 
 describe "protocol/receiver module", ->
 

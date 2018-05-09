@@ -1,15 +1,14 @@
 {expect} = require "chai"
-utils = require "../../utils"
 sinon = require "sinon"
 
-{Strength, Variable}  = utils.require("core/layout/solver")
+{Strength, Variable}  = require("core/layout/solver")
 
-{Document} = utils.require("document")
-{Toolbar} = utils.require("models/tools/toolbar")
-{HoverTool} = utils.require("models/tools/inspectors/hover_tool")
-{SelectTool, SelectToolView} = utils.require("models/tools/gestures/select_tool")
-{PanTool} = utils.require("models/tools/gestures/pan_tool")
-{TapTool} = utils.require("models/tools/gestures/tap_tool")
+{Document} = require("document")
+{Toolbar} = require("models/tools/toolbar")
+{HoverTool} = require("models/tools/inspectors/hover_tool")
+{SelectTool, SelectToolView} = require("models/tools/gestures/select_tool")
+{PanTool} = require("models/tools/gestures/pan_tool")
+{TapTool} = require("models/tools/gestures/tap_tool")
 
 describe "Toolbar", ->
 

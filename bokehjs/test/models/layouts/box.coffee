@@ -1,21 +1,21 @@
 {expect} = require "chai"
-utils = require "../../utils"
+stubs = require "../../stubs"
 sinon = require "sinon"
 
-{clone} = utils.require("core/util/object")
-{Strength, Variable}  = utils.require("core/layout/solver")
-{Document} = utils.require("document")
-{Box} = utils.require("models/layouts/box")
-{BoxView} = utils.require("models/layouts/box")
-{LayoutDOMView} = utils.require("models/layouts/layout_dom")
+{clone} = require("core/util/object")
+{Strength, Variable}  = require("core/layout/solver")
+{Document} = require("document")
+{Box} = require("models/layouts/box")
+{BoxView} = require("models/layouts/box")
+{LayoutDOMView} = require("models/layouts/layout_dom")
 
 describe "BoxView", ->
 
   afterEach ->
-    utils.unstub_solver()
+    stubs.unstub_solver()
 
   beforeEach ->
-    solver_stubs = utils.stub_solver()
+    solver_stubs = stubs.stub_solver()
     @box = new Box()
     @doc = new Document()
     @doc.add_root(@box)

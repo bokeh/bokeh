@@ -1,8 +1,7 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
-{LinearScale} = utils.require("models/scales/linear_scale")
-{Range1d} = utils.require("models/ranges/range1d")
+{LinearScale} = require("models/scales/linear_scale")
+{Range1d} = require("models/ranges/range1d")
 
 describe "linear_scale module", ->
   source = {start: 0, end: 10}

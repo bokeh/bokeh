@@ -1,7 +1,6 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
-{compute_side} = utils.require("models/annotations/tooltip")
+{compute_side} = require("models/annotations/tooltip")
 
 
 describe "compute_side", ->

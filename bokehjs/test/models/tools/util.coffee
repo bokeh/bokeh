@@ -1,9 +1,8 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
-{compute_renderers} = utils.require("models/tools/util")
-{GlyphRenderer} = utils.require("models/renderers/glyph_renderer")
-{GraphRenderer} = utils.require("models/renderers/graph_renderer")
+{compute_renderers} = require("models/tools/util")
+{GlyphRenderer} = require("models/renderers/glyph_renderer")
+{GraphRenderer} = require("models/renderers/graph_renderer")
 
 g = new GlyphRenderer({name: "g"})
 g2 = new GlyphRenderer({name: "g2"})

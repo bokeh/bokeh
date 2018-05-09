@@ -1,2 +1,0 @@
-require "./customjs"
-require "./openurl"

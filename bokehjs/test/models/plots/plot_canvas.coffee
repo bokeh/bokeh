@@ -1,25 +1,25 @@
 {expect} = require "chai"
-utils = require "../../utils"
+stubs = require "../../stubs"
 sinon = require 'sinon'
 
-{Solver, Variable} = utils.require("core/layout/solver")
-{update_constraints} = utils.require("core/layout/side_panel")
+{Solver, Variable} = require("core/layout/solver")
+{update_constraints} = require("core/layout/side_panel")
 
-{Document} = utils.require("document")
+{Document} = require("document")
 
-{Axis} = utils.require("models/axes/axis")
-{AxisView} = utils.require("models/axes/axis")
-{BasicTicker} = utils.require("models/tickers/basic_ticker")
-{BasicTickFormatter} = utils.require("models/formatters/basic_tick_formatter")
-{CanvasView} = utils.require("models/canvas/canvas")
-{DataRange1d} = utils.require("models/ranges/data_range1d")
-{LayoutCanvas} = utils.require("core/layout/layout_canvas")
-{LinearAxis} = utils.require("models/axes/linear_axis")
-{Plot} = utils.require("models/plots/plot")
-{PlotCanvas} = utils.require("models/plots/plot_canvas")
-{PlotCanvasView} = utils.require("models/plots/plot_canvas")
-{Range1d} = utils.require("models/ranges/range1d")
-{Toolbar} = utils.require("models/tools/toolbar")
+{Axis} = require("models/axes/axis")
+{AxisView} = require("models/axes/axis")
+{BasicTicker} = require("models/tickers/basic_ticker")
+{BasicTickFormatter} = require("models/formatters/basic_tick_formatter")
+{CanvasView} = require("models/canvas/canvas")
+{DataRange1d} = require("models/ranges/data_range1d")
+{LayoutCanvas} = require("core/layout/layout_canvas")
+{LinearAxis} = require("models/axes/linear_axis")
+{Plot} = require("models/plots/plot")
+{PlotCanvas} = require("models/plots/plot_canvas")
+{PlotCanvasView} = require("models/plots/plot_canvas")
+{Range1d} = require("models/ranges/range1d")
+{Toolbar} = require("models/tools/toolbar")
 
 # Note: Throughout these tests we've chosen to make a new PlotCanvas, when one
 # has already been made on plot. So we could just as easily have said
@@ -30,12 +30,12 @@ sinon = require 'sinon'
 describe "PlotCanvas", ->
 
   afterEach ->
-    utils.unstub_canvas()
-    utils.unstub_solver()
+    stubs.unstub_canvas()
+    stubs.unstub_solver()
 
   beforeEach ->
-    utils.stub_canvas()
-    utils.stub_solver()
+    stubs.stub_canvas()
+    stubs.stub_solver()
     @doc = new Document()
     @plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
@@ -99,12 +99,12 @@ describe "PlotCanvas", ->
 describe "PlotCanvasView pause", ->
 
   afterEach ->
-    utils.unstub_canvas()
-    utils.unstub_solver()
+    stubs.unstub_canvas()
+    stubs.unstub_solver()
 
   beforeEach ->
-    utils.stub_canvas()
-    utils.stub_solver()
+    stubs.stub_canvas()
+    stubs.stub_solver()
     @doc = new Document()
     @plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
@@ -142,12 +142,12 @@ describe "PlotCanvasView pause", ->
 describe "PlotCanvas constraints", ->
 
   afterEach ->
-    utils.unstub_canvas()
-    utils.unstub_solver()
+    stubs.unstub_canvas()
+    stubs.unstub_solver()
 
   beforeEach ->
-    utils.stub_canvas()
-    utils.stub_solver()
+    stubs.stub_canvas()
+    stubs.stub_solver()
     doc = new Document()
     plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
@@ -180,12 +180,12 @@ describe "PlotCanvas constraints", ->
 describe "PlotCanvasView render", ->
 
   afterEach ->
-    utils.unstub_canvas()
-    utils.unstub_solver()
+    stubs.unstub_canvas()
+    stubs.unstub_solver()
 
   beforeEach ->
-    utils.stub_canvas()
-    utils.stub_solver()
+    stubs.stub_canvas()
+    stubs.stub_solver()
 
     doc = new Document()
     plot = new Plot({
@@ -215,12 +215,12 @@ describe "PlotCanvasView resize", ->
   wb = 33
 
   afterEach ->
-    utils.unstub_canvas()
-    utils.unstub_solver()
+    stubs.unstub_canvas()
+    stubs.unstub_solver()
 
   beforeEach ->
-    utils.stub_canvas()
-    solver_stubs = utils.stub_solver()
+    stubs.stub_canvas()
+    solver_stubs = stubs.stub_solver()
     @solver_suggest = solver_stubs['suggest']
 
     doc = new Document()
@@ -282,12 +282,12 @@ describe "PlotCanvasView resize", ->
 describe "PlotCanvasView update_constraints", ->
 
   afterEach ->
-    utils.unstub_canvas()
-    utils.unstub_solver()
+    stubs.unstub_canvas()
+    stubs.unstub_solver()
 
   beforeEach ->
-    utils.stub_canvas()
-    solver_stubs = utils.stub_solver()
+    stubs.stub_canvas()
+    solver_stubs = stubs.stub_solver()
     @solver_suggest_stub = solver_stubs['suggest']
     @solver_update_stub = solver_stubs['update']
 
@@ -335,12 +335,12 @@ describe "PlotCanvasView update_constraints", ->
 describe "PlotCanvasView get_canvas_element", ->
 
   afterEach ->
-    utils.unstub_canvas()
-    utils.unstub_solver()
+    stubs.unstub_canvas()
+    stubs.unstub_solver()
 
   beforeEach ->
-    utils.stub_canvas()
-    solver_stubs = utils.stub_solver()
+    stubs.stub_canvas()
+    solver_stubs = stubs.stub_solver()
     @solver_suggest_stub = solver_stubs['suggest']  # This isn't necessary but an attempt to make tests more robust
 
     doc = new Document()
@@ -365,12 +365,12 @@ describe "PlotCanvasView get_canvas_element", ->
 describe "PlotCanvasView dimensions", ->
 
   afterEach ->
-    utils.unstub_canvas()
-    utils.unstub_solver()
+    stubs.unstub_canvas()
+    stubs.unstub_solver()
 
   beforeEach ->
-    utils.stub_canvas()
-    utils.stub_solver()
+    stubs.stub_canvas()
+    stubs.stub_solver()
 
     @doc = new Document()
     plot = new Plot({

@@ -1,8 +1,7 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
-{CustomJSTransform} = utils.require("models/transforms/customjs_transform")
-{Range1d} = utils.require("models/ranges/range1d")
+{CustomJSTransform} = require("models/transforms/customjs_transform")
+{Range1d} = require("models/ranges/range1d")
 
 describe "customjs_transform module", ->
 

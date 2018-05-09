@@ -1,16 +1,15 @@
 {expect} = require "chai"
-utils = require "../../utils"
 sinon = require 'sinon'
 
-{SidePanel} = utils.require("core/layout/side_panel")
+{SidePanel} = require("core/layout/side_panel")
 
-{Document} = utils.require "document"
+{Document} = require "document"
 
-{ColumnDataSource} = utils.require("models/sources/column_data_source")
-{GlyphRenderer} = utils.require("models/renderers/glyph_renderer")
-{Legend} = utils.require("models/annotations/legend")
-{LegendView} = utils.require("models/annotations/legend")
-{LegendItem} = utils.require("models/annotations/legend_item")
+{ColumnDataSource} = require("models/sources/column_data_source")
+{GlyphRenderer} = require("models/renderers/glyph_renderer")
+{Legend} = require("models/annotations/legend")
+{LegendView} = require("models/annotations/legend")
+{LegendItem} = require("models/annotations/legend_item")
 
 HEIGHT = 333
 WIDTH = 222

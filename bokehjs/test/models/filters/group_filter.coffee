@@ -1,8 +1,7 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
-{GroupFilter} = utils.require("models/filters/group_filter")
-{ColumnDataSource} = utils.require("models/sources/column_data_source")
+{GroupFilter} = require("models/filters/group_filter")
+{ColumnDataSource} = require("models/sources/column_data_source")
 
 describe "GroupFilter", ->
 

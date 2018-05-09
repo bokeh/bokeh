@@ -1,22 +1,22 @@
 {expect} = require "chai"
-utils = require "../../utils"
+stubs = require "../../stubs"
 sinon = require "sinon"
 
 {create_glyph_view, set_scales} = require("./glyph_utils")
-{Rect, RectView} = utils.require("models/glyphs/rect")
-{LinearScale} = utils.require("models/scales/linear_scale")
-{Range1d} = utils.require("models/ranges/range1d")
+{Rect, RectView} = require("models/glyphs/rect")
+{LinearScale} = require("models/scales/linear_scale")
+{Range1d} = require("models/ranges/range1d")
 
 describe "Glyph (using Rect as a concrete Glyph)", ->
 
   describe "GlyphView", ->
 
     afterEach ->
-      utils.unstub_canvas()
+      stubs.unstub_canvas()
       @stub.restore()
 
     beforeEach ->
-      utils.stub_canvas()
+      stubs.stub_canvas()
 
       @stub = sinon.stub(RectView.prototype, '_bounds', (bounds) -> bounds )
 
@@ -78,10 +78,10 @@ describe "Rect", ->
   describe "RectView", ->
 
     afterEach ->
-      utils.unstub_canvas()
+      stubs.unstub_canvas()
 
     beforeEach ->
-      utils.stub_canvas()
+      stubs.stub_canvas()
 
       @glyph = new Rect({
         x: {field: "x"}
@@ -162,7 +162,7 @@ describe "Rect", ->
         height: {value: 0.5}
       })
       data = {x: ['a'], y: ['b']}
-      glyph_view = create_glyph_view(glyph, data, "categorical")
+      glyph_view = create_glyph_view(glyph, data)
       glyph_view.map_data()
       expect(glyph_view.sx0).to.be.deep.equal({'0': 25})
       expect(glyph_view.sy1).to.be.deep.equal({'0': 25})

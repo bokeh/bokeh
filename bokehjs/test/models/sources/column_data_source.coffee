@@ -1,11 +1,10 @@
 {expect} = require "chai"
-utils = require "../../utils"
 { stdoutTrap, stderrTrap } = require 'logtrap'
 
-{Set} = utils.require("core/util/data_structures")
-{set_log_level} = utils.require "core/logging"
+{Set} = require("core/util/data_structures")
+{set_log_level} = require "core/logging"
 
-{ColumnDataSource, stream_to_column, slice, patch_to_column} = utils.require("models/sources/column_data_source")
+{ColumnDataSource, stream_to_column, slice, patch_to_column} = require("models/sources/column_data_source")
 
 describe "column_data_source module", ->
 

@@ -1,9 +1,8 @@
 {expect} = require "chai"
-utils = require "../../utils"
 sinon = require "sinon"
 
-{FactorRange} = utils.require("models/ranges/factor_range")
-{Dodge} = utils.require("models/transforms/dodge")
+{FactorRange} = require("models/ranges/factor_range")
+{Dodge} = require("models/transforms/dodge")
 
 describe "Dodge transform module", ->
   source = {start: 0, end: 10}

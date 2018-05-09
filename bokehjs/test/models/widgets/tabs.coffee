@@ -1,24 +1,24 @@
 {expect} = require "chai"
-utils = require "../../utils"
+stubs = require "../../stubs"
 sinon = require 'sinon'
 
-{Document} = utils.require("document")
+{Document} = require("document")
 
-{LayoutDOM} = utils.require("models/layouts/layout_dom")
-{DataRange1d} = utils.require("models/ranges/data_range1d")
-{Panel} = utils.require("models/widgets/panel")
-{Plot} = utils.require("models/plots/plot")
-{Tabs} = utils.require("models/widgets/tabs")
-{Toolbar} = utils.require("models/tools/toolbar")
-{Widget} = utils.require("models/widgets/widget")
+{LayoutDOM} = require("models/layouts/layout_dom")
+{DataRange1d} = require("models/ranges/data_range1d")
+{Panel} = require("models/widgets/panel")
+{Plot} = require("models/plots/plot")
+{Tabs} = require("models/widgets/tabs")
+{Toolbar} = require("models/tools/toolbar")
+{Widget} = require("models/widgets/widget")
 
 describe "Tabs", ->
 
   afterEach ->
-    utils.unstub_solver()
+    stubs.unstub_solver()
 
   beforeEach ->
-    utils.stub_solver()
+    stubs.stub_solver()
     @tab_plot = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), toolbar: new Toolbar()})
     @tab_plot.attach_document(new Document())
     @panel = new Panel({child: @tab_plot})

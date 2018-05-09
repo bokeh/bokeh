@@ -1,17 +1,16 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
-{shuffle} = utils.require "core/util/array"
-{TileRenderer} = utils.require "models/tiles/tile_renderer"
-{TileSource} = utils.require "models/tiles/tile_source"
-{MercatorTileSource} = utils.require "models/tiles/mercator_tile_source"
-{TMSTileSource} = utils.require "models/tiles/tms_tile_source"
-{WMTSTileSource} = utils.require "models/tiles/wmts_tile_source"
-{QUADKEYTileSource} = utils.require "models/tiles/quadkey_tile_source"
-{BBoxTileSource} = utils.require "models/tiles/bbox_tile_source"
-tile_utils = utils.require "models/tiles/tile_utils"
+{shuffle} = require "core/util/array"
+{TileRenderer} = require "models/tiles/tile_renderer"
+{TileSource} = require "models/tiles/tile_source"
+{MercatorTileSource} = require "models/tiles/mercator_tile_source"
+{TMSTileSource} = require "models/tiles/tms_tile_source"
+{WMTSTileSource} = require "models/tiles/wmts_tile_source"
+{QUADKEYTileSource} = require "models/tiles/quadkey_tile_source"
+{BBoxTileSource} = require "models/tiles/bbox_tile_source"
+tile_utils = require "models/tiles/tile_utils"
 
-describe "projection utils", ->
+describe "projection utilities", ->
 
   tol = 0.01
 

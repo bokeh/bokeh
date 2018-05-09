@@ -1,1 +1,0 @@
-require "./tile_renderer"

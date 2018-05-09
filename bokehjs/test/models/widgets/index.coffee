@@ -1,8 +1,0 @@
-require "./button"
-require "./checkbox_button_group"
-require "./multiselect"
-require "./paragraph"
-require "./slider"
-require "./tables"
-require "./tabs"
-require "./widget"

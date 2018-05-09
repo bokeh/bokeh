@@ -3,7 +3,7 @@ import * as path from "path"
 
 import {expect} from "chai"
 
-const build_dir = path.normalize(`${__dirname}/../build`)
+const build_dir = path.normalize(`${__dirname}/..`) // build/test -> build
 
 const LIMITS: {[key: string]: number} = {
   // js

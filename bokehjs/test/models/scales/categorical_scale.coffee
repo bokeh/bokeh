@@ -1,9 +1,8 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
-{CategoricalScale} = utils.require("models/scales/categorical_scale")
-{FactorRange} = utils.require("models/ranges/factor_range")
-{Range1d} = utils.require("models/ranges/range1d")
+{CategoricalScale} = require("models/scales/categorical_scale")
+{FactorRange} = require("models/ranges/factor_range")
+{Range1d} = require("models/ranges/range1d")
 
 close = (a, b) -> Math.abs(a-b)<10e-7
 

@@ -1,17 +1,17 @@
 {expect} = require "chai"
-utils = require "../../utils"
+stubs = require "../../stubs"
 sinon = require 'sinon'
 
-{Document} = utils.require("document")
+{Document} = require("document")
 
-{clone} = utils.require("core/util/object")
-{CustomJS} = utils.require("models/callbacks/customjs")
-{DataRange1d} = utils.require("models/ranges/data_range1d")
-{Range1d} = utils.require("models/ranges/range1d")
-{PlotCanvas} = utils.require("models/plots/plot_canvas")
-{Plot} = utils.require("models/plots/plot")
-{PlotView} = utils.require("models/plots/plot")
-{Toolbar} = utils.require("models/tools/toolbar")
+{clone} = require("core/util/object")
+{CustomJS} = require("models/callbacks/customjs")
+{DataRange1d} = require("models/ranges/data_range1d")
+{Range1d} = require("models/ranges/range1d")
+{PlotCanvas} = require("models/plots/plot_canvas")
+{Plot} = require("models/plots/plot")
+{PlotView} = require("models/plots/plot")
+{Toolbar} = require("models/tools/toolbar")
 
 describe "Plot", ->
   beforeEach ->
@@ -23,12 +23,12 @@ describe "Plot", ->
   describe "PlotView", ->
 
     afterEach ->
-      utils.unstub_canvas()
-      utils.unstub_solver()
+      stubs.unstub_canvas()
+      stubs.unstub_solver()
 
     beforeEach ->
-      utils.stub_canvas()
-      solver_stubs = utils.stub_solver()
+      stubs.stub_canvas()
+      solver_stubs = stubs.stub_solver()
       @solver_suggest = solver_stubs['suggest']
       doc = new Document()
       doc.add_root(@p)
@@ -127,12 +127,12 @@ describe "Plot", ->
   describe "Plot", ->
 
     afterEach ->
-      utils.unstub_canvas()
-      utils.unstub_solver()
+      stubs.unstub_canvas()
+      stubs.unstub_solver()
 
     beforeEach ->
-      utils.stub_canvas()
-      utils.stub_solver()
+      stubs.stub_canvas()
+      stubs.stub_solver()
 
     it "should have a PlotCanvas set on initialization with plot on it", sinon.test () ->
       expect(@p.plot_canvas).to.exist

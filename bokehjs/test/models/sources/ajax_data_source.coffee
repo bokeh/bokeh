@@ -1,9 +1,8 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
 sinon = require 'sinon'
 
-{AjaxDataSource} = utils.require("models/sources/ajax_data_source")
+{AjaxDataSource} = require("models/sources/ajax_data_source")
 
 describe "ajax_data_source module", ->
 

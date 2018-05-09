@@ -1,22 +1,22 @@
 {expect} = require "chai"
 sinon = require "sinon"
-utils = require "../../utils"
+stubs = require "../../stubs"
 
-{build_views} = utils.require("core/build_views")
-{create_hit_test_result_from_hits, create_empty_hit_test_result} = utils.require("core/hittest")
+{build_views} = require("core/build_views")
+{create_hit_test_result_from_hits, create_empty_hit_test_result} = require("core/hittest")
 
-{Selection} = utils.require("models/selections/selection")
-{Plot} = utils.require("models/plots/plot")
-{Range1d} = utils.require("models/ranges/range1d")
+{Selection} = require("models/selections/selection")
+{Plot} = require("models/plots/plot")
+{Range1d} = require("models/ranges/range1d")
 
-{Circle} = utils.require("models/glyphs/circle")
-{MultiLine} = utils.require("models/glyphs/multi_line")
-{NodesOnly, NodesAndLinkedEdges, EdgesAndLinkedNodes} = utils.require("models/graphs/graph_hit_test_policy")
-{LayoutProvider} = utils.require("models/graphs/layout_provider")
-{GlyphRenderer} = utils.require("models/renderers/glyph_renderer")
-{GraphRenderer} = utils.require("models/renderers/graph_renderer")
-{ColumnDataSource} = utils.require("models/sources/column_data_source")
-{Document} = utils.require "document"
+{Circle} = require("models/glyphs/circle")
+{MultiLine} = require("models/glyphs/multi_line")
+{NodesOnly, NodesAndLinkedEdges, EdgesAndLinkedNodes} = require("models/graphs/graph_hit_test_policy")
+{LayoutProvider} = require("models/graphs/layout_provider")
+{GlyphRenderer} = require("models/renderers/glyph_renderer")
+{GraphRenderer} = require("models/renderers/graph_renderer")
+{ColumnDataSource} = require("models/sources/column_data_source")
+{Document} = require "document"
 
 class TrivialLayoutProvider extends LayoutProvider
 
@@ -29,12 +29,12 @@ class TrivialLayoutProvider extends LayoutProvider
 describe "GraphHitTestPolicy", ->
 
   afterEach ->
-    utils.unstub_canvas()
+    stubs.unstub_canvas()
     @gv.node_view.glyph.hit_test.restore()
     @gv.edge_view.glyph.hit_test.restore()
 
   beforeEach ->
-    utils.stub_canvas()
+    stubs.stub_canvas()
     doc = new Document()
 
     @plot = new Plot({

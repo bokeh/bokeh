@@ -1,13 +1,13 @@
 {expect} = require "chai"
-utils = require "../../utils"
+stubs = require "../../stubs"
 sinon = require "sinon"
 
-{HasProps} = utils.require "core/has_props"
-p = utils.require "core/properties"
+{HasProps} = require "core/has_props"
+p = require "core/properties"
 
-{CustomJS} = utils.require("models/callbacks/customjs")
-{DataRange1d} = utils.require("models/ranges/data_range1d")
-{GlyphRenderer} = utils.require("models/renderers/glyph_renderer")
+{CustomJS} = require("models/callbacks/customjs")
+{DataRange1d} = require("models/ranges/data_range1d")
+{GlyphRenderer} = require("models/renderers/glyph_renderer")
 
 class TestObject extends HasProps
   type: 'TestObject'
@@ -19,12 +19,12 @@ class TestObject extends HasProps
 describe "datarange1d module", ->
 
   afterEach ->
-    utils.unstub_canvas()
-    utils.unstub_solver()
+    stubs.unstub_canvas()
+    stubs.unstub_solver()
 
   beforeEach ->
-    utils.stub_canvas()
-    utils.stub_solver()
+    stubs.stub_canvas()
+    stubs.stub_solver()
 
   describe "default creation", ->
     r = new DataRange1d()

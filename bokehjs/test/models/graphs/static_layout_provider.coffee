@@ -1,8 +1,7 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
-{StaticLayoutProvider} = utils.require("models/graphs/static_layout_provider")
-{ColumnDataSource} = utils.require("models/sources/column_data_source")
+{StaticLayoutProvider} = require("models/graphs/static_layout_provider")
+{ColumnDataSource} = require("models/sources/column_data_source")
 
 describe "StaticLayoutProvider", ->
 

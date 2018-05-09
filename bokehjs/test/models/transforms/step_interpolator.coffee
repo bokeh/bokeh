@@ -1,8 +1,7 @@
 {expect} = require "chai"
-utils = require "../../utils"
 
-{StepInterpolator} = utils.require('models/transforms/step_interpolator')
-{ColumnDataSource} = utils.require('models/sources/column_data_source')
+{StepInterpolator} = require('models/transforms/step_interpolator')
+{ColumnDataSource} = require('models/sources/column_data_source')
 
 describe "step_interpolator_transform module", ->
   source = {start: 0, end: 10}

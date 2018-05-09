@@ -1,13 +1,12 @@
 {expect} = require "chai"
-utils = require "../../../utils"
 
-{CrosshairTool} = utils.require("models/tools/inspectors/crosshair_tool")
-{DataRange1d} = utils.require("models/ranges/data_range1d")
-{Range1d} = utils.require("models/ranges/range1d")
-{PlotCanvas} = utils.require("models/plots/plot_canvas")
-{Plot} = utils.require("models/plots/plot")
-{PlotView} = utils.require("models/plots/plot")
-{Toolbar} = utils.require("models/tools/toolbar")
+{CrosshairTool} = require("models/tools/inspectors/crosshair_tool")
+{DataRange1d} = require("models/ranges/data_range1d")
+{Range1d} = require("models/ranges/range1d")
+{PlotCanvas} = require("models/plots/plot_canvas")
+{Plot} = require("models/plots/plot")
+{PlotView} = require("models/plots/plot")
+{Toolbar} = require("models/tools/toolbar")
 
 describe "Crosshair Tool", ->
 

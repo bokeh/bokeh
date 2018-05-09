@@ -1,10 +1,9 @@
 {expect} = require "chai"
-utils = require "../../utils"
 sinon = require "sinon"
 
-{MultiSelect} = utils.require("models/widgets/multiselect")
-{CustomJS} = utils.require("models/callbacks/customjs")
-{Document} = utils.require("document")
+{MultiSelect} = require("models/widgets/multiselect")
+{CustomJS} = require("models/callbacks/customjs")
+{Document} = require("document")
 
 describe "MultiSelect", ->
 

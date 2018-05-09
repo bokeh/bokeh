@@ -11,7 +11,7 @@ import {CustomJSHover} from 'models/tools/inspectors/customjs_hover'
 
 export type FormatterType = "numeral" | "printf" | "datetime"
 export type FormatterSpec = CustomJSHover | FormatterType
-export type Formatters = {[key: string]: FormatterSpec} | null
+export type Formatters = {[key: string]: FormatterSpec}
 export type FormatterFunc = (value:any, format:string, special_vars: Vars) => string
 export type Index = number | ImageIndex
 export type Vars = {[key: string]: any}
@@ -42,9 +42,9 @@ export function basic_formatter(value:any, _format:string, _special_vars: Vars):
     return `${value}`  // get strings for categorical types
 }
 
-export function get_formatter(name: string, raw_spec: string, format: string, formatters: Formatters = null) : FormatterFunc {
+export function get_formatter(name: string, raw_spec: string, format?: string, formatters?: Formatters): FormatterFunc {
   // no format, use default built in formatter
-  if (format==null)
+  if (format == null)
     return basic_formatter
 
   // format spec in the formatters dict, use that
@@ -61,8 +61,10 @@ export function get_formatter(name: string, raw_spec: string, format: string, fo
       else
         throw new Error(`Unknown tooltip field formatter type '${formatter}'`)
     }
+
     return function(value: any, format: string, special_vars: Vars) : string {
-      return formatter.format(value, format, special_vars) }
+      return formatter.format(value, format, special_vars)
+    }
   }
 
   // otherwise use "numeral" as default
@@ -111,7 +113,7 @@ export function get_value(name: string, data_source: ColumnarDataSource, i: Inde
 
 }
 
-export function replace_placeholders(str: string, data_source: ColumnarDataSource, i: Index, formatters: Formatters = null, special_vars: Vars = {}): string {
+export function replace_placeholders(str: string, data_source: ColumnarDataSource, i: Index, formatters?: Formatters, special_vars: Vars = {}): string {
 
   // this extracts the $x, @x, @{x} without any trailing {format}
   const raw_spec = str.replace(/(?:^|[^@])([@|\$](?:\w+|{[^{}]+}))(?:{[^{}]+})?/g, (_match, raw_spec, _format) => `${raw_spec}`)

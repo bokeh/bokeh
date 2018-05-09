@@ -1,8 +1,8 @@
 {expect} = require "chai"
-utils = require "../../utils"
+stubs = require "../../stubs"
 
 {create_glyph_view} = require("./glyph_utils")
-{ImageURL} = utils.require('models/glyphs/image_url')
+{ImageURL} = require('models/glyphs/image_url')
 
 describe "ImageURL module", ->
 
@@ -23,12 +23,12 @@ describe "ImageURL module", ->
   describe "ImageURLView", ->
 
     afterEach ->
-      utils.unstub_canvas()
-      utils.unstub_solver()
+      stubs.unstub_canvas()
+      stubs.unstub_solver()
 
     beforeEach ->
-      utils.stub_canvas()
-      utils.stub_solver()
+      stubs.stub_canvas()
+      stubs.stub_solver()
       @image_url = new ImageURL()
 
     it "`_set_data` should correctly set Image src", ->
