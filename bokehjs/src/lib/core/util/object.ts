@@ -1,3 +1,4 @@
+import {__assign} from "tslib"
 import {concat, union} from "./array"
 
 export const keys = Object.keys
@@ -12,23 +13,12 @@ export function values<T>(object: {[key: string]: T}): T[] {
   return values
 }
 
-export function extend<T, T1>(dest: T, src: T1): T & T1;
-export function extend<T, T1, T2>(dest: T, src1: T1, src2: T2): T & T1 & T2;
-export function extend<T, T1, T2, T3>(dest: T, src1: T1, src2: T2, src3: T3): T & T1 & T2 & T3;
-export function extend<R>(dest: any, ...sources: any[]): R {
-  for (const source of sources) {
-    for (const key in source) {
-      if (source.hasOwnProperty(key)) {
-        dest[key] = source[key]
-      }
-    }
-  }
-
-  return dest
+export function extend<T1, T2>(dest: T1, src: T2): T1 & T2 {
+  return __assign(dest, src)
 }
 
-export function clone<T>(obj: T): T {
-  return extend({}, obj)
+export function clone<T extends object>(obj: T): T {
+  return extend({}, obj) // XXX: can't use {...obj} due to https://github.com/Microsoft/TypeScript/issues/14409
 }
 
 export function merge<T>(obj1: {[key: string] : T[]}, obj2: {[key: string]: T[]}): {[key: string]: T[]} {

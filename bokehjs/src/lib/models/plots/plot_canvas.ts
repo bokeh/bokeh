@@ -27,7 +27,7 @@ import {Rect} from "core/util/spatial"
 import {throttle} from "core/util/throttle"
 import {isStrictNaN} from "core/util/types"
 import {difference, sortBy, reversed, concat} from "core/util/array"
-import {extend, keys, values} from "core/util/object"
+import {keys, values} from "core/util/object"
 import {isSizeable, isSizeableView, update_panel_constraints, _view_sizes} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
 
@@ -367,7 +367,7 @@ export class PlotCanvasView extends DOMView {
     const {history, index} = this.state
 
     const prev_info = history[index] != null ? history[index].info : {}
-    const info = extend({}, this._initial_state_info, prev_info, new_info)
+    const info = {...this._initial_state_info, ...prev_info, ...new_info}
 
     this.state.history = this.state.history.slice(0, this.state.index + 1)
     this.state.history.push({type, info})

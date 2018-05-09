@@ -1,6 +1,5 @@
 import {logger} from "core/logging"
 import * as p from "core/properties"
-import {extend} from "core/util/object"
 import {Variable} from "core/layout/solver"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
@@ -123,7 +122,9 @@ export class WidgetBox extends LayoutDOM {
   }
 
   get_constrained_variables(): {[key: string]: Variable} {
-    const vars = extend({}, super.get_constrained_variables(), {
+    const vars: {[key: string]: Variable} = {
+      ...super.get_constrained_variables(),
+
       on_edge_align_top    : this._top,
       on_edge_align_bottom : this._height_minus_bottom,
       on_edge_align_left   : this._left,
@@ -136,7 +137,7 @@ export class WidgetBox extends LayoutDOM {
 
       box_equal_size_top   : this._top,
       box_equal_size_bottom: this._height_minus_bottom,
-    })
+    }
 
     if (this.sizing_mode != 'fixed') {
       vars.box_equal_size_left  = this._left

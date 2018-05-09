@@ -2,7 +2,6 @@ import {GestureTool, GestureToolView} from "./gesture_tool"
 import {GraphRenderer} from "../../renderers/graph_renderer"
 import {compute_renderers, DataRenderer, RendererSpec} from "../util"
 import * as p from "core/properties"
-import {extend} from "core/util/object"
 import {KeyEvent} from "core/ui_events"
 import {Keys} from "core/dom"
 import {SelectionGeometry} from "core/bokeh_events"
@@ -79,21 +78,21 @@ export abstract class SelectToolView extends GestureToolView {
         const {sx, sy} = geometry
         const x = xm.invert(sx)
         const y = ym.invert(sy)
-        g = extend({}, geometry, {x, y})
+        g = {...geometry, x, y}
         break
       }
       case 'rect': {
         const {sx0, sx1, sy0, sy1} = geometry
         const [x0, x1] = xm.r_invert(sx0, sx1)
         const [y0, y1] = ym.r_invert(sy0, sy1)
-        g = extend({}, geometry, {x0, y0, x1, y1})
+        g = {...geometry, x0, y0, x1, y1}
         break
       }
       case 'poly': {
         const {sx, sy} = geometry
         const x = xm.v_invert(sx)
         const y = ym.v_invert(sy)
-        g = extend({}, geometry, {x, y})
+        g = {...geometry, x, y}
         break
       }
       default:

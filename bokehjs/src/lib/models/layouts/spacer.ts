@@ -1,5 +1,4 @@
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
-import {extend} from "core/util/object"
 import {Variable} from "core/layout/solver"
 
 export class SpacerView extends LayoutDOMView {
@@ -49,7 +48,9 @@ export class Spacer extends LayoutDOM {
   }
 
   get_constrained_variables(): {[key: string]: Variable} {
-    return extend({}, super.get_constrained_variables(), {
+    return {
+      ...super.get_constrained_variables(),
+
       on_edge_align_top    : this._top,
       on_edge_align_bottom : this._height_minus_bottom,
       on_edge_align_left   : this._left,
@@ -64,7 +65,7 @@ export class Spacer extends LayoutDOM {
       box_equal_size_bottom: this._height_minus_bottom,
       box_equal_size_left  : this._left,
       box_equal_size_right : this._width_minus_right,
-    })
+    }
   }
 }
 Spacer.initClass()

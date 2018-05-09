@@ -6,7 +6,6 @@ import * as p from "core/properties"
 import {span, i} from "core/dom"
 import {Color} from "core/types"
 import {FontStyle, TextAlign, RoundingFunction} from "core/enums"
-import {extend} from "core/util/object"
 import {isString} from "core/util/types"
 import {Model} from "../../../model"
 
@@ -231,7 +230,7 @@ export class HTMLTemplateFormatter extends CellFormatter {
       return ""
     else {
       const compiled_template = compile_template(template)
-      const context = extend({}, dataContext, {value})
+      const context = {...dataContext, value}
       return compiled_template(context)
     }
   }

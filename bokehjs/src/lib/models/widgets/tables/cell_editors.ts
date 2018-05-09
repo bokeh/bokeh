@@ -1,6 +1,5 @@
 import * as p from "core/properties"
 import {input, textarea, select, option, Keys} from "core/dom"
-import {extend} from "core/util/object"
 
 import {DOMView} from "core/dom_view"
 import {Model} from "../../../model"
@@ -22,7 +21,7 @@ export abstract class CellEditorView extends DOMView {
   protected abstract _createInput(): HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
 
   constructor(options: any) {
-    super(extend({model: options.column.model}, options))
+    super({model: options.column.model, ...options})
   }
 
   initialize(options: any): void {

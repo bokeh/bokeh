@@ -7,7 +7,7 @@ import {Color} from "core/types"
 import {LineJoin, LineCap} from "core/enums"
 import {Place, Location, OutputBackend} from "core/enums"
 import {find, removeBy, includes} from "core/util/array"
-import {extend, values} from "core/util/object"
+import {values} from "core/util/object"
 import {isString, isArray} from "core/util/types"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
@@ -379,7 +379,7 @@ export class Plot extends LayoutDOM {
   }
 
   add_glyph(glyph: Glyph, source: DataSource = new ColumnDataSource(), extra_attrs: any = {}): GlyphRenderer {
-    const attrs = extend({}, extra_attrs, {data_source: source, glyph: glyph})
+    const attrs = {...extra_attrs, data_source: source, glyph}
     const renderer = new GlyphRenderer(attrs)
     this.add_renderers(renderer)
     return renderer
@@ -408,7 +408,9 @@ export class Plot extends LayoutDOM {
   }
 
   get_constrained_variables(): {[key: string]: Variable} {
-    const vars = extend({}, super.get_constrained_variables(), {
+    const vars: {[key: string]: Variable} = {
+      ...super.get_constrained_variables(),
+
       on_edge_align_top    : this.plot_canvas._top,
       on_edge_align_bottom : this.plot_canvas._height_minus_bottom,
       on_edge_align_left   : this.plot_canvas._left,
@@ -421,7 +423,7 @@ export class Plot extends LayoutDOM {
 
       box_equal_size_top   : this.plot_canvas._top,
       box_equal_size_bottom: this.plot_canvas._height_minus_bottom,
-    })
+    }
 
     if (this.sizing_mode != "fixed") {
       vars.box_equal_size_left  = this.plot_canvas._left

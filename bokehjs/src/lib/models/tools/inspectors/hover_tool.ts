@@ -10,7 +10,7 @@ import {replace_placeholders, Vars} from "core/util/templating"
 import {div, span} from "core/dom"
 import * as p from "core/properties"
 import {color2hex} from "core/util/color"
-import {values, isEmpty, extend} from "core/util/object"
+import {values, isEmpty} from "core/util/object"
 import {isString, isFunction, isNumber} from "core/util/types"
 import {build_views, remove_views} from "core/build_views"
 import {Anchor, TooltipAttachment} from "core/enums"
@@ -335,7 +335,7 @@ export class HoverToolView extends InspectToolView {
       const x = xscale.invert(geometry.sx)
       const y = yscale.invert(geometry.sy)
 
-      const g = extend({x, y}, geometry)
+      const g = {x, y, ...geometry}
 
       const callback = this.model.callback
       const [obj, data] = [callback, {index: index, geometry: g, renderer: r}]

@@ -8,7 +8,7 @@ import * as p from "./properties"
 import {Property} from "./properties"
 import {uniqueId} from "./util/string"
 import {max, copy} from "./util/array"
-import {extend, values, clone, isEmpty} from "./util/object"
+import {values, clone, isEmpty} from "./util/object"
 import {isObject, isArray, isFunction} from "./util/types"
 import {isEqual} from './util/eq'
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
@@ -138,7 +138,7 @@ export abstract class HasProps extends Signalable() {
       if (value == null)
         throw new Error(`attempted to override nonexistent '${this.prototype.type}.${name}'`)
       const props = clone(this.prototype.props)
-      props[name] = extend({}, value, { default_value: default_value })
+      props[name] = {...value, default_value}
       this.prototype.props = props
     }
   }
