@@ -33,9 +33,9 @@ export interface ImageView extends _ImageData {}
 
 
 export interface ImageIndex {
-  index: number,
-  dim1: number,
-  dim2: number,
+  index: number
+  dim1: number
+  dim2: number
   flat_index: number
 }
 
@@ -88,7 +88,7 @@ export class ImageView extends XYGlyphView {
     const dy = (t - b) / height
     const dim1 = Math.floor((x - l) / dx)
     const dim2 = Math.floor((y - b) / dy)
-    return {index: index, dim1: dim1, dim2: dim2, flat_index: ((dim2 * width) + dim1)}
+    return {index, dim1, dim2, flat_index: dim2*width + dim1}
   }
 
   _hit_point(geometry: PointGeometry) : Selection {

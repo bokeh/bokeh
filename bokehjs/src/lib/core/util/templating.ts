@@ -52,11 +52,7 @@ export function get_formatter(name: string, raw_spec: string, format: string, fo
 
     // some day (Bokeh 2.0) we can get rid of the check for name, and just check the raw spec
     // keep it now for compatibility but do not demonstrate it anywhere
-    let key: string
-    if (raw_spec in formatters)
-      key = raw_spec
-    else
-      key = name
+    const key: string = raw_spec in formatters ? raw_spec : name
     const formatter = formatters[key]
 
     if (isString(formatter)) {
@@ -92,18 +88,18 @@ export function get_value(name: string, data_source: ColumnarDataSource, i: Inde
     return column[i]
 
   // image index
-  const data = column[i['index']]
+  const data = column[i.index]
   if (isTypedArray(data) || isArray(data)) {
 
     // inspect array of arrays
     if (isArray(data[0])) {
-      const row: any = data[i['dim2']]
-      return row[i['dim1']]
+      const row: any = data[i.dim2]
+      return row[i.dim1]
     }
 
     // inspect flat array
     else
-      return data[i['flat_index']]
+      return data[i.flat_index]
 
   }
 
