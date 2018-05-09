@@ -97,8 +97,7 @@ export function get_value(name: string, data_source: ColumnarDataSource, i: Inde
 
     // inspect array of arrays
     if (isArray(data[0])) {
-      let row: any
-      row = data[i['dim2']]
+      const row: any = data[i['dim2']]
       return row[i['dim1']]
     }
 
