@@ -7,6 +7,10 @@ import * as p from "core/properties"
 import {max, concat} from "core/util/array"
 import {Context2d} from "core/util/canvas"
 import {Rect} from "core/util/spatial"
+import {SpatialIndex} from "core/util/spatial"
+import * as hittest from "core/hittest";
+import {Selection} from "../selections/selection";
+import {PointGeometry} from "core/geometry"
 
 // XXX: because ImageData is a global
 export interface _ImageData extends XYGlyphData {
@@ -26,6 +30,14 @@ export interface _ImageData extends XYGlyphData {
 }
 
 export interface ImageView extends _ImageData {}
+
+
+export interface ImageIndex {
+  index: number
+  dim1: number
+  dim2: number
+  flat_index: number
+}
 
 export class ImageView extends XYGlyphView {
   model: Image
@@ -47,6 +59,55 @@ export class ImageView extends XYGlyphView {
       this.renderer.plot_view.request_render()
     }
   }
+
+  _index_data(): SpatialIndex {
+    const points = []
+    for (let i = 0, end = this._x.length; i < end; i++) {
+      const [l, r, t, b] = this._lrtb(i)
+      if (isNaN(l + r + t + b) || !isFinite(l + r + t + b)) {
+        continue
+      }
+      points.push({minX: l, minY: b, maxX: r, maxY: t, i})
+    }
+    return new SpatialIndex(points)
+  }
+
+  _lrtb(i: number) : [number, number, number, number]{
+    const l = this._x[i]
+    const r = l + this._dw[i]
+    const b = this._y[i]
+    const t = b + this._dh[i]
+    return [l, r, t, b]
+  }
+
+  _image_index(index : number, x: number, y : number) : ImageIndex {
+    const [l,r,t,b] = this._lrtb(index)
+    const width = this._width[index]
+    const height = this._height[index]
+    const dx = (r - l) / width
+    const dy = (t - b) / height
+    const dim1 = Math.floor((x - l) / dx)
+    const dim2 = Math.floor((y - b) / dy)
+    return {index, dim1, dim2, flat_index: dim2*width + dim1}
+  }
+
+  _hit_point(geometry: PointGeometry) : Selection {
+    const {sx, sy} = geometry
+    const x = this.renderer.xscale.invert(sx)
+    const y = this.renderer.yscale.invert(sy)
+    const bbox = hittest.validate_bbox_coords([x, x], [y, y])
+    const candidates = this.index.indices(bbox)
+    const result = hittest.create_empty_hit_test_result()
+
+    result.image_indices = []
+    for (const index of candidates) {
+      if ((sx != Infinity) && (sy != Infinity)) {
+        result.image_indices.push(this._image_index(index, x,y))
+      }
+    }
+    return result
+  }
+
 
   protected _set_data(): void {
     if (this.image_data == null || this.image_data.length != this._image.length)

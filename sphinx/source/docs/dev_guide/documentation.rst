@@ -92,7 +92,7 @@ before calling ``make``:
 
 .. code-block:: sh
 
-    BOKEH_DOCS_CDN=local make clean html serv
+    BOKEH_DOCS_CDN=local make clean html serve
 
 Source Code Documentation
 -------------------------

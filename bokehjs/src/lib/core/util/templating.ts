@@ -3,84 +3,142 @@ import * as Numbro from "numbro"
 import tz = require("timezone")
 
 import {escape} from "./string"
-import {isNumber, isString} from "./types"
+import {isNumber, isString, isArray, isTypedArray} from "./types"
 
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
+import {ImageIndex} from "../../models/glyphs/image"
 import {CustomJSHover} from 'models/tools/inspectors/customjs_hover'
 
-function _format_number(num: string | number): string {
-  if (isNumber(num)) {
+export type FormatterType = "numeral" | "printf" | "datetime"
+export type FormatterSpec = CustomJSHover | FormatterType
+export type Formatters = {[key: string]: FormatterSpec} | null
+export type FormatterFunc = (value:any, format:string, special_vars: Vars) => string
+export type Index = number | ImageIndex
+export type Vars = {[key: string]: any}
+
+export const DEFAULT_FORMATTERS = {
+  "numeral"  : function(value:any, format:string, _special_vars: Vars) { return Numbro.format(value, format) },
+  "datetime" : function(value:any, format:string, _special_vars: Vars) { return tz(value, format)            },
+  "printf"   : function(value:any, format:string, _special_vars: Vars) { return sprintf(format, value)       },
+}
+
+export function basic_formatter(value:any, _format:string, _special_vars: Vars): string {
+  if (isNumber(value)) {
     const format = (() => {
       switch (false) {
-        case Math.floor(num) != num:
+        case Math.floor(value) != value:
           return "%d"
-        case !(Math.abs(num) > 0.1) || !(Math.abs(num) < 1000):
+        case !(Math.abs(value) > 0.1) || !(Math.abs(value) < 1000):
           return "%0.3f"
         default:
           return "%0.3e"
       }
     })()
 
-    return sprintf(format, num)
-  } else
-    return `${num}`  // get strings for categorical types
+    return sprintf(format, value)
+  }
+
+  else
+    return `${value}`  // get strings for categorical types
 }
 
-export function replace_placeholders(str: string, data_source: ColumnarDataSource, i: number,
-    formatters: {[key: string]: CustomJSHover | "numeral" | "printf" | "datetime"} | null = null, special_vars: {[key: string]: any} = {}): string {
+export function get_formatter(name: string, raw_spec: string, format: string, formatters: Formatters = null) : FormatterFunc {
+  // no format, use default built in formatter
+  if (format==null)
+    return basic_formatter
 
+  // format spec in the formatters dict, use that
+  if (formatters != null && (name in formatters || raw_spec in formatters)) {
+
+    // some day (Bokeh 2.0) we can get rid of the check for name, and just check the raw spec
+    // keep it now for compatibility but do not demonstrate it anywhere
+    const key: string = raw_spec in formatters ? raw_spec : name
+    const formatter = formatters[key]
+
+    if (isString(formatter)) {
+      if (formatter in DEFAULT_FORMATTERS)
+        return DEFAULT_FORMATTERS[formatter]
+      else
+        throw new Error(`Unknown tooltip field formatter type '${formatter}'`)
+    }
+    return function(value: any, format: string, special_vars: Vars) : string {
+      return formatter.format(value, format, special_vars) }
+  }
+
+  // otherwise use "numeral" as default
+  return DEFAULT_FORMATTERS["numeral"]
+
+}
+
+export function get_value(name: string, data_source: ColumnarDataSource, i: Index, special_vars: Vars) {
+
+  if (name[0] == "$") {
+    if (name.substring(1) in special_vars)
+      return special_vars[name.substring(1)]
+    else
+      throw new Error(`Unknown special variable '${name}'`)
+  }
+
+  const column = data_source.get_column(name)
+
+  // missing column
+  if (column == null)
+    return null
+
+  // typical (non-image) index
+  if (isNumber(i))
+    return column[i]
+
+  // image index
+  const data = column[i.index]
+  if (isTypedArray(data) || isArray(data)) {
+
+    // inspect array of arrays
+    if (isArray(data[0])) {
+      const row: any = data[i.dim2]
+      return row[i.dim1]
+    }
+
+    // inspect flat array
+    else
+      return data[i.flat_index]
+
+  }
+
+  // inspect per-image scalar data
+  else
+    return data
+
+}
+
+export function replace_placeholders(str: string, data_source: ColumnarDataSource, i: Index, formatters: Formatters = null, special_vars: Vars = {}): string {
+
+  // this extracts the $x, @x, @{x} without any trailing {format}
+  const raw_spec = str.replace(/(?:^|[^@])([@|\$](?:\w+|{[^{}]+}))(?:{[^{}]+})?/g, (_match, raw_spec, _format) => `${raw_spec}`)
+
+  // this prepends special vars with "@", e.g "$x" becomes "@$x", so subsequent processing is simpler
   str = str.replace(/(^|[^\$])\$(\w+)/g, (_match, prefix, name) => `${prefix}@$${name}`)
 
   str = str.replace(/(^|[^@])@(?:(\$?\w+)|{([^{}]+)})(?:{([^{}]+)})?/g, (_match, prefix, name, long_name, format) => {
+
     name = long_name != null ? long_name : name
 
-    let value: any
-    if (name[0] == "$")
-      value = special_vars[name.substring(1)]
-    else {
-      const column = data_source.get_column(name)
-      if (column != null)
-        value = column[i]
-    }
+    const value = get_value(name, data_source, i, special_vars)
 
-    let replacement = null
+    // missing value, return ???
     if (value == null)
-      replacement = "???"
-    else {
-      // 'safe' format, just return the value as is
-      if (format == 'safe')
-        return `${prefix}${value}`
-      else if (format != null) {
-        // see if the field has an entry in the formatters dict
-        if (formatters != null && name in formatters) {
-          const formatter = formatters[name]
-          if (isString(formatter)) {
-            switch (formatter) {
-              case "numeral":
-                replacement = Numbro.format(value, format)
-                break
-              case "datetime":
-                replacement = tz(value, format)
-                break
-              case "printf":
-                replacement = sprintf(format, value)
-                break
-              default:
-                throw new Error(`Unknown tooltip field formatter type '${formatter}'`)
-            }
-          } else {
-            replacement = formatter.format(value, format, special_vars)
-          }
-        // if not assume the format string is Numbro
-        } else
-          replacement = Numbro.format(value, format)
-      // no format supplied, just use a basic default numeric format
-      } else
-        replacement = _format_number(value)
-    }
+      return `${prefix}${escape("???")}`
 
-    return `${prefix}${escape(replacement)}`
+    // 'safe' format, return the value as-is
+    if (format == 'safe')
+     return `${prefix}${value}`
+
+    // format and escape everything else
+    const formatter = get_formatter(name, raw_spec, format, formatters)
+    return `${prefix}${escape(formatter(value, format, special_vars))}`
+
   })
 
   return str
+
 }

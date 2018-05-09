@@ -47,6 +47,7 @@ export class Selection extends Model {
       final:             [ p.Boolean     ],
       selected_glyphs:   [ p.Array,   [] ],
       get_view:          [ p.Any         ],
+      image_indices:     [ p.Array,   [] ], // Used internally to support hover tool for now. Python API TBD
     });
   }
 
@@ -100,6 +101,7 @@ export class Selection extends Model {
       this.selected_glyphs = selection.selected_glyphs
       this.get_view = selection.get_view
       this.multiline_indices = selection.multiline_indices
+      this.image_indices = selection.image_indices
     }
   }
 
@@ -113,7 +115,7 @@ export class Selection extends Model {
   }
 
   is_empty (): boolean {
-    return this.indices.length == 0 && this.line_indices.length == 0
+    return this.indices.length == 0 && this.line_indices.length == 0 && this.image_indices.length == 0
   }
 
   update_through_union(other: Selection): void {

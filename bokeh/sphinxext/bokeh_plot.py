@@ -127,7 +127,7 @@ def _process_script(source, filename, env, js_name, use_relative_paths=False):
                 GOOGLE_API_KEY = "MISSING_API_KEY"
             else:
                 raise SphinxError("The GOOGLE_API_KEY environment variable is not set. Set GOOGLE_API_KEY to a valid API key, "
-                                  "or set BOKEH_DOCS_MISSING_API_KEY_OK=yes to build anyway (with broken GMaps)")
+                                  "or set bokeh_missing_google_api_key_ok=True in conf.py to build anyway (with broken GMaps)")
         run_source = source.replace("GOOGLE_API_KEY", GOOGLE_API_KEY)
     else:
         run_source = source

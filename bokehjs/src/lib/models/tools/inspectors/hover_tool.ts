@@ -6,16 +6,17 @@ import {GraphRenderer} from "../../renderers/graph_renderer"
 import {compute_renderers, DataRenderer, RendererSpec} from "../util"
 import * as hittest from "core/hittest"
 import {MoveEvent} from "core/ui_events"
-import {replace_placeholders} from "core/util/templating"
+import {replace_placeholders, Vars} from "core/util/templating"
 import {div, span} from "core/dom"
 import * as p from "core/properties"
 import {color2hex} from "core/util/color"
 import {values, isEmpty, extend} from "core/util/object"
-import {isString, isFunction} from "core/util/types"
+import {isString, isFunction, isNumber} from "core/util/types"
 import {build_views, remove_views} from "core/build_views"
 import {Anchor, TooltipAttachment} from "core/enums"
 import {Geometry, PointGeometry, SpanGeometry} from "core/geometry"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
+import {ImageIndex} from "../../glyphs/image"
 
 export function _nearest_line_hit(i: number, geometry: Geometry,
     sx: number, sy: number, dx: number[], dy: number[]): [[number, number], number] {
@@ -240,6 +241,12 @@ export class HoverToolView extends InspectToolView {
       tooltip.add(rx, ry, this._render_tooltips(ds, ii, vars))
     }
 
+    for (const struct of indices.image_indices) {
+      const vars = {index: struct['index'], x, y, sx, sy}
+      const rendered = this._render_tooltips(ds, struct, vars)
+      tooltip.add(sx, sy, rendered)
+    }
+
     for (const i of indices.indices) {
       // multiglyphs set additional indices, e.g. multiline_indices for different tooltips
       if (!isEmpty(indices.multiline_indices)) {
@@ -337,7 +344,7 @@ export class HoverToolView extends InspectToolView {
     }
   }
 
-  _render_tooltips(ds: ColumnarDataSource, i: number, vars: any): HTMLElement {
+  _render_tooltips(ds: ColumnarDataSource, i: number | ImageIndex, vars: Vars): HTMLElement {
     const tooltips = this.model.tooltips
     if (isString(tooltips)) {
       const el = div()
@@ -370,7 +377,7 @@ export class HoverToolView extends InspectToolView {
           }
           const hex = opts.indexOf("hex") >= 0
           const swatch = opts.indexOf("swatch") >= 0
-          let color = column[i]
+          let color = isNumber(i) ? column[i] : null
           if (color == null) {
             const el = span({}, "(null)")
             cell.appendChild(el)
