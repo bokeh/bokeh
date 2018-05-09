@@ -1,5 +1,6 @@
 ###########################################################################
 # License regarding the Viridis, Magma, Plasma and Inferno colormaps:
+#
 # New matplotlib colormaps by Nathaniel J. Smith, Stefan van der Walt,
 # and (in the case of viridis) Eric Firing.
 #
@@ -15,10 +16,46 @@
 # You should have received a copy of the CC0 legalcode along with this
 # work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 ###########################################################################
+# License regarding the brewer palettes:
+#
 # This product includes color specifications and designs developed by
 # Cynthia Brewer (http://colorbrewer2.org/).  The Brewer colormaps are
 # licensed under the Apache v2 license. You may obtain a copy of the
 # License at http://www.apache.org/licenses/LICENSE-2.0
+###########################################################################
+# License regarding the cividis palette from https://github.com/pnnl/cmaputil
+#
+# Copyright (c) 2017, Battelle Memorial Institute
+#
+# 1.  Battelle Memorial Institute (hereinafter Battelle) hereby grants
+# permission to any person or entity lawfully obtaining a copy of this software
+# and associated documentation files (hereinafter "the Software") to
+# redistribute and use the Software in source and binary forms, with or without
+# modification. Such person or entity may use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and may permit
+# others to do so, subject to the following conditions:
+#
+# + Redistributions of source code must retain the above copyright notice, this
+# list of conditions and the following disclaimers.
+#
+# + Redistributions in binary form must reproduce the above copyright notice,
+# this list of conditions and the following disclaimer in the documentation
+# and/or other materials provided with the distribution.
+#
+# + Other than as used herein, neither the name Battelle Memorial Institute or
+# Battelle may be used in any form whatsoever without the express written
+# consent of Battelle.
+#
+# 2.  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL BATTELLE OR CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+# ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ###########################################################################
 # License regarding the D3 color palettes (Category10, Category20,
 # Category20b, and Category 20c):
@@ -142,6 +179,8 @@ larger palettes with 256 colors. These are shown below:
 
 :Viridis256: :bokeh-palette:`viridis(256)` (mpl)
 
+:Cividis256: :bokeh-palette:`cividis(256)` (mpl)
+
 
 Many other 256-color perceptually uniform palettes are
 available in the external `colorcet`_ package.
@@ -255,6 +294,7 @@ Functions
 The ``bokeh.palettes`` module also has several functions that can be used
 to generate palettes of arbitrary size.
 
+.. autofunction:: bokeh.palettes.cividis(n)
 .. autofunction:: bokeh.palettes.gray(n)
 .. autofunction:: bokeh.palettes.grey(n)
 .. autofunction:: bokeh.palettes.inferno(n)
@@ -308,7 +348,7 @@ import types as _types
 def _autoprop(cls):
     for k, v in cls.__dict__.items():
         if k.startswith('_'): continue
-        if k in ['linear_palette', 'magma', 'inferno', 'plasma', 'viridis', 'grey', 'gray']:
+        if k in ['linear_palette', 'magma', 'inferno', 'plasma', 'viridis', 'cividis', 'grey', 'gray']:
             continue
         setattr(cls, k, property(v))
     return cls
@@ -785,6 +825,40 @@ class _PalettesModule(_types.ModuleType):
             '#D7E219', '#DAE218', '#DCE218', '#DFE318', '#E1E318', '#E4E318', '#E7E419', '#E9E419', '#ECE41A', '#EEE51B', '#F1E51C', '#F3E51E',
             '#F6E61F', '#F8E621', '#FAE622', '#FDE724']
 
+    def Cividis3(self):  return ['#00204C', '#7B7B78', '#FFE945']
+    def Cividis4(self):  return ['#00204C', '#565C6C', '#A69C75', '#FFE945']
+    def Cividis5(self):  return ['#00204C', '#404C6B', '#7B7B78', '#BCAE6E', '#FFE945']
+    def Cividis6(self):  return ['#00204C', '#31446B', '#666870', '#958F78', '#CAB969', '#FFE945']
+    def Cividis7(self):  return ['#00204C', '#223D6C', '#565C6C', '#7B7B78', '#A69C75', '#D3C065', '#FFE945']
+    def Cividis8(self):  return ['#00204C', '#15396D', '#49536B', '#6C6D72', '#8D8878', '#B2A672', '#D9C661', '#FFE945']
+    def Cividis9(self):  return ['#00204C', '#01356E', '#404C6B', '#5F636E', '#7B7B78', '#9B9377', '#BCAE6E', '#DFCB5D', '#FFE945']
+    def Cividis10(self): return ['#00204C', '#00336E', '#37476B', '#565C6C', '#6F7073', '#898578', '#A69C75', '#C3B46C', '#E3CD5B', '#FFE945']
+    def Cividis11(self): return ['#00204C', '#00316F', '#31446B', '#4D556B', '#666870', '#7B7B78', '#958F78', '#AEA373', '#CAB969', '#E6D059', '#FFE945']
+    def Cividis256(self):
+        return [
+            '#00204C', '#00204E', '#002150', '#002251', '#002353', '#002355', '#002456', '#002558', '#00265A', '#00265B', '#00275D', '#00285F',
+            '#002861', '#002963', '#002A64', '#002A66', '#002B68', '#002C6A', '#002D6C', '#002D6D', '#002E6E', '#002E6F', '#002F6F', '#002F6F',
+            '#00306F', '#00316F', '#00316F', '#00326E', '#00336E', '#00346E', '#00346E', '#01356E', '#06366E', '#0A376D', '#0E376D', '#12386D',
+            '#15396D', '#17396D', '#1A3A6C', '#1C3B6C', '#1E3C6C', '#203C6C', '#223D6C', '#243E6C', '#263E6C', '#273F6C', '#29406B', '#2B416B',
+            '#2C416B', '#2E426B', '#2F436B', '#31446B', '#32446B', '#33456B', '#35466B', '#36466B', '#37476B', '#38486B', '#3A496B', '#3B496B',
+            '#3C4A6B', '#3D4B6B', '#3E4B6B', '#404C6B', '#414D6B', '#424E6B', '#434E6B', '#444F6B', '#45506B', '#46506B', '#47516B', '#48526B',
+            '#49536B', '#4A536B', '#4B546B', '#4C556B', '#4D556B', '#4E566B', '#4F576C', '#50586C', '#51586C', '#52596C', '#535A6C', '#545A6C',
+            '#555B6C', '#565C6C', '#575D6D', '#585D6D', '#595E6D', '#5A5F6D', '#5B5F6D', '#5C606D', '#5D616E', '#5E626E', '#5F626E', '#5F636E',
+            '#60646E', '#61656F', '#62656F', '#63666F', '#64676F', '#65676F', '#666870', '#676970', '#686A70', '#686A70', '#696B71', '#6A6C71',
+            '#6B6D71', '#6C6D72', '#6D6E72', '#6E6F72', '#6F6F72', '#6F7073', '#707173', '#717273', '#727274', '#737374', '#747475', '#757575',
+            '#757575', '#767676', '#777776', '#787876', '#797877', '#7A7977', '#7B7A77', '#7B7B78', '#7C7B78', '#7D7C78', '#7E7D78', '#7F7E78',
+            '#807E78', '#817F78', '#828078', '#838178', '#848178', '#858278', '#868378', '#878478', '#888578', '#898578', '#8A8678', '#8B8778',
+            '#8C8878', '#8D8878', '#8E8978', '#8F8A78', '#908B78', '#918C78', '#928C78', '#938D78', '#948E78', '#958F78', '#968F77', '#979077',
+            '#989177', '#999277', '#9A9377', '#9B9377', '#9C9477', '#9D9577', '#9E9676', '#9F9776', '#A09876', '#A19876', '#A29976', '#A39A75',
+            '#A49B75', '#A59C75', '#A69C75', '#A79D75', '#A89E74', '#A99F74', '#AAA074', '#ABA174', '#ACA173', '#ADA273', '#AEA373', '#AFA473',
+            '#B0A572', '#B1A672', '#B2A672', '#B4A771', '#B5A871', '#B6A971', '#B7AA70', '#B8AB70', '#B9AB70', '#BAAC6F', '#BBAD6F', '#BCAE6E',
+            '#BDAF6E', '#BEB06E', '#BFB16D', '#C0B16D', '#C1B26C', '#C2B36C', '#C3B46C', '#C5B56B', '#C6B66B', '#C7B76A', '#C8B86A', '#C9B869',
+            '#CAB969', '#CBBA68', '#CCBB68', '#CDBC67', '#CEBD67', '#D0BE66', '#D1BF66', '#D2C065', '#D3C065', '#D4C164', '#D5C263', '#D6C363',
+            '#D7C462', '#D8C561', '#D9C661', '#DBC760', '#DCC860', '#DDC95F', '#DECA5E', '#DFCB5D', '#E0CB5D', '#E1CC5C', '#E3CD5B', '#E4CE5B',
+            '#E5CF5A', '#E6D059', '#E7D158', '#E8D257', '#E9D356', '#EBD456', '#ECD555', '#EDD654', '#EED753', '#EFD852', '#F0D951', '#F1DA50',
+            '#F3DB4F', '#F4DC4E', '#F5DD4D', '#F6DE4C', '#F7DF4B', '#F9E049', '#FAE048', '#FBE147', '#FCE246', '#FDE345', '#FFE443', '#FFE542',
+            '#FFE642', '#FFE743', '#FFE844', '#FFE945']
+
     def Category10_3(self):  return self.Category10_10[:3]
     def Category10_4(self):  return self.Category10_10[:4]
     def Category10_5(self):  return self.Category10_10[:5]
@@ -1159,6 +1233,35 @@ class _PalettesModule(_types.ModuleType):
 
         '''
         return self.linear_palette(self.Viridis256, n)
+
+    def cividis(self, n):
+        ''' Generate a palette of colors or from the Cividis palette.
+
+        The full Cividis palette that serves as input for deriving new palettes
+        has 256 colors, and looks like:
+
+        :bokeh-palette:`cividis(256)`
+
+        Args:
+            n (int) : size of the palette to generate
+
+        Returns:
+            list[str] : a list of hex RGB color strings
+
+        Raises:
+            ``ValueError`` if n is greater than the base palette length of 256
+
+        Examples:
+
+        .. code-block:: python
+
+            >>> cividis(6)
+            ['#00204C', '#31446B', '#666870', '#958F78', '#CAB969', '#FFE945']
+
+        The resulting palette looks like: :bokeh-palette:`cividis(6)`
+
+        '''
+        return self.linear_palette(self.Cividis256, n)
 
     def grey(self, n):
         ''' Generate a palette of colors or from the Greys palette.
