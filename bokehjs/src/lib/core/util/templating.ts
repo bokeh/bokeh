@@ -73,11 +73,10 @@ export function get_formatter(name: string, raw_spec: string, format: string, fo
 export function get_value(name: string, data_source: ColumnarDataSource, i: Index, special_vars: Vars) {
 
   if (name[0] == "$") {
-    if (name.substring(1) in special_vars) {
-      return special_vars[name.substring(1)] }
-    else {
+    if (name.substring(1) in special_vars)
+      return special_vars[name.substring(1)]
+    else
       throw new Error(`Unknown special variable '${name}'`)
-    }
   }
 
   const column = data_source.get_column(name)
