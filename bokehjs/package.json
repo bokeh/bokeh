@@ -21,7 +21,7 @@
     "npm": ">=6.0 <7.0"
   },
   "devDependencies": {
-    "browserify": "^11.1.0",
+    "browserify": "^16.2.2",
     "chai": "^3.5.0",
     "chai-as-promised": "^5.1.0",
     "del": "^1.1.1",
@@ -40,7 +40,7 @@
     "gulp-tslint": "^8.1.2",
     "merge2": "^1.2.0",
     "logtrap": "^0.0.1",
-    "mocha": "^2.2.5",
+    "mocha": "^5.1.1",
     "run-sequence": "^1.0.0",
     "sinon": "^1.15.4",
     "vinyl-source-stream": "^1.1.0",
