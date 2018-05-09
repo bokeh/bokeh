@@ -229,6 +229,14 @@ export class Grid extends GuideRenderer {
     const cmax = cross_range.max
 
     const coords: [number[][], number[][]] = [[], []]
+
+    if (!exclude_ends) {
+      if (ticks[0] != min)
+        ticks.splice(0, 0, min)
+      if (ticks[ticks.length-1] != max)
+        ticks.push(max)
+    }
+
     for (let ii = 0; ii < ticks.length; ii++) {
       if ((ticks[ii] == min || ticks[ii] == max) && exclude_ends)
         continue

@@ -84,3 +84,51 @@ it "use user bounds when set'", ->
     })
 
     expect(grid.computed_bounds()).to.be.deep.equal [1, 9]
+
+  it "should return major grid_coords without ends by default", ->
+    doc = new Document()
+    p = new Plot({
+      x_range: new Range1d({start: 0.1, end: 9.9})
+      y_range: new Range1d({start: 0.1, end: 9.9})
+    })
+    doc.add_root(p)
+    ticker = new BasicTicker()
+    formatter = new BasicTickFormatter()
+    axis = new Axis({
+      ticker: ticker
+      formatter: formatter
+      plot: p
+    })
+    axis.attach_document(p.document)
+    p.add_layout(axis, 'below')
+    grid = new Grid({
+      ticker: ticker
+      plot: p
+    })
+
+    expect(grid.grid_coords('major')).to.be.deep.equal [[[2,2], [4,4], [6,6], [8,8]], [[0.1,9.9], [0.1,9.9], [0.1,9.9], [0.1,9.9]]]
+
+    it "should return major grid_coords with ends when asked", ->
+    doc = new Document()
+    p = new Plot({
+      x_range: new Range1d({start: 0.1, end: 9.9})
+      y_range: new Range1d({start: 0.1, end: 9.9})
+    })
+    doc.add_root(p)
+    ticker = new BasicTicker()
+    formatter = new BasicTickFormatter()
+    axis = new Axis({
+      ticker: ticker
+      formatter: formatter
+      plot: p
+    })
+    axis.attach_document(p.document)
+    p.add_layout(axis, 'below')
+    grid = new Grid({
+      ticker: ticker
+      plot: p
+    })
+
+    expect(grid.grid_coords('major', false)).to.be.deep.equal [
+      [[0.1,0.1], [2,2], [4,4], [6,6], [8,8], [9.9,9.9]], [[0.1,9.9], [0.1,9.9], [0.1,9.9], [0.1,9.9], [0.1,9.9], [0.1,9.9]]
+     ]

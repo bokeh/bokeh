@@ -1,8 +1,8 @@
 import {span, ul, li, a} from "core/dom"
+import {clear_menus} from "core/menus"
 import * as p from "core/properties"
 
 import {AbstractButton, AbstractButtonView} from "./abstract_button"
-import {clear_menus} from "./common"
 
 export class DropdownView extends AbstractButtonView {
   model: Dropdown

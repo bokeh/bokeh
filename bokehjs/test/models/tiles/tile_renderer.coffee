@@ -289,6 +289,9 @@ describe "tile sources", ->
       expect(source.get_level_by_extent(T.MERCATOR_BOUNDS, 512, 512)).to.be.equal(1)
       expect(source.get_level_by_extent(T.MERCATOR_BOUNDS, 1024, 1024)).to.be.equal(2)
 
+    it "should get last zoom level as best when there are no others", ->
+      expect(source.get_level_by_extent(T.MERCATOR_BOUNDS, 1e40, 1e40)).to.be.equal(30)
+
     it "should get closest zoom level based on extent and height/width", ->
       expect(source.get_closest_level_by_extent(T.MERCATOR_BOUNDS, 256, 256)).to.be.equal(0)
       expect(source.get_closest_level_by_extent(T.MERCATOR_BOUNDS, 513, 512)).to.be.equal(1)

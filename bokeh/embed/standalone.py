@@ -275,10 +275,10 @@ def file_html(models,
     '''
     models = check_models_or_docs(models)
 
-    with _ModelInDocument(models, apply_theme=theme):
+    with _ModelInDocument(models, apply_theme=theme) as doc:
         (docs_json, render_items) = standalone_docs_json_and_render_items(models)
         title = _title_from_models(models, title)
-        bundle = bundle_for_objs_and_resources(models, resources)
+        bundle = bundle_for_objs_and_resources([doc], resources)
         return html_page_for_render_items(bundle, docs_json, render_items, title=title,
                                            template=template, template_variables=template_variables)
 

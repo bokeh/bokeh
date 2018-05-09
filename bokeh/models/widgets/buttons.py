@@ -107,7 +107,10 @@ class Dropdown(AbstractButton):
     """)
 
     default_value = String(help="""
-    The default value, otherwise the first item in ``menu`` will be used.
+    A default value to set when a split Dropdown's top button is clicked.
+
+    Setting this property will cause the Dropdown to be rendered as
+    split.
     """)
 
     menu = List(Tuple(String, String), help="""

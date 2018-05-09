@@ -88,7 +88,7 @@ export class DatetimeTickFormatter extends TickFormatter {
       hourmin:      [ p.Array, ['%H:%M'] ],
       hours:        [ p.Array, ['%Hh', '%H:%M'] ],
       days:         [ p.Array, ['%m/%d', '%a%d'] ],
-      months:       [ p.Array, ['%m/%Y', '%b%y'] ],
+      months:       [ p.Array, ['%m/%Y', '%b %Y'] ],
       years:        [ p.Array, ['%Y'] ],
     })
   }
