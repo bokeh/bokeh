@@ -44,7 +44,7 @@ class IonRangeSlider(AbstractSlider):
     The maximum allowable value.
     """)
 
-    value = Tuple(Float, Float, default = [0, 1], help="""
+    value = Tuple(Any, Any, default = [0, 1], help="""
     Initial or selected range.
     """)
 

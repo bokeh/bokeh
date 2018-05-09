@@ -1,6 +1,4 @@
-//jQuery(input).ionRangeSlider(opts)
 import $ = require('jquery')
-//import "ion-rangeslider"
 import {IonRangeSliderOptions, IonRangeSliderEvent} from "ion-rangeslider"
 
 import {throttle} from "core/util/callback"
@@ -18,10 +16,11 @@ import {AbstractSlider, AbstractSliderView, SliderSpec} from "models/widgets/abs
 export class IonRangeSliderView extends AbstractSliderView {
   model: IonRangeSlider
 
-    //protected sliderEl: any
-    //protected titleEl: HTMLElement
-    //protected valueEl: HTMLElement
-    //protected callback_wrapper?: () => void
+  protected sliderEl: null
+  protected titleEl: HTMLElement
+  protected valueEl: HTMLElement
+  protected value_type: string
+  protected callback_wrapper?: () => void
 
   protected _calc_to(): SliderSpec {
     return {
@@ -32,26 +31,42 @@ export class IonRangeSliderView extends AbstractSliderView {
     }
   }
 
-  protected _calc_from(values: number[]): number[] {
-    if (!(values instanceof Array))
-      values = [values, values]
-    return values
+  protected _calc_from(values: string[] | string): string[] | number[] {
+    var parsed_values: number[] | string[]
+
+    if (!(values instanceof Array)) {
+      switch(this.value_type) {
+        case 'number':
+          var parsed_value: number = parseFloat(values)
+          parsed_values = new Array(parsed_value, parsed_value)
+          break;
+        case 'string':
+          parsed_values = new Array(values, values)
+          break;
+        }
+        //var values: number[] = [values, values]
+    } else {
+      switch(this.value_type) {
+        case 'number':
+          parsed_values = values.map(parseFloat)
+          break;
+        case 'string':
+          parsed_values = values
+      }
+    }
+    return parsed_values
   }
 
   initialize(options: any): void {
     super.initialize(options)
-    logger.info('Initialize function called, rendering..')
     this.render()
   }
 
   render(): void {
-    logger.info(`[ionRangeSlider] Start rendering`)
-    logger.info(this.model)
     if (this.model.format) {
-      logger.warn('[ionRangeSlider] Option format currently ignored')
+      console.warn('[ionRangeSlider] Option format currently ignored')
     }
     if (this.sliderEl == null) {
-      logger.info(`[ionRangeSlider] am I here?`)
       // XXX: temporary workaround for _render_css()
       this._render_classes() // XXX: because no super()
 
@@ -64,9 +79,7 @@ export class IonRangeSliderView extends AbstractSliderView {
         this.el.style.width = `${this.model.width}px`
     }
 
-    logger.info(`[ionRangeSlider] Setting callback`)
     if (this.model.callback != null) {
-      logger.info('[ionRangeSlider] Callback non-zero')
       const callback = () => this.model.callback.execute(this.model)
 
       switch (this.model.callback_policy) {
@@ -78,6 +91,10 @@ export class IonRangeSliderView extends AbstractSliderView {
           this.callback_wrapper = throttle(callback, this.model.callback_throttle)
           break
         }
+        default: {
+            console.warn('[ionRangeSlider] Unexpected callback_policy')
+            this.callback_wrapper = callback
+        }
       }
     }
     //
@@ -86,7 +103,6 @@ export class IonRangeSliderView extends AbstractSliderView {
 
     const {start, end, value, step} = this._calc_to()
 
-    //logger.info(`[ionRangeSlider] Setting tooltips`)
     //let tooltips: boolean | any[] // XXX
     //if (this.model.tooltips) {
     //  const formatter = {
@@ -98,44 +114,42 @@ export class IonRangeSliderView extends AbstractSliderView {
     //  tooltips = false
 
     this.el.classList.add("bk-slider")
-    console.log(this.sliderEl)
-    console.log(this.model.values)
-    console.log(this.model.values instanceof Array)
     if (this.sliderEl == null) {
       this.sliderEl = input({type: "text", class: "slider", id: this.model.id})
       //this.sliderEl = input({type: "text", class: "slider", id: 'blerger'})
       this.el.appendChild(this.sliderEl) // XXX: bad typings; no cssPrefix
 
 
-      console.log('[ionRangeSlider] initializing external class')
       var opts: IonRangeSliderOptions = {
         type: this.model.slider_type,
         cssPrefix: prefix,
       }
       if (this.model.values instanceof Array) {
+        // If 'this.model.values' is provided, 'from' and 'to' are the indexes in the 'values' array.
         opts.values = this.model.values
+        opts.from = opts.values.findIndex(val => val == value[0])
+        opts.to = opts.values.findIndex(val => val == value[1])
       } else {
+        // For a normal slider, from and to are the actual value of the slider
         opts.min  = start
         opts.max  = end
+        opts.step = step
         opts.from = value[0]
         opts.to   = value[1]
-        opts.step = step
       }
+      this.value_type = typeof value[0]
       opts.grid = this.model.grid
       opts.prettify_enabled = this.model.prettify_enabled
-      opts.prettify = this.model.prettify
+      opts.onChange = (_, __, values) => this._slide(values)
+      opts.onFinish = (_, __, values) => this._change(values)
+      if (this.model.prettify)
+        opts.prettify = (f) => {return this._prettify(f) }
       opts.force_edges = this.model.force_edges
       opts.prefix = this.model.prefix
-      console.log(this.model.disabled)
       opts.disable = this.model.disabled
 
       $(this.sliderEl).ionRangeSlider(opts);
-      console.log('prop')
-      console.log($(this.sliderEl).prop('value'))
-      $(this.sliderEl).on('change', (data) => this._slide(data)) // ~= slide
-      $(this.el).on('finish', (data) => this._change(data)) // ~= change
 
-      console.log('[ionRangeSlider] Setting color')
       $(this.el).find('.irs-bar').css('background', this.model.bar_color)
       $(this.el).find('.irs-bar-edge').css('background', this.model.bar_color)
       $(this.el).find('.irs-single').css('background', this.model.bar_color)
@@ -164,21 +178,22 @@ export class IonRangeSliderView extends AbstractSliderView {
     } //endif: this.sliderEl == null
   } //function: render
 
+  protected _prettify(data): void {
+    if (this.model)
+      if (this.model.prettify)
+        return this.model.prettify.execute(data)
+  }
   protected _slide(data): void {
-    console.log('sliding!')
-    console.log($(this.sliderEl))
-    const ion_value = $(this.sliderEl).prop('value')
-    console.log(ion_value)
-    const value = this._calc_from(ion_value)
-    console.log(value)
+    const ion_value: string[] = $(this.sliderEl).prop('value')
+    const value: number[] | string[] = this._calc_from(ion_value)
     this.model.value = value
-    if (this.callback_wrapper != null)
-      this.callback_wrapper()
+      if (this.callback_wrapper != null)
+        this.callback_wrapper()
   }
 
   protected _change(data): void {
-    const ion_value = $(this.sliderEl).prop('value')
-    const value = this._calc_from(ion_value)
+    const ion_value: string[] = $(this.sliderEl).prop('value')
+    const value: number[] | string[] = this._calc_from(ion_value)
     this.model.value = value
     switch (this.model.callback_policy) {
       case 'mouseup':
@@ -257,7 +272,7 @@ export class IonRangeSlider extends AbstractSlider {
   end   = 1
   value = [0, 1]
   step = 0.1
-  bar_color = ''
+  bar_color = null
 
   protected _formatter(value: number, _format: string): string {
     return `${value}`
