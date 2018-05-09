@@ -6,7 +6,7 @@ import {GraphRenderer} from "../../renderers/graph_renderer"
 import {compute_renderers, DataRenderer, RendererSpec} from "../util"
 import * as hittest from "core/hittest"
 import {MoveEvent} from "core/ui_events"
-import {replace_placeholders} from "core/util/templating"
+import {replace_placeholders, Vars} from "core/util/templating"
 import {div, span} from "core/dom"
 import * as p from "core/properties"
 import {color2hex} from "core/util/color"
@@ -344,7 +344,7 @@ export class HoverToolView extends InspectToolView {
     }
   }
 
-  _render_tooltips(ds: ColumnarDataSource, i: number | ImageIndex, vars: any): HTMLElement {
+  _render_tooltips(ds: ColumnarDataSource, i: number | ImageIndex, vars: Vars): HTMLElement {
     const tooltips = this.model.tooltips
     if (isString(tooltips)) {
       const el = div()
