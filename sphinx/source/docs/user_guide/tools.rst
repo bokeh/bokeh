@@ -877,7 +877,7 @@ properties on |Plot| objects that control LOD behavior:
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
 
 .. |HoverTool| replace:: :class:`~bokeh.models.tools.HoverTool`
-.. |CustomJSHover| replace:: :class:`~bokeh.models.tools.CustomJSHover` 
+.. |CustomJSHover| replace:: :class:`~bokeh.models.tools.CustomJSHover`
 
 .. |NumeralTickFormatter| replace:: :class:`~bokeh.models.formatters.NumeralTickFormatter`
 .. |DatetimeTickFormatter| replace:: :class:`~bokeh.models.formatters.DatetimeTickFormatter`
