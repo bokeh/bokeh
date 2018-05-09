@@ -1,7 +1,7 @@
 // Keep this code as terse and as close to vanila JS as possible. If we
 // arrived here, it means we should trust no one and need to act properly.
 
-function _burst_into_flames(error: any): void {
+function _burst_into_flames(error: Error | string): void {
   // Make box
   const box = document.createElement("div")
   box.style.backgroundColor = "#f2dede"
@@ -40,7 +40,8 @@ function _burst_into_flames(error: any): void {
   const message = document.createElement("pre")
   message.style.whiteSpace = "unset"
   message.style.overflowX = "auto"
-  message.appendChild(document.createTextNode(error.message || error))
+  const text = error instanceof Error ? error.message : error
+  message.appendChild(document.createTextNode(text))
 
   // Add pieces to box
   box.appendChild(button)
