@@ -1,11 +1,11 @@
 import $ = require('jquery')
-import {IonRangeSliderOptions, IonRangeSliderEvent} from "ion-rangeslider"
+import {IonRangeSliderOptions} from "ion-rangeslider"
 
 import {throttle} from "core/util/callback"
 // The "core/properties" module has all the property types
 import * as p from "core/properties"
 import {div, input, label} from "core/dom"
-import {logger} from "core/logging"
+//import {logger} from "core/logging"
 
 // We will subclass in JavaScript from the same class that was subclassed
 // from in Python
@@ -16,7 +16,7 @@ import {AbstractSlider, AbstractSliderView, SliderSpec} from "models/widgets/abs
 export class IonRangeSliderView extends AbstractSliderView {
   model: IonRangeSlider
 
-  protected sliderEl: null
+  protected sliderEl: HTMLElement
   protected titleEl: HTMLElement
   protected valueEl: HTMLElement
   protected value_type: string
@@ -32,7 +32,7 @@ export class IonRangeSliderView extends AbstractSliderView {
   }
 
   protected _calc_from(values: string[] | string): string[] | number[] {
-    var parsed_values: number[] | string[]
+    var parsed_values: number[] | string[] = Array()
 
     if (!(values instanceof Array)) {
       switch(this.value_type) {
@@ -99,8 +99,6 @@ export class IonRangeSliderView extends AbstractSliderView {
     }
     //
     // Set up parameters
-    const prefix = 'bk-ionRange-'
-
     const {start, end, value, step} = this._calc_to()
 
     //let tooltips: boolean | any[] // XXX
@@ -122,7 +120,6 @@ export class IonRangeSliderView extends AbstractSliderView {
 
       var opts: IonRangeSliderOptions = {
         type: this.model.slider_type,
-        cssPrefix: prefix,
       }
       if (this.model.values instanceof Array) {
         // If 'this.model.values' is provided, 'from' and 'to' are the indexes in the 'values' array.
@@ -267,12 +264,17 @@ export class IonRangeSlider extends AbstractSlider {
       force_edges:       [ p.Bool,        false        ],
       prefix:            [ p.String,      ""           ],
     })
+
+    this.override({
+      bar_color: '#ed5565',
+      start: 0,
+      end: 1,
+      value: [0, 1],
+      step: 0.1,
+      show_value: false,
+      title: ''
+    })
   }
-  start = 0
-  end   = 1
-  value = [0, 1]
-  step = 0.1
-  bar_color = null
 
   protected _formatter(value: number, _format: string): string {
     return `${value}`

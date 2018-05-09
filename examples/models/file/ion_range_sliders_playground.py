@@ -15,7 +15,7 @@ from bokeh.util.browser import view
 from bokeh.models.layouts import Row, Column, WidgetBox
 from bokeh.models.widgets import Div
 from bokeh.models.callbacks import CustomJS
-from bokeh_ion_rangeslider import *
+from bokeh.models.contrib.IonRangeSlider import *
 
 slider = IonRangeSlider(title="Numerical", value=[50, 10000], start=0, end=96, step=5)
 duo_slider = IonRangeSlider(slider_type='double', title="Numerical", value=[50, 10000], start=0, end=96, step=5)
