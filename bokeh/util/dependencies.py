@@ -68,10 +68,10 @@ def detect_phantomjs(version='2.1'):
     if settings.phantomjs_path() is not None:
         phantomjs_path = settings.phantomjs_path()
     else:
-        try:
-            phantomjs_path = shutil.which('phantomjs')
-        # Python 2 relies on Environment variable in PATH - attempt to use as follows
-        except AttributeError:
+        if hasattr(shutil, "which"):
+            phantomjs_path = shutil.which("phantomjs") or "phantomjs"
+        else:
+            # Python 2 relies on Environment variable in PATH - attempt to use as follows
             phantomjs_path = "phantomjs"
 
     try:
