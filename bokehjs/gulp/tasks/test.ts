@@ -66,6 +66,7 @@ function mocha(options: {coverage?: boolean} = {}) {
       args = args.concat(
         ["--reporter", argv.reporter || "spec"],
         ["--slow", "5s"],
+        ["--exit"],
         ["./build/test/index.js"],
         files,
       )
@@ -92,7 +93,7 @@ function mocha(options: {coverage?: boolean} = {}) {
       process.on('exit',    () => proc.kill())
       process.on("SIGTERM", () => proc.kill("SIGTERM"))
       process.on("SIGINT",  () => proc.kill("SIGINT"))
-    }
+    },
   )
 }
 
