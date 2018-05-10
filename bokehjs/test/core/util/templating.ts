@@ -113,6 +113,13 @@ describe("templating module", () => {
 
     const source = new ColumnDataSource({data: {foo: [10, 1.002], bar: ["a", "<div>b</div>"], baz: [1492890671885, 1290460671885]}})
 
+    const imsource = new ColumnDataSource({data:
+                                           {arrs: [[[0, 10, 20], [30, 40, 50]]],
+                                            floats: [[0.,1.,2.,3.,4.,5.]],
+                                            labels: ['test label']}})
+    const imindex1 = {index: 0, dim1: 2, dim2: 1, flat_index: 5}
+    const imindex2 = {index: 0, dim1: 1, dim2: 0, flat_index: 1}
+
     it("should return $ values from special_vars", () => {
       const v = tmpl.get_value("$x", source, 0, {"x": 99999})
       expect(v).to.be.equal(99999)
@@ -134,6 +141,31 @@ describe("templating module", () => {
       const v2 = tmpl.get_value("foo", source, 1, {})
       expect(v2).to.be.equal(1.002)
     })
+
+    it("should index flat typed array format for images", () => {
+      const v1 = tmpl.get_value("floats", imsource, imindex1, {})
+      expect(v1).to.be.equal(5)
+
+      const v2 = tmpl.get_value("floats", imsource, imindex2, {})
+      expect(v2).to.be.equal(1)
+    })
+
+    it("should index array of arrays format for images", () => {
+      const v1 = tmpl.get_value("arrs", imsource, imindex1, {})
+      expect(v1).to.be.equal(50)
+
+      const v2 = tmpl.get_value("arrs", imsource, imindex2, {})
+      expect(v2).to.be.equal(10)
+    })
+
+    it("should index scalar data format for images", () => {
+      const v1 = tmpl.get_value("labels", imsource, imindex1, {})
+      expect(v1).to.be.equal('test label')
+
+      const v2 = tmpl.get_value("labels", imsource, imindex2, {})
+      expect(v2).to.be.equal('test label')
+    })
+
   })
 
   describe("replace_placeholders", () => {

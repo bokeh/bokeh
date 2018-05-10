@@ -258,6 +258,12 @@ raw RGBA data using |image_rgba|:
 .. bokeh-plot:: docs/user_guide/examples/plotting_image.py
     :source-position: above
 
+The hover tool allows interactive inspection of the values specified at
+any chosen pixel. For more information on how to enable hover with
+images, please consult the hover tool section of the :ref:`tools user
+guide <userguide_tools_inspectors>`.
+
+
 .. _userguide_plotting_segments_rays:
 
 Segments and Rays

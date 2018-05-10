@@ -561,6 +561,25 @@ over the plot below:
 .. bokeh-plot:: docs/user_guide/examples/tools_hover_tooltip_formatting.py
     :source-position: none
 
+Using the |CustomJSHover| model, it is also possible to use JavaScript
+to specify a custom formatter that can display derived quantities in the
+tooltip.
+
+
+Image Hover
+'''''''''''
+
+The hover tool can be used to inspect image glyphs which may contain
+layers of data in the corresponding ``ColumnDataSource``:
+
+
+.. bokeh-plot:: docs/user_guide/examples/tools_hover_tooltips_image.py
+    :source-position: above
+
+In this example, three image patterns are defined named ``ramp``,
+``steps`` and ``bitmask``. The hover tooltip shows the index of the
+image, the name of the pattern, the ``x`` and ``y`` position of the
+cursor as well as the corresponding value and value squared.
 
 .. _custom_hover_tooltip:
 
@@ -858,6 +877,7 @@ properties on |Plot| objects that control LOD behavior:
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
 
 .. |HoverTool| replace:: :class:`~bokeh.models.tools.HoverTool`
+.. |CustomJSHover| replace:: :class:`~bokeh.models.tools.CustomJSHover`
 
 .. |NumeralTickFormatter| replace:: :class:`~bokeh.models.formatters.NumeralTickFormatter`
 .. |DatetimeTickFormatter| replace:: :class:`~bokeh.models.formatters.DatetimeTickFormatter`
