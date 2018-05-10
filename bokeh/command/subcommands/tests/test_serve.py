@@ -9,6 +9,7 @@ import sys
 
 import pytest
 import requests
+import six
 
 import bokeh.command.subcommands.serve as scserve
 
@@ -222,6 +223,7 @@ def test_port_not_available():
     finally:
         sock.close()
 
+@pytest.mark.skipif(six.PY2, reason="Travis bug causes bad file descriptor")
 def test_actual_port_printed_out():
     with run_bokeh_serve(["--port", "0"]) as p:
         pat = re.compile(r'Bokeh app running at: http://localhost:(\d+)')
