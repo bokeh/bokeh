@@ -66,7 +66,6 @@ function mocha(options: {coverage?: boolean} = {}) {
       args = args.concat(
         ["--reporter", argv.reporter || "spec"],
         ["--slow", "5s"],
-        ["--exit"],
         ["./build/test/index.js"],
         files,
       )

@@ -39,7 +39,7 @@ describe("Visuals", () => {
     expect(ctx.globalAlpha).to.be.equal(1)
   })
 
-  describe.skip("interacting with GlyphViews", () => {
+  describe("interacting with GlyphViews", () => {
 
     afterEach(() => {
       stubs.unstub_canvas()
