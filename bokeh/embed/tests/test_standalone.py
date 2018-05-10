@@ -32,7 +32,6 @@ from bokeh.io import curdoc
 from bokeh.model import Model
 from bokeh.plotting import figure
 from bokeh.resources import CDN, JSResources, CSSResources
-from bokeh.util.string import encode_utf8
 
 # Module under test
 import bokeh.embed.standalone as bes
@@ -151,10 +150,6 @@ class Test_components(object):
         assert div.attrs['class'] == ['bk-plotdiv']
         assert div.text == ''
 
-    def test_script_is_utf8_encoded(self, test_plot):
-        script, div = bes.components(test_plot)
-        assert isinstance(script, str)
-
     @patch('bokeh.embed.util.make_id', new_callable=lambda: stable_id)
     def test_output_is_without_script_tag_when_wrap_script_is_false(self, mock_make_id, test_plot):
         script, div = bes.components(test_plot)
@@ -169,44 +164,12 @@ class Test_components(object):
         #self.maxDiff = None
         #assert rawscript.strip() == script_content.strip()
 
-class Test_file_html(object):
-
-    def test_return_type(self, test_plot):
-
-        class fake_template:
-            def __init__(self, tester, user_template_variables=None):
-                self.tester = tester
-                self.template_variables = {
-                    "title",
-                    "bokeh_js",
-                    "bokeh_css",
-                    "plot_script",
-                    "plot_div"
-                }
-                if user_template_variables is not None:
-                    self.template_variables.update(user_template_variables)
-
-            def render(self, template_variables):
-                assert self.template_variables.issubset(set(template_variables.keys()))
-                return "template result"
-
-        r = bes.file_html(test_plot, CDN, "title")
-        assert isinstance(r, str)
-
-        r = bes.file_html(test_plot, CDN, "title", fake_template(self))
-        assert isinstance(r, str)
-
-        r = bes.file_html(test_plot, CDN, "title",
-                            fake_template(self, {"test_var"}),
-                            {"test_var": "test"})
-        assert isinstance(r, str)
-
     @patch('bokeh.embed.bundle.warn')
     def test_file_html_handles_js_only_resources(self, mock_warn, test_plot):
         js_resources = JSResources(mode="relative", components=["bokeh"])
         template = Template("<head>{{ bokeh_js }}</head><body></body>")
         output = bes.file_html(test_plot, (js_resources, None), "title", template=template)
-        html = encode_utf8("<head>%s</head><body></body>" % js_resources.render_js())
+        html = "<head>%s</head><body></body>" % js_resources.render_js()
         assert output == html
 
     @patch('bokeh.embed.bundle.warn')
@@ -222,7 +185,7 @@ class Test_file_html(object):
         css_resources = CSSResources(mode="relative", components=["bokeh"])
         template = Template("<head>{{ bokeh_css }}</head><body></body>")
         output = bes.file_html(test_plot, (None, css_resources), "title", template=template)
-        html = encode_utf8("<head>%s</head><body></body>" % css_resources.render_css())
+        html = "<head>%s</head><body></body>" % css_resources.render_css()
         assert output == html
 
     @patch('bokeh.embed.bundle.warn')

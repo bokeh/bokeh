@@ -30,7 +30,6 @@ from contextlib import contextmanager
 from ..core.templates import DOC_NB_JS
 from ..core.json_encoder import serialize_json
 from ..settings import settings
-from ..util.string import encode_utf8
 from .util import FromCurdoc
 from .util import check_one_model_or_doc, div_for_render_item, find_existing_docs, standalone_docs_json_and_render_items
 
@@ -94,7 +93,7 @@ def notebook_content(model, notebook_comms_target=None, theme=FromCurdoc):
 
     div = div_for_render_item(item)
 
-    return encode_utf8(script), encode_utf8(div), new_doc
+    return script, div, new_doc
 
 #-----------------------------------------------------------------------------
 # Private API

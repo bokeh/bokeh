@@ -1,7 +1,7 @@
 import os
+import io
 from six.moves import urllib
 import zipfile
-from bokeh.util.string import encode_utf8
 
 
 def extract_hosted_zip(data_url, save_dir, exclude_term=None):
@@ -53,8 +53,8 @@ def extract_zip(zip_name, exclude_term=None):
 
                 # read file from zip, then write to new directory
                 data = z.read(zip_file)
-                with open(dest_file, 'wb') as f:
-                    f.write(encode_utf8(data))
+                with io.open(dest_file, 'w', encoding="utf-8") as f:
+                    f.write(data)
 
     except zipfile.error as e:
         print("Bad zipfile (%r): %s" % (zip_name, e))

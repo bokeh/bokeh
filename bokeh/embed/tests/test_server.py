@@ -146,10 +146,6 @@ class TestServerDocument(object):
 
 class TestServerSession(object):
 
-    def test_return_type(self, test_plot):
-        r = bes.server_session(test_plot, session_id='fakesession')
-        assert isinstance(r, str)
-
     def test_script_attrs_session_id_provided(self, test_plot):
         r = bes.server_session(test_plot, session_id='fakesession')
         assert 'bokeh-session-id=fakesession' in r

@@ -35,7 +35,7 @@ from ..model import Model
 from ..settings import settings
 from ..util.compiler import bundle_all_models
 from ..util.serialization import make_id
-from ..util.string import encode_utf8, indent
+from ..util.string import indent
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -150,8 +150,7 @@ def html_page_for_render_items(bundle, docs_json, render_items, title,
         plot_div = "\n".join(div_for_render_item(item) for item in render_items)
     ))
 
-    html = template.render(template_variables_full)
-    return encode_utf8(html)
+    return template.render(template_variables_full)
 
 def script_for_render_items(docs_json_or_id, render_items, app_path=None, absolute_url=None):
     '''

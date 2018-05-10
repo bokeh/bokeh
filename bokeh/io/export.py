@@ -13,7 +13,7 @@
 # Boilerplate
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
-from six import raise_from, b
+from six import raise_from
 
 import logging
 log = logging.getLogger(__name__)
@@ -173,7 +173,7 @@ def get_screenshot_as_png(obj, driver=None, **kwargs):
     with _tmp_html() as tmp:
         html = get_layout_html(obj, **kwargs)
         with io.open(tmp.path, mode="w", encoding="utf-8") as file:
-            file.write(decode_utf8(html))
+            file.write(html)
 
         web_driver = driver if driver is not None else create_webdriver()
 
@@ -204,8 +204,8 @@ def get_svgs(obj, driver=None, **kwargs):
     '''
     with _tmp_html() as tmp:
         html = get_layout_html(obj, **kwargs)
-        with io.open(tmp.path, mode="wb") as file:
-            file.write(b(html))
+        with io.open(tmp.path, mode="w", encoding="utf-8") as file:
+            file.write(html)
 
         web_driver = driver if driver is not None else create_webdriver()
 

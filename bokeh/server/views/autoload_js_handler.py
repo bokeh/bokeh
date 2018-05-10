@@ -10,7 +10,6 @@ from six.moves.urllib.parse import urlparse
 from tornado import gen
 
 from bokeh.core.templates import AUTOLOAD_JS
-from bokeh.util.string import encode_utf8
 from bokeh.util.compiler import bundle_all_models
 from bokeh.embed.standalone import script_for_render_items
 
@@ -60,4 +59,4 @@ class AutoloadJsHandler(SessionHandler):
         )
 
         self.set_header("Content-Type", 'application/javascript')
-        self.write(encode_utf8(js))
+        self.write(js)

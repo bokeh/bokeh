@@ -17,7 +17,6 @@ import flask
 from bokeh.embed import components
 from bokeh.plotting import figure
 from bokeh.resources import INLINE
-from bokeh.util.string import encode_utf8
 
 app = flask.Flask(__name__)
 
@@ -67,7 +66,7 @@ def polynomial():
         _from=_from,
         to=to
     )
-    return encode_utf8(html)
+    return html
 
 if __name__ == "__main__":
     print(__doc__)

@@ -30,7 +30,7 @@ from six.moves.urllib.parse import urlparse, quote_plus
 from ..core.templates import AUTOLOAD_TAG, FILE
 from ..resources import DEFAULT_SERVER_HTTP_URL
 from ..util.serialization import make_id
-from ..util.string import encode_utf8, format_docstring
+from ..util.string import format_docstring
 from .bundle import bundle_for_objs_and_resources
 from .util import html_page_for_render_items
 
@@ -101,7 +101,7 @@ def server_document(url="default", relative_urls=False, resources="default", arg
         elementid = elementid,
     )
 
-    return encode_utf8(tag)
+    return tag
 
 def server_session(model=None, session_id=None, url="default", relative_urls=False, resources="default", arguments=None):
     ''' Return a script tag that embeds content from a specific existing session on
@@ -190,7 +190,7 @@ def server_session(model=None, session_id=None, url="default", relative_urls=Fal
         modelid   = modelid,
     )
 
-    return encode_utf8(tag)
+    return tag
 
 #-----------------------------------------------------------------------------
 # Dev API
