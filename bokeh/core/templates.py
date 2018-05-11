@@ -37,6 +37,8 @@ DOC_NB_JS = _env.get_template("doc_nb_js.js")
 
 FILE = _env.get_template("file.html")
 
+MACROS = _env.get_template("macros.html")
+
 NOTEBOOK_LOAD = _env.get_template("notebook_load.html")
 
 AUTOLOAD_JS = _env.get_template("autoload_js.js")

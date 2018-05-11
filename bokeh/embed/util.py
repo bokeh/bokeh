@@ -29,7 +29,7 @@ from six import string_types
 
 # Bokeh imports
 from ..core.json_encoder import serialize_json
-from ..core.templates import _env, DOC_JS, FILE, PLOT_DIV, SCRIPT_TAG
+from ..core.templates import _env, DOC_JS, FILE, MACROS, PLOT_DIV, SCRIPT_TAG
 from ..document.document import DEFAULT_TITLE, Document
 from ..model import Model, collect_models
 from ..settings import settings
@@ -161,6 +161,7 @@ def html_page_for_render_items(bundle, docs_json, render_items, title,
         plot_script = json + script,
         roots = render_items,
         base = FILE,
+        macros = MACROS,
     ))
 
     if len(render_items) == 1:
