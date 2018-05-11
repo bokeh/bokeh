@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 
+from jinja2 import Template
+
 from bokeh.io import save
 from bokeh.models import Plot, Range1d, Circle, LinearAxis
 
@@ -17,24 +19,35 @@ def make_figure(axes):
 
     return plot
 
-template = """
-{% block preamble %}
-<style>
-    .grid {
+template = Template("""
+{% from macros import embed %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>CSS grid with a custom template</title>
+    <style>
+      .grid {
         display: inline-grid;
         grid-template-columns: auto auto auto auto;
         grid-gap: 10px;
         padding: 10px;
         background-color: black;
-    }
-</style>
-{% endblock %}
-{% block contents %}
-<div class="grid">
-    {{ super() }}
-</div>
-{% endblock %}
-"""
+      }
+    </style>
+    {{ bokeh_css }}
+    {{ bokeh_js }}
+  </head>
+  <body>
+    <div class="grid">
+      {% for root in roots %}
+        {{ embed(root) }}
+      {% endfor %}
+    </div>
+    {{ plot_script }}
+  </body>
+</html>
+""")
 
 axes = [
     "a",   "b",   "l",    "r",
@@ -44,4 +57,4 @@ axes = [
 ]
 
 figures = list(map(make_figure, axes))
-save(figures, template=template, title="CSS grid with an extended template")
+save(figures, template=template)
