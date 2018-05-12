@@ -36,6 +36,7 @@ from tempfile import mkstemp
 from ..embed import file_html
 from ..resources import INLINE
 from ..util.dependencies import import_required, detect_phantomjs
+from ..util.string import decode_utf8
 from .util import default_filename
 
 #-----------------------------------------------------------------------------
@@ -172,7 +173,7 @@ def get_screenshot_as_png(obj, driver=None, **kwargs):
     with _tmp_html() as tmp:
         html = get_layout_html(obj, **kwargs)
         with io.open(tmp.path, mode="w", encoding="utf-8") as file:
-            file.write(html)
+            file.write(decode_utf8(html))
 
         web_driver = driver if driver is not None else create_webdriver()
 
