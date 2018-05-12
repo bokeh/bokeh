@@ -41,8 +41,11 @@ that accepts these same parameters.
     <body>
     {% block body %}
         {% block contents %}
-          {% for root in roots %}
-            {{ embed(root) | indent(8) if root }}
+          {% for doc in docs %}
+            {{ embed(doc) }}
+            {% for root in doc.roots %}
+              {{ embed(root) | indent(10) }}
+            {% endfor %}
           {% endfor %}
         {% endblock %}
         {{ plot_script | indent(8) }}

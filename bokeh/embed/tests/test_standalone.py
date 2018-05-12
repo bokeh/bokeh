@@ -181,8 +181,8 @@ class Test_file_html(object):
                     "bokeh_js",
                     "bokeh_css",
                     "plot_script",
-                    "root",
-                    "roots",
+                    "doc",
+                    "docs",
                     "base",
                 }
                 if user_template_variables is not None:

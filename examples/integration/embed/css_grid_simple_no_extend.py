@@ -40,7 +40,7 @@ template = Template("""
   </head>
   <body>
     <div class="grid">
-      {% for root in roots %}
+      {% for root in doc.roots %}
         {{ embed(root) }}
       {% endfor %}
     </div>

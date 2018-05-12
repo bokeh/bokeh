@@ -9,4 +9,5 @@ export interface RenderItem {
   sessionid?: string
   use_for_title?: boolean
   notebook_comms_target?: any
+  roots?: {[key: string]: string}
 }

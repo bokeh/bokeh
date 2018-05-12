@@ -35,12 +35,8 @@ export class DOMView extends View {
 
   render(): void {}
 
-  renderTo(element: HTMLElement, replace: boolean = false): void {
-    if (!replace)
-      element.appendChild(this.el)
-    else
-      DOM.replaceWith(element, this.el)
-
+  renderTo(element: HTMLElement): void {
+    element.appendChild(this.el)
     this.layout()
   }
 

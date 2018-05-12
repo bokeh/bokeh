@@ -1,5 +1,5 @@
-{% macro embed(root) -%}
+{% macro embed(obj) -%}
 <div class="bk-root">
-    <div class="bk-plotdiv" id="{{ root.elementid }}"></div>
+    <div class="bk-plotdiv" id="{{ obj.elementid }}"></div>
 </div>
 {%- endmacro %}

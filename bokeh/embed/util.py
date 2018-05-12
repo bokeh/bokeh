@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from collections import Sequence
+from collections import Sequence, OrderedDict
 
 # External imports
 from six import string_types
@@ -159,13 +159,18 @@ def html_page_for_render_items(bundle, docs_json, render_items, title,
         bokeh_js = bokeh_js,
         bokeh_css = bokeh_css,
         plot_script = json + script,
-        roots = render_items,
+        docs = [
+            dict(
+                elementid=item["elementid"],
+                roots=[ dict(elementid=elementid) for elementid in item['roots'].values() ],
+            ) for item in render_items
+        ],
         base = FILE,
         macros = MACROS,
     ))
 
     if len(render_items) == 1:
-        context["root"] = render_items[0]
+        context["doc"] = context["docs"][0]
 
     if template is None:
         template = FILE
@@ -230,7 +235,7 @@ def standalone_docs_json_and_render_items(models):
             doc = p
         else:
             if p.document is None:
-                raise ValueError("To render a Model as HTML it must be part of a Document")
+                raise ValueError("to render a model as HTML it must be part of a document")
             doc = p.document
             modelid = p._id
         docid = None
@@ -243,12 +248,20 @@ def standalone_docs_json_and_render_items(models):
 
         elementid = make_id()
 
-        render_items.append({
-            'docid' : docid,
-            'elementid' : elementid,
+        render_item = dict(
+            docid = docid,
+            elementid = elementid,
             # if modelid is None, that means the entire document
-            'modelid' : modelid,
-        })
+        )
+
+        if modelid is None:
+            render_item["modelid"] = None
+            render_item["roots"] = OrderedDict([ (root._id, make_id()) for root in doc.roots ])
+        else:
+            render_item["modelid"] = modelid
+            render_item["roots"] = OrderedDict([ (modelid, elementid) ])
+
+        render_items.append(render_item)
 
     docs_json = {}
     for k, v in docs_by_id.items():

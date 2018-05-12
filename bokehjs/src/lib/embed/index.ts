@@ -66,7 +66,7 @@ function _embed_items(docs_json: string | DocsJson, render_items: RenderItem[], 
       if (item.modelid != null)
         promise = add_model_from_session(elem, websocket_url, item.modelid, item.sessionid)
       else
-        promise = add_document_from_session(elem, websocket_url, item.sessionid, use_for_title)
+        promise = add_document_from_session(elem, websocket_url, item.sessionid, item.roots, use_for_title)
 
       promise.then(
         () => {
@@ -82,7 +82,7 @@ function _embed_items(docs_json: string | DocsJson, render_items: RenderItem[], 
       if (item.modelid != null)
         add_model_standalone(item.modelid, elem, docs[item.docid])
       else
-        add_document_standalone(docs[item.docid], elem, use_for_title)
+        add_document_standalone(docs[item.docid], elem, item.roots, use_for_title)
     } else
        throw new Error(`Error rendering Bokeh items to element ${item.elementid}: no document ID or session ID specified`)
   }

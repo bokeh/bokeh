@@ -65,6 +65,6 @@ export function embed_items_notebook(docs_json: DocsJson, render_items: RenderIt
     if (item.modelid != null)
       add_model_standalone(item.modelid, elem, doc)
     else
-      add_document_standalone(doc, elem, false)
+      add_document_standalone(doc, elem, item.roots, false)
   }
 }

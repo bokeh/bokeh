@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from collections import OrderedDict
 from six.moves.urllib.parse import urlparse, quote_plus
 
 # External imports
@@ -196,11 +197,11 @@ def server_session(model=None, session_id=None, url="default", relative_urls=Fal
 # Dev API
 #-----------------------------------------------------------------------------
 
-def server_html_page_for_session(session_id, resources, title, template=FILE, template_variables=None):
+def server_html_page_for_session(session, resources, title, template=FILE, template_variables=None):
     '''
 
     Args:
-        session_id (str) :
+        session (ServerSession) :
 
         resources (Resources) :
 
@@ -215,18 +216,21 @@ def server_html_page_for_session(session_id, resources, title, template=FILE, te
 
     '''
     elementid = make_id()
-    render_items = [{
-        'sessionid' : session_id,
-        'elementid' : elementid,
-        'use_for_title' : True
-        # no 'modelid' implies the entire session document
-    }]
+
+    render_item = dict(
+        sessionid = session.id,
+        elementid = elementid,
+        use_for_title = True,
+        roots = OrderedDict([ (root._id, make_id()) for root in session.document.roots ]),
+    )
 
     if template_variables is None:
         template_variables = {}
 
     bundle = bundle_for_objs_and_resources(None, resources)
-    return html_page_for_render_items(bundle, {}, render_items, title, template=template, template_variables=template_variables)
+    html = html_page_for_render_items(bundle, {}, [render_item], title,
+        template=template, template_variables=template_variables)
+    return html
 
 #-----------------------------------------------------------------------------
 # Private API

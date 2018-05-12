@@ -16,26 +16,37 @@ export function add_model_standalone(model_id: string, element: HTMLElement, doc
   if (model == null)
     throw new Error(`Model ${model_id} was not in document ${doc}`)
   const view = _create_view(model)
-  view.renderTo(element, true)
+  view.renderTo(element)
   return view
 }
 
 // Fill element with the roots from doc
-export function add_document_standalone(document: Document, element: HTMLElement, use_for_title: boolean = false): {[key: string]: DOMView} {
+export function add_document_standalone(document: Document, element: HTMLElement,
+    roots: {[key: string]: string} = {}, use_for_title: boolean = false): {[key: string]: DOMView} {
   // this is a LOCAL index of views used only by this particular rendering
   // call, so we can remove the views we create.
   const views: {[key: string]: DOMView} = {}
 
   function render_model(model: HasProps): void {
+    let root_el: HTMLElement
+    if (model.id in roots) {
+      const el = window.document.getElementById(roots[model.id])
+      if (el == null)
+        return
+      else
+        root_el = el
+    } else
+      root_el = element
+
     const view = _create_view(model)
-    view.renderTo(element)
+    view.renderTo(root_el)
     views[model.id] = view
   }
 
   function unrender_model(model: HasProps): void {
     if (model.id in views) {
       const view = views[model.id]
-      element.removeChild(view.el)
+      view.remove()
       delete views[model.id]
       delete base.index[model.id]
     }
