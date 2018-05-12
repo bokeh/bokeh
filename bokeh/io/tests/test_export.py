@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #-----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
 #
@@ -27,7 +28,9 @@ from PIL import Image
 # Bokeh imports
 from bokeh.models.plots import Plot
 from bokeh.models.ranges import Range1d
+from bokeh.models.widgets.markups import Div
 from bokeh.io.export import create_webdriver, terminate_webdriver
+from bokeh.resources import Resources
 
 # Module under test
 import bokeh.io.export as bie
@@ -95,6 +98,32 @@ def test_get_screenshot_as_png_large_plot():
     finally:
         # Have to manually clean up the driver session
         terminate_webdriver(driver)
+
+@pytest.mark.unit
+@pytest.mark.selenium
+def test_get_screenshot_as_png_with_unicode_minified():
+    layout = Div(text="유니 코드 지원을위한 작은 테스트")
+
+    driver = create_webdriver()
+    try:
+        png = bie.get_screenshot_as_png(layout, driver=driver, resources=Resources(mode="inline", minified=True))
+    finally:
+        # Have to manually clean up the driver session
+        terminate_webdriver(driver)
+    assert len(png.tobytes()) > 0
+
+@pytest.mark.unit
+@pytest.mark.selenium
+def test_get_screenshot_as_png_with_unicode_unminified():
+    layout = Div(text="유니 코드 지원을위한 작은 테스트")
+
+    driver = create_webdriver()
+    try:
+        png = bie.get_screenshot_as_png(layout, driver=driver, resources=Resources(mode="inline", minified=False))
+    finally:
+        # Have to manually clean up the driver session
+        terminate_webdriver(driver)
+    assert len(png.tobytes()) > 0
 
 @pytest.mark.unit
 @pytest.mark.selenium
