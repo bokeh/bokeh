@@ -5,36 +5,6 @@ from __future__ import absolute_import
 
 import re
 
-def encode_utf8(u):
-    ''' Encode a UTF-8 string to a sequence of bytes.
-
-    Args:
-        u (str) : the string to encode
-
-    Returns:
-        bytes
-
-    '''
-    import sys
-    if sys.version_info[0] == 2:
-        u = u.encode('utf-8')
-    return u
-
-def decode_utf8(u):
-    ''' Decode a sequence of bytes to a UTF-8 string
-
-    Args:
-        u (str) : the bytes to decode
-
-    Returns:
-        UTF-8 string
-
-    '''
-    import sys
-    if sys.version_info[0] == 2:
-        u = u.decode('utf-8')
-    return u
-
 def indent(text, n=2, ch=" "):
     ''' Indent all the lines in a given block of text by a specified ammount.
 
