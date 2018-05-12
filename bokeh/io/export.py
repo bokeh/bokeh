@@ -36,7 +36,6 @@ from tempfile import mkstemp
 from ..embed import file_html
 from ..resources import INLINE
 from ..util.dependencies import import_required, detect_phantomjs
-from ..util.string import decode_utf8
 from .util import default_filename
 
 #-----------------------------------------------------------------------------

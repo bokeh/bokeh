@@ -84,7 +84,6 @@ from ..document import Document
 from ..embed import autoload_static
 from ..resources import Resources
 from ..settings import settings
-from ..util.string import decode_utf8
 from .example_handler import ExampleHandler
 from .templates import PLOT_PAGE
 
@@ -257,8 +256,8 @@ class BokehPlotDirective(Directive):
             # handle examples external to the docs source, e.g. gallery examples
             else:
                 app.debug("[bokeh-plot] handling external example in %r: %s", env.docname, self.arguments[0])
-                source = open(self.arguments[0]).read()
-                source = decode_utf8(source)
+                with io.open(self.arguments[0], "r", encoding="utf-8") as f:
+                    source = f.read()
                 docname = env.docname.replace("/", "-")
                 js_name = "bokeh-plot-%s-external-%s.js" % (docname, uuid4().hex)
                 (script, js, js_path, source) = _process_script(source, self.arguments[0], env, js_name, env.config.bokeh_plot_use_relative_paths)

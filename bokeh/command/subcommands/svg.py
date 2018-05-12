@@ -47,7 +47,6 @@ import warnings
 
 from ...io.export import get_svgs, create_webdriver, terminate_webdriver
 from ...models.plots import Plot
-from ...util.string import decode_utf8
 from .file_output import FileOutputSubcommand
 
 class SVG(FileOutputSubcommand):
@@ -100,7 +99,7 @@ class SVG(FileOutputSubcommand):
         contents = self.file_contents(args, doc)
         for i, svg in enumerate(contents):
             if filename == '-':
-                print(decode_utf8(svg))
+                print(svg)
             else:
                 if i == 0:
                     filename = filename
@@ -108,7 +107,7 @@ class SVG(FileOutputSubcommand):
                     idx = filename.find(".svg")
                     filename = filename[:idx] + "_{}".format(i) + filename[idx:]
                 with io.open(filename, "w", encoding="utf-8") as f:
-                    f.write(decode_utf8(svg))
+                    f.write(svg)
             self.after_write_file(args, filename, doc)
 
     def file_contents(self, args, doc):
