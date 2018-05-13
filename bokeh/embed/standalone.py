@@ -28,6 +28,7 @@ import re
 # External imports
 
 # Bokeh imports
+from ..model import collect_models
 from ..core.templates import AUTOLOAD_JS, AUTOLOAD_TAG, FILE
 from ..document.document import DEFAULT_TITLE, Document
 from ..model import Model
@@ -274,6 +275,10 @@ def file_html(models,
 
     '''
     models = check_models_or_docs(models)
+    for model in collect_models(models):
+        if len(model._callbacks) > 0 or len(model._event_callbacks) > 0:
+            log.warn(' Python callback in static document. Use CustomJS instead.')
+            break
 
     with _ModelInDocument(models, apply_theme=theme):
         (docs_json, render_items) = standalone_docs_json_and_render_items(models)
