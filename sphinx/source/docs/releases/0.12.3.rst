@@ -11,11 +11,6 @@ small features and fixes several bugs. Some of the highlights include:
 * Auto-generate legends from data in a column
 * Many small bugfixes
 
-NOTE: the 0.12.x series is the last planned release series before a
-version 1.0 release. The focus of the 1.0 release will be implementing
-build automation to enforce API stability, and a very small number of
-high value features.
-
 Migration Guide
 ---------------
 
