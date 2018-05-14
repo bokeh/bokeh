@@ -325,6 +325,20 @@ install.
     occurs, you will also need to re-run the instructions in the
     :ref:`dev_guide_installing_dependencies_node` section above.
 
+Downloading Sample Data
+-----------------------
+
+Several tests and examples require Bokeh's sample data to be available. Once
+Bokeh is installed, the simplest way that sample data can be obtained is by
+executing the following command at a Bash or Windows prompt:
+
+.. code-block:: sh
+
+    bokeh sampledata
+
+It's also possible to configue the download location, or to start the download
+programmatically. For full details see the :ref:`install_sampledata` section of
+the User's Guide.
 
 Next Steps
 ----------
