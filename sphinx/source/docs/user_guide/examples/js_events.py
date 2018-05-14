@@ -8,7 +8,7 @@ from bokeh import events
 from bokeh.models import CustomJS, Div, Button
 from bokeh.layouts import column, row
 
-def display_event(div, attributes=[], style = 'float:left;clear:left;font_size=0.5pt'):
+def display_event(div, attributes=[], style = 'float:left;clear:left;font_size=10pt'):
     "Build a suitable CustomJS to display the current event in the div model."
     return CustomJS(args=dict(div=div), code="""
         var attrs = %s; var args = [];
