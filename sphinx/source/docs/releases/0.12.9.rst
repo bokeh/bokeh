@@ -14,9 +14,6 @@ Many other small bugfixes and docs additions. For full details see the
 Migration Guide
 ---------------
 
-NOTE: the 0.12.x series is the last planned release series before a version
-1.0 release. For more information see the `project roadmap`_.
-
 Deprecated ``bokeh.charts`` support removed
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

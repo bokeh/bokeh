@@ -16,11 +16,6 @@ features and fixes several bugs. Some of the highlights include:
 
 Many other small bugfixes and docs additions. For full details see the :bokeh-tree:`CHANGELOG`.
 
-NOTE: the 0.12.x series is the last planned release series before a
-version 1.0 release. The focus of the 1.0 release will be implementing
-build automation to enforce API stability, and a very small number of
-high value features. For more information see the `project roadmap`_.
-
 Migration Guide
 ---------------
 

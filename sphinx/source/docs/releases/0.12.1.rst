@@ -15,8 +15,3 @@ small features and fixes several bugs. Some of the highlights include:
 * Fix a bug in the toolbar CSS, causing it to interfere with hit testing and selection.
 * Fix WebGL support for Safari, and WebGL bug affecting line thickness.
 * Fix intermittent issues with BokehJS loading in Jupyter notebooks.
-
-NOTE: the 0.12.x series is the last planned release series before a
-version 1.0 release. The focus of the 1.0 release will be implementing
-build automation to enforce API stability, and a very small number of
-high value features.

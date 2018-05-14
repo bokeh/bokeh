@@ -57,6 +57,10 @@ source checkout and execute:
 
     gulp test
 
+Note that you may need to manually run ``gulp`` from the ``node_modules/.bin``
+directory. Alternatively, you may ``npm install -g gulp`` to install Gulp
+globally.
+
 You can run all available tests (python and JS unit tests, as well as example
 and integration tests) **from the top level directory** by executing:
 

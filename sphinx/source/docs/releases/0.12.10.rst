@@ -2,18 +2,10 @@
 ==================
 
 Bokeh Version ``0.12.10`` is an incremental update that adds a few important
-features and fixes several bugs. Some of the highlights include:
-
-
-
-Many other small bugfixes and docs additions. For full details see the
-:bokeh-tree:`CHANGELOG`.
+features and fixes several bugs. For full details see the :bokeh-tree:`CHANGELOG`.
 
 Migration Guide
 ---------------
-
-NOTE: the 0.12.x series is the last planned release series before a version
-1.0 release. For more information see the `project roadmap`_.
 
 Deprecations Removed
 ~~~~~~~~~~~~~~~~~~~~
