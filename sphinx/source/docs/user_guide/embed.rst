@@ -9,7 +9,7 @@ First, a reminder of the distinction between standalone documents and apps:
 :ref:`userguide_embed_standalone`
     These are Bokeh documents that are not backed by a Bokeh server. They
     may have many tools and interactions (e.g. from ``CustomJS`` callbacks)
-    but are self-containtain HTML, JavaScript, and CSS. They can be
+    but are self-contained HTML, JavaScript, and CSS. They can be
     embedded into other HTML pages as one large document, or as a set of
     sub-components templated individually.
 
@@ -354,7 +354,7 @@ Bokeh Applications
 ------------------
 
 This section describes how Bokeh server applications may be embedded. Bokeh
-apps may be embeeded so that every page load creates and displays a new
+apps may be embedded so that every page load creates and displays a new
 session and Document, or so that a specific, existing session is loaded.
 
 App Documents
