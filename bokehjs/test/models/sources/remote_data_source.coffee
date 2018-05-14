@@ -1,7 +1,5 @@
 {expect} = require "chai"
 
-sinon = require 'sinon'
-
 {RemoteDataSource} = require("models/sources/remote_data_source")
 
 describe "ajax_data_source module", ->

@@ -1,5 +1,4 @@
 {expect} = require "chai"
-sinon = require "sinon"
 
 {Slider} = require("models/widgets/slider")
 {Document} = require("document")

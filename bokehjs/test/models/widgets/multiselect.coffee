@@ -1,5 +1,4 @@
 {expect} = require "chai"
-sinon = require "sinon"
 
 {MultiSelect} = require("models/widgets/multiselect")
 {CustomJS} = require("models/callbacks/customjs")
