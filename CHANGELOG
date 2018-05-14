@@ -1,3 +1,98 @@
+2018-05-14  0.12.16:
+--------------------
+  * bugfixes:
+    - #3556 [component: server] Add a server callback once and then again as periodic
+    - #4298 [component: bokehjs] Ajaxdatasource data initialization
+    - #6303 [component: bokehjs] Bokeh.io.export captures screenshot before asynchronously loaded models
+    - #6698 [component: bokehjs] Bands wrongly coloured
+    - #6699 [component: server] Server logger (format, output, etc) does not work
+    - #7011 [API: models] Error message in notebook when running explicit path graph example from user guide
+    - #7349 [component: bokehjs] [widgets] Arrow keys don't work if the step of slider is very small
+    - #7462 [component: bokehjs] Multi_line does not work with categorical plots
+    - #7476 [component: bokehjs] Plotcanvasview#build_levels removes only glyphs when renderers change
+    - #7597 [widgets] Bug: datatable view doesn't rerender on table.source.change.emit()
+    - #7621 `save` creates non-working files when used with widgets
+    - #7627 [component: bokehjs] [regression] Selected points get lost with tap tool
+    - #7705 [component: bokehjs] [regression] "typeerror: cannot read property 'is_empty' of null" when using hovertool
+    - #7724 [component: bokehjs] [component: server] Plots not reacting to sliders inside flask
+    - #7736 [component: bokehjs] [regression] [widgets] Editable datatable freezes when a cell is edited
+    - #7744 [component: docs] Docs - json prototype does not expand
+    - #7745 [component: bokehjs] [component: server] Pointdrawtool : no python side update of the data source
+    - #7761 Permission denied error when invoking export_png() or export_svgs from inside jupyter notebook
+    - #7783 [component: bokehjs] The child property of panel can't be a widget
+    - #7790 [component: bokehjs] [regression] [typescript] Plotcanvas.save() is missing break statements
+    - #7801 [component: bokehjs] [regression] Bokeh 0.12.15 throws typeerror on touch devices when dragging
+    - #7803 [component: tests] Py.test -m unit doesn't run pytest.mark.parametrize tests
+    - #7807 [component: examples] [regression] Allow customjs args to accept basic python types
+    - #7819 [component: bokehjs] [performance] [regression] Rendering occurs on mouse move when hover tools is enabled
+    - #7836 [component: docs] Minor fix in docs
+    - #7840 [component: docs] Html formatter has a small typo
+    - #7849 [component: examples] Ionrangeslider example fails when adding more than one slider
+    - #7868 [component: bokehjs] [geo] The plot disappears when the max_zoom value of wmtstilesource is set and this value is reached
+    - #7885 [regression] Exporting datatable to png broken
+    - #7886 [py3] Detect_phantomjs() is broken on py3 when phantomjs is not available
+  * features:
+    - #113 [layout] Axis should have option to have a fixed orientation
+    - #2427 [component: bokehjs] Make axis wheel zoom configurable
+    - #3125 Expose the wheel zoom speed in python
+    - #3126 [component: bokehjs] Add box zoom out tool
+    - #3442 `boxselecttool` should accept renderers = none
+    - #3886 Feature request: add hover inspection image glyphs
+    - #4286 [component: docs] Provide examples of using remotesource/ajaxdatasource in the docs
+    - #5071 [component: bokehjs] Add a method to "reset" a figure
+    - #7582 [component: bokehjs] [performance] Consider replacing rbush spatial index with flatbush
+    - #7643 [API: models] [component: bokehjs] Option to rotate additional categorical ticks
+    - #7647 [component: bokehjs] Allow custom formatter when using the hover tool
+    - #7725 [component: examples] Increase `size` and `color` options for crossfilter example
+  * tasks:
+    - #3903 [component: tests] Clean-up jupyter custom.js after running examples
+    - #4915 [component: docs] [widgets] Default value in dropdown menu is stuck on none
+    - #4923 Add a type check to `show` for better error reporting
+    - #5911 [component: docs] Move off eoled google site search
+    - #6175 [component: server] Some clients send bad pong, lower log level to reduce noise
+    - #6193 [component: docs] Make bokeh_plot work in sphinx by default without google_api_key
+    - #6240 [component: tests] Fail gracefully when pr is submitted from a fork
+    - #6306 [component: bokehjs] Allow strict mode for cutomjs, etc. written in pure js
+    - #6341 [component: server] Add parameter to autoload_server to control loading of js/css resources
+    - #6657 Task: make columndatasource.column_names attribute a property method
+    - #7080 [component: docs] [component: server] [notebook] Notebook_url="*" fails in show()
+    - #7510 'export_png' from bokeh.io triggers 'deprecated' warning from selenium using phantomjs
+    - #7576 [component: build] Use pscript instead of flexx.pyscript
+    - #7715 [component: docs] All release notes on one webpage
+    - #7720 [component: build] [component: tests] Add "downstream" ci build 
+    - #7723 [component: build] Markdown description for pypi
+    - #7729 [component: build] Update of ipython to 6.3.0 breaks unit tests
+    - #7734 [component: build] Remove pytest-rerunfailures from ci tests
+    - #7741 [component: build] Svg export test occasionally fails on travis 
+    - #7750 [component: bokehjs] [component: tests] Investigate output from test_defaults
+    - #7751 [component: bokehjs] [component: build] [typescript] Keep all custom declarations (d.ts) in external/
+    - #7753 Revert "don't use --rerun"
+    - #7759 [component: tests] Move outstanding static integration tests to examples/integration
+    - #7765 [component: examples] Added 'pan' to the hexbin example
+    - #7774 Make api decorators more debugging friendly
+    - #7777 [component: tests] [py3] Switch python versions between full and partial examples' travis ci jobs
+    - #7778 Remove all deprecations before 0.12.15
+    - #7781 [component: docs] Missing docstring for get_screenshot_as_png
+    - #7786 [component: bokehjs] [component: build] Rename bokehjs/src/coffee
+    - #7797 [component: docs] Missing documentation of `--show` option for command line `bokeh serve`
+    - #7800 [component: docs] Add relative path option and handling to sphinx ext
+    - #7802 Findable and tunable html error boxes please
+    - #7814 [component: examples] Surface3d example color fixed to z axis
+    - #7821 Revert "set a data source's inspected taking multiple renderers into account"
+    - #7823 [component: bokehjs] Stacked bars failing to update on patch
+    - #7829 [component: build] Update for npm 6
+    - #7835 [component: docs] Jupyter notebooks need to be "trusted" for saved js to render without re-executing cells
+    - #7841 [component: bokehjs] [component: build] Drop dependency on webpack
+    - #7854 [component: docs] Dependency collision: nodejs>=8.8,<9.0 and npm >=6.0 <7.0
+    - #7855 [component: docs] Added how-to set up conda environment using fish shell
+    - #7858 Use full year for ticks in default month-year scale
+    - #7860 [component: docs] Update docstring for on_change
+    - #7878 Add new mpl cividis palette
+    - #7879 [component: bokehjs] [component: build] Resolve reported npm issues
+    - #7896 [component: docs] Typos
+    - #7897 [component: build] [component: tests] Additional dependencies for unit tests
+    - #7898 [component: docs] Unit tests require missing sampledata: airports.csv
+
 2018-03-29  0.12.15:
 --------------------
   * bugfixes:
