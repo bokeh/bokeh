@@ -72,8 +72,8 @@ any Bokeh model, using the ``js_on_change`` method of Bokeh models:
     # execute a callback whenever p.x_range.start changes
     p.x_range.js_on_change('start', callback)
 
-It should be mentioned that the first parameter to ``js_on_change`` is the
-name of actually the name of a BokehJS event. The full format for a property
+It should be mentioned that the first parameter to ``js_on_change`` is
+actually the name of a BokehJS event. The full format for a property
 change event is, e.g. ``"change:start"`` but Bokeh will automatically
 convert any property name into one of these BokehJS change events for you.
 Additionally, some Bokeh models have additional specialized events. For
