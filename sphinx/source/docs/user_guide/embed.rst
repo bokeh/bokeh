@@ -115,9 +115,7 @@ look something like:
 
 .. code-block:: html
 
-    <div class="bk-root">
-        <div class="bk-plotdiv" id="9574d123-9332-4b5f-96cc-6323bef37f40"></div>
-    </div>
+    <div class="bk-root" id="9574d123-9332-4b5f-96cc-6323bef37f40"></div>
 
 These two elements can be inserted or templated into your HTML text, and the
 script, when executed, will replace the div with the plot.
@@ -257,9 +255,9 @@ Running ``python scatter.py`` will print out:
     </script>
 
         {
-            'Green': '\n<div class="bk-root">\n    <div class="bk-plotdiv" id="e89297cf-a2dc-4edd-8993-e16f0ca6af04"></div>\n</div>',
-            'Blue': '\n<div class="bk-root">\n    <div class="bk-plotdiv" id="eeb9a417-02a1-47e3-ab82-221abe8a1644"></div>\n</div>',
-            'Red': '\n<div class="bk-root">\n    <div class="bk-plotdiv" id="c311f123-368f-43ba-88b6-4e3ecd9aed94"></div>\n</div>'
+            'Green': '\n<div class="bk-root" id="e89297cf-a2dc-4edd-8993-e16f0ca6af04"></div>',
+            'Blue': '\n<div class="bk-root" id="eeb9a417-02a1-47e3-ab82-221abe8a1644"></div>',
+            'Red': '\n<div class="bk-root" id="c311f123-368f-43ba-88b6-4e3ecd9aed94"></div>'
         }
 
 Then inserting the script and div elements into this boilerplate:

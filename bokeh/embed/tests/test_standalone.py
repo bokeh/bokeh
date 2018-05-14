@@ -139,16 +139,11 @@ class Test_components(object):
         html = bs4.BeautifulSoup(div, "lxml")
 
         divs = html.findAll(name='div')
-        assert len(divs) == 2
+        assert len(divs) == 1
 
         div = divs[0]
-        assert set(div.attrs) == set(['class'])
+        assert set(div.attrs) == set(['class', 'id'])
         assert div.attrs['class'] == ['bk-root']
-        assert div.text == '\n\n'
-
-        div = divs[1]
-        assert set(div.attrs) == set(['id', 'class'])
-        assert div.attrs['class'] == ['bk-plotdiv']
         assert div.text == ''
 
     def test_script_is_utf8_encoded(self, test_plot):

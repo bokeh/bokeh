@@ -117,10 +117,7 @@ class Test_check_one_model_or_doc(object):
 class Test_div_for_render_item(object):
 
     def test_render(self):
-        assert beu.div_for_render_item(dict(elementid="foo123")) == """
-<div class="bk-root">
-    <div class="bk-plotdiv" id="foo123"></div>
-</div>"""
+        assert beu.div_for_render_item(dict(elementid="foo123")) == """\n<div class="bk-root" id="foo123"></div>"""
 
 class Test_find_existing_docs(object):
     pass
