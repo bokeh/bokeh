@@ -306,7 +306,7 @@ export class Module {
   }
 
   protected parse(): Program {
-    const ast: any = esprima.parse(this.input, {comment: true, loc: true, range: true, tokens: true})
+    const ast: any = esprima.parseModule(this.input, {comment: true, loc: true, range: true, tokens: true})
     return escodegen.attachComments(ast, ast.comments, ast.tokens)
   }
 
