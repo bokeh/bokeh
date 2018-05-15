@@ -44,7 +44,7 @@
     "mocha": "^2.2.5",
     "run-sequence": "^1.0.0",
     "sinon": "^1.15.4",
-    "vinyl-source-stream": "^1.1.0",
+    "vinyl-source-stream": "^2.0.0",
     "yargs": "^11.0.0",
     "through2": "^2.0.0",
     "@types/through2": "^2.0.33",
