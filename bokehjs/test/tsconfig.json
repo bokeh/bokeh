@@ -15,7 +15,7 @@
     "lib": ["es5", "dom", "es2015.collection"],
     "baseUrl": ".",
     "paths": {
-      "*": ["../build/js/tree/*", "../build/js/types/*"]
+      "*": ["../build/js/tree/*", "../build/js/types/*", "../src/lib/external/*"]
     }
   },
   "include": ["./**/*.ts"]
