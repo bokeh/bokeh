@@ -59,7 +59,7 @@
     "atob": "^2.0.0",
     "btoa": "^1.1.2",
     "chalk": "^2.3.0",
-    "ts-node": "^3.1.0",
+    "ts-node": "^6.0.3",
     "esprima": "^4.0.0",
     "escodegen": "^1.8.1",
     "estraverse": "^4.2.0",
