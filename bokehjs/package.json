@@ -61,7 +61,7 @@
     "chalk": "^2.3.0",
     "ts-node": "^6.0.3",
     "esprima": "^4.0.0",
-    "escodegen": "^1.8.1",
+    "escodegen": "^1.9.1",
     "estraverse": "^4.2.0",
     "chrome-remote-interface": "^0.25.5",
     "@types/node": "^7.0.18",
