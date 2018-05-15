@@ -36,7 +36,7 @@
     "gulp-uglify": "^3.0.0",
     "gulp-uglifycss": "^1.0.4",
     "gulp-util": "^3.0.4",
-    "gulp-typescript": "^3.2.3",
+    "gulp-typescript": "^3.2.4",
     "gulp-coffee": "^2.3.1",
     "gulp-tslint": "^8.1.2",
     "merge2": "^1.2.0",
