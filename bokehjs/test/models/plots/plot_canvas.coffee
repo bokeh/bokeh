@@ -1,5 +1,4 @@
 {expect} = require "chai"
-stubs = require "../../stubs"
 sinon = require 'sinon'
 
 {Solver, Variable} = require("core/layout/solver")
@@ -21,11 +20,7 @@ sinon = require 'sinon'
 
 describe "PlotCanvas", ->
 
-  afterEach ->
-    stubs.unstub_canvas()
-
   beforeEach ->
-    stubs.stub_canvas()
     @doc = new Document()
     @plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
@@ -87,11 +82,7 @@ describe "PlotCanvas", ->
 
 describe "PlotCanvasView pause", ->
 
-  afterEach ->
-    stubs.unstub_canvas()
-
   beforeEach ->
-    stubs.stub_canvas()
     @doc = new Document()
     @plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
@@ -128,11 +119,7 @@ describe "PlotCanvasView pause", ->
 
 describe "PlotCanvas constraints", ->
 
-  afterEach ->
-    stubs.unstub_canvas()
-
   beforeEach ->
-    stubs.stub_canvas()
     doc = new Document()
     plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
@@ -163,12 +150,7 @@ describe "PlotCanvas constraints", ->
 
 describe "PlotCanvasView render", ->
 
-  afterEach ->
-    stubs.unstub_canvas()
-
   beforeEach ->
-    stubs.stub_canvas()
-
     doc = new Document()
     plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
@@ -195,12 +177,7 @@ describe "PlotCanvasView resize", ->
   wt = 22
   wb = 33
 
-  afterEach ->
-    stubs.unstub_canvas()
-
   beforeEach ->
-    stubs.stub_canvas()
-
     doc = new Document()
     plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
@@ -260,12 +237,7 @@ describe "PlotCanvasView resize", ->
 
 describe "PlotCanvasView update_constraints", ->
 
-  afterEach ->
-    stubs.unstub_canvas()
-
   beforeEach ->
-    stubs.stub_canvas()
-
     doc = new Document()
     plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
@@ -311,12 +283,7 @@ describe "PlotCanvasView update_constraints", ->
 
 describe "PlotCanvasView get_canvas_element", ->
 
-  afterEach ->
-    stubs.unstub_canvas()
-
   beforeEach ->
-    stubs.stub_canvas()
-
     doc = new Document()
     plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})

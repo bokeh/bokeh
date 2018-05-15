@@ -1,5 +1,4 @@
 {expect} = require "chai"
-stubs = require "../../stubs"
 sinon = require 'sinon'
 
 {clone} = require("core/util/object")
@@ -20,11 +19,8 @@ describe "WidgetBox", ->
     @widget_box = new WidgetBox({})
 
   describe "WidgetBoxView", ->
-    afterEach ->
-      stubs.unstub_canvas()
 
     beforeEach ->
-      stubs.stub_canvas()
       @doc = new Document()
       @doc.add_root(@widget_box)
 

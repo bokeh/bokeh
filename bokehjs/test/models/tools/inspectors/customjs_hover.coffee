@@ -1,5 +1,4 @@
 {expect} = require "chai"
-stubs = require "../../../stubs"
 
 {CustomJSHover} = require("models/tools/inspectors/customjs_hover")
 
@@ -8,12 +7,6 @@ stubs = require "../../../stubs"
 js_version = require("version").version
 
 describe "customjs module", ->
-
-  afterEach ->
-    stubs.unstub_canvas()
-
-  beforeEach ->
-    stubs.stub_canvas()
 
   describe "default creation", ->
     r = new CustomJSHover()

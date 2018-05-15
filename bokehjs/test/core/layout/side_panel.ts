@@ -1,8 +1,6 @@
 import {expect} from "chai"
 //import * as sinon from "sinon"
 
-import * as stubs from "../../stubs"
-
 import {SidePanel} from "core/layout/side_panel"
 //import {update_panel_constraints} from "core/layout/side_panel"
 
@@ -46,14 +44,7 @@ describe("SidePanel", () => {
 
   describe("update_panel_constraints", () => {
 
-    // Using axis_view as the view to pass into update_panel_constraints
-    afterEach(() => {
-      stubs.unstub_canvas()
-    })
-
     beforeEach(function() {
-      stubs.stub_canvas()
-
       const plot = new Plot({
         x_range: new Range1d({start: 0, end: 1}),
         y_range: new Range1d({start: 0, end: 1}),

@@ -1,5 +1,4 @@
 {expect} = require "chai"
-stubs = require "../../stubs"
 sinon = require "sinon"
 
 {clone} = require("core/util/object")

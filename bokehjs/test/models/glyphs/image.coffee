@@ -1,5 +1,4 @@
 {expect} = require "chai"
-stubs = require "../../stubs"
 sinon = require "sinon"
 
 {create_glyph_view} = require("./glyph_utils")
@@ -10,11 +9,9 @@ describe "Image module", ->
   describe "ImageView", ->
 
     afterEach ->
-      stubs.unstub_canvas()
       @stub.restore()
 
     beforeEach ->
-      stubs.stub_canvas()
       @stub = sinon.stub(ImageView.prototype, '_set_data')
 
       @image = new Image()

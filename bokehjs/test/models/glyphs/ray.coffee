@@ -1,5 +1,4 @@
 {expect} = require "chai"
-stubs = require "../../stubs"
 sinon = require "sinon"
 
 {create_glyph_view, set_scales} = require("./glyph_utils")
@@ -9,12 +8,7 @@ describe "Ray", ->
 
   describe "RayView", ->
 
-    afterEach ->
-      stubs.unstub_canvas()
-
     beforeEach ->
-      stubs.stub_canvas()
-
       @glyph = new Ray({
         x: {field: "x"}
         y: {field: "y"}

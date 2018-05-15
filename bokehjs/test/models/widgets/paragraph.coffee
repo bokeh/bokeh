@@ -1,5 +1,4 @@
 {expect} = require "chai"
-stubs = require "../../stubs"
 
 {Paragraph} = require("models/widgets/paragraph")
 {ParagraphView} = require("models/widgets/paragraph")

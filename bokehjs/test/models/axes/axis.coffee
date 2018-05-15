@@ -1,5 +1,4 @@
 {expect} = require "chai"
-stubs = require "../../stubs"
 sinon = require 'sinon'
 
 {Axis} = require("models/axes/axis")
@@ -109,12 +108,7 @@ describe "Axis", ->
 
 describe "AxisView", ->
 
-  afterEach ->
-    stubs.unstub_canvas()
-
   beforeEach ->
-    stubs.stub_canvas()
-
     doc = new Document()
     ticker = new BasicTicker()
     formatter = new BasicTickFormatter()
