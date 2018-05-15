@@ -90,7 +90,7 @@
     "mkdirp": "^0.5.1"
   },
   "dependencies": {
-    "@types/es6-promise": "^0.0.33",
+    "@types/es6-promise": "^3.3.0",
     "@types/geojson": "^7946.0.3",
     "@types/googlemaps": "^3.30.8",
     "@types/hammerjs": "^2.0.33",
@@ -99,7 +99,7 @@
     "@types/proj4": "^2.3.2",
     "@types/sprintf-js": "^0.0.27",
     "canvas2svg": "https://github.com/bokeh/canvas2svg#v1.0.21",
-    "es6-promise": "3.0.2",
+    "es6-promise": "4.2.4",
     "es6-set": "^0.1.5",
     "es6-weak-map": "^2.0.2",
     "flatbush": "^3.0.0",
