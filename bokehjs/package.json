@@ -97,7 +97,7 @@
     "@types/nouislider": "^9.0.3",
     "@types/pikaday": "^1.6.3",
     "@types/proj4": "^2.3.2",
-    "@types/sprintf-js": "^0.0.27",
+    "@types/sprintf-js": "^1.1.0",
     "canvas2svg": "https://github.com/bokeh/canvas2svg#v1.0.21",
     "es6-promise": "4.2.4",
     "es6-set": "^0.1.5",
