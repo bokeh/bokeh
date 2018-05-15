@@ -54,7 +54,7 @@
     "tslib": "^1.9.1",
     "tslint": "^5.10.0",
     "coffeescript": "2.3.0",
-    "detective": "^4.3.1",
+    "detective": "^5.1.0",
     "less": "^3.0.4",
     "atob": "^2.1.1",
     "btoa": "^1.2.1",
