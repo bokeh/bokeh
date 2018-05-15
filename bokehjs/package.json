@@ -73,7 +73,7 @@
     "@types/gulp-rename": "^0.0.33",
     "@types/gulp-insert": "^0.5.6",
     "@types/gulp-sourcemaps": "^0.0.32",
-    "@types/gulp-task-listing": "^0.0.30",
+    "@types/gulp-task-listing": "^0.0.32",
     "@types/yargs": "^11.0.0",
     "@types/run-sequence": "^0.0.30",
     "@types/del": "^3.0.1",
