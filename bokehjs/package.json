@@ -32,7 +32,7 @@
     "gulp-rename": "^1.2.0",
     "gulp-sourcemaps": "^1.5.2",
     "gulp-task-listing": "^1.0.0",
-    "uglify-es": "^3.1.9",
+    "uglify-es": "^3.3.9",
     "gulp-uglify": "^3.0.0",
     "gulp-uglifycss": "^1.0.4",
     "gulp-util": "^3.0.4",
