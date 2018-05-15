@@ -91,7 +91,7 @@
   },
   "dependencies": {
     "@types/es6-promise": "^0.0.33",
-    "@types/geojson": "^7946.0.1",
+    "@types/geojson": "^7946.0.3",
     "@types/googlemaps": "^3.30.8",
     "@types/hammerjs": "^2.0.33",
     "@types/nouislider": "^9.0.3",
