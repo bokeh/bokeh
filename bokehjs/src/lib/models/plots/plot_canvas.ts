@@ -29,7 +29,7 @@ import {isStrictNaN} from "core/util/types"
 import {difference, sortBy, reversed, concat} from "core/util/array"
 import {extend, keys, values} from "core/util/object"
 import {isSizeable, isSizeableView, update_panel_constraints, _view_sizes} from "core/layout/side_panel"
-import {Context2d} from "core/util/canvas"
+import {Context2d, SVGRenderingContext2D} from "core/util/canvas"
 
 // Notes on WebGL support:
 // Glyps can be rendered into the original 2D canvas, or in a (hidden)
@@ -244,7 +244,7 @@ export class PlotCanvasView extends DOMView {
   prepare_webgl(ratio: number, frame_box: FrameBox): void {
     // Prepare WebGL for a drawing pass
     if (this.gl != null) {
-      const canvas = this.canvas_view.get_canvas_element()
+      const canvas = this.canvas_view.get_canvas_element() as HTMLCanvasElement
       // Sync canvas size
       this.gl.canvas.width = canvas.width
       this.gl.canvas.height = canvas.height
@@ -931,7 +931,7 @@ export class PlotCanvasView extends DOMView {
     switch (this.model.plot.output_backend) {
       case "canvas":
       case "webgl": {
-        const canvas = this.canvas_view.get_canvas_element()
+        const canvas = this.canvas_view.get_canvas_element() as HTMLCanvasElement
         if (canvas.msToBlob != null) {
           const blob = canvas.msToBlob()
           window.navigator.msSaveBlob(blob, name)
@@ -945,10 +945,11 @@ export class PlotCanvasView extends DOMView {
         break
       }
       case "svg": {
-        const svg = (this.canvas_view.ctx as any).getSerializedSvg(true)
+        const ctx = this.canvas_view._ctx as SVGRenderingContext2D
+        const svg = ctx.getSerializedSvg(true)
         const svgblob = new Blob([svg], {type:'text/plain'})
         const downloadLink = document.createElement("a")
-        downloadLink.download =  name + ".svg"
+        downloadLink.download = name + ".svg"
         downloadLink.innerHTML = "Download svg"
         downloadLink.href = window.URL.createObjectURL(svgblob)
         downloadLink.onclick = (event) => document.body.removeChild(event.target as HTMLElement)

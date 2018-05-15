@@ -5,9 +5,7 @@ import {logger} from "core/logging"
 import * as p from "core/properties"
 import {div, canvas} from "core/dom"
 import {OutputBackend} from "core/enums"
-import {Context2d, fixup_ctx, get_scale_ratio} from "core/util/canvas"
-
-const canvas2svg = require("canvas2svg") // XXX: no typings
+import {Context2d, SVGRenderingContext2D, fixup_ctx, get_scale_ratio} from "core/util/canvas"
 
 // fixes up a problem with some versions of IE11
 // ref: http://stackoverflow.com/questions/22062313/imagedata-set-in-internetexplorer
@@ -22,10 +20,13 @@ if ((window as any).CanvasPixelArray != null) {
 export class CanvasView extends DOMView {
   model: Canvas
 
-  private _ctx: any
-  ctx: Context2d
+  _ctx: CanvasRenderingContext2D | SVGRenderingContext2D
 
-  canvas_el: HTMLCanvasElement
+  get ctx(): Context2d {
+    return this._ctx as Context2d
+  }
+
+  canvas_el: HTMLCanvasElement | SVGSVGElement
 
   overlays_el: HTMLElement
   events_el: HTMLElement
@@ -41,22 +42,26 @@ export class CanvasView extends DOMView {
 
     switch (this.model.output_backend) {
       case "canvas":
-      case "webgl":
+      case "webgl": {
         this.canvas_el = this.el.appendChild(canvas({class: "bk-canvas"}))
-        this._ctx = this.canvas_el.getContext('2d')
+        const ctx = this.canvas_el.getContext('2d')
+        if (ctx == null)
+          throw new Error("unable to obtain 2D rendering context")
+        this._ctx = ctx
         break
-      case "svg":
-        this._ctx = new canvas2svg()
-        this.canvas_el = this.el.appendChild(this._ctx.getSvg())
+      }
+      case "svg": {
+        const ctx = new SVGRenderingContext2D()
+        this._ctx = ctx
+        this.canvas_el = this.el.appendChild(ctx.getSvg())
         break
+      }
     }
 
     this.overlays_el = this.el.appendChild(div({class: "bk-canvas-overlays"}))
     this.events_el   = this.el.appendChild(div({class: "bk-canvas-events"}))
 
-    this.ctx = this.get_ctx()
-    // work around canvas incompatibilities
-    fixup_ctx(this.ctx)
+    fixup_ctx(this._ctx)
 
     logger.debug("CanvasView initialized")
   }
@@ -65,12 +70,7 @@ export class CanvasView extends DOMView {
     return super.css_classes().concat("bk-canvas-wrapper")
   }
 
-  // Method exists so that context can be stubbed in unit tests
-  get_ctx(): Context2d {
-    return this._ctx
-  }
-
-  get_canvas_element(): HTMLCanvasElement {
+  get_canvas_element(): HTMLCanvasElement | SVGSVGElement {
     return this.canvas_el
   }
 
