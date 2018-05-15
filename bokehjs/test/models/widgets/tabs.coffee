@@ -14,11 +14,7 @@ sinon = require 'sinon'
 
 describe "Tabs", ->
 
-  afterEach ->
-    stubs.unstub_solver()
-
   beforeEach ->
-    stubs.stub_solver()
     @tab_plot = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), toolbar: new Toolbar()})
     @tab_plot.attach_document(new Document())
     @panel = new Panel({child: @tab_plot})

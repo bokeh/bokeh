@@ -25,13 +25,9 @@ describe "CanvasView", ->
 
   afterEach ->
     stubs.unstub_canvas()
-    stubs.unstub_solver()
 
   beforeEach ->
     stubs.stub_canvas()
-    solver_stubs = stubs.stub_solver()
-    @solver_add_stub = solver_stubs['add']
-    @solver_remove_stub = solver_stubs['remove']
 
     doc = new Document()
     plot = new Plot({

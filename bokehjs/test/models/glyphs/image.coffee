@@ -11,12 +11,10 @@ describe "Image module", ->
 
     afterEach ->
       stubs.unstub_canvas()
-      stubs.unstub_solver()
       @stub.restore()
 
     beforeEach ->
       stubs.stub_canvas()
-      stubs.stub_solver()
       @stub = sinon.stub(ImageView.prototype, '_set_data')
 
       @image = new Image()

@@ -11,12 +11,10 @@ describe "ImageRGBA module", ->
 
     afterEach ->
       stubs.unstub_canvas()
-      stubs.unstub_solver()
       @stub.restore()
 
     beforeEach ->
       stubs.stub_canvas()
-      stubs.stub_solver()
       @stub = sinon.stub(ImageRGBAView.prototype, '_set_data')
 
       @image_rgba = new ImageRGBA()

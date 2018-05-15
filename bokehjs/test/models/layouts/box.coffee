@@ -11,11 +11,7 @@ sinon = require "sinon"
 
 describe "BoxView", ->
 
-  afterEach ->
-    stubs.unstub_solver()
-
   beforeEach ->
-    solver_stubs = stubs.stub_solver()
     @box = new Box()
     @doc = new Document()
     @doc.add_root(@box)

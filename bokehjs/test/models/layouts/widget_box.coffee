@@ -22,11 +22,9 @@ describe "WidgetBox", ->
   describe "WidgetBoxView", ->
     afterEach ->
       stubs.unstub_canvas()
-      stubs.unstub_solver()
 
     beforeEach ->
       stubs.stub_canvas()
-      stubs.stub_solver()
       @doc = new Document()
       @doc.add_root(@widget_box)
 

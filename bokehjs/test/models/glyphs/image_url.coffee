@@ -24,11 +24,9 @@ describe "ImageURL module", ->
 
     afterEach ->
       stubs.unstub_canvas()
-      stubs.unstub_solver()
 
     beforeEach ->
       stubs.stub_canvas()
-      stubs.stub_solver()
       @image_url = new ImageURL()
 
     it "`_set_data` should correctly set Image src", ->

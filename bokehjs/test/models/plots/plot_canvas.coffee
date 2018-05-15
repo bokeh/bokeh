@@ -31,11 +31,9 @@ describe "PlotCanvas", ->
 
   afterEach ->
     stubs.unstub_canvas()
-    stubs.unstub_solver()
 
   beforeEach ->
     stubs.stub_canvas()
-    stubs.stub_solver()
     @doc = new Document()
     @plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
@@ -100,11 +98,9 @@ describe "PlotCanvasView pause", ->
 
   afterEach ->
     stubs.unstub_canvas()
-    stubs.unstub_solver()
 
   beforeEach ->
     stubs.stub_canvas()
-    stubs.stub_solver()
     @doc = new Document()
     @plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
@@ -143,11 +139,9 @@ describe "PlotCanvas constraints", ->
 
   afterEach ->
     stubs.unstub_canvas()
-    stubs.unstub_solver()
 
   beforeEach ->
     stubs.stub_canvas()
-    stubs.stub_solver()
     doc = new Document()
     plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
@@ -181,11 +175,9 @@ describe "PlotCanvasView render", ->
 
   afterEach ->
     stubs.unstub_canvas()
-    stubs.unstub_solver()
 
   beforeEach ->
     stubs.stub_canvas()
-    stubs.stub_solver()
 
     doc = new Document()
     plot = new Plot({
@@ -216,12 +208,9 @@ describe "PlotCanvasView resize", ->
 
   afterEach ->
     stubs.unstub_canvas()
-    stubs.unstub_solver()
 
   beforeEach ->
     stubs.stub_canvas()
-    solver_stubs = stubs.stub_solver()
-    @solver_suggest = solver_stubs['suggest']
 
     doc = new Document()
     plot = new Plot({
@@ -283,13 +272,9 @@ describe "PlotCanvasView update_constraints", ->
 
   afterEach ->
     stubs.unstub_canvas()
-    stubs.unstub_solver()
 
   beforeEach ->
     stubs.stub_canvas()
-    solver_stubs = stubs.stub_solver()
-    @solver_suggest_stub = solver_stubs['suggest']
-    @solver_update_stub = solver_stubs['update']
 
     doc = new Document()
     plot = new Plot({
@@ -314,12 +299,14 @@ describe "PlotCanvasView update_constraints", ->
   #  test_plot_view.update_constraints()
   #  expect(spy.calledOnce).to.be.true
 
+  ###
   it "should call solver suggest twice for frame sizing", sinon.test () ->
     test_plot_canvas_view = new @plot_canvas.default_view({model: @plot_canvas, parent: @plot_view})
 
     initial_count = @solver_suggest_stub.callCount
     test_plot_canvas_view.update_constraints()
     expect(@solver_suggest_stub.callCount).to.be.equal initial_count + 2
+  ###
 
   """
   it "should call solver update_variables with false for trigger", sinon.test () ->
@@ -336,12 +323,9 @@ describe "PlotCanvasView get_canvas_element", ->
 
   afterEach ->
     stubs.unstub_canvas()
-    stubs.unstub_solver()
 
   beforeEach ->
     stubs.stub_canvas()
-    solver_stubs = stubs.stub_solver()
-    @solver_suggest_stub = solver_stubs['suggest']  # This isn't necessary but an attempt to make tests more robust
 
     doc = new Document()
     plot = new Plot({
@@ -366,11 +350,9 @@ describe "PlotCanvasView dimensions", ->
 
   afterEach ->
     stubs.unstub_canvas()
-    stubs.unstub_solver()
 
   beforeEach ->
     stubs.stub_canvas()
-    stubs.stub_solver()
 
     @doc = new Document()
     plot = new Plot({

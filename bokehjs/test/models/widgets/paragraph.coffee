@@ -7,12 +7,6 @@ stubs = require "../../stubs"
 
 describe "Paragraph.View render", ->
 
-  afterEach ->
-    stubs.unstub_solver()
-
-  beforeEach ->
-    stubs.stub_solver()
-
   it "should set the margin to 0", ->
     p = new Paragraph()
     p.attach_document(new Document())

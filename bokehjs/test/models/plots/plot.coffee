@@ -24,12 +24,9 @@ describe "Plot", ->
 
     afterEach ->
       stubs.unstub_canvas()
-      stubs.unstub_solver()
 
     beforeEach ->
       stubs.stub_canvas()
-      solver_stubs = stubs.stub_solver()
-      @solver_suggest = solver_stubs['suggest']
       doc = new Document()
       doc.add_root(@p)
 
@@ -49,6 +46,7 @@ describe "Plot", ->
       expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px;"
       expect(plot_view.el.style.cssText).to.be.equal expected_style
 
+    ###
     it "should call suggest value with the model height and width if sizing_mode is scale_both", sinon.test () ->
       @p.sizing_mode = 'scale_both'
       plot_view = new @p.default_view({ model: @p, parent: null })
@@ -58,6 +56,7 @@ describe "Plot", ->
       expect(@solver_suggest.callCount).is.equal 2
       expect(@solver_suggest.args[0]).to.be.deep.equal [@p._width, 34]
       expect(@solver_suggest.args[1]).to.be.deep.equal [@p._height, 77]
+    ###
 
     it "get_height should return the height from the aspect ratio", sinon.test () ->
       @p.width = 22
@@ -128,11 +127,9 @@ describe "Plot", ->
 
     afterEach ->
       stubs.unstub_canvas()
-      stubs.unstub_solver()
 
     beforeEach ->
       stubs.stub_canvas()
-      stubs.stub_solver()
 
     it "should have a PlotCanvas set on initialization with plot on it", sinon.test () ->
       expect(@p.plot_canvas).to.exist

@@ -20,11 +20,9 @@ describe "datarange1d module", ->
 
   afterEach ->
     stubs.unstub_canvas()
-    stubs.unstub_solver()
 
   beforeEach ->
     stubs.stub_canvas()
-    stubs.stub_solver()
 
   describe "default creation", ->
     r = new DataRange1d()

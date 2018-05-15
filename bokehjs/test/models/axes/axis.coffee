@@ -111,11 +111,9 @@ describe "AxisView", ->
 
   afterEach ->
     stubs.unstub_canvas()
-    stubs.unstub_solver()
 
   beforeEach ->
     stubs.stub_canvas()
-    solver_stubs = stubs.stub_solver()
 
     doc = new Document()
     ticker = new BasicTicker()
