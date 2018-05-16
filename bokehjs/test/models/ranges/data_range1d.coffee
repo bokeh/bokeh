@@ -1,5 +1,4 @@
 {expect} = require "chai"
-stubs = require "../../stubs"
 sinon = require "sinon"
 
 {HasProps} = require "core/has_props"
@@ -17,14 +16,6 @@ class TestObject extends HasProps
   }
 
 describe "datarange1d module", ->
-
-  afterEach ->
-    stubs.unstub_canvas()
-    stubs.unstub_solver()
-
-  beforeEach ->
-    stubs.stub_canvas()
-    stubs.stub_solver()
 
   describe "default creation", ->
     r = new DataRange1d()

@@ -1,5 +1,4 @@
 {expect} = require "chai"
-stubs = require "../../stubs"
 
 {CustomJS} = require("models/callbacks/customjs")
 {Range1d} = require("models/ranges/range1d")
@@ -7,14 +6,6 @@ stubs = require "../../stubs"
 js_version = require("version").version
 
 describe "customjs module", ->
-
-  afterEach ->
-    stubs.unstub_canvas()
-    stubs.unstub_solver()
-
-  beforeEach ->
-    stubs.stub_canvas()
-    stubs.stub_solver()
 
   describe "default creation", ->
     r = new CustomJS({use_strict: true})

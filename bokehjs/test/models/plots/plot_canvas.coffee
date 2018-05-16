@@ -1,5 +1,4 @@
 {expect} = require "chai"
-stubs = require "../../stubs"
 sinon = require 'sinon'
 
 {Solver, Variable} = require("core/layout/solver")
@@ -16,26 +15,12 @@ sinon = require 'sinon'
 {LayoutCanvas} = require("core/layout/layout_canvas")
 {LinearAxis} = require("models/axes/linear_axis")
 {Plot} = require("models/plots/plot")
-{PlotCanvas} = require("models/plots/plot_canvas")
-{PlotCanvasView} = require("models/plots/plot_canvas")
 {Range1d} = require("models/ranges/range1d")
 {Toolbar} = require("models/tools/toolbar")
 
-# Note: Throughout these tests we've chosen to make a new PlotCanvas, when one
-# has already been made on plot. So we could just as easily have said
-# plot_canvas = plot.plot_canvas.  My thinking is that this better isolates the
-# tests to just be working with a new PlotCanvas instead of having the greater
-# surface area of what happened during Plot initialization.
-
 describe "PlotCanvas", ->
 
-  afterEach ->
-    stubs.unstub_canvas()
-    stubs.unstub_solver()
-
   beforeEach ->
-    stubs.stub_canvas()
-    stubs.stub_solver()
     @doc = new Document()
     @plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
@@ -45,8 +30,7 @@ describe "PlotCanvas", ->
     })
     @plot_view = new @plot.default_view({model: @plot, parent: null})
     @doc.add_root(@plot)
-    @plot_canvas = new PlotCanvas({plot: @plot})
-    @plot_canvas.attach_document(@doc)
+    @plot_canvas = @plot.plot_canvas
 
   it "should set the sizing_mode to box by default", sinon.test () ->
     expect(@plot_canvas.sizing_mode).to.be.equal 'stretch_both'
@@ -98,13 +82,7 @@ describe "PlotCanvas", ->
 
 describe "PlotCanvasView pause", ->
 
-  afterEach ->
-    stubs.unstub_canvas()
-    stubs.unstub_solver()
-
   beforeEach ->
-    stubs.stub_canvas()
-    stubs.stub_solver()
     @doc = new Document()
     @plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
@@ -114,9 +92,9 @@ describe "PlotCanvasView pause", ->
     })
     @plot_view = new @plot.default_view({model: @plot, parent: null})
     @doc.add_root(@plot)
-    @plot_canvas = new PlotCanvas({plot: @plot})
+    @plot_canvas = @plot.plot_canvas
     @plot_canvas.attach_document(@doc)
-    @plot_canvas_view = new @plot_canvas.default_view({model: @plot_canvas, parent: @plot_view})
+    @plot_canvas_view = @plot_view.plot_canvas_view
 
   it "should start unpaused", ->
     expect(@plot_canvas_view.is_paused).to.be.false
@@ -141,13 +119,7 @@ describe "PlotCanvasView pause", ->
 
 describe "PlotCanvas constraints", ->
 
-  afterEach ->
-    stubs.unstub_canvas()
-    stubs.unstub_solver()
-
   beforeEach ->
-    stubs.stub_canvas()
-    stubs.stub_solver()
     doc = new Document()
     plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
@@ -156,8 +128,7 @@ describe "PlotCanvas constraints", ->
       title: null
     })
     doc.add_root(plot)
-    @plot_canvas = new PlotCanvas({ 'plot': plot })
-    @plot_canvas.attach_document(doc)
+    @plot_canvas = plot.plot_canvas
 
   it "should call _get_side_constraints, _get_constant_constraints", sinon.test () ->
     @plot_canvas._get_side_constraints = this.spy()
@@ -179,25 +150,17 @@ describe "PlotCanvas constraints", ->
 
 describe "PlotCanvasView render", ->
 
-  afterEach ->
-    stubs.unstub_canvas()
-    stubs.unstub_solver()
-
   beforeEach ->
-    stubs.stub_canvas()
-    stubs.stub_solver()
-
     doc = new Document()
     plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
       y_range: new Range1d({start: 0, end: 1})
       toolbar: new Toolbar()
     })
-    @plot_view = new plot.default_view({model: plot, parent: null})
     doc.add_root(plot)
-    plot_canvas = new PlotCanvas({ 'plot': plot })
-    plot_canvas.attach_document(doc)
-    @plot_canvas_view = new plot_canvas.default_view({model: plot_canvas, parent: @plot_view})
+    plot_view = new plot.default_view({model: plot, parent: null})
+    plot_view.layout()
+    @plot_canvas_view = plot_view.plot_canvas_view
 
   it "should call own update_constraints method", sinon.test () ->
     spy = this.spy(@plot_canvas_view, 'update_constraints')
@@ -214,24 +177,17 @@ describe "PlotCanvasView resize", ->
   wt = 22
   wb = 33
 
-  afterEach ->
-    stubs.unstub_canvas()
-    stubs.unstub_solver()
-
   beforeEach ->
-    stubs.stub_canvas()
-    solver_stubs = stubs.stub_solver()
-    @solver_suggest = solver_stubs['suggest']
-
     doc = new Document()
     plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
       y_range: new Range1d({start: 0, end: 1})
       toolbar: new Toolbar()
     })
-    @plot_view = new plot.default_view({model: plot, parent: null})
     doc.add_root(plot)
-    @plot_canvas = new PlotCanvas({ 'plot': plot })
+    @plot_view = new plot.default_view({model: plot, parent: null})
+    @plot_view.layout()
+    @plot_canvas = plot.plot_canvas
     @plot_canvas.attach_document(doc)
     @plot_canvas._dom_left.setValue(dom_left)
     @plot_canvas._dom_top.setValue(dom_top)
@@ -241,7 +197,7 @@ describe "PlotCanvasView resize", ->
     @plot_canvas._whitespace_right.setValue(wr)
     @plot_canvas._whitespace_top.setValue(wt)
     @plot_canvas._whitespace_bottom.setValue(wb)
-    @plot_canvas_view = new @plot_canvas.default_view({model: @plot_canvas, parent: @plot_view})
+    @plot_canvas_view = @plot_view.plot_canvas_view
 
   """
   it "should set the appropriate positions and paddings on the element", sinon.test () ->
@@ -281,26 +237,17 @@ describe "PlotCanvasView resize", ->
 
 describe "PlotCanvasView update_constraints", ->
 
-  afterEach ->
-    stubs.unstub_canvas()
-    stubs.unstub_solver()
-
   beforeEach ->
-    stubs.stub_canvas()
-    solver_stubs = stubs.stub_solver()
-    @solver_suggest_stub = solver_stubs['suggest']
-    @solver_update_stub = solver_stubs['update']
-
     doc = new Document()
     plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
       y_range: new Range1d({start: 0, end: 1})
       toolbar: new Toolbar()
     })
-    @plot_view = new plot.default_view({model: plot, parent: null})
     doc.add_root(plot)
-    @plot_canvas = new PlotCanvas({plot: plot})
-    @plot_canvas.attach_document(doc)
+    @plot_view = new plot.default_view({model: plot, parent: null})
+    @plot_view.layout()
+    @plot_canvas = plot.plot_canvas
 
   #it "should call SidePanel update_constraints with axis view as argument", ->
   #  ticker = new BasicTicker()
@@ -314,12 +261,14 @@ describe "PlotCanvasView update_constraints", ->
   #  test_plot_view.update_constraints()
   #  expect(spy.calledOnce).to.be.true
 
+  ###
   it "should call solver suggest twice for frame sizing", sinon.test () ->
     test_plot_canvas_view = new @plot_canvas.default_view({model: @plot_canvas, parent: @plot_view})
 
     initial_count = @solver_suggest_stub.callCount
     test_plot_canvas_view.update_constraints()
     expect(@solver_suggest_stub.callCount).to.be.equal initial_count + 2
+  ###
 
   """
   it "should call solver update_variables with false for trigger", sinon.test () ->
@@ -334,56 +283,20 @@ describe "PlotCanvasView update_constraints", ->
 
 describe "PlotCanvasView get_canvas_element", ->
 
-  afterEach ->
-    stubs.unstub_canvas()
-    stubs.unstub_solver()
-
   beforeEach ->
-    stubs.stub_canvas()
-    solver_stubs = stubs.stub_solver()
-    @solver_suggest_stub = solver_stubs['suggest']  # This isn't necessary but an attempt to make tests more robust
-
     doc = new Document()
     plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})
       y_range: new Range1d({start: 0, end: 1})
       toolbar: new Toolbar()
     })
-    @plot_view = new plot.default_view({model: plot, parent: null})
     doc.add_root(plot)
-    plot_canvas = new PlotCanvas({ 'plot': plot })
-    plot_canvas.attach_document(doc)
-    @plot_canvas_view = new plot_canvas.default_view({model: plot_canvas, parent: @plot_view})
+    @plot_view = new plot.default_view({model: plot, parent: null})
+    @plot_view.layout()
+    @plot_canvas_view = @plot_view.plot_canvas_view
 
   it "should exist because get_canvas_element depends on it", sinon.test () ->
     expect(@plot_canvas_view.canvas_view.ctx).to.exist
 
   it "should exist to grab the canvas DOM element using canvas_view.ctx", sinon.test () ->
     expect(@plot_canvas_view.canvas_view.get_canvas_element).to.exist
-
-
-describe "PlotCanvasView dimensions", ->
-
-  afterEach ->
-    stubs.unstub_canvas()
-    stubs.unstub_solver()
-
-  beforeEach ->
-    stubs.stub_canvas()
-    stubs.stub_solver()
-
-    @doc = new Document()
-    plot = new Plot({
-      x_range: new Range1d({start: 0, end: 1})
-      y_range: new Range1d({start: 0, end: 1})
-      toolbar: new Toolbar()
-      plot_width: 444
-      plot_height: 555
-    })
-    @plot_view = new plot.default_view({model: plot, parent: null})
-    @doc.add_root(plot)
-    @plot_canvas = new PlotCanvas({
-      plot: plot
-    })
-    @plot_canvas.attach_document(@doc)
-    @plot_canvas_view = new @plot_canvas.default_view({model: @plot_canvas, parent: @plot_view})

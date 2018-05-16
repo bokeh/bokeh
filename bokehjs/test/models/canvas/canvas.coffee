@@ -1,5 +1,4 @@
 {expect} = require "chai"
-stubs = require "../../stubs"
 sinon = require 'sinon'
 
 {Canvas, CanvasView} = require("models/canvas/canvas")
@@ -23,16 +22,7 @@ describe "Canvas", ->
 
 describe "CanvasView", ->
 
-  afterEach ->
-    stubs.unstub_canvas()
-    stubs.unstub_solver()
-
   beforeEach ->
-    stubs.stub_canvas()
-    solver_stubs = stubs.stub_solver()
-    @solver_add_stub = solver_stubs['add']
-    @solver_remove_stub = solver_stubs['remove']
-
     doc = new Document()
     plot = new Plot({
       x_range: new Range1d({start: 0, end: 1})

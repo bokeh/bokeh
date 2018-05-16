@@ -1,17 +1,10 @@
 {expect} = require "chai"
-stubs = require "../../stubs"
 
 {Paragraph} = require("models/widgets/paragraph")
 {ParagraphView} = require("models/widgets/paragraph")
 {Document} = require("document")
 
 describe "Paragraph.View render", ->
-
-  afterEach ->
-    stubs.unstub_solver()
-
-  beforeEach ->
-    stubs.stub_solver()
 
   it "should set the margin to 0", ->
     p = new Paragraph()

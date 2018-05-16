@@ -1,5 +1,8 @@
 import {OutputBackend} from "../enums"
 
+import SVGRenderingContext2D = require("canvas2svg")
+export {SVGRenderingContext2D}
+
 export type Context2d = {
   setLineDashOffset(offset: number): void
   getLineDashOffset(): number

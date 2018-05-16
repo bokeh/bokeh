@@ -11,8 +11,6 @@ import {GlyphRenderer} from "models/renderers/glyph_renderer"
 import {ColumnDataSource} from "models/sources/column_data_source"
 import {PointDrawTool, PointDrawToolView} from "models/tools/edit/point_draw_tool"
 
-const stubs = require("../../../stubs")
-
 import {make_gesture_event, make_tap_event, make_move_event, make_key_event} from "./utils"
 
 export interface PointDrawTestCase {
@@ -75,14 +73,6 @@ const make_testcase = function(): PointDrawTestCase {
 describe("PointDrawTool", (): void => {
 
   describe("View", function(): void {
-
-    afterEach(function(): void {
-      stubs.unstub_canvas();
-    });
-
-    beforeEach(function(): void {
-      stubs.stub_canvas();
-    });
 
     it("should select point on tap", function(): void {
       const testcase = make_testcase();

@@ -1,6 +1,5 @@
 import {expect} from "chai"
 import * as sinon from "sinon"
-import * as stubs from "../stubs"
 
 import {Rect} from "models/glyphs/rect"
 import {CDSView} from "models/sources/cds_view"
@@ -11,12 +10,7 @@ import {create_glyph_renderer_view} from "../models/glyphs/glyph_utils"
 
 describe("SelectionManager", () => {
 
-  afterEach(() => {
-    stubs.unstub_canvas()
-  })
-
   beforeEach(function() {
-    stubs.stub_canvas()
     this.glyph = new Rect()
     this.renderer_view = create_glyph_renderer_view(this.glyph, {x: [1, 2, 3]})
     this.glyph_stub = sinon.stub(this.renderer_view.glyph, "hit_test")

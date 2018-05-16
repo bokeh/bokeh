@@ -1,5 +1,4 @@
 {expect, assert} = require "chai"
-stubs = require "../stubs"
 sinon = require 'sinon'
 
 dom = require("core/dom")
@@ -24,11 +23,9 @@ dom = require("core/dom")
 describe "ui_events module", ->
 
   afterEach ->
-    stubs.unstub_canvas()
     UIEvents.prototype._configure_hammerjs.restore()
 
   beforeEach ->
-    stubs.stub_canvas()
     sinon.stub(UIEvents.prototype, "_configure_hammerjs")
 
     doc = new Document()

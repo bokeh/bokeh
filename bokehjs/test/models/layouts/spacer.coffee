@@ -1,18 +1,12 @@
 {expect} = require "chai"
-stubs = require "../../stubs"
 
 {clone} = require("core/util/object")
 {Document} = require("document")
 {Spacer} = require("models/layouts/spacer")
 
 describe "WidgetBoxView", ->
-  afterEach ->
-    stubs.unstub_canvas()
-    stubs.unstub_solver()
 
   beforeEach ->
-    stubs.stub_canvas()
-    stubs.stub_solver()
     @spacer = new Spacer()
     @spacer.attach_document(new Document())
 

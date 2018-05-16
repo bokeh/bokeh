@@ -1,5 +1,4 @@
 {expect} = require "chai"
-stubs = require "../../../stubs"
 
 {Document} = require("document")
 {BoxZoomTool} = require("models/tools/gestures/box_zoom_tool")
@@ -23,12 +22,7 @@ describe "BoxZoomTool", ->
 
   describe "View", ->
 
-    afterEach ->
-      stubs.unstub_canvas()
-
     beforeEach ->
-      stubs.stub_canvas()
-
       # Note default plot dimensions is 600 x 600 (height x width)
       @plot = new Plot({
          x_range: new Range1d({start: -1, end: 1})

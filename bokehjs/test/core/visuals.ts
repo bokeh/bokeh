@@ -1,5 +1,4 @@
 import {expect} from "chai"
-import * as stubs from "../stubs"
 import {create_glyph_renderer_view} from "../models/glyphs/glyph_utils"
 
 import {Visuals, Fill} from "core/visuals"
@@ -40,16 +39,6 @@ describe("Visuals", () => {
   })
 
   describe("interacting with GlyphViews", () => {
-
-    afterEach(() => {
-      stubs.unstub_canvas()
-      stubs.unstub_solver()
-    })
-
-    beforeEach(() => {
-      stubs.stub_canvas()
-      stubs.stub_solver()
-    })
 
     it("set_all_indices should be called by the glyph view", () => {
       const attrs = {fill_alpha: {field: "fill_alpha"}}

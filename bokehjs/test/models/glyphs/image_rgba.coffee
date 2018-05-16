@@ -1,5 +1,4 @@
 {expect} = require "chai"
-stubs = require "../../stubs"
 sinon = require "sinon"
 
 {create_glyph_view} = require("./glyph_utils")
@@ -10,13 +9,9 @@ describe "ImageRGBA module", ->
   describe "ImageRGBAView", ->
 
     afterEach ->
-      stubs.unstub_canvas()
-      stubs.unstub_solver()
       @stub.restore()
 
     beforeEach ->
-      stubs.stub_canvas()
-      stubs.stub_solver()
       @stub = sinon.stub(ImageRGBAView.prototype, '_set_data')
 
       @image_rgba = new ImageRGBA()
