@@ -121,8 +121,8 @@ describe "Rect", ->
       glyph_view = create_glyph_view(@glyph, data)
 
       glyph_view.map_data()
-      expect(glyph_view.sx0).to.be.deep.equal({'0': 0})
-      expect(glyph_view.sy1).to.be.deep.equal({'0': 0})
+      expect(glyph_view.sx0).to.be.deep.equal(Float64Array.of([0]))
+      expect(glyph_view.sy1).to.be.deep.equal(Float64Array.of([0]))
 
     it "`_map_data` should map values for x0 and y1 when width/height units are 'screen'", ->
       data = {x: [1], y: [2]}
@@ -141,7 +141,7 @@ describe "Rect", ->
 
       set_scales(glyph_view, "linear", true)
       glyph_view.map_data()
-      expect(glyph_view.sx0).to.be.deep.equal({'0': 188})
+      expect(glyph_view.sx0).to.be.deep.equal(Float64Array.of([188]))
       # XXX? expect(glyph_view.sy1).to.be.deep.equal({'0': -216})
 
     ### XXX
