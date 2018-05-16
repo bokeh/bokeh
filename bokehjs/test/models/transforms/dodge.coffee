@@ -1,5 +1,4 @@
 {expect} = require "chai"
-sinon = require "sinon"
 
 {FactorRange} = require("models/ranges/factor_range")
 {Dodge} = require("models/transforms/dodge")

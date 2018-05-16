@@ -1,5 +1,4 @@
 {expect} = require "chai"
-sinon = require "sinon"
 
 {Strength, Variable}  = require("core/layout/solver")
 

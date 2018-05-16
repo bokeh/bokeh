@@ -1,5 +1,4 @@
 {expect} = require "chai"
-sinon = require 'sinon'
 
 {Axis} = require("models/axes/axis")
 {BasicTicker} = require("models/tickers/basic_ticker")
