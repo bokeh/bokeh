@@ -8,7 +8,7 @@ import {Ref, is_ref} from "./core/util/refs"
 import {decode_column_data} from "./core/util/serialization"
 import {MultiDict, Set} from "./core/util/data_structures"
 import {difference, intersection, copy, includes} from "./core/util/array"
-import {extend, values} from "./core/util/object"
+import {values} from "./core/util/object"
 import {isEqual} from "./core/util/eq"
 import {isArray, isObject} from "./core/util/types"
 import {LayoutDOM} from "./models/layouts/layout_dom"
@@ -450,7 +450,7 @@ export class Document {
   }
 
   static _instantiate_object(obj_id: string, obj_type: string, obj_attrs: {[key: string]: any}): HasProps {
-    const full_attrs = extend({}, obj_attrs, {id: obj_id, __deferred__: true})
+    const full_attrs = {...obj_attrs, id: obj_id, __deferred__: true}
     const model: Class<HasProps> = Models(obj_type)
     return new model(full_attrs)
   }

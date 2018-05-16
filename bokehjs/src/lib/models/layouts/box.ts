@@ -1,7 +1,6 @@
 import {EQ, GE, WEAK_EQ, Constraint, Variable} from "core/layout/solver"
 import * as p from "core/properties"
 import {max, sum, includes} from "core/util/array"
-import {extend} from "core/util/object"
 
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 
@@ -138,7 +137,9 @@ export class Box extends LayoutDOM {
   }
 
   get_constrained_variables(): {[key: string]: Variable} {
-    return extend({}, super.get_constrained_variables(), {
+    return {
+      ...super.get_constrained_variables(),
+
       box_equal_size_top   : this._box_equal_size_top,
       box_equal_size_bottom: this._box_equal_size_bottom,
       box_equal_size_left  : this._box_equal_size_left,
@@ -148,7 +149,7 @@ export class Box extends LayoutDOM {
       box_cell_align_bottom: this._box_cell_align_bottom,
       box_cell_align_left  : this._box_cell_align_left,
       box_cell_align_right : this._box_cell_align_right,
-    })
+    }
   }
 
   get_constraints(): Constraint[] {

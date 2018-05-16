@@ -1,6 +1,5 @@
 import * as p from "core/properties"
 import {empty, div} from "core/dom"
-import {extend} from "core/util/object"
 
 import {Widget, WidgetView} from "./widget"
 
@@ -22,10 +21,11 @@ export class MarkupView extends WidgetView {
   render(): void {
     super.render()
     empty(this.el)
-    const style = extend({
+    const style = {
       width: `${this.model.width}px`,
       height: `${this.model.height}px`,
-    }, this.model.style)
+      ...this.model.style,
+    }
     this.markupEl = div({style: style})
     this.el.appendChild(this.markupEl)
   }

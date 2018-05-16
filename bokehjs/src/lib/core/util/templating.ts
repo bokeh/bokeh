@@ -2,6 +2,7 @@ import {sprintf} from "sprintf-js"
 import * as Numbro from "numbro"
 import tz = require("timezone")
 
+import {Anything} from "../types"
 import {escape} from "./string"
 import {isNumber, isString, isArray, isTypedArray} from "./types"
 
@@ -14,7 +15,7 @@ export type FormatterSpec = CustomJSHover | FormatterType
 export type Formatters = {[key: string]: FormatterSpec}
 export type FormatterFunc = (value:any, format:string, special_vars: Vars) => string
 export type Index = number | ImageIndex
-export type Vars = {[key: string]: any}
+export type Vars = {[key: string]: Anything}
 
 export const DEFAULT_FORMATTERS = {
   "numeral"  : function(value:any, format:string, _special_vars: Vars) { return Numbro.format(value, format) },

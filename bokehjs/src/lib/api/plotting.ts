@@ -12,7 +12,7 @@ import {StringSpec} from "../core/vectorization"
 import {startsWith} from "../core/util/string"
 import {isEqual} from "../core/util/eq"
 import {any, all, includes} from "../core/util/array"
-import {extend, clone} from "../core/util/object"
+import {clone} from "../core/util/object"
 import {isNumber, isString, isArray} from "../core/util/types"
 
 import {Glyph, GlyphRenderer, Axis, Grid, Range, Scale, Tool, Plot, ColumnarDataSource} from "./models"
@@ -332,7 +332,7 @@ export class Figure extends Plot {
     source.data = data
 
     const _make_glyph = (cls: Class<Glyph>, attrs: any, extra_attrs: any) => {
-      return new cls(extend({}, attrs, extra_attrs))
+      return new cls({...attrs, ...extra_attrs})
     }
 
     const glyph   = _make_glyph(cls, attrs,   glyph_ca)

@@ -5,7 +5,6 @@ import {TapEvent, KeyEvent} from "core/ui_events"
 import {Keys} from "core/dom"
 import * as p from "core/properties"
 import {copy} from "core/util/array"
-import {extend} from "core/util/object"
 
 export class PolySelectToolView extends SelectToolView {
   model: PolySelectTool
@@ -77,7 +76,7 @@ export class PolySelectToolView extends SelectToolView {
     const x = xscale.v_invert(geometry.sx)
     const y = yscale.v_invert(geometry.sy)
 
-    const g = extend({x, y}, geometry)
+    const g = {x, y, ...geometry}
     this.model.callback.execute(this.model, {geometry: g})
   }
 }

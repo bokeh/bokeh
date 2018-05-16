@@ -2,7 +2,6 @@ import {HasProps} from "./has_props"
 import {View} from "./view"
 import {Class} from "./class"
 import {difference} from "./util/array"
-import {extend} from "./util/object"
 
 export type ViewStorage = {[key: string]: View}
 
@@ -21,7 +20,7 @@ export function build_views<T extends HasProps>(view_storage: ViewStorage, model
 
   for (const model of new_models) {
     const view_cls = cls(model)
-    const view_options = extend({}, options, {model: model, connect_signals: false})
+    const view_options = {...options, model, connect_signals: false}
     const view = new view_cls(view_options)
     view_storage[model.id] = view
     created_views.push(view)

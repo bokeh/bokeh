@@ -31,15 +31,8 @@ describe("object module", () => {
 
     it("called with two parameters should add the key/value pairs from second source object to the first dest object", () => {
       const obj1 = {'key1': [], 'key2': [0]}
-      const obj3 = {'key3': 5}
-      expect(object.extend(obj1, obj3)).to.deep.equal({'key1': [], 'key2': [0], 'key3': 5})
-    })
-
-    it("called with 3+ parameters should add key/value pairs from second and later objects to the first dest object", () => {
-      const obj1 = {'key1': [], 'key2': [0]}
-      const obj2 = {'key2': [1, 2, 3]}
-      const obj3 = {'key3': 5}
-      expect(object.extend(obj1, obj2, obj3)).to.deep.equal({'key1': [], 'key2': [1, 2, 3], 'key3': 5})
+      const obj2 = {'key3': 5}
+      expect(object.extend(obj1, obj2)).to.deep.equal({'key1': [], 'key2': [0], 'key3': 5})
     })
   })
 })

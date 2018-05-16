@@ -4,7 +4,6 @@ import * as p from "core/properties"
 import {Dimensions} from "core/enums"
 import {GestureEvent} from "core/ui_events"
 import {RectGeometry} from "core/geometry"
-import {extend} from "core/util/object"
 
 export class BoxSelectToolView extends SelectToolView {
   model: BoxSelectTool
@@ -80,7 +79,7 @@ export class BoxSelectToolView extends SelectToolView {
     const [x0, x1] = xscale.r_invert(sx0, sx1)
     const [y0, y1] = yscale.r_invert(sy0, sy1)
 
-    const g = extend({x0, y0, x1, y1}, geometry)
+    const g = {x0, y0, x1, y1, ...geometry}
     this.model.callback.execute(this.model, {geometry: g})
   }
 }

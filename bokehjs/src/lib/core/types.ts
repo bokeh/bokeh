@@ -1,3 +1,5 @@
+export type Anything = any
+
 export type Color = string
 
 export type TypedArray =
@@ -6,7 +8,7 @@ export type TypedArray =
   Uint32Array  | Int32Array   |
   Float32Array | Float64Array
 
-export interface Arrayable<T = any> {
+export interface Arrayable<T = Anything> {
   readonly length: number
   [n: number]: T
 }
