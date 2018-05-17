@@ -21,7 +21,7 @@ const minify = uglify(uglify_es, console)
 
 import {Linker, Bundle} from "../linker"
 
-gulp.task("scripts:ts", () => {
+gulp.task("scripts:ts", gulp.series(() => {
   let n_errors = 0
 
   function error(err: {message: string}) {
@@ -51,7 +51,7 @@ gulp.task("scripts:ts", () => {
   })
 
   return result
-})
+}))
 
 gulp.task("~scripts:ts", gulp.series("scripts:ts", () => {
   gulp.watch(join(paths.src_dir.lib, "**", "*.ts"), gulp.series("scripts:ts"))
