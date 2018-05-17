@@ -85,10 +85,10 @@ export class TileRendererView extends RendererView {
   }
 
   protected _add_attribution(): void {
-    const { attribution } = this.model.tile_source
+    const {attribution} = this.model.tile_source
 
-    if (isString(attribution) && (attribution.length > 0)) {
-      if ((this.attributionEl == null)) {
+    if (isString(attribution) && attribution.length > 0) {
+      if (this.attributionEl == null) {
         const right = this.plot_model.canvas._right.value - this.plot_model.frame._right.value
         const bottom = this.plot_model.canvas._bottom.value - this.plot_model.frame._bottom.value
         const max_width = this.map_frame._width.value
@@ -98,12 +98,15 @@ export class TileRendererView extends RendererView {
             position: "absolute",
             bottom: `${bottom}px`,
             right: `${right}px`,
-            'max-width': `${max_width}px`,
+            'max-width': `${max_width - 4 /*padding*/}px`,
             padding: "2px",
             'background-color': 'rgba(255,255,255,0.5)',
             'font-size': '7pt',
             'font-family': 'sans-serif',
             'line-height': '1.05',
+            'white-space': 'nowrap',
+            overflow: 'hidden',
+            'text-overflow': 'ellipsis',
           },
         })
 
@@ -112,6 +115,7 @@ export class TileRendererView extends RendererView {
       }
 
       this.attributionEl.innerHTML = attribution
+      this.attributionEl.title = this.attributionEl.textContent!.replace(/\s*\n\s*/g, " ")
     }
   }
 
