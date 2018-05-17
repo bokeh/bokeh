@@ -3,7 +3,6 @@ import {join} from "path"
 import * as gulp from "gulp"
 import * as gutil from "gulp-util"
 import * as ts from 'gulp-typescript'
-import * as run from 'run-sequence'
 import {argv} from "yargs"
 
 const BASE_DIR = "./examples"
@@ -31,6 +30,4 @@ for(const name of fs.readdirSync("./examples")) {
 
 const deps = argv.build === false ? [] : ["scripts:build", "styles:build"]
 
-gulp.task("examples", gulp.series(...deps, (cb: (arg?: any) => void) => {
-  run(examples.map((example) => `examples:${example}`), cb)
-}))
+gulp.task("examples", gulp.series(...deps, ...examples.map((example) => `examples:${example}`)))
