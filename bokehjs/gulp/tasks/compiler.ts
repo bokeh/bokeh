@@ -15,7 +15,7 @@ gulp.task("compiler:ts", () => {
     .pipe(gulp.dest(paths.build_dir.compiler))
 })
 
-gulp.task("compiler:build", ["compiler:ts"], () => {
+gulp.task("compiler:build", gulp.series("compiler:ts", () => {
   const compilerOpts = {
     entries: [join(paths.build_dir.compiler, "compile.js")],
     browserField: false,
@@ -27,11 +27,11 @@ gulp.task("compiler:build", ["compiler:ts"], () => {
      global: undefined,
      'Buffer.isBuffer': undefined,
      Buffer: undefined,
-    }
+    },
   }
   const b = browserify(compilerOpts)
   b.exclude("babel-core")
   return b.bundle()
           .pipe(source("compiler.js"))
           .pipe(gulp.dest(paths.build_dir.js))
-})
+}))

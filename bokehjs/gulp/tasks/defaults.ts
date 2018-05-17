@@ -18,7 +18,7 @@ gulp.task("defaults:generate", (cb: (arg?: any) => void) => {
   const env = Object.assign({}, process.env, {PYTHONPATH: pypath})
   const handle = child_process.spawn("python", ['./gulp/tasks/generate_defaults.py', build_dir.test], {
     env: env,
-    cwd: bokehjsdir
+    cwd: bokehjsdir,
   })
   handle.stdout.on("data", (data) => {
     ("" + data)

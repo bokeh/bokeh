@@ -3,8 +3,6 @@ import * as gulp from "gulp"
 
 import * as paths from "../paths"
 
-gulp.task("clean", ["clean:scripts", "clean:styles"])
-
 gulp.task("clean:all", () => {
   return del(paths.build_dir.all)
 })
@@ -16,3 +14,5 @@ gulp.task("clean:scripts", () => {
 gulp.task("clean:styles", () => {
   return del(paths.build_dir.css)
 })
+
+gulp.task("clean", gulp.series("clean:scripts", "clean:styles"))

@@ -76,5 +76,5 @@ export const test = {
   watchSources: [
     join(base_dir, "test/**/**"),
     join(base_dir, "src/lib/**/**"),
-  ]
+  ],
 }

@@ -97,52 +97,48 @@ function mocha(options: {coverage?: boolean} = {}) {
   )
 }
 
-gulp.task("test", ["test:compile", "defaults:generate"], () => {
+gulp.task("test", gulp.series("test:compile", "defaults:generate", () => {
   return gulp.src(["./build/test/unit.js", "./build/test/defaults.js", "./build/test/size.js"]).pipe(mocha())
-})
+}))
 
-gulp.task("test:unit", ["test:compile"], () => {
+gulp.task("test:unit", gulp.series("test:compile", () => {
   return gulp.src(["./build/test/unit.js"]).pipe(mocha())
-})
+}))
 
-gulp.task("test:unit:coverage", ["test:compile"], () => {
+gulp.task("test:unit:coverage", gulp.series("test:compile", () => {
   return gulp.src(["./build/test/unit.js"]).pipe(mocha({coverage: true}))
-})
+}))
 
-gulp.task("test:client", ["test:compile"], () => {
+gulp.task("test:client", gulp.series("test:compile", () => {
   return gulp.src(["./build/test/client"]).pipe(mocha())
-})
+}))
 
-gulp.task("test:core", ["test:compile"], () => {
+gulp.task("test:core", gulp.series("test:compile", () => {
   return gulp.src(["./build/test/core"]).pipe(mocha())
-})
+}))
 
-gulp.task("test:document", ["test:compile"], () => {
+gulp.task("test:document", gulp.series("test:compile", () => {
   return gulp.src(["./build/test/document.js"]).pipe(mocha())
-})
+}))
 
-gulp.task("test:model", ["test:compile"], () => {
+gulp.task("test:model", gulp.series("test:compile", () => {
   return gulp.src(["./build/test/model.js"]).pipe(mocha())
-})
+}))
 
-gulp.task("test:models", ["test:compile"], () => {
+gulp.task("test:models", gulp.series("test:compile", () => {
   return gulp.src(["./build/test/models"]).pipe(mocha())
-})
+}))
 
-gulp.task("test:protocol", ["test:compile"], () => {
+gulp.task("test:protocol", gulp.series("test:compile", () => {
   return gulp.src(["./build/test/protocol"]).pipe(mocha())
-})
+}))
 
-gulp.task("test:utils", ["test:compile"], () => {
-  return gulp.src(["./build/test/utils.js"]).pipe(mocha())
-})
-
-gulp.task("test:defaults", ["test:compile", "defaults:generate"], () => {
+gulp.task("test:defaults", gulp.series("test:compile", "defaults:generate", () => {
   return gulp.src(["./build/test/defaults.js"]).pipe(mocha())
-})
+}))
 
-gulp.task("test:size", ["test:compile"], () => {
+gulp.task("test:size", gulp.series("test:compile", () => {
   return gulp.src(["./build/test/size.js"]).pipe(mocha())
-})
+}))
 
 buildWatchTask("test", paths.test.watchSources)
