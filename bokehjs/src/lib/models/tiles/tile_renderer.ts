@@ -100,9 +100,10 @@ export class TileRendererView extends RendererView {
             right: `${right}px`,
             'max-width': `${max_width}px`,
             padding: "2px",
-            'background-color': 'rgba(255,255,255,0.8)',
-            'font-size': '9pt',
+            'background-color': 'rgba(255,255,255,0.5)',
+            'font-size': '7pt',
             'font-family': 'sans-serif',
+            'line-height': '1.05',
           },
         })
 
