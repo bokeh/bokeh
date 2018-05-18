@@ -43,18 +43,10 @@ export const lib = {
     main: join(build_dir.tree, "models/glyphs/webgl/main.js"),
     output: join(build_dir.js, "bokeh-gl.js"),
   },
-  watchSources: [
-    join(base_dir, "src/lib/**/**"),
-  ],
 }
 
 export const css = {
   sources: [
-    join(build_dir.css, "bokeh.css"),
-    join(build_dir.css, "bokeh-widgets.css"),
-    join(build_dir.css, "bokeh-tables.css"),
-  ],
-  watchSources: [
     join(build_dir.css, "bokeh.css"),
     join(build_dir.css, "bokeh-widgets.css"),
     join(build_dir.css, "bokeh-tables.css"),
@@ -67,14 +59,4 @@ export const less = {
     join(base_dir, "src/less/bokeh-widgets.less"),
     join(base_dir, "src/less/bokeh-tables.less"),
   ],
-  watchSources: [
-    join(base_dir, "src/less/**/**"),
-  ],
-}
-
-export const test = {
-  watchSources: [
-    join(base_dir, "test/**/**"),
-    join(base_dir, "src/lib/**/**"),
-  ]
 }

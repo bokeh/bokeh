@@ -28,10 +28,6 @@ gulp.task("scripts:ts", (next: () => void) => {
   next()
 })
 
-gulp.task("~scripts:ts", ["scripts:ts"], () => {
-  gulp.watch(join(paths.src_dir.lib, "**", "*.ts"), ["scripts:ts"])
-})
-
 gulp.task("tslint", () => {
   const srcs = [
     join(paths.src_dir.lib),

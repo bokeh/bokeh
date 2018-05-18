@@ -4,5 +4,5 @@ import * as runSequence from "run-sequence"
 
 gulp.task("default", (cb: (arg?: any) => void) => {
   gutil.log("Building BokehJS for developer mode ...")
-  runSequence("build", "install", "watch", cb)
+  runSequence("build", "install", cb)
 })

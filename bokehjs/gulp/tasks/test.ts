@@ -5,7 +5,6 @@ import * as cp from "child_process"
 import {argv} from "yargs"
 
 import {compileTypeScript} from "../compiler"
-import {buildWatchTask} from "../utils"
 import * as paths from "../paths"
 
 import {join} from "path"
@@ -125,5 +124,3 @@ gulp.task("test:defaults", ["test:compile", "defaults:generate"], () => {
 gulp.task("test:size", ["test:compile"], () => {
   return gulp.src(["./build/test/size.js"]).pipe(mocha())
 })
-
-buildWatchTask("test", paths.test.watchSources)
