@@ -7,9 +7,6 @@ import * as sourcemaps from "gulp-sourcemaps"
 import * as fs from "fs"
 import {join} from "path"
 import {argv} from "yargs"
-import * as insert from 'gulp-insert'
-
-const license = `/*!\n${fs.readFileSync('../LICENSE.txt', 'utf-8')}*/\n`
 
 const tslint = require('gulp-tslint')
 
@@ -117,7 +114,6 @@ gulp.task("scripts:minify", ["scripts:bundle"], () => {
     .pipe(sourcemaps.init({loadMaps: true}))
     .pipe(rename((path) => path.basename += '.min'))
     .pipe(minify({ output: { comments: /^!|copyright|license|\(c\)/i } }))
-    .pipe(insert.append(license))
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest(paths.build_dir.js))
 })
