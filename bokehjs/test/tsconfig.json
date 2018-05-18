@@ -16,7 +16,8 @@
     "baseUrl": ".",
     "paths": {
       "*": ["../build/js/tree/*", "../build/js/types/*", "../src/lib/external/*"]
-    }
+    },
+    "outDir": "../build/test"
   },
   "include": ["./**/*.ts"]
 }

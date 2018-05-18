@@ -2,45 +2,26 @@ import * as gulp from "gulp"
 import * as gutil from "gulp-util"
 import * as through from "through2"
 import * as cp from "child_process"
-import chalk from "chalk"
 import {argv} from "yargs"
-const merge = require("merge2")
 
-import * as paths from "../paths"
+import {compileTypeScript} from "../compiler"
 import {buildWatchTask} from "../utils"
+import * as paths from "../paths"
 
 import {join} from "path"
 
-const ts = require("gulp-typescript")
 const coffee = require("gulp-coffee")
 
 gulp.task("test:compile", () => {
-  let n_errors = 0
+  const success = compileTypeScript("./test/tsconfig.json", {log: gutil.log})
 
-  function error(err: {message: string}) {
-    gutil.log(err.message)
-    n_errors++
-  }
+  if (argv.emitError && !success)
+    process.exit(1)
 
-  const project = ts.createProject("./test/tsconfig.json")
-  const compiler = project
-    .src()
-    .pipe(project(ts.reporter.nullReporter()).on("error", error))
-
-  const compiler2 = gulp
+  return gulp
      .src('./test/**/*.coffee')
      .pipe(coffee({coffee: require("coffeescript"), bare: true}))
-
-  const result = merge([compiler.js, compiler2]).pipe(gulp.dest(join("./build", "test")))
-
-  result.on("finish", function() {
-    if (argv.emitError && n_errors > 0) {
-      gutil.log(`There were ${chalk.red("" + n_errors)} TypeScript errors.`)
-      process.exit(1)
-    }
-  })
-
-  return result
+     .pipe(gulp.dest(join("./build", "test")))
 })
 
 function mocha(options: {coverage?: boolean} = {}) {

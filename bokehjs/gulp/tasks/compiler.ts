@@ -1,18 +1,23 @@
 import * as browserify from "browserify"
 import * as gulp from "gulp"
 import * as gutil from "gulp-util"
-const ts = require('gulp-typescript')
 import {join} from "path"
+import {argv} from "yargs"
 const source = require('vinyl-source-stream')
 
+import {compileTypeScript} from "../compiler"
 import * as paths from "../paths"
 
-gulp.task("compiler:ts", () => {
-  const error = (err: {message: string}) => gutil.log(err.message)
-  const tsconfig = require(join(paths.src_dir.compiler, "tsconfig.json"))
-  return gulp.src(join(paths.src_dir.compiler, "compile.ts"))
-    .pipe(ts(tsconfig.compilerOptions, ts.reporter.nullReporter()).on('error', error))
-    .pipe(gulp.dest(paths.build_dir.compiler))
+gulp.task("compiler:ts", (next: () => void) => {
+  const success = compileTypeScript(join(paths.src_dir.compiler, "tsconfig.json"), {
+    log: gutil.log,
+    out_dir: paths.build_dir.compiler,
+  })
+
+  if (argv.emitError && !success)
+    process.exit(1)
+
+  next()
 })
 
 gulp.task("compiler:build", ["compiler:ts"], () => {

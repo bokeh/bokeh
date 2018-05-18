@@ -7,7 +7,7 @@
     "noImplicitReturns": true,
     "strictNullChecks": true,
     "alwaysStrict": true,
-    "noEmitOnError": true,
+    "noEmitOnError": false,
     "declaration": false,
     "module": "commonjs",
     "moduleResolution": "node",
@@ -15,5 +15,6 @@
     "lib": ["es6"],
     "types": ["node"],
     "baseUrl": "."
-  }
+  },
+  "include": ["./**/*.ts"]
 }

@@ -7,7 +7,7 @@
     "noImplicitReturns": true,
     "strictNullChecks": false,
     "alwaysStrict": true,
-    "noEmitOnError": true,
+    "noEmitOnError": false,
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "ES5",

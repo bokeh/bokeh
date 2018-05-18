@@ -1,56 +1,34 @@
 import * as gulp from "gulp"
 import * as gutil from "gulp-util"
-import chalk from "chalk"
 import * as rename from "gulp-rename"
 const uglify_es = require("uglify-es")
 const uglify = require("gulp-uglify/composer")
 import * as sourcemaps from "gulp-sourcemaps"
-import * as paths from "../paths"
 import * as fs from "fs"
 import {join} from "path"
 import {argv} from "yargs"
 import * as insert from 'gulp-insert'
-const merge = require("merge2")
 
 const license = `/*!\n${fs.readFileSync('../LICENSE.txt', 'utf-8')}*/\n`
 
-const ts = require('gulp-typescript')
 const tslint = require('gulp-tslint')
 
 const minify = uglify(uglify_es, console)
 
+import {compileTypeScript} from "../compiler"
 import {Linker, Bundle} from "../linker"
+import * as paths from "../paths"
 
-gulp.task("scripts:ts", () => {
-  let n_errors = 0
-
-  function error(err: {message: string}) {
-    gutil.log(err.message)
-    n_errors++
-  }
-
-  const project = ts.createProject(join(paths.src_dir.lib, "tsconfig.json"))
-  const compiler = project
-    .src()
-    .pipe(sourcemaps.init())
-    .pipe(project(ts.reporter.nullReporter()).on("error", error))
-
-  const result = merge([
-    compiler.js
-      .pipe(sourcemaps.write("."))
-      .pipe(gulp.dest(paths.build_dir.tree)),
-    compiler.dts
-      .pipe(gulp.dest(paths.build_dir.types)),
-  ])
-
-  result.on("finish", function() {
-    if (argv.emitError && n_errors > 0) {
-      gutil.log(`There were ${chalk.red("" + n_errors)} TypeScript errors.`)
-      process.exit(1)
-    }
+gulp.task("scripts:ts", (next: () => void) => {
+  const success = compileTypeScript(join(paths.src_dir.lib, "tsconfig.json"), {
+    log: gutil.log,
+    out_dir: {js: paths.build_dir.tree, dts: paths.build_dir.types}
   })
 
-  return result
+  if (argv.emitError && !success)
+    process.exit(1)
+
+  next()
 })
 
 gulp.task("~scripts:ts", ["scripts:ts"], () => {
