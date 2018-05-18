@@ -51,7 +51,7 @@ def _stack(stackers, spec0, spec1, **kw):
     _kw = []
 
     for i, val in enumerate(stackers):
-        d  = {}
+        d  = {'name': val}
         s0 = list(s1)
         s1.append(val)
 
