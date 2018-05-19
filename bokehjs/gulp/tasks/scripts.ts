@@ -1,12 +1,11 @@
 import * as gulp from "gulp"
 import * as gutil from "gulp-util"
 import * as uglify from "uglify-js"
-import * as fs from "fs"
 import {join, basename} from "path"
 import {argv} from "yargs"
 
 import {compileTypeScript} from "../compiler"
-import {Linker, Bundle} from "../linker"
+import {Linker} from "../linker"
 import {read, write, rename} from "../utils"
 import * as paths from "../paths"
 
@@ -46,37 +45,6 @@ gulp.task("scripts:bundle", ["scripts:compile"], (next: () => void) => {
   widgets.write(paths.lib.widgets.output)
   tables.write(paths.lib.tables.output)
   gl.write(paths.lib.gl.output)
-
-  if (argv.stats) {
-    const minify_opts = {
-      output: {
-        comments: /^!|copyright|license|\(c\)/i
-      }
-    }
-
-    const entries: [string, string, boolean, number][] = []
-
-    function collect_entries(name: string, bundle: Bundle): void {
-      for (const mod of bundle.modules) {
-        const minified = uglify.minify(mod.source, minify_opts)
-        if (minified.error != null) {
-          const {error: {message, line, col}} = minified as any
-          throw new Error(`${mod.canonical}:${line-1}:${col}: ${message}`)
-        } else
-          entries.push([name, mod.canonical, mod.is_external, minified.code.length])
-      }
-    }
-
-    collect_entries("bokehjs", bokehjs)
-    collect_entries("api", api)
-    collect_entries("widgets", widgets)
-    collect_entries("tables", tables)
-    collect_entries("gl", gl)
-
-    const csv = entries.map(([name, mod, external, minified]) => `${name},${mod},${external},${minified}`).join("\n")
-    const header = "bundle,module,external,minified\n"
-    fs.writeFileSync(join(paths.build_dir.js, "stats.csv"), header + csv)
-  }
 
   next()
 })
