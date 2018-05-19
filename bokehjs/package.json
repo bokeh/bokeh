@@ -42,8 +42,6 @@
     "sinon": "^1.15.4",
     "vinyl-source-stream": "^2.0.0",
     "yargs": "^11.0.0",
-    "through2": "^2.0.0",
-    "@types/through2": "^2.0.33",
     "jsdom": "^9.8.3",
     "websocket": "^1.0.26",
     "typescript": "2.8.3",

@@ -1,6 +1,5 @@
 import * as gulp from "gulp"
 import * as gutil from "gulp-util"
-import * as through from "through2"
 import * as cp from "child_process"
 import {argv} from "yargs"
 import {join} from "path"
@@ -25,104 +24,105 @@ gulp.task("test:compile", (next: () => void) => {
   next()
 })
 
-function mocha(options: {coverage?: boolean} = {}) {
-  const files: string[] = []
+function mocha(files: string[], options: {coverage?: boolean} = {}): void {
+  const _mocha = "node_modules/mocha/bin/_mocha"
 
-  return through.obj(
-    function(file: {path: string}, _enc, next) {
-      files.push(file.path)
-      next()
-    },
-    function(next) {
-      const _mocha = "node_modules/mocha/bin/_mocha"
+  let args: string[]
+  if (!options.coverage)
+    args = [_mocha]
+  else
+    args = ["node_modules/.bin/istanbul", "cover", _mocha, "--"]
 
-      let args: string[]
-      if (!options.coverage)
-        args = [_mocha]
-      else
-        args = ["node_modules/.bin/istanbul", "cover", _mocha, "--"]
+  if (argv.debug)
+    args.unshift("debug")
 
-      if (argv.debug)
-        args.unshift("debug")
-
-      args = args.concat(
-        ["--reporter", argv.reporter || "spec"],
-        ["--slow", "5s"],
-        ["--exit"],
-        ["./build/test/index.js"],
-        files,
-      )
-
-      const env = Object.assign({}, process.env, {
-        TS_NODE_PROJECT: "./test/tsconfig.json",
-        NODE_PATH: paths.build_dir.tree,
-      })
-
-      const proc = cp.spawn(process.execPath, args, {stdio: 'inherit', env: env})
-
-      proc.on("error", (err) => {
-        this.emit("error", new gutil.PluginError("mocha", err))
-      })
-
-      proc.on("exit", (code, signal) => {
-        if (code != 0) {
-          const comment = signal === "SIGINT" ? "interrupted" : "failed"
-          this.emit("error", new gutil.PluginError("mocha", `tests ${comment}`))
-        } else
-          next()
-      })
-
-      process.on('exit',    () => proc.kill())
-      process.on("SIGTERM", () => proc.kill("SIGTERM"))
-      process.on("SIGINT",  () => proc.kill("SIGINT"))
-    },
+  args = args.concat(
+    ["--reporter", argv.reporter || "spec"],
+    ["--slow", "5s"],
+    ["--exit"],
+    ["./build/test/index.js"],
+    files,
   )
+
+  const env = Object.assign({}, process.env, {
+    TS_NODE_PROJECT: "./test/tsconfig.json",
+    NODE_PATH: paths.build_dir.tree,
+  })
+
+  process.on("SIGINT", () => console.log()) // flush
+
+  const ret = cp.spawnSync(process.execPath, args, {stdio: 'inherit', env: env})
+
+  const {status, signal, error} = ret
+
+  if (error != null) {
+    gutil.log(`tests failed: ${error}`)
+    process.exit(1)
+  }
+
+  if (status != 0) {
+    const comment = signal === "SIGINT" ? "interrupted" : "failed"
+    gutil.log(`tests ${comment}`)
+    process.exit(1)
+  }
 }
 
-gulp.task("test", ["test:compile", "defaults:generate"], () => {
-  return gulp.src(["./build/test/unit.js", "./build/test/defaults.js", "./build/test/size.js"]).pipe(mocha())
+gulp.task("test", ["test:compile", "defaults:generate"], (next: () => void) => {
+  mocha(["./build/test/unit.js", "./build/test/defaults.js", "./build/test/size.js"])
+  next()
 })
 
-gulp.task("test:unit", ["test:compile"], () => {
-  return gulp.src(["./build/test/unit.js"]).pipe(mocha())
+gulp.task("test:unit", ["test:compile"], (next: () => void) => {
+  mocha(["./build/test/unit.js"])
+  next()
 })
 
-gulp.task("test:unit:coverage", ["test:compile"], () => {
-  return gulp.src(["./build/test/unit.js"]).pipe(mocha({coverage: true}))
+gulp.task("test:unit:coverage", ["test:compile"], (next: () => void) => {
+  mocha(["./build/test/unit.js"], {coverage: true})
+  next()
 })
 
-gulp.task("test:client", ["test:compile"], () => {
-  return gulp.src(["./build/test/client"]).pipe(mocha())
+gulp.task("test:client", ["test:compile"], (next: () => void) => {
+  mocha(["./build/test/client"])
+  next()
 })
 
-gulp.task("test:core", ["test:compile"], () => {
-  return gulp.src(["./build/test/core"]).pipe(mocha())
+gulp.task("test:core", ["test:compile"], (next: () => void) => {
+  mocha(["./build/test/core"])
+  next()
 })
 
-gulp.task("test:document", ["test:compile"], () => {
-  return gulp.src(["./build/test/document.js"]).pipe(mocha())
+gulp.task("test:document", ["test:compile"], (next: () => void) => {
+  mocha(["./build/test/document.js"])
+  next()
 })
 
-gulp.task("test:model", ["test:compile"], () => {
-  return gulp.src(["./build/test/model.js"]).pipe(mocha())
+gulp.task("test:model", ["test:compile"], (next: () => void) => {
+  mocha(["./build/test/model.js"])
+  next()
 })
 
-gulp.task("test:models", ["test:compile"], () => {
-  return gulp.src(["./build/test/models"]).pipe(mocha())
+gulp.task("test:models", ["test:compile"], (next: () => void) => {
+  mocha(["./build/test/models"])
+  next()
 })
 
-gulp.task("test:protocol", ["test:compile"], () => {
-  return gulp.src(["./build/test/protocol"]).pipe(mocha())
+gulp.task("test:protocol", ["test:compile"], (next: () => void) => {
+  mocha(["./build/test/protocol"])
+  next()
 })
 
-gulp.task("test:utils", ["test:compile"], () => {
-  return gulp.src(["./build/test/utils.js"]).pipe(mocha())
+gulp.task("test:utils", ["test:compile"], (next: () => void) => {
+  mocha(["./build/test/utils.js"])
+  next()
 })
 
-gulp.task("test:defaults", ["test:compile", "defaults:generate"], () => {
-  return gulp.src(["./build/test/defaults.js"]).pipe(mocha())
+gulp.task("test:defaults", ["test:compile", "defaults:generate"], (next: () => void) => {
+  mocha(["./build/test/defaults.js"])
+  next()
 })
 
-gulp.task("test:size", ["test:compile"], () => {
-  return gulp.src(["./build/test/size.js"]).pipe(mocha())
+gulp.task("test:size", ["test:compile"], (next: () => void) => {
+  mocha(["./build/test/size.js"])
+  next()
 })
