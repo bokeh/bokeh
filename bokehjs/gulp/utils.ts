@@ -1,6 +1,8 @@
 import * as ts from "typescript"
 import * as path from "path"
 
+export const scan = ts.sys.readDirectory
+
 export const read = ts.sys.readFile
 export const write = ts.sys.writeFile
 

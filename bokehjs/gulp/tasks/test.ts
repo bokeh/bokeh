@@ -3,24 +3,26 @@ import * as gutil from "gulp-util"
 import * as through from "through2"
 import * as cp from "child_process"
 import {argv} from "yargs"
-
-import {compileTypeScript} from "../compiler"
-import * as paths from "../paths"
-
 import {join} from "path"
 
-const coffee = require("gulp-coffee")
+import {compileTypeScript} from "../compiler"
+import {read, write, scan, rename} from "../utils"
+import * as paths from "../paths"
 
-gulp.task("test:compile", () => {
+const coffee = require("coffeescript")
+
+gulp.task("test:compile", (next: () => void) => {
   const success = compileTypeScript("./test/tsconfig.json", {log: gutil.log})
 
   if (argv.emitError && !success)
     process.exit(1)
 
-  return gulp
-     .src('./test/**/*.coffee')
-     .pipe(coffee({coffee: require("coffeescript"), bare: true}))
-     .pipe(gulp.dest(join("./build", "test")))
+  for (const file of scan("./test", [".coffee"])) {
+    const js = coffee.compile(read(file)!, {bare: true})
+    write(join("./build", rename(file, {ext: ".js"})), js)
+  }
+
+  next()
 })
 
 function mocha(options: {coverage?: boolean} = {}) {
