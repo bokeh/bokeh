@@ -490,7 +490,7 @@ def _process_axis_and_grid(plot, axis_type, axis_location, minor_ticks, axis_lab
             getattr(plot, axis_location).append(axis)
 
 
-def _process_tools_arg(plot, tools):
+def _process_tools_arg(plot, tools, tooltips=None):
     """ Adds tools to the plot object
 
     Args:
@@ -498,6 +498,8 @@ def _process_tools_arg(plot, tools):
         tools (seq[Tool or str]|str): list of tool types or string listing the
             tool names. Those are converted using the _tool_from_string
             function. I.e.: `wheel_zoom,box_zoom,reset`.
+        tooltips (string or seq[tuple[str, str]], optional):
+            tooltips to use to configure a HoverTool
 
     Returns:
         list of Tools objects added to plot, map of supplied string names to tools
@@ -533,6 +535,14 @@ def _process_tools_arg(plot, tools):
 
     if repeated_tools:
         warnings.warn("%s are being repeated" % ",".join(repeated_tools))
+
+    if tooltips is not None:
+        for tool_obj in tool_objs:
+            if isinstance(tool_obj, HoverTool):
+                tool_obj.tooltips = tooltips
+                break
+        else:
+            tool_objs.append(HoverTool(tooltips=tooltips))
 
     return tool_objs, tool_map
 

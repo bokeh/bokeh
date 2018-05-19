@@ -5,7 +5,7 @@ logger = logging.getLogger(__name__)
 
 from six import string_types
 
-from ..core.properties import Any, Auto, Either, Enum, Int, Seq, Instance, String
+from ..core.properties import Any, Auto, Either, Enum, Int, List, Seq, Instance, String, Tuple
 from ..core.enums import HorizontalLocation, VerticalLocation
 from ..models import ColumnDataSource, Plot, Title, Tool, GraphRenderer
 from ..models import glyphs, markers
@@ -83,6 +83,10 @@ class FigureOptions(Options):
     The type of the y-axis.
     """)
 
+    tooltips = Either(String, List(Tuple(String, String)), help="""
+
+    """)
+
 class Figure(Plot):
     ''' A subclass of :class:`~bokeh.models.plots.Plot` that simplifies plot
     creation with default axes, grids, tools, etc.
@@ -144,7 +148,7 @@ class Figure(Plot):
         _process_axis_and_grid(self, opts.x_axis_type, opts.x_axis_location, opts.x_minor_ticks, opts.x_axis_label, self.x_range, 0)
         _process_axis_and_grid(self, opts.y_axis_type, opts.y_axis_location, opts.y_minor_ticks, opts.y_axis_label, self.y_range, 1)
 
-        tool_objs, tool_map = _process_tools_arg(self, opts.tools)
+        tool_objs, tool_map = _process_tools_arg(self, opts.tools, opts.tooltips)
         self.add_tools(*tool_objs)
         _process_active_tools(self.toolbar, tool_map, opts.active_drag, opts.active_inspect, opts.active_scroll, opts.active_tap)
 
