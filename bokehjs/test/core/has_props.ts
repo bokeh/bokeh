@@ -1,7 +1,6 @@
 import {expect} from "chai"
 
 import {ColumnDataSource} from "models/sources/column_data_source"
-//import {Models} from "base"
 import {HasProps} from "core/has_props"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
@@ -83,13 +82,6 @@ SubclassWithOptionalSpec.define({
 })
 
 describe("has_properties module", () => {
-
-  /*
-  before ->
-    Models.register('TestObject', TestModel)
-  after ->
-    Models.unregister('TestObject')
-  */
 
   describe("creation", () => {
 

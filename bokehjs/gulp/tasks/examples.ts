@@ -3,7 +3,6 @@ import {join} from "path"
 import * as gulp from "gulp"
 import * as gutil from "gulp-util"
 import * as ts from 'gulp-typescript'
-import * as run from 'run-sequence'
 import {argv} from "yargs"
 
 const BASE_DIR = "./examples"
@@ -12,7 +11,7 @@ const reporter = ts.reporter.nullReporter()
 
 const compile = (name: string) => {
   const project = ts.createProject(join(BASE_DIR, name, "tsconfig.json"), {
-    typescript: require('typescript')
+    typescript: require('typescript'),
   })
   return project.src()
    .pipe(project(reporter).on('error', (err: {message: string}) => gutil.log(err.message)))
@@ -31,6 +30,4 @@ for(const name of fs.readdirSync("./examples")) {
 
 const deps = argv.build === false ? [] : ["scripts:build", "styles:build"]
 
-gulp.task("examples", deps, (cb: (arg?: any) => void) => {
-  run(examples.map((example) => `examples:${example}`), cb)
-})
+gulp.task("examples", gulp.series(...deps, ...examples.map((example) => `examples:${example}`)))

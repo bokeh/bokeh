@@ -8,7 +8,7 @@ import {difference, concat} from "core/util/array"
 import {keys} from "core/util/object"
 import {isEqual} from "core/util/eq"
 
-import {Models} from "base"
+import {Models} from "main"
 import {HasProps} from "core/has_props"
 
 import {Widgets as widget_models} from "models/widgets/main"

@@ -1,12 +1,7 @@
 import * as gulp from "gulp"
-import * as runSequence from "run-sequence"
 import * as paths from "../paths"
 
 gulp.task("watch", () => {
-  gulp.watch(`${paths.lib.watchSources}`, () => {
-    runSequence("scripts:build")
-  })
-  gulp.watch(`${paths.less.watchSources}`, () => {
-    runSequence("styles:build")
-  })
+  gulp.watch(`${paths.lib.watchSources}`, gulp.series("scripts:build"))
+  gulp.watch(`${paths.less.watchSources}`, gulp.series("styles:build"))
 })

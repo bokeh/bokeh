@@ -21,7 +21,7 @@ const minify = uglify(uglify_es, console)
 
 import {Linker, Bundle} from "../linker"
 
-gulp.task("scripts:ts", () => {
+gulp.task("scripts:ts", gulp.series(() => {
   let n_errors = 0
 
   function error(err: {message: string}) {
@@ -51,11 +51,11 @@ gulp.task("scripts:ts", () => {
   })
 
   return result
-})
+}))
 
-gulp.task("~scripts:ts", ["scripts:ts"], () => {
-  gulp.watch(join(paths.src_dir.lib, "**", "*.ts"), ["scripts:ts"])
-})
+gulp.task("~scripts:ts", gulp.series("scripts:ts", () => {
+  gulp.watch(join(paths.src_dir.lib, "**", "*.ts"), gulp.series("scripts:ts"))
+}))
 
 gulp.task("tslint", () => {
   const srcs = [
@@ -73,9 +73,9 @@ gulp.task("tslint", () => {
     .pipe(tslint.report({summarizeFailureOutput: true}))
 })
 
-gulp.task("scripts:compile", ["scripts:ts"])
+gulp.task("scripts:compile", gulp.series("scripts:ts"))
 
-gulp.task("scripts:bundle", ["scripts:compile"], (next: () => void) => {
+gulp.task("scripts:bundle", gulp.series("scripts:compile", (next: () => void) => {
   const entries = [
     paths.lib.bokehjs.main,
     paths.lib.api.main,
@@ -101,8 +101,8 @@ gulp.task("scripts:bundle", ["scripts:compile"], (next: () => void) => {
   if (argv.stats) {
     const minify_opts = {
       output: {
-        comments: /^!|copyright|license|\(c\)/i
-      }
+        comments: /^!|copyright|license|\(c\)/i,
+      },
     }
 
     const entries: [string, string, boolean, number][] = []
@@ -130,11 +130,11 @@ gulp.task("scripts:bundle", ["scripts:compile"], (next: () => void) => {
   }
 
   next()
-})
+}))
 
-gulp.task("scripts:build", ["scripts:bundle"])
+gulp.task("scripts:build", gulp.series("scripts:bundle"))
 
-gulp.task("scripts:minify", ["scripts:bundle"], () => {
+gulp.task("scripts:minify", gulp.series("scripts:bundle", () => {
   return gulp.src(`${paths.build_dir.js}/!(*.min|compiler).js`)
     .pipe(sourcemaps.init({loadMaps: true}))
     .pipe(rename((path) => path.basename += '.min'))
@@ -142,6 +142,6 @@ gulp.task("scripts:minify", ["scripts:bundle"], () => {
     .pipe(insert.append(license))
     .pipe(sourcemaps.write("."))
     .pipe(gulp.dest(paths.build_dir.js))
-})
+}))
 
-gulp.task("scripts", ["scripts:build", "scripts:minify"])
+gulp.task("scripts", gulp.series("scripts:build", "scripts:minify"))

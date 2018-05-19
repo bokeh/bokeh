@@ -325,7 +325,7 @@ export class Module {
           if (arg.type === "Literal" && typeof arg.value === "string" && arg.value.length > 0)
             deps.push(arg.value)
         }
-      }
+      },
     })
     return deps
   }
@@ -347,7 +347,7 @@ export class Module {
           }
         }
         return node
-      }
+      },
     })
   }
 
@@ -389,7 +389,7 @@ export class Module {
       body: {
         type: "BlockStatement",
         body: Array.from(this.ast.body) as Statement[],
-      }
+      },
     }
     const comment: Comment = {type: "Block", value: this.canonical}
     wrapper.leadingComments = [comment]
