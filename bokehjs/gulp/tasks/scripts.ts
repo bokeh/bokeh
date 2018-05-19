@@ -5,8 +5,6 @@ import * as fs from "fs"
 import {join, basename} from "path"
 import {argv} from "yargs"
 
-const tslint = require('gulp-tslint')
-
 import {compileTypeScript} from "../compiler"
 import {Linker, Bundle} from "../linker"
 import {read, write, rename} from "../utils"
@@ -22,22 +20,6 @@ gulp.task("scripts:ts", (next: () => void) => {
     process.exit(1)
 
   next()
-})
-
-gulp.task("tslint", () => {
-  const srcs = [
-    join(paths.src_dir.lib),
-    join(paths.base_dir, "test"),
-    join(paths.base_dir, "examples"),
-  ]
-  return gulp
-    .src(srcs.map((dir) => join(dir, "**", "*.ts")))
-    .pipe(tslint({
-      rulesDirectory: join(paths.base_dir, "tslint", "rules"),
-      formatter: "stylish",
-      fix: argv.fix || false,
-    }))
-    .pipe(tslint.report({summarizeFailureOutput: true}))
 })
 
 gulp.task("scripts:compile", ["scripts:ts"])
