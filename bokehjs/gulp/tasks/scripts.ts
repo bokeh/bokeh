@@ -1,19 +1,15 @@
 import * as gulp from "gulp"
 import * as gutil from "gulp-util"
-import * as rename from "gulp-rename"
-const uglify_es = require("uglify-es")
-const uglify = require("gulp-uglify/composer")
-import * as sourcemaps from "gulp-sourcemaps"
+import * as uglify from "uglify-js"
 import * as fs from "fs"
-import {join} from "path"
+import {join, basename} from "path"
 import {argv} from "yargs"
 
 const tslint = require('gulp-tslint')
 
-const minify = uglify(uglify_es, console)
-
 import {compileTypeScript} from "../compiler"
 import {Linker, Bundle} from "../linker"
+import {read, write, rename} from "../utils"
 import * as paths from "../paths"
 
 gulp.task("scripts:ts", (next: () => void) => {
@@ -80,9 +76,9 @@ gulp.task("scripts:bundle", ["scripts:compile"], (next: () => void) => {
 
     function collect_entries(name: string, bundle: Bundle): void {
       for (const mod of bundle.modules) {
-        const minified = uglify_es.minify(mod.source, minify_opts)
+        const minified = uglify.minify(mod.source, minify_opts)
         if (minified.error != null) {
-          const {error: {message, line, col}} = minified
+          const {error: {message, line, col}} = minified as any
           throw new Error(`${mod.canonical}:${line-1}:${col}: ${message}`)
         } else
           entries.push([name, mod.canonical, mod.is_external, minified.code.length])
@@ -105,13 +101,41 @@ gulp.task("scripts:bundle", ["scripts:compile"], (next: () => void) => {
 
 gulp.task("scripts:build", ["scripts:bundle"])
 
-gulp.task("scripts:minify", ["scripts:bundle"], () => {
-  return gulp.src(`${paths.build_dir.js}/!(*.min|compiler).js`)
-    .pipe(sourcemaps.init({loadMaps: true}))
-    .pipe(rename((path) => path.basename += '.min'))
-    .pipe(minify({ output: { comments: /^!|copyright|license|\(c\)/i } }))
-    .pipe(sourcemaps.write("."))
-    .pipe(gulp.dest(paths.build_dir.js))
+gulp.task("scripts:minify", ["scripts:bundle"], (next: () => void) => {
+  function minify(js: string): void {
+    const js_map = rename(js, {ext: '.js.map'})
+    const min_js = rename(js, {ext: '.min.js'})
+    const min_js_map = rename(js, {ext: '.min.js.map'})
+
+    const minify_opts = {
+      output: {
+        comments: /^!|copyright|license|\(c\)/i
+      },
+      sourceMap: {
+        content: read(js_map)! as any,
+        filename: basename(min_js),
+        url: basename(min_js_map),
+      },
+    }
+
+    const minified = uglify.minify(read(js)!, minify_opts)
+
+    if (minified.error != null) {
+      const {error: {message, line, col}} = minified as any
+      throw new Error(`${js}:${line-1}:${col}: ${message}`)
+    }
+
+    write(min_js, minified.code)
+    write(min_js_map, minified.map)
+  }
+
+  minify(paths.lib.bokehjs.output)
+  minify(paths.lib.api.output)
+  minify(paths.lib.widgets.output)
+  minify(paths.lib.tables.output)
+  minify(paths.lib.gl.output)
+
+  next()
 })
 
 gulp.task("scripts", ["scripts:build", "scripts:minify"])
