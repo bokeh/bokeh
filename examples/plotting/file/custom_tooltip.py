@@ -1,6 +1,5 @@
 import pandas as pd
 
-from bokeh.models import HoverTool, ColumnDataSource
 from bokeh.plotting import figure, show
 from bokeh.sampledata.periodic_table import elements
 
@@ -19,32 +18,29 @@ colormap = {
     "transition metal"     : "#e08e79",
 }
 
-source = ColumnDataSource(
-    data=dict(
-        atomic_number=elements["atomic number"],
-        sym=elements["symbol"],
-        name=elements["name"],
-        atomic_mass = pd.to_numeric(elements['atomic mass'], errors="coerce"),
-        density=elements['density'],
-        metal=[x.title() for x in elements["metal"]],
-        type_color=[colormap[x] for x in elements["metal"]]
-    )
+data=dict(
+    atomic_number=elements["atomic number"],
+    sym=elements["symbol"],
+    name=elements["name"],
+    atomic_mass = pd.to_numeric(elements['atomic mass'], errors="coerce"),
+    density=elements['density'],
+    metal=[x.title() for x in elements["metal"]],
+    type_color=[colormap[x] for x in elements["metal"]]
 )
 
 mass_format = '{0.00}'
 
-hover = HoverTool(tooltips="""
+TOOLTIPS = """
     <div style="width: 62px; height: 62px; opacity: .8; padding: 5px; background-color: @type_color;>
     <h1 style="margin: 0; font-size: 12px;"> @atomic_number </h1>
     <h1 style="margin: 0; font-size: 24px;"><strong> @sym </strong></h1>
     <p style=" margin: 0; font-size: 8px;"><strong> @name </strong></p>
     <p style="margin: 0; font-size: 8px;"> @atomic_mass{mass_format} </p>
     </div>
-    """.format(mass_format=mass_format)
-)
+""".format(mass_format=mass_format)
 
-p = figure(plot_width=900, plot_height=450, tools=[hover], title='Densities by Atomic Mass')
-p.circle('atomic_mass', 'density', size=12, source=source, color='type_color',
+p = figure(plot_width=900, plot_height=450, tooltips=TOOLTIPS, title='Densities by Atomic Mass')
+p.circle('atomic_mass', 'density', size=12, source=data, color='type_color',
          line_color="black", legend='metal', fill_alpha=0.9)
 
 p.xaxis.axis_label= 'Atomic Mass'

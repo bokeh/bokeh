@@ -1,9 +1,5 @@
 from bokeh.io import show
-from bokeh.models import (
-    ColumnDataSource,
-    HoverTool,
-    LogColorMapper
-)
+from bokeh.models import LogColorMapper
 from bokeh.palettes import Viridis6 as palette
 from bokeh.plotting import figure
 
@@ -23,31 +19,26 @@ county_names = [county['name'] for county in counties.values()]
 county_rates = [unemployment[county_id] for county_id in counties]
 color_mapper = LogColorMapper(palette=palette)
 
-source = ColumnDataSource(data=dict(
+data=dict(
     x=county_xs,
     y=county_ys,
     name=county_names,
     rate=county_rates,
-))
+)
 
 TOOLS = "pan,wheel_zoom,reset,hover,save"
 
 p = figure(
     title="Texas Unemployment, 2009", tools=TOOLS,
-    x_axis_location=None, y_axis_location=None
-)
+    x_axis_location=None, y_axis_location=None,
+    tooltips=[
+        ("Name", "@name"), ("Unemployment rate)", "@rate%"), ("(Long, Lat)", "($x, $y)")
+    ])
 p.grid.grid_line_color = None
+p.hover.point_policy = "follow_mouse"
 
-p.patches('x', 'y', source=source,
+p.patches('x', 'y', source=data,
           fill_color={'field': 'rate', 'transform': color_mapper},
           fill_alpha=0.7, line_color="white", line_width=0.5)
-
-hover = p.select_one(HoverTool)
-hover.point_policy = "follow_mouse"
-hover.tooltips = [
-    ("Name", "@name"),
-    ("Unemployment rate)", "@rate%"),
-    ("(Long, Lat)", "($x, $y)"),
-]
 
 show(p)
