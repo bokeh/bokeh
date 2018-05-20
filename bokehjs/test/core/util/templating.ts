@@ -269,5 +269,10 @@ describe("templating module", () => {
       const s = tmpl.replace_placeholders("stuff $foo @foo @foo @foo{(0.000 %)} @baz{%F %T}", source, 0, {"baz": "datetime"}, {"foo": "special"})
       expect(s).to.be.equal("stuff special 10 10 1000.000 % 2017-04-22 19:51:11")
     })
+
+    it("should handle special @$name case by using special_vars.name as the column", () => {
+      const s = tmpl.replace_placeholders("stuff @$name", source, 0, {}, {"name": "foo"})
+      expect(s).to.be.equal("stuff 10")
+    })
   })
 })

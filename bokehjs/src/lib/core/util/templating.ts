@@ -119,6 +119,9 @@ export function replace_placeholders(str: string, data_source: ColumnarDataSourc
   // this extracts the $x, @x, @{x} without any trailing {format}
   const raw_spec = str.replace(/(?:^|[^@])([@|\$](?:\w+|{[^{}]+}))(?:{[^{}]+})?/g, (_match, raw_spec, _format) => `${raw_spec}`)
 
+  // this handles the special case @$name, replacing it with an @var corresponding to special_vars.name
+  str = str.replace(/@\$name/g, (_match) => `@{${special_vars.name}}`)
+
   // this prepends special vars with "@", e.g "$x" becomes "@$x", so subsequent processing is simpler
   str = str.replace(/(^|[^\$])\$(\w+)/g, (_match, prefix, name) => `${prefix}@$${name}`)
 
