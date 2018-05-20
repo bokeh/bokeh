@@ -1,5 +1,4 @@
 from bokeh.plotting import figure, output_file, show, ColumnDataSource
-from bokeh.models import HoverTool
 
 output_file("toolbar.html")
 
@@ -23,7 +22,7 @@ source = ColumnDataSource(data=dict(
     ]
 ))
 
-hover = HoverTool( tooltips="""
+TOOLTIPS = """
     <div>
         <div>
             <img
@@ -44,10 +43,9 @@ hover = HoverTool( tooltips="""
             <span style="font-size: 10px; color: #696;">($x, $y)</span>
         </div>
     </div>
-    """
-)
+"""
 
-p = figure(plot_width=400, plot_height=400, tools=[hover],
+p = figure(plot_width=400, plot_height=400, tooltips=TOOLTIPS,
            title="Mouse over the dots")
 
 p.circle('x', 'y', size=20, source=source)

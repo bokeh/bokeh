@@ -84,7 +84,7 @@ test:
     - scikit-learn
     - networkx
     - icalendar
-    - flask
+    - flask >=1.0
     - pscript
     - pyshp
 

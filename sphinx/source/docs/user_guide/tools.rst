@@ -432,6 +432,8 @@ in data or screen space. These special fields are listed here:
 
 :``$index``:
     index of selected point in the data source
+:``$name``:
+    value of the ``name`` property of the hovered glyph renderer
 :``$x``:
     x-coordinate under the cursor in data space
 :``$y``:
@@ -440,6 +442,8 @@ in data or screen space. These special fields are listed here:
     x-coordinate under the cursor in screen (canvas) space
 :``$sy``:
     y-coordinate under the cursor in screen (canvas) space
+:``$name``:
+    The ``name`` property of the glyph that is hovered over
 :``$color``:
     colors from a data source, with the syntax: ``$color[options]:field_name``.
     The available options are: ``hex`` (to display the color as a hex value),
@@ -455,8 +459,15 @@ Note that if a column name contains spaces, the it must be supplied by
 surrounding it in curly braces, e.g. ``@{adjusted close}`` will display values
 from a column named ``"adjusted close"``.
 
-Here is a complete example of how to configure and use the hover tool with
-a default tooltip:
+Sometimes (especially with stacked charts) it is desirable to allow the
+name of the column be specified indirectly. The field name ``@$name`` is
+distinguished in that it will look up the ``name`` field on the hovered
+glyph renderer, and use that value as the column name. For instance, if
+a user hovers with the name ``"US East"``, then ``@$name`` is equivalent to
+``@{US East}``.
+
+Here is a complete example of how to configure and use the hover tool by setting
+the ``tooltips`` argument to ``figure``:
 
 .. bokeh-plot:: docs/user_guide/examples/tools_hover_tooltips.py
     :source-position: above
@@ -533,8 +544,8 @@ Note that format specifications are also compatible with column names that
 have spaces. For example ```@{adjusted close}{($ 0.00 a)}`` applies a format
 to a column named "adjusted close".
 
-The example code below shows configuring a ``HoverTool`` with different
-formatters for different fields:
+The example code below shows explicitly configuring a ``HoverTool`` with
+different formatters for different fields:
 
 .. code-block:: python
 
@@ -571,7 +582,6 @@ Image Hover
 
 The hover tool can be used to inspect image glyphs which may contain
 layers of data in the corresponding ``ColumnDataSource``:
-
 
 .. bokeh-plot:: docs/user_guide/examples/tools_hover_tooltips_image.py
     :source-position: above

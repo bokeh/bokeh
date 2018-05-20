@@ -1,5 +1,5 @@
 from bokeh.io import output_file, show
-from bokeh.models import ColumnDataSource, HoverTool
+from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure
 from bokeh.sampledata.periodic_table import elements
 from bokeh.transform import dodge, factor_cmap
@@ -31,7 +31,7 @@ cmap = {
 source = ColumnDataSource(df)
 
 p = figure(plot_width=900, plot_height=500, title="Periodic Table (omitting LA and AC Series)",
-           x_range=groups, y_range=list(reversed(periods)), toolbar_location=None, tools="")
+           x_range=groups, y_range=list(reversed(periods)), toolbar_location=None, tools="hover")
 
 p.rect("group", "period", 0.95, 0.95, source=source, fill_alpha=0.6, legend="metal",
        color=factor_cmap('metal', palette=list(cmap.values()), factors=list(cmap.keys())))
@@ -54,14 +54,14 @@ r.glyph.text_font_size="5pt"
 
 p.text(x=["3", "3"], y=["VI", "VII"], text=["LA", "AC"], text_align="center", text_baseline="middle")
 
-p.add_tools(HoverTool(tooltips = [
+p.hover.tooltips = [
     ("Name", "@name"),
     ("Atomic number", "@{atomic number}"),
     ("Atomic mass", "@{atomic mass}"),
     ("Type", "@metal"),
     ("CPK color", "$color[hex, swatch]:CPK"),
     ("Electronic configuration", "@{electronic configuration}"),
-]))
+]
 
 p.outline_line_color = None
 p.grid.grid_line_color = None

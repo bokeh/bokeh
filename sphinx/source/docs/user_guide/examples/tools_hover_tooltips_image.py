@@ -1,6 +1,5 @@
 import numpy as np
-from bokeh.plotting import figure, output_file, show, ColumnDataSource
-from bokeh.models import HoverTool
+from bokeh.plotting import figure, output_file, show
 
 output_file("tools_hover_tooltip_image.html")
 
@@ -16,15 +15,16 @@ data = dict(image=[ramp, steps, bitmask],
             dw=[20,  20, 10],
             dh=[10,  10, 25])
 
-cds = ColumnDataSource(data=data)
-hover = HoverTool(tooltips=[
+TOOLTIPS = [
     ('index', "$index"),
     ('pattern', '@pattern'),
     ("x", "$x"),
     ("y", "$y"),
     ("value", "@image"),
-    ('squared', '@squared')], )
+    ('squared', '@squared')
+]
 
-p = figure( x_range=(0, 35), y_range=(0, 35), tools=[hover, 'wheel_zoom'])
-p.image(source=cds, image='image', x='x', y='y', dw='dw', dh='dh', palette="Inferno256")
+p = figure( x_range=(0, 35), y_range=(0, 35), tools='hover,wheel_zoom', tooltips=TOOLTIPS)
+p.image(source=data, image='image', x='x', y='y', dw='dw', dh='dh', palette="Inferno256")
+
 show(p)
