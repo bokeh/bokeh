@@ -18,7 +18,7 @@ ${license}
     root["Bokeh"] = factory();
 })(this, function() {
   var define;
-  return (function(modules, aliases, entry) {
+  return (function(modules, aliases, entry, parent_require) {
     var cache = {};
 
     var require = function(name) {
@@ -26,6 +26,9 @@ ${license}
 
       if (!cache[id]) {
         if (!modules[id]) {
+          if (parent_require)
+            return parent_require(id)
+
           var err = new Error("Cannot find module '" + name + "'");
           err.code = 'MODULE_NOT_FOUND';
           throw err;

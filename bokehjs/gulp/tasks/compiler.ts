@@ -1,11 +1,10 @@
-import * as browserify from "browserify"
 import * as gulp from "gulp"
 import * as gutil from "gulp-util"
 import {join} from "path"
 import {argv} from "yargs"
-const source = require('vinyl-source-stream')
 
 import {compileTypeScript} from "../compiler"
+import {Linker} from "../linker"
 import * as paths from "../paths"
 
 gulp.task("compiler:ts", (next: () => void) => {
@@ -20,23 +19,16 @@ gulp.task("compiler:ts", (next: () => void) => {
   next()
 })
 
-gulp.task("compiler:build", ["compiler:ts"], () => {
-  const compilerOpts = {
-    entries: [join(paths.build_dir.compiler, "compile.js")],
-    browserField: false,
-    builtins: false,
-    commondir: false,
-    insertGlobals: false,
-    insertGlobalVars: {
-     process: undefined,
-     global: undefined,
-     'Buffer.isBuffer': undefined,
-     Buffer: undefined,
-    }
-  }
-  const b = browserify(compilerOpts)
-  b.exclude("babel-core")
-  return b.bundle()
-          .pipe(source("compiler.js"))
-          .pipe(gulp.dest(paths.build_dir.js))
+gulp.task("compiler:build", ["compiler:ts"], (next: () => void) => {
+  const entries = [join(paths.build_dir.compiler, "compile.js")]
+  const bases = [paths.build_dir.compiler, "./node_modules"]
+  const ignores = ["babel-core"]
+  const builtins = true
+
+  const linker = new Linker({entries, bases, ignores, builtins})
+  const [bundle] = linker.link()
+
+  bundle.write(join(paths.build_dir.js, "compiler.js"))
+
+  next()
 })
