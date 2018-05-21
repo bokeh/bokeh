@@ -14,7 +14,7 @@ function handleOutput(data: string) {
     .forEach(outputLine)
 }
 
-gulp.task("install", () => {
+gulp.task("install", ["build"], () => {
   // installs js and css
   // note: sets cwd as parent dir so that LICENSE.txt is accessible to setup.py
   const proc = spawn("python", ["setup.py", "--install-js"], {cwd: "../"})
