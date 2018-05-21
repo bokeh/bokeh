@@ -1,6 +1,6 @@
 import * as gulp from "gulp"
 import * as gutil from "gulp-util"
-import * as cp from "child_process"
+import {spawn} from "child_process"
 import {argv} from "yargs"
 import {join} from "path"
 
@@ -22,7 +22,7 @@ gulp.task("test:compile", async () => {
   }
 })
 
-function mocha(files: string[], options: {coverage?: boolean} = {}): void {
+function mocha(files: string[], options: {coverage?: boolean} = {}): Promise<void> {
   const _mocha = "node_modules/mocha/bin/_mocha"
 
   let args: string[]
@@ -42,73 +42,76 @@ function mocha(files: string[], options: {coverage?: boolean} = {}): void {
     files,
   )
 
-  const env = Object.assign({}, process.env, {
+  const env = {
+    ...process.env,
     TS_NODE_PROJECT: "./test/tsconfig.json",
     NODE_PATH: paths.build_dir.tree,
+  }
+
+  const proc = spawn(process.execPath, args, {stdio: 'inherit', env: env})
+
+  process.once('exit',    () => proc.kill())
+  process.once("SIGINT",  () => proc.kill("SIGINT"))
+  process.once("SIGTERM", () => proc.kill("SIGTERM"))
+
+  return new Promise((resolve, reject) => {
+    proc.on("error", reject)
+    proc.on("exit", (code, signal) => {
+      if (code === 0)
+        resolve()
+      else {
+        // By default, mocha intercepts SIGINT and returns 130 code when interrupted.
+        const comment = signal === "SIGINT" || code === 130 ? "interrupted" : "failed"
+        reject(new gutil.PluginError("mocha", `tests ${comment}`))
+      }
+    })
   })
-
-  process.on("SIGINT", () => console.log()) // flush
-
-  const ret = cp.spawnSync(process.execPath, args, {stdio: 'inherit', env: env})
-
-  const {status, signal, error} = ret
-
-  if (error != null) {
-    gutil.log(`tests failed: ${error}`)
-    process.exit(1)
-  }
-
-  if (status != 0) {
-    const comment = signal === "SIGINT" ? "interrupted" : "failed"
-    gutil.log(`tests ${comment}`)
-    process.exit(1)
-  }
 }
 
 gulp.task("test", ["test:compile", "defaults:generate"], async () => {
-  mocha(["./build/test/unit.js", "./build/test/defaults.js", "./build/test/size.js"])
+  await mocha(["./build/test/unit.js", "./build/test/defaults.js", "./build/test/size.js"])
 })
 
 gulp.task("test:unit", ["test:compile"], async () => {
-  mocha(["./build/test/unit.js"])
+  await mocha(["./build/test/unit.js"])
 })
 
 gulp.task("test:unit:coverage", ["test:compile"], async () => {
-  mocha(["./build/test/unit.js"], {coverage: true})
+  await mocha(["./build/test/unit.js"], {coverage: true})
 })
 
 gulp.task("test:client", ["test:compile"], async () => {
-  mocha(["./build/test/client"])
+  await mocha(["./build/test/client"])
 })
 
 gulp.task("test:core", ["test:compile"], async () => {
-  mocha(["./build/test/core"])
+  await mocha(["./build/test/core"])
 })
 
 gulp.task("test:document", ["test:compile"], async () => {
-  mocha(["./build/test/document.js"])
+  await mocha(["./build/test/document.js"])
 })
 
 gulp.task("test:model", ["test:compile"], async () => {
-  mocha(["./build/test/model.js"])
+  await mocha(["./build/test/model.js"])
 })
 
 gulp.task("test:models", ["test:compile"], async () => {
-  mocha(["./build/test/models"])
+  await mocha(["./build/test/models"])
 })
 
 gulp.task("test:protocol", ["test:compile"], async () => {
-  mocha(["./build/test/protocol"])
+  await mocha(["./build/test/protocol"])
 })
 
 gulp.task("test:utils", ["test:compile"], async () => {
-  mocha(["./build/test/utils.js"])
+  await mocha(["./build/test/utils.js"])
 })
 
 gulp.task("test:defaults", ["test:compile", "defaults:generate"], async () => {
-  mocha(["./build/test/defaults.js"])
+  await mocha(["./build/test/defaults.js"])
 })
 
 gulp.task("test:size", ["test:compile"], async () => {
-  mocha(["./build/test/size.js"])
+  await mocha(["./build/test/size.js"])
 })

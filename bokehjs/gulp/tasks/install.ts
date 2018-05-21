@@ -1,7 +1,7 @@
 import {spawn} from "child_process"
+import chalk from "chalk"
 import * as gulp from "gulp"
 import * as gutil from "gulp-util"
-import chalk from "chalk"
 
 function outputLine(line: string) {
   const prefix = chalk.cyan("setup.py:")
@@ -9,7 +9,7 @@ function outputLine(line: string) {
 }
 
 function handleOutput(data: string) {
-  data.replace(/\s*$/, "")
+  ("" + data).replace(/\s*$/, "")
     .split("\n")
     .forEach(outputLine)
 }
@@ -17,12 +17,17 @@ function handleOutput(data: string) {
 gulp.task("install", () => {
   // installs js and css
   // note: sets cwd as parent dir so that LICENSE.txt is accessible to setup.py
-  const setup = spawn("python", ["setup.py", "--install-js"], {cwd: "../"})
-  setup.stdout.setEncoding("utf8")
-  setup.stdout.on("data", handleOutput)
-  setup.stderr.setEncoding("utf8")
-  setup.stderr.on("data", handleOutput)
-  setup.on("exit", () => {
-    outputLine("DONE!")
+  const proc = spawn("python", ["setup.py", "--install-js"], {cwd: "../"})
+  proc.stdout.on("data", handleOutput)
+  proc.stderr.on("data", handleOutput)
+  return new Promise((resolve, reject) => {
+    proc.on("error", reject)
+    proc.on("exit", (code) => {
+      if (code === 0) {
+        outputLine("DONE!")
+        resolve()
+      } else
+        reject(new Error(`setup.py exited code ${code}`))
+    })
   })
 })
