@@ -12,13 +12,11 @@ gulp.task("styles:build", async () => {
   }
 })
 
-gulp.task("styles:minify", ["styles:build"], (next: () => void) => {
+gulp.task("styles:minify", ["styles:build"], async () => {
   for (const css of paths.css.sources) {
     const min = uglifycss.processFiles([css])
     write(rename(css, {ext: '.min.css'}), min)
   }
-
-  next()
 })
 
 gulp.task("styles", ["styles:minify"])

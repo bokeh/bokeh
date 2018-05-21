@@ -28,19 +28,16 @@ function lint(dir: string): void {
   }
 }
 
-gulp.task("tslint:lib", (next: () => void) => {
-    lint(paths.src_dir.lib)
-    next()
+gulp.task("tslint:lib", async () => {
+  lint(paths.src_dir.lib)
 })
 
-gulp.task("tslint:test", (next: () => void) => {
-    lint(paths.src_dir.test)
-    next()
+gulp.task("tslint:test", async () => {
+  lint(paths.src_dir.test)
 })
 
-gulp.task("tslint:examples", (next: () => void) => {
-    lint(paths.src_dir.examples)
-    next()
+gulp.task("tslint:examples", async () => {
+  lint(paths.src_dir.examples)
 })
 
 gulp.task("tslint", ["tslint:lib", "tslint:test", "tslint:examples"])

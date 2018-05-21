@@ -7,7 +7,7 @@ import {compileTypeScript} from "../compiler"
 import {Linker} from "../linker"
 import * as paths from "../paths"
 
-gulp.task("compiler:ts", (next: () => void) => {
+gulp.task("compiler:ts", async () => {
   const success = compileTypeScript(join(paths.src_dir.compiler, "tsconfig.json"), {
     log: gutil.log,
     out_dir: paths.build_dir.compiler,
@@ -15,11 +15,9 @@ gulp.task("compiler:ts", (next: () => void) => {
 
   if (argv.emitError && !success)
     process.exit(1)
-
-  next()
 })
 
-gulp.task("compiler:build", ["compiler:ts"], (next: () => void) => {
+gulp.task("compiler:build", ["compiler:ts"], async () => {
   const entries = [join(paths.build_dir.compiler, "compile.js")]
   const bases = [paths.build_dir.compiler, "./node_modules"]
   const ignores = ["babel-core"]
@@ -29,6 +27,4 @@ gulp.task("compiler:build", ["compiler:ts"], (next: () => void) => {
   const [bundle] = linker.link()
 
   bundle.write(join(paths.build_dir.js, "compiler.js"))
-
-  next()
 })

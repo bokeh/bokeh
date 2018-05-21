@@ -9,7 +9,7 @@ import {Linker} from "../linker"
 import {read, write, rename} from "../utils"
 import * as paths from "../paths"
 
-gulp.task("scripts:ts", (next: () => void) => {
+gulp.task("scripts:ts", async () => {
   const success = compileTypeScript(join(paths.src_dir.lib, "tsconfig.json"), {
     log: gutil.log,
     out_dir: {js: paths.build_dir.tree, dts: paths.build_dir.types}
@@ -17,13 +17,11 @@ gulp.task("scripts:ts", (next: () => void) => {
 
   if (argv.emitError && !success)
     process.exit(1)
-
-  next()
 })
 
 gulp.task("scripts:compile", ["scripts:ts"])
 
-gulp.task("scripts:bundle", ["scripts:compile"], (next: () => void) => {
+gulp.task("scripts:bundle", ["scripts:compile"], async () => {
   const entries = [
     paths.lib.bokehjs.main,
     paths.lib.api.main,
@@ -45,13 +43,11 @@ gulp.task("scripts:bundle", ["scripts:compile"], (next: () => void) => {
   widgets.write(paths.lib.widgets.output)
   tables.write(paths.lib.tables.output)
   gl.write(paths.lib.gl.output)
-
-  next()
 })
 
 gulp.task("scripts:build", ["scripts:bundle"])
 
-gulp.task("scripts:minify", ["scripts:bundle"], (next: () => void) => {
+gulp.task("scripts:minify", ["scripts:bundle"], async () => {
   function minify(js: string): void {
     const js_map = rename(js, {ext: '.js.map'})
     const min_js = rename(js, {ext: '.min.js'})
@@ -84,8 +80,6 @@ gulp.task("scripts:minify", ["scripts:bundle"], (next: () => void) => {
   minify(paths.lib.widgets.output)
   minify(paths.lib.tables.output)
   minify(paths.lib.gl.output)
-
-  next()
 })
 
 gulp.task("scripts", ["scripts:build", "scripts:minify"])

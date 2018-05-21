@@ -10,7 +10,7 @@ import * as paths from "../paths"
 
 const coffee = require("coffeescript")
 
-gulp.task("test:compile", (next: () => void) => {
+gulp.task("test:compile", async () => {
   const success = compileTypeScript("./test/tsconfig.json", {log: gutil.log})
 
   if (argv.emitError && !success)
@@ -20,8 +20,6 @@ gulp.task("test:compile", (next: () => void) => {
     const js = coffee.compile(read(file)!, {bare: true})
     write(join("./build", rename(file, {ext: ".js"})), js)
   }
-
-  next()
 })
 
 function mocha(files: string[], options: {coverage?: boolean} = {}): void {
@@ -67,62 +65,50 @@ function mocha(files: string[], options: {coverage?: boolean} = {}): void {
   }
 }
 
-gulp.task("test", ["test:compile", "defaults:generate"], (next: () => void) => {
+gulp.task("test", ["test:compile", "defaults:generate"], async () => {
   mocha(["./build/test/unit.js", "./build/test/defaults.js", "./build/test/size.js"])
-  next()
 })
 
-gulp.task("test:unit", ["test:compile"], (next: () => void) => {
+gulp.task("test:unit", ["test:compile"], async () => {
   mocha(["./build/test/unit.js"])
-  next()
 })
 
-gulp.task("test:unit:coverage", ["test:compile"], (next: () => void) => {
+gulp.task("test:unit:coverage", ["test:compile"], async () => {
   mocha(["./build/test/unit.js"], {coverage: true})
-  next()
 })
 
-gulp.task("test:client", ["test:compile"], (next: () => void) => {
+gulp.task("test:client", ["test:compile"], async () => {
   mocha(["./build/test/client"])
-  next()
 })
 
-gulp.task("test:core", ["test:compile"], (next: () => void) => {
+gulp.task("test:core", ["test:compile"], async () => {
   mocha(["./build/test/core"])
-  next()
 })
 
-gulp.task("test:document", ["test:compile"], (next: () => void) => {
+gulp.task("test:document", ["test:compile"], async () => {
   mocha(["./build/test/document.js"])
-  next()
 })
 
-gulp.task("test:model", ["test:compile"], (next: () => void) => {
+gulp.task("test:model", ["test:compile"], async () => {
   mocha(["./build/test/model.js"])
-  next()
 })
 
-gulp.task("test:models", ["test:compile"], (next: () => void) => {
+gulp.task("test:models", ["test:compile"], async () => {
   mocha(["./build/test/models"])
-  next()
 })
 
-gulp.task("test:protocol", ["test:compile"], (next: () => void) => {
+gulp.task("test:protocol", ["test:compile"], async () => {
   mocha(["./build/test/protocol"])
-  next()
 })
 
-gulp.task("test:utils", ["test:compile"], (next: () => void) => {
+gulp.task("test:utils", ["test:compile"], async () => {
   mocha(["./build/test/utils.js"])
-  next()
 })
 
-gulp.task("test:defaults", ["test:compile", "defaults:generate"], (next: () => void) => {
+gulp.task("test:defaults", ["test:compile", "defaults:generate"], async () => {
   mocha(["./build/test/defaults.js"])
-  next()
 })
 
-gulp.task("test:size", ["test:compile"], (next: () => void) => {
+gulp.task("test:size", ["test:compile"], async () => {
   mocha(["./build/test/size.js"])
-  next()
 })
