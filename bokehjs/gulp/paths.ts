@@ -20,6 +20,8 @@ export const build_dir = {
 export const src_dir = {
   lib: join(base_dir, "src", "lib"),
   compiler: join(base_dir, "src", "compiler"),
+  test: join(base_dir, "test"),
+  examples: join(base_dir, "examples"),
 }
 
 export const lib = {
