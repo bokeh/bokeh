@@ -275,8 +275,7 @@ def build_js():
     sys.stdout.flush()
     os.chdir('bokehjs')
 
-    gulp = 'gulp' if sys.platform != "win32" else 'gulp.cmd'
-    cmd = [join('node_modules', '.bin', gulp), 'build', '--emit-error']
+    cmd = ["node", "gulpfile.js", 'build', '--emit-error']
 
     t0 = time.time()
     try:
@@ -426,7 +425,7 @@ For more information, see the Dev Guide:
 
 BUILD_FAIL_MSG = bright(red("Failed.")) + """
 
-ERROR: 'gulp build' returned the following
+ERROR: 'node gulpfile.js build' returned the following
 
 ---- on stdout:
 %s
