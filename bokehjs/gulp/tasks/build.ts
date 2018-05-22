@@ -1,5 +1,5 @@
-import * as gulp from "gulp"
+import {task} from "../task"
 
-gulp.task("build", ["scripts", "styles", "compiler:build"])
+task("build", ["scripts", "styles", "compiler:build"])
 
-gulp.task("dev-build", ["scripts:build", "styles:build"])
+task("dev-build", ["scripts:build", "styles:build"])

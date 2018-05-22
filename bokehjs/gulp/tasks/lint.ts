@@ -1,11 +1,10 @@
-import * as gulp from "gulp"
-import * as gutil from "gulp-util"
 import {argv} from "yargs"
 import {join} from "path"
 
 import {Linter, Configuration} from "tslint"
 
-import {read, scan} from "../utils"
+import {task, log} from "../task"
+import {read, scan} from "../fs"
 import * as paths from "../paths"
 
 function lint(dir: string): void {
@@ -23,21 +22,21 @@ function lint(dir: string): void {
 
     if (result.errorCount != 0) {
       for (const line of result.output.trim().split("\n"))
-        gutil.log(line)
+        log(line)
     }
   }
 }
 
-gulp.task("tslint:lib", async () => {
+task("tslint:lib", async () => {
   lint(paths.src_dir.lib)
 })
 
-gulp.task("tslint:test", async () => {
+task("tslint:test", async () => {
   lint(paths.src_dir.test)
 })
 
-gulp.task("tslint:examples", async () => {
+task("tslint:examples", async () => {
   lint(paths.src_dir.examples)
 })
 
-gulp.task("tslint", ["tslint:lib", "tslint:test", "tslint:examples"])
+task("tslint", ["tslint:lib", "tslint:test", "tslint:examples"])

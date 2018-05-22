@@ -1,18 +1,18 @@
 import * as del from "del"
-import * as gulp from "gulp"
 
-import * as paths from "../paths"
+import {task} from "../task"
+import {build_dir} from "../paths"
 
-gulp.task("clean", ["clean:scripts", "clean:styles"])
+task("clean", ["clean:scripts", "clean:styles"])
 
-gulp.task("clean:all", () => {
-  return del(paths.build_dir.all)
+task("clean:all", () => {
+  return del(build_dir.all)
 })
 
-gulp.task("clean:scripts", () => {
-  return del(paths.build_dir.js)
+task("clean:scripts", () => {
+  return del(build_dir.js)
 })
 
-gulp.task("clean:styles", () => {
-  return del(paths.build_dir.css)
+task("clean:styles", () => {
+  return del(build_dir.css)
 })

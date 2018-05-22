@@ -1,11 +1,11 @@
 import {spawn} from "child_process"
 import chalk from "chalk"
-import * as gulp from "gulp"
-import * as gutil from "gulp-util"
+
+import {task, log} from "../task"
 
 function outputLine(line: string) {
   const prefix = chalk.cyan("setup.py:")
-  gutil.log(`${prefix} ${chalk.grey(line)}`)
+  log(`${prefix} ${chalk.grey(line)}`)
 }
 
 function handleOutput(data: string) {
@@ -14,7 +14,7 @@ function handleOutput(data: string) {
     .forEach(outputLine)
 }
 
-gulp.task("install", ["build"], () => {
+task("install", ["build"], () => {
   // installs js and css
   // note: sets cwd as parent dir so that LICENSE.txt is accessible to setup.py
   const proc = spawn("python", ["setup.py", "--install-js"], {cwd: "../"})

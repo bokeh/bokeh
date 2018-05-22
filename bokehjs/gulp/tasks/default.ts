@@ -1,3 +1,3 @@
-import * as gulp from "gulp"
+import {task} from "../task"
 
-gulp.task("default", ["build", "install"])
+task("default", ["build", "install"])

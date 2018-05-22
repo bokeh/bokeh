@@ -1,17 +1,16 @@
-import * as gulp from "gulp"
-import * as gutil from "gulp-util"
 import * as uglify from "uglify-js"
 import {join, basename} from "path"
 import {argv} from "yargs"
 
+import {task, log} from "../task"
 import {compileTypeScript} from "../compiler"
 import {Linker} from "../linker"
-import {read, write, rename} from "../utils"
+import {read, write, rename} from "../fs"
 import * as paths from "../paths"
 
-gulp.task("scripts:ts", async () => {
+task("scripts:ts", async () => {
   const success = compileTypeScript(join(paths.src_dir.lib, "tsconfig.json"), {
-    log: gutil.log,
+    log,
     out_dir: {js: paths.build_dir.tree, dts: paths.build_dir.types}
   })
 
@@ -19,9 +18,9 @@ gulp.task("scripts:ts", async () => {
     process.exit(1)
 })
 
-gulp.task("scripts:compile", ["scripts:ts"])
+task("scripts:compile", ["scripts:ts"])
 
-gulp.task("scripts:bundle", ["scripts:compile"], async () => {
+task("scripts:bundle", ["scripts:compile"], async () => {
   const entries = [
     paths.lib.bokehjs.main,
     paths.lib.api.main,
@@ -45,9 +44,9 @@ gulp.task("scripts:bundle", ["scripts:compile"], async () => {
   gl.write(paths.lib.gl.output)
 })
 
-gulp.task("scripts:build", ["scripts:bundle"])
+task("scripts:build", ["scripts:bundle"])
 
-gulp.task("scripts:minify", ["scripts:bundle"], async () => {
+task("scripts:minify", ["scripts:bundle"], async () => {
   function minify(js: string): void {
     const js_map = rename(js, {ext: '.js.map'})
     const min_js = rename(js, {ext: '.min.js'})
@@ -82,4 +81,4 @@ gulp.task("scripts:minify", ["scripts:bundle"], async () => {
   minify(paths.lib.gl.output)
 })
 
-gulp.task("scripts", ["scripts:build", "scripts:minify"])
+task("scripts", ["scripts:build", "scripts:minify"])
