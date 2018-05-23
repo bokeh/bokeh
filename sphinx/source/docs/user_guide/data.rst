@@ -273,7 +273,7 @@ pass in the JavaScript code as a string to the parameter ``code``:
     var indices = [];
 
     // iterate through rows of data source and see if each satisfies some constraint
-    for (var i = 0; i <= source.get_length(); i++){
+    for (var i = 0; i < source.get_length(); i++){
         if (source.data['some_column'][i] == 'some_value'){
             indices.push(true);
         } else {
