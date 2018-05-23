@@ -96,8 +96,8 @@
   },
   "scripts": {
     "prepare": "node ./prepare.js",
-    "build": "node gulpfile.js build",
-    "dev-build": "node gulpfile.js dev-build"
+    "build": "node make build",
+    "dev-build": "node make dev-build"
   },
   "main": "build/js/tree/index.js"
 }

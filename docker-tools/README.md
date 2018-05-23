@@ -13,7 +13,7 @@ To install JS dependencies:
 
 To run build tasks, for example:
 
-    $ docker-tools/build.sh "build --build-dir=/bokeh/bokeh/server/static"
+    $ docker-tools/make.sh "build --build-dir=/bokeh/bokeh/server/static"
 
 To run the tests with various parameters and various versions of Python, for example:
 

@@ -4,11 +4,11 @@ set -e # exit on error
 set -x # echo commands
 
 pushd bokehjs
-node gulpfile.js scripts:compile --emit-error
+node make scripts:compile --emit-error
 
-node gulpfile.js test:compile --emit-error
+node make test:compile --emit-error
 
-node gulpfile.js tslint
+node make tslint
 popd
 
 py.test -m sampledata

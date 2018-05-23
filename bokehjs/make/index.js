@@ -51,7 +51,7 @@ process.on('uncaughtException', function(err) {
   process.exit(1)
 })
 
-register({project: "./gulp/tsconfig.json", cache: false})
+register({project: "./make/tsconfig.json", cache: false})
 
 if (require.main != null)
   require("./main")

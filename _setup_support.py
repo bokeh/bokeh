@@ -275,7 +275,7 @@ def build_js():
     sys.stdout.flush()
     os.chdir('bokehjs')
 
-    cmd = ["node", "gulpfile.js", 'build', '--emit-error']
+    cmd = ["node", "make", 'build', '--emit-error']
 
     t0 = time.time()
     try:
@@ -425,7 +425,7 @@ For more information, see the Dev Guide:
 
 BUILD_FAIL_MSG = bright(red("Failed.")) + """
 
-ERROR: 'node gulpfile.js build' returned the following
+ERROR: 'node make build' returned the following
 
 ---- on stdout:
 %s
