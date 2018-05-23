@@ -1,85 +1,105 @@
 language: generic
 sudo: false
 dist: trusty
+
+# This does not show secret variables, but only disables a filter for accidental spillage. The filter
+# is causing problems with log trunction and TravisCI support advised to turn it off for now. See the
+# issue https://github.com/bokeh/bokeh/issues/6568 for more information.
 filter_secrets: false
+
 env:
   global:
-  - BOTO_CONFIG="/tmp/nowhere"
-  - secure: nLrUq2h59KN3k3hnid+Ub4RHDcVkZyrVmuMLoM6NbwKA0bwpDltaoSg5cj2dzdXKBwvv+3VP38oXLhEGLhVi7kDmyX3ICcza6Usy8zgK3s1NBgl6hFjqaJ7RjCu9OP1I42ThMTLfCQMRrYul7s74sGdZa+HfMCZcl+3Co5IzraI=
-  - secure: oI7Up9HuHSBw8k9LBNC6pLEUJONj+5NeEGFpSLSVXvqPPmyXJZ4qRE/dZ/HxZp6xyBze5GLYmdXXAdhrZyNjmU1ZA0rbBLDWLXuAW8eJm5xAXZ0NRFlHMXMkwvbG9hPTOTFtxKNS4lG/Fo5AXwE4MgT5uzQS4I7HuuNkcZOoInY=
-  - secure: MAaYB6RV2a9tZ61Olatv52Yi4EqEh+wMkX6y20Ja1yyY3I+2sFT1NZ8ZwPFCKkDdMeSna7z4ROKk3CDMK0JkbUJrqnZgo6Fy7w6GZPcZlzUPrgH04Or0v94upMh2i0lh8wcz88VuR0i+GxnqUsP18W5AJfO/FXmU4VgDAOJfKrQ=
-  - secure: IJrbxdVsjSOsZsmeD3nns1jQqcfY6J1mBbGSAtTHgRBvy1dKaejYg9jfKxaRlxjfSWXROomv0Ig+57wEAhSbxy1GBX52cklcLaY11LhaP6DHaah5eDcZe10Lk/5GxuVQmrJY0CtrrV6Jv2UB87sEqhwB0B5+ZXWOt0vdsHa4yOI=
-  - secure: pham9rB+qKZJYVBgXzg7I0rYbAo+A3dFbh4+L3rAuJtSQ7BJfYHwD3GIBFT/RAXIkjbEIPxFYygq+em7A9UdLQpcCgFcmrCWeVxCChCJ3lZBReb47i/vUuKgJT5d19vqpgGtQAxgd1gSBl4k6SwkpxWIpqtimVWq1F1JqU3U+6s=
-  - secure: Lv0s3lMsex6jASQ2/9StOV3MQVtkisIcf/Qk/or9wJqpuGWoMQUCaXkhC+8onYeOaFtznvf60nV4zEUYIWXYWEtUUmI4BjmlLvb+lhOVErqdJ+ihMH1yASHm1v7+9MjNnMGRxtAg0cTtJFbmXWHtYDMylNZ1E7X+ORpXyqer3n4=
-  - secure: 0S3SyfTCw5wm6evxgwxA6j1I8RgcXunHMjEK4sB1u7R9cBO9bcFZNkYdtaPw4YuNJN7t4gifHGHQ0pz+33VHlbafnOpcXxmzAKienDw8Uu0SbWeGzgU5WHBHbh7IfmEnrUUXpZI8vgpRLcRipPWkKeskJ61VWKfz+OcnonHS/2M=
-  - secure: JomXuL6P5+hJNK70Pl7ZNHE3SKT/rOwSmWWfwahNtqL+gdBg9y4s4mtZQUE3GQbz2X8zVvEoJJpNtRR6mtYVbXSk105shVsRUXqNGckagGH+jglvWTa2Qq4gab5kelIrdMO2CXHFVqBNCibUbB+o9XP95fEbAe9jnXlMBnnrH8c=
+    - BOTO_CONFIG="/tmp/nowhere"
+    - secure: nLrUq2h59KN3k3hnid+Ub4RHDcVkZyrVmuMLoM6NbwKA0bwpDltaoSg5cj2dzdXKBwvv+3VP38oXLhEGLhVi7kDmyX3ICcza6Usy8zgK3s1NBgl6hFjqaJ7RjCu9OP1I42ThMTLfCQMRrYul7s74sGdZa+HfMCZcl+3Co5IzraI=
+    - secure: oI7Up9HuHSBw8k9LBNC6pLEUJONj+5NeEGFpSLSVXvqPPmyXJZ4qRE/dZ/HxZp6xyBze5GLYmdXXAdhrZyNjmU1ZA0rbBLDWLXuAW8eJm5xAXZ0NRFlHMXMkwvbG9hPTOTFtxKNS4lG/Fo5AXwE4MgT5uzQS4I7HuuNkcZOoInY=
+    - secure: MAaYB6RV2a9tZ61Olatv52Yi4EqEh+wMkX6y20Ja1yyY3I+2sFT1NZ8ZwPFCKkDdMeSna7z4ROKk3CDMK0JkbUJrqnZgo6Fy7w6GZPcZlzUPrgH04Or0v94upMh2i0lh8wcz88VuR0i+GxnqUsP18W5AJfO/FXmU4VgDAOJfKrQ=
+    - secure: IJrbxdVsjSOsZsmeD3nns1jQqcfY6J1mBbGSAtTHgRBvy1dKaejYg9jfKxaRlxjfSWXROomv0Ig+57wEAhSbxy1GBX52cklcLaY11LhaP6DHaah5eDcZe10Lk/5GxuVQmrJY0CtrrV6Jv2UB87sEqhwB0B5+ZXWOt0vdsHa4yOI=
+    - secure: pham9rB+qKZJYVBgXzg7I0rYbAo+A3dFbh4+L3rAuJtSQ7BJfYHwD3GIBFT/RAXIkjbEIPxFYygq+em7A9UdLQpcCgFcmrCWeVxCChCJ3lZBReb47i/vUuKgJT5d19vqpgGtQAxgd1gSBl4k6SwkpxWIpqtimVWq1F1JqU3U+6s=
+    - secure: Lv0s3lMsex6jASQ2/9StOV3MQVtkisIcf/Qk/or9wJqpuGWoMQUCaXkhC+8onYeOaFtznvf60nV4zEUYIWXYWEtUUmI4BjmlLvb+lhOVErqdJ+ihMH1yASHm1v7+9MjNnMGRxtAg0cTtJFbmXWHtYDMylNZ1E7X+ORpXyqer3n4=
+    - secure: 0S3SyfTCw5wm6evxgwxA6j1I8RgcXunHMjEK4sB1u7R9cBO9bcFZNkYdtaPw4YuNJN7t4gifHGHQ0pz+33VHlbafnOpcXxmzAKienDw8Uu0SbWeGzgU5WHBHbh7IfmEnrUUXpZI8vgpRLcRipPWkKeskJ61VWKfz+OcnonHS/2M=
+    - secure: JomXuL6P5+hJNK70Pl7ZNHE3SKT/rOwSmWWfwahNtqL+gdBg9y4s4mtZQUE3GQbz2X8zVvEoJJpNtRR6mtYVbXSk105shVsRUXqNGckagGH+jglvWTa2Qq4gab5kelIrdMO2CXHFVqBNCibUbB+o9XP95fEbAe9jnXlMBnnrH8c=
+
 branches:
   only:
   - master
   - "/^\\d+.\\d+.\\d+dev\\d+$/"
   - "/^\\d+.\\d+.\\d+rc\\d+$/"
   - "/^\\d+.\\d+.\\d+$/"
+
 notifications:
   flowdock:
     secure: ZisceYtV2b7LWNUz0wEtiR9TRk+i8x5m/N6+Htn4IFr+bBcBi79ESO0u6DWiJA5rHt+Yq7Yf49vl7UO9HZCF+8n5B1nKpfivJKngVuMYLnhYifNmwCD7vQ8aaF9DTfOqvm2hJrHwtieX8BUGs2KWd8igt3f8LCXVWVBBvkqc2L0=
+
 before_install:
-- export PATH="$HOME/miniconda/bin:$PATH"
-- export PATH="$HOME/build/bokeh/bokeh/bokehjs/node_modules/phantomjs-prebuilt/lib/phantom/bin:$PATH"
-- export PATH="$HOME/bin:$PATH"
-- export TRAVIS_COMMIT_MSG="$(git log --format=%B --no-merges -n 1)"
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - export PATH="$HOME/build/bokeh/bokeh/bokehjs/node_modules/phantomjs-prebuilt/lib/phantom/bin:$PATH"
+  - export PATH="$HOME/bin:$PATH"
+  - export TRAVIS_COMMIT_MSG="$(git log --format=%B --no-merges -n 1)"
+
 jobs:
   include:
-  - stage: build
-    install: scripts/ci/install:build
-    script: scripts/ci/build
-  - stage: test
-    install: scripts/ci/install:test
-    script: scripts/ci/test
-    addons:
-      chrome: stable
-    before_script:
-    - google-chrome-stable --no-sandbox --headless --remote-debugging-port=9222 &
-    env:
-    - GROUP=examples
-    - PYTHON=3.5
-  - install: scripts/ci/install:test
-    script: scripts/ci/test
-    env:
-    - GROUP=examples
-    - PYTHON=2.7
-    - EXTRA_CMD=--no-js
-  - install: scripts/ci/install:test
-    script: scripts/ci/test
-    env:
-    - GROUP=js
-  - install: scripts/ci/install:test
-    script: scripts/ci/test
-    env:
-    - GROUP=unit
-    - PYTHON=3.6
-  - install: scripts/ci/install:test
-    script: scripts/ci/test
-    env:
-    - GROUP=unit
-    - PYTHON=3.5
-    - TORNADO=4
-  - install: scripts/ci/install:test
-    script: scripts/ci/test
-    env:
-    - GROUP=unit
-    - PYTHON=2.7
-  - install: scripts/ci/install:test
-    script: scripts/ci/test
-    env:
-    - GROUP=docs
-  - install: scripts/ci/install:test
-    script: scripts/ci/test
-    env:
-    - GROUP=codebase
-  - install: scripts/ci/install:test
-    script: scripts/ci/test
-    env:
-    - GROUP=downstream
-  - install: scripts/ci/install:deploy
-    stage: deploy
-    script: scripts/ci/deploy
+    - stage: build
+      install: scripts/ci/install:build
+      script: scripts/ci/build
+
+    - stage: test
+
+      install: scripts/ci/install:test
+      script: scripts/ci/test
+      addons:
+        chrome: stable
+      before_script:
+        - google-chrome-stable --no-sandbox --headless --remote-debugging-port=9222 &
+      env:
+      - GROUP=examples
+      - PYTHON=3.5
+
+    - install: scripts/ci/install:test
+      script: scripts/ci/test
+      env:
+      - GROUP=examples
+      - PYTHON=2.7
+      - EXTRA_CMD=--no-js
+
+    - install: scripts/ci/install:test
+      script: scripts/ci/test
+      env:
+      - GROUP=js
+
+    - install: scripts/ci/install:test
+      script: scripts/ci/test
+      env:
+      - GROUP=unit
+      - PYTHON=3.6
+
+    - install: scripts/ci/install:test
+      script: scripts/ci/test
+      env:
+      - GROUP=unit
+      - PYTHON=3.5
+      - TORNADO=4
+
+    - install: scripts/ci/install:test
+      script: scripts/ci/test
+      env:
+      - GROUP=unit
+      - PYTHON=2.7
+
+    - install: scripts/ci/install:test
+      script: scripts/ci/test
+      env:
+      - GROUP=docs
+
+    - install: scripts/ci/install:test
+      script: scripts/ci/test
+      env:
+      - GROUP=codebase
+
+    - install: scripts/ci/install:test
+      script: scripts/ci/test
+      env:
+      - GROUP=downstream
+
+    - install: scripts/ci/install:deploy
+      stage: deploy
+      script: scripts/ci/deploy
