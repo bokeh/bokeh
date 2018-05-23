@@ -32,7 +32,7 @@ export function task<T>(name: string, deps: string[] | Fn<T>, fn?: Fn<T>): void 
   tasks.set(name, t)
 }
 
-export function get_tasks(): string[] {
+export function task_names(): string[] {
   return Array.from(tasks.keys())
 }
 

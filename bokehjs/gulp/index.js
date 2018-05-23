@@ -3,7 +3,7 @@ const semver = require("semver")
 const cp = require("child_process")
 const fs = require("fs")
 
-const {engines} = require("./package.json")
+const {engines} = require("../package.json")
 
 const node_version = process.version
 const npm_version = cp.execSync("npm --version").toString().trim()
@@ -52,4 +52,6 @@ process.on('uncaughtException', function(err) {
 })
 
 register({project: "./gulp/tsconfig.json", cache: false})
-require("./gulp")
+
+if (require.main != null)
+  require("./main")
