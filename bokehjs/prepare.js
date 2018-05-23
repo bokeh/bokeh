@@ -10,3 +10,9 @@ function write_hash(file) {
 }
 
 write_hash("package.json")
+
+const chalk = require("chalk")
+
+console.log(`\
+${chalk.yellow("WARNING")}: '${chalk.cyan("gulp build")}' isn't supported anymore. Use '${chalk.cyan("node make build")}' instead.
+`)
