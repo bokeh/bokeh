@@ -1,5 +1,6 @@
 import * as fs from "fs"
 import {resolve, relative, join, dirname, basename, sep} from "path"
+const {_builtinLibs} = require("repl")
 
 import * as esprima from "esprima"
 import * as escodegen from "escodegen"
@@ -16,6 +17,7 @@ const str = JSON.stringify
 const exists = fs.existsSync
 const write = fs.writeFileSync
 const is_dir = (path: string) => fs.statSync(path).isDirectory()
+const is_file = (path: string) => fs.statSync(path).isFile()
 const to_obj = <T>(map: Map<string, T>): {[key: string]: T} => {
   const obj = Object.create(null)
   for (const [key, val] of map) {
@@ -50,7 +52,9 @@ export class Bundle {
 export interface LinkerOpts {
   entries: string[]
   bases?: string[]
-  excludes?: string[]
+  excludes?: string[] // paths: process, but don't include in a bundle
+  ignores?: string[]  // modules: don't process at all
+  builtins?: boolean
   sourcemaps?: boolean
 }
 
@@ -58,13 +62,25 @@ export class Linker {
   readonly entries: string[]
   readonly bases: string[]
   readonly excludes: Set<string>
+  readonly ignores: Set<string>
+  readonly builtins: boolean
   readonly sourcemaps: boolean
 
   constructor(opts: LinkerOpts) {
     this.entries = opts.entries
     this.bases = (opts.bases || []).map((path) => resolve(path))
     this.excludes = new Set((opts.excludes || []).map((path) => resolve(path)))
+    this.ignores = new Set(opts.ignores || [])
+    this.builtins = opts.builtins || false
     this.sourcemaps = opts.sourcemaps || false
+
+    if (this.builtins) {
+      this.ignores.add("module")
+      this.ignores.add("constants")
+
+      for (const lib of _builtinLibs)
+        this.ignores.add(lib)
+    }
 
     for (const base of this.bases) {
       if (!exists(base) || !is_dir(base))
@@ -167,7 +183,8 @@ export class Linker {
 
       const aliases = JSON.stringify(to_obj(exported))
       const entry_id = module_map.get(entry)!
-      sources += `${suffix}, ${aliases}, ${entry_id});\n})\n`
+      const parent_require = this.builtins ? `typeof "require" !== "undefined" && require` : "null"
+      sources += `${suffix}, ${aliases}, ${entry_id}, ${parent_require});\n})\n`
 
       const obj = convert.fromBase64(sourcemap.base64()).toObject()
       return new Bundle(sources, obj, exported, bundled)
@@ -208,13 +225,16 @@ export class Linker {
 
   protected resolve_relative(dep: string, parent: Module): string {
     const path = resolve(parent.dir, dep)
-    const file = path + this.ext
 
-    if (exists(file))
+    if (exists(path) && is_file(path))
+      return path
+
+    const file = path + this.ext
+    if (exists(file) && is_file(file))
       return file
     else if (exists(path) && is_dir(path)) {
       const file = join(path, "index" + this.ext)
-      if (exists(file))
+      if (exists(file) && is_file(file))
         return file
     }
 
@@ -222,29 +242,57 @@ export class Linker {
   }
 
   protected resolve_absolute(dep: string, parent: Module): string {
+    const resolve_with_index = (path: string): string | null => {
+      let index = "index" + this.ext
+
+      const pkg_path = join(path, "package.json")
+      if (exists(pkg_path)) {
+        const pkg = JSON.parse(fs.readFileSync(pkg_path, "utf8"))
+        if (pkg.main != null)
+          index = pkg.main
+      }
+
+      let file = join(path, index)
+      if (exists(file) && is_file(file))
+        return file
+      else {
+        file += this.ext
+        if (exists(file) && is_file(file))
+          return file
+      }
+
+      return null
+    }
+
     for (const base of this.bases) {
-      const path = join(base, dep)
+      let path = join(base, dep)
       const file = path + this.ext
 
-      if (exists(file))
+      if (exists(file) && is_file(file))
         return file
-      else if (exists(path) && is_dir(path)) {
-        let index = "index" + this.ext
 
-        const pkg_path = join(path, "package.json")
-        if (exists(pkg_path)) {
-          const pkg = JSON.parse(fs.readFileSync(pkg_path, "utf8"))
-          if (pkg.main != null)
-            index = pkg.main
-        }
-
-        let file = join(path, index)
-        if (exists(file))
+      if (exists(path) && is_dir(path)) {
+        const file = resolve_with_index(path)
+        if (file != null)
           return file
-        else {
-          file += this.ext
-          if (exists(file))
-            return file
+      }
+
+      if (parent.file.startsWith(base)) {
+        let base_path = parent.file
+
+        while (true) {
+          base_path = dirname(base_path)
+
+          if (base_path == base)
+            break
+
+          path = join(base_path, "node_modules", dep)
+
+          if (exists(path) && is_dir(path)) {
+            const file = resolve_with_index(path)
+            if (file != null)
+              return file
+          }
         }
       }
     }
@@ -271,10 +319,14 @@ export class Module {
 
   constructor(readonly file: string, protected readonly linker: Linker) {
     this.input = fs.readFileSync(this.file, "utf8")
+    if (file.endsWith(".json"))
+      this.input = `module.exports = ${this.input}`
+
     this.ast = this.parse()
 
     for (const dep of this.collect_deps()) {
-      this.deps.set(dep, linker.resolve(dep, this))
+      if (!this.linker.ignores.has(dep))
+        this.deps.set(dep, linker.resolve(dep, this))
     }
   }
 

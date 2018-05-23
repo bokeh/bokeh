@@ -1,4 +1,12 @@
+import * as fs from "fs"
+
+const license = fs.readFileSync('../LICENSE.txt', 'utf-8')
+                  .trim().split("\n").map((line) => ` * ${line}`).join("\n")
+
 export const prelude = `\
+/*!
+${license}
+ */
 (function(root, factory) {
 //  if(typeof exports === 'object' && typeof module === 'object')
 //    module.exports = factory();
@@ -10,7 +18,7 @@ export const prelude = `\
     root["Bokeh"] = factory();
 })(this, function() {
   var define;
-  return (function(modules, aliases, entry) {
+  return (function(modules, aliases, entry, parent_require) {
     var cache = {};
 
     var require = function(name) {
@@ -18,6 +26,9 @@ export const prelude = `\
 
       if (!cache[id]) {
         if (!modules[id]) {
+          if (parent_require)
+            return parent_require(id)
+
           var err = new Error("Cannot find module '" + name + "'");
           err.code = 'MODULE_NOT_FOUND';
           throw err;
@@ -56,6 +67,9 @@ export const prelude = `\
 `
 
 export const plugin_prelude = `\
+/*!
+${license}
+ */
 (function(root, factory) {
 //  if(typeof exports === 'object' && typeof module === 'object')
 //    factory(require("Bokeh"));

@@ -12,7 +12,7 @@ fi
 
 # build BokehJS
 pushd bokehjs
-node_modules/.bin/gulp build
+node make build
 popd
 
 # build a noarch conda package for Bokeh using the just-built BokehJS

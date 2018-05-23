@@ -55,11 +55,7 @@ source checkout and execute:
 
 .. code-block:: sh
 
-    gulp test
-
-Note that you may need to manually run ``gulp`` from the ``node_modules/.bin``
-directory. Alternatively, you may ``npm install -g gulp`` to install Gulp
-globally.
+    node make test
 
 You can run all available tests (python and JS unit tests, as well as example
 and integration tests) **from the top level directory** by executing:
@@ -355,7 +351,7 @@ separate ``test:<GROUP>`` script for each of the following test groups:
     a report is uploaded to see the detailed results.
 
 ``js``
-    This job runs all the JavaScript unit tests (i.e. ``gulp test``)
+    This job runs all the JavaScript unit tests (i.e. ``node make test``)
 
 
 ``unit``

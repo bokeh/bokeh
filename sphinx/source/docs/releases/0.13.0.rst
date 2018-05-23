@@ -1,0 +1,36 @@
+0.13.0 (June 2018)
+==================
+
+Bokeh Version ``0.13.0`` is an incremental update that adds a few
+new features and fixes several bugs. Some of the highlights include:
+
+*
+
+And several other bug fixes and docs additions. For full details see the
+:bokeh-tree:`CHANGELOG`.
+
+Migration Guide
+---------------
+
+NOTE: the 0.13.x series is the last release series before a version
+1.0 release. For more information see the `project roadmap`_.
+
+Deprecations Removed
+~~~~~~~~~~~~~~~~~~~~
+
+The following functions, arguments, or features have were previously deprecated
+with warnings and instructions for new usage, and have now been permanently
+removed:
+
+*
+
+bokehjs' build changes
+~~~~~~~~~~~~~~~~~~~~~~
+
+Previously we used gulp as the build system for bokehjs. This was replaced with
+an in-house solution. Now the build is run with ``node make build`` instead of
+``gulp build``. Task names remained unchanged. If you want preserve the old
+workflow, e.g. to aid ``git bisect``, the create an alias for ``node make``,
+e.g. in bash this would be ``alias gulp='node make'``.
+
+.. _project roadmap: https://bokehplots.com/pages/roadmap.html
