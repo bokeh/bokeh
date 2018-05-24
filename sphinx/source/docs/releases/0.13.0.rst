@@ -4,7 +4,7 @@
 Bokeh Version ``0.13.0`` is an incremental update that adds a few
 new features and fixes several bugs. Some of the highlights include:
 
-*
+* Improved hover tool fields for common stacked bar plot cases
 
 And several other bug fixes and docs additions. For full details see the
 :bokeh-tree:`CHANGELOG`.
@@ -12,25 +12,33 @@ And several other bug fixes and docs additions. For full details see the
 Migration Guide
 ---------------
 
-NOTE: the 0.13.x series is the last release series before a version
+NOTE: the 0.13.x series is a final series of small releases leading to a
 1.0 release. For more information see the `project roadmap`_.
 
-Deprecations Removed
-~~~~~~~~~~~~~~~~~~~~
+New Hover fields
+~~~~~~~~~~~~~~~~
 
-The following functions, arguments, or features have were previously deprecated
-with warnings and instructions for new usage, and have now been permanently
-removed:
+Two new hover tooltip fields are now available:
 
-*
+* ``$name`` will preint the value of the ``name`` property of a glyph that
+  is being hovered over.
 
-bokehjs' build changes
-~~~~~~~~~~~~~~~~~~~~~~
+* ``@$name`` will look up values from a column like a normal ``@`` field,
+  but will use ``$name`` as the name of the column.
 
-Previously we used gulp as the build system for bokehjs. This was replaced with
-an in-house solution. Now the build is run with ``node make build`` instead of
-``gulp build``. Task names remained unchanged. If you want preserve the old
-workflow, e.g. to aid ``git bisect``, the create an alias for ``node make``,
+Both of these are espeically useful in conjunction with stacked bar plots.
+
+BokehJS Build
+~~~~~~~~~~~~~
+
+The ``gulp`` tool was previously used as the build system for BokehJS. This
+has been replaced with a smaller and simpler build script. This greatly
+reduced the number of dependencies required to build BokehJS and a completely
+clean NPM package security audit was obtained as a side effect.
+
+To build now, run the commandf ``node make build`` instead of ``gulp build``.
+Task names remained unchanged. If you want preserve the old workflow, e.g. to
+aid ``git bisect``, it is suggested to create an alias for ``node make``,
 e.g. in bash this would be ``alias gulp='node make'``.
 
 .. _project roadmap: https://bokehplots.com/pages/roadmap.html
