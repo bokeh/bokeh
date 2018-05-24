@@ -41,6 +41,8 @@ except ImportError:
     def green(text):  return text
     def yellow(text): return text
 
+RSURL = 'https://storage101.iad3.clouddrive.com'
+
 NOT_STARTED = "NOT STARTED"
 STARTED = "STARTED BUT NOT COMPLETED"
 COMPLETED = "COMPLETED"
@@ -161,10 +163,10 @@ def upload_wrapper(name):
         return wrapper
     return decorator
 
-def cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id, binary=False):
+def cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id, binary=False, url=RSURL):
     print(":uploading to CDN: %s" % cdn_path)
     if CONFIG.dry_run: return
-    url = 'https://storage101.dfw1.clouddrive.com/v1/%s/%s' % (cdn_id, cdn_path)
+    url = url + '/v1/%s/%s' % (cdn_id, cdn_path)
     c = pycurl.Curl()
     c.setopt(c.CAINFO, certifi.where())
     c.setopt(c.URL, url)
@@ -335,7 +337,7 @@ def build_examples():
 #--------------------------------------
 
 @upload_wrapper('cdn')
-def upload_cdn(cdn_token, cdn_id):
+def upload_cdn(cdn_token, cdn_id, url=RSURL):
     subdir = 'dev' if V(CONFIG.version).is_prerelease else 'release'
     version = CONFIG.version
 
@@ -344,14 +346,14 @@ def upload_cdn(cdn_token, cdn_id):
         for suffix in ('js', 'min.js'):
             local_path = 'bokehjs/build/js/%s.%s' % (name, suffix)
             cdn_path = 'bokeh/bokeh/%s/%s-%s.%s' % (subdir, name, version, suffix)
-            cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id)
+            cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id, url=url)
 
     content_type = "text/css"
     for name in ('bokeh', 'bokeh-widgets', 'bokeh-tables'):
         for suffix in ('css', 'min.css'):
             local_path = 'bokehjs/build/css/%s.%s' % (name, suffix)
             cdn_path = 'bokeh/bokeh/%s/%s-%s.%s' % (subdir, name, version, suffix)
-            cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id)
+            cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id, url=url)
 
 @upload_wrapper('anaconda')
 def upload_anaconda(token, dev):
@@ -383,10 +385,10 @@ def upload_docs():
     cd("..")
 
 @upload_wrapper('examples')
-def upload_examples(cdn_token, cdn_id):
+def upload_examples(cdn_token, cdn_id, url=RSURL):
     local_path = "examples-%s.zip" % CONFIG.version
     cdn_path = 'bokeh/bokeh/examples/%s' % local_path
-    cdn_upload(local_path, cdn_path, 'application/zip', cdn_token, cdn_id, binary=True)
+    cdn_upload(local_path, cdn_path, 'application/zip', cdn_token, cdn_id, binary=True, url=url)
 
 @upload_wrapper('npm')
 def upload_npm():
@@ -467,7 +469,7 @@ if __name__ == '__main__':
 
     # upload to CDN first -- if this fails, save the trouble of removing
     # useless packages from Anaconda.org and PyPI
-    upload_cdn(old_cdn_token, old_cdn_id)
+    upload_cdn(old_cdn_token, old_cdn_id, url='https://storage101.dfw1.clouddrive.com')
     upload_cdn(cdn_token, cdn_id)
 
     upload_anaconda(anaconda_token, V(CONFIG.version).is_prerelease)
@@ -481,6 +483,7 @@ if __name__ == '__main__':
     else:
         upload_pypi()
         upload_npm()
+        upload_examples(cdn_token, cdn_id, url='https://storage101.dfw1.clouddrive.com')
         upload_examples(cdn_token, cdn_id)
 
     # finish ----------------------------------------------------------------
