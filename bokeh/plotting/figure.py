@@ -84,7 +84,12 @@ class FigureOptions(Options):
     """)
 
     tooltips = Either(String, List(Tuple(String, String)), help="""
-
+    An optional argument to configure tooltips for the Figure. This argument
+    accepts the same values as the ``HoverTool.tooltips`` property. If a hover
+    tool is specified in the ``tools`` argument, this value will override that
+    hover tools ``tooltips`` value. If no hover tool is specified in the
+    ``tools`` argument, then passing tooltips here will cause one to be created
+    and added.
     """)
 
 class Figure(Plot):
