@@ -562,7 +562,7 @@ documentation in the :ref:`refguide`.
 The |FuncTickFormatter| allows arbitrary tick formatting to be performed by
 supplying a JavaScript snippet as the ``code`` property. For convenience,
 there are also ``from_py_func`` and ``from_coffeescript`` class methods
-that can convert a python function or coffeescript snippet into JavaScript
+that can convert a python function or CoffeeScript snippet into JavaScript
 automatically. In all cases, the variable ``tick`` will contain the unformatted
 tick value and can be expected to be present in the snippet or function
 namespace at render time. The example below demonstrates configuring a
