@@ -38,8 +38,7 @@ export class MultiSelectView extends InputWidgetView {
       else
         [value, _label] = opt
 
-      const selected = value in this.model.value
-      return option({selected: selected, value: value}, _label)
+      return option({value}, _label)
     })
 
     this.selectEl = select({
@@ -47,22 +46,20 @@ export class MultiSelectView extends InputWidgetView {
       class: "bk-widget-form-input",
       id: this.model.id,
       name: this.model.name,
-      size: this.model.size,
-      disabled: this.model.disabled}, options)
+      disabled: this.model.disabled,
+    }, options)
+
     this.selectEl.addEventListener("change", () => this.change_input())
     this.el.appendChild(this.selectEl)
+
     this.render_selection()
   }
 
   render_selection(): void {
-    const values: {[key: string]: boolean} = {}
-    for (const x of this.model.value)
-      values[x] = true
+    const selected = new Set(this.model.value)
 
-    for (const el of Array.from(this.el.querySelectorAll('option'))) {
-      if (values[el.value])
-        el.selected = true
-    }
+    for (const el of Array.from(this.el.querySelectorAll('option')))
+      el.selected = selected.has(el.value)
 
     // Note that some browser implementations might not reduce
     // the number of visible options for size <= 3.
