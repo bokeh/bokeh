@@ -255,8 +255,8 @@ either ``setosa``, ``versicolor``, or ``virginica``.
 CustomJSFilter
 ~~~~~~~~~~~~~~
 
-You can also create a |CustomJSFilter| with your own functionality. To do this, use JavaScript
-or CoffeeScript to write code that returns either a list of indices or a list of
+You can also create a |CustomJSFilter| with your own functionality. To do this, use JavaScript,
+TypeScript or CoffeeScript to write code that returns either a list of indices or a list of
 booleans that represents the filtered subset. The |ColumnDataSource| that is associated
 with the |CDSView| this filter is added to will be available at render time with the
 variable ``source``.

@@ -5,9 +5,8 @@ Getting Set Up
 
 The Bokeh project encompasses two major components: the Bokeh package source
 code, written in Python, and the BokehJS client-side library, written in
-CoffeeScript and TypeScript. Accordingly, development of Bokeh is slightly
-complicated by the explicit compilation step required to generate deployable
-JavaScript.
+TypeScript. Accordingly, development of Bokeh is slightly complicated by
+the explicit compilation step required to generate deployable JavaScript.
 
 For this reason, in order to develop Bokeh from a source checkout, you must
 first be able to build BokehJS. This chapter will walk you through getting a
