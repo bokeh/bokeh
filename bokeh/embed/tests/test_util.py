@@ -24,7 +24,7 @@ import logging
 
 # Bokeh imports
 from bokeh.model import Model
-from bokeh.core.properties import Int, String, Instance, List
+from bokeh.core.properties import Int, String, List
 from bokeh.document.document import Document
 from bokeh.util.logconfig import basicConfig
 
@@ -76,7 +76,7 @@ class _GoodEventCallback(object):
         pass
 
 # Taken from test_model
-class SomeModel(Model):
+class EmbedTestUtilModel(Model):
     a = Int(12)
     b = String("hello")
     c = List(Int, [1, 2, 3])
@@ -134,7 +134,7 @@ class Test_standalone_docs_json_and_render_items(object):
 
     def test_log_warning_if_python_property_callback(self, caplog):
         d = Document()
-        m1 = SomeModel()
+        m1 = EmbedTestUtilModel()
         c1 = _GoodPropertyCallback()
         d.add_root(m1)
 
@@ -148,7 +148,7 @@ class Test_standalone_docs_json_and_render_items(object):
 
     def test_log_warning_if_python_event_callback(self, caplog):
         d = Document()
-        m1 = SomeModel()
+        m1 = EmbedTestUtilModel()
         c1 = _GoodEventCallback()
         d.add_root(m1)
 
