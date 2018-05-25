@@ -27,6 +27,7 @@ from bokeh.model import Model
 from bokeh.core.properties import Int, String, List
 from bokeh.document.document import Document
 from bokeh.util.logconfig import basicConfig
+from bokeh.events import Tap
 
 # Module under test
 import bokeh.embed.util as beu
@@ -152,7 +153,7 @@ class Test_standalone_docs_json_and_render_items(object):
         c1 = _GoodEventCallback()
         d.add_root(m1)
 
-        m1.on_event('tap', c1)
+        m1.on_event(Tap, c1)
         assert len(m1._event_callbacks) != 0
 
         with caplog.at_level(logging.WARN):
