@@ -177,7 +177,7 @@ repository. First clone the repo locally:
     git clone https://github.com/bokeh/bokeh-notebooks.git
 
 Then launch Jupyter Notebook in your web browser. Alternatively, live notebooks
-that can be run onlines are hosted by `Binder`_.
+that can be run immediately online are hosted by `Binder`_.
 
 Additionally, there are some notebooks under `examples`_ in the main `Bokeh`_ repo:
 
