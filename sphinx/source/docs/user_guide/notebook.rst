@@ -171,11 +171,13 @@ notebook is shown below:
 More Example Notebooks
 ----------------------
 
-Many more examples using Jupyter Notebook can be found in the `bokeh-notebook`_ repository. First clone the repo locally:
+Many more examples using Jupyter Notebook can be found in the `bokeh-notebook`_
+repository. First clone the repo locally:
 
     git clone https://github.com/bokeh/bokeh-notebooks.git
-    
-Then launch Jupyter Notebook in your web browser. Alternatively, you can access the notebooks online though `Binder`_.
+
+Then launch Jupyter Notebook in your web browser. Alternatively, live notebooks
+that can be run onlines are hosted by `Binder`_.
 
 Additionally, there are some notebooks under `examples`_ in the main `Bokeh`_ repo:
 
