@@ -1,7 +1,6 @@
 import numpy as np
 
 from bokeh.plotting import figure, show, output_file
-from bokeh.models import HoverTool, ColumnDataSource
 from bokeh.sampledata.les_mis import data
 
 nodes = data['nodes']
@@ -32,17 +31,18 @@ for i, node1 in enumerate(nodes):
         else:
             color.append('lightgrey')
 
-source = ColumnDataSource(data=dict(
+data=dict(
     xname=xname,
     yname=yname,
     colors=color,
     alphas=alpha,
     count=counts.flatten(),
-))
+)
 
 p = figure(title="Les Mis Occurrences",
            x_axis_location="above", tools="hover,save",
-           x_range=list(reversed(names)), y_range=names)
+           x_range=list(reversed(names)), y_range=names,
+           tooltips = [('names', '@yname, @xname'), ('count', '@count')])
 
 p.plot_width = 800
 p.plot_height = 800
@@ -53,14 +53,9 @@ p.axis.major_label_text_font_size = "5pt"
 p.axis.major_label_standoff = 0
 p.xaxis.major_label_orientation = np.pi/3
 
-p.rect('xname', 'yname', 0.9, 0.9, source=source,
+p.rect('xname', 'yname', 0.9, 0.9, source=data,
        color='colors', alpha='alphas', line_color=None,
        hover_line_color='black', hover_color='colors')
-
-p.select_one(HoverTool).tooltips = [
-    ('names', '@yname, @xname'),
-    ('count', '@count'),
-]
 
 output_file("les_mis.html", title="les_mis.py example")
 

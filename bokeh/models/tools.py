@@ -647,6 +647,7 @@ class CustomJSHover(Model):
     * ``data_x`` data-space x-coordinate of the hovered glyph
     * ``data_y`` data-space y-coordinate of the hovered glyph
     * ``indices`` column indices of all currently hovered glyphs
+    * ``name`` value of the ``name`` property of the hovered glyph renderer
 
     If the hover is over a "multi" glyph such as ``Patches`` or ``MultiLine``
     then a ``segment_index`` key will also be present.
@@ -895,7 +896,8 @@ class HoverTool(Inspection):
 
     Field names starting with "$" are special, known fields:
 
-    :$index: index of selected point in the data source
+    :$index: index of hovered point in the data source
+    :$name: value of the ``name`` property of the hovered glyph renderer
     :$x: x-coordinate under the cursor in data space
     :$y: y-coordinate under the cursor in data space
     :$sx: x-coordinate under the cursor in screen (canvas) space
@@ -914,6 +916,13 @@ class HoverTool(Inspection):
     Note that if a column name contains spaces, the it must be supplied by
     surrounding it in curly braces, e.g. ``@{adjusted close}`` will display
     values from a column named ``"adjusted close"``.
+
+    Sometimes (especially with stacked charts) it is desirable to allow the
+    name of the column be specified indirectly. The field name ``@$name`` is
+    distinguished in that it will look up the ``name`` field on the hovered
+    glyph renderer, and use that value as the column name. For instance, if
+    a user hovers with the name ``"US East"``, then ``@$name`` is equivalent to
+    ``@{US East}``.
 
     By default, values for fields (e.g. ``@foo``) are displayed in a basic
     numeric format. However it is possible to control the formatting of values

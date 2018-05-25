@@ -14,7 +14,7 @@ from tornado.ioloop import IOLoop
 
 _basedir = os.path.join("..", os.path.dirname(__file__))
 
-app = flask.Flask(__name__, static_path="/unused")
+app = flask.Flask(__name__, static_folder="/unused")
 PORT=5009
 http_server = HTTPServer(WSGIContainer(app))
 

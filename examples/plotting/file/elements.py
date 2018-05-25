@@ -1,6 +1,6 @@
 import pandas as pd
 
-from bokeh.models import ColumnDataSource, LabelSet, HoverTool
+from bokeh.models import ColumnDataSource, LabelSet
 from bokeh.plotting import figure, show, output_file
 from bokeh.sampledata.periodic_table import elements
 
@@ -20,21 +20,20 @@ melting_point_inds = [int(10*(x-low)/(high-low)) for x in melting_points] #gives
 elements['melting_colors'] = [palette[i] for i in melting_point_inds]
 
 TITLE = "Density vs Atomic Weight of Elements (colored by melting point)"
-tools = "pan,wheel_zoom,box_zoom,reset,save".split(',')
-hover = HoverTool(tooltips=[
+TOOLS = "hover,pan,wheel_zoom,box_zoom,reset,save"
+
+p = figure(tools=TOOLS, toolbar_location="above", logo="grey", plot_width=1200, title=TITLE)
+p.background_fill_color = "#dddddd"
+p.xaxis.axis_label = "atomic weight (amu)"
+p.yaxis.axis_label = "density (g/cm^3)"
+p.grid.grid_line_color = "white"
+p.hover.tooltips = [
     ("name", "@name"),
     ("symbol:", "@symbol"),
     ("density", "@density"),
     ("atomic weight", "@{atomic mass}"),
     ("melting point", "@{melting point}")
-])
-tools.append(hover)
-
-p = figure(tools=tools, toolbar_location="above", logo="grey", plot_width=1200, title=TITLE)
-p.background_fill_color = "#dddddd"
-p.xaxis.axis_label = "atomic weight (amu)"
-p.yaxis.axis_label = "density (g/cm^3)"
-p.grid.grid_line_color = "white"
+]
 
 source = ColumnDataSource(elements)
 

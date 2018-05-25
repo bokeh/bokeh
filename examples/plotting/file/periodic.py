@@ -1,5 +1,4 @@
 from bokeh.io import output_file, show
-from bokeh.models import ColumnDataSource, HoverTool
 from bokeh.plotting import figure
 from bokeh.sampledata.periodic_table import elements
 from bokeh.transform import dodge, factor_cmap
@@ -28,16 +27,23 @@ cmap = {
     "transition metal"     : "#599d7A",
 }
 
-source = ColumnDataSource(df)
+TOOLTIPS = [
+    ("Name", "@name"),
+    ("Atomic number", "@{atomic number}"),
+    ("Atomic mass", "@{atomic mass}"),
+    ("Type", "@metal"),
+    ("CPK color", "$color[hex, swatch]:CPK"),
+    ("Electronic configuration", "@{electronic configuration}"),
+]
 
 p = figure(title="Periodic Table (omitting LA and AC Series)", plot_width=1000, plot_height=450,
-           tools="", toolbar_location=None,
-           x_range=groups, y_range=list(reversed(periods)))
+           x_range=groups, y_range=list(reversed(periods)),
+           tools="hover", toolbar_location=None, tooltips=TOOLTIPS)
 
-p.rect("group", "period", 0.95, 0.95, source=source, fill_alpha=0.6, legend="metal",
+p.rect("group", "period", 0.95, 0.95, source=df, fill_alpha=0.6, legend="metal",
        color=factor_cmap('metal', palette=list(cmap.values()), factors=list(cmap.keys())))
 
-text_props = {"source": source, "text_align": "left", "text_baseline": "middle"}
+text_props = {"source": df, "text_align": "left", "text_baseline": "middle"}
 
 x = dodge("group", -0.4, range=p.x_range)
 
@@ -54,15 +60,6 @@ r = p.text(x=x, y=dodge("period", -0.2, range=p.y_range), text="atomic mass", **
 r.glyph.text_font_size="5pt"
 
 p.text(x=["3", "3"], y=["VI", "VII"], text=["LA", "AC"], text_align="center", text_baseline="middle")
-
-p.add_tools(HoverTool(tooltips = [
-    ("Name", "@name"),
-    ("Atomic number", "@{atomic number}"),
-    ("Atomic mass", "@{atomic mass}"),
-    ("Type", "@metal"),
-    ("CPK color", "$color[hex, swatch]:CPK"),
-    ("Electronic configuration", "@{electronic configuration}"),
-]))
 
 p.outline_line_color = None
 p.grid.grid_line_color = None

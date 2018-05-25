@@ -5,7 +5,7 @@ logger = logging.getLogger(__name__)
 
 from six import string_types
 
-from ..core.properties import Any, Auto, Either, Enum, Int, Seq, Instance, String
+from ..core.properties import Any, Auto, Either, Enum, Int, List, Seq, Instance, String, Tuple
 from ..core.enums import HorizontalLocation, VerticalLocation
 from ..models import ColumnDataSource, Plot, Title, Tool, GraphRenderer
 from ..models import glyphs, markers
@@ -83,6 +83,15 @@ class FigureOptions(Options):
     The type of the y-axis.
     """)
 
+    tooltips = Either(String, List(Tuple(String, String)), help="""
+    An optional argument to configure tooltips for the Figure. This argument
+    accepts the same values as the ``HoverTool.tooltips`` property. If a hover
+    tool is specified in the ``tools`` argument, this value will override that
+    hover tools ``tooltips`` value. If no hover tool is specified in the
+    ``tools`` argument, then passing tooltips here will cause one to be created
+    and added.
+    """)
+
 class Figure(Plot):
     ''' A subclass of :class:`~bokeh.models.plots.Plot` that simplifies plot
     creation with default axes, grids, tools, etc.
@@ -144,7 +153,7 @@ class Figure(Plot):
         _process_axis_and_grid(self, opts.x_axis_type, opts.x_axis_location, opts.x_minor_ticks, opts.x_axis_label, self.x_range, 0)
         _process_axis_and_grid(self, opts.y_axis_type, opts.y_axis_location, opts.y_minor_ticks, opts.y_axis_label, self.y_range, 1)
 
-        tool_objs, tool_map = _process_tools_arg(self, opts.tools)
+        tool_objs, tool_map = _process_tools_arg(self, opts.tools, opts.tooltips)
         self.add_tools(*tool_objs)
         _process_active_tools(self.toolbar, tool_map, opts.active_drag, opts.active_inspect, opts.active_scroll, opts.active_tap)
 
@@ -822,6 +831,10 @@ Examples:
             stackers (seq[str]) : a list of data source field names to stack
                 successively for ``left`` and ``right`` bar coordinates.
 
+                Additionally, the ``name`` of the renderer will be set to
+                the value of each successive stacker (this is useful with the
+                special hover variable ``$name``)
+
         Any additional keyword arguments are passed to each call to ``hbar``.
         If a keyword value is a list or tuple, then each call will get one
         value from the sequence.
@@ -843,8 +856,8 @@ Examples:
 
             .. code-block:: python
 
-                p.hbar(bottom=stack(),       top=stack('2016'),         x=10, width=0.9, color='blue', source=source)
-                p.hbar(bottom=stack('2016'), top=stack('2016', '2017'), x=10, width=0.9, color='red', source=source)
+                p.hbar(bottom=stack(),       top=stack('2016'),         x=10, width=0.9, color='blue', source=source, name='2016')
+                p.hbar(bottom=stack('2016'), top=stack('2016', '2017'), x=10, width=0.9, color='red',  source=source, name='2017')
 
         '''
         result = []
@@ -859,6 +872,10 @@ Examples:
         Args:
             stackers (seq[str]) : a list of data source field names to stack
                 successively for ``left`` and ``right`` bar coordinates.
+
+                Additionally, the ``name`` of the renderer will be set to
+                the value of each successive stacker (this is useful with the
+                special hover variable ``$name``)
 
         Any additional keyword arguments are passed to each call to ``vbar``.
         If a keyword value is a list or tuple, then each call will get one
@@ -881,8 +898,8 @@ Examples:
 
             .. code-block:: python
 
-                p.vbar(bottom=stack(),       top=stack('2016'),         x=10, width=0.9, color='blue', source=source)
-                p.vbar(bottom=stack('2016'), top=stack('2016', '2017'), x=10, width=0.9, color='red', source=source)
+                p.vbar(bottom=stack(),       top=stack('2016'),         x=10, width=0.9, color='blue', source=source, name='2016')
+                p.vbar(bottom=stack('2016'), top=stack('2016', '2017'), x=10, width=0.9, color='red',  source=source, name='2017')
 
 
         '''

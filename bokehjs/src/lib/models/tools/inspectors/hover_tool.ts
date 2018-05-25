@@ -240,7 +240,19 @@ export class HoverToolView extends InspectToolView {
         }
       }
 
-      const vars = {index: ii, x: x, y: y, sx: sx, sy: sy, data_x: data_x, data_y: data_y, rx: rx, ry: ry, indices: indices.line_indices}
+      const vars = {
+        index: ii,
+        x:       x,
+        y:       y,
+        sx:      sx,
+        sy:      sy,
+        data_x:  data_x,
+        data_y:  data_y,
+        rx:      rx,
+        ry:      ry,
+        indices: indices.line_indices,
+        name:    renderer_view.model.name,
+      }
       tooltip.add(rx, ry, this._render_tooltips(ds, ii, vars))
     }
 
@@ -291,7 +303,18 @@ export class HoverToolView extends InspectToolView {
           else
             index = i
 
-          const vars = {index: index, segment_index: jj, x: x, y: y, sx: sx, sy: sy, data_x: data_x, data_y: data_y, indices: indices.multiline_indices}
+          const vars = {
+            index:         index,
+            segment_index: jj,
+            x:             x,
+            y:             y,
+            sx:            sx,
+            sy:            sy,
+            data_x:        data_x,
+            data_y:        data_y,
+            indices:       indices.multiline_indices,
+            name:          renderer_view.model.name,
+          }
           tooltip.add(rx, ry, this._render_tooltips(ds, index, vars))
         }
       } else {
@@ -319,7 +342,17 @@ export class HoverToolView extends InspectToolView {
         else
           index = i
 
-        const vars = {index: index, x: x, y: y, sx: sx, sy: sy, data_x: data_x, data_y: data_y, indices: indices.indices}
+        const vars = {
+          index:   index,
+          x:       x,
+          y:       y,
+          sx:      sx,
+          sy:      sy,
+          data_x:  data_x,
+          data_y:  data_y,
+          indices: indices.indices,
+          name:    renderer_view.model.name,
+        }
         tooltip.add(rx, ry, this._render_tooltips(ds, index, vars))
       }
     }

@@ -4,10 +4,8 @@ import pandas as pd
 from bokeh.core.properties import field
 from bokeh.io import curdoc
 from bokeh.layouts import layout
-from bokeh.models import (
-    ColumnDataSource, HoverTool, SingleIntervalTicker, Slider, Button, Label,
-    CategoricalColorMapper,
-)
+from bokeh.models import (ColumnDataSource, HoverTool, SingleIntervalTicker,
+                          Slider, Button, Label, CategoricalColorMapper)
 from bokeh.palettes import Spectral6
 from bokeh.plotting import figure
 

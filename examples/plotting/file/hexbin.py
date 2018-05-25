@@ -16,10 +16,10 @@ r, bins = p.hexbin(x, y, size=0.5, hover_color="pink", hover_alpha=0.8)
 
 p.circle(x, y, color="white", size=1)
 
-hover = HoverTool(tooltips=[("count", "@c"), ("(q,r)", "(@q, @r)")],
-                  mode="mouse", point_policy="follow_mouse", renderers=[r])
-
-p.add_tools(hover)
+p.add_tools(HoverTool(
+    tooltips=[("count", "@c"), ("(q,r)", "(@q, @r)")],
+    mode="mouse", point_policy="follow_mouse", renderers=[r]
+))
 
 output_file("hexbin.html")
 

@@ -192,13 +192,44 @@ stacked bar chart that is split by positive and negative values:
 Hover Tools
 '''''''''''
 
-Sometimes when stacking bars, it's desirable to have a different hover tool
-for each layer in the stack. The ``hbar_stack`` and ``vbar_stack`` functions
-return a list of all the renderers created (one for each stack). These can
-be used to customize different hover tools as shown below
+For stacked bar plots, Bokeh provides some special hover variables that are
+useful for common cases.
+
+When stacking bars, Bokeh automatically sets the ``name`` property for each
+layer in the stack to be the value of the stack column for that layer. This
+name value is accessible to hover tools via the ``$name`` special variable.
+
+Additionally, the hover variable ``@$name`` can be used to look up values from
+the stack column for each layer. For instance, if a user hovers over a stack
+glyph with the name ``"US East"``, then ``@$name`` is equivalent to
+``@{US East}``.
+
+The example below demonstrates both of these hover variables:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_stacked_hover.py
     :source-position: above
+
+Note that it is also possible to override the value of ``name`` by passing it
+manually to ``vbar_stack`` and ``hbar_stack``. In this case, ``$@name`` will
+look up the column names provided by the user.
+
+It may also sometimes be desirable to have a different hover tool for each
+layer in the stack. For such cases, the ``hbar_stack`` and ``vbar_stack``
+functions return a list of all the renderers created (one for each stack).
+These can be used to customize different hover tools for each layer:
+
+.. code-block:: python
+
+    renderers = p.vbar_stack(years, x='fruits', width=0.9, color=colors, source=source,
+                             legend=[value(x) for x in years], name=years)
+
+    for r in renderers:
+        year = r.name
+        hover = HoverTool(tooltips=[
+            ("%s total" % year, "@%s" % year),
+            ("index", "$index")
+        ], renderers=[r])
+        p.add_tools(hover)
 
 .. _userguide_categorical_bars_mixed:
 

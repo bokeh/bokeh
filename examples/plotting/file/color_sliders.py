@@ -2,7 +2,7 @@ import colorsys
 import yaml
 
 from bokeh.layouts import column, row, widgetbox
-from bokeh.models import ColumnDataSource, HoverTool, CustomJS, Slider
+from bokeh.models import ColumnDataSource, CustomJS, Slider
 from bokeh.plotting import figure, output_file, show, curdoc
 from bokeh.themes import Theme
 
@@ -109,7 +109,7 @@ color_range1 = p2.rect(x='x', y='y', width=1, height=10,
                        color='crcolor', source=crsource)
 
 # set up hover tool to show color hex code and sample swatch
-p2.select_one(HoverTool).tooltips = [
+p2.hover.tooltips = [
     ('color', '$color[hex, rgb, swatch]:crcolor'),
     ('RGB levels', '@RGBs')
 ]

@@ -6,7 +6,7 @@ import sqlite3 as sql
 
 from bokeh.plotting import figure
 from bokeh.layouts import layout, widgetbox
-from bokeh.models import ColumnDataSource, HoverTool, Div
+from bokeh.models import ColumnDataSource, Div
 from bokeh.models.widgets import Slider, Select, TextInput
 from bokeh.io import curdoc
 from bokeh.sampledata.movies_data import movie_path
@@ -52,13 +52,13 @@ y_axis = Select(title="Y Axis", options=sorted(axis_map.keys()), value="Number o
 # Create Column Data Source that will be used by the plot
 source = ColumnDataSource(data=dict(x=[], y=[], color=[], title=[], year=[], revenue=[], alpha=[]))
 
-hover = HoverTool(tooltips=[
+TOOLTIPS=[
     ("Title", "@title"),
     ("Year", "@year"),
     ("$", "@revenue")
-])
+]
 
-p = figure(plot_height=600, plot_width=700, title="", toolbar_location=None, tools=[hover])
+p = figure(plot_height=600, plot_width=700, title="", toolbar_location=None, tooltips=TOOLTIPS)
 p.circle(x="x", y="y", source=source, size=7, color="color", line_color=None, fill_alpha="alpha")
 
 

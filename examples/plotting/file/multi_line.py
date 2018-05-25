@@ -3,7 +3,7 @@ from collections import defaultdict
 from scipy.stats import norm
 
 from bokeh.plotting import show, figure
-from bokeh.models import ColumnDataSource, HoverTool, TapTool
+from bokeh.models import HoverTool, TapTool
 from bokeh.layouts import gridplot
 from bokeh.palettes import Viridis6
 
@@ -23,8 +23,6 @@ for scale, mz in [(1.0, 83), (0.9, 55), (0.6, 98), (0.4, 43), (0.2, 39), (0.12, 
 
 mass_spec['color'] = Viridis6
 
-source = ColumnDataSource(mass_spec)
-
 figure_opts = dict(plot_width=450, plot_height=300)
 hover_opts = dict(
     tooltips=[('MZ', '@MZ_tip'), ('Rel Intensity', '@Intensity_tip')],
@@ -34,7 +32,7 @@ hover_opts = dict(
 line_opts = dict(
     line_width=5, line_color='color', line_alpha=0.6,
     hover_line_color='color', hover_line_alpha=1.0,
-    source=source
+    source=mass_spec
 )
 
 rt_plot = figure(tools=[HoverTool(**hover_opts), TapTool()], **figure_opts)

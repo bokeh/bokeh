@@ -22,7 +22,7 @@ from .ranges import Range, FactorRange, DataRange1d, Range1d
 from .renderers import GlyphRenderer, Renderer, TileRenderer
 from .scales import Scale, CategoricalScale, LinearScale, LogScale
 from .sources import DataSource, ColumnDataSource
-from .tools import Tool, Toolbar
+from .tools import Tool, Toolbar, HoverTool
 
 def _check_conflicting_kwargs(a1, a2, kwargs):
     if a1 in kwargs and a2 in kwargs:
@@ -160,6 +160,14 @@ class Plot(LayoutDOM):
         '''
         legends = [obj for obj in self.renderers if isinstance(obj, Legend)]
         return _list_attr_splat(legends)
+
+    @property
+    def hover(self):
+        ''' Splattable list of :class:`~bokeh.models.tools.HoverTool` objects.
+
+        '''
+        hovers = [obj for obj in self.tools if isinstance(obj, HoverTool)]
+        return _list_attr_splat(hovers)
 
     def _grid(self, dimension):
         grid = [obj for obj in self.renderers if isinstance(obj, Grid) and obj.dimension==dimension]

@@ -81,7 +81,7 @@ def test__stack_broadcast_with_no_kwargs():
     kws = _stack(stackers, 'start', 'end')
     assert len(kws) == len(stackers)
     for i, kw in enumerate(kws):
-        assert set(['start', 'end']) == set(kw.keys())
+        assert set(['start', 'end', 'name']) == set(kw.keys())
         assert list(kw['start']['expr'].fields) == stackers[:i]
         assert list(kw['end']['expr'].fields) == stackers[:(i+1)]
 
@@ -90,22 +90,49 @@ def test__stack_broadcast_with_scalar_kwargs():
     kws = _stack(stackers, 'start', 'end', foo=10, bar="baz")
     assert len(kws) == len(stackers)
     for i, kw in enumerate(kws):
-        assert set(['start', 'end', 'foo', 'bar']) == set(kw.keys())
+        assert set(['start', 'end', 'foo', 'bar', 'name']) == set(kw.keys())
         assert list(kw['start']['expr'].fields) == stackers[:i]
         assert list(kw['end']['expr'].fields) == stackers[:(i+1)]
         assert kw['foo'] == 10
         assert kw['bar'] == "baz"
+        assert kw['name'] == stackers[i]
 
 def test__stack_broadcast_with_list_kwargs():
     stackers = ['a', 'b', 'c', 'd']
     kws = _stack(stackers, 'start', 'end', foo=[10, 20, 30, 40], bar="baz")
     assert len(kws) == len(stackers)
     for i, kw in enumerate(kws):
-        assert set(['start', 'end', 'foo', 'bar']) == set(kw.keys())
+        assert set(['start', 'end', 'foo', 'bar', 'name']) == set(kw.keys())
         assert list(kw['start']['expr'].fields) == stackers[:i]
         assert list(kw['end']['expr'].fields) == stackers[:(i+1)]
         assert kw['foo'] == [10, 20, 30, 40][i]
         assert kw['bar'] == "baz"
+        assert kw['name'] == stackers[i]
+
+def test__stack_broadcast_name_scalar_overrides():
+    stackers = ['a', 'b', 'c', 'd']
+    kws = _stack(stackers, 'start', 'end', foo=[10, 20, 30, 40], bar="baz", name="name")
+    assert len(kws) == len(stackers)
+    for i, kw in enumerate(kws):
+        assert set(['start', 'end', 'foo', 'bar', 'name']) == set(kw.keys())
+        assert list(kw['start']['expr'].fields) == stackers[:i]
+        assert list(kw['end']['expr'].fields) == stackers[:(i+1)]
+        assert kw['foo'] == [10, 20, 30, 40][i]
+        assert kw['bar'] == "baz"
+        assert kw['name'] == "name"
+
+def test__stack_broadcast_name_list_overrides():
+    names = ["aa", "bb", "cc", "dd"]
+    stackers = ['a', 'b', 'c', 'd']
+    kws = _stack(stackers, 'start', 'end', foo=[10, 20, 30, 40], bar="baz", name=names)
+    assert len(kws) == len(stackers)
+    for i, kw in enumerate(kws):
+        assert set(['start', 'end', 'foo', 'bar', 'name']) == set(kw.keys())
+        assert list(kw['start']['expr'].fields) == stackers[:i]
+        assert list(kw['end']['expr'].fields) == stackers[:(i+1)]
+        assert kw['foo'] == [10, 20, 30, 40][i]
+        assert kw['bar'] == "baz"
+        assert kw['name'] == names[i]
 
 def test__graph_will_convert_dataframes_to_sources():
     node_source = pd.DataFrame(data=dict(foo=[]))

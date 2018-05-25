@@ -1,6 +1,5 @@
 from bokeh.core.properties import value
 from bokeh.io import show, output_file
-from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure
 
 output_file("stacked.html")
@@ -14,12 +13,10 @@ data = {'fruits' : fruits,
         '2016'   : [5, 3, 4, 2, 4, 6],
         '2017'   : [3, 2, 4, 4, 5, 3]}
 
-source = ColumnDataSource(data=data)
-
 p = figure(x_range=fruits, plot_height=250, title="Fruit Counts by Year",
            toolbar_location=None, tools="")
 
-p.vbar_stack(years, x='fruits', width=0.9, color=colors, source=source,
+p.vbar_stack(years, x='fruits', width=0.9, color=colors, source=data,
              legend=[value(x) for x in years])
 
 p.y_range.start = 0
