@@ -28,7 +28,6 @@ import re
 # External imports
 
 # Bokeh imports
-from ..model import collect_models
 from ..core.templates import AUTOLOAD_JS, AUTOLOAD_TAG, FILE
 from ..document.document import DEFAULT_TITLE, Document
 from ..model import Model
