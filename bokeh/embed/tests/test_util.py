@@ -23,6 +23,8 @@ import pytest ; pytest
 
 # Bokeh imports
 from bokeh.model import Model
+from bokeh.core.properties import Int, String, Instance, List
+from bokeh.document.document import Document
 
 # Module under test
 import bokeh.embed.util as beu
@@ -30,6 +32,49 @@ import bokeh.embed.util as beu
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
+# Taken from test_callback_manager.py
+class _GoodPropertyCallback(object):
+
+    def __init__(self):
+        self.last_name = None
+        self.last_old = None
+        self.last_new = None
+
+    def __call__(self, name, old, new):
+        self.method(name, old, new)
+
+    def method(self, name, old, new):
+        self.last_name = name
+        self.last_old = old
+        self.last_new = new
+
+    def partially_good(self, name, old, new, newer):
+        pass
+
+    def just_fine(self, name, old, new, extra='default'):
+        pass
+
+class _GoodEventCallback(object):
+
+    def __init__(self):
+        self.last_name = None
+        self.last_old = None
+        self.last_new = None
+
+    def __call__(self, event):
+        self.method(event)
+
+    def method(self, event):
+        self.event = event
+
+    def partially_good(self, arg, event):
+        pass
+
+# Taken from test_model
+class SomeModel(Model):
+    a = Int(12)
+    b = String("hello")
+    c = List(Int, [1, 2, 3])
 
 #-----------------------------------------------------------------------------
 # General API
@@ -81,7 +126,14 @@ class Test_script_for_render_items(object):
     pass
 
 class Test_standalone_docs_json_and_render_items(object):
-    pass
+    def test_log_warning_if_python_property_callback(self):
+        d = Document()
+        m1 = SomeModel()
+        c1 = _GoodPropertyCallback()
+        d.add_root(m1)
+
+        m1.on_change('name', c1)
+        beu.standalone_docs_json_and_render_items(m1)
 
 class Test_wrap_in_onload(object):
 
