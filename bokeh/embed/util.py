@@ -31,7 +31,7 @@ from six import string_types
 from ..core.json_encoder import serialize_json
 from ..core.templates import DOC_JS, FILE, PLOT_DIV, SCRIPT_TAG
 from ..document.document import DEFAULT_TITLE, Document
-from ..model import Model
+from ..model import Model, collect_models
 from ..settings import settings
 from ..util.compiler import bundle_all_models
 from ..util.serialization import make_id
@@ -94,6 +94,18 @@ def check_one_model_or_doc(model):
     if len(models) != 1:
         raise ValueError("Input must be exactly one Model or Document")
     return models[0]
+
+def submodel_has_python_callbacks(models):
+    ''' Traverses submodels to check for Python (event) callbacks
+
+    '''
+    has_python_callback = False
+    for model in collect_models(models):
+        if len(model._callbacks) > 0 or len(model._event_callbacks) > 0:
+            has_python_callback = True
+            break
+
+    return has_python_callback
 
 def div_for_render_item(item):
     '''
@@ -186,6 +198,19 @@ def standalone_docs_json_and_render_items(models):
 
     '''
     models = check_models_or_docs(models)
+    if submodel_has_python_callbacks(models):
+        msg = ('You are generating standalone HTML/JS output, but trying to '
+               'use real Python callbacks (i.e. with on_change or on_event). '
+               'This cannot work. Only JavaScript callbacks may be used '
+               'with standalone output. For more information on JavaScript '
+               'callbacks, see\n\n'
+               'http://bokeh.pydata.org/en/latest/docs/user_guide/interaction/callbacks.html#userguide-interaction-jscallbacks\n\n'
+                'Alternatively, to use real Python callbacks, a Bokeh server '
+               'application may be used. For more information on building and '
+               'running Bokeh applications, see\n\n'
+               ' http://bokeh.pydata.org/en/latest/docs/user_guide/server.html')
+        log.warn(msg)
+
 
     render_items = []
     docs_by_id = {}
