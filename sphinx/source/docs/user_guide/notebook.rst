@@ -171,6 +171,43 @@ notebook is shown below:
 More Example Notebooks
 ----------------------
 
-- `Bokeh tutorial`_
+Many more examples using Jupyter Notebook can be found in the `bokeh-notebook`_ repository. First clone the repo locally:
 
-.. _Bokeh tutorial: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb
+    git clone https://github.com/bokeh/bokeh-notebooks.git
+    
+Then launch Jupyter Notebook in your web browser. Alternatively, you can access the notebooks online though `Binder`_.
+
+Additionally, there are some notebooks under `examples`_ in the main `Bokeh`_ repo:
+
+- `categorical data`_
+- `hover callback`_
+- `linked panning`_
+- `range update callback`_
+- `embed server in notebook`_
+- `US marriages and divorces interactive`_
+- `color scatterplot`_
+- `glyphs`_
+
+Notebook comms examples:
+
+- `basic usage`_
+- `continuous updating`_
+- `Jupyter interactors`_
+- `Numba image example`_
+
+.. _bokeh-notebook: https://github.com/bokeh/bokeh-notebooks
+.. _Binder: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb
+.. _examples: https://github.com/bokeh/bokeh/tree/master/examples
+.. _Bokeh: https://github.com/bokeh/bokeh
+.. _categorical data: https://github.com/bokeh/bokeh/blob/master/examples/howto/Categorical%20Data.ipynb
+.. _hover callback: https://github.com/bokeh/bokeh/blob/master/examples/howto/Hover%20callback.ipynb
+.. _linked panning: https://github.com/bokeh/bokeh/blob/master/examples/howto/Linked%20panning.ipynb
+.. _range update callback: https://github.com/bokeh/bokeh/blob/master/examples/howto/Range%20update%20callback.ipynb
+.. _embed server in notebook: https://github.com/bokeh/bokeh/blob/master/examples/howto/server_embed/notebook_embed.ipynb
+.. _US marriages and divorces interactive: https://github.com/bokeh/bokeh/blob/master/examples/howto/us_marriages_divorces/us_marriages_divorces_interactive.ipynb
+.. _color scatterplot: https://github.com/bokeh/bokeh/blob/master/examples/plotting/notebook/color_scatterplot.ipynb
+.. _glyphs: https://github.com/bokeh/bokeh/blob/master/examples/plotting/notebook/glyphs.ipynb
+.. _basic usage: https://github.com/bokeh/bokeh/blob/master/examples/howto/notebook_comms/Basic%20Usage.ipynb
+.. _continuous updating: https://github.com/bokeh/bokeh/blob/master/examples/howto/notebook_comms/Continuous%20Updating.ipynb
+.. _Jupyter interactors: https://github.com/bokeh/bokeh/blob/master/examples/howto/notebook_comms/Jupyter%20Interactors.ipynb
+.. _Numba image example: https://github.com/bokeh/bokeh/blob/master/examples/howto/notebook_comms/Numba%20Image%20Example.ipynb
