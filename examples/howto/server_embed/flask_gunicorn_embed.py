@@ -1,3 +1,8 @@
+try:
+    import asyncio
+except ImportError:
+    raise RuntimeError("This example requries Python3 / asyncio")
+
 from flask import Flask, render_template
 
 from tornado.httpserver import HTTPServer
@@ -52,13 +57,9 @@ def modify_doc(doc):
 # can't use shortcuts here, since we are passing to low level BokehTornado
 bkapp = Application(FunctionHandler(modify_doc))
 
-bokeh_tornado = BokehTornado({'/bkapp': bkapp}, extra_websocket_origins=["localhost:8000"])
-bokeh_http = HTTPServer(bokeh_tornado)
-
 # This is so that if this app is run using something like "gunicorn -w 4" then
 # each process will listen on its own port
 sockets, port = bind_sockets("localhost", 0)
-bokeh_http.add_sockets(sockets)
 
 @app.route('/', methods=['GET'])
 def bkapp_page():
@@ -66,8 +67,13 @@ def bkapp_page():
     return render_template("embed.html", script=script, template="Flask")
 
 def bk_worker():
-    io_loop = IOLoop.current()
-    server = BaseServer(io_loop, bokeh_tornado, bokeh_http)
+    asyncio.set_event_loop(asyncio.new_event_loop())
+
+    bokeh_tornado = BokehTornado({'/bkapp': bkapp}, extra_websocket_origins=["localhost:8000"])
+    bokeh_http = HTTPServer(bokeh_tornado)
+    bokeh_http.add_sockets(sockets)
+
+    server = BaseServer(IOLoop.current(), bokeh_tornado, bokeh_http)
     server.start()
     server.io_loop.start()
 
