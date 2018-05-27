@@ -42,7 +42,6 @@ export class TableWidget extends Widget {
     if (this.view.source != null && this.view.source.setup != null) {
       this.view.source.setup();
     }
-    
   }
 }
 TableWidget.initClass();
