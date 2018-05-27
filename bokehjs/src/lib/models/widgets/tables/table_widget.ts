@@ -38,9 +38,11 @@ export class TableWidget extends Widget {
       this.view.source = this.source;
       this.view.compute_indices();
     }
+
+    if (this.view.source != null && this.view.source.setup != null) {
+      this.view.source.setup();
+    }
     
-    if (this.view.source.setup != null)
-      this.view.source.setup()
   }
 }
 TableWidget.initClass();
