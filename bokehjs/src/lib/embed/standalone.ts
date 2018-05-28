@@ -2,41 +2,30 @@ import {Document} from "../document"
 import {DocumentChangedEvent, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} from "../document"
 import {HasProps} from "../core/has_props"
 import {DOMView} from "../core/dom_view"
+import {div} from "../core/dom"
 import * as base from "../base"
+import {BOKEH_ROOT} from "./dom"
 
-export function _create_view(model: HasProps): DOMView {
+function _create_view(model: HasProps): DOMView {
   const view = new model.default_view({model: model, parent: null}) as DOMView
   base.index[model.id] = view
   return view
 }
 
-// Replace element with a view of model_id from document
-export function add_model_standalone(model_id: string, element: HTMLElement, doc: Document): DOMView {
-  const model = doc.get_model_by_id(model_id)
-  if (model == null)
-    throw new Error(`Model ${model_id} was not in document ${doc}`)
-  const view = _create_view(model)
-  view.renderTo(element)
-  return view
-}
-
-// Fill element with the roots from doc
 export function add_document_standalone(document: Document, element: HTMLElement,
-    roots: {[key: string]: string} = {}, use_for_title: boolean = false): {[key: string]: DOMView} {
+    roots: {[key: string]: HTMLElement} = {}, use_for_title: boolean = false): {[key: string]: DOMView} {
   // this is a LOCAL index of views used only by this particular rendering
   // call, so we can remove the views we create.
   const views: {[key: string]: DOMView} = {}
 
   function render_model(model: HasProps): void {
     let root_el: HTMLElement
-    if (model.id in roots) {
-      const el = window.document.getElementById(roots[model.id])
-      if (el == null)
-        return
-      else
-        root_el = el
-    } else
-      root_el = element
+    if (model.id in roots)
+      root_el = roots[model.id]
+    else {
+      root_el = div({class: BOKEH_ROOT})
+      element.appendChild(root_el)
+    }
 
     const view = _create_view(model)
     view.renderTo(root_el)
@@ -44,11 +33,12 @@ export function add_document_standalone(document: Document, element: HTMLElement
   }
 
   function unrender_model(model: HasProps): void {
-    if (model.id in views) {
-      const view = views[model.id]
+    const {id} = model
+    if (id in views) {
+      const view = views[id]
       view.remove()
-      delete views[model.id]
-      delete base.index[model.id]
+      delete views[id]
+      delete base.index[id]
     }
   }
 

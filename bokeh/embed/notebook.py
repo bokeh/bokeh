@@ -79,20 +79,18 @@ def notebook_content(model, notebook_comms_target=None, theme=FromCurdoc):
     # Comms handling relies on the fact that the new_doc returned here
     # has models with the same IDs as they were started with
     with _ModelInEmptyDocument(model, apply_theme=theme) as new_doc:
-        (docs_json, render_items) = standalone_docs_json_and_render_items([model])
+        (docs_json, [render_item]) = standalone_docs_json_and_render_items([model])
 
-    item = render_items[0]
+    div = div_for_render_item(render_item)
+
+    render_item = render_item.to_json()
     if notebook_comms_target:
-        item['notebook_comms_target'] = notebook_comms_target
-    else:
-        notebook_comms_target = ''
+        render_item["notebook_comms_target"] = notebook_comms_target
 
     script = DOC_NB_JS.render(
         docs_json=serialize_json(docs_json),
-        render_items=serialize_json(render_items)
+        render_items=serialize_json([render_item]),
     )
-
-    div = div_for_render_item(item)
 
     return encode_utf8(script), encode_utf8(div), new_doc
 

@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from collections import OrderedDict
 from six.moves.urllib.parse import urlparse, quote_plus
 
 # External imports
@@ -33,7 +32,7 @@ from ..resources import DEFAULT_SERVER_HTTP_URL
 from ..util.serialization import make_id
 from ..util.string import encode_utf8, format_docstring
 from .bundle import bundle_for_objs_and_resources
-from .util import html_page_for_render_items
+from .util import RenderItem, html_page_for_render_items
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -217,11 +216,11 @@ def server_html_page_for_session(session, resources, title, template=FILE, templ
     '''
     elementid = make_id()
 
-    render_item = dict(
+    render_item = RenderItem(
         sessionid = session.id,
         elementid = elementid,
+        roots = session.document.roots,
         use_for_title = True,
-        roots = OrderedDict([ (root._id, make_id()) for root in session.document.roots ]),
     )
 
     if template_variables is None:

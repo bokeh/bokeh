@@ -3,9 +3,9 @@ import {Receiver} from "../protocol/receiver"
 import {logger} from "../core/logging"
 import {size, values} from "../core/util/object"
 
-import {add_model_standalone, add_document_standalone} from "./standalone"
-import {_get_element} from "./dom"
+import {add_document_standalone} from "./standalone"
 import {DocsJson, RenderItem} from "./json"
+import {_get_element} from "./dom"
 
 export const kernels: {[key: string]: Kernel} = {}
 
@@ -54,17 +54,18 @@ export function embed_items_notebook(docs_json: DocsJson, render_items: RenderIt
   if (size(docs_json) != 1)
     throw new Error("embed_items_notebook expects exactly one document in docs_json")
 
-  const doc = Document.from_json(values(docs_json)[0])
+  const document = Document.from_json(values(docs_json)[0])
 
   for (const item of render_items) {
     if (item.notebook_comms_target != null)
-      _init_comms(item.notebook_comms_target, doc)
+      _init_comms(item.notebook_comms_target, document)
 
-    const elem = _get_element(item)
+    const element = _get_element(item)
 
-    if (item.modelid != null)
-      add_model_standalone(item.modelid, elem, doc)
-    else
-      add_document_standalone(doc, elem, item.roots, false)
+    const roots: {[key: string]: HTMLElement} = {}
+    for (const root_id in item.roots || {})
+      roots[root_id] = _get_element(item, root_id)
+
+    add_document_standalone(document, element, roots)
   }
 }

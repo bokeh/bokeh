@@ -109,9 +109,9 @@ def submodel_has_python_callbacks(models):
 
 def div_for_render_item(item):
     '''
-
+        item: RenderItem
     '''
-    return PLOT_DIV.render(elementid=item['elementid'])
+    return PLOT_DIV.render(elementid=item.elementid)
 
 def find_existing_docs(models):
     '''
@@ -159,18 +159,14 @@ def html_page_for_render_items(bundle, docs_json, render_items, title,
         bokeh_js = bokeh_js,
         bokeh_css = bokeh_css,
         plot_script = json + script,
-        docs = [
-            dict(
-                elementid=item["elementid"],
-                roots=[ dict(elementid=elementid) for elementid in item['roots'].values() ],
-            ) for item in render_items
-        ],
+        docs = render_items,
         base = FILE,
         macros = MACROS,
     ))
 
     if len(render_items) == 1:
         context["doc"] = context["docs"][0]
+        context["roots"] = context["doc"].roots
 
     if template is None:
         template = FILE
@@ -198,7 +194,7 @@ def script_for_render_items(docs_json_or_id, render_items, app_path=None, absolu
 
     js = DOC_JS.render(
         docs_json=docs_json,
-        render_items=serialize_json(render_items, pretty=False),
+        render_items=serialize_json([ item.to_json() for item in render_items ], pretty=False),
         app_path=app_path,
         absolute_url=absolute_url,
     )
@@ -207,6 +203,65 @@ def script_for_render_items(docs_json_or_id, render_items, app_path=None, absolu
         js = wrap_in_safely(js)
 
     return wrap_in_onload(js)
+
+class RenderRoots(object):
+
+    def __init__(self, roots):
+        self._roots = roots
+
+    def __getitem__(self, key):
+        if isinstance(key, int):
+            elementid = list(self._roots.values())[key]
+        else:
+            for root, elementid in self._roots.items():
+                if root.name == key:
+                    break
+            else:
+                raise ValueError("root with '{name}' not found".format(key))
+
+        return dict(elementid=elementid)
+
+    def __getattr__(self, key):
+        return self.__getitem__(key)
+
+    def to_json(self):
+        return OrderedDict([ (root._id, elementid) for root, elementid in self._roots.items() ])
+
+class RenderItem(object):
+
+    def __init__(self, docid=None, sessionid=None, elementid=None, roots=None, use_for_title=None):
+        if (docid is None and sessionid is None) or (docid is not None and sessionid is not None):
+            raise ValueError("either docid or sessionid must be provided")
+
+        if roots is None:
+            roots = OrderedDict()
+        elif isinstance(roots, list):
+            roots = OrderedDict([ (root, make_id()) for root in roots ])
+
+        self.docid = docid
+        self.sessionid = sessionid
+        self.elementid = elementid
+        self.roots = RenderRoots(roots)
+        self.use_for_title = use_for_title
+
+    def to_json(self):
+        json = {}
+
+        if self.docid is not None:
+            json["docid"] = self.docid
+        else:
+            json["sessionid"] = self.sessionid
+
+        if self.elementid is not None:
+            json["elementid"] = self.elementid
+
+        if self.roots:
+            json["roots"] = self.roots.to_json()
+
+        if self.use_for_title is not None:
+            json["use_for_title"] = self.use_for_title
+
+        return json
 
 def standalone_docs_json_and_render_items(models):
     '''
@@ -227,45 +282,36 @@ def standalone_docs_json_and_render_items(models):
         log.warn(msg)
 
 
-    render_items = []
-    docs_by_id = {}
-    for p in models:
-        modelid = None
-        if isinstance(p, Document):
-            doc = p
+    docs = {}
+    for model_or_doc in models:
+        if isinstance(model_or_doc, Document):
+            model = None
+            doc = model_or_doc
         else:
-            if p.document is None:
+            model = model_or_doc
+            doc = model.document
+
+            if doc is None:
                 raise ValueError("to render a model as HTML it must be part of a document")
-            doc = p.document
-            modelid = p._id
-        docid = None
-        for key in docs_by_id:
-            if docs_by_id[key] == doc:
-                docid = key
-        if docid is None:
-            docid = make_id()
-            docs_by_id[docid] = doc
 
-        elementid = make_id()
+        if doc not in docs:
+            docs[doc] = (make_id(), OrderedDict())
 
-        render_item = dict(
-            docid = docid,
-            elementid = elementid,
-            # if modelid is None, that means the entire document
-        )
+        (docid, roots) = docs[doc]
 
-        if modelid is None:
-            render_item["modelid"] = None
-            render_item["roots"] = OrderedDict([ (root._id, make_id()) for root in doc.roots ])
+        if model is not None:
+            roots[model] = make_id()
         else:
-            render_item["modelid"] = modelid
-            render_item["roots"] = OrderedDict([ (modelid, elementid) ])
-
-        render_items.append(render_item)
+            for model in doc.roots:
+                roots[model] = make_id()
 
     docs_json = {}
-    for k, v in docs_by_id.items():
-        docs_json[k] = v.to_json()
+    for doc, (docid, _) in docs.items():
+        docs_json[docid] = doc.to_json()
+
+    render_items = []
+    for _, (docid, roots) in docs.items():
+        render_items.append(RenderItem(docid, roots=roots))
 
     return (docs_json, render_items)
 

@@ -42,7 +42,7 @@ that accepts these same parameters.
     {% block body %}
         {% block contents %}
           {% for doc in docs %}
-            {{ embed(doc) }}
+            {{ embed(doc) if doc.elementid }}
             {% for root in doc.roots %}
               {{ embed(root) | indent(10) }}
             {% endfor %}

@@ -14,13 +14,13 @@ template = """
 {% block contents %}
 <div class="plots">
     <div class="p0">
-        {{ embed(roots[0]) }} <!-- or roots.p0 -->
+        {{ embed(roots.p0) }}
     </div>
     <div class="p1">
-        {{ embed(roots[1]) }} <!-- or roots.p1 -->
+        {{ embed(roots.p1) }}
     </div>
     <div class="p2">
-        {{ embed(roots[2]) }} <!-- or roots.p2 -->
+        {{ embed(roots.p2) }}
     </div>
 </div>
 {% endblock %}

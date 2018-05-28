@@ -31,7 +31,7 @@ template = """
 {% endblock %}
 {% block contents %}
 <div class="grid">
-  {% for root in doc.roots %}
+  {% for root in roots %}
     {{ embed(root) }}
   {% endfor %}
 </div>

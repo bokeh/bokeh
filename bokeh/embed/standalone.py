@@ -87,14 +87,14 @@ def autoload_static(model, resources, script_path):
         css_urls = resources.css_files,
         js_raw = resources.js_raw + [bundle, script],
         css_raw = resources.css_raw_str,
-        elementid = item['elementid'],
+        elementid = item.elementid,
     ))
 
     tag = AUTOLOAD_TAG.render(
         src_path = script_path,
-        elementid = item['elementid'],
-        modelid = item.get('modelid', ''),
-        docid = item.get('docid', ''),
+        elementid = item.elementid,
+        modelid = item.modelid or "", # XXX
+        docid = item.docid,
     )
 
     return encode_utf8(js), encode_utf8(tag)
