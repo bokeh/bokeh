@@ -22,8 +22,9 @@ that accepts these same parameters.
 
 <!DOCTYPE html>
 <html lang="en">
-    <head>
     {% block head %}
+    <head>
+      {% block inner_head %}
         <meta charset="utf-8">
         <title>{% block title %}{{ title | e if title else "Bokeh Plot" }}{% endblock %}</title>
         {% block preamble %}{% endblock %}
@@ -36,10 +37,12 @@ that accepts these same parameters.
           {% endblock %}
         {% endblock %}
         {% block postamble %}{% endblock %}
-    {% endblock %}
+      {% endblock %}
     </head>
-    <body>
+    {% endblock %}
     {% block body %}
+    <body>
+      {% block inner_body %}
         {% block contents %}
           {% for doc in docs %}
             {{ embed(doc) if doc.elementid }}
@@ -49,6 +52,7 @@ that accepts these same parameters.
           {% endfor %}
         {% endblock %}
         {{ plot_script | indent(8) }}
-    {% endblock %}
+      {% endblock %}
     </body>
+    {% endblock %}
 </html>

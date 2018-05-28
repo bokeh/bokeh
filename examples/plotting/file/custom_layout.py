@@ -11,6 +11,11 @@ template = """
 .p2 { background-color: blue;  }
 </style>
 {% endblock %}
+{% block body %}
+<body style="background-color: gray;">
+    {{ self.inner_body() }}
+</body>
+{% endblock %}
 {% block contents %}
 <div class="plots">
     <div class="p0">
