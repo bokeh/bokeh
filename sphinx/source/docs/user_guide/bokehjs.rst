@@ -396,9 +396,3 @@ and dynamic creation and modification of plots.
     </div>
     </body>
     </html>
-
-A slightly modified version of the above code can be seen in the embedded JSFiddle below:
-
-.. raw:: html
-
-    <iframe width="100%" height="700" src="//jsfiddle.net/bokeh/ck5udmxb/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
