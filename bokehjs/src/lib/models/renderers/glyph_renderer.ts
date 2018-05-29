@@ -102,9 +102,6 @@ export class GlyphRendererView extends RendererView {
     this.yscale = this.plot_view.frame.yscales[this.model.y_range_name]
 
     this.set_data(false)
-
-    if (this.model.data_source.setup != null)
-      this.model.data_source.setup()
   }
 
   build_glyph_view<T extends Glyph>(model: T): GlyphView {
