@@ -82,6 +82,7 @@ from sphinx.util.nodes import set_source_info
 
 from ..document import Document
 from ..embed import autoload_static
+from ..model import Model
 from ..resources import Resources
 from ..settings import settings
 from ..util.string import decode_utf8
@@ -118,6 +119,10 @@ class PlotScriptError(SphinxError):
 def _process_script(source, filename, env, js_name, use_relative_paths=False):
     # This is lame, but seems to be required for python 2
     source = CODING.sub("", source)
+
+    # Explicitly make sure old extensions are not included until a better
+    # automatic mechanism is available
+    Model._clear_extensions()
 
     # quick and dirty way to inject Google API key
     if "GOOGLE_API_KEY" in source:
