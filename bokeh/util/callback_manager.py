@@ -4,6 +4,8 @@ interfaces to classes.
 '''
 from __future__ import absolute_import
 
+from six import string_types
+
 from ..events import Event
 from ..util.future import get_param_info, format_signature, signature
 
@@ -28,7 +30,7 @@ class EventCallbackManager(object):
         self._event_callbacks = dict()
 
     def on_event(self, event, *callbacks):
-        if not isinstance(event, str) and issubclass(event, Event):
+        if not isinstance(event, string_types) and issubclass(event, Event):
             event = event.event_name
 
         for callback in callbacks:
