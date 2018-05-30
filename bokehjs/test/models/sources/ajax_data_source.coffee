@@ -84,3 +84,24 @@ describe "ajax_data_source module", ->
         s = new AjaxDataSource({data_url: "http://foo.com", http_headers: {foo: "bar", baz: 10}})
         xhr = s.prepare_request()
         expect(xhr.requestHeaders).to.be.deep.equal {"Content-Type": "application/json", foo: "bar", baz: 10}
+
+    describe "get_column method", ->
+
+      it "should return empty lists for not-yet-existant columns", ->
+        s = new AjaxDataSource({data_url: "http://foo.com"})
+        c = s.get_column("foo")
+        expect(c).to.be.deep.equal []
+
+    describe "initialize method", ->
+
+      it "should set the source to initialized", ->
+        s = new AjaxDataSource({data_url: "http://foo.com"})
+        expect(s.initialized).to.be.false
+        s.initialize()
+        expect(s.initialized).to.be.true
+
+      it "should call get_data", ->
+        s = new AjaxDataSource({data_url: "http://foo.com"})
+        sinon.spy(s, "get_data")
+        s.initialize()
+        expect(s.get_data.calledOnce).to.be.true

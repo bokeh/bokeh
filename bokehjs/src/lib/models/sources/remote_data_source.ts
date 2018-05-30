@@ -26,6 +26,14 @@ export abstract class RemoteDataSource extends ColumnDataSource {
     return column != null ? column : []
   }
 
+  // override this method to setup the connection to the remote source
+  abstract setup(): void
+
+  initialize(): void {
+    super.initialize()
+    this.setup()
+  }
+
   static initClass(): void {
     this.prototype.type = 'RemoteDataSource'
 
