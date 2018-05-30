@@ -7,6 +7,8 @@ import * as p from "core/properties"
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import { Scale } from 'api';
 
+const enum Side { None, Left, Right, LeftRight, Bottom, Top, BottomTop }
+
 export function is_near(pos: number, value: number|null, scale: Scale, tolerance: number = 3): boolean {
   if (value == null)
     return false
@@ -40,9 +42,7 @@ export function compute_value(value: number, scale: Scale, sdelta: number, range
   return value
 }
 
-export function update_range(range: Range1d|null, scale: Scale, delta: number, plot_range: Range): void {
-  if (range == null)
-    return
+export function update_range(range: Range1d, scale: Scale, delta: number, plot_range: Range): void {
   const [sstart, send] = scale.r_compute(range.start, range.end)
   const [start, end] = scale.r_invert(sstart+delta, send+delta)
   if (start >= plot_range.start && start <= plot_range.end &&
@@ -55,13 +55,13 @@ export function update_range(range: Range1d|null, scale: Scale, delta: number, p
 export class RangeToolView extends GestureToolView {
   model: RangeTool
 
-  protected last_dx: number
-  protected last_dy: number
-  protected sides: Set<string>
+  private last_dx: number
+  private last_dy: number
+  private side: Side
 
   initialize(options: any): void {
     super.initialize(options)
-    this.sides = new Set()
+    this.side = Side.None
     this.model.update_overlay_from_ranges()
   }
 
@@ -105,23 +105,21 @@ export class RangeToolView extends GestureToolView {
 
     if (xr != null) {
       if (is_near(ev.sx, this.model.overlay.left, xscale))
-        this.sides.add('left')
+        this.side = Side.Left
       else if (is_near(ev.sx, this.model.overlay.right, xscale))
-        this.sides.add('right')
+        this.side = Side.Right
       else if (is_inside(ev.sx, ev.sy, xscale, yscale, this.model.overlay)) {
-        this.sides.add('left')
-        this.sides.add('right')
+        this.side = Side.LeftRight
       }
     }
 
     if (yr != null) {
       if (is_near(ev.sy, this.model.overlay.bottom, yscale))
-        this.sides.add('bottom')
+        this.side = Side.Bottom
       if (is_near(ev.sy, this.model.overlay.top, yscale))
-        this.sides.add('top')
+        this.side = Side.Top
       else if (is_inside(ev.sx, ev.sy, xscale, yscale, this.model.overlay)) {
-        this.sides.add('bottom')
-        this.sides.add('top')
+        this.side = Side.BottomTop
       }
     }
   }
@@ -139,20 +137,20 @@ export class RangeToolView extends GestureToolView {
     const yscale = frame.yscales.default
 
     if (xr != null) {
-      if (this.sides.has('left') && this.sides.has('right'))
+      if (this.side == Side.LeftRight)
         update_range(xr, xscale, new_dx, frame.x_range)
-      else if (this.sides.has('left'))
+      else if (this.side == Side.Left)
         xr.start = compute_value(xr.start, xscale, new_dx, frame.x_range)
-      else if (this.sides.has('right'))
+      else if (this.side == Side.Right)
         xr.end = compute_value(xr.end, xscale, new_dx, frame.x_range)
     }
 
     if (yr != null) {
-      if (this.sides.has('bottom') && this.sides.has('top'))
+      if (this.side == Side.BottomTop)
         update_range(yr, yscale, new_dy, frame.y_range)
-      else if (this.sides.has('bottom'))
+      else if (this.side == Side.Bottom)
         yr.start = compute_value(yr.start, yscale, new_dy, frame.y_range)
-      else if (this.sides.has('top'))
+      else if (this.side == Side.Top)
         yr.end = compute_value(yr.end, yscale, new_dy, frame.y_range)
     }
 
@@ -162,7 +160,7 @@ export class RangeToolView extends GestureToolView {
   }
 
   _pan_end(_ev: GestureEvent): void {
-    this.sides.clear()
+    this.side = Side.None
   }
 
 }
