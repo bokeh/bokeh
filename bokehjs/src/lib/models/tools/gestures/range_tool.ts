@@ -1,4 +1,4 @@
-import {GestureEvent, MoveEvent} from "core/ui_events"
+import {GestureEvent} from "core/ui_events"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import {Range} from "../../ranges/range"
 import {Range1d} from "../../ranges/range1d"
@@ -71,27 +71,6 @@ export class RangeToolView extends GestureToolView {
       this.connect(this.model.x_range.change, () => this.model.update_overlay_from_ranges())
     if (this.model.y_range != null)
       this.connect(this.model.y_range.change, () => this.model.update_overlay_from_ranges())
-  }
-
-  _move(ev: MoveEvent): void {
-    const frame = this.plot_model.frame
-    const xscale = frame.xscales.default
-    const yscale = frame.yscales.default
-    const overlay = this.model.overlay
-    const {left, right, top, bottom} = overlay
-
-    if (is_near(ev.sx, left, xscale)   ||
-        is_near(ev.sx, right, xscale))
-        this.plot_view.set_cursor("ew-resize")
-    else if (is_near(ev.sy, bottom, yscale) ||
-             is_near(ev.sy, top, yscale)) {
-      this.plot_view.set_cursor("ns-resize")
-    }
-    else if (is_inside(ev.sx, ev.sy, xscale, yscale, overlay)) {
-      this.plot_view.set_cursor("grab")
-    }
-    else
-      this.plot_view.set_cursor("default")
   }
 
   _pan_start(ev: GestureEvent): void {
@@ -211,6 +190,14 @@ export class RangeTool extends GestureTool {
         y_range: [ p.Instance, null                 ],
         overlay: [ p.Instance, DEFAULT_RANGE_OVERLAY ],
     })
+
+  }
+
+  initialize(): void {
+    super.initialize()
+    this.overlay.in_cursor = "grab"
+    this.overlay.ew_cursor = this.x_range != null ? "ew-resize" : null
+    this.overlay.ns_cursor = this.y_range != null ? "ns-resize" : null
   }
 
   update_overlay_from_ranges(): void {
@@ -243,7 +230,7 @@ export class RangeTool extends GestureTool {
 
   tool_name = "Range Tool"
   icon = "bk-tool-icon-range"
-  event_type = ["pan" as "pan", "move" as "move"]
+  event_type = "pan" as "pan"
   default_order = 1
 }
 RangeTool.initClass()

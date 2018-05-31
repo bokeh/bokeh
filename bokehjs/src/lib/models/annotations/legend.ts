@@ -22,7 +22,7 @@ export class LegendView extends AnnotationView {
   protected max_label_height: number
   protected text_widths: {[key: string]: number}
 
-  get cursor(): string | null {
+  cursor(_sx: number, _sy: number): string | null {
     return this.model.click_policy == "none" ? null : "pointer"
   }
 
@@ -131,9 +131,10 @@ export class LegendView extends AnnotationView {
     return {x: sx, y: sy, width: legend_width, height: legend_height}
   }
 
-  bbox(): BBox {
+  bbox_contains(sx: number, sy: number): boolean {
     const {x, y, width, height} = this.compute_legend_bbox()
-    return new BBox({x, y, width, height})
+    const bbox =  new BBox({x, y, width, height})
+    return bbox.contains(sx, sy)
   }
 
   on_hit(sx: number, sy: number): boolean {

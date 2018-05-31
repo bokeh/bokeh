@@ -27,7 +27,7 @@ export class DOMView extends View {
     return []
   }
 
-  get cursor(): string | null {
+  cursor(_sx: number, _sy: number): string | null {
     return null
   }
 

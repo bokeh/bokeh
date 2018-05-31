@@ -8,10 +8,16 @@ import {Color} from "core/types"
 import {show, hide} from "core/dom"
 import * as p from "core/properties"
 import {ViewTransform} from "core/layout/layout_canvas"
+import {BBox} from "core/util/bbox"
 
 export class BoxAnnotationView extends AnnotationView {
   model: BoxAnnotation
   visuals: BoxAnnotation.Visuals
+
+  private sleft: number
+  private sright: number
+  private sbottom: number
+  private stop: number
 
   initialize(options: any): void {
     super.initialize(options)
@@ -67,13 +73,14 @@ export class BoxAnnotationView extends AnnotationView {
       return sdim
     }
 
-    const sleft   = _calc_dim(this.model.left,   this.model.left_units,   xscale, frame.xview, frame._left.value)
-    const sright  = _calc_dim(this.model.right,  this.model.right_units,  xscale, frame.xview, frame._right.value)
-    const stop    = _calc_dim(this.model.top,    this.model.top_units,    yscale, frame.yview, frame._top.value)
-    const sbottom = _calc_dim(this.model.bottom, this.model.bottom_units, yscale, frame.yview, frame._bottom.value)
+    this.sleft   = _calc_dim(this.model.left,   this.model.left_units,   xscale, frame.xview, frame._left.value)
+    this.sright  = _calc_dim(this.model.right,  this.model.right_units,  xscale, frame.xview, frame._right.value)
+    this.stop    = _calc_dim(this.model.top,    this.model.top_units,    yscale, frame.yview, frame._top.value)
+    this.sbottom = _calc_dim(this.model.bottom, this.model.bottom_units, yscale, frame.yview, frame._bottom.value)
 
     const draw = this.model.render_mode == 'css' ? this._css_box.bind(this) : this._canvas_box.bind(this)
-    draw(sleft, sright, sbottom, stop)
+
+    draw(this.sleft, this.sright, this.sbottom, this.stop)
   }
 
   protected _css_box(sleft: number, sright: number, sbottom: number, stop: number): void {
@@ -112,6 +119,25 @@ export class BoxAnnotationView extends AnnotationView {
 
     ctx.restore()
   }
+
+  bbox_contains(sx: number, sy: number): boolean {
+    if (this.model.in_cursor == null)
+      return false
+    const bbox = new BBox({x0: this.sleft-3, y0: this.stop-3, x1: this.sright+3, y1: this.sbottom+3})
+    return bbox.contains(sx, sy)
+  }
+
+  cursor(sx: number, sy: number): string | null {
+    const tol = 3
+    if (Math.abs(sx-this.sleft) < tol || Math.abs(sx-this.sright) < tol)
+      return this.model.ew_cursor
+    else if (Math.abs(sy-this.sbottom) < tol || Math.abs(sy-this.stop) < tol)
+      return this.model.ns_cursor
+    else if (sx > this.sleft && sx < this.sright && sy > this.stop && sy < this.sbottom)
+      return this.model.in_cursor
+    else
+      return null
+  }
 }
 
 export namespace BoxAnnotation {
@@ -130,6 +156,9 @@ export namespace BoxAnnotation {
     right: number | null
     right_units: SpatialUnits
     screen: boolean
+    ew_cursor: string | null
+    ns_cursor: string | null
+    in_cursor: string | null
   }
 
   export interface Props extends Annotation.Props {
@@ -186,7 +215,10 @@ export class BoxAnnotation extends Annotation {
     })
 
     this.internal({
-      screen: [ p.Boolean, false ],
+      screen:    [ p.Boolean, false ],
+      ew_cursor: [ p.String,  null  ],
+      ns_cursor: [ p.String,  null  ],
+      in_cursor: [ p.String,  null  ],
     })
 
     this.override({

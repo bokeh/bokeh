@@ -198,7 +198,7 @@ DEFAULT_RANGE_OVERLAY = lambda: BoxAnnotation(
     line_dash=[4, 4]
 )
 
-class RangeTool(Gesture):
+class RangeTool(Drag):
     ''' *toolbar icon*: |range_icon|
 
     The range tool allows the user to update range objects for either or both
