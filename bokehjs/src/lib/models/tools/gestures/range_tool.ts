@@ -77,15 +77,17 @@ export class RangeToolView extends GestureToolView {
     const frame = this.plot_model.frame
     const xscale = frame.xscales.default
     const yscale = frame.yscales.default
+    const overlay = this.model.overlay
+    const {left, right, top, bottom} = overlay
 
-    if (is_near(ev.sx, this.model.overlay.left, xscale)   ||
-        is_near(ev.sx, this.model.overlay.right, xscale))
+    if (is_near(ev.sx, left, xscale)   ||
+        is_near(ev.sx, right, xscale))
         this.plot_view.set_cursor("ew-resize")
-    else if (is_near(ev.sy, this.model.overlay.bottom, yscale) ||
-             is_near(ev.sy, this.model.overlay.top, yscale)) {
+    else if (is_near(ev.sy, bottom, yscale) ||
+             is_near(ev.sy, top, yscale)) {
       this.plot_view.set_cursor("ns-resize")
     }
-    else if (is_inside(ev.sx, ev.sy, xscale, yscale, this.model.overlay)) {
+    else if (is_inside(ev.sx, ev.sy, xscale, yscale, overlay)) {
       this.plot_view.set_cursor("grab")
     }
     else
@@ -103,20 +105,23 @@ export class RangeToolView extends GestureToolView {
     const xscale = frame.xscales.default
     const yscale = frame.yscales.default
 
+    const overlay = this.model.overlay
+    const {left, right, top, bottom} = overlay
+
     if (xr != null) {
-      if (is_near(ev.sx, this.model.overlay.left, xscale))
+      if (is_near(ev.sx, left, xscale))
         this.side = Side.Left
-      else if (is_near(ev.sx, this.model.overlay.right, xscale))
+      else if (is_near(ev.sx, right, xscale))
         this.side = Side.Right
-      else if (is_inside(ev.sx, ev.sy, xscale, yscale, this.model.overlay)) {
+      else if (is_inside(ev.sx, ev.sy, xscale, yscale, overlay)) {
         this.side = Side.LeftRight
       }
     }
 
     if (yr != null) {
-      if (is_near(ev.sy, this.model.overlay.bottom, yscale))
+      if (is_near(ev.sy, bottom, yscale))
         this.side = Side.Bottom
-      if (is_near(ev.sy, this.model.overlay.top, yscale))
+      if (is_near(ev.sy, top, yscale))
         this.side = Side.Top
       else if (is_inside(ev.sx, ev.sy, xscale, yscale, this.model.overlay)) {
         this.side = Side.BottomTop
