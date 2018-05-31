@@ -1,5 +1,4 @@
-import {div, link, style/*, replaceWith*/} from "../core/dom"
-//import {logger, set_log_level} from "../core/logging"
+import {div, link, style, replaceWith} from "../core/dom"
 import {RenderItem} from "./json"
 
 // Matches Bokeh CSS class selector. Setting all Bokeh parent element class names
@@ -16,61 +15,43 @@ export function inject_raw_css(css: string): void {
   document.body.appendChild(element)
 }
 
-/*
-// pull missing render item fields from data- attributes
-function _fill_render_item_from_script_tag(script: HTMLElement, item: RenderItem): void {
-  const {bokehLogLevel, bokehDocId, bokehModelId, bokehSessionId} = script.dataset
+function _get_element(elementid: string): HTMLElement {
+  const element = document.getElementById(elementid)
 
-  // length checks are because we put all the attributes on the tag
-  // but sometimes set them to empty string
-  if (bokehLogLevel != null && bokehLogLevel.length > 0)
-    set_log_level(bokehLogLevel)
-  if (bokehDocId != null && bokehDocId.length > 0)
-    item.docid = bokehDocId
-  if (bokehModelId != null && bokehModelId.length > 0)
-    item.modelid = bokehModelId
-  if (bokehSessionId != null && bokehSessionId.length > 0)
-    item.sessionid = bokehSessionId
+  if (element == null)
+    throw new Error(`Error rendering Bokeh model: could not find #${elementid} HTML tag`)
+  if (!document.body.contains(element))
+    throw new Error(`Error rendering Bokeh model: element #${elementid} must be under <body>`)
 
-  logger.info(`Will inject Bokeh script tag with params ${JSON.stringify(item)}`)
+  return element
 }
-*/
 
-export function _get_element(item: RenderItem, root_id?: string): HTMLElement {
-  const elem = (item.elementid != null && document.getElementById(item.elementid)) || document.body
+export function _resolve_element(item: RenderItem): HTMLElement {
+  const {elementid} = item
 
-  if (root_id != null) {
-    if (item.roots != null && root_id in item.roots) {
-      const root_el = document.getElementById(item.roots[root_id])
-      if (root_el != null)
-        return root_el
-    }
+  if (elementid != null)
+    return _get_element(elementid)
+  else
+    return document.body
+}
 
-    if (elem.classList.contains(BOKEH_ROOT))
-      return elem
-    else {
-      const root_el = div({class: BOKEH_ROOT})
-      elem.appendChild(root_el)
-      return root_el
+export function _resolve_root_elements(item: RenderItem): {[key: string]: HTMLElement} {
+  const roots: {[key: string]: HTMLElement} = {}
+
+  if (item.roots != null) {
+    for (const root_id in item.roots) {
+      let elem = _get_element(item.roots[root_id])
+
+      // if autoload script, replace script tag with div for embedding
+      if (elem.tagName == "SCRIPT") {
+        const root_el = div({class: BOKEH_ROOT})
+        replaceWith(elem, root_el)
+        elem = root_el
+      }
+
+      roots[root_id] = elem
     }
   }
 
-  /*
-  if (elem == null)
-    throw new Error(`Error rendering Bokeh model: could not find tag with id: ${elementid}`)
-  if (!document.body.contains(elem))
-    throw new Error(`Error rendering Bokeh model: element with id '${elementid}' must be under <body>`)
-
-  // if autoload script, replace script tag with div for embedding
-  if (elem.tagName == "SCRIPT") {
-    _fill_render_item_from_script_tag(elem, item)
-    const container = div({class: BOKEH_ROOT})
-    replaceWith(elem, container)
-    const child = div()
-    container.appendChild(child)
-    elem = child
-  }
-  */
-
-  return elem
+  return roots
 }

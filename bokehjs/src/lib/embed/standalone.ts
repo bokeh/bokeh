@@ -22,6 +22,8 @@ export function add_document_standalone(document: Document, element: HTMLElement
     let root_el: HTMLElement
     if (model.id in roots)
       root_el = roots[model.id]
+    else if (element.classList.contains(BOKEH_ROOT))
+      root_el = element
     else {
       root_el = div({class: BOKEH_ROOT})
       element.appendChild(root_el)

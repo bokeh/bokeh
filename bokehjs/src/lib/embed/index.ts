@@ -7,7 +7,7 @@ import {isString} from "../core/util/types"
 import {DocsJson, RenderItem} from "./json"
 import {add_document_standalone} from "./standalone"
 import {add_document_from_session, _get_ws_url} from "./server"
-import {_get_element} from "./dom"
+import {_resolve_element, _resolve_root_elements} from "./dom"
 
 export {DocsJson, RenderItem} from "./json"
 export {add_document_standalone} from "./standalone"
@@ -34,11 +34,8 @@ function _embed_items(docs_json: string | DocsJson, render_items: RenderItem[], 
   }
 
   for (const item of render_items) {
-    const element = _get_element(item)
-
-    const roots: {[key: string]: HTMLElement} = {}
-    for (const root_id in item.roots || {})
-      roots[root_id] = _get_element(item, root_id)
+    const element = _resolve_element(item)
+    const roots = _resolve_root_elements(item)
 
     if (item.docid != null) {
       add_document_standalone(docs[item.docid], element, roots, item.use_for_title)

@@ -111,7 +111,7 @@ def div_for_render_item(item):
     '''
         item: RenderItem
     '''
-    return PLOT_DIV.render(elementid=item.elementid)
+    return PLOT_DIV.render(doc=item, macros=MACROS)
 
 def find_existing_docs(models):
     '''
@@ -217,7 +217,7 @@ class RenderRoots(object):
                 if root.name == key:
                     break
             else:
-                raise ValueError("root with '{name}' not found".format(key))
+                raise ValueError("root with '%s' name not found" % key)
 
         return dict(elementid=elementid)
 
@@ -262,6 +262,12 @@ class RenderItem(object):
             json["use_for_title"] = self.use_for_title
 
         return json
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        else:
+            return self.to_json() == other.to_json()
 
 def standalone_docs_json_and_render_items(models):
     '''

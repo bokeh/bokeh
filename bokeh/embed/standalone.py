@@ -76,25 +76,24 @@ def autoload_static(model, resources, script_path):
     model = check_one_model_or_doc(model)
 
     with _ModelInDocument([model]):
-        (docs_json, render_items) = standalone_docs_json_and_render_items([model])
+        (docs_json, [render_item]) = standalone_docs_json_and_render_items([model])
 
     bundle = bundle_all_models()
-    script = script_for_render_items(docs_json, render_items)
-    item = render_items[0]
+    script = script_for_render_items(docs_json, [render_item])
+
+    (modelid, elementid) = list(render_item.roots.to_json().items())[0]
 
     js = wrap_in_onload(AUTOLOAD_JS.render(
         js_urls = resources.js_files,
         css_urls = resources.css_files,
         js_raw = resources.js_raw + [bundle, script],
         css_raw = resources.css_raw_str,
-        elementid = item.elementid,
+        elementid = elementid,
     ))
 
     tag = AUTOLOAD_TAG.render(
         src_path = script_path,
-        elementid = item.elementid,
-        modelid = item.modelid or "", # XXX
-        docid = item.docid,
+        elementid = elementid,
     )
 
     return encode_utf8(js), encode_utf8(tag)

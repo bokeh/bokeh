@@ -5,7 +5,7 @@ import {size, values} from "../core/util/object"
 
 import {add_document_standalone} from "./standalone"
 import {DocsJson, RenderItem} from "./json"
-import {_get_element} from "./dom"
+import {_resolve_element, _resolve_root_elements} from "./dom"
 
 export const kernels: {[key: string]: Kernel} = {}
 
@@ -60,11 +60,8 @@ export function embed_items_notebook(docs_json: DocsJson, render_items: RenderIt
     if (item.notebook_comms_target != null)
       _init_comms(item.notebook_comms_target, document)
 
-    const element = _get_element(item)
-
-    const roots: {[key: string]: HTMLElement} = {}
-    for (const root_id in item.roots || {})
-      roots[root_id] = _get_element(item, root_id)
+    const element = _resolve_element(item)
+    const roots = _resolve_root_elements(item)
 
     add_document_standalone(document, element, roots)
   }
