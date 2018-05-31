@@ -194,8 +194,8 @@ DEFAULT_RANGE_OVERLAY = lambda: BoxAnnotation(
     fill_alpha=0.5,
     line_color="black",
     line_alpha=1.0,
-    line_width=2,
-    line_dash=[4, 4]
+    line_width=0.5,
+    line_dash=[2,2],
 )
 
 class RangeTool(Drag):
@@ -220,9 +220,29 @@ class RangeTool(Drag):
     will span the entire x-dimension.
     """)
 
+    x_interaction = Bool(default=True, help="""
+    Whether to respond to horizontal pan motions when an ``x_range`` is present.
+
+    By default, when an ``x_range`` is specified, it is possible to adjust the
+    horizontal position of the range box by panning horizontally inside the
+    box, or along the top or bottom edge of the box. To disable this, and fix
+    the  range box in place horizontally, set to False. (The box will still
+    update if the ``x_range`` is updated programmatically.)
+    """)
+
     y_range = Instance(Range1d, help="""
     A range synchronized to the y-dimension of the overlay. If None, the overlay
     will span the entire y-dimension.
+    """)
+
+    y_interaction = Bool(default=True, help="""
+    Whether to respond to vertical pan motions when a ``y_range`` is present.
+
+    By default, when a ``y_range`` is specified, it is possible to adjust the
+    vertical position of the range box by panning vertically inside the box, or
+    along the top or bottom edge of the box. To disable this, and fix the range
+    box in place vertically, set to False. (The box will still update if the
+    ``y_range`` is updated programmatically.)
     """)
 
     overlay = Instance(BoxAnnotation, default=DEFAULT_RANGE_OVERLAY, help="""

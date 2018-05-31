@@ -2,12 +2,13 @@ import {GestureEvent} from "core/ui_events"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import {Range} from "../../ranges/range"
 import {Range1d} from "../../ranges/range1d"
+import {Scale} from '../../scales/scale'
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {GestureTool, GestureToolView} from "./gesture_tool"
-import { Scale } from 'api';
 
-const enum Side { None, Left, Right, LeftRight, Bottom, Top, BottomTop }
+
+const enum Side { None, Left, Right, LeftRight, Bottom, Top, BottomTop, LeftRightBottomTop }
 
 export function is_near(pos: number, value: number|null, scale: Scale, tolerance: number = 3): boolean {
   if (value == null)
@@ -87,7 +88,7 @@ export class RangeToolView extends GestureToolView {
     const overlay = this.model.overlay
     const {left, right, top, bottom} = overlay
 
-    if (xr != null) {
+    if (xr != null && this.model.x_interaction) {
       if (is_near(ev.sx, left, xscale))
         this.side = Side.Left
       else if (is_near(ev.sx, right, xscale))
@@ -97,13 +98,16 @@ export class RangeToolView extends GestureToolView {
       }
     }
 
-    if (yr != null) {
-      if (is_near(ev.sy, bottom, yscale))
+    if (yr != null && this.model.y_interaction) {
+      if (this.side == Side.None && is_near(ev.sy, bottom, yscale))
         this.side = Side.Bottom
-      if (is_near(ev.sy, top, yscale))
+      if (this.side == Side.None && is_near(ev.sy, top, yscale))
         this.side = Side.Top
       else if (is_inside(ev.sx, ev.sy, xscale, yscale, this.model.overlay)) {
-        this.side = Side.BottomTop
+        if (this.side == Side.LeftRight)
+          this.side = Side.LeftRightBottomTop
+        else
+          this.side = Side.BottomTop
       }
     }
   }
@@ -121,7 +125,7 @@ export class RangeToolView extends GestureToolView {
     const yscale = frame.yscales.default
 
     if (xr != null) {
-      if (this.side == Side.LeftRight)
+      if (this.side == Side.LeftRight || this.side == Side.LeftRightBottomTop)
         update_range(xr, xscale, new_dx, frame.x_range)
       else if (this.side == Side.Left)
         xr.start = compute_value(xr.start, xscale, new_dx, frame.x_range)
@@ -130,7 +134,7 @@ export class RangeToolView extends GestureToolView {
     }
 
     if (yr != null) {
-      if (this.side == Side.BottomTop)
+      if (this.side == Side.BottomTop || this.side == Side.LeftRightBottomTop)
         update_range(yr, yscale, new_dy, frame.y_range)
       else if (this.side == Side.Bottom)
         yr.start = compute_value(yr.start, yscale, new_dy, frame.y_range)
@@ -153,18 +157,21 @@ const DEFAULT_RANGE_OVERLAY = () => {
   return new BoxAnnotation({
     level: "overlay",
     render_mode: "css",
+    fill_color: "lightgrey",
     fill_alpha: {value: 0.5},
     line_color: {value: "black"},
-    line_alpha: {value: 0},
-    line_width: {value: 2},
-    line_dash: {value: [4, 4]},
+    line_alpha: {value: 1.0},
+    line_width: {value: 0.5},
+    line_dash: [2, 2]
     })
   }
 
 export namespace RangeTool {
   export interface Attrs extends GestureTool.Attrs {
     x_range: Range1d | null
+    x_interaction: boolean
     y_range: Range1d | null
+    y_interaction: boolean
     overlay: BoxAnnotation
   }
 
@@ -186,9 +193,11 @@ export class RangeTool extends GestureTool {
     this.prototype.default_view = RangeToolView
 
     this.define({
-        x_range: [ p.Instance, null                 ],
-        y_range: [ p.Instance, null                 ],
-        overlay: [ p.Instance, DEFAULT_RANGE_OVERLAY ],
+        x_range:       [ p.Instance, null                  ],
+        x_interaction: [ p.Bool,     true                  ],
+        y_range:       [ p.Instance, null                  ],
+        y_interaction: [ p.Bool,     true                  ],
+        overlay:       [ p.Instance, DEFAULT_RANGE_OVERLAY ],
     })
 
   }
@@ -196,8 +205,8 @@ export class RangeTool extends GestureTool {
   initialize(): void {
     super.initialize()
     this.overlay.in_cursor = "grab"
-    this.overlay.ew_cursor = this.x_range != null ? "ew-resize" : null
-    this.overlay.ns_cursor = this.y_range != null ? "ns-resize" : null
+    this.overlay.ew_cursor = this.x_range != null && this.x_interaction ? "ew-resize" : null
+    this.overlay.ns_cursor = this.y_range != null && this.y_interaction ? "ns-resize" : null
   }
 
   update_overlay_from_ranges(): void {
