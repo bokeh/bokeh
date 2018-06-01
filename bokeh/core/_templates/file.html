@@ -10,9 +10,6 @@ Renders Bokeh models into a basic .html file.
 :param plot_script: typically the output of PLOT_SCRIPT
 :type plot_script: str
 
-:param plot_div: typically the output of PLOT_DIV
-:type plot_div: str
-
 Users can customize the file output by providing their own Jinja2 template
 that accepts these same parameters.
 
@@ -22,37 +19,37 @@ that accepts these same parameters.
 
 <!DOCTYPE html>
 <html lang="en">
-    {% block head %}
-    <head>
-      {% block inner_head %}
-        <meta charset="utf-8">
-        <title>{% block title %}{{ title | e if title else "Bokeh Plot" }}{% endblock %}</title>
-        {% block preamble %}{% endblock %}
-        {% block resources %}
-          {% block js_resources %}
-            {{ bokeh_css | indent(8) if bokeh_css }}
-          {% endblock %}
-          {% block css_resources %}
-            {{ bokeh_js | indent(8) if bokeh_js }}
-          {% endblock %}
+  {% block head %}
+  <head>
+    {% block inner_head %}
+      <meta charset="utf-8">
+      <title>{% block title %}{{ title | e if title else "Bokeh Plot" }}{% endblock %}</title>
+      {% block preamble %}{% endblock %}
+      {% block resources %}
+        {% block js_resources %}
+          {{ bokeh_css | indent(8) if bokeh_css }}
         {% endblock %}
-        {% block postamble %}{% endblock %}
+        {% block css_resources %}
+          {{ bokeh_js | indent(8) if bokeh_js }}
+        {% endblock %}
       {% endblock %}
-    </head>
+      {% block postamble %}{% endblock %}
     {% endblock %}
-    {% block body %}
-    <body>
-      {% block inner_body %}
-        {% block contents %}
-          {% for doc in docs %}
-            {{ embed(doc) if doc.elementid }}
-            {% for root in doc.roots %}
-              {{ embed(root) | indent(10) }}
-            {% endfor %}
+  </head>
+  {% endblock %}
+  {% block body %}
+  <body>
+    {% block inner_body %}
+      {% block contents %}
+        {% for doc in docs %}
+          {{ embed(doc) if doc.elementid }}
+          {% for root in doc.roots %}
+            {{ embed(root) | indent(10) }}
           {% endfor %}
-        {% endblock %}
-        {{ plot_script | indent(8) }}
+        {% endfor %}
       {% endblock %}
-    </body>
+      {{ plot_script | indent(8) }}
     {% endblock %}
+  </body>
+  {% endblock %}
 </html>

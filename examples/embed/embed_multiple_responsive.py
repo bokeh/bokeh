@@ -27,7 +27,8 @@ green.scatter(data(), data(), color="green", **SCATTER_OPTIONS)
 ########## RENDER PLOTS ################
 
 # Define our html template for out plots
-template = Template('''<!DOCTYPE html>
+template = Template("""\
+<!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="utf-8">
@@ -46,7 +47,7 @@ template = Template('''<!DOCTYPE html>
     {{ plot_script }}
     </body>
 </html>
-''')
+""")
 
 resources = INLINE.render()
 
