@@ -217,15 +217,19 @@ export class Linker {
       return path
 
     const file = path + this.ext
-    if (fileExists(file))
-      return file
-    else if (directoryExists(path)) {
-      const file = join(path, "index" + this.ext)
-      if (fileExists(file))
-        return file
-    }
+    const has_file = fileExists(file)
 
-    throw new Error(`can't resolve '${dep}' from '${parent.file}'`)
+    const index = join(path, "index" + this.ext)
+    const has_index = fileExists(index)
+
+    if (has_file && has_index)
+      throw new Error(`both ${file} and ${index} exist, remove one of them or clean the build and recompile`)
+    else if (has_file)
+      return file
+    else if (has_index)
+      return index
+    else
+      throw new Error(`can't resolve '${dep}' from '${parent.file}'`)
   }
 
   protected resolve_absolute(dep: string, parent: Module): string {
