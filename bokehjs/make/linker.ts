@@ -99,7 +99,7 @@ export class Linker {
       const mod = modules.get(file)!
       visited.add(file)
 
-      for (const [_, file] of mod.deps) {
+      for (const [, file] of mod.deps) {
         if (!visited.has(file) && !this.excludes.has(file) && !is_excluded(file))
           pending.add(file)
       }
@@ -212,7 +212,7 @@ export class Linker {
       const mod = new Module(file, this)
       visited.set(mod.file, mod)
 
-      for (const [_, file] of mod.deps) {
+      for (const [, file] of mod.deps) {
         if (!visited.has(file) && !this.excludes.has(file))
           pending.add(file)
       }

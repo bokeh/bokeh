@@ -110,7 +110,7 @@ export class ImageURLView extends XYGlyphView {
   }
 
   protected _render(ctx: Context2d, indices: number[],
-                    {_url, image, sx, sy, sw, sh, _angle}: ImageURLData): void {
+                    {image, sx, sy, sw, sh, _angle}: ImageURLData): void {
 
     // TODO (bev): take actual border width into account when clipping
     const {frame} = this.renderer.plot_view

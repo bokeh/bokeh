@@ -89,13 +89,13 @@ export class MultiSelectView extends InputWidgetView {
 export namespace MultiSelect {
   export interface Attrs extends InputWidget.Attrs {
     value: string[]
-    options: string[]
+    options: (string | [string, string])[]
     size: number
   }
 
   export interface Props extends InputWidget.Props {
     value: p.Property<string[]>
-    options: p.Property<string[]>
+    options: p.Property<(string | [string, string])[]>
     size: p.Property<number>
   }
 }
