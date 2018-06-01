@@ -269,24 +269,28 @@ class RenderItem(object):
         else:
             return self.to_json() == other.to_json()
 
+CALLBACKS_WARNING = """
+You are generating standalone HTML/JS output, but trying to use real Python
+callbacks (i.e. with on_change or on_event). This combination cannot work.
+
+Only JavaScript callbacks may be used with standalone output. For more
+information on JavaScript callbacks with Bokeh, see:
+
+    http://bokeh.pydata.org/en/latest/docs/user_guide/interaction/callbacks.html
+
+Alternatively, to use real Python callbacks, a Bokeh server application may
+be used. For more information on building and running Bokeh applications, see:
+
+    http://bokeh.pydata.org/en/latest/docs/user_guide/server.html
+"""
+
 def standalone_docs_json_and_render_items(models):
     '''
 
     '''
     models = check_models_or_docs(models)
     if submodel_has_python_callbacks(models):
-        msg = ('You are generating standalone HTML/JS output, but trying to '
-               'use real Python callbacks (i.e. with on_change or on_event). '
-               'This cannot work. Only JavaScript callbacks may be used '
-               'with standalone output. For more information on JavaScript '
-               'callbacks, see\n\n'
-               'http://bokeh.pydata.org/en/latest/docs/user_guide/interaction/callbacks.html#userguide-interaction-jscallbacks\n\n'
-                'Alternatively, to use real Python callbacks, a Bokeh server '
-               'application may be used. For more information on building and '
-               'running Bokeh applications, see\n\n'
-               ' http://bokeh.pydata.org/en/latest/docs/user_guide/server.html')
-        log.warn(msg)
-
+        log.warn(CALLBACKS_WARNING)
 
     docs = {}
     for model_or_doc in models:
