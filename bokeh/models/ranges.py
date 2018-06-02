@@ -46,13 +46,13 @@ class Range1d(Range):
     The end of the range.
     """)
 
-    initial_start = Either(Float, Datetime, Int, default=None, help="""
-    The start of the range when resetting. If set to ``None`` defaults
+    reset_start = Either(Float, Datetime, Int, default=None, help="""
+    The start of the range to apply after reset. If set to ``None`` defaults
     to the ``start`` value during initialization.
     """)
 
-    initial_end = Either(Float, Datetime, Int, default=None, help="""
-    The start of the range when resetting. If set to ``None`` defaults
+    reset_end = Either(Float, Datetime, Int, default=None, help="""
+    The end of the range to apply when resetting. If set to ``None`` defaults
     to the ``end`` value during initialization.
     """)
 
