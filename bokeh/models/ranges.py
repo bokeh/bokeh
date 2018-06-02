@@ -46,6 +46,16 @@ class Range1d(Range):
     The end of the range.
     """)
 
+    initial_start = Either(Float, Datetime, Int, default=None, help="""
+    The start of the range when resetting. If set to ``None`` defaults
+    to the ``start`` value during initialization.
+    """)
+
+    initial_end = Either(Float, Datetime, Int, default=None, help="""
+    The start of the range when resetting. If set to ``None`` defaults
+    to the ``end`` value during initialization.
+    """)
+
     bounds = MinMaxBounds(accept_datetime=True, default=None, help="""
     The bounds that the range is allowed to go to. Typically used to prevent
     the user from panning/zooming/etc away from the data.
