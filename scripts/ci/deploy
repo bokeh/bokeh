@@ -10,7 +10,6 @@ if  [[ -z "${TRAVIS_TAG}" ]]; then
     exit 0
 fi
 
-echo $'50.56.188.141 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBLhaUWVeT0S6qvhdY3ihsXkrkF567J8sSNRNPH7sOoqJx8P3tQjJeLfgdeUEvb/8Nhqz4ujddO8Im9zafAyAahs=' >> ~/.ssh/known_hosts
 echo $'172.99.67.225 ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBLhaUWVeT0S6qvhdY3ihsXkrkF567J8sSNRNPH7sOoqJx8P3tQjJeLfgdeUEvb/8Nhqz4ujddO8Im9zafAyAahs=' >> ~/.ssh/known_hosts
 
 # decrypt secrets files and place them in the correct location

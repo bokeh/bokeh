@@ -436,12 +436,9 @@ if __name__ == '__main__':
     check_environment_var('ANACONDA_TOKEN', 'access token for Anaconda.org')
     check_environment_var('RSUSER', 'username for CDN')
     check_environment_var('RSAPIKEY', 'API key for CDN')
-    check_environment_var('RSUSEROLD', 'Old username for CDN')
-    check_environment_var('RSAPIKEYOLD', 'Old API key for CDN')
 
     anaconda_token = check_anaconda_creds()
 
-    old_cdn_token, old_cdn_id = check_cdn_creds('RSUSEROLD', 'RSAPIKEYOLD')
     cdn_token, cdn_id = check_cdn_creds()
 
     # builds ----------------------------------------------------------------
@@ -469,7 +466,6 @@ if __name__ == '__main__':
 
     # upload to CDN first -- if this fails, save the trouble of removing
     # useless packages from Anaconda.org and PyPI
-    upload_cdn(old_cdn_token, old_cdn_id, url='https://storage101.dfw1.clouddrive.com')
     upload_cdn(cdn_token, cdn_id)
 
     upload_anaconda(anaconda_token, V(CONFIG.version).is_prerelease)
@@ -483,7 +479,6 @@ if __name__ == '__main__':
     else:
         upload_pypi()
         upload_npm()
-        upload_examples(cdn_token, cdn_id, url='https://storage101.dfw1.clouddrive.com')
         upload_examples(cdn_token, cdn_id)
 
     # finish ----------------------------------------------------------------
