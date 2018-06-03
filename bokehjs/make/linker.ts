@@ -9,7 +9,6 @@ import {Program, Node, CallExpression, Comment, Statement} from "estree"
 
 import * as combine from "combine-source-map"
 import * as convert from "convert-source-map"
-const merge = require("merge-source-map")
 
 import {prelude, plugin_prelude} from "./prelude"
 
@@ -55,7 +54,6 @@ export interface LinkerOpts {
   excludes?: string[] // paths: process, but don't include in a bundle
   ignores?: string[]  // modules: don't process at all
   builtins?: boolean
-  sourcemaps?: boolean
 }
 
 export class Linker {
@@ -64,7 +62,6 @@ export class Linker {
   readonly excludes: Set<string>
   readonly ignores: Set<string>
   readonly builtins: boolean
-  readonly sourcemaps: boolean
 
   constructor(opts: LinkerOpts) {
     this.entries = opts.entries
@@ -72,7 +69,6 @@ export class Linker {
     this.excludes = new Set((opts.excludes || []).map((path) => resolve(path)))
     this.ignores = new Set(opts.ignores || [])
     this.builtins = opts.builtins || false
-    this.sourcemaps = opts.sourcemaps || false
 
     if (this.builtins) {
       this.ignores.add("module")
@@ -449,23 +445,8 @@ export class Module {
   }
 
   protected generate_source(): string {
-    if (!this.linker.sourcemaps || this.is_external) {
-      const source = escodegen.generate(this.ast, {comment: true})
-      return convert.removeMapFileComments(source)
-    } else {
-      const old_map = convert.fromMapFileSource(this.input, dirname(this.file))
-      const result: any = escodegen.generate(this.ast, {
-        comment: true,
-        sourceMap: old_map ? old_map.getProperty("sources")[0] : basename(this.file),
-        sourceMapWithCode: true,
-        sourceContent: this.input,
-      })
-      const new_map = JSON.parse(result.map.toString())
-      const map = old_map ? merge(old_map.toObject(), new_map) : new_map
-      const source = convert.removeMapFileComments(result.code)
-      const comment = convert.fromObject(map).toComment()
-      return `${source}\n${comment}\n`
-    }
+    const source = escodegen.generate(this.ast, {comment: true})
+    return convert.removeMapFileComments(source)
   }
 
   get source(): string {
