@@ -209,7 +209,9 @@ class BokehTornado(TornadoApplication):
         if websocket_max_message_size_bytes <= 0:
             raise ValueError("websocket_max_message_size_bytes must be postitive")
         elif websocket_max_message_size_bytes != DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES:
-            log.info("Setting Torndado websocket_max_message_size to %d", websocket_max_message_size_bytes)
+            log.info("Torndado websocket_max_message_size set to %d bytes (%0.2f MB)",
+                     websocket_max_message_size_bytes,
+                     websocket_max_message_size_bytes/1024.0**2)
 
         if extra_websocket_origins is None:
             self._websocket_origins = set()

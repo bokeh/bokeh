@@ -32,7 +32,7 @@ from ..resources import DEFAULT_SERVER_PORT
 from ..util.options import Options
 
 from .util import bind_sockets, create_hosts_whitelist
-from .tornado import BokehTornado
+from .tornado import BokehTornado, DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES
 
 # This class itself is intentionally undocumented (it is used to generate
 # documentation elsewhere)
@@ -78,7 +78,7 @@ class _ServerOpts(Options):
     ``X-Scheme``, ``X-Forwarded-Proto`` headers (if they are provided).
     """)
 
-    websocket_max_message_size = Int(default=20*1024*104, help="""
+    websocket_max_message_size = Int(default=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, help="""
     Set the Tornado ``websocket_max_message_size`` value.
 
     NOTE: This setting has effect ONLY for Tornado>=4.5

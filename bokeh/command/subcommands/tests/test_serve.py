@@ -6,6 +6,7 @@ import re
 import socket
 import subprocess
 import sys
+from time import sleep
 
 import pytest
 import requests
@@ -177,7 +178,7 @@ def test_args():
             action='store',
             help="Set the Tornado websocket_max_message_size value (defaults "
                  "to 20MB) NOTE: This setting has effect ONLY for Tornado>=4.5",
-            default=20*10124*1024,
+            default=20*1024*1024,
             type=int,
         )),
     )
@@ -234,15 +235,17 @@ def test_port_not_available():
 
 @pytest.mark.skipif(six.PY2, reason="Travis bug causes bad file descriptor")
 def test_actual_port_printed_out():
+    from fcntl import fcntl, F_GETFL, F_SETFL
+    from os import O_NONBLOCK, read
+    pat = re.compile(r'Bokeh app running at: http://localhost:(\d+)')
+    m = None
     with run_bokeh_serve(["--port", "0"]) as p:
-        pat = re.compile(r'Bokeh app running at: http://localhost:(\d+)')
-        while True:
-            line = p.stdout.readline()
-            print("child stdout>", line)
-            m = pat.search(line.decode())
-            if m is not None:
-                break
-        else:
+        flags = fcntl(p.stdout, F_GETFL)
+        fcntl(p.stdout, F_SETFL, flags | O_NONBLOCK)
+        sleep(2)
+        o = read(p.stdout.fileno(), 100*1024)
+        m = pat.search(o.decode())
+        if m is None:
             pytest.fail("no matching log line in process output")
         port = int(m.group(1))
         assert port > 0
@@ -251,13 +254,10 @@ def test_actual_port_printed_out():
 
 @pytest.mark.skipif(six.PY2, reason="Travis bug causes bad file descriptor")
 def test_websocket_max_message_size_printed_out():
+    pat = re.compile(r'Torndado websocket_max_message_size set to 12345')
     with run_bokeh_serve(["--websocket-max-message-size", "12345"]) as p:
-        pat = re.compile(r'Setting Torndado websocket_max_message_size to 12345')
-        while True:
-            line = p.stdout.readline()
-            print("child stdout>", line)
-            m = pat.search(line.decode())
-            if m is not None:
-                break
-        else:
-            pytest.fail("no matching log line in process output")
+        sleep(2)
+    o, e = p.communicate()
+    m = pat.search(o.decode())
+    if m is None:
+        pytest.fail("no matching log line in process output")

@@ -306,6 +306,7 @@ from bokeh.application import Application
 from bokeh.resources import DEFAULT_SERVER_PORT
 from bokeh.util.logconfig import basicConfig
 from bokeh.util.string import nice_join, format_docstring
+from bokeh.server.tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES
 from bokeh.settings import settings
 
 from os import getpid
@@ -477,7 +478,7 @@ class Serve(Subcommand):
             action='store',
             help="Set the Tornado websocket_max_message_size value (defaults "
                  "to 20MB) NOTE: This setting has effect ONLY for Tornado>=4.5",
-            default=20*10124*1024,
+            default=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
             type=int,
         )),
 
