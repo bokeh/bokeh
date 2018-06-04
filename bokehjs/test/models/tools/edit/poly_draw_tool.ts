@@ -195,6 +195,25 @@ describe("PolyDrawTool", (): void => {
       expect(testcase.data_source.data['ys']).to.be.deep.equal(ydata);
     });
 
+    it("should draw patch despite typed array data", function(): void {
+      const testcase = make_testcase();
+      const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
+
+      hit_test_stub.returns(null);
+      testcase.draw_tool_view._doubletap(make_tap_event(300, 300));
+      testcase.data_source.data['xs'][2] = Float64Array.from(testcase.data_source.data['xs'][2])
+      testcase.data_source.data['ys'][2] = Float64Array.from(testcase.data_source.data['ys'][2])
+      testcase.draw_tool_view._tap(make_tap_event(250, 250));
+      testcase.draw_tool_view._doubletap(make_tap_event(200, 200));
+
+      const new_xs = [0.04424778761061947, -0.13274336283185842, -0.30973451327433627];
+      const new_ys = [-0, 0.1694915254237288, 0.3389830508474576];
+      const xdata = [[0, 0.5, 1], [0, 0.5, 1], new_xs];
+      const ydata = [[0, -0.5, -1], [0, -0.5, -1], new_ys];
+      expect(testcase.data_source.data['xs']).to.be.deep.equal(xdata);
+      expect(testcase.data_source.data['ys']).to.be.deep.equal(ydata);
+    });
+
     it("should end draw patch on escape", function(): void {
       const testcase = make_testcase();
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
