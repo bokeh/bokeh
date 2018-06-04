@@ -17,6 +17,8 @@ def test_Range1d():
         "callback",
         "start",
         "end",
+        "reset_start",
+        "reset_end",
         "bounds",
         "min_interval",
         "max_interval"],

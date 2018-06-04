@@ -7,6 +7,7 @@ import {Renderer, RendererView} from "../renderers/renderer"
 import {Plot} from "../plots/plot"
 import {CartesianFrame} from "../canvas/cartesian_frame"
 import {Range} from "../ranges/range"
+import {Range1d} from "../ranges/range1d"
 import {div} from "core/dom"
 import * as p from "core/properties"
 import {includes} from "core/util/array"
@@ -127,6 +128,14 @@ export class TileRendererView extends RendererView {
     this.y_range.start = new_extent[1]
     this.x_range.end = new_extent[2]
     this.y_range.end = new_extent[3]
+    if (this.x_range instanceof Range1d) {
+      this.x_range.reset_start = new_extent[0]
+      this.x_range.reset_end = new_extent[2]
+    }
+    if (this.y_range instanceof Range1d) {
+      this.y_range.reset_start = new_extent[1]
+      this.y_range.reset_end = new_extent[3]
+    }
     this._add_attribution()
   }
 

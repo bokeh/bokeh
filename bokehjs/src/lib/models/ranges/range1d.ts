@@ -5,6 +5,8 @@ export namespace Range1d {
   export interface Attrs extends Range.Attrs {
     start: number
     end: number
+    reset_start: number
+    reset_end: number
   }
 
   export interface Props extends Range.Props {}
@@ -26,26 +28,27 @@ export class Range1d extends Range {
     this.define({
       start:  [ p.Number, 0 ],
       end:    [ p.Number, 1 ],
+      reset_start:  [ p.Number ],
+      reset_end:    [ p.Number ],
     })
   }
 
-  protected _initial_start: number
-  protected _initial_end: number
-
   protected _set_auto_bounds(): void {
     if (this.bounds == 'auto') {
-      const min = Math.min(this._initial_start, this._initial_end)
-      const max = Math.max(this._initial_start, this._initial_end)
+      const min = Math.min(this.reset_start, this.reset_end)
+      const max = Math.max(this.reset_start, this.reset_end)
       this.setv({bounds: [min, max]}, {silent: true})
     }
   }
 
   initialize(): void {
     super.initialize()
-
-    this._initial_start = this.start
-    this._initial_end = this.end
-
+    if (this.reset_start == null) {
+      this.reset_start = this.start
+    }
+    if (this.reset_end == null) {
+      this.reset_end = this.end
+    }
     this._set_auto_bounds()
   }
 
@@ -63,8 +66,8 @@ export class Range1d extends Range {
 
   reset(): void {
     this._set_auto_bounds()
-    if (this.start != this._initial_start || this.end != this._initial_end)
-      this.setv({start: this._initial_start, end: this._initial_end})
+    if (this.start != this.reset_start || this.end != this.reset_end)
+      this.setv({start: this.reset_start, end: this.reset_end})
     else
       this.change.emit()
   }
