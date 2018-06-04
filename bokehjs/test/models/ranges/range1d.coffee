@@ -101,6 +101,16 @@ describe "range1d module", ->
       expect(r.start).to.be.equal 1
       expect(r.end).to.be.equal 21
 
+    it "should reset to overridden reset values", ->
+      r = new Range1d({start: 10, end: 20})
+      r.end = -1.1
+      r.start = -2.1
+      r.reset_start = -2.2
+      r.reset_end = -1.2
+      r.reset()
+      expect(r.start).to.be.equal -2.2
+      expect(r.end).to.be.equal -1.2
+
     it "should execute update callback once", ->
       cb = new CustomJS()
       r = new Range1d({callback: cb})
