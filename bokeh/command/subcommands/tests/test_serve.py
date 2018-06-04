@@ -167,10 +167,19 @@ def test_args():
              metavar='N',
              action='store',
              help="Number of worker processes for an app. Default to one. Using "
-                  "0 will autodetect number of cores",
+                  "0 will autodetect number of cores (defaults to 1)",
              default=1,
              type=int,
          )),
+
+         ('--websocket-max-message-size', dict(
+            metavar='BYTES',
+            action='store',
+            help="Set the Tornado websocket_max_message_size value (defaults "
+                 "to 20MB) NOTE: This setting has effect ONLY for Tornado>=4.5",
+            default=20*10124*1024,
+            type=int,
+        )),
     )
 
 
@@ -239,3 +248,16 @@ def test_actual_port_printed_out():
         assert port > 0
         r = requests.get("http://localhost:%d/" % (port,))
         assert r.status_code == 200
+
+@pytest.mark.skipif(six.PY2, reason="Travis bug causes bad file descriptor")
+def test_websocket_max_message_size_printed_out():
+    with run_bokeh_serve(["--websocket-max-message-size", "12345"]) as p:
+        pat = re.compile(r'Setting Torndado websocket_max_message_size to 12345')
+        while True:
+            line = p.stdout.readline()
+            print("child stdout>", line)
+            m = pat.search(line.decode())
+            if m is not None:
+                break
+        else:
+            pytest.fail("no matching log line in process output")

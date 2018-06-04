@@ -467,10 +467,20 @@ class Serve(Subcommand):
             metavar='N',
             action='store',
             help="Number of worker processes for an app. Default to one. Using "
-                 "0 will autodetect number of cores",
+                 "0 will autodetect number of cores (defaults to 1)",
             default=1,
             type=int,
         )),
+
+        ('--websocket-max-message-size', dict(
+            metavar='BYTES',
+            action='store',
+            help="Set the Tornado websocket_max_message_size value (defaults "
+                 "to 20MB) NOTE: This setting has effect ONLY for Tornado>=4.5",
+            default=20*10124*1024,
+            type=int,
+        )),
+
     )
 
 
@@ -520,6 +530,7 @@ class Serve(Subcommand):
                                                               'stats_log_frequency_milliseconds',
                                                               'mem_log_frequency_milliseconds',
                                                               'use_xheaders',
+                                                              'websocket_max_message_size',
                                                             ]
                           if getattr(args, key, None) is not None }
 

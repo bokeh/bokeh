@@ -78,6 +78,12 @@ class _ServerOpts(Options):
     ``X-Scheme``, ``X-Forwarded-Proto`` headers (if they are provided).
     """)
 
+    websocket_max_message_size = Int(default=20*1024*104, help="""
+    Set the Tornado ``websocket_max_message_size`` value.
+
+    NOTE: This setting has effect ONLY for Tornado>=4.5
+    """)
+
 
 class BaseServer(object):
     ''' Explicitly coordinate the level Tornado components required to run a
@@ -391,7 +397,11 @@ class Server(BaseServer):
 
         extra_websocket_origins = create_hosts_whitelist(opts.allow_websocket_origin, self.port)
         try:
-            tornado_app = BokehTornado(applications, extra_websocket_origins=extra_websocket_origins, prefix=self.prefix, **kwargs)
+            tornado_app = BokehTornado(applications,
+                                       extra_websocket_origins=extra_websocket_origins,
+                                       prefix=self.prefix,
+                                       websocket_max_message_size_bytes=opts.websocket_max_message_size,
+                                       **kwargs)
 
             http_server = HTTPServer(tornado_app, **http_server_kwargs)
 
