@@ -1,6 +1,7 @@
 import {Keys} from "core/dom"
 import {UIEvent, GestureEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
 import * as p from "core/properties"
+import {isArray} from "core/util/types"
 import {MultiLine} from "../../glyphs/multi_line"
 import {Patches} from "../../glyphs/patches"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
@@ -50,16 +51,24 @@ export class PolyDrawToolView extends EditToolView {
     } else if (mode == 'add') {
       if (xkey) {
         const xidx = ds.data[xkey].length-1;
-        const xs = ds.get_array<number[]>(xkey)[xidx]
+        let xs = ds.get_array<number[]>(xkey)[xidx]
         const nx = xs[xs.length-1];
         xs[xs.length-1] = x;
+        if (!isArray(xs)) {
+          xs = Array.from(xs)
+          ds.data[xkey][xidx] = xs;
+        }
         xs.push(nx);
       }
       if (ykey) {
         const yidx = ds.data[ykey].length-1;
-        const ys = ds.get_array<number[]>(ykey)[yidx]
+        let ys = ds.get_array<number[]>(ykey)[yidx]
         const ny = ys[ys.length-1];
         ys[ys.length-1] = y;
+        if (!isArray(ys)) {
+          ys = Array.from(ys)
+          ds.data[ykey][yidx] = ys;
+        }
         ys.push(ny);
       }
     }
