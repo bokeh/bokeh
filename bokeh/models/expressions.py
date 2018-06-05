@@ -66,10 +66,10 @@ class CumSum(Expression):
 
         source = ColumnDataSource(data=dict(foo=[1, 2, 3, 4]))
 
-        CumSum('foo')
+        CumSum(field='foo')
         # -> [1, 3, 6, 10]
 
-        CumSum('foo', True)
+        CumSum(field='foo', include_zero=True)
         # -> [0, 1, 3, 6]
 
     """)
