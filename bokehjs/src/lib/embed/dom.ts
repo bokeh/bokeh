@@ -16,12 +16,19 @@ export function inject_raw_css(css: string): void {
 }
 
 function _get_element(elementid: string): HTMLElement {
-  const element = document.getElementById(elementid)
+  let element = document.getElementById(elementid)
 
   if (element == null)
     throw new Error(`Error rendering Bokeh model: could not find #${elementid} HTML tag`)
   if (!document.body.contains(element))
     throw new Error(`Error rendering Bokeh model: element #${elementid} must be under <body>`)
+
+  // If autoload script, replace script tag with div for embedding.
+  if (element.tagName == "SCRIPT") {
+    const root_el = div({class: BOKEH_ROOT})
+    replaceWith(element, root_el)
+    element = root_el
+  }
 
   return element
 }
@@ -39,18 +46,8 @@ export function _resolve_root_elements(item: RenderItem): {[key: string]: HTMLEl
   const roots: {[key: string]: HTMLElement} = {}
 
   if (item.roots != null) {
-    for (const root_id in item.roots) {
-      let elem = _get_element(item.roots[root_id])
-
-      // if autoload script, replace script tag with div for embedding
-      if (elem.tagName == "SCRIPT") {
-        const root_el = div({class: BOKEH_ROOT})
-        replaceWith(elem, root_el)
-        elem = root_el
-      }
-
-      roots[root_id] = elem
-    }
+    for (const root_id in item.roots)
+      roots[root_id] = _get_element(item.roots[root_id])
   }
 
   return roots
