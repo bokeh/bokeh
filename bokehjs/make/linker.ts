@@ -1,23 +1,14 @@
-import * as fs from "fs"
 import {resolve, relative, join, dirname, basename, sep} from "path"
 const {_builtinLibs} = require("repl")
 
-import * as esprima from "esprima"
-import * as escodegen from "escodegen"
-import * as estraverse from "estraverse"
-import {Program, Node, CallExpression, Comment, Statement} from "estree"
-
 import * as combine from "combine-source-map"
 import * as convert from "convert-source-map"
-const merge = require("merge-source-map")
 
+import {read, write, fileExists, directoryExists} from "./fs"
 import {prelude, plugin_prelude} from "./prelude"
+import {parse_es, print_es, collect_deps, rewrite_deps, add_json_export,
+        remove_use_strict, remove_esmodule, wrap_in_function, SourceFile} from "./transform"
 
-const str = JSON.stringify
-const exists = fs.existsSync
-const write = fs.writeFileSync
-const is_dir = (path: string) => fs.statSync(path).isDirectory()
-const is_file = (path: string) => fs.statSync(path).isFile()
 const to_obj = <T>(map: Map<string, T>): {[key: string]: T} => {
   const obj = Object.create(null)
   for (const [key, val] of map) {
@@ -55,7 +46,6 @@ export interface LinkerOpts {
   excludes?: string[] // paths: process, but don't include in a bundle
   ignores?: string[]  // modules: don't process at all
   builtins?: boolean
-  sourcemaps?: boolean
 }
 
 export class Linker {
@@ -64,7 +54,6 @@ export class Linker {
   readonly excludes: Set<string>
   readonly ignores: Set<string>
   readonly builtins: boolean
-  readonly sourcemaps: boolean
 
   constructor(opts: LinkerOpts) {
     this.entries = opts.entries
@@ -72,7 +61,6 @@ export class Linker {
     this.excludes = new Set((opts.excludes || []).map((path) => resolve(path)))
     this.ignores = new Set(opts.ignores || [])
     this.builtins = opts.builtins || false
-    this.sourcemaps = opts.sourcemaps || false
 
     if (this.builtins) {
       this.ignores.add("module")
@@ -83,7 +71,7 @@ export class Linker {
     }
 
     for (const base of this.bases) {
-      if (!exists(base) || !is_dir(base))
+      if (!directoryExists(base))
         throw new Error(`base path ${base} doesn't exist or isn't a directory`)
     }
   }
@@ -157,8 +145,7 @@ export class Linker {
 
         const mod = modules.get(file)!
         mod.rewrite_deps(module_map)
-        mod.remove_esmodule()
-        mod.wrap_in_function()
+        mod.transform()
 
         bundled.push(mod)
 
@@ -226,15 +213,15 @@ export class Linker {
   protected resolve_relative(dep: string, parent: Module): string {
     const path = resolve(parent.dir, dep)
 
-    if (exists(path) && is_file(path))
+    if (fileExists(path))
       return path
 
     const file = path + this.ext
-    if (exists(file) && is_file(file))
+    if (fileExists(file))
       return file
-    else if (exists(path) && is_dir(path)) {
+    else if (directoryExists(path)) {
       const file = join(path, "index" + this.ext)
-      if (exists(file) && is_file(file))
+      if (fileExists(file))
         return file
     }
 
@@ -246,18 +233,18 @@ export class Linker {
       let index = "index" + this.ext
 
       const pkg_path = join(path, "package.json")
-      if (exists(pkg_path)) {
-        const pkg = JSON.parse(fs.readFileSync(pkg_path, "utf8"))
+      if (fileExists(pkg_path)) {
+        const pkg = JSON.parse(read(pkg_path)!)
         if (pkg.main != null)
           index = pkg.main
       }
 
       let file = join(path, index)
-      if (exists(file) && is_file(file))
+      if (fileExists(file))
         return file
       else {
         file += this.ext
-        if (exists(file) && is_file(file))
+        if (fileExists(file))
           return file
       }
 
@@ -268,10 +255,10 @@ export class Linker {
       let path = join(base, dep)
       const file = path + this.ext
 
-      if (exists(file) && is_file(file))
+      if (fileExists(file))
         return file
 
-      if (exists(path) && is_dir(path)) {
+      if (directoryExists(path)) {
         const file = resolve_with_index(path)
         if (file != null)
           return file
@@ -288,7 +275,7 @@ export class Linker {
 
           path = join(base_path, "node_modules", dep)
 
-          if (exists(path) && is_dir(path)) {
+          if (directoryExists(path)) {
             const file = resolve_with_index(path)
             if (file != null)
               return file
@@ -312,17 +299,12 @@ export type Resolver = (dep: string, parent: Module) => string
 export type Canonical = (file: string) => string
 
 export class Module {
-  readonly input: string
-  readonly ast: Program
+  protected ast: SourceFile
   readonly deps = new Map<string, string>()
   protected _source: string | null
 
   constructor(readonly file: string, protected readonly linker: Linker) {
-    this.input = fs.readFileSync(this.file, "utf8")
-    if (file.endsWith(".json"))
-      this.input = `module.exports = ${this.input}`
-
-    this.ast = this.parse()
+    this.ast = parse_es(file)
 
     for (const dep of this.collect_deps()) {
       if (!this.linker.ignores.has(dep))
@@ -332,6 +314,10 @@ export class Module {
 
   get is_external(): boolean {
     return this.file.split(sep).indexOf("node_modules") !== -1
+  }
+
+  get is_json(): boolean {
+    return this.file.endsWith(".json")
   }
 
   get canonical(): string {
@@ -350,122 +336,34 @@ export class Module {
   }
 
   toString(): string {
-    const deps: {[key: string]: string} = {}
-    for (const [dep, file] of this.deps) {
-      deps[dep] = file
-    }
-    return `Module(${str(this.file)}, ${str(deps)})`
-  }
-
-  protected parse(): Program {
-    const ast: any = esprima.parseModule(this.input, {comment: true, loc: true, range: true, tokens: true})
-    return escodegen.attachComments(ast, ast.comments, ast.tokens)
-  }
-
-  protected is_require(node: Node): node is CallExpression {
-    return node.type === "CallExpression" &&
-           node.callee.type === "Identifier" && node.callee.name === "require" &&
-           node.arguments.length === 1
+    return `Module(${JSON.stringify(this.file)}, ${JSON.stringify(to_obj(this.deps))})`
   }
 
   protected collect_deps(): string[] {
-    const deps: string[] = []
-    estraverse.traverse(this.ast, {
-      enter: (node) => {
-        if (this.is_require(node)) {
-          const [arg] = node.arguments
-          if (arg.type === "Literal" && typeof arg.value === "string" && arg.value.length > 0)
-            deps.push(arg.value)
-        }
-      }
-    })
-    return deps
+    return collect_deps(this.ast)
   }
 
   rewrite_deps(module_map: Map<string, number>): void {
-    estraverse.replace(this.ast, {
-      enter: (node) => {
-        if (this.is_require(node)) {
-          const [arg] = node.arguments
-          if (arg.type === "Literal" && typeof arg.value === "string" && arg.value.length > 0) {
-            const dep = arg.value
-            const val = module_map.get(this.deps.get(dep)!)
-            arg.value = val != null ? val : dep
-            const comment: Comment = {type: "Block", value: ` ${dep} `}
-            if (arg.trailingComments == null)
-              arg.trailingComments = [comment]
-            else
-              arg.trailingComments.push(comment)
-          }
-        }
-        return node
-      }
-    })
+    this.ast = rewrite_deps(this.ast, (dep) => module_map.get(this.deps.get(dep)!))
   }
 
-  remove_esmodule(): void {
-    const self = this
-    const body: typeof self.ast.body = []
-    for (const node of this.ast.body) {
-      if (node.type == "ExpressionStatement") {
-        const expr = node.expression
-        if (expr.type == "Literal") {
-          if (expr.value == "use strict")
-            continue
-        }
-        if (expr.type == "CallExpression") {
-          const args = expr.arguments
-          if (args.length == 3) {
-            const arg = args[1]
-            if (arg.type == "Literal") {
-              if (arg.value == "__esModule")
-                continue
-            }
-          }
-        }
-      }
-      body.push(node)
-    }
-    this.ast.body = body
-  }
+  transform(): void {
+    let {ast} = this
 
-  wrap_in_function(): void {
-    const wrapper: Statement = {
-      type: "FunctionDeclaration",
-      id: {type: "Identifier", name: "_"},
-      params: [
-        {type: "Identifier", name: "require"},
-        {type: "Identifier", name: "module"},
-        {type: "Identifier", name: "exports"},
-      ],
-      body: {
-        type: "BlockStatement",
-        body: Array.from(this.ast.body) as Statement[],
-      }
+    if (this.is_json)
+      ast = add_json_export(ast)
+    else {
+      ast = remove_use_strict(ast)
+      ast = remove_esmodule(ast)
     }
-    const comment: Comment = {type: "Block", value: this.canonical}
-    wrapper.leadingComments = [comment]
-    this.ast.body = [wrapper]
+
+    ast = wrap_in_function(ast, this.canonical)
+    this.ast = ast
   }
 
   protected generate_source(): string {
-    if (!this.linker.sourcemaps || this.is_external) {
-      const source = escodegen.generate(this.ast, {comment: true})
-      return convert.removeMapFileComments(source)
-    } else {
-      const old_map = convert.fromMapFileSource(this.input, dirname(this.file))
-      const result: any = escodegen.generate(this.ast, {
-        comment: true,
-        sourceMap: old_map ? old_map.getProperty("sources")[0] : basename(this.file),
-        sourceMapWithCode: true,
-        sourceContent: this.input,
-      })
-      const new_map = JSON.parse(result.map.toString())
-      const map = old_map ? merge(old_map.toObject(), new_map) : new_map
-      const source = convert.removeMapFileComments(result.code)
-      const comment = convert.fromObject(map).toComment()
-      return `${source}\n${comment}\n`
-    }
+    const source = print_es(this.ast)
+    return convert.removeMapFileComments(source)
   }
 
   get source(): string {

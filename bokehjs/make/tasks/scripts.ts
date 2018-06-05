@@ -30,9 +30,8 @@ task("scripts:bundle", ["scripts:compile"], async () => {
   ]
   const bases = [paths.build_dir.tree, './node_modules']
   const excludes = ["node_modules/moment/moment.js"]
-  const sourcemaps = argv.sourcemaps === true
 
-  const linker = new Linker({entries, bases, excludes, sourcemaps})
+  const linker = new Linker({entries, bases, excludes})
   const bundles = linker.link()
 
   const [bokehjs, api, widgets, tables, gl] = bundles
