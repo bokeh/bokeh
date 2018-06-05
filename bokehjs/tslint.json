@@ -27,6 +27,7 @@
     "no-var-keyword": true,
     "no-string-throw": true,
     "no-invalid-template-strings": true,
-    "return-type": true
+    "return-type": true,
+    "no-debugger": true
   }
 }
