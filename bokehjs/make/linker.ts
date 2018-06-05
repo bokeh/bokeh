@@ -2,15 +2,12 @@ import * as fs from "fs"
 import {resolve, relative, join, dirname, basename, sep} from "path"
 const {_builtinLibs} = require("repl")
 
-import * as esprima from "esprima"
-import * as escodegen from "escodegen"
-import * as estraverse from "estraverse"
-import {Program, Node, CallExpression, Comment, Statement} from "estree"
-
 import * as combine from "combine-source-map"
 import * as convert from "convert-source-map"
 
 import {prelude, plugin_prelude} from "./prelude"
+import {parse_es, print_es, collect_deps, rewrite_deps, add_json_export,
+        remove_use_strict, remove_esmodule, wrap_in_function, SourceFile} from "./transform"
 
 const str = JSON.stringify
 const exists = fs.existsSync
@@ -153,8 +150,7 @@ export class Linker {
 
         const mod = modules.get(file)!
         mod.rewrite_deps(module_map)
-        mod.remove_esmodule()
-        mod.wrap_in_function()
+        mod.transform()
 
         bundled.push(mod)
 
@@ -308,17 +304,12 @@ export type Resolver = (dep: string, parent: Module) => string
 export type Canonical = (file: string) => string
 
 export class Module {
-  readonly input: string
-  readonly ast: Program
+  protected ast: SourceFile
   readonly deps = new Map<string, string>()
   protected _source: string | null
 
   constructor(readonly file: string, protected readonly linker: Linker) {
-    this.input = fs.readFileSync(this.file, "utf8")
-    if (file.endsWith(".json"))
-      this.input = `module.exports = ${this.input}`
-
-    this.ast = this.parse()
+    this.ast = parse_es(file)
 
     for (const dep of this.collect_deps()) {
       if (!this.linker.ignores.has(dep))
@@ -328,6 +319,10 @@ export class Module {
 
   get is_external(): boolean {
     return this.file.split(sep).indexOf("node_modules") !== -1
+  }
+
+  get is_json(): boolean {
+    return this.file.endsWith(".json")
   }
 
   get canonical(): string {
@@ -353,99 +348,30 @@ export class Module {
     return `Module(${str(this.file)}, ${str(deps)})`
   }
 
-  protected parse(): Program {
-    const ast: any = esprima.parseModule(this.input, {comment: true, loc: true, range: true, tokens: true})
-    return escodegen.attachComments(ast, ast.comments, ast.tokens)
-  }
-
-  protected is_require(node: Node): node is CallExpression {
-    return node.type === "CallExpression" &&
-           node.callee.type === "Identifier" && node.callee.name === "require" &&
-           node.arguments.length === 1
-  }
-
   protected collect_deps(): string[] {
-    const deps: string[] = []
-    estraverse.traverse(this.ast, {
-      enter: (node) => {
-        if (this.is_require(node)) {
-          const [arg] = node.arguments
-          if (arg.type === "Literal" && typeof arg.value === "string" && arg.value.length > 0)
-            deps.push(arg.value)
-        }
-      }
-    })
-    return deps
+    return collect_deps(this.ast)
   }
 
   rewrite_deps(module_map: Map<string, number>): void {
-    estraverse.replace(this.ast, {
-      enter: (node) => {
-        if (this.is_require(node)) {
-          const [arg] = node.arguments
-          if (arg.type === "Literal" && typeof arg.value === "string" && arg.value.length > 0) {
-            const dep = arg.value
-            const val = module_map.get(this.deps.get(dep)!)
-            arg.value = val != null ? val : dep
-            const comment: Comment = {type: "Block", value: ` ${dep} `}
-            if (arg.trailingComments == null)
-              arg.trailingComments = [comment]
-            else
-              arg.trailingComments.push(comment)
-          }
-        }
-        return node
-      }
-    })
+    this.ast = rewrite_deps(this.ast, (dep) => module_map.get(this.deps.get(dep)!))
   }
 
-  remove_esmodule(): void {
-    const self = this
-    const body: typeof self.ast.body = []
-    for (const node of this.ast.body) {
-      if (node.type == "ExpressionStatement") {
-        const expr = node.expression
-        if (expr.type == "Literal") {
-          if (expr.value == "use strict")
-            continue
-        }
-        if (expr.type == "CallExpression") {
-          const args = expr.arguments
-          if (args.length == 3) {
-            const arg = args[1]
-            if (arg.type == "Literal") {
-              if (arg.value == "__esModule")
-                continue
-            }
-          }
-        }
-      }
-      body.push(node)
-    }
-    this.ast.body = body
-  }
+  transform(): void {
+    let {ast} = this
 
-  wrap_in_function(): void {
-    const wrapper: Statement = {
-      type: "FunctionDeclaration",
-      id: {type: "Identifier", name: "_"},
-      params: [
-        {type: "Identifier", name: "require"},
-        {type: "Identifier", name: "module"},
-        {type: "Identifier", name: "exports"},
-      ],
-      body: {
-        type: "BlockStatement",
-        body: Array.from(this.ast.body) as Statement[],
-      }
+    if (this.is_json)
+      ast = add_json_export(ast)
+    else {
+      ast = remove_use_strict(ast)
+      ast = remove_esmodule(ast)
     }
-    const comment: Comment = {type: "Block", value: this.canonical}
-    wrapper.leadingComments = [comment]
-    this.ast.body = [wrapper]
+
+    ast = wrap_in_function(ast, this.canonical)
+    this.ast = ast
   }
 
   protected generate_source(): string {
-    const source = escodegen.generate(this.ast, {comment: true})
+    const source = print_es(this.ast)
     return convert.removeMapFileComments(source)
   }
 
