@@ -1,6 +1,7 @@
 import * as ts from "typescript"
-
 export {SourceFile} from "typescript"
+
+import {read} from "./fs"
 
 function kind_of<T extends ts.Node>(node: ts.Node, kind: T["kind"]): node is T {
   return node.kind === kind
@@ -129,7 +130,7 @@ export function wrap_in_function(source: ts.SourceFile, mod_name: string): ts.So
 }
 
 export function parse_es(file: string, code?: string, target: ts.ScriptTarget = ts.ScriptTarget.ES5): ts.SourceFile {
-  return ts.createSourceFile(file, code != null ? code : ts.sys.readFile(file)!, target, true, ts.ScriptKind.JS)
+  return ts.createSourceFile(file, code != null ? code : read(file)!, target, true, ts.ScriptKind.JS)
 }
 
 export function print_es(source: ts.SourceFile): string {

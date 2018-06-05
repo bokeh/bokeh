@@ -6,6 +6,9 @@ export const scan = ts.sys.readDirectory
 export const read = ts.sys.readFile
 export const write = ts.sys.writeFile
 
+export const fileExists = ts.sys.fileExists
+export const directoryExists = ts.sys.directoryExists
+
 export function rename(p: string, options: {dir?: string, ext?: string}): string {
   let {dir, name, ext} = path.parse(p)
   if (options.dir != null)

@@ -1,19 +1,14 @@
-import * as fs from "fs"
 import {resolve, relative, join, dirname, basename, sep} from "path"
 const {_builtinLibs} = require("repl")
 
 import * as combine from "combine-source-map"
 import * as convert from "convert-source-map"
 
+import {read, write, fileExists, directoryExists} from "./fs"
 import {prelude, plugin_prelude} from "./prelude"
 import {parse_es, print_es, collect_deps, rewrite_deps, add_json_export,
         remove_use_strict, remove_esmodule, wrap_in_function, SourceFile} from "./transform"
 
-const str = JSON.stringify
-const exists = fs.existsSync
-const write = fs.writeFileSync
-const is_dir = (path: string) => fs.statSync(path).isDirectory()
-const is_file = (path: string) => fs.statSync(path).isFile()
 const to_obj = <T>(map: Map<string, T>): {[key: string]: T} => {
   const obj = Object.create(null)
   for (const [key, val] of map) {
@@ -76,7 +71,7 @@ export class Linker {
     }
 
     for (const base of this.bases) {
-      if (!exists(base) || !is_dir(base))
+      if (!directoryExists(base))
         throw new Error(`base path ${base} doesn't exist or isn't a directory`)
     }
   }
@@ -218,15 +213,15 @@ export class Linker {
   protected resolve_relative(dep: string, parent: Module): string {
     const path = resolve(parent.dir, dep)
 
-    if (exists(path) && is_file(path))
+    if (fileExists(path))
       return path
 
     const file = path + this.ext
-    if (exists(file) && is_file(file))
+    if (fileExists(file))
       return file
-    else if (exists(path) && is_dir(path)) {
+    else if (directoryExists(path)) {
       const file = join(path, "index" + this.ext)
-      if (exists(file) && is_file(file))
+      if (fileExists(file))
         return file
     }
 
@@ -238,18 +233,18 @@ export class Linker {
       let index = "index" + this.ext
 
       const pkg_path = join(path, "package.json")
-      if (exists(pkg_path)) {
-        const pkg = JSON.parse(fs.readFileSync(pkg_path, "utf8"))
+      if (fileExists(pkg_path)) {
+        const pkg = JSON.parse(read(pkg_path)!)
         if (pkg.main != null)
           index = pkg.main
       }
 
       let file = join(path, index)
-      if (exists(file) && is_file(file))
+      if (fileExists(file))
         return file
       else {
         file += this.ext
-        if (exists(file) && is_file(file))
+        if (fileExists(file))
           return file
       }
 
@@ -260,10 +255,10 @@ export class Linker {
       let path = join(base, dep)
       const file = path + this.ext
 
-      if (exists(file) && is_file(file))
+      if (fileExists(file))
         return file
 
-      if (exists(path) && is_dir(path)) {
+      if (directoryExists(path)) {
         const file = resolve_with_index(path)
         if (file != null)
           return file
@@ -280,7 +275,7 @@ export class Linker {
 
           path = join(base_path, "node_modules", dep)
 
-          if (exists(path) && is_dir(path)) {
+          if (directoryExists(path)) {
             const file = resolve_with_index(path)
             if (file != null)
               return file
@@ -341,11 +336,7 @@ export class Module {
   }
 
   toString(): string {
-    const deps: {[key: string]: string} = {}
-    for (const [dep, file] of this.deps) {
-      deps[dep] = file
-    }
-    return `Module(${str(this.file)}, ${str(deps)})`
+    return `Module(${JSON.stringify(this.file)}, ${JSON.stringify(to_obj(this.deps))})`
   }
 
   protected collect_deps(): string[] {
