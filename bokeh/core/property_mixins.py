@@ -98,7 +98,7 @@ Stroke width in units of pixels.
 """
 
 class BaseLineProps(HasProps):
-    line_join = Enum(LineJoin, help="""
+    line_join = Enum(LineJoin, default='bevel', help="""
     How path segments should be joined together.
 
     Acceptable values are:

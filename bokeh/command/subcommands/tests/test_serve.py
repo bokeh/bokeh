@@ -167,7 +167,7 @@ def test_args():
         ('--num-procs', dict(
              metavar='N',
              action='store',
-             help="Number of worker processes for an app. Default to one. Using "
+             help="Number of worker processes for an app. Using "
                   "0 will autodetect number of cores (defaults to 1)",
              default=1,
              type=int,

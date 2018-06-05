@@ -33,7 +33,7 @@ def check_line_properties(model, prefix="", line_color=Color.black, line_width=1
     assert getattr(model, prefix + "line_color") == line_color
     assert getattr(model, prefix + "line_width") == line_width
     assert getattr(model, prefix + "line_alpha") == line_alpha
-    assert getattr(model, prefix + "line_join") == LineJoin.miter
+    assert getattr(model, prefix + "line_join") == LineJoin.bevel
     assert getattr(model, prefix + "line_cap") == LineCap.butt
     assert getattr(model, prefix + "line_dash") == []
     assert getattr(model, prefix + "line_dash_offset") == 0
