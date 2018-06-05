@@ -48,4 +48,13 @@ Task names remained unchanged. If you want preserve the old workflow, e.g. to
 aid ``git bisect``, it is suggested to create an alias for ``node make``,
 e.g. in bash this would be ``alias gulp='node make'``.
 
+Deprecations and Compatibility
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The default ``line_join`` style has been changed from ``miter`` to ``bevel``,
+to avoid exaggerating corners where connected lines meet at a sharp angle.
+The HTML Canvas ``miterLimit`` property is meant to prevent such issues,
+but it does not appear to be respected by current browsers.
+
+
 .. _project roadmap: https://bokehplots.com/pages/roadmap.html

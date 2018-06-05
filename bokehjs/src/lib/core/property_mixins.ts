@@ -70,7 +70,7 @@ const _line_mixin = {
   line_color:       [ p.ColorSpec,  'black'   ],
   line_width:       [ p.NumberSpec, 1         ],
   line_alpha:       [ p.NumberSpec, 1.0       ],
-  line_join:        [ p.LineJoin,   'miter'   ],
+  line_join:        [ p.LineJoin,   'bevel'   ],
   line_cap:         [ p.LineCap,    'butt'    ],
   line_dash:        [ p.Array,      []        ],
   line_dash_offset: [ p.Number,     0         ],
