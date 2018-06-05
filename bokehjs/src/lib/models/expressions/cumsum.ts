@@ -35,10 +35,7 @@ export class CumSum extends Expression {
     const result = new Float64Array(source.get_length() || 0)
     const col = source.data[this.field]
     const offset = this.include_zero ? 1 : 0
-    if (this.include_zero)
-        result[0] = 0
-    else
-        result[0] = col[0]
+    result[0] = this.include_zero ? 0 : col[0]
     for (let i = 1; i < result.length; i++) {
       result[i] = result[i-1] + col[i-offset]
     }
