@@ -24,7 +24,7 @@ browser by the JavaScript implementation of ``some_expression`` using a
 from __future__ import absolute_import
 
 from ..core.has_props import abstract
-from ..core.properties import Seq, String
+from ..core.properties import Bool, Seq, String
 from ..model import Model
 
 @abstract
@@ -45,6 +45,34 @@ class Expression(Model):
 
     '''
     pass
+
+class CumSum(Expression):
+    ''' An expression for generating arrays by cumulatively summing a single
+    column from a ``ColumnDataSource``.
+
+    '''
+
+    field = String(help="""
+    The name of a ColumnDataSource column to cumulatively sum for new values.
+    """)
+
+    include_zero = Bool(default=False, help="""
+    Whether to include zero at the start of the result. Note that the length
+    of the result is always the same as the input column. Therefore if this
+    property is True, then the last value of the column will not be included
+    in the sum.
+
+    .. code-block:: python
+
+        source = ColumnDataSource(data=dict(foo=[1, 2, 3, 4]))
+
+        CumSum(field='foo')
+        # -> [1, 3, 6, 10]
+
+        CumSum(field='foo', include_zero=True)
+        # -> [0, 1, 3, 6]
+
+    """)
 
 class Stack(Expression):
     ''' An expression for generating arrays by summing different columns from
