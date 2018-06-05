@@ -24,7 +24,7 @@ browser by the JavaScript implementation of ``some_expression`` using a
 from __future__ import absolute_import
 
 from ..core.has_props import abstract
-from ..core.properties import Seq, String
+from ..core.properties import Bool, Seq, String
 from ..model import Model
 
 @abstract
@@ -45,6 +45,20 @@ class Expression(Model):
 
     '''
     pass
+
+class CumSum(Expression):
+    ''' An expression for generating arrays by cumulatively summing a single
+    column from a ``ColumnDataSource``.
+
+    '''
+
+    field = String(help="""
+
+    """)
+
+    include_zero = Bool(default=False, help="""
+
+    """)
 
 class Stack(Expression):
     ''' An expression for generating arrays by summing different columns from
