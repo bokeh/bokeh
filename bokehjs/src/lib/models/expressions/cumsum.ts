@@ -39,7 +39,6 @@ export class CumSum extends Expression {
         result[0] = 0
     else
         result[0] = col[0]
-    debugger
     for (let i = 1; i < result.length; i++) {
       result[i] = result[i-1] + col[i-offset]
     }
