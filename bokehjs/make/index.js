@@ -34,8 +34,10 @@ function is_up_to_date(file) {
 }
 
 if (!is_up_to_date("package.json")) {
-  console.log("package.json has changed. Run `npm install`.")
-  process.exit(1)
+  console.log("package.json has changed. Running `npm install`.")
+  const {status} = cp.spawnSync("npm", ["install"], {stdio: "inherit"})
+  if (status !== 0)
+    process.exit(status)
 }
 
 const {register, TSError} = require("ts-node")
