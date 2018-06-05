@@ -60,6 +60,11 @@ def test_prefix():
         with ManagedServerLoop(application, prefix=prefix) as server:
             assert server._tornado.prefix == "/foo"
 
+def test_websocket_max_message_size_bytes():
+    app = Application()
+    t = tornado.BokehTornado({"/": app}, websocket_max_message_size_bytes=12345)
+    assert t.settings['websocket_max_message_size'] == 12345
+
 def test_websocket_origins():
     application = Application()
     with ManagedServerLoop(application) as server:

@@ -32,7 +32,7 @@ from ..resources import DEFAULT_SERVER_PORT
 from ..util.options import Options
 
 from .util import bind_sockets, create_hosts_whitelist
-from .tornado import BokehTornado
+from .tornado import BokehTornado, DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES
 
 # This class itself is intentionally undocumented (it is used to generate
 # documentation elsewhere)
@@ -76,6 +76,12 @@ class _ServerOpts(Options):
     Whether to have the Bokeh server override the remote IP and URI scheme
     and protocol for all requests with ``X-Real-Ip``, ``X-Forwarded-For``,
     ``X-Scheme``, ``X-Forwarded-Proto`` headers (if they are provided).
+    """)
+
+    websocket_max_message_size = Int(default=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, help="""
+    Set the Tornado ``websocket_max_message_size`` value.
+
+    NOTE: This setting has effect ONLY for Tornado>=4.5
     """)
 
 
@@ -391,7 +397,11 @@ class Server(BaseServer):
 
         extra_websocket_origins = create_hosts_whitelist(opts.allow_websocket_origin, self.port)
         try:
-            tornado_app = BokehTornado(applications, extra_websocket_origins=extra_websocket_origins, prefix=self.prefix, **kwargs)
+            tornado_app = BokehTornado(applications,
+                                       extra_websocket_origins=extra_websocket_origins,
+                                       prefix=self.prefix,
+                                       websocket_max_message_size_bytes=opts.websocket_max_message_size,
+                                       **kwargs)
 
             http_server = HTTPServer(tornado_app, **http_server_kwargs)
 

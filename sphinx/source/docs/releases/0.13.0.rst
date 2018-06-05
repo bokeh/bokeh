@@ -15,6 +15,13 @@ Migration Guide
 NOTE: the 0.13.x series is a final series of small releases leading to a
 1.0 release. For more information see the `project roadmap`_.
 
+Max Websocket Message Size
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A new command line option ``--websocket-max-message-size`` for the Bokeh
+server can be used to configure the Tornado ``websocket_max_message_size``
+option. The default value is 20mb.
+
 New Hover fields
 ~~~~~~~~~~~~~~~~
 

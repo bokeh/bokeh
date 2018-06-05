@@ -28,11 +28,12 @@ from .views.static_handler import StaticHandler
 # Unfortuntely we can't yet use format_docstring to keep these automatically in sync in
 # the class docstring because Python 2 does not allow setting class.__doc__ (works with
 # Bokeh model classes because they are metaclasses)
-DEFAULT_CHECK_UNUSED_MS    = 17000
-DEFAULT_KEEP_ALIVE_MS      = 37000  # heroku, nginx default to 60s timeout, so use less than that
-DEFAULT_MEM_LOG_FREQ_MS    = 0
-DEFAULT_STATS_LOG_FREQ_MS  = 15000
-DEFAULT_UNUSED_LIFETIME_MS = 15000
+DEFAULT_CHECK_UNUSED_MS                  = 17000
+DEFAULT_KEEP_ALIVE_MS                    = 37000  # heroku, nginx default to 60s timeout, so use less than that
+DEFAULT_MEM_LOG_FREQ_MS                  = 0
+DEFAULT_STATS_LOG_FREQ_MS                = 15000
+DEFAULT_UNUSED_LIFETIME_MS               = 15000
+DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES = 20*1024*1024
 
 
 class BokehTornado(TornadoApplication):
@@ -124,6 +125,12 @@ class BokehTornado(TornadoApplication):
             If there are multiple Bokeh applications configured, this option
             has no effect.
 
+        websocket_max_message_size_bytes (int, optional):
+            Set the Tornado ``websocket_max_message_size`` value.
+            (default: 20*1024*1024)
+
+            NOTE: This setting has effect ONLY for Tornado>=4.5
+
     Any additional keyword arguments are passed to ``tornado.web.Application``.
     '''
 
@@ -142,6 +149,7 @@ class BokehTornado(TornadoApplication):
                  mem_log_frequency_milliseconds=DEFAULT_MEM_LOG_FREQ_MS,
                  use_index=True,
                  redirect_root=True,
+                 websocket_max_message_size_bytes=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
                  **kwargs):
 
         # This will be set when initialize is called
@@ -197,6 +205,13 @@ class BokehTornado(TornadoApplication):
             elif mem_log_frequency_milliseconds != DEFAULT_MEM_LOG_FREQ_MS:
                 log.info("Log memory usage every %d milliseconds", mem_log_frequency_milliseconds)
         self._mem_log_frequency_milliseconds = mem_log_frequency_milliseconds
+
+        if websocket_max_message_size_bytes <= 0:
+            raise ValueError("websocket_max_message_size_bytes must be postitive")
+        elif websocket_max_message_size_bytes != DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES:
+            log.info("Torndado websocket_max_message_size set to %d bytes (%0.2f MB)",
+                     websocket_max_message_size_bytes,
+                     websocket_max_message_size_bytes/1024.0**2)
 
         if extra_websocket_origins is None:
             self._websocket_origins = set()
@@ -260,7 +275,9 @@ class BokehTornado(TornadoApplication):
         for line in pformat(all_patterns, width=60).split("\n"):
             log.debug("  " + line)
 
-        super(BokehTornado, self).__init__(all_patterns, **kwargs)
+        super(BokehTornado, self).__init__(all_patterns,
+                                           websocket_max_message_size=websocket_max_message_size_bytes,
+                                           **kwargs)
 
     def initialize(self, io_loop):
         ''' Start a Bokeh Server Tornado Application on a given Tornado IOLoop.
