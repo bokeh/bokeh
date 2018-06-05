@@ -22,7 +22,7 @@ import pytest ; pytest
 # External imports
 
 # Bokeh imports
-from bokeh.models import CategoricalColorMapper, Dodge, FactorRange, Jitter, LinearColorMapper, LogColorMapper, Stack
+from bokeh.models import CategoricalColorMapper, CumSum, Dodge, FactorRange, Jitter, LinearColorMapper, LogColorMapper, Stack
 from bokeh.util.testing import verify_all
 
 # Module under test
@@ -33,6 +33,7 @@ import bokeh.transform as bt
 #-----------------------------------------------------------------------------
 
 ALL = (
+    'cumsum',
     'dodge',
     'factor_cmap',
     'jitter',
@@ -47,6 +48,25 @@ ALL = (
 #-----------------------------------------------------------------------------
 
 Test___all__ = verify_all(bt, ALL)
+
+class Test_cumsum(object):
+
+    def test_basic(object):
+        s = bt.cumsum("foo")
+        assert isinstance(s, dict)
+        assert list(s.keys()) == ["expr"]
+        assert isinstance(s['expr'], CumSum)
+        assert s['expr'].field == 'foo'
+        assert s['expr'].include_zero == False
+
+    def test_include_zero(object):
+        s = bt.cumsum("foo", include_zero=True)
+        assert isinstance(s, dict)
+        assert list(s.keys()) == ["expr"]
+        assert isinstance(s['expr'], CumSum)
+        assert s['expr'].field == 'foo'
+        assert s['expr'].include_zero == True
+
 
 class Test_dodge(object):
 

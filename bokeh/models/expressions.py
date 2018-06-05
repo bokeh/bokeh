@@ -53,10 +53,24 @@ class CumSum(Expression):
     '''
 
     field = String(help="""
-
+    The name of a ColumnDataSource column to cumulatively sum for new values.
     """)
 
     include_zero = Bool(default=False, help="""
+    Whether to include zero at the start of the result. Note that the length
+    of the result is always the same as the input column. Therefore if this
+    property is True, then the last value of the column will not be included
+    in the sum.
+
+    .. code-block:: python
+
+        source = ColumnDataSource(data=dict(foo=[1, 2, 3, 4]))
+
+        CumSum('foo')
+        # -> [1, 3, 6, 10]
+
+        CumSum('foo', True)
+        # -> [0, 1, 3, 6]
 
     """)
 

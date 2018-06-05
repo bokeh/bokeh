@@ -6,6 +6,7 @@
         { "path": "examples/plotting/file/hex_tile.py",                        "name": "hex_tile"                       },
         { "path": "examples/plotting/file/bar_colormapped.py",                 "name": "bar_colormapped"                },
         { "path": "examples/plotting/file/bar_intervals.py",                   "name": "bar_intervals"                  },
+        { "path": "examples/plotting/file/pie.py",                             "name": "pie_chart"                      },
         { "path": "examples/plotting/file/bar_mixed.py",                       "name": "bar_mixed"                      },
         { "path": "examples/plotting/file/bar_nested_colormapped.py",          "name": "bar_nested_colormapped"         },
         { "path": "examples/plotting/file/categorical.py",                     "name": "categorical"                    },

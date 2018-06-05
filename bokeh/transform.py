@@ -37,6 +37,7 @@ from .models.transforms import Dodge, Jitter
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'cumsum',
     'dodge',
     'factor_cmap',
     'jitter',
@@ -51,7 +52,22 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def cumsum(field, include_zero=False):
-    '''
+    ''' Create a Create a ``DataSpec`` dict to generate a ``CumSum`` expression
+    for a ``ColumnDataSource``.
+
+    Examples:
+
+        .. code-block:: python
+
+            p.wedge(start_angle=cumsum('angle', include_zero=True),
+                    end_angle=cumsum('angle'),
+                    ...)
+
+        will generate a ``CumSum`` expressions that sum the ``"angle"`` column
+        of a data source. For the ``start_angle`` value, the cumulative sums
+        will start with a zero value. For ``start_angle``, no initial zero will
+        be added (i.e. the sums will start with the first angle value, and
+        include the last).
 
     '''
     return expr(CumSum(field=field, include_zero=include_zero))
