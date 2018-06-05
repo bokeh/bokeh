@@ -20,7 +20,8 @@ Max Websocket Message Size
 
 A new command line option ``--websocket-max-message-size`` for the Bokeh
 server can be used to configure the Tornado ``websocket_max_message_size``
-option. The default value is 20mb.
+option. The default value is now 20mb, an increase from the previous
+10mb implicit default.
 
 New Hover fields
 ~~~~~~~~~~~~~~~~
