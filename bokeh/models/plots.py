@@ -4,7 +4,7 @@
 from __future__ import absolute_import
 
 from ..core.enums import Location, OutputBackend
-from ..core.properties import Bool, Dict, Enum, Include, Instance, Int, List, Override, String, Float
+from ..core.properties import Bool, Dict, Enum, Include, Instance, Int, List, Override, String, Float, Either, Auto
 from ..core.property_mixins import LineProps, FillProps
 from ..core.query import find
 from ..core.validation import error, warning
@@ -635,7 +635,7 @@ class Plot(LayoutDOM):
         plots. Doing so may result in undefined behaviour.
     """)
 
-    aspect_scale = Float(default=1, help="""
+    aspect_scale = Either(Auto, Float, default=1, help="""
     A value to be given for increased aspect ratio control. This value is added
     multiplicatively to the calculated value required for ``match_aspect``.
     ``aspect_scale`` is defined as the ratio of width over height of the figure.

@@ -317,9 +317,10 @@ export class PlotCanvasView extends DOMView {
     let follow_enabled = false
     let has_bounds = false
 
-    let r: number | undefined
-    if (this.model.plot.match_aspect !== false && this.frame._width.value != 0 && this.frame._height.value != 0)
-      r = (1/this.model.plot.aspect_scale)*(this.frame._width.value/this.frame._height.value)
+    let r = undefined
+    //let r: number | undefined
+    //if (this.model.plot.match_aspect !== false && this.frame._width.value != 0 && this.frame._height.value != 0)
+    //  r = (1/this.model.plot.aspect_scale)*(this.frame._width.value/this.frame._height.value)
 
     for (const xr of values(frame.x_ranges)) {
       if (xr instanceof DataRange1d) {
@@ -746,8 +747,8 @@ export class PlotCanvasView extends DOMView {
 
     this.canvas_view.set_dims([width, height])
     this.update_constraints()
-    if (this.model.plot.match_aspect !== false && this.frame._width.value != 0 && this.frame._height.value != 0)
-      this.update_dataranges()
+    //if (this.model.plot.match_aspect !== false && this.frame._width.value != 0 && this.frame._height.value != 0)
+    //  this.update_dataranges()
 
     // This allows the plot canvas to be positioned around the toolbar
     this.el.style.position = 'absolute'
@@ -1102,7 +1103,7 @@ export class PlotCanvas extends LayoutDOM {
   }
 
   private _get_constant_constraints(): Constraint[] {
-    return [
+    const constraints: Constraint[] = [
       // Set the origin. Everything else is positioned absolutely wrt canvas.
       EQ(this.canvas._left, 0),
       EQ(this.canvas._top,  0),
@@ -1137,6 +1138,14 @@ export class PlotCanvas extends LayoutDOM {
       GE(this._height, [-1, this._bottom], -this.plot.min_border_bottom!),
       GE(this._width, [-1, this._right],   -this.plot.min_border_right! ),
     ]
+
+    const {plot} = this
+    if (plot.match_aspect) {
+      const aspect = plot.aspect_scale == "auto" ? plot.get_aspect_ratio() : plot.aspect_scale
+      constraints.push(EQ(this.frame._width, [-aspect, this.frame._height]))
+    }
+
+    return constraints
   }
 
   private _get_side_constraints(): Constraint[] {

@@ -136,7 +136,7 @@ export namespace Plot {
     layout_height: number
 
     match_aspect: boolean
-    aspect_scale: number
+    aspect_scale: number | "auto"
   }
 
   export interface Props extends LayoutDOM.Props {
