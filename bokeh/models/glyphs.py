@@ -531,7 +531,7 @@ class ImageURL(XYGlyph):
     """)
 
     w = DistanceSpec(default=None, help="""
-    The height of the plot region that the image will occupy in data space.
+    The width of the plot region that the image will occupy in data space.
 
     The default value is ``None``, in which case the image will be displayed
     at its actual image size (regardless of the units specified here).
