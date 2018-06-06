@@ -214,11 +214,8 @@ def server_html_page_for_session(session, resources, title, template=FILE, templ
         str
 
     '''
-    elementid = make_id()
-
     render_item = RenderItem(
         sessionid = session.id,
-        elementid = elementid,
         roots = session.document.roots,
         use_for_title = True,
     )
