@@ -19,7 +19,6 @@ import pytest ; pytest
 
 # Standard library imports
 from mock import patch
-from collections import OrderedDict
 
 # External imports
 import bs4
@@ -37,7 +36,7 @@ from bokeh.util.string import encode_utf8
 
 # Module under test
 import bokeh.embed.standalone as bes
-from bokeh.embed.util import RenderItem
+from bokeh.embed.util import RenderRoot
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -112,18 +111,17 @@ class Test_components(object):
         plot2.circle([], [])
         doc.add_root(plot2)
 
-        expected_plotdict_1 = RenderItem(docid="ID", roots=OrderedDict([(plot1, "ID")]))
-        expected_plotdict_2 = RenderItem(docid="ID", roots=OrderedDict([(plot1, "ID"), (plot2, "ID")]))
+        expected_plotdict_1 = RenderRoot(elementid="ID", id="ID")
+        expected_plotdict_2 = RenderRoot(elementid="ID", id="ID")
 
         _, plotdict = bes.components(plot1, wrap_plot_info=False)
         assert plotdict == expected_plotdict_1
 
         _, plotids = bes.components((plot1, plot2), wrap_plot_info=False)
-        assert plotids == (expected_plotdict_2,)
+        assert plotids == (expected_plotdict_1, expected_plotdict_2)
 
-        # XXX
-        #_, plotiddict = bes.components({'p1': plot1, 'p2': plot2}, wrap_plot_info=False)
-        #assert plotiddict == {'p1': expected_plotdict_1, 'p2': expected_plotdict_2}
+        _, plotiddict = bes.components({'p1': plot1, 'p2': plot2}, wrap_plot_info=False)
+        assert plotiddict == {'p1': expected_plotdict_1, 'p2': expected_plotdict_2}
 
     def test_result_attrs(self, test_plot):
         script, div = bes.components(test_plot)

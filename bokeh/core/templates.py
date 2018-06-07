@@ -11,6 +11,7 @@ models in various ways.
 .. bokeh-jinja:: bokeh.core.templates.JS_RESOURCES
 .. bokeh-jinja:: bokeh.core.templates.NOTEBOOK_LOAD
 .. bokeh-jinja:: bokeh.core.templates.PLOT_DIV
+.. bokeh-jinja:: bokeh.core.templates.ROOT_DIV
 .. bokeh-jinja:: bokeh.core.templates.SCRIPT_TAG
 
 '''
@@ -30,6 +31,8 @@ CSS_RESOURCES = _env.get_template("css_resources.html")
 SCRIPT_TAG = _env.get_template("script_tag.html")
 
 PLOT_DIV = _env.get_template("plot_div.html")
+
+ROOT_DIV = _env.get_template("root_div.html")
 
 DOC_JS = _env.get_template("doc_js.js")
 

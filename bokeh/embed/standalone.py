@@ -28,7 +28,7 @@ import re
 # External imports
 
 # Bokeh imports
-from ..core.templates import AUTOLOAD_JS, AUTOLOAD_TAG, FILE
+from ..core.templates import AUTOLOAD_JS, AUTOLOAD_TAG, FILE, ROOT_DIV, MACROS
 from ..document.document import DEFAULT_TITLE, Document
 from ..model import Model
 from ..settings import settings
@@ -36,7 +36,7 @@ from ..util.compiler import bundle_all_models
 from ..util.string import encode_utf8
 from .bundle import bundle_for_objs_and_resources
 from .util import FromCurdoc
-from .util import (check_models_or_docs, check_one_model_or_doc, div_for_render_item, find_existing_docs, html_page_for_render_items,
+from .util import (check_models_or_docs, check_one_model_or_doc, find_existing_docs, html_page_for_render_items,
                    script_for_render_items, standalone_docs_json_and_render_items, wrap_in_onload, wrap_in_script_tag)
 
 #-----------------------------------------------------------------------------
@@ -207,18 +207,21 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
 
     # 2) Append models to one document. Either pre-existing or new and render
     with _ModelInDocument(models, apply_theme=theme):
-        (docs_json, render_items) = standalone_docs_json_and_render_items(models)
+        (docs_json, [render_item]) = standalone_docs_json_and_render_items(models)
 
     script  = bundle_all_models()
-    script += script_for_render_items(docs_json, render_items)
+    script += script_for_render_items(docs_json, [render_item])
     if wrap_script:
         script = wrap_in_script_tag(script)
     script = encode_utf8(script)
 
+    def div_for_root(root):
+        return ROOT_DIV.render(root=root, macros=MACROS)
+
     if wrap_plot_info:
-        results = list(div_for_render_item(item) for item in render_items)
+        results = list(div_for_root(root) for root in render_item.roots)
     else:
-        results = render_items
+        results = render_item.roots
 
     # 3) convert back to the input shape
 

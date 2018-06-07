@@ -209,11 +209,17 @@ def script_for_render_items(docs_json_or_id, render_items, app_path=None, absolu
 
 class RenderRoot(object):
 
-    def __init__(self, elementid, id, name, tags):
+    def __init__(self, elementid, id, name=None, tags=None):
         self.elementid = elementid
         self.id = id
         self.name = name or ""
         self.tags = tags or []
+
+    def __eq__(self, other):
+        if not isinstance(other, self.__class__):
+            return False
+        else:
+            return self.elementid == other.elementid
 
 class RenderRoots(object):
 
