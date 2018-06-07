@@ -163,8 +163,8 @@ const DEFAULT_RANGE_OVERLAY = () => {
     line_alpha: {value: 1.0},
     line_width: {value: 0.5},
     line_dash: [2, 2],
-    })
-  }
+  })
+}
 
 export namespace RangeTool {
   export interface Attrs extends GestureTool.Attrs {
