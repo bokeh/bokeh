@@ -22,7 +22,7 @@ p = Figure(
 	toolbar_location="below",toolbar_sticky=False)
 p.xaxis.formatter = DatetimeTickFormatter(seconds=["%H:%M"],
                                            minutes=["%H:%M"],
-                                           minsec=["%H:%M"],     
+                                           minsec=["%H:%M"],
                                            hours=["%H:%M"])
 timeFrame = result["StatTime"]
 upbyte = result["UpBytes"]
@@ -44,7 +44,6 @@ hp = result[(result.DeviceName == 'Hp') & (result.TypeId == 932)]
 hp_up = hp["UpBytes"]
 hp_down = hp["DownBytes"]
 hpconv = hp["StatTime"]
-
 hp_time = pandas.to_datetime(hpconv, unit='s')
 
 dell = result[(result.DeviceName == 'Dell') & (result.TypeId == 469)]
@@ -65,11 +64,14 @@ juniper_down = juniper["DownBytes"]
 juniperconv = juniper["StatTime"]
 juniper_time = pandas.to_datetime(juniperconv, unit='s')
 
-p.multi_line(juniper_time, juniper_up, color='#2828B0', line_width=1, legend='UpBytes')
-p.multi_line(juniper_time, juniper_down, color='#EE0091', line_width=1, legend='DownBytes')
+p.multi_line(xs = [juniper_time, juniper_time], ys = [juniper_up, juniper_down] color=['red', 'blue'] line_width=1, legend='juniper')
+p.multi_line(xs = [cisco_time, cisco_time], ys = [cisco_up, cisco_down], color=['#EE0091','#2828B0'], line_width=1, legend='cisco')
+p.multi_line(xs = [hp_time, hp_time], ys = [hp_up, hp_down], color=['yellow','green'], line_width=1, legend='cisco')
+p.multi_line(xs = [cisco_time, cisco_time], ys = [cisco_up, cisco_down], color=['pink','black'], line_width=1, legend='cisco')
+p.multi_line(xs = [cisco_time, cisco_time], ys = [cisco_up, cisco_down], color=['#498ABF','#2F00E1'], line_width=1, legend='cisco')
 
-hover = HoverTool(tooltips = [('Time', '@x{int}'),   #show the x current time.
-                            ('Value', '@y{1.11} GB'),   #show the UpByte and DownByte.
+hover = HoverTool(tooltips = [('Time', '@x{int}'),
+                            ('Value', '@y{1.11} GB'),
                             ('Device', '@DeviceName')])
 
 hover.formatters = {"Date": "datetime"}
@@ -83,5 +85,4 @@ p.xaxis.minor_tick_line_color = "navy"
 p.add_tools(hover)
 
 output_file("plotting.html", title="Device_Reports")
-print "Fetching data compeleted!!"
 show(p)
