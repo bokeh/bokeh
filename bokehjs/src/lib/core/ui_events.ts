@@ -214,8 +214,8 @@ export class UIEvents {
 
     for (const view of reversed(views)) {
       const {level} = view.model
-      if ((level == 'annotation' || level == 'overlay') && view.bbox_contains != null) {
-        if (view.bbox_contains(sx, sy))
+      if ((level == 'annotation' || level == 'overlay') && view.interactive_hit != null) {
+        if (view.interactive_hit(sx, sy))
           return view
       }
     }

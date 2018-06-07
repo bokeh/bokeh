@@ -131,9 +131,12 @@ export class LegendView extends AnnotationView {
     return {x: sx, y: sy, width: legend_width, height: legend_height}
   }
 
-  bbox_contains(sx: number, sy: number): boolean {
+  interactive_bbox() {
     const {x, y, width, height} = this.compute_legend_bbox()
-    const bbox =  new BBox({x, y, width, height})
+    return new BBox({x, y, width, height})
+  }
+  interactive_hit(sx: number, sy: number): boolean {
+    const bbox = this.interactive_bbox()
     return bbox.contains(sx, sy)
   }
 

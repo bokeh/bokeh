@@ -122,16 +122,20 @@ export class BoxAnnotationView extends AnnotationView {
     ctx.restore()
   }
 
-  bbox_contains(sx: number, sy: number): boolean {
-    if (this.model.in_cursor == null)
-      return false
+  interactive_bbox() {
     const tol = this.model.properties.line_width.value() + EDGE_TOLERANCE
-    const bbox = new BBox({
+    return new BBox({
       x0: this.sleft-tol,
       y0: this.stop-tol,
       x1: this.sright+tol,
       y1: this.sbottom+tol,
     })
+  }
+
+  interactive_hit(sx: number, sy: number): boolean {
+    if (this.model.in_cursor == null)
+      return false
+    const bbox = this.interactive_bbox()
     return bbox.contains(sx, sy)
   }
 
