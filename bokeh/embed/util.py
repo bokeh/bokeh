@@ -204,14 +204,25 @@ def script_for_render_items(docs_json_or_id, render_items, app_path=None, absolu
 
     return wrap_in_onload(js)
 
+class RenderRoot(object):
+
+    def __init__(self, elementid, id, name, tags):
+        self.elementid = elementid
+        self.id = id
+        self.name = name or ""
+        self.tags = tags or []
+
 class RenderRoots(object):
 
     def __init__(self, roots):
         self._roots = roots
 
+    def __len__(self):
+        return len(self._roots.items())
+
     def __getitem__(self, key):
         if isinstance(key, int):
-            elementid = list(self._roots.values())[key]
+            (root, elementid) = list(self._roots.items())[key]
         else:
             for root, elementid in self._roots.items():
                 if root.name == key:
@@ -219,7 +230,7 @@ class RenderRoots(object):
             else:
                 raise ValueError("root with '%s' name not found" % key)
 
-        return dict(elementid=elementid)
+        return RenderRoot(elementid, root._id, root.name, root.tags)
 
     def __getattr__(self, key):
         return self.__getitem__(key)
