@@ -10,6 +10,8 @@ import * as p from "core/properties"
 import {ViewTransform} from "core/layout/layout_canvas"
 import {BBox} from "core/util/bbox"
 
+export const EDGE_TOLERANCE = 2.5
+
 export class BoxAnnotationView extends AnnotationView {
   model: BoxAnnotation
   visuals: BoxAnnotation.Visuals
@@ -123,7 +125,13 @@ export class BoxAnnotationView extends AnnotationView {
   bbox_contains(sx: number, sy: number): boolean {
     if (this.model.in_cursor == null)
       return false
-    const bbox = new BBox({x0: this.sleft-3, y0: this.stop-3, x1: this.sright+3, y1: this.sbottom+3})
+    const tol = this.model.properties.line_width.value() + EDGE_TOLERANCE
+    const bbox = new BBox({
+      x0: this.sleft-tol,
+      y0: this.stop-tol,
+      x1: this.sright+tol,
+      y1: this.sbottom+tol,
+    })
     return bbox.contains(sx, sy)
   }
 

@@ -21,31 +21,25 @@ describe "range_tool module", ->
     scale = generate_scale()
 
     it "should return false if value == null", ->
-      expect(is_near(-10, null, scale)).to.be.false
-      expect(is_near(0, null, scale)).to.be.false
-      expect(is_near(10, null, scale)).to.be.false
-      expect(is_near(10.2, null, scale)).to.be.false
+      expect(is_near(-10, null, scale, 3)).to.be.false
+      expect(is_near(0, null, scale, 3)).to.be.false
+      expect(is_near(10, null, scale, 3)).to.be.false
+      expect(is_near(10.2, null, scale, 3)).to.be.false
 
     it "should return false if value maps far from screen pos", ->
-      expect(is_near(-10, 5, scale)).to.be.false
-      expect(is_near(0, 5, scale)).to.be.false
-      expect(is_near(10, 5, scale)).to.be.false
-      expect(is_near(47, 5, scale)).to.be.false
-      expect(is_near(53, 5, scale)).to.be.false
-      expect(is_near(60, 5, scale)).to.be.false
-      expect(is_near(100, 5, scale)).to.be.false
+      expect(is_near(-10, 5, scale, 3)).to.be.false
+      expect(is_near(0, 5, scale, 3)).to.be.false
+      expect(is_near(10, 5, scale, 3)).to.be.false
+      expect(is_near(47, 5, scale, 3)).to.be.false
+      expect(is_near(53, 5, scale, 3)).to.be.false
+      expect(is_near(60, 5, scale, 3)).to.be.false
+      expect(is_near(100, 5, scale, 3)).to.be.false
 
     it "should return true if value maps close to screen pos", ->
-      expect(is_near(47.1, 5, scale)).to.be.true
-      expect(is_near(50, 5, scale)).to.be.true
-      expect(is_near(52.9, 5, scale)).to.be.true
+      expect(is_near(47.1, 5, scale, 3)).to.be.true
+      expect(is_near(50, 5, scale, 3)).to.be.true
+      expect(is_near(52.9, 5, scale, 3)).to.be.true
 
-    it "should return respect tolerance when testing closeness", ->
-      expect(is_near(40, 5, scale, 10)).to.be.false
-      expect(is_near(40.1, 5, scale, 10)).to.be.true
-      expect(is_near(50, 5, scale, 10)).to.be.true
-      expect(is_near(59.9, 5, scale, 10)).to.be.true
-      expect(is_near(60, 5, scale, 10)).to.be.false
 
   describe "is_inside", ->
     x_range = new Range1d(source)

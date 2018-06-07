@@ -1,5 +1,5 @@
 import {GestureEvent} from "core/ui_events"
-import {BoxAnnotation} from "../../annotations/box_annotation"
+import {BoxAnnotation, EDGE_TOLERANCE} from "../../annotations/box_annotation"
 import {Range} from "../../ranges/range"
 import {Range1d} from "../../ranges/range1d"
 import {Scale} from '../../scales/scale'
@@ -10,13 +10,17 @@ import {GestureTool, GestureToolView} from "./gesture_tool"
 
 const enum Side { None, Left, Right, LeftRight, Bottom, Top, BottomTop, LeftRightBottomTop }
 
-export function is_near(pos: number, value: number|null, scale: Scale, tolerance: number = 3): boolean {
+// TODO (bev) This would be better directly with BoxAnnotation, but hard
+// to test on a view. Move when "View Models" are implemented
+export function is_near(pos: number, value: number|null, scale: Scale, tolerance: number): boolean {
   if (value == null)
     return false
   const svalue = scale.compute(value)
   return Math.abs(pos-svalue) < tolerance
 }
 
+// TODO (bev) This would be better directly with BoxAnnotation, but hard
+// to test on a view. Move when "View Models" are implemented
 export function is_inside(sx: number, sy: number, xscale: Scale, yscale: Scale, overlay: BoxAnnotation): boolean {
   let result = true
 
@@ -88,10 +92,12 @@ export class RangeToolView extends GestureToolView {
     const overlay = this.model.overlay
     const {left, right, top, bottom} = overlay
 
+    const tolerance = this.model.overlay.properties.line_width.value() + EDGE_TOLERANCE
+
     if (xr != null && this.model.x_interaction) {
-      if (is_near(ev.sx, left, xscale))
+      if (is_near(ev.sx, left, xscale, tolerance))
         this.side = Side.Left
-      else if (is_near(ev.sx, right, xscale))
+      else if (is_near(ev.sx, right, xscale, tolerance))
         this.side = Side.Right
       else if (is_inside(ev.sx, ev.sy, xscale, yscale, overlay)) {
         this.side = Side.LeftRight
@@ -99,9 +105,9 @@ export class RangeToolView extends GestureToolView {
     }
 
     if (yr != null && this.model.y_interaction) {
-      if (this.side == Side.None && is_near(ev.sy, bottom, yscale))
+      if (this.side == Side.None && is_near(ev.sy, bottom, yscale, tolerance))
         this.side = Side.Bottom
-      if (this.side == Side.None && is_near(ev.sy, top, yscale))
+      if (this.side == Side.None && is_near(ev.sy, top, yscale, tolerance))
         this.side = Side.Top
       else if (is_inside(ev.sx, ev.sy, xscale, yscale, this.model.overlay)) {
         if (this.side == Side.LeftRight)
