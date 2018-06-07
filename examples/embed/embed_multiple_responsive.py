@@ -27,13 +27,13 @@ green.scatter(data(), data(), color="green", **SCATTER_OPTIONS)
 ########## RENDER PLOTS ################
 
 # Define our html template for out plots
-template = Template('''<!DOCTYPE html>
+template = Template("""\
+<!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="utf-8">
         <title>Responsive plots</title>
-        {{ js_resources }}
-        {{ css_resources }}
+        {{ resources }}
     </head>
     <body>
     <h2>Resize the window to see some plots resizing</h2>
@@ -47,17 +47,13 @@ template = Template('''<!DOCTYPE html>
     {{ plot_script }}
     </body>
 </html>
-''')
+""")
 
-resources = INLINE
-
-js_resources = resources.render_js()
-css_resources = resources.render_css()
+resources = INLINE.render()
 
 script, div = components({'red': red, 'blue': blue, 'green': green})
 
-html = template.render(js_resources=js_resources,
-                       css_resources=css_resources,
+html = template.render(resources=resources,
                        plot_script=script,
                        plot_div=div)
 

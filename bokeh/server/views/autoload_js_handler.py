@@ -13,6 +13,7 @@ from bokeh.core.templates import AUTOLOAD_JS
 from bokeh.util.string import encode_utf8
 from bokeh.util.compiler import bundle_all_models
 from bokeh.embed.standalone import script_for_render_items
+from bokeh.embed.util import RenderItem
 
 from .session_handler import SessionHandler
 
@@ -40,7 +41,7 @@ class AutoloadJsHandler(SessionHandler):
 
         bundle = bundle_all_models()
 
-        render_items = [dict(sessionid=session.id, elementid=element_id, use_for_title=False)]
+        render_items = [RenderItem(sessionid=session.id, elementid=element_id, use_for_title=False)]
         script = script_for_render_items(None, render_items, app_path=app_path, absolute_url=absolute_url)
 
         resources_param = self.get_argument("resources", "default")

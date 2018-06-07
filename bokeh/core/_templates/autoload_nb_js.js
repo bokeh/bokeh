@@ -25,7 +25,7 @@
     var id = cell.output_area._bokeh_element_id;
     var server_id = cell.output_area._bokeh_server_id;
     // Clean up Bokeh references
-    if (id !== undefined) {
+    if (id != null && id in Bokeh.index) {
       Bokeh.index[id].model.document.clear();
       delete Bokeh.index[id];
     }
@@ -36,9 +36,11 @@
       cell.notebook.kernel.execute(cmd, {
         iopub: {
           output: function(msg) {
-            var element_id = msg.content.text.trim();
-            Bokeh.index[element_id].model.document.clear();
-            delete Bokeh.index[element_id];
+            var id = msg.content.text.trim();
+            if (id in Bokeh.index) {
+              Bokeh.index[id].model.document.clear();
+              delete Bokeh.index[id];
+            }
           }
         }
       });

@@ -36,6 +36,7 @@ from bokeh.util.string import encode_utf8
 
 # Module under test
 import bokeh.embed.standalone as bes
+from bokeh.embed.util import RenderRoot
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -71,13 +72,7 @@ class Test_autoload_static(object):
         scripts = html.findAll(name='script')
         assert len(scripts) == 1
         attrs = scripts[0].attrs
-        assert set(attrs) == set([
-            'src',
-            'data-bokeh-model-id',
-            'id',
-            'data-bokeh-doc-id'])
-        assert attrs['data-bokeh-doc-id'] == 'ID'
-        assert attrs['data-bokeh-model-id'] == str(test_plot._id)
+        assert set(attrs) == set(['src', 'id'])
         assert attrs['src'] == 'some/path'
 
 
@@ -107,16 +102,17 @@ class Test_components(object):
 
     @patch('bokeh.embed.util.make_id', new_callable=lambda: stable_id)
     def test_plot_dict_returned_when_wrap_plot_info_is_false(self, mock_make_id):
+        doc = Document()
         plot1 = figure()
         plot1.circle([], [])
+        doc.add_root(plot1)
+
         plot2 = figure()
         plot2.circle([], [])
-        # This is a testing artefact, users dont' have to do this in practice
-        curdoc().add_root(plot1)
-        curdoc().add_root(plot2)
+        doc.add_root(plot2)
 
-        expected_plotdict_1 = {"modelid": plot1.ref["id"], "elementid": "ID", "docid": "ID"}
-        expected_plotdict_2 = {"modelid": plot2.ref["id"], "elementid": "ID", "docid": "ID"}
+        expected_plotdict_1 = RenderRoot(elementid="ID", id="ID")
+        expected_plotdict_2 = RenderRoot(elementid="ID", id="ID")
 
         _, plotdict = bes.components(plot1, wrap_plot_info=False)
         assert plotdict == expected_plotdict_1
@@ -139,16 +135,11 @@ class Test_components(object):
         html = bs4.BeautifulSoup(div, "lxml")
 
         divs = html.findAll(name='div')
-        assert len(divs) == 2
+        assert len(divs) == 1
 
         div = divs[0]
-        assert set(div.attrs) == set(['class'])
+        assert set(div.attrs) == set(['class', 'id'])
         assert div.attrs['class'] == ['bk-root']
-        assert div.text == '\n\n'
-
-        div = divs[1]
-        assert set(div.attrs) == set(['id', 'class'])
-        assert div.attrs['class'] == ['bk-plotdiv']
         assert div.text == ''
 
     def test_script_is_utf8_encoded(self, test_plot):
@@ -181,7 +172,9 @@ class Test_file_html(object):
                     "bokeh_js",
                     "bokeh_css",
                     "plot_script",
-                    "plot_div"
+                    "doc",
+                    "docs",
+                    "base",
                 }
                 if user_template_variables is not None:
                     self.template_variables.update(user_template_variables)

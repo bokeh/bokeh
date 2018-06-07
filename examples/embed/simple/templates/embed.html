@@ -6,12 +6,9 @@
 
     <title>Embed Demo</title>
 
-    {{ js_resources|indent(4)|safe }}
-
-    {{ css_resources|indent(4)|safe }}
+    {{ resources|indent(4)|safe }}
 
     {{ plot_script|indent(4)|safe }}
-
   </head>
   <body>
     <!-- A simple form for changing the graph -->

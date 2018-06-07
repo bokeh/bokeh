@@ -28,7 +28,7 @@ import re
 # External imports
 
 # Bokeh imports
-from ..core.templates import AUTOLOAD_JS, AUTOLOAD_TAG, FILE
+from ..core.templates import AUTOLOAD_JS, AUTOLOAD_TAG, FILE, ROOT_DIV, MACROS
 from ..document.document import DEFAULT_TITLE, Document
 from ..model import Model
 from ..settings import settings
@@ -36,7 +36,7 @@ from ..util.compiler import bundle_all_models
 from ..util.string import encode_utf8
 from .bundle import bundle_for_objs_and_resources
 from .util import FromCurdoc
-from .util import (check_models_or_docs, check_one_model_or_doc, div_for_render_item, find_existing_docs, html_page_for_render_items,
+from .util import (check_models_or_docs, check_one_model_or_doc, find_existing_docs, html_page_for_render_items,
                    script_for_render_items, standalone_docs_json_and_render_items, wrap_in_onload, wrap_in_script_tag)
 
 #-----------------------------------------------------------------------------
@@ -76,25 +76,24 @@ def autoload_static(model, resources, script_path):
     model = check_one_model_or_doc(model)
 
     with _ModelInDocument([model]):
-        (docs_json, render_items) = standalone_docs_json_and_render_items([model])
+        (docs_json, [render_item]) = standalone_docs_json_and_render_items([model])
 
     bundle = bundle_all_models()
-    script = script_for_render_items(docs_json, render_items)
-    item = render_items[0]
+    script = script_for_render_items(docs_json, [render_item])
+
+    (modelid, elementid) = list(render_item.roots.to_json().items())[0]
 
     js = wrap_in_onload(AUTOLOAD_JS.render(
         js_urls = resources.js_files,
         css_urls = resources.css_files,
         js_raw = resources.js_raw + [bundle, script],
         css_raw = resources.css_raw_str,
-        elementid = item['elementid'],
+        elementid = elementid,
     ))
 
     tag = AUTOLOAD_TAG.render(
         src_path = script_path,
-        elementid = item['elementid'],
-        modelid = item.get('modelid', ''),
-        docid = item.get('docid', ''),
+        elementid = elementid,
     )
 
     return encode_utf8(js), encode_utf8(tag)
@@ -208,18 +207,21 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
 
     # 2) Append models to one document. Either pre-existing or new and render
     with _ModelInDocument(models, apply_theme=theme):
-        (docs_json, render_items) = standalone_docs_json_and_render_items(models)
+        (docs_json, [render_item]) = standalone_docs_json_and_render_items(models)
 
     script  = bundle_all_models()
-    script += script_for_render_items(docs_json, render_items)
+    script += script_for_render_items(docs_json, [render_item])
     if wrap_script:
         script = wrap_in_script_tag(script)
     script = encode_utf8(script)
 
+    def div_for_root(root):
+        return ROOT_DIV.render(root=root, macros=MACROS)
+
     if wrap_plot_info:
-        results = list(div_for_render_item(item) for item in render_items)
+        results = list(div_for_root(root) for root in render_item.roots)
     else:
-        results = render_items
+        results = render_item.roots
 
     # 3) convert back to the input shape
 
@@ -280,7 +282,7 @@ def file_html(models,
         title = _title_from_models(models, title)
         bundle = bundle_for_objs_and_resources([doc], resources)
         return html_page_for_render_items(bundle, docs_json, render_items, title=title,
-                                           template=template, template_variables=template_variables)
+                                          template=template, template_variables=template_variables)
 
 #-----------------------------------------------------------------------------
 # Dev API

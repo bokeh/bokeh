@@ -53,16 +53,14 @@ def polynomial():
     fig = figure(title="Polynomial")
     fig.line(x, [i ** 2 for i in x], color=colors[color], line_width=2)
 
-    js_resources = INLINE.render_js()
-    css_resources = INLINE.render_css()
+    resources = INLINE.render()
 
     script, div = components(fig)
     html = flask.render_template(
         'embed.html',
         plot_script=script,
         plot_div=div,
-        js_resources=js_resources,
-        css_resources=css_resources,
+        resources=resources,
         color=color,
         _from=_from,
         to=to

@@ -1,12 +1,10 @@
 from __future__ import division
 
-from os.path import dirname, join
-
 import numpy as np
 
 from bokeh.driving import count
 from bokeh.io import curdoc
-from bokeh.models import ColumnDataSource, Div, Column
+from bokeh.models import ColumnDataSource
 
 from surface3d import Surface3d
 
@@ -22,14 +20,9 @@ def compute(t):
 
 source = ColumnDataSource(data=compute(0))
 
-content_filename = join(dirname(__file__), "description.html")
-
-description = Div(text=open(content_filename).read(),
-                  render_as_text=False, width=600)
-
 surface = Surface3d(x="x", y="y", z="z", data_source=source)
 
-curdoc().add_root(Column(description, surface))
+curdoc().add_root(surface)
 
 @count()
 def update(t):

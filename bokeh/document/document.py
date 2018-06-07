@@ -116,8 +116,8 @@ class Document(object):
 
     @template.setter
     def template(self, template):
-        if not isinstance(template, jinja2.Template):
-            raise ValueError("Document templates must be Jinja2 Templates")
+        if not isinstance(template, (jinja2.Template, string_types)):
+            raise ValueError("document template must be Jinja2 template or a string")
         self._template = template
 
     @property

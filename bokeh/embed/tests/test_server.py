@@ -68,16 +68,12 @@ class TestServerDocument(object):
         attrs = scripts[0].attrs
         assert set(attrs), set([
             'src',
-            'data-bokeh-doc-id',
-            'data-bokeh-model-id',
             'id'
         ])
         divid = attrs['id']
         src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-app-path=/foo/bar/sliders&bokeh-absolute-url=%s" % \
               ("http://localhost:8081/foo/bar/sliders", divid, "http://localhost:8081/foo/bar/sliders")
-        assert attrs == { 'data-bokeh-doc-id' : '',
-                          'data-bokeh-model-id' : '',
-                          'id' : divid,
+        assert attrs == { 'id' : divid,
                           'src' : src }
 
     def test_script_attrs_arguments_provided(self):
@@ -89,16 +85,12 @@ class TestServerDocument(object):
         attrs = scripts[0].attrs
         assert set(attrs) == set([
             'src',
-            'data-bokeh-doc-id',
-            'data-bokeh-model-id',
             'id'
         ])
         divid = attrs['id']
         src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s&foo=10" % \
               ("http://localhost:5006", divid, "http://localhost:5006")
-        assert attrs == { 'data-bokeh-doc-id' : '',
-                          'data-bokeh-model-id' : '',
-                          'id' : divid,
+        assert attrs == { 'id' : divid,
                           'src' : src }
 
     def test_script_attrs_url_provided_absolute_resources(self):
@@ -111,16 +103,12 @@ class TestServerDocument(object):
         attrs = scripts[0].attrs
         assert set(attrs) == set([
             'src',
-            'data-bokeh-doc-id',
-            'data-bokeh-model-id',
             'id'
         ])
         divid = attrs['id']
         src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-app-path=/foo/bar/sliders&bokeh-absolute-url=%s" % \
               ("http://localhost:8081/foo/bar/sliders", divid, "http://localhost:8081/foo/bar/sliders")
-        assert attrs == { 'data-bokeh-doc-id' : '',
-                          'data-bokeh-model-id' : '',
-                          'id' : divid,
+        assert attrs == { 'id' : divid,
                           'src' : src }
 
     def test_script_attrs_url_provided(self):
@@ -132,16 +120,12 @@ class TestServerDocument(object):
         attrs = scripts[0].attrs
         assert set(attrs) == set([
             'src',
-            'data-bokeh-doc-id',
-            'data-bokeh-model-id',
             'id'
         ])
         divid = attrs['id']
         src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-app-path=/foo/bar/sliders" % \
               ("http://localhost:8081/foo/bar/sliders", divid)
-        assert attrs == { 'data-bokeh-doc-id' : '',
-                          'data-bokeh-model-id' : '',
-                          'id' : divid,
+        assert attrs == { 'id' : divid,
                           'src' : src }
 
 class TestServerSession(object):
@@ -159,16 +143,12 @@ class TestServerSession(object):
         attrs = scripts[0].attrs
         assert set(attrs) == set([
             'src',
-            'data-bokeh-doc-id',
-            'data-bokeh-model-id',
             'id'
         ])
         divid = attrs['id']
         src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s&bokeh-session-id=fakesession" % \
               ("http://localhost:5006", divid, "http://localhost:5006")
-        assert attrs == { 'data-bokeh-doc-id' : '',
-                          'data-bokeh-model-id' : str(test_plot._id),
-                          'id' : divid,
+        assert attrs == { 'id' : divid,
                           'src' : src }
 
     def test_invalid_resources_param(self, test_plot):
@@ -193,16 +173,12 @@ class TestServerSession(object):
         attrs = scripts[0].attrs
         assert set(attrs), set([
             'src',
-            'data-bokeh-doc-id',
-            'data-bokeh-model-id',
             'id'
         ])
         divid = attrs['id']
         src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s&bokeh-session-id=fakesession" % \
               ("http://localhost:5006", divid, "http://localhost:5006")
-        assert attrs == { 'data-bokeh-doc-id' : '',
-                          'data-bokeh-model-id' : '',
-                          'id' : divid,
+        assert attrs == { 'id' : divid,
                           'src' : src }
 
     def test_general(self, test_plot):
@@ -214,16 +190,12 @@ class TestServerSession(object):
         attrs = scripts[0].attrs
         assert set(attrs), set([
             'src',
-            'data-bokeh-doc-id',
-            'data-bokeh-model-id',
             'id'
         ])
         divid = attrs['id']
         src = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s&bokeh-session-id=fakesession" % \
               ("http://localhost:5006", divid, "http://localhost:5006")
-        assert attrs == { 'data-bokeh-doc-id' : '',
-                          'data-bokeh-model-id' : str(test_plot._id),
-                          'id' : divid,
+        assert attrs == { 'id' : divid,
                           'src' : src }
 
 #-----------------------------------------------------------------------------

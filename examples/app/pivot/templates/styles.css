@@ -5,29 +5,10 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
-#modelid_layout{
-    width: auto !important;
-    height: auto !important;
-}
-#modelid_widgets_section{
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    z-index: 10;
-    width: 225px !important;
-    height: auto !important;
-    overflow-y: scroll;
-}
 #header{
     margin-left: 260px;
     margin-bottom: 20px;
     font-size: 10pt;
-}
-#modelid_plots_section{
-    margin-left: 250px;
-    width: auto !important;
-    height: auto !important;
 }
 .bk-plot-layout{
     display: inline-block;

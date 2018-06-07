@@ -90,12 +90,10 @@ export abstract class LayoutDOMView extends DOMView {
 
       // stop on first element with sensible dimensions
       const {left, right, top, bottom} = padding(measuring)
-      const rect = measuring.getBoundingClientRect()
-      const width  = rect.width  - left - right
-      const height = rect.height - top  - bottom
+      const {width, height} = measuring.getBoundingClientRect()
 
-      if(width != 0 && height != 0)
-        return [width, height]
+      if (width != 0 || height != 0)
+        return [width - left - right, height - top - bottom]
     }
 
     // this element is detached from DOM

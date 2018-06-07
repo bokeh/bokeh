@@ -115,9 +115,7 @@ look something like:
 
 .. code-block:: html
 
-    <div class="bk-root">
-        <div class="bk-plotdiv" id="9574d123-9332-4b5f-96cc-6323bef37f40"></div>
-    </div>
+    <div class="bk-root" id="9574d123-9332-4b5f-96cc-6323bef37f40"></div>
 
 These two elements can be inserted or templated into your HTML text, and the
 script, when executed, will replace the div with the plot.
@@ -257,9 +255,9 @@ Running ``python scatter.py`` will print out:
     </script>
 
         {
-            'Green': '\n<div class="bk-root">\n    <div class="bk-plotdiv" id="e89297cf-a2dc-4edd-8993-e16f0ca6af04"></div>\n</div>',
-            'Blue': '\n<div class="bk-root">\n    <div class="bk-plotdiv" id="eeb9a417-02a1-47e3-ab82-221abe8a1644"></div>\n</div>',
-            'Red': '\n<div class="bk-root">\n    <div class="bk-plotdiv" id="c311f123-368f-43ba-88b6-4e3ecd9aed94"></div>\n</div>'
+            'Green': '\n<div class="bk-root" id="e89297cf-a2dc-4edd-8993-e16f0ca6af04"></div>',
+            'Blue': '\n<div class="bk-root" id="eeb9a417-02a1-47e3-ab82-221abe8a1644"></div>',
+            'Red': '\n<div class="bk-root" id="c311f123-368f-43ba-88b6-4e3ecd9aed94"></div>'
         }
 
 Then inserting the script and div elements into this boilerplate:
@@ -332,9 +330,7 @@ The resulting ``<script>`` tag looks like:
         src="some/path"
         id="c5339dfd-a354-4e09-bba4-466f58a574f1"
         async="true"
-        data-bokeh-data="static"
         data-bokeh-modelid="7b226555-8e16-4c29-ba2a-df2d308588dc"
-        data-bokeh-modeltype="Plot"
         data-bokeh-loglevel="info"
     ></script>
 
@@ -363,7 +359,7 @@ App Documents
 When an application is running on a Bokeh server and available at some URL,
 it is typically desired to embed the entire application in a page so that
 whenever the page is loaded, a completely new session is created and
-presented to the the user. This can be accomplished with the |server_document|
+presented to the user. This can be accomplished with the |server_document|
 function, which accepts the URL to a Bokeh server application, and returns
 a script that will embed new sessions from that server any time the script
 is executed.
@@ -398,7 +394,7 @@ authenticated user might want to pull a new session, make some
 customizations for the specific user, then serve the specific Bokeh
 server session. This can be accomplished with the |server_session|
 function which accepts a specific model to embed (or ``None`` for an
-entire session document), session ID, and a URL to the Bokeh appllication.
+entire session document), session ID, and a URL to the Bokeh application.
 
 Here is an example of how to use |server_session| and Flask:
 
