@@ -214,8 +214,8 @@ export class UIEvents {
 
     for (const view of reversed(views)) {
       const {level} = view.model
-      if ((level == 'annotation' || level == 'overlay') && view.bbox != null) {
-        if (view.bbox().contains(sx, sy))
+      if ((level == 'annotation' || level == 'overlay') && view.interactive_hit != null) {
+        if (view.interactive_hit(sx, sy))
           return view
       }
     }
@@ -246,7 +246,7 @@ export class UIEvents {
 
         // the event happened on a renderer
         if (view != null) {
-          cursor = view.cursor || cursor
+          cursor = view.cursor(e.sx, e.sy) || cursor
 
           if (!isEmpty(active_inspectors)) {
             // override event_type to cause inspectors to clear overlays

@@ -62,6 +62,9 @@ validation checks.
 1017 *(INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER)*
     The PolyEditTool vertex_renderer may only reference XYGlyph models.
 
+1018 *(NO_RANGE_TOOL_RANGES)*
+    The RangeTool must have at least one of x_range or y_range configured
+
 9999 *(EXT)*
     Indicates that a custom error check has failed.
 
@@ -84,7 +87,8 @@ codes = {
     1014: ("INCOMPATIBLE_BOX_EDIT_RENDERER", "BoxEditTool renderers may only reference Rect glyph models"),
     1015: ("INCOMPATIBLE_POLY_DRAW_RENDERER", "PolyDrawTool renderers may only reference MultiLine and Patches glyph models."),
     1016: ("INCOMPATIBLE_POLY_EDIT_RENDERER", "PolyEditTool renderers may only reference MultiLine and Patches glyph models"),
-    1017: ("INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER", " PolyEditTool vertex_renderer may only reference XYGlyph models"),
+    1017: ("INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER", "PolyEditTool vertex_renderer may only reference XYGlyph models"),
+    1018: ("NO_RANGE_TOOL_RANGES", "RangeTool must have at least one of x_range or y_range configured"),
     9999: ("EXT",                    "Custom extension reports error"),
 }
 

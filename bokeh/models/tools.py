@@ -38,13 +38,14 @@ from ..core.validation import error
 from ..core.validation.errors import (
     INCOMPATIBLE_BOX_EDIT_RENDERER, INCOMPATIBLE_POINT_DRAW_RENDERER,
     INCOMPATIBLE_POLY_DRAW_RENDERER, INCOMPATIBLE_POLY_EDIT_RENDERER,
-    INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER
+    INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER, NO_RANGE_TOOL_RANGES
 )
 from ..model import Model
 
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
 from .glyphs import XYGlyph, Rect, Patches, MultiLine
+from .ranges import Range1d
 from .renderers import Renderer, GlyphRenderer
 from .layouts import LayoutDOM
 
@@ -62,28 +63,35 @@ class Action(Tool):
     pass
 
 @abstract
-class Drag(Tool):
+class Gesture(Tool):
     ''' A base class for tools that respond to drag events.
 
     '''
     pass
 
 @abstract
-class Scroll(Tool):
+class Drag(Gesture):
+    ''' A base class for tools that respond to drag events.
+
+    '''
+    pass
+
+@abstract
+class Scroll(Gesture):
     ''' A base class for tools that respond to scroll events.
 
     '''
     pass
 
 @abstract
-class Tap(Tool):
+class Tap(Gesture):
     ''' A base class for tools that respond to tap/click events.
 
     '''
     pass
 
 @abstract
-class Inspection(Tool):
+class Inspection(Gesture):
     ''' A base class for tools that perform "inspections", e.g. ``HoverTool``.
 
     '''
@@ -130,6 +138,16 @@ class Toolbar(ToolbarBase):
     Specify a tap/click tool to be active when the plot is displayed.
     """)
 
+    active_multi = Instance((Gesture), help="""
+    Specify an active multi-gesture tool, for instance an edit tool or a range
+    tool.
+
+    Note that activating a multi-gesture tool will deactivate any other gesture
+    tools as appropriate. For example, if a pan tool is set as the active drag,
+    and this property is set to a ``BoxEditTool`` instance, the pan tool will
+    be deactivated (i.e. the multi-gesture tool will take precedence).
+    """)
+
 class ProxyToolbar(ToolbarBase):
     ''' A toolbar that allow to merge and proxy tools of toolbars in multiple plots. '''
 
@@ -168,6 +186,73 @@ class PanTool(Drag):
     pan horizontally across the width of the plot, or vertically across the
     height of the plot.
     """)
+
+DEFAULT_RANGE_OVERLAY = lambda: BoxAnnotation(
+    level="overlay",
+    render_mode="css",
+    fill_color="lightgrey",
+    fill_alpha=0.5,
+    line_color="black",
+    line_alpha=1.0,
+    line_width=0.5,
+    line_dash=[2,2],
+)
+
+class RangeTool(Drag):
+    ''' *toolbar icon*: |range_icon|
+
+    The range tool allows the user to update range objects for either or both
+    of the x- or y-dimensions by dragging a corresponding shaded annotation to
+    move it or change its boundaries.
+
+    A common use case is to add this tool to a plot with a large fixed range,
+    but to configure the tool range from a different plot. When the user
+    manipulates the overlay, the range of the second plot will be updated
+    automatically.
+
+    .. |range_icon| image:: /_images/icons/Range.png
+        :height: 18pt
+
+    '''
+
+    x_range = Instance(Range1d, help="""
+    A range synchronized to the x-dimension of the overlay. If None, the overlay
+    will span the entire x-dimension.
+    """)
+
+    x_interaction = Bool(default=True, help="""
+    Whether to respond to horizontal pan motions when an ``x_range`` is present.
+
+    By default, when an ``x_range`` is specified, it is possible to adjust the
+    horizontal position of the range box by panning horizontally inside the
+    box, or along the top or bottom edge of the box. To disable this, and fix
+    the  range box in place horizontally, set to False. (The box will still
+    update if the ``x_range`` is updated programmatically.)
+    """)
+
+    y_range = Instance(Range1d, help="""
+    A range synchronized to the y-dimension of the overlay. If None, the overlay
+    will span the entire y-dimension.
+    """)
+
+    y_interaction = Bool(default=True, help="""
+    Whether to respond to vertical pan motions when a ``y_range`` is present.
+
+    By default, when a ``y_range`` is specified, it is possible to adjust the
+    vertical position of the range box by panning vertically inside the box, or
+    along the top or bottom edge of the box. To disable this, and fix the range
+    box in place vertically, set to False. (The box will still update if the
+    ``y_range`` is updated programmatically.)
+    """)
+
+    overlay = Instance(BoxAnnotation, default=DEFAULT_RANGE_OVERLAY, help="""
+    A shaded annotation drawn to indicate the configured ranges.
+    """)
+
+    @error(NO_RANGE_TOOL_RANGES)
+    def _check_no_range_tool_ranges(self):
+        if self.x_range is None and self.y_range is None:
+            return "At least one of RangeTool.x_range or RangeTool.y_range must be configured"
 
 class WheelPanTool(Scroll):
     ''' *toolbar icon*: |wheel_pan_icon|
@@ -1060,7 +1145,7 @@ class RedoTool(Action):
     '''
 
 @abstract
-class EditTool(Tool):
+class EditTool(Gesture):
     ''' A base class for all interactive draw tool types.
 
     '''

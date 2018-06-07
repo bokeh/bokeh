@@ -23,6 +23,7 @@ export namespace Toolbar {
     active_inspect: Inspection | Inspection[] | "auto"
     active_scroll: Scroll | "auto"
     active_tap: Tap | "auto"
+    active_multi: GestureTool
   }
 
   export interface Props extends ToolbarBase.Props {}
@@ -47,6 +48,7 @@ export class Toolbar extends ToolbarBase {
       active_inspect:  [ p.Any, 'auto' ],
       active_scroll:   [ p.Any, 'auto' ],
       active_tap:      [ p.Any, 'auto' ],
+      active_multi:    [ p.Any, null   ],
     })
   }
 
@@ -160,6 +162,9 @@ export class Toolbar extends ToolbarBase {
           continue
         _activate_gesture(this.active_scroll)
       }
+
+      if (this.active_multi != null)
+        _activate_gesture(this.active_multi)
     }
   }
 }

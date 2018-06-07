@@ -3,8 +3,8 @@ import * as visuals from "core/visuals"
 import {RenderLevel} from "core/enums"
 import {Arrayable} from "core/types"
 import * as p from "core/properties"
-import {BBox} from "core/util/bbox"
 import {Model} from "../../model"
+import {BBox} from "core/util/bbox"
 
 import {PlotCanvas, PlotCanvasView} from "../plots/plot_canvas"
 
@@ -34,7 +34,9 @@ export abstract class RendererView extends DOMView {
     return this.plot_view.map_to_screen(x, y, (this.model as any).x_range_name, (this.model as any).y_range_name)
   }
 
-  bbox?(): BBox
+  interactive_bbox?(sx: number, sy: number): BBox
+
+  interactive_hit?(sx: number, sy: number): boolean
 
   get needs_clip(): boolean {
     return false

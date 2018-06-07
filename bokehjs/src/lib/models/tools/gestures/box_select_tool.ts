@@ -125,7 +125,6 @@ export class BoxSelectTool extends SelectTool {
 
   static initClass(): void {
     this.prototype.type = "BoxSelectTool"
-
     this.prototype.default_view = BoxSelectToolView
 
     this.define({
