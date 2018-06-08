@@ -13,7 +13,7 @@ export namespace Jitter {
     width: number
     distribution: Distribution
     range: Range
-    previous_values: Float64Array
+    previous_values: Arrayable<number>
   }
 
   export interface Props extends Transform.Props {}
