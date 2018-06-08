@@ -225,7 +225,7 @@ class Property(PropertyDescriptorFactory):
         '''
         return value
 
-    def validate(self, value):
+    def validate(self, value, detail=True):
         ''' Determine whether we can set this property from this value.
 
         Validation happens before transform()
@@ -242,7 +242,7 @@ class Property(PropertyDescriptorFactory):
         '''
         pass
 
-    def is_valid(self, value):
+    def is_valid(self, value, detail=True):
         ''' Whether the value passes validation
 
         Args:
@@ -253,8 +253,8 @@ class Property(PropertyDescriptorFactory):
 
         '''
         try:
-            self.validate(value)
-        except ValueError:
+            self.validate(value, detail)
+        except ValueError as e:
             return False
         else:
             return True
@@ -271,7 +271,7 @@ class Property(PropertyDescriptorFactory):
             self.validate(value)
         except ValueError as e:
             for tp, converter in self.alternatives:
-                if tp.is_valid(value):
+                if tp.is_valid(value, False):
                     value = converter(value)
                     break
             else:
@@ -394,12 +394,14 @@ class PrimitiveProperty(Property):
 
     _underlying_type = None
 
-    def validate(self, value):
-        super(PrimitiveProperty, self).validate(value)
+    def validate(self, value, detail=True):
+        super(PrimitiveProperty, self).validate(value, detail)
 
         if not (value is None or isinstance(value, self._underlying_type)):
-            raise ValueError("expected a value of type %s, got %s of type %s" %
-                (nice_join([ cls.__name__ for cls in self._underlying_type ]), value, type(value).__name__))
+            msg = ""
+            if detail:
+                msg = "expected a value of type %s, got %s of type %s" % (nice_join([ cls.__name__ for cls in self._underlying_type ]), value, type(value).__name__)
+            raise ValueError(msg)
 
     def from_json(self, json, models=None):
         if json is None or isinstance(json, self._underlying_type):
