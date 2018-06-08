@@ -193,7 +193,7 @@ export class ColumnDataSource extends ColumnarDataSource {
     this.streaming.emit()
   }
 
-  patch(patches: [Index, any][]): void {
+  patch(patches: {[key: string]: [Index, any][]}): void {
     const {data} = this
     let patched: Set<number> = new Set()
     for (const k in patches) {

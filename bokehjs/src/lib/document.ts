@@ -12,7 +12,7 @@ import {values} from "./core/util/object"
 import {isEqual} from "./core/util/eq"
 import {isArray, isObject} from "./core/util/types"
 import {LayoutDOM} from "./models/layouts/layout_dom"
-import {ColumnDataSource} from "./models/sources/column_data_source"
+import {ColumnDataSource, Index} from "./models/sources/column_data_source"
 import {ClientSession} from "./client/session"
 import {Class} from "./core/class"
 import {Model} from "./model"
@@ -90,7 +90,7 @@ export interface ColumnsStreamed {
 export interface ColumnsPatched {
   kind: "ColumnsPatched"
   column_source: Ref
-  patches: any[]
+  patches: {[key: string]: [Index, any][]}
 }
 
 export type DocumentChanged =
