@@ -40,7 +40,7 @@ export class Jitter extends Transform {
     })
 
     this.internal({
-      previous_values:  [ p.Array ]
+      previous_values: [ p.Array ],
     })
   }
 
