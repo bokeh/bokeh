@@ -43,6 +43,18 @@ describe "Jitter transform module", ->
       # We can set this deterministically because we've stubbed random
       expect(thediff).to.equal 0
 
+    it "should cache values for identical input lengths", ->
+      N = 100
+      val1 =  Array.apply(null, Array(N)).map ->
+                5
+      val2 =  Array.apply(null, Array(N)).map ->
+                6
+      ret1 = transform.v_compute(val1)
+
+      ret2 = transform.v_compute(val2)
+      expect(ret1).to.deep.equal ret2
+
+
   describe "Jitter with normal", ->
     transform = generate_jitter()
     transform.distribution = 'normal'
@@ -59,6 +71,17 @@ describe "Jitter transform module", ->
       thediff = (thesum/N) - 5
       # We can set this deterministically because we've stubbed rnorm
       expect(thediff).to.equal 0
+
+    it "should cache values for identical input lengths", ->
+      N = 100
+      val1 =  Array.apply(null, Array(N)).map ->
+                5
+      val2 =  Array.apply(null, Array(N)).map ->
+                6
+      ret1 = transform.v_compute(val1)
+
+      ret2 = transform.v_compute(val2)
+      expect(ret1).to.deep.equal ret2
 
   describe "Jitter with FactorRange", ->
     transform = generate_jitter()
@@ -78,3 +101,14 @@ describe "Jitter transform module", ->
       thediff = (thesum/N) - 1.5 # relies on standard synthetic mapping
       # We can set this deterministically because we've stubbed random
       expect(thediff).to.equal 0
+
+    it "should cache values for identical input lengths", ->
+      N = 100
+      val1 =  Array.apply(null, Array(N)).map ->
+                "a"
+      val2 =  Array.apply(null, Array(N)).map ->
+                "b"
+      ret1 = transform.v_compute(val1)
+
+      ret2 = transform.v_compute(val2)
+      expect(ret1).to.deep.equal ret2

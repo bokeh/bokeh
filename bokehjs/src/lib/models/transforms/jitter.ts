@@ -13,6 +13,7 @@ export namespace Jitter {
     width: number
     distribution: Distribution
     range: Range
+    previous_values: Float64Array
   }
 
   export interface Props extends Transform.Props {}
@@ -37,9 +38,16 @@ export class Jitter extends Transform {
       distribution: [ p.Distribution, 'uniform'],
       range:        [ p.Instance               ],
     })
+
+    this.internal({
+      previous_values:  [ p.Array ]
+    })
   }
 
   v_compute(xs0: Arrayable<number | Factor>): Arrayable<number> {
+    if (this.previous_values != null && this.previous_values.length == xs0.length)
+      return this.previous_values
+
     let xs: Arrayable<number>
     if (this.range instanceof FactorRange)
       xs = this.range.v_synthetic(xs0)
@@ -53,6 +61,7 @@ export class Jitter extends Transform {
       const x = xs[i]
       result[i] = this._compute(x)
     }
+    this.previous_values = result
     return result
   }
 
