@@ -31,7 +31,7 @@ export class CumSum extends Expression {
     })
   }
 
-  _v_compute(source: ColumnarDataSource): Arrayable<number> {
+  protected _v_compute(source: ColumnarDataSource): Arrayable<number> {
     const result = new Float64Array(source.get_length() || 0)
     const col = source.data[this.field]
     const offset = this.include_zero ? 1 : 0
