@@ -4,6 +4,7 @@ sinon = require "sinon"
 {FactorRange} = require("models/ranges/factor_range")
 {Jitter} = require("models/transforms/jitter")
 bokeh_math  = require("core/util/math")
+{repeat} = require("core/util/array")
 
 describe "Jitter transform module", ->
   source = {start: 0, end: 10}
@@ -32,8 +33,7 @@ describe "Jitter transform module", ->
 
     it "should average the fixed values", ->
       N = 100
-      vals =  Array.apply(null, Array(N)).map ->
-                5
+      vals =  repeat(5, N)
       rets = transform.v_compute(vals)
 
       thesum = rets.reduce((a,b) ->
@@ -45,10 +45,9 @@ describe "Jitter transform module", ->
 
     it "should cache values for identical input lengths", ->
       N = 100
-      val1 =  Array.apply(null, Array(N)).map ->
-                5
-      val2 =  Array.apply(null, Array(N)).map ->
-                6
+      val1 =  repeat(5, N)
+      val2 =  repeat(6, N)
+
       ret1 = transform.v_compute(val1)
 
       ret2 = transform.v_compute(val2)
@@ -61,8 +60,8 @@ describe "Jitter transform module", ->
 
     it "should average the fixed values", ->
       N = 100
-      vals =  Array.apply(null, Array(N)).map ->
-                5
+      vals =  repeat(5, N)
+
       rets = transform.v_compute(vals)
 
       thesum = rets.reduce((a,b) ->
@@ -74,10 +73,9 @@ describe "Jitter transform module", ->
 
     it "should cache values for identical input lengths", ->
       N = 100
-      val1 =  Array.apply(null, Array(N)).map ->
-                5
-      val2 =  Array.apply(null, Array(N)).map ->
-                6
+      val1 =  repeat(5, N)
+      val2 =  repeat(6, N)
+
       ret1 = transform.v_compute(val1)
 
       ret2 = transform.v_compute(val2)
@@ -91,8 +89,7 @@ describe "Jitter transform module", ->
     it "should work with a supplied range", ->
 
       N = 100
-      vals =  Array.apply(null, Array(N)).map ->
-                "b"
+      vals =  repeat("b", N)
       rets = transform.v_compute(vals)
 
       thesum = rets.reduce((a,b) ->
@@ -104,10 +101,9 @@ describe "Jitter transform module", ->
 
     it "should cache values for identical input lengths", ->
       N = 100
-      val1 =  Array.apply(null, Array(N)).map ->
-                "a"
-      val2 =  Array.apply(null, Array(N)).map ->
-                "b"
+      val1 =  repeat("a", N)
+      val2 =  repeat("b", N)
+
       ret1 = transform.v_compute(val1)
 
       ret2 = transform.v_compute(val2)
