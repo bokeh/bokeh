@@ -237,7 +237,7 @@ export class AxisView extends GuideRendererView {
 
   // extents sub functions -----------------------------------------------------
 
-  protected _axis_label_extent(): number {
+  /*protected*/ _axis_label_extent(): number {
     if (this.model.axis_label == null || this.model.axis_label == "")
       return 0
     const standoff = this.model.axis_label_standoff
@@ -245,11 +245,11 @@ export class AxisView extends GuideRendererView {
     return this._oriented_labels_extent([this.model.axis_label], "parallel", this.model.panel.side, standoff, visuals)
   }
 
-  protected _tick_extent(): number {
+  /*protected*/ _tick_extent(): number {
     return this.model.major_tick_out
   }
 
-  protected _tick_label_extent(): number {
+  /*protected*/ _tick_label_extent(): number {
     return sum(this._tick_label_extents())
   }
 
@@ -379,7 +379,7 @@ export namespace Axis {
     formatter: TickFormatter
     x_range_name: string
     y_range_name: string
-    axis_label: string
+    axis_label: string | null
     axis_label_standoff: number
     major_label_standoff: number
     major_label_orientation: TickLabelOrientation | number
