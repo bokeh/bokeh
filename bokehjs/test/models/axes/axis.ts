@@ -1,5 +1,4 @@
 import {expect} from "chai"
-import * as sinon from 'sinon'
 
 import {Axis} from "models/axes/axis"
 import {BasicTicker} from "models/tickers/basic_ticker"
@@ -128,7 +127,6 @@ describe("AxisView", () => {
     doc.add_root(plot)
     plot.add_layout(this.axis, 'below')
     const plot_canvas_view = new plot.plot_canvas.default_view({model: plot.plot_canvas, parent: plot_view})
-    sinon.stub(plot_canvas_view as any, 'update_constraints')
     this.axis_view = new this.axis.default_view({
       model: this.axis,
       plot_view: plot_canvas_view,
