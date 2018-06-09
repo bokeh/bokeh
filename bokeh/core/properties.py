@@ -321,14 +321,10 @@ class FontSize(String):
 
         if isinstance(value, string_types):
             if len(value) == 0:
-                msg = ""
-                if detail:
-                    msg = "empty string is not a valid font size value"
+                msg = "" if not detail else "empty string is not a valid font size value"
                 raise ValueError(msg)
             elif self._font_size_re.match(value) is None:
-                msg = ""
-                if detail:
-                    msg = "%r is not a valid font size value" % value
+                msg = "" if not detail else "%r is not a valid font size value" % value
                 raise ValueError(msg)
 
 class Regex(String):
@@ -491,9 +487,7 @@ class Instance(Property):
 
         if value is not None:
             if not isinstance(value, self.instance_type):
-                msg = ""
-                if detail:
-                    msg = "expected an instance of type %s, got %s of type %s" % (self.instance_type.__name__, value, type(value).__name__)
+                msg = "" if not detail else "expected an instance of type %s, got %s of type %s" % (self.instance_type.__name__, value, type(value).__name__)
                 raise ValueError(msg)
 
     def _may_have_unstable_default(self):
@@ -1352,9 +1346,7 @@ class Dict(ContainerProperty):
         if value is not None:
             if not (isinstance(value, dict) and \
                     all(self.keys_type.is_valid(key) and self.values_type.is_valid(val) for key, val in iteritems(value))):
-                msg = ""
-                if detail:
-                    msg = "expected an element of %s, got %r" % (self, value)
+                msg = "" if not detail else "expected an element of %s, got %r" % (self, value)
                 raise ValueError(msg)
 
     @classmethod
@@ -1469,9 +1461,7 @@ class Tuple(ContainerProperty):
         if value is not None:
             if not (isinstance(value, (tuple, list)) and len(self.type_params) == len(value) and \
                     all(type_param.is_valid(item) for type_param, item in zip(self.type_params, value))):
-                msg = ""
-                if detail:
-                    msg = "expected an element of %s, got %r" % (self, value)
+                msg = "" if not detail else "expected an element of %s, got %r" % (self, value)
                 raise ValueError(msg)
 
     def _sphinx_type(self):
@@ -1715,9 +1705,7 @@ class FontSizeSpec(DataSpec):
         super(FontSizeSpec, self).validate(value)
         if isinstance(value, string_types):
             if len(value) == 0 or value[0].isdigit() and FontSize._font_size_re.match(value) is None:
-                msg = ""
-                if detail:
-                    msg = "%r is not a valid font size value" % value
+                msg = "" if not detail else "%r is not a valid font size value" % value
                 raise ValueError(msg)
 
 _ExprFieldValueTransformUnits = Enum("expr", "field", "value", "transform", "units")

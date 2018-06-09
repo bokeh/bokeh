@@ -404,9 +404,9 @@ class PrimitiveProperty(Property):
         super(PrimitiveProperty, self).validate(value, detail)
 
         if not (value is None or isinstance(value, self._underlying_type)):
-            msg = ""
-            if detail:
-                msg = "expected a value of type %s, got %s of type %s" % (nice_join([ cls.__name__ for cls in self._underlying_type ]), value, type(value).__name__)
+            msg = "" if not detail else "expected a value of type %s, got %s of type %s" % (
+                nice_join([ cls.__name__ for cls in self._underlying_type ]), value, type(value).__name__
+            )
             raise ValueError(msg)
 
     def from_json(self, json, models=None):
