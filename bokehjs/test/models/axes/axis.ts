@@ -13,7 +13,7 @@ import {Toolbar} from "models/tools/toolbar"
 describe("Axis", () => {
 
   it("should compute labels with overrides", function() {
-    const p = new Plot({
+    const plot = new Plot({
       x_range: new Range1d({start: 0, end: 10}),
       y_range: new Range1d({start: 0, end: 10}),
     })
@@ -22,14 +22,14 @@ describe("Axis", () => {
     const axis = new Axis({
       ticker,
       formatter,
-      plot: p,
+      plot,
       major_label_overrides: {0: "zero", 4: "four", 10: "ten"},
     })
     expect(axis.compute_labels([0,2,4.0,6,8,10])).to.be.deep.equal(["zero", "2", "four", "6", "8", "ten"])
 })
 
   it("loc should return numeric fixed_location", function() {
-    const p = new Plot({
+    const plot = new Plot({
       x_range: new Range1d({start: 0, end: 10}),
       y_range: new Range1d({start: 0, end: 10}),
     })
@@ -38,14 +38,14 @@ describe("Axis", () => {
     const axis = new Axis({
       ticker,
       formatter,
-      plot: p,
+      plot,
       fixed_location: 10,
     })
     expect(axis.loc).to.equal(10)
   })
 
   it("loc should return synthetic for categorical fixed_location", function() {
-    const p = new Plot({
+    const plot = new Plot({
       x_range: new FactorRange({factors: ["foo", "bar"]}),
       x_scale: new CategoricalScale(),
       y_range: new Range1d({start: 0, end: 10}),
@@ -55,7 +55,7 @@ describe("Axis", () => {
     const axis = new Axis({
       ticker,
       formatter,
-      plot: p,
+      plot,
       fixed_location: "foo",
     })
     axis.add_panel('left')
@@ -63,7 +63,7 @@ describe("Axis", () => {
   })
 
   it("should have a SidePanel after add_panel is called", function() {
-    const p = new Plot({
+    const plot = new Plot({
       x_range: new Range1d({start: 0, end: 1}),
       y_range: new Range1d({start: 0, end: 1}),
     })
@@ -72,7 +72,7 @@ describe("Axis", () => {
     const axis = new Axis({
       ticker,
       formatter,
-      plot: p,
+      plot,
     })
     expect(axis.panel).to.be.undefined
     axis.add_panel('left')
@@ -84,11 +84,11 @@ describe("Axis", () => {
     const formatter = new BasicTickFormatter()
     const axis = new Axis({ticker, formatter})
     expect(axis.panel).to.be.undefined
-    const p = new Plot({
+    const plot = new Plot({
       x_range: new Range1d({start: 0, end: 1}),
       y_range: new Range1d({start: 0, end: 1}),
     })
-    p.add_layout(axis, 'left')
+    plot.add_layout(axis, 'left')
     expect(axis.panel).to.be.an.instanceOf(SidePanel)
   })
 })
