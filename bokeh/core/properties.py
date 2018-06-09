@@ -1138,9 +1138,7 @@ class Datetime(Property):
         if pd and isinstance(value, (pd.Timestamp)):
             return
 
-        msg = ""
-        if detail:
-            msg = "Expected a datetime instance, got %r" % value
+        msg = "" if not detail else "Expected a datetime instance, got %r" % value
         raise ValueError(msg)
 
 class TimeDelta(Property):
@@ -1179,9 +1177,7 @@ class TimeDelta(Property):
         if pd and isinstance(value, (pd.Timedelta)):
             return
 
-        msg = ""
-        if detail:
-            msg = "Expected a timedelta instance, got %r" % value
+        msg = "" if not detail else "Expected a timedelta instance, got %r" % value
         raise ValueError(msg)
 
 #------------------------------------------------------------------------------
@@ -1222,14 +1218,10 @@ class Seq(ContainerProperty):
                     for item in value:
                         if not self.item_type.is_valid(item):
                             invalid.append(item)
-                    msg = ""
-                    if detail:
-                        msg = "expected an element of %s, got seq with invalid items %r" % (self, invalid)
+                    msg = "" if not detail else "expected an element of %s, got seq with invalid items %r" % (self, invalid)
                     raise ValueError(msg)
                 else:
-                    msg = ""
-                    if detail:
-                        msg = "expected an element of %s, got %r" % (self, value)
+                    msg = "" if not detail else "expected an element of %s, got %r" % (self, value)
                     raise ValueError(msg)
 
     @classmethod
