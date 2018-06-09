@@ -376,9 +376,7 @@ class Regex(String):
         super(Regex, self).validate(value, detail)
 
         if not (value is None or self.regex.match(value) is not None):
-            msg = ""
-            if detail:
-                msg = "expected a string matching %r pattern, got %r" % (self.regex.pattern, value)
+            msg = "" if not detail else "expected a string matching %r pattern, got %r" % (self.regex.pattern, value)
             raise ValueError(msg)
 
 class JSON(String):
@@ -416,9 +414,7 @@ class JSON(String):
             import json
             json.loads(value)
         except ValueError:
-            msg = ""
-            if detail:
-                msg = "expected JSON text, got %r" % value
+            msg = "" if not detail else "expected JSON text, got %r" % value
             raise ValueError(msg)
 
 class Instance(Property):
@@ -608,9 +604,7 @@ class Interval(ParameterizedProperty):
         super(Interval, self).validate(value, detail)
 
         if not (value is None or self.interval_type.is_valid(value) and value >= self.start and value <= self.end):
-            msg = ""
-            if detail:
-                msg = "expected a value of type %s in range [%s, %s], got %r" % (self.interval_type, self.start, self.end, value)
+            msg = "" if not detail else "expected a value of type %s in range [%s, %s], got %r" % (self.interval_type, self.start, self.end, value)
             raise ValueError(msg)
 
 class Byte(Interval):
@@ -705,9 +699,7 @@ class Either(ParameterizedProperty):
         super(Either, self).validate(value, detail)
 
         if not (value is None or any(param.is_valid(value) for param in self.type_params)):
-            msg = ""
-            if detail:
-                msg = "expected an element of either %s, got %r" % (nice_join(self.type_params), value)
+            msg = "" if not detail else "expected an element of either %s, got %r" % (nice_join(self.type_params), value)
             raise ValueError(msg)
 
     # TODO (bev) implement this
@@ -748,9 +740,7 @@ class Enum(String):
         super(Enum, self).validate(value, detail)
 
         if not (value is None or value in self._enum):
-            msg = ""
-            if detail:
-                msg = "invalid value: %r; allowed values are %s" % (value, nice_join(self.allowed_values))
+            msg = "" if not detail else "invalid value: %r; allowed values are %s" % (value, nice_join(self.allowed_values))
             raise ValueError(msg)
 
     def _sphinx_type(self):
@@ -808,9 +798,7 @@ class RGB(Property):
         super(RGB, self).validate(value, detail)
 
         if not (value is None or isinstance(value, colors.RGB)):
-            msg = ""
-            if detail:
-                msg = "expected RGB value, got %r" % (value,)
+            msg = "" if not detail else "expected RGB value, got %r" % (value,)
             raise ValueError(msg)
 
 # Properties useful for defining visual attributes
@@ -905,9 +893,7 @@ class MinMaxBounds(Either):
             pass
 
         elif value[0] >= value[1]:
-            msg = ""
-            if detail:
-                msg = "Invalid bounds: maximum smaller than minimum. Correct usage: bounds=(min, max)"
+            msg = "" if not detail else "Invalid bounds: maximum smaller than minimum. Correct usage: bounds=(min, max)"
             raise ValueError(msg)
 
         return True
@@ -1007,9 +993,7 @@ class Size(Float):
         super(Size, self).validate(value, detail)
 
         if not (value is None or 0.0 <= value):
-            msg = ""
-            if detail:
-                msg = "expected a non-negative number, got %r" % value
+            msg = "" if not detail else "expected a non-negative number, got %r" % value
             raise ValueError(msg)
 
 class Percent(Float):
@@ -1061,9 +1045,7 @@ class Percent(Float):
         super(Percent, self).validate(value)
 
         if not (value is None or 0.0 <= value <= 1.0):
-            msg = ""
-            if detail:
-                msg = "expected a value in range [0, 1], got %r" % value
+            msg = "" if not detail else "expected a value in range [0, 1], got %r" % value
             raise ValueError(msg)
 
 class Angle(Float):
@@ -1117,9 +1099,7 @@ class Date(Property):
         super(Date, self).validate(value, detail)
 
         if not (value is None or isinstance(value, (datetime.date,) + string_types + (float,) + bokeh_integer_types)):
-            msg = ""
-            if detail:
-                msg = "expected a date, string or timestamp, got %r" % value
+            msg = "" if not detail else "expected a date, string or timestamp, got %r" % value
             raise ValueError(msg)
 
 class Datetime(Property):
