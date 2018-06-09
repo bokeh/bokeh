@@ -20,6 +20,7 @@ import numpy as np
 
 from ...util.dependencies import import_optional
 from ...util.string import nice_join
+from ..has_props import HasProps
 from .descriptor_factory import PropertyDescriptorFactory
 from .descriptors import BasicPropertyDescriptor
 
@@ -279,7 +280,6 @@ class Property(PropertyDescriptorFactory):
         else:
             value = self.transform(value)
 
-        from ..has_props import HasProps
         if isinstance(obj_or_cls, HasProps):
             obj = obj_or_cls
 
