@@ -349,26 +349,26 @@ export namespace Axis {
 
   // text:major_label_
   export interface MajorLabelText {
-    major_lable_text_font: string
-    major_lable_text_font_size: string
-    major_lable_text_font_style: FontStyle
-    major_lable_text_color: Color
-    major_lable_text_alpha: number
-    major_lable_text_align: TextAlign
-    major_lable_text_baseline: TextBaseline
-    major_lable_text_line_height: number
+    major_label_text_font: string
+    major_label_text_font_size: string
+    major_label_text_font_style: FontStyle
+    major_label_text_color: Color
+    major_label_text_alpha: number
+    major_label_text_align: TextAlign
+    major_label_text_baseline: TextBaseline
+    major_label_text_line_height: number
   }
 
   // text:axis_label_
   export interface AxisLabelText {
-    axis_lable_text_font: string
-    axis_lable_text_font_size: string
-    axis_lable_text_font_style: FontStyle
-    axis_lable_text_color: Color
-    axis_lable_text_alpha: number
-    axis_lable_text_align: TextAlign
-    axis_lable_text_baseline: TextBaseline
-    axis_lable_text_line_height: number
+    axis_label_text_font: string
+    axis_label_text_font_size: string
+    axis_label_text_font_style: FontStyle
+    axis_label_text_color: Color
+    axis_label_text_alpha: number
+    axis_label_text_align: TextAlign
+    axis_label_text_baseline: TextBaseline
+    axis_label_text_line_height: number
   }
 
   export interface Mixins extends AxisLine, MajorTickLine, MinorTickLine, MajorLabelText, AxisLabelText {}
