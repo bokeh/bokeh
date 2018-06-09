@@ -233,6 +233,12 @@ class Property(PropertyDescriptorFactory):
 
         Args:
             value (obj) : the value to validate against this property type
+            detail (bool, options) : whether to construct detailed exceptions
+
+                Generating detailed type validation error messages can be
+                expensive. When doing type checks internally that will not
+                escape exceptions to users, these messages can be skipped
+                by setting this value to False (default: True)
 
         Returns:
             None
@@ -243,7 +249,7 @@ class Property(PropertyDescriptorFactory):
         '''
         pass
 
-    def is_valid(self, value, detail=True):
+    def is_valid(self, value):
         ''' Whether the value passes validation
 
         Args:
@@ -254,7 +260,7 @@ class Property(PropertyDescriptorFactory):
 
         '''
         try:
-            self.validate(value, detail)
+            self.validate(value, False)
         except ValueError as e:
             return False
         else:
@@ -272,7 +278,7 @@ class Property(PropertyDescriptorFactory):
             self.validate(value)
         except ValueError as e:
             for tp, converter in self.alternatives:
-                if tp.is_valid(value, False):
+                if tp.is_valid(value):
                     value = converter(value)
                     break
             else:

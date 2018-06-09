@@ -613,7 +613,7 @@ class Interval(ParameterizedProperty):
     def validate(self, value, detail=True):
         super(Interval, self).validate(value, detail)
 
-        if not (value is None or self.interval_type.is_valid(value, False) and value >= self.start and value <= self.end):
+        if not (value is None or self.interval_type.is_valid(value) and value >= self.start and value <= self.end):
             msg = ""
             if detail:
                 msg = "expected a value of type %s in range [%s, %s], got %r" % (self.interval_type, self.start, self.end, value)
@@ -710,7 +710,7 @@ class Either(ParameterizedProperty):
     def validate(self, value, detail=True):
         super(Either, self).validate(value, detail)
 
-        if not (value is None or any(param.is_valid(value, False) for param in self.type_params)):
+        if not (value is None or any(param.is_valid(value) for param in self.type_params)):
             msg = ""
             if detail:
                 msg = "expected an element of either %s, got %r" % (nice_join(self.type_params), value)
@@ -1242,11 +1242,11 @@ class Seq(ContainerProperty):
         super(Seq, self).validate(value, True)
 
         if value is not None:
-            if not (self._is_seq(value) and all(self.item_type.is_valid(item, False) for item in value)):
+            if not (self._is_seq(value) and all(self.item_type.is_valid(item) for item in value)):
                 if self._is_seq(value):
                     invalid = []
                     for item in value:
-                        if not self.item_type.is_valid(item, False):
+                        if not self.item_type.is_valid(item):
                             invalid.append(item)
                     msg = ""
                     if detail:
@@ -1351,7 +1351,7 @@ class Dict(ContainerProperty):
 
         if value is not None:
             if not (isinstance(value, dict) and \
-                    all(self.keys_type.is_valid(key, False) and self.values_type.is_valid(val, False) for key, val in iteritems(value))):
+                    all(self.keys_type.is_valid(key) and self.values_type.is_valid(val) for key, val in iteritems(value))):
                 msg = ""
                 if detail:
                     msg = "expected an element of %s, got %r" % (self, value)
@@ -1468,7 +1468,7 @@ class Tuple(ContainerProperty):
 
         if value is not None:
             if not (isinstance(value, (tuple, list)) and len(self.type_params) == len(value) and \
-                    all(type_param.is_valid(item, False) for type_param, item in zip(self.type_params, value))):
+                    all(type_param.is_valid(item) for type_param, item in zip(self.type_params, value))):
                 msg = ""
                 if detail:
                     msg = "expected an element of %s, got %r" % (self, value)
