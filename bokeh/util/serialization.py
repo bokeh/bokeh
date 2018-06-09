@@ -17,9 +17,11 @@ import base64
 import datetime as dt
 import math
 import sys
+import uuid
 
 import numpy as np
 
+from ..settings import settings
 from .string import format_docstring
 from .dependencies import import_optional
 
@@ -179,9 +181,6 @@ def make_id():
 
     '''
     global _simple_id
-
-    import uuid
-    from ..settings import settings
 
     if settings.simple_ids(False):
         _simple_id += 1
