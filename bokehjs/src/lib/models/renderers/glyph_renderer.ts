@@ -116,6 +116,7 @@ export class GlyphRendererView extends RendererView {
     this.connect(this.model.data_source.change, () => this.set_data())
     this.connect(this.model.data_source.streaming, () => this.set_data())
     this.connect(this.model.data_source.patching, (indices: number[] /* XXX: WHY? */) => this.set_data(true, indices))
+    this.connect(this.model.data_source.selected.change, () => this.request_render())
     this.connect(this.model.data_source._select, () => this.request_render())
     if (this.hover_glyph != null)
       this.connect(this.model.data_source.inspect, () => this.request_render())
