@@ -45,6 +45,9 @@ The classes in this module provide this functionality.
 
 '''
 from __future__ import absolute_import, print_function
+
+import numpy as np
+
 from ...util.dependencies import import_optional
 
 pd = import_optional('pandas')
@@ -372,8 +375,6 @@ class PropertyValueColumnData(PropertyValueDict):
         '''
         old = self._saved_copy()
 
-        import numpy as np
-
         # TODO (bev) Currently this reports old differently for array vs list
         # For arrays is reports the actual old value. For lists, the old value
         # is actually the already updated value. This is because the method
@@ -421,7 +422,6 @@ class PropertyValueColumnData(PropertyValueDict):
             been verified.
 
         '''
-        import numpy as np
         old = self._saved_copy()
 
         for name, patch in patches.items():

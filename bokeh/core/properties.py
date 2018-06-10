@@ -316,14 +316,16 @@ class FontSize(String):
 
     _font_size_re = re.compile(r"^[0-9]+(.[0-9]+)?(%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px)$", re.I)
 
-    def validate(self, value):
-        super(FontSize, self).validate(value)
+    def validate(self, value, detail=True):
+        super(FontSize, self).validate(value, detail)
 
         if isinstance(value, string_types):
             if len(value) == 0:
-                raise ValueError("empty string is not a valid font size value")
+                msg = "" if not detail else "empty string is not a valid font size value"
+                raise ValueError(msg)
             elif self._font_size_re.match(value) is None:
-                raise ValueError("%r is not a valid font size value" % value)
+                msg = "" if not detail else "%r is not a valid font size value" % value
+                raise ValueError(msg)
 
 class Regex(String):
     ''' Accept strings that match a given regular expression.
@@ -370,11 +372,12 @@ class Regex(String):
     def __str__(self):
         return "%s(%r)" % (self.__class__.__name__, self.regex.pattern)
 
-    def validate(self, value):
-        super(Regex, self).validate(value)
+    def validate(self, value, detail=True):
+        super(Regex, self).validate(value, detail)
 
         if not (value is None or self.regex.match(value) is not None):
-            raise ValueError("expected a string matching %r pattern, got %r" % (self.regex.pattern, value))
+            msg = "" if not detail else "expected a string matching %r pattern, got %r" % (self.regex.pattern, value)
+            raise ValueError(msg)
 
 class JSON(String):
     ''' Accept JSON string values.
@@ -402,8 +405,8 @@ class JSON(String):
             (default: False)
 
     '''
-    def validate(self, value):
-        super(JSON, self).validate(value)
+    def validate(self, value, detail=True):
+        super(JSON, self).validate(value, detail)
 
         if value is None: return
 
@@ -411,7 +414,8 @@ class JSON(String):
             import json
             json.loads(value)
         except ValueError:
-            raise ValueError("expected JSON text, got %r" % value)
+            msg = "" if not detail else "expected JSON text, got %r" % value
+            raise ValueError(msg)
 
 class Instance(Property):
     ''' Accept values that are instances of |HasProps|.
@@ -474,13 +478,13 @@ class Instance(Property):
         else:
             raise DeserializationError("%s expected a dict or None, got %s" % (self, json))
 
-    def validate(self, value):
-        super(Instance, self).validate(value)
+    def validate(self, value, detail=True):
+        super(Instance, self).validate(value, detail)
 
         if value is not None:
             if not isinstance(value, self.instance_type):
-                raise ValueError("expected an instance of type %s, got %s of type %s" %
-                    (self.instance_type.__name__, value, type(value).__name__))
+                msg = "" if not detail else "expected an instance of type %s, got %s of type %s" % (self.instance_type.__name__, value, type(value).__name__)
+                raise ValueError(msg)
 
     def _may_have_unstable_default(self):
         # because the instance value is mutable
@@ -596,11 +600,12 @@ class Interval(ParameterizedProperty):
     def type_params(self):
         return [self.interval_type]
 
-    def validate(self, value):
-        super(Interval, self).validate(value)
+    def validate(self, value, detail=True):
+        super(Interval, self).validate(value, detail)
 
         if not (value is None or self.interval_type.is_valid(value) and value >= self.start and value <= self.end):
-            raise ValueError("expected a value of type %s in range [%s, %s], got %r" % (self.interval_type, self.start, self.end, value))
+            msg = "" if not detail else "expected a value of type %s in range [%s, %s], got %r" % (self.interval_type, self.start, self.end, value)
+            raise ValueError(msg)
 
 class Byte(Interval):
     ''' Accept integral byte values (0-255).
@@ -690,11 +695,12 @@ class Either(ParameterizedProperty):
 
         raise ValueError("Could not transform %r" % value)
 
-    def validate(self, value):
-        super(Either, self).validate(value)
+    def validate(self, value, detail=True):
+        super(Either, self).validate(value, detail)
 
         if not (value is None or any(param.is_valid(value) for param in self.type_params)):
-            raise ValueError("expected an element of either %s, got %r" % (nice_join(self.type_params), value))
+            msg = "" if not detail else "expected an element of either %s, got %r" % (nice_join(self.type_params), value)
+            raise ValueError(msg)
 
     # TODO (bev) implement this
     # def _may_have_unstable_default(self):
@@ -730,11 +736,12 @@ class Enum(String):
     def allowed_values(self):
         return self._enum._values
 
-    def validate(self, value):
-        super(Enum, self).validate(value)
+    def validate(self, value, detail=True):
+        super(Enum, self).validate(value, detail)
 
         if not (value is None or value in self._enum):
-            raise ValueError("invalid value: %r; allowed values are %s" % (value, nice_join(self.allowed_values)))
+            msg = "" if not detail else "invalid value: %r; allowed values are %s" % (value, nice_join(self.allowed_values))
+            raise ValueError(msg)
 
     def _sphinx_type(self):
         # try to return a link to a proper enum in bokeh.core.enums if possible
@@ -787,11 +794,12 @@ class RGB(Property):
 
     '''
 
-    def validate(self, value):
-        super(RGB, self).validate(value)
+    def validate(self, value, detail=True):
+        super(RGB, self).validate(value, detail)
 
         if not (value is None or isinstance(value, colors.RGB)):
-            raise ValueError("expected RGB value, got %r" % (value,))
+            msg = "" if not detail else "expected RGB value, got %r" % (value,)
+            raise ValueError(msg)
 
 # Properties useful for defining visual attributes
 class Color(Either):
@@ -875,8 +883,8 @@ class MinMaxBounds(Either):
             )
         super(MinMaxBounds, self).__init__(*types, default=default, help=help)
 
-    def validate(self, value):
-        super(MinMaxBounds, self).validate(value)
+    def validate(self, value, detail=True):
+        super(MinMaxBounds, self).validate(value, detail)
 
         if value is None:
             pass
@@ -885,7 +893,8 @@ class MinMaxBounds(Either):
             pass
 
         elif value[0] >= value[1]:
-            raise ValueError('Invalid bounds: maximum smaller than minimum. Correct usage: bounds=(min, max)')
+            msg = "" if not detail else "Invalid bounds: maximum smaller than minimum. Correct usage: bounds=(min, max)"
+            raise ValueError(msg)
 
         return True
 
@@ -980,11 +989,12 @@ class Size(Float):
             >>> m.prop = "foo" # ValueError !!
 
     '''
-    def validate(self, value):
-        super(Size, self).validate(value)
+    def validate(self, value, detail=True):
+        super(Size, self).validate(value, detail)
 
         if not (value is None or 0.0 <= value):
-            raise ValueError("expected a non-negative number, got %r" % value)
+            msg = "" if not detail else "expected a non-negative number, got %r" % value
+            raise ValueError(msg)
 
 class Percent(Float):
     ''' Accept floating point percentage values.
@@ -1031,11 +1041,12 @@ class Percent(Float):
             >>> m.prop = 5   # ValueError !!
 
     '''
-    def validate(self, value):
-        super(Percent, self).validate(value)
+    def validate(self, value, detail=True):
+        super(Percent, self).validate(value, detail)
 
         if not (value is None or 0.0 <= value <= 1.0):
-            raise ValueError("expected a value in range [0, 1], got %r" % value)
+            msg = "" if not detail else "expected a value in range [0, 1], got %r" % value
+            raise ValueError(msg)
 
 class Angle(Float):
     ''' Accept floating point angle values.
@@ -1084,11 +1095,12 @@ class Date(Property):
 
         return value
 
-    def validate(self, value):
-        super(Date, self).validate(value)
+    def validate(self, value, detail=True):
+        super(Date, self).validate(value, detail)
 
         if not (value is None or isinstance(value, (datetime.date,) + string_types + (float,) + bokeh_integer_types)):
-            raise ValueError("expected a date, string or timestamp, got %r" % value)
+            msg = "" if not detail else "expected a date, string or timestamp, got %r" % value
+            raise ValueError(msg)
 
 class Datetime(Property):
     ''' Accept Datetime values.
@@ -1103,8 +1115,8 @@ class Datetime(Property):
         return value
         # Handled by serialization in protocol.py for now
 
-    def validate(self, value):
-        super(Datetime, self).validate(value)
+    def validate(self, value, detail=True):
+        super(Datetime, self).validate(value, detail)
 
         datetime_types = (datetime.datetime, datetime.date)
         try:
@@ -1126,7 +1138,8 @@ class Datetime(Property):
         if pd and isinstance(value, (pd.Timestamp)):
             return
 
-        raise ValueError("Expected a datetime instance, got %r" % value)
+        msg = "" if not detail else "Expected a datetime instance, got %r" % value
+        raise ValueError(msg)
 
 class TimeDelta(Property):
     ''' Accept TimeDelta values.
@@ -1141,8 +1154,8 @@ class TimeDelta(Property):
         return value
         # Handled by serialization in protocol.py for now
 
-    def validate(self, value):
-        super(TimeDelta, self).validate(value)
+    def validate(self, value, detail=True):
+        super(TimeDelta, self).validate(value, detail)
 
         timedelta_types = (datetime.timedelta,)
         try:
@@ -1164,7 +1177,8 @@ class TimeDelta(Property):
         if pd and isinstance(value, (pd.Timedelta)):
             return
 
-        raise ValueError("Expected a timedelta instance, got %r" % value)
+        msg = "" if not detail else "Expected a timedelta instance, got %r" % value
+        raise ValueError(msg)
 
 #------------------------------------------------------------------------------
 # Container properties
@@ -1194,8 +1208,8 @@ class Seq(ContainerProperty):
         else:
             raise DeserializationError("%s expected a list or None, got %s" % (self, json))
 
-    def validate(self, value):
-        super(Seq, self).validate(value)
+    def validate(self, value, detail=True):
+        super(Seq, self).validate(value, True)
 
         if value is not None:
             if not (self._is_seq(value) and all(self.item_type.is_valid(item) for item in value)):
@@ -1204,9 +1218,11 @@ class Seq(ContainerProperty):
                     for item in value:
                         if not self.item_type.is_valid(item):
                             invalid.append(item)
-                    raise ValueError("expected an element of %s, got seq with invalid items %r" % (self, invalid))
+                    msg = "" if not detail else "expected an element of %s, got seq with invalid items %r" % (self, invalid)
+                    raise ValueError(msg)
                 else:
-                    raise ValueError("expected an element of %s, got %r" % (self, value))
+                    msg = "" if not detail else "expected an element of %s, got %r" % (self, value)
+                    raise ValueError(msg)
 
     @classmethod
     def _is_seq(cls, value):
@@ -1296,13 +1312,14 @@ class Dict(ContainerProperty):
         else:
             raise DeserializationError("%s expected a dict or None, got %s" % (self, json))
 
-    def validate(self, value):
-        super(Dict, self).validate(value)
+    def validate(self, value, detail=True):
+        super(Dict, self).validate(value, detail)
 
         if value is not None:
             if not (isinstance(value, dict) and \
                     all(self.keys_type.is_valid(key) and self.values_type.is_valid(val) for key, val in iteritems(value))):
-                raise ValueError("expected an element of %s, got %r" % (self, value))
+                msg = "" if not detail else "expected an element of %s, got %r" % (self, value)
+                raise ValueError(msg)
 
     @classmethod
     def wrap(cls, value):
@@ -1410,13 +1427,14 @@ class Tuple(ContainerProperty):
         else:
             raise DeserializationError("%s expected a list or None, got %s" % (self, json))
 
-    def validate(self, value):
-        super(Tuple, self).validate(value)
+    def validate(self, value, detail=True):
+        super(Tuple, self).validate(value, detail)
 
         if value is not None:
             if not (isinstance(value, (tuple, list)) and len(self.type_params) == len(value) and \
                     all(type_param.is_valid(item) for type_param, item in zip(self.type_params, value))):
-                raise ValueError("expected an element of %s, got %r" % (self, value))
+                msg = "" if not detail else "expected an element of %s, got %r" % (self, value)
+                raise ValueError(msg)
 
     def _sphinx_type(self):
         return self._sphinx_prop_link() + "( %s )" % ", ".join(x._sphinx_type() for x in self.type_params)
@@ -1564,7 +1582,7 @@ class DataSpec(Either):
 
         # Check for spec type value
         try:
-            self._type.validate(val)
+            self._type.validate(val, False)
             return dict(value=val)
         except ValueError:
             pass
@@ -1653,13 +1671,14 @@ class FontSizeSpec(DataSpec):
     def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
         super(FontSizeSpec, self).__init__(key_type, FontSize, default=default, help=help)
 
-    def validate(self, value):
+    def validate(self, value, detail=True):
         # We want to preserve existing semantics and be a little more restrictive. This
         # validations makes m.font_size = "" or m.font_size = "6" an error
-        super(FontSizeSpec, self).validate(value)
+        super(FontSizeSpec, self).validate(value, detail)
         if isinstance(value, string_types):
             if len(value) == 0 or value[0].isdigit() and FontSize._font_size_re.match(value) is None:
-                raise ValueError("%r is not a valid font size value" % value)
+                msg = "" if not detail else "%r is not a valid font size value" % value
+                raise ValueError(msg)
 
 _ExprFieldValueTransformUnits = Enum("expr", "field", "value", "transform", "units")
 

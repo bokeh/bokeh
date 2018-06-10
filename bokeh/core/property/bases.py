@@ -20,6 +20,7 @@ import numpy as np
 
 from ...util.dependencies import import_optional
 from ...util.string import nice_join
+from ..has_props import HasProps
 from .descriptor_factory import PropertyDescriptorFactory
 from .descriptors import BasicPropertyDescriptor
 
@@ -225,13 +226,19 @@ class Property(PropertyDescriptorFactory):
         '''
         return value
 
-    def validate(self, value):
+    def validate(self, value, detail=True):
         ''' Determine whether we can set this property from this value.
 
         Validation happens before transform()
 
         Args:
             value (obj) : the value to validate against this property type
+            detail (bool, options) : whether to construct detailed exceptions
+
+                Generating detailed type validation error messages can be
+                expensive. When doing type checks internally that will not
+                escape exceptions to users, these messages can be skipped
+                by setting this value to False (default: True)
 
         Returns:
             None
@@ -253,8 +260,8 @@ class Property(PropertyDescriptorFactory):
 
         '''
         try:
-            self.validate(value)
-        except ValueError:
+            self.validate(value, False)
+        except ValueError as e:
             return False
         else:
             return True
@@ -279,7 +286,6 @@ class Property(PropertyDescriptorFactory):
         else:
             value = self.transform(value)
 
-        from ..has_props import HasProps
         if isinstance(obj_or_cls, HasProps):
             obj = obj_or_cls
 
@@ -394,12 +400,14 @@ class PrimitiveProperty(Property):
 
     _underlying_type = None
 
-    def validate(self, value):
-        super(PrimitiveProperty, self).validate(value)
+    def validate(self, value, detail=True):
+        super(PrimitiveProperty, self).validate(value, detail)
 
         if not (value is None or isinstance(value, self._underlying_type)):
-            raise ValueError("expected a value of type %s, got %s of type %s" %
-                (nice_join([ cls.__name__ for cls in self._underlying_type ]), value, type(value).__name__))
+            msg = "" if not detail else "expected a value of type %s, got %s of type %s" % (
+                nice_join([ cls.__name__ for cls in self._underlying_type ]), value, type(value).__name__
+            )
+            raise ValueError(msg)
 
     def from_json(self, json, models=None):
         if json is None or isinstance(json, self._underlying_type):

@@ -975,7 +975,7 @@ class DataSpecPropertyDescriptor(BasicPropertyDescriptor):
             old = getattr(obj, self.name)
             if old is not None:
                 try:
-                    self.property._type.validate(old)
+                    self.property._type.validate(old, False)
                     if 'value' in json:
                         json = json['value']
                 except ValueError:

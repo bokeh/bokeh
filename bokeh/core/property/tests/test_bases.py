@@ -1,3 +1,4 @@
+from mock import patch
 import pytest
 
 import numpy as np
@@ -6,6 +7,13 @@ import pandas as pd
 from bokeh.core.has_props import HasProps
 
 import bokeh.core.property.bases as pb
+
+@patch('bokeh.core.property.bases.Property.validate')
+def test_is_valid_supresses_validation_detail(mock_validate):
+    p = pb.Property()
+    p.is_valid(None)
+    assert mock_validate.called
+    assert mock_validate.call_args[0] == (None, False)
 
 def test_property_assert_bools():
     hp = HasProps()
