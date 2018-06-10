@@ -1042,7 +1042,7 @@ class Percent(Float):
 
     '''
     def validate(self, value, detail=True):
-        super(Percent, self).validate(value)
+        super(Percent, self).validate(value, detail)
 
         if not (value is None or 0.0 <= value <= 1.0):
             msg = "" if not detail else "expected a value in range [0, 1], got %r" % value
@@ -1674,7 +1674,7 @@ class FontSizeSpec(DataSpec):
     def validate(self, value, detail=True):
         # We want to preserve existing semantics and be a little more restrictive. This
         # validations makes m.font_size = "" or m.font_size = "6" an error
-        super(FontSizeSpec, self).validate(value)
+        super(FontSizeSpec, self).validate(value, detail)
         if isinstance(value, string_types):
             if len(value) == 0 or value[0].isdigit() and FontSize._font_size_re.match(value) is None:
                 msg = "" if not detail else "%r is not a valid font size value" % value
