@@ -321,38 +321,33 @@ export abstract class LayoutDOMView extends DOMView {
   abstract get_width(): number
 
   get_width_height(): [number, number] {
-    const parent = this.el.parentElement
-    if (parent == null)
-      throw new Error("detached element")
+    /**
+     * Fit into enclosing DOM and preserve original aspect.
+     */
+    const [parent_width, parent_height] = this._calc_width_height()
 
-    // const parent_height = parent.clientHeight
-    const parent_width = parent.clientWidth
+    if (parent_width == null || parent_height == null)
+      throw new Error("detached element")
 
     const ar = this.model.get_aspect_ratio()
 
     const new_width_1 = parent_width
     const new_height_1 = parent_width / ar
 
-    // XXX temp "fix"
-    return [new_width_1, new_height_1]
+    const new_width_2 = parent_height * ar
+    const new_height_2 = parent_height
 
-    // broken due to height always reporting 0, see
-    // https://github.com/bokeh/bokeh/issues/7978
-    //
-    // const new_width_2 = parent_height * ar
-    // const new_height_2 = parent_height
-    //
-    // let width: number
-    // let height: number
-    // if (new_width_1 < new_width_2) {
-    //   width = new_width_1
-    //
-    // } else {
-    //   width = new_width_2
-    //   height = new_height_2
-    // }
-    //
-    // return [width, height]
+    let width: number
+    let height: number
+    if (new_width_1 < new_width_2) {
+      width = new_width_1
+      height = new_height_1
+    } else {
+      width = new_width_2
+      height = new_height_2
+    }
+
+    return [width, height]
   }
 }
 

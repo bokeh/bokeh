@@ -74,6 +74,9 @@ describe "Plot", ->
       @p._height.setValue(100)
       expect(plot_view.get_width()).to.be.equal 20
 
+    ### XXX: If you write tests like this, expect this to change every time implementation changes.
+    #        This needs to be updated, but that means rewriting this to use an actual DOM node.
+
     it "get_width_height should return a constrained width if plot is landscape oriented", sinon.test () ->
       @p.width = 4
       @p.height = 2
@@ -83,15 +86,15 @@ describe "Plot", ->
       expect(w).to.be.equal 56
       expect(h).to.be.equal 56 / (4/2)
 
-    # XXX disabled for now: https://github.com/bokeh/bokeh/issues/7978
-    # it "get_width_height should return a constrained height if plot is portrait oriented", sinon.test () ->
-    #   @p.width = 3
-    #   @p.height = 5
-    #   plot_view = new @p.default_view({ model: @p, parent: null })
-    #   plot_view.el = {'parentElement': {'clientWidth': 56, 'clientHeight': 49}}
-    #   [w, h] = plot_view.get_width_height()
-    #   expect(h).to.be.equal 49
-    #   expect(w).to.be.equal 49 * (3/5)
+    it "get_width_height should return a constrained height if plot is portrait oriented", sinon.test () ->
+      @p.width = 3
+      @p.height = 5
+      plot_view = new @p.default_view({ model: @p, parent: null })
+      plot_view.el = {'parentElement': {'clientWidth': 56, 'clientHeight': 49}}
+      [w, h] = plot_view.get_width_height()
+      expect(h).to.be.equal 49
+      expect(w).to.be.equal 49 * (3/5)
+    ###
 
     it "should set min_border_x to value of min_border if min_border_x is not specified", sinon.test () ->
       p = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), min_border: 33.33})
