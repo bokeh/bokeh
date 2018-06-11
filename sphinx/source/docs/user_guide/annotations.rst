@@ -215,7 +215,7 @@ The following example illustrates the use of both:
 .. _userguide_plotting_slope:
 
 Slopes
-~~~~~
+~~~~~~
 
 |Slope| annotations are lines which may be sloped and extend to the
 edge of the plot area.

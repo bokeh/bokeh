@@ -837,16 +837,6 @@ class Slope(Annotation):
     rendering annotations on the plot. If unset, use the default y-range.
     """)
 
-    render_mode = Enum(RenderMode, default="canvas", help="""
-    Specifies whether the span is rendered as a canvas element or as an
-    css element overlaid on the canvas. The default mode is "canvas".
-
-    .. warning::
-        The line_dash and line_dash_offset attributes aren't supported if
-        the render_mode is set to "css"
-
-    """)
-
     line_props = Include(LineProps, use_prefix=False, help="""
     The %s values for the line.
     """)

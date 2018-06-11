@@ -310,7 +310,7 @@ def test_Slope():
         "plot",
         "visible",
         "gradient",
-        "y_intercept"
+        "y_intercept",
         "x_range_name",
         "y_range_name",
         "level",
