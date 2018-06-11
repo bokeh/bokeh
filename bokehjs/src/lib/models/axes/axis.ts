@@ -237,7 +237,7 @@ export class AxisView extends GuideRendererView {
 
   // extents sub functions -----------------------------------------------------
 
-  protected _axis_label_extent(): number {
+  /*protected*/ _axis_label_extent(): number {
     if (this.model.axis_label == null || this.model.axis_label == "")
       return 0
     const standoff = this.model.axis_label_standoff
@@ -245,11 +245,11 @@ export class AxisView extends GuideRendererView {
     return this._oriented_labels_extent([this.model.axis_label], "parallel", this.model.panel.side, standoff, visuals)
   }
 
-  protected _tick_extent(): number {
+  /*protected*/ _tick_extent(): number {
     return this.model.major_tick_out
   }
 
-  protected _tick_label_extent(): number {
+  /*protected*/ _tick_label_extent(): number {
     return sum(this._tick_label_extents())
   }
 
@@ -349,26 +349,26 @@ export namespace Axis {
 
   // text:major_label_
   export interface MajorLabelText {
-    major_lable_text_font: string
-    major_lable_text_font_size: string
-    major_lable_text_font_style: FontStyle
-    major_lable_text_color: Color
-    major_lable_text_alpha: number
-    major_lable_text_align: TextAlign
-    major_lable_text_baseline: TextBaseline
-    major_lable_text_line_height: number
+    major_label_text_font: string
+    major_label_text_font_size: string
+    major_label_text_font_style: FontStyle
+    major_label_text_color: Color
+    major_label_text_alpha: number
+    major_label_text_align: TextAlign
+    major_label_text_baseline: TextBaseline
+    major_label_text_line_height: number
   }
 
   // text:axis_label_
   export interface AxisLabelText {
-    axis_lable_text_font: string
-    axis_lable_text_font_size: string
-    axis_lable_text_font_style: FontStyle
-    axis_lable_text_color: Color
-    axis_lable_text_alpha: number
-    axis_lable_text_align: TextAlign
-    axis_lable_text_baseline: TextBaseline
-    axis_lable_text_line_height: number
+    axis_label_text_font: string
+    axis_label_text_font_size: string
+    axis_label_text_font_style: FontStyle
+    axis_label_text_color: Color
+    axis_label_text_alpha: number
+    axis_label_text_align: TextAlign
+    axis_label_text_baseline: TextBaseline
+    axis_label_text_line_height: number
   }
 
   export interface Mixins extends AxisLine, MajorTickLine, MinorTickLine, MajorLabelText, AxisLabelText {}
@@ -379,7 +379,7 @@ export namespace Axis {
     formatter: TickFormatter
     x_range_name: string
     y_range_name: string
-    axis_label: string
+    axis_label: string | null
     axis_label_standoff: number
     major_label_standoff: number
     major_label_orientation: TickLabelOrientation | number

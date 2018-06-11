@@ -31,9 +31,9 @@ export abstract class Expression extends Model {
     this._result = {}
   }
 
-  abstract _v_compute(source: ColumnarDataSource): Arrayable
+  protected abstract _v_compute(source: ColumnarDataSource): Arrayable
 
-  protected v_compute(source: ColumnarDataSource): Arrayable {
+  v_compute(source: ColumnarDataSource): Arrayable {
     if (this._connected[source.id] == null) {
       this.connect(source.change, () => delete this._result[source.id])
       this.connect(source.patching, () => delete this._result[source.id])
