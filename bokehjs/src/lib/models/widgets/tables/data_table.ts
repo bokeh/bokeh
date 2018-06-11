@@ -4,7 +4,6 @@ type SlickGrid = typeof SlickGrid
 const {RowSelectionModel} = require("slickgrid/plugins/slick.rowselectionmodel")
 const {CheckboxSelectColumn} = require("slickgrid/plugins/slick.checkboxselectcolumn")
 
-import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {uniqueId} from "core/util/string"
 import {any, range} from "core/util/array"
@@ -89,7 +88,6 @@ export class DataProvider {
     const records = this.getRecords()
     const old_index = this.index.slice()
 
-    // TODO (bev) this sort is unstable, which is not great
     this.index.sort(function(i1, i2) {
       for (const [field, sign] of cols) {
         const value1 = records[old_index.indexOf(i1)][field]
@@ -149,9 +147,8 @@ export class DataTableView extends WidgetView {
       return
 
     const {selected} = this.model.source
-    const selected_indices = selected['1d'].indices
 
-    const permuted_indices = selected_indices.map((x: number) => this.data.index.indexOf(x))
+    const permuted_indices = selected.indices.map((x: number) => this.data.index.indexOf(x))
 
     this._in_selection_update = true
     this.grid.setSelectedRows(permuted_indices)
@@ -262,9 +259,7 @@ export class DataTableView extends WidgetView {
           return
         }
 
-        const selected = hittest.create_empty_hit_test_result()
-        selected.indices = args.rows.map((i: number) => this.data.index[i])
-        this.model.source.selected = selected
+        this.model.source.selected.indices = args.rows.map((i: number) => this.data.index[i])
       })
 
       this.updateSelection()
