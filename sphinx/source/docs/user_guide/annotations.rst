@@ -212,6 +212,17 @@ The following example illustrates the use of both:
 .. bokeh-plot:: docs/user_guide/examples/plotting_label.py
     :source-position: above
 
+.. _userguide_plotting_slope:
+
+Slopes
+~~~~~
+
+|Slope| annotations are lines which may be sloped and extend to the
+edge of the plot area.
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_slope.py
+    :source-position: above
+
 .. _userguide_plotting_spans:
 
 Spans
@@ -253,6 +264,7 @@ single point would be one common use for the Whisker annotation.
 .. |Label|         replace:: :class:`~bokeh.models.annotations.Label`
 .. |LabelSet|      replace:: :class:`~bokeh.models.annotations.LabelSet`
 .. |Legend|        replace:: :class:`~bokeh.models.annotations.Legend`
+.. |Slope|         replace:: :class:`~bokeh.models.annotations.Slope`
 .. |Span|          replace:: :class:`~bokeh.models.annotations.Span`
 .. |Title|         replace:: :class:`~bokeh.models.annotations.Title`
 .. |Whisker|       replace:: :class:`~bokeh.models.annotations.Whisker`

@@ -202,6 +202,16 @@ declare namespace Bokeh {
     y_range_name?: string;
   }
 
+  export const Slope: { new(attributes?: ISlope, options?: ModelOpts): Slope };
+  export interface Slope extends Annotation, ISlope {}
+  export interface ISlope extends IAnnotation, LineProps {
+    gradient?:number;
+    y_intercept?:number;
+
+    x_range_name?: string;
+    y_range_name?: string;
+  }
+
   export const Span: { new(attributes?: ISpan, options?: ModelOpts): Span };
   export interface Span extends Annotation, ISpan {}
   export interface ISpan extends IAnnotation, LineProps {

@@ -5,7 +5,7 @@ from bokeh.core.properties import field, value
 from bokeh.core.validation import check_integrity
 from bokeh.models.annotations import (
     Legend, LegendItem, ColorBar, Arrow, BoxAnnotation, Span, LabelSet, Label,
-    Title, Band, Whisker
+    Title, Band, Whisker, Slope
 )
 from bokeh.models import (
     ColumnDataSource, ArrowHead, BasicTicker, BasicTickFormatter, GlyphRenderer
@@ -296,6 +296,25 @@ def test_LabelSet():
         ANGLE,
         prefix('border_', LINE),
         prefix('background_', FILL))
+
+def test_Slope():
+    slope = Slope()
+    assert slope.plot is None
+    assert slope.gradient is None
+    assert slope.y_intercept is None
+    assert slope.x_range_name == 'default'
+    assert slope.y_range_name == 'default'
+    assert slope.level == 'annotation'
+    check_line_properties(slope, "", 'black', 1.0)
+    check_properties_existence(slope, [
+        "plot",
+        "visible",
+        "gradient",
+        "y_intercept"
+        "x_range_name",
+        "y_range_name",
+        "level",
+    ], LINE)
 
 
 def test_Span():
