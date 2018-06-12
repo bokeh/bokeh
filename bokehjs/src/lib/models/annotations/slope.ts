@@ -15,17 +15,15 @@ export class SlopeView extends AnnotationView {
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.plot_view.request_render())
-    this.connect(this.model.properties.gradient.change, () => this.plot_view.request_render())
-    this.connect(this.model.properties.y_intercept.change, () => this.plot_view.request_render())
   }
 
   render(): void {
     if (!this.model.visible)
       return
-    this._draw_span()
+    this._draw_slope()
   }
 
-  protected _draw_span(): void {
+  protected _draw_slope(): void {
     const gradient = this.model.gradient
     const y_intercept = this.model.y_intercept
     if(gradient == null || y_intercept == null){
@@ -37,19 +35,17 @@ export class SlopeView extends AnnotationView {
     const xscale = frame.xscales[this.model.x_range_name]
     const yscale = frame.yscales[this.model.y_range_name]
 
-    let sy_start, sy_end, y_start, y_end
-    sy_start = frame._top.value
-    sy_end = sy_start + frame._height.value
+    const sy_start = frame._top.value
+    const sy_end = sy_start + frame._height.value
 
-    y_start = yscale.invert(sy_start)
-    y_end = yscale.invert(sy_end)
+    const y_start = yscale.invert(sy_start)
+    const y_end = yscale.invert(sy_end)
 
-    let sx_start, sx_end, x_start, x_end
-    x_start = (y_start - y_intercept) / gradient
-    x_end = (y_end - y_intercept) / gradient
+    const x_start = (y_start - y_intercept) / gradient
+    const x_end = (y_end - y_intercept) / gradient
 
-    sx_start = xscale.compute(x_start)
-    sx_end = xscale.compute(x_end)
+    const sx_start = xscale.compute(x_start)
+    const sx_end = xscale.compute(x_end)
 
     const {ctx} = this.plot_view.canvas_view
     ctx.save()

@@ -18,8 +18,7 @@ p = figure(plot_width=450, plot_height=450, y_range=(0, 1.1 * max(ypts)))
 p.circle(xpts, ypts, size=5, color="skyblue")
 
 slope = Slope(gradient=gradient, y_intercept=y_intercept,
-               line_color='orange', line_dash='dashed', line_width=3.5)
-
+              line_color='orange', line_dash='dashed', line_width=3.5)
 
 p.add_layout(slope)
 
