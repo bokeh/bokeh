@@ -814,6 +814,33 @@ class PolyAnnotation(Annotation):
 
     fill_color = Override(default="#fff9ba")
 
+class Slope(Annotation):
+    """ Render a sloped line as an annotation.
+
+    """
+
+    gradient = Float(help="""
+    The gradient of the line, in data units
+    """)
+
+    y_intercept = Float(help="""
+    The y intercept of the line, in data units
+    """)
+
+    x_range_name = String('default', help="""
+    A particular (named) x-range to use for computing screen locations when
+    rendering annotations on the plot. If unset, use the default x-range.
+    """)
+
+    y_range_name = String('default', help="""
+    A particular (named) y-range to use for computing screen locations when
+    rendering annotations on the plot. If unset, use the default y-range.
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the line.
+    """)
+
 class Span(Annotation):
     """ Render a horizontal or vertical line span.
 
