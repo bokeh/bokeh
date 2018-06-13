@@ -92,8 +92,10 @@ export abstract class LayoutDOMView extends DOMView {
       const {left, right, top, bottom} = padding(measuring)
       const {width, height} = measuring.getBoundingClientRect()
 
-      if (width != 0 || height != 0)
-        return [width - left - right, height - top - bottom]
+      const inner_width = width - left - right
+      const inner_height = height - top - bottom
+      if (inner_width > 0 && inner_height > 0)
+        return [inner_width, inner_height]
     }
 
     // this element is detached from DOM
