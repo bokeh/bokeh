@@ -25,6 +25,35 @@ All of the standard palettes included in bokeh can be found at
 :ref:`bokeh.palettes`. Custom palettes can be made by creating sequences of
 RGB(A) hex strings.
 
+.. _userguide_styling_using_mappers:
+
+Using Mappers
+--------------
+
+Color Mappers allow you to encode some data sequence into a palette of colors based on the value in that sequence. 
+The mappers are then set as the ``color`` attribute on marker objects. Bokeh includes several types of mappers to encode colors:
+
+* ``bokeh.transform.factor_cmap``: Maps colors to specific categorical elements see :ref:`userguide_categorical` for more detail. 
+* ``bokeh.transform.linear_cmap``: Maps a range of numeric values across the available colors from high to low. For example, a range of `[0,99]` given the colors `['red', 'green', 'blue']` would be mapped as follows::
+
+        x < 0  : 'red'     # values < low are clamped
+    0 >= x < 33 : 'red'
+    33 >= x < 66 : 'green'
+    66 >= x < 99 : 'blue'
+    99 >= x      : 'blue'    # values > high are clamped
+
+
+* ``bokeh.transform.log_cmap``: Similar to ``linear_cmap`` but uses a natual log scale to map the colors. 
+
+These mapper functions return a `DataSpec` property that can be passed to the color attribute of the glyph as follows: 
+
+
+.. bokeh-plot:: docs/user_guide/examples/styling_linear_mappers.py
+    :source-position: above
+
+
+
+
 .. _userguide_styling_visual_properties:
 
 Visual Properties
@@ -562,7 +591,7 @@ documentation in the :ref:`refguide`.
 The |FuncTickFormatter| allows arbitrary tick formatting to be performed by
 supplying a JavaScript snippet as the ``code`` property. For convenience,
 there are also ``from_py_func`` and ``from_coffeescript`` class methods
-that can convert a python function or coffeescript snippet into JavaScript
+that can convert a python function or CoffeeScript snippet into JavaScript
 automatically. In all cases, the variable ``tick`` will contain the unformatted
 tick value and can be expected to be present in the snippet or function
 namespace at render time. The example below demonstrates configuring a
