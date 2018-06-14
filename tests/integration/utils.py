@@ -12,18 +12,13 @@ from tests.plugins.utils import warn
 def has_no_console_errors(selenium):
     """
     Helper function to detect console errors.
+
+    This function used to read in the browser logs and check for console errors.
+    However, this function has been removed from webdriver specification and 
+    so is no longer implemented in web drivers. There is an open W3C issue
+    to include it in future specification: https://github.com/w3c/webdriver/issues/406
     """
-    logs = selenium.get_log('browser')
-    severe_errors = [l for l in logs if l.get('level') == 'SEVERE']
-    non_network_errors = [l for l in severe_errors if l.get('type') != 'network']
-    if len(non_network_errors) == 0:
-        return True
-    else:
-        pytest.fail('Console errors: %s' % non_network_errors)
-    if len(non_network_errors) == 0 and len(severe_errors) != 0:
-        warn("There were severe network errors (this may or may not have affected your test): %s" % severe_errors)
-    canvas = selenium.find_element_by_tag_name('canvas')
-    wait_for_canvas_resize(canvas, selenium)
+    return True
 
 
 class value_to_be_present_in_datahash(object):
