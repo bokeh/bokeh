@@ -101,7 +101,7 @@ export class CanvasView extends DOMView {
     // XXX: for whatever reason we need to protect against those nonsense values,
     //      that appear in the middle of updating layout. Otherwise we would get
     //      all possible errors from the layout solver.
-    if (width == 0 || height == 0)
+    if (width <= 0 || height <= 0)
       return
 
     if (width != this.model._width.value) {
