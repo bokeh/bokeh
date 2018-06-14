@@ -1,5 +1,5 @@
 from bokeh.plotting import figure, show, output_file
-from bokeh.models import Band, ColumnDataSource
+from bokeh.models import Band, ColumnDataSource, ColorBar
 from bokeh.palettes import Spectral6
 import pandas as pd
 import numpy as np
@@ -7,25 +7,20 @@ from bokeh.transform import linear_cmap
 
 output_file("styling_linear_mappers.html", title="styling_linear_mappers.py example")
 
-# Create some random data
-x = np.random.random(1000) * 2 + 5
-y = np.random.normal(size=1000) * 2 + 5
+x = [1,2,3,4,5,7,8,9,10]
+y = [1,2,3,4,5,7,8,9,10]
 
-df = pd.DataFrame(data=dict(x=x, y=y)).sort_values(by="x")
+#Use the field name of the column source
+mapper = linear_cmap(field_name='y', palette=Spectral6 ,low=min(y) ,high=max(y))
 
-mapper = linear_cmap(field_name='y' #Use the field name of the column source
-                    ,palette=Spectral6
-                    ,low=df.y.min()
-                    ,high=df.y.max()
-                    )
+source = ColumnDataSource(dict(x=x,y=y))
 
-source = ColumnDataSource(df.reset_index())
+p = figure(plot_width=300, plot_height=300, title="Linear Color Map Based on Y")
 
-p = figure(plot_width=400, plot_height=400)
+p.circle(x='x', y='y', line_color=mapper,color=mapper, fill_alpha=1, size=12, source=source)
 
-p.scatter(x='x', y='y', line_color=mapper,color=mapper, fill_alpha=1, size=4, source=source)
+color_bar = ColorBar(color_mapper=mapper['transform'], width=8,  location=(0,0))
 
-p.title.text = "Linear Color Map Based on Y"
-
+p.add_layout(color_bar, 'right')
 
 show(p)

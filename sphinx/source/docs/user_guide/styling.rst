@@ -44,8 +44,8 @@ The mappers are then set as the ``color`` attribute on marker objects. Bokeh inc
 
 
 * ``bokeh.transform.log_cmap``: Similar to ``linear_cmap`` but uses a natual log scale to map the colors. 
-
-These mapper functions return a `DataSpec` property that can be passed to the color attribute of the glyph as follows: 
+ 
+These mapper functions return a ``DataSpec`` property that can be passed to the color attribute of the glyph. The returned dataspec includes a ``bokeh.transform`` which can be accessed to use the mapper in another context such as to create a ``ColorBar`` as in the example below: 
 
 
 .. bokeh-plot:: docs/user_guide/examples/styling_linear_mappers.py
