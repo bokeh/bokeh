@@ -65,6 +65,15 @@ class GMap(GMapPlot):
     ''' A subclass of :class:`~bokeh.models.plots.Plot` that simplifies plot
     creation with default axes, grids, tools, etc.
 
+    Args:
+        google_api_key (str):
+            Google requires an API key be supplied for maps to function. See:
+
+            https://developers.google.com/maps/documentation/javascript/get-api-key
+
+        map_options: (GMapOptions)
+            Configuration specific to a Google Map
+
     In addition to all the Bokeh model property attributes documented below,
     the ``Figure`` initializer also accepts the following options, which can
     help simplify configuration:
@@ -77,7 +86,7 @@ class GMap(GMapPlot):
     __subtype__ = "GMap"
     __view_model__ = "GMapPlot"
 
-    def __init__(self, google_api_key, map_options, **kw):
+    def __init__(self, **kw):
 
         if 'plot_width' in kw and 'width' in kw:
             raise ValueError("Figure called with both 'plot_width' and 'width' supplied, supply only one")
@@ -94,8 +103,7 @@ class GMap(GMapPlot):
         if isinstance(title, string_types):
             kw['title'] = Title(text=title)
 
-        super(GMap, self).__init__(api_key=google_api_key, map_options=map_options,
-                                   x_range=Range1d(), y_range=Range1d(), **kw)
+        super(GMap, self).__init__(x_range=Range1d(), y_range=Range1d(), **kw)
 
         xf = MercatorTickFormatter(dimension="lon")
         xt = MercatorTicker(dimension="lon")
@@ -203,4 +211,4 @@ def gmap(google_api_key, map_options, **kwargs):
 
     '''
 
-    return GMap(google_api_key, map_options, **kwargs)
+    return GMap(api_key=google_api_key, map_options=map_options, **kwargs)
