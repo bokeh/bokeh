@@ -164,3 +164,14 @@ def test_model_js_on_change_ignores_dupe_callbacks():
     m = SomeModel()
     m.js_on_change('foo', cb, cb)
     assert m.js_property_callbacks == {"foo": [cb]}
+
+from bokeh.models import * # NOQA
+from bokeh.plotting import * # NOQA
+def test_all_builtin_models_default_constructible():
+    bad = []
+    for name, cls in Model.__class__.model_class_reverse_map.items():
+        try:
+            cls()
+        except:
+            bad.append(name)
+        assert bad == []
