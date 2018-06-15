@@ -32,7 +32,7 @@ Using Mappers
 
 Color Mappers allow you to encode some data sequence into a palette of colors based on the value in that sequence. The mappers are then set as the ``color`` attribute on marker objects. Bokeh includes several types of mappers to encode colors:
 
-* ``bokeh.transform.factor_cmap``: Maps colors to specific categorical elements see :ref:`userguide_categorical` for more detail. 
+* ``bokeh.transform.factor_cmap``: Maps colors to specific categorical elements see :ref:`userguide_categorical` for more detail.
 * ``bokeh.transform.linear_cmap``: Maps a range of numeric values across the available colors from high to low. For example, a range of `[0,99]` given the colors `['red', 'green', 'blue']` would be mapped as follows::
 
         x < 0  : 'red'     # values < low are clamped
@@ -41,9 +41,9 @@ Color Mappers allow you to encode some data sequence into a palette of colors ba
     66 >= x < 99 : 'blue'
     99 >= x      : 'blue'    # values > high are clamped
 
-* ``bokeh.transform.log_cmap``: Similar to ``linear_cmap`` but uses a natual log scale to map the colors. 
- 
-These mapper functions return a ``DataSpec`` property that can be passed to the color attribute of the glyph. The returned dataspec includes a ``bokeh.transform`` which can be accessed to use the mapper in another context such as to create a ``ColorBar`` as in the example below: 
+* ``bokeh.transform.log_cmap``: Similar to ``linear_cmap`` but uses a natual log scale to map the colors.
+
+These mapper functions return a ``DataSpec`` property that can be passed to the color attribute of the glyph. The returned dataspec includes a ``bokeh.transform`` which can be accessed to use the mapper in another context such as to create a ``ColorBar`` as in the example below:
 
 .. bokeh-plot:: docs/user_guide/examples/styling_linear_mappers.py
     :source-position: above
