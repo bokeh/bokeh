@@ -1,8 +1,6 @@
 from bokeh.plotting import figure, show, output_file
-from bokeh.models import Band, ColumnDataSource, ColorBar
+from bokeh.models import ColumnDataSource, ColorBar
 from bokeh.palettes import Spectral6
-import pandas as pd
-import numpy as np
 from bokeh.transform import linear_cmap
 
 output_file("styling_linear_mappers.html", title="styling_linear_mappers.py example")
