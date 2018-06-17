@@ -293,6 +293,13 @@ def test__get_range_with_ndarray_factors():
     assert isinstance(r, FactorRange)
     assert r.factors == list(f)
 
+@skipIf(not is_pandas, "pandas not installed")
+def test__get_range_with_series():
+    r = _get_range(pd.Series([20, 30]))
+    assert isinstance(r, Range1d)
+    assert r.start == 20
+    assert r.end == 30
+
 def test__get_range_with_string_seq():
     f = ["foo" ,"end", "baz"]
     for t in [list, tuple]:
