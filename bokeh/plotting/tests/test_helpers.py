@@ -1,7 +1,13 @@
 import datetime
 from mock import mock
+from unittest import skipIf
 
-import pandas as pd
+import numpy as np
+try:
+    import pandas as pd
+    is_pandas = True
+except ImportError as e:
+    is_pandas = False
 import pytest
 
 from bokeh.models import ColumnDataSource, CDSView, Marker
@@ -134,6 +140,7 @@ def test__stack_broadcast_name_list_overrides():
         assert kw['bar'] == "baz"
         assert kw['name'] == names[i]
 
+@skipIf(not is_pandas, "pandas not installed")
 def test__graph_will_convert_dataframes_to_sources():
     node_source = pd.DataFrame(data=dict(foo=[]))
     edge_source = pd.DataFrame(data=dict(start=[], end=[], bar=[]))
@@ -275,14 +282,12 @@ def test__get_range_with_Range():
         assert r is rng
 
 def test__get_range_with_ndarray():
-    import numpy as np
     r = _get_range(np.array([10, 20]))
     assert isinstance(r, Range1d)
     assert r.start == 10
     assert r.end == 20
 
 def test__get_range_with_ndarray_factors():
-    import numpy as np
     f = np.array(["Crosby", "Stills", "Nash", "Young"])
     r = _get_range(f)
     assert isinstance(r, FactorRange)
