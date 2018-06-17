@@ -411,13 +411,11 @@ the Jupyter Python kernel. It is often useful to have these callbacks call
 detailed information, see :ref:`userguide_notebook_jupyter_interactors`.
 
 .. note::
-    It is currently possible to push udpates from python, to BokehJS (i.e.,
-    to update plots, etc.) using :func:`~bokeh.io.push_notebook`. It is not
-    currently possible to get events or updates from the other direction (e.g.
-    to have a range or selection update trigger a python callback) without
-    using a Bokeh Server as described in the next section. Adding the
-    capability for two-way Python<-->JS synchronization through Jupyter comms
-    is a planned future addition.
+    It is currently possible to push updates from python, to BokehJS (i.e.,
+    to update plots, etc.) using :func:`~bokeh.io.push_notebook`. To add
+    two-way communication (e.g. to have a range or selection update trigger
+    a python callback) embed a Bokeh Server in the notebook.
+    See :bokeh-tree:`examples/howto/server_embed/notebook_embed.ipynb`
 
 Updating From Threads
 '''''''''''''''''''''
