@@ -159,6 +159,11 @@ class ColumnDataSource(ColumnarDataSource):
             new_data[k] = v
 
         index_name = ColumnDataSource._df_index_name(df)
+        if index_name in new_data:
+            old_index_name = index_name
+            index_name = old_index_name + '_index'
+            warnings.warn('Column named %s. Renaming index to %s' %
+                          (old_index_name, index_name))
         new_data[index_name] = _df.index.values
         return new_data
 
