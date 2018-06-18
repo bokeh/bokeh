@@ -111,7 +111,7 @@ in conjunction with the ``tools`` keyword described above:
     from bokeh.models import BoxSelectTool
 
     plot = figure(tools="pan,wheel_zoom,box_zoom,reset")
-    plot.add_tools(BoxSelectTool(dimensions=["width"]))
+    plot.add_tools(BoxSelectTool(dimensions="width"))
 
 .. _userguide_tools_setting_active_tools:
 
@@ -181,8 +181,8 @@ BoxSelectTool
 The box selection tool allows the user to define a rectangular selection
 region by left-dragging a mouse, or dragging a finger across the plot area.
 The box select tool may be configured to select across only one dimension by
-setting the ``dimensions`` property to a list containing ``width`` or
-``height``.
+setting the ``dimensions`` property to ``width`` or ``height`` instead of the
+default ``both``.
 
 .. note::
     To make a multiple selection, press the SHIFT key. To clear the
