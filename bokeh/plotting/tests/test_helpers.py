@@ -289,7 +289,7 @@ def test__get_range_with_ndarray():
 
 def test__get_range_with_too_long_ndarray():
     with pytest.raises(ValueError):
-        r = _get_range(np.array([10, 20, 30]))
+        _get_range(np.array([10, 20, 30]))
 
 def test__get_range_with_ndarray_factors():
     f = np.array(["Crosby", "Stills", "Nash", "Young"])
@@ -307,7 +307,7 @@ def test__get_range_with_series():
 @skipIf(not is_pandas, "pandas not installed")
 def test__get_range_with_too_long_series():
     with pytest.raises(ValueError):
-        r = _get_range(pd.Series([20, 30, 40]))
+        _get_range(pd.Series([20, 30, 40]))
 
 def test__get_range_with_string_seq():
     f = ["foo" ,"end", "baz"]
