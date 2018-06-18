@@ -4,8 +4,9 @@ from bokeh.io import save
 template = """
 {% block preamble %}
 <style>
-.plots { display: flex; flex-direction: row; }
-.p0, .p1, .p2 { width: 300px; padding: 50px; }
+* { box-sizing: border-box; }
+.plots { display: flex; flex-direction: row; width: 100%; }
+.p0, .p1, .p2 { width: 33.3%; padding: 50px; }
 .p0 { background-color: red;   }
 .p1 { background-color: green; }
 .p2 { background-color: blue;  }
