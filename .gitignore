@@ -98,6 +98,7 @@ bokeh.server.*
 bokeh.sets.*
 remotedata
 target/
+/.vscode/
 /.idea/
 /.c9/
 
