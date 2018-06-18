@@ -94,8 +94,27 @@ export abstract class LayoutDOMView extends DOMView {
 
       const inner_width = width - left - right
       const inner_height = height - top - bottom
-      if (inner_width > 0 && inner_height > 0)
-        return [inner_width, inner_height]
+
+      switch (this.model.sizing_mode) {
+        case "scale_width": {
+          if (inner_width > 0)
+            return [inner_width, inner_height > 0 ? inner_height : null]
+          break
+        }
+        case "scale_height": {
+          if (inner_height > 0)
+            return [inner_width > 0 ? inner_width : null, inner_height]
+          break
+        }
+        case "scale_both":
+        case "stretch_both": {
+          if (inner_width > 0 || inner_height > 0)
+            return [inner_width > 0 ? inner_width : null, inner_height > 0 ? inner_height : null]
+          break
+        }
+        default:
+          throw new Error("unreachable")
+      }
     }
 
     // this element is detached from DOM
@@ -328,19 +347,26 @@ export abstract class LayoutDOMView extends DOMView {
      */
     const [parent_width, parent_height] = this._calc_width_height()
 
-    if (parent_width == null || parent_height == null)
+    if (parent_width == null && parent_height == null)
       throw new Error("detached element")
 
     const ar = this.model.get_aspect_ratio()
 
-    const new_width_1 = parent_width
-    const new_height_1 = parent_width / ar
+    if (parent_width != null && parent_height == null)
+      return [parent_width, parent_width / ar]
 
-    const new_width_2 = parent_height * ar
-    const new_height_2 = parent_height
+    if (parent_width == null && parent_height != null)
+      return [parent_height * ar, parent_height]
+
+    const new_width_1 = parent_width!
+    const new_height_1 = parent_width! / ar
+
+    const new_width_2 = parent_height! * ar
+    const new_height_2 = parent_height!
 
     let width: number
     let height: number
+
     if (new_width_1 < new_width_2) {
       width = new_width_1
       height = new_height_1
