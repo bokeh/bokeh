@@ -8,7 +8,7 @@ from bokeh.palettes import Category20c
 from bokeh.plotting import figure
 from bokeh.transform import cumsum
 
-output_file("pie.py")
+output_file("pie.html")
 
 x = Counter({
     'United States': 157,
@@ -30,7 +30,7 @@ data['angle'] = data['value']/sum(x.values()) * 2*pi
 data['color'] = Category20c[len(x)]
 
 p = figure(plot_height=350, title="Pie Chart", toolbar_location=None,
-           tools="hover", tooltips=[("Country", "@country"),("Value", "@value")])
+           tools="hover", tooltips="@country: @value")
 
 p.wedge(x=0, y=1, radius=0.4,
         start_angle=cumsum('angle', include_zero=True), end_angle=cumsum('angle'),
