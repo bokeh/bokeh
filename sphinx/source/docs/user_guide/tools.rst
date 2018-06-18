@@ -181,7 +181,7 @@ BoxSelectTool
 The box selection tool allows the user to define a rectangular selection
 region by left-dragging a mouse, or dragging a finger across the plot area.
 The box select tool may be configured to select across only one dimension by
-setting the ``dimensions`` property to ``width`` or ``height`` instead of the 
+setting the ``dimensions`` property to ``width`` or ``height`` instead of the
 default ``both``.
 
 .. note::
