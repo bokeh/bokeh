@@ -1006,9 +1006,11 @@ class Document(object):
             else:
                 callback_objs = [callback_obj]
                 self._session_callbacks.remove(callback_obj)
-                for cb_objs in self._callback_objs_by_callable[originator].values():
+                for cb, cb_objs in list(self._callback_objs_by_callable[originator].items()):
                     try:
                         cb_objs.remove(callback_obj)
+                        if not cb_objs:
+                            del self._callback_objs_by_callable[originator][cb]
                     except KeyError:
                         pass
         except KeyError:

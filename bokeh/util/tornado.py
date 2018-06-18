@@ -173,9 +173,11 @@ class _CallbackGroup(object):
                     remover = self._create_deprecated_remover(callback_id, removers)
                 else:
                     remover = removers.pop(callback_id)
-                    for cb_ids in self._get_removers_ids_by_callable(removers).values():
+                    for cb, cb_ids in list(self._get_removers_ids_by_callable(removers).items()):
                         try:
                             cb_ids.remove(callback_id)
+                            if not cb_ids:
+                                del self._get_removers_ids_by_callable(removers)[cb]
                         except KeyError:
                             pass
         except KeyError:
