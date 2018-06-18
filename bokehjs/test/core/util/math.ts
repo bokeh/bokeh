@@ -16,8 +16,8 @@ describe("math module", () => {
   })
 
   it("should return true if `mid` angle between `lhs` and `rhs`", () => {
-    expect(math.angle_between(0, -1, 1, "anticlock")).to.be.equal(false)
-    expect(math.angle_between(0, -1, 1, "clock")).to.be.equal(true)
+    expect(math.angle_between(0, -1, 1, 1)).to.be.equal(true)
+    expect(math.angle_between(0, -1, 1, 0)).to.be.equal(false)
   })
 
   it("should return the arctangent between 2 (x,y) points", () => {
