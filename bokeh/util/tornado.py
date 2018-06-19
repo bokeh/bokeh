@@ -167,20 +167,22 @@ class _CallbackGroup(object):
         return remover
 
     def _execute_remover(self, callback_id, removers):
-            try:
-                with self._removers_lock:
-                    if callable(callback_id):
-                        remover = self._create_deprecated_remover(callback_id, removers)
-                    else:
-                        remover = removers.pop(callback_id)
-                        for cb_ids in self._get_removers_ids_by_callable(removers).values():
-                            try:
-                                cb_ids.remove(callback_id)
-                            except KeyError:
-                                pass
-            except KeyError:
-                raise ValueError("Removing a callback twice (or after it's already been run)")
-            remover()
+        try:
+            with self._removers_lock:
+                if callable(callback_id):
+                    remover = self._create_deprecated_remover(callback_id, removers)
+                else:
+                    remover = removers.pop(callback_id)
+                    for cb, cb_ids in list(self._get_removers_ids_by_callable(removers).items()):
+                        try:
+                            cb_ids.remove(callback_id)
+                            if not cb_ids:
+                                del self._get_removers_ids_by_callable(removers)[cb]
+                        except KeyError:
+                            pass
+        except KeyError:
+            raise ValueError("Removing a callback twice (or after it's already been run)")
+        remover()
 
     def add_next_tick_callback(self, callback, callback_id=None):
         """ Adds a callback to be run on the next tick.
