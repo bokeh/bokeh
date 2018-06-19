@@ -349,8 +349,8 @@ on the server at `"some/path"`, from the document that has the plot embedded.
 Bokeh Applications
 ------------------
 
-This section describes how Bokeh server applications may be embedded. Bokeh
-apps may be embedded so that every page load creates and displays a new
+This section describes how entire Bokeh server applications may be embedded.
+Bokeh apps may be embedded so that every page load creates and displays a new
 session and Document, or so that a specific, existing session is loaded.
 
 App Documents
@@ -424,6 +424,87 @@ Here is an example of how to use |server_session| and Flask:
 
     if __name__ == '__main__':
         app.run(port=8080)
+
+Standard template
+-----------------
+
+Bokeh also provides a standard Jinja template that can be useful for quickly
+embedding differnet document roots flexibly by extending the "base" template.
+This is especially useful for embedding individal components of a Bokeh app
+in a non-Bokeh layout (e.g. Bootstrap, etc.).
+
+Below is a minimal example. Assuming that the application creates two roots
+with names properties set:
+
+.. code-block:: python
+
+    p1 = figure(..., name="scatter")
+
+    p2 = figure(..., name="line")
+
+    curdoc().add_root(p1)
+    curdoc().add_root(p2)
+
+Then these roots can be referred to by name in the template, and passed
+to the ``embed`` macro to place them wherever desired:
+
+.. code-block:: html
+
+    {% extends base %}
+
+    <!-- goes in head -->
+    {% block preamble %}
+    <link href="app/static/css/custom.min.css" rel="stylesheet">
+    {% endblock %}
+
+    <!-- goes in body -->
+    {% block contents %}
+    <div> {{ embed(roots.scatter) }} </div>
+    <div> {{ embed(roots.line) }} </div>
+    {% endblock %}
+
+
+The full template, with all the sections that can be overridden, is given here:
+
+.. code-block:: html
+
+    <!DOCTYPE html>
+    <html lang="en">
+    {% block head %}
+    <head>
+        {% block inner_head %}
+        <meta charset="utf-8">
+        <title>{% block title %}{{ title | e if title else "Bokeh Plot" }}{% endblock %}</title>
+        {% block preamble %}{% endblock %}
+        {% block resources %}
+            {% block js_resources %}
+            {{ bokeh_css | indent(8) if bokeh_css }}
+            {% endblock %}
+            {% block css_resources %}
+            {{ bokeh_js | indent(8) if bokeh_js }}
+            {% endblock %}
+        {% endblock %}
+        {% block postamble %}{% endblock %}
+        {% endblock %}
+    </head>
+    {% endblock %}
+    {% block body %}
+    <body>
+        {% block inner_body %}
+        {% block contents %}
+            {% for doc in docs %}
+            {{ embed(doc) if doc.elementid }}
+            {% for root in doc.roots %}
+                {{ embed(root) | indent(10) }}
+            {% endfor %}
+            {% endfor %}
+        {% endblock %}
+        {{ plot_script | indent(8) }}
+        {% endblock %}
+    </body>
+    {% endblock %}
+    </html>
+
 
 .. |bokeh.models|   replace:: :ref:`bokeh.models <bokeh.models>`
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
