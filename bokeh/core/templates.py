@@ -16,12 +16,22 @@ models in various ways.
 
 '''
 from __future__ import absolute_import
-
 import json
+from jinja2 import Environment, Markup, FileSystemLoader, PackageLoader
+import sys
+import os
 
-from jinja2 import Environment, PackageLoader, Markup
+def get_env():
+    ''' Get the correct Jinja2 Environment, also for frozen scripts.
+    '''
+    if getattr(sys, 'frozen', False):
+        templates_path = os.path.join(sys._MEIPASS, '_templates')
+        return Environment(loader=FileSystemLoader(templates_path))
+    else:
+        return Environment(loader=PackageLoader('bokeh.core', '_templates'))
 
-_env = Environment(loader=PackageLoader('bokeh.core', '_templates'))
+
+_env = get_env()
 _env.filters['json'] = lambda obj: Markup(json.dumps(obj))
 
 JS_RESOURCES = _env.get_template("js_resources.html")
