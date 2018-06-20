@@ -1,3 +1,58 @@
+2018-06-20   0.13.0:
+--------------------
+  * bugfixes:
+    - #799 Templates not included when compiling with py2exe
+    - #2080 [component: bokehjs] Hovertool panel for annular wedge displays at center coordinates, not over wedge
+    - #7428 [component: bokehjs] Correctly showing wedge hover tooltips with "clock" orient
+    - #7591 [component: bokehjs] [layout] Adding a slider fails to load visualization in version 0.12.14
+    - #7891 [component: bokehjs] [regression] [widgets] Unable to edit datatable cell
+    - #7904 [component: examples] Flask_gunicorn_embed.py does not work with tornado 5
+    - #7916 [component: tests] Code quality tests fail due to pandas' regression
+    - #7924 [component: bokehjs] [regression] [widgets] Sorting linked datatables messed up in bokeh 0.12.16
+    - #7926 [component: bokehjs] [widgets] Setting value of multiselect in javascript doesn't unselect previous selected items
+    - #7935 Using on_event with string names in python2.7
+    - #7941 [component: docs] Update docs: the hovertool attribute is "formatters"
+    - #7978 [component: bokehjs] [layout] Sizing mode scale_both grows on window resize
+    - #7984 [component: bokehjs] [layout] Temp partial fix allowing scale_both to work in some cases
+    - #7992 [component: server] [memory] Memory leak on add_next_tick_callback
+    - #8000 [component: docs] Small documentation error for boxselecttool
+  * features:
+    - #3596 Warn about python callbacks when they won't run
+    - #4986 [layout] Allow elements to be placed in server templates
+    - #6320 [component: bokehjs] Expose initial_start and initial_end in range1d
+    - #6386 [component: bokehjs] Support line annotations like span but with slope
+    - #7401 Support passing a pandas.series as x_range for figure
+    - #7795 [component: bokehjs] Feature-request: selection-bar
+    - #7908 [API: models] Tile source attribution font size
+    - #7921 [component: bokehjs] Bryanv/usability
+    - #7961 [component: bokehjs] Add a cumsum transform to cumulatively sum a single column
+  * tasks:
+    - #7364 [component: docs] Developing with javascript jsfiddle not working in firefox 57.0.3 (macos 10.13.2)
+    - #7374 [component: server] Connection errors when sending large amounts of data to browser via a bokeh server
+    - #7831 [component: docs] Improve documentation for creating interactive plots in notebook 
+    - #7880 [component: bokehjs] [component: build] Upgrade npm packages 
+    - #7905 [component: docs] All gallery examples bundle unnecessary extension code
+    - #7911 [component: bokehjs] [component: tests] Make bokehjs' unit tests more robust
+    - #7915 [component: bokehjs] Re-jitter on tap is unexpected
+    - #7919 [component: bokehjs] [component: build] Replace gulp with a more lightweight solution
+    - #7922 [component: build] Move bokeh build and ci to new rackspace account
+    - #7930 [component: docs] [typescript] Docs still say that coffeescript is the implementation language of bokehjs
+    - #7936 [component: bokehjs] Resettool doesn't restore initial plot when using wmtstilesource and x/y_range
+    - #7937 [component: bokehjs] Add support in tablewidget for ajaxdatasource
+    - #7946 [typescript] Upgrade to typescript 2.9
+    - #7950 [component: build] Bryanv/build cleanup
+    - #7951 [component: bokehjs] Line plots jaggy when overplotting noisy data with `line_join='miter'` 
+    - #7953 [component: bokehjs] Modifying data source while polydraw is editing breaks editing
+    - #7957 [component: bokehjs] [component: build] Replace esprima with typescript compiler api
+    - #7962 [component: bokehjs] [component: build] Run `npm install` automatically if package.json changed
+    - #7967 [component: docs] Typo in the image_url documentation
+    - #7973 Add new maintainer to the list
+    - #7977 [performance] High (probably unnecessary) cpu load due to is_valid calls
+    - #7985 [API: plotting] Bokeh gmapoptions error
+    - #7993 [layout] Improve computing of available space for responsive layouts
+    - #7995 [component: docs] Documentation of cmap functions
+    - #8003 [component: docs] [notebook] Updated docs for two-way jupyter communication
+
 2018-05-14  0.12.16:
 --------------------
   * bugfixes:
