@@ -16,6 +16,12 @@ The demos container here are:
 
   <tr><td colspan="2">clustering</td></tr>
   <tr>
+    <td><img src="https://bokeh.pydata.org/static/dash_t.png" width=400></img></td>
+    <td>Demonstrates use of custom Boostrap template with a Bokeh application</td>
+  </tr>
+
+  <tr><td colspan="2">clustering</td></tr>
+  <tr>
     <td><img src="https://bokeh.pydata.org/static/clustering_t.png" width=400></img></td>
     <td>Demonstrates different <a href=http://scikit-learn.org/stable>scikit-learn</a> clustering alorithms on a few different data sets.</td>
   </tr>
