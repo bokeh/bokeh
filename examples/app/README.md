@@ -40,7 +40,7 @@ The demos container here are:
 
   <tr><td colspan="2">fourier_animated</td></tr>
   <tr>
-    <td><a href="https://github.com/bokeh/bokeh/tree/master/examples/app/fourier_animated"><img src="https://bokeh.pydata.org/static/fourier_animated_t.png" width=400></img></a></td>
+    <td><a href="https://github.com/bokeh/bokeh/tree/master/examples/app/fourier_animated.py"><img src="https://bokeh.pydata.org/static/fourier_animated_t.png" width=400></img></a></td>
     <td>A continuously updating demonstration of Fourier synthesis using periodic callbacks</td>
   </tr>
 
@@ -70,13 +70,13 @@ The demos container here are:
 
   <tr><td colspan="2">selection_histogram</td></tr>
   <tr>
-    <td><a href="https://github.com/bokeh/bokeh/tree/master/examples/app/selection_histogram"><img src="https://bokeh.pydata.org/static/selection_histogram_t.png" width=400></img></a></td>
+    <td><a href="https://github.com/bokeh/bokeh/tree/master/examples/app/selection_histogram.py"><img src="https://bokeh.pydata.org/static/selection_histogram_t.png" width=400></img></a></td>
     <td>Shows axis histograms for selected <em>and</em> nonselected points in a scatter plot</td>
   </tr>
 
   <tr><td colspan="2">sliders</td></tr>
   <tr>
-    <td><a href="https://github.com/bokeh/bokeh/tree/master/examples/app/sliders"><img src="https://bokeh.pydata.org/static/sliders_t.png" width=400></img></a></td>
+    <td><a href="https://github.com/bokeh/bokeh/tree/master/examples/app/sliders.py"><img src="https://bokeh.pydata.org/static/sliders_t.png" width=400></img></a></td>
     <td>A basic demo that has sliders for controlling a plotted trigonometric function</td>
   </tr>
 
