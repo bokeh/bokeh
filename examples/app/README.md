@@ -64,7 +64,7 @@ The demos container here are:
 
   <tr><td colspan="2">pivot</td></tr>
   <tr>
-    <td><a href="https://github.com/bokeh/bokeh/tree/master/examples/app/pivot"><img src="https://bokeh.pydata.org/static/pivot.png" width=400></img></a></td>
+    <td><a href="https://github.com/bokeh/bokeh/tree/master/examples/app/pivot"><img src="https://bokeh.pydata.org/static/pivot_t.png" width=400></img></a></td>
     <td>A tool for creating pivot charts from CSVs.</td>
   </tr>
 
