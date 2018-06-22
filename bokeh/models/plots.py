@@ -3,6 +3,8 @@
 '''
 from __future__ import absolute_import
 
+from six import string_types
+
 from ..core.enums import Location, OutputBackend
 from ..core.properties import Bool, Dict, Enum, Include, Instance, Int, List, Override, String, Float
 from ..core.property_mixins import LineProps, FillProps
@@ -10,7 +12,7 @@ from ..core.query import find
 from ..core.validation import error, warning
 from ..core.validation.errors import REQUIRED_RANGE, REQUIRED_SCALE, INCOMPATIBLE_SCALE_AND_RANGE
 from ..core.validation.warnings import MISSING_RENDERERS
-from ..util.plot_utils import _list_attr_splat, _select_helper
+from ..model import Model
 from ..util.string import nice_join
 
 from .annotations import Legend, Title
@@ -27,6 +29,56 @@ from .tools import Tool, Toolbar, HoverTool
 def _check_conflicting_kwargs(a1, a2, kwargs):
     if a1 in kwargs and a2 in kwargs:
         raise ValueError("Conflicting properties set on plot: %r and %r" % (a1, a2))
+
+class _list_attr_splat(list):
+    def __setattr__(self, attr, value):
+        for x in self:
+            setattr(x, attr, value)
+
+    def __dir__(self):
+        if len(set(type(x) for x in self)) == 1:
+            return dir(self[0])
+        else:
+            return dir(self)
+
+
+def _select_helper(args, kwargs):
+    """ Allow flexible selector syntax.
+
+    Returns:
+        dict
+
+    """
+    if len(args) > 1:
+        raise TypeError("select accepts at most ONE positional argument.")
+
+    if len(args) > 0 and len(kwargs) > 0:
+        raise TypeError("select accepts EITHER a positional argument, OR keyword arguments (not both).")
+
+    if len(args) == 0 and len(kwargs) == 0:
+        raise TypeError("select requires EITHER a positional argument, OR keyword arguments.")
+
+    if args:
+        arg = args[0]
+        if isinstance(arg, dict):
+            selector = arg
+        elif isinstance(arg, string_types):
+            selector = dict(name=arg)
+        elif isinstance(arg, type) and issubclass(arg, Model):
+            selector = {"type": arg}
+        else:
+            raise TypeError("selector must be a dictionary, string or plot object.")
+
+    elif 'selector' in kwargs:
+        if len(kwargs) == 1:
+            selector = kwargs['selector']
+        else:
+            raise TypeError("when passing 'selector' keyword arg, not other keyword args may be present")
+
+    else:
+        selector = kwargs
+
+    return selector
 
 class Plot(LayoutDOM):
     ''' Model representing a plot, containing glyphs, guides, annotations.
@@ -61,6 +113,10 @@ class Plot(LayoutDOM):
         Keyword Arguments:
             kwargs : query dict key/values as keyword arguments
 
+        Additionally, for compatibility with ``Model.select``, a selector
+        dict may be passed as ``selector`` keyword argument, in which case
+        the value of ``kwargs['selector']`` is used for th query.
+
         For convenience, queries on just names can be made by supplying
         the ``name`` string as the single parameter:
 
@@ -80,7 +136,8 @@ class Plot(LayoutDOM):
 
             .. code-block:: python
 
-                # These two are equivalent
+                # These three are equivalent
+                p.select(selector={"type": HoverTool})
                 p.select({"type": HoverTool})
                 p.select(HoverTool)
 

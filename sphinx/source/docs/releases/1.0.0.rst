@@ -1,0 +1,22 @@
+1.0.0 (August 2018)
+===================
+
+Bokeh Version ``1.0.0``
+
+Some of the highlights include:
+
+
+And several other bug fixes and docs additions. For full details see the
+:bokeh-tree:`CHANGELOG`.
+
+Migration Guide
+---------------
+
+``bokeh.util.plot_utils``
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``bokeh.util.plot_utils`` module has been removed. This module contained
+only private functions used internally. This change is not expected to affect
+any normal usage.
+
+.. _project roadmap: https://bokehplots.com/pages/roadmap.html
