@@ -9,7 +9,6 @@
 from __future__ import absolute_import
 
 from mock import patch
-import unittest
 import pytest
 
 from bokeh.plotting import figure
@@ -19,54 +18,45 @@ from bokeh.models.scales import CategoricalScale, LinearScale, LogScale
 from bokeh.models.tools import PanTool, Toolbar
 
 
-class TestPlotSelect(unittest.TestCase):
+class TestPlotSelect(object):
 
-    def setUp(self):
+    def setup_method(self):
         self._plot = figure(tools='pan')
         self._plot.circle([1,2,3], [3,2,1], name='foo')
 
     @patch('bokeh.models.plots.find')
     def test_string_arg(self, mock_find):
         self._plot.select('foo')
-        self.assertTrue(mock_find.called)
-        self.assertEqual(mock_find.call_args[0][1], dict(name='foo'))
+        assert mock_find.called
+        assert mock_find.call_args[0][1] == dict(name='foo')
 
     @patch('bokeh.models.plots.find')
     def test_type_arg(self, mock_find):
         self._plot.select(PanTool)
-        self.assertTrue(mock_find.called)
-        self.assertEqual(mock_find.call_args[0][1], dict(type=PanTool))
+        assert mock_find.called
+        assert mock_find.call_args[0][1] == dict(type=PanTool)
 
     @patch('bokeh.models.plots.find')
     def test_kwargs(self, mock_find):
         kw = dict(name='foo', type=GlyphRenderer)
         self._plot.select(**kw)
-        self.assertTrue(mock_find.called)
-        self.assertEqual(mock_find.call_args[0][1], kw)
+        assert mock_find.called
+        assert mock_find.call_args[0][1] == kw
 
     def test_too_many_args(self):
-        with self.assertRaises(TypeError) as cm:
+        with pytest.raises(TypeError) as cm:
             self._plot.select('foo', 'bar')
-        self.assertEqual(
-            'select accepts at most ONE positional argument.',
-            str(cm.exception)
-        )
+            assert 'select accepts at most ONE positional argument.' == str(cm.exception)
 
     def test_no_input(self):
-        with self.assertRaises(TypeError) as cm:
+        with pytest.raises(TypeError) as cm:
             self._plot.select()
-        self.assertEqual(
-            'select requires EITHER a positional argument, OR keyword arguments.',
-            str(cm.exception)
-        )
+            assert 'select requires EITHER a positional argument, OR keyword arguments.' == str(cm.exception)
 
     def test_arg_and_kwarg(self):
-        with self.assertRaises(TypeError) as cm:
+        with pytest.raises(TypeError) as cm:
             self._plot.select('foo', type=PanTool)
-        self.assertEqual(
-            'select accepts EITHER a positional argument, OR keyword arguments (not both).',
-            str(cm.exception)
-        )
+            assert 'select accepts EITHER a positional argument, OR keyword arguments (not both).' == str(cm.exception)
 
 
 def test_plot_add_layout_raises_error_if_not_render():
@@ -105,10 +95,10 @@ class BaseTwinAxis(object):
     """Base class for testing extra ranges"""
 
     def verify_axis(self, axis_name):
-        plot = Plot()  # no need for setUp()
+        plot = Plot()
         range_obj = getattr(plot, 'extra_{}_ranges'.format(axis_name))
         range_obj['foo_range'] = self.get_range_instance()
-        self.assertTrue(range_obj['foo_range'])
+        assert range_obj['foo_range']
 
     def test_x_range(self):
         self.verify_axis('x')
@@ -121,7 +111,7 @@ class BaseTwinAxis(object):
         raise NotImplementedError
 
 
-class TestCategoricalTwinAxis(BaseTwinAxis, unittest.TestCase):
+class TestCategoricalTwinAxis(BaseTwinAxis, object):
     """Test whether extra x and y ranges can be categorical"""
 
     @staticmethod
@@ -129,7 +119,7 @@ class TestCategoricalTwinAxis(BaseTwinAxis, unittest.TestCase):
         return FactorRange('foo', 'bar')
 
 
-class TestLinearTwinAxis(BaseTwinAxis, unittest.TestCase):
+class TestLinearTwinAxis(BaseTwinAxis, object):
     """Test whether extra x and y ranges can be Range1d"""
 
     @staticmethod

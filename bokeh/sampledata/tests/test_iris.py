@@ -20,10 +20,9 @@ import pytest ; pytest
 # Standard library imports
 
 # External imports
-import pandas as pd
 
 # Bokeh imports
-from bokeh.util.testing import verify_all
+from bokeh.util.testing import pd, verify_all ; pd
 
 # Module under test
 #import bokeh.sampledata.iris as bsi
@@ -43,7 +42,7 @@ ALL = (
 Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.iris", ALL))
 
 @pytest.mark.sampledata
-def test_flowers():
+def test_flowers(pd):
     import bokeh.sampledata.iris as bsi
     assert isinstance(bsi.flowers, pd.DataFrame)
 

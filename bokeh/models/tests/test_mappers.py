@@ -1,5 +1,8 @@
 from __future__ import absolute_import
 
+from bokeh.palettes import Spectral6
+from bokeh.util.testing import pd ; pd
+
 from bokeh.models.mappers import LinearColorMapper, LogColorMapper, CategoricalColorMapper
 
 from .utils.property_utils import check_properties_existence
@@ -49,9 +52,7 @@ def test_no_warning_if_categorical_color_mapper_with_long_palette(recwarn):
     CategoricalColorMapper(factors=["a", "b", "c"], palette=["red", "green", "orange", "blue"])
     assert len(recwarn) == 0
 
-def test_categorical_color_mapper_with_pandas_index():
-    import pandas as pd
-    from bokeh.palettes import Spectral6
+def test_categorical_color_mapper_with_pandas_index(pd):
     fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
     years = ['2015', '2016', '2017']
     data = {'2015'   : [2, 1, 4, 3, 2, 4],

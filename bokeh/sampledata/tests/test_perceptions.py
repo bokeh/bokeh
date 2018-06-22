@@ -20,10 +20,9 @@ import pytest ; pytest
 # Standard library imports
 
 # External imports
-import pandas as pd
 
 # Bokeh imports
-from bokeh.util.testing import verify_all
+from bokeh.util.testing import pd, verify_all ; pd
 
 # Module under test
 #import bokeh.sampledata.perceptions as bsp
@@ -44,7 +43,7 @@ ALL = (
 Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.perceptions", ALL))
 
 @pytest.mark.sampledata
-def test_numberly():
+def test_numberly(pd):
     import bokeh.sampledata.perceptions as bsp
     assert isinstance(bsp.numberly, pd.DataFrame)
 
@@ -52,7 +51,7 @@ def test_numberly():
     assert len(bsp.numberly) == 46
 
 @pytest.mark.sampledata
-def test_probly():
+def test_probly(pd):
     import bokeh.sampledata.perceptions as bsp
     assert isinstance(bsp.probly, pd.DataFrame)
 

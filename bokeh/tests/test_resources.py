@@ -1,8 +1,8 @@
 from __future__ import absolute_import
 
-import unittest
-
 import os
+
+import pytest
 
 import bokeh.resources as resources
 from bokeh.models import Model
@@ -51,101 +51,108 @@ def test_inline_css_resources():
     assert r.messages == []
 
 
-class TestResources(unittest.TestCase):
+class TestResources(object):
 
     def test_basic(self):
         r = resources.Resources()
-        self.assertEqual(r.mode, "inline")
+        assert r.mode == "inline"
 
     def test_log_level(self):
         r = resources.Resources()
         for level in LOG_LEVELS:
             r.log_level = level
-            self.assertEqual(r.log_level, level)
+            assert r.log_level == level
             if not r.dev:
-                self.assertEqual(r.js_raw[-1], 'Bokeh.set_log_level("%s");' % level)
-        self.assertRaises(ValueError, setattr, r, "log_level", "foo")
+                assert r.js_raw[-1] == 'Bokeh.set_log_level("%s");' % level
+        with pytest.raises(ValueError):
+            setattr(r, "log_level", "foo")
 
     def test_module_attrs(self):
-        self.assertEqual(resources.CDN.mode, "cdn")
-        self.assertEqual(resources.INLINE.mode, "inline")
+        assert resources.CDN.mode == "cdn"
+        assert resources.INLINE.mode == "inline"
 
     def test_inline(self):
         r = resources.Resources(mode="inline")
-        self.assertEqual(r.mode, "inline")
-        self.assertEqual(r.dev, False)
+        assert r.mode == "inline"
+        assert r.dev == False
 
-        self.assertEqual(len(r.js_raw), 5)
-        self.assertEqual(r.js_raw[-1], DEFAULT_LOG_JS_RAW)
-        self.assertEqual(len(r.css_raw), 3)
-        self.assertEqual(r.messages, [])
+        assert len(r.js_raw) == 5
+        assert r.js_raw[-1] == DEFAULT_LOG_JS_RAW
+        assert len(r.css_raw) == 3
+        assert r.messages == []
 
     def test_get_cdn_urls(self):
         dev_version = "0.0.1dev2"
         result = _get_cdn_urls(version=dev_version)
         url = result['urls'](["bokeh"], 'js')[0]
-        self.assertIn('bokeh/dev', url)
+        assert 'bokeh/dev' in url
 
     def test_cdn(self):
         resources.__version__ = "1.0"
         r = resources.Resources(mode="cdn", version="1.0")
-        self.assertEqual(r.mode, "cdn")
-        self.assertEqual(r.dev, False)
+        assert r.mode == "cdn"
+        assert r.dev == False
 
-        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
-        self.assertEqual(r.css_raw, [])
-        self.assertEqual(r.messages, [])
+        assert r.js_raw == [DEFAULT_LOG_JS_RAW]
+        assert r.css_raw == []
+        assert r.messages == []
 
         resources.__version__ = "1.0-1-abc"
         r = resources.Resources(mode="cdn", version="1.0")
-        self.assertEqual(r.messages, [
-            {'text': "Requesting CDN BokehJS version '1.0' from Bokeh development version '1.0-1-abc'. This configuration is unsupported and may not work!",
+        assert r.messages == [{
+            'text': "Requesting CDN BokehJS version '1.0' from Bokeh development version '1.0-1-abc'. This configuration is unsupported and may not work!",
             'type': 'warn'}
-        ])
+        ]
 
     def test_server_default(self):
         r = resources.Resources(mode="server")
-        self.assertEqual(r.mode, "server")
-        self.assertEqual(r.dev, False)
+        assert r.mode == "server"
+        assert r.dev == False
 
-        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
-        self.assertEqual(r.css_raw, [])
-        self.assertEqual(r.messages, [])
-        self.assertEqual(r.js_files, ['http://localhost:5006/static/js/bokeh.min.js',
-                                      'http://localhost:5006/static/js/bokeh-widgets.min.js',
-                                      'http://localhost:5006/static/js/bokeh-tables.min.js',
-                                      'http://localhost:5006/static/js/bokeh-gl.min.js'])
-        self.assertEqual(r.css_files, ['http://localhost:5006/static/css/bokeh.min.css',
-                                       'http://localhost:5006/static/css/bokeh-widgets.min.css',
-                                       'http://localhost:5006/static/css/bokeh-tables.min.css'])
+        assert r.js_raw == [DEFAULT_LOG_JS_RAW]
+        assert r.css_raw == []
+        assert r.messages == []
+
+        assert r.js_files == ['http://localhost:5006/static/js/bokeh.min.js',
+                              'http://localhost:5006/static/js/bokeh-widgets.min.js',
+                              'http://localhost:5006/static/js/bokeh-tables.min.js',
+                              'http://localhost:5006/static/js/bokeh-gl.min.js']
+
+        assert r.css_files == ['http://localhost:5006/static/css/bokeh.min.css',
+                               'http://localhost:5006/static/css/bokeh-widgets.min.css',
+                               'http://localhost:5006/static/css/bokeh-tables.min.css']
 
     def test_server_root_url(self):
         r = resources.Resources(mode="server", root_url="http://foo/")
 
-        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
-        self.assertEqual(r.css_raw, [])
-        self.assertEqual(r.messages, [])
-        self.assertEqual(r.js_files, ['http://foo/static/js/bokeh.min.js',
-                                      'http://foo/static/js/bokeh-widgets.min.js',
-                                      'http://foo/static/js/bokeh-tables.min.js',
-                                      'http://foo/static/js/bokeh-gl.min.js'])
-        self.assertEqual(r.css_files, ['http://foo/static/css/bokeh.min.css',
-                                       'http://foo/static/css/bokeh-widgets.min.css',
-                                       'http://foo/static/css/bokeh-tables.min.css'])
+        assert r.js_raw == [DEFAULT_LOG_JS_RAW]
+        assert r.css_raw == []
+        assert r.messages == []
+
+        assert r.js_files == ['http://foo/static/js/bokeh.min.js',
+                              'http://foo/static/js/bokeh-widgets.min.js',
+                              'http://foo/static/js/bokeh-tables.min.js',
+                              'http://foo/static/js/bokeh-gl.min.js']
+
+        assert r.css_files == ['http://foo/static/css/bokeh.min.css',
+                               'http://foo/static/css/bokeh-widgets.min.css',
+                               'http://foo/static/css/bokeh-tables.min.css']
 
     def test_server_root_url_empty(self):
         r = resources.Resources(mode="server", root_url="")
 
-        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
-        self.assertEqual(r.css_raw, [])
-        self.assertEqual(r.messages, [])
-        self.assertEqual(r.js_files, ['static/js/bokeh.min.js',
-                                      'static/js/bokeh-widgets.min.js',
-                                      'static/js/bokeh-tables.min.js',
-                                      'static/js/bokeh-gl.min.js'])
-        self.assertEqual(r.css_files, ['static/css/bokeh.min.css',
-                                       'static/css/bokeh-widgets.min.css',
-                                       'static/css/bokeh-tables.min.css'])
+        assert r.js_raw == [DEFAULT_LOG_JS_RAW]
+        assert r.css_raw == []
+        assert r.messages == []
+
+        assert r.js_files == ['static/js/bokeh.min.js',
+                              'static/js/bokeh-widgets.min.js',
+                              'static/js/bokeh-tables.min.js',
+                              'static/js/bokeh-gl.min.js']
+
+        assert r.css_files == ['static/css/bokeh.min.css',
+                               'static/css/bokeh-widgets.min.css',
+                               'static/css/bokeh-tables.min.css']
 
 
     def test_server_with_versioner(self):
@@ -155,76 +162,81 @@ class TestResources(unittest.TestCase):
         r = resources.Resources(mode="server", root_url="http://foo/",
                                 path_versioner=versioner)
 
-        self.assertEqual(r.js_files, ['http://foo/static/js/bokeh.min.js?v=VERSIONED',
-                                      'http://foo/static/js/bokeh-widgets.min.js?v=VERSIONED',
-                                      'http://foo/static/js/bokeh-tables.min.js?v=VERSIONED',
-                                      'http://foo/static/js/bokeh-gl.min.js?v=VERSIONED'])
-        self.assertEqual(r.css_files, ['http://foo/static/css/bokeh.min.css?v=VERSIONED',
-                                       'http://foo/static/css/bokeh-widgets.min.css?v=VERSIONED',
-                                       'http://foo/static/css/bokeh-tables.min.css?v=VERSIONED'])
+        assert r.js_files == ['http://foo/static/js/bokeh.min.js?v=VERSIONED',
+                              'http://foo/static/js/bokeh-widgets.min.js?v=VERSIONED',
+                              'http://foo/static/js/bokeh-tables.min.js?v=VERSIONED',
+                              'http://foo/static/js/bokeh-gl.min.js?v=VERSIONED']
+
+        assert r.css_files == ['http://foo/static/css/bokeh.min.css?v=VERSIONED',
+                               'http://foo/static/css/bokeh-widgets.min.css?v=VERSIONED',
+                               'http://foo/static/css/bokeh-tables.min.css?v=VERSIONED']
 
     def test_server_dev(self):
         r = resources.Resources(mode="server-dev")
-        self.assertEqual(r.mode, "server")
-        self.assertEqual(r.dev, True)
+        assert r.mode == "server"
+        assert r.dev == True
 
-        self.assertEqual(len(r.js_raw), 2)
-        self.assertEqual(r.css_raw, [])
-        self.assertEqual(r.messages, [])
+        assert len(r.js_raw) == 2
+        assert r.css_raw == []
+        assert r.messages == []
 
         r = resources.Resources(mode="server-dev", root_url="http://foo/")
 
-        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW, "Bokeh.settings.dev = true"])
-        self.assertEqual(r.css_raw, [])
-        self.assertEqual(r.messages, [])
+        assert r.js_raw == [DEFAULT_LOG_JS_RAW, "Bokeh.settings.dev = true"]
+        assert r.css_raw == []
+        assert r.messages == []
 
     def test_relative(self):
         r = resources.Resources(mode="relative")
-        self.assertEqual(r.mode, "relative")
-        self.assertEqual(r.dev, False)
+        assert r.mode == "relative"
+        assert r.dev == False
 
-        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
-        self.assertEqual(r.css_raw, [])
-        self.assertEqual(r.messages, [])
+        assert r.js_raw == [DEFAULT_LOG_JS_RAW]
+        assert r.css_raw == []
+        assert r.messages == []
 
     def test_relative_dev(self):
         r = resources.Resources(mode="relative-dev")
-        self.assertEqual(r.mode, "relative")
-        self.assertEqual(r.dev, True)
+        assert r.mode == "relative"
+        assert r.dev == True
 
-        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW, "Bokeh.settings.dev = true"])
-        self.assertEqual(r.css_raw, [])
-        self.assertEqual(r.messages, [])
+        assert r.js_raw == [DEFAULT_LOG_JS_RAW, "Bokeh.settings.dev = true"]
+        assert r.css_raw == []
+        assert r.messages == []
 
     def test_absolute(self):
         r = resources.Resources(mode="absolute")
-        self.assertEqual(r.mode, "absolute")
-        self.assertEqual(r.dev, False)
+        assert r.mode == "absolute"
+        assert r.dev == False
 
-        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW])
-        self.assertEqual(r.css_raw, [])
-        self.assertEqual(r.messages, [])
+        assert r.js_raw == [DEFAULT_LOG_JS_RAW]
+        assert r.css_raw == []
+        assert r.messages == []
 
     def test_absolute_dev(self):
         r = resources.Resources(mode="absolute-dev")
-        self.assertEqual(r.mode, "absolute")
-        self.assertEqual(r.dev, True)
+        assert r.mode == "absolute"
+        assert r.dev == True
 
-        self.assertEqual(r.js_raw, [DEFAULT_LOG_JS_RAW, "Bokeh.settings.dev = true"])
-        self.assertEqual(r.css_raw, [])
-        self.assertEqual(r.messages, [])
+        assert r.js_raw == [DEFAULT_LOG_JS_RAW, "Bokeh.settings.dev = true"]
+        assert r.css_raw == []
+        assert r.messages == []
 
     def test_argument_checks(self):
-        self.assertRaises(ValueError, resources.Resources, "foo")
+        with pytest.raises(ValueError):
+            resources.Resources("foo")
 
         for mode in ("inline", "cdn", "server", "server-dev", "absolute", "absolute-dev"):
-            self.assertRaises(ValueError, resources.Resources, mode, root_dir="foo")
+            with pytest.raises(ValueError):
+                resources.Resources(mode, root_dir="foo")
 
         for mode in ("inline", "server", "server-dev", "relative", "relative-dev", "absolute", "absolute-dev"):
-            self.assertRaises(ValueError, resources.Resources, mode, version="foo")
+            with pytest.raises(ValueError):
+                resources.Resources(mode, version="foo")
 
         for mode in ("inline", "cdn", "relative", "relative-dev", "absolute", "absolute-dev"):
-            self.assertRaises(ValueError, resources.Resources, mode, root_url="foo")
+            with pytest.raises(ValueError):
+                resources.Resources(mode, root_url="foo")
 
 
 ## Test external resources

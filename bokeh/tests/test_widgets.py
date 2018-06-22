@@ -1,6 +1,5 @@
 from __future__ import absolute_import
 
-import unittest
 import inspect
 
 
@@ -16,29 +15,29 @@ def get_prop_set(class_object):
     return class_properties
 
 
-class TestPanel(unittest.TestCase):
+class TestPanel(object):
 
-    def setUp(self):
+    def setup_method(self):
         from bokeh.models.widgets.panels import Panel
         self.panelCls = Panel
 
     def test_expectedprops(self):
         expected_properties = set(['title', 'child', 'closable'])
         actual_properties = get_prop_set(self.panelCls)
-        self.assertTrue(expected_properties.issubset(actual_properties))
+        assert expected_properties.issubset(actual_properties)
 
     def test_prop_defaults(self):
         p1 = self.panelCls()
         p2 = self.panelCls()
-        self.assertEqual(p1.title, "")
-        self.assertEqual(p2.title, "")
-        self.assertEqual(p1.child, None)
-        self.assertFalse(p1.closable)
+        assert p1.title == ""
+        assert p2.title == ""
+        assert p1.child == None
+        assert not p1.closable
 
 
-class TestTabs(unittest.TestCase):
+class TestTabs(object):
 
-    def setUp(self):
+    def setup_method(self):
         from bokeh.models.widgets.panels import Tabs, Panel
         self.tabsCls = Tabs
         self.panelCls = Panel
@@ -46,13 +45,9 @@ class TestTabs(unittest.TestCase):
     def test_expected_props(self):
         expected_properties = set(['tabs', 'active'])
         actual_properties = get_prop_set(self.tabsCls)
-        self.assertTrue(expected_properties.issubset(actual_properties))
+        assert expected_properties.issubset(actual_properties)
 
     def test_props_defaults(self):
         tab = self.tabsCls()
-        self.assertEqual(tab.tabs, [])
-        self.assertEqual(tab.active, 0)
-
-
-if __name__ == "__main__":
-    unittest.main()
+        assert tab.tabs == []
+        assert tab.active == 0

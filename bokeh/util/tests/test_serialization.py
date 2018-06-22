@@ -5,10 +5,12 @@ import base64
 
 import pytest
 import numpy as np
-import pandas as pd
 import pytz
 
+from bokeh.util.testing import pd; pd
+
 import bokeh.util.serialization as bus
+
 
 def test_id():
     assert len(bus.make_id()) == 36
@@ -37,11 +39,13 @@ def test_binary_array_types():
                 np.dtype(np.int32)]:
         assert typ in bus.BINARY_ARRAY_TYPES
 
-def test_datetime_types():
-    # includes pandas types during tests
-    assert len(bus.DATETIME_TYPES) == 8
+def test_datetime_types(pd):
+    if pd is None:
+        assert len(bus.DATETIME_TYPES) == 6
+    else:
+        assert len(bus.DATETIME_TYPES) == 8
 
-def test_is_datetime_type():
+def test_is_datetime_type(pd):
     assert bus.is_datetime_type(datetime.datetime(2016, 5, 11))
     assert bus.is_datetime_type(datetime.timedelta(3000))
     assert bus.is_datetime_type(datetime.date(2016, 5, 11))
@@ -51,7 +55,7 @@ def test_is_datetime_type():
     assert bus.is_datetime_type(pd.Timedelta("3000ms"))
     assert bus.is_datetime_type(bus._pd_timestamp(3000000))
 
-def test_convert_datetime_type():
+def test_convert_datetime_type(pd):
     assert bus.convert_datetime_type(datetime.datetime(2018, 1, 3, 15, 37, 59, 922452)) == 1514993879922.452
     assert bus.convert_datetime_type(datetime.datetime(2018, 1, 3, 15, 37, 59)) == 1514993879000.0
     assert bus.convert_datetime_type(datetime.datetime(2016, 5, 11)) == 1462924800000.0
@@ -128,7 +132,7 @@ def test_transform_array_force_list_true(dt):
     out = bus.transform_array(a, force_list=True)
     assert isinstance(out, list)
 
-def test_transform_series_force_list_default():
+def test_transform_series_force_list_default(pd):
     # default int seems to be int64, can't be encoded!
     df = pd.Series([1, 3, 5, 6, 8])
     out = bus.transform_series(df)
@@ -147,7 +151,7 @@ def test_transform_series_force_list_default():
     out = bus.transform_series(df)
     assert isinstance(out, dict)
 
-def test_transform_series_force_list_default_with_buffers():
+def test_transform_series_force_list_default_with_buffers(pd):
     # default int seems to be int64, can't be converted to buffer!
     df = pd.Series([1, 3, 5, 6, 8])
     out = bus.transform_series(df)
@@ -193,7 +197,7 @@ def test_transform_series_force_list_default_with_buffers():
     assert out['dtype'] == df.dtype.name
     assert '__buffer__' in out
 
-def test_transform_series_force_list_true():
+def test_transform_series_force_list_true(pd):
     df = pd.Series([1, 3, 5, 6, 8])
     out = bus.transform_series(df, force_list=True)
     assert isinstance(out, list)
@@ -219,7 +223,7 @@ def test_transform_array_to_list(dt):
 
 @pytest.mark.parametrize('values', [(['cat', 'dog']), ([1.2, 'apple'])])
 @pytest.mark.unit
-def test_transform_array_with_nans_to_list(values):
+def test_transform_array_with_nans_to_list(pd, values):
     s = pd.Series([np.nan, values[0], values[1]])
     out = bus.transform_array_to_list(s)
     assert isinstance(out, list)
@@ -314,7 +318,7 @@ def test_encode_binary_dict(dt, shape):
 @pytest.mark.parametrize('dt1', [np.float32, np.float64, np.int64])
 @pytest.mark.parametrize('dt2', [np.float32, np.float64, np.int64])
 @pytest.mark.unit
-def test_transform_column_source_data_with_buffers(cols, dt1, dt2):
+def test_transform_column_source_data_with_buffers(pd, cols, dt1, dt2):
     d = dict(a=[1,2,3], b=np.array([4,5,6], dtype=dt1), c=pd.Series([7,8,9], dtype=dt2))
     bufs = []
     out = bus.transform_column_source_data(d, buffers=bufs, cols=cols)

@@ -20,10 +20,9 @@ import pytest ; pytest
 # Standard library imports
 
 # External imports
-import pandas as pd
 
 # Bokeh imports
-from bokeh.util.testing import verify_all
+from bokeh.util.testing import pd, verify_all ; pd
 
 # Module under test
 #import bokeh.sampledata.browsers as bsb
@@ -44,7 +43,7 @@ ALL = (
 Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.browsers", ALL))
 
 @pytest.mark.sampledata
-def test_browsers_nov_2013():
+def test_browsers_nov_2013(pd):
     import bokeh.sampledata.browsers as bsb
     assert isinstance(bsb.browsers_nov_2013, pd.DataFrame)
 
