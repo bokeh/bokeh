@@ -706,7 +706,7 @@ class TestNumberSpec(object):
         class Foo(HasProps):
             x = NumberSpec("xfield")
         f = Foo()
-        assert f.x, "xfield"
+        assert f.x == "xfield"
         f.x = 12
         assert f.x == 12
         assert Foo.__dict__["x"].serializable_value(f) == {"value": 12}
@@ -1869,8 +1869,8 @@ class TestProperties(object):
         assert prop.is_valid("BLUE")
         assert not prop.is_valid("foobar")
 
-        assert prop.transform((0, 127, 255)), "rgb(0, 127, 255)"
-        assert prop.transform((0, 127, 255, 0.1)), "rgba(0, 127, 255, 0.1)"
+        assert prop.transform((0, 127, 255)) == "rgb(0, 127, 255)"
+        assert prop.transform((0, 127, 255, 0.1)) == "rgba(0, 127, 255, 0.1)"
 
     def test_DashPattern(self):
         prop = DashPattern()

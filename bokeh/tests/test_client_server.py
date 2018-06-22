@@ -609,7 +609,7 @@ class TestClientServer(object):
 
             doc.remove_periodic_callback(cb_id)
 
-            assert dict(a=0, b=1, c=2, d=3, e=4), result.values
+            assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
     def test_client_session_periodic_async_added_before_push(self):
         application = Application()
