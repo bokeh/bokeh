@@ -1,7 +1,8 @@
 import pytest
 
 from mock import patch
-import pandas as pd
+
+from bokeh.util.testing import pd ; pd
 
 import bokeh.document.events as bde
 
@@ -270,7 +271,7 @@ class TestColumnsStreamedEvent(object):
         assert e.data == dict(foo=1)
         assert e.rollover == 200
 
-    def test_pandas_data(self):
+    def test_pandas_data(self, pd):
         m = FakeModel()
         df = pd.DataFrame({'x': [1, 2, 3], 'y': [4, 5, 6]})
         e = bde.ColumnsStreamedEvent("doc", m, df, 200, "setter", "invoker")

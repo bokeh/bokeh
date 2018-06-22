@@ -7,3 +7,7 @@ set -x # echo commands
 pushd bokehjs
 npm install --no-save --no-progress phantomjs
 popd
+
+if  [[ ! -z "${MINIMAL}" ]]; then
+    conda remove --yes --quiet pandas scipy notebook scikit-learn sympy flask
+fi

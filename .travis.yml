@@ -76,6 +76,7 @@ jobs:
       - GROUP=unit
       - PYTHON=3.5
       - TORNADO=4
+      - MINIMAL=1
 
     - install: scripts/ci/install:test
       script: scripts/ci/test

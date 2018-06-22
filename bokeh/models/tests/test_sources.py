@@ -1,177 +1,163 @@
 from __future__ import absolute_import
 
 import io
-import unittest
 import datetime as dt
-from unittest import skipIf
 import warnings
 
+import pytest
+
 import numpy as np
-try:
-    import pandas as pd
-    is_pandas = True
-except ImportError as e:
-    is_pandas = False
 
 from bokeh.models.sources import DataSource, ColumnDataSource
 from bokeh.util.serialization import transform_column_source_data, convert_datetime_array
+from bokeh.util.testing import pd ; pd
 
-class TestColumnDataSource(unittest.TestCase):
+class TestColumnDataSource(object):
 
     def test_basic(self):
         ds = ColumnDataSource()
-        self.assertTrue(isinstance(ds, DataSource))
+        assert isinstance(ds, DataSource)
 
     def test_init_dict_arg(self):
         data = dict(a=[1], b=[2])
         ds = ColumnDataSource(data)
-        self.assertEquals(ds.data, data)
-        self.assertEquals(set(ds.column_names), set(data.keys()))
+        assert ds.data == data
+        assert set(ds.column_names) == set(data.keys())
 
     def test_init_dict_data_kwarg(self):
         data = dict(a=[1], b=[2])
         ds = ColumnDataSource(data=data)
-        self.assertEquals(ds.data, data)
-        self.assertEquals(set(ds.column_names), set(data.keys()))
+        assert ds.data == data
+        assert set(ds.column_names) == set(data.keys())
 
-    @skipIf(not is_pandas, "pandas not installed")
-    def test_init_dataframe_arg(self):
+    def test_init_dataframe_arg(self, pd):
         data = dict(a=[1, 2], b=[2, 3])
         df = pd.DataFrame(data)
         ds = ColumnDataSource(df)
-        self.assertTrue(set(df.columns).issubset(set(ds.column_names)))
+        assert set(df.columns).issubset(set(ds.column_names))
         for key in data.keys():
-            self.assertIsInstance(ds.data[key], np.ndarray)
-            self.assertEquals(list(df[key]), list(ds.data[key]))
-        self.assertIsInstance(ds.data['index'], np.ndarray)
-        self.assertEquals([0, 1], list(ds.data['index']))
-        self.assertEqual(set(ds.column_names) - set(df.columns), set(["index"]))
+            assert isinstance(ds.data[key], np.ndarray)
+            assert list(df[key]) == list(ds.data[key])
+        assert isinstance(ds.data['index'], np.ndarray)
+        assert [0, 1] == list(ds.data['index'])
+        assert set(ds.column_names) - set(df.columns) == set(["index"])
 
-    @skipIf(not is_pandas, "pandas not installed")
-    def test_init_dataframe_data_kwarg(self):
+    def test_init_dataframe_data_kwarg(self, pd):
         data = dict(a=[1, 2], b=[2, 3])
         df = pd.DataFrame(data)
         ds = ColumnDataSource(data=df)
-        self.assertTrue(set(df.columns).issubset(set(ds.column_names)))
+        assert set(df.columns).issubset(set(ds.column_names))
         for key in data.keys():
-            self.assertIsInstance(ds.data[key], np.ndarray)
-            self.assertEquals(list(df[key]), list(ds.data[key]))
-        self.assertIsInstance(ds.data['index'], np.ndarray)
-        self.assertEquals([0, 1], list(ds.data['index']))
-        self.assertEqual(set(ds.column_names) - set(df.columns), set(["index"]))
+            assert isinstance(ds.data[key], np.ndarray)
+            assert list(df[key]) == list(ds.data[key])
+        assert isinstance(ds.data['index'], np.ndarray)
+        assert [0, 1] == list(ds.data['index'])
+        assert set(ds.column_names) - set(df.columns) == set(["index"])
 
-    @skipIf(not is_pandas, "pandas not installed")
-    def test_init_groupby_arg(self):
+    def test_init_groupby_arg(self, pd):
         from bokeh.sampledata.autompg import autompg as df
         group = df.groupby(('origin', 'cyl'))
         ds = ColumnDataSource(group)
         s = group.describe()
-        self.assertTrue(len(ds.column_names)) == 41
-        self.assertIsInstance(ds.data['origin_cyl'], np.ndarray)
+        assert len(ds.column_names) == 49
+        assert isinstance(ds.data['origin_cyl'], np.ndarray)
         for key in s.columns.values:
             k2 = "_".join(key)
-            self.assertIsInstance(ds.data[k2], np.ndarray)
-            self.assertEquals(list(s[key]), list(ds.data[k2]))
+            assert isinstance(ds.data[k2], np.ndarray)
+            assert list(s[key]) == list(ds.data[k2])
 
-    @skipIf(not is_pandas, "pandas not installed")
-    def test_init_groupby_data_kwarg(self):
+    def test_init_groupby_data_kwarg(self, pd):
         from bokeh.sampledata.autompg import autompg as df
         group = df.groupby(('origin', 'cyl'))
         ds = ColumnDataSource(data=group)
         s = group.describe()
-        self.assertTrue(len(ds.column_names)) == 41
-        self.assertIsInstance(ds.data['origin_cyl'], np.ndarray)
+        assert len(ds.column_names) == 49
+        assert isinstance(ds.data['origin_cyl'], np.ndarray)
         for key in s.columns.values:
             k2 = "_".join(key)
-            self.assertIsInstance(ds.data[k2], np.ndarray)
-            self.assertEquals(list(s[key]), list(ds.data[k2]))
+            assert isinstance(ds.data[k2], np.ndarray)
+            assert list(s[key]) == list(ds.data[k2])
 
-    @skipIf(not is_pandas, "pandas not installed")
-    def test_init_groupby_with_None_subindex_name(self):
+    def test_init_groupby_with_None_subindex_name(self, pd):
         df = pd.DataFrame({"A": [1, 2, 3, 4] * 2, "B": [10, 20, 30, 40] * 2, "C": range(8)})
         group = df.groupby(['A', [10, 20, 30, 40] * 2])
         ds = ColumnDataSource(data=group)
         s = group.describe()
-        self.assertTrue(len(ds.column_names)) == 41
-        self.assertIsInstance(ds.data['index'], np.ndarray)
+        assert len(ds.column_names) == 17
+        assert isinstance(ds.data['index'], np.ndarray)
         for key in s.columns.values:
             k2 = "_".join(key)
-            self.assertIsInstance(ds.data[k2], np.ndarray)
-            self.assertEquals(list(s[key]), list(ds.data[k2]))
+            assert isinstance(ds.data[k2], np.ndarray)
+            assert list(s[key]) == list(ds.data[k2])
 
     def test_add_with_name(self):
         ds = ColumnDataSource()
         name = ds.add([1,2,3], name="foo")
-        self.assertEquals(name, "foo")
+        assert name == "foo"
         name = ds.add([4,5,6], name="bar")
-        self.assertEquals(name, "bar")
+        assert name == "bar"
 
     def test_add_without_name(self):
         ds = ColumnDataSource()
         name = ds.add([1,2,3])
-        self.assertEquals(name, "Series 0")
+        assert name == "Series 0"
         name = ds.add([4,5,6])
-        self.assertEquals(name, "Series 1")
+        assert name == "Series 1"
 
     def test_add_with_and_without_name(self):
         ds = ColumnDataSource()
         name = ds.add([1,2,3], "foo")
-        self.assertEquals(name, "foo")
+        assert name == "foo"
         name = ds.add([4,5,6])
-        self.assertEquals(name, "Series 1")
+        assert name == "Series 1"
 
     def test_remove_exists(self):
         ds = ColumnDataSource()
         name = ds.add([1,2,3], "foo")
         assert name
         ds.remove("foo")
-        self.assertEquals(ds.column_names, [])
+        assert ds.column_names == []
 
     def test_remove_exists2(self):
         with warnings.catch_warnings(record=True) as w:
             ds = ColumnDataSource()
             ds.remove("foo")
-            self.assertEquals(ds.column_names, [])
-            self.assertEquals(len(w), 1)
-            self.assertEquals(w[0].category, UserWarning)
-            self.assertEquals(str(w[0].message), "Unable to find column 'foo' in data source")
+            assert ds.column_names == []
+            assert len(w) == 1
+            assert w[0].category == UserWarning
+            assert str(w[0].message) == "Unable to find column 'foo' in data source"
 
     def test_stream_bad_data(self):
         ds = ColumnDataSource(data=dict(a=[10], b=[20]))
-        with self.assertRaises(ValueError) as cm:
+        with pytest.raises(ValueError) as cm:
             ds.stream(dict())
-        self.assertEqual(str(cm.exception), "Must stream updates to all existing columns (missing: a, b)")
-        with self.assertRaises(ValueError) as cm:
+            assert str(cm.exception) == "Must stream updates to all existing columns (missing: a, b)"
+        with pytest.raises(ValueError) as cm:
             ds.stream(dict(a=[10]))
-        self.assertEqual(str(cm.exception), "Must stream updates to all existing columns (missing: b)")
-        with self.assertRaises(ValueError) as cm:
+            assert str(cm.exception) == "Must stream updates to all existing columns (missing: b)"
+        with pytest.raises(ValueError) as cm:
             ds.stream(dict(a=[10], b=[10], x=[10]))
-        self.assertEqual(str(cm.exception), "Must stream updates to all existing columns (extra: x)")
-        with self.assertRaises(ValueError) as cm:
+            assert str(cm.exception) == "Must stream updates to all existing columns (extra: x)"
+        with pytest.raises(ValueError) as cm:
             ds.stream(dict(a=[10], x=[10]))
-        self.assertEqual(str(cm.exception), "Must stream updates to all existing columns (missing: b, extra: x)")
-        with self.assertRaises(ValueError) as cm:
+            assert str(cm.exception) == "Must stream updates to all existing columns (missing: b, extra: x)"
+        with pytest.raises(ValueError) as cm:
             ds.stream(dict(a=[10], b=[10, 20]))
-        self.assertEqual(str(cm.exception), "All streaming column updates must be the same length")
+            assert str(cm.exception) == "All streaming column updates must be the same length"
 
-        with self.assertRaises(ValueError) as cm:
+        with pytest.raises(ValueError) as cm:
             ds.stream(dict(a=[10], b=np.ones((1,1))))
-        self.assertTrue(
-            str(cm.exception).startswith("stream(...) only supports 1d sequences, got ndarray with size (")
-        )
+            assert str(cm.exception).startswith("stream(...) only supports 1d sequences, got ndarray with size (")
 
-    @skipIf(not is_pandas, "pandas not installed")
-    def test__df_index_name_with_named_index(self):
+    def test__df_index_name_with_named_index(self, pd):
         df = pd.DataFrame(dict(a=[10], b=[20], c=[30])).set_index('c')
         assert ColumnDataSource._df_index_name(df) == "c"
 
-    @skipIf(not is_pandas, "pandas not installed")
-    def test__df_index_name_with_unnamed_index(self):
+    def test__df_index_name_with_unnamed_index(self, pd):
         df = pd.DataFrame(dict(a=[10], b=[20], c=[30]))
         assert ColumnDataSource._df_index_name(df) == "index"
 
-    @skipIf(not is_pandas, "pandas not installed")
-    def test__df_index_name_with_named_multi_index(self):
+    def test__df_index_name_with_named_multi_index(self, pd):
         data = io.StringIO(u'''
 Fruit,Color,Count,Price
 Apple,Red,3,$1.29
@@ -184,8 +170,7 @@ Lime,Green,99,$0.39
         assert df.index.names == ['Fruit', 'Color']
         assert ColumnDataSource._df_index_name(df) == "Fruit_Color"
 
-    @skipIf(not is_pandas, "pandas not installed")
-    def test__df_index_name_with_unnamed_multi_index(self):
+    def test__df_index_name_with_unnamed_multi_index(self, pd):
         arrays = [np.array(['bar', 'bar', 'baz', 'baz', 'foo', 'foo', 'qux', 'qux']),
                   np.array(['one', 'two', 'one', 'two', 'one', 'two', 'one', 'two'])]
         df = pd.DataFrame(np.random.randn(8, 4), index=arrays)
@@ -204,8 +189,8 @@ Lime,Green,99,$0.39
         ds.data._stream = mock
         # internal implementation of stream
         ds._stream(dict(a=[11, 12], b=[21, 22]), "foo", mock_setter)
-        self.assertEqual(stuff['args'], ("doc", ds, dict(a=[11, 12], b=[21, 22]), "foo", mock_setter))
-        self.assertEqual(stuff['kw'], {})
+        assert stuff['args'] == ("doc", ds, dict(a=[11, 12], b=[21, 22]), "foo", mock_setter)
+        assert stuff['kw'] == {}
 
     def test_stream_good_data(self):
         ds = ColumnDataSource(data=dict(a=[10], b=[20]))
@@ -218,8 +203,8 @@ Lime,Green,99,$0.39
         ds.data._stream = mock
         # public implementation of stream
         ds._stream(dict(a=[11, 12], b=[21, 22]), "foo")
-        self.assertEqual(stuff['args'], ("doc", ds, dict(a=[11, 12], b=[21, 22]), "foo", None))
-        self.assertEqual(stuff['kw'], {})
+        assert stuff['args'] == ("doc", ds, dict(a=[11, 12], b=[21, 22]), "foo", None)
+        assert stuff['kw'] == {}
 
     def test__stream_good_datetime64_data(self):
         now = dt.datetime.now()
@@ -236,7 +221,7 @@ Lime,Green,99,$0.39
         # internal implementation of stream
         new_date = np.array([now+dt.timedelta(10)], dtype='datetime64')
         ds._stream(dict(index=new_date, b=[10]), "foo", mock_setter)
-        self.assertTrue(np.array_equal(stuff['args'][2]['index'], new_date))
+        assert np.array_equal(stuff['args'][2]['index'], new_date)
 
     def test__stream_good_datetime64_data_transformed(self):
         now = dt.datetime.now()
@@ -255,10 +240,9 @@ Lime,Green,99,$0.39
         new_date = np.array([now+dt.timedelta(10)], dtype='datetime64')
         ds._stream(dict(index=new_date, b=[10]), "foo", mock_setter)
         transformed_date = convert_datetime_array(new_date)
-        self.assertTrue(np.array_equal(stuff['args'][2]['index'], transformed_date))
+        assert np.array_equal(stuff['args'][2]['index'], transformed_date)
 
-    @skipIf(not is_pandas, "pandas not installed")
-    def test__stream_good_df_with_date_index_data(self):
+    def test__stream_good_df_with_date_index_data(self, pd):
         df = pd.DataFrame(
             index=pd.date_range('now', periods=30, freq='T'),
             columns=['A'],
@@ -279,11 +263,10 @@ Lime,Green,99,$0.39
             data=np.random.standard_normal(30)
         )
         ds._stream(new_df, "foo", mock_setter)
-        self.assertTrue(np.array_equal(stuff['args'][2]['index'], new_df.index.values))
-        self.assertTrue(np.array_equal(stuff['args'][2]['A'], new_df.A.values))
+        assert np.array_equal(stuff['args'][2]['index'], new_df.index.values)
+        assert np.array_equal(stuff['args'][2]['A'], new_df.A.values)
 
-    @skipIf(not is_pandas, "pandas not installed")
-    def test__stream_good_dict_of_index_and_series_data(self):
+    def test__stream_good_dict_of_index_and_series_data(self, pd):
         df = pd.DataFrame(
             index=pd.date_range('now', periods=30, freq='T'),
             columns=['A'],
@@ -304,11 +287,10 @@ Lime,Green,99,$0.39
             data=np.random.standard_normal(30)
         )
         ds._stream({'index': new_df.index, 'A': new_df.A}, "foo", mock_setter)
-        self.assertTrue(np.array_equal(stuff['args'][2]['index'], new_df.index.values))
-        self.assertTrue(np.array_equal(stuff['args'][2]['A'], new_df.A.values))
+        assert np.array_equal(stuff['args'][2]['index'], new_df.index.values)
+        assert np.array_equal(stuff['args'][2]['A'], new_df.A.values)
 
-    @skipIf(not is_pandas, "pandas not installed")
-    def test__stream_good_dict_of_index_and_series_data_transformed(self):
+    def test__stream_good_dict_of_index_and_series_data_transformed(self, pd):
         df = pd.DataFrame(
             index=pd.date_range('now', periods=30, freq='T'),
             columns=['A'],
@@ -330,18 +312,16 @@ Lime,Green,99,$0.39
             data=np.random.standard_normal(30)
         )
         ds._stream({'index': new_df.index, 'A': new_df.A}, "foo", mock_setter)
-        self.assertTrue(np.array_equal(stuff['args'][2]['index'],
-                                       convert_datetime_array(new_df.index.values)))
-        self.assertTrue(np.array_equal(stuff['args'][2]['A'], new_df.A.values))
+        assert np.array_equal(stuff['args'][2]['index'], convert_datetime_array(new_df.index.values))
+        assert np.array_equal(stuff['args'][2]['A'], new_df.A.values)
 
     def _assert_equal_dicts_of_arrays(self, d1, d2):
-        self.assertEqual(d1.keys(), d2.keys())
+        assert d1.keys() == d2.keys()
         for k, v in d1.items():
-            self.assertEqual(type(v), np.ndarray)
-            self.assertTrue(np.array_equal(v, d2[k]))
+            assert type(v) == np.ndarray
+            assert np.array_equal(v, d2[k])
 
-    @skipIf(not is_pandas, "pandas not installed")
-    def test_stream_dict_to_ds_created_from_df(self):
+    def test_stream_dict_to_ds_created_from_df(self, pd):
         data = pd.DataFrame(dict(a=[10], b=[20], c=[30])).set_index('c')
         ds = ColumnDataSource(data)
         ds._document = "doc"
@@ -366,22 +346,22 @@ Lime,Green,99,$0.39
                         b=np.array([21, 22]),
                         c=pd.Series([31, 32])), 7)
 
-        self.assertEqual(len(stream_stuff['args']), 5)
+        assert len(stream_stuff['args']) == 5
         expected_stream_args = ("doc", ds, dict(a=[11, 12],
                                                 b=np.array([21, 22]),
                                                 c=pd.Series([31, 32])), 7, None)
         for i, (arg, ex_arg) in enumerate(zip(stream_stuff['args'],
                                               expected_stream_args)):
             if i == 2:
-                self.assertEqual(arg['a'], ex_arg['a'])
+                assert arg['a'] == ex_arg['a']
                 del arg['a'], ex_arg['a']
                 self._assert_equal_dicts_of_arrays(arg, ex_arg)
             else:
-                self.assertEqual(arg, ex_arg)
+                assert arg == ex_arg
 
-        self.assertEqual(stream_stuff['kwargs'], {})
+        assert stream_stuff['kwargs'] == {}
 
-        self.assertEqual(len(notify_owners_stuff['args']), 1)
+        assert len(notify_owners_stuff['args']) == 1
         self._assert_equal_dicts_of_arrays(notify_owners_stuff['args'][0],
                                            dict(a=np.array([10]),
                                                 b=np.array([20]),
@@ -392,8 +372,7 @@ Lime,Green,99,$0.39
                                                 b=np.array([20, 21, 22]),
                                                 c=np.array([30, 31, 32])))
 
-    @skipIf(not is_pandas, "pandas not installed")
-    def test_stream_series_to_ds_created_from_df(self):
+    def test_stream_series_to_ds_created_from_df(self, pd):
         data = pd.DataFrame(dict(a=[10], b=[20], c=[30]))
         ds = ColumnDataSource(data)
         ds._document = "doc"
@@ -418,7 +397,7 @@ Lime,Green,99,$0.39
 
         ds._stream(pd.Series([11, 21, 31], index=list('abc')), 7)
 
-        self.assertEqual(len(stream_stuff['args']), 5)
+        assert len(stream_stuff['args']) == 5
         expected_df = pd.DataFrame(dict(a=np.array([11]),
                                                 b=np.array([21]),
                                                 c=np.array([31])))
@@ -429,11 +408,11 @@ Lime,Green,99,$0.39
             if i == 2:
                 self._assert_equal_dicts_of_arrays(arg, ex_arg)
             else:
-                self.assertEqual(arg, ex_arg)
+                assert arg == ex_arg
 
-        self.assertEqual(stream_stuff['kwargs'], {})
+        assert stream_stuff['kwargs'] == {}
 
-        self.assertEqual(len(notify_owners_stuff['args']), 1)
+        assert len(notify_owners_stuff['args']) == 1
         self._assert_equal_dicts_of_arrays(notify_owners_stuff['args'][0],
                                            dict(a=np.array([10]),
                                                 b=np.array([20]),
@@ -446,8 +425,7 @@ Lime,Green,99,$0.39
                                                 c=np.array([30, 31]),
                                                 index=np.array([0, 0])))
 
-    @skipIf(not is_pandas, "pandas not installed")
-    def test_stream_df_to_ds_created_from_df_named_index(self):
+    def test_stream_df_to_ds_created_from_df_named_index(self, pd):
         data = pd.DataFrame(dict(a=[10], b=[20], c=[30])).set_index('c')
         ds = ColumnDataSource(data)
         ds._document = "doc"
@@ -474,22 +452,22 @@ Lime,Green,99,$0.39
                                      b=[21, 22],
                                      c=[31, 32])).set_index('c'), 7)
 
-        self.assertEqual(len(stream_stuff['args']), 5)
+        assert len(stream_stuff['args']) == 5
         expected_steam_data = dict(a=np.array([11, 12]),
                                    b=np.array([21, 22]),
                                    c=np.array([31, 32]))
         expected_args = ("doc", ds, expected_steam_data, 7, None)
         for i, (arg, ex_arg) in enumerate(zip(stream_stuff['args'], expected_args)):
             if i == 2:
-                self.assertEqual(arg.keys(), ex_arg.keys())
+                assert arg.keys() == ex_arg.keys()
                 for k, v in arg.items():
-                    self.assertTrue(np.array_equal(v, ex_arg[k]))
+                    assert np.array_equal(v, ex_arg[k])
             else:
-                self.assertEqual(stream_stuff['args'][i], expected_args[i])
+                assert stream_stuff['args'][i] == expected_args[i]
 
-        self.assertEqual(stream_stuff['kwargs'], {})
+        assert stream_stuff['kwargs'] == {}
 
-        self.assertEqual(len(notify_owners_stuff['args']), 1)
+        assert len(notify_owners_stuff['args']) == 1
         self._assert_equal_dicts_of_arrays(notify_owners_stuff['args'][0],
                                            dict(a=np.array([10]),
                                                 b=np.array([20]),
@@ -500,8 +478,7 @@ Lime,Green,99,$0.39
                                                 b=np.array([20, 21, 22]),
                                                 c=np.array([30, 31, 32])))
 
-    @skipIf(not is_pandas, "pandas not installed")
-    def test_stream_df_to_ds_created_from_df_default_index(self):
+    def test_stream_df_to_ds_created_from_df_default_index(self, pd):
         data = pd.DataFrame(dict(a=[10], b=[20], c=[30]))
         ds = ColumnDataSource(data)
         ds._document = "doc"
@@ -528,7 +505,7 @@ Lime,Green,99,$0.39
                                      b=[21, 22],
                                      c=[31, 32])), 7)
 
-        self.assertEqual(len(stream_stuff['args']), 5)
+        assert len(stream_stuff['args']) == 5
         expected_df = pd.DataFrame(dict(a=np.array([11, 12]),
                                         b=np.array([21, 22]),
                                         c=np.array([31, 32])))
@@ -538,13 +515,13 @@ Lime,Green,99,$0.39
         for i, (arg, ex_arg) in enumerate(zip(stream_stuff['args'], expected_args)):
             if i == 2:
                 for k, v in arg.items():
-                    self.assertTrue(np.array_equal(v, ex_arg[k]))
+                    assert np.array_equal(v, ex_arg[k])
             else:
-                self.assertEqual(stream_stuff['args'][i], expected_args[i])
+                assert stream_stuff['args'][i] == expected_args[i]
 
-        self.assertEqual(stream_stuff['kwargs'], {})
+        assert stream_stuff['kwargs'] == {}
 
-        self.assertEqual(len(notify_owners_stuff['args']), 1)
+        assert len(notify_owners_stuff['args']) == 1
         self._assert_equal_dicts_of_arrays(notify_owners_stuff['args'][0],
                                            dict(a=np.array([10]),
                                                 b=np.array([20]),
@@ -559,19 +536,19 @@ Lime,Green,99,$0.39
 
     def test_patch_bad_columns(self):
         ds = ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
-        with self.assertRaises(ValueError) as cm:
+        with pytest.raises(ValueError) as cm:
             ds.patch(dict(c=[(0, 100)]))
-        self.assertEqual(str(cm.exception), "Can only patch existing columns (extra: c)")
-        with self.assertRaises(ValueError) as cm:
+            assert str(cm.exception) == "Can only patch existing columns (extra: c)"
+        with pytest.raises(ValueError) as cm:
             ds.patch(dict(a=[(0,100)], c=[(0, 100)], d=[(0, 100)]))
-        self.assertEqual(str(cm.exception), "Can only patch existing columns (extra: c, d)")
+            assert str(cm.exception) == "Can only patch existing columns (extra: c, d)"
 
 
     def test_patch_bad_simple_indices(self):
         ds = ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
-        with self.assertRaises(ValueError) as cm:
+        with pytest.raises(ValueError) as cm:
             ds.patch(dict(a=[(3, 100)]))
-        self.assertEqual(str(cm.exception), "Out-of bounds index (3) in patch for column: a")
+            assert str(cm.exception) == "Out-of bounds index (3) in patch for column: a"
 
     def test_patch_good_simple_indices(self):
         ds = ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
@@ -583,29 +560,29 @@ Lime,Green,99,$0.39
             stuff['kw'] = kw
         ds.data._patch = mock
         ds.patch(dict(a=[(0,100), (1,101)], b=[(0,200)]), mock_setter)
-        self.assertEqual(stuff['args'], ("doc", ds, dict(a=[(0,100), (1,101)], b=[(0,200)]), mock_setter))
-        self.assertEqual(stuff['kw'], {})
+        assert stuff['args'] == ("doc", ds, dict(a=[(0,100), (1,101)], b=[(0,200)]), mock_setter)
+        assert stuff['kw'] == {}
 
     def test_patch_bad_slice_indices(self):
         ds = ColumnDataSource(data=dict(a=[10, 11, 12, 13, 14, 15], b=[20, 21, 22, 23, 24, 25]))
-        with self.assertRaises(ValueError) as cm:
+        with pytest.raises(ValueError) as cm:
             ds.patch(dict(a=[(slice(10), list(range(10)))]))
-        self.assertEqual(str(cm.exception), "Out-of bounds slice index stop (10) in patch for column: a")
-        with self.assertRaises(ValueError) as cm:
+            assert str(cm.exception) == "Out-of bounds slice index stop (10) in patch for column: a"
+        with pytest.raises(ValueError) as cm:
             ds.patch(dict(a=[(slice(10, 1), list(range(10)))]))
-        self.assertEqual(str(cm.exception), "Patch slices must have start < end, got slice(10, 1, None)")
-        with self.assertRaises(ValueError) as cm:
+            assert str(cm.exception) == "Patch slices must have start < end, got slice(10, 1, None)"
+        with pytest.raises(ValueError) as cm:
             ds.patch(dict(a=[(slice(None, 10, -1), list(range(10)))]))
-        self.assertEqual(str(cm.exception), "Patch slices must have non-negative (start, stop, step) values, got slice(None, 10, -1)")
-        with self.assertRaises(ValueError) as cm:
+            assert str(cm.exception) == "Patch slices must have non-negative (start, stop, step) values, got slice(None, 10, -1)"
+        with pytest.raises(ValueError) as cm:
             ds.patch(dict(a=[(slice(10, 1, 1), list(range(10)))]))
-        self.assertEqual(str(cm.exception), "Patch slices must have start < end, got slice(10, 1, 1)")
-        with self.assertRaises(ValueError) as cm:
+            assert str(cm.exception) == "Patch slices must have start < end, got slice(10, 1, 1)"
+        with pytest.raises(ValueError) as cm:
             ds.patch(dict(a=[(slice(10, 1, -1), list(range(10)))]))
-        self.assertEqual(str(cm.exception), "Patch slices must have start < end, got slice(10, 1, -1)")
-        with self.assertRaises(ValueError) as cm:
+            assert str(cm.exception) == "Patch slices must have start < end, got slice(10, 1, -1)"
+        with pytest.raises(ValueError) as cm:
             ds.patch(dict(a=[(slice(1, 10, -1), list(range(10)))]))
-        self.assertEqual(str(cm.exception), "Patch slices must have non-negative (start, stop, step) values, got slice(1, 10, -1)")
+            assert str(cm.exception) == "Patch slices must have non-negative (start, stop, step) values, got slice(1, 10, -1)"
 
 
     def test_patch_good_slice_indices(self):
@@ -618,78 +595,73 @@ Lime,Green,99,$0.39
             stuff['kw'] = kw
         ds.data._patch = mock
         ds.patch(dict(a=[(slice(2), [100, 101]), (slice(3, 5), [100, 101])], b=[(slice(0, None, 2), [100, 101, 102])]), mock_setter)
-        self.assertEqual(stuff['args'],
-            ("doc", ds, dict(a=[(slice(2), [100, 101]), (slice(3, 5), [100, 101])], b=[(slice(0, None, 2), [100, 101, 102])]), mock_setter)
-        )
-        self.assertEqual(stuff['kw'], {})
+        assert stuff['args'] == ("doc", ds, dict(a=[(slice(2), [100, 101]), (slice(3, 5), [100, 101])], b=[(slice(0, None, 2), [100, 101, 102])]), mock_setter)
+        assert stuff['kw'] == {}
 
     def test_data_column_lengths(self):
         # TODO: use this when soft=False
         #
-        #with self.assertRaises(ValueError):
+        #with pytest.raises(ValueError):
         #    ColumnDataSource(data=dict(a=[10, 11], b=[20, 21, 22]))
         #
         #ds = ColumnDataSource()
-        #with self.assertRaises(ValueError):
+        #with pytest.raises(ValueError):
         #    ds.data = dict(a=[10, 11], b=[20, 21, 22])
         #
         #ds = ColumnDataSource(data=dict(a=[10, 11]))
-        #with self.assertRaises(ValueError):
+        #with pytest.raises(ValueError):
         #    ds.data["b"] = [20, 21, 22]
         #
         #ds = ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
-        #with self.assertRaises(ValueError):
+        #with pytest.raises(ValueError):
         #    ds.data.update(dict(a=[10, 11, 12]))
 
         with warnings.catch_warnings(record=True) as warns:
             ColumnDataSource(data=dict(a=[10, 11], b=[20, 21, 22]))
-            self.assertEquals(len(warns), 1)
-            self.assertEquals(str(warns[0].message), "ColumnDataSource's columns must be of the same length. Current lengths: ('a', 2), ('b', 3)")
+            assert len(warns) == 1
+            assert str(warns[0].message) == "ColumnDataSource's columns must be of the same length. Current lengths: ('a', 2), ('b', 3)"
 
         ds = ColumnDataSource()
         with warnings.catch_warnings(record=True) as warns:
             ds.data = dict(a=[10, 11], b=[20, 21, 22])
-            self.assertEquals(len(warns), 1)
-            self.assertEquals(str(warns[0].message), "ColumnDataSource's columns must be of the same length. Current lengths: ('a', 2), ('b', 3)")
+            assert len(warns) == 1
+            assert str(warns[0].message) == "ColumnDataSource's columns must be of the same length. Current lengths: ('a', 2), ('b', 3)"
 
         ds = ColumnDataSource(data=dict(a=[10, 11]))
         with warnings.catch_warnings(record=True) as warns:
             ds.data["b"] = [20, 21, 22]
-            self.assertEquals(len(warns), 1)
-            self.assertEquals(str(warns[0].message), "ColumnDataSource's columns must be of the same length. Current lengths: ('a', 2), ('b', 3)")
+            assert len(warns) == 1
+            assert str(warns[0].message) == "ColumnDataSource's columns must be of the same length. Current lengths: ('a', 2), ('b', 3)"
 
         ds = ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
         with warnings.catch_warnings(record=True) as warns:
             ds.data.update(dict(a=[10, 11, 12]))
-            self.assertEquals(len(warns), 1)
-            self.assertEquals(str(warns[0].message), "ColumnDataSource's columns must be of the same length. Current lengths: ('a', 3), ('b', 2)")
+            assert len(warns) == 1
+            assert str(warns[0].message) == "ColumnDataSource's columns must be of the same length. Current lengths: ('a', 3), ('b', 2)"
 
     def test_set_data_from_json_list(self):
         ds = ColumnDataSource()
         data = {"foo": [1, 2, 3]}
         ds.set_from_json('data', data)
-        self.assertEquals(ds.data, data)
+        assert ds.data == data
 
     def test_set_data_from_json_base64(self):
         ds = ColumnDataSource()
         data = {"foo": np.arange(3)}
         json = transform_column_source_data(data)
         ds.set_from_json('data', json)
-        self.assertTrue(np.array_equal(ds.data["foo"], data["foo"]))
+        assert np.array_equal(ds.data["foo"], data["foo"])
 
     def test_set_data_from_json_nested_base64(self):
         ds = ColumnDataSource()
         data = {"foo": [[np.arange(3)]]}
         json = transform_column_source_data(data)
         ds.set_from_json('data', json)
-        self.assertTrue(np.array_equal(ds.data["foo"], data["foo"]))
+        assert np.array_equal(ds.data["foo"], data["foo"])
 
     def test_set_data_from_json_nested_base64_and_list(self):
         ds = ColumnDataSource()
         data = {"foo": [np.arange(3), [1, 2, 3]]}
         json = transform_column_source_data(data)
         ds.set_from_json('data', json)
-        self.assertTrue(np.array_equal(ds.data["foo"], data["foo"]))
-
-if __name__ == "__main__":
-    unittest.main()
+        assert np.array_equal(ds.data["foo"], data["foo"])

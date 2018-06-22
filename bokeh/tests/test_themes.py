@@ -1,9 +1,9 @@
 from __future__ import absolute_import, print_function
 
-import unittest
-
 import os
 import tempfile
+
+import pytest
 
 from bokeh.document import Document
 from bokeh.model import Model
@@ -26,7 +26,7 @@ attrs:
         another_string: "boo"
 """.encode('utf-8')
 
-class TestThemes(unittest.TestCase):
+class TestThemes(object):
 
     def test_construct_empty_theme_from_file(self):
         # windows will throw permissions error with auto-delete
@@ -45,26 +45,26 @@ class TestThemes(unittest.TestCase):
         theme.apply_to_model(ThemedModel())
 
     def test_construct_no_json_or_filename(self):
-        with self.assertRaises(ValueError) as manager:
+        with pytest.raises(ValueError) as exc:
             Theme()
-        self.assertTrue("requires json or a filename" in repr(manager.exception))
+        assert "requires json or a filename" in repr(exc.value)
 
     def test_construct_json_and_filename(self):
-        with self.assertRaises(ValueError) as manager:
+        with pytest.raises(ValueError) as exc:
             # we check "" and {} as falsey values, to try to trick
             # our code into thinking they weren't provided.
             Theme(filename="", json={})
-        self.assertTrue("not both" in repr(manager.exception))
+        assert "not both" in repr(exc.value)
 
     def test_construct_bad_attrs(self):
-        with self.assertRaises(ValueError) as manager:
+        with pytest.raises(ValueError) as exc:
             Theme(json=dict(attrs=42))
-        self.assertTrue("should be a dictionary of class names" in repr(manager.exception))
+        assert "should be a dictionary of class names" in repr(exc.value)
 
     def test_construct_bad_class_props(self):
-        with self.assertRaises(ValueError) as manager:
+        with pytest.raises(ValueError) as exc:
             Theme(json=dict(attrs=dict(SomeClass=42)))
-        self.assertTrue("should be a dictionary of properties" in repr(manager.exception))
+        assert "should be a dictionary of properties" in repr(exc.value)
 
     def test_construct_nonempty_theme_from_file(self):
         # windows will throw permissions error with auto-delete
@@ -73,8 +73,8 @@ class TestThemes(unittest.TestCase):
             file.file.write(FILE_CONTENTS)
             file.file.flush()
             theme = Theme(filename=file.name)
-            self.assertDictEqual(dict(number=57), theme._for_class(ThemedModel))
-            self.assertDictEqual(dict(number=57, another_string="boo"), theme._for_class(SubOfThemedModel))
+            assert dict(number=57) == theme._for_class(ThemedModel)
+            assert dict(number=57, another_string="boo") == theme._for_class(SubOfThemedModel)
         file.close()
         os.remove(file.name)
 
@@ -88,13 +88,13 @@ class TestThemes(unittest.TestCase):
         })
         obj = ThemedModel()
         changes = dict(calls=[])
-        self.assertEqual('hello', obj.string)
+        assert 'hello' == obj.string
         def record_trigger(attr, old, new_):
             changes['calls'].append((attr, old, new_))
         obj.on_change('string', record_trigger)
         theme.apply_to_model(obj)
-        self.assertEqual('w00t', obj.string)
-        self.assertEqual([('string', 'hello', 'w00t')], changes['calls'])
+        assert 'w00t' == obj.string
+        assert [('string', 'hello', 'w00t')] == changes['calls']
 
     def test_theming_a_model_via_base(self):
         theme = Theme(json={
@@ -109,10 +109,10 @@ class TestThemes(unittest.TestCase):
         def record_trigger(attr, old, new_):
             changes['calls'].append((attr, old, new_))
         obj.on_change('string', record_trigger)
-        self.assertEqual('hello', obj.string)
+        assert 'hello' == obj.string
         theme.apply_to_model(obj)
-        self.assertEqual('w00t', obj.string)
-        self.assertEqual([('string', 'hello', 'w00t')], changes['calls'])
+        assert 'w00t' == obj.string
+        assert [('string', 'hello', 'w00t')] == changes['calls']
 
     def test_subclass_theme_used_rather_than_base(self):
         theme = Theme(json={
@@ -126,14 +126,14 @@ class TestThemes(unittest.TestCase):
             }
         })
         obj = SubOfThemedModel()
-        self.assertEqual('hello', obj.string)
+        assert 'hello' == obj.string
         changes = dict(calls=[])
         def record_trigger(attr, old, new_):
             changes['calls'].append((attr, old, new_))
         obj.on_change('string', record_trigger)
         theme.apply_to_model(obj)
-        self.assertEqual('bar', obj.string)
-        self.assertEqual([('string', 'hello', 'bar')], changes['calls'])
+        assert 'bar' == obj.string
+        assert [('string', 'hello', 'bar')] == changes['calls']
 
     def test_theming_a_document_after_adding_root(self):
         theme = Theme(json={
@@ -146,18 +146,17 @@ class TestThemes(unittest.TestCase):
         obj = ThemedModel()
         doc = Document()
         doc.add_root(obj)
-        self.assertEqual('hello', obj.string)
+        assert 'hello' == obj.string
         changes = dict(calls=[])
         def record_trigger(attr, old, new_):
             changes['calls'].append((attr, old, new_))
         obj.on_change('string', record_trigger)
         doc.theme = theme
-        self.assertIs(doc.theme, theme)
-        self.assertEqual('w00t', obj.string)
+        assert doc.theme is theme
+        assert 'w00t' == obj.string
         doc.remove_root(obj)
-        self.assertEqual('hello', obj.string)
-        self.assertEqual([('string', 'hello', 'w00t'),
-                          ('string', 'w00t', 'hello')], changes['calls'])
+        assert 'hello' == obj.string
+        assert [('string', 'hello', 'w00t'), ('string', 'w00t', 'hello')] == changes['calls']
 
     def test_theming_a_document_before_adding_root(self):
         theme = Theme(json={
@@ -169,19 +168,18 @@ class TestThemes(unittest.TestCase):
         })
         obj = ThemedModel()
         doc = Document()
-        self.assertEqual('hello', obj.string)
+        assert 'hello' == obj.string
         doc.theme = theme
-        self.assertIs(doc.theme, theme)
+        assert doc.theme is theme
         changes = dict(calls=[])
         def record_trigger(attr, old, new_):
             changes['calls'].append((attr, old, new_))
         obj.on_change('string', record_trigger)
         doc.add_root(obj)
-        self.assertEqual('w00t', obj.string)
+        assert 'w00t' == obj.string
         doc.remove_root(obj)
-        self.assertEqual('hello', obj.string)
-        self.assertEqual([('string', 'hello', 'w00t'),
-                          ('string', 'w00t', 'hello')], changes['calls'])
+        assert 'hello' == obj.string
+        assert [('string', 'hello', 'w00t'), ('string', 'w00t', 'hello')] == changes['calls']
 
     def test_setting_document_theme_to_none(self):
         theme = Theme(json={
@@ -199,13 +197,12 @@ class TestThemes(unittest.TestCase):
             changes['calls'].append((attr, old, new_))
         obj.on_change('string', record_trigger)
         doc.theme = theme
-        self.assertEqual('w00t', obj.string)
+        assert 'w00t' == obj.string
         # setting to None reverts to default theme
         doc.theme = None
-        self.assertIsNot(doc.theme, None)
-        self.assertEqual('hello', obj.string)
-        self.assertEqual([('string', 'hello', 'w00t'),
-                          ('string', 'w00t', 'hello')], changes['calls'])
+        assert doc.theme is not None
+        assert 'hello' == obj.string
+        assert [('string', 'hello', 'w00t'), ('string', 'w00t', 'hello')] == changes['calls']
 
     def _compare_dict_to_model_class_defaults(self, props, model_class):
         model = model_class()
@@ -238,13 +235,13 @@ class TestThemes(unittest.TestCase):
         # before each assertion, we print out why it's going to fail.
         for class_name, props in doc.theme._json['attrs'].items():
             self._compare_dict_to_model_defaults(props, class_name)
-        self.assertEqual(0, len(doc.theme._json['attrs']))
+        assert 0 == len(doc.theme._json['attrs'])
 
         self._compare_dict_to_model_class_defaults(doc.theme._fill_defaults, FillProps)
-        self.assertEqual(0, len(doc.theme._fill_defaults))
+        assert 0 == len(doc.theme._fill_defaults)
 
         self._compare_dict_to_model_class_defaults(doc.theme._text_defaults, TextProps)
-        self.assertEqual(0, len(doc.theme._text_defaults))
+        assert 0 == len(doc.theme._text_defaults)
 
         self._compare_dict_to_model_class_defaults(doc.theme._line_defaults, LineProps)
-        self.assertEqual(0, len(doc.theme._line_defaults))
+        assert 0 == len(doc.theme._line_defaults)

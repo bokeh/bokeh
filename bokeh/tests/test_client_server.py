@@ -1,7 +1,7 @@
 from __future__ import absolute_import, print_function
 
 from mock import patch
-import unittest
+import pytest
 
 import logging
 import bokeh.document as document
@@ -35,7 +35,7 @@ class UnitsSpecModel(Model):
 
 logging.basicConfig(level=logging.DEBUG)
 
-class TestClientServer(unittest.TestCase):
+class TestClientServer(object):
 
     def test_minimal_connect_and_disconnect(self):
         application = Application()
@@ -88,13 +88,13 @@ class TestClientServer(unittest.TestCase):
             session.loop_until_closed(suppress_warning=True)
 
     def check_http_gets_fail(self, server):
-        with (self.assertRaises(HTTPError)):
+        with pytest.raises(HTTPError):
             http_get(server.io_loop, url(server))
-        with (self.assertRaises(HTTPError)):
+        with pytest.raises(HTTPError):
             http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo")
 
     def check_connect_session_fails(self, server, origin):
-        with (self.assertRaises(HTTPError)):
+        with pytest.raises(HTTPError):
             websocket_open(server.io_loop,
                            ws_url(server)+"?bokeh-protocol-version=1.0&bokeh-session-id=foo",
                            origin=origin)
@@ -248,13 +248,13 @@ class TestClientServer(unittest.TestCase):
             server._tornado._keep_alive() # send ping
             session.force_roundtrip()
 
-            self.assertEqual(expected_pong, connection._socket.latest_pong)
+            assert expected_pong == connection._socket.latest_pong
 
             # check that each ping increments by 1
             server._tornado._keep_alive()
             session.force_roundtrip()
 
-            self.assertEqual(expected_pong + 1, connection._socket.latest_pong)
+            assert (expected_pong + 1) == connection._socket.latest_pong
 
             session.close()
             session.loop_until_closed(suppress_warning=True)
@@ -403,11 +403,11 @@ class TestClientServer(unittest.TestCase):
 
             client_session.loop_until_closed(suppress_warning=True)
 
-            with (self.assertRaises(ValueError)) as manager:
+            with pytest.raises(ValueError) as exc:
                 doc.remove_timeout_callback(cb_id)
-            self.assertTrue('already removed' in repr(manager.exception))
+            assert 'already removed' in repr(exc.value)
 
-            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
+            assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
     def test_client_session_timeout_async_added_before_push(self):
         application = Application()
@@ -436,11 +436,11 @@ class TestClientServer(unittest.TestCase):
 
             client_session.loop_until_closed(suppress_warning=True)
 
-            with (self.assertRaises(ValueError)) as manager:
+            with pytest.raises(ValueError) as exc:
                 doc.remove_timeout_callback(cb_id)
-            self.assertTrue('already removed' in repr(manager.exception))
+            assert 'already removed' in repr(exc.value)
 
-            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
+            assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
     def test_server_session_timeout_async(self):
         application = Application()
@@ -472,11 +472,11 @@ class TestClientServer(unittest.TestCase):
 
             client_session.loop_until_closed(suppress_warning=True)
 
-            with (self.assertRaises(ValueError)) as manager:
+            with pytest.raises(ValueError) as exc:
                 server_session.document.remove_timeout_callback(cb_id)
-            self.assertTrue('already removed' in repr(manager.exception))
+            assert 'already removed' in repr(exc.value)
 
-            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
+            assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
     def test_client_session_next_tick_async(self):
         application = Application()
@@ -505,11 +505,11 @@ class TestClientServer(unittest.TestCase):
 
             client_session.loop_until_closed(suppress_warning=True)
 
-            with (self.assertRaises(ValueError)) as manager:
+            with pytest.raises(ValueError) as exc:
                 doc.remove_next_tick_callback(cb_id)
-            self.assertTrue('already removed' in repr(manager.exception))
+            assert 'already removed' in repr(exc.value)
 
-            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
+            assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
     def test_client_session_next_tick_async_added_before_push(self):
         application = Application()
@@ -538,11 +538,11 @@ class TestClientServer(unittest.TestCase):
 
             client_session.loop_until_closed(suppress_warning=True)
 
-            with (self.assertRaises(ValueError)) as manager:
+            with pytest.raises(ValueError) as exc:
                 doc.remove_next_tick_callback(cb_id)
-            self.assertTrue('already removed' in repr(manager.exception))
+            assert 'already removed' in repr(exc.value)
 
-            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
+            assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
     def test_server_session_next_tick_async(self):
         application = Application()
@@ -574,11 +574,11 @@ class TestClientServer(unittest.TestCase):
 
             client_session.loop_until_closed(suppress_warning=True)
 
-            with (self.assertRaises(ValueError)) as manager:
+            with pytest.raises(ValueError) as exc:
                 server_session.document.remove_next_tick_callback(cb_id)
-            self.assertTrue('already removed' in repr(manager.exception))
+            assert 'already removed' in repr(exc.value)
 
-            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
+            assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
     def test_client_session_periodic_async(self):
         application = Application()
@@ -609,7 +609,7 @@ class TestClientServer(unittest.TestCase):
 
             doc.remove_periodic_callback(cb_id)
 
-            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
+            assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
     def test_client_session_periodic_async_added_before_push(self):
         application = Application()
@@ -640,7 +640,7 @@ class TestClientServer(unittest.TestCase):
 
             doc.remove_periodic_callback(cb_id)
 
-            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
+            assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
     def test_server_session_periodic_async(self):
         application = Application()
@@ -674,7 +674,7 @@ class TestClientServer(unittest.TestCase):
 
             server_session.document.remove_periodic_callback(cb_id)
 
-            self.assertDictEqual(dict(a=0, b=1, c=2, d=3, e=4), result.values)
+            assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
     def test_lots_of_concurrent_messages(self):
         application = Application()
@@ -765,8 +765,6 @@ class TestClientServer(unittest.TestCase):
             assert result['server_connection_count'] == 1
             assert result['server_close_code'] is None
 
-# This isn't in the unittest.TestCase because per-test fixtures
-# don't work there (see note at bottom of https://pytest.org/latest/unittest.html#unittest-testcase)
 def test_client_changes_do_not_boomerang(monkeypatch):
     application = Application()
     with ManagedServerLoop(application) as server:
@@ -813,8 +811,6 @@ def test_client_changes_do_not_boomerang(monkeypatch):
         assert not client_session.connected
         server.unlisten() # clean up so next test can run
 
-# This isn't in the unittest.TestCase because per-test fixtures
-# don't work there (see note at bottom of https://pytest.org/latest/unittest.html#unittest-testcase)
 def test_server_changes_do_not_boomerang(monkeypatch):
     application = Application()
     with ManagedServerLoop(application) as server:

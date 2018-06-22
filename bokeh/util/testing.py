@@ -13,6 +13,14 @@ import tempfile
 import pytest
 from six import string_types
 
+from .dependencies import import_optional
+
+@pytest.fixture
+def pd():
+    pandas = import_optional('pandas')
+    if pandas is None: pytest.skip('pandas is not installed')
+    return pandas
+
 def verify_all(module, ALL):
 
     class Test___all__(object):

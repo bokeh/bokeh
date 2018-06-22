@@ -1,13 +1,7 @@
 import datetime
 from mock import mock
-from unittest import skipIf
 
 import numpy as np
-try:
-    import pandas as pd
-    is_pandas = True
-except ImportError as e:
-    is_pandas = False
 import pytest
 
 from bokeh.models import ColumnDataSource, CDSView, Marker
@@ -16,6 +10,7 @@ from bokeh.models.ranges import Range1d, DataRange1d, FactorRange
 from bokeh.models.scales import LinearScale, LogScale, CategoricalScale
 from bokeh.plotting import Figure
 from bokeh.plotting.helpers import _get_scale,_get_range, _stack, _graph, _glyph_function, _RENDERER_ARGS, _get_axis_class
+from bokeh.util.testing import pd; pd
 
 import bokeh.plotting.helpers as bph
 
@@ -140,8 +135,7 @@ def test__stack_broadcast_name_list_overrides():
         assert kw['bar'] == "baz"
         assert kw['name'] == names[i]
 
-@skipIf(not is_pandas, "pandas not installed")
-def test__graph_will_convert_dataframes_to_sources():
+def test__graph_will_convert_dataframes_to_sources(pd):
     node_source = pd.DataFrame(data=dict(foo=[]))
     edge_source = pd.DataFrame(data=dict(start=[], end=[], bar=[]))
 
@@ -297,15 +291,13 @@ def test__get_range_with_ndarray_factors():
     assert isinstance(r, FactorRange)
     assert r.factors == list(f)
 
-@skipIf(not is_pandas, "pandas not installed")
-def test__get_range_with_series():
+def test__get_range_with_series(pd):
     r = _get_range(pd.Series([20, 30]))
     assert isinstance(r, Range1d)
     assert r.start == 20
     assert r.end == 30
 
-@skipIf(not is_pandas, "pandas not installed")
-def test__get_range_with_too_long_series():
+def test__get_range_with_too_long_series(pd):
     with pytest.raises(ValueError):
         _get_range(pd.Series([20, 30, 40]))
 
@@ -328,7 +320,7 @@ def test__get_range_with_float_bounds():
     assert r.start == 1.2
     assert r.end == 10
 
-def test_get_range_with_pandas_group():
+def test_get_range_with_pandas_group(pd):
     from bokeh.sampledata.iris import flowers
     g = flowers.groupby('species')
     r = _get_range(g)

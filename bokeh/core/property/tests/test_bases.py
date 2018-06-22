@@ -2,9 +2,9 @@ from mock import patch
 import pytest
 
 import numpy as np
-import pandas as pd
 
 from bokeh.core.has_props import HasProps
+from bokeh.util.testing import pd ; pd
 
 import bokeh.core.property.bases as pb
 
@@ -115,7 +115,7 @@ def test_property_matches_non_dict_containers_with_array_false(capsys):
     out, err = capsys.readouterr()
     assert err == ""
 
-def test_property_matches_dicts_with_series_values(capsys):
+def test_property_matches_dicts_with_series_values(capsys, pd):
     p = pb.Property()
     d1 = pd.DataFrame(dict(foo=np.arange(10)))
     d2 = pd.DataFrame(dict(foo=np.arange(10)))
@@ -132,7 +132,7 @@ def test_property_matches_dicts_with_series_values(capsys):
     out, err = capsys.readouterr()
     assert err == ""
 
-def test_property_matches_dicts_with_index_values(capsys):
+def test_property_matches_dicts_with_index_values(capsys, pd):
     p = pb.Property()
     d1 = pd.DataFrame(dict(foo=np.arange(10)))
     d2 = pd.DataFrame(dict(foo=np.arange(10)))

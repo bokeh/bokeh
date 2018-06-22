@@ -5,7 +5,6 @@ import pytest
 from mock import patch
 
 import logging
-import unittest
 
 from copy import copy
 
@@ -129,7 +128,7 @@ class Test_Document_delete_modules(object):
         assert 'junkjunkjunk' not in sys.modules
         assert d._modules is None
 
-class TestDocument(unittest.TestCase):
+class TestDocument(object):
 
     def test_empty(self):
         d = document.Document()
@@ -863,39 +862,39 @@ class TestDocument(unittest.TestCase):
                 expected = copy(new_value)
                 if 'units' not in expected:
                     expected['units'] = root1.foo_units
-                self.assertDictEqual(expected, root1.lookup('foo').serializable_value(root1))
+                assert expected == root1.lookup('foo').serializable_value(root1)
             else:
-                self.assertEqual(new_value, root1.foo)
+                assert new_value == root1.foo
         patch_test(57)
-        self.assertEqual('data', root1.foo_units)
+        assert 'data' == root1.foo_units
         patch_test(dict(value=58))
-        self.assertEqual('data', root1.foo_units)
+        assert 'data' == root1.foo_units
         patch_test(dict(value=58, units='screen'))
-        self.assertEqual('screen', root1.foo_units)
+        assert 'screen' == root1.foo_units
         patch_test(dict(value=59, units='screen'))
-        self.assertEqual('screen', root1.foo_units)
+        assert 'screen' == root1.foo_units
         patch_test(dict(value=59, units='data'))
-        self.assertEqual('data', root1.foo_units)
+        assert 'data' == root1.foo_units
         patch_test(dict(value=60, units='data'))
-        self.assertEqual('data', root1.foo_units)
+        assert 'data' == root1.foo_units
         patch_test(dict(value=60, units='data'))
-        self.assertEqual('data', root1.foo_units)
+        assert 'data' == root1.foo_units
         patch_test(61)
-        self.assertEqual('data', root1.foo_units)
+        assert 'data' == root1.foo_units
         root1.foo = "a_string" # so "woot" gets set as a string
         patch_test("woot")
-        self.assertEqual('data', root1.foo_units)
+        assert 'data' == root1.foo_units
         patch_test(dict(field="woot2"))
-        self.assertEqual('data', root1.foo_units)
+        assert 'data' == root1.foo_units
         patch_test(dict(field="woot2", units='screen'))
-        self.assertEqual('screen', root1.foo_units)
+        assert 'screen' == root1.foo_units
         patch_test(dict(field="woot3"))
-        self.assertEqual('screen', root1.foo_units)
+        assert 'screen' == root1.foo_units
         patch_test(dict(value=70))
-        self.assertEqual('screen', root1.foo_units)
+        assert 'screen' == root1.foo_units
         root1.foo = 123 # so 71 gets set as a number
         patch_test(71)
-        self.assertEqual('screen', root1.foo_units)
+        assert 'screen' == root1.foo_units
 
     def test_patch_reference_property(self):
         d = document.Document()

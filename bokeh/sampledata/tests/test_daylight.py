@@ -20,10 +20,9 @@ import pytest ; pytest
 # Standard library imports
 
 # External imports
-import pandas as pd
 
 # Bokeh imports
-from bokeh.util.testing import verify_all
+from bokeh.util.testing import pd, verify_all ; pd
 
 # Module under test
 #import bokeh.sampledata.daylight as bsd
@@ -43,7 +42,7 @@ ALL = (
 Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.daylight", ALL))
 
 @pytest.mark.sampledata
-def test_daylight_warsaw_2013():
+def test_daylight_warsaw_2013(pd):
     import bokeh.sampledata.daylight as bsd
     assert isinstance(bsd.daylight_warsaw_2013, pd.DataFrame)
 

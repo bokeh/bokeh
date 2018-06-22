@@ -3,6 +3,13 @@
 set -e # exit on error
 set -x # echo commands
 
-py.test -m 'unit'                   \
+# sampledata depends on pandas, skip if we are testing with minimal deps
+if  [[ ! -z "${MINIMAL}" ]]; then
+    selector='unit and not sampledata'
+else
+    selector='unit'
+fi
+
+py.test -m "$selector"              \
     --cov=bokeh                     \
     --cov-config=bokeh/.coveragerc

@@ -1,7 +1,5 @@
 from __future__ import absolute_import, print_function
 
-import unittest
-
 import bokeh.document as document
 from bokeh.model import Model
 from bokeh.core.properties import Int, Instance
@@ -14,7 +12,7 @@ class SomeModelInTestPullDoc(Model):
     foo = Int(2)
     child = Instance(Model)
 
-class TestPullDocument(unittest.TestCase):
+class TestPullDocument(object):
 
     def _sample_doc(self):
         doc = document.Document()
