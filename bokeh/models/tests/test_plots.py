@@ -43,20 +43,37 @@ class TestPlotSelect(object):
         assert mock_find.called
         assert mock_find.call_args[0][1] == kw
 
+    @patch('bokeh.models.plots.find')
+    def test_single_selector_kwarg(self, mock_find):
+        kw = dict(name='foo', type=GlyphRenderer)
+        self._plot.select(selector=kw)
+        assert mock_find.called
+        assert mock_find.call_args[0][1] == kw
+
+    def test_selector_kwarg_and_extra_kwargs(self):
+        with pytest.raises(TypeError) as exc:
+            self._plot.select(selector=dict(foo='foo'), bar='bar')
+        assert "when passing 'selector' keyword arg, not other keyword args may be present" == str(exc.value)
+
+    def test_bad_arg_type(self):
+        with pytest.raises(TypeError) as exc:
+            self._plot.select(10)
+        assert "selector must be a dictionary, string or plot object." == str(exc.value)
+
     def test_too_many_args(self):
-        with pytest.raises(TypeError) as cm:
+        with pytest.raises(TypeError) as exc:
             self._plot.select('foo', 'bar')
-            assert 'select accepts at most ONE positional argument.' == str(cm.exception)
+        assert 'select accepts at most ONE positional argument.' == str(exc.value)
 
     def test_no_input(self):
-        with pytest.raises(TypeError) as cm:
+        with pytest.raises(TypeError) as exc:
             self._plot.select()
-            assert 'select requires EITHER a positional argument, OR keyword arguments.' == str(cm.exception)
+        assert 'select requires EITHER a positional argument, OR keyword arguments.' == str(exc.value)
 
     def test_arg_and_kwarg(self):
-        with pytest.raises(TypeError) as cm:
+        with pytest.raises(TypeError) as exc:
             self._plot.select('foo', type=PanTool)
-            assert 'select accepts EITHER a positional argument, OR keyword arguments (not both).' == str(cm.exception)
+        assert 'select accepts EITHER a positional argument, OR keyword arguments (not both).' == str(exc.value)
 
 
 def test_plot_add_layout_raises_error_if_not_render():

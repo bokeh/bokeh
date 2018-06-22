@@ -78,14 +78,6 @@ functionality.
 .. automodule:: bokeh.util.paths
   :members:
 
-.. _bokeh.util.plot_utils:
-
-``bokeh.util.plot_utils``
--------------------------
-
-.. automodule:: bokeh.util.plot_utils
-  :members:
-
 .. _bokeh.util.serialization:
 
 ``bokeh.util.serialization``
