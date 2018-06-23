@@ -5,10 +5,14 @@ and with options for "auto sizing".
 '''
 from __future__ import absolute_import
 
+from collections import Counter
+
 from ..core.enums import PaddingUnits, StartEnd
 from ..core.has_props import abstract
 from ..core.properties import (Bool, Datetime, Either, Enum, Float, Instance, Int,
                                List, MinMaxBounds, Seq, String, TimeDelta, Tuple)
+from ..core.validation import error
+from ..core.validation.errors import DUPLICATE_FACTORS
 from ..model import Model
 
 from .callbacks import Callback
@@ -400,3 +404,9 @@ class FactorRange(Range):
         elif args:
             kwargs['factors'] = list(args)
         super(FactorRange, self).__init__(**kwargs)
+
+    @error(DUPLICATE_FACTORS)
+    def _check_duplicate_factors(self):
+        dupes = [item for item, count in Counter(self.factors).items() if count > 1]
+        if dupes:
+            return "duplicate factors found: %s" % ', '.join(repr(x) for x in dupes)

@@ -65,31 +65,35 @@ validation checks.
 1018 *(NO_RANGE_TOOL_RANGES)*
     The RangeTool must have at least one of x_range or y_range configured
 
+1019 *(DUPLICATE_FACTORS)*
+    FactorRange must specicy a unique list of categorical factors for an axis.
+
 9999 *(EXT)*
     Indicates that a custom error check has failed.
 
 '''
 
 codes = {
-    1001: ("BAD_COLUMN_NAME",        "Glyph refers to nonexistent column name"),
-    1002: ("MISSING_GLYPH",          "Glyph renderer has no glyph set"),
-    1003: ("NO_SOURCE_FOR_GLYPH",    "Glyph renderer has no data source"),
-    1004: ("REQUIRED_RANGE",         "A required Range object is missing"),
-    1005: ("MISSING_GOOGLE_API_KEY", "Google now requires API keys for all Google Maps usage"),
+    1001: ("BAD_COLUMN_NAME",                                    "Glyph refers to nonexistent column name"),
+    1002: ("MISSING_GLYPH",                                      "Glyph renderer has no glyph set"),
+    1003: ("NO_SOURCE_FOR_GLYPH",                                "Glyph renderer has no data source"),
+    1004: ("REQUIRED_RANGE",                                     "A required Range object is missing"),
+    1005: ("MISSING_GOOGLE_API_KEY",                             "Google now requires API keys for all Google Maps usage"),
     1006: ("NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS", "LegendItem.label is a field, but renderer data sources don't match"),
-    1007: ("MISSING_MERCATOR_DIMENSION", "Mercator Tickers and Formatters must have their dimension property set to 'lat' or 'lon'"),
-    1008: ("REQUIRED_SCALE",         "A required Scale object is missing"),
-    1009: ("INCOMPATIBLE_SCALE_AND_RANGE", "A Scale is incompatible with one or more ranges on the same plot dimension"),
-    1010: ("CDSVIEW_SOURCE_DOESNT_MATCH", "CDSView used by Glyph renderer must have a source that matches the Glyph renderer's data source"),
-    1011: ("MALFORMED_GRAPH_SOURCE", "The GraphSource is incorrectly configured"),
-    1012: ("INCOMPATIBLE_MAP_RANGE_TYPE", "Map plots can only support Range1d types, not data ranges"),
-    1013: ("INCOMPATIBLE_POINT_DRAW_RENDERER", "PointDrawTool renderers may only reference XYGlyph models."),
-    1014: ("INCOMPATIBLE_BOX_EDIT_RENDERER", "BoxEditTool renderers may only reference Rect glyph models"),
-    1015: ("INCOMPATIBLE_POLY_DRAW_RENDERER", "PolyDrawTool renderers may only reference MultiLine and Patches glyph models."),
-    1016: ("INCOMPATIBLE_POLY_EDIT_RENDERER", "PolyEditTool renderers may only reference MultiLine and Patches glyph models"),
-    1017: ("INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER", "PolyEditTool vertex_renderer may only reference XYGlyph models"),
-    1018: ("NO_RANGE_TOOL_RANGES", "RangeTool must have at least one of x_range or y_range configured"),
-    9999: ("EXT",                    "Custom extension reports error"),
+    1007: ("MISSING_MERCATOR_DIMENSION",                         "Mercator Tickers and Formatters must have their dimension property set to 'lat' or 'lon'"),
+    1008: ("REQUIRED_SCALE",                                     "A required Scale object is missing"),
+    1009: ("INCOMPATIBLE_SCALE_AND_RANGE",                       "A Scale is incompatible with one or more ranges on the same plot dimension"),
+    1010: ("CDSVIEW_SOURCE_DOESNT_MATCH",                        "CDSView used by Glyph renderer must have a source that matches the Glyph renderer's data source"),
+    1011: ("MALFORMED_GRAPH_SOURCE",                             "The GraphSource is incorrectly configured"),
+    1012: ("INCOMPATIBLE_MAP_RANGE_TYPE",                        "Map plots can only support Range1d types, not data ranges"),
+    1013: ("INCOMPATIBLE_POINT_DRAW_RENDERER",                   "PointDrawTool renderers may only reference XYGlyph models."),
+    1014: ("INCOMPATIBLE_BOX_EDIT_RENDERER",                     "BoxEditTool renderers may only reference Rect glyph models"),
+    1015: ("INCOMPATIBLE_POLY_DRAW_RENDERER",                    "PolyDrawTool renderers may only reference MultiLine and Patches glyph models."),
+    1016: ("INCOMPATIBLE_POLY_EDIT_RENDERER",                    "PolyEditTool renderers may only reference MultiLine and Patches glyph models"),
+    1017: ("INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER",             "PolyEditTool vertex_renderer may only reference XYGlyph models"),
+    1018: ("NO_RANGE_TOOL_RANGES",                               "RangeTool must have at least one of x_range or y_range configured"),
+    1019: ("DUPLICATE_FACTORS",                                  "FactorRange must specicy a unique list of categorical factors for an axis"),
+    9999: ("EXT",                                                "Custom extension reports error"),
 }
 
 for code in codes:
