@@ -85,20 +85,6 @@ class Plot(LayoutDOM):
 
     '''
 
-    def __init__(self, **kwargs):
-        '''
-
-        '''
-        _check_conflicting_kwargs("toolbar", "tools", kwargs)
-        _check_conflicting_kwargs("toolbar", "logo", kwargs)
-
-        if "toolbar" not in kwargs:
-            tools = kwargs.pop('tools', [])
-            logo = kwargs.pop('logo', 'normal')
-            kwargs["toolbar"] = Toolbar(tools=tools, logo=logo)
-
-        super(LayoutDOM, self).__init__(**kwargs)
-
     def select(self, *args, **kwargs):
         ''' Query this object and all of its references for objects that
         match the given selector.
@@ -476,7 +462,7 @@ class Plot(LayoutDOM):
     setup is performed.
     """)
 
-    toolbar = Instance(Toolbar, help="""
+    toolbar = Instance(Toolbar, default=lambda: Toolbar(), help="""
     The toolbar associated with this plot which holds all the tools. It is
     automatically created with the plot if necessary.
     """)

@@ -15,8 +15,7 @@ source = ColumnDataSource(data=dict(
 normal = Jitter(width=0.2, distribution="normal")
 uniform = Jitter(width=0.2, distribution="uniform")
 
-p = figure(x_range=(0, 4), y_range=(0,10), toolbar_location=None,
-           tools="", x_axis_location="above")
+p = figure(x_range=(0, 4), y_range=(0,10), toolbar_location=None, x_axis_location="above")
 p.circle(x='x',  y='y', color='firebrick', source=source, size=5, alpha=0.5)
 p.circle(x='xn', y='y', color='olive',     source=source, size=5, alpha=0.5)
 p.circle(x='xu', y='y', color='navy',      source=source, size=5, alpha=0.5)

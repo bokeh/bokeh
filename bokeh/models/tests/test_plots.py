@@ -15,7 +15,7 @@ from bokeh.plotting import figure
 from bokeh.models import GlyphRenderer, Label, Plot, LinearAxis
 from bokeh.models.ranges import FactorRange, DataRange1d, Range1d
 from bokeh.models.scales import CategoricalScale, LinearScale, LogScale
-from bokeh.models.tools import PanTool, Toolbar
+from bokeh.models.tools import PanTool
 
 
 class TestPlotSelect(object):
@@ -142,27 +142,6 @@ class TestLinearTwinAxis(BaseTwinAxis, object):
     @staticmethod
     def get_range_instance():
         return Range1d(0, 42)
-
-
-def test_setting_logo_on_plot_declaration_sets_them_on_toolbar():
-    plot = Plot(logo='grey')
-    assert plot.toolbar.logo == 'grey', "Remove this test when deprecation cycle is over"
-
-
-def test_setting_tools_on_plot_declaration_sets_them_on_toolbar():
-    pan = PanTool()
-    plot = Plot(tools=[pan])
-    assert plot.toolbar.tools == [pan], "Remove this test when deprecation cycle is over"
-
-
-def test_plot_raises_error_if_toolbar_and_logo_are_set():
-    with pytest.raises(ValueError):
-        Plot(logo='grey', toolbar=Toolbar())
-
-
-def test_plot_raises_error_if_toolbar_and_tools_are_set():
-    with pytest.raises(ValueError):
-        Plot(tools=[PanTool()], toolbar=Toolbar())
 
 
 def test_plot_with_no_title_specified_creates_an_empty_title():

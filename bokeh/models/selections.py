@@ -1,6 +1,5 @@
 from ..core.has_props import abstract
 from ..core.properties import Dict, Int, Seq, String
-from ..util.deprecation import deprecated
 from ..model import Model
 
 class Selection(Model):
@@ -22,18 +21,6 @@ class Selection(Model):
 
     multiline_indices = Dict(String, Seq(Int), default={}, help="""
     """)
-
-    def __getitem__(self, key):
-        if key == '0d':
-            deprecated((0, 12, 15), "['0d']['indices']", ".line_indices")
-            return None
-        elif key == '2d':
-            deprecated((0, 12, 15), "['2d']['indices']", ".multiline_indices")
-            return None
-        elif key == '1d':
-            return self
-        elif key == 'indices':
-            return self.indices
 
 @abstract
 class SelectionPolicy(Model):

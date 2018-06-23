@@ -18,8 +18,6 @@ from __future__ import absolute_import
 
 import logging
 
-from bokeh.util import deprecation
-
 logger = logging.getLogger(__name__)
 
 from collections import defaultdict
@@ -979,16 +977,6 @@ class Document(object):
         self._all_models = recomputed
         self._all_models_by_name = recomputed_by_name
 
-    def _deprecated_remove_session_callback(self, callback, originator):
-        deprecation.deprecated((0, 12, 15),
-                               'The ability to remove a callback function using its value',
-                               'a value returned from the function that adds a callback')
-
-        cb_objs = self._callback_objs_by_callable[originator].pop(callback)
-        for cb_obj in cb_objs:
-            self._session_callbacks.remove(cb_obj)
-        return cb_objs
-
     def _remove_session_callback(self, callback_obj, originator):
         ''' Remove a callback added earlier with ``add_periodic_callback``,
         ``add_timeout_callback``, or ``add_next_tick_callback``.
@@ -1001,18 +989,15 @@ class Document(object):
 
         '''
         try:
-            if callable(callback_obj):
-                callback_objs = self._deprecated_remove_session_callback(callback_obj, originator)
-            else:
-                callback_objs = [callback_obj]
-                self._session_callbacks.remove(callback_obj)
-                for cb, cb_objs in list(self._callback_objs_by_callable[originator].items()):
-                    try:
-                        cb_objs.remove(callback_obj)
-                        if not cb_objs:
-                            del self._callback_objs_by_callable[originator][cb]
-                    except KeyError:
-                        pass
+            callback_objs = [callback_obj]
+            self._session_callbacks.remove(callback_obj)
+            for cb, cb_objs in list(self._callback_objs_by_callable[originator].items()):
+                try:
+                    cb_objs.remove(callback_obj)
+                    if not cb_objs:
+                        del self._callback_objs_by_callable[originator][cb]
+                except KeyError:
+                    pass
         except KeyError:
             raise ValueError("callback already ran or was already removed, cannot be removed again")
         # emit event so the session is notified and can remove the callback

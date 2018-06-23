@@ -13,7 +13,6 @@ from traceback import format_exception
 
 from tornado import gen
 from ..util.serialization import make_id
-from ..util import deprecation
 
 
 @gen.coroutine
@@ -140,9 +139,6 @@ class _CallbackGroup(object):
         else:
             raise RuntimeError('Unhandled removers', removers)
 
-    def _assign_deprecated_remover(self, callback, callback_id, removers):
-        self._get_removers_ids_by_callable(removers)[callback].add(callback_id)
-
     def _assign_remover(self, callback, callback_id, removers, remover):
         with self._removers_lock:
             if callback_id is None:
@@ -150,36 +146,19 @@ class _CallbackGroup(object):
             elif callback_id in removers:
                 raise ValueError("A callback of the same type has already been added with this ID")
             removers[callback_id] = remover
-            self._assign_deprecated_remover(callback, callback_id, removers)
             return callback_id
-
-    def _create_deprecated_remover(self, callback, removers):
-        deprecation.deprecated((0, 12, 15),
-                               'The ability to remove a callback function using its value',
-                               'a value returned from the function that adds a callback')
-        callback_ids = self._get_removers_ids_by_callable(removers).pop(callback)
-        to_run = [removers.pop(i) for i in callback_ids]
-
-        def remover():
-            for f in to_run:
-                f()
-
-        return remover
 
     def _execute_remover(self, callback_id, removers):
         try:
             with self._removers_lock:
-                if callable(callback_id):
-                    remover = self._create_deprecated_remover(callback_id, removers)
-                else:
-                    remover = removers.pop(callback_id)
-                    for cb, cb_ids in list(self._get_removers_ids_by_callable(removers).items()):
-                        try:
-                            cb_ids.remove(callback_id)
-                            if not cb_ids:
-                                del self._get_removers_ids_by_callable(removers)[cb]
-                        except KeyError:
-                            pass
+                remover = removers.pop(callback_id)
+                for cb, cb_ids in list(self._get_removers_ids_by_callable(removers).items()):
+                    try:
+                        cb_ids.remove(callback_id)
+                        if not cb_ids:
+                            del self._get_removers_ids_by_callable(removers)[cb]
+                    except KeyError:
+                        pass
         except KeyError:
             raise ValueError("Removing a callback twice (or after it's already been run)")
         remover()
