@@ -1,12 +1,15 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
+import {PointGeometry} from "core/geometry"
 import {DistanceSpec, AngleSpec} from "core/vectorization"
 import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
 import {Arrayable} from "core/types"
+import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Rect} from "core/util/spatial"
 import {IBBox} from "core/util/bbox"
 import {Context2d} from "core/util/canvas"
+import {Selection} from "../selections/selection"
 
 export interface OvalData extends XYGlyphData {
   _angle: Arrayable<number>
@@ -78,6 +81,62 @@ export class OvalView extends XYGlyphView {
       ctx.rotate(-_angle[i])
       ctx.translate(-sx[i], -sy[i])
     }
+  }
+
+  protected _point_in_oval(x0: number, y0: number, angle: number, h: number, w: number, x: number, y: number){
+    // width of oval from cubic bezier = 3/4 * width ellipse
+    w = w * 0.75
+    const A = ((Math.cos(angle) / w) ** 2 + (Math.sin(angle) / h) ** 2)
+    const B = 2 * Math.cos(angle) * Math.sin(angle) * ((1 / w) ** 2 - (1 / h) ** 2)
+    const C = ((Math.cos(angle) / h) ** 2 + (Math.sin(angle) / w) ** 2)
+    const eqn = A * (x0 - x) ** 2 + B * (x0 - x) * (y0 - y) + C * (y0 - y) ** 2
+    const cond = eqn <= 1
+    return cond
+  }
+
+  protected _hit_point(geometry: PointGeometry): Selection {
+    let x0, x1, y0, y1, cond, dist, sx0, sx1, sy0, sy1
+
+    const {sx, sy} = geometry
+    const x = this.renderer.xscale.invert(sx)
+    const y = this.renderer.yscale.invert(sy)
+
+    if (this.model.properties.width.units == "data"){
+      x0 = x - this.max_width
+      x1 = x + this.max_width
+    }
+    else{
+      sx0 = sx - this.max_width
+      sx1 = sx + this.max_width
+      ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
+    }
+    if (this.model.properties.height.units == "data"){
+      y0 = y - this.max_height
+      y1 = y + this.max_height
+    }
+    else{
+      sy0 = sy - this.max_height
+      sy1 = sy + this.max_height
+      ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+    }
+
+    const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
+    const candidates = this.index.indices(bbox)
+    const hits: [number, number][] = []
+
+    console.log(candidates)
+    for (const i of candidates) {
+      cond = this._point_in_oval(sx, sy, this._angle[i], this.sh[i]/2, this.sw[i]/2, this.sx[i], this.sy[i])
+      if (cond){
+        console.log(i)
+        ;[sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
+        ;[sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i])
+        dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
+        hits.push([i, dist])
+      }
+    }
+
+    return hittest.create_hit_test_result_from_hits(hits)
   }
 
   draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: IBBox, index: number): void {

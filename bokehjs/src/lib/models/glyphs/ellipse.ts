@@ -54,13 +54,14 @@ export class EllipseView extends XYGlyphView {
       this.sh = this._height
   }
 
-  protected _render(ctx: Context2d, indices: number[], {sx, sy, sw, sh}: EllipseData): void {
+  protected _render(ctx: Context2d, indices: number[], {sx, sy, sw, sh, _angle}: EllipseData): void {
+     console.log(this._angle, _angle)
      for (const i of indices) {
-       if (isNaN(sx[i] + sy[i] + sw[i] + sh[i] + this._angle[i]))
+       if (isNaN(sx[i] + sy[i] + sw[i] + sh[i] + _angle[i]))
          continue
 
        ctx.beginPath()
-       ctx.ellipse(sx[i], sy[i], sw[i]/2.0, sh[i]/2.0, this._angle[i], 0, 2 * Math.PI)
+       ctx.ellipse(sx[i], sy[i], sw[i]/2.0, sh[i]/2.0, _angle[i], 0, 2 * Math.PI)
 
        if (this.visuals.fill.doit) {
          this.visuals.fill.set_vectorize(ctx, i)
