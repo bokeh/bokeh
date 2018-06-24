@@ -55,7 +55,6 @@ export class EllipseView extends XYGlyphView {
   }
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy, sw, sh, _angle}: EllipseData): void {
-     console.log(this._angle, _angle)
      for (const i of indices) {
        if (isNaN(sx[i] + sy[i] + sw[i] + sh[i] + _angle[i]))
          continue
