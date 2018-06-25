@@ -874,12 +874,14 @@ class MinMaxBounds(Either):
             types = (
                 Auto,
                 Tuple(Float, Float),
+                Tuple(TimeDelta, TimeDelta),
                 Tuple(Datetime, Datetime),
             )
         else:
             types = (
                 Auto,
                 Tuple(Float, Float),
+                Tuple(TimeDelta, TimeDelta),
             )
         super(MinMaxBounds, self).__init__(*types, default=default, help=help)
 
@@ -1603,8 +1605,12 @@ class NumberSpec(DataSpec):
     ''' A |DataSpec| property that accepts numeric and datetime fixed values.
 
     By default, date and datetime values are immediately converted to
-    milliseconds since epoch. It it possible to disable processing of datetime
+    milliseconds since epoch. It is possible to disable processing of datetime
     values by passing ``accept_datetime=False``.
+
+    By default, timedelta values are immediately converted to absolute
+    milliseconds.  It is possible to disable processing of timedelta
+    values by passing ``accept_timedelta=False``
 
     Timedelta values are interpreted as absolute milliseconds.
 
@@ -1615,9 +1621,10 @@ class NumberSpec(DataSpec):
         m.location = "foo" # field
 
     '''
-    def __init__(self, default=None, help=None, key_type=_ExprFieldValueTransform, accept_datetime=True):
+    def __init__(self, default=None, help=None, key_type=_ExprFieldValueTransform, accept_datetime=True, accept_timedelta=True):
         super(NumberSpec, self).__init__(key_type, Float, default=default, help=help)
-        self.accepts(TimeDelta, convert_timedelta_type)
+        if accept_timedelta:
+            self.accepts(TimeDelta, convert_timedelta_type)
         if accept_datetime:
             self.accepts(Datetime, convert_datetime_type)
 

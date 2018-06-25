@@ -115,6 +115,30 @@ class Test_DataRange1d(object):
         assert datarange1d.end is None
         assert datarange1d.bounds is None
 
+    def test_init_with_timedelta(self):
+        datarange1d = DataRange1d(start=-dt.timedelta(seconds=5), end=dt.timedelta(seconds=3))
+        assert datarange1d.start == -dt.timedelta(seconds=5)
+        assert datarange1d.end == dt.timedelta(seconds=3)
+        assert datarange1d.bounds is None
+
+    def test_init_with_datetime(self):
+        datarange1d = DataRange1d(start=dt.datetime(2016, 4, 28, 2, 20, 50), end=dt.datetime(2017, 4, 28, 2, 20, 50))
+        assert datarange1d.start == dt.datetime(2016, 4, 28, 2, 20, 50)
+        assert datarange1d.end == dt.datetime(2017, 4, 28, 2, 20, 50)
+        assert datarange1d.bounds is None
+
+    def test_init_with_float(self):
+        datarange1d = DataRange1d(start=-1.0, end=3.0)
+        assert datarange1d.start == -1.0
+        assert datarange1d.end == 3.0
+        assert datarange1d.bounds is None
+
+    def test_init_with_int(self):
+        datarange1d = DataRange1d(start=-1, end=3)
+        assert datarange1d.start == -1
+        assert datarange1d.end == 3
+        assert datarange1d.bounds is None
+
     def test_init_with_follow_sets_bounds_to_none(self):
         datarange1d = DataRange1d(follow="start")
         assert datarange1d.follow == "start"
