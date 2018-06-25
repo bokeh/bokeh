@@ -46,7 +46,7 @@ import numpy as np
 
 from ..settings import settings
 from ..util.dependencies import import_optional
-from ..util.serialization import convert_datetime_type, is_datetime_type, transform_series, transform_array
+from ..util.serialization import convert_datetime_type, convert_timedelta_type, is_datetime_type, is_timedelta_type, transform_series, transform_array
 
 pd = import_optional('pandas')
 rd = import_optional("dateutil.relativedelta")
@@ -71,6 +71,9 @@ class BokehJSONEncoder(json.JSONEncoder):
         # date/time values that get serialized as milliseconds
         if is_datetime_type(obj):
             return convert_datetime_type(obj)
+
+        if is_timedelta_type(obj):
+            return convert_timedelta_type(obj)
 
         # slice objects
         elif isinstance(obj, slice):

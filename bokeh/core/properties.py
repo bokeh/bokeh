@@ -106,7 +106,7 @@ from six import string_types, iteritems
 
 from .. import colors
 from ..util.dependencies import import_optional
-from ..util.serialization import convert_datetime_type, decode_base64_dict, transform_column_source_data
+from ..util.serialization import convert_datetime_type, convert_timedelta_type, decode_base64_dict, transform_column_source_data
 from ..util.string import nice_join, format_docstring
 
 from .property.bases import ContainerProperty, DeserializationError, ParameterizedProperty, Property, PrimitiveProperty
@@ -1617,7 +1617,7 @@ class NumberSpec(DataSpec):
     '''
     def __init__(self, default=None, help=None, key_type=_ExprFieldValueTransform, accept_datetime=True):
         super(NumberSpec, self).__init__(key_type, Float, default=default, help=help)
-        self.accepts(TimeDelta, convert_datetime_type)
+        self.accepts(TimeDelta, convert_timedelta_type)
         if accept_datetime:
             self.accepts(Datetime, convert_datetime_type)
 

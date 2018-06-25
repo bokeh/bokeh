@@ -38,14 +38,11 @@ BINARY_ARRAY_TYPES = set([
     np.dtype(np.int32),
 ])
 
-# TODO (bev) properly, timedelta values should not be considered datetime types
 DATETIME_TYPES = set([
     dt.datetime,
-    dt.timedelta,
     dt.date,
     dt.time,
     np.datetime64,
-    np.timedelta64
 ])
 
 if pd:
@@ -69,8 +66,8 @@ _simple_id = 1000
 _dt_tuple = tuple(DATETIME_TYPES)
 
 def is_datetime_type(obj):
-    ''' Whether an object is any date, datetime, or time delta type
-    recognized by Bokeh.
+    ''' Whether an object is any date, time, or datetime type recognized by
+    Bokeh.
 
     Arg:
         obj (object) : the object to test
@@ -81,13 +78,37 @@ def is_datetime_type(obj):
     '''
     return isinstance(obj, _dt_tuple)
 
+def is_timedelta_type(obj):
+    ''' Whether an object is any timedelta type recognized by Bokeh.
+
+    Arg:
+        obj (object) : the object to test
+
+    Returns:
+        bool : True if ``obj`` is a timedelta type
+
+    '''
+    return isinstance(obj, (dt.timedelta, np.timedelta64))
+
+def convert_timedelta_type(obj):
+    ''' Convert any recognized timedelta value to floating point absolute
+    milliseconds.
+
+    Arg:
+        obj (object) : the object to convert
+
+    Returns:
+        float : milliseconds
+
+    '''
+    if isinstance(obj, dt.timedelta):
+        return obj.total_seconds() * 1000.
+    elif isinstance(obj, np.timedelta64):
+        return (obj / NP_MS_DELTA)
+
 def convert_datetime_type(obj):
-    ''' Convert any recognized date, datetime or time delta value to
-    floating point milliseconds
-
-    Date and Datetime values are converted to milliseconds since epoch.
-
-    TimeDeleta values are converted to absolute milliseconds.
+    ''' Convert any recognized date, time, or datetime value to floating point
+    milliseconds since epoch.
 
     Arg:
         obj (object) : the object to convert
@@ -111,10 +132,6 @@ def convert_datetime_type(obj):
         diff = obj.replace(tzinfo=None) - DT_EPOCH
         return diff.total_seconds() * 1000.
 
-    # Timedelta (timedelta is class in the datetime library)
-    elif isinstance(obj, dt.timedelta):
-        return obj.total_seconds() * 1000.
-
     # Date
     elif isinstance(obj, dt.date):
         return (dt.datetime(*obj.timetuple()[:6]) - DT_EPOCH).total_seconds() * 1000
@@ -123,10 +140,6 @@ def convert_datetime_type(obj):
     elif isinstance(obj, np.datetime64):
         epoch_delta = obj - NP_EPOCH
         return (epoch_delta / NP_MS_DELTA)
-
-    # Numpy timedelta64
-    elif isinstance(obj, np.timedelta64):
-        return (obj / NP_MS_DELTA)
 
     # Time
     elif isinstance(obj, dt.time):

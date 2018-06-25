@@ -212,6 +212,23 @@ class TestSerializeJson(object):
         deserialized = self.deserialize(serialized)
         assert deserialized == delta.total_seconds() * 1000
 
+    def test_numpy_timedelta_types(self):
+        delta = np.timedelta64(3000, 'ms')
+        serialized = self.serialize(delta)
+        deserialized = self.deserialize(serialized)
+        assert deserialized == 3000
+
+        delta = np.timedelta64(3000, 's')
+        serialized = self.serialize(delta)
+        deserialized = self.deserialize(serialized)
+        assert deserialized == 3000000
+
+    def test_pandas_timedelta_types(self, pd):
+        delta = pd.Timedelta("3000ms")
+        serialized = self.serialize(delta)
+        deserialized = self.deserialize(serialized)
+        assert deserialized == 3000
+
     def test_deque(self):
         """Test that a deque is deserialized as a list."""
         assert self.serialize(deque([0, 1, 2])) == '[0,1,2]'
