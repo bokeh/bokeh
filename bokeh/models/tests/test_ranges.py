@@ -1,5 +1,7 @@
 from __future__ import absolute_import
 
+import datetime as dt
+
 import mock
 import pytest
 
@@ -22,6 +24,30 @@ class Test_Range1d(object):
             "min_interval",
             "max_interval"],
         )
+
+    def test_init_with_timedelta(self):
+        range1d = Range1d(start=-dt.timedelta(seconds=5), end=dt.timedelta(seconds=3))
+        assert range1d.start == -dt.timedelta(seconds=5)
+        assert range1d.end == dt.timedelta(seconds=3)
+        assert range1d.bounds is None
+
+    def test_init_with_datetime(self):
+        range1d = Range1d(start=dt.datetime(2016, 4, 28, 2, 20, 50), end=dt.datetime(2017, 4, 28, 2, 20, 50))
+        assert range1d.start == dt.datetime(2016, 4, 28, 2, 20, 50)
+        assert range1d.end == dt.datetime(2017, 4, 28, 2, 20, 50)
+        assert range1d.bounds is None
+
+    def test_init_with_float(self):
+        range1d = Range1d(start=-1.0, end=3.0)
+        assert range1d.start == -1.0
+        assert range1d.end == 3.0
+        assert range1d.bounds is None
+
+    def test_init_with_int(self):
+        range1d = Range1d(start=-1, end=3)
+        assert range1d.start == -1
+        assert range1d.end == 3
+        assert range1d.bounds is None
 
     def test_init_with_positional_arguments(self):
         range1d = Range1d(1, 2)

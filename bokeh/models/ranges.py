@@ -42,20 +42,20 @@ class Range1d(Range):
 
     '''
 
-    start = Either(Float, Datetime, Int, default=0, help="""
+    start = Either(Float, Datetime, Int, TimeDelta, default=0, help="""
     The start of the range.
     """)
 
-    end = Either(Float, Datetime, Int, default=1, help="""
+    end = Either(Float, Datetime, Int, TimeDelta, default=1, help="""
     The end of the range.
     """)
 
-    reset_start = Either(Float, Datetime, Int, default=None, help="""
+    reset_start = Either(Float, Datetime, Int, TimeDelta, default=None, help="""
     The start of the range to apply after reset. If set to ``None`` defaults
     to the ``start`` value during initialization.
     """)
 
-    reset_end = Either(Float, Datetime, Int, default=None, help="""
+    reset_end = Either(Float, Datetime, Int, TimeDelta, default=None, help="""
     The end of the range to apply when resetting. If set to ``None`` defaults
     to the ``end`` value during initialization.
     """)
