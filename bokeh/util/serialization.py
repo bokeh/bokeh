@@ -38,6 +38,7 @@ BINARY_ARRAY_TYPES = set([
     np.dtype(np.int32),
 ])
 
+# TODO (bev) properly, timedelta values should not be considered datetime types
 DATETIME_TYPES = set([
     dt.datetime,
     dt.timedelta,
@@ -54,6 +55,7 @@ if pd:
         _pd_timestamp = pd.tslib.Timestamp
     DATETIME_TYPES.add(_pd_timestamp)
     DATETIME_TYPES.add(pd.Timedelta)
+    DATETIME_TYPES.add(pd.Period)
 
 NP_EPOCH = np.datetime64(0, 'ms')
 NP_MS_DELTA = np.timedelta64(1, 'ms')
@@ -94,6 +96,10 @@ def convert_datetime_type(obj):
         float : milliseconds
 
     '''
+    # Pandas Period
+    if pd and isinstance(obj, pd.Period):
+        return obj.to_timestamp().value / 10**6.0
+
     # Pandas Timestamp
     if pd and isinstance(obj, _pd_timestamp): return obj.value / 10**6.0
 
@@ -139,6 +145,7 @@ def convert_datetime_array(array):
         array
 
     '''
+
     if not isinstance(array, np.ndarray):
         return array
 
@@ -294,7 +301,12 @@ def transform_series(series, force_list=False, buffers=None):
         list or dict
 
     '''
-    vals = series.values
+    # not checking for pd here, this function should only be called if it
+    # is already known that series is a Pandas Series type
+    if isinstance(series, pd.PeriodIndex):
+        vals = series.to_timestamp().values
+    else:
+        vals = series.values
     return transform_array(vals, force_list=force_list, buffers=buffers)
 
 def serialize_array(array, force_list=False, buffers=None):
