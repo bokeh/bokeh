@@ -40,7 +40,7 @@ def test_error_decorator_custom():
     @v.error("E2")
     def bad():
         return "bad"
-    assert bad() == [(9999, 'EXT:E2', 'Custom extension reports error', 'bad')]
+    assert bad() == [(9999, 'EXT:E2', 'Custom extension reports error.', 'bad')]
 
 def test_warning_decorator_custom():
     @v.warning("W1")
@@ -51,7 +51,7 @@ def test_warning_decorator_custom():
     @v.warning("W2")
     def bad():
         return "bad"
-    assert bad() == [ (9999, 'EXT:W2', 'Custom extension reports warning', 'bad')]
+    assert bad() == [ (9999, 'EXT:W2', 'Custom extension reports warning.', 'bad')]
 
 class Mod(Model):
 

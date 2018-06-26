@@ -14,8 +14,9 @@ from ..core.properties import (Angle, AngleSpec, Auto, Bool, ColorSpec, Datetime
                                Enum, Float, FontSizeSpec, Include, Instance, Int, List, NumberSpec, Override,
                                Seq, String, StringSpec, Tuple, value)
 from ..core.property_mixins import FillProps, LineProps, TextProps
-from ..core.validation import error
+from ..core.validation import error, warning
 from ..core.validation.errors import BAD_COLUMN_NAME, NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS
+from ..core.validation.warnings import LARGE_GROUPED_LEGEND
 from ..model import Model
 from ..util.serialization import convert_datetime_type
 
@@ -80,6 +81,18 @@ class LegendItem(Model):
     A list of the glyph renderers to draw in the legend. If ``label`` is a field,
     then all data_sources of renderers must be the same.
     """)
+
+    @warning(LARGE_GROUPED_LEGEND)
+    def _check_large_grouped_legend(self):
+        if self.label and 'field' in self.label:
+            source = self.renderers[0].data_source
+            field = self.label.get('field')
+            if field in source.column_names:
+                n = len(set(source.data.get(field)))
+                if n > 7:
+                    return ('Grouping on %r will result in %d legend entries. ' +
+                        'If you intend a simple single label, pass "value(%r)" as the legend label instead ' +
+                        '(value is in bokeh.core.properties)') % (field, n, field)
 
     @error(NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS)
     def _check_data_sources_on_renderers(self):
