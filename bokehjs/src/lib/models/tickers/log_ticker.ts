@@ -67,9 +67,8 @@ export class LogTicker extends AdaptiveTicker {
       const endlog = Math.floor(log_high * 1.000001)
       const interval = Math.ceil((endlog - startlog) / 9.0)
 
-      ticks = range(startlog, endlog + 1, interval)
+      ticks = range(startlog-1, endlog+1, interval)
         .map((i) => Math.pow(base, i))
-        .filter((tick) => data_low <= tick && tick <= data_high)
 
       if (num_minor_ticks > 0 && ticks.length > 0) {
         const minor_interval = Math.pow(base, interval) / num_minor_ticks
@@ -87,8 +86,8 @@ export class LogTicker extends AdaptiveTicker {
     }
 
     return {
-      major: ticks,
-      minor: minor_ticks,
+      major: ticks.filter((tick) => data_low <= tick && tick <= data_high),
+      minor: minor_ticks.filter((tick) => data_low <= tick && tick <= data_high),
     }
   }
 }
