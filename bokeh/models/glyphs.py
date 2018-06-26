@@ -513,8 +513,7 @@ class ImageURL(XYGlyph):
     # functions derived from this class
     _args = ('url', 'x', 'y', 'w', 'h', 'angle', 'global_alpha', 'dilate')
 
-    # TODO (bev) Why is this a NumberSpec??
-    url = NumberSpec(accept_datetime=False, help="""
+    url = StringSpec(default=None, help="""
     The URLs to retrieve images from.
 
     .. note::

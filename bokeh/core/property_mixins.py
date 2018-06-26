@@ -76,7 +76,7 @@ class FillProps(HasProps):
     '''
 
     fill_color = ColorSpec(default="gray", help=_color_help % "fill paths")
-    fill_alpha = NumberSpec(default=1.0, accept_datetime=False, help=_alpha_help % "fill paths")
+    fill_alpha = NumberSpec(default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "fill paths")
 
 class ScalarFillProps(HasProps):
     ''' Properties relevant to rendering fill regions.
@@ -153,8 +153,8 @@ class LineProps(HasProps):
     base_line_props = Include(BaseLineProps, use_prefix=False)
 
     line_color = ColorSpec(default="black", help=_color_help % "stroke paths")
-    line_width = NumberSpec(default=1, accept_datetime=False, help=_line_width_help)
-    line_alpha = NumberSpec(default=1.0, accept_datetime=False, help=_alpha_help % "stroke paths")
+    line_width = NumberSpec(default=1, accept_datetime=False, accept_timedelta=False, help=_line_width_help)
+    line_alpha = NumberSpec(default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "stroke paths")
 
 
 class ScalarLineProps(HasProps):
@@ -240,7 +240,7 @@ class TextProps(HasProps):
 
     text_color = ColorSpec(default="#444444", help=_color_help % "fill text")
 
-    text_alpha = NumberSpec(default=1.0, accept_datetime=False, help=_alpha_help % "fill text")
+    text_alpha = NumberSpec(default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "fill text")
 
 class ScalarTextProps(HasProps):
     ''' Properties relevant to rendering text.

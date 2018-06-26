@@ -41,31 +41,46 @@ def test_binary_array_types():
 
 def test_datetime_types(pd):
     if pd is None:
-        assert len(bus.DATETIME_TYPES) == 6
+        assert len(bus.DATETIME_TYPES) == 4
     else:
-        assert len(bus.DATETIME_TYPES) == 8
+        assert len(bus.DATETIME_TYPES) == 7
 
-def test_is_datetime_type(pd):
+def test_is_timedelta_type_non_pandas_types():
+    assert bus.is_timedelta_type(datetime.timedelta(3000))
+    assert bus.is_timedelta_type(np.timedelta64(3000, 'ms'))
+
+def test_is_timedelta_type_pandas_types(pd):
+    assert bus.is_timedelta_type(pd.Timedelta("3000ms"))
+
+def test_convert_timedelta_type_non_pandas_types():
+    assert bus.convert_timedelta_type(datetime.timedelta(3000)) == 259200000000.0
+    assert bus.convert_timedelta_type(np.timedelta64(3000, 'ms')) == 3000.
+
+def test_convert_timedelta_type_pandas_types(pd):
+    assert bus.convert_timedelta_type(pd.Timedelta("3000ms")) == 3000.0
+
+def test_is_datetime_type_non_pandas_types():
     assert bus.is_datetime_type(datetime.datetime(2016, 5, 11))
-    assert bus.is_datetime_type(datetime.timedelta(3000))
     assert bus.is_datetime_type(datetime.date(2016, 5, 11))
     assert bus.is_datetime_type(datetime.time(3, 54))
     assert bus.is_datetime_type(np.datetime64("2011-05-11"))
-    assert bus.is_datetime_type(np.timedelta64(3000, 'ms'))
-    assert bus.is_datetime_type(pd.Timedelta("3000ms"))
-    assert bus.is_datetime_type(bus._pd_timestamp(3000000))
 
-def test_convert_datetime_type(pd):
+def test_is_datetime_type_pandas_types(pd):
+    assert bus.is_datetime_type(bus._pd_timestamp(3000000))
+    assert bus.is_datetime_type(pd.Period('1900', 'A-DEC'))
+
+def test_convert_datetime_type_non_pandas_types():
     assert bus.convert_datetime_type(datetime.datetime(2018, 1, 3, 15, 37, 59, 922452)) == 1514993879922.452
     assert bus.convert_datetime_type(datetime.datetime(2018, 1, 3, 15, 37, 59)) == 1514993879000.0
     assert bus.convert_datetime_type(datetime.datetime(2016, 5, 11)) == 1462924800000.0
-    assert bus.convert_datetime_type(datetime.timedelta(3000)) == 259200000000.0
     assert bus.convert_datetime_type(datetime.date(2016, 5, 11)) == 1462924800000.0
     assert bus.convert_datetime_type(datetime.time(3, 54)) == 14040000.0
     assert bus.convert_datetime_type(np.datetime64("2016-05-11")) == 1462924800000.0
-    assert bus.convert_datetime_type(np.timedelta64(3000, 'ms')) == 3000.0
-    assert bus.convert_datetime_type(pd.Timedelta("3000ms")) == 3000.0
+
+def test_convert_datetime_type_pandas_types(pd):
     assert bus.convert_datetime_type(bus._pd_timestamp(3000000)) == 3.0
+    assert bus.convert_datetime_type(pd.Period('1900', 'A-DEC')) == -2208988800000.0
+    assert bus.convert_datetime_type(pd.Period('1900', 'A-DEC')) == bus.convert_datetime_type(np.datetime64("1900-01-01"))
 
 @pytest.mark.parametrize('obj', [[1,2], (1,2), dict(), set(), 10.2, "foo"])
 @pytest.mark.unit
@@ -164,6 +179,8 @@ def test_transform_series_force_list_default_with_buffers(pd):
     assert isinstance(out, dict)
     assert len(bufs) == 1
     assert len(bufs[0]) == 2
+    assert isinstance(bufs[0][0], dict)
+    assert list(bufs[0][0]) == ["id"]
     assert bufs[0][1] == np.array(df).tobytes()
     assert 'shape' in out
     assert out['shape'] == df.shape
@@ -177,6 +194,8 @@ def test_transform_series_force_list_default_with_buffers(pd):
     assert isinstance(out, dict)
     assert len(bufs) == 1
     assert len(bufs[0]) == 2
+    assert isinstance(bufs[0][0], dict)
+    assert list(bufs[0][0]) == ["id"]
     assert bufs[0][1] == np.array(df).tobytes()
     assert 'shape' in out
     assert out['shape'] == df.shape
@@ -190,12 +209,63 @@ def test_transform_series_force_list_default_with_buffers(pd):
     assert isinstance(out, dict)
     assert len(bufs) == 1
     assert len(bufs[0]) == 2
+    assert isinstance(bufs[0][0], dict)
+    assert list(bufs[0][0]) == ["id"]
     assert bufs[0][1] == np.array(df).tobytes()
     assert 'shape' in out
     assert out['shape'] == df.shape
     assert 'dtype' in out
     assert out['dtype'] == df.dtype.name
     assert '__buffer__' in out
+
+    # PeriodIndex
+    df = pd.period_range('1900-01-01','2000-01-01', freq='A')
+    bufs = []
+    out = bus.transform_series(df, buffers=bufs)
+    assert isinstance(out, dict)
+    assert len(bufs) == 1
+    assert len(bufs[0]) == 2
+    assert isinstance(bufs[0][0], dict)
+    assert list(bufs[0][0]) == ["id"]
+    assert bufs[0][1] == bus.convert_datetime_array(df.to_timestamp().values).tobytes()
+    assert 'shape' in out
+    assert out['shape'] == df.shape
+    assert 'dtype' in out
+    assert out['dtype'] == 'float64'
+    assert '__buffer__' in out
+
+    # DatetimeIndex
+    df = pd.period_range('1900-01-01','2000-01-01', freq='A').to_timestamp()
+    bufs = []
+    out = bus.transform_series(df, buffers=bufs)
+    assert isinstance(out, dict)
+    assert len(bufs) == 1
+    assert len(bufs[0]) == 2
+    assert isinstance(bufs[0][0], dict)
+    assert list(bufs[0][0]) == ["id"]
+    assert bufs[0][1] == bus.convert_datetime_array(df.values).tobytes()
+    assert 'shape' in out
+    assert out['shape'] == df.shape
+    assert 'dtype' in out
+    assert out['dtype'] == 'float64'
+    assert '__buffer__' in out
+
+    # TimeDeltaIndex
+    df = pd.to_timedelta(np.arange(5), unit='s')
+    bufs = []
+    out = bus.transform_series(df, buffers=bufs)
+    assert isinstance(out, dict)
+    assert len(bufs) == 1
+    assert len(bufs[0]) == 2
+    assert isinstance(bufs[0][0], dict)
+    assert list(bufs[0][0]) == ["id"]
+    assert bufs[0][1] == bus.convert_datetime_array(df.values).tobytes()
+    assert 'shape' in out
+    assert out['shape'] == df.shape
+    assert 'dtype' in out
+    assert out['dtype'] == 'float64'
+    assert '__buffer__' in out
+
 
 def test_transform_series_force_list_true(pd):
     df = pd.Series([1, 3, 5, 6, 8])
