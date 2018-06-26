@@ -83,17 +83,6 @@ export class OvalView extends XYGlyphView {
     }
   }
 
-  protected _point_in_oval(x0: number, y0: number, angle: number, h: number, w: number, x: number, y: number){
-    // width of oval from cubic bezier = 3/4 * width ellipse
-    w = w * 0.75
-    const A = ((Math.cos(angle) / w) ** 2 + (Math.sin(angle) / h) ** 2)
-    const B = 2 * Math.cos(angle) * Math.sin(angle) * ((1 / w) ** 2 - (1 / h) ** 2)
-    const C = ((Math.cos(angle) / h) ** 2 + (Math.sin(angle) / w) ** 2)
-    const eqn = A * (x0 - x) ** 2 + B * (x0 - x) * (y0 - y) + C * (y0 - y) ** 2
-    const cond = eqn <= 1
-    return cond
-  }
-
   protected _hit_point(geometry: PointGeometry): Selection {
     let x0, x1, y0, y1, cond, dist, sx0, sx1, sy0, sy1
 
@@ -125,7 +114,7 @@ export class OvalView extends XYGlyphView {
     const hits: [number, number][] = []
 
     for (const i of candidates) {
-      cond = this._point_in_oval(sx, sy, this._angle[i], this.sh[i]/2, this.sw[i]/2, this.sx[i], this.sy[i])
+      cond = hittest.point_in_oval(sx, sy, this._angle[i], this.sh[i]/2, this.sw[i]/2, this.sx[i], this.sy[i])
       if (cond){
         ;[sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
         ;[sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i])

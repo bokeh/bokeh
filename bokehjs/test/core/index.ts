@@ -1,6 +1,7 @@
 import "./signaling"
 import "./enums"
 import "./has_props"
+import "./hittest"
 import "./layout"
 import "./logging"
 import "./properties"
