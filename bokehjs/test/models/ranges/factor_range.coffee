@@ -17,7 +17,7 @@ describe "factor_range module", ->
 
     it "should not be reversed ", ->
       expect(r.is_reversed).to.be.equal false
-              
+
   describe "reset method", ->
 
     it "should execute callback once", ->
