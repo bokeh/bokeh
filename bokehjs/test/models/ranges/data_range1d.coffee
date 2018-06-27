@@ -37,6 +37,9 @@ describe "datarange1d module", ->
     it "should have flipped = false", ->
       expect(r.flipped).to.be.equal false
 
+    it "should not be reversed", ->
+      expect(r.is_reversed).to.be.equal false
+
     it "should have follow = null", ->
       expect(r.follow).to.be.null
 
@@ -165,6 +168,11 @@ describe "datarange1d module", ->
       r = new DataRange1d()
       r.flipped = true
       expect(r._compute_range(3, 3)).to.be.deep.equal [4, 2]
+
+    it "should be reversed when flipped", ->
+      r = new DataRange1d()
+      r.flipped = true
+      expect(r.is_reversed).to.be.equal true
 
     it "should follow min when follow=start and not flipped", ->
       r = new DataRange1d()
