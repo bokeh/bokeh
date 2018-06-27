@@ -71,6 +71,10 @@ export abstract class Range extends Model {
         this.callback.execute(this, {})
     }
   }
+
+  get is_reversed(): boolean {
+    return this.start > this.end
+  }
 }
 
 Range.initClass()

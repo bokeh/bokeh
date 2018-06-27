@@ -15,6 +15,9 @@ describe "factor_range module", ->
     it "should have start=0", ->
       expect(r.start).to.be.equal 0
 
+    it "should not be reversed ", ->
+      expect(r.is_reversed).to.be.equal false
+
   describe "reset method", ->
 
     it "should execute callback once", ->

@@ -37,6 +37,9 @@ describe "datarange1d module", ->
     it "should have flipped = false", ->
       expect(r.flipped).to.be.equal false
 
+    it "should not be reversed", ->
+      expect(r.is_reversed).to.be.equal false
+
     it "should have follow = null", ->
       expect(r.follow).to.be.null
 
@@ -63,6 +66,12 @@ describe "datarange1d module", ->
 
     it "should have max = 20", ->
       expect(r.max).to.be.equal 20
+
+ describe "explicit inverted bounds=(20,10) creation", ->
+   r = new DataRange1d({start: 20, end:10})
+
+   it "should be reversed", ->
+     expect(r.is_reversed).to.be.equal true
 
   describe "reset", ->
 

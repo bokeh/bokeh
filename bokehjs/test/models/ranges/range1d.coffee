@@ -83,6 +83,14 @@ describe "range1d module", ->
     it "should have max = -1.1", ->
       expect(r.max).to.be.equal -1.1
 
+  describe "should not be reversed", ->
+    r = new Range1d({start: 10, end: 20})
+    expect(r.is_reversed).to.be.equal false
+
+  describe "should be reversed", ->
+    r = new Range1d({start: 20, end: 10})
+    expect(r.is_reversed).to.be.equal true
+
   describe "reset", ->
 
     it "should reset to initial values", ->

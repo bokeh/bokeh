@@ -60,10 +60,6 @@ export class Range1d extends Range {
     return Math.max(this.start, this.end)
   }
 
-  get is_reversed(): boolean {
-    return this.start > this.end
-  }
-
   reset(): void {
     this._set_auto_bounds()
     if (this.start != this.reset_start || this.end != this.reset_end)
