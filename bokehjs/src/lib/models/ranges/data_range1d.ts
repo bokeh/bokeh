@@ -89,6 +89,10 @@ export class DataRange1d extends DataRange {
     return Math.max(this.start, this.end)
   }
 
+  get is_reversed(): boolean {
+    return this.flipped
+  }
+
   computed_renderers(): Renderer[] {
     // TODO (bev) check that renderers actually configured with this range
     const names = this.names
