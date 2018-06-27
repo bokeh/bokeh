@@ -463,8 +463,6 @@ export class PlotCanvasView extends DOMView {
                                         is_panning: boolean, is_scrolling: boolean, maintain_focus: boolean): void {
     let hit_bound = false
     for (const [rng, range_info] of range_info_iter) {
-      // Is this a reversed range?
-      const is_reversed = (rng.start > rng.end)
 
       // Limit range interval first. Note that for scroll events,
       // the interval has already been limited for all ranges simultaneously
@@ -482,7 +480,7 @@ export class PlotCanvasView extends DOMView {
         const [min, max] = rng.bounds
         const new_interval = Math.abs(range_info.end - range_info.start)
 
-        if (is_reversed) {
+        if (rng.is_reversed) {
           if (min != null) {
             if (min >= range_info.end) {
               hit_bound = true
