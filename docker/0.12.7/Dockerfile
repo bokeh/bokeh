@@ -1,6 +1,7 @@
 FROM frolvlad/alpine-miniconda3
 LABEL org.pydata.bokeh.maintainer="Karel-van-de-Plassche <karelvandeplassche@gmail.com>"
 
+# Bokeh required dependencies
 RUN conda install -y \
     'six >=1.5.2' \
     'PyYAML >=3.10' \
@@ -12,9 +13,18 @@ RUN conda install -y \
 RUN conda install -y \
   'bokeh==0.12.7'
 
+# Bokeh optional dependencies
+RUN conda install -y \
+    'nodejs'
+    #'psutil' # Not used in bokeh==0.12.7
+
+RUN conda clean -ay
+
 RUN python3 -c "import tornado; print('tornado version=' + tornado.version)"
 RUN bokeh info
 
-COPY hello_world.py /hello_world.py
+ENV BOKEH_EXAMPLE_DIR bokeh_examples
+COPY hello_world.py $BOKEH_EXAMPLE_DIR/hello_world.py
+COPY hello_nodejs.py $BOKEH_EXAMPLE_DIR/hello_nodejs.py
 # Build with 'sudo docker build . --tag bokeh'
-# Run with 'sudo docker run -p 5006:5006 -it bokeh bokeh serve hello_world.py'
+# Run with 'sudo docker run -p 5006:5006 -it bokeh bokeh serve bokeh_examples/hello_world.py'
