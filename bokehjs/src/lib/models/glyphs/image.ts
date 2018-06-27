@@ -80,6 +80,7 @@ export class ImageView extends XYGlyphView {
     const yr = this.renderer.yscale.source_range
     const y1 = this._y[i]
     const y2 = yr.is_reversed ? y1 - this._dh[i] : y1 + this._dh[i]
+
     const [l,r] = x1 < x2 ? [x1,x2] : [x2,x1]
     const [b,t] = y1 < y2 ? [y1,y2] : [y2,y1]
     return [l, r, t, b]
