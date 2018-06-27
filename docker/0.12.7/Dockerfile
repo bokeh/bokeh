@@ -1,20 +1,16 @@
-FROM alpine:3.7
+FROM frolvlad/alpine-miniconda3
 LABEL org.pydata.bokeh.maintainer="Karel-van-de-Plassche <karelvandeplassche@gmail.com>"
 
-RUN apk add --no-cache \
-    python3
+RUN conda install -y \
+    'six >=1.5.2' \
+    'PyYAML >=3.10' \
+    'python-dateutil >=2.1' \
+    'Jinja2 >=2.7' \
+    'numpy >=1.7.1' \
+    'tornado >=4.3'
 
-RUN apk add --no-cache \
-    py3-six \
-    py3-yaml \
-    py3-dateutil \
-    py3-markupsafe \
-    py3-jinja2 \
-    py3-numpy \
-    py3-tornado
-
-RUN pip3 install \
-  bokeh==0.12.7
+RUN conda install -y \
+  'bokeh==0.12.7'
 
 RUN python3 -c "import tornado; print('tornado version=' + tornado.version)"
 RUN bokeh info
