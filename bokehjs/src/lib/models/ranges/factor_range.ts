@@ -169,11 +169,6 @@ export class FactorRange extends Range {
     return this.end
   }
 
-  get is_reversed(): boolean {
-    return false
-  }
-
-
   initialize(): void {
     super.initialize()
     this._init()
