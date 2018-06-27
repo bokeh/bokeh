@@ -53,6 +53,7 @@ if pd:
     DATETIME_TYPES.add(_pd_timestamp)
     DATETIME_TYPES.add(pd.Timedelta)
     DATETIME_TYPES.add(pd.Period)
+    DATETIME_TYPES.add(type(pd.NaT))
 
 NP_EPOCH = np.datetime64(0, 'ms')
 NP_MS_DELTA = np.timedelta64(1, 'ms')
@@ -117,6 +118,10 @@ def convert_datetime_type(obj):
         float : milliseconds
 
     '''
+    # Pandas NaT
+    if pd and obj is pd.NaT:
+        return np.nan
+
     # Pandas Period
     if pd and isinstance(obj, pd.Period):
         return obj.to_timestamp().value / 10**6.0

@@ -43,7 +43,7 @@ def test_datetime_types(pd):
     if pd is None:
         assert len(bus.DATETIME_TYPES) == 4
     else:
-        assert len(bus.DATETIME_TYPES) == 7
+        assert len(bus.DATETIME_TYPES) == 8
 
 def test_is_timedelta_type_non_pandas_types():
     assert bus.is_timedelta_type(datetime.timedelta(3000))
@@ -68,6 +68,7 @@ def test_is_datetime_type_non_pandas_types():
 def test_is_datetime_type_pandas_types(pd):
     assert bus.is_datetime_type(bus._pd_timestamp(3000000))
     assert bus.is_datetime_type(pd.Period('1900', 'A-DEC'))
+    assert bus.is_datetime_type(pd.NaT)
 
 def test_convert_datetime_type_non_pandas_types():
     assert bus.convert_datetime_type(datetime.datetime(2018, 1, 3, 15, 37, 59, 922452)) == 1514993879922.452
@@ -81,6 +82,7 @@ def test_convert_datetime_type_pandas_types(pd):
     assert bus.convert_datetime_type(bus._pd_timestamp(3000000)) == 3.0
     assert bus.convert_datetime_type(pd.Period('1900', 'A-DEC')) == -2208988800000.0
     assert bus.convert_datetime_type(pd.Period('1900', 'A-DEC')) == bus.convert_datetime_type(np.datetime64("1900-01-01"))
+    assert np.isnan(bus.convert_datetime_type(pd.NaT))
 
 @pytest.mark.parametrize('obj', [[1,2], (1,2), dict(), set(), 10.2, "foo"])
 @pytest.mark.unit
