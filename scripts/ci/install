@@ -11,15 +11,17 @@ fi
 wget -qO- "https://raw.githubusercontent.com/travis-ci/artifacts/master/install" |bash
 
 # install Miniconda3
-wget -nv "http://repo.continuum.io/miniconda/${MINICONDA_FILENAME}"
-bash ${MINICONDA_FILENAME} -b -f -p ${HOME}/miniconda
+if  [ "${NO_INSTALL_CONDA}" != "1" ]; then
+    wget -nv "http://repo.continuum.io/miniconda/${MINICONDA_FILENAME}"
+    bash ${MINICONDA_FILENAME} -b -f -p ${HOME}/miniconda
 
-# if emergency, temporary package pins are necessary, they can go here
-PINNED_PKGS=$(cat <<EOF
+    # if emergency, temporary package pins are necessary, they can go here
+    PINNED_PKGS=$(cat <<EOF
 pandas <0.23.0
 EOF
 )
-echo -e "$PINNED_PKGS" > $HOME/miniconda/conda-meta/pinned
+    echo -e "$PINNED_PKGS" > $HOME/miniconda/conda-meta/pinned
+fi
 
 # install conda packages
 conda install --yes --quiet python=${PYTHON:-3.6} ${CONDA_REQS}
