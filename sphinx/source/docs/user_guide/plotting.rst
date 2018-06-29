@@ -165,7 +165,7 @@ takes a `size` parameter to define the size of the hex grid, and
     :source-position: above
 
 A more realistic example below computes counts per bin using the
-:func:`~bokeh.util.hex.hexbin` funtion and plots the colormapped counts:
+:func:`~bokeh.util.hex.hexbin` function and plots the colormapped counts:
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_hex_tile_binning.py
     :source-position: above
