@@ -39,6 +39,12 @@ import bokeh.io.export as bie
 # Setup
 #-----------------------------------------------------------------------------
 
+@pytest.fixture(scope='module')
+def webdriver():
+    driver = create_webdriver()
+    yield driver
+    terminate_webdriver(driver)
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -62,17 +68,13 @@ def test_get_screenshot_as_png():
 
 @pytest.mark.unit
 @pytest.mark.selenium
-def test_get_screenshot_as_png_with_driver():
+def test_get_screenshot_as_png_with_driver(webdriver):
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
                   plot_height=20, plot_width=20, toolbar_location=None,
                   outline_line_color=None, background_fill_color=None,
                   border_fill_color=None)
 
-    driver = create_webdriver()
-    try:
-        png = bie.get_screenshot_as_png(layout, driver=driver)
-    finally:
-        terminate_webdriver(driver)
+    png = bie.get_screenshot_as_png(layout, driver=webdriver)
 
     assert png.size == (20, 20)
     # a 20x20px image of transparent pixels
@@ -80,49 +82,32 @@ def test_get_screenshot_as_png_with_driver():
 
 @pytest.mark.unit
 @pytest.mark.selenium
-def test_get_screenshot_as_png_large_plot():
+def test_get_screenshot_as_png_large_plot(webdriver):
     layout = Plot(x_range=Range1d(), y_range=Range1d(),
                   plot_height=800, plot_width=800, toolbar_location=None,
                   outline_line_color=None, background_fill_color=None,
                   border_fill_color=None)
 
-    driver = create_webdriver()
-    try:
-        assert driver.get_window_size() == {'width': 400, 'height': 300}
+    bie.get_screenshot_as_png(layout, driver=webdriver)
 
-        bie.get_screenshot_as_png(layout, driver=driver)
-
-        # LC: Although the window size doesn't match the plot dimensions (unclear
-        # why), the window resize allows for the whole plot to be captured
-        assert driver.get_window_size() == {'width': 1366, 'height': 768}
-    finally:
-        # Have to manually clean up the driver session
-        terminate_webdriver(driver)
+    # LC: Although the window size doesn't match the plot dimensions (unclear
+    # why), the window resize allows for the whole plot to be captured
+    assert webdriver.get_window_size() == {'width': 1366, 'height': 768}
 
 @pytest.mark.unit
 @pytest.mark.selenium
-def test_get_screenshot_as_png_with_unicode_minified():
+def test_get_screenshot_as_png_with_unicode_minified(webdriver):
     layout = Div(text="유니 코드 지원을위한 작은 테스트")
 
-    driver = create_webdriver()
-    try:
-        png = bie.get_screenshot_as_png(layout, driver=driver, resources=Resources(mode="inline", minified=True))
-    finally:
-        # Have to manually clean up the driver session
-        terminate_webdriver(driver)
+    png = bie.get_screenshot_as_png(layout, driver=webdriver, resources=Resources(mode="inline", minified=True))
     assert len(png.tobytes()) > 0
 
 @pytest.mark.unit
 @pytest.mark.selenium
-def test_get_screenshot_as_png_with_unicode_unminified():
+def test_get_screenshot_as_png_with_unicode_unminified(webdriver):
     layout = Div(text="유니 코드 지원을위한 작은 테스트")
 
-    driver = create_webdriver()
-    try:
-        png = bie.get_screenshot_as_png(layout, driver=driver, resources=Resources(mode="inline", minified=False))
-    finally:
-        # Have to manually clean up the driver session
-        terminate_webdriver(driver)
+    png = bie.get_screenshot_as_png(layout, driver=webdriver, resources=Resources(mode="inline", minified=False))
     assert len(png.tobytes()) > 0
 
 @pytest.mark.unit
@@ -136,7 +121,7 @@ def test_get_svgs_no_svg_present():
 
 @pytest.mark.unit
 @pytest.mark.selenium
-def test_get_svgs_with_svg_present():
+def test_get_svgs_with_svg_present(webdriver):
 
     def fix_ids(svg):
         svg = re.sub(r'id="\w{12}"', 'id="X"', svg)
@@ -148,13 +133,8 @@ def test_get_svgs_with_svg_present():
                   outline_line_color=None, border_fill_color=None,
                   background_fill_color="red", output_backend="svg")
 
-    svg0 = fix_ids(bie.get_svgs(layout)[0])
-
-    driver = create_webdriver()
-    try:
-        svg1 = fix_ids(bie.get_svgs(layout)[0])
-    finally:
-        terminate_webdriver(driver) # Have to manually clean up the driver session
+    svg0 = fix_ids(bie.get_svgs(layout, driver=webdriver)[0])
+    svg1 = fix_ids(bie.get_svgs(layout, driver=webdriver)[0])
 
     svg2 = (
         '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" '
