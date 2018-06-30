@@ -25,7 +25,7 @@ def get_env():
     ''' Get the correct Jinja2 Environment, also for frozen scripts.
     '''
     if getattr(sys, 'frozen', False):
-        templates_path = os.path.join(sys._MEIPASS, '_templates')
+        templates_path = os.path.join(sys._MEIPASS, 'bokeh', 'core', '_templates')
         return Environment(loader=FileSystemLoader(templates_path))
     else:
         return Environment(loader=PackageLoader('bokeh.core', '_templates'))
