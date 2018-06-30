@@ -22,7 +22,7 @@ PINNED_PKGS=$(cat <<EOF
 pandas <0.23.0
 EOF
 )
-mkdir -p $HOME/miniconda/conda-meta/pinned
+mkdir -p $HOME/miniconda/conda-meta
 echo -e "$PINNED_PKGS" > $HOME/miniconda/conda-meta/pinned
 
 # install conda packages
