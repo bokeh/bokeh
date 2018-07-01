@@ -76,6 +76,7 @@ export class DaysTicker extends SingleIntervalTicker {
 
     const days = this.days
     const days_of_month = (month_date: Date, interval: number) => {
+      const current_month = month_date.getUTCMonth()
       const dates = []
       for (const day of days) {
         const day_date = copy_date(month_date)
@@ -85,8 +86,11 @@ export class DaysTicker extends SingleIntervalTicker {
         // and we're marking every third day, we don't want day 28 to show up
         // because it'll be right next to the 1st of the next month.  So we
         // make sure we have a bit of room before we include a day.
+
+        // TODO (bev) The above description does not exactly work because JS Date
+        // is broken and will happily consider "Feb 28 + 3*ONE_DAY" to have month "2"
         const future_date = new Date(day_date.getTime() + (interval / 2))
-        if (future_date.getUTCMonth() == month_date.getUTCMonth())
+        if (future_date.getUTCMonth() == current_month)
           dates.push(day_date)
       }
       return dates
@@ -96,7 +100,6 @@ export class DaysTicker extends SingleIntervalTicker {
     const day_dates = concat(month_dates.map((date) => days_of_month(date, interval)))
 
     const all_ticks = day_dates.map((day_date) => day_date.getTime())
-    // FIXME Since the ticks are sorted, this could be done more efficiently.
     const ticks_in_range = all_ticks.filter((tick) => data_low <= tick && tick <= data_high)
 
     return {
