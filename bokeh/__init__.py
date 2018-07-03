@@ -60,10 +60,21 @@ from . import sampledata; sampledata
 from .util import logconfig
 del logconfig
 
-# Configure warnings to always show, despite Python's active efforts to hide them from users.
+# Configure warnings to always show nice mssages, despite Python's active
+# efforts to hide them from users.
 import warnings
 from .util.warnings import BokehDeprecationWarning, BokehUserWarning
 warnings.simplefilter('always', BokehDeprecationWarning)
 warnings.simplefilter('always', BokehUserWarning)
+
+original_formatwarning = warnings.formatwarning
+def _formatwarning(message, category, filename, lineno, line=None):
+    from .util.warnings import BokehDeprecationWarning, BokehUserWarning
+    if category not in (BokehDeprecationWarning, BokehUserWarning):
+        return original_formatwarning(message, category, filename, lineno, line)
+    return "%s: %s\n" % (category.__name__, message)
+warnings.formatwarning = _formatwarning
+
+del _formatwarning
 del BokehDeprecationWarning, BokehUserWarning
 del warnings
