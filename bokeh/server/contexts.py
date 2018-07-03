@@ -1,4 +1,4 @@
-''' Provides the ``ApplicationContext`` class.
+''' Provides the Application, Server, and Session context classes.
 
 '''
 from __future__ import absolute_import
@@ -37,7 +37,7 @@ class BokehServerContext(ServerContext):
     def sessions(self):
         result = []
         for session in self.application_context.sessions:
-            result.append(session.session_context)
+            result.append(session)
         return result
 
     def add_next_tick_callback(self, callback):
@@ -90,6 +90,10 @@ class BokehSessionContext(SessionContext):
     @property
     def request(self):
         return self._request
+
+    @property
+    def session(self):
+        return self._session
 
 
 class ApplicationContext(object):
@@ -161,7 +165,6 @@ class ApplicationContext(object):
             future = self._pending_sessions[session_id] = gen.Future()
 
             doc = Document()
-
 
             session_context = BokehSessionContext(session_id,
                                                   self.server_context,

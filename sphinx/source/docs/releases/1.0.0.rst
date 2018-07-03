@@ -13,10 +13,17 @@ Migration Guide
 ---------------
 
 ``bokeh.util.plot_utils``
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``bokeh.util.plot_utils`` module has been removed. This module contained
 only private functions used internally. This change is not expected to affect
 any normal usage.
+
+``bokeh.server.application_context``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``bokeh.server.application_context`` module has been renamed to
+``bokeh.server.contexts``.  This change is not expected to affect any normal
+usage.
 
 .. _project roadmap: https://bokehplots.com/pages/roadmap.html
