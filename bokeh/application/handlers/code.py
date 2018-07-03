@@ -135,10 +135,13 @@ class CodeHandler(Handler):
         '''
 
         '''
-        if self.failed:
-            return
 
         module = self._runner.new_module()
+
+        # If no module was returned it means the code runner has some permanent
+        # unfixable problem, e.g. the configured source code has a syntax error
+        if module is None:
+            return
 
         # One reason modules are stored is to prevent the module
         # from being gc'd before the document is. A symptom of a

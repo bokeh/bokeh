@@ -72,7 +72,7 @@ class NotebookHandler(CodeHandler):
         with open(filename) as f:
             nb = nbformat.read(f, nbformat.NO_CONVERT)
             exporter = nbconvert.PythonExporter()
-            source, meta = exporter.from_notebook_node(nb)
+            source, _ = exporter.from_notebook_node(nb)
             kwargs['source'] = source
 
         super(NotebookHandler, self).__init__(*args, **kwargs)
