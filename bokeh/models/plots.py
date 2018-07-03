@@ -10,7 +10,7 @@ from ..core.properties import Bool, Dict, Enum, Include, Instance, Int, List, Ov
 from ..core.property_mixins import LineProps, FillProps
 from ..core.query import find
 from ..core.validation import error, warning
-from ..core.validation.errors import REQUIRED_RANGE, REQUIRED_SCALE, INCOMPATIBLE_SCALE_AND_RANGE
+from ..core.validation.errors import  BAD_EXTRA_RANGE_NAME, REQUIRED_RANGE, REQUIRED_SCALE, INCOMPATIBLE_SCALE_AND_RANGE
 from ..core.validation.warnings import MISSING_RENDERERS
 from ..model import Model
 from ..util.string import nice_join
@@ -381,23 +381,25 @@ class Plot(LayoutDOM):
         y_ranges = list(self.extra_y_ranges.values())
         if self.y_range: y_ranges.append(self.y_range)
 
-        for rng in x_ranges:
-            if isinstance(rng, (DataRange1d, Range1d)) and not isinstance(self.x_scale, (LinearScale, LogScale)):
-                incompatible.append("incompatibility on x-dimension: %s, %s" %(rng, self.x_scale))
-            elif isinstance(rng, FactorRange) and not isinstance(self.x_scale, CategoricalScale):
-                incompatible.append("incompatibility on x-dimension: %s/%s" %(rng, self.x_scale))
-            # special case because CategoricalScale is a subclass of LinearScale, should be removed in future
-            if isinstance(rng, (DataRange1d, Range1d)) and isinstance(self.x_scale, CategoricalScale):
-                incompatible.append("incompatibility on x-dimension: %s, %s" %(rng, self.x_scale))
+        if self.x_scale is not None:
+            for rng in x_ranges:
+                if isinstance(rng, (DataRange1d, Range1d)) and not isinstance(self.x_scale, (LinearScale, LogScale)):
+                    incompatible.append("incompatibility on x-dimension: %s, %s" %(rng, self.x_scale))
+                elif isinstance(rng, FactorRange) and not isinstance(self.x_scale, CategoricalScale):
+                    incompatible.append("incompatibility on x-dimension: %s/%s" %(rng, self.x_scale))
+                # special case because CategoricalScale is a subclass of LinearScale, should be removed in future
+                if isinstance(rng, (DataRange1d, Range1d)) and isinstance(self.x_scale, CategoricalScale):
+                    incompatible.append("incompatibility on x-dimension: %s, %s" %(rng, self.x_scale))
 
-        for rng in y_ranges:
-            if isinstance(rng, (DataRange1d, Range1d)) and not isinstance(self.y_scale, (LinearScale, LogScale)):
-                incompatible.append("incompatibility on y-dimension: %s/%s" %(rng, self.y_scale))
-            elif isinstance(rng, FactorRange) and not isinstance(self.y_scale, CategoricalScale):
-                incompatible.append("incompatibility on y-dimension: %s/%s" %(rng, self.y_scale))
-            # special case because CategoricalScale is a subclass of LinearScale, should be removed in future
-            if isinstance(rng, (DataRange1d, Range1d)) and isinstance(self.y_scale, CategoricalScale):
-                incompatible.append("incompatibility on y-dimension: %s, %s" %(rng, self.y_scale))
+        if self.y_scale is not None:
+            for rng in y_ranges:
+                if isinstance(rng, (DataRange1d, Range1d)) and not isinstance(self.y_scale, (LinearScale, LogScale)):
+                    incompatible.append("incompatibility on y-dimension: %s/%s" %(rng, self.y_scale))
+                elif isinstance(rng, FactorRange) and not isinstance(self.y_scale, CategoricalScale):
+                    incompatible.append("incompatibility on y-dimension: %s/%s" %(rng, self.y_scale))
+                # special case because CategoricalScale is a subclass of LinearScale, should be removed in future
+                if isinstance(rng, (DataRange1d, Range1d)) and isinstance(self.y_scale, CategoricalScale):
+                    incompatible.append("incompatibility on y-dimension: %s, %s" %(rng, self.y_scale))
 
         if incompatible:
             return ", ".join(incompatible) + " [%s]" % self
@@ -406,6 +408,23 @@ class Plot(LayoutDOM):
     def _check_missing_renderers(self):
         if len(self.renderers) == 0:
             return str(self)
+
+    @error(BAD_EXTRA_RANGE_NAME)
+    def _check_bad_extra_range_name(self):
+        msg = ""
+        for ref in self.references():
+            prop_names = ref.properties()
+            bad = []
+            if 'x_range_name' in prop_names and 'y_range_name' in prop_names:
+                if ref.x_range_name not in self.extra_x_ranges and ref.x_range_name != "default":
+                    bad.append(('x_range_name', ref.x_range_name))
+                if ref.y_range_name not in self.extra_y_ranges and ref.y_range_name != "default":
+                    bad.append(('y_range_name', ref.y_range_name))
+            if bad:
+                if msg: msg += ", "
+                msg += (", ".join("%s=%r" % (a, b) for (a,b) in bad) + " [%s]" % ref)
+        if msg:
+            return msg
 
     x_range = Instance(Range, help="""
     The (default) data range of the horizontal dimension of the plot.
