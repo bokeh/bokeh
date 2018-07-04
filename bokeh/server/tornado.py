@@ -19,7 +19,7 @@ from ..resources import Resources
 from ..settings import settings
 from ..util.dependencies import import_optional
 
-from .application_context import ApplicationContext
+from .contexts import ApplicationContext
 from .connection import ServerConnection
 from .urls import per_app_patterns, toplevel_patterns
 from .views.root_handler import RootHandler

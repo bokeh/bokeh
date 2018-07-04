@@ -66,7 +66,10 @@ validation checks.
     The RangeTool must have at least one of x_range or y_range configured
 
 1019 *(DUPLICATE_FACTORS)*
-    FactorRange must specicy a unique list of categorical factors for an axis.
+    FactorRange must specify a unique list of categorical factors for an axis.
+
+1020 *(BAD_EXTRA_RANGE_NAME)*
+    An extra range name is configued with a name that does not correspond to any range.
 
 9999 *(EXT)*
     Indicates that a custom error check has failed.
@@ -86,13 +89,14 @@ codes = {
     1010: ("CDSVIEW_SOURCE_DOESNT_MATCH",                        "CDSView used by Glyph renderer must have a source that matches the Glyph renderer's data source"),
     1011: ("MALFORMED_GRAPH_SOURCE",                             "The GraphSource is incorrectly configured"),
     1012: ("INCOMPATIBLE_MAP_RANGE_TYPE",                        "Map plots can only support Range1d types, not data ranges"),
-    1013: ("INCOMPATIBLE_POINT_DRAW_RENDERER",                   "PointDrawTool renderers may only reference XYGlyph models."),
+    1013: ("INCOMPATIBLE_POINT_DRAW_RENDERER",                   "PointDrawTool renderers may only reference XYGlyph models"),
     1014: ("INCOMPATIBLE_BOX_EDIT_RENDERER",                     "BoxEditTool renderers may only reference Rect glyph models"),
-    1015: ("INCOMPATIBLE_POLY_DRAW_RENDERER",                    "PolyDrawTool renderers may only reference MultiLine and Patches glyph models."),
+    1015: ("INCOMPATIBLE_POLY_DRAW_RENDERER",                    "PolyDrawTool renderers may only reference MultiLine and Patches glyph models"),
     1016: ("INCOMPATIBLE_POLY_EDIT_RENDERER",                    "PolyEditTool renderers may only reference MultiLine and Patches glyph models"),
     1017: ("INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER",             "PolyEditTool vertex_renderer may only reference XYGlyph models"),
     1018: ("NO_RANGE_TOOL_RANGES",                               "RangeTool must have at least one of x_range or y_range configured"),
     1019: ("DUPLICATE_FACTORS",                                  "FactorRange must specicy a unique list of categorical factors for an axis"),
+    1020: ("BAD_EXTRA_RANGE_NAME",                               "An extra range name is configued with a name that does not correspond to any range"),
     9999: ("EXT",                                                "Custom extension reports error"),
 }
 

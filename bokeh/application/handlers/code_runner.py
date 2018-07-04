@@ -62,9 +62,9 @@ class CodeRunner(object):
                 as ``sys.argv`` when the code executes
 
         '''
-        self._failed = False
-        self._error = None
-        self._error_detail = None
+        self._permanent_error = None
+        self._permanent_error_detail = None
+        self.reset_run_errors()
 
         import ast
         self._code = None
@@ -73,10 +73,10 @@ class CodeRunner(object):
             nodes = ast.parse(source, path)
             self._code = compile(nodes, filename=path, mode='exec', dont_inherit=True)
         except SyntaxError as e:
-            self._failed = True
-            self._error = ("Invalid syntax in \"%s\" on line %d:\n%s" % (os.path.basename(e.filename), e.lineno, e.text))
             import traceback
-            self._error_detail = traceback.format_exc()
+            self._code = None
+            self._permanent_error = ("Invalid syntax in \"%s\" on line %d:\n%s" % (os.path.basename(e.filename), e.lineno, e.text))
+            self._permanent_error_detail = traceback.format_exc()
 
         self._path = path
         self._source = source
@@ -90,21 +90,21 @@ class CodeRunner(object):
         ''' If code execution fails, may contain a related error message.
 
         '''
-        return self._error
+        return self._error if self._permanent_error is None else self._permanent_error
 
     @property
     def error_detail(self):
         ''' If code execution fails, may contain a traceback or other details.
 
         '''
-        return self._error_detail
+        return self._error_detail if self._permanent_error_detail is None else self._permanent_error_detail
 
     @property
     def failed(self):
         ''' ``True`` if code execution failed
 
         '''
-        return self._failed
+        return self._failed or self._code is None
 
     @property
     def path(self):
@@ -130,7 +130,9 @@ class CodeRunner(object):
             Module
 
         '''
-        if self.failed:
+        self.reset_run_errors()
+
+        if self._code is None:
             return None
 
         module_name = 'bk_script_' + make_id().replace('-', '')
@@ -138,6 +140,17 @@ class CodeRunner(object):
         module.__dict__['__file__'] = os.path.abspath(self._path)
 
         return module
+
+    def reset_run_errors(self):
+        ''' Clears any transient error conditions from a previous run.
+
+        Returns
+            None
+
+        '''
+        self._failed = False
+        self._error = None
+        self._error_detail = None
 
     def run(self, module, post_check):
         ''' Execute the configured source code in a module and run any post
@@ -167,7 +180,7 @@ class CodeRunner(object):
             self._failed = True
             self._error_detail = traceback.format_exc()
 
-            exc_type, exc_value, exc_traceback = sys.exc_info()
+            _exc_type, _exc_value, exc_traceback = sys.exc_info()
             filename, line_number, func, txt = traceback.extract_tb(exc_traceback)[-1]
 
             self._error = "%s\nFile \"%s\", line %d, in %s:\n%s" % (str(e), os.path.basename(filename), line_number, func, txt)
