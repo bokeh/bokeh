@@ -33,12 +33,6 @@ export function point_in_ellipse(x: number, y: number, angle: number, b: number,
   return inside
 }
 
-// width of oval from cubic bezier = 3/4 * width ellipse
-export function point_in_oval(x: number, y: number, angle: number, b: number, a: number, x0: number, y0: number): boolean {
-  a = a * 0.75
-  return point_in_ellipse(x, y, angle, b, a, x0, y0)
-}
-
 export function create_empty_hit_test_result(): Selection {
   return new Selection()
 }
