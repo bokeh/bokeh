@@ -304,7 +304,7 @@ export class DataTable extends TableWidget {
       sortable:            [ p.Bool,   true  ],
       reorderable:         [ p.Bool,   true  ],
       editable:            [ p.Bool,   false ],
-      selectable:          [ p.Bool,   true  ],
+      selectable:          [ p.Any,    true  ], // boolean or "checkbox"
       index_position:      [ p.Int,    0     ],
       index_header:        [ p.String, "#"   ],
       index_width:         [ p.Int,    40    ],
