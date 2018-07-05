@@ -24,6 +24,15 @@ export function point_in_poly(x: number, y: number, px: number[], py: number[]):
   return inside
 }
 
+export function point_in_ellipse(x: number, y: number, angle: number, b: number, a: number, x0: number, y0: number): boolean {
+  const A = ((Math.cos(angle) / a) ** 2 + (Math.sin(angle) / b) ** 2)
+  const B = 2 * Math.cos(angle) * Math.sin(angle) * ((1 / a) ** 2 - (1 / b) ** 2)
+  const C = ((Math.cos(angle) / b) ** 2 + (Math.sin(angle) / a) ** 2)
+  const eqn = A * (x - x0) ** 2 + B * (x - x0) * (y - y0) + C * (y - y0) ** 2
+  const inside = eqn <= 1
+  return inside
+}
+
 export function create_empty_hit_test_result(): Selection {
   return new Selection()
 }

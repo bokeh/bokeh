@@ -1,9 +1,7 @@
-import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
+import {CenterRotatable, CenterRotatableView, CenterRotatableData} from "./center_rotatable"
 import {generic_area_legend} from "./utils"
 import {PointGeometry, RectGeometry} from "core/geometry"
-import {DistanceSpec, AngleSpec} from "core/vectorization"
 import {LineMixinVector, FillMixinVector} from "core/property_mixins"
-import {Line, Fill} from "core/visuals"
 import {Arrayable} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
@@ -14,27 +12,15 @@ import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import {Scale} from "../scales/scale"
 
-export interface RectData extends XYGlyphData {
-  _angle: Arrayable<number>
-  _width: Arrayable<number>
-  _height: Arrayable<number>
-
-  sw: Arrayable<number>
+export interface RectData extends CenterRotatableData {
   sx0: Arrayable<number>
-  sh: Arrayable<number>
   sy1: Arrayable<number>
   ssemi_diag: Arrayable<number>
-
-  max_width: number
-  max_height: number
-
-  max_w2: number
-  max_h2: number
 }
 
 export interface RectView extends RectData {}
 
-export class RectView extends XYGlyphView {
+export class RectView extends CenterRotatableView {
   model: Rect
   visuals: Rect.Visuals
 
@@ -249,29 +235,20 @@ export class RectView extends XYGlyphView {
 export namespace Rect {
   export interface Mixins extends LineMixinVector, FillMixinVector {}
 
-  export interface Attrs extends XYGlyph.Attrs, Mixins {
-    angle: AngleSpec
-    width: DistanceSpec
-    height: DistanceSpec
+  export interface Attrs extends CenterRotatable.Attrs, Mixins {
     dilate: boolean
   }
 
-  export interface Props extends XYGlyph.Props {
-    angle: p.AngleSpec
-    width: p.DistanceSpec
-    height: p.DistanceSpec
+  export interface Props extends CenterRotatable.Props {
     dilate: p.Property<boolean>
   }
 
-  export interface Visuals extends XYGlyph.Visuals {
-    line: Line
-    fill: Fill
-  }
+  export interface Visuals extends CenterRotatable.Visuals {}
 }
 
 export interface Rect extends Rect.Attrs {}
 
-export class Rect extends XYGlyph {
+export class Rect extends CenterRotatable {
 
   properties: Rect.Props
 
@@ -282,12 +259,7 @@ export class Rect extends XYGlyph {
   static initClass(): void {
     this.prototype.type = 'Rect'
     this.prototype.default_view = RectView
-
-    this.mixins(['line', 'fill'])
     this.define({
-      angle:  [ p.AngleSpec,   0     ],
-      width:  [ p.DistanceSpec       ],
-      height: [ p.DistanceSpec       ],
       dilate: [ p.Bool,        false ],
     })
   }
