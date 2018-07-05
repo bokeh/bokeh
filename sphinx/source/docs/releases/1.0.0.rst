@@ -12,6 +12,17 @@ And several other bug fixes and docs additions. For full details see the
 Migration Guide
 ---------------
 
+Pretty printing functions
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``pprint`` and ``pretty`` methods depended on IPython pretty-printing
+in order to function. Recent changes to IPython pretty-printing machinery
+made it impossible to use unless the "pretty" repr was also enabled. This
+caused ipython console to be spammed with very large amounts of output,
+making it unusable. As a result, both ``pprint`` and ``pretty`` methods have
+been removed. A "pretty" HTML repr still functions in Jupyter notebooks. This
+change is not expected to affect any normal usage.
+
 ``bokeh.util.plot_utils``
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 

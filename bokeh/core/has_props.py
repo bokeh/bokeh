@@ -15,13 +15,8 @@ log = logging.getLogger(__name__)
 
 import difflib
 import inspect
-from operator import itemgetter
-import sys
 from warnings import warn
 
-from six import StringIO
-
-from ..util.dependencies import import_optional
 from ..util.future import with_metaclass
 from ..util.string import nice_join
 from .property.containers import PropertyValueContainer
@@ -620,95 +615,6 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         '''
         self.apply_theme(property_values=dict())
 
-    def pretty(self, verbose=False, max_width=79, newline='\n'):
-        ''' Generate a "pretty" string representation of the object.
-
-        .. note::
-            This function only functions in the IPython shell or
-            Jupyter Notebooks.
-
-        Args:
-            Verbose (bool, optional) :
-                This is a conventional argument for IPython representation
-                printers but is unused by Bokeh. (default: False)
-
-            max_width (int, optional) :
-                Minimum width to start breaking lines when possible. (default: 79)
-
-            newline (str, optional) :
-                Character to use to separate each line (default: ``\\n``)
-
-        Returns:
-            str : pretty object representation
-
-        Raises:
-            ValueError, if ``IPython`` cannot be imported
-
-        '''
-        IPython = import_optional('IPython')
-        cls = self.__class__
-
-        if IPython:
-            from IPython.lib.pretty import RepresentationPrinter
-
-            stream = StringIO()
-            printer = RepresentationPrinter(stream, verbose, max_width, newline)
-            printer.pretty(self)
-            printer.flush()
-            return stream.getvalue()
-        else:
-            raise RuntimeError("%s.%s.pretty() requires IPython" % (cls.__module__, cls.__name__))
-
-    def pprint(self, verbose=False, max_width=79, newline='\n'):
-        ''' Print a "pretty" string representation of the object to stdout.
-
-        .. note::
-            This function only functions in the IPython shell or
-            Jupyter Notebooks.
-
-        Args:
-            Verbose (bool, optional) :
-                This is a conventional argument for IPython representation
-                printers but is unused by Bokeh. (default: False)
-
-            max_width (int, optional) :
-                Minimum width to start breaking lines when possible. (default: 79)
-
-            newline (str, optional) :
-                Character to use to separate each line (default: ``\\n``)
-
-        Returns:
-            None
-
-        Raises:
-            ValueError, if ``IPython`` cannot be imported
-
-        Examples:
-
-            .. code-block:: python
-
-                In [1]: from bokeh.models import Range1d
-
-                In [1]: r = Range1d(start=10, end=20)
-
-                In [2]: r.pprint()
-                bokeh.models.ranges.Range1d(
-                    id='1576d21a-0c74-4214-8d8f-ad415e1e4ed4',
-                    bounds=None,
-                    callback=None,
-                    end=20,
-                    js_property_callbacks={},
-                    max_interval=None,
-                    min_interval=None,
-                    name=None,
-                    start=10,
-                    tags=[])
-
-        '''
-        sys.stdout.write(self.pretty())
-        sys.stdout.write(newline)
-        sys.stdout.flush()
-
     def _clone(self):
         ''' Duplicate a HasProps object.
 
@@ -716,26 +622,3 @@ class HasProps(with_metaclass(MetaHasProps, object)):
 
         '''
         return self.__class__(**self._property_values)
-
-    def _repr_pretty_(self, p, cycle):
-        '''
-
-        '''
-        name = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
-
-        if cycle:
-            p.text("%s(...)" % name)
-        else:
-            with p.group(4, '%s(' % name, ')'):
-                props = self.properties_with_values().items()
-                sorted_props = sorted(props, key=itemgetter(0))
-                all_props = sorted_props
-                for i, (prop, value) in enumerate(all_props):
-                    if i == 0:
-                        p.breakable('')
-                    else:
-                        p.text(',')
-                        p.breakable()
-                    p.text(prop)
-                    p.text('=')
-                    p.pretty(value)

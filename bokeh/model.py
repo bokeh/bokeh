@@ -662,33 +662,6 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
 
         return html
 
-    def _repr_pretty_(self, p, cycle):
-        '''
-
-        '''
-        name = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
-        _id = getattr(self, "_id", None)
-
-        if cycle:
-            p.text(name)
-            p.text('(id=')
-            p.pretty(_id)
-            p.text(', ...)')
-        else:
-            with p.group(4, '%s(' % name, ')'):
-                props = self.properties_with_values().items()
-                sorted_props = sorted(props, key=itemgetter(0))
-                all_props = [('id', _id)] + sorted_props
-                for i, (prop, value) in enumerate(all_props):
-                    if i == 0:
-                        p.breakable('')
-                    else:
-                        p.text(',')
-                        p.breakable()
-                    p.text(prop)
-                    p.text('=')
-                    p.pretty(value)
-
 def _visit_immediate_value_references(value, visitor):
     ''' Visit all references to another Model without recursing into any
     of the child Model; may visit the same Model more than once if
