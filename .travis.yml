@@ -25,8 +25,8 @@ branches:
   - "/^\\d+.\\d+.\\d+$/"
 
 notifications:
-  flowdock:
-    secure: ZisceYtV2b7LWNUz0wEtiR9TRk+i8x5m/N6+Htn4IFr+bBcBi79ESO0u6DWiJA5rHt+Yq7Yf49vl7UO9HZCF+8n5B1nKpfivJKngVuMYLnhYifNmwCD7vQ8aaF9DTfOqvm2hJrHwtieX8BUGs2KWd8igt3f8LCXVWVBBvkqc2L0=
+  slack:
+    secure: UYjR/NEuFdHEXwYxaDR3DxQ6dFrHG4vziqp1Fs+EAoI21bo4r/0/ywTU6+jedlUCiahiFrUqDcX1tdM4s5Y/tnatAwZtEaHdVYTNtislN+f/EuutlE/TUeo8VliK4P47rxDGfdLBxCLes6X80q8QEaOFeIyCauoouQ/keRbrLNs=
 
 before_install:
   - export PATH="$HOME/miniconda/bin:$PATH"
