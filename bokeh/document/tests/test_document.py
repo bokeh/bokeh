@@ -16,7 +16,6 @@ from bokeh.document.events import (ColumnsPatchedEvent, ColumnsStreamedEvent, Mo
                                    RootRemovedEvent, SessionCallbackAdded, SessionCallbackRemoved, TitleChangedEvent)
 from bokeh.protocol.messages.patch_doc import process_document_events
 from bokeh.util.logconfig import basicConfig
-from bokeh.util.warnings import BokehDeprecationWarning
 
 from .setup import AnotherModelInTestDocument, SomeModelInTestDocument, ModelThatOverridesName, ModelWithSpecInTestDocument
 
@@ -561,33 +560,6 @@ class TestDocument(object):
         assert isinstance(events[0], SessionCallbackAdded)
         assert isinstance(events[1], SessionCallbackRemoved)
 
-    def test_deprecated_add_remove_periodic_callback(self):
-        d = document.Document()
-
-        events = []
-
-        def listener(event):
-            events.append(event)
-
-        d.on_change(listener)
-
-        assert len(d.session_callbacks) == 0
-        assert not events
-
-        def cb(): pass
-
-        d.add_periodic_callback(cb, 1)
-        assert len(d.session_callbacks) == len(events) == 1
-        assert isinstance(events[0], SessionCallbackAdded)
-        assert d.session_callbacks[0] == events[0].callback
-
-        with pytest.warns(BokehDeprecationWarning):
-            d.remove_periodic_callback(cb)
-        assert len(d.session_callbacks) == 0
-        assert len(events) == 2
-        assert isinstance(events[0], SessionCallbackAdded)
-        assert isinstance(events[1], SessionCallbackRemoved)
-
     def test_add_remove_timeout_callback(self):
         d = document.Document()
 
@@ -608,33 +580,6 @@ class TestDocument(object):
         assert callback_obj.timeout == 1
 
         d.remove_timeout_callback(callback_obj)
-        assert len(d.session_callbacks) == 0
-        assert len(events) == 2
-        assert isinstance(events[0], SessionCallbackAdded)
-        assert isinstance(events[1], SessionCallbackRemoved)
-
-    def test_deprecated_add_remove_timeout_callback(self):
-        d = document.Document()
-
-        events = []
-
-        def listener(event):
-            events.append(event)
-
-        d.on_change(listener)
-
-        assert len(d.session_callbacks) == 0
-        assert not events
-
-        def cb(): pass
-
-        d.add_timeout_callback(cb, 1)
-        assert len(d.session_callbacks) == len(events) == 1
-        assert isinstance(events[0], SessionCallbackAdded)
-        assert d.session_callbacks[0] == events[0].callback
-
-        with pytest.warns(BokehDeprecationWarning):
-            d.remove_timeout_callback(cb)
         assert len(d.session_callbacks) == 0
         assert len(events) == 2
         assert isinstance(events[0], SessionCallbackAdded)
@@ -680,33 +625,6 @@ class TestDocument(object):
         assert callback_obj == d.session_callbacks[0] == events[0].callback
 
         d.remove_next_tick_callback(callback_obj)
-        assert len(d.session_callbacks) == 0
-        assert len(events) == 2
-        assert isinstance(events[0], SessionCallbackAdded)
-        assert isinstance(events[1], SessionCallbackRemoved)
-
-    def test_deprecated_add_remove_next_tick_callback(self):
-        d = document.Document()
-
-        events = []
-
-        def listener(event):
-            events.append(event)
-
-        d.on_change(listener)
-
-        assert len(d.session_callbacks) == 0
-        assert not events
-
-        def cb(): pass
-
-        d.add_next_tick_callback(cb)
-        assert len(d.session_callbacks) == len(events) == 1
-        assert isinstance(events[0], SessionCallbackAdded)
-        assert d.session_callbacks[0] == events[0].callback
-
-        with pytest.warns(BokehDeprecationWarning):
-            d.remove_next_tick_callback(cb)
         assert len(d.session_callbacks) == 0
         assert len(events) == 2
         assert isinstance(events[0], SessionCallbackAdded)
