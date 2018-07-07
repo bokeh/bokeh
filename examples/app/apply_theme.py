@@ -5,7 +5,6 @@
 import numpy as np
 
 from bokeh.io import curdoc
-from bokeh.layouts import row
 from bokeh.plotting import figure
 from bokeh.themes import dark_lite
 
