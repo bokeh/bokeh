@@ -3,10 +3,14 @@
 '''
 from __future__ import absolute_import
 
-from os.path import join
+from os.path import dirname, realpath, join
 
 from .theme import Theme
 
-default = Theme(json={})
+THIS_DIR = dirname(realpath(__file__))
 
-del join
+default = Theme(json={})
+lite = Theme(filename=join(THIS_DIR, 'lite.json'))
+dark_lite = Theme(filename=join(THIS_DIR, 'dark_lite.json'))
+
+del dirname, realpath, join
