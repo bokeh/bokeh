@@ -22,7 +22,7 @@ sudo docker build --file docker-tools/Dockerfile-from-conda --build-arg BOKEH_VE
 
 ## From source
 The `Dockerfile-from-source` pulls bokeh from github and builds bokeh and bokehjs.
-Note that this will probably fail for old versions! The `BOKEH_VERSION` build arg 
+Note that this will probably fail for old versions! The `BOKEH_VERSION` build arg
 is interpreted as the commit to fetch. To build:
 ``` shell
 docker build --file docker-tools/Dockerfile-from-source --build-arg BOKEH_VERSION=master --tag bokeh:latest .
