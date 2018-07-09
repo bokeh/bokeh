@@ -63,7 +63,7 @@ def extract_zip(zip_name, exclude_term=None):
 if __name__ == '__main__':
 
     # info for retrieving and extracting the zip file
-    this_dir = os.path.dirname(os.path.realpath(__file__))
+    this_dir = os.path.dirname(os.path.realpath("__file__"))
     zip_file = 'http://quantquote.com/files/quantquote_daily_sp500_83986.zip'
     zip_dir = 'quantquote_daily_sp500_83986/'
 
