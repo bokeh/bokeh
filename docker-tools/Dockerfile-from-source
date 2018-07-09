@@ -40,7 +40,7 @@ RUN npm install -g npm
 WORKDIR $BOKEH_SOURCE_DIR/bokehjs
 # build BokehJS
 RUN npm install --no-save --no-progress
-RUN sh -c 'if [[ -f make ]]; then node make build; else node_modules/.bin/gulp build; fi'
+RUN sh -c 'if [[ -d make ]]; then node make build; else node_modules/.bin/gulp build; fi'
 WORKDIR $BOKEH_SOURCE_DIR
 # build a noarch conda package for Bokeh using the just-built BokehJS
 RUN conda build conda.recipe --quiet --no-test --no-anaconda-upload --dirty
