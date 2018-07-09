@@ -63,6 +63,20 @@ export abstract class BoxView extends GlyphView {
     }
   }
 
+  // We need to clamp the endpoints inside the viewport, because various browser canvas
+  // implementations have issues drawing rects with enpoints far outside the viewport
+  protected _clamp_viewport(): void {
+    const hr = this.renderer.plot_view.frame.bbox.h_range
+    const vr = this.renderer.plot_view.frame.bbox.v_range
+    const n = this.stop.length
+    for (let i = 0; i < n; i++) {
+      this.stop[i] = Math.max(this.stop[i], vr.start)
+      this.sbottom[i] = Math.min(this.sbottom[i], vr.end)
+      this.sleft[i] = Math.max(this.sleft[i], hr.start)
+      this.sright[i] = Math.min(this.sright[i], hr.end)
+    }
+  }
+
   protected _hit_rect(geometry: RectGeometry): Selection {
     return this._hit_rect_against_index(geometry)
   }

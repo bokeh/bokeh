@@ -59,6 +59,8 @@ export class HBarView extends BoxView {
       this.stop[i] = this.sy[i] - this.sh[i]/2
       this.sbottom[i] = this.sy[i] + this.sh[i]/2
     }
+
+    this._clamp_viewport()
   }
 }
 
