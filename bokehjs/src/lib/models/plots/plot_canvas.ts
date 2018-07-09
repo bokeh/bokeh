@@ -637,7 +637,7 @@ export class PlotCanvasView extends DOMView {
   connect_signals(): void {
     super.connect_signals()
 
-    this.connect(this.force_paint, () => this.repaint())
+    this.connect(this.force_paint, () => this.paint())
 
     const {x_ranges, y_ranges} = this.model.frame
 
