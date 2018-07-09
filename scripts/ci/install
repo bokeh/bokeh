@@ -10,7 +10,9 @@ fi
 # install TravisCI "artifacts" util, see https://github.com/travis-ci/artifacts
 wget -qO- "https://raw.githubusercontent.com/travis-ci/artifacts/master/install" |bash
 
-# install Miniconda3
+# install Miniconda
+PYTHON="${PYTHON:-3.6}"
+MINICONDA_FILENAME=Miniconda${PYTHON:0:1}-latest-Linux-x86_64.sh
 if  [ "${NO_INSTALL_CONDA}" != "1" ]; then
     wget -nv "http://repo.continuum.io/miniconda/${MINICONDA_FILENAME}"
     bash ${MINICONDA_FILENAME} -b -f -p ${HOME}/miniconda
@@ -26,7 +28,7 @@ mkdir -p $HOME/miniconda/conda-meta
 echo -e "$PINNED_PKGS" > $HOME/miniconda/conda-meta/pinned
 
 # install conda packages
-conda install --yes --quiet python=${PYTHON:-3.6} ${CONDA_REQS}
+conda install --yes --quiet python=${PYTHON} ${CONDA_REQS}
 
 # set default conda channels
 conda config --set auto_update_conda off
