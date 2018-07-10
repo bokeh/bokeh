@@ -59,6 +59,8 @@ export class VBarView extends BoxView {
       this.sleft[i] = this.sx[i] - this.sw[i]/2
       this.sright[i] = this.sx[i] + this.sw[i]/2
     }
+
+    this._clamp_viewport()
   }
 }
 
