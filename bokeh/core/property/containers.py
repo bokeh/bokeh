@@ -348,7 +348,7 @@ class PropertyValueColumnData(PropertyValueDict):
         return result
 
     # don't wrap with notify_owner --- notifies owners explicitly
-    def _stream(self, doc, source, new_data, rollover=None, setter=None):
+    def _stream(self, doc, source, new_data, rollover=None, setter=None, append=True):
         ''' Internal implementation to handle special-casing stream events
         on ``ColumnDataSource`` columns.
 

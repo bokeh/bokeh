@@ -293,7 +293,7 @@ class ColumnDataSource(ColumnarDataSource):
             import warnings
             warnings.warn("Unable to find column '%s' in data source" % name)
 
-    def stream(self, new_data, rollover=None):
+    def stream(self, new_data, rollover=None, append=True):
         ''' Efficiently update data source columns with new append-only data.
 
         In cases where it is necessary to update data columns in, this method
@@ -310,6 +310,8 @@ class ColumnDataSource(ColumnarDataSource):
             rollover (int, optional) : A maximum column size, above which data
                 from the start of the column begins to be discarded. If None,
                 then columns will continue to grow unbounded (default: None)
+
+            append (bool, optional) : append/prepend TBD
 
         Returns:
             None
@@ -333,9 +335,9 @@ class ColumnDataSource(ColumnarDataSource):
 
         '''
         # calls internal implementation
-        self._stream(new_data, rollover)
+        self._stream(new_data, rollover, append)
 
-    def _stream(self, new_data, rollover=None, setter=None):
+    def _stream(self, new_data, rollover=None, setter=None, append=True):
         ''' Internal implementation to efficiently update data source columns
         with new append-only data.   The interal implementation adds the setter
         attribute.  [https://github.com/bokeh/bokeh/issues/6577]
@@ -365,6 +367,7 @@ class ColumnDataSource(ColumnarDataSource):
                 subsequent change notifications that the update triggers.
                 The session can compare the event setter to itself, and
                 suppress any updates that originate from itself.
+            append (bool, optional) : append/prepend TBD
         Returns:
             None
 
@@ -445,7 +448,7 @@ class ColumnDataSource(ColumnarDataSource):
             else:
                 new_data[key] = values
 
-        self.data._stream(self.document, self, new_data, rollover, setter)
+        self.data._stream(self.document, self, new_data, rollover, setter, append)
 
     def patch(self, patches, setter=None):
         ''' Efficiently update data source columns at specific locations

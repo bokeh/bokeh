@@ -189,7 +189,7 @@ Lime,Green,99,$0.39
         ds.data._stream = mock
         # internal implementation of stream
         ds._stream(dict(a=[11, 12], b=[21, 22]), "foo", mock_setter)
-        assert stuff['args'] == ("doc", ds, dict(a=[11, 12], b=[21, 22]), "foo", mock_setter)
+        assert stuff['args'] == ("doc", ds, dict(a=[11, 12], b=[21, 22]), "foo", mock_setter, True)
         assert stuff['kw'] == {}
 
     def test_stream_good_data(self):
@@ -203,7 +203,7 @@ Lime,Green,99,$0.39
         ds.data._stream = mock
         # public implementation of stream
         ds._stream(dict(a=[11, 12], b=[21, 22]), "foo")
-        assert stuff['args'] == ("doc", ds, dict(a=[11, 12], b=[21, 22]), "foo", None)
+        assert stuff['args'] == ("doc", ds, dict(a=[11, 12], b=[21, 22]), "foo", None, True)
         assert stuff['kw'] == {}
 
     def test__stream_good_datetime64_data(self):
@@ -346,7 +346,7 @@ Lime,Green,99,$0.39
                         b=np.array([21, 22]),
                         c=pd.Series([31, 32])), 7)
 
-        assert len(stream_stuff['args']) == 5
+        assert len(stream_stuff['args']) == 6
         expected_stream_args = ("doc", ds, dict(a=[11, 12],
                                                 b=np.array([21, 22]),
                                                 c=pd.Series([31, 32])), 7, None)
@@ -397,7 +397,7 @@ Lime,Green,99,$0.39
 
         ds._stream(pd.Series([11, 21, 31], index=list('abc')), 7)
 
-        assert len(stream_stuff['args']) == 5
+        assert len(stream_stuff['args']) == 6
         expected_df = pd.DataFrame(dict(a=np.array([11]),
                                                 b=np.array([21]),
                                                 c=np.array([31])))
@@ -452,7 +452,7 @@ Lime,Green,99,$0.39
                                      b=[21, 22],
                                      c=[31, 32])).set_index('c'), 7)
 
-        assert len(stream_stuff['args']) == 5
+        assert len(stream_stuff['args']) == 6
         expected_steam_data = dict(a=np.array([11, 12]),
                                    b=np.array([21, 22]),
                                    c=np.array([31, 32]))
@@ -505,7 +505,7 @@ Lime,Green,99,$0.39
                                      b=[21, 22],
                                      c=[31, 32])), 7)
 
-        assert len(stream_stuff['args']) == 5
+        assert len(stream_stuff['args']) == 6
         expected_df = pd.DataFrame(dict(a=np.array([11, 12]),
                                         b=np.array([21, 22]),
                                         c=np.array([31, 32])))
