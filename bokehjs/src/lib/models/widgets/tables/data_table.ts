@@ -247,6 +247,9 @@ export class DataTableView extends WidgetView {
       this.grid.invalidate()
       this.updateSelection()
       this.grid.render()
+      if (!this.model.header_row) {
+        this._hide_header()
+      }
     })
 
     if (this.model.selectable !== false) {
@@ -263,7 +266,19 @@ export class DataTableView extends WidgetView {
       })
 
       this.updateSelection()
+
+      if (!this.model.header_row) {
+        this._hide_header()
+      }
+
     }
+  }
+
+  _hide_header(): void {
+    for (const el of Array.from(this.el.querySelectorAll('.slick-header-columns'))) {
+      (el as HTMLElement).style.height = "0px"
+    }
+    this.grid.resizeCanvas()
   }
 }
 
@@ -279,6 +294,7 @@ export namespace DataTable {
     index_header: string
     index_width: number
     scroll_to_selection: boolean
+    header_row: boolean
   }
 
   export interface Props extends TableWidget.Props {}
@@ -309,6 +325,7 @@ export class DataTable extends TableWidget {
       index_header:        [ p.String, "#"   ],
       index_width:         [ p.Int,    40    ],
       scroll_to_selection: [ p.Bool,   true  ],
+      header_row:          [ p.Bool,   true  ],
     })
 
     this.override({

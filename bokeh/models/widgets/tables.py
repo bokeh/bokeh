@@ -571,4 +571,8 @@ class DataTable(TableWidget):
     in the viewport.
     """)
 
+    header_row = Bool(True, help="""
+    Whether to show a header row with column names at the top of the table.
+    """)
+
     height = Override(default=400)
