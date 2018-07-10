@@ -10,7 +10,7 @@ from .theme import Theme
 THIS_DIR = dirname(realpath(__file__))
 
 default = Theme(json={})
-lite = Theme(filename=join(THIS_DIR, 'lite.json'))
-dark_lite = Theme(filename=join(THIS_DIR, 'dark_lite.json'))
+light_minimal = Theme(filename=join(THIS_DIR, 'light_minimal.json'))
+dark_minimal = Theme(filename=join(THIS_DIR, 'dark_minimal.json'))
 
 del dirname, realpath, join

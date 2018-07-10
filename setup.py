@@ -114,7 +114,7 @@ package_path(join(ROOT, 'bokeh', 'core', '_templates'))
 package_path(join(ROOT, 'bokeh', 'sphinxext', '_templates'))
 package_path(join(ROOT, 'bokeh', 'server', 'views'), ('.html'))
 package_path(join(ROOT, 'bokeh', 'sampledata', '_data'))
-package_files('LICENSE.txt', 'themes/*.yaml')
+package_files('LICENSE.txt', 'themes/*.yaml', 'themes/*.json')
 
 setup(
 

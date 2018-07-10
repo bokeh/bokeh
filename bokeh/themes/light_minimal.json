@@ -1,30 +1,24 @@
 {
     "attrs": {
-        "Figure" : {
-            "background_fill_color": "#20262B",
-            "border_fill_color": "#15191C",
-            "outline_line_color": "#E0E0E0",
-        },
-
         "Axis": {
             "major_tick_line_alpha": 0,
-            "major_tick_line_color": "#E0E0E0",
+            "major_tick_line_color": "#5B5B5B",
 
             "minor_tick_line_alpha": 0,
-            "minor_tick_line_color": "#E0E0E0",
+            "minor_tick_line_color": "#5B5B5B",
 
             "axis_line_alpha": 0,
-            "axis_line_color": "#E0E0E0",
+            "axis_line_color": "#5B5B5B",
 
-            "major_label_text_color": "#E0E0E0",
+            "major_label_text_color": "#5B5B5B",
             "major_label_text_font": "Helvetica",
             "major_label_text_font_size": "1.05em",
 
             "axis_label_standoff": 10,
-            "axis_label_text_color": "#E0E0E0",
+            "axis_label_text_color": "#5B5B5B",
             "axis_label_text_font": "Helvetica",
             "axis_label_text_font_size": "1.35em",
-            "axis_label_text_font_style": "normal",
+            "axis_label_text_font_style": "normal"
         },
 
         "Legend": {
@@ -32,35 +26,32 @@
             "glyph_width": 15,
 
             "label_standoff": 8,
-            "label_text_color": "#E0E0E0",
+            "label_text_color": "#5B5B5B",
             "label_text_font": "Helvetica",
             "label_text_font_size": "1.05em",
 
             "border_line_alpha": 0,
-            "background_fill_alpha": 0.25,
-            "background_fill_color": "#20262B",
+            "background_fill_alpha": 0.25
         },
 
         "ColorBar": {
-            "title_text_color": "#E0E0E0",
+            "title_text_color": "#5B5B5B",
             "title_text_font": "Helvetica",
             "title_text_font_size": "1.05em",
             "title_text_font_style": "normal",
 
-            "major_label_text_color": "#E0E0E0",
+            "major_label_text_color": "#5B5B5B",
             "major_label_text_font": "Helvetica",
             "major_label_text_font_size": "1.05em",
 
-            "background_fill_color": "#15191C",
             "major_tick_line_alpha": 0,
-            "bar_line_alpha": 0,
-
+            "bar_line_alpha": 0
         },
 
         "Title": {
-            "text_color": "#E0E0E0",
+            "text_color": "#5B5B5B",
             "text_font": "Helvetica",
-            "text_font_size": "1.15em",
+            "text_font_size": "1.15em"
         }
     }
 }
