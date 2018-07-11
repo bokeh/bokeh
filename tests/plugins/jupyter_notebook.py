@@ -8,7 +8,7 @@ import time
 from os.path import join, exists, dirname, pardir
 from requests.exceptions import ConnectionError
 
-from .utils import write
+from bokeh.util.terminal import write
 
 
 def pytest_addoption(parser):

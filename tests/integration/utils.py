@@ -6,7 +6,7 @@ from selenium.common.exceptions import TimeoutException
 
 from bokeh.models import ColumnDataSource, Rect, BoxSelectTool, CustomJS
 
-from tests.plugins.utils import warn
+from bokeh.util.terminal import warn
 
 
 def has_no_console_errors(selenium):

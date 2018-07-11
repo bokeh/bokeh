@@ -3,7 +3,7 @@ from __future__ import absolute_import, print_function
 import json
 import pytest
 
-from tests.plugins.utils import warn, fail
+from bokeh.util.terminal import warn, fail
 
 def deal_with_output_cells(example):
     output_cells = pytest.config.option.output_cells

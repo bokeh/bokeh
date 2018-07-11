@@ -4,8 +4,9 @@ from boto.s3.key import Key as S3Key
 from boto.exception import NoAuthHandlerFound
 from os.path import join
 
+from bokeh.util.terminal import trace, ok, fail
+
 from .constants import job_id, __version__
-from .utils import trace, ok, fail
 
 import logging
 logging.getLogger('boto').setLevel(logging.INFO)

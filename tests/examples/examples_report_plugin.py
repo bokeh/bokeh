@@ -12,9 +12,10 @@ from py.xml import html
 from tests.plugins.constants import __version__
 from tests.plugins.utils import get_version_from_git as resolve_ref
 from tests.plugins.upload_to_s3 import connect_to_s3, upload_file_to_s3_by_job_id
-from ..plugins.utils import warn
 
 from .collect_examples import collect_examples, Flags
+
+from bokeh.util.terminal import warn
 
 def pytest_addoption(parser):
     parser.addoption(

@@ -10,7 +10,7 @@ from os.path import join, exists, dirname, basename, relpath, splitext, isfile, 
 from ..plugins.constants import __version__, job_id
 from ..plugins.upload_to_s3 import S3_URL, upload_file_to_s3
 
-from ..plugins.utils import trace, green
+from bokeh.util.terminal import trace, green
 
 class Flags(object):
     js       = 1 << 0

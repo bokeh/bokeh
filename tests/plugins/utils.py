@@ -1,63 +1,9 @@
 from __future__ import absolute_import, print_function
 
-import colorama
 import subprocess
 import sys
 
-#
-# Output to stdout
-#
-colorama.init()
-
-
-def trace(*values, **kwargs):
-    pass
-
-
-def write(*values, **kwargs):
-    end = kwargs.get('end', '\n')
-    print(*values, end=end)
-
-
-def red(text):
-    return "%s%s%s%s" % (colorama.Fore.RED, colorama.Style.NORMAL, text, colorama.Style.RESET_ALL)
-
-
-def yellow(text):
-    return "%s%s%s%s" % (colorama.Fore.YELLOW, colorama.Style.NORMAL, text, colorama.Style.RESET_ALL)
-
-
-def blue(text):
-    return "%s%s%s%s" % (colorama.Fore.BLUE, colorama.Style.NORMAL, text, colorama.Style.RESET_ALL)
-
-
-def green(text):
-    return "%s%s%s%s" % (colorama.Fore.GREEN, colorama.Style.NORMAL, text, colorama.Style.RESET_ALL)
-
-
-def white(text):
-    return "%s%s%s%s" % (colorama.Fore.WHITE, colorama.Style.BRIGHT, text, colorama.Style.RESET_ALL)
-
-
-def fail(msg=None, label="FAIL"):
-    msg = " " + msg if msg is not None else ""
-    write("%s%s" % (red("[%s]" % label), msg))
-
-
-def warn(msg=None, label="WARN"):
-    msg = " " + msg if msg is not None else ""
-    write("%s%s" % (yellow("[%s]" % label), msg))
-
-
-def info(msg=None, label="INFO"):
-    msg = " " + msg if msg is not None else ""
-    write("%s%s" % (white("[%s]" % label), msg))
-
-
-def ok(msg=None, label="OK"):
-    msg = " " + msg if msg is not None else ""
-    write("%s%s" % (green("[%s]" % label), msg))
-
+from bokeh.util.terminal import write
 
 def get_version_from_git(ref):
     """Get git-version of a specific ref, e.g. HEAD, origin/master. """

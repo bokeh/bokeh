@@ -102,10 +102,20 @@ functionality.
 .. automodule:: bokeh.util.string
   :members:
 
+.. _bokeh.util.tornado:
+
 ``bokeh.util.tornado``
 ----------------------
 
 .. automodule:: bokeh.util.tornado
+  :members:
+
+  .. _bokeh.util.terminal:
+
+``bokeh.util.terminal``
+----------------------
+
+.. automodule:: bokeh.util.terminal
   :members:
 
 .. _bokeh.util.version:

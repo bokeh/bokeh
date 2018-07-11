@@ -9,7 +9,7 @@ import time
 
 from requests.exceptions import ConnectionError
 
-from .utils import write
+from bokeh.util.terminal import write
 
 
 def pytest_addoption(parser):
