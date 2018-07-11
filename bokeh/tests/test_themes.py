@@ -9,7 +9,7 @@ from bokeh.document import Document
 from bokeh.model import Model
 from bokeh.core.property_mixins import FillProps, LineProps, TextProps
 from bokeh.core.properties import Int, String
-from bokeh.themes import Theme
+from bokeh.themes import Theme, built_in_themes, DARK_MINIMAL, LIGHT_MINIMAL
 
 class ThemedModel(Model):
     number = Int(42)
@@ -245,3 +245,31 @@ class TestThemes(object):
 
         self._compare_dict_to_model_class_defaults(doc.theme._line_defaults, LineProps)
         assert 0 == len(doc.theme._line_defaults)
+
+    def test_setting_built_in_theme_obj(self):
+        obj = Model()
+        doc = Document()
+        doc.add_root(obj)
+        doc.theme = built_in_themes[LIGHT_MINIMAL]
+        assert "#5B5B5B" == doc.theme._json['attrs']['ColorBar']['title_text_color']
+
+    def test_setting_built_in_theme_str(self):
+        obj = Model()
+        doc = Document()
+        doc.add_root(obj)
+        doc.theme = DARK_MINIMAL
+        assert "#20262B" == doc.theme._json['attrs']['Figure']['background_fill_color']
+
+    def test_setting_built_in_theme_missing(self):
+        obj = Model()
+        doc = Document()
+        doc.add_root(obj)
+        with pytest.raises(ValueError):
+            doc.theme = 'some_theme_i_guess'
+
+    def test_setting_built_in_theme_error(self):
+        obj = Model()
+        doc = Document()
+        doc.add_root(obj)
+        with pytest.raises(ValueError):
+            doc.theme = 1337
