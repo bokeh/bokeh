@@ -10,7 +10,7 @@ import numpy as np
 
 from bokeh.models.sources import DataSource, ColumnDataSource
 from bokeh.util.serialization import transform_column_source_data, convert_datetime_array
-from bokeh.util.testing import pd ; pd
+from bokeh.testing.fixtures import pd ; pd
 
 class TestColumnDataSource(object):
 

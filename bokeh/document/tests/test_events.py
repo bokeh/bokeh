@@ -2,7 +2,7 @@ import pytest
 
 from mock import patch
 
-from bokeh.util.testing import pd ; pd
+from bokeh.testing.fixtures import pd ; pd
 
 import bokeh.document.events as bde
 

@@ -22,7 +22,8 @@ import pytest ; pytest
 # External imports
 
 # Bokeh imports
-from bokeh.util.testing import pd, verify_all ; pd
+from bokeh.util.testing import verify_all
+from bokeh.testing.fixtures import pd; pd
 
 # Module under test
 #import bokeh.sampledata.commits as bsc

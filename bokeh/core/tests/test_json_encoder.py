@@ -14,7 +14,7 @@ from bokeh.colors import RGB
 from bokeh.core.has_props import HasProps
 from bokeh.core.properties import Int, String
 from bokeh.models import Range1d
-from bokeh.util.testing import pd ; pd
+from bokeh.testing.fixtures import pd ; pd
 
 class HP(HasProps):
     foo = Int(default=10)

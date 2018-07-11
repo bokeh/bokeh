@@ -23,7 +23,7 @@ import pytest ; pytest
 import numpy as np
 
 # Bokeh imports
-from bokeh.util.testing import pd ; pd
+from bokeh.testing.fixtures import pd ; pd
 
 # Module under test
 import bokeh.util.hex as buh

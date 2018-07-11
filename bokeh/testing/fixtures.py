@@ -5,13 +5,17 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
+''' Provide Pytest fixtures useful for testing Bokeh itself.
+
+'''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import pytest ; pytest
+import logging
+log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
@@ -20,34 +24,26 @@ import pytest ; pytest
 # Standard library imports
 
 # External imports
+import pytest
 
 # Bokeh imports
-from bokeh.util.testing import verify_all
-from bokeh.testing.fixtures import pd; pd
+from ..util.dependencies import import_optional
 
-# Module under test
-#import bokeh.sampledata.world_cities as bsw
-
-#-----------------------------------------------------------------------------
-# Setup
-#-----------------------------------------------------------------------------
-
-ALL = (
-    'data',
-)
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.world_cities", ALL))
+@pytest.fixture
+def pd():
+    ''' A PyTest fixture that will automatically skip a test if Pandas is
+    not installed.
 
-@pytest.mark.sampledata
-def test_data(pd):
-    import bokeh.sampledata.world_cities as bsw
-    assert isinstance(bsw.data, pd.DataFrame)
-
-    # don't check detail for external data
+    '''
+    pandas = import_optional('pandas')
+    if pandas is None:
+        pytest.skip('pandas is not installed')
+    return pandas
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -55,4 +51,8 @@ def test_data(pd):
 
 #-----------------------------------------------------------------------------
 # Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
 #-----------------------------------------------------------------------------

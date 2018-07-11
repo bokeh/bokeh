@@ -5,13 +5,17 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
+''' Provide suport modules for testing Bokeh itself.
+
+'''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import pytest ; pytest
+import logging
+log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
@@ -22,32 +26,10 @@ import pytest ; pytest
 # External imports
 
 # Bokeh imports
-from bokeh.util.testing import verify_all
-from bokeh.testing.fixtures import pd; pd
-
-# Module under test
-#import bokeh.sampledata.world_cities as bsw
-
-#-----------------------------------------------------------------------------
-# Setup
-#-----------------------------------------------------------------------------
-
-ALL = (
-    'data',
-)
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.world_cities", ALL))
-
-@pytest.mark.sampledata
-def test_data(pd):
-    import bokeh.sampledata.world_cities as bsw
-    assert isinstance(bsw.data, pd.DataFrame)
-
-    # don't check detail for external data
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -55,4 +37,8 @@ def test_data(pd):
 
 #-----------------------------------------------------------------------------
 # Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
 #-----------------------------------------------------------------------------
