@@ -82,6 +82,7 @@ export class BoxEditToolView extends EditToolView {
   }
 
   _doubletap(ev: TapEvent): void {
+    if (!this.model.active) { return; }
     if (this._draw_basepoint != null) {
       this._update_box(ev, false, true)
       this._draw_basepoint = null;
