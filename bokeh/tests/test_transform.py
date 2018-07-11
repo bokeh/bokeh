@@ -23,7 +23,7 @@ import pytest ; pytest
 
 # Bokeh imports
 from bokeh.models import CategoricalColorMapper, CumSum, Dodge, FactorRange, Jitter, LinearColorMapper, LogColorMapper, Stack
-from bokeh.util.testing import verify_all
+from bokeh.testing.util import verify_all
 
 # Module under test
 import bokeh.transform as bt

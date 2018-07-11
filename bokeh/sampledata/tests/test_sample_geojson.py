@@ -23,7 +23,7 @@ import pytest ; pytest
 from six import string_types
 
 # Bokeh imports
-from bokeh.util.testing import verify_all
+from bokeh.testing.util import verify_all
 
 # Module under test
 #import bokeh.sampledata.sample_geojson as bss

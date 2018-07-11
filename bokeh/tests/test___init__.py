@@ -26,7 +26,7 @@ import warnings
 from six import string_types
 
 # Bokeh imports
-from bokeh.util.testing import verify_all
+from bokeh.testing.util import verify_all
 from bokeh.util.warnings import BokehDeprecationWarning, BokehUserWarning
 
 # Module under test
