@@ -4,7 +4,7 @@ from bokeh.io import save
 from bokeh.plotting import figure
 from bokeh.models import CustomJS, Range1d, FactorRange
 from selenium.webdriver.common.action_chains import ActionChains
-from tests.integration.utils import has_no_console_errors
+from bokeh.testing.selenium import has_no_console_errors
 
 import pytest
 pytestmark = pytest.mark.integration

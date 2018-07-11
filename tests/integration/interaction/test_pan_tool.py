@@ -3,7 +3,7 @@ from __future__ import absolute_import, print_function
 from bokeh.io import save
 from bokeh.plotting import figure
 from selenium.common.exceptions import StaleElementReferenceException
-from tests.integration.utils import has_no_console_errors
+from bokeh.testing.selenium import has_no_console_errors
 
 import pytest
 pytestmark = pytest.mark.integration

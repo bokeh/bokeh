@@ -9,7 +9,7 @@ from bokeh.models import (
     WheelZoomTool,
 )
 from selenium.common.exceptions import StaleElementReferenceException
-from tests.integration.utils import has_no_console_errors
+from bokeh.testing.selenium import has_no_console_errors
 
 import pytest
 pytestmark = pytest.mark.integration
