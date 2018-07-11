@@ -9,7 +9,7 @@ is_python2 = sys.version_info[0] == 2
 
 import bokeh.command.subcommands.html as schtml
 from bokeh.command.bootstrap import main
-from bokeh.testing.util import TmpDir, WorkingDir, with_directory_contents
+from bokeh.testing.filesystem import TmpDir, WorkingDir, with_directory_contents
 
 from . import basic_scatter_script
 

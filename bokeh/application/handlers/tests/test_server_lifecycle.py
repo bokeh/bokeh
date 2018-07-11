@@ -23,7 +23,7 @@ import pytest ; pytest
 
 # Bokeh imports
 from bokeh.document import Document
-from bokeh.testing.util import with_file_contents
+from bokeh.testing.filesystem import with_file_contents
 
 # Module under test
 import bokeh.application.handlers.server_lifecycle as bahs
