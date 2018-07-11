@@ -241,5 +241,14 @@ describe("PolyDrawTool", (): void => {
 
       expect(testcase.data_source.data['z']).to.be.deep.equal([null, null, "Test"]);
     });
+
+    it("should not draw poly on doubletap when tool inactive", function(): void {
+      const testcase = make_testcase();
+      testcase.draw_tool_view.model.active = false;
+
+      let drag_event = make_gesture_event(300, 300, true);
+      testcase.draw_tool_view._doubletap(drag_event);
+      expect(testcase.draw_tool_view._drawing).to.be.equal(false);
+    });
   })
 });
