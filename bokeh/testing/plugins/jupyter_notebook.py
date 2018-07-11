@@ -1,15 +1,49 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+''' Define Pytest plugins for Jupyter Notebook tests.
+
+'''
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import os
-import pytest
+from os.path import join, exists, dirname, pardir
 import requests
 import subprocess
 import sys
 import time
 
-from os.path import join, exists, dirname, pardir
+
+# External imports
+import pytest
 from requests.exceptions import ConnectionError
 
+# Bokeh imports
 from bokeh.util.terminal import write
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def pytest_addoption(parser):
     parser.addoption(
@@ -123,3 +157,15 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
             sys.exit(1)
 
         return jupter_notebook_url
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

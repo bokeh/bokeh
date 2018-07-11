@@ -1,22 +1,51 @@
-from __future__ import absolute_import, print_function
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+''' Define a Pytest plugin to provide a Bokeh server
 
-import pytest
-import requests
+'''
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import subprocess
 import sys
 import time
 
-
+# External imports
+import pytest
+import requests
 from requests.exceptions import ConnectionError
 
+# Bokeh imports
 from bokeh.util.terminal import write
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def pytest_addoption(parser):
     parser.addoption(
         "--bokeh-port", dest="bokeh_port", type=int, default=5006, help="port on which Bokeh server resides"
     )
-
 
 @pytest.fixture(scope='session')
 def bokeh_server(request, log_file):
@@ -68,3 +97,15 @@ def bokeh_server(request, log_file):
             sys.exit(1)
 
         return bokeh_server_url
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

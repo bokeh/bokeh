@@ -10,8 +10,8 @@ import signal
 from os.path import dirname, exists, split
 
 from bokeh.server.callbacks import NextTickCallback, PeriodicCallback, TimeoutCallback
-from tests.plugins.screenshot import get_screenshot
-from tests.plugins.image_diff import image_diff
+from bokeh.testing.images import image_diff
+from bokeh.testing.plugins.screenshot import get_screenshot
 
 from bokeh.client import push_session
 from bokeh.command.util import build_single_handler_application

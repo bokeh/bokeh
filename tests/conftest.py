@@ -1,15 +1,13 @@
 import pytest
 
-from tests.plugins.upload_to_s3 import upload_file_to_s3_by_job_id
+from bokeh.testing.s3 import upload_file_to_s3_by_job_id
 
 pytest_plugins = (
-    "tests.examples.examples_report_plugin",
-    "tests.integration.integration_tests_plugin",
-    "tests.plugins.bokeh_server",
-    "tests.plugins.image_diff",
-    "tests.plugins.jupyter_notebook",
-    "tests.plugins.file_server",
-    "tests.plugins.screenshot",
+    "bokeh.testing.plugins.bokeh_server",
+    "bokeh.testing.plugins.examples_report",
+    "bokeh.testing.plugins.file_server",
+    "bokeh.testing.plugins.integration_tests",
+    "bokeh.testing.plugins.jupyter_notebook",
 )
 
 

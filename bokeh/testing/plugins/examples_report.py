@@ -1,20 +1,50 @@
-from __future__ import absolute_import, print_function
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+''' Define Pytest a plugin for generating the Bokeh examples image diff report
 
+'''
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import io
 import os
 from os.path import abspath, dirname, exists, expanduser, expandvars, join, pardir
 import re
 
+# External imports
 import jinja2
 import pytest
 from py.xml import html
 
-from tests.plugins.upload_to_s3 import connect_to_s3, upload_file_to_s3_by_job_id
-
-from .collect_examples import collect_examples, Flags
-
+# Bokeh imports
+from bokeh.testing.examples import collect_examples, Flags
 from bokeh.testing.git import __version__, version_from_git
+from bokeh.testing.s3 import connect_to_s3, upload_file_to_s3_by_job_id
 from bokeh.util.terminal import warn
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def pytest_addoption(parser):
     parser.addoption(
@@ -38,7 +68,7 @@ _examples = None
 def get_all_examples(config):
     global _examples
     if _examples is None:
-        base_dir = abspath(join(dirname(__file__), pardir, pardir))
+        base_dir = abspath(join(dirname(__file__), pardir, pardir, pardir))
 
         _examples = collect_examples(join(base_dir, "examples.yaml"))
 
@@ -202,3 +232,15 @@ class ExamplesTestReport(object):
 
     def pytest_terminal_summary(self, terminalreporter):
         terminalreporter.write_sep('-', 'generated example report: {0}'.format(self.report_path))
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
