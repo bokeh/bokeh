@@ -8,7 +8,7 @@ import subprocess
 from os.path import abspath, dirname, join, pardir, split
 from bokeh.util.terminal import trace, fail
 
-TOP_PATH = abspath(join(split(__file__)[0], pardir, pardir))
+TOP_PATH = abspath(join(split(__file__)[0], pardir, pardir, pardir))
 
 def _get_chrome():
     return ["node", join(dirname(__file__), "chrome_screenshot.js")]

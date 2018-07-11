@@ -145,28 +145,6 @@ def output_file_url(request, file_server):
     return file_server.where_is(url)
 
 
-def pytest_generate_tests(metafunc):
-    # hasattr(metafunc.function, "foo") is like doing item.get_marker("foo")
-    # This is ugly, but unfortunately there's not currently a better interface
-    # https://github.com/pytest-dev/pytest/issues/1425
-    if hasattr(metafunc.function, "cross_browser"):
-        if metafunc.config.option.driver == "SauceLabs":
-            cross_browser_list = [
-                {
-                    "browserName": "firefox",
-                    "platform": "Linux",
-                    "version": None
-                },
-                {
-                    "browserName": "chrome",
-                    "platform": "Linux",
-                    "version": None
-                },
-            ]
-            metafunc.fixturenames.append('test_browser')
-            metafunc.parametrize('test_browser', cross_browser_list, ids=["firefox", "chrome"])
-
-
 @pytest.fixture()
 def test_browser():
     # If version is None, latest will be used
