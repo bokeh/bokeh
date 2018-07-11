@@ -7,9 +7,10 @@ import requests
 
 from os.path import join, exists, dirname, basename, relpath, splitext, isfile, isdir
 
-from ..plugins.constants import __version__, job_id
 from ..plugins.upload_to_s3 import S3_URL, upload_file_to_s3
 
+from bokeh.testing.git import __version__
+from bokeh.testing.travis import JOB_ID
 from bokeh.util.terminal import trace, green
 
 class Flags(object):
@@ -117,15 +118,15 @@ class Example(object):
 
     @property
     def img_path(self):
-        return join(self.imgs_dir, "%s-%s-%s.png" % (self.name, __version__, job_id))
+        return join(self.imgs_dir, "%s-%s-%s.png" % (self.name, __version__, JOB_ID))
 
     @property
     def ref_path(self):
-        return join(self.imgs_dir, "%s-%s-%s.png" % (self.name, self._diff_ref, job_id))
+        return join(self.imgs_dir, "%s-%s-%s.png" % (self.name, self._diff_ref, JOB_ID))
 
     @property
     def diff_path(self):
-        return join(self.imgs_dir, "%s-%s-%s-diff-%s.png" % (self.name, __version__, self._diff_ref, job_id))
+        return join(self.imgs_dir, "%s-%s-%s-diff-%s.png" % (self.name, __version__, self._diff_ref, JOB_ID))
 
     @property
     def img_url(self):

@@ -9,12 +9,11 @@ import jinja2
 import pytest
 from py.xml import html
 
-from tests.plugins.constants import __version__
-from tests.plugins.utils import get_version_from_git as resolve_ref
 from tests.plugins.upload_to_s3 import connect_to_s3, upload_file_to_s3_by_job_id
 
 from .collect_examples import collect_examples, Flags
 
+from bokeh.testing.git import __version__, version_from_git
 from bokeh.util.terminal import warn
 
 def pytest_addoption(parser):
@@ -25,7 +24,7 @@ def pytest_addoption(parser):
         "--report-path", action='store', dest='report_path', metavar='path', default='report.html',
         help='create examples html report file at given path.')
     parser.addoption(
-        "--diff-ref", type=resolve_ref, default="master@{upstream}",
+        "--diff-ref", type=version_from_git, default="master@{upstream}",
         help="compare generated images against this ref")
     parser.addoption(
         "--incremental", action="store_true", default=False,

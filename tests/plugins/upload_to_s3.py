@@ -4,9 +4,9 @@ from boto.s3.key import Key as S3Key
 from boto.exception import NoAuthHandlerFound
 from os.path import join
 
+from bokeh.testing.git import __version__
+from bokeh.testing.travis import JOB_ID
 from bokeh.util.terminal import trace, ok, fail
-
-from .constants import job_id, __version__
 
 import logging
 logging.getLogger('boto').setLevel(logging.INFO)
@@ -32,7 +32,7 @@ def upload_file_to_s3_by_job_id(file_path, content_type="text/html", extra_messa
     """
     Uploads a file to bokeh-travis s3 bucket under a job_id folder
     """
-    s3_filename = join(job_id, file_path)
+    s3_filename = join(JOB_ID, file_path)
     return upload_file_to_s3(file_path, s3_filename, content_type, extra_message)
 
 
