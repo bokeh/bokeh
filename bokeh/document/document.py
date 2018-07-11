@@ -33,7 +33,7 @@ from ..core.query import find
 from ..core.templates import FILE
 from ..core.validation import check_integrity
 from ..events import Event
-from ..themes import default as default_theme
+from ..themes import default as default_theme, built_in_themes
 from ..themes import Theme
 from ..util.callback_manager import _check_callback
 from ..util.datatypes import MultiValuedDict
@@ -143,11 +143,23 @@ class Document(object):
     def theme(self, theme):
         if theme is None:
             theme = default_theme
-        if not isinstance(theme, Theme):
-            raise ValueError("Theme must be an instance of the Theme class")
+
         if self._theme is theme:
             return
-        self._theme = theme
+
+        if isinstance(theme, str):
+            try:
+                self._theme = built_in_themes[theme]
+            except KeyError:
+                raise ValueError(
+                    "{0} is not a built-in theme; available themes are "
+                    "{1}".format(theme, ', '.join(built_in_themes.keys()))
+                )
+        elif isinstance(theme, Theme):
+            self._theme = theme
+        else:
+            raise ValueError("Theme must be a str or an instance of the Theme class")
+
         for model in self._all_models.values():
             self._theme.apply_to_model(model)
 
