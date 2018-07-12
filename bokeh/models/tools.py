@@ -394,6 +394,13 @@ class TapTool(Tap):
     its ``.source`` attribute and the selection geometry as its
     ``.geometries`` attribute.
 
+    The ``.geometries`` attribute has 5 members.
+    ``.type`` is the geometry type, which always a ``.point`` for a tap event.
+    ``.sx`` and ``.sy`` are the screen X and Y coordinates where the tap occurred.
+    ``.x`` and ``.y`` are the converted data coordinates for the item that has
+    been selected. The ``.x`` and ``.y`` values are based on the axis assiged
+    to that glyph.
+
     .. note::
         This callback does *not* execute on every tap, only when a glyphs is
         "hit". If you would like to execute a callback on every mouse tap,
