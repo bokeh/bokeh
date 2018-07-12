@@ -23,7 +23,7 @@ import pytest ; pytest
 
 # Bokeh imports
 from bokeh.models.tiles import WMTSTileSource
-from bokeh.testing.util import verify_all
+from bokeh.testing.api import verify_all
 
 # Module under test
 import bokeh.tile_providers as bt

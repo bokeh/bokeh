@@ -22,7 +22,7 @@ import pytest ; pytest
 # External imports
 
 # Bokeh imports
-from bokeh.testing.util import verify_all
+from bokeh.testing.api import verify_all
 
 # Module under test
 #import bokeh.sampledata.autompg2 as bsa
