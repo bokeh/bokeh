@@ -39,7 +39,7 @@ export class TapToolView extends SelectToolView {
           const y = yscale.invert(geometry.sy)
           const g = {...geometry, x, y}
           const cb_data: {
-              geometries: { type: "point", sx: number, sy: number, x: number, y: number }
+              geometries: PointGeometry & { x: number, y: number }
               source: DataSource | null,
           } = { geometries: g, source: sm.source }
           if (isFunction(callback))
@@ -64,7 +64,7 @@ export class TapToolView extends SelectToolView {
           const y = yscale.invert(geometry.sy)
           const g = {...geometry, x, y}
           const cb_data: {
-              geometries: { type: "point", sx: number, sy: number, x: number, y: number }
+              geometries: PointGeometry & { x: number, y: number }
               source: DataSource | null,
           } = { geometries: g, source: sm.source }
           if (isFunction(callback))
