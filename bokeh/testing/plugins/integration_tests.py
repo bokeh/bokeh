@@ -38,7 +38,9 @@ from bokeh.testing.s3 import upload_file_to_s3_by_job_id
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-pytest_plugins = "bokeh.testing.plugins.file_server"
+pytest_plugins = (
+    "bokeh.testing.plugins.file_server",
+)
 
 #-----------------------------------------------------------------------------
 # General API

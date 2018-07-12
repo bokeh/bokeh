@@ -38,7 +38,9 @@ from bokeh.util.terminal import write
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-pytest_plugins = "bokeh.testing.plugins.log_file"
+pytest_plugins = (
+    "bokeh.testing.plugins.log_file",
+)
 
 #-----------------------------------------------------------------------------
 # General API
