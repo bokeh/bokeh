@@ -32,10 +32,13 @@ import pytest
 # Bokeh imports
 from bokeh.io import output_file
 from bokeh.testing.images import image_diff
+from bokeh.testing.s3 import upload_file_to_s3_by_job_id
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
+
+pytest_plugins = "bokeh.testing.plugins.file_server"
 
 #-----------------------------------------------------------------------------
 # General API
@@ -114,11 +117,12 @@ class Screenshot(object):
             raise ScreenshotMismatchError("The current screenshot doesn't match the base image.")
 
 
-def pytest_addoption(parser):
-    parser.addoption(
-        "--set-new-base-screenshot", dest="set_new_base_screenshot", action="store_true", default=False,
-        help="Use to set a new screenshot for imagediff testing. Be sure to only set for the tests you want by usign the -k pytest option to select your test.")
-
+def pytest_sessionfinish(session, exitstatus):
+    try_upload = session.config.option.upload
+    seleniumreport = session.config.option.htmlpath
+    is_slave = hasattr(session.config, 'slaveinput')
+    if try_upload and seleniumreport and not is_slave:
+        upload_file_to_s3_by_job_id(seleniumreport, "text/html", "INTEGRATION TESTS REPORT")
 
 @pytest.fixture
 def selenium(selenium):

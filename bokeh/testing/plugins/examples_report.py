@@ -34,7 +34,7 @@ from py.xml import html
 
 # Bokeh imports
 from bokeh.testing.examples import collect_examples, Flags
-from bokeh.testing.git import __version__, version_from_git
+from bokeh.testing.git import __version__
 from bokeh.testing.s3 import connect_to_s3, upload_file_to_s3_by_job_id
 from bokeh.util.terminal import warn
 
@@ -42,28 +42,11 @@ from bokeh.util.terminal import warn
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+_examples = None
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-def pytest_addoption(parser):
-    parser.addoption(
-        "--output-cells", type=str, choices=['complain', 'remove', 'ignore'], default='complain',
-        help="what to do with notebooks' output cells")
-    parser.addoption(
-        "--report-path", action='store', dest='report_path', metavar='path', default='report.html',
-        help='create examples html report file at given path.')
-    parser.addoption(
-        "--diff-ref", type=version_from_git, default="master@{upstream}",
-        help="compare generated images against this ref")
-    parser.addoption(
-        "--incremental", action="store_true", default=False,
-        help="write report after each example")
-    parser.addoption(
-        "--no-js", action="store_true", default=False,
-        help="only run python code and skip js and image diff")
-
-_examples = None
 
 def get_all_examples(config):
     global _examples

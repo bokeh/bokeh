@@ -38,14 +38,11 @@ from bokeh.util.terminal import write
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+pytest_plugins = "bokeh.testing.plugins.log_file"
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-def pytest_addoption(parser):
-    parser.addoption(
-        "--bokeh-port", dest="bokeh_port", type=int, default=5006, help="port on which Bokeh server resides"
-    )
 
 @pytest.fixture(scope='session')
 def bokeh_server(request, log_file):

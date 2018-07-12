@@ -24,7 +24,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import os
 from os.path import join, exists, dirname, pardir
-import requests
 import subprocess
 import sys
 import time
@@ -32,6 +31,7 @@ import time
 
 # External imports
 import pytest
+import requests
 from requests.exceptions import ConnectionError
 
 # Bokeh imports
@@ -41,15 +41,11 @@ from bokeh.util.terminal import write
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+pytest_plugins = "bokeh.testing.plugins.log_file"
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-def pytest_addoption(parser):
-    parser.addoption(
-        "--notebook-port", type=int, default=6007, help="port on which Jupyter Notebook server resides"
-    )
-
 
 @pytest.fixture(scope="session")
 def jupyter_notebook(request, log_file):

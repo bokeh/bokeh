@@ -17,6 +17,11 @@ from bokeh.client import push_session
 from bokeh.command.util import build_single_handler_application
 from bokeh.util.terminal import trace, info, fail, ok, red, warn, white
 
+pytest_plugins = (
+    "bokeh.testing.plugins.bokeh_server",
+    "bokeh.testing.plugins.examples_report",
+)
+
 @pytest.mark.examples
 def test_js_examples(js_example, example, report):
     if example.is_skip:
