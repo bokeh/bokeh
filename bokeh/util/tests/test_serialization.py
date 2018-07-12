@@ -7,7 +7,6 @@ import pytest
 import numpy as np
 import pytz
 
-from bokeh.testing.fixtures import pd; pd
 
 import bokeh.util.serialization as bus
 

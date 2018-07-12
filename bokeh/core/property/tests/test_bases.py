@@ -4,7 +4,6 @@ import pytest
 import numpy as np
 
 from bokeh.core.has_props import HasProps
-from bokeh.testing.fixtures import pd ; pd
 
 import bokeh.core.property.bases as pb
 

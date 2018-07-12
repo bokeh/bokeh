@@ -22,7 +22,6 @@ import pytest ; pytest
 # External imports
 
 # Bokeh imports
-from bokeh.testing.fixtures import pd; pd
 from bokeh.testing.util import verify_all
 
 # Module under test

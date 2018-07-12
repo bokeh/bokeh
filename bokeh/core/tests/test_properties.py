@@ -20,7 +20,6 @@ from bokeh.core.has_props import HasProps
 
 from bokeh.models import Plot
 
-from bokeh.testing.fixtures import pd ; pd
 
 SPECS = (NumberSpec, ColorSpec, AngleSpec, StringSpec, DistanceSpec, FontSizeSpec, DataDistanceSpec, ScreenDistanceSpec)
 

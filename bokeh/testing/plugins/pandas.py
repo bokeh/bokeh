@@ -5,7 +5,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide Pytest fixtures useful for testing Bokeh itself.
+''' Provide a Pytest plugin for handling tests when Pandas may be missing.
 
 '''
 
@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 import pytest
 
 # Bokeh imports
-from ..util.dependencies import import_optional
+from bokeh.util.dependencies import import_optional
 
 #-----------------------------------------------------------------------------
 # Globals and constants

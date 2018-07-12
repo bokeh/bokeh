@@ -13,7 +13,6 @@ from bokeh.models import (
     ResetTool,
     Title,
 )
-from bokeh.testing.fixtures import pd; pd
 
 import bokeh.plotting as plt
 
