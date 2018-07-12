@@ -113,7 +113,7 @@ functionality.
   .. _bokeh.util.terminal:
 
 ``bokeh.util.terminal``
-----------------------
+-----------------------
 
 .. automodule:: bokeh.util.terminal
   :members:
