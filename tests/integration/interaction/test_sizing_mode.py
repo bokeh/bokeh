@@ -3,7 +3,7 @@ from __future__ import absolute_import, division
 from bokeh.io import save
 from bokeh.models import Plot, ColumnDataSource, Rect, DataRange1d
 
-from bokeh.testing.selenium import has_no_console_errors, wait_for_canvas_resize
+from bokeh._testing.util.selenium import has_no_console_errors, wait_for_canvas_resize
 
 import pytest
 

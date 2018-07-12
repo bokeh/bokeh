@@ -12,7 +12,7 @@ from bokeh.models import (
     LinearAxis
 )
 from selenium.webdriver.common.action_chains import ActionChains
-from bokeh.testing.selenium import has_no_console_errors, wait_for_canvas_resize
+from bokeh._testing.util.selenium import has_no_console_errors, wait_for_canvas_resize
 
 import pytest
 pytestmark = pytest.mark.integration

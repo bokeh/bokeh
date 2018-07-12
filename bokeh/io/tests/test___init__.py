@@ -23,7 +23,7 @@ import pytest ; pytest
 
 # Bokeh imports
 import bokeh.io.notebook as binb
-from bokeh.testing.api import verify_all
+from bokeh._testing.util.api import verify_all
 
 # Module under test
 import bokeh.io as bi

@@ -30,8 +30,8 @@ from boto.exception import NoAuthHandlerFound
 from boto.s3.key import Key as S3Key
 
 # Bokeh imports
-from bokeh.testing.git import __version__
-from bokeh.testing.travis import JOB_ID
+from bokeh._testing.util.git import __version__
+from bokeh._testing.util.travis import JOB_ID
 from bokeh.util.terminal import trace, ok, fail
 
 #-----------------------------------------------------------------------------

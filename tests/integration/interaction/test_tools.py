@@ -4,7 +4,7 @@ from bokeh.io import save
 from bokeh.models import BoxSelectTool, ColumnDataSource, CustomJS, LassoSelectTool
 from bokeh.plotting import figure
 from selenium.webdriver.common.action_chains import ActionChains
-from bokeh.testing.selenium import has_no_console_errors
+from bokeh._testing.util.selenium import has_no_console_errors
 
 import pytest
 pytestmark = pytest.mark.integration

@@ -31,15 +31,15 @@ import pytest
 
 # Bokeh imports
 from bokeh.io import output_file
-from bokeh.testing.images import image_diff
-from bokeh.testing.s3 import upload_file_to_s3_by_job_id
+from bokeh._testing.util.images import image_diff
+from bokeh._testing.util.s3 import upload_file_to_s3_by_job_id
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 pytest_plugins = (
-    "bokeh.testing.plugins.file_server",
+    "bokeh._testing.plugins.file_server",
 )
 
 #-----------------------------------------------------------------------------

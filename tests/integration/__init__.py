@@ -1,1 +1,1 @@
-pytest_plugins = "bokeh.testing.plugins.integration_tests"
+pytest_plugins = "bokeh._testing.plugins.integration_tests"

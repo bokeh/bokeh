@@ -1,9 +1,9 @@
 pytest_plugins = (
-    "bokeh.testing.plugins.implicit_mark",
-    "bokeh.testing.plugins.pandas",
+    "bokeh._testing.plugins.implicit_mark",
+    "bokeh._testing.plugins.pandas",
 )
 
-from bokeh.testing.git import version_from_git
+from bokeh._testing.util.git import version_from_git
 
 # Unfortunately these seem to all need to be centrally defined at the top level
 def pytest_addoption(parser):

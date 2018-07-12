@@ -30,9 +30,9 @@ import yaml
 import requests
 
 # Bokeh imports
-from bokeh.testing.git import __version__
-from bokeh.testing.s3 import S3_URL, upload_file_to_s3
-from bokeh.testing.travis import JOB_ID
+from bokeh._testing.util.git import __version__
+from bokeh._testing.util.s3 import S3_URL, upload_file_to_s3
+from bokeh._testing.util.travis import JOB_ID
 from bokeh.util.terminal import trace, green
 
 #-----------------------------------------------------------------------------

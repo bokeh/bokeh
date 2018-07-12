@@ -33,9 +33,9 @@ import pytest
 from py.xml import html
 
 # Bokeh imports
-from bokeh.testing.examples import collect_examples, Flags
-from bokeh.testing.git import __version__
-from bokeh.testing.s3 import connect_to_s3, upload_file_to_s3_by_job_id
+from bokeh._testing.util.examples import collect_examples, Flags
+from bokeh._testing.util.git import __version__
+from bokeh._testing.util.s3 import connect_to_s3, upload_file_to_s3_by_job_id
 from bokeh.util.terminal import warn
 
 #-----------------------------------------------------------------------------

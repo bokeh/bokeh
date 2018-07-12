@@ -22,7 +22,7 @@ import pytest ; pytest
 # External imports
 
 # Bokeh imports
-from bokeh.testing.api import verify_all
+from bokeh._testing.util.api import verify_all
 
 # Module under test
 #import bokeh.sampledata.airports as bsa

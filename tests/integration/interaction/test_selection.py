@@ -7,7 +7,7 @@ from selenium.webdriver.common.keys import Keys
 from bokeh.io import save
 from bokeh.plotting import figure
 from bokeh.models import ColumnDataSource, Plot, Circle, Line, Range1d, BoxSelectTool
-from bokeh.testing.selenium import has_no_console_errors, wait_for_canvas_resize
+from bokeh._testing.util.selenium import has_no_console_errors, wait_for_canvas_resize
 
 pytestmark = pytest.mark.integration
 
