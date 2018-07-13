@@ -10,7 +10,6 @@ import numpy as np
 
 from bokeh.models.sources import DataSource, ColumnDataSource
 from bokeh.util.serialization import transform_column_source_data, convert_datetime_array
-from bokeh.util.testing import pd ; pd
 
 class TestColumnDataSource(object):
 
@@ -56,7 +55,7 @@ class TestColumnDataSource(object):
 
     def test_init_groupby_arg(self, pd):
         from bokeh.sampledata.autompg import autompg as df
-        group = df.groupby(('origin', 'cyl'))
+        group = df.groupby(by=['origin', 'cyl'])
         ds = ColumnDataSource(group)
         s = group.describe()
         assert len(ds.column_names) == 49
@@ -68,7 +67,7 @@ class TestColumnDataSource(object):
 
     def test_init_groupby_data_kwarg(self, pd):
         from bokeh.sampledata.autompg import autompg as df
-        group = df.groupby(('origin', 'cyl'))
+        group = df.groupby(by=['origin', 'cyl'])
         ds = ColumnDataSource(data=group)
         s = group.describe()
         assert len(ds.column_names) == 49

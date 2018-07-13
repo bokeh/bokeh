@@ -23,7 +23,7 @@ from mock import patch
 # External imports
 
 # Bokeh imports
-from bokeh.util.testing import verify_all
+from bokeh._testing.util.api import verify_all
 
 # Module under test
 import bokeh.__main__ as bm

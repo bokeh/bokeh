@@ -10,7 +10,6 @@ from bokeh.models.ranges import Range1d, DataRange1d, FactorRange
 from bokeh.models.scales import LinearScale, LogScale, CategoricalScale
 from bokeh.plotting import Figure
 from bokeh.plotting.helpers import _get_scale,_get_range, _stack, _graph, _glyph_function, _RENDERER_ARGS, _get_axis_class
-from bokeh.util.testing import pd; pd
 
 import bokeh.plotting.helpers as bph
 

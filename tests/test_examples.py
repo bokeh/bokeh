@@ -10,12 +10,17 @@ import signal
 from os.path import dirname, exists, split
 
 from bokeh.server.callbacks import NextTickCallback, PeriodicCallback, TimeoutCallback
-from tests.plugins.utils import trace, info, fail, ok, red, warn, white
-from tests.plugins.screenshot import get_screenshot
-from tests.plugins.image_diff import image_diff
+from bokeh._testing.util.images import image_diff
+from bokeh._testing.util.screenshot import get_screenshot
 
 from bokeh.client import push_session
 from bokeh.command.util import build_single_handler_application
+from bokeh.util.terminal import trace, info, fail, ok, red, warn, white
+
+pytest_plugins = (
+    "bokeh._testing.plugins.bokeh_server",
+    "bokeh._testing.plugins.examples_report",
+)
 
 @pytest.mark.examples
 def test_js_examples(js_example, example, report):

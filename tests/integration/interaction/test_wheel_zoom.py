@@ -9,7 +9,7 @@ from bokeh.models import (
     WheelZoomTool,
 )
 from selenium.common.exceptions import StaleElementReferenceException
-from tests.integration.utils import has_no_console_errors
+from bokeh._testing.util.selenium import has_no_console_errors
 
 import pytest
 pytestmark = pytest.mark.integration
@@ -70,7 +70,6 @@ def test_wheel_zoom_can_be_selected(output_file_url, selenium):
     assert 'active' in scroll_classes
 
 @pytest.mark.xfail
-@pytest.mark.cross_browser
 def test_wheel_zoom_can_be_selected_and_deselected(output_file_url, selenium):
 
     # Make plot and add a taptool callback that generates an alert

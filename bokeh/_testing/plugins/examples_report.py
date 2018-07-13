@@ -1,44 +1,57 @@
-from __future__ import absolute_import, print_function
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+''' Define Pytest a plugin for generating the Bokeh examples image diff report
 
+'''
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import io
 import os
 from os.path import abspath, dirname, exists, expanduser, expandvars, join, pardir
 import re
 
+# External imports
 import jinja2
 import pytest
 from py.xml import html
 
-from tests.plugins.constants import __version__
-from tests.plugins.utils import get_version_from_git as resolve_ref
-from tests.plugins.upload_to_s3 import connect_to_s3, upload_file_to_s3_by_job_id
-from ..plugins.utils import warn
+# Bokeh imports
+from bokeh._testing.util.examples import collect_examples, Flags
+from bokeh._testing.util.git import __version__
+from bokeh._testing.util.s3 import connect_to_s3, upload_file_to_s3_by_job_id
+from bokeh.util.terminal import warn
 
-from .collect_examples import collect_examples, Flags
-
-def pytest_addoption(parser):
-    parser.addoption(
-        "--output-cells", type=str, choices=['complain', 'remove', 'ignore'], default='complain',
-        help="what to do with notebooks' output cells")
-    parser.addoption(
-        "--report-path", action='store', dest='report_path', metavar='path', default='report.html',
-        help='create examples html report file at given path.')
-    parser.addoption(
-        "--diff-ref", type=resolve_ref, default="master@{upstream}",
-        help="compare generated images against this ref")
-    parser.addoption(
-        "--incremental", action="store_true", default=False,
-        help="write report after each example")
-    parser.addoption(
-        "--no-js", action="store_true", default=False,
-        help="only run python code and skip js and image diff")
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
 
 _examples = None
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def get_all_examples(config):
     global _examples
     if _examples is None:
-        base_dir = abspath(join(dirname(__file__), pardir, pardir))
+        base_dir = abspath(join(dirname(__file__), pardir, pardir, pardir))
 
         _examples = collect_examples(join(base_dir, "examples.yaml"))
 
@@ -202,3 +215,15 @@ class ExamplesTestReport(object):
 
     def pytest_terminal_summary(self, terminalreporter):
         terminalreporter.write_sep('-', 'generated example report: {0}'.format(self.report_path))
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

@@ -1,21 +1,53 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+''' Define Pytest plugins for Jupyter Notebook tests.
+
+'''
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import os
-import pytest
-import requests
+from os.path import join, exists, dirname, pardir
 import subprocess
 import sys
 import time
 
-from os.path import join, exists, dirname, pardir
+
+# External imports
+import pytest
+import requests
 from requests.exceptions import ConnectionError
 
-from .utils import write
+# Bokeh imports
+from bokeh.util.terminal import write
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
 
-def pytest_addoption(parser):
-    parser.addoption(
-        "--notebook-port", type=int, default=6007, help="port on which Jupyter Notebook server resides"
-    )
+pytest_plugins = (
+    "bokeh._testing.plugins.log_file",
+)
 
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 @pytest.fixture(scope="session")
 def jupyter_notebook(request, log_file):
@@ -123,3 +155,15 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
             sys.exit(1)
 
         return jupter_notebook_url
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

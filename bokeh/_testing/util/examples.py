@@ -1,16 +1,47 @@
-from __future__ import absolute_import, print_function
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+''' Provide suport modules for testing Bokeh itself.
 
+'''
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import os
-
+from os.path import join, exists, dirname, basename, relpath, splitext, isfile, isdir
 import yaml
+
+# External imports
 import requests
 
-from os.path import join, exists, dirname, basename, relpath, splitext, isfile, isdir
+# Bokeh imports
+from bokeh._testing.util.git import __version__
+from bokeh._testing.util.s3 import S3_URL, upload_file_to_s3
+from bokeh._testing.util.travis import JOB_ID
+from bokeh.util.terminal import trace, green
 
-from ..plugins.constants import __version__, job_id
-from ..plugins.upload_to_s3 import S3_URL, upload_file_to_s3
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
 
-from ..plugins.utils import trace, green
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class Flags(object):
     js       = 1 << 0
@@ -21,7 +52,6 @@ class Flags(object):
     skip     = 1 << 5  # don't run example at all (e.g. notebooks are completely broken)
     no_js    = 1 << 6  # skip bokehjs and thus image diff (e.g. google maps key issue)
     no_diff  = 1 << 7  # skip only image diff (e.g. inherent randomness as in jitter)
-
 
 class Example(object):
 
@@ -117,15 +147,15 @@ class Example(object):
 
     @property
     def img_path(self):
-        return join(self.imgs_dir, "%s-%s-%s.png" % (self.name, __version__, job_id))
+        return join(self.imgs_dir, "%s-%s-%s.png" % (self.name, __version__, JOB_ID))
 
     @property
     def ref_path(self):
-        return join(self.imgs_dir, "%s-%s-%s.png" % (self.name, self._diff_ref, job_id))
+        return join(self.imgs_dir, "%s-%s-%s.png" % (self.name, self._diff_ref, JOB_ID))
 
     @property
     def diff_path(self):
-        return join(self.imgs_dir, "%s-%s-%s-diff-%s.png" % (self.name, __version__, self._diff_ref, job_id))
+        return join(self.imgs_dir, "%s-%s-%s-diff-%s.png" % (self.name, __version__, self._diff_ref, JOB_ID))
 
     @property
     def img_url(self):
@@ -251,3 +281,15 @@ def collect_examples(config_path):
             example_type=example_type, slow=slow_status, skip=skip_status, no_js=no_js_status, no_diff=no_diff_status)
 
     return list_of_examples
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

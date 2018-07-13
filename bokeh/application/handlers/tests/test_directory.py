@@ -25,7 +25,7 @@ import jinja2
 # Bokeh imports
 from bokeh.core.templates import FILE
 from bokeh.document import Document
-from bokeh.util.testing import with_directory_contents
+from bokeh._testing.util.filesystem import with_directory_contents
 
 # Module under test
 import bokeh.application.handlers.directory as bahd

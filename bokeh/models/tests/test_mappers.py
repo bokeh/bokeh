@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 
 from bokeh.palettes import Spectral6
-from bokeh.util.testing import pd ; pd
 
 from bokeh.models.mappers import LinearColorMapper, LogColorMapper, CategoricalColorMapper
 

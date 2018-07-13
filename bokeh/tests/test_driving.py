@@ -23,7 +23,7 @@ import pytest ; pytest
 from numpy.testing import assert_allclose
 
 # Bokeh imports
-from bokeh.util.testing import verify_all
+from bokeh._testing.util.api import verify_all
 
 # Module under test
 import bokeh.driving as bd
