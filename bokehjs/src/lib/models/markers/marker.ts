@@ -162,7 +162,7 @@ export abstract class MarkerView extends XYGlyphView {
     const size: number[] = new Array(len)
     size[index] = Math.min(Math.abs(x1 - x0), Math.abs(y1 - y0))*0.4
     const angle: number[] = new Array(len)
-    angle[index] = this._angle[index]
+    angle[index] = 0 // don't attempt to match glyph angle
 
     this._render(ctx, [index], {sx, sy, _size: size, _angle: angle} as any) // XXX
   }
