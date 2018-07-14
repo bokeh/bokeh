@@ -33,5 +33,4 @@ conda install --yes --quiet python=${PYTHON} ${CONDA_REQS}
 # set default conda channels
 conda config --set auto_update_conda off
 conda config --append channels bokeh
-conda config --append channels conda-forge
 conda config --get channels
