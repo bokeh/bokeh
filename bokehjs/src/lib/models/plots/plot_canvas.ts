@@ -4,7 +4,6 @@ import {Range} from "../ranges/range"
 import {DataRange1d} from "../ranges/data_range1d"
 import {Renderer, RendererView} from "../renderers/renderer"
 import {GlyphRenderer, GlyphRendererView} from "../renderers/glyph_renderer"
-import {LayoutDOM} from "../layouts/layout_dom"
 import {Toolbar} from "../tools/toolbar"
 import {ToolView} from "../tools/tool"
 import {Selection} from "../selections/selection"
@@ -19,7 +18,7 @@ import {Visuals} from "core/visuals"
 import {DOMView} from "core/dom_view"
 import {LayoutCanvas} from "core/layout/layout_canvas"
 import {hstack, vstack} from "core/layout/alignments"
-import {EQ, LE, GE, Constraint} from "core/layout/solver"
+import {EQ, LE, GE, Constraint, Variable} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as enums from "core/enums"
 import * as p from "core/properties"
@@ -695,8 +694,8 @@ export class PlotCanvasView extends DOMView {
   }
 
   update_constraints(): void {
-    this.solver.suggest_value(this.frame._width, this.canvas._width.value)
-    this.solver.suggest_value(this.frame._height, this.canvas._height.value)
+    this.solver.suggest_value(this.frame._width, this.model._width.value)
+    this.solver.suggest_value(this.frame._height, this.model._height.value)
 
     for (const id in this.renderer_views) {
       const view = this.renderer_views[id]
@@ -707,7 +706,6 @@ export class PlotCanvasView extends DOMView {
     this.solver.update_variables()
   }
 
-  // XXX: bacause PlotCanvas is NOT a LayoutDOM
   protected _layout(final: boolean = false): void {
     this.render()
 
@@ -727,9 +725,8 @@ export class PlotCanvasView extends DOMView {
   }
 
   has_finished(): boolean {
-    if (!super.has_finished()) {
+    if (!super.has_finished())
       return false
-    }
 
     for (const level in this.levels) {
       const renderer_views = this.levels[level]
@@ -756,8 +753,8 @@ export class PlotCanvasView extends DOMView {
 
     // This allows the plot canvas to be positioned around the toolbar
     this.el.style.position = 'absolute'
-    this.el.style.left     = `${this.model._dom_left.value}px`
-    this.el.style.top      = `${this.model._dom_top.value}px`
+    this.el.style.left     = `${this.model._left.value}px`
+    this.el.style.top      = `${this.model._top.value}px`
     this.el.style.width    = `${this.model._width.value}px`
     this.el.style.height   = `${this.model._height.value}px`
   }
@@ -996,21 +993,21 @@ export class RightPanel extends LayoutCanvas {
 RightPanel.initClass()
 
 export namespace PlotCanvas {
-  export interface Attrs extends LayoutDOM.Attrs {
+  export interface Attrs extends LayoutCanvas.Attrs {
     plot: Plot
     toolbar: Toolbar
     canvas: Canvas
     frame: CartesianFrame
   }
 
-  export interface Props extends LayoutDOM.Props {}
+  export interface Props extends LayoutCanvas.Props {}
 }
 
 export interface PlotCanvas extends PlotCanvas.Attrs {
   use_map: boolean
 }
 
-export class PlotCanvas extends LayoutDOM {
+export class PlotCanvas extends LayoutCanvas {
 
   properties: PlotCanvas.Props
 
@@ -1028,11 +1025,6 @@ export class PlotCanvas extends LayoutDOM {
       canvas:       [ p.Instance ],
       frame:        [ p.Instance ],
     })
-
-    this.override({
-      // We should find a way to enforce this
-      sizing_mode: 'stretch_both',
-    })
   }
 
   frame: CartesianFrame
@@ -1043,8 +1035,24 @@ export class PlotCanvas extends LayoutDOM {
   protected left_panel:  LeftPanel
   protected right_panel: RightPanel
 
+  _inner_left: Variable
+  _inner_right: Variable
+  _inner_top: Variable
+  _inner_bottom: Variable
+
+  _offset_right: Variable
+  _offset_bottom: Variable
+
   initialize(): void {
     super.initialize()
+
+    this._inner_left = new Variable(`${this.toString()}._inner_left`)
+    this._inner_right = new Variable(`${this.toString()}._inner_right`)
+    this._inner_top = new Variable(`${this.toString()}._inner_top`)
+    this._inner_bottom = new Variable(`${this.toString()}._inner_bottom`)
+
+    this._offset_right = new Variable(`${this.toString()}._offset_right`)
+    this._offset_bottom = new Variable(`${this.toString()}._offset_bottom`)
 
     this.canvas = new Canvas({
       map: this.use_map != null ? this.use_map : false,
@@ -1080,7 +1088,7 @@ export class PlotCanvas extends LayoutDOM {
     logger.debug("PlotCanvas attached to document")
   }
 
-  get_layoutable_children(): LayoutDOM[] {
+  get_layoutable_children(): LayoutCanvas[] {
     const children = [
       this.above_panel, this.below_panel,
       this.left_panel, this.right_panel,
@@ -1099,7 +1107,7 @@ export class PlotCanvas extends LayoutDOM {
     collect_panels(this.plot.left)
     collect_panels(this.plot.right)
 
-    return children as any // XXX: PlotCanvas should be a LayoutCanvas
+    return children
   }
 
   get_constraints(): Constraint[] {
@@ -1109,38 +1117,52 @@ export class PlotCanvas extends LayoutDOM {
   private _get_constant_constraints(): Constraint[] {
     return [
       // Set the origin. Everything else is positioned absolutely wrt canvas.
-      EQ(this.canvas._left, 0),
-      EQ(this.canvas._top,  0),
+      EQ(this._left, 0),
+      EQ(this._top,  0),
+      EQ(this._left, [-1, this.canvas._left]),
+      EQ(this._top,  [-1, this.canvas._top]),
 
-      GE(this.above_panel._top,    [-1, this.canvas._top]        ),
-      EQ(this.above_panel._bottom, [-1, this.frame._top]         ),
-      EQ(this.above_panel._left,   [-1, this.left_panel._right]  ),
-      EQ(this.above_panel._right,  [-1, this.right_panel._left]  ),
+      GE(this._inner_top),
+      GE(this._inner_left),
+      LE(this._inner_bottom, [-1, this.canvas._bottom]),
+      LE(this._inner_right,  [-1, this.canvas._right]),
 
-      EQ(this.below_panel._top,    [-1, this.frame._bottom]      ),
-      LE(this.below_panel._bottom, [-1, this.canvas._bottom]     ),
-      EQ(this.below_panel._left,   [-1, this.left_panel._right]  ),
-      EQ(this.below_panel._right,  [-1, this.right_panel._left]  ),
+      GE(this._offset_bottom),
+      GE(this._offset_right),
+
+      EQ(this._offset_right,  [-1, this.canvas._right], this._inner_right),
+      EQ(this._offset_bottom, [-1, this.canvas._bottom], this._inner_bottom),
+
+      GE(this._inner_top,     -this.plot.min_border_top!   ),
+      GE(this._inner_left,    -this.plot.min_border_left!  ),
+      GE(this._offset_bottom, -this.plot.min_border_bottom!),
+      GE(this._offset_right,  -this.plot.min_border_right! ),
+
+      EQ(this._inner_top,    [-1, this.above_panel._bottom]),
+      EQ(this._inner_bottom, [-1, this.below_panel._top]   ),
+      EQ(this._inner_left,   [-1, this.left_panel._right]  ),
+      EQ(this._inner_right,  [-1, this.right_panel._left]  ),
+
+      EQ(this._inner_top,    [-1, this.frame._top]         ),
+      EQ(this._inner_bottom, [-1, this.frame._bottom]      ),
+      EQ(this._inner_left,   [-1, this.frame._left]        ),
+      EQ(this._inner_right,  [-1, this.frame._right]       ),
+
+      GE(this.above_panel._top,    [-1, this.canvas._top]      ),
+      EQ(this.above_panel._left,   [-1, this.left_panel._right]),
+      EQ(this.above_panel._right,  [-1, this.right_panel._left]),
+
+      LE(this.below_panel._bottom, [-1, this.canvas._bottom]   ),
+      EQ(this.below_panel._left,   [-1, this.left_panel._right]),
+      EQ(this.below_panel._right,  [-1, this.right_panel._left]),
 
       EQ(this.left_panel._top,     [-1, this.above_panel._bottom]),
       EQ(this.left_panel._bottom,  [-1, this.below_panel._top]   ),
       GE(this.left_panel._left,    [-1, this.canvas._left]       ),
-      EQ(this.left_panel._right,   [-1, this.frame._left]        ),
 
       EQ(this.right_panel._top,    [-1, this.above_panel._bottom]),
       EQ(this.right_panel._bottom, [-1, this.below_panel._top]   ),
-      EQ(this.right_panel._left,   [-1, this.frame._right]       ),
       LE(this.right_panel._right,  [-1, this.canvas._right]      ),
-
-      EQ(this._top,                        [-1, this.above_panel._bottom]),
-      EQ(this._left,                       [-1, this.left_panel._right]),
-      EQ(this._height, [-1, this._bottom], [-1, this.canvas._bottom], this.below_panel._top),
-      EQ(this._width, [-1, this._right],   [-1, this.canvas._right], this.right_panel._left),
-
-      GE(this._top,                        -this.plot.min_border_top!   ),
-      GE(this._left,                       -this.plot.min_border_left!  ),
-      GE(this._height, [-1, this._bottom], -this.plot.min_border_bottom!),
-      GE(this._width, [-1, this._right],   -this.plot.min_border_right! ),
     ]
   }
 

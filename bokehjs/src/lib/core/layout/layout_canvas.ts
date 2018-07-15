@@ -82,6 +82,24 @@ export abstract class LayoutCanvas extends HasProps {
     return []
   }
 
+  get_all_constraints(): Constraint[] {
+    let constraints = this.get_constraints()
+
+    for (const child of this.get_layoutable_children())
+      constraints = constraints.concat(child.get_all_constraints())
+
+    return constraints
+  }
+
+  get_all_editables(): Variable[] {
+    let editables = this.get_editables()
+
+    for (const child of this.get_layoutable_children())
+      editables = editables.concat(child.get_all_editables())
+
+    return editables
+  }
+
   get bbox(): BBox {
     return new BBox({
       x0: this._left.value,  y0: this._top.value,

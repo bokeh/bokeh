@@ -494,12 +494,8 @@ export abstract class LayoutDOM extends Model {
   get_all_constraints(): Constraint[] {
     let constraints = this.get_constraints()
 
-    for (const child of this.get_layoutable_children()) {
-      if (child instanceof LayoutCanvas)
-        constraints = constraints.concat(child.get_constraints())
-      else
-        constraints = constraints.concat(child.get_all_constraints())
-    }
+    for (const child of this.get_layoutable_children())
+      constraints = constraints.concat(child.get_all_constraints())
 
     return constraints
   }
@@ -507,12 +503,8 @@ export abstract class LayoutDOM extends Model {
   get_all_editables(): Variable[] {
     let editables = this.get_editables()
 
-    for (const child of this.get_layoutable_children()) {
-      if (child instanceof LayoutCanvas)
-        editables = editables.concat(child.get_editables())
-      else
-        editables = editables.concat(child.get_all_editables())
-    }
+    for (const child of this.get_layoutable_children())
+      editables = editables.concat(child.get_all_editables())
 
     return editables
   }

@@ -396,7 +396,7 @@ export class Plot extends LayoutDOM {
   }
 
   get_layoutable_children(): LayoutDOM[] {
-    return [this.plot_canvas]
+    return [this.plot_canvas as any]
   }
 
   get_constraints(): Constraint[] {
@@ -412,23 +412,23 @@ export class Plot extends LayoutDOM {
     const vars: {[key: string]: Variable} = {
       ...super.get_constrained_variables(),
 
-      on_edge_align_top    : this.plot_canvas._top,
-      on_edge_align_bottom : this.plot_canvas._height_minus_bottom,
-      on_edge_align_left   : this.plot_canvas._left,
-      on_edge_align_right  : this.plot_canvas._width_minus_right,
+      on_edge_align_top    : this.plot_canvas._inner_top,
+      on_edge_align_bottom : this.plot_canvas._offset_bottom,
+      on_edge_align_left   : this.plot_canvas._inner_left,
+      on_edge_align_right  : this.plot_canvas._offset_right,
 
-      box_cell_align_top   : this.plot_canvas._top,
-      box_cell_align_bottom: this.plot_canvas._height_minus_bottom,
-      box_cell_align_left  : this.plot_canvas._left,
-      box_cell_align_right : this.plot_canvas._width_minus_right,
+      box_cell_align_top   : this.plot_canvas._inner_top,
+      box_cell_align_bottom: this.plot_canvas._offset_bottom,
+      box_cell_align_left  : this.plot_canvas._inner_left,
+      box_cell_align_right : this.plot_canvas._offset_right,
 
-      box_equal_size_top   : this.plot_canvas._top,
-      box_equal_size_bottom: this.plot_canvas._height_minus_bottom,
+      box_equal_size_top   : this.plot_canvas._inner_top,
+      box_equal_size_bottom: this.plot_canvas._offset_bottom,
     }
 
     if (this.sizing_mode != "fixed") {
-      vars.box_equal_size_left  = this.plot_canvas._left
-      vars.box_equal_size_right = this.plot_canvas._width_minus_right
+      vars.box_equal_size_left  = this.plot_canvas._inner_left
+      vars.box_equal_size_right = this.plot_canvas._offset_right
     }
 
     return vars
