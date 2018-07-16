@@ -1,4 +1,4 @@
-import {EQ, Constraint, Variable} from "core/layout/solver"
+import {Variable} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
@@ -397,15 +397,6 @@ export class Plot extends LayoutDOM {
 
   get_layoutable_children(): LayoutDOM[] {
     return [this.plot_canvas as any]
-  }
-
-  get_constraints(): Constraint[] {
-    const constraints = super.get_constraints()
-
-    constraints.push(EQ(this._width,  [-1, this.plot_canvas._width ]))
-    constraints.push(EQ(this._height, [-1, this.plot_canvas._height]))
-
-    return constraints
   }
 
   get_constrained_variables(): {[key: string]: Variable} {

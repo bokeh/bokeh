@@ -1,4 +1,4 @@
-import {LayoutCanvas} from "core/layout/layout_canvas"
+import {HasProps} from "core/has_props"
 import {DOMView} from "core/dom_view"
 import {logger} from "core/logging"
 import * as p from "core/properties"
@@ -70,11 +70,8 @@ export class CanvasView extends DOMView {
     return this.canvas_el
   }
 
-  prepare_canvas(): void {
+  prepare_canvas(width: number, height: number): void {
     // Ensure canvas has the correct size, taking HIDPI into account
-    const width = this.model._width.value
-    const height = this.model._height.value
-
     this.el.style.width = `${width}px`
     this.el.style.height = `${height}px`
 
@@ -95,19 +92,19 @@ export class CanvasView extends DOMView {
 }
 
 export namespace Canvas {
-  export interface Attrs extends LayoutCanvas.Attrs {
+  export interface Attrs extends HasProps.Attrs {
     map: boolean
     use_hidpi: boolean
     pixel_ratio: number
     output_backend: OutputBackend
   }
 
-  export interface Props extends LayoutCanvas.Props {}
+  export interface Props extends HasProps.Props {}
 }
 
 export interface Canvas extends Canvas.Attrs {}
 
-export class Canvas extends LayoutCanvas {
+export class Canvas extends HasProps {
 
   properties: Canvas.Props
 
@@ -125,10 +122,6 @@ export class Canvas extends LayoutCanvas {
       pixel_ratio:    [ p.Number,        1        ],
       output_backend: [ p.OutputBackend, "canvas" ],
     })
-  }
-
-  get panel(): LayoutCanvas {
-    return this
   }
 }
 Canvas.initClass()
