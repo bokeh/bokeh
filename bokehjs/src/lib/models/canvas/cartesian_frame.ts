@@ -8,7 +8,6 @@ import {DataRange1d} from "../ranges/data_range1d"
 import {FactorRange} from "../ranges/factor_range"
 
 import {LayoutCanvas} from "core/layout/layout_canvas"
-import {Variable} from "core/layout/solver"
 import {Arrayable} from "core/types"
 import * as p from "core/properties"
 
@@ -70,10 +69,6 @@ export class CartesianFrame extends LayoutCanvas {
 
   get panel(): LayoutCanvas {
     return this
-  }
-
-  get_editables(): Variable[] {
-    return super.get_editables().concat([this._width, this._height])
   }
 
   map_to_screen(x: Arrayable<number>, y: Arrayable<number>,

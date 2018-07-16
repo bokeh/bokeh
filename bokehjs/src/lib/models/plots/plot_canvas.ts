@@ -693,19 +693,6 @@ export class PlotCanvasView extends DOMView {
       logger.warn('could not set initial ranges')
   }
 
-  update_constraints(): void {
-    this.solver.suggest_value(this.frame._width, this.model._width.value)
-    this.solver.suggest_value(this.frame._height, this.model._height.value)
-
-    for (const id in this.renderer_views) {
-      const view = this.renderer_views[id]
-      if (isSizeableView(view) && view.model.panel != null)
-        update_panel_constraints(view)
-    }
-
-    this.solver.update_variables()
-  }
-
   protected _layout(final: boolean = false): void {
     this.render()
 
@@ -740,14 +727,55 @@ export class PlotCanvasView extends DOMView {
     return true
   }
 
-  render(): void {
-    // Set the plot and canvas to the current model's size
-    // This gets called upon solver resize events
+  protected _width_constraint: Constraint | undefined
+  protected _height_constraint: Constraint | undefined
+
+  update_constraints(): void {
     const width = this.model._width.value
     const height = this.model._height.value
 
-    this.canvas_view.set_dims([width, height])
+    if (width > 0 || height > 0) {
+      if (width != this.model.canvas._width.value) {
+        if (this._width_constraint != null && this.solver.has_constraint(this._width_constraint))
+          this.solver.remove_constraint(this._width_constraint)
+
+        this._width_constraint = EQ(this.model.canvas._width, -width)
+        this.solver.add_constraint(this._width_constraint)
+      }
+
+      if (height != this.model.canvas._height.value) {
+        if (this._height_constraint != null && this.solver.has_constraint(this._height_constraint))
+          this.solver.remove_constraint(this._height_constraint)
+
+        this._height_constraint = EQ(this.model.canvas._height, -height)
+        this.solver.add_constraint(this._height_constraint)
+      }
+
+      this.solver.update_variables()
+    }
+
+    this.solver.suggest_value(this.model._inner_width, this.model._width.value)
+    this.solver.suggest_value(this.model._inner_height, this.model._height.value)
+
+    for (const id in this.renderer_views) {
+      const view = this.renderer_views[id]
+      if (isSizeableView(view) && view.model.panel != null)
+        update_panel_constraints(view)
+    }
+
+    this.solver.update_variables()
+
+    this.frame._top.setValue(this.model._inner_top.value)
+    this.frame._bottom.setValue(this.model._inner_bottom.value)
+    this.frame._left.setValue(this.model._inner_left.value)
+    this.frame._right.setValue(this.model._inner_right.value)
+    this.frame._width.setValue(this.model._inner_width.value)
+    this.frame._height.setValue(this.model._inner_height.value)
+  }
+
+  render(): void {
     this.update_constraints()
+
     if (this.model.plot.match_aspect !== false && this.frame._width.value != 0 && this.frame._height.value != 0)
       this.update_dataranges()
 
@@ -1039,6 +1067,8 @@ export class PlotCanvas extends LayoutCanvas {
   _inner_right: Variable
   _inner_top: Variable
   _inner_bottom: Variable
+  _inner_width: Variable
+  _inner_height: Variable
 
   _offset_right: Variable
   _offset_bottom: Variable
@@ -1050,6 +1080,8 @@ export class PlotCanvas extends LayoutCanvas {
     this._inner_right = new Variable(`${this.toString()}._inner_right`)
     this._inner_top = new Variable(`${this.toString()}._inner_top`)
     this._inner_bottom = new Variable(`${this.toString()}._inner_bottom`)
+    this._inner_width = new Variable(`${this.toString()}._inner_width`)
+    this._inner_height = new Variable(`${this.toString()}._inner_height`)
 
     this._offset_right = new Variable(`${this.toString()}._offset_right`)
     this._offset_bottom = new Variable(`${this.toString()}._offset_bottom`)
@@ -1092,7 +1124,7 @@ export class PlotCanvas extends LayoutCanvas {
     const children = [
       this.above_panel, this.below_panel,
       this.left_panel, this.right_panel,
-      this.canvas, this.frame,
+      this.canvas,
     ]
 
     const collect_panels = (layout_renderers: Renderer[]) => {
@@ -1108,6 +1140,10 @@ export class PlotCanvas extends LayoutCanvas {
     collect_panels(this.plot.right)
 
     return children
+  }
+
+  get_editables(): Variable[] {
+    return super.get_editables().concat([this._inner_width, this._inner_height])
   }
 
   get_constraints(): Constraint[] {
@@ -1127,6 +1163,9 @@ export class PlotCanvas extends LayoutCanvas {
       LE(this._inner_bottom, [-1, this.canvas._bottom]),
       LE(this._inner_right,  [-1, this.canvas._right]),
 
+      EQ(this._inner_top, this._inner_height, [-1, this._inner_bottom]),
+      EQ(this._inner_left, this._inner_width, [-1, this._inner_right]),
+
       GE(this._offset_bottom),
       GE(this._offset_right),
 
@@ -1142,11 +1181,6 @@ export class PlotCanvas extends LayoutCanvas {
       EQ(this._inner_bottom, [-1, this.below_panel._top]   ),
       EQ(this._inner_left,   [-1, this.left_panel._right]  ),
       EQ(this._inner_right,  [-1, this.right_panel._left]  ),
-
-      EQ(this._inner_top,    [-1, this.frame._top]         ),
-      EQ(this._inner_bottom, [-1, this.frame._bottom]      ),
-      EQ(this._inner_left,   [-1, this.frame._left]        ),
-      EQ(this._inner_right,  [-1, this.frame._right]       ),
 
       GE(this.above_panel._top,    [-1, this.canvas._top]      ),
       EQ(this.above_panel._left,   [-1, this.left_panel._right]),

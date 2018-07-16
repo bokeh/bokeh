@@ -1,6 +1,5 @@
 import {LayoutCanvas} from "core/layout/layout_canvas"
 import {DOMView} from "core/dom_view"
-import {EQ, Constraint} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {div, canvas} from "core/dom"
@@ -31,9 +30,6 @@ export class CanvasView extends DOMView {
   overlays_el: HTMLElement
   events_el: HTMLElement
   map_el: HTMLElement | null
-
-  protected _width_constraint: Constraint | undefined
-  protected _height_constraint: Constraint | undefined
 
   initialize(options: any): void {
     super.initialize(options)
@@ -95,32 +91,6 @@ export class CanvasView extends DOMView {
     this.canvas_el.setAttribute("height", `${height*pixel_ratio}`)
 
     logger.debug(`Rendering CanvasView with width: ${width}, height: ${height}, pixel ratio: ${pixel_ratio}`)
-  }
-
-  set_dims([width, height]: [number, number]): void {
-    // XXX: for whatever reason we need to protect against those nonsense values,
-    //      that appear in the middle of updating layout. Otherwise we would get
-    //      all possible errors from the layout solver.
-    if (width <= 0 || height <= 0)
-      return
-
-    if (width != this.model._width.value) {
-      if (this._width_constraint != null && this.solver.has_constraint(this._width_constraint))
-        this.solver.remove_constraint(this._width_constraint)
-
-      this._width_constraint = EQ(this.model._width, -width)
-      this.solver.add_constraint(this._width_constraint)
-    }
-
-    if (height != this.model._height.value) {
-      if (this._height_constraint != null && this.solver.has_constraint(this._height_constraint))
-        this.solver.remove_constraint(this._height_constraint)
-
-      this._height_constraint = EQ(this.model._height, -height)
-      this.solver.add_constraint(this._height_constraint)
-    }
-
-    this.solver.update_variables()
   }
 }
 
