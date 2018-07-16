@@ -90,8 +90,8 @@ export class TileRendererView extends RendererView {
 
     if (isString(attribution) && attribution.length > 0) {
       if (this.attributionEl == null) {
-        const right = this.plot_model.canvas._right.value - this.plot_model.frame._right.value
-        const bottom = this.plot_model.canvas._bottom.value - this.plot_model.frame._bottom.value
+        const right = this.plot_model._right.value - this.plot_model.frame._right.value
+        const bottom = this.plot_model._bottom.value - this.plot_model.frame._bottom.value
         const max_width = this.map_frame._width.value
         this.attributionEl = div({
           class: 'bk-tile-attribution',
