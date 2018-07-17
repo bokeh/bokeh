@@ -3,6 +3,17 @@ import {HasProps} from "../has_props"
 import {Arrayable} from "../types"
 import {BBox} from "../util/bbox"
 
+export type NormGeom = {
+  left: number, right: number,
+  top: number, bottom: number,
+  width: number, height: number,
+}
+
+export type Geom =
+  ({left: number, width: number}    | {width: number, right: number}   | {left: number, right: number})
+  &
+  ({top: number, height: number}    | {height: number, bottom: number} | {top: number, bottom: number})
+
 export interface ViewTransform {
   compute: (v: number) => number
   v_compute: (vv: Arrayable<number>) => Arrayable<number>
@@ -59,6 +70,54 @@ export abstract class LayoutCanvas extends HasProps {
         return (layout._top.value + layout._bottom.value)/2
       },
     }
+  }
+
+  set_geom(geom: Geom): void {
+    let left: number, right: number, width: number
+    let top: number, bottom: number, height: number
+
+    if ("width" in geom) {
+      if ("left" in geom) {
+        left = geom.left
+        width = geom.width
+        right = left + width
+      } else {
+        right = geom.right
+        width = geom.width
+        left = right - width
+      }
+    } else {
+      left = geom.left
+      right = geom.right
+      width = right - left
+    }
+
+    if ("height" in geom) {
+      if ("top" in geom) {
+        top = geom.top
+        height = geom.height
+        bottom = top + height
+      } else {
+        bottom = geom.bottom
+        height = geom.height
+        top = bottom - height
+      }
+    } else {
+      top = geom.top
+      bottom = geom.bottom
+      height = bottom - top
+    }
+
+    this._set_geom({left, right, width, top, bottom, height})
+  }
+
+  _set_geom(geom: NormGeom): void {
+    this._top.setValue(geom.top)
+    this._bottom.setValue(geom.bottom)
+    this._left.setValue(geom.left)
+    this._right.setValue(geom.right)
+    this._width.setValue(geom.width)
+    this._height.setValue(geom.height)
   }
 
   get_editables(): Variable[] {
@@ -151,3 +210,7 @@ export abstract class LayoutCanvas extends HasProps {
   }
 }
 LayoutCanvas.initClass()
+
+export abstract class LayoutItem extends LayoutCanvas {
+  abstract get_size(): number
+}

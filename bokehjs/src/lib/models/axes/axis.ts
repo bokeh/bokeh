@@ -8,6 +8,7 @@ import {Arrayable, Color} from "core/types"
 import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap} from "core/enums"
 import {Side, TickLabelOrientation, SpatialUnits} from "core/enums"
 import {Text, Line} from "core/visuals"
+import {LayoutItem, NormGeom} from "core/layout/layout_canvas"
 import {SidePanel, Orient} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
 import {sum} from "core/util/array"
@@ -32,6 +33,24 @@ export interface TickCoords {
 export class AxisView extends GuideRendererView {
   model: Axis
   visuals: Axis.Visuals
+
+  __layout: LayoutItem
+
+  initialize(options: any): void {
+    super.initialize(options)
+
+    const axis_view = this
+    this.__layout = new class extends LayoutItem {
+      get_size(): number {
+        return axis_view.get_size()
+      }
+
+      _set_geom(geom: NormGeom): void {
+        super._set_geom(geom)
+        axis_view.model.panel._set_geom(geom)
+      }
+    }
+  }
 
   render(): void {
     if (!this.model.visible)

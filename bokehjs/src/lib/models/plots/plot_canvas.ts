@@ -17,7 +17,7 @@ import {UIEvents} from "core/ui_events"
 import {Visuals} from "core/visuals"
 import {DOMView} from "core/dom_view"
 import {LayoutCanvas} from "core/layout/layout_canvas"
-import {hstack, vstack} from "core/layout/alignments"
+import {HStack, VStack} from "core/layout/alignments"
 import {EQ, LE, GE, Constraint, Variable} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as enums from "core/enums"
@@ -25,10 +25,37 @@ import * as p from "core/properties"
 import {Rect} from "core/util/spatial"
 import {throttle} from "core/util/throttle"
 import {isStrictNaN} from "core/util/types"
-import {difference, sortBy, reversed, concat} from "core/util/array"
+import {difference, sortBy, reversed} from "core/util/array"
 import {keys, values} from "core/util/object"
-import {isSizeable, isSizeableView, update_panel_constraints, _view_sizes} from "core/layout/side_panel"
 import {Context2d, SVGRenderingContext2D} from "core/util/canvas"
+
+export class AbovePanel extends VStack {
+  static initClass(): void {
+    this.prototype.type = "AbovePanel"
+  }
+}
+AbovePanel.initClass()
+
+export class BelowPanel extends VStack {
+  static initClass(): void {
+    this.prototype.type = "BelowPanel"
+  }
+}
+BelowPanel.initClass()
+
+export class LeftPanel extends HStack {
+  static initClass(): void {
+    this.prototype.type = "LeftPanel"
+  }
+}
+LeftPanel.initClass()
+
+export class RightPanel extends HStack {
+  static initClass(): void {
+    this.prototype.type = "RightPanel"
+  }
+}
+RightPanel.initClass()
 
 // Notes on WebGL support:
 // Glyps can be rendered into the original 2D canvas, or in a (hidden)
@@ -97,6 +124,11 @@ export class PlotCanvasView extends DOMView {
   protected tool_views: {[key: string]: ToolView}
 
   protected range_update_timestamp?: number
+
+  protected above_panel: AbovePanel
+  protected below_panel: BelowPanel
+  protected left_panel:  LeftPanel
+  protected right_panel: RightPanel
 
   // compat, to be removed
   get frame(): CartesianFrame {
@@ -211,6 +243,20 @@ export class PlotCanvasView extends DOMView {
 
     this.build_levels()
     this.build_tools()
+
+    this.above_panel = new AbovePanel()
+    this.below_panel = new BelowPanel()
+    this.left_panel  = new LeftPanel()
+    this.right_panel = new RightPanel()
+
+    const layouts = (models: Renderer[]) => {
+      return models.map((model) => (this.renderer_views[model.id] as any).__layout) // XXX
+    }
+
+    this.above_panel.children = reversed(layouts(this.model.plot.above))
+    this.below_panel.children =          layouts(this.model.plot.below)
+    this. left_panel.children = reversed(layouts(this.model.plot.left))
+    this.right_panel.children =          layouts(this.model.plot.right)
 
     this.update_dataranges()
 
@@ -727,8 +773,18 @@ export class PlotCanvasView extends DOMView {
     return true
   }
 
-  protected _width_constraint: Constraint | undefined
-  protected _height_constraint: Constraint | undefined
+  protected _width_constraint?: Constraint
+  protected _height_constraint?: Constraint
+
+  protected _inner_top_constraint?: Constraint
+  protected _offset_bottom_constraint?: Constraint
+  protected _inner_left_constraint?: Constraint
+  protected _offset_right_constraint?: Constraint
+
+  protected _above_panel_size?: number = 0
+  protected _below_panel_size?: number = 0
+  protected _left_panel_size?: number = 0
+  protected _right_panel_size?: number = 0
 
   update_constraints(): void {
     const width = this.model.plot._width.value
@@ -756,20 +812,75 @@ export class PlotCanvasView extends DOMView {
     this.solver.suggest_value(this.model._inner_width, width)
     this.solver.suggest_value(this.model._inner_height, height)
 
-    for (const id in this.renderer_views) {
-      const view = this.renderer_views[id]
-      if (isSizeableView(view) && view.model.panel != null)
-        update_panel_constraints(view)
+    const above_panel_size = this.above_panel.get_size()
+    if (this._above_panel_size !== above_panel_size) {
+      if (this._inner_top_constraint != null && this.solver.has_constraint(this._inner_top_constraint)) {
+        this.solver.remove_constraint(this._inner_top_constraint)
+        this._inner_top_constraint = undefined
+      }
+
+      if (above_panel_size > 0) {
+        this._inner_top_constraint = GE(this.model._inner_top, -above_panel_size)
+        this.solver.add_constraint(this._inner_top_constraint)
+        this._above_panel_size = above_panel_size
+      }
+    }
+
+    const below_panel_size = this.below_panel.get_size()
+    if (this._below_panel_size !== below_panel_size) {
+      if (this._offset_bottom_constraint != null && this.solver.has_constraint(this._offset_bottom_constraint)) {
+        this.solver.remove_constraint(this._offset_bottom_constraint)
+        this._offset_bottom_constraint = undefined
+      }
+
+      if (below_panel_size > 0) {
+        this._offset_bottom_constraint = GE(this.model._offset_bottom, -below_panel_size)
+        this.solver.add_constraint(this._offset_bottom_constraint)
+        this._below_panel_size = below_panel_size
+      }
+    }
+
+    const left_panel_size = this.left_panel.get_size()
+    if (this._left_panel_size !== left_panel_size) {
+      if (this._inner_left_constraint != null && this.solver.has_constraint(this._inner_left_constraint)) {
+        this.solver.remove_constraint(this._inner_left_constraint)
+        this._inner_left_constraint = undefined
+      }
+
+      if (left_panel_size > 0) {
+        this._inner_left_constraint = GE(this.model._inner_left, -left_panel_size)
+        this.solver.add_constraint(this._inner_left_constraint)
+        this._left_panel_size = left_panel_size
+      }
+    }
+
+    const right_panel_size = this.right_panel.get_size()
+    if (this._right_panel_size !== right_panel_size) {
+      if (this._offset_right_constraint != null && this.solver.has_constraint(this._offset_right_constraint)) {
+        this.solver.remove_constraint(this._offset_right_constraint)
+        this._offset_right_constraint = undefined
+      }
+
+      if (right_panel_size > 0) {
+        this._offset_right_constraint = GE(this.model._offset_right, -right_panel_size)
+        this.solver.add_constraint(this._offset_right_constraint)
+        this._right_panel_size = right_panel_size
+      }
     }
 
     this.solver.update_variables()
 
-    this.frame._top.setValue(this.model._inner_top.value)
-    this.frame._bottom.setValue(this.model._inner_bottom.value)
-    this.frame._left.setValue(this.model._inner_left.value)
-    this.frame._right.setValue(this.model._inner_right.value)
-    this.frame._width.setValue(this.model._inner_width.value)
-    this.frame._height.setValue(this.model._inner_height.value)
+    const inner_top    = this.model._inner_top.value
+    const inner_bottom = this.model._inner_bottom.value
+    const inner_left   = this.model._inner_left.value
+    const inner_right  = this.model._inner_right.value
+
+    this.frame.set_geom({left: inner_left, right: inner_right, top: inner_top, bottom: inner_bottom})
+
+    this.above_panel.set_geom({left: inner_left, right: inner_right, bottom: inner_top, height: this.above_panel.get_size()})
+    this.below_panel.set_geom({left: inner_left, right: inner_right, top: inner_bottom, height: this.below_panel.get_size()})
+    this.left_panel .set_geom({top: inner_top, bottom: inner_bottom, right: inner_left, width: this.left_panel.get_size()})
+    this.right_panel.set_geom({top: inner_top, bottom: inner_bottom, left: inner_right, width: this.right_panel.get_size()})
   }
 
   render(): void {
@@ -787,15 +898,10 @@ export class PlotCanvasView extends DOMView {
   }
 
   protected _needs_layout(): boolean {
-    for (const id in this.renderer_views) {
-      const view = this.renderer_views[id]
-      if (isSizeableView(view) && view.model.panel != null) {
-        if (_view_sizes.get(view) != view.get_size())
-          return true
-      }
-    }
-
-    return false
+    return this._above_panel_size !== this.above_panel.get_size() ||
+           this._below_panel_size !== this.below_panel.get_size() ||
+           this._left_panel_size  !== this.left_panel.get_size()  ||
+           this._right_panel_size !== this.right_panel.get_size()
   }
 
   repaint(): void {
@@ -993,34 +1099,6 @@ export class PlotCanvasView extends DOMView {
   }
 }
 
-export class AbovePanel extends LayoutCanvas {
-  static initClass(): void {
-    this.prototype.type = "AbovePanel"
-  }
-}
-AbovePanel.initClass()
-
-export class BelowPanel extends LayoutCanvas {
-  static initClass(): void {
-    this.prototype.type = "BelowPanel"
-  }
-}
-BelowPanel.initClass()
-
-export class LeftPanel extends LayoutCanvas {
-  static initClass(): void {
-    this.prototype.type = "LeftPanel"
-  }
-}
-LeftPanel.initClass()
-
-export class RightPanel extends LayoutCanvas {
-  static initClass(): void {
-    this.prototype.type = "RightPanel"
-  }
-}
-RightPanel.initClass()
-
 export namespace PlotCanvas {
   export interface Attrs extends LayoutCanvas.Attrs {
     plot: Plot
@@ -1058,11 +1136,6 @@ export class PlotCanvas extends LayoutCanvas {
 
   frame: CartesianFrame
   canvas: Canvas
-
-  protected above_panel: AbovePanel
-  protected below_panel: BelowPanel
-  protected left_panel:  LeftPanel
-  protected right_panel: RightPanel
 
   _inner_left: Variable
   _inner_right: Variable
@@ -1102,44 +1175,14 @@ export class PlotCanvas extends LayoutCanvas {
       y_scale: this.plot.y_scale,
     })
 
-    this.above_panel = new AbovePanel()
-    this.below_panel = new BelowPanel()
-    this.left_panel  = new LeftPanel()
-    this.right_panel = new RightPanel()
-
     logger.debug("PlotCanvas initialized")
   }
 
   protected _doc_attached(): void {
     this.canvas.attach_document(this.document!)
     this.frame.attach_document(this.document!)
-    this.above_panel.attach_document(this.document!)
-    this.below_panel.attach_document(this.document!)
-    this.left_panel.attach_document(this.document!)
-    this.right_panel.attach_document(this.document!)
     super._doc_attached()
     logger.debug("PlotCanvas attached to document")
-  }
-
-  get_layoutable_children(): LayoutCanvas[] {
-    const children = [
-      this.above_panel, this.below_panel,
-      this.left_panel, this.right_panel,
-    ]
-
-    const collect_panels = (layout_renderers: Renderer[]) => {
-      for (const r of layout_renderers) {
-        if (isSizeable(r) && r.panel != null)
-          children.push(r.panel)
-      }
-    }
-
-    collect_panels(this.plot.above)
-    collect_panels(this.plot.below)
-    collect_panels(this.plot.left)
-    collect_panels(this.plot.right)
-
-    return children
   }
 
   get_editables(): Variable[] {
@@ -1147,11 +1190,7 @@ export class PlotCanvas extends LayoutCanvas {
   }
 
   get_constraints(): Constraint[] {
-    return super.get_constraints().concat(this._get_constant_constraints(), this._get_side_constraints())
-  }
-
-  private _get_constant_constraints(): Constraint[] {
-    return [
+    return super.get_constraints().concat([
       // Set the origin. Everything else is positioned absolutely wrt canvas.
       EQ(this._left, 0),
       EQ(this._top,  0),
@@ -1161,50 +1200,21 @@ export class PlotCanvas extends LayoutCanvas {
       LE(this._inner_bottom, [-1, this._bottom]),
       LE(this._inner_right,  [-1, this._right]),
 
-      EQ(this._inner_top, this._inner_height, [-1, this._inner_bottom]),
-      EQ(this._inner_left, this._inner_width, [-1, this._inner_right]),
-
       GE(this._offset_bottom),
       GE(this._offset_right),
 
-      EQ(this._offset_right,  [-1, this._right], this._inner_right),
+      EQ(this._inner_top, this._inner_height, [-1, this._inner_bottom]),
+      EQ(this._inner_left, this._inner_width, [-1, this._inner_right]),
+
       EQ(this._offset_bottom, [-1, this._bottom], this._inner_bottom),
+      EQ(this._offset_right,  [-1, this._right], this._inner_right),
 
       GE(this._inner_top,     -this.plot.min_border_top!   ),
       GE(this._inner_left,    -this.plot.min_border_left!  ),
       GE(this._offset_bottom, -this.plot.min_border_bottom!),
       GE(this._offset_right,  -this.plot.min_border_right! ),
-
-      EQ(this._inner_top,    [-1, this.above_panel._bottom]),
-      EQ(this._inner_bottom, [-1, this.below_panel._top]   ),
-      EQ(this._inner_left,   [-1, this.left_panel._right]  ),
-      EQ(this._inner_right,  [-1, this.right_panel._left]  ),
-
-      GE(this.above_panel._top,    [-1, this._top]             ),
-      EQ(this.above_panel._left,   [-1, this.left_panel._right]),
-      EQ(this.above_panel._right,  [-1, this.right_panel._left]),
-
-      LE(this.below_panel._bottom, [-1, this._bottom]          ),
-      EQ(this.below_panel._left,   [-1, this.left_panel._right]),
-      EQ(this.below_panel._right,  [-1, this.right_panel._left]),
-
-      EQ(this.left_panel._top,     [-1, this.above_panel._bottom]),
-      EQ(this.left_panel._bottom,  [-1, this.below_panel._top]   ),
-      GE(this.left_panel._left,    [-1, this._left]              ),
-
-      EQ(this.right_panel._top,    [-1, this.above_panel._bottom]),
-      EQ(this.right_panel._bottom, [-1, this.below_panel._top]   ),
-      LE(this.right_panel._right,  [-1, this._right]             ),
-    ]
-  }
-
-  private _get_side_constraints(): Constraint[] {
-    const panels = (objs: Renderer[]) => objs.map((obj: any) => obj.panel)
-    const above = vstack(this.above_panel,          panels(this.plot.above))
-    const below = vstack(this.below_panel, reversed(panels(this.plot.below)))
-    const left  = hstack(this.left_panel,           panels(this.plot.left))
-    const right = hstack(this.right_panel, reversed(panels(this.plot.right)))
-    return concat([above, below, left, right])
+      // other constraints are added in update_constraints()
+    ])
   }
 }
 PlotCanvas.initClass()

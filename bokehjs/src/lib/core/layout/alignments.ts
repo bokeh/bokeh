@@ -1,39 +1,38 @@
-import {LayoutCanvas as Layout} from "./layout_canvas"
-import {EQ, Constraint} from "./solver"
-import {head, tail, pairwise} from "../util/array"
+import {LayoutItem, NormGeom} from "./layout_canvas"
 
-export function vstack(container: Layout, children: Layout[]): Constraint[] {
-  const constraints = []
+export abstract class Stack extends LayoutItem {
+  children: LayoutItem[]
 
-  if (children.length > 0) {
-    constraints.push(EQ(head(children)._bottom, [-1, container._bottom]))
-    constraints.push(EQ(tail(children)._top,    [-1, container._top]))
-
-    constraints.push(...pairwise(children, (prev, next) => EQ(prev._top,  [-1, next._bottom])))
-
-    for (const child of children) {
-      constraints.push(EQ(child._left,  [-1, container._left]))
-      constraints.push(EQ(child._right, [-1, container._right]))
-    }
+  get_size(): number {
+    let size = 0
+    for (const child of this.children)
+      size += child.get_size()
+    return size
   }
-
-  return constraints
 }
 
-export function hstack(container: Layout, children: Layout[]): Constraint[] {
-  const constraints = []
+export class HStack extends Stack {
+  _set_geom(geom: NormGeom): void {
+    const {top, bottom} = geom
+    let {left} = geom
 
-  if (children.length > 0) {
-    constraints.push(EQ(head(children)._right,  [-1, container._right]))
-    constraints.push(EQ(tail(children)._left,   [-1, container._left]))
-
-    constraints.push(...pairwise(children, (prev, next) => EQ(prev._left, [-1, next._right])))
-
-    for (const child of children) {
-      constraints.push(EQ(child._top,    [-1, container._top]))
-      constraints.push(EQ(child._bottom, [-1, container._bottom]))
+    for (const child of this.children) {
+      const width = child.get_size()
+      child.set_geom({left, width, top, bottom})
+      left += width
     }
   }
+}
 
-  return constraints
+export class VStack extends Stack {
+  _set_geom(geom: NormGeom): void {
+    const {left, right} = geom
+    let {top} = geom
+
+    for (const child of this.children) {
+      const height = child.get_size()
+      child.set_geom({top, height, left, right})
+      top += height
+    }
+  }
 }

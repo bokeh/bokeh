@@ -1,3 +1,4 @@
+import {LayoutItem, NormGeom} from "core/layout/layout_canvas"
 import {SidePanel} from "core/layout/side_panel"
 import {Side} from "core/enums"
 import * as p from "core/properties"
@@ -10,6 +11,24 @@ import {Plot} from "../plots/plot"
 
 export abstract class AnnotationView extends RendererView {
   model: Annotation
+
+  __layout: LayoutItem
+
+  initialize(options: any): void {
+    super.initialize(options)
+
+    const annotation_view = this
+    this.__layout = new class extends LayoutItem {
+      get_size(): number {
+        return annotation_view.get_size()
+      }
+
+      _set_geom(geom: NormGeom): void {
+        super._set_geom(geom)
+        annotation_view.model.panel!._set_geom(geom)
+      }
+    }
+  }
 
   protected _get_size(): number {
     throw new Error("not implemented")

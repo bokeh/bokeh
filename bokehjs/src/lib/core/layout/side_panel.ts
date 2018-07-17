@@ -1,10 +1,7 @@
-import {GE, Variable, Constraint} from "./solver"
 import {LayoutCanvas} from "./layout_canvas"
 
 import * as p from "../properties"
 import {logger} from "../logging"
-import {HasProps} from "../has_props"
-import {DOMView} from "../dom_view"
 import {Side} from "../enums"
 import {isString} from "../util/types"
 
@@ -153,44 +150,6 @@ const _align_lookup_positive: {[key in Side]: CanvasTextAlign} = {
   right  : LEFT,
 }
 
-export type Sizeable = {
-  panel: SidePanel
-}
-
-export type SizeableView = DOMView & {
-  model: Sizeable
-  get_size(): number
-}
-
-export function isSizeable<T extends HasProps>(model: T): model is T & Sizeable {
-  return "panel" in model
-}
-
-export function isSizeableView<T extends DOMView>(view: T): view is T & SizeableView {
-  return isSizeable(view.model) && "get_size" in view
-}
-
-export const _view_sizes = new WeakMap<SizeableView, number>()
-export const _view_constraints = new WeakMap<SizeableView, Constraint>()
-
-export function update_panel_constraints(view: SizeableView): void {
-  const s = view.solver
-  const size = view.get_size()
-  let constraint = _view_constraints.get(view)
-
-  if (constraint != null && s.has_constraint(constraint)) {
-    if (_view_sizes.get(view) === size)
-      return
-    s.remove_constraint(constraint)
-  }
-
-  constraint = GE((view.model as any).panel._size, -size)
-  s.add_constraint(constraint)
-
-  _view_sizes.set(view, size)
-  _view_constraints.set(view, constraint)
-}
-
 export namespace SidePanel {
   export interface Attrs extends LayoutCanvas.Attrs {
     side: Side
@@ -221,7 +180,6 @@ export class SidePanel extends LayoutCanvas {
 
   protected _dim: 0 | 1
   protected _normals: [number, number]
-  protected _size: Variable
 
   toString(): string {
     return `${this.type}(${this.id}, ${this.side})`
@@ -233,22 +191,18 @@ export class SidePanel extends LayoutCanvas {
       case "above":
         this._dim = 0
         this._normals = [0, -1]
-        this._size = this._height
         break
       case "below":
         this._dim = 0
         this._normals = [0, 1]
-        this._size = this._height
         break
       case "left":
         this._dim = 1
         this._normals = [-1, 0]
-        this._size = this._width
         break
       case "right":
         this._dim = 1
         this._normals = [1, 0]
-        this._size = this._width
         break
       default:
         logger.error(`unrecognized side: '${this.side}'`)
