@@ -1,4 +1,3 @@
-from collections import Counter
 from math import pi
 
 import pandas as pd
@@ -10,7 +9,7 @@ from bokeh.transform import cumsum
 
 output_file("pie.html")
 
-x = Counter({
+x = {
     'United States': 157,
     'United Kingdom': 93,
     'Japan': 89,
@@ -23,10 +22,10 @@ x = Counter({
     'France': 31,
     'Taiwan': 31,
     'Spain': 29
-})
+}
 
-data = pd.DataFrame.from_dict(dict(x), orient='index').reset_index().rename(index=str, columns={0:'value', 'index':'country'})
-data['angle'] = data['value']/sum(x.values()) * 2*pi
+data = pd.Series(x).reset_index(name='value').rename(columns={'index':'country'})
+data['angle'] = data['value']/data['value'].sum() * 2*pi
 data['color'] = Category20c[len(x)]
 
 p = figure(plot_height=350, title="Pie Chart", toolbar_location=None,
