@@ -36,10 +36,18 @@ export class CanvasView extends DOMView {
 
     this.map_el = this.model.map ? this.el.appendChild(div({class: "bk-canvas-map"})) : null
 
+    const style = {
+      position: "absolute",
+      top: "0",
+      left: "0",
+      width: "100%",
+      height: "100%",
+    }
+
     switch (this.model.output_backend) {
       case "canvas":
       case "webgl": {
-        this.canvas_el = this.el.appendChild(canvas({class: "bk-canvas"}))
+        this.canvas_el = this.el.appendChild(canvas({class: "bk-canvas", style}))
         const ctx = this.canvas_el.getContext('2d')
         if (ctx == null)
           throw new Error("unable to obtain 2D rendering context")
@@ -54,8 +62,8 @@ export class CanvasView extends DOMView {
       }
     }
 
-    this.overlays_el = this.el.appendChild(div({class: "bk-canvas-overlays"}))
-    this.events_el   = this.el.appendChild(div({class: "bk-canvas-events"}))
+    this.overlays_el = this.el.appendChild(div({class: "bk-canvas-overlays", style}))
+    this.events_el   = this.el.appendChild(div({class: "bk-canvas-events", style}))
 
     fixup_ctx(this._ctx)
 
