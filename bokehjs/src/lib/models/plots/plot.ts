@@ -1,4 +1,4 @@
-import {Variable} from "core/layout/solver"
+import {Variable, Constraint} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
@@ -396,7 +396,15 @@ export class Plot extends LayoutDOM {
   }
 
   get_layoutable_children(): LayoutDOM[] {
-    return [this.plot_canvas as any]
+    return [this.plot_canvas as any] // XXX
+  }
+
+  get_constraints(): Constraint[] {
+    return super.get_constraints().concat(this.plot_canvas.get_constraints())
+  }
+
+  get_editables(): Variable[] {
+    return super.get_editables().concat(this.plot_canvas.get_editables())
   }
 
   get_constrained_variables(): {[key: string]: Variable} {

@@ -1,4 +1,4 @@
-import {GE, EQ, Variable, ComputedVariable, Constraint} from "./solver"
+import {Variable, ComputedVariable} from "./solver"
 import {HasProps} from "../has_props"
 import {Arrayable} from "../types"
 import {BBox} from "../util/bbox"
@@ -118,45 +118,6 @@ export abstract class LayoutCanvas extends HasProps {
     this._right.setValue(geom.right)
     this._width.setValue(geom.width)
     this._height.setValue(geom.height)
-  }
-
-  get_editables(): Variable[] {
-    return []
-  }
-
-  get_constraints(): Constraint[] {
-    return [
-      GE(this._top),
-      GE(this._bottom),
-      GE(this._left),
-      GE(this._right),
-      GE(this._width),
-      GE(this._height),
-      EQ(this._left, this._width, [-1, this._right]),
-      EQ(this._top, this._height, [-1, this._bottom]),
-    ]
-  }
-
-  get_layoutable_children(): LayoutCanvas[] {
-    return []
-  }
-
-  get_all_constraints(): Constraint[] {
-    let constraints = this.get_constraints()
-
-    for (const child of this.get_layoutable_children())
-      constraints = constraints.concat(child.get_all_constraints())
-
-    return constraints
-  }
-
-  get_all_editables(): Variable[] {
-    let editables = this.get_editables()
-
-    for (const child of this.get_layoutable_children())
-      editables = editables.concat(child.get_all_editables())
-
-    return editables
   }
 
   get bbox(): BBox {

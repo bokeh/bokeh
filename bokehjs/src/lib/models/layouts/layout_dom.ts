@@ -2,13 +2,10 @@ import {Model} from "../../model"
 import {SizingMode} from "core/enums"
 import {empty, margin, padding} from "core/dom"
 import * as p from "core/properties"
-import {LayoutCanvas} from "core/layout/layout_canvas"
 import {Solver, GE, EQ, Strength, Variable, Constraint} from "core/layout/solver"
 
 import {build_views} from "core/build_views"
 import {DOMView} from "core/dom_view"
-
-export type Layoutable = LayoutCanvas | LayoutDOM
 
 export abstract class LayoutDOMView extends DOMView implements EventListenerObject {
   model: LayoutDOM
@@ -480,9 +477,9 @@ export abstract class LayoutDOM extends Model {
 
   dump_layout(): void {
     const layoutables: {[key: string]: {[key: string]: number}} = {}
-    const pending: Layoutable[] = [this]
+    const pending: LayoutDOM[] = [this]
 
-    let obj: Layoutable | undefined
+    let obj: LayoutDOM | undefined
     while (obj = pending.shift()) {
       pending.push(...obj.get_layoutable_children())
       layoutables[obj.toString()] = obj.layout_bbox
@@ -494,8 +491,10 @@ export abstract class LayoutDOM extends Model {
   get_all_constraints(): Constraint[] {
     let constraints = this.get_constraints()
 
-    for (const child of this.get_layoutable_children())
-      constraints = constraints.concat(child.get_all_constraints())
+    for (const child of this.get_layoutable_children()) {
+      if (child instanceof LayoutDOM) // XXX
+        constraints = constraints.concat(child.get_all_constraints())
+    }
 
     return constraints
   }
@@ -503,8 +502,10 @@ export abstract class LayoutDOM extends Model {
   get_all_editables(): Variable[] {
     let editables = this.get_editables()
 
-    for (const child of this.get_layoutable_children())
-      editables = editables.concat(child.get_all_editables())
+    for (const child of this.get_layoutable_children()) {
+      if (child instanceof LayoutDOM) // XXX
+        editables = editables.concat(child.get_all_editables())
+    }
 
     return editables
   }

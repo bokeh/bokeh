@@ -1186,22 +1186,30 @@ export class PlotCanvas extends LayoutCanvas {
   }
 
   get_editables(): Variable[] {
-    return super.get_editables().concat([this._inner_width, this._inner_height])
+    return [this._inner_width, this._inner_height]
   }
 
   get_constraints(): Constraint[] {
-    return super.get_constraints().concat([
+    return [
       // Set the origin. Everything else is positioned absolutely wrt canvas.
       EQ(this._left, 0),
       EQ(this._top,  0),
 
-      GE(this._inner_top),
-      GE(this._inner_left),
+      GE(this._bottom, 0),
+      GE(this._right, 0),
+      GE(this._width, 0),
+      GE(this._height, 0),
+
+      EQ(this._left, this._width, [-1, this._right]),
+      EQ(this._top, this._height, [-1, this._bottom]),
+
+      GE(this._inner_top, [-1, this._top]),
       LE(this._inner_bottom, [-1, this._bottom]),
+      GE(this._inner_left, [-1, this._left]),
       LE(this._inner_right,  [-1, this._right]),
 
-      GE(this._offset_bottom),
-      GE(this._offset_right),
+      GE(this._offset_bottom, 0),
+      GE(this._offset_right, 0),
 
       EQ(this._inner_top, this._inner_height, [-1, this._inner_bottom]),
       EQ(this._inner_left, this._inner_width, [-1, this._inner_right]),
@@ -1214,7 +1222,7 @@ export class PlotCanvas extends LayoutCanvas {
       GE(this._offset_bottom, -this.plot.min_border_bottom!),
       GE(this._offset_right,  -this.plot.min_border_right! ),
       // other constraints are added in update_constraints()
-    ])
+    ]
   }
 }
 PlotCanvas.initClass()
