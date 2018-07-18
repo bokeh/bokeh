@@ -146,12 +146,11 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
     this._solver_inited = true
   }
 
-  _suggest_dims(width: number | null, height: number | null): void {
+  _suggest_dims(): void {
     const variables = this.model.get_constrained_variables()
 
     if (variables.width != null || variables.height != null) {
-      if (width == null || height == null)
-        [width, height] = this._calc_width_height()
+      const [width, height] = this._calc_width_height()
 
       if (variables.width != null && width != null)
         this._solver.suggest_value(this._root_width, width)
@@ -160,13 +159,6 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
 
       this._solver.update_variables()
     }
-  }
-
-  resize(width: number | null = null, height: number | null = null): void {
-    if (!this.is_root)
-      (this.root as LayoutDOMView).resize(width, height)
-    else
-      this._do_layout(false, width, height)
   }
 
   partial_layout(): void {
@@ -183,13 +175,13 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
       this._do_layout(true)
   }
 
-  protected _do_layout(full: boolean, width: number | null = null, height: number | null = null): void {
+  protected _do_layout(full: boolean): void {
     if (!this._solver_inited || full) {
       this._solver.clear()
       this._init_solver()
     }
 
-    this._suggest_dims(width, height)
+    this._suggest_dims()
 
     // XXX: do layout twice, because there are interdependencies between views,
     // which currently cannot be resolved with one pass. The third one triggers
@@ -246,7 +238,7 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
   }
 
   handleEvent(): void {
-    this.resize()
+    this.partial_layout()
   }
 
   disconnect_signals(): void {
