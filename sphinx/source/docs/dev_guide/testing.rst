@@ -68,12 +68,13 @@ To learn more about marking test functions and selecting/deselecting them for
 a run, please consult the pytest documentation for `custom markers`_. The list
 of currently defined test markers is below:
 
+* ``codebase``: a test for codebase quality or policy
 * ``examples``: an examples image-diff test
-* ``integration``: an integration test that runs on `SauceLabs`_
+* ``integration``: an integration test
 * ``js``: a javascript test
-* ``quality``: a code quality test
+* ``sampledata``: a test for ``bokeh.sampledata``
 * ``selenium``: a test requiring selenium
-* ``unit``: a python unit test (implicitly assigned for tests otherwise unmarked)
+* ``unit``: a python unit test
 
 Code Coverage
 ~~~~~~~~~~~~~
@@ -137,71 +138,6 @@ were run from.
 
 Integration tests
 ~~~~~~~~~~~~~~~~~
-
-Integration tests use the `selenium webdriver`_ to test bokeh in the browser.
-Some of the selenium tests run on Firefox and can be run locally.
-
-.. note::
-    Only Firefox 47 and Firefox 45 are currently known to work. For more
-    information see the :bokeh-issue:`5559`.
-
-To download a specific version of Firefox, go to
-https://ftp.mozilla.org/pub/firefox/releases/
-Unzip the release and note the location of the application under ``bin``
-directory.
-
-To run just the integration tests, run the command:
-
-.. code-block:: sh
-
-    py.test -m integration                  \
-        --driver Firefox                    \
-        --firefox-path /path/to/firefox/app \
-        --html=tests/pytest-report.html
-
-The ``--html`` is optional, but it will allow you to see the same report that
-is generated on TravisCI.
-
-Many of these tests can be run locally, and you will see browser windows open
-and close on your machine as you run them. When we run the tests on TravisCI we
-use the selenium service SauceLabs_ which provides free testing for open source
-projects.
-
-It is strongly recommended to run ``python setup.py develop`` before running
-the integration tests to ensure that the latest version of BokehJS (with any
-changes you may have made), is available for the integration tests.
-
-----
-
-Some of the integration tests are screenshot tests that take a screenshot of
-the bokehplot and compare it against a reference image that is stored in the
-repository. These tests must be run on SauceLabs_ so that comparisons can be
-made consistently.
-
-To run the integration tests on SauceLabs, run the command:
-
-.. code-block:: sh
-
-    py.test -m integration --driver=SauceLabs --html=tests/pytest-report.html
-
-For this command to be successful you must have the following:
-
-* ``SAUCELABS_USERNAME`` environment variable
-
-* ``SAUCELABS_API_KEY`` environment variable
-
-* Sauce Connect tunnel running
-
-To start up the tunnel, first download `Sauce Connect`_. Next, extract the
-files and navigate to the install directory. Then you can establish the tunnel
-by running:
-
-.. code-block:: sh
-
-    bin/sc -u SAUCELABS_USERNAME -k SAUCELABS_API_KEY
-
-To obtain the ``SAUCELABS_USERNAME`` and ``SAUCELABS_API_KEY`` please
-`contact the developers`_.
 
 Writing Tests
 -------------
@@ -363,7 +299,7 @@ separate ``test:<GROUP>`` script for each of the following test groups:
     or contributing documentation see the :ref:`devguide_documentation` section
     of the Developer's guide.
 
-``quality``
+``codebase``
     This job runs tests that maintain code quality and package integrity.
 
 Deploy
@@ -382,7 +318,6 @@ All of these steps are performed for full releases, however some may be omitted
 for dev builds and release candidates.
 
 The controlling script is :bokeh-tree:`scripts/ci/deploy`
-
 
 Etiquette
 ~~~~~~~~~
@@ -409,7 +344,5 @@ resources:
 .. _contact the developers: https://bokehplots.com/pages/contact.html
 .. _custom markers: http://pytest.org/latest/example/markers.html#working-with-custom-markers
 .. _pytest: https://docs.pytest.org
-.. _SauceLabs: http://saucelabs.com/
-.. _Sauce Connect: https://wiki.saucelabs.com/display/DOCS/Setting+Up+Sauce+Connect+Proxy
 .. _selenium webdriver: http://docs.seleniumhq.org/docs/03_webdriver.jsp
 .. _TravisCI: https://travis-ci.org/
