@@ -62,10 +62,6 @@ export class CanvasView extends DOMView {
     logger.debug("CanvasView initialized")
   }
 
-  css_classes(): string[] {
-    return super.css_classes().concat("bk-canvas-wrapper")
-  }
-
   get_canvas_element(): HTMLCanvasElement | SVGSVGElement {
     return this.canvas_el
   }

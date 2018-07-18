@@ -195,10 +195,6 @@ export class PlotCanvasView extends DOMView {
     super.remove()
   }
 
-  css_classes(): string[] {
-    return super.css_classes().concat("bk-plot-wrapper")
-  }
-
   initialize(options: any): void {
     this.pause()
 
