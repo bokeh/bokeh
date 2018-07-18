@@ -116,8 +116,9 @@ export class TextView extends XYGlyphView {
     for (let i = 0; i < this._sxs.length; i++) {
       const sxs = this._sxs[i]
       const sys = this._sys[i]
-      for (let j = 0, endj = sxs.length; j < endj; j++) {
-        const [sxr, syr] = this._rotate_point(sx, sy, sxs[j][0], sys[j][0], -this._angle[i])
+      const n = sxs.length
+      for (let j = 0, endj = n; j < endj; j++) {
+        const [sxr, syr] = this._rotate_point(sx, sy, sxs[n-1][0], sys[n-1][0], -this._angle[i])
         if (hittest.point_in_poly(sxr, syr, sxs[j], sys[j])) {
           hits.push(i);
         }
