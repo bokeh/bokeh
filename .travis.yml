@@ -37,12 +37,12 @@ before_install:
 jobs:
   include:
     - stage: build
-      install: scripts/ci/install:build
+      install: scripts/ci/install.build
       script: scripts/ci/build
 
     - stage: test
 
-      install: scripts/ci/install:test
+      install: scripts/ci/install.test
       script: scripts/ci/test
       addons:
         chrome: stable
@@ -52,25 +52,25 @@ jobs:
       - GROUP=examples
       - PYTHON=3.5
 
-    - install: scripts/ci/install:test
+    - install: scripts/ci/install.test
       script: scripts/ci/test
       env:
       - GROUP=examples
       - PYTHON=2.7
       - EXTRA_CMD=--no-js
 
-    - install: scripts/ci/install:test
+    - install: scripts/ci/install.test
       script: scripts/ci/test
       env:
       - GROUP=js
 
-    - install: scripts/ci/install:test
+    - install: scripts/ci/install.test
       script: scripts/ci/test
       env:
       - GROUP=unit
       - PYTHON=3.6
 
-    - install: scripts/ci/install:test
+    - install: scripts/ci/install.test
       script: scripts/ci/test
       env:
       - GROUP=unit
@@ -78,27 +78,27 @@ jobs:
       - TORNADO=4
       - MINIMAL=1
 
-    - install: scripts/ci/install:test
+    - install: scripts/ci/install.test
       script: scripts/ci/test
       env:
       - GROUP=unit
       - PYTHON=2.7
 
-    - install: scripts/ci/install:test
+    - install: scripts/ci/install.test
       script: scripts/ci/test
       env:
       - GROUP=docs
 
-    - install: scripts/ci/install:test
+    - install: scripts/ci/install.test
       script: scripts/ci/test
       env:
       - GROUP=codebase
 
-    - install: scripts/ci/install:test
+    - install: scripts/ci/install.test
       script: scripts/ci/test
       env:
       - GROUP=downstream
 
-    - install: scripts/ci/install:deploy
+    - install: scripts/ci/install.deploy
       stage: deploy
       script: scripts/ci/deploy
