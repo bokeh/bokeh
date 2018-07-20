@@ -218,7 +218,7 @@ on git hooks, see `this turorial`_.
 
 ``pre-commit``
 
-    This git hook runs the code quality tests before allowing a commit to
+    This git hook runs all the codebase tests before allowing a commit to
     proceed. Note that all the standard testing dependencies must be installed
     in order for this hook to function.
 
@@ -226,7 +226,7 @@ on git hooks, see `this turorial`_.
 
         #!/bin/bash
 
-        py.test -m quality
+        py.test -m codebase
         exit $?
 
 ``pre-push``

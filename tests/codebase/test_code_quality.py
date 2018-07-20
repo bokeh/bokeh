@@ -1,13 +1,58 @@
-# This is based on sympy's sympy/utilities/tests/test_code_quality.py
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import io
-import subprocess
 from os import pardir
 from os.path import split, join, abspath, relpath, basename, splitext
+import subprocess
 
-import pytest
+# External imports
 
-TOP_PATH = abspath(join(split(__file__)[0], pardir))
+# Bokeh imports
+
+#-----------------------------------------------------------------------------
+# Tests
+#-----------------------------------------------------------------------------
+
+@pytest.mark.codebase
+def test_code_quality():
+    ''' Applies a collection of general codebase style and quality rules to
+    every file inm the repository. Unless specifically excepted:
+
+    * Files should not contain tabs
+    * Files should not start with newlines
+    * Files should end with one empty line
+    * Lines should not contain trailing whitespace
+    * Lines should not exceed 160 characters
+
+    '''
+    errors = collect_errors()
+    assert len(errors) == 0, "Code quality issues:\n%s" % "\n".join(errors)
+
+#-----------------------------------------------------------------------------
+# Support
+#-----------------------------------------------------------------------------
+
+# This is based on sympy's sympy/utilities/tests/test_code_quality.py
+
+TOP_PATH = abspath(join(split(__file__)[0], pardir, pardir))
 
 MAX_LINE_LENGTH = 160
 
@@ -88,11 +133,3 @@ def collect_errors():
 
 def bad_files():
     return " ".join(sorted(set([ file for (_, file, _) in collect_errors() ])))
-
-@pytest.mark.quality
-def test_files():
-    errors = collect_errors()
-    assert len(errors) == 0, "Code quality issues:\n%s" % "\n".join(errors)
-
-if __name__ == "__main__":
-    test_files()

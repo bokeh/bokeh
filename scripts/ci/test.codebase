@@ -13,4 +13,4 @@ popd
 
 py.test -m sampledata
 
-py.test -m quality
+py.test -m codebase
