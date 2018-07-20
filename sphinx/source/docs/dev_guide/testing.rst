@@ -283,12 +283,10 @@ separate ``test:<GROUP>`` script for each of the following test groups:
     compares the images to previous versions.
 
 ``integration``
-    This job executes the integration tests on `SauceLabs`_. Additionally
-    a report is uploaded to see the detailed results.
+    This job executes an integration test, e.g. a Selenium browser test.
 
 ``js``
     This job runs all the JavaScript unit tests (i.e. ``node make test``)
-
 
 ``unit``
     This job runs all the Python unit tests (i.e. ``py.test -m unit``). The
