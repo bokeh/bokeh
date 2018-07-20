@@ -12,4 +12,4 @@ fi
 
 bokeh info
 
-bash "scripts/ci/test:${GROUP}"
+bash "scripts/ci/test.${GROUP}"
