@@ -92,7 +92,7 @@ REQUIRES = [
     'python-dateutil >=2.1',
     'Jinja2 >=2.7',
     'numpy >=1.7.1',
-    'pillow >= 4.0',
+    'pillow >=4.0',
     'packaging >=16.8',
     'tornado >=4.3',
 ]
