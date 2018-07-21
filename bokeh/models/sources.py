@@ -150,16 +150,24 @@ class ColumnDataSource(ColumnarDataSource):
 
         '''
         _df = df.copy()
+
+        # Flatten columns
+        if isinstance(df.columns, pd.MultiIndex):
+            _df.columns = ['_'.join(col) for col in _df.columns.values]
+        # Flatten index
+        index_name = ColumnDataSource._df_index_name(df)
+        if index_name == 'index':
+            _df.index = pd.Index(_df.index.values)
+        else:
+            _df.index = pd.Index(_df.index.values, name=index_name)
+        _df.reset_index(inplace=True)
+
         tmp_data = {c: v.values for c, v in _df.iteritems()}
 
         new_data = {}
         for k, v in tmp_data.items():
-            if isinstance(k, tuple):
-                k = "_".join(k)
             new_data[k] = v
 
-        index_name = ColumnDataSource._df_index_name(df)
-        new_data[index_name] = _df.index.values
         return new_data
 
     @staticmethod
