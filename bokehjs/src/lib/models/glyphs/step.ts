@@ -16,6 +16,9 @@ export class StepView extends XYGlyphView {
   visuals: Step.Visuals
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy}: StepData): void {
+    let drawing = false
+    let last_index: number | null = null
+
     this.visuals.line.set_value(ctx)
 
     const L = indices.length
@@ -25,7 +28,7 @@ export class StepView extends XYGlyphView {
     ctx.beginPath()
     ctx.moveTo(sx[0], sy[0])
 
-    for (let i = 1; i < L; i++) {
+    for (const i of indices) {
       let x1: number, x2: number
       let y1: number, y2: number
       switch (this.model.mode) {
@@ -49,8 +52,31 @@ export class StepView extends XYGlyphView {
           throw new Error("unexpected")
       }
 
-      ctx.lineTo(x1, y1)
-      ctx.lineTo(x2, y2)
+      if (drawing) {
+        if (!isFinite(sx[i] + sy[i])) {
+          ctx.stroke()
+          ctx.beginPath()
+          drawing = false
+          last_index = i
+          continue
+        }
+
+        if (last_index != null && i - last_index > 1) {
+          ctx.stroke()
+          drawing = false
+        }
+      }
+
+      if (drawing) {
+        ctx.lineTo(x1, y1)
+        ctx.lineTo(x2, y2)
+      } else {
+        ctx.beginPath()
+        ctx.moveTo(sx[i], sy[i])
+        drawing = true
+      }
+
+      last_index = i
     }
 
     ctx.lineTo(sx[L-1], sy[L-1])
