@@ -4,8 +4,9 @@ import {Variable} from "core/layout/solver"
 export class SpacerView extends LayoutDOMView {
   model: Spacer
 
-  render(): void {
-    super.render()
+  update_geometry(): void {
+    super.update_geometry()
+
     if (this.model.sizing_mode == "fixed") {
       this.el.style.width = `${this.model.width}px`
       this.el.style.height = `${this.model.height}px`

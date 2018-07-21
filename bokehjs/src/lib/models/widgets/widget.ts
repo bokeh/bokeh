@@ -3,13 +3,9 @@ import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 export abstract class WidgetView extends LayoutDOMView {
   model: Widget
 
-  css_classes(): string[] {
-    return super.css_classes().concat("bk-widget")
-  }
+  suggest_dims(): void {}
 
-  render(): void {
-    this._render_classes() // XXX: because no super()
-
+  update_geometry(): void {
     // LayoutDOMView sets up lots of helpful things, but
     // it's render method is not suitable for widgets - who
     // should provide their own.
@@ -17,6 +13,10 @@ export abstract class WidgetView extends LayoutDOMView {
       this.el.style.height = `${this.model.height}px`
     if (this.model.width != null)
       this.el.style.width = `${this.model.width}px`
+  }
+
+  css_classes(): string[] {
+    return super.css_classes().concat("bk-widget")
   }
 
   get_width(): number {

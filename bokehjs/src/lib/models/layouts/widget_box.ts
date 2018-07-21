@@ -16,9 +16,7 @@ export class WidgetBoxView extends LayoutDOMView {
     return super.css_classes().concat("bk-widget-box")
   }
 
-  render(): void {
-    this._render_classes() // XXX: because no super()
-
+  suggest_dims(): void {
     if (this.model.sizing_mode == 'fixed' || this.model.sizing_mode == 'scale_height') {
       const width = this.get_width()
       if (this.model._width.value != width)
@@ -30,9 +28,9 @@ export class WidgetBoxView extends LayoutDOMView {
       if (this.model._height.value != height)
         this.solver.suggest_value(this.model._height, height)
     }
+  }
 
-    this.solver.update_variables()
-
+  update_geometry(): void {
     if (this.model.sizing_mode == 'stretch_both') {
       this.el.style.position = 'absolute'
       this.el.style.left = `${this.model._dom_left.value}px`

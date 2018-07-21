@@ -7,6 +7,19 @@ import {Solver, GE, EQ, Strength, Variable, Constraint} from "core/layout/solver
 import {build_views} from "core/build_views"
 import {DOMView} from "core/dom_view"
 
+function foreach_layoutable(view: LayoutDOMView, fn: (obj: LayoutDOMView) => void, depth_first: boolean = true): void {
+  if (!depth_first)
+    fn(view)
+
+  for (const child of view.model.get_layoutable_children()) {
+    const child_view = view.child_views[child.id]
+    foreach_layoutable(child_view, fn)
+  }
+
+  if (depth_first)
+    fn(view)
+}
+
 export abstract class LayoutDOMView extends DOMView implements EventListenerObject {
   model: LayoutDOM
 
@@ -146,7 +159,12 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
     this._solver_inited = true
   }
 
-  _suggest_dims(): void {
+  protected _clear_solver(): void {
+    foreach_layoutable(this, (view) => view.invalidate_constraints())
+    this.solver.clear()
+  }
+
+  _suggest_root_dims(): void {
     const variables = this.model.get_constrained_variables()
 
     if (variables.width != null || variables.height != null) {
@@ -156,111 +174,12 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
         this._solver.suggest_value(this._root_width, width)
       if (variables.height != null && height != null)
         this._solver.suggest_value(this._root_height, height)
-
-      this._solver.update_variables()
     }
   }
 
-  partial_layout(): void {
-    if (!this.is_root)
-      (this.root as LayoutDOMView).partial_layout()
-    else
-      this._do_layout(false)
-  }
+  invalidate_constraints(): void {}
 
-  layout(): void {
-    if (!this.is_root)
-      (this.root as LayoutDOMView).layout()
-    else
-      this._do_layout(true)
-  }
-
-  protected _do_layout(full: boolean): void {
-    if (!this._solver_inited || full) {
-      this._solver.clear()
-      this._init_solver()
-    }
-
-    this._suggest_dims()
-
-    // XXX: do layout twice, because there are interdependencies between views,
-    // which currently cannot be resolved with one pass. The third one triggers
-    // rendering and (expensive) painting.
-    this._layout()     // layout (1)
-    this._layout()     // layout (2)
-    this._layout(true) // render & paint
-
-    this.notify_finished()
-  }
-
-  protected _layout(final: boolean = false): void {
-    for (const child of this.model.get_layoutable_children()) {
-      const child_view = this.child_views[child.id]
-      if (child_view._layout != null)
-        child_view._layout(final)
-    }
-
-    this.render()
-
-    if (final)
-      this._has_finished = true
-  }
-
-  rebuild_child_views(): void {
-    this.solver.clear()
-    this.build_child_views()
-    this.layout()
-  }
-
-  build_child_views(): void {
-    const children = this.model.get_layoutable_children()
-    build_views(this.child_views, children, {parent: this})
-
-    empty(this.el)
-
-    for (const child of children) {
-      // Look-up the child_view in this.child_views and then append We can't just
-      // read from this.child_views because then we don't get guaranteed ordering.
-      // Which is a problem in non-box layouts.
-      const child_view = this.child_views[child.id]
-      this.el.appendChild(child_view.el)
-    }
-  }
-
-  connect_signals(): void {
-    super.connect_signals()
-
-    if (this.is_root)
-      window.addEventListener("resize", this)
-
-    // XXX: this.connect(this.model.change, () => this.layout())
-    this.connect(this.model.properties.sizing_mode.change, () => this.layout())
-  }
-
-  handleEvent(): void {
-    this.partial_layout()
-  }
-
-  disconnect_signals(): void {
-    window.removeEventListener("resize", this)
-    super.disconnect_signals()
-  }
-
-  _render_classes(): void {
-    this.el.className = "" // removes all classes
-
-    for (const name of this.css_classes())
-      this.el.classList.add(name)
-
-    this.el.classList.add(`bk-layout-${this.model.sizing_mode}`)
-
-    for (const cls of this.model.css_classes)
-      this.el.classList.add(cls)
-  }
-
-  render(): void {
-    this._render_classes()
-
+  suggest_dims(): void {
     switch (this.model.sizing_mode) {
       case "fixed": {
         // If the width or height is unset:
@@ -303,12 +222,13 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
         break
       }
     }
-
-    this.solver.update_variables()
-    this.position()
   }
 
-  position(): void {
+  update_constraints(): void {}
+
+  suggest_values(): void {}
+
+  update_geometry(): void {
     switch (this.model.sizing_mode) {
       case "fixed":
       case "scale_width":
@@ -329,6 +249,111 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
 
     this.el.style.width = `${this.model._width.value}px`
     this.el.style.height = `${this.model._height.value}px`
+  }
+
+  after_layout(): void {
+    this._has_finished = true
+  }
+
+  partial_layout(): void {
+    if (!this.is_root)
+      (this.root as LayoutDOMView).partial_layout()
+    else
+      this._do_layout(false)
+  }
+
+  layout(): void {
+    if (!this.is_root)
+      (this.root as LayoutDOMView).layout()
+    else
+      this._do_layout(true)
+  }
+
+  protected _do_layout(full: boolean): void {
+    if (!this._solver_inited || full) {
+      this._clear_solver()
+      this._init_solver()
+    }
+
+    this._suggest_root_dims()
+
+    const {solver} = this
+    foreach_layoutable(this, function sdims(view) {
+      view.suggest_dims()
+      solver.update_variables()
+    }, false)
+
+    foreach_layoutable(this, function uconst(view) { view.update_constraints() })
+    foreach_layoutable(this, function svals(view) { view.suggest_values() })
+    this.solver.update_variables()
+    foreach_layoutable(this, function ugeom(view) { view.update_geometry() })
+    foreach_layoutable(this, function aflay(view) { view.after_layout() })
+
+    this.notify_finished()
+  }
+
+  protected _layout(final: boolean = false): void {
+    for (const child of this.model.get_layoutable_children()) {
+      const child_view = this.child_views[child.id]
+      child_view._layout(final)
+    }
+  }
+
+  rebuild_child_views(): void {
+    this._clear_solver()
+    this.build_child_views()
+    this.layout()
+  }
+
+  build_child_views(): void {
+    const children = this.model.get_layoutable_children()
+    build_views(this.child_views, children, {parent: this})
+
+    empty(this.el)
+
+    for (const child of children) {
+      // Look-up the child_view in this.child_views and then append We can't just
+      // read from this.child_views because then we don't get guaranteed ordering.
+      // Which is a problem in non-box layouts.
+      const child_view = this.child_views[child.id]
+      this.el.appendChild(child_view.el)
+      child_view.render()
+    }
+  }
+
+  connect_signals(): void {
+    super.connect_signals()
+
+    if (this.is_root)
+      window.addEventListener("resize", this)
+
+    // XXX: this.connect(this.model.change, () => this.layout())
+    this.connect(this.model.properties.sizing_mode.change, () => this.layout())
+  }
+
+  handleEvent(): void {
+    this.partial_layout()
+  }
+
+  disconnect_signals(): void {
+    window.removeEventListener("resize", this)
+    super.disconnect_signals()
+  }
+
+  _render_classes(): void {
+    this.el.className = "" // removes all classes
+
+    for (const name of this.css_classes())
+      this.el.classList.add(name)
+
+    this.el.classList.add(`bk-layout-${this.model.sizing_mode}`)
+
+    for (const cls of this.model.css_classes)
+      this.el.classList.add(cls)
+  }
+
+  render(): void {
+    this._render_classes()
   }
 
   // Subclasses should implement this to explain

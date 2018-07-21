@@ -735,24 +735,6 @@ export class PlotCanvasView extends DOMView {
       logger.warn('could not set initial ranges')
   }
 
-  protected _layout(final: boolean = false): void {
-    this.render()
-
-    if (final) {
-      this.model.plot.setv({
-        inner_width: Math.round(this.frame._width.value),
-        inner_height: Math.round(this.frame._height.value),
-        layout_width: Math.round(this.model._width.value),
-        layout_height: Math.round(this.model._height.value),
-      }, {no_change: true})
-
-      // XXX: can't be @request_paint(), because it would trigger back-and-forth
-      // layout recomputing feedback loop between plots. Plots are also much more
-      // responsive this way, especially in interactive mode.
-      this.paint()
-    }
-  }
-
   has_finished(): boolean {
     if (!super.has_finished())
       return false
@@ -777,10 +759,22 @@ export class PlotCanvasView extends DOMView {
   protected _inner_left_constraint?: Constraint
   protected _offset_right_constraint?: Constraint
 
-  protected _above_panel_size?: number = 0
-  protected _below_panel_size?: number = 0
-  protected _left_panel_size?: number = 0
-  protected _right_panel_size?: number = 0
+  protected _above_panel_size?: number
+  protected _below_panel_size?: number
+  protected _left_panel_size?: number
+  protected _right_panel_size?: number
+
+  invalidate_constraints(): void {
+    this._width_constraint = undefined
+    this._height_constraint = undefined
+
+    this._inner_top_constraint = undefined
+    this._offset_bottom_constraint = undefined
+    this._inner_left_constraint = undefined
+    this._offset_right_constraint = undefined
+  }
+
+  suggest_dims(): void {}
 
   update_constraints(): void {
     const {plot} = this.model
@@ -788,31 +782,25 @@ export class PlotCanvasView extends DOMView {
     const width = plot._width.value
     const height = plot._height.value
 
-    if (width <= 0 || height <= 0)
-      return
-
-    if (width != this.model._width.value) {
-      if (this._width_constraint != null && this.solver.has_constraint(this._width_constraint))
+    if (width > 0 && width !== this.model._width.value) {
+      if (this._width_constraint != null)
         this.solver.remove_constraint(this._width_constraint)
 
       this._width_constraint = EQ(this.model._width, -width)
       this.solver.add_constraint(this._width_constraint)
     }
 
-    if (height != this.model._height.value) {
-      if (this._height_constraint != null && this.solver.has_constraint(this._height_constraint))
+    if (height > 0 && height !== this.model._height.value) {
+      if (this._height_constraint != null)
         this.solver.remove_constraint(this._height_constraint)
 
       this._height_constraint = EQ(this.model._height, -height)
       this.solver.add_constraint(this._height_constraint)
     }
 
-    this.solver.suggest_value(this.model._inner_width, width)
-    this.solver.suggest_value(this.model._inner_height, height)
-
     const above_panel_size = Math.max(this.above_panel.get_size(), plot.min_border_top!)
     if (this._above_panel_size !== above_panel_size) {
-      if (this._inner_top_constraint != null && this.solver.has_constraint(this._inner_top_constraint)) {
+      if (this._inner_top_constraint != null) {
         this.solver.remove_constraint(this._inner_top_constraint)
         this._inner_top_constraint = undefined
       }
@@ -826,7 +814,7 @@ export class PlotCanvasView extends DOMView {
 
     const below_panel_size = Math.max(this.below_panel.get_size(), plot.min_border_bottom!)
     if (this._below_panel_size !== below_panel_size) {
-      if (this._offset_bottom_constraint != null && this.solver.has_constraint(this._offset_bottom_constraint)) {
+      if (this._offset_bottom_constraint != null) {
         this.solver.remove_constraint(this._offset_bottom_constraint)
         this._offset_bottom_constraint = undefined
       }
@@ -840,7 +828,7 @@ export class PlotCanvasView extends DOMView {
 
     const left_panel_size = Math.max(this.left_panel.get_size(), plot.min_border_left!)
     if (this._left_panel_size !== left_panel_size) {
-      if (this._inner_left_constraint != null && this.solver.has_constraint(this._inner_left_constraint)) {
+      if (this._inner_left_constraint != null) {
         this.solver.remove_constraint(this._inner_left_constraint)
         this._inner_left_constraint = undefined
       }
@@ -854,7 +842,7 @@ export class PlotCanvasView extends DOMView {
 
     const right_panel_size = Math.max(this.right_panel.get_size(), plot.min_border_right!)
     if (this._right_panel_size !== right_panel_size) {
-      if (this._offset_right_constraint != null && this.solver.has_constraint(this._offset_right_constraint)) {
+      if (this._offset_right_constraint != null) {
         this.solver.remove_constraint(this._offset_right_constraint)
         this._offset_right_constraint = undefined
       }
@@ -865,9 +853,19 @@ export class PlotCanvasView extends DOMView {
         this._right_panel_size = right_panel_size
       }
     }
+  }
 
-    this.solver.update_variables()
+  suggest_values(): void {
+    const {plot} = this.model
 
+    const width = plot._width.value
+    const height = plot._height.value
+
+    this.solver.suggest_value(this.model._inner_width, width)
+    this.solver.suggest_value(this.model._inner_height, height)
+  }
+
+  update_geometry(): void {
     const inner_top    = this.model._inner_top.value
     const inner_bottom = this.model._inner_bottom.value
     const inner_left   = this.model._inner_left.value
@@ -879,21 +877,35 @@ export class PlotCanvasView extends DOMView {
     this.below_panel.set_geom({left: inner_left, right: inner_right, top: inner_bottom, height: this.below_panel.get_size()})
     this.left_panel .set_geom({top: inner_top, bottom: inner_bottom, right: inner_left, width: this.left_panel.get_size()})
     this.right_panel.set_geom({top: inner_top, bottom: inner_bottom, left: inner_right, width: this.right_panel.get_size()})
-  }
-
-  render(): void {
-    this.update_constraints()
-
-    if (this.model.plot.match_aspect !== false && this.frame._width.value != 0 && this.frame._height.value != 0)
-      this.update_dataranges()
 
     // This allows the plot canvas to be positioned around the toolbar
-    this.el.style.position = 'absolute'
+    this.el.style.position = "absolute"
     this.el.style.left     = `${this.model._left.value}px`
     this.el.style.top      = `${this.model._top.value}px`
     this.el.style.width    = `${this.model._width.value}px`
     this.el.style.height   = `${this.model._height.value}px`
+
+    this.model.plot.setv({
+      inner_width: Math.round(this.frame._width.value),
+      inner_height: Math.round(this.frame._height.value),
+      layout_width: Math.round(this.model._width.value),
+      layout_height: Math.round(this.model._height.value),
+    }, {no_change: true})
   }
+
+  after_layout(): void {
+    // XXX: can't be @request_paint(), because it would trigger back-and-forth
+    // layout recomputing feedback loop between plots. Plots are also much more
+    // responsive this way, especially in interactive mode.
+    this.paint()
+  }
+
+  /* XXX
+  render(): void {
+    if (this.model.plot.match_aspect !== false && this.frame._width.value != 0 && this.frame._height.value != 0)
+      this.update_dataranges()
+  }
+  */
 
   protected _needs_layout(): boolean {
     return this._above_panel_size !== this.above_panel.get_size() ||
@@ -913,7 +925,7 @@ export class PlotCanvasView extends DOMView {
     if (this.is_paused)
       return
 
-    logger.trace(`PlotCanvas.render() for ${this.model.id}`)
+    logger.trace(`PlotCanvas.paint() for ${this.model.id}`)
 
     // Prepare the canvas size, taking HIDPI into account. Note that this may cause a resize
     // of the canvas, which means that any previous calls to ctx.save() will be undone.

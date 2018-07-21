@@ -111,6 +111,10 @@ export abstract class LayoutCanvas extends HasProps {
     this._set_geom({left, right, width, top, bottom, height})
   }
 
+  get_layoutable_children(): any[] {
+    return []
+  }
+
   _set_geom(geom: NormGeom): void {
     this._top.setValue(geom.top)
     this._bottom.setValue(geom.bottom)
