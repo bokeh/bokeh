@@ -28,7 +28,7 @@ from ..core.enums import (Anchor, Dimension, Dimensions, Location,
                           TooltipFieldFormatter, TooltipAttachment)
 from ..core.has_props import abstract
 from ..core.properties import (
-    Auto, Bool, Color, Date, Datetime, Dict, Either, Enum, Int, Float,
+    Auto, Bool, Color, Date, Datetime, Dict, Either, Enum, Image, Int, Float,
     Percent, Instance, List, Seq, String, Tuple
 )
 from ..util.compiler import nodejs_compile, CompilationError
@@ -307,6 +307,36 @@ class WheelZoomTool(Scroll):
     speed = Float(default=1/600, help="""
     Speed at which the wheel zooms. Default is 1/600. Optimal range is between
     0.001 and 0.09. High values will be clipped. Speed may very between browsers.
+    """)
+
+class CustomAction(Action):
+    ''' Execute a custom action, e.g. ``CustomJS`` callback when a toolbar
+    icon is activated.
+
+    Example:
+
+        .. code-block:: python
+
+            tool = CustomAction(icon="icon.png",
+                                callback=CustomJS(code='alert("foo")'))
+
+            plot.add_tools(tool)
+
+    '''
+
+    action_tooltip = String(default="Perform a Custom Action", help="""
+    Tooltip displayed when hovering over the custom action icon.
+    """)
+
+    callback = Instance(Callback, help="""
+    A Bokeh callback to execute when the custom action icon is activated.
+    """)
+
+    icon = Image(help="""
+    An icon to display in the toolbar.
+
+    The icon can provided as a string filename for an image, a PIL ``Image``
+    object, or an RGB(A) NumPy array.
     """)
 
 class SaveTool(Action):

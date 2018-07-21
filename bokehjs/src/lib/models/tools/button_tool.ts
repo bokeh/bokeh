@@ -3,6 +3,7 @@ import {DOMView} from "core/dom_view"
 import {Tool, ToolView} from "./tool"
 import {empty} from "core/dom"
 import * as p from "core/properties"
+import {isString} from "core/util/types"
 
 export abstract class ButtonToolButtonView extends DOMView {
   model: ButtonTool
@@ -20,7 +21,12 @@ export abstract class ButtonToolButtonView extends DOMView {
 
   render(): void {
     empty(this.el)
-    this.el.classList.add(this.model.icon)
+    if (isString(this.model.icon)) {
+      if (this.model.icon.startsWith("bk-tool-icon-"))
+        this.el.classList.add(this.model.icon)
+      else
+        this.el.style.backgroundImage = "url('data:image/png;base64," + this.model.icon + "')"
+    }
     this.el.title = this.model.tooltip
   }
 
@@ -53,7 +59,7 @@ export abstract class ButtonTool extends Tool {
     this.prototype.type = "ButtonTool"
 
     this.internal({
-      disabled: [ p.Boolean, false ],
+      disabled:    [ p.Boolean,    false ],
     })
   }
 

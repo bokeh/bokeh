@@ -1,10 +1,13 @@
 from __future__ import absolute_import
 
 import datetime
+from io import BytesIO
 import time
 import numpy as np
 from copy import copy
 
+import base64
+import PIL.Image
 import pytest
 
 from bokeh.core.properties import (field, value,
@@ -12,7 +15,7 @@ from bokeh.core.properties import (field, value,
     Regex, Seq, List, Dict, Tuple, Instance, Any, Interval, Either,
     Enum, Color, DashPattern, Size, Percent, Angle, AngleSpec, StringSpec,
     DistanceSpec, FontSize, FontSizeSpec, Override, Include, MinMaxBounds,
-    DataDistanceSpec, ScreenDistanceSpec, ColumnData, UnitsSpec)
+    DataDistanceSpec, ScreenDistanceSpec, ColumnData, UnitsSpec, Image)
 
 from bokeh.core.property.containers import PropertyValueColumnData, PropertyValueDict, PropertyValueList
 
@@ -302,6 +305,84 @@ class Test_Date(object):
         t = time.time() * 1000
         d = Date()
         assert d.transform(t) == datetime.date.today()
+
+class Test_Image(object):
+    def test_default_creation(self):
+        Image()
+
+    def test_validate_None(self):
+        prop = Image()
+        assert prop.is_valid(None)
+
+    def test_validate_string(self):
+        prop = Image()
+        assert prop.is_valid("string")
+
+    @pytest.mark.parametrize('typ', ('png', 'gif', 'tiff'))
+    def test_validate_PIL(self, typ):
+        file = BytesIO()
+        image = PIL.Image.new('RGBA', size=(50, 50), color=(155, 0, 0))
+        image.save(file, typ)
+        prop = Image()
+        assert prop.is_valid(image)
+
+    def test_validate_numpy_RGB(self):
+        data = np.zeros((50, 50, 3), dtype=np.uint8)
+        data[:, 30:35] = [255, 0, 0]
+        prop = Image()
+        assert prop.is_valid(data)
+
+    def test_validate_numpy_RGBA(self):
+        data = np.zeros((50, 50, 4), dtype=np.uint8)
+        data[:, 30:35] = [255, 0, 0, 255]
+        prop = Image()
+        assert prop.is_valid(data)
+
+    def test_validate_invalid(self):
+        prop = Image()
+        assert not prop.is_valid(10)
+        assert not prop.is_valid(True)
+        assert not prop.is_valid(False)
+        assert not prop.is_valid([])
+        assert not prop.is_valid({})
+        assert not prop.is_valid(set())
+
+        data = np.zeros((50, 50, 2), dtype=np.uint8)
+        assert not prop.is_valid(data)
+
+        data = np.zeros((50, 50), dtype=np.uint8)
+        assert not prop.is_valid(data)
+
+    def test_transform_None(self):
+        prop = Image()
+        assert prop.transform(None) is None
+
+    def test_transform_numpy(self):
+        data = np.zeros((50, 50, 3), dtype=np.uint8)
+        data[:, 30:35] = [255, 0, 0]
+        value = PIL.Image.fromarray(data)
+        out = BytesIO()
+        value.save(out, "PNG")
+        expected = base64.b64encode(out.getvalue()).decode('ascii')
+
+        prop = Image()
+        assert prop.transform(data) == expected
+
+    @pytest.mark.parametrize('typ', ('png', 'gif', 'tiff'))
+    def test_transform_PIL(self, typ):
+        image = PIL.Image.new("RGBA", size=(50, 50), color=(155, 0, 0))
+        out = BytesIO()
+        image.save(out, typ)
+        value = PIL.Image.open(out)
+        expected = base64.b64encode(out.getvalue()).decode('ascii')
+
+        prop = Image()
+        assert prop.transform(value) == expected
+
+    def test_transform_bad(self):
+        prop = Image()
+        with pytest.raises(ValueError):
+            assert prop.transform(10)
 
 class Basictest(object):
 
