@@ -19,7 +19,7 @@ class AbstractSlider(Widget):
     def __init__(self, **kwargs):
         if 'start' in kwargs and 'end' in kwargs:
             if kwargs['start'] == kwargs['end']:
-                raise Exception("Slider 'start' and 'end' cannot be equal.")
+                raise ValueError("Slider 'start' and 'end' cannot be equal.")
         super(Widget, self).__init__(**kwargs)
 
     title = String(default="", help="""

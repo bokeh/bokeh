@@ -1,6 +1,7 @@
 import bokeh.models.widgets.sliders as mws
 
 from datetime import datetime
+import pytest
 
 from bokeh.util.serialization import convert_datetime_type
 
@@ -29,3 +30,9 @@ def test_daterangeslider_value_as_datetime_when_set_mixed():
     s = mws.DateRangeSlider(start=start, end=end,
             value=(convert_datetime_type(start), end))
     assert s.value_as_datetime == (start, end)
+
+def test_rangeslider_equal_start_end_exception():
+    start = 0
+    end = 0
+    with pytest.raises(ValueError):
+        s = mws.RangeSlider(start=start, end=end)
