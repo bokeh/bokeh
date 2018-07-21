@@ -35,4 +35,4 @@ def test_rangeslider_equal_start_end_exception():
     start = 0
     end = 0
     with pytest.raises(ValueError):
-        s = mws.RangeSlider(start=start, end=end)
+        mws.RangeSlider(start=start, end=end)
