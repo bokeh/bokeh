@@ -34,7 +34,7 @@ Widget boxes
     is necessary so that they can all work together. In fact, if you try and
     put a ``Widget`` in ``Row`` or ``Column`` it will be automatically put
     into a ``WidgetBox``. As a result, it's a good idea to wrap your own
-    widgets in a``WidgetBox`` using |widgetbox| as then you can be sure about
+    widgets in a ``WidgetBox`` using |widgetbox| as then you can be sure about
     how your widgets are getting arranged.
 
 Toolbars
