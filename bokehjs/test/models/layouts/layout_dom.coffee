@@ -20,39 +20,6 @@ describe "LayoutDOMView", ->
       @doc = new Document()
       @doc.add_root(@test_layout)
 
-    ###
-    it "should set a class of 'bk-layout-fixed' is sizing_mode is fixed", ->
-      @test_layout.sizing_mode = 'fixed'
-      layout_view = new LayoutDOMView({model: @test_layout, parent: null})
-      layout_view.layout()
-      expect(layout_view.el.className).to.be.equal 'bk-layout-fixed'
-
-    it "should set a class of 'bk-layout-stretch_both' is sizing_mode is stretch_both", ->
-      @test_layout.sizing_mode = 'stretch_both'
-      layout_view = new LayoutDOMView({model: @test_layout, parent: null})
-      layout_view.layout()
-      expect(layout_view.el.className).to.be.equal 'bk-layout-stretch_both'
-
-    it "should set a class of 'bk-layout-scale_width' if sizing_mode is scale_width", ->
-      @test_layout.sizing_mode = 'scale_width'
-      layout_view = new LayoutDOMView({model: @test_layout, parent: null})
-      layout_view.layout()
-      expect(layout_view.el.className).to.be.equal 'bk-layout-scale_width'
-
-    it "should set a class of 'bk-layout-scale_height' if sizing_mode is scale_height", ->
-      @test_layout.sizing_mode = 'scale_height'
-      layout_view = new LayoutDOMView({model: @test_layout, parent: null})
-      layout_view.layout()
-      expect(layout_view.el.className).to.be.equal 'bk-layout-scale_height'
-
-    it "should set classes from css_classes", ->
-      @test_layout.sizing_mode = 'fixed'
-      @test_layout.css_classes = ['FOO', 'BAR']
-      layout_view = new LayoutDOMView({model: @test_layout, parent: null})
-      layout_view.layout()
-      expect(layout_view.el.className).to.be.equal 'bk-layout-fixed FOO BAR'
-    ###
-
     it.skip "should build the child views", ->
       # needs a test
       null
