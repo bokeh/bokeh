@@ -298,7 +298,7 @@ the following optional keys:
 :``palette``: *Palette | Array<Color>* --- a named palette, or list of colors to colormap the values
 :``axis_number_format``: *string* --- a format string to use for axis ticks
 
-By default, plots created ``Bokeh.Charts.b`ar` automatically add a toroltip
+By default, plots created ``Bokeh.Charts.bar`` automatically add a toroltip
 and hover policy. Here is some example code that demonstrates the ``ba``
 function, with the plot it generates shown below:
 

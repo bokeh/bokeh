@@ -119,7 +119,7 @@ Arrows
 
 |Arrow| annotations can be used to connect glyphs and label annotations or
 to simply highlight plot regions. Arrows are compound annotations, meaning
-that their``start`` and ``end`` attributes are themselves other |ArrowHead|
+that their ``start`` and ``end`` attributes are themselves other |ArrowHead|
 annotations. By default, the |Arrow| annotation is one-sided with the ``end``
 set as an ``OpenHead``-type arrow head (an open-backed wedge style) and the
 ``start`` property set to ``None``. Double-sided arrows can be created by
