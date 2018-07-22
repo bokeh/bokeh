@@ -112,7 +112,7 @@ class CustomJSFilter(Filter):
             raise ValueError("Function may only contain keyword arguments.")
 
         # should the following be all of the values need to be Models?
-        if default_values and not any([isinstance(value, Model) for value in default_values]):
+        if default_values and not any(isinstance(value, Model) for value in default_values):
             raise ValueError("Default value must be a plot object.")
 
         func_kwargs = dict(zip(default_names, default_values))

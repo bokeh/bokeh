@@ -283,7 +283,7 @@ class FuncTickFormatter(TickFormatter):
         if len(all_names) - len(default_values) != 0:
             raise ValueError("Function `func` may only contain keyword arguments.")
 
-        if default_values and not any([isinstance(value, Model) for value in default_values]):
+        if default_values and not any(isinstance(value, Model) for value in default_values):
             raise ValueError("Default value must be a Bokeh Model.")
 
         func_kwargs = dict(zip(all_names, default_values))

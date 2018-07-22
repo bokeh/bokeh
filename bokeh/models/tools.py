@@ -810,7 +810,7 @@ class CustomJSHover(Model):
             if len(all_names) - len(default_values) != 0:
                 raise ValueError("Function may only contain keyword arguments.")
 
-            if default_values and not any([isinstance(value, Model) for value in default_values]):
+            if default_values and not any(isinstance(value, Model) for value in default_values):
                 raise ValueError("Default value must be a Bokeh Model.")
 
             func_kwargs = dict(zip(all_names, default_values))
@@ -1228,7 +1228,7 @@ class BoxEditTool(EditTool, Drag, Tap):
             if not isinstance(renderer.glyph, Rect):
                 incompatible_renderers.append(renderer)
         if incompatible_renderers:
-            glyph_types = ', '.join([type(renderer.glyph).__name__ for renderer in incompatible_renderers])
+            glyph_types = ', '.join(type(renderer.glyph).__name__ for renderer in incompatible_renderers)
             return "%s glyph type(s) found." % glyph_types
 
 class PointDrawTool(EditTool, Drag, Tap):
@@ -1279,7 +1279,7 @@ class PointDrawTool(EditTool, Drag, Tap):
             if not isinstance(renderer.glyph, XYGlyph):
                 incompatible_renderers.append(renderer)
         if incompatible_renderers:
-            glyph_types = ', '.join([type(renderer.glyph).__name__ for renderer in incompatible_renderers])
+            glyph_types = ', '.join(type(renderer.glyph).__name__ for renderer in incompatible_renderers)
             return "%s glyph type(s) found." % glyph_types
 
 class PolyDrawTool(EditTool, Drag, Tap):
@@ -1325,7 +1325,7 @@ class PolyDrawTool(EditTool, Drag, Tap):
             if not isinstance(renderer.glyph, (MultiLine, Patches)):
                 incompatible_renderers.append(renderer)
         if incompatible_renderers:
-            glyph_types = ', '.join([type(renderer.glyph).__name__ for renderer in incompatible_renderers])
+            glyph_types = ', '.join(type(renderer.glyph).__name__ for renderer in incompatible_renderers)
             return "%s glyph type(s) found." % glyph_types
 
 class PolyEditTool(EditTool, Drag, Tap):
@@ -1378,6 +1378,6 @@ class PolyEditTool(EditTool, Drag, Tap):
             if not isinstance(renderer.glyph, (MultiLine, Patches)):
                 incompatible_renderers.append(renderer)
         if incompatible_renderers:
-            glyph_types = ', '.join([type(renderer.glyph).__name__
-                                     for renderer in incompatible_renderers])
+            glyph_types = ', '.join(type(renderer.glyph).__name__
+                                    for renderer in incompatible_renderers)
             return "%s glyph type(s) found." % glyph_types

@@ -292,9 +292,9 @@ def build_js():
     if result != 0:
         indented_msg = ""
         outmsg = proc.stdout.read().decode('ascii', errors='ignore')
-        outmsg = "\n".join(["    " + x for x in outmsg.split("\n")])
+        outmsg = "\n".join("    " + x for x in outmsg.split("\n"))
         errmsg = proc.stderr.read().decode('ascii', errors='ignore')
-        errmsg = "\n".join(["    " + x for x in errmsg.split("\n")])
+        errmsg = "\n".join("    " + x for x in errmsg.split("\n"))
         print(BUILD_FAIL_MSG % (red(outmsg), red(errmsg)))
         sys.exit(1)
 
@@ -306,7 +306,7 @@ def build_js():
         if not m: continue # skip generate.py output lines
         stamp, txt = m.groups()
         indented_msg += "   " + dim(green(stamp)) + " " + dim(txt) + "\n"
-    msg = "\n".join(["    " + x for x in msg.split("\n")])
+    msg = "\n".join("    " + x for x in msg.split("\n"))
     print(BUILD_SUCCESS_MSG % indented_msg)
     print("Build time: %s" % bright(yellow("%0.1f seconds" % (t1-t0))))
     print()
@@ -352,7 +352,7 @@ def install_js():
         join(CSS, 'bokeh.css'),
         join(CSS, 'bokeh.min.css'),
     ]
-    if not all([exists(a) for a in STATIC_ASSETS]):
+    if not all(exists(a) for a in STATIC_ASSETS):
         print(BOKEHJS_INSTALL_FAIL)
         sys.exit(1)
 

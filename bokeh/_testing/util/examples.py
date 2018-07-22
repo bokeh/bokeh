@@ -73,7 +73,7 @@ class Example(object):
                  "skip"     if self.is_skip     else "",
                  "no_js"    if self.no_js       else "",
                  "no_diff"  if self.no_diff     else ""]
-        return "Example(%r, %s)" % (self.relpath, "|".join([ f for f in flags if f ]))
+        return "Example(%r, %s)" % (self.relpath, "|".join(f for f in flags if f))
 
     __repr__ = __str__
 

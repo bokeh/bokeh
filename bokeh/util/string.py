@@ -50,7 +50,7 @@ def indent(text, n=2, ch=" "):
 
     '''
     padding = ch * n
-    return "\n".join([padding+line for line in text.split("\n")])
+    return "\n".join(padding+line for line in text.split("\n"))
 
 def nice_join(seq, sep=", "):
     ''' Join together sequences of strings into English-friendly phrases using

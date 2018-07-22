@@ -14,7 +14,7 @@ def test_palettes_immutability():
     assert pal.Magma7 == Magma7
 
 def test_all_palettes___palettes__():
-    assert sum([ len(p) for p in pal.all_palettes.values() ]) == len(pal.__palettes__)
+    assert sum(len(p) for p in pal.all_palettes.values()) == len(pal.__palettes__)
 
 def test_palettes_dir():
     assert 'viridis' in dir(pal)

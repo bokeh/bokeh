@@ -531,7 +531,7 @@ def _process_tools_arg(plot, tools, tooltips=None):
         tool_map[tool] = tool_obj
 
     for typename, group in itertools.groupby(
-            sorted([tool.__class__.__name__ for tool in tool_objs])):
+            sorted(tool.__class__.__name__ for tool in tool_objs)):
         if len(list(group)) > 1:
             repeated_tools.append(typename)
 
@@ -573,7 +573,7 @@ def _process_active_tools(toolbar, tool_map, active_drag, active_inspect, active
     else:
         raise ValueError("Got unknown %r for 'active_drag', which was not a string supplied in 'tools' argument" % active_drag)
 
-    if active_inspect in ['auto', None] or isinstance(active_inspect, Tool) or all([isinstance(t, Tool) for t in active_inspect]):
+    if active_inspect in ['auto', None] or isinstance(active_inspect, Tool) or all(isinstance(t, Tool) for t in active_inspect):
         toolbar.active_inspect = active_inspect
     elif active_inspect in tool_map:
         toolbar.active_inspect = tool_map[active_inspect]
