@@ -71,6 +71,9 @@ validation checks.
 1020 *(BAD_EXTRA_RANGE_NAME)*
     An extra range name is configued with a name that does not correspond to any range.
 
+1021 *(EQUAL_START_END)*
+    noUiSlider most have a nonequal start and end.
+
 9999 *(EXT)*
     Indicates that a custom error check has failed.
 
@@ -97,6 +100,7 @@ codes = {
     1018: ("NO_RANGE_TOOL_RANGES",                               "RangeTool must have at least one of x_range or y_range configured"),
     1019: ("DUPLICATE_FACTORS",                                  "FactorRange must specicy a unique list of categorical factors for an axis"),
     1020: ("BAD_EXTRA_RANGE_NAME",                               "An extra range name is configued with a name that does not correspond to any range"),
+    1021: ("EQUAL_START_END",                                    "Slider 'start' and 'end' cannot be equal"),
     9999: ("EXT",                                                "Custom extension reports error"),
 }
 
