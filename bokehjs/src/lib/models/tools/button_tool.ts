@@ -21,11 +21,12 @@ export abstract class ButtonToolButtonView extends DOMView {
 
   render(): void {
     empty(this.el)
-    if (isString(this.model.icon)) {
-      if (this.model.icon.startsWith("bk-tool-icon-"))
-        this.el.classList.add(this.model.icon)
+    const icon = this.model.icon
+    if (isString(icon)) {
+      if (icon.substring(0, 12) == "bk-tool-icon")
+        this.el.classList.add(icon)
       else
-        this.el.style.backgroundImage = "url('data:image/png;base64," + this.model.icon + "')"
+        this.el.style.backgroundImage = "url('data:image/png;base64," + icon + "')"
     }
     this.el.title = this.model.tooltip
   }
