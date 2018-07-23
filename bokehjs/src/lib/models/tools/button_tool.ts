@@ -3,6 +3,7 @@ import {DOMView} from "core/dom_view"
 import {Tool, ToolView} from "./tool"
 import {empty} from "core/dom"
 import * as p from "core/properties"
+import {startsWith} from "core/util/string"
 import {isString} from "core/util/types"
 
 export abstract class ButtonToolButtonView extends DOMView {
@@ -23,7 +24,7 @@ export abstract class ButtonToolButtonView extends DOMView {
     empty(this.el)
     const icon = this.model.icon
     if (isString(icon)) {
-      if (icon.substring(0, 12) == "bk-tool-icon")
+      if (startsWith(icon, "bk-tool-icon"))
         this.el.classList.add(icon)
       else
         this.el.style.backgroundImage = "url('data:image/png;base64," + icon + "')"
