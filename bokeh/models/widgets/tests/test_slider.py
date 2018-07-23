@@ -6,6 +6,7 @@ import pytest
 
 from bokeh.util.serialization import convert_datetime_type
 from bokeh.util.logconfig import basicConfig
+from bokeh.core.validation.check import check_integrity
 
 # needed for caplog tests to function
 basicConfig()
@@ -50,4 +51,5 @@ def test_rangeslider_equal_start_end_validation(caplog):
     with caplog.at_level(logging.ERROR):
         assert len(caplog.records) == 0
         s.end = 0
+        check_integrity([s])
         assert len(caplog.records) == 1
