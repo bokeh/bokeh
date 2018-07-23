@@ -65,10 +65,15 @@ class ColumnDataSource(ColumnarDataSource):
           source = ColumnDataSource(df)
 
       In this case the CDS will have columns corresponding to the columns of
-      the ``DataFrame``. If the ``DataFrame`` has a named index column, then
-      CDS will also have a column with this name. However, if the index name
-      (or any subname of a ``MultiIndex``) is ``None``, then the CDS will have
-      a column generically named ``index`` for the index.
+      the ``DataFrame``. If the ``DataFrame`` columns have multiple levels,
+      they will be flattend using an underscore (e.g. level_0_col_level_1_col).
+      The index of the DataFrame will be flattened to an ``Index`` of tuples
+      if it's a ``MultiIndex``, and then reset using ``reset_index``. The result
+      will be a column with the same name if the index was named, or
+      level_0_name_level_1_name if it was a named ``MultiIndex``. If the
+      ``Index`` did not have a name or the ``MultiIndex`` name could not be
+      flattened/determined, the ``reset_index`` function will name the index column
+      ``index``, or ``level_0`` if the name ``index`` is not available.
 
     * A Pandas ``GroupBy`` object
 
