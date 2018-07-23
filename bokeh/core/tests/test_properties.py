@@ -362,8 +362,8 @@ class Test_Image(object):
         data[:, 30:35] = [255, 0, 0]
         value = PIL.Image.fromarray(data)
         out = BytesIO()
-        value.save(out, "PNG")
-        expected = base64.b64encode(out.getvalue()).decode('ascii')
+        value.save(out, "png")
+        expected = "data:image/png;base64," + base64.b64encode(out.getvalue()).decode('ascii')
 
         prop = Image()
         assert prop.transform(data) == expected
@@ -374,7 +374,7 @@ class Test_Image(object):
         out = BytesIO()
         image.save(out, typ)
         value = PIL.Image.open(out)
-        expected = base64.b64encode(out.getvalue()).decode('ascii')
+        expected = "data:image/%s;base64," % typ + base64.b64encode(out.getvalue()).decode('ascii')
 
         prop = Image()
         assert prop.transform(value) == expected

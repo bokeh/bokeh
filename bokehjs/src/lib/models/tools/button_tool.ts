@@ -24,10 +24,10 @@ export abstract class ButtonToolButtonView extends DOMView {
     empty(this.el)
     const icon = this.model.icon
     if (isString(icon)) {
-      if (startsWith(icon, "bk-tool-icon"))
-        this.el.classList.add(icon)
+      if (startsWith(icon, "data:image"))
+        this.el.style.backgroundImage = "url('" + icon + "')"
       else
-        this.el.style.backgroundImage = "url('data:image/png;base64," + icon + "')"
+        this.el.classList.add(icon)
     }
     this.el.title = this.model.tooltip
   }

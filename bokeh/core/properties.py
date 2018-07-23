@@ -833,8 +833,9 @@ class Image(Property):
 
         if isinstance(value, PIL.Image.Image):
             out = BytesIO()
-            value.save(out, value.format or "PNG")
-            return base64.b64encode(out.getvalue()).decode('ascii')
+            fmt = value.format or "PNG"
+            value.save(out, fmt)
+            return "data:image/%s;base64," % fmt.lower() + base64.b64encode(out.getvalue()).decode('ascii')
 
         raise ValueError("Could not transform %r" % value)
 
