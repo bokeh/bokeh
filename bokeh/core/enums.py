@@ -118,7 +118,7 @@ def enumeration(*values, **kwargs):
     if len(values) != len(set(values)):
         raise ValueError("enumeration items must be unique, got %s" % values)
 
-    attrs = dict([ (value, value) for value in values ])
+    attrs = {value: value for value in values}
     attrs.update({
         "_values": list(values),
         "_default": values[0],

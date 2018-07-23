@@ -452,7 +452,7 @@ def bundle_models(models):
         return resolved
 
     def resolve_deps(deps, root):
-        custom_modules = set([ model.module for model in custom_models.values() ])
+        custom_modules = set(model.module for model in custom_models.values())
         missing = set(deps) - known_modules - custom_modules
         return resolve_modules(missing, root)
 
@@ -475,8 +475,8 @@ def bundle_models(models):
 
     sep = ",\n"
 
-    exports = sep.join([ _export_template % dict(name=name, module=module) for (name, module) in exports ])
-    modules = sep.join([ _module_template % dict(module=module, source=code) for (module, code) in modules ])
+    exports = sep.join(_export_template % dict(name=name, module=module) for (name, module) in exports)
+    modules = sep.join(_module_template % dict(module=module, source=code) for (module, code) in modules)
 
     content = _plugin_template % dict(prelude=_plugin_prelude, exports=exports, modules=modules)
     return _plugin_umd % dict(content=content)

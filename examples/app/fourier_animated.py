@@ -66,7 +66,7 @@ def create_plot(foos, title='', r = 1, y_range=None, period = pi/2, cfoos=None):
 
         if i==0:
             # compute the full fourier eq
-            full_y = sum([foo(x) for foo in foos])
+            full_y = sum(foo(x) for foo in foos)
             # replace the foo curve with the full fourier eq
             sources['curve'] = CDS(dict(x=x, base_x=base_x, y=full_y))
             # draw the line
@@ -112,7 +112,7 @@ def update_sources(sources, foos, newx, ind, cfoos):
                         compute_curve = i != 0)
 
         if i == 0:
-            full_y = sum([foo(newx) for foo in foos])
+            full_y = sum(foo(newx) for foo in foos)
             sources[i]['curve'].data = dict(x=newx, base_x=base_x, y=full_y)
 
         cp = sources[i]['circle_point'].data

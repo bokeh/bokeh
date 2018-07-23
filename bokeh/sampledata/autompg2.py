@@ -52,7 +52,7 @@ def _capitalize_words(string):
     '''
 
     '''
-    return " ".join([ word.capitalize() for word in string.split(" ") ])
+    return " ".join(word.capitalize() for word in string.split(" "))
 
 def _read_data():
     '''

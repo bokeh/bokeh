@@ -169,7 +169,7 @@ def html_page_for_render_items(bundle, docs_json, render_items, title,
         context["roots"] = context["doc"].roots
 
     # XXX: backwards compatibility, remove for 1.0
-    context["plot_div"] = "\n".join([ div_for_render_item(item) for item in render_items ])
+    context["plot_div"] = "\n".join(div_for_render_item(item) for item in render_items)
 
     if template is None:
         template = FILE
