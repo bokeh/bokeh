@@ -12,6 +12,11 @@ And several other bug fixes and docs additions. For full details see the
 Migration Guide
 ---------------
 
+New Dependencies
+~~~~~~~~~~~~~~~~
+
+"Pillow>=4.0" has been added to the list of Bokeh runtime dependencies.
+
 Pretty printing functions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 

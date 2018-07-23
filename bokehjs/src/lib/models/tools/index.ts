@@ -1,4 +1,5 @@
 export {ActionTool}        from "./actions/action_tool"
+export {CustomAction}      from "./actions/custom_action"
 export {HelpTool}          from "./actions/help_tool"
 export {RedoTool}          from "./actions/redo_tool"
 export {ResetTool}         from "./actions/reset_tool"

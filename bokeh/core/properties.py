@@ -94,14 +94,17 @@ from __future__ import absolute_import, print_function
 import logging
 logger = logging.getLogger(__name__)
 
+import base64
 import collections
 from copy import copy
 import datetime
 import dateutil.parser
 from importlib import import_module
+from io import BytesIO
 import numbers
 import re
 
+import PIL.Image
 from six import string_types, iteritems
 
 from .. import colors
@@ -789,6 +792,53 @@ class Auto(Enum):
     def _sphinx_type(self):
         return self._sphinx_prop_link()
 
+class Image(Property):
+    ''' Accept image file types, e.g PNG, JPEG, TIFF, etc.
+
+    This property can be configured with:
+
+    * A string filename to be loaded with ``PIL.Image.open``
+    * An RGB(A) NumPy array, will be converted to PNG
+    * A ``PIL.Image.Image`` object
+
+    In all cases, the image data is serialized as a Base64 encoded string.
+
+    '''
+
+    def validate(self, value, detail=True):
+        import numpy as np
+
+        valid = False
+
+        if value is None or isinstance(value, (string_types, PIL.Image.Image)):
+            valid = True
+
+        if isinstance(value, np.ndarray):
+            valid = value.dtype == "uint8" and len(value.shape) == 3 and value.shape[2] in (3, 4)
+
+        if not valid:
+            msg = "" if not detail else "invalid value: %r; allowed values are string filenames, PIL.Image.Image instances, or RGB(A) NumPy arrays" % value
+            raise ValueError(msg)
+
+    def transform(self, value):
+        if value is None:
+            return None
+
+        import numpy as np
+        if isinstance(value, np.ndarray):
+            value = PIL.Image.fromarray(value)
+
+        if isinstance(value, string_types):
+            value = PIL.Image.open(value)
+
+        if isinstance(value, PIL.Image.Image):
+            out = BytesIO()
+            fmt = value.format or "PNG"
+            value.save(out, fmt)
+            return "data:image/%s;base64," % fmt.lower() + base64.b64encode(out.getvalue()).decode('ascii')
+
+        raise ValueError("Could not transform %r" % value)
+
 class RGB(Property):
     ''' Accept colors.RGB values.
 
@@ -856,7 +906,6 @@ class Color(Either):
 
     def _sphinx_type(self):
         return self._sphinx_prop_link()
-
 
 class MinMaxBounds(Either):
     ''' Accept (min, max) bounds tuples for use with Ranges.
