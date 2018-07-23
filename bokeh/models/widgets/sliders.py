@@ -9,12 +9,20 @@ import numbers
 from ...core.has_props import abstract
 from ...core.properties import Bool, Int, Float, String, Date, Enum, Tuple, Instance, Color, Override
 from ...core.enums import SliderCallbackPolicy
+from ...core.validation import error
+from ...core.validation.errors import EQUAL_SLIDER_START_END
 from ..callbacks import Callback
 from .widget import Widget
 
 @abstract
 class AbstractSlider(Widget):
     """ """
+
+    def __init__(self, **kwargs):
+        if 'start' in kwargs and 'end' in kwargs:
+            if kwargs['start'] == kwargs['end']:
+                raise ValueError("Slider 'start' and 'end' cannot be equal.")
+        super(Widget, self).__init__(**kwargs)
 
     title = String(default="", help="""
     Slider's label.
@@ -57,6 +65,12 @@ class AbstractSlider(Widget):
 
     bar_color = Color(default="#e6e6e6", help="""
     """)
+
+    @error(EQUAL_SLIDER_START_END)
+    def _check_missing_dimension(self):
+        if hasattr(self, 'start') and hasattr(self, 'end'):
+            if self.start == self.end:
+                return '{!s} with title {!s}'.format(self, self.title)
 
 class Slider(AbstractSlider):
     """ Slider-based number selection widget. """
