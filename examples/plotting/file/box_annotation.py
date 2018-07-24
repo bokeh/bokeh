@@ -5,7 +5,7 @@ from bokeh.sampledata.glucose import data
 TOOLS = "pan,wheel_zoom,box_zoom,reset,save"
 
 # reduce data size
-data = data.ix['2010-10-06':'2010-10-13']
+data = data.loc['2010-10-06':'2010-10-13']
 
 p = figure(x_axis_type="datetime", tools=TOOLS, title="Glocose Range")
 p.xgrid.grid_line_color=None
