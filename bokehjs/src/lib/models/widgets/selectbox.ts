@@ -10,11 +10,6 @@ export class SelectView extends InputWidgetView {
 
   protected selectEl: HTMLSelectElement
 
-  initialize(options: any): void {
-    super.initialize(options)
-    this.render()
-  }
-
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.render())

@@ -25,11 +25,6 @@ export abstract class AbstractSliderView extends WidgetView {
   protected valueEl: HTMLElement
   protected callback_wrapper?: () => void
 
-  initialize(options: any): void {
-    super.initialize(options)
-    this.render()
-  }
-
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.render())

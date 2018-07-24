@@ -5,11 +5,6 @@ import {empty, label, input} from "core/dom"
 import {InputWidget, InputWidgetView} from "./input_widget"
 
 export class BaseTextInputView extends InputWidgetView {
-  initialize(options: any): void {
-    super.initialize(options)
-    this.render()
-  }
-
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.render())
@@ -55,9 +50,7 @@ export class TextInputView extends BaseTextInputView {
     logger.debug(`widget/text_input: value = ${value}`)
     this.model.value = value
     super.change_input()
-
   }
-
 }
 
 export namespace TextInput {

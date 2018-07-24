@@ -13,7 +13,7 @@ export abstract class ButtonToolButtonView extends DOMView {
     super.initialize(options)
     this.connect(this.model.change, () => this.render())
     this.el.addEventListener("click", () => this._clicked())
-    this.render()
+    this.render() // XXX: this isn't governed by layout, for now
   }
 
   css_classes(): string[] {

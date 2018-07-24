@@ -8,11 +8,6 @@ import {ButtonType} from "./abstract_button"
 export class CheckboxButtonGroupView extends WidgetView {
   model: CheckboxButtonGroup
 
-  initialize(options: any): void {
-    super.initialize(options)
-    this.render()
-  }
-
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.render())

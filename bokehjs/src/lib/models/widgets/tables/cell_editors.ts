@@ -29,7 +29,7 @@ export abstract class CellEditorView extends DOMView {
     this.inputEl = this._createInput()
     this.defaultValue = null
     this.args = options
-    this.render()
+    this.render() // XXX: this isn't governed by layout
   }
 
   css_classes(): string[] {

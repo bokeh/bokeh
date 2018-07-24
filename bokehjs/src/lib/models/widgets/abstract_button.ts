@@ -17,7 +17,6 @@ export abstract class AbstractButtonView extends WidgetView {
   initialize(options: any): void {
     super.initialize(options)
     this.icon_views = {}
-    this.render()
   }
 
   connect_signals(): void {
