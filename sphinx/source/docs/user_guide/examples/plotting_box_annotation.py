@@ -7,7 +7,7 @@ output_file("box_annotation.html", title="box_annotation.py example")
 TOOLS = "pan,wheel_zoom,box_zoom,reset,save"
 
 #reduce data size
-data = data.ix['2010-10-06':'2010-10-13']
+data = data.loc['2010-10-06':'2010-10-13']
 
 p = figure(x_axis_type="datetime", tools=TOOLS)
 

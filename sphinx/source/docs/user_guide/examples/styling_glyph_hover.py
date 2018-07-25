@@ -4,7 +4,7 @@ from bokeh.sampledata.glucose import data
 
 output_file("styling_hover.html")
 
-subset = data.ix['2010-10-06']
+subset = data.loc['2010-10-06']
 
 x, y = subset.index.to_series(), subset['glucose']
 

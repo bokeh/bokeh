@@ -2,8 +2,8 @@ from bokeh.models import HoverTool
 from bokeh.plotting import figure, output_file, show
 from bokeh.sampledata.glucose import data
 
-x = data.ix['2010-10-06'].index.to_series()
-y = data.ix['2010-10-06']['glucose']
+x = data.loc['2010-10-06'].index.to_series()
+y = data.loc['2010-10-06']['glucose']
 
 # Basic plot setup
 p = figure(plot_width=800, plot_height=400, x_axis_type="datetime",
