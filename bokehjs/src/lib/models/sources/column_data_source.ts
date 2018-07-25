@@ -11,7 +11,7 @@ import {keys} from "core/util/object"
 
 //exported for testing
 // FIXME : Too complex
-export function stream_to_column(col: Arrayable, new_col: Arrayable, append: boolean, rollover?: number): Arrayable {
+export function stream_to_column(col: Arrayable, new_col: Arrayable, rollover?: number, append = true): Arrayable {
   if (isArray(col)) {
     if (append) {
       const result = col.concat(new_col)
@@ -213,10 +213,10 @@ export class ColumnDataSource extends ColumnarDataSource {
       return HasProps._value_to_json(key, value, optional_parent_object)
   }
 
-  stream(new_data: {[key: string]: any[]}, append: boolean, rollover?: number): void {
+  stream(new_data: {[key: string]: any[]}, rollover?: number, append = true): void {
     const {data} = this
     for (const k in new_data) {
-      data[k] = stream_to_column(data[k], new_data[k], append, rollover)
+      data[k] = stream_to_column(data[k], new_data[k], rollover, append)
     }
     this.setv({data}, {silent: true})
     this.streaming.emit()

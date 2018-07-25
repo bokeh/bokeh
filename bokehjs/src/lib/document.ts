@@ -861,7 +861,7 @@ export class Document {
           const data = event_json.data
           const rollover = event_json.rollover
           const append = event_json.append
-          column_source.stream(data, append, rollover)
+          column_source.stream(data, rollover, append)
           break
         }
         case 'ColumnsPatched': {
