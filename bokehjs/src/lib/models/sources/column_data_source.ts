@@ -13,12 +13,8 @@ import {keys} from "core/util/object"
 // FIXME : Too complex
 export function stream_to_column(col: Arrayable, new_col: Arrayable, rollover?: number, append = true): Arrayable {
   if (isArray(col)) {
-    if (append) {
-      const result = col.concat(new_col)
-    } else {
-      const result = new_col.concat(col)
-    }
-    
+    const result = append ? col.concat(new_col) : new_col.concat(col)
+    // FIXME : 
 
     if (rollover != null && result.length > rollover) {
       if (append) {
@@ -34,13 +30,8 @@ export function stream_to_column(col: Arrayable, new_col: Arrayable, rollover?: 
 
     // handle rollover case for typed arrays
     if (rollover != null && total_len > rollover) {
-      if (append) {
-        const start = total_len - rollover
-        const end = col.length
-      } else {
-        const start = 0
-        const end = rollover
-      }
+      const start = append ? total_len - rollover : 0
+      const end = append ? col.length : rollover
 
       // resize col if it is shorter than the rollover length
       let result: TypedArray
