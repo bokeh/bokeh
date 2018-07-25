@@ -47,8 +47,8 @@ def scatter():
 
 
 def hover_plot():
-    x = data.ix['2010-10-06'].index.to_series()
-    y = data.ix['2010-10-06']['glucose']
+    x = data.loc['2010-10-06'].index.to_series()
+    y = data.loc['2010-10-06']['glucose']
     p = figure(
         plot_width=800, plot_height=400, x_axis_type="datetime",
         tools="", toolbar_location=None, title='Hover over points'
