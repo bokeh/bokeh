@@ -1,6 +1,13 @@
 language: generic
 sudo: false
 dist: trusty
+addons:
+  apt:
+    packages:
+      - chromium-chromedriver
+
+before_script:
+  - ln -s /usr/lib/chromium-browser/chromedriver ~/bin/chromedriver
 
 # This does not show secret variables, but only disables a filter for accidental spillage. The filter
 # is causing problems with log trunction and TravisCI support advised to turn it off for now. See the
@@ -63,6 +70,12 @@ jobs:
       script: scripts/ci/test
       env:
       - GROUP=js
+
+    - install: scripts/ci/install.test
+      script: scripts/ci/test
+      env:
+      - GROUP=integration
+      - PYTHON=3.6
 
     - install: scripts/ci/install.test
       script: scripts/ci/test

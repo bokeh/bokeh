@@ -22,14 +22,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import pytest
 
 # External imports
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 
 # Bokeh imports
-from bokeh.util.terminal import warn
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -38,6 +36,20 @@ from bokeh.util.terminal import warn
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+INIT = 'Bokeh._testing.init();'
+
+def RECORD(key, value):
+    return 'Bokeh._testing.record(%r, %s);' % (key, value)
+
+RESULTS = 'return Bokeh._testing.results'
+
+def SCROLL(amt):
+    return """
+    var elt = document.getElementsByClassName("bk-canvas-events")[0];
+    var event = new WheelEvent('wheel', { deltaY: %f, clientX: 100, clientY: 100} );
+    elt.dispatchEvent(event);
+    """ % amt
 
 class element_to_start_resizing(object):
     ''' An expectation for checking if an element has started resizing
@@ -69,22 +81,6 @@ class element_to_finish_resizing(object):
         else:
             self.previous_width = current_width
             return False
-
-def has_no_console_errors(selenium):
-    ''' Helper function to detect console errors.
-
-    '''
-    logs = selenium.get_log('browser')
-    severe_errors = [l for l in logs if l.get('level') == 'SEVERE']
-    non_network_errors = [l for l in severe_errors if l.get('type') != 'network']
-    if len(non_network_errors) == 0:
-        return True
-    else:
-        pytest.fail('Console errors: %s' % non_network_errors)
-    if len(non_network_errors) == 0 and len(severe_errors) != 0:
-        warn("There were severe network errors (this may or may not have affected your test): %s" % severe_errors)
-    canvas = selenium.find_element_by_tag_name('canvas')
-    wait_for_canvas_resize(canvas, selenium)
 
 def wait_for_canvas_resize(canvas, test_driver):
     '''

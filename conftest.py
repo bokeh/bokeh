@@ -8,6 +8,10 @@ from bokeh._testing.util.git import version_from_git
 # Unfortunately these seem to all need to be centrally defined at the top level
 def pytest_addoption(parser):
 
+    # plugins/selenium
+    parser.addoption(
+        "--driver", choices=('chrome', 'firefox', 'safari'), default='chrome', help='webdriver implementation')
+
     # plugins/bokeh_server
     parser.addoption(
         "--bokeh-port", dest="bokeh_port", type=int, default=5006, help="port on which Bokeh server resides"
