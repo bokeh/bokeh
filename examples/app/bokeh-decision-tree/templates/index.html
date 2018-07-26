@@ -1,0 +1,50 @@
+{% extends base %}
+
+{% block title %}Decision Tree Visualizer{% endblock %}
+
+{% block postamble %}
+  <style>
+    {% include 'styles.css' %}
+  </style>
+{% endblock %}
+
+{% block contents %}
+  <div class="content" align="center">
+    <h1>Decision Tree Visualizer</h1>
+
+    <div style="margin-left: auto; margin-right: auto; width: 40em; font-family: Arial; text-align: center" >
+        We are a group of undergraduate students working on a research project. The main goal of the project is to design and develop visual techniques to explain a small set of popular ML algorithms.
+        <br>Our first stop is Decision Trees apparently.
+        <br> Datasets used in the tree:
+        <a href="https://archive.ics.uci.edu/ml/datasets/lenses"> Lenses</a>
+        <a> - </a>
+        <a href="https://archive.ics.uci.edu/ml/datasets/mushroom"> Mushrooms</a>
+    </div>
+    {{ super() }}
+
+    <div id="About" style="text-align:center; margin-left: auto; margin-right: auto; display: block">
+        <h2 style="color:dimgrey; text-align:center" >About</h2>
+        <hr style="width: 10%; margin-left: auto; margin-right: auto;">
+        <a href="http://analyticslab.sabanciuniv.edu/">
+            <img src="https://pbs.twimg.com/profile_images/730662586992230400/lPApNiEi_400x400.jpg" style="width: 10%; height: 10%; margin-left: auto; margin-right: auto;">
+        </a>
+        <br>
+
+        <a href="http://www.linkedin.com/in/onur-yigit-arpali">
+            <img src="bokeh-decision-tree/static/images/onur.jpg" width="100">
+        </a>
+        <a href="https://www.linkedin.com/in/evrimo/">
+            <img src="bokeh-decision-tree/static/images/evrim.jpg" width="100">
+        </a>
+        <a href="https://www.linkedin.com/in/ziyaerkoc/">
+            <img src="bokeh-decision-tree/static/images/ziya.jpg" width="100">
+        </a>
+        <a href="https://www.linkedin.com/in/artun-sar%C4%B1oglu-7b5107159/">
+            <img src="bokeh-decision-tree/static/images/artun_gs.jpg" width="100">
+        </a>
+        <a href="mailto:y.umutciftci@gmail.com">
+            <img src="bokeh-decision-tree/static/images/umut.jpeg" width="120">
+        </a>
+    </div>
+  </div>
+{% endblock %}
