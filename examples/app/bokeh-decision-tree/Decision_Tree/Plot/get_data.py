@@ -6,7 +6,7 @@ from Decision_Tree.Plot.instance import Instance
 color = []
 
 
-for i in range(30):
+for _ in range(30):
     color.append('#%06X' % randint(0, 0xFFFFFF))
 
 
@@ -39,8 +39,7 @@ def set_new_dataset(new):
     data = []
     attr_values = []
     attr_list = []
-    if new in ["lens", "mushrooms"]:
-        file = dirname(__file__) + "/../Data/" + new + ".txt"
+    file = dirname(__file__) + "/../Data/" + new + ".txt"
     for i, line in enumerate(open(file)):
         if i == 0:
             attr_list = line.split(",")
@@ -56,10 +55,10 @@ def set_new_dataset(new):
     attr_dict = dict((attr, (i, list(attr_values[i]))) for i, attr in enumerate(attr_list))
     shuffle(data)
     try:
-        instance = Instance().update(data, attr_values, attr_list, attr_values_dict, attr_dict,
+        Instance().update(data, attr_values, attr_list, attr_values_dict, attr_dict,
                                      Instance().test_percentage)
-    except:
-        instance = Instance(data, attr_values, attr_list, attr_values_dict, attr_dict)
+    except TypeError:
+        Instance(data, attr_values, attr_list, attr_values_dict, attr_dict)
 
 
 def get_all_colors():
