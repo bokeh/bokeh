@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from Decision_Tree.ID3_Decision_Tree.id3_decision_tree import generate_tree
 from Decision_Tree.ID3_Decision_Tree.bucheim import tree_layout
 from Decision_Tree.Plot.instance import Instance

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from os.path import dirname
 
 from random import randint, shuffle

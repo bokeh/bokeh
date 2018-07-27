@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import copy
 from queue import Queue
 import random

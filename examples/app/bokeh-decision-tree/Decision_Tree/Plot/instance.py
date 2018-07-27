@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Singleton class for data set and its information
 """
