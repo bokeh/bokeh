@@ -22,7 +22,7 @@ fi
 # if emergency, temporary package pins are necessary, they can go here
 PINNED_PKGS=$(cat <<EOF
 pandas <0.23.0
-pillow >=5.1
+pillow <=5.1
 EOF
 )
 mkdir -p $HOME/miniconda/conda-meta
