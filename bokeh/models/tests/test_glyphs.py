@@ -558,6 +558,14 @@ def test_Triangle():
     check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
 
 
+def test_VerticalLine():
+    marker = VerticalLine()
+    check_marker_properties(marker)
+    check_fill_properties(marker)
+    check_line_properties(marker)
+    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+
+
 def test_X():
     marker = X()
     check_marker_properties(marker)

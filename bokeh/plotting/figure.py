@@ -642,6 +642,22 @@ Examples:
 
 """)
 
+    vertical_line = _glyph_function(markers.VerticalLine, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(plot_width=300, plot_height=300)
+        plot.vertical_line(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
+                           color="#99D594", line_width=2)
+
+        show(plot)
+
+""")
+
     wedge = _glyph_function(glyphs.Wedge, """
 Examples:
 

@@ -183,6 +183,8 @@ class GMap(GMapPlot):
 
     vbar = _glyph_function(glyphs.VBar)
 
+    vertical_line = _glyph_function(markers.VerticalLine)
+
     wedge = _glyph_function(glyphs.Wedge)
 
     x = _glyph_function(markers.X)

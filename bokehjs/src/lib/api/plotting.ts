@@ -217,6 +217,7 @@ export class Figure extends Plot {
   square_cross(...args: any[]): GlyphRenderer      { return this._marker(models.SquareCross,      args); }
   square_x(...args: any[]): GlyphRenderer          { return this._marker(models.SquareX,          args); }
   triangle(...args: any[]): GlyphRenderer          { return this._marker(models.Triangle,         args); }
+  vertical_line(...args: any[]): GlyphRenderer     { return this._marker(models.VerticalLine,     args); }
   x(...args: any[]): GlyphRenderer                 { return this._marker(models.X,                args); }
 
   _pop_colors_and_alpha(cls: Class<HasProps>, attrs: {[key: string]: any}, prefix: string = "",

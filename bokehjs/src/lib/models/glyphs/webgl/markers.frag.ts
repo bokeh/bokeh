@@ -254,3 +254,13 @@ float marker(vec2 P, float size)
     return min(max(X, diamond), max(cross, square));
 }
 `
+
+export const vertical_line = `
+float marker(vec2 P, float size)
+{
+    // TODO, this is copied from square. How do I need to adjust this?
+    float square = max(abs(P.x), abs(P.y)) - size / 2.5;   // 2.5 is a tweak
+    float cross = min(abs(P.x), abs(P.y)) - size / 100.0;  // bit of "width" for aa
+    return max(square, cross);
+}
+`

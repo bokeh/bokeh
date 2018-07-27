@@ -95,6 +95,7 @@ declare namespace Bokeh.Plotting {
     square_cross      (attrs: SquareCrossAttrs):      GlyphRenderer;
     square_x          (attrs: SquareXAttrs):          GlyphRenderer;
     triangle          (attrs: TriangleAttrs):         GlyphRenderer;
+    vertical_line     (attrs: VerticalLignAttrs):     GlyphRenderer;
     x                 (attrs: XAttrs):                GlyphRenderer;
 
     annular_wedge(
@@ -571,6 +572,9 @@ declare namespace Bokeh.Plotting {
   export interface TriangleOpts extends MarkerOpts {}
   export interface TriangleAttrs extends MarkerAttrs, TriangleOpts {}
 
+  export interface VerticalLineOpts extends MarkerOpts {}
+  export interface VerticalLineAttrs extends MarkerAttrs, VerticalLineOpts {}
+
   export interface XOpts extends MarkerOpts {}
   export interface XAttrs extends MarkerAttrs, XOpts {}
 
@@ -587,6 +591,7 @@ declare namespace Bokeh.Plotting {
     "square_x"          |
     "square_cross"      |
     "triangle"          |
+    "vertical_line"     |
     "x"                 |
     "*"                 |
     "+"                 |

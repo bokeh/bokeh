@@ -58,6 +58,10 @@ declare namespace Bokeh {
   export interface Triangle extends Marker, ITriangle {}
   export interface ITriangle extends IMarker {}
 
+  export const VerticalLine: { new(attributes?: IVerticalLine, options?: ModelOpts): VerticalLine };
+  export interface VerticalLine extends Marker, IVerticalLine {}
+  export interface IVerticalLine extends IMarker {}
+
   export const X: { new(attributes?: IX, options?: ModelOpts): X };
   export interface X extends Marker, IX {}
   export interface IX extends IMarker {}

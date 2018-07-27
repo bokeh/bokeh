@@ -46,6 +46,7 @@ example plots for all of them by clicking on entries in the list below:
     * |square_cross|
     * |square_x|
     * |triangle|
+    * |vertical_line|
     * |x|
 
 All the markers have the same set of properties: ``x``, ``y``, ``size`` (in
@@ -501,5 +502,6 @@ The section on adding annotations to plots has moved.  Please see
 .. |square_x|          replace:: :func:`~bokeh.plotting.figure.Figure.square_x`
 .. |triangle|          replace:: :func:`~bokeh.plotting.figure.Figure.triangle`
 .. |vbar|              replace:: :func:`~bokeh.plotting.figure.Figure.vbar`
+.. |vertical_line|     replace:: :func:`~bokeh.plotting.figure.Figure.vertical_line`
 .. |wedge|             replace:: :func:`~bokeh.plotting.figure.Figure.wedge`
 .. |x|                 replace:: :func:`~bokeh.plotting.figure.Figure.x`
