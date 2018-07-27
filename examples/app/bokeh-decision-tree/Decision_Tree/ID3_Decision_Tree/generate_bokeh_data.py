@@ -33,7 +33,7 @@ def get_width(node, level):
     elif level > 1:
         if node.parentPointer:
             node.depth = node.parentPointer.depth - 1
-        return sum([get_width(child, level-1) for child in node.children])
+        return sum(get_width(child, level-1) for child in node.children)
 
 
 def get_max_width(node, depth):

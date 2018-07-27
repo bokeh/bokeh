@@ -102,7 +102,8 @@ def create_figure():
         best_root_plot, best_root_plot_data_source, tree_tab, best_arrow_data_source
 
     active_attributes_list = [attr for attr in Instance().attr_list if attr != Instance().attr_list[-1]]
-    source, width, depth, level_width, acc = get_bokeh_data(active_attributes_list + [Instance().attr_list[-1]], selected_root)
+    source, width, depth, level_width, acc = get_bokeh_data(active_attributes_list
+                                                            + [Instance().attr_list[-1]], selected_root)
     # X and y range calculated
     periods = [str(i) for i in range(0, width+1)]
     groups = [str(x) for x in range(0, depth+2)]
@@ -289,8 +290,8 @@ def create_plot(mode):
 
     _p.text(x="leafNodes_y", text_color="orange", y=dodge("leafNodes_x", -0.4),
             name="decision_text", text="decision",
-            source=data_source if mode=="customized" else best_root_plot_data_source,
-            text_align="center", text_baseline= "middle", text_font_size="8pt")
+            source=data_source if mode == "customized" else best_root_plot_data_source,
+            text_align="center", text_baseline="middle", text_font_size="8pt")
 
     # Final settings
     _p.outline_line_color = "white"
@@ -362,5 +363,7 @@ def draw_arrow(source, _p, mode="draw"):
                      name="arrowLabels", text="label_name",
                      text_font_size="8pt", text_color="darkgray", source=_arrow_data_source)
     return _arrow_data_source, label
+
+
 curdoc().add_root(create_figure())
 curdoc().title = "Decision Tree Visualizer"

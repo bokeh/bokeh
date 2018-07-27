@@ -199,10 +199,7 @@ def leaf_control(node_var):
         if p > 0:
             numbers_greater_than_zero += 1
 
-    if numbers_greater_than_zero == 1:
-        return True
-    else:
-        return False
+    return numbers_greater_than_zero == 1
 
 
 def determine_dominant_one(node_var):
@@ -214,10 +211,7 @@ def determine_dominant_one(node_var):
     distributed_list_on_class_attr = classify_list(Instance().attr_list[-1], instances)
 
     max_occurrence = max(distributed_list_on_class_attr)
-    max_indexes = []
-    for i in range(len(distributed_list_on_class_attr)):
-        if distributed_list_on_class_attr[i] == max_occurrence:
-            max_indexes.append(i)
+    max_indexes = [i for i, v in enumerate(distributed_list_on_class_attr) if v == max_occurrence]
 
     chosen_index = random.choice(max_indexes)
     dominant_class_index = chosen_index

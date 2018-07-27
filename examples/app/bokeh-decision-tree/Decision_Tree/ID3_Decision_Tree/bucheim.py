@@ -42,8 +42,8 @@ def first_walk(node):
 
 def apportion(node, default_ancestor):
     """
-        The procedure APPORTION (again following Walker’s notation) is the core of the algorithm. Here a
-        new subtree is combined with the previous subtrees. As in the Reingold–Tilford algorithm, threads
+        The procedure APPORTION (again following Walker's notation) is the core of the algorithm. Here a
+        new subtree is combined with the previous subtrees. As in the Reingold-Tilford algorithm, threads
         are used to traverse the inside and outside contours of the left and right subtree up to the highest
         common level.
     """

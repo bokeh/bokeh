@@ -56,7 +56,7 @@ def set_new_dataset(new):
     shuffle(data)
     try:
         Instance().update(data, attr_values, attr_list, attr_values_dict, attr_dict,
-                                     Instance().test_percentage)
+                          Instance().test_percentage)
     except TypeError:
         Instance(data, attr_values, attr_list, attr_values_dict, attr_dict)
 
