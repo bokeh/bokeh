@@ -277,6 +277,22 @@ Examples:
 
 """)
 
+    dash = _glyph_function(markers.Dash, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(plot_width=300, plot_height=300)
+        plot.dash(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
+                           color="#99D594", line_width=2)
+
+        show(plot)
+
+""")
+
     diamond_cross = _glyph_function(markers.DiamondCross, """
 Examples:
 
@@ -637,22 +653,6 @@ Examples:
 
         plot = figure(plot_width=300, plot_height=300)
         plot.vbar(x=[1, 2, 3], width=0.5, bottom=0, top=[1,2,3], color="#CAB2D6")
-
-        show(plot)
-
-""")
-
-    vertical_line = _glyph_function(markers.VerticalLine, """
-Examples:
-
-    .. bokeh-plot::
-        :source-position: above
-
-        from bokeh.plotting import figure, output_file, show
-
-        plot = figure(plot_width=300, plot_height=300)
-        plot.vertical_line(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
-                           color="#99D594", line_width=2)
 
         show(plot)
 

@@ -6,8 +6,8 @@ import {Context2d} from "core/util/canvas"
 const SQ3 = Math.sqrt(3)
 
 function _one_line(ctx: Context2d, r: number): void {
-  ctx.moveTo( 0,  r)
-  ctx.lineTo( 0, -r)
+  ctx.moveTo(-r,  0)
+  ctx.lineTo( r,  0)
 }
 
 function _one_x(ctx: Context2d, r: number): void {
@@ -238,7 +238,7 @@ function triangle(ctx: Context2d, i: number, r: number, line: Line, fill: Fill):
 
 }
 
-function vertical_line(ctx: Context2d, i: number, r: number, line: Line, _fill: Fill): void {
+function dash(ctx: Context2d, i: number, r: number, line: Line, _fill: Fill): void {
   _one_line(ctx, r)
 
   if (line.doit) {
@@ -288,5 +288,5 @@ export const Square           = _mk_model('Square',           square)
 export const SquareCross      = _mk_model('SquareCross',      square_cross)
 export const SquareX          = _mk_model('SquareX',          square_x)
 export const Triangle         = _mk_model('Triangle',         triangle)
-export const VerticalLine     = _mk_model('VerticalLine',     vertical_line)
+export const Dash             = _mk_model('Dash',             dash)
 export const X                = _mk_model('X',                x)

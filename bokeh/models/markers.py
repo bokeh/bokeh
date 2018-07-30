@@ -8,6 +8,7 @@ The full list of markers built into Bokeh is given below:
 * :class:`~bokeh.models.markers.CircleCross`
 * :class:`~bokeh.models.markers.CircleX`
 * :class:`~bokeh.models.markers.Cross`
+* :class:`~bokeh.models.markers.Dash`
 * :class:`~bokeh.models.markers.Diamond`
 * :class:`~bokeh.models.markers.DiamondCross`
 * :class:`~bokeh.models.markers.Hex`
@@ -16,7 +17,6 @@ The full list of markers built into Bokeh is given below:
 * :class:`~bokeh.models.markers.SquareCross`
 * :class:`~bokeh.models.markers.SquareX`
 * :class:`~bokeh.models.markers.Triangle`
-* :class:`~bokeh.models.markers.VerticalLine`
 * :class:`~bokeh.models.markers.X`
 
 Markers are all subclasses of ``Glyph``. Additionally, they all share the
@@ -138,6 +138,13 @@ class Cross(Marker):
 
     __example__ = "examples/reference/models/Cross.py"
 
+class Dash(Marker):
+    ''' Render dash markers. Use ``angle`` to rotate and create vertically
+    oriented short lines.
+    '''
+
+    __example__ = "examples/reference/models/Dash.py"
+
 class Diamond(Marker):
     ''' Render diamond markers. '''
 
@@ -177,11 +184,6 @@ class Triangle(Marker):
     ''' Render triangle markers. '''
 
     __example__ = "examples/reference/models/Triangle.py"
-
-class VerticalLine(Marker):
-    ''' Render vertical line markers. '''
-
-    __example__ = "examples/reference/models/VerticalLine.py"
 
 class X(Marker):
     ''' Render a 'X' cross markers. '''

@@ -135,6 +135,8 @@ class GMap(GMapPlot):
 
     cross = _glyph_function(markers.Cross)
 
+    dash = _glyph_function(markers.Dash)
+
     diamond = _glyph_function(markers.Diamond)
 
     diamond_cross = _glyph_function(markers.DiamondCross)
@@ -182,8 +184,6 @@ class GMap(GMapPlot):
     triangle = _glyph_function(markers.Triangle)
 
     vbar = _glyph_function(glyphs.VBar)
-
-    vertical_line = _glyph_function(markers.VerticalLine)
 
     wedge = _glyph_function(glyphs.Wedge)
 

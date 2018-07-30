@@ -17,7 +17,7 @@ def make_tab(title, marker, backend):
 markers = ['asterisk', 'circle', 'square', 'diamond',
            'triangle', 'inverted_triangle', 'hex',
            'cross', 'circle_cross', 'square_cross', 'diamond_cross',
-           'x', 'square_x',  'circle_x', 'vertical_line']
+           'x', 'square_x',  'circle_x', 'dash']
 
 tabs = []
 for marker in markers:

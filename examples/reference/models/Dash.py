@@ -1,7 +1,7 @@
 import numpy as np
 
 from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid
-from bokeh.models.markers import VerticalLine
+from bokeh.models.markers import Dash
 from bokeh.io import curdoc, show
 
 N = 9
@@ -18,7 +18,7 @@ plot = Plot(
     title=None, x_range=xdr, y_range=ydr, plot_width=300, plot_height=300,
     h_symmetry=False, v_symmetry=False, min_border=0, toolbar_location=None)
 
-glyph = VerticalLine(x="x", y="y", size="sizes", line_color="#99d594", line_width=2, fill_color=None)
+glyph = Dash(x="x", y="y", size="sizes", line_color="#3288bd", line_width=1, fill_color=None)
 plot.add_glyph(source, glyph)
 
 xaxis = LinearAxis()

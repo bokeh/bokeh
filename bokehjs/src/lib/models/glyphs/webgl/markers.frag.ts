@@ -255,7 +255,7 @@ float marker(vec2 P, float size)
 }
 `
 
-export const vertical_line = `
+export const dash = `
 float marker(vec2 P, float size)
 {
     // TODO, this is copied from square. How do I need to adjust this?

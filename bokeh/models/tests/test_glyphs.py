@@ -27,11 +27,10 @@ from bokeh.models.glyphs import (
 from bokeh.models.glyphs import (
     Asterisk,
     CircleCross, CircleX, Cross,
-    Diamond, DiamondCross,
+    Dash, Diamond, DiamondCross,
     InvertedTriangle,
     Square, SquareCross, SquareX,
     Triangle,
-    VerticalLine,
     X)
 
 from bokeh.core.enums import (
@@ -503,6 +502,14 @@ def test_Cross():
     check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
 
 
+def test_Dash():
+    marker = Dash()
+    check_marker_properties(marker)
+    check_fill_properties(marker)
+    check_line_properties(marker)
+    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+
+
 def test_Diamond():
     marker = Diamond()
     check_marker_properties(marker)
@@ -553,14 +560,6 @@ def test_SquareX():
 
 def test_Triangle():
     marker = Triangle()
-    check_marker_properties(marker)
-    check_fill_properties(marker)
-    check_line_properties(marker)
-    check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
-
-
-def test_VerticalLine():
-    marker = VerticalLine()
     check_marker_properties(marker)
     check_fill_properties(marker)
     check_line_properties(marker)
