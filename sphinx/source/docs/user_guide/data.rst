@@ -61,6 +61,15 @@ plotting methods which allows you to pass a column's name as a stand in for the 
     p = figure()
     p.circle(x='x_values', y='y_values', source=source)
 
+.. note::
+    There is an implicit assumption that all the columns in a given ``ColumnDataSource``
+    all have the same length at all times. For this reason, it is usually preferable to
+    update the ``.data`` property of a data source "all at once".
+
+
+Pandas
+~~~~~~
+
 The ``data`` parameter can also be a Pandas ``DataFrame`` or ``GroupBy`` object.
 
 .. code-block:: python
@@ -68,9 +77,31 @@ The ``data`` parameter can also be a Pandas ``DataFrame`` or ``GroupBy`` object.
    source = ColumnDataSource(df)
 
 If a ``DataFrame`` is used, the CDS will have columns corresponding to the columns of
-the ``DataFrame``. If the ``DataFrame`` has a named index column, then CDS will also have
-a column with this name. However, if the index name (or any subname of a ``MultiIndex``)
-is ``None``, then the CDS will have a column generically named ``index`` for the index.
+the ``DataFrame``. The index of the ``DataFrame`` will be reset, so if the ``DataFrame``
+has a named index column, then CDS will also have a column with this name. However,
+if the index name is ``None``, then the CDS will be assigned a generic name.
+It will be ``index`` if it is available, and ``level_0`` otherwise.
+
+Pandas MultiIndex
+~~~~~~~~~~~~~~~~~
+All ``MultiIndex`` columns and indices will be flattened before forming the
+``ColumnsDataSource``. For the index, an index of tuples will be created, and the
+names of the ``MultiIndex`` joined with an underscore. The column names will also
+be joined with an underscore. For example:
+
+.. code-block:: python
+
+    df = pd.DataFrame({('a', 'b'): {('A', 'B'): 1, ('A', 'C'): 2},
+                       ('b', 'a'): {('A', 'C'): 7, ('A', 'B'): 8},
+                       ('b', 'b'): {('A', 'D'): 9, ('A', 'B'): 10}})
+    cds = ColumnDataSource(df)
+
+will result in a column named ``index`` with ``[(A, B), (A, C), (A, D)]`` and columns
+named ``a_b``, ``b_a``, and ``b_b``. This process will fail for non-string column names,
+so flatten the ``DataFrame`` manually in that case.
+
+Pandas GroupBy
+~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -79,17 +110,13 @@ is ``None``, then the CDS will have a column generically named ``index`` for the
 
 If a ``GroupBy`` object is used, the CDS will have columns corresponding to the result of
 calling ``group.describe()``. The ``describe`` method generates columns for statistical measures
-such as ``mean`` and ``count`` for all the non-grouped orginal columns. The CDS columns are
-formed by joining original column names with the computed measure. For example, if a
+such as ``mean`` and ``count`` for all the non-grouped orginal columns. The resulting ``DataFrame``
+has ``MultiIndex`` columns with the original column name and the columputed measure, so it
+will be flattened using the aforementioned scheme. For example, if a
 ``DataFrame`` has columns ``'year'`` and ``'mpg'``. Then passing ``df.groupby('year')``
 to a CDS will result in columns such as ``'mpg_mean'``
 
 Note this capability to adapt ``GroupBy`` objects may only work with Pandas ``>=0.20.0``.
-
-.. note::
-    There is an implicit assumption that all the columns in a given ``ColumnDataSource``
-    all have the same length at all times. For this reason, it is usually preferable to
-    update the ``.data`` property of a data source "all at once".
 
 Streaming
 ~~~~~~~~~
