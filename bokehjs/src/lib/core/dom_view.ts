@@ -1,5 +1,4 @@
 import {View, ViewOptions} from "./view"
-import {Solver} from "./layout/solver"
 import * as DOM from "./dom"
 
 export class DOMView extends View {
@@ -7,8 +6,6 @@ export class DOMView extends View {
   tagName: keyof HTMLElementTagNameMap
 
   protected _has_finished: boolean
-
-  protected _solver: Solver
 
   el: HTMLElement
 
@@ -48,10 +45,6 @@ export class DOMView extends View {
 
   protected get _root_element(): HTMLElement {
     return DOM.parent(this.el, ".bk-root") || document.body
-  }
-
-  get solver(): Solver {
-    return this.is_root ? this._solver : (this.parent as DOMView).solver
   }
 
   get is_idle(): boolean {

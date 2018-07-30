@@ -1,6 +1,5 @@
 import {logger} from "core/logging"
 import * as p from "core/properties"
-import {Variable} from "core/layout/solver"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 
@@ -12,31 +11,9 @@ export class WidgetBoxView extends LayoutDOMView {
     this.connect(this.model.properties.children.change, () => this.rebuild_child_views())
   }
 
-  css_classes(): string[] {
-    return super.css_classes().concat("bk-widget-box")
-  }
-
-  suggest_dims(): void {
-    if (this.model.sizing_mode == 'fixed' || this.model.sizing_mode == 'scale_height') {
-      const width = this.get_width()
-      if (this.model._width.value != width)
-        this.solver.suggest_value(this.model._width, width)
-    }
-
-    if (this.model.sizing_mode == 'fixed' || this.model.sizing_mode == 'scale_width') {
-      const height = this.get_height()
-      if (this.model._height.value != height)
-        this.solver.suggest_value(this.model._height, height)
-    }
-  }
-
   update_geometry(): void {
     if (this.model.sizing_mode == 'stretch_both') {
-      this.el.style.position = 'absolute'
-      this.el.style.left = `${this.model._dom_left.value}px`
-      this.el.style.top = `${this.model._dom_top.value}px`
-      this.el.style.width = `${this.model._width.value}px`
-      this.el.style.height = `${this.model._height.value}px`
+      super.update_geometry()
     } else {
       // Note we DO NOT want to set a height (except in stretch_both). Widgets
       // are happier sizing themselves. We've tried to tell the layout what
@@ -117,32 +94,6 @@ export class WidgetBox extends LayoutDOM {
       this.width = 300 // Set a default for fixed.
       logger.info("WidgetBox mode is fixed, but no width specified. Using default of 300.")
     }
-  }
-
-  get_constrained_variables(): {[key: string]: Variable} {
-    const vars: {[key: string]: Variable} = {
-      ...super.get_constrained_variables(),
-
-      on_edge_align_top    : this._top,
-      on_edge_align_bottom : this._height_minus_bottom,
-      on_edge_align_left   : this._left,
-      on_edge_align_right  : this._width_minus_right,
-
-      box_cell_align_top   : this._top,
-      box_cell_align_bottom: this._height_minus_bottom,
-      box_cell_align_left  : this._left,
-      box_cell_align_right : this._width_minus_right,
-
-      box_equal_size_top   : this._top,
-      box_equal_size_bottom: this._height_minus_bottom,
-    }
-
-    if (this.sizing_mode != 'fixed') {
-      vars.box_equal_size_left  = this._left
-      vars.box_equal_size_right = this._width_minus_right
-    }
-
-    return vars
   }
 
   get_layoutable_children(): LayoutDOM[] {

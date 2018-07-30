@@ -1,4 +1,3 @@
-import {Variable, Constraint} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
@@ -30,27 +29,6 @@ import {DataRange1d} from '../ranges/data_range1d'
 
 export class PlotView extends LayoutDOMView {
   model: Plot
-
-  connect_signals(): void {
-    super.connect_signals()
-    // Note: Title object cannot be replaced after initialization, similar to axes, and also
-    // not being able to change the sizing_mode. All of these changes require a re-initialization
-    // of all constraints which we don't currently support.
-    const title_msg = "Title object cannot be replaced. Try changing properties on title to update it after initialization."
-    this.connect(this.model.properties.title.change, () => logger.warn(title_msg))
-  }
-
-  css_classes(): string[] {
-    return super.css_classes().concat("bk-plot-layout")
-  }
-
-  get_height(): number {
-    return this.model._width.value / this.model.get_aspect_ratio()
-  }
-
-  get_width(): number {
-    return this.model._height.value * this.model.get_aspect_ratio()
-  }
 
   save(name: string): void {
     this.plot_canvas_view.save(name)
@@ -161,8 +139,9 @@ export namespace Plot {
 export interface Plot extends Plot.Attrs {}
 
 export class Plot extends LayoutDOM {
-  reset: Signal0<this>
   properties: Plot.Props
+
+  reset: Signal0<this>
 
   constructor(attrs?: Partial<Plot.Attrs>) {
     super(attrs)
@@ -395,44 +374,6 @@ export class Plot extends LayoutDOM {
     this.toolbar.tools = this.toolbar.tools.concat(tools)
   }
 
-  get_layoutable_children(): LayoutDOM[] {
-    return [this.plot_canvas as any] // XXX
-  }
-
-  get_constraints(): Constraint[] {
-    return super.get_constraints().concat(this.plot_canvas.get_constraints())
-  }
-
-  get_editables(): Variable[] {
-    return super.get_editables().concat(this.plot_canvas.get_editables())
-  }
-
-  get_constrained_variables(): {[key: string]: Variable} {
-    const vars: {[key: string]: Variable} = {
-      ...super.get_constrained_variables(),
-
-      on_edge_align_top    : this.plot_canvas._inner_top,
-      on_edge_align_bottom : this.plot_canvas._offset_bottom,
-      on_edge_align_left   : this.plot_canvas._inner_left,
-      on_edge_align_right  : this.plot_canvas._offset_right,
-
-      box_cell_align_top   : this.plot_canvas._inner_top,
-      box_cell_align_bottom: this.plot_canvas._offset_bottom,
-      box_cell_align_left  : this.plot_canvas._inner_left,
-      box_cell_align_right : this.plot_canvas._offset_right,
-
-      box_equal_size_top   : this.plot_canvas._inner_top,
-      box_equal_size_bottom: this.plot_canvas._offset_bottom,
-    }
-
-    if (this.sizing_mode != "fixed") {
-      vars.box_equal_size_left  = this.plot_canvas._inner_left
-      vars.box_equal_size_right = this.plot_canvas._offset_right
-    }
-
-    return vars
-  }
-
   get all_renderers(): Renderer[] {
     let renderers = this.renderers
     for (const tool of this.toolbar.tools)
@@ -440,5 +381,4 @@ export class Plot extends LayoutDOM {
     return renderers
   }
 }
-
 Plot.initClass()

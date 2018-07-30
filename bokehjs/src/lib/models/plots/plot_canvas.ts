@@ -18,7 +18,6 @@ import {Visuals} from "core/visuals"
 import {DOMView} from "core/dom_view"
 import {LayoutCanvas} from "core/layout/layout_canvas"
 import {HStack, VStack} from "core/layout/alignments"
-import {EQ, LE, GE, Constraint, Variable} from "core/layout/solver"
 import {logger} from "core/logging"
 import * as enums from "core/enums"
 import * as p from "core/properties"
@@ -751,119 +750,12 @@ export class PlotCanvasView extends DOMView {
     return true
   }
 
-  protected _width_constraint?: Constraint
-  protected _height_constraint?: Constraint
-
-  protected _inner_top_constraint?: Constraint
-  protected _offset_bottom_constraint?: Constraint
-  protected _inner_left_constraint?: Constraint
-  protected _offset_right_constraint?: Constraint
-
   protected _above_panel_size?: number
   protected _below_panel_size?: number
   protected _left_panel_size?: number
   protected _right_panel_size?: number
 
-  invalidate_constraints(): void {
-    this._width_constraint = undefined
-    this._height_constraint = undefined
-
-    this._inner_top_constraint = undefined
-    this._offset_bottom_constraint = undefined
-    this._inner_left_constraint = undefined
-    this._offset_right_constraint = undefined
-  }
-
   suggest_dims(): void {}
-
-  update_constraints(): void {
-    const {plot} = this.model
-
-    const width = plot._width.value
-    const height = plot._height.value
-
-    if (width > 0 && width !== this.model._width.value) {
-      if (this._width_constraint != null)
-        this.solver.remove_constraint(this._width_constraint)
-
-      this._width_constraint = EQ(this.model._width, -width)
-      this.solver.add_constraint(this._width_constraint)
-    }
-
-    if (height > 0 && height !== this.model._height.value) {
-      if (this._height_constraint != null)
-        this.solver.remove_constraint(this._height_constraint)
-
-      this._height_constraint = EQ(this.model._height, -height)
-      this.solver.add_constraint(this._height_constraint)
-    }
-
-    const above_panel_size = Math.max(this.above_panel.get_size(), plot.min_border_top!)
-    if (this._above_panel_size !== above_panel_size) {
-      if (this._inner_top_constraint != null) {
-        this.solver.remove_constraint(this._inner_top_constraint)
-        this._inner_top_constraint = undefined
-      }
-
-      if (above_panel_size > 0) {
-        this._inner_top_constraint = GE(this.model._inner_top, -above_panel_size)
-        this.solver.add_constraint(this._inner_top_constraint)
-        this._above_panel_size = above_panel_size
-      }
-    }
-
-    const below_panel_size = Math.max(this.below_panel.get_size(), plot.min_border_bottom!)
-    if (this._below_panel_size !== below_panel_size) {
-      if (this._offset_bottom_constraint != null) {
-        this.solver.remove_constraint(this._offset_bottom_constraint)
-        this._offset_bottom_constraint = undefined
-      }
-
-      if (below_panel_size > 0) {
-        this._offset_bottom_constraint = GE(this.model._offset_bottom, -below_panel_size)
-        this.solver.add_constraint(this._offset_bottom_constraint)
-        this._below_panel_size = below_panel_size
-      }
-    }
-
-    const left_panel_size = Math.max(this.left_panel.get_size(), plot.min_border_left!)
-    if (this._left_panel_size !== left_panel_size) {
-      if (this._inner_left_constraint != null) {
-        this.solver.remove_constraint(this._inner_left_constraint)
-        this._inner_left_constraint = undefined
-      }
-
-      if (left_panel_size > 0) {
-        this._inner_left_constraint = GE(this.model._inner_left, -left_panel_size)
-        this.solver.add_constraint(this._inner_left_constraint)
-        this._left_panel_size = left_panel_size
-      }
-    }
-
-    const right_panel_size = Math.max(this.right_panel.get_size(), plot.min_border_right!)
-    if (this._right_panel_size !== right_panel_size) {
-      if (this._offset_right_constraint != null) {
-        this.solver.remove_constraint(this._offset_right_constraint)
-        this._offset_right_constraint = undefined
-      }
-
-      if (right_panel_size > 0) {
-        this._offset_right_constraint = GE(this.model._offset_right, -right_panel_size)
-        this.solver.add_constraint(this._offset_right_constraint)
-        this._right_panel_size = right_panel_size
-      }
-    }
-  }
-
-  suggest_values(): void {
-    const {plot} = this.model
-
-    const width = plot._width.value
-    const height = plot._height.value
-
-    this.solver.suggest_value(this.model._inner_width, width)
-    this.solver.suggest_value(this.model._inner_height, height)
-  }
 
   update_geometry(): void {
     const inner_top    = this.model._inner_top.value
@@ -916,7 +808,7 @@ export class PlotCanvasView extends DOMView {
 
   repaint(): void {
     if (this._needs_layout())
-      (this.parent as any).partial_layout() // XXX
+      (this.parent as any).layout()
     else
       this.paint()
   }
@@ -957,10 +849,11 @@ export class PlotCanvasView extends DOMView {
       }
     }
 
-    // TODO (bev) OK this sucks, but the event from the solver update doesn't
+    // TODO (bev) OK this sucks, but the event from the solve_r update doesn't
     // reach the frame in time (sometimes) so force an update here for now
-    // (mp) not only that, but models don't know about solver anymore, so
+    // (mp) not only that, but models don't know about solve_r anymore, so
     // frame can't update its scales.
+    // XXX: most likely this isn't relevant anymore.
     this.model.frame.update_scales()
 
     const {ctx} = this.canvas_view
@@ -1125,7 +1018,6 @@ export interface PlotCanvas extends PlotCanvas.Attrs {
 }
 
 export class PlotCanvas extends LayoutCanvas {
-
   properties: PlotCanvas.Props
 
   constructor(attrs?: Partial<PlotCanvas.Attrs>) {
@@ -1147,28 +1039,8 @@ export class PlotCanvas extends LayoutCanvas {
   frame: CartesianFrame
   canvas: Canvas
 
-  _inner_left: Variable
-  _inner_right: Variable
-  _inner_top: Variable
-  _inner_bottom: Variable
-  _inner_width: Variable
-  _inner_height: Variable
-
-  _offset_right: Variable
-  _offset_bottom: Variable
-
   initialize(): void {
     super.initialize()
-
-    this._inner_left = new Variable(`${this.toString()}._inner_left`)
-    this._inner_right = new Variable(`${this.toString()}._inner_right`)
-    this._inner_top = new Variable(`${this.toString()}._inner_top`)
-    this._inner_bottom = new Variable(`${this.toString()}._inner_bottom`)
-    this._inner_width = new Variable(`${this.toString()}._inner_width`)
-    this._inner_height = new Variable(`${this.toString()}._inner_height`)
-
-    this._offset_right = new Variable(`${this.toString()}._offset_right`)
-    this._offset_bottom = new Variable(`${this.toString()}._offset_bottom`)
 
     this.canvas = new Canvas({
       map: this.use_map != null ? this.use_map : false,
@@ -1193,42 +1065,6 @@ export class PlotCanvas extends LayoutCanvas {
     this.frame.attach_document(this.document!)
     super._doc_attached()
     logger.debug("PlotCanvas attached to document")
-  }
-
-  get_editables(): Variable[] {
-    return [this._inner_width, this._inner_height]
-  }
-
-  get_constraints(): Constraint[] {
-    return [
-      // Set the origin. Everything else is positioned absolutely wrt canvas.
-      EQ(this._left, 0),
-      EQ(this._top,  0),
-
-      GE(this._bottom, 0),
-      GE(this._right, 0),
-      GE(this._width, 0),
-      GE(this._height, 0),
-
-      EQ(this._left, this._width, [-1, this._right]),
-      EQ(this._top, this._height, [-1, this._bottom]),
-
-      GE(this._inner_top, [-1, this._top]),
-      LE(this._inner_bottom, [-1, this._bottom]),
-      GE(this._inner_left, [-1, this._left]),
-      LE(this._inner_right,  [-1, this._right]),
-
-      GE(this._offset_bottom, 0),
-      GE(this._offset_right, 0),
-
-      EQ(this._inner_top, this._inner_height, [-1, this._inner_bottom]),
-      EQ(this._inner_left, this._inner_width, [-1, this._inner_right]),
-
-      EQ(this._offset_bottom, [-1, this._bottom], this._inner_bottom),
-      EQ(this._offset_right,  [-1, this._right], this._inner_right),
-
-      // other constraints are added in update_constraints()
-    ]
   }
 }
 PlotCanvas.initClass()
