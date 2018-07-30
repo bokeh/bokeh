@@ -2,7 +2,7 @@
 from os.path import dirname
 
 from random import randint, shuffle
-from Decision_Tree.Plot.instance import Instance
+from Decision_Tree.Plot.data_instance import data_instance
 
 color = []
 
@@ -12,7 +12,7 @@ for _ in range(30):
 
 
 def set_active_attr(active_attr_list):
-    """ Set attributes that are in use"""
+    ''' Set attributes that are in use '''
     # clear the list
     attr_names_list = []
     # fill again
@@ -22,7 +22,7 @@ def set_active_attr(active_attr_list):
 
 
 def modify_new_values(tmp_attr_names, attr_names_list, attr_dictionary):
-    """ Set new data set attributes """
+    ''' Set new data set attributes '''
     new_attr_names = []
     for attr in attr_names_list:
         if attr in tmp_attr_names:
@@ -33,10 +33,8 @@ def modify_new_values(tmp_attr_names, attr_names_list, attr_dictionary):
     return attr_names_list, attr_dictionary
 
 
-def set_new_dataset(new):
-    """
-        set new data set and its positions
-    """
+def set_new_dataset(new, test_percentage=10):
+    ''' set new data set and its positions '''
     data = []
     attr_values = []
     attr_list = []
@@ -55,15 +53,10 @@ def set_new_dataset(new):
     attr_values_dict = dict((attr, list(attr_values[i])) for i, attr in enumerate(attr_list))
     attr_dict = dict((attr, (i, list(attr_values[i]))) for i, attr in enumerate(attr_list))
     shuffle(data)
-    try:
-        Instance().update(data, attr_values, attr_list, attr_values_dict, attr_dict,
-                          Instance().test_percentage)
-    except TypeError:
-        Instance(data, attr_values, attr_list, attr_values_dict, attr_dict)
+    instance = data_instance(data, attr_values, attr_list, attr_values_dict, attr_dict, test_percentage)
+    return instance
 
 
 def get_all_colors():
-    """
-    :return: Color Options
-    """
+    ''' :return: Color Options '''
     return color

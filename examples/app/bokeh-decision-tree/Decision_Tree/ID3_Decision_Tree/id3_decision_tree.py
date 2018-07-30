@@ -3,11 +3,11 @@ import copy
 from queue import Queue
 import random
 from Decision_Tree.Plot.get_data import set_active_attr, modify_new_values
-from Decision_Tree.Plot.instance import Instance
 
+data_instance = None
 
 class Node(object):
-    """ Tree node """
+    ''' Tree node '''
     def __init__(self, parent_name, name, data, children, rem_attr):
         self.parent = parent_name
         self.parentPointer = Node
@@ -30,9 +30,10 @@ class Node(object):
 
 
 def classify_list(attribute_name_var, instances_var):
-    """ Return a list that divide the instances according to the values of a attribute"""
-    """ For instance, there is a attribute which has values like "low", "med", "high" """
-    """ There are 100 instances. For every instances, the attributes values distribute like [30, 40, 30]"""
+    ''' Return a list that divide the instances according to the values of a attribute
+    For instance, there is a attribute which has values like "low", "med", "high"
+    There are 100 instances. For every instances, the attributes values distribute like [30, 40, 30]
+    '''
     attribute = attrDictionary[attribute_name_var]
     attribute_index, attribute_values = attribute
     local_distribution = []
@@ -48,18 +49,18 @@ def classify_list(attribute_name_var, instances_var):
 
 
 def get_distribution_list(attribute_name_var, instances_var):
-    """ Return nested list that divide the instances according to the values of the label"""
-    """ For instance, there is a attribute which has values like "low", "med", "high" """
-    """ There are 100 instances. For every instances, the number of instances distribute like [30, 40, 30]"""
-    """ For instance, label values are like "un_acc", "acc", "good", "v_good" """
-    """ Instances divide according to the label values like [[10, 5, 15, 0], [10, 10, 10, 10], [4, 13, 3, 10]]"""
+    ''' Return nested list that divide the instances according to the values of the label
+    For instance, there is a attribute which has values like "low", "med", "high"
+    There are 100 instances. For every instances, the number of instances distribute like [30, 40, 30]
+    For instance, label values are like "un_acc", "acc", "good", "v_good"
+    Instances divide according to the label values like [[10, 5, 15, 0], [10, 10, 10, 10], [4, 13, 3, 10]]
+    '''
     # build a distribution holder
     attribute = attrDictionary[attribute_name_var]
     attribute_index, attribute_values = attribute
     distribution = []
 
     # find distribution of class based of values of an attribute
-
     for attributeValue in attribute_values:
         local_distribution = [0] * len(classAttr)
 
@@ -74,7 +75,7 @@ def get_distribution_list(attribute_name_var, instances_var):
 
 
 def gini(distribution_list_var):
-    """ Calculate gini value of the node by subtracking sum of proportion of branches from 1"""
+    ''' Calculate gini value of the node by subtracking sum of proportion of branches from 1 '''
     number_of_instances = sum(distribution_list_var)
     if number_of_instances == 0:
         return 0
@@ -88,7 +89,7 @@ def gini(distribution_list_var):
 
 
 def gini_index(attribute_name_var, instances_var):
-    """ gini Index of that attribute"""
+    ''' gini Index of that attribute '''
     distribution_list = get_distribution_list(attribute_name_var, instances_var)
     number_of_instances = len(instances_var)
 
@@ -108,7 +109,7 @@ def gini_index(attribute_name_var, instances_var):
 
 
 def choose_the_best(attribute_list_var, instances_var):
-    """ Best attribute to divide remaining instances according to the methods value"""
+    ''' Best attribute to divide remaining instances according to the methods value '''
     values_list = []
     for attr in attribute_list_var:
         value = gini_index(attr, instances_var)
@@ -121,7 +122,7 @@ def choose_the_best(attribute_list_var, instances_var):
 
 
 def distribute_by_attribute(attribute_name_var, instances_var):
-    """ Divide instances by values of a attribute """
+    ''' Divide instances by values of a attribute '''
     attribute = attrDictionary[attribute_name_var]
     attribute_index, attribute_values = attribute
     distribution = []
@@ -139,9 +140,7 @@ def distribute_by_attribute(attribute_name_var, instances_var):
 
 
 def child_generator(node_itself_var):
-    """
-        Generate children and set them to their parent
-    """
+    ''' Generate children and set them to their parent '''
     parent_name = node_itself_var.name
     instances = node_itself_var.data
     remaining_attributes = node_itself_var.remainingAttributes
@@ -191,10 +190,9 @@ def child_generator(node_itself_var):
 
 
 def leaf_control(node_var):
-    """
-        Check if the node's instances distributed to certain value
-    """
-    distributed_list = classify_list(Instance().attr_list[-1], node_var.data)
+    """ Check if the node's instances distributed to certain value """
+    global data_instance
+    distributed_list = classify_list(data_instance.attr_list[-1], node_var.data)
     numbers_greater_than_zero = 0
     for p in distributed_list:
         if p > 0:
@@ -204,12 +202,12 @@ def leaf_control(node_var):
 
 
 def determine_dominant_one(node_var):
-    """
-        If there is no remaining attribute to divide instances than
+    ''' If there is no remaining attribute to divide instances than
         determine the decision by looking remaining instances label values
-    """
+    '''
+    global data_instance
     instances = node_var.data
-    distributed_list_on_class_attr = classify_list(Instance().attr_list[-1], instances)
+    distributed_list_on_class_attr = classify_list(data_instance.attr_list[-1], instances)
 
     max_occurrence = max(distributed_list_on_class_attr)
     max_indexes = [i for i, v in enumerate(distributed_list_on_class_attr) if v == max_occurrence]
@@ -221,14 +219,13 @@ def determine_dominant_one(node_var):
 
 
 def observe_from_siblings(node_var):
-    """
-        If there is no instance to classify a leaf then choose its decision by checking siblings decisions
-    """
-    siblings = node_var.parentPointer.children
+    ''' If there is no instance to classify a leaf then choose its decision by checking siblings decisions '''
+    global data_instance
 
+    siblings = node_var.parentPointer.children
     siblings_distributions = [0] * len(classAttr)
     for sibling in siblings:
-        sibling_dist = classify_list(Instance().attr_list[-1], sibling.data)
+        sibling_dist = classify_list(data_instance.attr_list[-1], sibling.data)
         for i in range(len(sibling_dist)):
             siblings_distributions[i] += sibling_dist[i]
 
@@ -238,9 +235,7 @@ def observe_from_siblings(node_var):
 
 
 def tree_distribution(attribute_list_var, instances_var, set_root_attribute):
-    """
-        Set root, start to divide data set and assign children
-    """
+    ''' Set root, start to divide data set and assign children '''
     attrib_list_copy = copy.deepcopy(attribute_list_var)
     instances_copy = copy.deepcopy(instances_var)
 
@@ -313,9 +308,7 @@ def tree_distribution(attribute_list_var, instances_var, set_root_attribute):
 
 
 def make_guess(root_node_var, test_instance_var):
-    """
-        Get test instance decision from tree
-    """
+    ''' Get test instance decision from tree '''
     flag = True
     node = root_node_var
     decision = ""
@@ -337,9 +330,7 @@ def make_guess(root_node_var, test_instance_var):
 
 
 def real_world_test(root_node_var, instances_var):
-    """
-        Test instances and return the percentage
-    """
+    ''' Test instances and return the percentage '''
     valid = 0
     invalid = 0
     for ins in instances_var:
@@ -352,38 +343,35 @@ def real_world_test(root_node_var, instances_var):
 
 
 def dataset_same(tmp_attr_names, attr_names_list):
-    """
-        Check data set is new
-    """
+    ''' Check data set is new '''
+    global data_instance
     for i in tmp_attr_names:
-        if i in attr_names_list and i != Instance().attr_list[-1]:
+        if i in attr_names_list and i != data_instance.attr_list[-1]:
             return True
     return False
 
 
-def generate_tree(set_root_attribute, active_attr_list):
-    """
-        Generate tree
-    """
-    global attrNamesList, attrDictionary, classAttr
+def generate_tree(instance, set_root_attribute, active_attr_list):
+    ''' Generate tree '''
+    global attrNamesList, attrDictionary, classAttr, data_instance
+    data_instance = instance
     tmp_attr_names = set_active_attr(active_attr_list)
-    attrNamesList, attrDictionary = copy.deepcopy(Instance().attr_list), copy.deepcopy(Instance().attr_dict)
+    attrNamesList, attrDictionary = copy.deepcopy(data_instance.attr_list), copy.deepcopy(data_instance.attr_dict)
 
     if dataset_same(tmp_attr_names, attrNamesList):
         attrNamesList, attrDictionary = modify_new_values(tmp_attr_names, attrNamesList, attrDictionary)
     new_att_name_list = copy.deepcopy(attrNamesList)
-    new_att_name_list.remove(Instance().attr_list[-1])
-    percentage = Instance().test_percentage
-    test_index = int(len(Instance().data)*percentage/100)
-    Instance().update(Instance().data, Instance().attr_values, Instance().attr_list,
-                      Instance().attr_values_dict, Instance().attr_dict,
-                      percentage)
+    new_att_name_list.remove(data_instance.attr_list[-1])
+    percentage = data_instance.test_percentage
+    test_index = int(len(data_instance.data) * percentage / 100)
+    data_instance.update(data_instance.data, data_instance.attr_values, data_instance.attr_list,
+                           data_instance.attr_values_dict, data_instance.attr_dict, percentage)
     if 0 < percentage:
-        test_data = Instance().data[:test_index]
-        train_data = Instance().data[test_index:]
+        test_data = data_instance.data[:test_index]
+        train_data = data_instance.data[test_index:]
     else:
-        test_data = train_data = Instance().data
-    test, classAttr = test_data, Instance().attr_values_dict[Instance().attr_list[-1]]
-    train, classAttr = train_data, Instance().attr_values_dict[Instance().attr_list[-1]]
+        test_data = train_data = data_instance.data
+    test, classAttr = test_data, data_instance.attr_values_dict[data_instance.attr_list[-1]]
+    train, classAttr = train_data, data_instance.attr_values_dict[data_instance.attr_list[-1]]
     root_node = tree_distribution(new_att_name_list, train, set_root_attribute)
     return root_node, real_world_test(root_node, test)
