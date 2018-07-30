@@ -98,7 +98,7 @@ Source Code Documentation
 -------------------------
 
 Docstrings and Model help are available from a Python interpreter, but are also
-processed byt the Sphinx build to automatically generate a complete
+processed by the Sphinx build to automatically generate a complete
 :ref:`refguide`.
 
 Bokeh uses some common conventions to create a consistent documentation style.
