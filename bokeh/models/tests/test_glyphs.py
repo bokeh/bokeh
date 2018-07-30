@@ -31,6 +31,7 @@ from bokeh.models.glyphs import (
     InvertedTriangle,
     Square, SquareCross, SquareX,
     Triangle,
+    VerticalLine,
     X)
 
 from bokeh.core.enums import (

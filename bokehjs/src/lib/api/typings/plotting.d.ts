@@ -95,7 +95,7 @@ declare namespace Bokeh.Plotting {
     square_cross      (attrs: SquareCrossAttrs):      GlyphRenderer;
     square_x          (attrs: SquareXAttrs):          GlyphRenderer;
     triangle          (attrs: TriangleAttrs):         GlyphRenderer;
-    vertical_line     (attrs: VerticalLignAttrs):     GlyphRenderer;
+    vertical_line     (attrs: VerticalLineAttrs):     GlyphRenderer;
     x                 (attrs: XAttrs):                GlyphRenderer;
 
     annular_wedge(
