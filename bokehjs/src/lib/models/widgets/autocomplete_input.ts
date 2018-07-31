@@ -51,6 +51,7 @@ export class AutocompleteInputView extends TextInputView {
       const el = event.target as HTMLElement
       const text = el.dataset.text!
       this.model.value = text
+      this.render()
       //this.inputEl.value = text
     }
   }
