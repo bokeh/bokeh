@@ -39,6 +39,70 @@ the command: ``jupyter labextension install jupyterlab_bokeh``.
     :scale: 25 %
     :align: center
 
+JupyterHub
+~~~~~~~~~~
+
+In order to embed Bokeh plots that don't use the Bokeh server, you can
+follow instructions contained in the JupyterLab section and stop there.
+
+If you want to use the Bokeh server, run the JupyterLab instructions
+then continue with the following instructions.
+
+If you want to run a Bokeh plot that utilizes the python-based Bokeh
+server, there are some additional steps you must follow to enable
+network connectivity between the client browser and the Bokeh server
+running in the JupyterLab cell.  This is because your browser needs to
+connect to the port the Bokeh server is listening on, but JupyterHub is
+acting as a reverse proxy between your browser and your JupyterLab
+container.
+
+First, you must install the "nbserverproxy" server extension (requires
+python3).  This can be done by running the command:
+``pip install nbserverproxy && jupyter serverextension enable --py nbserverproxy``.
+
+Second, you must define a function to help create the URL that the browser
+uses to connect to the Bokeh server.  This will be passed into |show| in
+the final step.  A reference implementation is provided here, although you
+must either modify it or define the environment variable ``EXTERNAL_URL``
+to the URL of your JupyterHub installation.  By default, JupyterHub will set
+``JUPYTERHUB_SERVICE_PREFIX``.
+
+.. code-block:: python
+
+    def remote_jupyter_proxy_url(port):
+        """
+        Callable to configure Bokeh's show method when a proxy must be
+        configured.
+
+        If port is None we're asking about the URL
+        for the origin header.
+        """
+        base_url = os.environ['EXTERNAL_URL']
+        host = urllib.parse.urlparse(base_url).netloc
+
+        # If port is None we're asking for the URL origin
+        # so return the public hostname.
+        if port is None:
+            return host
+
+        service_url_path = os.environ['JUPYTERHUB_SERVICE_PREFIX']
+        proxy_url_path = 'proxy/%d' % port
+
+        user_url = urllib.parse.urljoin(base_url, service_url_path)
+        full_url = urllib.parse.urljoin(user_url, proxy_url_path)
+        return full_url
+
+Finally, you can pass the function you defined in step 2 to |show|
+as the notebook_url keyword argument, which Bokeh will call while
+setting up the server and creating the URL for loading the graph:
+
+.. code-block:: python
+
+    show(obj, notebook_url=remote_jupyter_proxy_url)
+
+At this point, the Bokeh graph should load and execute python
+callbacks defined in your JupyterLab environment.
+
 Zeppelin
 ~~~~~~~~
 
