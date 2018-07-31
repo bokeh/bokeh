@@ -68,6 +68,7 @@ to the URL of your JupyterHub installation.  By default, JupyterHub will set
 ``JUPYTERHUB_SERVICE_PREFIX``.
 
 .. code-block:: python
+
     def remote_jupyter_proxy_url(port):
         """
         Callable to configure Bokeh's show method when a proxy must be
@@ -96,6 +97,7 @@ as the notebook_url keyword argument, which Bokeh will call while
 setting up the server and creating the URL for loading the graph:
 
 .. code-block:: python
+
     show(obj, notebook_url=remote_jupyter_proxy_url)
 
 At this point, the Bokeh graph should load and execute python
