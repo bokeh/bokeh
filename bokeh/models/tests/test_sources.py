@@ -68,13 +68,13 @@ class TestColumnDataSource(object):
     def test_init_dataframe_nonstring_named_column(self, pd):
         data = {1: [1, 2], 2: [2, 3]}
         df = pd.DataFrame(data)
-        with pytest.raises(ValueError, match=r'expected an element of.*') as cm:
+        with pytest.raises(ValueError, match=r'expected an element of.*'):
             ColumnDataSource(data=df)
 
     def test_init_dataframe_nonstring_named_multicolumn(self, pd):
         data = {(1, 2): [1, 2], (2, 3): [2, 3]}
         df = pd.DataFrame(data)
-        with pytest.raises(TypeError, match=r'Could not flatten.*') as cm:
+        with pytest.raises(TypeError, match=r'Could not flatten.*'):
             ColumnDataSource(data=df)
 
     def test_init_groupby_arg(self, pd):
