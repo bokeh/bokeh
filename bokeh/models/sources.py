@@ -65,10 +65,15 @@ class ColumnDataSource(ColumnarDataSource):
           source = ColumnDataSource(df)
 
       In this case the CDS will have columns corresponding to the columns of
-      the ``DataFrame``. If the ``DataFrame`` has a named index column, then
-      CDS will also have a column with this name. However, if the index name
-      (or any subname of a ``MultiIndex``) is ``None``, then the CDS will have
-      a column generically named ``index`` for the index.
+      the ``DataFrame``. If the ``DataFrame`` columns have multiple levels,
+      they will be flattend using an underscore (e.g. level_0_col_level_1_col).
+      The index of the DataFrame will be flattened to an ``Index`` of tuples
+      if it's a ``MultiIndex``, and then reset using ``reset_index``. The result
+      will be a column with the same name if the index was named, or
+      level_0_name_level_1_name if it was a named ``MultiIndex``. If the
+      ``Index`` did not have a name or the ``MultiIndex`` name could not be
+      flattened/determined, the ``reset_index`` function will name the index column
+      ``index``, or ``level_0`` if the name ``index`` is not available.
 
     * A Pandas ``GroupBy`` object
 
@@ -150,16 +155,28 @@ class ColumnDataSource(ColumnarDataSource):
 
         '''
         _df = df.copy()
+
+        # Flatten columns
+        if isinstance(df.columns, pd.MultiIndex):
+            try:
+                _df.columns = ['_'.join(col) for col in _df.columns.values]
+            except TypeError:
+                raise TypeError('Could not flatten MultiIndex columns. '
+                                'use string column names or flatten manually')
+        # Flatten index
+        index_name = ColumnDataSource._df_index_name(df)
+        if index_name == 'index':
+            _df.index = pd.Index(_df.index.values)
+        else:
+            _df.index = pd.Index(_df.index.values, name=index_name)
+        _df.reset_index(inplace=True)
+
         tmp_data = {c: v.values for c, v in _df.iteritems()}
 
         new_data = {}
         for k, v in tmp_data.items():
-            if isinstance(k, tuple):
-                k = "_".join(k)
             new_data[k] = v
 
-        index_name = ColumnDataSource._df_index_name(df)
-        new_data[index_name] = _df.index.values
         return new_data
 
     @staticmethod
