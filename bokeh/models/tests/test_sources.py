@@ -128,25 +128,19 @@ class TestColumnDataSource(object):
 
     def test_stream_bad_data(self):
         ds = ColumnDataSource(data=dict(a=[10], b=[20]))
-        with pytest.raises(ValueError) as cm:
+        with pytest.raises(ValueError, match=r"Must stream updates to all existing columns \(missing: a, b\)"):
             ds.stream(dict())
-            assert str(cm.exception) == "Must stream updates to all existing columns (missing: a, b)"
-        with pytest.raises(ValueError) as cm:
+        with pytest.raises(ValueError, match=r"Must stream updates to all existing columns \(missing: b\)"):
             ds.stream(dict(a=[10]))
-            assert str(cm.exception) == "Must stream updates to all existing columns (missing: b)"
-        with pytest.raises(ValueError) as cm:
+        with pytest.raises(ValueError, match=r"Must stream updates to all existing columns \(extra: x\)"):
             ds.stream(dict(a=[10], b=[10], x=[10]))
-            assert str(cm.exception) == "Must stream updates to all existing columns (extra: x)"
-        with pytest.raises(ValueError) as cm:
+        with pytest.raises(ValueError, match=r"Must stream updates to all existing columns \(missing: b, extra: x\)"):
             ds.stream(dict(a=[10], x=[10]))
-            assert str(cm.exception) == "Must stream updates to all existing columns (missing: b, extra: x)"
-        with pytest.raises(ValueError) as cm:
+        with pytest.raises(ValueError, match=r"All streaming column updates must be the same length"):
             ds.stream(dict(a=[10], b=[10, 20]))
-            assert str(cm.exception) == "All streaming column updates must be the same length"
 
-        with pytest.raises(ValueError) as cm:
+        with pytest.raises(ValueError, match=r"stream\(...\) only supports 1d sequences, got ndarray with size \(.*"):
             ds.stream(dict(a=[10], b=np.ones((1,1))))
-            assert str(cm.exception).startswith("stream(...) only supports 1d sequences, got ndarray with size (")
 
     def test__df_index_name_with_named_index(self, pd):
         df = pd.DataFrame(dict(a=[10], b=[20], c=[30])).set_index('c')
@@ -535,19 +529,16 @@ Lime,Green,99,$0.39
 
     def test_patch_bad_columns(self):
         ds = ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
-        with pytest.raises(ValueError) as cm:
+        with pytest.raises(ValueError, match=r"Can only patch existing columns \(extra: c\)"):
             ds.patch(dict(c=[(0, 100)]))
-            assert str(cm.exception) == "Can only patch existing columns (extra: c)"
-        with pytest.raises(ValueError) as cm:
+        with pytest.raises(ValueError, match=r"Can only patch existing columns \(extra: c, d\)"):
             ds.patch(dict(a=[(0,100)], c=[(0, 100)], d=[(0, 100)]))
-            assert str(cm.exception) == "Can only patch existing columns (extra: c, d)"
 
 
     def test_patch_bad_simple_indices(self):
         ds = ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
-        with pytest.raises(ValueError) as cm:
+        with pytest.raises(ValueError, match=r"Out-of bounds index \(3\) in patch for column: a"):
             ds.patch(dict(a=[(3, 100)]))
-            assert str(cm.exception) == "Out-of bounds index (3) in patch for column: a"
 
     def test_patch_good_simple_indices(self):
         ds = ColumnDataSource(data=dict(a=[10, 11], b=[20, 21]))
@@ -564,24 +555,18 @@ Lime,Green,99,$0.39
 
     def test_patch_bad_slice_indices(self):
         ds = ColumnDataSource(data=dict(a=[10, 11, 12, 13, 14, 15], b=[20, 21, 22, 23, 24, 25]))
-        with pytest.raises(ValueError) as cm:
+        with pytest.raises(ValueError, match=r"Out-of bounds slice index stop \(10\) in patch for column: a"):
             ds.patch(dict(a=[(slice(10), list(range(10)))]))
-            assert str(cm.exception) == "Out-of bounds slice index stop (10) in patch for column: a"
-        with pytest.raises(ValueError) as cm:
+        with pytest.raises(ValueError, match=r"Patch slices must have start < end, got slice\(10, 1, None\)"):
             ds.patch(dict(a=[(slice(10, 1), list(range(10)))]))
-            assert str(cm.exception) == "Patch slices must have start < end, got slice(10, 1, None)"
-        with pytest.raises(ValueError) as cm:
+        with pytest.raises(ValueError, match=r"Patch slices must have non-negative \(start, stop, step\) values, got slice\(None, 10, -1\)"):
             ds.patch(dict(a=[(slice(None, 10, -1), list(range(10)))]))
-            assert str(cm.exception) == "Patch slices must have non-negative (start, stop, step) values, got slice(None, 10, -1)"
-        with pytest.raises(ValueError) as cm:
+        with pytest.raises(ValueError, match=r"Patch slices must have start < end, got slice\(10, 1, 1\)"):
             ds.patch(dict(a=[(slice(10, 1, 1), list(range(10)))]))
-            assert str(cm.exception) == "Patch slices must have start < end, got slice(10, 1, 1)"
-        with pytest.raises(ValueError) as cm:
+        with pytest.raises(ValueError, match=r"Patch slices must have start < end, got slice\(10, 1, -1\)"):
             ds.patch(dict(a=[(slice(10, 1, -1), list(range(10)))]))
-            assert str(cm.exception) == "Patch slices must have start < end, got slice(10, 1, -1)"
-        with pytest.raises(ValueError) as cm:
+        with pytest.raises(ValueError, match=r"Patch slices must have non-negative \(start, stop, step\) values, got slice\(1, 10, -1\)"):
             ds.patch(dict(a=[(slice(1, 10, -1), list(range(10)))]))
-            assert str(cm.exception) == "Patch slices must have non-negative (start, stop, step) values, got slice(1, 10, -1)"
 
 
     def test_patch_good_slice_indices(self):
