@@ -65,6 +65,18 @@ class TestColumnDataSource(object):
         assert [0, 1] == list(ds.data['level_0'])
         assert set(ds.column_names) - set(df.columns) == set(["level_0"])
 
+    def test_init_dataframe_nonstring_named_column(self, pd):
+        data = {1: [1, 2], 2: [2, 3]}
+        df = pd.DataFrame(data)
+        with pytest.raises(ValueError, match=r'expected an element of.*') as cm:
+            ColumnDataSource(data=df)
+
+    def test_init_dataframe_nonstring_named_multicolumn(self, pd):
+        data = {(1, 2): [1, 2], (2, 3): [2, 3]}
+        df = pd.DataFrame(data)
+        with pytest.raises(TypeError, match=r'Could not flatten.*') as cm:
+            ColumnDataSource(data=df)
+
     def test_init_groupby_arg(self, pd):
         from bokeh.sampledata.autompg import autompg as df
         group = df.groupby(by=['origin', 'cyl'])

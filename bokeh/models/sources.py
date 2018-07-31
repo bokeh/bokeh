@@ -158,7 +158,11 @@ class ColumnDataSource(ColumnarDataSource):
 
         # Flatten columns
         if isinstance(df.columns, pd.MultiIndex):
-            _df.columns = ['_'.join(col) for col in _df.columns.values]
+            try:
+                _df.columns = ['_'.join(col) for col in _df.columns.values]
+            except TypeError:
+                raise TypeError('Could not flatten MultiIndex columns. '
+                                'use string column names or flatten manually')
         # Flatten index
         index_name = ColumnDataSource._df_index_name(df)
         if index_name == 'index':
