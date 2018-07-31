@@ -261,6 +261,22 @@ Examples:
 
 """)
 
+    dash = _glyph_function(markers.Dash, """
+Examples:
+
+    .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(plot_width=300, plot_height=300)
+        plot.dash(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
+                  color="#99D594", line_width=2)
+
+        show(plot)
+
+""")
+
     diamond = _glyph_function(markers.Diamond, """
 Examples:
 
@@ -272,22 +288,6 @@ Examples:
         plot = figure(plot_width=300, plot_height=300)
         plot.diamond(x=[1, 2, 3], y=[1, 2, 3], size=20,
                     color="#1C9099", line_width=2)
-
-        show(plot)
-
-""")
-
-    dash = _glyph_function(markers.Dash, """
-Examples:
-
-    .. bokeh-plot::
-        :source-position: above
-
-        from bokeh.plotting import figure, output_file, show
-
-        plot = figure(plot_width=300, plot_height=300)
-        plot.dash(x=[1, 2, 3], y=[1, 2, 3], size=[10,20,25],
-                           color="#99D594", line_width=2)
 
         show(plot)
 

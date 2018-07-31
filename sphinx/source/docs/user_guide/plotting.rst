@@ -478,7 +478,7 @@ The section on adding annotations to plots has moved.  Please see
 .. |circle_cross|      replace:: :func:`~bokeh.plotting.figure.Figure.circle_cross`
 .. |circle_x|          replace:: :func:`~bokeh.plotting.figure.Figure.circle_x`
 .. |cross|             replace:: :func:`~bokeh.plotting.figure.Figure.cross`
-.. |dash|       `      replace:: :func:`~bokeh.plotting.figure.Figure.dash`
+.. |dash|              replace:: :func:`~bokeh.plotting.figure.Figure.dash`
 .. |diamond|           replace:: :func:`~bokeh.plotting.figure.Figure.diamond`
 .. |diamond_cross|     replace:: :func:`~bokeh.plotting.figure.Figure.diamond_cross`
 .. |ellipse|           replace:: :func:`~bokeh.plotting.figure.Figure.ellipse`
