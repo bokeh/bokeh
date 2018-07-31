@@ -1,6 +1,6 @@
 import pandas as pd
 from bokeh.plotting import figure
-from bokeh.transform import dodge, factor_cmap
+from bokeh.transform import factor_cmap
 from bokeh.models import ColumnDataSource, LabelSet, HoverTool, WheelZoomTool, ResetTool, PanTool, Panel, Tabs, Toggle
 from bokeh.models.widgets import Button, Paragraph, Select, CheckboxGroup, Slider
 from bokeh.layouts import widgetbox, layout
