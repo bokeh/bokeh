@@ -36,6 +36,6 @@ class data_instance:
             self.data_set = file_name
         else:
             if self.data_set not in ["car", "lens"]:
-                file_path = dirname(__file__) + "/../Data/" + self.data_set
+                file_path = dirname(__file__) + "/../data/" + self.data_set
                 os.remove(file_path)
                 self.data_set = file_name

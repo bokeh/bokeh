@@ -1,0 +1,25 @@
+Age,Spectacle Prescription,Astigmatic,Tear Production Rate,Classes
+Young,Myope,No,Reduced,No Contact Lenses
+Young,Myope,No,Normal,Soft Contact Lenses
+Young,Myope,Yes,Reduced,No Contact Lenses
+Young,Myope,Yes,Normal,Hard Contact Lenses
+Young,Hypermetrope,No,Reduced,No Contact Lenses
+Young,Hypermetrope,No,Normal,Soft Contact Lenses
+Young,Hypermetrope,Yes,Reduced,No Contact Lenses
+Young,Hypermetrope,Yes,Normal,Hard Contact Lenses
+Pre-Presbyopic,Myope,No,Reduced,No Contact Lenses
+Pre-Presbyopic,Myope,No,Normal,Soft Contact Lenses
+Pre-Presbyopic,Myope,Yes,Reduced,No Contact Lenses
+Pre-Presbyopic,Myope,Yes,Normal,Hard Contact Lenses
+Pre-Presbyopic,Hypermetrope,No,Reduced,No Contact Lenses
+Pre-Presbyopic,Hypermetrope,No,Normal,Soft Contact Lenses
+Pre-Presbyopic,Hypermetrope,Yes,Reduced,No Contact Lenses
+Pre-Presbyopic,Hypermetrope,Yes,Normal,No Contact Lenses
+Presbyopic,Myope,No,Reduced,No Contact Lenses
+Presbyopic,Myope,No,Normal,No Contact Lenses
+Presbyopic,Myope,Yes,Reduced,No Contact Lenses
+Presbyopic,Myope,Yes,Normal,Hard Contact Lenses
+Presbyopic,Hypermetrope,No,Reduced,No Contact Lenses
+Presbyopic,Hypermetrope,No,Normal,Soft Contact Lenses
+Presbyopic,Hypermetrope,Yes,Reduced,No Contact Lenses
+Presbyopic,Hypermetrope,Yes,Normal,No Contact Lenses
