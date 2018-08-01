@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
-''' Singleton class for data set and its information '''
+''' General class for data set and its information '''
 from os.path import dirname
 import os
 
 
-class data_instance:
-    ''' Singleton class '''
+class DataInstance:
+    ''' Data class '''
     def __init__(self, data, attr_values, attr_list, attr_values_dict, attr_dict, test_percentage=10):
         self.data = data
         self.attr_values = attr_values

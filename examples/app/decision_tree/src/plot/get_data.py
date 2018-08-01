@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 from os.path import dirname
 
 from random import randint, shuffle
-from src.plot.data_instance import data_instance
+from src.plot.data_instance import DataInstance
 
 color = []
 
@@ -53,7 +52,7 @@ def set_new_dataset(new, test_percentage=10):
     attr_values_dict = dict((attr, list(attr_values[i])) for i, attr in enumerate(attr_list))
     attr_dict = dict((attr, (i, list(attr_values[i]))) for i, attr in enumerate(attr_list))
     shuffle(data)
-    instance = data_instance(data, attr_values, attr_list, attr_values_dict, attr_dict, test_percentage)
+    instance = DataInstance(data, attr_values, attr_list, attr_values_dict, attr_dict, test_percentage)
     return instance
 
 

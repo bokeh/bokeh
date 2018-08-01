@@ -3,13 +3,13 @@
 {% block title %}Decision Tree Visualizer{% endblock %}
 
 {% block postamble %}
-  <style>
-    {% include 'styles.css' %}
-  </style>
+<style>
+{% include 'styles.css' %}
+</style>
 {% endblock %}
 
 {% block contents %}
-  <div class="content" align="center">
+<div class="content" align="center">
     <h1>Decision Tree Visualizer</h1>
 
     <div style="margin-left: auto; margin-right: auto; width: 40em; font-family: Arial; text-align: left">
@@ -17,11 +17,12 @@
         For positioning of the tree, <a href="https://link.springer.com/chapter/10.1007/3-540-36151-0_32">Buchheim's Paper</a>
         was implemented.</p>
         <p>For better understanding of the decision tree concept, ability to change the root attribute, opt-in and opt-out attributes have been included.</p>
-        <br> Datasets used in the tree:
+        <br>
+        Datasets used in the tree:
         <a href="https://archive.ics.uci.edu/ml/datasets/lenses"> Lenses</a>
         <a> - </a>
         <a href="https://archive.ics.uci.edu/ml/datasets/mushroom"> Mushrooms</a>
     </div>
     {{ super() }}
-  </div>
+</div>
 {% endblock %}

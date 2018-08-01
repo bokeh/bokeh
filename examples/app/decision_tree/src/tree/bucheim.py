@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #####################################################################################################
 # Implementation of "Drawing rooted trees in linear time(Buchheim, Junger and Leipert, 2006)"#
 
