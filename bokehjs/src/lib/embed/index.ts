@@ -12,7 +12,7 @@ import {_resolve_element, _resolve_root_elements} from "./dom"
 export {DocsJson, RenderItem} from "./json"
 export {add_document_standalone} from "./standalone"
 export {add_document_from_session} from "./server"
-export {embed_items_notebook} from "./notebook"
+export {embed_items_notebook, kernels} from "./notebook"
 export {BOKEH_ROOT, inject_css, inject_raw_css} from "./dom"
 
 // TODO (bev) this is currently clunky. Standalone embeds only provide
