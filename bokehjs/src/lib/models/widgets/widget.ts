@@ -1,11 +1,14 @@
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
+import {SizeHint} from "core/layout"
 
 export abstract class WidgetView extends LayoutDOMView {
   model: Widget
 
-  suggest_dims(): void {}
+  size_hint(): SizeHint {
 
-  update_geometry(): void {
+  }
+
+  update_position(): void {
     // LayoutDOMView sets up lots of helpful things, but
     // it's render method is not suitable for widgets - who
     // should provide their own.

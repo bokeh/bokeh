@@ -4,6 +4,7 @@ import {TickFormatter} from "../formatters/tick_formatter"
 import {Range} from "../ranges/range"
 
 import * as p from "core/properties"
+import {SizeHint} from "core/layout"
 import {Arrayable, Color} from "core/types"
 import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap} from "core/enums"
 import {Side, TickLabelOrientation, SpatialUnits} from "core/enums"
@@ -41,8 +42,12 @@ export class AxisView extends GuideRendererView {
 
     const axis_view = this
     this.__layout = new class extends LayoutItem {
-      get_size(): number {
-        return axis_view.get_size()
+      size_hint(): SizeHint {
+        const size = axis_view.get_size()
+        if (axis_view.model.panel.horizontal)
+          return {width: 0, height: size}
+        else
+          return {width: size, height: 0}
       }
 
       _set_geom(geom: NormGeom): void {

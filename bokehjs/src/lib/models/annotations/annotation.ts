@@ -1,6 +1,7 @@
 import {LayoutItem, NormGeom} from "core/layout/layout_canvas"
 import {SidePanel} from "core/layout/side_panel"
 import {Side} from "core/enums"
+import {SizeHint} from "core/layout"
 import * as p from "core/properties"
 import * as proj from "core/util/projections"
 import {extend} from "core/util/object"
@@ -19,8 +20,12 @@ export abstract class AnnotationView extends RendererView {
 
     const annotation_view = this
     this.__layout = new class extends LayoutItem {
-      get_size(): number {
-        return annotation_view.get_size()
+      size_hint(): SizeHint {
+        const size = annotation_view.get_size()
+        if (annotation_view.model.panel.horizontal)
+          return {width: 0, height: size}
+        else
+          return {width: size, height: 0}
       }
 
       _set_geom(geom: NormGeom): void {

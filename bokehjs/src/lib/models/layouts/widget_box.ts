@@ -11,9 +11,9 @@ export class WidgetBoxView extends LayoutDOMView {
     this.connect(this.model.properties.children.change, () => this.rebuild_child_views())
   }
 
-  update_geometry(): void {
+  update_position(): void {
     if (this.model.sizing_mode == 'stretch_both') {
-      super.update_geometry()
+      super.update_position()
     } else {
       // Note we DO NOT want to set a height (except in stretch_both). Widgets
       // are happier sizing themselves. We've tried to tell the layout what

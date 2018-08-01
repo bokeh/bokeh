@@ -2,9 +2,11 @@ import {Model} from "../../model"
 import {SizingMode} from "core/enums"
 import {empty, margin, padding} from "core/dom"
 import * as p from "core/properties"
+import {BBox} from "core/util/bbox"
 
 import {build_views} from "core/build_views"
 import {DOMView} from "core/dom_view"
+import {SizeHint, Variable} from "core/layout"
 
 export abstract class LayoutDOMView extends DOMView implements EventListenerObject {
   model: LayoutDOM
@@ -20,35 +22,15 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
   _width: Variable
   _height: Variable
 
-  _inner_left: Variable
-  _inner_right: Variable
-  _inner_top: Variable
-  _inner_bottom: Variable
-  _inner_width: Variable
-  _inner_height: Variable
-
-  _offset_right: Variable
-  _offset_bottom: Variable
-
   initialize(options: any): void {
     super.initialize(options)
 
-    this._left = new Variable(`${this.toString()}.left`)
-    this._right = new Variable(`${this.toString()}.right`)
-    this._top = new Variable(`${this.toString()}.top`)
-    this._bottom = new Variable(`${this.toString()}.bottom`)
-    this._width = new Variable(`${this.toString()}.width`)
-    this._height = new Variable(`${this.toString()}.height`)
-
-    this._inner_left = new Variable(`${this.toString()}.inner_left`)
-    this._inner_right = new Variable(`${this.toString()}.inner_right`)
-    this._inner_top = new Variable(`${this.toString()}.inner_top`)
-    this._inner_bottom = new Variable(`${this.toString()}.inner_bottom`)
-    this._inner_width = new Variable(`${this.toString()}.inner_width`)
-    this._inner_height = new Variable(`${this.toString()}.inner_height`)
-
-    this._offset_right = new Variable(`${this.toString()}.offset_right`)
-    this._offset_bottom = new Variable(`${this.toString()}.offset_bottom`)
+    this._left = {value: 0}
+    this._right = {value: 0}
+    this._top = {value: 0}
+    this._bottom = {value: 0}
+    this._width = {value: 0}
+    this._height = {value: 0}
 
     this.child_views = {}
     this.build_child_views()
@@ -78,8 +60,12 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
     console.table(layoutables)
   }
 
-  get_layoutable_children(): LayoutDOM[] {
+  get_layoutable_models(): LayoutDOM[] {
     return []
+  }
+
+  get_layoutable_views(): LayoutDOMView[] {
+    return this.model.get_layoutable_models().map((child) => this.child_views[child.id])
   }
 
   remove(): void {
@@ -117,7 +103,7 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
     }
   }
 
-  protected _calc_width_height(): [number | null, number | null] {
+  protected _available_space(): [number | null, number | null] {
     let measuring: HTMLElement | null = this.el
 
     while (measuring = measuring.parentElement) {
@@ -140,79 +126,31 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
       const inner_width = width - left - right
       const inner_height = height - top - bottom
 
-      switch (this.model.sizing_mode) {
-        case "scale_width": {
-          if (inner_width > 0)
-            return [inner_width, inner_height > 0 ? inner_height : null]
-          break
-        }
-        case "scale_height": {
-          if (inner_height > 0)
-            return [inner_width > 0 ? inner_width : null, inner_height]
-          break
-        }
-        case "scale_both":
-        case "stretch_both": {
-          if (inner_width > 0 || inner_height > 0)
-            return [inner_width > 0 ? inner_width : null, inner_height > 0 ? inner_height : null]
-          break
-        }
-        default:
-          throw new Error("unreachable")
-      }
+      if (inner_width > 0 || inner_height > 0)
+        return [inner_width > 0 ? inner_width : null, inner_height > 0 ? inner_height : null]
     }
 
     // this element is detached from DOM
     return [null, null]
   }
 
-  suggest_dims(): void {
-    switch (this.model.sizing_mode) {
-      case "fixed": {
-        // If the width or height is unset:
-        // - compute it from children
-        // - but then save for future use
-        // (for some reason widget boxes keep shrinking if you keep computing
-        // but this is more efficient and appropriate for fixed anyway).
-        let width: number
-        if (this.model.width != null)
-          width = this.model.width
-        else
-          width = this.get_width()
-          this.model.setv({width: width}, {silent: true})
+  abstract size_hint(): SizeHint
 
-        let height: number
-        if (this.model.height != null)
-          height = this.model.height
-        else
-          height = this.get_height()
-          this.model.setv({height: height}, {silent: true})
-
-        this.solver.suggest_value(this._width, width)
-        this.solver.suggest_value(this._height, height)
-        break
-      }
-      case "scale_width": {
-        const height = this.get_height()
-        this.solver.suggest_value(this._height, height)
-        break
-      }
-      case "scale_height": {
-        const width = this.get_width()
-        this.solver.suggest_value(this._width, width)
-        break
-      }
-      case "scale_both": {
-        const [width, height] = this.get_width_height()
-        this.solver.suggest_value(this._width, width)
-        this.solver.suggest_value(this._height, height)
-        break
-      }
-    }
+  set_geometry(outer: BBox, inner?: BBox): void {
+    this._set_geometry(outer, inner || outer)
   }
 
-  update_geometry(): void {
-    this.el.style.position = "absolute"
+  _set_geometry(outer: BBox, _inner: BBox): void {
+    this._left.value = outer.left
+    this._top.value = outer.top
+    this._right.value = outer.right
+    this._bottom.value = outer.bottom
+    this._width.value = outer.width
+    this._height.value = outer.height
+  }
+
+  update_position(): void {
+    this.el.style.position = this.is_root ? "relative" : "absolute"
     this.el.style.left = `${this._left.value}px`
     this.el.style.top = `${this._top.value}px`
     this.el.style.width = `${this._width.value}px`
@@ -224,22 +162,80 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
   }
 
   layout(): void {
+    /**
+     * Layout's entry point.
+     */
     if (!this.is_root)
-      (this.root as LayoutDOMView).layout()
+      this.root.layout()
     else
       this._do_layout()
   }
 
   protected _do_layout(): void {
+    const [available_width, available_height] = this._available_space()
+    const size_hint = this.size_hint()
+
+    let width: number
+    let height: number
+
+    const {width_mode, height_mode} = this.model
+
+    switch (width_mode) {
+      case "fixed": {
+        if (this.model.width != null)
+          width = this.model.width
+        else
+          throw new Error("fixed mode requires width to be set")
+        break
+      }
+      case "max": {
+        width = available_width
+        break
+      }
+      case "auto": {
+        if (this.model.width != null)
+          width = this.model.width
+        else
+          width = available_width
+        break
+      }
+    }
+
+    switch (height_mode) {
+      case "fixed": {
+        if (this.model.height != null)
+          height = this.model.height
+        else
+          throw new Error("fixed mode requires height to be set")
+        break
+      }
+      case "max": {
+        height = available_height
+        break
+      }
+      case "auto": {
+        if (this.model.height != null)
+          height = this.model.height
+        else
+          height = available_height
+        break
+      }
+    }
+
+    const outer = new BBox({left: 0, top: 0, width, height})
+
+    let inner: BBox | undefined = undefined
+
+    if (size_hint.inner != null) {
+      const {left, top, right, bottom} = size_hint.inner
+      inner = new BBox({left, top, right: width - right, bottom: height - bottom})
+    }
+
+    this.set_geometry(outer, inner)
+    this.update_position()
+
     // TODO
     this.notify_finished()
-  }
-
-  protected _layout(): void {
-    for (const child of this.model.get_layoutable_children()) {
-      const child_view = this.child_views[child.id]
-      child_view._layout()
-    }
   }
 
   rebuild_child_views(): void {
@@ -248,7 +244,7 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
   }
 
   build_child_views(): void {
-    const children = this.model.get_layoutable_children()
+    const children = this.get_layoutable_models()
     build_views(this.child_views, children, {parent: this})
 
     empty(this.el)
@@ -326,8 +322,10 @@ export abstract class LayoutDOM extends Model {
     this.prototype.type = "LayoutDOM"
 
     this.define({
-      height:      [ p.Number              ],
       width:       [ p.Number              ],
+      height:      [ p.Number              ],
+      width_mode:  [ p.Any,        "auto"  ],
+      height_mode: [ p.Any,        "auto"  ],
       disabled:    [ p.Bool,       false   ],
       sizing_mode: [ p.SizingMode, "fixed" ],
       css_classes: [ p.Array,      []      ],

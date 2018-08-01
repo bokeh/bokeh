@@ -52,6 +52,11 @@ export interface IRect {
   height: number
 }
 
+export type HorizontalPosition = {left: number, width: number} | {width: number, right: number}   | {left: number, right: number}
+export type VerticalPosition   = {top: number, height: number} | {height: number, bottom: number} | {top: number, bottom: number}
+
+export type Position = HorizontalPosition & VerticalPosition
+
 export interface IRange {
   start: number
   end: number
@@ -64,8 +69,8 @@ export class BBox implements IBBox {
   readonly x1: number
   readonly y1: number
 
-  constructor(box: IBBox | IRect) {
-    if ('x0' in box && 'y0' in box && 'x1' in box && 'y1' in box) {
+  constructor(box: IBBox | IRect | Position) {
+    if ('x0' in box) {
       const {x0, y0, x1, y1} = box as IBBox
       if (!(x0 <= x1 && y0 <= y1))
         throw new Error(`invalid bbox {x0: ${x0}, y0: ${y0}, x1: ${x1}, y1: ${y1}}`)
@@ -73,7 +78,7 @@ export class BBox implements IBBox {
       this.y0 = y0
       this.x1 = x1
       this.y1 = y1
-    } else {
+    } else if ("x" in box) {
       const {x, y, width, height} = box as IRect
       if (!(width >= 0 && height >= 0))
         throw new Error(`invalid bbox {x: ${x}, y: ${y}, width: ${width}, height: ${height}}`)
@@ -81,6 +86,43 @@ export class BBox implements IBBox {
       this.y0 = y
       this.x1 = x + width
       this.y1 = y + height
+    } else {
+      let left: number, right: number
+      let top: number, bottom: number
+
+      if ("width" in box) {
+        if ("left" in box) {
+          left = box.left
+          right = left + box.width
+        } else {
+          right = box.right
+          left = right - box.width
+        }
+      } else {
+        left = box.left
+        right = box.right
+      }
+
+      if ("height" in box) {
+        if ("top" in box) {
+          top = box.top
+          bottom = top + box.height
+        } else {
+          bottom = box.bottom
+          top = bottom - box.height
+        }
+      } else {
+        top = box.top
+        bottom = box.bottom
+      }
+
+      if (!(left <= right && top <= bottom))
+        throw new Error(`invalid bbox {left: ${left}, top: ${top}, right: ${right}, bottom: ${bottom}}`)
+
+      this.x0 = left
+      this.y0 = top
+      this.x1 = right
+      this.y1 = bottom
     }
   }
 

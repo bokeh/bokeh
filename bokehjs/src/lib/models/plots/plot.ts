@@ -1,4 +1,3 @@
-import {logger} from "core/logging"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
 import {Signal0} from "core/signaling"
@@ -26,9 +25,23 @@ import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {Tool} from "../tools/tool"
 import {register_with_event, UIEvent} from 'core/bokeh_events'
 import {DataRange1d} from '../ranges/data_range1d'
+import {SizeHint} from "core/layout"
 
 export class PlotView extends LayoutDOMView {
   model: Plot
+
+  get_layoutable_models(): Layoutable {
+    return [this.model.plot_canvas]
+  }
+
+  size_hint(): SizeHint {
+    return this.plot_canvas_view.size_hint()
+  }
+
+  _set_geometry(outer: BBox, inner: BBox): void {
+    super._set_geometry(outer, inner)
+    this.plot_canvas_view.set_geometry(outer, inner)
+  }
 
   save(name: string): void {
     this.plot_canvas_view.save(name)

@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.enums import SizingMode
 from ..core.has_props import abstract
-from ..core.properties import Bool, Enum, Int, Instance, List, Seq, String
+from ..core.properties import Bool, Enum, Int, Instance, List, Seq, String, Either
 from ..core.validation import warning
 from ..core.validation.warnings import BOTH_CHILD_AND_ROOT, EMPTY_LAYOUT
 from ..model import Model
@@ -55,17 +55,28 @@ class LayoutDOM(Model):
 
     '''
 
-    width = Int(help="""
-    An optional width for the component (in pixels).
-    """)
-
-    height = Int(help="""
-    An optional height for the component (in pixels).
-    """)
-
     disabled = Bool(False, help="""
     Whether the widget will be disabled when rendered. If ``True``,
     the widget will be greyed-out, and not respond to UI events.
+    """)
+
+    width = Int(default=None, help="""
+    An optional width for the component (in pixels).
+    """)
+
+    height = Int(default=None, help="""
+    An optional height for the component (in pixels).
+    """)
+
+    #                                   fit  strech
+    width_mode = Enum("auto", "fixed", "min", "max", default="auto", help="""
+    """)
+
+    height_mode = Enum("auto", "fixed", "min", "max", default="auto", help="""
+    """)
+
+    aspect_ratio = Either(Enum("auto"), Int, default=None, help="""
+
     """)
 
     sizing_mode = Enum(SizingMode, default="fixed", help="""

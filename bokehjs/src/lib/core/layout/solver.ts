@@ -20,10 +20,6 @@ export const WEAK_EQ = _weak_constrainer(Operator.Eq)
 export const WEAK_LE = _weak_constrainer(Operator.Le)
 export const WEAK_GE = _weak_constrainer(Operator.Ge)
 
-export interface ComputedVariable {
-  readonly value: number
-}
-
 export class Solver {
 
   protected solver: ConstraintSolver

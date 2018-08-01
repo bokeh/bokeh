@@ -1,43 +1,14 @@
-import {Variable, ComputedVariable} from "./solver"
-import {HasProps} from "../has_props"
+import {Variable, ComputedVariable} from "./index"
 import {Arrayable} from "../types"
 import {BBox} from "../util/bbox"
-
-export type NormGeom = {
-  left: number, right: number,
-  top: number, bottom: number,
-  width: number, height: number,
-}
-
-export type Geom =
-  ({left: number, width: number}    | {width: number, right: number}   | {left: number, right: number})
-  &
-  ({top: number, height: number}    | {height: number, bottom: number} | {top: number, bottom: number})
+import {SizeHint} from "./index"
 
 export interface ViewTransform {
   compute: (v: number) => number
   v_compute: (vv: Arrayable<number>) => Arrayable<number>
 }
 
-export namespace LayoutCanvas {
-  export interface Attrs extends HasProps.Attrs {}
-
-  export interface Props extends HasProps.Props {}
-}
-
-export interface LayoutCanvas extends LayoutCanvas.Attrs {}
-
-export abstract class LayoutCanvas extends HasProps {
-
-  properties: LayoutCanvas.Props
-
-  constructor(attrs?: Partial<LayoutCanvas.Attrs>) {
-    super(attrs)
-  }
-
-  static initClass(): void {
-    this.prototype.type = "LayoutCanvas"
-  }
+export abstract class LayoutCanvas {
 
   _top: Variable
   _left: Variable
@@ -49,15 +20,13 @@ export abstract class LayoutCanvas extends HasProps {
   _hcenter: ComputedVariable
   _vcenter: ComputedVariable
 
-  initialize(): void {
-    super.initialize()
-
-    this._top = new Variable(`${this.toString()}.top`)
-    this._left = new Variable(`${this.toString()}.left`)
-    this._width = new Variable(`${this.toString()}.width`)
-    this._height = new Variable(`${this.toString()}.height`)
-    this._right = new Variable(`${this.toString()}.right`)
-    this._bottom = new Variable(`${this.toString()}.bottom`)
+  constructor() {
+    this._top = {value: 0}
+    this._left = {value: 0}
+    this._width = {value: 0}
+    this._height = {value: 0}
+    this._right = {value: 0}
+    this._bottom = {value: 0}
 
     const layout = this
     this._hcenter = {
@@ -72,56 +41,23 @@ export abstract class LayoutCanvas extends HasProps {
     }
   }
 
-  set_geom(geom: Geom): void {
-    let left: number, right: number, width: number
-    let top: number, bottom: number, height: number
+  abstract size_hint(): SizeHint
 
-    if ("width" in geom) {
-      if ("left" in geom) {
-        left = geom.left
-        width = geom.width
-        right = left + width
-      } else {
-        right = geom.right
-        width = geom.width
-        left = right - width
-      }
-    } else {
-      left = geom.left
-      right = geom.right
-      width = right - left
-    }
+  _set_geometry(outer: BBox, _inner: BBox): void {
+    this._left.value = outer.left
+    this._top.value = outer.top
+    this._right.value = outer.right
+    this._bottom.value = outer.bottom
+    this._width.value = outer.width
+    this._height.value = outer.height
+  }
 
-    if ("height" in geom) {
-      if ("top" in geom) {
-        top = geom.top
-        height = geom.height
-        bottom = top + height
-      } else {
-        bottom = geom.bottom
-        height = geom.height
-        top = bottom - height
-      }
-    } else {
-      top = geom.top
-      bottom = geom.bottom
-      height = bottom - top
-    }
-
-    this._set_geom({left, right, width, top, bottom, height})
+  set_geometry(outer: BBox, inner?: BBox): void {
+    this._set_geometry(outer, inner || outer)
   }
 
   get_layoutable_children(): any[] {
     return []
-  }
-
-  _set_geom(geom: NormGeom): void {
-    this._top.setValue(geom.top)
-    this._bottom.setValue(geom.bottom)
-    this._left.setValue(geom.left)
-    this._right.setValue(geom.right)
-    this._width.setValue(geom.width)
-    this._height.setValue(geom.height)
   }
 
   get bbox(): BBox {
@@ -176,6 +112,4 @@ export abstract class LayoutCanvas extends HasProps {
 }
 LayoutCanvas.initClass()
 
-export abstract class LayoutItem extends LayoutCanvas {
-  abstract get_size(): number
-}
+export abstract class LayoutItem extends LayoutCanvas {}
