@@ -340,7 +340,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
 
     '''
 
-    def __init__(self, document, column_source, data, rollover, setter=None, callback_invoker=None):
+    def __init__(self, document, column_source, data, rollover, append, setter=None, callback_invoker=None):
         '''
 
         Args:
@@ -359,6 +359,8 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
                 A rollover limit. If the data source columns exceed this
                 limit, earlier values will be discarded to maintain the
                 column length under the limit.
+
+            append (bool, optional) : append/prepend TBD
 
             setter (ClientSession or ServerSession or None, optional) :
                 This is used to prevent "boomerang" updates to Bokeh apps.
@@ -381,6 +383,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
 
         self.data = data
         self.rollover = rollover
+        self.append = append
 
     def dispatch(self, receiver):
         ''' Dispatch handling of this event to a receiver.

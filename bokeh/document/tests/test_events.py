@@ -180,8 +180,8 @@ class TestModelChangedEvent(object):
     def test_combine_with_hint_defers(self, mock_combine):
         mock_combine.return_value = False
         m = FakeModel()
-        h = bde.ColumnsStreamedEvent("doc", m, dict(foo=1), 200, "setter", "invoker")
-        h2 = bde.ColumnsStreamedEvent("doc", m, dict(foo=2), 300, "setter", "invoker")
+        h = bde.ColumnsStreamedEvent("doc", m, dict(foo=1), 200, True, "setter", "invoker")
+        h2 = bde.ColumnsStreamedEvent("doc", m, dict(foo=2), 300, True, "setter", "invoker")
         e = bde.ModelChangedEvent("doc", "model", "attr", "old", "new", "snew", hint=h, callback_invoker="invoker")
         e2 = bde.ModelChangedEvent("doc", "model", "attr", "old2", "new2", "snew2", hint=h2, callback_invoker="invoker2")
         assert e.combine(e2) == False
@@ -235,17 +235,18 @@ class TestColumnsStreamedEvent(object):
 
     def test_init(self):
         m = FakeModel()
-        e = bde.ColumnsStreamedEvent("doc", m, dict(foo=1), 200, "setter", "invoker")
+        e = bde.ColumnsStreamedEvent("doc", m, dict(foo=1), 200, False, "setter", "invoker")
         assert e.document == "doc"
         assert e.column_source == m
         assert e.data == dict(foo=1)
         assert e.rollover == 200
+        assert e.append == False
         assert e.setter == "setter"
         assert e.callback_invoker == "invoker"
 
     def test_generate(self):
         m = FakeModel()
-        e = bde.ColumnsStreamedEvent("doc", m, dict(foo=1), 200, "setter", "invoker")
+        e = bde.ColumnsStreamedEvent("doc", m, dict(foo=1), 200, True, "setter", "invoker")
         refs = dict(foo=10)
         bufs = set()
         r = e.generate(refs, bufs)
@@ -255,7 +256,7 @@ class TestColumnsStreamedEvent(object):
 
     def test_dispatch(self):
         m = FakeModel()
-        e = bde.ColumnsStreamedEvent("doc", m, dict(foo=1), 200, "setter", "invoker")
+        e = bde.ColumnsStreamedEvent("doc", m, dict(foo=1), 200, True, "setter", "invoker")
         e.dispatch(FakeEmptyDispatcher())
         d = FakeFullDispatcher()
         e.dispatch(d)
@@ -263,8 +264,8 @@ class TestColumnsStreamedEvent(object):
 
     def test_combine_ignores_all(self):
         m = FakeModel()
-        e = bde.ColumnsStreamedEvent("doc", m, dict(foo=1), 200, "setter", "invoker")
-        e2 = bde.ColumnsStreamedEvent("doc", m, dict(foo=2), 300, "setter", "invoker")
+        e = bde.ColumnsStreamedEvent("doc", m, dict(foo=1), 200, True, "setter", "invoker")
+        e2 = bde.ColumnsStreamedEvent("doc", m, dict(foo=2), 300, True, "setter", "invoker")
         assert e.combine(e2) == False
         assert e.column_source is m
         assert e.data == dict(foo=1)
@@ -273,7 +274,7 @@ class TestColumnsStreamedEvent(object):
     def test_pandas_data(self, pd):
         m = FakeModel()
         df = pd.DataFrame({'x': [1, 2, 3], 'y': [4, 5, 6]})
-        e = bde.ColumnsStreamedEvent("doc", m, df, 200, "setter", "invoker")
+        e = bde.ColumnsStreamedEvent("doc", m, df, 200, True, "setter", "invoker")
         assert isinstance(e.data, dict)
         assert e.data == {c: df[c] for c in df.columns}
 

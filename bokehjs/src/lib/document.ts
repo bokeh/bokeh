@@ -84,6 +84,7 @@ export interface ColumnsStreamed {
   kind: "ColumnsStreamed"
   column_source: Ref
   data: {[key: string]: any[]}
+  append: boolean
   rollover?: number
 }
 
@@ -859,7 +860,8 @@ export class Document {
           }
           const data = event_json.data
           const rollover = event_json.rollover
-          column_source.stream(data, rollover)
+          const append = event_json.append
+          column_source.stream(data, rollover, append)
           break
         }
         case 'ColumnsPatched': {

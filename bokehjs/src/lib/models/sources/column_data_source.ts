@@ -10,21 +10,28 @@ import * as typed_array from "core/util/typed_array"
 import {keys} from "core/util/object"
 
 //exported for testing
-export function stream_to_column(col: Arrayable, new_col: Arrayable, rollover?: number): Arrayable {
+// FIXME : Too complex
+export function stream_to_column(col: Arrayable, new_col: Arrayable, rollover?: number, append = true): Arrayable {
   if (isArray(col)) {
-    const result = col.concat(new_col)
+    const result = append ? col.concat(new_col) : new_col.concat(col)
+    // FIXME : 
 
-    if (rollover != null && result.length > rollover)
-      return result.slice(-rollover)
-    else
+    if (rollover != null && result.length > rollover) {
+      if (append) {
+        return result.slice(-rollover)
+      } else {
+        return result.slice(0, rollover)
+      }
+    } else {
       return result
+    }
   } else if (isTypedArray(col)) {
     const total_len = col.length + new_col.length
 
     // handle rollover case for typed arrays
     if (rollover != null && total_len > rollover) {
-      const start = total_len - rollover
-      const end = col.length
+      const start = append ? total_len - rollover : 0
+      const end = append ? col.length : rollover
 
       // resize col if it is shorter than the rollover length
       let result: TypedArray
@@ -35,19 +42,32 @@ export function stream_to_column(col: Arrayable, new_col: Arrayable, rollover?: 
         result = col
 
       // shift values in original col to accommodate new_col
-      for (let i = start, endi = end; i < endi; i++) {
-        result[i-start] = result[i]
+      if (append) {
+        for (let i = start, endi = end; i < endi; i++) {
+          result[i-start] = result[i]
+        }
       }
 
       // update end values in col with new_col
-      for (let i = 0, endi = new_col.length; i < endi; i++) {
-        result[i+(end-start)] = new_col[i]
+      if (append) {
+        for (let i = 0, endi = new_col.length; i < endi; i++) {
+          result[i+(end-start)] = new_col[i]
+        }
+      } else {
+        for (let i = 0, endi = new_col.length; i < endi; i++) {
+          result[i] = new_col[i]
+        }
       }
 
       return result
     } else {
-      const tmp = new ((col as any).constructor)(new_col)
-      return typed_array.concat(col, tmp)
+      if (append) {
+        const tmp = new ((col as any).constructor)(new_col)
+        return typed_array.concat(col, tmp)
+      } else {
+        const tmp = new ((col as any).constructor)(new_col)
+        return typed_array.concat(tmp, col)
+      }
     }
   } else
     throw new Error("unsupported array types")
@@ -184,10 +204,10 @@ export class ColumnDataSource extends ColumnarDataSource {
       return HasProps._value_to_json(key, value, optional_parent_object)
   }
 
-  stream(new_data: {[key: string]: any[]}, rollover?: number): void {
+  stream(new_data: {[key: string]: any[]}, rollover?: number, append = true): void {
     const {data} = this
     for (const k in new_data) {
-      data[k] = stream_to_column(data[k], new_data[k], rollover)
+      data[k] = stream_to_column(data[k], new_data[k], rollover, append)
     }
     this.setv({data}, {silent: true})
     this.streaming.emit()
