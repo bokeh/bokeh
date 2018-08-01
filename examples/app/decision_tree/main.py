@@ -320,7 +320,7 @@ def draw_arrow(width, level_width, y, x, source, p, mode="draw"):
                                       for x in arrow_coordinates["instances"]]
     arrow_data_source = ColumnDataSource(data=pd.DataFrame.from_dict(arrow_coordinates))
     if mode == "draw":
-        p.multi_line(line_width="instances", line_alpha=0.7, line_color="darkgray", 
+        p.multi_line(line_width="instances", line_alpha=0.7, line_color="darkgray",
                      name="multi_lines",
                      xs="xs", ys="ys", source=arrow_data_source)
     label = LabelSet(x='x_avg', y='y_avg', angle="angle",

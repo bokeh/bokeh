@@ -1,5 +1,5 @@
 # Data Sets
-## Lenses: 
+## Lenses:
 Link: https://archive.ics.uci.edu/ml/datasets/lenses
 
 
