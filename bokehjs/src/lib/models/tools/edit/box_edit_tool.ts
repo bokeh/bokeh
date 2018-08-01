@@ -93,7 +93,7 @@ export class BoxEditToolView extends EditToolView {
     } else {
       this._draw_basepoint = [ev.sx, ev.sy];
       this._select_event(ev, true, this.model.renderers);
-      this._update_box(ev, true, false);
+      this._update_box(ev, !this.model.overwrite, false);
     }
   }
 
@@ -105,7 +105,7 @@ export class BoxEditToolView extends EditToolView {
     if (ev.shiftKey) {
       if (this._draw_basepoint != null) { return }
       this._draw_basepoint = [ev.sx, ev.sy];
-      this._update_box(ev, true, false);
+      this._update_box(ev, !this.model.overwrite, false);
     } else {
       if (this._basepoint != null) { return }
       this._select_event(ev, true, this.model.renderers);
@@ -141,6 +141,7 @@ export namespace BoxEditTool {
   export interface Attrs extends EditTool.Attrs {
     dimensions: Dimensions
     renderers: (GlyphRenderer & HasRectCDS)[]
+    overwrite: boolean
   }
 
   export interface Props extends EditTool.Props {}
@@ -164,6 +165,7 @@ export class BoxEditTool extends EditTool {
 
     this.define({
       dimensions: [ p.Dimensions, "both" ],
+      overwrite: [ p.Bool, false ]
     })
   }
 

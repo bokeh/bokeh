@@ -1251,6 +1251,11 @@ class BoxEditTool(EditTool, Drag, Tap):
     the vertical dimension can be controlled.
     """)
 
+    overwrite = Bool(default=False, help="""
+    Whether the tool should overwrite the existing box, if there is one,
+    or whether it should add a new box on every draw event (the default).
+    """)
+
     @error(INCOMPATIBLE_BOX_EDIT_RENDERER)
     def _check_compatible_renderers(self):
         incompatible_renderers = []
@@ -1348,6 +1353,11 @@ class PolyDrawTool(EditTool, Drag, Tap):
     drag = Bool(default=True, help="""
     Enables dragging of existing patches and multi-lines on pan events.""")
 
+    overwrite = Bool(default=False, help="""
+    Whether the tool should overwrite the existing box, if there is one,
+    or whether it should add a new box on every draw event (the default).
+    """)
+    
     @error(INCOMPATIBLE_POLY_DRAW_RENDERER)
     def _check_compatible_renderers(self):
         incompatible_renderers = []
