@@ -171,7 +171,7 @@ export class FactorRange extends Range {
 
   initialize(): void {
     super.initialize()
-    this._init()
+    this._init(true)
   }
 
   connect_signals(): void {
@@ -185,7 +185,7 @@ export class FactorRange extends Range {
   }
 
   reset(): void {
-    this._init()
+    this._init(false)
     this.change.emit()
   }
 
@@ -235,7 +235,7 @@ export class FactorRange extends Range {
     return map(xs, (x) => this.synthetic(x))
   }
 
-  protected _init(): void {
+  protected _init(silent: boolean): void {
     let levels: number
     let inside_padding: number
     if (all(this.factors as any, isString)) {
@@ -262,7 +262,7 @@ export class FactorRange extends Range {
       end += this.range_padding
     }
 
-    this.setv({start: start, end: end, levels: levels}, {silent: true})
+    this.setv({start: start, end: end, levels: levels}, {silent: silent})
 
     if (this.bounds == "auto")
       this.setv({bounds: [start, end]}, {silent: true})

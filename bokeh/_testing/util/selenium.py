@@ -22,14 +22,15 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import pytest
 
 # External imports
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 
 # Bokeh imports
-from bokeh.util.terminal import warn
+from bokeh.models import Button
+from bokeh.util.serialization import make_id
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -38,6 +39,33 @@ from bokeh.util.terminal import warn
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+def COUNT(key):
+    return 'Bokeh._testing.count(%r);' % key
+
+INIT = 'Bokeh._testing.init();'
+
+def RECORD(key, value):
+    return 'Bokeh._testing.record(%r, %s);' % (key, value)
+
+RESULTS = 'return Bokeh._testing.results'
+
+def SCROLL(amt):
+    return """
+    var elt = document.getElementsByClassName("bk-canvas-events")[0];
+    var event = new WheelEvent('wheel', { deltaY: %f, clientX: 100, clientY: 100} );
+    elt.dispatchEvent(event);
+    """ % amt
+
+class ButtonWrapper(object):
+    def __init__(self, label, callback):
+        self.id = "button-" + make_id()
+        self.obj = Button(label=label, css_classes=[self.id])
+        self.obj.js_on_event('button_click', callback)
+
+    def click(self, driver):
+        button = driver.find_element_by_class_name(self.id)
+        button.click()
 
 class element_to_start_resizing(object):
     ''' An expectation for checking if an element has started resizing
@@ -70,21 +98,16 @@ class element_to_finish_resizing(object):
             self.previous_width = current_width
             return False
 
-def has_no_console_errors(selenium):
-    ''' Helper function to detect console errors.
 
-    '''
-    logs = selenium.get_log('browser')
-    severe_errors = [l for l in logs if l.get('level') == 'SEVERE']
-    non_network_errors = [l for l in severe_errors if l.get('type') != 'network']
-    if len(non_network_errors) == 0:
-        return True
-    else:
-        pytest.fail('Console errors: %s' % non_network_errors)
-    if len(non_network_errors) == 0 and len(severe_errors) != 0:
-        warn("There were severe network errors (this may or may not have affected your test): %s" % severe_errors)
-    canvas = selenium.find_element_by_tag_name('canvas')
-    wait_for_canvas_resize(canvas, selenium)
+def enter_text_in_cell(driver, cell, text):
+    actions = ActionChains(driver)
+    actions.move_to_element(cell)
+    actions.double_click()
+    actions.send_keys(text + u"\ue007")  # After the backslash is ENTER key
+    actions.perform()
+
+def get_table_cell(driver, row, col):
+    return driver.find_element_by_css_selector('.grid-canvas .slick-row:nth-child(%d) .r%d' % (row, col))
 
 def wait_for_canvas_resize(canvas, test_driver):
     '''
