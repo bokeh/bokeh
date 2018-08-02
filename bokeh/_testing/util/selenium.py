@@ -40,6 +40,9 @@ from bokeh.util.serialization import make_id
 # General API
 #-----------------------------------------------------------------------------
 
+def COUNT(key):
+    return 'Bokeh._testing.count(%r);' % key
+
 INIT = 'Bokeh._testing.init();'
 
 def RECORD(key, value):

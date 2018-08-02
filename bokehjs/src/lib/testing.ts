@@ -28,6 +28,13 @@ export function record(key: string, value: any): void {
   _update_test_div()
 }
 
+export function count(key: string): void {
+  if (results[key] == undefined)
+    results[key] = 0
+  results[key] += 1
+  _update_test_div()
+}
+
 export function clear(): void {
   for (const prop of Object.keys(results))
     delete results[prop]
