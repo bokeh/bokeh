@@ -51,7 +51,7 @@ class Test_CellEditor_Base(object):
 #     values = [True, False]
 #     editor = CheckboxEditor
 
-#     def test_editing_does_not_update_source_on_noneditable_table(self, bokeh_model_page, has_no_console_errors):
+#     def test_editing_does_not_update_source_on_noneditable_table(self, bokeh_model_page):
 #         self.table.editable = False
 #         page = bokeh_model_page(self.table)
 
@@ -71,9 +71,9 @@ class Test_CellEditor_Base(object):
 #         results = page.results
 #         assert results['values'] == self.values
 
-#         assert has_no_console_errors(page.driver)
+#         assert page.has_no_console_errors()
 
-#     def test_editing_updates_source(self, bokeh_model_page, has_no_console_errors):
+#     def test_editing_updates_source(self, bokeh_model_page):
 #         page = bokeh_model_page(self.table)
 
 #         # Click row 1 (which triggers the selection callback)
@@ -92,14 +92,14 @@ class Test_CellEditor_Base(object):
 #         results = page.results
 #         assert results['values'] == [False, False]
 
-#         assert has_no_console_errors(page.driver)
+#         assert page.has_no_console_errors()
 
 class Test_IntEditor(Test_CellEditor_Base):
 
     values = [1, 2]
     editor = IntEditor
 
-    def test_editing_does_not_update_source_on_noneditable_table(self, bokeh_model_page, has_no_console_errors):
+    def test_editing_does_not_update_source_on_noneditable_table(self, bokeh_model_page):
         self.table.editable = False
         page = bokeh_model_page(self.table)
 
@@ -119,10 +119,10 @@ class Test_IntEditor(Test_CellEditor_Base):
         results = page.results
         assert results['values'] == self.values
 
-        assert has_no_console_errors(page.driver)
+        assert page.has_no_console_errors()
 
     @pytest.mark.parametrize('bad', ["1.1", "text"])
-    def test_editing_does_not_update_source_on_bad_values(self, bad, bokeh_model_page, has_no_console_errors):
+    def test_editing_does_not_update_source_on_bad_values(self, bad, bokeh_model_page):
         self.table.editable = False
         page = bokeh_model_page(self.table)
 
@@ -142,9 +142,9 @@ class Test_IntEditor(Test_CellEditor_Base):
         results = page.results
         assert results['values'] == self.values
 
-        assert has_no_console_errors(page.driver)
+        assert page.has_no_console_errors()
 
-    def test_editing_updates_source(self, bokeh_model_page, has_no_console_errors):
+    def test_editing_updates_source(self, bokeh_model_page):
         page = bokeh_model_page(self.table)
 
         # Click row 1 (which triggers the selection callback)
@@ -163,14 +163,14 @@ class Test_IntEditor(Test_CellEditor_Base):
         results = page.results
         assert results['values'] == [33, 2]
 
-        assert has_no_console_errors(page.driver)
+        assert page.has_no_console_errors()
 
 class Test_NumberEditor(Test_CellEditor_Base):
 
     values = [1.1, 2.2]
     editor = NumberEditor
 
-    def test_editing_does_not_update_source_on_noneditable_table(self, bokeh_model_page, has_no_console_errors):
+    def test_editing_does_not_update_source_on_noneditable_table(self, bokeh_model_page):
         self.table.editable = False
         page = bokeh_model_page(self.table)
 
@@ -190,10 +190,10 @@ class Test_NumberEditor(Test_CellEditor_Base):
         results = page.results
         assert results['values'] == self.values
 
-        assert has_no_console_errors(page.driver)
+        assert page.has_no_console_errors()
 
     @pytest.mark.parametrize('bad', ["text"])
-    def test_editing_does_not_update_source_on_bad_values(self, bad, bokeh_model_page, has_no_console_errors):
+    def test_editing_does_not_update_source_on_bad_values(self, bad, bokeh_model_page):
         self.table.editable = False
         page = bokeh_model_page(self.table)
 
@@ -213,9 +213,9 @@ class Test_NumberEditor(Test_CellEditor_Base):
         results = page.results
         assert results['values'] == self.values
 
-        assert has_no_console_errors(page.driver)
+        assert page.has_no_console_errors()
 
-    def test_editing_updates_source(self, bokeh_model_page, has_no_console_errors):
+    def test_editing_updates_source(self, bokeh_model_page):
         page = bokeh_model_page(self.table)
 
         # Click row 1 (which triggers the selection callback)
@@ -234,14 +234,14 @@ class Test_NumberEditor(Test_CellEditor_Base):
         results = page.results
         assert results['values'] == [33.5, 2.2]
 
-        assert has_no_console_errors(page.driver)
+        assert page.has_no_console_errors()
 
 class Test_StringEditor(Test_CellEditor_Base):
 
     values = ["foo", "bar"]
     editor = StringEditor
 
-    def test_editing_does_not_update_source_on_noneditable_table(self, bokeh_model_page, has_no_console_errors):
+    def test_editing_does_not_update_source_on_noneditable_table(self, bokeh_model_page):
         self.table.editable = False
         page = bokeh_model_page(self.table)
 
@@ -261,10 +261,10 @@ class Test_StringEditor(Test_CellEditor_Base):
         results = page.results
         assert results['values'] == self.values
 
-        assert has_no_console_errors(page.driver)
+        assert page.has_no_console_errors()
 
     @pytest.mark.parametrize('bad', ["1", "1.1", "-1"])
-    def test_editing_does_not_update_source_on_bad_values(self, bad, bokeh_model_page, has_no_console_errors):
+    def test_editing_does_not_update_source_on_bad_values(self, bad, bokeh_model_page):
         self.table.editable = False
         page = bokeh_model_page(self.table)
 
@@ -284,9 +284,9 @@ class Test_StringEditor(Test_CellEditor_Base):
         results = page.results
         assert results['values'] == self.values
 
-        assert has_no_console_errors(page.driver)
+        assert page.has_no_console_errors()
 
-    def test_editing_updates_source(self, bokeh_model_page, has_no_console_errors):
+    def test_editing_updates_source(self, bokeh_model_page):
         page = bokeh_model_page(self.table)
 
         # Click row 1 (which triggers the selection callback)
@@ -305,7 +305,7 @@ class Test_StringEditor(Test_CellEditor_Base):
         results = page.results
         assert results['values'] == ["baz", "bar"]
 
-        assert has_no_console_errors(page.driver)
+        assert page.has_no_console_errors()
 
 # XXX (bev) PercentEditor is currently completely broken
 # class Test_PercentEditor(Test_CellEditor_Base):
@@ -313,7 +313,7 @@ class Test_StringEditor(Test_CellEditor_Base):
 #     values = [0.1, 0.2]
 #     editor = PercentEditor
 
-#     def test_editing_does_not_update_source_on_noneditable_table(self, bokeh_model_page, has_no_console_errors):
+#     def test_editing_does_not_update_source_on_noneditable_table(self, bokeh_model_page):
 #         self.table.editable = False
 #         page = bokeh_model_page(self.table)
 
@@ -333,10 +333,10 @@ class Test_StringEditor(Test_CellEditor_Base):
 #         results = page.results
 #         assert results['values'] == self.values
 
-#         assert has_no_console_errors(page.driver)
+#         assert page.has_no_console_errors()
 
 #     @pytest.mark.parametrize('bad', ["-1", "-0.5", "1.1", "2", "text"])
-#     def test_editing_does_not_update_source_on_bad_values(self, bad, bokeh_model_page, has_no_console_errors):
+#     def test_editing_does_not_update_source_on_bad_values(self, bad, bokeh_model_page):
 #         self.table.editable = False
 #         page = bokeh_model_page(self.table)
 
@@ -356,9 +356,9 @@ class Test_StringEditor(Test_CellEditor_Base):
 #         results = page.results
 #         assert results['values'] == self.values
 
-#         assert has_no_console_errors(page.driver)
+#         assert page.has_no_console_errors()
 
-#     def test_editing_updates_source(self, bokeh_model_page, has_no_console_errors):
+#     def test_editing_updates_source(self, bokeh_model_page):
 #         page = bokeh_model_page(self.table)
 
 #         # click row 1 (which triggers the selection callback)
@@ -377,4 +377,4 @@ class Test_StringEditor(Test_CellEditor_Base):
 #         results = page.results
 #         assert results['values'] == [0.5, 0.2]
 
-#         assert has_no_console_errors(page.driver)
+#         assert page.has_no_console_errors()

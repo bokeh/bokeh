@@ -50,7 +50,7 @@ class Test_CellEditor_Base(object):
 @pytest.mark.selenium
 class Test_Datatable(object):
 
-    def test_row_highlights_reflect_no_initial_selection(self, bokeh_model_page, has_no_console_errors):
+    def test_row_highlights_reflect_no_initial_selection(self, bokeh_model_page):
 
         source = ColumnDataSource({'values': [1, 2]})
         column = TableColumn(field='values', title='values')
@@ -64,9 +64,9 @@ class Test_Datatable(object):
         row1 = get_table_cell(page.driver, 2, 1)
         assert 'selected' not in row1.get_attribute('class')
 
-        assert has_no_console_errors(page.driver)
+        assert page.has_no_console_errors()
 
-    def test_row_highlights_reflect_initial_selection(self, bokeh_model_page, has_no_console_errors):
+    def test_row_highlights_reflect_initial_selection(self, bokeh_model_page):
 
         source = ColumnDataSource({'values': [1, 2]})
         source.selected.indices = [1]
@@ -81,9 +81,9 @@ class Test_Datatable(object):
         row1 = get_table_cell(page.driver, 2, 1)
         assert 'selected' in row1.get_attribute('class')
 
-        assert has_no_console_errors(page.driver)
+        assert page.has_no_console_errors()
 
-    def test_row_highlights_reflect_ui_selection(self, bokeh_model_page, has_no_console_errors):
+    def test_row_highlights_reflect_ui_selection(self, bokeh_model_page):
 
         source = ColumnDataSource({'values': [1, 2]})
         column = TableColumn(field='values', title='values')
@@ -106,9 +106,9 @@ class Test_Datatable(object):
         row1 = get_table_cell(page.driver, 2, 1)
         assert 'selected' in row1.get_attribute('class')
 
-        assert has_no_console_errors(page.driver)
+        assert page.has_no_console_errors()
 
-    def test_row_highlights_reflect_js_selection(self, bokeh_model_page, has_no_console_errors):
+    def test_row_highlights_reflect_js_selection(self, bokeh_model_page):
 
         source = ColumnDataSource({'values': [1, 2]})
         col = TableColumn(field='values', title='values')
@@ -134,4 +134,4 @@ class Test_Datatable(object):
         row1 = get_table_cell(page.driver, 2, 1)
         assert 'selected' in row1.get_attribute('class')
 
-        assert has_no_console_errors(page.driver)
+        assert page.has_no_console_errors()
