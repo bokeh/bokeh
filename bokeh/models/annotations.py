@@ -528,7 +528,8 @@ class Band(Annotation):
     """)
 
     dimension = Enum(Dimension, default='height', help="""
-    The direction of the band.
+    The direction of the band can be specified by setting this property 
+    to ``height`` (``y`` direction) or ``dimension`` (``x`` direction).
     """)
 
     source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
@@ -856,7 +857,8 @@ class Span(Annotation):
     """)
 
     dimension = Enum(Dimension, default='width', help="""
-    The direction of the span.
+    The direction of the band can be specified by setting this property 
+    to ``height`` (``y`` direction) or ``dimension`` (``x`` direction).
     """)
 
     x_range_name = String('default', help="""
@@ -1019,7 +1021,8 @@ class Whisker(Annotation):
     """)
 
     dimension = Enum(Dimension, default='height', help="""
-    The direction of the band.
+    The direction of the band can be specified by setting this property 
+    to ``height`` (``y`` direction) or ``dimension`` (``x`` direction).
     """)
 
     source = Instance(DataSource, default=lambda: ColumnDataSource(), help="""
