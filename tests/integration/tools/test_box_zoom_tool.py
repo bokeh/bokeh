@@ -53,7 +53,7 @@ class Test_BoxZoomTool(object):
 
         page = single_plot_page(plot)
 
-        button = page.driver.find_element_by_class_name('bk-tool-icon-box-zoom')
+        button = page.get_toolbar_button('box-zoom')
         assert 'active' not in button.get_attribute('class')
 
         assert page.has_no_console_errors()
@@ -63,7 +63,7 @@ class Test_BoxZoomTool(object):
 
         page = single_plot_page(plot)
 
-        button = page.driver.find_element_by_class_name('bk-tool-icon-box-zoom')
+        button = page.get_toolbar_button('box-zoom')
         assert 'active' in button.get_attribute('class')
 
         assert page.has_no_console_errors()
@@ -75,16 +75,16 @@ class Test_BoxZoomTool(object):
         page = single_plot_page(plot)
 
         # Check is not active
-        button = page.driver.find_element_by_class_name('bk-tool-icon-box-zoom')
+        button = page.get_toolbar_button('box-zoom')
         assert 'active' not in button.get_attribute('class')
 
         # Click and check is active
-        button = page.driver.find_element_by_class_name('bk-tool-icon-box-zoom')
+        button = page.get_toolbar_button('box-zoom')
         button.click()
         assert 'active' in button.get_attribute('class')
 
         # Click again and check is not active
-        button = page.driver.find_element_by_class_name('bk-tool-icon-box-zoom')
+        button = page.get_toolbar_button('box-zoom')
         button.click()
         assert 'active' not in button.get_attribute('class')
 
@@ -96,7 +96,7 @@ class Test_BoxZoomTool(object):
 
         page = single_plot_page(plot)
 
-        button = page.driver.find_element_by_class_name('bk-tool-icon-box-zoom')
+        button = page.get_toolbar_button('box-zoom')
         button.click()
 
         page.drag_canvas_at_position(100, 100, 20, 20)

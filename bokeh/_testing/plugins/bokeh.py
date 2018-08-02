@@ -130,12 +130,16 @@ class _SinglePlotPage(_BokehModelPage):
     def click_canvas_at_position(self, x, y):
         self.click_element_at_position(self.canvas, x, y)
 
-    def drag_canvas_at_position(self, x, y, dx, dy):
-        self.drag_element_at_position(self.canvas, x, y, dx, dy)
-
     def click_custom_action(self):
         button = self._driver.find_element_by_class_name("bk-toolbar-button-custom-action")
         button.click()
+
+    def drag_canvas_at_position(self, x, y, dx, dy):
+        self.drag_element_at_position(self.canvas, x, y, dx, dy)
+
+    def get_toolbar_button(self, name):
+        return self.driver.find_element_by_class_name('bk-tool-icon-' + name)
+
 
 @pytest.fixture()
 def single_plot_page(driver, output_file_url, has_no_console_errors):

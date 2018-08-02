@@ -52,7 +52,7 @@ class Test_ResetTool(object):
 
         page = single_plot_page(plot)
 
-        button = page.driver.find_element_by_class_name('bk-tool-icon-reset')
+        button = page.get_toolbar_button('reset')
         assert 'active' not in button.get_attribute('class')
 
         assert page.has_no_console_errors()
@@ -63,7 +63,7 @@ class Test_ResetTool(object):
         page = single_plot_page(plot)
 
         # Change the ranges using a zoom in tool
-        button = page.driver.find_element_by_class_name('bk-tool-icon-zoom-in')
+        button = page.get_toolbar_button('zoom-in')
         button.click()
 
         page.click_custom_action()
@@ -75,7 +75,7 @@ class Test_ResetTool(object):
         assert results['yrend'] != 1
 
         # Click the reset tool and check the ranges are restored
-        button = page.driver.find_element_by_class_name('bk-tool-icon-reset')
+        button = page.get_toolbar_button('reset')
         button.click()
 
         page.click_custom_action()
@@ -117,7 +117,7 @@ class Test_ResetTool(object):
         assert results['multiline_indices'] == {"0": [0]} # XXX (bev) string key
 
         # Click the reset tool and check the selections are restored
-        button = page.driver.find_element_by_class_name('bk-tool-icon-reset')
+        button = page.get_toolbar_button('reset')
         button.click()
 
         page.click_custom_action()
