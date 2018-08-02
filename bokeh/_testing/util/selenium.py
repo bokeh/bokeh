@@ -25,9 +25,12 @@ log = logging.getLogger(__name__)
 
 # External imports
 from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 
 # Bokeh imports
+from bokeh.models import Button
+from bokeh.util.serialization import make_id
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -50,6 +53,16 @@ def SCROLL(amt):
     var event = new WheelEvent('wheel', { deltaY: %f, clientX: 100, clientY: 100} );
     elt.dispatchEvent(event);
     """ % amt
+
+class ButtonWrapper(object):
+    def __init__(self, label, callback):
+        self.id = "button-" + make_id()
+        self.obj = Button(label=label, css_classes=[self.id])
+        self.obj.js_on_event('button_click', callback)
+
+    def click(self, driver):
+        button = driver.find_element_by_class_name(self.id)
+        button.click()
 
 class element_to_start_resizing(object):
     ''' An expectation for checking if an element has started resizing
@@ -81,6 +94,17 @@ class element_to_finish_resizing(object):
         else:
             self.previous_width = current_width
             return False
+
+
+def enter_text_in_cell(driver, cell, text):
+    actions = ActionChains(driver)
+    actions.move_to_element(cell)
+    actions.double_click()
+    actions.send_keys(text + u"\ue007")  # After the backslash is ENTER key
+    actions.perform()
+
+def get_table_cell(driver, row, col):
+    return driver.find_element_by_css_selector('.grid-canvas .slick-row:nth-child(%d) .r%d' % (row, col))
 
 def wait_for_canvas_resize(canvas, test_driver):
     '''
