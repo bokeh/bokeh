@@ -528,7 +528,7 @@ class Band(Annotation):
     """)
 
     dimension = Enum(Dimension, default='height', help="""
-    The direction of the band can be specified by setting this property 
+    The direction of the band can be specified by setting this property
     to "height" (``y`` direction) or "width" (``x`` direction).
     """)
 
@@ -857,7 +857,7 @@ class Span(Annotation):
     """)
 
     dimension = Enum(Dimension, default='width', help="""
-    The direction of the span can be specified by setting this property 
+    The direction of the span can be specified by setting this property
     to "height" (``y`` direction) or "width" (``x`` direction).
     """)
 
@@ -1021,7 +1021,7 @@ class Whisker(Annotation):
     """)
 
     dimension = Enum(Dimension, default='height', help="""
-    The direction of the whisker can be specified by setting this property 
+    The direction of the whisker can be specified by setting this property
     to "height" (``y`` direction) or "width" (``x`` direction).
     """)
 
