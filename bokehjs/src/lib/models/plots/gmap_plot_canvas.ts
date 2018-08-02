@@ -126,6 +126,7 @@ export class GMapPlotCanvasView extends PlotCanvasView {
       disableDefaultUI: true,
       mapTypeId: this.map_types[mo.map_type],
       scaleControl: mo.scale_control,
+      tilt: mo.tilt,
     }
 
     if (mo.styles != null)
@@ -150,6 +151,7 @@ export class GMapPlotCanvasView extends PlotCanvasView {
     this.connect(this.model.plot.map_options.properties.zoom.change, () => this._update_zoom())
     this.connect(this.model.plot.map_options.properties.map_type.change, () => this._update_map_type())
     this.connect(this.model.plot.map_options.properties.scale_control.change, () => this._update_scale_control())
+    this.connect(this.model.plot.map_options.properties.tilt.change, () => this._update_tilt())
   }
 
   protected _render_finished(): void {
@@ -199,6 +201,10 @@ export class GMapPlotCanvasView extends PlotCanvasView {
 
   protected _update_scale_control(): void {
     this.map.setOptions({scaleControl: this.model.plot.map_options.scale_control })
+  }
+
+  protected _update_tilt(): void {
+    this.map.setOptions({tilt: this.model.plot.map_options.tilt })
   }
 
   protected _update_options(): void {

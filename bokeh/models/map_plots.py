@@ -76,6 +76,16 @@ class GMapOptions(MapOptions):
 
     """)
 
+    tilt = Int(default=45, help="""
+    `Tilt`_ angle of the map. The only allowed values are 0 and 45.
+    Only has an effect on 'satellite' and 'hybrid' map types.
+    A value of 0 causes the map to always use a 0 degree overhead view.
+    A value of 45 causes the tilt angle to switch to 45 imagery if available.
+
+    .. _Tilt: https://developers.google.com/maps/documentation/javascript/reference/3/map#MapOptions.tilt
+
+    """)
+
 class GMapPlot(MapPlot):
     ''' A Bokeh Plot with a `Google Map`_ displayed underneath.
 
