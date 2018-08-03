@@ -1308,6 +1308,12 @@ class PointDrawTool(EditTool, Drag, Tap):
     drag = Bool(default=True, help="""
     Enables dragging of existing points on pan events.""")
 
+    num_objects = Int(default=0, help="""
+    Defines a limit on the number of points that can be drawn. By
+    default there is no limit on the number of objects, but if enabled
+    the oldest drawn point will be overwritten when the limit is reached.
+    """)
+
     @error(INCOMPATIBLE_POINT_DRAW_RENDERER)
     def _check_compatible_renderers(self):
         incompatible_renderers = []

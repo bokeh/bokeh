@@ -147,7 +147,7 @@ export class BoxEditToolView extends EditToolView {
 export namespace BoxEditTool {
   export interface Attrs extends EditTool.Attrs {
     dimensions: Dimensions
-    num_objects: Number
+    num_objects: number
     renderers: (GlyphRenderer & HasRectCDS)[]
   }
 

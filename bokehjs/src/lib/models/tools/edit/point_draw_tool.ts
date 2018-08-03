@@ -25,6 +25,14 @@ export class PointDrawToolView extends EditToolView {
     const [xkey, ykey] = [glyph.x.field, glyph.y.field];
     const [x, y] = point;
 
+    if (this.model.num_objects &&
+        ((xkey && ds.get_array(xkey).length >= this.model.num_objects) ||
+         (ykey && ds.get_array(ykey).length >= this.model.num_objects))) {
+      for (const column of ds.columns()) {
+        ds.get_array(column).splice(0, 1)
+      }
+    }
+
     if (xkey) ds.get_array(xkey).push(x)
     if (ykey) ds.get_array(ykey).push(y)
 
@@ -79,6 +87,7 @@ export namespace PointDrawTool {
   export interface Attrs extends EditTool.Attrs {
     add: boolean
     drag: boolean
+    num_objects: number
     renderers: (GlyphRenderer & HasXYGlyph)[]
   }
 
@@ -104,6 +113,7 @@ export class PointDrawTool extends EditTool {
     this.define({
       add:  [ p.Bool, true ],
       drag: [ p.Bool, true ],
+      num_objects: [ p.Int, 0 ],
     })
   }
 

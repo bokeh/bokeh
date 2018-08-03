@@ -201,8 +201,8 @@ export class PolyDrawToolView extends EditToolView {
 export namespace PolyDrawTool {
   export interface Attrs extends EditTool.Attrs {
     drag: boolean
-    num_objects: Number
     renderers: (GlyphRenderer & HasPolyGlyph)[]
+    num_objects: number
   }
 
   export interface Props extends EditTool.Props {}
@@ -227,7 +227,7 @@ export class PolyDrawTool extends EditTool {
 
     this.define({
       drag: [ p.Bool, true ],
-      num_objects: [ p.Int, null ]
+      num_objects: [ p.Int, 0 ],
     })
   }
 
