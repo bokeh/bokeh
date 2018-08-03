@@ -47,12 +47,14 @@ export namespace GMapOptions {
     map_type: string
     scale_control: boolean
     styles: string
+    tilt: number
   }
 
   export interface Props extends MapOptions.Props {
     map_type: p.Property<string>
     scale_control: p.Property<boolean>
     styles: p.Property<string>
+    tilt: p.Property<number>
   }
 }
 
@@ -73,6 +75,7 @@ export class GMapOptions extends MapOptions {
       map_type:      [ p.String, "roadmap" ],
       scale_control: [ p.Bool,   false     ],
       styles:        [ p.String            ],
+      tilt:          [ p.Int,    45        ],
     })
   }
 }
