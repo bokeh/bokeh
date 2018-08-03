@@ -36,13 +36,7 @@ export class PolyDrawToolView extends EditToolView {
     const glyph: any = renderer.glyph;
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field];
     if (mode == 'new') {
-      if (this.model.num_objects &&
-          ((xkey && ds.get_array(xkey).length >= this.model.num_objects) ||
-           (ykey && ds.get_array(ykey).length >= this.model.num_objects))) {
-        for (const column of ds.columns()) {
-          ds.get_array(column).splice(0, 1)
-        }
-      }
+      this._pop_glyphs(ds, this.model.num_objects, xkey, ykey)
       if (xkey) ds.get_array(xkey).push([x, x])
       if (ykey) ds.get_array(ykey).push([y, y])
       this._pad_empty_columns(ds, [xkey, ykey]);

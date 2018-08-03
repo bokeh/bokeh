@@ -53,6 +53,17 @@ export abstract class EditToolView extends GestureToolView {
     cds.selection_manager.clear();
   }
 
+  _pop_glyphs(cds: ColumnarDataSource, num_objects: number, xkey: string | null, ykey: string | null) {
+    // Pops rows in the CDS until only num_objects are left
+    while (num_objects &&
+           ((xkey && cds.get_array(xkey).length >= num_objects) ||
+            (ykey && cds.get_array(ykey).length >= num_objects))) {
+      for (const column of cds.columns()) {
+        cds.get_array(column).splice(0, 1)
+      }
+    }
+  }
+
   _drag_points(ev: UIEvent, renderers: (GlyphRenderer & HasXYGlyph)[]): void {
     if (this._basepoint == null) { return; };
     const [bx, by] = this._basepoint;
