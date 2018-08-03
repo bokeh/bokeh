@@ -51,6 +51,13 @@ export class BoxEditToolView extends EditToolView {
     const [xkey, ykey] = [glyph.x.field, glyph.y.field];
     const [wkey, hkey] = [glyph.width.field, glyph.height.field];
     if (append) {
+      if (this.model.num_objects &&
+          ((xkey && ds.get_array(xkey).length >= this.model.num_objects) ||
+           (ykey && ds.get_array(ykey).length >= this.model.num_objects))) {
+        for (const column of ds.columns()) {
+          ds.get_array(column).splice(0, 1)
+        }
+      }
       if (xkey) ds.get_array(xkey).push(x)
       if (ykey) ds.get_array(ykey).push(y)
       if (wkey) ds.get_array(wkey).push(w)
@@ -93,7 +100,7 @@ export class BoxEditToolView extends EditToolView {
     } else {
       this._draw_basepoint = [ev.sx, ev.sy];
       this._select_event(ev, true, this.model.renderers);
-      this._update_box(ev, !this.model.overwrite, false);
+      this._update_box(ev, true, false);
     }
   }
 
@@ -105,7 +112,7 @@ export class BoxEditToolView extends EditToolView {
     if (ev.shiftKey) {
       if (this._draw_basepoint != null) { return }
       this._draw_basepoint = [ev.sx, ev.sy];
-      this._update_box(ev, !this.model.overwrite, false);
+      this._update_box(ev, true, false);
     } else {
       if (this._basepoint != null) { return }
       this._select_event(ev, true, this.model.renderers);
@@ -140,8 +147,8 @@ export class BoxEditToolView extends EditToolView {
 export namespace BoxEditTool {
   export interface Attrs extends EditTool.Attrs {
     dimensions: Dimensions
+    num_objects: Number
     renderers: (GlyphRenderer & HasRectCDS)[]
-    overwrite: boolean
   }
 
   export interface Props extends EditTool.Props {}
@@ -165,7 +172,7 @@ export class BoxEditTool extends EditTool {
 
     this.define({
       dimensions: [ p.Dimensions, "both" ],
-      overwrite: [ p.Bool, false ]
+      num_objects: [ p.Int, 0 ]
     })
   }
 

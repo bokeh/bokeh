@@ -36,20 +36,16 @@ export class PolyDrawToolView extends EditToolView {
     const glyph: any = renderer.glyph;
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field];
     if (mode == 'new') {
-      if (this.model.overwrite && ((xkey && ds.get_array(xkey).length) || (ykey && ds.get_array(ykey).length))) {
-        if (xkey) {
-          const xarr = ds.get_array(xkey)
-          xarr[xarr.length-1] = [x, x]
+      if (this.model.num_objects &&
+          ((xkey && ds.get_array(xkey).length >= this.model.num_objects) ||
+           (ykey && ds.get_array(ykey).length >= this.model.num_objects))) {
+        for (const column of ds.columns()) {
+          ds.get_array(column).splice(0, 1)
         }
-        if (ykey) {
-          const yarr = ds.get_array(ykey)
-          yarr[yarr.length-1] = [y, y]
-        }
-      } else {
-        if (xkey) ds.get_array(xkey).push([x, x])
-        if (ykey) ds.get_array(ykey).push([y, y])
-        this._pad_empty_columns(ds, [xkey, ykey]);
       }
+      if (xkey) ds.get_array(xkey).push([x, x])
+      if (ykey) ds.get_array(ykey).push([y, y])
+      this._pad_empty_columns(ds, [xkey, ykey]);
     } else if (mode == 'edit') {
       if (xkey) {
         const xs = ds.data[xkey][ds.data[xkey].length-1];
@@ -205,7 +201,7 @@ export class PolyDrawToolView extends EditToolView {
 export namespace PolyDrawTool {
   export interface Attrs extends EditTool.Attrs {
     drag: boolean
-    overwrite: boolean
+    num_objects: Number
     renderers: (GlyphRenderer & HasPolyGlyph)[]
   }
 
@@ -231,7 +227,7 @@ export class PolyDrawTool extends EditTool {
 
     this.define({
       drag: [ p.Bool, true ],
-      overwrite: [ p.Bool, false]
+      num_objects: [ p.Int, null ]
     })
   }
 
