@@ -25,7 +25,7 @@ export class PointDrawToolView extends EditToolView {
     const [xkey, ykey] = [glyph.x.field, glyph.y.field];
     const [x, y] = point;
 
-    this._pop_glyphs(ds, this.model.num_objects, xkey, ykey)
+    this._pop_glyphs(ds, this.model.num_objects)
     if (xkey) ds.get_array(xkey).push(x)
     if (ykey) ds.get_array(ykey).push(y)
     this._pad_empty_columns(ds, [xkey, ykey]);

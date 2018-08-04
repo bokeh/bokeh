@@ -51,7 +51,7 @@ export class BoxEditToolView extends EditToolView {
     const [xkey, ykey] = [glyph.x.field, glyph.y.field];
     const [wkey, hkey] = [glyph.width.field, glyph.height.field];
     if (append) {
-      this._pop_glyphs(ds, this.model.num_objects, xkey, ykey)
+      this._pop_glyphs(ds, this.model.num_objects)
       if (xkey) ds.get_array(xkey).push(x)
       if (ykey) ds.get_array(ykey).push(y)
       if (wkey) ds.get_array(wkey).push(w)
