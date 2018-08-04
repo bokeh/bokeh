@@ -5,7 +5,7 @@ message objects that can be processed.
 from __future__ import absolute_import
 
 import six
-from tornado.concurrent import return_future
+from tornado import gen
 
 from .exceptions import ValidationError
 
@@ -70,8 +70,8 @@ class Receiver(object):
         self._message = None
         self._buf_header = None
 
-    @return_future
-    def consume(self, fragment, callback=None):
+    @gen.coroutine
+    def consume(self, fragment):
         ''' Consume individual protocol message fragments.
 
         Args:
@@ -80,12 +80,9 @@ class Receiver(object):
                 assembled, the receiver state will reset to begin consuming a
                 new message.
 
-            callback (callable, optional)
-                Argument required by ``return_future`` decorator
-
         '''
         self._current_consumer(fragment)
-        callback(self._message)
+        raise gen.Return(self._message)
 
     def _HEADER(self, fragment):
         self._assume_text(fragment)
