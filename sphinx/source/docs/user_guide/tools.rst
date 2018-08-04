@@ -657,9 +657,9 @@ the first supplied renderer.
 
 It is also often useful to limit the number of elements that can be
 drawn, e.g. when specifying a specific number of regions of interest.
-Using the ``num_objects`` property we can set such a limit, ensuring
-that when it is reached the least recently drawn box is removed and
-replaced with a new one.
+Using the ``num_objects`` property we can ensure that once the limit
+has been reached the oldest box will be popped off the queue to make
+space for the new box being added.
 
 .. raw:: html
 
@@ -725,9 +725,9 @@ be inserted on the ``ColumnDataSource`` of the first supplied
 renderer.
 
 It is also often useful to limit the number of elements that can be
-drawn.  Using the ``num_objects`` property we can set such a limit,
-ensuring that when it is reached the least recently drawn point is
-removed and replaced with a new one.
+drawn.  Using the ``num_objects`` property we can ensure that once the
+limit has been reached the oldest point will be popped off the queue
+to make space for the new point being added.
 
 .. raw:: html
 
@@ -786,9 +786,9 @@ supplied renderer.
 
 It is also often useful to limit the number of elements that can be
 drawn, e.g. when specifying a specific number of regions of interest.
-Using the ``num_objects`` property we can set such a limit, ensuring
-that when it is reached the least recently drawn patch or multi-line
-is removed and replaced with a new one.
+Using the ``num_objects`` property we can ensure that once the limit
+has been reached the oldest patch/multi-line will be popped off the
+queue to make space for the new patch/multi-line being added.
 
 .. raw:: html
 

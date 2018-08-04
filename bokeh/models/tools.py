@@ -1254,7 +1254,8 @@ class BoxEditTool(EditTool, Drag, Tap):
     num_objects = Int(default=0, help="""
     Defines a limit on the number of boxes that can be drawn. By
     default there is no limit on the number of objects, but if enabled
-    the oldest drawn box will be overwritten when the limit is reached.
+    the oldest drawn box will be dropped to make space for the new box
+    being added.
     """)
 
     @error(INCOMPATIBLE_BOX_EDIT_RENDERER)
@@ -1311,7 +1312,8 @@ class PointDrawTool(EditTool, Drag, Tap):
     num_objects = Int(default=0, help="""
     Defines a limit on the number of points that can be drawn. By
     default there is no limit on the number of objects, but if enabled
-    the oldest drawn point will be overwritten when the limit is reached.
+    the oldest drawn point will be dropped to make space for the new
+    point.
     """)
 
     @error(INCOMPATIBLE_POINT_DRAW_RENDERER)
@@ -1364,7 +1366,7 @@ class PolyDrawTool(EditTool, Drag, Tap):
     Defines a limit on the number of patches or multi-lines that can
     be drawn. By default there is no limit on the number of objects,
     but if enabled the oldest drawn patch or multi-line will be
-    overwritten when the limit is reached.
+    dropped to make space for the new patch or multi-line.
     """)
 
     @error(INCOMPATIBLE_POLY_DRAW_RENDERER)
