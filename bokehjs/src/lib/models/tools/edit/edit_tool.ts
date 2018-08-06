@@ -49,9 +49,7 @@ export abstract class EditToolView extends GestureToolView {
         values.splice(ind-index, 1);
       }
     }
-    cds.data = cds.data;
-    cds.properties.data.change.emit();
-    cds.selection_manager.clear();
+    this._emit_cds_changes(cds)
   }
 
   _pop_glyphs(cds: ColumnarDataSource, num_objects: number) {
@@ -72,6 +70,17 @@ export abstract class EditToolView extends GestureToolView {
     }
   }
 
+  _emit_cds_changes(cds: ColumnarDataSource, redraw: boolean = true, clear: boolean = true, emit: boolean = true) {
+    if (clear)
+      cds.selection_manager.clear();
+    if (redraw)
+      cds.change.emit();
+    if (emit) {
+      cds.data = cds.data;
+      cds.properties.data.change.emit();
+    }
+  }
+
   _drag_points(ev: UIEvent, renderers: (GlyphRenderer & HasXYGlyph)[]): void {
     if (this._basepoint == null) { return; };
     const [bx, by] = this._basepoint;
@@ -86,16 +95,13 @@ export abstract class EditToolView extends GestureToolView {
       const [dx, dy] = [x-px, y-py];
       // Type once dataspecs are typed
       const glyph: any = renderer.glyph;
-      const ds = renderer.data_source;
+      const cds = renderer.data_source;
       const [xkey, ykey] = [glyph.x.field, glyph.y.field];
-      for (const index of ds.selected.indices) {
-        if (xkey) ds.data[xkey][index] += dx
-        if (ykey) ds.data[ykey][index] += dy
+      for (const index of cds.selected.indices) {
+        if (xkey) cds.data[xkey][index] += dx
+        if (ykey) cds.data[ykey][index] += dy
       }
-    }
-    for (const renderer of renderers) {
-      renderer.data_source.properties.data.change.emit()
-      renderer.data_source.data = renderer.data_source.data
+      cds.change.emit()
     }
     this._basepoint = [ev.sx, ev.sy];
   }

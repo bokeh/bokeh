@@ -41,7 +41,7 @@ export class BoxEditToolView extends EditToolView {
     const frame = this.plot_model.frame;
     // Type once dataspecs are typed
     const glyph: any = renderer.glyph;
-    const ds = renderer.data_source;
+    const cds = renderer.data_source;
     const xscale = frame.xscales[renderer.x_range_name];
     const yscale = frame.yscales[renderer.y_range_name];
     const [x0, x1] = xscale.r_invert(sx0, sx1);
@@ -51,24 +51,20 @@ export class BoxEditToolView extends EditToolView {
     const [xkey, ykey] = [glyph.x.field, glyph.y.field];
     const [wkey, hkey] = [glyph.width.field, glyph.height.field];
     if (append) {
-      this._pop_glyphs(ds, this.model.num_objects)
-      if (xkey) ds.get_array(xkey).push(x)
-      if (ykey) ds.get_array(ykey).push(y)
-      if (wkey) ds.get_array(wkey).push(w)
-      if (hkey) ds.get_array(hkey).push(h)
-      this._pad_empty_columns(ds, [xkey, ykey, wkey, hkey])
+      this._pop_glyphs(cds, this.model.num_objects)
+      if (xkey) cds.get_array(xkey).push(x)
+      if (ykey) cds.get_array(ykey).push(y)
+      if (wkey) cds.get_array(wkey).push(w)
+      if (hkey) cds.get_array(hkey).push(h)
+      this._pad_empty_columns(cds, [xkey, ykey, wkey, hkey])
     } else {
-      const index = ds.data[xkey].length - 1
-      if (xkey) ds.data[xkey][index] = x
-      if (ykey) ds.data[ykey][index] = y
-      if (wkey) ds.data[wkey][index] = w
-      if (hkey) ds.data[hkey][index] = h
+      const index = cds.data[xkey].length - 1
+      if (xkey) cds.data[xkey][index] = x
+      if (ykey) cds.data[ykey][index] = y
+      if (wkey) cds.data[wkey][index] = w
+      if (hkey) cds.data[hkey][index] = h
     }
-    ds.change.emit();
-    if (emit) {
-      ds.properties.data.change.emit();
-      ds.data = ds.data;
-    }
+    this._emit_cds_changes(cds, true, false, emit)
   }
 
   _update_box(ev: UIEvent, append: boolean = false, emit: boolean = false): void {
@@ -88,11 +84,6 @@ export class BoxEditToolView extends EditToolView {
     if (this._draw_basepoint != null) {
       this._update_box(ev, false, true)
       this._draw_basepoint = null;
-      for (const renderer of this.model.renderers) {
-        renderer.data_source.selected.indices = [];
-        renderer.data_source.properties.data.change.emit();
-        renderer.data_source.data = renderer.data_source.data;
-      }
     } else {
       this._draw_basepoint = [ev.sx, ev.sy];
       this._select_event(ev, true, this.model.renderers);
@@ -132,11 +123,8 @@ export class BoxEditToolView extends EditToolView {
       this._draw_basepoint = null;
     } else {
       this._basepoint = null;
-    }
-    for (const renderer of this.model.renderers) {
-      renderer.data_source.selected.indices = [];
-      renderer.data_source.properties.data.change.emit();
-      renderer.data_source.data = renderer.data_source.data;
+      for (const renderer of this.model.renderers)
+        this._emit_cds_changes(renderer.data_source, false, true, true)
     }
   }
 }

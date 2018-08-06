@@ -21,17 +21,18 @@ export class PointDrawToolView extends EditToolView {
     }
     // Type once dataspecs are typed
     const glyph: any = renderer.glyph
-    const ds = renderer.data_source;
+    const cds = renderer.data_source;
     const [xkey, ykey] = [glyph.x.field, glyph.y.field];
     const [x, y] = point;
 
-    this._pop_glyphs(ds, this.model.num_objects)
-    if (xkey) ds.get_array(xkey).push(x)
-    if (ykey) ds.get_array(ykey).push(y)
-    this._pad_empty_columns(ds, [xkey, ykey]);
+    this._pop_glyphs(cds, this.model.num_objects)
+    if (xkey) cds.get_array(xkey).push(x)
+    if (ykey) cds.get_array(ykey).push(y)
+    this._pad_empty_columns(cds, [xkey, ykey]);
 
-    ds.data = ds.data;
-    ds.properties.data.change.emit();
+    cds.change.emit();
+    cds.data = cds.data;
+    cds.properties.data.change.emit();
   }
 
   _keyup(ev: KeyEvent): void {
@@ -40,9 +41,7 @@ export class PointDrawToolView extends EditToolView {
       if (ev.keyCode === Keys.Backspace) {
         this._delete_selected(renderer);
       } else if (ev.keyCode == Keys.Esc) {
-        // Type once selection_manager is typed
-        const cds = renderer.data_source;
-        cds.selection_manager.clear();
+        renderer.data_source.selection_manager.clear();
       }
     }
   }
@@ -63,14 +62,8 @@ export class PointDrawToolView extends EditToolView {
   _pan_end(ev: GestureEvent): void {
     if (!this.model.drag) { return; }
     this._pan(ev);
-    for (const renderer of this.model.renderers) {
-      renderer.data_source.selected.indices = []
-
-      // This is only needed to call @_tell_document_about_change()
-      renderer.data_source.data = renderer.data_source.data
-
-      renderer.data_source.properties.data.change.emit()
-    }
+    for (const renderer of this.model.renderers)
+      this._emit_cds_changes(renderer.data_source, false, true, true)
     this._basepoint = null;
   }
 }
