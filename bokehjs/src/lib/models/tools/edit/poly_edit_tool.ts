@@ -78,7 +78,7 @@ export class PolyEditToolView extends EditToolView {
     point_ds.selected.indices = [];
     this._selected_renderer = renderer;
     point_ds.change.emit();
-    point_ds.properties.data.change.emit();
+    point_ds.data = point_ds.data;
   }
 
   _move(ev: MoveEvent): void {
@@ -125,7 +125,7 @@ export class PolyEditToolView extends EditToolView {
       }
       ds.change.emit();
       const selected_ds = this._selected_renderer.data_source;
-      selected_ds.change.emit();
+      selected_ds.data = selected_ds.data
       selected_ds.properties.data.change.emit();
       return;
     }
@@ -145,7 +145,7 @@ export class PolyEditToolView extends EditToolView {
     if (xkey) ds.get_array(xkey).splice(index, 1)
     if (ykey) ds.get_array(ykey).splice(index, 1)
     if (emit) {
-      ds.change.emit();
+      ds.data = ds.data;
       ds.properties.data.change.emit();
     }
   }
@@ -209,9 +209,9 @@ export class PolyEditToolView extends EditToolView {
     if (xkey) ds.data[xkey] = []
     if (ykey) ds.data[ykey] = []
     ds.selection_manager.clear();
-    ds.change.emit();
-    this._selected_renderer.data_source.change.emit();
+    ds.data = ds.data;
     ds.properties.data.change.emit();
+    this._selected_renderer.data_source.data = this._selected_renderer.data_source.data;
     this._selected_renderer.data_source.properties.data.change.emit();
     this._selected_renderer = null;
   }

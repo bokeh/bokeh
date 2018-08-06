@@ -17,8 +17,10 @@ export class PolyDrawToolView extends EditToolView {
 
   _tap(ev: TapEvent): void {
     if (this._drawing) {
+      const cds = this.model.renderers[0].data_source;
       this._draw(ev, 'add');
-      this.model.renderers[0].data_source.properties.data.change.emit();
+      cds.properties.data.change.emit()
+      cds.data = cds.data;
     } else {
       const append = ev.shiftKey
       this._select_event(ev, append, this.model.renderers);
@@ -78,6 +80,7 @@ export class PolyDrawToolView extends EditToolView {
 
   _doubletap(ev: TapEvent): void {
     if (!this.model.active) { return; }
+    const cds = this.model.renderers[0].data_source
     if (this._drawing) {
       this._drawing = false;
       this._draw(ev, 'edit');
@@ -85,7 +88,8 @@ export class PolyDrawToolView extends EditToolView {
       this._drawing = true;
       this._draw(ev, 'new');
     }
-    this.model.renderers[0].data_source.properties.data.change.emit();
+    cds.properties.data.change.emit();
+    cds.data = cds.data;
   }
 
   _move(ev: MoveEvent): void {
@@ -109,8 +113,8 @@ export class PolyDrawToolView extends EditToolView {
       const ys = ds.get_array<number[]>(ykey)[yidx];
       ys.splice(ys.length-1, 1)
     }
-    ds.change.emit()
     ds.properties.data.change.emit();
+    ds.data = ds.data
   }
 
   _keyup(ev: KeyEvent): void {
@@ -180,6 +184,7 @@ export class PolyDrawToolView extends EditToolView {
     for (const renderer of this.model.renderers) {
       renderer.data_source.selected.indices = [];
       renderer.data_source.properties.data.change.emit();
+      renderer.data_source.data = renderer.data_source.data;
     }
     this._basepoint = null;
   }

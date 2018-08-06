@@ -49,7 +49,7 @@ export abstract class EditToolView extends GestureToolView {
         values.splice(ind-index, 1);
       }
     }
-    cds.change.emit();
+    cds.data = cds.data;
     cds.properties.data.change.emit();
     cds.selection_manager.clear();
   }
@@ -94,8 +94,8 @@ export abstract class EditToolView extends GestureToolView {
       }
     }
     for (const renderer of renderers) {
-      renderer.data_source.change.emit()
       renderer.data_source.properties.data.change.emit()
+      renderer.data_source.data = renderer.data_source.data
     }
     this._basepoint = [ev.sx, ev.sy];
   }

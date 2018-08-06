@@ -67,6 +67,7 @@ export class BoxEditToolView extends EditToolView {
     ds.change.emit();
     if (emit) {
       ds.properties.data.change.emit();
+      ds.data = ds.data;
     }
   }
 
@@ -90,6 +91,7 @@ export class BoxEditToolView extends EditToolView {
       for (const renderer of this.model.renderers) {
         renderer.data_source.selected.indices = [];
         renderer.data_source.properties.data.change.emit();
+        renderer.data_source.data = renderer.data_source.data;
       }
     } else {
       this._draw_basepoint = [ev.sx, ev.sy];
@@ -134,6 +136,7 @@ export class BoxEditToolView extends EditToolView {
     for (const renderer of this.model.renderers) {
       renderer.data_source.selected.indices = [];
       renderer.data_source.properties.data.change.emit();
+      renderer.data_source.data = renderer.data_source.data;
     }
   }
 }

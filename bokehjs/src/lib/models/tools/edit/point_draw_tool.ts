@@ -30,7 +30,7 @@ export class PointDrawToolView extends EditToolView {
     if (ykey) ds.get_array(ykey).push(y)
     this._pad_empty_columns(ds, [xkey, ykey]);
 
-    ds.change.emit();
+    ds.data = ds.data;
     ds.properties.data.change.emit();
   }
 
