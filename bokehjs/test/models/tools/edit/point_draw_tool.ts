@@ -112,6 +112,20 @@ describe("PointDrawTool", (): void => {
       expect(testcase.data_source.data['y']).to.be.deep.equal([0, 0.5, 1, 0.3389830508474576]);
     });
 
+    it("should add and pop point on tap", function() {
+      const testcase = make_testcase();
+      testcase.draw_tool_view.model.num_objects = 3
+      const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
+
+      hit_test_stub.returns(null);
+      const tap_event = make_tap_event(300, 200);
+      testcase.draw_tool_view._tap(tap_event);
+
+      expect(testcase.data_source.selected.indices).to.be.deep.equal([]);
+      expect(testcase.data_source.data['x']).to.be.deep.equal([0.5, 1, 0.04424778761061947]);
+      expect(testcase.data_source.data['y']).to.be.deep.equal([0.5, 1, 0.3389830508474576]);
+    });
+
     it("should insert empty_value on other columns", function() {
       const testcase = make_testcase();
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");

@@ -1,7 +1,8 @@
 import * as p from "core/properties"
-import {UIEvent, MoveEvent} from "core/ui_events"
 import {PointGeometry} from "core/geometry"
+import {UIEvent, MoveEvent} from "core/ui_events"
 import {includes} from "core/util/array"
+import {isArray} from "core/util/types"
 import {XYGlyph} from "../../glyphs/xy_glyph"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
@@ -51,6 +52,24 @@ export abstract class EditToolView extends GestureToolView {
     cds.change.emit();
     cds.properties.data.change.emit();
     cds.selection_manager.clear();
+  }
+
+  _pop_glyphs(cds: ColumnarDataSource, num_objects: number) {
+    // Pops rows in the CDS until only num_objects are left
+    const columns = cds.columns()
+    if (!num_objects || !columns.length)
+      return
+    for (const column of columns) {
+      let array = cds.get_array(column)
+      const drop = array.length-num_objects+1
+      if (drop < 1)
+        continue
+      if (!isArray(array)) {
+        array = Array.from(array)
+        cds.data[column] = array;
+      }
+      array.splice(0, drop)
+    }
   }
 
   _drag_points(ev: UIEvent, renderers: (GlyphRenderer & HasXYGlyph)[]): void {

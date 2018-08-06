@@ -190,6 +190,29 @@ describe("BoxEditTool", () =>
       expect(testcase.data_source.data['z']).to.be.deep.equal([null, null, null, "Test"]);
     });
 
+    it("should draw and pop box on pan", function(): void {
+      const testcase = make_testcase();
+      testcase.draw_tool_view.model.num_objects = 3;
+      const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");
+      hit_test_stub.returns(null);
+
+      let drag_event = make_gesture_event(300, 300, true);
+      testcase.draw_tool_view._pan_start(drag_event);
+      expect(testcase.draw_tool_view._draw_basepoint).to.be.deep.equal([300, 300]);
+      drag_event = make_gesture_event(200, 200, true);
+      testcase.draw_tool_view._pan(drag_event);
+      expect(testcase.draw_tool_view._draw_basepoint).to.be.deep.equal([300, 300]);
+      testcase.draw_tool_view._pan_end(drag_event);
+
+      expect(testcase.draw_tool_view._draw_basepoint).to.be.equal(null);
+      expect(testcase.data_source.selected.indices).to.be.deep.equal([]);
+      expect(testcase.data_source.data['x']).to.be.deep.equal([0.5, 1, -0.1327433628318584]);
+      expect(testcase.data_source.data['y']).to.be.deep.equal([0.5, 1, 0.1694915254237288]);
+      expect(testcase.data_source.data['width']).to.be.deep.equal([0.2, 0.3, 0.35398230088495575]);
+      expect(testcase.data_source.data['height']).to.be.deep.equal([0.2, 0.1, 0.3389830508474576]);
+      expect(testcase.data_source.data['z']).to.be.deep.equal([null, null, "Test"]);
+    });
+
     it("should draw box on doubletap and move", function(): void {
       const testcase = make_testcase();
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test");

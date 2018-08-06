@@ -655,6 +655,12 @@ with the declared ``empty_value``, when adding a new box. When drawing
 a new box the data will always be added to the ``ColumnDataSource`` on
 the first supplied renderer.
 
+It is also often useful to limit the number of elements that can be
+drawn, e.g. when specifying a specific number of regions of interest.
+Using the ``num_objects`` property we can ensure that once the limit
+has been reached the oldest box will be popped off the queue to make
+space for the new box being added.
+
 .. raw:: html
 
     <img src="http://bokeh.pydata.org/static/box_edit_keyboard_optimized.gif"
@@ -718,6 +724,11 @@ additional columns in the data source will be padded with the declared
 be inserted on the ``ColumnDataSource`` of the first supplied
 renderer.
 
+It is also often useful to limit the number of elements that can be
+drawn.  Using the ``num_objects`` property we can ensure that once the
+limit has been reached the oldest point will be popped off the queue
+to make space for the new point being added.
+
 .. raw:: html
 
     <img src="http://bokeh.pydata.org/static/point_draw_keyboard_optimized.gif"
@@ -772,6 +783,12 @@ additional columns in the data source will be padded with the declared
 ``empty_value``, when adding a new point. Any newly added patch or
 multi-line will be inserted on the ``ColumnDataSource`` of the first
 supplied renderer.
+
+It is also often useful to limit the number of elements that can be
+drawn, e.g. when specifying a specific number of regions of interest.
+Using the ``num_objects`` property we can ensure that once the limit
+has been reached the oldest patch/multi-line will be popped off the
+queue to make space for the new patch/multi-line being added.
 
 .. raw:: html
 

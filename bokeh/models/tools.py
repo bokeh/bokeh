@@ -1251,6 +1251,13 @@ class BoxEditTool(EditTool, Drag, Tap):
     the vertical dimension can be controlled.
     """)
 
+    num_objects = Int(default=0, help="""
+    Defines a limit on the number of boxes that can be drawn. By
+    default there is no limit on the number of objects, but if enabled
+    the oldest drawn box will be dropped to make space for the new box
+    being added.
+    """)
+
     @error(INCOMPATIBLE_BOX_EDIT_RENDERER)
     def _check_compatible_renderers(self):
         incompatible_renderers = []
@@ -1302,6 +1309,13 @@ class PointDrawTool(EditTool, Drag, Tap):
     drag = Bool(default=True, help="""
     Enables dragging of existing points on pan events.""")
 
+    num_objects = Int(default=0, help="""
+    Defines a limit on the number of points that can be drawn. By
+    default there is no limit on the number of objects, but if enabled
+    the oldest drawn point will be dropped to make space for the new
+    point.
+    """)
+
     @error(INCOMPATIBLE_POINT_DRAW_RENDERER)
     def _check_compatible_renderers(self):
         incompatible_renderers = []
@@ -1347,6 +1361,13 @@ class PolyDrawTool(EditTool, Drag, Tap):
 
     drag = Bool(default=True, help="""
     Enables dragging of existing patches and multi-lines on pan events.""")
+
+    num_objects = Int(default=0, help="""
+    Defines a limit on the number of patches or multi-lines that can
+    be drawn. By default there is no limit on the number of objects,
+    but if enabled the oldest drawn patch or multi-line will be
+    dropped to make space for the new patch or multi-line.
+    """)
 
     @error(INCOMPATIBLE_POLY_DRAW_RENDERER)
     def _check_compatible_renderers(self):
