@@ -253,6 +253,11 @@ def test_Label():
         prefix('border_', LINE),
         prefix('background_', FILL))
 
+def test_Label_accepts_datetime_location():
+    obj = Label(x = pd.to_datetime('2018-8-7'),
+                y = pd.to_datetime('2018-8-7'))
+    assert obj.x == 1533600000000.0
+    assert obj.y == 1533600000000.0
 
 def test_LabelSet():
     label_set = LabelSet()
@@ -343,12 +348,6 @@ def test_Span():
 def test_Span_accepts_datetime_location():
     obj = Span(location = pd.to_datetime('2018-8-7'))
     assert obj.location == 1533600000000.0
-
-def test_Label_accepts_datetime_location():
-    obj = Label(x = pd.to_datetime('2018-8-7'),
-                y = pd.to_datetime('2018-8-7'))
-    assert obj.x == 1533600000000.0
-    assert obj.y == 1533600000000.0
 
 def test_Title():
     title = Title()
