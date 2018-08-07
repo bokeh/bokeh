@@ -25,6 +25,7 @@ import time
 # Bokeh imports
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, CustomAction, CustomJS, Plot, Range1d, Circle, PointDrawTool, Button, Div
+from bokeh._testing.util.compare import cds_data_almost_equal
 from bokeh._testing.util.selenium import RECORD
 
 #-----------------------------------------------------------------------------
@@ -57,7 +58,7 @@ def _make_server_plot(expected):
         plot.toolbar.active_multi = tool
         div = Div(text='False')
         def cb(attr, old, new):
-            if new == expected:
+            if cds_data_almost_equal(new, expected):
                 div.text = 'True'
         source.on_change('data', cb)
         code = RECORD("matches", "div.text")
@@ -114,8 +115,10 @@ class Test_PointDrawTool(object):
         page.click_canvas_at_position(200, 200)
         time.sleep(0.4) # hammerJS click timeout
         page.click_custom_action()
-        assert page.results == {"x": [1, 2, 1.6216216216216217],
-                                "y": [1, 1, 1.5]}
+
+        expected = {"x": [1, 2, 1.6216216216216217],
+                    "y": [1, 1, 1.5]}
+        assert cds_data_almost_equal(page.results, expected)
 
         assert page.has_no_console_errors()
 
@@ -128,8 +131,9 @@ class Test_PointDrawTool(object):
         page.click_canvas_at_position(200, 200)
         time.sleep(0.4) # hammerJS click timeout
         page.click_custom_action()
-        assert page.results == {"x": [1, 2],
-                                "y": [1, 1]}
+
+        expected = {"x": [1, 2], "y": [1, 1]}
+        assert cds_data_almost_equal(page.results, expected)
 
         assert page.has_no_console_errors()
 
@@ -143,8 +147,10 @@ class Test_PointDrawTool(object):
         time.sleep(0.4) # hammerJS click timeout
         page.drag_canvas_at_position(200, 200, 70, 53)
         page.click_custom_action()
-        assert page.results == {"x": [1, 2, 2.1891891891891895],
-                                "y": [1, 1, 1.1024999999999998]}
+
+        expected = {"x": [1, 2, 2.1891891891891895],
+                    "y": [1, 1, 1.1024999999999998]}
+        assert cds_data_almost_equal(page.results, expected)
 
         assert page.has_no_console_errors()
 
@@ -158,8 +164,10 @@ class Test_PointDrawTool(object):
         time.sleep(0.4) # hammerJS click timeout
         page.drag_canvas_at_position(200, 200, 70, 53)
         page.click_custom_action()
-        assert page.results == {"x": [1, 2, 1.6216216216216217],
-                                "y": [1, 1, 1.5]}
+
+        expected = {"x": [1, 2, 1.6216216216216217],
+                    "y": [1, 1, 1.5]}
+        assert cds_data_almost_equal(page.results, expected)
 
         assert page.has_no_console_errors()
 
@@ -172,20 +180,21 @@ class Test_PointDrawTool(object):
         page.click_canvas_at_position(200, 200)
         time.sleep(0.4) # hammerJS click timeout
         page.click_custom_action()
-        assert page.results == {"x": [2, 1.6216216216216217],
-                                "y": [1, 1.5]}
+
+        expected = {"x": [2, 1.6216216216216217],
+                    "y": [1, 1.5]}
+        assert cds_data_almost_equal(page.results, expected)
 
         assert page.has_no_console_errors()
 
     def test_point_draw_syncs_to_server(self, bokeh_server_page):
-
         expected = {"x": [1, 2, 1.6216216216216217],
                     "y": [1, 1, 1.5]}
 
         page = bokeh_server_page(_make_server_plot(expected))
 
         page.click_canvas_at_position(200, 200)
-        time.sleep(0.4) # hammerJS click timeout
+        time.sleep(0.5) # hammerJS click timeout
 
         page.click_custom_action()
         assert page.results == {"matches": "True"}

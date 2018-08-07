@@ -25,6 +25,7 @@ import time
 # Bokeh imports
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, CustomAction, CustomJS, Plot, Range1d, Rect, BoxEditTool, Div
+from bokeh._testing.util.compare import cds_data_almost_equal
 from bokeh._testing.util.selenium import RECORD
 
 #-----------------------------------------------------------------------------
@@ -57,7 +58,7 @@ def _make_server_plot(expected, num_objects=0):
         plot.toolbar.active_multi = tool
         div = Div(text='False')
         def cb(attr, old, new):
-            if new == expected:
+            if cds_data_almost_equal(new, expected):
                 div.text = 'True'
         source.on_change('data', cb)
         code = RECORD("matches", "div.text")
@@ -116,10 +117,12 @@ class Test_BoxEditTool(object):
         page.double_click_canvas_at_position(200, 200)
         time.sleep(0.5)
         page.click_custom_action()
-        assert page.results == {"x": [1, 2, 1.2162162162162162],
-                                "y": [1, 1, 1.875],
-                                "width": [0.5, 0.5, 0.8108108108108109],
-                                "height": [0.5, 0.5, 0.75]}
+
+        expected = {"x": [1, 2, 1.2162162162162162],
+                    "y": [1, 1, 1.875],
+                    "width": [0.5, 0.5, 0.8108108108108109],
+                    "height": [0.5, 0.5, 0.75]}
+        assert cds_data_almost_equal(page.results, expected)
 
         assert page.has_no_console_errors()
 
@@ -132,10 +135,11 @@ class Test_BoxEditTool(object):
         page.drag_canvas_at_position(100, 100, 50, 50, mod=u'\ue008')
         time.sleep(0.5)
         page.click_custom_action()
-        assert page.results == {"x": [1, 2, 1.0135135135135136],
-                                "y": [1, 1, 2.0625],
-                                "width": [0.5, 0.5, 0.4054054054054054],
-                                "height": [0.5, 0.5, 0.3750000000000002]}
+        expected = {"x": [1, 2, 1.0135135135135136],
+                    "y": [1, 1, 2.0625],
+                    "width": [0.5, 0.5, 0.4054054054054054],
+                    "height": [0.5, 0.5, 0.3750000000000002]}
+        assert cds_data_almost_equal(page.results, expected)
 
         assert page.has_no_console_errors()
 
@@ -152,10 +156,12 @@ class Test_BoxEditTool(object):
         page.drag_canvas_at_position(150, 150, 50, 50)
         time.sleep(0.5)
         page.click_custom_action()
-        assert page.results == {"x": [1, 2, 1.6216216216216217],
-                                "y": [1, 1, 1.5000000000000002],
-                                "width": [0.5, 0.5, 0.8108108108108109],
-                                "height": [0.5, 0.5, 0.75]}
+
+        expected = {"x": [1, 2, 1.6216216216216217],
+                    "y": [1, 1, 1.5000000000000002],
+                    "width": [0.5, 0.5, 0.8108108108108109],
+                    "height": [0.5, 0.5, 0.75]}
+        assert cds_data_almost_equal(page.results, expected)
 
         assert page.has_no_console_errors()
 
@@ -175,8 +181,9 @@ class Test_BoxEditTool(object):
         time.sleep(0.5)
 
         page.click_custom_action()
-        assert page.results == {"x": [2], "y": [1],
-                                "width": [0.5], "height": [0.5]}
+
+        expected = {"x": [2], "y": [1], "width": [0.5], "height": [0.5]}
+        assert cds_data_almost_equal(page.results, expected)
 
         assert page.has_no_console_errors()
 
@@ -189,10 +196,12 @@ class Test_BoxEditTool(object):
         page.drag_canvas_at_position(100, 100, 50, 50, mod=u'\ue008')
         time.sleep(0.5)
         page.click_custom_action()
-        assert page.results == {"x": [2, 1.0135135135135136],
-                                "y": [1, 2.0625],
-                                "width": [0.5, 0.4054054054054054],
-                                "height": [0.5, 0.3750000000000002]}
+
+        expected = {"x": [2, 1.0135135135135136],
+                    "y": [1, 2.0625],
+                    "width": [0.5, 0.4054054054054054],
+                    "height": [0.5, 0.3750000000000002]}
+        assert cds_data_almost_equal(page.results, expected)
 
         assert page.has_no_console_errors()
 
