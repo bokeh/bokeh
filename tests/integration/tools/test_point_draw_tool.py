@@ -202,7 +202,7 @@ class Test_PointDrawTool(object):
 
         page.click_custom_action()
         assert page.results == {"matches": "True"}
-    
+
     def test_point_delete_syncs_to_server(self, bokeh_server_page):
         expected = {"x": [1, 2],
                     "y": [1, 1]}
@@ -213,8 +213,8 @@ class Test_PointDrawTool(object):
         time.sleep(0.4) # hammerJS click timeout
         page.click_canvas_at_position(200, 200)
         time.sleep(0.4) # hammerJS click timeout
-        page.send_keys(u'\ue003')
+        page.send_keys(u'\ue003') # Backspace
         time.sleep(0.4) # hammerJS click timeout
-        
+
         page.click_custom_action()
         assert page.results == {"matches": "True"}

@@ -1,0 +1,176 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+import time
+
+# External imports
+
+# Bokeh imports
+from bokeh.models import ColumnDataSource, CustomAction, CustomJS, Plot, Range1d, Rect, BoxEditTool
+from bokeh._testing.util.selenium import RECORD
+
+#-----------------------------------------------------------------------------
+# Tests
+#-----------------------------------------------------------------------------
+
+pytest_plugins = (
+    "bokeh._testing.plugins.bokeh",
+)
+
+def _make_plot(dimensions="both", num_objects=0):
+    source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], width=[0.5, 0.5], height=[0.5, 0.5]))
+    plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0)
+    renderer = plot.add_glyph(source, Rect(x='x', y='y', width='width', height='height'))
+    tool = BoxEditTool(dimensions=dimensions, num_objects=num_objects, renderers=[renderer])
+    plot.add_tools(tool)
+    plot.toolbar.active_multi = tool
+    code = RECORD("x", "source.data.x") + RECORD("y", "source.data.y") + RECORD("width", "source.data.width") + RECORD("height", "source.data.height")
+    plot.add_tools(CustomAction(callback=CustomJS(args=dict(source=source), code=code)))
+    plot.toolbar_sticky = False
+    return plot
+
+def _make_server_plot(expected):
+    def modify_doc(doc):
+        source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], width=[0.5, 0.5], height=[0.5, 0.5]))
+        plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0)
+        renderer = plot.add_glyph(source, Rect(x='x', y='y', width='width', height='height'))
+        tool = BoxEditTool(dimensions=dimensions, num_objects=num_objects, renderers=[renderer])
+        plot.add_tools(tool)
+        plot.toolbar.active_multi = tool
+        div = Div(text='False')
+        def cb(attr, old, new):
+            if new == expected:
+                div.text = 'True'
+        source.on_change('data', cb)
+        code = RECORD("matches", "div.text")
+        plot.add_tools(CustomAction(callback=CustomJS(args=dict(div=div), code=code)))
+        doc.add_root(column(plot, div))
+    return modify_doc
+
+
+@pytest.mark.integration
+@pytest.mark.selenium
+class Test_BoxEditTool(object):
+
+    def test_selected_by_default(self, single_plot_page):
+        plot = _make_plot('both')
+
+        page = single_plot_page(plot)
+
+        target = 'bk-tool-icon-box-edit'
+
+        button = page.driver.find_element_by_class_name(target)
+        assert 'active' in button.get_attribute('class')
+
+        assert page.has_no_console_errors()
+
+    def test_can_be_deselected_and_selected(self, single_plot_page):
+        plot = _make_plot('both')
+
+        page = single_plot_page(plot)
+
+        target = 'bk-tool-icon-box-edit'
+
+        # Check is active
+        button = page.driver.find_element_by_class_name(target)
+        assert 'active' in button.get_attribute('class')
+
+        # Click and check is not active
+        button = page.driver.find_element_by_class_name(target)
+        button.click()
+        assert 'active' not in button.get_attribute('class')
+
+        # Click again and check is active
+        button = page.driver.find_element_by_class_name(target)
+        button.click()
+        assert 'active' in button.get_attribute('class')
+
+        assert page.has_no_console_errors()
+
+    def test_double_click_triggers_draw(self, single_plot_page):
+        plot = _make_plot('both')
+
+        page = single_plot_page(plot)
+
+        # ensure double clicking added a box
+        page.double_click_canvas_at_position(100, 100)
+        time.sleep(0.5)
+        page.double_click_canvas_at_position(200, 200)
+        time.sleep(0.5)
+        page.click_custom_action()
+        assert page.results == {"x": [1, 2, 1.2162162162162162],
+                                "y": [1, 1, 1.875],
+                                "width": [0.5, 0.5, 0.8108108108108109],
+                                "height": [0.5, 0.5, 0.75]}
+
+        assert page.has_no_console_errors()
+
+    def test_shift_drag_triggers_draw(self, single_plot_page):
+        plot = _make_plot('both')
+
+        page = single_plot_page(plot)
+
+        # ensure double clicking added a box
+        page.drag_canvas_at_position(100, 100, 50, 50, mod=u'\ue008')
+        time.sleep(0.5)
+        page.click_custom_action()
+        assert page.results == {"x": [1, 2, 1.0135135135135136],
+                                "y": [1, 1, 2.0625],
+                                "width": [0.5, 0.5, 0.4054054054054054],
+                                "height": [0.5, 0.5, 0.3750000000000002]}
+
+        assert page.has_no_console_errors()
+
+    def test_backspace_deletes_drawn_box(self, single_plot_page):
+        plot = _make_plot('both', num_objects=2)
+
+        page = single_plot_page(plot)
+
+        # ensure double clicking added a box
+        page.double_click_canvas_at_position(100, 100)
+        time.sleep(0.5)
+        page.double_click_canvas_at_position(200, 200)
+        time.sleep(0.5)
+        page.click_canvas_at_position(150, 150)
+        time.sleep(0.5)
+        page.send_keys(u'\ue003') # Backspace
+        time.sleep(0.5)
+
+        page.click_custom_action()
+        assert page.results == {"x": [2], "y": [1],
+                                "width": [0.5], "height": [0.5]}
+
+        assert page.has_no_console_errors()
+
+    def test_num_objects_limits_drawn_boxes(self, single_plot_page):
+        plot = _make_plot('both', num_objects=2)
+
+        page = single_plot_page(plot)
+
+        # ensure double clicking added a box
+        page.drag_canvas_at_position(100, 100, 50, 50, mod=u'\ue008')
+        time.sleep(0.5)
+        page.click_custom_action()
+        assert page.results == {"x": [2, 1.0135135135135136],
+                                "y": [1, 2.0625],
+                                "width": [0.5, 0.4054054054054054],
+                                "height": [0.5, 0.3750000000000002]}
+
+        assert page.has_no_console_errors()
