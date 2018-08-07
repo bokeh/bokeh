@@ -24,7 +24,7 @@ import time
 
 # Bokeh imports
 from bokeh.layouts import column
-from bokeh.models import ColumnDataSource, CustomAction, CustomJS, Plot, Range1d, Circle, PointDrawTool, Button, Div
+from bokeh.models import ColumnDataSource, CustomAction, CustomJS, Plot, Range1d, Circle, PointDrawTool, Div
 from bokeh._testing.util.compare import cds_data_almost_equal
 from bokeh._testing.util.selenium import RECORD
 
