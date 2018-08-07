@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 import mock
-import pandas as pd
+from datetime import datetime
+
 from bokeh.core.properties import field, value
 from bokeh.core.validation import check_integrity
 from bokeh.models.annotations import (
@@ -253,9 +254,9 @@ def test_Label():
         prefix('border_', LINE),
         prefix('background_', FILL))
 
-def test_Label_accepts_datetime_location():
-    obj = Label(x = pd.to_datetime('2018-8-7'),
-                y = pd.to_datetime('2018-8-7'))
+def test_Label_accepts_datetime_xy():
+    obj = Label(x = datetime(2018,8,7,0,0),
+                y = datetime(2018,8,7,0,0))
     assert obj.x == 1533600000000.0
     assert obj.y == 1533600000000.0
 
@@ -346,7 +347,7 @@ def test_Span():
     ], LINE)
 
 def test_Span_accepts_datetime_location():
-    obj = Span(location = pd.to_datetime('2018-8-7'))
+    obj = Span(location = datetime(2018,8,7,0,0))
     assert obj.location == 1533600000000.0
 
 def test_Title():
