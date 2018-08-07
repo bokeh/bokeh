@@ -13,6 +13,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from copy import copy
+import functools
 import types
 
 from six import string_types
@@ -466,7 +467,7 @@ def validation_on():
     return validate._global_value
 
 
-def without_property_validation(func):
+def without_property_validation(input_function):
     """ Turn off property validation during update calls
 
     Example:
@@ -483,4 +484,4 @@ def without_property_validation(func):
     def func(*args, **kwargs):
         with validate(False):
             return input_function(*args, **kwargs)
-    return _
+    return func

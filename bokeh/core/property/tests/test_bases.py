@@ -166,3 +166,13 @@ def test_validate():
     assert not pb.validation_on()
     pb.validate(True)
     assert pb.validation_on()
+
+
+def test_without_property_validation():
+    @pb.without_property_validation
+    def f():
+        assert not pb.validation_on()
+
+    assert pb.validation_on()
+    f()
+    assert pb.validation_on()
