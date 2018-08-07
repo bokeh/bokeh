@@ -22,15 +22,20 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from threading import Thread
 
 # External imports
 import pytest
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from tornado import gen
+from tornado.ioloop import IOLoop
+from tornado.web import RequestHandler
 
 # Bokeh imports
 from bokeh.io import save
+from bokeh.server.server import Server
 from bokeh._testing.util.selenium import INIT, RESULTS, wait_for_canvas_resize
 
 #-----------------------------------------------------------------------------
@@ -63,6 +68,56 @@ def output_file_url(request, file_server):
     request.addfinalizer(tear_down)
 
     return file_server.where_is(url)
+
+
+class _ExitHandler(RequestHandler):
+    def initialize(self, io_loop):
+        self.io_loop = io_loop
+    @gen.coroutine
+    def get(self, *args, **kwargs):
+        self.io_loop.stop()
+
+
+import socket
+from contextlib import closing
+
+def find_free_port():
+    with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as s:
+        s.bind(('', 0))
+        return s.getsockname()[1]
+
+@pytest.fixture
+def bokeh_app_url(request, driver):
+
+    def func(modify_doc):
+
+        port = find_free_port()
+        def worker():
+            io_loop = IOLoop()
+            server = Server({'/': modify_doc},
+                            port=port,
+                            io_loop=io_loop,
+                            extra_patterns=[('/exit', _ExitHandler, dict(io_loop=io_loop))])
+            server.start()
+            server.io_loop.start()
+
+        t = Thread(target=worker)
+        t.start()
+
+        def cleanup():
+            driver.get("http://localhost:%d/exit" % port)
+
+            # XXX (bev) this line is a workaround for https://github.com/bokeh/bokeh/issues/7970
+            # and should be removed when that issue is resolved
+            driver.get_log('browser')
+
+            t.join()
+
+        request.addfinalizer(cleanup)
+
+        return "http://localhost:%d/" % port
+
+    return func
 
 class _BokehModelPage(object):
 
@@ -145,6 +200,24 @@ class _SinglePlotPage(_BokehModelPage):
 def single_plot_page(driver, output_file_url, has_no_console_errors):
     def func(model):
         return _SinglePlotPage(model, driver, output_file_url, has_no_console_errors)
+    return func
+
+
+class _BokehServerPage(_BokehModelPage):
+    def __init__(self, modify_doc, driver, bokeh_app_url, has_no_console_errors):
+        self._driver = driver
+        self._has_no_console_errors = has_no_console_errors
+
+        self._app_url = bokeh_app_url(modify_doc)
+        self._driver.get(self._app_url)
+
+        self.init_results()
+
+
+@pytest.fixture()
+def bokeh_server_page(driver, bokeh_app_url, has_no_console_errors):
+    def func(modify_doc):
+        return _BokehServerPage(modify_doc, driver, bokeh_app_url, has_no_console_errors)
     return func
 
 #-----------------------------------------------------------------------------
