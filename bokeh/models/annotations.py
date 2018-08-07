@@ -849,7 +849,7 @@ class Span(Annotation):
 
     location = Float(help="""
     The location of the span, along ``dimension``.
-    """)
+    """).accepts(Datetime, convert_datetime_type)
 
     location_units = Enum(SpatialUnits, default='data', help="""
     The unit type for the location attribute. Interpreted as "data space"
