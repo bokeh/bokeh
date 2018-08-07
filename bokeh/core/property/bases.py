@@ -26,6 +26,8 @@ from .descriptors import BasicPropertyDescriptor
 
 pd = import_optional('pandas')
 
+_global_validate = [True]
+
 class DeserializationError(Exception):
     pass
 
@@ -260,7 +262,8 @@ class Property(PropertyDescriptorFactory):
 
         '''
         try:
-            self.validate(value, False)
+            if validation_on():
+                self.validate(value, False)
         except ValueError as e:
             return False
         else:
@@ -275,7 +278,8 @@ class Property(PropertyDescriptorFactory):
 
     def prepare_value(self, obj_or_cls, name, value):
         try:
-            self.validate(value)
+            if validation_on():
+                self.validate(value)
         except ValueError as e:
             for tp, converter in self.alternatives:
                 if tp.is_valid(value):
@@ -427,3 +431,54 @@ class ContainerProperty(ParameterizedProperty):
     def _may_have_unstable_default(self):
         # all containers are mutable, so the default can be modified
         return True
+
+
+class validate(object):
+    """ Control validation of bokeh properties
+
+    This can be used as a context manager, or as a normal callable
+
+    Examples
+    --------
+    >>> with validate(False):  # do no validate while within this block
+    ...     pass
+
+    >>> validate(False)  # don't validate ever
+
+    See Also
+    --------
+    validation_on: check the state of validation
+    without_property_validation: function decorator
+    """
+    def __init__(self, value):
+        self.old = _global_validate[0]
+        _global_validate[0] = value
+
+    def __enter__(self):
+        return
+
+    def __exit__(self, typ, value, traceback):
+        _global_validate[0] = self.old
+
+
+def validation_on():
+    """ Check if property validation is currently active """
+    return _global_validate[0]
+
+
+def without_property_validation(func):
+    """ Turn off property validation during update calls
+
+        @without_property_validation
+        def update(attr, old, new):
+            # do stuff without validation
+
+    See Also
+    --------
+    validate: context mangager for more fine-grained control
+    """
+    @functools.wraps(func)
+    def _(*args, **kwargs):
+        with validate(False):
+            return func(*args, **kwargs)
+    return _
