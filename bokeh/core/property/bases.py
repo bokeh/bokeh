@@ -26,8 +26,6 @@ from .descriptors import BasicPropertyDescriptor
 
 pd = import_optional('pandas')
 
-_global_validate = [True]
-
 class DeserializationError(Exception):
     pass
 
@@ -438,47 +436,51 @@ class validate(object):
 
     This can be used as a context manager, or as a normal callable
 
-    Examples
-    --------
-    >>> with validate(False):  # do no validate while within this block
-    ...     pass
+    Example:
+        .. code-block:: python
 
-    >>> validate(False)  # don't validate ever
+             with validate(False):  # do no validate while within this block
+                 pass
 
-    See Also
-    --------
-    validation_on: check the state of validation
-    without_property_validation: function decorator
+             validate(False)  # don't validate ever
+
+    See Also:
+        validation_on: check the state of validation
+        without_property_validation: function decorator
     """
+    _global_value = True
+
     def __init__(self, value):
-        self.old = _global_validate[0]
-        _global_validate[0] = value
+        self.old = validate._global_value
+        validate._global_value = value
 
     def __enter__(self):
         return
 
     def __exit__(self, typ, value, traceback):
-        _global_validate[0] = self.old
+        validate._global_value = self.old
 
 
 def validation_on():
     """ Check if property validation is currently active """
-    return _global_validate[0]
+    return validate._global_value
 
 
 def without_property_validation(func):
     """ Turn off property validation during update calls
 
-        @without_property_validation
-        def update(attr, old, new):
-            # do stuff without validation
+    Example:
+        .. code-block:: python
 
-    See Also
-    --------
-    validate: context mangager for more fine-grained control
+            @without_property_validation
+            def update(attr, old, new):
+                # do stuff without validation
+
+    See Also:
+        validate: context mangager for more fine-grained control
     """
-    @functools.wraps(func)
-    def _(*args, **kwargs):
+    @functools.wraps(input_function)
+    def func(*args, **kwargs):
         with validate(False):
-            return func(*args, **kwargs)
+            return input_function(*args, **kwargs)
     return _
