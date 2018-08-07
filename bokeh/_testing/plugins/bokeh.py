@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import time
 from threading import Thread
 
 # External imports
@@ -152,6 +153,12 @@ class _BokehModelPage(object):
         actions.click()
         actions.perform()
 
+    def double_click_element_at_position(self, element, x, y):
+        actions = ActionChains(self._driver)
+        actions.move_to_element_with_offset(element, x, y)
+        actions.double_click()
+        actions.perform()
+
     def drag_element_at_position(self, element, x, y, dx, dy, mod=None):
         actions = ActionChains(self._driver)
         if mod:
@@ -164,26 +171,22 @@ class _BokehModelPage(object):
             actions.key_up(mod)
         actions.perform()
 
+    def send_keys(self, *keys):
+        actions = ActionChains(self._driver)
+        actions.send_keys(*keys)
+        actions.perform()
+
     def has_no_console_errors(self):
         return self._has_no_console_errors(self._driver)
 
-@pytest.fixture()
-def bokeh_model_page(driver, output_file_url, has_no_console_errors):
-    def func(model):
-        return _BokehModelPage(model, driver, output_file_url, has_no_console_errors)
-    return func
 
-class _SinglePlotPage(_BokehModelPage):
-
-    # model may be a layout, but should only contain a single plot
-    def __init__(self, model, driver, output_file_url, has_no_console_errors):
-        super(_SinglePlotPage, self).__init__(model, driver, output_file_url, has_no_console_errors)
-
-        self.canvas = self._driver.find_element_by_tag_name('canvas')
-        wait_for_canvas_resize(self.canvas, self._driver)
+class _CanvasMixin(object):
 
     def click_canvas_at_position(self, x, y):
         self.click_element_at_position(self.canvas, x, y)
+
+    def double_click_canvas_at_position(self, x, y):
+        self.double_click_element_at_position(self.canvas, x, y)
 
     def click_custom_action(self):
         button = self._driver.find_element_by_class_name("bk-toolbar-button-custom-action")
@@ -197,21 +200,43 @@ class _SinglePlotPage(_BokehModelPage):
 
 
 @pytest.fixture()
+def bokeh_model_page(driver, output_file_url, has_no_console_errors):
+    def func(model):
+        return _BokehModelPage(model, driver, output_file_url, has_no_console_errors)
+    return func
+
+
+class _SinglePlotPage(_BokehModelPage, _CanvasMixin):
+
+    # model may be a layout, but should only contain a single plot
+    def __init__(self, model, driver, output_file_url, has_no_console_errors):
+        super(_SinglePlotPage, self).__init__(model, driver, output_file_url, has_no_console_errors)
+
+        self.canvas = self._driver.find_element_by_tag_name('canvas')
+        wait_for_canvas_resize(self.canvas, self._driver)
+
+
+@pytest.fixture()
 def single_plot_page(driver, output_file_url, has_no_console_errors):
     def func(model):
         return _SinglePlotPage(model, driver, output_file_url, has_no_console_errors)
     return func
 
 
-class _BokehServerPage(_BokehModelPage):
+class _BokehServerPage(_SinglePlotPage, _CanvasMixin):
+
     def __init__(self, modify_doc, driver, bokeh_app_url, has_no_console_errors):
         self._driver = driver
         self._has_no_console_errors = has_no_console_errors
 
         self._app_url = bokeh_app_url(modify_doc)
+        time.sleep(0.1)
         self._driver.get(self._app_url)
 
         self.init_results()
+
+        self.canvas = self._driver.find_element_by_tag_name('canvas')
+        wait_for_canvas_resize(self.canvas, self._driver)
 
 
 @pytest.fixture()
