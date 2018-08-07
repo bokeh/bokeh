@@ -156,7 +156,8 @@ class _BokehModelPage(object):
     def double_click_element_at_position(self, element, x, y):
         actions = ActionChains(self._driver)
         actions.move_to_element_with_offset(element, x, y)
-        actions.double_click()
+        actions.click()
+        actions.click()
         actions.perform()
 
     def drag_element_at_position(self, element, x, y, dx, dy, mod=None):
@@ -192,8 +193,8 @@ class _CanvasMixin(object):
         button = self._driver.find_element_by_class_name("bk-toolbar-button-custom-action")
         button.click()
 
-    def drag_canvas_at_position(self, x, y, dx, dy):
-        self.drag_element_at_position(self.canvas, x, y, dx, dy)
+    def drag_canvas_at_position(self, x, y, dx, dy, mod=None):
+        self.drag_element_at_position(self.canvas, x, y, dx, dy, mod)
 
     def get_toolbar_button(self, name):
         return self.driver.find_element_by_class_name('bk-tool-icon-' + name)
