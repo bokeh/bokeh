@@ -23,7 +23,8 @@ import time
 # External imports
 
 # Bokeh imports
-from bokeh.models import ColumnDataSource, CustomAction, CustomJS, Plot, Range1d, Rect, BoxEditTool
+from bokeh.layouts import column
+from bokeh.models import ColumnDataSource, CustomAction, CustomJS, Plot, Range1d, Rect, BoxEditTool, Div
 from bokeh._testing.util.selenium import RECORD
 
 #-----------------------------------------------------------------------------
@@ -46,12 +47,12 @@ def _make_plot(dimensions="both", num_objects=0):
     plot.toolbar_sticky = False
     return plot
 
-def _make_server_plot(expected):
+def _make_server_plot(expected, num_objects=0):
     def modify_doc(doc):
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], width=[0.5, 0.5], height=[0.5, 0.5]))
         plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 3), y_range=Range1d(0, 3), min_border=0)
         renderer = plot.add_glyph(source, Rect(x='x', y='y', width='width', height='height'))
-        tool = BoxEditTool(dimensions=dimensions, num_objects=num_objects, renderers=[renderer])
+        tool = BoxEditTool(dimensions='both', num_objects=num_objects, renderers=[renderer])
         plot.add_tools(tool)
         plot.toolbar.active_multi = tool
         div = Div(text='False')
@@ -138,12 +139,32 @@ class Test_BoxEditTool(object):
 
         assert page.has_no_console_errors()
 
+    def test_drag_moves_box(self, single_plot_page):
+        plot = _make_plot('both')
+
+        page = single_plot_page(plot)
+
+        # ensure double clicking added a box
+        page.double_click_canvas_at_position(100, 100)
+        time.sleep(0.5)
+        page.double_click_canvas_at_position(200, 200)
+        time.sleep(0.5)
+        page.drag_canvas_at_position(150, 150, 50, 50)
+        time.sleep(0.5)
+        page.click_custom_action()
+        assert page.results == {"x": [1, 2, 1.6216216216216217],
+                                "y": [1, 1, 1.5000000000000002],
+                                "width": [0.5, 0.5, 0.8108108108108109],
+                                "height": [0.5, 0.5, 0.75]}
+
+        assert page.has_no_console_errors()
+
     def test_backspace_deletes_drawn_box(self, single_plot_page):
         plot = _make_plot('both', num_objects=2)
 
         page = single_plot_page(plot)
 
-        # ensure double clicking added a box
+        # ensure backspace deletes box
         page.double_click_canvas_at_position(100, 100)
         time.sleep(0.5)
         page.double_click_canvas_at_position(200, 200)
@@ -174,3 +195,59 @@ class Test_BoxEditTool(object):
                                 "height": [0.5, 0.3750000000000002]}
 
         assert page.has_no_console_errors()
+
+    def test_box_draw_syncs_to_server(self, bokeh_server_page):
+        expected = {"x": [1, 2, 1.2162162162162162],
+                    "y": [1, 1, 1.875],
+                    "width": [0.5, 0.5, 0.8108108108108109],
+                    "height": [0.5, 0.5, 0.75]}
+
+        page = bokeh_server_page(_make_server_plot(expected))
+
+        # ensure double clicking added a box
+        page.double_click_canvas_at_position(100, 100)
+        time.sleep(0.5)
+        page.double_click_canvas_at_position(200, 200)
+        time.sleep(0.5)
+
+        page.click_custom_action()
+        assert page.results == {"matches": "True"}
+
+    def test_box_drag_syncs_to_server(self, bokeh_server_page):
+        expected = {"x": [1, 2, 1.6216216216216217],
+                    "y": [1, 1, 1.5000000000000002],
+                    "width": [0.5, 0.5, 0.8108108108108109],
+                    "height": [0.5, 0.5, 0.75]}
+
+        page = bokeh_server_page(_make_server_plot(expected))
+
+        # ensure drag moves box
+        page.double_click_canvas_at_position(100, 100)
+        time.sleep(0.5)
+        page.double_click_canvas_at_position(200, 200)
+        time.sleep(0.5)
+        page.drag_canvas_at_position(150, 150, 50, 50)
+        time.sleep(0.5)
+        page.click_custom_action()
+
+        page.click_custom_action()
+        assert page.results == {"matches": "True"}
+
+    def test_box_delete_syncs_to_server(self, bokeh_server_page):
+        expected = {"x": [2], "y": [1],
+                    "width": [0.5], "height": [0.5]}
+
+        page = bokeh_server_page(_make_server_plot(expected, num_objects=2))
+
+        # ensure backspace deletes box
+        page.double_click_canvas_at_position(100, 100)
+        time.sleep(0.5)
+        page.double_click_canvas_at_position(200, 200)
+        time.sleep(0.5)
+        page.click_canvas_at_position(150, 150)
+        time.sleep(0.5)
+        page.send_keys(u'\ue003') # Backspace
+        time.sleep(0.5)
+
+        page.click_custom_action()
+        assert page.results == {"matches": "True"}
