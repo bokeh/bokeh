@@ -164,7 +164,7 @@ export class Grid extends GuideRenderer {
   ranges(): [Range, Range] {
     const i = this.dimension
     const j = (i + 1) % 2
-    const frame = this.plot.plot_canvas.frame
+    const frame = this.plot.frame
     const ranges = [
       frame.x_ranges[this.x_range_name],
       frame.y_ranges[this.y_range_name],

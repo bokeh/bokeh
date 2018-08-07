@@ -20,8 +20,8 @@ export class WidgetBoxView extends LayoutDOMView {
       // the height is with the suggest_value. But that doesn't mean we need
       // to put it in the dom.
       let css_width: string
-      if (this.model._width.value - 20 > 0)
-        css_width = `${this.model._width.value - 20}px`
+      if (this._width.value - 20 > 0)
+        css_width = `${this._width.value - 20}px`
       else
         css_width = "100%"
 

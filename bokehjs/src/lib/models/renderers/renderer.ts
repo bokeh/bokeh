@@ -6,7 +6,8 @@ import * as p from "core/properties"
 import {Model} from "../../model"
 import {BBox} from "core/util/bbox"
 
-import {PlotCanvas, PlotCanvasView} from "../plots/plot_canvas"
+import {Plot} from "../plots/plot"
+import {PlotCanvasView} from "../plots/plot_canvas"
 
 // This shouldn't be a DOMView, but annotations create a mess.
 export abstract class RendererView extends DOMView {
@@ -22,7 +23,7 @@ export abstract class RendererView extends DOMView {
     this._has_finished = true // XXX: should be in render() but subclasses don't respect super()
   }
 
-  get plot_model(): PlotCanvas {
+  get plot_model(): Plot {
     return this.plot_view.model
   }
 

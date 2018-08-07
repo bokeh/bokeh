@@ -5,7 +5,8 @@ import {min, max} from "core/util/array"
 import {Model} from "../../model"
 import {Renderer} from "../renderers/renderer"
 import {CartesianFrame} from "../canvas/cartesian_frame"
-import {PlotCanvas, PlotCanvasView} from "../plots/plot_canvas"
+import {Plot} from "../plots/plot"
+import {PlotCanvasView} from "../plots/plot_canvas"
 import {EventType, GestureEvent, ScrollEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
 
 export abstract class ToolView extends View {
@@ -18,7 +19,7 @@ export abstract class ToolView extends View {
     this.plot_view = options.plot_view
   }
 
-  get plot_model(): PlotCanvas {
+  get plot_model(): Plot {
     return this.plot_view.model
   }
 

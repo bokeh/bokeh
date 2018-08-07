@@ -8,12 +8,14 @@ import {find, removeBy, includes} from "core/util/array"
 import {values} from "core/util/object"
 import {isString, isArray} from "core/util/types"
 
-import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
+import {LayoutDOM} from "../layouts/layout_dom"
 import {Title} from "../annotations/title"
 import {LinearScale} from "../scales/linear_scale"
 import {Toolbar} from "../tools/toolbar"
 import {ToolbarPanel} from "../annotations/toolbar_panel"
-import {PlotCanvas, PlotCanvasView} from "./plot_canvas"
+import {PlotCanvasView} from "./plot_canvas"
+import {Canvas} from "../canvas/canvas"
+import {CartesianFrame} from "../canvas/cartesian_frame"
 
 import {Range} from "../ranges/range"
 import {Scale} from "../scales/scale"
@@ -25,33 +27,8 @@ import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {Tool} from "../tools/tool"
 import {register_with_event, UIEvent} from 'core/bokeh_events'
 import {DataRange1d} from '../ranges/data_range1d'
-import {SizeHint} from "core/layout"
 
-export class PlotView extends LayoutDOMView {
-  model: Plot
-
-  get_layoutable_models(): Layoutable {
-    return [this.model.plot_canvas]
-  }
-
-  size_hint(): SizeHint {
-    return this.plot_canvas_view.size_hint()
-  }
-
-  _set_geometry(outer: BBox, inner: BBox): void {
-    super._set_geometry(outer, inner)
-    this.plot_canvas_view.set_geometry(outer, inner)
-  }
-
-  save(name: string): void {
-    this.plot_canvas_view.save(name)
-  }
-
-  get plot_canvas_view(): PlotCanvasView {
-    // XXX: PlotCanvasView is not LayoutDOMView
-    return (this.child_views[this.model.plot_canvas.id] as any) as PlotCanvasView
-  }
-}
+export class PlotView extends PlotCanvasView {}
 
 export namespace Plot {
   // line:outline_
@@ -154,7 +131,17 @@ export interface Plot extends Plot.Attrs {}
 export class Plot extends LayoutDOM {
   properties: Plot.Props
 
+  canvas: Canvas
+  frame: CartesianFrame
+
+  use_map: boolean
+
   reset: Signal0<this>
+
+  // XXX: just for ease of transition.
+  get plot(): this {
+    return this
+  }
 
   constructor(attrs?: Partial<Plot.Attrs>) {
     super(attrs)
@@ -227,8 +214,6 @@ export class Plot extends LayoutDOM {
     register_with_event(UIEvent, this)
   }
 
-  protected _plot_canvas: PlotCanvas
-
   initialize(): void {
     super.initialize()
 
@@ -271,9 +256,6 @@ export class Plot extends LayoutDOM {
     this._init_title_panel()
     this._init_toolbar_panel()
 
-    this._plot_canvas = this._init_plot_canvas()
-    this.plot_canvas.toolbar = this.toolbar
-
     // Set width & height to be the passed in plot_width and plot_height
     // We may need to be more subtle about this - not sure why people use one
     // or the other.
@@ -281,10 +263,21 @@ export class Plot extends LayoutDOM {
       this.width = this.plot_width
     if (this.height == null)
       this.height = this.plot_height
-  }
 
-  protected _init_plot_canvas(): PlotCanvas {
-    return new PlotCanvas({plot: this})
+    this.canvas = new Canvas({
+      map: this.use_map != null ? this.use_map : false,
+      use_hidpi: this.hidpi,
+      output_backend: this.output_backend,
+    })
+
+    this.frame = new CartesianFrame({
+      x_range: this.x_range,
+      extra_x_ranges: this.extra_x_ranges,
+      x_scale: this.x_scale,
+      y_range: this.y_range,
+      extra_y_ranges: this.extra_y_ranges,
+      y_scale: this.y_scale,
+    })
   }
 
   protected _init_title_panel(): void {
@@ -330,15 +323,6 @@ export class Plot extends LayoutDOM {
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.properties.toolbar_location.change, () => this._init_toolbar_panel())
-  }
-
-  get plot_canvas(): PlotCanvas {
-    return this._plot_canvas
-  }
-
-  protected _doc_attached(): void {
-    this.plot_canvas.attach_document(this.document!) // XXX!
-    super._doc_attached()
   }
 
   add_renderers(...new_renderers: Renderer[]): void {

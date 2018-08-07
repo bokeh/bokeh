@@ -1,13 +1,13 @@
 import {Canvas, CanvasView} from "../canvas/canvas"
-import {CartesianFrame} from "../canvas/cartesian_frame"
 import {Range} from "../ranges/range"
 import {DataRange1d} from "../ranges/data_range1d"
 import {Renderer, RendererView} from "../renderers/renderer"
 import {GlyphRenderer, GlyphRendererView} from "../renderers/glyph_renderer"
-import {Toolbar} from "../tools/toolbar"
 import {ToolView} from "../tools/tool"
 import {Selection} from "../selections/selection"
+import {LayoutDOMView} from "../layouts/layout_dom"
 import {Plot} from "./plot"
+import {CartesianFrame} from "../canvas/cartesian_frame"
 
 import {Reset} from "core/bokeh_events"
 import {Arrayable} from "core/types"
@@ -15,12 +15,9 @@ import {Signal0} from "core/signaling"
 import {build_views, remove_views} from "core/build_views"
 import {UIEvents} from "core/ui_events"
 import {Visuals} from "core/visuals"
-import {DOMView} from "core/dom_view"
-import {LayoutCanvas} from "core/layout/layout_canvas"
 import {HStack, VStack} from "core/layout/alignments"
 import {logger} from "core/logging"
 import * as enums from "core/enums"
-import * as p from "core/properties"
 import {Rect} from "core/util/spatial"
 import {throttle} from "core/util/throttle"
 import {isStrictNaN} from "core/util/types"
@@ -66,8 +63,8 @@ export type StateInfo = {
   }
 }
 
-export class PlotCanvasView extends DOMView {
-  model: PlotCanvas
+export abstract class PlotCanvasView extends LayoutDOMView {
+  model: Plot
   visuals: Plot.Visuals
 
   canvas_view: CanvasView
@@ -157,7 +154,7 @@ export class PlotCanvasView extends DOMView {
     this.clear_state()
     this.reset_range()
     this.reset_selection()
-    this.model.plot.trigger_event(new Reset())
+    this.model.trigger_event(new Reset())
   }
 
   remove(): void {
@@ -177,13 +174,13 @@ export class PlotCanvasView extends DOMView {
     this.state_changed = new Signal0(this, "state_changed")
 
     this.lod_started = false
-    this.visuals = new Visuals(this.model.plot) as any // XXX
+    this.visuals = new Visuals(this.model) as any // XXX
 
     this._initial_state_info = {
       selection: {},                   // XXX: initial selection?
       dimensions: {
-        width: this.model._width.value,
-        height: this.model._height.value,
+        width: this._width.value,
+        height: this._height.value,
       },
     }
     this.visibility_callbacks = []
@@ -195,12 +192,12 @@ export class PlotCanvasView extends DOMView {
     this.canvas_view.render()
 
     // If requested, try enabling webgl
-    if (this.model.plot.output_backend == "webgl")
+    if (this.model.output_backend == "webgl")
       this.init_webgl()
 
     this.throttled_paint = throttle((() => this.force_paint.emit()), 15)  // TODO (bev) configurable
 
-    this.ui_event_bus = new UIEvents(this, this.model.toolbar, this.canvas_view.events_el, this.model.plot)
+    this.ui_event_bus = new UIEvents(this, this.model.toolbar, this.canvas_view.events_el, this.model)
 
     this.levels = {}
     for (const level of enums.RenderLevel) {
@@ -224,10 +221,10 @@ export class PlotCanvasView extends DOMView {
 
 
 
-    this.top_panel.children = reversed(layouts(this.model.plot.above))
-    this.bottom_panel.children =       layouts(this.model.plot.below)
-    this.left_panel.children = reversed(layouts(this.model.plot.left))
-    this.right_panel.children =         layouts(this.model.plot.right)
+    this.top_panel.children = reversed(layouts(this.model.above))
+    this.bottom_panel.children =       layouts(this.model.below)
+    this.left_panel.children = reversed(layouts(this.model.left))
+    this.right_panel.children =         layouts(this.model.right)
 
     this.update_dataranges()
 
@@ -341,8 +338,8 @@ export class PlotCanvasView extends DOMView {
     let has_bounds = false
 
     let r: number | undefined
-    if (this.model.plot.match_aspect !== false && this.frame._width.value != 0 && this.frame._height.value != 0)
-      r = (1/this.model.plot.aspect_scale)*(this.frame._width.value/this.frame._height.value)
+    if (this.model.match_aspect !== false && this.frame._width.value != 0 && this.frame._height.value != 0)
+      r = (1/this.model.aspect_scale)*(this.frame._width.value/this.frame._height.value)
 
     for (const xr of values(frame.x_ranges)) {
       if (xr instanceof DataRange1d) {
@@ -440,7 +437,7 @@ export class PlotCanvasView extends DOMView {
 
   get_selection(): {[key: string]: Selection} {
     const selection: {[key: string]: Selection} = {}
-    for (const renderer of this.model.plot.renderers) {
+    for (const renderer of this.model.renderers) {
       if (renderer instanceof GlyphRenderer) {
         const {selected} = renderer.data_source
         selection[renderer.id] = selected
@@ -450,7 +447,7 @@ export class PlotCanvasView extends DOMView {
   }
 
   update_selection(selection: {[key: string]: Selection} | null): void {
-    for (const renderer of this.model.plot.renderers) {
+    for (const renderer of this.model.renderers) {
       if (!(renderer instanceof GlyphRenderer))
         continue
 
@@ -628,7 +625,7 @@ export class PlotCanvasView extends DOMView {
   }
 
   build_levels(): void {
-    const renderer_models = this.model.plot.all_renderers
+    const renderer_models = this.model.all_renderers
 
     // should only bind events on NEW views
     const old_renderers = keys(this.renderer_views)
@@ -647,11 +644,11 @@ export class PlotCanvasView extends DOMView {
   }
 
   get_renderer_views(): RendererView[] {
-    return this.model.plot.renderers.map((r) => this.levels[r.level][r.id])
+    return this.model.renderers.map((r) => this.levels[r.level][r.id])
   }
 
   build_tools(): void {
-    const tool_models = this.model.plot.toolbar.tools
+    const tool_models = this.model.toolbar.tools
     const new_tool_views = build_views(this.tool_views, tool_models, this.view_options()) as ToolView[]
 
     new_tool_views.map((tool_view) => this.ui_event_bus.register_tool(tool_view))
@@ -673,10 +670,10 @@ export class PlotCanvasView extends DOMView {
       this.connect(rng.change, () => this.request_render())
     }
 
-    this.connect(this.model.plot.properties.renderers.change, () => this.build_levels())
-    this.connect(this.model.plot.toolbar.properties.tools.change, () => { this.build_levels(); this.build_tools() })
-    this.connect(this.model.plot.change, () => this.request_render())
-    this.connect(this.model.plot.reset, () => this.reset())
+    this.connect(this.model.properties.renderers.change, () => this.build_levels())
+    this.connect(this.model.toolbar.properties.tools.change, () => { this.build_levels(); this.build_tools() })
+    this.connect(this.model.change, () => this.request_render())
+    this.connect(this.model.reset, () => this.reset())
   }
 
   set_initial_range(): void {
@@ -728,16 +725,16 @@ export class PlotCanvasView extends DOMView {
 
   size_hint(): SizeHint {
     const left_hint = this.left_panel.size_hint()
-    const left = Math.max(left_hint.width, this.model.plot.min_border_left!)
+    const left = Math.max(left_hint.width, this.model.min_border_left!)
 
     const right_hint = this.right_panel.size_hint()
-    const right = Math.max(right_hint.width, this.model.plot.min_border_right!)
+    const right = Math.max(right_hint.width, this.model.min_border_right!)
 
     const top_hint = this.top_panel.size_hint()
-    const top = Math.max(top_hint.height, this.model.plot.min_border_top!)
+    const top = Math.max(top_hint.height, this.model.min_border_top!)
 
     const bottom_hint = this.bottom_panel.size_hint()
-    const bottom = Math.max(bottom_hint.height, this.model.plot.min_border_bottom!)
+    const bottom = Math.max(bottom_hint.height, this.model.min_border_bottom!)
 
     const width = left + right   // min frame width
     const height = top + bottom  // min frame height
@@ -766,11 +763,11 @@ export class PlotCanvasView extends DOMView {
     this.left_panel.set_geometry(new BBox({top, bottom, right: left, width: left_hint.width}))
     this.right_panel.set_geometry(new BBox({top, bottom, left: right, width: right_hint.width}))
 
-    this.model.plot.setv({
-      inner_width: Math.round(this.frame._width.value),
-      inner_height: Math.round(this.frame._height.value),
-      layout_width: Math.round(this.model._width.value),
-      layout_height: Math.round(this.model._height.value),
+    this.model.setv({
+      inner_width: Math.round(this.model.frame._width.value),
+      inner_height: Math.round(this.model.frame._height.value),
+      layout_width: Math.round(this._width.value),
+      layout_height: Math.round(this._height.value),
     }, {no_change: true})
   }
 
@@ -787,7 +784,7 @@ export class PlotCanvasView extends DOMView {
 
   /* XXX
   render(): void {
-    if (this.model.plot.match_aspect !== false && this.frame._width.value != 0 && this.frame._height.value != 0)
+    if (this.model.match_aspect !== false && this.frame._width.value != 0 && this.frame._height.value != 0)
       this.update_dataranges()
   }
   */
@@ -813,7 +810,7 @@ export class PlotCanvasView extends DOMView {
     if (this.is_paused)
       return
 
-    logger.trace(`PlotCanvas.paint() for ${this.model.id}`)
+    logger.trace(`PlotCanvasView.paint() for ${this.model.id}`)
 
     const {document} = this.model
     if (document != null) {
@@ -872,10 +869,10 @@ export class PlotCanvasView extends DOMView {
       let [x0, y0, w, h] = frame_box
       // XXX: shrink outline region by 1px to make right and bottom lines visible
       // if they are on the edge of the canvas.
-      if (x0 + w == this.model._width.value) {
+      if (x0 + w == this._width.value) {
         w -= 1
       }
-      if (y0 + h == this.model._height.value) {
+      if (y0 + h == this._height.value) {
         h -= 1
       }
       ctx.strokeRect(x0, y0, w, h)
@@ -908,8 +905,8 @@ export class PlotCanvasView extends DOMView {
     }
 
     const indices: {[key: string]: number} = {}
-    for (let i = 0; i < this.model.plot.renderers.length; i++) {
-      const renderer = this.model.plot.renderers[i]
+    for (let i = 0; i < this.model.renderers.length; i++) {
+      const renderer = this.model.renderers[i]
       indices[renderer.id] = i
     }
 
@@ -940,7 +937,7 @@ export class PlotCanvasView extends DOMView {
   protected _map_hook(_ctx: Context2d, _frame_box: FrameBox): void {}
 
   protected _paint_empty(ctx: Context2d, frame_box: FrameBox): void {
-    const [cx, cy, cw, ch] = [0, 0, this.model._width.value, this.model._height.value]
+    const [cx, cy, cw, ch] = [0, 0, this._width.value, this._height.value]
     const [fx, fy, fw, fh] = frame_box
 
     ctx.clearRect(cx, cy, cw, ch)
@@ -958,7 +955,7 @@ export class PlotCanvasView extends DOMView {
   }
 
   save(name: string): void {
-    switch (this.model.plot.output_backend) {
+    switch (this.model.output_backend) {
       case "canvas":
       case "webgl": {
         const canvas = this.canvas_view.get_canvas_element() as HTMLCanvasElement
@@ -991,70 +988,3 @@ export class PlotCanvasView extends DOMView {
     }
   }
 }
-
-export namespace PlotCanvas {
-  export interface Attrs extends LayoutCanvas.Attrs {
-    plot: Plot
-    toolbar: Toolbar
-    canvas: Canvas
-    frame: CartesianFrame
-  }
-
-  export interface Props extends LayoutCanvas.Props {}
-}
-
-export interface PlotCanvas extends PlotCanvas.Attrs {
-  use_map: boolean
-}
-
-export class PlotCanvas extends LayoutCanvas {
-  properties: PlotCanvas.Props
-
-  constructor(attrs?: Partial<PlotCanvas.Attrs>) {
-    super(attrs)
-  }
-
-  static initClass(): void {
-    this.prototype.type = 'PlotCanvas'
-    this.prototype.default_view = PlotCanvasView
-
-    this.internal({
-      plot:         [ p.Instance ],
-      toolbar:      [ p.Instance ],
-      canvas:       [ p.Instance ],
-      frame:        [ p.Instance ],
-    })
-  }
-
-  frame: CartesianFrame
-  canvas: Canvas
-
-  initialize(): void {
-    super.initialize()
-
-    this.canvas = new Canvas({
-      map: this.use_map != null ? this.use_map : false,
-      use_hidpi: this.plot.hidpi,
-      output_backend: this.plot.output_backend,
-    })
-
-    this.frame = new CartesianFrame({
-      x_range: this.plot.x_range,
-      extra_x_ranges: this.plot.extra_x_ranges,
-      x_scale: this.plot.x_scale,
-      y_range: this.plot.y_range,
-      extra_y_ranges: this.plot.extra_y_ranges,
-      y_scale: this.plot.y_scale,
-    })
-
-    logger.debug("PlotCanvas initialized")
-  }
-
-  protected _doc_attached(): void {
-    this.canvas.attach_document(this.document!)
-    this.frame.attach_document(this.document!)
-    super._doc_attached()
-    logger.debug("PlotCanvas attached to document")
-  }
-}
-PlotCanvas.initClass()

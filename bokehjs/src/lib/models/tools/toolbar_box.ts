@@ -265,8 +265,7 @@ export class ToolbarBox extends LayoutDOM {
 
   // XXX: we are overriding LayoutDOM.sizing_mode here. That's a bad
   // hack, but currently every layoutable is allowed to have its
-  // sizing mode configured, which is wrong. Another example of this
-  // is PlotCanvas which only works with strech_both sizing mode.
+  // sizing mode configured, which is wrong.
   get sizing_mode(): SizingMode {
     switch (this.toolbar_location) {
       case "above":

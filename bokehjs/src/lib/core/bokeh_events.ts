@@ -67,7 +67,7 @@ BokehEvent.prototype.applicable_models = []
 @register_event_class("button_click")
 export class ButtonClick extends BokehEvent {}
 
-// A UIEvent is an event originating on a PlotCanvas this includes
+// A UIEvent is an event originating on a canvas this includes.
 // DOM events such as keystrokes as well as hammer events and LOD events.
 export abstract class UIEvent extends BokehEvent {}
 
