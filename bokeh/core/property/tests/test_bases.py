@@ -148,31 +148,8 @@ def test_property_matches_dicts_with_index_values(capsys, pd):
     out, err = capsys.readouterr()
     assert err == ""
 
-
-def test_validate():
+def test_validation_on():
+    assert pb.Property._should_validate == True
     assert pb.validation_on()
-    with pb.validate(False):
-        assert not pb.validation_on()
-    assert pb.validation_on()
-
-    with pb.validate(False):
-        assert not pb.validation_on()
-        with pb.validate(True):
-            assert pb.validation_on()
-        assert not pb.validation_on()
-    assert pb.validation_on()
-
-    pb.validate(False)
+    pb.Property._should_validate = False
     assert not pb.validation_on()
-    pb.validate(True)
-    assert pb.validation_on()
-
-
-def test_without_property_validation():
-    @pb.without_property_validation
-    def f():
-        assert not pb.validation_on()
-
-    assert pb.validation_on()
-    f()
-    assert pb.validation_on()

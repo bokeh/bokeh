@@ -13,7 +13,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 from copy import copy
-import functools
 import types
 
 from six import string_types
@@ -53,6 +52,9 @@ class Property(PropertyDescriptorFactory):
             (default: False)
 
     '''
+
+    # This class attribute is controlled by external helper API for validation
+    _should_validate = True
 
     def __init__(self, default=None, help=None, serialized=True, readonly=False):
         # This is how the descriptor is created in the class declaration.
@@ -431,57 +433,11 @@ class ContainerProperty(ParameterizedProperty):
         # all containers are mutable, so the default can be modified
         return True
 
-
-class validate(object):
-    """ Control validation of bokeh properties
-
-    This can be used as a context manager, or as a normal callable
-
-    Example:
-        .. code-block:: python
-
-             with validate(False):  # do no validate while within this block
-                 pass
-
-             validate(False)  # don't validate ever
-
-    See Also:
-        validation_on: check the state of validation
-        without_property_validation: function decorator
-    """
-    _global_value = True
-
-    def __init__(self, value):
-        self.old = validate._global_value
-        validate._global_value = value
-
-    def __enter__(self):
-        return
-
-    def __exit__(self, typ, value, traceback):
-        validate._global_value = self.old
-
-
 def validation_on():
-    """ Check if property validation is currently active """
-    return validate._global_value
+    ''' Check if property validation is currently active
 
+    Returns:
+        bool
 
-def without_property_validation(input_function):
-    """ Turn off property validation during update calls
-
-    Example:
-        .. code-block:: python
-
-            @without_property_validation
-            def update(attr, old, new):
-                # do stuff without validation
-
-    See Also:
-        validate: context mangager for more fine-grained control
-    """
-    @functools.wraps(input_function)
-    def func(*args, **kwargs):
-        with validate(False):
-            return input_function(*args, **kwargs)
-    return func
+    '''
+    return Property._should_validate

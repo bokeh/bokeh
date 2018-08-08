@@ -17,14 +17,45 @@ from bokeh.core.properties import (field, value,
     DistanceSpec, FontSize, FontSizeSpec, Override, Include, MinMaxBounds,
     DataDistanceSpec, ScreenDistanceSpec, ColumnData, UnitsSpec, Image)
 
+from bokeh.core.property.bases import validation_on
 from bokeh.core.property.containers import PropertyValueColumnData, PropertyValueDict, PropertyValueList
 
 from bokeh.core.has_props import HasProps
 
 from bokeh.models import Plot
 
+import bokeh.core.properties as bcp
 
 SPECS = (NumberSpec, ColorSpec, AngleSpec, StringSpec, DistanceSpec, FontSizeSpec, DataDistanceSpec, ScreenDistanceSpec)
+
+class TestValidationControl(object):
+    def test_validate(self):
+        assert validation_on()
+        with bcp.validate(False):
+            assert not validation_on()
+        assert validation_on()
+
+        with bcp.validate(False):
+            assert not validation_on()
+            with bcp.validate(True):
+                assert validation_on()
+            assert not validation_on()
+        assert validation_on()
+
+        bcp.validate(False)
+        assert not validation_on()
+        bcp.validate(True)
+        assert validation_on()
+
+
+    def test_without_property_validation(self):
+        @bcp.without_property_validation
+        def f():
+            assert not validation_on()
+
+        assert validation_on()
+        f()
+        assert validation_on()
 
 class TestValidateDetailDefault(object):
 
