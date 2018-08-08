@@ -1379,6 +1379,47 @@ class PolyDrawTool(EditTool, Drag, Tap):
             glyph_types = ', '.join(type(renderer.glyph).__name__ for renderer in incompatible_renderers)
             return "%s glyph type(s) found." % glyph_types
 
+class FreehandDrawTool(EditTool, Drag, Tap):
+    ''' *toolbar icon*: |poly_draw_icon|
+
+    The FreehandDrawTool allows freehand drawing of ``Patches`` and
+    ``MultiLine`` glyphs. The glyph to draw may be defined via the
+    ``renderers`` property.
+
+    The tool will automatically modify the columns on the data source
+    corresponding to the ``xs`` and ``ys`` values of the glyph. Any
+    additional columns in the data source will be padded with the
+    declared ``empty_value``, when adding a new point.
+
+    The supported actions include:
+
+    * Draw vertices: Click and drag to draw a line
+
+    * Delete patch/multi-line: Tap a patch/multi-line to select it
+      then press <<backspace>> key while the mouse is within the plot
+      area.
+
+    .. |poly_draw_icon| image:: /_images/icons/PolyDraw.png
+        :height: 18pt
+    '''
+
+    num_objects = Int(default=0, help="""
+    Defines a limit on the number of patches or multi-lines that can
+    be drawn. By default there is no limit on the number of objects,
+    but if enabled the oldest drawn patch or multi-line will be
+    overwritten when the limit is reached.
+    """)
+
+    @error(INCOMPATIBLE_POLY_DRAW_RENDERER)
+    def _check_compatible_renderers(self):
+        incompatible_renderers = []
+        for renderer in self.renderers:
+            if not isinstance(renderer.glyph, (MultiLine, Patches)):
+                incompatible_renderers.append(renderer)
+        if incompatible_renderers:
+            glyph_types = ', '.join(type(renderer.glyph).__name__ for renderer in incompatible_renderers)
+            return "%s glyph type(s) found." % glyph_types
+
 class PolyEditTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |poly_edit_icon|
 
