@@ -52,7 +52,7 @@ export abstract class EditToolView extends GestureToolView {
     this._emit_cds_changes(cds)
   }
 
-  _pop_glyphs(cds: ColumnarDataSource, num_objects: number) {
+  _pop_glyphs(cds: ColumnarDataSource, num_objects: number): void {
     // Pops rows in the CDS until only num_objects are left
     const columns = cds.columns()
     if (!num_objects || !columns.length)
@@ -70,7 +70,7 @@ export abstract class EditToolView extends GestureToolView {
     }
   }
 
-  _emit_cds_changes(cds: ColumnarDataSource, redraw: boolean = true, clear: boolean = true, emit: boolean = true) {
+  _emit_cds_changes(cds: ColumnarDataSource, redraw: boolean = true, clear: boolean = true, emit: boolean = true): void {
     if (clear)
       cds.selection_manager.clear();
     if (redraw)

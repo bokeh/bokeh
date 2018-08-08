@@ -2,9 +2,9 @@ import {Keys} from "core/dom"
 import {UIEvent, GestureEvent, TapEvent, KeyEvent} from "core/ui_events"
 import * as p from "core/properties"
 import {isArray} from "core/util/types"
-import {PolyTool, PolyToolView} from "./poly_tool"
+import {EditTool, EditToolView} from "./edit_tool"
 
-export class FreehandDrawToolView extends PolyToolView {
+export class FreehandDrawToolView extends EditToolView {
   model: FreehandDrawTool
 
   _draw(ev: UIEvent, mode: string, emit: boolean = false): void {
@@ -67,7 +67,9 @@ export class FreehandDrawToolView extends PolyToolView {
  _keyup(ev: KeyEvent): void {
     if (!this.model.active || !this._mouse_in_frame) { return; }
     for (const renderer of this.model.renderers) {
-      if (ev.keyCode === Keys.Backspace) {
+      if (ev.keyCode === Keys.Esc) {
+        renderer.data_source.selection_manager.clear();
+      } else if (ev.keyCode === Keys.Backspace) {
         this._delete_selected(renderer);
       }
     }
@@ -75,16 +77,16 @@ export class FreehandDrawToolView extends PolyToolView {
 }
 
 export namespace FreehandDrawTool {
-  export interface Attrs extends PolyTool.Attrs {
+  export interface Attrs extends EditTool.Attrs {
       num_objects: number
   }
 
-  export interface Props extends PolyTool.Props {}
+  export interface Props extends EditTool.Props {}
 }
 
 export interface FreehandDrawTool extends FreehandDrawTool.Attrs {}
 
-export class FreehandDrawTool extends PolyTool {
+export class FreehandDrawTool extends EditTool {
 
   properties: FreehandDrawTool.Props
 
@@ -97,7 +99,7 @@ export class FreehandDrawTool extends PolyTool {
     this.prototype.default_view = FreehandDrawToolView
 
     this.define({
-      num_objects: [ p.Int, null ],
+      num_objects: [ p.Int, 0 ],
     })
   }
   tool_name = "Freehand Draw Tool"
