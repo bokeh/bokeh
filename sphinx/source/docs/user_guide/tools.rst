@@ -741,7 +741,7 @@ showing the pressed keys. The ``PolyDrawTool`` can **Draw** and
 
 Draw patch/multi-line
   Click and drag to start drawing and release the mouse button to
-  finish drawing 
+  finish drawing
 
 Delete patch/multi-line
   Tap a line or patch to select it then press BACKSPACE key while the

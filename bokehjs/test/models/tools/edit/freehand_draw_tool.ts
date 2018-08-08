@@ -186,9 +186,14 @@ describe("FreehandDrawTool", (): void => {
       const testcase = make_testcase();
       testcase.draw_tool_view.model.active = false;
 
-	  testcase.draw_tool_view._pan_start(make_gesture_event(300, 300));
+      testcase.draw_tool_view._pan_start(make_gesture_event(300, 300));
       testcase.draw_tool_view._pan(make_gesture_event(290, 290));
       testcase.draw_tool_view._pan_end(make_gesture_event(290, 290));
+
+      const xdata = [[0, 0.5, 1], [0, 0.5, 1]];
+      const ydata = [[0, -0.5, -1], [0, -0.5, -1]];
+      expect(testcase.data_source.data['xs']).to.be.deep.equal(xdata);
+      expect(testcase.data_source.data['ys']).to.be.deep.equal(ydata);
     });
   })
 });
