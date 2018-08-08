@@ -2157,10 +2157,10 @@ class validate(object):
     Example:
         .. code-block:: python
 
-             with validate(False):  # do no validate while within this block
-                 pass
+            with validate(False):  # do no validate while within this block
+                pass
 
-             validate(False)  # don't validate ever
+            validate(False)  # don't validate ever
 
     See Also:
         :func:`~bokeh.core.property.bases.validation_on`: check the state of validation
@@ -2173,7 +2173,7 @@ class validate(object):
         Property._should_validate = value
 
     def __enter__(self):
-        return
+        pass
 
     def __exit__(self, typ, value, traceback):
         Property._should_validate = self.old
@@ -2187,7 +2187,7 @@ def without_property_validation(input_function):
 
             @without_property_validation
             def update(attr, old, new):
-                # do stuff without validation
+                # do things without validation
 
     See Also:
         :class:`~bokeh.core.properties.validate`: context mangager for more fine-grained control

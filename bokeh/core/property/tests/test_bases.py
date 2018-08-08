@@ -157,4 +157,3 @@ def test_validation_on():
 
     pb.Property._should_validate = True
     assert pb.validation_on()
-
