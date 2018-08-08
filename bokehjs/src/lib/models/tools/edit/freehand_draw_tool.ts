@@ -8,7 +8,7 @@ export class FreehandDrawToolView extends PolyToolView {
   model: FreehandDrawTool
 
   _draw(ev: UIEvent, mode: string, emit: boolean = false): void {
-	if (!this.model.active) { return; }
+    if (!this.model.active) { return; }
 
     const renderer = this.model.renderers[0];
     const point = this._map_drag(ev.sx, ev.sy, renderer);
@@ -16,12 +16,12 @@ export class FreehandDrawToolView extends PolyToolView {
       return;
     }
 
-	const [x, y] = point;
-	const cds = renderer.data_source;
+    const [x, y] = point;
+    const cds = renderer.data_source;
     const glyph: any = renderer.glyph;
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field];
     if (mode == 'new') {
-	  this._pop_glyphs(cds, this.model.num_objects)
+      this._pop_glyphs(cds, this.model.num_objects)
       if (xkey) cds.get_array(xkey).push([x])
       if (ykey) cds.get_array(ykey).push([y])
       this._pad_empty_columns(cds, [xkey, ykey]);
@@ -49,7 +49,7 @@ export class FreehandDrawToolView extends PolyToolView {
   }
 
   _pan_start(ev: GestureEvent): void {
-	this._draw(ev, 'new')
+    this._draw(ev, 'new')
   }
 
   _pan(ev: GestureEvent): void {
@@ -76,11 +76,10 @@ export class FreehandDrawToolView extends PolyToolView {
 
 export namespace FreehandDrawTool {
   export interface Attrs extends PolyTool.Attrs {
-	  num_objects: number
+      num_objects: number
   }
 
   export interface Props extends PolyTool.Props {}
-
 }
 
 export interface FreehandDrawTool extends FreehandDrawTool.Attrs {}
@@ -97,12 +96,12 @@ export class FreehandDrawTool extends PolyTool {
     this.prototype.type = "FreehandDrawTool"
     this.prototype.default_view = FreehandDrawToolView
 
-	this.define({
+    this.define({
       num_objects: [ p.Int, null ],
     })
   }
   tool_name = "Freehand Draw Tool"
-  icon = "bk-tool-icon-poly-draw"
+  icon = "bk-tool-icon-freehand-draw"
   event_type = ["pan" as "pan", "tap" as "tap"]
   default_order = 3
 }
