@@ -1,5 +1,5 @@
 from bokeh.plotting import figure, output_file, show
-from bokeh.models import FreehandDrawTool, ColumnDataSource
+from bokeh.models import FreehandDrawTool
 
 output_file("tools_box_edit.html")
 

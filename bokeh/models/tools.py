@@ -1380,7 +1380,7 @@ class PolyDrawTool(EditTool, Drag, Tap):
             return "%s glyph type(s) found." % glyph_types
 
 class FreehandDrawTool(EditTool, Drag, Tap):
-    ''' *toolbar icon*: |poly_draw_icon|
+    ''' *toolbar icon*: |freehand_draw_icon|
 
     The FreehandDrawTool allows freehand drawing of ``Patches`` and
     ``MultiLine`` glyphs. The glyph to draw may be defined via the
@@ -1399,7 +1399,7 @@ class FreehandDrawTool(EditTool, Drag, Tap):
       then press <<backspace>> key while the mouse is within the plot
       area.
 
-    .. |poly_draw_icon| image:: /_images/icons/PolyDraw.png
+    .. |freehand_draw_icon| image:: /_images/icons/PolyDraw.png
         :height: 18pt
     '''
 
