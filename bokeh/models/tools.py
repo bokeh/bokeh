@@ -1399,7 +1399,7 @@ class FreehandDrawTool(EditTool, Drag, Tap):
       then press <<backspace>> key while the mouse is within the plot
       area.
 
-    .. |freehand_draw_icon| image:: /_images/icons/PolyDraw.png
+    .. |freehand_draw_icon| image:: /_images/icons/FreehandDraw.png
         :height: 18pt
     '''
 
