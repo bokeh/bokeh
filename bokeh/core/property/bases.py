@@ -53,6 +53,9 @@ class Property(PropertyDescriptorFactory):
 
     '''
 
+    # This class attribute is controlled by external helper API for validation
+    _should_validate = True
+
     def __init__(self, default=None, help=None, serialized=True, readonly=False):
         # This is how the descriptor is created in the class declaration.
         self._serialized = False if readonly else serialized
@@ -260,7 +263,8 @@ class Property(PropertyDescriptorFactory):
 
         '''
         try:
-            self.validate(value, False)
+            if validation_on():
+                self.validate(value, False)
         except ValueError as e:
             return False
         else:
@@ -275,7 +279,8 @@ class Property(PropertyDescriptorFactory):
 
     def prepare_value(self, obj_or_cls, name, value):
         try:
-            self.validate(value)
+            if validation_on():
+                self.validate(value)
         except ValueError as e:
             for tp, converter in self.alternatives:
                 if tp.is_valid(value):
@@ -427,3 +432,12 @@ class ContainerProperty(ParameterizedProperty):
     def _may_have_unstable_default(self):
         # all containers are mutable, so the default can be modified
         return True
+
+def validation_on():
+    ''' Check if property validation is currently active
+
+    Returns:
+        bool
+
+    '''
+    return Property._should_validate

@@ -81,12 +81,25 @@ Helpers
 .. autofunction:: field
 .. autofunction:: value
 
-
 Special Properties
 ------------------
 
 .. autoclass:: Include
 .. autoclass:: Override
+
+Validation Control
+------------------
+
+By default, Bokeh properties perform type validation on values. This helps to
+ensure the consistency of any data exchanged between Python and JavaScript, as
+well as provide detailed and immediate feedback to users if they attempt to
+set values of the wrong type. However, these type checks incur some overhead.
+In some cases it may be desirable to turn off validation in specific places,
+or even entirely, in order to boost performance. The following API is available
+to control when type validation occurs.
+
+.. autoclass:: validate
+.. autofunction:: without_property_validation
 
 '''
 from __future__ import absolute_import, print_function
@@ -99,6 +112,7 @@ import collections
 from copy import copy
 import datetime
 import dateutil.parser
+from functools import wraps
 from importlib import import_module
 from io import BytesIO
 import numbers
@@ -2128,6 +2142,62 @@ class Include(PropertyDescriptorFactory):
 
         return descriptors
 
+#------------------------------------------------------------------------------
+# Validation Control
+#------------------------------------------------------------------------------
+
+class validate(object):
+    ''' Control validation of bokeh properties
+
+    This can be used as a context manager, or as a normal callable
+
+    Args:
+        value (bool) : Whether validation should occur or not
+
+    Example:
+        .. code-block:: python
+
+            with validate(False):  # do no validate while within this block
+                pass
+
+            validate(False)  # don't validate ever
+
+    See Also:
+        :func:`~bokeh.core.property.bases.validation_on`: check the state of validation
+
+        :func:`~bokeh.core.properties.without_property_validation`: function decorator
+
+    '''
+    def __init__(self, value):
+        self.old = Property._should_validate
+        Property._should_validate = value
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, typ, value, traceback):
+        Property._should_validate = self.old
+
+
+def without_property_validation(input_function):
+    ''' Turn off property validation during update callbacks
+
+    Example:
+        .. code-block:: python
+
+            @without_property_validation
+            def update(attr, old, new):
+                # do things without validation
+
+    See Also:
+        :class:`~bokeh.core.properties.validate`: context mangager for more fine-grained control
+
+    '''
+    @wraps(input_function)
+    def func(*args, **kwargs):
+        with validate(False):
+            return input_function(*args, **kwargs)
+    return func
 
 # Everything below is just to update the module docstring
 _all_props = set(x for x in globals().values() if isinstance(x, type) and issubclass(x, Property))

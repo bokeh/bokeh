@@ -147,3 +147,13 @@ def test_property_matches_dicts_with_index_values(capsys, pd):
     assert p.matches(d1.index, 10) is False
     out, err = capsys.readouterr()
     assert err == ""
+
+def test_validation_on():
+    assert pb.Property._should_validate == True
+    assert pb.validation_on()
+
+    pb.Property._should_validate = False
+    assert not pb.validation_on()
+
+    pb.Property._should_validate = True
+    assert pb.validation_on()
