@@ -1,8 +1,7 @@
 from os.path import dirname
-
 from random import randint, shuffle
 from src.plot.data_instance import DataInstance
-
+from bokeh.sampledata.mushrooms import data as mushroom_data
 color = []
 
 
@@ -37,18 +36,32 @@ def set_new_dataset(new, test_percentage=10):
     data = []
     attr_values = []
     attr_list = []
-    file = dirname(__file__) + "/../Data/" + new + ".txt"
-    for i, line in enumerate(open(file)):
-        if i == 0:
-            attr_list = line.split(",")
-            attr_list[-1] = attr_list[-1].strip()
-            attr_values = [set() for _ in attr_list]
-        else:
-            datum = line.split(",")
-            datum[-1] = datum[-1].strip()
-            data.append(datum)
-            for j, val in enumerate(data[-1]):
-                attr_values[j].add(val)
+    if new == "lens":
+        file = dirname(__file__) + "/../Data/" + new + ".txt"
+        for i, line in enumerate(open(file)):
+            if i == 0:
+                attr_list = line.split(",")
+                attr_list[-1] = attr_list[-1].strip()
+                attr_values = [set() for _ in attr_list]
+            else:
+                datum = line.split(",")
+                datum[-1] = datum[-1].strip()
+                data.append(datum)
+                for j, val in enumerate(data[-1]):
+                    attr_values[j].add(val)
+    else:
+        attr_list = list(mushroom_data.columns.values)
+        attr_values = [set() for _ in attr_list]
+        for i, val in enumerate(attr_list):
+            attr_values[i] = set(mushroom_data[val])
+        data = list((mushroom_data.values)[1:])
+        print(data)
+        print()
+        print()
+        print(attr_values)
+        print()
+        print()
+        print(attr_list)
     attr_values_dict = dict((attr, list(attr_values[i])) for i, attr in enumerate(attr_list))
     attr_dict = dict((attr, (i, list(attr_values[i]))) for i, attr in enumerate(attr_list))
     shuffle(data)
