@@ -700,7 +700,7 @@ Delete selection
 
 
 FreehandDrawTool
-~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 * name: ``'freehand_draw'``
 * menu icon: |freehand_draw_icon|
