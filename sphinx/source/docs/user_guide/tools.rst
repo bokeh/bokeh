@@ -699,6 +699,60 @@ Delete selection
     :source-position: none
 
 
+FreehandDrawTool
+~~~~~~~~~~~~~~~~
+
+* name: ``'freehand_draw'``
+* menu icon: |freehand_draw_icon|
+
+The ``FreehandDrawTool`` allows freehand drawing of lines and polygons
+using the ``Patches`` and ``MultiLine`` glyphs, by editing the
+underlying ``ColumnDataSource`` data. Like other drawing tools, the
+renderers that are to be edited must be supplied explicitly as a
+list:
+
+.. code-block:: python
+
+    r = p.multi_line('xs', 'ys' source=source)
+    tool = FreehandDrawTool(renderers=[r])
+
+The tool will automatically modify the columns on the data source
+corresponding to the ``xs`` and ``ys`` values of the glyph. Any
+additional columns in the data source will be padded with the declared
+``empty_value``, when adding a new point. Any newly added patch or
+multi-line will be inserted on the ``ColumnDataSource`` of the first
+supplied renderer.
+
+It is also often useful to limit the number of elements that can be
+drawn, e.g. when specifying a specific number of regions of interest.
+Using the ``num_objects`` property we can ensure that once the limit
+has been reached the oldest patch/multi-line will be popped off the
+queue to make space for the new patch/multi-line being added.
+
+.. raw:: html
+
+    <img src="http://bokeh.pydata.org/static/freehand_draw_keyboard_optimized.gif"
+     width='400px' alt="Animation showing freehand drawing and delete actions">
+
+The animation above shows the supported tool actions, highlighting
+mouse actions with a circle around the cursor and key strokes by
+showing the pressed keys. The ``PolyDrawTool`` can **Draw** and
+**Delete** patches and multi-lines:
+
+Draw patch/multi-line
+  Click and drag to start drawing and release the mouse button to
+  finish drawing
+
+Delete patch/multi-line
+  Tap a line or patch to select it then press BACKSPACE key while the
+  mouse is within the plot area.
+
+ To **Delete** multiple patches/lines at once:
+
+Delete selection
+  Select patches/lines with SHIFT+tap (or another selection tool) then
+  press BACKSPACE while the mouse is within the plot area.
+
 PointDrawTool
 ~~~~~~~~~~~~~
 
@@ -715,7 +769,7 @@ list:
 
     c1 = p.circle('x', 'y', 'width', 'height', source=source)
     r1 = p.rect('x', 'y', 0.1, 0.1, source=source2)
-    tool = BoxEditTool(renderers=[c1, r1])
+    tool = PointDrawTool(renderers=[c1, r1])
 
 The tool will automatically modify the columns on the data source
 corresponding to the ``x`` and ``y`` values of the glyph. Any
@@ -947,6 +1001,8 @@ properties on |Plot| objects that control LOD behavior:
 .. |zoom_out_icon| image:: /_images/icons/ZoomOut.png
     :height: 14pt
 .. |box_edit_icon| image:: /_images/icons/BoxEdit.png
+    :height: 14pt
+.. |freehand_draw_icon| image:: /_images/icons/FreehandDraw.png
     :height: 14pt
 .. |point_draw_icon| image:: /_images/icons/PointDraw.png
     :height: 14pt

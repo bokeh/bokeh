@@ -47,15 +47,13 @@ def cds_data_almost_equal(data1, data2, rtol=1e-09, atol=0.0):
         cd2 = data2[c]
         if len(cd1) != len(cd2):
             return False
-        print(c)
         for v1, v2 in zip(cd1, cd2):
-            print(v1, v2)
             if isinstance(v1, (float, int)) and isinstance(v2, (float, int)):
                 if not np.isclose(v1, v2, rtol, atol):
                     return False
             elif isinstance(v1, (list, np.ndarray)) and isinstance(v2, (list, np.ndarray)):
                 v1, v2 = np.asarray(v1), np.asarray(v2)
-                if v1.dtype.kind in 'iufcmM' and v2.kind in 'iufcmM':
+                if v1.dtype.kind in 'iufcmM' and v2.dtype.kind in 'iufcmM':
                     if (~np.isclose(v1, v2, rtol, atol)).any():
                         return False
                 elif (v1 != v2).any():
