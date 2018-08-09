@@ -76,9 +76,7 @@ class Test_PointDrawTool(object):
 
         page = single_plot_page(plot)
 
-        target = 'bk-tool-icon-point-draw'
-
-        button = page.driver.find_element_by_class_name(target)
+        button = page.get_toolbar_button('point-draw')
         assert 'active' in button.get_attribute('class')
 
         assert page.has_no_console_errors()
@@ -88,19 +86,17 @@ class Test_PointDrawTool(object):
 
         page = single_plot_page(plot)
 
-        target = 'bk-tool-icon-point-draw'
-
         # Check is active
-        button = page.driver.find_element_by_class_name(target)
+        button = page.get_toolbar_button('point-draw')
         assert 'active' in button.get_attribute('class')
 
         # Click and check is not active
-        button = page.driver.find_element_by_class_name(target)
+        button = page.get_toolbar_button('point-draw')
         button.click()
         assert 'active' not in button.get_attribute('class')
 
         # Click again and check is active
-        button = page.driver.find_element_by_class_name(target)
+        button = page.get_toolbar_button('point-draw')
         button.click()
         assert 'active' in button.get_attribute('class')
 
