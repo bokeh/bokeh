@@ -7,45 +7,22 @@ import {Range1d} from "../ranges/range1d"
 import {DataRange1d} from "../ranges/data_range1d"
 import {FactorRange} from "../ranges/factor_range"
 
-import {Layoutable} from "core/layout/layout_canvas"
+import {AnchorLayout} from "core/layout/alignments"
 import {Arrayable} from "core/types"
-import * as p from "core/properties"
 
 export type Ranges = {[key: string]: Range}
 export type Scales = {[key: string]: Scale}
 
-export namespace CartesianFrame {
-  export interface Attrs extends Layoutable.Attrs {
-    extra_x_ranges: Ranges
-    extra_y_ranges: Ranges
-    x_range: Range
-    y_range: Range
-    x_scale: Scale
-    y_scale: Scale
-  }
+export class CartesianFrame extends AnchorLayout {
 
-  export interface Props extends Layoutable.Props {}
-}
-
-export interface CartesianFrame extends CartesianFrame.Attrs {}
-
-export class CartesianFrame extends Layoutable {
-
-  constructor(attrs?: Partial<CartesianFrame.Attrs>) {
-    super(attrs)
-  }
-
-  static initClass(): void {
-    this.prototype.type = "CartesianFrame"
-
-    this.internal({
-      extra_x_ranges: [ p.Any, {} ],
-      extra_y_ranges: [ p.Any, {} ],
-      x_range:        [ p.Instance ],
-      y_range:        [ p.Instance ],
-      x_scale:        [ p.Instance ],
-      y_scale:        [ p.Instance ],
-    })
+  constructor(readonly x_scale: Scale,
+              readonly y_scale: Scale,
+              readonly x_range: Range,
+              readonly y_range: Range,
+              readonly extra_x_ranges: Ranges,
+              readonly extra_y_ranges: Ranges) {
+    super()
+    this._configure_scales()
   }
 
   protected _h_target: Range1d
@@ -56,20 +33,6 @@ export class CartesianFrame extends Layoutable {
 
   protected _xscales: Scales
   protected _yscales: Scales
-
-  initialize(): void {
-    super.initialize()
-    this._configure_scales()
-  }
-
-  connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.change, () => this._configure_scales())
-  }
-
-  get panel(): Layoutable {
-    return this
-  }
 
   map_to_screen(x: Arrayable<number>, y: Arrayable<number>,
                 x_name: string = "default", y_name: string = "default"): [Arrayable<number>, Arrayable<number>] {
@@ -164,5 +127,3 @@ export class CartesianFrame extends Layoutable {
     return this._yscales
   }
 }
-
-CartesianFrame.initClass()

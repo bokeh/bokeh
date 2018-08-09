@@ -1,3 +1,4 @@
+import {CartesianFrame} from "../canvas/cartesian_frame"
 import {Canvas, CanvasView} from "../canvas/canvas"
 import {Range} from "../ranges/range"
 import {DataRange1d} from "../ranges/data_range1d"
@@ -7,7 +8,6 @@ import {ToolView} from "../tools/tool"
 import {Selection} from "../selections/selection"
 import {LayoutDOMView} from "../layouts/layout_dom"
 import {Plot} from "./plot"
-import {CartesianFrame} from "../canvas/cartesian_frame"
 import {Annotation} from "../annotations/annotation"
 import {Axis} from "../axes/axis"
 //import {ToolbarPanel} from "../annotations/toolbar_panel"
@@ -70,13 +70,14 @@ export class PlotLayout extends Layoutable {
 
   readonly top_panel = new VStack()
   readonly bottom_panel = new VStack()
-
   readonly left_panel = new HStack()
   readonly right_panel = new HStack()
 
-  readonly center_panel = new AnchorLayout()
-
   min_border: Margin = {left: 0, top: 0, right: 0, bottom: 0}
+
+  constructor(readonly center_panel: Layoutable = new AnchorLayout()) {
+    super()
+  }
 
   size_hint(): SizeHint {
     const left_hint = this.left_panel.size_hint()
@@ -124,6 +125,9 @@ export abstract class PlotCanvasView extends LayoutDOMView {
 
   layout: PlotLayout
 
+  frame: CartesianFrame
+
+  canvas: Canvas
   canvas_view: CanvasView
 
   gl?: WebGLState
@@ -151,15 +155,6 @@ export abstract class PlotCanvasView extends LayoutDOMView {
   protected tool_views: {[key: string]: ToolView}
 
   protected range_update_timestamp?: number
-
-  // compat, to be removed
-  get frame(): CartesianFrame {
-    return this.model.frame
-  }
-
-  get canvas(): Canvas {
-    return this.model.canvas
-  }
 
   get canvas_overlays(): HTMLElement {
     return this.canvas_view.overlays_el
@@ -235,6 +230,21 @@ export abstract class PlotCanvasView extends LayoutDOMView {
     this.visibility_callbacks = []
 
     this.state = {history: [], index: -1}
+
+    this.canvas = new Canvas({
+      map: this.model.use_map != null ? this.model.use_map : false,
+      use_hidpi: this.model.hidpi,
+      output_backend: this.model.output_backend,
+    })
+
+    this.frame = new CartesianFrame(
+      this.model.x_scale,
+      this.model.y_scale,
+      this.model.x_range,
+      this.model.y_range,
+      this.model.extra_x_ranges,
+      this.model.extra_y_ranges,
+    )
 
     this.canvas_view = new this.canvas.default_view({model: this.canvas, parent: this}) as CanvasView
     this.el.appendChild(this.canvas_view.el)
@@ -319,7 +329,7 @@ export abstract class PlotCanvasView extends LayoutDOMView {
       //return models.map((model) => this.renderer_views[model.id].layout)
     }
 
-    this.layout = new PlotLayout()
+    this.layout = new PlotLayout(this.frame)
 
     const min_border = this.model.min_border != null ? this.model.min_border : 0
     this.layout.min_border = {
@@ -414,13 +424,11 @@ export abstract class PlotCanvasView extends LayoutDOMView {
 
   update_dataranges(): void {
     // Update any DataRange1ds here
-    const {frame} = this.model
-
     const bounds: {[key: string]: Rect} = {}
     const log_bounds: {[key: string]: Rect} = {}
 
     let calculate_log_bounds = false
-    for (const r of values(frame.x_ranges).concat(values(frame.y_ranges))) {
+    for (const r of values(this.frame.x_ranges).concat(values(this.frame.y_ranges))) {
       if (r instanceof DataRange1d) {
         if (r.scale_hint == "log")
           calculate_log_bounds = true
@@ -449,7 +457,7 @@ export abstract class PlotCanvasView extends LayoutDOMView {
     if (this.model.match_aspect !== false && this.frame._width.value != 0 && this.frame._height.value != 0)
       r = (1/this.model.aspect_scale)*(this.frame._width.value/this.frame._height.value)
 
-    for (const xr of values(frame.x_ranges)) {
+    for (const xr of values(this.frame.x_ranges)) {
       if (xr instanceof DataRange1d) {
         const bounds_to_use = xr.scale_hint == "log" ? log_bounds : bounds
         xr.update(bounds_to_use, 0, this.model.id, r)
@@ -461,7 +469,7 @@ export abstract class PlotCanvasView extends LayoutDOMView {
         has_bounds = true
     }
 
-    for (const yr of values(frame.y_ranges)) {
+    for (const yr of values(this.frame.y_ranges)) {
       if (yr instanceof DataRange1d) {
         const bounds_to_use = yr.scale_hint == "log" ? log_bounds : bounds
         yr.update(bounds_to_use, 1, this.model.id, r)
@@ -475,10 +483,10 @@ export abstract class PlotCanvasView extends LayoutDOMView {
 
     if (follow_enabled && has_bounds) {
       logger.warn('Follow enabled so bounds are unset.')
-      for (const xr of values(frame.x_ranges)) {
+      for (const xr of values(this.frame.x_ranges)) {
         xr.bounds = null
       }
-      for (const yr of values(frame.y_ranges)) {
+      for (const yr of values(this.frame.y_ranges)) {
         yr.bounds = null
       }
     }
@@ -767,7 +775,7 @@ export abstract class PlotCanvasView extends LayoutDOMView {
 
     this.connect(this.force_paint, () => this.repaint())
 
-    const {x_ranges, y_ranges} = this.model.frame
+    const {x_ranges, y_ranges} = this.frame
 
     for (const name in x_ranges) {
       const rng = x_ranges[name]
@@ -842,8 +850,8 @@ export abstract class PlotCanvasView extends LayoutDOMView {
     this.canvas_view.prepare_canvas(width, height)
 
     this.model.setv({
-      inner_width: Math.round(this.model.frame._width.value),
-      inner_height: Math.round(this.model.frame._height.value),
+      inner_width: Math.round(this.frame._width.value),
+      inner_height: Math.round(this.frame._height.value),
       layout_width: Math.round(this.layout._width.value),
       layout_height: Math.round(this.layout._height.value),
     }, {no_change: true})
@@ -914,7 +922,7 @@ export abstract class PlotCanvasView extends LayoutDOMView {
     // (mp) not only that, but models don't know about solve_r anymore, so
     // frame can't update its scales.
     // XXX: most likely this isn't relevant anymore.
-    this.model.frame.update_scales()
+    this.frame.update_scales()
 
     const {ctx} = this.canvas_view
     const ratio = this.canvas.pixel_ratio

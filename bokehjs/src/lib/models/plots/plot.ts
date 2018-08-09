@@ -15,8 +15,6 @@ import {Title} from "../annotations/title"
 import {LinearScale} from "../scales/linear_scale"
 import {Toolbar} from "../tools/toolbar"
 import {PlotCanvasView} from "./plot_canvas"
-import {Canvas} from "../canvas/canvas"
-import {CartesianFrame} from "../canvas/cartesian_frame"
 
 import {Range} from "../ranges/range"
 import {Scale} from "../scales/scale"
@@ -134,9 +132,6 @@ export interface Plot extends Plot.Attrs {}
 export class Plot extends LayoutDOM {
   properties: Plot.Props
 
-  canvas: Canvas
-  frame: CartesianFrame
-
   use_map: boolean
 
   reset: Signal0<this>
@@ -240,21 +235,6 @@ export class Plot extends LayoutDOM {
       this.width = this.plot_width
     if (this.height == null)
       this.height = this.plot_height
-
-    this.canvas = new Canvas({
-      map: this.use_map != null ? this.use_map : false,
-      use_hidpi: this.hidpi,
-      output_backend: this.output_backend,
-    })
-
-    this.frame = new CartesianFrame({
-      x_range: this.x_range,
-      extra_x_ranges: this.extra_x_ranges,
-      x_scale: this.x_scale,
-      y_range: this.y_range,
-      extra_y_ranges: this.extra_y_ranges,
-      y_scale: this.y_scale,
-    })
   }
 
   add_layout(renderer: any /* XXX: Renderer */, side: Place = "center"): void {
