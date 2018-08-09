@@ -28,7 +28,7 @@ export abstract class EditToolView extends GestureToolView {
 
   _map_drag(sx: number, sy: number, renderer: GlyphRenderer): [number, number] | null {
     // Maps screen to data coordinates
-    const frame = this.plot_model.frame
+    const frame = this.plot_view.frame
     if (!frame.bbox.contains(sx, sy)) {
       return null
     }
@@ -117,7 +117,7 @@ export abstract class EditToolView extends GestureToolView {
 
   _select_event(ev: UIEvent, append: boolean, renderers: GlyphRenderer[]): GlyphRenderer[] {
     // Process selection event on the supplied renderers and return selected renderers
-    const frame = this.plot_model.frame
+    const frame = this.plot_view.frame
     const {sx, sy} = ev
     if (!frame.bbox.contains(sx, sy)) {
       return []

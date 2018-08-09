@@ -32,7 +32,7 @@ export class TapToolView extends SelectToolView {
         const did_hit = sm.select(r_views, geometry, final, append)
 
         if (did_hit && callback != null) {
-          const frame = this.plot_model.frame
+          const {frame} = this.plot_view
           const xscale = frame.xscales[renderers[0].x_range_name]
           const yscale = frame.yscales[renderers[0].y_range_name]
           const x = xscale.invert(geometry.sx)
@@ -57,7 +57,7 @@ export class TapToolView extends SelectToolView {
         const did_hit = sm.inspect(this.plot_view.renderer_views[r.id], geometry)
 
         if (did_hit && callback != null) {
-          const frame = this.plot_model.frame
+          const {frame} = this.plot_view
           const xscale = frame.xscales[r.x_range_name]
           const yscale = frame.yscales[r.y_range_name]
           const x = xscale.invert(geometry.sx)

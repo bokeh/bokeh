@@ -8,7 +8,7 @@ export class ZoomOutToolView extends ActionToolView {
   model: ZoomOutTool
 
   doit(): void {
-    const frame = this.plot_model.frame
+    const frame = this.plot_view.frame
     const dims = this.model.dimensions
 
     // restrict to axis configured in tool's dimensions property

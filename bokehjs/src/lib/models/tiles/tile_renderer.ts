@@ -67,7 +67,7 @@ export class TileRendererView extends RendererView {
   }
 
   private get map_frame(): CartesianFrame {
-    return this.plot_model.frame
+    return this.plot_view.frame
   }
 
   private get x_range(): Range {
@@ -90,8 +90,8 @@ export class TileRendererView extends RendererView {
 
     if (isString(attribution) && attribution.length > 0) {
       if (this.attributionEl == null) {
-        const right = this.plot_view.layout._right.value - this.plot_model.frame._right.value
-        const bottom = this.plot_view.layout._bottom.value - this.plot_model.frame._bottom.value
+        const right = this.plot_view.layout._right.value - this.plot_view.frame._right.value
+        const bottom = this.plot_view.layout._bottom.value - this.plot_view.frame._bottom.value
         const max_width = this.map_frame._width.value
         this.attributionEl = div({
           class: 'bk-tile-attribution',

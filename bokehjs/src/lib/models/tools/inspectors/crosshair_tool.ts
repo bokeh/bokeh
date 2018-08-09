@@ -16,7 +16,7 @@ export class CrosshairToolView extends InspectToolView {
 
     const {sx, sy} = ev
 
-    if (!this.plot_model.frame.bbox.contains(sx, sy))
+    if (!this.plot_view.frame.bbox.contains(sx, sy))
       this._update_spans(null, null)
     else
       this._update_spans(sx, sy)

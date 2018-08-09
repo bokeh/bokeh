@@ -123,7 +123,7 @@ export class GlyphRendererView extends RendererView {
     this.connect(this.model.properties.view.change, () => this.set_data())
     this.connect(this.model.view.change, () => this.set_data())
 
-    const {x_ranges, y_ranges} = this.plot_model.frame
+    const {x_ranges, y_ranges} = this.plot_view.frame
 
     for (const name in x_ranges) {
       const rng = x_ranges[name]

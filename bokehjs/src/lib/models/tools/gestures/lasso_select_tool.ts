@@ -37,7 +37,7 @@ export class LassoSelectToolView extends SelectToolView {
 
   _pan(ev: GestureEvent): void {
     const {sx: _sx, sy: _sy} = ev
-    const [sx, sy] = this.plot_model.frame.bbox.clip(_sx, _sy)
+    const [sx, sy] = this.plot_view.frame.bbox.clip(_sx, _sy)
 
     this.data!.sx.push(sx)
     this.data!.sy.push(sy)
@@ -73,7 +73,7 @@ export class LassoSelectToolView extends SelectToolView {
 
   _emit_callback(geometry: PolyGeometry): void {
     const r = this.computed_renderers[0]
-    const frame = this.plot_model.frame
+    const frame = this.plot_view.frame
 
     const xscale = frame.xscales[r.x_range_name]
     const yscale = frame.yscales[r.y_range_name]

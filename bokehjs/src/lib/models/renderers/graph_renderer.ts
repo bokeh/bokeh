@@ -42,7 +42,7 @@ export class GraphRendererView extends RendererView {
     this.connect(this.model.edge_renderer.data_source.inspect, () => this.set_data())
     this.connect(this.model.edge_renderer.data_source.change, () => this.set_data())
 
-    const {x_ranges, y_ranges} = this.plot_model.frame
+    const {x_ranges, y_ranges} = this.plot_view.frame
 
     for (const name in x_ranges) {
       const rng = x_ranges[name]

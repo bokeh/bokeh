@@ -11,7 +11,7 @@ export class BoxSelectToolView extends SelectToolView {
   protected _base_point: [number, number] | null
 
   protected _compute_limits(curpoint: [number, number]): [[number, number], [number, number]] {
-    const frame = this.plot_model.frame
+    const frame = this.plot_view.frame
     const dims = this.model.dimensions
 
     let base_point = this._base_point!
@@ -70,7 +70,7 @@ export class BoxSelectToolView extends SelectToolView {
 
   _emit_callback(geometry: RectGeometry): void {
     const r = this.computed_renderers[0]
-    const frame = this.plot_model.frame
+    const frame = this.plot_view.frame
 
     const xscale = frame.xscales[r.x_range_name]
     const yscale = frame.yscales[r.y_range_name]

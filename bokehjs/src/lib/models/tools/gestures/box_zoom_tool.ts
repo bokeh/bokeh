@@ -79,7 +79,7 @@ export class BoxZoomToolView extends GestureToolView {
   }
 
   protected _compute_limits(curpoint: [number, number]): [[number, number], [number, number]] {
-    const frame = this.plot_model.frame
+    const frame = this.plot_view.frame
     const dims = this.model.dimensions
 
     let base_point = this._base_point!
@@ -125,7 +125,7 @@ export class BoxZoomToolView extends GestureToolView {
     if (Math.abs(sx1 - sx0) <= 5 || Math.abs(sy1 - sy0) <= 5)
       return
 
-    const {xscales, yscales} = this.plot_model.frame
+    const {xscales, yscales} = this.plot_view.frame
 
     const xrs: {[key: string]: {start: number, end: number}} = {}
     for (const name in xscales) {

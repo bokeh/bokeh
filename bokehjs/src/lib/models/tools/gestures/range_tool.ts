@@ -85,7 +85,7 @@ export class RangeToolView extends GestureToolView {
     const xr = this.model.x_range
     const yr = this.model.y_range
 
-    const frame = this.plot_model.frame
+    const frame = this.plot_view.frame
     const xscale = frame.xscales.default
     const yscale = frame.yscales.default
 
@@ -119,7 +119,7 @@ export class RangeToolView extends GestureToolView {
   }
 
   _pan(ev: GestureEvent): void {
-    const frame = this.plot_model.frame
+    const frame = this.plot_view.frame
 
     const new_dx = ev.deltaX - this.last_dx
     const new_dy = ev.deltaY - this.last_dy

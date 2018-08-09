@@ -204,7 +204,7 @@ export abstract class GMapPlotCanvasView extends PlotCanvasView {
   }
 
   protected _update_tilt(): void {
-    this.map.setOptions({tilt: this.model.plot.map_options.tilt })
+    this.map.setOptions({tilt: this.model.map_options.tilt })
   }
 
   protected _update_options(): void {

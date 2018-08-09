@@ -145,7 +145,7 @@ export class HoverToolView extends InspectToolView {
     if (!this.model.active)
       return
     const {sx, sy} = ev
-    if (!this.plot_model.frame.bbox.contains(sx, sy))
+    if (!this.plot_view.frame.bbox.contains(sx, sy))
       this._clear()
     else
       this._inspect(sx, sy)
@@ -198,7 +198,7 @@ export class HoverToolView extends InspectToolView {
 
     const ds = selection_manager.source
 
-    const frame = this.plot_model.frame
+    const {frame} = this.plot_view
     const {sx, sy} = geometry
     const xscale = frame.xscales[renderer.x_range_name]
     const yscale = frame.yscales[renderer.y_range_name]
@@ -361,7 +361,7 @@ export class HoverToolView extends InspectToolView {
   _emit_callback(geometry: PointGeometry | SpanGeometry): void {
     for (const r of this.computed_renderers) {
       const index = (r as any).data_source.inspected
-      const frame = this.plot_model.frame
+      const {frame} = this.plot_view
 
       const xscale = frame.xscales[r.x_range_name]
       const yscale = frame.yscales[r.y_range_name]

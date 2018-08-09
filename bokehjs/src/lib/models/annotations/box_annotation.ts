@@ -55,7 +55,7 @@ export class BoxAnnotationView extends AnnotationView {
       return
     }
 
-    const {frame} = this.plot_model
+    const {frame} = this.plot_view
     const xscale = frame.xscales[this.model.x_range_name]
     const yscale = frame.yscales[this.model.y_range_name]
 

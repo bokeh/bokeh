@@ -47,7 +47,7 @@ export class PolySelectToolView extends SelectToolView {
   _tap(ev: TapEvent): void {
     const {sx, sy} = ev
 
-    const frame = this.plot_model.frame
+    const frame = this.plot_view.frame
     if (!frame.bbox.contains(sx, sy))
       return
 
@@ -68,7 +68,7 @@ export class PolySelectToolView extends SelectToolView {
 
   _emit_callback(geometry: PolyGeometry): void {
     const r = this.computed_renderers[0]
-    const frame = this.plot_model.frame
+    const frame = this.plot_view.frame
 
     const xscale = frame.xscales[r.x_range_name]
     const yscale = frame.yscales[r.y_range_name]

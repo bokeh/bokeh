@@ -23,7 +23,7 @@ export class PanToolView extends GestureToolView {
     this.last_dx = 0
     this.last_dy = 0
     const {sx, sy} = ev
-    const bbox = this.plot_model.frame.bbox
+    const bbox = this.plot_view.frame.bbox
     if (!bbox.contains(sx, sy)) {
       const hr = bbox.h_range
       const vr = bbox.v_range
@@ -53,7 +53,7 @@ export class PanToolView extends GestureToolView {
   }
 
   _update(dx: number, dy: number): void {
-    const frame = this.plot_model.frame
+    const frame = this.plot_view.frame
 
     const new_dx = dx - this.last_dx
     const new_dy = dy - this.last_dy
