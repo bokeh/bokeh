@@ -9,7 +9,7 @@ import {Selection} from "../selections/selection"
 import {LayoutDOMView} from "../layouts/layout_dom"
 import {Plot} from "./plot"
 import {Annotation} from "../annotations/annotation"
-import {Axis} from "../axes/axis"
+import {Axis, AxisView} from "../axes/axis"
 //import {ToolbarPanel} from "../annotations/toolbar_panel"
 
 import {Reset} from "core/bokeh_events"
@@ -348,6 +348,16 @@ export abstract class PlotCanvasView extends LayoutDOMView {
 
     this.unpause(true)
     logger.debug("PlotView initialized")
+  }
+
+  get axis_views(): AxisView[] {
+    const views = []
+    for (const id in this.renderer_views) {
+      const child_view = this.renderer_views[id]
+      if (child_view instanceof AxisView)
+        views.push(child_view)
+    }
+    return views
   }
 
   set_cursor(cursor: string = "default"): void {

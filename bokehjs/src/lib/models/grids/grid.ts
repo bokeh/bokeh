@@ -1,4 +1,3 @@
-import {Axis} from "../axes/axis"
 import {GuideRenderer, GuideRendererView} from "../renderers/guide_renderer"
 import {Range} from "../ranges/range"
 import {Ticker} from "../tickers/ticker"
@@ -41,7 +40,7 @@ export class GridView extends GuideRendererView {
   protected _draw_regions(ctx: Context2d): void {
     if (!this.visuals.band_fill.doit)
       return
-    const [xs, ys] = this.model.grid_coords('major', false)
+    const [xs, ys] = this.grid_coords('major', false)
     this.visuals.band_fill.set_value(ctx)
     for (let i = 0; i < xs.length-1; i++) {
       if (i % 2 == 1) {
@@ -56,14 +55,14 @@ export class GridView extends GuideRendererView {
   protected _draw_grids(ctx: Context2d): void {
     if (!this.visuals.grid_line.doit)
       return
-    const [xs, ys] = this.model.grid_coords('major')
+    const [xs, ys] = this.grid_coords('major')
     this._draw_grid_helper(ctx, this.visuals.grid_line, xs, ys)
   }
 
   protected _draw_minor_grids(ctx: Context2d): void {
     if (!this.visuals.minor_grid_line.doit)
       return
-    const [xs, ys] = this.model.grid_coords('minor')
+    const [xs, ys] = this.grid_coords('minor')
     this._draw_grid_helper(ctx, this.visuals.minor_grid_line, xs, ys)
   }
 
@@ -78,6 +77,103 @@ export class GridView extends GuideRendererView {
       ctx.stroke()
     }
   }
+
+  // {{{ TODO: state
+  ranges(): [Range, Range] {
+    const i = this.model.dimension
+    const j = (i + 1) % 2
+    const frame = this.plot_view.frame
+    const ranges = [
+      frame.x_ranges[this.model.x_range_name],
+      frame.y_ranges[this.model.y_range_name],
+    ]
+    return [ranges[i], ranges[j]]
+  }
+
+  computed_bounds(): [number, number] {
+    const [range,] = this.ranges()
+
+    const user_bounds = this.model.bounds
+    const range_bounds = [range.min, range.max]
+
+    let start: number
+    let end: number
+    if (isArray(user_bounds)) {
+      start = Math.min(user_bounds[0], user_bounds[1])
+      end = Math.max(user_bounds[0], user_bounds[1])
+
+      if (start < range_bounds[0])
+        start = range_bounds[0]
+      // XXX:
+      //else if (start > range_bounds[1])
+      //  start = null
+
+      if (end > range_bounds[1])
+        end = range_bounds[1]
+      // XXX:
+      //else if (end < range_bounds[0])
+      //  end = null
+    } else {
+      [start, end] = range_bounds
+      for (const axis_view of this.plot_view.axis_views) {
+        if (axis_view.dimension == this.model.dimension
+            && axis_view.model.x_range_name == this.model.x_range_name
+            && axis_view.model.y_range_name == this.model.y_range_name) {
+          [start, end] = axis_view.computed_bounds
+        }
+      }
+    }
+
+    return [start, end]
+  }
+
+  grid_coords(location: "major" | "minor", exclude_ends: boolean = true): [number[][], number[][]] {
+    const i = this.model.dimension
+    const j = (i + 1) % 2
+    const [range, cross_range] = this.ranges()
+
+    let [start, end] = this.computed_bounds();
+    [start, end] = [Math.min(start, end), Math.max(start, end)]
+
+    // TODO: (bev) using cross_range.min for cross_loc is a bit of a cheat. Since we
+    // currently only support "straight line" grids, this should be OK for now. If
+    // we ever want to support "curved" grids, e.g. for some projections, we may
+    // have to communicate more than just a single cross location.
+    const ticks = this.model.ticker.get_ticks(start, end, range, cross_range.min, {})[location]
+
+    const min = range.min
+    const max = range.max
+
+    const cmin = cross_range.min
+    const cmax = cross_range.max
+
+    const coords: [number[][], number[][]] = [[], []]
+
+    if (!exclude_ends) {
+      if (ticks[0] != min)
+        ticks.splice(0, 0, min)
+      if (ticks[ticks.length-1] != max)
+        ticks.push(max)
+    }
+
+    for (let ii = 0; ii < ticks.length; ii++) {
+      if ((ticks[ii] == min || ticks[ii] == max) && exclude_ends)
+        continue
+      const dim_i: number[] = []
+      const dim_j: number[] = []
+      const N = 2
+      for (let n = 0; n < N; n++) {
+        const loc = cmin + (cmax-cmin)/(N-1)*n
+        dim_i.push(ticks[ii])
+        dim_j.push(loc)
+      }
+      coords[i].push(dim_i)
+      coords[j].push(dim_j)
+    }
+
+    return coords
+  }
+  // }}}
 }
 
 export namespace Grid {
@@ -159,100 +255,6 @@ export class Grid extends GuideRenderer {
       grid_line_color: '#e5e5e5',
       minor_grid_line_color: null,
     })
-  }
-
-  ranges(): [Range, Range] {
-    const i = this.dimension
-    const j = (i + 1) % 2
-    const frame = this.plot.frame
-    const ranges = [
-      frame.x_ranges[this.x_range_name],
-      frame.y_ranges[this.y_range_name],
-    ]
-    return [ranges[i], ranges[j]]
-  }
-
-  computed_bounds(): [number, number] {
-    const [range,] = this.ranges()
-
-    const user_bounds = this.bounds
-    const range_bounds = [range.min, range.max]
-
-    let start: number
-    let end: number
-    if (isArray(user_bounds)) {
-      start = Math.min(user_bounds[0], user_bounds[1])
-      end = Math.max(user_bounds[0], user_bounds[1])
-
-      if (start < range_bounds[0])
-        start = range_bounds[0]
-      // XXX:
-      //else if (start > range_bounds[1])
-      //  start = null
-
-      if (end > range_bounds[1])
-        end = range_bounds[1]
-      // XXX:
-      //else if (end < range_bounds[0])
-      //  end = null
-    } else {
-      [start, end] = range_bounds
-      for (const axis of this.plot.select(Axis)) {
-        if (axis.dimension == this.dimension && axis.x_range_name == this.x_range_name
-                                             && axis.y_range_name == this.y_range_name) {
-          [start, end] = axis.computed_bounds
-        }
-      }
-    }
-
-    return [start, end]
-  }
-
-  grid_coords(location: "major" | "minor", exclude_ends: boolean = true): [number[][], number[][]] {
-    const i = this.dimension
-    const j = (i + 1) % 2
-    const [range, cross_range] = this.ranges()
-
-    let [start, end] = this.computed_bounds();
-    [start, end] = [Math.min(start, end), Math.max(start, end)]
-
-    // TODO: (bev) using cross_range.min for cross_loc is a bit of a cheat. Since we
-    // currently only support "straight line" grids, this should be OK for now. If
-    // we ever want to support "curved" grids, e.g. for some projections, we may
-    // have to communicate more than just a single cross location.
-    const ticks = this.ticker.get_ticks(start, end, range, cross_range.min, {})[location]
-
-    const min = range.min
-    const max = range.max
-
-    const cmin = cross_range.min
-    const cmax = cross_range.max
-
-    const coords: [number[][], number[][]] = [[], []]
-
-    if (!exclude_ends) {
-      if (ticks[0] != min)
-        ticks.splice(0, 0, min)
-      if (ticks[ticks.length-1] != max)
-        ticks.push(max)
-    }
-
-    for (let ii = 0; ii < ticks.length; ii++) {
-      if ((ticks[ii] == min || ticks[ii] == max) && exclude_ends)
-        continue
-      const dim_i: number[] = []
-      const dim_j: number[] = []
-      const N = 2
-      for (let n = 0; n < N; n++) {
-        const loc = cmin + (cmax-cmin)/(N-1)*n
-        dim_i.push(ticks[ii])
-        dim_j.push(loc)
-      }
-      coords[i].push(dim_i)
-      coords[j].push(dim_j)
-    }
-
-    return coords
   }
 }
 Grid.initClass()
