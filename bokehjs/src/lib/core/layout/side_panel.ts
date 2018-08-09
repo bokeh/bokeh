@@ -1,7 +1,6 @@
-import {LayoutCanvas} from "./layout_canvas"
+import {Layoutable} from "./layout_canvas"
+import {SizeHint} from "./index"
 
-import * as p from "../properties"
-import {logger} from "../logging"
 import {Side} from "../enums"
 import {isString} from "../util/types"
 
@@ -150,43 +149,18 @@ const _align_lookup_positive: {[key in Side]: CanvasTextAlign} = {
   right  : LEFT,
 }
 
-export namespace SidePanel {
-  export interface Attrs extends LayoutCanvas.Attrs {
-    side: Side
-  }
-
-  export interface Props extends LayoutCanvas.Props {
-    side: p.Property<Side>
-  }
+export interface Panelable {
+  get_size(): number
 }
 
-export interface SidePanel extends SidePanel.Attrs {}
-
-export class SidePanel extends LayoutCanvas {
-
-  properties: SidePanel.Props
-
-  constructor(attrs?: Partial<SidePanel.Attrs>) {
-    super(attrs)
-  }
-
-  static initClass(): void {
-    this.prototype.type = "SidePanel"
-
-    this.internal({
-      side: [ p.String ],
-    })
-  }
+export class SidePanel extends Layoutable {
 
   protected _dim: 0 | 1
   protected _normals: [number, number]
 
-  toString(): string {
-    return `${this.type}(${this.id}, ${this.side})`
-  }
+  constructor(readonly side: Side, readonly obj: Panelable) {
+    super()
 
-  initialize(): void {
-    super.initialize()
     switch(this.side) {
       case "above":
         this._dim = 0
@@ -205,8 +179,16 @@ export class SidePanel extends LayoutCanvas {
         this._normals = [1, 0]
         break
       default:
-        logger.error(`unrecognized side: '${this.side}'`)
+        throw new Error("unreachable")
     }
+  }
+
+  size_hint(): SizeHint {
+    const size = this.obj.get_size()
+    if (this.is_horizontal)
+      return {width: 0, height: size}
+    else
+      return {width: size, height: 0}
   }
 
   get dimension(): 0 | 1 {
@@ -218,11 +200,11 @@ export class SidePanel extends LayoutCanvas {
   }
 
   get is_horizontal(): boolean {
-    return this.side == "above" || this.side == "below"
+    return this._dim == 0
   }
 
   get is_vertical(): boolean {
-    return this.side == "left" || this.side == "right"
+    return this._dim == 1
   }
 
   apply_label_text_heuristics(ctx: CanvasRenderingContext2D, orient: TextOrient | number): void {
@@ -255,5 +237,3 @@ export class SidePanel extends LayoutCanvas {
     return _angle_lookup[this.side][orient]
   }
 }
-
-SidePanel.initClass()

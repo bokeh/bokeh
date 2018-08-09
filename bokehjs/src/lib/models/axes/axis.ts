@@ -4,12 +4,10 @@ import {TickFormatter} from "../formatters/tick_formatter"
 import {Range} from "../ranges/range"
 
 import * as p from "core/properties"
-import {SizeHint} from "core/layout"
 import {Arrayable, Color} from "core/types"
 import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap} from "core/enums"
 import {Side, TickLabelOrientation, SpatialUnits} from "core/enums"
 import {Text, Line} from "core/visuals"
-import {LayoutItem, NormGeom} from "core/layout/layout_canvas"
 import {SidePanel, Orient} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
 import {sum} from "core/util/array"
@@ -35,27 +33,7 @@ export class AxisView extends GuideRendererView {
   model: Axis
   visuals: Axis.Visuals
 
-  __layout: LayoutItem
-
-  initialize(options: any): void {
-    super.initialize(options)
-
-    const axis_view = this
-    this.__layout = new class extends LayoutItem {
-      size_hint(): SizeHint {
-        const size = axis_view.get_size()
-        if (axis_view.model.panel.horizontal)
-          return {width: 0, height: size}
-        else
-          return {width: size, height: 0}
-      }
-
-      _set_geom(geom: NormGeom): void {
-        super._set_geom(geom)
-        axis_view.model.panel._set_geom(geom)
-      }
-    }
-  }
+  layout: SidePanel
 
   render(): void {
     if (!this.model.visible)
@@ -483,11 +461,6 @@ export class Axis extends GuideRenderer {
     })
   }
 
-  add_panel(side: Side): void {
-    this.panel = new SidePanel({side: side})
-    this.panel.attach_document(this.document!) // XXX!
-  }
-
   get normals(): [number, number] {
     return this.panel.normals
   }
@@ -506,14 +479,12 @@ export class Axis extends GuideRenderer {
   }
 
   get offsets(): [number, number] {
-
     // If we have a fixed_position then we should respect that exactly and
     // not apply any offsets (https://github.com/bokeh/bokeh/issues/8552)
-    if (this.fixed_location != null) {
+    if (this.model.fixed_location != null)
       return [0, 0]
-    }
 
-    const frame = this.plot.plot_canvas.frame
+    const frame = this.plot.frame
     let [xoff, yoff] = [0, 0]
 
     switch (this.panel.side) {
@@ -537,7 +508,7 @@ export class Axis extends GuideRenderer {
   get ranges(): [Range, Range] {
     const i = this.dimension
     const j = (i + 1) % 2
-    const frame = this.plot.plot_canvas.frame
+    const frame = this.plot.frame
     const ranges = [
       frame.x_ranges[this.x_range_name],
       frame.y_ranges[this.y_range_name],

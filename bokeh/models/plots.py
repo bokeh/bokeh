@@ -248,10 +248,7 @@ class Plot(LayoutDOM):
                 raise ValueError("object to be added already has 'plot' attribute set")
             obj.plot = self
 
-        self.renderers.append(obj)
-
-        if place != 'center':
-            getattr(self, place).append(obj)
+        getattr(self, place).append(obj)
 
     def add_tools(self, *tools):
         ''' Adds tools to the plot.
@@ -490,6 +487,10 @@ class Plot(LayoutDOM):
 
     below = List(Instance(Renderer), help="""
     A list of renderers to occupy the area below of the plot.
+    """)
+
+    center = List(Instance(Renderer), help="""
+    A list of renderers to occupy the center area (frame) of the plot.
     """)
 
     plot_height = Int(600, help="""

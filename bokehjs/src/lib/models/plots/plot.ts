@@ -4,15 +4,16 @@ import {Signal0} from "core/signaling"
 import {Color} from "core/types"
 import {LineJoin, LineCap} from "core/enums"
 import {Place, Location, OutputBackend} from "core/enums"
-import {find, removeBy, includes} from "core/util/array"
+import {removeBy} from "core/util/array"
 import {values} from "core/util/object"
-import {isString, isArray} from "core/util/types"
+import {isArray} from "core/util/types"
 
 import {LayoutDOM} from "../layouts/layout_dom"
+import {Axis} from "../axes/axis"
+import {Annotation} from "../annotations/annotation"
 import {Title} from "../annotations/title"
 import {LinearScale} from "../scales/linear_scale"
 import {Toolbar} from "../tools/toolbar"
-import {ToolbarPanel} from "../annotations/toolbar_panel"
 import {PlotCanvasView} from "./plot_canvas"
 import {Canvas} from "../canvas/canvas"
 import {CartesianFrame} from "../canvas/cartesian_frame"
@@ -70,10 +71,11 @@ export namespace Plot {
     h_symmetry: boolean
     v_symmetry: boolean
 
-    above: Renderer[]
-    below: Renderer[]
-    left: Renderer[]
-    right: Renderer[]
+    above: (Annotation | Axis)[]
+    below: (Annotation | Axis)[]
+    left: (Annotation | Axis)[]
+    right: (Annotation | Axis)[]
+    center: Annotation[]
 
     renderers: Renderer[]
 
@@ -111,10 +113,11 @@ export namespace Plot {
   export interface Props extends LayoutDOM.Props {
     toolbar_location: p.Property<Location | null>
     title: p.Property<Title | string | null>
-    above: p.Property<Renderer[]>
-    below: p.Property<Renderer[]>
-    left: p.Property<Renderer[]>
-    right: p.Property<Renderer[]>
+    above: p.Property<(Annotation | Axis)[]>
+    below: p.Property<(Annotation | Axis)[]>
+    left: p.Property<(Annotation | Axis)[]>
+    right: p.Property<(Annotation | Axis)[]>
+    center: p.Property<Annotation[]>
     renderers: p.Property<Renderer[]>
     outline_line_width: p.Property<number>
   }
@@ -234,27 +237,6 @@ export class Plot extends LayoutDOM {
         yr.setv({plots: plots}, {silent: true})
       }
     }
-    // Min border applies to the edge of everything
-    if (this.min_border != null) {
-      if (this.min_border_top == null)
-        this.min_border_top = this.min_border
-      if (this.min_border_bottom == null)
-        this.min_border_bottom = this.min_border
-      if (this.min_border_left == null)
-        this.min_border_left = this.min_border
-      if (this.min_border_right == null)
-        this.min_border_right = this.min_border
-    }
-
-    // Setup side renderers
-    for (const side of ['above', 'below', 'left', 'right']) {
-      const layout_renderers = this.getv(side)
-      for (const renderer of layout_renderers)
-        renderer.add_panel(side)
-    }
-
-    this._init_title_panel()
-    this._init_toolbar_panel()
 
     // Set width & height to be the passed in plot_width and plot_height
     // We may need to be more subtle about this - not sure why people use one
@@ -280,66 +262,14 @@ export class Plot extends LayoutDOM {
     })
   }
 
-  protected _init_title_panel(): void {
-    if (this.title != null) {
-      const title = isString(this.title) ? new Title({text: this.title}) : this.title
-      this.add_layout(title, this.title_location)
-    }
-  }
-
-  protected _init_toolbar_panel(): void {
-    let tpanel = find(this.renderers, (model): model is ToolbarPanel => {
-      return model instanceof ToolbarPanel && includes(model.tags, this.id)
-    })
-
-    if (tpanel != null)
-      this.remove_layout(tpanel)
-
-    switch (this.toolbar_location) {
-      case "left":
-      case "right":
-      case "above":
-      case "below": {
-        tpanel = new ToolbarPanel({toolbar: this.toolbar, tags: [this.id]})
-        this.toolbar.toolbar_location = this.toolbar_location
-
-        if (this.toolbar_sticky) {
-          const models = this.getv(this.toolbar_location)
-          const title = find(models, (model): model is Title => model instanceof Title)
-
-          if (title != null) {
-            (tpanel as ToolbarPanel).set_panel((title as Title).panel!) // XXX, XXX: because find() doesn't provide narrowed types
-            this.add_renderers(tpanel)
-            return
-          }
-        }
-
-        this.add_layout(tpanel, this.toolbar_location)
-        break
-      }
-    }
-  }
-
-  connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.properties.toolbar_location.change, () => this._init_toolbar_panel())
-  }
-
-  add_renderers(...new_renderers: Renderer[]): void {
-    let renderers = this.renderers
-    renderers = renderers.concat(new_renderers)
-    this.renderers = renderers
-  }
-
   add_layout(renderer: any /* XXX: Renderer */, side: Place = "center"): void {
+    // {{{
     if (renderer.props.plot != null)
       (renderer as any).plot = this // XXX
-    if (side != "center") {
-      const side_renderers = this.getv(side)
-      side_renderers.push(renderer)
-      renderer.add_panel(side) // XXX
-    }
-    this.add_renderers(renderer)
+    // }}}
+
+    const side_renderers = this.getv(side)
+    side_renderers.push(renderer)
   }
 
   remove_layout(renderer: Renderer): void {
@@ -352,7 +282,13 @@ export class Plot extends LayoutDOM {
     del(this.right)
     del(this.above)
     del(this.below)
-    del(this.renderers)
+    del(this.center)
+  }
+
+  add_renderers(...new_renderers: Renderer[]): void {
+    let renderers = this.renderers
+    renderers = renderers.concat(new_renderers)
+    this.renderers = renderers
   }
 
   add_glyph(glyph: Glyph, source: DataSource = new ColumnDataSource(), extra_attrs: any = {}): GlyphRenderer {

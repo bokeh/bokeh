@@ -592,8 +592,8 @@ export class ColorBar extends Annotation {
       * The parallel frame dimension * 0.80
     */
 
-    const frame_height = this.plot.plot_canvas.frame._height.value
-    const frame_width = this.plot.plot_canvas.frame._width.value
+    const frame_height = this.plot.frame._height.value
+    const frame_width = this.plot.frame._width.value
     const title_extent = this._title_extent()
 
     let height: number, width: number

@@ -1,13 +1,16 @@
 import {Canvas, CanvasView} from "../canvas/canvas"
 import {Range} from "../ranges/range"
 import {DataRange1d} from "../ranges/data_range1d"
-import {Renderer, RendererView} from "../renderers/renderer"
+import {RendererView} from "../renderers/renderer"
 import {GlyphRenderer, GlyphRendererView} from "../renderers/glyph_renderer"
 import {ToolView} from "../tools/tool"
 import {Selection} from "../selections/selection"
 import {LayoutDOMView} from "../layouts/layout_dom"
 import {Plot} from "./plot"
 import {CartesianFrame} from "../canvas/cartesian_frame"
+import {Annotation} from "../annotations/annotation"
+import {Axis} from "../axes/axis"
+//import {ToolbarPanel} from "../annotations/toolbar_panel"
 
 import {Reset} from "core/bokeh_events"
 import {Arrayable} from "core/types"
@@ -15,17 +18,17 @@ import {Signal0} from "core/signaling"
 import {build_views, remove_views} from "core/build_views"
 import {UIEvents} from "core/ui_events"
 import {Visuals} from "core/visuals"
-import {HStack, VStack} from "core/layout/alignments"
+import {HStack, VStack, AnchorLayout} from "core/layout/alignments"
 import {logger} from "core/logging"
-import * as enums from "core/enums"
+import {Side, RenderLevel} from "core/enums"
 import {Rect} from "core/util/spatial"
 import {throttle} from "core/util/throttle"
 import {isStrictNaN} from "core/util/types"
 import {difference, sortBy, reversed} from "core/util/array"
 import {keys, values} from "core/util/object"
 import {Context2d, SVGRenderingContext2D} from "core/util/canvas"
-import {SizeHint} from "core/layout"
-import {BBox} from "core/util/bbox"
+import {BBox, SizeHint, Margin, Layoutable} from "core/layout"
+import {SidePanel} from "core/layout/side_panel"
 
 // Notes on WebGL support:
 // Glyps can be rendered into the original 2D canvas, or in a (hidden)
@@ -63,9 +66,63 @@ export type StateInfo = {
   }
 }
 
+export class PlotLayout extends Layoutable {
+
+  readonly top_panel = new VStack()
+  readonly bottom_panel = new VStack()
+
+  readonly left_panel = new HStack()
+  readonly right_panel = new HStack()
+
+  readonly center_panel = new AnchorLayout()
+
+  min_border: Margin = {left: 0, top: 0, right: 0, bottom: 0}
+
+  size_hint(): SizeHint {
+    const left_hint = this.left_panel.size_hint()
+    const left = Math.max(left_hint.width, this.min_border.left)
+
+    const right_hint = this.right_panel.size_hint()
+    const right = Math.max(right_hint.width, this.min_border.right)
+
+    const top_hint = this.top_panel.size_hint()
+    const top = Math.max(top_hint.height, this.min_border.top)
+
+    const bottom_hint = this.bottom_panel.size_hint()
+    const bottom = Math.max(bottom_hint.height, this.min_border.bottom)
+
+    const center = this.center_panel.size_hint()
+
+    const width = left + center.width  + right
+    const height = top + center.height + bottom
+
+    return {width, height, inner: {left, right, top, bottom}}
+  }
+
+  protected _set_geometry(outer: BBox, inner: BBox): void {
+    super._set_geometry(outer, inner)
+
+    this.center_panel.set_geometry(inner)
+
+    const left_hint = this.left_panel.size_hint()
+    const right_hint = this.right_panel.size_hint()
+    const top_hint = this.top_panel.size_hint()
+    const bottom_hint = this.bottom_panel.size_hint()
+
+    const {left, top, right, bottom} = inner
+
+    this.top_panel.set_geometry(new BBox({left, right, bottom: top, height: top_hint.height}))
+    this.bottom_panel.set_geometry(new BBox({left, right, top: bottom, height: bottom_hint.height}))
+    this.left_panel.set_geometry(new BBox({top, bottom, right: left, width: left_hint.width}))
+    this.right_panel.set_geometry(new BBox({top, bottom, left: right, width: right_hint.width}))
+  }
+}
+
 export abstract class PlotCanvasView extends LayoutDOMView {
   model: Plot
   visuals: Plot.Visuals
+
+  layout: PlotLayout
 
   canvas_view: CanvasView
 
@@ -94,11 +151,6 @@ export abstract class PlotCanvasView extends LayoutDOMView {
   protected tool_views: {[key: string]: ToolView}
 
   protected range_update_timestamp?: number
-
-  protected top_panel: VStack
-  protected bottom_panel: VStack
-  protected left_panel:  HStack
-  protected right_panel: HStack
 
   // compat, to be removed
   get frame(): CartesianFrame {
@@ -177,11 +229,8 @@ export abstract class PlotCanvasView extends LayoutDOMView {
     this.visuals = new Visuals(this.model) as any // XXX
 
     this._initial_state_info = {
-      selection: {},                   // XXX: initial selection?
-      dimensions: {
-        width: this._width.value,
-        height: this._height.value,
-      },
+      selection: {},                      // XXX: initial selection?
+      dimensions: {width: 0, height: 0},  // XXX: initial dimensions
     }
     this.visibility_callbacks = []
 
@@ -200,7 +249,7 @@ export abstract class PlotCanvasView extends LayoutDOMView {
     this.ui_event_bus = new UIEvents(this, this.model.toolbar, this.canvas_view.events_el, this.model)
 
     this.levels = {}
-    for (const level of enums.RenderLevel) {
+    for (const level of RenderLevel) {
       this.levels[level] = {}
     }
 
@@ -210,21 +259,80 @@ export abstract class PlotCanvasView extends LayoutDOMView {
     this.build_levels()
     this.build_tools()
 
-    this.top_panel = new VStack()
-    this.bottom_panel = new VStack()
-    this.left_panel = new HStack()
-    this.right_panel = new HStack()
-
-    const layouts = (models: Renderer[]) => {
-      return models.map((model) => (this.renderer_views[model.id] as any).__layout) // XXX
+    /*
+    if (this.title != null) {
+      const title = isString(this.title) ? new Title({text: this.title}) : this.title
+      this.add_layout(title, this.title_location)
     }
 
+    let tpanel = find(this.renderers, (model): model is ToolbarPanel => {
+      return model instanceof ToolbarPanel && includes(model.tags, this.id)
+    })
 
+    if (tpanel != null)
+      this.remove_layout(tpanel)
 
-    this.top_panel.children = reversed(layouts(this.model.above))
-    this.bottom_panel.children =       layouts(this.model.below)
-    this.left_panel.children = reversed(layouts(this.model.left))
-    this.right_panel.children =         layouts(this.model.right)
+    switch (this.toolbar_location) {
+      case "left":
+      case "right":
+      case "above":
+      case "below": {
+        tpanel = new ToolbarPanel({toolbar: this.toolbar, tags: [this.id]})
+        this.toolbar.toolbar_location = this.toolbar_location
+
+        if (this.toolbar_sticky) {
+          const models = this.getv(this.toolbar_location)
+          const title = find(models, (model): model is Title => model instanceof Title)
+
+          if (title != null) {
+            (tpanel as ToolbarPanel).set_panel((title as Title).panel!) // XXX, XXX: because find() doesn't provide narrowed types
+            this.add_renderers(tpanel)
+            return
+          }
+        }
+
+        this.add_layout(tpanel, this.toolbar_location)
+        break
+      }
+    }
+    */
+
+    /*
+    // Setup side renderers
+    for (const side of ['above', 'below', 'left', 'right']) {
+      const layout_renderers = this.getv(side)
+      for (const renderer of layout_renderers)
+        renderer.add_panel(side)
+    }
+    */
+
+    const layouts = (side: Side, models: (Annotation | Axis)[]) => {
+      const layouts = []
+      for (const model of models) {
+        const view = this.renderer_views[model.id]
+        const layout = new SidePanel(side, view)
+        view.layout = layout
+        layouts.push(layout)
+
+      }
+      return layouts
+      //return models.map((model) => this.renderer_views[model.id].layout)
+    }
+
+    this.layout = new PlotLayout()
+
+    const min_border = this.model.min_border != null ? this.model.min_border : 0
+    this.layout.min_border = {
+      left:   this.model.min_border_left   != null ? this.model.min_border_left   : min_border,
+      top:    this.model.min_border_top    != null ? this.model.min_border_top    : min_border,
+      right:  this.model.min_border_right  != null ? this.model.min_border_right  : min_border,
+      bottom: this.model.min_border_bottom != null ? this.model.min_border_bottom : min_border,
+    }
+
+    this.layout.top_panel.children    = reversed(layouts("above", this.model.above))
+    this.layout.bottom_panel.children =          layouts("below", this.model.below)
+    this.layout.left_panel.children   = reversed(layouts("left",  this.model.left))
+    this.layout.right_panel.children  =          layouts("right", this.model.right)
 
     this.update_dataranges()
 
@@ -276,7 +384,7 @@ export abstract class PlotCanvasView extends LayoutDOMView {
       // Clipping
       gl.enable(gl.SCISSOR_TEST)
       const [sx, sy, w, h] = frame_box
-      const {xview, yview} = this.model
+      const {xview, yview} = this.layout
       const vx = xview.compute(sx)
       const vy = yview.compute(sy + h)
       gl.scissor(ratio*vx, ratio*vy, ratio*w, ratio*h) // lower left corner, width, height
@@ -723,56 +831,22 @@ export abstract class PlotCanvasView extends LayoutDOMView {
     return true
   }
 
-  size_hint(): SizeHint {
-    const left_hint = this.left_panel.size_hint()
-    const left = Math.max(left_hint.width, this.model.min_border_left!)
+  update_position(): void {
+    super.update_position()
 
-    const right_hint = this.right_panel.size_hint()
-    const right = Math.max(right_hint.width, this.model.min_border_right!)
+    // XXX: update frame ranges
 
-    const top_hint = this.top_panel.size_hint()
-    const top = Math.max(top_hint.height, this.model.min_border_top!)
-
-    const bottom_hint = this.bottom_panel.size_hint()
-    const bottom = Math.max(bottom_hint.height, this.model.min_border_bottom!)
-
-    const width = left + right   // min frame width
-    const height = top + bottom  // min frame height
-
-    return {width, height, inner: {left, right, top, bottom}}
-  }
-
-  _set_geometry(outer: BBox, inner: BBox): void {
-    super._set_geometry(outer, inner)
-
-    const width = this._width.value
-    const height = this._height.value
+    // TODO: do only if necessary
+    const width = this.layout._width.value
+    const height = this.layout._height.value
     this.canvas_view.prepare_canvas(width, height)
-
-    this.frame.set_geometry(inner)
-
-    const left_hint = this.left_panel.size_hint()
-    const right_hint = this.right_panel.size_hint()
-    const top_hint = this.top_panel.size_hint()
-    const bottom_hint = this.bottom_panel.size_hint()
-
-    const {left, top, right, bottom} = inner
-
-    this.top_panel.set_geometry(new BBox({left, right, bottom: top, height: top_hint.height}))
-    this.bottom_panel.set_geometry(new BBox({left, right, top: bottom, height: bottom_hint.height}))
-    this.left_panel.set_geometry(new BBox({top, bottom, right: left, width: left_hint.width}))
-    this.right_panel.set_geometry(new BBox({top, bottom, left: right, width: right_hint.width}))
 
     this.model.setv({
       inner_width: Math.round(this.model.frame._width.value),
       inner_height: Math.round(this.model.frame._height.value),
-      layout_width: Math.round(this._width.value),
-      layout_height: Math.round(this._height.value),
+      layout_width: Math.round(this.layout._width.value),
+      layout_height: Math.round(this.layout._height.value),
     }, {no_change: true})
-  }
-
-  update_position(): void {
-    super.update_position()
   }
 
   after_layout(): void {
@@ -801,7 +875,7 @@ export abstract class PlotCanvasView extends LayoutDOMView {
 
   repaint(): void {
     if (this._needs_layout())
-      (this.parent as any).layout()
+      (this.parent as any).do_layout()
     else
       this.paint()
   }
@@ -869,10 +943,10 @@ export abstract class PlotCanvasView extends LayoutDOMView {
       let [x0, y0, w, h] = frame_box
       // XXX: shrink outline region by 1px to make right and bottom lines visible
       // if they are on the edge of the canvas.
-      if (x0 + w == this._width.value) {
+      if (x0 + w == this.layout._width.value) {
         w -= 1
       }
-      if (y0 + h == this._height.value) {
+      if (y0 + h == this.layout._height.value) {
         h -= 1
       }
       ctx.strokeRect(x0, y0, w, h)
@@ -937,7 +1011,7 @@ export abstract class PlotCanvasView extends LayoutDOMView {
   protected _map_hook(_ctx: Context2d, _frame_box: FrameBox): void {}
 
   protected _paint_empty(ctx: Context2d, frame_box: FrameBox): void {
-    const [cx, cy, cw, ch] = [0, 0, this._width.value, this._height.value]
+    const [cx, cy, cw, ch] = [0, 0, this.layout._width.value, this.layout._height.value]
     const [fx, fy, fw, fh] = frame_box
 
     ctx.clearRect(cx, cy, cw, ch)

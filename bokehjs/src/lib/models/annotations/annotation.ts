@@ -1,7 +1,4 @@
-import {LayoutItem, NormGeom} from "core/layout/layout_canvas"
 import {SidePanel} from "core/layout/side_panel"
-import {Side} from "core/enums"
-import {SizeHint} from "core/layout"
 import * as p from "core/properties"
 import * as proj from "core/util/projections"
 import {extend} from "core/util/object"
@@ -13,27 +10,7 @@ import {Plot} from "../plots/plot"
 export abstract class AnnotationView extends RendererView {
   model: Annotation
 
-  __layout: LayoutItem
-
-  initialize(options: any): void {
-    super.initialize(options)
-
-    const annotation_view = this
-    this.__layout = new class extends LayoutItem {
-      size_hint(): SizeHint {
-        const size = annotation_view.get_size()
-        if (annotation_view.model.panel.horizontal)
-          return {width: 0, height: size}
-        else
-          return {width: size, height: 0}
-      }
-
-      _set_geom(geom: NormGeom): void {
-        super._set_geom(geom)
-        annotation_view.model.panel!._set_geom(geom)
-      }
-    }
-  }
+  layout: SidePanel
 
   protected _get_size(): number {
     throw new Error("not implemented")
@@ -93,18 +70,9 @@ export abstract class Annotation extends Renderer {
     })
   }
 
-  add_panel(side: Side): void {
-    if (this.panel == null || side !== this.panel.side) {
-      const panel = new SidePanel({side})
-      panel.attach_document(this.document!)
-      this.set_panel(panel)
-    }
-  }
-
-  set_panel(panel: SidePanel): void {
-    this.panel = panel
+  /* XXX
     // If the annotation is in a side panel, we need to set level to overlay, so it is visible.
     this.level = 'overlay'
-  }
+  */
 }
 Annotation.initClass()

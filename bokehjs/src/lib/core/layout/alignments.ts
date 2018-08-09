@@ -1,11 +1,11 @@
-import {LayoutItem} from "./layout_canvas"
-import {SizeHint} from "./index"
-import {BBox} from "../util/bbox"
-import {Side} from "../enums"
+import {Layoutable} from "./layout_canvas"
+import {BBox, SizeHint} from "./index"
 
-export abstract class Stack extends LayoutItem {
-  children: LayoutItem[]
+export abstract class Container extends Layoutable {
+  children: Layoutable[]
 }
+
+export abstract class Stack extends Container {}
 
 export class HStack extends Stack {
   size_hint(): SizeHint {
@@ -21,7 +21,7 @@ export class HStack extends Stack {
     return {width, height}
   }
 
-  _set_geometry(outer: BBox, inner: BBox): void {
+  protected _set_geometry(outer: BBox, inner: BBox): void {
     super._set_geometry(outer, inner)
 
     const {top, bottom} = outer
@@ -49,7 +49,7 @@ export class VStack extends Stack {
     return {width, height}
   }
 
-  _set_geometry(outer: BBox, inner: BBox): void {
+  protected _set_geometry(outer: BBox, inner: BBox): void {
     super._set_geometry(outer, inner)
 
     const {left, right} = outer
@@ -63,32 +63,75 @@ export class VStack extends Stack {
   }
 }
 
-export interface Panelable {
-  get_size(): number
-}
-
-export class SidePanel extends LayoutItem {
-
-  constructor(readonly side: Side, private readonly item: Panelable) {
-    super()
-  }
-
-  get is_horizontal(): boolean {
-    return this.side == "above" || this.side == "below"
-  }
+export class AnchorLayout extends Container {
 
   size_hint(): SizeHint {
-    const size = axis_view.get_size()
-    if (this.is_horizontal)
-      return {width: 0, height: size}
-    else
-      return {width: size, height: 0}
+    let width = 0
+    let height = 0
+
+    for (const child of this.children) {
+      const size_hint = child.size_hint()
+      width = Math.max(width, size_hint.width)
+      height = Math.max(height, size_hint.height)
+    }
+
+    return {width, height}
   }
 
-  /*
-  _set_geometry(outer: BBox, inner: BBox): void {
+  protected _set_geometry(outer: BBox, inner: BBox): void {
     super._set_geometry(outer, inner)
-    axis_view.model.panel._set_geom(geom)
+    /*
+    const [hr, vr] = panel.bbox.ranges
+
+    const {location} = this.model
+    let sx: number, sy: number
+    if (isString(location)) {
+      switch (location) {
+        case 'top_left':
+          sx = hr.start + legend_margin
+          sy = vr.start + legend_margin
+          break
+        case 'top_center':
+          sx = (hr.end + hr.start)/2 - legend_width/2
+          sy = vr.start + legend_margin
+          break
+        case 'top_right':
+          sx = hr.end - legend_margin - legend_width
+          sy = vr.start + legend_margin
+          break
+        case 'bottom_right':
+          sx = hr.end - legend_margin - legend_width
+          sy = vr.end - legend_margin - legend_height
+          break
+        case 'bottom_center':
+          sx = (hr.end + hr.start)/2 - legend_width/2
+          sy = vr.end - legend_margin - legend_height
+          break
+        case 'bottom_left':
+          sx = hr.start + legend_margin
+          sy = vr.end - legend_margin - legend_height
+          break
+        case 'center_left':
+          sx = hr.start + legend_margin
+          sy = (vr.end + vr.start)/2 - legend_height/2
+          break
+        case 'center':
+          sx = (hr.end + hr.start)/2 - legend_width/2
+          sy = (vr.end + vr.start)/2 - legend_height/2
+          break
+        case 'center_right':
+          sx = hr.end - legend_margin - legend_width
+          sy = (vr.end + vr.start)/2 - legend_height/2
+          break
+        default:
+          throw new Error("unreachable code")
+      }
+    } else if (isArray(location) && location.length == 2) {
+      const [vx, vy] = location
+      sx = panel.xview.compute(vx)
+      sy = panel.yview.compute(vy) - legend_height
+    } else
+      throw new Error("unreachable code")
+    */
   }
-  */
 }

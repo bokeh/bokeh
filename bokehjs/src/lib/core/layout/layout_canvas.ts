@@ -1,81 +1,71 @@
-import {Variable, ComputedVariable} from "./index"
-import {Arrayable} from "../types"
 import {BBox} from "../util/bbox"
-import {SizeHint} from "./index"
+import {Arrayable} from "../types"
+
+export type Size = {
+  width: number
+  height: number
+}
+
+export type Margin = {
+  left: number
+  top: number
+  right: number
+  bottom: number
+}
+
+export type SizeHint = Size & {inner?: Margin}
+
+export interface ComputedVariable {
+  readonly value: number
+}
 
 export interface ViewTransform {
   compute: (v: number) => number
   v_compute: (vv: Arrayable<number>) => Arrayable<number>
 }
 
-export abstract class LayoutCanvas {
+export abstract class Layoutable {
 
-  _top: Variable
-  _left: Variable
-  _width: Variable
-  _height: Variable
-  _right: Variable
-  _bottom: Variable
+  protected _bbox: BBox
 
+  get bbox(): BBox {
+    const {_bbox} = this
+    if (_bbox != null)
+      return _bbox
+    else
+      throw new Error("layout wasn't computed yet")
+  }
+
+  _top: ComputedVariable
+  _left: ComputedVariable
+  _width: ComputedVariable
+  _height: ComputedVariable
+  _right: ComputedVariable
+  _bottom: ComputedVariable
   _hcenter: ComputedVariable
   _vcenter: ComputedVariable
 
   constructor() {
-    this._top = {value: 0}
-    this._left = {value: 0}
-    this._width = {value: 0}
-    this._height = {value: 0}
-    this._right = {value: 0}
-    this._bottom = {value: 0}
-
     const layout = this
-    this._hcenter = {
-      get value(): number {
-        return (layout._left.value + layout._right.value)/2
-      },
-    }
-    this._vcenter = {
-      get value(): number {
-        return (layout._top.value + layout._bottom.value)/2
-      },
-    }
+
+    this._top     = { get value(): number { return layout.bbox.top     } }
+    this._left    = { get value(): number { return layout.bbox.left    } }
+    this._width   = { get value(): number { return layout.bbox.width   } }
+    this._height  = { get value(): number { return layout.bbox.height  } }
+    this._right   = { get value(): number { return layout.bbox.right   } }
+    this._bottom  = { get value(): number { return layout.bbox.bottom  } }
+    this._hcenter = { get value(): number { return layout.bbox.hcenter } }
+    this._vcenter = { get value(): number { return layout.bbox.vcenter } }
   }
 
   abstract size_hint(): SizeHint
 
-  _set_geometry(outer: BBox, _inner: BBox): void {
-    this._left.value = outer.left
-    this._top.value = outer.top
-    this._right.value = outer.right
-    this._bottom.value = outer.bottom
-    this._width.value = outer.width
-    this._height.value = outer.height
+  protected _set_geometry(outer: BBox, _inner: BBox): void {
+    this._bbox = outer
   }
 
   set_geometry(outer: BBox, inner?: BBox): void {
     this._set_geometry(outer, inner || outer)
-  }
-
-  get_layoutable_children(): any[] {
-    return []
-  }
-
-  get bbox(): BBox {
-    return new BBox({
-      x0: this._left.value,  y0: this._top.value,
-      x1: this._right.value, y1: this._bottom.value,
-    })
-  }
-
-  get layout_bbox(): {[key: string]: number} {
-    return {
-      top: this._top.value,
-      left: this._left.value,
-      width: this._width.value,
-      height: this._height.value,
-      right: this._right.value,
-      bottom: this._bottom.value,
-    }
   }
 
   get xview(): ViewTransform {
@@ -110,6 +100,3 @@ export abstract class LayoutCanvas {
     }
   }
 }
-LayoutCanvas.initClass()
-
-export abstract class LayoutItem extends LayoutCanvas {}

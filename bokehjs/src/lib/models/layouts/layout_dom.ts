@@ -2,11 +2,10 @@ import {Model} from "../../model"
 import {SizingMode} from "core/enums"
 import {empty, margin, padding} from "core/dom"
 import * as p from "core/properties"
-import {BBox} from "core/util/bbox"
 
 import {build_views} from "core/build_views"
 import {DOMView} from "core/dom_view"
-import {SizeHint, Variable} from "core/layout"
+import {BBox, Layoutable} from "core/layout"
 
 export abstract class LayoutDOMView extends DOMView implements EventListenerObject {
   model: LayoutDOM
@@ -15,49 +14,12 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
 
   child_views: {[key: string]: LayoutDOMView}
 
-  _left: Variable
-  _right: Variable
-  _top: Variable
-  _bottom: Variable
-  _width: Variable
-  _height: Variable
+  layout: Layoutable
 
   initialize(options: any): void {
     super.initialize(options)
-
-    this._left = {value: 0}
-    this._right = {value: 0}
-    this._top = {value: 0}
-    this._bottom = {value: 0}
-    this._width = {value: 0}
-    this._height = {value: 0}
-
     this.child_views = {}
     this.build_child_views()
-  }
-
-  get layout_bbox(): {[key: string]: number} {
-    return {
-      top: this._top.value,
-      left: this._left.value,
-      right: this._right.value,
-      bottom: this._bottom.value,
-      width: this._width.value,
-      height: this._height.value,
-    }
-  }
-
-  dump_layout(): void {
-    const layoutables: {[key: string]: {[key: string]: number}} = {}
-    const pending: LayoutDOM[] = [this]
-
-    let obj: LayoutDOM | undefined
-    while (obj = pending.shift()) {
-      pending.push(...obj.get_layoutable_children())
-      layoutables[obj.toString()] = obj.layout_bbox
-    }
-
-    console.table(layoutables)
   }
 
   get_layoutable_models(): LayoutDOM[] {
@@ -65,7 +27,7 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
   }
 
   get_layoutable_views(): LayoutDOMView[] {
-    return this.model.get_layoutable_models().map((child) => this.child_views[child.id])
+    return this.get_layoutable_models().map((child) => this.child_views[child.id])
   }
 
   remove(): void {
@@ -134,46 +96,31 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
     return [null, null]
   }
 
-  abstract size_hint(): SizeHint
-
-  set_geometry(outer: BBox, inner?: BBox): void {
-    this._set_geometry(outer, inner || outer)
-  }
-
-  _set_geometry(outer: BBox, _inner: BBox): void {
-    this._left.value = outer.left
-    this._top.value = outer.top
-    this._right.value = outer.right
-    this._bottom.value = outer.bottom
-    this._width.value = outer.width
-    this._height.value = outer.height
-  }
-
   update_position(): void {
     this.el.style.position = this.is_root ? "relative" : "absolute"
-    this.el.style.left = `${this._left.value}px`
-    this.el.style.top = `${this._top.value}px`
-    this.el.style.width = `${this._width.value}px`
-    this.el.style.height = `${this._height.value}px`
+    this.el.style.left = `${this.layout._left.value}px`
+    this.el.style.top = `${this.layout._top.value}px`
+    this.el.style.width = `${this.layout._width.value}px`
+    this.el.style.height = `${this.layout._height.value}px`
   }
 
   after_layout(): void {
     this._has_finished = true
   }
 
-  layout(): void {
+  do_layout(): void {
     /**
      * Layout's entry point.
      */
     if (!this.is_root)
-      this.root.layout()
+      this.root.do_layout()
     else
       this._do_layout()
   }
 
   protected _do_layout(): void {
     const [available_width, available_height] = this._available_space()
-    const size_hint = this.size_hint()
+    const size_hint = this.layout.size_hint()
 
     let width: number
     let height: number
@@ -199,6 +146,8 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
           width = available_width
         break
       }
+      default:
+        throw new Error("unreachable")
     }
 
     switch (height_mode) {
@@ -220,6 +169,8 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
           height = available_height
         break
       }
+      default:
+        throw new Error("unreachable")
     }
 
     const outer = new BBox({left: 0, top: 0, width, height})
@@ -231,7 +182,7 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
       inner = new BBox({left, top, right: width - right, bottom: height - bottom})
     }
 
-    this.set_geometry(outer, inner)
+    this.layout.set_geometry(outer, inner)
     this.update_position()
 
     // TODO
@@ -240,7 +191,7 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
 
   rebuild_child_views(): void {
     this.build_child_views()
-    this.layout()
+    this.do_layout()
   }
 
   build_child_views(): void {
@@ -265,12 +216,12 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
     if (this.is_root)
       window.addEventListener("resize", this)
 
-    // XXX: this.connect(this.model.change, () => this.layout())
-    this.connect(this.model.properties.sizing_mode.change, () => this.layout())
+    // XXX: this.connect(this.model.change, () => this.do_layout())
+    this.connect(this.model.properties.sizing_mode.change, () => this.do_layout())
   }
 
   handleEvent(): void {
-    this.layout()
+    this.do_layout()
   }
 
   disconnect_signals(): void {
@@ -291,8 +242,12 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
   }
 }
 
+export type SizingPolicy = "fixed" | "min" | "max" | "auto"
+
 export namespace LayoutDOM {
   export interface Attrs extends Model.Attrs {
+    width_mode: SizingPolicy
+    height_mode: SizingPolicy
     height: number
     width: number
     disabled: boolean
@@ -301,6 +256,8 @@ export namespace LayoutDOM {
   }
 
   export interface Props extends Model.Props {
+    width_mode: p.Property<SizingPolicy>
+    height_mode: p.Property<SizingPolicy>
     height: p.Property<number>
     width: p.Property<number>
     disabled: p.Property<boolean>

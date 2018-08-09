@@ -126,6 +126,10 @@ export class BBox implements IBBox {
     }
   }
 
+  toString(): string {
+    return `BBox({left: ${this.left}, right: ${this.right}, width: ${this.width}, height: ${this.height}})`
+  }
+
   get minX(): number { return this.x0 }
   get minY(): number { return this.y0 }
   get maxX(): number { return this.x1 }
@@ -152,6 +156,9 @@ export class BBox implements IBBox {
   get ranges(): [IRange, IRange] { return [this.h_range, this.v_range] }
 
   get aspect(): number { return this.width/this.height }
+
+  get hcenter(): number { return (this.left + this.right)/2 }
+  get vcenter(): number { return (this.top + this.bottom)/2 }
 
   contains(x: number, y: number): boolean {
     return x >= this.x0 && x <= this.x1 && y >= this.y0 && y <= this.y1
