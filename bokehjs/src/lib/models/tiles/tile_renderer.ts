@@ -59,7 +59,7 @@ export class TileRendererView extends RendererView {
   }
 
   private get map_plot(): Plot {
-    return this.plot_model.plot
+    return this.plot_model
   }
 
   private get map_canvas(): Context2d {
@@ -253,7 +253,7 @@ export class TileRendererView extends RendererView {
   }
 
   protected _set_rect(): void {
-    const outline_width = this.plot_model.plot.properties.outline_line_width.value()
+    const outline_width = this.plot_model.properties.outline_line_width.value()
     const l = this.map_frame._left.value + (outline_width/2)
     const t = this.map_frame._top.value + (outline_width/2)
     const w = this.map_frame._width.value - outline_width

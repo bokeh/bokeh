@@ -889,16 +889,15 @@ export abstract class PlotCanvasView extends LayoutDOMView {
     const {document} = this.model
     if (document != null) {
       const interactive_duration = document.interactive_duration()
-      const {plot} = this.model
-      if (interactive_duration >= 0 && interactive_duration < plot.lod_interval) {
+      if (interactive_duration >= 0 && interactive_duration < this.model.lod_interval) {
         setTimeout(() => {
-          if (document.interactive_duration() > plot.lod_timeout) {
-            document.interactive_stop(plot)
+          if (document.interactive_duration() > this.model.lod_timeout) {
+            document.interactive_stop(this.model)
           }
           this.request_render()
-        }, plot.lod_timeout)
+        }, this.model.lod_timeout)
       } else
-        document.interactive_stop(plot)
+        document.interactive_stop(this.model)
     }
 
     for (const id in this.renderer_views) {

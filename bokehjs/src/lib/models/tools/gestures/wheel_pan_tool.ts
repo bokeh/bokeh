@@ -81,7 +81,7 @@ export class WheelPanToolView extends GestureToolView {
     this.plot_view.update_range(pan_info, false, true)
 
     if (this.model.document != null)
-      this.model.document.interactive_start(this.plot_model.plot)
+      this.model.document.interactive_start(this.plot_model)
   }
 }
 

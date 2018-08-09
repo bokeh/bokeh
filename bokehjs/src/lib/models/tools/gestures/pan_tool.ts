@@ -34,14 +34,14 @@ export class PanToolView extends GestureToolView {
     }
 
     if (this.model.document != null)
-      this.model.document.interactive_start(this.plot_model.plot)
+      this.model.document.interactive_start(this.plot_model)
   }
 
   _pan(ev: GestureEvent): void {
     this._update(ev.deltaX, ev.deltaY)
 
     if (this.model.document != null)
-      this.model.document.interactive_start(this.plot_model.plot)
+      this.model.document.interactive_start(this.plot_model)
   }
 
   _pan_end(_e: GestureEvent): void {

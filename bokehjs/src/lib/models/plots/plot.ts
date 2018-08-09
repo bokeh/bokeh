@@ -141,11 +141,6 @@ export class Plot extends LayoutDOM {
 
   reset: Signal0<this>
 
-  // XXX: just for ease of transition.
-  get plot(): this {
-    return this
-  }
-
   constructor(attrs?: Partial<Plot.Attrs>) {
     super(attrs)
   }

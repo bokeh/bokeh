@@ -21,7 +21,7 @@ export class ZoomInToolView extends ActionToolView {
     this.plot_view.update_range(zoom_info, false, true)
 
     if (this.model.document)
-      this.model.document.interactive_start(this.plot_model.plot)
+      this.model.document.interactive_start(this.plot_model)
   }
 }
 

@@ -171,7 +171,7 @@ export class GlyphRendererView extends RendererView {
     if (this.muted_glyph != null)
       this.muted_glyph.set_visuals(source)
 
-    const {lod_factor} = this.plot_model.plot
+    const {lod_factor} = this.plot_model
     this.decimated = []
     for (let i = 0, end = Math.floor(this.all_indices.length/lod_factor); i < end; i++) {
       this.decimated.push(i*lod_factor)
@@ -253,7 +253,7 @@ export class GlyphRendererView extends RendererView {
       return result
     })())
 
-    const {lod_threshold} = this.plot_model.plot
+    const {lod_threshold} = this.plot_model
     let glyph: GlyphView
     let nonselection_glyph: GlyphView
     let selection_glyph: GlyphView

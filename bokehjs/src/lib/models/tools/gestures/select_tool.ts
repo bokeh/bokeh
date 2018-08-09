@@ -12,7 +12,7 @@ export abstract class SelectToolView extends GestureToolView {
 
   get computed_renderers(): DataRenderer[] {
     const renderers = this.model.renderers
-    const all_renderers = this.plot_model.plot.renderers
+    const all_renderers = this.plot_model.renderers
     const names = this.model.names
     return compute_renderers(renderers, all_renderers, names)
   }
@@ -100,7 +100,7 @@ export abstract class SelectToolView extends GestureToolView {
         throw new Error(`Unrecognized selection geometry type: '${geometry.type}'`)
     }
 
-    this.plot_model.plot.trigger_event(new SelectionGeometry({geometry: g, final: final}))
+    this.plot_model.trigger_event(new SelectionGeometry({geometry: g, final: final}))
   }
 }
 

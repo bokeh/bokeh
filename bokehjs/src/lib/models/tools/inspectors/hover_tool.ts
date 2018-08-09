@@ -80,7 +80,7 @@ export class HoverToolView extends InspectToolView {
       }
     }
 
-    // TODO: this.connect(this.plot_model.plot.properties.renderers.change, () => this._computed_renderers = this._ttmodels = null)
+    // TODO: this.connect(this.plot_model.properties.renderers.change, () => this._computed_renderers = this._ttmodels = null)
     this.connect(this.model.properties.renderers.change, () => this._computed_renderers = this._ttmodels = null)
     this.connect(this.model.properties.names.change,     () => this._computed_renderers = this._ttmodels = null)
     this.connect(this.model.properties.tooltips.change,  () => this._ttmodels = null)
@@ -119,7 +119,7 @@ export class HoverToolView extends InspectToolView {
   get computed_renderers(): DataRenderer[] {
     if (this._computed_renderers == null) {
       const renderers = this.model.renderers
-      const all_renderers = this.plot_model.plot.renderers
+      const all_renderers = this.plot_model.renderers
       const names = this.model.names
       this._computed_renderers = compute_renderers(renderers, all_renderers, names)
     }
