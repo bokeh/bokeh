@@ -1,5 +1,5 @@
 import {TickFormatter} from "./tick_formatter"
-import {Axis} from "../axes/axis"
+import {AxisView} from "../axes/axis"
 import * as p from "core/properties"
 import {keys, values} from "core/util/object"
 import {use_strict} from "core/util/string"
@@ -47,7 +47,7 @@ export class FuncTickFormatter extends TickFormatter {
     return new Function("tick", "index", "ticks", ...this.names, "require", "exports", code)
   }
 
-  doFormat(ticks: number[], _axis: Axis): string[] {
+  doFormat(ticks: number[], _axis_view: AxisView): string[] {
     const cache = {}
     const func = this._make_func().bind(cache)
     return ticks.map((tick, index, ticks) => func(tick, index, ticks, ...this.values, require, {}))

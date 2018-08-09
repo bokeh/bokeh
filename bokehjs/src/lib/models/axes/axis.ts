@@ -35,6 +35,10 @@ export class AxisView extends GuideRendererView {
 
   layout: SidePanel
 
+  get panel(): SidePanel {
+    return this.layout
+  }
+
   render(): void {
     if (!this.model.visible)
       return
@@ -44,7 +48,7 @@ export class AxisView extends GuideRendererView {
       tick_label: this._tick_label_extents(),
       axis_label: this._axis_label_extent(),
     }
-    const tick_coords = this.model.tick_coords
+    const tick_coords = this.tick_coords
 
     const ctx = this.plot_view.canvas_view.ctx
     ctx.save()
@@ -89,10 +93,10 @@ export class AxisView extends GuideRendererView {
     if (!this.visuals.axis_line.doit)
       return
 
-    const [xs, ys]     = this.model.rule_coords
+    const [xs, ys]     = this.rule_coords
     const [sxs, sys]   = this.plot_view.map_to_screen(xs, ys, this.model.x_range_name, this.model.y_range_name)
-    const [nx, ny]     = this.model.normals
-    const [xoff, yoff] = this.model.offsets
+    const [nx, ny]     = this.normals
+    const [xoff, yoff] = this.offsets
 
     this.visuals.axis_line.set_value(ctx)
 
@@ -124,12 +128,12 @@ export class AxisView extends GuideRendererView {
 
   protected _draw_major_labels(ctx: Context2d, extents: Extents, tick_coords: TickCoords): void {
     const coords   = tick_coords.major
-    const labels   = this.model.compute_labels(coords[this.model.dimension])
+    const labels   = this.compute_labels(coords[this.dimension])
     const orient   = this.model.major_label_orientation
     const standoff = extents.tick + this.model.major_label_standoff
     const visuals  = this.visuals.major_label_text
 
-    this._draw_oriented_labels(ctx, labels, coords, orient, this.model.panel.side, standoff, visuals)
+    this._draw_oriented_labels(ctx, labels, coords, orient, this.panel.side, standoff, visuals)
   }
 
   protected _draw_axis_label(ctx: Context2d, extents: Extents, _tick_coords: TickCoords): void {
@@ -139,32 +143,32 @@ export class AxisView extends GuideRendererView {
     let sx: number
     let sy: number
 
-    switch (this.model.panel.side) {
+    switch (this.panel.side) {
       case "above":
-        sx = this.model.panel._hcenter.value
-        sy = this.model.panel._bottom.value
+        sx = this.panel._hcenter.value
+        sy = this.panel._bottom.value
         break
       case "below":
-        sx = this.model.panel._hcenter.value
-        sy = this.model.panel._top.value
+        sx = this.panel._hcenter.value
+        sy = this.panel._top.value
         break
       case "left":
-        sx = this.model.panel._right.value
-        sy = this.model.panel._vcenter.value
+        sx = this.panel._right.value
+        sy = this.panel._vcenter.value
         break
       case "right":
-        sx = this.model.panel._left.value
-        sy = this.model.panel._vcenter.value
+        sx = this.panel._left.value
+        sy = this.panel._vcenter.value
         break
       default:
-        throw new Error(`unknown side: ${this.model.panel.side}`)
+        throw new Error(`unknown side: ${this.panel.side}`)
     }
 
     const coords: Coords = [[sx], [sy]]
     const standoff = extents.tick + sum(extents.tick_label) + this.model.axis_label_standoff
     const visuals  = this.visuals.axis_label_text
 
-    this._draw_oriented_labels(ctx, [this.model.axis_label], coords, 'parallel', this.model.panel.side, standoff, visuals, "screen")
+    this._draw_oriented_labels(ctx, [this.model.axis_label], coords, 'parallel', this.panel.side, standoff, visuals, "screen")
   }
 
   protected _draw_ticks(ctx: Context2d, coords: Coords, tin: number, tout: number, visuals: Line): void {
@@ -173,8 +177,8 @@ export class AxisView extends GuideRendererView {
 
     const [x, y]       = coords
     const [sxs, sys]   = this.plot_view.map_to_screen(x, y, this.model.x_range_name, this.model.y_range_name)
-    const [nx, ny]     = this.model.normals
-    const [xoff, yoff] = this.model.offsets
+    const [nx, ny]     = this.normals
+    const [xoff, yoff] = this.offsets
 
     const [nxin,  nyin]  = [nx * (xoff-tin),  ny * (yoff-tin)]
     const [nxout, nyout] = [nx * (xoff+tout), ny * (yoff+tout)]
@@ -208,20 +212,20 @@ export class AxisView extends GuideRendererView {
     } else {
       const [dxs, dys] = coords
       ;[sxs, sys] = this.plot_view.map_to_screen(dxs, dys, this.model.x_range_name, this.model.y_range_name)
-      ;[xoff, yoff] = this.model.offsets
+      ;[xoff, yoff] = this.offsets
     }
 
-    const [nx, ny] = this.model.normals
+    const [nx, ny] = this.normals
 
     const nxd = nx * (xoff + standoff)
     const nyd = ny * (yoff + standoff)
 
     visuals.set_value(ctx)
-    this.model.panel.apply_label_text_heuristics(ctx, orient)
+    this.panel.apply_label_text_heuristics(ctx, orient)
 
     let angle: number
     if (isString(orient))
-      angle = this.model.panel.get_label_angle_heuristic(orient)
+      angle = this.panel.get_label_angle_heuristic(orient)
     else
       angle = -orient
 
@@ -244,7 +248,7 @@ export class AxisView extends GuideRendererView {
       return 0
     const standoff = this.model.axis_label_standoff
     const visuals = this.visuals.axis_label_text
-    return this._oriented_labels_extent([this.model.axis_label], "parallel", this.model.panel.side, standoff, visuals)
+    return this._oriented_labels_extent([this.model.axis_label], "parallel", this.panel.side, standoff, visuals)
   }
 
   /*protected*/ _tick_extent(): number {
@@ -256,14 +260,14 @@ export class AxisView extends GuideRendererView {
   }
 
   protected _tick_label_extents(): number[] {
-    const coords = this.model.tick_coords.major
-    const labels = this.model.compute_labels(coords[this.model.dimension])
+    const coords = this.tick_coords.major
+    const labels = this.compute_labels(coords[this.dimension])
 
     const orient = this.model.major_label_orientation
     const standoff = this.model.major_label_standoff
     const visuals = this.visuals.major_label_text
 
-    return [this._oriented_labels_extent(labels, orient, this.model.panel.side, standoff, visuals)]
+    return [this._oriented_labels_extent(labels, orient, this.panel.side, standoff, visuals)]
   }
 
   protected _oriented_labels_extent(labels: string[], orient: Orient | number,
@@ -279,7 +283,7 @@ export class AxisView extends GuideRendererView {
 
     if (isString(orient)) {
       hscale = 1
-      angle = this.model.panel.get_label_angle_heuristic(orient)
+      angle = this.panel.get_label_angle_heuristic(orient)
     } else {
       hscale = 2
       angle = -orient
@@ -313,6 +317,177 @@ export class AxisView extends GuideRendererView {
 
     return extent
   }
+
+  // {{{ TODO: state
+  get normals(): [number, number] {
+    return this.panel.normals
+  }
+
+  get dimension(): 0 | 1 {
+    return this.panel.dimension
+  }
+
+  compute_labels(ticks: number[]): string[] {
+    const labels = this.model.formatter.doFormat(ticks, this) as any
+    for (let i = 0; i < ticks.length; i++) {
+      if (ticks[i] in this.model.major_label_overrides)
+        labels[i] = this.model.major_label_overrides[ticks[i]]
+    }
+    return labels
+  }
+
+  get offsets(): [number, number] {
+    // If we have a fixed_position then we should respect that exactly and
+    // not apply any offsets (https://github.com/bokeh/bokeh/issues/8552)
+    if (this.model.fixed_location != null)
+      return [0, 0]
+
+    const {frame} = this.plot_view
+    let [xoff, yoff] = [0, 0]
+
+    switch (this.panel.side) {
+      case "below":
+        yoff = abs(this.panel._top.value - frame._bottom.value)
+        break
+      case "above":
+        yoff = abs(this.panel._bottom.value - frame._top.value)
+        break
+      case "right":
+        xoff = abs(this.panel._left.value - frame._right.value)
+        break
+      case "left":
+        xoff = abs(this.panel._right.value - frame._left.value)
+        break
+    }
+
+    return [xoff, yoff]
+  }
+
+  get ranges(): [Range, Range] {
+    const i = this.dimension
+    const j = (i + 1) % 2
+    const {frame} = this.plot_view
+    const ranges = [
+      frame.x_ranges[this.model.x_range_name],
+      frame.y_ranges[this.model.y_range_name],
+    ]
+    return [ranges[i], ranges[j]]
+  }
+
+  get computed_bounds(): [number, number] {
+    const [range,] = this.ranges
+
+    const user_bounds = this.model.bounds // XXX: ? 'auto'
+    const range_bounds: [number, number] = [range.min, range.max]
+
+    if (user_bounds == 'auto')
+      return [range.min, range.max]
+    else if (isArray(user_bounds)) {
+      let start: number
+      let end: number
+
+      const [user_start, user_end] = user_bounds
+      const [range_start, range_end] = range_bounds
+
+      if (abs(user_start - user_end) > abs(range_start - range_end)) {
+        start = max(min(user_start, user_end), range_start)
+        end = min(max(user_start, user_end), range_end)
+      } else {
+        start = min(user_start, user_end)
+        end = max(user_start, user_end)
+      }
+
+      return [start, end]
+    } else
+      throw new Error(`user bounds '${user_bounds}' not understood`)
+  }
+
+  get rule_coords(): Coords {
+    const i = this.dimension
+    const j = (i + 1) % 2
+    const [range,] = this.ranges
+    const [start, end] = this.computed_bounds
+
+    const xs: number[] = new Array(2)
+    const ys: number[] = new Array(2)
+    const coords: Coords = [xs, ys]
+
+    coords[i][0] = Math.max(start, range.min)
+    coords[i][1] = Math.min(end, range.max)
+    if (coords[i][0] > coords[i][1])
+      coords[i][0] = coords[i][1] = NaN
+
+    coords[j][0] = this.loc
+    coords[j][1] = this.loc
+
+    return coords
+  }
+
+  get tick_coords(): TickCoords {
+    const i = this.dimension
+    const j = (i + 1) % 2
+    const [range,] = this.ranges
+    const [start, end] = this.computed_bounds
+
+    const ticks = this.model.ticker.get_ticks(start, end, range, this.loc, {})
+    const majors = ticks.major
+    const minors = ticks.minor
+
+    const xs: number[] = []
+    const ys: number[] = []
+    const coords: Coords = [xs, ys]
+
+    const minor_xs: number[] = []
+    const minor_ys: number[] = []
+    const minor_coords: Coords = [minor_xs, minor_ys]
+
+    const [range_min, range_max] = [range.min, range.max]
+
+    for (let ii = 0; ii < majors.length; ii++) {
+      if (majors[ii] < range_min || majors[ii] > range_max)
+        continue
+      coords[i].push(majors[ii])
+      coords[j].push(this.loc)
+    }
+
+    for (let ii = 0; ii < minors.length; ii++) {
+      if (minors[ii] < range_min || minors[ii] > range_max)
+        continue
+      minor_coords[i].push(minors[ii])
+      minor_coords[j].push(this.loc)
+    }
+
+    return {
+      major: coords,
+      minor: minor_coords,
+    }
+  }
+
+  get loc(): number {
+    const {fixed_location} = this.model
+    if (fixed_location != null) {
+      if (isNumber(fixed_location))
+        return fixed_location
+
+      const [, cross_range] = this.ranges
+      if (cross_range instanceof FactorRange)
+        return cross_range.synthetic(fixed_location)
+
+      throw new Error("unexpected")
+    }
+
+    const [, cross_range] = this.ranges
+
+    switch (this.panel.side) {
+      case 'left':
+      case 'below':
+        return cross_range.start
+      case 'right':
+      case 'above':
+        return cross_range.end
+    }
+  }
+  // }}}
 }
 
 export namespace Axis {
@@ -459,175 +634,6 @@ export class Axis extends GuideRenderer {
       axis_label_text_font_size: "10pt",
       axis_label_text_font_style: "italic",
     })
-  }
-
-  get normals(): [number, number] {
-    return this.panel.normals
-  }
-
-  get dimension(): 0 | 1 {
-    return this.panel.dimension
-  }
-
-  compute_labels(ticks: number[]): string[] {
-    const labels = this.formatter.doFormat(ticks, this) as any
-    for (let i = 0; i < ticks.length; i++) {
-      if (ticks[i] in this.major_label_overrides)
-        labels[i] = this.major_label_overrides[ticks[i]]
-    }
-    return labels
-  }
-
-  get offsets(): [number, number] {
-    // If we have a fixed_position then we should respect that exactly and
-    // not apply any offsets (https://github.com/bokeh/bokeh/issues/8552)
-    if (this.model.fixed_location != null)
-      return [0, 0]
-
-    const frame = this.plot.frame
-    let [xoff, yoff] = [0, 0]
-
-    switch (this.panel.side) {
-      case "below":
-        yoff = abs(this.panel._top.value - frame._bottom.value)
-        break
-      case "above":
-        yoff = abs(this.panel._bottom.value - frame._top.value)
-        break
-      case "right":
-        xoff = abs(this.panel._left.value - frame._right.value)
-        break
-      case "left":
-        xoff = abs(this.panel._right.value - frame._left.value)
-        break
-    }
-
-    return [xoff, yoff]
-  }
-
-  get ranges(): [Range, Range] {
-    const i = this.dimension
-    const j = (i + 1) % 2
-    const frame = this.plot.frame
-    const ranges = [
-      frame.x_ranges[this.x_range_name],
-      frame.y_ranges[this.y_range_name],
-    ]
-    return [ranges[i], ranges[j]]
-  }
-
-  get computed_bounds(): [number, number] {
-    const [range,] = this.ranges
-
-    const user_bounds = this.bounds // XXX: ? 'auto'
-    const range_bounds: [number, number] = [range.min, range.max]
-
-    if (user_bounds == 'auto')
-      return [range.min, range.max]
-    else if (isArray(user_bounds)) {
-      let start: number
-      let end: number
-
-      const [user_start, user_end] = user_bounds
-      const [range_start, range_end] = range_bounds
-
-      if (abs(user_start - user_end) > abs(range_start - range_end)) {
-        start = max(min(user_start, user_end), range_start)
-        end = min(max(user_start, user_end), range_end)
-      } else {
-        start = min(user_start, user_end)
-        end = max(user_start, user_end)
-      }
-
-      return [start, end]
-    } else
-      throw new Error(`user bounds '${user_bounds}' not understood`)
-  }
-
-  get rule_coords(): Coords {
-    const i = this.dimension
-    const j = (i + 1) % 2
-    const [range,] = this.ranges
-    const [start, end] = this.computed_bounds
-
-    const xs: number[] = new Array(2)
-    const ys: number[] = new Array(2)
-    const coords: Coords = [xs, ys]
-
-    coords[i][0] = Math.max(start, range.min)
-    coords[i][1] = Math.min(end, range.max)
-    if (coords[i][0] > coords[i][1])
-      coords[i][0] = coords[i][1] = NaN
-
-    coords[j][0] = this.loc
-    coords[j][1] = this.loc
-
-    return coords
-  }
-
-  get tick_coords(): TickCoords {
-    const i = this.dimension
-    const j = (i + 1) % 2
-    const [range,] = this.ranges
-    const [start, end] = this.computed_bounds
-
-    const ticks = this.ticker.get_ticks(start, end, range, this.loc, {})
-    const majors = ticks.major
-    const minors = ticks.minor
-
-    const xs: number[] = []
-    const ys: number[] = []
-    const coords: Coords = [xs, ys]
-
-    const minor_xs: number[] = []
-    const minor_ys: number[] = []
-    const minor_coords: Coords = [minor_xs, minor_ys]
-
-    const [range_min, range_max] = [range.min, range.max]
-
-    for (let ii = 0; ii < majors.length; ii++) {
-      if (majors[ii] < range_min || majors[ii] > range_max)
-        continue
-      coords[i].push(majors[ii])
-      coords[j].push(this.loc)
-    }
-
-    for (let ii = 0; ii < minors.length; ii++) {
-      if (minors[ii] < range_min || minors[ii] > range_max)
-        continue
-      minor_coords[i].push(minors[ii])
-      minor_coords[j].push(this.loc)
-    }
-
-    return {
-      major: coords,
-      minor: minor_coords,
-    }
-  }
-
-  get loc(): number {
-    if (this.fixed_location != null) {
-      if (isNumber(this.fixed_location)) {
-        return this.fixed_location
-      }
-      const [, cross_range] = this.ranges
-      if (cross_range instanceof FactorRange) {
-        return cross_range.synthetic(this.fixed_location)
-      }
-      throw new Error("unexpected")
-
-    }
-
-    const [, cross_range] = this.ranges
-
-    switch (this.panel.side) {
-      case 'left':
-      case 'below':
-        return cross_range.start
-      case 'right':
-      case 'above':
-        return cross_range.end
-    }
   }
 }
 Axis.initClass()
