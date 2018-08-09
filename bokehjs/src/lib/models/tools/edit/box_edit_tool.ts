@@ -157,7 +157,7 @@ export class BoxEditTool extends EditTool {
 
     this.define({
       dimensions: [ p.Dimensions, "both" ],
-      num_objects: [ p.Int, 0 ]
+      num_objects: [ p.Int, 0 ],
     })
   }
 

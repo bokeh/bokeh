@@ -26,13 +26,13 @@ export class TextView extends XYGlyphView {
   model: Text
   visuals: Text.Visuals
 
-  private _rotate_point(x: number, y: number, xoff: number, yoff: number, angle: number){
+  private _rotate_point(x: number, y: number, xoff: number, yoff: number, angle: number): [number, number] {
     const sxr = (x - xoff) * Math.cos(angle) - (y - yoff) * Math.sin(angle) + xoff
     const syr = (x - xoff) * Math.sin(angle) + (y - yoff) * Math.cos(angle) + yoff
     return [sxr, syr]
   }
 
-  private _text_bounds(x0: number, y0: number, width: number, height: number){
+  private _text_bounds(x0: number, y0: number, width: number, height: number): [number[], number[]] {
     const xvals = [x0, x0 + width, x0 + width, x0, x0]
     const yvals = [y0, y0, y0 - height, y0 - height, y0]
     return [xvals, yvals]

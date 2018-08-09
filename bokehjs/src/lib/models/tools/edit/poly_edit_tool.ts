@@ -79,7 +79,7 @@ export class PolyEditToolView extends PolyToolView {
     } else {
       xs = glyph.xs.value;
     }
-  
+
     if (ykey) {
       ys = cds.data[ykey][index]
       if (!isArray(ys))
