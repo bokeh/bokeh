@@ -31,14 +31,9 @@ export class PolyEditToolView extends PolyToolView {
     const [pxkey, pykey] = [point_glyph.x.field, point_glyph.y.field];
     if (vertex_selected.length && this._selected_renderer != null) {
       // Insert a new point after the selected vertex and enter draw mode
-      const indices = point_cds.selected.indices;
-      [x, y] = this._snap_to_vertex(ev, x, y)
-      const index = indices[0];
+      const index = point_cds.selected.indices[0];
       if (this._drawing) {
         point_cds.selection_manager.clear();
-        [x, y] = this._snap_to_vertex(ev, x, y)
-        if (pxkey) point_cds.data[pxkey][index] = x
-        if (pykey) point_cds.data[pykey][index] = y
         this._drawing = false;
         this._selected_renderer.data_source.properties.data.change.emit();
       } else {

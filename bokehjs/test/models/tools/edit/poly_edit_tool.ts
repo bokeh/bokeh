@@ -277,8 +277,8 @@ describe("PolyEditTool", (): void => {
       vertex_hit_test_stub.returns(create_hit_test_result_from_hits([[2, 0]]));
       testcase.draw_tool_view._doubletap(make_tap_event(290, 290)); // Add new vertex
 
-      const xs = [0, 0.5, 0.008849557522123894, 1];
-      const ys = [0, -0.5, 0.03389830508474576, -1];
+      const xs = [0, 0.5, 0.04424778761061947, 1];
+      const ys = [0, -0.5, -0, -1];
       expect(testcase.vertex_source.selected.indices).to.be.deep.equal([]);
       expect(testcase.vertex_source.data.x).to.be.deep.equal(xs);
       expect(testcase.vertex_source.data.y).to.be.deep.equal(ys);
@@ -307,8 +307,8 @@ describe("PolyEditTool", (): void => {
       testcase.draw_tool_view._move_enter(moveenter_event);
       testcase.draw_tool_view._keyup(key_event); // Stop editing
 
-      const xs = [0, 0.5, 0.008849557522123894, 1];
-      const ys = [0, -0.5, 0.03389830508474576, -1];
+      const xs = [0, 0.5, 0.04424778761061947, 1];
+      const ys = [0, -0.5, -0, -1];
       expect(testcase.vertex_source.selected.indices).to.be.deep.equal([]);
       expect(testcase.vertex_source.data.x).to.be.deep.equal(xs);
       expect(testcase.vertex_source.data.y).to.be.deep.equal(ys);
