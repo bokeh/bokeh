@@ -4,42 +4,22 @@ import * as p from "core/properties"
 import {isArray} from "core/util/types"
 import {MultiLine} from "../../glyphs/multi_line"
 import {Patches} from "../../glyphs/patches"
-import {GlyphRenderer} from "../../renderers/glyph_renderer"
-import {EditTool, EditToolView, HasXYGlyph} from "./edit_tool"
+import {PolyTool, PolyToolView} from "./poly_tool"
 
 export interface HasPolyGlyph {
   glyph: MultiLine | Patches
 }
 
-export class PolyDrawToolView extends EditToolView {
+export class PolyDrawToolView extends PolyToolView {
   model: PolyDrawTool
   _drawing: boolean = false
+  _initialized: boolean = false
 
   _tap(ev: TapEvent): void {
-    if (this._drawing) {
+    if (this._drawing)
       this._draw(ev, 'add', true);
-    } else
+    else
       this._select_event(ev, ev.shiftKey, this.model.renderers);
-  }
-
-  _snap_point(ev: UIEvent, x: number, y: number): [number, number] {
-    if (this.model.vertex_renderer) {
-      // If an existing vertex is hit snap to it
-      const vertex_selected = this._select_event(ev, false, [this.model.vertex_renderer]);
-      const point_ds = this.model.vertex_renderer.data_source;
-      // Type once dataspecs are typed
-      const point_glyph: any = this.model.vertex_renderer.glyph;
-      const [pxkey, pykey] = [point_glyph.x.field, point_glyph.y.field];
-      if (vertex_selected.length) {
-        const index = point_ds.selected.indices[0];
-        if (pxkey)
-          x = point_ds.data[pxkey][index]
-        if (pykey)
-          y = point_ds.data[pykey][index]
-        point_ds.selection_manager.clear()
-      }
-    }
-    return [x, y]
   }
 
   _draw(ev: UIEvent, mode: string, emit: boolean = false): void {
@@ -50,7 +30,7 @@ export class PolyDrawToolView extends EditToolView {
     }
 
     let [x, y] = point;
-    [x, y] = this._snap_point(ev, x, y)
+    [x, y] = this._snap_to_vertex(ev, x, y)
 
     const cds = renderer.data_source;
     const glyph: any = renderer.glyph;
@@ -104,22 +84,21 @@ export class PolyDrawToolView extends EditToolView {
       const cds = renderer.data_source;
       const glyph: any = renderer.glyph;
       const [xkey, ykey] = [glyph.xs.field, glyph.ys.field];
-      for (const array of cds.get_array(xkey))
-        Array.prototype.push.apply(xs, array);
-      for (const array of cds.get_array(ykey))
-        Array.prototype.push.apply(ys, array);
-      if (this._drawing && (i==(this.model.renderers.length-1))) {
+      if (xkey) {
+        for (const array of cds.get_array(xkey))
+          Array.prototype.push.apply(xs, array);
+      }
+      if (ykey) {
+        for (const array of cds.get_array(ykey))
+          Array.prototype.push.apply(ys, array);
+      }
+      if (this._drawing && (i == (this.model.renderers.length-1))) {
         // Skip currently drawn vertex
         xs.splice(xs.length-1, 1)
         ys.splice(ys.length-1, 1)
       }
     }
-    const point_glyph: any = this.model.vertex_renderer.glyph;
-    const point_cds = this.model.vertex_renderer.data_source;
-    const [pxkey, pykey] = [point_glyph.x.field, point_glyph.y.field];
-    point_cds.data[pxkey] = xs
-    point_cds.data[pykey] = ys
-    this._emit_cds_changes(point_cds, true, true, false)
+    this._set_vertices(xs, ys)
   }
 
   _doubletap(ev: TapEvent): void {
@@ -227,10 +206,13 @@ export class PolyDrawToolView extends EditToolView {
   activate(): void {
     if (!this.model.vertex_renderer) { return }
     this._show_vertices()
-    for (const renderer of this.model.renderers) {
-      const cds = renderer.data_source;
-      cds.connect(cds.properties.data.change, () => this._show_vertices())
+    if (!this._initialized) {
+      for (const renderer of this.model.renderers) {
+        const cds = renderer.data_source;
+        cds.connect(cds.properties.data.change, () => this._show_vertices())
+      }
     }
+    this._initialized = true
   }
 
   deactivate(): void {
@@ -238,28 +220,25 @@ export class PolyDrawToolView extends EditToolView {
       this._remove();
       this._drawing = false;
     }
+    if (this.model.vertex_renderer)
+      this._hide_vertices()
   }
 }
 
 export namespace PolyDrawTool {
-  export interface Attrs extends EditTool.Attrs {
+  export interface Attrs extends PolyTool.Attrs {
     drag: boolean
-    renderers: (GlyphRenderer & HasPolyGlyph)[]
     num_objects: number
-    vertex_renderer: (GlyphRenderer & HasXYGlyph)
   }
 
-  export interface Props extends EditTool.Props {}
-
+  export interface Props extends PolyTool.Props {}
 }
 
 export interface PolyDrawTool extends PolyDrawTool.Attrs {}
 
-export class PolyDrawTool extends EditTool {
+export class PolyDrawTool extends PolyTool {
 
   properties: PolyDrawTool.Props
-
-  renderers: (GlyphRenderer & HasPolyGlyph)[]
 
   constructor(attrs?: Partial<PolyDrawTool.Attrs>) {
     super(attrs)
@@ -272,7 +251,6 @@ export class PolyDrawTool extends EditTool {
     this.define({
       drag: [ p.Bool, true ],
       num_objects: [ p.Int, 0 ],
-      vertex_renderer: [ p.Instance ],
     })
   }
 
