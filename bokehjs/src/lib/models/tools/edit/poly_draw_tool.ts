@@ -25,6 +25,10 @@ export class PolyDrawToolView extends PolyToolView {
   _draw(ev: UIEvent, mode: string, emit: boolean = false): void {
     const renderer = this.model.renderers[0];
     const point = this._map_drag(ev.sx, ev.sy, renderer);
+
+    if (!this._initialized)
+      this.activate() // Ensure that activate has been called
+
     if (point == null) {
       return;
     }
@@ -204,7 +208,7 @@ export class PolyDrawToolView extends PolyToolView {
   }
 
   activate(): void {
-    if (!this.model.vertex_renderer) { return }
+    if (!this.model.vertex_renderer || !this.model.active ) { return }
     this._show_vertices()
     if (!this._initialized) {
       for (const renderer of this.model.renderers) {
