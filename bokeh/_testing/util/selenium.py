@@ -99,6 +99,16 @@ class element_to_finish_resizing(object):
             return False
 
 
+def enter_text_in_element(driver, element, text, click=1, enter=True):
+    actions = ActionChains(driver)
+    actions.move_to_element(element)
+    if click == 1: actions.click()
+    elif click == 2: actions.double_click()
+    if enter:
+        text += u"\ue007" # After the backslash is ENTER key
+    actions.send_keys(text)
+    actions.perform()
+
 def enter_text_in_cell(driver, cell, text):
     actions = ActionChains(driver)
     actions.move_to_element(cell)
