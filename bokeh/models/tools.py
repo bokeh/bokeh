@@ -1340,6 +1340,11 @@ class PolyDrawTool(EditTool, Drag, Tap):
     additional columns in the data source will be padded with the
     declared ``empty_value``, when adding a new point.
 
+    If a ``vertex_renderer`` with an point-like glyph is supplied the
+    PolyDrawTool will use it to display the vertices of the
+    multi-lines/patches on all supplied renderers. This also enables
+    the ability to snap to existing vertices while drawing.
+
     The supported actions include:
 
     * Add patch/multi-line: Double tap to add the first vertex, then
@@ -1369,6 +1374,10 @@ class PolyDrawTool(EditTool, Drag, Tap):
     dropped to make space for the new patch or multi-line.
     """)
 
+    vertex_renderer = Instance(GlyphRenderer, help="""
+    The renderer used to render the vertices of a selected line or
+    polygon.""")
+
     @error(INCOMPATIBLE_POLY_DRAW_RENDERER)
     def _check_compatible_renderers(self):
         incompatible_renderers = []
@@ -1378,6 +1387,14 @@ class PolyDrawTool(EditTool, Drag, Tap):
         if incompatible_renderers:
             glyph_types = ', '.join(type(renderer.glyph).__name__ for renderer in incompatible_renderers)
             return "%s glyph type(s) found." % glyph_types
+
+    @error(INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER)
+    def _check_compatible_vertex_renderer(self):
+        if self.vertex_renderer is None:
+            return
+        glyph = self.vertex_renderer.glyph
+        if not isinstance(glyph, XYGlyph):
+            return "glyph type %s found." % type(glyph).__name__
 
 class FreehandDrawTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |freehand_draw_icon|

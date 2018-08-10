@@ -1,18 +1,18 @@
 import {Keys} from "core/dom"
-import {GestureEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
-import * as p from "core/properties"
+import {GestureEvent, TapEvent, MoveEvent, KeyEvent, UIEvent} from "core/ui_events"
 import {isArray} from "core/util/types"
 import {MultiLine} from "../../glyphs/multi_line"
 import {Patches} from "../../glyphs/patches"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
-import {EditTool, EditToolView, HasXYGlyph} from "./edit_tool"
+import {PolyTool, PolyToolView} from "./poly_tool"
 
 export interface HasPolyGlyph {
   glyph: MultiLine | Patches
 }
 
-export class PolyEditToolView extends EditToolView {
+export class PolyEditToolView extends PolyToolView {
   model: PolyEditTool
+
   _selected_renderer: GlyphRenderer | null
   _basepoint: [number, number] | null
   _drawing: boolean = false
@@ -24,100 +24,80 @@ export class PolyEditToolView extends EditToolView {
     const [x, y] = point;
 
     // Perform hit testing
-    const renderers = this._select_event(ev, false, this.model.renderers);
     const vertex_selected = this._select_event(ev, false, [this.model.vertex_renderer]);
-    const point_ds = this.model.vertex_renderer.data_source;
+    const point_cds = this.model.vertex_renderer.data_source;
     // Type once dataspecs are typed
     const point_glyph: any = this.model.vertex_renderer.glyph;
     const [pxkey, pykey] = [point_glyph.x.field, point_glyph.y.field];
     if (vertex_selected.length && this._selected_renderer != null) {
       // Insert a new point after the selected vertex and enter draw mode
-      const index = point_ds.selected.indices[0];
+      const index = point_cds.selected.indices[0];
       if (this._drawing) {
-        point_ds.selection_manager.clear();
-        if (pxkey) point_ds.data[pxkey][index] = x
-        if (pykey) point_ds.data[pykey][index] = y
         this._drawing = false;
-        this._selected_renderer.data_source.properties.data.change.emit();
+        point_cds.selection_manager.clear()
       } else {
-        point_ds.selected.indices = [index+1];
-        if (pxkey) point_ds.get_array(pxkey).splice(index+1, 0, x)
-        if (pykey) point_ds.get_array(pykey).splice(index+1, 0, y)
+        point_cds.selected.indices = [index+1];
+        if (pxkey) point_cds.get_array(pxkey).splice(index+1, 0, x)
+        if (pykey) point_cds.get_array(pykey).splice(index+1, 0, y)
         this._drawing = true;
       }
-      point_ds.change.emit();
-      this._emit_cds_changes(this._selected_renderer.data_source, true, false, true)
-      return;
-    } else if (!renderers.length) {
-      // If we did not hit an existing line, clear node CDS
-      if (pxkey) point_ds.data[pxkey] = []
-      if (pykey) point_ds.data[pykey] = []
-      this._selected_renderer = null;
-      this._drawing = false;
-      point_ds.change.emit();
-      return;
+      point_cds.change.emit();
+      this._emit_cds_changes(this._selected_renderer.data_source)
     } else {
-      this._show_vertices(renderers[0])
+      this._show_vertices(ev)
     }
   }
 
-  _show_vertices(renderer: GlyphRenderer): void {
+  _show_vertices(ev: UIEvent): void {
     if (!this.model.active) { return; }
 
-    // Copy selected line array to vertex renderer CDS
-    const point_glyph: any = this.model.vertex_renderer.glyph;
-    const point_ds = this.model.vertex_renderer.data_source;
-    const [pxkey, pykey] = [point_glyph.x.field, point_glyph.y.field];
+    const renderers = this._select_event(ev, false, this.model.renderers);
+    if (!renderers.length) {
+      this._set_vertices([], [])
+      this._selected_renderer = null;
+      this._drawing = false;
+      return;
+    }
 
-    // Type once dataspecs are typed
+    const renderer = renderers[0];
     const glyph: any = renderer.glyph;
     const cds = renderer.data_source;
     const index = cds.selected.indices[0];
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field];
+    let xs: number[];
+    let ys: number[];
     if (xkey) {
-      let xs = cds.data[xkey][index]
-      if (!isArray(xs)) {
-        xs = Array.from(xs)
-        cds.data[xkey][index] = xs
-      }
-      if (pxkey) point_ds.data[pxkey] = xs
-    } else
-      point_glyph.x = {value: glyph.xs.value};
-    if (ykey) {
-      let ys = cds.data[ykey][index]
-      if (!isArray(ys)) {
-        ys = Array.from(ys)
-        cds.data[ykey][index] = ys
-      }
-      if (pykey) point_ds.data[pykey] = ys
-    } else
-      point_glyph.y = {value: glyph.ys.value};
-    this._selected_renderer = renderer;
-    this._emit_cds_changes(this.model.vertex_renderer.data_source)
-  }
+      xs = cds.data[xkey][index]
+      if (!isArray(xs))
+        cds.data[xkey][index] = xs = Array.from(xs)
+    } else {
+      xs = glyph.xs.value;
+    }
 
-  _clear_vertices(): void {
-    const renderer = this.model.vertex_renderer;
-    const cds = renderer.data_source;
-    // Type once selection manager and dataspecs are typed
-    const glyph: any = renderer.glyph;
-    const [xkey, ykey] = [glyph.x.field, glyph.y.field];
-    if (xkey) cds.data[xkey] = []
-    if (ykey) cds.data[ykey] = []
-    this._emit_cds_changes(cds)
-    this._selected_renderer = null;
+    if (ykey) {
+      ys = cds.data[ykey][index]
+      if (!isArray(ys))
+        cds.data[ykey][index] = ys = Array.from(ys)
+    } else {
+      ys = glyph.ys.value
+    }
+    this._selected_renderer = renderer;
+    this._set_vertices(xs, ys)
   }
 
   _move(ev: MoveEvent): void {
     if (this._drawing && this._selected_renderer != null) {
       const renderer = this.model.vertex_renderer;
-      const point = this._map_drag(ev.sx, ev.sy, renderer);
-      if (point == null) { return; }
-      const [x, y] = point;
       const cds = renderer.data_source;
       const glyph: any = renderer.glyph;
+      const point = this._map_drag(ev.sx, ev.sy, renderer);
+      if (point == null) { return; }
+      let [x, y] = point;
+      const indices = cds.selected.indices;
+      [x, y] = this._snap_to_vertex(ev, x, y)
+      cds.selected.indices = indices
       const [xkey, ykey] = [glyph.x.field, glyph.y.field];
-      const index = cds.selected.indices[0];
+      const index = indices[0];
       if (xkey) cds.data[xkey][index] = x
       if (ykey) cds.data[ykey][index] = y
       cds.change.emit();
@@ -131,12 +111,14 @@ export class PolyEditToolView extends EditToolView {
     if (point == null) {
       return;
     } else if (this._drawing && this._selected_renderer) {
-      const [x, y] = point;
+      let [x, y] = point;
       const cds = renderer.data_source;
       // Type once dataspecs are typed
       const glyph: any = renderer.glyph;
       const [xkey, ykey] = [glyph.x.field, glyph.y.field];
-      const index = cds.selected.indices[0];
+      const indices = cds.selected.indices;
+      [x, y] = this._snap_to_vertex(ev, x, y)
+      const index = indices[0];
       cds.selected.indices = [index+1];
       if (xkey) {
         const xs = cds.get_array(xkey)
@@ -215,7 +197,7 @@ export class PolyEditToolView extends EditToolView {
           this._remove_vertex();
           this._drawing = false;
         } else if (this._selected_renderer) {
-          this._clear_vertices()
+          this._hide_vertices()
         }
         renderer.data_source.selection_manager.clear();
       }
@@ -229,26 +211,20 @@ export class PolyEditToolView extends EditToolView {
       this._remove_vertex();
       this._drawing = false;
     }
-    this._clear_vertices()
+    this._hide_vertices()
   }
 }
 
 export namespace PolyEditTool {
-  export interface Attrs extends EditTool.Attrs {
-    vertex_renderer: (GlyphRenderer & HasXYGlyph)
-    renderers: (GlyphRenderer & HasPolyGlyph)[]
-  }
-
-  export interface Props extends EditTool.Props {}
+  export interface Attrs extends PolyTool.Attrs {}
+  export interface Props extends PolyTool.Props {}
 }
 
 export interface PolyEditTool extends PolyEditTool.Attrs {}
 
-export class PolyEditTool extends EditTool {
+export class PolyEditTool extends PolyTool {
 
   properties: PolyEditTool.Props
-
-  renderers: (GlyphRenderer & HasPolyGlyph)[]
 
   constructor(attrs?: Partial<PolyEditTool.Attrs>) {
     super(attrs)
@@ -257,10 +233,6 @@ export class PolyEditTool extends EditTool {
   static initClass(): void {
     this.prototype.type = "PolyEditTool"
     this.prototype.default_view = PolyEditToolView
-
-    this.define({
-      vertex_renderer: [ p.Instance ],
-    })
   }
 
   tool_name = "Poly Edit Tool"
