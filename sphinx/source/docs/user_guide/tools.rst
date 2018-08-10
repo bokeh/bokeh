@@ -844,6 +844,11 @@ Using the ``num_objects`` property we can ensure that once the limit
 has been reached the oldest patch/multi-line will be popped off the
 queue to make space for the new patch/multi-line being added.
 
+If a ``vertex_renderer`` with an point-like glyph is supplied the
+PolyDrawTool will use it to display the vertices of the
+multi-lines/patches on all supplied renderers. This also enables the
+ability to snap to existing vertices while drawing.
+
 .. raw:: html
 
     <img src="http://bokeh.pydata.org/static/poly_draw_keyboard_optimized.gif"

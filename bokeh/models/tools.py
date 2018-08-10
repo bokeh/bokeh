@@ -1340,6 +1340,11 @@ class PolyDrawTool(EditTool, Drag, Tap):
     additional columns in the data source will be padded with the
     declared ``empty_value``, when adding a new point.
 
+    If a ``vertex_renderer`` with an point-like glyph is supplied the
+    PolyDrawTool will use it to display the vertices of the
+    multi-lines/patches on all supplied renderers. This also enables
+    the ability to snap to existing vertices while drawing.
+
     The supported actions include:
 
     * Add patch/multi-line: Double tap to add the first vertex, then
