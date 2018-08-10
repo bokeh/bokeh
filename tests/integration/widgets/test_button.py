@@ -108,14 +108,11 @@ class Test_Button(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    def test_callback_property_executes(self, single_plot_page):
-        source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
-        plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-        plot.add_glyph(source, Circle(x='x', y='y', size=20))
+    def test_callback_property_executes(self, bokeh_model_page):
         button = Button(css_classes=['foo'])
         button.callback = CustomJS(code=RECORD("clicked", "true"))
 
-        page = single_plot_page(column(button, plot))
+        page = bokeh_model_page(button)
 
         button = page.driver.find_element_by_class_name('foo')
         button.click()
@@ -125,14 +122,11 @@ class Test_Button(object):
 
         assert page.has_no_console_errors()
 
-    def test_js_on_event_executes(self, single_plot_page):
-        source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
-        plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-        plot.add_glyph(source, Circle(x='x', y='y', size=20))
+    def test_js_on_event_executes(self, bokeh_model_page):
         button = Button(css_classes=['foo'])
         button.js_on_event('button_click', CustomJS(code=RECORD("clicked", "true")))
 
-        page = single_plot_page(column(button, plot))
+        page = bokeh_model_page(button)
 
         button = page.driver.find_element_by_class_name('foo')
         button.click()
@@ -142,14 +136,11 @@ class Test_Button(object):
 
         assert page.has_no_console_errors()
 
-    def test_js_on_click_executes(self, single_plot_page):
-        source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
-        plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-        plot.add_glyph(source, Circle(x='x', y='y', size=20))
+    def test_js_on_click_executes(self, bokeh_model_page):
         button = Button(css_classes=['foo'])
         button.js_on_click(CustomJS(code=RECORD("clicked", "true")))
 
-        page = single_plot_page(column(button, plot))
+        page = bokeh_model_page(button)
 
         button = page.driver.find_element_by_class_name('foo')
         button.click()

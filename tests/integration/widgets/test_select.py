@@ -264,14 +264,11 @@ class Test_Select(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    def test_callback_property_executes(self, single_plot_page):
-        source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
-        plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-        plot.add_glyph(source, Circle(x='x', y='y', size=20))
+    def test_callback_property_executes(self, bokeh_model_page):
         select = Select(options=["Option 1", "Option 2", "Option 3"], css_classes=["foo"])
         select.callback = CustomJS(code=RECORD("value", "cb_obj.value"))
 
-        page = single_plot_page(column(select, plot))
+        page = bokeh_model_page(select)
 
         el = page.driver.find_element_by_css_selector('div.foo select')
         el.click()
@@ -284,14 +281,11 @@ class Test_Select(object):
 
         assert page.has_no_console_errors()
 
-    def test_js_on_change_executes(self, single_plot_page):
-        source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))
-        plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-        plot.add_glyph(source, Circle(x='x', y='y', size=20))
+    def test_js_on_change_executes(self, bokeh_model_page):
         select = Select(options=["Option 1", "Option 2", "Option 3"], css_classes=["foo"])
         select.js_on_change('value', CustomJS(code=RECORD("value", "cb_obj.value")))
 
-        page = single_plot_page(column(select, plot))
+        page = bokeh_model_page(select)
 
         el = page.driver.find_element_by_css_selector('div.foo select')
         el.click()
