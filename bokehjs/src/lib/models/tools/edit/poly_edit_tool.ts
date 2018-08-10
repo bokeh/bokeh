@@ -34,7 +34,7 @@ export class PolyEditToolView extends PolyToolView {
       const index = point_cds.selected.indices[0];
       if (this._drawing) {
         this._drawing = false;
-		point_cds.selection_manager.clear()
+        point_cds.selection_manager.clear()
       } else {
         point_cds.selected.indices = [index+1];
         if (pxkey) point_cds.get_array(pxkey).splice(index+1, 0, x)

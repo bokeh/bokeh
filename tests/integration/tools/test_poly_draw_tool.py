@@ -141,7 +141,7 @@ class Test_PolyDrawTool(object):
         assert cds_data_almost_equal(page.results, expected)
 
         assert page.has_no_console_errors()
-        
+
     def test_drag_moves_multi_line(self, single_plot_page):
         plot = _make_plot()
 
