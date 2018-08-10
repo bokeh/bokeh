@@ -1,5 +1,4 @@
-import {Layoutable} from "./layout_canvas"
-import {SizeHint} from "./index"
+import {SizeHint, Layoutable} from "./layout_canvas"
 
 import {Side} from "../enums"
 import {isString} from "../util/types"

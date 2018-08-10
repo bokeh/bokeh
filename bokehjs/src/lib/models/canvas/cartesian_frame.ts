@@ -7,7 +7,7 @@ import {Range1d} from "../ranges/range1d"
 import {DataRange1d} from "../ranges/data_range1d"
 import {FactorRange} from "../ranges/factor_range"
 
-import {AnchorLayout} from "core/layout/alignments"
+import {BBox, AnchorLayout} from "core/layout"
 import {Arrayable} from "core/types"
 
 export type Ranges = {[key: string]: Range}
@@ -97,7 +97,7 @@ export class CartesianFrame extends AnchorLayout {
     this._yscales = this._get_scales(this.y_scale, this._y_ranges, this._v_target)
   }
 
-  update_scales(): void {
+  protected _update_scales(): void {
     this._configure_frame_ranges()
 
     for (const name in this._xscales) {
@@ -109,6 +109,11 @@ export class CartesianFrame extends AnchorLayout {
       const scale = this._yscales[name]
       scale.target_range = this._v_target
     }
+  }
+
+  protected _set_geometry(outer: BBox, inner: BBox): void {
+    super._set_geometry(outer, inner)
+    this._update_scales()
   }
 
   get x_ranges(): Ranges {

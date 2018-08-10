@@ -1,5 +1,5 @@
-import {Layoutable} from "./layout_canvas"
-import {BBox, SizeHint} from "./index"
+import {SizeHint, Layoutable} from "./layout_canvas"
+import {BBox} from "../util/bbox"
 
 export abstract class Container extends Layoutable {
   children: Layoutable[]

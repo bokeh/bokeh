@@ -927,13 +927,6 @@ export abstract class PlotCanvasView extends LayoutDOMView {
       }
     }
 
-    // TODO (bev) OK this sucks, but the event from the solve_r update doesn't
-    // reach the frame in time (sometimes) so force an update here for now
-    // (mp) not only that, but models don't know about solve_r anymore, so
-    // frame can't update its scales.
-    // XXX: most likely this isn't relevant anymore.
-    this.frame.update_scales()
-
     const {ctx} = this.canvas_view
     const ratio = this.canvas.pixel_ratio
 

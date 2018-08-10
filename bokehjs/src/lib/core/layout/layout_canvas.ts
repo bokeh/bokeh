@@ -26,14 +26,10 @@ export interface ViewTransform {
 
 export abstract class Layoutable {
 
-  protected _bbox: BBox
+  protected _bbox: BBox = new BBox({left: 0, top: 0, width: 0, height: 0})
 
   get bbox(): BBox {
-    const {_bbox} = this
-    if (_bbox != null)
-      return _bbox
-    else
-      throw new Error("layout wasn't computed yet")
+    return this._bbox
   }
 
   _top: ComputedVariable
