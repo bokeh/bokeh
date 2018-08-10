@@ -83,7 +83,7 @@ export class LabelSetView extends TextAnnotationView {
     const xscale = this.plot_view.frame.xscales[this.model.x_range_name]
     const yscale = this.plot_view.frame.yscales[this.model.y_range_name]
 
-    const panel = this.model.panel != null ? this.model.panel : this.plot_view.frame
+    const panel = this.panel != null ? this.panel : this.plot_view.frame
 
     const sx = this.model.x_units == "data" ? xscale.v_compute(this._x) : panel.xview.v_compute(this._x)
     const sy = this.model.y_units == "data" ? yscale.v_compute(this._y) : panel.yview.v_compute(this._y)
@@ -112,7 +112,7 @@ export class LabelSetView extends TextAnnotationView {
     const {ctx} = this.plot_view.canvas_view
     this.visuals.text.set_value(ctx)
 
-    switch (this.model.panel!.side) {
+    switch (this.panel!.side) {
       case "above":
       case "below": {
         const height = ctx.measureText(this._text[0]).ascent

@@ -17,7 +17,7 @@ export class TitleView extends TextAnnotationView {
   }
 
   protected _get_location(): [number, number] {
-    const panel = this.model.panel!
+    const panel = this.panel!
 
     const hmargin = this.model.offset
     const vmargin = 5
@@ -94,7 +94,7 @@ export class TitleView extends TextAnnotationView {
     this.model.text_align = this.model.align
 
     const [sx, sy] = this._get_location()
-    const angle = this.model.panel!.get_label_angle_heuristic('parallel')
+    const angle = this.panel!.get_label_angle_heuristic('parallel')
 
     const draw = this.model.render_mode == 'canvas' ? this._canvas_text.bind(this) : this._css_text.bind(this)
     draw(this.plot_view.canvas_view.ctx, text, sx, sy, angle)

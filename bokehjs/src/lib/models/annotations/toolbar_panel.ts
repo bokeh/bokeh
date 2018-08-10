@@ -31,7 +31,7 @@ export class ToolbarPanelView extends AnnotationView {
       return
     }
 
-    const panel = this.model.panel!
+    const panel = this.panel!
 
     this.el.style.position = "absolute"
     this.el.style.left = `${panel._left.value}px`

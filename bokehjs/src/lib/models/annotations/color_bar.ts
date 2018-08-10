@@ -62,7 +62,7 @@ export class ColorBarView extends AnnotationView {
       return 0
 
     const bbox = this.compute_legend_dimensions()
-    const {side} = this.model.panel!
+    const {side} = this.panel!
 
     switch (side) {
       case "above":
@@ -148,7 +148,7 @@ export class ColorBarView extends AnnotationView {
 
     const legend_margin = this.model.margin
 
-    const panel = this.model.panel != null ? this.model.panel : this.plot_view.frame
+    const panel = this.panel != null ? this.panel : this.plot_view.frame
     const [hr, vr] = panel.bbox.ranges
     const {location} = this.model
 

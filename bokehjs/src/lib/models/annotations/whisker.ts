@@ -45,7 +45,7 @@ export class WhiskerView extends AnnotationView {
   }
 
   protected _map_data(): void {
-    const {frame} = this.plot_model
+    const {frame} = this.plot_view
     const dim = this.model.dimension
 
     const xscale = frame.xscales[this.model.x_range_name]

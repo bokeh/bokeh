@@ -77,7 +77,7 @@ export class LegendView extends AnnotationView {
       legend_height = this.max_label_height + 2*legend_padding
     }
 
-    const panel = this.model.panel != null ? this.model.panel : this.plot_view.frame
+    const panel = this.panel != null ? this.panel : this.plot_view.frame
     const [hr, vr] = panel.bbox.ranges
 
     const {location} = this.model
@@ -287,7 +287,7 @@ export class LegendView extends AnnotationView {
 
   protected _get_size(): number {
     const bbox = this.compute_legend_bbox()
-    switch (this.model.panel!.side) {
+    switch (this.panel!.side) {
       case "above":
       case "below":
         return bbox.height + 2*this.model.margin

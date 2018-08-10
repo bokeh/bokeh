@@ -12,6 +12,10 @@ export abstract class AnnotationView extends RendererView {
 
   layout: SidePanel
 
+  get panel(): SidePanel | undefined { // XXX
+    return this.layout
+  }
+
   protected _get_size(): number {
     throw new Error("not implemented")
   }
@@ -46,9 +50,7 @@ export namespace Annotation {
   export type Visuals = Renderer.Visuals
 }
 
-export interface Annotation extends Annotation.Attrs {
-  panel?: SidePanel
-}
+export interface Annotation extends Annotation.Attrs {}
 
 export abstract class Annotation extends Renderer {
 
