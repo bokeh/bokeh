@@ -21,7 +21,7 @@ export class PolyEditToolView extends PolyToolView {
     if (!this.model.active) { return; }
     const point = this._map_drag(ev.sx, ev.sy, this.model.vertex_renderer);
     if (point == null) { return; }
-    let [x, y] = point;
+    const [x, y] = point;
 
     // Perform hit testing
     const vertex_selected = this._select_event(ev, false, [this.model.vertex_renderer]);
@@ -33,9 +33,8 @@ export class PolyEditToolView extends PolyToolView {
       // Insert a new point after the selected vertex and enter draw mode
       const index = point_cds.selected.indices[0];
       if (this._drawing) {
-        point_cds.selection_manager.clear();
         this._drawing = false;
-        this._selected_renderer.data_source.properties.data.change.emit();
+		point_cds.selection_manager.clear()
       } else {
         point_cds.selected.indices = [index+1];
         if (pxkey) point_cds.get_array(pxkey).splice(index+1, 0, x)
@@ -43,7 +42,7 @@ export class PolyEditToolView extends PolyToolView {
         this._drawing = true;
       }
       point_cds.change.emit();
-      this._emit_cds_changes(this._selected_renderer.data_source, true, false, true)
+      this._emit_cds_changes(this._selected_renderer.data_source)
     } else {
       this._show_vertices(ev)
     }
