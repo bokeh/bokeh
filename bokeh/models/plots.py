@@ -243,11 +243,6 @@ class Plot(LayoutDOM):
                 "Invalid place '%s' specified. Valid place values are: %s" % (place, nice_join(valid_places))
             )
 
-        if hasattr(obj, 'plot'):
-            if obj.plot is not None:
-                raise ValueError("object to be added already has 'plot' attribute set")
-            obj.plot = self
-
         getattr(self, place).append(obj)
 
     def add_tools(self, *tools):

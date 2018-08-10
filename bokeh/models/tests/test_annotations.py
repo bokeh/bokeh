@@ -52,7 +52,6 @@ from bokeh.models.annotations import (
 
 def test_Legend():
     legend = Legend()
-    assert legend.plot is None
     assert legend.location == 'top_right'
     assert legend.label_standoff == 5
     assert legend.label_height == 20
@@ -67,7 +66,6 @@ def test_Legend():
     check_text_properties(legend, "label_", "10pt", "middle")
     check_fill_properties(legend, "background_", "#ffffff", 0.95)
     check_properties_existence(legend, [
-        "plot",
         "visible",
         "location",
         "orientation",
@@ -90,7 +88,6 @@ def test_Legend():
 
 def test_ColorBar():
     color_bar = ColorBar()
-    assert color_bar.plot is None
     assert color_bar.location == 'top_right'
     assert color_bar.orientation == 'vertical'
     assert color_bar.height == 'auto'
@@ -116,7 +113,6 @@ def test_ColorBar():
     check_line_properties(color_bar, "border_", None)
     check_fill_properties(color_bar, "background_", "#ffffff", 0.95)
     check_properties_existence(color_bar, [
-        "plot",
         "level",
         "visible",
         "location",
@@ -149,7 +145,6 @@ def test_ColorBar():
 
 def test_Arrow():
     arrow = Arrow()
-    assert arrow.plot is None
     assert arrow.x_start is None
     assert arrow.y_start is None
     assert arrow.start_units == 'data'
@@ -163,7 +158,6 @@ def test_Arrow():
     assert arrow.y_range_name == "default"
     check_line_properties(arrow)
     check_properties_existence(arrow, [
-        "plot",
         "level",
         "visible",
         "x_start",
@@ -182,7 +176,6 @@ def test_Arrow():
 
 def test_BoxAnnotation():
     box = BoxAnnotation()
-    assert box.plot is None
     assert box.left is None
     assert box.left_units == 'data'
     assert box.right is None
@@ -198,7 +191,6 @@ def test_BoxAnnotation():
     check_fill_properties(box, "", "#fff9ba", 0.4)
     check_properties_existence(box, [
         "render_mode",
-        "plot",
         "visible",
         "left",
         "left_units",
@@ -216,7 +208,6 @@ def test_BoxAnnotation():
 
 def test_Band():
     band = Band()
-    assert band.plot is None
     assert band.level == 'annotation'
     assert band.lower is None
     assert band.lower_units == 'data'
@@ -230,7 +221,6 @@ def test_Band():
     check_line_properties(band, "", "#cccccc", 1.0, 0.3)
     check_fill_properties(band, "", "#fff9ba", 0.4)
     check_properties_existence(band, [
-        "plot",
         "visible",
         "level",
         "lower",
@@ -248,7 +238,6 @@ def test_Band():
 
 def test_Label():
     label = Label()
-    assert label.plot is None
     assert label.level == 'annotation'
     assert label.x is None
     assert label.y is None
@@ -266,7 +255,6 @@ def test_Label():
     check_fill_properties(label, "background_", None, 1.0)
     check_line_properties(label, "border_", None, 1.0, 1.0)
     check_properties_existence(label, [
-        "plot",
         "level",
         "visible",
         "x",
@@ -293,7 +281,6 @@ def test_Label_accepts_datetime_xy():
 
 def test_LabelSet():
     label_set = LabelSet()
-    assert label_set.plot is None
     assert label_set.level == 'annotation'
     assert label_set.x is None
     assert label_set.y is None
@@ -313,7 +300,6 @@ def test_LabelSet():
     check_fill_properties(label_set, "background_", None, 1.0)
     check_line_properties(label_set, "border_", None, 1.0, 1.0)
     check_properties_existence(label_set, [
-        "plot",
         "visible",
         "level",
         "x",
@@ -336,7 +322,6 @@ def test_LabelSet():
 
 def test_Slope():
     slope = Slope()
-    assert slope.plot is None
     assert slope.gradient is None
     assert slope.y_intercept is None
     assert slope.x_range_name == 'default'
@@ -344,7 +329,6 @@ def test_Slope():
     assert slope.level == 'annotation'
     check_line_properties(slope, "", 'black', 1.0)
     check_properties_existence(slope, [
-        "plot",
         "visible",
         "gradient",
         "y_intercept",
@@ -356,7 +340,6 @@ def test_Slope():
 
 def test_Span():
     line = Span()
-    assert line.plot is None
     assert line.location is None
     assert line.location_units == 'data'
     assert line.dimension == 'width'
@@ -366,7 +349,6 @@ def test_Span():
     assert line.render_mode == 'canvas'
     check_line_properties(line, "", 'black', 1.0)
     check_properties_existence(line, [
-        "plot",
         "visible",
         "location",
         "location_units",
@@ -383,7 +365,6 @@ def test_Span_accepts_datetime_location():
 
 def test_Title():
     title = Title()
-    assert title.plot is None
     assert title.level == 'annotation'
     assert title.text is None
     assert title.vertical_align == 'bottom'
@@ -397,7 +378,6 @@ def test_Title():
     check_fill_properties(title, "background_", None, 1.0)
     check_line_properties(title, "border_", None, 1.0, 1.0)
     check_properties_existence(title, [
-        "plot",
         "visible",
         "level",
         "text",
@@ -416,7 +396,6 @@ def test_Title():
 
 def test_Whisker():
     whisker = Whisker()
-    assert whisker.plot is None
     assert whisker.level == 'underlay'
     assert whisker.lower is None
     assert whisker.lower_units == 'data'
@@ -435,7 +414,6 @@ def test_Whisker():
     assert whisker.y_range_name == 'default'
     check_line_properties(whisker, "")
     check_properties_existence(whisker, [
-        "plot",
         "visible",
         "level",
         "lower",

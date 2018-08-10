@@ -284,17 +284,6 @@ class GuideRenderer(Renderer):
 
     '''
 
-    plot = Instance(".models.plots.Plot", help="""
-    The plot to which this guide renderer is attached.
-    """)
-
-    def __init__(self, **kwargs):
-        super(GuideRenderer, self).__init__(**kwargs)
-
-        if self.plot is not None:
-            if self not in self.plot.renderers:
-                self.plot.renderers.append(self)
-
     level = Override(default="overlay")
 
 #-----------------------------------------------------------------------------

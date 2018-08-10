@@ -180,7 +180,7 @@ export class Figure extends Plot {
 
     this.add_tools(...this._process_tools(tools))
 
-    this._legend = new Legend({plot: this, items: []})
+    this._legend = new Legend({items: []})
     this.add_renderers(this._legend)
   }
 

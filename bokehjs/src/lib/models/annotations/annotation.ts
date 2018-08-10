@@ -1,11 +1,9 @@
 import {SidePanel} from "core/layout/side_panel"
-import * as p from "core/properties"
 import * as proj from "core/util/projections"
 import {extend} from "core/util/object"
 
 import {Renderer, RendererView} from "../renderers/renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
-import {Plot} from "../plots/plot"
 
 export abstract class AnnotationView extends RendererView {
   model: Annotation
@@ -39,13 +37,9 @@ export abstract class AnnotationView extends RendererView {
 }
 
 export namespace Annotation {
-  export interface Attrs extends Renderer.Attrs {
-    plot: Plot
-  }
+  export interface Attrs extends Renderer.Attrs {}
 
-  export interface Props extends Renderer.Props {
-    plot: p.Property<Plot>
-  }
+  export interface Props extends Renderer.Props {}
 
   export type Visuals = Renderer.Visuals
 }
@@ -62,10 +56,6 @@ export abstract class Annotation extends Renderer {
 
   static initClass(): void {
     this.prototype.type = 'Annotation'
-
-    this.define({
-      plot:  [ p.Instance ],
-    })
 
     this.override({
       level: 'annotation',

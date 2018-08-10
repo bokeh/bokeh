@@ -238,11 +238,6 @@ export class Plot extends LayoutDOM {
   }
 
   add_layout(renderer: any /* XXX: Renderer */, side: Place = "center"): void {
-    // {{{
-    if (renderer.props.plot != null)
-      (renderer as any).plot = this // XXX
-    // }}}
-
     const side_renderers = this.getv(side)
     side_renderers.push(renderer)
   }

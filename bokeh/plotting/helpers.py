@@ -526,10 +526,9 @@ def _tool_from_string(name):
 
 def _process_axis_and_grid(plot, axis_type, axis_location, minor_ticks, axis_label, rng, dim):
     axiscls, axiskw = _get_axis_class(axis_type, rng, dim)
-    if axiscls:
 
-        # this is so we can get a ticker off the axis, even if we discard it
-        axis = axiscls(plot=plot if axis_location else None, **axiskw)
+    if axiscls:
+        axis = axiscls(**axiskw)
 
         if isinstance(axis.ticker, ContinuousTicker):
             axis.ticker.num_minor_ticks = _get_num_minor_ticks(axiscls, minor_ticks)
@@ -538,7 +537,8 @@ def _process_axis_and_grid(plot, axis_type, axis_location, minor_ticks, axis_lab
         if axis_label:
             axis.axis_label = axis_label
 
-        grid = Grid(plot=plot, dimension=dim, ticker=axis.ticker); grid
+        grid = Grid(dimension=dim, ticker=axis.ticker)
+        plot.renderers.append(grid)
 
         if axis_location is not None:
             getattr(plot, axis_location).append(axis)
