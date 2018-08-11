@@ -119,6 +119,8 @@ export class BoxSelectTool extends SelectTool {
 
   properties: BoxSelectTool.Props
 
+  /*override*/ overlay: BoxAnnotation
+
   constructor(attrs?: Partial<BoxSelectTool.Attrs>) {
     super(attrs)
   }

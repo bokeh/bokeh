@@ -181,7 +181,8 @@ class Plot(LayoutDOM):
         ''' Splattable list of :class:`~bokeh.models.annotations.Legend` objects.
 
         '''
-        legends = [obj for obj in self.renderers if isinstance(obj, Legend)]
+        panels = self.above + self.below + self.left + self.right + self.center
+        legends = [obj for obj in panels if isinstance(obj, Legend)]
         return _legend_attr_splat(legends)
 
     @property
@@ -193,7 +194,7 @@ class Plot(LayoutDOM):
         return _list_attr_splat(hovers)
 
     def _grid(self, dimension):
-        grid = [obj for obj in self.renderers if isinstance(obj, Grid) and obj.dimension==dimension]
+        grid = [obj for obj in self.center if isinstance(obj, Grid) and obj.dimension == dimension]
         return _list_attr_splat(grid)
 
     @property
@@ -258,9 +259,6 @@ class Plot(LayoutDOM):
         for tool in tools:
             if not isinstance(tool, Tool):
                 raise ValueError("All arguments to add_tool must be Tool subclasses.")
-
-            if hasattr(tool, 'overlay'):
-                self.renderers.append(tool.overlay)
 
             self.toolbar.tools.append(tool)
 

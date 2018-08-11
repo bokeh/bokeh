@@ -10,6 +10,8 @@ import {isArray} from "core/util/types"
 
 import {LayoutDOM} from "../layouts/layout_dom"
 import {Axis} from "../axes/axis"
+import {Grid} from "../grids/grid"
+import {GuideRenderer} from "../renderers/guide_renderer"
 import {Annotation} from "../annotations/annotation"
 import {Title} from "../annotations/title"
 import {LinearScale} from "../scales/linear_scale"
@@ -21,7 +23,7 @@ import {Scale} from "../scales/scale"
 import {Glyph} from "../glyphs/glyph"
 import {DataSource} from "../sources/data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
-import {Renderer} from "../renderers/renderer"
+import {DataRenderer} from "../renderers/data_renderer"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {Tool} from "../tools/tool"
 import {register_with_event, UIEvent} from 'core/bokeh_events'
@@ -73,9 +75,9 @@ export namespace Plot {
     below: (Annotation | Axis)[]
     left: (Annotation | Axis)[]
     right: (Annotation | Axis)[]
-    center: Annotation[]
+    center: (Annotation | Grid)[]
 
-    renderers: Renderer[]
+    renderers: DataRenderer[]
 
     x_range: Range
     extra_x_ranges: {[key: string]: Range}
@@ -115,8 +117,8 @@ export namespace Plot {
     below: p.Property<(Annotation | Axis)[]>
     left: p.Property<(Annotation | Axis)[]>
     right: p.Property<(Annotation | Axis)[]>
-    center: p.Property<Annotation[]>
-    renderers: p.Property<Renderer[]>
+    center: p.Property<(Annotation | Grid)[]>
+    renderers: p.Property<DataRenderer[]>
     outline_line_width: p.Property<number>
   }
 
@@ -164,6 +166,7 @@ export class Plot extends LayoutDOM {
       below:             [ p.Array,    []                      ],
       left:              [ p.Array,    []                      ],
       right:             [ p.Array,    []                      ],
+      center:            [ p.Array,    []                      ],
 
       renderers:         [ p.Array,    []                      ],
 
@@ -237,14 +240,14 @@ export class Plot extends LayoutDOM {
       this.height = this.plot_height
   }
 
-  add_layout(renderer: any /* XXX: Renderer */, side: Place = "center"): void {
+  add_layout(renderer: Annotation | GuideRenderer, side: Place = "center"): void {
     const side_renderers = this.getv(side)
-    side_renderers.push(renderer)
+    side_renderers.push(renderer as any /* XXX */)
   }
 
-  remove_layout(renderer: Renderer): void {
+  remove_layout(renderer: Annotation | GuideRenderer): void {
 
-    const del = (items: Renderer[]): void => {
+    const del = (items: (Annotation | GuideRenderer)[]): void => {
       removeBy(items, (item) => item == renderer)
     }
 
@@ -255,10 +258,8 @@ export class Plot extends LayoutDOM {
     del(this.center)
   }
 
-  add_renderers(...new_renderers: Renderer[]): void {
-    let renderers = this.renderers
-    renderers = renderers.concat(new_renderers)
-    this.renderers = renderers
+  add_renderers(...renderers: DataRenderer[]): void {
+    this.renderers = this.renderers.concat(renderers)
   }
 
   add_glyph(glyph: Glyph, source: DataSource = new ColumnDataSource(), extra_attrs: any = {}): GlyphRenderer {
@@ -269,19 +270,7 @@ export class Plot extends LayoutDOM {
   }
 
   add_tools(...tools: Tool[]): void {
-    for (const tool of tools) {
-      if ((tool as any).overlay != null) // XXX
-        this.add_renderers((tool as any).overlay)
-    }
-
     this.toolbar.tools = this.toolbar.tools.concat(tools)
-  }
-
-  get all_renderers(): Renderer[] {
-    let renderers = this.renderers
-    for (const tool of this.toolbar.tools)
-      renderers = renderers.concat(tool.synthetic_renderers)
-    return renderers
   }
 }
 Plot.initClass()

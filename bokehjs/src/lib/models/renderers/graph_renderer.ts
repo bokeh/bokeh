@@ -1,4 +1,4 @@
-import {Renderer, RendererView} from "./renderer"
+import {DataRenderer, DataRendererView} from "./data_renderer"
 import {GlyphRenderer, GlyphRendererView} from "./glyph_renderer"
 import {LayoutProvider} from "../graphs/layout_provider"
 import {GraphHitTestPolicy, NodesOnly} from "../graphs/graph_hit_test_policy"
@@ -7,7 +7,7 @@ import * as p from "core/properties"
 import {build_views} from "core/build_views"
 import {SelectionManager} from "core/selection_manager"
 
-export class GraphRendererView extends RendererView {
+export class GraphRendererView extends DataRendererView {
   model: GraphRenderer
 
   node_view: GlyphRendererView
@@ -84,9 +84,7 @@ export class GraphRendererView extends RendererView {
 }
 
 export namespace GraphRenderer {
-  export interface Attrs extends Renderer.Attrs {
-    x_range_name: string
-    y_range_name: string
+  export interface Attrs extends DataRenderer.Attrs {
     layout_provider: LayoutProvider
     node_renderer: GlyphRenderer
     edge_renderer: GlyphRenderer
@@ -94,12 +92,12 @@ export namespace GraphRenderer {
     inspection_policy: GraphHitTestPolicy
   }
 
-  export interface Props extends Renderer.Props {}
+  export interface Props extends DataRenderer.Props {}
 }
 
 export interface GraphRenderer extends GraphRenderer.Attrs {}
 
-export class GraphRenderer extends Renderer {
+export class GraphRenderer extends DataRenderer {
 
   properties: GraphRenderer.Props
 
@@ -112,8 +110,6 @@ export class GraphRenderer extends Renderer {
     this.prototype.default_view = GraphRendererView
 
     this.define({
-      x_range_name:       [ p.String,        'default'              ],
-      y_range_name:       [ p.String,        'default'              ],
       layout_provider:    [ p.Instance                              ],
       node_renderer:      [ p.Instance                              ],
       edge_renderer:      [ p.Instance                              ],

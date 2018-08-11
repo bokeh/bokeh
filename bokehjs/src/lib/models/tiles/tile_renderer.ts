@@ -3,7 +3,7 @@ import {ImagePool, Image} from "./image_pool"
 import {Extent, Bounds} from "./tile_utils"
 import {TileSource} from "./tile_source"
 import {WMTSTileSource} from "./wmts_tile_source"
-import {Renderer, RendererView} from "../renderers/renderer"
+import {DataRenderer, DataRendererView} from "../renderers/data_renderer"
 import {Plot} from "../plots/plot"
 import {CartesianFrame} from "../canvas/cartesian_frame"
 import {Range} from "../ranges/range"
@@ -13,6 +13,8 @@ import * as p from "core/properties"
 import {includes} from "core/util/array"
 import {isString} from "core/util/types"
 import {Context2d} from "core/util/canvas"
+import {SelectionManager} from "core/selection_manager"
+import {ColumnDataSource} from "../sources/column_data_source"
 
 export interface TileData {
   img: Image
@@ -27,7 +29,7 @@ export interface TileData {
   y_coord: number
 }
 
-export class TileRendererView extends RendererView {
+export class TileRendererView extends DataRendererView {
   model: TileRenderer
 
   protected attributionEl: HTMLElement | null
@@ -383,21 +385,19 @@ export class TileRendererView extends RendererView {
 }
 
 export namespace TileRenderer {
-  export interface Attrs extends Renderer.Attrs {
+  export interface Attrs extends DataRenderer.Attrs {
     alpha: number
-    x_range_name: string
-    y_range_name: string
     smoothing: boolean
     tile_source: TileSource
     render_parents: boolean
   }
 
-  export interface Props extends Renderer.Props {}
+  export interface Props extends DataRenderer.Props {}
 }
 
 export interface TileRenderer extends TileRenderer.Attrs {}
 
-export class TileRenderer extends Renderer {
+export class TileRenderer extends DataRenderer {
 
   properties: TileRenderer.Props
 
@@ -411,8 +411,6 @@ export class TileRenderer extends Renderer {
 
     this.define({
       alpha:          [ p.Number,   1.0              ],
-      x_range_name:   [ p.String,   "default"        ],
-      y_range_name:   [ p.String,   "default"        ],
       smoothing:      [ p.Bool,     true             ],
       tile_source:    [ p.Instance, () => new WMTSTileSource() ],
       render_parents: [ p.Bool,     true             ],
@@ -421,6 +419,15 @@ export class TileRenderer extends Renderer {
     this.override({
       level: 'underlay',
     })
+  }
+
+  // XXX: tile renderer doesn't allow selection, but needs to fulfil the APIs
+  private _selection_manager = new SelectionManager({
+    source: new ColumnDataSource(),
+  })
+
+  get_selection_manager(): SelectionManager {
+    return this._selection_manager
   }
 }
 TileRenderer.initClass()

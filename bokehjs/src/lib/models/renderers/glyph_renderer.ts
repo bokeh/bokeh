@@ -1,4 +1,4 @@
-import {Renderer, RendererView} from "./renderer"
+import {DataRenderer, DataRendererView} from "./data_renderer"
 import {LineView} from "../glyphs/line"
 import {Glyph, GlyphView} from "../glyphs/glyph"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
@@ -36,7 +36,7 @@ const nonselection_defaults: Defaults = {
   line: {},
 }
 
-export class GlyphRendererView extends RendererView {
+export class GlyphRendererView extends DataRendererView {
   model: GlyphRenderer
 
   glyph: GlyphView
@@ -366,9 +366,7 @@ export class GlyphRendererView extends RendererView {
 }
 
 export namespace GlyphRenderer {
-  export interface Attrs extends Renderer.Attrs {
-    x_range_name: string
-    y_range_name: string
+  export interface Attrs extends DataRenderer.Attrs {
     data_source: ColumnarDataSource
     view: CDSView
     glyph: Glyph
@@ -379,14 +377,14 @@ export namespace GlyphRenderer {
     muted: boolean
   }
 
-  export interface Props extends Renderer.Props {
+  export interface Props extends DataRenderer.Props {
     view: p.Property<CDSView>
   }
 }
 
 export interface GlyphRenderer extends GlyphRenderer.Attrs {}
 
-export class GlyphRenderer extends Renderer {
+export class GlyphRenderer extends DataRenderer {
 
   properties: GlyphRenderer.Props
 
@@ -399,8 +397,6 @@ export class GlyphRenderer extends Renderer {
     this.prototype.default_view = GlyphRendererView
 
     this.define({
-      x_range_name:       [ p.String,  'default' ],
-      y_range_name:       [ p.String,  'default' ],
       data_source:        [ p.Instance           ],
       view:               [ p.Instance, () => new CDSView() ],
       glyph:              [ p.Instance           ],

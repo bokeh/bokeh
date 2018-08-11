@@ -2,7 +2,7 @@ import {CartesianFrame} from "../canvas/cartesian_frame"
 import {Canvas, CanvasView} from "../canvas/canvas"
 import {Range} from "../ranges/range"
 import {DataRange1d} from "../ranges/data_range1d"
-import {RendererView} from "../renderers/renderer"
+import {Renderer, RendererView} from "../renderers/renderer"
 import {GlyphRenderer, GlyphRendererView} from "../renderers/glyph_renderer"
 import {ToolView} from "../tools/tool"
 import {Selection} from "../selections/selection"
@@ -24,8 +24,8 @@ import {Side, RenderLevel} from "core/enums"
 import {Rect} from "core/util/spatial"
 import {throttle} from "core/util/throttle"
 import {isStrictNaN} from "core/util/types"
-import {difference, sortBy, reversed} from "core/util/array"
-import {keys, values} from "core/util/object"
+import {reversed} from "core/util/array"
+import {values} from "core/util/object"
 import {Context2d, SVGRenderingContext2D} from "core/util/canvas"
 import {BBox, SizeHint, Margin, Layoutable} from "core/layout"
 import {SidePanel} from "core/layout/side_panel"
@@ -150,7 +150,8 @@ export abstract class PlotCanvasView extends LayoutDOMView {
   protected throttled_paint: () => void
   protected ui_event_bus: UIEvents
 
-  protected levels: {[key: string]: {[key: string]: RendererView}}
+  computed_renderers: Renderer[]
+
   /*protected*/ renderer_views: {[key: string]: RendererView}
   protected tool_views: {[key: string]: ToolView}
 
@@ -258,16 +259,11 @@ export abstract class PlotCanvasView extends LayoutDOMView {
 
     this.ui_event_bus = new UIEvents(this, this.model.toolbar, this.canvas_view.events_el, this.model)
 
-    this.levels = {}
-    for (const level of RenderLevel) {
-      this.levels[level] = {}
-    }
-
     this.renderer_views = {}
     this.tool_views = {}
 
-    this.build_levels()
-    this.build_tools()
+    this.build_renderer_views()
+    this.build_tool_views()
 
     /*
     if (this.title != null) {
@@ -750,33 +746,33 @@ export abstract class PlotCanvasView extends LayoutDOMView {
     this.update_range(null)
   }
 
-  build_levels(): void {
-    const renderer_models = this.model.all_renderers
+  build_renderer_views(): void {
+    this.computed_renderers = []
 
-    // should only bind events on NEW views
-    const old_renderers = keys(this.renderer_views)
-    const new_renderer_views = build_views(this.renderer_views, renderer_models, this.view_options()) as RendererView[]
-    const renderers_to_remove = difference(old_renderers, renderer_models.map((model) => model.id))
+    this.computed_renderers.push(...this.model.renderers)
+    this.computed_renderers.push(...this.model.above)
+    this.computed_renderers.push(...this.model.below)
+    this.computed_renderers.push(...this.model.left)
+    this.computed_renderers.push(...this.model.right)
+    this.computed_renderers.push(...this.model.center)
 
-    for (const level in this.levels) {
-      for (const id of renderers_to_remove) {
-        delete this.levels[level][id]
-      }
+    for (const tool of this.model.toolbar.tools) {
+      if (tool.overlay != null)
+        this.computed_renderers.push(tool.overlay)
+
+      this.computed_renderers.push(...tool.synthetic_renderers)
     }
 
-    for (const view of new_renderer_views) {
-      this.levels[view.model.level][view.model.id] = view
-    }
+    build_views(this.renderer_views, this.computed_renderers, this.view_options())
   }
 
   get_renderer_views(): RendererView[] {
-    return this.model.renderers.map((r) => this.levels[r.level][r.id])
+    return this.computed_renderers.map((r) => this.renderer_views[r.id])
   }
 
-  build_tools(): void {
+  build_tool_views(): void {
     const tool_models = this.model.toolbar.tools
     const new_tool_views = build_views(this.tool_views, tool_models, this.view_options()) as ToolView[]
-
     new_tool_views.map((tool_view) => this.ui_event_bus.register_tool(tool_view))
   }
 
@@ -796,8 +792,8 @@ export abstract class PlotCanvasView extends LayoutDOMView {
       this.connect(rng.change, () => this.request_render())
     }
 
-    this.connect(this.model.properties.renderers.change, () => this.build_levels())
-    this.connect(this.model.toolbar.properties.tools.change, () => { this.build_levels(); this.build_tools() })
+    this.connect(this.model.properties.renderers.change, () => this.build_renderer_views())
+    this.connect(this.model.toolbar.properties.tools.change, () => { this.build_renderer_views(); this.build_tool_views() })
     this.connect(this.model.change, () => this.request_render())
     this.connect(this.model.reset, () => this.reset())
   }
@@ -837,13 +833,10 @@ export abstract class PlotCanvasView extends LayoutDOMView {
     if (!super.has_finished())
       return false
 
-    for (const level in this.levels) {
-      const renderer_views = this.levels[level]
-      for (const id in renderer_views) {
-        const view = renderer_views[id]
-        if (!view.has_finished())
-          return false
-      }
+    for (const id in this.renderer_views) {
+      const view = this.renderer_views[id]
+      if (!view.has_finished())
+        return false
     }
 
     return true
@@ -979,7 +972,7 @@ export abstract class PlotCanvasView extends LayoutDOMView {
     }
   }
 
-  protected _paint_levels(ctx: Context2d, levels: string[], clip_region: FrameBox, global_clip: boolean): void {
+  protected _paint_levels(ctx: Context2d, levels: RenderLevel[], clip_region: FrameBox, global_clip: boolean): void {
     ctx.save()
 
     if (global_clip) {
@@ -988,18 +981,13 @@ export abstract class PlotCanvasView extends LayoutDOMView {
       ctx.clip()
     }
 
-    const indices: {[key: string]: number} = {}
-    for (let i = 0; i < this.model.renderers.length; i++) {
-      const renderer = this.model.renderers[i]
-      indices[renderer.id] = i
-    }
-
-    const sortKey = (renderer_view: RendererView) => indices[renderer_view.model.id]
-
     for (const level of levels) {
-      const renderer_views = sortBy(values(this.levels[level]), sortKey)
+      for (const renderer of this.computed_renderers) {
+        if (renderer.level != level)
+          continue
 
-      for (const renderer_view of renderer_views) {
+        const renderer_view = this.renderer_views[renderer.id]
+
         if (!global_clip && renderer_view.needs_clip) {
           ctx.save()
           ctx.beginPath()

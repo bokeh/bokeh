@@ -60,9 +60,9 @@ def large_plot(n):
         yaxis = LinearAxis()
         plot.add_layout(yaxis, "left")
         xgrid = Grid(dimension=0)
-        plot.renderers.append(xgrid)
+        plot.add_layout(xgrid, "center")
         ygrid = Grid(dimension=1)
-        plot.renderers.append(ygrid)
+        plot.add_layout(ygrid, "center")
         tickers = [xaxis.ticker, xaxis.formatter, yaxis.ticker, yaxis.formatter]
         glyph = Line(x='x', y='y')
         renderer = GlyphRenderer(data_source=source, glyph=glyph)

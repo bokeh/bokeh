@@ -190,6 +190,8 @@ export class RangeTool extends GestureTool {
 
   properties: RangeTool.Props
 
+  /*override*/ overlay: BoxAnnotation
+
   constructor(attrs?: Partial<RangeTool.Attrs>) {
     super(attrs)
   }

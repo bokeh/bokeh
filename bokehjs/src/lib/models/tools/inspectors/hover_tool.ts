@@ -2,8 +2,9 @@ import {InspectTool, InspectToolView} from "./inspect_tool"
 import {Tooltip, TooltipView} from "../../annotations/tooltip"
 import {RendererView} from "../../renderers/renderer"
 import {GlyphRenderer, GlyphRendererView} from "../../renderers/glyph_renderer"
-import {GraphRendererView} from "../../renderers/graph_renderer"
-import {compute_renderers, DataRenderer, RendererSpec} from "../util"
+import {GraphRenderer, GraphRendererView} from "../../renderers/graph_renderer"
+import {DataRenderer} from "../../renderers/data_renderer"
+import {compute_renderers, RendererSpec} from "../util"
 import * as hittest from "core/hittest"
 import {MoveEvent} from "core/ui_events"
 import {replace_placeholders, Vars} from "core/util/templating"
@@ -74,7 +75,7 @@ export class HoverToolView extends InspectToolView {
     for (const r of this.computed_renderers) {
       if (r instanceof GlyphRenderer)
         this.connect(r.data_source.inspect, this._update)
-      else {
+      else if (r instanceof GraphRenderer) {
         this.connect(r.node_renderer.data_source.inspect, this._update)
         this.connect(r.edge_renderer.data_source.inspect, this._update)
       }
@@ -99,7 +100,7 @@ export class HoverToolView extends InspectToolView {
             show_arrow: this.model.show_arrow,
           })
           ttmodels[r.id] = tooltip
-        } else {
+        } else if (r instanceof GraphRenderer) {
           const tooltip = new Tooltip({
             custom: isString(tooltips) || isFunction(tooltips),
             attachment: this.model.attachment,

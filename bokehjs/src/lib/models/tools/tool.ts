@@ -7,6 +7,7 @@ import {Renderer} from "../renderers/renderer"
 import {CartesianFrame} from "../canvas/cartesian_frame"
 import {Plot} from "../plots/plot"
 import {PlotCanvasView} from "../plots/plot_canvas"
+import {Annotation} from "../annotations/annotation"
 import {EventType, GestureEvent, ScrollEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
 
 export abstract class ToolView extends View {
@@ -73,7 +74,9 @@ export namespace Tool {
   }
 }
 
-export interface Tool extends Tool.Attrs {}
+export interface Tool extends Tool.Attrs {
+  overlay?: Annotation
+}
 
 export abstract class Tool extends Model {
 

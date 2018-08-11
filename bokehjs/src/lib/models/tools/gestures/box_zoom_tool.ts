@@ -185,6 +185,8 @@ export class BoxZoomTool extends GestureTool {
 
   properties: BoxZoomTool.Props
 
+  /*override*/ overlay: BoxAnnotation
+
   constructor(attrs?: Partial<BoxZoomTool.Attrs>) {
     super(attrs)
   }

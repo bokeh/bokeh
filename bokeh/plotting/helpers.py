@@ -538,7 +538,7 @@ def _process_axis_and_grid(plot, axis_type, axis_location, minor_ticks, axis_lab
             axis.axis_label = axis_label
 
         grid = Grid(dimension=dim, ticker=axis.ticker)
-        plot.renderers.append(grid)
+        plot.add_layout(grid, "center")
 
         if axis_location is not None:
             getattr(plot, axis_location).append(axis)

@@ -110,6 +110,8 @@ export class PolySelectTool extends SelectTool {
 
   properties: PolySelectTool.Props
 
+  /*override*/ overlay: PolyAnnotation
+
   constructor(attrs?: Partial<PolySelectTool.Attrs>) {
     super(attrs)
   }

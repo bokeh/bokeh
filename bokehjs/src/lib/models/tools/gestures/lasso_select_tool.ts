@@ -116,6 +116,8 @@ export class LassoSelectTool extends SelectTool {
 
   properties: LassoSelectTool.Props
 
+  /*override*/ overlay: PolyAnnotation
+
   constructor(attrs?: Partial<LassoSelectTool.Attrs>) {
     super(attrs)
   }

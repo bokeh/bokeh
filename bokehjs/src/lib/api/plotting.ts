@@ -108,10 +108,10 @@ export interface FigureAttrs {
 export class Figure extends Plot {
 
   get xgrid(): Grid {
-    return this.renderers.filter((r: Renderer): r is Grid => r instanceof Grid && r.dimension === 0)[0] // TODO
+    return this.center.filter((r: Renderer): r is Grid => r instanceof Grid && r.dimension === 0)[0] // TODO
   }
   get ygrid(): Grid {
-    return this.renderers.filter((r: Renderer): r is Grid => r instanceof Grid && r.dimension === 1)[0] // TODO
+    return this.center.filter((r: Renderer): r is Grid => r instanceof Grid && r.dimension === 1)[0] // TODO
   }
 
   get xaxis(): Axis {
@@ -181,7 +181,7 @@ export class Figure extends Plot {
     this.add_tools(...this._process_tools(tools))
 
     this._legend = new Legend({items: []})
-    this.add_renderers(this._legend)
+    this.add_layout(this._legend)
   }
 
   annular_wedge(...args: any[]): GlyphRenderer     { return this._glyph(models.AnnularWedge, "x,y,inner_radius,outer_radius,start_angle,end_angle", args) }
