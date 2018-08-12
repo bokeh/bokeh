@@ -77,30 +77,17 @@ def fill_source(data_instance, source, node_list):
         source["y"].append(node.coord[1])
 
         if node.children:
-            source["nonLeafNodes_x"].append(node.coord[0])
-            source["nonLeafNodes_y"].append(node.coord[1])
             source["nonLeafNodes_stat"].append(str(node.value))
-            source["nonLeafNodes_decision"].append(node.decision)
-            source["leafNodes_x"].append(None)
-            source["leafNodes_y"].append(None)
         else:
-            source["nonLeafNodes_x"].append(None)
-            source["nonLeafNodes_y"].append(None)
             source["nonLeafNodes_stat"].append(None)
-            source["nonLeafNodes_decision"].append(None)
-            source["leafNodes_x"].append(node.coord[0])
-            source["leafNodes_y"].append(node.coord[1])
 
         if node.name == "":
             source["attribute_type"].append(data_instance.attr_list[-1])
         else:
             source["attribute_type"].append(node.name)
 
-        source["stat_value"].append(node.value)
         source["decision"].append(node.decision)
-        source["instanceCount"].append(len(node.data))
         source["instances"].append(len(node.data))
-        source["attr_type_index"].append(node_list.index(node))
 
 
 def get_bokeh_data(data_instance, active_attr_list=[], set_root_attribute=""):
@@ -113,10 +100,8 @@ def get_bokeh_data(data_instance, active_attr_list=[], set_root_attribute=""):
     depth = get_depth(data_instance, root, id_index, visited)
     width, level_width = get_max_width(root, depth)
 
-    source = {"nonLeafNodes_x": [], "nonLeafNodes_y": [], "nonLeafNodes_stat": [],
-              "nonLeafNodes_decision": [], "leafNodes_x": [], "leafNodes_y": [],
-              "attribute_type": [], "stat_value": [], "decision": [], "instanceCount": [],
-              "instances": [], "x": [], "y": [], "treeMode": [], "attr_type_index": []}
+    source = {"nonLeafNodes_stat": [], "attribute_type": [], "decision": [],
+              "instances": [], "x": [], "y": []}
 
     node_list = generate_node_list(root, visited)
 
@@ -135,7 +120,5 @@ def get_bokeh_data(data_instance, active_attr_list=[], set_root_attribute=""):
 
     fill_source(data_instance, source, node_list)
     width = max([node.coord[1] for node in node_list])
-    source["treeMode"] = [None]*len(source["x"])
-    source["treeMode"][0] = "normal"
 
     return source, depth, int(width), level_width, acc
