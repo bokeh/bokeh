@@ -68,11 +68,11 @@ class LayoutDOM(Model):
     An optional height for the component (in pixels).
     """)
 
-    #                                   fit  strech
-    width_mode = Enum("auto", "fixed", "min", "max", default="auto", help="""
+    #                                     fit  strech
+    width_policy = Enum("auto", "fixed", "min", "max", default="auto", help="""
     """)
 
-    height_mode = Enum("auto", "fixed", "min", "max", default="auto", help="""
+    height_policy = Enum("auto", "fixed", "min", "max", default="auto", help="""
     """)
 
     aspect_ratio = Either(Enum("auto"), Int, default=None, help="""

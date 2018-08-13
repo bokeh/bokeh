@@ -5,7 +5,7 @@ import * as p from "core/properties"
 
 import {build_views} from "core/build_views"
 import {DOMView} from "core/dom_view"
-import {BBox, Layoutable} from "core/layout"
+import {BBox, SizingPolicy, Layoutable} from "core/layout"
 
 export abstract class LayoutDOMView extends DOMView implements EventListenerObject {
   model: LayoutDOM
@@ -104,10 +104,6 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
     this.el.style.height = `${this.layout._height.value}px`
   }
 
-  after_layout(): void {
-    this._has_finished = true
-  }
-
   do_layout(): void {
     /**
      * Layout's entry point.
@@ -125,14 +121,14 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
     let width: number
     let height: number
 
-    const {width_mode, height_mode} = this.model
+    const {width_policy, height_policy} = this.model
 
-    switch (width_mode) {
+    switch (width_policy) {
       case "fixed": {
         if (this.model.width != null)
           width = this.model.width
         else
-          throw new Error("fixed mode requires width to be set")
+          throw new Error("fixed sizing policy requires width to be set")
         break
       }
       case "max": {
@@ -150,12 +146,12 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
         throw new Error("unreachable")
     }
 
-    switch (height_mode) {
+    switch (height_policy) {
       case "fixed": {
         if (this.model.height != null)
           height = this.model.height
         else
-          throw new Error("fixed mode requires height to be set")
+          throw new Error("fixed sizing policy requires height to be set")
         break
       }
       case "max": {
@@ -242,12 +238,10 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
   }
 }
 
-export type SizingPolicy = "fixed" | "min" | "max" | "auto"
-
 export namespace LayoutDOM {
   export interface Attrs extends Model.Attrs {
-    width_mode: SizingPolicy
-    height_mode: SizingPolicy
+    width_policy: SizingPolicy
+    height_policy: SizingPolicy
     height: number
     width: number
     disabled: boolean
@@ -256,8 +250,8 @@ export namespace LayoutDOM {
   }
 
   export interface Props extends Model.Props {
-    width_mode: p.Property<SizingPolicy>
-    height_mode: p.Property<SizingPolicy>
+    width_policy: p.Property<SizingPolicy>
+    height_policy: p.Property<SizingPolicy>
     height: p.Property<number>
     width: p.Property<number>
     disabled: p.Property<boolean>
@@ -279,13 +273,13 @@ export abstract class LayoutDOM extends Model {
     this.prototype.type = "LayoutDOM"
 
     this.define({
-      width:       [ p.Number              ],
-      height:      [ p.Number              ],
-      width_mode:  [ p.Any,        "auto"  ],
-      height_mode: [ p.Any,        "auto"  ],
-      disabled:    [ p.Bool,       false   ],
-      sizing_mode: [ p.SizingMode, "fixed" ],
-      css_classes: [ p.Array,      []      ],
+      width:         [ p.Number              ],
+      height:        [ p.Number              ],
+      width_policy:  [ p.Any,        "auto"  ],
+      height_policy: [ p.Any,        "auto"  ],
+      disabled:      [ p.Bool,       false   ],
+      sizing_mode:   [ p.SizingMode, "fixed" ],
+      css_classes:   [ p.Array,      []      ],
     })
   }
 }

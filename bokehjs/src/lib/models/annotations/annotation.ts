@@ -61,10 +61,5 @@ export abstract class Annotation extends Renderer {
       level: 'annotation',
     })
   }
-
-  /* XXX
-    // If the annotation is in a side panel, we need to set level to overlay, so it is visible.
-    this.level = 'overlay'
-  */
 }
 Annotation.initClass()

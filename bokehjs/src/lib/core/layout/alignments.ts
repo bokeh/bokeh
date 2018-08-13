@@ -2,7 +2,7 @@ import {SizeHint, Layoutable} from "./layout_canvas"
 import {BBox} from "../util/bbox"
 
 export abstract class Container extends Layoutable {
-  children: Layoutable[]
+  children: Layoutable[] = []
 }
 
 export abstract class Stack extends Container {}

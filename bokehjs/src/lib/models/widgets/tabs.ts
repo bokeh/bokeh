@@ -97,10 +97,6 @@ export class Tabs extends Widget {
     })
   }
 
-  get_layoutable_children(): LayoutDOM[] {
-    return this.children
-  }
-
   get children(): LayoutDOM[] {
     return this.tabs.map((tab) => tab.child)
   }

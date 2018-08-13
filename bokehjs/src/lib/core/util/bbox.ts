@@ -127,7 +127,7 @@ export class BBox implements IBBox {
   }
 
   toString(): string {
-    return `BBox({left: ${this.left}, right: ${this.right}, width: ${this.width}, height: ${this.height}})`
+    return `BBox({left: ${this.left}, top: ${this.top}, width: ${this.width}, height: ${this.height}})`
   }
 
   get minX(): number { return this.x0 }

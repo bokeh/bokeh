@@ -95,10 +95,6 @@ export class WidgetBox extends LayoutDOM {
       logger.info("WidgetBox mode is fixed, but no width specified. Using default of 300.")
     }
   }
-
-  get_layoutable_children(): LayoutDOM[] {
-    return this.children
-  }
 }
 
 WidgetBox.initClass()

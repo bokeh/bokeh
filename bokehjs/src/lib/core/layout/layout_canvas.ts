@@ -15,6 +15,8 @@ export type Margin = {
 
 export type SizeHint = Size & {inner?: Margin}
 
+export type SizingPolicy = "fixed" | "min" | "max" | "auto"
+
 export interface ComputedVariable {
   readonly value: number
 }

@@ -9,8 +9,9 @@ import {Selection} from "../selections/selection"
 import {LayoutDOMView} from "../layouts/layout_dom"
 import {Plot} from "./plot"
 import {Annotation} from "../annotations/annotation"
+import {Title} from "../annotations/title"
 import {Axis, AxisView} from "../axes/axis"
-//import {ToolbarPanel} from "../annotations/toolbar_panel"
+import {ToolbarPanel} from "../annotations/toolbar_panel"
 
 import {Reset} from "core/bokeh_events"
 import {Arrayable} from "core/types"
@@ -23,7 +24,7 @@ import {logger} from "core/logging"
 import {Side, RenderLevel} from "core/enums"
 import {Rect} from "core/util/spatial"
 import {throttle} from "core/util/throttle"
-import {isStrictNaN} from "core/util/types"
+import {isString, isStrictNaN} from "core/util/types"
 import {reversed} from "core/util/array"
 import {values} from "core/util/object"
 import {Context2d, SVGRenderingContext2D} from "core/util/canvas"
@@ -68,16 +69,13 @@ export type StateInfo = {
 
 export class PlotLayout extends Layoutable {
 
-  readonly top_panel = new VStack()
-  readonly bottom_panel = new VStack()
-  readonly left_panel = new HStack()
-  readonly right_panel = new HStack()
+  top_panel = new VStack()
+  bottom_panel = new VStack()
+  left_panel = new HStack()
+  right_panel = new HStack()
+  center_panel = new AnchorLayout()
 
   min_border: Margin = {left: 0, top: 0, right: 0, bottom: 0}
-
-  constructor(readonly center_panel: Layoutable = new AnchorLayout()) {
-    super()
-  }
 
   size_hint(): SizeHint {
     const left_hint = this.left_panel.size_hint()
@@ -129,6 +127,9 @@ export abstract class PlotCanvasView extends LayoutDOMView {
 
   canvas: Canvas
   canvas_view: CanvasView
+
+  protected _title: Title
+  protected _toolbar: ToolbarPanel
 
   gl?: WebGLState
 
@@ -259,73 +260,63 @@ export abstract class PlotCanvasView extends LayoutDOMView {
 
     this.ui_event_bus = new UIEvents(this, this.model.toolbar, this.canvas_view.events_el, this.model)
 
+    let {above, below, left, right} = this.model
+
+    const {title_location, title} = this.model
+    if (title_location != null && title != null) {
+      this._title = isString(title) ? new Title({text: title}) : title
+      switch (title_location) {
+        case "above": above = above.concat(this._title); break
+        case "below": below = below.concat(this._title); break
+        case "left":  left  = left.concat(this._title);  break
+        case "right": right = right.concat(this._title); break
+      }
+    }
+
+    const {toolbar_location, toolbar} = this.model
+    if (toolbar_location != null && toolbar != null) {
+      this._toolbar = new ToolbarPanel({toolbar})
+      toolbar.toolbar_location = toolbar_location
+
+      //if (!this.model.toolbar_sticky) {
+        switch (toolbar_location) {
+          case "above": above = above.concat(this._toolbar); break
+          case "below": below = below.concat(this._toolbar); break
+          case "left":  left  = left.concat(this._toolbar);  break
+          case "right": right = right.concat(this._toolbar); break
+        }
+
+      /*
+      } else {
+        const models = this.getv(this.toolbar_location)
+        const title = find(models, (model): model is Title => model instanceof Title)
+
+        if (title != null) {
+          (tpanel as ToolbarPanel).set_panel((title as Title).panel!) // XXX, XXX: because find() doesn't provide narrowed types
+          this.add_renderers(tpanel)
+          return
+        }
+      }
+      */
+    }
+
     this.renderer_views = {}
     this.tool_views = {}
 
     this.build_renderer_views()
     this.build_tool_views()
 
-    /*
-    if (this.title != null) {
-      const title = isString(this.title) ? new Title({text: this.title}) : this.title
-      this.add_layout(title, this.title_location)
+    const set_layout = (side: Side, model: Annotation | Axis): Layoutable => {
+      const view = this.renderer_views[model.id]
+      return view.layout = new SidePanel(side, view)
     }
-
-    let tpanel = find(this.renderers, (model): model is ToolbarPanel => {
-      return model instanceof ToolbarPanel && includes(model.tags, this.id)
-    })
-
-    if (tpanel != null)
-      this.remove_layout(tpanel)
-
-    switch (this.toolbar_location) {
-      case "left":
-      case "right":
-      case "above":
-      case "below": {
-        tpanel = new ToolbarPanel({toolbar: this.toolbar, tags: [this.id]})
-        this.toolbar.toolbar_location = this.toolbar_location
-
-        if (this.toolbar_sticky) {
-          const models = this.getv(this.toolbar_location)
-          const title = find(models, (model): model is Title => model instanceof Title)
-
-          if (title != null) {
-            (tpanel as ToolbarPanel).set_panel((title as Title).panel!) // XXX, XXX: because find() doesn't provide narrowed types
-            this.add_renderers(tpanel)
-            return
-          }
-        }
-
-        this.add_layout(tpanel, this.toolbar_location)
-        break
-      }
-    }
-    */
-
-    /*
-    // Setup side renderers
-    for (const side of ['above', 'below', 'left', 'right']) {
-      const layout_renderers = this.getv(side)
-      for (const renderer of layout_renderers)
-        renderer.add_panel(side)
-    }
-    */
 
     const layouts = (side: Side, models: (Annotation | Axis)[]) => {
-      const layouts = []
-      for (const model of models) {
-        const view = this.renderer_views[model.id]
-        const layout = new SidePanel(side, view)
-        view.layout = layout
-        layouts.push(layout)
-
-      }
-      return layouts
-      //return models.map((model) => this.renderer_views[model.id].layout)
+      return models.map((model) => set_layout(side, model))
     }
 
-    this.layout = new PlotLayout(this.frame)
+    this.layout = new PlotLayout()
+    this.layout.center_panel = this.frame
 
     const min_border = this.model.min_border != null ? this.model.min_border : 0
     this.layout.min_border = {
@@ -335,10 +326,11 @@ export abstract class PlotCanvasView extends LayoutDOMView {
       bottom: this.model.min_border_bottom != null ? this.model.min_border_bottom : min_border,
     }
 
-    this.layout.top_panel.children    = reversed(layouts("above", this.model.above))
-    this.layout.bottom_panel.children =          layouts("below", this.model.below)
-    this.layout.left_panel.children   = reversed(layouts("left",  this.model.left))
-    this.layout.right_panel.children  =          layouts("right", this.model.right)
+    this.layout.top_panel.children    = reversed(layouts("above", above))
+    this.layout.bottom_panel.children =          layouts("below", below)
+    this.layout.left_panel.children   = reversed(layouts("left",  left))
+    this.layout.right_panel.children  =          layouts("right", right)
+    // this.layout.center_panel.children = TODO
 
     this.update_dataranges()
 
@@ -756,6 +748,12 @@ export abstract class PlotCanvasView extends LayoutDOMView {
     this.computed_renderers.push(...this.model.right)
     this.computed_renderers.push(...this.model.center)
 
+    if (this._title != null)
+      this.computed_renderers.push(this._title)
+
+    if (this._toolbar != null)
+      this.computed_renderers.push(this._toolbar)
+
     for (const tool of this.model.toolbar.tools) {
       if (tool.overlay != null)
         this.computed_renderers.push(tool.overlay)
@@ -845,6 +843,13 @@ export abstract class PlotCanvasView extends LayoutDOMView {
   update_position(): void {
     super.update_position()
 
+    this.model.setv({
+      inner_width: Math.round(this.frame._width.value),
+      inner_height: Math.round(this.frame._height.value),
+      layout_width: Math.round(this.layout._width.value),
+      layout_height: Math.round(this.layout._height.value),
+    }, {no_change: true})
+
     // XXX: update frame ranges
 
     // TODO: do only if necessary
@@ -852,16 +857,7 @@ export abstract class PlotCanvasView extends LayoutDOMView {
     const height = this.layout._height.value
     this.canvas_view.prepare_canvas(width, height)
 
-    this.model.setv({
-      inner_width: Math.round(this.frame._width.value),
-      inner_height: Math.round(this.frame._height.value),
-      layout_width: Math.round(this.layout._width.value),
-      layout_height: Math.round(this.layout._height.value),
-    }, {no_change: true})
-  }
-
-  after_layout(): void {
-    // XXX: can't be @request_paint(), because it would trigger back-and-forth
+    // XXX: can't be this.request_paint(), because it would trigger back-and-forth
     // layout recomputing feedback loop between plots. Plots are also much more
     // responsive this way, especially in interactive mode.
     this.paint()
@@ -886,7 +882,7 @@ export abstract class PlotCanvasView extends LayoutDOMView {
 
   repaint(): void {
     if (this._needs_layout())
-      (this.parent as any).do_layout()
+      this.do_layout()
     else
       this.paint()
   }
@@ -958,7 +954,7 @@ export abstract class PlotCanvasView extends LayoutDOMView {
 
     this._paint_levels(ctx, ['image', 'underlay', 'glyph'], frame_box, true)
     this.blit_webgl(ratio)
-    this._paint_levels(ctx, ['annotation'], frame_box, true)
+    this._paint_levels(ctx, ['annotation'], frame_box, false) // XXX
     this._paint_levels(ctx, ['overlay'], frame_box, false)
 
     if (this._initial_state_info.range == null)
