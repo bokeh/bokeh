@@ -234,7 +234,7 @@ export abstract class PlotCanvasView extends LayoutDOMView {
     this.state = {history: [], index: -1}
 
     this.canvas = new Canvas({
-      map: this.model.use_map != null ? this.model.use_map : false,
+      map: this.model.use_map || false,
       use_hidpi: this.model.hidpi,
       output_backend: this.model.output_backend,
     })

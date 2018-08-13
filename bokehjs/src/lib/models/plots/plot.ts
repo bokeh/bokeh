@@ -134,7 +134,7 @@ export interface Plot extends Plot.Attrs {}
 export class Plot extends LayoutDOM {
   properties: Plot.Props
 
-  use_map: boolean
+  use_map?: boolean
 
   reset: Signal0<this>
 

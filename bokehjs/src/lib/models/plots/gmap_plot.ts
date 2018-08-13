@@ -125,6 +125,7 @@ export class GMapPlot extends Plot {
 
   initialize(): void {
     super.initialize()
+    this.use_map = true
     if (!this.api_key)
       logger.error("api_key is required. See https://developers.google.com/maps/documentation/javascript/get-api-key for more information on how to obtain your own.")
   }
