@@ -4,7 +4,7 @@
 {Document} = require("document")
 {Spacer} = require("models/layouts/spacer")
 
-describe "WidgetBoxView", ->
+describe "SpacerView", ->
 
   beforeEach ->
     @spacer = new Spacer()

@@ -28,8 +28,9 @@ log = logging.getLogger(__name__)
 from .core.enums import Location, SizingMode
 from .models.tools import ProxyToolbar, ToolbarBox
 from .models.plots import Plot
-from .models.layouts import LayoutDOM, Row, Column, Spacer, WidgetBox
+from .models.layouts import LayoutDOM, Row, Column, Spacer
 from .models.widgets import Widget
+from .util.deprecation import deprecated
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -56,7 +57,7 @@ def row(*args, **kwargs):
     Args:
         children (list of :class:`~bokeh.models.layouts.LayoutDOM` ): A list of instances for
             the row. Can be any of the following - :class:`~bokeh.models.plots.Plot`,
-            :class:`~bokeh.models.widgets.widget.Widget`, :class:`~bokeh.models.layouts.WidgetBox`,
+            :class:`~bokeh.models.widgets.widget.Widget`,
             :class:`~bokeh.models.layouts.Row`,
             :class:`~bokeh.models.layouts.Column`,
             :class:`~bokeh.models.tools.ToolbarBox`,
@@ -103,7 +104,7 @@ def column(*args, **kwargs):
     Args:
         children (list of :class:`~bokeh.models.layouts.LayoutDOM` ): A list of instances for
             the column. Can be any of the following - :class:`~bokeh.models.plots.Plot`,
-            :class:`~bokeh.models.widgets.widget.Widget`, :class:`~bokeh.models.layouts.WidgetBox`,
+            :class:`~bokeh.models.widgets.widget.Widget`,
             :class:`~bokeh.models.layouts.Row`,
             :class:`~bokeh.models.layouts.Column`,
             :class:`~bokeh.models.tools.ToolbarBox`,
@@ -165,24 +166,8 @@ def widgetbox(*args, **kwargs):
         >>> widgetbox([button, select])
         >>> widgetbox(children=[slider], sizing_mode='scale_width')
     """
-
-    sizing_mode = kwargs.pop('sizing_mode', 'fixed')
-    children = kwargs.pop('children', None)
-
-    _verify_sizing_mode(sizing_mode)
-    children = _handle_children(*args, children=children)
-
-    widget_children = []
-    for item in children:
-        if isinstance(item, Widget):
-            item.sizing_mode = sizing_mode
-            widget_children.append(item)
-        else:
-            raise ValueError(
-                """Only Widgets can be inserted into a WidgetBox.
-                Tried to insert: %s of type %s""" % (item, type(item))
-            )
-    return WidgetBox(children=widget_children, sizing_mode=sizing_mode, **kwargs)
+    deprecated((1, 0, 0), "widgetbox()", "column() or other kinds of layout")
+    return column(*args, **kwargs)
 
 
 def layout(*args, **kwargs):
@@ -193,7 +178,7 @@ def layout(*args, **kwargs):
     Args:
         children (list of lists of :class:`~bokeh.models.layouts.LayoutDOM` ): A list of lists of instances
             for a grid layout. Can be any of the following - :class:`~bokeh.models.plots.Plot`,
-            :class:`~bokeh.models.widgets.widget.Widget`, :class:`~bokeh.models.layouts.WidgetBox`,
+            :class:`~bokeh.models.widgets.widget.Widget`,
             :class:`~bokeh.models.layouts.Row`,
             :class:`~bokeh.models.layouts.Column`,
             :class:`~bokeh.models.tools.ToolbarBox`,

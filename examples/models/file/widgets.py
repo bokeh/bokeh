@@ -7,7 +7,7 @@ from bokeh.embed import file_html
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
 from bokeh.models import ColumnDataSource
-from bokeh.models.layouts import Column, Row, WidgetBox
+from bokeh.models.layouts import Column, Row
 from bokeh.models.widgets import (
     Button, Toggle, Dropdown,
     CheckboxGroup, RadioGroup,
@@ -68,7 +68,7 @@ def mk_tab(color):
     plot.scatter(flowers["petal_length"], flowers["petal_width"], color=color, fill_alpha=0.2, size=12)
     return Panel(title="Tab 1: %s" % color.capitalize(), child=plot)
 
-tabs = Tabs(tabs=[mk_tab("red"), mk_tab("green"), mk_tab("blue")])
+tabs = Tabs(tabs=[mk_tab("red"), mk_tab("green"), mk_tab("blue")], width=400)
 
 source = ColumnDataSource(data=mpg)
 columns = [
@@ -109,25 +109,22 @@ table = DataTable(source=source, columns=columns, editable=True, width=800)
 
 widgets = Column(children=[
     Row(children=[
-        WidgetBox(children=[
+        Column(children=[
             button, toggle, dropdown, #dropdown_split,
             checkbox_group, radio_group,
             checkbox_button_group, radio_button_group,
         ]),
-        WidgetBox(children=[
+        Column(children=[
             text_input, autocomplete_input,
             select, multi_select,
             slider, range_slider, #date_range_slider,
             date_picker,
             paragraph, div, pre_text,
         ]),
-        WidgetBox(children=[
-            tabs,
-        ], width=400),
+        tabs,
     ]),
-    WidgetBox(children=[table]),
+    table),
 ])
-
 
 doc = Document()
 doc.add_root(widgets)

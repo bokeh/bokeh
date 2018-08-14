@@ -1,4 +1,4 @@
-from bokeh.models import CustomJS, Select, WidgetBox, Column, ColumnDataSource
+from bokeh.models import CustomJS, Select, Column, ColumnDataSource
 from bokeh.models.transforms import LinearInterpolator, StepInterpolator
 from bokeh.plotting import figure, show, output_file
 
@@ -55,7 +55,8 @@ mode = Select(
     title='Interpolation Mode',
     value='None',
     options=['None', 'Linear', 'Step (before)', 'Step (center)', 'Step (after)'],
-    callback=callback)
+    callback=callback,
+    width=300)
 output_file("transform_interpolator.html", title="Example Transforms")
 
-show(Column(WidgetBox(mode, width=300), p))
+show(Column(mode, p))

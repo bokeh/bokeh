@@ -6,7 +6,7 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
-from bokeh.models.layouts import Row, Column, WidgetBox
+from bokeh.models.layouts import Row, Column
 from bokeh.models.widgets import Slider, RangeSlider, DateSlider, DateRangeSlider, Div
 from bokeh.models.callbacks import CustomJS
 
@@ -26,7 +26,7 @@ no_title_slider = Slider(title=None, value=50, start=0, end=96, step=5)
 
 def color_picker():
     def color_slider(title, color):
-        return Slider(title=title, show_value=False, height=300, value=127, start=0, end=255, step=1, orientation="vertical", bar_color=color)
+        return Slider(title=title, show_value=False, width=50, height=300, value=127, start=0, end=255, step=1, orientation="vertical", bar_color=color)
 
     red   = color_slider("R", "red")
     green = color_slider("G", "green")
@@ -43,12 +43,7 @@ def color_picker():
     green.callback = cb
     blue.callback  = cb
 
-    return Row(children=[
-        WidgetBox(width=50, children=[red]),
-        WidgetBox(width=50, children=[green]),
-        WidgetBox(width=50, children=[blue]),
-        div,
-    ])
+    return Row(children=[red, green, blue, div])
 
 sliders = Row(children=[
     Column(children=[

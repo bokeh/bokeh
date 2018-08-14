@@ -5,7 +5,7 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.resources import INLINE
 
-from bokeh.models import CustomJS, WidgetBox
+from bokeh.models import CustomJS, Column
 from bokeh.models.widgets import (
     Button, Toggle, Dropdown, CheckboxGroup, RadioGroup, CheckboxButtonGroup, RadioButtonGroup,
 )
@@ -45,7 +45,7 @@ checkbox_button_group.js_on_click(CustomJS(code="console.log('checkbox_button_gr
 radio_button_group = RadioButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
 radio_button_group.js_on_click(CustomJS(code="console.log('radio_button_group: ' + this.active, this.toString())"))
 
-widget_box = WidgetBox(children=[
+widget_box = Column(children=[
     button, button_disabled,
     toggle_inactive, toggle_active,
     dropdown, dropdown_disabled, #dropdown_split,

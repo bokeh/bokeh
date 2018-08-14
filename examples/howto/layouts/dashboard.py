@@ -1,7 +1,7 @@
 import numpy as np
 
-from bokeh.layouts import layout
-from bokeh.models import CustomJS, Slider, ColumnDataSource, WidgetBox
+from bokeh.layouts import layout, column
+from bokeh.models import CustomJS, Slider, ColumnDataSource
 from bokeh.plotting import figure, output_file, show
 
 output_file('dashboard.html')
@@ -68,7 +68,7 @@ def slider():
     offset_slider = Slider(start=-5, end=5, value=0, step=.1, title="Offset", callback=callback)
     callback.args["offset"] = offset_slider
 
-    widgets = WidgetBox(amp_slider, freq_slider, phase_slider, offset_slider)
+    widgets = column(amp_slider, freq_slider, phase_slider, offset_slider)
     return [widgets, plot]
 
 
