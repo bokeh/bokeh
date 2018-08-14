@@ -52,8 +52,16 @@ export interface IRect {
   height: number
 }
 
-export type HorizontalPosition = {left: number, width: number} | {width: number, right: number}   | {left: number, right: number}
-export type VerticalPosition   = {top: number, height: number} | {height: number, bottom: number} | {top: number, bottom: number}
+export type HorizontalPosition =
+  {left: number,    width: number} |
+  {width: number,   right: number} |
+  {left: number,    right: number} |
+  {hcenter: number, width: number}
+export type VerticalPosition =
+  {top: number,     height: number} |
+  {height: number,  bottom: number} |
+  {top: number,     bottom: number} |
+  {vcenter: number, height: number}
 
 export type Position = HorizontalPosition & VerticalPosition
 
@@ -94,9 +102,13 @@ export class BBox implements IBBox {
         if ("left" in box) {
           left = box.left
           right = left + box.width
-        } else {
+        } else if ("right" in box) {
           right = box.right
           left = right - box.width
+        } else {
+          const w2 = box.width/2
+          left = box.hcenter - w2
+          right = box.hcenter + w2
         }
       } else {
         left = box.left
@@ -107,9 +119,13 @@ export class BBox implements IBBox {
         if ("top" in box) {
           top = box.top
           bottom = top + box.height
-        } else {
+        } else if ("bottom" in box) {
           bottom = box.bottom
           top = bottom - box.height
+        } else {
+          const h2 = box.height/2
+          top = box.vcenter - h2
+          bottom = box.vcenter + h2
         }
       } else {
         top = box.top
