@@ -25,12 +25,13 @@ log = logging.getLogger(__name__)
 # External imports
 
 # Bokeh imports
-from ..core.enums import SizingMode
+from ..core.enums import SizingMode, Location
 from ..core.has_props import abstract
 from ..core.properties import Bool, Enum, Int, Instance, List, Seq, String, Either
 from ..core.validation import warning
 from ..core.validation.warnings import BOTH_CHILD_AND_ROOT, EMPTY_LAYOUT
 from ..model import Model
+from .callbacks import Callback
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -236,6 +237,42 @@ class Column(Box):
     Children can be specified as positional arguments, as a single argument
     that is a sequence, or using the ``children`` keyword argument.
     '''
+
+class Panel(Model):
+    ''' A single-widget container with title bar and controls.
+
+    '''
+
+    title = String(default="", help="""
+    The text title of the panel.
+    """)
+
+    child = Instance(LayoutDOM, help="""
+    The child widget. If you need more children, use a layout widget, e.g. a ``Column``.
+    """)
+
+class Tabs(LayoutDOM):
+    ''' A panel widget with navigation tabs.
+
+    '''
+
+    __example__ = "sphinx/source/docs/user_guide/examples/interaction_tab_panes.py"
+
+    tabs = List(Instance(Panel), help="""
+    The list of child panel widgets.
+    """)
+
+    active = Int(0, help="""
+    The index of the active tab.
+    """)
+
+    tabs_location = Enum(Location, default="above", help="""
+    The location of the buttons that activate tabs.
+    """)
+
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever the button is activated.
+    """)
 
 #-----------------------------------------------------------------------------
 # Dev API
