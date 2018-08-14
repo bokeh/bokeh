@@ -19,13 +19,13 @@ import {Signal0} from "core/signaling"
 import {build_views, remove_views} from "core/build_views"
 import {UIEvents} from "core/ui_events"
 import {Visuals} from "core/visuals"
-import {HStack, VStack, AnchorLayout} from "core/layout/alignments"
+import {Stack, HStack, VStack, AnchorLayout} from "core/layout/alignments"
 import {logger} from "core/logging"
 import {Side, RenderLevel} from "core/enums"
 import {Rect} from "core/util/spatial"
 import {throttle} from "core/util/throttle"
-import {isString, isStrictNaN} from "core/util/types"
-import {reversed} from "core/util/array"
+import {isArray, isString, isStrictNaN} from "core/util/types"
+import {copy, reversed} from "core/util/array"
 import {values} from "core/util/object"
 import {Context2d, SVGRenderingContext2D} from "core/util/canvas"
 import {BBox, SizeHint, Margin, Layoutable} from "core/layout"
@@ -260,17 +260,26 @@ export abstract class PlotCanvasView extends LayoutDOMView {
 
     this.ui_event_bus = new UIEvents(this, this.model.toolbar, this.canvas_view.events_el, this.model)
 
-    let {above, below, left, right} = this.model
+    type Panels = (Axis | Annotation | Annotation[])[]
+
+    const above: Panels = copy(this.model.above)
+    const below: Panels = copy(this.model.below)
+    const left:  Panels = copy(this.model.left)
+    const right: Panels = copy(this.model.right)
+
+    const get_side = (side: Side): Panels => {
+      switch (side) {
+        case "above": return above
+        case "below": return below
+        case "left":  return left
+        case "right": return right
+      }
+    }
 
     const {title_location, title} = this.model
     if (title_location != null && title != null) {
       this._title = isString(title) ? new Title({text: title}) : title
-      switch (title_location) {
-        case "above": above = above.concat(this._title); break
-        case "below": below = below.concat(this._title); break
-        case "left":  left  = left.concat(this._title);  break
-        case "right": right = right.concat(this._title); break
-      }
+      get_side(title_location).push(this._title)
     }
 
     const {toolbar_location, toolbar} = this.model
@@ -278,26 +287,22 @@ export abstract class PlotCanvasView extends LayoutDOMView {
       this._toolbar = new ToolbarPanel({toolbar})
       toolbar.toolbar_location = toolbar_location
 
-      //if (!this.model.toolbar_sticky) {
-        switch (toolbar_location) {
-          case "above": above = above.concat(this._toolbar); break
-          case "below": below = below.concat(this._toolbar); break
-          case "left":  left  = left.concat(this._toolbar);  break
-          case "right": right = right.concat(this._toolbar); break
-        }
+      const panels = get_side(toolbar_location)
+      let push_toolbar = true
 
-      /*
-      } else {
-        const models = this.getv(this.toolbar_location)
-        const title = find(models, (model): model is Title => model instanceof Title)
-
-        if (title != null) {
-          (tpanel as ToolbarPanel).set_panel((title as Title).panel!) // XXX, XXX: because find() doesn't provide narrowed types
-          this.add_renderers(tpanel)
-          return
+      if (this.model.toolbar_sticky) {
+        for (let i = 0; i < panels.length; i++) {
+          const panel = panels[i]
+          if (panel instanceof Title) {
+            panels[i] = [panel, this._toolbar]
+            push_toolbar = false
+            break
+          }
         }
       }
-      */
+
+      if (push_toolbar)
+        panels.push(this._toolbar)
     }
 
     this.renderer_views = {}
@@ -311,8 +316,28 @@ export abstract class PlotCanvasView extends LayoutDOMView {
       return view.layout = new SidePanel(side, view)
     }
 
-    const layouts = (side: Side, models: (Annotation | Axis)[]) => {
-      return models.map((model) => set_layout(side, model))
+    const set_layouts = (side: Side, panels: Panels) => {
+      const layouts: Layoutable[] = []
+      for (const panel of panels) {
+        if (isArray(panel)) {
+          let layout: Stack
+
+          switch (title_location) {
+            case "above":
+            case "below": layout = new HStack(); break
+            case "left":
+            case "right": layout = new VStack(); break
+            default:
+              throw new Error("unreachable")
+          }
+
+          layout.children = panel.map((subpanel) => set_layout(side, subpanel))
+          layouts.push(layout)
+        } else
+          layouts.push(set_layout(side, panel))
+      }
+
+      return layouts
     }
 
     this.layout = new PlotLayout()
@@ -326,10 +351,10 @@ export abstract class PlotCanvasView extends LayoutDOMView {
       bottom: this.model.min_border_bottom != null ? this.model.min_border_bottom : min_border,
     }
 
-    this.layout.top_panel.children    = reversed(layouts("above", above))
-    this.layout.bottom_panel.children =          layouts("below", below)
-    this.layout.left_panel.children   = reversed(layouts("left",  left))
-    this.layout.right_panel.children  =          layouts("right", right)
+    this.layout.top_panel.children    = reversed(set_layouts("above", above))
+    this.layout.bottom_panel.children =          set_layouts("below", below)
+    this.layout.left_panel.children   = reversed(set_layouts("left",  left))
+    this.layout.right_panel.children  =          set_layouts("right", right)
     // this.layout.center_panel.children = TODO
 
     this.update_dataranges()
