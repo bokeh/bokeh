@@ -40,7 +40,6 @@ describe "GraphHitTestPolicy", ->
     })
     doc.add_root(@plot)
     @plot_view = new @plot.default_view({model: @plot, parent: null})
-    @plot_canvas_view = new @plot.plot_canvas.default_view({model: @plot.plot_canvas, parent: @plot_view})
 
     @node_source = new ColumnDataSource({
       data: {
@@ -64,8 +63,8 @@ describe "GraphHitTestPolicy", ->
 
     @gv = new @gr.default_view({
       model: @gr
-      plot_view: @plot_canvas_view
-      parent: @plot_canvas_view
+      plot_view: @plot_view
+      parent: @plot_view
     })
 
     @node_stub = sinon.stub(@gv.node_view.glyph, "hit_test")

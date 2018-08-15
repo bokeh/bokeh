@@ -28,9 +28,7 @@ const make_testcase = function(): BoxEditTestCase {
   })
 
   const plot_view: any = new plot.default_view({model: plot, parent: null})
-  plot_view.layout()
-
-  const plot_canvas_view = plot_view.plot_canvas_view
+  plot_view.do_layout()
 
   const data = {
     x: [0, 0.5, 1],
@@ -56,8 +54,8 @@ const make_testcase = function(): BoxEditTestCase {
   // Untyped to access GlyphView
   const glyph_renderer_view: any = new glyph_renderer.default_view({
     model: glyph_renderer,
-    plot_view: plot_canvas_view,
-    parent: plot_canvas_view,
+    plot_view: plot_view,
+    parent: plot_view,
   })
 
   const draw_tool = new BoxEditTool({
@@ -66,8 +64,8 @@ const make_testcase = function(): BoxEditTestCase {
     empty_value: "Test",
   })
   plot.add_tools(draw_tool)
-  const draw_tool_view = plot_canvas_view.tool_views[draw_tool.id]
-  plot_canvas_view.renderer_views[glyph_renderer.id] = glyph_renderer_view
+  const draw_tool_view = plot_view.tool_views[draw_tool.id]
+  plot_view.renderer_views[glyph_renderer.id] = glyph_renderer_view
 
   return {
     data: data,

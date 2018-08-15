@@ -28,22 +28,20 @@ describe "WheelPanTool", ->
       document = new Document()
       document.add_root(@plot)
       @plot_view = new @plot.default_view({model: @plot, parent: null})
-      @plot_view.layout()
-
-      @plot_canvas_view = @plot_view.plot_canvas_view
+      @plot_view.do_layout()
 
     it "should translate x-range in positive direction", ->
       x_wheel_pan_tool = new WheelPanTool()
       @plot.add_tools(x_wheel_pan_tool)
 
-      wheel_pan_tool_view = @plot_canvas_view.tool_views[x_wheel_pan_tool.id]
+      wheel_pan_tool_view = @plot_view.tool_views[x_wheel_pan_tool.id]
 
       # negative factors move in positive x-data direction
       wheel_pan_tool_view._update_ranges(-0.5)
-      hr = @plot_canvas_view.frame.x_ranges['default']
+      hr = @plot_view.frame.x_ranges['default']
       # should be translated by -factor units
       expect([hr.start, hr.end]).to.be.deep.equal([0.5, 1.5])
-      vr = @plot_canvas_view.frame.y_ranges['default']
+      vr = @plot_view.frame.y_ranges['default']
       # should be unchanged from initialized value
       expect([vr.start, vr.end]).to.be.deep.equal([0, 1])
 
@@ -51,14 +49,14 @@ describe "WheelPanTool", ->
       x_wheel_pan_tool = new WheelPanTool({dimension: 'height'})
       @plot.add_tools(x_wheel_pan_tool)
 
-      wheel_pan_tool_view = @plot_canvas_view.tool_views[x_wheel_pan_tool.id]
+      wheel_pan_tool_view = @plot_view.tool_views[x_wheel_pan_tool.id]
 
       # positive factors move in positive y-data direction
       wheel_pan_tool_view._update_ranges(0.75)
-      hr = @plot_canvas_view.frame.x_ranges['default']
+      hr = @plot_view.frame.x_ranges['default']
       # should be unchanged from initialized value
       expect([hr.start, hr.end]).to.be.deep.equal([0, 1])
 
-      vr = @plot_canvas_view.frame.y_ranges['default']
+      vr = @plot_view.frame.y_ranges['default']
       # should be translated by -factor units
       expect([vr.start, vr.end]).to.be.deep.equal([0.75, 1.75])

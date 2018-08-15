@@ -33,15 +33,13 @@ describe "WheelZoomTool", ->
       document.add_root(@plot)
 
       @plot_view = new @plot.default_view({model: @plot, parent: null})
-      @plot_view.layout()
-
-      @plot_canvas_view = @plot_view.plot_canvas_view
+      @plot_view.do_layout()
 
     it "should zoom in both ranges", ->
       wheel_zoom = new WheelZoomTool()
       @plot.add_tools(wheel_zoom)
 
-      wheel_zoom_view = @plot_canvas_view.tool_views[wheel_zoom.id]
+      wheel_zoom_view = @plot_view.tool_views[wheel_zoom.id]
 
       # positive delta will zoom in
       zoom_event = {sx: 300, sy: 300, delta: 100}
@@ -49,10 +47,10 @@ describe "WheelZoomTool", ->
       # perform the tool action
       wheel_zoom_view._scroll(zoom_event)
 
-      hr = @plot_canvas_view.frame.x_ranges['default']
+      hr = @plot_view.frame.x_ranges['default']
       expect(hr.start).to.be.closeTo(-0.833, 0.01)
       expect(hr.end).to.be.closeTo(0.833, 0.01)
-      vr = @plot_canvas_view.frame.y_ranges['default']
+      vr = @plot_view.frame.y_ranges['default']
       expect(vr.start).to.be.closeTo(-0.833, 0.01)
       expect(vr.end).to.be.closeTo(0.833, 0.01)
 
@@ -60,7 +58,7 @@ describe "WheelZoomTool", ->
       wheel_zoom = new WheelZoomTool()
       @plot.add_tools(wheel_zoom)
 
-      wheel_zoom_view = @plot_canvas_view.tool_views[wheel_zoom.id]
+      wheel_zoom_view = @plot_view.tool_views[wheel_zoom.id]
 
       # positive delta will zoom out
       zoom_event = {sx: 300, sy: 300, delta: -100}
@@ -68,10 +66,10 @@ describe "WheelZoomTool", ->
       # perform the tool action
       wheel_zoom_view._scroll(zoom_event)
 
-      hr = @plot_canvas_view.frame.x_ranges['default']
+      hr = @plot_view.frame.x_ranges['default']
       expect(hr.start).to.be.closeTo(-1.166, 0.01)
       expect(hr.end).to.be.closeTo(1.166, 0.01)
-      vr = @plot_canvas_view.frame.y_ranges['default']
+      vr = @plot_view.frame.y_ranges['default']
       expect(vr.start).to.be.closeTo(-1.166, 0.01)
       expect(vr.end).to.be.closeTo(1.166, 0.01)
 
@@ -79,7 +77,7 @@ describe "WheelZoomTool", ->
       wheel_zoom = new WheelZoomTool({dimensions: 'width'})
       @plot.add_tools(wheel_zoom)
 
-      wheel_zoom_view = @plot_canvas_view.tool_views[wheel_zoom.id]
+      wheel_zoom_view = @plot_view.tool_views[wheel_zoom.id]
 
       # positive delta will zoom in
       zoom_event = {sx: 300, sy: 300, delta: 100}
@@ -87,17 +85,17 @@ describe "WheelZoomTool", ->
       # perform the tool action
       wheel_zoom_view._scroll(zoom_event)
 
-      hr = @plot_canvas_view.frame.x_ranges['default']
+      hr = @plot_view.frame.x_ranges['default']
       expect(hr.start).to.be.closeTo(-0.833, 0.01)
       expect(hr.end).to.be.closeTo(0.833, 0.01)
-      vr = @plot_canvas_view.frame.y_ranges['default']
+      vr = @plot_view.frame.y_ranges['default']
       expect([vr.start, vr.end]).to.be.deep.equal([-1.0, 1.0])
 
     it "should zoom the x-axis only because sy is off frame", ->
       wheel_zoom = new WheelZoomTool({dimensions: 'both'})
       @plot.add_tools(wheel_zoom)
 
-      wheel_zoom_view = @plot_canvas_view.tool_views[wheel_zoom.id]
+      wheel_zoom_view = @plot_view.tool_views[wheel_zoom.id]
 
       # positive delta will zoom in
       zoom_event = {sx: 300, sy: 0, delta: 100}
@@ -105,17 +103,17 @@ describe "WheelZoomTool", ->
       # perform the tool action
       wheel_zoom_view._scroll(zoom_event)
 
-      hr = @plot_canvas_view.frame.x_ranges['default']
+      hr = @plot_view.frame.x_ranges['default']
       expect(hr.start).to.be.closeTo(-0.833, 0.01)
       expect(hr.end).to.be.closeTo(0.833, 0.01)
-      vr = @plot_canvas_view.frame.y_ranges['default']
+      vr = @plot_view.frame.y_ranges['default']
       expect([vr.start, vr.end]).to.be.deep.equal([-1.0, 1.0])
 
     it "should zoom the y-axis only because dimensions arg is set", ->
       wheel_zoom = new WheelZoomTool({dimensions: 'height'})
       @plot.add_tools(wheel_zoom)
 
-      wheel_zoom_view = @plot_canvas_view.tool_views[wheel_zoom.id]
+      wheel_zoom_view = @plot_view.tool_views[wheel_zoom.id]
 
       # positive delta will zoom in
       zoom_event = {sx: 300, sy: 300, delta: 100}
@@ -123,9 +121,9 @@ describe "WheelZoomTool", ->
       # perform the tool action
       wheel_zoom_view._scroll(zoom_event)
 
-      hr = @plot_canvas_view.frame.x_ranges['default']
+      hr = @plot_view.frame.x_ranges['default']
       expect([hr.start, hr.end]).to.be.deep.equal([-1.0, 1.0])
-      vr = @plot_canvas_view.frame.y_ranges['default']
+      vr = @plot_view.frame.y_ranges['default']
       expect(vr.start).to.be.closeTo(-0.833, 0.01)
       expect(vr.end).to.be.closeTo(0.833, 0.01)
 
@@ -133,7 +131,7 @@ describe "WheelZoomTool", ->
       wheel_zoom = new WheelZoomTool({dimensions: 'both'})
       @plot.add_tools(wheel_zoom)
 
-      wheel_zoom_view = @plot_canvas_view.tool_views[wheel_zoom.id]
+      wheel_zoom_view = @plot_view.tool_views[wheel_zoom.id]
 
       # positive delta will zoom in
       zoom_event = {sx: 0, sy: 300, delta: 100}
@@ -141,9 +139,9 @@ describe "WheelZoomTool", ->
       # perform the tool action
       wheel_zoom_view._scroll(zoom_event)
 
-      hr = @plot_canvas_view.frame.x_ranges['default']
+      hr = @plot_view.frame.x_ranges['default']
       expect([hr.start, hr.end]).to.be.deep.equal([-1.0, 1.0])
-      vr = @plot_canvas_view.frame.y_ranges['default']
+      vr = @plot_view.frame.y_ranges['default']
       expect(vr.start).to.be.closeTo(-0.833, 0.01)
       expect(vr.end).to.be.closeTo(0.833, 0.01)
 
@@ -151,7 +149,7 @@ describe "WheelZoomTool", ->
       wheel_zoom = new WheelZoomTool({dimensions: 'both'})
       @plot.add_tools(wheel_zoom)
 
-      wheel_zoom_view = @plot_canvas_view.tool_views[wheel_zoom.id]
+      wheel_zoom_view = @plot_view.tool_views[wheel_zoom.id]
 
       # positive delta will zoom in
       zoom_event = {sx: 100, sy: 100, delta: 100}
@@ -159,9 +157,9 @@ describe "WheelZoomTool", ->
       # perform the tool action
       wheel_zoom_view._scroll(zoom_event)
 
-      hr = @plot_canvas_view.frame.x_ranges['default']
+      hr = @plot_view.frame.x_ranges['default']
       expect(hr.start).to.be.closeTo(-0.945, 0.01)
       expect(hr.end).to.be.closeTo(0.722, 0.01)
-      vr = @plot_canvas_view.frame.y_ranges['default']
+      vr = @plot_view.frame.y_ranges['default']
       expect(vr.start).to.be.closeTo(-0.722, 0.01)
       expect(vr.end).to.be.closeTo(0.945, 0.01)

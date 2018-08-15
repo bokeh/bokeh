@@ -1,5 +1,3 @@
-import * as sinon from "sinon"
-
 import {Arrayable} from "core/types"
 import {Document} from "document"
 import {Range1d} from "models/ranges/range1d"
@@ -25,9 +23,6 @@ export function create_glyph_renderer_view(glyph: Glyph, data: {[key: string]: A
   const plot_view = new plot.default_view({model: plot, parent: null}) as PlotView
   doc.add_root(plot)
 
-  const plot_canvas_view = plot_view.plot_canvas_view
-  sinon.stub(plot_canvas_view, "update_constraints")
-
   const data_source = new ColumnDataSource({data})
 
   const glyph_renderer = new GlyphRenderer({
@@ -37,8 +32,8 @@ export function create_glyph_renderer_view(glyph: Glyph, data: {[key: string]: A
 
   const glyph_renderer_view = new glyph_renderer.default_view({
     model: glyph_renderer,
-    plot_view: plot_canvas_view,
-    parent: plot_canvas_view,
+    plot_view: plot_view,
+    parent: plot_view,
   }) as GlyphRendererView
 
   return glyph_renderer_view

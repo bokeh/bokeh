@@ -15,7 +15,6 @@ dom = require("core/dom")
 {Document} = require("document")
 {Legend} = require("models/annotations/legend")
 {Plot} = require("models/plots/plot")
-{PlotCanvas} = require("models/plots/plot_canvas")
 {Range1d} = require("models/ranges/range1d")
 {Toolbar} = require("models/tools/toolbar")
 {UIEvents} = require "core/ui_events"
@@ -34,9 +33,8 @@ describe "ui_events module", ->
       y_range: new Range1d({start: 0, end: 1})
     })
     doc.add_root(@plot)
-    plot_view = new @plot.default_view({model: @plot, parent: null})
-    @plot_canvas_view = plot_view.plot_canvas_view
-    @ui_events = @plot_canvas_view.ui_event_bus
+    @plot_view = new @plot.default_view({model: @plot, parent: null})
+    @ui_events = @plot_view.ui_event_bus
 
   describe "_trigger method", ->
 
@@ -54,7 +52,7 @@ describe "ui_events module", ->
       beforeEach ->
         @e = {type: "move"}
 
-        @spy_cursor = sinon.spy(@plot_canvas_view, "set_cursor")
+        @spy_cursor = sinon.spy(@plot_view, "set_cursor")
 
       it "should trigger move event for active inspectors", ->
         inspector = new CrosshairTool({active: true})
@@ -277,7 +275,7 @@ describe "ui_events module", ->
       # The BokehEvent that is triggered by the plot
       @spy_plot = sinon.spy(@plot, "trigger_event")
       # The event is that triggered on UIEvent for tool interactions
-      @spy_uievent = sinon.spy(@plot_canvas_view.ui_event_bus, "trigger")
+      @spy_uievent = sinon.spy(@plot_view.ui_event_bus, "trigger")
 
     it "_tap method should handle tap event", ->
       e = new Event("tap")
