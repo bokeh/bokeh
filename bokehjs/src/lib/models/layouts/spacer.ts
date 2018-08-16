@@ -2,6 +2,14 @@ import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 
 export class SpacerView extends LayoutDOMView {
   model: Spacer
+
+  get child_models(): LayoutDOM[] {
+    return []
+  }
+
+  update_layout(): void {
+    // this.layout = TODO
+  }
 }
 
 export namespace Spacer {

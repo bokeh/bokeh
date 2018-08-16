@@ -1,20 +1,13 @@
-import {empty, ul, li, span, div} from "core/dom"
-import {zip} from "core/util/array"
-import * as p from "core/properties"
 import {StackedLayout} from "core/layout/alignments"
+import {empty, ul, li, span, div} from "core/dom"
+import * as p from "core/properties"
 
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 import {Model} from "../../model"
 
 export class TabsView extends LayoutDOMView {
   model: Tabs
-
-  initialize(options: any): void {
-    super.initialize(options)
-
-    this.layout = StackedLayout()
-    this.layout.children = this.get_layoutable_views().map((view) => view.layout)
-  }
+  layout: StackedLayout
 
   connect_signals(): void {
     super.connect_signals()
@@ -22,8 +15,13 @@ export class TabsView extends LayoutDOMView {
     this.connect(this.model.properties.active.change, () => this.render())
   }
 
-  get_layoutable_models(): LayoutDOM {
-    return this.tabs.map((tab) => tab.child)
+  get child_models(): LayoutDOM[] {
+    return this.model.tabs.map((tab) => tab.child)
+  }
+
+  update_layout(): void {
+    this.layout = StackedLayout()
+    this.layout.items = this.child_views.map((child_view) => child_view.layout)
   }
 
   render(): void {
@@ -68,9 +66,6 @@ export class TabsView extends LayoutDOMView {
         }
       }
     })
-
-    for (const [child, panelEl] of zip(this.model.children, panels))
-      panelEl.appendChild(this.child_views[child.id].el)
   }
 }
 

@@ -1,6 +1,5 @@
 import * as p from "core/properties"
-import {Location, SizingMode} from "core/enums"
-import {empty} from "core/dom"
+import {Location} from "core/enums"
 import {logger} from "core/logging"
 import {isString} from "core/util/types"
 import {any, sortBy, includes} from "core/util/array"
@@ -11,11 +10,10 @@ import {ActionTool} from "./actions/action_tool"
 import {HelpTool} from "./actions/help_tool"
 import {GestureTool} from "./gestures/gesture_tool"
 import {InspectTool} from "./inspectors/inspect_tool"
-import {ToolbarBase, ToolbarBaseView, GestureType} from "./toolbar_base"
+import {ToolbarBase, GestureType} from "./toolbar_base"
 import {ToolProxy} from "./tool_proxy"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
-import {build_views, remove_views} from "core/build_views"
 
 export namespace ProxyToolbar {
   export interface Attrs extends ToolbarBase.Attrs {}
@@ -197,70 +195,26 @@ ProxyToolbar.initClass()
 export class ToolbarBoxView extends LayoutDOMView {
   model: ToolbarBox
 
-  protected _toolbar_views: {[key: string]: ToolbarBaseView}
-
   initialize(options: any): void {
     super.initialize(options)
     this.model.toolbar.toolbar_location = this.model.toolbar_location
-    this._toolbar_views = {}
-    build_views(this._toolbar_views, [this.model.toolbar], {parent: this})
   }
 
-  remove(): void {
-    remove_views(this._toolbar_views)
-    super.remove()
+  get child_models(): LayoutDOM[] {
+    return [this.model.toolbar as any] // XXX
   }
 
-  css_classes(): string[] {
-    return super.css_classes().concat("bk-toolbar-box")
+  update_layout(): void {
+    // this.layout = TODO
   }
 
-  render(): void {
-    super.render()
-
-    const toolbar = this._toolbar_views[this.model.toolbar.id]
-    toolbar.render()
-
-    empty(this.el)
-    this.el.appendChild(toolbar.el)
-  }
-
+  /* XXX
   get_width(): number {
     return this.model.toolbar.vertical ? 30 : null as never
   }
 
   get_height(): number {
     return this.model.toolbar.horizontal ? 30 : null as never
-  }
-}
-
-export namespace ToolbarBox {
-  export interface Attrs extends LayoutDOM.Attrs {
-    toolbar: ToolbarBase
-    toolbar_location: Location
-  }
-
-  export interface Props extends LayoutDOM.Props {}
-}
-
-export interface ToolbarBox extends ToolbarBox.Attrs {}
-
-export class ToolbarBox extends LayoutDOM {
-
-  properties: ToolbarBox.Props
-
-  constructor(attrs?: Partial<ToolbarBox.Attrs>) {
-    super(attrs)
-  }
-
-  static initClass(): void {
-    this.prototype.type = 'ToolbarBox'
-    this.prototype.default_view = ToolbarBoxView
-
-    this.define({
-      toolbar:          [ p.Instance          ],
-      toolbar_location: [ p.Location, "right" ],
-    })
   }
 
   // XXX: we are overriding LayoutDOM.sizing_mode here. That's a bad
@@ -277,6 +231,36 @@ export class ToolbarBox extends LayoutDOM {
         return "scale_height"
       }
     }
+  }
+  */
+}
+
+export namespace ToolbarBox {
+  export interface Attrs extends LayoutDOM.Attrs {
+    toolbar: ToolbarBase
+    toolbar_location: Location
+  }
+
+  export interface Props extends LayoutDOM.Props {}
+}
+
+export interface ToolbarBox extends ToolbarBox.Attrs {}
+
+export class ToolbarBox extends LayoutDOM {
+  properties: ToolbarBox.Props
+
+  constructor(attrs?: Partial<ToolbarBox.Attrs>) {
+    super(attrs)
+  }
+
+  static initClass(): void {
+    this.prototype.type = 'ToolbarBox'
+    this.prototype.default_view = ToolbarBoxView
+
+    this.define({
+      toolbar:          [ p.Instance          ],
+      toolbar_location: [ p.Location, "right" ],
+    })
   }
 }
 ToolbarBox.initClass()

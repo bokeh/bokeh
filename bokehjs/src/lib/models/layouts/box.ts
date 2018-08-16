@@ -1,25 +1,33 @@
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
+import {Grid} from "core/layout"
 import * as p from "core/properties"
 
-export class BoxView extends LayoutDOMView {
+export abstract class BoxView extends LayoutDOMView {
   model: Box
+  layout: Grid
+
+  update_layout(): void {
+    this.layout = new Grid()
+  }
+
+  get child_models(): LayoutDOM[] {
+    return this.model.children
+  }
 }
 
 export namespace Box {
   export interface Attrs extends LayoutDOM.Attrs {
     children: LayoutDOM[]
-    spacing: number
   }
 
   export interface Props extends LayoutDOM.Props {
     children: p.Property<LayoutDOM[]>
-    spacing: p.Property<number>
   }
 }
 
 export interface Box extends Box.Attrs {}
 
-export class Box extends LayoutDOM {
+export abstract class Box extends LayoutDOM {
   properties: Box.Props
 
   constructor(attrs?: Partial<Box.Attrs>) {
@@ -28,14 +36,9 @@ export class Box extends LayoutDOM {
 
   static initClass(): void {
     this.prototype.type = "Box"
-    this.prototype.default_view = BoxView
 
     this.define({
       children: [ p.Array, [] ],
-    })
-
-    this.internal({
-      spacing: [ p.Number, 6 ],
     })
   }
 }

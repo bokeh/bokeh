@@ -12,30 +12,28 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
 
   protected _idle_notified: boolean = false
 
-  child_views: {[key: string]: LayoutDOMView}
+  protected _child_views: {[key: string]: LayoutDOMView}
 
   layout: Layoutable
 
   initialize(options: any): void {
     super.initialize(options)
-    this.child_views = {}
+    this._child_views = {}
     this.build_child_views()
+    this.update_layout()
   }
 
-  get_layoutable_models(): LayoutDOM[] {
-    return []
-  }
+  abstract get child_models(): LayoutDOM[]
 
-  get_layoutable_views(): LayoutDOMView[] {
-    return this.get_layoutable_models().map((child) => this.child_views[child.id])
+  get child_views(): LayoutDOMView[] {
+    return this.child_models.map((child) => this._child_views[child.id])
   }
 
   remove(): void {
-    for (const model_id in this.child_views) {
-      const view = this.child_views[model_id]
-      view.remove()
+    for (const child_view of this.child_views) {
+      child_view.remove()
     }
-    this.child_views = {}
+    this._child_views = {}
     super.remove()
   }
 
@@ -43,9 +41,8 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
     if (!super.has_finished())
       return false
 
-    for (const model_id in this.child_views) {
-      const child = this.child_views[model_id]
-      if (!child.has_finished())
+    for (const child_view of this.child_views) {
+      if (!child_view.has_finished())
         return false
     }
 
@@ -102,6 +99,9 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
     this.el.style.top = `${this.layout._top.value}px`
     this.el.style.width = `${this.layout._width.value}px`
     this.el.style.height = `${this.layout._height.value}px`
+
+    for (const child_view of this.child_views)
+      child_view.update_position()
   }
 
   do_layout(): void {
@@ -109,7 +109,7 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
      * Layout's entry point.
      */
     if (!this.is_root)
-      this.root.do_layout()
+      (this.root as LayoutDOMView).do_layout() // XXX
     else
       this._do_layout()
   }
@@ -187,24 +187,23 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
 
   rebuild_child_views(): void {
     this.build_child_views()
+    this.update_layout()
     this.do_layout()
   }
 
   build_child_views(): void {
-    const children = this.get_layoutable_models()
-    build_views(this.child_views, children, {parent: this})
+    const children = this.child_models
+    build_views(this._child_views, children, {parent: this})
 
     empty(this.el)
 
-    for (const child of children) {
-      // Look-up the child_view in this.child_views and then append We can't just
-      // read from this.child_views because then we don't get guaranteed ordering.
-      // Which is a problem in non-box layouts.
-      const child_view = this.child_views[child.id]
+    for (const child_view of this.child_views) {
       this.el.appendChild(child_view.el)
       child_view.render()
     }
   }
+
+  abstract update_layout(): void
 
   connect_signals(): void {
     super.connect_signals()

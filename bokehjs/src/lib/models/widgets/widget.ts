@@ -3,6 +3,14 @@ import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 export abstract class WidgetView extends LayoutDOMView {
   model: Widget
 
+  get child_models(): LayoutDOM[] {
+    return []
+  }
+
+  update_layout(): void {
+    // this.layout = TODO
+  }
+
   css_classes(): string[] {
     return super.css_classes().concat("bk-widget")
   }
