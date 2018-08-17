@@ -54,7 +54,7 @@ class TileRenderer(DataRenderer):
     """)
 
     smoothing = Bool(default=True, help="""
-    Enable image smoothing for the rendered tiles
+    Enable image smoothing for the rendered tiles.
     """)
 
     x_range_name = String('default', help="""
