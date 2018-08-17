@@ -1,7 +1,7 @@
 import colorsys
 import yaml
 
-from bokeh.layouts import column, row, widgetbox
+from bokeh.layouts import column, row
 from bokeh.models import ColumnDataSource, CustomJS, Slider
 from bokeh.plotting import figure, output_file, show, curdoc
 from bokeh.themes import Theme
@@ -129,7 +129,7 @@ attrs:
 """))
 
 layout = row(
-    widgetbox(red_slider, green_slider, blue_slider),
+    column(red_slider, green_slider, blue_slider),
     column(p1, p2)
 )
 

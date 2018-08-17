@@ -2,7 +2,7 @@ import numpy as np
 np.random.seed(0)
 
 from bokeh.io import curdoc
-from bokeh.layouts import widgetbox, row, column
+from bokeh.layouts import row, column
 from bokeh.models import ColumnDataSource, Select, Slider
 from bokeh.plotting import figure
 from bokeh.palettes import Spectral6
@@ -180,7 +180,7 @@ samples_slider.on_change('value', update_samples_or_dataset)
 
 # set up layout
 selects = row(dataset_select, algorithm_select, width=420)
-inputs = column(selects, widgetbox(samples_slider, clusters_slider))
+inputs = column(selects, samples_slider, clusters_slider)
 
 # add to document
 curdoc().add_root(row(inputs, plot))

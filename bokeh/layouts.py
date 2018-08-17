@@ -29,7 +29,6 @@ from .core.enums import Location, SizingMode
 from .models.tools import ProxyToolbar, ToolbarBox
 from .models.plots import Plot
 from .models.layouts import LayoutDOM, Row, Column, Spacer
-from .models.widgets import Widget
 from .util.deprecation import deprecated
 
 #-----------------------------------------------------------------------------
@@ -122,7 +121,7 @@ def column(*args, **kwargs):
     Examples:
 
         >>> column([plot_1, plot_2])
-        >>> column(children=[widget_box_1, plot_1], sizing_mode='stretch_both')
+        >>> column(children=[widget_1, plot_1], sizing_mode='stretch_both')
     """
 
     sizing_mode = kwargs.pop('sizing_mode', 'fixed')
@@ -198,9 +197,9 @@ def layout(*args, **kwargs):
         >>> layout([[plot_1, plot_2], [plot_3, plot_4]])
         >>> layout(
                 children=[
-                    [widget_box_1, plot_1],
+                    [widget_1, plot_1],
                     [slider],
-                    [widget_box_2, plot_2, plot_3]
+                    [widget_2, plot_2, plot_3]
                 ],
                 sizing_mode='fixed',
             )

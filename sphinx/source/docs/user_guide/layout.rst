@@ -7,9 +7,9 @@ TODO rewrite this
 
 Bokeh includes several layout options for arranging plots and widgets. They aim
 to make it quick to create your interactive data applications. At the heart of
-the layouts are three core objects Row, Column, and WidgetBox. While you can
+the layouts are three core objects Row, Column, and . While you can
 use these models directly, we recommend using the layout functions |row|,
-|column|, and |widgetbox|.
+|column|, and .
 
 The layout functions let you build a grid of plots and widgets. You can nest as
 many rows, columns, and plots together as you'd like. In addition, Bokeh
@@ -36,7 +36,7 @@ Widget boxes
     is necessary so that they can all work together. In fact, if you try and
     put a ``Widget`` in ``Row`` or ``Column`` it will be automatically put
     into a ``WidgetBox``. As a result, it's a good idea to wrap your own
-    widgets in a ``WidgetBox`` using |widgetbox| as then you can be sure about
+    widgets in a ``WidgetBox`` using as then you can be sure about
     how your widgets are getting arranged.
 
 Toolbars
@@ -71,7 +71,7 @@ To display plots horizontally, use the |row| function.
 Widgets
 -------
 
-Layout a group of widgets with the |widgetbox| function.
+Layout a group of widgets with the  function.
 
 .. bokeh-plot:: docs/user_guide/examples/layout_widgets.py
     :source-position: above

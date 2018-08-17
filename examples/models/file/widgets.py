@@ -123,7 +123,7 @@ widgets = Column(children=[
         ]),
         tabs,
     ]),
-    table),
+    table,
 ])
 
 doc = Document()

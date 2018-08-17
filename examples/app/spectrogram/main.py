@@ -4,7 +4,7 @@ from math import ceil
 import numpy as np
 
 from bokeh.io import curdoc
-from bokeh.layouts import row, column, widgetbox
+from bokeh.layouts import row, column
 from bokeh.models import ColumnDataSource, Slider, Div
 from bokeh.plotting import figure
 
@@ -100,7 +100,7 @@ def update():
     eq_source.data['alpha'] = np.hstack(alphas)
 curdoc().add_periodic_callback(update, 80)
 
-controls = row(widgetbox(gain), widgetbox(freq))
+controls = row(gain, freq)
 
 plots = column(waterfall_plot, row(column(signal_plot, spectrum_plot), eq))
 

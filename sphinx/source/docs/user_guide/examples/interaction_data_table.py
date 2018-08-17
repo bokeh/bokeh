@@ -2,7 +2,6 @@ from datetime import date
 from random import randint
 
 from bokeh.io import output_file, show
-from bokeh.layouts import widgetbox
 from bokeh.models import ColumnDataSource
 from bokeh.models.widgets import DataTable, DateFormatter, TableColumn
 
@@ -20,4 +19,4 @@ columns = [
     ]
 data_table = DataTable(source=source, columns=columns, width=400, height=280)
 
-show(widgetbox(data_table))
+show(data_table)

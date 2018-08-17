@@ -4,7 +4,7 @@ from os.path import dirname, join
 import h5py
 
 from bokeh.io import curdoc
-from bokeh.layouts import row, widgetbox
+from bokeh.layouts import row
 from bokeh.models import ColumnDataSource
 from bokeh.models.widgets import Select
 from bokeh.plotting import figure
@@ -42,7 +42,8 @@ def update():
 
 data_select.on_change('value', lambda attr, old, new: update())
 
-inputs = widgetbox(data_select, width=300)
+# TODO: panel(data_select, width=300)
+inputs = data_select
 
 update()
 

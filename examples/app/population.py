@@ -1,7 +1,7 @@
 from math import pi
 
 from bokeh.io import curdoc
-from bokeh.layouts import column, row, widgetbox
+from bokeh.layouts import column, row
 from bokeh.models import ColumnDataSource, CustomJSTransform, FuncTickFormatter, Select
 from bokeh.plotting import figure
 from bokeh.sampledata.population import data as df
@@ -78,5 +78,5 @@ location.on_change('value', lambda attr, old, new: update())
 
 update()
 
-controls = widgetbox(year, location, width=600)
+controls = column(year, location, width=600)
 curdoc().add_root(row(column(pyramid, population), controls))

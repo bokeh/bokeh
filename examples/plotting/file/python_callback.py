@@ -8,7 +8,7 @@ here:
 
 import numpy as np
 
-from bokeh. layouts import row, widgetbox
+from bokeh. layouts import row, column
 from bokeh.plotting import figure, output_file, show, ColumnDataSource
 from bokeh.models import CustomJS, Slider
 
@@ -52,7 +52,7 @@ callback.args["offset"] = offset_slider
 
 layout = row(
     plot,
-    widgetbox(amp_slider, freq_slider, phase_slider, offset_slider),
+    column(amp_slider, freq_slider, phase_slider, offset_slider),
 )
 
 output_file("python_callback.html", title="python_callback.py example")

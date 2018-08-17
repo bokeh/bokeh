@@ -2,7 +2,7 @@ from os.path import dirname, join
 
 import pandas as pd
 
-from bokeh.layouts import row, widgetbox
+from bokeh.layouts import row, column
 from bokeh.models import ColumnDataSource, CustomJS
 from bokeh.models.widgets import RangeSlider, Button, DataTable, TableColumn, NumberFormatter
 from bokeh.io import curdoc
@@ -34,10 +34,9 @@ columns = [
 
 data_table = DataTable(source=source, columns=columns, width=800)
 
-controls = widgetbox(slider, button)
-table = widgetbox(data_table)
+controls = column(slider, button)
 
-curdoc().add_root(row(controls, table))
+curdoc().add_root(row(controls, data_table))
 curdoc().title = "Export CSV"
 
 update()

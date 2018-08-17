@@ -1,7 +1,7 @@
 import numpy as np
 from bokeh.plotting import figure
 from bokeh.models import Spacer, Paragraph
-from bokeh.layouts import row, column, widgetbox
+from bokeh.layouts import row, column
 from bokeh.io import show
 
 N = 10
@@ -28,7 +28,7 @@ spacer_2 = Spacer(width=300, height=100)
 paragraph = Paragraph(text="We build up a grid plot manually. Try changing the mode yourself.")
 
 MODE = 'fixed'
-widgets = widgetbox([paragraph], sizing_mode=MODE)
+widgets = column([paragraph], sizing_mode=MODE)
 row_1 = row([spacer_1, p1, spacer_2], sizing_mode=MODE)
 row_2 = row([p2, p3, p4], sizing_mode=MODE)
 layout = column([widgets, row_1, row_2], sizing_mode=MODE)
