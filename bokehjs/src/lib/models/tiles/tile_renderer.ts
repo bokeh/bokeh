@@ -244,7 +244,7 @@ export class TileRendererView extends RendererView {
       const sh = symax - symin
       const sx = sxmin
       const sy = symin
-      const old_smoothing = ctx.getImageSmoothingEnabled()
+      const old_smoothing = this.map_canvas.getImageSmoothingEnabled()
       this.map_canvas.setImageSmoothingEnabled(this.model.smoothing)
       this.map_canvas.drawImage(tile_obj.img, sx, sy, sw, sh)
       this.map_canvas.setImageSmoothingEnabled(old_smoothing)
