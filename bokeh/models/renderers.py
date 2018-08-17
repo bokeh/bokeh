@@ -53,6 +53,10 @@ class TileRenderer(DataRenderer):
     tile opacity 0.0 - 1.0
     """)
 
+    smoothing = Bool(default=True, help="""
+    Enable image smoothing for the rendered tiles
+    """)
+
     x_range_name = String('default', help="""
     A particular (named) x-range to use for computing screen
     locations when rendering glyphs on the plot. If unset, use the

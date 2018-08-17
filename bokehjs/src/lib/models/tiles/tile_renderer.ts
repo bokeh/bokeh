@@ -244,7 +244,10 @@ export class TileRendererView extends RendererView {
       const sh = symax - symin
       const sx = sxmin
       const sy = symin
+      const old_smoothing = ctx.getImageSmoothingEnabled()
+      this.map_canvas.setImageSmoothingEnabled(this.model.smoothing)
       this.map_canvas.drawImage(tile_obj.img, sx, sy, sw, sh)
+      this.map_canvas.setImageSmoothingEnabled(old_smoothing)
       tile_obj.finished = true
     }
   }
@@ -384,6 +387,7 @@ export namespace TileRenderer {
     alpha: number
     x_range_name: string
     y_range_name: string
+    smoothing: boolean
     tile_source: TileSource
     render_parents: boolean
   }
@@ -409,6 +413,7 @@ export class TileRenderer extends Renderer {
       alpha:          [ p.Number,   1.0              ],
       x_range_name:   [ p.String,   "default"        ],
       y_range_name:   [ p.String,   "default"        ],
+      smoothing:      [ p.Bool,     true             ],
       tile_source:    [ p.Instance, () => new WMTSTileSource() ],
       render_parents: [ p.Bool,     true             ],
     })
