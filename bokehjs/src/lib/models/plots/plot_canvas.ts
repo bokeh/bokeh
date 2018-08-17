@@ -8,7 +8,7 @@ import {ToolView} from "../tools/tool"
 import {Selection} from "../selections/selection"
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {Plot} from "./plot"
-import {Annotation} from "../annotations/annotation"
+import {Annotation, AnnotationView} from "../annotations/annotation"
 import {Title} from "../annotations/title"
 import {Axis, AxisView} from "../axes/axis"
 import {ToolbarPanel} from "../annotations/toolbar_panel"
@@ -28,7 +28,7 @@ import {isArray, isString, isStrictNaN} from "core/util/types"
 import {copy, reversed} from "core/util/array"
 import {values} from "core/util/object"
 import {Context2d, SVGRenderingContext2D} from "core/util/canvas"
-import {BBox, SizeHint, Margin, Layoutable} from "core/layout"
+import {BBox, SizeHint, Margin, WidthSizing, HeightSizing, Layoutable} from "core/layout"
 import {SidePanel} from "core/layout/side_panel"
 
 // Notes on WebGL support:
@@ -92,8 +92,19 @@ export class PlotLayout extends Layoutable {
 
     const center = this.center_panel.size_hint()
 
-    const width = left + center.width  + right
-    const height = top + center.height + bottom
+    let width: number
+    if (this.sizing.width_policy == "fixed" ||
+        (this.sizing.width_policy == "auto" && this.sizing.width != null))
+      width = this.sizing.width
+    else
+      width = left + center.width  + right
+
+    let height: number
+    if (this.sizing.height_policy == "fixed" ||
+        (this.sizing.height_policy == "auto" && this.sizing.height != null))
+      height = this.sizing.height
+    else
+      height = top + center.height + bottom
 
     return {width, height, inner: {left, right, top, bottom}}
   }
@@ -316,7 +327,7 @@ export abstract class PlotCanvasView extends LayoutDOMView {
     this.build_tool_views()
 
     const set_layout = (side: Side, model: Annotation | Axis): Layoutable => {
-      const view = this.renderer_views[model.id]
+      const view = this.renderer_views[model.id] as AnnotationView | AxisView
       return view.layout = new SidePanel(side, view)
     }
 
@@ -346,6 +357,13 @@ export abstract class PlotCanvasView extends LayoutDOMView {
 
     this.layout.center_panel = this.frame
 
+    const {frame_width, frame_height} = this.model
+
+    const width_sizing: WidthSizing = frame_width != null ? {width_policy: "fixed", width: frame_width} : {width_policy: "max"}
+    const height_sizing: HeightSizing = frame_height != null ? {height_policy: "fixed", height: frame_height} : {height_policy: "max"}
+
+    this.layout.center_panel.sizing = {...width_sizing, ...height_sizing}
+
     const min_border = this.model.min_border != null ? this.model.min_border : 0
     this.layout.min_border = {
       left:   this.model.min_border_left   != null ? this.model.min_border_left   : min_border,
@@ -368,6 +386,22 @@ export abstract class PlotCanvasView extends LayoutDOMView {
 
   update_layout(): void {
     this.layout = new PlotLayout()
+
+    const sizing = this.box_sizing
+    if (sizing.width_policy == "auto") {
+      if (this.model.frame_width != null)
+        sizing.width_policy = "min"
+      else if (sizing.width == null)
+        sizing.width = this.model.plot_width
+    }
+    if (sizing.height_policy == "auto") {
+      if (this.model.frame_height != null)
+        sizing.height_policy = "min"
+      else if (sizing.height == null)
+        sizing.height = this.model.plot_height
+    }
+
+    this.layout.sizing = sizing
   }
 
   get axis_views(): AxisView[] {
@@ -873,14 +907,12 @@ export abstract class PlotCanvasView extends LayoutDOMView {
     return true
   }
 
-  update_position(): void {
-    super.update_position()
-
+  after_layout(): void {
     this.model.setv({
       inner_width: Math.round(this.frame._width.value),
       inner_height: Math.round(this.frame._height.value),
-      layout_width: Math.round(this.layout._width.value),
-      layout_height: Math.round(this.layout._height.value),
+      outer_width: Math.round(this.layout._width.value),
+      outer_height: Math.round(this.layout._height.value),
     }, {no_change: true})
 
     if (this.model.match_aspect !== false) {

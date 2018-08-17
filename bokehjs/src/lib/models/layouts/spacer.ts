@@ -1,4 +1,5 @@
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
+import {SizeHint, Layoutable} from "core/layout"
 
 export class SpacerView extends LayoutDOMView {
   model: Spacer
@@ -8,7 +9,18 @@ export class SpacerView extends LayoutDOMView {
   }
 
   update_layout(): void {
-    // this.layout = TODO
+    const {model} = this
+
+    this.layout = new class extends Layoutable {
+      size_hint(): SizeHint {
+        const {width, height} = model
+        return {
+          width: width != null ? width : 0,
+          height: height != null ? height : 0,
+        }
+      }
+    }
+    this.layout.sizing = this.box_sizing
   }
 }
 

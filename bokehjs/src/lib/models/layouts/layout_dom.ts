@@ -5,7 +5,7 @@ import * as p from "core/properties"
 
 import {build_views} from "core/build_views"
 import {DOMView} from "core/dom_view"
-import {BBox, SizingPolicy, Layoutable} from "core/layout"
+import {SizingPolicy, BoxSizing, WidthSizing, HeightSizing, Layoutable} from "core/layout"
 
 export abstract class LayoutDOMView extends DOMView implements EventListenerObject {
   model: LayoutDOM
@@ -62,7 +62,7 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
     }
   }
 
-  protected _available_space(): [number | null, number | null] {
+  protected _viewport_size(): {width: number | null, height: number | null} {
     let measuring: HTMLElement | null = this.el
 
     while (measuring = measuring.parentElement) {
@@ -75,7 +75,7 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
         const {left, right, top, bottom} = margin(document.body)
         const width  = document.documentElement!.clientWidth  - left - right
         const height = document.documentElement!.clientHeight - top  - bottom
-        return [width, height]
+        return {width, height}
       }
 
       // stop on first element with sensible dimensions
@@ -86,11 +86,14 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
       const inner_height = height - top - bottom
 
       if (inner_width > 0 || inner_height > 0)
-        return [inner_width > 0 ? inner_width : null, inner_height > 0 ? inner_height : null]
+        return {
+          width: inner_width > 0 ? inner_width : null,
+          height: inner_height > 0 ? inner_height : null,
+        }
     }
 
     // this element is detached from DOM
-    return [null, null]
+    return {width: null, height: null}
   }
 
   update_position(): void {
@@ -104,6 +107,13 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
       child_view.update_position()
   }
 
+  after_layout(): void {
+    this._has_finished = true
+
+    for (const child_view of this.child_views)
+      child_view.after_layout()
+  }
+
   do_layout(): void {
     /**
      * Layout's entry point.
@@ -115,73 +125,10 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
   }
 
   protected _do_layout(): void {
-    const [available_width, available_height] = this._available_space()
-    const size_hint = this.layout.size_hint()
-
-    let width: number
-    let height: number
-
-    const {width_policy, height_policy} = this.model
-
-    switch (width_policy) {
-      case "fixed": {
-        if (this.model.width != null)
-          width = this.model.width
-        else
-          throw new Error("fixed sizing policy requires width to be set")
-        break
-      }
-      case "max": {
-        width = available_width
-        break
-      }
-      case "auto": {
-        if (this.model.width != null)
-          width = this.model.width
-        else
-          width = available_width
-        break
-      }
-      default:
-        throw new Error("unreachable")
-    }
-
-    switch (height_policy) {
-      case "fixed": {
-        if (this.model.height != null)
-          height = this.model.height
-        else
-          throw new Error("fixed sizing policy requires height to be set")
-        break
-      }
-      case "max": {
-        height = available_height
-        break
-      }
-      case "auto": {
-        if (this.model.height != null)
-          height = this.model.height
-        else
-          height = available_height
-        break
-      }
-      default:
-        throw new Error("unreachable")
-    }
-
-    const outer = new BBox({left: 0, top: 0, width, height})
-
-    let inner: BBox | undefined = undefined
-
-    if (size_hint.inner != null) {
-      const {left, top, right, bottom} = size_hint.inner
-      inner = new BBox({left, top, right: width - right, bottom: height - bottom})
-    }
-
-    this.layout.set_geometry(outer, inner)
+    const viewport = this._viewport_size()
+    this.layout.compute(viewport)
     this.update_position()
-
-    // TODO
+    this.after_layout()
     this.notify_finished()
   }
 
@@ -235,26 +182,96 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
   render(): void {
     this._render_classes()
   }
+
+  get aspect_ratio(): number | undefined {
+    const {aspect_ratio, width, height} = this.model
+
+    if (aspect_ratio == null)
+      return undefined
+    else if (aspect_ratio == "auto")
+      if (width == null || height == null)
+        return undefined
+      else
+        return width/height
+    else
+      return aspect_ratio
+  }
+
+  get box_sizing(): BoxSizing {
+    const {sizing_mode} = this.model
+
+    if (sizing_mode == null) {
+      const {width_policy, height_policy} = this.model
+
+      let width_sizing: WidthSizing
+      if (width_policy == "fixed") {
+        if (this.model.width != null)
+          width_sizing = {width_policy: "fixed", width: this.model.width}
+        else
+          throw new Error("width must be specified with fixed sizing policy")
+      } else if (width_policy == "auto")
+        width_sizing = {width_policy: "auto", width: this.model.width}
+      else
+        width_sizing = {width_policy}
+
+      let height_sizing: HeightSizing
+      if (height_policy == "fixed") {
+        if (this.model.height != null)
+          height_sizing = {height_policy: "fixed", height: this.model.height}
+        else
+          throw new Error("height must be specified with fixed sizing policy")
+      } else if (height_policy == "auto")
+        height_sizing = {height_policy: "auto", height: this.model.height}
+      else
+        height_sizing = {height_policy}
+
+      return {...width_sizing, ...height_sizing, aspect: this.aspect_ratio}
+    } else {
+      switch (sizing_mode) {
+        case "fixed": {
+          const {width, height} = this.model
+          if (width != null && height != null)
+            return {width_policy: "fixed", width, height_policy: "fixed", height}
+          else
+            throw new Error("width and height must be specified with fixed sizing mode")
+        }
+        case "stretch_both":
+          return {width_policy: "max", height_policy: "max"}
+        case "scale_width":
+          return {width_policy: "max", height_policy: "min", aspect: this.aspect_ratio || 1.0}
+        case "scale_height":
+          return {width_policy: "min", height_policy: "max", aspect: this.aspect_ratio || 1.0}
+        case "scale_both":
+          return {width_policy: "max", height_policy: "max", aspect: this.aspect_ratio || 1.0}
+        default:
+          throw new Error("unrechable")
+      }
+    }
+  }
 }
 
 export namespace LayoutDOM {
   export interface Attrs extends Model.Attrs {
+    width: number
+    height: number
     width_policy: SizingPolicy
     height_policy: SizingPolicy
-    height: number
-    width: number
-    disabled: boolean
+    aspect_ratio: number | "auto"
     sizing_mode: SizingMode
+    visible: boolean
+    disabled: boolean
     css_classes: string[]
   }
 
   export interface Props extends Model.Props {
+    width: p.Property<number>
+    height: p.Property<number>
     width_policy: p.Property<SizingPolicy>
     height_policy: p.Property<SizingPolicy>
-    height: p.Property<number>
-    width: p.Property<number>
-    disabled: p.Property<boolean>
+    aspect_ratio: p.Property<number | "auto">
     sizing_mode: p.Property<SizingMode>
+    visible: p.Property<boolean>
+    disabled: p.Property<boolean>
     css_classes: p.Property<string[]>
   }
 }
@@ -272,12 +289,14 @@ export abstract class LayoutDOM extends Model {
     this.prototype.type = "LayoutDOM"
 
     this.define({
-      width:         [ p.Number              ],
-      height:        [ p.Number              ],
+      width:         [ p.Number,     null    ],
+      height:        [ p.Number,     null    ],
       width_policy:  [ p.Any,        "auto"  ],
       height_policy: [ p.Any,        "auto"  ],
+      aspect_ratio:  [ p.Number,     null    ],
+      sizing_mode:   [ p.SizingMode, null    ],
+      visible:       [ p.Bool,       true    ],
       disabled:      [ p.Bool,       false   ],
-      sizing_mode:   [ p.SizingMode, "fixed" ],
       css_classes:   [ p.Array,      []      ],
     })
   }

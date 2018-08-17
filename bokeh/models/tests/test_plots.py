@@ -205,7 +205,7 @@ def test_plot_add_layout_adds_axis_to_renderers_and_side_renderers():
 
 def test_sizing_mode_property_is_fixed_by_default():
     plot = figure()
-    assert plot.sizing_mode == 'fixed'
+    assert plot.sizing_mode is None
 
 
 class BaseTwinAxis(object):

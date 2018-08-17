@@ -13,9 +13,25 @@ export type Margin = {
   bottom: number
 }
 
-export type SizeHint = Size & {inner?: Margin}
-
 export type SizingPolicy = "fixed" | "min" | "max" | "auto"
+
+export type SizeHint = Size & {
+  inner?: Margin
+}
+
+export type Sizing = number | "min" | "max"
+
+export type WidthSizing =
+  {width_policy: "fixed", width: number} |
+  {width_policy: "auto", width?: number, aspect?: number} |
+  {width_policy: "min" | "max", aspect?: number}
+
+export type HeightSizing =
+  {height_policy: "fixed", height: number} |
+  {height_policy: "auto", height?: number, aspect?: number} |
+  {height_policy: "min" | "max", aspect?: number}
+
+export type BoxSizing = WidthSizing & HeightSizing
 
 export interface ComputedVariable {
   readonly value: number
@@ -43,6 +59,8 @@ export abstract class Layoutable {
   _hcenter: ComputedVariable
   _vcenter: ComputedVariable
 
+  sizing: BoxSizing
+
   constructor() {
     const layout = this
 
@@ -64,6 +82,81 @@ export abstract class Layoutable {
 
   set_geometry(outer: BBox, inner?: BBox): void {
     this._set_geometry(outer, inner || outer)
+  }
+
+  compute(viewport: Size): void {
+    const size_hint = this.size_hint()
+
+    let width: number
+    let height: number
+
+    switch (this.sizing.width_policy) {
+      case "fixed":
+        width = this.sizing.width
+        break
+      case "max":
+        width = viewport.width
+        break
+      case "min":
+        width = size_hint.width
+        break
+      case "auto":
+        if (this.sizing.width != null)
+          width = this.sizing.width
+        else
+          width = size_hint.width
+        break
+      default:
+        throw new Error("unrechable")
+    }
+
+    switch (this.sizing.height_policy) {
+      case "fixed":
+        height = this.sizing.height
+        break
+      case "max":
+        height = viewport.height
+        break
+      case "min":
+        height = size_hint.height
+        break
+      case "auto":
+        if (this.sizing.height != null)
+          height = this.sizing.height
+        else
+          height = size_hint.height
+        break
+      default:
+        throw new Error("unrechable")
+    }
+
+    const {width_policy, height_policy} = this.sizing
+
+    //if (this.sizing.width_policy
+
+    const {aspect} = this.sizing
+    if (aspect != null) {
+      if (width_policy != height_policy) {
+        if (width_policy == "max") {
+          height = width/aspect
+          if (height < size_hint.height) console.log("H")
+        } else {
+          width = height*aspect
+          if (width < size_hint.width) console.log("W")
+        }
+      }
+    }
+
+    const outer = new BBox({left: 0, top: 0, width, height})
+
+    let inner: BBox | undefined = undefined
+
+    if (size_hint.inner != null) {
+      const {left, top, right, bottom} = size_hint.inner
+      inner = new BBox({left, top, right: width - right, bottom: height - bottom})
+    }
+
+    this.set_geometry(outer, inner)
   }
 
   get xview(): ViewTransform {

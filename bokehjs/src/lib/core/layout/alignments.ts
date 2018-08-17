@@ -129,3 +129,25 @@ export class AnchorLayout extends Layoutable {
     }
   }
 }
+
+export class StackedLayout extends Layoutable {
+
+  items: Layoutable[]
+
+  size_hint(): SizeHint {
+    let width = 0
+    let height = 0
+
+    for (const item of this.items) {
+      const size_hint = item.size_hint()
+      width = Math.max(size_hint.width)
+      height = Math.max(size_hint.height)
+    }
+
+    return {width, height}
+  }
+
+  protected _set_geometry(outer: BBox, inner: BBox): void {
+    super._set_geometry(outer, inner)
+  }
+}

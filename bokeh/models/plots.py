@@ -486,25 +486,32 @@ class Plot(LayoutDOM):
     A list of renderers to occupy the center area (frame) of the plot.
     """)
 
-    plot_height = Int(600, help="""
-    Total height of the entire plot (including any axes, titles,
-    border padding, etc.)
-
-    .. note::
-        This corresponds directly to the height of the HTML
-        canvas that will be used.
-
-    """)
-
     plot_width = Int(600, help="""
-    Total width of the entire plot (including any axes, titles,
-    border padding, etc.)
+    The outer width of a plot, including any axes, titles, border padding, etc.
 
     .. note::
-        This corresponds directly to the width of the HTML
-        canvas that will be used.
+        This corresponds directly to the width of the HTML canvas.
 
     """)
+
+    plot_height = Int(600, help="""
+    The outer height of a plot, including any axes, titles, border padding, etc.
+
+    .. note::
+        This corresponds directly to the height of the HTML canvas.
+
+    """)
+
+    frame_width = Int(default=None, help="""
+    The width of a plot frame or the inner width of a plot, excluding any
+    axes, titles, border padding, etc.
+    """)
+
+    frame_height = Int(default=None, help="""
+    The height of a plot frame or the inner height of a plot, excluding any
+    axes, titles, border padding, etc.
+    """)
+
 
     inner_width = Int(readonly=True, help="""
     This is the exact width of the plotting canvas, i.e. the width of
@@ -528,7 +535,7 @@ class Plot(LayoutDOM):
 
     """)
 
-    layout_width = Int(readonly=True, help="""
+    outer_width = Int(readonly=True, help="""
     This is the exact width of the layout, i.e. the height of
     the actual plot, with toolbars etc. Note this is computed in a
     web browser, so this property will work only in backends capable of
@@ -539,7 +546,7 @@ class Plot(LayoutDOM):
 
     """)
 
-    layout_height = Int(readonly=True, help="""
+    outer_height = Int(readonly=True, help="""
     This is the exact height of the layout, i.e. the height of
     the actual plot, with toolbars etc. Note this is computed in a
     web browser, so this property will work only in backends capable of

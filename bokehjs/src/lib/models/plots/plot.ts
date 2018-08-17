@@ -65,6 +65,9 @@ export namespace Plot {
     plot_width: number
     plot_height: number
 
+    frame_width: number
+    frame_height: number
+
     title: Title | string | null
     title_location: Location
 
@@ -103,8 +106,8 @@ export namespace Plot {
 
     inner_width: number
     inner_height: number
-    layout_width: number
-    layout_height: number
+    outer_width: number
+    outer_height: number
 
     match_aspect: boolean
     aspect_scale: number
@@ -156,6 +159,9 @@ export class Plot extends LayoutDOM {
       plot_width:        [ p.Number,   600                     ],
       plot_height:       [ p.Number,   600                     ],
 
+      frame_width:       [ p.Number,   null                    ],
+      frame_height:      [ p.Number,   null                    ],
+
       title:             [ p.Any, () => new Title({text: ""})  ], // TODO: p.Either(p.Instance(Title), p.String)
       title_location:    [ p.Location, 'above'                 ],
 
@@ -194,8 +200,8 @@ export class Plot extends LayoutDOM {
 
       inner_width:       [ p.Number                            ],
       inner_height:      [ p.Number                            ],
-      layout_width:      [ p.Number                            ],
-      layout_height:     [ p.Number                            ],
+      outer_width:       [ p.Number                            ],
+      outer_height:      [ p.Number                            ],
 
       match_aspect:      [ p.Bool,     false                   ],
       aspect_scale:      [ p.Number,   1                       ],
@@ -230,14 +236,6 @@ export class Plot extends LayoutDOM {
         yr.setv({plots: plots}, {silent: true})
       }
     }
-
-    // Set width & height to be the passed in plot_width and plot_height
-    // We may need to be more subtle about this - not sure why people use one
-    // or the other.
-    if (this.width == null)
-      this.width = this.plot_width
-    if (this.height == null)
-      this.height = this.plot_height
   }
 
   add_layout(renderer: Annotation | GuideRenderer, side: Place = "center"): void {

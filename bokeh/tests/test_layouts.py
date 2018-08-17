@@ -23,11 +23,8 @@ import pytest ; pytest
 # Bokeh imports
 from bokeh.core.enums import SizingMode
 from bokeh.plotting import figure
-from bokeh.layouts import gridplot
-from bokeh.models import Column, Row, Spacer
-
-# Module under test
-import bokeh.layouts as lyt
+from bokeh.layouts import column, row, gridplot, layout
+from bokeh.models import Column, Row, GridBox
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -40,7 +37,7 @@ import bokeh.layouts as lyt
 def test_gridplot_merge_tools_flat():
     p1, p2, p3, p4 = figure(), figure(), figure(), figure()
 
-    lyt.gridplot([[p1, p2], [p3, p4]], merge_tools=True)
+    gridplot([[p1, p2], [p3, p4]], merge_tools=True)
 
     for p in p1, p2, p3, p4:
         assert p.toolbar_location is None
@@ -49,7 +46,7 @@ def test_gridplot_merge_tools_flat():
 def test_gridplot_merge_tools_with_None():
     p1, p2, p3, p4 = figure(), figure(), figure(), figure()
 
-    lyt.gridplot([[p1, None, p2], [p3, p4, None]], merge_tools=True)
+    gridplot([[p1, None, p2], [p3, p4, None]], merge_tools=True)
 
     for p in p1, p2, p3, p4:
         assert p.toolbar_location is None
@@ -57,11 +54,11 @@ def test_gridplot_merge_tools_with_None():
 
 def test_gridplot_merge_tools_nested():
     p1, p2, p3, p4, p5, p6, p7 = figure(), figure(), figure(), figure(), figure(), figure(), figure()
-    r1 = lyt.row(p1, p2)
-    r2 = lyt.row(p3, p4)
-    c = lyt.column(lyt.row(p5), lyt.row(p6))
+    r1 = row(p1, p2)
+    r2 = row(p3, p4)
+    c = column(row(p5), row(p6))
 
-    lyt.gridplot([[r1, r2], [c, p7]], merge_tools=True)
+    gridplot([[r1, r2], [c, p7]], merge_tools=True)
 
     for p in p1, p2, p3, p4, p5, p6, p7:
         assert p.toolbar_location is None
@@ -73,53 +70,32 @@ def test_gridplot_None():
         p.circle([1, 2, 3], [4, 5, 6])
         return p
 
-    g = gridplot([[p(), p()], [None, None], [p(), p()]])
+    p0, p1, p2, p3 = p(), p(), p(), p()
+    g = gridplot([[p0, p1], [None, None], [p2, p3]], toolbar_location=None)
 
-    assert isinstance(g, Column) and len(g.children) == 2
-
-    c = g.children[1]
-    assert isinstance(c, Column) and len(c.children) == 3
-
-    r = c.children[1]
-    assert isinstance(r, Row) and len(r.children) == 2
-
-    s0 = r.children[0]
-    assert isinstance(s0, Spacer) and s0.width == 0 and s0.height == 0
-    s1 = r.children[1]
-    assert isinstance(s1, Spacer) and s1.width == 0 and s1.height == 0
-
+    assert isinstance(g, GridBox) and len(g.children) == 4
+    assert g.children == [(p0, 0, 0), (p1, 0, 1), (p2, 2, 0), (p3, 2, 1)]
 
 def test_layout_simple():
     p1, p2, p3, p4 = figure(), figure(), figure(), figure()
 
-    grid = lyt.layout([[p1, p2], [p3, p4]], sizing_mode='fixed')
+    grid = layout([[p1, p2], [p3, p4]], sizing_mode='fixed')
 
-    assert isinstance(grid, lyt.Column)
-    for row in grid.children:
-        assert isinstance(row, lyt.Row)
+    assert isinstance(grid, Column)
+    for r in grid.children:
+        assert isinstance(r, Row)
 
 
 def test_layout_nested():
     p1, p2, p3, p4, p5, p6 = figure(), figure(), figure(), figure(), figure(), figure()
 
-    grid = lyt.layout([[[p1, p1], [p2, p2]], [[p3, p4], [p5, p6]]], sizing_mode='fixed')
+    grid = layout([[[p1, p1], [p2, p2]], [[p3, p4], [p5, p6]]], sizing_mode='fixed')
 
-    assert isinstance(grid, lyt.Column)
-    for row in grid.children:
-        assert isinstance(row, lyt.Row)
-        for col in row.children:
-            assert isinstance(col, lyt.Column)
-
-
-@pytest.mark.parametrize('sizing_mode', SizingMode)
-@pytest.mark.unit
-def test_layout_sizing_mode(sizing_mode):
-    p1, p2, p3, p4 = figure(), figure(), figure(), figure()
-
-    lyt.layout([[p1, p2], [p3, p4]], sizing_mode=sizing_mode)
-
-    for p in p1, p2, p3, p4:
-        assert p1.sizing_mode == sizing_mode
+    assert isinstance(grid, Column)
+    for r in grid.children:
+        assert isinstance(r, Row)
+        for c in r.children:
+            assert isinstance(c, Column)
 
 #-----------------------------------------------------------------------------
 # Dev API

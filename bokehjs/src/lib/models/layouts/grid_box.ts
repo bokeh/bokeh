@@ -12,6 +12,7 @@ export class GridBoxView extends LayoutDOMView {
 
   update_layout(): void {
     this.layout = new Grid()
+    this.layout.sizing = this.box_sizing
 
     for (const [child, row, col] of this.model.children) {
       const child_view = this._child_views[child.id]

@@ -20,7 +20,8 @@ export class TabsView extends LayoutDOMView {
   }
 
   update_layout(): void {
-    this.layout = StackedLayout()
+    this.layout = new StackedLayout()
+    this.layout.sizing = this.box_sizing
     this.layout.items = this.child_views.map((child_view) => child_view.layout)
   }
 
