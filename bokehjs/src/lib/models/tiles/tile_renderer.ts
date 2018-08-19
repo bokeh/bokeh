@@ -182,7 +182,7 @@ export class TileRendererView extends RendererView {
     this._tiles.push(tile)
   }
 
-  protected _enforce_aspect_ratio(): boolean {
+  protected _enforce_aspect_ratio(): void {
     // brute force way of handling resize or sizing_mode event -------------------------------------------------------------
     if ((this._last_height !== this.map_frame._height.value) || (this._last_width !== this.map_frame._width.value)) {
       const extent = this.get_extent()
@@ -193,9 +193,7 @@ export class TileRendererView extends RendererView {
       this.extent = new_extent
       this._last_height = this.map_frame._height.value
       this._last_width = this.map_frame._width.value
-      return true
     }
-    return false
   }
 
   has_finished(): boolean {
@@ -223,9 +221,7 @@ export class TileRendererView extends RendererView {
       this.map_initialized = true
     }
 
-    if (this._enforce_aspect_ratio()) {
-      return
-    }
+    this._enforce_aspect_ratio()
 
     this._update()
     if (this.prefetch_timer != null) {
