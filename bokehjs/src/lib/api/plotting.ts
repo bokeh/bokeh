@@ -210,6 +210,7 @@ export class Figure extends Plot {
   circle_cross(...args: any[]): GlyphRenderer      { return this._marker(models.CircleCross,      args); }
   circle_x(...args: any[]): GlyphRenderer          { return this._marker(models.CircleX,          args); }
   cross(...args: any[]): GlyphRenderer             { return this._marker(models.Cross,            args); }
+  dash(...args: any[]): GlyphRenderer              { return this._marker(models.Dash,             args); }
   diamond(...args: any[]): GlyphRenderer           { return this._marker(models.Diamond,          args); }
   diamond_cross(...args: any[]): GlyphRenderer     { return this._marker(models.DiamondCross,     args); }
   inverted_triangle(...args: any[]): GlyphRenderer { return this._marker(models.InvertedTriangle, args); }

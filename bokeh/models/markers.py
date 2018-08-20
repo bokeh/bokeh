@@ -8,6 +8,7 @@ The full list of markers built into Bokeh is given below:
 * :class:`~bokeh.models.markers.CircleCross`
 * :class:`~bokeh.models.markers.CircleX`
 * :class:`~bokeh.models.markers.Cross`
+* :class:`~bokeh.models.markers.Dash`
 * :class:`~bokeh.models.markers.Diamond`
 * :class:`~bokeh.models.markers.DiamondCross`
 * :class:`~bokeh.models.markers.Hex`
@@ -136,6 +137,13 @@ class Cross(Marker):
     ''' Render '+' cross markers. '''
 
     __example__ = "examples/reference/models/Cross.py"
+
+class Dash(Marker):
+    ''' Render dash markers. Use ``angle`` to rotate and create vertically
+    oriented short lines.
+    '''
+
+    __example__ = "examples/reference/models/Dash.py"
 
 class Diamond(Marker):
     ''' Render diamond markers. '''

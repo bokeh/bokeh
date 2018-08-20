@@ -28,11 +28,11 @@ Support
 -------
 
 Only a subset of Bokeh's objects are capable of rendering in WebGL.
-Currently supported are the circle and line glyphs, and all markers
+Currently supported are the circle and line glyphs, and most markers
 supported by ``scatter()`` (asterisk, circle, square, diamond, triangle,
 inverted_triangle, cross, circle_cross, square_cross, diamond_cross,
-x, square_x, circle_x). You can safely combine multiple glyphs in a
-plot, even if some are rendered in WebGL, and some are not.
+x, square_x, circle_x). You can safely combine multiple glyphs
+in a plot, even if some are rendered in WebGL, and some are not.
 
 The performance improvements when using WebGL varies per situation. Due
 to overhead in some places of BokehJS, we can currently not benefit

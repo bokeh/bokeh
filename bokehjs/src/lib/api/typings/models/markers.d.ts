@@ -30,6 +30,10 @@ declare namespace Bokeh {
   export interface Cross extends Marker, ICross {}
   export interface ICross extends IMarker {}
 
+  export const Dash: { new(attributes?: IDash, options?: ModelOpts): Dash };
+  export interface Dash extends Marker, IDash {}
+  export interface IDash extends IMarker {}
+
   export const Diamond: { new(attributes?: IDiamond, options?: ModelOpts): Diamond };
   export interface Diamond extends Marker, IDiamond {}
   export interface IDiamond extends IMarker {}
