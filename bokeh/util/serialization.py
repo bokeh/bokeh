@@ -17,6 +17,7 @@ import base64
 import datetime as dt
 import math
 import sys
+from threading import Lock
 import uuid
 
 import numpy as np
@@ -62,7 +63,8 @@ DT_EPOCH = dt.datetime.utcfromtimestamp(0)
 
 __doc__ = format_docstring(__doc__, binary_array_types="\n".join("* ``np." + str(x) + "``" for x in BINARY_ARRAY_TYPES))
 
-_simple_id = 1000
+_simple_id = 999
+_simple_id_lock = Lock()
 
 _dt_tuple = tuple(DATETIME_TYPES)
 
@@ -198,21 +200,23 @@ def convert_datetime_array(array):
 def make_id():
     ''' Return a new unique ID for a Bokeh object.
 
-    Normally this function will return UUIDs to use for identifying Bokeh
-    objects. This is especally important for Bokeh objects stored on a
-    Bokeh server. However, it is convenient to have more human-readable
-    IDs during development, so this behavior can be overridden by
-    setting the environment variable ``BOKEH_SIMPLE_IDS=yes``.
+    Normally this function will return simple monotonically increasing integer
+    IDs (as strings) for identifying Bokeh ojects within a Document. However,
+    if it is desirable to have UUIDs for every object, this behavior can be
+    overridden by setting the environment variable ``BOKEH_SIMPLE_IDS=no``.
+
+    Returns:
+        str
 
     '''
     global _simple_id
 
-    if settings.simple_ids(False):
-        _simple_id += 1
-        new_id = _simple_id
+    if settings.simple_ids(True):
+        with _simple_id_lock:
+            _simple_id += 1
+            return str(_simple_id)
     else:
-        new_id = uuid.uuid4()
-    return str(new_id)
+        return str(uuid.uuid4())
 
 def array_encoding_disabled(array):
     ''' Determine whether an array may be binary encoded.

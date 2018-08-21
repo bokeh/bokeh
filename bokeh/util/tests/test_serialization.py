@@ -1,7 +1,11 @@
 from __future__ import absolute_import
 
-import datetime
 import base64
+import datetime
+import os
+from random import random
+from threading import Thread
+import time
 
 import pytest
 import numpy as np
@@ -10,17 +14,41 @@ import pytz
 
 import bokeh.util.serialization as bus
 
+class Test_make_id(object):
 
-def test_id():
-    assert len(bus.make_id()) == 36
-    assert isinstance(bus.make_id(), str)
+    def test_default(self):
+        bus._simple_id = 999
+        assert bus.make_id() == "1000"
+        assert bus.make_id() == "1001"
+        assert bus.make_id() == "1002"
 
-def test_id_with_simple_ids():
-    import os
-    os.environ["BOKEH_SIMPLE_IDS"] = "yes"
-    assert bus.make_id() == "1001"
-    assert bus.make_id() == "1002"
-    del os.environ["BOKEH_SIMPLE_IDS"]
+    def test_simple_ids_yes(self):
+        bus._simple_id = 999
+        os.environ["BOKEH_SIMPLE_IDS"] = "yes"
+        assert bus.make_id() == "1000"
+        assert bus.make_id() == "1001"
+        assert bus.make_id() == "1002"
+
+    def test_simple_ids_no(self):
+        os.environ["BOKEH_SIMPLE_IDS"] = "no"
+        assert len(bus.make_id()) == 36
+        assert isinstance(bus.make_id(), str)
+        del os.environ["BOKEH_SIMPLE_IDS"]
+
+    def test_threads(self):
+        bus._simple_id = 999
+        outputs = []
+        threads = []
+        def func():
+            for i in range(10):
+                time.sleep(random()/100)
+                outputs.append(bus.make_id())
+        for i in range(100):
+            threads.append(Thread(target=func))
+        for t in threads: t.start()
+        for t in threads: t.join()
+        outputs.append(bus.make_id())
+        assert outputs == [str(x) for x in range(1000, 2001)]
 
 def test_np_consts():
     assert bus.NP_EPOCH == np.datetime64(0, 'ms')
