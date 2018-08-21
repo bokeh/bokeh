@@ -14,6 +14,7 @@ import {ToolbarBase, GestureType} from "./toolbar_base"
 import {ToolProxy} from "./tool_proxy"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
+import {SizeHint, Layoutable} from "core/layout"
 
 export namespace ProxyToolbar {
   export interface Attrs extends ToolbarBase.Attrs {}
@@ -196,8 +197,8 @@ export class ToolbarBoxView extends LayoutDOMView {
   model: ToolbarBox
 
   initialize(options: any): void {
-    super.initialize(options)
     this.model.toolbar.toolbar_location = this.model.toolbar_location
+    super.initialize(options)
   }
 
   get child_models(): LayoutDOM[] {
@@ -205,35 +206,27 @@ export class ToolbarBoxView extends LayoutDOMView {
   }
 
   update_layout(): void {
-    // this.layout = TODO
-    // this.layout.sizing = this.box_sizing()
-  }
-
-  /* XXX
-  get_width(): number {
-    return this.model.toolbar.vertical ? 30 : null as never
-  }
-
-  get_height(): number {
-    return this.model.toolbar.horizontal ? 30 : null as never
-  }
-
-  // XXX: we are overriding LayoutDOM.sizing_mode here. That's a bad
-  // hack, but currently every layoutable is allowed to have its
-  // sizing mode configured, which is wrong.
-  get sizing_mode(): SizingMode {
-    switch (this.toolbar_location) {
-      case "above":
-      case "below": {
-        return "scale_width"
+    this.layout = new class extends Layoutable {
+      size_hint(): SizeHint {
+        const {width, height} = this.sizing as any // XXX
+        return {width, height}
       }
-      case "left":
-      case "right": {
-        return "scale_height"
+    }
+
+    const {toolbar} = this.model
+
+    if (toolbar.horizontal) {
+      this.layout.sizing = {
+        width_policy: "max", width: toolbar.tools.length*30 + (toolbar.logo != null ? 25 : 0),
+        height_policy: "fixed", height: 30,
+      }
+    } else {
+      this.layout.sizing = {
+        width_policy: "fixed", width: 30,
+        height_policy: "max", height: toolbar.tools.length*30 + (toolbar.logo != null ? 25 : 0),
       }
     }
   }
-  */
 }
 
 export namespace ToolbarBox {

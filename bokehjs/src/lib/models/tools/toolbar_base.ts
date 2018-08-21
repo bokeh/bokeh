@@ -137,6 +137,12 @@ export class ToolbarBaseView extends DOMView {
       }
     }
   }
+
+  update_position(): void {}
+
+  after_layout(): void {
+    this._has_finished = true
+  }
 }
 
 export type GestureType = "pan" | "scroll" | "pinch" | "tap" | "doubletap" | "press" | "rotate" | "move" | "multi"
