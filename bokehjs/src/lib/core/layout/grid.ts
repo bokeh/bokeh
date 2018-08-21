@@ -24,7 +24,7 @@ class GridCell {
 
 type Matrix = GridCell[][]
 
-type TrackSpec = {policy: "min" | "fixed"} | {policy: "flex", factor: number} | {policy: "auto" | "max", factor: 1}
+type TrackSpec = {policy: "min" | "fixed"} | {policy: "flex", factor: number}
 
 type RowSpec = {height: number} & TrackSpec
 type ColSpec = {width:  number} & TrackSpec
@@ -33,8 +33,8 @@ type GridState = {
   matrix: Matrix
   nrows: number
   ncols: number
-  rows: {[key: number]: RowSpec}
-  cols: {[key: number]: ColSpec}
+  rows: RowSpec[]
+  cols: ColSpec[]
 }
 
 export type RowSizing =
@@ -66,7 +66,7 @@ export class Grid extends Layoutable {
     nrows += 1
     ncols += 1
 
-    const matrix = new Array(nrows)
+    const matrix: Matrix = new Array(nrows)
     for (let y = 0; y < nrows; y++) {
       matrix[y] = new Array(ncols)
       for (let x = 0; x < ncols; x++) {
@@ -83,26 +83,64 @@ export class Grid extends Layoutable {
       })
     }
 
-    const rows = new Array(nrows)
+    const rows: RowSpec[] = new Array(nrows)
     for (let y = 0; y < nrows; y++) {
-      const row = this.rows[y] || {policy: "auto"}
+      let row = this.rows[y]
+
+      if (row == null) {
+        let min_policy = true
+        row_auto: for (let x = 0; x < ncols; x++) {
+          const cell = matrix[y][x]
+          for (let i = 0; i < cell.items.length; i++) {
+            const policy = cell.items[i].layout.sizing.height_policy
+            if (!(policy == "min" || policy == "fixed")) {
+              min_policy = false
+              break row_auto
+            }
+          }
+        }
+
+        row = {policy: min_policy ? "min" : "max"}
+      }
+
       if (row.policy == "fixed")
         rows[y] = {height: row.height, policy: "fixed"}
+      else if (row.policy == "min")
+        rows[y] = {height: 0, policy: "min"}
+      else if (row.policy == "max")
+        rows[y] = {height: 0, policy: "flex", factor: 1}
       else if (row.policy == "flex")
         rows[y] = {height: 0, policy: "flex", factor: row.factor}
-      else
-        rows[y] = {height: 0, policy: row.policy, factor: 1}
     }
 
-    const cols = new Array(ncols)
+    const cols: ColSpec[] = new Array(ncols)
     for (let x = 0; x < ncols; x++) {
-      const col = this.cols[x] || {policy: "auto"}
+      let col = this.cols[x]
+
+      if (col == null) {
+        let min_policy = true
+        col_auto: for (let y = 0; y < nrows; y++) {
+          const cell = matrix[y][x]
+          for (let i = 0; i < cell.items.length; i++) {
+            const policy = cell.items[i].layout.sizing.width_policy
+            if (!(policy == "min" || policy == "fixed")) {
+              min_policy = false
+              break col_auto
+            }
+          }
+        }
+
+        col = {policy: min_policy ? "min" : "max"}
+      }
+
       if (col.policy == "fixed")
         cols[x] = {width: col.width, policy: "fixed"}
+      else if (col.policy == "min")
+        cols[x] = {width: 0, policy: "min"}
+      else if (col.policy == "max")
+        cols[x] = {width: 0, policy: "flex", factor: 1}
       else if (col.policy == "flex")
         cols[x] = {width: 0, policy: "flex", factor: col.factor}
-      else
-        cols[x] = {width: 0, policy: col.policy, factor: 1}
     }
 
     for (let y = 0; y < nrows; y++) {
@@ -171,7 +209,7 @@ export class Grid extends Layoutable {
       const row = rows[y]
       if (row.policy == "fixed" || row.policy == "min")
         available_height -= row.height
-      else if (row.policy == "flex" || row.policy == "max" || row.policy == "auto")
+      else if (row.policy == "flex")
         total_row_flex += row.factor
     }
 
@@ -179,7 +217,7 @@ export class Grid extends Layoutable {
       const col = cols[x]
       if (col.policy == "fixed" || col.policy == "min")
         available_width -= col.width
-      else if (col.policy == "flex" || col.policy == "max" || col.policy == "auto")
+      else if (col.policy == "flex")
         total_col_flex += col.factor
     }
 
@@ -190,13 +228,13 @@ export class Grid extends Layoutable {
 
     for (let y = 0; y < nrows; y++) {
       const row = rows[y]
-      if (row.policy == "flex" || row.policy == "max" || row.policy == "auto")
+      if (row.policy == "flex")
         row.height = available_height * (row.factor/total_row_flex)
     }
 
     for (let x = 0; x < ncols; x++) {
       const col = cols[x]
-      if (col.policy == "flex" || col.policy == "max" || col.policy == "auto")
+      if (col.policy == "flex")
         col.width = available_width * (col.factor/total_col_flex)
     }
 
