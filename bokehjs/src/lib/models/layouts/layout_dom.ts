@@ -1,6 +1,7 @@
 import {Model} from "../../model"
 import {SizingMode} from "core/enums"
 import {empty, margin, padding} from "core/dom"
+import {logger} from "core/logging"
 import * as p from "core/properties"
 
 import {build_views} from "core/build_views"
@@ -125,10 +126,12 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
   }
 
   protected _do_layout(): void {
+    const start = Date.now()
     const viewport = this._viewport_size()
     this.layout.compute(viewport)
     this.update_position()
     this.after_layout()
+    logger.info(`layout computed in ${Date.now() - start} ms`)
     this.notify_finished()
   }
 
