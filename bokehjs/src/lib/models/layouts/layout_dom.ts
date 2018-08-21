@@ -186,22 +186,22 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
     this._render_classes()
   }
 
-  get aspect_ratio(): number | undefined {
-    const {aspect_ratio, width, height} = this.model
-
-    if (aspect_ratio == null)
-      return undefined
-    else if (aspect_ratio == "auto")
-      if (width == null || height == null)
-        return undefined
-      else
-        return width/height
-    else
-      return aspect_ratio
-  }
-
-  get box_sizing(): BoxSizing {
+  box_sizing(): BoxSizing {
     const {sizing_mode} = this.model
+
+    const resolve_aspect = (aspect: number | "auto" | null): number | undefined => {
+      const {width, height} = this.model
+
+      if (aspect == null)
+        return undefined
+      else if (aspect == "auto") {
+        if (width != null && height != null)
+          return width/height
+        else
+          return undefined
+      } else
+        return aspect
+    }
 
     if (sizing_mode == null) {
       const {width_policy, height_policy} = this.model
@@ -228,26 +228,30 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
       else
         height_sizing = {height_policy}
 
-      return {...width_sizing, ...height_sizing, aspect: this.aspect_ratio}
+      const aspect = resolve_aspect(this.model.aspect_ratio)
+      return {...width_sizing, ...height_sizing, aspect}
     } else {
-      switch (sizing_mode) {
-        case "fixed": {
-          const {width, height} = this.model
-          if (width != null && height != null)
-            return {width_policy: "fixed", width, height_policy: "fixed", height}
-          else
-            throw new Error("width and height must be specified with fixed sizing mode")
+      if (sizing_mode == "fixed") {
+        const {width, height} = this.model
+        if (width != null && height != null)
+          return {width_policy: "fixed", width, height_policy: "fixed", height}
+        else
+          throw new Error("width and height must be specified with fixed sizing mode")
+      } else if (sizing_mode == "stretch_both") {
+        return {width_policy: "max", height_policy: "max"}
+      } else {
+        const aspect = resolve_aspect(this.model.aspect_ratio || "auto")
+
+        switch (sizing_mode) {
+          case "scale_width":
+            return {width_policy: "max", height_policy: "min", aspect}
+          case "scale_height":
+            return {width_policy: "min", height_policy: "max", aspect}
+          case "scale_both":
+            return {width_policy: "max", height_policy: "max", aspect}
+          default:
+            throw new Error("unreachable")
         }
-        case "stretch_both":
-          return {width_policy: "max", height_policy: "max"}
-        case "scale_width":
-          return {width_policy: "max", height_policy: "min", aspect: this.aspect_ratio || 1.0}
-        case "scale_height":
-          return {width_policy: "min", height_policy: "max", aspect: this.aspect_ratio || 1.0}
-        case "scale_both":
-          return {width_policy: "max", height_policy: "max", aspect: this.aspect_ratio || 1.0}
-        default:
-          throw new Error("unrechable")
       }
     }
   }
@@ -255,8 +259,8 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
 
 export namespace LayoutDOM {
   export interface Attrs extends Model.Attrs {
-    width: number
-    height: number
+    width: number | null
+    height: number | null
     width_policy: SizingPolicy
     height_policy: SizingPolicy
     aspect_ratio: number | "auto"
@@ -267,8 +271,8 @@ export namespace LayoutDOM {
   }
 
   export interface Props extends Model.Props {
-    width: p.Property<number>
-    height: p.Property<number>
+    width: p.Property<number | null>
+    height: p.Property<number | null>
     width_policy: p.Property<SizingPolicy>
     height_policy: p.Property<SizingPolicy>
     aspect_ratio: p.Property<number | "auto">

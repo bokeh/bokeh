@@ -93,15 +93,17 @@ export class PlotLayout extends Layoutable {
     const center = this.center_panel.size_hint()
 
     let width: number
-    if (this.sizing.width_policy == "fixed" ||
-        (this.sizing.width_policy == "auto" && this.sizing.width != null))
+    if (this.sizing.width_policy == "fixed")
+      width = this.sizing.width
+    else if (this.sizing.width_policy == "auto" && this.sizing.width != null)
       width = this.sizing.width
     else
       width = left + center.width  + right
 
     let height: number
-    if (this.sizing.height_policy == "fixed" ||
-        (this.sizing.height_policy == "auto" && this.sizing.height != null))
+    if (this.sizing.height_policy == "fixed")
+      height = this.sizing.height
+    else if (this.sizing.height_policy == "auto" && this.sizing.height != null)
       height = this.sizing.height
     else
       height = top + center.height + bottom
@@ -387,19 +389,11 @@ export abstract class PlotCanvasView extends LayoutDOMView {
   update_layout(): void {
     this.layout = new PlotLayout()
 
-    const sizing = this.box_sizing
-    if (sizing.width_policy == "auto") {
-      if (this.model.frame_width != null)
-        sizing.width_policy = "min"
-      else if (sizing.width == null)
-        sizing.width = this.model.plot_width
-    }
-    if (sizing.height_policy == "auto") {
-      if (this.model.frame_height != null)
-        sizing.height_policy = "min"
-      else if (sizing.height == null)
-        sizing.height = this.model.plot_height
-    }
+    const sizing = this.box_sizing()
+    if (sizing.width_policy == "auto" && this.model.frame_width != null)
+      sizing.width_policy = "min" as any // XXX
+    if (sizing.height_policy == "auto" && this.model.frame_height != null)
+      sizing.height_policy = "min" as any // XXX
 
     this.layout.sizing = sizing
   }

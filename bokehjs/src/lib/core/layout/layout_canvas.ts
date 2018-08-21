@@ -23,12 +23,12 @@ export type Sizing = number | "min" | "max"
 
 export type WidthSizing =
   {width_policy: "fixed", width: number} |
-  {width_policy: "auto", width?: number, aspect?: number} |
+  {width_policy: "auto", width?: number | null, aspect?: number} |
   {width_policy: "min" | "max", aspect?: number}
 
 export type HeightSizing =
   {height_policy: "fixed", height: number} |
-  {height_policy: "auto", height?: number, aspect?: number} |
+  {height_policy: "auto", height?: number | null, aspect?: number} |
   {height_policy: "min" | "max", aspect?: number}
 
 export type BoxSizing = WidthSizing & HeightSizing
@@ -84,7 +84,7 @@ export abstract class Layoutable {
     this._set_geometry(outer, inner || outer)
   }
 
-  compute(viewport: Size): void {
+  compute(viewport: {width: number | null, height: number | null}): void {
     const size_hint = this.size_hint()
 
     let width: number
@@ -95,7 +95,10 @@ export abstract class Layoutable {
         width = this.sizing.width
         break
       case "max":
-        width = viewport.width
+        if (viewport.width != null)
+          width = viewport.width
+        else
+          throw new Error("'max' sizing policy requires viewport width to be specified")
         break
       case "min":
         width = size_hint.width
@@ -115,7 +118,10 @@ export abstract class Layoutable {
         height = this.sizing.height
         break
       case "max":
-        height = viewport.height
+        if (viewport.height != null)
+          height = viewport.height
+        else
+          throw new Error("'max' sizing policy requires viewport height to be specified")
         break
       case "min":
         height = size_hint.height
@@ -132,17 +138,18 @@ export abstract class Layoutable {
 
     const {width_policy, height_policy} = this.sizing
 
-    //if (this.sizing.width_policy
-
-    const {aspect} = this.sizing
-    if (aspect != null) {
-      if (width_policy != height_policy) {
-        if (width_policy == "max") {
-          height = width/aspect
-          if (height < size_hint.height) console.log("H")
-        } else {
-          width = height*aspect
-          if (width < size_hint.width) console.log("W")
+    if ((this.sizing.width_policy == "max" || this.sizing.width_policy == "min") &&
+        (this.sizing.height_policy == "max" || this.sizing.height_policy == "min")) {
+      const {aspect} = this.sizing
+      if (aspect != null) {
+        if (width_policy != height_policy) {
+          if (width_policy == "max") {
+            height = width/aspect
+            if (height < size_hint.height) console.log("H")
+          } else {
+            width = height*aspect
+            if (width < size_hint.width) console.log("W")
+          }
         }
       }
     }

@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 # External imports
 
 # Bokeh imports
-from .core.enums import Location, SizingMode
+from .core.enums import Location
 from .models.tools import ProxyToolbar, ToolbarBox
 from .models.plots import Plot
 from .models.layouts import LayoutDOM, Row, Column, GridBox
@@ -297,7 +297,6 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
                 items.append((item, y, x))
             else:
                 raise ValueError("Only LayoutDOM items can be inserted into a grid")
-
 
     if not merge_tools or not toolbar_location:
         return GridBox(children=items, sizing_mode=sizing_mode)

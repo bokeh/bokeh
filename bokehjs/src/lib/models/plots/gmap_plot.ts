@@ -101,6 +101,9 @@ export class GMapPlot extends Plot {
 
   properties: GMapPlot.Props
 
+  /*override*/ width: number | null
+  /*override*/ height: number | null
+
   constructor(attrs?: Partial<GMapPlot.Attrs>) {
     super(attrs)
   }

@@ -216,6 +216,16 @@ export class Plot extends LayoutDOM {
     register_with_event(UIEvent, this)
   }
 
+  get width(): number | null {
+    const width = this.getv("width")
+    return width != null ? width : this.plot_width
+  }
+
+  get height(): number | null {
+    const height = this.getv("height")
+    return height != null ? height : this.plot_height
+  }
+
   initialize(): void {
     super.initialize()
 

@@ -9,7 +9,7 @@ export abstract class WidgetView extends LayoutDOMView {
 
   update_layout(): void {
     // this.layout = TODO
-    // this.layout.sizing = this.box_sizing
+    // this.layout.sizing = this.box_sizing()
   }
 
   css_classes(): string[] {
