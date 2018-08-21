@@ -34,6 +34,7 @@ export class DOMView extends View {
 
   renderTo(element: HTMLElement): void {
     element.appendChild(this.el)
+    this.render()
     this.do_layout()
   }
 
