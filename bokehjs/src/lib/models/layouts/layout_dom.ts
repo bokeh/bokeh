@@ -109,10 +109,10 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
   }
 
   after_layout(): void {
-    this._has_finished = true
-
     for (const child_view of this.child_views)
       child_view.after_layout()
+
+    this._has_finished = true
   }
 
   do_layout(): void {
