@@ -1,4 +1,16 @@
 .bk-root {
+  box-sizing: border-box;
+
+  *, *:before, *:after {
+    box-sizing: inherit;
+  }
+
+  *, *:before, *:after {
+    margin: 0;
+    border: 0;
+    padding: 0;
+  }
+
   @import "main.less";
   @import "icons.less";
   @import "logo.less";
@@ -12,6 +24,7 @@
   width: auto;
   height: auto;
 }
+
 /* notebook specific tweaks so no black outline and matching padding
 /* can't be wrapped inside bk-root. here are the offending jupyter lines:
 /* https://github.com/jupyter/notebook/blob/master/notebook/static/notebook/less/renderedhtml.less#L59-L76 */
