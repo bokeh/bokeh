@@ -144,6 +144,8 @@ export abstract class PlotCanvasView extends LayoutDOMView {
   protected _title: Title
   protected _toolbar: ToolbarPanel
 
+  protected _size_hint: SizeHint
+
   gl?: WebGLState
 
   force_paint: Signal0<this>
@@ -902,6 +904,8 @@ export abstract class PlotCanvasView extends LayoutDOMView {
   }
 
   after_layout(): void {
+    this._size_hint = this.layout.size_hint()
+
     this.model.setv({
       inner_width: Math.round(this.frame._width.value),
       inner_height: Math.round(this.frame._height.value),
@@ -927,13 +931,24 @@ export abstract class PlotCanvasView extends LayoutDOMView {
   }
 
   protected _needs_layout(): boolean {
-    return true
-    /*
-    return this._top_panel_size !== this.top_panel.get_size() ||
-           this._bottom_panel_size !== this.bottom_panel.get_size() ||
-           this._left_panel_size  !== this.left_panel.get_size()  ||
-           this._right_panel_size !== this.right_panel.get_size()
-     */
+    const size_hint = this.layout.size_hint()
+    const {_size_hint} = this
+
+    if (_size_hint.width != size_hint.width || _size_hint.height != size_hint.height)
+      return true
+
+    if ((_size_hint.inner != null) != (size_hint.inner != null))
+      return true
+
+    if (_size_hint.inner != null && size_hint.inner != null) {
+      if (_size_hint.inner.left   != size_hint.inner.left  ||
+          _size_hint.inner.right  != size_hint.inner.right ||
+          _size_hint.inner.top    != size_hint.inner.top   ||
+          _size_hint.inner.bottom != size_hint.inner.bottom)
+        return true
+    }
+
+    return false
   }
 
   repaint(): void {
