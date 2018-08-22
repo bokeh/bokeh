@@ -145,6 +145,9 @@ export abstract class PlotCanvasView extends LayoutDOMView {
   protected _toolbar: ToolbarPanel
 
   protected _size_hint: SizeHint
+  protected _outer_box: BBox = new BBox()
+  protected _inner_box: BBox = new BBox()
+  protected _needs_paint: boolean = true
 
   gl?: WebGLState
 
@@ -919,15 +922,27 @@ export abstract class PlotCanvasView extends LayoutDOMView {
       this.unpause(true)
     }
 
-    // TODO: do only if necessary
     const width = this.layout._width.value
     const height = this.layout._height.value
-    this.canvas_view.prepare_canvas(width, height)
 
-    // XXX: can't be this.request_paint(), because it would trigger back-and-forth
-    // layout recomputing feedback loop between plots. Plots are also much more
-    // responsive this way, especially in interactive mode.
-    this.paint()
+    if (this._outer_box.width != width || this._outer_box.height != height) {
+      this.canvas_view.prepare_canvas(width, height)
+      this._outer_box = this.layout.bbox
+      this._needs_paint = true
+    }
+
+    if (!this._inner_box.equals(this.frame.bbox)) {
+      this._inner_box = this.frame.bbox
+      this._needs_paint = true
+    }
+
+    if (this._needs_paint) {
+      // XXX: can't be this.request_paint(), because it would trigger back-and-forth
+      // layout recomputing feedback loop between plots. Plots are also much more
+      // responsive this way, especially in interactive mode.
+      this._needs_paint = false
+      this.paint()
+    }
   }
 
   protected _needs_layout(): boolean {
@@ -952,9 +967,10 @@ export abstract class PlotCanvasView extends LayoutDOMView {
   }
 
   repaint(): void {
-    if (this._needs_layout())
+    if (this._needs_layout()) {
+      this._needs_paint = true
       this.do_layout()
-    else
+    } else
       this.paint()
   }
 

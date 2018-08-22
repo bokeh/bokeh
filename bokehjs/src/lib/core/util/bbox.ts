@@ -77,8 +77,13 @@ export class BBox implements IBBox {
   readonly x1: number
   readonly y1: number
 
-  constructor(box: IBBox | IRect | Position) {
-    if ('x0' in box) {
+  constructor(box?: IBBox | IRect | Position) {
+    if (box == null) {
+      this.x0 = 0
+      this.y0 = 0
+      this.x1 = 0
+      this.y1 = 0
+    } else if ('x0' in box) {
       const {x0, y0, x1, y1} = box as IBBox
       if (!(x0 <= x1 && y0 <= y1))
         throw new Error(`invalid bbox {x0: ${x0}, y0: ${y0}, x1: ${x1}, y1: ${y1}}`)
@@ -201,5 +206,9 @@ export class BBox implements IBBox {
       x1: max(this.x1, that.x1),
       y1: max(this.y1, that.y1),
     })
+  }
+
+  equals(that: IBBox): boolean {
+    return this.x0 == that.x0 && this.y0 == that.y0 && this.x1 == that.x1 && this.y1 == that.y1
   }
 }
