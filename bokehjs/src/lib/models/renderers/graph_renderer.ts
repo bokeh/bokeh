@@ -116,10 +116,6 @@ export class GraphRenderer extends DataRenderer {
       selection_policy:   [ p.Instance,      () => new NodesOnly()  ],
       inspection_policy:  [ p.Instance,      () => new NodesOnly()  ],
     })
-
-    this.override({
-      level: 'glyph',
-    })
   }
 
   get_selection_manager(): SelectionManager {

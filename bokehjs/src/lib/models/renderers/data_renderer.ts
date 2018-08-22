@@ -37,6 +37,10 @@ export abstract class DataRenderer extends Renderer {
       x_range_name: [ p.String, 'default' ],
       y_range_name: [ p.String, 'default' ],
     })
+
+    this.override({
+      level: 'glyph',
+    })
   }
 
   abstract get_selection_manager(): SelectionManager

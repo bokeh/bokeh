@@ -415,10 +415,6 @@ export class TileRenderer extends DataRenderer {
       tile_source:    [ p.Instance, () => new WMTSTileSource() ],
       render_parents: [ p.Bool,     true             ],
     })
-
-    this.override({
-      level: 'underlay',
-    })
   }
 
   // XXX: tile renderer doesn't allow selection, but needs to fulfil the APIs

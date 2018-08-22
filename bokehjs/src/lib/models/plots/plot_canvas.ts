@@ -802,12 +802,12 @@ export abstract class PlotCanvasView extends LayoutDOMView {
   build_renderer_views(): void {
     this.computed_renderers = []
 
-    this.computed_renderers.push(...this.model.renderers)
     this.computed_renderers.push(...this.model.above)
     this.computed_renderers.push(...this.model.below)
     this.computed_renderers.push(...this.model.left)
     this.computed_renderers.push(...this.model.right)
     this.computed_renderers.push(...this.model.center)
+    this.computed_renderers.push(...this.model.renderers)
 
     if (this._title != null)
       this.computed_renderers.push(this._title)
