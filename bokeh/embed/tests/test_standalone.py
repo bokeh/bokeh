@@ -26,10 +26,8 @@ from jinja2 import Template
 from six import string_types
 
 # Bokeh imports
-from bokeh.core.properties import Instance
 from bokeh.document import Document
 from bokeh.io import curdoc
-from bokeh.model import Model
 from bokeh.plotting import figure
 from bokeh.resources import CDN, JSResources, CSSResources
 from bokeh.util.string import encode_utf8
@@ -41,9 +39,6 @@ from bokeh.embed.util import RenderRoot
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
-
-class SomeModelInTestObjects(Model):
-    child = Instance(Model)
 
 def stable_id():
     return 'ID'
@@ -230,7 +225,7 @@ class Test_file_html(object):
         r = bes.file_html(test_plot, CDN, "&<")
         assert "<title>&amp;&lt;</title>" in r
 
-    def test_entire_doc_is_used(self):
+    def test_entire_doc_is_not_used(self):
         from bokeh.document import Document
         from bokeh.models import Button
 
@@ -245,7 +240,7 @@ class Test_file_html(object):
         out = bes.file_html([fig], CDN)
 
         # this is a very coarse test but it will do
-        assert "bokeh-widgets" in out
+        assert "bokeh-widgets" not in out
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -254,89 +249,6 @@ class Test_file_html(object):
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
-
-class Test__ModelInDocument(object):
-
-    def test_single_model(self):
-        p = Model()
-        assert p.document is None
-        with bes._ModelInDocument([p]):
-            assert p.document is not None
-        assert p.document is None
-
-    def test_list_of_model(self):
-        p1 = Model()
-        p2 = Model()
-        assert p1.document is None
-        assert p2.document is None
-        with bes._ModelInDocument([p1, p2]):
-            assert p1.document is not None
-            assert p2.document is not None
-        assert p1.document is None
-        assert p2.document is None
-
-    def test_uses_precedent(self):
-        # it's deliberate that the doc is on p2, so _ModelInDocument
-        # has to be smart about looking for a doc anywhere in the list
-        # before it starts inventing new documents
-        doc = Document()
-        p1 = Model()
-        p2 = Model()
-        doc.add_root(p2)
-        assert p1.document is None
-        assert p2.document is not None
-        with bes._ModelInDocument([p1, p2]):
-            assert p1.document is not None
-            assert p2.document is not None
-            assert p1.document is doc
-            assert p2.document is doc
-        assert p1.document is None
-        assert p2.document is not None
-
-    def test_uses_doc_precedent(self):
-        doc = Document()
-        p1 = Model()
-        p2 = Model()
-        assert p1.document is None
-        assert p2.document is None
-        with bes._ModelInDocument([p1, p2, doc]):
-            assert p1.document is not None
-            assert p2.document is not None
-            assert p1.document is doc
-            assert p2.document is doc
-        assert p1.document is None
-        assert p2.document is None
-
-    def test_with_doc_in_child_raises_error(self):
-        doc = Document()
-        p1 = Model()
-        p2 = SomeModelInTestObjects(child=Model())
-        doc.add_root(p2.child)
-        assert p1.document is None
-        assert p2.document is None
-        assert p2.child.document is doc
-        with pytest.raises(RuntimeError):
-            with bes._ModelInDocument([p1, p2]):
-                assert p1.document is not None
-                assert p2.document is not None
-                assert p1.document is doc
-                assert p2.document is doc
-
-    @patch('bokeh.document.document.check_integrity')
-    def test_validates_document_by_default(self, check_integrity, test_plot):
-        with bes._ModelInDocument([test_plot]):
-            pass
-        assert check_integrity.called
-
-    @patch('bokeh.document.document.check_integrity')
-    def test_doesnt_validate_doc_due_to_env_var(self, check_integrity, monkeypatch, test_plot):
-        monkeypatch.setenv("BOKEH_VALIDATE_DOC", "false")
-        with bes._ModelInDocument([test_plot]):
-            pass
-        assert not check_integrity.called
-
-class Test__add_doc_to_models(object):
-    pass
 
 class Test__title_from_models(object):
     pass

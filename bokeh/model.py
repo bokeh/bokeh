@@ -216,6 +216,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
     def __init__(self, **kwargs):
         self._id = kwargs.pop("id", make_id())
         self._document = None
+        self._temp_document = None
         super(Model, self).__init__(**kwargs)
         default_theme.apply_to_model(self)
 
@@ -307,6 +308,8 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
         ''' The |Document| this model is attached to (can be ``None``)
 
         '''
+        if self._temp_document is not None:
+            return self._temp_document
         return self._document
 
     @property

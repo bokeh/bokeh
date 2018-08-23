@@ -21,13 +21,16 @@ import pytest ; pytest
 import logging
 
 # External imports
+from mock import patch
 
 # Bokeh imports
-from bokeh.model import Model
-from bokeh.core.properties import Int, String, List
+from bokeh.core.properties import Instance, Int, String, List
 from bokeh.document.document import Document
-from bokeh.util.logconfig import basicConfig
+from bokeh.io import curdoc
 from bokeh.events import Tap
+from bokeh.model import Model
+from bokeh.themes import Theme
+from bokeh.util.logconfig import basicConfig
 
 # Module under test
 import bokeh.embed.util as beu
@@ -37,6 +40,16 @@ import bokeh.embed.util as beu
 #-----------------------------------------------------------------------------
 # needed for caplog tests to function
 basicConfig()
+
+@pytest.fixture
+def test_plot():
+    from bokeh.plotting import figure
+    test_plot = figure()
+    test_plot.circle([1, 2], [2, 3])
+    return test_plot
+
+class SomeModelInTestObjects(Model):
+    child = Instance(Model)
 
 # Taken from test_callback_manager.py
 class _GoodPropertyCallback(object):
@@ -95,6 +108,429 @@ class Test_FromCurdoc(object):
     def test_type(self):
         assert isinstance(beu.FromCurdoc, type)
 
+_ODFERR = "OutputDocumentFor expects a Model, a Document, or a sequence of Models"
+
+class Test_OutputDocumentFor_general(object):
+
+    def test_error_on_empty_list(self):
+        with pytest.raises(ValueError) as e:
+            with beu.OutputDocumentFor([]):
+                pass
+        assert str(e).endswith(_ODFERR)
+
+    def test_error_on_mixed_list(self):
+        p = Model()
+        d = Document()
+        orig_theme = d.theme
+        with pytest.raises(ValueError) as e:
+            with beu.OutputDocumentFor([p, d]):
+                pass
+        assert str(e).endswith(_ODFERR)
+        assert d.theme is orig_theme
+
+    @pytest.mark.parametrize('v', [10, -0,3, "foo", True])
+    def test_error_on_wrong_types(self, v):
+        with pytest.raises(ValueError) as e:
+            with beu.OutputDocumentFor(v):
+                pass
+        assert str(e).endswith(_ODFERR)
+
+    def test_with_doc_in_child_raises_error(self):
+        doc = Document()
+        p1 = Model()
+        p2 = SomeModelInTestObjects(child=Model())
+        doc.add_root(p2.child)
+        assert p1.document is None
+        assert p2.document is None
+        assert p2.child.document is doc
+        with pytest.raises(RuntimeError) as e:
+            with beu.OutputDocumentFor([p1, p2]):
+                pass
+        assert "already in a doc" in str(e)
+
+    @patch('bokeh.document.document.check_integrity')
+    def test_validates_document_by_default(self, check_integrity, test_plot):
+        with beu.OutputDocumentFor([test_plot]):
+            pass
+        assert check_integrity.called
+
+    @patch('bokeh.document.document.check_integrity')
+    def test_doesnt_validate_doc_due_to_env_var(self, check_integrity, monkeypatch, test_plot):
+        monkeypatch.setenv("BOKEH_VALIDATE_DOC", "false")
+        with beu.OutputDocumentFor([test_plot]):
+            pass
+        assert not check_integrity.called
+
+class Test_OutputDocumentFor_default_apply_theme(object):
+
+    def test_single_document(self):
+        # should use existing doc in with-block
+        p = Model()
+        d = Document()
+        orig_theme = d.theme
+        d.add_root(p)
+        with beu.OutputDocumentFor(d) as doc:
+            assert doc is d
+            assert d.theme is orig_theme
+        assert d.theme is orig_theme
+
+    def test_single_model_with_document(self):
+        # should use existing doc in with-block
+        p = Model()
+        d = Document()
+        orig_theme = d.theme
+        d.add_root(p)
+        with beu.OutputDocumentFor([p]):
+            assert p.document is d
+            assert d.theme is orig_theme
+        assert p.document is d
+        assert d.theme is orig_theme
+
+    def test_single_model_with_no_document(self):
+        p = Model()
+        assert p.document is None
+        with beu.OutputDocumentFor([p]):
+            assert p.document is not None
+        assert p.document is not None
+
+    def test_list_of_model_with_no_documents(self):
+        # should create new (permanent) doc for inputs
+        p1 = Model()
+        p2 = Model()
+        assert p1.document is None
+        assert p2.document is None
+        with beu.OutputDocumentFor([p1, p2]):
+            assert p1.document is not None
+            assert p2.document is not None
+            assert p1.document is p2.document
+            new_doc = p1.document
+            new_theme = p1.document.theme
+        assert p1.document is new_doc
+        assert p1.document is p2.document
+        assert p1.document.theme is new_theme
+
+    def test_list_of_model_same_as_roots(self):
+        # should use existing doc in with-block
+        p1 = Model()
+        p2 = Model()
+        d = Document()
+        orig_theme = d.theme
+        d.add_root(p1)
+        d.add_root(p2)
+        with beu.OutputDocumentFor([p1, p2]):
+            assert p1.document is d
+            assert p2.document is d
+            assert d.theme is orig_theme
+        assert p1.document is d
+        assert p2.document is d
+        assert d.theme is orig_theme
+
+    def test_list_of_model_same_as_roots_with_always_new(self):
+        # should use new temp doc for everything inside with-block
+        p1 = Model()
+        p2 = Model()
+        d = Document()
+        orig_theme = d.theme
+        d.add_root(p1)
+        d.add_root(p2)
+        with beu.OutputDocumentFor([p1, p2], always_new=True):
+            assert p1.document is not d
+            assert p2.document is not d
+            assert p1.document is p2.document
+            assert p2.document.theme is orig_theme
+        assert p1.document is d
+        assert p2.document is d
+        assert d.theme is orig_theme
+
+    def test_list_of_model_subset_roots(self):
+        # should use new temp doc for subset inside with-block
+        p1 = Model()
+        p2 = Model()
+        d = Document()
+        orig_theme = d.theme
+        d.add_root(p1)
+        d.add_root(p2)
+        with beu.OutputDocumentFor([p1]):
+            assert p1.document is not d
+            assert p2.document is d
+            assert p1.document.theme is orig_theme
+            assert p2.document.theme is orig_theme
+        assert p1.document is d
+        assert p2.document is d
+        assert d.theme is orig_theme
+
+    def test_list_of_models_different_docs(self):
+        # should use new temp doc for eveything inside with-block
+        d = Document()
+        orig_theme = d.theme
+        p1 = Model()
+        p2 = Model()
+        d.add_root(p2)
+        assert p1.document is None
+        assert p2.document is not None
+        with beu.OutputDocumentFor([p1, p2]):
+            assert p1.document is not None
+            assert p2.document is not None
+            assert p1.document is not d
+            assert p2.document is not d
+            assert p1.document == p2.document
+            assert p1.document.theme is orig_theme
+        assert p1.document is None
+        assert p2.document is not None
+        assert p2.document.theme is orig_theme
+
+class Test_OutputDocumentFor_custom_apply_theme(object):
+
+    def test_single_document(self):
+        # should use existing doc in with-block
+        p = Model()
+        d = Document()
+        orig_theme = d.theme
+        d.add_root(p)
+        with beu.OutputDocumentFor(d, apply_theme=Theme(json={})) as doc:
+            assert doc is d
+            assert d.theme is not orig_theme
+        assert d.theme is orig_theme
+
+    def test_single_model_with_document(self):
+        # should use existing doc in with-block
+        p = Model()
+        d = Document()
+        orig_theme = d.theme
+        d.add_root(p)
+        with beu.OutputDocumentFor([p], apply_theme=Theme(json={})):
+            assert p.document is d
+            assert d.theme is not orig_theme
+        assert p.document is d
+        assert d.theme is orig_theme
+
+    def test_single_model_with_no_document(self):
+        p = Model()
+        assert p.document is None
+        with beu.OutputDocumentFor([p], apply_theme=Theme(json={})):
+            assert p.document is not None
+            new_theme = p.document.theme
+        assert p.document is not None
+        assert p.document.theme is not new_theme
+
+    def test_list_of_model_with_no_documents(self):
+        # should create new (permanent) doc for inputs
+        p1 = Model()
+        p2 = Model()
+        assert p1.document is None
+        assert p2.document is None
+        with beu.OutputDocumentFor([p1, p2], apply_theme=Theme(json={})):
+            assert p1.document is not None
+            assert p2.document is not None
+            assert p1.document is p2.document
+            new_doc = p1.document
+            new_theme = p1.document.theme
+        assert p1.document is new_doc
+        assert p2.document is new_doc
+        assert p1.document is p2.document
+        # should restore to default theme after with-block
+        assert p1.document.theme is not new_theme
+
+    def test_list_of_model_same_as_roots(self):
+        # should use existing doc in with-block
+        p1 = Model()
+        p2 = Model()
+        d = Document()
+        orig_theme = d.theme
+        d.add_root(p1)
+        d.add_root(p2)
+        with beu.OutputDocumentFor([p1, p2], apply_theme=Theme(json={})):
+            assert p1.document is d
+            assert p2.document is d
+            assert d.theme is not orig_theme
+        assert p1.document is d
+        assert p2.document is d
+        assert d.theme is orig_theme
+
+    def test_list_of_model_same_as_roots_with_always_new(self):
+        # should use new temp doc for everything inside with-block
+        p1 = Model()
+        p2 = Model()
+        d = Document()
+        orig_theme = d.theme
+        d.add_root(p1)
+        d.add_root(p2)
+        with beu.OutputDocumentFor([p1, p2], always_new=True, apply_theme=Theme(json={})):
+            assert p1.document is not d
+            assert p2.document is not d
+            assert p1.document is p2.document
+            assert p2.document.theme is not orig_theme
+        assert p1.document is d
+        assert p2.document is d
+        assert d.theme is orig_theme
+
+    def test_list_of_model_subset_roots(self):
+        # should use new temp doc for subset inside with-block
+        p1 = Model()
+        p2 = Model()
+        d = Document()
+        orig_theme = d.theme
+        d.add_root(p1)
+        d.add_root(p2)
+        with beu.OutputDocumentFor([p1], apply_theme=Theme(json={})):
+            assert p1.document is not d
+            assert p2.document is d
+            assert p1.document.theme is not orig_theme
+            assert p2.document.theme is orig_theme
+        assert p1.document is d
+        assert p2.document is d
+        assert d.theme is orig_theme
+
+    def test_list_of_models_different_docs(self):
+        # should use new temp doc for eveything inside with-block
+        d = Document()
+        orig_theme = d.theme
+        p1 = Model()
+        p2 = Model()
+        d.add_root(p2)
+        assert p1.document is None
+        assert p2.document is not None
+        with beu.OutputDocumentFor([p1, p2], apply_theme=Theme(json={})):
+            assert p1.document is not None
+            assert p2.document is not None
+            assert p1.document is not d
+            assert p2.document is not d
+            assert p1.document == p2.document
+            assert p1.document.theme is not orig_theme
+        assert p1.document is None
+        assert p2.document is not None
+        assert p2.document.theme is orig_theme
+
+class Test_OutputDocumentFor_FromCurdoc_apply_theme(object):
+
+    def setup_method(self):
+        self.orig_theme = curdoc().theme
+        curdoc().theme = Theme(json={})
+
+    def teardown_method(self):
+        curdoc().theme = self.orig_theme
+
+    def test_single_document(self):
+        # should use existing doc in with-block
+        p = Model()
+        d = Document()
+        orig_theme = d.theme
+        d.add_root(p)
+        with beu.OutputDocumentFor(d, apply_theme=beu.FromCurdoc) as doc:
+            assert doc is d
+            assert d.theme is curdoc().theme
+        assert d.theme is orig_theme
+
+    def test_single_model_with_document(self):
+        # should use existing doc in with-block
+        p = Model()
+        d = Document()
+        orig_theme = d.theme
+        d.add_root(p)
+        with beu.OutputDocumentFor([p], apply_theme=beu.FromCurdoc):
+            assert p.document is d
+            assert d.theme is curdoc().theme
+        assert p.document is d
+        assert d.theme is orig_theme
+
+    def test_single_model_with_no_document(self):
+        p = Model()
+        assert p.document is None
+        with beu.OutputDocumentFor([p], apply_theme=beu.FromCurdoc):
+            assert p.document is not None
+            assert p.document.theme is curdoc().theme
+            new_doc = p.document
+        assert p.document is new_doc
+        assert p.document.theme is not curdoc().theme
+
+    def test_list_of_model_with_no_documents(self):
+        # should create new (permanent) doc for inputs
+        p1 = Model()
+        p2 = Model()
+        assert p1.document is None
+        assert p2.document is None
+        with beu.OutputDocumentFor([p1, p2], apply_theme=beu.FromCurdoc):
+            assert p1.document is not None
+            assert p2.document is not None
+            assert p1.document is p2.document
+            new_doc = p1.document
+            assert p1.document.theme is curdoc().theme
+        assert p1.document is new_doc
+        assert p2.document is new_doc
+        assert p1.document is p2.document
+        # should restore to default theme after with-block
+        assert p1.document.theme is not curdoc().theme
+
+    def test_list_of_model_same_as_roots(self):
+        # should use existing doc in with-block
+        p1 = Model()
+        p2 = Model()
+        d = Document()
+        orig_theme = d.theme
+        d.add_root(p1)
+        d.add_root(p2)
+        with beu.OutputDocumentFor([p1, p2], apply_theme=beu.FromCurdoc):
+            assert p1.document is d
+            assert p2.document is d
+            assert d.theme is curdoc().theme
+        assert p1.document is d
+        assert p2.document is d
+        assert d.theme is orig_theme
+
+    def test_list_of_model_same_as_roots_with_always_new(self):
+        # should use new temp doc for everything inside with-block
+        p1 = Model()
+        p2 = Model()
+        d = Document()
+        orig_theme = d.theme
+        d.add_root(p1)
+        d.add_root(p2)
+        with beu.OutputDocumentFor([p1, p2], always_new=True, apply_theme=beu.FromCurdoc):
+            assert p1.document is not d
+            assert p2.document is not d
+            assert p1.document is p2.document
+            assert p2.document.theme is curdoc().theme
+        assert p1.document is d
+        assert p2.document is d
+        assert d.theme is orig_theme
+
+    def test_list_of_model_subset_roots(self):
+        # should use new temp doc for subset inside with-block
+        p1 = Model()
+        p2 = Model()
+        d = Document()
+        orig_theme = d.theme
+        d.add_root(p1)
+        d.add_root(p2)
+        with beu.OutputDocumentFor([p1], apply_theme=beu.FromCurdoc):
+            assert p1.document is not d
+            assert p2.document is d
+            assert p1.document.theme is curdoc().theme
+            assert p2.document.theme is orig_theme
+        assert p1.document is d
+        assert p2.document is d
+        assert d.theme is orig_theme
+
+    def test_list_of_models_different_docs(self):
+        # should use new temp doc for eveything inside with-block
+        d = Document()
+        orig_theme = d.theme
+        p1 = Model()
+        p2 = Model()
+        d.add_root(p2)
+        assert p1.document is None
+        assert p2.document is not None
+        with beu.OutputDocumentFor([p1, p2], apply_theme=beu.FromCurdoc):
+            assert p1.document is not None
+            assert p2.document is not None
+            assert p1.document is not d
+            assert p2.document is not d
+            assert p1.document == p2.document
+            assert p1.document.theme is curdoc().theme
+        assert p1.document is None
+        assert p2.document is not None
+        assert p2.document.theme is orig_theme
+
 class Test_check_models_or_docs(object):
     pass
 
@@ -119,9 +555,6 @@ class Test_div_for_render_item(object):
     def test_render(self):
         render_item = beu.RenderItem(docid="doc123", elementid="foo123")
         assert beu.div_for_render_item(render_item).strip() == """<div class="bk-root" id="foo123"></div>"""
-
-class Test_find_existing_docs(object):
-    pass
 
 class Test_html_page_for_render_items(object):
     pass

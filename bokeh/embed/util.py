@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from collections import Sequence, OrderedDict
+from contextlib import contextmanager
 
 # External imports
 from six import string_types
@@ -48,6 +49,149 @@ from ..util.string import encode_utf8, indent
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+# Note: Comms handling relies on the fact that the new_doc returned
+# has models with the same IDs as they were started with
+
+
+@contextmanager
+def OutputDocumentFor(objs, apply_theme=None, always_new=False):
+    ''' Find or create a (possibly temporary) Document to use for serializing
+    Bokeh content.
+
+    Typical usage is similar to:
+
+    .. code-block:: python
+
+         with OutputDocumentFor(models):
+            (docs_json, [render_item]) = standalone_docs_json_and_render_items(models)
+
+    Inside the context manager, the models will be considered to be part of a single
+    Document, with any theme specified, which can thus be serialized as a unit. Where
+    possible, OutputDocumentFor attempts to use an existing Document. However, this is
+    not possible in three cases:
+
+    * If passed a series of models that have no Document at all, a new Document will
+      be created, and all the models will be added as roots. After the context mananger
+      exits, the new Document will continue to be the models' document.
+
+    * If passed a subset of Document.roots, then OutputDocumentFor temporarily "re-homes"
+      the models in a new bare Document that is only available inside the context manager.
+
+    * If passed a list of models that have differnet documents, then OutputDocumentFor
+      temporarily "re-homes" the models in a new bare Document that is only available
+      inside the context manager.
+
+    OutputDocumentFor will also perfom document validation before yielding, if
+    ``settings.perform_document_validation()`` is True.
+
+    Args:
+        objs (Model or Document or seq[Model]) :
+            a single Document, or Models, that will be serialized
+
+        apply_theme (Theme or FromCurdoc or None, optional):
+            Sets the theme for the doc while inside sith context manager. (default: None)
+
+            If None, use whatever theme is on the document that is found or created
+
+            If FromCurdox, use curdoc().theme, restoring any previous theme afterwards
+
+            If a Theme instance, use that theme, restoring any previous theme afterwards
+
+        always_new (bool, optional) :
+            Always return a new document, even in cases where it is otherwise possible
+            to use an existing document on models.
+
+    Yields:
+        Document
+
+    '''
+    # rationalize non-sequence inputs
+    if isinstance(objs, (Document, Model)):
+        objs = [objs]
+
+    # ensure inputs make sense
+    if not isinstance(objs, Sequence):
+        raise ValueError("OutputDocumentFor expects a Model, a Document, or a sequence of Models")
+
+    if len(objs) == 0:
+        raise ValueError("OutputDocumentFor expects a Model, a Document, or a sequence of Models")
+
+    if not (all(isinstance(x, Model) for x in objs) or (len(objs)==1 and isinstance(objs[0], Document))):
+        raise ValueError("OutputDocumentFor expects a Model, a Document, or a sequence of Models")
+
+    def finish(): pass
+
+    if len(objs) == 1 and isinstance(objs[0], Document):
+        doc = objs[0]
+
+    else:
+        docs = set(x.document for x in objs)
+
+        # handle a single shared document, or missing document
+        if len(docs) == 1:
+            doc = docs.pop()
+
+            # if there is no document, make one to use
+            if doc is None:
+                doc = Document()
+                for model in objs:
+                    doc.add_root(model)
+
+            # we are not using all the roots, make a quick clone for outputting purposes
+            elif set(objs) != set(doc.roots) or always_new:
+                def finish(): # NOQA
+                    _dispose_temp_doc(objs)
+                doc = _create_temp_doc(objs)
+
+            # we are using all the roots of a single doc, just use doc as-is
+            pass
+
+        # models have mixed docs, just make a quick clone
+        else:
+            def finish(): # NOQA
+                _dispose_temp_doc(objs)
+            doc = _create_temp_doc(objs)
+
+    if settings.perform_document_validation():
+        doc.validate()
+
+    _set_temp_theme(doc, apply_theme)
+
+    yield doc
+
+    _unset_temp_theme(doc)
+
+    finish()
+
+def _set_temp_theme(doc, apply_theme):
+    doc._old_theme = doc.theme
+    if apply_theme is FromCurdoc:
+        from ..io import curdoc; curdoc
+        doc.theme = curdoc().theme
+    elif apply_theme is not None:
+        doc.theme = apply_theme
+
+def _unset_temp_theme(doc):
+    doc.theme = doc._old_theme
+    del doc._old_theme
+
+def _dispose_temp_doc(models):
+    for m in models:
+        m._temp_document = None
+        for ref in m.references():
+            ref._temp_document = None
+
+def _create_temp_doc(models):
+    doc = Document()
+    for m in models:
+        doc._all_models[m._id] = m
+        m._temp_document = doc
+        for ref in m.references():
+            doc._all_models[ref._id] = ref
+            ref._temp_document = doc
+    doc._roots = models
+    return doc
 
 class FromCurdoc(object):
     ''' This class merely provides a non-None default value for ``theme``
@@ -112,27 +256,6 @@ def div_for_render_item(item):
         item: RenderItem
     '''
     return PLOT_DIV.render(doc=item, macros=MACROS)
-
-def find_existing_docs(models):
-    '''
-
-    '''
-    existing_docs = set(m if isinstance(m, Document) else m.document for m in models)
-    existing_docs.discard(None)
-
-    if len(existing_docs) == 0:
-        # no existing docs, use the current doc
-        doc = Document()
-    elif len(existing_docs) == 1:
-        # all existing docs are the same, use that one
-        doc = existing_docs.pop()
-    else:
-        # conflicting/multiple docs, raise an error
-        msg = ('Multiple items in models contain documents or are '
-               'themselves documents. (Models must be owned by only a '
-               'single document). This may indicate a usage error.')
-        raise RuntimeError(msg)
-    return doc
 
 def html_page_for_render_items(bundle, docs_json, render_items, title,
                                template=None, template_variables={}):

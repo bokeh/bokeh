@@ -22,8 +22,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from contextlib import contextmanager
-import re
 
 # External imports
 
@@ -31,12 +29,11 @@ import re
 from ..core.templates import AUTOLOAD_JS, AUTOLOAD_TAG, FILE, ROOT_DIV, MACROS
 from ..document.document import DEFAULT_TITLE, Document
 from ..model import Model
-from ..settings import settings
 from ..util.compiler import bundle_all_models
 from ..util.string import encode_utf8
 from .bundle import bundle_for_objs_and_resources
 from .util import FromCurdoc
-from .util import (check_models_or_docs, check_one_model_or_doc, find_existing_docs, html_page_for_render_items,
+from .util import (OutputDocumentFor, check_models_or_docs, check_one_model_or_doc, html_page_for_render_items,
                    script_for_render_items, standalone_docs_json_and_render_items, wrap_in_onload, wrap_in_script_tag)
 
 #-----------------------------------------------------------------------------
@@ -75,7 +72,7 @@ def autoload_static(model, resources, script_path):
 
     model = check_one_model_or_doc(model)
 
-    with _ModelInDocument([model]):
+    with OutputDocumentFor([model]):
         (docs_json, [render_item]) = standalone_docs_json_and_render_items([model])
 
     bundle = bundle_all_models()
@@ -206,7 +203,7 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
         models = values
 
     # 2) Append models to one document. Either pre-existing or new and render
-    with _ModelInDocument(models, apply_theme=theme):
+    with OutputDocumentFor(models, apply_theme=theme):
         (docs_json, [render_item]) = standalone_docs_json_and_render_items(models)
 
     script  = bundle_all_models()
@@ -277,7 +274,7 @@ def file_html(models,
     '''
     models = check_models_or_docs(models)
 
-    with _ModelInDocument(models, apply_theme=theme) as doc:
+    with OutputDocumentFor(models, apply_theme=theme) as doc:
         (docs_json, render_items) = standalone_docs_json_and_render_items(models)
         title = _title_from_models(models, title)
         bundle = bundle_for_objs_and_resources([doc], resources)
@@ -291,45 +288,6 @@ def file_html(models,
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
-
-@contextmanager
-def _ModelInDocument(models, apply_theme=None):
-    doc = find_existing_docs(models)
-    old_theme = doc.theme
-
-    if apply_theme is FromCurdoc:
-        from ..io import curdoc; curdoc
-        doc.theme = curdoc().theme
-    elif apply_theme is not None:
-        doc.theme = apply_theme
-
-    models_to_dedoc = _add_doc_to_models(doc, models)
-
-    if settings.perform_document_validation():
-        doc.validate()
-
-    yield doc
-
-    for model in models_to_dedoc:
-        doc.remove_root(model, apply_theme)
-    doc.theme = old_theme
-
-def _add_doc_to_models(doc, models):
-    models_to_dedoc = []
-    for model in models:
-        if isinstance(model, Model):
-            if model.document is None:
-                try:
-                    doc.add_root(model)
-                    models_to_dedoc.append(model)
-                except RuntimeError as e:
-                    child = re.search('\((.*)\)', str(e)).group(0)
-                    msg = ('Sub-model {0} of the root model {1} is already owned '
-                           'by another document (Models must be owned by only a '
-                           'single document). This may indicate a usage '
-                           'error.'.format(child, model))
-                    raise RuntimeError(msg)
-    return models_to_dedoc
 
 def _title_from_models(models, title):
     # use override title
