@@ -36,7 +36,7 @@ from ..model import Model, collect_models
 from ..settings import settings
 from ..util.compiler import bundle_all_models
 from ..util.serialization import make_id
-from ..util.string import encode_utf8, indent
+from ..util.string import encode_utf8, escape, indent
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -436,24 +436,6 @@ def wrap_in_script_tag(js, type="text/javascript", id=None):
 
     '''
     return SCRIPT_TAG.render(js_code=indent(js, 2), type=type, id=id)
-
-# based on `html` stdlib module (3.2+)
-def escape(s, quote=("'", '"')):
-    """
-    Replace special characters "&", "<" and ">" to HTML-safe sequences.
-    If the optional flag quote is true (the default), the quotation mark
-    characters, both double quote (") and single quote (') characters are also
-    translated.
-    """
-    s = s.replace("&", "&amp;")
-    s = s.replace("<", "&lt;")
-    s = s.replace(">", "&gt;")
-    if quote:
-        if '"' in quote:
-            s = s.replace('"', "&quot;")
-        if "'" in quote:
-            s = s.replace("'", "&#x27;")
-    return s
 
 #-----------------------------------------------------------------------------
 # Private API

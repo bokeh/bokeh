@@ -2,6 +2,32 @@ from __future__ import absolute_import
 
 import bokeh.util.string as bus
 
+class Test_escape(object):
+
+    def test_default_quote(self):
+        assert bus.escape("foo'bar") == "foo&#x27;bar"
+        assert bus.escape('foo"bar') == "foo&quot;bar"
+
+    def test_quote_False(self):
+        assert bus.escape("foo'bar", quote=False) == "foo'bar"
+        assert bus.escape('foo"bar', quote=False) == 'foo"bar'
+
+    def test_quote_custom(self):
+        assert bus.escape("foo'bar", quote=('"'),) == "foo'bar"
+        assert bus.escape("foo'bar", quote=("'"),) == "foo&#x27;bar"
+
+        assert bus.escape('foo"bar', quote=("'"),) == 'foo"bar'
+        assert bus.escape('foo"bar', quote=('"'),) == "foo&quot;bar"
+
+    def test_amp(self):
+        assert bus.escape("foo&bar") == "foo&amp;bar"
+
+    def test_lt(self):
+        assert bus.escape("foo<bar") == "foo&lt;bar"
+
+    def test_gt(self):
+        assert bus.escape("foo>bar") == "foo&gt;bar"
+
 class Test_format_doctring(object):
     def test_no_argument(self):
         doc__ = "hello world"
@@ -32,8 +58,6 @@ class Test_indent(object):
 
     def test_with_ch(self):
         assert bus.indent(self.TEXT, ch="-") == "--some text\n--to indent\n--  goes here"
-
-
 
 def test_snakify():
     assert bus.snakify("MyClassName") == "my_class_name"

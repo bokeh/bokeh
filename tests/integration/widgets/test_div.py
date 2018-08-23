@@ -22,8 +22,8 @@ import pytest ; pytest
 # External imports
 
 # Bokeh imports
-from bokeh.embed.util import escape
 from bokeh.models import Div
+from bokeh.util.string import escape
 
 #-----------------------------------------------------------------------------
 # Tests
