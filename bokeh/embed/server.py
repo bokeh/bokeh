@@ -32,7 +32,8 @@ from ..resources import DEFAULT_SERVER_HTTP_URL
 from ..util.serialization import make_id
 from ..util.string import encode_utf8, format_docstring
 from .bundle import bundle_for_objs_and_resources
-from .util import RenderItem, html_page_for_render_items
+from .elements import html_page_for_render_items
+from .util import RenderItem
 
 #-----------------------------------------------------------------------------
 # Globals and constants

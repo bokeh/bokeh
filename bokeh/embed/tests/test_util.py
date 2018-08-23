@@ -498,18 +498,6 @@ class Test_OutputDocumentFor_FromCurdoc_apply_theme(object):
         assert p2.document is not None
         assert p2.document.theme is orig_theme
 
-class Test_div_for_render_item(object):
-
-    def test_render(self):
-        render_item = beu.RenderItem(docid="doc123", elementid="foo123")
-        assert beu.div_for_render_item(render_item).strip() == """<div class="bk-root" id="foo123"></div>"""
-
-class Test_html_page_for_render_items(object):
-    pass
-
-class Test_script_for_render_items(object):
-    pass
-
 class Test_standalone_docs_json_and_render_items(object):
 
     def test_log_warning_if_python_property_callback(self, caplog):
@@ -540,57 +528,6 @@ class Test_standalone_docs_json_and_render_items(object):
             assert len(caplog.records) == 1
             assert caplog.text != ''
 
-class Test_wrap_in_onload(object):
-
-    def test_render(self):
-        assert beu.wrap_in_onload("code\nmorecode") == """\
-(function() {
-  var fn = function() {
-    code
-    morecode
-  };
-  if (document.readyState != "loading") fn();
-  else document.addEventListener("DOMContentLoaded", fn);
-})();\
-"""
-
-class Test_wrap_in_safely(object):
-
-    def test_render(self):
-        assert beu.wrap_in_safely("code\nmorecode") == """\
-Bokeh.safely(function() {
-  code
-  morecode
-});\
-"""
-
-class Test_wrap_in_script_tag(object):
-
-    def test_render(self):
-        assert beu.wrap_in_script_tag("code\nmorecode") == """
-<script type="text/javascript">
-  code
-  morecode
-</script>\
-"""
-
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
-
-def test__ONLOAD():
-    assert beu._ONLOAD == """\
-(function() {
-  var fn = function() {
-%(code)s
-  };
-  if (document.readyState != "loading") fn();
-  else document.addEventListener("DOMContentLoaded", fn);
-})();\
-"""
-
-def test__SAFELY():
-    assert beu._SAFELY == """\
-Bokeh.safely(function() {
-%(code)s
-});"""\

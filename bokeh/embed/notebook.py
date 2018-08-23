@@ -30,8 +30,8 @@ from ..core.templates import DOC_NB_JS
 from ..core.json_encoder import serialize_json
 from ..model import Model
 from ..util.string import encode_utf8
-from .util import FromCurdoc
-from .util import OutputDocumentFor, div_for_render_item, standalone_docs_json_and_render_items
+from .elements import div_for_render_item
+from .util import FromCurdoc, OutputDocumentFor, standalone_docs_json_and_render_items
 
 #-----------------------------------------------------------------------------
 # Globals and constants
