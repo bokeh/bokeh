@@ -156,6 +156,16 @@ export function parent(el: HTMLElement, selector: string): HTMLElement | null {
 
 export type Sizing = {top: number, bottom: number, left: number, right: number}
 
+export function border(el: HTMLElement): Sizing {
+  const style = getComputedStyle(el)
+  return {
+    top:    parseFloat(style.borderTopWidth!)    || 0,
+    bottom: parseFloat(style.borderBottomWidth!) || 0,
+    left:   parseFloat(style.borderLeftWidth!)   || 0,
+    right:  parseFloat(style.borderRightWidth!)  || 0,
+  }
+}
+
 export function margin(el: HTMLElement): Sizing {
   const style = getComputedStyle(el)
   return {
