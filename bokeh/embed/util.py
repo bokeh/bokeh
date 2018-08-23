@@ -85,9 +85,9 @@ def OutputDocumentFor(objs, apply_theme=None, always_new=False):
     OutputDocumentFor will also perfom document validation before yielding, if
     ``settings.perform_document_validation()`` is True.
 
-    Args:
-        objs (Model or Document or seq[Model]) :
-            a single Document, or Models, that will be serialized
+
+        objs (seq[Model]) :
+            a sequence of Models that will be serialized, and need a common document
 
         apply_theme (Theme or FromCurdoc or None, optional):
             Sets the theme for the doc while inside sith context manager. (default: None)
@@ -106,52 +106,37 @@ def OutputDocumentFor(objs, apply_theme=None, always_new=False):
         Document
 
     '''
-    # rationalize non-sequence inputs
-    if isinstance(objs, (Document, Model)):
-        objs = [objs]
-
-    # ensure inputs make sense
-    if not isinstance(objs, Sequence):
-        raise ValueError("OutputDocumentFor expects a Model, a Document, or a sequence of Models")
-
-    if len(objs) == 0:
-        raise ValueError("OutputDocumentFor expects a Model, a Document, or a sequence of Models")
-
-    if not (all(isinstance(x, Model) for x in objs) or (len(objs)==1 and isinstance(objs[0], Document))):
-        raise ValueError("OutputDocumentFor expects a Model, a Document, or a sequence of Models")
+    if not isinstance(objs, Sequence) or len(objs) == 0 or not all(isinstance(x, Model) for x in objs):
+        raise ValueError("OutputDocumentFor expects a sequence of Models")
 
     def finish(): pass
 
-    if len(objs) == 1 and isinstance(objs[0], Document):
-        doc = objs[0]
+    docs = set(x.document for x in objs)
 
-    else:
-        docs = set(x.document for x in objs)
+    # handle a single shared document, or missing document
+    if len(docs) == 1:
+        doc = docs.pop()
 
-        # handle a single shared document, or missing document
-        if len(docs) == 1:
-            doc = docs.pop()
+        # if there is no document, make one to use
+        if doc is None:
+            doc = Document()
+            for model in objs:
+                doc.add_root(model)
 
-            # if there is no document, make one to use
-            if doc is None:
-                doc = Document()
-                for model in objs:
-                    doc.add_root(model)
-
-            # we are not using all the roots, make a quick clone for outputting purposes
-            elif set(objs) != set(doc.roots) or always_new:
-                def finish(): # NOQA
-                    _dispose_temp_doc(objs)
-                doc = _create_temp_doc(objs)
-
-            # we are using all the roots of a single doc, just use doc as-is
-            pass
-
-        # models have mixed docs, just make a quick clone
-        else:
+        # we are not using all the roots, make a quick clone for outputting purposes
+        elif set(objs) != set(doc.roots) or always_new:
             def finish(): # NOQA
                 _dispose_temp_doc(objs)
             doc = _create_temp_doc(objs)
+
+        # we are using all the roots of a single doc, just use doc as-is
+        pass
+
+    # models have mixed docs, just make a quick clone
+    else:
+        def finish(): # NOQA
+            _dispose_temp_doc(objs)
+        doc = _create_temp_doc(objs)
 
     if settings.perform_document_validation():
         doc.validate()
@@ -199,45 +184,6 @@ class FromCurdoc(object):
 
     '''
     pass
-
-def check_models_or_docs(models, allow_dict=False):
-    '''
-
-    '''
-    input_type_valid = False
-
-    # Check for single item
-    if isinstance(models, (Model, Document)):
-        models = [models]
-
-    # Check for sequence
-    if isinstance(models, Sequence) and all(isinstance(x, (Model, Document)) for x in models):
-        input_type_valid = True
-
-    if allow_dict:
-        if isinstance(models, dict) and \
-           all(isinstance(x, string_types) for x in models.keys()) and \
-           all(isinstance(x, (Model, Document)) for x in models.values()):
-            input_type_valid = True
-
-    if not input_type_valid:
-        if allow_dict:
-            raise ValueError(
-                'Input must be a Model, a Document, a Sequence of Models and Document, or a dictionary from string to Model and Document'
-            )
-        else:
-            raise ValueError('Input must be a Model, a Document, or a Sequence of Models and Document')
-
-    return models
-
-def check_one_model_or_doc(model):
-    '''
-
-    '''
-    models = check_models_or_docs(model)
-    if len(models) != 1:
-        raise ValueError("Input must be exactly one Model or Document")
-    return models[0]
 
 def submodel_has_python_callbacks(models):
     ''' Traverses submodels to check for Python (event) callbacks
@@ -431,7 +377,12 @@ def standalone_docs_json_and_render_items(models):
     '''
 
     '''
-    models = check_models_or_docs(models)
+    if isinstance(models, (Model, Document)):
+        models = [models]
+
+    if not (isinstance(models, Sequence) and all(isinstance(x, (Model, Document)) for x in models)):
+        raise ValueError("Expected a Model, Document, or Sequence of Models or Documents")
+
     if submodel_has_python_callbacks(models):
         log.warn(CALLBACKS_WARNING)
 

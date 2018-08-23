@@ -108,7 +108,7 @@ class Test_FromCurdoc(object):
     def test_type(self):
         assert isinstance(beu.FromCurdoc, type)
 
-_ODFERR = "OutputDocumentFor expects a Model, a Document, or a sequence of Models"
+_ODFERR = "OutputDocumentFor expects a sequence of Models"
 
 class Test_OutputDocumentFor_general(object):
 
@@ -146,7 +146,7 @@ class Test_OutputDocumentFor_general(object):
         with pytest.raises(RuntimeError) as e:
             with beu.OutputDocumentFor([p1, p2]):
                 pass
-        assert "already in a doc" in str(e)
+            assert "already in a doc" in str(e)
 
     @patch('bokeh.document.document.check_integrity')
     def test_validates_document_by_default(self, check_integrity, test_plot):
@@ -162,17 +162,6 @@ class Test_OutputDocumentFor_general(object):
         assert not check_integrity.called
 
 class Test_OutputDocumentFor_default_apply_theme(object):
-
-    def test_single_document(self):
-        # should use existing doc in with-block
-        p = Model()
-        d = Document()
-        orig_theme = d.theme
-        d.add_root(p)
-        with beu.OutputDocumentFor(d) as doc:
-            assert doc is d
-            assert d.theme is orig_theme
-        assert d.theme is orig_theme
 
     def test_single_model_with_document(self):
         # should use existing doc in with-block
@@ -280,17 +269,6 @@ class Test_OutputDocumentFor_default_apply_theme(object):
         assert p2.document.theme is orig_theme
 
 class Test_OutputDocumentFor_custom_apply_theme(object):
-
-    def test_single_document(self):
-        # should use existing doc in with-block
-        p = Model()
-        d = Document()
-        orig_theme = d.theme
-        d.add_root(p)
-        with beu.OutputDocumentFor(d, apply_theme=Theme(json={})) as doc:
-            assert doc is d
-            assert d.theme is not orig_theme
-        assert d.theme is orig_theme
 
     def test_single_model_with_document(self):
         # should use existing doc in with-block
@@ -410,17 +388,6 @@ class Test_OutputDocumentFor_FromCurdoc_apply_theme(object):
     def teardown_method(self):
         curdoc().theme = self.orig_theme
 
-    def test_single_document(self):
-        # should use existing doc in with-block
-        p = Model()
-        d = Document()
-        orig_theme = d.theme
-        d.add_root(p)
-        with beu.OutputDocumentFor(d, apply_theme=beu.FromCurdoc) as doc:
-            assert doc is d
-            assert d.theme is curdoc().theme
-        assert d.theme is orig_theme
-
     def test_single_model_with_document(self):
         # should use existing doc in with-block
         p = Model()
@@ -530,25 +497,6 @@ class Test_OutputDocumentFor_FromCurdoc_apply_theme(object):
         assert p1.document is None
         assert p2.document is not None
         assert p2.document.theme is orig_theme
-
-class Test_check_models_or_docs(object):
-    pass
-
-class Test_check_one_model_or_doc(object):
-
-    def test_succeed_with_one_model(self):
-        m = Model()
-        assert beu.check_one_model_or_doc(m) is m
-
-    def test_fails_with_multiple_models(self):
-        m1 = Model()
-        m2 = Model()
-        with pytest.raises(ValueError):
-            beu.check_one_model_or_doc([m1, m2])
-        with pytest.raises(ValueError):
-            beu.check_one_model_or_doc((m1, m2))
-        with pytest.raises(ValueError):
-            beu.check_one_model_or_doc(dict(m1=m1, m2=m2))
 
 class Test_div_for_render_item(object):
 

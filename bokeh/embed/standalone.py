@@ -22,8 +22,10 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from collections import Sequence
 
 # External imports
+from six import string_types
 
 # Bokeh imports
 from ..core.templates import AUTOLOAD_JS, AUTOLOAD_TAG, FILE, ROOT_DIV, MACROS
@@ -33,8 +35,9 @@ from ..util.compiler import bundle_all_models
 from ..util.string import encode_utf8
 from .bundle import bundle_for_objs_and_resources
 from .util import FromCurdoc
-from .util import (OutputDocumentFor, check_models_or_docs, check_one_model_or_doc, html_page_for_render_items,
-                   script_for_render_items, standalone_docs_json_and_render_items, wrap_in_onload, wrap_in_script_tag)
+from .util import (OutputDocumentFor, html_page_for_render_items,
+                   script_for_render_items, standalone_docs_json_and_render_items,
+                   wrap_in_onload, wrap_in_script_tag)
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -70,9 +73,14 @@ def autoload_static(model, resources, script_path):
     # if resources.mode == 'inline':
     #     raise ValueError("autoload_static() requires non-inline resources")
 
-    model = check_one_model_or_doc(model)
+    if isinstance(model, Model):
+        models = [model]
+    elif isinstance (model, Document):
+        models = model.roots
+    else:
+        raise ValueError("autoload_static expects a single Model or Document")
 
-    with OutputDocumentFor([model]):
+    with OutputDocumentFor(models):
         (docs_json, [render_item]) = standalone_docs_json_and_render_items([model])
 
     bundle = bundle_all_models()
@@ -190,8 +198,9 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
     # 1) Convert single items and dicts into list
 
     was_single_object = isinstance(models, Model) or isinstance(models, Document)
-    # converts single to list
-    models = check_models_or_docs(models, allow_dict=True)
+
+    models = _check_models_or_docs(models)
+
     # now convert dict to list, saving keys in the same order
     model_keys = None
     if isinstance(models, dict):
@@ -245,7 +254,7 @@ def file_html(models,
     customizing the jinja2 template.
 
     Args:
-        models (Model or Document or list) : Bokeh object or objects to render
+        models (Model or Document or seq[Model]) : Bokeh object or objects to render
             typically a Model or Document
 
         resources (Resources or tuple(JSResources or None, CSSResources or None)) : i
@@ -272,7 +281,11 @@ def file_html(models,
         UTF-8 encoded HTML
 
     '''
-    models = check_models_or_docs(models)
+    if isinstance(models, Model):
+        models = [models]
+
+    if isinstance(models, Document):
+        models = models.roots
 
     with OutputDocumentFor(models, apply_theme=theme) as doc:
         (docs_json, render_items) = standalone_docs_json_and_render_items(models)
@@ -288,6 +301,32 @@ def file_html(models,
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+def _check_models_or_docs(models):
+    '''
+
+    '''
+    input_type_valid = False
+
+    # Check for single item
+    if isinstance(models, (Model, Document)):
+        models = [models]
+
+    # Check for sequence
+    if isinstance(models, Sequence) and all(isinstance(x, (Model, Document)) for x in models):
+        input_type_valid = True
+
+    if isinstance(models, dict) and \
+        all(isinstance(x, string_types) for x in models.keys()) and \
+        all(isinstance(x, (Model, Document)) for x in models.values()):
+        input_type_valid = True
+
+    if not input_type_valid:
+        raise ValueError(
+            'Input must be a Model, a Document, a Sequence of Models and Document, or a dictionary from string to Model and Document'
+        )
+
+    return models
 
 def _title_from_models(models, title):
     # use override title

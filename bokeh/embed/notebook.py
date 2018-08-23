@@ -28,9 +28,10 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.templates import DOC_NB_JS
 from ..core.json_encoder import serialize_json
+from ..model import Model
 from ..util.string import encode_utf8
 from .util import FromCurdoc
-from .util import OutputDocumentFor, check_one_model_or_doc, div_for_render_item, standalone_docs_json_and_render_items
+from .util import OutputDocumentFor, div_for_render_item, standalone_docs_json_and_render_items
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -72,11 +73,12 @@ def notebook_content(model, notebook_comms_target=None, theme=FromCurdoc):
 
     '''
 
-    model = check_one_model_or_doc(model)
+    if not isinstance(model, Model):
+        raise ValueError("notebook_content expects a single Model instance")
 
     # Comms handling relies on the fact that the new_doc returned here
     # has models with the same IDs as they were started with
-    with OutputDocumentFor(model, apply_theme=theme, always_new=True) as new_doc:
+    with OutputDocumentFor([model], apply_theme=theme, always_new=True) as new_doc:
         (docs_json, [render_item]) = standalone_docs_json_and_render_items([model])
 
     div = div_for_render_item(render_item)
