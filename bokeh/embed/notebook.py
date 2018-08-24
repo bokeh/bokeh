@@ -22,17 +22,16 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from contextlib import contextmanager
 
 # External imports
 
 # Bokeh imports
 from ..core.templates import DOC_NB_JS
 from ..core.json_encoder import serialize_json
-from ..settings import settings
+from ..model import Model
 from ..util.string import encode_utf8
-from .util import FromCurdoc
-from .util import check_one_model_or_doc, div_for_render_item, find_existing_docs, standalone_docs_json_and_render_items
+from .elements import div_for_render_item
+from .util import FromCurdoc, OutputDocumentFor, standalone_docs_json_and_render_items
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -74,11 +73,12 @@ def notebook_content(model, notebook_comms_target=None, theme=FromCurdoc):
 
     '''
 
-    model = check_one_model_or_doc(model)
+    if not isinstance(model, Model):
+        raise ValueError("notebook_content expects a single Model instance")
 
     # Comms handling relies on the fact that the new_doc returned here
     # has models with the same IDs as they were started with
-    with _ModelInEmptyDocument(model, apply_theme=theme) as new_doc:
+    with OutputDocumentFor([model], apply_theme=theme, always_new=True) as new_doc:
         (docs_json, [render_item]) = standalone_docs_json_and_render_items([model])
 
     div = div_for_render_item(render_item)
@@ -97,36 +97,6 @@ def notebook_content(model, notebook_comms_target=None, theme=FromCurdoc):
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
-
-@contextmanager
-def _ModelInEmptyDocument(model, apply_theme=None):
-
-    # Note: Comms handling relies on the fact that the new_doc returned
-    # has models with the same IDs as they were started with
-
-    from ..document import Document
-    doc = find_existing_docs([model])
-
-    model._document = None
-    for ref in model.references():
-        ref._document = None
-    new_doc = Document()
-    new_doc.add_root(model)
-
-    if apply_theme is FromCurdoc:
-        from ..io import curdoc; curdoc
-        new_doc.theme = curdoc().theme
-    elif apply_theme is not None:
-        new_doc.theme = apply_theme
-
-    if settings.perform_document_validation():
-        new_doc.validate()
-
-    yield new_doc
-
-    model._document = doc
-    for ref in model.references():
-        ref._document = doc
 
 #-----------------------------------------------------------------------------
 # Code

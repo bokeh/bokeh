@@ -22,22 +22,21 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from contextlib import contextmanager
-import re
+from collections import Sequence
 
 # External imports
+from six import string_types
 
 # Bokeh imports
 from ..core.templates import AUTOLOAD_JS, AUTOLOAD_TAG, FILE, ROOT_DIV, MACROS
 from ..document.document import DEFAULT_TITLE, Document
 from ..model import Model
-from ..settings import settings
 from ..util.compiler import bundle_all_models
 from ..util.string import encode_utf8
 from .bundle import bundle_for_objs_and_resources
-from .util import FromCurdoc
-from .util import (check_models_or_docs, check_one_model_or_doc, find_existing_docs, html_page_for_render_items,
-                   script_for_render_items, standalone_docs_json_and_render_items, wrap_in_onload, wrap_in_script_tag)
+from .elements import html_page_for_render_items, script_for_render_items
+from .util import FromCurdoc, OutputDocumentFor, standalone_docs_json_and_render_items
+from .wrappers import wrap_in_onload, wrap_in_script_tag
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -73,9 +72,14 @@ def autoload_static(model, resources, script_path):
     # if resources.mode == 'inline':
     #     raise ValueError("autoload_static() requires non-inline resources")
 
-    model = check_one_model_or_doc(model)
+    if isinstance(model, Model):
+        models = [model]
+    elif isinstance (model, Document):
+        models = model.roots
+    else:
+        raise ValueError("autoload_static expects a single Model or Document")
 
-    with _ModelInDocument([model]):
+    with OutputDocumentFor(models):
         (docs_json, [render_item]) = standalone_docs_json_and_render_items([model])
 
     bundle = bundle_all_models()
@@ -193,8 +197,9 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
     # 1) Convert single items and dicts into list
 
     was_single_object = isinstance(models, Model) or isinstance(models, Document)
-    # converts single to list
-    models = check_models_or_docs(models, allow_dict=True)
+
+    models = _check_models_or_docs(models)
+
     # now convert dict to list, saving keys in the same order
     model_keys = None
     if isinstance(models, dict):
@@ -206,7 +211,7 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
         models = values
 
     # 2) Append models to one document. Either pre-existing or new and render
-    with _ModelInDocument(models, apply_theme=theme):
+    with OutputDocumentFor(models, apply_theme=theme):
         (docs_json, [render_item]) = standalone_docs_json_and_render_items(models)
 
     script  = bundle_all_models()
@@ -248,7 +253,7 @@ def file_html(models,
     customizing the jinja2 template.
 
     Args:
-        models (Model or Document or list) : Bokeh object or objects to render
+        models (Model or Document or seq[Model]) : Bokeh object or objects to render
             typically a Model or Document
 
         resources (Resources or tuple(JSResources or None, CSSResources or None)) : i
@@ -275,9 +280,13 @@ def file_html(models,
         UTF-8 encoded HTML
 
     '''
-    models = check_models_or_docs(models)
+    if isinstance(models, Model):
+        models = [models]
 
-    with _ModelInDocument(models, apply_theme=theme) as doc:
+    if isinstance(models, Document):
+        models = models.roots
+
+    with OutputDocumentFor(models, apply_theme=theme) as doc:
         (docs_json, render_items) = standalone_docs_json_and_render_items(models)
         title = _title_from_models(models, title)
         bundle = bundle_for_objs_and_resources([doc], resources)
@@ -292,44 +301,31 @@ def file_html(models,
 # Private API
 #-----------------------------------------------------------------------------
 
-@contextmanager
-def _ModelInDocument(models, apply_theme=None):
-    doc = find_existing_docs(models)
-    old_theme = doc.theme
+def _check_models_or_docs(models):
+    '''
 
-    if apply_theme is FromCurdoc:
-        from ..io import curdoc; curdoc
-        doc.theme = curdoc().theme
-    elif apply_theme is not None:
-        doc.theme = apply_theme
+    '''
+    input_type_valid = False
 
-    models_to_dedoc = _add_doc_to_models(doc, models)
+    # Check for single item
+    if isinstance(models, (Model, Document)):
+        models = [models]
 
-    if settings.perform_document_validation():
-        doc.validate()
+    # Check for sequence
+    if isinstance(models, Sequence) and all(isinstance(x, (Model, Document)) for x in models):
+        input_type_valid = True
 
-    yield doc
+    if isinstance(models, dict) and \
+        all(isinstance(x, string_types) for x in models.keys()) and \
+        all(isinstance(x, (Model, Document)) for x in models.values()):
+        input_type_valid = True
 
-    for model in models_to_dedoc:
-        doc.remove_root(model, apply_theme)
-    doc.theme = old_theme
+    if not input_type_valid:
+        raise ValueError(
+            'Input must be a Model, a Document, a Sequence of Models and Document, or a dictionary from string to Model and Document'
+        )
 
-def _add_doc_to_models(doc, models):
-    models_to_dedoc = []
-    for model in models:
-        if isinstance(model, Model):
-            if model.document is None:
-                try:
-                    doc.add_root(model)
-                    models_to_dedoc.append(model)
-                except RuntimeError as e:
-                    child = re.search('\((.*)\)', str(e)).group(0)
-                    msg = ('Sub-model {0} of the root model {1} is already owned '
-                           'by another document (Models must be owned by only a '
-                           'single document). This may indicate a usage '
-                           'error.'.format(child, model))
-                    raise RuntimeError(msg)
-    return models_to_dedoc
+    return models
 
 def _title_from_models(models, title):
     # use override title

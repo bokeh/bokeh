@@ -12,7 +12,7 @@ from tornado import gen
 from bokeh.core.templates import AUTOLOAD_JS
 from bokeh.util.string import encode_utf8
 from bokeh.util.compiler import bundle_all_models
-from bokeh.embed.standalone import script_for_render_items
+from bokeh.embed.elements import script_for_render_items
 from bokeh.embed.util import RenderItem
 
 from .session_handler import SessionHandler

@@ -63,6 +63,7 @@ def test_show_doc_no_server(mock_notebook_content,
 
     class Obj(object):
         _id = None
+        def references(self): return []
 
     assert mock__publish_display_data.call_count == 0
     binb.show_doc(Obj(), s, True)

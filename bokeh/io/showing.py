@@ -132,8 +132,6 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
     if is_application or callable(obj):
         return run_notebook_hook(state.notebook_type, 'app', obj, state, notebook_url)
 
-    if obj not in state.document.roots:
-        state.document.add_root(obj)
     return _show_with_state(obj, state, browser, new, notebook_handle=notebook_handle)
 
 #-----------------------------------------------------------------------------
