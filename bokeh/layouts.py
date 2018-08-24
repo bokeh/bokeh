@@ -29,7 +29,6 @@ from .core.enums import Location
 from .models.tools import ProxyToolbar, ToolbarBox
 from .models.plots import Plot
 from .models.layouts import LayoutDOM, Row, Column, GridBox
-from .util.deprecation import deprecated
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -133,12 +132,10 @@ def column(*args, **kwargs):
 
 
 def widgetbox(*args, **kwargs):
-    """ Create a WidgetBox of Bokeh widgets. Forces all to
-    have the same sizing_mode, which is required for complex layouts to work.
+    """ Create a column of bokeh widgets with predefined styling.
 
     Args:
-        children (list of :class:`~bokeh.models.widgets.widget.Widget` ): A list
-            of widgets for the WidgetBox.
+        children (list of :class:`~bokeh.models.widgets.widget.Widget`): A list of widgets.
 
         sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
             will the items in the layout resize to fill the available space.
@@ -147,14 +144,15 @@ def widgetbox(*args, **kwargs):
             description on :class:`~bokeh.models.layouts.LayoutDOM`.
 
     Returns:
-        WidgetBox: A WidgetBox of Widget instances all with the same sizing_mode.
+        Column: A column layout of widget instances all with the same ``sizing_mode``.
 
     Examples:
 
         >>> widgetbox([button, select])
         >>> widgetbox(children=[slider], sizing_mode='scale_width')
     """
-    deprecated((1, 0, 0), "widgetbox()", "column()")
+    css_classes = kwargs.get("css_classes", [])
+    kwargs["css_classes"] = ["bk-widgetbox"] + css_classes
     return column(*args, **kwargs)
 
 
