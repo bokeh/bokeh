@@ -217,13 +217,13 @@ export class ToolbarBoxView extends LayoutDOMView {
 
     if (toolbar.horizontal) {
       this.layout.sizing = {
-        width_policy: "max", width: toolbar.tools.length*30 + (toolbar.logo != null ? 25 : 0),
+        width_policy: "max", width: 100, // XXX: toolbar.tools.length*30 + (toolbar.logo != null ? 25 : 0),
         height_policy: "fixed", height: 30,
       }
     } else {
       this.layout.sizing = {
         width_policy: "fixed", width: 30,
-        height_policy: "max", height: toolbar.tools.length*30 + (toolbar.logo != null ? 25 : 0),
+        height_policy: "max", height: 100, // XXX: toolbar.tools.length*30 + (toolbar.logo != null ? 25 : 0),
       }
     }
   }
