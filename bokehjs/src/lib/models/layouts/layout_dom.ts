@@ -264,7 +264,7 @@ export namespace LayoutDOM {
     width_policy: SizingPolicy
     height_policy: SizingPolicy
     aspect_ratio: number | "auto"
-    sizing_mode: SizingMode
+    sizing_mode: SizingMode | null
     visible: boolean
     disabled: boolean
     css_classes: string[]
