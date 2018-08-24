@@ -23,12 +23,11 @@ select = Select(title="Sizing mode", value=sizing_mode, options=list(SizingMode)
 plot = figure(tools=TOOLS)
 plot.scatter(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
 
-layout = column(select, plot, sizing_mode=sizing_mode)
+layout = column(select, plot, sizing_mode=sizing_mode, width=400, height=400)
 
 select.js_on_change('value', CustomJS(args=dict(layout=layout, plot=plot), code="""
     var sizing_mode = this.value;
     layout.sizing_mode = sizing_mode;
-    plot.sizing_mode = sizing_mode;
 """))
 
 output_file("sizing_mode.html", title="sizing_mode.py example")
