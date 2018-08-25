@@ -28,8 +28,8 @@ from PIL import Image
 # Bokeh imports
 from bokeh.models.plots import Plot
 from bokeh.models.ranges import Range1d
-from bokeh.models.widgets.markups import Div
 from bokeh.io.export import create_webdriver, terminate_webdriver
+from bokeh.plotting import figure
 from bokeh.resources import Resources
 
 # Module under test
@@ -97,17 +97,17 @@ def test_get_screenshot_as_png_large_plot(webdriver):
 @pytest.mark.unit
 @pytest.mark.selenium
 def test_get_screenshot_as_png_with_unicode_minified(webdriver):
-    layout = Div(text="유니 코드 지원을위한 작은 테스트")
+    p = figure(title="유니 코드 지원을위한 작은 테스트")
 
-    png = bie.get_screenshot_as_png(layout, driver=webdriver, resources=Resources(mode="inline", minified=True))
+    png = bie.get_screenshot_as_png(p, driver=webdriver, resources=Resources(mode="inline", minified=True))
     assert len(png.tobytes()) > 0
 
 @pytest.mark.unit
 @pytest.mark.selenium
 def test_get_screenshot_as_png_with_unicode_unminified(webdriver):
-    layout = Div(text="유니 코드 지원을위한 작은 테스트")
+    p = figure(title="유니 코드 지원을위한 작은 테스트")
 
-    png = bie.get_screenshot_as_png(layout, driver=webdriver, resources=Resources(mode="inline", minified=False))
+    png = bie.get_screenshot_as_png(p, driver=webdriver, resources=Resources(mode="inline", minified=False))
     assert len(png.tobytes()) > 0
 
 @pytest.mark.unit
