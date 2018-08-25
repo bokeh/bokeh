@@ -7,7 +7,7 @@ from bokeh.embed import file_html
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
 from bokeh.models import ColumnDataSource
-from bokeh.models.layouts import Column, Row
+from bokeh.models.layouts import Column, Row, Tabs, Panel
 from bokeh.models.widgets import (
     Button, Toggle, Dropdown,
     CheckboxGroup, RadioGroup,
@@ -17,7 +17,6 @@ from bokeh.models.widgets import (
     Slider, RangeSlider, #DateRangeSlider,
     DatePicker,
     Paragraph, Div, PreText,
-    Panel, Tabs,
     DataTable, TableColumn,
     StringFormatter, NumberFormatter,
     StringEditor, IntEditor, NumberEditor, SelectEditor,

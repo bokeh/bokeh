@@ -200,14 +200,15 @@ class Tabs(LayoutDOM):
 
     tabs = List(Instance(Panel), help="""
     The list of child panel widgets.
+    """).accepts(List(Tuple(String, Instance(LayoutDOM))),
+                 lambda items: [ Panel(title=title, child=child) for (title, child) in items ])
+
+    tabs_location = Enum(Location, default="above", help="""
+    The location of the buttons that activate tabs.
     """)
 
     active = Int(0, help="""
     The index of the active tab.
-    """)
-
-    tabs_location = Enum(Location, default="above", help="""
-    The location of the buttons that activate tabs.
     """)
 
     callback = Instance(Callback, help="""

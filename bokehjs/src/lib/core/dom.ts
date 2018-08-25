@@ -186,6 +186,18 @@ export function padding(el: HTMLElement): Sizing {
   }
 }
 
+/*
+export type CSSPosition = "relative" | "position"
+
+export function position(el: HTMLElement, bbox: BBox, position: CSSPosition = "absolute"): void {
+  this.el.style.position = position
+  this.el.style.left     = `${bbox.left}px`
+  this.el.style.top      = `${bbox.top}px`
+  this.el.style.width    = `${bbox.width}px`
+  this.el.style.height   = `${bbox.height}px`
+}
+*/
+
 export enum Keys {
   Backspace = 8,
   Tab       = 9,

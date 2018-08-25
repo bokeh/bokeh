@@ -1,5 +1,6 @@
-import {StackedLayout} from "core/layout/alignments"
-import {empty, ul, li, span, div} from "core/dom"
+import {Grid, Row, Column, FixedLayout, Layoutable} from "core/layout"
+//import {empty, ul, li, span, div} from "core/dom"
+import {Location} from "core/enums"
 import * as p from "core/properties"
 
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
@@ -7,7 +8,7 @@ import {Model} from "../../model"
 
 export class TabsView extends LayoutDOMView {
   model: Tabs
-  layout: StackedLayout
+  layout: Grid
 
   connect_signals(): void {
     super.connect_signals()
@@ -20,14 +21,50 @@ export class TabsView extends LayoutDOMView {
   }
 
   update_layout(): void {
-    this.layout = new StackedLayout()
+    const header_items = this.child_models.map((_child) => new FixedLayout(70, 30))
+
+    const loc = this.model.tabs_location
+
+    let header: Layoutable
+    let hrow: number, prow: number
+    let hcol: number, pcol: number
+
+    if (loc == "above" || loc == "below") {
+      header = new Row(header_items)
+      header.sizing = {width_policy: "max", height_policy: "min"}
+      if (loc == "above")
+        [hrow, prow] = [0, 1]
+      else
+        [hrow, prow] = [1, 0]
+      hcol = pcol = 0
+    } else {
+      header = new Column(header_items)
+      header.sizing = {width_policy: "min", height_policy: "max"}
+      hrow = prow = 0
+      if (loc == "left")
+        [hcol, pcol] = [0, 1]
+      else
+        [hcol, pcol] = [1, 0]
+    }
+
+    const header_item = {layout: header, row: hrow, col: hcol}
+
+    const panel_items = this.child_views.map((child_view) => {
+      return {layout: child_view.layout, row: prow, col: pcol}
+    })
+
+    this.layout = new Grid()
     this.layout.sizing = this.box_sizing()
-    this.layout.items = this.child_views.map((child_view) => child_view.layout)
+    this.layout.items = [header_item].concat(panel_items)
+  }
+
+  update_position(): void {
+    super.update_position()
   }
 
   render(): void {
     super.render()
-    empty(this.el)
+    //empty(this.el)
 
     const len = this.model.tabs.length
     if (len == 0)
@@ -35,6 +72,9 @@ export class TabsView extends LayoutDOMView {
     else if (this.model.active >= len)
       this.model.active = len - 1
 
+    //const tabs = this.model.tabs.map((tab, i) => div(, tab.title))
+
+    /*
     const tabs = this.model.tabs.map((tab, i) => li({}, span({data: {index: i}}, tab.title)))
     tabs[this.model.active].classList.add("bk-active")
     const tabsEl = ul(tabs)
@@ -46,8 +86,6 @@ export class TabsView extends LayoutDOMView {
     this.el.appendChild(panelsEl)
 
     tabsEl.addEventListener("click", (event) => {
-      event.preventDefault()
-
       if (event.target != event.currentTarget) {
         const el = event.target as HTMLElement
 
@@ -67,18 +105,21 @@ export class TabsView extends LayoutDOMView {
         }
       }
     })
+   */
   }
 }
 
 export namespace Tabs {
   export interface Attrs extends LayoutDOM.Attrs {
     tabs: Panel[]
+    tabs_location: Location
     active: number
     callback: any // XXX
   }
 
   export interface Props extends LayoutDOM.Props {
     tabs: p.Property<Panel[]>
+    tabs_location: p.Property<Location>
     active: p.Property<number>
   }
 }
@@ -97,9 +138,10 @@ export class Tabs extends LayoutDOM {
     this.prototype.default_view = TabsView
 
     this.define({
-      tabs:     [ p.Array,   [] ],
-      active:   [ p.Number,  0  ],
-      callback: [ p.Instance    ],
+      tabs:          [ p.Array,    []      ],
+      tabs_location: [ p.Location, "above" ],
+      active:        [ p.Number,   0       ],
+      callback:      [ p.Instance          ],
     })
   }
 }

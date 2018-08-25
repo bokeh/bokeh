@@ -427,3 +427,21 @@ export class Grid extends Layoutable {
     }
   }
 }
+
+export class Row extends Grid {
+  constructor(items: Layoutable[]) {
+    super()
+    this.items = items.map((item, i) => {
+      return {layout: item, row: 0, col: i}
+    })
+  }
+}
+
+export class Column extends Grid {
+  constructor(items: Layoutable[]) {
+    super()
+    this.items = items.map((item, i) => {
+      return {layout: item, row: i, col: 0}
+    })
+  }
+}

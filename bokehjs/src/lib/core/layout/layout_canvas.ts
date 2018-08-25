@@ -198,3 +198,19 @@ export abstract class Layoutable {
     }
   }
 }
+
+export class FixedLayout extends Layoutable {
+
+  constructor(width: number, height: number) {
+    super()
+    this.sizing = {
+      width_policy: "fixed", width,
+      height_policy: "fixed", height,
+    }
+  }
+
+  size_hint(): SizeHint {
+    const {width, height} = this.sizing as any // XXX
+    return {width, height}
+  }
+}
