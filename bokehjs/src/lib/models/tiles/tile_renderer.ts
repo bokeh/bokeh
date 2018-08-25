@@ -8,7 +8,7 @@ import {Plot} from "../plots/plot"
 import {CartesianFrame} from "../canvas/cartesian_frame"
 import {Range} from "../ranges/range"
 import {Range1d} from "../ranges/range1d"
-import {div} from "core/dom"
+import {div, removeElement} from "core/dom"
 import * as p from "core/properties"
 import {includes} from "core/util/array"
 import {isString} from "core/util/types"
@@ -32,7 +32,7 @@ export interface TileData {
 export class TileRendererView extends DataRendererView {
   model: TileRenderer
 
-  protected attributionEl: HTMLElement | null
+  protected attribution_el?: HTMLElement
 
   protected _tiles: TileData[]
 
@@ -46,7 +46,6 @@ export class TileRendererView extends DataRendererView {
   protected prefetch_timer?: number
 
   initialize(options: any): void {
-    this.attributionEl = null
     this._tiles = []
     super.initialize(options)
   }
@@ -87,38 +86,40 @@ export class TileRendererView extends DataRendererView {
     this._last_width = undefined
   }
 
-  protected _add_attribution(): void {
+  protected _update_attribution(): void {
+    if (this.attribution_el != null)
+      removeElement(this.attribution_el)
+
     const {attribution} = this.model.tile_source
 
     if (isString(attribution) && attribution.length > 0) {
-      if (this.attributionEl == null) {
-        const right = this.plot_view.layout._right.value - this.plot_view.frame._right.value
-        const bottom = this.plot_view.layout._bottom.value - this.plot_view.frame._bottom.value
-        const max_width = this.map_frame._width.value
-        this.attributionEl = div({
-          class: 'bk-tile-attribution',
-          style: {
-            position: "absolute",
-            bottom: `${bottom}px`,
-            right: `${right}px`,
-            'max-width': `${max_width - 4 /*padding*/}px`,
-            padding: "2px",
-            'background-color': 'rgba(255,255,255,0.5)',
-            'font-size': '7pt',
-            'font-family': 'sans-serif',
-            'line-height': '1.05',
-            'white-space': 'nowrap',
-            overflow: 'hidden',
-            'text-overflow': 'ellipsis',
-          },
-        })
+      const {layout, frame} = this.plot_view
+      const offset_right = layout._width.value - frame._right.value
+      const offset_bottom = layout._height.value - frame._bottom.value
+      const max_width = frame._width.value
+      this.attribution_el = div({
+        class: 'bk-tile-attribution',
+        style: {
+          position: "absolute",
+          right: `${offset_right}px`,
+          bottom: `${offset_bottom}px`,
+          'max-width': `${max_width - 4 /*padding*/}px`,
+          padding: "2px",
+          'background-color': 'rgba(255,255,255,0.5)',
+          'font-size': '7pt',
+          'font-family': 'sans-serif',
+          'line-height': '1.05',
+          'white-space': 'nowrap',
+          overflow: 'hidden',
+          'text-overflow': 'ellipsis',
+        },
+      })
 
-        const overlays = this.plot_view.canvas_view.events_el
-        overlays.appendChild(this.attributionEl)
-      }
+      const overlays = this.plot_view.canvas_view.events_el
+      overlays.appendChild(this.attribution_el)
 
-      this.attributionEl.innerHTML = attribution
-      this.attributionEl.title = this.attributionEl.textContent!.replace(/\s*\n\s*/g, " ")
+      this.attribution_el.innerHTML = attribution
+      this.attribution_el.title = this.attribution_el.textContent!.replace(/\s*\n\s*/g, " ")
     }
   }
 
@@ -138,7 +139,7 @@ export class TileRendererView extends DataRendererView {
       this.y_range.reset_start = new_extent[1]
       this.y_range.reset_end = new_extent[3]
     }
-    this._add_attribution()
+    this._update_attribution()
   }
 
   protected _on_tile_load(tile_data: TileData, e: Event & {target: Image}): void {
