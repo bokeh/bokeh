@@ -263,10 +263,10 @@ export class Grid extends Layoutable {
           else if (sizing.width_policy == "max")
             width = col.width
           else if (sizing.width_policy == "auto") {
-            if (sizing.width != null)
-              width = sizing.width
-            else
+            if (col.policy == "flex" || sizing.width == null)
               width = col.width
+            else
+              width = sizing.width
           } else
             throw new Error("unreachable")
 
@@ -278,10 +278,10 @@ export class Grid extends Layoutable {
           else if (sizing.height_policy == "max")
             height = row.height
           else if (sizing.height_policy == "auto") {
-            if (sizing.height != null)
-              height = sizing.height
-            else
+            if (row.policy == "flex" || sizing.height == null)
               height = row.height
+            else
+              height = sizing.height
           } else
             throw new Error("unreachable")
 
