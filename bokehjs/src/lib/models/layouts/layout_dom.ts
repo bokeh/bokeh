@@ -99,6 +99,7 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
 
   update_position(): void {
     this.el.style.position = this.is_root ? "relative" : "absolute"
+    this.el.style.display = this.model.visible ? "block" : "none"
     this.el.style.left = `${this.layout._left.value}px`
     this.el.style.top = `${this.layout._top.value}px`
     this.el.style.width = `${this.layout._width.value}px`
