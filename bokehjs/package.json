@@ -75,7 +75,6 @@
     "flatbush": "^3.0.0",
     "gloo2": "https://github.com/bokeh/gloo2.git#b41bd5d",
     "hammerjs": "^2.0.4",
-    "kiwi": "https://github.com/bokeh/kiwi.git#1a3dabb",
     "nouislider": "^10.0.0",
     "numbro": "https://github.com/bokeh/numbro.git#e1b6c52",
     "pikaday": "^1.7.0",
