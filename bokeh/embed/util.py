@@ -24,7 +24,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from collections import Sequence, OrderedDict
 from contextlib import contextmanager
-import uuid
 
 # External imports
 
@@ -32,6 +31,7 @@ import uuid
 from ..document.document import Document
 from ..model import Model, collect_models
 from ..settings import settings
+from ..util.serialization import make_globally_unique_id
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -160,7 +160,7 @@ class RenderItem(object):
         if roots is None:
             roots = OrderedDict()
         elif isinstance(roots, list):
-            roots = OrderedDict([ (root, str(uuid.uuid4())) for root in roots ])
+            roots = OrderedDict([ (root, make_globally_unique_id()) for root in roots ])
 
         self.docid = docid
         self.sessionid = sessionid
@@ -266,15 +266,15 @@ def standalone_docs_json_and_render_items(models, suppress_callback_warning=Fals
                 raise ValueError("to render a model as HTML it must be part of a document")
 
         if doc not in docs:
-            docs[doc] = (str(uuid.uuid4()), OrderedDict())
+            docs[doc] = (make_globally_unique_id(), OrderedDict())
 
         (docid, roots) = docs[doc]
 
         if model is not None:
-            roots[model] = str(uuid.uuid4())
+            roots[model] = make_globally_unique_id()
         else:
             for model in doc.roots:
-                roots[model] = str(uuid.uuid4())
+                roots[model] = make_globally_unique_id()
 
     docs_json = {}
     for doc, (docid, _) in docs.items():

@@ -94,7 +94,7 @@ class Test_components(object):
         assert isinstance(divs, dict)
         assert all(isinstance(x, string_types) for x in divs.keys())
 
-    @patch('bokeh.embed.util.uuid.uuid4', new_callable=lambda: stable_id)
+    @patch('bokeh.embed.util.make_globally_unique_id', new_callable=lambda: stable_id)
     def test_plot_dict_returned_when_wrap_plot_info_is_false(self, mock_make_id):
         doc = Document()
         plot1 = figure()

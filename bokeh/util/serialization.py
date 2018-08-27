@@ -202,8 +202,8 @@ def make_id():
 
     Normally this function will return simple monotonically increasing integer
     IDs (as strings) for identifying Bokeh ojects within a Document. However,
-    if it is desirable to have UUIDs for every object, this behavior can be
-    overridden by setting the environment variable ``BOKEH_SIMPLE_IDS=no``.
+    if it is desirable to have globally unique for every object, this behavior
+    can be overridden by setting the environment variable ``BOKEH_SIMPLE_IDS=no``.
 
     Returns:
         str
@@ -216,7 +216,19 @@ def make_id():
             _simple_id += 1
             return str(_simple_id)
     else:
-        return str(uuid.uuid4())
+        return make_globally_unique_id()
+
+def make_globally_unique_id():
+    ''' Return a globally unique UUID.
+
+    Some situtations, e.g. id'ing dynamincally created Divs in HTML documents,
+    always require globally unique IDs.
+
+    Returns:
+        str
+
+    '''
+    return str(uuid.uuid4())
 
 def array_encoding_disabled(array):
     ''' Determine whether an array may be binary encoded.

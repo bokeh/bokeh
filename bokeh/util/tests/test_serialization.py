@@ -3,9 +3,6 @@ from __future__ import absolute_import
 import base64
 import datetime
 import os
-from random import random
-from threading import Thread
-import time
 
 import pytest
 import numpy as np
@@ -35,20 +32,10 @@ class Test_make_id(object):
         assert isinstance(bus.make_id(), str)
         del os.environ["BOKEH_SIMPLE_IDS"]
 
-    def test_threads(self):
-        bus._simple_id = 999
-        outputs = []
-        threads = []
-        def func():
-            for i in range(10):
-                time.sleep(random()/100)
-                outputs.append(bus.make_id())
-        for i in range(100):
-            threads.append(Thread(target=func))
-        for t in threads: t.start()
-        for t in threads: t.join()
-        outputs.append(bus.make_id())
-        assert outputs == [str(x) for x in range(1000, 2001)]
+class Test_make_globally_unique_id(object):
+    def test_basic(self):
+        assert len(bus.make_globally_unique_id()) == 36
+        assert isinstance(bus.make_globally_unique_id(), str)
 
 def test_np_consts():
     assert bus.NP_EPOCH == np.datetime64(0, 'ms')
