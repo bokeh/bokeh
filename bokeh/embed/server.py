@@ -104,7 +104,7 @@ def server_document(url="default", relative_urls=False, resources="default", arg
 
     return encode_utf8(tag)
 
-def server_session(model=None, session_id=None, url="default", relative_urls=False, resources="default", arguments=None):
+def server_session(model=None, session_id=None, url="default", relative_urls=False, resources="default"):
     ''' Return a script tag that embeds content from a specific existing session on
     a Bokeh server.
 
@@ -153,10 +153,6 @@ def server_session(model=None, session_id=None, url="default", relative_urls=Fal
             files you'll load separately are of the same version as that of the
             server's, otherwise the rendering may not work correctly.
 
-        arguments (dict[str, str], optional) :
-            A dictionary of key/values to be passed as HTTP request arguments
-            to Bokeh application code (default: None)
-
     Returns:
         A ``<script>`` tag that will embed content from a Bokeh Server.
 
@@ -182,7 +178,6 @@ def server_session(model=None, session_id=None, url="default", relative_urls=Fal
     src_path += _process_relative_urls(relative_urls, url)
     src_path += _process_session_id(session_id)
     src_path += _process_resources(resources)
-    src_path += _process_arguments(arguments)
 
     tag = AUTOLOAD_TAG.render(
         src_path  = src_path,

@@ -42,6 +42,14 @@ The ``bokeh.server.application_context`` module has been renamed to
 ``bokeh.server.contexts``.  This change is not expected to affect any normal
 usage.
 
+``arguments`` parameter for ``server_session``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``server_session`` function accepted an ``arguments`` parameter that did not
+(and could not) have any actual effect. It has been removed, immediately. Since
+the parameter did not function, it is not expected that this change will affect
+any normal usage.
+
 Codebase Tests
 ~~~~~~~~~~~~~~
 
