@@ -48,7 +48,7 @@ extensions = [
     'bokeh.sphinxext.bokeh_prop',
     'bokeh.sphinxext.bokeh_releases',
     'bokeh.sphinxext.bokeh_sitemap',
-    'bokeh.sphinxext.collapsible_code_block'
+    'bokeh.sphinxext.collapsible_code_block',
 ]
 
 napoleon_include_init_with_doc = True
