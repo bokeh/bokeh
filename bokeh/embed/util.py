@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from collections import Sequence, OrderedDict
 from contextlib import contextmanager
+import uuid
 
 # External imports
 
@@ -31,7 +32,6 @@ from contextlib import contextmanager
 from ..document.document import Document
 from ..model import Model, collect_models
 from ..settings import settings
-from ..util.serialization import make_id
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -160,7 +160,7 @@ class RenderItem(object):
         if roots is None:
             roots = OrderedDict()
         elif isinstance(roots, list):
-            roots = OrderedDict([ (root, make_id()) for root in roots ])
+            roots = OrderedDict([ (root, str(uuid.uuid4())) for root in roots ])
 
         self.docid = docid
         self.sessionid = sessionid
@@ -233,6 +233,13 @@ class RenderRoots(object):
     def to_json(self):
         return OrderedDict([ (root._id, elementid) for root, elementid in self._roots.items() ])
 
+def standalone_docs_json(models):
+    '''
+
+    '''
+    docs_json, render_items = standalone_docs_json_and_render_items(models)
+    return docs_json
+
 def standalone_docs_json_and_render_items(models, suppress_callback_warning=False):
     '''
 
@@ -259,15 +266,15 @@ def standalone_docs_json_and_render_items(models, suppress_callback_warning=Fals
                 raise ValueError("to render a model as HTML it must be part of a document")
 
         if doc not in docs:
-            docs[doc] = (make_id(), OrderedDict())
+            docs[doc] = (str(uuid.uuid4()), OrderedDict())
 
         (docid, roots) = docs[doc]
 
         if model is not None:
-            roots[model] = make_id()
+            roots[model] = str(uuid.uuid4())
         else:
             for model in doc.roots:
-                roots[model] = make_id()
+                roots[model] = str(uuid.uuid4())
 
     docs_json = {}
     for doc, (docid, _) in docs.items():

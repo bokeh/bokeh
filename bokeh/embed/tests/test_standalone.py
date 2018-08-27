@@ -60,8 +60,7 @@ class Test_autoload_static(object):
         r = bes.autoload_static(test_plot, CDN, "some/path")
         assert len(r) == 2
 
-    @patch('bokeh.embed.util.make_id', new_callable=lambda: stable_id)
-    def test_script_attrs(self, mock_make_id, test_plot):
+    def test_script_attrs(self, test_plot):
         js, tag = bes.autoload_static(test_plot, CDN, "some/path")
         html = bs4.BeautifulSoup(tag, "lxml")
         scripts = html.findAll(name='script')
@@ -95,7 +94,7 @@ class Test_components(object):
         assert isinstance(divs, dict)
         assert all(isinstance(x, string_types) for x in divs.keys())
 
-    @patch('bokeh.embed.util.make_id', new_callable=lambda: stable_id)
+    @patch('bokeh.embed.util.uuid.uuid4', new_callable=lambda: stable_id)
     def test_plot_dict_returned_when_wrap_plot_info_is_false(self, mock_make_id):
         doc = Document()
         plot1 = figure()
@@ -141,8 +140,7 @@ class Test_components(object):
         script, div = bes.components(test_plot)
         assert isinstance(script, str)
 
-    @patch('bokeh.embed.util.make_id', new_callable=lambda: stable_id)
-    def test_output_is_without_script_tag_when_wrap_script_is_false(self, mock_make_id, test_plot):
+    def test_output_is_without_script_tag_when_wrap_script_is_false(self, test_plot):
         script, div = bes.components(test_plot)
         html = bs4.BeautifulSoup(script, "lxml")
         scripts = html.findAll(name='script')

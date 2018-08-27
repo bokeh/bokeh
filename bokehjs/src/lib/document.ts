@@ -698,6 +698,7 @@ export class Document {
     const root_ids = this._roots.map((r) => r.id)
     const root_references = values(this._all_models)
     return {
+      version: js_version,
       title: this._title,
       roots: {
         root_ids: root_ids,

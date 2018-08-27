@@ -35,7 +35,7 @@ from ..util.compiler import bundle_all_models
 from ..util.string import encode_utf8
 from .bundle import bundle_for_objs_and_resources
 from .elements import html_page_for_render_items, script_for_render_items
-from .util import FromCurdoc, OutputDocumentFor, standalone_docs_json_and_render_items
+from .util import FromCurdoc, OutputDocumentFor, standalone_docs_json, standalone_docs_json_and_render_items
 from .wrappers import wrap_in_onload, wrap_in_script_tag
 
 #-----------------------------------------------------------------------------
@@ -302,6 +302,24 @@ def file_html(models,
         bundle = bundle_for_objs_and_resources([doc], resources)
         return html_page_for_render_items(bundle, docs_json, render_items, title=title,
                                           template=template, template_variables=template_variables)
+
+def json_item(model, target, theme=FromCurdoc):
+    '''
+
+    '''
+    with OutputDocumentFor([model], apply_theme=theme) as doc:
+        doc.title = ""
+        docs_json = standalone_docs_json([model])
+
+    doc = list(docs_json.values())[0]
+    root_id = doc['roots']['root_ids'][0]
+
+    return {
+        'target_id' : target,
+        'root_id'   : root_id,
+        'doc'       : doc,
+    }
+
 
 #-----------------------------------------------------------------------------
 # Dev API

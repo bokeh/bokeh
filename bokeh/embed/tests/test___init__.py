@@ -35,6 +35,7 @@ ALL = (
     'autoload_static',
     'components',
     'file_html',
+    'json_item',
     'server_document',
     'server_session',
 )

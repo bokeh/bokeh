@@ -37,11 +37,13 @@ from .server import server_session
 from .standalone import autoload_static
 from .standalone import components
 from .standalone import file_html
+from .standalone import json_item
 
 __all__ = (
     'autoload_static',
     'components',
     'file_html',
+    'json_item',
     'server_document',
     'server_session',
 )
