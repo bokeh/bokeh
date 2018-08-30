@@ -13,6 +13,9 @@ template = """
         grid-template-columns: auto auto;
         grid-gap: 10px;
         padding: 10px;
+        background-color: gray;
+    }
+    .item {
         background-color: black;
     }
 </style>
@@ -21,6 +24,9 @@ template = """
 <div class="grid">
     {{ super() }}
 </div>
+{% endblock %}
+{% block root %}
+<div class="item">{{ super() }}</div>
 {% endblock %}
 """
 
