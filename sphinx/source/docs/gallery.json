@@ -1,7 +1,7 @@
 {
     "details": [
         { "path": "examples/plotting/file/iris.py",                            "name": "iris"                           },
-        { "path": "examples/plotting/file/joyplot.py",                         "name": "joyplot"                        },
+        { "path": "examples/plotting/file/ridgeplot.py",                       "name": "ridgeplot"                        },
         { "path": "examples/plotting/file/hexbin.py",                          "name": "hexbin"                         },
         { "path": "examples/plotting/file/hex_tile.py",                        "name": "hex_tile"                       },
         { "path": "examples/plotting/file/bar_colormapped.py",                 "name": "bar_colormapped"                },
