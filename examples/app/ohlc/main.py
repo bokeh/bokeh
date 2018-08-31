@@ -6,7 +6,6 @@ from bokeh.models import ColumnDataSource, Slider, Select
 from bokeh.plotting import curdoc, figure
 from bokeh.driving import count
 
-BUFSIZE = 200
 MA12, MA26, EMA12, EMA26 = '12-tick Moving Avg', '26-tick Moving Avg', '12-tick EMA', '26-tick EMA'
 
 source = ColumnDataSource(dict(
