@@ -369,11 +369,11 @@ each corresponding offset:
 .. bokeh-plot:: docs/user_guide/examples/categorical_offset.py
     :source-position: none
 
-Below is a more sophisticated example of a Joy Plot that displays timeseries
+Below is a more sophisticated example of a Ridge Plot that displays timeseries
 associated with different categories. It uses categorical offsets to specify
 patch coordinates for the timeseries inside each category.
 
-.. bokeh-plot:: docs/user_guide/examples/categorical_joyplot.py
+.. bokeh-plot:: docs/user_guide/examples/categorical_ridgeplot.py
     :source-position: below
 
 .. _userguide_categorical_heatmaps:
