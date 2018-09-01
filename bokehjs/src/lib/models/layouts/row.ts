@@ -1,10 +1,13 @@
 import {Box, BoxView} from "./box"
+import {ColSizing} from "core/layout/grid"
+import * as p from "core/properties"
 
 export class RowView extends BoxView {
   model: Row
 
   update_layout(): void {
     super.update_layout()
+    this.layout.cols = this.model.cols
 
     const {child_views} = this
     for (let i = 0; i < child_views.length; i++) {
@@ -14,9 +17,13 @@ export class RowView extends BoxView {
 }
 
 export namespace Row {
-  export interface Attrs extends Box.Attrs {}
+  export interface Attrs extends Box.Attrs {
+    cols: {[key: number]: ColSizing}
+  }
 
-  export interface Props extends Box.Props {}
+  export interface Props extends Box.Props {
+    cols: p.Property<{[key: number]: ColSizing}>
+  }
 }
 
 export interface Row extends Row.Attrs {}
@@ -31,6 +38,10 @@ export class Row extends Box {
   static initClass(): void {
     this.prototype.type = "Row"
     this.prototype.default_view = RowView
+
+    this.define({
+      cols: [ p.Any, {} ],
+    })
   }
 }
 Row.initClass()

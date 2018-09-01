@@ -80,6 +80,7 @@ ALL = (
     'Size',
     'String',
     'StringSpec',
+    'Struct',
     'TimeDelta',
     'Tuple',
     'UnitsSpec',

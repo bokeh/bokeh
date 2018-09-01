@@ -317,6 +317,9 @@ RoundingFunction = enumeration("round", "nearest", "floor", "rounddown", "ceil",
 #: Sizing mode policies
 SizingMode = enumeration("stretch_both", "scale_width", "scale_height", "scale_both", "fixed")
 
+#: Individual sizing mode policies
+SizingPolicy = enumeration("auto", "fixed", "min", "max")
+
 #: Specify different callback policies for the slider widget
 SliderCallbackPolicy = enumeration("continuous", "throttle", "mouseup")
 
@@ -346,6 +349,12 @@ TooltipAttachment = enumeration("horizontal", "vertical", "left", "right", "abov
 
 #: Specify how a format string for a tooltip field should be interpreted
 TooltipFieldFormatter = enumeration("numeral", "datetime", "printf")
+
+#: Grid track (row/column) alignment (vertical/horizontal) of child items
+TrackAlign = enumeration("start", "center", "end")
+
+#: Grid track (row/column) sizing policies
+TrackPolicy = enumeration("auto", "min", "max", "flex", "fixed")
 
 #: Specify the vertical alignment for rendering text
 VerticalAlign = enumeration("top", "middle", "bottom")

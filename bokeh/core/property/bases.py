@@ -413,7 +413,7 @@ class ParameterizedProperty(Property):
         elif isinstance(type_param, Property):
             return type_param
 
-        raise ValueError("expected a Propertyas type parameter, got %s" % type_param)
+        raise ValueError("expected a Property as type parameter, got %s" % type_param)
 
     @property
     def type_params(self):

@@ -1,4 +1,5 @@
 import {SizeHint, Layoutable} from "./layout_canvas"
+import {isNumber, isString} from "../util/types"
 import {BBox} from "../util/bbox"
 
 const {max, round} = Math
@@ -26,8 +27,8 @@ type Matrix = GridCell[][]
 
 type TrackSpec = {policy: "min" | "fixed"} | {policy: "flex", factor: number}
 
-type RowSpec = {top: number,  height: number, align: Align} & TrackSpec
-type ColSpec = {left: number, width:  number, align: Align} & TrackSpec
+type RowSpec = {top: number,  height: number, align: TrackAlign} & TrackSpec
+type ColSpec = {left: number, width:  number, align: TrackAlign} & TrackSpec
 
 type GridState = {
   matrix: Matrix
@@ -37,12 +38,19 @@ type GridState = {
   cols: ColSpec[]
 }
 
-export type Align = "start" | "center" | "end"
+export type TrackAlign = "start" | "center" | "end"
 
 export type RowSizing =
-  ({policy: "auto" | "min" | "max"} | {policy: "flex", factor: number} | {policy: "fixed", height: number}) & {align?: Align}
+  "auto" | "min" | "max" | number |
+  (({policy: "auto" | "min" | "max"} |
+    {policy: "flex", factor: number} |
+    {policy: "fixed", height: number}) & {align?: TrackAlign})
+
 export type ColSizing =
-  ({policy: "auto" | "min" | "max"} | {policy: "flex", factor: number} | {policy: "fixed", width: number})  & {align?: Align}
+  "auto" | "min" | "max" | number |
+  (({policy: "auto" | "min" | "max"} |
+    {policy: "flex", factor: number} |
+    {policy: "fixed", width: number})  & {align?: TrackAlign})
 
 export class Grid extends Layoutable {
 
@@ -54,9 +62,6 @@ export class Grid extends Layoutable {
   private state: GridState
 
   size_hint(): SizeHint {
-    if (this.items.length == 0)
-      return {width: 0, height: 0}
-
     let nrows = 0
     let ncols = 0
 
@@ -86,19 +91,31 @@ export class Grid extends Layoutable {
       let row = this.rows[y]
 
       if (row == null) {
-        let min_policy = true
-        row_auto: for (let x = 0; x < ncols; x++) {
-          const cell = matrix[y][x]
-          for (let i = 0; i < cell.items.length; i++) {
-            const policy = cell.items[i].layout.sizing.height_policy
-            if (!(policy == "min" || policy == "fixed")) {
-              min_policy = false
-              break row_auto
+        let height_policy: "min" | "max"
+
+        if (this.sizing.height_policy == "max")
+          height_policy = "max"
+        else {
+          height_policy = "min"
+
+          row_auto: for (let x = 0; x < ncols; x++) {
+            const cell = matrix[y][x]
+            for (let i = 0; i < cell.items.length; i++) {
+              const {sizing} = cell.items[i].layout
+
+              if (sizing.height_policy != "min") {
+                height_policy = "max"
+                break row_auto
+              }
             }
           }
         }
 
-        row = {policy: min_policy ? "min" : "max"}
+        row = {policy: height_policy}
+      } else if (isNumber(row)) {
+        row = {policy: "fixed", height: row}
+      } else if (isString(row)) {
+        row = {policy: row}
       }
 
       const align = row.align || "start"
@@ -119,19 +136,31 @@ export class Grid extends Layoutable {
       let col = this.cols[x]
 
       if (col == null) {
-        let min_policy = true
-        col_auto: for (let y = 0; y < nrows; y++) {
-          const cell = matrix[y][x]
-          for (let i = 0; i < cell.items.length; i++) {
-            const policy = cell.items[i].layout.sizing.width_policy
-            if (!(policy == "min" || policy == "fixed")) {
-              min_policy = false
-              break col_auto
+        let width_policy: "min" | "max"
+
+        if (this.sizing.width_policy == "max")
+          width_policy = "max"
+        else {
+          width_policy = "min"
+
+          col_auto: for (let y = 0; y < nrows; y++) {
+            const cell = matrix[y][x]
+            for (let i = 0; i < cell.items.length; i++) {
+              const {sizing} = cell.items[i].layout
+
+              if (sizing.width_policy != "max") {
+                width_policy = "max"
+                break col_auto
+              }
             }
           }
         }
 
-        col = {policy: min_policy ? "min" : "max"}
+        col = {policy: width_policy}
+      } else if (isNumber(col)) {
+        col = {policy: "fixed", width: col}
+      } else if (isString(col)) {
+        col = {policy: col}
       }
 
       const align = col.align || "start"
