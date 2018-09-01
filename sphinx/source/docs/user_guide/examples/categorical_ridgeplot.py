@@ -8,9 +8,9 @@ from bokeh.sampledata.perceptions import probly
 
 import colorcet as cc
 
-output_file("joyplot.html")
+output_file("ridgeplot.html")
 
-def joy(category, data, scale=20):
+def ridge(category, data, scale=20):
     return list(zip([category]*len(data), scale*data))
 
 cats = list(reversed(probly.keys()))
@@ -21,11 +21,11 @@ x = linspace(-20,110, 500)
 
 source = ColumnDataSource(data=dict(x=x))
 
-p = figure(y_range=cats, plot_width=900, x_range=(-5, 105), toolbar_location=None)
+p = figure(y_range=cats, plot_width=700, x_range=(-5, 105), toolbar_location=None)
 
 for i, cat in enumerate(reversed(cats)):
     pdf = gaussian_kde(probly[cat])
-    y = joy(cat, pdf(x))
+    y = ridge(cat, pdf(x))
     source.add(y, cat)
     p.patch('x', cat, color=palette[i], alpha=0.6, line_color="black", source=source)
 
