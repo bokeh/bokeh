@@ -96,7 +96,7 @@ export abstract class Layoutable {
         break
       case "max":
         if (viewport.width != null)
-          width = viewport.width
+          width = Math.max(viewport.width, size_hint.width)
         else
           throw new Error("'max' sizing policy requires viewport width to be specified")
         break
@@ -119,7 +119,7 @@ export abstract class Layoutable {
         break
       case "max":
         if (viewport.height != null)
-          height = viewport.height
+          height = Math.max(viewport.height, size_hint.height)
         else
           throw new Error("'max' sizing policy requires viewport height to be specified")
         break
