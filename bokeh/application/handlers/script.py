@@ -49,6 +49,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 
 # External imports
+import six
 
 # Bokeh imports
 from .code import CodeHandler
@@ -81,8 +82,12 @@ class ScriptHandler(CodeHandler):
             raise ValueError('Must pass a filename to ScriptHandler')
         filename = kwargs['filename']
 
-        with open(filename, 'r') as f:
-            kwargs['source'] = f.read()
+        if six.PY3:
+            with open(filename, 'r', encoding='utf-8') as f:
+                kwargs['source'] = f.read()
+        else:
+            with open(filename, 'r') as f:
+                kwargs['source'] = f.read()
 
         super(ScriptHandler, self).__init__(*args, **kwargs)
 
