@@ -55,17 +55,37 @@ def from_networkx(graph, layout_function, **kwargs):
         from ..models.graphs import StaticLayoutProvider
 
         # Handles nx 1.x vs 2.x data structure change
-        nodes = list(graph.nodes())
-        edges = list(graph.edges())
+        # Convert node attributes
+        node_dict = dict()
+        node_dict['index'] = list(graph.nodes())
 
-        edges_start = [edge[0] for edge in edges]
-        edges_end = [edge[1] for edge in edges]
+        node_attr_keys = [attr_key for node in list(graph.nodes(data=True))
+                          for attr_key in node[1].keys()]
+        node_attr_keys = list(set(node_attr_keys))
 
-        node_source = ColumnDataSource(data=dict(index=nodes))
-        edge_source = ColumnDataSource(data=dict(
-            start=edges_start,
-            end=edges_end
-        ))
+        for attr_key in node_attr_keys:
+            node_dict[attr_key] = [node_attr[attr_key]
+                                   if attr_key in node_attr.keys() else None
+                                   for node_key, node_attr
+                                   in list(graph.nodes(data=True))]
+
+        # Convert edge attributes
+        edge_dict = dict()
+        edge_dict['start'] = [x[0] for x in graph.edges(data=True)]
+        edge_dict['end'] = [x[1] for x in graph.edges(data=True)]
+
+        edge_attr_keys = [attr_key for edge in list(graph.edges(data=True))
+                          for attr_key in edge[2].keys()]
+        edge_attr_keys = list(set(edge_attr_keys))
+
+        for attr_key in edge_attr_keys:
+            edge_dict[attr_key] = [edge_attr[attr_key]
+                                   if attr_key in edge_attr.keys() else None
+                                   for _, _, edge_attr
+                                   in list(graph.edges(data=True))]
+
+        node_source = ColumnDataSource(data=node_dict)
+        edge_source = ColumnDataSource(data=edge_dict)
 
         graph_renderer = GraphRenderer()
         graph_renderer.node_renderer.data_source.data = node_source.data
