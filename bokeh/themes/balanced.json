@@ -2,7 +2,7 @@
     "attrs": {
         "Axis": {
             "major_tick_in": 0,
-            "major_tick_out": 4,
+            "major_tick_out": 3,
             "major_tick_line_alpha": 25,
             "major_tick_line_color": "#5B5B5B",
 
