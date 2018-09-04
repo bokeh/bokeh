@@ -1,5 +1,5 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {generic_line_legend} from "./utils"
+import {generic_line_legend, line_interpolation} from "./utils"
 import {PointGeometry, SpanGeometry} from "core/geometry"
 import {LineMixinVector} from "core/property_mixins"
 import {Arrayable} from "core/types"
@@ -113,26 +113,8 @@ export class LineView extends XYGlyphView {
   }
 
   get_interpolation_hit(i: number, geometry: PointGeometry | SpanGeometry): [number, number] {
-    const {sx, sy} = geometry
     const [x2, y2, x3, y3] = [this._x[i], this._y[i], this._x[i+1], this._y[i+1]]
-
-    let x0: number, x1: number
-    let y0: number, y1: number
-    if (geometry.type == 'point') {
-      ;[y0, y1] = this.renderer.yscale.r_invert(sy-1, sy+1)
-      ;[x0, x1] = this.renderer.xscale.r_invert(sx-1, sx+1)
-    } else {
-      if (geometry.direction == 'v') {
-        ;[y0, y1] = this.renderer.yscale.r_invert(sy, sy)
-        ;[x0, x1] = [x2, x3]
-      } else {
-        ;[x0, x1] = this.renderer.xscale.r_invert(sx, sx)
-        ;[y0, y1] = [y2, y3]
-      }
-    }
-
-    const {x, y} = hittest.check_2_segments_intersect(x0, y0, x1, y1, x2, y2, x3, y3)
-    return [x!, y!] // XXX: null is not handled at use sites
+    return line_interpolation(this.renderer, geometry, x2, y2, x3, y3)
   }
 
   draw_legend_for_index(ctx: Context2d, bbox: IBBox, index: number): void {
