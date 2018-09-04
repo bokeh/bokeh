@@ -12,13 +12,13 @@ _FP_FMT = join(_THIS_DIR, '{0}.json')
 
 LIGHT_MINIMAL = 'light_minimal'
 DARK_MINIMAL = 'dark_minimal'
-BALANCED = 'balanced'
+CALIBER = 'caliber'
 
 default = Theme(json={})
 built_in_themes = {
     LIGHT_MINIMAL: Theme(filename=_FP_FMT.format(LIGHT_MINIMAL)),
     DARK_MINIMAL: Theme(filename=_FP_FMT.format(DARK_MINIMAL)),
-    BALANCED: Theme(filename=_FP_FMT.format(BALANCED))
+    CALIBER: Theme(filename=_FP_FMT.format(CALIBER))
 }
 
 del dirname, realpath, join
