@@ -25,7 +25,7 @@ class GridCell {
 
 type Matrix = GridCell[][]
 
-type TrackSpec = {policy: "min" | "fixed"} | {policy: "flex", factor: number}
+type TrackSpec = {policy: "auto" | "min" | "fixed"} | {policy: "flex", factor: number}
 
 type RowSpec = {top: number,  height: number, align: TrackAlign} & TrackSpec
 type ColSpec = {left: number, width:  number, align: TrackAlign} & TrackSpec
@@ -91,31 +91,25 @@ export class Grid extends Layoutable {
       let row = this.rows[y]
 
       if (row == null) {
-        let height_policy: "min" | "max"
-
-        if (this.sizing.height_policy == "max")
-          height_policy = "max"
-        else {
-          height_policy = "min"
-
-          row_auto: for (let x = 0; x < ncols; x++) {
-            const cell = matrix[y][x]
-            for (let i = 0; i < cell.items.length; i++) {
-              const {sizing} = cell.items[i].layout
-
-              if (sizing.height_policy != "min") {
-                height_policy = "max"
-                break row_auto
-              }
-            }
-          }
-        }
-
-        row = {policy: height_policy}
+        row = {policy: "auto"}
       } else if (isNumber(row)) {
         row = {policy: "fixed", height: row}
       } else if (isString(row)) {
         row = {policy: row}
+      }
+
+      if (row.policy == "auto") {
+        row_auto: for (let x = 0; x < ncols; x++) {
+          const cell = matrix[y][x]
+          for (let i = 0; i < cell.items.length; i++) {
+            const {sizing} = cell.items[i].layout
+
+            if (sizing.height_policy == "max") {
+              row = {policy: "max"}
+              break row_auto
+            }
+          }
+        }
       }
 
       const align = row.align || "start"
@@ -123,6 +117,8 @@ export class Grid extends Layoutable {
 
       if (row.policy == "fixed")
         rows[y] = {align, top, height: row.height, policy: "fixed"}
+      else if (row.policy == "auto")
+        rows[y] = {align, top, height: 0, policy: "auto"}
       else if (row.policy == "min")
         rows[y] = {align, top, height: 0, policy: "min"}
       else if (row.policy == "max")
@@ -136,31 +132,25 @@ export class Grid extends Layoutable {
       let col = this.cols[x]
 
       if (col == null) {
-        let width_policy: "min" | "max"
-
-        if (this.sizing.width_policy == "max")
-          width_policy = "max"
-        else {
-          width_policy = "min"
-
-          col_auto: for (let y = 0; y < nrows; y++) {
-            const cell = matrix[y][x]
-            for (let i = 0; i < cell.items.length; i++) {
-              const {sizing} = cell.items[i].layout
-
-              if (sizing.width_policy != "max") {
-                width_policy = "max"
-                break col_auto
-              }
-            }
-          }
-        }
-
-        col = {policy: width_policy}
+        col = {policy: "auto"}
       } else if (isNumber(col)) {
         col = {policy: "fixed", width: col}
       } else if (isString(col)) {
         col = {policy: col}
+      }
+
+      if (col.policy == "auto") {
+        col_auto: for (let y = 0; y < nrows; y++) {
+          const cell = matrix[y][x]
+          for (let i = 0; i < cell.items.length; i++) {
+            const {sizing} = cell.items[i].layout
+
+            if (sizing.width_policy == "max") {
+              col = {policy: "max"}
+              break col_auto
+            }
+          }
+        }
       }
 
       const align = col.align || "start"
@@ -168,6 +158,8 @@ export class Grid extends Layoutable {
 
       if (col.policy == "fixed")
         cols[x] = {align, left, width: col.width, policy: "fixed"}
+      else if (col.policy == "auto")
+        cols[x] = {align, left, width: 0, policy: "auto"}
       else if (col.policy == "min")
         cols[x] = {align, left, width: 0, policy: "min"}
       else if (col.policy == "max")
@@ -235,42 +227,74 @@ export class Grid extends Layoutable {
     let available_width = width
     let available_height = height
 
-    let total_row_flex = 0
-    let total_col_flex = 0
+    let row_flex = 0
+    let col_flex = 0
+
+    let row_auto = 0
+    let col_auto = 0
 
     for (let y = 0; y < nrows; y++) {
       const row = rows[y]
       if (row.policy == "fixed" || row.policy == "min")
         available_height -= row.height
-      else if (row.policy == "flex")
-        total_row_flex += row.factor
+      else if (row.policy == "auto") {
+        available_height -= row.height
+        row_auto += 1
+      } else if (row.policy == "flex")
+        row_flex += row.factor
     }
 
     for (let x = 0; x < ncols; x++) {
       const col = cols[x]
       if (col.policy == "fixed" || col.policy == "min")
         available_width -= col.width
-      else if (col.policy == "flex")
-        total_col_flex += col.factor
+      else if (col.policy == "auto") {
+        available_width -= col.width
+        col_auto += 1
+      } else if (col.policy == "flex")
+        col_flex += col.factor
     }
 
-    if (available_width < 0)
-      available_width = 0
-    if (available_height < 0)
-      available_height = 0
+    if (available_height > 0) {
+      if (row_flex > 0) {
+        for (let y = 0; y < nrows; y++) {
+          const row = rows[y]
+          if (row.policy == "flex")
+            row.height = round(available_height * (row.factor/row_flex))
+        }
+      } else if (row_auto > 0) {
+        for (let y = 0; y < nrows; y++) {
+          const row = rows[y]
+          if (row.policy == "auto")
+            row.height += round(available_height/row_auto)
+        }
+      }
+    }
+
+    if (available_width > 0) {
+      if (col_flex > 0) {
+        for (let x = 0; x < ncols; x++) {
+          const col = cols[x]
+          if (col.policy == "flex")
+            col.width = round(available_width * (col.factor/col_flex))
+        }
+      } else if (col_auto > 0) {
+        for (let x = 0; x < ncols; x++) {
+          const col = cols[x]
+          if (col.policy == "auto")
+            col.width += round(available_width/col_auto)
+        }
+      }
+    }
 
     for (let y = 0, top = 0; y < nrows; y++) {
       const row = rows[y]
-      if (row.policy == "flex")
-        row.height = round(available_height * (row.factor/total_row_flex))
       row.top = top
       top += row.height
     }
 
     for (let x = 0, left = 0; x < ncols; x++) {
       const col = cols[x]
-      if (col.policy == "flex")
-        col.width = round(available_width * (col.factor/total_col_flex))
       col.left = left
       left += col.width
     }
