@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import warnings
+import copy
 
 from ..core.has_props import abstract
 from ..core.properties import Any, Bool, ColumnData, Dict, Enum, Instance, Int, JSON, List, Seq, String
@@ -57,6 +58,11 @@ class ColumnDataSource(ColumnarDataSource):
           data = {'x': [1,2,3,4], 'y': np.ndarray([10.0, 20.0, 30.0, 40.0])}
 
           source = ColumnDataSource(data)
+
+    .. note::
+        ``ColumnDataSource`` creates a deep copy of the ``dict`` to avoid unexpected
+        behaviour when a ColumnDataSource is initialized with the data property of another
+        ColumnDataSource.
 
     * A Pandas ``DataFrame`` object
 
@@ -132,6 +138,8 @@ class ColumnDataSource(ColumnarDataSource):
                 raw_data = self._data_from_groupby(raw_data)
             else:
                 raise ValueError("expected a dict or pandas.DataFrame, got %s" % raw_data)
+        else:
+            raw_data = copy.deepcopy(raw_data)
         super(ColumnDataSource, self).__init__(**kw)
         self.data.update(raw_data)
 
