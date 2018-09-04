@@ -60,9 +60,9 @@ class ColumnDataSource(ColumnarDataSource):
           source = ColumnDataSource(data)
 
     .. note::
-        ``ColumnDataSource`` creates a deep copy of the ``dict`` to avoid unexpected
-        behaviour when a ColumnDataSource is initialized with the data property of another
-        ColumnDataSource.
+        ``ColumnDataSource`` creates a shallow copy of the passed ``dict``. Use
+        ``ColumnDataSource(copy.deepcopy(data))`` e.g. if initializing from another
+        ``ColumnDataSource.data`` object that you want to keep independent.
 
     * A Pandas ``DataFrame`` object
 
@@ -139,7 +139,7 @@ class ColumnDataSource(ColumnarDataSource):
             else:
                 raise ValueError("expected a dict or pandas.DataFrame, got %s" % raw_data)
         else:
-            raw_data = copy.deepcopy(raw_data)
+            raw_data = copy.copy(raw_data)
         super(ColumnDataSource, self).__init__(**kw)
         self.data.update(raw_data)
 
