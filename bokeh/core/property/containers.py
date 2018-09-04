@@ -320,7 +320,7 @@ class PropertyValueColumnData(PropertyValueDict):
         return self.update([(i, y)])
 
     def __copy__(self):
-        return PropertyValueColumnData(copy.copy(dict(self)))
+        return PropertyValueColumnData(dict(self))
 
     def __deepcopy__(self, memodict={}):
         return PropertyValueColumnData(copy.deepcopy(dict(self), memodict))

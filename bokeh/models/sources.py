@@ -60,6 +60,7 @@ class ColumnDataSource(ColumnarDataSource):
           source = ColumnDataSource(data)
 
     .. note::
+
         ``ColumnDataSource`` creates a shallow copy of the passed ``dict``. Use
         ``ColumnDataSource(copy.deepcopy(data))`` e.g. if initializing from another
         ``ColumnDataSource.data`` object that you want to keep independent.
