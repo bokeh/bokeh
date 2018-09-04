@@ -1,5 +1,5 @@
 import * as p from "core/properties"
-import {empty, div} from "core/dom"
+import {div} from "core/dom"
 
 import {Widget, WidgetView} from "./widget"
 
@@ -15,7 +15,6 @@ export class MarkupView extends WidgetView {
 
   render(): void {
     super.render()
-    empty(this.el)
     const style = {
       width: `${this.model.width}px`,
       height: `${this.model.height}px`,

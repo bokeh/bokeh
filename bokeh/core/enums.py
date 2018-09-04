@@ -221,7 +221,7 @@ Anchor = enumeration(
 AngleUnits = enumeration("deg", "rad")
 
 #: Specify a style for button widgets
-ButtonType = enumeration("default", "primary", "success", "warning", "danger", "link")
+ButtonType = enumeration("default", "primary", "success", "warning", "danger")
 
 #: Specify a named dashing patter for stroking lines
 DashPattern = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")

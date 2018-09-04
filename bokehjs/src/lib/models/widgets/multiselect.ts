@@ -1,4 +1,4 @@
-import {empty, label, select, option} from "core/dom"
+import {label, select, option} from "core/dom"
 import {isString} from "core/util/types"
 import {Set} from "core/util/data_structures"
 import * as p from "core/properties"
@@ -22,10 +22,11 @@ export class MultiSelectView extends InputWidgetView {
 
   render(): void {
     super.render()
-    empty(this.el)
 
-    const labelEl = label({for: this.model.id}, this.model.title)
-    this.el.appendChild(labelEl)
+    if (this.model.title.length != 0) {
+      const labelEl = label({for: this.model.id}, this.model.title)
+      this.el.appendChild(labelEl)
+    }
 
     const options = this.model.options.map((opt) => {
       let value, _label
@@ -39,7 +40,7 @@ export class MultiSelectView extends InputWidgetView {
 
     this.selectEl = select({
       multiple: true,
-      class: "bk-widget-form-input",
+      class: "bk-input",
       id: this.model.id,
       name: this.model.name,
       disabled: this.model.disabled,
@@ -99,7 +100,6 @@ export namespace MultiSelect {
 export interface MultiSelect extends MultiSelect.Attrs {}
 
 export class MultiSelect extends InputWidget {
-
   properties: MultiSelect.Props
 
   constructor(attrs?: Partial<MultiSelect.Attrs>) {
@@ -117,5 +117,4 @@ export class MultiSelect extends InputWidget {
     })
   }
 }
-
 MultiSelect.initClass()

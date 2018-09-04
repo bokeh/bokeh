@@ -24,6 +24,11 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
     this.update_layout()
   }
 
+  renderTo(element: HTMLElement): void {
+    super.renderTo(element)
+    this.do_layout()
+  }
+
   abstract get child_models(): LayoutDOM[]
 
   get child_views(): LayoutDOMView[] {

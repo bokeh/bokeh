@@ -1,6 +1,6 @@
 import {logger} from "core/logging"
 import * as p from "core/properties"
-import {empty, label, input} from "core/dom"
+import {label, input} from "core/dom"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
 
@@ -8,10 +8,6 @@ export class BaseTextInputView extends InputWidgetView {
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.render())
-  }
-
-  css_classes(): string[] {
-    return super.css_classes().concat("bk-widget-form-group")
   }
 }
 
@@ -23,14 +19,14 @@ export class TextInputView extends BaseTextInputView {
   render(): void {
     super.render()
 
-    empty(this.el)
-
-    const labelEl = label({for: this.model.id}, this.model.title)
-    this.el.appendChild(labelEl)
+    if (this.model.title.length > 0) {
+      const labelEl = label({for: this.model.id}, this.model.title)
+      this.el.appendChild(labelEl)
+    }
 
     this.inputEl = input({
       type: "text",
-      class: "bk-widget-form-input",
+      class: "bk-input",
       id: this.model.id,
       name: this.model.name,
       value: this.model.value,
@@ -39,10 +35,6 @@ export class TextInputView extends BaseTextInputView {
     })
     this.inputEl.addEventListener("change", () => this.change_input())
     this.el.appendChild(this.inputEl)
-
-    // TODO - This 35 is a hack we should be able to compute it
-    if (this.model.height)
-      this.inputEl.style.height = `${this.model.height - 35}px`
   }
 
   change_input(): void {

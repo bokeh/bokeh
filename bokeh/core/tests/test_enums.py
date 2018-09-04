@@ -84,7 +84,7 @@ class Test_bce(object):
         assert tuple(bce.AngleUnits) == ('deg', 'rad')
 
     def test_ButtonType(self):
-        assert tuple(bce.ButtonType) == ("default", "primary", "success", "warning", "danger", "link")
+        assert tuple(bce.ButtonType) == ("default", "primary", "success", "warning", "danger")
 
     def test_DashPattern(self):
         assert tuple(bce.DashPattern) ==("solid", "dashed", "dotted", "dotdash", "dashdot")

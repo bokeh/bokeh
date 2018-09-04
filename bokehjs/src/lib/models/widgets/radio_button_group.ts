@@ -1,9 +1,8 @@
-import {empty, input, label, div} from "core/dom"
-import {uniqueId} from "core/util/string"
-import * as p from "core/properties"
-
 import {Widget, WidgetView} from "./widget"
 import {ButtonType} from "./abstract_button"
+
+import {div} from "core/dom"
+import * as p from "core/properties"
 
 export class RadioButtonGroupView extends WidgetView {
   model: RadioButtonGroup
@@ -16,35 +15,23 @@ export class RadioButtonGroupView extends WidgetView {
   render(): void {
     super.render()
 
-    empty(this.el)
-    const divEl = div({class: "bk-bs-btn-group"})
-    this.el.appendChild(divEl)
+    const group = div({class: "bk-btn-group"})
+    this.el.appendChild(group)
 
-    const name = uniqueId()
-
-    const active = this.model.active
-    const labels = this.model.labels
+    const {active, labels} = this.model
 
     for (let i = 0; i < labels.length; i++) {
-      const text = labels[i]
-      const inputEl = input({type: `radio`, name: name, value: `${i}`, checked: i == active})
-      inputEl.addEventListener("change", () => this.change_input())
-      const labelEl = label({class: [`bk-bs-btn`, `bk-bs-btn-${this.model.button_type}`]}, inputEl, text)
-      if (i == active)
-        labelEl.classList.add("bk-bs-active")
-      divEl.appendChild(labelEl)
+      const button = div({
+        class: [`bk-btn`, `bk-btn-${this.model.button_type}`, i == active ? "bk-active" : null],
+        disabled: this.model.disabled,
+      }, labels[i])
+      button.addEventListener("click", () => this.change_active(i))
+      group.appendChild(button)
     }
   }
 
-  change_input(): void {
-    const radios = this.el.querySelectorAll("input")
-    const active: number[] = []
-    for (let i = 0; i < radios.length; i++) {
-      const radio = radios[i]
-      if (radio.checked)
-        active.push(i)
-    }
-    this.model.active = active[0]
+  change_active(i: number): void {
+    this.model.active = i
     if (this.model.callback != null)
       this.model.callback.execute(this.model)
   }
@@ -64,7 +51,6 @@ export namespace RadioButtonGroup {
 export interface RadioButtonGroup extends RadioButtonGroup.Attrs {}
 
 export class RadioButtonGroup extends Widget {
-
   properties: RadioButtonGroup.Props
 
   constructor(attrs?: Partial<RadioButtonGroup.Attrs>) {
@@ -76,12 +62,11 @@ export class RadioButtonGroup extends Widget {
     this.prototype.default_view = RadioButtonGroupView
 
     this.define({
-      active:      [ p.Any,    null      ], // TODO (bev) better type?
-      labels:      [ p.Array,  []        ],
-      button_type: [ p.String, "default" ],
-      callback:    [ p.Instance ],
+      active:      [ p.Any,     null      ], // TODO (bev) better type?
+      labels:      [ p.Array,   []        ],
+      button_type: [ p.String,  "default" ],
+      callback:    [ p.Instance           ],
     })
   }
 }
-
 RadioButtonGroup.initClass()

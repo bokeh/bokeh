@@ -22,7 +22,7 @@ export class AutocompleteInputView extends TextInputView {
     this.inputEl.addEventListener("keydown", (event) => this._keydown(event))
     this.inputEl.addEventListener("keyup", (event) => this._keyup(event))
 
-    this.menuEl = ul({class: "bk-bs-dropdown-menu"})
+    this.menuEl = ul({class: "bk-dropdown-menu"})
     this.menuEl.addEventListener("click", (event) => this._item_click(event))
     this.el.appendChild(this.menuEl)
   }
@@ -37,11 +37,11 @@ export class AutocompleteInputView extends TextInputView {
   }
 
   protected _open_menu(): void {
-    this.el.classList.add("bk-bs-open")
+    this.el.classList.add("bk-open")
   }
 
   protected _clear_menu(): void {
-    this.el.classList.remove("bk-bs-open")
+    this.el.classList.remove("bk-open")
   }
 
   protected _item_click(event: MouseEvent): void {

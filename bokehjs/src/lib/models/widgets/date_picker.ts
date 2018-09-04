@@ -1,6 +1,6 @@
 import {InputWidget, InputWidgetView} from "./input_widget"
 
-import {empty, input, label} from "core/dom"
+import {input, label} from "core/dom"
 import * as p from "core/properties"
 
 import * as Pikaday from "pikaday"
@@ -47,21 +47,16 @@ export class DatePickerView extends InputWidgetView {
 
   protected _picker: Pikaday
 
-  css_classes(): string[] {
-    return super.css_classes().concat("bk-widget-form-group")
-  }
-
   render(): void {
-    super.render()
-
     if (this._picker != null)
       this._picker.destroy()
-    empty(this.el)
+
+    super.render()
 
     this.labelEl = label({}, this.model.title)
     this.el.appendChild(this.labelEl)
 
-    this.inputEl = input({type: "text", class: "bk-widget-form-input", disabled: this.model.disabled})
+    this.inputEl = input({type: "text", class: "bk-input", disabled: this.model.disabled})
     this.el.appendChild(this.inputEl)
 
     this._picker = new Pikaday({
@@ -72,9 +67,16 @@ export class DatePickerView extends InputWidgetView {
       maxDate: this.model.max_date != null ? new Date(this.model.max_date) : undefined,
       onSelect: (date) => this._on_select(date),
     })
+  }
+
+  // XXX: this is a hack. render() happens before top-level layout's el is added to DOM
+  after_layout(): void {
+    super.after_layout()
 
     // move date picker's element from body to bk-root
-    this._root_element.appendChild(this._picker.el)
+    const root = this._root_element
+    if (!root.contains(this._picker.el))
+      root.appendChild(this._picker.el)
   }
 
   _on_select(date: Date): void {
@@ -100,7 +102,6 @@ export namespace DatePicker {
 export interface DatePicker extends DatePicker.Attrs {}
 
 export class DatePicker extends InputWidget {
-
   properties: DatePicker.Props
 
   constructor(attrs?: Partial<DatePicker.Attrs>) {
@@ -119,5 +120,4 @@ export class DatePicker extends InputWidget {
     })
   }
 }
-
 DatePicker.initClass()

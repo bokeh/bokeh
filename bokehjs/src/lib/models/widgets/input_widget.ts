@@ -24,7 +24,6 @@ export namespace InputWidget {
 export interface InputWidget extends InputWidget.Attrs {}
 
 export class InputWidget extends Widget {
-
   properties: InputWidget.Props
 
   constructor(attrs?: Partial<InputWidget.Attrs>) {
@@ -41,5 +40,4 @@ export class InputWidget extends Widget {
     })
   }
 }
-
 InputWidget.initClass()

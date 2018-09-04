@@ -1,11 +1,11 @@
 import * as p from "core/properties"
-import {empty, prepend, nbsp, button} from "core/dom"
+import {prepend, nbsp, button} from "core/dom"
 import {build_views, remove_views} from "core/build_views"
 
 import {Widget, WidgetView} from "./widget"
 import {AbstractIcon, AbstractIconView} from "./abstract_icon"
 
-export type ButtonType = "default" | "primary" | "success" | "warning" | "danger" | "link"
+export type ButtonType = "default" | "primary" | "success" | "warning" | "danger"
 
 export abstract class AbstractButtonView extends WidgetView {
   model: AbstractButton
@@ -33,17 +33,16 @@ export abstract class AbstractButtonView extends WidgetView {
     return button({
       type: "button",
       disabled: this.model.disabled,
-      class: [`bk-bs-btn`, `bk-bs-btn-${this.model.button_type}`],
+      class: [`bk-btn`, `bk-btn-${this.model.button_type}`],
     }, ...children)
   }
 
   render(): void {
     super.render()
 
-    empty(this.content_el)
     this.buttonEl = this._render_button(this.model.label)
     this.buttonEl.addEventListener("click", (event) => this._button_click(event))
-    this.content_el.appendChild(this.buttonEl)
+    this.el.appendChild(this.buttonEl)
 
     const icon = this.model.icon
     if (icon != null) {

@@ -28,14 +28,11 @@ export class DOMView extends View {
     return null
   }
 
-  do_layout(): void {}
-
   render(): void {}
 
   renderTo(element: HTMLElement): void {
     element.appendChild(this.el)
     this.render()
-    this.do_layout()
   }
 
   on_hit?(sx: number, sy: number): boolean

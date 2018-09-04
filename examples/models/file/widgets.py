@@ -14,7 +14,7 @@ from bokeh.models.widgets import (
     CheckboxButtonGroup, RadioButtonGroup,
     TextInput, AutocompleteInput,
     Select, MultiSelect,
-    Slider, RangeSlider, #DateRangeSlider,
+    Slider, RangeSlider, #DateSlider, DateRangeSlider,
     DatePicker,
     Paragraph, Div, PreText,
     DataTable, TableColumn,

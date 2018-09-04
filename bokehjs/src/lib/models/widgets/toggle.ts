@@ -7,7 +7,7 @@ export class ToggleView extends AbstractButtonView {
   render(): void {
     super.render()
     if (this.model.active)
-      this.buttonEl.classList.add("bk-bs-active")
+      this.buttonEl.classList.add("bk-active")
   }
 
   change_input(): void {

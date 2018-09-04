@@ -1,3 +1,5 @@
+@import "mixins.less";
+
 .bk-root {
   box-sizing: border-box;
 
@@ -9,6 +11,7 @@
     margin: 0;
     border: 0;
     padding: 0;
+    background-image: none;
   }
 
   @import "main.less";
@@ -19,7 +22,7 @@
 
   // Properties of bk-root itself
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 10pt;
+  font-size: 10pt; // 13px/0.8em
   position: relative;
   width: auto;
   height: auto;

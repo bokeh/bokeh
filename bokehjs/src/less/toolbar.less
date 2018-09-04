@@ -4,12 +4,6 @@
 @buttonWidth: 30px;
 @buttonColor: lightgray;
 
-.bk-toolbar, .bk-toolbar * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
 .bk-toolbar-hidden {
   visibility: hidden;
   opacity: 0;
@@ -17,60 +11,42 @@
 }
 
 .bk-toolbar, .bk-button-bar {
-  display: flex;
-  display: -webkit-flex;
-  flex-wrap: nowrap;
-  -webkit-flex-wrap: nowrap;
-  align-items: center;
-  -webkit-align-items: center;
-
-  user-select: none;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
+  .flex();
+  .flex-wrap(nowrap);
+  .align-items(center);
+  .no-user-select();
 }
 
 .bk-toolbar .bk-logo {
-  flex-shrink: 0;
-  -webkit-flex-shrink: 0;
+  .flex-shrink(0);
 }
 
 .bk-toolbar-above, .bk-toolbar-below {
-  flex-direction: row;
-  -webkit-flex-direction: row;
-  justify-content: flex-end;
-  -webkit-justify-content: flex-end;
+  .flex-direction(row);
+  .justify-content(flex-end);
 
   .bk-button-bar {
-    display: flex;
-    display: -webkit-flex;
-    flex-direction: row;
-    -webkit-flex-direction: row;
+    .flex();
+    .flex-direction(row);
   }
 
   .bk-logo {
-    order: 1;
-    -webkit-order: 1;
+    .order(1);
     margin-left: 5px;
   }
 }
 
 .bk-toolbar-left, .bk-toolbar-right {
-  flex-direction: column;
-  -webkit-flex-direction: column;
-  justify-content: flex-start;
-  -webkit-justify-content: flex-start;
+  .flex-direction(column);
+  .justify-content(flex-start);
 
   .bk-button-bar {
-    display: flex;
-    display: -webkit-flex;
-    flex-direction: column;
-    -webkit-flex-direction: column;
+    .flex();
+    .flex-direction(column);
   }
 
   .bk-logo {
-    order: 0;
-    -webkit-order: 0;
+    .order(0);
     margin-bottom: 5px;
   }
 }
