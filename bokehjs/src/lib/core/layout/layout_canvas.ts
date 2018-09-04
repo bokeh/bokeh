@@ -23,15 +23,15 @@ export type Sizing = number | "min" | "max"
 
 export type WidthSizing =
   {width_policy: "fixed", width: number} |
-  {width_policy: "auto", width?: number | null, aspect?: number} |
-  {width_policy: "min" | "max", aspect?: number}
+  {width_policy: "auto", width?: number | null} |
+  {width_policy: "min" | "max"}
 
 export type HeightSizing =
   {height_policy: "fixed", height: number} |
-  {height_policy: "auto", height?: number | null, aspect?: number} |
-  {height_policy: "min" | "max", aspect?: number}
+  {height_policy: "auto", height?: number | null} |
+  {height_policy: "min" | "max"}
 
-export type BoxSizing = WidthSizing & HeightSizing
+export type BoxSizing = WidthSizing & HeightSizing & {aspect?: number}
 
 export interface ComputedVariable {
   readonly value: number
