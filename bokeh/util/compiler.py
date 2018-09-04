@@ -153,6 +153,8 @@ def _npmjs_path():
     global _npmjs
     if _npmjs is None:
         _npmjs = join(dirname(_nodejs_path()), "npm")
+        if sys.platform == "win32":
+            _npmjs += '.cmd'
     return _npmjs
 
 def _run(app, argv, input=None):
