@@ -39,8 +39,8 @@ def test_from_networkx_with_attributes():
     G.add_nodes_from([(0, {"attr_1": "a", "attr_2": 10}),
                       (1, {"attr_1": "b"}),
                       (2, {"attr_1": "c", "attr_2": 30})])
-    G.add_edges_from([(0, 1, {'attr_1': 'A'}),
-                      (0, 2, {'attr_1': 'B', 'attr_2': 10})])
+    G.add_edges_from([(0, 1, {"attr_1": "A"}),
+                      (0, 2, {"attr_1": "B", "attr_2": 10})])
 
     renderer = from_networkx(G, nx.circular_layout)
 
