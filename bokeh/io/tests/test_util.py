@@ -18,6 +18,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import os
 from mock import Mock, patch, PropertyMock
 
 # External imports
@@ -40,7 +41,7 @@ import bokeh.io.util as biu
 #-----------------------------------------------------------------------------
 
 def test_detect_current_filename():
-    assert biu.detect_current_filename().endswith(("py.test", "pytest"))
+    assert biu.detect_current_filename().endswith(("py.test", "pytest", "py.test-script.py"))
 
 @patch('bokeh.io.util.NamedTemporaryFile')
 def test_temp_filename(mock_tmp):
@@ -69,19 +70,19 @@ def test_default_filename():
         # a current file, access, and no share exec
         biu._no_access = lambda x: False
         r = biu.default_filename("test")
-        assert r == "/a/b/foo.test"
+        assert os.path.normpath(r) == os.path.normpath("/a/b/foo.test")
 
         # a current file, NO access, and no share exec
         biu._no_access = lambda x: True
         r = biu.default_filename("test")
-        assert r != "/a/b/foo.test"
+        assert os.path.normpath(r) != os.path.normpath("/a/b/foo.test")
         assert r.endswith(".test")
 
         # a current file, access, but WITH share exec
         biu._no_access = lambda x: False
         biu._shares_exec_prefix = lambda x: True
         r = biu.default_filename("test")
-        assert r != "/a/b/foo.test"
+        assert os.path.normpath(r) != os.path.normpath("/a/b/foo.test")
         assert r.endswith(".test")
 
         # no current file
@@ -89,7 +90,7 @@ def test_default_filename():
         biu._no_access = lambda x: False
         biu._shares_exec_prefix = lambda x: False
         r = biu.default_filename("test")
-        assert r != "/a/b/foo.test"
+        assert os.path.normpath(r) != os.path.normpath("/a/b/foo.test")
         assert r.endswith(".test")
 
     finally:
@@ -103,7 +104,6 @@ def test_default_filename():
 
 @patch('os.access')
 def test__no_access(mock_access):
-    import os
     biu._no_access("test")
     assert mock_access.called
     assert mock_access.call_args[0] == ("test", os.W_OK | os.X_OK)
