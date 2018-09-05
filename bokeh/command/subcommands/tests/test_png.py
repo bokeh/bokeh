@@ -95,8 +95,7 @@ def test_basic_script(capsys):
 
         assert set(["scatter.png", "scatter.py"]) == set(os.listdir(dirname))
 
-    with_directory_contents({ 'scatter.py' : basic_scatter_script },
-                            run)
+    with_directory_contents({ 'scatter.py' : basic_scatter_script }, run)
 
 @pytest.mark.unit
 @pytest.mark.selenium
@@ -110,8 +109,7 @@ def test_basic_script_with_output_after(capsys):
 
         assert set(["foo.png", "scatter.py"]) == set(os.listdir(dirname))
 
-    with_directory_contents({ 'scatter.py' : basic_scatter_script },
-                            run)
+    with_directory_contents({ 'scatter.py' : basic_scatter_script }, run)
 
 @pytest.mark.unit
 @pytest.mark.selenium
@@ -125,8 +123,22 @@ def test_basic_script_with_output_before(capsys):
 
         assert set(["foo.png", "scatter.py"]) == set(os.listdir(dirname))
 
-    with_directory_contents({ 'scatter.py' : basic_scatter_script },
-                            run)
+    with_directory_contents({ 'scatter.py' : basic_scatter_script }, run)
+
+@pytest.mark.unit
+@pytest.mark.selenium
+def test_basic_script_with_output_stdout(capsysbinary):
+    def run(dirname):
+        with WorkingDir(dirname):
+            main(["bokeh", "png", "--output", "-", "scatter.py"])
+        out, err = capsysbinary.readouterr()
+        assert len(err) == 0
+        assert len(out) > 0
+        assert out.startswith(b'\x89PNG')
+
+        assert set(["scatter.py"]) == set(os.listdir(dirname))
+
+    with_directory_contents({ 'scatter.py' : basic_scatter_script }, run)
 
 @pytest.mark.unit
 @pytest.mark.selenium

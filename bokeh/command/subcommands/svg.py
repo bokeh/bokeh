@@ -43,11 +43,10 @@ For all cases, it's required to explicitly add a Bokeh layout to
 from __future__ import absolute_import
 
 import io
-import warnings
 
 from ...io.export import get_svgs, create_webdriver, terminate_webdriver
-from ...models.plots import Plot
 from ...util.string import decode_utf8
+from ..util import set_single_plot_width_height
 from .file_output import FileOutputSubcommand
 
 class SVG(FileOutputSubcommand):
@@ -115,12 +114,5 @@ class SVG(FileOutputSubcommand):
         '''
 
         '''
-        if args.width is not None or args.height is not None:
-            layout = doc.roots
-            if len(layout) != 1 or not isinstance(layout[0], Plot):
-                warnings.warn("Export called with height or width kwargs on a non-single Plot layout. The size values will be ignored.")
-            else:
-                plot = layout[0]
-                plot.plot_height = args.height or plot.plot_height
-                plot.plot_width  = args.width or plot.plot_width
+        set_single_plot_width_height(doc, width=args.width, height=args.height)
         return get_svgs(doc, driver=self.driver)
