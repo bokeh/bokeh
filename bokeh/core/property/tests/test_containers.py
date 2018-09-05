@@ -342,3 +342,19 @@ def test_PropertyValueList_mutators(mock_notify):
         pvl.__delslice__(1,2)
     except:
         pass
+
+def test_PropertyValueColumnData___copy__():
+    source = ColumnDataSource(data=dict(foo=[10]))
+    pvcd = source.data.__copy__()
+    assert source.data == pvcd
+    assert id(source.data) != id(pvcd)
+    pvcd['foo'][0] = 20
+    assert source.data['foo'][0] == 20
+
+def test_PropertyValueColumnData___deepcopy__():
+    source = ColumnDataSource(data=dict(foo=[10]))
+    pvcd = source.data.__deepcopy__()
+    assert source.data == pvcd
+    assert id(source.data) != id(pvcd)
+    pvcd['foo'][0] = 20
+    assert source.data['foo'][0] == 10

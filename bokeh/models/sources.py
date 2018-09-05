@@ -58,6 +58,11 @@ class ColumnDataSource(ColumnarDataSource):
 
           source = ColumnDataSource(data)
 
+    .. note::
+        ``ColumnDataSource`` only creates a shallow copy of ``data``. Use e.g.
+        ``ColumnDataSource(copy.deepcopy(data))`` if initializing from another
+        ``ColumnDataSource.data`` object that you want to keep independent.
+
     * A Pandas ``DataFrame`` object
 
       .. code-block:: python

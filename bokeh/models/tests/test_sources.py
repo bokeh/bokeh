@@ -113,6 +113,15 @@ class TestColumnDataSource(object):
             assert isinstance(ds.data[k2], np.ndarray)
             assert list(s[key]) == list(ds.data[k2])
 
+    def test_init_propertyvaluecolumndata_copy(self):
+        data = dict(a=[1], b=[2])
+        cd = ColumnDataSource(data).data
+        ds = ColumnDataSource(data=cd)
+        assert ds.data == cd
+        assert id(ds.data) != id(cd)
+        ds.data['a'][0] = 2
+        assert cd['a'][0] == 2
+
     def test_add_with_name(self):
         ds = ColumnDataSource()
         name = ds.add([1,2,3], name="foo")
