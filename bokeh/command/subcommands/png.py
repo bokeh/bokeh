@@ -42,10 +42,9 @@ from __future__ import absolute_import
 
 import io
 import sys
-import warnings
 
 from ...io.export import get_screenshot_as_png, create_webdriver, terminate_webdriver
-from ...models.plots import Plot
+from ..util import set_single_plot_width_height
 from .file_output import FileOutputSubcommand
 
 class PNG(FileOutputSubcommand):
@@ -107,14 +106,7 @@ class PNG(FileOutputSubcommand):
         '''
 
         '''
-        if args.width is not None or args.height is not None:
-            layout = doc.roots
-            if len(layout) != 1 or not isinstance(layout[0], Plot):
-                warnings.warn("Export called with height or width kwargs on a non-single Plot layout. The size values will be ignored.")
-            else:
-                plot = layout[0]
-                plot.plot_height = args.height or plot.plot_height
-                plot.plot_width  = args.width or plot.plot_width
+        set_single_plot_width_height(doc, width=args.width, height=args.height)
 
         image = get_screenshot_as_png(doc, driver=self.driver)
         buf = io.BytesIO()

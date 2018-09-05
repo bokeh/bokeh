@@ -11,7 +11,6 @@ import base64
 import codecs
 import hashlib
 import hmac
-import random
 import time
 
 from six import binary_type
@@ -19,23 +18,28 @@ from six import binary_type
 from bokeh.settings import settings
 from bokeh.util.string import encode_utf8
 
-# Use the system PRNG for session id generation (if possible)
-# NOTE: secure random string generation implementation is adapted
-#       from the Django project. Reference:
-#       https://github.com/django/django/blob/0ed7d155635da9f79d4dd67e4889087d3673c6da/django/utils/crypto.py
-try:
-    random = random.SystemRandom()
-    using_sysrandom = True
-except NotImplementedError:
-    import warnings
-    warnings.warn('A secure pseudo-random number generator is not available '
-                  'on your system. Falling back to Mersenne Twister.')
-    if settings.secret_key() is None:
+def _get_sysrandom():
+    # Use the system PRNG for session id generation (if possible)
+    # NOTE: secure random string generation implementation is adapted
+    #       from the Django project. Reference:
+    #       https://github.com/django/django/blob/0ed7d155635da9f79d4dd67e4889087d3673c6da/django/utils/crypto.py
+    import random
+    try:
+        random = random.SystemRandom()
+        using_sysrandom = True
+    except NotImplementedError:
+        import warnings
         warnings.warn('A secure pseudo-random number generator is not available '
-                      'and no BOKEH_SECRET_KEY has been set. '
-                      'Setting a secret key will mitigate the lack of a secure '
-                      'generator.')
-    using_sysrandom = False
+                    'on your system. Falling back to Mersenne Twister.')
+        if settings.secret_key() is None:
+            warnings.warn('A secure pseudo-random number generator is not available '
+                        'and no BOKEH_SECRET_KEY has been set. '
+                        'Setting a secret key will mitigate the lack of a secure '
+                        'generator.')
+        using_sysrandom = False
+    return random, using_sysrandom
+
+random, using_sysrandom = _get_sysrandom()
 
 def _ensure_bytes(secret_key):
     if secret_key is None:

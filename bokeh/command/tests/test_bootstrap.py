@@ -34,3 +34,14 @@ def test_version_short(capsys):
     with pytest.raises(SystemExit):
         main(["bokeh", "-v"])
     _assert_version_output(capsys)
+
+def test_error(capsys):
+    from bokeh.command.subcommands.info import Info
+    old_invoke = Info.invoke
+    def err(x, y): raise RuntimeError("foo")
+    Info.invoke = err
+    with pytest.raises(SystemExit):
+        main(["bokeh", "info"])
+    out, err = capsys.readouterr()
+    assert err == 'ERROR: foo\n'
+    Info.invoke = old_invoke
