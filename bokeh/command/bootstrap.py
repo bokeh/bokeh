@@ -28,7 +28,7 @@ from __future__ import absolute_import
 import argparse
 
 from bokeh import __version__
-from bokeh.util.string import format_docstring, nice_join
+from bokeh.util.string import nice_join
 
 from .util import die
 from . import subcommands
@@ -45,7 +45,15 @@ def main(argv):
     The first item in ``argv`` is typically "bokeh", and the second should
     be the name of one of the available subcommands:
 
-    * {subcmds}
+    * :ref:`html <bokeh.command.subcommands.html>`
+    * :ref:`info <bokeh.command.subcommands.info>`
+    * :ref:`json <bokeh.command.subcommands.json>`
+    * :ref:`png <bokeh.command.subcommands.png>`
+    * :ref:`sampledata <bokeh.command.subcommands.sampledata>`
+    * :ref:`secret <bokeh.command.subcommands.secret>`
+    * :ref:`serve <bokeh.command.subcommands.serve>`
+    * :ref:`static <bokeh.command.subcommands.static>`
+    * :ref:`svg <bokeh.command.subcommands.svg>`
 
     '''
     if len(argv) == 1:
@@ -71,6 +79,4 @@ def main(argv):
     try:
         args.invoke(args)
     except Exception as e:
-        die("ERROR:" + str(e))
-
-main.__doc__ = format_docstring(main.__doc__, subcmds="\n    * ".join(":ref:`%s <bokeh.command.subcommands.%s>`" % (x.name, x.name) for x in subcommands.all))
+        die("ERROR: " + str(e))

@@ -94,8 +94,7 @@ def test_basic_script(capsys):
 
         assert set(["scatter.svg", "scatter.py"]) == set(os.listdir(dirname))
 
-    with_directory_contents({ 'scatter.py' : basic_svg_scatter_script },
-                            run)
+    with_directory_contents({ 'scatter.py' : basic_svg_scatter_script }, run)
 
 @pytest.mark.unit
 @pytest.mark.selenium
@@ -109,8 +108,7 @@ def test_basic_script_with_output_after(capsys):
 
         assert set(["foo.svg", "scatter.py"]) == set(os.listdir(dirname))
 
-    with_directory_contents({ 'scatter.py' : basic_svg_scatter_script },
-                            run)
+    with_directory_contents({ 'scatter.py' : basic_svg_scatter_script }, run)
 
 @pytest.mark.unit
 @pytest.mark.selenium
@@ -124,8 +122,22 @@ def test_basic_script_with_output_before(capsys):
 
         assert set(["foo.svg", "scatter.py"]) == set(os.listdir(dirname))
 
-    with_directory_contents({ 'scatter.py' : basic_svg_scatter_script },
-                            run)
+    with_directory_contents({ 'scatter.py' : basic_svg_scatter_script }, run)
+
+@pytest.mark.unit
+@pytest.mark.selenium
+def test_basic_script_with_output_stdout(capsys):
+    def run(dirname):
+        with WorkingDir(dirname):
+            main(["bokeh", "svg", "--output", "-", "scatter.py"])
+        out, err = capsys.readouterr()
+        assert len(err) == 0
+        assert len(out) > 0
+        assert out.startswith('<svg version=')
+
+        assert set(["scatter.py"]) == set(os.listdir(dirname))
+
+    with_directory_contents({ 'scatter.py' : basic_svg_scatter_script }, run)
 
 @pytest.mark.unit
 @pytest.mark.selenium

@@ -12,7 +12,7 @@ import warnings
 
 from bokeh.application import Application
 from bokeh.application.handlers import ScriptHandler, DirectoryHandler, NotebookHandler
-
+from bokeh.models.plots import Plot
 
 log = logging.getLogger(__name__)
 
@@ -172,3 +172,13 @@ def report_server_init_errors(address=None, port=None, **kwargs):
             codename = errno.errorcode[e.errno]
             log.critical("Cannot start Bokeh server [%s]: %r", codename, e)
         sys.exit(1)
+
+def set_single_plot_width_height(doc, width, height):
+    if width is not None or height is not None:
+        layout = doc.roots
+        if len(layout) != 1 or not isinstance(layout[0], Plot):
+            warnings.warn("Width/height arguments will be ignored for this muliple layout. (Size valus only apply when exporting single plots.)")
+        else:
+            plot = layout[0]
+            plot.plot_height = height or plot.plot_height
+            plot.plot_width  = width or plot.plot_width
