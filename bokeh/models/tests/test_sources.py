@@ -682,3 +682,4 @@ Lime,Green,99,$0.39
         json = transform_column_source_data(data)
         ds.set_from_json('data', json)
         assert np.array_equal(ds.data["foo"], data["foo"])
+        
