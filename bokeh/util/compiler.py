@@ -157,6 +157,9 @@ def _npmjs_path():
             _npmjs += '.cmd'
     return _npmjs
 
+def _crlf_cr_2_lf(s):
+    return re.sub(r"\\r\\n|\\r|\\n", r"\\n", s)
+
 def _run(app, argv, input=None):
     proc = Popen([app] + argv, stdout=PIPE, stderr=PIPE, stdin=PIPE)
     (stdout, errout) = proc.communicate(input=None if input is None else json.dumps(input).encode())
@@ -164,7 +167,7 @@ def _run(app, argv, input=None):
     if proc.returncode != 0:
         raise RuntimeError(errout)
     else:
-        return stdout.decode('utf-8')
+        return _crlf_cr_2_lf(stdout.decode('utf-8'))
 
 def _run_nodejs(argv, input=None):
     return _run(_nodejs_path(), argv, input)
