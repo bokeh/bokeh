@@ -1,7 +1,6 @@
 from __future__ import absolute_import
 
 import warnings
-import copy
 
 from ..core.has_props import abstract
 from ..core.properties import Any, Bool, ColumnData, Dict, Enum, Instance, Int, JSON, List, Seq, String
@@ -60,9 +59,8 @@ class ColumnDataSource(ColumnarDataSource):
           source = ColumnDataSource(data)
 
     .. note::
-
-        ``ColumnDataSource`` creates a shallow copy of the passed ``dict``. Use
-        ``ColumnDataSource(copy.deepcopy(data))`` e.g. if initializing from another
+        ``ColumnDataSource`` only creates a shallow copy of ``data``. Use e.g.
+        ``ColumnDataSource(copy.deepcopy(data))`` if initializing from another
         ``ColumnDataSource.data`` object that you want to keep independent.
 
     * A Pandas ``DataFrame`` object
@@ -139,8 +137,6 @@ class ColumnDataSource(ColumnarDataSource):
                 raw_data = self._data_from_groupby(raw_data)
             else:
                 raise ValueError("expected a dict or pandas.DataFrame, got %s" % raw_data)
-        else:
-            raw_data = copy.copy(raw_data)
         super(ColumnDataSource, self).__init__(**kw)
         self.data.update(raw_data)
 
