@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 import argparse
 import pytest
+from mock import patch
 import os
 import sys
 
@@ -83,8 +84,7 @@ def test_basic_script(capsys):
 
         assert set(["scatter.html", "scatter.py"]) == set(os.listdir(dirname))
 
-    with_directory_contents({ 'scatter.py' : basic_scatter_script },
-                            run)
+    with_directory_contents({ 'scatter.py' : basic_scatter_script }, run)
 
 def test_basic_script_with_output_after(capsys):
     def run(dirname):
@@ -96,8 +96,7 @@ def test_basic_script_with_output_after(capsys):
 
         assert set(["foo.html", "scatter.py"]) == set(os.listdir(dirname))
 
-    with_directory_contents({ 'scatter.py' : basic_scatter_script },
-                            run)
+    with_directory_contents({ 'scatter.py' : basic_scatter_script }, run)
 
 def test_basic_script_with_output_before(capsys):
     def run(dirname):
@@ -109,5 +108,19 @@ def test_basic_script_with_output_before(capsys):
 
         assert set(["foo.html", "scatter.py"]) == set(os.listdir(dirname))
 
-    with_directory_contents({ 'scatter.py' : basic_scatter_script },
-                            run)
+    with_directory_contents({ 'scatter.py' : basic_scatter_script }, run)
+
+@patch('bokeh.util.browser.view')
+def test_show(mock_view, capsys):
+    def run(dirname):
+        with WorkingDir(dirname):
+            main(["bokeh", "html", "--show", "scatter.py"])
+        out, err = capsys.readouterr()
+        assert err == ""
+        assert out == ""
+
+        assert set(["scatter.html", "scatter.py"]) == set(os.listdir(dirname))
+        assert mock_view.called
+        assert mock_view.call_args[0] == ('scatter.html',)
+
+    with_directory_contents({ 'scatter.py' : basic_scatter_script }, run)
