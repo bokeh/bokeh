@@ -3,9 +3,8 @@ from __future__ import absolute_import
 import argparse
 import pytest
 import os
-import sys
 
-is_python2 = sys.version_info[0] == 2
+import six
 
 import bokeh.command.subcommands.png as scpng
 from bokeh.command.bootstrap import main
@@ -72,7 +71,7 @@ def test_no_script(capsys):
             with pytest.raises(SystemExit):
                 main(["bokeh", "png"])
         out, err = capsys.readouterr()
-        if is_python2:
+        if six.PY2:
             too_few = "too few arguments"
         else:
             too_few = "the following arguments are required: DIRECTORY-OR-SCRIPT"
@@ -127,6 +126,7 @@ def test_basic_script_with_output_before(capsys):
 
 @pytest.mark.unit
 @pytest.mark.selenium
+@pytest.mark.skipif(six.PY2, reason="capsysbinary not available on Py2")
 def test_basic_script_with_output_stdout(capsysbinary):
     def run(dirname):
         with WorkingDir(dirname):
