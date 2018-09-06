@@ -88,6 +88,7 @@ class ScriptHandler(CodeHandler):
         # - default encoding used by Python 3 `open` statement
         #   is not 'utf-8' on Windows platform,
         # - Python 3 `open` ignores le `coding` comment line.
+        # See https://github.com/bokeh/bokeh/pull/8202 for details.
         if six.PY3:
             with open(filename, 'r', encoding='utf-8') as f:
                 kwargs['source'] = f.read()
