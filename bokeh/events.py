@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Represent granular events that can be used to trigger callbacks.
 
 Bokeh documents and applications are capable of supporting various kinds of
@@ -46,29 +53,33 @@ event object that triggered the callback.
     may trigger at a very high rate.
 
 '''
-from __future__ import absolute_import
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from .util.future import with_metaclass
 
-_CONCRETE_EVENT_CLASSES = dict()
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
 
-class _MetaEvent(type):
-    ''' Metaclass used to keep track of all classes subclassed from Event.
-
-    All Concrete Event classes (i.e. not "abstract" event base classes with
-    no ``event_name``) will be added to the _CONCRETE_EVENT_CLASSES set which
-    is used to decode event instances from JSON.
-
-    '''
-    def __new__(cls, clsname, bases, attrs):
-        newclass = super(_MetaEvent, cls).__new__(cls, clsname, bases, attrs)
-        if newclass.event_name is not None:
-            _CONCRETE_EVENT_CLASSES[newclass.event_name] = newclass
-        return newclass
-
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 class Event(with_metaclass(_MetaEvent, object)):
     ''' Base class for all Bokeh events.
 
@@ -226,8 +237,6 @@ class PointEvent(PlotEvent):
         self.x = x
         self.y = y
         super(PointEvent, self).__init__(model=model)
-
-# --- Point Events ------------------------------------------------------------
 
 class Tap(PointEvent):
     ''' Announce a tap or click event on a Bokeh plot.
@@ -430,3 +439,31 @@ class PinchStart(PointEvent):
 
     '''
     event_name = 'pinchstart'
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+_CONCRETE_EVENT_CLASSES = dict()
+
+class _MetaEvent(type):
+    ''' Metaclass used to keep track of all classes subclassed from Event.
+
+    All Concrete Event classes (i.e. not "abstract" event base classes with
+    no ``event_name``) will be added to the _CONCRETE_EVENT_CLASSES set which
+    is used to decode event instances from JSON.
+
+    '''
+    def __new__(cls, clsname, bases, attrs):
+        newclass = super(_MetaEvent, cls).__new__(cls, clsname, bases, attrs)
+        if newclass.event_name is not None:
+            _CONCRETE_EVENT_CLASSES[newclass.event_name] = newclass
+        return newclass
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

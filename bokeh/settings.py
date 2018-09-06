@@ -1,15 +1,46 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Control global configuration options with environment variables.
 
 '''
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-import codecs
 import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+import codecs
 import os
 from os.path import join, abspath, isdir
 
+# External imports
+
+# Bokeh imports
 from .util.paths import ROOT_DIR, bokehjsdir
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class Settings(object):
     ''' A class to collect global, overridable Bokeh configuration settings.
@@ -18,6 +49,8 @@ class Settings(object):
 
     _prefix = "BOKEH_"
     debugjs = False
+
+    # Properties --------------------------------------------------------------
 
     @property
     def _environ(self):
@@ -33,6 +66,8 @@ class Settings(object):
     @property
     def dev(self):
         return self._is_dev
+
+    # Public methods ----------------------------------------------------------
 
     def _dev_or_default(self, default, dev):
         return dev if dev is not None and self._is_dev else default
@@ -228,6 +263,14 @@ class Settings(object):
 
     def ignore_filename(self):
         return self._get_bool("IGNORE_FILENAME", False)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
 
 #: A global settings object that other parts of Bokeh can refer to.
 #:
