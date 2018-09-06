@@ -13,13 +13,13 @@ init:
   - cmd: echo %path%
   
 install:
-  - ps: $BUILD_DEPS = python scripts/deps.py build run test
-  - cmd: echo %BUILD_DEPS%
   - cmd: conda config --set auto_update_conda off
   - cmd: conda config --set always_yes yes --set changeps1 no
-  - cmd: conda config --add channels conda-forge
   - cmd: conda config --append channels bokeh
+  - cmd: conda config --append channels conda-forge
   - cmd: conda config --get channels
   - cmd: conda update -q conda
-
+  - cmd: conda install jinja2 pyyaml
+  - ps: $BUILD_DEPS = python scripts/deps.py build run test
+  - cmd: echo %BUILD_DEPS%
   
