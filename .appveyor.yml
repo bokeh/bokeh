@@ -21,5 +21,6 @@ install:
   - cmd: conda update -q conda
   - cmd: conda install jinja2 pyyaml
   - ps: $BUILD_DEPS = python scripts/deps.py build run test
-  - cmd: echo %BUILD_DEPS%
+  - ps: $BUILD_DEPS
+  - cmd: conda install --yes $BUILD_DEPS
   
