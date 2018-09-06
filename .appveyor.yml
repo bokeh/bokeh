@@ -1,0 +1,25 @@
+build: false
+
+platform:
+  - x64
+
+environment:
+  matrix:
+    # Python 3.6
+    - MINICONDA: C:\Miniconda36-x64
+
+init:
+  - cmd: set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%MINICONDA%\\Library\\bin;%PATH%
+  - cmd: echo %path%
+  
+install:
+  - cmd: conda config --set auto_update_conda off
+  - cmd: conda config --set always_yes yes --set changeps1 no
+  - cmd: conda config --add channels conda-forge
+  - cmd: conda config --append channels bokeh
+  - cmd: conda config --get channels
+  - cmd: conda update -q conda
+
+  - ps: BUILD_DEPS=`python scripts/deps.py build run test`
+  - cmd: echo %BUILD_DEPS%
+  
