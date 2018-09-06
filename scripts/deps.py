@@ -27,6 +27,9 @@ spec = []
 for name in sys.argv[1:]:
     spec += section[name]
 
+# bare python unpins python version causing upgrade to latest
+if 'python' in spec: spec.remove('python')
+
 deps = ""
 deps += " ".join(s for s in spec)
 deps = deps.replace(' >=', '>=')  # conda syntax doesn't allow spaces b/w pkg name and version spec
