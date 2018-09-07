@@ -189,10 +189,6 @@ export abstract class PlotCanvasView extends LayoutDOMView {
     return this._is_paused != null && this._is_paused !== 0
   }
 
-  view_options(): {[key: string]: any} {
-    return {plot_view: this, parent: this}
-  }
-
   get child_models(): LayoutDOM[] {
     return []
   }
@@ -850,7 +846,7 @@ export abstract class PlotCanvasView extends LayoutDOMView {
       this.computed_renderers.push(...tool.synthetic_renderers)
     }
 
-    build_views(this.renderer_views, this.computed_renderers, this.view_options())
+    build_views(this.renderer_views, this.computed_renderers, {parent: this})
   }
 
   get_renderer_views(): RendererView[] {
@@ -859,7 +855,7 @@ export abstract class PlotCanvasView extends LayoutDOMView {
 
   build_tool_views(): void {
     const tool_models = this.model.toolbar.tools
-    const new_tool_views = build_views(this.tool_views, tool_models, this.view_options()) as ToolView[]
+    const new_tool_views = build_views(this.tool_views, tool_models, {parent: this}) as ToolView[]
     new_tool_views.map((tool_view) => this.ui_event_bus.register_tool(tool_view))
   }
 

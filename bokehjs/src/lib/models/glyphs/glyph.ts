@@ -30,10 +30,15 @@ export abstract class GlyphView extends View {
   model: Glyph
   visuals: Glyph.Visuals
 
+  parent: GlyphRendererView
+
+  get renderer(): GlyphRendererView {
+    return this.parent
+  }
+
   glglyph?: any
 
   index: SpatialIndex
-  renderer: GlyphRendererView
 
   protected _nohit_warned: {[key: string]: boolean} = {}
 
@@ -41,7 +46,6 @@ export abstract class GlyphView extends View {
     super.initialize(options)
 
     this._nohit_warned = {}
-    this.renderer = options.renderer
     this.visuals = new visuals.Visuals(this.model)
 
     // Init gl (this should really be done anytime renderer is set,

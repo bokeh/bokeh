@@ -14,17 +14,20 @@ export abstract class RendererView extends DOMView {
   model: Renderer
   visuals: Renderer.Visuals
 
-  plot_view: PlotCanvasView
+  parent: PlotCanvasView
 
   initialize(options: any): void {
     super.initialize(options)
-    this.plot_view = options.plot_view
     this.visuals = new visuals.Visuals(this.model)
     this._has_finished = true // XXX: should be in render() but subclasses don't respect super()
   }
 
+  get plot_view(): PlotCanvasView {
+    return this.parent
+  }
+
   get plot_model(): Plot {
-    return this.plot_view.model
+    return this.parent.model
   }
 
   request_render(): void {

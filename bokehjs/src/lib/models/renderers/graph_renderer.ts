@@ -26,7 +26,7 @@ export class GraphRendererView extends DataRendererView {
 
     this._renderer_views = {}
     ;[this.node_view, this.edge_view] = build_views(this._renderer_views,
-      [this.model.node_renderer, this.model.edge_renderer], this.plot_view.view_options()) as [GlyphRendererView, GlyphRendererView]
+      [this.model.node_renderer, this.model.edge_renderer], {parent: this.parent}) as [GlyphRendererView, GlyphRendererView]
 
     this.set_data()
   }

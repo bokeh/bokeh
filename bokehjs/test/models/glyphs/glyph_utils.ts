@@ -29,7 +29,6 @@ export function create_glyph_renderer_view(glyph: Glyph, data: {[key: string]: A
 
   const glyph_renderer_view = new glyph_renderer.default_view({
     model: glyph_renderer,
-    plot_view: plot_view,
     parent: plot_view,
   }) as GlyphRendererView
 

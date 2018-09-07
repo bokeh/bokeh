@@ -105,7 +105,7 @@ export class GlyphRendererView extends DataRendererView {
   }
 
   build_glyph_view<T extends Glyph>(model: T): GlyphView {
-    return new model.default_view({model, renderer: this, plot_view: this.plot_view, parent: this}) as GlyphView // XXX
+    return new model.default_view({model, parent: this}) as GlyphView // XXX
   }
 
   connect_signals(): void {

@@ -63,7 +63,6 @@ describe "GraphHitTestPolicy", ->
 
     @gv = new @gr.default_view({
       model: @gr
-      plot_view: @plot_view
       parent: @plot_view
     })
 

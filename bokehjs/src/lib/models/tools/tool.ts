@@ -13,15 +13,14 @@ import {EventType, GestureEvent, ScrollEvent, TapEvent, MoveEvent, KeyEvent} fro
 export abstract class ToolView extends View {
   model: Tool
 
-  plot_view: PlotCanvasView
+  parent: PlotCanvasView
 
-  initialize(options: any): void {
-    super.initialize(options)
-    this.plot_view = options.plot_view
+  get plot_view(): PlotCanvasView {
+    return this.parent
   }
 
   get plot_model(): Plot {
-    return this.plot_view.model
+    return this.parent.model
   }
 
   connect_signals(): void {

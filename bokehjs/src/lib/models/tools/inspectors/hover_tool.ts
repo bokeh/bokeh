@@ -112,7 +112,7 @@ export class HoverToolView extends InspectToolView {
       }
     }
 
-    build_views(this.ttviews, values(ttmodels), {parent: this, plot_view: this.plot_view})
+    build_views(this.ttviews, values(ttmodels), {parent: this.plot_view})
 
     return ttmodels
   }

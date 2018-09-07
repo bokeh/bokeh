@@ -65,7 +65,6 @@ const make_testcase = function(): PolyEditTestCase {
   // Untyped to access GlyphView
   const glyph_renderer_view: any = new glyph_renderer.default_view({
     model: glyph_renderer,
-    plot_view: plot_view,
     parent: plot_view,
   })
   sinon.stub(glyph_renderer_view, "set_data")
@@ -73,7 +72,6 @@ const make_testcase = function(): PolyEditTestCase {
   // Untyped to access GlyphView
   const vertex_renderer_view: any = new vertex_renderer.default_view({
     model: vertex_renderer,
-    plot_view: plot_view,
     parent: plot_view,
   })
 

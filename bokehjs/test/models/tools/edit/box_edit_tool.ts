@@ -54,7 +54,6 @@ const make_testcase = function(): BoxEditTestCase {
   // Untyped to access GlyphView
   const glyph_renderer_view: any = new glyph_renderer.default_view({
     model: glyph_renderer,
-    plot_view: plot_view,
     parent: plot_view,
   })
 
