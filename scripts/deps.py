@@ -27,6 +27,9 @@ spec = []
 for name in sys.argv[1:]:
     spec += section[name]
 
+# bare python unpins python version causing upgrade to latest
+if 'python' in spec: spec.remove('python')
+
 deps = ""
 if sys.platform == "win32":
     deps += '"'

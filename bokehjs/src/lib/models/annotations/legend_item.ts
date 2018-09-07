@@ -10,6 +10,7 @@ export namespace LegendItem {
   export interface Attrs extends Model.Attrs {
     label: StringSpec | null
     renderers: GlyphRenderer[]
+    index: number | null
   }
 
   export interface Props extends Model.Props {}
@@ -31,6 +32,7 @@ export class LegendItem extends Model {
     this.define({
       label:     [ p.StringSpec, null ],
       renderers: [ p.Array,      []   ],
+      index:     [ p.Number,     null ],
     })
   }
 

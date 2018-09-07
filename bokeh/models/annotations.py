@@ -81,6 +81,18 @@ class LegendItem(Model):
     then all data_sources of renderers must be the same.
     """)
 
+    index = Int(default=None, help="""
+    The column data index to use for drawing the representative items.
+
+    If None (the default), then Bokeh will automatically choose an index to
+    use. If the label does not refer to a data column name, this is typically
+    the first data point in the data source. Otherwise, if the label does
+    refer to a column name, the legend will have "groupby" behavior, and will
+    choose and display representative points from every "group" in the column.
+
+    If set to a number, Bokeh will use that numbner as the index in all cases.
+    """)
+
     @error(NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS)
     def _check_data_sources_on_renderers(self):
         if self.label and 'field' in self.label:
