@@ -75,12 +75,6 @@ jobs:
       script: scripts/ci/test
       env:
       - GROUP=integration
-      - PYTHON=3.7
-
-    - install: scripts/ci/install.test
-      script: scripts/ci/test
-      env:
-      - GROUP=integration
       - PYTHON=3.6
 
     - install: scripts/ci/install.test
