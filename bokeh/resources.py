@@ -396,7 +396,7 @@ class Resources(JSResources, CSSResources):
 
     '''
 
-	# Public methods ----------------------------------------------------------
+    # Public methods ----------------------------------------------------------
 
     def render(self):
         return "%s\n%s" % (self.render_css(), self.render_js())

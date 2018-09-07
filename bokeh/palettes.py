@@ -399,9 +399,9 @@ def _autoprop(cls):
 @_autoprop
 class _PalettesModule(_types.ModuleType):
 
-	# Properties --------------------------------------------------------------
+    # Properties --------------------------------------------------------------
 
-	@property
+    @property
     def __palettes__(self):
         __palettes__ = []
         for name, palettes in sorted(self.all_palettes.items(), key=lambda arg: arg[0]):
@@ -409,7 +409,7 @@ class _PalettesModule(_types.ModuleType):
             __palettes__ += [ name + str(index) for index in sorted(palettes.keys()) ]
         return __palettes__
 
-	# Public methods ----------------------------------------------------------
+    # Public methods ----------------------------------------------------------
 
     def YlGn3(self): return ["#31a354", "#addd8e", "#f7fcb9"]
     def YlGn4(self): return ["#238443", "#78c679", "#c2e699", "#ffffcc"]

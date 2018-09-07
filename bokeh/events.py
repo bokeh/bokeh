@@ -80,6 +80,22 @@ from .util.future import with_metaclass
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+_CONCRETE_EVENT_CLASSES = dict()
+
+class _MetaEvent(type):
+    ''' Metaclass used to keep track of all classes subclassed from Event.
+
+    All Concrete Event classes (i.e. not "abstract" event base classes with
+    no ``event_name``) will be added to the _CONCRETE_EVENT_CLASSES set which
+    is used to decode event instances from JSON.
+
+    '''
+    def __new__(cls, clsname, bases, attrs):
+        newclass = super(_MetaEvent, cls).__new__(cls, clsname, bases, attrs)
+        if newclass.event_name is not None:
+            _CONCRETE_EVENT_CLASSES[newclass.event_name] = newclass
+        return newclass
+
 class Event(with_metaclass(_MetaEvent, object)):
     ''' Base class for all Bokeh events.
 
@@ -447,22 +463,6 @@ class PinchStart(PointEvent):
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
-
-_CONCRETE_EVENT_CLASSES = dict()
-
-class _MetaEvent(type):
-    ''' Metaclass used to keep track of all classes subclassed from Event.
-
-    All Concrete Event classes (i.e. not "abstract" event base classes with
-    no ``event_name``) will be added to the _CONCRETE_EVENT_CLASSES set which
-    is used to decode event instances from JSON.
-
-    '''
-    def __new__(cls, clsname, bases, attrs):
-        newclass = super(_MetaEvent, cls).__new__(cls, clsname, bases, attrs)
-        if newclass.event_name is not None:
-            _CONCRETE_EVENT_CLASSES[newclass.event_name] = newclass
-        return newclass
 
 #-----------------------------------------------------------------------------
 # Code
