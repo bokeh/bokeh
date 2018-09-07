@@ -6,8 +6,9 @@ function test_error($error, $message){
 
 function test(){
 	conda install $(python scripts/deps.py run test).split() | where {$_}
+	conda install phantomjs
 	
-	py.test -v -m unit --diff-ref HEAD
+	py.test -m unit --diff-ref HEAD
 	test_error $LastExitCode "Tests failure"
 }
 
