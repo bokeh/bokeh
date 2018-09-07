@@ -137,7 +137,7 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
 
   notify_finished(): void {
     if (!this.is_root)
-      super.notify_finished()
+      this.root.notify_finished()
     else {
       if (!this._idle_notified && this.has_finished()) {
         if (this.model.document != null) {

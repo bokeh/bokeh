@@ -928,6 +928,8 @@ export abstract class PlotCanvasView extends LayoutDOMView {
   }
 
   after_layout(): void {
+    super.after_layout()
+
     this._size_hint = this.layout.size_hint()
 
     this.model.setv({
@@ -1069,11 +1071,6 @@ export abstract class PlotCanvasView extends LayoutDOMView {
       this.set_initial_range()
 
     ctx.restore()   // Restore to default state
-
-    if (!this._has_finished) {
-      this._has_finished = true
-      this.notify_finished()
-    }
   }
 
   protected _paint_levels(ctx: Context2d, levels: RenderLevel[], clip_region: FrameBox, global_clip: boolean): void {

@@ -42,6 +42,10 @@ export abstract class RendererView extends DOMView {
   get needs_clip(): boolean {
     return false
   }
+
+  notify_finished(): void {
+    this.plot_view.notify_finished()
+  }
 }
 
 export namespace Renderer {
