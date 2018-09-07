@@ -80,23 +80,24 @@ from .util.future import with_metaclass
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-_CONCRETE_EVENT_CLASSES = dict()
 
-class _MetaEvent(type):
+CONCRETE_EVENT_CLASSES = dict()
+
+class MetaEvent(type):
     ''' Metaclass used to keep track of all classes subclassed from Event.
 
     All Concrete Event classes (i.e. not "abstract" event base classes with
-    no ``event_name``) will be added to the _CONCRETE_EVENT_CLASSES set which
+    no ``event_name``) will be added to the CONCRETE_EVENT_CLASSES set which
     is used to decode event instances from JSON.
 
     '''
     def __new__(cls, clsname, bases, attrs):
-        newclass = super(_MetaEvent, cls).__new__(cls, clsname, bases, attrs)
+        newclass = super(MetaEvent, cls).__new__(cls, clsname, bases, attrs)
         if newclass.event_name is not None:
-            _CONCRETE_EVENT_CLASSES[newclass.event_name] = newclass
+            CONCRETE_EVENT_CLASSES[newclass.event_name] = newclass
         return newclass
 
-class Event(with_metaclass(_MetaEvent, object)):
+class Event(with_metaclass(MetaEvent, object)):
     ''' Base class for all Bokeh events.
 
     This base class is not typically useful to instantiate on its own.
@@ -147,12 +148,12 @@ class Event(with_metaclass(_MetaEvent, object)):
 
         event_name = dct['event_name']
 
-        if event_name not in _CONCRETE_EVENT_CLASSES:
+        if event_name not in CONCRETE_EVENT_CLASSES:
             raise ValueError("Could not find appropriate Event class for event_name: %r" % event_name)
 
         event_values = dct['event_values']
         model_id = event_values.pop('model_id')
-        event = _CONCRETE_EVENT_CLASSES[event_name](model=None, **event_values)
+        event = CONCRETE_EVENT_CLASSES[event_name](model=None, **event_values)
         event._model_id = model_id
         return event
 
