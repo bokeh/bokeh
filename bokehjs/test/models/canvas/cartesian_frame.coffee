@@ -8,19 +8,8 @@
 {FactorRange} = require("models/ranges/factor_range")
 {Range1d} = require("models/ranges/range1d")
 {Document} = require "document"
-{Variable}  = require("core/layout/solver")
 
 describe "CartesianFrame", ->
-
-  it "should have 6 variables", ->
-    c = new CartesianFrame({x_range: new Range1d({start: 0, end: 1}), y_range: new Range1d({start: 0, end: 1}), x_scale: new LinearScale(), y_scale: new LinearScale()})
-    # These are inherited from LayoutDOM
-    expect(c._top).to.be.an.instanceOf(Variable)
-    expect(c._bottom).to.be.an.instanceOf(Variable)
-    expect(c._left).to.be.an.instanceOf(Variable)
-    expect(c._right).to.be.an.instanceOf(Variable)
-    expect(c._width).to.be.an.instanceOf(Variable)
-    expect(c._height).to.be.an.instanceOf(Variable)
 
   it "should report default scales", ->
     c = new CartesianFrame({x_range: new Range1d({start: 0, end: 1}), y_range: new Range1d({start: 0, end: 1}), x_scale: new LinearScale(), y_scale: new LinearScale()})

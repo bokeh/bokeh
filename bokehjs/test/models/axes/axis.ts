@@ -6,7 +6,6 @@ import {BasicTickFormatter} from "models/formatters/basic_tick_formatter"
 import {Plot, PlotView} from "models/plots/plot"
 import {FactorRange} from "models/ranges/factor_range"
 import {Range1d} from "models/ranges/range1d"
-import {SidePanel} from "core/layout/side_panel"
 import {CategoricalScale} from "models/scales/categorical_scale"
 import {Toolbar} from "models/tools/toolbar"
 
@@ -24,8 +23,12 @@ describe("Axis", () => {
       formatter,
       major_label_overrides: {0: "zero", 4: "four", 10: "ten"},
     })
-    expect(axis.compute_labels([0,2,4.0,6,8,10])).to.be.deep.equal(["zero", "2", "four", "6", "8", "ten"])
-})
+    plot.add_layout(axis, "below")
+    const plot_view = new plot.default_view({model: plot, parent: null}) as PlotView
+    const axis_view = plot_view.renderer_views[axis.id] as AxisView
+
+    expect(axis_view.compute_labels([0,2,4.0,6,8,10])).to.be.deep.equal(["zero", "2", "four", "6", "8", "ten"])
+  })
 
   it("loc should return numeric fixed_location", () => {
     const plot = new Plot({
@@ -39,7 +42,10 @@ describe("Axis", () => {
       formatter,
       fixed_location: 10,
     })
-    expect(axis.loc).to.equal(10)
+    plot.add_layout(axis, "below")
+    const plot_view = new plot.default_view({model: plot, parent: null}) as PlotView
+    const axis_view = plot_view.renderer_views[axis.id] as AxisView
+    expect(axis_view.loc).to.equal(10)
   })
 
   it("should return zero offsets when fixed_location is numeric", () => {
@@ -89,37 +95,10 @@ describe("Axis", () => {
       plot,
       fixed_location: "foo",
     })
-    axis.add_panel('left')
-    expect(axis.loc).to.equal(0.5)
-  })
-
-  it("should have a SidePanel after add_panel is called", () => {
-    const plot = new Plot({
-      x_range: new Range1d({start: 0, end: 1}),
-      y_range: new Range1d({start: 0, end: 1}),
-    })
-    const ticker = new BasicTicker()
-    const formatter = new BasicTickFormatter()
-    const axis = new Axis({
-      ticker,
-      formatter,
-    })
-    expect(axis.panel).to.be.undefined
-    axis.add_panel('left')
-    expect(axis.panel).to.be.an.instanceOf(SidePanel)
-  })
-
-  it("should have a SidePanel after plot.add_layout is called", () => {
-    const ticker = new BasicTicker()
-    const formatter = new BasicTickFormatter()
-    const axis = new Axis({ticker, formatter})
-    expect(axis.panel).to.be.undefined
-    const plot = new Plot({
-      x_range: new Range1d({start: 0, end: 1}),
-      y_range: new Range1d({start: 0, end: 1}),
-    })
-    plot.add_layout(axis, 'left')
-    expect(axis.panel).to.be.an.instanceOf(SidePanel)
+    plot.add_layout(axis, "left")
+    const plot_view = new plot.default_view({model: plot, parent: null}) as PlotView
+    const axis_view = plot_view.renderer_views[axis.id] as AxisView
+    expect(axis_view.loc).to.equal(0.5)
   })
 })
 

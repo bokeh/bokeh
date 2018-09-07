@@ -33,7 +33,6 @@ describe "ColorBar module", ->
   describe "ColorBar", ->
 
     beforeEach ->
-      # Stub solver computed values with deterministic frame height and width
       Object.defineProperty(@plot_view.frame._height, 'value', { get: () -> 500 })
       Object.defineProperty(@plot_view.frame._width, 'value', { get: () -> 500 })
 

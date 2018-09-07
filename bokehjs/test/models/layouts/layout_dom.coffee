@@ -1,8 +1,6 @@
 {expect} = require "chai"
 sinon = require "sinon"
 
-{Strength, Variable}  = require("core/layout/solver")
-
 {Document} = require("document")
 {LayoutDOM} = require("models/layouts/layout_dom")
 {LayoutDOMView} = require("models/layouts/layout_dom")
@@ -58,10 +56,6 @@ describe "LayoutDOMView", ->
       layout_view = new LayoutDOMView({ model: layout, parent: null })
       LayoutDOMView.prototype.build_child_views.restore()
       expect(spy.callCount).is.equal 1
-
-    it.skip "should only init the solver if requested and should invalidate all the models", ->
-      # Write this test
-      null
 
 describe "LayoutDOM", ->
 

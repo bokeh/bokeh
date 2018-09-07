@@ -12,9 +12,6 @@ import {CategoricalScale} from "models/scales/categorical_scale"
 import {FactorRange} from "models/ranges/factor_range"
 
 export function create_glyph_renderer_view(glyph: Glyph, data: {[key: string]: Arrayable} = {}): GlyphRendererView {
-  /*
-   * Requires stubbing the canvas and solver before calling.
-   */
   const doc = new Document()
   const plot = new Plot({
     x_range: new Range1d({start: 0, end: 1}),

@@ -1,7 +1,5 @@
 {expect} = require "chai"
 
-{Strength, Variable}  = require("core/layout/solver")
-
 {Document} = require("document")
 {Toolbar} = require("models/tools/toolbar")
 {HoverTool} = require("models/tools/inspectors/hover_tool")

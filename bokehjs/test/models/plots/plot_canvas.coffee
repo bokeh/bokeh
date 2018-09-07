@@ -1,9 +1,6 @@
 {expect} = require "chai"
 sinon = require 'sinon'
 
-{Solver, Variable} = require("core/layout/solver")
-{update_constraints} = require("core/layout/side_panel")
-
 {Document} = require("document")
 
 {Axis} = require("models/axes/axis")
