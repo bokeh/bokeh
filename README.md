@@ -88,6 +88,15 @@ Bokeh
     </a>
   </td>
 </tr>
+<tr>
+	<td>AppVeyor</td>
+	<td>
+	<a href="https://ci.appveyor.com/project/xavArtley/bokeh">
+		<img src=https://ci.appveyor.com/api/projects/status/github/xavArtley/bokeh
+			alt="Current AppVeyor build status" />
+	</a>
+	</td>
+</tr>
 
 </table>
 

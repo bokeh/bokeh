@@ -13,14 +13,13 @@ init:
   - cmd: echo %path%
   
 install:
-  - cmd: conda config --set auto_update_conda off
-  - cmd: conda config --set always_yes yes --set changeps1 no
-  - cmd: conda config --append channels bokeh
-  - cmd: conda config --append channels conda-forge
-  - cmd: conda config --get channels
-  - cmd: conda update -q conda
-  - cmd: conda install jinja2 pyyaml
-  - ps: $BUILD_DEPS = python scripts/deps.py build run test
-  - ps: $BUILD_DEPS
-  - ps: conda install --yes $BUILD_DEPS
+  - powershell .\\scripts\\ci\\appveyor\\install.ps1
+
+build_script:
+  - powershell .\\scripts\\ci\\appveyor\\build.ps1
+
+before_test:
+  - powershell .\\scripts\\ci\\appveyor\\test.ps1
   
+test_script:
+  - py.test -v -m unit --diff-ref HEAD
