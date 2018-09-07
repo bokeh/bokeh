@@ -67,16 +67,8 @@ export class DatePickerView extends InputWidgetView {
       maxDate: this.model.max_date != null ? new Date(this.model.max_date) : undefined,
       onSelect: (date) => this._on_select(date),
     })
-  }
 
-  // XXX: this is a hack. render() happens before top-level layout's el is added to DOM
-  after_layout(): void {
-    super.after_layout()
-
-    // move date picker's element from body to bk-root
-    const root = this._root_element
-    if (!root.contains(this._picker.el))
-      root.appendChild(this._picker.el)
+    this._root_element.appendChild(this._picker.el)
   }
 
   _on_select(date: Date): void {

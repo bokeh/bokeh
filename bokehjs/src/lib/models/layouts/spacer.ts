@@ -8,7 +8,7 @@ export class SpacerView extends LayoutDOMView {
     return []
   }
 
-  update_layout(): void {
+  _update_layout(): void {
     const {model} = this
 
     this.layout = new class extends Layoutable {

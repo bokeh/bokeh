@@ -11,6 +11,9 @@ import {SizingPolicy, BoxSizing, WidthSizing, HeightSizing, Layoutable} from "co
 export abstract class LayoutDOMView extends DOMView implements EventListenerObject {
   model: LayoutDOM
 
+  root: LayoutDOMView
+  parent: LayoutDOMView
+
   protected _idle_notified: boolean = false
 
   protected _child_views: {[key: string]: LayoutDOMView}
@@ -21,12 +24,36 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
     super.initialize(options)
     this._child_views = {}
     this.build_child_views()
-    this.update_layout()
   }
 
-  renderTo(element: HTMLElement): void {
-    super.renderTo(element)
-    this.do_layout()
+  remove(): void {
+    for (const child_view of this.child_views)
+      child_view.remove()
+    this._child_views = {}
+    super.remove()
+  }
+
+  connect_signals(): void {
+    super.connect_signals()
+
+    if (this.is_root)
+      window.addEventListener("resize", this)
+
+    // XXX: this.connect(this.model.change, () => this.root.do_layout())
+    this.connect(this.model.properties.sizing_mode.change, () => this.root.do_layout())
+  }
+
+  disconnect_signals(): void {
+    window.removeEventListener("resize", this)
+    super.disconnect_signals()
+  }
+
+  handleEvent(): void {
+    this.root.do_layout()
+  }
+
+  css_classes(): string[] {
+    return super.css_classes().concat(this.model.css_classes)
   }
 
   abstract get child_models(): LayoutDOM[]
@@ -35,12 +62,65 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
     return this.child_models.map((child) => this._child_views[child.id])
   }
 
-  remove(): void {
+  build_child_views(): void {
+    build_views(this._child_views, this.child_models, {parent: this})
+  }
+
+  render(): void {
+    empty(this.el)
+
+    this.el.className = ""
+    for (const cls of this.css_classes())
+      this.el.classList.add(cls)
+
     for (const child_view of this.child_views) {
-      child_view.remove()
+      this.el.appendChild(child_view.el)
+      child_view.render()
     }
-    this._child_views = {}
-    super.remove()
+  }
+
+  abstract _update_layout(): void
+
+  update_layout(): void {
+    for (const child_view of this.child_views)
+      child_view.update_layout()
+
+    this._update_layout()
+  }
+
+  update_position(): void {
+    this.el.style.position = this.is_root ? "relative" : "absolute"
+    this.el.style.display = this.model.visible ? "block" : "none"
+    this.el.style.left = `${this.layout._left.value}px`
+    this.el.style.top = `${this.layout._top.value}px`
+    this.el.style.width = `${this.layout._width.value}px`
+    this.el.style.height = `${this.layout._height.value}px`
+
+    for (const child_view of this.child_views)
+      child_view.update_position()
+  }
+
+  after_layout(): void {
+    for (const child_view of this.child_views)
+      child_view.after_layout()
+
+    this._has_finished = true
+  }
+
+  renderTo(element: HTMLElement): void {
+    super.renderTo(element)
+    this.update_layout()
+    this.do_layout()
+  }
+
+  do_layout(): void {
+    const start = Date.now()
+    const viewport = this._viewport_size()
+    this.layout.compute(viewport)
+    this.update_position()
+    this.after_layout()
+    logger.info(`layout computed in ${Date.now() - start} ms`)
+    this.notify_finished()
   }
 
   has_finished(): boolean {
@@ -66,130 +146,6 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
         }
       }
     }
-  }
-
-  protected _viewport_size(): {width: number | null, height: number | null} {
-    let measuring: HTMLElement | null = this.el
-
-    while (measuring = measuring.parentElement) {
-      // .bk-root element doesn't bring any value
-      if (measuring.classList.contains("bk-root"))
-        continue
-
-      // we reached <body> element, so use viewport size
-      if (measuring == document.body) {
-        const {left, right, top, bottom} = margin(document.body)
-        const width  = document.documentElement!.clientWidth  - left - right
-        const height = document.documentElement!.clientHeight - top  - bottom
-        return {width, height}
-      }
-
-      // stop on first element with sensible dimensions
-      const {left, right, top, bottom} = padding(measuring)
-      const {width, height} = measuring.getBoundingClientRect()
-
-      const inner_width = width - left - right
-      const inner_height = height - top - bottom
-
-      if (inner_width > 0 || inner_height > 0)
-        return {
-          width: inner_width > 0 ? inner_width : null,
-          height: inner_height > 0 ? inner_height : null,
-        }
-    }
-
-    // this element is detached from DOM
-    return {width: null, height: null}
-  }
-
-  update_position(): void {
-    this.el.style.position = this.is_root ? "relative" : "absolute"
-    this.el.style.display = this.model.visible ? "block" : "none"
-    this.el.style.left = `${this.layout._left.value}px`
-    this.el.style.top = `${this.layout._top.value}px`
-    this.el.style.width = `${this.layout._width.value}px`
-    this.el.style.height = `${this.layout._height.value}px`
-
-    for (const child_view of this.child_views)
-      child_view.update_position()
-  }
-
-  after_layout(): void {
-    for (const child_view of this.child_views)
-      child_view.after_layout()
-
-    this._has_finished = true
-  }
-
-  do_layout(): void {
-    /**
-     * Layout's entry point.
-     */
-    if (!this.is_root)
-      (this.root as LayoutDOMView).do_layout() // XXX
-    else
-      this._do_layout()
-  }
-
-  protected _do_layout(): void {
-    const start = Date.now()
-    const viewport = this._viewport_size()
-    this.layout.compute(viewport)
-    this.update_position()
-    this.after_layout()
-    logger.info(`layout computed in ${Date.now() - start} ms`)
-    this.notify_finished()
-  }
-
-  rebuild_child_views(): void {
-    this.build_child_views()
-    this.update_layout()
-    this.do_layout()
-  }
-
-  build_child_views(): void {
-    const children = this.child_models
-    build_views(this._child_views, children, {parent: this})
-
-    empty(this.el)
-
-    for (const child_view of this.child_views) {
-      this.el.appendChild(child_view.el)
-      child_view.render()
-    }
-  }
-
-  abstract update_layout(): void
-
-  connect_signals(): void {
-    super.connect_signals()
-
-    if (this.is_root)
-      window.addEventListener("resize", this)
-
-    // XXX: this.connect(this.model.change, () => this.do_layout())
-    this.connect(this.model.properties.sizing_mode.change, () => this.do_layout())
-  }
-
-  handleEvent(): void {
-    this.do_layout()
-  }
-
-  disconnect_signals(): void {
-    window.removeEventListener("resize", this)
-    super.disconnect_signals()
-  }
-
-  protected _render_classes(): void {
-    this.el.className = "" // removes all classes
-
-    const css_classes = this.css_classes().concat(this.model.css_classes)
-    for (const name of css_classes)
-      this.el.classList.add(name)
-  }
-
-  render(): void {
-    this._render_classes()
   }
 
   box_sizing(): BoxSizing {
@@ -260,6 +216,40 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
         }
       }
     }
+  }
+
+  protected _viewport_size(): {width: number | null, height: number | null} {
+    let measuring: HTMLElement | null = this.el
+
+    while (measuring = measuring.parentElement) {
+      // .bk-root element doesn't bring any value
+      if (measuring.classList.contains("bk-root"))
+        continue
+
+      // we reached <body> element, so use viewport size
+      if (measuring == document.body) {
+        const {left, right, top, bottom} = margin(document.body)
+        const width  = document.documentElement!.clientWidth  - left - right
+        const height = document.documentElement!.clientHeight - top  - bottom
+        return {width, height}
+      }
+
+      // stop on first element with sensible dimensions
+      const {left, right, top, bottom} = padding(measuring)
+      const {width, height} = measuring.getBoundingClientRect()
+
+      const inner_width = width - left - right
+      const inner_height = height - top - bottom
+
+      if (inner_width > 0 || inner_height > 0)
+        return {
+          width: inner_width > 0 ? inner_width : null,
+          height: inner_height > 0 ? inner_height : null,
+        }
+    }
+
+    // this element is detached from DOM
+    return {width: null, height: null}
   }
 }
 

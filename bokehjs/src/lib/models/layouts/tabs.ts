@@ -12,7 +12,7 @@ export class TabsView extends LayoutDOMView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.tabs.change, () => this.rebuild_child_views())
+    //this.connect(this.model.properties.tabs.change, () => this.rebuild_child_views())
     this.connect(this.model.properties.active.change, () => this.render())
   }
 
@@ -20,7 +20,7 @@ export class TabsView extends LayoutDOMView {
     return this.model.tabs.map((tab) => tab.child)
   }
 
-  update_layout(): void {
+  _update_layout(): void {
     const header_items = this.child_models.map((_child) => new FixedLayout(70, 30))
 
     const loc = this.model.tabs_location

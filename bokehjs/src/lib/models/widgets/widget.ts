@@ -1,6 +1,6 @@
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {SizeHint, Layoutable} from "core/layout"
-import {empty, margin} from "core/dom"
+import {margin} from "core/dom"
 
 export class DOMLayout extends Layoutable {
 
@@ -50,18 +50,13 @@ export abstract class WidgetView extends LayoutDOMView {
     return []
   }
 
-  update_layout(): void {
+  _update_layout(): void {
     this.layout = new DOMLayout(this.el)
     this.layout.sizing = this.box_sizing()
   }
 
   css_classes(): string[] {
     return super.css_classes().concat("bk-widget")
-  }
-
-  render(): void {
-    super.render()
-    empty(this.el)
   }
 }
 

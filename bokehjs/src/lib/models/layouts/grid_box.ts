@@ -10,7 +10,7 @@ export class GridBoxView extends LayoutDOMView {
     return this.model.children.map(([child,]) => child)
   }
 
-  update_layout(): void {
+  _update_layout(): void {
     this.layout = new Grid()
     this.layout.sizing = this.box_sizing()
     this.layout.rows = this.model.rows

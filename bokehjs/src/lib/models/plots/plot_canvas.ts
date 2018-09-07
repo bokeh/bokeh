@@ -209,9 +209,10 @@ export abstract class PlotCanvasView extends LayoutDOMView {
 
     this._is_paused -= 1
     if (this._is_paused == 0 && !no_render)
-      this.request_render()
+      this.request_paint()
   }
 
+  // TODO: this needs to be removed
   request_render(): void {
     this.request_paint()
   }
@@ -234,6 +235,13 @@ export abstract class PlotCanvasView extends LayoutDOMView {
     remove_views(this.tool_views)
     this.canvas_view.remove()
     super.remove()
+  }
+
+  render(): void {
+    super.render()
+
+    this.el.appendChild(this.canvas_view.el)
+    this.canvas_view.render()
   }
 
   initialize(options: any): void {
@@ -271,8 +279,6 @@ export abstract class PlotCanvasView extends LayoutDOMView {
     )
 
     this.canvas_view = new this.canvas.default_view({model: this.canvas, parent: this}) as CanvasView
-    this.el.appendChild(this.canvas_view.el)
-    this.canvas_view.render()
 
     // If requested, try enabling webgl
     if (this.model.output_backend == "webgl")
@@ -281,6 +287,40 @@ export abstract class PlotCanvasView extends LayoutDOMView {
     this.throttled_paint = throttle((() => this.force_paint.emit()), 15)  // TODO (bev) configurable
 
     this.ui_event_bus = new UIEvents(this, this.model.toolbar, this.canvas_view.events_el, this.model)
+
+    const {title_location, title} = this.model
+    if (title_location != null && title != null) {
+      this._title = isString(title) ? new Title({text: title}) : title
+    }
+
+    const {toolbar_location, toolbar} = this.model
+    if (toolbar_location != null && toolbar != null) {
+      this._toolbar = new ToolbarPanel({toolbar})
+      toolbar.toolbar_location = toolbar_location
+    }
+
+    this.renderer_views = {}
+    this.tool_views = {}
+
+    this.build_renderer_views()
+    this.build_tool_views()
+
+    this.update_dataranges()
+
+    this.unpause(true)
+    logger.debug("PlotView initialized")
+  }
+
+  _update_layout(): void {
+    this.layout = new PlotLayout()
+
+    const sizing = this.box_sizing()
+    if (sizing.width_policy == "auto" && this.model.frame_width != null)
+      sizing.width_policy = "min" as any // XXX
+    if (sizing.height_policy == "auto" && this.model.frame_height != null)
+      sizing.height_policy = "min" as any // XXX
+
+    this.layout.sizing = sizing
 
     type Panels = (Axis | Annotation | Annotation[])[]
 
@@ -300,15 +340,11 @@ export abstract class PlotCanvasView extends LayoutDOMView {
 
     const {title_location, title} = this.model
     if (title_location != null && title != null) {
-      this._title = isString(title) ? new Title({text: title}) : title
       get_side(title_location).push(this._title)
     }
 
     const {toolbar_location, toolbar} = this.model
     if (toolbar_location != null && toolbar != null) {
-      this._toolbar = new ToolbarPanel({toolbar})
-      toolbar.toolbar_location = toolbar_location
-
       const panels = get_side(toolbar_location)
       let push_toolbar = true
 
@@ -326,12 +362,6 @@ export abstract class PlotCanvasView extends LayoutDOMView {
       if (push_toolbar)
         panels.push(this._toolbar)
     }
-
-    this.renderer_views = {}
-    this.tool_views = {}
-
-    this.build_renderer_views()
-    this.build_tool_views()
 
     const set_layout = (side: Side, model: Annotation | Axis): Layoutable => {
       const view = this.renderer_views[model.id] as AnnotationView | AxisView
@@ -384,23 +414,6 @@ export abstract class PlotCanvasView extends LayoutDOMView {
     this.layout.left_panel.children   = reversed(set_layouts("left",  left))
     this.layout.right_panel.children  =          set_layouts("right", right)
     // this.layout.center_panel.children = TODO
-
-    this.update_dataranges()
-
-    this.unpause(true)
-    logger.debug("PlotView initialized")
-  }
-
-  update_layout(): void {
-    this.layout = new PlotLayout()
-
-    const sizing = this.box_sizing()
-    if (sizing.width_policy == "auto" && this.model.frame_width != null)
-      sizing.width_policy = "min" as any // XXX
-    if (sizing.height_policy == "auto" && this.model.frame_height != null)
-      sizing.height_policy = "min" as any // XXX
-
-    this.layout.sizing = sizing
   }
 
   get axis_views(): AxisView[] {
@@ -849,16 +862,16 @@ export abstract class PlotCanvasView extends LayoutDOMView {
 
     for (const name in x_ranges) {
       const rng = x_ranges[name]
-      this.connect(rng.change, () => this.request_render())
+      this.connect(rng.change, () => this.request_paint())
     }
     for (const name in y_ranges) {
       const rng = y_ranges[name]
-      this.connect(rng.change, () => this.request_render())
+      this.connect(rng.change, () => this.request_paint())
     }
 
     this.connect(this.model.properties.renderers.change, () => this.build_renderer_views())
     this.connect(this.model.toolbar.properties.tools.change, () => { this.build_renderer_views(); this.build_tool_views() })
-    this.connect(this.model.change, () => this.request_render())
+    this.connect(this.model.change, () => this.request_paint())
     this.connect(this.model.reset, () => this.reset())
   }
 
@@ -969,7 +982,7 @@ export abstract class PlotCanvasView extends LayoutDOMView {
   repaint(): void {
     if (this._needs_layout()) {
       this._needs_paint = true
-      this.do_layout()
+      this.root.do_layout()
     } else
       this.paint()
   }
@@ -988,7 +1001,7 @@ export abstract class PlotCanvasView extends LayoutDOMView {
           if (document.interactive_duration() > this.model.lod_timeout) {
             document.interactive_stop(this.model)
           }
-          this.request_render()
+          this.request_paint()
         }, this.model.lod_timeout)
       } else
         document.interactive_stop(this.model)

@@ -5,8 +5,8 @@ import * as p from "core/properties"
 export class ColumnView extends BoxView {
   model: Column
 
-  update_layout(): void {
-    super.update_layout()
+  _update_layout(): void {
+    super._update_layout()
     this.layout.rows = this.model.rows
 
     const {child_views} = this

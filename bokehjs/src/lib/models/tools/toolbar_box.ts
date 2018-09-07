@@ -205,7 +205,7 @@ export class ToolbarBoxView extends LayoutDOMView {
     return [this.model.toolbar as any] // XXX
   }
 
-  update_layout(): void {
+  _update_layout(): void {
     this.layout = new class extends Layoutable {
       size_hint(): SizeHint {
         const {width, height} = this.sizing as any // XXX

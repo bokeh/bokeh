@@ -138,6 +138,8 @@ export class ToolbarBaseView extends DOMView {
     }
   }
 
+  update_layout(): void {}
+
   update_position(): void {}
 
   after_layout(): void {
