@@ -290,7 +290,7 @@ export class DataRange1d extends DataRange {
 
   reset(): void {
     this.have_updated_interactively = false
-    // change events silenced as PlotCanvasView.update_dataranges triggers property callbacks
+    // change events silenced as PlotView.update_dataranges triggers property callbacks
     this.setv({
       range_padding: this._initial_range_padding,
       range_padding_units: this._initial_range_padding_units,

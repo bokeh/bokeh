@@ -2,7 +2,7 @@ import {Signal0} from "core/signaling"
 import {wgs84_mercator} from "core/util/projections"
 import {Context2d} from "core/util/canvas"
 import {GMapPlot} from "./gmap_plot"
-import {PlotCanvasView, RangeInfo, FrameBox} from "./plot_canvas"
+import {PlotView, RangeInfo, FrameBox} from "./plot_canvas"
 
 declare let _bokeh_gmaps_callback: () => void
 
@@ -17,7 +17,7 @@ const load_google_api = function(api_key: string): void {
   document.body.appendChild(script)
 }
 
-export abstract class GMapPlotCanvasView extends PlotCanvasView {
+export class GMapPlotView extends PlotView {
   model: GMapPlot
 
   protected _tiles_loaded: boolean
@@ -224,7 +224,7 @@ export abstract class GMapPlotCanvasView extends PlotCanvasView {
     this._set_bokeh_ranges()
   }
 
-  // this method is expected and called by PlotCanvasView.render
+  // this method is expected and called by PlotView.render
   protected _map_hook(_ctx: Context2d, frame_box: FrameBox): void {
     const [left, top, width, height] = frame_box
     this.canvas_view.map_el!.style.top    = `${top}px`

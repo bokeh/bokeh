@@ -15,37 +15,7 @@ sinon = require 'sinon'
 {Range1d} = require("models/ranges/range1d")
 {Toolbar} = require("models/tools/toolbar")
 
-describe "PlotCanvas", ->
-
-  beforeEach ->
-    @doc = new Document()
-    @plot = new Plot({
-      x_range: new Range1d({start: 0, end: 1})
-      y_range: new Range1d({start: 0, end: 1})
-      toolbar: new Toolbar()
-      title: null
-    })
-    @plot_view = new @plot.default_view({model: @plot, parent: null})
-    @doc.add_root(@plot)
-
-  it "should have axis panels in get_layoutable_children if axes added", sinon.test () ->
-    plot = new Plot({x_range: new DataRange1d(), y_range: new DataRange1d(), title: null})
-    above_axis = new LinearAxis()
-    below_axis = new LinearAxis()
-    left_axis = new LinearAxis()
-    right_axis = new LinearAxis()
-    plot.add_layout(above_axis, 'above')
-    plot.add_layout(below_axis, 'below')
-    plot.add_layout(left_axis, 'left')
-    plot.add_layout(right_axis, 'right')
-    @doc.add_root(plot)
-    layoutable_children = plot_view.get_layoutable_children()
-    expect(above_axis.panel in layoutable_children).to.be.true
-    expect(below_axis.panel in layoutable_children).to.be.true
-    expect(left_axis.panel  in layoutable_children).to.be.true
-    expect(right_axis.panel in layoutable_children).to.be.true
-
-describe "PlotCanvasView pause", ->
+describe "PlotView pause", ->
 
   beforeEach ->
     @doc = new Document()
@@ -79,7 +49,7 @@ describe "PlotCanvasView pause", ->
     @plot_view.unpause()
     expect(@plot_view.is_paused).to.be.false
 
-describe "PlotCanvasView get_canvas_element", ->
+describe "PlotView get_canvas_element", ->
 
   beforeEach ->
     doc = new Document()

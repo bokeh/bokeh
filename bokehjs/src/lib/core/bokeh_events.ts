@@ -113,8 +113,9 @@ export /* TODO abstract */ class PointEvent extends UIEvent {
   }
 
   _customize_event(plot: any): this {
-    const xscale = plot.plot_canvas.frame.xscales['default']
-    const yscale = plot.plot_canvas.frame.yscales['default']
+    // XXX: plot_view
+    const xscale = plot.frame.xscales['default']
+    const yscale = plot.frame.yscales['default']
     this.x = xscale.invert(this.sx)
     this.y = yscale.invert(this.sy)
     this._options['x'] = this.x

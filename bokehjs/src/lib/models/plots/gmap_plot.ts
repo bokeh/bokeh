@@ -1,10 +1,12 @@
 import {logger} from "core/logging"
 
-import {GMapPlotCanvasView} from "./gmap_plot_canvas"
 import {Plot} from "./plot"
 import * as p from "core/properties"
 import {Model} from "../../model"
 import {Range1d} from '../ranges/range1d'
+
+import {GMapPlotView} from "./gmap_plot_canvas"
+export {GMapPlotView}
 
 export namespace MapOptions {
   export interface Attrs extends Model.Attrs {
@@ -80,8 +82,6 @@ export class GMapOptions extends MapOptions {
   }
 }
 GMapOptions.initClass()
-
-export class GMapPlotView extends GMapPlotCanvasView {}
 
 export namespace GMapPlot {
   export interface Attrs extends Plot.Attrs {

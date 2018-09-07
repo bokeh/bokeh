@@ -32,7 +32,7 @@ export function scale_range(frame: CartesianFrame, factor: number,
     } {
   /*
    * Utility function for zoom tools to calculate/create the zoom_info object
-   * of the form required by ``PlotCanvasView.update_range``
+   * of the form required by ``PlotView.update_range``
    *
    * Parameters:
    *   frame : CartesianFrame

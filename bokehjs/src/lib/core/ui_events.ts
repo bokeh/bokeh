@@ -12,7 +12,7 @@ import {reversed} from "./util/array"
 import {isEmpty} from "./util/object"
 import {isString} from "./util/types"
 import {BokehEvent} from "./bokeh_events"
-import {PlotCanvasView} from "../models/plots/plot_canvas"
+import {PlotView} from "../models/plots/plot"
 import {Plot} from "../models/plots/plot"
 import {Toolbar} from "../models/tools/toolbar"
 import {ToolView} from "../models/tools/tool"
@@ -78,7 +78,7 @@ export class UIEvents implements EventListenerObject {
 
   protected readonly hammer = new Hammer(this.hit_area)
 
-  constructor(readonly plot_view: PlotCanvasView,
+  constructor(readonly plot_view: PlotView,
               readonly toolbar: Toolbar,
               readonly hit_area: HTMLElement,
               readonly plot: Plot) {

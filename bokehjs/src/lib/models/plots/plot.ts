@@ -16,7 +16,6 @@ import {Annotation} from "../annotations/annotation"
 import {Title} from "../annotations/title"
 import {LinearScale} from "../scales/linear_scale"
 import {Toolbar} from "../tools/toolbar"
-import {PlotCanvasView} from "./plot_canvas"
 
 import {Range} from "../ranges/range"
 import {Scale} from "../scales/scale"
@@ -29,7 +28,8 @@ import {Tool} from "../tools/tool"
 import {register_with_event, UIEvent} from 'core/bokeh_events'
 import {DataRange1d} from '../ranges/data_range1d'
 
-export class PlotView extends PlotCanvasView {}
+import {PlotView} from "./plot_canvas"
+export {PlotView}
 
 export namespace Plot {
   // line:outline_
