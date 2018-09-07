@@ -381,11 +381,13 @@ export abstract class PlotCanvasView extends LayoutDOMView {
             case "below":
               layout = new Row(items)
               layout.sizing = {width_policy: "max", height_policy: "min"}
+              layout.cols = {1: "min"} // assuming toolbar is last
               break
             case "left":
             case "right":
               layout = new Column(items)
               layout.sizing = {width_policy: "min", height_policy: "max"}
+              layout.rows = {0: "min"} // assuming toolbar is first
               break
             default:
               throw new Error("unreachable")

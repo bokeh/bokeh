@@ -4,8 +4,9 @@ import {Color} from "core/types"
 import {LineJoin, LineCap} from "core/enums"
 import {FontStyle, VerticalAlign, TextAlign, TextBaseline} from "core/enums"
 import {hide} from "core/dom"
-import * as p from "core/properties"
 import {Text} from "core/visuals"
+import {Size} from "core/layout"
+import * as p from "core/properties"
 
 export class TitleView extends TextAnnotationView {
   model: Title
@@ -100,14 +101,14 @@ export class TitleView extends TextAnnotationView {
     draw(this.plot_view.canvas_view.ctx, text, sx, sy, angle)
   }
 
-  protected _get_size(): number {
+  protected _get_size(): Size {
     const {text} = this.model
     if (text == null || text.length == 0)
-      return 0
+      return {width: 0, height: 0}
     else {
-      const {ctx} = this.plot_view.canvas_view
-      this.visuals.text.set_value(ctx)
-      return ctx.measureText(text).ascent + 10
+      this.visuals.text.set_value(this.ctx)
+      const {width, ascent} = this.ctx.measureText(text)
+      return {width, height: ascent + 10}
     }
   }
 }

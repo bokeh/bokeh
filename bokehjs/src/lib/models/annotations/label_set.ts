@@ -7,6 +7,7 @@ import {LineJoin, LineCap} from "core/enums"
 import {SpatialUnits} from "core/enums"
 import {div, show, hide} from "core/dom"
 import * as p from "core/properties"
+import {Size} from "core/layout"
 import {Arrayable} from "core/types"
 import {Context2d} from "core/util/canvas"
 
@@ -108,24 +109,12 @@ export class LabelSetView extends TextAnnotationView {
     }
   }
 
-  protected _get_size(): number {
+  protected _get_size(): Size {
     const {ctx} = this.plot_view.canvas_view
     this.visuals.text.set_value(ctx)
 
-    switch (this.panel!.side) {
-      case "above":
-      case "below": {
-        const height = ctx.measureText(this._text[0]).ascent
-        return height
-      }
-      case "left":
-      case "right": {
-        const {width} = ctx.measureText(this._text[0])
-        return width
-      }
-      default:
-        throw new Error("unreachable code")
-    }
+    const {width, ascent} = ctx.measureText(this._text[0])
+    return {width, height: ascent}
   }
 
   protected _v_canvas_text(ctx: Context2d, i: number, text: string, sx: number, sy: number, angle: number): void {

@@ -8,6 +8,7 @@ import {Arrayable, Color} from "core/types"
 import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap} from "core/enums"
 import {Side, TickLabelOrientation, SpatialUnits} from "core/enums"
 import {Text, Line} from "core/visuals"
+import {Size} from "core/layout"
 import {SidePanel, Orient} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
 import {sum} from "core/util/array"
@@ -34,6 +35,8 @@ export class AxisView extends GuideRendererView {
   visuals: Axis.Visuals
 
   layout: SidePanel
+
+  readonly rotate: boolean = true
 
   get panel(): SidePanel {
     return this.layout
@@ -72,14 +75,15 @@ export class AxisView extends GuideRendererView {
     this.connect(this.model.change, () => this.plot_view.request_render())
   }
 
-  get_size(): number {
-    return this.model.visible ? Math.round(this._get_size()) : 0
+  get_size(): Size {
+    if (this.model.visible && this.model.fixed_location == null) {
+      const size = this._get_size()
+      return {width: 0 /* max */, height: Math.round(size)}
+    } else
+      return {width: 0, height: 0}
   }
 
   protected _get_size(): number {
-    if (this.model.fixed_location != null) {
-      return 0
-    }
     return this._tick_extent() + this._tick_label_extent() + this._axis_label_extent()
   }
 

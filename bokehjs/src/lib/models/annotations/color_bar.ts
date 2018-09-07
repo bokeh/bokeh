@@ -21,6 +21,7 @@ import {map} from "core/util/arrayable"
 import {isEmpty} from "core/util/object"
 import {isString, isArray} from "core/util/types"
 import {Context2d} from "core/util/canvas"
+import {Size} from "core/layout"
 
 const SHORT_DIM = 25
 const LONG_DIM_MIN_SCALAR = 0.3
@@ -57,22 +58,12 @@ export class ColorBarView extends AnnotationView {
     }
   }
 
-  protected _get_size(): number {
+  protected _get_size(): Size {
     if (this.model.color_mapper == null)
-      return 0
-
-    const bbox = this.compute_legend_dimensions()
-    const {side} = this.panel!
-
-    switch (side) {
-      case "above":
-      case "below":
-        return bbox.height
-      case "left":
-      case "right":
-        return bbox.width
-      default:
-        throw new Error("unreachable code")
+      return {width: 0, height: 0}
+    else {
+      const {width, height} = this.compute_legend_dimensions()
+      return {width, height}
     }
   }
 

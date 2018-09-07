@@ -1,4 +1,4 @@
-import {SizeHint, BoxSizing, Layoutable} from "./layout_canvas"
+import {Size, SizeHint, BoxSizing, Layoutable} from "./layout_canvas"
 
 import {Side} from "../enums"
 import {isString} from "../util/types"
@@ -149,7 +149,8 @@ const _align_lookup_positive: {[key in Side]: CanvasTextAlign} = {
 }
 
 export interface Panelable {
-  get_size(): number
+  get_size(): Size
+  rotate?: boolean
 }
 
 export class SidePanel extends Layoutable {
@@ -190,11 +191,11 @@ export class SidePanel extends Layoutable {
   }
 
   size_hint(): SizeHint {
-    const size = this.obj.get_size()
-    if (this.is_horizontal)
-      return {width: 0, height: size}
+    const {width, height} = this.obj.get_size()
+    if (!this.obj.rotate || this.is_horizontal)
+      return {width, height}
     else
-      return {width: size, height: 0}
+      return {width: height, height: width}
   }
 
   get dimension(): 0 | 1 {

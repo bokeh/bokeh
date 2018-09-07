@@ -7,6 +7,7 @@ import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap} from "core/enums"
 import {Orientation, LegendLocation, LegendClickPolicy} from "core/enums"
 import * as p from "core/properties"
 import {Signal0} from "core/signaling"
+import {Size} from "core/layout"
 import {get_text_height} from "core/util/text"
 import {BBox} from "core/util/bbox"
 import {max, all} from "core/util/array"
@@ -285,15 +286,11 @@ export class LegendView extends AnnotationView {
     }
   }
 
-  protected _get_size(): number {
-    const bbox = this.compute_legend_bbox()
-    switch (this.panel!.side) {
-      case "above":
-      case "below":
-        return bbox.height + 2*this.model.margin
-      case "left":
-      case "right":
-        return bbox.width + 2*this.model.margin
+  protected _get_size(): Size {
+    const {width, height} = this.compute_legend_bbox()
+    return {
+      width: width + 2*this.model.margin,
+      height: height + 2*this.model.margin,
     }
   }
 }

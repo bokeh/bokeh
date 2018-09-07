@@ -4,6 +4,7 @@ import {Color} from "core/types"
 import {LineJoin, LineCap} from "core/enums"
 import {SpatialUnits, AngleUnits} from "core/enums"
 import {hide} from "core/dom"
+import {Size} from "core/layout"
 import * as p from "core/properties"
 
 export class LabelView extends TextAnnotationView {
@@ -15,17 +16,12 @@ export class LabelView extends TextAnnotationView {
     this.visuals.warm_cache()
   }
 
-  protected _get_size(): number {
+  protected _get_size(): Size {
     const {ctx} = this.plot_view.canvas_view
     this.visuals.text.set_value(ctx)
 
-    if (this.panel!.is_horizontal) {
-      const height = ctx.measureText(this.model.text).ascent
-      return height
-    } else {
-      const {width} = ctx.measureText(this.model.text)
-      return width
-    }
+    const {width, ascent} = ctx.measureText(this.model.text)
+    return {width, height: ascent}
   }
 
   render(): void {
