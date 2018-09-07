@@ -18,8 +18,6 @@ install:
 build_script:
   - powershell .\\scripts\\ci\\appveyor\\build.ps1
 
-before_test:
-  - powershell .\\scripts\\ci\\appveyor\\test.ps1
-  
 test_script:
-  - py.test -v -m unit --diff-ref HEAD
+  - powershell .\\scripts\\ci\\appveyor\\test.ps1
+

@@ -6,10 +6,9 @@ function test_error($error, $message){
 
 function test(){
 	conda install $(python scripts/deps.py run test).split() | where {$_}
-	conda install -c conda-forge pillow #pillow from default channels raise ImportError: DLL load failed
 	
-	bokeh info
-	test_error $LastExitCode "Error to get bokeh info"
+	py.test -v -m unit --diff-ref HEAD
+	test_error $LastExitCode "Tests failure"
 }
 
 test
