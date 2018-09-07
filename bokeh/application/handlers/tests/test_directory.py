@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -31,7 +31,7 @@ from bokeh._testing.util.filesystem import with_directory_contents
 import bokeh.application.handlers.directory as bahd
 
 #-----------------------------------------------------------------------------
-# Setup
+# Globals and constants
 #-----------------------------------------------------------------------------
 
 script_adds_two_roots_template = """
@@ -50,10 +50,6 @@ curdoc().add_root(%s())
 curdoc().add_root(%s())
 """
 
-def script_adds_two_roots(some_model_name, another_model_name):
-    return script_adds_two_roots_template % (another_model_name, some_model_name,
-                                             another_model_name, some_model_name)
-
 script_has_lifecycle_handlers = """
 def on_server_loaded(server_context):
     return "on_server_loaded"
@@ -69,7 +65,17 @@ def on_session_destroyed(session_context):
 # General API
 #-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+def script_adds_two_roots(some_model_name, another_model_name):
+    return script_adds_two_roots_template % (another_model_name, some_model_name,
+                                             another_model_name, some_model_name)
+
 class Test_DirectoryHandler(object):
+
+    # Public methods ----------------------------------------------------------
 
     def test_directory_empty_mainpy(self):
         doc = Document()
@@ -284,9 +290,9 @@ some.foo = 57
         assert h.url_path() is None
 
 #-----------------------------------------------------------------------------
-# Dev API
+# Private API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
-# Private API
+# Code
 #-----------------------------------------------------------------------------
