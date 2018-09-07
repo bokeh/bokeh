@@ -64,10 +64,7 @@ def from_networkx(graph, layout_function, **kwargs):
         node_attr_keys = list(set(node_attr_keys))
 
         for attr_key in node_attr_keys:
-            node_dict[attr_key] = [node_attr[attr_key]
-                                   if attr_key in node_attr.keys() else None
-                                   for node_key, node_attr
-                                   in list(graph.nodes(data=True))]
+            node_dict[attr_key] = [attr[attr_key] if attr_key in attr.keys() else None for _, attr in list(graph.nodes(data=True))]
 
         # Convert edge attributes
         edge_dict = dict()
@@ -79,10 +76,7 @@ def from_networkx(graph, layout_function, **kwargs):
         edge_attr_keys = list(set(edge_attr_keys))
 
         for attr_key in edge_attr_keys:
-            edge_dict[attr_key] = [edge_attr[attr_key]
-                                   if attr_key in edge_attr.keys() else None
-                                   for _, _, edge_attr
-                                   in list(graph.edges(data=True))]
+            edge_dict[attr_key] = [attr[attr_key] if attr_key in attr.keys() else None for _, _, attr in list(graph.edges(data=True))]
 
         node_source = ColumnDataSource(data=node_dict)
         edge_source = ColumnDataSource(data=edge_dict)
