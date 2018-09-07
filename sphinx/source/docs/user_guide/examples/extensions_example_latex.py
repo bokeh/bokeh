@@ -10,8 +10,8 @@ JS_CODE = """
 import {Label, LabelView} from "models/annotations/label"
 
 export class LatexLabelView extends LabelView
-  render: () ->
 
+  render: () ->
     #--- Start of copied section from ``Label.render`` implementation
 
     # Here because AngleSpec does units tranform and label doesn't support specs
@@ -19,7 +19,7 @@ export class LatexLabelView extends LabelView
       when "rad" then angle = -1 * @model.angle
       when "deg" then angle = -1 * @model.angle * Math.PI/180.0
 
-    panel = @model.panel ? @plot_view.frame
+    panel = @panel ? @plot_view.frame
 
     xscale = @plot_view.frame.xscales[@model.x_range_name]
     yscale = @plot_view.frame.yscales[@model.y_range_name]

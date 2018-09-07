@@ -19,8 +19,9 @@ JS_CODE = """
 # Pandas, etc.) to web presentations using the Bokeh server.
 
 # These "require" lines are similar to python "import" statements
-import * as p from "core/properties"
 import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
+import {FixedLayout} from "core/layout/index" # XXX: should be core/layout
+import * as p from "core/properties"
 
 # This defines some default options for the Graph3d feature of vis.js
 # See: http://visjs.org/graph3d_examples.html for more details.
@@ -69,7 +70,7 @@ export class Surface3dView extends LayoutDOMView
     # Set a listener so that when the Bokeh data source has a change
     # event, we can process the new data
     @connect(@model.data_source.change, () =>
-        @_graph.setData(@get_data())
+      @_graph.setData(@get_data())
     )
 
   # This is the callback executed when the Bokeh data has an change. Its basic
@@ -84,6 +85,12 @@ export class Surface3dView extends LayoutDOMView
         z:     source.get_column(@model.z)[i]
       })
     return data
+
+  _update_layout: () ->
+    {width, height} = this.model
+    this.layout = new FixedLayout(width, height)
+
+Object.defineProperty(Surface3dView.prototype, "child_models", {get: () -> []})
 
 # We must also create a corresponding JavaScript BokehJS model subclass to
 # correspond to the python Bokeh model subclass. In this case, since we want
@@ -104,10 +111,10 @@ export class Surface3d extends LayoutDOM
   # ``p.String`` in the JS implementatin. Where the JS type system is not yet
   # as rich, you can use ``p.Any`` as a "wildcard" property type.
   @define {
-    x:           [ p.String           ]
-    y:           [ p.String           ]
-    z:           [ p.String           ]
-    data_source: [ p.Instance         ]
+    x:           [ p.String   ]
+    y:           [ p.String   ]
+    z:           [ p.String   ]
+    data_source: [ p.Instance ]
   }
 """
 
