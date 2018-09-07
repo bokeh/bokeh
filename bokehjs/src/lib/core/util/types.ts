@@ -56,3 +56,7 @@ export function isObject(obj: Anything): obj is Object {
   const tp = typeof obj
   return tp === 'function' || tp === 'object' && !!obj
 }
+
+export function isPlainObject(obj: Anything): obj is Object {
+  return isObject(obj) && (obj.constructor == null || obj.constructor === Object)
+}
