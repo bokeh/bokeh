@@ -59,6 +59,8 @@ export class Grid extends Layoutable {
   rows: {[key: number]: RowSizing} = {}
   cols: {[key: number]: ColSizing} = {}
 
+  absolute: boolean = false
+
   private state: GridState
 
   size_hint(): SizeHint {
@@ -287,13 +289,13 @@ export class Grid extends Layoutable {
       }
     }
 
-    for (let y = 0, top = 0; y < nrows; y++) {
+    for (let y = 0, top = !this.absolute ? 0 : outer.top; y < nrows; y++) {
       const row = rows[y]
       row.top = top
       top += row.height
     }
 
-    for (let x = 0, left = 0; x < ncols; x++) {
+    for (let x = 0, left = !this.absolute ? 0 : outer.left; x < ncols; x++) {
       const col = cols[x]
       col.left = left
       left += col.width

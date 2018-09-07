@@ -19,17 +19,18 @@ import {Signal0} from "core/signaling"
 import {build_views, remove_views} from "core/build_views"
 import {UIEvents} from "core/ui_events"
 import {Visuals} from "core/visuals"
-import {Stack, HStack, VStack, AnchorLayout} from "core/layout/alignments"
 import {logger} from "core/logging"
 import {Side, RenderLevel} from "core/enums"
 import {Rect} from "core/util/spatial"
 import {throttle} from "core/util/throttle"
-import {isArray, isString, isStrictNaN} from "core/util/types"
+import {isArray, isStrictNaN} from "core/util/types"
 import {copy, reversed} from "core/util/array"
 import {values} from "core/util/object"
 import {Context2d, SVGRenderingContext2D} from "core/util/canvas"
 import {BBox, SizeHint, Margin, WidthSizing, HeightSizing, Layoutable} from "core/layout"
+import {HStack, VStack, AnchorLayout} from "core/layout/alignments"
 import {SidePanel} from "core/layout/side_panel"
+import {Row, Column} from "core/layout/grid"
 
 // Notes on WebGL support:
 // Glyps can be rendered into the original 2D canvas, or in a (hidden)
@@ -290,7 +291,7 @@ export abstract class PlotCanvasView extends LayoutDOMView {
 
     const {title_location, title} = this.model
     if (title_location != null && title != null) {
-      this._title = isString(title) ? new Title({text: title}) : title
+      this._title = title instanceof Title ? title : new Title({text: title})
     }
 
     const {toolbar_location, toolbar} = this.model
@@ -372,18 +373,25 @@ export abstract class PlotCanvasView extends LayoutDOMView {
       const layouts: Layoutable[] = []
       for (const panel of panels) {
         if (isArray(panel)) {
-          let layout: Stack
+          const items = panel.map((subpanel) => set_layout(side, subpanel))
 
+          let layout: Row | Column
           switch (title_location) {
             case "above":
-            case "below": layout = new HStack(); break
+            case "below":
+              layout = new Row(items)
+              layout.sizing = {width_policy: "max", height_policy: "min"}
+              break
             case "left":
-            case "right": layout = new VStack(); break
+            case "right":
+              layout = new Column(items)
+              layout.sizing = {width_policy: "min", height_policy: "max"}
+              break
             default:
               throw new Error("unreachable")
           }
 
-          layout.children = panel.map((subpanel) => set_layout(side, subpanel))
+          layout.absolute = true
           layouts.push(layout)
         } else
           layouts.push(set_layout(side, panel))
