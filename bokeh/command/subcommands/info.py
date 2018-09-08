@@ -39,16 +39,14 @@ import sys
 from bokeh import __version__
 from bokeh.settings import settings
 from bokeh.util.compiler import nodejs_version, npmjs_version
+from bokeh.util.dependencies import import_optional
 
 from ..subcommand import Subcommand
 
-def _ipython_version():
-    try:
-        import IPython
-    except ImportError:
-        return None
-    else:
-        return IPython.__version__
+def _version(modname, attr):
+    mod = import_optional(modname)
+    if mod:
+        return getattr(mod, attr)
 
 class Info(Subcommand):
     ''' Subcommand to print information about Bokeh and Bokeh server configuration.
@@ -79,7 +77,8 @@ class Info(Subcommand):
             if_installed = lambda version_or_none: version_or_none or "(not installed)"
 
             print("Python version      :  %s" % sys.version.split('\n')[0])
-            print("IPython version     :  %s" % if_installed(_ipython_version()))
+            print("IPython version     :  %s" % if_installed(_version('IPython', '__version__')))
+            print("Tornado version     :  %s" % if_installed(_version('tornado', 'version')))
             print("Bokeh version       :  %s" % __version__)
             print("BokehJS static path :  %s" % settings.bokehjsdir())
             print("node.js version     :  %s" % if_installed(nodejs_version()))

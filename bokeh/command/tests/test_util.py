@@ -4,6 +4,9 @@ from mock import patch
 import pytest
 
 import bokeh.command.util as util
+from bokeh.document import Document
+from bokeh.layouts import row
+from bokeh.plotting import figure
 
 def test_die(capsys):
     with pytest.raises(SystemExit):
@@ -33,3 +36,58 @@ def test_build_single_handler_application_main_py(mock_warn):
     util.build_single_handler_application(f.name)
     assert mock_warn.called
     assert mock_warn.call_args[0] == (DIRSTYLE_MAIN_WARNING_COPY,)
+
+_SIZE_WARNING = "Width/height arguments will be ignored for this muliple layout. (Size valus only apply when exporting single plots.)"
+
+class Test_set_single_plot_width_height(object):
+    def test_neither(self):
+        p = figure(plot_width=200, plot_height=300)
+        d = Document()
+        d.add_root(p)
+        util.set_single_plot_width_height(d, None, None)
+        assert p.plot_width == 200
+        assert p.plot_height == 300
+
+    def test_width(self):
+        p = figure(plot_width=200, plot_height=300)
+        d = Document()
+        d.add_root(p)
+        util.set_single_plot_width_height(d, 400, None)
+        assert p.plot_width == 400
+        assert p.plot_height == 300
+
+    def test_height(self):
+        p = figure(plot_width=200, plot_height=300)
+        d = Document()
+        d.add_root(p)
+        util.set_single_plot_width_height(d, None, 400)
+        assert p.plot_width == 200
+        assert p.plot_height == 400
+
+    def test_both(self):
+        p = figure(plot_width=200, plot_height=300)
+        d = Document()
+        d.add_root(p)
+        util.set_single_plot_width_height(d, 400, 500)
+        assert p.plot_width == 400
+        assert p.plot_height == 500
+
+    def test_multiple_roots(self):
+        p1 = figure(plot_width=200, plot_height=300)
+        p2 = figure(plot_width=200, plot_height=300)
+        d = Document()
+        d.add_root(p1)
+        d.add_root(p2)
+        with pytest.warns(UserWarning) as warns:
+            util.set_single_plot_width_height(d, 400, 500)
+            assert len(warns) == 1
+            assert warns[0].message.args[0] == _SIZE_WARNING
+
+    def test_layout(self):
+        p = figure(plot_width=200, plot_height=300)
+        d = Document()
+        d.add_root(row(p))
+        with pytest.warns(UserWarning) as warns:
+            util.set_single_plot_width_height(d, 400, 500)
+            assert len(warns) == 1
+            assert warns[0].message.args[0] == _SIZE_WARNING

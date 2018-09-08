@@ -5,17 +5,13 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Define a Pytest plugin for a log file fixture
-
-'''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import logging
-log = logging.getLogger(__name__)
+import pytest ; pytest
 
 #-----------------------------------------------------------------------------
 # Imports
@@ -24,25 +20,34 @@ log = logging.getLogger(__name__)
 # Standard library imports
 
 # External imports
-import pytest
+import mock
+from six import string_types
 
 # Bokeh imports
+from bokeh._version import get_versions
+
+# Module under test
+import bokeh.util.version as buv
 
 #-----------------------------------------------------------------------------
-# Globals and constants
+# Setup
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-@pytest.yield_fixture(scope="session")
-def log_file(request):
-    with open(request.config.option.log_file, 'w') as f:
-        # Clean-out any existing log-file
-        f.write("")
-    with open(pytest.config.option.log_file, 'a') as f:
-        yield f
+class Test___version__(object):
+
+    def test_basic(self):
+        assert isinstance(buv.__version__, string_types)
+        assert buv.__version__ == get_versions()['version']
+
+class Test_base_version(object):
+    def test_returns_helper(self):
+        with mock.patch('bokeh.util.version._base_version_helper') as helper:
+            buv.base_version()
+            assert helper.called
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -52,6 +57,16 @@ def log_file(request):
 # Private API
 #-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
+class Test__base_version_helper(object):
+
+    def test_release_version_unchanged(self):
+        assert buv._base_version_helper("0.2.3") == "0.2.3"
+        assert buv._base_version_helper("1.2.3") == "1.2.3"
+
+    def test_dev_version_stripped(self):
+        assert buv._base_version_helper("0.2.3dev2") == "0.2.3"
+        assert buv._base_version_helper("1.2.3dev10") == "1.2.3"
+
+    def test_rc_version_stripped(self):
+        assert buv._base_version_helper("0.2.3rc2") == "0.2.3"
+        assert buv._base_version_helper("1.2.3rc10") == "1.2.3"

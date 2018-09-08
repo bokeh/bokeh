@@ -2,12 +2,17 @@ from __future__ import absolute_import
 
 import base64
 import codecs
+import os
+
+from mock import patch
+import pytest
 
 import bokeh.util.session_id
 from bokeh.util.string import decode_utf8
 from bokeh.util.session_id import ( generate_session_id,
                                     generate_secret_key,
                                     check_session_id_signature,
+                                    _get_sysrandom,
                                     _signature,
                                     _reseed_if_needed,
                                     _base64_encode )
@@ -27,6 +32,49 @@ def _base64_decode(encoded):
 
 def _base64_decode_utf8(encoded):
     return codecs.decode(_base64_decode(encoded), 'utf-8')
+
+def _nie():
+    def func():
+        raise NotImplementedError()
+    return func
+
+_MERSENNE_MSG = 'A secure pseudo-random number generator is not available on your system. Falling back to Mersenne Twister.'
+
+class Test__get_sysrandom(object):
+
+    def test_default(self):
+        import random
+        try:
+            random.SystemRandom()
+            expected = True
+        except NotImplementedError:
+            expected = False
+        _random, using_sysrandom = _get_sysrandom()
+        assert using_sysrandom == expected
+
+    @patch('random.SystemRandom', new_callable=_nie)
+    def test_missing_sysrandom_no_secret_key(self, _mock_sysrandom):
+        with pytest.warns(UserWarning) as warns:
+            random, using_sysrandom = _get_sysrandom()
+            assert not using_sysrandom
+            assert len(warns) == 2
+            assert warns[0].message.args[0] == _MERSENNE_MSG
+            assert warns[1].message.args[0] == (
+                'A secure pseudo-random number generator is not available '
+                'and no BOKEH_SECRET_KEY has been set. '
+                'Setting a secret key will mitigate the lack of a secure '
+                'generator.'
+            )
+
+    @patch('random.SystemRandom', new_callable=_nie)
+    def test_missing_sysrandom_with_secret_key(self, _mock_sysrandom):
+        os.environ["BOKEH_SECRET_KEY"] = "foo"
+        with pytest.warns(UserWarning) as warns:
+            random, using_sysrandom = _get_sysrandom()
+            assert not using_sysrandom
+            assert len(warns) == 1
+            assert warns[0].message.args[0] == _MERSENNE_MSG
+        del os.environ["BOKEH_SECRET_KEY"]
 
 class TestSessionId(object):
     def test_base64_roundtrip(self):

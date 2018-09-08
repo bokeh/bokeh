@@ -47,6 +47,7 @@ The classes in this module provide this functionality.
 from __future__ import absolute_import, print_function
 
 import numpy as np
+import copy
 
 from ...util.dependencies import import_optional
 
@@ -317,6 +318,12 @@ class PropertyValueColumnData(PropertyValueDict):
     # don't wrap with notify_owner --- notifies owners explicitly
     def __setitem__(self, i, y):
         return self.update([(i, y)])
+
+    def __copy__(self):
+        return PropertyValueColumnData(dict(self))
+
+    def __deepcopy__(self, memodict={}):
+        return PropertyValueColumnData(copy.deepcopy(dict(self), memodict))
 
     # don't wrap with notify_owner --- notifies owners explicitly
     def update(self, *args, **kwargs):
