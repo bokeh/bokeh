@@ -28,8 +28,9 @@ log = logging.getLogger(__name__)
 from ..core.enums import SizingMode, SizingPolicy, Location, TrackAlign
 from ..core.has_props import abstract
 from ..core.properties import Bool, Enum, Int, Float, Instance, List, Seq, Tuple, Dict, String, Either, Struct
-from ..core.validation import warning
+from ..core.validation import warning, error
 from ..core.validation.warnings import BOTH_CHILD_AND_ROOT, EMPTY_LAYOUT
+from ..core.validation.errors import FIXED_SIZING_MODE, FIXED_WIDTH_POLICY, FIXED_HEIGHT_POLICY
 from ..model import Model
 from .callbacks import Callback
 
@@ -112,6 +113,21 @@ class LayoutDOM(Model):
     It is also permissible to assign from tuples, however these are adapted -- the
     property will always contain a list.
     """).accepts(Seq(String), lambda x: list(x))
+
+    @error(FIXED_SIZING_MODE)
+    def _check_fixed_sizing_mode(self):
+        if self.sizing_mode == "fixed" and (self.width is None or self.height is None):
+            return str(self)
+
+    @error(FIXED_WIDTH_POLICY)
+    def _check_fixed_width_policy(self):
+        if self.width_policy == "fixed" and self.width is None:
+            return str(self)
+
+    @error(FIXED_HEIGHT_POLICY)
+    def _check_fixed_height_policy(self):
+        if self.height_policy == "fixed" and self.height is None:
+            return str(self)
 
 
 class Spacer(LayoutDOM):
