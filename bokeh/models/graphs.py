@@ -48,6 +48,10 @@ def from_networkx(graph, layout_function, **kwargs):
         .. warning::
             Only two dimensional layouts are currently supported.
 
+        .. warning::
+            Node attributes labeled 'index' and edge attributes labeled 'start' or 'end' are ignored. 
+            If you want to convert these attributes, please re-label them to other names.
+
         '''
 
         # inline import to prevent circular imports
@@ -57,8 +61,6 @@ def from_networkx(graph, layout_function, **kwargs):
         # Handles nx 1.x vs 2.x data structure change
         # Convert node attributes
         node_dict = dict()
-        node_dict['index'] = list(graph.nodes())
-
         node_attr_keys = [attr_key for node in list(graph.nodes(data=True))
                           for attr_key in node[1].keys()]
         node_attr_keys = list(set(node_attr_keys))
@@ -66,17 +68,29 @@ def from_networkx(graph, layout_function, **kwargs):
         for attr_key in node_attr_keys:
             node_dict[attr_key] = [attr[attr_key] if attr_key in attr.keys() else None for _, attr in graph.nodes(data=True)]
 
+        if 'index' in node_attr_keys:
+            from warnings import warn
+            warn("Converting node attributes labeled 'index' are skipped. "
+                 "If you want to convert these attributes, please re-label with other names.")
+
+        node_dict['index'] = list(graph.nodes())
+
         # Convert edge attributes
         edge_dict = dict()
-        edge_dict['start'] = [x[0] for x in graph.edges(data=True)]
-        edge_dict['end'] = [x[1] for x in graph.edges(data=True)]
-
         edge_attr_keys = [attr_key for edge in list(graph.edges(data=True))
                           for attr_key in edge[2].keys()]
         edge_attr_keys = list(set(edge_attr_keys))
 
         for attr_key in edge_attr_keys:
             edge_dict[attr_key] = [attr[attr_key] if attr_key in attr.keys() else None for _, _, attr in graph.edges(data=True)]
+
+        if 'start' in edge_attr_keys or 'end' in edge_attr_keys:
+            from warnings import warn
+            warn("Converting edge attributes labeled 'start' or 'end' are skipped. "
+                 "If you want to convert these attributes, please re-label them with other names.")
+
+        edge_dict['start'] = [x[0] for x in graph.edges(data=True)]
+        edge_dict['end'] = [x[1] for x in graph.edges(data=True)]
 
         node_source = ColumnDataSource(data=node_dict)
         edge_source = ColumnDataSource(data=edge_dict)

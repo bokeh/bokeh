@@ -1,6 +1,7 @@
 import networkx as nx
 import numpy as np
 from numpy.testing import assert_allclose
+import pytest
 
 from bokeh.models.graphs import StaticLayoutProvider, from_networkx
 
@@ -52,3 +53,34 @@ def test_from_networkx_with_attributes():
     assert renderer.edge_renderer.data_source.data["end"] == [1, 2]
     assert renderer.edge_renderer.data_source.data["attr_1"] == ["A", "B"]
     assert renderer.edge_renderer.data_source.data["attr_2"] == [None, 10]
+
+def test_from_networkx_with_bad_attributes():
+    G = nx.Graph()
+    G.add_nodes_from([(0, {"index": "a", "attr_1": 10}),
+                      (1, {"index": "b", "attr_1": 20})])
+    G.add_edges_from([[0, 1]])
+
+    with pytest.warns(UserWarning):
+        renderer = from_networkx(G, nx.circular_layout)
+        assert renderer.node_renderer.data_source.data["index"] == [0, 1]
+        assert renderer.node_renderer.data_source.data["attr_1"] == [10, 20]
+
+    G = nx.Graph()
+    G.add_nodes_from([0, 1])
+    G.add_edges_from([(0, 1, {"start": "A", "attr_1": 10})])
+
+    with pytest.warns(UserWarning):
+        renderer = from_networkx(G, nx.circular_layout)
+        assert renderer.edge_renderer.data_source.data["start"] == [0]
+        assert renderer.edge_renderer.data_source.data["end"] == [1]
+        assert renderer.edge_renderer.data_source.data["attr_1"] == [10]
+
+    G = nx.Graph()
+    G.add_nodes_from([0, 1])
+    G.add_edges_from([(0, 1, {"end": "A", "attr_1": 10})])
+
+    with pytest.warns(UserWarning):
+        renderer = from_networkx(G, nx.circular_layout)
+        assert renderer.edge_renderer.data_source.data["start"] == [0]
+        assert renderer.edge_renderer.data_source.data["end"] == [1]
+        assert renderer.edge_renderer.data_source.data["attr_1"] == [10]
