@@ -172,8 +172,10 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
       if (width_policy == "fixed") {
         if (this.model.width != null)
           width_sizing = {width_policy: "fixed", width: this.model.width}
-        else
-          throw new Error("width must be specified with fixed sizing policy")
+        else {
+          logger.warn("width must be specified with fixed sizing policy, falling back to auto policy instead")
+          width_sizing = {width_policy: "auto"}
+        }
       } else if (width_policy == "auto")
         width_sizing = {width_policy: "auto", width: this.model.width}
       else
@@ -183,8 +185,10 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
       if (height_policy == "fixed") {
         if (this.model.height != null)
           height_sizing = {height_policy: "fixed", height: this.model.height}
-        else
-          throw new Error("height must be specified with fixed sizing policy")
+        else {
+          logger.warn("height must be specified with fixed sizing policy, falling back to auto policy instead")
+          height_sizing = {height_policy: "auto"}
+        }
       } else if (height_policy == "auto")
         height_sizing = {height_policy: "auto", height: this.model.height}
       else
@@ -197,8 +201,10 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
         const {width, height} = this.model
         if (width != null && height != null)
           return {width_policy: "fixed", width, height_policy: "fixed", height}
-        else
-          throw new Error("width and height must be specified with fixed sizing mode")
+        else {
+          logger.warn("width and height must be specified with fixed sizing mode, falling back to auto policy instead")
+          return {width_policy: "auto", width, height_policy: "auto", height}
+        }
       } else if (sizing_mode == "stretch_both") {
         return {width_policy: "max", height_policy: "max"}
       } else {
