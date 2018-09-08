@@ -49,7 +49,7 @@ def from_networkx(graph, layout_function, **kwargs):
             Only two dimensional layouts are currently supported.
 
         .. warning::
-            Node attributes labeled 'index' and edge attributes labeled 'start' or 'end' are ignored. 
+            Node attributes labeled 'index' and edge attributes labeled 'start' or 'end' are ignored.
             If you want to convert these attributes, please re-label them to other names.
 
         '''
