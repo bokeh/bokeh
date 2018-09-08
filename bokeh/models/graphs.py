@@ -60,13 +60,10 @@ def from_networkx(graph, layout_function, **kwargs):
 
         # Handles nx 1.x vs 2.x data structure change
         # Convert node attributes
-        node_dict = dict()
         node_attr_keys = [attr_key for node in list(graph.nodes(data=True))
                           for attr_key in node[1].keys()]
         node_attr_keys = list(set(node_attr_keys))
-
-        for attr_key in node_attr_keys:
-            node_dict[attr_key] = [attr[attr_key] if attr_key in attr.keys() else None for _, attr in graph.nodes(data=True)]
+        node_dict = _rows_to_columns(graph.nodes(data=True), node_attr_keys)
 
         if 'index' in node_attr_keys:
             from warnings import warn
@@ -76,13 +73,10 @@ def from_networkx(graph, layout_function, **kwargs):
         node_dict['index'] = list(graph.nodes())
 
         # Convert edge attributes
-        edge_dict = dict()
         edge_attr_keys = [attr_key for edge in list(graph.edges(data=True))
                           for attr_key in edge[2].keys()]
         edge_attr_keys = list(set(edge_attr_keys))
-
-        for attr_key in edge_attr_keys:
-            edge_dict[attr_key] = [attr[attr_key] if attr_key in attr.keys() else None for _, _, attr in graph.edges(data=True)]
+        edge_dict = _rows_to_columns(graph.edges(data=True), edge_attr_keys)
 
         if 'start' in edge_attr_keys or 'end' in edge_attr_keys:
             from warnings import warn
@@ -103,6 +97,17 @@ def from_networkx(graph, layout_function, **kwargs):
         graph_renderer.layout_provider = StaticLayoutProvider(graph_layout=graph_layout)
 
         return graph_renderer
+
+
+def _rows_to_columns(source, attr_keys):
+    '''
+    Convert to a dictionary with node/edge attribute key as key and attribute value list as value.
+    '''
+    
+    attr_dict = {}
+    for attr_key in attr_keys:
+        attr_dict[attr_key] = [attr[attr_key] if attr_key in attr.keys() else None for *_, attr in source]
+    return attr_dict
 
 
 @abstract
