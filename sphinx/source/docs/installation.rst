@@ -58,6 +58,9 @@ Pandas
 psutil
     Necessary to enable detailed memory logging in the Bokeh server.
 
+Selenium, PhantomJS, Pillow
+    Necessary for :ref:`userguide_export` to PNG and SVG images.
+
 Sphinx
     Necessary to make use of the ``bokeh.sphinxext`` Sphinx extension for
     including Bokeh plots in Sphinx documentation.
