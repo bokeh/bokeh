@@ -47,7 +47,7 @@ class Test_TextParagraph(object):
 
         page = bokeh_model_page(para)
 
-        el = page.driver.find_element_by_css_selector('div.foo div p')
+        el = page.driver.find_element_by_css_selector('.foo div p')
         assert el.get_attribute("innerHTML") == escape(text, quote=None)
 
         assert page.has_no_console_errors()
@@ -57,7 +57,7 @@ class Test_TextParagraph(object):
 
         page = bokeh_model_page(para)
 
-        el = page.driver.find_element_by_css_selector('div.foo div')
+        el = page.driver.find_element_by_css_selector('.foo div')
         assert 'font-size: 20pt;' in el.get_attribute('style')
 
         assert page.has_no_console_errors()

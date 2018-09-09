@@ -39,22 +39,7 @@ LABELS = ["Option 1", "Option 2", "Option 3"]
 
 @pytest.mark.integration
 @pytest.mark.selenium
-class Test_CheckBoxButtonGroup(object):
-
-    def test_displays_options_list_of_string_labels(self, bokeh_model_page):
-        group = CheckboxButtonGroup(labels=LABELS, css_classes=["foo"])
-
-        page = bokeh_model_page(group)
-
-        div = page.driver.find_element_by_css_selector('div.foo')
-
-        labels = div.find_elements_by_tag_name('label')
-        assert len(labels) == 3
-        for i, label in enumerate(labels):
-            assert label.text == LABELS[i]
-            el = label.find_element_by_tag_name('input')
-            assert el.get_attribute('value') == str(i)
-            assert el.get_attribute('type') == 'checkbox'
+class Test_CheckboxButtonGroup(object):
 
     def test_server_on_change_round_trip(self, bokeh_server_page):
         def modify_doc(doc):
@@ -70,8 +55,7 @@ class Test_CheckBoxButtonGroup(object):
 
         page = bokeh_server_page(modify_doc)
 
-        el = page.driver.find_element_by_css_selector('div.foo div label input[value="2"]')
-        el = el.find_element_by_xpath('..')
+        el = page.driver.find_element_by_css_selector('.foo .bk-btn:nth-child(3)')
         el.click()
 
         page.click_custom_action()
@@ -79,8 +63,7 @@ class Test_CheckBoxButtonGroup(object):
         results = page.results
         assert results['data']['val'] == [2, 0]
 
-        el = page.driver.find_element_by_css_selector('div.foo div label input[value="0"]')
-        el = el.find_element_by_xpath('..')
+        el = page.driver.find_element_by_css_selector('.foo .bk-btn:nth-child(1)')
         el.click()
 
         page.click_custom_action()
@@ -97,22 +80,19 @@ class Test_CheckBoxButtonGroup(object):
 
         page = bokeh_model_page(group)
 
-        el = page.driver.find_element_by_css_selector('div.foo div label input[value="2"]')
-        el = el.find_element_by_xpath('..')
+        el = page.driver.find_element_by_css_selector('.foo .bk-btn:nth-child(3)')
         el.click()
 
         results = page.results
         assert results['active'] == [2]
 
-        el = page.driver.find_element_by_css_selector('div.foo div label input[value="0"]')
-        el = el.find_element_by_xpath('..')
+        el = page.driver.find_element_by_css_selector('.foo .bk-btn:nth-child(1)')
         el.click()
 
         results = page.results
         assert results['active'] == [0, 2]
 
-        el = page.driver.find_element_by_css_selector('div.foo div label input[value="2"]')
-        el = el.find_element_by_xpath('..')
+        el = page.driver.find_element_by_css_selector('.foo .bk-btn:nth-child(3)')
         el.click()
 
         results = page.results
@@ -126,22 +106,19 @@ class Test_CheckBoxButtonGroup(object):
 
         page = bokeh_model_page(group)
 
-        el = page.driver.find_element_by_css_selector('div.foo div label input[value="2"]')
-        el = el.find_element_by_xpath('..')
+        el = page.driver.find_element_by_css_selector('.foo .bk-btn:nth-child(3)')
         el.click()
 
         results = page.results
         assert results['active'] == [2]
 
-        el = page.driver.find_element_by_css_selector('div.foo div label input[value="0"]')
-        el = el.find_element_by_xpath('..')
+        el = page.driver.find_element_by_css_selector('.foo .bk-btn:nth-child(1)')
         el.click()
 
         results = page.results
         assert results['active'] == [0, 2]
 
-        el = page.driver.find_element_by_css_selector('div.foo div label input[value="2"]')
-        el = el.find_element_by_xpath('..')
+        el = page.driver.find_element_by_css_selector('.foo .bk-btn:nth-child(3)')
         el.click()
 
         results = page.results

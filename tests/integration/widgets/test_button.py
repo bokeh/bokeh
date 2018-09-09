@@ -44,8 +44,7 @@ class Test_Button(object):
 
         page = bokeh_model_page(button)
 
-        button_div = page.driver.find_element_by_class_name('foo')
-        button = button_div.find_element_by_tag_name("button")
+        button = page.driver.find_element_by_css_selector('.foo .bk-btn')
         assert button.text == "label"
 
     @pytest.mark.parametrize('typ', list(ButtonType))
@@ -54,8 +53,7 @@ class Test_Button(object):
 
         page = bokeh_model_page(button)
 
-        button_div = page.driver.find_element_by_class_name('foo')
-        button = button_div.find_element_by_tag_name("button")
+        button = page.driver.find_element_by_css_selector('.foo .bk-btn')
         assert typ in button.get_attribute('class')
 
     def test_server_on_click_round_trip(self, bokeh_server_page):
@@ -66,19 +64,20 @@ class Test_Button(object):
             plot.add_glyph(source, Circle(x='x', y='y', size=20))
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
             button = Button(css_classes=['foo'])
-            def cb(): source.data=dict(x=[10, 20], y=[10, 10])
+            def cb():
+                source.data=dict(x=[10, 20], y=[10, 10])
             button.on_click(cb)
             doc.add_root(column(button, plot))
 
         page = bokeh_server_page(modify_doc)
 
-        button = page.driver.find_element_by_class_name('foo')
+        button = page.driver.find_element_by_css_selector('.foo .bk-btn')
         button.click()
 
         page.click_custom_action()
 
         results = page.results
-        assert results ==  {'data': {'x': [10, 20], 'y': [10, 10]}}
+        assert results == {'data': {'x': [10, 20], 'y': [10, 10]}}
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
@@ -91,19 +90,20 @@ class Test_Button(object):
             plot.add_glyph(source, Circle(x='x', y='y', size=20))
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
             button = Button(css_classes=['foo'])
-            def cb(event): source.data=dict(x=[10, 20], y=[10, 10])
+            def cb(event):
+                source.data=dict(x=[10, 20], y=[10, 10])
             button.on_event('button_click', cb)
             doc.add_root(column(button, plot))
 
         page = bokeh_server_page(modify_doc)
 
-        button = page.driver.find_element_by_class_name('foo')
+        button = page.driver.find_element_by_css_selector('.foo .bk-btn')
         button.click()
 
         page.click_custom_action()
 
         results = page.results
-        assert results ==  {'data': {'x': [10, 20], 'y': [10, 10]}}
+        assert results == {'data': {'x': [10, 20], 'y': [10, 10]}}
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
@@ -114,11 +114,11 @@ class Test_Button(object):
 
         page = bokeh_model_page(button)
 
-        button = page.driver.find_element_by_class_name('foo')
+        button = page.driver.find_element_by_css_selector('.foo .bk-btn')
         button.click()
 
         results = page.results
-        assert results ==  {'clicked': True}
+        assert results == {'clicked': True}
 
         assert page.has_no_console_errors()
 
@@ -128,11 +128,11 @@ class Test_Button(object):
 
         page = bokeh_model_page(button)
 
-        button = page.driver.find_element_by_class_name('foo')
+        button = page.driver.find_element_by_css_selector('.foo .bk-btn')
         button.click()
 
         results = page.results
-        assert results ==  {'clicked': True}
+        assert results == {'clicked': True}
 
         assert page.has_no_console_errors()
 
@@ -142,10 +142,10 @@ class Test_Button(object):
 
         page = bokeh_model_page(button)
 
-        button = page.driver.find_element_by_class_name('foo')
+        button = page.driver.find_element_by_css_selector('.foo .bk-btn')
         button.click()
 
         results = page.results
-        assert results ==  {'clicked': True}
+        assert results == {'clicked': True}
 
         assert page.has_no_console_errors()

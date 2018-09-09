@@ -48,7 +48,7 @@ class Test_CellEditor_Base(object):
 
 @pytest.mark.integration
 @pytest.mark.selenium
-class Test_Datatable(object):
+class Test_DataTable(object):
 
     def test_row_highlights_reflect_no_initial_selection(self, bokeh_model_page):
 

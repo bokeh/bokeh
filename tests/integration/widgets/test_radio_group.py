@@ -46,16 +46,15 @@ class Test_RadioGroup(object):
 
         page = bokeh_model_page(group)
 
-        div = page.driver.find_element_by_css_selector('div.foo')
+        el = page.driver.find_element_by_css_selector('.foo')
 
-        labels = div.find_elements_by_tag_name('label')
+        labels = el.find_elements_by_tag_name('label')
         assert len(labels) == 3
         for i, label in enumerate(labels):
             assert label.text == LABELS[i]
-            assert ('inline' in label.get_attribute('class')) == inline
-            el = label.find_element_by_tag_name('input')
-            assert el.get_attribute('value') == str(i)
-            assert el.get_attribute('type') == 'radio'
+            input = label.find_element_by_tag_name('input')
+            assert input.get_attribute('value') == str(i)
+            assert input.get_attribute('type') == 'radio'
 
     def test_server_on_change_round_trip(self, bokeh_server_page):
         def modify_doc(doc):
@@ -71,7 +70,7 @@ class Test_RadioGroup(object):
 
         page = bokeh_server_page(modify_doc)
 
-        el = page.driver.find_element_by_css_selector('div.foo div label input[value="2"]')
+        el = page.driver.find_element_by_css_selector('.foo input[value="2"]')
         el.click()
 
         page.click_custom_action()
@@ -79,7 +78,7 @@ class Test_RadioGroup(object):
         results = page.results
         assert results['data']['val'] == [2, "b"]
 
-        el = page.driver.find_element_by_css_selector('div.foo div label input[value="0"]')
+        el = page.driver.find_element_by_css_selector('.foo input[value="0"]')
         el.click()
 
         page.click_custom_action()
@@ -96,13 +95,13 @@ class Test_RadioGroup(object):
 
         page = bokeh_model_page(group)
 
-        el = page.driver.find_element_by_css_selector('div.foo div label input[value="2"]')
+        el = page.driver.find_element_by_css_selector('.foo input[value="2"]')
         el.click()
 
         results = page.results
         assert results['active'] == 2
 
-        el = page.driver.find_element_by_css_selector('div.foo div label input[value="0"]')
+        el = page.driver.find_element_by_css_selector('.foo input[value="0"]')
         el.click()
 
         results = page.results
@@ -116,13 +115,13 @@ class Test_RadioGroup(object):
 
         page = bokeh_model_page(group)
 
-        el = page.driver.find_element_by_css_selector('div.foo div label input[value="2"]')
+        el = page.driver.find_element_by_css_selector('.foo input[value="2"]')
         el.click()
 
         results = page.results
         assert results['active'] == 2
 
-        el = page.driver.find_element_by_css_selector('div.foo div label input[value="0"]')
+        el = page.driver.find_element_by_css_selector('.foo input[value="0"]')
         el.click()
 
         results = page.results
