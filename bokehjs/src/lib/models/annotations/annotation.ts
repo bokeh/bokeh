@@ -44,6 +44,10 @@ export abstract class AnnotationView extends RendererView {
         [self._xs, self._ys] = proj.project_xsys(self._xs, self._ys)
     }
   }
+
+  get needs_clip(): boolean {
+    return this.layout == null // TODO: change this, when center layout is fully implemented
+  }
 }
 
 export namespace Annotation {

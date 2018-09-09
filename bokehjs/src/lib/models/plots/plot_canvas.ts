@@ -1062,7 +1062,7 @@ export class PlotView extends LayoutDOMView {
 
     this._paint_levels(ctx, ['image', 'underlay', 'glyph'], frame_box, true)
     this.blit_webgl(ratio)
-    this._paint_levels(ctx, ['annotation'], frame_box, false) // XXX
+    this._paint_levels(ctx, ['annotation'], frame_box, false)
     this._paint_levels(ctx, ['overlay'], frame_box, false)
 
     if (this._initial_state_info.range == null)
