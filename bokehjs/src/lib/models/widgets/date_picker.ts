@@ -1,6 +1,6 @@
 import {InputWidget, InputWidgetView} from "./input_widget"
 
-import {input, label} from "core/dom"
+import {input} from "core/dom"
 import * as p from "core/properties"
 
 import * as Pikaday from "pikaday"
@@ -42,7 +42,6 @@ Pikaday.prototype.adjustPosition = function(this: Pikaday & {_o: Pikaday.Pikaday
 export class DatePickerView extends InputWidgetView {
   model: DatePicker
 
-  labelEl: HTMLElement
   inputEl: HTMLElement
 
   protected _picker: Pikaday
@@ -52,9 +51,6 @@ export class DatePickerView extends InputWidgetView {
       this._picker.destroy()
 
     super.render()
-
-    this.labelEl = label({}, this.model.title)
-    this.el.appendChild(this.labelEl)
 
     this.inputEl = input({type: "text", class: "bk-input", disabled: this.model.disabled})
     this.el.appendChild(this.inputEl)

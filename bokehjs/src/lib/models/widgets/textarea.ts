@@ -3,9 +3,9 @@ import {logger} from "core/logging"
 import * as p from "core/properties"
 import {empty, label, textarea} from "core/dom"
 
-import {TextInput, BaseTextInputView} from "./text_input"
+import {TextInput, TextInputView} from "./text_input"
 
-export class TextAreaInputView extends BaseTextInputView {
+export class TextAreaInputView extends TextInputView {
   model: TextAreaInput
 
   protected inputEl: HTMLTextAreaElement

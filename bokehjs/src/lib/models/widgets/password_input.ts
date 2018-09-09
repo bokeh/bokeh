@@ -5,7 +5,7 @@ export class PasswordInputView extends TextInputView {
 
   render(): void {
     super.render()
-    this.inputEl.type = "password"
+    this.input.type = "password"
   }
 }
 

@@ -1,4 +1,4 @@
-import {label, select, option, optgroup} from "core/dom"
+import {select, option, optgroup} from "core/dom"
 import {isString, isArray} from "core/util/types"
 import {logger} from "core/logging"
 import * as p from "core/properties"
@@ -30,11 +30,6 @@ export class SelectView extends InputWidgetView {
 
   render(): void {
     super.render()
-
-    if (this.model.title.length != 0) {
-      const labelEl = label({for: this.model.id}, this.model.title)
-      this.el.appendChild(labelEl)
-    }
 
     let contents: HTMLElement[]
     if (isArray(this.model.options))

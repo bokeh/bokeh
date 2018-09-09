@@ -17,10 +17,10 @@ export class AutocompleteInputView extends TextInputView {
   render(): void {
     super.render()
 
-    this.inputEl.classList.add("bk-autocomplete-input")
+    this.input.classList.add("bk-autocomplete-input")
 
-    this.inputEl.addEventListener("keydown", (event) => this._keydown(event))
-    this.inputEl.addEventListener("keyup", (event) => this._keyup(event))
+    this.input.addEventListener("keydown", (event) => this._keydown(event))
+    this.input.addEventListener("keyup", (event) => this._keyup(event))
 
     this.menuEl = ul({class: "bk-dropdown-menu"})
     this.menuEl.addEventListener("click", (event) => this._item_click(event))
@@ -51,7 +51,7 @@ export class AutocompleteInputView extends TextInputView {
       const el = event.target as HTMLElement
       const text = el.dataset.text!
       this.model.value = text
-      //this.inputEl.value = text
+      //this.input.value = text
     }
   }
 
@@ -73,7 +73,7 @@ export class AutocompleteInputView extends TextInputView {
         break
       }
       default: {
-        const value = this.inputEl.value
+        const value = this.input.value
 
         if (value.length <= 1) {
           this._clear_menu()

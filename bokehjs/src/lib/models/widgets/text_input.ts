@@ -1,46 +1,38 @@
-import {logger} from "core/logging"
-import * as p from "core/properties"
-import {label, input} from "core/dom"
-
 import {InputWidget, InputWidgetView} from "./input_widget"
 
-export class BaseTextInputView extends InputWidgetView {
-  connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.model.change, () => this.render())
-  }
-}
+import {input} from "core/dom"
+import * as p from "core/properties"
 
-export class TextInputView extends BaseTextInputView {
+export class TextInputView extends InputWidgetView {
   model: TextInput
 
-  protected inputEl: HTMLInputElement
+  protected input: HTMLInputElement
+
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.properties.name.change, () => this.input.name = this.model.name || "")
+    this.connect(this.model.properties.value.change, () => this.input.value = this.model.value)
+    this.connect(this.model.properties.disabled.change, () => this.input.disabled = this.model.disabled)
+    this.connect(this.model.properties.placeholder.change, () => this.input.placeholder = this.model.placeholder)
+  }
 
   render(): void {
     super.render()
 
-    if (this.model.title.length > 0) {
-      const labelEl = label({for: this.model.id}, this.model.title)
-      this.el.appendChild(labelEl)
-    }
-
-    this.inputEl = input({
+    this.input = input({
       type: "text",
       class: "bk-input",
-      id: this.model.id,
       name: this.model.name,
       value: this.model.value,
       disabled: this.model.disabled,
       placeholder: this.model.placeholder,
     })
-    this.inputEl.addEventListener("change", () => this.change_input())
-    this.el.appendChild(this.inputEl)
+    this.input.addEventListener("change", () => this.change_input())
+    this.el.appendChild(this.input)
   }
 
   change_input(): void {
-    const value = this.inputEl.value
-    logger.debug(`widget/text_input: value = ${value}`)
-    this.model.value = value
+    this.model.value = this.input.value
     super.change_input()
   }
 }
@@ -51,7 +43,10 @@ export namespace TextInput {
     placeholder: string
   }
 
-  export interface Props extends InputWidget.Props {}
+  export interface Props extends InputWidget.Props {
+    value: p.Property<string>
+    placeholder: p.Property<string>
+  }
 }
 
 export interface TextInput extends TextInput.Attrs {}
