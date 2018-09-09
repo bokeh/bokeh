@@ -4,7 +4,7 @@ import {uniqueId} from "./util/string"
 
 export interface ViewOptions {
   id?: string
-  model?: HasProps                  // TODO: this isn't optional
+  model: HasProps
   parent: View | null
   connect_signals?: boolean
 }
