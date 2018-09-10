@@ -12,7 +12,8 @@ a Bokeh |Document|.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 
 import logging
 log = logging.getLogger(__name__)
@@ -26,7 +27,7 @@ from json import loads
 from operator import itemgetter
 
 # External imports
-from six import iteritems
+from six import iteritems, string_types
 
 # Bokeh imports
 from .core.json_encoder import serialize_json
@@ -373,7 +374,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
 
     def js_on_event(self, event, *callbacks):
 
-        if not isinstance(event, str) and issubclass(event, Event):
+        if not isinstance(event, string_types) and issubclass(event, Event):
             event = event.event_name
 
         if event not in self.js_event_callbacks:
