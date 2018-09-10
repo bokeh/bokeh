@@ -990,7 +990,7 @@ export class PlotView extends LayoutDOMView {
   repaint(): void {
     if (this._needs_layout()) {
       this._needs_paint = true
-      this.root.do_layout()
+      this.root.compute_layout()
     } else
       this.paint()
   }

@@ -36,11 +36,14 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
   connect_signals(): void {
     super.connect_signals()
 
-    if (this.is_root)
+    if (this.is_root) {
       window.addEventListener("resize", this)
+    }
 
-    // XXX: this.connect(this.model.change, () => this.root.do_layout())
-    this.connect(this.model.properties.sizing_mode.change, () => this.root.do_layout())
+    this.connect(this.model.properties.sizing_mode.change, () => {
+      this.root.update_layout()
+      this.root.compute_layout()
+    })
   }
 
   disconnect_signals(): void {
@@ -49,7 +52,7 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
   }
 
   handleEvent(): void {
-    this.root.do_layout()
+    this.compute_layout()
   }
 
   css_classes(): string[] {
@@ -108,12 +111,25 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
   }
 
   renderTo(element: HTMLElement): void {
-    super.renderTo(element)
-    this.update_layout()
-    this.do_layout()
+    element.appendChild(this.el)
+    this.build()
   }
 
-  do_layout(): void {
+  build(): void {
+    this.assert_root()
+    this.render()
+    this.update_layout()
+    this.compute_layout()
+  }
+
+  rebuild(): void {
+    this.build_child_views()
+    this.render()
+    this.root.update_layout()
+    this.root.compute_layout()
+  }
+
+  compute_layout(): void {
     const start = Date.now()
     const viewport = this._viewport_size()
     this.layout.compute(viewport)

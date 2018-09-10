@@ -63,6 +63,11 @@ export class View extends Signalable() {
     return this.is_root ? this : this.parent!.root
   }
 
+  assert_root(): void {
+    if (!this.is_root)
+      throw new Error(`${this.toString()} is not a root layout`)
+  }
+
   connect_signals(): void {}
 
   disconnect_signals(): void {

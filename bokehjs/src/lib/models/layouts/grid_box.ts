@@ -6,6 +6,11 @@ export class GridBoxView extends LayoutDOMView {
   model: GridBox
   layout: Grid
 
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.properties.children.change, () => this.rebuild())
+  }
+
   get child_models(): LayoutDOM[] {
     return this.model.children.map(([child,]) => child)
   }

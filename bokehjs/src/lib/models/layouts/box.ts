@@ -6,13 +6,18 @@ export abstract class BoxView extends LayoutDOMView {
   model: Box
   layout: Grid
 
-  _update_layout(): void {
-    this.layout = new Grid()
-    this.layout.sizing = this.box_sizing()
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.properties.children.change, () => this.rebuild())
   }
 
   get child_models(): LayoutDOM[] {
     return this.model.children
+  }
+
+  _update_layout(): void {
+    this.layout = new Grid()
+    this.layout.sizing = this.box_sizing()
   }
 }
 
