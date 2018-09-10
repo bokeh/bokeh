@@ -49,7 +49,7 @@ export abstract class HasProps extends Signalable() {
 
   // {{{ prototype
   type: string
-  default_view: Class<View>
+  default_view: Class<View, [View.Options]>
   props: {[key: string]: {
     type: Class<Property<any>>,  // T
     default_value: any,          // T

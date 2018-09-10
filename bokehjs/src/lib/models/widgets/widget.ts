@@ -1,6 +1,7 @@
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {SizeHint, Layoutable} from "core/layout"
 import {margin} from "core/dom"
+import {Class} from "core/class"
 
 export class DOMLayout extends Layoutable {
 
@@ -43,8 +44,13 @@ export class DOMLayout extends Layoutable {
   }
 }
 
+export namespace WidgetView {
+  export type Options = LayoutDOMView.Options & {model: Widget}
+}
+
 export abstract class WidgetView extends LayoutDOMView {
   model: Widget
+  default_view: Class<WidgetView, [WidgetView.Options]>
 
   get child_models(): LayoutDOM[] {
     return []

@@ -2,11 +2,13 @@ import {HasProps} from "./has_props"
 import {Signal0, Signal, Signalable} from "./signaling"
 import {uniqueId} from "./util/string"
 
-export interface ViewOptions {
-  id?: string
-  model: HasProps
-  parent: View | null
-  connect_signals?: boolean
+export namespace View {
+  export type Options = {
+    id?: string
+    model: HasProps
+    parent: View | null
+    connect_signals?: boolean
+  }
 }
 
 export class View extends Signalable() {
@@ -19,7 +21,7 @@ export class View extends Signalable() {
 
   private _parent: View | null | undefined
 
-  constructor(options: ViewOptions) {
+  constructor(options: View.Options) {
     super()
 
     if (options.model != null)
@@ -36,7 +38,7 @@ export class View extends Signalable() {
       this.connect_signals()
   }
 
-  initialize(_options: ViewOptions): void {}
+  initialize(_options: View.Options): void {}
 
   remove(): void {
     this._parent = undefined

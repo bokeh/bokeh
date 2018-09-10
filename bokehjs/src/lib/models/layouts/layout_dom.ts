@@ -1,4 +1,5 @@
 import {Model} from "../../model"
+import {Class} from "core/class"
 import {SizingMode} from "core/enums"
 import {empty, margin, padding} from "core/dom"
 import {logger} from "core/logging"
@@ -7,6 +8,10 @@ import * as p from "core/properties"
 import {build_views} from "core/build_views"
 import {DOMView} from "core/dom_view"
 import {SizingPolicy, BoxSizing, WidthSizing, HeightSizing, Layoutable} from "core/layout"
+
+export namespace LayoutDOMView {
+  export type Options = DOMView.Options & {model: LayoutDOM}
+}
 
 export abstract class LayoutDOMView extends DOMView implements EventListenerObject {
   model: LayoutDOM
@@ -306,6 +311,7 @@ export interface LayoutDOM extends LayoutDOM.Attrs {}
 
 export abstract class LayoutDOM extends Model {
   properties: LayoutDOM.Props
+  default_view: Class<LayoutDOMView, [LayoutDOMView.Options]>
 
   constructor(attrs?: Partial<LayoutDOM.Attrs>) {
     super(attrs)

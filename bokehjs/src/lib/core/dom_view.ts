@@ -1,5 +1,9 @@
-import {View, ViewOptions} from "./view"
+import {View} from "./view"
 import * as DOM from "./dom"
+
+export namespace DOMView {
+  export type Options = View.Options
+}
 
 export class DOMView extends View {
 
@@ -9,7 +13,7 @@ export class DOMView extends View {
 
   el: HTMLElement
 
-  initialize(options: ViewOptions): void {
+  initialize(options: DOMView.Options): void {
     super.initialize(options)
     this._has_finished = false
     this.el = this._createElement()

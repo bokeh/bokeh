@@ -1,10 +1,15 @@
 import {Widget, WidgetView} from "./widget"
 import {ButtonType} from "./abstract_button"
 
+import {Class} from "core/class"
 import {div} from "core/dom"
 import {includes} from "core/util/array"
 import {Set} from "core/util/data_structures"
 import * as p from "core/properties"
+
+export namespace CheckboxButtonGroupView {
+  export type Options = WidgetView.Options & {model: CheckboxButtonGroup}
+}
 
 export class CheckboxButtonGroupView extends WidgetView {
   model: CheckboxButtonGroup
@@ -57,6 +62,7 @@ export interface CheckboxButtonGroup extends CheckboxButtonGroup.Attrs {}
 
 export class CheckboxButtonGroup extends Widget {
   properties: CheckboxButtonGroup.Props
+  default_view: Class<CheckboxButtonGroupView, [CheckboxButtonGroupView.Options]>
 
   constructor(attrs?: Partial<CheckboxButtonGroup.Attrs>) {
     super(attrs)

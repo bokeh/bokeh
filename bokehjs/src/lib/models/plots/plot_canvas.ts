@@ -131,6 +131,10 @@ export class PlotLayout extends Layoutable {
   }
 }
 
+export namespace PlotView {
+  export type Options = LayoutDOMView.Options & {model: Plot}
+}
+
 export class PlotView extends LayoutDOMView {
   model: Plot
   visuals: Plot.Visuals
@@ -241,7 +245,7 @@ export class PlotView extends LayoutDOMView {
     this.canvas_view.render()
   }
 
-  initialize(options: any): void {
+  initialize(options: PlotView.Options): void {
     this.pause()
 
     super.initialize(options)

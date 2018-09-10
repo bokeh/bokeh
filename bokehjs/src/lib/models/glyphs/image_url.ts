@@ -1,6 +1,7 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {DistanceSpec, AngleSpec, StringSpec} from "core/vectorization"
 import {Arrayable} from "core/types"
+import {Class} from "core/class"
 import {Anchor} from "core/enums"
 import {logger} from "core/logging"
 import * as p from "core/properties"
@@ -251,8 +252,8 @@ export namespace ImageURL {
 export interface ImageURL extends ImageURL.Attrs {}
 
 export class ImageURL extends XYGlyph {
-
   properties: ImageURL.Props
+  default_view: Class<ImageURLView>
 
   constructor(attrs?: Partial<ImageURL.Attrs>) {
     super(attrs)

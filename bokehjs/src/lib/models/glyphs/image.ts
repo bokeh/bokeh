@@ -2,6 +2,7 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {DistanceSpec, NumberSpec} from "core/vectorization"
 import {ColorMapper} from "../mappers/color_mapper"
 import {LinearColorMapper} from "../mappers/linear_color_mapper"
+import {Class} from "core/class"
 import {Arrayable} from "core/types"
 import * as p from "core/properties"
 import {max, concat} from "core/util/array"
@@ -30,7 +31,6 @@ export interface _ImageData extends XYGlyphData {
 }
 
 export interface ImageView extends _ImageData {}
-
 
 export interface ImageIndex {
   index: number
@@ -256,8 +256,8 @@ export namespace Image {
 export interface Image extends Image.Attrs {}
 
 export class Image extends XYGlyph {
-
   properties: Image.Props
+  default_view: Class<ImageView>
 
   constructor(attrs?: Partial<Image.Attrs>) {
     super(attrs)
