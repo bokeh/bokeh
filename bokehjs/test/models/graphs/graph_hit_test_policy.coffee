@@ -39,7 +39,7 @@ describe "GraphHitTestPolicy", ->
        y_range: new Range1d({start: 0, end: 1})
     })
     doc.add_root(@plot)
-    @plot_view = new @plot.default_view({model: @plot, parent: null})
+    @plot_view = new @plot.default_view({model: @plot, parent: null}).build()
 
     @node_source = new ColumnDataSource({
       data: {
@@ -61,10 +61,7 @@ describe "GraphHitTestPolicy", ->
       layout_provider: new TrivialLayoutProvider()
     })
 
-    @gv = new @gr.default_view({
-      model: @gr
-      parent: @plot_view
-    })
+    @gv = new @gr.default_view({model: @gr, parent: @plot_view})
 
     @node_stub = sinon.stub(@gv.node_view.glyph, "hit_test")
     @edge_stub = sinon.stub(@gv.edge_view.glyph, "hit_test")

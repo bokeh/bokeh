@@ -115,11 +115,12 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
     this.build()
   }
 
-  build(): void {
+  build(): this {
     this.assert_root()
     this.render()
     this.update_layout()
     this.compute_layout()
+    return this
   }
 
   rebuild(): void {

@@ -3,7 +3,7 @@ import {expect} from "chai"
 import {Axis, AxisView} from "models/axes/axis"
 import {BasicTicker} from "models/tickers/basic_ticker"
 import {BasicTickFormatter} from "models/formatters/basic_tick_formatter"
-import {Plot, PlotView} from "models/plots/plot"
+import {Plot} from "models/plots/plot"
 import {FactorRange} from "models/ranges/factor_range"
 import {Range1d} from "models/ranges/range1d"
 import {CategoricalScale} from "models/scales/categorical_scale"
@@ -24,7 +24,7 @@ describe("Axis", () => {
       major_label_overrides: {0: "zero", 4: "four", 10: "ten"},
     })
     plot.add_layout(axis, "below")
-    const plot_view = new plot.default_view({model: plot, parent: null}) as PlotView
+    const plot_view = new plot.default_view({model: plot, parent: null}).build()
     const axis_view = plot_view.renderer_views[axis.id] as AxisView
 
     expect(axis_view.compute_labels([0,2,4.0,6,8,10])).to.be.deep.equal(["zero", "2", "four", "6", "8", "ten"])
@@ -43,7 +43,7 @@ describe("Axis", () => {
       fixed_location: 10,
     })
     plot.add_layout(axis, "below")
-    const plot_view = new plot.default_view({model: plot, parent: null}) as PlotView
+    const plot_view = new plot.default_view({model: plot, parent: null}).build()
     const axis_view = plot_view.renderer_views[axis.id] as AxisView
     expect(axis_view.loc).to.equal(10)
   })
@@ -96,7 +96,7 @@ describe("Axis", () => {
       fixed_location: "foo",
     })
     plot.add_layout(axis, "left")
-    const plot_view = new plot.default_view({model: plot, parent: null}) as PlotView
+    const plot_view = new plot.default_view({model: plot, parent: null}).build()
     const axis_view = plot_view.renderer_views[axis.id] as AxisView
     expect(axis_view.loc).to.equal(0.5)
   })
@@ -123,12 +123,8 @@ describe("AxisView", () => {
     })
     plot.add_layout(axis, 'below')
 
-    const plot_view = new plot.default_view({model: plot, parent: null}) as PlotView
-
-    const axis_view = new axis.default_view({
-      model: axis,
-      parent: plot_view,
-    }) as AxisView
+    const plot_view = new plot.default_view({model: plot, parent: null}).build()
+    const axis_view = plot_view.renderer_views[axis.id] as AxisView
 
     return {axis, axis_view}
   }

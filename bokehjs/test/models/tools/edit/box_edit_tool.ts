@@ -27,8 +27,7 @@ const make_testcase = function(): BoxEditTestCase {
     y_range: new Range1d({start: -1, end: 1}),
   })
 
-  const plot_view: any = new plot.default_view({model: plot, parent: null})
-  plot_view.do_layout()
+  const plot_view: any = new plot.default_view({model: plot, parent: null}).build()
 
   const data = {
     x: [0, 0.5, 1],

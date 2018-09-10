@@ -34,8 +34,7 @@ describe "Plot", ->
       @p._width.setValue(width)
       @p._height.setValue(height)
       @p.sizing_mode = 'stretch_both'
-      plot_view = new @p.default_view({ model: @p, parent: null })
-      plot_view.render()
+      plot_view = new @p.default_view({model: @p, parent: null}).build()
       # Note we do not set margin & padding on Plot
       expected_style = "position: absolute; left: #{dom_left}px; top: #{dom_top}px; width: #{width}px; height: #{height}px;"
       expect(plot_view.el.style.cssText).to.be.equal expected_style
@@ -43,21 +42,21 @@ describe "Plot", ->
     it "get_height should return the height from the aspect ratio", sinon.test () ->
       @p.width = 22
       @p.height = 44
-      plot_view = new @p.default_view({ model: @p, parent: null })
+      plot_view = new @p.default_view({model: @p, parent: null}).build()
       @p._width.setValue(33)
       expect(plot_view.get_height()).to.be.equal 66
 
     it "get_width should return the width from the aspect ratio", sinon.test () ->
       @p.width = 2
       @p.height = 10
-      plot_view = new @p.default_view({ model: @p, parent: null })
+      plot_view = new @p.default_view({model: @p, parent: null}).build()
       @p._height.setValue(100)
       expect(plot_view.get_width()).to.be.equal 20
 
     it "get_width should return the width from the aspect ratio", sinon.test () ->
       @p.width = 2
       @p.height = 10
-      plot_view = new @p.default_view({ model: @p, parent: null })
+      plot_view = new @p.default_view({model: @p, parent: null}).build()
       @p._height.setValue(100)
       expect(plot_view.get_width()).to.be.equal 20
 

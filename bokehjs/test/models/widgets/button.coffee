@@ -12,7 +12,7 @@ describe "Button.click", ->
   it "should trigger on click, if enabled", ->
     b = new Button()
     b.attach_document(new Document())
-    bv = new b.default_view({model: b, parent: null})
+    bv = new b.default_view({model: b, parent: null}).build()
 
     spy = sinon.spy(b, 'trigger_event')
 
@@ -25,7 +25,7 @@ describe "Button.click", ->
   it "should not trigger on click, if disabled", ->
     b = new Button({disabled: true})
     b.attach_document(new Document())
-    bv = new b.default_view({model: b, parent: null})
+    bv = new b.default_view({model: b, parent: null}).build()
 
     spy = sinon.spy(b, 'trigger_event')
 

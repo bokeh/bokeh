@@ -1,4 +1,3 @@
-import "./box"
 import "./column"
 import "./layout_dom"
 import "./row"

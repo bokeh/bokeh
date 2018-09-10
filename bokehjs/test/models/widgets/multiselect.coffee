@@ -12,7 +12,7 @@ describe "MultiSelect", ->
         options: [ ["foo", "Foo"], ["bar", "BAR"],  ["baz", "bAz"], ["quux", "quux"] ]
     })
     s.attach_document(new Document())
-    sv = new s.default_view({model: s, parent: null})
+    sv = new s.default_view({model: s, parent: null}).build()
     sv.render()
 
     option = sv.el.querySelectorAll('option[value="foo"]')

@@ -1,7 +1,7 @@
 import {Arrayable} from "core/types"
 import {Document} from "document"
 import {Range1d} from "models/ranges/range1d"
-import {Plot, PlotView} from "models/plots/plot"
+import {Plot} from "models/plots/plot"
 import {Glyph, GlyphView} from "models/glyphs/glyph"
 import {GlyphRenderer, GlyphRendererView} from "models/renderers/glyph_renderer"
 import {ColumnDataSource} from "models/sources/column_data_source"
@@ -17,7 +17,7 @@ export function create_glyph_renderer_view(glyph: Glyph, data: {[key: string]: A
     x_range: new Range1d({start: 0, end: 1}),
     y_range: new Range1d({start: 0, end: 1}),
   })
-  const plot_view = new plot.default_view({model: plot, parent: null}) as PlotView
+  const plot_view = new plot.default_view({model: plot, parent: null}).build()
   doc.add_root(plot)
 
   const data_source = new ColumnDataSource({data})

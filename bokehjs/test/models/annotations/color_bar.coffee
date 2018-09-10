@@ -26,7 +26,7 @@ describe "ColorBar module", ->
        x_range: new Range1d({start: 0, end: 1})
        y_range: new Range1d({start: 0, end: 1})
     })
-    @plot_view = new @plot.default_view({model: @plot, parent: null})
+    @plot_view = new @plot.default_view({model: @plot, parent: null}).build()
 
     @color_bar = new ColorBar()
 
@@ -261,10 +261,7 @@ describe "ColorBar module", ->
 
       @plot.add_layout(@color_bar, 'right')
 
-      @color_bar_view = new @color_bar.default_view({
-        model: @color_bar
-        parent: @plot_view
-      })
+      @color_bar_view = new @color_bar.default_view({model: @color_bar, parent: @plot_view})
 
     it "Should reset scale image if color_mapper changes", ->
       # Reset spy count to zero (method was called during view initialization)

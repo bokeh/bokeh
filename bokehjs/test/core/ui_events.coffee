@@ -33,7 +33,7 @@ describe "ui_events module", ->
       y_range: new Range1d({start: 0, end: 1})
     })
     doc.add_root(@plot)
-    @plot_view = new @plot.default_view({model: @plot, parent: null})
+    @plot_view = new @plot.default_view({model: @plot, parent: null}).build()
     @ui_events = @plot_view.ui_event_bus
 
   describe "_trigger method", ->
@@ -103,7 +103,7 @@ describe "ui_events module", ->
 
       it "should change cursor on view_renderer with cursor method", ->
         legend = new Legend({click_policy: "mute"})
-        legend_view = new legend.default_view({model: legend, parent: null}) # wrong
+        legend_view = new legend.default_view({model: legend, parent: this.plot_view})
 
         ss = sinon.stub(@ui_events, "_hit_test_renderers").returns(legend_view)
 
@@ -118,7 +118,7 @@ describe "ui_events module", ->
         @plot.add_tools(inspector)
 
         legend = new Legend({click_policy: "mute"})
-        legend_view = new legend.default_view({model: legend, parent: null}) # wrong
+        legend_view = new legend.default_view({model: legend, parent: this.plot_view})
 
         ss = sinon.stub(@ui_events, "_hit_test_renderers").returns(legend_view)
 
@@ -151,7 +151,7 @@ describe "ui_events module", ->
 
       it "should call on_hit method on view renderer if exists", ->
         legend = new Legend({click_policy: "mute"})
-        legend_view = new legend.default_view({model: legend, parent: null}) # wrong
+        legend_view = new legend.default_view({model: legend, parent: this.plot_view})
 
         ss = sinon.stub(@ui_events, "_hit_test_renderers").returns(legend_view)
         on_hit = sinon.stub(legend_view, "on_hit")

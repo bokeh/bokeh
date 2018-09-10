@@ -32,8 +32,7 @@ describe "WheelZoomTool", ->
       document = new Document()
       document.add_root(@plot)
 
-      @plot_view = new @plot.default_view({model: @plot, parent: null})
-      @plot_view.do_layout()
+      @plot_view = new @plot.default_view({model: @plot, parent: null}).build()
 
     it "should zoom in both ranges", ->
       wheel_zoom = new WheelZoomTool()

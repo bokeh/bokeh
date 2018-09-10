@@ -25,7 +25,7 @@ describe "PlotView pause", ->
       toolbar: new Toolbar()
       title: null
     })
-    @plot_view = new @plot.default_view({model: @plot, parent: null})
+    @plot_view = new @plot.default_view({model: @plot, parent: null}).build()
     @doc.add_root(@plot)
 
   it "should start unpaused", ->
@@ -59,8 +59,7 @@ describe "PlotView get_canvas_element", ->
       toolbar: new Toolbar()
     })
     doc.add_root(plot)
-    @plot_view = new plot.default_view({model: plot, parent: null})
-    @plot_view.do_layout()
+    @plot_view = new plot.default_view({model: plot, parent: null}).build()
 
   it "should exist because get_canvas_element depends on it", sinon.test () ->
     expect(@plot_view.canvas_view.ctx).to.exist

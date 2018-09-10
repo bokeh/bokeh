@@ -29,8 +29,7 @@ describe "ZoomOutTool", ->
       })
       document = new Document()
       document.add_root(@plot)
-      @plot_view = new @plot.default_view({model: @plot, parent: null})
-      @plot_view.do_layout()
+      @plot_view = new @plot.default_view({model: @plot, parent: null}).build()
 
     it "should zoom into both ranges", ->
       zoom_out_tool = new ZoomOutTool()

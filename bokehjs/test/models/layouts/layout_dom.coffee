@@ -36,8 +36,7 @@ describe "LayoutDOMView", ->
 
     it "should set the appropriate style on the element if sizing_mode is 'fixed'", ->
       layout = make_layout({sizing_mode: 'fixed', width: 88, height: 11})
-      layout_view = new LayoutDOMView({ model: layout, parent: null })
-      layout_view.do_layout()
+      layout_view = new LayoutDOMView({model: layout, parent: null}).build()
       expected_style = "position: relative; width: 88px; height: 11px;"
       expect(layout_view.el.style.cssText).to.be.equal expected_style
 

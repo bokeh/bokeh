@@ -32,7 +32,7 @@ describe "CheckboxButtonGroup", ->
     it "should trigger on change", ->
       g = new CheckboxButtonGroup({active: [0,1,2], labels: ["foo", "bar", "baz"]})
       g.attach_document(new Document())
-      gv = new g.default_view({model: g, parent: null})
+      gv = new g.default_view({model: g, parent: null}).build()
       spy = sinon.spy(g, 'change_input')
       gv.render()
       expect(spy.called).to.be.false
