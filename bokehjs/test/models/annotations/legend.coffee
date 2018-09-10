@@ -3,16 +3,11 @@ sinon = require 'sinon'
 
 {SidePanel} = require("core/layout/side_panel")
 
-{Document} = require "document"
-
 {ColumnDataSource} = require("models/sources/column_data_source")
 {GlyphRenderer} = require("models/renderers/glyph_renderer")
 {Legend} = require("models/annotations/legend")
 {LegendView} = require("models/annotations/legend")
 {LegendItem} = require("models/annotations/legend_item")
-
-HEIGHT = 333
-WIDTH = 222
 
 describe "Legend", ->
 
@@ -38,31 +33,13 @@ describe "Legend", ->
 
 describe "LegendView", ->
 
-  afterEach ->
-    LegendView.prototype.compute_legend_bbox.restore()
+  WIDTH = 222
+  HEIGHT = 333
 
-  beforeEach ->
-    @legend = new Legend()
-    @legend.attach_document(new Document())
-    stub = sinon.stub(LegendView.prototype, 'compute_legend_bbox')
+  it "get_size should return legend dimensions", sinon.test () ->
+    legend = new Legend()
+    stub = this.stub(LegendView.prototype, 'compute_legend_bbox')
     stub.returns({x: 0, y: 0, width: WIDTH, height: HEIGHT})
 
-  it "_get_size should return legend_height if side is above", ->
-    @legend.add_panel('above')
-    legend_view = new @legend.default_view({ model: @legend })
-    expect(legend_view._get_size()).to.be.equal(HEIGHT+20)
-
-  it "_get_size should return legend_height if side is below", ->
-    @legend.add_panel('below')
-    legend_view = new @legend.default_view({ model: @legend })
-    expect(legend_view._get_size()).to.be.equal(HEIGHT+20)
-
-  it "_get_size should return legend_height if side is left", ->
-    @legend.add_panel('left')
-    legend_view = new @legend.default_view({ model: @legend })
-    expect(legend_view._get_size()).to.be.equal(WIDTH+20)
-
-  it "_get_size should return legend_height if side is right", ->
-    @legend.add_panel('right')
-    legend_view = new @legend.default_view({ model: @legend })
-    expect(legend_view._get_size()).to.be.equal(WIDTH+20)
+    legend_view = new legend.default_view({model: legend})
+    expect(legend_view.get_size()).to.be.deep.equal({width: WIDTH+20, height: HEIGHT+20})

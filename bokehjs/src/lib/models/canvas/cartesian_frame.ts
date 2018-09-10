@@ -19,8 +19,8 @@ export class CartesianFrame extends AnchorLayout {
               readonly y_scale: Scale,
               readonly x_range: Range,
               readonly y_range: Range,
-              readonly extra_x_ranges: Ranges,
-              readonly extra_y_ranges: Ranges) {
+              readonly extra_x_ranges: Ranges = {},
+              readonly extra_y_ranges: Ranges = {}) {
     super()
     this._configure_scales()
   }

@@ -335,7 +335,7 @@ export class ColorBarView extends AnnotationView {
     ctx.restore()
   }
 
-  protected _get_label_extent(): number {
+  /*protected*/ _get_label_extent(): number {
     const major_labels = this.tick_info().labels.major
 
     let label_extent: number
@@ -362,7 +362,7 @@ export class ColorBarView extends AnnotationView {
     return label_extent
   }
 
-  protected _get_image_offset(): {x: number, y: number} {
+  /*protected*/ _get_image_offset(): {x: number, y: number} {
     // Returns image offset relative to legend bounding box
     const x = this.model.padding
     const y = this.model.padding + this._title_extent()
@@ -453,7 +453,7 @@ export class ColorBarView extends AnnotationView {
     return {width, height}
   }
 
-  protected _tick_coordinate_scale(scale_length: number): Scale {
+  /*protected*/ _tick_coordinate_scale(scale_length: number): Scale {
     /*
     Creates and returns a scale instance that maps the `color_mapper` range
     (low to high) to a screen space range equal to the length of the ColorBar's

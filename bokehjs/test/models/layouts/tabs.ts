@@ -2,16 +2,14 @@ import {expect} from "chai"
 
 import {Panel, Tabs} from "models/layouts/tabs"
 import {Plot} from "models/plots/plot"
-import {Toolbar} from "models/tools/toolbar"
-import {DataRange1d} from "models/ranges/data_range1d"
+import {Range1d} from "models/ranges/range1d"
 
 describe("Tabs", () => {
 
-  function new_tabs() {
+  function new_tabs(): Tabs {
     const plot = new Plot({
-      x_range: new DataRange1d(),
-      y_range: new DataRange1d(),
-      toolbar: new Toolbar(),
+      x_range: new Range1d({start: 0, end: 10}),
+      y_range: new Range1d({start: 0, end: 10}),
     })
     const panel = new Panel({child: plot})
     return new Tabs({tabs: [panel]})

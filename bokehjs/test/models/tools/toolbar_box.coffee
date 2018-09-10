@@ -17,34 +17,6 @@
 {CrosshairTool} = require("models/tools/inspectors/crosshair_tool")
 {HoverTool} = require("models/tools/inspectors/hover_tool")
 
-describe "ToolbarBoxView", ->
-
-
-  it "should return null from get_width if toolbar is horizontal", ->
-    toolbar = new Toolbar()
-    box = new ToolbarBox({toolbar: toolbar, toolbar_location: "above"})
-    box_view = new box.default_view({model: box, parent: null}).build()
-    expect(box_view.get_width()).to.be.null
-
-  it "should return 30 from get_height if toolbar is horizontal", ->
-    toolbar = new Toolbar()
-    box = new ToolbarBox({toolbar: toolbar, toolbar_location: "above"})
-    box_view = new box.default_view({model: box, parent: null}).build()
-    expect(box_view.get_height()).to.be.equal 30
-
-  it "should return 30 from get_width if toolbar is vertical", ->
-    toolbar = new Toolbar()
-    box = new ToolbarBox({toolbar: toolbar, toolbar_location: "left"})
-    box_view = new box.default_view({model: box, parent: null}).build()
-    expect(box_view.get_width()).to.be.equal 30
-
-  it "should return 30 from get_height if toolbar is vertical", ->
-    toolbar = new Toolbar()
-    box = new ToolbarBox({toolbar: toolbar, toolbar_location: "left"})
-    box_view = new box.default_view({model: box, parent: null}).build()
-    expect(box_view.get_height()).to.be.null
-
-
 class MultiToolView extends SelectToolView
 
 class MultiTool extends SelectTool
