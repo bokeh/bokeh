@@ -1,11 +1,9 @@
 import os
+import sys
 import webbrowser
 
 import pytest
 from mock import patch
-
-import sys
-import os
 
 import bokeh.util.browser as bub
 
