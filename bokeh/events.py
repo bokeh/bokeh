@@ -77,6 +77,29 @@ from .util.future import with_metaclass
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+__all__ = (
+    'ButtonClick',
+    'PlotEvent',
+    'LODStart',
+    'LODEnd',
+    'SelectionGeometry',
+    'Reset',
+    'PointEvent',
+    'Tap',
+    'DoubleTap',
+    'Press',
+    'MouseEnter',
+    'MouseLeave',
+    'MouseMove',
+    'MouseWheel',
+    'Pan',
+    'PanEnd',
+    'PandStart',
+    'Pinch',
+    'PinchEnd',
+    'PinchStart',
+)
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------

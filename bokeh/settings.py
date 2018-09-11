@@ -143,6 +143,8 @@ from .util.paths import ROOT_DIR, bokehjsdir
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+# __all__ defined at the bottom on the class module
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -391,3 +393,7 @@ if settings.secret_key() is not None:
 if settings.sign_sessions() and settings.secret_key() is None:
     import warnings
     warnings.warn("BOKEH_SECRET_KEY must be set if BOKEH_SIGN_SESSIONS is set to true")
+
+__all__ = (
+  'settings',
+)

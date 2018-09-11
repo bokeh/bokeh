@@ -46,6 +46,11 @@ from .util.serialization import make_id
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+__all__ = (
+    'collect_models',
+    'get_class',
+)
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -720,11 +725,6 @@ def _visit_immediate_value_references(value, visitor):
 
 _common_types = {int, float, str}
 
-
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
-
 def _visit_value_and_its_immediate_references(obj, visitor):
     ''' Recurse down Models, HasProps, and Python containers
 
@@ -749,3 +749,9 @@ def _visit_value_and_its_immediate_references(obj, visitor):
         else:
             # this isn't a Model, so recurse into it
             _visit_immediate_value_references(obj, visitor)
+
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
+

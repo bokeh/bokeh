@@ -58,6 +58,8 @@ DEFAULT_SERVER_HTTP_URL = "http://%s:%d/" % (DEFAULT_SERVER_HOST, DEFAULT_SERVER
 # General API
 #-----------------------------------------------------------------------------
 
+# __all__ defined at the bottom on the class module
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
@@ -511,3 +513,8 @@ def _get_server_urls(root_url, minified=True, path_versioner=None):
 CDN = Resources(mode="cdn")
 
 INLINE = Resources(mode="inline")
+
+__all__ = (
+    'CDN',
+    'INLINE'
+)
