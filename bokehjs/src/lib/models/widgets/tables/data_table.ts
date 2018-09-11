@@ -117,6 +117,11 @@ export class DataTableView extends WidgetView {
     this.connect(this.model.source.selected.properties.indices.change, () => this.updateSelection())
   }
 
+  update_position(): void {
+    super.update_position()
+    this.grid.resizeCanvas()
+  }
+
   updateGrid(): void {
     // TODO (bev) This is to ensure that CDSView indices are properly computed
     // before passing to the DataProvider. This will result in extra calls to
