@@ -3,6 +3,25 @@
 Exporting Plots
 ===============
 
+Additional dependencies
+-----------------------
+
+In order to use the |export| functions, users have to install some
+additional dependencies. These dependencies can be installed via conda:
+
+.. code-block:: sh
+
+    conda install selenium phantomjs pillow
+
+Alternatively, you can install phantomjs from npm via
+
+.. code-block:: sh
+
+    npm install -g phantomjs-prebuilt
+
+Note that the minimum compatible version of PhantomJS is 2.1, regardless of
+how it is installed.
+
 .. _userguide_export_png:
 
 PNG Generation
@@ -25,25 +44,6 @@ Responsive sizing_modes may generate layouts with unexpected size and aspect
 ratios. It is recommended to use the default ``fixed`` sizing mode. Also,
 glyphs that are rendered via webgl won't be included in the generated PNG, so
 it's suggested to use the default ``Plot.webgl=True`` attribute.
-
-Additional dependencies
-~~~~~~~~~~~~~~~~~~~~~~~
-
-In order to use the |export_png| function, users have to install some
-additional dependencies. These dependencies can be installed via conda:
-
-.. code-block:: sh
-
-    conda install selenium phantomjs pillow
-
-Alternatively, you can install phantomjs from npm via
-
-.. code-block:: sh
-
-    npm install -g phantomjs-prebuilt
-
-Note that the minimum compatible version of PhantomJS is 2.1, regardless of
-how it is installed.
 
 Example usage
 ~~~~~~~~~~~~~
@@ -125,8 +125,9 @@ SVG-enabled plots within a layout as distinct SVG files.
 
 .. image:: /_images/unemployment.svg
 
+.. |export|          replace:: :func:`~bokeh.io.export`
+.. |export_png|      replace:: :func:`~bokeh.io.export_png`
 .. |export_svgs|     replace:: :func:`~bokeh.io.export_svgs`
-.. |export_png|      replace:: :func:`~bokeh.io.export`
 .. |save|            replace:: :func:`~bokeh.io.save`
 .. |show|            replace:: :func:`~bokeh.io.show`
 
