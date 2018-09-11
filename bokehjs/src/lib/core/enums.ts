@@ -10,8 +10,8 @@ export const Dimensions: Dimensions[] = ["width", "height", "both"]
 export type Direction = "clock" | "anticlock"
 export const Direction: Direction[] = ["clock", "anticlock"]
 
-export type FontStyle = "normal" | "italic" | "bold"
-export const FontStyle: FontStyle[] = ["normal", "italic", "bold"]
+export type FontStyle = "normal" | "italic" | "bold" | "bold italic"
+export const FontStyle: FontStyle[] = ["normal", "italic", "bold", "bold italic"]
 
 export type LatLon = "lat" | "lon"
 export const LatLon: LatLon[] = ["lat", "lon"]
