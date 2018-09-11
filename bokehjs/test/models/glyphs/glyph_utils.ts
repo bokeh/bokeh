@@ -22,21 +22,20 @@ export function create_glyph_renderer_view(glyph: Glyph, data: {[key: string]: A
 
   const data_source = new ColumnDataSource({data})
 
-  const glyph_renderer = new GlyphRenderer({
-    glyph,
-    data_source: data_source,
-  })
-
+  const glyph_renderer = new GlyphRenderer({glyph, data_source})
   const glyph_renderer_view = new glyph_renderer.default_view({
     model: glyph_renderer,
     parent: plot_view,
-  }) as GlyphRendererView
+  })
 
   return glyph_renderer_view
 }
 
-export function create_glyph_view(glyph: Glyph, data: {[key: string]: Arrayable} = {}): GlyphView {
-  return create_glyph_renderer_view(glyph, data).glyph /* glyph_view */
+import {HasProps} from "core/has_props"
+export type ViewType<T extends HasProps> = InstanceType<T["default_view"]>
+
+export function create_glyph_view<G extends Glyph>(glyph: G, data: {[key: string]: Arrayable} = {}): ViewType<G> {
+  return create_glyph_renderer_view(glyph, data).glyph /* glyph_view */ as ViewType<G>
 }
 
 export type AxisType = "linear" | "log" | "categorical"
