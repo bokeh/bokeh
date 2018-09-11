@@ -94,7 +94,7 @@ __all__ = (
     'MouseWheel',
     'Pan',
     'PanEnd',
-    'PandStart',
+    'PanStart',
     'Pinch',
     'PinchEnd',
     'PinchStart',
