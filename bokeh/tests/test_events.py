@@ -22,10 +22,10 @@ class EventCallback(object):
 
 def test_event_metaclass():
     # All events currently in the namespace should be in the EVENT_CLASSES set
-    assert len(concrete_events - set(events.CONCRETE_EVENT_CLASSES.values())) == 0
+    assert len(concrete_events - set(events._CONCRETE_EVENT_CLASSES.values())) == 0
 
 def test_common_decode_json():
-    for event_name, event_cls in events.CONCRETE_EVENT_CLASSES.items():
+    for event_name, event_cls in events._CONCRETE_EVENT_CLASSES.items():
         if event_name is None: continue # Skip abstract base class
         event = events.Event.decode_json({'event_name':event_cls.event_name,
                                           'event_values':{'model_id':'test-model-id'}})

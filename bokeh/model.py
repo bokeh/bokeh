@@ -34,11 +34,13 @@ from .core.json_encoder import serialize_json
 from .core.properties import Any, Dict, Instance, List, String
 from .core.has_props import HasProps, MetaHasProps
 from .core.query import find
+
+from .events import Event
 from .themes import default as default_theme
+
 from .util.callback_manager import PropertyCallbackManager, EventCallbackManager
 from .util.future import with_metaclass
 from .util.serialization import make_id
-from .events import Event
 
 #-----------------------------------------------------------------------------
 # Globals and constants

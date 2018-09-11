@@ -40,11 +40,11 @@ from six import string_types
 # Bokeh imports
 from . import __version__
 from .core.templates import JS_RESOURCES, CSS_RESOURCES
+from .model import Model
 from .settings import settings
 
 from .util.paths import bokehjsdir
 from .util.session_id import generate_session_id
-from .model import Model
 
 #-----------------------------------------------------------------------------
 # Globals and constants

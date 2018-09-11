@@ -151,7 +151,11 @@ from .util.paths import ROOT_DIR, bokehjsdir
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Settings(object):
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+class _Settings(object):
     ''' A class to collect global, overridable Bokeh configuration settings.
 
     '''
@@ -374,15 +378,10 @@ class Settings(object):
         return self._get_bool("IGNORE_FILENAME", False)
 
 #-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
 
-settings = Settings()
-del Settings
+settings = _Settings()
 
 if settings.secret_key() is not None:
     if len(settings.secret_key()) < 32:
