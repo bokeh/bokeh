@@ -218,12 +218,20 @@ export abstract class GlyphView extends View {
     const self = this as any
     extend(self, data)
 
+    // TODO (bev) Should really probably delegate computing projected
+    // coordinates to glyphs, instead of centralizing here in one place.
     if (this.renderer.plot_view.model.use_map) {
       if (self._x != null)
         [self._x, self._y] = proj.project_xy(self._x, self._y)
 
       if (self._xs != null)
         [self._xs, self._ys] = proj.project_xsys(self._xs, self._ys)
+
+      if (self._x0 != null)
+        [self._x0, self._y0] = proj.project_xy(self._x0, self._y0)
+
+      if (self._x1 != null)
+        [self._x1, self._y1] = proj.project_xy(self._x1, self._y1)
     }
 
     // if we have any coordinates that are categorical, convert them to
