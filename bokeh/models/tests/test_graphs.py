@@ -3,7 +3,7 @@ import numpy as np
 from numpy.testing import assert_allclose
 import pytest
 
-from bokeh.models.graphs import StaticLayoutProvider, from_networkx, _rows_to_columns
+from bokeh.models.graphs import StaticLayoutProvider, from_networkx
 
 
 def test_staticlayoutprovider_init_props():
@@ -84,22 +84,3 @@ def test_from_networkx_with_bad_attributes():
         assert renderer.edge_renderer.data_source.data["start"] == [0]
         assert renderer.edge_renderer.data_source.data["end"] == [1]
         assert renderer.edge_renderer.data_source.data["attr_1"] == [10]
-
-def test__rows_to_columns():
-    G = nx.Graph()
-    G.add_nodes_from([(0, {"attr_1": "a", "attr_2": 10}),
-                      (1, {"attr_1": "b"}),
-                      (2, {"attr_1": "c", "attr_2": 30})])
-    G.add_edges_from([(0, 1, {"attr_1": "A"}),
-                      (0, 2, {"attr_1": "B", "attr_2": 10})])
-
-    node_attr_keys = ["attr_1", "attr_2"]
-    node_dict = _rows_to_columns(G.nodes(data=True), node_attr_keys)
-
-    assert node_dict["attr_1"] == [attr['attr_1'] for _, attr in G.nodes(data=True)]
-    assert node_dict["attr_2"] == [attr['attr_2'] if key != 1 else None for key, attr in G.nodes(data=True)]
-
-    edge_attr_keys = ["attr_1", "attr_2"]
-    edge_dict = _rows_to_columns(G.edges(data=True), edge_attr_keys)
-    assert edge_dict["attr_1"] == ["A", "B"]
-    assert edge_dict["attr_2"] == [None, 10]
