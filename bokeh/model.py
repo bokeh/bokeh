@@ -55,6 +55,10 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
 def collect_models(*input_values):
     ''' Collect a duplicate-free list of all other Bokeh models referred to by
     this model, or by any of its references, etc.
@@ -126,10 +130,6 @@ def get_class(view_model_name):
         return d[view_model_name]
     else:
         raise KeyError("View model name '%s' not found" % view_model_name)
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
 
 class MetaModel(MetaHasProps):
     ''' Specialize the construction of |Model| classes.
