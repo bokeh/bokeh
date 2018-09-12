@@ -27,6 +27,9 @@ def test_enumeration_default():
     e = enums.enumeration("foo", "bar", "baz")
     assert e._default == "foo"
 
+def test_FontStyle():
+    assert list(enums.FontStyle) == ['normal', 'italic', 'bold', 'bold italic']
+
 # any changes to contents of enums.py easily trackable here
 def test_enums_contents():
     assert [x for x in dir(enums) if x[0].isupper()] == [

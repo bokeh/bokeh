@@ -331,7 +331,7 @@ def test_encode_base64_dict(dt, shape):
 
     assert '__ndarray__' in d
     b64 = base64.b64decode(d['__ndarray__'])
-    aa = np.fromstring(b64, dtype=d['dtype'])
+    aa = np.frombuffer(b64, dtype=d['dtype'])
     assert np.array_equal(a, aa)
 
 @pytest.mark.parametrize('dt', [np.float32, np.float64, np.int64])
@@ -353,6 +353,8 @@ def test_decode_base64_dict(dt, shape):
     assert aa.dtype.name == a.dtype.name
 
     assert np.array_equal(a, aa)
+
+    assert aa.flags['WRITEABLE']
 
 @pytest.mark.parametrize('dt', [np.float32, np.float64, np.int64])
 @pytest.mark.parametrize('shape', [(12,), (2, 6), (2,2,3)])

@@ -11,6 +11,7 @@ log = logging.getLogger(__name__)
 
 from traceback import format_exception
 
+import six
 from tornado import gen
 from ..util.serialization import make_id
 
@@ -90,15 +91,19 @@ class _AsyncPeriodic(object):
         def on_done(future):
             if not self._stopped:
                 self._loop.add_future(invoke(), on_done)
-            if future.exception() is not None:
+            ex = future.exception()
+            if ex is not None:
                 log.error("Error thrown from periodic callback:")
-                log.error("".join(format_exception(*future.exc_info())))
+                if six.PY2:
+                    lines = format_exception(*future.exc_info())
+                else:
+                    lines = format_exception(ex.__class__, ex, ex.__traceback__)
+                log.error("".join(lines))
 
         self._loop.add_future(self.sleep(), on_done)
 
     def stop(self):
         self._stopped = True
-
 
 class _CallbackGroup(object):
     """ A collection of callbacks added to a Tornado IOLoop that we may

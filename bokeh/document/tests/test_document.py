@@ -117,7 +117,9 @@ class Test_Document_delete_modules(object):
         # add an extra referrer for delete_modules to complain about
         extra.append(mod)
         import gc
-        assert len(gc.get_referrers(mod)) == 4
+
+        # get_referrers behavior changed in Python 3.7, see https://github.com/bokeh/bokeh/issues/8221
+        assert len(gc.get_referrers(mod)) in (3,4)
 
         with caplog.at_level(logging.ERROR):
             d.delete_modules()

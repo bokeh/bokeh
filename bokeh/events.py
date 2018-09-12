@@ -77,9 +77,33 @@ from .util.future import with_metaclass
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+__all__ = (
+    'ButtonClick',
+    'DoubleTap',
+    'LODStart',
+    'LODEnd',
+    'MouseEnter',
+    'MouseLeave',
+    'MouseMove',
+    'MouseWheel',
+    'Pan',
+    'PanEnd',
+    'PanStart',
+    'Pinch',
+    'PinchEnd',
+    'PinchStart',
+    'PlotEvent',
+    'PointEvent',
+    'Press',
+    'Reset',
+    'SelectionGeometry',
+    'Tap',
+)
+
 #-----------------------------------------------------------------------------
-# General API
+# Private API
 #-----------------------------------------------------------------------------
+
 _CONCRETE_EVENT_CLASSES = dict()
 
 class _MetaEvent(type):
@@ -95,6 +119,10 @@ class _MetaEvent(type):
         if newclass.event_name is not None:
             _CONCRETE_EVENT_CLASSES[newclass.event_name] = newclass
         return newclass
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class Event(with_metaclass(_MetaEvent, object)):
     ''' Base class for all Bokeh events.
@@ -458,10 +486,6 @@ class PinchStart(PointEvent):
 
 #-----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Private API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------

@@ -128,7 +128,7 @@ export function process_array(obj: NDArray | BufferSpec | Arrayable, buffers: [a
     return decode_base64(obj)
   else if (isObject(obj) && '__buffer__' in obj)
     return process_buffer(obj, buffers)
-  else if (isArray(obj))
+  else if (isArray(obj) || isTypedArray(obj))
     return [obj, []]
   else
     return undefined as never

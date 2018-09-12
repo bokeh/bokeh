@@ -143,7 +143,7 @@ LineDash = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")
 LineCap = enumeration("butt", "round", "square")
 
 #: Specify the font style for rendering text
-FontStyle = enumeration("normal", "italic", "bold")
+FontStyle = enumeration("normal", "italic", "bold", "bold italic")
 
 #: Specify the vertical alignment for rendering text
 VerticalAlign = enumeration("top", "middle", "bottom")

@@ -501,8 +501,8 @@ export class Figure extends Plot {
     if (legend != null) {
       if (isString(legend)) {
         legend_item_label = { value: legend }
-        if ((source != null) && (source.column_names != null)) {
-          if (includes(source.column_names, legend)) {
+        if ((source != null) && (source.columns() != null)) {
+          if (includes(source.columns(), legend)) {
             legend_item_label = { field: legend }
           }
         }

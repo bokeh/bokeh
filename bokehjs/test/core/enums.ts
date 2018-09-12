@@ -12,7 +12,7 @@ describe("enums module", () => {
   })
 
   it("should have FontStyle", () => {
-    expect(enums.FontStyle).to.be.deep.equal(["normal", "italic", "bold"])
+    expect(enums.FontStyle).to.be.deep.equal(["normal", "italic", "bold", "bold italic"])
   })
 
   it("should have LineCap", () => {
