@@ -63,7 +63,7 @@ DEFAULT_SERVER_WEBSOCKET_URL = websocket_url_for_server_url(DEFAULT_SERVER_HTTP_
 # General API
 #-----------------------------------------------------------------------------
 
-def pull_session(session_id=None, url='default', io_loop=None):
+def pull_session(session_id=None, url='default', io_loop=None, arguments=None):
     ''' Create a session by loading the current server-side document.
 
     ``session.document`` will be a fresh document loaded from
@@ -103,13 +103,22 @@ def pull_session(session_id=None, url='default', io_loop=None):
         io_loop (``tornado.ioloop.IOLoop``, optional) :
             The IOLoop to use for the websocket
 
+        arguments (dict[str, str], optional) :
+            A dictionary of key/values to be passed as HTTP request arguments
+            to Bokeh application code (default: None)
+
+            Note that should only be provided when pulling new sessions.
+            If ``session_id`` is not None, or a session with ``session_id``
+            already exists, these arguments will have no effect.
+
     Returns:
         ClientSession :
             A new ClientSession connected to the server
 
     '''
+
     coords = _SessionCoordinates(session_id=session_id, url=url)
-    session = ClientSession(session_id=session_id, websocket_url=websocket_url_for_server_url(coords.url), io_loop=io_loop)
+    session = ClientSession(session_id=session_id, websocket_url=websocket_url_for_server_url(coords.url), io_loop=io_loop, arguments=arguments)
     session.pull()
     return session
 
@@ -225,7 +234,7 @@ class ClientSession(object):
 
     '''
 
-    def __init__(self, session_id=None, websocket_url=DEFAULT_SERVER_WEBSOCKET_URL, io_loop=None):
+    def __init__(self, session_id=None, websocket_url=DEFAULT_SERVER_WEBSOCKET_URL, io_loop=None, arguments=None):
         ''' A connection which attaches to a particular named session on the
         server.
 
@@ -247,12 +256,20 @@ class ClientSession(object):
             io_loop (IOLoop, optional) :
                 The IOLoop to use for the websocket
 
+            arguments (dict[str, str], optional) :
+                A dictionary of key/values to be passed as HTTP request
+                arguments to Bokeh application code (default: None)
+
+                Note that should only be provided when pulling new sessions.
+                If ``session_id`` is not None, or a session with ``session_id``
+                already exists, these arguments will have no effect.
+
         '''
         self._document = None
         self._id = self._ensure_session_id(session_id)
 
         from .connection import ClientConnection
-        self._connection = ClientConnection(session=self, io_loop=io_loop, websocket_url=websocket_url)
+        self._connection = ClientConnection(session=self, io_loop=io_loop, websocket_url=websocket_url, arguments=arguments)
 
         from ..server.callbacks import _DocumentCallbackGroup
         self._callbacks = _DocumentCallbackGroup(self._connection.io_loop)
