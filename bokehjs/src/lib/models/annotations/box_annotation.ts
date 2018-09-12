@@ -7,7 +7,7 @@ import {SpatialUnits, RenderMode} from "core/enums"
 import {Color} from "core/types"
 import {show, hide} from "core/dom"
 import * as p from "core/properties"
-import {ViewTransform} from "core/layout/layout_canvas"
+import {ViewTransform} from "core/layout/layoutable"
 import {BBox} from "core/util/bbox"
 
 export const EDGE_TOLERANCE = 2.5

@@ -1,4 +1,4 @@
-import {SizeHint, Layoutable} from "./layout_canvas"
+import {SizeHint, Layoutable} from "./layoutable"
 import {isNumber, isString} from "../util/types"
 import {BBox} from "../util/bbox"
 

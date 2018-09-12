@@ -1,4 +1,4 @@
-import {SizeHint, Layoutable} from "./layout_canvas"
+import {SizeHint, Layoutable} from "./layoutable"
 import {BBox} from "../util/bbox"
 import {Anchor} from "../enums"
 

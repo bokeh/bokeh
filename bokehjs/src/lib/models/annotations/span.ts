@@ -6,7 +6,7 @@ import {SpatialUnits, RenderMode, Dimension} from "core/enums"
 import {show, hide} from "core/dom"
 import {Color} from "core/types"
 import * as p from "core/properties"
-import {ViewTransform} from "core/layout/layout_canvas"
+import {ViewTransform} from "core/layout/layoutable"
 
 export class SpanView extends AnnotationView {
   model: Span

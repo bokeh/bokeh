@@ -1,4 +1,4 @@
-import {Size, SizeHint, BoxSizing, Layoutable} from "./layout_canvas"
+import {Size, SizeHint, BoxSizing, Layoutable} from "./layoutable"
 
 import {Side} from "../enums"
 import {isString} from "../util/types"
