@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -117,6 +117,8 @@ class _TileProvidersModule(types.ModuleType):
         'Data by <a href="https://openstreetmap.org">OpenStreetMap</a>, '
         'under %s.'
     )
+
+    # Properties --------------------------------------------------------------
 
     @property
     def CARTODBPOSITRON(self):

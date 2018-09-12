@@ -1,4 +1,10 @@
-###########################################################################
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 # License regarding the Viridis, Magma, Plasma and Inferno colormaps:
 #
 # New matplotlib colormaps by Nathaniel J. Smith, Stefan van der Walt,
@@ -15,14 +21,14 @@
 #
 # You should have received a copy of the CC0 legalcode along with this
 # work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
-###########################################################################
+#-----------------------------------------------------------------------------
 # License regarding the brewer palettes:
 #
 # This product includes color specifications and designs developed by
 # Cynthia Brewer (http://colorbrewer2.org/).  The Brewer colormaps are
 # licensed under the Apache v2 license. You may obtain a copy of the
 # License at http://www.apache.org/licenses/LICENSE-2.0
-###########################################################################
+#-----------------------------------------------------------------------------
 # License regarding the cividis palette from https://github.com/pnnl/cmaputil
 #
 # Copyright (c) 2017, Battelle Memorial Institute
@@ -56,7 +62,7 @@
 # ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-###########################################################################
+#-----------------------------------------------------------------------------
 # License regarding the D3 color palettes (Category10, Category20,
 # Category20b, and Category 20c):
 #
@@ -87,7 +93,7 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-###########################################################################
+#-----------------------------------------------------------------------------
 """ Provide a collection of palettes for color mapping.
 
 In the context of Bokeh, a *palette* is a simple plain Python list of (hex) RGB color
@@ -316,11 +322,36 @@ source file.
 
 """
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import sys as _sys
 import types as _types
 
-# Notes to developers:
-#
+# External imports
+
+# Bokeh imports
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+# __all__ defined at the bottom on the class module
+
+#-----------------------------------------------------------------------------
+# Note to developers
+#-----------------------------------------------------------------------------
+
 # In order to prevent users from unintentionally modifying built-in palettes
 # (which can result in subtle bugs), the bokeh.palettes modules uses the
 # "class module" trick, to install a _PalettesModule instance in place of the
@@ -345,6 +376,18 @@ import types as _types
 # making any changes to this file, please makes sure to check and appropriately
 # update the docstring at the top.
 
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
 def _autoprop(cls):
     for k, v in cls.__dict__.items():
         if k.startswith('_'): continue
@@ -355,6 +398,19 @@ def _autoprop(cls):
 
 @_autoprop
 class _PalettesModule(_types.ModuleType):
+
+    # Properties --------------------------------------------------------------
+
+    @property
+    def __palettes__(self):
+        __palettes__ = []
+        for name, palettes in sorted(self.all_palettes.items(), key=lambda arg: arg[0]):
+            name = name + "_" if name[-1].isdigit() else name
+            __palettes__ += [ name + str(index) for index in sorted(palettes.keys()) ]
+        return __palettes__
+
+    # Public methods ----------------------------------------------------------
+
     def YlGn3(self): return ["#31a354", "#addd8e", "#f7fcb9"]
     def YlGn4(self): return ["#238443", "#78c679", "#c2e699", "#ffffcc"]
     def YlGn5(self): return ["#006837", "#31a354", "#78c679", "#c2e699", "#ffffcc"]
@@ -1083,14 +1139,6 @@ class _PalettesModule(_types.ModuleType):
         del palettes["Viridis"][256]
         return palettes
 
-    @property
-    def __palettes__(self):
-        __palettes__ = []
-        for name, palettes in sorted(self.all_palettes.items(), key=lambda arg: arg[0]):
-            name = name + "_" if name[-1].isdigit() else name
-            __palettes__ += [ name + str(index) for index in sorted(palettes.keys()) ]
-        return __palettes__
-
     def __dir__(self):
         return [name for name in dir(type(self)) if not name.startswith('_')]
 
@@ -1326,6 +1374,10 @@ class _PalettesModule(_types.ModuleType):
 
         '''
         return self.linear_palette(self.Greys256, n)
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
 
 # need to explicitly transfer the docstring for Sphinx docs to build correctly
 _mod = _PalettesModule(str('bokeh.palettes'))
