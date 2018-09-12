@@ -37,12 +37,12 @@ from .models.widgets import Widget
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'row',
     'column',
-    'widgetbox',
-    'layout',
     'gridplot',
     'GridSpec',
+    'layout',
+    'row',
+    'widgetbox',
 
 )
 

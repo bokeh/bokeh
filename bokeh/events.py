@@ -79,15 +79,9 @@ from .util.future import with_metaclass
 
 __all__ = (
     'ButtonClick',
-    'PlotEvent',
+    'DoubleTap',
     'LODStart',
     'LODEnd',
-    'SelectionGeometry',
-    'Reset',
-    'PointEvent',
-    'Tap',
-    'DoubleTap',
-    'Press',
     'MouseEnter',
     'MouseLeave',
     'MouseMove',
@@ -98,6 +92,12 @@ __all__ = (
     'Pinch',
     'PinchEnd',
     'PinchStart',
+    'PlotEvent',
+    'PointEvent',
+    'Press',
+    'Reset',
+    'SelectionGeometry',
+    'Tap',
 )
 
 #-----------------------------------------------------------------------------
