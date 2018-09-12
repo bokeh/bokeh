@@ -366,8 +366,13 @@ Below is a an example that shows both methods of setting the range:
 .. bokeh-plot:: docs/user_guide/examples/plotting_figure_range.py
     :source-position: above
 
-Ranges can also accept a min and max property that allow you to specify the
-edges of the plot that you do not want the user to be able to pan/zoom beyond.
+Ranges also have a ``bounds`` property that allows you to specify limits of
+the plot that you do not want the user to be able to pan/zoom beyond.
+
+.. code-block:: python
+
+    # set a range using a Range1d
+    p.y_range = Range1d(0, 15, bounds=(0, None))
 
 .. _userguide_plotting_axis_types:
 
