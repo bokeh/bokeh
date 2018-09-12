@@ -354,6 +354,8 @@ def test_decode_base64_dict(dt, shape):
 
     assert np.array_equal(a, aa)
 
+    assert aa.flags['WRITEABLE']
+
 @pytest.mark.parametrize('dt', [np.float32, np.float64, np.int64])
 @pytest.mark.parametrize('shape', [(12,), (2, 6), (2,2,3)])
 @pytest.mark.unit
