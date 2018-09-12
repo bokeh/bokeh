@@ -82,6 +82,12 @@ export class AnchorLayout extends Layoutable {
       height = Math.max(height, size_hint.height)
     }
 
+    if (this.sizing.width_policy == "fixed")
+      width = this.sizing.width
+
+    if (this.sizing.height_policy == "fixed")
+      height = this.sizing.height
+
     return {width, height}
   }
 

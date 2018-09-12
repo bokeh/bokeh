@@ -27,7 +27,7 @@ import {isArray, isStrictNaN} from "core/util/types"
 import {copy, reversed} from "core/util/array"
 import {values} from "core/util/object"
 import {Context2d, SVGRenderingContext2D} from "core/util/canvas"
-import {BBox, SizeHint, Margin, WidthSizing, HeightSizing, Layoutable} from "core/layout"
+import {BBox, SizeHint, BoxSizing, Margin, Layoutable} from "core/layout"
 import {HStack, VStack, AnchorLayout} from "core/layout/alignments"
 import {SidePanel} from "core/layout/side_panel"
 import {Row, Column} from "core/layout/grid"
@@ -99,7 +99,7 @@ export class PlotLayout extends Layoutable {
     else if (this.sizing.width_policy == "auto" && this.sizing.width != null)
       width = this.sizing.width
     else
-      width = left + center.width  + right
+      width = left + center.width + right
 
     let height: number
     if (this.sizing.height_policy == "fixed")
@@ -315,11 +315,19 @@ export class PlotView extends LayoutDOMView {
   _update_layout(): void {
     this.layout = new PlotLayout()
 
+    const {frame_width, frame_height} = this.model
+    const frame_sizing: BoxSizing = {
+      ...(frame_width  != null ? {width_policy:  "fixed", width:  frame_width } : {width_policy:  "max"}),
+      ...(frame_height != null ? {height_policy: "fixed", height: frame_height} : {height_policy: "max"}),
+    }
+
     const sizing = this.box_sizing()
-    if (sizing.width_policy == "auto" && this.model.frame_width != null)
-      sizing.width_policy = "min" as any // XXX
-    if (sizing.height_policy == "auto" && this.model.frame_height != null)
-      sizing.height_policy = "min" as any // XXX
+
+    const {width_policy, height_policy} = sizing
+    if (width_policy == "auto" && frame_sizing.width_policy == "fixed")
+      sizing.width_policy = "min"
+    if (height_policy == "auto" && frame_sizing.height_policy == "fixed")
+      sizing.height_policy = "min"
 
     this.layout.sizing = sizing
 
@@ -403,13 +411,7 @@ export class PlotView extends LayoutDOMView {
     }
 
     this.layout.center_panel = this.frame
-
-    const {frame_width, frame_height} = this.model
-
-    const width_sizing: WidthSizing = frame_width != null ? {width_policy: "fixed", width: frame_width} : {width_policy: "max"}
-    const height_sizing: HeightSizing = frame_height != null ? {height_policy: "fixed", height: frame_height} : {height_policy: "max"}
-
-    this.layout.center_panel.sizing = {...width_sizing, ...height_sizing}
+    this.layout.center_panel.sizing = frame_sizing
 
     const min_border = this.model.min_border != null ? this.model.min_border : 0
     this.layout.min_border = {
