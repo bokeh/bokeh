@@ -35,10 +35,6 @@ export abstract class ColumnarDataSource extends DataSource {
 
   data: {[key: string]: Arrayable}
 
-  get column_names(): string[] {
-    return keys(this.data)
-  }
-
   get_array<T>(key: string): T[] {
     let column = this.data[key]
 
@@ -119,6 +115,14 @@ export abstract class ColumnarDataSource extends DataSource {
     const length = this.get_length()
     return range(0, length != null ? length : 1)
     //TODO: returns [0] when no data, should it?
+  }
+
+  clear(): void {
+    const empty: {[key: string]: Arrayable} = {}
+    for (const col of this.columns()) {
+      empty[col] = new (<any>this.data[col].constructor)
+    }
+    this.data = empty
   }
 }
 ColumnarDataSource.initClass()
