@@ -66,7 +66,9 @@ def from_networkx(graph, layout_function, **kwargs):
         node_attr_keys = list(set(node_attr_keys))
 
         for attr_key in node_attr_keys:
-            node_dict[attr_key] = [attr[attr_key] if attr_key in attr.keys() else None for _, attr in graph.nodes(data=True)]
+            node_dict[attr_key] = [node_attr[attr_key] if attr_key in node_attr.keys() else None
+                                   for _, node_attr
+                                   in graph.nodes(data=True)]
 
         if 'index' in node_attr_keys:
             from warnings import warn
@@ -82,7 +84,9 @@ def from_networkx(graph, layout_function, **kwargs):
         edge_attr_keys = list(set(edge_attr_keys))
 
         for attr_key in edge_attr_keys:
-            edge_dict[attr_key] = [attr[attr_key] if attr_key in attr.keys() else None for _, _, attr in graph.edges(data=True)]
+            edge_dict[attr_key] = [edge_attr[attr_key] if attr_key in edge_attr.keys() else None
+                                   for _, _, edge_attr
+                                   in graph.edges(data=True)]
 
         if 'start' in edge_attr_keys or 'end' in edge_attr_keys:
             from warnings import warn
