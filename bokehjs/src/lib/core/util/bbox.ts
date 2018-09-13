@@ -1,4 +1,5 @@
 import {Rect} from "./spatial"
+import {Arrayable} from "../types"
 
 const {min, max} = Math
 
@@ -68,6 +69,11 @@ export type Position = HorizontalPosition & VerticalPosition
 export interface IRange {
   start: number
   end: number
+}
+
+export interface CoordinateTransform {
+  compute: (v: number) => number
+  v_compute: (vv: Arrayable<number>) => Arrayable<number>
 }
 
 export class BBox implements IBBox {
@@ -210,5 +216,37 @@ export class BBox implements IBBox {
 
   equals(that: IBBox): boolean {
     return this.x0 == that.x0 && this.y0 == that.y0 && this.x1 == that.x1 && this.y1 == that.y1
+  }
+
+  get xview(): CoordinateTransform {
+    return {
+      compute: (x: number): number => {
+        return this.left + x
+      },
+      v_compute: (xx: Arrayable<number>): Arrayable<number> => {
+        const _xx = new Float64Array(xx.length)
+        const left = this.left
+        for (let i = 0; i < xx.length; i++) {
+          _xx[i] = left + xx[i]
+        }
+        return _xx
+      },
+    }
+  }
+
+  get yview(): CoordinateTransform {
+    return {
+      compute: (y: number): number => {
+        return this.bottom - y
+      },
+      v_compute: (yy: Arrayable<number>): Arrayable<number> => {
+        const _yy = new Float64Array(yy.length)
+        const bottom = this.bottom
+        for (let i = 0; i < yy.length; i++) {
+          _yy[i] = bottom - yy[i]
+        }
+        return _yy
+      },
+    }
   }
 }

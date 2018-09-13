@@ -4,6 +4,7 @@ import {logger} from "core/logging"
 import * as p from "core/properties"
 import {div, canvas} from "core/dom"
 import {OutputBackend} from "core/enums"
+import {BBox} from "core/util/bbox"
 import {Context2d, SVGRenderingContext2D, fixup_ctx, get_scale_ratio} from "core/util/canvas"
 
 // fixes up a problem with some versions of IE11
@@ -18,6 +19,8 @@ if ((window as any).CanvasPixelArray != null) {
 
 export class CanvasView extends DOMView {
   model: Canvas
+
+  bbox: BBox
 
   _ctx: CanvasRenderingContext2D | SVGRenderingContext2D
 
@@ -76,6 +79,8 @@ export class CanvasView extends DOMView {
 
   prepare_canvas(width: number, height: number): void {
     // Ensure canvas has the correct size, taking HIDPI into account
+    this.bbox = new BBox({left: 0, top: 0, width, height})
+
     this.el.style.width = `${width}px`
     this.el.style.height = `${height}px`
 

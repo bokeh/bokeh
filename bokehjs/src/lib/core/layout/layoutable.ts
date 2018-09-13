@@ -1,5 +1,4 @@
-import {BBox} from "../util/bbox"
-import {Arrayable} from "../types"
+import {BBox, CoordinateTransform} from "../util/bbox"
 
 export type Size = {
   width: number
@@ -35,11 +34,6 @@ export type BoxSizing = WidthSizing & HeightSizing & {aspect?: number}
 
 export interface ComputedVariable {
   readonly value: number
-}
-
-export interface ViewTransform {
-  compute: (v: number) => number
-  v_compute: (vv: Arrayable<number>) => Arrayable<number>
 }
 
 export abstract class Layoutable {
@@ -166,36 +160,12 @@ export abstract class Layoutable {
     this.set_geometry(outer, inner)
   }
 
-  get xview(): ViewTransform {
-    return {
-      compute: (x: number): number => {
-        return this._left.value + x
-      },
-      v_compute: (xx: Arrayable<number>): Arrayable<number> => {
-        const _xx = new Float64Array(xx.length)
-        const left = this._left.value
-        for (let i = 0; i < xx.length; i++) {
-          _xx[i] = left + xx[i]
-        }
-        return _xx
-      },
-    }
+  get xview(): CoordinateTransform {
+    return this.bbox.xview
   }
 
-  get yview(): ViewTransform {
-    return {
-      compute: (y: number): number => {
-        return this._bottom.value - y
-      },
-      v_compute: (yy: Arrayable<number>): Arrayable<number> => {
-        const _yy = new Float64Array(yy.length)
-        const bottom = this._bottom.value
-        for (let i = 0; i < yy.length; i++) {
-          _yy[i] = bottom - yy[i]
-        }
-        return _yy
-      },
-    }
+  get yview(): CoordinateTransform {
+    return this.bbox.yview
   }
 }
 

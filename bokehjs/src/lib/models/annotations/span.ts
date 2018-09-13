@@ -6,7 +6,7 @@ import {SpatialUnits, RenderMode, Dimension} from "core/enums"
 import {show, hide} from "core/dom"
 import {Color} from "core/types"
 import * as p from "core/properties"
-import {ViewTransform} from "core/layout/layoutable"
+import {CoordinateTransform} from "core/util/bbox"
 
 export class SpanView extends AnnotationView {
   model: Span
@@ -56,7 +56,7 @@ export class SpanView extends AnnotationView {
     const xscale = frame.xscales[this.model.x_range_name]
     const yscale = frame.yscales[this.model.y_range_name]
 
-    const _calc_dim = (scale: Scale, view: ViewTransform): number => {
+    const _calc_dim = (scale: Scale, view: CoordinateTransform): number => {
       if (this.model.for_hover)
         return this.model.computed_location!
       else {

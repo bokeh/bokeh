@@ -7,8 +7,7 @@ import {SpatialUnits, RenderMode} from "core/enums"
 import {Color} from "core/types"
 import {show, hide} from "core/dom"
 import * as p from "core/properties"
-import {ViewTransform} from "core/layout/layoutable"
-import {BBox} from "core/util/bbox"
+import {BBox, CoordinateTransform} from "core/util/bbox"
 
 export const EDGE_TOLERANCE = 2.5
 
@@ -59,7 +58,7 @@ export class BoxAnnotationView extends AnnotationView {
     const xscale = frame.xscales[this.model.x_range_name]
     const yscale = frame.yscales[this.model.y_range_name]
 
-    const _calc_dim = (dim: number | null, dim_units: SpatialUnits, scale: Scale, view: ViewTransform, frame_extrema: number): number => {
+    const _calc_dim = (dim: number | null, dim_units: SpatialUnits, scale: Scale, view: CoordinateTransform, frame_extrema: number): number => {
       let sdim
       if (dim != null) {
         if (this.model.screen)

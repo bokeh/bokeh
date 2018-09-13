@@ -482,7 +482,7 @@ export class PlotView extends LayoutDOMView {
       // Clipping
       gl.enable(gl.SCISSOR_TEST)
       const [sx, sy, w, h] = frame_box
-      const {xview, yview} = this.layout
+      const {xview, yview} = this.canvas_view.bbox
       const vx = xview.compute(sx)
       const vy = yview.compute(sy + h)
       gl.scissor(ratio*vx, ratio*vy, ratio*w, ratio*h) // lower left corner, width, height
