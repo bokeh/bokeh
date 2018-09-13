@@ -1,4 +1,5 @@
 import {isBoolean, isString, isArray, isPlainObject} from "./util/types"
+import {BBox} from "./util/bbox"
 
 export type HTMLAttrs = {[name: string]: any}
 export type HTMLChild = string | HTMLElement | (string | HTMLElement)[]
@@ -122,13 +123,6 @@ export function hide(element: HTMLElement): void {
   element.style.display = "none"
 }
 
-export function position(element: HTMLElement) {
-  return {
-    top: element.offsetTop,
-    left: element.offsetLeft,
-  }
-}
-
 export function offset(element: HTMLElement) {
   const rect = element.getBoundingClientRect()
   return {
@@ -186,17 +180,31 @@ export function padding(el: HTMLElement): Sizing {
   }
 }
 
-/*
-export type CSSPosition = "relative" | "position"
-
-export function position(el: HTMLElement, bbox: BBox, position: CSSPosition = "absolute"): void {
-  this.el.style.position = position
-  this.el.style.left     = `${bbox.left}px`
-  this.el.style.top      = `${bbox.top}px`
-  this.el.style.width    = `${bbox.width}px`
-  this.el.style.height   = `${bbox.height}px`
+export function position(el: HTMLElement, bbox: BBox): void {
+  const {style} = el
+  style.position = "absolute"
+  style.left     = `${bbox.left}px`
+  style.top      = `${bbox.top}px`
+  style.width    = `${bbox.width}px`
+  style.height   = `${bbox.height}px`
 }
-*/
+
+export function height(el: HTMLElement): number {
+  const margins  = margin(el)
+  const paddings = padding(el)
+  const borders  = border(el)
+
+  const style = getComputedStyle(el)
+  const line_height = parseFloat(style.lineHeight!) || 0
+
+  return margins.top  + margins.bottom  +
+         paddings.top + paddings.bottom +
+         borders.top  + borders.bottom  + line_height
+}
+
+export function children(el: HTMLElement): HTMLElement[] {
+  return Array.from(el.children) as HTMLElement[]
+}
 
 export enum Keys {
   Backspace = 8,

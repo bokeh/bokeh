@@ -199,18 +199,37 @@ export abstract class Layoutable {
   }
 }
 
-export class FixedLayout extends Layoutable {
+export class LayoutItem extends Layoutable {
+  size_hint(): SizeHint {
+    let width: number
+    if (this.sizing.width_policy == "fixed")
+      width = this.sizing.width
+    else if (this.sizing.width_policy == "auto" && this.sizing.width != null)
+      width = this.sizing.width
+    else
+      width = 0
+
+    let height: number
+    if (this.sizing.height_policy == "fixed")
+      height = this.sizing.height
+    else if (this.sizing.height_policy == "auto" && this.sizing.height != null)
+      height = this.sizing.height
+    else
+      height = 0
+
+    return {width, height}
+  }
+}
+
+export class FixedLayout extends LayoutItem {
+  readonly sizing: BoxSizing
 
   constructor(width: number, height: number) {
     super()
+
     this.sizing = {
       width_policy: "fixed", width,
       height_policy: "fixed", height,
     }
-  }
-
-  size_hint(): SizeHint {
-    const {width, height} = this.sizing as any // XXX
-    return {width, height}
   }
 }

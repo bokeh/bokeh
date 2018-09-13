@@ -1,5 +1,5 @@
-import {Grid, Row, Column, FixedLayout, Layoutable} from "core/layout"
-//import {empty, ul, li, span, div} from "core/dom"
+import {Grid, LayoutItem} from "core/layout"
+import {div, height, children, position, show, hide} from "core/dom"
 import {Location} from "core/enums"
 import * as p from "core/properties"
 
@@ -8,12 +8,14 @@ import {Model} from "../../model"
 
 export class TabsView extends LayoutDOMView {
   model: Tabs
-  layout: Grid
+
+  protected header: LayoutItem
+  protected header_el: HTMLElement
 
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.tabs.change, () => this.rebuild())
-    // this.connect(this.model.properties.active.change, ???)
+    this.connect(this.model.properties.active.change, () => this.on_active_change())
   }
 
   get child_models(): LayoutDOM[] {
@@ -21,91 +23,84 @@ export class TabsView extends LayoutDOMView {
   }
 
   _update_layout(): void {
-    const header_items = this.child_models.map((_child) => new FixedLayout(70, 30))
-
     const loc = this.model.tabs_location
 
-    let header: Layoutable
-    let hrow: number, prow: number
-    let hcol: number, pcol: number
+    this.header = new LayoutItem()
+    const size = Math.max(...children(this.header_el).map(height))
+    if (loc == "above" || loc == "below")
+      this.header.sizing = {width_policy: "max", height_policy: "fixed", height: size}
+    else
+      this.header.sizing = {width_policy: "fixed", width: size, height_policy: "max"}
 
-    if (loc == "above" || loc == "below") {
-      header = new Row(header_items)
-      header.sizing = {width_policy: "max", height_policy: "min"}
-      if (loc == "above")
-        [hrow, prow] = [0, 1]
-      else
-        [hrow, prow] = [1, 0]
-      hcol = pcol = 0
-    } else {
-      header = new Column(header_items)
-      header.sizing = {width_policy: "min", height_policy: "max"}
-      hrow = prow = 0
-      if (loc == "left")
-        [hcol, pcol] = [0, 1]
-      else
-        [hcol, pcol] = [1, 0]
+    let row = 1
+    let col = 1
+    switch (loc) {
+      case "above": row -= 1; break
+      case "below": row += 1; break
+      case "left":  col -= 1; break
+      case "right": col += 1; break
     }
 
-    const header_item = {layout: header, row: hrow, col: hcol}
+    const header = {layout: this.header, row, col}
 
-    const panel_items = this.child_views.map((child_view) => {
-      return {layout: child_view.layout, row: prow, col: pcol}
+    const panels = this.child_views.map((child_view) => {
+      return {layout: child_view.layout, row: 1, col: 1}
     })
 
-    this.layout = new Grid()
+    this.layout = new Grid([header].concat(panels))
     this.layout.sizing = this.box_sizing()
-    this.layout.items = [header_item].concat(panel_items)
   }
 
   update_position(): void {
     super.update_position()
+
+    position(this.header_el, this.header.bbox)
+
+    const {child_views} = this
+    for (const child_view of child_views)
+      hide(child_view.el)
+
+    show(child_views[this.model.active].el)
   }
 
   render(): void {
     super.render()
-    //empty(this.el)
 
-    const len = this.model.tabs.length
-    if (len == 0)
-      return
-    else if (this.model.active >= len)
-      this.model.active = len - 1
+    const {active} = this.model
 
-    //const tabs = this.model.tabs.map((tab, i) => div(, tab.title))
-
-    /*
-    const tabs = this.model.tabs.map((tab, i) => li({}, span({data: {index: i}}, tab.title)))
-    tabs[this.model.active].classList.add("bk-active")
-    const tabsEl = ul(tabs)
-    this.el.appendChild(tabsEl)
-
-    const panels = this.model.tabs.map((_tab) => div())
-    panels[this.model.active].classList.add("bk-active")
-    const panelsEl = div(panels)
-    this.el.appendChild(panelsEl)
-
-    tabsEl.addEventListener("click", (event) => {
-      if (event.target != event.currentTarget) {
-        const el = event.target as HTMLElement
-
-        const old_active = this.model.active
-        const new_active = parseInt(el.dataset.index!)
-
-        if (old_active != new_active) {
-          tabs[old_active].classList.remove("bk-active")
-          panels[old_active].classList.remove("bk-active")
-
-          tabs[new_active].classList.add("bk-active")
-          panels[new_active].classList.add("bk-active")
-
-          this.model.active = new_active
-          if (this.model.callback != null)
-            this.model.callback.execute(this.model)
-        }
-      }
+    const headers = this.model.tabs.map((tab, i) => {
+      const el = div({class: i == active ? "bk-active" : null}, tab.title)
+      el.addEventListener("click", () => this.change_active(i))
+      return el
     })
-   */
+
+    this.header_el = div({class: "bk-tabs-header"}, headers)
+    this.el.appendChild(this.header_el)
+  }
+
+  change_active(i: number): void {
+    if (i != this.model.active) {
+      this.model.active = i
+
+      if (this.model.callback != null)
+        this.model.callback.execute(this.model)
+    }
+  }
+
+  on_active_change(): void {
+    const i = this.model.active
+
+    const headers = children(this.header_el)
+    for (const el of headers)
+      el.classList.remove("bk-active")
+
+    headers[i].classList.add("bk-active")
+
+    const {child_views} = this
+    for (const child_view of child_views)
+      hide(child_view.el)
+
+    show(child_views[i].el)
   }
 }
 

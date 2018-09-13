@@ -54,7 +54,7 @@ export type ColSizing =
 
 export class Grid extends Layoutable {
 
-  items: GridItem[] = []
+  items: GridItem[]
 
   rows: {[key: number]: RowSizing} = {}
   cols: {[key: number]: ColSizing} = {}
@@ -62,6 +62,11 @@ export class Grid extends Layoutable {
   absolute: boolean = false
 
   private state: GridState
+
+  constructor(items: GridItem[] = []) {
+    super()
+    this.items = items
+  }
 
   size_hint(): SizeHint {
     let nrows = 0

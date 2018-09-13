@@ -11,3 +11,35 @@
 .bk-widgetbox {
   background-color: lightgray;
 }
+
+.bk-tabs-header {
+  .flex();
+  .flex-direction(row);
+
+  color: lighten(black, 40%);
+  border-bottom: 1px solid lighten(black, 90%);
+
+  overflow: hidden;
+
+  & > * {
+    padding: @padding-vertical @padding-horizontal;
+    border: solid transparent;
+    border-width: 3px 1px 1px 1px;
+    border-radius: @border-radius @border-radius 0 0;
+    font-size: 1.1em;
+    line-height: @line-height;
+    white-space: nowrap;
+    cursor: pointer;
+
+    &:hover {
+      background-color: lighten(black, 95%);
+    }
+
+    &.bk-active {
+      color: lighten(black, 30%);
+      background-color: white;
+      border-color: lighten(black, 90%);
+      border-bottom-color: transparent;
+    }
+  }
+}
