@@ -42,7 +42,7 @@ import bokeh.application.handlers.script as bahs
 
 class Test_ScriptHandler(object):
 
-    # Properties --------------------------------------------------------------
+    # Public methods ----------------------------------------------------------
 
     def test_runner_uses_source_from_filename(self):
         doc = Document()

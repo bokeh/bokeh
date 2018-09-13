@@ -49,6 +49,16 @@ from ..util.tornado import yield_for_all_futures
 # General API
 #-----------------------------------------------------------------------------
 
+__all__ = (
+    'Application',
+    'ServerContext',
+    'SessionContext',
+)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
 class Application(object):
     ''' An Application is a factory for Document instances.
 
@@ -228,10 +238,6 @@ class Application(object):
             result = h.on_session_destroyed(session_context)
             yield yield_for_all_futures(result)
         raise gen.Return(None)
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
 
 class ServerContext(with_metaclass(ABCMeta)):
     ''' A harness for server-specific information and tasks related to

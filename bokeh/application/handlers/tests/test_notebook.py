@@ -51,7 +51,7 @@ def with_script_contents(contents, func):
 
 class Test_NotebookHandler(object):
 
-    # Properties --------------------------------------------------------------
+    # Public methods ----------------------------------------------------------
 
     def test_runner_uses_source_from_filename(self):
         doc = Document()
