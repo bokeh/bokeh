@@ -41,7 +41,7 @@ import bokeh.application.handlers.handler as bahh
 class Test_Handler(object):
 
     # Public methods ----------------------------------------------------------
-    
+
     def test_create(self):
         h = bahh.Handler()
         assert h.failed == False
@@ -77,4 +77,3 @@ class Test_Handler(object):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
-

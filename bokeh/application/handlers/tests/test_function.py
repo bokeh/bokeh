@@ -49,7 +49,7 @@ class SomeModelInTestFunction(Model):
     child = Instance(Model)
 
 class Test_FunctionHandler(object):
-    
+
     # Public methods ----------------------------------------------------------
 
     def test_empty_func(self):
@@ -91,4 +91,3 @@ class Test_FunctionHandler(object):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
-

@@ -64,7 +64,7 @@ from .server_lifecycle import ServerLifecycleHandler
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'DirectoryHandler',   
+    'DirectoryHandler',
 )
 
 #-----------------------------------------------------------------------------
