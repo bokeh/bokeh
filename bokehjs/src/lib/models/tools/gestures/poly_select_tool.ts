@@ -1,4 +1,5 @@
 import {SelectTool, SelectToolView} from "./select_tool"
+import {CallbackLike} from "../../callbacks/callback"
 import {PolyAnnotation} from "../../annotations/poly_annotation"
 import {PolyGeometry} from "core/geometry"
 import {TapEvent, KeyEvent} from "core/ui_events"
@@ -77,7 +78,9 @@ export class PolySelectToolView extends SelectToolView {
     const y = yscale.v_invert(geometry.sy)
 
     const g = {x, y, ...geometry}
-    this.model.callback.execute(this.model, {geometry: g})
+
+    if (this.model.callback != null)
+      this.model.callback.execute(this.model, {geometry: g})
   }
 }
 
@@ -97,7 +100,7 @@ const DEFAULT_POLY_OVERLAY = () => {
 
 export namespace PolySelectTool {
   export interface Attrs extends SelectTool.Attrs {
-    callback: any // XXX
+    callback: CallbackLike<PolySelectTool> | null
     overlay: PolyAnnotation
   }
 
@@ -121,7 +124,7 @@ export class PolySelectTool extends SelectTool {
     this.prototype.default_view = PolySelectToolView
 
     this.define({
-      callback:   [ p.Instance                       ],
+      callback:   [ p.Any                            ],
       overlay:    [ p.Instance, DEFAULT_POLY_OVERLAY ],
     })
   }

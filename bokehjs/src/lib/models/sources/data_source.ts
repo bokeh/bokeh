@@ -1,17 +1,17 @@
 import {Model} from "../../model"
-import * as p from "core/properties"
-import {isFunction} from "core/util/types"
 import {Selection} from "../selections/selection"
+import {CallbackLike} from "../callbacks/callback"
+import * as p from "core/properties"
 
 export namespace DataSource {
   export interface Attrs extends Model.Attrs {
     selected: Selection
-    callback: any // XXX
+    callback: CallbackLike<DataSource> | null
   }
 
   export interface Props extends Model.Props {
     selected: p.Property<Selection>
-    callback: p.Property<any> // XXX
+    callback: p.Property<CallbackLike<DataSource> | null>
   }
 }
 
@@ -37,13 +37,8 @@ export abstract class DataSource extends Model {
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.properties.selected.change, () => {
-      const {callback} = this
-      if (callback != null) {
-        if (isFunction(callback))
-          callback(this)
-        else
-          callback.execute(this)
-      }
+      if (this.callback != null)
+        this.callback.execute(this)
     })
   }
 

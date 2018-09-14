@@ -4,6 +4,7 @@ import {build_views, remove_views} from "core/build_views"
 
 import {Widget, WidgetView} from "./widget"
 import {AbstractIcon, AbstractIconView} from "./abstract_icon"
+import {CallbackLike} from "../callbacks/callback"
 
 export type ButtonType = "default" | "primary" | "success" | "warning" | "danger"
 
@@ -67,7 +68,7 @@ export namespace AbstractButton {
     label: string
     icon: AbstractIcon
     button_type: ButtonType
-    callback: any // XXX
+    callback: CallbackLike<AbstractButton> | null
   }
 
   export interface Props extends Widget.Props {}
@@ -90,7 +91,7 @@ export abstract class AbstractButton extends Widget {
       label:       [ p.String, "Button"  ],
       icon:        [ p.Instance          ],
       button_type: [ p.String, "default" ], // TODO (bev)
-      callback:    [ p.Instance          ],
+      callback:    [ p.Any               ],
     })
   }
 }

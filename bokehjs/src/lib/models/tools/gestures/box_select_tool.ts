@@ -1,4 +1,5 @@
 import {SelectTool, SelectToolView} from "./select_tool"
+import {CallbackLike} from "../../callbacks/callback"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import * as p from "core/properties"
 import {Dimensions} from "core/enums"
@@ -80,7 +81,9 @@ export class BoxSelectToolView extends SelectToolView {
     const [y0, y1] = yscale.r_invert(sy0, sy1)
 
     const g = {x0, y0, x1, y1, ...geometry}
-    this.model.callback.execute(this.model, {geometry: g})
+
+    if (this.model.callback != null)
+      this.model.callback.execute(this.model, {geometry: g})
   }
 }
 
@@ -105,7 +108,7 @@ export namespace BoxSelectTool {
   export interface Attrs extends SelectTool.Attrs {
     dimensions: Dimensions
     select_every_mousemove: boolean
-    callback: any // XXX
+    callback: CallbackLike<BoxSelectTool> | null
     overlay: BoxAnnotation
     origin: "corner" | "center"
   }
@@ -132,7 +135,7 @@ export class BoxSelectTool extends SelectTool {
     this.define({
       dimensions:             [ p.Dimensions, "both"              ],
       select_every_mousemove: [ p.Bool,       false               ],
-      callback:               [ p.Instance                        ],
+      callback:               [ p.Any                             ],
       overlay:                [ p.Instance,   DEFAULT_BOX_OVERLAY ],
       origin:                 [ p.String,     "corner"            ], // Enum
     })

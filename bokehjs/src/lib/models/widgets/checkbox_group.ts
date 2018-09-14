@@ -1,4 +1,5 @@
 import {Widget, WidgetView} from "./widget"
+import {CallbackLike} from "../callbacks/callback"
 
 import {input, label, div} from "core/dom"
 import {includes} from "core/util/array"
@@ -51,7 +52,7 @@ export namespace CheckboxGroup {
     active: number[]
     labels: string[]
     inline: boolean
-    callback: any // XXX
+    callback: CallbackLike<CheckboxGroup> | null
   }
 
   export interface Props extends Widget.Props {}
@@ -75,7 +76,7 @@ export class CheckboxGroup extends Widget {
       active:   [ p.Array, []    ],
       labels:   [ p.Array, []    ],
       inline:   [ p.Bool,  false ],
-      callback: [ p.Instance     ],
+      callback: [ p.Any          ],
     })
   }
 }

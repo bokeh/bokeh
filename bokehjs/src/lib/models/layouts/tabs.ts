@@ -4,6 +4,7 @@ import {Location} from "core/enums"
 import * as p from "core/properties"
 
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
+import {CallbackLike} from "../callbacks/callback"
 import {Model} from "../../model"
 
 export class TabsView extends LayoutDOMView {
@@ -109,7 +110,7 @@ export namespace Tabs {
     tabs: Panel[]
     tabs_location: Location
     active: number
-    callback: any // XXX
+    callback: CallbackLike<Tabs> | null
   }
 
   export interface Props extends LayoutDOM.Props {
@@ -136,7 +137,7 @@ export class Tabs extends LayoutDOM {
       tabs:          [ p.Array,    []      ],
       tabs_location: [ p.Location, "above" ],
       active:        [ p.Number,   0       ],
-      callback:      [ p.Instance          ],
+      callback:      [ p.Any               ],
     })
   }
 }

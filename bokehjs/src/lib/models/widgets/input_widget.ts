@@ -1,4 +1,5 @@
 import {Widget, WidgetView} from "./widget"
+import {CallbackLike} from "../callbacks/callback"
 
 import {label} from "core/dom"
 import * as p from "core/properties"
@@ -30,7 +31,7 @@ export class InputWidgetView extends WidgetView {
 export namespace InputWidget {
   export interface Attrs extends Widget.Attrs {
     title: string
-    callback: any | null // TODO
+    callback: CallbackLike<InputWidget> | null
   }
 
   export interface Props extends Widget.Props {
@@ -53,7 +54,7 @@ export class InputWidget extends Widget {
 
     this.define({
       title:    [ p.String, '' ],
-      callback: [ p.Instance   ],
+      callback: [ p.Any        ],
     })
   }
 }

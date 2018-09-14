@@ -1,4 +1,5 @@
 import {SelectTool, SelectToolView} from "./select_tool"
+import {CallbackLike} from "../../callbacks/callback"
 import {PolyAnnotation} from "../../annotations/poly_annotation"
 import {PolyGeometry} from "core/geometry"
 import {GestureEvent, KeyEvent} from "core/ui_events"
@@ -82,7 +83,8 @@ export class LassoSelectToolView extends SelectToolView {
     const y = yscale.v_invert(geometry.sy)
     const g = {x, y, ...geometry}
 
-    this.model.callback.execute(this.model, {geometry: g})
+    if (this.model.callback != null)
+      this.model.callback.execute(this.model, {geometry: g})
   }
 }
 
@@ -103,7 +105,7 @@ const DEFAULT_POLY_OVERLAY = () => {
 export namespace LassoSelectTool {
   export interface Attrs extends SelectTool.Attrs {
     select_every_mousemove: boolean
-    callback: any // XXX
+    callback: CallbackLike<LassoSelectTool> | null
     overlay: PolyAnnotation
   }
 
@@ -129,7 +131,7 @@ export class LassoSelectTool extends SelectTool {
 
     this.define({
       select_every_mousemove: [ p.Bool,    true                  ],
-      callback:               [ p.Instance                       ],
+      callback:               [ p.Any                            ],
       overlay:                [ p.Instance, DEFAULT_POLY_OVERLAY ],
     })
   }

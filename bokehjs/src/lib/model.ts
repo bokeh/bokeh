@@ -5,23 +5,23 @@ import * as p from "./core/properties"
 import {isString} from "./core/util/types"
 import {isEmpty} from "./core/util/object"
 import {logger} from "./core/logging"
-import {CustomJS} from "./models/callbacks/customjs"
+import {CallbackLike} from "./models/callbacks/callback"
 
 export namespace Model {
   export interface Attrs extends HasProps.Attrs {
     tags: string[]
     name: string | null
-    js_property_callbacks: {[key: string]: CustomJS[]}
-    js_event_callbacks: {[key: string]: CustomJS[]}
+    js_property_callbacks: {[key: string]: CallbackLike<Model>[]}
+    js_event_callbacks: {[key: string]: CallbackLike<BokehEvent>[]}
     subscribed_events: string[]
   }
 
   export interface Props extends HasProps.Props {
-    tags: p.Array
-    name: p.String
-    js_property_callbacks: p.Any
-    js_event_callbacks: p.Any
-    subscribed_events: p.Array
+    tags: p.Property<string[]>
+    name: p.Property<string | null>
+    js_property_callbacks: p.Property<{[key: string]: CallbackLike<Model>[]}>
+    js_event_callbacks: p.Property<{[key: string]: CallbackLike<BokehEvent>[]}>
+    subscribed_events: p.Property<string[]>
   }
 }
 
@@ -55,12 +55,12 @@ export class Model extends HasProps {
       const [evt, attr=null] = base_evt.split(':')
       for (const cb of callbacks) {
         const signal = attr != null ? (this.properties as any)[attr][evt] : (this as any)[evt]
-        this.connect(signal, () => cb.execute(this, {}))
+        this.connect(signal, () => cb.execute(this))
       }
     }
 
-    this.connect(this.properties.js_event_callbacks.change, () => this._update_event_callbacks)
-    this.connect(this.properties.subscribed_events.change, () => this._update_event_callbacks)
+    this.connect(this.properties.js_event_callbacks.change, () => this._update_event_callbacks())
+    this.connect(this.properties.subscribed_events.change, () => this._update_event_callbacks())
   }
 
   /*protected*/ _process_event(event: BokehEvent): void {
@@ -68,7 +68,7 @@ export class Model extends HasProps {
       event = event._customize_event(this)
 
       for (const callback of this.js_event_callbacks[event.event_name] || [])
-        callback.execute(event, {})
+        callback.execute(event)
 
       if (this.document != null) {
         if (this.subscribed_events.some((m) => m == event.event_name))

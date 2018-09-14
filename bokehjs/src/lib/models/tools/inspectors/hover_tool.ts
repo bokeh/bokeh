@@ -1,4 +1,5 @@
 import {InspectTool, InspectToolView} from "./inspect_tool"
+import {CallbackLike} from "../../callbacks/callback"
 import {Tooltip, TooltipView} from "../../annotations/tooltip"
 import {RendererView} from "../../renderers/renderer"
 import {GlyphRenderer, GlyphRendererView} from "../../renderers/glyph_renderer"
@@ -371,13 +372,7 @@ export class HoverToolView extends InspectToolView {
 
       const g = {x, y, ...geometry}
 
-      const callback = this.model.callback
-      const [obj, data] = [callback, {index: index, geometry: g, renderer: r}]
-
-      if (isFunction(callback))
-        callback(obj, data)
-      else
-        callback.execute(obj, data)
+      this.model.callback!.execute(this.model, {index: index, geometry: g, renderer: r})
     }
   }
 
@@ -452,7 +447,7 @@ export namespace HoverTool {
     show_arrow: boolean
     anchor: Anchor
     attachment: TooltipAttachment
-    callback: any // XXX
+    callback: CallbackLike<HoverTool> | null
   }
 
   export interface Props extends InspectTool.Props {

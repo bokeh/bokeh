@@ -29,12 +29,11 @@ export class OpenURL extends Callback {
     })
   }
 
-  execute(_cb_obj: any, cb_data: {[key: string]: any}): any {
+  execute(_cb_obj: unknown, cb_data: {[key: string]: unknown} = {}): void {
     for (const i of get_indices(cb_data.source)) {
-      const url = replace_placeholders(this.url, cb_data.source, i)
+      const url = replace_placeholders(this.url, (cb_data as any).source, i) // XXX
       window.open(url)
     }
-    return null
   }
 }
 OpenURL.initClass()

@@ -9,6 +9,7 @@ import {throttle} from "core/util/callback"
 import {Orientation, SliderCallbackPolicy} from "core/enums"
 
 import {Widget, WidgetView} from "./widget"
+import {CallbackLike} from "../callbacks/callback"
 
 export interface SliderSpec {
   start: number
@@ -25,9 +26,36 @@ export abstract class AbstractSliderView extends WidgetView {
   protected valueEl: HTMLElement
   protected callback_wrapper?: () => void
 
+  initialize(options: any): void {
+    super.initialize(options)
+    this._init_callback()
+  }
+
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.render())
+    this.connect(this.model.properties.callback.change,          () => this._init_callback())
+    this.connect(this.model.properties.callback_policy.change,   () => this._init_callback())
+    this.connect(this.model.properties.callback_throttle.change, () => this._init_callback())
+
+    this.connect(this.model.change, () => this.render()) // TODO
+  }
+
+  protected _init_callback(): void {
+    const {callback} = this.model
+    if (callback != null) {
+      const fn = () => callback.execute(this.model)
+
+      switch (this.model.callback_policy) {
+        case 'continuous': {
+          this.callback_wrapper = fn
+          break
+        }
+        case 'throttle': {
+          this.callback_wrapper = throttle(fn, this.model.callback_throttle)
+          break
+        }
+      }
+    }
   }
 
   protected abstract _calc_to(): SliderSpec
@@ -38,21 +66,6 @@ export abstract class AbstractSliderView extends WidgetView {
     if (this.sliderEl == null) {
       // XXX: temporary workaround for _render_css()
       super.render()
-    }
-
-    if (this.model.callback != null) {
-      const callback = () => this.model.callback.execute(this.model)
-
-      switch (this.model.callback_policy) {
-        case 'continuous': {
-          this.callback_wrapper = callback
-          break
-        }
-        case 'throttle': {
-          this.callback_wrapper = throttle(callback, this.model.callback_throttle)
-          break
-        }
-      }
     }
 
     const prefix = 'bk-noUi-'
@@ -208,13 +221,17 @@ export namespace AbstractSlider {
     orientation: Orientation
     direction: "ltr" | "rtl"
     tooltips: boolean
-    callback: any // XXX
+    callback: CallbackLike<AbstractSlider> | null
     callback_throttle: number
     callback_policy: SliderCallbackPolicy
     bar_color: Color
   }
 
-  export interface Props extends Widget.Props {}
+  export interface Props extends Widget.Props {
+    callback: p.Property<CallbackLike<AbstractSlider> | null>
+    callback_throttle: p.Property<number>
+    callback_policy: p.Property<SliderCallbackPolicy>
+  }
 }
 
 export interface AbstractSlider extends AbstractSlider.Attrs {}
@@ -241,7 +258,7 @@ export abstract class AbstractSlider extends Widget {
       orientation:       [ p.Orientation, "horizontal" ],
       direction:         [ p.Any,         "ltr"        ],
       tooltips:          [ p.Boolean,     true         ],
-      callback:          [ p.Instance                  ],
+      callback:          [ p.Any                       ],
       callback_throttle: [ p.Number,      200          ],
       callback_policy:   [ p.String,      "throttle"   ], // TODO (bev) enum
       bar_color:         [ p.Color,       "#e6e6e6"    ],

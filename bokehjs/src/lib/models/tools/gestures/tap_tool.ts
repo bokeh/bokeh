@@ -1,7 +1,7 @@
 import {SelectTool, SelectToolView} from "./select_tool"
+import {CallbackLike} from "../../callbacks/callback"
 import * as p from "core/properties"
 import {TapEvent} from "core/ui_events"
-import {isFunction} from "core/util/types"
 import {PointGeometry} from "core/geometry"
 import {DataSource} from "../../sources/data_source"
 
@@ -42,10 +42,7 @@ export class TapToolView extends SelectToolView {
               geometries: PointGeometry & { x: number, y: number }
               source: DataSource | null,
           } = { geometries: g, source: sm.source }
-          if (isFunction(callback))
-            callback(this, cb_data)
-          else
-            callback.execute(this, cb_data)
+          callback.execute(this.model, cb_data)
         }
       }
 
@@ -67,10 +64,7 @@ export class TapToolView extends SelectToolView {
               geometries: PointGeometry & { x: number, y: number }
               source: DataSource | null,
           } = { geometries: g, source: sm.source }
-          if (isFunction(callback))
-            callback(this, cb_data)
-          else
-            callback.execute(this, cb_data)
+          callback.execute(this.model, cb_data)
         }
       }
     }
@@ -80,7 +74,7 @@ export class TapToolView extends SelectToolView {
 export namespace TapTool {
   export interface Attrs extends SelectTool.Attrs {
     behavior: "select" | "inspect"
-    callback: any // XXX
+    callback: CallbackLike<TapTool> | null
   }
 
   export interface Props extends SelectTool.Props {}

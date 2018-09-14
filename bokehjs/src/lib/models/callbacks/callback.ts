@@ -1,7 +1,7 @@
 import {Model} from "../../model"
 
-export type CallbackLike<T> = {
-  execute: (obj: T, data?: {[key: string]: unknown}) => void
+export type CallbackLike<T, R = void> = {
+  execute: (obj: T, data?: {[key: string]: unknown}) => R
 }
 
 export namespace Callback {
@@ -12,7 +12,7 @@ export namespace Callback {
 
 export interface Callback extends Callback.Attrs {}
 
-export abstract class Callback extends Model {
+export abstract class Callback extends Model implements CallbackLike<unknown> {
 
   properties: Callback.Props
 
@@ -24,6 +24,6 @@ export abstract class Callback extends Model {
     this.prototype.type = 'Callback'
   }
 
-  abstract execute(cb_obj: any, cb_data: {[key: string]: any}): any
+  abstract execute(cb_obj: unknown, cb_data?: {[key: string]: unknown}): unknown
 }
 Callback.initClass()
