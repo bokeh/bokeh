@@ -93,8 +93,8 @@ def from_networkx(graph, layout_function, **kwargs):
             warn("Converting edge attributes labeled 'start' or 'end' are skipped. "
                  "If you want to convert these attributes, please re-label them with other names.")
 
-        edge_dict['start'] = [x[0] for x in graph.edges(data=True)]
-        edge_dict['end'] = [x[1] for x in graph.edges(data=True)]
+        edge_dict['start'] = [x[0] for x in graph.edges()]
+        edge_dict['end'] = [x[1] for x in graph.edges()]
 
         node_source = ColumnDataSource(data=node_dict)
         edge_source = ColumnDataSource(data=edge_dict)
