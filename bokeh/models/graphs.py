@@ -79,7 +79,7 @@ def from_networkx(graph, layout_function, **kwargs):
 
         # Convert edge attributes
         edge_dict = dict()
-        edge_attr_keys = [attr_key for edge in list(graph.edges(data=True))
+        edge_attr_keys = [attr_key for edge in graph.edges(data=True)
                           for attr_key in edge[2].keys()]
         edge_attr_keys = list(set(edge_attr_keys))
 
