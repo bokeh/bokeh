@@ -122,7 +122,9 @@ class DataRange(Range):
 
 class DataRange1d(DataRange):
     ''' An auto-fitting range in a continuous scalar dimension.
-    The upper and lower bounds are set to the min and max of the data.
+
+    By default the ``start`` and ``end`` of the range automatically
+    assume min and max values of the data for associated renderers.
 
     '''
 

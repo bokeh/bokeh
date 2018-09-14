@@ -188,6 +188,7 @@ class BaseTextProps(HasProps):
     - ``'normal'`` normal text
     - ``'italic'`` *italic text*
     - ``'bold'`` **bold text**
+    - ``"bold italic"`` ***bold italic text***
 
     """)
 

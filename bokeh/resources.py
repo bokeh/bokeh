@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' The resources module provides the Resources class for easily configuring
 how BokehJS code and CSS resources should be located, loaded, and embedded in
 Bokeh documents.
@@ -10,126 +17,52 @@ Attributes:
 
 '''
 
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import re
 import json
 from os.path import basename, join, relpath
 
+# External imports
 from six import string_types
 
+# Bokeh imports
 from . import __version__
 from .core.templates import JS_RESOURCES, CSS_RESOURCES
+from .model import Model
 from .settings import settings
 
 from .util.paths import bokehjsdir
 from .util.session_id import generate_session_id
-from .model import Model
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
 
 DEFAULT_SERVER_HOST = "localhost"
 DEFAULT_SERVER_PORT = 5006
 DEFAULT_SERVER_HTTP_URL = "http://%s:%d/" % (DEFAULT_SERVER_HOST, DEFAULT_SERVER_PORT)
 
-class _SessionCoordinates(object):
-    """ Internal class used to parse kwargs for server URL, app_path, and session_id."""
-    def __init__(self, **kwargs):
-        self._url = kwargs.get('url', DEFAULT_SERVER_HTTP_URL)
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
-        if self._url is None:
-            raise ValueError("url cannot be None")
+# __all__ defined at the bottom on the class module
 
-        if self._url == 'default':
-            self._url = DEFAULT_SERVER_HTTP_URL
-
-        if self._url.startswith("ws"):
-            raise ValueError("url should be the http or https URL for the server, not the websocket URL")
-
-        self._url = self._url.rstrip("/")
-
-        # we lazy-generate the session_id so we can generate it server-side when appropriate
-        self._session_id = kwargs.get('session_id')
-
-    @property
-    def url(self):
-        return self._url
-
-    @property
-    def session_id(self):
-        """ Session ID derived from the kwargs provided."""
-        if self._session_id is None:
-            self._session_id = generate_session_id()
-        return self._session_id
-
-    @property
-    def session_id_allowing_none(self):
-        """ Session ID provided in kwargs, keeping it None if it hasn't been generated yet.
-
-        The purpose of this is to preserve ``None`` as long as possible... in some cases
-        we may never generate the session ID because we generate it on the server.
-        """
-        return self._session_id
-
-_DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(dev|rc)")
-
-def _cdn_base_url():
-    return "https://cdn.pydata.org"
-
-
-def _get_cdn_urls(version=None, minified=True):
-    if version is None:
-        if settings.docs_cdn():
-            version = settings.docs_cdn()
-        else:
-            version = __version__.split('-')[0]
-
-    # check if we want minified js and css
-    _min = ".min" if minified else ""
-
-    base_url = _cdn_base_url()
-    dev_container = 'bokeh/dev'
-    rel_container = 'bokeh/release'
-
-    # check the 'dev' fingerprint
-    container = dev_container if _DEV_PAT.match(version) else rel_container
-
-    if version.endswith(('dev', 'rc')):
-        logger.debug("Getting CDN URL for local dev version will not produce usable URL")
-
-    def mk_url(comp, kind):
-        return '%s/%s/%s-%s%s.%s' % (base_url, container, comp, version, _min, kind)
-
-    result = {
-        'urls'     : lambda components, kind: [ mk_url(component, kind) for component in components ],
-        'messages' : [],
-    }
-
-    if len(__version__.split('-')) > 1:
-        result['messages'].append({
-            "type" : "warn",
-            "text" : ("Requesting CDN BokehJS version '%s' from Bokeh development version '%s'. "
-                      "This configuration is unsupported and may not work!" % (version, __version__))
-        })
-
-    return result
-
-
-def _get_server_urls(root_url, minified=True, path_versioner=None):
-    _min = ".min" if minified else ""
-
-    def mk_url(comp, kind):
-        path = "%s/%s%s.%s" % (kind, comp, _min, kind)
-        if path_versioner is not None:
-            path = path_versioner(path)
-        return '%sstatic/%s' % (root_url, path)
-
-    return {
-        'urls'     : lambda components, kind: [ mk_url(component, kind) for component in components ],
-        'messages' : [],
-    }
-
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class BaseResources(object):
     _default_root_dir = "."
@@ -154,7 +87,7 @@ class BaseResources(object):
         self.path_versioner = path_versioner;           del path_versioner
 
         if root_url and not root_url.endswith("/"):
-            logger.warning("root_url should end with a /, adding one")
+            log.warning("root_url should end with a /, adding one")
             root_url = root_url + "/"
         self._root_url = root_url
         if self.mode not in ['inline', 'cdn', 'server', 'server-dev', 'relative', 'relative-dev', 'absolute', 'absolute-dev']:
@@ -183,6 +116,8 @@ class BaseResources(object):
             server = self._server_urls()
             self.messages.extend(server['messages'])
 
+    # Properties --------------------------------------------------------------
+
     @property
     def log_level(self):
         return self._log_level
@@ -202,6 +137,8 @@ class BaseResources(object):
             return self._root_url
         else:
             return self._default_root_url
+
+    # Public methods ----------------------------------------------------------
 
     def components(self, kind):
         components = self.js_components if kind == 'js' else self.css_components
@@ -320,6 +257,8 @@ class JSResources(BaseResources):
 
     _js_components = ["bokeh", "bokeh-widgets", "bokeh-tables", "bokeh-gl"]
 
+    # Properties --------------------------------------------------------------
+
     @property
     def js_files(self):
         files, _ = self._resolve('js')
@@ -337,6 +276,8 @@ class JSResources(BaseResources):
             raw.append('Bokeh.settings.dev = true')
 
         return raw
+
+    # Public methods ----------------------------------------------------------
 
     def render_js(self):
         return JS_RESOURCES.render(js_raw=self.js_raw, js_files=self.js_files)
@@ -387,6 +328,8 @@ class CSSResources(BaseResources):
 
     _css_components = ["bokeh", "bokeh-widgets", "bokeh-tables"]
 
+    # Properties --------------------------------------------------------------
+
     @property
     def css_files(self):
         files, _ = self._resolve('css')
@@ -401,6 +344,8 @@ class CSSResources(BaseResources):
     @property
     def css_raw_str(self):
         return [ json.dumps(css) for css in self.css_raw ]
+
+    # Public methods ----------------------------------------------------------
 
     def render_css(self):
         return CSS_RESOURCES.render(css_raw=self.css_raw, css_files=self.css_files)
@@ -453,9 +398,123 @@ class Resources(JSResources, CSSResources):
 
     '''
 
+    # Public methods ----------------------------------------------------------
+
     def render(self):
         return "%s\n%s" % (self.render_css(), self.render_js())
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+class _SessionCoordinates(object):
+    """ Internal class used to parse kwargs for server URL, app_path, and session_id."""
+    def __init__(self, **kwargs):
+        self._url = kwargs.get('url', DEFAULT_SERVER_HTTP_URL)
+
+        if self._url is None:
+            raise ValueError("url cannot be None")
+
+        if self._url == 'default':
+            self._url = DEFAULT_SERVER_HTTP_URL
+
+        if self._url.startswith("ws"):
+            raise ValueError("url should be the http or https URL for the server, not the websocket URL")
+
+        self._url = self._url.rstrip("/")
+
+        # we lazy-generate the session_id so we can generate it server-side when appropriate
+        self._session_id = kwargs.get('session_id')
+
+    # Properties --------------------------------------------------------------
+
+    @property
+    def url(self):
+        return self._url
+
+    @property
+    def session_id(self):
+        """ Session ID derived from the kwargs provided."""
+        if self._session_id is None:
+            self._session_id = generate_session_id()
+        return self._session_id
+
+    @property
+    def session_id_allowing_none(self):
+        """ Session ID provided in kwargs, keeping it None if it hasn't been generated yet.
+
+        The purpose of this is to preserve ``None`` as long as possible... in some cases
+        we may never generate the session ID because we generate it on the server.
+        """
+        return self._session_id
+
+_DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(dev|rc)")
+
+def _cdn_base_url():
+    return "https://cdn.pydata.org"
+
+
+def _get_cdn_urls(version=None, minified=True):
+    if version is None:
+        if settings.docs_cdn():
+            version = settings.docs_cdn()
+        else:
+            version = __version__.split('-')[0]
+
+    # check if we want minified js and css
+    _min = ".min" if minified else ""
+
+    base_url = _cdn_base_url()
+    dev_container = 'bokeh/dev'
+    rel_container = 'bokeh/release'
+
+    # check the 'dev' fingerprint
+    container = dev_container if _DEV_PAT.match(version) else rel_container
+
+    if version.endswith(('dev', 'rc')):
+        log.debug("Getting CDN URL for local dev version will not produce usable URL")
+
+    def mk_url(comp, kind):
+        return '%s/%s/%s-%s%s.%s' % (base_url, container, comp, version, _min, kind)
+
+    result = {
+        'urls'     : lambda components, kind: [ mk_url(component, kind) for component in components ],
+        'messages' : [],
+    }
+
+    if len(__version__.split('-')) > 1:
+        result['messages'].append({
+            "type" : "warn",
+            "text" : ("Requesting CDN BokehJS version '%s' from Bokeh development version '%s'. "
+                      "This configuration is unsupported and may not work!" % (version, __version__))
+        })
+
+    return result
+
+
+def _get_server_urls(root_url, minified=True, path_versioner=None):
+    _min = ".min" if minified else ""
+
+    def mk_url(comp, kind):
+        path = "%s/%s%s.%s" % (kind, comp, _min, kind)
+        if path_versioner is not None:
+            path = path_versioner(path)
+        return '%sstatic/%s' % (root_url, path)
+
+    return {
+        'urls'     : lambda components, kind: [ mk_url(component, kind) for component in components ],
+        'messages' : [],
+    }
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
 
 CDN = Resources(mode="cdn")
 
 INLINE = Resources(mode="inline")
+
+__all__ = (
+    'CDN',
+    'INLINE'
+)

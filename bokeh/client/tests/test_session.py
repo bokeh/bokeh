@@ -51,6 +51,7 @@ class Test_ClientSession(object):
         s = bcs.ClientSession()
         assert s.connected == False
         assert s.document is None
+        assert s._connection._arguments is None
         assert isinstance(s.id, string_types)
         assert len(s.id) == 44
 
@@ -58,12 +59,14 @@ class Test_ClientSession(object):
         s = bcs.ClientSession("sid")
         assert s.connected == False
         assert s.document is None
+        assert s._connection._arguments is None
         assert s.id == "sid"
 
     def test_creation_with_ws_url(self):
         s = bcs.ClientSession(websocket_url="wsurl")
         assert s.connected == False
         assert s.document is None
+        assert s._connection._arguments is None
         assert s._connection.url == "wsurl"
         assert isinstance(s.id, string_types)
         assert len(s.id) == 44
@@ -72,8 +75,16 @@ class Test_ClientSession(object):
         s = bcs.ClientSession(io_loop="io_loop")
         assert s.connected == False
         assert s.document is None
+        assert s._connection._arguments is None
         assert s._connection.io_loop == "io_loop"
         assert isinstance(s.id, string_types)
+        assert len(s.id) == 44
+
+    def test_creation_with_arguments(self):
+        s = bcs.ClientSession(arguments="args")
+        assert s.connected == False
+        assert s.document is None
+        assert s._connection._arguments == "args"
         assert len(s.id) == 44
 
     @patch("bokeh.client.connection.ClientConnection.connect")

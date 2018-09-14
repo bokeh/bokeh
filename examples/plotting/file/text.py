@@ -12,7 +12,7 @@ p.background_fill_color = "lightgrey"
 p.xaxis.axis_label = "align"
 p.yaxis.axis_label = "baseline"
 p.axis.major_label_text_font_size = "18px"
-p.axis.major_label_text_font_style = "bold"
+p.axis.major_label_text_font_style = "bold italic"
 
 p.xgrid.grid_line_color = None
 p.ygrid.grid_line_color = None

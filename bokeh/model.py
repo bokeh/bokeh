@@ -1,26 +1,63 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide a base class for all objects (called Bokeh Models) that can go in
 a Bokeh |Document|.
 
 '''
-from __future__ import absolute_import, print_function
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 
 import logging
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from json import loads
 from operator import itemgetter
 
-from six import iteritems
+# External imports
+from six import iteritems, string_types
 
+# Bokeh imports
 from .core.json_encoder import serialize_json
 from .core.properties import Any, Dict, Instance, List, String
 from .core.has_props import HasProps, MetaHasProps
 from .core.query import find
+
+from .events import Event
 from .themes import default as default_theme
+
 from .util.callback_manager import PropertyCallbackManager, EventCallbackManager
 from .util.future import with_metaclass
 from .util.serialization import make_id
-from .events import Event
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'collect_models',
+    'get_class',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 def collect_models(*input_values):
     ''' Collect a duplicate-free list of all other Bokeh models referred to by
@@ -302,6 +339,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
 
     """)
 
+    # Properties --------------------------------------------------------------
 
     @property
     def document(self):
@@ -339,9 +377,11 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
                 'id'   : self._id,
             }
 
+    # Public methods ----------------------------------------------------------
+
     def js_on_event(self, event, *callbacks):
 
-        if not isinstance(event, str) and issubclass(event, Event):
+        if not isinstance(event, string_types) and issubclass(event, Event):
             event = event.event_name
 
         if event not in self.js_event_callbacks:
@@ -665,6 +705,10 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
 
         return html
 
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
 def _visit_immediate_value_references(value, visitor):
     ''' Visit all references to another Model without recursing into any
     of the child Model; may visit the same Model more than once if
@@ -680,7 +724,6 @@ def _visit_immediate_value_references(value, visitor):
 
 
 _common_types = {int, float, str}
-
 
 def _visit_value_and_its_immediate_references(obj, visitor):
     ''' Recurse down Models, HasProps, and Python containers
@@ -706,3 +749,8 @@ def _visit_value_and_its_immediate_references(obj, visitor):
         else:
             # this isn't a Model, so recurse into it
             _visit_immediate_value_references(obj, visitor)
+
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

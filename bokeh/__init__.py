@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -26,7 +26,17 @@ import logging
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
-# General API
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
+
+#-----------------------------------------------------------------------------
+# Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
@@ -35,8 +45,9 @@ __all__ = (
     'sampledata',
 )
 
-# configure Bokeh version
-from .util.version import __version__; __version__
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def license():
     ''' Print the Bokeh license to the console.
@@ -49,12 +60,23 @@ def license():
     with open(join(__path__[0], 'LICENSE.txt')) as lic:
         print(lic.read())
 
-# expose sample data module
-from . import sampledata; sampledata
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+# configure Bokeh version
+from .util.version import __version__; __version__
+
+# expose sample data module
+from . import sampledata; sampledata
 
 # configure Bokeh logger
 from .util import logconfig
