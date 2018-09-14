@@ -28,7 +28,7 @@ from bokeh._testing.util.api import verify_all
 import bokeh.application.handlers as bah
 
 #-----------------------------------------------------------------------------
-# Globals and constants
+# Setup
 #-----------------------------------------------------------------------------
 
 ALL = (

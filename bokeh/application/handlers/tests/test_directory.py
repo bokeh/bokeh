@@ -31,7 +31,7 @@ from bokeh._testing.util.filesystem import with_directory_contents
 import bokeh.application.handlers.directory as bahd
 
 #-----------------------------------------------------------------------------
-# Globals and constants
+# Setup
 #-----------------------------------------------------------------------------
 
 script_adds_two_roots_template = """

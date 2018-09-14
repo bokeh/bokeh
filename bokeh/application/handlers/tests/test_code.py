@@ -29,7 +29,7 @@ from bokeh.document import Document
 import bokeh.application.handlers.code as bahc
 
 #-----------------------------------------------------------------------------
-# Globals and constants
+# Setup
 #-----------------------------------------------------------------------------
 
 script_adds_two_roots = """

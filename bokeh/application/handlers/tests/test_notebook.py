@@ -30,7 +30,7 @@ from bokeh._testing.util.filesystem import with_temporary_file
 import bokeh.application.handlers.notebook as bahn
 
 #-----------------------------------------------------------------------------
-# Globals and constants
+# Setup
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------

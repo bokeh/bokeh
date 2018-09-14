@@ -29,7 +29,7 @@ from bokeh._testing.util.filesystem import with_file_contents
 import bokeh.application.handlers.server_lifecycle as bahs
 
 #-----------------------------------------------------------------------------
-# Globals and constants
+# Setup
 #-----------------------------------------------------------------------------
 
 script_adds_four_handlers = """

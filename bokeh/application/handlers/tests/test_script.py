@@ -29,7 +29,7 @@ from bokeh._testing.util.filesystem import with_file_contents
 import bokeh.application.handlers.script as bahs
 
 #-----------------------------------------------------------------------------
-# Globals and constants
+# Setup
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
