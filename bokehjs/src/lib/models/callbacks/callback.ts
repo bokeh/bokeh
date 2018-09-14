@@ -1,5 +1,9 @@
 import {Model} from "../../model"
 
+export type CallbackLike<T> = {
+  execute: (obj: T, data?: {[key: string]: unknown}) => void
+}
+
 export namespace Callback {
   export interface Attrs extends Model.Attrs {}
 
