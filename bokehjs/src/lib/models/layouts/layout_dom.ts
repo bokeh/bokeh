@@ -1,7 +1,7 @@
 import {Model} from "../../model"
 import {Class} from "core/class"
 import {SizingMode} from "core/enums"
-import {empty, margin, padding} from "core/dom"
+import {empty, classes, margin, padding} from "core/dom"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 
@@ -77,9 +77,7 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
   render(): void {
     empty(this.el)
 
-    this.el.className = ""
-    for (const cls of this.css_classes())
-      this.el.classList.add(cls)
+    classes(this.el).clear().add(...this.css_classes())
 
     for (const child_view of this.child_views) {
       this.el.appendChild(child_view.el)

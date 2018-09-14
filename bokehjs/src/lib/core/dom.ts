@@ -206,6 +206,59 @@ export function children(el: HTMLElement): HTMLElement[] {
   return Array.from(el.children) as HTMLElement[]
 }
 
+export class ClassList {
+
+  private readonly classList: DOMTokenList
+
+  constructor(readonly el: HTMLElement) {
+    this.classList = el.classList
+  }
+
+  get values(): string[] {
+    const values = []
+    for (let i = 0; i < this.classList.length; i++) {
+      const item = this.classList.item(i)
+      if (item != null)
+        values.push(item)
+    }
+    return values
+  }
+
+  has(cls: string): boolean {
+    return this.classList.contains(cls)
+  }
+
+  add(...classes: string[]): this {
+    for (const cls of classes)
+      this.classList.add(cls)
+    return this
+  }
+
+  remove(...classes: string[]): this {
+    for (const cls of classes)
+      this.classList.remove(cls)
+    return this
+  }
+
+  clear(): this {
+    this.el.className = ""
+    return this
+  }
+
+  toggle(cls: string, activate?: boolean): this {
+    const add = activate != null ? activate : !this.has(cls)
+    if (add)
+      this.add(cls)
+    else
+      this.remove(cls)
+    return this
+  }
+}
+
+export function classes(el: HTMLElement): ClassList {
+  return new ClassList(el)
+}
+
 export enum Keys {
   Backspace = 8,
   Tab       = 9,

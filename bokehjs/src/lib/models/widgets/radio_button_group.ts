@@ -1,6 +1,7 @@
 import {ButtonGroup, ButtonGroupView} from "./button_group"
 
 import {Class} from "core/class"
+import {classes} from "core/dom"
 import * as p from "core/properties"
 
 export class RadioButtonGroupView extends ButtonGroupView {
@@ -12,7 +13,7 @@ export class RadioButtonGroupView extends ButtonGroupView {
   }
 
   change_active(i: number): void {
-    if (this.model.active != i) {
+    if (this.model.active !== i) {
       this.model.active = i
 
       if (this.model.callback != null)
@@ -24,10 +25,7 @@ export class RadioButtonGroupView extends ButtonGroupView {
     const {active} = this.model
 
     this._buttons.forEach((button, i) => {
-      if (active === i)
-        button.classList.add("bk-active")
-      else
-        button.classList.remove("bk-active")
+      classes(button).toggle("bk-active", active === i)
     })
   }
 }

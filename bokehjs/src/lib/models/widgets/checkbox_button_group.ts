@@ -1,6 +1,7 @@
 import {ButtonGroup, ButtonGroupView} from "./button_group"
 
 import {Class} from "core/class"
+import {classes} from "core/dom"
 import {Set} from "core/util/data_structures"
 import * as p from "core/properties"
 
@@ -29,10 +30,7 @@ export class CheckboxButtonGroupView extends ButtonGroupView {
     const {active} = this
 
     this._buttons.forEach((button, i) => {
-      if (active.has(i))
-        button.classList.add("bk-active")
-      else
-        button.classList.remove("bk-active")
+      classes(button).toggle("bk-active", active.has(i))
     })
   }
 }
