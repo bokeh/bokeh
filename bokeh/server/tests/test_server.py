@@ -137,6 +137,8 @@ class HookTestHandler(Handler):
         self.hooks.append("periodic_session")
         self.session_periodic_remover()
 
+@pytest.mark.skipif(sys.platform == "win32",
+                    reason="Lifecycle hooks order different on Windows (TODO open issue)")
 def test__lifecycle_hooks():
     application = Application()
     handler = HookTestHandler()
