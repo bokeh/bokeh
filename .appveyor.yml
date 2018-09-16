@@ -21,4 +21,4 @@ before_test:
   - powershell .\\scripts\\ci\\appveyor\\test.ps1
   
 test_script:
-  - py.test -v -m unit --diff-ref HEAD
+  - py.test -m unit --diff-ref HEAD
