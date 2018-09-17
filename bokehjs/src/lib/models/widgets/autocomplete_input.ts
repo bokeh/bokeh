@@ -1,13 +1,13 @@
 import {TextInput, TextInputView} from "./text_input"
 
-import {empty, ul, li, a, Keys} from "core/dom"
+import {empty, div, Keys} from "core/dom"
 import {clear_menus} from "core/menus"
 import * as p from "core/properties"
 
 export class AutocompleteInputView extends TextInputView {
   model: AutocompleteInput
 
-  protected menuEl: HTMLElement
+  protected menu: HTMLElement
 
   connect_signals(): void {
     super.connect_signals()
@@ -22,17 +22,17 @@ export class AutocompleteInputView extends TextInputView {
     this.input.addEventListener("keydown", (event) => this._keydown(event))
     this.input.addEventListener("keyup", (event) => this._keyup(event))
 
-    this.menuEl = ul({class: "bk-dropdown-menu"})
-    this.menuEl.addEventListener("click", (event) => this._item_click(event))
-    this.el.appendChild(this.menuEl)
+    this.menu = div({class: "bk-menu"})
+    this.menu.addEventListener("click", (event) => this._menu_click(event))
+    this.el.appendChild(this.menu)
   }
 
-  protected _render_items(completions: string[]): void {
-    empty(this.menuEl)
+  protected _update_completions(completions: string[]): void {
+    empty(this.menu)
 
     for (const text of completions) {
-      const itemEl = li({}, a({data: {text: text}}, text))
-      this.menuEl.appendChild(itemEl)
+      const item = div({}, text)
+      this.menu.appendChild(item)
     }
   }
 
@@ -44,9 +44,7 @@ export class AutocompleteInputView extends TextInputView {
     this.el.classList.remove("bk-open")
   }
 
-  protected _item_click(event: MouseEvent): void {
-    event.preventDefault()
-
+  protected _menu_click(event: MouseEvent): void {
     if (event.target != event.currentTarget) {
       const el = event.target as HTMLElement
       const text = el.dataset.text!
@@ -89,7 +87,7 @@ export class AutocompleteInputView extends TextInputView {
         if (completions.length == 0)
           this._clear_menu()
         else {
-          this._render_items(completions)
+          this._update_completions(completions)
           this._open_menu()
         }
       }

@@ -61,6 +61,9 @@ class AbstractSlider(Widget):
                 raise ValueError("Slider 'start' and 'end' cannot be equal.")
         super(Widget, self).__init__(**kwargs)
 
+    default_size = Int(default=300, help="""
+    """)
+
     title = String(default="", help="""
     Slider's label.
     """)

@@ -51,6 +51,11 @@ export class Markup extends Widget {
       text:  [ p.String, '' ],
       style: [ p.Any,    {} ],
     })
+
+    this.override({
+      width: 300,
+      height_policy: "min",
+    })
   }
 }
 

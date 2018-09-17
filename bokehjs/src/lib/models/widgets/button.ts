@@ -1,22 +1,18 @@
-import * as p from "core/properties"
-import {register_with_event, ButtonClick} from "core/bokeh_events"
-
 import {AbstractButton, AbstractButtonView} from "./abstract_button"
+
+import {register_with_event, ButtonClick} from "core/bokeh_events"
 
 export class ButtonView extends AbstractButtonView {
   model: Button
 
   change_input(): void {
-    this.model.trigger_event(new ButtonClick({}))
-    this.model.clicks = this.model.clicks + 1
+    this.model.trigger_event(new ButtonClick())
     super.change_input()
   }
 }
 
 export namespace Button {
-  export interface Attrs extends AbstractButton.Attrs {
-    clicks: number
-  }
+  export interface Attrs extends AbstractButton.Attrs {}
 
   export interface Props extends AbstractButton.Props {}
 }
@@ -24,7 +20,6 @@ export namespace Button {
 export interface Button extends Button.Attrs {}
 
 export class Button extends AbstractButton {
-
   properties: Button.Props
 
   constructor(attrs?: Partial<Button.Attrs>) {
@@ -35,12 +30,11 @@ export class Button extends AbstractButton {
     this.prototype.type = "Button"
     this.prototype.default_view = ButtonView
 
-    this.define({
-      clicks: [ p.Number, 0 ],
+    this.override({
+      label: "Button",
     })
 
     register_with_event(ButtonClick, this)
   }
 }
-
 Button.initClass()

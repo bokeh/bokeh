@@ -150,33 +150,47 @@ export function parent(el: HTMLElement, selector: string): HTMLElement | null {
 
 export type Sizing = {top: number, bottom: number, left: number, right: number}
 
+function num(value: string | null): number {
+  return parseFloat(value!) || 0
+}
+
 export function border(el: HTMLElement): Sizing {
   const style = getComputedStyle(el)
   return {
-    top:    parseFloat(style.borderTopWidth!)    || 0,
-    bottom: parseFloat(style.borderBottomWidth!) || 0,
-    left:   parseFloat(style.borderLeftWidth!)   || 0,
-    right:  parseFloat(style.borderRightWidth!)  || 0,
+    top:    num(style.borderTopWidth),
+    bottom: num(style.borderBottomWidth),
+    left:   num(style.borderLeftWidth),
+    right:  num(style.borderRightWidth),
   }
 }
 
 export function margin(el: HTMLElement): Sizing {
   const style = getComputedStyle(el)
   return {
-    top:    parseFloat(style.marginTop!)    || 0,
-    bottom: parseFloat(style.marginBottom!) || 0,
-    left:   parseFloat(style.marginLeft!)   || 0,
-    right:  parseFloat(style.marginRight!)  || 0,
+    top:    num(style.marginTop),
+    bottom: num(style.marginBottom),
+    left:   num(style.marginLeft),
+    right:  num(style.marginRight),
   }
 }
 
 export function padding(el: HTMLElement): Sizing {
   const style = getComputedStyle(el)
   return {
-    top:    parseFloat(style.paddingTop!)    || 0,
-    bottom: parseFloat(style.paddingBottom!) || 0,
-    left:   parseFloat(style.paddingLeft!)   || 0,
-    right:  parseFloat(style.paddingRight!)  || 0,
+    top:    num(style.paddingTop),
+    bottom: num(style.paddingBottom),
+    left:   num(style.paddingLeft),
+    right:  num(style.paddingRight),
+  }
+}
+
+export type Size = {width: number, height: number}
+
+export function size(el: HTMLElement): Size {
+  const style = getComputedStyle(el)
+  return {
+    width: num(style.width),
+    height: num(style.height),
   }
 }
 

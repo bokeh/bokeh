@@ -1,7 +1,7 @@
 import {Widget, WidgetView} from "./widget"
 import {CallbackLike} from "../callbacks/callback"
 
-import {input, label, div} from "core/dom"
+import {input, label, div, span} from "core/dom"
 import {includes} from "core/util/array"
 import {Set} from "core/util/data_structures"
 import * as p from "core/properties"
@@ -32,7 +32,7 @@ export class CheckboxGroupView extends WidgetView {
       if (includes(active, i))
         checkbox.checked = true
 
-      const labelEl = label({}, checkbox, labels[i])
+      const labelEl = label({}, checkbox, span({}, labels[i]))
       group.appendChild(labelEl)
     }
   }

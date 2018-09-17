@@ -26,7 +26,7 @@ no_title_slider = Slider(title=None, value=50, start=0, end=96, step=5)
 
 def color_picker():
     def color_slider(title, color):
-        return Slider(title=title, show_value=False, width=50, height=300, value=127, start=0, end=255, step=1, orientation="vertical", bar_color=color)
+        return Slider(title=title, show_value=False, value=127, start=0, end=255, step=1, orientation="vertical", bar_color=color)
 
     red   = color_slider("R", "red")
     green = color_slider("G", "green")

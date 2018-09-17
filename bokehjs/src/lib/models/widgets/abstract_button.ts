@@ -35,6 +35,10 @@ export abstract class AbstractButtonView extends WidgetView {
       type: "button",
       disabled: this.model.disabled,
       class: [`bk-btn`, `bk-btn-${this.model.button_type}`],
+      style: {
+        width: "100%",
+        height: "100%",
+      },
     }, ...children)
   }
 
@@ -92,6 +96,11 @@ export abstract class AbstractButton extends Widget {
       icon:        [ p.Instance          ],
       button_type: [ p.String, "default" ], // TODO (bev)
       callback:    [ p.Any               ],
+    })
+
+    this.override({
+      width: 300,
+      height_policy: "min",
     })
   }
 }

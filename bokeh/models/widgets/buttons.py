@@ -27,7 +27,8 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ...core.enums import ButtonType
 from ...core.has_props import abstract, HasProps
-from ...core.properties import Bool, Enum, Instance, Int, List, Override, String, Tuple
+from ...core.properties import Bool, Enum, Instance, List, Override, String, Tuple, Either
+from ...events import ButtonClick
 
 from ..callbacks import Callback
 
@@ -66,7 +67,7 @@ class AbstractButton(Widget, ButtonLike):
 
     '''
 
-    label = String("Button", help="""
+    label = String("", help="""
     The text label for the button to display.
     """)
 
@@ -78,6 +79,10 @@ class AbstractButton(Widget, ButtonLike):
     A callback to run in the browser whenever the button is activated.
     """)
 
+    width = Override(default=300)
+
+    height_policy = Override(default="min")
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -87,9 +92,7 @@ class Button(AbstractButton):
 
     '''
 
-    clicks = Int(0, help="""
-    A private property used to trigger ``on_click`` event handler.
-    """)
+    label = Override(default="Button")
 
     def on_click(self, handler):
         ''' Set up a handler for button clicks.
@@ -101,11 +104,11 @@ class Button(AbstractButton):
             None
 
         '''
-        self.on_change('clicks', lambda attr, old, new: handler())
+        self.on_event(ButtonClick, handler)
 
     def js_on_click(self, handler):
         ''' Set up a JavaScript handler for button clicks. '''
-        self.js_on_change('clicks', handler)
+        self.js_on_event(ButtonClick, handler)
 
 
 class Toggle(AbstractButton):
@@ -143,10 +146,6 @@ class Dropdown(AbstractButton):
 
     label = Override(default="Dropdown")
 
-    value = String(help="""
-    A private property used to trigger ``on_click`` event handler.
-    """)
-
     default_value = String(help="""
     A default value to set when a split Dropdown's top button is clicked.
 
@@ -154,7 +153,7 @@ class Dropdown(AbstractButton):
     split.
     """)
 
-    menu = List(Tuple(String, String), help="""
+    menu = List(Tuple(String, Either(String, Instance(Callback))), help="""
     Button's dropdown menu consisting of entries containing item's text and
     value name. Use ``None`` as a menu separator.
     """)
@@ -169,11 +168,11 @@ class Dropdown(AbstractButton):
             None
 
         '''
-        self.on_change('value', lambda attr, old, new: handler(new))
+        self.on_event(ButtonClick, handler)
 
     def js_on_click(self, handler):
         ''' Set up a JavaScript handler for button or menu item clicks. '''
-        self.js_on_change('value', handler)
+        self.js_on_event(ButtonClick, handler)
 
 #-----------------------------------------------------------------------------
 # Private API

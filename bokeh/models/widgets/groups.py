@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import Bool, Instance, Int, List, String
+from ...core.properties import Bool, Instance, Int, List, String, Override
 
 from ..callbacks import Callback
 
@@ -87,6 +87,10 @@ class ButtonGroup(AbstractGroup, ButtonLike):
     ''' Abstract base class for groups with items rendered as buttons.
 
     '''
+
+    width = Override(default=300)
+
+    height_policy = Override(default="min")
 
 @abstract
 class Group(AbstractGroup):

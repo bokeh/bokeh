@@ -1,4 +1,3 @@
-import "./button"
 import "./checkbox_button_group"
 import "./multiselect"
 import "./paragraph"

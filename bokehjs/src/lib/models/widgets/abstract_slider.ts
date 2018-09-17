@@ -2,11 +2,12 @@ import * as noUiSlider from "nouislider"
 
 import * as p from "core/properties"
 import {Color} from "core/types"
-import {label, div} from "core/dom"
+import {label, div, margin, size} from "core/dom"
 import {logger} from "core/logging"
 import {repeat} from "core/util/array"
 import {throttle} from "core/util/callback"
 import {Orientation, SliderCallbackPolicy} from "core/enums"
+import {SizeHint, Layoutable} from "core/layout"
 
 import {Widget, WidgetView} from "./widget"
 import {CallbackLike} from "../callbacks/callback"
@@ -54,8 +55,73 @@ export abstract class AbstractSliderView extends WidgetView {
           this.callback_wrapper = throttle(fn, this.model.callback_throttle)
           break
         }
+        default:
+          this.callback_wrapper = undefined
       }
     }
+  }
+
+  _update_layout(): void {
+    const slider = this
+
+    this.layout = new class extends Layoutable {
+      size_hint(): SizeHint {
+        function w(el?: HTMLElement): number {
+          if (el == null)
+            return 0
+          else  {
+            const margins = margin(el)
+            return size(el).width + margins.left + margins.right // XXX: wishful thinking
+          }
+        }
+
+        function h(el?: HTMLElement): number {
+          if (el == null)
+            return 0
+          else  {
+            const margins = margin(el)
+            return size(el).height + margins.top + margins.bottom
+          }
+        }
+
+        let width = 0
+        if (this.sizing.width_policy == "fixed")
+          width = this.sizing.width
+        else if (this.sizing.width_policy == "auto" && this.sizing.width != null)
+          width = this.sizing.width
+        else if (slider.model.orientation == "vertical") {
+          const {sliderEl, titleEl, valueEl} = slider
+          width = Math.max(w(sliderEl), w(titleEl) + w(valueEl))
+        }
+
+        let height = 0
+        if (this.sizing.height_policy == "fixed")
+          height = this.sizing.height
+        else if (this.sizing.height_policy == "auto" && this.sizing.height != null)
+          height = this.sizing.height
+        else if (slider.model.orientation == "horizontal") {
+          const {sliderEl, titleEl, valueEl} = slider
+          height = h(sliderEl) + Math.max(h(titleEl), h(valueEl))
+        }
+
+        return {width, height}
+      }
+    }
+
+    const sizing = this.box_sizing()
+    switch (this.model.orientation) {
+      case "horizontal": {
+        if (sizing.width_policy == "auto" && sizing.width == null)
+          sizing.width = this.model.default_size
+        break
+      }
+      case "vertical": {
+        if (sizing.height_policy == "auto" && sizing.height == null)
+          sizing.height = this.model.default_size
+        break
+      }
+    }
+    this.layout.sizing = sizing
   }
 
   protected abstract _calc_to(): SliderSpec
@@ -211,6 +277,7 @@ export abstract class AbstractSliderView extends WidgetView {
 
 export namespace AbstractSlider {
   export interface Attrs extends Widget.Attrs {
+    default_size: number
     title: string
     show_value: boolean
     start: any // XXX
@@ -237,7 +304,6 @@ export namespace AbstractSlider {
 export interface AbstractSlider extends AbstractSlider.Attrs {}
 
 export abstract class AbstractSlider extends Widget {
-
   properties: AbstractSlider.Props
 
   constructor(attrs?: Partial<AbstractSlider.Attrs>) {
@@ -248,6 +314,7 @@ export abstract class AbstractSlider extends Widget {
     this.prototype.type = "AbstractSlider"
 
     this.define({
+      default_size:      [ p.Number,      300          ],
       title:             [ p.String,      ""           ],
       show_value:        [ p.Bool,        true         ],
       start:             [ p.Any                       ],
@@ -276,5 +343,4 @@ export abstract class AbstractSlider extends Widget {
     return this._formatter(value, this.format)
   }
 }
-
 AbstractSlider.initClass()

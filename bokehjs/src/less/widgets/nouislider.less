@@ -22,32 +22,42 @@
   }
 }
 
-@slider_size: 10px;
+@slider-size: 10px;
 
-@handle_width: 14px;
-@handle_height: 18px;
-@handle_left: -@handle_width/2;
-@handle_top: -(@handle_height - @slider_size)/2 - 1;
+@handle-width: 14px;
+@handle-height: 18px;
+@handle-left: -@handle-width/2;
+@handle-top: -(@handle-height - @slider-size)/2 - 1;
+
+@slider-margin: (@handle-height - @slider-size)/2 + 1;
 
 .@{noUi-css-prefix}-horizontal {
   width: 100%;
-  height: @slider_size;
+  height: @slider-size;
+
+  &.@{noUi-css-prefix}-target {
+    margin: @slider-margin 0px;
+  }
 }
 .@{noUi-css-prefix}-horizontal .@{noUi-css-prefix}-handle {
-  width: @handle_width;
-  height: @handle_height;
-  left: @handle_left;
-  top: @handle_top;
+  width: @handle-width;
+  height: @handle-height;
+  left: @handle-left;
+  top: @handle-top;
 }
 .@{noUi-css-prefix}-vertical {
-  width: @slider_size;
+  width: @slider-size;
   height: 100%;
+
+  &.@{noUi-css-prefix}-target {
+    margin: 0px @slider-margin;
+  }
 }
 .@{noUi-css-prefix}-vertical .@{noUi-css-prefix}-handle {
-  width: @handle_height;
-  height: @handle_width;
-  left: @handle_top;
-  top: @handle_left;
+  width: @handle-height;
+  height: @handle-width;
+  left: @handle-top;
+  top: @handle-left;
 }
 
 .@{noUi-css-prefix}-handle {

@@ -101,7 +101,7 @@
 }
 
 .bk-btn-group {
-  .inline-flex();
+  .flex();
   .flex-wrap(nowrap);
   .align-items(center);
   .flex-direction(row);
@@ -141,7 +141,7 @@
 
 .bk-input {
   display: inline-block;
-  height: (floor((@font-size*@line-height)) + (@padding-vertical*2) + 2);
+  height: (@line-height-computed + (@padding-vertical*2) + 2);
   padding: 0 @padding-horizontal;
   background-color: #fff;
   border: 1px solid #ccc;
@@ -162,11 +162,84 @@
     background-color: #eee;
     opacity: 1;
   }
-
 }
 
 select[multiple], select[size], textarea {
   height: auto;
+}
+
+.bk-dropdown-toggle .bk-caret {
+  margin-left: 5px;
+}
+
+.bk-dropdown-menu {
+  width: 100%;
+}
+
+@caret-width: 4px;
+
+.bk-caret {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-left: 2px;
+  vertical-align: middle;
+  border-top:   @caret-width solid;
+  border-right: @caret-width solid transparent;
+  border-left:  @caret-width solid transparent;
+}
+
+.bk-dropdown {
+  position: relative;
+}
+
+.bk-menu {
+  position: absolute;
+  display: none;
+  top: 100%;
+  left: 0;
+  float: left;
+  min-width: 160px;
+  padding: 5px 0;
+  //margin: 2px 0 0;
+  list-style: none;
+  font-size: @font-size;
+  background-color: #fff;
+  //border: 1px solid
+  border-radius: @border-radius;
+  box-shadow: 0 6px 12px rgba(0,0,0,.175);
+  background-clip: padding-box;
+
+  .bk-divider {
+    height: 1px;
+    margin: ((@line-height-computed / 2) - 1) 0;
+    overflow: hidden;
+    background-color: #e5e5e5;;
+  }
+}
+
+.bk-dropdown-menu-right {
+  left: auto;
+  right: 0;
+}
+
+.bk-dropdown-menu-left {
+  left: 0;
+  right: auto;
+}
+
+.bk-dropup {
+  .bk-caret {
+    border-top: 0;
+    border-bottom: @caret-width solid;
+    content: "";
+  }
+
+  .bk-menu {
+    top: auto;
+    bottom: 100%;
+    margin-bottom: 1px;
+  }
 }
 
 //
@@ -175,26 +248,25 @@ select[multiple], select[size], textarea {
 //
 //
 
-/* dropdown */
-.bk-bs-dropdown-toggle .bk-bs-caret {
-  margin-left: 5px;
-}
-
-.bk-bs-dropdown-menu {
-  width: 100%;
-}
-
 .bk-slider {
-  label {
-    margin-right: 5px;
+  label + .bk-slider-value {
+    margin-left: 5px;
   }
 
   .bk-slider-value {
     display: inline-block;
     font-weight: 600;
   }
+}
 
-  input, .bk-slider-value {
-    margin-bottom: 5px;
-  }
+// XXX: set this in the implementation
+.bk-widget .bk-input {
+  width: 100%;
+}
+
+.bk-input-group span {
+  // XXX: this is wrong, but at least looks good by default.
+  position: relative;
+  top: -2px;
+  margin-left: 3px;
 }

@@ -1,4 +1,4 @@
-import {input, label, div} from "core/dom"
+import {input, label, div, span} from "core/dom"
 import {uniqueId} from "core/util/string"
 import * as p from "core/properties"
 
@@ -31,7 +31,7 @@ export class RadioGroupView extends WidgetView {
       if (i == active)
         radio.checked = true
 
-      const labelEl = label({}, radio, labels[i])
+      const labelEl = label({}, radio, span({}, labels[i]))
       group.appendChild(labelEl)
     }
   }
