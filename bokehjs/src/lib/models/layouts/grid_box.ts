@@ -59,10 +59,10 @@ export class GridBox extends LayoutDOM {
     this.prototype.default_view = GridBoxView
 
     this.define({
-      children: [ p.Array,  [] ],
-      rows:     [ p.Any        ],
-      cols:     [ p.Any        ],
-      spacing:  [ p.Number, 0  ],
+      children: [ p.Array,  []     ],
+      rows:     [ p.Any,    "auto" ],
+      cols:     [ p.Any,    "auto" ],
+      spacing:  [ p.Number, 0      ],
     })
   }
 }
