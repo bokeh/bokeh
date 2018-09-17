@@ -31,7 +31,7 @@ log = logging.getLogger(__name__)
 import numpy as np
 
 # Bokeh imports
-from .dependencies import import_optional
+from .dependencies import import_required
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -191,7 +191,7 @@ def hexbin(x, y, size, orientation="pointytop", aspect_scale=1):
         Hex binning only functions on linear scales, i.e. not on log plots.
 
     '''
-    pd = import_optional('pandas')
+    pd = import_required('pandas','hexbin requires pandas to be installed')
 
     q, r = cartesian_to_axial(x, y, size, orientation, aspect_scale=aspect_scale)
 
