@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -15,6 +15,9 @@ on the Document.
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import logging
+log = logging.getLogger(__name__)
+
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -24,7 +27,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 # External imports
 
 # Bokeh imports
-from .handler import Handler
+from .lifecycle import LifecycleHandler
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -34,25 +37,14 @@ from .handler import Handler
 # General API
 #-----------------------------------------------------------------------------
 
-class DocumentLifeCycleHandler(Handler):
+class DocumentLifecycleHandler(LifecycleHandler):
     ''' Calls on_session_destroyed callbacks defined on the Document.
 
     '''
 
-    safe_to_fork = True
-
-    # Public methods ----------------------------------------------------------
-
-    def modify_document(self, doc):
-        pass
-
-    def on_session_destroyed(self, session_context):
-        '''
-        Calls any on_session_destroyed callbacks defined on the Document
-        '''
-        doc = session_context._document
-        for callback in doc._session_destroyed_callbacks:
-            callback(doc)
+    def __init__(self, *args, **kwargs):
+        super(DocumentLifecycleHandler, self).__init__(*args, **kwargs)
+        self._on_session_destroyed = _on_session_destroyed
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -61,6 +53,13 @@ class DocumentLifeCycleHandler(Handler):
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+def _on_session_destroyed(session_context):
+    '''
+    Calls any on_session_destroyed callbacks defined on the Document
+    '''
+    for callback in session_context._document._session_destroyed_callbacks:
+        callback(session_context)
 
 #-----------------------------------------------------------------------------
 # Code

@@ -360,7 +360,7 @@ class Server(BaseServer):
         log.info("Starting Bokeh server version %s (running on Tornado %s)" % (__version__, tornado.version))
 
         from bokeh.application.handlers.function import FunctionHandler
-        from bokeh.application.handlers.document_lifecycle import DocumentLifeCycleHandler
+        from bokeh.application.handlers.document_lifecycle import DocumentLifecycleHandler
 
         if callable(applications):
             applications = Application(FunctionHandler(applications))
@@ -371,7 +371,9 @@ class Server(BaseServer):
         for k, v in list(applications.items()):
             if callable(v):
                 applications[k] = Application(FunctionHandler(v))
-            applications[k].add(DocumentLifeCycleHandler())
+            if all(not isinstance(handler, DocumentLifecycleHandler)
+                   for handler in applications[k]._handlers):
+                applications[k].add(DocumentLifecycleHandler())
 
         opts = _ServerOpts(kwargs)
         self._port = opts.port
