@@ -2,6 +2,7 @@ import tempfile
 
 from mock import patch
 import pytest
+import os
 
 import bokeh.command.util as util
 from bokeh.document import Document
@@ -32,10 +33,12 @@ If this is not the case, renaming main.py will supress this warning.
 
 @patch('warnings.warn')
 def test_build_single_handler_application_main_py(mock_warn):
-    f = tempfile.NamedTemporaryFile(suffix="main.py")
+    f = tempfile.NamedTemporaryFile(suffix="main.py", delete=False)
+    f.close() #close file to open it later on windows
     util.build_single_handler_application(f.name)
     assert mock_warn.called
     assert mock_warn.call_args[0] == (DIRSTYLE_MAIN_WARNING_COPY,)
+    os.remove(f.name)
 
 _SIZE_WARNING = "Width/height arguments will be ignored for this muliple layout. (Size valus only apply when exporting single plots.)"
 

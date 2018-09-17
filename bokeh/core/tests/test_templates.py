@@ -9,6 +9,10 @@ def compute_sha256(data):
     sha256.update(data)
     return sha256.hexdigest()
 
+def _crlf_cr_2_lf_bin(s):
+    import re
+    return re.sub(b"\r\n|\r|\n", b"\n", s)
+
 pinned_template_sha256 = "22c80ab04af3eb44b5be510bedd46c89d6c6d1d73bb3437050b799ee0e2ec044"
 
 def test_autoload_template_has_changed():
@@ -18,7 +22,7 @@ def test_autoload_template_has_changed():
     created as part of https://github.com/bokeh/bokeh/issues/7125.
     """
     with io.open(join(TOP_PATH, '_templates/autoload_nb_js.js'), mode='rb') as f:
-        assert pinned_template_sha256 == compute_sha256(f.read()), \
+        assert pinned_template_sha256 == compute_sha256(_crlf_cr_2_lf_bin(f.read())), \
         """It seems that the template autoload_nb_js.js has changed.
         If this is voluntary and that proper testing of plots insertion
         in notebooks has been completed successfully, update this test

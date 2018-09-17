@@ -20,7 +20,9 @@ import pytest ; pytest
 # Standard library imports
 
 # External imports
+from packaging import version
 import nbformat
+import nbconvert
 
 # Bokeh imports
 from bokeh.document import Document
@@ -59,7 +61,10 @@ class Test_NotebookHandler(object):
         with_script_contents(source, load)
 
         assert result['handler']._runner.path == result['filename']
-        assert result['handler']._runner.source == "\n# coding: utf-8\n"
+        if version.parse(nbconvert.__version__) < version.parse("5.4"):
+            assert result['handler']._runner.source == "\n# coding: utf-8\n"
+        else:
+            assert result['handler']._runner.source == "#!/usr/bin/env python\n# coding: utf-8\n"
         assert not doc.roots
 
     def test_missing_filename_raises(self):

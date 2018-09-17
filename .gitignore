@@ -8,6 +8,7 @@
 *.diff
 *.org
 .project
+.pydevproject
 *.rej
 .settings/
 .*.sw[nop]
