@@ -52,11 +52,11 @@ export function isTypedArray(obj: Anything): obj is TypedArray {
   return obj != null && obj.buffer != null && obj.buffer instanceof ArrayBuffer
 }
 
-export function isObject(obj: Anything): obj is Object {
+export function isObject(obj: Anything): obj is object {
   const tp = typeof obj
   return tp === 'function' || tp === 'object' && !!obj
 }
 
-export function isPlainObject(obj: Anything): obj is Object {
+export function isPlainObject(obj: Anything): obj is {[key: string]: unknown} {
   return isObject(obj) && (obj.constructor == null || obj.constructor === Object)
 }

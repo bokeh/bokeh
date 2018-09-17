@@ -4,7 +4,7 @@ import {Arrayable} from "core/types"
 import * as p from "core/properties"
 import {Set} from "core/util/data_structures"
 import {Shape, encode_column_data, decode_column_data} from "core/util/serialization"
-import {isTypedArray, isArray, isNumber, isObject} from "core/util/types"
+import {isTypedArray, isArray, isNumber, isPlainObject} from "core/util/types"
 import {TypedArray} from "core/types"
 import * as typed_array from "core/util/typed_array"
 import {keys} from "core/util/object"
@@ -178,8 +178,8 @@ export class ColumnDataSource extends ColumnarDataSource {
   }
 
   static _value_to_json(key: string, value: any, optional_parent_object: any): any {
-    if (isObject(value) && key === 'data')
-      return encode_column_data(value, optional_parent_object._shapes)
+    if (isPlainObject(value) && key === 'data')
+      return encode_column_data(value as any, optional_parent_object._shapes) // XXX: unknown vs. any
     else
       return HasProps._value_to_json(key, value, optional_parent_object)
   }
