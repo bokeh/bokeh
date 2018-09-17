@@ -10,7 +10,7 @@ environment:
 init:
   - cmd: set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%MINICONDA%\\Library\\bin;%PATH%
   - cmd: echo %path%
-  
+
 install:
   - powershell .\\scripts\\ci\\appveyor\\install.ps1
 
@@ -19,7 +19,7 @@ build_script:
 
 before_test:
   - powershell .\\scripts\\ci\\appveyor\\test.ps1
-  
+
 test_script:
   - py.test -m unit --junit-xml=test_results.xml --diff-ref HEAD
 
