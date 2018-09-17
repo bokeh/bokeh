@@ -15,9 +15,6 @@ on the Document.
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import logging
-log = logging.getLogger(__name__)
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -42,11 +39,13 @@ class DocumentLifeCycleHandler(Handler):
 
     '''
 
+    safe_to_fork = True
+
     # Public methods ----------------------------------------------------------
 
     def modify_document(self, doc):
         pass
-    
+
     def on_session_destroyed(self, session_context):
         '''
         Calls any on_session_destroyed callbacks defined on the Document
