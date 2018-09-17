@@ -31,9 +31,17 @@ for name in sys.argv[1:]:
 if 'python' in spec: spec.remove('python')
 
 deps = ""
-deps += " ".join(s for s in spec)
+if sys.platform == "win32":
+    deps += '"'
+    deps += '" "'.join(s for s in spec)
+    deps += '"'
+else:
+    deps += '" "'.join(s for s in spec)
+
+
 deps = deps.replace(' >=', '>=')  # conda syntax doesn't allow spaces b/w pkg name and version spec
 deps = deps.replace(' <', '<')
 deps = deps.replace(' [unix]', ' ')
+    
 
 print(deps)
