@@ -20,6 +20,7 @@ export class GridBoxView extends LayoutDOMView {
     this.layout.sizing = this.box_sizing()
     this.layout.rows = this.model.rows
     this.layout.cols = this.model.cols
+    this.layout.spacing = this.model.spacing
 
     for (const [child, row, col] of this.model.children) {
       const child_view = this._child_views[child.id]
@@ -33,12 +34,14 @@ export namespace GridBox {
     children: [LayoutDOM, number, number][]
     rows: {[key: number]: RowSizing}
     cols: {[key: number]: ColSizing}
+    spacing: number | [number, number]
   }
 
   export interface Props extends LayoutDOM.Props {
     children: p.Property<[LayoutDOM, number, number][]>
     rows: p.Property<{[key: number]: RowSizing}>
     cols: p.Property<{[key: number]: ColSizing}>
+    spacing: p.Property<number | [number, number]>
   }
 }
 
@@ -56,9 +59,10 @@ export class GridBox extends LayoutDOM {
     this.prototype.default_view = GridBoxView
 
     this.define({
-      children: [ p.Array, [] ],
-      rows:     [ p.Any       ],
-      cols:     [ p.Any       ],
+      children: [ p.Array,  [] ],
+      rows:     [ p.Any        ],
+      cols:     [ p.Any        ],
+      spacing:  [ p.Number, 0  ],
     })
   }
 }

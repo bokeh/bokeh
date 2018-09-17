@@ -24,10 +24,12 @@ export abstract class BoxView extends LayoutDOMView {
 export namespace Box {
   export interface Attrs extends LayoutDOM.Attrs {
     children: LayoutDOM[]
+    spacing: number
   }
 
   export interface Props extends LayoutDOM.Props {
     children: p.Property<LayoutDOM[]>
+    spacing: p.Property<number>
   }
 }
 
@@ -44,7 +46,8 @@ export abstract class Box extends LayoutDOM {
     this.prototype.type = "Box"
 
     this.define({
-      children: [ p.Array, [] ],
+      children: [ p.Array,  [] ],
+      spacing:  [ p.Number, 0  ],
     })
   }
 }

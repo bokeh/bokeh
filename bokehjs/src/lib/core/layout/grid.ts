@@ -37,6 +37,8 @@ type GridState = {
   ncols: number
   rows: RowSpec[]
   cols: ColSpec[]
+  hspacing: number
+  vspacing: number
 }
 
 export type TrackAlign = "start" | "center" | "end"
@@ -57,10 +59,12 @@ export type ColSizing =
 
 export class Grid extends Layoutable {
 
-  items: GridItem[]
+  items: GridItem[] = []
 
-  rows: QuickTrackSizing | {[key: number]: RowSizing}
-  cols: QuickTrackSizing | {[key: number]: ColSizing}
+  rows: QuickTrackSizing | {[key: number]: RowSizing} = "auto"
+  cols: QuickTrackSizing | {[key: number]: ColSizing} = "auto"
+
+  spacing: number | [number, number] = 0
 
   absolute: boolean = false
 
@@ -204,6 +208,9 @@ export class Grid extends Layoutable {
       }
     }
 
+    const [hspacing, vspacing] =
+      isNumber(this.spacing) ? [this.spacing, this.spacing] : this.spacing
+
     let height = 0
     if (this.sizing.height_policy == "fixed")
       height = this.sizing.height
@@ -211,6 +218,7 @@ export class Grid extends Layoutable {
       for (let y = 0; y < nrows; y++) {
         height += rows[y].height
       }
+      height += (nrows - 1)*vspacing
     }
 
     let width = 0
@@ -220,9 +228,10 @@ export class Grid extends Layoutable {
       for (let x = 0; x < ncols; x++) {
         width += cols[x].width
       }
+      width += (ncols - 1)*hspacing
     }
 
-    this.state = {matrix, nrows, ncols, rows, cols}
+    this.state = {matrix, nrows, ncols, rows, cols, hspacing, vspacing}
 
     return {width, height}
   }
@@ -230,7 +239,7 @@ export class Grid extends Layoutable {
   protected _set_geometry(outer: BBox, inner: BBox): void {
     super._set_geometry(outer, inner)
 
-    const {matrix, nrows, ncols, rows, cols} = this.state
+    const {matrix, nrows, ncols, rows, cols, hspacing, vspacing} = this.state
 
     const {width, height} = outer
 
@@ -264,6 +273,9 @@ export class Grid extends Layoutable {
       } else if (col.policy == "flex")
         col_flex += col.factor
     }
+
+    available_width -= (ncols - 1)*hspacing
+    available_height -= (nrows - 1)*vspacing
 
     if (available_height > 0) {
       if (row_flex > 0) {
@@ -300,13 +312,13 @@ export class Grid extends Layoutable {
     for (let y = 0, top = !this.absolute ? 0 : outer.top; y < nrows; y++) {
       const row = rows[y]
       row.top = top
-      top += row.height
+      top += row.height + vspacing
     }
 
     for (let x = 0, left = !this.absolute ? 0 : outer.left; x < ncols; x++) {
       const col = cols[x]
       col.left = left
-      left += col.width
+      left += col.width + hspacing
     }
 
     for (let y = 0; y < nrows; y++) {
