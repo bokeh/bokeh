@@ -68,6 +68,7 @@ class Document(object):
         self._all_models_by_name = MultiValuedDict()
         self._all_former_model_ids = set()
         self._callbacks = {}
+        self._session_destroyed_callbacks = {}
         self._session_callbacks = set()
         self._session_context = None
         self._modules = []
@@ -622,6 +623,15 @@ class Document(object):
     def on_change_dispatch_to(self, receiver):
         if not receiver in self._callbacks:
             self._callbacks[receiver] = lambda event: event.dispatch(receiver)
+
+    def on_session_destroyed(self, *callbacks):
+        ''' Provide callbacks to invoke when the session serving the Document
+        is destroyed
+
+        '''
+        for callback in callbacks:
+            _check_callback(callback, ('document',))
+            self._session_destroyed_callbacks[callback] = callback
 
     def remove_next_tick_callback(self, callback_obj):
         ''' Remove a callback added earlier with ``add_next_tick_callback``.
