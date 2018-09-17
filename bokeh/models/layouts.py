@@ -135,16 +135,16 @@ class Spacer(LayoutDOM):
 
     '''
 
+QuickTrackSizing = Either(Enum("auto", "min", "max"), Int)
+
 RowSizing = Either(
-    Enum("auto", "min", "max"),
-    Int,
+    QuickTrackSizing,
     Struct(policy=Enum("auto", "min", "max"), align=Enum(TrackAlign)),
     Struct(policy=Enum("fixed"), height=Int, align=Enum(TrackAlign)),
     Struct(policy=Enum("flex"), factor=Float, align=Enum(TrackAlign)))
 
 ColSizing = Either(
-    Enum("auto", "min", "max"),
-    Int,
+    QuickTrackSizing,
     Struct(policy=Enum("auto", "min", "max"), align=Enum(TrackAlign)),
     Struct(policy=Enum("fixed"), width=Int, align=Enum(TrackAlign)),
     Struct(policy=Enum("flex"), factor=Float, align=Enum(TrackAlign)))
@@ -156,10 +156,10 @@ class GridBox(LayoutDOM):
     children = List(Tuple(Instance(LayoutDOM), Int, Int), default=[], help="""
     """)
 
-    rows = Dict(IntOrString, RowSizing, default={}, help="""
+    rows = Either(QuickTrackSizing, Dict(IntOrString, RowSizing), help="""
     """)
 
-    cols = Dict(IntOrString, ColSizing, default={}, help="""
+    cols = Either(QuickTrackSizing, Dict(IntOrString, ColSizing), help="""
     """)
 
 @abstract
@@ -206,7 +206,7 @@ class Row(Box):
     that is a sequence, or using the ``children`` keyword argument.
     '''
 
-    cols = Dict(IntOrString, ColSizing, default={}, help="""
+    cols = Either(QuickTrackSizing, Dict(IntOrString, ColSizing), help="""
     """)
 
 class Column(Box):
@@ -216,8 +216,9 @@ class Column(Box):
     that is a sequence, or using the ``children`` keyword argument.
     '''
 
-    rows = Dict(IntOrString, RowSizing, default={}, help="""
+    rows = Either(QuickTrackSizing, Dict(IntOrString, RowSizing), help="""
     """)
+
 
 class Panel(Model):
     ''' A single-widget container with title bar and controls.

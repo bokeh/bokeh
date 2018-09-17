@@ -1,5 +1,6 @@
 import {SizeHint, Layoutable} from "./layoutable"
-import {isNumber, isString} from "../util/types"
+import {isNumber, isString, isObject} from "../util/types"
+import {Set} from "core/util/data_structures"
 import {BBox} from "../util/bbox"
 
 const {max, round} = Math
@@ -40,14 +41,16 @@ type GridState = {
 
 export type TrackAlign = "start" | "center" | "end"
 
+export type QuickTrackSizing = "auto" | "min" | "max" | number
+
 export type RowSizing =
-  "auto" | "min" | "max" | number |
+  QuickTrackSizing |
   (({policy: "auto" | "min" | "max"} |
     {policy: "flex", factor: number} |
     {policy: "fixed", height: number}) & {align?: TrackAlign})
 
 export type ColSizing =
-  "auto" | "min" | "max" | number |
+  QuickTrackSizing |
   (({policy: "auto" | "min" | "max"} |
     {policy: "flex", factor: number} |
     {policy: "fixed", width: number})  & {align?: TrackAlign})
@@ -56,8 +59,8 @@ export class Grid extends Layoutable {
 
   items: GridItem[]
 
-  rows: {[key: number]: RowSizing} = {}
-  cols: {[key: number]: ColSizing} = {}
+  rows: QuickTrackSizing | {[key: number]: RowSizing}
+  cols: QuickTrackSizing | {[key: number]: ColSizing}
 
   absolute: boolean = false
 
@@ -95,7 +98,7 @@ export class Grid extends Layoutable {
 
     const rows: RowSpec[] = new Array(nrows)
     for (let y = 0; y < nrows; y++) {
-      let row = this.rows[y]
+      let row = isObject(this.rows) ? this.rows[y] : this.rows
 
       if (row == null) {
         row = {policy: "auto"}
@@ -136,7 +139,7 @@ export class Grid extends Layoutable {
 
     const cols: ColSpec[] = new Array(ncols)
     for (let x = 0; x < ncols; x++) {
-      let col = this.cols[x]
+      let col = isObject(this.cols) ? this.cols[x] : this.cols
 
       if (col == null) {
         col = {policy: "auto"}

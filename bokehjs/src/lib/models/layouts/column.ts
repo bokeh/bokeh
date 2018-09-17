@@ -40,7 +40,7 @@ export class Column extends Box {
     this.prototype.default_view = ColumnView
 
     this.define({
-      rows: [ p.Any, {} ],
+      rows: [ p.Any ],
     })
   }
 }

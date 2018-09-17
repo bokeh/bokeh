@@ -57,8 +57,8 @@ export class GridBox extends LayoutDOM {
 
     this.define({
       children: [ p.Array, [] ],
-      rows:     [ p.Any,   {} ],
-      cols:     [ p.Any,   {} ],
+      rows:     [ p.Any       ],
+      cols:     [ p.Any       ],
     })
   }
 }
