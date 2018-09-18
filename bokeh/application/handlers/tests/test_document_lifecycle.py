@@ -51,6 +51,8 @@ class MockSessionContext(object):
 
 class Test_DocumentLifecycleHandler(object):
 
+    # Public methods ----------------------------------------------------------
+
     def test_document_bad_on_session_destroyed_signature(self):
         doc = Document()
 

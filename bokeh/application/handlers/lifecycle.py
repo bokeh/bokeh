@@ -50,8 +50,6 @@ class LifecycleHandler(Handler):
         self._on_session_destroyed = _do_nothing
         self.safe_to_fork = True
 
-    # Properties --------------------------------------------------------------
-
     # Public methods ----------------------------------------------------------
 
     def modify_document(self, doc):
