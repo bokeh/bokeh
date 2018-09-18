@@ -139,7 +139,7 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
     this.layout.compute(viewport)
     this.update_position()
     this.after_layout()
-    logger.info(`layout computed in ${Date.now() - start} ms`)
+    logger.debug(`layout computed in ${Date.now() - start} ms`)
     this.notify_finished()
   }
 
