@@ -49,7 +49,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class ServerLifecycleHandler(Handler):
+class ServerLifecycleHandler(LifecycleHandler):
     ''' Load a script which contains server lifecycle callbacks.
 
     '''
