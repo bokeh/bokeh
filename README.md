@@ -60,8 +60,8 @@ Bokeh
     <img src="https://travis-ci.org/bokeh/bokeh.svg?branch=master"
          alt="Current TravisCI build status" />
     </a>
-    <a href="https://ci.appveyor.com/project/bokeh-integrations/bokeh">                
-    <img src="https://ci.appveyor.com/api/projects/status/u4idf25dhp219mho?svg=true" 
+    <a href="https://ci.appveyor.com/project/bokeh-integrations/bokeh">
+    <img src="https://ci.appveyor.com/api/projects/status/u4idf25dhp219mho?svg=true"
          alt="Current Appveyor build status" />
     </a>
   </td>
