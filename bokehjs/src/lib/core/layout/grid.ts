@@ -68,7 +68,7 @@ export class Grid extends Layoutable {
 
   absolute: boolean = false
 
-  private state: GridState
+  private _state: GridState
 
   constructor(items: GridItem[] = []) {
     super()
@@ -211,27 +211,35 @@ export class Grid extends Layoutable {
     const [hspacing, vspacing] =
       isNumber(this.spacing) ? [this.spacing, this.spacing] : this.spacing
 
-    let height = 0
+    let min_height = 0
+    for (let y = 0; y < nrows; y++) {
+      min_height += rows[y].height
+    }
+    min_height += (nrows - 1)*vspacing
+
+    let min_width = 0
+    for (let x = 0; x < ncols; x++) {
+      min_width += cols[x].width
+    }
+    min_width += (ncols - 1)*hspacing
+
+    let height: number
     if (this.sizing.height_policy == "fixed")
       height = this.sizing.height
-    else {
-      for (let y = 0; y < nrows; y++) {
-        height += rows[y].height
-      }
-      height += (nrows - 1)*vspacing
-    }
+    else if (this.sizing.height_policy == "auto" && this.sizing.height != null)
+      height = max(this.sizing.height, min_height)
+    else
+      height = min_height
 
-    let width = 0
+    let width: number
     if (this.sizing.width_policy == "fixed")
       width = this.sizing.width
-    else {
-      for (let x = 0; x < ncols; x++) {
-        width += cols[x].width
-      }
-      width += (ncols - 1)*hspacing
-    }
+    else if (this.sizing.width_policy == "auto" && this.sizing.width != null)
+      width = max(this.sizing.width, min_width)
+    else
+      width = min_width
 
-    this.state = {matrix, nrows, ncols, rows, cols, hspacing, vspacing}
+    this._state = {matrix, nrows, ncols, rows, cols, hspacing, vspacing}
 
     return {width, height}
   }
@@ -239,7 +247,7 @@ export class Grid extends Layoutable {
   protected _set_geometry(outer: BBox, inner: BBox): void {
     super._set_geometry(outer, inner)
 
-    const {matrix, nrows, ncols, rows, cols, hspacing, vspacing} = this.state
+    const {matrix, nrows, ncols, rows, cols, hspacing, vspacing} = this._state
 
     const {width, height} = outer
 
