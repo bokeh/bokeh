@@ -601,6 +601,23 @@ any or all of the following conventionally named functions:
         ''' If present, this function is called when a session is closed. '''
         pass
 
+Additionally, ``on_session_destroyed`` lifecycle hooks may also be defined
+directly on the ``Document`` being served. Since the task of cleaning up after
+a user closes a session is common, e.g. to shut down a database connection,
+this provides an easy route to performing such actions without bundling
+a separate file. To declare such a callback define a function and register
+it with the ``Document.on_session_destroyed`` method:
+
+.. code-block:: python
+
+	doc = Document()
+
+    def cleanup_session(session_context):
+        ''' This function is called when a session is closed. '''
+        pass
+
+	doc.on_session_destroyed(cleanup_session)
+
 .. _userguide_server_embedding:
 
 Embedding Bokeh Server as a Library
