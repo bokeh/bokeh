@@ -7,6 +7,10 @@ environment:
   matrix:
     - MINICONDA: C:\Miniconda36-x64
 
+skip_branch_with_pr: true
+clone_depth: 5
+skip_tags: true
+
 init:
   - cmd: set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%MINICONDA%\\Library\\bin;%PATH%
   - cmd: echo %path%
