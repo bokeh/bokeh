@@ -91,4 +91,3 @@ class Test_DocumentLifecycleHandler(object):
         session_context = MockSessionContext(doc)
         handler.on_session_destroyed(session_context)
         assert session_context.counter == 3, 'DocumentLifecycleHandler did not call all callbacks'
-

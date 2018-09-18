@@ -610,13 +610,13 @@ it with the ``Document.on_session_destroyed`` method:
 
 .. code-block:: python
 
-	doc = Document()
+    doc = Document()
 
     def cleanup_session(session_context):
         ''' This function is called when a session is closed. '''
         pass
 
-	doc.on_session_destroyed(cleanup_session)
+    doc.on_session_destroyed(cleanup_session)
 
 .. _userguide_server_embedding:
 
