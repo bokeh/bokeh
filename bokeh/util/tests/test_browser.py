@@ -1,4 +1,5 @@
 import os
+import sys
 import webbrowser
 
 import pytest
@@ -70,7 +71,10 @@ def test_view_args():
 
     # test non-http locations treated as local files
     bub.view("/foo/bar", browser="none")
-    assert _open_args == (('file:///foo/bar',), {'autoraise': True, 'new': 0})
+    if sys.platform == "win32":
+        assert _open_args == (('file://' + os.path.splitdrive(os.getcwd())[0] + '\\foo\\bar',), {'autoraise': True, 'new': 0})
+    else:
+        assert _open_args == (('file:///foo/bar',), {'autoraise': True, 'new': 0})
 
     # test autoraise passed to open
     bub.view("http://foo", browser="none", autoraise=False)

@@ -153,7 +153,12 @@ def _npmjs_path():
     global _npmjs
     if _npmjs is None:
         _npmjs = join(dirname(_nodejs_path()), "npm")
+        if sys.platform == "win32":
+            _npmjs += '.cmd'
     return _npmjs
+
+def _crlf_cr_2_lf(s):
+    return re.sub(r"\\r\\n|\\r|\\n", r"\\n", s)
 
 def _run(app, argv, input=None):
     proc = Popen([app] + argv, stdout=PIPE, stderr=PIPE, stdin=PIPE)
@@ -162,7 +167,7 @@ def _run(app, argv, input=None):
     if proc.returncode != 0:
         raise RuntimeError(errout)
     else:
-        return stdout.decode('utf-8')
+        return _crlf_cr_2_lf(stdout.decode('utf-8'))
 
 def _run_nodejs(argv, input=None):
     return _run(_nodejs_path(), argv, input)

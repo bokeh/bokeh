@@ -4,7 +4,7 @@ from datetime import timedelta
 import pytest
 import logging
 import re
-
+import sys
 import mock
 
 from tornado import gen
@@ -137,6 +137,8 @@ class HookTestHandler(Handler):
         self.hooks.append("periodic_session")
         self.session_periodic_remover()
 
+@pytest.mark.skipif(sys.platform == "win32",
+                    reason="Lifecycle hooks order different on Windows (TODO open issue)")
 def test__lifecycle_hooks():
     application = Application()
     handler = HookTestHandler()
@@ -577,6 +579,8 @@ def test__no_generate_session_doc():
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
 
+@pytest.mark.skipif(sys.platform == "win32",
+                    reason="multiple processes not supported on Windows")
 def test__server_multiple_processes():
 
     # Can't use an ioloop in this test

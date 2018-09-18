@@ -1,6 +1,6 @@
 {
   "name": "bokehjs",
-  "version": "1.0.0dev7",
+  "version": "1.0.0dev8",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -80,6 +80,7 @@
     "numbro": "https://github.com/bokeh/numbro.git#e1b6c52",
     "pikaday": "^1.7.0",
     "proj4": "<2.4",
+    "request": "^2.88.0",
     "slickgrid": "https://github.com/bokeh/SlickGrid.git#6c1327b",
     "spawn-sync": "^2.0.0",
     "sprintf-js": "^1.1.1",

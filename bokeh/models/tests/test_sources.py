@@ -664,21 +664,21 @@ Lime,Green,99,$0.39
 
     def test_set_data_from_json_base64(self):
         ds = ColumnDataSource()
-        data = {"foo": np.arange(3)}
+        data = {"foo": np.arange(3, dtype=np.int64)}
         json = transform_column_source_data(data)
         ds.set_from_json('data', json)
         assert np.array_equal(ds.data["foo"], data["foo"])
 
     def test_set_data_from_json_nested_base64(self):
         ds = ColumnDataSource()
-        data = {"foo": [[np.arange(3)]]}
+        data = {"foo": [[np.arange(3, dtype=np.int64)]]}
         json = transform_column_source_data(data)
         ds.set_from_json('data', json)
         assert np.array_equal(ds.data["foo"], data["foo"])
 
     def test_set_data_from_json_nested_base64_and_list(self):
         ds = ColumnDataSource()
-        data = {"foo": [np.arange(3), [1, 2, 3]]}
+        data = {"foo": [np.arange(3, dtype=np.int64), [1, 2, 3]]}
         json = transform_column_source_data(data)
         ds.set_from_json('data', json)
         assert np.array_equal(ds.data["foo"], data["foo"])

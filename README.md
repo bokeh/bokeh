@@ -60,6 +60,10 @@ Bokeh
     <img src="https://travis-ci.org/bokeh/bokeh.svg?branch=master"
          alt="Current TravisCI build status" />
     </a>
+    <a href="https://ci.appveyor.com/project/bokeh-integrations/bokeh">
+    <img src="https://ci.appveyor.com/api/projects/status/u4idf25dhp219mho?svg=true"
+         alt="Current Appveyor build status" />
+    </a>
   </td>
 
   <td>Gitter</td>
@@ -268,7 +272,7 @@ If you would like to contribute to Bokeh, please review the [Developer Guide](ht
 
 Follow us
 ---------
-Follow us on Twitter [@bokehplots](https://twitter.com/BokehPlots) and on [YouTube](https://www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw).
+Follow us on Twitter [@bokehplots](https://twitter.com/BokehPlots)
 
 <p align="center">
   <a href="https://www.numfocus.org/">

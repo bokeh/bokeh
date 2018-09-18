@@ -1,0 +1,33 @@
+build: false
+
+platform:
+  - x64
+
+environment:
+  matrix:
+    - MINICONDA: C:\Miniconda36-x64
+
+skip_branch_with_pr: true
+clone_depth: 5
+skip_tags: true
+
+init:
+  - cmd: set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%MINICONDA%\\Library\\bin;%PATH%
+  - cmd: echo %path%
+
+install:
+  - powershell .\\scripts\\ci\\appveyor\\install.ps1
+
+build_script:
+  - powershell .\\scripts\\ci\\appveyor\\build.ps1
+
+before_test:
+  - powershell .\\scripts\\ci\\appveyor\\test.ps1
+
+test_script:
+  - py.test -m unit --junit-xml=test_results.xml --diff-ref HEAD
+
+# Upload the test results to appveyor so they are shown on the "Tests" tab.
+on_finish:
+    - ps: $wc = New-Object 'System.Net.WebClient'
+    - ps: $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\test_results.xml))
