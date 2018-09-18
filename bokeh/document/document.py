@@ -630,7 +630,7 @@ class Document(object):
 
         '''
         for callback in callbacks:
-            _check_callback(callback, ('document',))
+            _check_callback(callback, ('session_context',))
             self._session_destroyed_callbacks[callback] = callback
 
     def remove_next_tick_callback(self, callback_obj):
