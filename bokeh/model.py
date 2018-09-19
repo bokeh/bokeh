@@ -131,6 +131,10 @@ def get_class(view_model_name):
     else:
         raise KeyError("View model name '%s' not found" % view_model_name)
 
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
 class MetaModel(MetaHasProps):
     ''' Specialize the construction of |Model| classes.
 

@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -45,8 +45,18 @@ from ..util.tornado import yield_for_all_futures
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+__all__ = (
+    'Application',
+    'ServerContext',
+    'SessionContext',
+)
+
 #-----------------------------------------------------------------------------
 # General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
 #-----------------------------------------------------------------------------
 
 class Application(object):
@@ -228,10 +238,6 @@ class Application(object):
             result = h.on_session_destroyed(session_context)
             yield yield_for_all_futures(result)
         raise gen.Return(None)
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
 
 class ServerContext(with_metaclass(ABCMeta)):
     ''' A harness for server-specific information and tasks related to

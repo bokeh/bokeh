@@ -33,6 +33,10 @@ from .handler import Handler
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+__all__ = (
+    'LifecycleHandler',
+)
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -49,8 +53,6 @@ class LifecycleHandler(Handler):
         self._on_session_created = _do_nothing
         self._on_session_destroyed = _do_nothing
         self.safe_to_fork = True
-
-    # Properties --------------------------------------------------------------
 
     # Public methods ----------------------------------------------------------
 

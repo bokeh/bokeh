@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -53,6 +53,8 @@ class SomeModelInTestApplication(Model):
 #-----------------------------------------------------------------------------
 
 class Test_Application(object):
+
+    # Public methods ----------------------------------------------------------
 
     def test_empty(self):
         a = baa.Application()
@@ -163,6 +165,8 @@ class Test_Application(object):
 
 class Test_ServerContext(object):
 
+    # Public methods ----------------------------------------------------------
+
     def test_abstract(self):
         with pytest.raises(TypeError):
             baa.ServerContext()
@@ -175,4 +179,8 @@ class Test_SessionContext(object):
 
 #-----------------------------------------------------------------------------
 # Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
 #-----------------------------------------------------------------------------
