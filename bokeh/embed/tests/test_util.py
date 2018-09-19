@@ -528,6 +528,25 @@ class Test_standalone_docs_json_and_render_items(object):
             assert len(caplog.records) == 1
             assert caplog.text != ''
 
+    def test_suppress_warnings(self, caplog):
+        d = Document()
+        m1 = EmbedTestUtilModel()
+        c1 = _GoodPropertyCallback()
+        c2 = _GoodEventCallback()
+        d.add_root(m1)
+
+        m1.on_change('name', c1)
+        assert len(m1._callbacks) != 0
+
+        m1.on_event(Tap, c2)
+        assert len(m1._event_callbacks) != 0
+
+        with caplog.at_level(logging.WARN):
+            beu.standalone_docs_json_and_render_items(m1, suppress_callback_warning=True)
+            assert len(caplog.records) == 0
+            assert caplog.text == ''
+
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------

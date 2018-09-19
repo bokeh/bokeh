@@ -93,7 +93,7 @@ def OutputDocumentFor(objs, apply_theme=None, always_new=False):
 
             If None, use whatever theme is on the document that is found or created
 
-            If FromCurdox, use curdoc().theme, restoring any previous theme afterwards
+            If FromCurdoc, use curdoc().theme, restoring any previous theme afterwards
 
             If a Theme instance, use that theme, restoring any previous theme afterwards
 
@@ -233,7 +233,7 @@ class RenderRoots(object):
     def to_json(self):
         return OrderedDict([ (root._id, elementid) for root, elementid in self._roots.items() ])
 
-def standalone_docs_json_and_render_items(models):
+def standalone_docs_json_and_render_items(models, suppress_callback_warning=False):
     '''
 
     '''
@@ -243,7 +243,7 @@ def standalone_docs_json_and_render_items(models):
     if not (isinstance(models, Sequence) and all(isinstance(x, (Model, Document)) for x in models)):
         raise ValueError("Expected a Model, Document, or Sequence of Models or Documents")
 
-    if submodel_has_python_callbacks(models):
+    if submodel_has_python_callbacks(models) and not suppress_callback_warning:
         log.warn(_CALLBACKS_WARNING)
 
     docs = {}
