@@ -482,6 +482,11 @@ class Serve(Subcommand):
             type=int,
         )),
 
+        ('--dev', dict(
+            action='store_true',
+            help="Enable live reloading during app development."
+                 "NOTE: This setting has effect ONLY for Tornado>=5.0",
+        )),
     )
 
 
@@ -558,6 +563,8 @@ class Serve(Subcommand):
 
         server_kwargs['use_index'] = not args.disable_index
         server_kwargs['redirect_root'] = not args.disable_index_redirect
+        
+        server_kwargs['autoreload'] = args.dev
 
         with report_server_init_errors(**server_kwargs):
             server = Server(applications, **server_kwargs)
