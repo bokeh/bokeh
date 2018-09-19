@@ -6,6 +6,7 @@ import {Line, Fill, Text} from "core/visuals"
 import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap} from "core/enums"
 import {Orientation, LegendLocation, LegendClickPolicy} from "core/enums"
 import * as p from "core/properties"
+import {Signal0} from "core/signaling"
 import {get_text_height} from "core/util/text"
 import {BBox} from "core/util/bbox"
 import {max, all} from "core/util/array"
@@ -32,7 +33,8 @@ export class LegendView extends AnnotationView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.visible.change, () => this.plot_view.request_render())
+    this.connect(this.model.change, () => this.plot_view.request_render())
+    this.connect(this.model.item_change, () => this.plot_view.request_render())
   }
 
   compute_legend_bbox(): LegendBBox {
@@ -201,6 +203,12 @@ export class LegendView extends AnnotationView {
     if (this.model.items.length == 0)
       return
 
+    // set a backref on render so that items can later signal item_change upates
+    // on the model to trigger a re-render
+    for (const item of this.model.items) {
+      item.legend = this.model
+    }
+
     const {ctx} = this.plot_view.canvas_view
     const bbox = this.compute_legend_bbox()
 
@@ -359,8 +367,15 @@ export class Legend extends Annotation {
 
   properties: Legend.Props
 
+  item_change: Signal0<this>
+
   constructor(attrs?: Partial<Legend.Attrs>) {
     super(attrs)
+  }
+
+  initialize(): void {
+    super.initialize()
+    this.item_change = new Signal0(this, "item_change")
   }
 
   static initClass(): void {
