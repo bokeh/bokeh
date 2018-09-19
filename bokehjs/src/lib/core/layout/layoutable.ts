@@ -130,21 +130,37 @@ export abstract class Layoutable {
         throw new Error("unrechable")
     }
 
-    const {width_policy, height_policy} = this.sizing
+    const {width_policy, height_policy, aspect} = this.sizing
 
-    if ((this.sizing.width_policy == "max" || this.sizing.width_policy == "min") &&
-        (this.sizing.height_policy == "max" || this.sizing.height_policy == "min")) {
-      const {aspect} = this.sizing
-      if (aspect != null) {
-        if (width_policy != height_policy) {
-          if (width_policy == "max") {
-            height = width/aspect
-            if (height < size_hint.height) console.log("H")
-          } else {
-            width = height*aspect
-            if (width < size_hint.width) console.log("W")
-          }
+    if (aspect != null) {
+      if (width_policy == "max" && height_policy == "max") {
+        const w_width = width
+        const w_height = width / aspect
+
+        const h_width = height * aspect
+        const h_height = height
+
+        const {abs} = Math
+        const w_diff = abs(viewport.width! - w_width) + abs(viewport.height! - w_height)
+        const h_diff = abs(viewport.width! - h_width) + abs(viewport.height! - h_height)
+
+        if (w_diff < h_diff) {
+          width = w_width
+          height = w_height
+        } else {
+          width = h_width
+          height = h_height
         }
+      } else if (width_policy == "max") {
+        if (height_policy == "fixed")
+          width = height*aspect
+        else
+          height = width/aspect
+      } else if (height_policy != "max") {
+        if (width_policy == "fixed")
+          height = width/aspect
+        else
+          width = height*aspect
       }
     }
 
