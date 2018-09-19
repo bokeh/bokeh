@@ -181,6 +181,12 @@ def test_args():
             default=20*1024*1024,
             type=int,
         )),
+
+        ('--dev', dict(
+            action='store_true',
+            help="Enable live reloading during app development."
+                 "NOTE: This setting has effect ONLY for Tornado>=5.0",
+        )),
     )
 
 
