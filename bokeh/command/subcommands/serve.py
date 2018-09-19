@@ -563,7 +563,6 @@ class Serve(Subcommand):
 
         server_kwargs['use_index'] = not args.disable_index
         server_kwargs['redirect_root'] = not args.disable_index_redirect
-        
         server_kwargs['autoreload'] = args.dev
 
         with report_server_init_errors(**server_kwargs):
