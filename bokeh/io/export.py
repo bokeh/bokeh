@@ -239,7 +239,7 @@ def get_layout_html(obj, resources=INLINE, **kwargs):
             obj.plot_width = kwargs.get('width', old_width)
 
     try:
-        html = file_html(obj, resources, title="")
+        html = file_html(obj, resources, title="", suppress_callback_warning=True)
     finally:
         if resize:
             obj.plot_height = old_height

@@ -245,7 +245,8 @@ def file_html(models,
               title=None,
               template=FILE,
               template_variables={},
-              theme=FromCurdoc):
+              theme=FromCurdoc,
+              suppress_callback_warning=False):
     ''' Return an HTML document that embeds Bokeh Model or Document objects.
 
     The data for the plot is stored directly in the returned HTML, with
@@ -256,11 +257,14 @@ def file_html(models,
         models (Model or Document or seq[Model]) : Bokeh object or objects to render
             typically a Model or Document
 
-        resources (Resources or tuple(JSResources or None, CSSResources or None)) : i
+        resources (Resources or tuple(JSResources or None, CSSResources or None)) :
             A resource configuration for Bokeh JS & CSS assets.
 
-        title (str, optional) : a title for the HTML document ``<title>`` tags or None. (default: None)
-            If None, attempt to automatically find the Document title from the given plot objects.
+        title (str, optional) :
+            A title for the HTML document ``<title>`` tags or None. (default: None)
+
+            If None, attempt to automatically find the Document title from the given
+            plot objects.
 
         template (Template, optional) : HTML document template (default: FILE)
             A Jinja2 Template, see bokeh.core.templates.FILE for the required
@@ -276,6 +280,12 @@ def file_html(models,
             already specified in the document. Any other value must be an
             instance of the ``Theme`` class.
 
+        suppress_callback_warning (bool, optional) :
+            Normally generating standalone HTML from a Bokeh Document that has
+            Python callbacks will result in a warning stating that the callbacks
+            cannot function. However, this warning can be suppressed by setting
+            this value to True (default: False)
+
     Returns:
         UTF-8 encoded HTML
 
@@ -287,7 +297,7 @@ def file_html(models,
         models = models.roots
 
     with OutputDocumentFor(models, apply_theme=theme) as doc:
-        (docs_json, render_items) = standalone_docs_json_and_render_items(models)
+        (docs_json, render_items) = standalone_docs_json_and_render_items(models, suppress_callback_warning=suppress_callback_warning)
         title = _title_from_models(models, title)
         bundle = bundle_for_objs_and_resources([doc], resources)
         return html_page_for_render_items(bundle, docs_json, render_items, title=title,
