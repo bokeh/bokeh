@@ -22,17 +22,16 @@ from bokeh.models.widgets import (
     StringEditor, IntEditor, NumberEditor, SelectEditor,
 )
 from bokeh.plotting import figure
-from bokeh.layouts import widgetbox
 from bokeh.sampledata.iris import flowers
 from bokeh.sampledata.autompg2 import autompg2 as mpg
 
 button = Button(label="Button (disabled) - still has click event", button_type="primary", disabled=True)
 toggle = Toggle(label="Toggle button", button_type="success")
 
-menu = [("Item 1", "item_1_value"), ("Item 2", "item_2_value"), ("Item 3", "item_3_value")]
+menu = [("Item 1", "item_1_value"), ("Item 2", "item_2_value"), None, ("Item 3", "item_3_value")]
 
 dropdown = Dropdown(label="Dropdown button", button_type="warning", menu=menu)
-#dropdown_split = Dropdown(label="Split button", button_type="danger", menu=menu, default_value="default"))
+dropdown_split = Dropdown(label="Split button", button_type="danger", menu=menu, split=True)
 
 checkbox_group = CheckboxGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1])
 radio_group = RadioGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
@@ -109,12 +108,12 @@ table = DataTable(source=source, columns=columns, editable=True, width=800)
 
 widgets = Column(children=[
     Row(children=[
-        widgetbox([
-            button, toggle, dropdown, #dropdown_split,
+        Column(children=[
+            button, toggle, dropdown, dropdown_split,
             checkbox_group, radio_group,
             checkbox_button_group, radio_button_group,
         ]),
-        widgetbox([
+        Column(children=[
             text_input, autocomplete_input,
             select, multi_select,
             slider, range_slider, #date_range_slider,

@@ -146,11 +146,7 @@ class Dropdown(AbstractButton):
 
     label = Override(default="Dropdown")
 
-    default_value = String(help="""
-    A default value to set when a split Dropdown's top button is clicked.
-
-    Setting this property will cause the Dropdown to be rendered as
-    split.
+    split = Bool(default=False, help="""
     """)
 
     menu = List(Tuple(String, Either(String, Instance(Callback))), help="""

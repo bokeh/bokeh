@@ -2,6 +2,7 @@
 import {View} from "./view"
 import {Class} from "./class"
 import {Signal0, Signal, Signalable} from "./signaling"
+import {BokehEvent, register_with_event} from "./bokeh_events"
 import * as property_mixins from "./property_mixins"
 import {Ref, is_ref, create_ref} from "./util/refs"
 import * as p from "./properties"
@@ -141,6 +142,11 @@ export abstract class HasProps extends Signalable() {
       props[name] = {...value, default_value}
       this.prototype.props = props
     }
+  }
+
+  static register(...events: typeof BokehEvent[]): void {
+    for (const event of events)
+      register_with_event(event, this)
   }
 
   toString(): string {

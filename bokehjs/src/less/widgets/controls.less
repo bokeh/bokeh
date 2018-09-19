@@ -10,21 +10,15 @@
   line-height: @line-height;
   border: 1px solid transparent;
   border-radius: @border-radius;
+  outline: 0;
 
   .no-user-select();
-
-  &, &:active, &.bk-active {
-    &:focus {
-      outline: thin dotted;
-    }
-  }
 
   &:hover, &:focus {
     text-decoration: none;
   }
 
   &:active, &.bk-active {
-    outline: 0;
     background-image: none;
     box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
   }
@@ -42,15 +36,17 @@
   background-color: @background;
   border-color: @border;
 
-  &:hover, &:focus, &:active, &.bk-active {
-    color: @color;
+  &:hover {
+    background-color: darken(@background, 4%);
+    border-color: darken(@border, 8%);
+  }
+
+  &.bk-active {
     background-color: darken(@background, 8%);
     border-color: darken(@border, 12%);
   }
-  &:active, &.bk-active {
-    background-image: none;
-  }
-  &.bk-disabled, &[disabled] {
+
+  &[disabled] {
     &, &:hover, &:focus, &:active, &.bk-active {
       background-color: @background;
       border-color: @border;
@@ -168,77 +164,57 @@ select[multiple], select[size], textarea {
   height: auto;
 }
 
-.bk-dropdown-toggle .bk-caret {
-  margin-left: 5px;
-}
-
-.bk-dropdown-menu {
-  width: 100%;
-}
-
 @caret-width: 4px;
 
 .bk-caret {
   display: inline-block;
   width: 0;
   height: 0;
-  margin-left: 2px;
+  margin: 0 5px;
   vertical-align: middle;
   border-top:   @caret-width solid;
   border-right: @caret-width solid transparent;
   border-left:  @caret-width solid transparent;
 }
 
-.bk-dropdown {
-  position: relative;
+.bk-btn-group .bk-dropdown-toggle {
+  .item-flex(0, 0, 0);
+  padding: @padding-vertical (@padding-horizontal/2);
 }
 
 .bk-menu {
+  &.bk-above {
+    bottom: 100%;
+  }
+  &.bk-below {
+    top: 100%;
+  }
+
   position: absolute;
-  display: none;
-  top: 100%;
   left: 0;
-  float: left;
-  min-width: 160px;
-  padding: 5px 0;
-  //margin: 2px 0 0;
-  list-style: none;
+  width: 100%;
+  z-index: 1;
+
+  cursor: pointer;
   font-size: @font-size;
   background-color: #fff;
-  //border: 1px solid
+  border: 1px solid #ccc;
   border-radius: @border-radius;
-  box-shadow: 0 6px 12px rgba(0,0,0,.175);
-  background-clip: padding-box;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
 
-  .bk-divider {
+  & > .bk-divider {
     height: 1px;
     margin: ((@line-height-computed / 2) - 1) 0;
     overflow: hidden;
     background-color: #e5e5e5;;
   }
-}
 
-.bk-dropdown-menu-right {
-  left: auto;
-  right: 0;
-}
+  & > :not(.bk-divider) {
+    padding: @padding-vertical @padding-horizontal;
 
-.bk-dropdown-menu-left {
-  left: 0;
-  right: auto;
-}
-
-.bk-dropup {
-  .bk-caret {
-    border-top: 0;
-    border-bottom: @caret-width solid;
-    content: "";
-  }
-
-  .bk-menu {
-    top: auto;
-    bottom: 100%;
-    margin-bottom: 1px;
+    &:hover {
+      background-color: darken(white, 10%);
+    }
   }
 }
 

@@ -46,7 +46,7 @@ export abstract class AbstractButtonView extends WidgetView {
     super.render()
 
     this.buttonEl = this._render_button(this.model.label)
-    this.buttonEl.addEventListener("click", (event) => this._button_click(event))
+    this.buttonEl.addEventListener("click", () => this.click())
     this.el.appendChild(this.buttonEl)
 
     const icon = this.model.icon
@@ -56,12 +56,7 @@ export abstract class AbstractButtonView extends WidgetView {
     }
   }
 
-  protected _button_click(event: Event): void {
-    event.preventDefault()
-    this.change_input()
-  }
-
-  change_input(): void {
+  click(): void {
     if (this.model.callback != null)
       this.model.callback.execute(this.model)
   }
@@ -81,7 +76,6 @@ export namespace AbstractButton {
 export interface AbstractButton extends AbstractButton.Attrs {}
 
 export abstract class AbstractButton extends Widget {
-
   properties: AbstractButton.Props
 
   constructor(attrs?: Partial<AbstractButton.Attrs>) {
@@ -104,5 +98,4 @@ export abstract class AbstractButton extends Widget {
     })
   }
 }
-
 AbstractButton.initClass()

@@ -64,7 +64,7 @@ class Test_Button(object):
             plot.add_glyph(source, Circle(x='x', y='y', size=20))
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
             button = Button(css_classes=['foo'])
-            def cb():
+            def cb(event):
                 source.data=dict(x=[10, 20], y=[10, 10])
             button.on_click(cb)
             doc.add_root(column(button, plot))

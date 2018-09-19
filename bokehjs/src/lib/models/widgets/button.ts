@@ -1,13 +1,12 @@
 import {AbstractButton, AbstractButtonView} from "./abstract_button"
-
-import {register_with_event, ButtonClick} from "core/bokeh_events"
+import {ButtonClick} from "core/bokeh_events"
 
 export class ButtonView extends AbstractButtonView {
   model: Button
 
-  change_input(): void {
+  click(): void {
     this.model.trigger_event(new ButtonClick())
-    super.change_input()
+    super.click()
   }
 }
 
@@ -34,7 +33,7 @@ export class Button extends AbstractButton {
       label: "Button",
     })
 
-    register_with_event(ButtonClick, this)
+    this.register(ButtonClick)
   }
 }
 Button.initClass()

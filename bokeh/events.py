@@ -82,6 +82,7 @@ __all__ = (
     'Event',
     'LODStart',
     'LODEnd',
+    'MenuItemClick',
     'MouseEnter',
     'MouseLeave',
     'MouseMove',
@@ -185,17 +186,27 @@ class Event(with_metaclass(_MetaEvent, object)):
         return event
 
 class ButtonClick(Event):
-    ''' Announce a button click event on a Bokeh Button widget.
+    ''' Announce a button click event on a Bokeh button widget.
 
     '''
     event_name = 'button_click'
 
     def __init__(self, model):
-        from .models.widgets import Button
-        if model is not None and not isinstance(model, Button):
-            msg ='{clsname} event only applies to Button models'
+        from .models.widgets import AbstractButton
+        if model is not None and not isinstance(model, AbstractButton):
+            msg ='{clsname} event only applies to button models'
             raise ValueError(msg.format(clsname=self.__class__.__name__))
         super(ButtonClick, self).__init__(model=model)
+
+class MenuItemClick(Event):
+    ''' Announce a button click event on a Bokeh menu item.
+
+    '''
+    event_name = 'menu_item_click'
+
+    def __init__(self, model, item=None):
+        self.item = item
+        super(MenuItemClick, self).__init__(model=model)
 
 class PlotEvent(Event):
     ''' The base class for all events applicable to Plot models.

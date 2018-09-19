@@ -46,6 +46,11 @@
   -webkit-order: @order;
 }
 
+.item-flex(@grow, @shrink, @basis) {
+  flex: @grow @shrink @basis;
+  -webkit-flex: @grow @shrink @basis;
+}
+
 .no-user-select() {
   user-select: none;
   -ms-user-select: none;

@@ -25,7 +25,7 @@ export abstract class BokehEvent {
 
   constructor(options: any = {}) {
     this._options = options
-    if (options.model_id) {
+    if (options.model_id != null) {
       this.model_id = options.model_id
     }
   }
@@ -66,6 +66,16 @@ BokehEvent.prototype.applicable_models = []
 
 @register_event_class("button_click")
 export class ButtonClick extends BokehEvent {}
+
+@register_event_class("menu_item_click")
+export class MenuItemClick extends BokehEvent {
+  item: string
+
+  constructor(options: {item: string, model_id?: string}) {
+    super(options)
+    this.item = options.item
+  }
+}
 
 // A UIEvent is an event originating on a canvas this includes.
 // DOM events such as keystrokes as well as hammer events and LOD events.

@@ -1,33 +1,34 @@
 import {AbstractButton, AbstractButtonView} from "./abstract_button"
 import {CallbackLike} from "../callbacks/callback"
 
-import {div} from "core/dom"
-import {clear_menus} from "core/menus"
+import {ButtonClick, MenuItemClick} from "core/bokeh_events"
+import {div, show, hide} from "core/dom"
 import * as p from "core/properties"
+import {isString} from "core/util/types"
 
 export class DropdownView extends AbstractButtonView {
   model: Dropdown
 
   protected _open: boolean = false
 
-  connect_signals(): void {
-    super.connect_signals()
-    clear_menus.connect(() => this._clear_menu())
-  }
+  protected menu: HTMLElement
 
   render(): void {
     super.render()
 
-    if (!this.is_split_button) {
-      this.el.classList.add("bk-bs-dropdown")
-      this.buttonEl.classList.add("bk-bs-dropdown-toggle")
-      this.buttonEl.appendChild(div({class: "bk-bs-caret"}))
+    if (!this.model.split) {
+      this.buttonEl.classList.add("bk-dropdown-toggle")
+      this.buttonEl.appendChild(div({class: "bk-caret"}))
     } else {
-      this.el.classList.add("bk-bs-btn-group")
-      const caret = this._render_button(div({class: "bk-bs-caret"}))
-      caret.classList.add("bk-bs-dropdown-toggle")
+      const group = div({class: "bk-btn-group"})
+      this.el.appendChild(group)
+
+      const caret = this._render_button(div({class: "bk-caret"}))
+      caret.classList.add("bk-dropdown-toggle")
       caret.addEventListener("click", () => this._toggle_menu())
-      this.el.appendChild(caret)
+
+      group.appendChild(this.buttonEl)
+      group.appendChild(caret)
     }
 
     const items = this.model.menu.map((item, i) => {
@@ -41,48 +42,73 @@ export class DropdownView extends AbstractButtonView {
       }
     })
 
-    const menu = div({class: "bk-menu"}, items)
-    this.el.appendChild(menu)
+    this.menu = div({class: ["bk-menu", "bk-below"]}, items)
+    this.el.appendChild(this.menu)
+    hide(this.menu)
   }
 
-  protected _clear_menu(): void {
-    this._open = false
-  }
-
-  protected _toggle_menu(): void {
-    const open = this._open
-    clear_menus.emit()
-    if (!open)
+  protected _show_menu(): void {
+    if (!this._open) {
       this._open = true
-  }
+      show(this.menu)
 
-  protected _button_click(): void {
-    if (!this.is_split_button)
-      this._toggle_menu()
-    else {
-      this._clear_menu()
-      //this.set_value(this.model.default_value)
+      const listener = (event: MouseEvent) => {
+        const {target} = event
+        if (target instanceof HTMLElement && !this.el.contains(target)) {
+          document.removeEventListener("click", listener)
+          this._hide_menu()
+        }
+      }
+      document.addEventListener("click", listener)
     }
   }
 
-  protected _item_click(_i: number): void {
-    this._clear_menu()
-    //this.set_value((event.currentTarget as HTMLElement).dataset.value!)
+  protected _hide_menu(): void {
+    if (this._open) {
+      this._open = false
+      hide(this.menu)
+    }
   }
 
-  get is_split_button(): boolean {
-    return this.model.default_value != null
+  protected _toggle_menu(): void {
+    if (this._open)
+      this._hide_menu()
+    else
+      this._show_menu()
+  }
+
+  click(): void {
+    if (!this.model.split)
+      this._toggle_menu()
+    else {
+      this._hide_menu()
+      this.model.trigger_event(new ButtonClick())
+      super.click()
+    }
+  }
+
+  protected _item_click(i: number): void {
+    this._hide_menu()
+
+    const item = this.model.menu[i]
+    if (item != null) {
+      const [, value_or_callback] = item
+      if (isString(value_or_callback))
+        this.model.trigger_event(new MenuItemClick({item: value_or_callback}))
+      else
+        value_or_callback.execute(this.model, {index: i}) // TODO
+    }
   }
 }
 
 export namespace Dropdown {
   export interface Attrs extends AbstractButton.Attrs {
-    default_value: string | null
+    split: boolean
     menu: ([string, string | CallbackLike<Dropdown>] | null)[]
   }
 
   export interface Props extends AbstractButton.Props {
-    default_value: p.Property<string | null>
+    split: p.Property<boolean>
     menu: p.Property<([string, string | CallbackLike<Dropdown>] | null)[]>
   }
 }
@@ -101,13 +127,15 @@ export class Dropdown extends AbstractButton {
     this.prototype.default_view = DropdownView
 
     this.define({
-      default_value: [ p.String    ],
-      menu:          [ p.Array, [] ],
+      split: [ p.Boolean, false ],
+      menu:  [ p.Array,   []    ],
     })
 
     this.override({
       label: "Dropdown",
     })
+
+    this.register(ButtonClick, MenuItemClick)
   }
 }
 Dropdown.initClass()

@@ -15,9 +15,9 @@ export class ToggleView extends AbstractButtonView {
     this._update_active()
   }
 
-  change_input(): void {
+  click(): void {
     this.model.active = !this.model.active
-    super.change_input()
+    super.click()
   }
 
   protected _update_active(): void {
@@ -38,7 +38,6 @@ export namespace Toggle {
 export interface Toggle extends Toggle.Attrs {}
 
 export class Toggle extends AbstractButton {
-
   properties: Toggle.Props
 
   constructor(attrs?: Partial<Toggle.Attrs>) {
@@ -58,5 +57,4 @@ export class Toggle extends AbstractButton {
     })
   }
 }
-
 Toggle.initClass()
