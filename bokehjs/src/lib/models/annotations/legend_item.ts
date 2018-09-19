@@ -1,4 +1,5 @@
 import {Model} from "../../model"
+import {Legend} from "./legend"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {StringSpec, isValue, isField} from "core/vectorization"
@@ -21,6 +22,8 @@ export interface LegendItem extends LegendItem.Attrs {}
 export class LegendItem extends Model {
 
   properties: LegendItem.Props
+
+  legend: Legend | null
 
   constructor(attrs?: Partial<LegendItem.Attrs>) {
     super(attrs)
@@ -71,6 +74,9 @@ export class LegendItem extends Model {
 
   initialize(): void {
     super.initialize()
+    this.legend = null
+    this.connect(this.change,
+      () => { if (this.legend != null) this.legend.item_change.emit() })
 
     // Validate data_sources match
     const data_source_validation = this._check_data_sources_on_renderers()
