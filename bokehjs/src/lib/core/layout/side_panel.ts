@@ -271,7 +271,7 @@ export class SidePanel extends LayoutCanvas {
     return this.side == "left" || this.side == "right"
   }
 
-  apply_label_text_heuristics(ctx: CanvasRenderingContext2D, orient: TextOrient | number): void {
+  get_label_text_heuristics(orient: TextOrient | number): {baseline: CanvasTextBaseline, align: CanvasTextAlign} {
     const side = this.side
 
     let baseline: CanvasTextBaseline
@@ -293,8 +293,7 @@ export class SidePanel extends LayoutCanvas {
       }
     }
 
-    ctx.textBaseline = baseline
-    ctx.textAlign = align
+    return {baseline, align}
   }
 
   get_label_angle_heuristic(orient: Orient): number {

@@ -1,3 +1,5 @@
+sinon = require("sinon")
+
 # XXX: Patch jsdom/utils before importing main jsdom. Otherwise
 #      HTMLCanvasElement will detect no canvas and make tests
 #      fail with "unable to obtain 2D rendering context".
@@ -48,3 +50,8 @@ global.Event = global.window.Event
 global.Image = global.window.Image
 global.atob = require "atob"
 global.btoa = require "btoa"
+
+# Stub get_text_height(), because jsdom doesn't allow for computing any real HTML element
+# metrics, like a normal web browser would do. APIs are just stubs and usually return 0.
+core_util_text = require("core/util/text")
+sinon.stub(core_util_text, "get_text_height", () -> {height: 15, ascent: 10, descent: 5})

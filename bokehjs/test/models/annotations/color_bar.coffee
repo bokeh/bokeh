@@ -12,16 +12,10 @@ sinon = require 'sinon'
 {Plot} = require("models/plots/plot")
 {Range1d} = require("models/ranges/range1d")
 {Document} = require "document"
-bokeh_text  = require("core/util/text")
 
 describe "ColorBar module", ->
 
-  afterEach ->
-    bokeh_text.get_text_height.restore()
-
   beforeEach ->
-    sinon.stub(bokeh_text, "get_text_height", () -> {height: 15, ascent: 10, descent: 5})
-
     @plot = new Plot({
        x_range: new Range1d({start: 0, end: 1})
        y_range: new Range1d({start: 0, end: 1})

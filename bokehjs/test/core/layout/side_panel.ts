@@ -12,20 +12,18 @@ import {Range1d} from "models/ranges/range1d"
 
 describe("SidePanel", () => {
 
-  describe("apply_location_heuristics", () => {
+  describe("get_label_text_heuristics", () => {
 
     it("should calculate appropriate axis_label text properties based on location", () => {
       const p1 = new SidePanel({side: 'left'})
-      const ctx1 = {} as any
-      p1.apply_label_text_heuristics(ctx1, 'parallel')
-      expect(ctx1.textBaseline).to.be.equal("alphabetic")
-      expect(ctx1.textAlign).to.be.equal("center")
+      const r1 = p1.get_label_text_heuristics('parallel')
+      expect(r1.baseline).to.be.equal("alphabetic")
+      expect(r1.align).to.be.equal("center")
 
       const p2 = new SidePanel({side: 'below'})
-      const ctx2 = {} as any
-      p2.apply_label_text_heuristics(ctx2, Math.PI/2)
-      expect(ctx2.textBaseline).to.be.equal("middle")
-      expect(ctx2.textAlign).to.be.equal("right")
+      const r2 = p2.get_label_text_heuristics(Math.PI/2)
+      expect(r2.baseline).to.be.equal("middle")
+      expect(r2.align).to.be.equal("right")
     })
   })
 
