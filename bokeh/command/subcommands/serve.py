@@ -309,7 +309,9 @@ from bokeh.util.string import nice_join, format_docstring
 from bokeh.server.tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES
 from bokeh.settings import settings
 
-from os import getpid
+import tornado.autoreload as tar
+import os
+from fnmatch import fnmatch
 
 from ..subcommand import Subcommand
 from ..util import build_single_handler_applications, die, report_server_init_errors
@@ -485,7 +487,9 @@ class Serve(Subcommand):
         ('--dev', dict(
             action='store_true',
             help="Enable live reloading during app development."
-                 "NOTE: This setting has effect ONLY for Tornado>=5.0",
+                 "NOTE: This setting has effect ONLY for Tornado>=5.0"
+                 "and only works with a single app."
+                 "It also restricts the number of processes to 1.",
         )),
     )
 
@@ -565,6 +569,30 @@ class Serve(Subcommand):
         server_kwargs['redirect_root'] = not args.disable_index_redirect
         server_kwargs['autoreload'] = args.dev
 
+        def find_autoreload_targets(app_path):
+            path = os.path.abspath(app_path)
+            if not os.path.isdir(path):
+                return
+
+            for path, subdirs, files in os.walk(path):
+                for name in files:
+                    if (fnmatch(name, '*.html') or
+                        fnmatch(name, '*.css') or
+                        fnmatch(name, '*.yaml')):
+                        print("Watching: " + os.path.join(path, name))
+                        tar.watch(os.path.join(path, name))
+
+        if server_kwargs['autoreload']:
+            if len(applications.keys()) != 1:
+                die("--dev can only support a single app.")
+            if server_kwargs['num_procs'] != 1:
+                log.info("Running in --dev mode. Will limit processes to 1.")
+                server_kwargs['num_procs'] = 1
+
+            find_autoreload_targets(args.files[0])
+
+
+
         with report_server_init_errors(**server_kwargs):
             server = Server(applications, **server_kwargs)
 
@@ -583,5 +611,5 @@ class Serve(Subcommand):
                 url = "http://%s:%d%s%s" % (address_string, server.port, server.prefix, route)
                 log.info("Bokeh app running at: %s" % url)
 
-            log.info("Starting Bokeh server with process id: %d" % getpid())
+            log.info("Starting Bokeh server with process id: %d" % os.getpid())
             server.run_until_shutdown()
