@@ -1,6 +1,6 @@
 import numpy as np
 
-from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid, HoverTool
+from bokeh.models import ColumnDataSource, Plot, LinearAxis, Grid, HoverTool
 from bokeh.models.widgets import Tabs, Panel, Paragraph
 from bokeh.models.layouts import Column
 from bokeh.models.glyphs import (
@@ -34,9 +34,6 @@ source = ColumnDataSource(dict(
     yp01 = y + 0.1,
     ym01 = y - 0.1,
 ))
-
-xdr = DataRange1d()
-ydr = DataRange1d()
 
 def screen(value):
     return dict(value=value, units="screen")
@@ -79,7 +76,7 @@ markers = [
 ]
 
 def make_tab(title, glyph):
-    plot = Plot(x_range=xdr, y_range=ydr)
+    plot = Plot()
     plot.title.text = title
 
     plot.add_glyph(source, glyph)

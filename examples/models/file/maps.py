@@ -5,12 +5,9 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.glyphs import Circle
 from bokeh.models import (
-    GMapPlot, Range1d, ColumnDataSource, PanTool, WheelZoomTool, BoxSelectTool, GMapOptions,
+    GMapPlot, ColumnDataSource, PanTool, WheelZoomTool, BoxSelectTool, GMapOptions,
     LinearAxis, MercatorTickFormatter, MercatorTicker, Label)
 from bokeh.resources import INLINE
-
-x_range = Range1d()
-y_range = Range1d()
 
 # JSON style string taken from: https://snazzymaps.com/style/1/pale-dawn
 map_options = GMapOptions(lat=30.2861, lng=-97.7394, map_type="roadmap", zoom=13, styles="""
@@ -21,11 +18,7 @@ map_options = GMapOptions(lat=30.2861, lng=-97.7394, map_type="roadmap", zoom=13
 # https://developers.google.com/maps/documentation/javascript/get-api-key
 API_KEY = "GOOGLE_API_KEY"
 
-plot = GMapPlot(
-    x_range=x_range, y_range=y_range,
-    map_options=map_options,
-    api_key=API_KEY,
-)
+plot = GMapPlot(map_options=map_options, api_key=API_KEY)
 
 if plot.api_key == "GOOGLE_API_KEY":
     plot.add_layout(Label(x=140, y=400, x_units='screen', y_units='screen',

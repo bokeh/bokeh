@@ -5,6 +5,7 @@ import {PlotCanvas} from "./plot_canvas"
 import {Plot, PlotView} from "./plot"
 import * as p from "core/properties"
 import {Model} from "../../model"
+import {Range1d} from '../ranges/range1d'
 
 export namespace MapOptions {
   export interface Attrs extends Model.Attrs {
@@ -118,6 +119,11 @@ export class GMapPlot extends Plot {
     this.define({
       map_options: [ p.Instance ],
       api_key:     [ p.String   ],
+    })
+
+    this.override({
+      "x_range": () => new Range1d(),
+      "y_range": () => new Range1d(),
     })
   }
 

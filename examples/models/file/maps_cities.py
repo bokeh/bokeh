@@ -5,13 +5,10 @@ from bokeh.util.browser import view
 from bokeh.embed import file_html
 from bokeh.models.glyphs import Circle
 from bokeh.models import (
-    GMapPlot, Range1d, ColumnDataSource,
+    GMapPlot, ColumnDataSource,
     PanTool, WheelZoomTool, GMapOptions, Label)
 from bokeh.resources import INLINE
 from bokeh.sampledata.world_cities import data
-
-x_range = Range1d(-160, 160)
-y_range = Range1d(-80, 80)
 
 # Google Maps now requires an API key. You can find out how to get one here:
 # https://developers.google.com/maps/documentation/javascript/get-api-key
@@ -20,13 +17,8 @@ API_KEY = "GOOGLE_API_KEY"
 map_options = GMapOptions(lat=15, lng=0, zoom=2)
 
 plot = GMapPlot(
-    x_range=x_range,
-    y_range=y_range,
-    plot_width=1000,
-    plot_height=500,
-    map_options=map_options,
-    api_key=API_KEY,
-    output_backend="webgl",
+    plot_width=1000, plot_height=500,
+    map_options=map_options, api_key=API_KEY, output_backend="webgl",
 )
 
 if plot.api_key == "GOOGLE_API_KEY":

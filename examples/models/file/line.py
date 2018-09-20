@@ -7,10 +7,7 @@ from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.glyphs import Line
-from bokeh.models import (
-    Plot, DataRange1d, LinearAxis, ColumnDataSource,
-    PanTool, WheelZoomTool, SaveTool
-)
+from bokeh.models import Plot, LinearAxis, ColumnDataSource, PanTool, WheelZoomTool, SaveTool
 from bokeh.resources import INLINE
 
 x = np.linspace(-2*pi, 2*pi, 1000)
@@ -19,10 +16,7 @@ z = cos(x)
 
 source = ColumnDataSource(data=dict(x=x, y=y))
 
-xdr = DataRange1d()
-ydr = DataRange1d()
-
-plot = Plot(x_range=xdr, y_range=ydr, min_border=50)
+plot = Plot(min_border=50)
 
 line_glyph = Line(x="x", y="y", line_color="blue")
 plot.add_glyph(source, line_glyph)

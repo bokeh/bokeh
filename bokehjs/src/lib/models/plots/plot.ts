@@ -26,6 +26,7 @@ import {Renderer} from "../renderers/renderer"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {Tool} from "../tools/tool"
 import {register_with_event, UIEvent} from 'core/bokeh_events'
+import {DataRange1d} from '../ranges/data_range1d';
 
 export class PlotView extends LayoutDOMView {
   model: Plot
@@ -194,9 +195,9 @@ export class Plot extends LayoutDOM {
 
       renderers:         [ p.Array,    []                      ],
 
-      x_range:           [ p.Instance                          ],
+      x_range:           [ p.Instance, () => new DataRange1d() ],
       extra_x_ranges:    [ p.Any,      {}                      ], // TODO (bev)
-      y_range:           [ p.Instance                          ],
+      y_range:           [ p.Instance, () => new DataRange1d() ],
       extra_y_ranges:    [ p.Any,      {}                      ], // TODO (bev)
 
       x_scale:           [ p.Instance, () => new LinearScale() ],

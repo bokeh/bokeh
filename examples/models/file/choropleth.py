@@ -4,7 +4,7 @@ from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.glyphs import Patches
-from bokeh.models import Plot, DataRange1d, ColumnDataSource
+from bokeh.models import Plot, ColumnDataSource
 from bokeh.palettes import Viridis11
 from bokeh.resources import INLINE
 from bokeh.sampledata import us_states, us_counties, unemployment
@@ -42,11 +42,7 @@ county_source = ColumnDataSource(
     )
 )
 
-xdr = DataRange1d()
-ydr = DataRange1d()
-
-plot = Plot(x_range=xdr, y_range=ydr, min_border=0, border_fill_color="white",
-            plot_width=1300, plot_height=700)
+plot = Plot(min_border=0, border_fill_color="white", plot_width=1300, plot_height=700)
 plot.title.text = "2009 Unemployment Data"
 plot.toolbar_location = None
 
