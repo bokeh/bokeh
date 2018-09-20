@@ -18,8 +18,11 @@ export namespace CellFormatter {
 export interface CellFormatter extends CellFormatter.Attrs {}
 
 export abstract class CellFormatter extends Model {
-
   properties: CellFormatter.Props
+
+  constructor(attrs?: Partial<CellFormatter.Attrs>) {
+    super(attrs)
+  }
 
   doFormat(_row: any, _cell: any, value: any, _columnDef: any, _dataContext: any): string {
     if (value == null)
@@ -42,8 +45,11 @@ export namespace StringFormatter {
 export interface StringFormatter extends StringFormatter.Attrs {}
 
 export class StringFormatter extends CellFormatter {
-
   properties: StringFormatter.Props
+
+  constructor(attrs?: Partial<StringFormatter.Attrs>) {
+    super(attrs)
+  }
 
   static initClass(): void {
     this.prototype.type = 'StringFormatter'
@@ -91,8 +97,11 @@ export namespace NumberFormatter {
 export interface NumberFormatter extends NumberFormatter.Attrs {}
 
 export class NumberFormatter extends StringFormatter {
-
   properties: NumberFormatter.Props
+
+  constructor(attrs?: Partial<NumberFormatter.Attrs>) {
+    super(attrs)
+  }
 
   static initClass(): void {
     this.prototype.type = 'NumberFormatter'
@@ -128,8 +137,11 @@ export namespace BooleanFormatter {
 export interface BooleanFormatter extends BooleanFormatter.Attrs {}
 
 export class BooleanFormatter extends CellFormatter {
-
   properties: BooleanFormatter.Props
+
+  constructor(attrs?: Partial<BooleanFormatter.Attrs>) {
+    super(attrs)
+  }
 
   static initClass(): void {
     this.prototype.type = 'BooleanFormatter'
@@ -156,8 +168,11 @@ export namespace DateFormatter {
 export interface DateFormatter extends DateFormatter.Attrs {}
 
 export class DateFormatter extends CellFormatter {
-
   properties: DateFormatter.Props
+
+  constructor(attrs?: Partial<DateFormatter.Attrs>) {
+    super(attrs)
+  }
 
   static initClass(): void {
     this.prototype.type = 'DateFormatter'
@@ -213,8 +228,11 @@ export namespace HTMLTemplateFormatter {
 export interface HTMLTemplateFormatter extends HTMLTemplateFormatter.Attrs {}
 
 export class HTMLTemplateFormatter extends CellFormatter {
-
   properties: HTMLTemplateFormatter.Props
+
+  constructor(attrs?: Partial<HTMLTemplateFormatter.Attrs>) {
+    super(attrs)
+  }
 
   static initClass(): void {
     this.prototype.type = 'HTMLTemplateFormatter'
