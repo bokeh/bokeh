@@ -185,7 +185,9 @@ def test_args():
         ('--dev', dict(
             action='store_true',
             help="Enable live reloading during app development."
-                 "NOTE: This setting has effect ONLY for Tornado>=5.0",
+                 "NOTE: This setting has effect ONLY for Tornado>=5.0"
+                 "and only works with a single app."
+                 "It also restricts the number of processes to 1.",
         )),
     )
 
