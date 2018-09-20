@@ -88,7 +88,7 @@ def detect_phantomjs(version='2.1'):
             raise RuntimeError('PhantomJS version to old. Version>=%s required, installed: %s' % (required, installed))
 
     except OSError:
-        raise RuntimeError('PhantomJS is not present in PATH. Try "conda install phantomjs" or \
+        raise RuntimeError('PhantomJS is not present in PATH or BOKEH_PHANTOMJS_PATH. Try "conda install phantomjs" or \
             "npm install -g phantomjs-prebuilt"')
 
     return phantomjs_path
