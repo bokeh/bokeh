@@ -1,6 +1,6 @@
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {SizeHint, Layoutable} from "core/layout"
-import {margin} from "core/dom"
+import {margin, border, padding} from "core/dom"
 import {Class} from "core/class"
 
 export class DOMLayout extends Layoutable {
@@ -16,7 +16,13 @@ export class DOMLayout extends Layoutable {
     else if (this.sizing.width_policy == "auto" && this.sizing.width != null)
       width = this.sizing.width
     else {
-      width = 0
+      const margins = margin(this.el)
+      const borders = border(this.el)
+      const paddings = padding(this.el)
+      width = margins.left + margins.right +
+              borders.left + borders.right +
+              paddings.left + paddings.right
+
       for (const child of Array.from(this.el.children) as HTMLElement[]) {
         const margins = margin(child)
         const rect = child.getBoundingClientRect()
@@ -31,7 +37,13 @@ export class DOMLayout extends Layoutable {
     else if (this.sizing.height_policy == "auto" && this.sizing.height != null)
       height = this.sizing.height
     else {
-      height = 0
+      const margins = margin(this.el)
+      const borders = border(this.el)
+      const paddings = padding(this.el)
+      height = margins.top + margins.bottom +
+               borders.top + borders.bottom +
+               paddings.top + paddings.bottom
+
       for (const child of Array.from(this.el.children) as HTMLElement[]) {
         const margins = margin(child)
         const rect = child.getBoundingClientRect()
