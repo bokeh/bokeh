@@ -68,7 +68,7 @@ namespace WebBrowserMarketShare {
   }
 
   const info: Bokeh.Map<BrowserInfo> = {
-    "Other": { color: "gray" },
+    Other: {color: "gray"},
   }
 
   for (const row of read_csv_from("info")) {

@@ -122,8 +122,8 @@ export class GMapPlot extends Plot {
     })
 
     this.override({
-      "x_range": () => new Range1d(),
-      "y_range": () => new Range1d(),
+      x_range: () => new Range1d(),
+      y_range: () => new Range1d(),
     })
   }
 

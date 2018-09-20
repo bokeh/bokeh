@@ -57,11 +57,11 @@ describe("CumSum", () => {
     const ret0 = s.v_compute(source)
     expect(ret0).to.deep.equal(new Float64Array([1, 3, 6, 10]))
 
-    source.patch({"foo": [[1, 12]]})
+    source.patch({foo: [[1, 12]]})
     const ret1 = s.v_compute(source)
     expect(ret1).to.deep.equal(new Float64Array([1, 13, 16, 20]))
 
-    source.patch({"foo": [[0, 1.1]]})
+    source.patch({foo: [[0, 1.1]]})
     const ret2 = s.v_compute(source)
     expect(ret2).to.deep.equal(new Float64Array([1.1, 13.1, 16.1, 20.1]))
   })
