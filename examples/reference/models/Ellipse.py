@@ -1,6 +1,6 @@
 import numpy as np
 
-from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid
+from bokeh.models import ColumnDataSource, Plot, LinearAxis, Grid
 from bokeh.models.glyphs import Ellipse
 from bokeh.io import curdoc, show
 
@@ -12,11 +12,8 @@ h = y/20.0 + 0.3
 
 source = ColumnDataSource(dict(x=x, y=y, w=w, h=h))
 
-xdr = DataRange1d()
-ydr = DataRange1d()
-
 plot = Plot(
-    title=None, x_range=xdr, y_range=ydr, plot_width=300, plot_height=300,
+    title=None, plot_width=300, plot_height=300,
     h_symmetry=False, v_symmetry=False, min_border=0, toolbar_location=None)
 
 glyph = Ellipse(x="x", y="y", width="w", height="h", angle=-0.7, fill_color="#cab2d6")

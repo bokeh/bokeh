@@ -7,10 +7,7 @@ from bokeh.core.properties import value
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.glyphs import Patch, Line, Text
-from bokeh.models import (
-    ColumnDataSource, DataRange1d, DatetimeAxis,
-    DatetimeTickFormatter, Grid, Legend, LegendItem, Plot
-)
+from bokeh.models import ColumnDataSource, DatetimeAxis, DatetimeTickFormatter, Grid, Legend, LegendItem, Plot
 from bokeh.resources import INLINE
 from bokeh.sampledata import daylight
 from bokeh.util.browser import view
@@ -53,10 +50,7 @@ text_source = ColumnDataSource(dict(
     texts = ["CST (UTC+1)", "CEST (UTC+2)", "CST (UTC+1)"],
 ))
 
-xdr = DataRange1d()
-ydr = DataRange1d()
-
-plot = Plot(x_range=xdr, y_range=ydr, plot_width=800, plot_height=400)
+plot = Plot(plot_width=800, plot_height=400)
 plot.title.text = "Daylight Hours - Warsaw, Poland"
 plot.toolbar_location = None
 

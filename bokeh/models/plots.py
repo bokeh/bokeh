@@ -412,11 +412,11 @@ class Plot(LayoutDOM):
         if msg:
             return msg
 
-    x_range = Instance(Range, help="""
+    x_range = Instance(Range, default=lambda: DataRange1d(), help="""
     The (default) data range of the horizontal dimension of the plot.
     """)
 
-    y_range = Instance(Range, help="""
+    y_range = Instance(Range, default=lambda: DataRange1d(), help="""
     The (default) data range of the vertical dimension of the plot.
     """)
 

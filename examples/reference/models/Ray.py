@@ -1,6 +1,6 @@
 import numpy as np
 
-from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid
+from bokeh.models import ColumnDataSource, Plot, LinearAxis, Grid
 from bokeh.models.glyphs import Ray
 from bokeh.io import curdoc, show
 
@@ -11,11 +11,8 @@ l = x*5 + 25
 
 source = ColumnDataSource(dict(x=x, y=y, l=l))
 
-xdr = DataRange1d()
-ydr = DataRange1d()
-
 plot = Plot(
-    title=None, x_range=xdr, y_range=ydr, plot_width=300, plot_height=300,
+    title=None, plot_width=300, plot_height=300,
     h_symmetry=False, v_symmetry=False, min_border=0, toolbar_location=None)
 
 glyph = Ray(x="x", y="y", length="l", angle=-2.0, line_color="#fb8072", line_width=3)

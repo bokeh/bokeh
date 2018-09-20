@@ -1,6 +1,6 @@
 import numpy as np
 
-from bokeh.models import ColumnDataSource, DataRange1d, Plot, LinearAxis, Grid
+from bokeh.models import ColumnDataSource, Plot, LinearAxis, Grid
 from bokeh.models.glyphs import Arc
 from bokeh.io import curdoc, show
 
@@ -11,11 +11,8 @@ r = x/15.0+0.3
 
 source = ColumnDataSource(dict(x=x, y=y, r=r))
 
-xdr = DataRange1d()
-ydr = DataRange1d()
-
 plot = Plot(
-    title=None, x_range=xdr, y_range=ydr, plot_width=300, plot_height=300,
+    title=None, plot_width=300, plot_height=300,
     h_symmetry=False, v_symmetry=False, min_border=0, toolbar_location=None)
 
 glyph = Arc(x="x", y="y", radius="r", start_angle=0.6, end_angle=4.1, line_color="#beaed4", line_width=3)

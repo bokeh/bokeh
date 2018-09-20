@@ -5,7 +5,7 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.callbacks import CustomJS
 from bokeh.models.glyphs import Circle
-from bokeh.models import Plot, DataRange1d, LinearAxis, ColumnDataSource, PanTool, WheelZoomTool, TapTool
+from bokeh.models import Plot, LinearAxis, ColumnDataSource, PanTool, WheelZoomTool, TapTool
 from bokeh.resources import INLINE
 
 source = ColumnDataSource(
@@ -16,10 +16,7 @@ source = ColumnDataSource(
     )
 )
 
-xdr = DataRange1d()
-ydr = DataRange1d()
-
-plot = Plot(x_range=xdr, y_range=ydr)
+plot = Plot()
 
 circle = Circle(x="x", y="y", radius=0.2, fill_color="color", line_color="black")
 circle_renderer = plot.add_glyph(source, circle)
