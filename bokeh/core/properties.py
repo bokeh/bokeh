@@ -806,6 +806,13 @@ class Auto(Enum):
     def _sphinx_type(self):
         return self._sphinx_prop_link()
 
+class MarkerType(Enum):
+    '''
+
+    '''
+    def __init__(self, **kw):
+        super(MarkerType, self).__init__(enums.MarkerType, **kw)
+
 class Image(Property):
     ''' Accept image file types, e.g PNG, JPEG, TIFF, etc.
 

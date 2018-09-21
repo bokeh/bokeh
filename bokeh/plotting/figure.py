@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 from six import string_types
 
 from ..core.properties import Any, Auto, Either, Enum, Int, List, Seq, Instance, String, Tuple
-from ..core.enums import HorizontalLocation, VerticalLocation
+from ..core.enums import HorizontalLocation, MarkerType, VerticalLocation
 from ..models import ColumnDataSource, Plot, Title, Tool, GraphRenderer
 from ..models import glyphs, markers
 from ..models.tools import Drag, Inspection, Scroll, Tap
@@ -711,23 +711,15 @@ Examples:
             >>> p.scatter("data1", "data2", source=data_source, ...)
 
         """
-        markertype = kwargs.pop("marker", "circle")
+        marker_type = kwargs.pop("marker", "circle")
 
-        if markertype not in _marker_types:
-            raise ValueError("Invalid marker type '%s'. Use markers() to see a list of valid marker types." % markertype)
+        if marker_type in _MARKER_SHORTCUTS:
+            marker_type = _MARKER_SHORTCUTS[marker_type]
 
-        # TODO (bev) make better when plotting.scatter is removed
-        conversions = {
-            "*": "asterisk",
-            "+": "cross",
-            "o": "circle",
-            "ox": "circle_x",
-            "o+": "circle_cross"
-        }
-        if markertype in conversions:
-            markertype = conversions[markertype]
+        if marker_type not in list(MarkerType):
+            raise ValueError("Invalid marker type '%s'. Use markers() to see a list of valid marker types." % marker_type)
 
-        return getattr(self, markertype)(*args, **kwargs)
+        return getattr(self, marker_type)(*args, **kwargs)
 
     def hexbin(self, x, y, size, orientation="pointytop", palette="Viridis256", line_color=None, fill_color=None, aspect_scale=1, **kwargs):
         ''' Perform a simple equal-weight hexagonal binning.
@@ -979,28 +971,16 @@ def figure(**kwargs):
 
     return Figure(**kwargs)
 
-
-_marker_types = [
-    "asterisk",
-    "circle",
-    "circle_cross",
-    "circle_x",
-    "cross",
-    "diamond",
-    "diamond_cross",
-    "hex",
-    "inverted_triangle",
-    "square",
-    "square_x",
-    "square_cross",
-    "triangle",
-    "x",
-    "*",
-    "+",
-    "o",
-    "ox",
-    "o+",
-]
+_MARKER_SHORTCUTS = {
+    "*"  : "asterisk",
+    "+"  : "cross",
+    "o"  : "circle",
+    "ox" : "circle_x",
+    "o+" : "circle_cross",
+    "-"  : "dash",
+    "v"  : "inverted_triangle",
+    "^"  : "triangle",
+}
 
 def markers():
     """ Prints a list of valid marker types for scatter()
@@ -1008,7 +988,9 @@ def markers():
     Returns:
         None
     """
-    print("Available markers: \n - " + "\n - ".join(_marker_types))
+    print("Available markers: \n\n - " + "\n - ".join(list(MarkerType)))
+    print()
+    print("Shortcuts: \n\n" + "\n".join(" %r: %s" % item for item in _MARKER_SHORTCUTS.items()))
 
 _color_fields = set(["color", "fill_color", "line_color"])
 _alpha_fields = set(["alpha", "fill_alpha", "line_alpha"])
