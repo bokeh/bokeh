@@ -3,6 +3,8 @@
 '''
 from __future__ import absolute_import
 
+import warnings
+
 from six import string_types
 
 from ..core.enums import Location, OutputBackend
@@ -41,6 +43,17 @@ class _list_attr_splat(list):
         else:
             return dir(self)
 
+_LEGEND_EMPTY_WARNING = """
+You are attemptings to set `plot.legend.%s` on a plot that has zero legends added, this will have no effect.
+
+Before legend properties can be set, you must add a Legend explicitly, or call a glyph method with the 'legend' parameter set.
+"""
+
+class _legend_attr_splat(_list_attr_splat):
+    def __setattr__(self, attr, value):
+        if not len(self):
+            warnings.warn(_LEGEND_EMPTY_WARNING % attr)
+        return super(_legend_attr_splat, self).__setattr__(attr, value)
 
 def _select_helper(args, kwargs):
     """ Allow flexible selector syntax.
@@ -202,7 +215,7 @@ class Plot(LayoutDOM):
 
         '''
         legends = [obj for obj in self.renderers if isinstance(obj, Legend)]
-        return _list_attr_splat(legends)
+        return _legend_attr_splat(legends)
 
     @property
     def hover(self):
