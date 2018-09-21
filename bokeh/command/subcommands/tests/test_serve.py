@@ -183,11 +183,17 @@ def test_args():
         )),
 
         ('--dev', dict(
-            action='store_true',
-            help="Enable live reloading during app development."
-                 "NOTE: This setting has effect ONLY for Tornado>=5.0"
-                 "and only works with a single app."
-                 "It also restricts the number of processes to 1.",
+            metavar ='FILES-TO-WATCH',
+            action  ='store',
+            default = None,
+            type    = str,
+            nargs   = '*',
+            help    =   "Enable live reloading during app development."
+                        "By default it watches all *.py *.html *.css *.yaml files"
+                        "in the app directory tree. Additional files can be passed"
+                        "as arguments."
+                        "NOTE: This setting only works with a single app."
+                        "It also restricts the number of processes to 1.",
         )),
     )
 

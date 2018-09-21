@@ -309,7 +309,7 @@ from bokeh.util.string import nice_join, format_docstring
 from bokeh.server.tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES
 from bokeh.settings import settings
 
-import tornado.autoreload as tar
+from tornado.autoreload import watch
 import os
 from fnmatch import fnmatch
 
@@ -485,11 +485,17 @@ class Serve(Subcommand):
         )),
 
         ('--dev', dict(
-            action='store_true',
-            help="Enable live reloading during app development."
-                 "NOTE: This setting has effect ONLY for Tornado>=5.0"
-                 "and only works with a single app."
-                 "It also restricts the number of processes to 1.",
+            metavar ='FILES-TO-WATCH',
+            action  ='store',
+            default = None,
+            type    = str,
+            nargs   = '*',
+            help    =   "Enable live reloading during app development."
+                        "By default it watches all *.py *.html *.css *.yaml files"
+                        "in the app directory tree. Additional files can be passed"
+                        "as arguments."
+                        "NOTE: This setting only works with a single app."
+                        "It also restricts the number of processes to 1.",
         )),
     )
 
@@ -579,18 +585,26 @@ class Serve(Subcommand):
                     if (fnmatch(name, '*.html') or
                         fnmatch(name, '*.css') or
                         fnmatch(name, '*.yaml')):
-                        print("Watching: " + os.path.join(path, name))
-                        tar.watch(os.path.join(path, name))
+                        log.info("Watching: " + os.path.join(path, name))
+                        watch(os.path.join(path, name))
+
+        def add_optional_autoreload_files(file_list):
+            for filen in file_list:
+                if os.path.isdir(filen):
+                    log.warn("Cannot watch directory " + filen)
+                    continue
+                log.info("Watching: " + filen)
+                watch(filen)
 
         if server_kwargs['autoreload']:
             if len(applications.keys()) != 1:
                 die("--dev can only support a single app.")
             if server_kwargs['num_procs'] != 1:
-                log.info("Running in --dev mode. Will limit processes to 1.")
+                log.info("Running in --dev mode. --num-procs is limited to 1.")
                 server_kwargs['num_procs'] = 1
 
             find_autoreload_targets(args.files[0])
-
+            add_optional_autoreload_files(server_kwargs['autoreload'])
 
 
         with report_server_init_errors(**server_kwargs):
