@@ -19,6 +19,32 @@ from bokeh.models.ranges import FactorRange, DataRange1d, Range1d
 from bokeh.models.scales import CategoricalScale, LinearScale, LogScale
 from bokeh.models.tools import PanTool
 
+import bokeh.models.plots as bmp
+
+_LEGEND_EMPTY_WARNING = """
+You are attemptings to set `plot.legend.location` on a plot that has zero legends added, this will have no effect.
+
+Before legend properties can be set, you must add a Legend explicitly, or call a glyph method with the 'legend' parameter set.
+"""
+
+class TestPlotLegendProperty(object):
+
+    def test_basic(self):
+        plot = figure(tools='')
+        x = plot.legend
+        assert isinstance(x, bmp._list_attr_splat)
+        assert len(x) == 0
+        plot.circle([1,2], [3,4], legend="foo")
+        x = plot.legend
+        assert isinstance(x, bmp._list_attr_splat)
+        assert len(x) == 1
+
+    def test_warnign(self):
+        plot = figure(tools='')
+        with pytest.warns(UserWarning) as warns:
+            plot.legend.location = "above"
+            assert len(warns) == 1
+            assert warns[0].message.args[0] == _LEGEND_EMPTY_WARNING
 
 class TestPlotSelect(object):
 
