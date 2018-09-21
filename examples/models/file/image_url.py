@@ -4,7 +4,7 @@ from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.glyphs import ImageURL
-from bokeh.models import ColumnDataSource, Range1d, Plot, LinearAxis, Grid
+from bokeh.models import ColumnDataSource, Plot, LinearAxis, Grid
 from bokeh.resources import INLINE
 
 url = "https://bokeh.pydata.org/en/latest/_static/images/logo.png"
@@ -20,17 +20,14 @@ source = ColumnDataSource(dict(
     y2  = np.linspace(  0, 200, N),
 ))
 
-xdr = Range1d(start=-100, end=200)
-ydr = Range1d(start=-100, end=200)
-
-plot = Plot(x_range=xdr, y_range=ydr)
+plot = Plot()
 plot.title.text = "ImageURL"
 plot.toolbar_location = None
 
 image1 = ImageURL(url="url", x="x1", y="y1", w="w1", h="h1", anchor="center", global_alpha=0.2)
 plot.add_glyph(source, image1)
 
-image2 = ImageURL(url="url", x="x2", y="y2", w=20, h=20, anchor="top_left")
+image2 = ImageURL(url="url", x="x2", y="y2", w=20, h=20, anchor="top_left", w_units="screen", h_units="screen")
 plot.add_glyph(source, image2)
 
 image3 = ImageURL(url=dict(value=url), x=200, y=-100, anchor="bottom_right")
