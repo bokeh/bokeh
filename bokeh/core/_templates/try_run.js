@@ -14,7 +14,7 @@
       }
       attempts++;
       if (attempts > 100) {
-        console.log("Bokeh: ERROR: Unable to run BokehJS code because BokehJS library is missing")
+        console.log("Bokeh: ERROR: Unable to run BokehJS code because BokehJS library is missing");
         clearInterval(timer);
       }
     }, 10, root)
