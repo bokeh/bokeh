@@ -573,7 +573,7 @@ class Serve(Subcommand):
 
         server_kwargs['use_index'] = not args.disable_index
         server_kwargs['redirect_root'] = not args.disable_index_redirect
-        server_kwargs['autoreload'] = args.dev
+        server_kwargs['autoreload'] = args.dev is not None
 
         def find_autoreload_targets(app_path):
             path = os.path.abspath(app_path)
@@ -604,7 +604,7 @@ class Serve(Subcommand):
                 server_kwargs['num_procs'] = 1
 
             find_autoreload_targets(args.files[0])
-            add_optional_autoreload_files(server_kwargs['autoreload'])
+            add_optional_autoreload_files(args.dev)
 
 
         with report_server_init_errors(**server_kwargs):
