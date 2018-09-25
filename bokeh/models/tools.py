@@ -1199,6 +1199,13 @@ class EditTool(Gesture):
     the color column will be filled with the defined empty value.
     """)
 
+    icon = Image(help="""
+    An icon to display in the toolbar.
+
+    The icon can provided as a string filename for an image, a PIL ``Image``
+    object, or an RGB(A) NumPy array.
+    """)
+
     renderers = List(Instance(Renderer), help="""
     An explicit list of renderers corresponding to scatter glyphs
     that may be edited.

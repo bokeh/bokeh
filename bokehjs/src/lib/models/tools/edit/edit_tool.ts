@@ -144,6 +144,7 @@ export abstract class EditToolView extends GestureToolView {
 export namespace EditTool {
   export interface Attrs extends GestureTool.Attrs {
     empty_value: any
+	icon: string
     renderers: GlyphRenderer[]
   }
 
@@ -165,6 +166,7 @@ export abstract class EditTool extends GestureTool {
 
     this.define({
       empty_value: [ p.Any       ],
+      icon:        [ p.String,   ],
       renderers:   [ p.Array, [] ],
     })
   }
