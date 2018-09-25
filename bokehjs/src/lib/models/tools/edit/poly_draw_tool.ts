@@ -259,7 +259,7 @@ export class PolyDrawTool extends PolyTool {
   }
 
   tool_name = "Polygon Draw Tool"
-  default_icon = "bk-tool-icon-poly-draw"
+  icon = "bk-tool-icon-poly-draw"
   event_type = ["pan" as "pan", "tap" as "tap", "move" as "move"]
   default_order = 3
 }

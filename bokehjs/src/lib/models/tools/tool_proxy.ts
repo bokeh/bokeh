@@ -52,7 +52,7 @@ export class ToolProxy extends Model {
   }
 
   get tooltip(): string {
-    return this.tools[0].tool_name
+    return this.tools[0].tooltip
   }
 
   get tool_name(): string {
@@ -60,7 +60,7 @@ export class ToolProxy extends Model {
   }
 
   get icon(): string {
-    return this.tools[0].icon
+    return this.tools[0].computed_icon
   }
 
   initialize(): void {

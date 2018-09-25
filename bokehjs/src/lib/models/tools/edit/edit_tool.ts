@@ -177,11 +177,9 @@ export abstract class EditTool extends GestureTool {
     return this.custom_tooltip || this.tool_name
   }
 
-  get icon(): string {
-    return this.custom_icon || this.default_icon
+  get computed_icon(): string {
+    return this.custom_icon || this.icon
   }
-
-  default_icon = ""
 }
 
 EditTool.initClass()
