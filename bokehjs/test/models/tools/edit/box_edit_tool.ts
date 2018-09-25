@@ -79,6 +79,17 @@ const make_testcase = function(): BoxEditTestCase {
 
 describe("BoxEditTool", () =>
 
+  describe("Model", function(): void {
+
+    it("should create proper tooltip", function(): void {
+      const tool = new BoxEditTool({})
+      expect(tool.tooltip).to.be.equal('Box Edit Tool')
+
+      const custom_tool = new BoxEditTool({custom_tooltip: 'Box Edit Custom'})
+      expect(custom_tool.tooltip).to.be.equal('Box Edit Custom')
+	});
+  }),
+
   describe("View", function(): void {
 
     it("should select rect on tap", function(): void {
