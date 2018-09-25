@@ -77,7 +77,18 @@ const make_testcase = function(): BoxEditTestCase {
   }
 }
 
-describe("BoxEditTool", () =>
+describe("BoxEditTool", function(): void {
+
+  describe("Model", function(): void {
+
+    it("should create proper tooltip", function(): void {
+      const tool = new BoxEditTool()
+      expect(tool.tooltip).to.be.equal('Box Edit Tool')
+
+      const custom_tool = new BoxEditTool({custom_tooltip: 'Box Edit Custom'})
+      expect(custom_tool.tooltip).to.be.equal('Box Edit Custom')
+    });
+  })
 
   describe("View", function(): void {
 
@@ -242,6 +253,6 @@ describe("BoxEditTool", () =>
       const drag_event = make_gesture_event(300, 300, true);
       testcase.draw_tool_view._doubletap(drag_event);
       expect(testcase.draw_tool_view._draw_basepoint).to.be.equal(undefined);
-    });
-  }),
-);
+    })
+  })
+});

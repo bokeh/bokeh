@@ -75,6 +75,17 @@ const make_testcase = function(): PolyDrawTestCase {
 
 describe("PolyDrawTool", (): void => {
 
+  describe("Model", function(): void {
+
+    it("should create proper tooltip", function(): void {
+      const tool = new PolyDrawTool()
+      expect(tool.tooltip).to.be.equal('Polygon Draw Tool')
+
+      const custom_tool = new PolyDrawTool({custom_tooltip: 'Poly Draw Custom'})
+      expect(custom_tool.tooltip).to.be.equal('Poly Draw Custom')
+    });
+  })
+
   describe("View", function(): void {
 
     it("should select patches on tap", function(): void {

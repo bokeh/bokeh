@@ -1187,12 +1187,23 @@ class EditTool(Gesture):
 
     '''
 
+    custom_tooltip = String(None, help="""
+    A custom tooltip label to override the default name.
+    """)
+
     empty_value = Either(Bool, Int, Float, Date, Datetime, Color, help="""
     Defines the value to insert on non-coordinate columns when a new
     glyph is inserted into the ColumnDataSource columns, e.g. when a
     circle glyph defines 'x', 'y' and 'color' columns, adding a new
     point will add the x and y-coordinates to 'x' and 'y' columns and
     the color column will be filled with the defined empty value.
+    """)
+
+    custom_icon = Image(help="""
+    An icon to display in the toolbar.
+
+    The icon can provided as a string filename for an image, a PIL ``Image``
+    object, or an RGB(A) NumPy array.
     """)
 
     renderers = List(Instance(Renderer), help="""

@@ -75,6 +75,17 @@ const make_testcase = function(): FreehandDrawTestCase {
 
 describe("FreehandDrawTool", (): void => {
 
+  describe("Model", function(): void {
+
+    it("should create proper tooltip", function(): void {
+      const tool = new FreehandDrawTool()
+      expect(tool.tooltip).to.be.equal('Freehand Draw Tool')
+
+      const custom_tool = new FreehandDrawTool({custom_tooltip: 'Freehand Draw Custom'})
+      expect(custom_tool.tooltip).to.be.equal('Freehand Draw Custom')
+    });
+  })
+
   describe("View", function(): void {
 
     it("should select patches on tap", function(): void {

@@ -72,6 +72,17 @@ const make_testcase = function(): PointDrawTestCase {
 
 describe("PointDrawTool", (): void => {
 
+  describe("Model", function(): void {
+
+    it("should create proper tooltip", function(): void {
+      const tool = new PointDrawTool()
+      expect(tool.tooltip).to.be.equal('Point Draw Tool')
+
+      const custom_tool = new PointDrawTool({custom_tooltip: 'Point Draw Custom'})
+      expect(custom_tool.tooltip).to.be.equal('Point Draw Custom')
+    });
+  })
+
   describe("View", function(): void {
 
     it("should select point on tap", function(): void {
