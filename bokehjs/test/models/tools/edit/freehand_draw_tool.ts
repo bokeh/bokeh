@@ -84,7 +84,7 @@ describe("FreehandDrawTool", (): void => {
       const custom_tool = new FreehandDrawTool({custom_tooltip: 'Freehand Draw Custom'})
       expect(custom_tool.tooltip).to.be.equal('Freehand Draw Custom')
     });
-  }),
+  })
 
   describe("View", function(): void {
 

@@ -88,7 +88,7 @@ describe("BoxEditTool", () =>
       const custom_tool = new BoxEditTool({custom_tooltip: 'Box Edit Custom'})
       expect(custom_tool.tooltip).to.be.equal('Box Edit Custom')
     });
-  }),
+  })
 
   describe("View", function(): void {
 

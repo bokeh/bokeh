@@ -84,7 +84,7 @@ describe("PolyDrawTool", (): void => {
       const custom_tool = new PolyDrawTool({custom_tooltip: 'Poly Draw Custom'})
       expect(custom_tool.tooltip).to.be.equal('Poly Draw Custom')
     });
-  }),
+  })
 
   describe("View", function(): void {
 
