@@ -77,7 +77,7 @@ const make_testcase = function(): BoxEditTestCase {
   }
 }
 
-describe("BoxEditTool", () =>
+describe("BoxEditTool", function(): void {
 
   describe("Model", function(): void {
 
@@ -253,6 +253,6 @@ describe("BoxEditTool", () =>
       const drag_event = make_gesture_event(300, 300, true);
       testcase.draw_tool_view._doubletap(drag_event);
       expect(testcase.draw_tool_view._draw_basepoint).to.be.equal(undefined);
-    });
-  }),
-);
+    })
+  })
+});
