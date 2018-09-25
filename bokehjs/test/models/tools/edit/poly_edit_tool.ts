@@ -108,12 +108,12 @@ describe("PolyEditTool", (): void => {
   describe("Model", function(): void {
 
     it("should create proper tooltip", function(): void {
-      const tool = new PolyEditTool({})
+      const tool = new PolyEditTool()
       expect(tool.tooltip).to.be.equal('Poly Edit Tool')
 
       const custom_tool = new PolyEditTool({custom_tooltip: 'Poly Edit Custom'})
       expect(custom_tool.tooltip).to.be.equal('Poly Edit Custom')
-	});
+    });
   }),
 
   describe("View", function(): void {
