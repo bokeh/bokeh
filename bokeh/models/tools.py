@@ -55,10 +55,6 @@ class Tool(Model):
 
     '''
 
-    custom_tooltip = String(None, help="""
-    A custom tooltip label to override the default name.
-    """)
-
 @abstract
 class Action(Tool):
     ''' A base class for tools that are buttons in the toolbar.
@@ -1190,6 +1186,10 @@ class EditTool(Gesture):
     ''' A base class for all interactive draw tool types.
 
     '''
+
+    custom_tooltip = String(None, help="""
+    A custom tooltip label to override the default name.
+    """)
 
     empty_value = Either(Bool, Int, Float, Date, Datetime, Color, help="""
     Defines the value to insert on non-coordinate columns when a new

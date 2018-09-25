@@ -29,7 +29,7 @@ export abstract class ButtonToolButtonView extends DOMView {
       else
         this.el.classList.add(icon)
     }
-    this.el.title = this.model.custom_tooltip || this.model.tooltip
+    this.el.title = this.model.tooltip
   }
 
   protected abstract _clicked(): void

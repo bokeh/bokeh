@@ -65,7 +65,6 @@ export abstract class ToolView extends View {
 export namespace Tool {
   export interface Attrs extends Model.Attrs {
     active: boolean
-    custom_tooltip: string
   }
 
   export interface Props extends Model.Props {
@@ -88,7 +87,6 @@ export abstract class Tool extends Model {
 
     this.internal({
       active: [ p.Boolean, false ],
-      custom_tooltip: [ p.String, null ],
     })
   }
 
