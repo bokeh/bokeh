@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -33,6 +33,14 @@ from tornado import gen
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+__all__ = (
+    'CONNECTED_BEFORE_ACK',
+    'CONNECTED_AFTER_ACK',
+    'DISCONNECTED',
+    'NOT_YET_CONNECTED',
+    'WAITING_FOR_REPLY',
+)
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -45,6 +53,9 @@ class NOT_YET_CONNECTED(object):
     ''' The ``ClientConnection`` is not yet connected.
 
     '''
+
+    # Public methods ----------------------------------------------------------
+
     @gen.coroutine
     def run(self, connection):
         yield connection._connect_async()
@@ -54,6 +65,9 @@ class CONNECTED_BEFORE_ACK(object):
     received an ACK from it.
 
     '''
+
+    # Public methods ----------------------------------------------------------
+
     @gen.coroutine
     def run(self, connection):
         yield connection._wait_for_ack()
@@ -63,6 +77,9 @@ class CONNECTED_AFTER_ACK(object):
     received an ACK from it.
 
     '''
+    
+    # Public methods ----------------------------------------------------------
+
     @gen.coroutine
     def run(self, connection):
         yield connection._handle_messages()
@@ -72,6 +89,8 @@ class DISCONNECTED(object):
     now disconnected.
 
     '''
+    # Public methods ----------------------------------------------------------
+
     @gen.coroutine
     def run(self, connection):
         raise gen.Return(None)
@@ -85,6 +104,8 @@ class WAITING_FOR_REPLY(object):
         self._reqid = reqid
         self._reply = None
 
+    # Properties --------------------------------------------------------------
+
     @property
     def reply(self):
         ''' The reply from the server. (``None`` until the reply arrives) '''
@@ -94,6 +115,8 @@ class WAITING_FOR_REPLY(object):
     def reqid(self):
         ''' The request ID of the originating message. '''
         return self._reqid
+
+    # Public methods ----------------------------------------------------------
 
     @gen.coroutine
     def run(self, connection):

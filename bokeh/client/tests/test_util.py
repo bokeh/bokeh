@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -40,6 +40,8 @@ import bokeh.client.util as bcu
 
 class Test_server_url_for_websocket_url(object):
 
+    # Public methods ----------------------------------------------------------
+
     def test_with_ws(self):
         assert bcu.server_url_for_websocket_url("ws://foo.com/ws") == "http://foo.com/"
 
@@ -58,6 +60,8 @@ class Test_server_url_for_websocket_url(object):
 
 class Test_websocket_url_for_server_url(object):
 
+    # Public methods ----------------------------------------------------------
+
     def test_with_http(self):
         assert bcu.websocket_url_for_server_url("http://foo.com") == "ws://foo.com/ws"
         assert bcu.websocket_url_for_server_url("http://foo.com/") == "ws://foo.com/ws"
@@ -72,4 +76,8 @@ class Test_websocket_url_for_server_url(object):
 
 #-----------------------------------------------------------------------------
 # Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
 #-----------------------------------------------------------------------------

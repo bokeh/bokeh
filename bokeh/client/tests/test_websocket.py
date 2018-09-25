@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -41,6 +41,8 @@ import bokeh.client.websocket as bcw
 
 class Test_WebSocketClientConnectionWrapper(object):
 
+	# Public methods ----------------------------------------------------------
+
     def test_creation_raises_with_None(self):
         with pytest.raises(ValueError):
             bcw.WebSocketClientConnectionWrapper(None)
@@ -52,4 +54,8 @@ class Test_WebSocketClientConnectionWrapper(object):
 
 #-----------------------------------------------------------------------------
 # Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
 #-----------------------------------------------------------------------------

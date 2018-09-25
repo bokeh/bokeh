@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -22,7 +22,6 @@ import pytest ; pytest
 # External imports
 from tornado import gen
 
-
 # Bokeh imports
 
 # Module under test
@@ -34,6 +33,8 @@ import bokeh.client.states as bcs
 
 class MockConnection(object):
     def __init__(self, to_pop=None): self._to_pop = to_pop
+
+    # Private methods ---------------------------------------------------------
 
     def _connect_async(self): raise gen.Return("_connect_async")
     def _wait_for_ack(self): raise gen.Return("_wait_for_ack")
@@ -98,4 +99,8 @@ def test_WAITING_FOR_REPLY():
 
 #-----------------------------------------------------------------------------
 # Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
 #-----------------------------------------------------------------------------

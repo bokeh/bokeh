@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -34,6 +34,10 @@ from tornado.websocket import WebSocketError
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+__all__ = (
+    'WebSocketClientConnectionWrapper',
+)
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -53,7 +57,7 @@ class WebSocketClientConnectionWrapper(object):
         # messages atomically.
         self.write_lock = locks.Lock()
 
-    # Internal methods --------------------------------------------------------
+    # Private methods ---------------------------------------------------------
 
     @gen.coroutine
     def write_message(self, message, binary=False, locked=True):

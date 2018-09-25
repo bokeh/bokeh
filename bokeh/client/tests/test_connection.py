@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -45,6 +45,8 @@ class FakeSess(object):
 
 class Test_ClientConnection(object):
 
+    # Public methods ----------------------------------------------------------
+
     def test_creation(self):
         c = bcc.ClientConnection("session", "wsurl")
         assert c.url == "wsurl"
@@ -79,4 +81,8 @@ class Test_ClientConnection(object):
 
 #-----------------------------------------------------------------------------
 # Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
 #-----------------------------------------------------------------------------
