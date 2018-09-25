@@ -103,7 +103,7 @@ export class FreehandDrawTool extends EditTool {
     })
   }
   tool_name = "Freehand Draw Tool"
-  icon = "bk-tool-icon-freehand-draw"
+  default_icon = "bk-tool-icon-freehand-draw"
   event_type = ["pan" as "pan", "tap" as "tap"]
   default_order = 3
 }

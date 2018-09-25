@@ -162,7 +162,7 @@ export class BoxEditTool extends EditTool {
   }
 
   tool_name = "Box Edit Tool"
-  icon = "bk-tool-icon-box-edit"
+  default_icon = "bk-tool-icon-box-edit"
   event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
   default_order = 1
 }
