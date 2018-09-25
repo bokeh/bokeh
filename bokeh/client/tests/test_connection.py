@@ -45,8 +45,6 @@ class FakeSess(object):
 
 class Test_ClientConnection(object):
 
-    # Public methods ----------------------------------------------------------
-
     def test_creation(self):
         c = bcc.ClientConnection("session", "wsurl")
         assert c.url == "wsurl"

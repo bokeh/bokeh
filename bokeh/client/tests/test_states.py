@@ -34,8 +34,6 @@ import bokeh.client.states as bcs
 class MockConnection(object):
     def __init__(self, to_pop=None): self._to_pop = to_pop
 
-    # Private methods ---------------------------------------------------------
-
     def _connect_async(self): raise gen.Return("_connect_async")
     def _wait_for_ack(self): raise gen.Return("_wait_for_ack")
     def _handle_messages(self): raise gen.Return("_handle_messages")

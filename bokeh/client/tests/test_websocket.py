@@ -41,8 +41,6 @@ import bokeh.client.websocket as bcw
 
 class Test_WebSocketClientConnectionWrapper(object):
 
-	# Public methods ----------------------------------------------------------
-
     def test_creation_raises_with_None(self):
         with pytest.raises(ValueError):
             bcw.WebSocketClientConnectionWrapper(None)

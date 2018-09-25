@@ -47,8 +47,6 @@ def test_DEFAULT_SERVER_WEBSOCKET_URL():
 
 class Test_ClientSession(object):
 
-    # Public methods ----------------------------------------------------------
-
     def test_creation_defaults(self):
         s = bcs.ClientSession()
         assert s.connected == False
