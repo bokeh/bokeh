@@ -242,10 +242,19 @@ export abstract class LayoutDOMView extends DOMView {
     super.connect_signals()
 
     if (this.is_root)
-      window.addEventListener("resize", () => this.resize())
+      window.addEventListener("resize", this)
 
     // XXX: this.connect(this.model.change, () => this.layout())
     this.connect(this.model.properties.sizing_mode.change, () => this.layout())
+  }
+
+  handleEvent(): void {
+    this.resize()
+  }
+
+  disconnect_signals(): void {
+    super.disconnect_signals()
+    window.removeEventListener("resize", this)
   }
 
   _render_classes(): void {
