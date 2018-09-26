@@ -253,8 +253,8 @@ export abstract class LayoutDOMView extends DOMView {
   }
 
   disconnect_signals(): void {
-    super.disconnect_signals()
     window.removeEventListener("resize", this)
+    super.disconnect_signals()
   }
 
   _render_classes(): void {
