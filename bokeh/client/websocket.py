@@ -57,7 +57,7 @@ class WebSocketClientConnectionWrapper(object):
         # messages atomically.
         self.write_lock = locks.Lock()
 
-    # Private methods ---------------------------------------------------------
+    # Internal methods --------------------------------------------------------
 
     @gen.coroutine
     def write_message(self, message, binary=False, locked=True):

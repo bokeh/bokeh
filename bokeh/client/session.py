@@ -440,7 +440,7 @@ class ClientSession(object):
             self.document.add_root(obj)
         show_session(session=self, browser=browser, new=new)
 
-    # Private methods ---------------------------------------------------------
+    # Internal methods --------------------------------------------------------
 
     def _attach_document(self, document):
         self._document = document
