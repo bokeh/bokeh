@@ -477,10 +477,10 @@ The full template, with all the sections that can be overridden, is given here:
         <title>{% block title %}{{ title | e if title else "Bokeh Plot" }}{% endblock %}</title>
         {% block preamble %}{% endblock %}
         {% block resources %}
-            {% block js_resources %}
+            {% block css_resources %}
             {{ bokeh_css | indent(8) if bokeh_css }}
             {% endblock %}
-            {% block css_resources %}
+            {% block js_resources %}
             {{ bokeh_js | indent(8) if bokeh_js }}
             {% endblock %}
         {% endblock %}
