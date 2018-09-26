@@ -83,7 +83,7 @@ export class UIEvents {
               readonly hit_area: HTMLElement,
               readonly plot: Plot) {
     this._configure_hammerjs()
-    
+
     // Mouse & keyboard events not handled through hammerjs
 
     // We can 'add and forget' these event listeners because this.hit_area is a DOM element
@@ -138,7 +138,7 @@ export class UIEvents {
     this.hammer.on('rotate', (e) => this._rotate(e))
     this.hammer.on('rotateend', (e) => this._rotate_end(e))
   }
-  
+
   register_tool(tool_view: ToolView): void {
     const et = tool_view.model.event_type
 
