@@ -309,7 +309,9 @@ from bokeh.util.string import nice_join, format_docstring
 from bokeh.server.tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES
 from bokeh.settings import settings
 
-from os import getpid
+from tornado.autoreload import watch
+import os
+from fnmatch import fnmatch
 
 from ..subcommand import Subcommand
 from ..util import build_single_handler_applications, die, report_server_init_errors
@@ -482,6 +484,19 @@ class Serve(Subcommand):
             type=int,
         )),
 
+        ('--dev', dict(
+            metavar ='FILES-TO-WATCH',
+            action  ='store',
+            default = None,
+            type    = str,
+            nargs   = '*',
+            help    =   "Enable live reloading during app development."
+                        "By default it watches all *.py *.html *.css *.yaml files"
+                        "in the app directory tree. Additional files can be passed"
+                        "as arguments."
+                        "NOTE: This setting only works with a single app."
+                        "It also restricts the number of processes to 1.",
+        )),
     )
 
 
@@ -558,6 +573,39 @@ class Serve(Subcommand):
 
         server_kwargs['use_index'] = not args.disable_index
         server_kwargs['redirect_root'] = not args.disable_index_redirect
+        server_kwargs['autoreload'] = args.dev is not None
+
+        def find_autoreload_targets(app_path):
+            path = os.path.abspath(app_path)
+            if not os.path.isdir(path):
+                return
+
+            for path, subdirs, files in os.walk(path):
+                for name in files:
+                    if (fnmatch(name, '*.html') or
+                        fnmatch(name, '*.css') or
+                        fnmatch(name, '*.yaml')):
+                        log.info("Watching: " + os.path.join(path, name))
+                        watch(os.path.join(path, name))
+
+        def add_optional_autoreload_files(file_list):
+            for filen in file_list:
+                if os.path.isdir(filen):
+                    log.warn("Cannot watch directory " + filen)
+                    continue
+                log.info("Watching: " + filen)
+                watch(filen)
+
+        if server_kwargs['autoreload']:
+            if len(applications.keys()) != 1:
+                die("--dev can only support a single app.")
+            if server_kwargs['num_procs'] != 1:
+                log.info("Running in --dev mode. --num-procs is limited to 1.")
+                server_kwargs['num_procs'] = 1
+
+            find_autoreload_targets(args.files[0])
+            add_optional_autoreload_files(args.dev)
+
 
         with report_server_init_errors(**server_kwargs):
             server = Server(applications, **server_kwargs)
@@ -577,5 +625,5 @@ class Serve(Subcommand):
                 url = "http://%s:%d%s%s" % (address_string, server.port, server.prefix, route)
                 log.info("Bokeh app running at: %s" % url)
 
-            log.info("Starting Bokeh server with process id: %d" % getpid())
+            log.info("Starting Bokeh server with process id: %d" % os.getpid())
             server.run_until_shutdown()

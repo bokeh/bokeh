@@ -22,7 +22,7 @@ export abstract class ButtonToolButtonView extends DOMView {
 
   render(): void {
     empty(this.el)
-    const icon = this.model.icon
+    const icon = this.model.computed_icon
     if (isString(icon)) {
       if (startsWith(icon, "data:image"))
         this.el.style.backgroundImage = "url('" + icon + "')"
@@ -73,6 +73,10 @@ export abstract class ButtonTool extends Tool {
 
   get tooltip(): string {
     return this.tool_name
+  }
+
+  get computed_icon(): string {
+    return this.icon
   }
 }
 
