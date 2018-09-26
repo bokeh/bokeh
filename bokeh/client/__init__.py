@@ -54,10 +54,10 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 from .session import ClientSession
+from .session import DEFAULT_SESSION_ID
 from .session import pull_session
 from .session import push_session
 from .session import show_session
-from .session import DEFAULT_SESSION_ID
 
 __all__ = (
     'ClientSession',

@@ -32,8 +32,8 @@ import bokeh.client as bc
 #-----------------------------------------------------------------------------
 
 ALL = (
-    'DEFAULT_SESSION_ID',
     'ClientSession',
+    'DEFAULT_SESSION_ID',
     'pull_session',
     'push_session',
     'show_session',
