@@ -63,6 +63,10 @@ export class ToolProxy extends Model {
     return this.tools[0].computed_icon
   }
 
+  get computed_icon(): string {
+    return this.icon
+  }
+
   initialize(): void {
     super.initialize()
     this.do = new Signal0(this, "do")
