@@ -156,6 +156,7 @@ export class PlotCanvasView extends DOMView {
   }
 
   remove(): void {
+    this.ui_event_bus.destroy()
     remove_views(this.renderer_views)
     remove_views(this.tool_views)
     this.canvas_view.remove()

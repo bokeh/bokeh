@@ -83,6 +83,34 @@ export class UIEvents {
               readonly hit_area: HTMLElement,
               readonly plot: Plot) {
     this._configure_hammerjs()
+
+    // Mouse & keyboard events not handled through hammerjs
+
+    // We can 'add and forget' these event listeners because this.hit_area is a DOM element
+    // that will be thrown away when the view is removed
+    this.hit_area.addEventListener("mousemove", (e) => this._mouse_move(e))
+    this.hit_area.addEventListener("mouseenter", (e) => this._mouse_enter(e))
+    this.hit_area.addEventListener("mouseleave", (e) => this._mouse_exit(e))
+    this.hit_area.addEventListener("wheel", (e) => this._mouse_wheel(e))
+
+    // But we MUST remove listeners registered on document or we'll leak memory: register
+    // 'this' as the listener (it implements the event listener interface, i.e. handleEvent)
+    // instead of an anonymous function so we can easily refer back to it for removing
+    document.addEventListener("keydown", this)
+    document.addEventListener("keyup", this)
+  }
+
+  destroy(): void {
+    this.hammer.destroy()
+    document.removeEventListener("keydown", this)
+    document.removeEventListener("keyup", this)
+  }
+
+  handleEvent(e: KeyboardEvent): void {
+    if (e.type == "keydown")
+      this._key_down(e)
+    else if (e.type == "keyup")
+      this._key_up(e)
   }
 
   protected _configure_hammerjs(): void {
@@ -109,15 +137,6 @@ export class UIEvents {
     this.hammer.on('rotatestart', (e) => this._rotate_start(e))
     this.hammer.on('rotate', (e) => this._rotate(e))
     this.hammer.on('rotateend', (e) => this._rotate_end(e))
-
-    this.hit_area.addEventListener("mousemove", (e) => this._mouse_move(e))
-    this.hit_area.addEventListener("mouseenter", (e) => this._mouse_enter(e))
-    this.hit_area.addEventListener("mouseleave", (e) => this._mouse_exit(e))
-
-    this.hit_area.addEventListener("wheel", (e) => this._mouse_wheel(e))
-
-    document.addEventListener("keydown", (e) => this._key_down(e))
-    document.addEventListener("keyup", (e) => this._key_up(e))
   }
 
   register_tool(tool_view: ToolView): void {
