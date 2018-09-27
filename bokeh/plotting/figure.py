@@ -8,7 +8,8 @@ from six import string_types
 from ..core.properties import Any, Auto, Either, Enum, Int, List, Seq, Instance, String, Tuple
 from ..core.enums import HorizontalLocation, MarkerType, VerticalLocation
 from ..models import ColumnDataSource, Plot, Title, Tool, GraphRenderer
-from ..models import glyphs, markers
+from ..models import glyphs as _glyphs
+from ..models import markers as _markers
 from ..models.tools import Drag, Inspection, Scroll, Tap
 from ..util.options import Options
 from ..util.string import format_docstring
@@ -157,9 +158,9 @@ class Figure(Plot):
         self.add_tools(*tool_objs)
         _process_active_tools(self.toolbar, tool_map, opts.active_drag, opts.active_inspect, opts.active_scroll, opts.active_tap)
 
-    annular_wedge = _glyph_function(glyphs.AnnularWedge)
+    annular_wedge = _glyph_function(_glyphs.AnnularWedge)
 
-    annulus = _glyph_function(glyphs.Annulus, """
+    annulus = _glyph_function(_glyphs.Annulus, """
 Examples:
 
         .. bokeh-plot::
@@ -175,9 +176,9 @@ Examples:
 
     """)
 
-    arc = _glyph_function(glyphs.Arc)
+    arc = _glyph_function(_glyphs.Arc)
 
-    asterisk = _glyph_function(markers.Asterisk, """
+    asterisk = _glyph_function(_markers.Asterisk, """
 Examples:
 
     .. bokeh-plot::
@@ -192,9 +193,9 @@ Examples:
 
 """)
 
-    bezier = _glyph_function(glyphs.Bezier)
+    bezier = _glyph_function(_glyphs.Bezier)
 
-    circle = _glyph_function(markers.Circle, """
+    circle = _glyph_function(_markers.Circle, """
 .. note::
     Only one of ``size`` or ``radius`` should be provided. Note that ``radius``
     defaults to data units.
@@ -213,7 +214,7 @@ Examples:
 
 """)
 
-    circle_cross = _glyph_function(markers.CircleCross, """
+    circle_cross = _glyph_function(_markers.CircleCross, """
 Examples:
 
     .. bokeh-plot::
@@ -229,7 +230,7 @@ Examples:
 
 """)
 
-    circle_x = _glyph_function(markers.CircleX, """
+    circle_x = _glyph_function(_markers.CircleX, """
 Examples:
 
     .. bokeh-plot::
@@ -245,7 +246,7 @@ Examples:
 
 """)
 
-    cross = _glyph_function(markers.Cross, """
+    cross = _glyph_function(_markers.Cross, """
 Examples:
 
     .. bokeh-plot::
@@ -261,7 +262,7 @@ Examples:
 
 """)
 
-    dash = _glyph_function(markers.Dash, """
+    dash = _glyph_function(_markers.Dash, """
 Examples:
 
     .. bokeh-plot::
@@ -277,7 +278,7 @@ Examples:
 
 """)
 
-    diamond = _glyph_function(markers.Diamond, """
+    diamond = _glyph_function(_markers.Diamond, """
 Examples:
 
     .. bokeh-plot::
@@ -293,7 +294,7 @@ Examples:
 
 """)
 
-    diamond_cross = _glyph_function(markers.DiamondCross, """
+    diamond_cross = _glyph_function(_markers.DiamondCross, """
 Examples:
 
     .. bokeh-plot::
@@ -309,7 +310,7 @@ Examples:
 
 """)
 
-    hbar = _glyph_function(glyphs.HBar, """
+    hbar = _glyph_function(_glyphs.HBar, """
 Examples:
 
     .. bokeh-plot::
@@ -323,7 +324,7 @@ Examples:
         show(plot)
 """)
 
-    ellipse = _glyph_function(glyphs.Ellipse, """
+    ellipse = _glyph_function(_glyphs.Ellipse, """
 Examples:
 
     .. bokeh-plot::
@@ -339,7 +340,7 @@ Examples:
 
 """)
 
-    hex = _glyph_function(markers.Hex, """
+    hex = _glyph_function(_markers.Hex, """
 Examples:
 
     .. bokeh-plot::
@@ -354,7 +355,7 @@ Examples:
 
 """)
 
-    hex_tile = _glyph_function(glyphs.HexTile, """
+    hex_tile = _glyph_function(_glyphs.HexTile, """
 Examples:
 
     .. bokeh-plot::
@@ -369,7 +370,7 @@ Examples:
 
 """)
 
-    image = _glyph_function(glyphs.Image, """
+    image = _glyph_function(_glyphs.Image, """
 .. note::
     If both ``palette`` and ``color_mapper`` are passed, a ``ValueError``
     exception will be raised. If neither is passed, then the ``Greys9``
@@ -377,16 +378,16 @@ Examples:
 
 """)
 
-    image_rgba = _glyph_function(glyphs.ImageRGBA, """
+    image_rgba = _glyph_function(_glyphs.ImageRGBA, """
 .. note::
     The ``image_rgba`` method accepts images as a two-dimensional array of RGBA
     values (encoded as 32-bit integers).
 
 """)
 
-    image_url = _glyph_function(glyphs.ImageURL)
+    image_url = _glyph_function(_glyphs.ImageURL)
 
-    inverted_triangle = _glyph_function(markers.InvertedTriangle, """
+    inverted_triangle = _glyph_function(_markers.InvertedTriangle, """
 Examples:
 
     .. bokeh-plot::
@@ -401,7 +402,7 @@ Examples:
 
 """)
 
-    line = _glyph_function(glyphs.Line, """
+    line = _glyph_function(_glyphs.Line, """
 Examples:
 
     .. bokeh-plot::
@@ -416,7 +417,7 @@ Examples:
 
 """)
 
-    multi_line = _glyph_function(glyphs.MultiLine, """
+    multi_line = _glyph_function(_glyphs.MultiLine, """
 .. note::
     For this glyph, the data is not simply an array of scalars, it is an
     "array of arrays".
@@ -436,7 +437,7 @@ Examples:
 
 """)
 
-    oval = _glyph_function(glyphs.Oval, """
+    oval = _glyph_function(_glyphs.Oval, """
 Examples:
 
     .. bokeh-plot::
@@ -452,7 +453,7 @@ Examples:
 
 """)
 
-    patch = _glyph_function(glyphs.Patch, """
+    patch = _glyph_function(_glyphs.Patch, """
 Examples:
 
     .. bokeh-plot::
@@ -467,7 +468,7 @@ Examples:
 
 """)
 
-    patches = _glyph_function(glyphs.Patches, """
+    patches = _glyph_function(_glyphs.Patches, """
 .. note::
     For this glyph, the data is not simply an array of scalars, it is an
     "array of arrays".
@@ -487,7 +488,7 @@ Examples:
 
 """)
 
-    quad = _glyph_function(glyphs.Quad, """
+    quad = _glyph_function(_glyphs.Quad, """
 Examples:
 
     .. bokeh-plot::
@@ -503,9 +504,9 @@ Examples:
 
 """)
 
-    quadratic = _glyph_function(glyphs.Quadratic)
+    quadratic = _glyph_function(_glyphs.Quadratic)
 
-    ray = _glyph_function(glyphs.Ray, """
+    ray = _glyph_function(_glyphs.Ray, """
 Examples:
 
     .. bokeh-plot::
@@ -521,7 +522,7 @@ Examples:
 
 """)
 
-    rect = _glyph_function(glyphs.Rect, """
+    rect = _glyph_function(_glyphs.Rect, """
 Examples:
 
     .. bokeh-plot::
@@ -537,7 +538,7 @@ Examples:
 
 """)
 
-    step = _glyph_function(glyphs.Step, """
+    step = _glyph_function(_glyphs.Step, """
 Examples:
 
     .. bokeh-plot::
@@ -553,7 +554,7 @@ Examples:
 """)
 
 
-    segment = _glyph_function(glyphs.Segment, """
+    segment = _glyph_function(_glyphs.Segment, """
 Examples:
 
     .. bokeh-plot::
@@ -570,7 +571,7 @@ Examples:
 
 """)
 
-    square = _glyph_function(markers.Square, """
+    square = _glyph_function(_markers.Square, """
 Examples:
 
     .. bokeh-plot::
@@ -585,7 +586,7 @@ Examples:
 
 """)
 
-    square_cross = _glyph_function(markers.SquareCross, """
+    square_cross = _glyph_function(_markers.SquareCross, """
 Examples:
 
     .. bokeh-plot::
@@ -601,7 +602,7 @@ Examples:
 
 """)
 
-    square_x = _glyph_function(markers.SquareX, """
+    square_x = _glyph_function(_markers.SquareX, """
 Examples:
 
     .. bokeh-plot::
@@ -617,7 +618,7 @@ Examples:
 
 """)
 
-    text = _glyph_function(glyphs.Text, """
+    text = _glyph_function(_glyphs.Text, """
 .. note::
     The location and angle of the text relative to the ``x``, ``y`` coordinates
     is indicated by the alignment and baseline text properties.
@@ -627,7 +628,7 @@ Returns:
 
 """)
 
-    triangle = _glyph_function(markers.Triangle, """
+    triangle = _glyph_function(_markers.Triangle, """
 Examples:
 
     .. bokeh-plot::
@@ -643,7 +644,7 @@ Examples:
 
 """)
 
-    vbar = _glyph_function(glyphs.VBar, """
+    vbar = _glyph_function(_glyphs.VBar, """
 Examples:
 
     .. bokeh-plot::
@@ -658,7 +659,7 @@ Examples:
 
 """)
 
-    wedge = _glyph_function(glyphs.Wedge, """
+    wedge = _glyph_function(_glyphs.Wedge, """
 Examples:
 
     .. bokeh-plot::
@@ -674,7 +675,7 @@ Examples:
 
 """)
 
-    x = _glyph_function(markers.X, """
+    x = _glyph_function(_markers.X, """
 Examples:
 
     .. bokeh-plot::
@@ -691,8 +692,10 @@ Examples:
 
     # -------------------------------------------------------------------------
 
+    _scatter = _glyph_function(_markers.Scatter)
+
     def scatter(self, *args, **kwargs):
-        """ Creates a scatter plot of the given x and y items.
+        ''' Creates a scatter plot of the given x and y items.
 
         Args:
             x (str or seq[float]) : values or field names of center x coordinates
@@ -710,21 +713,25 @@ Examples:
             >>> p.scatter([1,2,3],[4,5,6], fill_color="red")
             >>> p.scatter("data1", "data2", source=data_source, ...)
 
-        """
+        '''
         marker_type = kwargs.pop("marker", "circle")
 
-        if marker_type in _MARKER_SHORTCUTS:
+        if isinstance(marker_type, string_types) and marker_type in _MARKER_SHORTCUTS:
             marker_type = _MARKER_SHORTCUTS[marker_type]
 
-        if marker_type not in list(MarkerType):
-            raise ValueError("Invalid marker type '%s'. Use markers() to see a list of valid marker types." % marker_type)
-
-        return getattr(self, marker_type)(*args, **kwargs)
+        # The original scatter implementation allowed circle scatters to set a
+        # radius. We will leave this here for compatibility but note that it
+        # only works when the marker type is "circle" (and not referencing a
+        # data source column). Consider deprecating in the future.
+        if marker_type == "circle" and "radius" in kwargs:
+            return self.circle(*args, **kwargs)
+        else:
+            return self._scatter(*args, marker=marker_type, **kwargs)
 
     def hexbin(self, x, y, size, orientation="pointytop", palette="Viridis256", line_color=None, fill_color=None, aspect_scale=1, **kwargs):
         ''' Perform a simple equal-weight hexagonal binning.
 
-        A :class:`~bokeh.models.glyphs.HexTile` glyph will be added to display
+        A :class:`~bokeh.models._glyphs.HexTile` glyph will be added to display
         the binning. The :class:`~bokeh.models.sources.ColumnDataSource` for
         the glyph will have columns ``q``, ``r``, and ``count``, where ``q``
         and ``r`` are `axial coordinates`_ for a tile, and ``count`` is the
@@ -983,11 +990,11 @@ _MARKER_SHORTCUTS = {
 }
 
 def markers():
-    """ Prints a list of valid marker types for scatter()
+    ''' Prints a list of valid marker types for scatter()
 
     Returns:
         None
-    """
+    '''
     print("Available markers: \n\n - " + "\n - ".join(list(MarkerType)))
     print()
     print("Shortcuts: \n\n" + "\n".join(" %r: %s" % item for item in _MARKER_SHORTCUTS.items()))

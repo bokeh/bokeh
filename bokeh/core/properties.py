@@ -344,6 +344,16 @@ class FontSize(String):
                 msg = "" if not detail else "%r is not a valid font size value" % value
                 raise ValueError(msg)
 
+class MarkerType(String):
+
+    def validate(self, value, detail=True):
+        super(MarkerType, self).validate(value, detail)
+
+        if isinstance(value, string_types):
+            if value not in enums.MarkerType:
+                msg =  "" if not detail else "invalid marker type %r" % value
+                raise ValueError(msg)
+
 class Regex(String):
     ''' Accept strings that match a given regular expression.
 
@@ -1756,6 +1766,27 @@ class FontSizeSpec(DataSpec):
             if len(value) == 0 or value[0].isdigit() and FontSize._font_size_re.match(value) is None:
                 msg = "" if not detail else "%r is not a valid font size value" % value
                 raise ValueError(msg)
+
+class MarkerSpec(DataSpec):
+    ''' A |DataSpec| property that accepts marker types as fixed values.
+
+    The ``MarkerSpec`` property attempts to first interpret string values as
+    marker types. Otherwise string values are interpreted as field names.
+    For example:
+
+    .. code-block:: python
+
+        m.font_size = "circle" # value
+
+        m.font_size = "square" # value
+
+        m.font_size = "foo"    # field
+
+    '''
+
+    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
+        super(MarkerSpec, self).__init__(key_type, MarkerType, default=default, help=help)
+
 
 _ExprFieldValueTransformUnits = Enum("expr", "field", "value", "transform", "units")
 

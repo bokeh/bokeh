@@ -2,48 +2,40 @@ from __future__ import absolute_import
 import pytest
 
 from bokeh.core.properties import value
-from bokeh.models import (
-    BoxZoomTool,
-    ColumnDataSource,
-    LassoSelectTool,
-    Legend,
-    LinearAxis,
-    LogScale,
-    PanTool,
-    ResetTool,
-    Title,
-)
+from bokeh.models import BoxZoomTool, ColumnDataSource, LassoSelectTool, Legend, LinearAxis, LogScale, PanTool, ResetTool, Title
 
-import bokeh.plotting as plt
+# figure function shadows figure.py module
+import bokeh.plotting.figure as figure
 
 class TestFigure(object):
 
     def test_basic(self):
-        p = plt.figure()
-        q = plt.figure()
+        p = figure()
+        q = figure()
         q.circle([1, 2, 3], [1, 2, 3])
         assert p != q
 
-        r = plt.figure()
+        r = figure()
         assert p != r
         assert q != r
 
-        p = plt.figure(width=100, height=120)
+    def test_width_height(self):
+        p = figure(width=100, height=120)
         assert p.plot_width == 100
         assert p.plot_height == 120
 
-        p = plt.figure(plot_width=100, plot_height=120)
+        p = figure(plot_width=100, plot_height=120)
         assert p.plot_width == 100
         assert p.plot_height == 120
 
         with pytest.raises(ValueError):
-            plt.figure(plot_width=100, width=120)
+            figure(plot_width=100, width=120)
 
         with pytest.raises(ValueError):
-            plt.figure(plot_height=100, height=120)
+            figure(plot_height=100, height=120)
 
     def test_xaxis(self):
-        p = plt.figure()
+        p = figure()
         p.circle([1, 2, 3], [1, 2, 3])
         assert len(p.xaxis) == 1
 
@@ -66,7 +58,7 @@ class TestFigure(object):
         assert set(p.xaxis) == expected
 
     def test_yaxis(self):
-        p = plt.figure()
+        p = figure()
         p.circle([1, 2, 3], [1, 2, 3])
         assert len(p.yaxis) == 1
 
@@ -89,7 +81,7 @@ class TestFigure(object):
         assert set(p.yaxis) == expected
 
     def test_axis(self):
-        p = plt.figure()
+        p = figure()
         p.circle([1, 2, 3], [1, 2, 3])
         assert len(p.axis) == 2
 
@@ -116,34 +108,34 @@ class TestFigure(object):
         assert set(p.axis) == expected
 
     def test_log_axis(self):
-        p = plt.figure(x_axis_type='log')
+        p = figure(x_axis_type='log')
         p.circle([1, 2, 3], [1, 2, 3])
         assert isinstance(p.x_scale, LogScale)
 
-        p = plt.figure(y_axis_type='log')
+        p = figure(y_axis_type='log')
         p.circle([1, 2, 3], [1, 2, 3])
         assert isinstance(p.y_scale, LogScale)
 
     def test_xgrid(self):
-        p = plt.figure()
+        p = figure()
         p.circle([1, 2, 3], [1, 2, 3])
         assert len(p.xgrid) == 1
         assert p.xgrid[0].dimension == 0
 
     def test_ygrid(self):
-        p = plt.figure()
+        p = figure()
         p.circle([1, 2, 3], [1, 2, 3])
         assert len(p.ygrid) == 1
         assert p.ygrid[0].dimension == 1
 
     def test_grid(self):
-        p = plt.figure()
+        p = figure()
         p.circle([1, 2, 3], [1, 2, 3])
         assert len(p.grid) == 2
 
     def test_tools(self):
         TOOLS = "pan,box_zoom,reset,lasso_select"
-        fig = plt.figure(tools=TOOLS)
+        fig = figure(tools=TOOLS)
         expected = [PanTool, BoxZoomTool, ResetTool, LassoSelectTool]
 
         assert len(fig.tools) == len(expected)
@@ -151,7 +143,7 @@ class TestFigure(object):
             assert isinstance(fig.tools[i], _type)
 
     def test_plot_fill_props(self):
-        p = plt.figure(background_fill_color='red',
+        p = figure(background_fill_color='red',
                        background_fill_alpha=0.5,
                        border_fill_color='blue',
                        border_fill_alpha=0.8)
@@ -165,23 +157,38 @@ class TestFigure(object):
         assert p.background_fill_color == 'green'
         assert p.border_fill_color == 'yellow'
 
+    def test_title_kwarg_no_warning(self, recwarn):
+        figure(title="title")
+        assert len(recwarn) == 0
+
+
+    def test_title_should_accept_Title(self):
+        title = Title(text='Great Title')
+        plot = figure(title=title)
+        plot.line([1, 2, 3], [1, 2, 3])
+        assert plot.title.text == 'Great Title'
+
+    def test_title_should_accept_string(self):
+        plot = figure(title='Great Title 2')
+        plot.line([1, 2, 3], [1, 2, 3])
+        assert plot.title.text == 'Great Title 2'
+
     def test_columnsource_auto_conversion_from_dict(self):
-        p = plt.figure()
+        p = figure()
         dct = {'x': [1, 2, 3], 'y': [2, 3, 4]}
         p.circle(x='x', y='y', source=dct)
 
     def test_columnsource_auto_conversion_from_pandas(self, pd):
-        p = plt.figure()
+        p = figure()
         df = pd.DataFrame({'x': [1, 2, 3], 'y': [2, 3, 4]})
         p.circle(x='x', y='y', source=df)
-
 
 class TestMarkers(object):
 
     def check_each_color_input(self, rgbs, func):
         """Runs assertions for each rgb provided with the given function."""
         for rgb in rgbs:
-            p = plt.figure()
+            p = figure()
             func(p, rgb)
 
     def color_only_checks(self, p, rgb):
@@ -206,7 +213,7 @@ class TestMarkers(object):
     def test_mixed_inputs(self):
         """Helper method to test mixed global and specific color args."""
 
-        p = plt.figure()
+        p = figure()
         rgb = (100, 0, 0)
         rgb_other = (0, 100, 0)
         alpha1 = 0.5
@@ -241,66 +248,51 @@ class TestMarkers(object):
         self.check_each_color_input(rgbs=rgbs, func=self.line_color_input_checks)
 
     def test_render_level(self):
-        p = plt.figure()
+        p = figure()
         p.circle([1, 2, 3], [1, 2, 3], level="underlay")
         assert p.renderers[-1].level == "underlay"
         with pytest.raises(ValueError):
             p.circle([1, 2, 3], [1, 2, 3], level="bad_input")
 
+class Test_hbar_stack(object):
 
-def test_hbar_stack_returns_renderers():
-    fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
-    years = ["2015", "2016", "2017"]
-    colors = ["#c9d9d3", "#718dbf", "#e84d60"]
-    data = {'fruits' : fruits,
-        '2015'   : [2, 1, 4, 3, 2, 4],
-        '2016'   : [5, 3, 4, 2, 4, 6],
-        '2017'   : [3, 2, 4, 4, 5, 3]}
-    source = ColumnDataSource(data=data)
+    def test_returns_renderers(self):
+        fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
+        years = ["2015", "2016", "2017"]
+        colors = ["#c9d9d3", "#718dbf", "#e84d60"]
+        data = {'fruits' : fruits,
+            '2015'   : [2, 1, 4, 3, 2, 4],
+            '2016'   : [5, 3, 4, 2, 4, 6],
+            '2017'   : [3, 2, 4, 4, 5, 3]}
+        source = ColumnDataSource(data=data)
 
-    p = plt.figure()
-    renderers = p.hbar_stack(years, y='fruits', height=0.9, color=colors, source=source,
-                         legend=[value(x) for x in years], name=years)
-    assert len(renderers) == 3
-    assert renderers[0].name == "2015"
-    assert renderers[1].name == "2016"
-    assert renderers[2].name == "2017"
+        p = figure()
+        renderers = p.hbar_stack(years, y='fruits', height=0.9, color=colors, source=source,
+                            legend=[value(x) for x in years], name=years)
+        assert len(renderers) == 3
+        assert renderers[0].name == "2015"
+        assert renderers[1].name == "2016"
+        assert renderers[2].name == "2017"
 
-def test_vbar_stack_returns_renderers():
-    fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
-    years = ["2015", "2016", "2017"]
-    colors = ["#c9d9d3", "#718dbf", "#e84d60"]
-    data = {'fruits' : fruits,
-        '2015'   : [2, 1, 4, 3, 2, 4],
-        '2016'   : [5, 3, 4, 2, 4, 6],
-        '2017'   : [3, 2, 4, 4, 5, 3]}
-    source = ColumnDataSource(data=data)
+class Test_vbar_stack(object):
 
-    p = plt.figure()
-    renderers = p.vbar_stack(years, x='fruits', width=0.9, color=colors, source=source,
-                         legend=[value(x) for x in years], name=years)
-    assert len(renderers) == 3
-    assert renderers[0].name == "2015"
-    assert renderers[1].name == "2016"
-    assert renderers[2].name == "2017"
+    def test_returns_renderers(self):
+        fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
+        years = ["2015", "2016", "2017"]
+        colors = ["#c9d9d3", "#718dbf", "#e84d60"]
+        data = {'fruits' : fruits,
+            '2015'   : [2, 1, 4, 3, 2, 4],
+            '2016'   : [5, 3, 4, 2, 4, 6],
+            '2017'   : [3, 2, 4, 4, 5, 3]}
+        source = ColumnDataSource(data=data)
 
-def test_title_kwarg_no_warning(recwarn):
-    plt.figure(title="title")
-    assert len(recwarn) == 0
-
-
-def test_figure_title_should_accept_title():
-    title = Title(text='Great Title')
-    plot = plt.figure(title=title)
-    plot.line([1, 2, 3], [1, 2, 3])
-    assert plot.title.text == 'Great Title'
-
-
-def test_figure_title_should_accept_string():
-    plot = plt.figure(title='Great Title 2')
-    plot.line([1, 2, 3], [1, 2, 3])
-    assert plot.title.text == 'Great Title 2'
-
+        p = figure()
+        renderers = p.vbar_stack(years, x='fruits', width=0.9, color=colors, source=source,
+                            legend=[value(x) for x in years], name=years)
+        assert len(renderers) == 3
+        assert renderers[0].name == "2015"
+        assert renderers[1].name == "2016"
+        assert renderers[2].name == "2017"
 
 @pytest.fixture
 def source():
@@ -309,7 +301,7 @@ def source():
 
 @pytest.fixture
 def p():
-    return plt.figure()
+    return figure()
 
 
 def test_glyph_label_is_legend_if_column_in_datasource_is_added_as_legend(p, source):
