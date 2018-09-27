@@ -47,6 +47,7 @@ class MultiToolView extends SelectToolView
 class MultiTool extends SelectTool
   default_view: MultiToolView
   type: "MultiTool"
+  icon: "Multi Tool"
   tool_name: "Multi Tool"
   event_type: ["tap", "pan"]
 
@@ -88,5 +89,6 @@ describe "ProxyToolbar", ->
       toolbar = new ProxyToolbar({tools:[@multi, @tap, @pan]})
       expect(toolbar.gestures['multi'].tools.length).to.be.equal(1)
       expect(toolbar.gestures['multi'].tools[0]).to.be.an.instanceof(ToolProxy)
+      expect(toolbar.gestures['multi'].tools[0].computed_icon).to.be.equal('Multi Tool')
       expect(toolbar.gestures['multi'].tools[0].tools.length).to.be.equal(1)
       expect(toolbar.gestures['multi'].tools[0].tools[0]).to.be.equal(@multi)
