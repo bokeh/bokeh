@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -33,10 +33,10 @@ import bokeh.client as bc
 
 ALL = (
     'ClientSession',
+    'DEFAULT_SESSION_ID',
     'pull_session',
     'push_session',
     'show_session',
-    'DEFAULT_SESSION_ID',
 )
 
 #-----------------------------------------------------------------------------

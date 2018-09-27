@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -58,6 +58,13 @@ from .util import server_url_for_websocket_url, websocket_url_for_server_url
 DEFAULT_SESSION_ID = "default"
 
 DEFAULT_SERVER_WEBSOCKET_URL = websocket_url_for_server_url(DEFAULT_SERVER_HTTP_URL)
+
+__all__ = (
+    'ClientSession',
+    'pull_session',
+    'push_session',
+    'show_session',
+)
 
 #-----------------------------------------------------------------------------
 # General API
@@ -434,8 +441,6 @@ class ClientSession(object):
         show_session(session=self, browser=browser, new=new)
 
     # Internal methods --------------------------------------------------------
-
-    # Private methods ---------------------------------------------------------
 
     def _attach_document(self, document):
         self._document = document
