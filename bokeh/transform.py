@@ -40,6 +40,7 @@ __all__ = (
     'cumsum',
     'dodge',
     'factor_cmap',
+    'factor_marker',
     'jitter',
     'linear_cmap',
     'log_cmap',
@@ -127,6 +128,10 @@ def factor_marker(field_name, markers, factors, start=0, end=None):
     ''' Create a ``DataSpec`` dict to apply a client-side
     ``CategoricalMarkerMapper`` transformation to a ``ColumnDataSource``
     column.
+
+    .. note::
+        This transform is primarily only useful with ``scatter``, which
+        can be paremeterized by glyph type.
 
     Args:
         field_name (str) : a field name to configure ``DataSpec`` with

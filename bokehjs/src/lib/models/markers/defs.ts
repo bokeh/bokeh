@@ -311,7 +311,7 @@ export const X                = _mk_model('X',                x)
 
 interface FuncsMap { [s: string]: RenderOne; }
 
-export const funcs: FuncsMap = {
+export const marker_funcs: FuncsMap = {
   'asterisk':          asterisk,
   'circle':            circle,
   'circle_cross':      circle_cross,

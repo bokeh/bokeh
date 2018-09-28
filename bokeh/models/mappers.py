@@ -34,7 +34,7 @@ class ColorMapper(Mapper):
     """).accepts(Enum(Palette), lambda pal: getattr(palettes, pal))
 
     nan_color = Color(default="gray", help="""
-    Color to be used if data is NaN. Default: 'gray'
+    Color to be used if data is NaN or otherwise not mappable. (Default: 'gray')
     """)
 
     def __init__(self, palette=None, **kwargs):
@@ -49,7 +49,7 @@ class CategoricalMapper(Mapper):
     '''
 
     factors = Either(Seq(String), Seq(Tuple(String, String)), Seq(Tuple(String, String, String)), default=None, help="""
-    A sequence of factors / categories that map to the color palette. For
+    A sequence of factors / categories that map to the some target range. For
     example the following color mapper:
 
     .. code-block:: python
@@ -60,7 +60,7 @@ class CategoricalMapper(Mapper):
     """)
 
     start = Int(default=0, help="""
-    A start index to "slice" data factors with before color mapping.
+    A start index to "slice" data factors with before mapping.
 
     For example, if the data to color map consists of 2-level factors such
     as ``["2016", "sales"]`` and ``["2016", "marketing"]``, then setting
@@ -69,7 +69,7 @@ class CategoricalMapper(Mapper):
     """)
 
     end = Int(help="""
-    A start index to "slice" data factors with before color mapping.
+    A start index to "slice" data factors with before mapping.
 
     For example, if the data to color map consists of 2-level factors such
     as ``["2016", "sales"]`` and ``["2017", "marketing"]``, then setting
@@ -82,8 +82,10 @@ class CategoricalMapper(Mapper):
 
 
 class CategoricalColorMapper(CategoricalMapper, ColorMapper):
-    ''' Map categories to colors. Values that are passed to
-    this mapper that aren't in factors will be assigned the nan_color.
+    ''' Map categorical factors to colors.
+
+    Values that are passed to this mapper that are not in the factors list
+    will be mapped to ``nan_color``.
 
     '''
 
@@ -97,12 +99,24 @@ class CategoricalColorMapper(CategoricalMapper, ColorMapper):
                 warnings.warn("Palette length does not match number of factors. %s will be assigned to `nan_color` %s" % (extra_factors, self.nan_color))
 
 class CategoricalMarkerMapper(CategoricalMapper):
-    ''' Map categories to marker types.
+    ''' Map categorical factors to marker types.
+
+    Values that are passed to this mapper that are not in the factors list
+    will be mapped to ``default_value``.
+
+    .. note::
+        This mappers is primarily only useful with the ``Scatter`` marker
+        glyph that be parameterized by marker type.
 
     '''
 
     markers = Seq(MarkerType, help="""
     A sequence of marker types to use as the target for mapping.
+    """)
+
+    default_value = MarkerType(default="circle", help="""
+    A marker type to use in case an unrecognized factor is passed in to be
+    mapped.
     """)
 
 @abstract

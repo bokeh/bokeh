@@ -1,3 +1,7 @@
+# this is just for testing, otherwise the figure module is shadowed
+# by the figure function and inacessible
+from . import figure as _figure
+
 # extra imports -- just things to add to 'from bokeh.plotting import'
 from ..document import Document; Document
 

@@ -10,6 +10,7 @@ import base64
 import PIL.Image
 import pytest
 
+from bokeh.core.enums import MarkerType
 from bokeh.core.properties import (field, value,
     NumberSpec, ColorSpec, Bool, Int, Float, Complex, Date, String,
     Regex, Seq, List, Dict, Tuple, Instance, Any, Interval, Either,
@@ -178,6 +179,11 @@ class TestValidateDetailDefault(object):
         with pytest.raises(ValueError) as e:
             p.validate(10)
         assert not str(e).endswith("ValueError")
+    def test_MarkerType(self):
+        p = bcp.MarkerType()
+        with pytest.raises(ValueError) as e:
+            p.validate("foo")
+        assert not str(e).endswith("ValueError")
 
 
     @pytest.mark.parametrize('spec', SPECS)
@@ -314,7 +320,11 @@ class TestValidateDetailExplicit(object):
         with pytest.raises(ValueError) as e:
             p.validate(10, detail)
         assert str(e).endswith("ValueError") == (not detail)
-
+    def test_MarkerType(self, detail):
+        p = bcp.MarkerType()
+        with pytest.raises(ValueError) as e:
+            p.validate("foo", detail)
+        assert str(e).endswith("ValueError") == (not detail)
 
 
     @pytest.mark.parametrize('spec', SPECS)
@@ -2101,6 +2111,30 @@ class TestProperties(object):
 
         # Invalid values
         assert not prop.is_valid((datetime.date(2012, 10, 1), 22))
+
+    def test_MarkerType(self):
+        prop = bcp.MarkerType()
+
+        assert prop.is_valid(None)
+        assert not prop.is_valid(False)
+        assert not prop.is_valid(True)
+        assert not prop.is_valid(0)
+        assert not prop.is_valid(1)
+        assert not prop.is_valid(0.0)
+        assert not prop.is_valid(1.0)
+        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid("")
+        assert not prop.is_valid(())
+        assert not prop.is_valid([])
+        assert not prop.is_valid({})
+        assert not prop.is_valid(Foo())
+
+        for typ in MarkerType:
+            assert prop.is_valid(typ)
+        assert not prop.is_valid("string")
+
+        assert not prop.is_valid([1, 2, 3])
+        assert not prop.is_valid([1, 2, 3.0])
 
 def test_HasProps_equals():
     class Foo(HasProps):

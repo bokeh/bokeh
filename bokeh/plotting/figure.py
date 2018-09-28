@@ -699,19 +699,31 @@ Examples:
 
         Args:
             x (str or seq[float]) : values or field names of center x coordinates
+
             y (str or seq[float]) : values or field names of center y coordinates
+
             size (str or list[float]) : values or field names of sizes in screen units
-            marker (str, optional): a valid marker_type, defaults to "circle"
+
+            marker (str, or list[str]): values or field names of marker types
+
             color (color value, optional): shorthand to set both fill and line color
+
             source (:class:`~bokeh.models.sources.ColumnDataSource`) : a user-supplied data source.
                 An attempt will be made to convert the object to :class:`~bokeh.models.sources.ColumnDataSource`
                 if needed. If none is supplied, one is created for the user automatically.
+
             **kwargs: :ref:`userguide_styling_line_properties` and :ref:`userguide_styling_fill_properties`
 
         Examples:
 
-            >>> p.scatter([1,2,3],[4,5,6], fill_color="red")
-            >>> p.scatter("data1", "data2", source=data_source, ...)
+            >>> p.scatter([1,2,3],[4,5,6], marker="square", fill_color="red")
+            >>> p.scatter("data1", "data2", marker="mtype", source=data_source, ...)
+
+        .. note::
+            When passing ``marker="circle"`` it is also possible to supply a
+            ``radius`` value in data-space units. When configuring marker type
+            from a data source column, *all* markers incuding circles may only
+            be configured with ``size`` in screen units.
 
         '''
         marker_type = kwargs.pop("marker", "circle")

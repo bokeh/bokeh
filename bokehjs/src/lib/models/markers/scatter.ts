@@ -1,5 +1,5 @@
 import {Marker, MarkerView, MarkerData} from "./marker"
-import {funcs} from "./defs"
+import {marker_funcs} from "./defs"
 import {Arrayable} from "core/types"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
@@ -27,7 +27,7 @@ export class ScatterView extends MarkerView {
       if (_angle[i])
         ctx.rotate(_angle[i])
 
-      funcs[_marker[i]](ctx, i, r, this.visuals.line, this.visuals.fill)
+      marker_funcs[_marker[i]](ctx, i, r, this.visuals.line, this.visuals.fill)
 
       if (_angle[i])
         ctx.rotate(-_angle[i])

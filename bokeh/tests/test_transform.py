@@ -22,7 +22,7 @@ import pytest ; pytest
 # External imports
 
 # Bokeh imports
-from bokeh.models import CategoricalColorMapper, CumSum, Dodge, FactorRange, Jitter, LinearColorMapper, LogColorMapper, Stack
+from bokeh.models import CategoricalColorMapper, CategoricalMarkerMapper, CumSum, Dodge, FactorRange, Jitter, LinearColorMapper, LogColorMapper, Stack
 from bokeh._testing.util.api import verify_all
 
 # Module under test
@@ -36,6 +36,7 @@ ALL = (
     'cumsum',
     'dodge',
     'factor_cmap',
+    'factor_marker',
     'jitter',
     'linear_cmap',
     'log_cmap',
@@ -116,6 +117,30 @@ class Test_factor_cmap(object):
         assert t['transform'].end is None
         assert t['transform'].nan_color == "gray"
 
+class Test_factor_marker(object):
+
+    def test_basic(self):
+        t = bt.factor_marker("foo", ["hex", "square"], ["foo", "bar"], start=1, end=2)
+        assert isinstance(t, dict)
+        assert set(t) == {"field", "transform"}
+        assert t['field'] == "foo"
+        assert isinstance(t['transform'], CategoricalMarkerMapper)
+        assert t['transform'].markers == ["hex", "square"]
+        assert t['transform'].factors == ["foo", "bar"]
+        assert t['transform'].start == 1
+        assert t['transform'].end == 2
+
+    def test_defaults(self):
+        t = bt.factor_marker("foo", ["hex", "square"], ["foo", "bar"])
+        assert isinstance(t, dict)
+        assert set(t) == {"field", "transform"}
+        assert t['field'] == "foo"
+        assert isinstance(t['transform'], CategoricalMarkerMapper)
+        assert t['transform'].markers == ["hex", "square"]
+        assert t['transform'].factors == ["foo", "bar"]
+        assert t['transform'].start == 0
+        assert t['transform'].end is None
+
 class Test_jitter(object):
 
     def test_basic(self):
@@ -163,7 +188,7 @@ class Test_linear_cmap(object):
         assert isinstance(t['transform'], LinearColorMapper)
         assert t['transform'].palette == ["red", "green"]
         assert t['transform'].low == 0
-        assert t['transform'].high is 10
+        assert t['transform'].high == 10
         assert t['transform'].low_color == "orange"
         assert t['transform'].high_color == "blue"
         assert t['transform'].nan_color == "pink"
@@ -176,7 +201,7 @@ class Test_linear_cmap(object):
         assert isinstance(t['transform'], LinearColorMapper)
         assert t['transform'].palette == ["red", "green"]
         assert t['transform'].low == 0
-        assert t['transform'].high is 10
+        assert t['transform'].high == 10
         assert t['transform'].low_color is None
         assert t['transform'].high_color is None
         assert t['transform'].nan_color == "gray"
@@ -191,7 +216,7 @@ class Test_log_cmap(object):
         assert isinstance(t['transform'], LogColorMapper)
         assert t['transform'].palette == ["red", "green"]
         assert t['transform'].low == 0
-        assert t['transform'].high is 10
+        assert t['transform'].high == 10
         assert t['transform'].low_color == "orange"
         assert t['transform'].high_color == "blue"
         assert t['transform'].nan_color == "pink"
@@ -204,7 +229,7 @@ class Test_log_cmap(object):
         assert isinstance(t['transform'], LogColorMapper)
         assert t['transform'].palette == ["red", "green"]
         assert t['transform'].low == 0
-        assert t['transform'].high is 10
+        assert t['transform'].high == 10
         assert t['transform'].low_color is None
         assert t['transform'].high_color is None
         assert t['transform'].nan_color == "gray"

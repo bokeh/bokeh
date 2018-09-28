@@ -351,7 +351,7 @@ class MarkerType(String):
 
         if isinstance(value, string_types):
             if value not in enums.MarkerType:
-                msg =  "" if not detail else "invalid marker type %r" % value
+                msg = "" if not detail else "invalid marker type %r" % value
                 raise ValueError(msg)
 
 class Regex(String):

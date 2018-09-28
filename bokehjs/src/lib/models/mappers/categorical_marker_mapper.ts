@@ -13,6 +13,7 @@ export namespace CategoricalMarkerMapper {
 
 export interface CategoricalMarkerMapper extends Mapper.Attrs, CategoricalMapper.Attrs {
   markers: string[]
+  default_value: string
 }
 
 export class CategoricalMarkerMapper extends Mapper<string> {
@@ -27,16 +28,17 @@ export class CategoricalMarkerMapper extends Mapper<string> {
     this.prototype.type = "CategoricalMarkerMapper"
 
     this.define({
-      factors: [ p.Array     ],
-      markers: [ p.Array     ],
-      start:   [ p.Number, 0 ],
-      end:     [ p.Number    ],
+      factors:       [ p.Array            ],
+      markers:       [ p.Array            ],
+      start:         [ p.Number, 0        ],
+      end:           [ p.Number           ],
+      default_value: [ p.String, "circle" ],
     })
   }
 
   v_compute(xs: Arrayable<Factor>): Arrayable<string> {
     const values: string[] = new Array(xs.length)
-    cat_v_compute(xs, this.factors, this.markers, values, this.start, this.end, "circle")
+    cat_v_compute(xs, this.factors, this.markers, values, this.start, this.end, this.default_value)
     return values
   }
 
