@@ -1,4 +1,6 @@
-''' Models for mapping values from one range or space to another.
+''' Models for mapping values from one range or space to another in the client.
+
+Mappers (as opposed to scales) are not presumed to be invertible.
 
 '''
 from __future__ import absolute_import
@@ -7,12 +9,19 @@ import warnings
 
 from .. import palettes
 from ..core.has_props import abstract
-from ..core.properties import Color, Either, Enum, Float, Int, Seq, String, Tuple
+from ..core.properties import Color, Either, Enum, Float, Int, MarkerType, Seq, String, Tuple
 from ..core.enums import Palette
 from .transforms import Transform
 
 @abstract
-class ColorMapper(Transform):
+class Mapper(Transform):
+    ''' Base class for mappers.
+
+    '''
+    pass
+
+@abstract
+class ColorMapper(Mapper):
     ''' Base class for color mapper types.
 
     '''
@@ -33,10 +42,9 @@ class ColorMapper(Transform):
             kwargs['palette'] = palette
         super(ColorMapper, self).__init__(**kwargs)
 
-
-class CategoricalColorMapper(ColorMapper):
-    ''' Map categories to colors. Values that are passed to
-    this mapper that aren't in factors will be assigned the nan_color.
+@abstract
+class CategoricalMapper(Mapper):
+    ''' Base class for mappers that map categorical factors to other values.
 
     '''
 
@@ -72,8 +80,15 @@ class CategoricalColorMapper(ColorMapper):
     factor will be used for color mapping.
     """)
 
+
+class CategoricalColorMapper(CategoricalMapper, ColorMapper):
+    ''' Map categories to colors. Values that are passed to
+    this mapper that aren't in factors will be assigned the nan_color.
+
+    '''
+
     def __init__(self, **kwargs):
-        super(ColorMapper, self).__init__(**kwargs)
+        super(CategoricalColorMapper, self).__init__(**kwargs)
         palette = self.palette
         factors = self.factors
         if palette is not None and factors is not None:
@@ -81,6 +96,14 @@ class CategoricalColorMapper(ColorMapper):
                 extra_factors = factors[len(palette):]
                 warnings.warn("Palette length does not match number of factors. %s will be assigned to `nan_color` %s" % (extra_factors, self.nan_color))
 
+class CategoricalMarkerMapper(CategoricalMapper):
+    ''' Map categories to marker types.
+
+    '''
+
+    markers = Seq(MarkerType, help="""
+    A sequence of marker types to use as the target for mapping.
+    """)
 
 @abstract
 class ContinuousColorMapper(ColorMapper):

@@ -1,4 +1,4 @@
-import {Transform} from "../transforms/transform"
+import {Mapper} from "./mapper"
 import {Factor} from "../ranges/factor_range"
 import * as p from "core/properties"
 import {Arrayable, Color} from "core/types"
@@ -36,17 +36,17 @@ export function _uint32_to_rgba(values: Uint32Array): Uint8Array {
 }
 
 export namespace ColorMapper {
-  export interface Attrs extends Transform.Attrs {
+  export interface Attrs extends Mapper.Attrs {
     palette: Color[]
     nan_color: Color
   }
 
-  export interface Props extends Transform.Props {}
+  export interface Props extends Mapper.Props {}
 }
 
 export interface ColorMapper extends ColorMapper.Attrs {}
 
-export abstract class ColorMapper extends Transform<Color> {
+export abstract class ColorMapper extends Mapper<Color> {
 
   properties: ColorMapper.Props
 
@@ -61,11 +61,6 @@ export abstract class ColorMapper extends Transform<Color> {
       palette:   [ p.Any           ], // TODO (bev)
       nan_color: [ p.Color, "gray" ],
     })
-  }
-
-  compute(_x: number): never {
-    // If it's just a single value, then a color mapper doesn't really make sense.
-    throw new Error("not supported")
   }
 
   v_compute(xs: Arrayable<number> | Arrayable<Factor>): Arrayable<Color> {
