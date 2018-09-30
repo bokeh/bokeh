@@ -40,7 +40,7 @@ __all__ = (
     'cumsum',
     'dodge',
     'factor_cmap',
-    'factor_marker',
+    'factor_mark',
     'jitter',
     'linear_cmap',
     'log_cmap',
@@ -124,7 +124,7 @@ def factor_cmap(field_name, palette, factors, start=0, end=None, nan_color="gray
                                                     end=end,
                                                     nan_color=nan_color))
 
-def factor_marker(field_name, markers, factors, start=0, end=None):
+def factor_mark(field_name, markers, factors, start=0, end=None):
     ''' Create a ``DataSpec`` dict to apply a client-side
     ``CategoricalMarkerMapper`` transformation to a ``ColumnDataSource``
     column.

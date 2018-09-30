@@ -36,7 +36,7 @@ ALL = (
     'cumsum',
     'dodge',
     'factor_cmap',
-    'factor_marker',
+    'factor_mark',
     'jitter',
     'linear_cmap',
     'log_cmap',
@@ -117,10 +117,10 @@ class Test_factor_cmap(object):
         assert t['transform'].end is None
         assert t['transform'].nan_color == "gray"
 
-class Test_factor_marker(object):
+class Test_factor_mark(object):
 
     def test_basic(self):
-        t = bt.factor_marker("foo", ["hex", "square"], ["foo", "bar"], start=1, end=2)
+        t = bt.factor_mark("foo", ["hex", "square"], ["foo", "bar"], start=1, end=2)
         assert isinstance(t, dict)
         assert set(t) == {"field", "transform"}
         assert t['field'] == "foo"
@@ -131,7 +131,7 @@ class Test_factor_marker(object):
         assert t['transform'].end == 2
 
     def test_defaults(self):
-        t = bt.factor_marker("foo", ["hex", "square"], ["foo", "bar"])
+        t = bt.factor_mark("foo", ["hex", "square"], ["foo", "bar"])
         assert isinstance(t, dict)
         assert set(t) == {"field", "transform"}
         assert t['field'] == "foo"
