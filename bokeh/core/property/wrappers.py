@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide special versions of list and dict, that can automatically notify
 about changes when used for property values.
 
@@ -44,15 +51,43 @@ The classes in this module provide this functionality.
     anyone who is not directly developing on Bokeh's own infrastructure.
 
 '''
-from __future__ import absolute_import, print_function
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import numpy as np
 import copy
 
+# External imports
+
+# Bokeh imports
 from ...util.dependencies import import_optional
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = ()
 
 pd = import_optional('pandas')
 
+#----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 def notify_owner(func):
     ''' A decorator for mutating methods of property container classes
@@ -443,3 +478,11 @@ class PropertyValueColumnData(PropertyValueDict):
 
         self._notify_owners(old,
                             hint=ColumnsPatchedEvent(doc, source, patches, setter))
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

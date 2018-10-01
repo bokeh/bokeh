@@ -1,4 +1,13 @@
-''' Properties are objects that can be assigned as class attributes on Bokeh
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+''' Provide property types for Bokeh models
+
+Properties are objects that can be assigned as class attributes on Bokeh
 models, to provide automatic serialization, validation, and documentation.
 
 This documentation is broken down into the following sections:
@@ -96,10 +105,87 @@ to control when type validation occurs.
 .. autofunction:: without_property_validation
 
 '''
-from __future__ import absolute_import, print_function
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'Angle',
+    'AngleSpec',
+    'Any',
+    'AnyRef',
+    'Array',
+    'Auto',
+    'Bool',
+    'Byte',
+    'Color',
+    'ColorSpec',
+    'ColumnData',
+    'Complex',
+    'DashPattern',
+    'DataDistanceSpec',
+    'DataSpec',
+    'Date',
+    'Datetime',
+    'Dict',
+    'DistanceSpec',
+    'Either',
+    'Enum',
+    'Float',
+    'FontSize',
+    'FontSizeSpec',
+    'Image',
+    'Include',
+    'Instance',
+    'Int',
+    'Interval',
+    'JSON',
+    'List',
+    'MarkerSpec',
+    'MarkerType',
+    'MinMaxBounds',
+    'NumberSpec',
+    'Override',
+    'Percent',
+    'RGB',
+    'Regex',
+    'RelativeDelta',
+    'ScreenDistanceSpec',
+    'Seq',
+    'Size',
+    'String',
+    'StringSpec',
+    'TimeDelta',
+    'Tuple',
+    'UnitsSpec',
+    'expr',
+    'field',
+    'validate',
+    'value',
+    'without_property_validation'
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 from .property.any import Any; Any
 from .property.any import AnyRef; AnyRef
@@ -170,3 +256,15 @@ from .property.visual import MarkerType; MarkerType
 
 from .property.validation import validate; validate
 from .property.validation import without_property_validation; without_property_validation
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

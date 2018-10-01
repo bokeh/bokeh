@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide Python descriptors for delegating to Bokeh properties.
 
 The Python `descriptor protocol`_ allows fine-grained control over all
@@ -69,13 +76,42 @@ that can be used to attach Bokeh properties to Bokeh models.
 .. _descriptor protocol: https://docs.python.org/3/howto/descriptor.html
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+
+# Standard library imports
 from copy import copy
 
+# External imports
 from six import string_types
 
+# Bokeh imports
 from .wrappers import PropertyValueContainer
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = ()
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class PropertyDescriptor(object):
     ''' Base class for a python descriptor that delegates access for a named
@@ -209,7 +245,7 @@ class PropertyDescriptor(object):
 
         '''
         from .bases import ContainerProperty
-        from ..properties import DataSpec
+        from .dataspec import DataSpec
         name = self.name
         if name in new_class_attrs:
             raise RuntimeError("Two property generators both created %s.%s" % (class_name, name))
@@ -1107,3 +1143,11 @@ class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
             if units:
                 self.units_prop.__set__(obj, units)
         return value
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

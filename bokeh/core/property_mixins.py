@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Mix-in classes that bulk add groups of properties to Bokeh models.
 
 Some groups of properties often show up in Bokeh models together. For
@@ -39,12 +46,43 @@ different usage, for more information see the docs for |Include|.
 .. |TextProps| replace:: :class:`~bokeh.core.property_mixins.TextProps`
 
 '''
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from .enums import LineJoin, LineCap, FontStyle, TextAlign, TextBaseline
 from .has_props import HasProps
 from .properties import Color, ColorSpec, DashPattern, Enum, FontSize, FontSizeSpec, Include, Int, Float, NumberSpec, Percent, String, value
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'FillProps',
+    'LineProps',
+    'TextProps',
+    'ScalarFillProps',
+    'ScalarLineProps',
+    'ScalarTextProps',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#----------------------------------------------------------------------------
 
 _color_help = """
 A color to use to %s with.
@@ -89,15 +127,11 @@ class ScalarFillProps(HasProps):
     fill_alpha = Percent(default=1.0, help=_alpha_help)
 
 
-
-
-
-
 _line_width_help = """
 Stroke width in units of pixels.
 """
 
-class BaseLineProps(HasProps):
+class _BaseLineProps(HasProps):
     line_join = Enum(LineJoin, default='bevel', help="""
     How path segments should be joined together.
 
@@ -150,7 +184,7 @@ class LineProps(HasProps):
 
     '''
 
-    base_line_props = Include(BaseLineProps, use_prefix=False)
+    base_line_props = Include(_BaseLineProps, use_prefix=False)
 
     line_color = ColorSpec(default="black", help=_color_help % "stroke paths")
     line_width = NumberSpec(default=1, accept_datetime=False, accept_timedelta=False, help=_line_width_help)
@@ -163,16 +197,14 @@ class ScalarLineProps(HasProps):
     Mirrors the BokehJS ``properties.Line`` class.
 
     '''
-    base_line_props = Include(BaseLineProps, use_prefix=False)
+    base_line_props = Include(_BaseLineProps, use_prefix=False)
 
     line_color = Color(default="black", help=_color_help % "stroke paths")
     line_width = Float(default=1, help=_line_width_help)
     line_alpha = Percent(default=1.0, help=_alpha_help % "stroke paths")
 
 
-
-
-class BaseTextProps(HasProps):
+class _BaseTextProps(HasProps):
 
     text_font = String("helvetica", help="""
     Name of a font to use for rendering text, e.g., ``'times'``,
@@ -235,7 +267,7 @@ class TextProps(HasProps):
         to stroke the outlines of text has not yet been exposed.
 
     '''
-    base_text_props = Include(BaseTextProps, use_prefix=False)
+    base_text_props = Include(_BaseTextProps, use_prefix=False)
 
     text_font_size = FontSizeSpec(value("12pt"))
 
@@ -254,7 +286,7 @@ class ScalarTextProps(HasProps):
 
     '''
 
-    base_text_props = Include(BaseTextProps, use_prefix=False)
+    base_text_props = Include(_BaseTextProps, use_prefix=False)
 
     # XXX not great
     text_font_size = FontSize("12pt")
@@ -262,3 +294,15 @@ class ScalarTextProps(HasProps):
     text_color = Color(default="#444444", help=_color_help % "fill text")
 
     text_alpha = Percent(default=1.0, help=_alpha_help % "fill text")
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

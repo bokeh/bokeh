@@ -658,7 +658,6 @@ def value(val, transform=None):
         return dict(value=val, transform=transform)
     return dict(value=val)
 
-
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
