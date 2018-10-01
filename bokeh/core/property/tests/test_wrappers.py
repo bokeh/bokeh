@@ -3,12 +3,12 @@ import pytest
 
 from bokeh.models import ColumnDataSource
 
-import bokeh.core.property.containers as pc
+import bokeh.core.property.wrappers as pw
 
 def test_notify_owner():
     result = {}
     class Foo(object):
-        @pc.notify_owner
+        @pw.notify_owner
         def test(self): pass
 
         def _notify_owners(self, old):
@@ -22,7 +22,7 @@ def test_notify_owner():
     assert f.test.__doc__ == "Container method ``test`` instrumented to notify property owners"
 
 def test_PropertyValueContainer():
-    pvc = pc.PropertyValueContainer()
+    pvc = pw.PropertyValueContainer()
     assert pvc._owners == set()
 
     pvc._register_owner("owner", "prop")
@@ -34,9 +34,9 @@ def test_PropertyValueContainer():
     with pytest.raises(RuntimeError):
         pvc._saved_copy()
 
-@patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
+@patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueDict_mutators(mock_notify):
-    pvd = pc.PropertyValueDict(dict(foo=10, bar=20, baz=30))
+    pvd = pw.PropertyValueDict(dict(foo=10, bar=20, baz=30))
 
     mock_notify.reset_mock()
     del pvd['foo']
@@ -71,7 +71,7 @@ def test_PropertyValueColumnData___setitem__(mock_notify):
     from bokeh.document.events import ColumnDataChangedEvent
 
     source = ColumnDataSource(data=dict(foo=[10], bar=[20], baz=[30]))
-    pvcd = pc.PropertyValueColumnData(source.data)
+    pvcd = pw.PropertyValueColumnData(source.data)
     pvcd._register_owner(source, source.lookup('data'))
 
     mock_notify.reset_mock()
@@ -89,7 +89,7 @@ def test_PropertyValueColumnData_update(mock_notify):
     from bokeh.document.events import ColumnDataChangedEvent
 
     source = ColumnDataSource(data=dict(foo=[10], bar=[20], baz=[30]))
-    pvcd = pc.PropertyValueColumnData(source.data)
+    pvcd = pw.PropertyValueColumnData(source.data)
     pvcd._register_owner(source, source.lookup('data'))
 
     mock_notify.reset_mock()
@@ -102,12 +102,12 @@ def test_PropertyValueColumnData_update(mock_notify):
     assert mock_notify.call_args[1]['hint'].column_source == source
     assert sorted(mock_notify.call_args[1]['hint'].cols) == ['bar', 'foo']
 
-@patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
+@patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__stream_list_to_list(mock_notify):
     from bokeh.document.events import ColumnsStreamedEvent
 
     source = ColumnDataSource(data=dict(foo=[10]))
-    pvcd = pc.PropertyValueColumnData(source.data)
+    pvcd = pw.PropertyValueColumnData(source.data)
 
     mock_notify.reset_mock()
     pvcd._stream("doc", source, dict(foo=[20]), setter="setter")
@@ -118,13 +118,13 @@ def test_PropertyValueColumnData__stream_list_to_list(mock_notify):
     assert mock_notify.call_args[1]['hint'].setter == 'setter'
     assert mock_notify.call_args[1]['hint'].rollover == None
 
-@patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
+@patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__stream_list_to_array(mock_notify):
     from bokeh.document.events import ColumnsStreamedEvent
     import numpy as np
 
     source = ColumnDataSource(data=dict(foo=np.array([10])))
-    pvcd = pc.PropertyValueColumnData(source.data)
+    pvcd = pw.PropertyValueColumnData(source.data)
 
     mock_notify.reset_mock()
     pvcd._stream("doc", source, dict(foo=[20]), setter="setter")
@@ -136,12 +136,12 @@ def test_PropertyValueColumnData__stream_list_to_array(mock_notify):
     assert mock_notify.call_args[1]['hint'].rollover == None
 
 
-@patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
+@patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__stream_list_with_rollover(mock_notify):
     from bokeh.document.events import ColumnsStreamedEvent
 
     source = ColumnDataSource(data=dict(foo=[10, 20, 30]))
-    pvcd = pc.PropertyValueColumnData(source.data)
+    pvcd = pw.PropertyValueColumnData(source.data)
 
     mock_notify.reset_mock()
     pvcd._stream("doc", source, dict(foo=[40]), rollover=3, setter="setter")
@@ -152,13 +152,13 @@ def test_PropertyValueColumnData__stream_list_with_rollover(mock_notify):
     assert mock_notify.call_args[1]['hint'].setter == 'setter'
     assert mock_notify.call_args[1]['hint'].rollover == 3
 
-@patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
+@patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__stream_array_to_array(mock_notify):
     from bokeh.document.events import ColumnsStreamedEvent
     import numpy as np
 
     source = ColumnDataSource(data=dict(foo=np.array([10])))
-    pvcd = pc.PropertyValueColumnData(source.data)
+    pvcd = pw.PropertyValueColumnData(source.data)
 
     mock_notify.reset_mock()
     pvcd._stream("doc", source, dict(foo=[20]), setter="setter")
@@ -171,12 +171,12 @@ def test_PropertyValueColumnData__stream_array_to_array(mock_notify):
     assert mock_notify.call_args[1]['hint'].setter == 'setter'
     assert mock_notify.call_args[1]['hint'].rollover == None
 
-@patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
+@patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__stream_array_to_list(mock_notify):
     from bokeh.document.events import ColumnsStreamedEvent
 
     source = ColumnDataSource(data=dict(foo=[10]))
-    pvcd = pc.PropertyValueColumnData(source.data)
+    pvcd = pw.PropertyValueColumnData(source.data)
 
     mock_notify.reset_mock()
     pvcd._stream("doc", source, dict(foo=[20]), setter="setter")
@@ -189,13 +189,13 @@ def test_PropertyValueColumnData__stream_array_to_list(mock_notify):
     assert mock_notify.call_args[1]['hint'].setter == 'setter'
     assert mock_notify.call_args[1]['hint'].rollover == None
 
-@patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
+@patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__stream_array_with_rollover(mock_notify):
     from bokeh.document.events import ColumnsStreamedEvent
     import numpy as np
 
     source = ColumnDataSource(data=dict(foo=np.array([10, 20, 30])))
-    pvcd = pc.PropertyValueColumnData(source.data)
+    pvcd = pw.PropertyValueColumnData(source.data)
 
     mock_notify.reset_mock()
     pvcd._stream("doc", source, dict(foo=[40]), rollover=3, setter="setter")
@@ -208,11 +208,11 @@ def test_PropertyValueColumnData__stream_array_with_rollover(mock_notify):
     assert mock_notify.call_args[1]['hint'].setter == 'setter'
     assert mock_notify.call_args[1]['hint'].rollover == 3
 
-@patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
+@patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__patch_with_simple_indices(mock_notify):
     from bokeh.document.events import ColumnsPatchedEvent
     source = ColumnDataSource(data=dict(foo=[10, 20]))
-    pvcd = pc.PropertyValueColumnData(source.data)
+    pvcd = pw.PropertyValueColumnData(source.data)
 
     mock_notify.reset_mock()
     pvcd._patch("doc", source, dict(foo=[(1, 40)]), setter='setter')
@@ -223,11 +223,11 @@ def test_PropertyValueColumnData__patch_with_simple_indices(mock_notify):
     assert isinstance(mock_notify.call_args[1]['hint'], ColumnsPatchedEvent)
     assert mock_notify.call_args[1]['hint'].setter == 'setter'
 
-@patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
+@patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__patch_with_repeated_simple_indices(mock_notify):
     from bokeh.document.events import ColumnsPatchedEvent
     source = ColumnDataSource(data=dict(foo=[10, 20]))
-    pvcd = pc.PropertyValueColumnData(source.data)
+    pvcd = pw.PropertyValueColumnData(source.data)
 
     mock_notify.reset_mock()
     pvcd._patch("doc", source, dict(foo=[(1, 40), (1, 50)]), setter='setter')
@@ -239,11 +239,11 @@ def test_PropertyValueColumnData__patch_with_repeated_simple_indices(mock_notify
     assert mock_notify.call_args[1]['hint'].setter == 'setter'
 
 
-@patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
+@patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__patch_with_slice_indices(mock_notify):
     from bokeh.document.events import ColumnsPatchedEvent
     source = ColumnDataSource(data=dict(foo=[10, 20, 30, 40, 50]))
-    pvcd = pc.PropertyValueColumnData(source.data)
+    pvcd = pw.PropertyValueColumnData(source.data)
 
     mock_notify.reset_mock()
     pvcd._patch("doc", source, dict(foo=[(slice(2), [1,2])]), setter='setter')
@@ -254,11 +254,11 @@ def test_PropertyValueColumnData__patch_with_slice_indices(mock_notify):
     assert isinstance(mock_notify.call_args[1]['hint'], ColumnsPatchedEvent)
     assert mock_notify.call_args[1]['hint'].setter == 'setter'
 
-@patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
+@patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__patch_with_overlapping_slice_indices(mock_notify):
     from bokeh.document.events import ColumnsPatchedEvent
     source = ColumnDataSource(data=dict(foo=[10, 20, 30, 40, 50]))
-    pvcd = pc.PropertyValueColumnData(source.data)
+    pvcd = pw.PropertyValueColumnData(source.data)
 
     mock_notify.reset_mock()
     pvcd._patch("doc", source, dict(foo=[(slice(2), [1,2]), (slice(1,3), [1000,2000])]), setter='setter')
@@ -269,9 +269,9 @@ def test_PropertyValueColumnData__patch_with_overlapping_slice_indices(mock_noti
     assert isinstance(mock_notify.call_args[1]['hint'], ColumnsPatchedEvent)
     assert mock_notify.call_args[1]['hint'].setter == 'setter'
 
-@patch('bokeh.core.property.containers.PropertyValueContainer._notify_owners')
+@patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueList_mutators(mock_notify):
-    pvl = pc.PropertyValueList([10, 20, 30, 40, 50])
+    pvl = pw.PropertyValueList([10, 20, 30, 40, 50])
 
     mock_notify.reset_mock()
     del pvl[2]

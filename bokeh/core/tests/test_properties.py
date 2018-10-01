@@ -19,7 +19,7 @@ from bokeh.core.properties import (field, value,
     DataDistanceSpec, ScreenDistanceSpec, ColumnData, UnitsSpec, Image)
 
 from bokeh.core.property.bases import validation_on
-from bokeh.core.property.containers import PropertyValueColumnData, PropertyValueDict, PropertyValueList
+from bokeh.core.property.wrappers import PropertyValueColumnData, PropertyValueDict, PropertyValueList
 
 from bokeh.core.has_props import HasProps
 

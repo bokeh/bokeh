@@ -126,9 +126,9 @@ from ..util.serialization import convert_datetime_type, convert_timedelta_type, 
 from ..util.string import nice_join, format_docstring
 
 from .property.bases import ContainerProperty, DeserializationError, ParameterizedProperty, Property, PrimitiveProperty
-from .property.containers import PropertyValueColumnData, PropertyValueDict, PropertyValueList
 from .property.descriptors import (ColumnDataPropertyDescriptor, DataSpecPropertyDescriptor,
                                    UnitsSpecPropertyDescriptor)
+from .property.wrappers import PropertyValueColumnData, PropertyValueDict, PropertyValueList
 from . import enums
 
 pd = import_optional('pandas')

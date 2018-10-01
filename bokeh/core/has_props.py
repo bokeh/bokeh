@@ -19,9 +19,9 @@ from warnings import warn
 
 from ..util.future import with_metaclass
 from ..util.string import nice_join
-from .property.containers import PropertyValueContainer
 from .property.descriptor_factory import PropertyDescriptorFactory
 from .property.override import Override
+from .property.wrappers import PropertyValueContainer
 
 _ABSTRACT_ADMONITION = '''
     .. note::

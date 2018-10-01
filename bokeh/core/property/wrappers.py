@@ -93,7 +93,7 @@ class PropertyValueContainer(object):
 
     This class maintains an internal list of property owners, and also
     provides a private mechanism for methods wrapped with
-    :func:`~bokeh.core.property_containers.notify_owners` to update
+    :func:`~bokeh.core.property.wrappers.notify_owners` to update
     those owners when mutating changes occur.
 
     '''

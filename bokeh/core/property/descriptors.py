@@ -75,7 +75,7 @@ from copy import copy
 
 from six import string_types
 
-from .containers import PropertyValueContainer
+from .wrappers import PropertyValueContainer
 
 class PropertyDescriptor(object):
     ''' Base class for a python descriptor that delegates access for a named
