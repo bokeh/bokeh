@@ -110,7 +110,6 @@ import datetime
 import dateutil.parser
 from functools import wraps
 from io import BytesIO
-import numbers
 import re
 
 import PIL.Image
@@ -121,9 +120,10 @@ from ..util.dependencies import import_optional
 from ..util.serialization import convert_datetime_type, convert_timedelta_type
 from ..util.string import nice_join, format_docstring
 
-from .property.bases import DeserializationError, ParameterizedProperty, Property, PrimitiveProperty
+from .property.bases import DeserializationError, ParameterizedProperty, Property
 from .property.descriptors import DataSpecPropertyDescriptor, UnitsSpecPropertyDescriptor
 from .property.instance import Instance
+from .property.primitive import bokeh_integer_types
 from . import enums
 
 pd = import_optional('pandas')
@@ -132,199 +132,12 @@ pd = import_optional('pandas')
 from .property.any import Any; Any
 from .property.any import AnyRef; AnyRef
 
-bokeh_bool_types = (bool,)
-try:
-    import numpy as np
-    bokeh_bool_types += (np.bool8,)
-except ImportError:
-    pass
+from .property.primitive import Bool; Bool
+from .property.primitive import Complex; Complex
+from .property.primitive import Int; Int
+from .property.primitive import Float; Float
+from .property.primitive import String; String
 
-bokeh_integer_types = (numbers.Integral,)
-
-class Bool(PrimitiveProperty):
-    ''' Accept boolean values.
-
-    Args:
-        default (obj or None, optional) :
-            A default value for attributes created from this property to
-            have (default: None)
-
-        help (str or None, optional) :
-            A documentation string for this property. It will be automatically
-            used by the :ref:`bokeh.sphinxext.bokeh_prop` extension when
-            generating Spinx documentation. (default: None)
-
-        serialized (bool, optional) :
-            Whether attributes created from this property should be included
-            in serialization (default: True)
-
-        readonly (bool, optional) :
-            Whether attributes created from this property are read-only.
-            (default: False)
-
-    Example:
-
-        .. code-block:: python
-
-            >>> class BoolModel(HasProps):
-            ...     prop = Bool(default=False)
-            ...
-
-            >>> m = BoolModel()
-
-            >>> m.prop = True
-
-            >>> m.prop = False
-
-            >>> m.prop = 10  # ValueError !!
-
-    '''
-    _underlying_type = bokeh_bool_types
-
-class Int(PrimitiveProperty):
-    ''' Accept signed integer values.
-
-    Args:
-        default (int or None, optional) :
-            A default value for attributes created from this property to
-            have (default: None)
-
-        help (str or None, optional) :
-            A documentation string for this property. It will be automatically
-            used by the :ref:`bokeh.sphinxext.bokeh_prop` extension when
-            generating Spinx documentation. (default: None)
-
-        serialized (bool, optional) :
-            Whether attributes created from this property should be included
-            in serialization (default: True)
-
-        readonly (bool, optional) :
-            Whether attributes created from this property are read-only.
-            (default: False)
-
-    Example:
-
-        .. code-block:: python
-
-            >>> class IntModel(HasProps):
-            ...     prop = Int()
-            ...
-
-            >>> m = IntModel()
-
-            >>> m.prop = 10
-
-            >>> m.prop = -200
-
-            >>> m.prop = 10.3  # ValueError !!
-
-    '''
-    _underlying_type = bokeh_integer_types
-
-class Float(PrimitiveProperty):
-    ''' Accept floating point values.
-
-    Args:
-        default (float or None, optional) :
-            A default value for attributes created from this property to
-            have (default: None)
-
-        help (str or None, optional) :
-            A documentation string for this property. It will be automatically
-            used by the :ref:`bokeh.sphinxext.bokeh_prop` extension when
-            generating Spinx documentation. (default: None)
-
-        serialized (bool, optional) :
-            Whether attributes created from this property should be included
-            in serialization (default: True)
-
-        readonly (bool, optional) :
-            Whether attributes created from this property are read-only.
-            (default: False)
-
-    Example:
-
-        .. code-block:: python
-
-            >>> class FloatModel(HasProps):
-            ...     prop = Float()
-            ...
-
-            >>> m = FloatModel()
-
-            >>> m.prop = 10
-
-            >>> m.prop = 10.3
-
-            >>> m.prop = "foo"  # ValueError !!
-
-
-    '''
-    _underlying_type = (numbers.Real,)
-
-class Complex(PrimitiveProperty):
-    ''' Accept complex floating point values.
-
-    Args:
-        default (complex or None, optional) :
-            A default value for attributes created from this property to
-            have (default: None)
-
-        help (str or None, optional) :
-            A documentation string for this property. It will be automatically
-            used by the :ref:`bokeh.sphinxext.bokeh_prop` extension when
-            generating Spinx documentation. (default: None)
-
-        serialized (bool, optional) :
-            Whether attributes created from this property should be included
-            in serialization (default: True)
-
-        readonly (bool, optional) :
-            Whether attributes created from this property are read-only.
-            (default: False)
-
-    '''
-    _underlying_type = (numbers.Complex,)
-
-class String(PrimitiveProperty):
-    ''' Accept string values.
-
-    Args:
-        default (string or None, optional) :
-            A default value for attributes created from this property to
-            have (default: None)
-
-        help (str or None, optional) :
-            A documentation string for this property. It will be automatically
-            used by the :ref:`bokeh.sphinxext.bokeh_prop` extension when
-            generating Spinx documentation. (default: None)
-
-        serialized (bool, optional) :
-            Whether attributes created from this property should be included
-            in serialization (default: True)
-
-        readonly (bool, optional) :
-            Whether attributes created from this property are read-only.
-            (default: False)
-
-    Example:
-
-        .. code-block:: python
-
-            >>> class StringModel(HasProps):
-            ...     prop = String()
-            ...
-
-            >>> m = StringModel()
-
-            >>> m.prop = "foo"
-
-            >>> m.prop = 10.3       # ValueError !!
-
-            >>> m.prop = [1, 2, 3]  # ValueError !!
-
-    '''
-    _underlying_type = string_types
 
 class FontSize(String):
 
@@ -1799,7 +1612,6 @@ def without_property_validation(input_function):
 # Everything below is just to update the module docstring
 _all_props = set(x for x in globals().values() if isinstance(x, type) and issubclass(x, Property))
 _all_props.remove(Property)
-_all_props.remove(PrimitiveProperty)
 _all_props.remove(ParameterizedProperty)
 def _find_and_remove(typ):
     global _all_props
