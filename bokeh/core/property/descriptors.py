@@ -208,7 +208,8 @@ class PropertyDescriptor(object):
             None
 
         '''
-        from ..properties import DataSpec, ContainerProperty
+        from .bases import ContainerProperty
+        from ..properties import DataSpec
         name = self.name
         if name in new_class_attrs:
             raise RuntimeError("Two property generators both created %s.%s" % (class_name, name))
