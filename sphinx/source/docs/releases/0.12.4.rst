@@ -149,13 +149,13 @@ improves maintainability and allows the contents of ``bokeh.core.properties``
 to limited to things of that might be useful to users writing custom models.
 The new file structure:
 
-* :ref:`bokeh.core.has_props`
-* :ref:`bokeh.core.properties`
-* :ref:`bokeh.core.property.bases`
-* :ref:`bokeh.core.property.containers`
-* :ref:`bokeh.core.property.descriptors`
-* :ref:`bokeh.core.property.descriptor_factory`
-* :ref:`bokeh.core.property.override`
+* ``bokeh.core.has_props``
+* ``bokeh.core.properties``
+* ``bokeh.core.property.bases``
+* ``bokeh.core.property.containers``
+* ``bokeh.core.property.descriptors``
+* ``bokeh.core.property.descriptor_factory``
+* ``bokeh.core.property.override``
 
 The following class names have been changed to improve intent and clarity
 (i.e. only things that are actually Python descriptors are named "Descriptor"):

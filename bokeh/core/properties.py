@@ -72,15 +72,65 @@ easily and automatically extracted with the Sphinx extensions in the
 Basic Properties
 ----------------
 
+.. autoclass:: Angle
+.. autoclass:: Any
+.. autoclass:: AnyRef
+.. autoclass:: Auto
+.. autoclass:: Bool
+.. autoclass:: Byte
+.. autoclass:: Color
+.. autoclass:: Complex
+.. autoclass:: DashPattern
+.. autoclass:: Date
+.. autoclass:: Datetime
+.. autoclass:: Either
+.. autoclass:: Enum
+.. autoclass:: Float
+.. autoclass:: FontSize
+.. autoclass:: Image
+.. autoclass:: Instance
+.. autoclass:: Int
+.. autoclass:: Interval
+.. autoclass:: JSON
+.. autoclass:: MarkerType
+.. autoclass:: MinMaxBounds
+.. autoclass:: Percent
+.. autoclass:: RGB
+.. autoclass:: Regex
+.. autoclass:: Size
+.. autoclass:: String
+.. autoclass:: TimeDelta
+
 Container Properties
 --------------------
+
+.. autoclass:: Array
+.. autoclass:: ColumnData
+.. autoclass:: Dict
+.. autoclass:: List
+.. autoclass:: RelativeDelta
+.. autoclass:: Seq
+.. autoclass:: Tuple
 
 DataSpec Properties
 -------------------
 
+.. autoclass:: AngleSpec
+.. autoclass:: ColorSpec
+.. autoclass:: DataDistanceSpec
+.. autoclass:: DataSpec
+.. autoclass:: DistanceSpec
+.. autoclass:: FontSizeSpec
+.. autoclass:: MarkerSpec
+.. autoclass:: NumberSpec
+.. autoclass:: ScreenDistanceSpec
+.. autoclass:: StringSpec
+.. autoclass:: UnitsSpec
+
 Helpers
 ~~~~~~~
 
+.. autofunction:: expr
 .. autofunction:: field
 .. autofunction:: value
 
