@@ -47,8 +47,8 @@ class FixedTicker(ContinuousTicker):
     ticks = Seq(Float, default=[], help="""
     List of major tick locations.
     """)
-	
-	minor_ticks = Seq(Float, default=[], help="""
+
+    minor_ticks = Seq(Float, default=[], help="""
     List of minor tick locations.
     """)
 
