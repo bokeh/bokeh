@@ -208,7 +208,7 @@ _black = (
 #-----------------------------------------------------------------------------
 
 def test__all__():
-    assert bcg.__all__ == ('pink', 'red', 'orange', 'yellow', 'brown', 'green', 'cyan', 'blue', 'purple', 'white', 'black')
+    assert bcg.__all__ == ('black', 'blue', 'brown', 'cyan', 'green', 'orange', 'pink', 'purple', 'red', 'white', 'yellow')
 
 @pytest.mark.parametrize('group', bcg.__all__)
 @pytest.mark.unit
