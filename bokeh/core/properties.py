@@ -124,6 +124,14 @@ from .property.any import AnyRef; AnyRef
 from .property.color import Color; Color
 from .property.color import RGB; RGB
 
+from .property.container import Array; Array
+from .property.container import ColumnData; ColumnData
+from .property.container import Dict; Dict
+from .property.container import List; List
+from .property.container import Seq; Seq
+from .property.container import Tuple; Tuple
+from .property.container import RelativeDelta; RelativeDelta
+
 from .property.datetime import Date; Date
 from .property.datetime import Datetime; Datetime
 from .property.datetime import TimeDelta; TimeDelta
@@ -132,13 +140,17 @@ from .property.either import Either; Either
 
 from .property.enum import Enum; Enum
 
-from .property.instance import Instance
+from .property.include import Include ; Include
+
+from .property.instance import Instance; Instance
 
 from .property.numeric import Angle; Angle
 from .property.numeric import Byte; Byte
 from .property.numeric import Interval; Interval
 from .property.numeric import Percent; Percent
 from .property.numeric import Size; Size
+
+from .property.override import Override ; Override
 
 from .property.primitive import Bool; Bool
 from .property.primitive import Complex; Complex
@@ -272,18 +284,6 @@ class MinMaxBounds(Either):
 
     def _sphinx_type(self):
         return self._sphinx_prop_link()
-
-#------------------------------------------------------------------------------
-# Container properties
-#------------------------------------------------------------------------------
-
-from .property.container import Array; Array
-from .property.container import ColumnData; ColumnData
-from .property.container import Dict; Dict
-from .property.container import List; List
-from .property.container import Seq; Seq
-from .property.container import Tuple; Tuple
-from .property.container import RelativeDelta; RelativeDelta
 
 #------------------------------------------------------------------------------
 # DataSpec properties
@@ -884,13 +884,7 @@ def value(val, transform=None):
         return dict(value=val, transform=transform)
     return dict(value=val)
 
-#------------------------------------------------------------------------------
-# Special Properties
-#------------------------------------------------------------------------------
 
-# intentional transitive imports, DO NOT REMOVE
-from .property.include import Include ; Include
-from .property.override import Override ; Override
 
 #------------------------------------------------------------------------------
 # Validation Control
