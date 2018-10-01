@@ -17,9 +17,6 @@ for start_node, end_node, _ in G.edges(data=True):
 
 nx.set_edge_attributes(G, edge_attrs, "edge_color")
 
-print("G has node attributes. For example, {}".format(G.nodes[0]))
-print("G has edge attributes. For example, {}".format(G.edges[(0, 1)]))
-
 # Show with Bokeh
 plot = Plot(plot_width=400, plot_height=400,
             x_range=Range1d(-1.1, 1.1), y_range=Range1d(-1.1, 1.1))
