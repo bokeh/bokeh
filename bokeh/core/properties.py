@@ -344,16 +344,6 @@ class FontSize(String):
                 msg = "" if not detail else "%r is not a valid font size value" % value
                 raise ValueError(msg)
 
-class MarkerType(String):
-
-    def validate(self, value, detail=True):
-        super(MarkerType, self).validate(value, detail)
-
-        if isinstance(value, string_types):
-            if value not in enums.MarkerType:
-                msg = "" if not detail else "invalid marker type %r" % value
-                raise ValueError(msg)
-
 class Regex(String):
     ''' Accept strings that match a given regular expression.
 
