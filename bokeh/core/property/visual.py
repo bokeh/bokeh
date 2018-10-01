@@ -32,11 +32,13 @@ from six import string_types
 
 # Bokeh imports
 from .. import enums
+from .auto import Auto
 from .bases import Property
-from .container import Seq
+from .container import Seq, Tuple
+from .datetime import Datetime, TimeDelta
 from .either import Either
 from .enum import Enum
-from .numeric import Int
+from .numeric import Int, Float
 from .regex import Regex
 from .primitive import String
 
@@ -48,7 +50,8 @@ __all__ = (
     'DashPattern',
     'FontSize',
     'Image',
-    'MarkerType'
+    'MinMaxBounds',
+    'MarkerType',
 )
 
 #-----------------------------------------------------------------------------
@@ -163,6 +166,51 @@ class Image(Property):
             return "data:image/%s;base64," % fmt.lower() + base64.b64encode(out.getvalue()).decode('ascii')
 
         raise ValueError("Could not transform %r" % value)
+
+class MinMaxBounds(Either):
+    ''' Accept (min, max) bounds tuples for use with Ranges.
+
+    Bounds are provided as a tuple of ``(min, max)`` so regardless of whether your range is
+    increasing or decreasing, the first item should be the minimum value of the range and the
+    second item should be the maximum. Setting min > max will result in a ``ValueError``.
+
+    Setting bounds to None will allow your plot to pan/zoom as far as you want. If you only
+    want to constrain one end of the plot, you can set min or max to
+    ``None`` e.g. ``DataRange1d(bounds=(None, 12))`` '''
+
+    def __init__(self, accept_datetime=False, default='auto', help=None):
+        if accept_datetime:
+            types = (
+                Auto,
+                Tuple(Float, Float),
+                Tuple(TimeDelta, TimeDelta),
+                Tuple(Datetime, Datetime),
+            )
+        else:
+            types = (
+                Auto,
+                Tuple(Float, Float),
+                Tuple(TimeDelta, TimeDelta),
+            )
+        super(MinMaxBounds, self).__init__(*types, default=default, help=help)
+
+    def validate(self, value, detail=True):
+        super(MinMaxBounds, self).validate(value, detail)
+
+        if value is None:
+            pass
+
+        elif value[0] is None or value[1] is None:
+            pass
+
+        elif value[0] >= value[1]:
+            msg = "" if not detail else "Invalid bounds: maximum smaller than minimum. Correct usage: bounds=(min, max)"
+            raise ValueError(msg)
+
+        return True
+
+    def _sphinx_type(self):
+        return self._sphinx_prop_link()
 
 class MarkerType(Enum):
     '''
