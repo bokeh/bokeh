@@ -137,7 +137,7 @@ Here's a graph example with added node and edge interactions:
     :source-position: above
 
 Node and Edge Attributes
---------------------
+------------------------
 
 In ``from_networkx``, NetworkX's node/edge attributes are converted for
 GraphRenderer's ``node_renderer``/``edge_renderer``.
