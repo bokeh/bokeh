@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -34,15 +34,19 @@ from .rgb import RGB
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+__all__ = (
+    'ColorGroup',
+    'NamedColor',
+)
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
-# Dev API
+# Private API
 #-----------------------------------------------------------------------------
 
-# Normally this would go under Private API but it is needed to define ColorGroup
 class _ColorGroupMeta(type):
     ''' This metaclass enables ColorGroup class types to be used like simple
     enumerations.
@@ -74,6 +78,10 @@ class _ColorGroupMeta(type):
         if v is not "_colors" and v in self._colors:
             return getattr(named, v.lower())
         return super(_ColorGroupMeta, self).__getattr__(v)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class ColorGroup(with_metaclass(_ColorGroupMeta)):
     ''' Collect a group of named colors into an iterable, indexable group.
@@ -118,10 +126,6 @@ class NamedColor(RGB):
 
         '''
         return self.name
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Code
