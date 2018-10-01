@@ -115,7 +115,7 @@ from six import string_types
 
 from .. import colors
 from ..util.serialization import convert_datetime_type, convert_timedelta_type
-from ..util.string import nice_join, format_docstring
+from ..util.string import format_docstring
 
 from .property.bases import ParameterizedProperty, Property
 from .property.descriptors import DataSpecPropertyDescriptor, UnitsSpecPropertyDescriptor
@@ -126,11 +126,15 @@ from . import enums
 from .property.any import Any; Any
 from .property.any import AnyRef; AnyRef
 
+from .property.color import Color; Color
+from .property.color import RGB; RGB
+
 from .property.datetime import Date; Date
 from .property.datetime import Datetime; Datetime
 from .property.datetime import TimeDelta; TimeDelta
 
 from .property.either import Either; Either
+from .property.enum import Enum; Enum
 
 from .property.numeric import Angle; Angle
 from .property.numeric import Byte; Byte
@@ -143,6 +147,8 @@ from .property.primitive import Complex; Complex
 from .property.primitive import Int; Int
 from .property.primitive import Float; Float
 from .property.primitive import String; String
+
+from .property.regex import Regex
 
 class FontSize(String):
 
@@ -158,58 +164,6 @@ class FontSize(String):
             elif self._font_size_re.match(value) is None:
                 msg = "" if not detail else "%r is not a valid font size value" % value
                 raise ValueError(msg)
-
-class Regex(String):
-    ''' Accept strings that match a given regular expression.
-
-    Args:
-        default (string or None, optional) :
-            A default value for attributes created from this property to
-            have (default: None)
-
-        help (str or None, optional) :
-            A documentation string for this property. It will be automatically
-            used by the :ref:`bokeh.sphinxext.bokeh_prop` extension when
-            generating Spinx documentation. (default: None)
-
-        serialized (bool, optional) :
-            Whether attributes created from this property should be included
-            in serialization (default: True)
-
-        readonly (bool, optional) :
-            Whether attributes created from this property are read-only.
-            (default: False)
-
-    Example:
-
-        .. code-block:: python
-
-            >>> class RegexModel(HasProps):
-            ...     prop = Regex("foo[0-9]+bar")
-            ...
-
-            >>> m = RegexModel()
-
-            >>> m.prop = "foo123bar"
-
-            >>> m.prop = "foo"      # ValueError !!
-
-            >>> m.prop = [1, 2, 3]  # ValueError !!
-
-    '''
-    def __init__(self, regex, default=None, help=None):
-        self.regex = re.compile(regex)
-        super(Regex, self).__init__(default=default, help=help)
-
-    def __str__(self):
-        return "%s(%r)" % (self.__class__.__name__, self.regex.pattern)
-
-    def validate(self, value, detail=True):
-        super(Regex, self).validate(value, detail)
-
-        if not (value is None or self.regex.match(value) is not None):
-            msg = "" if not detail else "expected a string matching %r pattern, got %r" % (self.regex.pattern, value)
-            raise ValueError(msg)
 
 class JSON(String):
     ''' Accept JSON string values.
@@ -248,50 +202,6 @@ class JSON(String):
         except ValueError:
             msg = "" if not detail else "expected JSON text, got %r" % value
             raise ValueError(msg)
-
-class Enum(String):
-    ''' Accept values from enumerations.
-
-    The first value in enumeration is used as the default value, unless the
-    ``default`` keyword argument is used.
-
-    See :ref:`bokeh.core.enums` for more information.
-
-    '''
-    def __init__(self, enum, *values, **kwargs):
-        if not (not values and isinstance(enum, enums.Enumeration)):
-            enum = enums.enumeration(enum, *values)
-
-        self._enum = enum
-
-        default = kwargs.get("default", enum._default)
-        help = kwargs.get("help")
-
-        super(Enum, self).__init__(default=default, help=help)
-
-    def __str__(self):
-        return "%s(%s)" % (self.__class__.__name__, ", ".join(map(repr, self.allowed_values)))
-
-    @property
-    def allowed_values(self):
-        return self._enum._values
-
-    def validate(self, value, detail=True):
-        super(Enum, self).validate(value, detail)
-
-        if not (value is None or value in self._enum):
-            msg = "" if not detail else "invalid value: %r; allowed values are %s" % (value, nice_join(self.allowed_values))
-            raise ValueError(msg)
-
-    def _sphinx_type(self):
-        # try to return a link to a proper enum in bokeh.core.enums if possible
-        if self._enum in enums.__dict__.values():
-            for name, obj in enums.__dict__.items():
-                if self._enum is obj:
-                    val = self._sphinx_model_link("%s.%s" % (self._enum.__module__, name))
-        else:
-            val = str(self._enum)
-        return self._sphinx_prop_link() + "( %s )" % val
 
 class Auto(Enum):
     ''' Accepts only the string "auto".
@@ -382,74 +292,6 @@ class Image(Property):
             return "data:image/%s;base64," % fmt.lower() + base64.b64encode(out.getvalue()).decode('ascii')
 
         raise ValueError("Could not transform %r" % value)
-
-class RGB(Property):
-    ''' Accept colors.RGB values.
-
-    '''
-
-    def validate(self, value, detail=True):
-        super(RGB, self).validate(value, detail)
-
-        if not (value is None or isinstance(value, colors.RGB)):
-            msg = "" if not detail else "expected RGB value, got %r" % (value,)
-            raise ValueError(msg)
-
-# Properties useful for defining visual attributes
-class Color(Either):
-    ''' Accept color values in a variety of ways.
-
-    For colors, because we support named colors and hex values prefaced
-    with a "#", when we are handed a string value, there is a little
-    interpretation: if the value is one of the 147 SVG named colors or
-    it starts with a "#", then it is interpreted as a value.
-
-    If a 3-tuple is provided, then it is treated as an RGB (0..255).
-    If a 4-tuple is provided, then it is treated as an RGBa (0..255), with
-    alpha as a float between 0 and 1.  (This follows the HTML5 Canvas API.)
-
-    Example:
-
-        .. code-block:: python
-
-            >>> class ColorModel(HasProps):
-            ...     prop = Color()
-            ...
-
-            >>> m = ColorModel()
-
-            >>> m.prop = "firebrick"
-
-            >>> m.prop = "#a240a2"
-
-            >>> m.prop = (100, 100, 255)
-
-            >>> m.prop = (100, 100, 255, 0.5)
-
-            >>> m.prop = "junk"              # ValueError !!
-
-            >>> m.prop = (100.2, 57.3, 10.2) # ValueError !!
-
-    '''
-
-    def __init__(self, default=None, help=None):
-        types = (Enum(enums.NamedColor),
-                 Regex("^#[0-9a-fA-F]{6}$"),
-                 Tuple(Byte, Byte, Byte),
-                 Tuple(Byte, Byte, Byte, Percent),
-                 RGB)
-        super(Color, self).__init__(*types, default=default, help=help)
-
-    def __str__(self):
-        return self.__class__.__name__
-
-    def transform(self, value):
-        if isinstance(value, tuple):
-            value = colors.RGB(*value).to_css()
-        return value
-
-    def _sphinx_type(self):
-        return self._sphinx_prop_link()
 
 class MinMaxBounds(Either):
     ''' Accept (min, max) bounds tuples for use with Ranges.

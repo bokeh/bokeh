@@ -29,9 +29,10 @@ from six import string_types, iteritems
 
 # Bokeh imports
 from ...util.serialization import decode_base64_dict, transform_column_source_data
-from ..properties import Enum, Int
 from .bases import ContainerProperty, DeserializationError
 from .descriptors import ColumnDataPropertyDescriptor
+from .enum import Enum
+from .numeric import Int
 from .wrappers import PropertyValueColumnData, PropertyValueDict, PropertyValueList
 
 #-----------------------------------------------------------------------------
