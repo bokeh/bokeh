@@ -81,6 +81,9 @@ class Enumeration(object):
     def __str__(self):
         return "Enumeration(%s)" % ", ".join(self._values)
 
+    def __len__(self):
+        return len(self._values)
+
     __repr__ = __str__
 
 def enumeration(*values, **kwargs):
@@ -127,41 +130,24 @@ def enumeration(*values, **kwargs):
 
     return type("Enumeration", (Enumeration,), attrs)()
 
-#: Specify whether events should be combined or collected as-is when a Document hold is in effect
-HoldPolicy = enumeration( "combine", "collect")
-
-#: Specify whether a dimension or coordinate is latitude or longitude
-LatLon = enumeration("lat", "lon")
-
-#: Specify how stroked lines should be joined together
-LineJoin = enumeration("miter", "round", "bevel")
-
-#: Specify a named dash pattern for stroking lines
-LineDash = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")
-
-#: Specify how stroked lines should be terminated
-LineCap = enumeration("butt", "round", "square")
-
-#: Specify the font style for rendering text
-FontStyle = enumeration("normal", "italic", "bold", "bold italic")
-
-#: Specify the vertical alignment for rendering text
-VerticalAlign = enumeration("top", "middle", "bottom")
-
-#: Specify the horizontal alignment for rendering text
-TextAlign = enumeration("left", "right", "center")
-
-#: Specify the baseline location for rendering text
-TextBaseline = enumeration("top", "middle", "bottom", "alphabetic", "hanging", "ideographic")
-
-#: Specify a stroke direction for circles, wedges, etc.
-Direction = enumeration("clock", "anticlock")
-
-#: Specify units for mapping values
-SpatialUnits = enumeration("screen", "data")
+#: Specify an achor position on a box/frame
+Anchor = enumeration(
+    "top_left",    "top_center",    "top_right",
+    "center_left", "center",        "center_right",
+    "bottom_left", "bottom_center", "bottom_right")
 
 #: Specify the units for an angle value
 AngleUnits = enumeration("deg", "rad")
+
+#: Specify a style for button widgets
+ButtonType = enumeration("default", "primary", "success", "warning", "danger", "link")
+
+#: Specify a named dashing patter for stroking lines
+DashPattern = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")
+
+#: Specify a format for printing dates
+DateFormat = enumeration("ATOM", "W3C", "RFC-3339", "ISO-8601", "COOKIE", "RFC-822",
+                         "RFC-850", "RFC-1036", "RFC-1123", "RFC-2822", "RSS", "TIMESTAMP")
 
 #: Specify a date/time scale
 DatetimeUnits = enumeration("microseconds", "milliseconds", "seconds", "minsec",
@@ -173,49 +159,52 @@ Dimension = enumeration("width", "height")
 #: Specify a vertical/horizontal dimensions
 Dimensions = enumeration("width", "height", "both")
 
-#: Specify a vertical/horizontal orientation for something
-Orientation = enumeration("horizontal", "vertical")
+#: Specify a stroke direction for circles, wedges, etc.
+Direction = enumeration("clock", "anticlock")
 
-#: Specify a fixed location for a Bokeh legend
-LegendLocation = Anchor = enumeration(
-    "top_left",    "top_center",    "top_right",
-    "center_left", "center",        "center_right",
-    "bottom_left", "bottom_center", "bottom_right")
+#: Specify the font style for rendering text
+FontStyle = enumeration("normal", "italic", "bold", "bold italic")
 
-#: Specify a location in plot layouts
-Location = enumeration("above", "below", "left", "right")
-
-#: Specify a vertical location in plot layouts
-VerticalLocation = enumeration("above", "below")
+#: Specify whether events should be combined or collected as-is when a Document hold is in effect
+HoldPolicy = enumeration("combine", "collect")
 
 #: Specify a horizontal location in plot layouts
 HorizontalLocation = enumeration("left", "right")
 
-#: Specify an attachment for tooltips
-TooltipAttachment = enumeration("horizontal", "vertical",
-                                "left", "right", "above", "below")
+#: Specify a distribution to use for the Jitter class
+JitterRandomDistribution = enumeration("uniform", "normal")
 
-#: Specify a named dashing patter for stroking lines
-DashPattern = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")
+#: Specify whether a dimension or coordinate is latitude or longitude
+LatLon = enumeration("lat", "lon")
 
-#: Specify a style for button widgets
-ButtonType = enumeration("default", "primary", "success", "warning", "danger", "link")
+#: Specify how a legend should respond to click events
+LegendClickPolicy = enumeration("none", "hide", "mute")
 
-#: Specify one of the 137 named CSS colors
-NamedColor = enumeration(*colors.named.__all__, case_sensitive=False)
+#: Specify a fixed location for a Bokeh legend
+LegendLocation = Anchor
 
-#: Specify the name of a palette from :ref:`bokeh.palettes`
-Palette = enumeration(*palettes.__palettes__)
+#: Specify how stroked lines should be terminated
+LineCap = enumeration("butt", "round", "square")
+
+#: Specify a named dash pattern for stroking lines
+LineDash = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")
+
+#: Specify how stroked lines should be joined together
+LineJoin = enumeration("miter", "round", "bevel")
+
+#: Specify a location in plot layouts
+Location = enumeration("above", "below", "left", "right")
 
 #: Specify a style for a Google map
 MapType = enumeration("satellite", "roadmap", "terrain", "hybrid")
 
-#: Specify a format for printing dates
-DateFormat = enumeration("ATOM", "W3C", "RFC-3339", "ISO-8601", "COOKIE", "RFC-822",
-                         "RFC-850", "RFC-1036", "RFC-1123", "RFC-2822", "RSS", "TIMESTAMP")
+#: Specify one of the built-in marker types
+MarkerType = enumeration("asterisk", "circle", "circle_cross", "circle_x", "cross",
+                         "dash", "diamond", "diamond_cross", "hex", "inverted_triangle",
+                         "square", "square_cross", "square_x", "triangle", "x")
 
-#: Specify a policy for  how numbers should be rounded
-RoundingFunction = enumeration("round", "nearest", "floor", "rounddown", "ceil", "roundup")
+#: Specify one of the 137 named CSS colors
+NamedColor = enumeration(*colors.named.__all__, case_sensitive=False)
 
 #: Specify a locale for printing numeric values
 NumeralLanguage = enumeration("be-nl", "chs", "cs", "da-dk", "de-ch", "de", "en",
@@ -223,8 +212,17 @@ NumeralLanguage = enumeration("be-nl", "chs", "cs", "da-dk", "de-ch", "de", "en"
                               "fr", "hu", "it", "ja", "nl-nl", "pl", "pt-br",
                               "pt-pt", "ru", "ru-UA", "sk", "th", "tr", "uk-UA")
 
+#: Specify a vertical/horizontal orientation for something
+Orientation = enumeration("horizontal", "vertical")
+
 #: Specify an output backend to render a plot area onto
 OutputBackend = enumeration("canvas", "svg", "webgl")
+
+#: Whether range padding should be interpreted a percentage or and absolute quantity
+PaddingUnits = enumeration("percent", "absolute")
+
+#: Specify the name of a palette from :ref:`bokeh.palettes`
+Palette = enumeration(*palettes.__palettes__)
 
 #: Specify a position in the render order for a Bokeh renderer
 RenderLevel = enumeration("image", "underlay", "glyph", "annotation", "overlay")
@@ -232,32 +230,44 @@ RenderLevel = enumeration("image", "underlay", "glyph", "annotation", "overlay")
 #: Specify a render mode for renderers that support both Canvas or CSS rendering
 RenderMode = enumeration("canvas", "css")
 
+#: Specify a policy for  how numbers should be rounded
+RoundingFunction = enumeration("round", "nearest", "floor", "rounddown", "ceil", "roundup")
+
+#: Sizing mode policies
+SizingMode = enumeration("stretch_both", "scale_width", "scale_height", "scale_both", "fixed")
+
+#: Specify different callback policies for the slider widget
+SliderCallbackPolicy = enumeration("continuous", "throttle", "mouseup")
+
+#: Specify sorting directions
+SortDirection = enumeration("ascending", "descending")
+
+#: Specify units for mapping values
+SpatialUnits = enumeration("screen", "data")
+
 #: Specify a start/end value
 StartEnd = enumeration("start", "end")
 
 #: Specify a mode for stepwise interpolation
 StepMode = enumeration("before", "after", "center")
 
-#: Specify different callback policies for the slider widget
-SliderCallbackPolicy = enumeration("continuous", "throttle", "mouseup")
+#: Specify the horizontal alignment for rendering text
+TextAlign = enumeration("left", "right", "center")
 
-#: Specify a distribution to use for the Jitter class
-JitterRandomDistribution = enumeration("uniform", "normal")
-
-#: Specify sorting directions
-SortDirection = enumeration("ascending", "descending")
-
-#: Sizing mode policies
-SizingMode = enumeration("stretch_both", "scale_width", "scale_height", "scale_both", "fixed")
-
-#: Specify how a legend should respond to click events
-LegendClickPolicy = enumeration("none", "hide", "mute")
-
-#: Whether range padding should be interpreted a percentage or and absolute quantity
-PaddingUnits = enumeration("percent", "absolute")
+#: Specify the baseline location for rendering text
+TextBaseline = enumeration("top", "middle", "bottom", "alphabetic", "hanging", "ideographic")
 
 #: Specify how axis tick labels are oriented with respect to the axis
 TickLabelOrientation = enumeration("horizontal", "vertical", "parallel", "normal")
 
+#: Specify an attachment for tooltips
+TooltipAttachment = enumeration("horizontal", "vertical", "left", "right", "above", "below")
+
 #: Specify how a format string for a tooltip field should be interpreted
 TooltipFieldFormatter = enumeration("numeral", "datetime", "printf")
+
+#: Specify the vertical alignment for rendering text
+VerticalAlign = enumeration("top", "middle", "bottom")
+
+#: Specify a vertical location in plot layouts
+VerticalLocation = enumeration("above", "below")

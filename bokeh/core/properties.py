@@ -806,6 +806,13 @@ class Auto(Enum):
     def _sphinx_type(self):
         return self._sphinx_prop_link()
 
+class MarkerType(Enum):
+    '''
+
+    '''
+    def __init__(self, **kw):
+        super(MarkerType, self).__init__(enums.MarkerType, **kw)
+
 class Image(Property):
     ''' Accept image file types, e.g PNG, JPEG, TIFF, etc.
 
@@ -1749,6 +1756,27 @@ class FontSizeSpec(DataSpec):
             if len(value) == 0 or value[0].isdigit() and FontSize._font_size_re.match(value) is None:
                 msg = "" if not detail else "%r is not a valid font size value" % value
                 raise ValueError(msg)
+
+class MarkerSpec(DataSpec):
+    ''' A |DataSpec| property that accepts marker types as fixed values.
+
+    The ``MarkerSpec`` property attempts to first interpret string values as
+    marker types. Otherwise string values are interpreted as field names.
+    For example:
+
+    .. code-block:: python
+
+        m.font_size = "circle" # value
+
+        m.font_size = "square" # value
+
+        m.font_size = "foo"    # field
+
+    '''
+
+    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
+        super(MarkerSpec, self).__init__(key_type, MarkerType, default=default, help=help)
+
 
 _ExprFieldValueTransformUnits = Enum("expr", "field", "value", "transform", "units")
 
