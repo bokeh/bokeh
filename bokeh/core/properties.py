@@ -109,7 +109,6 @@ logger = logging.getLogger(__name__)
 
 import base64
 import collections
-from copy import copy
 import datetime
 import dateutil.parser
 from functools import wraps
@@ -128,8 +127,7 @@ from ..util.string import nice_join, format_docstring
 
 from .property.bases import ContainerProperty, DeserializationError, ParameterizedProperty, Property, PrimitiveProperty
 from .property.containers import PropertyValueColumnData, PropertyValueDict, PropertyValueList
-from .property.descriptor_factory import PropertyDescriptorFactory
-from .property.descriptors import (BasicPropertyDescriptor, ColumnDataPropertyDescriptor, DataSpecPropertyDescriptor,
+from .property.descriptors import (ColumnDataPropertyDescriptor, DataSpecPropertyDescriptor,
                                    UnitsSpecPropertyDescriptor)
 from . import enums
 
@@ -2127,48 +2125,9 @@ def value(val, transform=None):
 # Special Properties
 #------------------------------------------------------------------------------
 
-# intentional transitive import to put Override in this module, DO NOT REMOVE
+# intentional transitive imports, DO NOT REMOVE
+from .property.include import Include ; Include
 from .property.override import Override ; Override
-
-class Include(PropertyDescriptorFactory):
-    ''' Include "mix-in" property collection in a Bokeh model.
-
-    See :ref:`bokeh.core.property_mixins` for more details.
-
-    '''
-
-    def __init__(self, delegate, help="", use_prefix=True):
-        from .has_props import HasProps
-        if not (isinstance(delegate, type) and issubclass(delegate, HasProps)):
-            raise ValueError("expected a subclass of HasProps, got %r" % delegate)
-
-        self.delegate = delegate
-        self.help = help
-        self.use_prefix = use_prefix
-
-    def make_descriptors(self, base_name):
-        descriptors = []
-        delegate = self.delegate
-        if self.use_prefix:
-            prefix = re.sub("_props$", "", base_name) + "_"
-        else:
-            prefix = ""
-
-        # it would be better if we kept the original generators from
-        # the delegate and built our Include props from those, perhaps.
-        for subpropname in delegate.properties(with_bases=False):
-            fullpropname = prefix + subpropname
-            subprop_descriptor = delegate.lookup(subpropname)
-            if isinstance(subprop_descriptor, BasicPropertyDescriptor):
-                prop = copy(subprop_descriptor.property)
-                if "%s" in self.help:
-                    doc = self.help % subpropname.replace('_', ' ')
-                else:
-                    doc = self.help
-                prop.__doc__ = doc
-                descriptors += prop.make_descriptors(fullpropname)
-
-        return descriptors
 
 #------------------------------------------------------------------------------
 # Validation Control
