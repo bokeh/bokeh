@@ -63,15 +63,11 @@ easily and automatically extracted with the Sphinx extensions in the
 Basic Properties
 ----------------
 
-{basic_properties}
-
 Container Properties
 --------------------
 
 DataSpec Properties
 -------------------
-
-{dataspec_properties}
 
 Helpers
 ~~~~~~~
@@ -104,11 +100,6 @@ from __future__ import absolute_import, print_function
 
 import logging
 logger = logging.getLogger(__name__)
-
-from ..util.string import format_docstring
-
-from .property.bases import ParameterizedProperty, Property
-
 
 from .property.any import Any; Any
 from .property.any import AnyRef; AnyRef
@@ -179,19 +170,3 @@ from .property.visual import MarkerType; MarkerType
 
 from .property.validation import validate; validate
 from .property.validation import without_property_validation; without_property_validation
-
-# Everything below is just to update the module docstring
-_all_props = set(x for x in globals().values() if isinstance(x, type) and issubclass(x, Property))
-_all_props.remove(Property)
-_all_props.remove(ParameterizedProperty)
-def _find_and_remove(typ):
-    global _all_props
-    sub = set(x for x in _all_props if issubclass(x, typ))
-    _all_props -= sub
-    return sub
-_data_specs = "\n".join(sorted(".. autoclass:: %s" % x.__name__ for x in _find_and_remove(DataSpec)))
-_basic = "\n".join(sorted(".. autoclass:: %s" % x.__name__ for x in _all_props))
-
-__doc__ = format_docstring(__doc__, basic_properties=_basic, dataspec_properties=_data_specs)
-
-del _all_props, _data_specs, _basic, _find_and_remove
