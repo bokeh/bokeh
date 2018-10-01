@@ -105,12 +105,8 @@ from __future__ import absolute_import, print_function
 import logging
 logger = logging.getLogger(__name__)
 
-import base64
 from functools import wraps
-from io import BytesIO
-import re
 
-import PIL.Image
 from six import string_types
 
 from .. import colors
@@ -119,7 +115,6 @@ from ..util.string import format_docstring
 
 from .property.bases import ParameterizedProperty, Property
 from .property.descriptors import DataSpecPropertyDescriptor, UnitsSpecPropertyDescriptor
-from .property.instance import Instance
 from . import enums
 
 
@@ -134,7 +129,10 @@ from .property.datetime import Datetime; Datetime
 from .property.datetime import TimeDelta; TimeDelta
 
 from .property.either import Either; Either
+
 from .property.enum import Enum; Enum
+
+from .property.instance import Instance
 
 from .property.numeric import Angle; Angle
 from .property.numeric import Byte; Byte
@@ -148,22 +146,13 @@ from .property.primitive import Int; Int
 from .property.primitive import Float; Float
 from .property.primitive import String; String
 
-from .property.regex import Regex
+from .property.regex import Regex; Regex
 
-class FontSize(String):
+from .property.visual import DashPattern; DashPattern
+from .property.visual import FontSize; FontSize
+from .property.visual import Image; Image
+from .property.visual import MarkerType; MarkerType
 
-    _font_size_re = re.compile(r"^[0-9]+(.[0-9]+)?(%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px)$", re.I)
-
-    def validate(self, value, detail=True):
-        super(FontSize, self).validate(value, detail)
-
-        if isinstance(value, string_types):
-            if len(value) == 0:
-                msg = "" if not detail else "empty string is not a valid font size value"
-                raise ValueError(msg)
-            elif self._font_size_re.match(value) is None:
-                msg = "" if not detail else "%r is not a valid font size value" % value
-                raise ValueError(msg)
 
 class JSON(String):
     ''' Accept JSON string values.
@@ -239,60 +228,6 @@ class Auto(Enum):
     def _sphinx_type(self):
         return self._sphinx_prop_link()
 
-class MarkerType(Enum):
-    '''
-
-    '''
-    def __init__(self, **kw):
-        super(MarkerType, self).__init__(enums.MarkerType, **kw)
-
-class Image(Property):
-    ''' Accept image file types, e.g PNG, JPEG, TIFF, etc.
-
-    This property can be configured with:
-
-    * A string filename to be loaded with ``PIL.Image.open``
-    * An RGB(A) NumPy array, will be converted to PNG
-    * A ``PIL.Image.Image`` object
-
-    In all cases, the image data is serialized as a Base64 encoded string.
-
-    '''
-
-    def validate(self, value, detail=True):
-        import numpy as np
-
-        valid = False
-
-        if value is None or isinstance(value, (string_types, PIL.Image.Image)):
-            valid = True
-
-        if isinstance(value, np.ndarray):
-            valid = value.dtype == "uint8" and len(value.shape) == 3 and value.shape[2] in (3, 4)
-
-        if not valid:
-            msg = "" if not detail else "invalid value: %r; allowed values are string filenames, PIL.Image.Image instances, or RGB(A) NumPy arrays" % value
-            raise ValueError(msg)
-
-    def transform(self, value):
-        if value is None:
-            return None
-
-        import numpy as np
-        if isinstance(value, np.ndarray):
-            value = PIL.Image.fromarray(value)
-
-        if isinstance(value, string_types):
-            value = PIL.Image.open(value)
-
-        if isinstance(value, PIL.Image.Image):
-            out = BytesIO()
-            fmt = value.format or "PNG"
-            value.save(out, fmt)
-            return "data:image/%s;base64," % fmt.lower() + base64.b64encode(out.getvalue()).decode('ascii')
-
-        raise ValueError("Could not transform %r" % value)
-
 class MinMaxBounds(Either):
     ''' Accept (min, max) bounds tuples for use with Ranges.
 
@@ -334,54 +269,6 @@ class MinMaxBounds(Either):
             raise ValueError(msg)
 
         return True
-
-    def _sphinx_type(self):
-        return self._sphinx_prop_link()
-
-
-class DashPattern(Either):
-    ''' Accept line dash specifications.
-
-    Express patterns that describe line dashes.  ``DashPattern`` values
-    can be specified in a variety of ways:
-
-    * An enum: "solid", "dashed", "dotted", "dotdash", "dashdot"
-    * a tuple or list of integers in the `HTML5 Canvas dash specification style`_.
-      Note that if the list of integers has an odd number of elements, then
-      it is duplicated, and that duplicated list becomes the new dash list.
-
-    To indicate that dashing is turned off (solid lines), specify the empty
-    list [].
-
-    .. _HTML5 Canvas dash specification style: http://www.w3.org/html/wg/drafts/2dcontext/html5_canvas/#dash-list
-
-    '''
-
-    _dash_patterns = {
-        "solid": [],
-        "dashed": [6],
-        "dotted": [2,4],
-        "dotdash": [2,4,6,4],
-        "dashdot": [6,4,2,4],
-    }
-
-    def __init__(self, default=[], help=None):
-        types = Enum(enums.DashPattern), Regex(r"^(\d+(\s+\d+)*)?$"), Seq(Int)
-        super(DashPattern, self).__init__(*types, default=default, help=help)
-
-    def __str__(self):
-        return self.__class__.__name__
-
-    def transform(self, value):
-        value = super(DashPattern, self).transform(value)
-
-        if isinstance(value, string_types):
-            try:
-                return self._dash_patterns[value]
-            except KeyError:
-                return [int(x) for x in  value.split()]
-        else:
-            return value
 
     def _sphinx_type(self):
         return self._sphinx_prop_link()
