@@ -1,3 +1,4 @@
+import {RenderOne} from "./defs"
 import {XYGlyph, XYGlyphView, XYGlyphData} from "../glyphs/xy_glyph"
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {DistanceSpec, AngleSpec} from "core/vectorization"
@@ -10,8 +11,6 @@ import {IBBox} from "core/util/bbox"
 import {range} from "core/util/array"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
-
-export type RenderOne = (ctx: Context2d, i: number, r: number, line: Line, fill: Fill) => void
 
 export interface MarkerData extends XYGlyphData {
   _size: Arrayable<number>

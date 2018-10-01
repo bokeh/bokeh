@@ -29,7 +29,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from .core.properties import expr, field
 from .models.expressions import CumSum, Stack
-from .models.mappers import CategoricalColorMapper, LinearColorMapper, LogColorMapper
+from .models.mappers import CategoricalColorMapper, CategoricalMarkerMapper, LinearColorMapper, LogColorMapper
 from .models.transforms import Dodge, Jitter
 
 #-----------------------------------------------------------------------------
@@ -40,6 +40,7 @@ __all__ = (
     'cumsum',
     'dodge',
     'factor_cmap',
+    'factor_mark',
     'jitter',
     'linear_cmap',
     'log_cmap',
@@ -122,6 +123,38 @@ def factor_cmap(field_name, palette, factors, start=0, end=None, nan_color="gray
                                                     start=start,
                                                     end=end,
                                                     nan_color=nan_color))
+
+def factor_mark(field_name, markers, factors, start=0, end=None):
+    ''' Create a ``DataSpec`` dict to apply a client-side
+    ``CategoricalMarkerMapper`` transformation to a ``ColumnDataSource``
+    column.
+
+    .. note::
+        This transform is primarily only useful with ``scatter``, which
+        can be paremeterized by glyph type.
+
+    Args:
+        field_name (str) : a field name to configure ``DataSpec`` with
+
+        markers (seq[string]) : a list of markers to use map to
+
+        factors (seq) : a sequences of categorical factors corresponding to
+            the palette
+
+        start (int, optional) : a start slice index to apply when the column
+            data has factors with multiple levels. (default: 0)
+
+        end (int, optional) : an end slice index to apply when the column
+            data has factors with multiple levels. (default: None)
+
+    Returns:
+        dict
+
+    '''
+    return field(field_name, CategoricalMarkerMapper(markers=markers,
+                                                     factors=factors,
+                                                     start=start,
+                                                     end=end))
 
 def jitter(field_name, width, mean=0, distribution="uniform", range=None):
     ''' Create a ``DataSpec`` dict to apply a client-side ``Jitter``

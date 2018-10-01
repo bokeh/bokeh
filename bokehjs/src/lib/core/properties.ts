@@ -305,6 +305,9 @@ DistanceSpec.prototype.dataspec = true
 export class FontSizeSpec extends String {}
 FontSizeSpec.prototype.dataspec = true
 
+export class MarkerSpec extends String {}
+MarkerSpec.prototype.dataspec = true
+
 export class NumberSpec extends Number {}
 NumberSpec.prototype.dataspec = true
 

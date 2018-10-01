@@ -34,7 +34,7 @@ from __future__ import absolute_import
 
 from ..core.enums import enumeration
 from ..core.has_props import abstract
-from ..core.properties import AngleSpec, DistanceSpec, Enum, Include, NumberSpec, ScreenDistanceSpec
+from ..core.properties import AngleSpec, DistanceSpec, Enum, Include, MarkerSpec, NumberSpec, ScreenDistanceSpec
 from ..core.property_mixins import FillProps, LineProps
 
 from .glyphs import XYGlyph
@@ -80,6 +80,46 @@ class Marker(XYGlyph):
     fill_props = Include(FillProps, use_prefix=False, help="""
     The %s values for the markers.
     """)
+
+class Scatter(Marker):
+    ''' Render arbitrary markers according a specification.
+
+    The Scatter can draw any built-in marker type. It can be configured
+    to draw the same marker for all values by specifying the name of a
+    marker, e.g.
+
+    .. code-block:: python
+
+        glyph = Scatter(x="x", y="y", size="sizes", marker="square")
+        plot.add_glyph(source, glyph)
+
+    will render only Square markers for all points. Alternatively, the
+    Scatter marker can be configured to use marker types specified in a
+    data source column:
+
+    .. code-block:: python
+
+        # source.data['markers'] = ["circle", "square", "circle", ... ]
+
+        glyph = Scatter(x="x", y="y", size="sizes", marker="markers")
+        plot.add_glyph(source, glyph)
+
+    Note that circles drawn with `Scatter` conform to the standard Marker
+    interface, and can only vary by size (in screen units) and *not* by radius
+    (in data units). If you need to control circles by radius in data units,
+    you should use the Circle glyph directly.
+
+    '''
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y', 'size', 'angle', 'marker')
+
+    marker = MarkerSpec(default="circle", help="""
+    Which marker to render. This can be the name of any built in marker,
+    e.g. "circle", or a reference to a data column containinh such names.
+    """)
+
+    __example__ = "examples/reference/models/Scatter.py"
 
 class Asterisk(Marker):
     ''' Render asterisk '*' markers. '''
