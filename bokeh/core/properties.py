@@ -105,8 +105,6 @@ from __future__ import absolute_import, print_function
 import logging
 logger = logging.getLogger(__name__)
 
-from functools import wraps
-
 from six import string_types
 
 from .. import colors
@@ -164,6 +162,9 @@ from .property.visual import DashPattern; DashPattern
 from .property.visual import FontSize; FontSize
 from .property.visual import Image; Image
 from .property.visual import MarkerType; MarkerType
+
+from .property.validation import validate; validate
+from .property.validation import without_property_validation; without_property_validation
 
 
 class JSON(String):
@@ -884,64 +885,6 @@ def value(val, transform=None):
         return dict(value=val, transform=transform)
     return dict(value=val)
 
-
-
-#------------------------------------------------------------------------------
-# Validation Control
-#------------------------------------------------------------------------------
-
-class validate(object):
-    ''' Control validation of bokeh properties
-
-    This can be used as a context manager, or as a normal callable
-
-    Args:
-        value (bool) : Whether validation should occur or not
-
-    Example:
-        .. code-block:: python
-
-            with validate(False):  # do no validate while within this block
-                pass
-
-            validate(False)  # don't validate ever
-
-    See Also:
-        :func:`~bokeh.core.property.bases.validation_on`: check the state of validation
-
-        :func:`~bokeh.core.properties.without_property_validation`: function decorator
-
-    '''
-    def __init__(self, value):
-        self.old = Property._should_validate
-        Property._should_validate = value
-
-    def __enter__(self):
-        pass
-
-    def __exit__(self, typ, value, traceback):
-        Property._should_validate = self.old
-
-
-def without_property_validation(input_function):
-    ''' Turn off property validation during update callbacks
-
-    Example:
-        .. code-block:: python
-
-            @without_property_validation
-            def update(attr, old, new):
-                # do things without validation
-
-    See Also:
-        :class:`~bokeh.core.properties.validate`: context mangager for more fine-grained control
-
-    '''
-    @wraps(input_function)
-    def func(*args, **kwargs):
-        with validate(False):
-            return input_function(*args, **kwargs)
-    return func
 
 # Everything below is just to update the module docstring
 _all_props = set(x for x in globals().values() if isinstance(x, type) and issubclass(x, Property))
