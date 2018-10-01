@@ -106,8 +106,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 import base64
-import datetime
-import dateutil.parser
 from functools import wraps
 from io import BytesIO
 import re
@@ -116,30 +114,35 @@ import PIL.Image
 from six import string_types
 
 from .. import colors
-from ..util.dependencies import import_optional
 from ..util.serialization import convert_datetime_type, convert_timedelta_type
 from ..util.string import nice_join, format_docstring
 
 from .property.bases import ParameterizedProperty, Property
 from .property.descriptors import DataSpecPropertyDescriptor, UnitsSpecPropertyDescriptor
 from .property.instance import Instance
-from .property.primitive import bokeh_integer_types
 from . import enums
-
-pd = import_optional('pandas')
 
 
 from .property.any import Any; Any
 from .property.any import AnyRef; AnyRef
 
+from .property.datetime import Date; Date
+from .property.datetime import Datetime; Datetime
+from .property.datetime import TimeDelta; TimeDelta
+
 from .property.either import Either; Either
+
+from .property.numeric import Angle; Angle
+from .property.numeric import Byte; Byte
+from .property.numeric import Interval; Interval
+from .property.numeric import Percent; Percent
+from .property.numeric import Size; Size
 
 from .property.primitive import Bool; Bool
 from .property.primitive import Complex; Complex
 from .property.primitive import Int; Int
 from .property.primitive import Float; Float
 from .property.primitive import String; String
-
 
 class FontSize(String):
 
@@ -245,90 +248,6 @@ class JSON(String):
         except ValueError:
             msg = "" if not detail else "expected JSON text, got %r" % value
             raise ValueError(msg)
-
-class Interval(ParameterizedProperty):
-    ''' Accept numeric values that are contained within a given interval.
-
-    Args:
-        interval_type (numeric property):
-            numeric types for the range, e.g. ``Int``, ``Float``
-
-        start (number) :
-            A minimum allowable value for the range. Values less than
-            ``start`` will result in validation errors.
-
-        end (number) :
-            A maximum allowable value for the range. Values greater than
-            ``end`` will result in validation errors.
-
-    Example:
-
-        .. code-block:: python
-
-            >>> class RangeModel(HasProps):
-            ...     prop = Range(Float, 10, 20)
-            ...
-
-            >>> m = RangeModel()
-
-            >>> m.prop = 10
-
-            >>> m.prop = 20
-
-            >>> m.prop = 15
-
-            >>> m.prop = 2     # ValueError !!
-
-            >>> m.prop = 22    # ValueError !!
-
-            >>> m.prop = "foo" # ValueError !!
-
-    '''
-    def __init__(self, interval_type, start, end, default=None, help=None):
-        self.interval_type = self._validate_type_param(interval_type)
-        # Make up a property name for validation purposes
-        self.interval_type.validate(start)
-        self.interval_type.validate(end)
-        self.start = start
-        self.end = end
-        super(Interval, self).__init__(default=default, help=help)
-
-    def __str__(self):
-        return "%s(%s, %r, %r)" % (self.__class__.__name__, self.interval_type, self.start, self.end)
-
-    @property
-    def type_params(self):
-        return [self.interval_type]
-
-    def validate(self, value, detail=True):
-        super(Interval, self).validate(value, detail)
-
-        if not (value is None or self.interval_type.is_valid(value) and value >= self.start and value <= self.end):
-            msg = "" if not detail else "expected a value of type %s in range [%s, %s], got %r" % (self.interval_type, self.start, self.end, value)
-            raise ValueError(msg)
-
-class Byte(Interval):
-    ''' Accept integral byte values (0-255).
-
-    Example:
-
-        .. code-block:: python
-
-            >>> class ByteModel(HasProps):
-            ...     prop = Byte(default=0)
-            ...
-
-            >>> m = ByteModel()
-
-            >>> m.prop = 255
-
-            >>> m.prop = 256  # ValueError !!
-
-            >>> m.prop = 10.3 # ValueError !!
-
-    '''
-    def __init__(self, default=0, help=None):
-        super(Byte, self).__init__(Int, 0, 255, default=default, help=help)
 
 class Enum(String):
     ''' Accept values from enumerations.
@@ -624,237 +543,6 @@ class DashPattern(Either):
 
     def _sphinx_type(self):
         return self._sphinx_prop_link()
-
-class Size(Float):
-    ''' Accept non-negative numeric values.
-
-    Args:
-        default (float or None, optional) :
-            A default value for attributes created from this property to
-            have (default: None)
-
-        help (str or None, optional) :
-            A documentation string for this property. It will be automatically
-            used by the :ref:`bokeh.sphinxext.bokeh_prop` extension when
-            generating Spinx documentation. (default: None)
-
-        serialized (bool, optional) :
-            Whether attributes created from this property should be included
-            in serialization (default: True)
-
-        readonly (bool, optional) :
-            Whether attributes created from this property are read-only.
-            (default: False)
-
-    Example:
-
-        .. code-block:: python
-
-            >>> class SizeModel(HasProps):
-            ...     prop = Size()
-            ...
-
-            >>> m = SizeModel()
-
-            >>> m.prop = 0
-
-            >>> m.prop = 10e6
-
-            >>> m.prop = -10   # ValueError !!
-
-            >>> m.prop = "foo" # ValueError !!
-
-    '''
-    def validate(self, value, detail=True):
-        super(Size, self).validate(value, detail)
-
-        if not (value is None or 0.0 <= value):
-            msg = "" if not detail else "expected a non-negative number, got %r" % value
-            raise ValueError(msg)
-
-class Percent(Float):
-    ''' Accept floating point percentage values.
-
-    ``Percent`` can be useful and semantically meaningful for specifying
-    things like alpha values and extents.
-
-    Args:
-        default (float or None, optional) :
-            A default value for attributes created from this property to
-            have (default: None)
-
-        help (str or None, optional) :
-            A documentation string for this property. It will be automatically
-            used by the :ref:`bokeh.sphinxext.bokeh_prop` extension when
-            generating Spinx documentation. (default: None)
-
-        serialized (bool, optional) :
-            Whether attributes created from this property should be included
-            in serialization (default: True)
-
-        readonly (bool, optional) :
-            Whether attributes created from this property are read-only.
-            (default: False)
-
-    Example:
-
-        .. code-block:: python
-
-            >>> class PercentModel(HasProps):
-            ...     prop = Percent()
-            ...
-
-            >>> m = PercentModel()
-
-            >>> m.prop = 0.0
-
-            >>> m.prop = 0.2
-
-            >>> m.prop = 1.0
-
-            >>> m.prop = -2  # ValueError !!
-
-            >>> m.prop = 5   # ValueError !!
-
-    '''
-    def validate(self, value, detail=True):
-        super(Percent, self).validate(value, detail)
-
-        if not (value is None or 0.0 <= value <= 1.0):
-            msg = "" if not detail else "expected a value in range [0, 1], got %r" % value
-            raise ValueError(msg)
-
-class Angle(Float):
-    ''' Accept floating point angle values.
-
-    ``Angle`` is equivalent to :class:`~bokeh.core.properties.Float` but is
-    provided for cases when it is more semantically meaningful.
-
-    Args:
-        default (float or None, optional) :
-            A default value for attributes created from this property to
-            have (default: None)
-
-        help (str or None, optional) :
-            A documentation string for this property. It will be automatically
-            used by the :ref:`bokeh.sphinxext.bokeh_prop` extension when
-            generating Spinx documentation. (default: None)
-
-        serialized (bool, optional) :
-            Whether attributes created from this property should be included
-            in serialization (default: True)
-
-        readonly (bool, optional) :
-            Whether attributes created from this property are read-only.
-            (default: False)
-
-    '''
-    pass
-
-class Date(Property):
-    ''' Accept Date (but not DateTime) values.
-
-    '''
-    def __init__(self, default=None, help=None):
-        super(Date, self).__init__(default=default, help=help)
-
-    def transform(self, value):
-        value = super(Date, self).transform(value)
-
-        if isinstance(value, (float,) + bokeh_integer_types):
-            try:
-                value = datetime.date.fromtimestamp(value)
-            except (ValueError, OSError):
-                value = datetime.date.fromtimestamp(value/1000)
-        elif isinstance(value, string_types):
-            value = dateutil.parser.parse(value).date()
-
-        return value
-
-    def validate(self, value, detail=True):
-        super(Date, self).validate(value, detail)
-
-        if not (value is None or isinstance(value, (datetime.date,) + string_types + (float,) + bokeh_integer_types)):
-            msg = "" if not detail else "expected a date, string or timestamp, got %r" % value
-            raise ValueError(msg)
-
-class Datetime(Property):
-    ''' Accept Datetime values.
-
-    '''
-
-    def __init__(self, default=datetime.date.today(), help=None):
-        super(Datetime, self).__init__(default=default, help=help)
-
-    def transform(self, value):
-        value = super(Datetime, self).transform(value)
-        return value
-        # Handled by serialization in protocol.py for now
-
-    def validate(self, value, detail=True):
-        super(Datetime, self).validate(value, detail)
-
-        datetime_types = (datetime.datetime, datetime.date)
-        try:
-            import numpy as np
-            datetime_types += (np.datetime64,)
-        except (ImportError, AttributeError) as e:
-            if e.args == ("'module' object has no attribute 'datetime64'",):
-                import sys
-                if 'PyPy' in sys.version:
-                    pass
-                else:
-                    raise e
-            else:
-                pass
-
-        if (isinstance(value, datetime_types)):
-            return
-
-        if pd and isinstance(value, (pd.Timestamp)):
-            return
-
-        msg = "" if not detail else "Expected a datetime instance, got %r" % value
-        raise ValueError(msg)
-
-class TimeDelta(Property):
-    ''' Accept TimeDelta values.
-
-    '''
-
-    def __init__(self, default=datetime.timedelta(), help=None):
-        super(TimeDelta, self).__init__(default=default, help=help)
-
-    def transform(self, value):
-        value = super(TimeDelta, self).transform(value)
-        return value
-        # Handled by serialization in protocol.py for now
-
-    def validate(self, value, detail=True):
-        super(TimeDelta, self).validate(value, detail)
-
-        timedelta_types = (datetime.timedelta,)
-        try:
-            import numpy as np
-            timedelta_types += (np.timedelta64,)
-        except (ImportError, AttributeError) as e:
-            if e.args == ("'module' object has no attribute 'timedelta64'",):
-                import sys
-                if 'PyPy' in sys.version:
-                    pass
-                else:
-                    raise e
-            else:
-                pass
-
-        if (isinstance(value, timedelta_types)):
-            return
-
-        if pd and isinstance(value, (pd.Timedelta)):
-            return
-
-        msg = "" if not detail else "Expected a timedelta instance, got %r" % value
-        raise ValueError(msg)
 
 #------------------------------------------------------------------------------
 # Container properties
