@@ -5,6 +5,7 @@ import * as p from "core/properties"
 export namespace FixedTicker {
   export interface Attrs extends ContinuousTicker.Attrs {
     ticks: number[]
+    minor_ticks: number[]
   }
 
   export interface Props extends ContinuousTicker.Props {}
@@ -25,13 +26,14 @@ export class FixedTicker extends ContinuousTicker {
 
     this.define({
       ticks: [ p.Array, [] ],
+      minor_ticks: [ p.Array, [] ],
     })
   }
 
   get_ticks_no_defaults(_data_low: number, _data_high: number, _cross_loc: any, _desired_n_ticks: number): TickSpec<number> {
     return {
       major: this.ticks,
-      minor: [],
+      minor: this.minor_ticks,
     }
   }
 
