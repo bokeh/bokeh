@@ -26,7 +26,6 @@ log = logging.getLogger(__name__)
 # External imports
 
 # Bokeh imports
-from ..util.string import format_docstring
 from .util import ColorGroup
 
 #-----------------------------------------------------------------------------
