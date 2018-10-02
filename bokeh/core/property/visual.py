@@ -1,0 +1,232 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+''' Provide proprties for various visual attrributes.
+
+'''
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+import base64
+from io import BytesIO
+import re
+
+# External imports
+import PIL.Image
+from six import string_types
+
+# Bokeh imports
+from .. import enums
+from .auto import Auto
+from .bases import Property
+from .container import Seq, Tuple
+from .datetime import Datetime, TimeDelta
+from .either import Either
+from .enum import Enum
+from .numeric import Int, Float
+from .regex import Regex
+from .primitive import String
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'DashPattern',
+    'FontSize',
+    'Image',
+    'MinMaxBounds',
+    'MarkerType',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+class DashPattern(Either):
+    ''' Accept line dash specifications.
+
+    Express patterns that describe line dashes.  ``DashPattern`` values
+    can be specified in a variety of ways:
+
+    * An enum: "solid", "dashed", "dotted", "dotdash", "dashdot"
+    * a tuple or list of integers in the `HTML5 Canvas dash specification style`_.
+      Note that if the list of integers has an odd number of elements, then
+      it is duplicated, and that duplicated list becomes the new dash list.
+
+    To indicate that dashing is turned off (solid lines), specify the empty
+    list [].
+
+    .. _HTML5 Canvas dash specification style: http://www.w3.org/html/wg/drafts/2dcontext/html5_canvas/#dash-list
+
+    '''
+
+    _dash_patterns = {
+        "solid": [],
+        "dashed": [6],
+        "dotted": [2,4],
+        "dotdash": [2,4,6,4],
+        "dashdot": [6,4,2,4],
+    }
+
+    def __init__(self, default=[], help=None):
+        types = Enum(enums.DashPattern), Regex(r"^(\d+(\s+\d+)*)?$"), Seq(Int)
+        super(DashPattern, self).__init__(*types, default=default, help=help)
+
+    def __str__(self):
+        return self.__class__.__name__
+
+    def transform(self, value):
+        value = super(DashPattern, self).transform(value)
+
+        if isinstance(value, string_types):
+            try:
+                return self._dash_patterns[value]
+            except KeyError:
+                return [int(x) for x in  value.split()]
+        else:
+            return value
+
+    def _sphinx_type(self):
+        return self._sphinx_prop_link()
+
+class FontSize(String):
+
+    _font_size_re = re.compile(r"^[0-9]+(.[0-9]+)?(%|em|ex|ch|ic|rem|vw|vh|vi|vb|vmin|vmax|cm|mm|q|in|pc|pt|px)$", re.I)
+
+    def validate(self, value, detail=True):
+        super(FontSize, self).validate(value, detail)
+
+        if isinstance(value, string_types):
+            if len(value) == 0:
+                msg = "" if not detail else "empty string is not a valid font size value"
+                raise ValueError(msg)
+            elif self._font_size_re.match(value) is None:
+                msg = "" if not detail else "%r is not a valid font size value" % value
+                raise ValueError(msg)
+
+class Image(Property):
+    ''' Accept image file types, e.g PNG, JPEG, TIFF, etc.
+
+    This property can be configured with:
+
+    * A string filename to be loaded with ``PIL.Image.open``
+    * An RGB(A) NumPy array, will be converted to PNG
+    * A ``PIL.Image.Image`` object
+
+    In all cases, the image data is serialized as a Base64 encoded string.
+
+    '''
+
+    def validate(self, value, detail=True):
+        import numpy as np
+
+        valid = False
+
+        if value is None or isinstance(value, (string_types, PIL.Image.Image)):
+            valid = True
+
+        if isinstance(value, np.ndarray):
+            valid = value.dtype == "uint8" and len(value.shape) == 3 and value.shape[2] in (3, 4)
+
+        if not valid:
+            msg = "" if not detail else "invalid value: %r; allowed values are string filenames, PIL.Image.Image instances, or RGB(A) NumPy arrays" % value
+            raise ValueError(msg)
+
+    def transform(self, value):
+        if value is None:
+            return None
+
+        import numpy as np
+        if isinstance(value, np.ndarray):
+            value = PIL.Image.fromarray(value)
+
+        if isinstance(value, string_types):
+            value = PIL.Image.open(value)
+
+        if isinstance(value, PIL.Image.Image):
+            out = BytesIO()
+            fmt = value.format or "PNG"
+            value.save(out, fmt)
+            return "data:image/%s;base64," % fmt.lower() + base64.b64encode(out.getvalue()).decode('ascii')
+
+        raise ValueError("Could not transform %r" % value)
+
+class MinMaxBounds(Either):
+    ''' Accept (min, max) bounds tuples for use with Ranges.
+
+    Bounds are provided as a tuple of ``(min, max)`` so regardless of whether your range is
+    increasing or decreasing, the first item should be the minimum value of the range and the
+    second item should be the maximum. Setting min > max will result in a ``ValueError``.
+
+    Setting bounds to None will allow your plot to pan/zoom as far as you want. If you only
+    want to constrain one end of the plot, you can set min or max to
+    ``None`` e.g. ``DataRange1d(bounds=(None, 12))`` '''
+
+    def __init__(self, accept_datetime=False, default='auto', help=None):
+        if accept_datetime:
+            types = (
+                Auto,
+                Tuple(Float, Float),
+                Tuple(TimeDelta, TimeDelta),
+                Tuple(Datetime, Datetime),
+            )
+        else:
+            types = (
+                Auto,
+                Tuple(Float, Float),
+                Tuple(TimeDelta, TimeDelta),
+            )
+        super(MinMaxBounds, self).__init__(*types, default=default, help=help)
+
+    def validate(self, value, detail=True):
+        super(MinMaxBounds, self).validate(value, detail)
+
+        if value is None:
+            pass
+
+        elif value[0] is None or value[1] is None:
+            pass
+
+        elif value[0] >= value[1]:
+            msg = "" if not detail else "Invalid bounds: maximum smaller than minimum. Correct usage: bounds=(min, max)"
+            raise ValueError(msg)
+
+        return True
+
+    def _sphinx_type(self):
+        return self._sphinx_prop_link()
+
+class MarkerType(Enum):
+    '''
+
+    '''
+    def __init__(self, **kw):
+        super(MarkerType, self).__init__(enums.MarkerType, **kw)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

@@ -5,17 +5,13 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
-
-'''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import logging
-log = logging.getLogger(__name__)
+import pytest ; pytest
 
 #-----------------------------------------------------------------------------
 # Imports
@@ -26,12 +22,16 @@ log = logging.getLogger(__name__)
 # External imports
 
 # Bokeh imports
+from bokeh._testing.util.api import verify_all
+
+# Module under test
+import bokeh.core.property as bcp
 
 #-----------------------------------------------------------------------------
-# Globals and constants
+# Setup
 #-----------------------------------------------------------------------------
 
-__all__ = ()
+ALL = ()
 
 #-----------------------------------------------------------------------------
 # General API
@@ -48,3 +48,5 @@ __all__ = ()
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+Test___all__ = verify_all(bcp, ALL)

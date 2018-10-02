@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide base classes for the Bokeh property system.
 
 .. note::
@@ -7,24 +14,49 @@
     anyone who is not directly developing on Bokeh's own infrastructure.
 
 '''
-from __future__ import absolute_import
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from copy import copy
 import types
 
+# External imports
 from six import string_types
 import numpy as np
 
+# Bokeh imports
 from ...util.dependencies import import_optional
 from ...util.string import nice_join
 from ..has_props import HasProps
 from .descriptor_factory import PropertyDescriptorFactory
 from .descriptors import BasicPropertyDescriptor
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
 pd = import_optional('pandas')
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+__all__ = ()
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class DeserializationError(Exception):
     pass
@@ -441,3 +473,11 @@ def validation_on():
 
     '''
     return Property._should_validate
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

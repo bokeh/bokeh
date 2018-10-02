@@ -145,8 +145,8 @@ rst_prolog = """
 .. |HasProps|           replace:: :py:class:`~bokeh.core.has_props.HasProps`
 .. |Model|              replace:: :py:class:`~bokeh.model.Model`
 .. |Property|           replace:: :py:class:`~bokeh.core.property.bases.Property`
-.. |PropertyContainer|  replace:: :py:class:`~bokeh.core.property.containers.PropertyContainer`
 .. |PropertyDescriptor| replace:: :py:class:`~bokeh.core.property.descriptor.PropertyDescriptor`
+.. |PropertyContainer|  replace:: :py:class:`~bokeh.core.property.wrappers.PropertyContainer`
 .. |UnitsSpec|          replace:: :py:class:`~bokeh.core.properties.UnitsSpec`
 
 .. |field|              replace:: :py:func:`~bokeh.core.properties.field`

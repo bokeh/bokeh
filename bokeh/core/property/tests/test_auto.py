@@ -5,17 +5,13 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
-
-'''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import logging
-log = logging.getLogger(__name__)
+import pytest ; pytest
 
 #-----------------------------------------------------------------------------
 # Imports
@@ -26,16 +22,54 @@ log = logging.getLogger(__name__)
 # External imports
 
 # Bokeh imports
+from . import _TestHasProps, _TestModel
+from bokeh._testing.util.api import verify_all
+
+# Module under test
+import bokeh.core.property.auto as bcpa
 
 #-----------------------------------------------------------------------------
-# Globals and constants
+# Setup
 #-----------------------------------------------------------------------------
 
-__all__ = ()
+ALL = (
+    'Auto',
+)
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+class Test_Auto(object):
+
+    def test_valid(self):
+        prop = bcpa.Auto()
+        assert prop.is_valid(None)
+        assert prop.is_valid("auto")
+
+    def test_invalid(self):
+        prop = bcpa.Auto()
+        assert not prop.is_valid(False)
+        assert not prop.is_valid(True)
+        assert not prop.is_valid(0)
+        assert not prop.is_valid(1)
+        assert not prop.is_valid(0.0)
+        assert not prop.is_valid(1.0)
+        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid("")
+        assert not prop.is_valid(())
+        assert not prop.is_valid([])
+        assert not prop.is_valid({})
+        assert not prop.is_valid(_TestHasProps())
+        assert not prop.is_valid(_TestModel())
+
+    def test_has_ref(self):
+        prop = bcpa.Auto()
+        assert not prop.has_ref
+
+    def test_str(self):
+        prop = bcpa.Auto()
+        assert str(prop) == "Auto"
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -48,3 +82,5 @@ __all__ = ()
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+Test___all__ = verify_all(bcpa, ALL)
