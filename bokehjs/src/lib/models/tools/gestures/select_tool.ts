@@ -44,6 +44,7 @@ export abstract class SelectToolView extends GestureToolView {
         const sm = ds.selection_manager
         sm.clear()
       }
+      this.plot_view.request_render()
     }
   }
 
