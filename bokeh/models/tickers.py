@@ -40,8 +40,10 @@ class ContinuousTicker(Ticker):
 
 class FixedTicker(ContinuousTicker):
     ''' Generate ticks at fixed, explicitly supplied locations.
+
     .. note::
         The ``desired_num_ticks`` property is ignored by this Ticker.
+
     '''
 
     ticks = Seq(Float, default=[], help="""
