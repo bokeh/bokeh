@@ -231,9 +231,12 @@ def layout(*args, **kwargs):
     # Make the grid
     return _create_grid(children, sizing_mode)
 
-def gridplot(*args, **kwargs):
-    """ Create a grid of plots rendered on separate canvases. ``gridplot`` builds a single toolbar
-    for all the plots in the grid. ``gridplot`` is designed to layout a set of plots. For general
+def gridplot(*args, sizing_mode='fixed',  toolbar_location='above', ncols=None,
+             plot_width=None, plot_height=None, toolbar_options=None, merge_tools=True):
+    ''' Create a grid of plots rendered on separate canvases.
+
+    The ``gridplot`` function builds a single toolbar for all the plots in the
+    grid. ``gridplot`` is designed to layout a set of plots. For general
     grid layout, use the :func:`~bokeh.layouts.layout` function.
 
     Args:
@@ -285,15 +288,9 @@ def gridplot(*args, **kwargs):
                 toolbar_options=dict(logo='gray')
             )
 
-    """
-    toolbar_location = kwargs.get('toolbar_location', 'above')
-    sizing_mode = kwargs.get('sizing_mode', 'fixed')
-    children = kwargs.get('children')
-    toolbar_options = kwargs.get('toolbar_options', {})
-    plot_width = kwargs.get('plot_width')
-    plot_height = kwargs.get('plot_height')
-    ncols = kwargs.get('ncols')
-    merge_tools = kwargs.get('merge_tools', True)
+    '''
+    if toolbar_options is None:
+        toolbar_options = {}
 
     # Integrity checks & set-up
     _verify_sizing_mode(sizing_mode)
@@ -302,7 +299,7 @@ def gridplot(*args, **kwargs):
         if not hasattr(Location, toolbar_location):
             raise ValueError("Invalid value of toolbar_location: %s" % toolbar_location)
 
-    children = _handle_children(*args, children=children)
+    children = _handle_children(*args)
     if ncols:
         if any(isinstance(child, list) for child in children):
             raise ValueError("Cannot provide a nested list when using ncols")
