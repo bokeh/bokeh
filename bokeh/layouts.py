@@ -231,7 +231,7 @@ def layout(*args, **kwargs):
     # Make the grid
     return _create_grid(children, sizing_mode)
 
-def gridplot(*args, sizing_mode='fixed',  toolbar_location='above', ncols=None,
+def gridplot(children, sizing_mode='fixed',  toolbar_location='above', ncols=None,
              plot_width=None, plot_height=None, toolbar_options=None, merge_tools=True):
     ''' Create a grid of plots rendered on separate canvases.
 
@@ -299,7 +299,7 @@ def gridplot(*args, sizing_mode='fixed',  toolbar_location='above', ncols=None,
         if not hasattr(Location, toolbar_location):
             raise ValueError("Invalid value of toolbar_location: %s" % toolbar_location)
 
-    children = _handle_children(*args)
+    children = _handle_children(children=children)
     if ncols:
         if any(isinstance(child, list) for child in children):
             raise ValueError("Cannot provide a nested list when using ncols")
