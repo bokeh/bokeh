@@ -22,40 +22,71 @@ import pytest ; pytest
 # External imports
 
 # Bokeh imports
+from . import _TestHasProps, _TestModel, _TestModel2
+from bokeh.core.has_props import HasProps
+from bokeh.core.properties import Float, Int
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.core.property.override as bcpo
+import bokeh.core.property.instance as bcpi
 
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
 
 ALL = (
-    'Override',
+    'Instance',
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_Override(object):
+class Test_Instance(object):
 
-    def test_create_default(self):
-        o = bcpo.Override(default=10)
-        assert o.default_overridden
-        assert o.default == 10
+    def test_init(self):
+        with pytest.raises(TypeError):
+            bcpi.Instance()
 
-    def test_create_no_args(self):
-        with pytest.raises(ValueError):
-            bcpo.Override()
+    def test_valid(self):
+        prop = bcpi.Instance(_TestModel)
 
-    def test_create_unkown_args(self):
-        with pytest.raises(ValueError):
-            bcpo.Override(default=10, junk=20)
+        assert prop.is_valid(None)
+        assert prop.is_valid(_TestModel())
 
-        with pytest.raises(ValueError):
-            bcpo.Override(junk=20)
+    def test_invalid(self):
+        prop = bcpi.Instance(_TestModel)
+        assert not prop.is_valid(False)
+        assert not prop.is_valid(True)
+        assert not prop.is_valid(0)
+        assert not prop.is_valid(1)
+        assert not prop.is_valid(0.0)
+        assert not prop.is_valid(1.0)
+        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid("")
+        assert not prop.is_valid(())
+        assert not prop.is_valid([])
+        assert not prop.is_valid({})
+        assert not prop.is_valid(_TestModel2())
+        assert not prop.is_valid(_TestHasProps())
+
+    def test_from_json(self):
+        class MapOptions(HasProps):
+            lat = Float
+            lng = Float
+            zoom = Int(12)
+
+        v1 = bcpi.Instance(MapOptions).from_json(dict(lat=1, lng=2))
+        v2 = MapOptions(lat=1, lng=2)
+        assert v1.equals(v2)
+
+    def test_has_ref(self):
+        prop = bcpi.Instance(_TestModel)
+        assert prop.has_ref
+
+    def test_str(self):
+        prop = bcpi.Instance(_TestModel)
+        assert str(prop) == "Instance(_TestModel)"
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -69,4 +100,4 @@ class Test_Override(object):
 # Code
 #-----------------------------------------------------------------------------
 
-Test___all__ = verify_all(bcpo, ALL)
+Test___all__ = verify_all(bcpi, ALL)

@@ -22,40 +22,76 @@ import pytest ; pytest
 # External imports
 
 # Bokeh imports
+from . import _TestHasProps, _TestModel
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.core.property.override as bcpo
+import bokeh.core.property.any as bcpa
 
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
 
 ALL = (
-    'Override',
+    'Any',
+    'AnyRef'
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_Override(object):
+class Test_Any(object):
 
-    def test_create_default(self):
-        o = bcpo.Override(default=10)
-        assert o.default_overridden
-        assert o.default == 10
+    def test_valid(self):
+        prop = bcpa.Any()
+        assert prop.is_valid(None)
+        assert prop.is_valid(False)
+        assert prop.is_valid(True)
+        assert prop.is_valid(0)
+        assert prop.is_valid(1)
+        assert prop.is_valid(0.0)
+        assert prop.is_valid(1.0)
+        assert prop.is_valid(1.0+1.0j)
+        assert prop.is_valid("")
+        assert prop.is_valid(())
+        assert prop.is_valid([])
+        assert prop.is_valid({})
+        assert prop.is_valid(_TestHasProps())
+        assert prop.is_valid(_TestModel())
 
-    def test_create_no_args(self):
-        with pytest.raises(ValueError):
-            bcpo.Override()
+    def test_invalid(self):
+        pass
 
-    def test_create_unkown_args(self):
-        with pytest.raises(ValueError):
-            bcpo.Override(default=10, junk=20)
+    def test_has_ref(self):
+        prop = bcpa.Any()
+        assert not prop.has_ref
 
-        with pytest.raises(ValueError):
-            bcpo.Override(junk=20)
+class Test_AnyRef(object):
+
+    def test_valid(self):
+        prop = bcpa.AnyRef()
+        assert prop.is_valid(None)
+        assert prop.is_valid(False)
+        assert prop.is_valid(True)
+        assert prop.is_valid(0)
+        assert prop.is_valid(1)
+        assert prop.is_valid(0.0)
+        assert prop.is_valid(1.0)
+        assert prop.is_valid(1.0+1.0j)
+        assert prop.is_valid("")
+        assert prop.is_valid(())
+        assert prop.is_valid([])
+        assert prop.is_valid({})
+        assert prop.is_valid(_TestHasProps())
+        assert prop.is_valid(_TestModel())
+
+    def test_invalid(self):
+        pass
+
+    def test_has_ref(self):
+        prop = bcpa.AnyRef()
+        assert prop.has_ref
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -69,4 +105,4 @@ class Test_Override(object):
 # Code
 #-----------------------------------------------------------------------------
 
-Test___all__ = verify_all(bcpo, ALL)
+Test___all__ = verify_all(bcpa, ALL)

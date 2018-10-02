@@ -1,22 +1,55 @@
-from mock import patch
-import pytest
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+from mock import patch
 import numpy as np
 
+# Bokeh imports
 from bokeh.core.has_props import HasProps
+from bokeh._testing.util.api import verify_all
 
-import bokeh.core.property.bases as pb
+# Module under test
+import bokeh.core.property.bases as bcpb
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+ALL = ()
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 @patch('bokeh.core.property.bases.Property.validate')
 def test_is_valid_supresses_validation_detail(mock_validate):
-    p = pb.Property()
+    p = bcpb.Property()
     p.is_valid(None)
     assert mock_validate.called
     assert mock_validate.call_args[0] == (None, False)
 
 def test_property_assert_bools():
     hp = HasProps()
-    p = pb.Property()
+    p = bcpb.Property()
 
     p.asserts(True, "true")
     assert p.prepare_value(hp, "foo", 10) == 10
@@ -28,7 +61,7 @@ def test_property_assert_bools():
 
 def test_property_assert_functions():
     hp = HasProps()
-    p = pb.Property()
+    p = bcpb.Property()
 
     p.asserts(lambda obj, value: True, "true")
     p.asserts(lambda obj, value: obj is hp, "true")
@@ -42,7 +75,7 @@ def test_property_assert_functions():
 
 def test_property_assert_msg_funcs():
     hp = HasProps()
-    p = pb.Property()
+    p = bcpb.Property()
 
     def raise_(ex):
         raise ex
@@ -54,7 +87,7 @@ def test_property_assert_msg_funcs():
         assert str(e) == "bad True name, 10"
 
 def test_property_matches_basic_types(capsys):
-    p = pb.Property()
+    p = bcpb.Property()
     for x in [1, 1.2, "a", np.arange(4), None, False, True, {}, []]:
         assert p.matches(x, x) is True
         assert p.matches(x, "junk") is False
@@ -62,7 +95,7 @@ def test_property_matches_basic_types(capsys):
     assert err == ""
 
 def test_property_matches_compatible_arrays(capsys):
-    p = pb.Property()
+    p = bcpb.Property()
     a = np.arange(5)
     b = np.arange(5)
     assert p.matches(a, b) is True
@@ -74,7 +107,7 @@ def test_property_matches_compatible_arrays(capsys):
     assert err == ""
 
 def test_property_matches_incompatible_arrays(capsys):
-    p = pb.Property()
+    p = bcpb.Property()
     a = np.arange(5)
     b = np.arange(5).astype(str)
     assert p.matches(a, b) is False
@@ -83,7 +116,7 @@ def test_property_matches_incompatible_arrays(capsys):
     # assert err == ""
 
 def test_property_matches_dicts_with_array_values(capsys):
-    p = pb.Property()
+    p = bcpb.Property()
     d1 = dict(foo=np.arange(10))
     d2 = dict(foo=np.arange(10))
 
@@ -100,7 +133,7 @@ def test_property_matches_dicts_with_array_values(capsys):
     assert err == ""
 
 def test_property_matches_non_dict_containers_with_array_false(capsys):
-    p = pb.Property()
+    p = bcpb.Property()
     d1 = [np.arange(10)]
     d2 = [np.arange(10)]
     assert p.matches(d1, d1) is True  # because object identity
@@ -115,7 +148,7 @@ def test_property_matches_non_dict_containers_with_array_false(capsys):
     assert err == ""
 
 def test_property_matches_dicts_with_series_values(capsys, pd):
-    p = pb.Property()
+    p = bcpb.Property()
     d1 = pd.DataFrame(dict(foo=np.arange(10)))
     d2 = pd.DataFrame(dict(foo=np.arange(10)))
 
@@ -132,7 +165,7 @@ def test_property_matches_dicts_with_series_values(capsys, pd):
     assert err == ""
 
 def test_property_matches_dicts_with_index_values(capsys, pd):
-    p = pb.Property()
+    p = bcpb.Property()
     d1 = pd.DataFrame(dict(foo=np.arange(10)))
     d2 = pd.DataFrame(dict(foo=np.arange(10)))
 
@@ -149,11 +182,25 @@ def test_property_matches_dicts_with_index_values(capsys, pd):
     assert err == ""
 
 def test_validation_on():
-    assert pb.Property._should_validate == True
-    assert pb.validation_on()
+    assert bcpb.Property._should_validate == True
+    assert bcpb.validation_on()
 
-    pb.Property._should_validate = False
-    assert not pb.validation_on()
+    bcpb.Property._should_validate = False
+    assert not bcpb.validation_on()
 
-    pb.Property._should_validate = True
-    assert pb.validation_on()
+    bcpb.Property._should_validate = True
+    assert bcpb.validation_on()
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
+
+Test___all__ = verify_all(bcpb, ALL)

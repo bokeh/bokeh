@@ -1,14 +1,55 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
 from mock import patch
-import pytest
 
+# Bokeh imports
+from bokeh.core.properties import (
+    Angle, Any, Bool, Color, ColumnData, Complex, DashPattern, Dict, Either, Enum, Instance,
+    Int, Interval, Float, List, MinMaxBounds, Percent, Regex, Seq, Size, String, Tuple)
 from bokeh.models import ColumnDataSource
+from bokeh._testing.util.api import verify_all
 
-import bokeh.core.property.wrappers as pw
+# Module under test
+import bokeh.core.property.wrappers as bcpw
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+ALL = ()
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 def test_notify_owner():
     result = {}
     class Foo(object):
-        @pw.notify_owner
+        @bcpw.notify_owner
         def test(self): pass
 
         def _notify_owners(self, old):
@@ -22,7 +63,7 @@ def test_notify_owner():
     assert f.test.__doc__ == "Container method ``test`` instrumented to notify property owners"
 
 def test_PropertyValueContainer():
-    pvc = pw.PropertyValueContainer()
+    pvc = bcpw.PropertyValueContainer()
     assert pvc._owners == set()
 
     pvc._register_owner("owner", "prop")
@@ -36,7 +77,7 @@ def test_PropertyValueContainer():
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueDict_mutators(mock_notify):
-    pvd = pw.PropertyValueDict(dict(foo=10, bar=20, baz=30))
+    pvd = bcpw.PropertyValueDict(dict(foo=10, bar=20, baz=30))
 
     mock_notify.reset_mock()
     del pvd['foo']
@@ -71,7 +112,7 @@ def test_PropertyValueColumnData___setitem__(mock_notify):
     from bokeh.document.events import ColumnDataChangedEvent
 
     source = ColumnDataSource(data=dict(foo=[10], bar=[20], baz=[30]))
-    pvcd = pw.PropertyValueColumnData(source.data)
+    pvcd = bcpw.PropertyValueColumnData(source.data)
     pvcd._register_owner(source, source.lookup('data'))
 
     mock_notify.reset_mock()
@@ -89,7 +130,7 @@ def test_PropertyValueColumnData_update(mock_notify):
     from bokeh.document.events import ColumnDataChangedEvent
 
     source = ColumnDataSource(data=dict(foo=[10], bar=[20], baz=[30]))
-    pvcd = pw.PropertyValueColumnData(source.data)
+    pvcd = bcpw.PropertyValueColumnData(source.data)
     pvcd._register_owner(source, source.lookup('data'))
 
     mock_notify.reset_mock()
@@ -107,7 +148,7 @@ def test_PropertyValueColumnData__stream_list_to_list(mock_notify):
     from bokeh.document.events import ColumnsStreamedEvent
 
     source = ColumnDataSource(data=dict(foo=[10]))
-    pvcd = pw.PropertyValueColumnData(source.data)
+    pvcd = bcpw.PropertyValueColumnData(source.data)
 
     mock_notify.reset_mock()
     pvcd._stream("doc", source, dict(foo=[20]), setter="setter")
@@ -124,7 +165,7 @@ def test_PropertyValueColumnData__stream_list_to_array(mock_notify):
     import numpy as np
 
     source = ColumnDataSource(data=dict(foo=np.array([10])))
-    pvcd = pw.PropertyValueColumnData(source.data)
+    pvcd = bcpw.PropertyValueColumnData(source.data)
 
     mock_notify.reset_mock()
     pvcd._stream("doc", source, dict(foo=[20]), setter="setter")
@@ -141,7 +182,7 @@ def test_PropertyValueColumnData__stream_list_with_rollover(mock_notify):
     from bokeh.document.events import ColumnsStreamedEvent
 
     source = ColumnDataSource(data=dict(foo=[10, 20, 30]))
-    pvcd = pw.PropertyValueColumnData(source.data)
+    pvcd = bcpw.PropertyValueColumnData(source.data)
 
     mock_notify.reset_mock()
     pvcd._stream("doc", source, dict(foo=[40]), rollover=3, setter="setter")
@@ -158,7 +199,7 @@ def test_PropertyValueColumnData__stream_array_to_array(mock_notify):
     import numpy as np
 
     source = ColumnDataSource(data=dict(foo=np.array([10])))
-    pvcd = pw.PropertyValueColumnData(source.data)
+    pvcd = bcpw.PropertyValueColumnData(source.data)
 
     mock_notify.reset_mock()
     pvcd._stream("doc", source, dict(foo=[20]), setter="setter")
@@ -176,7 +217,7 @@ def test_PropertyValueColumnData__stream_array_to_list(mock_notify):
     from bokeh.document.events import ColumnsStreamedEvent
 
     source = ColumnDataSource(data=dict(foo=[10]))
-    pvcd = pw.PropertyValueColumnData(source.data)
+    pvcd = bcpw.PropertyValueColumnData(source.data)
 
     mock_notify.reset_mock()
     pvcd._stream("doc", source, dict(foo=[20]), setter="setter")
@@ -195,7 +236,7 @@ def test_PropertyValueColumnData__stream_array_with_rollover(mock_notify):
     import numpy as np
 
     source = ColumnDataSource(data=dict(foo=np.array([10, 20, 30])))
-    pvcd = pw.PropertyValueColumnData(source.data)
+    pvcd = bcpw.PropertyValueColumnData(source.data)
 
     mock_notify.reset_mock()
     pvcd._stream("doc", source, dict(foo=[40]), rollover=3, setter="setter")
@@ -212,7 +253,7 @@ def test_PropertyValueColumnData__stream_array_with_rollover(mock_notify):
 def test_PropertyValueColumnData__patch_with_simple_indices(mock_notify):
     from bokeh.document.events import ColumnsPatchedEvent
     source = ColumnDataSource(data=dict(foo=[10, 20]))
-    pvcd = pw.PropertyValueColumnData(source.data)
+    pvcd = bcpw.PropertyValueColumnData(source.data)
 
     mock_notify.reset_mock()
     pvcd._patch("doc", source, dict(foo=[(1, 40)]), setter='setter')
@@ -227,7 +268,7 @@ def test_PropertyValueColumnData__patch_with_simple_indices(mock_notify):
 def test_PropertyValueColumnData__patch_with_repeated_simple_indices(mock_notify):
     from bokeh.document.events import ColumnsPatchedEvent
     source = ColumnDataSource(data=dict(foo=[10, 20]))
-    pvcd = pw.PropertyValueColumnData(source.data)
+    pvcd = bcpw.PropertyValueColumnData(source.data)
 
     mock_notify.reset_mock()
     pvcd._patch("doc", source, dict(foo=[(1, 40), (1, 50)]), setter='setter')
@@ -243,7 +284,7 @@ def test_PropertyValueColumnData__patch_with_repeated_simple_indices(mock_notify
 def test_PropertyValueColumnData__patch_with_slice_indices(mock_notify):
     from bokeh.document.events import ColumnsPatchedEvent
     source = ColumnDataSource(data=dict(foo=[10, 20, 30, 40, 50]))
-    pvcd = pw.PropertyValueColumnData(source.data)
+    pvcd = bcpw.PropertyValueColumnData(source.data)
 
     mock_notify.reset_mock()
     pvcd._patch("doc", source, dict(foo=[(slice(2), [1,2])]), setter='setter')
@@ -258,7 +299,7 @@ def test_PropertyValueColumnData__patch_with_slice_indices(mock_notify):
 def test_PropertyValueColumnData__patch_with_overlapping_slice_indices(mock_notify):
     from bokeh.document.events import ColumnsPatchedEvent
     source = ColumnDataSource(data=dict(foo=[10, 20, 30, 40, 50]))
-    pvcd = pw.PropertyValueColumnData(source.data)
+    pvcd = bcpw.PropertyValueColumnData(source.data)
 
     mock_notify.reset_mock()
     pvcd._patch("doc", source, dict(foo=[(slice(2), [1,2]), (slice(1,3), [1000,2000])]), setter='setter')
@@ -271,7 +312,7 @@ def test_PropertyValueColumnData__patch_with_overlapping_slice_indices(mock_noti
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueList_mutators(mock_notify):
-    pvl = pw.PropertyValueList([10, 20, 30, 40, 50])
+    pvl = bcpw.PropertyValueList([10, 20, 30, 40, 50])
 
     mock_notify.reset_mock()
     del pvl[2]
@@ -358,3 +399,55 @@ def test_PropertyValueColumnData___deepcopy__():
     assert id(source.data) != id(pvcd)
     pvcd['foo'][0] = 20
     assert source.data['foo'][0] == 10
+
+def test_Property_wrap():
+    for x in (Bool, Int, Float, Complex, String, Enum, Color,
+              Regex, Seq, Tuple, Instance, Any, Interval, Either,
+              DashPattern, Size, Percent, Angle, MinMaxBounds):
+        for y in (0, 1, 2.3, "foo", None, (), [], {}):
+            r = x.wrap(y)
+            assert r == y
+            assert isinstance(r, type(y))
+
+def test_List_wrap():
+    for y in (0, 1, 2.3, "foo", None, (), {}):
+        r = List.wrap(y)
+        assert r == y
+        assert isinstance(r, type(y))
+    r = List.wrap([1,2,3])
+    assert r == [1,2,3]
+    assert isinstance(r, bcpw.PropertyValueList)
+    r2 = List.wrap(r)
+    assert r is r2
+
+def test_Dict_wrap():
+    for y in (0, 1, 2.3, "foo", None, (), []):
+        r = Dict.wrap(y)
+        assert r == y
+        assert isinstance(r, type(y))
+    r = Dict.wrap(dict(a=1, b=2))
+    assert r == dict(a=1, b=2)
+    assert isinstance(r, bcpw.PropertyValueDict)
+    r2 = Dict.wrap(r)
+    assert r is r2
+
+def test_ColumnData_wrap():
+    for y in (0, 1, 2.3, "foo", None, (), []):
+        r = ColumnData.wrap(y)
+        assert r == y
+        assert isinstance(r, type(y))
+    r = ColumnData.wrap(dict(a=1, b=2))
+    assert r == dict(a=1, b=2)
+    assert isinstance(r, bcpw.PropertyValueColumnData)
+    r2 = ColumnData.wrap(r)
+    assert r is r2
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
+
+Test___all__ = verify_all(bcpw, ALL)

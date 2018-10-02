@@ -22,40 +22,64 @@ import pytest ; pytest
 # External imports
 
 # Bokeh imports
+from . import _TestHasProps, _TestModel
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.core.property.override as bcpo
+import bokeh.core.property.regex as bcpr
 
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
 
 ALL = (
-    'Override',
+    'Regex',
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Test_Override(object):
+class Test_Regex(object):
 
-    def test_create_default(self):
-        o = bcpo.Override(default=10)
-        assert o.default_overridden
-        assert o.default == 10
+    def test_init(self):
+        with pytest.raises(TypeError):
+            bcpr.Regex()
 
-    def test_create_no_args(self):
-        with pytest.raises(ValueError):
-            bcpo.Override()
+    def test_valid(self):
+        prop = bcpr.Regex("^x*$")
 
-    def test_create_unkown_args(self):
-        with pytest.raises(ValueError):
-            bcpo.Override(default=10, junk=20)
+        assert prop.is_valid(None)
 
-        with pytest.raises(ValueError):
-            bcpo.Override(junk=20)
+        assert prop.is_valid("")
+        assert prop.is_valid("x")
+
+    def test_invalid(self):
+        prop = bcpr.Regex("^x*$")
+
+        assert not prop.is_valid("xy")
+
+        assert not prop.is_valid(False)
+        assert not prop.is_valid(True)
+        assert not prop.is_valid(0)
+        assert not prop.is_valid(1)
+        assert not prop.is_valid(0.0)
+        assert not prop.is_valid(1.0)
+        assert not prop.is_valid(1.0+1.0j)
+
+        assert not prop.is_valid(())
+        assert not prop.is_valid([])
+        assert not prop.is_valid({})
+        assert not prop.is_valid(_TestHasProps())
+        assert not prop.is_valid(_TestModel())
+
+    def test_has_ref(self):
+        prop = bcpr.Regex("")
+        assert not prop.has_ref
+
+    def test_str(self):
+        prop = bcpr.Regex("")
+        assert str(prop).startswith("Regex(")
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -69,4 +93,4 @@ class Test_Override(object):
 # Code
 #-----------------------------------------------------------------------------
 
-Test___all__ = verify_all(bcpo, ALL)
+Test___all__ = verify_all(bcpr, ALL)

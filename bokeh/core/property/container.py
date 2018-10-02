@@ -44,9 +44,9 @@ __all__ = (
     'ColumnData',
     'Dict',
     'List',
+    'RelativeDelta',
     'Seq',
     'Tuple',
-    'RelativeDelta',
 )
 
 #-----------------------------------------------------------------------------
