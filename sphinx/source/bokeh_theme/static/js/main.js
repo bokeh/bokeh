@@ -40,8 +40,8 @@ $(document).ready(function() {
     $('.toc .toctree-l1').addClass('hide');
     $('.toc').addClass('obfuscate');
 
-  } else if (loc.split('gallery').length > 1) {
-    // If gallery, dispense with toc, and manually add current under second nav
+  } else if (loc.split('orphan').length > 1) {
+    // If orphan page, dispense with toc, and manually add current under second nav
     $('.toc .toctree-l1').addClass('hide');
     $('.toc').addClass('obfuscate');
     $('.second-nav .nav-link a[href="#"]').addClass('current');

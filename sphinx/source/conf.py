@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-import os
 from os.path import abspath, dirname, join
 
 #
@@ -67,7 +66,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Bokeh'
-copyright = '© Copyright 2015, Anaconda.'
+copyright = '© Copyright 2015-2018, Anaconda and Bokeh Contributors.'
 
 # Get the standard computed Bokeh version string to use for |version|
 # and |release|
@@ -159,53 +158,37 @@ rst_prolog = """
 # a list of builtin themes.
 html_theme = 'bokeh_theme'
 html_theme_path = ['.']
-MAIN_SITE = '//bokehplots.com'
 
 html_context = {
     'SITEMAP_BASE_URL': 'https://bokeh.pydata.org/en/', # Trailing slash is needed
     'DESCRIPTION': 'Bokeh visualization library, documentation site.',
     'AUTHOR': 'Bokeh contributors',
     'VERSION': version,
-    # Nav
     'NAV': (
-        ('About', MAIN_SITE + '/pages/about-bokeh.html'),
-        ('Gallery', '/docs/gallery.html'),
-        ('Docs', '//bokeh.pydata.org/en/latest/'),
         ('Github', '//github.com/bokeh/bokeh'),
     ),
-    # Links
-    'LINKS': (
-        ('FAQs', MAIN_SITE + '/pages/faqs.html'),
-        ('Technical vision', MAIN_SITE + '/pages/technical-vision.html'),
-        ('Roadmap', MAIN_SITE + '/pages/roadmap.html'),
-        ('Citation', MAIN_SITE + '/pages/citation.html'),
-    ),
-    # About Links
     'ABOUT': (
-        ('About', MAIN_SITE + '/pages/about-bokeh.html'),
-        ('Team', MAIN_SITE + '/pages/team.html'),
-        ('Contact', MAIN_SITE + '/pages/contact.html'),
+        ('Vision and Work', 'orphan/vision'),
+        ('Team',            'orphan/team'),
+        ('Citation',        'orphan/citation'),
+        ('Contact',         'orphan/contact'),
     ),
-    # Social links
     'SOCIAL': (
-        ('Contribute', MAIN_SITE + '/pages/contribute.html'),
+        ('Contribute', 'orphan/contribute'),
         ('Mailing list', '//groups.google.com/a/anaconda.com/forum/#!forum/bokeh'),
         ('Github', '//github.com/bokeh/bokeh'),
         ('Twitter', '//twitter.com/BokehPlots'),
-        ('YouTube', '//www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw')
     ),
-    # Links for the docs sub navigation
     'NAV_DOCS': (
         ('Installation', 'installation'),
         ('User Guide', 'user_guide'),
-        ('Gallery', 'gallery'),
+        ('Gallery', 'orphan/gallery'),
         ('Tutorial', 'https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb'),
         ('Reference', 'reference'),
         ('Releases', 'releases'),
         ('Developer Guide', 'dev_guide'),
     ),
     'ALL_VERSIONS': all_versions,
-    'css_server': os.environ.get('BOKEH_DOCS_CSS_SERVER', 'bokehplots.com'),
 }
 
 # If true, links to the reST sources are added to the pages.
