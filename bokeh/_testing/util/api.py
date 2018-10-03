@@ -49,7 +49,7 @@ def verify_all(module, ALL):
             else:
                 mod = module
             assert hasattr(mod, "__all__")
-            assert mod.__all__ == ALL
+            assert mod.__all__ == ALL, "for module %s, expected: %r, actual: %r" % (mod.__name__, set(ALL)-set(mod.__all__), set(mod.__all__)-set(ALL))
 
         @pytest.mark.parametrize('name', ALL)
         @pytest.mark.unit
