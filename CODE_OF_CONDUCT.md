@@ -7,7 +7,7 @@ of this CoC is simply a reflection of the community values already evident in pr
 
 > Please be always kind and courteous. There's never a need to be mean or rude or disrespectful.
 
-If you wish to bring something to the attention of the project team, please contact 
+If you wish to bring something to the attention of the project team, please contact
 bokeh-conduct@numfocus.org
 
 ## The Longer Version
