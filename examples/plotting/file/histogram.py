@@ -104,4 +104,4 @@ p4.yaxis.axis_label = 'Pr(x)'
 
 output_file('histogram.html', title="histogram.py example")
 
-show(gridplot(p1,p2,p3,p4, ncols=2, plot_width=400, plot_height=400, toolbar_location=None))
+show(gridplot([p1,p2,p3,p4], ncols=2, plot_width=400, plot_height=400, toolbar_location=None))

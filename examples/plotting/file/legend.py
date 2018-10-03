@@ -26,4 +26,4 @@ p2.line(x, 3*y, legend="3*sin(x)", line_color="green")
 
 output_file("legend.html", title="legend.py example")
 
-show(gridplot(p1, p2, ncols=2, plot_width=400, plot_height=400))  # open a browser
+show(gridplot([p1, p2], ncols=2, plot_width=400, plot_height=400))  # open a browser
