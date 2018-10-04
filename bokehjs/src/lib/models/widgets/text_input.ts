@@ -16,7 +16,6 @@ export class TextInputView extends InputWidgetView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.render())
   }
 
   css_classes(): string[] {
