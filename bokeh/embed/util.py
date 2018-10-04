@@ -263,7 +263,7 @@ def standalone_docs_json_and_render_items(models, suppress_callback_warning=Fals
             doc = model.document
 
             if doc is None:
-                raise ValueError("to render a model as HTML it must be part of a document")
+                raise ValueError("A Bokeh Model must be part of a Document to render as standalone content")
 
         if doc not in docs:
             docs[doc] = (make_globally_unique_id(), OrderedDict())

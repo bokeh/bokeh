@@ -27,6 +27,7 @@ from six import string_types
 
 # Bokeh imports
 from bokeh.document import Document
+from bokeh.embed.util import standalone_docs_json
 from bokeh.io import curdoc
 from bokeh.plotting import figure
 from bokeh.resources import CDN, JSResources, CSSResources
@@ -239,6 +240,41 @@ class Test_file_html(object):
 
         # this is a very coarse test but it will do
         assert "bokeh-widgets" not in out
+
+class Test_json_item(object):
+
+    def test_with_target_id(self, test_plot):
+        out = bes.json_item(test_plot, target="foo")
+        assert out['target_id'] == "foo"
+
+    def test_without_target_id(self, test_plot):
+        out = bes.json_item(test_plot)
+        assert out['target_id'] == None
+
+    def test_doc_json(self, test_plot):
+        out = bes.json_item(test_plot, target="foo")
+        expected = list(standalone_docs_json([test_plot]).values())[0]
+        assert out['doc'] == expected
+
+    def test_doc_title(self, test_plot):
+        out = bes.json_item(test_plot, target="foo")
+        assert out['doc']['title'] == ""
+
+    def test_root_id(self, test_plot):
+        out = bes.json_item(test_plot, target="foo")
+        assert out['doc']['roots']['root_ids'][0] == out['root_id']
+
+    @patch('bokeh.embed.standalone.OutputDocumentFor')
+    def test_apply_theme(self, mock_OFD, test_plot):
+        # the subsequent call inside ODF will fail since the model was never
+        # added to a document. Ignoring that since we just want to make sure
+        # ODF is called with the expected theme arg.
+        try:
+            bes.json_item(test_plot, theme="foo")
+        except ValueError:
+            pass
+        mock_OFD.assert_called_once_with([test_plot], apply_theme="foo")
+
 
 #-----------------------------------------------------------------------------
 # Dev API
