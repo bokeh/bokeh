@@ -33,10 +33,10 @@ drug_color = OrderedDict([
     ("Neomycin",     "black"  ),
 ])
 
-gram_color = {
-    "positive" : "#aeaeb8",
-    "negative" : "#e69584",
-}
+gram_color = OrderedDict([
+    ("negative", "#e69584"),
+    ("positive", "#aeaeb8"),
+])
 
 df = pd.read_csv(StringIO(antibiotics),
                  skiprows=1,

@@ -4,10 +4,6 @@ if (typeof WeakMap !== "function") {
   require("es6-weak-map/implement")
 }
 
-if (typeof Set !== "function") {
-  require("es6-set/implement")
-}
-
 // ref: https://github.com/bokeh/bokeh/issues/7373
 if (!(Number as any).isInteger) {
   (Number as any).isInteger = function(value: number): boolean {

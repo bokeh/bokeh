@@ -90,22 +90,22 @@ describe("templating module", () => {
 
     // this should be removed ~Bokeh 2.0
     it("should return formatter from formatters dict when name is in formatters", () => {
-      const f1 = tmpl.get_formatter("x", "@x", "$0.00", {"x": "numeral"})
+      const f1 = tmpl.get_formatter("x", "@x", "$0.00", {x: "numeral"})
       expect(f1).to.be.equal(tmpl.DEFAULT_FORMATTERS["numeral"])
 
-      const f2 = tmpl.get_formatter("x", "@x", "%5.3f mu", {"x": "printf"})
+      const f2 = tmpl.get_formatter("x", "@x", "%5.3f mu", {x: "printf"})
       expect(f2).to.be.equal(tmpl.DEFAULT_FORMATTERS["printf"])
 
-      const f3 = tmpl.get_formatter("x", "@x", "%m/%d/%Y", {"x": "datetime"})
+      const f3 = tmpl.get_formatter("x", "@x", "%m/%d/%Y", {x: "datetime"})
       expect(f3).to.be.equal(tmpl.DEFAULT_FORMATTERS["datetime"])
 
       const custom = new CustomJSHover({code:"return format + ' ' + special_vars.special + ' ' + value"})
-      const f4 = tmpl.get_formatter("x", "@x", "custom", {"x": custom})
+      const f4 = tmpl.get_formatter("x", "@x", "custom", {x: custom})
       expect(f4(3.123, "custom", {special: 10})).to.be.equal("custom 10 3.123")
     })
 
     it("should throw an error on unknown formatter type", () => {
-      expect(() => tmpl.get_formatter("x", "@x", "%5.3f mu", {"x": "junk" as any})).to.throw(Error)
+      expect(() => tmpl.get_formatter("x", "@x", "%5.3f mu", {x: "junk" as any})).to.throw(Error)
     })
   })
 
@@ -121,7 +121,7 @@ describe("templating module", () => {
     const imindex2 = {index: 0, dim1: 1, dim2: 0, flat_index: 1}
 
     it("should return $ values from special_vars", () => {
-      const v = tmpl.get_value("$x", source, 0, {"x": 99999})
+      const v = tmpl.get_value("$x", source, 0, {x: 99999})
       expect(v).to.be.equal(99999)
     })
 
@@ -206,15 +206,15 @@ describe("templating module", () => {
     })
 
     it("should ignore extra/unused formatters", () => {
-      const s1 = tmpl.replace_placeholders("stuff @foo{(0.000 %)}", source, 0, {"quux": "numeral"})
+      const s1 = tmpl.replace_placeholders("stuff @foo{(0.000 %)}", source, 0, {quux: "numeral"})
       expect(s1).to.be.equal("stuff 1000.000 %")
 
-      const s2 = tmpl.replace_placeholders("stuff @foo{(0.000 %)}", source, 1, {"quux": "numeral"})
+      const s2 = tmpl.replace_placeholders("stuff @foo{(0.000 %)}", source, 1, {quux: "numeral"})
       expect(s2).to.be.equal("stuff 100.200 %")
     })
 
     it("should throw an error on unrecognized formatters", () => {
-      const fn = () => tmpl.replace_placeholders("stuff @foo{(0.000 %)}", source, 0, {"foo": "junk" as any})
+      const fn = () => tmpl.replace_placeholders("stuff @foo{(0.000 %)}", source, 0, {foo: "junk" as any})
       expect(fn).to.throw(Error)
     })
 
@@ -229,49 +229,49 @@ describe("templating module", () => {
 
     it("should use the numeral formatter if specified", () => {
       // just picking a random and uniquely numbro format to test with
-      const s1 = tmpl.replace_placeholders("stuff @foo{(0.000 %)}", source, 0, {"foo": "numeral"})
+      const s1 = tmpl.replace_placeholders("stuff @foo{(0.000 %)}", source, 0, {foo: "numeral"})
       expect(s1).to.be.equal("stuff 1000.000 %")
 
-      const s2 = tmpl.replace_placeholders("stuff @foo{(0.000 %)}", source, 1, {"foo": "numeral"})
+      const s2 = tmpl.replace_placeholders("stuff @foo{(0.000 %)}", source, 1, {foo: "numeral"})
       expect(s2).to.be.equal("stuff 100.200 %")
     })
 
     it("should use a customjs hover formatter if specified", () => {
       const custom = new CustomJSHover({code:"return format + ' ' + special_vars.special + ' ' + value"})
-      const s = tmpl.replace_placeholders("stuff @foo{custom}", source, 0, {"foo": custom}, {special: "vars"})
+      const s = tmpl.replace_placeholders("stuff @foo{custom}", source, 0, {foo: custom}, {special: "vars"})
       expect(s).to.be.equal("stuff custom vars 10")
     })
 
     it("should replace field names with tz formatted values with datetime formatter", () => {
       // just picking a random and uniquely tz format to test with
-      const s1 = tmpl.replace_placeholders("stuff @baz{%F %T}", source, 0, {"baz": "datetime"})
+      const s1 = tmpl.replace_placeholders("stuff @baz{%F %T}", source, 0, {baz: "datetime"})
       expect(s1).to.be.equal("stuff 2017-04-22 19:51:11")
 
-      const s2 = tmpl.replace_placeholders("stuff @baz{%F %T}", source, 1, {"baz": "datetime"})
+      const s2 = tmpl.replace_placeholders("stuff @baz{%F %T}", source, 1, {baz: "datetime"})
       expect(s2).to.be.equal("stuff 2010-11-22 21:17:51")
     })
 
     it("should replace field names with Sprintf formatted values with printf formatter", () => {
       // just picking a random and uniquely Sprintf formats to test with
-      const s1 = tmpl.replace_placeholders("stuff @foo{%x}", source, 0, {"foo": "printf"})
+      const s1 = tmpl.replace_placeholders("stuff @foo{%x}", source, 0, {foo: "printf"})
       expect(s1).to.be.equal("stuff a")
 
-      const s2 = tmpl.replace_placeholders("stuff @foo{%0.4f}", source, 1, {"foo": "printf"})
+      const s2 = tmpl.replace_placeholders("stuff @foo{%0.4f}", source, 1, {foo: "printf"})
       expect(s2).to.be.equal("stuff 1.0020")
     })
 
     it("should replace special vars with supplied values", () => {
-      const s = tmpl.replace_placeholders("stuff $foo", source, 0, {}, {"foo": "special"})
+      const s = tmpl.replace_placeholders("stuff $foo", source, 0, {}, {foo: "special"})
       expect(s).to.be.equal("stuff special")
     })
 
     it("should replace combinations and duplicates", () => {
-      const s = tmpl.replace_placeholders("stuff $foo @foo @foo @foo{(0.000 %)} @baz{%F %T}", source, 0, {"baz": "datetime"}, {"foo": "special"})
+      const s = tmpl.replace_placeholders("stuff $foo @foo @foo @foo{(0.000 %)} @baz{%F %T}", source, 0, {baz: "datetime"}, {foo: "special"})
       expect(s).to.be.equal("stuff special 10 10 1000.000 % 2017-04-22 19:51:11")
     })
 
     it("should handle special @$name case by using special_vars.name as the column", () => {
-      const s = tmpl.replace_placeholders("stuff @$name", source, 0, {}, {"name": "foo"})
+      const s = tmpl.replace_placeholders("stuff @$name", source, 0, {}, {name: "foo"})
       expect(s).to.be.equal("stuff 10")
     })
   })

@@ -1,6 +1,6 @@
-import {isBoolean, isString, isArray, isObject} from "./util/types"
+import {isBoolean, isString, isArray, isPlainObject} from "./util/types"
 
-export type HTMLAttrs = { [name: string]: any }
+export type HTMLAttrs = {[name: string]: any}
 export type HTMLChild = string | HTMLElement | (string | HTMLElement)[]
 
 const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) =>
@@ -20,16 +20,16 @@ const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) =>
       continue
     }
 
-    if (attr === "style" && isObject(value)) {
+    if (attr === "style" && isPlainObject(value)) {
       for (const prop in value) {
         (element.style as any)[prop] = value[prop]
       }
       continue
     }
 
-    if (attr === "data" && isObject(value)) {
+    if (attr === "data" && isPlainObject(value)) {
       for (const key in value) {
-        element.dataset[key] = value[key]
+        element.dataset[key] = value[key] as string | undefined // XXX: attrs needs a better type
       }
       continue
     }

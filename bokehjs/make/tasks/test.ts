@@ -33,6 +33,9 @@ function mocha(files: string[], options: {coverage?: boolean} = {}): Promise<voi
   if (argv.debug)
     args.unshift("debug")
 
+  if (argv.grep)
+    args.push("--grep", argv.grep)
+
   args = args.concat(
     ["--reporter", argv.reporter || "spec"],
     ["--slow", "5s"],

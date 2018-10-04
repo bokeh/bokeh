@@ -10,7 +10,7 @@ import {MultiDict, Set} from "./core/util/data_structures"
 import {difference, intersection, copy, includes} from "./core/util/array"
 import {values} from "./core/util/object"
 import {isEqual} from "./core/util/eq"
-import {isArray, isObject} from "./core/util/types"
+import {isArray, isPlainObject} from "./core/util/types"
 import {LayoutDOM} from "./models/layouts/layout_dom"
 import {ColumnDataSource, Index} from "./models/sources/column_data_source"
 import {ClientSession} from "./client/session"
@@ -491,7 +491,7 @@ export class Document {
           throw new Error(`reference ${JSON.stringify(v)} isn't known (not in Document?)`)
       } else if (isArray(v))
         return resolve_array(v)
-      else if (isObject(v))
+      else if (isPlainObject(v))
         return resolve_dict(v)
       else
         return v
@@ -554,7 +554,7 @@ export class Document {
         } else if (isArray(v)) {
           for (const e of v)
             foreach_value(e)
-        } else if (isObject(v)) {
+        } else if (isPlainObject(v)) {
           for (const k in v) {
             const e = v[k]
             foreach_value(e)

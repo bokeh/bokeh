@@ -4,7 +4,7 @@ import {Arrayable} from "core/types"
 import {Anchor} from "core/enums"
 import {logger} from "core/logging"
 import * as p from "core/properties"
-import {map} from "core/util/arrayable"
+import {map, min, max} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
 import {Rect, SpatialIndex} from "core/util/spatial"
 
@@ -16,7 +16,7 @@ export interface ImageURLData extends XYGlyphData {
   _angle: Arrayable<number>
   _w: Arrayable<number>
   _h: Arrayable<number>
-  _bounds_rect : Rect
+  _bounds_rect: Rect
 
   sx: Arrayable<number>
   sy: Arrayable<number>
@@ -76,31 +76,35 @@ export class ImageURLView extends XYGlyphView {
       img.src = this._url[i]
     }
 
-    const xs : Array<number> = []
-    const ys : Array<number> = []
-    for (var i=0; i < this._x.length; i++) {
-      xs.push(this._x[i])
-      ys.push(this._y[i])
+    const w_data = this.model.properties.w.units == "data"
+    const h_data = this.model.properties.h.units == "data"
+
+    const n = this._x.length
+
+    const xs = new Array<number>(w_data ? 2*n : n)
+    const ys = new Array<number>(h_data ? 2*n : n)
+
+    for (let i = 0; i < n; i++) {
+      xs[i] = this._x[i]
+      ys[i] = this._y[i]
     }
 
     // if the width/height are in screen units, don't try to include them in bounds
-    if (this.model.properties.w.units == "data") {
-      for (var i=0; i < this._x.length; i++) {
-        xs.push(this._x[i]+this._w[i])
-      }
+    if (w_data) {
+      for (let i = 0; i < n; i++)
+        xs[n + i] = this._x[i] + this._w[i]
     }
-    if (this.model.properties.h.units == "data") {
-      for (var i=0; i < this._x.length; i++) {
-        ys.push(this._y[i]+this._h[i])
-      }
+    if (h_data) {
+      for (let i = 0; i < n; i++)
+        ys[n + i] = this._y[i] + this._h[i]
     }
 
-    const minX = Math.min(...xs)
-    const maxX = Math.max(...xs)
-    const minY = Math.min(...ys)
-    const maxY = Math.max(...ys)
+    const minX = min(xs)
+    const maxX = max(xs)
+    const minY = min(ys)
+    const maxY = max(ys)
 
-    this._bounds_rect =  {minX, maxX, minY, maxY}
+    this._bounds_rect = {minX, maxX, minY, maxY}
   }
 
   has_finished(): boolean {

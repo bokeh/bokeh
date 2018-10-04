@@ -1,5 +1,6 @@
 import {empty, label, select, option} from "core/dom"
 import {isString} from "core/util/types"
+import {Set} from "core/util/data_structures"
 import * as p from "core/properties"
 
 import {InputWidget, InputWidgetView} from "./input_widget"

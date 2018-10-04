@@ -9,7 +9,7 @@ output_file("bar_pandas_groupby_nested.html")
 df.cyl = df.cyl.astype(str)
 df.yr = df.yr.astype(str)
 
-group = df.groupby(('cyl', 'mfr'))
+group = df.groupby(['cyl', 'mfr'])
 
 index_cmap = factor_cmap('cyl_mfr', palette=Spectral5, factors=sorted(df.cyl.unique()), end=1)
 

@@ -9,7 +9,7 @@ import {Property} from "./properties"
 import {uniqueId} from "./util/string"
 import {max, copy} from "./util/array"
 import {values, clone, isEmpty} from "./util/object"
-import {isObject, isArray, isFunction} from "./util/types"
+import {isPlainObject, isObject, isArray, isFunction} from "./util/types"
 import {isEqual} from './util/eq'
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
 import {Document} from "../document"
@@ -350,14 +350,14 @@ export abstract class HasProps extends Signalable() {
     if (value instanceof HasProps)
       return value.ref()
     else if (isArray(value)) {
-      const ref_array: any[] = []
+      const ref_array: unknown[] = []
       for (let i = 0; i < value.length; i++) {
         const v = value[i]
         ref_array.push(HasProps._value_to_json(i.toString(), v, value))
       }
       return ref_array
-    } else if (isObject(value)) {
-      const ref_obj: {[key: string]: any} = {}
+    } else if (isPlainObject(value)) {
+      const ref_obj: {[key: string]: unknown} = {}
       for (const subkey in value) {
         if (value.hasOwnProperty(subkey))
           ref_obj[subkey] = HasProps._value_to_json(subkey, value[subkey], value)
@@ -396,7 +396,7 @@ export abstract class HasProps extends Signalable() {
     } else if (isArray(v)) {
       for (const elem of v)
         HasProps._json_record_references(doc, elem, result, recurse)
-    } else if (isObject(v)) {
+    } else if (isPlainObject(v)) {
       for (const k in v) {
         if (v.hasOwnProperty(k)) {
           const elem = v[k]
@@ -424,7 +424,7 @@ export abstract class HasProps extends Signalable() {
     } else if (isArray(v)) {
       for (const elem of v)
         HasProps._value_record_references(elem, result, recurse)
-    } else if (isObject(v)) {
+    } else if (isPlainObject(v)) {
       for (const k in v) {
         if (v.hasOwnProperty(k)) {
           const elem = v[k]

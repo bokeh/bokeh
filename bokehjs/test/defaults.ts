@@ -3,7 +3,7 @@ import {expect} from "chai"
 import models_defaults = require("./.generated_defaults/models_defaults.json")
 import widget_defaults = require("./.generated_defaults/widgets_defaults.json")
 
-import {isArray, isObject} from "core/util/types"
+import {isArray, isPlainObject} from "core/util/types"
 import {difference, concat} from "core/util/array"
 import {keys} from "core/util/object"
 import {isEqual} from "core/util/eq"
@@ -43,7 +43,7 @@ function deep_value_to_json(_key: string, value: any, _optional_parent_object: a
       ref_array.push(deep_value_to_json(i.toString(), value[i], value))
     }
     return ref_array
-  } else if (isObject(value)) {
+  } else if (isPlainObject(value)) {
     const ref_obj: {[key: string]: any} = {}
     for (const subkey in value) {
       if (value.hasOwnProperty(subkey))
@@ -54,7 +54,9 @@ function deep_value_to_json(_key: string, value: any, _optional_parent_object: a
     return value
 }
 
-function check_matching_defaults(name: string, python_defaults: {[key: string]: any}, bokehjs_defaults: {[key: string]: any}): boolean {
+type KV = {[key: string]: any}
+
+function check_matching_defaults(name: string, python_defaults: KV, bokehjs_defaults: KV): boolean {
   const different: string[] = []
   const python_missing: string[] = []
   const bokehjs_missing: string[] = []
@@ -91,14 +93,14 @@ function check_matching_defaults(name: string, python_defaults: {[key: string]: 
       if (!isEqual(py_v, js_v)) {
 
         // these two conditionals compare 'foo' and {value: 'foo'}
-        if (isObject(js_v) && 'value' in js_v && isEqual(py_v, js_v['value']))
+        if (isPlainObject(js_v) && 'value' in js_v && isEqual(py_v, js_v['value']))
           continue
-        if (isObject(py_v) && 'value' in py_v && isEqual(py_v['value'], js_v))
+        if (isPlainObject(py_v) && 'value' in py_v && isEqual(py_v['value'], js_v))
           continue
 
-        if (isObject(js_v) && 'attributes' in js_v && isObject(py_v) && 'attributes' in py_v) {
+        if (isPlainObject(js_v) && 'attributes' in js_v && isPlainObject(py_v) && 'attributes' in py_v) {
           if (js_v['type'] === py_v['type']) {
-            check_matching_defaults(`${name}.${k}`, py_v['attributes'], js_v['attributes'])
+            check_matching_defaults(`${name}.${k}`, py_v['attributes'] as KV, js_v['attributes'] as KV)
             continue
           }
         }
@@ -162,7 +164,7 @@ function strip_ids(value: any): void {
     for (const v of value) {
       strip_ids(v)
     }
-  } else if (isObject(value)) {
+  } else if (isPlainObject(value)) {
     if ('id' in value) {
       delete value.id
     }

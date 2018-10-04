@@ -53,14 +53,14 @@ namespace Burtin {
   }
 
   const drug_color: Map<Color> = {
-    "Penicillin":   "#0d3362",
-    "Streptomycin": "#c64737",
-    "Neomycin":     "black"  ,
+    Penicillin:   "#0d3362",
+    Streptomycin: "#c64737",
+    Neomycin:     "black"  ,
   }
 
   const gram_color: Map<Color> = {
-    "positive": "#aeaeb8",
-    "negative": "#e69584",
+    positive: "#aeaeb8",
+    negative: "#e69584",
   }
 
   const width = 800

@@ -89,12 +89,12 @@ class DashAtlas {
 const joins: {[key: string]: number} = {miter: 0, round: 1, bevel: 2}
 
 const caps: {[key: string]: number} = {
-  '': 0, 'none': 0, '.': 0,
-  'round': 1, ')': 1, '(': 1, 'o': 1,
+  '': 0, none: 0, '.': 0,
+  round: 1, ')': 1, '(': 1, o: 1,
   'triangle in': 2, '<': 2,
   'triangle out': 3, '>': 3,
-  'square': 4, '[': 4, ']': 4, '=': 4,
-  'butt': 5, '|': 5,
+  square: 4, '[': 4, ']': 4, '=': 4,
+  butt: 5, '|': 5,
 }
 
 export class LineGLGlyph extends BaseGLGlyph {

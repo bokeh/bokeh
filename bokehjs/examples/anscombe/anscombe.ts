@@ -17,14 +17,14 @@ namespace Anscombe {
 
   const circles = new Bokeh.ColumnDataSource({
     data: {
-      "xi"   : anscombe_quartet[0],
-      "yi"   : anscombe_quartet[1],
-      "xii"  : anscombe_quartet[2],
-      "yii"  : anscombe_quartet[3],
-      "xiii" : anscombe_quartet[4],
-      "yiii" : anscombe_quartet[5],
-      "xiv"  : anscombe_quartet[6],
-      "yiv"  : anscombe_quartet[7],
+      xi   : anscombe_quartet[0],
+      yi   : anscombe_quartet[1],
+      xii  : anscombe_quartet[2],
+      yii  : anscombe_quartet[3],
+      xiii : anscombe_quartet[4],
+      yiii : anscombe_quartet[5],
+      xiv  : anscombe_quartet[6],
+      yiv  : anscombe_quartet[7],
     },
   });
 

@@ -57,11 +57,11 @@ describe("Stack", () => {
     const ret0 = s.v_compute(source)
     expect(ret0).to.deep.equal(new Float64Array([1.1, 2.2, 3.3]))
 
-    source.patch({"foo": [[1, 12]]})
+    source.patch({foo: [[1, 12]]})
     const ret1 = s.v_compute(source)
     expect(ret1).to.deep.equal(new Float64Array([1.1, 12.2, 3.3]))
 
-    source.patch({"bar": [[0, 1.1]]})
+    source.patch({bar: [[0, 1.1]]})
     const ret2 = s.v_compute(source)
     expect(ret2).to.deep.equal(new Float64Array([2.1, 12.2, 3.3]))
   })
