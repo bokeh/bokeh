@@ -8,6 +8,8 @@ import {read, scan} from "../fs"
 import * as paths from "../paths"
 
 function lint(dir: string): void {
+  let success = true
+
   for (const file of scan(dir, [".ts"])) {
     const options = {
       rulesDirectory: join(paths.base_dir, "tslint", "rules"),
@@ -21,10 +23,15 @@ function lint(dir: string): void {
     const result = linter.getResult()
 
     if (result.errorCount != 0) {
+      success = false
+
       for (const line of result.output.trim().split("\n"))
         log(line)
     }
   }
+
+  if (argv.emitError && !success)
+    process.exit(1)
 }
 
 task("tslint:lib", async () => {

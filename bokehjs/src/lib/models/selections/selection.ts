@@ -56,17 +56,16 @@ export class Selection extends Model {
   initialize(): void {
     super.initialize()
 
-    this['0d'] = {'glyph': null, 'indices': [], 'flag': false,
-                  'get_view': () => null}
-    this['2d'] = {'indices': {}}
-    this['1d'] = {'indices': this.indices}
+    this['0d'] = {glyph: null, indices: [], flag: false, get_view: () => null}
+    this['2d'] = {indices: {}}
+    this['1d'] = {indices: this.indices}
 
     this.get_view = () => null
 
     this.connect(this.properties.indices.change, () =>
-      this['1d']['indices'] = this.indices)
+      this['1d'].indices = this.indices)
     this.connect(this.properties.line_indices.change, () => {
-      this['0d']['indices'] = this.line_indices
+      this['0d'].indices = this.line_indices
       if(this.line_indices.length == 0)
         this['0d'].flag = false
       else

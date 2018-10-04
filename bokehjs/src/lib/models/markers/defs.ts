@@ -308,23 +308,24 @@ export const Triangle         = _mk_model('Triangle',         triangle)
 export const Dash             = _mk_model('Dash',             dash)
 export const X                = _mk_model('X',                x)
 
-
-interface FuncsMap { [s: string]: RenderOne; }
+interface FuncsMap {
+  [s: string]: RenderOne
+}
 
 export const marker_funcs: FuncsMap = {
-  'asterisk':          asterisk,
-  'circle':            circle,
-  'circle_cross':      circle_cross,
-  'circle_x':          circle_x,
-  'cross':             cross,
-  'diamond':           diamond,
-  'diamond_cross':     diamond_cross,
-  'hex':               hex,
-  'inverted_triangle': inverted_triangle,
-  'square':            square,
-  'square_cross':      square_cross,
-  'square_x':          square_x,
-  'triangle':          triangle,
-  'dash':              dash,
-  'x':                 x,
+  asterisk,
+  circle,
+  circle_cross,
+  circle_x,
+  cross,
+  diamond,
+  diamond_cross,
+  hex,
+  inverted_triangle,
+  square,
+  square_cross,
+  square_x,
+  triangle,
+  dash,
+  x,
 }

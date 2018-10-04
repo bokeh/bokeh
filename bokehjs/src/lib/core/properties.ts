@@ -1,12 +1,12 @@
 import {Signal0, Signal, Signalable} from "./signaling"
-import {HasProps} from "./has_props"
+import {HasProps} from "./has_props"  // XXX: only for type purpose
 import * as enums from "./enums"
 import {Arrayable} from "./types"
 import {is_svg_color} from "./util/svg_colors"
 import {valid_rgb} from "./util/color"
 import {includes, repeat} from "./util/array"
 import {map} from "./util/arrayable"
-import {isBoolean, isNumber, isString, isArray, isObject} from "./util/types"
+import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/types"
 //import {Transform} from "../models/transforms/transform"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
 
@@ -21,7 +21,7 @@ function valueToString(value: any): string {
 }
 
 export function isSpec(obj: any): boolean {
-  return !(obj instanceof HasProps) && isObject(obj) &&
+  return isPlainObject(obj) &&
           ((obj.value === undefined ? 0 : 1) +
            (obj.field === undefined ? 0 : 1) +
            (obj.expr  === undefined ? 0 : 1) == 1) // garbage JS XOR

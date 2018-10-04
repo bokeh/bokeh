@@ -44,7 +44,9 @@ that accepts these same parameters.
         {% for doc in docs %}
           {{ embed(doc) if doc.elementid }}
           {% for root in doc.roots %}
-            {{ embed(root) | indent(10) }}
+            {% block root scoped %}
+              {{ embed(root) | indent(10) }}
+            {% endblock %}
           {% endfor %}
         {% endfor %}
       {% endblock %}

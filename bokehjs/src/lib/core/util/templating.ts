@@ -13,17 +13,17 @@ import {CustomJSHover} from 'models/tools/inspectors/customjs_hover'
 export type FormatterType = "numeral" | "printf" | "datetime"
 export type FormatterSpec = CustomJSHover | FormatterType
 export type Formatters = {[key: string]: FormatterSpec}
-export type FormatterFunc = (value:any, format:string, special_vars: Vars) => string
+export type FormatterFunc = (value: any, format: string, special_vars: Vars) => string
 export type Index = number | ImageIndex
 export type Vars = {[key: string]: Anything}
 
 export const DEFAULT_FORMATTERS = {
-  "numeral"  : function(value:any, format:string, _special_vars: Vars) { return Numbro.format(value, format) },
-  "datetime" : function(value:any, format:string, _special_vars: Vars) { return tz(value, format)            },
-  "printf"   : function(value:any, format:string, _special_vars: Vars) { return sprintf(format, value)       },
+  numeral:  (value: any, format: string, _special_vars: Vars) => Numbro.format(value, format),
+  datetime: (value: any, format: string, _special_vars: Vars) => tz(value, format),
+  printf:   (value: any, format: string, _special_vars: Vars) => sprintf(format, value),
 }
 
-export function basic_formatter(value:any, _format:string, _special_vars: Vars): string {
+export function basic_formatter(value: any, _format: string, _special_vars: Vars): string {
   if (isNumber(value)) {
     const format = (() => {
       switch (false) {
@@ -37,9 +37,7 @@ export function basic_formatter(value:any, _format:string, _special_vars: Vars):
     })()
 
     return sprintf(format, value)
-  }
-
-  else
+  } else
     return `${value}`  // get strings for categorical types
 }
 

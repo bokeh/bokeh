@@ -33,7 +33,7 @@ export class TextInputView extends InputWidgetView {
 
     this.inputEl = input({
       type: "text",
-      "class": "bk-widget-form-input",
+      class: "bk-widget-form-input",
       id: this.model.id,
       name: this.model.name,
       value: this.model.value,

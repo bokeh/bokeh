@@ -88,7 +88,7 @@ export class Model extends HasProps {
       logger.warn('WARNING: Document not defined for updating event callbacks')
       return
     }
-    this.document.event_manager.subscribed_models.push(this.id)
+    this.document.event_manager.subscribed_models.add(this.id)
   }
 
   protected _doc_attached(): void {

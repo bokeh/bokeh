@@ -196,7 +196,7 @@ describe "Document", ->
     d.add_root(new AnotherModel())
     expect(d.roots().length).to.equal 1
 
-  it "manages noting interactivity periods", ->
+  it "manages noting interactivity periods", sinon.test () ->
     d = new Document()
     expect(d._interactive_plot).to.be.null
     expect(d._interactive_timestamp).to.be.null

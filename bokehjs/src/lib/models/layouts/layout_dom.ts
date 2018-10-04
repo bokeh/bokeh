@@ -10,7 +10,7 @@ import {DOMView} from "core/dom_view"
 
 export type Layoutable = LayoutCanvas | LayoutDOM
 
-export abstract class LayoutDOMView extends DOMView {
+export abstract class LayoutDOMView extends DOMView implements EventListenerObject {
   model: LayoutDOM
 
   protected _solver: Solver

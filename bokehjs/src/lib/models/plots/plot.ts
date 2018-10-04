@@ -440,16 +440,6 @@ export class Plot extends LayoutDOM {
       renderers = renderers.concat(tool.synthetic_renderers)
     return renderers
   }
-
-  get webgl(): boolean {
-    logger.warn("webgl attr is deprecated, use output_backend")
-    return this.output_backend == "webgl"
-  }
-
-  get tool_events(): any {
-    logger.warn("tool_events attr is deprecated, use SelectionGeometry Event")
-    return null
-  }
 }
 
 Plot.initClass()

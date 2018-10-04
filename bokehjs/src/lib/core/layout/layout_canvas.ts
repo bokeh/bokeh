@@ -1,4 +1,4 @@
-import {GE, EQ, Variable, Constraint} from "./solver"
+import {GE, EQ, Variable, ComputedVariable, Constraint} from "./solver"
 import {HasProps} from "../has_props"
 import {Arrayable} from "../types"
 import {BBox} from "../util/bbox"
@@ -34,19 +34,31 @@ export abstract class LayoutCanvas extends HasProps {
   _height: Variable
   _right: Variable
   _bottom: Variable
-  _hcenter: Variable
-  _vcenter: Variable
+
+  _hcenter: ComputedVariable
+  _vcenter: ComputedVariable
 
   initialize(): void {
     super.initialize()
+
     this._top = new Variable(`${this.toString()}.top`)
     this._left = new Variable(`${this.toString()}.left`)
     this._width = new Variable(`${this.toString()}.width`)
     this._height = new Variable(`${this.toString()}.height`)
     this._right = new Variable(`${this.toString()}.right`)
     this._bottom = new Variable(`${this.toString()}.bottom`)
-    this._hcenter = new Variable(`${this.toString()}.hcenter`)
-    this._vcenter = new Variable(`${this.toString()}.vcenter`)
+
+    const layout = this
+    this._hcenter = {
+      get value(): number {
+        return (layout._left.value + layout._right.value)/2
+      },
+    }
+    this._vcenter = {
+      get value(): number {
+        return (layout._top.value + layout._bottom.value)/2
+      },
+    }
   }
 
   get_editables(): Variable[] {
@@ -63,8 +75,6 @@ export abstract class LayoutCanvas extends HasProps {
       GE(this._height),
       EQ(this._left, this._width, [-1, this._right]),
       EQ(this._top, this._height, [-1, this._bottom]),
-      EQ([2, this._hcenter], [-1, this._left], [-1, this._right]),
-      EQ([2, this._vcenter], [-1, this._top], [-1, this._bottom]),
     ]
   }
 
@@ -87,8 +97,6 @@ export abstract class LayoutCanvas extends HasProps {
       height: this._height.value,
       right: this._right.value,
       bottom: this._bottom.value,
-      hcenter: this._hcenter.value,
-      vcenter: this._vcenter.value,
     }
   }
 

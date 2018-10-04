@@ -8,7 +8,7 @@ node make scripts:compile --emit-error
 
 node make test:compile --emit-error
 
-node make tslint
+node make tslint --emit-error
 popd
 
 py.test -m sampledata
