@@ -76,8 +76,10 @@ def test_server_examples(server_example, example, report, bokeh_server):
     if example.is_skip:
         pytest.skip("skipping %s" % example.relpath)
 
+    os.environ['BOKEH_SIMPLE_IDS'] = 'no'
     app = build_single_handler_application(example.path)
     doc = app.create_document()
+    del os.environ['BOKEH_SIMPLE_IDS']
 
     # remove all next-tick, periodic, and timeout callbacks
     for session_callback in doc.session_callbacks:
