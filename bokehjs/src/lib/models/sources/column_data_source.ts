@@ -83,13 +83,13 @@ export function patch_to_column(col: Arrayable, patch: [Index, any][], shapes: S
     let item: Arrayable, shape: Shape
     if (isArray(ind)) {
       const [i] = ind
-      patched.push(i)
+      patched.add(i)
       shape = shapes[i]
       item = col[i]
     } else  {
       if (isNumber(ind)) {
         value = [value]
-        patched.push(ind)
+        patched.add(ind)
       } else
         patched_range = true
 
@@ -114,7 +114,7 @@ export function patch_to_column(col: Arrayable, patch: [Index, any][], shapes: S
     for (let i = istart; i < istop; i += istep) {
       for (let j = jstart; j < jstop; j += jstep) {
         if (patched_range) {
-          patched.push(j)
+          patched.add(j)
         }
         item[(i*shape[1]) + j] = value[flat_index]
         flat_index++

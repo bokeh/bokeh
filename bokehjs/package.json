@@ -70,7 +70,6 @@
     "@types/sprintf-js": "^1.1.0",
     "canvas2svg": "https://github.com/bokeh/canvas2svg#v1.0.21",
     "es6-promise": "4.2.4",
-    "es6-set": "^0.1.5",
     "es6-weak-map": "^2.0.2",
     "flatbush": "^3.0.0",
     "gloo2": "https://github.com/bokeh/gloo2.git#b41bd5d",
