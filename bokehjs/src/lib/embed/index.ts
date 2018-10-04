@@ -18,12 +18,14 @@ export {BOKEH_ROOT, inject_css, inject_raw_css} from "./dom"
 export type JsonItem = {doc: DocJson, root_id: string, target_id: string}
 interface Roots {[index: string]: string}
 
-export function embed_item(item: JsonItem) {
+export function embed_item(item: JsonItem, target_id?: string) {
   const docs_json: DocsJson = {}
   const doc_id = uuid4()
   docs_json[doc_id] = item.doc
 
-  const roots: Roots = {[item.root_id]: item.target_id}
+  if (target_id == null)
+    target_id = item.target_id
+  const roots: Roots = {[item.root_id]: target_id}
   const render_item: RenderItem = { roots: roots, docid: doc_id }
 
   defer(() => _embed_items(docs_json, [render_item]))
