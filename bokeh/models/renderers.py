@@ -132,7 +132,7 @@ class GlyphRenderer(DataRenderer):
     y_range_name = String('default', help="""
     A particular (named) y-range to use for computing screen
     locations when rendering glyphs on the plot. If unset, use the
-    default -range.
+    default y-range.
     """)
 
     glyph = Instance(Glyph, help="""
@@ -203,7 +203,7 @@ class GraphRenderer(DataRenderer):
     y_range_name = String('default', help="""
     A particular (named) y-range to use for computing screen
     locations when rendering graphs on the plot. If unset, use the
-    default -range.
+    default y-range.
     """)
 
     layout_provider = Instance(LayoutProvider, help="""
