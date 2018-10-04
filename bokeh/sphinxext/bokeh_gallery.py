@@ -26,10 +26,11 @@ class BokehGalleryDirective(BokehDirective):
 
         docdir = dirname(env.doc2path(env.docname))
 
-        dest_dir = join(docdir, "gallery")
+        specpath = join(docdir, self.arguments[0])
+
+        dest_dir = join(dirname(specpath), "gallery")
         ensuredir(dest_dir)
 
-        specpath = join(docdir, self.arguments[0])
         env.note_dependency(specpath)
         spec = json.load(open(specpath))
         details = spec['details']
