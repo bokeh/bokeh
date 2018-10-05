@@ -12,7 +12,6 @@ from ..models import glyphs as _glyphs
 from ..models import markers as _markers
 from ..models.tools import Drag, Inspection, Scroll, Tap
 from ..util.options import Options
-from ..util.string import format_docstring
 from ..transform import linear_cmap
 from .helpers import (
     _get_range, _get_scale, _process_axis_and_grid, _process_tools_arg,
@@ -94,7 +93,9 @@ class FigureOptions(Options):
     """)
 
 class Figure(Plot):
-    ''' A subclass of :class:`~bokeh.models.plots.Plot` that simplifies plot
+    ''' Create a new Figure for plotting.
+
+    A subclass of :class:`~bokeh.models.plots.Plot` that simplifies plot
     creation with default axes, grids, tools, etc.
 
     Figure objects have many glyph methods that can be used to draw
@@ -103,7 +104,49 @@ class Figure(Plot):
     .. hlist::
         :columns: 3
 
-{glyph_methods}
+        * :func:`~bokeh.plotting.figure.Figure.annular_wedge`
+        * :func:`~bokeh.plotting.figure.Figure.annulus`
+        * :func:`~bokeh.plotting.figure.Figure.arc`
+        * :func:`~bokeh.plotting.figure.Figure.asterisk`
+        * :func:`~bokeh.plotting.figure.Figure.bezier`
+        * :func:`~bokeh.plotting.figure.Figure.circle`
+        * :func:`~bokeh.plotting.figure.Figure.circle_cross`
+        * :func:`~bokeh.plotting.figure.Figure.circle_x`
+        * :func:`~bokeh.plotting.figure.Figure.cross`
+        * :func:`~bokeh.plotting.figure.Figure.dash`
+        * :func:`~bokeh.plotting.figure.Figure.diamond`
+        * :func:`~bokeh.plotting.figure.Figure.diamond_cross`
+        * :func:`~bokeh.plotting.figure.Figure.ellipse`
+        * :func:`~bokeh.plotting.figure.Figure.hbar`
+        * :func:`~bokeh.plotting.figure.Figure.hex`
+        * :func:`~bokeh.plotting.figure.Figure.hex_tile`
+        * :func:`~bokeh.plotting.figure.Figure.image`
+        * :func:`~bokeh.plotting.figure.Figure.image_rgba`
+        * :func:`~bokeh.plotting.figure.Figure.image_url`
+        * :func:`~bokeh.plotting.figure.Figure.inverted_triangle`
+        * :func:`~bokeh.plotting.figure.Figure.line`
+        * :func:`~bokeh.plotting.figure.Figure.multi_line`
+        * :func:`~bokeh.plotting.figure.Figure.oval`
+        * :func:`~bokeh.plotting.figure.Figure.patch`
+        * :func:`~bokeh.plotting.figure.Figure.patches`
+        * :func:`~bokeh.plotting.figure.Figure.quad`
+        * :func:`~bokeh.plotting.figure.Figure.quadratic`
+        * :func:`~bokeh.plotting.figure.Figure.ray`
+        * :func:`~bokeh.plotting.figure.Figure.rect`
+        * :func:`~bokeh.plotting.figure.Figure.segment`
+        * :func:`~bokeh.plotting.figure.Figure.square`
+        * :func:`~bokeh.plotting.figure.Figure.square_cross`
+        * :func:`~bokeh.plotting.figure.Figure.square_x`
+        * :func:`~bokeh.plotting.figure.Figure.step`
+        * :func:`~bokeh.plotting.figure.Figure.text`
+        * :func:`~bokeh.plotting.figure.Figure.triangle`
+        * :func:`~bokeh.plotting.figure.Figure.vbar`
+        * :func:`~bokeh.plotting.figure.Figure.wedge`
+        * :func:`~bokeh.plotting.figure.Figure.x`
+
+    As well as a scatter function that can be parameterized by marker type:
+
+    * :func:`~bokeh.plotting.figure.Figure.scatter`
 
     There are also two specialized methods for stacking bars:
 
@@ -114,9 +157,8 @@ class Figure(Plot):
 
     * :func:`~bokeh.plotting.figure.Figure.hexbin`
 
-    In addition to all the Bokeh model property attributes documented below,
-    the ``Figure`` initializer also accepts the following options, which can
-    help simplify configuration:
+    In addition to all the ``Figure`` property attributes, the following
+    options are also accepted:
 
     .. bokeh-options:: FigureOptions
         :module: bokeh.plotting.figure
@@ -957,38 +999,8 @@ Examples:
         return graph_renderer
 
 def figure(**kwargs):
-    ''' Create a new :class:`~bokeh.plotting.figure.Figure` for plotting.
-
-    Figure objects have many glyph methods that can be used to draw
-    vectorized graphical glyphs:
-
-    .. hlist::
-        :columns: 3
-
-{glyph_methods}
-
-    There are also two specialized methods for stacking bars:
-
-    * :func:`~bokeh.plotting.figure.Figure.hbar_stack`
-    * :func:`~bokeh.plotting.figure.Figure.vbar_stack`
-
-    And one specialized method for making simple hexbin plots:
-
-    * :func:`~bokeh.plotting.figure.Figure.hexbin`
-
-    In addition to the standard :class:`~bokeh.plotting.figure.Figure`
-    property values (e.g. ``plot_width`` or ``sizing_mode``) the following
-    additional options can be passed as well:
-
-    .. bokeh-options:: FigureOptions
-        :module: bokeh.plotting.figure
-
-    Returns:
-       Figure
-
-    '''
-
     return Figure(**kwargs)
+figure.__doc__ = Figure.__doc__
 
 _MARKER_SHORTCUTS = {
     "*"  : "asterisk",
@@ -1013,8 +1025,3 @@ def markers():
 
 _color_fields = set(["color", "fill_color", "line_color"])
 _alpha_fields = set(["alpha", "fill_alpha", "line_alpha"])
-
-_gms = sorted(x for x in dir(Figure) if getattr(getattr(Figure, x), 'glyph_method', False))
-_gms = "\n".join("        * :func:`~bokeh.plotting.figure.Figure.%s`" % x for x in _gms)
-Figure.__doc__ = format_docstring(Figure.__doc__, glyph_methods=_gms)
-figure.__doc__ = format_docstring(figure.__doc__, glyph_methods=_gms)
