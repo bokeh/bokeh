@@ -17,19 +17,20 @@ models in various ways.
 '''
 from __future__ import absolute_import
 import json
-from jinja2 import Environment, Markup, FileSystemLoader, PackageLoader
+from os.path import dirname, join
 import sys
-import os
+
+from jinja2 import Environment, Markup, FileSystemLoader
 
 def get_env():
     ''' Get the correct Jinja2 Environment, also for frozen scripts.
     '''
     if getattr(sys, 'frozen', False):
-        templates_path = os.path.join(sys._MEIPASS, 'bokeh', 'core', '_templates')
+        templates_path = join(sys._MEIPASS, 'bokeh', 'core', '_templates')
         return Environment(loader=FileSystemLoader(templates_path))
     else:
-        return Environment(loader=PackageLoader('bokeh.core', '_templates'))
-
+        templates_path = join(dirname(__file__), '_templates')
+        return Environment(loader=FileSystemLoader(templates_path))
 
 _env = get_env()
 _env.filters['json'] = lambda obj: Markup(json.dumps(obj))

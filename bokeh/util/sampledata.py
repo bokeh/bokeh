@@ -21,18 +21,18 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# NOTE: since downloading sampledata is not a common occurrnce, non-stdlib
+# imports are generally deferrered in this module
+
 # Standard library imports
 from os import mkdir, remove
 from os.path import abspath, dirname, exists, expanduser, isdir, isfile, join, splitext
 from sys import stdout
-from zipfile import ZipFile
 
 # External imports
 import six
-from six.moves.urllib.request import urlopen
 
 # Bokeh imports
-from .dependencies import import_required
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -87,6 +87,7 @@ def external_csv(module, name, **kw):
     '''
 
     '''
+    from .dependencies import import_required
     pd = import_required('pandas', '%s sample data requires Pandas (http://pandas.pydata.org) to be installed' % module)
     return pd.read_csv(external_path(name), **kw)
 
@@ -133,6 +134,7 @@ def package_csv(module, name, **kw):
     '''
 
     '''
+    from .dependencies import import_required
     pd = import_required('pandas', '%s sample data requires Pandas (http://pandas.pydata.org) to be installed' % module)
     return pd.read_csv(package_path(name), **kw)
 
@@ -184,6 +186,12 @@ def _download_file(base_url, filename, data_dir, progress=True):
     '''
 
     '''
+    # These is actually a somewhat expensive imports that added ~5% to overall
+    # typical bokeh import times. Since downloading sampledata is not a common
+    # action, we defer them to inside this function.
+    from six.moves.urllib.request import urlopen
+    from zipfile import ZipFile
+
     file_url = join(base_url, filename)
     file_path = join(data_dir, filename)
 
