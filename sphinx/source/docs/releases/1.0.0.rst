@@ -28,6 +28,18 @@ making it unusable. As a result, both ``pprint`` and ``pretty`` methods have
 been removed. A "pretty" HTML repr still functions in Jupyter notebooks. This
 change is not expected to affect any normal usage.
 
+Bokeh Object IDs
+~~~~~~~~~~~~~~~~
+
+Previously Bokeh generated unique UUIDs for every Bokeh object. Starting with
+this release, Bokeh generates simple increasing integer IDs by default. You can
+set the environment variable ``BOKEH_SIMPLE_IDS=no`` to restore the previous
+behavior. The generation of simple IDs is faster than UUIDs, otherwise this
+change is not expected to affect any normal usage. However, if you are creating
+Bokeh objects for a single Document in separate processes, i.e. by using the
+``multiprocessing`` module, then you will want to turn off simple IDs. (This
+is expected to be a rare and unusual usage.)
+
 ``bokeh.util.plot_utils``
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 

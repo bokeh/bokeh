@@ -61,6 +61,71 @@ the |bokeh.plotting| interface in a script or Jupyter notebook, users will
 typically call the function |output_file| in conjunction with |show| or
 |save| instead.
 
+.. _userguide_embed_json_items:
+
+JSON Items
+~~~~~~~~~~
+
+Bokeh can also supply a block of JSON that can be easily consumed by a BokehJS
+to render standalone Bokeh content in a specifed div. The |json_item| function
+accepts a Bokeh Model (e.g. a Plot), and optionally a target ID that identifies
+a div to render into:
+
+.. code-block:: python
+
+        p = figure()
+        p.circle(x, y)
+
+        item_text = json.dumps(json_item(p, "myplot"))
+
+This output can be used by the ``Bokeh.embed.embed_item`` function on a webpage:
+
+.. code-block:: javascript
+
+    item = JSON.parse(item_text);
+    Bokeh.embed.embed_item(item);
+
+In this situation, the Bokeh plot will render itself into a div with the id
+*"myplot"*.
+
+It is also possible to omit the target id when calling |json_item|
+
+.. code-block:: python
+
+        p = figure()
+        p.circle(x, y)
+
+        item_text = json.dumps(json_item(p)) # no target_id given
+
+Then the target id can be controlled on teh JavaScript side:
+
+.. code-block:: javascript
+
+    item = JSON.parse(item_text);
+    Bokeh.embed.embed_item(item, "myplot");
+
+As a more complete example, it a Flask server may be configured to serve Bokeh
+JSON items from a */plot* endpoint:
+
+.. code-block:: python
+
+    @app.route('/plot')
+    def plot():
+        p = make_plot('petal_width', 'petal_length')
+        return json.dumps(json_item(p, "myplot"))
+
+Then the corresponding code on the page might look like:
+
+.. code-block:: html
+
+    <script>
+    fetch('/plot')
+        .then(function(response) { return response.json(); })
+        .then(function(item) { Bokeh.embed.embed_item(item); })
+    </script>
+
+A full example can be found a :bokeh-tree:`examples/embed/json_item.py`.
+
 .. _userguide_embed_standalone_components:
 
 Components
@@ -517,5 +582,6 @@ The full template, with all the sections that can be overridden, is given here:
 .. |autoload_static| replace:: :func:`~bokeh.embed.autoload_static`
 .. |components|      replace:: :func:`~bokeh.embed.components`
 .. |file_html|       replace:: :func:`~bokeh.embed.file_html`
+.. |json_item|       replace:: :func:`~bokeh.embed.json_item`
 .. |server_document| replace:: :func:`~bokeh.embed.server_document`
 .. |server_session|  replace:: :func:`~bokeh.embed.server_session`

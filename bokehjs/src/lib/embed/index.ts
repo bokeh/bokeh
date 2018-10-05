@@ -1,7 +1,7 @@
-import {Document} from "../document"
+import {Document, DocJson} from "../document"
 import {logger} from "../core/logging"
 import {defer} from "../core/util/callback"
-import {unescape} from "../core/util/string"
+import {unescape, uuid4} from "../core/util/string"
 import {isString} from "../core/util/types"
 
 import {DocsJson, RenderItem} from "./json"
@@ -14,6 +14,22 @@ export {add_document_standalone} from "./standalone"
 export {add_document_from_session} from "./server"
 export {embed_items_notebook, kernels} from "./notebook"
 export {BOKEH_ROOT, inject_css, inject_raw_css} from "./dom"
+
+export type JsonItem = {doc: DocJson, root_id: string, target_id: string}
+interface Roots {[index: string]: string}
+
+export function embed_item(item: JsonItem, target_id?: string) {
+  const docs_json: DocsJson = {}
+  const doc_id = uuid4()
+  docs_json[doc_id] = item.doc
+
+  if (target_id == null)
+    target_id = item.target_id
+  const roots: Roots = {[item.root_id]: target_id}
+  const render_item: RenderItem = { roots: roots, docid: doc_id }
+
+  defer(() => _embed_items(docs_json, [render_item]))
+}
 
 // TODO (bev) this is currently clunky. Standalone embeds only provide
 // the first two args, whereas server provide the app_app, and *may* prove and

@@ -24,6 +24,7 @@ import logging
 from mock import patch
 
 # Bokeh imports
+from bokeh import __version__
 from bokeh.core.properties import Instance, Int, String, List
 from bokeh.document.document import Document
 from bokeh.io import curdoc
@@ -500,6 +501,38 @@ class Test_OutputDocumentFor_FromCurdoc_apply_theme(object):
 
 class Test_standalone_docs_json_and_render_items(object):
 
+    def test_passing_model(self):
+        p1 = Model()
+        d = Document()
+        d.add_root(p1)
+        docs_json, render_items = beu.standalone_docs_json_and_render_items([p1])
+        doc = list(docs_json.values())[0]
+        assert doc['title'] == "Bokeh Application"
+        assert doc['version'] == __version__
+        assert len(doc['roots']['root_ids']) == 1
+        assert len(doc['roots']['references']) == 1
+        assert doc['roots']['references'] == [{'attributes': {}, 'id': str(p1._id), 'type': 'Model'}]
+        assert len(render_items) == 1
+
+    def test_passing_doc(self):
+        p1 = Model()
+        d = Document()
+        d.add_root(p1)
+        docs_json, render_items = beu.standalone_docs_json_and_render_items([d])
+        doc = list(docs_json.values())[0]
+        assert doc['title'] == "Bokeh Application"
+        assert doc['version'] == __version__
+        assert len(doc['roots']['root_ids']) == 1
+        assert len(doc['roots']['references']) == 1
+        assert doc['roots']['references'] == [{'attributes': {}, 'id': str(p1._id), 'type': 'Model'}]
+        assert len(render_items) == 1
+
+    def test_exception_for_missing_doc(self):
+        p1 = Model()
+        with pytest.raises(ValueError) as e:
+            beu.standalone_docs_json_and_render_items([p1])
+        assert str(e.value) == "A Bokeh Model must be part of a Document to render as standalone content"
+
     def test_log_warning_if_python_property_callback(self, caplog):
         d = Document()
         m1 = EmbedTestUtilModel()
@@ -546,6 +579,32 @@ class Test_standalone_docs_json_and_render_items(object):
             assert len(caplog.records) == 0
             assert caplog.text == ''
 
+class Test_standalone_docs_json(object):
+
+    @patch('bokeh.embed.util.standalone_docs_json_and_render_items')
+    def test_delgation(self, mock_sdjari):
+        p1 = Model()
+        p2 = Model()
+        d = Document()
+        d.add_root(p1)
+        d.add_root(p2)
+        # ignore error unpacking None mock result, just checking to see that
+        # standalone_docs_json_and_render_items is called as expected
+        try:
+            beu.standalone_docs_json([p1, p2])
+        except ValueError:
+            pass
+        mock_sdjari.assert_called_once_with([p1, p2])
+
+    def test_output(self):
+        p1 = Model()
+        p2 = Model()
+        d = Document()
+        d.add_root(p1)
+        d.add_root(p2)
+        out = beu.standalone_docs_json([p1, p2])
+        expected = beu.standalone_docs_json_and_render_items([p1, p2])[0]
+        assert list(out.values()) ==list(expected.values())
 
 #-----------------------------------------------------------------------------
 # Private API

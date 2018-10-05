@@ -31,7 +31,7 @@ from contextlib import contextmanager
 from ..document.document import Document
 from ..model import Model, collect_models
 from ..settings import settings
-from ..util.serialization import make_id
+from ..util.serialization import make_globally_unique_id
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -160,7 +160,7 @@ class RenderItem(object):
         if roots is None:
             roots = OrderedDict()
         elif isinstance(roots, list):
-            roots = OrderedDict([ (root, make_id()) for root in roots ])
+            roots = OrderedDict([ (root, make_globally_unique_id()) for root in roots ])
 
         self.docid = docid
         self.sessionid = sessionid
@@ -233,6 +233,13 @@ class RenderRoots(object):
     def to_json(self):
         return OrderedDict([ (root._id, elementid) for root, elementid in self._roots.items() ])
 
+def standalone_docs_json(models):
+    '''
+
+    '''
+    docs_json, render_items = standalone_docs_json_and_render_items(models)
+    return docs_json
+
 def standalone_docs_json_and_render_items(models, suppress_callback_warning=False):
     '''
 
@@ -256,18 +263,18 @@ def standalone_docs_json_and_render_items(models, suppress_callback_warning=Fals
             doc = model.document
 
             if doc is None:
-                raise ValueError("to render a model as HTML it must be part of a document")
+                raise ValueError("A Bokeh Model must be part of a Document to render as standalone content")
 
         if doc not in docs:
-            docs[doc] = (make_id(), OrderedDict())
+            docs[doc] = (make_globally_unique_id(), OrderedDict())
 
         (docid, roots) = docs[doc]
 
         if model is not None:
-            roots[model] = make_id()
+            roots[model] = make_globally_unique_id()
         else:
             for model in doc.roots:
-                roots[model] = make_id()
+                roots[model] = make_globally_unique_id()
 
     docs_json = {}
     for doc, (docid, _) in docs.items():

@@ -27,6 +27,7 @@ from six import string_types
 
 # Bokeh imports
 from bokeh.document import Document
+from bokeh.embed.util import standalone_docs_json
 from bokeh.io import curdoc
 from bokeh.plotting import figure
 from bokeh.resources import CDN, JSResources, CSSResources
@@ -60,8 +61,7 @@ class Test_autoload_static(object):
         r = bes.autoload_static(test_plot, CDN, "some/path")
         assert len(r) == 2
 
-    @patch('bokeh.embed.util.make_id', new_callable=lambda: stable_id)
-    def test_script_attrs(self, mock_make_id, test_plot):
+    def test_script_attrs(self, test_plot):
         js, tag = bes.autoload_static(test_plot, CDN, "some/path")
         html = bs4.BeautifulSoup(tag, "lxml")
         scripts = html.findAll(name='script')
@@ -95,7 +95,7 @@ class Test_components(object):
         assert isinstance(divs, dict)
         assert all(isinstance(x, string_types) for x in divs.keys())
 
-    @patch('bokeh.embed.util.make_id', new_callable=lambda: stable_id)
+    @patch('bokeh.embed.util.make_globally_unique_id', new_callable=lambda: stable_id)
     def test_plot_dict_returned_when_wrap_plot_info_is_false(self, mock_make_id):
         doc = Document()
         plot1 = figure()
@@ -141,8 +141,7 @@ class Test_components(object):
         script, div = bes.components(test_plot)
         assert isinstance(script, str)
 
-    @patch('bokeh.embed.util.make_id', new_callable=lambda: stable_id)
-    def test_output_is_without_script_tag_when_wrap_script_is_false(self, mock_make_id, test_plot):
+    def test_output_is_without_script_tag_when_wrap_script_is_false(self, test_plot):
         script, div = bes.components(test_plot)
         html = bs4.BeautifulSoup(script, "lxml")
         scripts = html.findAll(name='script')
@@ -241,6 +240,41 @@ class Test_file_html(object):
 
         # this is a very coarse test but it will do
         assert "bokeh-widgets" not in out
+
+class Test_json_item(object):
+
+    def test_with_target_id(self, test_plot):
+        out = bes.json_item(test_plot, target="foo")
+        assert out['target_id'] == "foo"
+
+    def test_without_target_id(self, test_plot):
+        out = bes.json_item(test_plot)
+        assert out['target_id'] == None
+
+    def test_doc_json(self, test_plot):
+        out = bes.json_item(test_plot, target="foo")
+        expected = list(standalone_docs_json([test_plot]).values())[0]
+        assert out['doc'] == expected
+
+    def test_doc_title(self, test_plot):
+        out = bes.json_item(test_plot, target="foo")
+        assert out['doc']['title'] == ""
+
+    def test_root_id(self, test_plot):
+        out = bes.json_item(test_plot, target="foo")
+        assert out['doc']['roots']['root_ids'][0] == out['root_id']
+
+    @patch('bokeh.embed.standalone.OutputDocumentFor')
+    def test_apply_theme(self, mock_OFD, test_plot):
+        # the subsequent call inside ODF will fail since the model was never
+        # added to a document. Ignoring that since we just want to make sure
+        # ODF is called with the expected theme arg.
+        try:
+            bes.json_item(test_plot, theme="foo")
+        except ValueError:
+            pass
+        mock_OFD.assert_called_once_with([test_plot], apply_theme="foo")
+
 
 #-----------------------------------------------------------------------------
 # Dev API

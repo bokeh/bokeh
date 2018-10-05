@@ -35,7 +35,7 @@ from ..util.compiler import bundle_all_models
 from ..util.string import encode_utf8
 from .bundle import bundle_for_objs_and_resources
 from .elements import html_page_for_render_items, script_for_render_items
-from .util import FromCurdoc, OutputDocumentFor, standalone_docs_json_and_render_items
+from .util import FromCurdoc, OutputDocumentFor, standalone_docs_json, standalone_docs_json_and_render_items
 from .wrappers import wrap_in_onload, wrap_in_script_tag
 
 #-----------------------------------------------------------------------------
@@ -302,6 +302,78 @@ def file_html(models,
         bundle = bundle_for_objs_and_resources([doc], resources)
         return html_page_for_render_items(bundle, docs_json, render_items, title=title,
                                           template=template, template_variables=template_variables)
+
+def json_item(model, target=None, theme=FromCurdoc):
+    ''' Return a JSON block that can be used to embed standalone Bokeh conent.
+
+    Args:
+        model (Model) :
+            The Bokeh object to embed
+
+        target (string, optional)
+            A div id to embd the model into. If None, the target id must
+            be supplied in the JavaScript call.
+
+        theme (Theme, optional) :
+            Defaults to the ``Theme`` instance in the current document.
+            Setting this to ``None`` uses the default theme or the theme
+            already specified in the document. Any other value must be an
+            instance of the ``Theme`` class.
+
+    Returns:
+        JSON-like
+
+    This function returns a JSON block that can be consumed by the BokehJS
+    function ``Bokeh.embed.embed_item``. As an example, a Flask endpoint for
+    ``/plot`` might return the following content to embed a Bokeh plot into
+    a div with id *"myplot"*:
+
+    .. code-block:: python
+
+        @app.route('/plot')
+        def plot():
+            p = make_plot('petal_width', 'petal_length')
+            return json.dumps(json_item(p, "myplot"))
+
+    Then a web page can retrieve this JSON and embed the plot by calling
+    ``Bokeh.embed.embed_item``:
+
+    .. code-block:: html
+
+        <script>
+        fetch('/plot')
+            .then(function(response) { return response.json(); })
+            .then(function(item) { Bokeh.embed.embed_item(item); })
+        </script>
+
+    Alternatively, if is more convenient to suppluy the target div id directly
+    in the page source, that is also possible. If `target_id` is omitted in the
+    call to this function:
+
+    .. code-block:: python
+
+        return json.dumps(json_item(p))
+
+    Then the value passed to ``embed_item`` is used:
+
+    .. code-block:: javascript
+
+        Bokeh.embed.embed_item(item, "myplot");
+
+    '''
+    with OutputDocumentFor([model], apply_theme=theme) as doc:
+        doc.title = ""
+        docs_json = standalone_docs_json([model])
+
+    doc = list(docs_json.values())[0]
+    root_id = doc['roots']['root_ids'][0]
+
+    return {
+        'target_id' : target,
+        'root_id'   : root_id,
+        'doc'       : doc,
+    }
+
 
 #-----------------------------------------------------------------------------
 # Dev API
