@@ -78,7 +78,7 @@ class Message(object):
         self._buffers = []
 
     def __repr__(self):
-        return "Message %r (revision %d)" % (self.msgtype, self.revision)
+        return "Message %r (revision %d) content: %r" % (self.msgtype, self.revision, self.content)
 
     @classmethod
     def assemble(cls, header_json, metadata_json, content_json):

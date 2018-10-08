@@ -37,6 +37,7 @@ from tornado.web import RequestHandler
 # Bokeh imports
 from bokeh.io import save
 from bokeh.server.server import Server
+import bokeh.server.views.ws as ws
 from bokeh._testing.util.selenium import INIT, RESULTS, wait_for_canvas_resize
 
 #-----------------------------------------------------------------------------
@@ -88,10 +89,23 @@ def find_free_port():
         return s.getsockname()[1]
 
 @pytest.fixture
-def bokeh_app_url(request, driver):
+def bokeh_app_info(request, driver):
+    ''' Start a Bokeh server app and return information needed to test it.
+
+    Returns a tuple (url, message_test_port), where the latter is defined as
+
+        namedtuple('MessageTestPort', ['sent', 'received'])
+
+    and will contain all messages that the Bokeh Server sends/receives while
+    running during the test.
+
+    '''
 
     def func(modify_doc):
 
+        from collections import namedtuple
+        MessageTestPort = namedtuple('MessageTestPort', ['sent', 'received'])
+        ws._message_test_port = MessageTestPort([], [])
         port = find_free_port()
         def worker():
             io_loop = IOLoop()
@@ -112,11 +126,12 @@ def bokeh_app_url(request, driver):
             # and should be removed when that issue is resolved
             driver.get_log('browser')
 
+            ws._message_test_port = None
             t.join()
 
         request.addfinalizer(cleanup)
 
-        return "http://localhost:%d/" % port
+        return "http://localhost:%d/" % port, ws._message_test_port
 
     return func
 
@@ -226,11 +241,11 @@ def single_plot_page(driver, output_file_url, has_no_console_errors):
 
 class _BokehServerPage(_SinglePlotPage, _CanvasMixin):
 
-    def __init__(self, modify_doc, driver, bokeh_app_url, has_no_console_errors):
+    def __init__(self, modify_doc, driver, bokeh_app_info, has_no_console_errors):
         self._driver = driver
         self._has_no_console_errors = has_no_console_errors
 
-        self._app_url = bokeh_app_url(modify_doc)
+        self._app_url, self.message_test_port = bokeh_app_info(modify_doc)
         time.sleep(0.1)
         self._driver.get(self._app_url)
 
@@ -241,9 +256,9 @@ class _BokehServerPage(_SinglePlotPage, _CanvasMixin):
 
 
 @pytest.fixture()
-def bokeh_server_page(driver, bokeh_app_url, has_no_console_errors):
+def bokeh_server_page(driver, bokeh_app_info, has_no_console_errors):
     def func(modify_doc):
-        return _BokehServerPage(modify_doc, driver, bokeh_app_url, has_no_console_errors)
+        return _BokehServerPage(modify_doc, driver, bokeh_app_info, has_no_console_errors)
     return func
 
 #-----------------------------------------------------------------------------

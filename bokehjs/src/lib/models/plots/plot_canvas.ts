@@ -435,7 +435,10 @@ export class PlotCanvasView extends DOMView {
       const ds = renderer.data_source
       if (selection != null) {
         if (selection[renderer.id] != null)
-          ds.selected = selection[renderer.id]
+          //ds.selected = selection[renderer.id]
+          ds.selected.indices = selection[renderer.id].indices
+          ds.selected.line_indices = selection[renderer.id].line_indices
+          ds.selected.image_indices = selection[renderer.id].image_indices
       } else
         ds.selection_manager.clear()
     }

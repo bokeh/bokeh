@@ -19,7 +19,9 @@ export abstract class SelectionPolicy extends Model {
       //to detect change in the source's selected property.
       const selected = new Selection()
       selected.update(source.selected, final, false)
-      source.selected = selected
+      source.selected.indices = selected.indices
+      source.selected.line_indices = selected.line_indices
+      source.selected.image_indices = selected.image_indices
 
       source._select.emit()
       return !source.selected.is_empty()
