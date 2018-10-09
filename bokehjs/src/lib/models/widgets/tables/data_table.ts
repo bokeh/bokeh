@@ -132,6 +132,18 @@ export class DataTableView extends WidgetView {
     // general look at events
     this.model.view.compute_indices()
     this.data.constructor(this.model.source, this.model.view)
+
+    // this is obnoxious but there is no better way to programmatically force
+    // a resort on the existing sorted columns until/if we start using DataView
+    const columns = this.grid.getColumns()
+    const sorters = this.grid.getSortColumns().map((x: any) => ({
+      sortCol: {
+        field: columns[this.grid.getColumnIndex(x.columnId)].field,
+      },
+      sortAsc: x.sortAsc,
+    }))
+    this.data.sort(sorters)
+
     this.grid.invalidate()
     this.grid.render()
   }
