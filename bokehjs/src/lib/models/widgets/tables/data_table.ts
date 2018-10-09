@@ -46,19 +46,8 @@ export class DataProvider {
     return item
   }
 
-  setItem(offset: number, item: Item): void {
-    const patches: {[key: string]: [Index, any][]} = {}
-    for (const field in item) {
-      // internal index is maintained independently, ignore
-      const value = item[field]
-      if (field != DTINDEX_NAME) {
-        patches[field] =  [ [this.index[offset], value] ]
-      }
-    }
-    this.source.patch(patches)
-  }
-
   getField(offset: number, field: string): any {
+    // offset is the
     if (field == DTINDEX_NAME) {
       return this.index[offset]
     }
@@ -68,7 +57,8 @@ export class DataProvider {
   setField(offset: number, field: string, value: any): void {
     // field assumed never to be internal index name (ctor would throw)
     const patches: {[key: string]: [Index, any][]} = {}
-    patches[field] =  [ [this.index[offset], value] ]
+    const index = this.index[offset]
+    patches[field] =  [ [index, value] ]
     this.source.patch(patches)
   }
 

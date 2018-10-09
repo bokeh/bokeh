@@ -92,8 +92,8 @@ export abstract class CellEditorView extends DOMView {
 
   applyValue(item: Item, state: any): void {
     const grid_data = this.args.grid.getData()
-    const index = grid_data.view.indices_map[item[DTINDEX_NAME]]
-    grid_data.setField(index, this.args.column.field, state)
+    const offset = grid_data.index.indexOf(item[DTINDEX_NAME])
+    grid_data.setField(offset, this.args.column.field, state)
   }
 
   loadValue(item: Item): void {
