@@ -103,7 +103,11 @@ def from_networkx(graph, layout_function, **kwargs):
         graph_renderer.node_renderer.data_source.data = node_source.data
         graph_renderer.edge_renderer.data_source.data = edge_source.data
 
-        graph_layout = layout_function(graph, **kwargs)
+        if callable(layout_function):
+            graph_layout = layout_function(graph, **kwargs)
+        else:
+            graph_layout = layout_function
+
         graph_renderer.layout_provider = StaticLayoutProvider(graph_layout=graph_layout)
 
         return graph_renderer

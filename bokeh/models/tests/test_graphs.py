@@ -84,3 +84,23 @@ def test_from_networkx_with_bad_attributes():
         assert renderer.edge_renderer.data_source.data["start"] == [0]
         assert renderer.edge_renderer.data_source.data["end"] == [1]
         assert renderer.edge_renderer.data_source.data["attr_1"] == [10]
+
+def test_from_networkx_fixed_layout():
+    G = nx.Graph()
+    G.add_nodes_from([0, 1, 2])
+    G.add_edges_from([[0, 1], [0, 2]])
+
+    fixed_layout = {0: [0, 1],
+                    1: [-1, 0],
+                    2: [1, 0]}
+
+    renderer = from_networkx(G, fixed_layout)
+    assert renderer.node_renderer.data_source.data["index"] == [0, 1, 2]
+    assert renderer.edge_renderer.data_source.data["start"] == [0, 0]
+    assert renderer.edge_renderer.data_source.data["end"] == [1, 2]
+
+    gl = renderer.layout_provider.graph_layout
+    assert set(gl.keys()) == set([0, 1, 2])
+    assert renderer.layout_provider.graph_layout[0] == fixed_layout[0]
+    assert renderer.layout_provider.graph_layout[1] == fixed_layout[1]
+    assert renderer.layout_provider.graph_layout[2] == fixed_layout[2]
