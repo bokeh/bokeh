@@ -40,7 +40,8 @@ def from_networkx(graph, layout_function, **kwargs):
 
         Args:
             graph (networkx.Graph) : a networkx graph to render
-            layout_function (function) : a networkx layout function
+            layout_function (function or dict) : a networkx layout function or mapping of node keys to positions.
+            The position is a two element sequence containing the x and y coordinate.
 
         Returns:
             instance (GraphRenderer)
