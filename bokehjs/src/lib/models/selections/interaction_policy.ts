@@ -3,7 +3,6 @@ import {Geometry} from "core/geometry"
 import {HitTestResult} from "core/hittest"
 import {GlyphRendererView} from "../renderers/glyph_renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
-import {Selection} from "../selections/selection"
 
 export abstract class SelectionPolicy extends Model {
 
@@ -14,15 +13,6 @@ export abstract class SelectionPolicy extends Model {
       return false
     } else {
       source.selected.update(hit_test_result, final, append)
-
-      //new selection created in order for python-side change detection machinery
-      //to detect change in the source's selected property.
-      const selected = new Selection()
-      selected.update(source.selected, final, false)
-      source.selected.indices = selected.indices
-      source.selected.line_indices = selected.line_indices
-      source.selected.image_indices = selected.image_indices
-
       source._select.emit()
       return !source.selected.is_empty()
     }

@@ -24,7 +24,7 @@ import pytest ; pytest
 # Bokeh imports
 from bokeh.layouts import column
 from bokeh.models import Button, ColumnDataSource, CustomAction, CustomJS, DataTable, Plot, Range1d, TableColumn
-from bokeh._testing.util.selenium import RECORD
+from bokeh._testing.util.selenium import alt_click, get_table_selected_rows, get_table_row, RECORD, shift_click
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -151,9 +151,6 @@ class Test_DataTableSource(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    # TODO (bev) This setting source.data on a data table currently ping pongs the
-    # entire update, this should probably not happen
-    @pytest.mark.skip
     def test_server_patch_does_not_duplicate_update_event(self, bokeh_server_page):
         def modify_doc(doc):
             data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
@@ -190,7 +187,6 @@ class Test_DataTableSource(object):
         results = page.results
         assert results ==  {'data': {'x': [5,6,7,8], 'y': [50,60,70,80]}}
 
-        assert page.message_test_port.received == []
         # if the server receives something back like:
         #
         # Message 'PATCH-DOC' (revision 1) content: {
@@ -206,6 +202,104 @@ class Test_DataTableSource(object):
         # ponged a full data update back to us
         for msg in page.message_test_port.received:
             assert not any(is_cds_data_patch(evt) for evt in msg.content.get('events', []))
+
+        # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
+        #assert page.has_no_console_errors()
+
+    def test_server_basic_selection(self, bokeh_server_page):
+        data = {'x': [1,2,3,4,5,6], 'y': [60,50,40,30,20,10]}
+        source = ColumnDataSource(data)
+
+        def modify_doc(doc):
+
+            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("indices", "s.selected.indices"))))
+
+            table = DataTable(columns=[
+                TableColumn(field="x"),
+                TableColumn(field="y")
+            ], source=source, editable=False)
+
+            doc.add_root(column(plot, table))
+
+        page = bokeh_server_page(modify_doc)
+
+        page.click_custom_action()
+
+        results = page.results
+        assert results ==  {'indices': []}
+
+        # select the third row
+        row = get_table_row(page.driver, 3)
+        row.click()
+
+        page.click_custom_action()
+
+        results = page.results
+        assert results ==  {'indices': [2]}
+        assert source.selected.indices == [2]
+        assert get_table_selected_rows(page.driver) == set([2])
+
+        # select the first row
+        row = get_table_row(page.driver, 1)
+        row.click()
+
+        page.click_custom_action()
+
+        results = page.results
+        assert results ==  {'indices': [0]}
+        assert source.selected.indices == [0]
+        assert get_table_selected_rows(page.driver) == set([0])
+
+        # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
+        #assert page.has_no_console_errors()
+
+    def test_server_basic_mulitselection(self, bokeh_server_page):
+        data = {'x': [1,2,3,4,5,6], 'y': [60,50,40,30,20,10]}
+        source = ColumnDataSource(data)
+
+        def modify_doc(doc):
+
+            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("indices", "s.selected.indices"))))
+
+            table = DataTable(columns=[
+                TableColumn(field="x"),
+                TableColumn(field="y")
+            ], source=source, editable=False)
+
+            doc.add_root(column(plot, table))
+
+        page = bokeh_server_page(modify_doc)
+
+        page.click_custom_action()
+
+        results = page.results
+        assert results ==  {'indices': []}
+
+        # select the third row
+        row = get_table_row(page.driver, 2)
+        row.click()
+
+        row = get_table_row(page.driver, 4)
+        shift_click(page.driver, row)
+
+        page.click_custom_action()
+
+        results = page.results
+        assert set(results['indices']) ==  set([1, 2, 3])
+        assert set(source.selected.indices) == set([1, 2, 3])
+        assert get_table_selected_rows(page.driver) == set([1, 2, 3])
+
+        row = get_table_row(page.driver, 6)
+        alt_click(page.driver, row)
+
+        page.click_custom_action()
+
+        results = page.results
+        assert set(results['indices']) ==  set([1, 2, 3, 5])
+        assert set(source.selected.indices) == set([1, 2, 3, 5])
+        assert get_table_selected_rows(page.driver) == set([1, 2, 3, 5])
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()

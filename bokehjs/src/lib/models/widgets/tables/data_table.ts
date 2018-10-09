@@ -116,34 +116,24 @@ export class DataTableView extends WidgetView {
     super.connect_signals()
     this.connect(this.model.change, () => this.render())
 
-    // pass true to prevent updateGrid from triggering additional data source
-    // update events if it was an update to the data source that got us here
-    // in the first place
-    this.connect(this.model.source.streaming, () => this.updateGrid(true))
-    this.connect(this.model.source.patching, () => this.updateGrid(true))
-    this.connect(this.model.source.change, () => this.updateGrid(true))
-
+    this.connect(this.model.source.streaming, () => this.updateGrid())
+    this.connect(this.model.source.patching, () => this.updateGrid())
+    this.connect(this.model.source.change, () => this.updateGrid())
     this.connect(this.model.source.properties.data.change, () => this.updateGrid())
+
     this.connect(this.model.source.selected.change, () => this.updateSelection())
     this.connect(this.model.source.selected.properties.indices.change, () => this.updateSelection())
   }
 
-  updateGrid(suppress_change_event=false): void {
-    // TODO (bev) This is to enure that CDSView indices are properly computed
+  updateGrid(): void {
+    // TODO (bev) This is to ensure that CDSView indices are properly computed
     // before passing to the DataProvider. This will result in extra calls to
     // compute_indices. This "over execution" will be addressed in a more
     // general look at events
     this.model.view.compute_indices()
-
     this.data.constructor(this.model.source, this.model.view)
     this.grid.invalidate()
     this.grid.render()
-
-    if (!suppress_change_event) {
-      // This is only needed to call @_tell_document_about_change()
-      this.model.source.data = this.model.source.data
-      this.model.source.change.emit()
-    }
   }
 
   updateSelection(): void {

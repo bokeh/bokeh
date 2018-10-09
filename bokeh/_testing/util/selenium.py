@@ -26,6 +26,7 @@ log = logging.getLogger(__name__)
 # External imports
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 
 # Bokeh imports
@@ -56,6 +57,13 @@ def SCROLL(amt):
     var event = new WheelEvent('wheel', { deltaY: %f, clientX: 100, clientY: 100} );
     elt.dispatchEvent(event);
     """ % amt
+
+def alt_click(driver, element):
+    actions = ActionChains(driver)
+    actions.key_down(Keys.META)
+    actions.click(element)
+    actions.key_up(Keys.META)
+    actions.perform()
 
 class ButtonWrapper(object):
     def __init__(self, label, callback):
@@ -98,7 +106,6 @@ class element_to_finish_resizing(object):
             self.previous_width = current_width
             return False
 
-
 def enter_text_in_element(driver, element, text, click=1, enter=True):
     actions = ActionChains(driver)
     actions.move_to_element(element)
@@ -113,11 +120,31 @@ def enter_text_in_cell(driver, cell, text):
     actions = ActionChains(driver)
     actions.move_to_element(cell)
     actions.double_click()
-    actions.send_keys(text + u"\ue007")  # After the backslash is ENTER key
+    actions.send_keys(text + Keys.ENTER)
     actions.perform()
+
+def get_table_row(driver, row):
+    return driver.find_element_by_css_selector('.grid-canvas .slick-row:nth-child(%d)' % row)
+
+def get_table_selected_rows(driver):
+    result = set()
+    grid = driver.find_element_by_css_selector('.grid-canvas')
+    rows = grid.find_elements_by_css_selector(".slick-row")
+    for i, row in enumerate(rows):
+        elt = row.find_element_by_css_selector('.slick-cell.l1.r1')
+        if 'selected' in elt.get_attribute('class'):
+            result.add(i)
+    return result
 
 def get_table_cell(driver, row, col):
     return driver.find_element_by_css_selector('.grid-canvas .slick-row:nth-child(%d) .r%d' % (row, col))
+
+def shift_click(driver, element):
+    actions = ActionChains(driver)
+    actions.key_down(Keys.SHIFT)
+    actions.click(element)
+    actions.key_up(Keys.SHIFT)
+    actions.perform()
 
 def wait_for_canvas_resize(canvas, test_driver):
     '''
