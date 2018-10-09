@@ -1,13 +1,49 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import tempfile
 
 from mock import patch
-import pytest
 import os
 
-import bokeh.command.util as util
+# External imports
+
+# Bokeh imports
 from bokeh.document import Document
 from bokeh.layouts import row
 from bokeh.plotting import figure
+
+# Module under test
+import bokeh.command.util as util
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 def test_die(capsys):
     with pytest.raises(SystemExit):
@@ -94,3 +130,11 @@ class Test_set_single_plot_width_height(object):
             util.set_single_plot_width_height(d, 400, 500)
             assert len(warns) == 1
             assert warns[0].message.args[0] == _SIZE_WARNING
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

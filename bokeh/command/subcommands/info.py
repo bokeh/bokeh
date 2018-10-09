@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 '''
 
 To display information about Bokeh and Bokeh server configuration,
@@ -32,10 +39,25 @@ This will produce output like what is shown below
     /opt/anaconda/lib/python3.6/site-packages/bokeh/server/static
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import sys
 
+# External imports
+
+# Bokeh imports
 from bokeh import __version__
 from bokeh.settings import settings
 from bokeh.util.compiler import nodejs_version, npmjs_version
@@ -43,10 +65,26 @@ from bokeh.util.dependencies import import_optional
 
 from ..subcommand import Subcommand
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'Info',
+)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
 def _version(modname, attr):
     mod = import_optional(modname)
     if mod:
         return getattr(mod, attr)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class Info(Subcommand):
     ''' Subcommand to print information about Bokeh and Bokeh server configuration.
@@ -83,3 +121,11 @@ class Info(Subcommand):
             print("BokehJS static path :  %s" % settings.bokehjsdir())
             print("node.js version     :  %s" % if_installed(nodejs_version()))
             print("npm version         :  %s" % if_installed(npmjs_version()))
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

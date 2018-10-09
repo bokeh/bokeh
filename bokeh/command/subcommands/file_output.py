@@ -1,16 +1,54 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Abstract base class for subcommands that output to a file (or stdout).
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from abc import abstractmethod
 import argparse
 import io
 
+# External imports
+
+# Bokeh imports
 from bokeh.util.string import decode_utf8
 
 from ..subcommand import Subcommand
 from ..util import build_single_handler_applications, die
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'FileOutputSubcommand',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class FileOutputSubcommand(Subcommand):
     ''' Abstract subcommand to output applications as some type of file.
@@ -148,3 +186,11 @@ class FileOutputSubcommand(Subcommand):
 
         '''
         raise NotImplementedError("file_contents")
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
