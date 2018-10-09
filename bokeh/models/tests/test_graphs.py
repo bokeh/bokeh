@@ -104,3 +104,18 @@ def test_from_networkx_fixed_layout():
     assert renderer.layout_provider.graph_layout[0] == fixed_layout[0]
     assert renderer.layout_provider.graph_layout[1] == fixed_layout[1]
     assert renderer.layout_provider.graph_layout[2] == fixed_layout[2]
+
+def test_from_networkx_with_missing_layout():
+    G = nx.Graph()
+    G.add_nodes_from([0, 1, 2])
+    G.add_edges_from([[0, 1], [0, 2]])
+
+    missing_fixed_layout = {0: [0, 1],
+                            1: [-1, 0]}
+
+    with pytest.warns(UserWarning):
+        renderer = from_networkx(G, missing_fixed_layout)
+        gl = renderer.layout_provider.graph_layout
+        assert set(gl.keys()) == set([0, 1])
+        assert renderer.layout_provider.graph_layout[0] == missing_fixed_layout[0]
+        assert renderer.layout_provider.graph_layout[1] == missing_fixed_layout[1]
