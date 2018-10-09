@@ -40,7 +40,8 @@ def from_networkx(graph, layout_function, **kwargs):
 
         Args:
             graph (networkx.Graph) : a networkx graph to render
-            layout_function (function) : a networkx layout function
+            layout_function (function or dict) : a networkx layout function or mapping of node keys to positions.
+            The position is a two element sequence containing the x and y coordinate.
 
         Returns:
             instance (GraphRenderer)
@@ -103,7 +104,17 @@ def from_networkx(graph, layout_function, **kwargs):
         graph_renderer.node_renderer.data_source.data = node_source.data
         graph_renderer.edge_renderer.data_source.data = edge_source.data
 
-        graph_layout = layout_function(graph, **kwargs)
+        if callable(layout_function):
+            graph_layout = layout_function(graph, **kwargs)
+        else:
+            graph_layout = layout_function
+
+            node_keys = graph_renderer.node_renderer.data_source.data['index']
+            if set(node_keys) != set(layout_function.keys()):
+                from warnings import warn
+                warn("Node keys in 'layout_function' don't match node keys in the graph. "
+                     "These nodes may not be displayed correctly.")
+
         graph_renderer.layout_provider = StaticLayoutProvider(graph_layout=graph_layout)
 
         return graph_renderer
