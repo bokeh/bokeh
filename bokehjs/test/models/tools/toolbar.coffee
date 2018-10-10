@@ -46,6 +46,16 @@ describe "Toolbar", ->
       expect(@hover_2.active).to.be.false
       expect(@hover_3.active).to.be.false
 
+    it "should have autohide as False by default", ->
+      toolbar = new Toolbar({tools:[@hover_1, @hover_2, @hover_3]})
+      expect(toolbar.autohide).to.be.false
+      expect(toolbar.visibility).to.equal("visible")
+
+    it "should have autohide as False by default", ->
+      toolbar = new Toolbar({tools:[@hover_1, @hover_2, @hover_3], autohide=true})
+      expect(toolbar.autohide).to.be.true
+      expect(toolbar.visibility).to.equal("hidden")
+
 
 class MultiToolView extends SelectToolView
 
