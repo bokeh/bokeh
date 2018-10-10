@@ -45,7 +45,7 @@ def is_cds_data_patch(evt):
 @pytest.mark.selenium
 class Test_DataTableSource(object):
 
-    def test_server_patch_does_not_duplicate_patch_event(self, bokeh_server_page):
+    def test_server_source_patch_does_not_duplicate_data_update_event(self, bokeh_server_page):
         def modify_doc(doc):
             data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
             source = ColumnDataSource(data)
@@ -100,7 +100,7 @@ class Test_DataTableSource(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    def test_server_patch_does_not_duplicate_stream_event(self, bokeh_server_page):
+    def test_server_source_stream_does_not_duplicate_data_update_event(self, bokeh_server_page):
         def modify_doc(doc):
             data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
             source = ColumnDataSource(data)
@@ -155,7 +155,7 @@ class Test_DataTableSource(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    def test_server_patch_does_not_duplicate_update_event(self, bokeh_server_page):
+    def test_server_source_update_does_not_duplicate_data_update_event(self, bokeh_server_page):
         def modify_doc(doc):
             data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
             source = ColumnDataSource(data)
