@@ -3,7 +3,7 @@ import {empty, div, a} from "core/dom"
 import {build_views, remove_views} from "core/build_views"
 import * as p from "core/properties"
 import {DOMView} from "core/dom_view"
-import {Logo, Location} from "core/enums"
+import {Logo, Location, Visibility} from "core/enums"
 import {EventType} from "core/ui_events"
 import {isString} from "core/util/types"
 import {Model} from "model"
@@ -29,6 +29,7 @@ export class ToolbarBaseView extends DOMView {
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.tools.change, () => this._build_tool_button_views())
+    this.connect(this.model.properties.visibility.change, () => this.el.style.visibility = this.model.visibility)
   }
 
   remove(): void {
@@ -46,6 +47,7 @@ export class ToolbarBaseView extends DOMView {
 
     this.el.classList.add("bk-toolbar")
     this.el.classList.add(`bk-toolbar-${this.model.toolbar_location}`)
+    this.el.style.visibility = this.model.visibility
 
     if (this.model.logo != null) {
       const cls = this.model.logo === "grey" ? "bk-grey" : null
@@ -98,10 +100,12 @@ export namespace ToolbarBase {
     inspectors: InspectTool[]
     help: HelpTool[]
     toolbar_location: Location
+    visibility: Visibility
   }
 
   export interface Props extends Model.Props {
     tools: p.Property<Tool[]>
+    visibility: p.Property<Visibility>
   }
 }
 
@@ -120,8 +124,9 @@ export class ToolbarBase extends Model {
     this.prototype.default_view = ToolbarBaseView
 
     this.define({
-      tools: [ p.Array,    []       ],
-      logo:  [ p.String,   'normal' ], // TODO (bev)
+      tools:      [ p.Array,      []       ],
+      logo:       [ p.String,     'normal' ], // TODO (bev)
+      visibility: [ p.Visibility, 'hidden' ],
     })
 
     this.internal({
@@ -144,6 +149,10 @@ export class ToolbarBase extends Model {
   }
 
   _proxied_tools?: (Tool | ToolProxy)[]
+
+  set visibility(visibility: Visibility) {
+    this.visibility = visibility
+  }
 
   get horizontal(): boolean {
     return this.toolbar_location === "above" || this.toolbar_location === "below"

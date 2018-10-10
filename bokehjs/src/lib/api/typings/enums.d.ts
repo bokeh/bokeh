@@ -21,6 +21,7 @@ declare namespace Bokeh {
     "bottom_left" | "bottom_center" | "bottom_right";
   export type LegendLocation = Anchor;
   export type Location = "above" | "below" | "left" | "right";
+  export type Visibility = "hidden" | "visible";
   export type DashPattern = "solid" | "dashed" | "dotted" | "dotdash" | "dashdot";
   export type ButtonType = "default" | "primary" | "success" | "warning" | "danger" | "link";
   export type MapType = "satellite" | "roadmap" | "terrain" | "hybrid";
