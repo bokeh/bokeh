@@ -112,7 +112,7 @@ def enter_text_in_element(driver, element, text, click=1, enter=True):
     if click == 1: actions.click()
     elif click == 2: actions.double_click()
     if enter:
-        text += u"\ue007" # After the backslash is ENTER key
+        text += Keys.ENTER
     actions.send_keys(text)
     actions.perform()
 
@@ -122,6 +122,15 @@ def enter_text_in_cell(driver, cell, text):
     actions.double_click()
     actions.send_keys(text + Keys.ENTER)
     actions.perform()
+
+def get_table_column_cells(driver, col):
+    result = []
+    grid = driver.find_element_by_css_selector('.grid-canvas')
+    rows = grid.find_elements_by_css_selector(".slick-row")
+    for i, row in enumerate(rows):
+        elt = row.find_element_by_css_selector('.slick-cell.l%d.r%d' % (col, col))
+        result.append(elt.text)
+    return result
 
 def get_table_row(driver, row):
     return driver.find_element_by_css_selector('.grid-canvas .slick-row:nth-child(%d)' % row)
@@ -145,6 +154,11 @@ def shift_click(driver, element):
     actions.click(element)
     actions.key_up(Keys.SHIFT)
     actions.perform()
+
+def sort_table_column(driver, col, double=False):
+    elt = driver.find_element_by_css_selector('.slick-header-columns .slick-header-column:nth-child(%d)' % col)
+    elt.click()
+    if double: elt.click()
 
 def wait_for_canvas_resize(canvas, test_driver):
     '''
