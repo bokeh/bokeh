@@ -1,18 +1,42 @@
-import pytest
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import sys
 
-from bokeh.command.bootstrap import main
+# External imports
+
+# Bokeh imports
 from bokeh import __version__
+
+# Module under test
+from bokeh.command.bootstrap import main
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
 
 is_python2 = sys.version_info[0] == 2
 
-def test_no_subcommand(capsys):
-    with pytest.raises(SystemExit):
-        main(["bokeh"])
-    out, err = capsys.readouterr()
-    assert err == "ERROR: Must specify subcommand, one of: html, info, json, png, sampledata, secret, serve, static or svg\n"
-    assert out == ""
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
 
 def _assert_version_output(capsys):
     out, err = capsys.readouterr()
@@ -24,6 +48,21 @@ def _assert_version_output(capsys):
         out_expected = ("%s\n" % __version__)
     assert err == err_expected
     assert out == out_expected
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+def test_no_subcommand(capsys):
+    with pytest.raises(SystemExit):
+        main(["bokeh"])
+    out, err = capsys.readouterr()
+    assert err == "ERROR: Must specify subcommand, one of: html, info, json, png, sampledata, secret, serve, static or svg\n"
+    assert out == ""
 
 def test_version(capsys):
     with pytest.raises(SystemExit):
@@ -45,3 +84,7 @@ def test_error(capsys):
     out, err = capsys.readouterr()
     assert err == 'ERROR: foo\n'
     Info.invoke = old_invoke
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

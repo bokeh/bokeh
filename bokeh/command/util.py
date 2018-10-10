@@ -1,21 +1,54 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide utility functions for implementing the ``bokeh`` command.
 
 '''
-from __future__ import print_function
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import contextlib
 import errno
-import logging
 import os
 import sys
 import warnings
 
+# External imports
+
+# Bokeh imports
 from bokeh.application import Application
 from bokeh.application.handlers import ScriptHandler, DirectoryHandler, NotebookHandler
 from bokeh.models.plots import Plot
 
-log = logging.getLogger(__name__)
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
 
+__all__ = (
+    'build_single_handler_application',
+    'build_single_handler_applications',
+    'die',
+    'report_server_init_errors',
+    'set_single_plot_width_height',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def die(message, status=1):
     ''' Print an error message and exit.
@@ -182,3 +215,15 @@ def set_single_plot_width_height(doc, width, height):
             plot = layout[0]
             plot.plot_height = height or plot.plot_height
             plot.plot_width  = width or plot.plot_width
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

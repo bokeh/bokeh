@@ -1,11 +1,47 @@
-from mock import MagicMock
-import pytest
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+from mock import MagicMock
+
+# External imports
+
+# Bokeh imports
+
+# Module under test
 import bokeh.command.subcommand as sc
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
 
 class _Bad(sc.Subcommand): pass
 class _Good(sc.Subcommand):
     def invoke(self, args): pass
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 def test_is_abstract():
     with pytest.raises(TypeError):
@@ -39,3 +75,7 @@ def test_base_invoke():
         p = MagicMock()
         obj = _Good(p)
         super(_Good, obj).invoke("foo")
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

@@ -1,17 +1,51 @@
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import argparse
-import pytest
 import os
 import sys
 
-is_python2 = sys.version_info[0] == 2
+# External imports
 
-import bokeh.command.subcommands.svg as scsvg
+# Bokeh imports
 from bokeh.command.bootstrap import main
 from bokeh._testing.util.filesystem import TmpDir, WorkingDir, with_directory_contents
 
 from . import basic_svg_scatter_script, multi_svg_scatter_script
+
+# Module under test
+import bokeh.command.subcommands.svg as scsvg
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+is_python2 = sys.version_info[0] == 2
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 def test_create():
     import argparse
@@ -170,3 +204,11 @@ def test_basic_script_with_multiple_svg_plots(capsys):
 
     with_directory_contents({ 'scatter.py' : multi_svg_scatter_script },
                             run)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

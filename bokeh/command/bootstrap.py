@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide a ``main`` function to run bokeh commands.
 
 The following are equivalent:
@@ -23,15 +30,42 @@ The following are equivalent:
       main(["bokeh", "serve", "--show", "app.py"])
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import argparse
 
+# External imports
+
+# Bokeh imports
 from bokeh import __version__
 from bokeh.util.string import nice_join
 
 from .util import die
 from . import subcommands
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'main',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def main(argv):
     ''' Execute the Bokeh command.
@@ -80,3 +114,15 @@ def main(argv):
         args.invoke(args)
     except Exception as e:
         die("ERROR: " + str(e))
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

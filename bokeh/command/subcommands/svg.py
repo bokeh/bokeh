@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 '''
 To generate standalone SVGs for a Bokeh application from a single
 Python script, pass the script name to ``bokeh svg`` on the command
@@ -40,14 +47,43 @@ For all cases, it's required to explicitly add a Bokeh layout to
 ``bokeh.io.curdoc`` for it to appear in the output.
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import io
 
+# External imports
+
+# Bokeh imports
 from ...io.export import get_svgs, create_webdriver, terminate_webdriver
-from ...util.string import decode_utf8
+
 from ..util import set_single_plot_width_height
+from ...util.string import decode_utf8
+
 from .file_output import FileOutputSubcommand
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'SVG',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class SVG(FileOutputSubcommand):
     ''' Subcommand to output applications as standalone SVG files.
@@ -116,3 +152,15 @@ class SVG(FileOutputSubcommand):
         '''
         set_single_plot_width_height(doc, width=args.width, height=args.height)
         return get_svgs(doc, driver=self.driver)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

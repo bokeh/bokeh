@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 '''
 
 To run a Bokeh application on a Bokeh server from a single Python script,
@@ -295,23 +302,34 @@ The log format can be controlled by the ``--log-format`` argument:
 The default log format is ``"{DEFAULT_LOG_FORMAT}"``
 
 '''
-from __future__ import absolute_import
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 log = logging.getLogger(__name__)
 
-import argparse
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
 
+# Standard library imports
+import argparse
+from fnmatch import fnmatch
+import os
+
+# External imports
+from tornado.autoreload import watch
+
+# Bokeh imports
 from bokeh.application import Application
 from bokeh.resources import DEFAULT_SERVER_PORT
 from bokeh.util.logconfig import basicConfig
 from bokeh.util.string import nice_join, format_docstring
 from bokeh.server.tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES
 from bokeh.settings import settings
-
-from tornado.autoreload import watch
-import os
-from fnmatch import fnmatch
 
 from ..subcommand import Subcommand
 from ..util import build_single_handler_applications, die, report_server_init_errors
@@ -320,12 +338,9 @@ LOGLEVELS = ('trace', 'debug', 'info', 'warning', 'error', 'critical')
 SESSION_ID_MODES = ('unsigned', 'signed', 'external-signed')
 DEFAULT_LOG_FORMAT = "%(asctime)s %(message)s"
 
-__doc__ = format_docstring(__doc__,
-    DEFAULT_PORT=DEFAULT_SERVER_PORT,
-    LOGLEVELS=nice_join(LOGLEVELS),
-    SESSION_ID_MODES=nice_join(SESSION_ID_MODES),
-    DEFAULT_LOG_FORMAT=DEFAULT_LOG_FORMAT
-)
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
 
 base_serve_args = (
     ('--port', dict(
@@ -364,6 +379,14 @@ base_serve_args = (
         help    = "A filename to write logs to, or None to write to the standard stream (default: None)",
     )),
 )
+
+__all__ = (
+    'Serve',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class Serve(Subcommand):
     ''' Subcommand to launch the Bokeh server.
@@ -627,3 +650,22 @@ class Serve(Subcommand):
 
             log.info("Starting Bokeh server with process id: %d" % os.getpid())
             server.run_until_shutdown()
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
+
+__doc__ = format_docstring(__doc__,
+    DEFAULT_PORT=DEFAULT_SERVER_PORT,
+    LOGLEVELS=nice_join(LOGLEVELS),
+    SESSION_ID_MODES=nice_join(SESSION_ID_MODES),
+    DEFAULT_LOG_FORMAT=DEFAULT_LOG_FORMAT
+)

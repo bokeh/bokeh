@@ -1,5 +1,23 @@
-from __future__ import absolute_import, print_function
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import argparse
 import contextlib
 import re
@@ -8,15 +26,26 @@ import subprocess
 import sys
 from time import sleep
 
-import pytest
+# External imports
 import requests
 import six
 
+# Bokeh imports
 import bokeh.command.subcommands.serve as scserve
 
 from bokeh.resources import DEFAULT_SERVER_PORT
 
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 def test_create():
     import argparse
@@ -231,7 +260,7 @@ def check_error(args):
     return out
 
 def test_host_not_available():
-    host = "8.8.8.8"
+    host = str("8.8.8.8") # str cast is for Python 2.7 testing
     out = check_error(["--address", host])
     expected = "Cannot start Bokeh server, address %r not available" % host
     assert expected in out
@@ -275,3 +304,11 @@ def test_websocket_max_message_size_printed_out():
     m = pat.search(o.decode())
     if m is None:
         pytest.fail("no matching log line in process output")
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

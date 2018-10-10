@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 '''
 To generate a standalone HTML page for a Bokeh application from a single
 Python script, pass the script name to ``bokeh html`` on the command
@@ -49,12 +56,40 @@ respectively.
     server to execute the callback code.
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from bokeh.resources import Resources
 from bokeh.embed import file_html
 
 from .file_output import FileOutputSubcommand
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'HTML',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class HTML(FileOutputSubcommand):
     ''' Subcommand to output applications as standalone HTML files.
@@ -95,3 +130,15 @@ class HTML(FileOutputSubcommand):
         '''
         resources = Resources(mode="cdn", root_dir=None)
         return file_html(doc, resources)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
