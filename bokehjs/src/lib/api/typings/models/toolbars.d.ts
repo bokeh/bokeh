@@ -3,6 +3,8 @@ declare namespace Bokeh {
   export interface IToolbarBase extends ILayoutDOM {
     logo?: Logo;
     tools?: Tool[];
+    visibility?: Visibility;
+    autohide?: boolean;
   }
 
   export const Toolbar: {
@@ -17,6 +19,5 @@ declare namespace Bokeh {
   export interface ToolbarBox extends ToolbarBase {}
   export interface IToolbarBox extends IToolbarBase {
     toolbar_location?: Location;
-    visibility?: Visibility;
   }
 }

@@ -1,5 +1,5 @@
 import * as p from "core/properties"
-import {Location, SizingMode, Visibility} from "core/enums"
+import {Location, SizingMode} from "core/enums"
 import {empty} from "core/dom"
 import {logger} from "core/logging"
 import {isString} from "core/util/types"
@@ -190,7 +190,6 @@ export class ToolbarBoxView extends LayoutDOMView {
   initialize(options: any): void {
     super.initialize(options)
     this.model.toolbar.toolbar_location = this.model.toolbar_location
-    this.model.toolbar.visibility = this.model.visibility
     this._toolbar_views = {}
     build_views(this._toolbar_views, [this.model.toolbar], {parent: this})
   }
@@ -227,7 +226,6 @@ export namespace ToolbarBox {
   export interface Attrs extends LayoutDOM.Attrs {
     toolbar: ToolbarBase
     toolbar_location: Location
-    visibility: Visibility
   }
 
   export interface Props extends LayoutDOM.Props {}
@@ -250,7 +248,6 @@ export class ToolbarBox extends LayoutDOM {
     this.define({
       toolbar:          [ p.Instance          ],
       toolbar_location: [ p.Location, "right" ],
-      visibility:       [ p.Visibility, "hidden" ],
     })
   }
 

@@ -22,6 +22,7 @@ export class ToolbarBaseView extends DOMView {
 
   initialize(options: any): void {
     super.initialize(options)
+    this.model.visibility = this.model.autohide ? "hidden" : "visible"
     this._tool_button_views = {}
     this._build_tool_button_views()
   }
@@ -100,6 +101,7 @@ export namespace ToolbarBase {
     inspectors: InspectTool[]
     help: HelpTool[]
     toolbar_location: Location
+    autohide: boolean
     visibility: Visibility
   }
 
@@ -126,7 +128,8 @@ export class ToolbarBase extends Model {
     this.define({
       tools:      [ p.Array,      []       ],
       logo:       [ p.String,     'normal' ], // TODO (bev)
-      visibility: [ p.Visibility, 'hidden' ],
+      visibility: [ p.Visibility, 'visible' ],
+      autohide:   [ p.Bool, false ],
     })
 
     this.internal({
@@ -149,10 +152,6 @@ export class ToolbarBase extends Model {
   }
 
   _proxied_tools?: (Tool | ToolProxy)[]
-
-  set visibility(visibility: Visibility) {
-    this.visibility = visibility
-  }
 
   get horizontal(): boolean {
     return this.toolbar_location === "above" || this.toolbar_location === "below"

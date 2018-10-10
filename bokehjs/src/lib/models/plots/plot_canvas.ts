@@ -223,7 +223,7 @@ export class PlotCanvasView extends DOMView {
   }
 
   set_toolbar_visibility(visibility: Visibility = "visible"): void {
-    this.model.toolbar.visibility = visibility
+    this.model.toolbar.visibility = this.model.toolbar.autohide ? visibility : "visible";
   }
 
   init_webgl(): void {
