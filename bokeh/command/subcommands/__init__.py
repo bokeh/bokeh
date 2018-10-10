@@ -31,7 +31,9 @@ log = logging.getLogger(__name__)
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-# __all__ defined at the bottom of the class module
+__all__ = (
+    'all',
+)
 
 #-----------------------------------------------------------------------------
 # General API
