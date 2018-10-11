@@ -732,7 +732,7 @@ export class Document {
           }
           const data = event_json.data
           const rollover = event_json.rollover
-          column_source.stream(data, rollover)
+          column_source.stream(data, rollover, setter_id)
           break
         }
         case 'ColumnsPatched': {
@@ -745,7 +745,7 @@ export class Document {
             throw new Error("Cannot patch non-ColumnDataSource")
           }
           const patches = event_json.patches
-          column_source.patch(patches)
+          column_source.patch(patches, setter_id)
           break
         }
         case 'RootAdded': {

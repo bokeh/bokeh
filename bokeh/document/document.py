@@ -363,7 +363,7 @@ class Document(object):
                     raise RuntimeError("Cannot stream to %s which is not in the document" % (str(source_id)))
                 source = self._all_models[source_id]
                 data = event_json['data']
-                rollover = event_json['rollover']
+                rollover = event_json.get('rollover', None)
                 source._stream(data, rollover, setter)
 
             elif event_json['kind'] == 'ColumnsPatched':
