@@ -52,7 +52,7 @@ describe "Toolbar", ->
       expect(toolbar.visible).to.be.true
 
     it "should have set visible to false when autohide is true", ->
-      toolbar = new Toolbar({tools:[@hover_1, @hover_2, @hover_3], autohide=true})
+      toolbar = new Toolbar({tools:[@hover_1, @hover_2, @hover_3], autohide: true})
       expect(toolbar.autohide).to.be.true
       expect(toolbar.visible).to.be.false
 
