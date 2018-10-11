@@ -109,5 +109,4 @@ describe "ProxyToolbar", ->
       custom_action1 = new CustomAction()
       custom_action2 = new CustomAction()
       proxy_toolbar = new ProxyToolbar({tools: [reset1, reset2, custom_action1, custom_action2]})
-      console.log(proxy_toolbar.actions)
       expect(proxy_toolbar.actions.length).equal 3
