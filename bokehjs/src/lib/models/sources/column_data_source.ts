@@ -8,6 +8,7 @@ import {isTypedArray, isArray, isNumber, isPlainObject} from "core/util/types"
 import {TypedArray} from "core/types"
 import * as typed_array from "core/util/typed_array"
 import {keys} from "core/util/object"
+import {ColumnsPatchedEvent, ColumnsStreamedEvent} from "document/events"
 
 //exported for testing
 export function stream_to_column(col: Arrayable, new_col: Arrayable, rollover?: number): Arrayable {
@@ -191,6 +192,10 @@ export class ColumnDataSource extends ColumnarDataSource {
     }
     this.setv({data}, {silent: true})
     this.streaming.emit()
+    if (this.document != null) {
+      const hint = new ColumnsStreamedEvent(this.document, this.ref(), new_data, rollover)
+      this.document._notify_change(this, 'data', null, null, {hint: hint})
+    }
   }
 
   patch(patches: {[key: string]: [Index, any][]}): void {
@@ -202,6 +207,10 @@ export class ColumnDataSource extends ColumnarDataSource {
     }
     this.setv({data}, {silent: true})
     this.patching.emit(patched.values)
+    if (this.document != null) {
+      const hint = new ColumnsPatchedEvent(this.document, this.ref(), patches)
+      this.document._notify_change(this, 'data', null, null, {hint: hint})
+    }
   }
 }
 ColumnDataSource.initClass()

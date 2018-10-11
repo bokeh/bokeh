@@ -469,7 +469,7 @@ export abstract class HasProps extends Signalable() {
     this.document = null
   }
 
-  protected _tell_document_about_change(attr: string, old: any, new_: any, options: {setter_id?: string}): void {
+  protected _tell_document_about_change(attr: string, old: any, new_: any, options: {setter_id?: string, hint?: any}): void {
     if (!this.attribute_is_serializable(attr))
       return
 

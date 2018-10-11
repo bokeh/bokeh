@@ -60,11 +60,6 @@ export class DataProvider {
     const index = this.index[offset]
     patches[field] =  [ [index, value] ]
     this.source.patch(patches)
-
-    // TODO (bev) this is currently necessary to send events changes back to the
-    // server. This results in the entire CDS being sent. A better solution will
-    // have the client sent real ColumnsPatched messages back to the server
-    this.source.data = this.source.data
   }
 
   getItemMetadata(_index: number): any {

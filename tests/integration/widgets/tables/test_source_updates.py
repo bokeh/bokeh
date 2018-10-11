@@ -210,6 +210,56 @@ class Test_DataTableSource(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
+    def test_server_edit_does_not_duplicate_data_update_event(self, bokeh_server_page):
+        def modify_doc(doc):
+            data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
+            source = ColumnDataSource(data)
+
+            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+
+            table = DataTable(columns=[
+                TableColumn(field="x"),
+                TableColumn(field="y", editor=NumberEditor())
+            ], source=source, editable=True)
+
+            doc.add_root(column(plot, table))
+
+        page = bokeh_server_page(modify_doc)
+
+        page.click_custom_action()
+
+        results = page.results
+        assert results ==  {'data': {'x': [1,2,3,4], 'y': [10,20,30,40]}}
+
+        cell = get_table_cell(page.driver, 3, 2)
+        assert cell.text == '30'
+        enter_text_in_cell(page.driver, cell, '100')
+
+        page.click_custom_action()
+
+        results = page.results
+        assert results ==  {'data': {'x': [1,2,3,4], 'y': [10, 20, 100, 40]}}
+
+        # if the server receives something back like:
+        #
+        # Message 'PATCH-DOC' (revision 1) content: {
+        #     'events': [{
+        #         'kind': 'ModelChanged',
+        #         'model': {'type': 'ColumnDataSource', 'id': '1001'},
+        #         'attr': 'data', 'new': {'x': [1,2,3,4], 'y': [10, 20, 100, 40]}
+        #     }],
+        #     'references': []
+        # }
+        #
+        # Then that means the client got our stream message and erroneously ping
+        # ponged a full data update back to us
+        for msg in page.message_test_port.received:
+            assert not any(is_cds_data_patch(evt) for evt in msg.content.get('events', []))
+
+        # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
+        #assert page.has_no_console_errors()
+
     def test_server_basic_selection(self, bokeh_server_page):
         data = {'x': [1,2,3,4,5,6], 'y': [60,50,40,30,20,10]}
         source = ColumnDataSource(data)

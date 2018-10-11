@@ -298,14 +298,15 @@ export class Document {
   }
 
   // called by the model
-  _notify_change(model: HasProps, attr: string, old: any, new_: any, options?: {setter_id?: string}): void {
+  _notify_change(model: HasProps, attr: string, old: any, new_: any, options?: {setter_id?: string, hint?: any}): void {
     if (attr === 'name') {
       this._all_models_by_name.remove_value(old, model)
       if (new_ != null)
         this._all_models_by_name.add_value(new_, model)
     }
     const setter_id = options != null ? options.setter_id : void 0
-    this._trigger_on_change(new ModelChangedEvent(this, model, attr, old, new_, setter_id))
+    const hint = options != null ? options.hint : void 0
+    this._trigger_on_change(new ModelChangedEvent(this, model, attr, old, new_, setter_id, hint))
   }
 
   static _references_json(references: HasProps[], include_defaults: boolean = true): Ref[] {
