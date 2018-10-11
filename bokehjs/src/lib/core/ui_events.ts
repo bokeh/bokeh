@@ -247,7 +247,7 @@ export class UIEvents implements EventListenerObject {
     return this.plot_view.frame.bbox.contains(sx, sy)
   }
 
-  protected _hit_test_canvas(sx: number, sy: number) {
+  protected _hit_test_canvas(sx: number, sy: number): boolean {
     return this.plot_view.canvas.bbox.contains(sx, sy)
   }
 
