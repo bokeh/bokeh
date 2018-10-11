@@ -6,8 +6,11 @@
 {ToolbarBox, ProxyToolbar} = require("models/tools/toolbar_box")
 {Toolbar} = require("models/tools/toolbar")
 {ToolProxy} = require("models/tools/tool_proxy")
+{CustomAction} = require("models/tools/actions/custom_action")
 {ResetTool} = require("models/tools/actions/reset_tool")
 {SaveTool} = require("models/tools/actions/save_tool")
+{BoxEditTool} = require("models/tools/edit/box_edit_tool")
+{PointDrawTool} = require("models/tools/edit/point_draw_tool")
 {SelectTool, SelectToolView} = require("models/tools/gestures/select_tool")
 {PanTool} = require("models/tools/gestures/pan_tool")
 {TapTool} = require("models/tools/gestures/tap_tool")
@@ -57,24 +60,6 @@ describe "ToolbarBox", ->
     box = new ToolbarBox()
     expect(box).to.be.an.instanceof(LayoutDOM)
 
-  ### TODO
-  it "should correctly merge multiple actions", ->
-    reset1 = new ResetTool()
-    reset2 = new ResetTool()
-    save1 = new SaveTool()
-    save2 = new SaveTool()
-    box = new ToolbarBox({tools: [reset1, reset2, save1, save2]})
-    expect(box._toolbar.actions.length).equal 2
-
-  it "should correctly merge multiple inspectors", ->
-    hover1 = new HoverTool()
-    hover2 = new HoverTool()
-    crosshair1 = new CrosshairTool()
-    crosshair2 = new CrosshairTool()
-    box = new ToolbarBox({tools: [hover1, hover2, crosshair1, crosshair2]})
-    expect(box._toolbar.inspectors.length).equal 2
-  ###
-
 
 describe "ProxyToolbar", ->
 
@@ -92,3 +77,36 @@ describe "ProxyToolbar", ->
       expect(toolbar.gestures['multi'].tools[0].computed_icon).to.be.equal('Multi Tool')
       expect(toolbar.gestures['multi'].tools[0].tools.length).to.be.equal(1)
       expect(toolbar.gestures['multi'].tools[0].tools[0]).to.be.equal(@multi)
+
+  describe "_merge_tools method", ->
+
+    it "should correctly merge multiple actions", ->
+      reset1 = new ResetTool()
+      reset2 = new ResetTool()
+      save1 = new SaveTool()
+      save2 = new SaveTool()
+      proxy_toolbar = new ProxyToolbar({tools: [reset1, reset2, save1, save2]})
+      expect(proxy_toolbar.actions.length).equal 2
+
+    it "should correctly merge multiple inspectors", ->
+      hover1 = new HoverTool()
+      hover2 = new HoverTool()
+      crosshair1 = new CrosshairTool()
+      crosshair2 = new CrosshairTool()
+      proxy_toolbar = new ProxyToolbar({tools: [hover1, hover2, crosshair1, crosshair2]})
+      expect(proxy_toolbar.inspectors.length).equal 2
+
+    it "should avoid merge of multiple multi-gesture tools", ->
+      pointdraw = new PointDrawTool()
+      boxedit1 = new BoxEditTool()
+      boxedit2 = new BoxEditTool()
+      proxy_toolbar = new ProxyToolbar({tools: [pointdraw, boxedit1, boxedit2]})
+      expect(proxy_toolbar.gestures.multi.tools.length).equal 3
+
+    it "should avoid merge of multiple CustomAction tools", ->
+      reset1 = new ResetTool()
+      reset2 = new ResetTool()
+      custom_action1 = new CustomAction()
+      custom_action2 = new CustomAction()
+      proxy_toolbar = new ProxyToolbar({tools: [reset1, reset2, custom_action1, custom_action2]})
+      expect(proxy_toolbar.actions.length).equal 3

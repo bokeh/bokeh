@@ -145,9 +145,17 @@ export class ProxyToolbar extends ToolbarBase {
         const tools = gestures[event_type][tool_type]
 
         if (tools.length > 0) {
-          const proxy = make_proxy(tools)
-          gesture.tools.push(proxy as any)
-          this.connect(proxy.properties.active.change, this._active_change.bind(this, proxy))
+          if (event_type == 'multi') {
+            for (const tool of tools) {
+              const proxy = make_proxy([tool])
+              gesture.tools.push(proxy as any)
+              this.connect(proxy.properties.active.change, this._active_change.bind(this, proxy))
+            }
+          } else {
+            const proxy = make_proxy(tools)
+            gesture.tools.push(proxy as any)
+            this.connect(proxy.properties.active.change, this._active_change.bind(this, proxy))
+          }
         }
       }
     }
@@ -156,8 +164,12 @@ export class ProxyToolbar extends ToolbarBase {
     for (const tool_type in actions) {
       const tools = actions[tool_type]
 
-      if (tools.length > 0)
+      if (tool_type == 'CustomAction') {
+        for (const tool of tools)
+          this.actions.push(make_proxy([tool]) as any)
+      } else if (tools.length > 0) {
         this.actions.push(make_proxy(tools) as any) // XXX
+      }
     }
 
     this.inspectors = []
