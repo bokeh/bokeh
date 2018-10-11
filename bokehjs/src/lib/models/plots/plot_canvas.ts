@@ -12,7 +12,6 @@ import {Plot} from "./plot"
 
 import {Reset} from "core/bokeh_events"
 import {Arrayable} from "core/types"
-import {Visibility} from "core/enums"
 import {Signal0} from "core/signaling"
 import {build_views, remove_views} from "core/build_views"
 import {UIEvents} from "core/ui_events"
@@ -222,8 +221,8 @@ export class PlotCanvasView extends DOMView {
     this.canvas_view.el.style.cursor = cursor
   }
 
-  set_toolbar_visibility(visibility: Visibility = "visible"): void {
-    this.model.toolbar.visibility = this.model.toolbar.autohide ? visibility : "visible";
+  set_toolbar_visibility(visible: boolean = true): void {
+    this.model.toolbar.visible = this.model.toolbar.autohide ? visible : true;
   }
 
   init_webgl(): void {
@@ -658,7 +657,7 @@ export class PlotCanvasView extends DOMView {
 
     this.connect(this.model.plot.properties.renderers.change, () => this.build_levels())
     this.connect(this.model.plot.toolbar.properties.tools.change, () => { this.build_levels(); this.build_tools() })
-    this.connect(this.model.plot.toolbar.properties.visibility.change, () => { this.build_levels(); this.build_tools() })
+    this.connect(this.model.plot.toolbar.properties.visible.change, () => { this.build_levels(); this.build_tools() })
     this.connect(this.model.plot.change, () => this.request_render())
     this.connect(this.model.plot.reset, () => this.reset())
   }

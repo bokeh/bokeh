@@ -11,7 +11,6 @@ import {getDeltaY} from "./util/wheel"
 import {reversed} from "./util/array"
 import {isEmpty} from "./util/object"
 import {isString} from "./util/types"
-import {Visibility } from "./enums"
 import {BokehEvent} from "./bokeh_events"
 import {PlotCanvasView} from "../models/plots/plot_canvas"
 import {Plot} from "../models/plots/plot"
@@ -267,10 +266,10 @@ export class UIEvents implements EventListenerObject {
 
         const active_inspectors = this.toolbar.inspectors.filter(t => t.active)
         let cursor = "default"
-        let toolbar_visibility: Visibility = "hidden"
+        let toolbar_is_visible: boolean =  false
 
         if (this._hit_test_canvas(e.sx, e.sy)) {
-          toolbar_visibility = "visible"
+          toolbar_is_visible = true
         }
 
         // the event happened on a renderer
@@ -291,7 +290,7 @@ export class UIEvents implements EventListenerObject {
         }
 
         this.plot_view.set_cursor(cursor)
-        this.plot_view.set_toolbar_visibility(toolbar_visibility)
+        this.plot_view.set_toolbar_visibility(toolbar_is_visible)
 
         active_inspectors.map((inspector) => this.trigger(signal, e, inspector.id))
         break

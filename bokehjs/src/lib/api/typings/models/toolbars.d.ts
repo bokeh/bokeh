@@ -3,7 +3,7 @@ declare namespace Bokeh {
   export interface IToolbarBase extends ILayoutDOM {
     logo?: Logo;
     tools?: Tool[];
-    visibility?: Visibility;
+    visible?: boolean;
     autohide?: boolean;
   }
 

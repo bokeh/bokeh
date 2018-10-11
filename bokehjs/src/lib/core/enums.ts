@@ -25,9 +25,6 @@ export const LineJoin: LineJoin[] = ["miter", "round", "bevel"]
 export type Location = "above" | "below" | "left" | "right"
 export const Location: Location[] = ["above", "below", "left", "right"]
 
-export type Visibility = "hidden" | "visible"
-export const Visibility: Visibility[] = ["hidden", "visible"]
-
 export type LegendClickPolicy = "none" | "hide" | "mute"
 export const LegendClickPolicy: LegendClickPolicy[] = ["none", "hide", "mute"]
 
