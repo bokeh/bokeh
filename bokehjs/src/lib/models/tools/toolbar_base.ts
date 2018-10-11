@@ -46,10 +46,10 @@ export class ToolbarBaseView extends DOMView {
   protected _set_visibility(): void {
     const hidden_class = "bk-toolbar-hidden"
 
-    if (this.el.classList.contains(hidden_class) && (this.model.visible)) {
-      this.el.classList.remove(hidden_class);
+    if (this.el.classList.contains(hidden_class) && this.model.visible) {
+      this.el.classList.remove(hidden_class)
     } else if (!this.model.visible) {
-      this.el.classList.add(hidden_class);
+      this.el.classList.add(hidden_class)
     }
   }
 

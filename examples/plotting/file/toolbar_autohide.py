@@ -1,6 +1,6 @@
 import numpy as np
 
-from bokeh.layouts import row, column
+from bokeh.layouts import row
 from bokeh.plotting import figure, show, output_file
 
 N = 1000

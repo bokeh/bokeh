@@ -266,7 +266,7 @@ export class UIEvents implements EventListenerObject {
 
         const active_inspectors = this.toolbar.inspectors.filter(t => t.active)
         let cursor = "default"
-        let toolbar_is_visible: boolean =  false
+        let toolbar_is_visible = false
 
         if (this._hit_test_canvas(e.sx, e.sy)) {
           toolbar_is_visible = true
