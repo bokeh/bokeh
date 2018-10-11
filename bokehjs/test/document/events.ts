@@ -101,7 +101,7 @@ describe("events module", () => {
       const d = new Document()
       const m = new TestModel()
       const evt = new events.ModelChangedEvent(d, m, "foo", 1, 2)
-      let refs = {}
+      const refs = {}
       const json = evt.json(refs)
       expect(json).to.be.deep.equal({
         kind: "ModelChanged",
@@ -116,7 +116,7 @@ describe("events module", () => {
       const m = new TestModel()
       const m2 = new TestModelWithRefs({foo:[]})
       const evt = new events.ModelChangedEvent(d, m2, "foo", [], [m])
-      let refs = {}
+      const refs = {}
       const json = evt.json(refs)
       expect(json).to.be.deep.equal({
         kind: "ModelChanged",
