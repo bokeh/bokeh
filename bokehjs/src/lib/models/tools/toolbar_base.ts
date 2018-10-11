@@ -138,8 +138,8 @@ export class ToolbarBase extends Model {
     this.define({
       tools:      [ p.Array,      []       ],
       logo:       [ p.String,     'normal' ], // TODO (bev)
-      visible:    [ p.Bool,       true ],
-      autohide:   [ p.Bool,       false ],
+      visible:    [ p.Bool,       true     ],
+      autohide:   [ p.Bool,       false    ],
     })
 
     this.internal({

@@ -657,7 +657,6 @@ export class PlotCanvasView extends DOMView {
 
     this.connect(this.model.plot.properties.renderers.change, () => this.build_levels())
     this.connect(this.model.plot.toolbar.properties.tools.change, () => { this.build_levels(); this.build_tools() })
-    this.connect(this.model.plot.toolbar.properties.visible.change, () => { this.build_levels(); this.build_tools() })
     this.connect(this.model.plot.change, () => this.request_render())
     this.connect(this.model.plot.reset, () => this.reset())
   }

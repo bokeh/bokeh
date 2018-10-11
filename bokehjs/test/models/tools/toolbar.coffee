@@ -46,12 +46,12 @@ describe "Toolbar", ->
       expect(@hover_2.active).to.be.false
       expect(@hover_3.active).to.be.false
 
-    it "should have autohide as False by default", ->
+    it "should have autohide as False by default and set visible to false", ->
       toolbar = new Toolbar({tools:[@hover_1, @hover_2, @hover_3]})
       expect(toolbar.autohide).to.be.false
       expect(toolbar.visible).to.be.true
 
-    it "should have autohide as False by default", ->
+    it "should have set visible to false when autohide is true", ->
       toolbar = new Toolbar({tools:[@hover_1, @hover_2, @hover_3], autohide=true})
       expect(toolbar.autohide).to.be.true
       expect(toolbar.visible).to.be.false
