@@ -435,7 +435,7 @@ export class PlotCanvasView extends DOMView {
       const ds = renderer.data_source
       if (selection != null) {
         if (selection[renderer.id] != null)
-          ds.selected = selection[renderer.id]
+          ds.selected.update(selection[renderer.id], true, false)
       } else
         ds.selection_manager.clear()
     }

@@ -91,7 +91,7 @@ task("test:core", ["test:compile"], async () => {
 })
 
 task("test:document", ["test:compile"], async () => {
-  await mocha(["./build/test/document.js"])
+  await mocha(["./build/test/document"])
 })
 
 task("test:model", ["test:compile"], async () => {

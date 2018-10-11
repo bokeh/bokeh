@@ -1,11 +1,11 @@
 import {Widget} from "../widget";
-import {ColumnarDataSource} from "../../sources/columnar_data_source";
+import {ColumnDataSource} from "../../sources/column_data_source";
 import {CDSView} from "../../sources/cds_view";
 import * as p from "core/properties"
 
 export namespace TableWidget {
   export interface Attrs extends Widget.Attrs {
-    source: ColumnarDataSource
+    source: ColumnDataSource
     view: CDSView
   }
 

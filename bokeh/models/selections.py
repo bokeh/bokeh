@@ -22,6 +22,8 @@ class Selection(Model):
     multiline_indices = Dict(String, Seq(Int), default={}, help="""
     """)
 
+    # TODO (bev) image_indicies
+
 @abstract
 class SelectionPolicy(Model):
     '''

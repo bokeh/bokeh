@@ -21,6 +21,11 @@ from ...protocol.receiver import Receiver
 
 from bokeh.util.session_id import check_session_id_signature
 
+# This is an undocumented API purely for harvesting low level messages
+# for testing. When needed it will be set by the testing machinery, and
+# should not be used for any other purpose.
+_message_test_port = None
+
 class WSHandler(WebSocketHandler):
     ''' Implements a custom Tornado WebSocketHandler for the Bokeh Server.
 
@@ -34,6 +39,7 @@ class WSHandler(WebSocketHandler):
         # write_lock allows us to lock the connection to send multiple
         # messages atomically.
         self.write_lock = locks.Lock()
+
         # Note: tornado_app is stored as self.application
         super(WSHandler, self).__init__(tornado_app, *args, **kw)
 
@@ -180,6 +186,8 @@ class WSHandler(WebSocketHandler):
 
         try:
             if message:
+                if _message_test_port is not None:
+                    _message_test_port.received.append(message)
                 work = yield self._handle(message)
                 if work:
                     yield self._schedule(work)
@@ -208,6 +216,8 @@ class WSHandler(WebSocketHandler):
 
         '''
         try:
+            if _message_test_port is not None:
+                _message_test_port.sent.append(message)
             yield message.send(self)
         except (WebSocketClosedError, StreamClosedError): # Tornado 4.x may raise StreamClosedError
             # on_close() is / will be called anyway

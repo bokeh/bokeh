@@ -13,7 +13,7 @@ import {logger} from "core/logging"
 import {TableWidget} from "./table_widget"
 import {Column, TableColumn} from "./table_column"
 import {WidgetView} from "../widget"
-import {ColumnarDataSource} from "../../sources/columnar_data_source"
+import {ColumnDataSource, Index} from "../../sources/column_data_source"
 import {CDSView} from "../../sources/cds_view"
 
 export const DTINDEX_NAME = "__bkdt_internal_index__"
@@ -26,7 +26,7 @@ export class DataProvider {
 
   readonly index: number[]
 
-  constructor(readonly source: ColumnarDataSource, readonly view: CDSView) {
+  constructor(readonly source: ColumnDataSource, readonly view: CDSView) {
     if (DTINDEX_NAME in this.source.data)
       throw new Error(`special name ${DTINDEX_NAME} cannot be used as a data table column`)
 
@@ -46,18 +46,8 @@ export class DataProvider {
     return item
   }
 
-  setItem(offset: number, item: Item): void {
-    for (const field in item) {
-      // internal index is maintained independently, ignore
-      const value = item[field]
-      if (field != DTINDEX_NAME) {
-        this.source.data[field][this.index[offset]] = value
-      }
-    }
-    this._update_source_inplace()
-  }
-
   getField(offset: number, field: string): any {
+    // offset is the
     if (field == DTINDEX_NAME) {
       return this.index[offset]
     }
@@ -66,8 +56,10 @@ export class DataProvider {
 
   setField(offset: number, field: string, value: any): void {
     // field assumed never to be internal index name (ctor would throw)
-    this.source.data[field][this.index[offset]] = value
-    this._update_source_inplace()
+    const patches: {[key: string]: [Index, any][]} = {}
+    const index = this.index[offset]
+    patches[field] =  [ [index, value] ]
+    this.source.patch(patches)
   }
 
   getItemMetadata(_index: number): any {
@@ -99,10 +91,6 @@ export class DataProvider {
       return 0
     })
   }
-
-  protected _update_source_inplace(): void {
-    this.source.properties.data.change.emit()
-  }
 }
 
 export class DataTableView extends WidgetView {
@@ -117,29 +105,37 @@ export class DataTableView extends WidgetView {
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.render())
+
     this.connect(this.model.source.streaming, () => this.updateGrid())
     this.connect(this.model.source.patching, () => this.updateGrid())
-    this.connect(this.model.source.change, () => this.updateGrid(true))
+    this.connect(this.model.source.change, () => this.updateGrid())
     this.connect(this.model.source.properties.data.change, () => this.updateGrid())
+
     this.connect(this.model.source.selected.change, () => this.updateSelection())
+    this.connect(this.model.source.selected.properties.indices.change, () => this.updateSelection())
   }
 
-  updateGrid(from_source_change=false): void {
-    // TODO (bev) This is to enure that CDSView indices are properly computed
+  updateGrid(): void {
+    // TODO (bev) This is to ensure that CDSView indices are properly computed
     // before passing to the DataProvider. This will result in extra calls to
     // compute_indices. This "over execution" will be addressed in a more
     // general look at events
     this.model.view.compute_indices()
-
     this.data.constructor(this.model.source, this.model.view)
+
+    // This is obnoxious but there is no better way to programmatically force
+    // a re-sort on the existing sorted columns until/if we start using DataView
+    const columns = this.grid.getColumns()
+    const sorters = this.grid.getSortColumns().map((x: any) => ({
+      sortCol: {
+        field: columns[this.grid.getColumnIndex(x.columnId)].field,
+      },
+      sortAsc: x.sortAsc,
+    }))
+    this.data.sort(sorters)
+
     this.grid.invalidate()
     this.grid.render()
-
-    if (!from_source_change) {
-      // This is only needed to call @_tell_document_about_change()
-      this.model.source.data = this.model.source.data
-      this.model.source.change.emit()
-    }
   }
 
   updateSelection(): void {
