@@ -22,7 +22,6 @@ export class ToolbarBaseView extends DOMView {
 
   initialize(options: any): void {
     super.initialize(options)
-    this.model.visible = !this.model.autohide
     this._tool_button_views = {}
     this._build_tool_button_views()
   }
@@ -129,6 +128,12 @@ export class ToolbarBase extends Model {
 
   constructor(attrs?: Partial<ToolbarBase.Attrs>) {
     super(attrs)
+    this.visible = !this.autohide
+  }
+
+  initialize(): void {
+    super.initialize()
+    this.visible = !this.autohide
   }
 
   static initClass(): void {
@@ -157,7 +162,7 @@ export class ToolbarBase extends Model {
       inspectors:       [ p.Array,    []      ],
       help:             [ p.Array,    []      ],
       toolbar_location: [ p.Location, 'right' ],
-      visible:          [ p.Bool,     true    ],
+      visible:          [ p.Bool,     false    ],
     })
   }
 
