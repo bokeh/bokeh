@@ -145,7 +145,7 @@ export class ProxyToolbar extends ToolbarBase {
         const tools = gestures[event_type][tool_type]
 
         if (tools.length > 0) {
-          if (event_type == 'multi' || tool_type == "CustomAction") {
+          if (event_type == 'multi') {
             for (const tool of tools) {
               const proxy = make_proxy([tool])
               gesture.tools.push(proxy as any)
@@ -164,8 +164,12 @@ export class ProxyToolbar extends ToolbarBase {
     for (const tool_type in actions) {
       const tools = actions[tool_type]
 
-      if (tools.length > 0)
+      if (tool_type == 'CustomAction') {
+        for (const tool of tools)
+          this.actions.push(make_proxy([tool]) as any)
+      } else if (tools.length > 0) {
         this.actions.push(make_proxy(tools) as any) // XXX
+      }
     }
 
     this.inspectors = []
