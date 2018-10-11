@@ -145,7 +145,7 @@ export class ProxyToolbar extends ToolbarBase {
         const tools = gestures[event_type][tool_type]
 
         if (tools.length > 0) {
-          if (event_type == 'multi') {
+          if (event_type == 'multi' || tool_type == "CustomAction") {
             for (const tool of tools) {
               const proxy = make_proxy([tool])
               gesture.tools.push(proxy as any)
