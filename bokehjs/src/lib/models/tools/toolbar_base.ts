@@ -138,7 +138,6 @@ export class ToolbarBase extends Model {
     this.define({
       tools:      [ p.Array,      []       ],
       logo:       [ p.String,     'normal' ], // TODO (bev)
-      visible:    [ p.Bool,       true     ],
       autohide:   [ p.Bool,       false    ],
     })
 
@@ -154,10 +153,11 @@ export class ToolbarBase extends Model {
         move:      { tools: [], active: null },
         multi:     { tools: [], active: null },
       })  ],
-      actions:    [ p.Array, [] ],
-      inspectors: [ p.Array, [] ],
-      help:       [ p.Array, [] ],
+      actions:          [ p.Array,    []      ],
+      inspectors:       [ p.Array,    []      ],
+      help:             [ p.Array,    []      ],
       toolbar_location: [ p.Location, 'right' ],
+      visible:          [ p.Bool,     true    ],
     })
   }
 
