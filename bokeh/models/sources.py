@@ -9,7 +9,7 @@ from ..util.dependencies import import_optional
 from ..util.serialization import convert_datetime_array
 from ..util.warnings import BokehUserWarning
 
-from .callbacks import Callback
+from .callbacks import Callback, CustomJS
 from .filters import Filter
 from .selections import Selection, SelectionPolicy, UnionRenderers
 
@@ -27,6 +27,10 @@ class DataSource(Model):
 
     callback = Instance(Callback, help="""
     A callback to run in the browser whenever the selection is changed.
+
+    .. note:
+        This property left for backwards compatibility, but may be deprecated
+        in future. Prefer ``source.selected.js_on_change(...)`` for new code.
     """)
 
 @abstract
@@ -684,7 +688,7 @@ class AjaxDataSource(RemoteSource):
     standalone document (i.e. not backed by the Bokeh server) that can still
     dynamically update using an existing REST API.
 
-    The response from the REST API should match the ``.data`` proeprty of a
+    The response from the REST API should match the ``.data`` property of a
     standard ``ColumnDataSource``, i.e. a JSON dict that maps names to arrays
     of values:
 
@@ -694,6 +698,10 @@ class AjaxDataSource(RemoteSource):
             'x' : [1, 2, 3, ...],
             'y' : [9, 3, 2, ...]
         }
+
+    Alternatively, if the REST API returns a different format, a CustomJS
+    callback can be provided to convert the REST response into Bokeh format,
+    via the ``adapter`` property of this data source.
 
     A full example can be seen at :bokeh-tree:`examples/howto/ajax_source.py`
 
@@ -706,6 +714,18 @@ class AjaxDataSource(RemoteSource):
     mode = Enum("replace", "append", help="""
     Whether to append new data to existing data (up to ``max_size``), or to
     replace existing data entirely.
+    """)
+
+    adapter = Instance(CustomJS, help="""
+    A JavaScript callback to adapt raw JSON responses to Bokeh ColumnDataSource
+    format.
+
+    If provided, this callback is executes imediately after the JSON data is
+    received, but before apprending or replacing data in the data source. The
+    CustomJS callback will receiece the AjaxDataSource as ``cb_obj`` and will
+    receive the raw JSON response as ``cb_data.response``. The callback code
+    should return a ``data`` object suitable for a Bokeh ColumnDataSource (i.e.
+    a mapping of string column names to arrays of data).
     """)
 
     max_size = Int(help="""

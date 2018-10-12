@@ -2,6 +2,7 @@
 
 sinon = require 'sinon'
 
+{CustomJS} = require("models/callbacks/CustomJS")
 {AjaxDataSource} = require("models/sources/ajax_data_source")
 
 describe "ajax_data_source module", ->
@@ -53,6 +54,42 @@ describe "ajax_data_source module", ->
         xhr.respond(200, {}, '{"foo": [100, 200], "bar": [1.1, 2.2]}')
         s.do_load(xhr, "append", 3)
         expect(s.data).to.be.deep.equal {"foo": [20, 100, 200], "bar": [2, 1.1, 2.2]}
+
+      it "should use a CustomJS adapter", ->
+        code = """
+        const result = {foo: [], bar: []}
+        const pts = cb_data.response.points
+        for (i=0; i<pts.length; i++) {
+            result.foo.push(pts[i][0])
+            result.bar.push(pts[i][1])
+        }
+        return result
+        """
+        cb = new CustomJS({code: code})
+        s = new AjaxDataSource({data_url: "http://foo.com", adapter: cb})
+        expect(s.data).to.be.deep.equal {}
+
+        xhr = s.prepare_request()
+        xhr.respond(200, {}, '{"points": [[10, 1], [20, 2]]}')
+        s.do_load(xhr, "replace", 10)
+        expect(s.data).to.be.deep.equal {"foo": [10, 20], "bar": [1, 2]}
+
+      it "should use a JavaScript function adapter", ->
+        func = (cb_obj, cb_data) ->
+          result = {foo: [], bar: []}
+          for pt in cb_data.response.points
+            result.foo.push(pt[0])
+            result.bar.push(pt[1])
+          return result
+
+        s = new AjaxDataSource({data_url: "http://foo.com", adapter: func})
+        expect(s.data).to.be.deep.equal {}
+
+        xhr = s.prepare_request()
+        xhr.respond(200, {}, '{"points": [[10, 1], [20, 2]]}')
+        s.do_load(xhr, "replace", 10)
+        expect(s.data).to.be.deep.equal {"foo": [10, 20], "bar": [1, 2]}
+
 
     describe "prepare_request method", ->
 

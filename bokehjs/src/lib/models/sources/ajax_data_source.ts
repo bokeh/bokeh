@@ -1,12 +1,14 @@
 import {RemoteDataSource} from "./remote_data_source"
 import {UpdateMode, HTTPMethod} from "core/enums"
 import {logger} from "core/logging"
+import {isFunction} from "core/util/types"
 import * as p from "core/properties"
 
 export namespace AjaxDataSource {
   export interface Attrs extends RemoteDataSource.Attrs {
     mode: UpdateMode
     content_type: string
+    adapter: any
     http_headers: {[key: string]: string}
     max_size: number
     method: HTTPMethod
@@ -32,6 +34,7 @@ export class AjaxDataSource extends RemoteDataSource {
     this.define({
       mode:         [ p.String, 'replace'          ],
       content_type: [ p.String, 'application/json' ],
+      adapter:      [ p.Any                        ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
       http_headers: [ p.Any,    {}                 ],
       max_size:     [ p.Number                     ],
       method:       [ p.String, 'POST'             ], // TODO (bev)  enum?
@@ -86,7 +89,18 @@ export class AjaxDataSource extends RemoteDataSource {
 
   do_load(xhr: XMLHttpRequest, mode: UpdateMode, max_size: number): void {
     if (xhr.status === 200) {
-      const data = JSON.parse(xhr.responseText)
+      const raw_data = JSON.parse(xhr.responseText)
+
+      const {adapter} = this
+      let data: any = {}
+      if (adapter != null)
+        if (isFunction(adapter))
+          data = adapter(this, {response: raw_data})
+        else
+          data = adapter.execute(this, {response: raw_data})
+      else
+        data = raw_data
+
       switch (mode) {
         case "replace": {
           this.data = data
