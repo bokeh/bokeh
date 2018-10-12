@@ -2,7 +2,7 @@
 
 sinon = require 'sinon'
 
-{CustomJS} = require("models/callbacks/CustomJS")
+{CustomJS} = require("models/callbacks/customjs")
 {AjaxDataSource} = require("models/sources/ajax_data_source")
 
 describe "ajax_data_source module", ->

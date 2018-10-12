@@ -29,8 +29,8 @@ class DataSource(Model):
     A callback to run in the browser whenever the selection is changed.
 
     .. note:
-        This property left for backwards compatibility, but may be deprecated
-        in future. Prefer ``source.selected.js_on_change(...)`` for new code.
+        This property is left for backwards compatibility, but may be deprecated
+        in the future. Prefer ``source.selected.js_on_change(...)`` for new code.
     """)
 
 @abstract
@@ -720,9 +720,9 @@ class AjaxDataSource(RemoteSource):
     A JavaScript callback to adapt raw JSON responses to Bokeh ColumnDataSource
     format.
 
-    If provided, this callback is executes imediately after the JSON data is
+    If provided, this callback is executes immediately after the JSON data is
     received, but before apprending or replacing data in the data source. The
-    CustomJS callback will receiece the AjaxDataSource as ``cb_obj`` and will
+    CustomJS callback will receive the AjaxDataSource as ``cb_obj`` and will
     receive the raw JSON response as ``cb_data.response``. The callback code
     should return a ``data`` object suitable for a Bokeh ColumnDataSource (i.e.
     a mapping of string column names to arrays of data).
