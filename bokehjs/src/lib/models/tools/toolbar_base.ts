@@ -29,7 +29,7 @@ export class ToolbarBaseView extends DOMView {
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.tools.change, () => this._build_tool_button_views())
-    this.connect(this.model.properties.visible.change, () => this._set_visibility())
+    this.connect(this.model.properties.autohide.change, () => this.set_visibility())
   }
 
   remove(): void {
@@ -42,13 +42,14 @@ export class ToolbarBaseView extends DOMView {
     build_views(this._tool_button_views, tools, {parent: this}, (tool) => tool.button_view)
   }
 
-  protected _set_visibility(): void {
+  set_visibility(visible: boolean|null = null): void {
     const hidden_class = "bk-toolbar-hidden"
-
-    if (this.el.classList.contains(hidden_class) && this.model.visible) {
-      this.el.classList.remove(hidden_class)
-    } else if (!this.model.visible) {
-      this.el.classList.add(hidden_class)
+    if (this.model.autohide) {
+      if (this.el.classList.contains(hidden_class) && visible) {
+        this.el.classList.remove(hidden_class)
+      } else if (!visible) {
+        this.el.classList.add(hidden_class)
+      }
     }
   }
 
@@ -57,7 +58,7 @@ export class ToolbarBaseView extends DOMView {
 
     this.el.classList.add("bk-toolbar")
     this.el.classList.add(`bk-toolbar-${this.model.toolbar_location}`)
-    this._set_visibility()
+    this.set_visibility()
 
     if (this.model.logo != null) {
       const cls = this.model.logo === "grey" ? "bk-grey" : null
@@ -111,12 +112,11 @@ export namespace ToolbarBase {
     help: HelpTool[]
     toolbar_location: Location
     autohide: boolean
-    visible: boolean
   }
 
   export interface Props extends Model.Props {
     tools: p.Property<Tool[]>
-    visible: p.Property<boolean>
+    autohide: p.Property<boolean>
   }
 }
 
@@ -128,12 +128,6 @@ export class ToolbarBase extends Model {
 
   constructor(attrs?: Partial<ToolbarBase.Attrs>) {
     super(attrs)
-    this.visible = !this.autohide
-  }
-
-  initialize(): void {
-    super.initialize()
-    this.visible = !this.autohide
   }
 
   static initClass(): void {
@@ -162,7 +156,6 @@ export class ToolbarBase extends Model {
       inspectors:       [ p.Array,    []      ],
       help:             [ p.Array,    []      ],
       toolbar_location: [ p.Location, 'right' ],
-      visible:          [ p.Bool,     false    ],
     })
   }
 

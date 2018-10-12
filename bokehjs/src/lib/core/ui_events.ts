@@ -257,6 +257,7 @@ export class UIEvents implements EventListenerObject {
     let event_type = signal.name
     const base_type = event_type.split(":")[0] as BaseType
     const view = this._hit_test_renderers(e.sx, e.sy)
+    const on_canvas = this._hit_test_canvas(e.sx, e.sy)
 
     switch (base_type) {
       case "move": {
@@ -266,11 +267,6 @@ export class UIEvents implements EventListenerObject {
 
         const active_inspectors = this.toolbar.inspectors.filter(t => t.active)
         let cursor = "default"
-        let toolbar_is_visible = false
-
-        if (this._hit_test_canvas(e.sx, e.sy)) {
-          toolbar_is_visible = true
-        }
 
         // the event happened on a renderer
         if (view != null) {
@@ -290,7 +286,7 @@ export class UIEvents implements EventListenerObject {
         }
 
         this.plot_view.set_cursor(cursor)
-        this.plot_view.set_toolbar_visibility(toolbar_is_visible)
+        this.plot_view.set_toolbar_visibility(on_canvas)
 
         active_inspectors.map((inspector) => this.trigger(signal, e, inspector.id))
         break
