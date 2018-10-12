@@ -24,7 +24,6 @@ export class ToolbarBaseView extends DOMView {
     super.initialize(options)
     this._tool_button_views = {}
     this._build_tool_button_views()
-    debugger
   }
 
   connect_signals(): void {
