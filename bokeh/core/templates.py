@@ -22,16 +22,11 @@ import sys
 
 from jinja2 import Environment, Markup, FileSystemLoader
 
-import bokeh.core
-
 def get_env():
     ''' Get the correct Jinja2 Environment, also for frozen scripts.
     '''
-    if getattr(sys, 'frozen', False):
-        try:
-            templates_path = join(sys._MEIPASS, 'bokeh', 'core', '_templates')
-        except AttributeError:
-            templates_path = os.path.join(os.path.dirname(bokeh.core.__file__), '_templates')
+    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+        templates_path = join(sys._MEIPASS, 'bokeh', 'core', '_templates')
     else:
         templates_path = join(dirname(__file__), '_templates')
 
