@@ -52,7 +52,7 @@ population.line("x", "y", color="violet", line_width=2, line_dash="dashed", sour
 population.xaxis.major_label_orientation = pi/4
 population.xgrid.grid_line_color = None
 population.legend.orientation = "horizontal"
-population.legend.location = "bottom_center"
+population.legend.location = "bottom_right"
 population.yaxis.minor_tick_line_color = None
 population.yaxis[0].formatter = FuncTickFormatter(code="""
     return (Math.abs(tick) / 1e9) + " B"
