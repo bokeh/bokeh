@@ -148,7 +148,7 @@ class Document(object):
         if self._theme is theme:
             return
 
-        if isinstance(theme, str):
+        if isinstance(theme, string_types):
             try:
                 self._theme = built_in_themes[theme]
             except KeyError:
@@ -159,7 +159,7 @@ class Document(object):
         elif isinstance(theme, Theme):
             self._theme = theme
         else:
-            raise ValueError("Theme must be a str or an instance of the Theme class")
+            raise ValueError("Theme must be a string or an instance of the Theme class")
 
         for model in self._all_models.values():
             self._theme.apply_to_model(model)
