@@ -25,12 +25,14 @@ from jinja2 import Environment, Markup, FileSystemLoader
 def get_env():
     ''' Get the correct Jinja2 Environment, also for frozen scripts.
     '''
-    if getattr(sys, 'frozen', False):
+    if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+        # PyInstaller uses _MEIPASS and only works with jinja2.FileSystemLoader
         templates_path = join(sys._MEIPASS, 'bokeh', 'core', '_templates')
-        return Environment(loader=FileSystemLoader(templates_path))
     else:
+        # Non-frozen Python and cx_Freeze can use __file__ directly
         templates_path = join(dirname(__file__), '_templates')
-        return Environment(loader=FileSystemLoader(templates_path))
+
+    return Environment(loader=FileSystemLoader(templates_path))
 
 _env = get_env()
 _env.filters['json'] = lambda obj: Markup(json.dumps(obj))
