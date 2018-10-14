@@ -614,7 +614,7 @@ class Serve(Subcommand):
         def add_optional_autoreload_files(file_list):
             for filen in file_list:
                 if os.path.isdir(filen):
-                    log.warn("Cannot watch directory " + filen)
+                    log.warning("Cannot watch directory " + filen)
                     continue
                 log.info("Watching: " + filen)
                 watch(filen)

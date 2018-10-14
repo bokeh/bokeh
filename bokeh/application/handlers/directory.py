@@ -97,7 +97,7 @@ class DirectoryHandler(Handler):
         main_py = join(src_path, 'main.py')
         main_ipy = join(src_path, 'main.ipynb')
         if exists(main_py) and exists(main_ipy):
-            log.warn("Found both 'main.py' and 'main.ipynb' in %s, using 'main.py'" % (src_path))
+            log.warning("Found both 'main.py' and 'main.ipynb' in %s, using 'main.py'" % (src_path))
             main = main_py
         elif exists(main_py):
             main = main_py

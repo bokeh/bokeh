@@ -251,7 +251,7 @@ def standalone_docs_json_and_render_items(models, suppress_callback_warning=Fals
         raise ValueError("Expected a Model, Document, or Sequence of Models or Documents")
 
     if submodel_has_python_callbacks(models) and not suppress_callback_warning:
-        log.warn(_CALLBACKS_WARNING)
+        log.warning(_CALLBACKS_WARNING)
 
     docs = {}
     for model_or_doc in models:

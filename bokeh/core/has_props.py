@@ -324,7 +324,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
             descriptor = self.lookup(name)
             descriptor.set_from_json(self, json, models, setter)
         else:
-            log.warn("JSON had attr %r on obj %r, which is a client-only or invalid attribute that shouldn't have been sent", name, self)
+            log.warning("JSON had attr %r on obj %r, which is a client-only or invalid attribute that shouldn't have been sent", name, self)
 
     def update(self, **kwargs):
         ''' Updates the object's properties from the given keyword arguments.
