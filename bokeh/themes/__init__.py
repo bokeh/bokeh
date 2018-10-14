@@ -1,24 +1,67 @@
-''' Provides API for loading themes
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+''' Provide access to built-in themes:
 
 '''
-from __future__ import absolute_import
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from os.path import dirname, realpath, join
+import logging
+log = logging.getLogger(__name__)
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
+from . import _caliber, _dark_minimal, _light_minimal
 from .theme import Theme
 
-_THIS_DIR = dirname(realpath(__file__))
-_FP_FMT = join(_THIS_DIR, '{0}.json')
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
 
+__all__ = (
+    'CALIBER',
+    'DARK_MINIMAL',
+    'LIGHT_MINIMAL',
+    'Theme',
+    'built_in_themes',
+    'default',
+)
+
+CALIBER       = 'caliber'
 LIGHT_MINIMAL = 'light_minimal'
-DARK_MINIMAL = 'dark_minimal'
-CALIBER = 'caliber'
+DARK_MINIMAL  = 'dark_minimal'
 
 default = Theme(json={})
+
 built_in_themes = {
-    LIGHT_MINIMAL: Theme(filename=_FP_FMT.format(LIGHT_MINIMAL)),
-    DARK_MINIMAL: Theme(filename=_FP_FMT.format(DARK_MINIMAL)),
-    CALIBER: Theme(filename=_FP_FMT.format(CALIBER))
+    CALIBER       : Theme(json=_caliber.json),
+    DARK_MINIMAL  : Theme(json=_dark_minimal.json),
+    LIGHT_MINIMAL : Theme(json=_caliber.json),
 }
 
-del dirname, realpath, join
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#----------------------------------------------------------------------------

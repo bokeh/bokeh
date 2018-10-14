@@ -1,17 +1,50 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide a ``Theme`` class for specifying new default values for Bokeh
 :class:`~bokeh.model.Model` properties.
 
 '''
-from __future__ import absolute_import, print_function
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import yaml
 
+# External imports
+
+# Bokeh imports
 from ..core.has_props import HasProps
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'Theme',
+)
 
 # whenever we cache that there's nothing themed for a class, we
 # use this same dict instance, so we don't have a zillion empty
 # dicts in our caches.
 _empty_dict = dict()
+
+#-----------------------------------------------------------------------------
+# General API
+#----------------------------------------------------------------------------
 
 # Note: in DirectoryHandler and in general we assume this is an
 # immutable object, because we share it among sessions and we
@@ -209,3 +242,15 @@ class Theme(object):
         # the dict.
         if len(_empty_dict) > 0:
             raise RuntimeError("Somebody put stuff in _empty_dict")
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#----------------------------------------------------------------------------
