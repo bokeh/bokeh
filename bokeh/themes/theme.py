@@ -46,6 +46,10 @@ _empty_dict = dict()
 # General API
 #----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
 # Note: in DirectoryHandler and in general we assume this is an
 # immutable object, because we share it among sessions and we
 # don't monitor it for changes. If you make this mutable by adding
@@ -115,53 +119,6 @@ class Theme(object):
                     'text_color': 'white'
                 }
             }
-
-    Built-in-Themes:
-
-        .. bokeh-plot::
-
-            from bokeh.plotting import figure, output_file, show
-            from bokeh.themes import built_in_themes
-            from bokeh.io import curdoc
-
-            x = [1, 2, 3, 4, 5]
-            y = [6, 7, 6, 4, 5]
-
-            output_file("dark_minimal.html")
-            curdoc().theme = 'dark_minimal'
-            p = figure(title='dark_minimal', plot_width=300, plot_height=300)
-            p.line(x, y)
-            show(p)
-
-        .. bokeh-plot::
-
-            from bokeh.plotting import figure, output_file, show
-            from bokeh.themes import built_in_themes
-            from bokeh.io import curdoc
-
-            x = [1, 2, 3, 4, 5]
-            y = [6, 7, 6, 4, 5]
-
-            output_file("light_minimal.html")
-            curdoc().theme = 'light_minimal'
-            p = figure(title='light_minimal', plot_width=300, plot_height=300)
-            p.line(x, y)
-            show(p)
-
-        .. bokeh-plot::
-
-            from bokeh.plotting import figure, output_file, show
-            from bokeh.themes import built_in_themes
-            from bokeh.io import curdoc
-
-            x = [1, 2, 3, 4, 5]
-            y = [6, 7, 6, 4, 5]
-
-            output_file("caliber.html")
-            curdoc().theme = 'caliber'
-            p = figure(title='caliber', plot_width=300, plot_height=300)
-            p.line(x, y)
-            show(p)
 
     '''
     def __init__(self, filename=None, json=None):
@@ -242,10 +199,6 @@ class Theme(object):
         # the dict.
         if len(_empty_dict) > 0:
             raise RuntimeError("Somebody put stuff in _empty_dict")
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Private API
