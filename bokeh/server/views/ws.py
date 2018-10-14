@@ -221,7 +221,7 @@ class WSHandler(WebSocketHandler):
             yield message.send(self)
         except (WebSocketClosedError, StreamClosedError): # Tornado 4.x may raise StreamClosedError
             # on_close() is / will be called anyway
-            log.warn("Failed sending message as connection was closed")
+            log.warning("Failed sending message as connection was closed")
         raise gen.Return(None)
 
     @gen.coroutine

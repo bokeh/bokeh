@@ -121,7 +121,7 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None):
     svgs = get_svgs(obj, height=height, width=width, driver=webdriver)
 
     if len(svgs) == 0:
-        log.warn("No SVG Plots were found.")
+        log.warning("No SVG Plots were found.")
         return
 
     if filename is None:
@@ -273,14 +273,14 @@ def wait_until_render_complete(driver):
     try:
         WebDriverWait(driver, 5, poll_frequency=0.1).until(is_bokeh_render_complete)
     except TimeoutException:
-        log.warn("The webdriver raised a TimeoutException while waiting for \
+        log.warning("The webdriver raised a TimeoutException while waiting for \
                      a 'bokeh:idle' event to signify that the layout has rendered. \
                      Something may have gone wrong.")
     finally:
         browser_logs = driver.get_log('browser')
         severe_errors = [l for l in browser_logs if l.get('level') == 'SEVERE']
         if len(severe_errors) > 0:
-            log.warn("There were severe browser errors that may have affected your export: {}".format(severe_errors))
+            log.warning("There were severe browser errors that may have affected your export: {}".format(severe_errors))
 
 def create_webdriver():
     with warnings.catch_warnings():

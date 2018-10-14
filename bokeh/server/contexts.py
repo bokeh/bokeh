@@ -231,7 +231,7 @@ class ApplicationContext(object):
                 del self._session_contexts[session.id]
                 log.trace("Session %r was successfully discarded", session.id)
             else:
-                log.warn("Session %r was scheduled to discard but came back to life", session.id)
+                log.warning("Session %r was scheduled to discard but came back to life", session.id)
         yield session.with_document_locked(do_discard)
 
         # session lifecycle hooks are supposed to be called outside the document lock,
