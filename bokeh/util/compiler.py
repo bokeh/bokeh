@@ -277,22 +277,17 @@ class Compiled(Implementation):
         has been pre-compiled.
     '''
 
-    def __init__(self, compiled, implementation):
-        if isinstance(compiled, six.string_types):
-            path = compiled
-            compiled = None
-        elif not isinstance(compiled, dict):
-            raise ValueError('Compiled model must be defined as a path '
-                             'or a dictionary.')
+    def __init__(self, path, implementation):
+        if not (isinstance(path, six.string_types) and path.endswith('json')):
+            raise ValueError('Compiled implementation must define json '
+                             'file to load implementation from.')
 
-        if compiled is None:
-            if not os.path.isfile(path):
-                self.compiled = None
-            else:
-                with io.open(path, encoding="utf-8") as f:
-                    self.compiled = AttrDict(json.loads(f.read()))
+        if not os.path.isfile(path):
+            self._compiled = None
         else:
-            self.compiled = AttrDict(compiled)
+            with io.open(path, encoding="utf-8") as f:
+                self._compiled = json.loads(f.read())
+        self.file = path
 
         if implementation is None:
             raise ValueError('Compiled code must declare uncompiled code')
@@ -308,12 +303,18 @@ class Compiled(Implementation):
 
     @property
     def outdated(self):
+        if self._compiled is None or __version__ not in self._compiled:
+            return True
         sig = hashlib.sha256(self.implementation.code.encode('utf-8')).hexdigest()
-        return sig != getattr(self.compiled, 'hash', None)
+        return sig != self._compiled.get('hash')
+
+    @property
+    def compiled(self):
+        return AttrDict(self._compiled.get(__version__, {}))
 
     @property
     def code(self):
-        return self.compiled.code
+        return self.compiled.get('code', None)
 
     @property
     def lang(self):
@@ -427,7 +428,7 @@ def _get_custom_models(models):
         return None
     return custom_models
 
-def compile_models(models):
+def _compile_models(models, recompiling=False):
     """Returns the compiled implementation of supplied `models`. """
     custom_models = _get_custom_models(models)
     if custom_models is None:
@@ -449,9 +450,10 @@ def compile_models(models):
         compiled = None
         if isinstance(impl, Compiled):
             if impl.outdated:
-                logger.warning('CustomModel %s compiled implementation is'
-                               'outdated, use `bokeh.util.compile_models` '
-                               'to recompile it.' % model.full_name)
+                if not recompiling:
+                    logger.warning('CustomModel %s compiled implementation is '
+                                   'outdated, use `bokeh.util.save_compiled_models` '
+                                   'to recompile it.' % model.full_name)
                 impl = impl.implementation
             else:
                 compiled = impl.compiled
@@ -465,6 +467,32 @@ def compile_models(models):
         custom_impls[model.full_name] = compiled
 
     return custom_impls
+
+def save_compiled_models(models, append=True):
+    '''Saves compiled implementation of a model to the declared json file'''
+    to_compile = []
+    for model in models:
+        impl = getattr(model, "__implementation__", None)
+        if isinstance(impl, Compiled) and impl.outdated:
+            to_compile.append(model)
+
+    custom_models = _get_custom_models(to_compile)
+    compiled_impls = _compile_models(to_compile, recompiling=True)
+    for name, model in custom_models.items():
+        compiled = compiled_impls[name]
+        if 'error' in compiled:
+            raise CompilationError(compiled.error)
+        version = compiled['__version__']
+        hashed = compiled['hash']
+        deps = compiled['deps']
+        compiled = {version: {'code': compiled['code'], 'deps': deps}, 'hash': hashed}
+        if os.path.isfile(model.implementation.file) and append:
+            with open(model.implementation.file, 'r') as f:
+                old_compiled = json.load(f)
+            if old_compiled.get('hash') == hashed:
+                compiled.update(old_compiled)
+        with open(model.implementation.file, 'w') as f:
+            json.dump(compiled, f)
 
 def bundle_models(models):
     """Create a bundle of `models`. """
@@ -483,7 +511,7 @@ def bundle_models(models):
     custom_models = _get_custom_models(models)
     if custom_models is None:
         return
-    custom_impls = compile_models(models)
+    custom_impls = _compile_models(models)
 
     def resolve_modules(to_resolve, root):
         resolved = {}
