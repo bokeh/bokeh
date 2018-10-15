@@ -1,15 +1,22 @@
 import h5py
 import numpy as np
+import scipy.stats as ss
 
-def generate_data():
-    def f(x):
-        return np.exp(-x ** 2 / 2) / np.sqrt(2 * np.pi)
-    
-    
-    a = np.random.rand(100, 1)
-    b = [f(x) for x in np.linspace(-1, 1, num=100)]
-    
-    
-    with h5py.File('demo_data.hdf5', 'w') as f:
-        hip_data = f.create_dataset("hip_strength", data=a)
-        knee_data = f.create_dataset("knee_strength", data=b)
+from os.path import join
+
+
+def generate_data(path):
+    distributions = {'Gaussian': {'options': dict(loc=0, scale=0.1),
+                                  'name': 'norm'},
+                     'Exponential': {'options': dict(loc=-0.5, scale=1),
+                                     'name': 'expon'},
+                     'Chi Square': {'options': dict(loc=-0.5, df=1),
+                                    'name': 'chi2'}
+                     }
+    x = np.linspace(-1, 1, num=1000)
+    with h5py.File(join(path, 'demo_data.hdf5'), 'w') as f:
+        for group, vals in distributions.items():
+            gauss_pdf = f.create_group(group)
+            gauss_pdf.create_dataset("x", data=x)
+            gauss_pdf.create_dataset("pdf", data=getattr(
+                ss, vals['name'])(**vals['options']).pdf(x))
