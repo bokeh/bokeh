@@ -20,6 +20,7 @@ import pytest ; pytest
 # Standard library imports
 
 # External imports
+from selenium.webdriver.common.action_chains import ActionChains
 
 # Bokeh imports
 from bokeh.plotting import figure
@@ -45,7 +46,8 @@ class Test_Toobar_Autohide(object):
         assert (page.driver.find_element_by_class_name('bk-toolbar')
                            .value_of_css_property('visibility')) == 'visible'
 
-        page.drag_canvas_at_position(100, 100, 20, 20)
+        ActionChains(page.driver).move_to_element(page.canvas).perform()
+
         assert (page.driver.find_element_by_class_name('bk-toolbar')
                            .value_of_css_property('visibility')) == 'visible'
 
@@ -60,7 +62,8 @@ class Test_Toobar_Autohide(object):
         assert (page.driver.find_element_by_class_name('bk-toolbar')
                            .value_of_css_property('visibility')) == 'hidden'
 
-        page.drag_canvas_at_position(100, 100, 20, 20)
+        ActionChains(page.driver).move_to_element(page.canvas).perform()
+
         assert (page.driver.find_element_by_class_name('bk-toolbar')
                            .value_of_css_property('visibility')) == 'visible'
 
