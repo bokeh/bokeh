@@ -9,17 +9,17 @@ from bokeh.models import ColumnDataSource
 from bokeh.models.widgets import Select
 from bokeh.plotting import figure
 
-parent_dir = dirname(__file__)
+app_dir = dirname(__file__)
 
-if 'demo_data.hdf5' not in os.listdir(parent_dir):
+if 'demo_data.hdf5' not in os.listdir(app_dir):
     import sys
-    sys.path.append(parent_dir)
+    sys.path.append(app_dir)
     from create_hdf5 import generate_data
-    generate_data(parent_dir)
+    generate_data(app_dir)
 
 
-options = ['Gaussian', 'Exponential', 'Chi Square']
-data_select = Select(title="Output:", value=options[0],
+options = ['Gaussian', 'Exponential', 'Chi Square', 'Alpha', 'Beta']
+data_select = Select(title="Distribution:", value=options[0],
                      options=options)
 
 source = ColumnDataSource(data=dict(x=[], y=[]))
@@ -31,7 +31,7 @@ p.background_fill_color = "#efefef"
 
 def select_data():
     data_val = data_select.value
-    with h5py.File(join(parent_dir, 'demo_data.hdf5'), 'r') as f:
+    with h5py.File(join(app_dir, 'demo_data.hdf5'), 'r') as f:
         return f[data_val]['x'][:], f[data_val]['pdf'][:]
 
 
