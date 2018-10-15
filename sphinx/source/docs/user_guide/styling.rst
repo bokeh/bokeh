@@ -418,6 +418,21 @@ whose line and fill properties may be set:
 .. bokeh-plot:: docs/user_guide/examples/styling_tool_overlays.py
     :source-position: above
 
+
+.. _userguide_styling_toolbar_autohide:
+
+ToolBar Autohide
+----------------
+
+In addition to selecting the tools in toolbars, you can also control
+their appearance. The ``autohide`` attribute specifies that the toolbar is
+visible only when the mouse is inside the plot area, and otherwise it is
+hidden:
+
+.. bokeh-plot:: docs/user_guide/examples/styling_toolbar_autohide.py
+    :source-position: above
+
+
 .. _userguide_styling_axes:
 
 Axes

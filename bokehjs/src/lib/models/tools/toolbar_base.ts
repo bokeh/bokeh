@@ -29,6 +29,7 @@ export class ToolbarBaseView extends DOMView {
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.tools.change, () => this._build_tool_button_views())
+    this.connect(this.model.properties.autohide.change, () => this.set_visibility())
   }
 
   remove(): void {
@@ -41,11 +42,23 @@ export class ToolbarBaseView extends DOMView {
     build_views(this._tool_button_views, tools, {parent: this}, (tool) => tool.button_view)
   }
 
+  set_visibility(visible: boolean|null = null): void {
+    const hidden_class = "bk-toolbar-hidden"
+    if (this.model.autohide) {
+      if (this.el.classList.contains(hidden_class) && visible) {
+        this.el.classList.remove(hidden_class)
+      } else if (!visible) {
+        this.el.classList.add(hidden_class)
+      }
+    }
+  }
+
   render(): void {
     empty(this.el)
 
     this.el.classList.add("bk-toolbar")
     this.el.classList.add(`bk-toolbar-${this.model.toolbar_location}`)
+    this.set_visibility()
 
     if (this.model.logo != null) {
       const cls = this.model.logo === "grey" ? "bk-grey" : null
@@ -98,10 +111,12 @@ export namespace ToolbarBase {
     inspectors: InspectTool[]
     help: HelpTool[]
     toolbar_location: Location
+    autohide: boolean
   }
 
   export interface Props extends Model.Props {
     tools: p.Property<Tool[]>
+    autohide: p.Property<boolean>
   }
 }
 
@@ -120,8 +135,9 @@ export class ToolbarBase extends Model {
     this.prototype.default_view = ToolbarBaseView
 
     this.define({
-      tools: [ p.Array,    []       ],
-      logo:  [ p.String,   'normal' ], // TODO (bev)
+      tools:      [ p.Array,      []       ],
+      logo:       [ p.String,     'normal' ], // TODO (bev)
+      autohide:   [ p.Bool,       false    ],
     })
 
     this.internal({
@@ -136,9 +152,9 @@ export class ToolbarBase extends Model {
         move:      { tools: [], active: null },
         multi:     { tools: [], active: null },
       })  ],
-      actions:    [ p.Array, [] ],
-      inspectors: [ p.Array, [] ],
-      help:       [ p.Array, [] ],
+      actions:          [ p.Array,    []      ],
+      inspectors:       [ p.Array,    []      ],
+      help:             [ p.Array,    []      ],
       toolbar_location: [ p.Location, 'right' ],
     })
   }

@@ -15,7 +15,16 @@ def test_Toolbar():
     assert tb.active_inspect == 'auto'
     assert tb.active_scroll == 'auto'
     assert tb.active_tap == 'auto'
+    assert tb.autohide is False
 
+
+def test_Toolbar_with_autohide():
+    tb = Toolbar(autohide=True)
+    assert tb.active_drag == 'auto'
+    assert tb.active_inspect == 'auto'
+    assert tb.active_scroll == 'auto'
+    assert tb.active_tap == 'auto'
+    assert tb.autohide is True
 
 #
 # ToolbarBox

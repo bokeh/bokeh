@@ -112,6 +112,11 @@ class ToolbarBase(Model):
     set to None, no logo will be displayed.
     """)
 
+    autohide = Bool(default=False, help="""
+    Whether the toolbar will be hidden by default. Default: False.
+    If True, hides toolbar when cursor is not in canvas.
+    """)
+
     tools = List(Instance(Tool), help="""
     A list of tools to add to the plot.
     """)

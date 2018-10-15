@@ -246,6 +246,10 @@ export class UIEvents implements EventListenerObject {
     return this.plot_view.frame.bbox.contains(sx, sy)
   }
 
+  protected _hit_test_canvas(sx: number, sy: number): boolean {
+    return this.plot_view.canvas.bbox.contains(sx, sy)
+  }
+
   _trigger<E extends UIEvent>(signal: UISignal<E>, e: E, srcEvent: Event): void {
     const gestures = this.toolbar.gestures
     type BaseType = keyof typeof gestures
@@ -253,6 +257,7 @@ export class UIEvents implements EventListenerObject {
     let event_type = signal.name
     const base_type = event_type.split(":")[0] as BaseType
     const view = this._hit_test_renderers(e.sx, e.sy)
+    const on_canvas = this._hit_test_canvas(e.sx, e.sy)
 
     switch (base_type) {
       case "move": {
@@ -281,6 +286,8 @@ export class UIEvents implements EventListenerObject {
         }
 
         this.plot_view.set_cursor(cursor)
+        this.plot_view.set_toolbar_visibility(on_canvas)
+
         active_inspectors.map((inspector) => this.trigger(signal, e, inspector.id))
         break
       }

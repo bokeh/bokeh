@@ -77,6 +77,7 @@ export class PlotCanvasView extends DOMView {
 
   force_paint: Signal0<this>
   state_changed: Signal0<this>
+  visibility_callbacks: Function[]
 
   protected _is_paused?: number
 
@@ -185,6 +186,7 @@ export class PlotCanvasView extends DOMView {
         height: this.model.canvas._height.value,
       },
     }
+    this.visibility_callbacks = []
 
     this.state = {history: [], index: -1}
 
@@ -219,6 +221,10 @@ export class PlotCanvasView extends DOMView {
 
   set_cursor(cursor: string = "default"): void {
     this.canvas_view.el.style.cursor = cursor
+  }
+
+  set_toolbar_visibility(visible: boolean = true): void {
+    this.visibility_callbacks.forEach((value) => value(visible))
   }
 
   init_webgl(): void {
