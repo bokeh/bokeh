@@ -19,6 +19,7 @@ from subprocess import Popen, PIPE
 from ..model import Model
 from ..settings import settings
 from .string import snakify
+from .version import __version__
 
 _plugin_umd = \
 """\
@@ -192,7 +193,8 @@ def npmjs_version():
 def nodejs_compile(code, lang="javascript", file=None):
     compilejs_script = join(bokehjs_dir, "js", "compiler.js")
     output = _run_nodejs([compilejs_script], dict(code=code, lang=lang, file=file))
-    return AttrDict(json.loads(output))
+    sig = hashlib.sha256(code.encode('utf-8')).hexdigest()
+    return AttrDict(json.loads(output), __version__=__version__, hash=sig)
 
 class Implementation(object):
     ''' Base class for representing Bokeh custom model implementations.
@@ -248,7 +250,7 @@ class TypeScript(Inline):
         .. code-block:: python
 
             class MyExt(Model):
-                __implementation__ = TypeScript(""" <TypeSctipt code> """)
+                __implementation__ = TypeScript(""" <TypeScript code> """)
 
     '''
     @property
@@ -256,16 +258,63 @@ class TypeScript(Inline):
         return "typescript"
 
 class JavaScript(Inline):
-    ''' An implementation for a Bokeh custom model in JavaSript
+    ''' An implementation for a Bokeh custom model in JavaScript
 
     Example:
 
         .. code-block:: python
 
             class MyExt(Model):
-                __implementation__ = Javacript(""" <Javactipt code> """)
+                __implementation__ = Javacript(""" <JavaScript code> """)
 
     '''
+    @property
+    def lang(self):
+        return "javascript"
+
+class Compiled(Implementation):
+    ''' An implementation for a Bokeh custom model in Javascript which
+        has been pre-compiled.
+    '''
+
+    def __init__(self, compiled, implementation):
+        if isinstance(compiled, six.string_types):
+            path = compiled
+            compiled = None
+        elif not isinstance(compiled, dict):
+            raise ValueError('Compiled model must be defined as a path '
+                             'or a dictionary.')
+
+        if compiled is None:
+            if not os.path.isfile(path):
+                self.compiled = None
+            else:
+                with io.open(path, encoding="utf-8") as f:
+                    self.compiled = AttrDict(json.loads(f.read()))
+        else:
+            self.compiled = AttrDict(compiled)
+
+        if implementation is None:
+            raise ValueError('Compiled code must declare uncompiled code')
+        elif not isinstance(implementation, Implementation):
+            if isinstance(implementation, six.string_types):
+                if "\n" not in implementation and implementation.endswith(exts):
+                    if not isabs(implementation):
+                        raise ValueError('Implementation loaded from file must declare absolute path.')
+                    implementation = FromFile(implementation)
+                else:
+                    implementation = CoffeeScript(implementation)
+        self.implementation = implementation
+
+    @property
+    def outdated(self):
+        sig = hashlib.sha256(self.implementation.code.encode('utf-8')).hexdigest()
+        return sig != getattr(self.compiled, 'hash', None)
+
+    @property
+    def code(self):
+        return self.compiled.code
+
     @property
     def lang(self):
         return "javascript"
@@ -364,10 +413,9 @@ class CustomModel(object):
     def module(self):
         return "custom/%s" % snakify(self.full_name)
 
-def bundle_models(models):
-    """Create a bundle of `models`. """
+def _get_custom_models(models):
+    """Returns CustomModels for models with a custom `__implementation__`"""
     custom_models = {}
-
     for cls in models:
         impl = getattr(cls, "__implementation__", None)
 
@@ -377,19 +425,15 @@ def bundle_models(models):
 
     if not custom_models:
         return None
+    return custom_models
+
+def compile_models(models):
+    """Returns the compiled implementation of supplied `models`. """
+    custom_models = _get_custom_models(models)
+    if custom_models is None:
+        return
 
     ordered_models = sorted(custom_models.values(), key=lambda model: model.full_name)
-
-    exports = []
-    modules = []
-
-    def read_json(name):
-        with io.open(join(bokehjs_dir, "js", name + ".json"), encoding="utf-8") as f:
-            return json.loads(f.read())
-
-
-    bundles = ["bokeh", "bokeh-api", "bokeh-widgets", "bokeh-tables", "bokeh-gl"]
-    known_modules = set(sum([ read_json(name) for name in bundles ], []))
     custom_impls = {}
 
     dependencies = []
@@ -402,14 +446,44 @@ def bundle_models(models):
 
     for model in ordered_models:
         impl = model.implementation
-        compiled = nodejs_compile(impl.code, lang=impl.lang, file=impl.file)
+        compiled = None
+        if isinstance(impl, Compiled):
+            if impl.outdated:
+                logger.warning('CustomModel %s compiled implementation is'
+                               'outdated, use `bokeh.util.compile_models` '
+                               'to recompile it.' % model.full_name)
+                impl = impl.implementation
+            else:
+                compiled = impl.compiled
+
+        if compiled is None:
+            compiled = nodejs_compile(impl.code, lang=impl.lang, file=impl.file)
 
         if "error" in compiled:
             raise CompilationError(compiled.error)
 
         custom_impls[model.full_name] = compiled
 
+    return custom_impls
+
+def bundle_models(models):
+    """Create a bundle of `models`. """
+
+    def read_json(name):
+        with io.open(join(bokehjs_dir, "js", name + ".json"), encoding="utf-8") as f:
+            return json.loads(f.read())
+
+    modules = []
+    exports = []
+
+    bundles = ["bokeh", "bokeh-api", "bokeh-widgets", "bokeh-tables", "bokeh-gl"]
+    known_modules = set(sum([ read_json(name) for name in bundles ], []))
     extra_modules = {}
+
+    custom_models = _get_custom_models(models)
+    if custom_models is None:
+        return
+    custom_impls = compile_models(models)
 
     def resolve_modules(to_resolve, root):
         resolved = {}
