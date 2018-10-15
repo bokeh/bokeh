@@ -1,3 +1,4 @@
+import os
 from os.path import dirname, join
 
 import numpy as np
@@ -9,12 +10,18 @@ from bokeh.models import ColumnDataSource
 from bokeh.models.widgets import Select
 from bokeh.plotting import figure
 
+from create_hdf5 import generate_data
+
+if 'demo_data.hdf5' not in os.listdir(dirname(__file__)):
+    generate_data()
+
 data_select = Select(title="Output:", value="hip_strength", options=["hip_strength", "knee_strength"])
 
 source = ColumnDataSource(data=dict(x=[], y=[]))
 
 p = figure(plot_height=600, plot_width=800, title="", toolbar_location=None)
-p.line(x="x", y="y", source=source)
+p.line(x="x", y="y", source=source, line_width=2)
+p.background_fill_color = "#efefef"
 
 # Fast direct read from hdf5
 def get_data(f, name):
