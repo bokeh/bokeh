@@ -71,6 +71,7 @@ class Test_webdriver_control(object):
         d1 = biw.webdriver_control.get()
         d2 = biw.webdriver_control.get()
         assert d1 is d2
+        biw.webdriver_control.reset()
 
     def test_get_with_reuse_and_reset(self):
         biw.webdriver_control.reuse = True
@@ -81,6 +82,7 @@ class Test_webdriver_control(object):
         assert d1 is not d2
         d3 = biw.webdriver_control.get()
         assert d2 is d3
+        biw.webdriver_control.reset()
 
     def test_get_without_reuse(self):
         biw.webdriver_control.reuse = False
@@ -89,6 +91,7 @@ class Test_webdriver_control(object):
         d2 = biw.webdriver_control.get()
         assert d1 is not d2
         biw.webdriver_control.reuse = True
+        biw.webdriver_control.reset()
 
     @pytest.mark.parametrize('kind', ['phantomjs'])
     def test_create(self, kind):
@@ -96,6 +99,7 @@ class Test_webdriver_control(object):
         assert biw.webdriver_control.kind == kind
         d = biw.webdriver_control.create()
         assert isinstance(d, _driver_map[kind])
+        biw.webdriver_control.reset()
 
 #-----------------------------------------------------------------------------
 # Private API

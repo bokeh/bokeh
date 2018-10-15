@@ -63,7 +63,8 @@ def create_phantomjs_webdriver():
 def terminate_webdriver(driver):
     if driver.name == "phantomjs":
         # https://github.com/seleniumhq/selenium/issues/767
-        driver.service.process.send_signal(signal.SIGTERM)
+        if driver.service.process:
+            driver.service.process.send_signal(signal.SIGTERM)
 
     try:
         driver.quit()
@@ -85,11 +86,13 @@ class _WebdriverState(object):
         self.current = None
 
     def reset(self):
-        self.current = None
+        if self.current is not None:
+            terminate_webdriver(self.current)
+            self.current = None
 
     def get(self):
         if not self.reuse or self.current is None:
-            if self.current:
+            if self.current is not None:
                 terminate_webdriver(self.current)
             self.current = self.create()
         return self.current
