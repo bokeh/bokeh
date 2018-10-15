@@ -52,18 +52,17 @@ template = Template('''<!DOCTYPE html>
         {{ script }}
         <style>
             .embed-wrapper {
-                width: 50%;
-                height: 400px;
-                margin: auto;
+                display: flex;
+                justify-content: space-evenly;
             }
         </style>
     </head>
     <body>
-        {% for key in div.keys() %}
-            <div class="embed-wrapper">
-            {{ div[key] }}
-            </div>
-        {% endfor %}
+        <div class="embed-wrapper">
+            {% for key in div.keys() %}
+                {{ div[key] }}
+            {% endfor %}
+        </div>
     </body>
 </html>
 ''')
