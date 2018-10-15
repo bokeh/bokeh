@@ -28,7 +28,7 @@ from PIL import Image
 # Bokeh imports
 from bokeh.models.plots import Plot
 from bokeh.models.ranges import Range1d
-from bokeh.io.export import create_webdriver, terminate_webdriver
+from bokeh.io.webdriver import webdriver_control, terminate_webdriver
 from bokeh.plotting import figure
 from bokeh.resources import Resources
 
@@ -41,7 +41,7 @@ import bokeh.io.export as bie
 
 @pytest.fixture(scope='module')
 def webdriver():
-    driver = create_webdriver()
+    driver = webdriver_control.create()
     yield driver
     terminate_webdriver(driver)
 

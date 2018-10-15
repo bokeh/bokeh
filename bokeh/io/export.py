@@ -13,7 +13,6 @@
 # Boilerplate
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
-from six import raise_from, b
 
 import logging
 log = logging.getLogger(__name__)
@@ -25,23 +24,34 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import os
 import io
-import signal
 import warnings
-from os.path import abspath, devnull
+from os.path import abspath
 from tempfile import mkstemp
 
 # External imports
+from six import raise_from, b
 
 # Bokeh imports
 from ..embed import file_html
 from ..resources import INLINE
-from ..util.dependencies import import_required, detect_phantomjs
+from ..util.dependencies import import_required
 from ..util.string import decode_utf8
 from .util import default_filename
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
+
+__all__ = (
+    'create_webdriver',
+    'export_png',
+    'export_svgs',
+    'get_layout_html',
+    'get_screenshot_as_png',
+    'get_svgs',
+    'terminate_webdriver',
+    'webdriver_control',
+)
 
 #-----------------------------------------------------------------------------
 # General API
@@ -147,6 +157,19 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None):
 # Dev API
 #-----------------------------------------------------------------------------
 
+# this is part of the API for this module
+from .webdriver import webdriver_control
+from .webdriver import terminate_webdriver # for back compat
+
+def create_webdriver():
+    ''' Create a new webdriver.
+
+    ..note ::
+        Here for compatiboility. Prefer methods on the webdriver_control
+        object.
+
+    '''
+    return webdriver_control.create()
 
 def get_screenshot_as_png(obj, driver=None, **kwargs):
     ''' Get a screenshot of a LayoutDOM object.
@@ -175,23 +198,19 @@ def get_screenshot_as_png(obj, driver=None, **kwargs):
         with io.open(tmp.path, mode="w", encoding="utf-8") as file:
             file.write(decode_utf8(html))
 
-        web_driver = driver if driver is not None else create_webdriver()
+        web_driver = driver if driver is not None else webdriver_control.get()
 
-        try:
-            web_driver.get("file:///" + tmp.path)
-            web_driver.maximize_window()
+        web_driver.get("file:///" + tmp.path)
+        web_driver.maximize_window()
 
-            ## resize for PhantomJS compat
-            web_driver.execute_script("document.body.style.width = '100%';")
+        ## resize for PhantomJS compat
+        web_driver.execute_script("document.body.style.width = '100%';")
 
-            wait_until_render_complete(web_driver)
+        wait_until_render_complete(web_driver)
 
-            png = web_driver.get_screenshot_as_png()
+        png = web_driver.get_screenshot_as_png()
 
-            b_rect = web_driver.execute_script(_BOUNDING_RECT_SCRIPT)
-        finally:
-            if driver is None: # only quit webdriver if not passed in as arg
-                terminate_webdriver(web_driver)
+        b_rect = web_driver.execute_script(_BOUNDING_RECT_SCRIPT)
 
     image = Image.open(io.BytesIO(png))
     cropped_image = _crop_image(image, **b_rect)
@@ -207,17 +226,13 @@ def get_svgs(obj, driver=None, **kwargs):
         with io.open(tmp.path, mode="wb") as file:
             file.write(b(html))
 
-        web_driver = driver if driver is not None else create_webdriver()
+        web_driver = driver if driver is not None else webdriver_control.get()
 
-        try:
-            web_driver.get("file:///" + tmp.path)
+        web_driver.get("file:///" + tmp.path)
 
-            wait_until_render_complete(web_driver)
+        wait_until_render_complete(web_driver)
 
-            svgs = web_driver.execute_script(_SVG_SCRIPT)
-        finally:
-            if driver is None: # only quit webdriver if not passed in as arg
-                terminate_webdriver(web_driver)
+        svgs = web_driver.execute_script(_SVG_SCRIPT)
 
     return svgs
 
@@ -281,27 +296,6 @@ def wait_until_render_complete(driver):
         severe_errors = [l for l in browser_logs if l.get('level') == 'SEVERE']
         if len(severe_errors) > 0:
             log.warning("There were severe browser errors that may have affected your export: {}".format(severe_errors))
-
-def create_webdriver():
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", ".*", UserWarning, "selenium.webdriver.phantomjs.webdriver")
-
-        webdriver = import_required('selenium.webdriver',
-                                    'To use bokeh.io image export functions you need selenium ' +
-                                    '("conda install -c bokeh selenium" or "pip install selenium")')
-
-        phantomjs_path = detect_phantomjs()
-        return webdriver.PhantomJS(executable_path=phantomjs_path, service_log_path=devnull)
-
-def terminate_webdriver(driver):
-    if driver.name == "phantomjs":
-        # https://github.com/seleniumhq/selenium/issues/767
-        driver.service.process.send_signal(signal.SIGTERM)
-
-    try:
-        driver.quit()
-    except (IOError, OSError): # IOError for Python 2.7
-        pass
 
 #-----------------------------------------------------------------------------
 # Private API
