@@ -1,20 +1,19 @@
-from bokeh.models import Jitter
 from bokeh.layouts import column
 from bokeh.plotting import figure, show, output_file
-from bokeh.sampledata.autompg import autompg as df
+from bokeh.sampledata.autompg import autompg
+from bokeh.transform import jitter
 
-
-colors = ["red", "olive", "darkred", "goldenrod", "skyblue", "orange", "salmon"]
+years = sorted(autompg.yr.unique())
 
 p1 = figure(plot_width=600, plot_height=300, title="Years vs mpg without jittering")
+p1.xgrid.grid_line_color = None
+p1.xaxis[0].ticker = years
+p1.circle(x='yr', y='mpg', size=9, alpha=0.4, source=autompg)
+
 p2 = figure(plot_width=600, plot_height=300, title="Years vs mpg with jittering")
-
-for i, year in enumerate(list(df.yr.unique())):
-    y = df[df['yr'] == year]['mpg']
-    color = colors[i % len(colors)]
-
-    p1.circle(x=year, y=y, color=color)
-    p2.circle(x={'value': year, 'transform': Jitter(width=1)}, y=y, color=color)
+p2.xgrid.grid_line_color = None
+p2.xaxis[0].ticker = years
+p2.circle(x=jitter('yr', 0.4), y='mpg', size=9, alpha=0.4, source=autompg)
 
 output_file("jitter.html")
 
