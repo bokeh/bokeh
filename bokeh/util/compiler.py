@@ -19,7 +19,6 @@ from subprocess import Popen, PIPE
 from ..model import Model
 from ..settings import settings
 from .string import snakify
-from .version import __version__
 
 _plugin_umd = \
 """\
@@ -193,8 +192,7 @@ def npmjs_version():
 def nodejs_compile(code, lang="javascript", file=None):
     compilejs_script = join(bokehjs_dir, "js", "compiler.js")
     output = _run_nodejs([compilejs_script], dict(code=code, lang=lang, file=file))
-    sig = hashlib.sha256(code.encode('utf-8')).hexdigest()
-    return AttrDict(json.loads(output), __version__=__version__, hash=sig)
+    return AttrDict(json.loads(output))
 
 class Implementation(object):
     ''' Base class for representing Bokeh custom model implementations.
@@ -268,54 +266,6 @@ class JavaScript(Inline):
                 __implementation__ = Javacript(""" <JavaScript code> """)
 
     '''
-    @property
-    def lang(self):
-        return "javascript"
-
-class Compiled(Implementation):
-    ''' An implementation for a Bokeh custom model in Javascript which
-        has been pre-compiled.
-    '''
-
-    def __init__(self, path, implementation):
-        if not (isinstance(path, six.string_types) and path.endswith('json')):
-            raise ValueError('Compiled implementation must define json '
-                             'file to load implementation from.')
-
-        if not os.path.isfile(path):
-            self._compiled = None
-        else:
-            with io.open(path, encoding="utf-8") as f:
-                self._compiled = json.loads(f.read())
-        self.file = path
-
-        if implementation is None:
-            raise ValueError('Compiled code must declare uncompiled code')
-        elif not isinstance(implementation, Implementation):
-            if isinstance(implementation, six.string_types):
-                if "\n" not in implementation and implementation.endswith(exts):
-                    if not isabs(implementation):
-                        raise ValueError('Implementation loaded from file must declare absolute path.')
-                    implementation = FromFile(implementation)
-                else:
-                    implementation = CoffeeScript(implementation)
-        self.implementation = implementation
-
-    @property
-    def outdated(self):
-        if self._compiled is None or __version__ not in self._compiled:
-            return True
-        sig = hashlib.sha256(self.implementation.code.encode('utf-8')).hexdigest()
-        return sig != self._compiled.get('hash')
-
-    @property
-    def compiled(self):
-        return AttrDict(self._compiled.get(__version__, {}))
-
-    @property
-    def code(self):
-        return self.compiled.get('code', None)
-
     @property
     def lang(self):
         return "javascript"
@@ -428,7 +378,11 @@ def _get_custom_models(models):
         return None
     return custom_models
 
-def _compile_models(models, recompiling=False):
+def _get_cached_implementation(implementation):
+    """Return cached compiled implementation"""
+    return None
+
+def _compile_models(models):
     """Returns the compiled implementation of supplied `models`. """
     custom_models = _get_custom_models(models)
     if custom_models is None:
@@ -447,17 +401,7 @@ def _compile_models(models, recompiling=False):
 
     for model in ordered_models:
         impl = model.implementation
-        compiled = None
-        if isinstance(impl, Compiled):
-            if impl.outdated:
-                if not recompiling:
-                    logger.warning('CustomModel %s compiled implementation is '
-                                   'outdated, use `bokeh.util.save_compiled_models` '
-                                   'to recompile it.' % model.full_name)
-                impl = impl.implementation
-            else:
-                compiled = impl.compiled
-
+        compiled = _get_cached_implementation(impl)
         if compiled is None:
             compiled = nodejs_compile(impl.code, lang=impl.lang, file=impl.file)
 
@@ -467,32 +411,6 @@ def _compile_models(models, recompiling=False):
         custom_impls[model.full_name] = compiled
 
     return custom_impls
-
-def save_compiled_models(models, append=True):
-    '''Saves compiled implementation of a model to the declared json file'''
-    to_compile = []
-    for model in models:
-        impl = getattr(model, "__implementation__", None)
-        if isinstance(impl, Compiled) and impl.outdated:
-            to_compile.append(model)
-
-    custom_models = _get_custom_models(to_compile)
-    compiled_impls = _compile_models(to_compile, recompiling=True)
-    for name, model in custom_models.items():
-        compiled = compiled_impls[name]
-        if 'error' in compiled:
-            raise CompilationError(compiled.error)
-        version = compiled['__version__']
-        hashed = compiled['hash']
-        deps = compiled['deps']
-        compiled = {version: {'code': compiled['code'], 'deps': deps}, 'hash': hashed}
-        if os.path.isfile(model.implementation.file) and append:
-            with open(model.implementation.file, 'r') as f:
-                old_compiled = json.load(f)
-            if old_compiled.get('hash') == hashed:
-                compiled.update(old_compiled)
-        with open(model.implementation.file, 'w') as f:
-            json.dump(compiled, f)
 
 def bundle_models(models):
     """Create a bundle of `models`. """
