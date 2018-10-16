@@ -364,18 +364,20 @@ class CustomModel(object):
     def module(self):
         return "custom/%s" % snakify(self.full_name)
 
-def _model_cache_no_op(implementation):
+def _model_cache_no_op(model, implementation):
     """Return cached compiled implementation"""
     return None
 
 _CACHING_IMPLEMENTATION = _model_cache_no_op
 
 def get_cache_hook():
-    '''Returns the current cache hook used to look up the compiled code given an Implementation'''
+    '''Returns the current cache hook used to look up the compiled
+       code given the CustomModel and Implementation'''
     return _CACHING_IMPLEMENTATION
 
 def set_cache_hook(hook):
-    '''Sets a compiled model cache hook used to look up the compiled code given an Implementation'''
+    '''Sets a compiled model cache hook used to look up the compiled
+       code given the CustomModel and Implementation'''
     global _CACHING_IMPLEMENTATION
     _CACHING_IMPLEMENTATION = hook
 
@@ -408,7 +410,7 @@ def _compile_models(custom_models):
 
     for model in ordered_models:
         impl = model.implementation
-        compiled = _CACHING_IMPLEMENTATION(impl)
+        compiled = _CACHING_IMPLEMENTATION(model, impl)
         if compiled is None:
             compiled = nodejs_compile(impl.code, lang=impl.lang, file=impl.file)
 
