@@ -1,6 +1,7 @@
 from bokeh.io import save
 from bokeh.layouts import column
 from bokeh.models import Div, Paragraph
+from bokeh.util.browser import view
 
 template = """
 {% block postamble %}
@@ -52,3 +53,4 @@ div2 = Div(text="""
 div2.css_classes = ["custom", "custom-2"]
 
 save(column(p, div1, div2), template=template)
+view("css_classes.html")
