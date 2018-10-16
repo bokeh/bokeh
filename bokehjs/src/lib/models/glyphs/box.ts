@@ -37,7 +37,13 @@ export abstract class BoxView extends GlyphView {
       const [l, r, t, b] = this._lrtb(i)
       if (isNaN(l + r + t + b) || !isFinite(l + r + t + b))
         continue
-      points.push({minX: l, minY: b, maxX: r, maxY: t, i})
+      points.push({
+        minX: Math.min(l, r),
+        minY: Math.min(t, b),
+        maxX: Math.max(r, l),
+        maxY: Math.max(t, b),
+        i,
+      })
     }
 
     return new SpatialIndex(points)
