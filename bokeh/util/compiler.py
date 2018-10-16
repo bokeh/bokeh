@@ -248,7 +248,7 @@ class TypeScript(Inline):
         .. code-block:: python
 
             class MyExt(Model):
-                __implementation__ = TypeScript(""" <TypeSctipt code> """)
+                __implementation__ = TypeScript(""" <TypeScript code> """)
 
     '''
     @property
@@ -256,14 +256,14 @@ class TypeScript(Inline):
         return "typescript"
 
 class JavaScript(Inline):
-    ''' An implementation for a Bokeh custom model in JavaSript
+    ''' An implementation for a Bokeh custom model in JavaScript
 
     Example:
 
         .. code-block:: python
 
             class MyExt(Model):
-                __implementation__ = Javacript(""" <Javactipt code> """)
+                __implementation__ = Javacript(""" <JavaScript code> """)
 
     '''
     @property
@@ -364,10 +364,26 @@ class CustomModel(object):
     def module(self):
         return "custom/%s" % snakify(self.full_name)
 
-def bundle_models(models):
-    """Create a bundle of `models`. """
-    custom_models = {}
+def _model_cache_no_op(model, implementation):
+    """Return cached compiled implementation"""
+    return None
 
+_CACHING_IMPLEMENTATION = _model_cache_no_op
+
+def get_cache_hook():
+    '''Returns the current cache hook used to look up the compiled
+       code given the CustomModel and Implementation'''
+    return _CACHING_IMPLEMENTATION
+
+def set_cache_hook(hook):
+    '''Sets a compiled model cache hook used to look up the compiled
+       code given the CustomModel and Implementation'''
+    global _CACHING_IMPLEMENTATION
+    _CACHING_IMPLEMENTATION = hook
+
+def _get_custom_models(models):
+    """Returns CustomModels for models with a custom `__implementation__`"""
+    custom_models = {}
     for cls in models:
         impl = getattr(cls, "__implementation__", None)
 
@@ -377,19 +393,11 @@ def bundle_models(models):
 
     if not custom_models:
         return None
+    return custom_models
 
+def _compile_models(custom_models):
+    """Returns the compiled implementation of supplied `models`. """
     ordered_models = sorted(custom_models.values(), key=lambda model: model.full_name)
-
-    exports = []
-    modules = []
-
-    def read_json(name):
-        with io.open(join(bokehjs_dir, "js", name + ".json"), encoding="utf-8") as f:
-            return json.loads(f.read())
-
-
-    bundles = ["bokeh", "bokeh-api", "bokeh-widgets", "bokeh-tables", "bokeh-gl"]
-    known_modules = set(sum([ read_json(name) for name in bundles ], []))
     custom_impls = {}
 
     dependencies = []
@@ -402,12 +410,34 @@ def bundle_models(models):
 
     for model in ordered_models:
         impl = model.implementation
-        compiled = nodejs_compile(impl.code, lang=impl.lang, file=impl.file)
+        compiled = _CACHING_IMPLEMENTATION(model, impl)
+        if compiled is None:
+            compiled = nodejs_compile(impl.code, lang=impl.lang, file=impl.file)
 
         if "error" in compiled:
             raise CompilationError(compiled.error)
 
         custom_impls[model.full_name] = compiled
+
+    return custom_impls
+
+def bundle_models(models):
+    """Create a bundle of `models`. """
+
+    custom_models = _get_custom_models(models)
+    if custom_models is None:
+        return
+
+    exports = []
+    modules = []
+
+    def read_json(name):
+        with io.open(join(bokehjs_dir, "js", name + ".json"), encoding="utf-8") as f:
+            return json.loads(f.read())
+
+    bundles = ["bokeh", "bokeh-api", "bokeh-widgets", "bokeh-tables", "bokeh-gl"]
+    known_modules = set(sum([ read_json(name) for name in bundles ], []))
+    custom_impls = _compile_models(custom_models)
 
     extra_modules = {}
 
