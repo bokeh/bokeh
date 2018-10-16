@@ -25,7 +25,8 @@ The following examples have been removed or updated:
 * *app/pivot*: This large example was unfocused and unmaintained and has been
   removed
 * *howto/us_marriages_divorces*: Redundant notebook removed, script moved
-  to *plotting/file/us_marriages_divorces_hover.py
+  to *plotting/file/us_marriages_divorces_hover.py*
+* *plotting/file/brewer.py*: Moved to *stacked_area.py*
 
 Pretty printing functions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
