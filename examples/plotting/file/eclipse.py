@@ -21,13 +21,15 @@ states["trend"] = trends["solar eclipse"]
 upath17 = shp.Reader("eclipse_data/upath17")
 (totality_path,) = upath17.shapes()
 
-p = figure(plot_width=1000, plot_height=600)
+p = figure(plot_width=1000, plot_height=600, background_fill_color="#333344",
+           tools="", toolbar_location=None, x_axis_location=None, y_axis_location=None)
 
 p.grid.grid_line_color = None
 
 p.title.text = "Google Search Trends and the Path of Solar Eclipse, 21 August 2017"
 p.title.align = "center"
 p.title.text_font_size = "16pt"
+p.title.text_color = "#333344"
 
 mapper = LinearColorMapper(palette=list(reversed(YlOrRd5)), low=0, high=100)
 
@@ -39,7 +41,7 @@ source = ColumnDataSource(data=dict(
 us = p.patches("state_xs", "state_ys",
     fill_color=dict(field="trend", transform=mapper),
     source=source,
-    line_color="white", line_width=1)
+    line_color="#333344", line_width=1)
 
 p.x_range.renderers = [us]
 p.y_range.renderers = [us]
@@ -61,6 +63,7 @@ color_bar = ColorBar(
     location="bottom_left", orientation="horizontal",
     title="Popularity of \"solar eclipse\" search term",
     title_text_font_size="12pt", title_text_font_style="bold",
+    title_text_color="lightgrey", major_label_text_color="lightgrey",
     background_fill_alpha=0.0)
 p.add_layout(color_bar)
 
