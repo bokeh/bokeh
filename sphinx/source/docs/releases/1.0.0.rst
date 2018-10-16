@@ -17,6 +17,13 @@ New Dependencies
 
 "Pillow>=4.0" has been added to the list of Bokeh runtime dependencies.
 
+Examples
+~~~~~~~~
+
+The following examples have been removed:
+
+* *examples/app/pivot*
+
 Pretty printing functions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
