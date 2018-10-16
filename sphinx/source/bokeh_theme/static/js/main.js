@@ -35,19 +35,29 @@ $(document).ready(function() {
 
   var loc = window.location.pathname;
 
+  // If index.html hide toc
   if (loc.split('docs/').length == 1 ) {
-    // If index.html hide toc
     $('.toc .toctree-l1').addClass('hide');
     $('.toc').addClass('obfuscate');
 
-  } else if (loc.split('orphan').length > 1) {
-    // If orphan page, dispense with toc, and manually add current under second nav
+  }
+
+  // If orphan page, dispense with toc, and manually add current under second nav
+  else if ((loc.split('citation').length > 1) ||
+           (loc.split('contact').length > 1) ||
+           (loc.split('contribute').length > 1) ||
+           (loc.split('gallery').length > 1) ||
+           (loc.split('team').length > 1) ||
+           (loc.split('vision').length > 1)) {
+
     $('.toc .toctree-l1').addClass('hide');
     $('.toc').addClass('obfuscate');
     $('.second-nav .nav-link a[href="#"]').addClass('current');
 
-  } else {
-    // Else, selectively hide toc
+  }
+
+  // Else, selectively hide toc
+  else {
     var loc_part = loc.split('docs/')[1].split('.html')[0];
 
     if (loc_part.split('/').length > 1) {

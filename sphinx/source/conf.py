@@ -168,13 +168,13 @@ html_context = {
         ('Github', '//github.com/bokeh/bokeh'),
     ),
     'ABOUT': (
-        ('Vision and Work', 'orphan/vision'),
-        ('Team',            'orphan/team'),
-        ('Citation',        'orphan/citation'),
-        ('Contact',         'orphan/contact'),
+        ('Vision and Work', 'vision'),
+        ('Team',            'team'),
+        ('Citation',        'citation'),
+        ('Contact',         'contact'),
     ),
     'SOCIAL': (
-        ('Contribute', 'orphan/contribute'),
+        ('Contribute', 'contribute'),
         ('Mailing list', '//groups.google.com/a/anaconda.com/forum/#!forum/bokeh'),
         ('Github', '//github.com/bokeh/bokeh'),
         ('Twitter', '//twitter.com/BokehPlots'),
@@ -182,7 +182,7 @@ html_context = {
     'NAV_DOCS': (
         ('Installation', 'installation'),
         ('User Guide', 'user_guide'),
-        ('Gallery', 'orphan/gallery'),
+        ('Gallery', 'gallery'),
         ('Tutorial', 'https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb'),
         ('Reference', 'reference'),
         ('Releases', 'releases'),
