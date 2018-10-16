@@ -364,20 +364,6 @@ class CustomModel(object):
     def module(self):
         return "custom/%s" % snakify(self.full_name)
 
-def _get_custom_models(models):
-    """Returns CustomModels for models with a custom `__implementation__`"""
-    custom_models = {}
-    for cls in models:
-        impl = getattr(cls, "__implementation__", None)
-
-        if impl is not None:
-            model = CustomModel(cls)
-            custom_models[model.full_name] = model
-
-    if not custom_models:
-        return None
-    return custom_models
-
 def _model_cache_no_op(implementation):
     """Return cached compiled implementation"""
     return None
@@ -393,12 +379,22 @@ def set_cache_hook(hook):
     global _CACHING_IMPLEMENTATION
     _CACHING_IMPLEMENTATION = hook
 
-def _compile_models(models):
-    """Returns the compiled implementation of supplied `models`. """
-    custom_models = _get_custom_models(models)
-    if custom_models is None:
-        return
+def _get_custom_models(models):
+    """Returns CustomModels for models with a custom `__implementation__`"""
+    custom_models = {}
+    for cls in models:
+        impl = getattr(cls, "__implementation__", None)
 
+        if impl is not None:
+            model = CustomModel(cls)
+            custom_models[model.full_name] = model
+
+    if not custom_models:
+        return None
+    return custom_models
+
+def _compile_models(custom_models):
+    """Returns the compiled implementation of supplied `models`. """
     ordered_models = sorted(custom_models.values(), key=lambda model: model.full_name)
     custom_impls = {}
 
@@ -426,21 +422,22 @@ def _compile_models(models):
 def bundle_models(models):
     """Create a bundle of `models`. """
 
+    custom_models = _get_custom_models(models)
+    if custom_models is None:
+        return
+
+    exports = []
+    modules = []
+
     def read_json(name):
         with io.open(join(bokehjs_dir, "js", name + ".json"), encoding="utf-8") as f:
             return json.loads(f.read())
 
-    modules = []
-    exports = []
-
     bundles = ["bokeh", "bokeh-api", "bokeh-widgets", "bokeh-tables", "bokeh-gl"]
     known_modules = set(sum([ read_json(name) for name in bundles ], []))
-    extra_modules = {}
+    custom_impls = _compile_models(custom_models)
 
-    custom_models = _get_custom_models(models)
-    if custom_models is None:
-        return
-    custom_impls = _compile_models(models)
+    extra_modules = {}
 
     def resolve_modules(to_resolve, root):
         resolved = {}
