@@ -378,9 +378,20 @@ def _get_custom_models(models):
         return None
     return custom_models
 
-def _get_cached_implementation(implementation):
+def _model_cache_no_op(implementation):
     """Return cached compiled implementation"""
     return None
+
+_CACHING_IMPLEMENTATION = _model_cache_no_op
+
+def get_cache_hook():
+    '''Returns the current cache hook used to look up the compiled code given an Implementation'''
+    return _CACHING_IMPLEMENTATION
+
+def set_cache_hook(hook):
+    '''Sets a compiled model cache hook used to look up the compiled code given an Implementation'''
+    global _CACHING_IMPLEMENTATION
+    _CACHING_IMPLEMENTATION = hook
 
 def _compile_models(models):
     """Returns the compiled implementation of supplied `models`. """
@@ -401,7 +412,7 @@ def _compile_models(models):
 
     for model in ordered_models:
         impl = model.implementation
-        compiled = _get_cached_implementation(impl)
+        compiled = _CACHING_IMPLEMENTATION(impl)
         if compiled is None:
             compiled = nodejs_compile(impl.code, lang=impl.lang, file=impl.file)
 
