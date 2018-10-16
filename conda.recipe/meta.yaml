@@ -78,6 +78,7 @@ test:
 
     # examples
     - flask >=1.0
+    - h5py
     - icalendar
     - networkx
     - notebook
