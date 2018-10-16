@@ -20,9 +20,12 @@ New Dependencies
 Examples
 ~~~~~~~~
 
-The following examples have been removed:
+The following examples have been removed or updated:
 
-* *examples/app/pivot*
+* *app/pivot*: This large example was unfocused and unmaintained and has been
+  removed
+* *howto/us_marriages_divorces*: Redundant notebook removed, script moved
+  to *plotting/file/us_marriages_divorces_hover.py
 
 Pretty printing functions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
