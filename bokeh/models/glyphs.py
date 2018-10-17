@@ -16,6 +16,7 @@ The full list of glyphs built into Bokeh is given below:
 * :class:`~bokeh.models.glyphs.ImageURL`
 * :class:`~bokeh.models.glyphs.Line`
 * :class:`~bokeh.models.glyphs.MultiLine`
+* :class:`~bokeh.models.glyphs.MultiPolygons`
 * :class:`~bokeh.models.glyphs.Oval`
 * :class:`~bokeh.models.glyphs.Patch`
 * :class:`~bokeh.models.glyphs.Patches`
@@ -624,6 +625,46 @@ class MultiLine(Glyph):
 
     line_props = Include(LineProps, use_prefix=False, help="""
     The %s values for the lines.
+    """)
+
+class MultiPolygons(Glyph):
+    ''' Render several MultiPolygons.
+
+    Modeled on geoJSON - the data for the ``MultiPolygons` glyph is
+    different in that the vector of values is not a vector of scalars.
+    Rather, it is a "list of lists of lists of lists".
+    '''
+
+    __example__ = "examples/reference/models/MultiPolygons.py"
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('xs', 'ys')
+
+    xs = NumberSpec(help="""
+    The x-coordinates for all the patches, given as a nested list.
+
+    .. note::
+        Each item in MultiPolygons represents one MultiPolygon and each
+        MultiPolygon is comprised of n Polygons. Each Polygon is made of
+        one exterior ring optionally followed by m interior rings (holes).
+    """)
+
+    ys = NumberSpec(help="""
+    The y-coordinates for all the patches, given as a "list of lists".
+
+    .. note::
+        Each item in MultiPolygons represents one MultiPolygon and each
+        MultiPolygon is comprised of n Polygons. Each Polygon is made of
+        one exterior ring optionally followed by m interior rings (holes).
+    """)
+
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the multipolygons.
+    """)
+
+    fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the multipolygons.
     """)
 
 class Oval(XYGlyph):

@@ -4,7 +4,7 @@ from bokeh.models import ColumnDataSource, Plot, LinearAxis, Grid, HoverTool
 from bokeh.models.widgets import Tabs, Panel, Paragraph
 from bokeh.models.layouts import Column
 from bokeh.models.glyphs import (
-    AnnularWedge, Annulus, Arc, Bezier, Circle, Dash, ImageURL, Line, MultiLine, Oval, Hex,
+    AnnularWedge, Annulus, Arc, Bezier, Circle, Dash, ImageURL, Line, MultiLine, MultiPolygons, Oval, Hex,
     Patch, Patches, Quad, Quadratic, Ray, Rect, Segment, Square, Text, Wedge, CircleX, Triangle,
     Cross, Diamond, InvertedTriangle, SquareX, Asterisk, SquareCross, DiamondCross, CircleCross, X
 )
@@ -22,18 +22,25 @@ sizes = np.linspace(10, 20, N)
 xpts = np.array([-.09, -.12, .0, .12, .09])
 ypts = np.array([-.1, .02, .1, .02, -.1])
 
+xs = [ xpts + xx for xx in x ]
+ys = [ ypts + yy for yy in y ]
+
 source = ColumnDataSource(dict(
     x = x,
     y = y,
     sizes = sizes,
-    xs = [ xpts + xx for xx in x ],
-    ys = [ ypts + yy for yy in y ],
+    xs = xs,
+    ys = ys,
+    xsss = [[[x]] for x in xs],
+    ysss = [[[y]] for y in ys],
     xp02 = x + 0.2,
     xp01 = x + 0.1,
     xm01 = x - 0.1,
     yp01 = y + 0.1,
     ym01 = y - 0.1,
 ))
+
+print()
 
 def screen(value):
     return dict(value=value, units="screen")
@@ -46,6 +53,7 @@ glyphs = [
     ("image_url",  ImageURL(x="x", y="y", w=0.4, h=0.4, url=dict(value="https://bokeh.pydata.org/en/latest/_static/images/logo.png"), anchor="center")),
     ("line", Line(x="x", y="y", line_color="#F46D43")),
     ("multi_line", MultiLine(xs="xs", ys="ys", line_color="#8073AC", line_width=2)),
+    ("multi_polygons", MultiPolygons(xs="xsss", ys="ysss", line_color="#8073AC", fill_color="#FB9A99", line_width=2)),
     ("oval", Oval(x="x", y="y", width=screen(15), height=screen(25), angle=-0.7, fill_color="#1D91C0")),
     ("patch", Patch(x="x", y="y", fill_color="#A6CEE3")),
     ("patches", Patches(xs="xs", ys="ys", fill_color="#FB9A99")),
