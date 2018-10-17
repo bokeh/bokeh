@@ -24,6 +24,7 @@ The following examples have been removed or updated:
 
 * *app/pivot*: This large example was unfocused and unmaintained and has been
   removed
+* *embed/simple*: Old example removed
 * *howto/us_marriages_divorces*: Redundant notebook removed, script moved
   to *plotting/file/us_marriages_divorces_hover.py*
 * *models/file/colorspec.py* Old example removed
