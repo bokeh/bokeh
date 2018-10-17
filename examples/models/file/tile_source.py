@@ -15,8 +15,8 @@ from bokeh.models import WMTSTileSource
 output_file("tile_source_example.html", title="Tile Source Example")
 
 # set to roughly full extent of web mercator projection
-x_range = Range1d(start=-20000000, end=20000000)
-y_range = Range1d(start=-20000000, end=20000000)
+x_range = Range1d(start=-200000, end=2000000)
+y_range = Range1d(start=800000, end=7000000)
 
 # create tile source from templated url
 tile_options = {}
