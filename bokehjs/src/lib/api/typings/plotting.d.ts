@@ -72,6 +72,7 @@ declare namespace Bokeh.Plotting {
     image_url         (attrs: ImageURLAttrs):         GlyphRenderer;
     line              (attrs: LineAttrs):             GlyphRenderer;
     multi_line        (attrs: MultiLineAttrs):        GlyphRenderer;
+    multi_polygons    (attrs: MultiPolygonsAttrs):    GlyphRenderer;
     oval              (attrs: OvalAttrs):             GlyphRenderer;
     patch             (attrs: PatchAttrs):            GlyphRenderer;
     patches           (attrs: PatchesAttrs):          GlyphRenderer;
@@ -169,6 +170,10 @@ declare namespace Bokeh.Plotting {
       xs: MultiDataAttr,
       ys: MultiDataAttr,
       opts?: MultiLineOpts):        GlyphRenderer;
+    multi_polygons(
+      xs: MultiDataAttr,
+      ys: MultiDataAttr,
+      opts?: MultiPolygonsOpts):    GlyphRenderer;
     oval(
       x: DataAttr,
       y: DataAttr,
@@ -430,6 +435,12 @@ declare namespace Bokeh.Plotting {
 
   export interface MultiLineOpts extends GlyphOpts, LinePropsOpts {}
   export interface MultiLineAttrs extends MultiLineOpts {
+    xs: MultiDataAttr;
+    ys: MultiDataAttr;
+  }
+
+  export interface MultiPolygonsOpts extends GlyphOpts, LinePropsOpts, FillPropsOpts { }
+  export interface MultiPolygonsAttrs extends MultiPolygonsOpts {
     xs: MultiDataAttr;
     ys: MultiDataAttr;
   }
