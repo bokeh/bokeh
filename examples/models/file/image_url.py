@@ -20,7 +20,7 @@ source = ColumnDataSource(dict(
     y2  = np.linspace(  0, 200, N),
 ))
 
-plot = Plot()
+plot = Plot(match_aspect=True)
 plot.title.text = "ImageURL"
 plot.toolbar_location = None
 
