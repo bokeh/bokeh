@@ -52,7 +52,13 @@ pd = import_optional('pandas')
 # General API
 #-----------------------------------------------------------------------------
 
-__all__ = ()
+__all__ = (
+    'ContainerProperty',
+    'DeserializationError',
+    'PrimitiveProperty',
+    'Property',
+    'validation_on',
+)
 
 #-----------------------------------------------------------------------------
 # Dev API

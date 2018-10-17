@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide Jinja2 templates used by Bokeh to embed Bokeh documents and
 models in various ways.
 
@@ -15,12 +22,53 @@ models in various ways.
 .. bokeh-jinja:: bokeh.core.templates.SCRIPT_TAG
 
 '''
-from __future__ import absolute_import
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import json
 from os.path import dirname, join
 import sys
 
+# External imports
 from jinja2 import Environment, Markup, FileSystemLoader
+
+# Bokeh imports
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'AUTOLOAD_JS',
+    'AUTOLOAD_NB_JS',
+    'AUTOLOAD_TAG',
+    'CSS_RESOURCES',
+    'DOC_JS',
+    'DOC_NB_JS',
+    'FILE',
+    'get_env',
+    'JS_RESOURCES',
+    'MACROS',
+    'NOTEBOOK_LOAD',
+    'PLOT_DIV',
+    'ROOT_DIV',
+    'SCRIPT_TAG',
+)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 def get_env():
     ''' Get the correct Jinja2 Environment, also for frozen scripts.
@@ -34,8 +82,16 @@ def get_env():
 
     return Environment(loader=FileSystemLoader(templates_path))
 
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
 _env = get_env()
 _env.filters['json'] = lambda obj: Markup(json.dumps(obj))
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 JS_RESOURCES = _env.get_template("js_resources.html")
 
@@ -62,3 +118,7 @@ AUTOLOAD_JS = _env.get_template("autoload_js.js")
 AUTOLOAD_NB_JS = _env.get_template("autoload_nb_js.js")
 
 AUTOLOAD_TAG = _env.get_template("autoload_tag.html")
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

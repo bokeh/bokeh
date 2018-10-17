@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide a base class for objects that can have declarative, typed,
 serializable properties.
 
@@ -8,37 +15,53 @@ serializable properties.
     anyone who is not directly developing on Bokeh's own infrastructure.
 
 '''
-from __future__ import absolute_import
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 log = logging.getLogger(__name__)
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import difflib
 import inspect
 from warnings import warn
 
+# External imports
+
+# Bokeh imports
 from ..util.future import with_metaclass
 from ..util.string import nice_join
+
 from .property.descriptor_factory import PropertyDescriptorFactory
 from .property.override import Override
 from .property.wrappers import PropertyValueContainer
 
-_ABSTRACT_ADMONITION = '''
-    .. note::
-        This is an abstract base class used to help organize the hierarchy of Bokeh
-        model types. **It is not useful to instantiate on its own.**
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
 
-'''
+__all__ = (
+    'abstract',
+    'accumulate_dict_from_superclasses',
+    'accumulate_from_superclasses',
+    'HasProps',
+    'MetaHasProps',
+)
 
-_EXAMPLE_TEMPLATE = '''
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
-    Example
-    -------
-
-    .. bokeh-plot:: ../%(path)s
-        :source-position: below
-
-'''
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 def abstract(cls):
     ''' A decorator to mark abstract base classes derived from |HasProps|.
@@ -622,3 +645,28 @@ class HasProps(with_metaclass(MetaHasProps, object)):
 
         '''
         return self.__class__(**self._property_values)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+_ABSTRACT_ADMONITION = '''
+    .. note::
+        This is an abstract base class used to help organize the hierarchy of Bokeh
+        model types. **It is not useful to instantiate on its own.**
+
+'''
+
+_EXAMPLE_TEMPLATE = '''
+
+    Example
+    -------
+
+    .. bokeh-plot:: ../%(path)s
+        :source-position: below
+
+'''
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

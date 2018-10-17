@@ -1,14 +1,68 @@
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
-import pytest
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-import bokeh.core.query as q
+import pytest ; pytest
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from bokeh.models import (
     Axis, BoxZoomTool, ColumnDataSource, DatetimeAxis, GlyphRenderer, Grid, LinearAxis,
     LogAxis, PanTool, Plot, SaveTool, Range1d, ResetTool, Tool, WheelZoomTool,
 )
 from bokeh.models.glyphs import Glyph, Circle, Line, Rect
+
+# Module under test
+import bokeh.core.query as q
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+typcases = {
+    Range1d: 3,
+
+    Plot: 1,
+    Glyph: 3,
+
+    Axis: 3,
+    DatetimeAxis: 1,
+    LinearAxis: 2,  # DatetimeAxis is subclass of LinearAxis
+    LogAxis: 1,
+
+    Grid: 2,
+
+    Tool: 5,
+    BoxZoomTool: 1,
+    PanTool: 1,
+    SaveTool: 1,
+    ResetTool: 1,
+    WheelZoomTool: 1,
+}
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 def large_plot():
     source = ColumnDataSource(data=dict(x=[0, 1], y=[0, 1]))
@@ -47,27 +101,6 @@ def large_plot():
     )
 
     return plot
-
-typcases = {
-    Range1d: 3,
-
-    Plot: 1,
-    Glyph: 3,
-
-    Axis: 3,
-    DatetimeAxis: 1,
-    LinearAxis: 2,  # DatetimeAxis is subclass of LinearAxis
-    LogAxis: 1,
-
-    Grid: 2,
-
-    Tool: 5,
-    BoxZoomTool: 1,
-    PanTool: 1,
-    SaveTool: 1,
-    ResetTool: 1,
-    WheelZoomTool: 1,
-}
 
 plot = large_plot()
 
@@ -238,3 +271,11 @@ def test_with_context():
         q.find(plot.references(), {'select': 'below'}, {'plot': plot})
     )
     assert len(res) == 0
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

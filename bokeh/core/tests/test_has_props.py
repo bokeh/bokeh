@@ -1,10 +1,45 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from mock import patch
-import pytest
 
-import bokeh.core.has_props as hp
+# External imports
 
+# Bokeh imports
 from bokeh.core.properties import Int, String, NumberSpec, List, Override, Either
 from bokeh.core.property.descriptors import BasicPropertyDescriptor, DataSpecPropertyDescriptor
+
+# Module under test
+import bokeh.core.has_props as hp
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class Parent(hp.HasProps):
     int1 = Int(default=10)
@@ -349,3 +384,11 @@ def test_HasProps_apply_theme_func_default():
     c.apply_theme(theme)
     c.foo = 50
     assert c.foo == 50
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

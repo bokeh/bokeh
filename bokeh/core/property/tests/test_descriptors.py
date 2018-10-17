@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -35,7 +35,13 @@ import bokeh.core.property.descriptors as bcpd
 # Setup
 #-----------------------------------------------------------------------------
 
-ALL = ()
+ALL = (
+    'BasicPropertyDescritor',
+    'ColumnDataPropertyDescriptor',
+    'DataSpecPropertyDescriptor',
+    'PropertyDescriptor',
+    'UnitsSpecPropertyDescriptor',
+)
 
 
 #-----------------------------------------------------------------------------

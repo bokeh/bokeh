@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Common enumerations to be used together with |Enum| property.
 
 This module provides many pre-defined enumerations, as well as functions
@@ -54,11 +61,86 @@ Enumerations can be easily documented in Sphinx documentation with the
 
 '''
 
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
 from six import string_types
 
+# Bokeh imports
 from .. import colors, palettes
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'Anchor',
+    'AngleUnits',
+    'ButtonType',
+    'DashPattern',
+    'DateFormat',
+    'DatetimeUnits',
+    'Dimension',
+    'Dimensions',
+    'Direction',
+    'Enumeration',
+    'enumeration',
+    'FontStyle',
+    'HoldPolicy',
+    'HorizontalLocation',
+    'JitterRandomDistribution',
+    'LatLon',
+    'LegendClickPolicy',
+    'LegendLocation',
+    'LineCap',
+    'LineDash',
+    'LineJoin',
+    'Location',
+    'MapType',
+    'MarkerType',
+    'NamedColor',
+    'NumeralLanguage',
+    'Orientation',
+    'OutputBackend',
+    'PaddingUnits',
+    'Palette',
+    'RenderLevel',
+    'RenderMode',
+    'RoundingFunction',
+    'SizingMode',
+    'SliderCallbackPolicy',
+    'SortDirection',
+    'SpatialUnits',
+    'StartEnd',
+    'StepMode',
+    'TextAlign',
+    'TextBaseline',
+    'TickLabelOrientation',
+    'TooltipAttachment',
+    'TooltipFieldFormatter',
+    'VerticalAlign',
+    'VerticalLocation',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class Enumeration(object):
     ''' Represent an enumerated collection of values.
@@ -271,3 +353,11 @@ VerticalAlign = enumeration("top", "middle", "bottom")
 
 #: Specify a vertical location in plot layouts
 VerticalLocation = enumeration("above", "below")
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

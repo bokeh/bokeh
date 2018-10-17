@@ -1,10 +1,43 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide the ``check_integrity`` function.
 
 '''
-from __future__ import absolute_import
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'check_integrity',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def check_integrity(models):
     ''' Apply validation and integrity checks to a collection of Bokeh models.
@@ -40,11 +73,23 @@ def check_integrity(models):
             messages[func.validator_type].extend(func())
 
     for msg in sorted(messages['error']):
-        logger.error("E-%d (%s): %s: %s" % msg)
+        log.error("E-%d (%s): %s: %s" % msg)
 
     for msg in sorted(messages['warning']):
-        logger.warning("W-%d (%s): %s: %s" % msg)
+        log.warning("W-%d (%s): %s: %s" % msg)
 
     # This will be turned on in a future release
     # if len(messages['error']) or (len(messages['warning']) and settings.strict()):
     #     raise RuntimeError("Errors encountered during validation (see log output)")
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
