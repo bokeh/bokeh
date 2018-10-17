@@ -30,6 +30,7 @@ The following examples have been removed or updated:
 * *models/file/external_resources.py* Moved to *latex_extension.py*
 * *models/file/glyph1.py* Moved to *basic_plot.py*
 * *models/file/line.py* Old example removed
+* *models/file/transform_jitter_coffee.py* Discouraged coffeescript example removed
 * *plotting/file/brewer.py*: Moved to *stacked_area.py*
 
 Pretty printing functions
