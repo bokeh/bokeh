@@ -20,6 +20,8 @@ export interface MultiPolygonsData extends GlyphData {
 
   sxs: Arrayable<Arrayable<Arrayable<Arrayable<number>>>>
   sys: Arrayable<Arrayable<Arrayable<Arrayable<number>>>>
+
+  hole_index: SpatialIndex
 }
 
 export interface MultiPolygonsView extends MultiPolygonsData {}
@@ -45,7 +47,34 @@ export class MultiPolygonsView extends GlyphView {
           maxY: max(ys),
           i,
         })
-        console.log('INDEX_DATA', i, j, points)
+      }
+    }
+    this.hole_index = this._index_hole_data()  // should this be set here?
+    return new SpatialIndex(points)
+  }
+
+  protected _index_hole_data(): SpatialIndex {
+    // need advice on how to use this sure if this could be more useful
+    const points = []
+    for (let i = 0, end = this._xs.length; i < end; i++) {
+      for (let j = 0, endj = this._xs[i].length; j < endj; j++) {
+        if (this._xs[i][j].length > 1 ) {
+          for (let k = 1, endk = this._xs[i][j].length; k < endk; k++) {
+            const xs = this._xs[i][j][k]  // only use holes
+            const ys = this._ys[i][j][k]  // only use holes
+
+            if (xs.length == 0)
+              continue
+
+            points.push({
+              minX: min(xs),
+              minY: min(ys),
+              maxX: max(xs),
+              maxY: max(ys),
+              i,
+            })
+          }
+        }
       }
     }
     return new SpatialIndex(points)
@@ -69,15 +98,14 @@ export class MultiPolygonsView extends GlyphView {
 
   protected _render(ctx: Context2d, indices: number[], {sxs, sys}: MultiPolygonsData): void {
     if (this.visuals.fill.doit || this.visuals.line.doit) {
-      console.log('INDICES', indices)
+
       for (const i of indices) {
         ctx.beginPath()
         for (let j = 0, endj = sxs[i].length; j < endj; j++) {
           for (let k = 0, endk = sxs[i][j].length; k < endk; k++) {
             const _sx = sxs[i][j][k]
             const _sy = sys[i][j][k]
-            // should we reverse paths if necessary and use regular winding?
-            // draw polygons and holes
+
             for (let l = 0, endl = _sx.length; l < endl; l++) {
               if (l == 0) {
                 console.log('INFO', i, j, k, _sx[l], _sy[l])
@@ -106,8 +134,9 @@ export class MultiPolygonsView extends GlyphView {
 
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
-    console.log('Did it hit?')
+
     const candidates = this.index.indices({minX: x, minY: y, maxX: x, maxY: y})
+    const hole_candidates = this.hole_index.indices({minX: x, minY: y, maxX: x, maxY: y})
 
     const hits = []
     for (let i = 0, end = candidates.length; i < end; i++) {
@@ -115,11 +144,34 @@ export class MultiPolygonsView extends GlyphView {
       const sxs = this.sxs[idx]
       const sys = this.sys[idx]
       for (let j = 0, endj = sxs.length; j < endj; j++) {
+        const nk = sxs[j].length
+
         if (hittest.point_in_poly(sx, sy, (sxs[j][0] as number[]), (sys[j][0] as number[]))) {
-          hits.push(idx)
+          if (nk == 1) {
+            hits.push(idx)
+          } else if (hole_candidates.indexOf(idx) == -1) {
+            hits.push(idx)
+          } else if (nk > 1) {
+            let in_a_hole = false
+            for (let k = 1; k < nk; k++) {
+              const sxs_k = sxs[j][k] as number[]
+              const sys_k = sys[j][k] as number[]
+              if (hittest.point_in_poly(sx, sy, sxs_k, sys_k)) {
+                console.log('IN HOLE', idx, j, k)
+                in_a_hole = true
+                break
+              } else {
+                console.log('NOT IN HOLE', idx, j, k)
+                continue
+              }
+            }
+            if (!in_a_hole) {
+              hits.push(idx)
+            }
+          }
         }
 	    }
-	  }
+    }
 
     const result = hittest.create_empty_hit_test_result()
     result.indices = hits
