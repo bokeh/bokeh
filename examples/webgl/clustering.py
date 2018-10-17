@@ -1,17 +1,18 @@
-""" Example inspired by an example from the scikit-learn project:
+''' Example inspired by an example from the scikit-learn project:
+
 http://scikit-learn.org/stable/auto_examples/cluster/plot_cluster_comparison.html
-"""
+
+'''
+from __future__ import print_function
 
 import numpy as np
-
-try:
-    from sklearn import cluster, datasets
-    from sklearn.preprocessing import StandardScaler
-except ImportError:
-    raise ImportError('This example requires scikit-learn (conda install sklearn)')
+from sklearn import cluster, datasets
+from sklearn.preprocessing import StandardScaler
 
 from bokeh.layouts import row, column
 from bokeh.plotting import figure, show, output_file
+
+print("\n\n*** This example may take several seconds to run before displaying. ***\n\n")
 
 N = 50000
 PLOT_SIZE = 400
