@@ -121,12 +121,16 @@ p = figure(title="Marker: cross")
 p.scatter(x, y, marker="cross", size=sizes, color="#E6550D", line_width=2)
 children.append(p)
 
+p = figure(title="Marker: dash")
+p.scatter(x, y, marker="dash", angle=-0.7, size=sizes, color="#E6550D")
+children.append(p)
+
 p = figure(title="Marker: diamond")
 p.scatter(x, y, marker="diamond", size=sizes, color="#1C9099", line_width=2)
 children.append(p)
 
 p = figure(title="hex")
-p.hex(x, y, size=sizes, color="#99D594")
+p.scatter(x, y, marker="hex", size=sizes, color="#99D594")
 children.append(p)
 
 p = figure(title="Marker: inverted_triangle")
