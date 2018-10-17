@@ -2,9 +2,11 @@
 """
 
 from bokeh.models import Label
+from bokeh.palettes import Spectral4
 from bokeh.plotting import output_file, figure, show
 
 import numpy as np
+from scipy.special import jv
 
 output_file('external_resources.html')
 
@@ -16,8 +18,8 @@ class LatexLabel(Label):
     Only the render method of LabelView is overwritten to perform the
     text -> latex (via katex) conversion
     """
-    __javascript__ = ["https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"]
-    __css__ = ["https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css"]
+    __javascript__ = ["https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/katex.min.js"]
+    __css__ = ["https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/katex.min.css"]
     __implementation__ = """
 import {Label, LabelView} from "models/annotations/label"
 
@@ -47,16 +49,22 @@ export class LatexLabel extends Label
   default_view: LatexLabelView
 """
 
-x = np.arange(0.0, 1.0 + 0.01, 0.01)
-y = np.cos(2*2*np.pi*x) + 2
+p = figure(title="LaTex Extension Demonstration", plot_width=800, plot_height=350,
+           background_fill_color="#fafafa")
+p.x_range.range_padding = 0
 
-p = figure(title="LaTex Demonstration", plot_width=500, plot_height=500)
-p.line(x, y)
+x = np.arange(0.0, 20.0, 0.02)
 
-latex = LatexLabel(text="f = \sum_{n=1}^\infty\\frac{-e^{i\pi}}{2^n}!",
-                   x=5, y=430, x_units='screen', y_units='screen',
-                   render_mode='css', text_font_size='16pt',
-                   background_fill_color='#ffffff')
+for i, n in enumerate([0, 1, 4, 7]):
+    p.line(x, jv(n, x), line_width=3, color=Spectral4[i], alpha=0.8, legend="𝜈=%d" % n)
+
+
+text = (r"\text{Bessel Functions of the First Kind: }" +
+        r"J_\nu = \sum_{m=0}^{\infty}\frac{(-1)^m}{m!\ \Gamma(m+\nu+1)}" +
+        r"\left(\frac{x}{2}\right)^{2m+\nu}")
+latex = LatexLabel(text=text,x=4.5, y=250, x_units='data', y_units='screen',
+                   render_mode='css', text_font_size='8pt',
+                   background_fill_color="white", border_line_color="lightgrey")
 
 p.add_layout(latex)
 
