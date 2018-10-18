@@ -37,7 +37,7 @@ import bokeh.core.property.wrappers as bcpw
 #-----------------------------------------------------------------------------
 
 ALL = (
-    'notify_ownder',
+    'notify_owner',
     'PropertyValueContainer',
     'PropertyValueList',
     'PropertyValueDict',
