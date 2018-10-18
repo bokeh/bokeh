@@ -210,7 +210,7 @@ def enumeration(*values, **kwargs):
         "_case_sensitive": kwargs.get("case_sensitive", True),
     })
 
-    return type("Enumeration", (Enumeration,), attrs)()
+    return type(str("Enumeration"), (Enumeration,), attrs)()
 
 #: Specify an achor position on a box/frame
 Anchor = enumeration(
