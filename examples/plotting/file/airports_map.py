@@ -1,7 +1,7 @@
 from __future__ import print_function
 
-from bokeh.layouts import row
-from bokeh.models import Range1d, WMTSTileSource
+from bokeh.layouts import column, gridplot
+from bokeh.models import Div, Range1d, WMTSTileSource
 from bokeh.plotting import figure, show
 from bokeh.sampledata.airports import data as airports
 from bokeh.tile_providers import CARTODBPOSITRON
@@ -15,13 +15,14 @@ def plot(tile_source):
     y_range = Range1d(start=airports['y'].min() - 10000, end=airports['y'].max() + 10000, bounds=None)
 
     # create plot and add tools
-    p = figure(tools='hover,wheel_zoom,pan', x_range=x_range, y_range=y_range, title=title,
-               tooltips=[("Name", "@name"), ("Elevation", "@elevation (m)")])
+    p = figure(tools='hover,wheel_zoom,pan,reset', x_range=x_range, y_range=y_range, title=title,
+               tooltips=[("Name", "@name"), ("Elevation", "@elevation (m)")],
+               plot_width=400, plot_height=400)
     p.axis.visible = False
     p.add_tile(tile_source)
 
     # create point glyphs
-    p.circle(x='x', y='y', size=9, fill_color="#F46B42", line_color="#D2C4C1", line_width=1.5, source=airports)
+    p.circle(x='x', y='y', size=10, fill_color="#F46B42", line_color="white", line_width=2, source=airports)
     return p
 
 # create a tile source
@@ -38,4 +39,16 @@ mq_tile_source = WMTSTileSource(**tile_options)
 carto = plot(CARTODBPOSITRON)
 mq = plot(mq_tile_source)
 
-show(row([carto, mq]))
+# link panning
+mq.x_range = carto.x_range
+mq.y_range = carto.y_range
+
+div = Div(text="""
+<p>This example shows the same data on two separate tile plots. The left plot
+is using a built-in CartoDB tile source, and is using  a customized tile source
+configured for OpenStreetMap.</p>
+""", width=800)
+
+layout = column(div, gridplot([[carto, mq]], toolbar_location="right"))
+
+show(layout)
