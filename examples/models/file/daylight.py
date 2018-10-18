@@ -7,7 +7,7 @@ from bokeh.core.properties import value
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models.glyphs import Patch, Line, Text
-from bokeh.models import ColumnDataSource, DatetimeAxis, DatetimeTickFormatter, Grid, Legend, LegendItem, Plot
+from bokeh.models import ColumnDataSource, DatetimeAxis, DatetimeTickFormatter, FixedTicker, Legend, LegendItem, Plot
 from bokeh.resources import INLINE
 from bokeh.sampledata import daylight
 from bokeh.util.browser import view
@@ -51,37 +51,42 @@ text_source = ColumnDataSource(dict(
 ))
 
 plot = Plot(plot_width=800, plot_height=400)
-plot.title.text = "Daylight Hours - Warsaw, Poland"
+plot.title.text = "Daylight Hours 2013 - Warsaw, Poland"
 plot.toolbar_location = None
+plot.x_range.range_padding = 0
 
-patch1 = Patch(x="dates", y="times", fill_color="skyblue", fill_alpha=0.8)
+patch1 = Patch(x="dates", y="times", fill_color="#282e54")
 plot.add_glyph(patch1_source, patch1)
 
-patch2 = Patch(x="dates", y="times", fill_color="orange", fill_alpha=0.8)
+patch2 = Patch(x="dates", y="times", fill_color="#ffdd91")
 plot.add_glyph(patch2_source, patch2)
 
-sunrise_line = Line(x="dates", y="sunrises", line_color="yellow", line_width=2)
+sunrise_line = Line(x="dates", y="sunrises", line_color="orange", line_width=4)
 sunrise_line_renderer = plot.add_glyph(source, sunrise_line)
 
-sunset_line = Line(x="dates", y="sunsets", line_color="red", line_width=2)
+sunset_line = Line(x="dates", y="sunsets", line_color="crimson", line_width=4)
 sunset_line_renderer = plot.add_glyph(source, sunset_line)
 
-text = Text(x="dates", y="times", text="texts", text_align="center")
+text = Text(x="dates", y="times", text="texts", text_align="center", text_color="grey")
 plot.add_glyph(text_source, text)
 
-xformatter = DatetimeTickFormatter(months="%b %Y")
-xaxis = DatetimeAxis(formatter=xformatter)
+xformatter = DatetimeTickFormatter(months="%b %d %Y")
+from time import mktime
+min_time = dt.datetime.min.time()
+xticker = FixedTicker(ticks=[
+    mktime(dt.datetime.combine(summer_start, min_time).timetuple()) * 1000,
+    mktime(dt.datetime.combine(summer_end, min_time).timetuple()) * 1000
+])
+xaxis = DatetimeAxis(formatter=xformatter, ticker=xticker)
 plot.add_layout(xaxis, 'below')
 
 yaxis = DatetimeAxis()
+yaxis.formatter.hours = ['%H:%M']
 plot.add_layout(yaxis, 'left')
 
-plot.add_layout(Grid(dimension=0, ticker=xaxis.ticker))
-plot.add_layout(Grid(dimension=1, ticker=yaxis.ticker))
-
 legend = Legend(items=[
+    LegendItem(label=value('sunset'), renderers=[sunset_line_renderer]),
     LegendItem(label=value('sunrise'), renderers=[sunrise_line_renderer]),
-    LegendItem(label=value('sunset'), renderers=[sunset_line_renderer])
 ])
 plot.add_layout(legend)
 

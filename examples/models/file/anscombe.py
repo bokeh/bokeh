@@ -6,9 +6,8 @@ import pandas as pd
 from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.layouts import gridplot
-from bokeh.models.glyphs import Circle, Line
-from bokeh.models import ColumnDataSource, Grid, LinearAxis, Plot, Range1d
+from bokeh.layouts import column, gridplot
+from bokeh.models import Circle, ColumnDataSource, Div, Grid, Line, LinearAxis, Plot, Range1d
 from bokeh.resources import INLINE
 
 raw_columns=[
@@ -50,7 +49,7 @@ ydr = Range1d(start=-0.5, end=20.5)
 
 def make_plot(title, xname, yname):
     plot = Plot(x_range=xdr, y_range=ydr, plot_width=400, plot_height=400,
-                border_fill_color='white', background_fill_color='#e9e0db')
+                background_fill_color='#efefef')
     plot.title.text = title
 
     xaxis = LinearAxis(axis_line_color=None)
@@ -81,8 +80,16 @@ IV  = make_plot('IV',  'xiv',  'yiv')
 
 grid = gridplot([[I, II], [III, IV]], toolbar_location=None)
 
+div = Div(text="""
+<h1>Anscombe's Quartet</h1>
+<p>Anscombe's quartet is a collection of four small datasets that have nearly
+identical simple descriptive statistics (mean, variance, correlation, and linear
+regression lines), yet appear very different when graphed.
+</p>
+""")
+
 doc = Document()
-doc.add_root(grid)
+doc.add_root(column(div, grid, sizing_mode="scale_width"))
 
 if __name__ == "__main__":
     doc.validate()

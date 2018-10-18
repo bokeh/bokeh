@@ -11,7 +11,7 @@ tools = 'pan'
 
 def bollinger():
     # Define Bollinger Bands.
-    upperband = np.random.random_integers(100, 150, size=100)
+    upperband = np.random.randint(100, 150+1, size=100)
     lowerband = upperband - 100
     x_data = np.arange(1, 101)
 

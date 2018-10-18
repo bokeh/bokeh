@@ -15,7 +15,9 @@ x = np.random.random(size=N) * 100
 y = np.random.random(size=N) * 100
 radii = np.random.random(size=N) * 1.5
 colors = ["#%02x%02x%02x" % (int(r), int(g), 150) for r, g in zip(50 + 2 * x, 30 + 2 * y)]
-plot_default = figure(tools='pan, box_zoom, wheel_zoom, reset', title="Cannot pan outside data (bounds='auto')")
+plot_default = figure(tools='pan, box_zoom, wheel_zoom, reset',
+                      title="Cannot pan outside data (bounds='auto')",
+                      lod_threshold=None)
 plot_default.scatter(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
 ###### -- ranges set here -- ########
 plot_default.x_range.bounds = 'auto'
@@ -29,7 +31,9 @@ plot_default.y_range.bounds = 'auto'
 x_range = Range1d(0, 3, bounds=(-1, 3.5), min_interval=1.5)
 y_range = Range1d(0, 3, bounds=(-0.5, 4), min_interval=1.5)
 ###### -- end -- ########
-plot_range = figure(tools='pan, box_zoom, wheel_zoom, reset', x_range=x_range, y_range=y_range, title="Manual bounds x:(-1, 3.5) y:(-0.5, 4) min_interval:1.5")
+plot_range = figure(tools='pan, box_zoom, wheel_zoom, reset',
+                    x_range=x_range, y_range=y_range,
+                    title="Manual bounds x:(-1, 3.5) y:(-0.5, 4) min_interval:1.5")
 plot_range.rect(x=[1, 2], y=[1, 1], width=0.9, height=0.9)
 
 
@@ -39,7 +43,9 @@ plot_range.rect(x=[1, 2], y=[1, 1], width=0.9, height=0.9)
 x_range = Range1d(0, 3, max_interval=4)
 y_range = Range1d(0, 3, bounds=(None, 3), max_interval=4)
 ###### -- end -- ########
-plot_range_un = figure(tools='pan, wheel_zoom, reset', x_range=x_range, y_range=y_range, title="Unbounded (except for y_max=3 and max_interval=4)")
+plot_range_un = figure(tools='pan, wheel_zoom, reset',
+                       x_range=x_range, y_range=y_range,
+                       title="Unbounded (except for y_max=3 and max_interval=4)")
 plot_range_un.rect(x=[1, 2], y=[1, 1], width=0.9, height=0.9, color='#043A8D')
 
 
@@ -50,7 +56,8 @@ plot_range_un.rect(x=[1, 2], y=[1, 1], width=0.9, height=0.9, color='#043A8D')
 x_range = Range1d(3, 0, bounds=(-1, 3.5), min_interval=1.5)
 y_range = Range1d(3, 0, bounds=(-0.5, 4), min_interval=1.5)
 ###### -- end -- ########
-plot_range_rev = figure(tools='pan,wheel_zoom,reset', x_range=x_range, y_range=y_range,
+plot_range_rev = figure(tools='pan,wheel_zoom,reset',
+                        x_range=x_range, y_range=y_range,
                         title="Manual bounds x:(-1, 3.5) y:(-0.5, 4) min_range:1.5 (reverse ranges)")
 plot_range_rev.rect(x=[1, 2], y=[1, 1], width=0.9, height=0.9, color='#8CBEDB')
 
@@ -90,7 +97,9 @@ y_range = Range1d(start=0, end=40, bounds=(0, 60))
 y_range_extra = Range1d(start=300, end=700, bounds=(200, 1000))
 ###### -- end -- ########
 
-plot_extra = figure(x_axis_type="datetime", x_range=x_range, y_range=y_range, title="Multiple ranges x:(2000/1/1, 2006/12/31), y1:(10, 60), y2:(200, 1000)")
+plot_extra = figure(x_axis_type="datetime",
+                    x_range=x_range, y_range=y_range,
+                    title="Multiple ranges x:(2000/1/1, 2006/12/31), y1:(10, 60), y2:(200, 1000)")
 plot_extra.line(x, apple_y, color='lightblue')
 plot_extra.extra_y_ranges = {'goog': y_range_extra}
 plot_extra.line(x, google_y, color='pink', y_range_name='goog')

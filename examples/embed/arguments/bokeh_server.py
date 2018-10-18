@@ -29,14 +29,16 @@ try:
 except (ValueError, TypeError):
     batchid = 1
 
-dispatch = {1 : np.sin,
-            2 : np.cos,
-            3 : np.tan}
+func = {
+    1 : np.sin,
+    2 : np.cos,
+    3 : np.tan
+}[batchid]
 
 # Set up data
 N = 200
 x = np.linspace(0, 4*np.pi, N)
-y = dispatch[batchid](x)
+y = func(x)
 source = ColumnDataSource(data=dict(x=x, y=y))
 
 # Set up plot
@@ -69,7 +71,7 @@ def update_data(attrname, old, new):
 
     # Generate the new curve
     x = np.linspace(0, 4*np.pi, N)
-    y = a*np.sin(k*x + w) + b
+    y = a*func(k*x + w) + b
 
     source.data = dict(x=x, y=y)
 

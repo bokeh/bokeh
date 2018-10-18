@@ -24,6 +24,6 @@ p.grid.minor_grid_line_color = '#eeeeee'
 p.patches([x2] * areas.shape[1], [areas[c].values for c in areas],
           color=colors, alpha=0.8, line_color=None)
 
-output_file('stacked_area.html', title='brewer.py example')
+output_file('stacked_area.html', title='stacked_area.py example')
 
 show(p)

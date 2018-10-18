@@ -4,7 +4,7 @@ from bokeh.models import ColumnDataSource, Plot, LinearAxis, Grid, HoverTool
 from bokeh.models.widgets import Tabs, Panel, Paragraph
 from bokeh.models.layouts import Column
 from bokeh.models.glyphs import (
-    AnnularWedge, Annulus, Arc, Bezier, Circle, ImageURL, Line, MultiLine, Oval, Hex,
+    AnnularWedge, Annulus, Arc, Bezier, Circle, Dash, ImageURL, Line, MultiLine, Oval, Hex,
     Patch, Patches, Quad, Quadratic, Ray, Rect, Segment, Square, Text, Wedge, CircleX, Triangle,
     Cross, Diamond, InvertedTriangle, SquareX, Asterisk, SquareCross, DiamondCross, CircleCross, X
 )
@@ -73,6 +73,7 @@ markers = [
     ("asterisk", Asterisk(x="x", y="y", size="sizes", line_color="#F0027F", fill_color=None, line_width=2)),
     ("x", X(x="x", y="y", size="sizes", line_color="thistle", fill_color=None, line_width=2)),
     ("hex", Hex(x="x", y="y", size="sizes", line_color="#99D594", line_width=2)),
+    ("dash", Dash(x="x", y="y", size="sizes", angle=0.5, line_color="#386CB0", line_width=1)),
 ]
 
 def make_tab(title, glyph):

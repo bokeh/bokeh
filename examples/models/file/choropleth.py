@@ -3,11 +3,11 @@ from __future__ import print_function
 from bokeh.util.browser import view
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models.glyphs import Patches
-from bokeh.models import Plot, ColumnDataSource
+from bokeh.models import ColorBar, LinearColorMapper, Patches, Plot, ColumnDataSource
 from bokeh.palettes import Viridis11
 from bokeh.resources import INLINE
 from bokeh.sampledata import us_states, us_counties, unemployment
+from bokeh.transform import transform
 
 us_states = us_states.data.copy()
 us_counties = us_counties.data
@@ -23,22 +23,13 @@ state_source = ColumnDataSource(
     )
 )
 
-county_colors = []
-for county_id in us_counties:
-    if us_counties[county_id]["state"] in ["ak", "hi", "pr", "gu", "vi", "mp", "as"]:
-        continue
-    try:
-        rate = unemployment[county_id]
-        idx = min(int(rate/2), 10)
-        county_colors.append(Viridis11[idx])
-    except KeyError:
-        county_colors.append("black")
+cmap = LinearColorMapper(palette=Viridis11, low=min(unemployment.values()), high=max(unemployment.values()))
 
 county_source = ColumnDataSource(
     data=dict(
         county_xs=[us_counties[code]["lons"] for code in us_counties if us_counties[code]["state"] not in ["ak", "hi", "pr", "gu", "vi", "mp", "as"]],
         county_ys=[us_counties[code]["lats"] for code in us_counties if us_counties[code]["state"] not in ["ak", "hi", "pr", "gu", "vi", "mp", "as"]],
-        county_colors=county_colors
+        rate=[unemployment[code] for code in us_counties if us_counties[code]["state"] not in ["ak", "hi", "pr", "gu", "vi", "mp", "as"]],
     )
 )
 
@@ -46,11 +37,14 @@ plot = Plot(min_border=0, border_fill_color="white", plot_width=1300, plot_heigh
 plot.title.text = "2009 Unemployment Data"
 plot.toolbar_location = None
 
-county_patches = Patches(xs="county_xs", ys="county_ys", fill_color="county_colors", fill_alpha=0.7, line_color="white", line_width=0.5)
+county_patches = Patches(xs="county_xs", ys="county_ys", fill_color=transform("rate", cmap), fill_alpha=0.7, line_color="white", line_width=0.5)
 plot.add_glyph(county_source, county_patches)
 
 state_patches = Patches(xs="state_xs", ys="state_ys", fill_alpha=0.0, line_color="#884444", line_width=2)
 plot.add_glyph(state_source, state_patches)
+
+cbar =  ColorBar(color_mapper=cmap, location=(0, 0))
+plot.add_layout(cbar, 'left')
 
 doc = Document()
 doc.add_root(plot)

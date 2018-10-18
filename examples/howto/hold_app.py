@@ -1,8 +1,7 @@
-from bokeh.driving import repeat
 from bokeh.events import ButtonClick
 from bokeh.io import curdoc
-from bokeh.layouts import column
-from bokeh.models import Button, ColumnDataSource, Slider
+from bokeh.layouts import column, row, widgetbox
+from bokeh.models import Button, ColumnDataSource, Div, Slider
 from bokeh.plotting import figure
 
 import numpy as np
@@ -14,7 +13,7 @@ y = 1 - (x-1)**2
 
 source = ColumnDataSource(data=dict(x=x, y=y))
 
-p  = figure(title="initial title")
+p  = figure(toolbar_location=None, background_fill_color="#fafafa")
 p.circle(x=1, y=list(range(0, 11)))
 p.line('x', 'y', color="orange", source=source)
 
@@ -32,10 +31,16 @@ collect.on_event(ButtonClick, lambda event: doc.hold("collect"))
 unhold = Button(label="unhold")
 unhold.on_event(ButtonClick, lambda event: doc.unhold())
 
-doc.add_root(column(p, slider, combine, collect, unhold))
+div = Div(text="""
+<p>Bokeh Documents can be configured to "hold" property change events until a
+corresponding "unhold" is issued. There are two modes. In "collect" mode, all
+held events are replayed in order when "unhold" is called. In "combine" mode,
+Bokeh will coalesce events so that at most one event per property is issued.</p>
 
-@repeat(np.linspace(0, 10, 100))
-def update(v):
-    slider.value = v
+<p>Click "combine" or "collect" below, and scrub the slider. Then click "unhold"
+to see the result.</p>
+""", width=600)
 
-curdoc().add_periodic_callback(update, 200)
+doc.add_root(row(
+    p, column(div, widgetbox(slider, combine, collect, unhold)))
+)

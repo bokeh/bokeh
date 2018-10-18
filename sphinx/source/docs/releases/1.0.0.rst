@@ -17,6 +17,26 @@ New Dependencies
 
 "Pillow>=4.0" has been added to the list of Bokeh runtime dependencies.
 
+Examples
+~~~~~~~~
+
+The following examples have been removed or updated:
+
+* *app/pivot*: This large example was unfocused and unmaintained and has been
+  removed
+* *embed/simple*: Old example removed
+* *howto/us_marriages_divorces*: Redundant notebook removed, script moved
+  to *plotting/file/us_marriages_divorces_hover.py*
+* *models/file/colorspec.py* Old example removed
+* *models/file/external_resources.py* Moved to *latex_extension.py*
+* *models/file/glyph1.py* Moved to *basic_plot.py*
+* *models/file/grid.py* Old example removed
+* *models/file/line.py* Old example removed
+* *models/file/transform_jitter_coffee.py* Discouraged coffeescript example removed
+* *plotting/file/bar_chart.py* Removed old/duplicative example
+* *plotting/file/brewer.py*: Moved to *stacked_area.py*
+* *plotting/file/bollinger.py* Old example removed
+
 Pretty printing functions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 

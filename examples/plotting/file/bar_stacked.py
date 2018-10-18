@@ -2,7 +2,7 @@ from bokeh.core.properties import value
 from bokeh.io import show, output_file
 from bokeh.plotting import figure
 
-output_file("stacked.html")
+output_file("bar_stacked.html")
 
 fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
 years = ["2015", "2016", "2017"]

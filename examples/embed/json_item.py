@@ -3,6 +3,7 @@ import json
 
 from bokeh.embed import json_item
 from bokeh.plotting import figure
+from bokeh.resources import CDN
 from bokeh.sampledata.iris import flowers
 
 from flask import Flask
@@ -14,8 +15,7 @@ page = Template("""
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link href="http://localhost:5006/static/css/bokeh.css" rel="stylesheet" type="text/css">
-  <script src="http://localhost:5006/static/js/bokeh.js"></script>
+  {{ resources }}
 </head>
 
 <body>
@@ -38,7 +38,7 @@ colormap = {'setosa': 'red', 'versicolor': 'green', 'virginica': 'blue'}
 colors = [colormap[x] for x in flowers['species']]
 
 def make_plot(x, y):
-    p = figure(title = "Iris Morphology", sizing_mode="fixed")
+    p = figure(title = "Iris Morphology", sizing_mode="fixed", plot_width=400, plot_height=400)
     p.xaxis.axis_label = x
     p.yaxis.axis_label = y
     p.circle(flowers[x], flowers[y], color=colors, fill_alpha=0.2, size=10)
@@ -46,7 +46,7 @@ def make_plot(x, y):
 
 @app.route('/')
 def root():
-    return page.render()
+    return page.render(resources=CDN.render())
 
 @app.route('/plot')
 def plot():
@@ -59,5 +59,4 @@ def plot2():
     return json.dumps(json_item(p))
 
 if __name__ == '__main__':
-    print("\n\n *** Run 'bokeh static --port 5006` in a separate window ***\n\n")
     app.run()

@@ -29,7 +29,7 @@ data['angle'] = data['value']/data['value'].sum() * 2*pi
 data['color'] = Category20c[len(x)]
 
 p = figure(plot_height=350, title="Pie Chart", toolbar_location=None,
-           tools="hover", tooltips="@country: @value")
+           tools="hover", tooltips="@country: @value", x_range=(-0.5, 1.0))
 
 p.wedge(x=0, y=1, radius=0.4,
         start_angle=cumsum('angle', include_zero=True), end_angle=cumsum('angle'),

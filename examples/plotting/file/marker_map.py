@@ -5,7 +5,7 @@ from bokeh.transform import factor_cmap, factor_mark
 SPECIES = ['setosa', 'versicolor', 'virginica']
 MARKERS = ['hex', 'circle_x', 'triangle']
 
-p = figure(title = "Iris Morphology")
+p = figure(title = "Iris Morphology", background_fill_color="#fafafa")
 p.xaxis.axis_label = 'Petal Length'
 p.yaxis.axis_label = 'Sepal Width'
 

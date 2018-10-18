@@ -12,11 +12,12 @@ source = ColumnDataSource(
     data = dict(
         x = [1, 2, 3, 4, 4,   5, 5],
         y = [5, 4, 3, 2, 2.1, 1, 1.1],
-        color = ["rgb(0, 100, 120)", "green", "blue", "#2c7fb8", "#2c7fb8", "rgba(120, 230, 150, 0.5)", "rgba(120, 230, 150, 0.5)"]
+        color = ["red", "green", "blue", "#2c7fb8", "grey", "#2c7fb8", "lightgrey"]
     )
 )
 
 plot = Plot()
+plot.title.text = "Click a circle execute a JavaScript callback"
 
 circle = Circle(x="x", y="y", radius=0.2, fill_color="color", line_color="black")
 circle_renderer = plot.add_glyph(source, circle)
@@ -24,12 +25,14 @@ circle_renderer = plot.add_glyph(source, circle)
 plot.add_layout(LinearAxis(), 'below')
 plot.add_layout(LinearAxis(), 'left')
 
-customjs = CustomJS.from_coffeescript(args=dict(source=source), code="""
-  import {get_indices} from "core/util/selection"
-
-  for i in get_indices(source)
-    color = source.data['color'][i]
-    window.alert("Selected color: #{color}")
+customjs = CustomJS(args=dict(source=source), code="""
+  get_indices = require("core/util/selection").get_indices
+  const indices = get_indices(source)
+  const colors = []
+  for (i=0; i<indices.length; i++) {
+    colors.push(source.data['color'][indices[i]])
+  }
+  window.alert("Selected colors: " + colors)
 """)
 
 tap = TapTool(renderers=[circle_renderer], callback=customjs)
