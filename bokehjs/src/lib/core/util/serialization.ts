@@ -194,6 +194,32 @@ export type Shapes = {[key: string]: Shape | Shape[]}
 
 export type EncodedData = {[key: string]: NDArray | Arrayable}
 
+
+function traverse_data(v: any, buffers: [any, any][]): [Arrayable, any] {
+  // v is just a regular array of scalars
+  if (v.length == 0 || !(isObject(v[0]) || isArray(v[0]))) {
+    return [v, v.length]
+  }
+
+  const arrays: Arrayable[] = []
+  const shapes: Shape[] = []
+
+  for (const obj of v) {
+    if (isArray(obj)) {
+      // v is at least one degree more nested
+      const [arr, shape] = (traverse_data(obj, buffers))
+      arrays.push(arr)
+      shapes.push(shape)
+    } else {
+      // v is a ragged array of arrays
+      const [arr, shape] = process_array(obj as NDArray, buffers)
+      arrays.push(arr)
+      shapes.push(shape)
+    }
+  }
+  return [arrays, shapes]
+}
+
 export function decode_column_data(data: EncodedData, buffers: [any, any][] = []): [Data, Shapes] {
   const new_data: Data = {}
   const new_shapes: Shapes = {}
@@ -203,22 +229,7 @@ export function decode_column_data(data: EncodedData, buffers: [any, any][] = []
     // might be array of scalars, or might be ragged array or arrays
     const v = data[k]
     if (isArray(v)) {
-
-      // v is just a regular array of scalars
-      if (v.length == 0 || !(isObject(v[0]) || isArray(v[0]))) {
-        new_data[k] = v
-        continue
-      }
-
-      // v is a ragged array of arrays
-      const arrays: Arrayable[] = []
-      const shapes: Shape[] = []
-      for (const obj of v) {
-        const [arr, shape] = process_array(obj as NDArray, buffers)
-        arrays.push(arr)
-        shapes.push(shape)
-      }
-
+      const [arrays, shapes] = traverse_data(v, buffers)
       new_data[k] = arrays
       new_shapes[k] = shapes
 
