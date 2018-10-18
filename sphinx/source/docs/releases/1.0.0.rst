@@ -34,6 +34,7 @@ The following examples have been removed or updated:
 * *models/file/transform_jitter_coffee.py* Discouraged coffeescript example removed
 * *plotting/file/bar_chart.py* Removed old/duplicative example
 * *plotting/file/brewer.py*: Moved to *stacked_area.py*
+* *plotting/file/bollinger.py* Old example removed
 
 Pretty printing functions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
