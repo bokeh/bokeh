@@ -108,7 +108,6 @@ export class MultiPolygonsView extends GlyphView {
 
             for (let l = 0, endl = _sx.length; l < endl; l++) {
               if (l == 0) {
-                console.log('INFO', i, j, k, _sx[l], _sy[l])
                 ctx.moveTo(_sx[l], _sy[l])
                 continue
               } else
@@ -157,11 +156,9 @@ export class MultiPolygonsView extends GlyphView {
               const sxs_k = sxs[j][k] as number[]
               const sys_k = sys[j][k] as number[]
               if (hittest.point_in_poly(sx, sy, sxs_k, sys_k)) {
-                console.log('IN HOLE', idx, j, k)
                 in_a_hole = true
                 break
               } else {
-                console.log('NOT IN HOLE', idx, j, k)
                 continue
               }
             }
