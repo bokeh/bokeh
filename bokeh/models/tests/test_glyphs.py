@@ -257,11 +257,12 @@ def test_MultiPolygons():
     glyph = MultiPolygons()
     assert glyph.xs is None
     assert glyph.ys is None
+    check_fill_properties(glyph)
     check_line_properties(glyph)
     check_properties_existence(glyph, [
         "xs",
         "ys",
-    ], LINE, GLYPH)
+    ], FILL, LINE, GLYPH)
 
 
 def test_Oval():
