@@ -36,7 +36,7 @@ import bokeh.core.property.descriptors as bcpd
 #-----------------------------------------------------------------------------
 
 ALL = (
-    'BasicPropertyDescritor',
+    'BasicPropertyDescriptor',
     'ColumnDataPropertyDescriptor',
     'DataSpecPropertyDescriptor',
     'PropertyDescriptor',
