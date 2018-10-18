@@ -191,6 +191,37 @@ describe("serialization module", () => {
       expect(data).to.be.deep.equal(d)
       expect(shapes).to.be.deep.equal(s)
     })
+
+    it("should encode deeply nested typed column data source", () => {
+      const data = {
+        x: [[[new Float64Array([1, 2])]], [[new Float64Array([2, 3])]]],
+        y: [[[new Float64Array([1.1, 2.2])]], [[new Float64Array([3.3, 4.4])]]],
+      }
+      const shapes = {
+        x: [[[[2]]], [[[2]]]],
+        y: [[[[2]]], [[[2]]]],
+      }
+      const e = ser.encode_column_data(data, shapes)
+      const [d, s] = ser.decode_column_data(e)
+      expect(data).to.be.deep.equal(d)
+      expect(shapes).to.be.deep.equal(s)
+    })
+
+    it("should encode deeply nested typed mixed type column data source", () => {
+      const data = {
+        x: [[[[1, 2]]], [[new Float64Array([2, 3])]]],
+        y: [[[[1.1, 2.2]]], [[new Float64Array([3.3, 4.4])]]],
+      }
+      const shapes = {
+        x: [[], [[[2]]]],
+        y: [[], [[[2]]]],
+      }
+      const e = ser.encode_column_data(data, shapes)
+      const [d, s] = ser.decode_column_data(e)
+      expect(data).to.be.deep.equal(d)
+      expect(shapes).to.be.deep.equal(s)
+    })
+
   })
 
   describe("encode_column_data", () => {

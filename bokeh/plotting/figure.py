@@ -479,6 +479,26 @@ Examples:
 
 """)
 
+    multi_polygons = _glyph_function(_glyphs.MultiPolygons, """
+.. note::
+    For this glyph, the data is not simply an array of scalars, it is a
+    nested array.
+
+Examples:
+
+    .. bokeh-plot::
+       :source-position: above
+
+       from bokeh.plotting import figure, output_file, show
+
+       p = figure(plot_width=300, plot_height=300)
+       p.multi_polygons(xs=[[[[1, 1, 2, 2]]], [[[1, 1, 3], [1.5, 1.5, 2]]]],
+                        ys=[[[[4, 3, 3, 4]]], [[[1, 3, 1], [1.5, 2, 1.5]]]],
+                        color=['red', 'green'])
+       show(p)
+
+""")
+
     oval = _glyph_function(_glyphs.Oval, """
 Examples:
 

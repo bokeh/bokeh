@@ -14,6 +14,7 @@ from bokeh.models.glyphs import (
     Image, ImageRGBA, ImageURL,
     Line,
     MultiLine,
+    MultiPolygons,
     Oval,
     Patch, Patches,
     Quad, Quadratic, Ray,
@@ -250,6 +251,18 @@ def test_MultiLine():
         "xs",
         "ys",
     ], LINE, GLYPH)
+
+
+def test_MultiPolygons():
+    glyph = MultiPolygons()
+    assert glyph.xs is None
+    assert glyph.ys is None
+    check_fill_properties(glyph)
+    check_line_properties(glyph)
+    check_properties_existence(glyph, [
+        "xs",
+        "ys",
+    ], FILL, LINE, GLYPH)
 
 
 def test_Oval():

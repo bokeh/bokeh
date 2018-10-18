@@ -190,9 +190,30 @@ export function encode_base64(array: TypedArray, shape?: Shape): NDArray {
 
 export type Data = {[key: string]: Arrayable}
 
-export type Shapes = {[key: string]: Shape | Shape[]}
+export type Shapes = {[key: string]: Shape | Shape[] | Shape[][] | Shape[][][]}
 
 export type EncodedData = {[key: string]: NDArray | Arrayable}
+
+
+function decode_traverse_data(v: any, buffers: [any, any][]): [Arrayable, any] {
+  // v is just a regular array of scalars
+  if (v.length == 0 || !(isObject(v[0]) || isArray(v[0]))) {
+    return [v, []]
+  }
+
+  const arrays: Arrayable[] = []
+  const shapes: Shape[] = []
+
+  for (const obj of v) {
+    const [arr, shape] = isArray(obj) ? decode_traverse_data(obj, buffers) :
+                                        process_array(obj as NDArray, buffers);
+    arrays.push(arr)
+    shapes.push(shape)
+  }
+  // If there is a list of empty lists, reduce that to just a list
+  const filtered_shapes = shapes.map((shape) => shape.filter((v) => (v as any).length != 0))
+  return [arrays, filtered_shapes]
+}
 
 export function decode_column_data(data: EncodedData, buffers: [any, any][] = []): [Data, Shapes] {
   const new_data: Data = {}
@@ -203,22 +224,13 @@ export function decode_column_data(data: EncodedData, buffers: [any, any][] = []
     // might be array of scalars, or might be ragged array or arrays
     const v = data[k]
     if (isArray(v)) {
-
       // v is just a regular array of scalars
       if (v.length == 0 || !(isObject(v[0]) || isArray(v[0]))) {
         new_data[k] = v
         continue
       }
-
       // v is a ragged array of arrays
-      const arrays: Arrayable[] = []
-      const shapes: Shape[] = []
-      for (const obj of v) {
-        const [arr, shape] = process_array(obj as NDArray, buffers)
-        arrays.push(arr)
-        shapes.push(shape)
-      }
-
+      const [arrays, shapes] = decode_traverse_data(v, buffers)
       new_data[k] = arrays
       new_shapes[k] = shapes
 
@@ -233,24 +245,31 @@ export function decode_column_data(data: EncodedData, buffers: [any, any][] = []
   return [new_data, new_shapes]
 }
 
+function encode_traverse_data(v: any, shapes?: any) {
+  const new_array: any[] = []
+  for (let i = 0, end = v.length; i < end; i++) {
+    const item = v[i]
+    if (isTypedArray(item)) {
+      const shape = shapes[i] ? shapes[i] : undefined
+      new_array.push(encode_base64(item, shape))
+    } else if (isArray(item)) {
+      new_array.push(encode_traverse_data(item, shapes ? shapes[i] : []))
+    } else
+      new_array.push(item)
+  }
+  return new_array
+}
+
 export function encode_column_data(data: Data, shapes?: Shapes): EncodedData {
   const new_data: EncodedData = {}
   for (const k in data) {
     const v = data[k]
+    const shapes_k = shapes != null ? shapes[k] as Shape : undefined
     let new_v: NDArray | Arrayable
     if (isTypedArray(v)) {
-      new_v = encode_base64(v, shapes != null ? shapes[k] as Shape : undefined)
+      new_v = encode_base64(v, shapes_k)
     } else if (isArray(v)) {
-      const new_array: any[] = []
-      for (let i = 0, end = v.length; i < end; i++) {
-        const item = v[i]
-        if (isTypedArray(item)) {
-          const shape = shapes != null && shapes[k] != null ? (shapes[k] as Shape[])[i] : undefined
-          new_array.push(encode_base64(item, shape))
-        } else
-          new_array.push(item)
-      }
-      new_v = new_array
+      new_v = encode_traverse_data(v, shapes_k || [])
     } else
       new_v = v
     new_data[k] = new_v

@@ -195,6 +195,7 @@ export class Figure extends Plot {
   image_url(...args: any[]): GlyphRenderer         { return this._glyph(models.ImageURL,     "url,x,y,w,h",                                         args); }
   line(...args: any[]): GlyphRenderer              { return this._glyph(models.Line,         "x,y",                                                 args); }
   multi_line(...args: any[]): GlyphRenderer        { return this._glyph(models.MultiLine,    "xs,ys",                                               args); }
+  multi_polygons(...args: any[]): GlyphRenderer    { return this._glyph(models.MultiPolygons,"xs,ys",                                               args); }
   oval(...args: any[]): GlyphRenderer              { return this._glyph(models.Oval,         "x,y,width,height",                                    args); }
   patch(...args: any[]): GlyphRenderer             { return this._glyph(models.Patch,        "x,y",                                                 args); }
   patches(...args: any[]): GlyphRenderer           { return this._glyph(models.Patches,      "xs,ys",                                               args); }

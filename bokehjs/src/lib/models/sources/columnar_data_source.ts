@@ -19,7 +19,7 @@ export namespace ColumnarDataSource {
     selection_policy: SelectionPolicy
     selection_manager: SelectionManager
     inspected: Selection
-    _shapes: {[key: string]: Shape | Shape[]}
+    _shapes: {[key: string]: Shape | Shape[] | Shape[][] | Shape[][][]}
   }
 
   export interface Props extends DataSource.Props {
