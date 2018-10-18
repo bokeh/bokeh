@@ -102,8 +102,8 @@ class Mod(Model):
     def _check_warning(self):
         if self.foo < -5: return "wrn"
 
-@patch('bokeh.core.validation.check.logger.error')
-@patch('bokeh.core.validation.check.logger.warning')
+@patch('bokeh.core.validation.check.log.error')
+@patch('bokeh.core.validation.check.log.warning')
 def test_check_pass(mock_warn, mock_error):
     m = Mod()
 
@@ -111,16 +111,16 @@ def test_check_pass(mock_warn, mock_error):
     assert not mock_error.called
     assert not mock_warn.called
 
-@patch('bokeh.core.validation.check.logger.error')
-@patch('bokeh.core.validation.check.logger.warning')
+@patch('bokeh.core.validation.check.log.error')
+@patch('bokeh.core.validation.check.log.warning')
 def test_check_error(mock_warn, mock_error):
     m = Mod(foo=10)
     v.check_integrity([m])
     assert mock_error.called
     assert not mock_warn.called
 
-@patch('bokeh.core.validation.check.logger.error')
-@patch('bokeh.core.validation.check.logger.warning')
+@patch('bokeh.core.validation.check.log.error')
+@patch('bokeh.core.validation.check.log.warning')
 def test_check_warn(mock_warn, mock_error):
     m = Mod(foo=-10)
     v.check_integrity([m])
