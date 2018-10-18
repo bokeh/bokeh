@@ -167,7 +167,7 @@ export class MultiPolygonsView extends GlyphView {
             }
           }
         }
-	    }
+      }
     }
 
     const result = hittest.create_empty_hit_test_result()
@@ -176,7 +176,7 @@ export class MultiPolygonsView extends GlyphView {
   }
 
   private _get_snap_coord(array: Arrayable<number>): number {
-	  return sum(array) / array.length
+    return sum(array) / array.length
   }
 
   scenterx(i: number, sx: number, sy: number): number {
