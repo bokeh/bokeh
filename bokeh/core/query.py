@@ -215,11 +215,6 @@ def match(obj, selector, context=None):
 # Dev API
 #-----------------------------------------------------------------------------
 
-# would be placed under Private API, but is needed for OR, and private must be after Dev
-# realization of the OR operator
-def _or(obj, selectors):
-    return any(match(obj, selector) for selector in selectors)
-
 class OR(object):
     ''' Form disjunctions from other query predicates.
 
@@ -348,6 +343,10 @@ _operators = {
    LEQ: lambda x, y: x <= y,
    NEQ: lambda x, y: x != y,
 }
+
+# realization of the OR operator
+def _or(obj, selectors):
+    return any(match(obj, selector) for selector in selectors)
 
 #-----------------------------------------------------------------------------
 # Code
