@@ -280,7 +280,7 @@ export class MultiPolygons extends Glyph {
   properties: MultiPolygons.Props
 
   constructor(attrs?: Partial<MultiPolygons.Attrs>) {
-	  super(attrs)
+    super(attrs)
   }
 
   static initClass(): void {
