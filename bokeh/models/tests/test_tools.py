@@ -47,6 +47,6 @@ def test_toolbar_box_with_no_children_does_not_raise_a_bokeh_warning(mock__show_
     # for the ToolbarBox are created on the JS side.
 
     tb_box = ToolbarBox()
-    with mock.patch('bokeh.core.validation.check.logger') as mock_logger:
+    with mock.patch('bokeh.core.validation.check.log') as mock_logger:
         check_integrity([tb_box])
         assert mock_logger.warning.call_count == 0

@@ -108,7 +108,7 @@ class TestPlotValidation(object):
     def test_missing_renderers(self):
         p = figure()
         p.renderers = []
-        with mock.patch('bokeh.core.validation.check.logger') as mock_logger:
+        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([p])
         assert mock_logger.warning.call_count == 1
         assert mock_logger.warning.call_args[0][0].startswith("W-1000 (MISSING_RENDERERS): Plot has no renderers")
@@ -116,13 +116,13 @@ class TestPlotValidation(object):
     def test_missing_scale(self):
         p = figure()
         p.x_scale = None
-        with mock.patch('bokeh.core.validation.check.logger') as mock_logger:
+        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 1
         assert mock_logger.error.call_args[0][0].startswith("E-1008 (REQUIRED_SCALE): A required Scale object is missing: x_scale")
 
         p.y_scale = None
-        with mock.patch('bokeh.core.validation.check.logger') as mock_logger:
+        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 1
         assert mock_logger.error.call_args[0][0].startswith("E-1008 (REQUIRED_SCALE): A required Scale object is missing: x_scale, y_scale")
@@ -130,13 +130,13 @@ class TestPlotValidation(object):
     def test_missing_range(self):
         p = figure()
         p.x_range = None
-        with mock.patch('bokeh.core.validation.check.logger') as mock_logger:
+        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 1
         assert mock_logger.error.call_args[0][0].startswith("E-1004 (REQUIRED_RANGE): A required Range object is missing: x_range")
 
         p.y_range = None
-        with mock.patch('bokeh.core.validation.check.logger') as mock_logger:
+        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 1
         assert mock_logger.error.call_args[0][0].startswith("E-1004 (REQUIRED_RANGE): A required Range object is missing: x_range, y_range")
@@ -144,7 +144,7 @@ class TestPlotValidation(object):
     def test_bad_extra_range_name(self):
         p = figure()
         p.xaxis.x_range_name="junk"
-        with mock.patch('bokeh.core.validation.check.logger') as mock_logger:
+        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 1
         assert mock_logger.error.call_args[0][0].startswith(
@@ -154,7 +154,7 @@ class TestPlotValidation(object):
         p = figure()
         p.extra_x_ranges['foo'] = Range1d()
         p.grid.x_range_name="junk"
-        with mock.patch('bokeh.core.validation.check.logger') as mock_logger:
+        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 1
         assert mock_logger.error.call_args[0][0].startswith(
