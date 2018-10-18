@@ -62,6 +62,14 @@ __all__ = (
 )
 
 #-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+_ExprFieldValueTransform = Enum("expr", "field", "value", "transform")
+
+_ExprFieldValueTransformUnits = Enum("expr", "field", "value", "transform", "units")
+
+#-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
@@ -206,7 +214,6 @@ class DataSpec(Either):
     def _sphinx_type(self):
         return self._sphinx_prop_link()
 
-_ExprFieldValueTransform = Enum("expr", "field", "value", "transform")
 
 class NumberSpec(DataSpec):
     ''' A |DataSpec| property that accepts numeric and datetime fixed values.
@@ -314,8 +321,6 @@ class MarkerSpec(DataSpec):
     def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
         super(MarkerSpec, self).__init__(key_type, MarkerType, default=default, help=help)
 
-
-_ExprFieldValueTransformUnits = Enum("expr", "field", "value", "transform", "units")
 
 class UnitsSpec(NumberSpec):
     ''' A |DataSpec| property that accepts numeric fixed values, and also
@@ -660,10 +665,6 @@ def value(val, transform=None):
 
 #-----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Private API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------

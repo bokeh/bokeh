@@ -103,7 +103,13 @@ from .wrappers import PropertyValueContainer
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-__all__ = ()
+__all__ = (
+    'BasicPropertyDescriptor',
+    'ColumnDataPropertyDescriptor',
+    'DataSpecPropertyDescriptor',
+    'PropertyDescriptor',
+    'UnitsSpecPropertyDescriptor',
+)
 
 #-----------------------------------------------------------------------------
 # General API

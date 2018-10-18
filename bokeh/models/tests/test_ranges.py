@@ -204,16 +204,16 @@ class Test_FactorRange(object):
 
     def test_duplicate_factors_raises_validation_error(self):
         r = FactorRange("foo", "bar", "foo")
-        with mock.patch('bokeh.core.validation.check.logger') as mock_logger:
+        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([r])
         assert mock_logger.error.call_count == 1
 
         r = FactorRange(factors=[("foo", "a"), ("foo", "b"),  ("foo", "a")])
-        with mock.patch('bokeh.core.validation.check.logger') as mock_logger:
+        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([r])
         assert mock_logger.error.call_count == 1
 
         r = FactorRange(factors=[("foo", "a", "1"), ("foo", "a", "2"),  ("foo", "a", "1")])
-        with mock.patch('bokeh.core.validation.check.logger') as mock_logger:
+        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([r])
         assert mock_logger.error.call_count == 1

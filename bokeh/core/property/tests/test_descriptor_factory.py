@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -25,13 +25,15 @@ import pytest ; pytest
 from bokeh._testing.util.api import verify_all
 
 # Module under test
-import bokeh.core.property.bases as bcpd
+import bokeh.core.property.descriptor_factory as bcpdf
 
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
 
-ALL = ()
+ALL = (
+    'PropertyDescriptorFactory',
+)
 
 #-----------------------------------------------------------------------------
 # General API
@@ -41,7 +43,7 @@ ALL = ()
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Child(bcpd.PropertyDescriptorFactory):
+class Child(bcpdf.PropertyDescriptorFactory):
     pass
 
 def test_autocreate():
@@ -50,7 +52,7 @@ def test_autocreate():
     assert isinstance(value, Child)
 
 def test_make_descriptors_not_implemented():
-    obj = bcpd.PropertyDescriptorFactory()
+    obj = bcpdf.PropertyDescriptorFactory()
     with pytest.raises(NotImplementedError):
         obj.make_descriptors("foo")
 
@@ -62,4 +64,4 @@ def test_make_descriptors_not_implemented():
 # Code
 #-----------------------------------------------------------------------------
 
-Test___all__ = verify_all(bcpd, ALL)
+Test___all__ = verify_all(bcpdf, ALL)

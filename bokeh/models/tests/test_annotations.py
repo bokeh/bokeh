@@ -427,7 +427,7 @@ def test_can_add_multiple_glyph_renderers_to_legend_item():
     gr_1 = GlyphRenderer()
     gr_2 = GlyphRenderer()
     legend_item.renderers = [gr_1, gr_2]
-    with mock.patch('bokeh.core.validation.check.logger') as mock_logger:
+    with mock.patch('bokeh.core.validation.check.log') as mock_logger:
         check_integrity([legend_item])
         assert mock_logger.error.call_count == 0
 
@@ -438,7 +438,7 @@ def test_legend_item_with_field_label_and_different_data_sources_raises_a_valida
     gr_2 = GlyphRenderer(data_source=ColumnDataSource(data={'label': [1]}))
     legend_item.label = field('label')
     legend_item.renderers = [gr_1, gr_2]
-    with mock.patch('bokeh.core.validation.check.logger') as mock_logger:
+    with mock.patch('bokeh.core.validation.check.log') as mock_logger:
         check_integrity([legend_item])
         assert mock_logger.error.call_count == 1
 
@@ -449,7 +449,7 @@ def test_legend_item_with_value_label_and_different_data_sources_does_not_raise_
     gr_2 = GlyphRenderer(data_source=ColumnDataSource())
     legend_item.label = value('label')
     legend_item.renderers = [gr_1, gr_2]
-    with mock.patch('bokeh.core.validation.check.logger') as mock_logger:
+    with mock.patch('bokeh.core.validation.check.log') as mock_logger:
         check_integrity([legend_item])
         assert mock_logger.error.call_count == 0
 
@@ -459,6 +459,6 @@ def test_legend_item_with_field_label_raises_error_if_field_not_in_cds():
     gr_1 = GlyphRenderer(data_source=ColumnDataSource())
     legend_item.label = field('label')
     legend_item.renderers = [gr_1]
-    with mock.patch('bokeh.core.validation.check.logger') as mock_logger:
+    with mock.patch('bokeh.core.validation.check.log') as mock_logger:
         check_integrity([legend_item])
         assert mock_logger.error.call_count == 1

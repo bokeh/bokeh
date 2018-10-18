@@ -34,14 +34,6 @@ from .bases import PrimitiveProperty
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-__all__ = (
-    'Bool',
-    'Complex',
-    'Int',
-    'Float',
-    'String',
-)
-
 bokeh_bool_types = (bool,)
 try:
     import numpy as np
@@ -51,6 +43,13 @@ except ImportError:
 
 bokeh_integer_types = (numbers.Integral,)
 
+__all__ = (
+    'Bool',
+    'Complex',
+    'Int',
+    'Float',
+    'String',
+)
 
 #-----------------------------------------------------------------------------
 # General API

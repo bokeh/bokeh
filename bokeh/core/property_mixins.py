@@ -81,8 +81,8 @@ __all__ = (
 )
 
 #-----------------------------------------------------------------------------
-# General API
-#----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
 
 _color_help = """
 A color to use to %s with.
@@ -104,31 +104,6 @@ An alpha value to use to %s with.
 Acceptable values are floating point numbers between 0 (transparent)
 and 1 (opaque).
 
-"""
-
-class FillProps(HasProps):
-    ''' Properties relevant to rendering fill regions.
-
-    Mirrors the BokehJS ``properties.Fill`` class.
-
-    '''
-
-    fill_color = ColorSpec(default="gray", help=_color_help % "fill paths")
-    fill_alpha = NumberSpec(default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "fill paths")
-
-class ScalarFillProps(HasProps):
-    ''' Properties relevant to rendering fill regions.
-
-    Mirrors the BokehJS ``properties.Fill`` class.
-
-    '''
-
-    fill_color = Color(default="gray", help=_color_help)
-    fill_alpha = Percent(default=1.0, help=_alpha_help)
-
-
-_line_width_help = """
-Stroke width in units of pixels.
 """
 
 class _BaseLineProps(HasProps):
@@ -176,33 +151,6 @@ class _BaseLineProps(HasProps):
     The distance into the ``line_dash`` (in pixels) that the pattern should
     start from.
     """)
-
-class LineProps(HasProps):
-    ''' Properties relevant to rendering path operations.
-
-    Mirrors the BokehJS ``properties.Line`` class.
-
-    '''
-
-    base_line_props = Include(_BaseLineProps, use_prefix=False)
-
-    line_color = ColorSpec(default="black", help=_color_help % "stroke paths")
-    line_width = NumberSpec(default=1, accept_datetime=False, accept_timedelta=False, help=_line_width_help)
-    line_alpha = NumberSpec(default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "stroke paths")
-
-
-class ScalarLineProps(HasProps):
-    ''' Properties relevant to rendering path operations.
-
-    Mirrors the BokehJS ``properties.Line`` class.
-
-    '''
-    base_line_props = Include(_BaseLineProps, use_prefix=False)
-
-    line_color = Color(default="black", help=_color_help % "stroke paths")
-    line_width = Float(default=1, help=_line_width_help)
-    line_alpha = Percent(default=1.0, help=_alpha_help % "stroke paths")
-
 
 class _BaseTextProps(HasProps):
 
@@ -256,6 +204,61 @@ class _BaseTextProps(HasProps):
     100%, means no additional space will be used.
     """)
 
+#----------------------------------------------------------------------------
+# General API
+#----------------------------------------------------------------------------
+
+class FillProps(HasProps):
+    ''' Properties relevant to rendering fill regions.
+
+    Mirrors the BokehJS ``properties.Fill`` class.
+
+    '''
+
+    fill_color = ColorSpec(default="gray", help=_color_help % "fill paths")
+    fill_alpha = NumberSpec(default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "fill paths")
+
+class ScalarFillProps(HasProps):
+    ''' Properties relevant to rendering fill regions.
+
+    Mirrors the BokehJS ``properties.Fill`` class.
+
+    '''
+
+    fill_color = Color(default="gray", help=_color_help)
+    fill_alpha = Percent(default=1.0, help=_alpha_help)
+
+
+_line_width_help = """
+Stroke width in units of pixels.
+"""
+
+class LineProps(HasProps):
+    ''' Properties relevant to rendering path operations.
+
+    Mirrors the BokehJS ``properties.Line`` class.
+
+    '''
+
+    base_line_props = Include(_BaseLineProps, use_prefix=False)
+
+    line_color = ColorSpec(default="black", help=_color_help % "stroke paths")
+    line_width = NumberSpec(default=1, accept_datetime=False, accept_timedelta=False, help=_line_width_help)
+    line_alpha = NumberSpec(default=1.0, accept_datetime=False, accept_timedelta=False, help=_alpha_help % "stroke paths")
+
+
+class ScalarLineProps(HasProps):
+    ''' Properties relevant to rendering path operations.
+
+    Mirrors the BokehJS ``properties.Line`` class.
+
+    '''
+    base_line_props = Include(_BaseLineProps, use_prefix=False)
+
+    line_color = Color(default="black", help=_color_help % "stroke paths")
+    line_width = Float(default=1, help=_line_width_help)
+    line_alpha = Percent(default=1.0, help=_alpha_help % "stroke paths")
+
 
 class TextProps(HasProps):
     ''' Properties relevant to rendering text.
@@ -297,10 +300,6 @@ class ScalarTextProps(HasProps):
 
 #-----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Private API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------

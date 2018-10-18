@@ -1,140 +1,91 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' The query module provides functions for searching collections of Bokeh
 models for instances that match specified criteria.
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
 from six import string_types
 
-class OR(object):
-    ''' Form disjunctions from other query predicates.
+# Bokeh imports
 
-    Construct an ``OR`` expression by making a dict with ``OR`` as the key,
-    and a list of other query expressions as the value:
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
 
-    .. code-block:: python
+__all__ = (
+    'EQ',
+    'find',
+    'GEQ',
+    'GT',
+    'IN',
+    'LEQ',
+    'LT',
+    'match',
+    'NEQ',
+    'OR',
+)
 
-        # matches any Axis subclasses or models with .name == "mycircle"
-        { OR: [dict(type=Axis), dict(name="mycircle")] }
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
-    '''
-    pass
+def find(objs, selector, context=None):
+    ''' Query a collection of Bokeh models and yield any that match the
+    a selector.
 
-class IN(object):
-    ''' Predicate to test if property values are in some collection.
+    Args:
+        obj (Model) : object to test
+        selector (JSON-like) : query selector
+        context (dict) : kwargs to supply callable query attributes
 
-    Construct and ``IN`` predicate as a dict with ``IN`` as the key,
-    and a list of values to check against.
+    Yields:
+        Model : objects that match the query
 
-    .. code-block:: python
+    Queries are specified as selectors similar to MongoDB style query
+    selectors, as described for :func:`~bokeh.core.query.match`.
 
-        # matches any models with .name in ['a', 'mycircle', 'myline']
-        dict(name={ IN: ['a', 'mycircle', 'myline'] })
+    Examples:
 
-    '''
-    pass
+        .. code-block:: python
 
-class GT(object):
-    ''' Predicate to test if property values are greater than some value.
+            # find all objects with type Grid
+            find(p.references(), {'type': Grid})
 
-    Construct and ``GT`` predicate as a dict with ``GT`` as the key,
-    and a value to compare against.
+            # find all objects with type Grid or Axis
+            find(p.references(), {OR: [
+                {'type': Grid}, {'type': Axis}
+            ]})
 
-    .. code-block:: python
+            # same query, using IN operator
+            find(p.references(), {'type': {IN: [Grid, Axis]}})
 
-        # matches any models with .size > 10
-        dict(size={ GT: 10 })
-
-    '''
-    pass
-
-class LT(object):
-    ''' Predicate to test if property values are less than some value.
-
-    Construct and ``LT`` predicate as a dict with ``LT`` as the key,
-    and a value to compare against.
-
-    .. code-block:: python
-
-        # matches any models with .size < 10
-        dict(size={ LT: 10 })
-
-    '''
-    pass
-
-class EQ(object):
-    ''' Predicate to test if property values are equal to some value.
-
-    Construct and ``EQ`` predicate as a dict with ``EQ`` as the key,
-    and a value to compare against.
-
-    .. code-block:: python
-
-        # matches any models with .size == 10
-        dict(size={ EQ: 10 })
+            # find all plot objects on the 'left' layout of the Plot
+            # here layout is a method that takes a plot as context
+            find(p.references(), {'layout': 'left'}, {'plot': p})
 
     '''
-    pass
-
-class GEQ(object):
-    ''' Predicate to test if property values are greater than or equal to
-    some value.
-
-    Construct and ``GEQ`` predicate as a dict with ``GEQ`` as the key,
-    and a value to compare against.
-
-    .. code-block:: python
-
-        # matches any models with .size >= 10
-        dict(size={ GEQ: 10 })
-
-    '''
-    pass
-
-class LEQ(object):
-    ''' Predicate to test if property values are less than or equal to
-    some value.
-
-    Construct and ``LEQ`` predicate as a dict with ``LEQ`` as the key,
-    and a value to compare against.
-
-    .. code-block:: python
-
-        # matches any models with .size <= 10
-        dict(size={ LEQ: 10 })
-
-    '''
-    pass
-
-class NEQ(object):
-    ''' Predicate to test if property values are unequal to some value.
-
-    Construct and ``NEQ`` predicate as a dict with ``NEQ`` as the key,
-    and a value to compare against.
-
-    .. code-block:: python
-
-        # matches any models with .size != 10
-        dict(size={ NEQ: 10 })
-
-    '''
-    pass
-
-# realizations of the abstract predicate operators
-_operators = {
-   IN:  lambda x, y: x in y,
-   GT:  lambda x, y: x > y,
-   LT:  lambda x, y: x < y,
-   EQ:  lambda x, y: x == y,
-   GEQ: lambda x, y: x >= y,
-   LEQ: lambda x, y: x <= y,
-   NEQ: lambda x, y: x != y,
-}
-
-# realization of the OR operator
-def _or(obj, selectors):
-    return any(match(obj, selector) for selector in selectors)
-
+    return (obj for obj in objs if match(obj, selector, context))
 
 def match(obj, selector, context=None):
     ''' Test whether a given Bokeh model matches a given selector.
@@ -260,40 +211,143 @@ def match(obj, selector, context=None):
 
     return True
 
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
-def find(objs, selector, context=None):
-    ''' Query a collection of Bokeh models and yield any that match the
-    a selector.
+class OR(object):
+    ''' Form disjunctions from other query predicates.
 
-    Args:
-        obj (Model) : object to test
-        selector (JSON-like) : query selector
-        context (dict) : kwargs to supply callable query attributes
+    Construct an ``OR`` expression by making a dict with ``OR`` as the key,
+    and a list of other query expressions as the value:
 
-    Yields:
-        Model : objects that match the query
+    .. code-block:: python
 
-    Queries are specified as selectors similar to MongoDB style query
-    selectors, as described for :func:`~bokeh.core.query.match`.
-
-    Examples:
-
-        .. code-block:: python
-
-            # find all objects with type Grid
-            find(p.references(), {'type': Grid})
-
-            # find all objects with type Grid or Axis
-            find(p.references(), {OR: [
-                {'type': Grid}, {'type': Axis}
-            ]})
-
-            # same query, using IN operator
-            find(p.references(), {'type': {IN: [Grid, Axis]}})
-
-            # find all plot objects on the 'left' layout of the Plot
-            # here layout is a method that takes a plot as context
-            find(p.references(), {'layout': 'left'}, {'plot': p})
+        # matches any Axis subclasses or models with .name == "mycircle"
+        { OR: [dict(type=Axis), dict(name="mycircle")] }
 
     '''
-    return (obj for obj in objs if match(obj, selector, context))
+    pass
+
+class IN(object):
+    ''' Predicate to test if property values are in some collection.
+
+    Construct and ``IN`` predicate as a dict with ``IN`` as the key,
+    and a list of values to check against.
+
+    .. code-block:: python
+
+        # matches any models with .name in ['a', 'mycircle', 'myline']
+        dict(name={ IN: ['a', 'mycircle', 'myline'] })
+
+    '''
+    pass
+
+class GT(object):
+    ''' Predicate to test if property values are greater than some value.
+
+    Construct and ``GT`` predicate as a dict with ``GT`` as the key,
+    and a value to compare against.
+
+    .. code-block:: python
+
+        # matches any models with .size > 10
+        dict(size={ GT: 10 })
+
+    '''
+    pass
+
+class LT(object):
+    ''' Predicate to test if property values are less than some value.
+
+    Construct and ``LT`` predicate as a dict with ``LT`` as the key,
+    and a value to compare against.
+
+    .. code-block:: python
+
+        # matches any models with .size < 10
+        dict(size={ LT: 10 })
+
+    '''
+    pass
+
+class EQ(object):
+    ''' Predicate to test if property values are equal to some value.
+
+    Construct and ``EQ`` predicate as a dict with ``EQ`` as the key,
+    and a value to compare against.
+
+    .. code-block:: python
+
+        # matches any models with .size == 10
+        dict(size={ EQ: 10 })
+
+    '''
+    pass
+
+class GEQ(object):
+    ''' Predicate to test if property values are greater than or equal to
+    some value.
+
+    Construct and ``GEQ`` predicate as a dict with ``GEQ`` as the key,
+    and a value to compare against.
+
+    .. code-block:: python
+
+        # matches any models with .size >= 10
+        dict(size={ GEQ: 10 })
+
+    '''
+    pass
+
+class LEQ(object):
+    ''' Predicate to test if property values are less than or equal to
+    some value.
+
+    Construct and ``LEQ`` predicate as a dict with ``LEQ`` as the key,
+    and a value to compare against.
+
+    .. code-block:: python
+
+        # matches any models with .size <= 10
+        dict(size={ LEQ: 10 })
+
+    '''
+    pass
+
+class NEQ(object):
+    ''' Predicate to test if property values are unequal to some value.
+
+    Construct and ``NEQ`` predicate as a dict with ``NEQ`` as the key,
+    and a value to compare against.
+
+    .. code-block:: python
+
+        # matches any models with .size != 10
+        dict(size={ NEQ: 10 })
+
+    '''
+    pass
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+# realizations of the abstract predicate operators
+_operators = {
+   IN:  lambda x, y: x in y,
+   GT:  lambda x, y: x > y,
+   LT:  lambda x, y: x < y,
+   EQ:  lambda x, y: x == y,
+   GEQ: lambda x, y: x >= y,
+   LEQ: lambda x, y: x <= y,
+   NEQ: lambda x, y: x != y,
+}
+
+# realization of the OR operator
+def _or(obj, selectors):
+    return any(match(obj, selector) for selector in selectors)
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

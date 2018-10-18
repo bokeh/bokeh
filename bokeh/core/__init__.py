@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' The ``bokeh.core`` package provides modules that are useful for implementing
 Bokeh itself. Documentation for all of them can be accessed through the
 sidebar menu. Most of the modules here are probably not of general interest

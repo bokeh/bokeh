@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' These define the standard error codes and messages for Bokeh
 validation checks.
 
@@ -79,6 +86,28 @@ validation checks.
 
 '''
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
 codes = {
     1001: ("BAD_COLUMN_NAME",                                    "Glyph refers to nonexistent column name"),
     1002: ("MISSING_GLYPH",                                      "Glyph renderer has no glyph set"),
@@ -103,6 +132,24 @@ codes = {
     1021: ("EQUAL_SLIDER_START_END",                                    "Slider 'start' and 'end' cannot be equal"),
     9999: ("EXT",                                                "Custom extension reports error"),
 }
+
+__all__ = ()
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
 
 for code in codes:
     exec("%s = %d" % (codes[code][0], code))
