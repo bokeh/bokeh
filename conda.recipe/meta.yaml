@@ -81,7 +81,6 @@ test:
     - h5py
     - icalendar
     - ipywidgets
-    - gunicorn
     - networkx
     - notebook
     - pscript
