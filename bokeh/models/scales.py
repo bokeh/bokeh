@@ -4,6 +4,7 @@
 from __future__ import absolute_import
 
 from ..core.has_props import abstract
+from ..core.properties import String
 from .transforms import Transform
 
 @abstract
@@ -40,7 +41,21 @@ class LogScale(Scale):
     '''
 
     '''
-    pass
+
+    log_type = String(help="""
+    An optional value specifying the type of log. Value values are:
+
+        log (default value)
+        log1p
+
+    """)
+    def __init__(self, *arg, **kw):
+        print(" in LogScale __init__:", kw)
+        super(LogScale, self).__init__(*arg, **kw)
+        if "log_type" in kw:
+            self.log_type = kw['log_type']
+        else:
+            self.log_type = 'log'
 
 class CategoricalScale(LinearScale):
     '''

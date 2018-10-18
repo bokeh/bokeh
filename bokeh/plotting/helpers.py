@@ -363,7 +363,9 @@ def _get_scale(range_input, axis_type):
     if isinstance(range_input, (DataRange1d, Range1d)) and axis_type in ["linear", "datetime", "mercator", "auto", None]:
         return LinearScale()
     elif isinstance(range_input, (DataRange1d, Range1d)) and axis_type == "log":
-        return LogScale()
+        return LogScale(log_type = "log")
+    elif isinstance(range_input, (DataRange1d, Range1d)) and axis_type == "log1p":
+        return LogScale(log_type = "log1p")
     elif isinstance(range_input, FactorRange):
         return CategoricalScale()
     else:
@@ -375,7 +377,7 @@ def _get_axis_class(axis_type, range_input, dim):
         return None, {}
     elif axis_type == "linear":
         return LinearAxis, {}
-    elif axis_type == "log":
+    elif (axis_type == "log" or axis_type == "log1p"):
         return LogAxis, {}
     elif axis_type == "datetime":
         return DatetimeAxis, {}

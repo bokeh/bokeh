@@ -239,6 +239,7 @@ def test_plot__scale_classmethod():
     assert isinstance(Plot._scale("auto"), LinearScale)
     assert isinstance(Plot._scale("linear"), LinearScale)
     assert isinstance(Plot._scale("log"), LogScale)
+    assert isinstance(Plot._scale("log1p"), LogScale)
     assert isinstance(Plot._scale("categorical"), CategoricalScale)
     with pytest.raises(ValueError):
         Plot._scale("malformed_type")

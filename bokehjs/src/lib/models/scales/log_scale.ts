@@ -1,8 +1,12 @@
 import {Scale} from "./scale"
 import {Arrayable} from "core/types"
 
+import * as p from "core/properties"
+
 export namespace LogScale {
-  export interface Attrs extends Scale.Attrs {}
+  export interface Attrs extends Scale.Attrs {
+    log_type: String
+  }
 
   export interface Props extends Scale.Props {}
 }
@@ -19,6 +23,20 @@ export class LogScale extends Scale {
 
   static initClass(): void {
     this.prototype.type = "LogScale"
+    this.internal({
+      log_type: [ p.String ],
+    })
+  }
+
+  calculate_log(x: number): number {
+    let value: number
+    console.log(`log_type: ${this.log_type}`)
+    if (this.log_type == 'log1p')
+      value = Math.log1p(x)
+    else
+      value = Math.log(x)
+
+    return value
   }
 
   compute(x: number): number {
@@ -28,7 +46,7 @@ export class LogScale extends Scale {
     if (inter_factor == 0)
       value = 0
     else {
-      const _x = (Math.log(x) - inter_offset) / inter_factor
+      const _x = (this.calculate_log(x) - inter_offset) / inter_factor
       if (isFinite(_x))
         value = _x*factor + offset
       else
@@ -48,7 +66,7 @@ export class LogScale extends Scale {
         result[i] = 0
     } else {
       for (let i = 0; i < xs.length; i++) {
-        const _x = (Math.log(xs[i]) - inter_offset) / inter_factor
+        const _x = (this.calculate_log(xs[i]) - inter_offset) / inter_factor
         let value: number
         if (isFinite(_x))
           value = _x*factor + offset
@@ -85,7 +103,7 @@ export class LogScale extends Scale {
       if (start == 0)
         [start, end] = [1, 10]
       else {
-        const log_val = Math.log(start) / Math.log(10)
+        const log_val = this.calculate_log(start) / Math.log(10)
         start = Math.pow(10, Math.floor(log_val))
 
         if (Math.ceil(log_val) != Math.floor(log_val))
@@ -110,11 +128,11 @@ export class LogScale extends Scale {
     let inter_factor: number
     let inter_offset: number
     if (start == 0) {
-      inter_factor = Math.log(end)
+      inter_factor = this.calculate_log(end)
       inter_offset = 0
     } else {
-      inter_factor = Math.log(end) - Math.log(start)
-      inter_offset = Math.log(start)
+      inter_factor = this.calculate_log(end) - this.calculate_log(start)
+      inter_offset = this.calculate_log(start)
     }
 
     const factor = screen_range

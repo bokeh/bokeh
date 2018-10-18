@@ -438,7 +438,9 @@ class Plot(LayoutDOM):
         if scale in ["auto", "linear"]:
             return LinearScale()
         elif scale == "log":
-            return LogScale()
+            return LogScale(log_type='log')
+        elif scale == "log1p":
+            return LogScale(log_type='log1p')
         if scale == "categorical":
             return CategoricalScale()
         else:
