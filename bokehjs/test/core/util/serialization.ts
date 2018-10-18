@@ -213,8 +213,8 @@ describe("serialization module", () => {
         y: [[[[1.1, 2.2]]], [[new Float64Array([3.3, 4.4])]]],
       }
       const shapes = {
-        x: [[[[]]], [[[2]]]],
-        y: [[[[]]], [[[2]]]],
+        x: [[], [[[2]]]],
+        y: [[], [[[2]]]],
       }
       const e = ser.encode_column_data(data, shapes)
       const [d, s] = ser.decode_column_data(e)

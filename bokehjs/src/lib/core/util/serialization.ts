@@ -210,7 +210,9 @@ function decode_traverse_data(v: any, buffers: [any, any][]): [Arrayable, any] {
     arrays.push(arr)
     shapes.push(shape)
   }
-  return [arrays, shapes]
+  // If there is a list of empty lists, reduce that to just a list
+  const filtered_shapes = shapes.map((shape) => shape.filter((v) => (v as any).length != 0))
+  return [arrays, filtered_shapes]
 }
 
 export function decode_column_data(data: EncodedData, buffers: [any, any][] = []): [Data, Shapes] {
