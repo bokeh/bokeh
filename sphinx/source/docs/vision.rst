@@ -100,14 +100,6 @@ appropriate documentation or examples, even when they exist. The project would
 benefit greatly from experienced help to organize the information architecture
 of the docs, point out missing areas, etc.
 
-Patches with Holes
-==================
-
-Currently Bokeh can draw polygonal patch (or multi-patch) glyphs, but these may
-not have "holes" in them. Adding support for Patches with Holes is needed to
-better support various kinds of scientific plots (e.g. contour plots) as well
-as to better support certain types of Geo/GIS usage.
-
 Built-in LaTeX / MathText support
 =================================
 
