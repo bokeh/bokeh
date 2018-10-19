@@ -60,6 +60,6 @@ Furthermore, BokehJS ships with its own version of `Bootstrap <http://getbootstr
 To prevent name collisions, the version of Bootstrap CSS that Bokeh uses has
 been entirely prefixed with the prefix ``bk-bs-``.
 
-.. _Chaco: http://code.enthought.com/chaco/
+.. _Chaco: https://github.com/enthought/chaco
 .. _JSFiddle: http://jsfiddle.net/
 .. _Protovis: http://mbostock.github.io/protovis/
