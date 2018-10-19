@@ -5,7 +5,7 @@ import * as p from "core/properties"
 
 export namespace LogScale {
   export interface Attrs extends Scale.Attrs {
-    log_type: String
+    log_type: string
   }
 
   export interface Props extends Scale.Props {}
