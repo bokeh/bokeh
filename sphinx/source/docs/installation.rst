@@ -28,10 +28,11 @@ For basic usage, have the following libraries installed:
 .. code::
 
     Jinja2 >=2.7
-    python-dateutil >=2.1
-    PyYAML >=3.10
     numpy >=1.7.1
     packaging >=16.8
+    pillow >=4.0
+    python-dateutil >=2.1
+    PyYAML >=3.10
     six >=1.5.2
     tornado >=4.3
 
@@ -232,18 +233,18 @@ built into Bokeh in ``bokeh.models.widgets`` in your documents. Similarly, the
 your document. The ``"bokeh-api"`` files are required to use the BokehJS API,
 and must be loaded *after* the core BokehJS library.
 
-As a concrete example, the links for version ``0.12.15`` are:
+As a concrete example, the links for version ``1.0.0`` are:
 
-* http://cdn.pydata.org/bokeh/release/bokeh-0.12.15.min.css
-* http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.15.min.css
-* http://cdn.pydata.org/bokeh/release/bokeh-tables-0.12.15.min.css
+* http://cdn.pydata.org/bokeh/release/bokeh-1.0.0.min.css
+* http://cdn.pydata.org/bokeh/release/bokeh-widgets-1.0.0.min.css
+* http://cdn.pydata.org/bokeh/release/bokeh-tables-1.0.0.min.css
 
 and
 
-* http://cdn.pydata.org/bokeh/release/bokeh-0.12.15.min.js
-* http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.15.min.js
-* http://cdn.pydata.org/bokeh/release/bokeh-tables-0.12.15.min.js
-* http://cdn.pydata.org/bokeh/release/bokeh-api-0.12.15.min.js
+* http://cdn.pydata.org/bokeh/release/bokeh-1.0.0.min.js
+* http://cdn.pydata.org/bokeh/release/bokeh-widgets-1.0.0.min.js
+* http://cdn.pydata.org/bokeh/release/bokeh-tables-1.0.0.min.js
+* http://cdn.pydata.org/bokeh/release/bokeh-api-1.0.0.min.js
 
 .. _Anaconda Python Distribution: http://anaconda.com/anaconda
 .. _anaconda.org: http://anaconda.org
