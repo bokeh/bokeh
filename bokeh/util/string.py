@@ -79,13 +79,15 @@ def indent(text, n=2, ch=" "):
     padding = ch * n
     return "\n".join(padding+line for line in text.split("\n"))
 
-def nice_join(seq, sep=", "):
+def nice_join(seq, sep=", ", conjuction="or"):
     ''' Join together sequences of strings into English-friendly phrases using
     the conjunction ``or`` when appropriate.
 
     Args:
         seq (seq[str]) : a sequence of strings to nicely join
         sep (str, optional) : a sequence delimiter to use (default: ", ")
+        conjunction (str or None, optional) : a conjuction to use for the last
+            two items, or None to reproduce basic join behaviour (default: "or")
 
     Returns:
         a joined string
@@ -97,10 +99,10 @@ def nice_join(seq, sep=", "):
     '''
     seq = [str(x) for x in seq]
 
-    if len(seq) <= 1:
+    if len(seq) <= 1 or conjuction is None:
         return sep.join(seq)
     else:
-        return "%s or %s" % (sep.join(seq[:-1]), seq[-1])
+        return "%s %s %s" % (sep.join(seq[:-1]), conjuction, seq[-1])
 
 def snakify(name, sep='_'):
     ''' Convert CamelCase to snake_case. '''
