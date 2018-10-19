@@ -50,7 +50,6 @@ class LogScale(Scale):
 
     """)
     def __init__(self, *arg, **kw):
-        print(" in LogScale __init__:", kw)
         super(LogScale, self).__init__(*arg, **kw)
         if "log_type" in kw:
             self.log_type = kw['log_type']
