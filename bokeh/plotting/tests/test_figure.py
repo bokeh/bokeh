@@ -1,4 +1,7 @@
 from __future__ import absolute_import
+
+import re
+
 import pytest
 
 from bokeh.core.enums import MarkerType
@@ -183,6 +186,20 @@ class TestFigure(object):
         p = bpf.figure()
         df = pd.DataFrame({'x': [1, 2, 3], 'y': [2, 3, 4]})
         p.circle(x='x', y='y', source=df)
+
+    def test_glyph_method_errors_on_sequence_literals_with_source(self):
+        p = bpf.figure()
+        source = ColumnDataSource({'x': [1, 2, 3], 'y': [2, 3, 4]})
+
+        with pytest.raises(RuntimeError, match=r"Expected y to reference fields in the supplied data source."):
+            p.circle(x='x', y=[1,2,3], source=source)
+        with pytest.raises(RuntimeError, match=r"Expected y and line_color to reference fields in the supplied data source."):
+            p.circle(x='x', y=[1,2,3], line_color=["red", "green", "blue"], source=source)
+        with pytest.raises(RuntimeError) as e:
+            p.circle(x='x', y=[1,2,3], color=["red", "green", "blue"], source=source)
+        m = re.search (r"Expected y, (.+) and (.+) to reference fields in the supplied data source.", str(e.value))
+        assert m is not None
+        assert set(m.groups()) == set(["fill_color", "line_color"])
 
 class TestMarkers(object):
 

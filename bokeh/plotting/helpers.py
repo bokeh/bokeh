@@ -256,37 +256,47 @@ def _get_legend_item_label(kwargs):
 
 
 _GLYPH_SOURCE_MSG = """
-Supplying a user-defined data source AND iterable values to glyph methods is
-not possibe. Either:
 
-Pass all data directly as literals:
+Expected %s to reference fields in the supplied data source.
 
-    p.circe(x=a_list, y=an_array, ...)
+When a 'source' argument is passed to a glyph method, values that are sequences
+(like lists or arrays) must come from references to data columns in the source.
 
-Or, put all data in a ColumnDataSource and pass column names:
+For instance, as an example:
 
     source = ColumnDataSource(data=dict(x=a_list, y=an_array))
-    p.circe(x='x', y='y', source=source, ...)
+
+    p.circle(x='x', y='y', source=source, ...) # pass column names and a source
+
+Alternatively, *all* data sequences may be provided as literals as long as a
+source is *not* provided:
+
+    p.circle(x=a_list, y=an_array, ...)  # pass actual sequences and no source
 
 """
 
 
 def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
+    incompatible_literal_spec_values = []
     dataspecs = glyphclass.dataspecs_with_props()
     for var, val in kwargs.items():
 
         # ignore things that are not iterable
         if not isinstance(val, Iterable):
             continue
+
         # pass dicts (i.e., values or fields) on as-is
         if isinstance(val, dict):
             continue
+
         # let any non-dataspecs do their own validation (e.g., line_dash properties)
         if var not in dataspecs:
             continue
+
         # strings sequences are handled by the dataspec as-is
         if isinstance(val, string_types):
             continue
+
         # similarly colorspecs handle color tuple sequences as-is
         if (isinstance(dataspecs[var].property, ColorSpec) and isinstance(val, tuple)):
             continue
@@ -295,10 +305,12 @@ def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
             raise RuntimeError("Columns need to be 1D (%s is not)" % var)
 
         if is_user_source:
-            raise RuntimeError(_GLYPH_SOURCE_MSG)
+            incompatible_literal_spec_values.append(var)
+        else:
+            source.add(val, name=var)
+            kwargs[var] = var
 
-        source.add(val, name=var)
-        kwargs[var] = var
+    return incompatible_literal_spec_values
 
 
 def _make_glyph(glyphclass, kws, extra):
@@ -738,8 +750,11 @@ def _glyph_function(glyphclass, extra_docs=None):
 
         # handle the main glyph, need to process literals
         glyph_ca = _pop_colors_and_alpha(glyphclass, kwargs)
-        _process_sequence_literals(glyphclass, kwargs, source, is_user_source)
-        _process_sequence_literals(glyphclass, glyph_ca, source, is_user_source)
+        incompatible_literal_spec_values = []
+        incompatible_literal_spec_values += _process_sequence_literals(glyphclass, kwargs, source, is_user_source)
+        incompatible_literal_spec_values += _process_sequence_literals(glyphclass, glyph_ca, source, is_user_source)
+        if incompatible_literal_spec_values:
+            raise RuntimeError(_GLYPH_SOURCE_MSG % nice_join(incompatible_literal_spec_values, conjuction="and"))
 
         # handle the nonselection glyph, we always set one
         nsglyph_ca = _pop_colors_and_alpha(glyphclass, kwargs, prefix='nonselection_', default_alpha=0.1)
