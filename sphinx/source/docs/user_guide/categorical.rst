@@ -60,7 +60,21 @@ All put together, we see the output:
 
 As usual, the data could also be put into a ``ColumnDataSource`` supplied as
 the ``source`` parameter to ``vbar`` instead of passing the data directly
-as parameters. The next example will demonstrate this.
+as parameters. Later examples will demonstrate this.
+
+.. _userguide_categorical_bars_sorting:
+
+Sorting
+~~~~~~~
+
+Since Bokeh displays bars in the order the factors are given for the range,
+"sorting" bars in a bar plot is identical to sorting the factors for the range.
+
+In the example below the fruit factors are sorted in increasing order according
+to their corresponing counts, causing the bars to be sorted:
+
+.. bokeh-plot:: docs/user_guide/examples/categorical_bar_sorted.py
+    :source-position: above
 
 .. _userguide_categorical_bars_colormapped:
 
@@ -258,6 +272,20 @@ also adds a line (perhaps for a quarterly average) at the coordinates for
 
 This example also demonstrates that other glyphs such as lines also function
 with categorical coordinates.
+
+.. _userguide_categorical_bars_stacked_and_grouped:
+
+Stacked and Grouped
+~~~~~~~~~~~~~~~~~~~
+
+The above techiques for stacking and grouping may also be used together to
+crate a stacked, grouped bar plot.
+
+Continuing the example above with bars grouped by quarter, we might stack each
+individual bar by region.
+
+.. bokeh-plot:: docs/user_guide/examples/categorical_bar_stacked_grouped.py
+    :source-position: above
 
 .. _userguide_categorical_bars_pandas:
 
