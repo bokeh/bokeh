@@ -10,6 +10,7 @@ Some of the highlights include:
 * Fixes and improvements to `DataTable` (:bokeh-issue:`6454`, :bokeh-issue:`7116`, :bokeh-issue:`7417`, :bokeh-issue:`8021`, :bokeh-issue:`8040`, :bokeh-issue:`8050`, :bokeh-issue:`8201`)
 * `CustomAction` for user-defined Toolbar buttons (:bokeh-issue:`8099`)
 * Option to auto-hide toolbars (:bokeh-issue:`8284`)
+* Callback to allow `AjaxDataSource` to adapt JSON responses (:bokeh-issue:`8321`)
 * `Scatter` glyph for parameterizable marker type (:bokeh-issue:`5884`)
 * Reuse webdrivers for faster PNG/SVG export by default (:bokeh-issue:`8329`)
 * Improved testing capabilities (:bokeh-issue:`2596`, :bokeh-issue:`8078`, :bokeh-issue:`8139`, :bokeh-issue:`8146`, :bokeh-issue:`8217`, :bokeh-issue:`8225`)
