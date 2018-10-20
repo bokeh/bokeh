@@ -10,17 +10,17 @@ high-performance interactivity over very large or streaming datasets.
 Bokeh can help anyone who would like to quickly and easily create
 interactive plots, dashboards, and data applications.
 
-To get started using Bokeh to make your visualizations, see the
+To get started using Bokeh to make your visualizations, start with the
 :ref:`userguide`.
 
-To see examples of how you might use Bokeh with your own data, check out
+For examples of how you might use Bokeh with your own data, check out
 the :ref:`gallery`.
 
-A complete API reference of Bokeh is at :ref:`refguide`.
+For detailed information about specific Bokeh components, consult the
+:ref:`refguide`.
 
 If you are interested in contributing to Bokeh, or extending the library, see
 the :ref:`devguide`.
-
 
 .. include:: docs/includes/hero.txt
 
@@ -33,9 +33,9 @@ the :ref:`devguide`.
     :target: https://numfocus.org
 
     Bokeh is a fiscally sponsored project of `NumFOCUS`_, a nonprofit
-    dedicated to supporting the open source scientific computing
-    community. If you like Bokeh and want to support our mission, please
-    consider making a `donation`_ to support our efforts.
+    dedicated to supporting the open source scientific computing community.
+    If you like Bokeh and want to support our mission, please consider making
+    a `donation`_ to support our efforts.
 
 .. toctree::
     :hidden:
