@@ -52,7 +52,7 @@
 
     <tr>
     <td>
-      <a href="docs/gallery/brewer.html"><img alt="stacked" src="_images/stacked_t.png" /></a>
+      <a href="docs/gallery/stacked_area.html"><img alt="stacked" src="_images/stacked_t.png" /></a>
     </td>
     <td>
       <a href="docs/gallery/quiver.html"><img alt="quiver" src="_images/quiver_t.png" /></a>
