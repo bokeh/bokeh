@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide the ``Document`` class, which is a container for Bokeh Models to
 be reflected to the client side BokehJS library.
 
@@ -14,19 +21,29 @@ figure below:
     glyphs, etc.) that can be serialized as a single collection.
 
 '''
-from __future__ import absolute_import
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
+log = logging.getLogger(__name__)
 
-logger = logging.getLogger(__name__)
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
 
+# Standard library imports
 from collections import defaultdict
 from json import loads
 import sys
 
+# External imports
 import jinja2
 from six import string_types
 
+# Bokeh imports
 from ..core.enums import HoldPolicy
 from ..core.json_encoder import serialize_json
 from ..core.query import find
@@ -44,7 +61,23 @@ from .events import ModelChangedEvent, RootAddedEvent, RootRemovedEvent, Session
 from .locking import UnlockedDocumentProxy
 from .util import initialize_references_json, instantiate_references_json, references_json
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
 DEFAULT_TITLE = "Bokeh Application"
+
+__all__ = (
+    'Document',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class Document(object):
     ''' The basic unit of serialization for Bokeh.
@@ -289,7 +322,7 @@ class Document(object):
     def apply_json_event(self, json):
         event = loads(json, object_hook=Event.decode_json)
         if not isinstance(event, Event):
-            logger.warn('Could not decode event json: %s' % json)
+            log.warn('Could not decode event json: %s' % json)
         else:
             for obj in self._subscribed_models[event.event_name]:
                 obj._trigger_event(event)
@@ -342,7 +375,7 @@ class Document(object):
                     if patched_id not in self._all_former_model_ids:
                         raise RuntimeError("Cannot apply patch to %s which is not in the document" % (str(patched_id)))
                     else:
-                        logger.warn("Cannot apply patch to %s which is not in the document anymore" % (str(patched_id)))
+                        log.warn("Cannot apply patch to %s which is not in the document anymore" % (str(patched_id)))
                         break
                 patched_obj = self._all_models[patched_id]
                 attr = event_json['attr']
@@ -446,7 +479,7 @@ class Document(object):
         from gc import get_referrers
         from types import FrameType
 
-        logger.debug("Deleting %s modules for %s" % (len(self._modules), self))
+        log.debug("Deleting %s modules for %s" % (len(self._modules), self))
 
         for module in self._modules:
 
@@ -466,7 +499,7 @@ class Document(object):
             referrers = [x for x in referrers if x is not self._modules]
             referrers = [x for x in referrers if not isinstance(x, FrameType)]
             if len(referrers) != 0:
-                logger.error("Module %r has extra unexpected referrers! This could indicate a serious memory leak. Extra referrers: %r" % (module, referrers))
+                log.error("Module %r has extra unexpected referrers! This could indicate a serious memory leak. Extra referrers: %r" % (module, referrers))
 
             # remove the reference from sys.modules
             if module.__name__ in sys.modules:
@@ -584,7 +617,7 @@ class Document(object):
 
         '''
         if self._hold is not None and self._hold != policy:
-            logger.warn("hold already active with '%s', ignoring '%s'" % (self._hold, policy))
+            log.warn("hold already active with '%s', ignoring '%s'" % (self._hold, policy))
             return
         if policy not in HoldPolicy:
             raise ValueError("Unknown hold policy %r" % policy)
@@ -1112,3 +1145,11 @@ def _combine_document_events(new_event, old_events):
 
     # no combination was possible
     old_events.append(new_event)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

@@ -1,14 +1,31 @@
-from __future__ import absolute_import, print_function
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
-import pytest
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from mock import patch
+import pytest ; pytest
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import logging
 
 from copy import copy
+from mock import patch
 
-import bokeh.document.document as document
+# External imports
+
+# Bokeh imports
 
 from bokeh.io.doc import curdoc
 from bokeh.models import ColumnDataSource
@@ -19,8 +36,16 @@ from bokeh.util.logconfig import basicConfig
 
 from .setup import AnotherModelInTestDocument, SomeModelInTestDocument, ModelThatOverridesName, ModelWithSpecInTestDocument
 
-# needed for caplog tests to function
-basicConfig()
+# Module under test
+import bokeh.document.document as document
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class TestDocumentHold(object):
 
@@ -901,3 +926,18 @@ class TestDocument(object):
     # TODO test serialize/deserialize with list-and-dict-valued properties
 
     # TODO test replace_with_json
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
+
+# needed for caplog tests to function
+basicConfig()
