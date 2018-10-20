@@ -1,9 +1,39 @@
-import pytest
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
-import bokeh.document.locking as locking
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+import pytest ; pytest
+
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from bokeh.document.document import Document
 from bokeh.io import curdoc
+
+# Module under test
+import bokeh.document.locking as locking
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def test_next_tick_callback_works():
     d = locking.UnlockedDocumentProxy(Document())
@@ -40,3 +70,15 @@ def test_without_document_lock():
     assert len(curdoc_from_cb) == 1
     assert curdoc_from_cb[0]._doc is d
     assert isinstance(curdoc_from_cb[0], locking.UnlockedDocumentProxy)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

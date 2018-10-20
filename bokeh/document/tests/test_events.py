@@ -1,10 +1,36 @@
-import pytest
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from mock import patch
 
-
+# Module under test
 import bokeh.document.events as bde
 
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
 
 class FakeEmptyDispatcher(object): pass
 
@@ -26,9 +52,13 @@ class FakeModel(object):
     data = "data"
     def references(self): return dict(ref1=1, ref2=2)
 
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
 # DocumentChangedEvent --------------------------------------------------------
 
-class TesDocumentChangedEvent(object):
+class TestDocumentChangedEvent(object):
 
     def test_init(self):
         e = bde.DocumentChangedEvent("doc")
@@ -475,3 +505,15 @@ class TestSessionCallbackRemoved(object):
         e = bde.SessionCallbackAdded("doc", "setter")
         e2 = bde.SessionCallbackAdded("doc", "setter")
         assert e.combine(e2) == False
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide events that represent various changes to Bokeh Documents.
 
 These events are used internally to signal changes to Documents. For
@@ -5,11 +12,54 @@ information about user-facing (e.g. UI or tool) events, see the reference
 for :ref:`bokeh.events`.
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from ..util.dependencies import import_optional
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
 pd = import_optional('pandas')
+
+__all__ = (
+    'ColumnDataChangedEvent',
+    'ColumnsStreamedEvent',
+    'ColumnsPatchedEvent',
+    'DocumentChangedEvent',
+    'DocumentPatchedEvent',
+    'ModelChangedEvent',
+    'RootAddedEvent',
+    'RootRemovedEvent',
+    'SessionCallbackAdded',
+    'SessionCallbackRemoved',
+    'TitleChangedEvent',
+    'TitleChangedEvent',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class DocumentChangedEvent(object):
     ''' Base class for all internal events representing a change to a
@@ -769,3 +819,11 @@ class SessionCallbackRemoved(DocumentChangedEvent):
         super(SessionCallbackRemoved, self).dispatch(receiver)
         if hasattr(receiver, '_session_callback_removed'):
             receiver._session_callback_removed(self)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
