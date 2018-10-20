@@ -19,7 +19,7 @@ Areas of Work
 
 The development pace of Bokeh is contigent on external funding opportunities,
 so instead of a traditional "roadmap" with specific dates and deadlines, we
-present the major areas of work the core team considers important. These are
+present the major areas of work the `Core Team`_ considers important. These are
 tasks and projects that we would like to do ourselves, when time and resources
 permit, or that we would be happy to have done by new contributors.
 
@@ -124,3 +124,5 @@ Namespace Variables
 It would be very useful for users to be able to synchronize and manipulate
 arbitrary data / variables across the Bokeh/BokehJS boundary. Currently only
 DataSource columns and defined properties are available.
+
+.. _Core Team: https://github.com/bokeh/bokeh/wiki/BEP-4:-Project-Roles#core-team
