@@ -436,7 +436,9 @@ scales on both axes.
 
 As we saw above, the |figure| function accepts ``x_axis_type`` and
 ``y_axis_type`` as arguments. To specify a log axis, pass ``"log"`` for
-the value of either of these parameters.
+the value of either of these parameters. Additionally, ``"log1p"`` may be
+passed instead for datasets including zero values. Log1p takes the log of
+x+1 for each value.
 
 By default, log axis ranges are calculated to fit around positive valued data. To
 set your own ranges, see the section on :ref:`userguide_plotting_setting_ranges`.
