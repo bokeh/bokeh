@@ -24,7 +24,7 @@ export class LogScale extends Scale {
   static initClass(): void {
     this.prototype.type = "LogScale"
     this.internal({
-      log_type: [ p.String ],
+      log_type: [ p.String, "log" ],
     })
   }
 
