@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -284,3 +284,7 @@ def Test__src_path(object):
 
     def test_args(self):
         assert bes._src_path("http://foo", "1234") =="http://foo/autoload.js?bokeh-autoload-element=1234"
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -158,3 +158,7 @@ class Test__use_widgets(object):
         d.add_root(test_widget)
         d.add_root(test_glplot)
         assert beb._use_widgets([d]) is True
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
