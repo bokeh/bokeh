@@ -630,7 +630,7 @@ class MultiLine(Glyph):
 class MultiPolygons(Glyph):
     ''' Render several MultiPolygons.
 
-    Modeled on geoJSON - the data for the ``MultiPolygons` glyph is
+    Modeled on geoJSON - the data for the ``MultiPolygons`` glyph is
     different in that the vector of values is not a vector of scalars.
     Rather, it is a "list of lists of lists of lists".
     '''

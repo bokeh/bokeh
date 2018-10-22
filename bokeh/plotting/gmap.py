@@ -157,6 +157,8 @@ class GMap(GMapPlot):
 
     multi_line = _glyph_function(glyphs.MultiLine)
 
+    multi_polygons = _glyph_function(glyphs.MultiPolygons)
+
     oval = _glyph_function(glyphs.Oval)
 
     patch = _glyph_function(glyphs.Patch)

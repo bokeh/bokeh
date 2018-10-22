@@ -108,6 +108,14 @@ declare namespace Bokeh {
     ys?: MultiNumerical | MultiCategorical;
   }
 
+
+  export const MultiPolygons: { new(attributes?: IMultiPolygons, options?: ModelOpts): MultiPolygons };
+  export interface MultiPolygons extends Glyph, IMultiPolygons { }
+  export interface IMultiPolygons extends IGlyph, FillProps, LineProps {
+    xs?: MultiNumerical | MultiCategorical;
+    ys?: MultiNumerical | MultiCategorical;
+  }
+
   export const Oval: { new(attributes?: IOval, options?: ModelOpts): Oval };
   export interface Oval extends Glyph, IOval {}
   export interface IOval extends IGlyph, FillProps, LineProps {
