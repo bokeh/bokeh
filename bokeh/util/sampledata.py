@@ -74,6 +74,7 @@ def download(progress=True):
         (s3, 'movies.db.zip'),
         (s3, 'airports.csv'),
         (s3, 'routes.csv'),
+        (s3, 'haarcascade_frontalface_default.xml'),
     ]
 
     for base_url, filename in files:

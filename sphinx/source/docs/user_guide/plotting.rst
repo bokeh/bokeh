@@ -222,6 +222,67 @@ patch objects, that have multiple disjoint components when rendered:
     Hit testing on patch objects with ``NaN`` values is not currently
     supported.
 
+.. _userguide_plotting_multipolygons:
+
+Polygons with Holes
+~~~~~~~~~~~~~~~~~~~
+
+The |multi_polygons| glyph uses nesting to accept a variety of information
+relevant to polygons. Anything that can be rendered as a |Patches| can also be
+rendered as |multi_polygons|, but additionally |multi_polygons| can render
+holes inside each polygon.
+
+.. note::
+    This glyph is unlike most other glyphs. Instead of accepting a one
+    dimensional list or array of scalar values, it accepts a 3 times nested
+    list of x and y positions for the exterior and holes composing each
+    polygon. MultiPolygons also expects a scalar value or a list of scalers
+    per each item for parameters such as color, alpha, linewidth, etc.
+    Similarily, one can use a ColumnDataSource consisting of a 3 times nested
+    list and a list of scalars where the length of the list of scalars and
+    length of the top level list must match.
+
+Simple Polygon
+''''''''''''''
+
+Below is an example that shows how to generate a single polygon
+glyph from 3 times nested one-dimensional sequences of *x* and *y* points
+using the |multi_polygons| glyph method:
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_multipolygon_simple.py
+    :source-position: above
+
+Polygon with Holes
+''''''''''''''''''
+
+Below is an example that shows how to generate a single polygon with holes
+from three sequences of *x* and *y* points. The first sequence represents
+the exterior of the polygon and the following sequences represent the holes:
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_multipolygon_with_holes.py
+    :source-position: above
+
+MultiPolygon with Separate Parts
+''''''''''''''''''''''''''''''''
+
+Sometimes one conceptual polygon is composed of multiple polygon geometries.
+Below is an example that shows how to generate a MultiPolygon
+glyph from several sequences of *x* and *y* points. Each item in the sequence
+represents a part of the MultiPolygon:
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_multipolygon_with_separate_parts.py
+    :source-position: above
+
+Multiple MultiPolygons
+''''''''''''''''''''''
+
+The top level of nesting is used to separate each MultiPolygon from the
+others. Each MultiPolygon can be thought of as a row in the data source -
+potentially with a corresponding label or color.
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_multipolygons.py
+    :source-position: above
+
 .. _userguide_plotting_ovals_ellipses:
 
 Ovals and Ellipses
@@ -494,6 +555,7 @@ The section on adding annotations to plots has moved.  Please see
 .. |image_url|         replace:: :func:`~bokeh.plotting.figure.Figure.image_url`
 .. |line|              replace:: :func:`~bokeh.plotting.figure.Figure.line`
 .. |multi_line|        replace:: :func:`~bokeh.plotting.figure.Figure.multi_line`
+.. |multi_polygons|    replace:: :func:`~bokeh.plotting.figure.Figure.multi_polygons`
 .. |oval|              replace:: :func:`~bokeh.plotting.figure.Figure.oval`
 .. |patch|             replace:: :func:`~bokeh.plotting.figure.Figure.patch`
 .. |patches|           replace:: :func:`~bokeh.plotting.figure.Figure.patches`

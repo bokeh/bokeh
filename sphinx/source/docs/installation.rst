@@ -28,10 +28,11 @@ For basic usage, have the following libraries installed:
 .. code::
 
     Jinja2 >=2.7
-    python-dateutil >=2.1
-    PyYAML >=3.10
     numpy >=1.7.1
     packaging >=16.8
+    pillow >=4.0
+    python-dateutil >=2.1
+    PyYAML >=3.10
     six >=1.5.2
     tornado >=4.3
 
@@ -51,14 +52,18 @@ NodeJS
     ``CustomJS`` implementations in CoffeeScript or TypeScript.
 
 Pandas
-    Not strictly necessary for any particular feature, but some usage is
-    simpler when using Pandas e.g. Pandas DataFrames will be converted
+    Necessary for the `hexbin` function. Additionally, some usage is
+    simplified by using Pandas e.g. Pandas DataFrames will be converted
     automatically to Bokeh data sources by glyph functions.
 
 psutil
     Necessary to enable detailed memory logging in the Bokeh server.
 
-Selenium, PhantomJS, Pillow
+NetworkX
+    Necessary to use the `from_networkx` function to generate Bokeh graph
+    renderers directly from NetworkX data.
+
+Selenium, PhantomJS
     Necessary for :ref:`userguide_export` to PNG and SVG images.
 
 Sphinx
@@ -126,7 +131,7 @@ config file:
 
 will cause the sample data to be stored in ``/tmp/bokeh_data``.
 
-Verifying installation
+Verifying Installation
 ======================
 
 The first check you can make is to make sure you can ``import bokeh`` and
@@ -178,14 +183,14 @@ detailed instructions.
 Developer Builds
 ----------------
 
-And easier way to obtain the most recent Bokeh updates without having to worry
-about building Bokeh yourself is to install a developer build. Dev builds are not
-published on any particular schedule but often come out a few times a month or
-more.
+An easier way to obtain the most recent Bokeh updates without having to worry
+about building Bokeh yourself is to install a developer build. Developer builds
+are not published on any particular schedule but often come out a few times a
+month or more.
 
-These builds are being made available on `anaconda.org`_. If you are using
-Anaconda, you can install with conda by issuing the command from a Bash or Windows
-command prompt:
+These builds are made available on the "bokeh" channel of `anaconda.org`_. If
+you are using Anaconda, you can install with conda by issuing the command from a
+Bash or Windows command prompt:
 
 .. code-block:: sh
 
@@ -201,6 +206,11 @@ We attempt to make sure the developer builds are relatively stable, however plea
 be aware they they are not tested as rigorously as standard releases. Any problems
 or issues reported on the GitHub issue tracker are appreciated.
 
+.. warning::
+    **BokehJS resources for developer builds are not guaranteed to be
+    permanently available**. You should never use any artifacts made by a
+    developer build "in production".
+
 .. _install_bokehjs:
 
 BokehJS
@@ -210,21 +220,16 @@ If you would like to use BokehJS as a standalone JavaScript library, released
 versions of BokehJS are available for download from CDN at pydata.org, under
 the following naming scheme::
 
+    # CSS files
     http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.css
     http://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.css
     http://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.css
 
-for the BokehJS CSS files, and::
-
+    # Javascript files
     http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.js
     http://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.js
     http://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.js
     http://cdn.pydata.org/bokeh/release/bokeh-api-x.y.z.min.js
-
-for the BokehJS Javascript files.
-
-.. note::
-    The CSS must be loaded *before* the JavaScript library.
 
 The ``"-widgets"`` files are only necessary if you are using any of the widgets
 built into Bokeh in ``bokeh.models.widgets`` in your documents. Similarly, the
@@ -232,18 +237,18 @@ built into Bokeh in ``bokeh.models.widgets`` in your documents. Similarly, the
 your document. The ``"bokeh-api"`` files are required to use the BokehJS API,
 and must be loaded *after* the core BokehJS library.
 
-As a concrete example, the links for version ``0.12.15`` are:
+As a concrete example, the links for version ``1.0.0`` are:
 
-* http://cdn.pydata.org/bokeh/release/bokeh-0.12.15.min.css
-* http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.15.min.css
-* http://cdn.pydata.org/bokeh/release/bokeh-tables-0.12.15.min.css
+* http://cdn.pydata.org/bokeh/release/bokeh-1.0.0.min.css
+* http://cdn.pydata.org/bokeh/release/bokeh-widgets-1.0.0.min.css
+* http://cdn.pydata.org/bokeh/release/bokeh-tables-1.0.0.min.css
 
 and
 
-* http://cdn.pydata.org/bokeh/release/bokeh-0.12.15.min.js
-* http://cdn.pydata.org/bokeh/release/bokeh-widgets-0.12.15.min.js
-* http://cdn.pydata.org/bokeh/release/bokeh-tables-0.12.15.min.js
-* http://cdn.pydata.org/bokeh/release/bokeh-api-0.12.15.min.js
+* http://cdn.pydata.org/bokeh/release/bokeh-1.0.0.min.js
+* http://cdn.pydata.org/bokeh/release/bokeh-widgets-1.0.0.min.js
+* http://cdn.pydata.org/bokeh/release/bokeh-tables-1.0.0.min.js
+* http://cdn.pydata.org/bokeh/release/bokeh-api-1.0.0.min.js
 
 .. _Anaconda Python Distribution: http://anaconda.com/anaconda
 .. _anaconda.org: http://anaconda.org

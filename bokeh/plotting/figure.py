@@ -126,6 +126,7 @@ class Figure(Plot):
         * :func:`~bokeh.plotting.figure.Figure.inverted_triangle`
         * :func:`~bokeh.plotting.figure.Figure.line`
         * :func:`~bokeh.plotting.figure.Figure.multi_line`
+        * :func:`~bokeh.plotting.figure.Figure.multi_polygons`
         * :func:`~bokeh.plotting.figure.Figure.oval`
         * :func:`~bokeh.plotting.figure.Figure.patch`
         * :func:`~bokeh.plotting.figure.Figure.patches`
