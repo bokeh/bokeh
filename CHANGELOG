@@ -1,3 +1,146 @@
+2018-10-24    1.0.0:
+--------------------
+  * bugfixes:
+    - #2022 [component: bokehjs] Not correct behaviour of hovertool with annular glyph and units='screen'
+    - #3187 [component: bokehjs] [component: examples] Plotting/file/image_url.py doesn't work without setting {x,y}_range
+    - #7116 [component: bokehjs] [widgets] Patch/stream message to the columndatasource for datatable widget on front-end triggers response containing entire data source
+    - #7378 [component: bokehjs] [geo] Flicker when zooming on a tile source with mercatorticker
+    - #7417 [component: bokehjs] [regression] Deserializationerror when editing data table
+    - #7580 [component: server] 'serversession' object has no attribute 'session_context'
+    - #7959 [component: bokehjs] Image hover broken on axes with inverted range
+    - #7974 [component: bokehjs] [geo] Segments don't show up on gmapplot
+    - #7976 [component: bokehjs] Log axis minor ticks wrong position 
+    - #8018 If the "selector" argument is explicitily set to the "select" method, an empty list is returned
+    - #8020 [regression] Export_png not exporting figures correctly
+    - #8021 [component: bokehjs] [widgets] Datatable and glyph selections not linking properly
+    - #8032 [component: bokehjs] Draw and edit tools event handling on server broken
+    - #8034 [component: server] Unhandled exception in application causes all later sessions to fail
+    - #8040 [component: bokehjs] [widgets] Editing filtered datatable cell impacts wrong row
+    - #8050 [component: bokehjs] [widgets] Datatable selectable='checkbox' gives javascript error
+    - #8060 [component: bokehjs] Inaccurate rendering around 0 on tall bars
+    - #8075 [component: bokehjs] Boxedittool draws on doubletap even when tool inactive
+    - #8077 [component: bokehjs] Not providing x and y data makes some glyphs not render in legend
+    - #8122 [component: bokehjs] [notebook] Bug: push_notebook support is broken in jupyterlab for bokeh=0.13.0
+    - #8160 Bokeh_css and bokeh_js resources are reversed in file.html template
+    - #8179 [regression] Show() accumulates objects
+    - #8198 [component: bokehjs] Hovertool interpolation mode doesn't work for horizontal and vertical lines
+    - #8201 [widgets] Datatable does not stay sorted when the data is updated
+    - #8230 [py2] Properly use string_types for instance properties and js_on_event
+    - #8232 Patch_app.py is broken
+    - #8282 [component: bokehjs] Adding computed_icon getter broke toolproxy icons
+    - #8292 [component: bokehjs] [regression] Esc has no effect on selections
+    - #8299 [component: docs] A tiny typo in the document about graphrenderer
+    - #8300 [component: tests] Verify_all() doesn't give information what failed
+    - #8334 [component: bokehjs] Y-range for negative value
+  * features:
+    - #99  making predefined themes available by calling a single function
+    - #589 [component: bokehjs] Update legend when legends or other attributes change
+    - #2266 Pandas periods are not recognised
+    - #2321 [component: bokehjs] [geo] Support a "patch" with a hole in it / gis support
+    - #4236 [component: server] Implement --develop mode
+    - #5231 [component: bokehjs] Save bokeh plot as bokeh plot
+    - #5345 Custom models distribution without compiler on the server side
+    - #5884 [component: bokehjs] Let scatter marker type be parameterizable
+    - #6454 [component: bokehjs] [widgets] Add an option to disable column titles in datatable
+    - #6985 [component: bokehjs] Oval selection does not update color (does not support hit testing)
+    - #7499 [API: models] Allow defining custom tooltip for certain tools
+    - #7618 [component: bokehjs] Feature request: support hit-testing for text glyphs
+    - #7890 [component: bokehjs] Step glyph support for gaps from missing/non-finite data points (inf, nan)
+    - #7987 [component: bokehjs] Restrict the drawing tools to draw a single glyph
+    - #7990 [component: bokehjs] Add clear tool to clear out one or more datasources
+    - #8013 [component: bokehjs] Expose the more detailed geometry data to the tap tool
+    - #8109 [component: bokehjs] Feature request: verticalline marker (equivalent to marker='|' in matplotlib)
+    - #8130 [component: bokehjs] Add tilt option to gmapoptions
+    - #8133 [component: bokehjs] [typescript] Freehand drawing tool
+    - #8138 Turn off self.validate checks during update
+    - #8142 Span location cannot accept datetime whereas labels can deal with it
+    - #8156 [component: bokehjs] Feature request: bold italic font specification
+    - #8172 [component: bokehjs] Make image smoothing configurable on tilerenderer
+    - #8183 [feature request] in the function ‘from_networkx’, convert networkx node/edge attributes to bokeh node_renderer/edge_renderer data_source
+    - #8196 [feature request] add .copy method to columndatasource
+    - #8206 Add another theme: balanced
+    - #8218 [component: bokehjs] Support specifying representative point from legend items
+    - #8247 [component: server] Allow defining session cleanup hooks on a document
+    - #8284 [component: bokehjs] Autohide toolbar
+    - #8295 [component: bokehjs] Fixedticker does not accept minor ticks
+    - #8311 [feature request] ‘from_networkx’ function for a fixed layout
+    - #8321 [component: bokehjs] [component: examples] Add adapter property to ajaxdatasource
+    - #8329 Add webdriver_control and default to reuse
+  * tasks:
+    - #2283 Feature idea: docker image for bokeh server
+    - #2596 [component: tests] Ci test to make sure bokeh works without heavy dependencies
+    - #3322  should issue a validation warning when the range values are not unique
+    - #4215 Valueerror: nattype does not support timetuple
+    - #5355 [component: bokehjs] No way to cleanup used memory
+    - #5426 [API: models] It is not possible to set a range1d with datetime.timedelta value
+    - #5632 [component: bokehjs] Warn on setting empty plot.legend attrs
+    - #6117 Add missing ticker tests and minor ticker improvements
+    - #6362 Customize warning formatter
+    - #6495 Task: pytest marked "selenium" tests should assert no browser console errors
+    - #6548 Task: add/use selenium fixture in ``export`` tests instead of creating new phantomjs processes
+    - #6770 Task: add user warn/error to columndatasource.from_df method about dataframe containing "index" column
+    - #7042 [component: docs] User guide, tweak to "ranges" doc
+    - #7320 [API: models] Document validation check needed for mis-matched y_range_name
+    - #7785 [component: bokehjs] [component: server] Pull_session with url paramters isn't working
+    - #7788 [widgets] Daterangeslider error not logged nor shown in cli
+    - #8017 [component: docs] Added short usage instructions for examples/app/dash
+    - #8037 [component: docs] Doc typo (funtion -> function)
+    - #8038 Improved support for pyinstaller
+    - #8056 Remove code dependent on ipython pprint machinery
+    - #8074 Overzealous deduplication of tools for merge_tools
+    - #8078 [component: tests] Clean up test support
+    - #8086 [component: docs] Simplify pie example
+    - #8089 [component: build] Ci scripts with colon in filenames are not valid on windows
+    - #8091 [component: tests] Bryanv/test cleanup
+    - #8092 Use generators instead of lists
+    - #8097 [component: docs] Backticks are broken un docs/*.rst
+    - #8104 [component: examples] Box_annotation example .ix method is deprecated
+    - #8107 [component: examples] Ref: use .loc instead of .ix in examples
+    - #8120 [component: docs] Update documentation for how to use bokeh server with jupyterhub environment
+    - #8125 [component: tests] Fixed exception raising tests of test_sources
+    - #8128 [component: examples] Rename joyplots to ridgeplots
+    - #8131 [component: docs] Docstrings not clear for dimension property for band, span and whisker class
+    - #8134 [component: server] Bokeh doesn't work with tornado master
+    - #8139 [component: tests] Initial work to support server selenium tests
+    - #8140 Remove the arguments parameter from server_session
+    - #8146 [component: tests] Unit tests failing in windows 7
+    - #8190 [component: examples] Pandas > 0.23.0 & < 0.23.4 breaks boxplot.py example
+    - #8199 [component: examples] Issues: none type: bug tag: examples updated main.py
+    - #8214 [component: tests] Bryanv/misc cleanup
+    - #8215 [component: docs] Installation docs: need info about export_png/svgs
+    - #8217 [component: build] [component: tests] Added unit/integration tests for python3.7
+    - #8219 [component: build] Don't report unversioned python in deps.py output
+    - #8221 [component: tests] Python 3.7 get_referrers change
+    - #8223 Remove dead testing code
+    - #8224 Use np.frombuffer instead of deprecated np.fromstring
+    - #8225 [component: build] Appveyor build and test for windows
+    - #8231 [API: models] Plot.{x,y}_range default value
+    - #8235 [component: docs] Some typo in the guide
+    - #8251 [component: build] Update requests min version
+    - #8252 Pandas is optional overall, but required for hexbin
+    - #8254 [component: build] Refine appveyor.yml settings
+    - #8257 [component: examples] Example examples/embed/server_session/ is broken, template is missing
+    - #8263 Add note of  bokeh_phantomjs_path environment variable on missing phantomjs 
+    - #8271 [component: bokehjs] Missing ";" in try_run.js
+    - #8273 Unhelpful error when passing invalid argument to gridplot
+    - #8286 [component: docs] [document] add (or update) an example to demonstrate  converting node/edge attributes in from_networkx 
+    - #8296 Split up bokeh.properties
+    - #8301 [component: docs] Re-unify docs build
+    - #8302 [component: build] Small build tasks
+    - #8308 [BEP] Ratify project roles document
+    - #8309 Bryanv/reduce import code
+    - #8319 [component: examples] Examples punch list
+    - #8322 [component: examples] Pandas warning removed in gapminder example
+    - #8325 [component: examples] Correction selection histogram example
+    - #8326 [component: examples] Population example legend position -> "bottom_right"
+    - #8327 Load themes from python modules instead of json files
+    - #8328 [component: examples] Simple hdf5 example improvement
+    - #8330 Replace log.warn with log.warning
+    - #8331 [component: examples] Embed_multiple: better arrangement
+    - #8341 Boilerplate for bokeh/core
+    - #8344 [component: docs] Chaco link is a 404 - changed to git repo url
+    - #8348 Confusing multi_line error message
+
 2018-06-20   0.13.0:
 --------------------
   * bugfixes:
