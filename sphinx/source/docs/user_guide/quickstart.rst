@@ -158,8 +158,8 @@ Jupyter Notebooks
 
 At this point we should mention Jupyter notebooks.
 
-Jupyter notebooks are a fantastic tool for exploratory data analysis, widely
-used across the SciPy/PyData community. Bokeh integrates seamlessly with Jupyter
+Jupyter notebooks are a common tool for exploratory data analysis, widely
+used across the PyData community. Bokeh integrates seamlessly with Jupyter
 notebooks. To view the above examples in a notebook, you would only
 change |output_file| to a call to |output_notebook| instead.
 
@@ -197,9 +197,9 @@ which show how Bokeh can be used together with Jupyter interactive widgets:
 Other Languages
 ===============
 
-Bokeh's architecture makes it easy to create bindings for Bokeh in other
-languages, and in fact several already exist. We are obviously big Python
-fans, but having many language options is a compelling feature. Here are some
+Bokeh's architecture makes it possible to create bindings for Bokeh in other
+languages, and in fact several already exist. The core are heavily invested in
+Python, but having many language options is a compelling feature. Here are some
 of the other ways to use Bokeh:
 
 * `Bokeh for R`_
@@ -231,8 +231,7 @@ Plot
 Plots are a central concept in Bokeh. They are containers that hold all the
 various objects (renderers, guides, data, and tools) that comprise the final
 visualization that is presented to users. The |bokeh.plotting| interface
-provides a |Figure| class to help with assembling all the necessary objects,
-and a convenience function |figure| for creating |Figure| objects.
+provides a |figure| function to help with assembling all the necessary objects.
 
 Glyphs
 ------
@@ -455,7 +454,7 @@ explicitly ask for one by passing the value ``"datetime"`` to  the
 ``x_axis_type`` or ``y_axis_type`` parameters to |figure|. A few things
 of interest to look out for in this example:
 
-* setting the ``width`` and ``height`` arguments to |figure|
+* setting the ``plot_width`` and ``plot_height`` arguments to |figure|
 * customizing plots and other objects by assigning values to their attributes
 * accessing guides and annotations with convenience |Figure| attributes:
   |legend|, |grid|, |xgrid|, |ygrid|, |axis|, |xaxis|, |yaxis|
@@ -480,7 +479,7 @@ of interest to look out for in this example:
     output_file("stocks.html", title="stocks.py example")
 
     # create a new plot with a a datetime axis type
-    p = figure(width=800, height=350, x_axis_type="datetime")
+    p = figure(plot_width=800, plot_height=350, x_axis_type="datetime")
 
     # add renderers
     p.circle(aapl_dates, aapl, size=4, color='darkgrey', alpha=0.2, legend='close')
@@ -568,7 +567,7 @@ For questions and technical assistance, come join the `Bokeh mailing list`_.
 
 Visit the `Bokeh GitHub repository`_ and try the examples.
 
-Be sure to follow us on Twitter `@bokehplots <Twitter_>`_ and `Youtube`_!
+Be sure to follow us on Twitter `@bokehplots <Twitter_>`_!
 
 .. _Anaconda Python distribution: http://anaconda.com/anaconda
 .. _Bokeh for R: http://hafen.github.io/rbokeh/
@@ -578,7 +577,6 @@ Be sure to follow us on Twitter `@bokehplots <Twitter_>`_ and `Youtube`_!
 .. _Bokeh NBViewer Gallery: http://nbviewer.ipython.org/github/bokeh/bokeh-notebooks/blob/master/index.ipynb
 .. _live Tutorial notebooks: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb
 .. _Twitter: http://twitter.com/BokehPlots
-.. _YouTube: https://www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw
 .. _Apache Zeppelin: http://zeppelin.apache.org
 
 .. |bokeh.models|   replace:: :ref:`bokeh.models <bokeh.models>`

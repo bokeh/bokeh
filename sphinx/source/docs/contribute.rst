@@ -11,8 +11,8 @@ places to get in touch with core developers, and the :ref:`devguide` is a great
 place to get set up for working on Bokeh. We are eager to assist and mentor
 new contributors.
 
-* *If you are Julia, Swift, or other language dev, you can help make Bokeh
-  available to entire new audiences.*
+* *If you are a developer proficient in R, Julia, Swift, or other languages,
+  you can help make Bokeh available to entire new audiences.*
 
 ..
 
@@ -22,7 +22,7 @@ new contributors.
 ..
 
 * *If you are a designer, you can help improve the look of Bokeh plots and
-  ocumentation.*
+  documentation.*
 
 ..
 

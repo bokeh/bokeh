@@ -83,6 +83,7 @@ test:
     - ipywidgets
     - networkx
     - notebook
+    - opencv
     - pscript
     - pyshp
     - scikit-learn
