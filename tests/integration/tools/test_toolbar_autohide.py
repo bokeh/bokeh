@@ -51,6 +51,10 @@ class Test_Toobar_Autohide(object):
         assert (page.driver.find_element_by_class_name('bk-toolbar')
                            .value_of_css_property('visibility')) == 'visible'
 
+        page.drag_canvas_at_position(100, 100, 20, 20)
+        assert (page.driver.find_element_by_class_name('bk-toolbar')
+                    .value_of_css_property('visibility')) == 'visible'
+
         assert page.has_no_console_errors()
 
     def test_toolbar_with_autohide_becomes_visible_when_cursor_is_over_plot(self, single_plot_page):
@@ -66,5 +70,9 @@ class Test_Toobar_Autohide(object):
 
         assert (page.driver.find_element_by_class_name('bk-toolbar')
                            .value_of_css_property('visibility')) == 'visible'
+
+        page.drag_canvas_at_position(100, 100, 20, 20)
+        assert (page.driver.find_element_by_class_name('bk-toolbar')
+                    .value_of_css_property('visibility')) == 'visible'
 
         assert page.has_no_console_errors()

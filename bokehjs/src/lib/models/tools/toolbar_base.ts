@@ -15,21 +15,65 @@ import {HelpTool} from "./actions/help_tool"
 import {ToolProxy} from "./tool_proxy"
 import {InspectTool} from "./inspectors/inspect_tool"
 
+
+export namespace ToolbarViewModel {
+  export interface Attrs extends Model.Attrs {
+    _visible: boolean
+    autohide: boolean
+  }
+
+  export interface Props extends Model.Props {
+    _visible: p.Property<boolean>
+    autohide: p.Property<boolean>
+  }
+}
+
+interface ToolbarViewModel extends ToolbarViewModel.Attrs { }
+
+class ToolbarViewModel extends Model {
+  properties: ToolbarViewModel.Props
+
+  constructor(attrs?: Partial<ToolbarViewModel.Attrs>) {
+    super(attrs)
+  }
+
+  static initClass(): void {
+    this.prototype.type = 'ToolbarBase'
+
+    this.define({
+      _visible: [p.Bool, null],
+      autohide: [p.Bool, false],
+    })
+  }
+
+  get visible(): boolean {
+    return (!this.autohide) ? true: (this._visible == null) ? false: this._visible
+  }
+}
+ToolbarViewModel.initClass()
+
+
 export class ToolbarBaseView extends DOMView {
   model: ToolbarBase
 
   protected _tool_button_views: {[key: string]: ButtonToolButtonView}
+  protected _toolbar_view_model: ToolbarViewModel
 
   initialize(options: any): void {
     super.initialize(options)
     this._tool_button_views = {}
     this._build_tool_button_views()
+    this._toolbar_view_model = new ToolbarViewModel({autohide: this.model.autohide})
   }
 
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.tools.change, () => this._build_tool_button_views())
-    this.connect(this.model.properties.autohide.change, () => this.set_visibility())
+    this.connect(this.model.properties.autohide.change, () => {
+      this._toolbar_view_model.autohide = this.model.autohide
+      this._on_visible_change()
+    })
+    this.connect(this._toolbar_view_model.properties._visible.change, () => this._on_visible_change())
   }
 
   remove(): void {
@@ -42,23 +86,28 @@ export class ToolbarBaseView extends DOMView {
     build_views(this._tool_button_views, tools, {parent: this}, (tool) => tool.button_view)
   }
 
-  set_visibility(visible: boolean|null = null): void {
+  set_visibility(visible: boolean): void {
+    if (visible != this._toolbar_view_model._visible) {
+      this._toolbar_view_model._visible = visible
+    }
+  }
+
+  protected _on_visible_change(): void {
+    const visible = this._toolbar_view_model.visible
     const hidden_class = "bk-toolbar-hidden"
-    if (this.model.autohide) {
-      if (this.el.classList.contains(hidden_class) && visible) {
-        this.el.classList.remove(hidden_class)
-      } else if (!visible) {
-        this.el.classList.add(hidden_class)
-      }
+    if (this.el.classList.contains(hidden_class) && visible) {
+      this.el.classList.remove(hidden_class)
+    } else if (!visible) {
+      this.el.classList.add(hidden_class)
     }
   }
 
   render(): void {
     empty(this.el)
-
     this.el.classList.add("bk-toolbar")
     this.el.classList.add(`bk-toolbar-${this.model.toolbar_location}`)
-    this.set_visibility()
+    this._toolbar_view_model.autohide = this.model.autohide
+    this._on_visible_change()
 
     if (this.model.logo != null) {
       const cls = this.model.logo === "grey" ? "bk-grey" : null
