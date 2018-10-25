@@ -71,7 +71,15 @@ class Test_Toobar_Autohide(object):
         assert (page.driver.find_element_by_class_name('bk-toolbar')
                            .value_of_css_property('visibility')) == 'visible'
 
+        # Pan around with drag_canvas and check that the toolbar is still visible
         page.drag_canvas_at_position(100, 100, 20, 20)
+        plot.tools
+        assert (page.driver.find_element_by_class_name('bk-toolbar')
+                    .value_of_css_property('visibility')) == 'visible'
+
+        # Click the reset tool and check that the toolbar is still visible
+        button = page.get_toolbar_button('reset')
+        button.click()
         assert (page.driver.find_element_by_class_name('bk-toolbar')
                     .value_of_css_property('visibility')) == 'visible'
 
