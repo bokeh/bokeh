@@ -334,31 +334,19 @@ describe "properties module", ->
       prop = new properties.Angle(new SomeHasProps(a: {value: 10}), 'a')
       expect(prop).to.be.instanceof properties.Number
 
-    describe "units", ->
-      it "should default to rad units", ->
+    describe "transform", ->
+      it "should be Property.transform", ->
         prop = new properties.Angle(new SomeHasProps(a: {value: 10}), 'a')
-        expect(prop.spec.units).to.be.equal "rad"
+        expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
-      it "should accept deg units", ->
-        prop = new properties.Angle(new SomeHasProps(a: {value: 10, units:"deg"}), 'a')
-        expect(prop.spec.units).to.be.equal "deg"
-
-      it "should accept rad units", ->
-        prop = new properties.Angle(new SomeHasProps(a: {value: 10, units:"rad"}), 'a')
-        expect(prop.spec.units).to.be.equal "rad"
-
-      it "should throw an Error on bad units", ->
-        fn = ->
-          prop = new properties.Angle(new SomeHasProps(a: {value: 10, units:"bad"}), 'a')
-        expect(fn).to.throw Error, "Angle units must be one of deg,rad, given invalid value: bad"
-
+  describe "AngleSpec", ->
     describe "transform", ->
       it "should multiply radians by -1", ->
-        prop = new properties.Angle(new SomeHasProps(a: {value: 10, units: "rad"}), 'a')
+        prop = new properties.AngleSpec(new SomeHasProps(a: {value: 10, units: "rad"}), 'a')
         expect(prop.transform([-10, 0, 10, 20])).to.be.deep.equal [10, -0, -10, -20]
 
       it "should convert degrees to -1 * radians", ->
-        prop = new properties.Angle(new SomeHasProps(a: {value: 10, units: "deg"}), 'a')
+        prop = new properties.AngleSpec(new SomeHasProps(a: {value: 10, units: "deg"}), 'a')
         expect(prop.transform([-180, 0, 180])).to.be.deep.equal [Math.PI, -0, -Math.PI]
 
   describe "Array", ->

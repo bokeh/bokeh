@@ -177,6 +177,8 @@ export class Instance extends simple_prop("Instance", (x) => x.properties != nul
 export class Number extends simple_prop("Number", (x) => isNumber(x) || isBoolean(x)) {}
 export const Int = Number
 
+export class Angle extends Number {}
+
 // TODO extend Number instead of copying it's predicate
 //class Percent extends Number("Percent", (x) -> 0 <= x <= 1.0)
 export class Percent extends simple_prop("Number", (x) => (isNumber(x) || isBoolean(x)) && 0 <= x && x <= 1.0) {}
@@ -279,21 +281,18 @@ export function units_prop<Units>(name: string, valid_units: Units[], default_un
   }
 }
 
-export class Angle extends units_prop("Angle", enums.AngleUnits, "rad") {
+//
+// DataSpec properties
+//
+
+export class AngleSpec extends units_prop("AngleSpec", enums.AngleUnits, "rad") {
   transform(values: Arrayable): Arrayable {
     if (this.spec.units == "deg")
       values = map(values, (x: number) => x * Math.PI/180.0)
     values = map(values, (x: number) => -x)
     return super.transform(values)
   }
-}
-
-//
-// DataSpec properties
-//
-
-export class AngleSpec extends Angle {}
-AngleSpec.prototype.dataspec = true
+}AngleSpec.prototype.dataspec = true
 
 export class ColorSpec extends Color {}
 ColorSpec.prototype.dataspec = true
