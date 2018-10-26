@@ -1,0 +1,26 @@
+1.0.1 (December 2018)
+=====================
+
+Bokeh Version ``1.0.1``
+
+Some of the highlights include:
+
+
+And several other bug fixes and docs additions. For full details see the
+:bokeh-tree:`CHANGELOG`.
+
+.. migration_101
+
+Migration Guide
+---------------
+
+.. migration_101_bokehjs
+
+BokehJS issues
+~~~~~~~~~~~~~~
+
+The ``spec`` attribute of BokehJS model properties has been made private. It
+is not expected than any users ever had cause to attempt to use this very
+low-level internal attribute, and this change is intended to fully clarify
+that this data structure is not suitable for general usage. See
+:bokeh-pull:`8370` for full information.
