@@ -28,9 +28,9 @@ export namespace ToolbarViewModel {
   }
 }
 
-interface ToolbarViewModel extends ToolbarViewModel.Attrs { }
+export interface ToolbarViewModel extends ToolbarViewModel.Attrs { }
 
-class ToolbarViewModel extends Model {
+export class ToolbarViewModel extends Model {
   properties: ToolbarViewModel.Props
 
   constructor(attrs?: Partial<ToolbarViewModel.Attrs>) {
