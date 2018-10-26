@@ -32,6 +32,17 @@ class SomeHasProps extends HasProps
     b: [ p.Any ]
   }
 
+class SomeSpecHasProps extends HasProps
+  type: 'SomeHasProps'
+
+  @define {
+    a: [ p.NumberSpec ]
+    b: [ p.Any ]
+  }
+
+class DataSpecProperty extends p.Property
+DataSpecProperty.prototype.dataspec = true
+
 describe "properties module", ->
 
   validation_error = (prop, x) ->
@@ -62,16 +73,13 @@ describe "properties module", ->
   describe "isSpec", ->
 
     it "should identify field specs", ->
-      prop = new properties.Property(new SomeHasProps(a: {field: "foo"}), 'a')
-      expect(p.isSpec(prop.spec)).to.be.true
+      expect(p.isSpec({field: "foo"})).to.be.true
 
     it "should identify value specs", ->
-      prop = new properties.Property(new SomeHasProps(a: {value: "foo"}), 'a')
-      expect(p.isSpec(prop.spec)).to.be.true
+      expect(p.isSpec({value: "foo"})).to.be.true
 
     it "should identify expr specs", ->
-      prop = new properties.Property(new SomeHasProps(a: {expr: "foo"}), 'a')
-      expect(p.isSpec(prop.spec)).to.be.true
+      expect(p.isSpec({expr: "foo"})).to.be.true
 
     it "should reject non-specs", ->
       expect(p.isSpec(1)).to.be.false
@@ -81,23 +89,20 @@ describe "properties module", ->
       expect(p.isSpec(undefined)).to.be.false
 
     it "should reject bad specs", ->
-      prop = new properties.Property(new SomeHasProps(a: {expr: "foo"}), 'a')
-      prop.spec.value = "bar"
-      expect(p.isSpec(prop.spec)).to.be.false
-      prop.spec.expr = "bar"
-      expect(p.isSpec(prop.spec)).to.be.false
+      spec = {expr: "foo", value: "bar"}
+      expect(p.isSpec(spec)).to.be.false
+      spec.expr = "bar"
+      expect(p.isSpec(spec)).to.be.false
 
-      prop = new properties.Property(new SomeHasProps(a: {value: "foo"}), 'a')
-      prop.spec.field = "bar"
-      expect(p.isSpec(prop.spec)).to.be.false
-      prop.spec.expr = "bar"
-      expect(p.isSpec(prop.spec)).to.be.false
+      spec = {value: "foo", field: "bar"}
+      expect(p.isSpec(spec)).to.be.false
+      spec.expr = "bar"
+      expect(p.isSpec(spec)).to.be.false
 
-      prop = new properties.Property(new SomeHasProps(a: {field: "foo"}), 'a')
-      prop.spec.value = "bar"
-      expect(p.isSpec(prop.spec)).to.be.false
-      prop.spec.expr = "bar"
-      expect(p.isSpec(prop.spec)).to.be.false
+      spec = {field: "foo", value: "bar"}
+      expect(p.isSpec(spec)).to.be.false
+      spec.expr = "bar"
+      expect(p.isSpec(spec)).to.be.false
 
   describe "Property", ->
 
@@ -108,74 +113,88 @@ describe "properties module", ->
         p = new properties.Property(obj, 'b')
         expect(obj.b).to.be.equal(null)
 
-      #it "should set undefined property attr value if a default is given", ->
-      #  obj = new SomeHasProps(a: {})
-      #  p = new properties.Property(obj, 'b', () -> 10)
-      #  expect(obj.b).to.be.equal 10
+    describe "value", ->
+      it "should return a object attr", ->
+        prop = new properties.Property(new SomeHasProps(fixed), 'a')
+        expect(prop.value()).to.be.equal 1
+
+  describe "DataSpecProperty", ->
+
+    describe "construction", ->
+
+      it "should set undefined property attr value to null if no default is given", ->
+        obj = new SomeHasProps({a: {}})
+        p = new DataSpecProperty(obj, 'b')
+        expect(obj.b).to.be.equal(null)
+
+      # it "should set undefined property attr value if a default is given", ->
+      #   obj = new SomeHasProps(a: {})
+      #   p = new DataSpecProperty(obj, 'b', () -> 10)
+      #   expect(obj.b).to.be.equal 10
 
       # it "should throw an Error for missing specifications", ->
       #   fn = ->
-      #     new properties.Property(new SomeHasProps(a: {}), 'a')
+      #     new DataSpecProperty(new SomeHasProps(a: {}), 'a')
       #   expect(fn).to.throw Error, /^Invalid property specifier .*, must have exactly one of/
 
       # it "should throw an Error for too many specifications", ->
       #   fn = ->
-      #     new properties.Property(new SomeHasProps(a: {field: "foo", value:"bar"}), 'a')
+      #     new DataSpecProperty(new SomeHasProps(a: {field: "foo", value:"bar"}), 'a')
       #   expect(fn).to.throw Error, /^Invalid property specifier .*, must have exactly one of/
 
       it "should throw an Error if a field spec is not a string", ->
         fn = ->
-          new properties.Property(new SomeHasProps(a: {field: 10}), 'a')
-        expect(fn).to.throw Error, /^field value for property '.*' is not a string$/
+          new DataSpecProperty(new SomeHasProps(a: {field: 10}), 'a')
+        expect(fn).to.throw Error, /^field value for dataspec property '.*' is not a string$/
 
       it "should set a spec for object attr values", ->
-        p = new properties.Property(new SomeHasProps(a: {field: "foo"}), 'a')
+        p = new DataSpecProperty(new SomeHasProps(a: {field: "foo"}), 'a')
         expect(p.spec).to.be.deep.equal {field: "foo"}
-        p = new properties.Property(new SomeHasProps(a: {value: "foo"}), 'a')
+        p = new DataSpecProperty(new SomeHasProps(a: {value: "foo"}), 'a')
         expect(p.spec).to.be.deep.equal {value: "foo"}
 
       it "should set a value spec for non-object attr values", ->
-        p = new properties.Property(new SomeHasProps(a: 10), 'a')
+        p = new DataSpecProperty(new SomeHasProps(a: 10), 'a')
         expect(p.spec).to.be.deep.equal {value: 10}
 
     describe "value", ->
       it "should return a value if there is a value spec", ->
-        prop = new properties.Property(new SomeHasProps(fixed), 'a')
+        prop = new DataSpecProperty(new SomeHasProps(fixed), 'a')
         expect(prop.value()).to.be.equal 1
-        prop = new properties.Property(new SomeHasProps(spec_value), 'a')
+        prop = new DataSpecProperty(new SomeHasProps(spec_value), 'a')
         expect(prop.value()).to.be.equal 2
 
       it "should return a transformed value if there is a value spec with transform", ->
-        prop = new properties.Property(new SomeHasProps(spec_value_trans), 'a')
+        prop = new DataSpecProperty(new SomeHasProps(spec_value_trans), 'a')
         expect(prop.value()).to.be.equal 3
 
       it "should allow a fixed null value", ->
-        prop = new properties.Property(new SomeHasProps(spec_value_null), 'a')
+        prop = new DataSpecProperty(new SomeHasProps(spec_value_null), 'a')
         expect(prop.value()).to.be.equal null
 
       it "should throw an Error otherwise", ->
         fn = ->
-          prop = new properties.Property(new SomeHasProps(spec_field_only), 'a')
+          prop = new DataSpecProperty(new SomeHasProps(spec_field_only), 'a')
           prop.value()
         expect(fn).to.throw Error, "attempted to retrieve property value for 'a' which has no value specification"
 
     describe "value_optional", ->
       it "should return a value if there is a value spec", ->
-        prop = new properties.Property(new SomeHasProps(fixed), 'a')
+        prop = new DataSpecProperty(new SomeHasProps(fixed), 'a')
         expect(prop.value_optional()).to.be.equal 1
-        prop = new properties.Property(new SomeHasProps(spec_value), 'a')
+        prop = new DataSpecProperty(new SomeHasProps(spec_value), 'a')
         expect(prop.value_optional()).to.be.equal 2
 
       it "should return a transformed value if there is a value spec with transform", ->
-        prop = new properties.Property(new SomeHasProps(spec_value_trans), 'a')
+        prop = new DataSpecProperty(new SomeHasProps(spec_value_trans), 'a')
         expect(prop.value_optional()).to.be.equal 3
 
       it "should allow a fixed null value", ->
-        prop = new properties.Property(new SomeHasProps(spec_value_null), 'a')
+        prop = new DataSpecProperty(new SomeHasProps(spec_value_null), 'a')
         expect(prop.value_optional()).to.be.equal null
 
       it "should return undefined", ->
-        prop = new properties.Property(new SomeHasProps(spec_field_only), 'a')
+        prop = new DataSpecProperty(new SomeHasProps(spec_field_only), 'a')
         expect(prop.value_optional()).to.be.equal undefined
 
 
@@ -186,13 +205,13 @@ describe "properties module", ->
           source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
           prop = new properties.Property(new SomeHasProps(spec_field), 'a')
           arr = prop.array(source)
-        expect(fn).to.throw Error, /attempted to retrieve property array for non-dataspec property/
+        expect(fn).to.throw Error, /attempted to retrieve dataspec array for non-dataspec property/
 
       it "should return a computed array if there is an expr spec", ->
 
       it "should return an array if there is a value spec", ->
         source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
-        prop = new properties.Property(new SomeHasProps(fixed), 'a')
+        prop = new DataSpecProperty(new SomeHasProps(fixed), 'a')
         prop.dataspec = true
         arr = prop.array(source)
         expect(arr).to.be.instanceof Array
@@ -203,7 +222,7 @@ describe "properties module", ->
         expect(arr[3]).to.be.equal 1
         expect(arr[4]).to.be.equal 1
 
-        prop = new properties.Property(new SomeHasProps(spec_value), 'a')
+        prop = new DataSpecProperty(new SomeHasProps(spec_value), 'a')
         prop.dataspec = true
         arr = prop.array(source)
         expect(arr).to.be.instanceof Array
@@ -216,7 +235,7 @@ describe "properties module", ->
 
       it "should return an array if there is a valid expr spec", ->
         source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
-        prop = new properties.Property(new SomeHasProps(spec_expr), 'a')
+        prop = new DataSpecProperty(new SomeHasProps(spec_expr), 'a')
         prop.dataspec = true
         arr = prop.array(source)
         expect(arr).to.be.instanceof Array
@@ -229,7 +248,7 @@ describe "properties module", ->
 
       it "should return an array if there is a valid field spec", ->
         source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
-        prop = new properties.Property(new SomeHasProps(spec_field), 'a')
+        prop = new DataSpecProperty(new SomeHasProps(spec_field), 'a')
         prop.dataspec = true
         arr = prop.array(source)
         expect(arr).to.be.instanceof Array
@@ -243,14 +262,14 @@ describe "properties module", ->
       it "should throw an Error otherwise", ->
         fn = ->
           source = new ColumnDataSource({data: {}})
-          prop = new properties.Property(new SomeHasProps(spec_field), 'a')
+          prop = new DataSpecProperty(new SomeHasProps(spec_field), 'a')
           prop.dataspec = true
           arr = prop.array(source)
         expect(fn).to.throw Error, /attempted to retrieve property array for nonexistent field 'foo'/
 
       it "should apply a spec transform to a field", ->
         source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
-        prop = new properties.Property(new SomeHasProps(spec_field_trans), 'a')
+        prop = new DataSpecProperty(new SomeHasProps(spec_field_trans), 'a')
         prop.dataspec = true
         arr = prop.array(source)
         expect(arr).to.be.instanceof Array
@@ -263,7 +282,7 @@ describe "properties module", ->
 
       it "should apply a spec transform to a value array", ->
         source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
-        prop = new properties.Property(new SomeHasProps(spec_value_trans), 'a')
+        prop = new DataSpecProperty(new SomeHasProps(spec_value_trans), 'a')
         prop.dataspec = true
         arr = prop.array(source)
         expect(arr).to.be.instanceof Array
@@ -276,7 +295,7 @@ describe "properties module", ->
 
     describe "init", ->
       it "should return nothing by default", ->
-        p = new properties.Property(new SomeHasProps(a: {value: "foo"}), 'a')
+        p = new DataSpecProperty(new SomeHasProps(a: {value: "foo"}), 'a')
         expect(p.init()).to.be.equal undefined
 
     describe "transform", ->
@@ -309,10 +328,10 @@ describe "properties module", ->
         expect(stuff.called).to.be.true
 
       it "should update the spec", ->
-        obj = new SomeHasProps(a: {value: "foo"})
+        obj = new SomeSpecHasProps(a: {value: 10})
         prop = obj.properties.a
-        obj.a = {value: "bar"}
-        expect(prop.spec).to.be.deep.equal {value: "bar"}
+        obj.a = {value: 20}
+        expect(prop.spec).to.be.deep.equal {value: 20}
 
   describe "Anchor", ->
     prop = new properties.Anchor(new SomeHasProps(a: {value: "top_left"}), 'a')

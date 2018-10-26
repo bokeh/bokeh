@@ -204,7 +204,7 @@ export abstract class HasProps extends Signalable() {
     for (const name in this.properties) {
       const prop = this.properties[name]
       prop.update()
-      if (prop.spec.transform != null)
+      if (prop.dataspec && prop.spec.transform != null)
         this.connect(prop.spec.transform.change, () => this.transformchange.emit())
     }
 

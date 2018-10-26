@@ -7,7 +7,6 @@ import {valid_rgb} from "./util/color"
 import {includes, repeat} from "./util/array"
 import {map} from "./util/arrayable"
 import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/types"
-//import {Transform} from "../models/transforms/transform"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
 
 Signal; // XXX: silence TS, because `Signal` appears in declarations due to Signalable
@@ -77,6 +76,11 @@ export class Property<T> extends Signalable() {
 
   // this function will return undefined without error if there is no value defined
   value_optional(do_spec_transform: boolean = true): any {
+    // if this property is not a dataspec, just return the attribute value
+    if (!this.dataspec) {
+      return this.transform([this.obj.getv(this.attr)])[0]
+    }
+
     if (this.spec.value === undefined)
      return undefined
     let ret = this.transform([this.spec.value])[0]
@@ -96,7 +100,7 @@ export class Property<T> extends Signalable() {
 
   array(source: ColumnarDataSource): any[] {
     if (!this.dataspec)
-      throw new Error("attempted to retrieve property array for non-dataspec property")
+      throw new Error("attempted to retrieve dataspec array for non-dataspec property")
 
     let ret: any
 
@@ -135,18 +139,20 @@ export class Property<T> extends Signalable() {
       obj.setv({[attr]: attr_value}, {silent: true, defaults: true})
     }
 
-    if (isArray(attr_value))
-      this.spec = {value: attr_value}
-    else if (isSpec(attr_value))
-      this.spec = attr_value
-    else
-      this.spec = {value: attr_value}
+    if (this.dataspec) {
+      if (isArray(attr_value))
+        this.spec = {value: attr_value}
+      else if (isSpec(attr_value))
+        this.spec = attr_value
+      else
+        this.spec = {value: attr_value}
 
-    if (this.spec.field != null && !isString(this.spec.field))
-      throw new Error(`field value for property '${attr}' is not a string`)
+      if (this.spec.field != null && !isString(this.spec.field))
+        throw new Error(`field value for dataspec property '${attr}' is not a string`)
 
-    if (this.spec.value != null)
-      this.validate(this.spec.value)
+      if (this.spec.value != null)
+        this.validate(this.spec.value)
+    }
 
     this.init()
   }

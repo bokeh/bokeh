@@ -30,8 +30,8 @@ export abstract class ContextProperties {
   warm_cache(source?: ColumnarDataSource): void {
     for (const attr of this.attrs) {
       const prop = this.obj.properties[this.prefix + attr]
-      if (prop.spec.value !== undefined) // TODO (bev) better test?
-        this.cache[attr] = prop.spec.value
+      if (!prop.dataspec)
+        this.cache[attr] = prop.value()
       else if (source != null)
         this.cache[attr + "_array"] = prop.array(source)
       else
@@ -42,8 +42,8 @@ export abstract class ContextProperties {
   cache_select(attr: string, i: number): any {
     const prop = this.obj.properties[this.prefix + attr]
     let value: any
-    if (prop.spec.value !== undefined) // TODO (bev) better test?
-      this.cache[attr] = value = prop.spec.value
+    if (!prop.dataspec)
+      this.cache[attr] = prop.value()
     else
       this.cache[attr] = value = this.cache[attr + "_array"][i]
     return value
