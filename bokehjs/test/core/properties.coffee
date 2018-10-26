@@ -542,15 +542,15 @@ describe "properties module", ->
     describe "units", ->
       it "should default to data units", ->
         prop = new properties.DistanceSpec(new SomeHasProps(a: {value: 10}), 'a')
-        expect(prop.spec.units).to.be.equal "data"
+        expect(prop.units).to.be.equal "data"
 
       it "should accept screen units", ->
         prop = new properties.DistanceSpec(new SomeHasProps(a: {value: 10, units:"screen"}), 'a')
-        expect(prop.spec.units).to.be.equal "screen"
+        expect(prop.units).to.be.equal "screen"
 
       it "should accept data units", ->
         prop = new properties.DistanceSpec(new SomeHasProps(a: {value: 10, units:"data"}), 'a')
-        expect(prop.spec.units).to.be.equal "data"
+        expect(prop.units).to.be.equal "data"
 
       it "should throw an Error on bad units", ->
         fn = ->

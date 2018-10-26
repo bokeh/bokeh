@@ -279,10 +279,10 @@ export class StartEnd extends enum_prop("StartEnd", enums.StartEnd) {}
 export function units_prop<Units>(name: string, valid_units: Units[], default_units: any) {
   return class extends Number {
     init(): void {
-      if (this.spec.units == null)
-        this.spec.units = default_units
+      if (this.units == null)
+        this.units = default_units
 
-      const units = this.spec.units
+      const units = this.units
       if (!includes(valid_units, units))
         throw new Error(`${name} units must be one of ${valid_units}, given invalid value: ${units}`)
     }
@@ -303,7 +303,7 @@ export function units_prop<Units>(name: string, valid_units: Units[], default_un
 
 export class AngleSpec extends units_prop("AngleSpec", enums.AngleUnits, "rad") {
   transform(values: Arrayable): Arrayable {
-    if (this.spec.units == "deg")
+    if (this.units == "deg")
       values = map(values, (x: number) => x * Math.PI/180.0)
     values = map(values, (x: number) => -x)
     return super.transform(values)
