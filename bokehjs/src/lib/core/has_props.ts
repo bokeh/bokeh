@@ -512,7 +512,7 @@ export abstract class HasProps extends Signalable() {
       if (!prop.dataspec)
         continue
       // this skips optional properties like radius for circles
-      if (prop.optional && prop.spec.value == null && !(name in this._set_after_defaults))
+      if (prop.optional && prop.value_optional() == null && !(name in this._set_after_defaults))
         continue
 
       data[`_${name}`] = prop.array(source)

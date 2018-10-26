@@ -81,9 +81,10 @@ export class Property<T> extends Signalable() {
       return this.transform([this.obj.getv(this.attr)])[0]
     }
 
-    if (this.spec.value === undefined)
+    const value = this.spec.value
+    if (value === undefined)
      return undefined
-    let ret = this.transform([this.spec.value])[0]
+    let ret = this.transform([value])[0]
     if (this.spec.transform != null && do_spec_transform)
       ret = this.spec.transform.compute(ret)
     return ret
@@ -150,8 +151,9 @@ export class Property<T> extends Signalable() {
       if (this.spec.field != null && !isString(this.spec.field))
         throw new Error(`field value for dataspec property '${attr}' is not a string`)
 
-      if (this.spec.value != null)
-        this.validate(this.spec.value)
+      const value = this.value_optional()
+      if (value != null)
+        this.validate(value)
     }
 
     this.init()

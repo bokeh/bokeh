@@ -43,7 +43,7 @@ export abstract class ContextProperties {
     const prop = this.obj.properties[this.prefix + attr]
     let value: any
     if (!prop.dataspec)
-      this.cache[attr] = prop.value()
+      this.cache[attr] = value = prop.value()
     else
       this.cache[attr] = value = this.cache[attr + "_array"][i]
     return value
