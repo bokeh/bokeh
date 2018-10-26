@@ -520,7 +520,7 @@ export abstract class HasProps extends Signalable() {
       // store under the canonical field name, e.g. _image_shape, even if the column name is "foo"
       if (prop.spec.field != null && prop.spec.field in source._shapes)
         data[`_${name}_shape`] = source._shapes[prop.spec.field]
-      if (prop instanceof p.Distance)
+      if (prop instanceof p.DistanceSpec)
         data[`max_${name}`] = max(data[`_${name}`])
     }
     return data

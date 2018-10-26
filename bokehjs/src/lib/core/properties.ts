@@ -287,8 +287,6 @@ export class Angle extends units_prop("Angle", enums.AngleUnits, "rad") {
   }
 }
 
-export class Distance extends units_prop("Distance", enums.SpatialUnits, "data") {}
-
 //
 // DataSpec properties
 //
@@ -299,7 +297,7 @@ AngleSpec.prototype.dataspec = true
 export class ColorSpec extends Color {}
 ColorSpec.prototype.dataspec = true
 
-export class DistanceSpec extends Distance {}
+export class DistanceSpec extends units_prop("DistanceSpec", enums.SpatialUnits, "data") {}
 DistanceSpec.prototype.dataspec = true
 
 export class FontSizeSpec extends String {}

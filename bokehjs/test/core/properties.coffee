@@ -506,33 +506,33 @@ describe "properties module", ->
         result = prop.transform ["clock", "anticlock"]
         expect(result).to.be.deep.equal new Uint8Array [0, 1]
 
-  describe "Distance", ->
+  describe "DistanceSpec", ->
 
     it "should be an instance of Number", ->
-      prop = new properties.Distance(new SomeHasProps(a: {value: 10}), 'a')
+      prop = new properties.DistanceSpec(new SomeHasProps(a: {value: 10}), 'a')
       expect(prop).to.be.instanceof properties.Number
 
     describe "units", ->
       it "should default to data units", ->
-        prop = new properties.Distance(new SomeHasProps(a: {value: 10}), 'a')
+        prop = new properties.DistanceSpec(new SomeHasProps(a: {value: 10}), 'a')
         expect(prop.spec.units).to.be.equal "data"
 
       it "should accept screen units", ->
-        prop = new properties.Distance(new SomeHasProps(a: {value: 10, units:"screen"}), 'a')
+        prop = new properties.DistanceSpec(new SomeHasProps(a: {value: 10, units:"screen"}), 'a')
         expect(prop.spec.units).to.be.equal "screen"
 
       it "should accept data units", ->
-        prop = new properties.Distance(new SomeHasProps(a: {value: 10, units:"data"}), 'a')
+        prop = new properties.DistanceSpec(new SomeHasProps(a: {value: 10, units:"data"}), 'a')
         expect(prop.spec.units).to.be.equal "data"
 
       it "should throw an Error on bad units", ->
         fn = ->
-          prop = new properties.Distance(new SomeHasProps(a: {value: 10, units:"bad"}), 'a')
-        expect(fn).to.throw Error, "Distance units must be one of screen,data, given invalid value: bad"
+          prop = new properties.DistanceSpec(new SomeHasProps(a: {value: 10, units:"bad"}), 'a')
+        expect(fn).to.throw Error, "DistanceSpec units must be one of screen,data, given invalid value: bad"
 
     describe "transform", ->
       it "should be Property.transform", ->
-        prop = new properties.Distance(new SomeHasProps(a: {value: 10}), 'a')
+        prop = new properties.DistanceSpec(new SomeHasProps(a: {value: 10}), 'a')
         expect(prop.transform).to.be.equal properties.Property.prototype.transform
 
   describe "Font", ->
@@ -810,7 +810,6 @@ describe "properties module", ->
       expect("Color" of properties).to.be.true
       expect("Dimension" of properties).to.be.true
       expect("Direction" of properties).to.be.true
-      expect("Distance" of properties).to.be.true
       expect("Font" of properties).to.be.true
       expect("FontStyle" of properties).to.be.true
       expect("Instance" of properties).to.be.true
