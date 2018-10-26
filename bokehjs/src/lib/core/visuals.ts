@@ -20,8 +20,8 @@ export abstract class ContextProperties {
   all_indices: number[]
 
   constructor(readonly obj: HasProps, readonly prefix: string = "") {
-    const do_spec = obj.properties[prefix + this.do_attr].spec
-    this.doit = do_spec.value !== null // XXX: can't be `undefined`, see TODOs below.
+    const prop = obj.properties[prefix + this.do_attr]
+    this.doit = prop.value_optional() !== null // could possibly be undefined
 
     for (const attr of this.attrs)
       (this as any)[attr] = obj.properties[prefix + attr]

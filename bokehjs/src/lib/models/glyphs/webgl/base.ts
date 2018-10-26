@@ -103,9 +103,7 @@ export function fill_array_with_vec(n: number, m: number, val: Arrayable<number>
 }
 
 export function visual_prop_is_singular(visual: any, propname: string): boolean {
-  // This touches the internals of the visual, so we limit use in this function
-  // See renderer.ts:cache_select() for similar code
-  return visual[propname].spec.value !== undefined
+  return visual[propname].value_optional() !== undefined
 }
 
 export function attach_float(prog: Program, vbo: VertexBuffer & {used?: boolean}, att_name: string, n: number, visual: any, name: string): void {
