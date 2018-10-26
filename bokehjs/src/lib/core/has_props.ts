@@ -204,8 +204,13 @@ export abstract class HasProps extends Signalable() {
     for (const name in this.properties) {
       const prop = this.properties[name]
       prop.update()
-      if (prop.dataspec && prop.spec.transform != null)
-        this.connect(prop.spec.transform.change, () => this.transformchange.emit())
+
+      if (!prop.dataspec)
+        continue
+
+      const transform = prop.get_transform()
+      if (transform != null)
+        this.connect(transform.change, () => this.transformchange.emit())
     }
 
     this.initialize()
@@ -511,6 +516,7 @@ export abstract class HasProps extends Signalable() {
       const prop = this.properties[name]
       if (!prop.dataspec)
         continue
+
       // this skips optional properties like radius for circles
       if (prop.optional && prop.value_optional() == null && !(name in this._set_after_defaults))
         continue
@@ -518,8 +524,9 @@ export abstract class HasProps extends Signalable() {
       data[`_${name}`] = prop.array(source)
       // the shapes are indexed by the column name, but when we materialize the dataspec, we should
       // store under the canonical field name, e.g. _image_shape, even if the column name is "foo"
-      if (prop.spec.field != null && prop.spec.field in source._shapes)
-        data[`_${name}_shape`] = source._shapes[prop.spec.field]
+      const field = prop.get_field()
+      if (field != null && field in source._shapes)
+        data[`_${name}_shape`] = source._shapes[field]
       if (prop instanceof p.DistanceSpec)
         data[`max_${name}`] = max(data[`_${name}`])
     }

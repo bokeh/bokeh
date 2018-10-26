@@ -84,9 +84,14 @@ export class Property<T> extends Signalable() {
     const value = this.spec.value
     if (value === undefined)
      return undefined
+
+    // This is unfortunately confusing. The first transform is an intrinsic
+    // transform defined by the property itself, and the second is an optional
+    // transform that a user has applied to the data spec
     let ret = this.transform([value])[0]
-    if (this.spec.transform != null && do_spec_transform)
-      ret = this.spec.transform.compute(ret)
+    const spec_transform = this.get_transform()
+    if (spec_transform != null && do_spec_transform)
+      ret = spec_transform.compute(ret)
     return ret
   }
 
@@ -105,12 +110,14 @@ export class Property<T> extends Signalable() {
 
     let ret: any
 
-    if (this.spec.field != null) {
-      ret = this.transform(source.get_column(this.spec.field))
+    const field = this.get_field()
+    const expr = this.get_expr()
+    if (field != null) {
+      ret = this.transform(source.get_column(field))
       if (ret == null)
-        throw new Error(`attempted to retrieve property array for nonexistent field '${this.spec.field}'`)
-    } else if (this.spec.expr != null) {
-      ret = this.transform(this.spec.expr.v_compute(source))
+        throw new Error(`attempted to retrieve property array for nonexistent field '${field}'`)
+    } else if (expr != null) {
+      ret = this.transform(expr.v_compute(source))
     } else {
       let length = source.get_length()
       if (length == null)
@@ -119,9 +126,28 @@ export class Property<T> extends Signalable() {
       ret = repeat(value, length)
     }
 
-    if (this.spec.transform != null)
-      ret = this.spec.transform.v_compute(ret)
+    const transform = this.get_transform()
+    if (transform != null)
+      ret = transform.v_compute(ret)
     return ret
+  }
+
+  get_expr(): any {
+    if (!this.dataspec)
+      throw new Error("attempted to retrieve dataspec expr for non-dataspec property")
+    return this.spec.expr
+  }
+
+  get_field(): any {
+    if (!this.dataspec)
+      throw new Error("attempted to retrieve dataspec field for non-dataspec property")
+    return this.spec.field
+  }
+
+  get_transform(): any {
+    if (!this.dataspec)
+      throw new Error("attempted to retrieve dataspec transform for non-dataspec property")
+    return this.spec.transform
   }
 
   // ----- private methods
@@ -148,7 +174,8 @@ export class Property<T> extends Signalable() {
       else
         this.spec = {value: attr_value}
 
-      if (this.spec.field != null && !isString(this.spec.field))
+      const field = this.get_field()
+      if (field != null && !isString(field))
         throw new Error(`field value for dataspec property '${attr}' is not a string`)
 
       const value = this.value_optional()
