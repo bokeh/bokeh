@@ -222,8 +222,8 @@ Text.prototype.do_attr = "text_color"
 export class Visuals {
 
   constructor(model: HasProps) {
-    for (const spec of model.mixins) {
-      const [name, prefix=""] = spec.split(":")
+    for (const mixin of model.mixins) {
+      const [name, prefix=""] = mixin.split(":")
       let cls: Class<ContextProperties>
       switch (name) {
         case "line": cls = Line; break
