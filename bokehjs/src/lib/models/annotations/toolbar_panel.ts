@@ -15,6 +15,8 @@ export class ToolbarPanelView extends AnnotationView {
     this.plot_view.canvas_events.appendChild(this.el)
     this._toolbar_views = {}
     build_views(this._toolbar_views, [this.model.toolbar], {parent: this})
+    const toolbar_view = this._toolbar_views[this.model.toolbar.id]
+    this.plot_view.visibility_callbacks.push((visible: boolean) => toolbar_view.set_visibility(visible))
   }
 
   remove(): void {
@@ -24,7 +26,6 @@ export class ToolbarPanelView extends AnnotationView {
 
   render(): void {
     super.render()
-
     if (!this.model.visible) {
       hide(this.el)
       return
@@ -41,8 +42,6 @@ export class ToolbarPanelView extends AnnotationView {
     this.el.style.overflow = "hidden"
 
     const toolbar_view = this._toolbar_views[this.model.toolbar.id]
-
-    this.plot_view.visibility_callbacks.push((visible: boolean) => toolbar_view.set_visibility(visible))
     toolbar_view.render()
 
     empty(this.el)
