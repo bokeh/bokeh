@@ -157,7 +157,27 @@ describe "properties module", ->
         fn = ->
           prop = new properties.Property(new SomeHasProps(spec_field_only), 'a')
           prop.value()
-        expect(fn).to.throw Error, "attempted to retrieve property value for property without value specification"
+        expect(fn).to.throw Error, "attempted to retrieve property value for 'a' which has no value specification"
+
+    describe "value_optional", ->
+      it "should return a value if there is a value spec", ->
+        prop = new properties.Property(new SomeHasProps(fixed), 'a')
+        expect(prop.value_optional()).to.be.equal 1
+        prop = new properties.Property(new SomeHasProps(spec_value), 'a')
+        expect(prop.value_optional()).to.be.equal 2
+
+      it "should return a transformed value if there is a value spec with transform", ->
+        prop = new properties.Property(new SomeHasProps(spec_value_trans), 'a')
+        expect(prop.value_optional()).to.be.equal 3
+
+      it "should allow a fixed null value", ->
+        prop = new properties.Property(new SomeHasProps(spec_value_null), 'a')
+        expect(prop.value_optional()).to.be.equal null
+
+      it "should return undefined", ->
+        prop = new properties.Property(new SomeHasProps(spec_field_only), 'a')
+        expect(prop.value_optional()).to.be.equal undefined
+
 
     describe "array", ->
 

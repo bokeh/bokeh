@@ -75,14 +75,24 @@ export class Property<T> extends Signalable() {
 
   // ----- property accessors
 
-  value(do_spec_transform: boolean = true): any {
+  // this function will return undefined without error if there is no value defined
+  value_optional(do_spec_transform: boolean = true): any {
     if (this.spec.value === undefined)
-      throw new Error("attempted to retrieve property value for property without value specification")
+     return undefined
     let ret = this.transform([this.spec.value])[0]
     if (this.spec.transform != null && do_spec_transform)
       ret = this.spec.transform.compute(ret)
     return ret
   }
+
+  // this function will raise an error if there is no value defined
+  value(do_spec_transform: boolean = true): any {
+    const ret = this.value_optional(do_spec_transform)
+    if (ret === undefined)
+      throw new Error(`attempted to retrieve property value for '${this.attr}' which has no value specification`)
+    return ret
+  }
+
 
   array(source: ColumnarDataSource): any[] {
     if (!this.dataspec)
