@@ -149,13 +149,13 @@ describe "properties module", ->
 
       it "should set a spec for object attr values", ->
         p = new DataSpecProperty(new SomeHasProps(a: {field: "foo"}), 'a')
-        expect(p.spec).to.be.deep.equal {field: "foo"}
+        expect(p._spec).to.be.deep.equal {field: "foo"}
         p = new DataSpecProperty(new SomeHasProps(a: {value: "foo"}), 'a')
-        expect(p.spec).to.be.deep.equal {value: "foo"}
+        expect(p._spec).to.be.deep.equal {value: "foo"}
 
       it "should set a value spec for non-object attr values", ->
         p = new DataSpecProperty(new SomeHasProps(a: 10), 'a')
-        expect(p.spec).to.be.deep.equal {value: 10}
+        expect(p._spec).to.be.deep.equal {value: 10}
 
     describe "value", ->
       it "should return a value if there is a value spec", ->
@@ -331,7 +331,7 @@ describe "properties module", ->
         obj = new SomeSpecHasProps(a: {value: 10})
         prop = obj.properties.a
         obj.a = {value: 20}
-        expect(prop.spec).to.be.deep.equal {value: 20}
+        expect(prop._spec).to.be.deep.equal {value: 20}
 
   describe "Anchor", ->
     prop = new properties.Anchor(new SomeHasProps(a: {value: "top_left"}), 'a')

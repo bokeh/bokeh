@@ -32,7 +32,7 @@ export function isSpec(obj: any): boolean {
 
 export class Property<T> extends Signalable() {
 
-  spec: {
+  _spec: {
     value?: any
     field?: string
     expr?: any
@@ -81,7 +81,7 @@ export class Property<T> extends Signalable() {
       return this.transform([this.obj.getv(this.attr)])[0]
     }
 
-    const value = this.spec.value
+    const value = this._spec.value
     if (value === undefined)
      return undefined
 
@@ -135,19 +135,19 @@ export class Property<T> extends Signalable() {
   get_expr(): any {
     if (!this.dataspec)
       throw new Error("attempted to retrieve dataspec expr for non-dataspec property")
-    return this.spec.expr
+    return this._spec.expr
   }
 
   get_field(): any {
     if (!this.dataspec)
       throw new Error("attempted to retrieve dataspec field for non-dataspec property")
-    return this.spec.field
+    return this._spec.field
   }
 
   get_transform(): any {
     if (!this.dataspec)
       throw new Error("attempted to retrieve dataspec transform for non-dataspec property")
-    return this.spec.transform
+    return this._spec.transform
   }
 
   // ----- private methods
@@ -168,11 +168,11 @@ export class Property<T> extends Signalable() {
 
     if (this.dataspec) {
       if (isArray(attr_value))
-        this.spec = {value: attr_value}
+        this._spec = {value: attr_value}
       else if (isSpec(attr_value))
-        this.spec = attr_value
+        this._spec = attr_value
       else
-        this.spec = {value: attr_value}
+        this._spec = {value: attr_value}
 
       const field = this.get_field()
       if (field != null && !isString(field))
@@ -188,7 +188,7 @@ export class Property<T> extends Signalable() {
 
   toString(): string {
     /*${this.name}*/
-    return `Prop(${this.obj}.${this.attr}, spec: ${valueToString(this.spec)})`
+    return `Prop(${this.obj}.${this.attr}, spec: ${valueToString(this._spec)})`
   }
 }
 
@@ -317,11 +317,11 @@ export function units_prop<Units>(name: string, valid_units: Units[], default_un
     }
 
     get units(): Units {
-      return this.spec.units as Units
+      return this._spec.units as Units
     }
 
     set units(units: Units) {
-      this.spec.units = units
+      this._spec.units = units
     }
   }
 }
