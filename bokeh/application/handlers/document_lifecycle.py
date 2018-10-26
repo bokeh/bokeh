@@ -63,7 +63,13 @@ def _on_session_destroyed(session_context):
     Calls any on_session_destroyed callbacks defined on the Document
     '''
     for callback in session_context._document._session_destroyed_callbacks:
-        callback(session_context)
+        try:
+            callback(session_context)
+        except Exception as e:
+            log.warn('DocumentLifeCycleHandler on_session_destroyed '
+                     'callback failed on %s callback with following error: %s'
+                     % (callback, e))
+    session_context._document._session_destroyed_callbacks = {}
 
 #-----------------------------------------------------------------------------
 # Code
