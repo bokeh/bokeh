@@ -62,8 +62,8 @@ def _on_session_destroyed(session_context):
     '''
     Calls any on_session_destroyed callbacks defined on the Document
     '''
-    callbacks = list(session_context._document._session_destroyed_callbacks)
-    session_context._document._session_destroyed_callbacks = {}
+    callbacks = session_context._document.session_destroyed_callbacks
+    session_context._document.session_destroyed_callbacks = {}
     for callback in callbacks:
         try:
             callback(session_context)

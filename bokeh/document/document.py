@@ -133,6 +133,17 @@ class Document(object):
         return list(self._session_callbacks)
 
     @property
+    def session_destroyed_callbacks(self):
+        ''' A list of all the on_session_destroyed callbacks on this document.
+
+        '''
+        return list(self._session_destroyed_callbacks)
+
+    @session_destroyed_callbacks.setter
+    def session_destroyed_callbacks(self, callbacks):
+        self._session_destroyed_callbacks = callbacks
+
+    @property
     def session_context(self):
         ''' The ``SessionContext`` for this document.
 
