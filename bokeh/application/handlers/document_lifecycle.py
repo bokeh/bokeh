@@ -72,8 +72,7 @@ def _on_session_destroyed(session_context):
                      'callback %s failed with following error: %s'
                      % (callback, e))
     if callbacks:
-        # If any session callbacks were defined garbage collect after
-        # deleting all references
+        # If any session callbacks were defined garbage collect after deleting all references
         del callback
         del callbacks
 
