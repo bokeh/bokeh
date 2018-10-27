@@ -182,6 +182,7 @@ export const Int = Number
 export class Percent extends simple_prop("Number", (x) => (isNumber(x) || isBoolean(x)) && 0 <= x && x <= 1.0) {}
 
 export class String extends simple_prop("String", isString) {}
+export const FontSize = String
 
 // TODO (bev) don't think this exists python side
 export class Font extends String {}
