@@ -32,6 +32,17 @@ class SomeHasProps extends HasProps
     b: [ p.Any ]
   }
 
+class SomeSpecHasProps extends HasProps
+  type: 'SomeHasProps'
+
+  @define {
+    a: [ p.NumberSpec ]
+    b: [ p.Any ]
+  }
+
+class DataSpecProperty extends p.Property
+DataSpecProperty.prototype.dataspec = true
+
 describe "properties module", ->
 
   validation_error = (prop, x) ->
@@ -125,7 +136,7 @@ describe "properties module", ->
 
       it "should throw an Error if a field spec is not a string", ->
         fn = ->
-          new properties.Property(new SomeHasProps(a: {field: 10}), 'a')
+          new properties.Property(new SomeSpecHasProps(a: {field: 10}), 'a')
         expect(fn).to.throw Error, /^field value for property '.*' is not a string$/
 
       it "should set a spec for object attr values", ->
@@ -210,6 +221,19 @@ describe "properties module", ->
       it "should return an array if there is a valid field spec", ->
         source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
         prop = new properties.Property(new SomeHasProps(spec_field), 'a')
+        prop.dataspec = true
+        arr = prop.array(source)
+        expect(arr).to.be.instanceof Array
+        expect(arr.length).to.be.equal 5
+        expect(arr[0]).to.be.equal 0
+        expect(arr[1]).to.be.equal 1
+        expect(arr[2]).to.be.equal 2
+        expect(arr[3]).to.be.equal 3
+        expect(arr[4]).to.be.equal 10
+
+      it "should return an array if there is a valid field spec named 'field'", ->
+        source = new ColumnDataSource({data: {field: [0,1,2,3,10]}})
+        prop = new properties.Property(new SomeHasProps({a: {field: 'field'}, b: 30}), 'a')
         prop.dataspec = true
         arr = prop.array(source)
         expect(arr).to.be.instanceof Array

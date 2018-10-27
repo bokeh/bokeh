@@ -132,7 +132,7 @@ export class Property<T> extends Signalable() {
     else
       this.spec = {value: attr_value}
 
-    if (this.spec.field != null && !isString(this.spec.field))
+    if (this.dataspec && this.spec.field != null && !isString(this.spec.field))
       throw new Error(`field value for property '${attr}' is not a string`)
 
     if (this.spec.value != null)
