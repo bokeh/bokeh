@@ -7,7 +7,6 @@ import {valid_rgb} from "./util/color"
 import {includes, repeat} from "./util/array"
 import {map} from "./util/arrayable"
 import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/types"
-//import {Transform} from "../models/transforms/transform"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
 
 Signal; // XXX: silence TS, because `Signal` appears in declarations due to Signalable
@@ -169,7 +168,7 @@ export class Array extends simple_prop("Array", (x) => isArray(x) || x instanceo
 export class Bool extends simple_prop("Bool", isBoolean) {}
 export const Boolean = Bool
 
-export class Color extends simple_prop("Color", (x) => is_svg_color(x.toLowerCase()) || x.substring(0, 1) == "#" || valid_rgb(x)) {}
+export class Color extends simple_prop("Color", (x) => (isString(x) && (is_svg_color(x.toLowerCase()) || x.substring(0, 1) == "#" || valid_rgb(x)))) {}
 
 export class Instance extends simple_prop("Instance", (x) => x.properties != null) {}
 
@@ -292,7 +291,8 @@ export class AngleSpec extends units_prop("AngleSpec", enums.AngleUnits, "rad") 
     values = map(values, (x: number) => -x)
     return super.transform(values)
   }
-}AngleSpec.prototype.dataspec = true
+}
+AngleSpec.prototype.dataspec = true
 
 export class ColorSpec extends Color {}
 ColorSpec.prototype.dataspec = true
