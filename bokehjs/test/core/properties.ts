@@ -15,7 +15,7 @@ class TestTransform extends Transform {
   }
   v_compute(xs: number[]): number[] {
     const ret =  []
-    for (const i=0; i<xs.length; i++)
+    for (let i=0; i<xs.length; i++)
       ret.push(xs[i]+i)
     return ret
   }
@@ -24,7 +24,7 @@ class TestTransform extends Transform {
 class TestExpression extends Expression {
   _v_compute(source: ColumnDataSource): number[] {
     const ret = []
-    for (const i=0; i<source.get_length()!; i++)
+    for (let i=0; i<source.get_length()!; i++)
       ret.push(i)
     return ret
   }
