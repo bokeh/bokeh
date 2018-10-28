@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import atexit
 import signal
 import warnings
 from os.path import devnull
@@ -125,3 +126,5 @@ class _WebdriverState(object):
 
 
 webdriver_control = _WebdriverState()
+
+atexit.register(lambda: webdriver_control.reset())
