@@ -101,7 +101,7 @@ class Document(object):
         self._all_models_by_name = MultiValuedDict()
         self._all_former_model_ids = set()
         self._callbacks = {}
-        self._session_destroyed_callbacks = {}
+        self._session_destroyed_callbacks = set()
         self._session_callbacks = set()
         self._session_context = None
         self._modules = []
@@ -137,7 +137,7 @@ class Document(object):
         ''' A list of all the on_session_destroyed callbacks on this document.
 
         '''
-        return list(self._session_destroyed_callbacks)
+        return self._session_destroyed_callbacks
 
     @session_destroyed_callbacks.setter
     def session_destroyed_callbacks(self, callbacks):
@@ -675,7 +675,7 @@ class Document(object):
         '''
         for callback in callbacks:
             _check_callback(callback, ('session_context',))
-            self._session_destroyed_callbacks[callback] = callback
+            self._session_destroyed_callbacks.add(callback)
 
     def remove_next_tick_callback(self, callback_obj):
         ''' Remove a callback added earlier with ``add_next_tick_callback``.
