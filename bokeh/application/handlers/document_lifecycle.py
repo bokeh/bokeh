@@ -62,8 +62,22 @@ def _on_session_destroyed(session_context):
     '''
     Calls any on_session_destroyed callbacks defined on the Document
     '''
-    for callback in session_context._document._session_destroyed_callbacks:
-        callback(session_context)
+    callbacks = session_context._document.session_destroyed_callbacks
+    session_context._document.session_destroyed_callbacks = set()
+    for callback in callbacks:
+        try:
+            callback(session_context)
+        except Exception as e:
+            log.warn('DocumentLifeCycleHandler on_session_destroyed '
+                     'callback %s failed with following error: %s'
+                     % (callback, e))
+    if callbacks:
+        # If any session callbacks were defined garbage collect after deleting all references
+        del callback
+        del callbacks
+
+        import gc
+        gc.collect()
 
 #-----------------------------------------------------------------------------
 # Code
