@@ -15,7 +15,7 @@ class TestTransform extends Transform {
   }
   v_compute(xs: number[]): number[] {
     const ret =  []
-    for (let i=0; i<xs.length; i++)
+    for (const i=0; i<xs.length; i++)
       ret.push(xs[i]+i)
     return ret
   }
@@ -24,7 +24,7 @@ class TestTransform extends Transform {
 class TestExpression extends Expression {
   _v_compute(source: ColumnDataSource): number[] {
     const ret = []
-    for (let i=0; i<source.get_length()!; i++)
+    for (const i=0; i<source.get_length()!; i++)
       ret.push(i)
     return ret
   }
@@ -111,7 +111,7 @@ describe("properties module", () => {
     "SpatialUnits",
     "String",
     "TextAlign",
-    "TextBaseline"
+    "TextBaseline",
   ]
   describe("isSpec", () => {
 
@@ -140,7 +140,7 @@ describe("properties module", () => {
       expect(p.isSpec({expr: "foo", value:"bar"})).to.be.false
       expect(p.isSpec({expr: "foo", field:"bar"})).to.be.false
       expect(p.isSpec({field: "foo", value:"bar"})).to.be.false
-      expect(p.isSpec({field: "foo", value:"bar", expr: "baz", })).to.be.false
+      expect(p.isSpec({field: "foo", value:"bar", expr: "baz"})).to.be.false
     })
 
   })
@@ -401,7 +401,7 @@ describe("properties module", () => {
 
     describe("validate", () => {
       it("should return undefined on anchor input", () => {
-        for (let x of enums.LegendLocation)
+        for (const x of enums.LegendLocation)
           expect(prop.validate(x)).to.be.undefined
       })
 
@@ -427,7 +427,7 @@ describe("properties module", () => {
 
     describe("validate", () => {
       it("should return undefined on any input", () => {
-        for (let x of [true, null, undefined, 10, 10.2, "foo", [1,2,3], {}, new SomeHasProps()])
+        for (const x of [true, null, undefined, 10, 10.2, "foo", [1,2,3], {}, new SomeHasProps()])
           expect(prop.validate(x)).to.be.undefined
       })
     })
@@ -549,7 +549,7 @@ describe("properties module", () => {
         "rgb(255, 0, 0)",
         "rgba(200, 0, 0, 0.5)",
         "rgba(0, 255, 0, 0)",
-        "rgba(0, 0, 255, 1)"
+        "rgba(0, 0, 255, 1)",
       ]
 
       const bad_tuples = [
@@ -561,7 +561,7 @@ describe("properties module", () => {
         "rgb(255, 0, 0, 0)",
         "rgba(255, 0, 0, 0.5, 0)",
         "rgb( )",
-        "rgb(a, b, c)"
+        "rgb(a, b, c)",
       ]
 
       it("should return undefined on RGBa input", () => {
@@ -569,7 +569,7 @@ describe("properties module", () => {
       })
 
       describe("should return undefined on good integer rgb and rgba tuples", () => {
-        for (let good_tuple of good_tuples) {
+        for (const good_tuple of good_tuples) {
           it(`${good_tuple}`, () => {
             expect(prop.validate(good_tuple)).to.be.undefined
           })
@@ -577,7 +577,7 @@ describe("properties module", () => {
       })
 
       describe("should throw Error on tuple with bad numerical values", () => {
-        for (let bad_tuple of bad_tuples) {
+        for (const bad_tuple of bad_tuples) {
           it(`${bad_tuple}`, () => {
             function fn(): void {
               prop.validate(bad_tuple)
@@ -588,7 +588,7 @@ describe("properties module", () => {
       })
 
       it("should return undefined on svg color input", () => {
-        for (let color in svg_colors)
+        for (const color in svg_colors)
           expect(prop.validate(color)).to.be.undefined
       })
 
@@ -615,7 +615,7 @@ describe("properties module", () => {
 
     describe("validate", () => {
       it("should return undefined on dimension input", () => {
-        for (let x of enums.Dimension)
+        for (const x of enums.Dimension)
           expect(prop.validate(x)).to.be.undefined
       })
 
@@ -750,7 +750,7 @@ describe("properties module", () => {
 
     describe("validate", () => {
       it("should return undefined on font style input", () => {
-        for (let x of enums.FontStyle)
+        for (const x of enums.FontStyle)
           expect(prop.validate(x)).to.be.undefined
       })
 
@@ -806,7 +806,7 @@ describe("properties module", () => {
 
     describe("validate", () => {
       it("should return undefined on legend location input", () => {
-        for (let x of enums.LegendLocation)
+        for (const x of enums.LegendLocation)
           expect(prop.validate(x)).to.be.undefined
       })
 
@@ -832,7 +832,7 @@ describe("properties module", () => {
 
     describe("validate", () => {
       it("should return undefined on line cap input", () => {
-        for (let x of enums.LineCap)
+        for (const x of enums.LineCap)
           expect(prop.validate(x)).to.be.undefined
       })
 
@@ -858,7 +858,7 @@ describe("properties module", () => {
 
     describe("validate", () => {
       it("should return undefined on line join input", () => {
-        for (let x of enums.LineJoin)
+        for (const x of enums.LineJoin)
           expect(prop.validate(x)).to.be.undefined
       })
 
@@ -916,7 +916,7 @@ describe("properties module", () => {
 
     describe("validate", () => {
       it("should return undefined on orientation input", () => {
-        for (let x of enums.Orientation)
+        for (const x of enums.Orientation)
           expect(prop.validate(x)).to.be.undefined
       })
 
@@ -942,7 +942,7 @@ describe("properties module", () => {
 
     describe("validate", () => {
       it("should return undefined on render level input", () => {
-        for (let x of enums.RenderLevel)
+        for (const x of enums.RenderLevel)
           expect(prop.validate(x)).to.be.undefined
       })
 
@@ -968,7 +968,7 @@ describe("properties module", () => {
 
     describe("validate", () => {
       it("should return undefined on render mode input", () => {
-        for (let x of enums.RenderMode)
+        for (const x of enums.RenderMode)
           expect(prop.validate(x)).to.be.undefined
       })
 
@@ -1027,7 +1027,7 @@ describe("properties module", () => {
 
     describe("validate", () => {
       it("should return undefined on text align input", () => {
-        for (let x of enums.TextAlign)
+        for (const x of enums.TextAlign)
           expect(prop.validate(x)).to.be.undefined
       })
 
@@ -1053,7 +1053,7 @@ describe("properties module", () => {
 
     describe("validate", () => {
       it("should return undefined on text baseline input", () => {
-        for (let x of enums.TextBaseline)
+        for (const x of enums.TextBaseline)
           expect(prop.validate(x)).to.be.undefined
       })
       it("should throw an Error on other input", () => {
@@ -1071,13 +1071,13 @@ describe("properties module", () => {
 
   describe("dataspec prototype property", () => {
 
-    for (let ds of DATASPECS) {
+    for (const ds of DATASPECS) {
       it(`DataSpec ${ds} should have dataspec attribute set true`, () => {
         expect(((p as any)[ds] as any).prototype.dataspec).to.be.true
       })
     }
 
-    for (let prop of PROPERTIES) {
+    for (const prop of PROPERTIES) {
       it(`Property ${prop} should have dataspec attribute set false`, () => {
         expect(((p as any)[prop] as any).prototype.dataspec).to.be.false
       })
@@ -1087,7 +1087,7 @@ describe("properties module", () => {
 
   describe("exports", () => {
 
-    for (let func of ["simple_prop", "enum_prop", "units_prop"]) {
+    for (const func of ["simple_prop", "enum_prop", "units_prop"]) {
       it(`should have '${func}' property helper function`, () => {
         expect(func in p).to.be.true
       })
@@ -1097,13 +1097,13 @@ describe("properties module", () => {
       expect("Property" in p).to.be.true
     })
 
-    for (let prop of PROPERTIES) {
+    for (const prop of PROPERTIES) {
       it(`should have simple property ${prop}`, () => {
         expect(prop in p).to.be.true
       })
     }
 
-    for (let ds of DATASPECS) {
+    for (const ds of DATASPECS) {
       it(`should have dataspec property ${ds}`, () => {
         expect(ds in p).to.be.true
       })
