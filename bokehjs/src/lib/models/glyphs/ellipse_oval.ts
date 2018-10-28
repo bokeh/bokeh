@@ -122,7 +122,7 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
       sh[index] = d
     }
 
-    this._render(ctx, [index], {sx, sy, sw, sh} as any) // XXX
+    this._render(ctx, [index], {sx, sy, sw, sh, _angle: [0]} as any) // XXX
   }
 
   protected _bounds({minX, maxX, minY, maxY}: Rect): Rect {
