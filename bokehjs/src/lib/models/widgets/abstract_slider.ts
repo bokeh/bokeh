@@ -97,8 +97,8 @@ export abstract class AbstractSliderView extends WidgetView {
 
       // Add keyboard support
       const keypress = (e: KeyboardEvent): void => {
-        const spec = this._calc_to()
-        let value = spec.value[0]
+        const current = this._calc_to()
+        let value = current.value[0]
         switch (e.which) {
           case 37: {
             value = Math.max(value - step, start)

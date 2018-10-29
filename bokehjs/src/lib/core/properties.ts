@@ -7,7 +7,6 @@ import {valid_rgb} from "./util/color"
 import {includes, repeat} from "./util/array"
 import {map} from "./util/arrayable"
 import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/types"
-//import {Transform} from "../models/transforms/transform"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
 
 Signal; // XXX: silence TS, because `Signal` appears in declarations due to Signalable
@@ -132,7 +131,7 @@ export class Property<T> extends Signalable() {
     else
       this.spec = {value: attr_value}
 
-    if (this.spec.field != null && !isString(this.spec.field))
+    if (this.dataspec && this.spec.field != null && !isString(this.spec.field))
       throw new Error(`field value for property '${attr}' is not a string`)
 
     if (this.spec.value != null)
@@ -169,7 +168,7 @@ export class Array extends simple_prop("Array", (x) => isArray(x) || x instanceo
 export class Bool extends simple_prop("Bool", isBoolean) {}
 export const Boolean = Bool
 
-export class Color extends simple_prop("Color", (x) => is_svg_color(x.toLowerCase()) || x.substring(0, 1) == "#" || valid_rgb(x)) {}
+export class Color extends simple_prop("Color", (x) => (isString(x) && (is_svg_color(x.toLowerCase()) || x.substring(0, 1) == "#" || valid_rgb(x)))) {}
 
 export class Instance extends simple_prop("Instance", (x) => x.properties != null) {}
 
@@ -177,11 +176,14 @@ export class Instance extends simple_prop("Instance", (x) => x.properties != nul
 export class Number extends simple_prop("Number", (x) => isNumber(x) || isBoolean(x)) {}
 export const Int = Number
 
+export class Angle extends Number {}
+
 // TODO extend Number instead of copying it's predicate
 //class Percent extends Number("Percent", (x) -> 0 <= x <= 1.0)
 export class Percent extends simple_prop("Number", (x) => (isNumber(x) || isBoolean(x)) && 0 <= x && x <= 1.0) {}
 
 export class String extends simple_prop("String", isString) {}
+export const FontSize = String
 
 // TODO (bev) don't think this exists python side
 export class Font extends String {}
@@ -278,7 +280,11 @@ export function units_prop<Units>(name: string, valid_units: Units[], default_un
   }
 }
 
-export class Angle extends units_prop("Angle", enums.AngleUnits, "rad") {
+//
+// DataSpec properties
+//
+
+export class AngleSpec extends units_prop("AngleSpec", enums.AngleUnits, "rad") {
   transform(values: Arrayable): Arrayable {
     if (this.spec.units == "deg")
       values = map(values, (x: number) => x * Math.PI/180.0)
@@ -286,20 +292,12 @@ export class Angle extends units_prop("Angle", enums.AngleUnits, "rad") {
     return super.transform(values)
   }
 }
-
-export class Distance extends units_prop("Distance", enums.SpatialUnits, "data") {}
-
-//
-// DataSpec properties
-//
-
-export class AngleSpec extends Angle {}
 AngleSpec.prototype.dataspec = true
 
 export class ColorSpec extends Color {}
 ColorSpec.prototype.dataspec = true
 
-export class DistanceSpec extends Distance {}
+export class DistanceSpec extends units_prop("DistanceSpec", enums.SpatialUnits, "data") {}
 DistanceSpec.prototype.dataspec = true
 
 export class FontSizeSpec extends String {}

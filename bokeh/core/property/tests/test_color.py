@@ -58,6 +58,10 @@ class Test_Color(object):
         assert prop.is_valid("blue")
         assert prop.is_valid("BLUE")
 
+        assert prop.is_valid('rgb(10, 20, 30)')
+        assert prop.is_valid('rgba(10, 20, 30, 1)')
+        assert prop.is_valid('rgba(10, 20, 30, 0.5)')
+
         assert prop.is_valid(RGB(10, 20, 30))
 
     def test_invalid(self):
@@ -80,6 +84,22 @@ class Test_Color(object):
         assert not prop.is_valid((0, 127))
         assert not prop.is_valid((0, 127, 1.0))
         assert not prop.is_valid((0, 127, 255, 255))
+
+        assert not prop.is_valid('(0, 127, 255)')
+        assert not prop.is_valid('rgb(0, -127, 255)')
+        assert not prop.is_valid('rgb(0, 127)')
+        assert not prop.is_valid('rgb(0, 127, 1.0)')
+        assert not prop.is_valid('rgb(256, 1, 1)')
+        assert not prop.is_valid('rgb(256, 1, 1, 1.0)')
+
+        assert not prop.is_valid('(10, 20, 30')
+        assert not prop.is_valid('rgba(10, 20, 30')
+        assert not prop.is_valid('rgba(10, 20, 30)')
+        assert not prop.is_valid('rgba(10, 20, 30,)')
+        assert not prop.is_valid('rgba(10, 20)')
+        assert not prop.is_valid('rgba(10, 20, 256, 1)')
+        assert not prop.is_valid('rgba(10, 20, 256, 10)')
+        assert not prop.is_valid('rgba(10, 20, 30, 50)')
 
         assert not prop.is_valid("00aaff")
         assert not prop.is_valid("00AAFF")

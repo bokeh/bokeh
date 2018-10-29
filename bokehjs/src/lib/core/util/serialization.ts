@@ -99,18 +99,18 @@ export interface BufferSpec {
   shape: Shape
 }
 
-export function process_buffer(spec: BufferSpec, buffers: [any, any][]): [TypedArray, Shape] {
-  const need_swap = spec.order !== BYTE_ORDER
-  const {shape} = spec
+export function process_buffer(specification: BufferSpec, buffers: [any, any][]): [TypedArray, Shape] {
+  const need_swap = specification.order !== BYTE_ORDER
+  const {shape} = specification
   let bytes = null
   for (const buf of buffers) {
     const header = JSON.parse(buf[0])
-    if (header.id === spec.__buffer__) {
+    if (header.id === specification.__buffer__) {
       bytes = buf[1]
       break
     }
   }
-  const arr = new (ARRAY_TYPES[spec.dtype])(bytes)
+  const arr = new (ARRAY_TYPES[specification.dtype])(bytes)
   if (need_swap) {
     if (arr.BYTES_PER_ELEMENT === 2) {
       swap16(arr)

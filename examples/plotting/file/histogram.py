@@ -6,7 +6,7 @@ import scipy.special
 from bokeh.layouts import gridplot
 from bokeh.plotting import figure, show, output_file
 
-def make_plot(title, hist, x, pdf, cdf):
+def make_plot(title, hist, edges, x, pdf, cdf):
     p = figure(title=title, tools='', background_fill_color="#fafafa")
     p.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
            fill_color="navy", line_color="white", alpha=0.5)
@@ -32,7 +32,7 @@ x = np.linspace(-2, 2, 1000)
 pdf = 1/(sigma * np.sqrt(2*np.pi)) * np.exp(-(x-mu)**2 / (2*sigma**2))
 cdf = (1+scipy.special.erf((x-mu)/np.sqrt(2*sigma**2)))/2
 
-p1 = make_plot("Normal Distribution (μ=0, σ=0.5)", hist, x, pdf, cdf)
+p1 = make_plot("Normal Distribution (μ=0, σ=0.5)", hist, edges, x, pdf, cdf)
 
 # Log-Normal Distribution
 
@@ -45,7 +45,7 @@ x = np.linspace(0.0001, 8.0, 1000)
 pdf = 1/(x* sigma * np.sqrt(2*np.pi)) * np.exp(-(np.log(x)-mu)**2 / (2*sigma**2))
 cdf = (1+scipy.special.erf((np.log(x)-mu)/(np.sqrt(2)*sigma)))/2
 
-p2 = make_plot("Log Normal Distribution (μ=0, σ=0.5)", hist, x, pdf, cdf)
+p2 = make_plot("Log Normal Distribution (μ=0, σ=0.5)", hist, edges, x, pdf, cdf)
 
 # Gamma Distribution
 
@@ -58,7 +58,7 @@ x = np.linspace(0.0001, 20.0, 1000)
 pdf = x**(k-1) * np.exp(-x/theta) / (theta**k * scipy.special.gamma(k))
 cdf = scipy.special.gammainc(k, x/theta)
 
-p3 = make_plot("Gamma Distribution (k=7.5, θ=1)", hist, x, pdf, cdf)
+p3 = make_plot("Gamma Distribution (k=7.5, θ=1)", hist, edges, x, pdf, cdf)
 
 # Weibull Distribution
 
@@ -70,7 +70,7 @@ x = np.linspace(0.0001, 8, 1000)
 pdf = (k/lam)*(x/lam)**(k-1) * np.exp(-(x/lam)**k)
 cdf = 1 - np.exp(-(x/lam)**k)
 
-p4 = make_plot("Weibull Distribution (λ=1, k=1.25)", hist, x, pdf, cdf)
+p4 = make_plot("Weibull Distribution (λ=1, k=1.25)", hist, edges, x, pdf, cdf)
 
 output_file('histogram.html', title="histogram.py example")
 
