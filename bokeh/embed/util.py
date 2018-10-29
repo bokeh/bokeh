@@ -113,7 +113,7 @@ def OutputDocumentFor(objs, apply_theme=None, always_new=False):
 
     def finish(): pass
 
-    docs = set(x.document for x in objs)
+    docs = _compute_current_docs(objs)
 
     # handle a single shared document, or missing document
     if len(docs) == 1:
@@ -317,6 +317,14 @@ be used. For more information on building and running Bokeh applications, see:
     http://bokeh.pydata.org/en/latest/docs/user_guide/server.html
 """
 
+def _compute_current_docs(objs):
+    docs = set()
+    for obj in objs:
+        docs.add(obj.document)
+        for ref in obj.references():
+            docs.add(ref.document)
+    return docs
+
 def _create_temp_doc(models):
     doc = Document()
     for m in models:
@@ -343,6 +351,8 @@ def _set_temp_theme(doc, apply_theme):
         doc.theme = apply_theme
 
 def _unset_temp_theme(doc):
+    if not hasattr(doc, "_old_theme"):
+        return
     doc.theme = doc._old_theme
     del doc._old_theme
 
