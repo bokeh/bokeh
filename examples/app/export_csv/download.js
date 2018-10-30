@@ -1,14 +1,23 @@
-var data = source.data;
-var filetext = 'name,income,years_experience\n';
-for (var i = 0; i < data['name'].length; i++) {
-    var currRow = [data['name'][i].toString(),
-                   data['salary'][i].toString(),
-                   data['years_experience'][i].toString().concat('\n')];
+function table_to_csv(data_table) {
+    var columns = Object.keys(data_table)
+    var nrows = data_table[columns[0]].length
+    var lines = [columns.join(',')];
 
-    var joined = currRow.join();
-    filetext = filetext.concat(joined);
+    for (var i = 0; i < nrows; i++) {
+        var row = [];
+        for (var j = 0; j < columns.length; j++) {
+            var column = columns[j];
+            row.push(data_table[column][i].toString());
+        }
+        lines.push(row.join(','));
+    }
+    filetext = lines.join('\n').concat('\n');
+    return filetext
 }
 
+
+var data = source.data;
+var filetext = table_to_csv(data);
 var filename = 'data_result.csv';
 var blob = new Blob([filetext], { type: 'text/csv;charset=utf-8;' });
 
