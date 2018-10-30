@@ -3,9 +3,9 @@ function table_to_csv(data_table) {
     const nrows = data_table[columns[0]].length
     const lines = [columns.join(',')]
 
-    for (var i = 0; i < nrows; i++) {
-        var row = [];
-        for (var j = 0; j < columns.length; j++) {
+    for (let i = 0; i < nrows; i++) {
+        let row = [];
+        for (let j = 0; j < columns.length; j++) {
             const column = columns[j]
             row.push(data_table[column][i].toString())
         }
