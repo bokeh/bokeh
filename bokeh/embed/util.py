@@ -113,32 +113,38 @@ def OutputDocumentFor(objs, apply_theme=None, always_new=False):
 
     def finish(): pass
 
-    docs = _compute_up_to_two_current_docs(objs)
-
-    # if there is no document, make one to use
-    if len(docs) == 0:
-        doc = Document()
-        for model in objs:
-            doc.add_root(model)
-
-    # handle a single shared document, or missing document
-    elif len(docs) == 1:
-        doc = docs.pop()
-
-        # we are not using all the roots, make a quick clone for outputting purposes
-        if set(objs) != set(doc.roots) or always_new:
-            def finish(): # NOQA
-                _dispose_temp_doc(objs)
-            doc = _create_temp_doc(objs)
-
-        # we are using all the roots of a single doc, just use doc as-is
-        pass
-
-    # models have mixed docs, just make a quick clone
-    else:
+    if always_new:
         def finish(): # NOQA
             _dispose_temp_doc(objs)
         doc = _create_temp_doc(objs)
+
+    else:
+        docs = _compute_up_to_two_current_docs(objs)
+
+        # if there is no document, make one to use
+        if len(docs) == 0:
+            doc = Document()
+            for model in objs:
+                doc.add_root(model)
+
+        # handle a single shared document, or missing document
+        elif len(docs) == 1:
+            doc = docs.pop()
+
+            # we are not using all the roots, make a quick clone for outputting purposes
+            if set(objs) != set(doc.roots):
+                def finish(): # NOQA
+                    _dispose_temp_doc(objs)
+                doc = _create_temp_doc(objs)
+
+            # we are using all the roots of a single doc, just use doc as-is
+            pass
+
+        # models have mixed docs, just make a quick clone
+        else:
+            def finish(): # NOQA
+                _dispose_temp_doc(objs)
+            doc = _create_temp_doc(objs)
 
     if settings.perform_document_validation():
         doc.validate()
