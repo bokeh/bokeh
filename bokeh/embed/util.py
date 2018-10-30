@@ -113,20 +113,20 @@ def OutputDocumentFor(objs, apply_theme=None, always_new=False):
 
     def finish(): pass
 
-    docs = _compute_current_docs(objs)
+    docs = _compute_up_to_two_current_docs(objs)
+
+    # if there is no document, make one to use
+    if len(docs) == 0:
+        doc = Document()
+        for model in objs:
+            doc.add_root(model)
 
     # handle a single shared document, or missing document
-    if len(docs) == 1:
+    elif len(docs) == 1:
         doc = docs.pop()
 
-        # if there is no document, make one to use
-        if doc is None:
-            doc = Document()
-            for model in objs:
-                doc.add_root(model)
-
         # we are not using all the roots, make a quick clone for outputting purposes
-        elif set(objs) != set(doc.roots) or always_new:
+        if set(objs) != set(doc.roots) or always_new:
             def finish(): # NOQA
                 _dispose_temp_doc(objs)
             doc = _create_temp_doc(objs)
@@ -317,12 +317,26 @@ be used. For more information on building and running Bokeh applications, see:
     http://bokeh.pydata.org/en/latest/docs/user_guide/server.html
 """
 
-def _compute_current_docs(objs):
+def _compute_up_to_two_current_docs(objs):
+    ''' Return a set of up to two documents present in a set of models,
+    excluding None.
+
+    Computing obj.references is expensive, so bail as soon as two docs
+    are found.
+
+    '''
     docs = set()
     for obj in objs:
-        docs.add(obj.document)
+        if obj.document is not None:
+            docs.add(obj.document)
+    if len(docs) > 1: return docs
+
+    for obj in objs:
         for ref in obj.references():
-            docs.add(ref.document)
+            if ref.document is not None:
+                docs.add(ref.document)
+            if len(docs) > 1: return docs
+
     return docs
 
 def _create_temp_doc(models):

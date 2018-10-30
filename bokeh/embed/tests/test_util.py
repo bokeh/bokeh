@@ -614,13 +614,13 @@ class Test_standalone_docs_json(object):
 # Private API
 #-----------------------------------------------------------------------------
 
-class Test__compute_current_docs(object):
+class Test__compute_up_to_two_current_docs(object):
 
     def test_no_docs(self):
         p1 = Model()
         p2 = Model()
-        res = beu._compute_current_docs([p1, p2])
-        assert res == set([None])
+        res = beu._compute_up_to_two_current_docs([p1, p2])
+        assert res == set()
 
     def test_top_level_same_doc(self):
         d = Document()
@@ -628,7 +628,7 @@ class Test__compute_current_docs(object):
         p2 = Model()
         d.add_root(p1)
         d.add_root(p2)
-        res = beu._compute_current_docs([p1, p2])
+        res = beu._compute_up_to_two_current_docs([p1, p2])
         assert res == set([d])
 
     def test_top_level_different_doc(self):
@@ -638,7 +638,7 @@ class Test__compute_current_docs(object):
         p2 = Model()
         d1.add_root(p1)
         d2.add_root(p2)
-        res = beu._compute_current_docs([p1, p2])
+        res = beu._compute_up_to_two_current_docs([p1, p2])
         assert res == set([d1, d2])
 
 
@@ -647,15 +647,27 @@ class Test__compute_current_docs(object):
         p1 = Model()
         p2 = SomeModelInTestObjects(child=Model())
         d.add_root(p2.child)
-        res = beu._compute_current_docs([p1, p2])
-        assert res == set([None, d])
+        res = beu._compute_up_to_two_current_docs([p1, p2])
+        assert res == set([d])
 
 
         d2 = Document()
         d2.add_root(p1)
-        res = beu._compute_current_docs([p1, p2])
-        assert res == set([None, d, d2])
+        res = beu._compute_up_to_two_current_docs([p1, p2])
+        assert res == set([d, d2])
 
+    def test_more_than_two_docs(self):
+        d1 = Document()
+        d2 = Document()
+        d3 = Document()
+        p1 = Model()
+        p2 = Model()
+        p3 = SomeModelInTestObjects(child=Model())
+        d1.add_root(p1)
+        d2.add_root(p2)
+        d3.add_root(p3.child)
+        res = beu._compute_up_to_two_current_docs([p1, p2, p3])
+        assert len(res) == 2
 
 class Test__create_temp_doc(object):
 
