@@ -4,3 +4,4 @@ set -e # exit on error
 set -x # echo commands
 
 conda install --yes --quiet distributed
+conda install --yes --quiet -c pyviz holoviews nose pyviz_comms --no-deps

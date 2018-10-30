@@ -5,7 +5,6 @@
 
 set -x # echo commands
 
-conda install -c pyviz holoviews nose
 pushd `python -c "import site; print(site.getsitepackages()[0])"`
 py.test distributed/bokeh
 nosetests holoviews/tests/plotting/bokeh
