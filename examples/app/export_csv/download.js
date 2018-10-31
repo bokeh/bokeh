@@ -11,8 +11,7 @@ function table_to_csv(source) {
         }
         lines.push(row.join(','))
     }
-    filetext = lines.join('\n').concat('\n')
-    return filetext
+    return lines.join('\n').concat('\n')
 }
 
 
