@@ -608,6 +608,132 @@ class Test_standalone_docs_json(object):
 # Private API
 #-----------------------------------------------------------------------------
 
+class Test__create_temp_doc(object):
+
+    def test_no_docs(self):
+        p1 = Model()
+        p2 = Model()
+        beu._create_temp_doc([p1, p2])
+        assert isinstance(p1.document, Document)
+        assert isinstance(p2.document, Document)
+
+    def test_top_level_same_doc(self):
+        d = Document()
+        p1 = Model()
+        p2 = Model()
+        d.add_root(p1)
+        d.add_root(p2)
+        beu._create_temp_doc([p1, p2])
+        assert isinstance(p1.document, Document)
+        assert p1.document is not d
+        assert isinstance(p2.document, Document)
+        assert p2.document is not d
+
+        assert p2.document == p1.document
+
+    def test_top_level_different_doc(self):
+        d1 = Document()
+        d2 = Document()
+        p1 = Model()
+        p2 = Model()
+        d1.add_root(p1)
+        d2.add_root(p2)
+        beu._create_temp_doc([p1, p2])
+        assert isinstance(p1.document, Document)
+        assert p1.document is not d1
+        assert isinstance(p2.document, Document)
+        assert p2.document is not d2
+
+        assert p2.document == p1.document
+
+    def test_child_docs(self):
+        d = Document()
+        p1 = Model()
+        p2 = SomeModelInTestObjects(child=Model())
+        d.add_root(p2.child)
+        beu._create_temp_doc([p1, p2])
+
+        assert isinstance(p1.document, Document)
+        assert p1.document is not d
+        assert isinstance(p2.document, Document)
+        assert p2.document is not d
+        assert isinstance(p2.child.document, Document)
+        assert p2.child.document is not d
+
+        assert p2.document == p1.document
+        assert p2.document == p2.child.document
+
+class Test__dispose_temp_doc(object):
+
+    def test_no_docs(self):
+        p1 = Model()
+        p2 = Model()
+        beu._dispose_temp_doc([p1, p2])
+        assert p1.document is None
+        assert p2.document is None
+
+    def test_with_docs(self):
+        d1 = Document()
+        d2 = Document()
+        p1 = Model()
+        d1.add_root(p1)
+        p2 = SomeModelInTestObjects(child=Model())
+        d2.add_root(p2.child)
+        beu._create_temp_doc([p1, p2])
+        beu._dispose_temp_doc([p1, p2])
+        assert p1.document is d1
+        assert p2.document is None
+        assert p2.child.document is d2
+
+    def test_with_temp_docs(self):
+        p1 = Model()
+        p2 = Model()
+        beu._create_temp_doc([p1, p2])
+        beu._dispose_temp_doc([p1, p2])
+        assert p1.document is None
+        assert p2.document is None
+
+class Test__set_temp_theme(object):
+    def test_apply_None(self):
+        d = Document()
+        orig = d.theme
+        beu._set_temp_theme(d, None)
+        assert d._old_theme is orig
+        assert d.theme is orig
+
+    def test_apply_theme(self):
+        t = Theme(json={})
+        d = Document()
+        orig = d.theme
+        beu._set_temp_theme(d, t)
+        assert d._old_theme is orig
+        assert d.theme is t
+
+    def test_apply_from_curdoc(self):
+        t = Theme(json={})
+        curdoc().theme = t
+        d = Document()
+        orig = d.theme
+        beu._set_temp_theme(d, beu.FromCurdoc)
+        assert d._old_theme is orig
+        assert d.theme is t
+
+class Test__unset_temp_theme(object):
+    def test_basic(self):
+        t = Theme(json={})
+        d = Document()
+        d._old_theme = t
+        beu._unset_temp_theme(d)
+        assert d.theme is t
+        assert not hasattr(d, "_old_theme")
+
+    def test_no_old_theme(self):
+        d = Document()
+        orig = d.theme
+        beu._unset_temp_theme(d)
+        assert d.theme is orig
+        assert not hasattr(d, "_old_theme")
+
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------

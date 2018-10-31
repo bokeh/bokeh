@@ -124,31 +124,37 @@ def OutputDocumentFor(objs, apply_theme=None, always_new=False):
     def finish(): pass
 
     docs = set(x.document for x in objs)
+    if None in docs: docs.remove(None)
 
-    # handle a single shared document, or missing document
-    if len(docs) == 1:
-        doc = docs.pop()
+    if always_new:
+        def finish(): # NOQA
+            _dispose_temp_doc(objs)
+        doc = _create_temp_doc(objs)
 
-        # if there is no document, make one to use
-        if doc is None:
+    else:
+        if len(docs) == 0:
             doc = Document()
             for model in objs:
                 doc.add_root(model)
 
-        # we are not using all the roots, make a quick clone for outputting purposes
-        elif set(objs) != set(doc.roots) or always_new:
+        # handle a single shared document
+        elif len(docs) == 1:
+            doc = docs.pop()
+
+            # we are not using all the roots, make a quick clone for outputting purposes
+            if set(objs) != set(doc.roots):
+                def finish(): # NOQA
+                    _dispose_temp_doc(objs)
+                doc = _create_temp_doc(objs)
+
+            # we are using all the roots of a single doc, just use doc as-is
+            pass
+
+        # models have mixed docs, just make a quick clone
+        else:
             def finish(): # NOQA
                 _dispose_temp_doc(objs)
             doc = _create_temp_doc(objs)
-
-        # we are using all the roots of a single doc, just use doc as-is
-        pass
-
-    # models have mixed docs, just make a quick clone
-    else:
-        def finish(): # NOQA
-            _dispose_temp_doc(objs)
-        doc = _create_temp_doc(objs)
 
     if settings.perform_document_validation():
         doc.validate()
@@ -353,6 +359,8 @@ def _set_temp_theme(doc, apply_theme):
         doc.theme = apply_theme
 
 def _unset_temp_theme(doc):
+    if not hasattr(doc, "_old_theme"):
+        return
     doc.theme = doc._old_theme
     del doc._old_theme
 
