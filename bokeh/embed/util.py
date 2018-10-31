@@ -343,6 +343,8 @@ def _set_temp_theme(doc, apply_theme):
         doc.theme = apply_theme
 
 def _unset_temp_theme(doc):
+    if not hasattr(doc, "_old_theme"):
+        return
     doc.theme = doc._old_theme
     del doc._old_theme
 
