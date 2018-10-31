@@ -1,8 +1,10 @@
-0.12.5 (Mar 2017)
-=================
+.. _release-0-12-5:
 
-Bokeh Version ``0.12.5`` is an incremental update that adds a few important
-features and fixes several bugs. Some of the highlights include:
+0.12.5
+======
+
+Bokeh Version ``0.12.5`` (Mar 2017) is an incremental update that adds a few
+important features and fixes several bugs. Some of the highlights include:
 
 * New general capability for Python/JS events (:bokeh-issue:`3210`,
   :bokeh-issue:`3748`, :bokeh-issue:`5278`)
@@ -29,6 +31,8 @@ The ClientSession APIs defined in `bokeh.client.session`, such as
 `push_session`, don't currently support the new `on_event` interface for
 UI event callbacks in Bokeh Server application. You may track the issue on
 GitHub (:bokeh-issue:`6092`).
+
+.. _release-0-12-5-migration:
 
 Migration Guide
 ---------------

@@ -1,5 +1,9 @@
-0.5.0 (Jul 2014)
-================
+.. _release-0-5-0:
+
+0.5.0
+=====
+
+Bokeh ``0.5.0`` (Jul 2014) adds the following features:
 
 * Widgets
 * Initial AR integration

@@ -1,7 +1,9 @@
-0.8.0 (Feb 2015)
-================
+.. _release-0-8-0:
 
-This release includes many major new features:
+0.8.0
+=====
+
+Bokeh ``0.8.0`` (Feb 2015) includes many major new features:
 
 * New and updated language bindings: R, JavaScript, Julia, Scala, and Lua now available
 * Better bokeh-server experience:

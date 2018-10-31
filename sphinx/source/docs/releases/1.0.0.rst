@@ -1,7 +1,9 @@
-1.0.0 (October 2018)
-====================
+.. _release-1-0-0:
 
-Bokeh Version ``1.0.0`` is a major milestone of the Bokeh project.
+1.0.0
+=====
+
+Bokeh Version ``1.0.0`` (October 2018) is a major milestone of the Bokeh project.
 
 Some of the highlights include:
 
@@ -18,6 +20,8 @@ Some of the highlights include:
 
 And several other bug fixes and docs additions. For full details see the
 :bokeh-tree:`CHANGELOG`.
+
+.. _release-1-0-0-migration:
 
 Migration Guide
 ---------------
@@ -54,7 +58,6 @@ selections.
 While this breaking incompatibility is regretable, there are now much more
 extensive integration tests in place to maintain that the second version will
 always function as expected from now on.
-
 
 New Dependencies
 ~~~~~~~~~~~~~~~~

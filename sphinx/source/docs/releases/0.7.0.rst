@@ -1,8 +1,10 @@
-0.7.0 (Dec 2014)
-================
+.. _release-0-7-0:
 
-This release focused on new features and capability, particularly around
-user interface and experience:
+0.7.0
+=====
+
+Bokeh ``0.7.0`` (Dec 2014) focused on new features and capability, particularly
+arounduser interface and experience:
 
 * IPython widgets and animations without a Bokeh server
 * Touch UI working for tools on mobile devices
@@ -11,6 +13,8 @@ user interface and experience:
 * Color mappers on the python side
 * Improved toolbar
 * Many new tools: lasso, poly, and point selection, crosshair inspector
+
+.. _release-0-7-0-migration:
 
 Migration Guide
 ---------------

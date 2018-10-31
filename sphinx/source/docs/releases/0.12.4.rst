@@ -1,8 +1,10 @@
-0.12.4 (Jan 2017)
-=================
+.. _release-0-12-4:
 
-Bokeh Version ``0.12.4`` is an incremental update that adds a few important
-features and fixes several bugs. Some of the highlights include:
+0.12.4
+======
+
+Bokeh Version ``0.12.4`` (Jan 2017) is an incremental update that adds a few
+important features and fixes several bugs. Some of the highlights include:
 
 * Efficient binary array protocol. (:bokeh-issue:`2204`)
 * A general mechanism to add ``CustomJS`` callbacks to any property. (:bokeh-issue:`5498`)
@@ -13,8 +15,9 @@ features and fixes several bugs. Some of the highlights include:
 * Improved documentation for the :ref:`bokeh.palettes` module. (:bokeh-issue:`5619`)
 * Major refactor of ``bokeh.core`` including expanded documentation and tests (:bokeh-issue:`5626`, :bokeh-issue:`5627`)
 
-
 Many other small bugfixes and docs additions. For full details see the :bokeh-tree:`CHANGELOG`.
+
+.. _release-0-12-4-migration:
 
 Migration Guide
 ---------------

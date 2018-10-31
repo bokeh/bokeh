@@ -1,8 +1,13 @@
-0.12.10 (Oct 2017)
-==================
+.. _release-0-12-10:
 
-Bokeh Version ``0.12.10`` is an incremental update that adds a few important
-features and fixes several bugs. For full details see the :bokeh-tree:`CHANGELOG`.
+0.12.10
+=======
+
+Bokeh Version ``0.12.10`` (Oct 2017) is an incremental update that adds a few
+important features and fixes several bugs. For full details see the
+:bokeh-tree:`CHANGELOG`.
+
+.. _release-0-12-10-migration:
 
 Migration Guide
 ---------------

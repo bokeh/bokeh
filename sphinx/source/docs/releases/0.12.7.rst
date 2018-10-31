@@ -1,8 +1,10 @@
-0.12.7 (Aug 2017)
-=================
+.. _release-0-12-7:
 
-Bokeh Version ``0.12.7`` is an incremental update that adds a few important
-features and fixes several bugs. Some of the highlights include:
+0.12.7
+======
+
+Bokeh Version ``0.12.7`` (Aug 2017) is an incremental update that adds a few
+important features and fixes several bugs. Some of the highlights include:
 
 * Support graphs/trees/networks (:bokeh-issue:`187`) including configurable
   and extendable policies for highlighting and selection.
@@ -29,6 +31,8 @@ features and fixes several bugs. Some of the highlights include:
 
  Many other small bugfixes and docs additions. For full details see the
  :bokeh-tree:`CHANGELOG`.
+
+.. _release-0-12-7-migration:
 
 Migration Guide
 ---------------
