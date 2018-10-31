@@ -1,7 +1,9 @@
-0.13.0 (June 2018)
-==================
+.. _release-0-13-0:
 
-Bokeh Version ``0.13.0`` is an incremental update that adds a few
+0.13.0
+======
+
+Bokeh Version ``0.13.0`` (June 2018) is an incremental update that adds a few
 new features and fixes several bugs. Some of the highlights include:
 
 * Improved hover tool fields for common stacked bar plot cases
@@ -10,6 +12,8 @@ new features and fixes several bugs. Some of the highlights include:
 
 And several other bug fixes and docs additions. For full details see the
 :bokeh-tree:`CHANGELOG`.
+
+.. _release-0-13-0-migration:
 
 Migration Guide
 ---------------
@@ -58,6 +62,5 @@ The default ``line_join`` style has been changed from ``miter`` to ``bevel``,
 to avoid exaggerating corners where connected lines meet at a sharp angle.
 The HTML Canvas ``miterLimit`` property is meant to prevent such issues,
 but it does not appear to be respected by current browsers.
-
 
 .. _project roadmap: https://bokehplots.com/pages/roadmap.html

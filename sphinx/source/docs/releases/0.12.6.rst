@@ -1,8 +1,10 @@
-0.12.6 (Jun 2017)
-=================
+.. _release-0-12-6:
 
-Bokeh Version ``0.12.6`` is an incremental update that adds a few important
-features and fixes several bugs. Some of the highlights include:
+0.12.6
+======
+
+Bokeh Version ``0.12.6`` (Jun 2017) is an incremental update that adds a few
+important features and fixes several bugs. Some of the highlights include:
 
 * Headless, programmatic export of SVG and PNG images (:bokeh-issue:`538`)
 * New annotations ``Band`` and ``Whisker`` for displaying error estimates
@@ -22,6 +24,8 @@ features and fixes several bugs. Some of the highlights include:
 
 Many other bugfixes and docs additions are also included. For full details
 see the :bokeh-tree:`CHANGELOG`.
+
+.. _release-0-12-6-migration:
 
 Migration Guide
 ---------------

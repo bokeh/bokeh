@@ -1,7 +1,9 @@
-0.11.0 (Jan 2016)
-=================
+.. _release-0-11-0:
 
-Bokeh Version ``0.11.0`` is a large release with many new improvements
+0.11.0
+======
+
+Bokeh Version ``0.11.0`` (Jan 2016) is a large release with many new improvements
 
 * New Tornado and websocket-based Bokeh Server
 
@@ -44,6 +46,8 @@ of interactions and notebook-based apps without a Bokeh server.
 
 The Image glyph does not currently work with the Bokeh server, and will be
 fixed in a follow on 0.11.1 release shortly.
+
+.. _release-0-11-0-migration:
 
 Migration Guide
 ---------------

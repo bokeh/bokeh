@@ -1,7 +1,9 @@
-0.12.15 (Mar 2018)
-==================
+.. _release-0-12-15:
 
-Bokeh Version ``0.12.15`` is an incremental update that adds a few
+0.12.15
+=======
+
+Bokeh Version ``0.12.15`` (Mar 2018) is an incremental update that adds a few
 important features and fixes several bugs. Some of the highlights
 include:
 
@@ -23,6 +25,8 @@ Many other small bugfixes and docs additions. For full details see the
 Additionally, we are pleased to announce `Bokeh joins NumFOCUS Sponsored Projects`_.
 
 .. _Bokeh joins NumFOCUS Sponsored Projects: https://www.numfocus.org/blog/bokeh-joins-sponsored-projects/).
+
+.. _release-0-12-15-migration:
 
 Migration Guide
 ---------------

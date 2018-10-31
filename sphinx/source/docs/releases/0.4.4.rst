@@ -1,5 +1,9 @@
-0.4.4 (Apr 2014)
-================
+.. _release-0-4-4:
+
+0.4.4
+=====
+
+Bokeh ``0.4.4`` (Apr 2014) is a minor release:
 
 * Improved MPL interface, subplots, styling plus more examples
 * TravisCI testing integration

@@ -1,5 +1,9 @@
-0.3.0 (Nov 2013)
-================
+.. _release-0-3-0:
+
+0.3.0
+=====
+
+Bokeh ``0.3.0`` (Nov 2013) is a minor release:
 
 * refactor bokehjs to use grunt for coffee build
 * merge bokeh and bokehjs repositories
