@@ -16,9 +16,8 @@ function table_to_csv(data_table) {
 }
 
 
-const data = source.data
 const filename = 'data_result.csv'
-filetext = table_to_csv(data)
+filetext = table_to_csv(source.data)
 const blob = new Blob([filetext], { type: 'text/csv;charset=utf-8;' })
 
 //addresses IE
