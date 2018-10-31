@@ -246,7 +246,8 @@ def file_html(models,
               template=FILE,
               template_variables={},
               theme=FromCurdoc,
-              suppress_callback_warning=False):
+              suppress_callback_warning=False,
+              _always_new=False):
     ''' Return an HTML document that embeds Bokeh Model or Document objects.
 
     The data for the plot is stored directly in the returned HTML, with
@@ -296,7 +297,7 @@ def file_html(models,
     if isinstance(models, Document):
         models = models.roots
 
-    with OutputDocumentFor(models, apply_theme=theme) as doc:
+    with OutputDocumentFor(models, apply_theme=theme, always_new=_always_new) as doc:
         (docs_json, render_items) = standalone_docs_json_and_render_items(models, suppress_callback_warning=suppress_callback_warning)
         title = _title_from_models(models, title)
         bundle = bundle_for_objs_and_resources([doc], resources)

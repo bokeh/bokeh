@@ -26,6 +26,7 @@ import re
 from PIL import Image
 
 # Bokeh imports
+from bokeh.layouts import row
 from bokeh.models.plots import Plot
 from bokeh.models.ranges import Range1d
 from bokeh.io.webdriver import webdriver_control, terminate_webdriver
@@ -169,6 +170,22 @@ def test_get_layout_html_resets_plot_dims():
 
     assert layout.plot_height == initial_height
     assert layout.plot_width == initial_width
+
+def test_layout_html_on_child_first():
+    p = Plot(x_range=Range1d(), y_range=Range1d())
+
+    bie.get_layout_html(p, height=100, width=100)
+
+    layout = row(p)
+    bie.get_layout_html(layout)
+
+def test_layout_html_on_parent_first():
+    p = Plot(x_range=Range1d(), y_range=Range1d())
+
+    layout = row(p)
+    bie.get_layout_html(layout)
+
+    bie.get_layout_html(p, height=100, width=100)
 
 #-----------------------------------------------------------------------------
 # Private API
