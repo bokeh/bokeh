@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -39,8 +39,6 @@ import bokeh.embed.util as beu
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
-# needed for caplog tests to function
-basicConfig()
 
 @pytest.fixture
 def test_plot():
@@ -735,3 +733,10 @@ class Test__unset_temp_theme(object):
         beu._unset_temp_theme(d)
         assert d.theme is orig
         assert not hasattr(d, "_old_theme")
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
+
+# needed for caplog tests to function
+basicConfig()

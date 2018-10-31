@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -39,6 +39,12 @@ from .wrappers import wrap_in_onload, wrap_in_safely, wrap_in_script_tag
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
+
+__all__ = (
+    'div_for_render_item',
+    'html_page_for_render_items',
+    'script_for_render_items',
+)
 
 #-----------------------------------------------------------------------------
 # General API
