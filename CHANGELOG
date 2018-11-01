@@ -1,17 +1,3 @@
-2018-10-31    1.0.1:
---------------------
-  * bugfixes:
-    - #4096 Bokeh server: color palette rgb is not recognized
-    - #8356 [component: bokehjs] Datatable crashes layout if 'field' is key in columndatasource data
-    - #8362 Combination of "export_png()" and "show()" causes error
-    - #8374 [regression] Garbage collection of export_png() 
-    - #8375 [component: bokehjs] Ellipse and datetime axis
-    - #8388 [component: build] Release deploy updates package-lock incorrectly
-  * tasks:
-    - #8367 [component: server] Documentlifecyclehandler should catch exception and clean up callbacks
-    - #8369 [component: examples] Histogram example should take edges as argument to make_plot
-    - #8387 [component: docs] Bryanv/101 misc docs
-
 2018-10-24    1.0.0:
 --------------------
   * bugfixes:
