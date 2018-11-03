@@ -721,7 +721,7 @@ class AjaxDataSource(RemoteSource):
     format.
 
     If provided, this callback is executes immediately after the JSON data is
-    received, but before apprending or replacing data in the data source. The
+    received, but before appending or replacing data in the data source. The
     CustomJS callback will receive the AjaxDataSource as ``cb_obj`` and will
     receive the raw JSON response as ``cb_data.response``. The callback code
     should return a ``data`` object suitable for a Bokeh ColumnDataSource (i.e.
