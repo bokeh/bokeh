@@ -1144,7 +1144,7 @@ class HoverTool(Inspection):
     """)
 
     show_arrow = Bool(default=True, help="""
-    Whether tooltip's arrow should be showed.
+    Whether tooltip's arrow should be shown.
     """)
 
 DEFAULT_HELP_TIP = "Click the question mark to learn more about Bokeh plot tools."
