@@ -1002,7 +1002,7 @@ class Tooltip(Annotation):
     """)
 
     show_arrow = Bool(default=True, help="""
-    Whether tooltip's arrow should be showed.
+    Whether tooltip's arrow should be shown.
     """)
 
 # This only exists to prevent a circular import.
