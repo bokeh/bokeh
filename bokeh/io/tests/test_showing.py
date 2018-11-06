@@ -183,3 +183,7 @@ def test(mock_save, mock_abspath):
     assert controller.open.call_count == 2
     assert controller.open.call_args[0] == ("file://savepath",)
     assert controller.open.call_args[1] == {"new": 2}
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

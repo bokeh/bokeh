@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -39,6 +39,10 @@ from .util import default_filename
 #-----------------------------------------------------------------------------
 
 DEFAULT_TITLE = "Bokeh Plot"
+
+__all__ = (
+    'save',
+)
 
 #-----------------------------------------------------------------------------
 # General API

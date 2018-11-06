@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -16,6 +16,32 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import logging
 log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External Imports
+
+# Bokeh imports
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'curdoc',
+    'export_png',
+    'export_svgs',
+    'install_notebook_hook',
+    'push_notebook',
+    'output_file',
+    'output_notebook',
+    'save',
+    'show',
+)
 
 #-----------------------------------------------------------------------------
 # General API
@@ -37,17 +63,13 @@ from .saving import save
 
 from .showing import show
 
-__all__ = (
-    'curdoc',
-    'export_png',
-    'export_svgs',
-    'install_notebook_hook',
-    'push_notebook',
-    'output_file',
-    'output_notebook',
-    'save',
-    'show',
-)
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Code
