@@ -428,7 +428,7 @@ def merge_and_push():
     try:
         out = run("git checkout master")
         passed("Returned to master branch")
-    except Exception as e:
+    except Exception:
         failed("[NON-FATAL] Could not return to master branch", out.split("\n"))
 
     return True
