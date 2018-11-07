@@ -994,7 +994,7 @@ class HoverTool(Inspection):
     have a matching value for their ``name`` attribute will be used.
     """)
 
-    renderers = Either(Auto, List(Instance(Renderer)), defatult="auto", help="""
+    renderers = Either(Auto, List(Instance(Renderer)), default="auto", help="""
     An explicit list of renderers to hit test against. If unset,
     defaults to all renderers on a plot.
     """)
@@ -1144,7 +1144,7 @@ class HoverTool(Inspection):
     """)
 
     show_arrow = Bool(default=True, help="""
-    Whether tooltip's arrow should be showed.
+    Whether tooltip's arrow should be shown.
     """)
 
 DEFAULT_HELP_TIP = "Click the question mark to learn more about Bokeh plot tools."
