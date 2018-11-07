@@ -303,7 +303,7 @@ class Property(PropertyDescriptorFactory):
         try:
             if validation_on():
                 self.validate(value, False)
-        except ValueError as e:
+        except ValueError:
             return False
         else:
             return True
