@@ -247,7 +247,7 @@ export class UIEvents implements EventListenerObject {
   }
 
   protected _hit_test_canvas(sx: number, sy: number): boolean {
-    return this.plot_view.canvas.bbox.contains(sx, sy)
+    return this.plot_view.layout.bbox.contains(sx, sy)
   }
 
   _trigger<E extends UIEvent>(signal: UISignal<E>, e: E, srcEvent: Event): void {
