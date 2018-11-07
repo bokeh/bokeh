@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -57,6 +57,11 @@ from ..resources import Resources
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
+
+__all__ = (
+    'curstate',
+    'State',
+)
 
 #-----------------------------------------------------------------------------
 # General API

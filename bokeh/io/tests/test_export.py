@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -204,3 +204,7 @@ def test__crop_image():
     rect = dict(left=2, right=8, top=3, bottom=7)
     cropped = bie._crop_image(image, **rect)
     assert cropped.size == (6,4)
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

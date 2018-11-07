@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -31,6 +31,14 @@ from ..util.browser import get_browser_controller, NEW_PARAM
 from .notebook import run_notebook_hook
 from .saving import save
 from .state import curstate
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'show',
+)
 
 #-----------------------------------------------------------------------------
 # General API

@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -43,6 +43,20 @@ JS_MIME_TYPE   = 'application/javascript'
 LOAD_MIME_TYPE = 'application/vnd.bokehjs_load.v0+json'
 
 EXEC_MIME_TYPE = 'application/vnd.bokehjs_exec.v0+json'
+
+__all__ = (
+    'CommsHandle',
+    'destroy_server',
+    'get_comms',
+    'install_notebook_hook',
+    'install_jupyter_hooks',
+    'load_notebook',
+    'publish_display_data',
+    'push_notebook',
+    'run_notebook_hook',
+    'show_app',
+    'show_doc',
+)
 
 #-----------------------------------------------------------------------------
 # General API

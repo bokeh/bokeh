@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -122,3 +122,7 @@ def test__server_url():
     assert binb._server_url("foo.com:8888", 10) == "http://foo.com:10/"
     assert binb._server_url("http://foo.com:8888", 10) == "http://foo.com:10/"
     assert binb._server_url("https://foo.com:8888", 10) == "https://foo.com:10/"
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
