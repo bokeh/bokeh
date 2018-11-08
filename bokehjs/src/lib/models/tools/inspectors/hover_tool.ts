@@ -397,7 +397,7 @@ export class HoverToolView extends InspectToolView {
 
         let cell: HTMLElement
 
-        cell = div({style: {display: "table-cell"}, class: 'bk-tooltip-row-label'}, label.length != 0 ? "${label}: " : "")
+        cell = div({style: {display: "table-cell"}, class: 'bk-tooltip-row-label'}, label.length != 0 ? `${label}: ` : "")
         row.appendChild(cell)
 
         cell = div({style: {display: "table-cell"}, class: 'bk-tooltip-row-value'})
