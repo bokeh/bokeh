@@ -164,8 +164,8 @@ from .webdriver import terminate_webdriver # for back compat
 def create_webdriver():
     ''' Create a new webdriver.
 
-    ..note ::
-        Here for compatiboility. Prefer methods on the webdriver_control
+    .. note ::
+        Here for compatibility. Prefer methods on the webdriver_control
         object.
 
     '''
