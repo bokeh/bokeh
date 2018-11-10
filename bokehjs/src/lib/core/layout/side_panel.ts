@@ -77,7 +77,7 @@ const _angle_lookup: {[key in Side]: {[key in Orient]: number}} = {
   },
 }
 
-const _baseline_lookup: {[key in Side]: {[key in TextOrient]: string}} = {
+const _baseline_lookup: {[key in Side]: {[key in TextOrient]: CanvasTextBaseline}} = {
   above: {
     justified  : TOP,
     parallel   : ALPHABETIC,
@@ -108,7 +108,7 @@ const _baseline_lookup: {[key in Side]: {[key in TextOrient]: string}} = {
   },
 }
 
-const _align_lookup: {[key in Side]: {[key in TextOrient]: string}} = {
+const _align_lookup: {[key in Side]: {[key in TextOrient]: CanvasTextAlign}} = {
   above: {
     justified  : CENTER,
     parallel   : CENTER,
@@ -139,14 +139,14 @@ const _align_lookup: {[key in Side]: {[key in TextOrient]: string}} = {
   },
 }
 
-const _align_lookup_negative: {[key in Side]: string} = {
+const _align_lookup_negative: {[key in Side]: CanvasTextAlign} = {
   above  : RIGHT,
   below  : LEFT,
   left   : RIGHT,
   right  : LEFT,
 }
 
-const _align_lookup_positive: {[key in Side]: string} = {
+const _align_lookup_positive: {[key in Side]: CanvasTextAlign} = {
   above  : LEFT,
   below  : RIGHT,
   left   : RIGHT,
@@ -274,16 +274,16 @@ export class SidePanel extends LayoutCanvas {
   apply_label_text_heuristics(ctx: CanvasRenderingContext2D, orient: TextOrient | number): void {
     const side = this.side
 
-    let baseline: string
-    let align: string
+    let baseline: CanvasTextBaseline
+    let align: CanvasTextAlign
 
     if (isString(orient)) {
       baseline = _baseline_lookup[side][orient]
       align = _align_lookup[side][orient]
     } else {
       if (orient === 0) {
-        baseline = "whatever" // XXX: _baseline_lookup[side][orient]
-        align = "whatever" // XXX: _align_lookup[side][orient]
+        baseline = "whatever" as any // XXX: _baseline_lookup[side][orient]
+        align = "whatever" as any // XXX: _align_lookup[side][orient]
       } else if (orient < 0) {
         baseline = 'middle'
         align = _align_lookup_negative[side]

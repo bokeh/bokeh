@@ -388,12 +388,12 @@ export class PlotCanvasView extends DOMView {
     this.state_changed.emit()
   }
 
-  can_undo(): void {
-    this.state.index >= 0
+  can_undo(): boolean {
+    return this.state.index >= 0
   }
 
-  can_redo(): void {
-    this.state.index < this.state.history.length - 1
+  can_redo(): boolean {
+    return this.state.index < this.state.history.length - 1
   }
 
   undo(): void {

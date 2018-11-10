@@ -132,8 +132,8 @@ export function position(element: HTMLElement) {
 export function offset(element: HTMLElement) {
   const rect = element.getBoundingClientRect()
   return {
-    top:  rect.top  + window.pageYOffset - document.documentElement.clientTop,
-    left: rect.left + window.pageXOffset - document.documentElement.clientLeft,
+    top:  rect.top  + window.pageYOffset - document.documentElement!.clientTop,
+    left: rect.left + window.pageXOffset - document.documentElement!.clientLeft,
   }
 }
 
