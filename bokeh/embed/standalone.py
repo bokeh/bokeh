@@ -209,8 +209,10 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
 
     # now convert dict to list, saving keys in the same order
     model_keys = None
+    dict_type = None
     if isinstance(models, dict):
         model_keys = models.keys()
+        dict_type = models.__class__
         values = []
         # don't just use .values() to ensure we are in the same order as key list
         for k in model_keys:
@@ -240,9 +242,7 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
     if was_single_object:
         return script, results[0]
     elif model_keys is not None:
-        result = {}
-        for (key, value) in zip(model_keys, results):
-            result[key] = value
+        result = dict_type(zip(model_keys, results))
         return script, result
     else:
         return script, tuple(results)
