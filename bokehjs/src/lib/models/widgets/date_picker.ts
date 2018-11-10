@@ -14,9 +14,9 @@ Pikaday.prototype.adjustPosition = function(this: Pikaday & {_o: Pikaday.Pikaday
   const field = this._o.trigger!
   const width = this.el.offsetWidth
   const height = this.el.offsetHeight
-  const viewportWidth = window.innerWidth || document.documentElement.clientWidth
-  const viewportHeight = window.innerHeight || document.documentElement.clientHeight
-  const scrollTop = window.pageYOffset || document.body.scrollTop || document.documentElement.scrollTop
+  const viewportWidth = window.innerWidth || document.documentElement!.clientWidth
+  const viewportHeight = window.innerHeight || document.documentElement!.clientHeight
+  const scrollTop = window.pageYOffset || document.body.scrollTop || document.documentElement!.scrollTop
 
   const clientRect = field.getBoundingClientRect()
   let left = clientRect.left + window.pageXOffset

@@ -83,8 +83,8 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
       // we reached <body> element, so use viewport size
       if (measuring == document.body) {
         const {left, right, top, bottom} = margin(document.body)
-        const width  = document.documentElement.clientWidth  - left - right
-        const height = document.documentElement.clientHeight - top  - bottom
+        const width  = document.documentElement!.clientWidth  - left - right
+        const height = document.documentElement!.clientHeight - top  - bottom
         return [width, height]
       }
 
