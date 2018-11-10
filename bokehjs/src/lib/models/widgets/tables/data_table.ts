@@ -224,6 +224,7 @@ export class DataTableView extends WidgetView {
       multiColumnSort: this.model.sortable,
       editable: this.model.editable,
       autoEdit: false,
+      rowHeight: this.model.row_height,
     }
 
     if (this.model.width != null)
@@ -291,6 +292,7 @@ export namespace DataTable {
     index_width: number
     scroll_to_selection: boolean
     header_row: boolean
+    row_height: number
   }
 
   export interface Props extends TableWidget.Props {}
@@ -322,6 +324,7 @@ export class DataTable extends TableWidget {
       index_width:         [ p.Int,    40    ],
       scroll_to_selection: [ p.Bool,   true  ],
       header_row:          [ p.Bool,   true  ],
+      row_height:          [ p.Int,    25    ],
     })
 
     this.override({
