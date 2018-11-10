@@ -240,12 +240,13 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
     # 3) convert back to the input shape
 
     if was_single_object:
-        return script, results[0]
+        result = results[0]
     elif model_keys is not None:
         result = dict_type(zip(model_keys, results))
-        return script, result
     else:
-        return script, tuple(results)
+        result = tuple(results)
+
+    return script, result
 
 def file_html(models,
               resources,
