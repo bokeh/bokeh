@@ -576,3 +576,7 @@ class DataTable(TableWidget):
     """)
 
     height = Override(default=400)
+
+    row_height = Int(25, help="""
+    The height of each row in pixels.
+    """)
