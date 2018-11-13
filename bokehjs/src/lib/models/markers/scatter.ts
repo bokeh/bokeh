@@ -16,7 +16,7 @@ export class ScatterView extends MarkerView {
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy, _size, _angle, _marker}: ScatterData): void {
     for (const i of indices) {
-      if (isNaN(sx[i] + sy[i] + _size[i] + _angle[i]))
+      if (isNaN(sx[i] + sy[i] + _size[i] + _angle[i]) || _marker[i] == null)
         continue
 
       const r = _size[i]/2
