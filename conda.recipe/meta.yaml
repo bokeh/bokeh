@@ -21,7 +21,7 @@ requirements:
   build:
     - certifi
     - jinja2
-    - nodejs >=8.8,<9.0
+    - nodejs >=8.8
     - numpy
     - packaging
     - pycurl
@@ -64,7 +64,7 @@ test:
     - lxml
     - mock
     - networkx
-    - nodejs >=8.8.0,<9.0
+    - nodejs >=8.8
     - numba
     - pandas
     - pillow

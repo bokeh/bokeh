@@ -17,8 +17,8 @@
     "url": "https://github.com/bokeh/bokeh.git"
   },
   "engines": {
-    "node": ">=8.8 <9.0",
-    "npm": ">=6.0 <7.0"
+    "node": ">=8.8",
+    "npm": ">=6.0"
   },
   "devDependencies": {
     "semver": "^5.5.0",

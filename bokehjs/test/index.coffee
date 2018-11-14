@@ -36,6 +36,8 @@ global.window = document.defaultView
 
 blacklist = Object.keys(global)
 blacklist.push('constructor')
+blacklist.push('console')
+blacklist.push('Console')
 
 for own key, val of global.window
   if blacklist.indexOf(key) == -1
