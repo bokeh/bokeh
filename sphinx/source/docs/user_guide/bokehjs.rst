@@ -255,7 +255,7 @@ function, with the plot it generates shown below:
         slice_labels: "percentages"
     });
 
-    plt.show(plt.gridplot([p1, p2, p3, p4]));
+    plt.show(plt.gridplot([[p1, p2, p3, p4]]));
 
 .. image:: /_images/bokehjs_pie_charts.png
     :width: 100%
