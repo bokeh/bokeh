@@ -919,7 +919,7 @@ configuration:
 .. code-block:: sh
 
     a2enmod proxy
-    a2enmod http_proxy
+    a2enmod proxy_http
     a2enmod proxy_wstunnel
     apache2ctl restart
 
