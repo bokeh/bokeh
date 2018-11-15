@@ -1,25 +1,25 @@
 declare namespace Bokeh {
   export interface Value<T> {
-    value: T;
+    value: T
   }
 
   export interface Field {
-    field: string;
+    field: string
   }
 
-  export type Vectorized<T> = T | Value<T> | Field;
+  export type Vectorized<T> = T | Value<T> | Field
 
   export type Spatial = Vectorized<number> & {
-    units?: SpatialUnits;
+    units?: SpatialUnits
   }
 
   export type Angular = Vectorized<number> & {
-    units?: AngleUnits;
+    units?: AngleUnits
   }
 
-  export type Numerical = Vectorized<number>;
-  export type Categorical = Vectorized<string>;
+  export type Numerical = Vectorized<number>
+  export type Categorical = Vectorized<string>
 
-  export type MultiNumerical = Vectorized<number[]>;
-  export type MultiCategorical = Vectorized<string[]>;
+  export type MultiNumerical = Vectorized<number[]>
+  export type MultiCategorical = Vectorized<string[]>
 }

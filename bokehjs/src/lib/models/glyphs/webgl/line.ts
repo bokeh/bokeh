@@ -49,7 +49,8 @@ class DashAtlas {
        period += v
     }
     // Find all start and end of on-segment only
-    const C: number[] = []; let c = 0
+    const C: number[] = []
+    let c = 0
     for (let i = 0, end = pattern.length+2; i < end; i += 2) {
       const a = Math.max(0.0001, pattern[i % pattern.length])
       const b = Math.max(0.0001, pattern[(i+1) % pattern.length])
@@ -128,7 +129,7 @@ export class LineGLGlyph extends BaseGLGlyph {
 
   protected init(): void {
     const {gl} = this
-    this._scale_aspect = 0;  // keep track, so we know when we need to update segment data
+    this._scale_aspect = 0  // keep track, so we know when we need to update segment data
 
     const vert = vertex_shader
     const frag = fragment_shader
@@ -152,9 +153,9 @@ export class LineGLGlyph extends BaseGLGlyph {
 
     if (mainGlGlyph.data_changed) {
       if (!(isFinite(trans.dx) && isFinite(trans.dy))) {
-        return;  // not sure why, but it happens on init sometimes (#4367)
+        return  // not sure why, but it happens on init sometimes (#4367)
       }
-      mainGlGlyph._baked_offset = [trans.dx, trans.dy];  // float32 precision workaround; used in _bake() and below
+      mainGlGlyph._baked_offset = [trans.dx, trans.dy]  // float32 precision workaround; used in _bake() and below
       mainGlGlyph._set_data()
       mainGlGlyph.data_changed = false
     }
@@ -207,7 +208,7 @@ export class LineGLGlyph extends BaseGLGlyph {
       // First collect indices in chunks
       indices = Array.from(this.I_triangles)
       const nvertices = this.I_triangles.length
-      const chunksize = 64008;  // 65536 max. 64008 is divisible by 12
+      const chunksize = 64008  // 65536 max. 64008 is divisible by 12
       const chunks: number[][] = []
       for (let i = 0, end = Math.ceil(nvertices/chunksize); i < end; i++) {
          chunks.push([])
@@ -260,11 +261,11 @@ export class LineGLGlyph extends BaseGLGlyph {
 
     this.prog.set_uniform('u_color', 'vec4', color)
     this.prog.set_uniform('u_linewidth', 'float', [this.glyph.visuals.line.line_width.value()])
-    this.prog.set_uniform('u_antialias', 'float', [0.9]);  // Smaller aa-region to obtain crisper images
+    this.prog.set_uniform('u_antialias', 'float', [0.9])  // Smaller aa-region to obtain crisper images
 
     this.prog.set_uniform('u_linecaps', 'vec2', [cap, cap])
     this.prog.set_uniform('u_linejoin', 'float', [join])
-    this.prog.set_uniform('u_miter_limit', 'float', [10.0]);  // 10 should be a good value
+    this.prog.set_uniform('u_miter_limit', 'float', [10.0])  // 10 should be a good value
     // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-miterlimit
 
     const dash_pattern = this.glyph.visuals.line.line_dash.value()
@@ -272,11 +273,11 @@ export class LineGLGlyph extends BaseGLGlyph {
     if (dash_pattern.length) {
       [dash_index, dash_period] = this.dash_atlas.get_atlas_data(dash_pattern)
     }
-    this.prog.set_uniform('u_dash_index', 'float', [dash_index]);  // 0 means solid line
+    this.prog.set_uniform('u_dash_index', 'float', [dash_index])  // 0 means solid line
     this.prog.set_uniform('u_dash_phase', 'float', [this.glyph.visuals.line.line_dash_offset.value()])
     this.prog.set_uniform('u_dash_period', 'float', [dash_period])
     this.prog.set_uniform('u_dash_caps', 'vec2', [cap, cap])
-    this.prog.set_uniform('u_closed', 'float', [0]);  // We dont do closed lines
+    this.prog.set_uniform('u_closed', 'float', [0])  // We dont do closed lines
   }
 
   protected _bake(): void {
@@ -302,7 +303,7 @@ export class LineGLGlyph extends BaseGLGlyph {
     const V_position = (Vp = new Float32Array(n*2))
     //V_segment = new Float32Array(n*2)  # Done later
     const V_angles = new Float32Array(n*2)
-    const V_tangents = (Vt = new Float32Array(n*4));  // mind the 4!
+    const V_tangents = (Vt = new Float32Array(n*4))  // mind the 4!
 
     // Position
     for (let i = 0, end = n; i < end; i++) {
@@ -350,7 +351,7 @@ export class LineGLGlyph extends BaseGLGlyph {
     const m = (4 * n) - 4
     this.V_position = (V_position2 = new Float32Array(m*2))
     this.V_angles = (V_angles2 = new Float32Array(m*2))
-    this.V_tangents = (V_tangents2 = new Float32Array(m*4));  // mind the 4!
+    this.V_tangents = (V_tangents2 = new Float32Array(m*4))  // mind the 4!
     this.V_texcoord = (V_texcoord2 = new Float32Array(m*2))
     const o = 2
     //
@@ -408,7 +409,7 @@ export class LineGLGlyph extends BaseGLGlyph {
     // Prepare arrays
     const T = this.tangents
     const N = new Float32Array(n-1)
-    const V_segment = new Float32Array(n*2);  // Elements are initialized with 0
+    const V_segment = new Float32Array(n*2)  // Elements are initialized with 0
     this.V_segment = (V_segment2 = new Float32Array(m*2))
     // Calculate vector lengths - with scale aspect ratio taken into account
     for (let i = 0, end = n-1; i < end; i++) {
@@ -430,7 +431,7 @@ export class LineGLGlyph extends BaseGLGlyph {
       }
     }
     // Update
-    this.cumsum = cumsum;  // L[-1] in Nico's code
+    this.cumsum = cumsum  // L[-1] in Nico's code
     this.vbo_segment.set_size(this.V_segment.length*4)
     this.vbo_segment.set_data(0, this.V_segment)
   }

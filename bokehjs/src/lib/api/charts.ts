@@ -316,14 +316,14 @@ export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
   }
 
   if (orientation == "vertical") {
-    [xdr, ydr] = [ydr, xdr];
-    [xaxis, yaxis] = [yaxis, xaxis];
-    [xscale, yscale] = [yscale, xscale];
+     [xdr, ydr] = [ydr, xdr]
+    ;[xaxis, yaxis] = [yaxis, xaxis]
+    ;[xscale, yscale] = [yscale, xscale]
 
     for (const r of renderers) {
-      const data = (r.data_source as ColumnDataSource).data;
-      [data.left, data.bottom] = [data.bottom, data.left];
-      [data.right, data.top] = [data.top, data.right];
+      const data = (r.data_source as ColumnDataSource).data
+      ;[data.left, data.bottom] = [data.bottom, data.left]
+      ;[data.right, data.top] = [data.top, data.right]
     }
   }
 

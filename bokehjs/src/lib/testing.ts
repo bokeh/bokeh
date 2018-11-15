@@ -7,11 +7,12 @@ export const results: Record<string, any> = {}
 // find the new div. At that point the results should be available
 function _update_test_div(): void {
   const body = document.getElementsByTagName("body")[0]
-  const col = document.getElementsByClassName("bokeh-test-div");
+  const col = document.getElementsByClassName("bokeh-test-div")
 
-  if (col.length == 1)
+  if (col.length == 1) {
     body.removeChild(col[0])
     delete col[0]
+  }
 
   const box = document.createElement("div")
   box.classList.add("bokeh-test-div")

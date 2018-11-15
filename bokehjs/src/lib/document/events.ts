@@ -80,7 +80,7 @@ export class ModelChangedEvent extends DocumentChangedEvent {
     const value = this.new_
     const value_json = HasProps._value_to_json(this.attr, value, this.model)
     const value_refs: {[key: string]: any}  = {}
-    HasProps._value_record_references(value, value_refs, true); // true = recurse
+    HasProps._value_record_references(value, value_refs, true) // true = recurse
     if (this.model.id in value_refs && this.model !== value) {
       // we know we don't want a whole new copy of the obj we're
       // patching unless it's also the value itself

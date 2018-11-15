@@ -89,19 +89,19 @@ export class AnnulusView extends XYGlyphView {
     let x0: number, y0: number
     let x1: number, y1: number
     if (this.model.properties.outer_radius.units == "data") {
-      x0 = x - this.max_outer_radius;
-      x1 = x + this.max_outer_radius;
+      x0 = x - this.max_outer_radius
+      x1 = x + this.max_outer_radius
 
-      y0 = y - this.max_outer_radius;
-      y1 = y + this.max_outer_radius;
+      y0 = y - this.max_outer_radius
+      y1 = y + this.max_outer_radius
     } else {
-      const sx0 = sx - this.max_outer_radius;
-      const sx1 = sx + this.max_outer_radius;
-      [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1);
+      const sx0 = sx - this.max_outer_radius
+      const sx1 = sx + this.max_outer_radius
+      ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
 
-      const sy0 = sy - this.max_outer_radius;
-      const sy1 = sy + this.max_outer_radius;
-      [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1);
+      const sy0 = sy - this.max_outer_radius
+      const sy1 = sy + this.max_outer_radius
+      ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
     }
 
     const hits: [number, number][] = []

@@ -107,8 +107,10 @@ export class MercatorTileSource extends TileSource {
     const y_rs = (extent[3] - extent[1]) / height
     const resolution = Math.max(x_rs, y_rs)
     const closest = this._resolutions.reduce(function(previous, current) {
-      if (Math.abs(current - resolution) < Math.abs(previous - resolution)) { return current; }
-      return previous
+      if (Math.abs(current - resolution) < Math.abs(previous - resolution))
+        return current
+      else
+        return previous
     })
     return this._resolutions.indexOf(closest)
   }

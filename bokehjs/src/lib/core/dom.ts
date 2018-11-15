@@ -81,7 +81,7 @@ export const
   canvas   = _createElement("canvas"),
   ul       = _createElement("ul"),
   ol       = _createElement("ol"),
-  li       = _createElement("li");
+  li       = _createElement("li")
 
 export const nbsp = document.createTextNode("\u00a0")
 

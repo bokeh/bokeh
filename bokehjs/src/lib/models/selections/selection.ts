@@ -35,20 +35,20 @@ export class Selection extends Model {
   }
 
   static initClass(): void {
-    this.prototype.type = "Selection";
+    this.prototype.type = "Selection"
 
     this.define({
       indices:           [ p.Array,   [] ],
       line_indices:      [ p.Array,   [] ],
       multiline_indices: [ p.Any,     {} ],
-    });
+    })
 
     this.internal({
       final:             [ p.Boolean     ],
       selected_glyphs:   [ p.Array,   [] ],
       get_view:          [ p.Any         ],
       image_indices:     [ p.Array,   [] ], // Used internally to support hover tool for now. Python API TBD
-    });
+    })
   }
 
   [key: string]: any

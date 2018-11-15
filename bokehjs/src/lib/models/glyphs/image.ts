@@ -8,8 +8,8 @@ import {max, concat} from "core/util/array"
 import {Context2d} from "core/util/canvas"
 import {Rect} from "core/util/spatial"
 import {SpatialIndex} from "core/util/spatial"
-import * as hittest from "core/hittest";
-import {Selection} from "../selections/selection";
+import * as hittest from "core/hittest"
+import {Selection} from "../selections/selection"
 import {PointGeometry} from "core/geometry"
 
 // XXX: because ImageData is a global

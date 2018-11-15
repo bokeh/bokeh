@@ -9,7 +9,7 @@ import {map} from "./util/arrayable"
 import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/types"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
 
-Signal; // XXX: silence TS, because `Signal` appears in declarations due to Signalable
+Signal // XXX: silence TS, because `Signal` appears in declarations due to Signalable
 
 function valueToString(value: any): string {
   try {
