@@ -45,14 +45,16 @@ export class CircleView extends XYGlyphView {
             break
           }
           case "max": {
-            let sradius_x = this.sdist(this.renderer.xscale, this._x, this._radius)
-            let sradius_y = this.sdist(this.renderer.yscale, this._y, this._radius)
+            const sradius_x = this.sdist(this.renderer.xscale, this._x, this._radius)
+            const sradius_y = this.sdist(this.renderer.yscale, this._y, this._radius)
             this.sradius = map(sradius_x, (s, i) => Math.max(s, sradius_y[i]))
+            break
           }
           case "min": {
-            let sradius_x = this.sdist(this.renderer.xscale, this._x, this._radius)
-            let sradius_y = this.sdist(this.renderer.yscale, this._y, this._radius)
+            const sradius_x = this.sdist(this.renderer.xscale, this._x, this._radius)
+            const sradius_y = this.sdist(this.renderer.yscale, this._y, this._radius)
             this.sradius = map(sradius_x, (s, i) => Math.min(s, sradius_y[i]))
+            break
           }
         }
       } else {
