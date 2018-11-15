@@ -79,6 +79,8 @@ export class StringFormatter extends CellFormatter {
     if (text_color != null)
       text.style.color = text_color
 
+    text.style.display = "block"
+
     return text.outerHTML
   }
 }
