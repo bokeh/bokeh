@@ -24,6 +24,7 @@
       ["Array<.*>", "Use 'T[]' instead."]
     ],
     "object-literal-key-quotes": [true, "as-needed"],
+    "semicolon": [true, "never"],
     "no-construct": true,
     "no-var-keyword": true,
     "no-string-throw": true,
