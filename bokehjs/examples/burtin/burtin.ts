@@ -1,15 +1,15 @@
 namespace Burtin {
-  import plt = Bokeh.Plotting;
-  const {range, values} = Bokeh.LinAlg;
+  import plt = Bokeh.Plotting
+  const {range, values} = Bokeh.LinAlg
 
-  import Color = Bokeh.Color;
-  import Map = Bokeh.Map;
+  import Color = Bokeh.Color
+  import Map = Bokeh.Map
 
-  console.log(`Bokeh ${Bokeh.version}`);
-  Bokeh.set_log_level("info");
+  console.log(`Bokeh ${Bokeh.version}`)
+  Bokeh.set_log_level("info")
   Bokeh.settings.dev = true
 
-  type Gram = "negative" | "positive";
+  type Gram = "negative" | "positive"
 
   const antibiotics: [string, number, number, number, Gram][] = [
     ["Mycobacterium tuberculosis",      800,        5,            2,        "negative"],
@@ -31,14 +31,14 @@ namespace Burtin {
   ]
 
   interface Antibiotics {
-    index:        number[];
-    length:       number;
+    index:        number[]
+    length:       number
 
-    bacteria:     string[];
-    penicillin:   number[];
-    streptomycin: number[];
-    neomycin:     number[];
-    gram:         Gram[];
+    bacteria:     string[]
+    penicillin:   number[]
+    streptomycin: number[]
+    neomycin:     number[]
+    gram:         Gram[]
   }
 
   const df: Antibiotics = {

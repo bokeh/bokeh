@@ -1,5 +1,5 @@
 namespace Charts {
-  import plt = Bokeh.Plotting;
+  import plt = Bokeh.Plotting
 
   const pie_data = {
     labels: ['Work', 'Eat', 'Commute', 'Sport', 'Watch TV', 'Sleep'],
