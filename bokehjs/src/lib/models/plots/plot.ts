@@ -26,7 +26,7 @@ import {Renderer} from "../renderers/renderer"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {Tool} from "../tools/tool"
 import {register_with_event, UIEvent} from 'core/bokeh_events'
-import {DataRange1d} from '../ranges/data_range1d';
+import {DataRange1d} from '../ranges/data_range1d'
 
 export class PlotView extends LayoutDOMView {
   model: Plot

@@ -1,6 +1,6 @@
-import {SidePanel} from "core/layout/side_panel";
+import {SidePanel} from "core/layout/side_panel"
 import {Side} from "core/enums"
-import * as p from "core/properties";
+import * as p from "core/properties"
 import * as proj from "core/util/projections"
 import {extend} from "core/util/object"
 
@@ -58,29 +58,29 @@ export abstract class Annotation extends Renderer {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Annotation';
+    this.prototype.type = 'Annotation'
 
     this.define({
       plot:  [ p.Instance ],
-    });
+    })
 
     this.override({
       level: 'annotation',
-    });
+    })
   }
 
   add_panel(side: Side): void {
     if (this.panel == null || side !== this.panel.side) {
-      const panel = new SidePanel({side});
-      panel.attach_document(this.document!);
-      this.set_panel(panel);
+      const panel = new SidePanel({side})
+      panel.attach_document(this.document!)
+      this.set_panel(panel)
     }
   }
 
   set_panel(panel: SidePanel): void {
-    this.panel = panel;
+    this.panel = panel
     // If the annotation is in a side panel, we need to set level to overlay, so it is visible.
-    this.level = 'overlay';
+    this.level = 'overlay'
   }
 }
-Annotation.initClass();
+Annotation.initClass()

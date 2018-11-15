@@ -234,22 +234,22 @@ export class SidePanel extends LayoutCanvas {
         this._dim = 0
         this._normals = [0, -1]
         this._size = this._height
-        break;
+        break
       case "below":
         this._dim = 0
         this._normals = [0, 1]
         this._size = this._height
-        break;
+        break
       case "left":
         this._dim = 1
         this._normals = [-1, 0]
         this._size = this._width
-        break;
+        break
       case "right":
         this._dim = 1
         this._normals = [1, 0]
         this._size = this._width
-        break;
+        break
       default:
         logger.error(`unrecognized side: '${this.side}'`)
     }

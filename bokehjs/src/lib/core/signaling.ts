@@ -195,9 +195,9 @@ const dirtySet = new Set<Connection[]>()
 
 function scheduleCleanup(connections: Connection[]): void {
   if (dirtySet.size === 0) {
-    defer(cleanupDirtySet);
+    defer(cleanupDirtySet)
   }
-  dirtySet.add(connections);
+  dirtySet.add(connections)
 }
 
 function cleanupDirtySet(): void {

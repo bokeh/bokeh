@@ -1,9 +1,9 @@
 namespace WebBrowserMarketShare {
-  import plt = Bokeh.Plotting;
-  const {zip, unzip, sum, cumsum} = Bokeh.LinAlg;
+  import plt = Bokeh.Plotting
+  const {zip, unzip, sum, cumsum} = Bokeh.LinAlg
 
-  Bokeh.set_log_level("info");
-  Bokeh.logger.info(`Bokeh ${Bokeh.version}`);
+  Bokeh.set_log_level("info")
+  Bokeh.logger.info(`Bokeh ${Bokeh.version}`)
 
   function to_cartesian(r: number, alpha: number): [number, number] {
     return [r*Math.cos(alpha), r*Math.sin(alpha)]

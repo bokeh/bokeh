@@ -116,7 +116,7 @@ export abstract class TextAnnotationView extends AnnotationView {
     this.el.style.color = `${this.visuals.text.text_color.value()}`
     this.el.style.opacity = `${this.visuals.text.text_alpha.value()}`
     this.el.style.font = `${this.visuals.text.font_value()}`
-    this.el.style.lineHeight = "normal"; // needed to prevent ipynb css override
+    this.el.style.lineHeight = "normal" // needed to prevent ipynb css override
 
     if (angle) {
       this.el.style.transform = `rotate(${angle}rad)`

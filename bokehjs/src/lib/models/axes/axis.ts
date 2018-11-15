@@ -141,19 +141,19 @@ export class AxisView extends GuideRendererView {
       case "above":
         sx = this.model.panel._hcenter.value
         sy = this.model.panel._bottom.value
-        break;
+        break
       case "below":
         sx = this.model.panel._hcenter.value
         sy = this.model.panel._top.value
-        break;
+        break
       case "left":
         sx = this.model.panel._right.value
         sy = this.model.panel._vcenter.value
-        break;
+        break
       case "right":
         sx = this.model.panel._left.value
         sy = this.model.panel._vcenter.value
-        break;
+        break
       default:
         throw new Error(`unknown side: ${this.model.panel.side}`)
     }
@@ -201,12 +201,12 @@ export class AxisView extends GuideRendererView {
     let xoff, yoff: number
 
     if (units == "screen") {
-      [sxs, sys] = coords;
-      [xoff, yoff] = [0, 0];
+       [sxs, sys] = coords
+      ;[xoff, yoff] = [0, 0]
     } else {
-      const [dxs, dys] = coords;
-      [sxs, sys] = this.plot_view.map_to_screen(dxs, dys, this.model.x_range_name, this.model.y_range_name);
-      [xoff, yoff] = this.model.offsets;
+      const [dxs, dys] = coords
+      ;[sxs, sys] = this.plot_view.map_to_screen(dxs, dys, this.model.x_range_name, this.model.y_range_name)
+      ;[xoff, yoff] = this.model.offsets
     }
 
     const [nx, ny] = this.model.normals

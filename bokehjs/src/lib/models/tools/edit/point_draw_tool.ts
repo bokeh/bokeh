@@ -9,62 +9,64 @@ export class PointDrawToolView extends EditToolView {
 
   _tap(ev: TapEvent): void {
     const append = ev.shiftKey
-    const renderers = this._select_event(ev, append, this.model.renderers);
+    const renderers = this._select_event(ev, append, this.model.renderers)
     if (renderers.length || !this.model.add) {
       return
     }
 
-    const renderer = this.model.renderers[0];
-    const point = this._map_drag(ev.sx, ev.sy, renderer);
-    if (point == null) {
-      return;
-    }
+    const renderer = this.model.renderers[0]
+    const point = this._map_drag(ev.sx, ev.sy, renderer)
+    if (point == null)
+      return
+
     // Type once dataspecs are typed
     const glyph: any = renderer.glyph
-    const cds = renderer.data_source;
-    const [xkey, ykey] = [glyph.x.field, glyph.y.field];
-    const [x, y] = point;
+    const cds = renderer.data_source
+    const [xkey, ykey] = [glyph.x.field, glyph.y.field]
+    const [x, y] = point
 
     this._pop_glyphs(cds, this.model.num_objects)
     if (xkey) cds.get_array(xkey).push(x)
     if (ykey) cds.get_array(ykey).push(y)
-    this._pad_empty_columns(cds, [xkey, ykey]);
+    this._pad_empty_columns(cds, [xkey, ykey])
 
-    cds.change.emit();
-    cds.data = cds.data;
-    cds.properties.data.change.emit();
+    cds.change.emit()
+    cds.data = cds.data
+    cds.properties.data.change.emit()
   }
 
   _keyup(ev: KeyEvent): void {
-    if (!this.model.active || !this._mouse_in_frame) { return; }
+    if (!this.model.active || !this._mouse_in_frame)
+      return
     for (const renderer of this.model.renderers) {
       if (ev.keyCode === Keys.Backspace) {
-        this._delete_selected(renderer);
+        this._delete_selected(renderer)
       } else if (ev.keyCode == Keys.Esc) {
-        renderer.data_source.selection_manager.clear();
+        renderer.data_source.selection_manager.clear()
       }
     }
   }
 
   _pan_start(ev: GestureEvent): void {
-    if (!this.model.drag) { return; }
-    this._select_event(ev, true, this.model.renderers);
-    this._basepoint = [ev.sx, ev.sy];
+    if (!this.model.drag)
+      return
+    this._select_event(ev, true, this.model.renderers)
+    this._basepoint = [ev.sx, ev.sy]
   }
 
   _pan(ev: GestureEvent): void {
-    if (!this.model.drag || this._basepoint == null) {
-      return;
-    }
-    this._drag_points(ev, this.model.renderers);
+    if (!this.model.drag || this._basepoint == null)
+      return
+    this._drag_points(ev, this.model.renderers)
   }
 
   _pan_end(ev: GestureEvent): void {
-    if (!this.model.drag) { return; }
-    this._pan(ev);
+    if (!this.model.drag)
+      return
+    this._pan(ev)
     for (const renderer of this.model.renderers)
       this._emit_cds_changes(renderer.data_source, false, true, true)
-    this._basepoint = null;
+    this._basepoint = null
   }
 }
 

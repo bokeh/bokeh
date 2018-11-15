@@ -73,7 +73,7 @@ export class SegmentView extends GlyphView {
     const point = {x: sx, y: sy}
 
     const hits = []
-    const lw_voffset = 2; // FIXME: Use maximum of segments line_width/2 instead of magic constant 2
+    const lw_voffset = 2 // FIXME: Use maximum of segments line_width/2 instead of magic constant 2
 
     const [minX, maxX] = this.renderer.xscale.r_invert(sx-lw_voffset, sx+lw_voffset)
     const [minY, maxY] = this.renderer.yscale.r_invert(sy-lw_voffset, sy+lw_voffset)

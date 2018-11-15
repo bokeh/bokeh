@@ -1,9 +1,9 @@
 namespace TappyScatter {
-  import plt = Bokeh.Plotting;
-  const {range, zip} = Bokeh.LinAlg;
+  import plt = Bokeh.Plotting
+  const {range, zip} = Bokeh.LinAlg
 
-  Bokeh.set_log_level("info");
-  Bokeh.logger.info(`Bokeh ${Bokeh.version}`);
+  Bokeh.set_log_level("info")
+  Bokeh.logger.info(`Bokeh ${Bokeh.version}`)
 
   const random = (function() {
     let seed = 1

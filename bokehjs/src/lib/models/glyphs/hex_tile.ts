@@ -99,10 +99,8 @@ export class HexTileView extends GlyphView {
   // overriding map_data instead of _map_data because the default automatic mappings
   // for other glyphs (with cartesian coordinates) is not useful
   map_data(): void {
-    [this.sx, this.sy] = this.map_to_screen(this._x, this._y);
-
-    [this.svx, this.svy] = this._get_unscaled_vertices()
-
+     [this.sx, this.sy] = this.map_to_screen(this._x, this._y)
+    ;[this.svx, this.svy] = this._get_unscaled_vertices()
   }
 
   protected _get_unscaled_vertices(): [number[], number[]] {
@@ -142,10 +140,10 @@ export class HexTileView extends GlyphView {
   protected _render(ctx: Context2d, indices: number[], {sx, sy, svx, svy, _scale}: HexTileData): void {
     for (const i of indices) {
       if (isNaN(sx[i] + sy[i] + _scale[i]))
-        continue;
+        continue
 
       ctx.translate(sx[i], sy[i])
-      ctx.beginPath();
+      ctx.beginPath()
       for (let j = 0; j < 6; j++) {
         ctx.lineTo(svx[j]*_scale[i], svy[j]*_scale[i])
       }
@@ -153,13 +151,13 @@ export class HexTileView extends GlyphView {
       ctx.translate(-sx[i], -sy[i])
 
       if (this.visuals.fill.doit) {
-        this.visuals.fill.set_vectorize(ctx, i);
-        ctx.fill();
+        this.visuals.fill.set_vectorize(ctx, i)
+        ctx.fill()
       }
 
       if (this.visuals.line.doit) {
-        this.visuals.line.set_vectorize(ctx, i);
-        ctx.stroke();
+        this.visuals.line.set_vectorize(ctx, i)
+        ctx.stroke()
       }
 
     }

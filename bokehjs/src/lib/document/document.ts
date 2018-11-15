@@ -466,7 +466,7 @@ export class Document {
         attr: key,
         new: new_value,
       }
-      HasProps._json_record_references(doc, new_value, value_refs, true); // true = recurse
+      HasProps._json_record_references(doc, new_value, value_refs, true) // true = recurse
       return event
     }
   }

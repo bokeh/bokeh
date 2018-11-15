@@ -1,40 +1,40 @@
 declare namespace Bokeh {
-  const version: string;
+  const version: string
 
-  const index: Map<View<LayoutDOM>>;
+  const index: Map<View<LayoutDOM>>
 
   class LogLevel {
-   name: string;
-   level: number;
+   name: string
+   level: number
   }
 
-  type NamedLogLevel = "trace" | "debug" | "info" | "warn" | "error" | "fatal" | "off";
+  type NamedLogLevel = "trace" | "debug" | "info" | "warn" | "error" | "fatal" | "off"
 
-  function set_log_level(level: NamedLogLevel): void;
+  function set_log_level(level: NamedLogLevel): void
 
   class Logger {
-   get_level: () => LogLevel;
-   set_level: (log_level: LogLevel | NamedLogLevel) => void;
+   get_level: () => LogLevel
+   set_level: (log_level: LogLevel | NamedLogLevel) => void
 
-   trace: (...args: any[]) => void;
-   debug: (...args: any[]) => void;
-   info:  (...args: any[]) => void;
-   warn:  (...args: any[]) => void;
-   error: (...args: any[]) => void;
-   fatal: (...args: any[]) => void;
+   trace: (...args: any[]) => void
+   debug: (...args: any[]) => void
+   info:  (...args: any[]) => void
+   warn:  (...args: any[]) => void
+   error: (...args: any[]) => void
+   fatal: (...args: any[]) => void
   }
-  const logger: Logger;
+  const logger: Logger
 
   class Settings {
-    dev: boolean;
+    dev: boolean
   }
 
-  const settings: Settings;
+  const settings: Settings
 
-  function sprintf(fmt: string, ...args: any[]): string;
+  function sprintf(fmt: string, ...args: any[]): string
 
   namespace embed {
-    export function add_document_standalone(doc: Document, element: HTMLElement, use_for_title?: boolean): void;
+    export function add_document_standalone(doc: Document, element: HTMLElement, use_for_title?: boolean): void
   }
 
   namespace LinAlg {

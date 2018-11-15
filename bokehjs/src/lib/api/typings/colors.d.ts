@@ -146,5 +146,5 @@ declare namespace Bokeh {
     "white"                |
     "whitesmoke"           |
     "yellow"               |
-    "yellowgreen";
+    "yellowgreen"
 }

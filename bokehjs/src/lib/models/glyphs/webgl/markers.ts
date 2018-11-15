@@ -62,9 +62,9 @@ export abstract class MarkerGLGlyph extends BaseGLGlyph {
     // Upload data if we must. Only happens for main glyph.
     if (mainGlGlyph.data_changed) {
       if (!(isFinite(trans.dx) && isFinite(trans.dy))) {
-        return;  // not sure why, but it happens on init sometimes (#4367)
+        return  // not sure why, but it happens on init sometimes (#4367)
       }
-      mainGlGlyph._baked_offset = [trans.dx, trans.dy];  // float32 precision workaround; used in _set_data() and below
+      mainGlGlyph._baked_offset = [trans.dx, trans.dy]  // float32 precision workaround; used in _set_data() and below
       mainGlGlyph._set_data(nvertices)
       mainGlGlyph.data_changed = false
     } else if (this.glyph instanceof CircleView && this.glyph._radius != null &&
@@ -116,7 +116,7 @@ export abstract class MarkerGLGlyph extends BaseGLGlyph {
     } else {
       // Work around the limit that the indexbuffer must be uint16. We draw in chunks.
       // First collect indices in chunks
-      const chunksize = 64000;  // 65536
+      const chunksize = 64000  // 65536
       const chunks: number[][] = []
       for (let i = 0, end = Math.ceil(nvertices/chunksize); i < end; i++) {
          chunks.push([])
@@ -155,7 +155,7 @@ export abstract class MarkerGLGlyph extends BaseGLGlyph {
   }
 
   protected _set_data(nvertices: number): void {
-    const n = nvertices * 4;  // in bytes
+    const n = nvertices * 4  // in bytes
     // Set buffer size
     this.vbo_x.set_size(n)
     this.vbo_y.set_size(n)
