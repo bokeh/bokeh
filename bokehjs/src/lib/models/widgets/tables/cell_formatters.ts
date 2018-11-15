@@ -3,7 +3,7 @@ import compile_template = require("underscore.template")
 import tz = require("timezone")
 
 import * as p from "core/properties"
-import {span, i} from "core/dom"
+import {div, i} from "core/dom"
 import {Color} from "core/types"
 import {FontStyle, TextAlign, RoundingFunction} from "core/enums"
 import {isString} from "core/util/types"
@@ -64,7 +64,7 @@ export class StringFormatter extends CellFormatter {
   doFormat(_row: any, _cell: any, value: any, _columnDef: any, _dataContext: any): string {
     const {font_style, text_align, text_color} = this
 
-    const text = span({}, value == null ? "" : `${value}`)
+    const text = div({}, value == null ? "" : `${value}`)
     switch (font_style) {
       case "bold":
         text.style.fontWeight = "bold"
@@ -78,8 +78,6 @@ export class StringFormatter extends CellFormatter {
       text.style.textAlign = text_align
     if (text_color != null)
       text.style.color = text_color
-
-    text.style.display = "block"
 
     return text.outerHTML
   }
