@@ -65,7 +65,7 @@ topic:
     in a variety of ways.
 
 :ref:`userguide_cli`
-    Use Bokeh's capabilites from the command line with the ``bokeh``
+    Use Bokeh's capabilities from the command line with the ``bokeh``
     command.
 
 :ref:`userguide_extensions`

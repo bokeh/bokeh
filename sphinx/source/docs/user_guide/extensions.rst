@@ -197,7 +197,7 @@ the know extensions ``.coffee``, ``.js``, or ``.ts`` then the it is interpreted
 as a filename. The corresponding file is opened and its contents are compiled
 appropriately according to the file extension.
 
-Othewise, if the implementation is inline in the class, the language for the
+Otherwise, if the implementation is inline in the class, the language for the
 source code may be explicitly provided by using the classes ``CoffeeScript``,
 ``JavaScript``, or ``TypeScript``, e.g.
 
@@ -215,7 +215,7 @@ Supplying External Resources
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 As part of implementing a custom model in Bokeh, there may be the need to
-include third-party javascript libraries or css resources. Bokeh supports
+include third-party Javascript libraries or CSS resources. Bokeh supports
 supplying external resources through the Python class attributes
 ``__javascript__`` and ``__css__`` of custom models.
 
@@ -223,15 +223,15 @@ Including the URL paths to external resources will causes Bokeh to add
 the resources to the html document head, causing the Javascript library to be
 available in the global namespace and the custom CSS styling to be applied.
 
-One example is including the JS and CSS files for `KaTex`_ (a
-Javascript-based typesetting library that supports LaTex) in order to create
-a ``LaTexLabel`` custom model.
+One example is including the JS and CSS files for `KaTeX`_ (a
+Javascript-based typesetting library that supports LaTeX) in order to create
+a ``LatexLabel`` custom model.
 
 .. code-block:: python
 
     class LatexLabel(Label):
         """A subclass of the Bokeh built-in `Label` that supports rendering
-        LaTex using the KaTex typesetting library.
+        LaTeX using the KaTeX typesetting library.
         """
         __javascript__ = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"
         __css__ = "https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css"
@@ -239,7 +239,7 @@ a ``LaTexLabel`` custom model.
         # do something here
         """
 
-See the LaTex example in the extensions gallery below to see the full
+See the LaTeX example in the extensions gallery below to see the full
 implementation and resulting output.
 
 .. _userguide_extensions_structure_server_integration:
@@ -289,11 +289,11 @@ and improvements to this section for future users.
     a Bokeh custom extension.
 
 :ref:`userguide_extensions_examples_latex`
-    Include a third-party JavaScript library in order to render LaTex.
+    Include a third-party JavaScript library in order to render LaTeX.
 
 :ref:`userguide_extensions_examples_widget`
     Include a third-party JavaScript library in an extension widget.
 
 .. _CoffeeScript: http://coffeescript.org
-.. _KaTex: https://khan.github.io/KaTeX/
+.. _KaTeX: https://khan.github.io/KaTeX/
 .. _TypeScript: https://www.typescriptlang.org/

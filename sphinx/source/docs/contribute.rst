@@ -32,7 +32,7 @@ new contributors.
 Specific areas we could use help and expertise with:
 
 * Support for mobile and touch platforms
-* Maintainance of RBokeh and other language bindings
+* Maintenance of RBokeh and other language bindings
 * Windows support and testing
 * Visual design and styling
 * WebGL performance optimization

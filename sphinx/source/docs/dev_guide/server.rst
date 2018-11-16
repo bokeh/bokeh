@@ -34,7 +34,7 @@ Applications are represented by the ``Application`` class. This class is
 contains list of ``Handler`` instances and optional metadata. Handlers
 can be created in lots of ways; from JSON files, from Python functions, from
 Python files, and perhaps many more ways in the future.  The optional metadata
-is available as a json blob via the ``/metadata`` endpoint.  For example,
+is available as a JSON blob via the ``/metadata`` endpoint.  For example,
 creating a ``Application`` instance with::
 
     Application(metadata=dict(hi="hi", there="there"))

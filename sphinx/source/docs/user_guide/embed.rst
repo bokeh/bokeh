@@ -67,7 +67,7 @@ JSON Items
 ~~~~~~~~~~
 
 Bokeh can also supply a block of JSON that can be easily consumed by a BokehJS
-to render standalone Bokeh content in a specifed div. The |json_item| function
+to render standalone Bokeh content in a specified div. The |json_item| function
 accepts a Bokeh Model (e.g. a Plot), and optionally a target ID that identifies
 a div to render into:
 
@@ -97,7 +97,7 @@ It is also possible to omit the target id when calling |json_item|
 
         item_text = json.dumps(json_item(p)) # no target_id given
 
-Then the target id can be controlled on teh JavaScript side:
+Then the target id can be controlled on the JavaScript side:
 
 .. code-block:: javascript
 
@@ -363,8 +363,8 @@ Autoload Scripts
 
 A final way to embed standalone documents is the |autoload_static| function.
 This function with provide a  ``<script>`` tag that will replace itself with
-a Bokeh plot, wherever the tag happens to be located. The script will also check f
-or BokehJS and load it, if necessary. Using this function it is possible to
+a Bokeh plot, wherever the tag happens to be located. The script will also check
+for BokehJS and load it, if necessary. Using this function it is possible to
 embed a plot by placing this script tag alone in your document.
 
 This function takes a Bokeh model (e.g. a plot) that you want to display, a
@@ -494,8 +494,8 @@ Standard template
 -----------------
 
 Bokeh also provides a standard Jinja template that can be useful for quickly
-embedding differnet document roots flexibly by extending the "base" template.
-This is especially useful for embedding individal components of a Bokeh app
+embedding different document roots flexibly by extending the "base" template.
+This is especially useful for embedding individual components of a Bokeh app
 in a non-Bokeh layout (e.g. Bootstrap, etc.).
 
 Below is a minimal example. Assuming that the application creates two roots

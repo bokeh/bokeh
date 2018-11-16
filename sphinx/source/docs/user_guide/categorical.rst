@@ -71,7 +71,7 @@ Since Bokeh displays bars in the order the factors are given for the range,
 "sorting" bars in a bar plot is identical to sorting the factors for the range.
 
 In the example below the fruit factors are sorted in increasing order according
-to their corresponing counts, causing the bars to be sorted:
+to their corresponding counts, causing the bars to be sorted:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_sorted.py
     :source-position: above

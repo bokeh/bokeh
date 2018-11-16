@@ -16,7 +16,7 @@ Python script:
 .. literalinclude:: ../examples/extensions_example_widget.py
    :language: python
 
-Coffeescript for ion range slider:
+CoffeeScript for ion range slider:
 
 .. literalinclude:: ../examples/extensions_ion_range_slider.coffee
    :language: coffee

@@ -65,7 +65,7 @@ locally or deployed to the docs site).
 ``BOKEH_DOCS_VERSION``
 ~~~~~~~~~~~~~~~~~~~~~~
 What version of Bokeh to show when building sphinx docs locally. Useful if it
-is necessay to re-deploy old docs with hotfixes.
+is necessary to re-deploy old docs with hotfixes.
 
 ``BOKEH_DOCS_CSS_SERVER``
 -------------------------
