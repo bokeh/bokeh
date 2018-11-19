@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
 from ...core.enums import ButtonType
 from ...core.has_props import abstract, HasProps
 from ...core.properties import Bool, Enum, Instance, List, Override, String, Tuple, Either
-from ...events import ButtonClick
+from ...events import ButtonClick, MenuItemClick
 
 from ..callbacks import Callback
 
@@ -165,10 +165,12 @@ class Dropdown(AbstractButton):
 
         '''
         self.on_event(ButtonClick, handler)
+        self.on_event(MenuItemClick, handler)
 
     def js_on_click(self, handler):
         ''' Set up a JavaScript handler for button or menu item clicks. '''
         self.js_on_event(ButtonClick, handler)
+        self.js_on_event(MenuItemClick, handler)
 
 #-----------------------------------------------------------------------------
 # Private API
