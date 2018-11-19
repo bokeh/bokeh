@@ -1,5 +1,5 @@
 from bokeh.io import save
-from bokeh.models import ColumnDataSource
+from bokeh.models import ColumnDataSource, NumberFormatter, StringFormatter
 from bokeh.models.widgets import DataTable, TableColumn, HTMLTemplateFormatter
 
 from bokeh.sampledata.periodic_table import elements
@@ -14,8 +14,10 @@ html_image_template = """
 </a>
 """
 columns = [
-    TableColumn(field='atomic number', title='Atomic Number'),
-    TableColumn(field='symbol', title='Symbol'),
+    TableColumn(field='atomic number', title='Atomic Number',
+                formatter=NumberFormatter(text_align="right")),
+    TableColumn(field='symbol', title='Symbol',
+                formatter=StringFormatter(text_align="center")),
     TableColumn(field='name', title='Name',
                 formatter=HTMLTemplateFormatter(template=html_font_template)),
     TableColumn(field='name_lower', title='Image',
