@@ -91,8 +91,8 @@ example of this in :bokeh-tree:`examples/models/file/legends.py`:
 Explicit Index
 ~~~~~~~~~~~~~~
 
-Other times, it may be useful to expicitly tell Bokeh which index into a
-ColumnDataSource should be used when drawing a legend item. In particuar,
+Other times, it may be useful to explicitly tell Bokeh which index into a
+``ColumnDataSource`` should be used when drawing a legend item. In particular,
 if you want to draw multiple legend items for "multi" glyphs such as
 ``MultiLine`` or ``Patches``. This is accomplished by specifying an ``index``
 for the legend item as shown below.

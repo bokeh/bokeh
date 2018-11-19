@@ -9,8 +9,8 @@ and event handling in a browser. The Bokeh Python library, and libraries for
 :ref:`userguide_quickstart_other_languages` such as R, Scala, and Julia, are
 primarily a means to interact with BokehJS conveniently at a high level,
 without needing to explicitly worry about JavaScript or web development.
-However, BokehJS hasits own API, and it is possible to do pure JavaScript
-development using BokehJSdirectly. Additionally, :ref:`userguide_extensions`
+However, BokehJS has its own API, and it is possible to do pure JavaScript
+development using BokehJS directly. Additionally, :ref:`userguide_extensions`
 with custom models typically requires interacting with BokehJS directly as well.
 
 .. warning::
@@ -36,7 +36,7 @@ answering questions about BokehJS models, even though it is presented
 from a Python perspective.
 
 Unlike the hierarchical organization of the Python library, all of the
-JavaScript models are all in one flat ``Bokeh`` module.  Typically any
+JavaScript models are all in one flat ``Bokeh`` module. Typically any
 Python ``ClassName`` is available as ``Bokeh.ClassName`` from JavaScript.
 The complete list of models available from JavaScript can be seen at
 :bokeh-tree:`bokehjs/src/lib/api/models.ts`.
@@ -298,8 +298,8 @@ the following optional keys:
 :``palette``: *Palette | Array<Color>* --- a named palette, or list of colors to colormap the values
 :``axis_number_format``: *string* --- a format string to use for axis ticks
 
-By default, plots created ``Bokeh.Charts.bar`` automatically add a toroltip
-and hover policy. Here is some example code that demonstrates the ``ba``
+By default, plots created ``Bokeh.Charts.bar`` automatically add a tooltip
+and hover policy. Here is some example code that demonstrates the ``bar``
 function, with the plot it generates shown below:
 
 .. code-block:: javascript

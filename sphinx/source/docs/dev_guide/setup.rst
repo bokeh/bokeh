@@ -36,7 +36,7 @@ Conda
 ~~~~~
 
 Developing Bokeh requires installing some software packages that are not
-Python packages (e.g. Selenium, nodejs, etc.). To make this more manageable,
+Python packages (e.g. Selenium, NodeJS, etc.). To make this more manageable,
 core developers rely heavily on the `conda package manager`_ for the free
 `Anaconda`_ Python distribution. However, ``conda`` can also install
 non-Python package dependencies, which helps streamline Bokeh development

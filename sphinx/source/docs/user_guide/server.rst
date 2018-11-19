@@ -208,7 +208,7 @@ Notice that we have not specified an output or connection method anywhere in
 this code. It is a simple script that creates and updates objects. The
 flexibility of the ``bokeh`` command line tool means that we can defer
 output options until the end. We could, e.g., run ``bokeh json myapp.py`` to
-get a JSON serialized version of the the application. But in this case,
+get a JSON serialized version of the application. But in this case,
 we would like to run the app on a Bokeh server, so we execute:
 
 .. code-block:: sh
@@ -274,7 +274,7 @@ The full set of files that Bokeh server knows about is:
 
 The optional components are
 
-* A ``server_lifecycle.py`` file that allows optional callbacks to be triggered at different stages of application creation, as descriped in :ref:`userguide_server_applications_lifecycle`.
+* A ``server_lifecycle.py`` file that allows optional callbacks to be triggered at different stages of application creation, as described in :ref:`userguide_server_applications_lifecycle`.
 
 * A ``static`` subdirectory that can be used to serve static resources associated with this application.
 
@@ -542,7 +542,7 @@ locked session callback on a different update rate.
     def locked_update(i):
         source.stream(dict(x=[source.data['x'][-1]+1], y=[i], color=["blue"]))
 
-    # this unclocked callback will not prevent other session callbacks from
+    # this unlocked callback will not prevent other session callbacks from
     # executing while it is in flight
     @gen.coroutine
     @without_document_lock
@@ -717,6 +717,7 @@ with it. To share it with other people who are able to install the required
 python stack, we can share the application with them, and let them run it locally
 themselves in the same manner. However, we might also want to deploy the application
 in a way that other people can access it as a service:
+
 * without having to install all of the prerequisites
 * without needing to have the source code
 * like any other webpage
@@ -771,7 +772,7 @@ Bokeh server were running on the local machine.
 
 The second, slightly more complicated case occurs when there is a gateway
 between the server and the local machine.  In that situation a reverse tunnel
-must be estabished from the server to the gateway. Additionally the tunnel
+must be established from the server to the gateway. Additionally the tunnel
 from the local machine will also point to the gateway.
 
 Issue the following commands on the **remote host** where the Bokeh server
@@ -822,7 +823,7 @@ Nginx
 '''''
 
 One very common HTTP and reverse-proxying server is Nginx. A sample
-server confuguration block is shown below:
+server configuration block is shown below:
 
 .. code-block:: nginx
 
@@ -877,7 +878,7 @@ to a global static directory during your deployment process. See
 Apache
 ''''''
 
-Another common HTTP server and proxy is Apache. Here is sample confuguration
+Another common HTTP server and proxy is Apache. Here is sample configuration
 for running a Bokeh server behind Apache:
 
 .. code-block:: apache

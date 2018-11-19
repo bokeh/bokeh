@@ -67,7 +67,7 @@ targets or the Bokeh makefile are:
 
 ``serve``
     Start a server to serve the docs open a web browser to display. Note
-    that due the the JavaScript files involved, starting a real server is
+    that due to the JavaScript files involved, starting a real server is
     necessary to view many portions of the docs fully.
 
 For example, clean the docs build directory, run the follow command at the
@@ -168,7 +168,7 @@ Models and Properties
 Bokeh's Model system supports its own system for providing detailed
 documentation for individual properties. These are given as a ``help``
 argument to the property type, which is interpreted as standard Sphinx
-ReST when the reference documenation is built. For example:
+ReST when the reference documentation is built. For example:
 
 .. code-block:: python
 

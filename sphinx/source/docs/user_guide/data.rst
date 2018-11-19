@@ -27,7 +27,7 @@ to the ``circle`` plotting method (see :ref:`userguide_plotting` for more exampl
 
 When you pass in data like this, Bokeh works behind the scenes to make a
 |ColumnDataSource| for you. But learning to create and use the |ColumnDataSource|
-will enable you access more advanced capabilites, such as streaming data,
+will enable you access more advanced capabilities, such as streaming data,
 sharing data between plots, and filtering data.
 
 ColumnDataSource
@@ -110,8 +110,8 @@ Pandas GroupBy
 
 If a ``GroupBy`` object is used, the CDS will have columns corresponding to the result of
 calling ``group.describe()``. The ``describe`` method generates columns for statistical measures
-such as ``mean`` and ``count`` for all the non-grouped orginal columns. The resulting ``DataFrame``
-has ``MultiIndex`` columns with the original column name and the columputed measure, so it
+such as ``mean`` and ``count`` for all the non-grouped original columns. The resulting ``DataFrame``
+has ``MultiIndex`` columns with the original column name and the computed measure, so it
 will be flattened using the aforementioned scheme. For example, if a
 ``DataFrame`` has columns ``'year'`` and ``'mpg'``. Then passing ``df.groupby('year')``
 to a CDS will result in columns such as ``'mpg_mean'``
@@ -220,7 +220,7 @@ CustomJSTransform
 ~~~~~~~~~~~~~~~~~
 
 In addition to built-in transforms above, there is also a ``CustomJSTransform``
-that allows for specifying arbitary JavaScript code to perform a tranform step
+that allows for specifying arbitrary JavaScript code to perform a transform step
 on ColumnDataSource data. Typically, the ``v_func`` (for "vectorized" function)
 is provided. (Less commonly a scalar equivalent ``func`` may also be needed).
 The ``v_func`` code should expect an array of inputs in the variable ``xs``, and
@@ -359,12 +359,12 @@ AjaxDataSource
 Bokeh server applications make it simple to update and stream data to data
 sources, but sometimes it is desirable to have similar functionality in
 standalone documents. The :class:`~bokeh.models.sources.AjaxDataSource`
-provides this cabability.
+provides this capability.
 
-The ``AjaxDataSource`` is configured with a URL to a REST endoint and a
+The ``AjaxDataSource`` is configured with a URL to a REST endpoint and a
 polling interval. In the browser, the data source will request data from the
 endpoint at the specified interval and update the data locally. Existing
-data may either be replaced entirely, or appened to (up to a configurable
+data may either be replaced entirely, or appended to (up to a configurable
 ``max_size``). The endpoint that is supplied should return a JSON dict that
 matches the standard ``ColumnDataSource`` format:
 
