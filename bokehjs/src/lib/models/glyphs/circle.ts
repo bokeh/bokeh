@@ -44,6 +44,18 @@ export class CircleView extends XYGlyphView {
             this.sradius = this.sdist(this.renderer.yscale, this._y, this._radius)
             break
           }
+          case "max": {
+            const sradius_x = this.sdist(this.renderer.xscale, this._x, this._radius)
+            const sradius_y = this.sdist(this.renderer.yscale, this._y, this._radius)
+            this.sradius = map(sradius_x, (s, i) => Math.max(s, sradius_y[i]))
+            break
+          }
+          case "min": {
+            const sradius_x = this.sdist(this.renderer.xscale, this._x, this._radius)
+            const sradius_y = this.sdist(this.renderer.yscale, this._y, this._radius)
+            this.sradius = map(sradius_x, (s, i) => Math.min(s, sradius_y[i]))
+            break
+          }
         }
       } else {
         this.sradius = this._radius
@@ -257,14 +269,14 @@ export namespace Circle {
     angle: AngleSpec
     size: DistanceSpec
     radius: DistanceSpec | null
-    radius_dimension: "x" | "y"
+    radius_dimension: "x" | "y" | "max" | "min"
   }
 
   export interface Props extends XYGlyph.Props {
     angle: p.AngleSpec
     size: p.DistanceSpec
     radius: p.DistanceSpec
-    radius_dimension: p.Property<"x" | "y">
+    radius_dimension: p.Property<"x" | "y" | "max" | "min">
   }
 
   export interface Visuals extends XYGlyph.Visuals {

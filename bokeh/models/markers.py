@@ -155,12 +155,15 @@ class Circle(Marker):
 
     """)
 
-    radius_dimension = Enum(enumeration('x', 'y'), help="""
+    radius_dimension = Enum(enumeration('x', 'y', 'max', 'min'), help="""
     What dimension to measure circle radii along.
 
     When the data space aspect ratio is not 1-1, then the size of the drawn
     circles depends on what direction is used to measure the "distance" of
     the radius. This property allows that direction to be controlled.
+
+    Setting this dimension to 'max' will calculate the radius on both the x
+    and y dimensions and use the maximum of the two, 'min' selects the minimum.
     """)
 
 class CircleCross(Marker):
