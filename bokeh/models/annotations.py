@@ -71,6 +71,20 @@ __all__ = (
 )
 
 #-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+# This only exists to prevent a circular import.
+def _DEFAULT_ARROW():
+    from .arrow_heads import OpenHead
+    return OpenHead()
+
+# This only exists to prevent a circular import.
+def _DEFAULT_TEE():
+    from .arrow_heads import TeeHead
+    return TeeHead(level="underlay", size=10)
+
+#-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
@@ -1108,20 +1122,6 @@ class ToolbarPanel(Annotation): # TODO: this shouldn't be an annotation
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
-# This only exists to prevent a circular import.
-def _DEFAULT_ARROW():
-    from .arrow_heads import OpenHead
-    return OpenHead()
-
-# This only exists to prevent a circular import.
-def _DEFAULT_TEE():
-    from .arrow_heads import TeeHead
-    return TeeHead(level="underlay", size=10)
 
 #-----------------------------------------------------------------------------
 # Code

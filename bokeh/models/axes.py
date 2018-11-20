@@ -44,7 +44,7 @@ __all__ = (
     'Axis',
     'CategoricalAxis',
     'ContinuousAxis',
-    'DateTimeAxis',
+    'DatetimeAxis',
     'LinearAxis',
     'LogAxis',
     'MercatorAxis',
