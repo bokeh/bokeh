@@ -1,17 +1,58 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Models for mapping values from one range or space to another in the client.
 
 Mappers (as opposed to scales) are not presumed to be invertible.
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import warnings
 
+# External imports
+
+# Bokeh imports
 from .. import palettes
 from ..core.has_props import abstract
 from ..core.properties import Color, Either, Enum, Float, Int, MarkerType, Seq, String, Tuple
 from ..core.enums import Palette
 from .transforms import Transform
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'Mapper',
+    'ColorMapper',
+    'CategoricalMapper',
+    'CategoricalColorMapper',
+    'CategoricalMarkerMapper',
+    'ContinuousColorMapper',
+    'LinearColorMapper',
+    'LogColorMapper',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 @abstract
 class Mapper(Transform):
@@ -178,3 +219,15 @@ class LogColorMapper(ContinuousColorMapper):
         non-negative.
 
     '''
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

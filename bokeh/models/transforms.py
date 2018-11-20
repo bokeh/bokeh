@@ -1,11 +1,33 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Represent transformations of data to happen on the client (browser) side.
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from textwrap import dedent
 from types import FunctionType
 
+# External imports
+
+# Bokeh imports
 from ..core.enums import StepMode, JitterRandomDistribution
 from ..core.has_props import abstract
 from ..core.properties import Bool, Dict, Either, Enum, Float, Instance, Seq, String, AnyRef
@@ -15,6 +37,24 @@ from ..util.dependencies import import_required
 from ..util.future import get_param_info, signature
 
 from .sources import ColumnarDataSource
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'CustomJSTransform',
+    'Dodge',
+    'Interpolator',
+    'Jitter',
+    'LinearInterpolator',
+    'StepInterpolator',
+    'Transform',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 @abstract
 class Transform(Model):
@@ -323,3 +363,15 @@ class StepInterpolator(Interpolator):
     * ``before``: Assume the y-value associated with the nearest x-value which is greater than the point to transform.
     * ``center``: Assume the y-value associated with the nearest x-value to the point to transform.
     """)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

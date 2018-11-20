@@ -1,11 +1,32 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Renderers for various kinds of annotations that can be added to
 Bokeh plots
 
 '''
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
 from six import string_types
 
+# Bokeh imports
 from ..core.enums import (AngleUnits, Dimension, FontStyle, LegendClickPolicy, LegendLocation,
                           Orientation, RenderMode, SpatialUnits, VerticalAlign, TextAlign,
                           TooltipAttachment)
@@ -24,6 +45,34 @@ from .mappers import ContinuousColorMapper
 from .renderers import GlyphRenderer, Renderer
 from .sources import ColumnDataSource, DataSource
 from .tickers import BasicTicker, ContinuousTicker
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'Annotation',
+    'Arrow',
+    'Band',
+    'BoxAnnotation',
+    'ColorBar',
+    'Label',
+    'LabelSet',
+    'Legend',
+    'LegendItem',
+    'PolyAnnotation',
+    'Slope',
+    'Span',
+    'TextAnnotation',
+    'Title',
+    'Tooltip',
+    'ToolbarPanel',
+    'Whisker',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 @abstract
 class Annotation(Renderer):
@@ -370,11 +419,6 @@ class ColorBar(Annotation):
     background_fill_color = Override(default="#ffffff")
 
     background_fill_alpha = Override(default=0.95)
-
-# This only exists to prevent a circular import.
-def _DEFAULT_ARROW():
-    from .arrow_heads import OpenHead
-    return OpenHead()
 
 class Arrow(Annotation):
     ''' Render an arrow as an annotation.
@@ -1005,11 +1049,6 @@ class Tooltip(Annotation):
     Whether tooltip's arrow should be shown.
     """)
 
-# This only exists to prevent a circular import.
-def _DEFAULT_TEE():
-    from .arrow_heads import TeeHead
-    return TeeHead(level="underlay", size=10)
-
 class Whisker(Annotation):
     ''' Render a whisker along a dimension.
 
@@ -1065,3 +1104,25 @@ class ToolbarPanel(Annotation): # TODO: this shouldn't be an annotation
     toolbar = Instance(".models.tools.Toolbar", help="""
     A toolbar to display.
     """)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+# This only exists to prevent a circular import.
+def _DEFAULT_ARROW():
+    from .arrow_heads import OpenHead
+    return OpenHead()
+
+# This only exists to prevent a circular import.
+def _DEFAULT_TEE():
+    from .arrow_heads import TeeHead
+    return TeeHead(level="underlay", size=10)
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 # -*- coding: utf-8 -*-
 ''' Display a variety of visual shapes whose attributes can be associated
 with data columns from ``ColumnDataSources``.
@@ -37,8 +44,24 @@ All these glyphs share a minimal common interface through their base class
     :members:
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from ..core.enums import Anchor, Direction, StepMode
 from ..core.has_props import abstract
 from ..core.properties import (AngleSpec, Bool, DistanceSpec, Enum, Float, String,
@@ -47,6 +70,44 @@ from ..core.property_mixins import FillProps, LineProps, ScalarFillProps, Scalar
 from ..model import Model
 
 from .mappers import ColorMapper, LinearColorMapper
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'AnnularWedge',
+    'Annulus',
+    'Arc',
+    'Bezier',
+    'Ellipse',
+    'Glyph',
+    'HBar',
+    'HexTile',
+    'Image',
+    'ImageRGBA',
+    'ImageURL',
+    'Line',
+    'MultiLine',
+    'MultiPolygons',
+    'Oval',
+    'Patch',
+    'Patches',
+    'Quad',
+    'Quadratic',
+    'Ray',
+    'Rect',
+    'Segment',
+    'Step',
+    'Text',
+    'VBar',
+    'Wedge',
+    'XYGlyph',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 @abstract
 class Glyph(Model):
@@ -1135,6 +1196,18 @@ class Wedge(XYGlyph):
     fill_props = Include(FillProps, use_prefix=False, help="""
     The %s values for the wedges.
     """)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
 
 # XXX: allow `from bokeh.models.glyphs import *`
 from .markers import (Asterisk, Circle, CircleCross, CircleX, Cross, Dash,

@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Display a variety of simple scatter marker shapes whose attributes
 can be associated with data columns from ``ColumnDataSources``.
 
@@ -30,14 +37,58 @@ other markers do not.
     :members:
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from ..core.enums import enumeration
 from ..core.has_props import abstract
 from ..core.properties import AngleSpec, DistanceSpec, Enum, Include, MarkerSpec, NumberSpec, ScreenDistanceSpec
 from ..core.property_mixins import FillProps, LineProps
 
 from .glyphs import XYGlyph
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'Asterisk',
+    'Circle',
+    'CircleCross',
+    'CircleX',
+    'Cross',
+    'Dash',
+    'Diamond',
+    'DiamondCross',
+    'Hex',
+    'InvertedTriangle',
+    'Marker',
+    'Scatter',
+    'Square',
+    'SquareCross',
+    'SquareX',
+    'Triangle',
+    'X',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 @abstract
 class Marker(XYGlyph):
@@ -232,3 +283,15 @@ class X(Marker):
     ''' Render a 'X' cross markers. '''
 
     __example__ = "examples/reference/models/X.py"
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

@@ -1,12 +1,31 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Models (mostly base classes) for the various kinds of renderer
 types that Bokeh supports.
 
 '''
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from ..core.enums import RenderLevel
 from ..core.has_props import abstract
 from ..core.properties import Auto, Bool, Either, Enum, Float, Instance, Override, String
@@ -19,6 +38,27 @@ from .glyphs import Glyph, Circle, MultiLine
 from .graphs import LayoutProvider, GraphHitTestPolicy, NodesOnly
 from .sources import ColumnDataSource, DataSource, RemoteSource, CDSView
 from .tiles import TileSource, WMTSTileSource
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'DataRenderer',
+    'GlyphRenderer',
+    'GraphRenderer',
+    'GuideRenderer',
+    'Renderer',
+    'TileRenderer',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 @abstract
 class Renderer(Model):
@@ -252,3 +292,11 @@ class GuideRenderer(Renderer):
                 self.plot.renderers.append(self)
 
     level = Override(default="overlay")
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

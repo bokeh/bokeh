@@ -1,7 +1,29 @@
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import warnings
 
+# External imports
+
+# Bokeh imports
 from ..core.has_props import abstract
 from ..core.properties import Any, Bool, ColumnData, Dict, Enum, Instance, Int, JSON, List, Seq, String
 from ..model import Model
@@ -14,6 +36,24 @@ from .filters import Filter
 from .selections import Selection, SelectionPolicy, UnionRenderers
 
 pd = import_optional('pandas')
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'AjaxDataSource',
+    'CDSView',
+    'ColumnarDataSource',
+    'ColumnDataSource',
+    'DataSource',
+    'GeoJSONDataSource',
+    'RemoteSource',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 @abstract
 class DataSource(Model):
@@ -630,14 +670,6 @@ class ColumnDataSource(ColumnarDataSource):
 
         self.data._patch(self.document, self, patches, setter)
 
-def _check_slice(s):
-    if (s.start is not None and s.stop is not None and s.start > s.stop):
-        raise ValueError("Patch slices must have start < end, got %s" % s)
-    if (s.start is not None and s.start < 0) or \
-       (s.stop  is not None and s.stop < 0) or \
-       (s.step  is not None and s.step < 0):
-        raise ValueError("Patch slices must have non-negative (start, stop, step) values, got %s" % s)
-
 class CDSView(Model):
     ''' A view into a ColumnDataSource that represents a row-wise subset.
 
@@ -753,3 +785,23 @@ class AjaxDataSource(RemoteSource):
         ajax_source.headers = { 'x-my-custom-header': 'some value' }
 
     """)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+def _check_slice(s):
+    if (s.start is not None and s.stop is not None and s.start > s.stop):
+        raise ValueError("Patch slices must have start < end, got %s" % s)
+    if (s.start is not None and s.start < 0) or \
+       (s.stop  is not None and s.stop < 0) or \
+       (s.step  is not None and s.step < 0):
+        raise ValueError("Patch slices must have non-negative (start, stop, step) values, got %s" % s)
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

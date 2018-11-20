@@ -1,8 +1,45 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from ..core.has_props import abstract
 from ..core.properties import Any, Dict, Either, Int, Seq, String
 from ..model import Model
 from ..models.sources import ColumnDataSource
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'EdgesAndLinkedNodes',
+    'GraphHitTestPolicy',
+    'LayoutProvider',
+    'NodesAndLinkedEdges',
+    'NodesOnly',
+    'StaticLayoutProvider',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 @abstract
 class LayoutProvider(Model):
@@ -159,3 +196,11 @@ class EdgesAndLinkedNodes(GraphHitTestPolicy):
     '''
 
     pass
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
