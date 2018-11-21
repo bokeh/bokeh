@@ -23,7 +23,7 @@ class Transform(Model):
 
     JavaScript implementations should implement the following methods:
 
-    .. code-block: coffeescript
+    .. code-block:: coffeescript
 
         compute: (x) ->
             # compute the transform of a single value
@@ -263,13 +263,13 @@ class Interpolator(Transform):
 
     * A literal sequence of values:
 
-    .. code-block: python
+    .. code-block:: python
 
         interp = Interpolator(x=[1, 2, 3, 4, 5], y=[2, 5, 10, 12, 16])
 
     * or a pair of columns defined in a ``ColumnDataSource`` object:
 
-    .. code-block: python
+    .. code-block:: python
 
         interp = Interpolator(x="year", y="earnings", data=jewlery_prices))
 

@@ -75,8 +75,11 @@ class Range1d(Range):
 
     Examples:
 
+    .. code-block:: python
+
         Range1d(0, 1, bounds='auto')  # Auto-bounded to 0 and 1 (Default behavior)
         Range1d(start=0, end=1, bounds=(0, None))  # Maximum is unbounded, minimum bounded to 0
+
     """)
 
     min_interval = Either(Float, TimeDelta, default=None, help="""
@@ -270,7 +273,7 @@ class FactorRange(Range):
     Factors may have 1, 2, or 3 levels. For 1-level factors, each factor is
     simply a string. For example:
 
-    .. code-block: python
+    .. code-block:: python
 
         FactorRange(factors=["sales", "marketing", "engineering"])
 

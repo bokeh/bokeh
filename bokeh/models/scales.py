@@ -13,7 +13,7 @@ class Scale(Transform):
 
     JavaScript implementations should implement the following methods:
 
-    .. code-block: coffeescript
+    .. code-block:: coffeescript
 
         compute: (x) ->
             # compute the transform of a single value

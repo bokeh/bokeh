@@ -34,7 +34,7 @@ class Expression(Model):
 
     JavaScript implementations should implement the following methods:
 
-    .. code-block: coffeescript
+    .. code-block:: coffeescript
 
         v_compute: (source) ->
             # compute an array of values
