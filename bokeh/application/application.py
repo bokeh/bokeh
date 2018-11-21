@@ -78,7 +78,7 @@ class Application(object):
                 The URL is taken from the first one only.
 
         Keyword Args:
-            metadata (dict): abitrary user-supplied JSON data to make available
+            metadata (dict): arbitrary user-supplied JSON data to make available
                 with the application.
 
                 The server will provide a URL ``http://applicationurl/metadata``
@@ -251,7 +251,7 @@ class ServerContext(with_metaclass(ABCMeta)):
 
     @abstractproperty
     def sessions(self):
-        ''' SessionContext instances belonging to this application.
+        ''' ``SessionContext`` instances belonging to this application.
 
         *Subclasses must implement this method.*
 

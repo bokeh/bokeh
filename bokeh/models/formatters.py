@@ -55,7 +55,7 @@ class BasicTickFormatter(TickFormatter):
     """)
 
 class MercatorTickFormatter(BasicTickFormatter):
-    ''' TickFormatter for values in WebMercator units.
+    ''' A ``TickFormatter`` for values in WebMercator units.
 
     Some map plot types internally use WebMercator to describe coordinates,
     plot bounds, etc. These units are not very human-friendly. This tick
@@ -77,7 +77,7 @@ class MercatorTickFormatter(BasicTickFormatter):
     should be `"lat"``.
 
     In order to prevent hard to debug errors, there is no default value for
-    dimension. Using an un-configured MercatorTickFormatter will result in
+    dimension. Using an un-configured ``MercatorTickFormatter`` will result in
     a validation error and a JavaScript console error.
     """)
 
@@ -252,7 +252,7 @@ class FuncTickFormatter(TickFormatter):
 
     @classmethod
     def from_py_func(cls, func):
-        ''' Create a FuncTickFormatter instance from a Python function. The
+        ''' Create a ``FuncTickFormatter`` instance from a Python function. The
         function is translated to JavaScript using PScript. The variable
         ``tick`` will contain the unformatted tick value and can be expected to
         be present in the function namespace at render time.
@@ -267,7 +267,7 @@ class FuncTickFormatter(TickFormatter):
             """
 
         The python function must have no positional arguments. It's
-        possible to pass Bokeh models (e.g. a ColumnDataSource) as keyword
+        possible to pass Bokeh models (e.g. a ``ColumnDataSource``) as keyword
         arguments to the function.
 
         '''

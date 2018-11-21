@@ -220,7 +220,7 @@ class BokehJSONEncoder(json.JSONEncoder):
             return super(BokehJSONEncoder, self).default(obj)
 
     def default(self, obj):
-        ''' The required ``default`` method for JSONEncoder subclasses.
+        ''' The required ``default`` method for ``JSONEncoder`` subclasses.
 
         Args:
             obj (obj) :

@@ -83,7 +83,7 @@ __all__ = (
 class PropertyDescriptorFactory(object):
     ''' Base class for all Bokeh properties.
 
-    A Bokeh property really consist of two parts: the familar "property"
+    A Bokeh property really consist of two parts: the familiar "property"
     portion, such as ``Int``, ``String``, etc., as well as an associated
     Python descriptor that delegates attribute access (e.g. ``range.start``)
     to the property instance.

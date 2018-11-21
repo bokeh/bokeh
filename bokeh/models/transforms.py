@@ -48,11 +48,11 @@ class CustomJSTransform(Transform):
 
     @classmethod
     def from_py_func(cls, func, v_func):
-        ''' Create a CustomJSTransform instance from a pair of Python
+        ''' Create a ``CustomJSTransform`` instance from a pair of Python
         functions. The function is translated to JavaScript using PScript.
 
         The python functions must have no positional arguments. It's
-        possible to pass Bokeh models (e.g. a ColumnDataSource) as keyword
+        possible to pass Bokeh models (e.g. a ``ColumnDataSource``) as keyword
         arguments to the functions.
 
         The ``func`` function namespace will contain the variable ``x`` (the
@@ -125,7 +125,7 @@ class CustomJSTransform(Transform):
 
     @classmethod
     def from_coffeescript(cls, func, v_func, args={}):
-        ''' Create a CustomJSTransform instance from a pair of CoffeeScript
+        ''' Create a ``CustomJSTransform`` instance from a pair of CoffeeScript
         snippets. The function bodies are translated to JavaScript functions
         using node and therefore require return statements.
 
@@ -257,7 +257,7 @@ class Interpolator(Transform):
     between specified (x, y) pairs of data.  As an example, if two control
     point pairs were provided to the interpolator, a linear interpolaction
     at a specific value of 'x' would result in the value of 'y' which existed
-    on the line conneting the two control points.
+    on the line connecting the two control points.
 
     The control point pairs for the interpolators can be specified through either
 
@@ -267,7 +267,7 @@ class Interpolator(Transform):
 
         interp = Interpolator(x=[1, 2, 3, 4, 5], y=[2, 5, 10, 12, 16])
 
-    * or a pair of columns defined in a `ColumnDataSource` object:
+    * or a pair of columns defined in a ``ColumnDataSource`` object:
 
     .. code-block: python
 
@@ -275,13 +275,13 @@ class Interpolator(Transform):
 
 
     This is the base class and is not intended to end use.  Please see the
-    documentation for the final derived classes (Jitter, LineraInterpolator,
-    StepInterpolator) for mor information on their specific methods of
+    documentation for the final derived classes (``Jitter``, ``LineraInterpolator``,
+    ``StepInterpolator``) for more information on their specific methods of
     interpolation.
 
     '''
     x = Either(String, Seq(Float), help="""
-    Independant coordiante denoting the location of a point.
+    Independent coordinate denoting the location of a point.
     """)
 
     y = Either(String, Seq(Float), help="""

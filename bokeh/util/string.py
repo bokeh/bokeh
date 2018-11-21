@@ -63,7 +63,7 @@ def escape(s, quote=("'", '"')):
     return s
 
 def indent(text, n=2, ch=" "):
-    ''' Indent all the lines in a given block of text by a specified ammount.
+    ''' Indent all the lines in a given block of text by a specified amount.
 
     Args:
         text (str) :

@@ -1,4 +1,4 @@
-''' Provide definitions for Bokeh WebSocket prototol versions.
+''' Provide definitions for Bokeh WebSocket protocol versions.
 
 A *protocol specification* is a sequence of tuples of the form:
 

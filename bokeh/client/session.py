@@ -108,7 +108,7 @@ def pull_session(session_id=None, url='default', io_loop=None, arguments=None):
                 can also be `"default"` which will connect to the default app URL
 
         io_loop (``tornado.ioloop.IOLoop``, optional) :
-            The IOLoop to use for the websocket
+            The ``IOLoop`` to use for the websocket
 
         arguments (dict[str, str], optional) :
             A dictionary of key/values to be passed as HTTP request arguments
@@ -120,7 +120,7 @@ def pull_session(session_id=None, url='default', io_loop=None, arguments=None):
 
     Returns:
         ClientSession :
-            A new ClientSession connected to the server
+            A new ``ClientSession`` connected to the server
 
     '''
 
@@ -222,12 +222,12 @@ class ClientSession(object):
     ''' Represents a websocket connection to a server-side session.
 
     Each server session stores a Document, which is kept in sync with the
-    corresponding Document for this ClientSession instance. Udates on either
-    side of the connection will automatically propagate to the other side, as
-    long as the connectiion is open.
+    corresponding Document for this ``ClientSession`` instance. Updates on
+    either side of the connection will automatically propagate to the other
+    side, as long as the connection is open.
 
     ClientSession objects can (and usually should) be used as a context manager
-    so that the sesssion is properly closed:
+    so that the session is properly closed:
 
     .. code-block:: python
 
@@ -236,7 +236,7 @@ class ClientSession(object):
             script = server_session(session_id=mysession.id, url=app_url)
             return render_template("embed.html", script=script, template="Flask")
 
-    If you do not use ClientSesssion in this way, it is up to you to ensure
+    If you do not use ``ClientSession`` in this way, it is up to you to ensure
     that ``session.close()`` is called.
 
     '''
@@ -340,7 +340,7 @@ class ClientSession(object):
         self._connection.force_roundtrip()
 
     def loop_until_closed(self, suppress_warning=False):
-        ''' Execute a blocking loop that runs and exectutes event callbacks
+        ''' Execute a blocking loop that runs and executes event callbacks
         until the connection is closed (e.g. by hitting Ctrl-C).
 
         While this method can be used to run Bokeh application code "outside"
@@ -495,7 +495,7 @@ The use of `session.loop_until_closed` and `push_session` to run Bokeh
 application code outside a Bokeh server is **HIGHLY DISCOURAGED** for any real
 use.
 
-Running application code outside a Bokeh server with bokeh.client in this way
+Running application code outside a Bokeh server with ``bokeh.client`` in this way
 has (and always will have) several intrinsic drawbacks:
 
 * Fast binary array transport is NOT available! Base64 fallback is much slower
@@ -503,7 +503,7 @@ has (and always will have) several intrinsic drawbacks:
 * Server *and* client process must be running at ALL TIMES for callbacks to work
 * App code run outside the Bokeh server is NOT SCALABLE behind a load balancer
 
-The bokeh.client API is recommended to use ONLY for testing, or for customizing
+The ``bokeh.client`` API is recommended to use ONLY for testing, or for customizing
 individual sessions running in a full Bokeh server, before passing on to viewers.
 
 For information about different ways of running apps in a Bokeh server, see:

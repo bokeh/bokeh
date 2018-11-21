@@ -82,11 +82,11 @@ class Range1d(Range):
     min_interval = Either(Float, TimeDelta, default=None, help="""
     The level that the range is allowed to zoom in, expressed as the
     minimum visible interval. If set to ``None`` (default), the minimum
-    interval is not bound. Can be a timedelta. """)
+    interval is not bound. Can be a ``TimeDelta``. """)
 
     max_interval = Either(Float, TimeDelta, default=None, help="""
     The level that the range is allowed to zoom out, expressed as the
-    maximum visible interval. Can be a timedelta. Note that ``bounds`` can
+    maximum visible interval. Can be a ``TimeDelta``. Note that ``bounds`` can
     impose an implicit constraint on the maximum interval as well. """)
 
     def __init__(self, *args, **kwargs):
@@ -159,7 +159,7 @@ class DataRange1d(DataRange):
 
     By default, the bounds will be None, allowing your plot to pan/zoom as far
     as you want. If bounds are 'auto' they will be computed to be the same as
-    the start and end of the DataRange1d.
+    the start and end of the ``DataRange1d``.
 
     Bounds are provided as a tuple of ``(min, max)`` so regardless of whether
     your range is increasing or decreasing, the first item should be the
@@ -327,7 +327,7 @@ class FactorRange(Range):
         FactorRange(factors=[["foo", "1'], ["foo", "2'], ["bar", "1"]])
 
     The top level groups correspond to ``"foo"` and ``"bar"``, and the
-    group padding will be applied between the factors``["foo", "2']`` and
+    group padding will be applied between the factors ``["foo", "2']`` and
     ``["bar", "1"]``
     """)
 
@@ -377,7 +377,7 @@ class FactorRange(Range):
 
     By default, the bounds will be None, allowing your plot to pan/zoom as far
     as you want. If bounds are 'auto' they will be computed to be the same as
-    the start and end of the FactorRange.
+    the start and end of the ``FactorRange``.
     """)
 
     min_interval = Float(default=None, help="""

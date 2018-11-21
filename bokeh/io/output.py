@@ -47,7 +47,7 @@ def output_file(filename, title="Bokeh Plot", mode="cdn", root_dir=None):
     '''Configure the default output state to generate output saved
     to a file when :func:`show` is called.
 
-    Does not change the current Document from curdoc(). File and notebook
+    Does not change the current ``Document`` from ``curdoc()``. File and notebook
     output may be active at the same time, so e.g., this does not clear the
     effects of ``output_notebook()``.
 

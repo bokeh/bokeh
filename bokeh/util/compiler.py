@@ -94,7 +94,7 @@ class AttrDict(dict):
         return self[key]
 
 class CompilationError(RuntimeError):
-    ''' A RuntimeError subclass for reporting JS compilation errors.
+    ''' A ``RuntimeError`` subclass for reporting JS compilation errors.
 
     '''
     def __init__(self, error):
@@ -217,7 +217,7 @@ class Inline(Implementation):
         self.file = file
 
 class CoffeeScript(Inline):
-    ''' An implementation for a Bokeh custom model in CoffeeSript.
+    ''' An implementation for a Bokeh custom model in CoffeeScript.
 
     Example:
 
@@ -241,7 +241,7 @@ class CoffeeScript(Inline):
         return "coffeescript"
 
 class TypeScript(Inline):
-    ''' An implementation for a Bokeh custom model in TypeSript
+    ''' An implementation for a Bokeh custom model in TypeScript
 
     Example:
 

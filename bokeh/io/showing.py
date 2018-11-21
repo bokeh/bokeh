@@ -63,8 +63,8 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
 
             In a Jupyter notebook, a Bokeh application or callable may also
             be passed. A callable will be turned into an Application using a
-            FunctionHandler. The application will be run and displayed inline
-            in the associated notebook output cell.
+            ``FunctionHandler``. The application will be run and displayed
+            inline in the associated notebook output cell.
 
         browser (str, optional) :
             Specify the browser to use to open output files(default: None)

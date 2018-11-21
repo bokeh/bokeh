@@ -56,7 +56,7 @@ class TileSource(Model):
     """)
 
 class MercatorTileSource(TileSource):
-    ''' A base class for Mercator tile services (e.g.``WMTSTileSource``).
+    ''' A base class for Mercator tile services (e.g. ``WMTSTileSource``).
 
     '''
 
@@ -82,19 +82,19 @@ class MercatorTileSource(TileSource):
     """)
 
 class TMSTileSource(MercatorTileSource):
-    ''' The TMSTileSource contains tile config info and provides urls for
-    tiles based on a templated url e.g. ``http://your.tms.server.host/{Z}/{X}/{Y}.png``.
-    The defining feature of TMS is the tile-origin in located at the bottom-left.
+    ''' Contains tile config info and provides urls for tiles based on a
+    templated url e.g. ``http://your.tms.server.host/{Z}/{X}/{Y}.png``. The
+    defining feature of TMS is the tile-origin in located at the bottom-left.
 
-    The TMSTileSource can also be helpful in implementing tile renderers for
+    ``TMSTileSource`` can also be helpful in implementing tile renderers for
     custom tile sets, including non-spatial datasets.
 
     '''
     pass
 
 class WMTSTileSource(MercatorTileSource):
-    ''' The ``WMTSTileSource`` behaves much like ``TMSTileSource`` but has its
-    tile-origin in the top-left.
+    ''' Behaves much like ``TMSTileSource`` but has its tile-origin in the
+    top-left.
 
     This is the most common used tile source for web mapping applications.
     Such companies as Google, MapQuest, Stamen, Esri, and OpenStreetMap provide
@@ -104,19 +104,20 @@ class WMTSTileSource(MercatorTileSource):
     pass
 
 class QUADKEYTileSource(MercatorTileSource):
-    ''' The QUADKEYTileSource has the same tile origin as the WMTSTileSource
-    but requests tiles using a `quadkey` argument instead of X, Y, Z e.g. ``http://your.quadkey.tile.host/{Q}.png``
+    ''' Has the same tile origin as the ``WMTSTileSource`` but requests tiles using
+    a `quadkey` argument instead of X, Y, Z e.g.
+    ``http://your.quadkey.tile.host/{Q}.png``
 
     '''
     pass
 
 class BBoxTileSource(MercatorTileSource):
-    ''' The BBoxTileSource has the same default tile origin as the
-    WMTSTileSource but requested tiles use a ``{XMIN}``, ``{YMIN}``,
-    ``{XMAX}``, ``{YMAX}`` e.g. ``http://your.custom.tile.service?bbox={XMIN},{YMIN},{XMAX},{YMAX}``.
+    ''' Has the same default tile origin as the ``WMTSTileSource`` but requested
+    tiles use a ``{XMIN}``, ``{YMIN}``, ``{XMAX}``, ``{YMAX}`` e.g.
+    ``http://your.custom.tile.service?bbox={XMIN},{YMIN},{XMAX},{YMAX}``.
 
     '''
 
     use_latlon = Bool(default=False, help="""
-    Flag which indicates option to output {XMIN},{YMIN},{XMAX},{YMAX} in meters or latitude and longitude.
+    Flag which indicates option to output ``{XMIN}``, ``{YMIN}``, ``{XMAX}``, ``{YMAX}`` in meters or latitude and longitude.
     """)

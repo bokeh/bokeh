@@ -628,7 +628,7 @@ class MultiLine(Glyph):
     """)
 
 class MultiPolygons(Glyph):
-    ''' Render several MultiPolygons.
+    ''' Render several MultiPolygon.
 
     Modeled on geoJSON - the data for the ``MultiPolygons`` glyph is
     different in that the vector of values is not a vector of scalars.
@@ -645,18 +645,18 @@ class MultiPolygons(Glyph):
     The x-coordinates for all the patches, given as a nested list.
 
     .. note::
-        Each item in MultiPolygons represents one MultiPolygon and each
-        MultiPolygon is comprised of n Polygons. Each Polygon is made of
-        one exterior ring optionally followed by m interior rings (holes).
+        Each item in ``MultiPolygons`` represents one MultiPolygon and each
+        MultiPolygon is comprised of ``n`` Polygons. Each Polygon is made of
+        one exterior ring optionally followed by ``m`` interior rings (holes).
     """)
 
     ys = NumberSpec(help="""
     The y-coordinates for all the patches, given as a "list of lists".
 
     .. note::
-        Each item in MultiPolygons represents one MultiPolygon and each
-        MultiPolygon is comprised of n Polygons. Each Polygon is made of
-        one exterior ring optionally followed by m interior rings (holes).
+        Each item in ``MultiPolygons`` represents one MultiPolygon and each
+        MultiPolygon is comprised of ``n`` Polygons. Each Polygon is made of
+        one exterior ring optionally followed by ``m`` interior rings (holes).
     """)
 
     line_props = Include(LineProps, use_prefix=False, help="""

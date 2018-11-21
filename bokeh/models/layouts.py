@@ -60,7 +60,7 @@ class LayoutDOM(Model):
 
     # List in order for in-place changes to trigger changes, ref: https://github.com/bokeh/bokeh/issues/6841
     css_classes = List(String, help="""
-    A list of css class names to add to this DOM element. Note: the class names are
+    A list of CSS class names to add to this DOM element. Note: the class names are
     simply added as-is, no other guarantees are provided.
 
     It is also permissible to assign from tuples, however these are adapted -- the

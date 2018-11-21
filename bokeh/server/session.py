@@ -135,11 +135,11 @@ class ServerSession(object):
         self._expiration_blocked_count -= 1
 
     def subscribe(self, connection):
-        """This should only be called by ServerConnection.subscribe_session or our book-keeping will be broken"""
+        """This should only be called by ``ServerConnection.subscribe_session`` or our book-keeping will be broken"""
         self._subscribed_connections.add(connection)
 
     def unsubscribe(self, connection):
-        """This should only be called by ServerConnection.unsubscribe_session or our book-keeping will be broken"""
+        """This should only be called by ``ServerConnection.unsubscribe_session`` or our book-keeping will be broken"""
         self._subscribed_connections.discard(connection)
         self._last_unsubscribe_time = current_time()
 

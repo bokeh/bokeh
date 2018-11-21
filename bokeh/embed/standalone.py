@@ -313,14 +313,14 @@ def file_html(models,
                                           template=template, template_variables=template_variables)
 
 def json_item(model, target=None, theme=FromCurdoc):
-    ''' Return a JSON block that can be used to embed standalone Bokeh conent.
+    ''' Return a JSON block that can be used to embed standalone Bokeh content.
 
     Args:
         model (Model) :
             The Bokeh object to embed
 
         target (string, optional)
-            A div id to embd the model into. If None, the target id must
+            A div id to embed the model into. If None, the target id must
             be supplied in the JavaScript call.
 
         theme (Theme, optional) :
@@ -355,7 +355,7 @@ def json_item(model, target=None, theme=FromCurdoc):
             .then(function(item) { Bokeh.embed.embed_item(item); })
         </script>
 
-    Alternatively, if is more convenient to suppluy the target div id directly
+    Alternatively, if is more convenient to supply the target div id directly
     in the page source, that is also possible. If `target_id` is omitted in the
     call to this function:
 

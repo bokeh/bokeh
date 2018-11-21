@@ -212,7 +212,7 @@ def enumeration(*values, **kwargs):
 
     return type(str("Enumeration"), (Enumeration,), attrs)()
 
-#: Specify an achor position on a box/frame
+#: Specify an anchor position on a box/frame
 Anchor = enumeration(
     "top_left",    "top_center",    "top_right",
     "center_left", "center",        "center_right",

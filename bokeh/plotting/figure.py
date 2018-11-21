@@ -816,22 +816,22 @@ Examples:
         so that hexagonal tiles are all regular (i.e. not "stretched") in
         screen space.
 
-        For more sophisicated use-cases, e.g. weighted binning or individually
+        For more sophisticated use-cases, e.g. weighted binning or individually
         scaling hex tiles, use :func:`hex_tile` directly, or consider a higher
         level library such as HoloViews.
 
         Args:
             x (array[float]) :
-                A NumPy array of x-coordinates to bin into haxagonal tiles.
+                A NumPy array of x-coordinates to bin into hexagonal tiles.
 
             y (array[float]) :
-                A NumPy array of y-coordinates to bin into haxagonal tiles
+                A NumPy array of y-coordinates to bin into hexagonal tiles
 
             size (float) :
                 The size of the hexagonal tiling to use. The size is defined as
                 distance from the center of a hexagon to a corner.
 
-                In case the apsect scaling is not 1-1, then specifically `size`
+                In case the aspect scaling is not 1-1, then specifically `size`
                 is the distance from the center to the "top" corner with the
                 `"pointytop"` orientation, and the distance from the center to
                 a "side" corner with the "flattop" orientation.
@@ -859,7 +859,7 @@ Examples:
 
                 When working with a plot with ``aspect_scale != 1``, this
                 parameter can be set to match the plot, in order to draw
-                regular hexagons (insted of "stretched" ones).
+                regular hexagons (instead of "stretched" ones).
 
                 This is roughly equivalent to binning in "screen space", and
                 it may be better to use axis-aligned rectangular bins when
@@ -870,7 +870,7 @@ Examples:
         Returns
             (Glyphrender, DataFrame)
                 A tuple with the ``HexTile`` renderer generated to display the
-                binning, and a Pandas DataFrame with columns ``q``, ``r``,
+                binning, and a Pandas ``DataFrame`` with columns ``q``, ``r``,
                 and ``count``, where ``q`` and ``r`` are `axial coordinates`_
                 for a tile, and ``count`` is the associated bin count.
 
@@ -1010,7 +1010,7 @@ Examples:
                 for the graph edges. An attempt will be made to convert the object to
                 :class:`~bokeh.models.sources.ColumnDataSource` if needed. If none is supplied, one is created
                 for the user automatically.
-            layout_provider (:class:`~bokeh.models.graphs.LayoutProvider`) : a LayoutProvider instance to
+            layout_provider (:class:`~bokeh.models.graphs.LayoutProvider`) : a ``LayoutProvider`` instance to
                 provide the graph coordinates in Cartesian space.
             **kwargs: :ref:`userguide_styling_line_properties` and :ref:`userguide_styling_fill_properties`
         '''

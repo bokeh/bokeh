@@ -46,7 +46,7 @@ class SessionCallback(object):
         raise NotImplementedError("_copy_with_changed_callback")
 
 class NextTickCallback(SessionCallback):
-    ''' Represent a callback to execute on the next IOLoop "tick".
+    ''' Represent a callback to execute on the next ``IOLoop`` "tick".
 
     '''
     def __init__(self, document, callback, id=None):
@@ -67,7 +67,7 @@ class NextTickCallback(SessionCallback):
         return NextTickCallback(self._document, new_callback, self._id)
 
 class PeriodicCallback(SessionCallback):
-    ''' Represent a callback to execute periodically on the IOLoop at a
+    ''' Represent a callback to execute periodically on the ``IOLoop`` at a
     specified periodic time interval.
 
     '''
@@ -100,7 +100,7 @@ class PeriodicCallback(SessionCallback):
         return PeriodicCallback(self._document, new_callback, self._period, self._id)
 
 class TimeoutCallback(SessionCallback):
-    ''' Represent a callback to execute once on the IOLoop after a specifeed
+    ''' Represent a callback to execute once on the ``IOLoop`` after a specified
     time interval passes.
 
     '''

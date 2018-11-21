@@ -384,7 +384,7 @@ class Property(PropertyDescriptorFactory):
         Args:
             fn (callable) :
                 A function accepting ``(obj, value)`` that returns True if the value
-                passes the assertion, or False othwise
+                passes the assertion, or False otherwise.
 
             msg_or_fn (str or callable) :
                 A message to print in case the assertion fails, or a function

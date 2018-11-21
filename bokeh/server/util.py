@@ -139,7 +139,7 @@ def match_host(host, pattern):
             wildcards for ip address octets or ports.
 
     This function will return ``True`` if the hostname matches the pattern,
-    including any widcards. If the pattern contains a port, the host string
+    including any wildcards. If the pattern contains a port, the host string
     must also contain a matching port.
 
     Returns:

@@ -44,8 +44,8 @@ class TextAnnotation(Annotation):
     '''
 
     render_mode = Enum(RenderMode, default="canvas", help="""
-    Specifies whether the text is rendered as a canvas element or as an
-    css element overlaid on the canvas. The default mode is "canvas".
+    Specifies whether the text is rendered as a canvas element or as a
+    CSS element overlaid on the canvas. The default mode is "canvas".
 
     .. note::
         The CSS labels won't be present in the output using the "save" tool.
@@ -90,7 +90,7 @@ class LegendItem(Model):
     refer to a column name, the legend will have "groupby" behavior, and will
     choose and display representative points from every "group" in the column.
 
-    If set to a number, Bokeh will use that numbner as the index in all cases.
+    If set to a number, Bokeh will use that number as the index in all cases.
     """)
 
     @error(NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS)
@@ -193,7 +193,7 @@ class Legend(Annotation):
     """)
 
     spacing = Int(3, help="""
-    Amount of spacing (in pixles) between legend entries.
+    Amount of spacing (in pixels) between legend entries.
     """)
 
     items = List(Instance(LegendItem), help="""
@@ -278,7 +278,7 @@ class ColorBar(Annotation):
     """)
 
     formatter = Instance(TickFormatter, default=lambda: BasicTickFormatter(), help="""
-    A TickFormatter to use for formatting the visual appearance of ticks.
+    A ``TickFormatter`` to use for formatting the visual appearance of ticks.
     """)
 
     major_label_overrides = Dict(Either(Float, String), String, default={}, help="""
@@ -290,8 +290,8 @@ class ColorBar(Annotation):
     A continuous color mapper containing a color palette to render.
 
     .. warning::
-        If the `low` and `high` attributes of the ColorMapper aren't set, ticks
-        and tick labels won't be rendered. Additionally, if a LogTicker is
+        If the `low` and `high` attributes of the ``ColorMapper`` aren't set, ticks
+        and tick labels won't be rendered. Additionally, if a ``LogTicker`` is
         passed to the `ticker` argument and either or both of the logarithms
         of `low` and `high` values of the color_mapper are non-numeric
         (i.e. `low=0`), the tick and tick labels won't be rendered.
@@ -395,7 +395,7 @@ class Arrow(Annotation):
     """)
 
     start = Instance('.models.arrow_heads.ArrowHead', default=None, help="""
-    Instance of ArrowHead.
+    Instance of ``ArrowHead``.
     """)
 
     x_end = NumberSpec(help="""
@@ -412,7 +412,7 @@ class Arrow(Annotation):
     """)
 
     end = Instance('.models.arrow_heads.ArrowHead', default=_DEFAULT_ARROW, help="""
-    Instance of ArrowHead.
+    Instance of ``ArrowHead``.
     """)
 
     body_props = Include(LineProps, use_prefix=False, help="""
@@ -532,7 +532,7 @@ class Band(Annotation):
     """)
 
     upper = DistanceSpec(help="""
-    The coordinations of the upper portion of the filled area band.
+    The coordinates of the upper portion of the filled area band.
     """)
 
     base = DistanceSpec(help="""
@@ -707,7 +707,7 @@ class LabelSet(TextAnnotation):
     """)
 
     x_units = Enum(SpatialUnits, default='data', help="""
-    The unit type for the xs attribute. Interpreted as "data space" units
+    The unit type for the ``xs`` attribute. Interpreted as "data space" units
     by default.
     """)
 
@@ -716,7 +716,7 @@ class LabelSet(TextAnnotation):
     """)
 
     y_units = Enum(SpatialUnits, default='data', help="""
-    The unit type for the ys attribute. Interpreted as "data space" units
+    The unit type for the ``ys`` attribute. Interpreted as "data space" units
     by default.
     """)
 
@@ -788,7 +788,7 @@ class PolyAnnotation(Annotation):
     """)
 
     xs_units = Enum(SpatialUnits, default='data', help="""
-    The unit type for the xs attribute. Interpreted as "data space" units
+    The unit type for the ``xs`` attribute. Interpreted as "data space" units
     by default.
     """)
 
@@ -797,7 +797,7 @@ class PolyAnnotation(Annotation):
     """)
 
     ys_units = Enum(SpatialUnits, default='data', help="""
-    The unit type for the ys attribute. Interpreted as "data space" units
+    The unit type for the ``ys`` attribute. Interpreted as "data space" units
     by default.
     """)
 
@@ -887,8 +887,8 @@ class Span(Annotation):
     """)
 
     render_mode = Enum(RenderMode, default="canvas", help="""
-    Specifies whether the span is rendered as a canvas element or as an
-    css element overlaid on the canvas. The default mode is "canvas".
+    Specifies whether the span is rendered as a canvas element or as a
+    CSS element overlaid on the canvas. The default mode is "canvas".
 
     .. warning::
         The line_dash and line_dash_offset attributes aren't supported if
@@ -910,11 +910,11 @@ class Title(TextAnnotation):
     """)
 
     vertical_align = Enum(VerticalAlign, default='bottom', help="""
-    Aligment of the text in its enclosing space, *across* the direction of the text.
+    Alignment of the text in its enclosing space, *across* the direction of the text.
     """)
 
     align = Enum(TextAlign, default='left', help="""
-    Aligment of the text in its enclosing space, *along* the direction of the text.
+    Alignment of the text in its enclosing space, *along* the direction of the text.
     """)
 
     offset = Float(default=0, help="""
@@ -1020,15 +1020,15 @@ class Whisker(Annotation):
     """)
 
     lower_head = Instance('.models.arrow_heads.ArrowHead', default=_DEFAULT_TEE, help="""
-    Instance of ArrowHead.
+    Instance of ``ArrowHead``.
     """)
 
     upper = DistanceSpec(help="""
-    The coordinations of the upper end of the whiskers.
+    The coordinates of the upper end of the whiskers.
     """)
 
     upper_head = Instance('.models.arrow_heads.ArrowHead', default=_DEFAULT_TEE, help="""
-    Instance of ArrowHead.
+    Instance of ``ArrowHead``.
     """)
 
     base = DistanceSpec(help="""

@@ -13,7 +13,7 @@ descriptor protocol to provide easy-to-use, declarative, type-based
 class properties that can automatically validate and serialize their
 values, as well as help provide sophisticated documentation.
 
-A Bokeh property really consist of two parts: a familar "property"
+A Bokeh property really consist of two parts: a familiar "property"
 portion, such as ``Int``, ``String``, etc., as well as an associated
 Python descriptor that delegates attribute access to the property instance.
 
@@ -436,7 +436,7 @@ class PropertyDescriptor(object):
         raise NotImplementedError("Implement _internal_set()")
 
 class BasicPropertyDescriptor(PropertyDescriptor):
-    ''' A PropertyDescriptor for basic Bokeh properties (e.g, ``Int``,
+    ''' A ``PropertyDescriptor`` for basic Bokeh properties (e.g, ``Int``,
     ``String``, ``Float``, etc.) with simple get/set and serialization
     behavior.
 
@@ -917,7 +917,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
 
 
 class ColumnDataPropertyDescriptor(BasicPropertyDescriptor):
-    ''' A PropertyDescriptor specialized to handling ``ColumnData`` properties.
+    ''' A ``PropertyDescriptor`` specialized to handling ``ColumnData`` properties.
 
     '''
 
@@ -974,7 +974,7 @@ class ColumnDataPropertyDescriptor(BasicPropertyDescriptor):
         self._internal_set(obj, value, hint=hint, setter=setter)
 
 class DataSpecPropertyDescriptor(BasicPropertyDescriptor):
-    ''' A PropertyDescriptor for Bokeh |DataSpec| properties that serialize to
+    ''' A ``PropertyDescriptor`` for Bokeh |DataSpec| properties that serialize to
     field/value dictionaries.
 
     '''
@@ -1029,7 +1029,7 @@ class DataSpecPropertyDescriptor(BasicPropertyDescriptor):
         super(DataSpecPropertyDescriptor, self).set_from_json(obj, json, models, setter)
 
 class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
-    ''' A PropertyDecscriptor for Bokeh |UnitsSpec| properties that contribute
+    ''' A ``PropertyDecscriptor`` for Bokeh |UnitsSpec| properties that contribute
     associated ``_units`` properties automatically as a side effect.
 
     '''
