@@ -97,7 +97,7 @@ class Inspection(Gesture):
     '''
     toggleable = Bool(True, help="""
     Whether an on/off toggle button should appear in the toolbar for this
-    inpection tool. If ``False``, the viewers of a plot will not be able to
+    inspection tool. If ``False``, the viewers of a plot will not be able to
     toggle the inspector on or off using the toolbar.
     """)
 
@@ -410,7 +410,7 @@ class TapTool(Tap):
     This tool can be configured to either make selections or inspections
     on associated data sources. The difference is that selection changes
     propagate across bokeh and other components (e.g. selection glyph)
-    will be notified. Inspecions don't act like this, so it's useful to
+    will be notified. Inspections don't act like this, so it's useful to
     configure `callback` when setting `behavior='inspect'`.
     """)
 
@@ -433,7 +433,7 @@ class TapTool(Tap):
     ``.type`` is the geometry type, which always a ``.point`` for a tap event.
     ``.sx`` and ``.sy`` are the screen X and Y coordinates where the tap occurred.
     ``.x`` and ``.y`` are the converted data coordinates for the item that has
-    been selected. The ``.x`` and ``.y`` values are based on the axis assiged
+    been selected. The ``.x`` and ``.y`` values are based on the axis assigned
     to that glyph.
 
     .. note::
@@ -637,8 +637,8 @@ class BoxSelectTool(Drag):
 
     callback = Instance(Callback, help="""
     A callback to run in the browser on completion of drawing a selection box.
-    The cb_data parameter that is available to the Callback code will contain
-    one BoxSelectTool-specific field:
+    The ``cb_data`` parameter that is available to the Callback code will contain
+    one ``BoxSelectTool``-specific field:
 
     :geometry: object containing the coordinates of the selection box
     """)
@@ -703,8 +703,8 @@ class LassoSelectTool(Drag):
 
     callback = Instance(Callback, help="""
     A callback to run in the browser on every selection of a lasso area.
-    The cb_data parameter that is available to the Callback code will contain
-    one LassoSelectTool-specific field:
+    The ``cb_data`` parameter that is available to the Callback code will contain
+    one ``LassoSelectTool``-specific field:
 
     :geometry: object containing the coordinates of the lasso area
     """)
@@ -748,7 +748,7 @@ class PolySelectTool(Tap):
 
     callback = Instance(Callback, help="""
     A callback to run in the browser on completion of drawing a polygon.
-    The cb_data parameter that is available to the Callback code will contain
+    The ``cb_data`` parameter that is available to the Callback code will contain
     one PolySelectTool-specific field:
 
     :geometry: object containing the coordinates of the polygon
@@ -812,11 +812,11 @@ class CustomJSHover(Model):
 
     @classmethod
     def from_py_func(cls, code):
-        ''' Create a CustomJSHover instance from a Python functions. The
+        ''' Create a ``CustomJSHover`` instance from a Python functions. The
         function is translated to JavaScript using PScript.
 
         The python functions must have no positional arguments. It's
-        possible to pass Bokeh models (e.g. a ColumnDataSource) as keyword
+        possible to pass Bokeh models (e.g. a ``ColumnDataSource``) as keyword
         arguments to the functions.
 
         The ``code`` function namespace will contain the variable ``value``
@@ -956,7 +956,7 @@ class HoverTool(Inspection):
             ("total", "@total{$0,0.00}"
         ]
 
-    You can also supply a ``Callback`` to the HoverTool, to build custom
+    You can also supply a ``Callback`` to the ``HoverTool``, to build custom
     interactions on hover. In this case you may want to turn the tooltips
     off by setting ``tooltips=None``.
 
@@ -1001,8 +1001,8 @@ class HoverTool(Inspection):
 
     callback = Instance(Callback, help="""
     A callback to run in the browser whenever the input's value changes. The
-    cb_data parameter that is available to the Callback code will contain two
-    HoverTool specific fields:
+    ``cb_data`` parameter that is available to the Callback code will contain two
+    ``HoverTool`` specific fields:
 
     :index: object containing the indices of the hovered points in the data source
     :geometry: object containing the coordinates of the hover cursor
@@ -1198,7 +1198,7 @@ class EditTool(Gesture):
 
     empty_value = Either(Bool, Int, Float, Date, Datetime, Color, help="""
     Defines the value to insert on non-coordinate columns when a new
-    glyph is inserted into the ColumnDataSource columns, e.g. when a
+    glyph is inserted into the ``ColumnDataSource`` columns, e.g. when a
     circle glyph defines 'x', 'y' and 'color' columns, adding a new
     point will add the x and y-coordinates to 'x' and 'y' columns and
     the color column will be filled with the defined empty value.
@@ -1219,12 +1219,11 @@ class EditTool(Gesture):
 class BoxEditTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |box_edit_icon|
 
-    The BoxEditTool allows drawing, dragging and deleting ``Rect``
-    glyphs on one or more renderers by editing the underlying
-    ``ColumnDataSource`` data. Like other drawing tools, the renderers
-    that are to be edited must be supplied explicitly as a list. When
-    drawing a new box the data will always be added to the
-    ``ColumnDataSource`` on the first supplied renderer.
+    Allows drawing, dragging and deleting ``Rect`` glyphs on one or more
+    renderers by editing the underlying ``ColumnDataSource`` data. Like other
+    drawing tools, the renderers that are to be edited must be supplied
+    explicitly as a list. When drawing a new box the data will always be added
+    to the ``ColumnDataSource`` on the first supplied renderer.
 
     The tool will automatically modify the columns on the data source
     corresponding to the ``x``, ``y``, ``width`` and ``height`` values
@@ -1347,7 +1346,7 @@ class PolyDrawTool(EditTool, Drag, Tap):
 
     The PolyDrawTool allows drawing, selecting and deleting
     ``Patches`` and ``MultiLine`` glyphs on one or more renderers by
-    editing the underlying ColumnDataSource data. Like other drawing
+    editing the underlying ``ColumnDataSource`` data. Like other drawing
     tools, the renderers that are to be edited must be supplied
     explicitly as a list.
 
@@ -1357,7 +1356,7 @@ class PolyDrawTool(EditTool, Drag, Tap):
     declared ``empty_value``, when adding a new point.
 
     If a ``vertex_renderer`` with an point-like glyph is supplied the
-    PolyDrawTool will use it to display the vertices of the
+    ``PolyDrawTool`` will use it to display the vertices of the
     multi-lines/patches on all supplied renderers. This also enables
     the ability to snap to existing vertices while drawing.
 
@@ -1415,9 +1414,8 @@ class PolyDrawTool(EditTool, Drag, Tap):
 class FreehandDrawTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |freehand_draw_icon|
 
-    The FreehandDrawTool allows freehand drawing of ``Patches`` and
-    ``MultiLine`` glyphs. The glyph to draw may be defined via the
-    ``renderers`` property.
+    Allows freehand drawing of ``Patches`` and ``MultiLine`` glyphs. The glyph
+    to draw may be defined via the ``renderers`` property.
 
     The tool will automatically modify the columns on the data source
     corresponding to the ``xs`` and ``ys`` values of the glyph. Any

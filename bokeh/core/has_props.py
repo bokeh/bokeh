@@ -475,7 +475,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
         properties defined on any parent classes.
 
         Returns:
-            set[str] : names of DataSpec properties
+            set[str] : names of ``DataSpec`` properties
 
         '''
         return set(cls.dataspecs_with_props().keys())

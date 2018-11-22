@@ -130,7 +130,7 @@ attributes ``d3``, ``mpl``, and ``colorblind`` that have dictionaries
 corresponding to the those groups of palettes.
 
 Finally, all palettes are collected in the ``all_palettes`` palettes
-module attrubute, and the "small" palettes (i.e. excluding the ones with 256
+module attribute, and the "small" palettes (i.e. excluding the ones with 256
 colors) are collected and in a ``small_palettes`` attribute.
 
 Built-in Palettes

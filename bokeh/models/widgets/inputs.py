@@ -42,8 +42,9 @@ class TextInput(InputWidget):
     """)
 
     callback = Instance(Callback, help="""
-    A callback to run in the browser whenever the user unfocuses the TextInput
-    widget by hitting Enter or clicking outside of the text box area.
+    A callback to run in the browser whenever the user unfocuses the
+    ``TextInput`` widget by hitting Enter or clicking outside of the text box
+    area.
     """)
 
     placeholder = String(default="", help="""
@@ -53,11 +54,11 @@ class TextInput(InputWidget):
 
 class PasswordInput(TextInput):
     ''' Single-line password input widget.
-        Note: Despite PasswordInput inheriting from TextInput the password
-        cannot be inspected on the field ``value``. Also, note that this field
-        functionally just hides the input on the browser, transmiting safely a
-        password as a callback, e.g., to the a bokeh server would require
-        some secure connection.
+        Note: Despite ``PasswordInput`` inheriting from ``TextInput`` the
+        password cannot be inspected on the field ``value``. Also, note that
+        this field functionally just hides the input on the browser,
+        transmitting safely a password as a callback, e.g., to a bokeh
+        server would require some secure connection.
 
     '''
 

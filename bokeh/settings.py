@@ -30,10 +30,11 @@ A global settings object that other parts of Bokeh can refer to.
   - ``BOKEH_RESOURCES=absolute-dev``
   - ``BOKEH_SIMPLE_IDS=true``
 
- Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
+  Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
 
-``BOKEH_DOCS_CDN`` --- What version of BokehJS to use when building sphinx
-  `~bokeh.resources.Resources` class reference for full details.
+``BOKEH_DOCS_CDN`` --- What version of BokehJS to use when building sphinx.
+
+  See :ref:`bokeh.resources` module reference for full details.
 
 ``BOKEH_DOCS_VERSION`` --- What version of Bokeh to show when building sphinx docs locally.
 

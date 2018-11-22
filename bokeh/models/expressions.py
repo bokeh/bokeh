@@ -34,14 +34,14 @@ class Expression(Model):
 
     JavaScript implementations should implement the following methods:
 
-    .. code-block: coffeescript
+    .. code-block:: coffeescript
 
         v_compute: (source) ->
             # compute an array of values
 
     .. note::
-        If you wish for results to be cached per source, and updated only if
-        the source changes, implement `_v_compute: (souce)` instead.
+        If you wish for results to be cached per source and updated only if
+        the source changes, implement ``_v_compute: (source)`` instead.
 
     '''
     pass
@@ -53,7 +53,7 @@ class CumSum(Expression):
     '''
 
     field = String(help="""
-    The name of a ColumnDataSource column to cumulatively sum for new values.
+    The name of a ``ColumnDataSource`` column to cumulatively sum for new values.
     """)
 
     include_zero = Bool(default=False, help="""

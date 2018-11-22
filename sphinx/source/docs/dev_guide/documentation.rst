@@ -13,7 +13,7 @@ project. It's also a good way to to get started and introduce yourself as a new
 contributor. The most likely way for typos or other small documentation errors
 to be resolved is for the person who notices the problem to immediately submit
 a Pull Request to with a correction. *This is always appreciated!* In
-addition quick fixes, there is also a list of `Open Docs Issues`_ on GitHub
+addition to quick fixes, there is also a list of `Open Docs Issues`_ on GitHub
 that anyone can look at for tasks that need help.
 
 Working on Documentation

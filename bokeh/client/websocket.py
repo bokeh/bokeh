@@ -47,7 +47,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class WebSocketClientConnectionWrapper(object):
-    ''' Used for compat across Tornado versions and to add write_lock'''
+    ''' Used for compatibility across Tornado versions and to add write_lock'''
 
     def __init__(self, socket):
         if socket is None:

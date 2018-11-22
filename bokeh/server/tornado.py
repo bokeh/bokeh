@@ -110,7 +110,7 @@ class BokehTornado(TornadoApplication):
         mem_log_frequency_milliseconds (int, optional) :
             Number of milliseconds between logging memory information (default: 0)
 
-            Enabling this feature requires the optional depenency ``psutil`` to be
+            Enabling this feature requires the optional dependency ``psutil`` to be
             installed.
 
         use_index (bool, optional) :

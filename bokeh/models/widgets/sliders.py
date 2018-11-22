@@ -50,7 +50,7 @@ class AbstractSlider(Widget):
     """)
 
     callback_throttle = Float(default=200, help="""
-    Number of millseconds to pause between callback calls as the slider is moved.
+    Number of milliseconds to pause between callback calls as the slider is moved.
     """)
 
     callback_policy = Enum(SliderCallbackPolicy, default="throttle", help="""
