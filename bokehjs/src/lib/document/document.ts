@@ -5,7 +5,7 @@ import {BokehEvent, LODStart, LODEnd} from "core/bokeh_events"
 import {HasProps} from "core/has_props"
 import {Attrs} from "core/types"
 import {Signal0} from "core/signaling"
-import {Ref, is_ref} from "core/util/refs"
+import {Ref, is_ptr, create_ref} from "core/util/refs"
 import {decode_column_data} from "core/util/serialization"
 import {MultiDict, Set} from "core/util/data_structures"
 import {difference, intersection, copy, includes} from "core/util/array"
@@ -309,10 +309,10 @@ export class Document {
   static _references_json(references: HasProps[], include_defaults: boolean = true): Ref[] {
     const references_json: Ref[] = []
     for (const r of references) {
-      const ref = r.ref()
+      const ref = create_ref(r)
       ref.attributes = r.attributes_as_json(include_defaults)
       // server doesn't want id in here since it's already in ref above
-      delete (ref.attributes as any).id
+      delete ref.attributes.id
       references_json.push(ref)
     }
     return references_json
@@ -351,7 +351,7 @@ export class Document {
   // recurse into collections but not into HasProps
   static _resolve_refs(value: any, old_references: References, new_references: References): any {
     function resolve_ref(v: any): any {
-      if (is_ref(v)) {
+      if (is_ptr(v)) {
         if (v.id in old_references)
           return old_references[v.id]
         else if (v.id in new_references)
@@ -456,10 +456,7 @@ export class Document {
     else {
       const event: ModelChanged = {
         kind: "ModelChanged",
-        model: {
-          id: changed_obj.id,
-          type: changed_obj.type,
-        },
+        model: {id: changed_obj.id},
         attr: key,
         new: new_value,
       }
@@ -679,9 +676,8 @@ export class Document {
           }
           const patched_obj = this._all_models[patched_id]
           const attr = event_json.attr
-          const model_type = event_json.model.type
           // XXXX currently still need this first branch, some updates (initial?) go through here
-          if (attr === 'data' && model_type === 'ColumnDataSource') {
+          if (attr === 'data' && patched_obj.type === 'ColumnDataSource') {
             const [data, shapes] = decode_column_data(event_json.new, buffers)
             patched_obj.setv({_shapes: shapes, data}, {setter_id})
           } else {

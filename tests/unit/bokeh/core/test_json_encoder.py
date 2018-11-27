@@ -101,7 +101,7 @@ class TestBokehJSONEncoder(object):
 
     def test_model(self):
         m = Range1d(start=10, end=20)
-        assert self.encoder.default(m) == m.ref
+        assert self.encoder.default(m) == m.ptr
         assert isinstance(self.encoder.default(m), dict)
 
     def test_hasprops(self):

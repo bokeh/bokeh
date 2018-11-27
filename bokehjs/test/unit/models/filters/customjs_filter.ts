@@ -48,7 +48,7 @@ describe("CustomJSFilter", () => {
 
     it("should have values as function args", () => {
       const rng = new Range1d()
-      const filter = new CustomJSFilter({args: {foo: rng.ref()}, code: "return 10"})
+      const filter = new CustomJSFilter({args: {foo: rng.ptr()}, code: "return 10"})
       const f = new Function("foo", "source", "require", "exports", "'use strict';\nreturn 10")
       expect(filter.func.toString()).to.be.equal(f.toString())
     })

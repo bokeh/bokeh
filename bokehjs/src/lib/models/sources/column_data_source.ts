@@ -198,7 +198,7 @@ export class ColumnDataSource extends ColumnarDataSource {
     this.setv({data}, {silent: true})
     this.streaming.emit()
     if (this.document != null) {
-      const hint = new ColumnsStreamedEvent(this.document, this.ref(), new_data, rollover)
+      const hint = new ColumnsStreamedEvent(this.document, this.ptr(), new_data, rollover)
       this.document._notify_change(this, 'data', null, null, {setter_id, hint})
     }
   }
@@ -213,7 +213,7 @@ export class ColumnDataSource extends ColumnarDataSource {
     this.setv({data}, {silent: true})
     this.patching.emit(patched.values)
     if (this.document != null) {
-      const hint = new ColumnsPatchedEvent(this.document, this.ref(), patches)
+      const hint = new ColumnsPatchedEvent(this.document, this.ptr(), patches)
       this.document._notify_change(this, 'data', null, null, {setter_id, hint})
     }
   }

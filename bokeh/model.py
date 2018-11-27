@@ -330,6 +330,10 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager):
         return self._document
 
     @property
+    def ptr(self):
+        return dict(id=self._id)
+
+    @property
     def ref(self):
         ''' A Bokeh protocol "reference" to this model, i.e. a dict of the
         form:

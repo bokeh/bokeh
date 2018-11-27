@@ -62,7 +62,7 @@ describe("customjs module", () => {
 
     it("should have values as function args", () => {
       const rng = new Range1d()
-      const r = new CustomJS({args: {foo: rng.ref()}, code: "return 10"})
+      const r = new CustomJS({args: {foo: rng.ptr()}, code: "return 10"})
       const f = new Function("foo", "cb_obj", "cb_data", "require", "exports", "'use strict';\nreturn 10")
       expect(r.func.toString()).to.be.equal(f.toString())
     })

@@ -19,7 +19,7 @@ describe("func_tick_formatter module", () => {
 
     it("should have values as function args", () => {
       const rng = new Range1d()
-      formatter.args = {foo: rng.ref()}
+      formatter.args = {foo: rng.ptr()}
       const func = new Function("tick", "index", "ticks", "foo", "require", "exports", "'use strict';\nreturn 10")
       expect(formatter._make_func().toString()).to.be.equal(func.toString())
     })
