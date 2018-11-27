@@ -3,7 +3,7 @@ import {View} from "./view"
 import {Class} from "./class"
 import {Signal0, Signal, Signalable} from "./signaling"
 import * as property_mixins from "./property_mixins"
-import {Ref, is_ref, create_ref} from "./util/refs"
+import {Ptr, is_ptr} from "./util/refs"
 import * as p from "./properties"
 import {Property} from "./properties"
 import {uniqueId} from "./util/string"
@@ -314,8 +314,8 @@ export abstract class HasProps extends Signalable() {
       return this.attributes[prop_name]
   }
 
-  ref(): Ref {
-    return create_ref(this)
+  ptr(): Ptr {
+    return {id: this.id}
   }
 
   // we only keep the subtype so we match Python;
@@ -348,7 +348,7 @@ export abstract class HasProps extends Signalable() {
 
   static _value_to_json(_key: string, value: any, _optional_parent_object: any): any {
     if (value instanceof HasProps)
-      return value.ref()
+      return value.ptr()
     else if (isArray(value)) {
       const ref_array: unknown[] = []
       for (let i = 0; i < value.length; i++) {
@@ -388,7 +388,7 @@ export abstract class HasProps extends Signalable() {
   // instead of models, and takes a doc to look up the refs in
   static _json_record_references(doc: Document, v: any, result: {[key: string]: HasProps}, recurse: boolean): void {
     if (v == null) {
-    } else if (is_ref(v)) {
+    } else if (is_ptr(v)) {
       if (!(v.id in result)) {
         const model = doc.get_model_by_id(v.id)
         HasProps._value_record_references(model, result, recurse)

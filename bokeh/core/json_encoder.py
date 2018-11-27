@@ -243,7 +243,7 @@ class BokehJSONEncoder(json.JSONEncoder):
         elif isinstance(obj, collections.deque):
             return list(map(self.default, obj))
         elif isinstance(obj, Model):
-            return obj.ref
+            return obj.ptr
         elif isinstance(obj, HasProps):
             return obj.properties_with_values(include_defaults=False)
         elif isinstance(obj, Color):

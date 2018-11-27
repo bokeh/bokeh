@@ -5,7 +5,11 @@ export interface Ref {
   id: string
   type: string
   subtype?: string
-  attributes?: {[key: string]: any}
+  attributes: {[key: string]: unknown}
+}
+
+export interface Ptr {
+  id: string
 }
 
 // Create a Bokeh reference from a HasProps subclass
@@ -18,6 +22,7 @@ export function create_ref(obj: HasProps): Ref {
   const ref: Ref = {
     type: obj.type,
     id: obj.id,
+    attributes: {},
   }
   if (obj._subtype != null) {
     ref.subtype = obj._subtype
@@ -33,13 +38,10 @@ export function create_ref(obj: HasProps): Ref {
 // @note this function does not check that the id and types are valid,
 //   only that the format is correct (all required keys are present)
 //
-export function is_ref(arg: any): arg is Ref {
+export function is_ptr(arg: unknown): arg is Ptr {
   if (isObject(arg)) {
-    const keys = Object.keys(arg).sort()
-    if (keys.length == 2)
-      return keys[0] == 'id' && keys[1] == 'type'
-    if (keys.length == 3)
-      return keys[0] == 'id' && keys[1] == 'subtype' && keys[2] == 'type'
+    const keys = Object.keys(arg)
+    return keys.length == 1 && keys[0] == "id"
   }
   return false
 }

@@ -40,7 +40,7 @@ describe "CustomJSFilter", ->
 
     it "should have values as function args", ->
       rng = new Range1d()
-      filter = new CustomJSFilter({args: {foo: rng.ref()}, code: "return 10", use_strict: true})
+      filter = new CustomJSFilter({args: {foo: rng}, code: "return 10", use_strict: true})
       f = new Function("foo", "source", "require", "exports", "'use strict';\nreturn 10")
       expect(filter.func.toString()).to.be.equal f.toString()
 

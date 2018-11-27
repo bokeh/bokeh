@@ -55,7 +55,7 @@ describe "customjs module", ->
 
     it "should have values as function args", ->
       rng = new Range1d()
-      r = new CustomJSHover({args: {foo: rng.ref()}, code: "return 10"})
+      r = new CustomJSHover({args: {foo: rng}, code: "return 10"})
       f = new Function("foo", "value", "format", "special_vars", "require", "exports", "'use strict';\nreturn 10")
       formatter = r._make_code("value", "format", "special_vars", r.code)
       expect(formatter.toString()).to.be.equal f.toString()

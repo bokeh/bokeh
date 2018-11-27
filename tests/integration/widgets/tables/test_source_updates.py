@@ -39,7 +39,7 @@ pytest_plugins = (
 )
 
 def is_cds_data_patch(evt):
-    return evt['kind'] == 'ModelChanged' and evt['model']['type'] == 'ColumnDataSource' and evt['attr'] == 'data'
+    return evt['kind'] == 'ModelChanged' and evt['attr'] == 'data'
 
 @pytest.mark.integration
 @pytest.mark.selenium
@@ -86,7 +86,7 @@ class Test_DataTableSource(object):
         # Message 'PATCH-DOC' (revision 1) content: {
         #     'events': [{
         #         'kind': 'ModelChanged',
-        #         'model': {'type': 'ColumnDataSource', 'id': '1001'},
+        #         'model': {'id': '1001'},
         #         'attr': 'data', 'new': {'x': [42, 2, 3, 4], 'y': [10, 20, 30, 40]}
         #     }],
         #     'references': []
@@ -141,7 +141,7 @@ class Test_DataTableSource(object):
         # Message 'PATCH-DOC' (revision 1) content: {
         #     'events': [{
         #         'kind': 'ModelChanged',
-        #         'model': {'type': 'ColumnDataSource', 'id': '1001'},
+        #         'model': {'id': '1001'},
         #         'attr': 'data', 'new': {'x': [1, 2, 3, 4, 5], 'y': [10, 20, 30, 40, 50]}
         #     }],
         #     'references': []
@@ -196,7 +196,7 @@ class Test_DataTableSource(object):
         # Message 'PATCH-DOC' (revision 1) content: {
         #     'events': [{
         #         'kind': 'ModelChanged',
-        #         'model': {'type': 'ColumnDataSource', 'id': '1001'},
+        #         'model': {'id': '1001'},
         #         'attr': 'data', 'new': {'x': [1, 2, 3, 4, 5], 'y': [10, 20, 30, 40, 50]}
         #     }],
         #     'references': []
@@ -246,7 +246,7 @@ class Test_DataTableSource(object):
         # Message 'PATCH-DOC' (revision 1) content: {
         #     'events': [{
         #         'kind': 'ModelChanged',
-        #         'model': {'type': 'ColumnDataSource', 'id': '1001'},
+        #         'model': {'id': '1001'},
         #         'attr': 'data', 'new': {'x': [1,2,3,4], 'y': [10, 20, 100, 40]}
         #     }],
         #     'references': []

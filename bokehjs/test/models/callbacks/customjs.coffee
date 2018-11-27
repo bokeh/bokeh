@@ -53,7 +53,7 @@ describe "customjs module", ->
 
     it "should have values as function args", ->
       rng = new Range1d()
-      r = new CustomJS({args: {foo: rng.ref()}, code: "return 10", use_strict: true})
+      r = new CustomJS({args: {foo: rng}, code: "return 10", use_strict: true})
       f = new Function("foo", "cb_obj", "cb_data", "require", "exports", "'use strict';\nreturn 10")
       expect(r.func.toString()).to.be.equal f.toString()
 

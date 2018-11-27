@@ -205,7 +205,7 @@ class TestModel(object):
                               foo=42, bar="world")
         json = obj.to_json(include_defaults=True)
         json_string = obj.to_json_string(include_defaults=True)
-        assert { "child" : { "id" : child_obj._id, "type" : "SomeModelToJson" },
+        assert { "child" : { "id" : child_obj._id },
                            "id" : obj._id,
                            "name" : None,
                            "tags" : [],
@@ -215,7 +215,7 @@ class TestModel(object):
                            "foo" : 42,
                            "bar" : "world" } == json
         assert ('{"bar":"world",' +
-                '"child":{"id":"%s","type":"SomeModelToJson"},' +
+                '"child":{"id":"%s"},' +
                 '"foo":42,"id":"%s","js_event_callbacks":{},"js_property_callbacks":{},' +
                 '"name":null,"subscribed_events":[],"tags":[]}') % (child_obj._id, obj._id) == json_string
 

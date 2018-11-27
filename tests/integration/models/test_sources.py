@@ -37,13 +37,13 @@ pytest_plugins = (
 )
 
 def is_cds_data_changed(evt):
-    return evt['kind'] == 'ModelChanged' and evt['model']['type'] == 'ColumnDataSource' and evt['attr'] == 'data'
+    return evt['kind'] == 'ModelChanged' and evt['attr'] == 'data'
 
 def is_cds_data_patched(evt):
-    return evt['kind'] == 'ColumnsPatched' and evt['column_source']['type'] == 'ColumnDataSource'
+    return evt['kind'] == 'ColumnsPatched'
 
 def is_cds_data_streamed(evt):
-    return evt['kind'] == 'ColumnsStreamed' and evt['column_source']['type'] == 'ColumnDataSource'
+    return evt['kind'] == 'ColumnsStreamed'
 
 
 @pytest.mark.integration
