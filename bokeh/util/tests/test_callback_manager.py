@@ -294,9 +294,8 @@ class TestEventCallbackManager(object):
         m = cbm.EventCallbackManager()
         p = partial(_partially_bad_event, 'foo')
         m.subscribed_events = []
-        with pytest.raises(ValueError):
-            m.on_event('foo', p)
-        assert len(m._event_callbacks) == 0
+        m.on_event('foo', p)
+        assert len(m._event_callbacks) == 1
 
     def test_on_change_good_partial_method(self):
         m = cbm.EventCallbackManager()
@@ -349,17 +348,15 @@ class TestEventCallbackManager(object):
         m = cbm.EventCallbackManager()
         m.subscribed_events = []
         bad = _BadEventCallback()
-        with pytest.raises(ValueError):
-            m.on_event('foo', bad.method)
-        assert len(m._event_callbacks) == 0
+        m.on_event('foo', bad.method)
+        assert len(m._event_callbacks) == 1
 
     def test_on_change_bad_functor(self):
         m = cbm.EventCallbackManager()
         m.subscribed_events = []
         bad = _BadEventCallback()
-        with pytest.raises(ValueError):
-            m.on_event('foo', bad)
-        assert len(m._event_callbacks) == 0
+        m.on_event('foo', bad)
+        assert len(m._event_callbacks) == 1
 
     def test_on_change_bad_function(self):
         m = cbm.EventCallbackManager()
@@ -397,8 +394,8 @@ class TestEventCallbackManager(object):
         m.subscribed_events = []
         good = _GoodEventCallback()
         bad = _BadEventCallback()
-        with pytest.raises(ValueError):
-            m.on_event('foo', good.method, bad.method)
+        m.on_event('foo', good.method, bad.method)
+        assert len(m._event_callbacks) == 1
 
 #-----------------------------------------------------------------------------
 # Dev API
