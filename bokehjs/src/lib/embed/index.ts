@@ -7,7 +7,7 @@ import {isString} from "../core/util/types"
 import {DocsJson, RenderItem} from "./json"
 import {add_document_standalone} from "./standalone"
 import {add_document_from_session, _get_ws_url} from "./server"
-import {_resolve_element, _resolve_root_elements} from "./dom"
+import {BOKEH_ROOT, _resolve_element, _resolve_root_elements} from "./dom"
 
 export {DocsJson, RenderItem} from "./json"
 export {add_document_standalone} from "./standalone"
@@ -25,6 +25,11 @@ export function embed_item(item: JsonItem, target_id?: string) {
 
   if (target_id == null)
     target_id = item.target_id
+
+  const element = document.getElementById(target_id)
+  if (element != null)
+    element.classList.add(BOKEH_ROOT)
+
   const roots: Roots = {[item.root_id]: target_id}
   const render_item: RenderItem = { roots: roots, docid: doc_id }
 
