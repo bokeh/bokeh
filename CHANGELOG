@@ -1,3 +1,28 @@
+2018-11-29    1.0.2:
+--------------------
+  * bugfixes:
+    - #5721 [component: bokehjs] [widgets] Text_align attribute in numberformatter not doing anything
+    - #8395 [component: bokehjs] Legend breaks plot when plotting empty scatter glyph
+    - #8396 [component: docs] Fix small typo  [ci skip]
+    - #8398 Fix typo and grammar mistakes
+    - #8409 [component: docs] Typo in documentation of io.export.create_webdriver
+    - #8415 Make components() preserve the type of dict
+    - #8418 [component: bokehjs] [component: build] Make bokehjs build under node 10.x
+    - #8425 [component: docs] Apache documentation typo
+    - #8428 [component: bokehjs] [component: docs] Can't get gridplot to work in bokehjs
+    - #8451 [component: bokehjs] [component: build] Run `npm install` when `node make *` on fresh install
+    - #8457 [component: bokehjs] Embeds with json_item missing toolbar/interactivity
+    - #8459 [component: bokehjs] Hovertool does not display fields within jupyterlab's dark theme
+    - #8460 [component: examples] Fix a typo
+  * features:
+    - #8399 [component: bokehjs] Omit colon in hover tooltips if first tuple entry is empty
+    - #8411 [widgets] Feature request: add support for setting the datatable row height
+  * tasks:
+    - #8393 [component: docs] "customjs for selections" example in docs broken
+    - #8405 [component: tests] Fix failing codebase tests
+    - #8413 [component: bokehjs] [typescript] Upgrade to typescript 3.1
+    - #8438 [component: bokehjs] [typescript] Clean up semicolons after transition to typescript
+
 2018-10-31    1.0.1:
 --------------------
   * bugfixes:
