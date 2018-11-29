@@ -247,7 +247,8 @@ export class DataTableView extends WidgetView {
       if (!this.model.header_row) {
         this._hide_header()
       }
-    })
+      this.model.update_sort_columns(columns)
+   })
 
     if (this.model.selectable !== false) {
       this.grid.setSelectionModel(new RowSelectionModel({selectActiveRow: checkboxSelector == null}))
@@ -304,6 +305,8 @@ export class DataTable extends TableWidget {
 
   properties: DataTable.Props
 
+  private sort_columns: any[] = []
+
   constructor(attrs?: Partial<DataTable.Attrs>) {
     super(attrs)
   }
@@ -333,6 +336,12 @@ export class DataTable extends TableWidget {
   }
 
   readonly default_width = 600
+
+  update_sort_columns(sortCols: any){
+    this.sort_columns=sortCols.map((x:any) => ({field:x.sortCol.field,sortAsc:x.sortAsc}))
+  }
+
+  get_sort_columns(){ return (this.sort_columns); }
 
   get_scroll_index(grid_range: {top: number, bottom: number}, selected_indices: number[]): number | null {
     if (!this.scroll_to_selection || (selected_indices.length == 0))
