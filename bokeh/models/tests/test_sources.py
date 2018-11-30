@@ -1,15 +1,43 @@
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import io
 import datetime as dt
 import warnings
 
-import pytest
-
+# External imports
 import numpy as np
 
-from bokeh.models.sources import DataSource, ColumnDataSource
+# Bokeh imports
 from bokeh.util.serialization import transform_column_source_data, convert_datetime_array
+
+# Module under test
+from bokeh.models.sources import DataSource, ColumnDataSource
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class TestColumnDataSource(object):
 
@@ -682,3 +710,15 @@ Lime,Green,99,$0.39
         json = transform_column_source_data(data)
         ds.set_from_json('data', json)
         assert np.array_equal(ds.data["foo"], data["foo"])
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

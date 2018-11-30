@@ -1,10 +1,41 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
 import networkx as nx
 import numpy as np
 from numpy.testing import assert_allclose
-import pytest
 
+# Bokeh imports
+
+# Module under test
 from bokeh.models.graphs import StaticLayoutProvider, from_networkx
 
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def test_staticlayoutprovider_init_props():
     provider = StaticLayoutProvider()
@@ -119,3 +150,15 @@ def test_from_networkx_with_missing_layout():
         assert set(gl.keys()) == set([0, 1])
         assert renderer.layout_provider.graph_layout[0] == missing_fixed_layout[0]
         assert renderer.layout_provider.graph_layout[1] == missing_fixed_layout[1]
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

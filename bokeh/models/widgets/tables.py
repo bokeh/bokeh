@@ -1,8 +1,31 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Various kinds of data table (data grid) widgets.
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from ...core.enums import DateFormat, FontStyle, NumeralLanguage, TextAlign, RoundingFunction
 from ...core.has_props import abstract
 from ...core.properties import Bool, Color, Either, Enum, Float, Instance, Int, List, Override, String
@@ -11,6 +34,37 @@ from ...model import Model
 from ..sources import DataSource, CDSView
 
 from .widget import Widget
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'BooleanFormatter',
+    'CellFormatter',
+    'CellEditor',
+    'CheckboxEditor',
+    'DataTable',
+    'DateEditor',
+    'DateFormatter',
+    'HTMLTemplateFormatter',
+    'IntEditor',
+    'Model',
+    'NumberEditor',
+    'NumberFormatter',
+    'PercentEditor',
+    'SelectEditor',
+    'StringEditor',
+    'StringFormatter',
+    'TableColumn',
+    'TextEditor',
+    'TimeEditor',
+    'TableWidget',
+)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 @abstract
 class CellFormatter(Model):
@@ -23,6 +77,10 @@ class CellEditor(Model):
     ''' Abstract base class for data table's cell editors.
 
     '''
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class StringFormatter(CellFormatter):
     ''' Basic string cell formatter.
@@ -580,3 +638,11 @@ class DataTable(TableWidget):
     row_height = Int(25, help="""
     The height of each row in pixels.
     """)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

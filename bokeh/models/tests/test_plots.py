@@ -1,31 +1,47 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2015, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import mock
 from mock import patch
-import pytest
 
+# External imports
+
+# Bokeh imports
 from bokeh.core.validation import check_integrity
 from bokeh.plotting import figure
+
 from bokeh.models import GlyphRenderer, Label, Plot, LinearAxis
 from bokeh.models.ranges import FactorRange, DataRange1d, Range1d
 from bokeh.models.scales import CategoricalScale, LinearScale, LogScale
 from bokeh.models.tools import PanTool
 
+# Module under test
 import bokeh.models.plots as bmp
 
-_LEGEND_EMPTY_WARNING = """
-You are attemptings to set `plot.legend.location` on a plot that has zero legends added, this will have no effect.
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
 
-Before legend properties can be set, you must add a Legend explicitly, or call a glyph method with the 'legend' parameter set.
-"""
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class TestPlotLegendProperty(object):
 
@@ -283,3 +299,21 @@ def test__check_compatible_scale_and_ranges_incompat_factor_scale_and_numeric_ra
     plot = Plot(x_scale=CategoricalScale(), x_range=DataRange1d())
     check = plot._check_compatible_scale_and_ranges()
     assert check != []
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+_LEGEND_EMPTY_WARNING = """
+You are attemptings to set `plot.legend.location` on a plot that has zero legends added, this will have no effect.
+
+Before legend properties can be set, you must add a Legend explicitly, or call a glyph method with the 'legend' parameter set.
+"""
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

@@ -1,13 +1,32 @@
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import mock
 from datetime import datetime
 
+# External imports
+
+# Bokeh imports
 from bokeh.core.properties import field, value
 from bokeh.core.validation import check_integrity
-from bokeh.models.annotations import (
-    Legend, LegendItem, ColorBar, Arrow, BoxAnnotation, Span, LabelSet, Label,
-    Title, Band, Whisker, Slope
-)
+
 from bokeh.models import (
     ColumnDataSource, ArrowHead, BasicTicker, BasicTickFormatter, GlyphRenderer
 )
@@ -18,6 +37,19 @@ from .utils.property_utils import (
     check_line_properties, check_text_properties
 )
 
+# Module under test
+from bokeh.models.annotations import (
+    Legend, LegendItem, ColorBar, Arrow, BoxAnnotation, Span, LabelSet, Label,
+    Title, Band, Whisker, Slope
+)
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def test_Legend():
     legend = Legend()
@@ -462,3 +494,15 @@ def test_legend_item_with_field_label_raises_error_if_field_not_in_cds():
     with mock.patch('bokeh.core.validation.check.log') as mock_logger:
         check_integrity([legend_item])
         assert mock_logger.error.call_count == 1
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

@@ -1,13 +1,42 @@
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+# TODO (bev) validate entire list of props
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import mock
 
+# External imports
+
+# Bokeh imports
 from bokeh.core.validation import check_integrity
 from bokeh.models.layouts import LayoutDOM
+
+# Module under test
 from bokeh.models.tools import Toolbar, ToolbarBox
 
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
 
-# TODO (bev) validate entire list of props
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def test_Toolbar():
     tb = Toolbar()
@@ -50,3 +79,15 @@ def test_toolbar_box_with_no_children_does_not_raise_a_bokeh_warning(mock__show_
     with mock.patch('bokeh.core.validation.check.log') as mock_logger:
         check_integrity([tb_box])
         assert mock_logger.warning.call_count == 0
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

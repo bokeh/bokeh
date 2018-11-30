@@ -1,15 +1,46 @@
-import bokeh.models.widgets.sliders as mws
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from datetime import datetime
 import logging
-import pytest
 
+# External imports
+
+# Bokeh imports
 from bokeh.util.serialization import convert_datetime_type
 from bokeh.util.logconfig import basicConfig
 from bokeh.core.validation.check import check_integrity
 
+# Module under test
+import bokeh.models.widgets.sliders as mws
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
 # needed for caplog tests to function
 basicConfig()
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def test_daterangeslider_value_as_datetime_when_set_as_datetime():
     start = datetime(2017, 8, 9, 0, 0)
@@ -53,3 +84,15 @@ def test_rangeslider_equal_start_end_validation(caplog):
         s.end = 0
         check_integrity([s])
         assert len(caplog.records) == 1
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
