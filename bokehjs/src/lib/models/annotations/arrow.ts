@@ -35,6 +35,10 @@ export class ArrowView extends AnnotationView {
     this.connect(this.model.source.streaming, () => this.set_data(this.model.source))
     this.connect(this.model.source.patching, () => this.set_data(this.model.source))
     this.connect(this.model.source.change, () => this.set_data(this.model.source))
+    this.connect(this.model.properties.x_start.change, () => this.set_data(this.model.source))
+    this.connect(this.model.properties.x_end.change, () => this.set_data(this.model.source))
+    this.connect(this.model.properties.y_start.change, () => this.set_data(this.model.source))
+    this.connect(this.model.properties.y_end.change, () => this.set_data(this.model.source))
   }
 
   set_data(source: ColumnarDataSource): void {
