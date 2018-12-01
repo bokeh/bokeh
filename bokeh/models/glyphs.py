@@ -242,11 +242,11 @@ class Arc(XYGlyph):
     """)
 
 class Bezier(Glyph):
-    ''' Render Bézier curves.
+    ''' Render Bezier curves.
 
-    For more information consult the `Wikipedia article for Bézier curve`_.
+    For more information consult the `Wikipedia article for Bezier curve`_.
 
-    .. _Wikipedia article for Bézier curve: http://en.wikipedia.org/wiki/Bezier_curve
+    .. _Wikipedia article for Bezier curve: http://en.wikipedia.org/wiki/Bezier_curve
 
     '''
 
@@ -288,8 +288,8 @@ class Bezier(Glyph):
     The y-coordinates of second control points.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help=u"""
-    The %s values for the Bézier curves.
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the Bezier curves.
     """)
 
 class Ellipse(XYGlyph):
@@ -730,7 +730,7 @@ class MultiPolygons(Glyph):
 class Oval(XYGlyph):
     ''' Render ovals.
 
-    This glyph renders ovals using Bézier curves, which are similar,
+    This glyph renders ovals using Bezier curves, which are similar,
     but not identical to ellipses. In particular, widths equal to heights
     will not render circles. Use the ``Ellipse`` glyph for that.
 
