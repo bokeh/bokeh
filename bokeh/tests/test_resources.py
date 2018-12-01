@@ -5,7 +5,7 @@ import os
 import pytest
 
 import bokeh.resources as resources
-from bokeh.models import Model
+from bokeh.model import Model
 from bokeh.resources import _get_cdn_urls
 
 # if BOKEH_RESOURCES is set many tests in this file fail

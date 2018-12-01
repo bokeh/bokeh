@@ -49,7 +49,6 @@ __all__ = (
     'DateFormatter',
     'HTMLTemplateFormatter',
     'IntEditor',
-    'Model',
     'NumberEditor',
     'NumberFormatter',
     'PercentEditor',
