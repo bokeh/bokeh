@@ -246,7 +246,7 @@ class Bezier(Glyph):
 
     For more information consult the `Wikipedia article for Bézier curve`_.
 
-    .. _Wikipedia article for Bézier curve: http://en.wikipedia.org/wiki/Bézier_curve
+    .. _Wikipedia article for Bézier curve: http://en.wikipedia.org/wiki/Bezier_curve
 
     '''
 
