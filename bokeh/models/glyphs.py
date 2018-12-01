@@ -5,7 +5,6 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-# -*- coding: utf-8 -*-
 ''' Display a variety of visual shapes whose attributes can be associated
 with data columns from ``ColumnDataSources``.
 
@@ -243,7 +242,7 @@ class Arc(XYGlyph):
     """)
 
 class Bezier(Glyph):
-    u''' Render Bézier curves.
+    ''' Render Bézier curves.
 
     For more information consult the `Wikipedia article for Bézier curve`_.
 
@@ -294,7 +293,7 @@ class Bezier(Glyph):
     """)
 
 class Ellipse(XYGlyph):
-    u''' Render ellipses.
+    ''' Render ellipses.
 
     '''
 
@@ -729,7 +728,7 @@ class MultiPolygons(Glyph):
     """)
 
 class Oval(XYGlyph):
-    u''' Render ovals.
+    ''' Render ovals.
 
     This glyph renders ovals using Bézier curves, which are similar,
     but not identical to ellipses. In particular, widths equal to heights
