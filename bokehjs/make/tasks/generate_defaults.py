@@ -12,7 +12,7 @@ dest_dir = sys.argv[1]
 
 classes = [member for name, member in inspect.getmembers(models) if inspect.isclass(member)]
 
-model_class = next(klass for klass in classes if klass.__name__ == 'Model')
+model_class = Model
 widget_class = next(klass for klass in classes if klass.__name__ == 'Widget')
 
 # getclasstree returns a list which contains [ (class, parentClass), [(subClassOfClass, class), ...]]
