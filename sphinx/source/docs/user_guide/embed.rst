@@ -16,7 +16,7 @@ First, a reminder of the distinction between standalone documents and apps:
 :ref:`userguide_embed_apps`
     These are Bokeh documents that are backed by a Bokeh Server. In addition
     to all the features of standalone documents, it is also possible to connect
-    events and tools to real Python callbacks, to execute that execute in the
+    events and tools to real Python callbacks, that execute in the
     Bokeh server. See :ref:`userguide_server` for more information about
     creating and running Bokeh apps.
 
