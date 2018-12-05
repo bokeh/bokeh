@@ -6,7 +6,7 @@ import pytest
 from six.moves import xrange
 
 from bokeh.core.properties import List, String, Instance, Dict, Any, Int
-from bokeh.models import Model
+from bokeh.model import Model
 from bokeh.core.property.wrappers import PropertyValueList, PropertyValueDict
 from bokeh.util.future import with_metaclass
 
