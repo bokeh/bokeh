@@ -9,7 +9,7 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import absolute_import, division, print_function
 
 import pytest ; pytest
 
@@ -159,7 +159,7 @@ class TestPlotValidation(object):
 
     def test_bad_extra_range_name(self):
         p = figure()
-        p.xaxis.x_range_name=str("junk")
+        p.xaxis.x_range_name="junk"
         with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 1
@@ -169,7 +169,7 @@ class TestPlotValidation(object):
 
         p = figure()
         p.extra_x_ranges['foo'] = Range1d()
-        p.grid.x_range_name=str("junk")
+        p.grid.x_range_name="junk"
         with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 1
