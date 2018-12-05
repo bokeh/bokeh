@@ -167,7 +167,7 @@ class Scatter(Marker):
 
     marker = MarkerSpec(default="circle", help="""
     Which marker to render. This can be the name of any built in marker,
-    e.g. "circle", or a reference to a data column containinh such names.
+    e.g. "circle", or a reference to a data column containing such names.
     """)
 
     __example__ = "examples/reference/models/Scatter.py"

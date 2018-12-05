@@ -101,7 +101,7 @@ def error(code_or_name):
     Returns:
         callable : decorator for Bokeh model methods
 
-    The function that is decoratate should have a name that starts with
+    The function that is decorated should have a name that starts with
     ``_check``, and return a string message in case a bad condition is
     detected, and ``None`` if no bad condition is detected.
 
@@ -141,7 +141,7 @@ def warning(code_or_name):
     Returns:
         callable : decorator for Bokeh model methods
 
-    The function that is decoratate should have a name that starts with
+    The function that is decorated should have a name that starts with
     ``_check``, and return a string message in case a bad condition is
     detected, and ``None`` if no bad condition is detected.
 

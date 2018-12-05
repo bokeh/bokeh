@@ -62,7 +62,7 @@ class Receiver(object):
 
         Args:
             protocol (Protocol) :
-                A Bokeh protocol object to use to assemble colleted message
+                A Bokeh protocol object to use to assemble collected message
                 fragments.
         '''
         self._protocol = protocol

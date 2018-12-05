@@ -11,7 +11,7 @@ Attributes:
 
 Functions:
     base_version:
-        Reurn the base version string, without any "dev", "rc" or local build
+        Return the base version string, without any "dev", "rc" or local build
         information appended.
 
 .. _versioneer: https://github.com/warner/python-versioneer

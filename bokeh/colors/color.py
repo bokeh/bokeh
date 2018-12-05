@@ -56,7 +56,7 @@ class Color(object):
             value (float) :
                 A number to clamp.
 
-            maxiumum (float, optional) :
+            maximum (float, optional) :
                 A max bound to to clamp to. If None, there is no upper bound,
                 and values are only clamped to be non-negative. (default: None)
 

@@ -201,7 +201,7 @@ def make_id():
     ''' Return a new unique ID for a Bokeh object.
 
     Normally this function will return simple monotonically increasing integer
-    IDs (as strings) for identifying Bokeh ojects within a Document. However,
+    IDs (as strings) for identifying Bokeh objects within a Document. However,
     if it is desirable to have globally unique for every object, this behavior
     can be overridden by setting the environment variable ``BOKEH_SIMPLE_IDS=no``.
 
@@ -221,7 +221,7 @@ def make_id():
 def make_globally_unique_id():
     ''' Return a globally unique UUID.
 
-    Some situtations, e.g. id'ing dynamincally created Divs in HTML documents,
+    Some situtations, e.g. id'ing dynamically created Divs in HTML documents,
     always require globally unique IDs.
 
     Returns:
@@ -268,7 +268,7 @@ def transform_array(array, force_list=False, buffers=None):
         buffers (set, optional) :
             If binary buffers are desired, the buffers parameter may be
             provided, and any columns that may be sent as binary buffers
-            will be added to the set. If None, then only base64 encodinfg
+            will be added to the set. If None, then only base64 encoding
             will be used (default: None)
 
             If force_list is True, then this value will be ignored, and
@@ -322,7 +322,7 @@ def transform_series(series, force_list=False, buffers=None):
         buffers (set, optional) :
             If binary buffers are desired, the buffers parameter may be
             provided, and any columns that may be sent as binary buffers
-            will be added to the set. If None, then only base64 encodinfg
+            will be added to the set. If None, then only base64 encoding
             will be used (default: None)
 
             If force_list is True, then this value will be ignored, and
@@ -356,7 +356,7 @@ def serialize_array(array, force_list=False, buffers=None):
         buffers (set, optional) :
             If binary buffers are desired, the buffers parameter may be
             provided, and any columns that may be sent as binary buffers
-            will be added to the set. If None, then only base64 encodinfg
+            will be added to the set. If None, then only base64 encoding
             will be used (default: None)
 
             If force_list is True, then this value will be ignored, and
@@ -416,7 +416,7 @@ def traverse_data(obj, use_numpy=True, buffers=None):
     return obj_copy
 
 def transform_column_source_data(data, buffers=None, cols=None):
-    ''' Transform ColumnSourceData data to a serialized format
+    ''' Transform ``ColumnSourceData`` data to a serialized format
 
     Args:
         data (dict) : the mapping of names to data columns to transform
@@ -424,7 +424,7 @@ def transform_column_source_data(data, buffers=None, cols=None):
         buffers (set, optional) :
             If binary buffers are desired, the buffers parameter may be
             provided, and any columns that may be sent as binary buffers
-            will be added to the set. If None, then only base64 encodinfg
+            will be added to the set. If None, then only base64 encoding
             will be used (default: None)
 
             **This is an "out" parameter**. The values it contains will be

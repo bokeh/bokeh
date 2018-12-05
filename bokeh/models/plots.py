@@ -308,7 +308,7 @@ class Plot(LayoutDOM):
         return g
 
     def add_tile(self, tile_source, **kw):
-        ''' Adds new TileRenderer into the Plot.renderers
+        ''' Adds new ``TileRenderer`` into ``Plot.renderers``
 
         Args:
             tile_source (TileSource) : a tile source instance which contain tileset configuration

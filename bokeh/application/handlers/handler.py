@@ -193,7 +193,7 @@ class Handler(object):
             return self._static
 
     def url_path(self):
-        ''' Returs a default URL path, if applicable.
+        ''' Returns a default URL path, if applicable.
 
         Handlers subclasses may optionally implement this method, to inform
         the Bokeh application what URL it should be installed at.

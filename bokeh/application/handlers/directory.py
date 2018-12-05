@@ -6,7 +6,7 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 '''  Provide a Bokeh Application Handler to build up documents by running
-the code from ``main.py`` or `main.ipynb`` files in specified directories.
+the code from ``main.py`` or ``main.ipynb`` files in specified directories.
 
 The directory may also optionally contain:
 

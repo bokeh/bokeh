@@ -155,7 +155,7 @@ class State(object):
             root_dir (str, optional) : root dir to use for absolute resources
                 (default: None)
 
-                This value is ignored for other resource types, e.g. ``INLINE`` or``CDN``.
+                This value is ignored for other resource types, e.g. ``INLINE`` or ``CDN``.
 
         .. warning::
             The specified output file will be overwritten on every save, e.g.,

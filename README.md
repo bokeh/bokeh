@@ -30,7 +30,7 @@ Bokeh
 
   <td>PyPI</td>
   <td>
-    <img src="https://bokeh.pydata.org/pip-bokeh-badge.svg"
+    <img src="http://badges.bokeh.org/pip-downloads-30-day.svg"
          alt="PyPI downloads per month" />
   </td>
 </tr>

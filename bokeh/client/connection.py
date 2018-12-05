@@ -59,7 +59,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class ClientConnection(object):
-    ''' A Bokeh low-level class used to implement ClientSession; use ClientSession to connect to the server.
+    ''' A Bokeh low-level class used to implement ``ClientSession``; use ``ClientSession`` to connect to the server.
 
     '''
 
@@ -133,7 +133,7 @@ class ClientConnection(object):
         self._send_request_server_info()
 
     def loop_until_closed(self):
-        ''' Execute a blocking loop that runs and exectutes event callbacks
+        ''' Execute a blocking loop that runs and executes event callbacks
         until the connection is closed (e.g. by hitting Ctrl-C).
 
         While this method can be used to run Bokeh application code "outside"

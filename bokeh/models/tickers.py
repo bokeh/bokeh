@@ -216,7 +216,7 @@ class MercatorTicker(BasicTicker):
     should be `"lat"``.
 
     In order to prevent hard to debug errors, there is no default value for
-    dimension. Using an un-configured MercatorTicker will result in a
+    dimension. Using an un-configured ``MercatorTicker`` will result in a
     validation error and a JavaScript console error.
     """)
 

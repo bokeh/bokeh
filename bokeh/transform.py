@@ -131,7 +131,7 @@ def factor_mark(field_name, markers, factors, start=0, end=None):
 
     .. note::
         This transform is primarily only useful with ``scatter``, which
-        can be paremeterized by glyph type.
+        can be parameterized by glyph type.
 
     Args:
         field_name (str) : a field name to configure ``DataSpec`` with
@@ -163,7 +163,7 @@ def jitter(field_name, width, mean=0, distribution="uniform", range=None):
     Args:
         field_name (str) : a field name to configure ``DataSpec`` with
 
-        width (float) : the width of the random distribition to apply
+        width (float) : the width of the random distribution to apply
 
         mean (float, optional) : an offset to apply (default: 0)
 

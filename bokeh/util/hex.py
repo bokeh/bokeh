@@ -5,7 +5,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Functions useful for dealing with hexacognal tilings.
+''' Functions useful for dealing with hexagonal tilings.
 
 For more information on the concepts employed here, see this informative page
 
@@ -46,7 +46,7 @@ def axial_to_cartesian(q, r, size, orientation, aspect_scale=1):
     tiles centers.
 
     This function can be useful for positioning other Bokeh glyphs with
-    cartesian coordinates in relationto a hex tiling.
+    cartesian coordinates in relation to a hex tiling.
 
     This function was adapted from:
 
@@ -147,8 +147,8 @@ def cartesian_to_axial(x, y, size, orientation, aspect_scale=1):
 def hexbin(x, y, size, orientation="pointytop", aspect_scale=1):
     ''' Perform an equal-weight binning of data points into hexagonal tiles.
 
-    For more sophiscticated use cases, e.g. weighted binning or scaling
-    individual tiles proprtional to some other quantity, consider using
+    For more sophisticated use cases, e.g. weighted binning or scaling
+    individual tiles proportional to some other quantity, consider using
     HoloViews.
 
     Args:
@@ -174,7 +174,7 @@ def hexbin(x, y, size, orientation="pointytop", aspect_scale=1):
 
             When working with a plot with ``aspect_scale != 1``, this
             parameter can be set to match the plot, in order to draw
-            regular hexagons (insted of "stretched" ones).
+            regular hexagons (instead of "stretched" ones).
 
             This is roughly equivalent to binning in "screen space", and
             it may be better to use axis-aligned rectangular bins when

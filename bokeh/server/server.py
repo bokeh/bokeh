@@ -331,7 +331,8 @@ class Server(BaseServer):
                 path "/" automatically.
 
                 As a convenience, a callable may also be provided, in which
-                an Application will be created for it using FunctionHandler.
+                an Application will be created for it using
+                ``FunctionHandler``.
 
             io_loop (IOLoop, optional) :
                 An explicit Tornado ``IOLoop`` to run Bokeh Server code on. If

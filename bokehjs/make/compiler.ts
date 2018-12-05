@@ -3,7 +3,7 @@ import * as ts from "typescript"
 
 import {relative, dirname} from "path"
 
-export function reportDiagnostics(diagnostics: ts.Diagnostic[]): string[] {
+export function reportDiagnostics(diagnostics: ReadonlyArray<ts.Diagnostic>): string[] {
   const errors: string[] = []
 
   for (const diagnostic of diagnostics) {

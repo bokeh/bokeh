@@ -198,7 +198,7 @@ class ButtonClick(Event):
         super(ButtonClick, self).__init__(model=model)
 
 class PlotEvent(Event):
-    ''' PlotEvent is the base class for all events applicable to Plot models.
+    ''' The base class for all events applicable to Plot models.
 
     '''
 
@@ -251,7 +251,7 @@ class SelectionGeometry(PlotEvent):
         super(SelectionGeometry, self).__init__(model=model)
 
 class Reset(PlotEvent):
-    ''' Announce a button click event on a plot ResetTool.
+    ''' Announce a button click event on a plot ``ResetTool``.
 
     '''
     event_name = "reset"
@@ -379,8 +379,8 @@ class MouseWheel(PointEvent):
 
     .. note::
         By default, Bokeh plots do not prevent default scroll events unless a
-        WheelZoomTool or WheelPanTool is active. This may change in future
-        releases.
+        ``WheelZoomTool`` or ``WheelPanTool`` is active. This may change in
+        future releases.
 
     '''
     event_name = 'wheel'

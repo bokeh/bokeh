@@ -104,7 +104,7 @@ class Axis(GuideRenderer):
     """).accepts(Seq(Float), lambda ticks: FixedTicker(ticks=ticks))
 
     formatter = Instance(TickFormatter, help="""
-    A TickFormatter to use for formatting the visual appearance
+    A ``TickFormatter`` to use for formatting the visual appearance
     of ticks.
     """)
 
@@ -226,7 +226,7 @@ class CategoricalAxis(Axis):
     ''' An axis that displays ticks and labels for categorical ranges.
 
     The ``CategoricalAxis`` can handle factor ranges with up to two levels of
-    nesting, including drawing a seperator line between top-level groups of
+    nesting, including drawing a separator line between top-level groups of
     factors.
 
     '''
@@ -287,7 +287,7 @@ class CategoricalAxis(Axis):
     subgroup_text_font_style = Override(default="bold")
 
 class DatetimeAxis(LinearAxis):
-    ''' An LinearAxis that picks nice numbers for tick locations on
+    ''' A ``LinearAxis`` that picks nice numbers for tick locations on
     a datetime scale. Configured with a ``DatetimeTickFormatter`` by
     default.
 

@@ -301,7 +301,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
         [GlyphRenderer(id='1de4c3df-a83d-480a-899b-fb263d3d5dd9', ...)]
 
     Or simply a convenient way to attach any necessary metadata to a model
-    that can be accessed by CustomJS callbacks, etc.
+    that can be accessed by ``CustomJS`` callbacks, etc.
 
     .. note::
         No uniqueness guarantees or other conditions are enforced on any tags
@@ -312,14 +312,14 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
 
     js_event_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.CustomJS")),
     help="""
-    A mapping of event names to lists of CustomJS callbacks.
+    A mapping of event names to lists of ``CustomJS`` callbacks.
 
     Typically, rather then modifying this property directly, callbacks should be
     added using the ``Model.js_on_event`` method:
 
     .. code:: python
 
-        callback = CustomJS(code="console.log('tap event occured')")
+        callback = CustomJS(code="console.log('tap event occurred')")
         plot.js_on_event('tap', callback)
     """)
 
@@ -330,7 +330,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
     """)
 
     js_property_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.CustomJS")), help="""
-    A mapping of attribute names to lists of CustomJS callbacks, to be set up on
+    A mapping of attribute names to lists of ``CustomJS`` callbacks, to be set up on
     BokehJS side when the document is created.
 
     Typically, rather then modifying this property directly, callbacks should be
@@ -398,7 +398,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
 
 
     def js_on_change(self, event, *callbacks):
-        ''' Attach a CustomJS callback to an arbitrary BokehJS model event.
+        ''' Attach a ``CustomJS`` callback to an arbitrary BokehJS model event.
 
         On the BokehJS side, change events for model properties have the
         form ``"change:property_name"``. As a convenience, if the event name
@@ -531,7 +531,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
         need to separately have the full attributes of those
         other objects.
 
-        There's no corresponding from_json() because to
+        There's no corresponding ``from_json()`` because to
         deserialize an object is normally done in the context of a
         Document (since the Document can resolve references).
 
@@ -553,7 +553,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
         will need to separately have the full attributes of those
         other objects.
 
-        There's no corresponding from_json_string() because to
+        There's no corresponding ``from_json_string()`` because to
         deserialize an object is normally done in the context of a
         Document (since the Document can resolve references).
 
@@ -580,7 +580,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
         # The explicit assumption here is that hinted events do not need to
         # go through all the same invalidation steps. Currently this is the
         # case for ColumnsStreamedEvent and ColumnsPatchedEvent. However,
-        # this may need to be further refined in the future, if the a
+        # this may need to be further refined in the future, if the
         # assumption does not hold for future hinted events (e.g. the hint
         # could specify explicitly whether to do normal invalidation or not)
         if hint is None:
@@ -635,7 +635,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
         That's what "json like" means.
 
         This method should be considered "private" or "protected",
-        for use internal to Bokeh; use to_json() instead because
+        for use internal to Bokeh; use ``to_json()`` instead because
         it gives you only plain JSON-compatible types.
 
         Args:

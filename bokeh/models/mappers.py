@@ -215,7 +215,7 @@ class LogColorMapper(ContinuousColorMapper):
        20.09 >= x         : 'blue'    # values > high are clamped
 
     .. warning::
-        The LogColorMapper only works for images with scalar values that are
+        The ``LogColorMapper`` only works for images with scalar values that are
         non-negative.
 
     '''

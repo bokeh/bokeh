@@ -91,12 +91,12 @@ class MapPlot(Plot):
             return "%s.y_range" % str(self)
 
 class GMapOptions(MapOptions):
-    ''' Options for GMapPlot objects.
+    ''' Options for ``GMapPlot`` objects.
 
     '''
 
     map_type = Enum(MapType, default="roadmap", help="""
-    The `map type`_ to use for the GMapPlot.
+    The `map type`_ to use for the ``GMapPlot``.
 
     .. _map type: https://developers.google.com/maps/documentation/javascript/reference#MapTypeId
 
@@ -107,7 +107,7 @@ class GMapOptions(MapOptions):
     """)
 
     styles = JSON(help="""
-    A JSON array of `map styles`_ to use for the GMapPlot. Many example styles can
+    A JSON array of `map styles`_ to use for the ``GMapPlot``. Many example styles can
     `be found here`_.
 
     .. _map styles: https://developers.google.com/maps/documentation/javascript/reference#MapTypeStyle

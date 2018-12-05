@@ -18,9 +18,9 @@ p2 = figure(plot_width=400, plot_height=400, x_range=(0, 1), y_range=(0, 1),
             tools="", title="Watch Here")
 p2.circle('x', 'y', source=s2, alpha=0.6)
 
-s1.callback = CustomJS(args=dict(s2=s2), code="""
-        var inds = cb_obj.selected.indices;
-        var d1 = cb_obj.data;
+s1.selected.js_on_change('indices', CustomJS(args=dict(s1=s1, s2=s2), code="""
+        var inds = cb_obj.indices;
+        var d1 = s1.data;
         var d2 = s2.data;
         d2['x'] = []
         d2['y'] = []
@@ -30,6 +30,7 @@ s1.callback = CustomJS(args=dict(s2=s2), code="""
         }
         s2.change.emit();
     """)
+)
 
 layout = row(p1, p2)
 
