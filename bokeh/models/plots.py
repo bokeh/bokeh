@@ -251,7 +251,7 @@ class Plot(LayoutDOM):
 
         self.renderers.append(obj)
 
-        if place is not 'center':
+        if place != 'center':
             getattr(self, place).append(obj)
 
     def add_tools(self, *tools):

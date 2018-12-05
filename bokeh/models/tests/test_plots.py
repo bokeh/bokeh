@@ -159,7 +159,7 @@ class TestPlotValidation(object):
 
     def test_bad_extra_range_name(self):
         p = figure()
-        p.xaxis.x_range_name="junk"
+        p.xaxis.x_range_name=str("junk")
         with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 1
@@ -169,7 +169,7 @@ class TestPlotValidation(object):
 
         p = figure()
         p.extra_x_ranges['foo'] = Range1d()
-        p.grid.x_range_name="junk"
+        p.grid.x_range_name=str("junk")
         with mock.patch('bokeh.core.validation.check.log') as mock_logger:
             check_integrity([p])
         assert mock_logger.error.call_count == 1
@@ -207,7 +207,7 @@ def test_plot_add_layout_adds_axis_to_renderers_and_side_renderers():
 
 def test_sizing_mode_property_is_fixed_by_default():
     plot = figure()
-    assert plot.sizing_mode is 'fixed'
+    assert plot.sizing_mode == 'fixed'
 
 
 class BaseTwinAxis(object):

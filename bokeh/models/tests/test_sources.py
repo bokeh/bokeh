@@ -212,7 +212,7 @@ class TestColumnDataSource(object):
         assert ColumnDataSource._df_index_name(df) == "index"
 
     def test__df_index_name_with_named_multi_index(self, pd):
-        data = io.StringIO(u'''
+        data = io.StringIO('''
 Fruit,Color,Count,Price
 Apple,Red,3,$1.29
 Apple,Green,9,$0.99
@@ -674,7 +674,7 @@ Lime,Green,99,$0.39
 
         ds = ColumnDataSource(data=dict(a=[10, 11]))
         with warnings.catch_warnings(record=True) as warns:
-            ds.data["b"] = [20, 21, 22]
+            ds.data[str("b")] = [20, 21, 22]
         assert len(warns) == 1
         assert str(warns[0].message) == "ColumnDataSource's columns must be of the same length. Current lengths: ('a', 2), ('b', 3)"
 

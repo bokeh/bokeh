@@ -434,7 +434,7 @@ def test_Step():
     glyph = Step()
     assert glyph.x is None
     assert glyph.y is None
-    assert glyph.mode is "before"
+    assert glyph.mode == "before"
     check_line_properties(glyph)
     check_properties_existence(glyph, [
         "x",
