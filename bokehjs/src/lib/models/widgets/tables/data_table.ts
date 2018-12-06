@@ -305,7 +305,8 @@ export class DataTable extends TableWidget {
 
   properties: DataTable.Props
 
-  private sort_columns: any[] = []
+  private _sort_columns: any[] = []
+  get sort_columns(): any[] { return this._sort_columns }
 
   constructor(attrs?: Partial<DataTable.Attrs>) {
     super(attrs)
@@ -337,11 +338,10 @@ export class DataTable extends TableWidget {
 
   readonly default_width = 600
 
-  update_sort_columns(sortCols: any){
-    this.sort_columns=sortCols.map((x:any) => ({field:x.sortCol.field,sortAsc:x.sortAsc}))
+  update_sort_columns(sortCols: any): null {
+    this._sort_columns=sortCols.map((x:any) => ({field:x.sortCol.field,sortAsc:x.sortAsc}))
+    return null  
   }
-
-  get_sort_columns(){ return (this.sort_columns); }
 
   get_scroll_index(grid_range: {top: number, bottom: number}, selected_indices: number[]): number | null {
     if (!this.scroll_to_selection || (selected_indices.length == 0))
