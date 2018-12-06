@@ -39,6 +39,12 @@ import bokeh.models.plots as bmp
 # Setup
 #-----------------------------------------------------------------------------
 
+_LEGEND_EMPTY_WARNING = """
+You are attemptings to set `plot.legend.location` on a plot that has zero legends added, this will have no effect.
+
+Before legend properties can be set, you must add a Legend explicitly, or call a glyph method with the 'legend' parameter set.
+"""
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -307,12 +313,6 @@ def test__check_compatible_scale_and_ranges_incompat_factor_scale_and_numeric_ra
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
-
-_LEGEND_EMPTY_WARNING = """
-You are attemptings to set `plot.legend.location` on a plot that has zero legends added, this will have no effect.
-
-Before legend properties can be set, you must add a Legend explicitly, or call a glyph method with the 'legend' parameter set.
-"""
 
 #-----------------------------------------------------------------------------
 # Code
