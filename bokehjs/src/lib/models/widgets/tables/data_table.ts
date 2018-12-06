@@ -340,7 +340,7 @@ export class DataTable extends TableWidget {
 
   update_sort_columns(sortCols: any): null {
     this._sort_columns=sortCols.map((x:any) => ({field:x.sortCol.field,sortAsc:x.sortAsc}))
-    return null  
+    return null
   }
 
   get_scroll_index(grid_range: {top: number, bottom: number}, selected_indices: number[]): number | null {
