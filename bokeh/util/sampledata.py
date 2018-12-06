@@ -53,7 +53,7 @@ def download(progress=True):
     data_dir = external_data_dir(create=True)
     print("Using data directory: %s" % data_dir)
 
-    s3 = 'https://s3.amazonaws.com/bokeh_data/'
+    s3 = 'https://bokeh-sampledata.s3.amazonaws.com'
     files = [
         (s3, 'CGM.csv'),
         (s3, 'US_Counties.zip'),
