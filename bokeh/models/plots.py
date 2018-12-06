@@ -1,12 +1,33 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Models for representing top-level plot objects.
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import warnings
 
+# External imports
 from six import string_types
 
+# Bokeh imports
 from ..core.enums import Location, OutputBackend
 from ..core.properties import Bool, Dict, Enum, Include, Instance, Int, List, Override, String, Float
 from ..core.property_mixins import LineProps, FillProps
@@ -28,70 +49,17 @@ from .scales import Scale, CategoricalScale, LinearScale, LogScale
 from .sources import DataSource, ColumnDataSource
 from .tools import Tool, Toolbar, HoverTool
 
-def _check_conflicting_kwargs(a1, a2, kwargs):
-    if a1 in kwargs and a2 in kwargs:
-        raise ValueError("Conflicting properties set on plot: %r and %r" % (a1, a2))
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
 
-class _list_attr_splat(list):
-    def __setattr__(self, attr, value):
-        for x in self:
-            setattr(x, attr, value)
+__all__ = (
+    'Plot',
+)
 
-    def __dir__(self):
-        if len(set(type(x) for x in self)) == 1:
-            return dir(self[0])
-        else:
-            return dir(self)
-
-_LEGEND_EMPTY_WARNING = """
-You are attemptings to set `plot.legend.%s` on a plot that has zero legends added, this will have no effect.
-
-Before legend properties can be set, you must add a Legend explicitly, or call a glyph method with the 'legend' parameter set.
-"""
-
-class _legend_attr_splat(_list_attr_splat):
-    def __setattr__(self, attr, value):
-        if not len(self):
-            warnings.warn(_LEGEND_EMPTY_WARNING % attr)
-        return super(_legend_attr_splat, self).__setattr__(attr, value)
-
-def _select_helper(args, kwargs):
-    """ Allow flexible selector syntax.
-
-    Returns:
-        dict
-
-    """
-    if len(args) > 1:
-        raise TypeError("select accepts at most ONE positional argument.")
-
-    if len(args) > 0 and len(kwargs) > 0:
-        raise TypeError("select accepts EITHER a positional argument, OR keyword arguments (not both).")
-
-    if len(args) == 0 and len(kwargs) == 0:
-        raise TypeError("select requires EITHER a positional argument, OR keyword arguments.")
-
-    if args:
-        arg = args[0]
-        if isinstance(arg, dict):
-            selector = arg
-        elif isinstance(arg, string_types):
-            selector = dict(name=arg)
-        elif isinstance(arg, type) and issubclass(arg, Model):
-            selector = {"type": arg}
-        else:
-            raise TypeError("selector must be a dictionary, string or plot object.")
-
-    elif 'selector' in kwargs:
-        if len(kwargs) == 1:
-            selector = kwargs['selector']
-        else:
-            raise TypeError("when passing 'selector' keyword arg, not other keyword args may be present")
-
-    else:
-        selector = kwargs
-
-    return selector
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class Plot(LayoutDOM):
     ''' Model representing a plot, containing glyphs, guides, annotations.
@@ -283,7 +251,7 @@ class Plot(LayoutDOM):
 
         self.renderers.append(obj)
 
-        if place is not 'center':
+        if place != 'center':
             getattr(self, place).append(obj)
 
     def add_tools(self, *tools):
@@ -722,3 +690,80 @@ class Plot(LayoutDOM):
     .. note::
         This setting only takes effect if ``match_aspect`` is set to ``True``.
     """)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+def _check_conflicting_kwargs(a1, a2, kwargs):
+    if a1 in kwargs and a2 in kwargs:
+        raise ValueError("Conflicting properties set on plot: %r and %r" % (a1, a2))
+
+class _list_attr_splat(list):
+    def __setattr__(self, attr, value):
+        for x in self:
+            setattr(x, attr, value)
+
+    def __dir__(self):
+        if len(set(type(x) for x in self)) == 1:
+            return dir(self[0])
+        else:
+            return dir(self)
+
+_LEGEND_EMPTY_WARNING = """
+You are attemptings to set `plot.legend.%s` on a plot that has zero legends added, this will have no effect.
+
+Before legend properties can be set, you must add a Legend explicitly, or call a glyph method with the 'legend' parameter set.
+"""
+
+class _legend_attr_splat(_list_attr_splat):
+    def __setattr__(self, attr, value):
+        if not len(self):
+            warnings.warn(_LEGEND_EMPTY_WARNING % attr)
+        return super(_legend_attr_splat, self).__setattr__(attr, value)
+
+def _select_helper(args, kwargs):
+    """ Allow flexible selector syntax.
+
+    Returns:
+        dict
+
+    """
+    if len(args) > 1:
+        raise TypeError("select accepts at most ONE positional argument.")
+
+    if len(args) > 0 and len(kwargs) > 0:
+        raise TypeError("select accepts EITHER a positional argument, OR keyword arguments (not both).")
+
+    if len(args) == 0 and len(kwargs) == 0:
+        raise TypeError("select requires EITHER a positional argument, OR keyword arguments.")
+
+    if args:
+        arg = args[0]
+        if isinstance(arg, dict):
+            selector = arg
+        elif isinstance(arg, string_types):
+            selector = dict(name=arg)
+        elif isinstance(arg, type) and issubclass(arg, Model):
+            selector = {"type": arg}
+        else:
+            raise TypeError("selector must be a dictionary, string or plot object.")
+
+    elif 'selector' in kwargs:
+        if len(kwargs) == 1:
+            selector = kwargs['selector']
+        else:
+            raise TypeError("when passing 'selector' keyword arg, not other keyword args may be present")
+
+    else:
+        selector = kwargs
+
+    return selector
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

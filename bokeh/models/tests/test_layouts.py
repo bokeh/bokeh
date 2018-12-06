@@ -1,15 +1,46 @@
-import pytest
-from bokeh.plotting import Figure
-from bokeh.models.layouts import Row, Column, WidgetBox, LayoutDOM
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from bokeh.models.widgets import Slider
 from bokeh.models.sources import ColumnDataSource
+from bokeh.plotting import Figure
 
+# Module under test
+from bokeh.models.layouts import Row, Column, WidgetBox, LayoutDOM
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def check_props(layout):
     assert layout.width is None
     assert layout.height is None
     assert layout.children == []
-
 
 def check_props_with_sizing_mode(layout):
     assert layout.width is None
@@ -84,3 +115,15 @@ def test_LayoutDOM_css_classes():
     assert m.css_classes == ['foo']
     m.css_classes = ('bar', )
     assert m.css_classes == ['bar']
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Bokeh comes with a number of interactive tools.
 
 There are five types of tool interactions:
@@ -20,10 +27,25 @@ merely report information or annotate the plot in some way, and may
 always be active regardless of what other tools are currently active.
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from types import FunctionType
 
+# External imports
+
+# Bokeh imports
 from ..core.enums import (Anchor, Dimension, Dimensions, Location,
                           TooltipFieldFormatter, TooltipAttachment)
 from ..core.has_props import abstract
@@ -48,6 +70,54 @@ from .glyphs import XYGlyph, Rect, Patches, MultiLine
 from .ranges import Range1d
 from .renderers import Renderer, GlyphRenderer
 from .layouts import LayoutDOM
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'Action',
+    'BoxEditTool',
+    'BoxSelectTool',
+    'BoxZoomTool',
+    'CrosshairTool',
+    'CustomAction',
+    'CustomJSHover',
+    'Drag',
+    'EditTool',
+    'FreehandDrawTool',
+    'HelpTool',
+    'HoverTool',
+    'Inspection',
+    'Gesture',
+    'LassoSelectTool',
+    'PanTool',
+    'PointDrawTool',
+    'PolyDrawTool',
+    'PolyEditTool',
+    'PolySelectTool',
+    'ProxyToolbar',
+    'RangeTool',
+    'RedoTool',
+    'ResetTool',
+    'SaveTool',
+    'Scroll',
+    'Tap',
+    'TapTool',
+    'Tool',
+    'Toolbar',
+    'ToolbarBase',
+    'ToolbarBox',
+    'UndoTool',
+    'WheelPanTool',
+    'WheelZoomTool',
+    'ZoomInTool',
+    'ZoomOutTool',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 @abstract
 class Tool(Model):
@@ -1504,3 +1574,15 @@ class PolyEditTool(EditTool, Drag, Tap):
             glyph_types = ', '.join(type(renderer.glyph).__name__
                                     for renderer in incompatible_renderers)
             return "%s glyph type(s) found." % glyph_types
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

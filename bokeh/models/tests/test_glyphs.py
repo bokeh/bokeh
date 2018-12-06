@@ -1,11 +1,46 @@
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from .utils.property_utils import (
     FILL, LINE, TEXT, GLYPH, MARKER,
     check_properties_existence, check_fill_properties,
     check_line_properties, check_text_properties, check_marker_properties
 )
 
+from bokeh.core.enums import (
+    LineJoin, LineDash, LineCap,
+    FontStyle,
+    TextAlign, TextBaseline,
+    Direction,
+    AngleUnits,
+    Dimension,
+    Anchor, Location, LegendLocation,
+    DashPattern,
+    ButtonType, MapType,
+    NamedColor as Color)
+
+# Module under test
 from bokeh.models.glyphs import (
     AnnularWedge, Annulus, Arc,
     Bezier,
@@ -34,23 +69,18 @@ from bokeh.models.glyphs import (
     Triangle,
     X)
 
-from bokeh.core.enums import (
-    LineJoin, LineDash, LineCap,
-    FontStyle,
-    TextAlign, TextBaseline,
-    Direction,
-    AngleUnits,
-    Dimension,
-    Anchor, Location, LegendLocation,
-    DashPattern,
-    ButtonType, MapType,
-    NamedColor as Color)
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
 
 # fool flake8
 (LineJoin, LineDash, LineCap, FontStyle, TextAlign, TextBaseline, Direction,
  AngleUnits, Dimension, Anchor, Location, LegendLocation,
  DashPattern, ButtonType, MapType, Color)
 
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def test_AnnularWedge():
     glyph = AnnularWedge()
@@ -404,7 +434,7 @@ def test_Step():
     glyph = Step()
     assert glyph.x is None
     assert glyph.y is None
-    assert glyph.mode is "before"
+    assert glyph.mode == "before"
     check_line_properties(glyph)
     check_properties_existence(glyph, [
         "x",
@@ -585,3 +615,15 @@ def test_X():
     check_fill_properties(marker)
     check_line_properties(marker)
     check_properties_existence(marker, MARKER, FILL, LINE, GLYPH)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

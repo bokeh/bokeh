@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide Bokeh model "building block" classes.
 
 One of the central design principals of Bokeh is that, regardless of
@@ -9,9 +16,39 @@ BokehJS uses to render the plot. The low-level objects that comprise
 a Bokeh scene graph are called :ref:`Models <bokeh.model>`.
 
 '''
-from __future__ import absolute_import
-
 # This file is excluded from flake8 checking in setup.cfg
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'Model',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+from ..model import Model
 
 from .annotations import *
 from .arrow_heads import *
@@ -30,6 +67,7 @@ from .mappers import *
 from .plots import *
 from .ranges import *
 from .renderers import *
+from .scales import *
 from .selections import *
 from .sources import *
 from .tickers import *
@@ -37,3 +75,15 @@ from .tiles import *
 from .tools import *
 from .transforms import *
 from .widgets import *
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

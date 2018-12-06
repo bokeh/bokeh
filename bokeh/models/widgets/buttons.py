@@ -1,8 +1,31 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Various kinds of button widgets.
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from ...core.enums import ButtonType
 from ...core.has_props import abstract, HasProps
 from ...core.properties import Bool, Enum, Instance, Int, List, Override, String, Tuple
@@ -11,6 +34,22 @@ from ..callbacks import Callback
 
 from .icons import AbstractIcon
 from .widget import Widget
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'AbstractButton',
+    'Button',
+    'ButtonLike',
+    'Dropdown',
+    'Toggle',
+)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 @abstract
 class ButtonLike(HasProps):
@@ -40,6 +79,9 @@ class AbstractButton(Widget, ButtonLike):
     A callback to run in the browser whenever the button is activated.
     """)
 
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class Button(AbstractButton):
     ''' A click button.
@@ -133,3 +175,11 @@ class Dropdown(AbstractButton):
     def js_on_click(self, handler):
         ''' Set up a JavaScript handler for button or menu item clicks. '''
         self.js_on_change('value', handler)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

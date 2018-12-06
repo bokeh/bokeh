@@ -1,4 +1,10 @@
-# -*- coding: utf-8 -*-
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Display a variety of visual shapes whose attributes can be associated
 with data columns from ``ColumnDataSources``.
 
@@ -37,8 +43,24 @@ All these glyphs share a minimal common interface through their base class
     :members:
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from ..core.enums import Anchor, Direction, StepMode
 from ..core.has_props import abstract
 from ..core.properties import (AngleSpec, Bool, DistanceSpec, Enum, Float, String,
@@ -47,6 +69,44 @@ from ..core.property_mixins import FillProps, LineProps, ScalarFillProps, Scalar
 from ..model import Model
 
 from .mappers import ColorMapper, LinearColorMapper
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'AnnularWedge',
+    'Annulus',
+    'Arc',
+    'Bezier',
+    'Ellipse',
+    'Glyph',
+    'HBar',
+    'HexTile',
+    'Image',
+    'ImageRGBA',
+    'ImageURL',
+    'Line',
+    'MultiLine',
+    'MultiPolygons',
+    'Oval',
+    'Patch',
+    'Patches',
+    'Quad',
+    'Quadratic',
+    'Ray',
+    'Rect',
+    'Segment',
+    'Step',
+    'Text',
+    'VBar',
+    'Wedge',
+    'XYGlyph',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 @abstract
 class Glyph(Model):
@@ -182,11 +242,11 @@ class Arc(XYGlyph):
     """)
 
 class Bezier(Glyph):
-    u''' Render Bézier curves.
+    ''' Render Bezier curves.
 
-    For more information consult the `Wikipedia article for Bézier curve`_.
+    For more information consult the `Wikipedia article for Bezier curve`_.
 
-    .. _Wikipedia article for Bézier curve: http://en.wikipedia.org/wiki/Bézier_curve
+    .. _Wikipedia article for Bezier curve: http://en.wikipedia.org/wiki/Bezier_curve
 
     '''
 
@@ -228,12 +288,12 @@ class Bezier(Glyph):
     The y-coordinates of second control points.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help=u"""
-    The %s values for the Bézier curves.
+    line_props = Include(LineProps, use_prefix=False, help="""
+    The %s values for the Bezier curves.
     """)
 
 class Ellipse(XYGlyph):
-    u''' Render ellipses.
+    ''' Render ellipses.
 
     '''
 
@@ -668,9 +728,9 @@ class MultiPolygons(Glyph):
     """)
 
 class Oval(XYGlyph):
-    u''' Render ovals.
+    ''' Render ovals.
 
-    This glyph renders ovals using Bézier curves, which are similar,
+    This glyph renders ovals using Bezier curves, which are similar,
     but not identical to ellipses. In particular, widths equal to heights
     will not render circles. Use the ``Ellipse`` glyph for that.
 
@@ -1135,6 +1195,18 @@ class Wedge(XYGlyph):
     fill_props = Include(FillProps, use_prefix=False, help="""
     The %s values for the wedges.
     """)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
 
 # XXX: allow `from bokeh.models.glyphs import *`
 from .markers import (Asterisk, Circle, CircleCross, CircleX, Cross, Dash,

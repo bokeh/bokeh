@@ -1,14 +1,55 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Various kinds of input widgets and form controls.
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from ...core.has_props import abstract
 from ...core.properties import Date, Either, Float, Instance, Int, List, String, Tuple, Dict
 
 from ..callbacks import Callback
 
 from .widget import Widget
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'AutocompleteInput',
+    'DatePicker',
+    'InputWidget',
+    'MultiSelect',
+    'PasswordInput',
+    'Select',
+    'TextInput',
+)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 @abstract
 class InputWidget(Widget):
@@ -31,6 +72,10 @@ class InputWidget(Widget):
             return str(val)
         else:
             return val
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class TextInput(InputWidget):
     ''' Single-line input widget.
@@ -144,3 +189,11 @@ class DatePicker(InputWidget):
     callback = Instance(Callback, help="""
     A callback to run in the browser whenever the current date value changes.
     """)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

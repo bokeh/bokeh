@@ -1,6 +1,35 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from itertools import chain
 
+# External imports
+
+# Bokeh imports
 from bokeh.core.enums import NamedColor as Color, LineJoin, LineCap
+
+# Module under test
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
 
 # enums
 FILL = ["fill_color", "fill_alpha"]
@@ -13,6 +42,10 @@ PROPS = ["name", "tags", "js_property_callbacks", "js_event_callbacks", "subscri
 GLYPH = []
 
 MARKER = ["x", "y", "size", "angle", "angle_units"]
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def prefix(prefix, props):
     return [prefix + p for p in props]
@@ -51,3 +84,15 @@ def check_marker_properties(marker):
     assert marker.x is None
     assert marker.y is None
     assert marker.size == 4
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

@@ -1,11 +1,33 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Models for controlling the text and visual formatting of tick
 labels on Bokeh plot axes.
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from types import FunctionType
 
+# External imports
+
+# Bokeh imports
 from bokeh.util.string import format_docstring
 from ..core.enums import LatLon, NumeralLanguage, RoundingFunction
 from ..core.has_props import abstract
@@ -17,6 +39,37 @@ from ..util.compiler import nodejs_compile, CompilationError
 from ..util.dependencies import import_required
 from ..util.future import get_param_info, signature
 from .tickers import Ticker
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'TickFormatter',
+    'BasicTickFormatter',
+    'MercatorTickFormatter',
+    'NumeralTickFormatter',
+    'PrintfTickFormatter',
+    'LogTickFormatter',
+    'CategoricalTickFormatter',
+    'FuncTickFormatter',
+    'DatetimeTickFormatter',
+)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+def _DATETIME_TICK_FORMATTER_HELP(field):
+    return """
+    Formats for displaying datetime values in the %s range.
+
+    See the :class:`~bokeh.models.formatters.DatetimeTickFormatter` help for a list of all supported formats.
+    """ % field
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 @abstract
 class TickFormatter(Model):
@@ -349,13 +402,6 @@ class FuncTickFormatter(TickFormatter):
     Enables or disables automatic insertion of ``"use strict";`` into ``code``.
     """)
 
-def _DATETIME_TICK_FORMATTER_HELP(field):
-    return """
-    Formats for displaying datetime values in the %s range.
-
-    See the :class:`~bokeh.models.formatters.DatetimeTickFormatter` help for a list of all supported formats.
-    """ % field
-
 class DatetimeTickFormatter(TickFormatter):
     ''' A ``TickFormatter`` for displaying datetime values nicely across a
     range of scales.
@@ -599,6 +645,14 @@ class DatetimeTickFormatter(TickFormatter):
     years        = List(String,
                         help=_DATETIME_TICK_FORMATTER_HELP("``years``"),
                         default=['%Y']).accepts(String, lambda fmt: [fmt])
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
 
 # This is to automate documentation of DatetimeTickFormatter formats and their defaults
 _df = DatetimeTickFormatter()

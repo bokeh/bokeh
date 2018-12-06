@@ -1,12 +1,34 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Models for describing different kinds of ranges of values
 in different kinds of spaces (e.g., continuous or categorical)
 and with options for "auto sizing".
 
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from collections import Counter
 
+# External imports
+
+# Bokeh imports
 from ..core.enums import PaddingUnits, StartEnd
 from ..core.has_props import abstract
 from ..core.properties import (Bool, Datetime, Either, Enum, Float, Instance,
@@ -18,6 +40,21 @@ from ..model import Model
 from .callbacks import Callback
 from .renderers import Renderer
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'DataRange',
+    'DataRange1d',
+    'FactorRange',
+    'Range',
+    'Range1d',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 @abstract
 class Range(Model):
@@ -415,3 +452,15 @@ class FactorRange(Range):
         dupes = [item for item, count in Counter(self.factors).items() if count > 1]
         if dupes:
             return "duplicate factors found: %s" % ', '.join(repr(x) for x in dupes)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

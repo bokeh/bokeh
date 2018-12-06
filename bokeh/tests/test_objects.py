@@ -120,7 +120,7 @@ class SomeModelToJson(Model):
 class TestModel(object):
 
     def setup_method(self):
-        from bokeh.models import Model
+        from bokeh.model import Model
 
         self.pObjectClass = Model
         self.maxDiff = None

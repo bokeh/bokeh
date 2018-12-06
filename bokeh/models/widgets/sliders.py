@@ -1,11 +1,33 @@
-""" Various kinds of slider widgets.
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+''' Various kinds of slider widgets.
 
-"""
-from __future__ import absolute_import
+'''
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from datetime import datetime
 import numbers
 
+# External imports
+
+# Bokeh imports
 from ...core.has_props import abstract
 from ...core.properties import Bool, Int, Float, String, Date, Enum, Tuple, Instance, Color, Override
 from ...core.enums import SliderCallbackPolicy
@@ -13,6 +35,22 @@ from ...core.validation import error
 from ...core.validation.errors import EQUAL_SLIDER_START_END
 from ..callbacks import Callback
 from .widget import Widget
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'AbstractSlider',
+    'Slider',
+    'RangeSlider',
+    'DateSlider',
+    'DateRangeSlider',
+)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 @abstract
 class AbstractSlider(Widget):
@@ -71,6 +109,10 @@ class AbstractSlider(Widget):
         if hasattr(self, 'start') and hasattr(self, 'end'):
             if self.start == self.end:
                 return '{!s} with title {!s}'.format(self, self.title)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class Slider(AbstractSlider):
     """ Slider-based number selection widget. """
@@ -174,3 +216,11 @@ class DateRangeSlider(AbstractSlider):
     """)
 
     format = Override(default="%d %b %Y")
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
