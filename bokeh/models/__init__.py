@@ -48,6 +48,8 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
+from ..model import Model
+
 from .annotations import *
 from .arrow_heads import *
 from .axes import *
@@ -73,8 +75,6 @@ from .tiles import *
 from .tools import *
 from .transforms import *
 from .widgets import *
-
-from bokeh.model import Model
 
 #-----------------------------------------------------------------------------
 # Dev API
