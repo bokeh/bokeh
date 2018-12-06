@@ -2,7 +2,7 @@ import {Axis, AxisView, Extents, TickCoords, Coords} from "./axis"
 
 import {CategoricalTicker} from "../tickers/categorical_ticker"
 import {CategoricalTickFormatter} from "../formatters/categorical_tick_formatter"
-import {FactorRange, Factor} from "../ranges/factor_range"
+import {FactorRange, Factor, L1Factor, L2Factor, L3Factor} from "../ranges/factor_range"
 
 import * as p from "core/properties"
 import {Text, Line} from "core/visuals"
@@ -93,14 +93,17 @@ export class CategoricalAxisView extends AxisView {
     const info: [string[], Coords, Orient | number, Text][] = []
 
     if (range.levels == 1) {
-      const labels = this.model.formatter.doFormat(ticks.major as string[], this.model)
+      const major = ticks.major as L1Factor[]
+      const labels = this.model.formatter.doFormat(major, this.model)
       info.push([labels, coords.major, this.model.major_label_orientation, this.visuals.major_label_text])
     } else if (range.levels == 2) {
-      const labels = this.model.formatter.doFormat(ticks.major.map((x) => x[1]), this.model)
+      const major = (ticks.major as L2Factor[]).map((x) => x[1])
+      const labels = this.model.formatter.doFormat(major, this.model)
       info.push([labels, coords.major, this.model.major_label_orientation, this.visuals.major_label_text])
       info.push([ticks.tops as string[], coords.tops, this.model.group_label_orientation, this.visuals.group_text])
     } else if (range.levels == 3) {
-      const labels = this.model.formatter.doFormat(ticks.major.map((x) => x[2]), this.model)
+      const major = (ticks.major as L3Factor[]).map((x) => x[2])
+      const labels = this.model.formatter.doFormat(major, this.model)
       const mid_labels = ticks.mids.map((x) => x[1])
       info.push([labels, coords.major, this.model.major_label_orientation, this.visuals.major_label_text])
       info.push([mid_labels as string[], coords.mids, this.model.subgroup_label_orientation, this.visuals.subgroup_text])

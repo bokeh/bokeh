@@ -172,6 +172,9 @@ class ColumnDataSource(ColumnarDataSource):
             except TypeError:
                 raise TypeError('Could not flatten MultiIndex columns. '
                                 'use string column names or flatten manually')
+        # Transform columns CategoricalIndex in list
+        if isinstance(df.columns, pd.CategoricalIndex):
+            _df.columns = df.columns.tolist()
         # Flatten index
         index_name = ColumnDataSource._df_index_name(df)
         if index_name == 'index':

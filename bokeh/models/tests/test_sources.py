@@ -65,6 +65,19 @@ class TestColumnDataSource(object):
         assert [0, 1] == list(ds.data['level_0'])
         assert set(ds.column_names) - set(df.columns) == set(["level_0"])
 
+    def test_init_dataframe_column_categoricalindex(self, pd):
+        columns = pd.CategoricalIndex(['a', 'b'])
+        data = [[0,2], [1,3]]
+        df = pd.DataFrame(columns=columns, data=data)
+        ds = ColumnDataSource(data=df)
+        assert set(df.columns).issubset(set(ds.column_names))
+        for key in columns:
+            assert isinstance(ds.data[key], np.ndarray)
+            assert list(df[key]) == list(ds.data[key])
+        assert isinstance(ds.data['index'], np.ndarray)
+        assert [0, 1] == list(ds.data['index'])
+        assert set(ds.column_names) - set(df.columns) == set(["index"])
+
     def test_init_dataframe_nonstring_named_column(self, pd):
         data = {1: [1, 2], 2: [2, 3]}
         df = pd.DataFrame(data)
