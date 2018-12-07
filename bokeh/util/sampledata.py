@@ -31,6 +31,7 @@ from sys import stdout
 
 # External imports
 import six
+from six.moves.urllib_parse import urljoin
 
 # Bokeh imports
 
@@ -53,7 +54,7 @@ def download(progress=True):
     data_dir = external_data_dir(create=True)
     print("Using data directory: %s" % data_dir)
 
-    s3 = 'https://s3.amazonaws.com/bokeh_data/'
+    s3 = 'https://bokeh-sampledata.s3.amazonaws.com'
     files = [
         (s3, 'CGM.csv'),
         (s3, 'US_Counties.zip'),
@@ -193,7 +194,7 @@ def _download_file(base_url, filename, data_dir, progress=True):
     from six.moves.urllib.request import urlopen
     from zipfile import ZipFile
 
-    file_url = join(base_url, filename)
+    file_url = urljoin(base_url, filename)
     file_path = join(data_dir, filename)
 
     url = urlopen(file_url)
