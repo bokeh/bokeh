@@ -31,6 +31,7 @@ from sys import stdout
 
 # External imports
 import six
+from six.moves.urllib_parse import urljoin
 
 # Bokeh imports
 
@@ -193,7 +194,7 @@ def _download_file(base_url, filename, data_dir, progress=True):
     from six.moves.urllib.request import urlopen
     from zipfile import ZipFile
 
-    file_url = join(base_url, filename)
+    file_url = urljoin(base_url, filename)
     file_path = join(data_dir, filename)
 
     url = urlopen(file_url)
