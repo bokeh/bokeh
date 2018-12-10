@@ -115,15 +115,15 @@ class TextAreaInput(InputWidget):
     Placeholder for empty input field
     """)
 
-    cols = Int(default=None, help="""
+    cols = Int(default=20, help="""
     Specifies the width of the text area (in average character width). Default: 20
     """)
 
-    rows = Int(default=None, help="""
+    rows = Int(default=2, help="""
     Specifies the height of the text area (in lines). Default: 2
     """)
 
-    max_length = Int(default=None, help="""
+    max_length = Int(default=500, help="""
     Max count of characters in field
     """)
 

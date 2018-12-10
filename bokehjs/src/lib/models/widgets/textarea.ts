@@ -35,13 +35,13 @@ export class TextAreaInputView extends InputWidgetView {
       class: "bk-widget-form-textarea",
       id: this.model.id,
       name: this.model.name,
-      value: this.model.value,
       disabled: this.model.disabled,
       placeholder: this.model.placeholder,
       cols: this.model.cols,
       rows: this.model.rows,
       maxLength: this.model.max_length,
     })
+    this.inputEl.append(this.model.value)
     this.inputEl.addEventListener("change", () => this.change_input())
     this.el.appendChild(this.inputEl)
 
@@ -85,9 +85,9 @@ export class TextAreaInput extends InputWidget {
     this.define({
       value:       [ p.String, "" ],
       placeholder: [ p.String, "" ],
-      cols:        [ p.Number, 200],
-      rows:        [ p.Number, 5],
-      max_length:  [ p.Number, 1000],
+      cols:        [ p.Number, 20],
+      rows:        [ p.Number, 2],
+      max_length:  [ p.Number, 500],
     })
   }
 }
