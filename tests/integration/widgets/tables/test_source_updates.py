@@ -38,8 +38,16 @@ pytest_plugins = (
     "bokeh._testing.plugins.bokeh",
 )
 
-def is_cds_data_patch(evt):
+def _is_cds_data_patch(evt):
     return evt['kind'] == 'ModelChanged' and evt['model']['type'] == 'ColumnDataSource' and evt['attr'] == 'data'
+
+def has_cds_data_patches(msgs):
+    for msg in msgs:
+        if msg.msgtype == "PATCH-DOC":
+            if any(_is_cds_data_patch(evt) for evt in msg.content.get('events', [])):
+                return True
+
+    return False
 
 @pytest.mark.integration
 @pytest.mark.selenium
@@ -94,8 +102,7 @@ class Test_DataTableSource(object):
         #
         # Then that means the client got our patch message and erroneously ping
         # ponged a full data update back to us
-        for msg in page.message_test_port.received:
-            assert not any(is_cds_data_patch(evt) for evt in msg.content.get('events', []))
+        assert not has_cds_data_patches(page.message_test_port.received)
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
@@ -149,8 +156,7 @@ class Test_DataTableSource(object):
         #
         # Then that means the client got our stream message and erroneously ping
         # ponged a full data update back to us
-        for msg in page.message_test_port.received:
-            assert not any(is_cds_data_patch(evt) for evt in msg.content.get('events', []))
+        assert not has_cds_data_patches(page.message_test_port.received)
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
@@ -204,8 +210,7 @@ class Test_DataTableSource(object):
         #
         # Then that means the client got our stream message and erroneously ping
         # ponged a full data update back to us
-        for msg in page.message_test_port.received:
-            assert not any(is_cds_data_patch(evt) for evt in msg.content.get('events', []))
+        assert not has_cds_data_patches(page.message_test_port.received)
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
@@ -254,8 +259,7 @@ class Test_DataTableSource(object):
         #
         # Then that means the client got our stream message and erroneously ping
         # ponged a full data update back to us
-        for msg in page.message_test_port.received:
-            assert not any(is_cds_data_patch(evt) for evt in msg.content.get('events', []))
+        assert not has_cds_data_patches(page.message_test_port.received)
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
