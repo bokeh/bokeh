@@ -21,13 +21,13 @@ select = figure(title="Drag the middle and edges of the selection box to change 
                 x_axis_type="datetime", y_axis_type=None,
                 tools="", toolbar_location=None, background_fill_color="#efefef")
 
-range_rool = RangeTool(x_range=p.x_range)
-range_rool.overlay.fill_color = "navy"
-range_rool.overlay.fill_alpha = 0.2
+range_tool = RangeTool(x_range=p.x_range)
+range_tool.overlay.fill_color = "navy"
+range_tool.overlay.fill_alpha = 0.2
 
 select.line('date', 'close', source=source)
 select.ygrid.grid_line_color = None
-select.add_tools(range_rool)
-select.toolbar.active_multi = range_rool
+select.add_tools(range_tool)
+select.toolbar.active_multi = range_tool
 
 show(column(p, select))
