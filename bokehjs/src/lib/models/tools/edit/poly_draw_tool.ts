@@ -80,6 +80,7 @@ export class PolyDrawToolView extends PolyToolView {
   }
 
   _show_vertices(): void {
+    if (!this.model.active ) { return }
     const xs: number[] = []
     const ys: number[] = []
     for (let i=0; i<this.model.renderers.length; i++) {
