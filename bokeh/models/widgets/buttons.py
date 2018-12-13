@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ...core.enums import ButtonType
 from ...core.has_props import abstract, HasProps
-from ...core.properties import Bool, Enum, Instance, List, Override, String, Tuple, Either
+from ...core.properties import Bool, Enum, Instance, List, Override, String, Tuple, Either, Int
 from ...events import ButtonClick, MenuItemClick
 
 from ..callbacks import Callback
@@ -94,6 +94,14 @@ class Button(AbstractButton):
 
     label = Override(default="Button")
 
+    clicks = Int(0, help="""
+    A private property that used to trigger ``on_click`` event handler.
+
+    .. note:
+        This property is deprecated and left for backwards compatibility. Use
+        ``button.on_click()`` or ``button.js_on_click()`` methods in new code.
+    """)
+
     def on_click(self, handler):
         ''' Set up a handler for button clicks.
 
@@ -109,7 +117,6 @@ class Button(AbstractButton):
     def js_on_click(self, handler):
         ''' Set up a JavaScript handler for button clicks. '''
         self.js_on_event(ButtonClick, handler)
-
 
 class Toggle(AbstractButton):
     ''' A two-state toggle button.
