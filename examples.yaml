@@ -21,7 +21,7 @@
 
 - path: "examples/app"
   type: server
-  skip: ["gapminder", "pivot", "simple_hdf5", "spectrogram", "surface3d", "stocks"]
+  skip: all
 
 - path: "examples/integration/*"
 
