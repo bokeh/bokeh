@@ -32,7 +32,8 @@ from ..core.properties import Bool, Dict, Enum, Include, Instance, Int, List, Ov
 from ..core.property_mixins import LineProps, FillProps
 from ..core.query import find
 from ..core.validation import error, warning
-from ..core.validation.errors import  BAD_EXTRA_RANGE_NAME, REQUIRED_RANGE, REQUIRED_SCALE, INCOMPATIBLE_SCALE_AND_RANGE
+from ..core.validation.errors import (BAD_EXTRA_RANGE_NAME, REQUIRED_RANGE, REQUIRED_SCALE,
+    INCOMPATIBLE_SCALE_AND_RANGE, FIXED_SIZING_MODE, FIXED_WIDTH_POLICY, FIXED_HEIGHT_POLICY)
 from ..core.validation.warnings import MISSING_RENDERERS
 from ..model import Model
 from ..util.string import nice_join
@@ -690,6 +691,19 @@ class Plot(LayoutDOM):
     .. note::
         This setting only takes effect if ``match_aspect`` is set to ``True``.
     """)
+
+    # XXX: override LayoutDOM's definitions because of plot_{width,height}.
+    @error(FIXED_SIZING_MODE)
+    def _check_fixed_sizing_mode(self):
+        pass
+
+    @error(FIXED_WIDTH_POLICY)
+    def _check_fixed_width_policy(self):
+        pass
+
+    @error(FIXED_HEIGHT_POLICY)
+    def _check_fixed_height_policy(self):
+        pass
 
 #-----------------------------------------------------------------------------
 # Dev API
