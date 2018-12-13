@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
 from .core.enums import Location
 from .models.tools import ProxyToolbar, ToolbarBox
 from .models.plots import Plot
-from .models.layouts import LayoutDOM, Row, Column, GridBox
+from .models.layouts import LayoutDOM, Row, Column, GridBox, WidgetBox
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -144,18 +144,26 @@ def widgetbox(*args, **kwargs):
             description on :class:`~bokeh.models.layouts.LayoutDOM`.
 
     Returns:
-        Column: A column layout of widget instances all with the same ``sizing_mode``.
+        WidgetBox: A column layout of widget instances all with the same ``sizing_mode``.
 
     Examples:
 
         >>> widgetbox([button, select])
         >>> widgetbox(children=[slider], sizing_mode='scale_width')
     """
-    css_classes = kwargs.get("css_classes", [])
-    kwargs["css_classes"] = ["bk-widgetbox"] + css_classes
-    kwargs.setdefault("spacing", 5)
-    kwargs.setdefault("rows", "min")
-    return column(*args, **kwargs)
+
+    sizing_mode = kwargs.pop('sizing_mode', None)
+    children = kwargs.pop('children', None)
+
+    children = _handle_children(*args, children=children)
+
+    col_children = []
+    for item in children:
+        if isinstance(item, LayoutDOM):
+            col_children.append(item)
+        else:
+            raise ValueError("""Only LayoutDOM items can be inserted into a widget box. Tried to insert: %s of type %s""" % (item, type(item)))
+    return WidgetBox(children=col_children, sizing_mode=sizing_mode, **kwargs)
 
 
 def layout(*args, **kwargs):
