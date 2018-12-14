@@ -237,7 +237,6 @@ export class DataTableView extends WidgetView {
       this.el.style.height = `${this.model.height}px`
 
     this.data = new DataProvider(this.model.source, this.model.view)
-
     this.grid = new SlickGrid(this.el, this.data, columns, options)
 
     this.grid.onSort.subscribe((_event: any, args: any) => {
@@ -254,12 +253,11 @@ export class DataTableView extends WidgetView {
 
     if (this.model.selectable !== false) {
       this.grid.setSelectionModel(new RowSelectionModel({selectActiveRow: checkboxSelector == null}))
-
       if (checkboxSelector != null)
         this.grid.registerPlugin(checkboxSelector)
 
       var pluginOptions = {
-        dataItemColumnValueExtractor: function(val: any, col: any) { 
+        dataItemColumnValueExtractor: function(val: any, col: any) {
           var value: any = val[col.field]
           if ( typeof value === 'string'){
             value = value.replace(/\n/g, "\\n")
