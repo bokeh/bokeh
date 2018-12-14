@@ -128,17 +128,18 @@ export class Grid extends Layoutable {
 
       const align = row.align || "start"
       const top = 0
+      const height = 0
 
       if (row.policy == "fixed")
         rows[y] = {align, top, height: row.height, policy: "fixed"}
       else if (row.policy == "auto")
-        rows[y] = {align, top, height: 0, policy: "auto"}
+        rows[y] = {align, top, height, policy: "auto"}
       else if (row.policy == "min")
-        rows[y] = {align, top, height: 0, policy: "min"}
+        rows[y] = {align, top, height, policy: "min"}
       else if (row.policy == "max")
-        rows[y] = {align, top, height: 0, policy: "flex", factor: 1}
+        rows[y] = {align, top, height, policy: "flex", factor: 1}
       else if (row.policy == "flex")
-        rows[y] = {align, top, height: 0, policy: "flex", factor: row.factor}
+        rows[y] = {align, top, height, policy: "flex", factor: row.factor}
     }
 
     const cols: ColSpec[] = new Array(ncols)
@@ -169,17 +170,18 @@ export class Grid extends Layoutable {
 
       const align = col.align || "start"
       const left = 0
+      const width = 0
 
       if (col.policy == "fixed")
         cols[x] = {align, left, width: col.width, policy: "fixed"}
       else if (col.policy == "auto")
-        cols[x] = {align, left, width: 0, policy: "auto"}
+        cols[x] = {align, left, width, policy: "auto"}
       else if (col.policy == "min")
-        cols[x] = {align, left, width: 0, policy: "min"}
+        cols[x] = {align, left, width, policy: "min"}
       else if (col.policy == "max")
-        cols[x] = {align, left, width: 0, policy: "flex", factor: 1}
+        cols[x] = {align, left, width, policy: "flex", factor: 1}
       else if (col.policy == "flex")
-        cols[x] = {align, left, width: 0, policy: "flex", factor: col.factor}
+        cols[x] = {align, left, width, policy: "flex", factor: col.factor}
     }
 
     for (let y = 0; y < nrows; y++) {
@@ -212,14 +214,20 @@ export class Grid extends Layoutable {
       isNumber(this.spacing) ? [this.spacing, this.spacing] : this.spacing
 
     let min_height = 0
+    let height_expanding = false
     for (let y = 0; y < nrows; y++) {
       min_height += rows[y].height
+      if (rows[y].policy == "flex")
+        height_expanding = true
     }
     min_height += (nrows - 1)*vspacing
 
     let min_width = 0
+    let width_expanding = false
     for (let x = 0; x < ncols; x++) {
       min_width += cols[x].width
+      if (cols[x].policy == "flex")
+        width_expanding = true
     }
     min_width += (ncols - 1)*hspacing
 
@@ -241,7 +249,7 @@ export class Grid extends Layoutable {
 
     this._state = {matrix, nrows, ncols, rows, cols, hspacing, vspacing}
 
-    return {width, height}
+    return {width, height, width_expanding, height_expanding}
   }
 
   protected _set_geometry(outer: BBox, inner: BBox): void {

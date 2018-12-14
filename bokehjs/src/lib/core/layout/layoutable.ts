@@ -16,6 +16,8 @@ export type SizingPolicy = "fixed" | "min" | "max" | "auto"
 
 export type SizeHint = Size & {
   inner?: Margin
+  width_expanding?: boolean
+  height_expanding?: boolean
 }
 
 export type Sizing = number | "min" | "max"
@@ -100,6 +102,8 @@ export abstract class Layoutable {
       case "auto":
         if (this.sizing.width != null)
           width = this.sizing.width
+        else if (size_hint.width_expanding === true && viewport.width != null)
+          width = viewport.width
         else
           width = size_hint.width
         break
@@ -123,6 +127,8 @@ export abstract class Layoutable {
       case "auto":
         if (this.sizing.height != null)
           height = this.sizing.height
+        else if (size_hint.height_expanding === true && viewport.height != null)
+          height = viewport.height
         else
           height = size_hint.height
         break
