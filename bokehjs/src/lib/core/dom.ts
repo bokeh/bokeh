@@ -286,3 +286,13 @@ export enum Keys {
   Down      = 40,
   Delete    = 46,
 }
+
+export function undisplayed<T>(el: HTMLElement, fn: () => T): T {
+  const {display} = el.style
+  el.style.display = "none"
+  try {
+    return fn()
+  } finally {
+    el.style.display = display
+  }
+}

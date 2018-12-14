@@ -1,7 +1,7 @@
 import {Model} from "../../model"
 import {Class} from "core/class"
 import {SizingMode} from "core/enums"
-import {empty, classes, margin, padding} from "core/dom"
+import {empty, classes, margin, padding, undisplayed} from "core/dom"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 
@@ -13,7 +13,7 @@ export namespace LayoutDOMView {
   export type Options = DOMView.Options & {model: LayoutDOM}
 }
 
-export abstract class LayoutDOMView extends DOMView implements EventListenerObject {
+export abstract class LayoutDOMView extends DOMView {
   model: LayoutDOM
 
   root: LayoutDOMView
@@ -23,10 +23,13 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
 
   protected _child_views: {[key: string]: LayoutDOMView}
 
+  protected _on_resize: () => void
+
   layout: Layoutable
 
   initialize(options: any): void {
     super.initialize(options)
+    this._on_resize = () => this.compute_layout()
     this._child_views = {}
     this.build_child_views()
   }
@@ -42,7 +45,7 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
     super.connect_signals()
 
     if (this.is_root) {
-      window.addEventListener("resize", this)
+      window.addEventListener("resize", this._on_resize)
     }
 
     this.connect(this.model.properties.sizing_mode.change, () => {
@@ -52,12 +55,8 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
   }
 
   disconnect_signals(): void {
-    window.removeEventListener("resize", this)
+    window.removeEventListener("resize", this._on_resize)
     super.disconnect_signals()
-  }
-
-  handleEvent(): void {
-    this.compute_layout()
   }
 
   css_classes(): string[] {
@@ -245,37 +244,39 @@ export abstract class LayoutDOMView extends DOMView implements EventListenerObje
   }
 
   protected _viewport_size(): {width: number | null, height: number | null} {
-    let measuring: HTMLElement | null = this.el
+    return undisplayed(this.el, () => {
+      let measuring: HTMLElement | null = this.el
 
-    while (measuring = measuring.parentElement) {
-      // .bk-root element doesn't bring any value
-      if (measuring.classList.contains("bk-root"))
-        continue
+      while (measuring = measuring.parentElement) {
+        // .bk-root element doesn't bring any value
+        if (measuring.classList.contains("bk-root"))
+          continue
 
-      // we reached <body> element, so use viewport size
-      if (measuring == document.body) {
-        const {left, right, top, bottom} = margin(document.body)
-        const width  = document.documentElement!.clientWidth  - left - right
-        const height = document.documentElement!.clientHeight - top  - bottom
-        return {width, height}
+        // we reached <body> element, so use viewport size
+        if (measuring == document.body) {
+          const {left, right, top, bottom} = margin(document.body)
+          const width  = document.documentElement!.clientWidth  - left - right
+          const height = document.documentElement!.clientHeight - top  - bottom
+          return {width, height}
+        }
+
+        // stop on first element with sensible dimensions
+        const {left, right, top, bottom} = padding(measuring)
+        const {width, height} = measuring.getBoundingClientRect()
+
+        const inner_width = width - left - right
+        const inner_height = height - top - bottom
+
+        if (inner_width > 0 || inner_height > 0)
+          return {
+            width: inner_width > 0 ? inner_width : null,
+            height: inner_height > 0 ? inner_height : null,
+          }
       }
 
-      // stop on first element with sensible dimensions
-      const {left, right, top, bottom} = padding(measuring)
-      const {width, height} = measuring.getBoundingClientRect()
-
-      const inner_width = width - left - right
-      const inner_height = height - top - bottom
-
-      if (inner_width > 0 || inner_height > 0)
-        return {
-          width: inner_width > 0 ? inner_width : null,
-          height: inner_height > 0 ? inner_height : null,
-        }
-    }
-
-    // this element is detached from DOM
-    return {width: null, height: null}
+      // this element is detached from DOM
+      return {width: null, height: null}
+    })
   }
 }
 
