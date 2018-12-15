@@ -264,7 +264,6 @@ export class DataTableView extends WidgetView {
           }
           return value
         },
-        readOnlyMode : true,
         includeHeaderWhenCopying : false,
       }
 
