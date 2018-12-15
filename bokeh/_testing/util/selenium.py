@@ -119,8 +119,8 @@ def enter_text_in_element(driver, element, text, click=1, enter=True):
 def enter_text_in_cell(driver, cell, text):
     actions = ActionChains(driver)
     actions.move_to_element(cell)
-    actions.double_click()
-    actions.send_keys(text + Keys.ENTER)
+    actions.click()
+    actions.send_keys(Keys.ENTER + text + Keys.ENTER)
     actions.perform()
 
 def get_table_column_cells(driver, col):
