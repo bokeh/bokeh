@@ -53,14 +53,14 @@ class Test_CopyPaste(object):
         # Use reversed order to get the correct order
         copy_table_rows(page.driver, [2, 1]) 
 
+        # Copy is a little slow
+        sleep(0.1)
+
         element = get_page_element(page.driver, '#T1')
 
         # Selenium doesn't paste until we write something to the element first
         enter_text_in_element(page.driver, element, 'PASTED:')
         paste_values(page.driver, element)
-
-        # Paste is a little slow
-        sleep(0.1)
 
         result = element.get_attribute('value')
         
