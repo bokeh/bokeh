@@ -130,7 +130,6 @@ def enter_text_in_cell(driver, cell, text):
     actions.send_keys(Keys.ENTER + text + Keys.ENTER)
     actions.perform()
 
-
 def copy_table_rows(driver, rows):
     actions = ActionChains(driver)
     row = get_table_row(driver, rows[0])
