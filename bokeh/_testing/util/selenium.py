@@ -1,4 +1,4 @@
-#-----------------------------------------------------------------------------
+#----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
@@ -116,7 +116,7 @@ def enter_text_in_element(driver, element, text, click=1, enter=True):
     actions.send_keys(text)
     actions.perform()
 
-def enter_text_in_element(driver, cell, text):
+def enter_text_in_textarea(driver, cell, text):
     actions = ActionChains(driver)
     actions.move_to_element(cell)
     actions.click()
@@ -148,8 +148,7 @@ def copy_table_rows(driver, rows):
 def paste_values(driver, el=None):
     actions = ActionChains(driver)
     if el:
-      actions.move_to_element(el)
-
+        actions.move_to_element(el)
     actions.send_keys(Keys.SHIFT, Keys.INSERT)
       #actions.send_keys(Keys.CONTROL, 'v')
     actions.perform()
