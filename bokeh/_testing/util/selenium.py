@@ -116,11 +116,43 @@ def enter_text_in_element(driver, element, text, click=1, enter=True):
     actions.send_keys(text)
     actions.perform()
 
+def enter_text_in_element(driver, cell, text):
+    actions = ActionChains(driver)
+    actions.move_to_element(cell)
+    actions.click()
+    actions.send_keys(Keys.CONTROL + text + Keys.ENTER)
+    actions.perform()
+
 def enter_text_in_cell(driver, cell, text):
     actions = ActionChains(driver)
     actions.move_to_element(cell)
     actions.click()
     actions.send_keys(Keys.ENTER + text + Keys.ENTER)
+    actions.perform()
+
+
+def copy_table_rows(driver, rows):
+    actions = ActionChains(driver)
+    row = get_table_row(driver, rows[0])
+    actions.move_to_element(row)
+    actions.click()
+    actions.key_down(Keys.SHIFT)
+    for r in rows[1:]:
+        row = get_table_row(driver, r)
+        actions.move_to_element(row)
+        actions.click()
+    actions.key_up(Keys.SHIFT)
+    actions.send_keys(Keys.CONTROL, Keys.INSERT)
+    #actions.send_keys(Keys.CONTROL, 'c')
+    actions.perform()
+
+def paste_values(driver, el=None):
+    actions = ActionChains(driver)
+    if el:
+      actions.move_to_element(el)
+
+    actions.send_keys(Keys.SHIFT, Keys.INSERT)
+      #actions.send_keys(Keys.CONTROL, 'v')
     actions.perform()
 
 def get_table_column_cells(driver, col):
@@ -147,6 +179,9 @@ def get_table_selected_rows(driver):
 
 def get_table_cell(driver, row, col):
     return driver.find_element_by_css_selector('.grid-canvas .slick-row:nth-child(%d) .r%d' % (row, col))
+
+def get_page_element(driver, element_selector):
+    return driver.find_element_by_css_selector(element_selector)
 
 def shift_click(driver, element):
     actions = ActionChains(driver)
