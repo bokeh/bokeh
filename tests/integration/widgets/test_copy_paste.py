@@ -63,7 +63,7 @@ class Test_CopyPaste(object):
         paste_values(page.driver, element)
 
         result = element.get_attribute('value')
-        
+
         # The textarea now contains the content in the datatable
         assert result == 'PASTED:\n0\t1\t1\n1\t2\t1\n'
 
