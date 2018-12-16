@@ -51,7 +51,7 @@ class Test_CopyPaste(object):
         page = bokeh_model_page(column(table, text_area))
 
         # Use reversed order to get the correct order
-        copy_table_rows(page.driver, [2, 1]) 
+        copy_table_rows(page.driver, [2, 1])
 
         # Copy is a little slow
         sleep(0.1)
