@@ -45,6 +45,7 @@ DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,reset,help"
 
 __all__ = (
     'Figure',
+    'figure',
     'FigureOptions',
     'markers'
 )
