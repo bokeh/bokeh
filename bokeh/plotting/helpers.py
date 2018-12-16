@@ -1,5 +1,24 @@
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from collections import Iterable, OrderedDict, Sequence
 import difflib
 import itertools
@@ -7,10 +26,12 @@ import re
 import textwrap
 import warnings
 
+# External imports
 import numpy as np
 import sys
 from six import string_types, reraise
 
+# Bokeh imports
 from ..models import (
     BoxSelectTool, BoxZoomTool, CategoricalAxis, MercatorAxis,
     TapTool, CrosshairTool, DataRange1d, DatetimeAxis,
@@ -19,8 +40,9 @@ from ..models import (
     SaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, Tool,
     WheelPanTool, WheelZoomTool, ColumnarDataSource, ColumnDataSource,
     LogScale, LinearScale, CategoricalScale, Circle, MultiLine,
-    BoxEditTool, PointDrawTool, PolyDrawTool, PolyEditTool)
-from bokeh.models.markers import Marker
+    BoxEditTool, PointDrawTool, PolyDrawTool, PolyEditTool,
+)
+from ..models.markers import Marker
 from ..models.renderers import GlyphRenderer
 
 from ..core.properties import ColorSpec, Datetime, value, field
@@ -28,8 +50,48 @@ from ..transform import stack
 from ..util.dependencies import import_optional
 from ..util.string import nice_join
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
 pd = import_optional('pandas')
 
+__all__ = (
+    'get_default_color',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+def get_default_color(plot=None):
+    colors = [
+        "#1f77b4",
+        "#ff7f0e", "#ffbb78",
+        "#2ca02c", "#98df8a",
+        "#d62728", "#ff9896",
+        "#9467bd", "#c5b0d5",
+        "#8c564b", "#c49c94",
+        "#e377c2", "#f7b6d2",
+        "#7f7f7f",
+        "#bcbd22", "#dbdb8d",
+        "#17becf", "#9edae5"
+    ]
+    if plot:
+        renderers = plot.renderers
+        renderers = [x for x in renderers if x.__view_model__ == "GlyphRenderer"]
+        num_renderers = len(renderers)
+        return colors[num_renderers]
+    else:
+        return colors[0]
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
 
 def _stack(stackers, spec0, spec1, **kw):
     for name in (spec0, spec1):
@@ -171,27 +233,6 @@ def _graph(node_source, edge_source, **kwargs):
     renderer_kwargs["edge_renderer"] = edge_renderer
 
     return renderer_kwargs
-
-def get_default_color(plot=None):
-    colors = [
-        "#1f77b4",
-        "#ff7f0e", "#ffbb78",
-        "#2ca02c", "#98df8a",
-        "#d62728", "#ff9896",
-        "#9467bd", "#c5b0d5",
-        "#8c564b", "#c49c94",
-        "#e377c2", "#f7b6d2",
-        "#7f7f7f",
-        "#bcbd22", "#dbdb8d",
-        "#17becf", "#9edae5"
-    ]
-    if plot:
-        renderers = plot.renderers
-        renderers = [x for x in renderers if x.__view_model__ == "GlyphRenderer"]
-        num_renderers = len(renderers)
-        return colors[num_renderers]
-    else:
-        return colors[0]
 
 
 _RENDERER_ARGS = ['name', 'x_range_name', 'y_range_name',
@@ -806,3 +847,7 @@ def _glyph_function(glyphclass, extra_docs=None):
     _add_sigfunc_info(sigfunc, argspecs, glyphclass, extra_docs)
 
     return sigfunc
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
