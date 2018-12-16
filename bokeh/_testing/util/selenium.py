@@ -149,7 +149,9 @@ def paste_values(driver, el=None):
     actions = ActionChains(driver)
     if el:
         actions.move_to_element(el)
-    actions.send_keys(Keys.SHIFT, Keys.INSERT)
+    actions.key_down(Keys.SHIFT)
+    actions.send_keys(Keys.INSERT)
+    actions.key_up(Keys.SHIFT)
       #actions.send_keys(Keys.CONTROL, 'v')
     actions.perform()
 
