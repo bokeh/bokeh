@@ -1,29 +1,10 @@
-#-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
-#
-# The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Boilerplate
-#-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import absolute_import, print_function
 
 import logging
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
-
-# Standard library imports
-
-# External imports
 from six import string_types
 
-# Bokeh imports
 from ..core.properties import Any, Auto, Either, Enum, Int, List, Seq, Instance, String, Tuple
 from ..core.enums import HorizontalLocation, MarkerType, VerticalLocation
 from ..models import ColumnDataSource, Plot, Title, Tool, GraphRenderer
@@ -34,24 +15,82 @@ from ..util.options import Options
 from ..transform import linear_cmap
 from .helpers import (
     _get_range, _get_scale, _process_axis_and_grid, _process_tools_arg,
-    _glyph_function, _process_active_tools, _stack, _graph,
-)
-
-#-----------------------------------------------------------------------------
-# Globals and constants
-#-----------------------------------------------------------------------------
+    _glyph_function, _process_active_tools, _stack, _graph)
 
 DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,reset,help"
 
-__all__ = (
-    'Figure',
-    'FigureOptions',
-    'markers'
-)
+# This class itself is intentionally undocumented (it is used to generate
+# documentation elsewhere)
+class FigureOptions(Options):
 
-#-----------------------------------------------------------------------------
-# General API
-#-----------------------------------------------------------------------------
+    tools = Either(String, Seq(Either(String, Instance(Tool))), default=DEFAULT_TOOLS, help="""
+    Tools the plot should start with.
+    """)
+
+    x_range = Any(help="""
+    Customize the x-range of the plot.
+    """)
+
+    y_range = Any(help="""
+    Customize the x-range of the plot.
+    """)
+
+    x_minor_ticks = Either(Auto, Int, default="auto", help="""
+    Number of minor ticks between adjacent x-axis major ticks.
+    """)
+
+    y_minor_ticks = Either(Auto, Int, default="auto", help="""
+    Number of minor ticks between adjacent y-axis major ticks.
+    """)
+
+    x_axis_location = Enum(VerticalLocation, default="below", help="""
+    Where the x-axis should be located.
+    """)
+
+    y_axis_location = Enum(HorizontalLocation, default="left", help="""
+    Where the y-axis should be located.
+    """)
+
+    x_axis_label = String(default="", help="""
+    A label for the x-axis.
+    """)
+
+    y_axis_label = String(default="", help="""
+    A label for the y-axis.
+    """)
+
+    active_drag = Either(Auto, String, Instance(Drag), default="auto", help="""
+    Which drag tool should initially be active.
+    """)
+
+    active_inspect = Either(Auto, String, Instance(Inspection), Seq(Instance(Inspection)), default="auto", help="""
+    Which drag tool should initially be active.
+    """)
+
+    active_scroll = Either(Auto, String, Instance(Scroll), default="auto", help="""
+    Which scroll tool should initially be active.
+    """)
+
+    active_tap = Either(Auto, String, Instance(Tap), default="auto", help="""
+    Which tap tool should initially be active.
+    """)
+
+    x_axis_type = Either(Auto, Enum("linear", "log", "datetime", "mercator"), default="auto", help="""
+    The type of the x-axis.
+    """)
+
+    y_axis_type = Either(Auto, Enum("linear", "log", "datetime", "mercator"), default="auto", help="""
+    The type of the y-axis.
+    """)
+
+    tooltips = Either(String, List(Tuple(String, String)), help="""
+    An optional argument to configure tooltips for the Figure. This argument
+    accepts the same values as the ``HoverTool.tooltips`` property. If a hover
+    tool is specified in the ``tools`` argument, this value will override that
+    hover tools ``tooltips`` value. If no hover tool is specified in the
+    ``tools`` argument, then passing tooltips here will cause one to be created
+    and added.
+    """)
 
 class Figure(Plot):
     ''' Create a new Figure for plotting.
@@ -1005,90 +1044,5 @@ def markers():
     print()
     print("Shortcuts: \n\n" + "\n".join(" %r: %s" % item for item in _MARKER_SHORTCUTS.items()))
 
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
-
-# This class itself is intentionally undocumented (it is used to generate
-# documentation elsewhere)
-class FigureOptions(Options):
-
-    tools = Either(String, Seq(Either(String, Instance(Tool))), default=DEFAULT_TOOLS, help="""
-    Tools the plot should start with.
-    """)
-
-    x_range = Any(help="""
-    Customize the x-range of the plot.
-    """)
-
-    y_range = Any(help="""
-    Customize the x-range of the plot.
-    """)
-
-    x_minor_ticks = Either(Auto, Int, default="auto", help="""
-    Number of minor ticks between adjacent x-axis major ticks.
-    """)
-
-    y_minor_ticks = Either(Auto, Int, default="auto", help="""
-    Number of minor ticks between adjacent y-axis major ticks.
-    """)
-
-    x_axis_location = Enum(VerticalLocation, default="below", help="""
-    Where the x-axis should be located.
-    """)
-
-    y_axis_location = Enum(HorizontalLocation, default="left", help="""
-    Where the y-axis should be located.
-    """)
-
-    x_axis_label = String(default="", help="""
-    A label for the x-axis.
-    """)
-
-    y_axis_label = String(default="", help="""
-    A label for the y-axis.
-    """)
-
-    active_drag = Either(Auto, String, Instance(Drag), default="auto", help="""
-    Which drag tool should initially be active.
-    """)
-
-    active_inspect = Either(Auto, String, Instance(Inspection), Seq(Instance(Inspection)), default="auto", help="""
-    Which drag tool should initially be active.
-    """)
-
-    active_scroll = Either(Auto, String, Instance(Scroll), default="auto", help="""
-    Which scroll tool should initially be active.
-    """)
-
-    active_tap = Either(Auto, String, Instance(Tap), default="auto", help="""
-    Which tap tool should initially be active.
-    """)
-
-    x_axis_type = Either(Auto, Enum("linear", "log", "datetime", "mercator"), default="auto", help="""
-    The type of the x-axis.
-    """)
-
-    y_axis_type = Either(Auto, Enum("linear", "log", "datetime", "mercator"), default="auto", help="""
-    The type of the y-axis.
-    """)
-
-    tooltips = Either(String, List(Tuple(String, String)), help="""
-    An optional argument to configure tooltips for the Figure. This argument
-    accepts the same values as the ``HoverTool.tooltips`` property. If a hover
-    tool is specified in the ``tools`` argument, this value will override that
-    hover tools ``tooltips`` value. If no hover tool is specified in the
-    ``tools`` argument, then passing tooltips here will cause one to be created
-    and added.
-    """)
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
 _color_fields = set(["color", "fill_color", "line_color"])
 _alpha_fields = set(["alpha", "fill_alpha", "line_alpha"])
-
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------

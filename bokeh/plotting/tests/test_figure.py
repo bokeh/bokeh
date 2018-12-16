@@ -1,43 +1,15 @@
-#-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
-#
-# The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+from __future__ import absolute_import
 
-#-----------------------------------------------------------------------------
-# Boilerplate
-#-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import pytest ; pytest
-
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
-
-# Standard library imports
 import re
 
-# External imports
+import pytest
 
-# Bokeh imports
 from bokeh.core.enums import MarkerType
 from bokeh.core.properties import value
 from bokeh.models import BoxZoomTool, Circle, ColumnDataSource, LassoSelectTool, Legend, LinearAxis, LogScale, PanTool, ResetTool, Scatter, Title
 
-# Module under test
 # different import pattern due to figure function shadowing figure.py module
 from bokeh.plotting import _figure as bpf
-
-#-----------------------------------------------------------------------------
-# Setup
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# General API
-#-----------------------------------------------------------------------------
 
 class TestFigure(object):
 
@@ -364,6 +336,15 @@ class Test_vbar_stack(object):
         assert renderers[1].name == "2016"
         assert renderers[2].name == "2017"
 
+@pytest.fixture
+def source():
+    return ColumnDataSource(dict(x=[1, 2, 3], y=[1, 2, 3], label=['a', 'b', 'c']))
+
+
+@pytest.fixture
+def p():
+    return bpf.figure()
+
 def Test_figure_legends(obejct):
 
     def test_glyph_label_is_legend_if_column_in_datasource_is_added_as_legend(self, p, source):
@@ -469,24 +450,3 @@ def Test_figure_legends(obejct):
     #     print(legends[0].items[0].renderers)
     #     assert legends[0].items[0].renderers == [square, circle]
     #     assert legends[0].items[0].label == {'field': 'label'}
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
-
-@pytest.fixture
-def source():
-    return ColumnDataSource(dict(x=[1, 2, 3], y=[1, 2, 3], label=['a', 'b', 'c']))
-
-
-@pytest.fixture
-def p():
-    return bpf.figure()
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------

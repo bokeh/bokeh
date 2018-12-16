@@ -1,55 +1,17 @@
-#-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
-#
-# The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Boilerplate
-#-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import pytest ; pytest
-
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
-
-# Standard library imports
 import datetime
 from mock import mock
 
-# External imports
 import numpy as np
+import pytest
 
-# Bokeh imports
 from bokeh.models import ColumnDataSource, CDSView, Marker
 from bokeh.models.axes import CategoricalAxis, LinearAxis, LogAxis, MercatorAxis, DatetimeAxis
 from bokeh.models.ranges import Range1d, DataRange1d, FactorRange
 from bokeh.models.scales import LinearScale, LogScale, CategoricalScale
 from bokeh.plotting import Figure
-
-# Module under test
 from bokeh.plotting.helpers import _get_scale,_get_range, _stack, _graph, _glyph_function, _RENDERER_ARGS, _get_axis_class
+
 import bokeh.plotting.helpers as bph
-
-#-----------------------------------------------------------------------------
-# Setup
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# General API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
 
 class Test__get_legend_item_label(object):
 
@@ -385,7 +347,3 @@ def test__glyph_receives_renderer_arg(arg, values):
             fn(Figure(), x=0, y=0, **{arg: value})
             _, kwargs = gr_mock.call_args
             assert arg in kwargs and kwargs[arg] == value
-
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
