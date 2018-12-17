@@ -11,8 +11,7 @@ List of websocket origins allowed to access bokeh.
 Comma separated list of domains that need to access bokeh websocket interface.
 This can also be provided using the --allow-websocket-origin parameter. 
 
-Note: No option overrides the other. We instead merge the list from --allow-websocket-origin
-and the list from BOKEH_ALLOW_WS_ORIGIN
+Note: This option overrides the --allow-websocket-origin flag
 
 ``BOKEH_BROWSER``
 -----------------
