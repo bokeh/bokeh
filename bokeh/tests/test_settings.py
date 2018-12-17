@@ -43,7 +43,7 @@ logging.basicConfig(level=logging.DEBUG)
 # General API
 #-----------------------------------------------------------------------------
 
-Test___all__ = verify_all(bd, ALL)
+Test___all__ = verify_all(bs, ALL)
 
 #-----------------------------------------------------------------------------
 # Dev API
