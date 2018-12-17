@@ -67,7 +67,7 @@ class WSHandler(WebSocketHandler):
 
         allowed_hosts = self.application.websocket_origins
         if settings.allowed_ws_origin():
-            allowed_hosts |= (set(settings.allowed_ws_origin()))
+            allowed_hosts |= set(settings.allowed_ws_origin())
 
         allowed = check_whitelist(origin_host, allowed_hosts)
         if allowed:
