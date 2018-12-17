@@ -217,7 +217,14 @@ class _Settings(object):
         return value
     
     def _get_list(self, key, default, dev=None):
-        return self._get(key, self._dev_or_default(default, dev)).split(',')
+        value = self._get(key)
+
+        if value is None:
+            value = self._dev_or_default(default, dev)
+        else:
+            value = self._get(key, self._dev_or_default(default, dev)).split(',')
+
+        return value
 
     def browser(self, default=None):
         ''' Set the default browser that Bokeh should use to show documents
@@ -391,7 +398,7 @@ class _Settings(object):
     def ignore_filename(self):
         return self._get_bool("IGNORE_FILENAME", False)
 
-    def allowed_ws_origin(self, default=""):
+    def allowed_ws_origin(self, default=None):
         return self._get_list("ALLOW_WS_ORIGIN", default)
 
 #-----------------------------------------------------------------------------

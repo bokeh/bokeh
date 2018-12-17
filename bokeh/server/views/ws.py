@@ -65,14 +65,16 @@ class WSHandler(WebSocketHandler):
         parsed_origin = urlparse(origin)
         origin_host = parsed_origin.netloc.lower()
 
-        allowed_hosts = self.application.websocket_origins | set(settings.allowed_ws_origin())
+        allowed_hosts = self.application.websocket_origins
+        if settings.allowed_ws_origin():
+            allowed_hosts |= (set(settings.allowed_ws_origin()))
 
         allowed = check_whitelist(origin_host, allowed_hosts)
         if allowed:
             return True
         else:
             log.error("Refusing websocket connection from Origin '%s'; \
-                      use --allow-websocket-origin=%s or BOKEH_ALLOWED_WS_ORIGIN=%s to permit this; currently we allow origins %r",
+                      use --allow-websocket-origin=%s or BOKEH_ALLOW_WS_ORIGIN=%s to permit this; currently we allow origins %r",
                       origin, origin_host, origin_host, allowed_hosts)
             return False
 
