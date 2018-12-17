@@ -122,14 +122,16 @@ Bokeh server instances behind a load balancer.
 
 By default, cross site connections to the Bokeh server websocket are not
 allowed. You can enable websocket connections originating from additional
-hosts by specifying them with the ``--allow-websocket-origin`` option:
+hosts by specifying them with the ``BOKEH_ALLOW_WS_ORIGIN`` environment variable 
+or the ``--allow-websocket-origin`` option:
 
 .. code-block:: sh
 
     bokeh serve app_script.py --allow-websocket-origin foo.com:8081
 
 It is possible to specify multiple allowed websocket origins by adding
-the ``--allow-websocket-origin`` option multiple times.
+the ``--allow-websocket-origin`` option multiple times and to provide a
+comma separated list of hosts to ``BOKEH_ALLOW_WS_ORIGIN``
 
 The Bokeh server can also add an optional prefix to all URL paths.
 This can often be useful in conjunction with "reverse proxy" setups.
