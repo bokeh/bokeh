@@ -256,18 +256,20 @@ export class DataTableView extends WidgetView {
       if (checkboxSelector != null)
         this.grid.registerPlugin(checkboxSelector)
 
-      const pluginOptions = {
-        dataItemColumnValueExtractor: function(val: any, col: any) {
-          let value: any = val[col.field]
-          if ( typeof value === 'string'){
-            value = value.replace(/\n/g, "\\n")
-          }
-          return value
-        },
-        includeHeaderWhenCopying : false,
-      }
+      if(!options.editable){
+        const pluginOptions = {
+          dataItemColumnValueExtractor: function(val: any, col: any) {
+            let value: any = val[col.field]
+            if ( typeof value === 'string'){
+              value = value.replace(/\n/g, "\\n")
+            }
+            return value
+          },
+          includeHeaderWhenCopying : false,
+        }
 
-      this.grid.registerPlugin(new CellExternalCopyManager(pluginOptions))
+        this.grid.registerPlugin(new CellExternalCopyManager(pluginOptions))
+      }
 
       this.grid.onSelectedRowsChanged.subscribe((_event: any, args: any) => {
         if (this._in_selection_update) {
