@@ -53,14 +53,14 @@ Test___all__ = verify_all(bd, ALL)
 # Private API
 #-----------------------------------------------------------------------------
 
-class Test_get_list(object):
-    def test__single(self):
+class Test__get_list(object):
+    def test_single(self):
         os.environ["BOKEH_FOO"] = "foo"
         result = bs.settings._get_list("FOO", None)
         assert result == ["foo"]
         del os.environ["BOKEH_FOO"]
 
-    def test__multiple(self):
+    def test_multiple(self):
         os.environ["BOKEH_FOO"] = "foo,bar,foobar"
         result = bs.settings._get_list("FOO", None)
         assert result == ["foo", "bar", "foobar"]
