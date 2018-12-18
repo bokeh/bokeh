@@ -109,7 +109,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 codes = {
-    1001: ("BAD_COLUMN_NAME",                                    "Glyph refers to nonexistent column name"),
+    1001: ("BAD_COLUMN_NAME",                                    "Glyph refers to nonexistent column name. This could either be due to a misspelling or typo, or due to an expected column being missing. "),
     1002: ("MISSING_GLYPH",                                      "Glyph renderer has no glyph set"),
     1003: ("NO_SOURCE_FOR_GLYPH",                                "Glyph renderer has no data source"),
     1004: ("REQUIRED_RANGE",                                     "A required Range object is missing"),
@@ -129,7 +129,7 @@ codes = {
     1018: ("NO_RANGE_TOOL_RANGES",                               "RangeTool must have at least one of x_range or y_range configured"),
     1019: ("DUPLICATE_FACTORS",                                  "FactorRange must specicy a unique list of categorical factors for an axis"),
     1020: ("BAD_EXTRA_RANGE_NAME",                               "An extra range name is configued with a name that does not correspond to any range"),
-    1021: ("EQUAL_SLIDER_START_END",                                    "Slider 'start' and 'end' cannot be equal"),
+    1021: ("EQUAL_SLIDER_START_END",                             "Slider 'start' and 'end' cannot be equal"),
     9999: ("EXT",                                                "Custom extension reports error"),
 }
 
