@@ -109,7 +109,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 codes = {
-    1001: ("BAD_COLUMN_NAME",                                    "Glyph refers to nonexistent column name. This could either be due to a misspelling or typo, or due to an expected column being missing. "),
+    1001: ("BAD_COLUMN_NAME",                                    "Glyph refers to nonexistent column name. This could either be due to a misspelling or typo, or due to an expected column being missing. "), # NOQA
     1002: ("MISSING_GLYPH",                                      "Glyph renderer has no glyph set"),
     1003: ("NO_SOURCE_FOR_GLYPH",                                "Glyph renderer has no data source"),
     1004: ("REQUIRED_RANGE",                                     "A required Range object is missing"),
