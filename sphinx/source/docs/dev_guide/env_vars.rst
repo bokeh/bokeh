@@ -6,10 +6,10 @@ Environment Variables
 There are several environment variables that can be useful for developers:
 
 ``BOKEH_ALLOW_WS_ORIGIN``
------------------
+-------------------------
 List of websocket origins allowed to access bokeh.
 Comma separated list of domains that need to access bokeh websocket interface.
-This can also be provided using the --allow-websocket-origin parameter. 
+This can also be provided using the --allow-websocket-origin parameter.
 
 Note: This option overrides the --allow-websocket-origin flag
 

@@ -122,7 +122,7 @@ Bokeh server instances behind a load balancer.
 
 By default, cross site connections to the Bokeh server websocket are not
 allowed. You can enable websocket connections originating from additional
-hosts by specifying them with the ``BOKEH_ALLOW_WS_ORIGIN`` environment variable 
+hosts by specifying them with the ``BOKEH_ALLOW_WS_ORIGIN`` environment variable
 or the ``--allow-websocket-origin`` option:
 
 .. code-block:: sh
