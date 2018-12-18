@@ -1,10 +1,29 @@
-from __future__ import absolute_import, print_function
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
 from six import string_types
 
+# Bokeh imports
 from ..core.enums import HorizontalLocation, VerticalLocation
 from ..core.properties import Auto, Either, Enum, Int, Seq, Instance, String
 from ..models import GMapPlot, LinearAxis, MercatorTicker, MercatorTickFormatter, Range1d, Title, Tool
@@ -13,53 +32,21 @@ from ..models.tools import Drag, Inspection, Scroll, Tap
 from ..util.options import Options
 from .helpers import _process_tools_arg, _process_active_tools, _glyph_function
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
 DEFAULT_TOOLS = "pan,wheel_zoom,reset,help"
 
-class GMapFigureOptions(Options):
+__all__ = (
+    'GMap',
+    'GMapFigureOptions',
+    'gmap'
+)
 
-    tools = Either(String, Seq(Either(String, Instance(Tool))), default=DEFAULT_TOOLS, help="""
-    Tools the plot should start with.
-    """)
-
-    x_minor_ticks = Either(Auto, Int, default="auto", help="""
-    Number of minor ticks between adjacent x-axis major ticks.
-    """)
-
-    y_minor_ticks = Either(Auto, Int, default="auto", help="""
-    Number of minor ticks between adjacent y-axis major ticks.
-    """)
-
-    x_axis_location = Enum(VerticalLocation, default="below", help="""
-    Where the x-axis should be located.
-    """)
-
-    y_axis_location = Enum(HorizontalLocation, default="left", help="""
-    Where the y-axis should be located.
-    """)
-
-    x_axis_label = String(default="", help="""
-    A label for the x-axis.
-    """)
-
-    y_axis_label = String(default="", help="""
-    A label for the y-axis.
-    """)
-
-    active_drag = Either(Auto, String, Instance(Drag), default="auto", help="""
-    Which drag tool should initially be active.
-    """)
-
-    active_inspect = Either(Auto, String, Instance(Inspection), Seq(Instance(Inspection)), default="auto", help="""
-    Which drag tool should initially be active.
-    """)
-
-    active_scroll = Either(Auto, String, Instance(Scroll), default="auto", help="""
-    Which scroll tool should initially be active.
-    """)
-
-    active_tap = Either(Auto, String, Instance(Tap), default="auto", help="""
-    Which tap tool should initially be active.
-    """)
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class GMap(GMapPlot):
     ''' A subclass of :class:`~bokeh.models.plots.Plot` that simplifies plot
@@ -216,3 +203,61 @@ def gmap(google_api_key, map_options, **kwargs):
     '''
 
     return GMap(api_key=google_api_key, map_options=map_options, **kwargs)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+class GMapFigureOptions(Options):
+
+    tools = Either(String, Seq(Either(String, Instance(Tool))), default=DEFAULT_TOOLS, help="""
+    Tools the plot should start with.
+    """)
+
+    x_minor_ticks = Either(Auto, Int, default="auto", help="""
+    Number of minor ticks between adjacent x-axis major ticks.
+    """)
+
+    y_minor_ticks = Either(Auto, Int, default="auto", help="""
+    Number of minor ticks between adjacent y-axis major ticks.
+    """)
+
+    x_axis_location = Enum(VerticalLocation, default="below", help="""
+    Where the x-axis should be located.
+    """)
+
+    y_axis_location = Enum(HorizontalLocation, default="left", help="""
+    Where the y-axis should be located.
+    """)
+
+    x_axis_label = String(default="", help="""
+    A label for the x-axis.
+    """)
+
+    y_axis_label = String(default="", help="""
+    A label for the y-axis.
+    """)
+
+    active_drag = Either(Auto, String, Instance(Drag), default="auto", help="""
+    Which drag tool should initially be active.
+    """)
+
+    active_inspect = Either(Auto, String, Instance(Inspection), Seq(Instance(Inspection)), default="auto", help="""
+    Which drag tool should initially be active.
+    """)
+
+    active_scroll = Either(Auto, String, Instance(Scroll), default="auto", help="""
+    Which scroll tool should initially be active.
+    """)
+
+    active_tap = Either(Auto, String, Instance(Tap), default="auto", help="""
+    Which tap tool should initially be active.
+    """)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
