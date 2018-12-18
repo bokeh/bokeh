@@ -14,6 +14,7 @@ types that Bokeh supports.
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from difflib import get_close_matches
 import logging
 log = logging.getLogger(__name__)
 
@@ -137,15 +138,19 @@ class GlyphRenderer(DataRenderer):
         if not self.glyph: return
         if not self.data_source: return
         if isinstance(self.data_source, RemoteSource): return
-        missing = set()
+        missing_values = set()
         specs = self.glyph.dataspecs()
         for name, item in self.glyph.properties_with_values(include_defaults=False).items():
             if name not in specs: continue
             if not isinstance(item, dict): continue
             if not isinstance(self.data_source, ColumnDataSource): continue
             if 'field' in item and item['field'] not in self.data_source.column_names:
-                missing.add(item['field'])
-        if missing:
+                missing_values.add((item['field'], name))
+        if missing_values:
+            suggestions = ['" (closest match: "%s")' % s[0] if s else '"' for s in [
+                get_close_matches(term[0], self.data_source.column_names, n=1) for term in missing_values]]
+            missing_values = [("".join([m[0], s]), m[1]) for m, s in zip(missing_values, suggestions)]
+            missing = ['key "%s" value "%s' % (k, v) for v, k in missing_values]
             return "%s [renderer: %s]" % (", ".join(sorted(missing)), self)
 
     def __init__(self, **kw):
