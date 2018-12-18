@@ -286,6 +286,7 @@ from .property.json import JSON; JSON
 from .property.numeric import Angle; Angle
 from .property.numeric import Byte; Byte
 from .property.numeric import Interval; Interval
+from .property.numeric import NonNegativeInt; NonNegativeInt
 from .property.numeric import Percent; Percent
 from .property.numeric import Size; Size
 

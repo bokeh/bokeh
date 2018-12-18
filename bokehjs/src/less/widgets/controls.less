@@ -236,13 +236,17 @@ select[multiple], select[size], textarea {
 }
 
 // XXX: set this in the implementation
-.bk-widget .bk-input {
+.bk-input {
   width: 100%;
 }
 
-.bk-input-group span {
-  // XXX: this is wrong, but at least looks good by default.
-  position: relative;
-  top: -2px;
-  margin-left: 3px;
+.bk-input-group {
+  white-space: nowrap;
+
+  & span {
+    // XXX: this is wrong, but at least looks good by default.
+    position: relative;
+    top: -2px;
+    margin-left: 3px;
+  }
 }

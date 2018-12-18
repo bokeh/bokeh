@@ -15,7 +15,6 @@ import {HelpTool} from "./actions/help_tool"
 import {ToolProxy} from "./tool_proxy"
 import {InspectTool} from "./inspectors/inspect_tool"
 
-
 export namespace ToolbarViewModel {
   export interface Attrs extends Model.Attrs {
     _visible: boolean
@@ -51,7 +50,6 @@ export class ToolbarViewModel extends Model {
   }
 }
 ToolbarViewModel.initClass()
-
 
 export class ToolbarBaseView extends DOMView {
   model: ToolbarBase
@@ -180,7 +178,6 @@ export namespace ToolbarBase {
 export interface ToolbarBase extends ToolbarBase.Attrs {}
 
 export class ToolbarBase extends Model {
-
   properties: ToolbarBase.Props
 
   constructor(attrs?: Partial<ToolbarBase.Attrs>) {

@@ -5,6 +5,16 @@ export type Size = {
   height: number
 }
 
+export type MinSize = {
+  min_width: number
+  min_height: number
+}
+
+export type MaxSize = {
+  max_width: number
+  max_height: number
+}
+
 export type Margin = {
   left: number
   top: number
@@ -12,27 +22,30 @@ export type Margin = {
   bottom: number
 }
 
-export type SizingPolicy = "fixed" | "min" | "max" | "auto"
+export type SizingPolicy = "fixed" | "fit" | "min" | "max"
 
-export type SizeHint = Size & {
+export type SizeHint = Size /*& MinSize & MaxSize*/ & {
   inner?: Margin
   width_expanding?: boolean
   height_expanding?: boolean
 }
 
-export type Sizing = number | "min" | "max"
+export type Sizing = number | "fit" | "min" | "max"
 
-export type WidthSizing =
-  {width_policy: "fixed", width: number} |
-  {width_policy: "auto", width?: number | null} |
-  {width_policy: "min" | "max"}
+export type BoxSizing = {
+  width_policy: "fixed" | "fit" | "min" | "max"
+  min_width: number
+  width?: number
+  max_width: number
 
-export type HeightSizing =
-  {height_policy: "fixed", height: number} |
-  {height_policy: "auto", height?: number | null} |
-  {height_policy: "min" | "max"}
+  height_policy: "fixed" | "fit" | "min" | "max"
+  min_height: number
+  height?: number
+  max_height: number
 
-export type BoxSizing = WidthSizing & HeightSizing & {aspect?: number}
+  aspect?: number
+  margin: Margin
+}
 
 export interface ComputedVariable {
   readonly value: number
@@ -55,7 +68,33 @@ export abstract class Layoutable {
   _hcenter: ComputedVariable
   _vcenter: ComputedVariable
 
-  sizing: BoxSizing
+  private _sizing: BoxSizing
+
+  get sizing(): BoxSizing {
+    return this._sizing
+  }
+
+  set_sizing(sizing: Partial<BoxSizing>): void {
+    const {width_policy, height_policy,
+           min_width, max_width, width,
+           min_height, max_height, height,
+           aspect, margin} = sizing
+
+    this._sizing = {
+      width_policy: width_policy || "fit",
+      min_width: min_width != null ? min_width : 0,
+      width,
+      max_width: max_width != null ? max_width : Infinity,
+
+      height_policy: height_policy || "fit",
+      min_height: min_height != null ? min_height : 0,
+      height,
+      max_height: max_height != null ? max_height : Infinity,
+
+      aspect,
+      margin: margin != null ? margin : {top: 0, right: 0, bottom: 0, left: 0},
+    }
+  }
 
   constructor() {
     const layout = this
@@ -80,6 +119,16 @@ export abstract class Layoutable {
     this._set_geometry(outer, inner || outer)
   }
 
+  has_hfw(): boolean {
+    return (this.sizing.width_policy != "fixed" ||
+            this.sizing.height_policy != "fixed") && this.sizing.aspect != null
+  }
+
+  hfw(width: number): number {
+    const {aspect} = this.sizing
+    return width/aspect!
+  }
+
   compute(viewport: {width: number | null, height: number | null}): void {
     const size_hint = this.size_hint()
 
@@ -88,7 +137,10 @@ export abstract class Layoutable {
 
     switch (this.sizing.width_policy) {
       case "fixed":
-        width = this.sizing.width
+        width = this.sizing.width != null ? this.sizing.width : size_hint.width
+        break
+      case "fit":
+        width = viewport.width != null ? viewport.width : size_hint.width
         break
       case "max":
         if (viewport.width != null)
@@ -97,13 +149,8 @@ export abstract class Layoutable {
           throw new Error("'max' sizing policy requires viewport width to be specified")
         break
       case "min":
-        width = size_hint.width
-        break
-      case "auto":
-        if (this.sizing.width != null)
-          width = this.sizing.width
-        else if (size_hint.width_expanding === true && viewport.width != null)
-          width = viewport.width
+        if (size_hint.width_expanding === true && viewport.width != null)
+          width = Math.max(viewport.width, size_hint.width)
         else
           width = size_hint.width
         break
@@ -113,7 +160,10 @@ export abstract class Layoutable {
 
     switch (this.sizing.height_policy) {
       case "fixed":
-        height = this.sizing.height
+        height = this.sizing.height != null ? this.sizing.height : size_hint.height
+        break
+      case "fit":
+        height = viewport.height != null ? viewport.height : size_hint.height
         break
       case "max":
         if (viewport.height != null)
@@ -122,13 +172,8 @@ export abstract class Layoutable {
           throw new Error("'max' sizing policy requires viewport height to be specified")
         break
       case "min":
-        height = size_hint.height
-        break
-      case "auto":
-        if (this.sizing.height != null)
-          height = this.sizing.height
-        else if (size_hint.height_expanding === true && viewport.height != null)
-          height = viewport.height
+        if (size_hint.height_expanding === true && viewport.height != null)
+          height = Math.max(viewport.height, size_hint.height)
         else
           height = size_hint.height
         break
@@ -189,22 +234,41 @@ export abstract class Layoutable {
   get yview(): CoordinateTransform {
     return this.bbox.yview
   }
+
+  clip_width(width: number): number {
+    if (this.sizing.min_width != null)
+      width = Math.max(this.sizing.min_width, width)
+    if (this.sizing.max_width != null)
+      width = Math.min(this.sizing.max_width, width)
+    return width
+  }
+
+  clip_height(height: number): number {
+    if (this.sizing.min_height != null)
+      height = Math.max(this.sizing.min_height, height)
+    if (this.sizing.max_height != null)
+      height = Math.min(this.sizing.max_height, height)
+    return height
+  }
+
+  clip_size({width, height}: Size): Size {
+    return {
+      width: this.clip_width(width),
+      height: this.clip_height(height),
+    }
+  }
 }
 
 export class LayoutItem extends Layoutable {
   size_hint(): SizeHint {
     let width: number
-    if (this.sizing.width_policy == "fixed")
-      width = this.sizing.width
-    else if (this.sizing.width_policy == "auto" && this.sizing.width != null)
+    if (this.sizing.width_policy == "fixed" && this.sizing.width != null)
       width = this.sizing.width
     else
       width = 0
 
     let height: number
-    if (this.sizing.height_policy == "fixed")
-      height = this.sizing.height
-    else if (this.sizing.height_policy == "auto" && this.sizing.height != null)
+    if (this.sizing.height_policy == "fixed" && this.sizing.height != null)
       height = this.sizing.height
     else
       height = 0
@@ -219,9 +283,9 @@ export class FixedLayout extends LayoutItem {
   constructor(width: number, height: number) {
     super()
 
-    this.sizing = {
+    this.set_sizing({
       width_policy: "fixed", width,
       height_policy: "fixed", height,
-    }
+    })
   }
 }

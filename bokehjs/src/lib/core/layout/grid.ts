@@ -26,7 +26,7 @@ class GridCell {
 
 type Matrix = GridCell[][]
 
-type TrackSpec = {policy: "auto" | "min" | "fixed"} | {policy: "flex", factor: number}
+type TrackSpec = {policy: "min" | "fit" | "fixed"} | {policy: "flex", factor: number}
 
 type RowSpec = {top: number,  height: number, align: TrackAlign} & TrackSpec
 type ColSpec = {left: number, width:  number, align: TrackAlign} & TrackSpec
@@ -43,17 +43,17 @@ type GridState = {
 
 export type TrackAlign = "start" | "center" | "end"
 
-export type QuickTrackSizing = "auto" | "min" | "max" | number
+export type QuickTrackSizing = "auto" | "fit" | "min" | "max" | number
 
 export type RowSizing =
   QuickTrackSizing |
-  (({policy: "auto" | "min" | "max"} |
+  (({policy: "auto" | "fit" | "min" | "max"} |
     {policy: "flex", factor: number} |
     {policy: "fixed", height: number}) & {align?: TrackAlign})
 
 export type ColSizing =
   QuickTrackSizing |
-  (({policy: "auto" | "min" | "max"} |
+  (({policy: "auto" | "fit" | "min" | "max"} |
     {policy: "flex", factor: number} |
     {policy: "fixed", width: number})  & {align?: TrackAlign})
 
@@ -74,6 +74,20 @@ export class Grid extends Layoutable {
     super()
     this.items = items
   }
+
+  /*
+  has_hfw(): boolean {
+    if (super.has_hfw())
+      return true
+
+    for (const {layout} of this.items) {
+      if (layout.has_hfw())
+        return true
+    }
+
+    return false
+  }
+  */
 
   size_hint(): SizeHint {
     let nrows = 0
@@ -132,9 +146,9 @@ export class Grid extends Layoutable {
 
       if (row.policy == "fixed")
         rows[y] = {align, top, height: row.height, policy: "fixed"}
-      else if (row.policy == "auto")
-        rows[y] = {align, top, height, policy: "auto"}
-      else if (row.policy == "min")
+      else if (row.policy == "fit")
+        rows[y] = {align, top, height, policy: "fit"}
+      else if (row.policy == "min" || row.policy == "auto")
         rows[y] = {align, top, height, policy: "min"}
       else if (row.policy == "max")
         rows[y] = {align, top, height, policy: "flex", factor: 1}
@@ -174,9 +188,9 @@ export class Grid extends Layoutable {
 
       if (col.policy == "fixed")
         cols[x] = {align, left, width: col.width, policy: "fixed"}
-      else if (col.policy == "auto")
-        cols[x] = {align, left, width, policy: "auto"}
-      else if (col.policy == "min")
+      else if (col.policy == "fit")
+        cols[x] = {align, left, width, policy: "fit"}
+      else if (col.policy == "min" || col.policy == "auto")
         cols[x] = {align, left, width, policy: "min"}
       else if (col.policy == "max")
         cols[x] = {align, left, width, policy: "flex", factor: 1}
@@ -191,7 +205,8 @@ export class Grid extends Layoutable {
         if (col.policy != "fixed") {
           for (let i = 0; i < cell.items.length; i++) {
             const item = cell.items[i]
-            col.width = max(col.width, item.size_hint.width)
+            const {left, right} = item.layout.sizing.margin
+            col.width = max(col.width, left + item.size_hint.width + right)
           }
         }
       }
@@ -204,7 +219,8 @@ export class Grid extends Layoutable {
         if (row.policy != "fixed") {
           for (let i = 0; i < cell.items.length; i++) {
             const item = cell.items[i]
-            row.height = max(row.height, item.size_hint.height)
+            const {top, bottom} = item.layout.sizing.margin
+            row.height = max(row.height, top + item.size_hint.height + bottom)
           }
         }
       }
@@ -233,17 +249,13 @@ export class Grid extends Layoutable {
 
     let height: number
     if (this.sizing.height_policy == "fixed")
-      height = this.sizing.height
-    else if (this.sizing.height_policy == "auto" && this.sizing.height != null)
-      height = max(this.sizing.height, min_height)
+      height = this.sizing.height != null ? this.sizing.height : min_height
     else
       height = min_height
 
     let width: number
     if (this.sizing.width_policy == "fixed")
-      width = this.sizing.width
-    else if (this.sizing.width_policy == "auto" && this.sizing.width != null)
-      width = max(this.sizing.width, min_width)
+      width = this.sizing.width != null ? this.sizing.width : min_width
     else
       width = min_width
 
@@ -265,16 +277,16 @@ export class Grid extends Layoutable {
     let row_flex = 0
     let col_flex = 0
 
-    let row_auto = 0
-    let col_auto = 0
+    let row_fit = 0
+    let col_fit = 0
 
     for (let y = 0; y < nrows; y++) {
       const row = rows[y]
       if (row.policy == "fixed" || row.policy == "min")
         available_height -= row.height
-      else if (row.policy == "auto") {
+      else if (row.policy == "fit") {
         available_height -= row.height
-        row_auto += 1
+        row_fit += 1
       } else if (row.policy == "flex")
         row_flex += row.factor
     }
@@ -283,9 +295,9 @@ export class Grid extends Layoutable {
       const col = cols[x]
       if (col.policy == "fixed" || col.policy == "min")
         available_width -= col.width
-      else if (col.policy == "auto") {
+      else if (col.policy == "fit") {
         available_width -= col.width
-        col_auto += 1
+        col_fit += 1
       } else if (col.policy == "flex")
         col_flex += col.factor
     }
@@ -300,11 +312,11 @@ export class Grid extends Layoutable {
           if (row.policy == "flex")
             row.height = round(available_height * (row.factor/row_flex))
         }
-      } else if (row_auto > 0) {
+      } else if (row_fit > 0) {
         for (let y = 0; y < nrows; y++) {
           const row = rows[y]
-          if (row.policy == "auto")
-            row.height += round(available_height/row_auto)
+          if (row.policy == "fit")
+            row.height += round(available_height/row_fit)
         }
       }
     }
@@ -316,11 +328,11 @@ export class Grid extends Layoutable {
           if (col.policy == "flex")
             col.width = round(available_width * (col.factor/col_flex))
         }
-      } else if (col_auto > 0) {
+      } else if (col_fit > 0) {
         for (let x = 0; x < ncols; x++) {
           const col = cols[x]
-          if (col.policy == "auto")
-            col.width += round(available_width/col_auto)
+          if (col.policy == "fit")
+            col.width += round(available_width/col_fit)
         }
       }
     }
@@ -348,38 +360,32 @@ export class Grid extends Layoutable {
 
           let width: number
           if (sizing.width_policy == "fixed")
-            width = sizing.width
+            width = item.size_hint.width
           else if (sizing.width_policy == "min")
             width = item.size_hint.width
-          else if (sizing.width_policy == "max")
-            width = col.width
-          else if (sizing.width_policy == "auto") {
-            if (col.policy == "flex" || sizing.width == null)
-              width = col.width
-            else
-              width = sizing.width
+          else if (sizing.width_policy == "max" || sizing.width_policy == "fit") {
+            const {left, right} = sizing.margin
+            width = item.layout.clip_width(col.width - left - right)
           } else
             throw new Error("unreachable")
 
           let height: number
           if (sizing.height_policy == "fixed")
-            height = sizing.height
+            height = item.size_hint.height
           else if (sizing.height_policy == "min")
             height = item.size_hint.height
-          else if (sizing.height_policy == "max")
-            height = row.height
-          else if (sizing.height_policy == "auto") {
-            if (row.policy == "flex" || sizing.height == null)
-              height = row.height
-            else
-              height = sizing.height
+          else if (sizing.height_policy == "max" || sizing.height_policy == "fit") {
+            const {top, bottom} = sizing.margin
+            height = item.layout.clip_height(row.height - top - bottom)
           } else
             throw new Error("unreachable")
 
           let left = col.left
-          if (width != col.width) {
+          if (width == col.width)
+            left += sizing.margin.left
+          else {
             if (col.align == "start")
-              left += 0
+              left += sizing.margin.left
             else if (col.align == "center")
               left += round((col.width - width)/2)
             else if (col.align == "end")
@@ -387,13 +393,15 @@ export class Grid extends Layoutable {
           }
 
           let top = row.top
-          if (height != row.height) {
+          if (height == row.height)
+            top += sizing.margin.top
+          else {
             if (row.align == "start")
-              top += 0
+              top += sizing.margin.top
             else if (row.align == "center")
               top += round((row.height - height)/2)
             else if (row.align == "end")
-              top += row.height - height
+              top += row.height - sizing.margin.bottom - height
           }
 
           item.outer = new BBox({left, top, width, height})

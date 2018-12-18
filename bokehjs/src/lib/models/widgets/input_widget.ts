@@ -61,7 +61,6 @@ export abstract class InputWidget extends Widget {
 
     this.override({
       width: 300,
-      height_policy: "min",
     })
   }
 }

@@ -1,4 +1,4 @@
-import {Size, SizeHint, BoxSizing, Layoutable} from "./layoutable"
+import {Size, SizeHint, Layoutable} from "./layoutable"
 
 import {Side} from "../enums"
 import {isString} from "../util/types"
@@ -181,13 +181,11 @@ export class SidePanel extends Layoutable {
       default:
         throw new Error("unreachable")
     }
-  }
 
-  get sizing(): BoxSizing {
     if (this.is_horizontal)
-      return {width_policy: "max", height_policy: "min"}
+      this.set_sizing({width_policy: "max", height_policy: "fixed"})
     else
-      return {width_policy: "min", height_policy: "max"}
+      this.set_sizing({width_policy: "fixed", height_policy: "max"})
   }
 
   size_hint(): SizeHint {

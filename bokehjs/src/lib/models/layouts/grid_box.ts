@@ -17,7 +17,7 @@ export class GridBoxView extends LayoutDOMView {
 
   _update_layout(): void {
     this.layout = new Grid()
-    this.layout.sizing = this.box_sizing()
+    this.layout.set_sizing(this.box_sizing())
     this.layout.rows = this.model.rows
     this.layout.cols = this.model.cols
     this.layout.spacing = this.model.spacing

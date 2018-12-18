@@ -90,8 +90,6 @@ class ButtonGroup(AbstractGroup, ButtonLike):
 
     width = Override(default=300)
 
-    height_policy = Override(default="min")
-
 @abstract
 class Group(AbstractGroup):
     ''' Abstract base class for groups with items rendered as check/radio

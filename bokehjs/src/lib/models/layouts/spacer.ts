@@ -20,7 +20,7 @@ export class SpacerView extends LayoutDOMView {
         }
       }
     }
-    this.layout.sizing = this.box_sizing()
+    this.layout.set_sizing(this.box_sizing())
   }
 }
 

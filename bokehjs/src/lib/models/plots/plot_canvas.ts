@@ -27,7 +27,7 @@ import {isArray, isStrictNaN} from "core/util/types"
 import {copy, reversed} from "core/util/array"
 import {values} from "core/util/object"
 import {Context2d, SVGRenderingContext2D} from "core/util/canvas"
-import {BBox, SizeHint, BoxSizing, Margin, Layoutable} from "core/layout"
+import {BBox, SizeHint, SizingPolicy, Margin, Layoutable} from "core/layout"
 import {HStack, VStack, AnchorLayout} from "core/layout/alignments"
 import {SidePanel} from "core/layout/side_panel"
 import {Row, Column} from "core/layout/grid"
@@ -95,19 +95,15 @@ export class PlotLayout extends Layoutable {
 
     let width: number
     if (this.sizing.width_policy == "fixed")
-      width = this.sizing.width
-    else if (this.sizing.width_policy == "auto" && this.sizing.width != null)
-      width = this.sizing.width
+      width = this.sizing.width!
     else
-      width = left + center.width + right
+      width = left + center.width + right // this.sizing.width != null)
 
     let height: number
     if (this.sizing.height_policy == "fixed")
-      height = this.sizing.height
-    else if (this.sizing.height_policy == "auto" && this.sizing.height != null)
-      height = this.sizing.height
+      height = this.sizing.height!
     else
-      height = top + center.height + bottom
+      height = top + center.height + bottom // this.sizing.height != null)
 
     return {width, height, inner: {left, right, top, bottom}}
   }
@@ -312,24 +308,25 @@ export class PlotView extends LayoutDOMView {
     logger.debug("PlotView initialized")
   }
 
+  protected _width_policy(): SizingPolicy {
+    return this.model.frame_width == null ? "fixed" : "min"
+  }
+
+  protected _height_policy(): SizingPolicy {
+    return this.model.frame_height == null ? "fixed" : "min"
+  }
+
   _update_layout(): void {
     this.layout = new PlotLayout()
+    this.layout.set_sizing(this.box_sizing())
 
     const {frame_width, frame_height} = this.model
-    const frame_sizing: BoxSizing = {
+
+    this.layout.center_panel = this.frame
+    this.layout.center_panel.set_sizing({
       ...(frame_width  != null ? {width_policy:  "fixed", width:  frame_width } : {width_policy:  "max"}),
       ...(frame_height != null ? {height_policy: "fixed", height: frame_height} : {height_policy: "max"}),
-    }
-
-    const sizing = this.box_sizing()
-
-    const {width_policy, height_policy} = sizing
-    if (width_policy == "auto" && frame_sizing.width_policy == "fixed")
-      sizing.width_policy = "min"
-    if (height_policy == "auto" && frame_sizing.height_policy == "fixed")
-      sizing.height_policy = "min"
-
-    this.layout.sizing = sizing
+    })
 
     type Panels = (Axis | Annotation | Annotation[])[]
 
@@ -388,15 +385,16 @@ export class PlotView extends LayoutDOMView {
             case "above":
             case "below":
               layout = new Row(items)
-              layout.sizing = {width_policy: "max", height_policy: "min"}
+              layout.set_sizing({width_policy: "max", height_policy: "min"})
               layout.cols = {1: "min"} // assuming toolbar is last
               break
             case "left":
-            case "right":
+            case "right": {
               layout = new Column(items)
-              layout.sizing = {width_policy: "min", height_policy: "max"}
+              layout.set_sizing({width_policy: "min", height_policy: "max"})
               layout.rows = {0: "min"} // assuming toolbar is first
               break
+            }
             default:
               throw new Error("unreachable")
           }
@@ -409,9 +407,6 @@ export class PlotView extends LayoutDOMView {
 
       return layouts
     }
-
-    this.layout.center_panel = this.frame
-    this.layout.center_panel.sizing = frame_sizing
 
     const min_border = this.model.min_border != null ? this.model.min_border : 0
     this.layout.min_border = {

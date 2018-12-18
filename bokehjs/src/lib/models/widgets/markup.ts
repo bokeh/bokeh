@@ -3,7 +3,7 @@ import {div} from "core/dom"
 
 import {Widget, WidgetView} from "./widget"
 
-export class MarkupView extends WidgetView {
+export abstract class MarkupView extends WidgetView {
   model: Markup
 
   protected markupEl: HTMLElement
@@ -15,12 +15,7 @@ export class MarkupView extends WidgetView {
 
   render(): void {
     super.render()
-    const style = {
-      width: `${this.model.width}px`,
-      height: `${this.model.height}px`,
-      ...this.model.style,
-    }
-    this.markupEl = div({style: style})
+    this.markupEl = div({class: "bk-clearfix", style: this.model.style})
     this.el.appendChild(this.markupEl)
   }
 }
@@ -36,8 +31,7 @@ export namespace Markup {
 
 export interface Markup extends Markup.Attrs {}
 
-export class Markup extends Widget {
-
+export abstract class Markup extends Widget {
   properties: Markup.Props
 
   constructor(attrs?: Partial<Markup.Attrs>) {
@@ -54,9 +48,7 @@ export class Markup extends Widget {
 
     this.override({
       width: 300,
-      height_policy: "min",
     })
   }
 }
-
 Markup.initClass()

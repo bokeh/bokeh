@@ -8,6 +8,7 @@ export class ColumnView extends BoxView {
   _update_layout(): void {
     super._update_layout()
     this.layout.rows = this.model.rows
+    this.layout.cols = "fit"
     this.layout.spacing = [0, this.model.spacing]
 
     const {child_views} = this

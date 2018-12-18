@@ -32,6 +32,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.has_props import abstract
+from ...core.properties import Override
 
 from ..layouts import LayoutDOM
 
@@ -56,6 +57,8 @@ class Widget(LayoutDOM):
     ''' A base class for all interactive widget types.
 
     '''
+
+    margin = Override(default=(5, 5, 5, 5))
 
 #-----------------------------------------------------------------------------
 # Private API

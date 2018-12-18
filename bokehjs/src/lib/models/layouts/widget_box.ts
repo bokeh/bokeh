@@ -28,7 +28,6 @@ export class WidgetBox extends Column {
     this.prototype.default_view = WidgetBoxView
 
     this.override({
-      rows: "min",
       spacing: 5,
     })
   }

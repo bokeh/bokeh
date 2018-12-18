@@ -7,6 +7,7 @@ export class RowView extends BoxView {
 
   _update_layout(): void {
     super._update_layout()
+    this.layout.rows = "fit"
     this.layout.cols = this.model.cols
     this.layout.spacing = [this.model.spacing, 0]
 

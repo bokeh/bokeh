@@ -47,7 +47,7 @@ class Test_Div(object):
 
         page = bokeh_model_page(div)
 
-        el = page.driver.find_element_by_css_selector('.foo div div')
+        el = page.driver.find_element_by_css_selector('.foo div')
         assert el.get_attribute("innerHTML") == text
 
         assert page.has_no_console_errors()
@@ -57,7 +57,7 @@ class Test_Div(object):
 
         page = bokeh_model_page(div)
 
-        el = page.driver.find_element_by_css_selector('.foo div div')
+        el = page.driver.find_element_by_css_selector('.foo div')
         assert el.get_attribute("innerHTML") == escape(text, quote=None)
 
         assert page.has_no_console_errors()

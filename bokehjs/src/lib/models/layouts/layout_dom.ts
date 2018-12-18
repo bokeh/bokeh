@@ -1,13 +1,13 @@
 import {Model} from "../../model"
 import {Class} from "core/class"
 import {SizingMode} from "core/enums"
-import {empty, classes, margin, padding, undisplayed} from "core/dom"
+import {empty, position, classes, margin, padding, undisplayed} from "core/dom"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 
 import {build_views} from "core/build_views"
 import {DOMView} from "core/dom_view"
-import {SizingPolicy, BoxSizing, WidthSizing, HeightSizing, Layoutable} from "core/layout"
+import {SizingPolicy, BoxSizing, Margin, Layoutable} from "core/layout"
 
 export namespace LayoutDOMView {
   export type Options = DOMView.Options & {model: LayoutDOM}
@@ -29,6 +29,7 @@ export abstract class LayoutDOMView extends DOMView {
 
   initialize(options: any): void {
     super.initialize(options)
+    this.el.style.position = this.is_root ? "relative" : "absolute"
     this._on_resize = () => this.compute_layout()
     this._child_views = {}
     this.build_child_views()
@@ -94,12 +95,8 @@ export abstract class LayoutDOMView extends DOMView {
   }
 
   update_position(): void {
-    this.el.style.position = this.is_root ? "relative" : "absolute"
     this.el.style.display = this.model.visible ? "block" : "none"
-    this.el.style.left = `${this.layout._left.value}px`
-    this.el.style.top = `${this.layout._top.value}px`
-    this.el.style.width = `${this.layout._width.value}px`
-    this.el.style.height = `${this.layout._height.value}px`
+    position(this.el, this.layout.bbox)
 
     for (const child_view of this.child_views)
       child_view.update_position()
@@ -167,79 +164,73 @@ export abstract class LayoutDOMView extends DOMView {
     }
   }
 
-  box_sizing(): BoxSizing {
+  protected _width_policy(): SizingPolicy {
+    return "min"
+  }
+
+  protected _height_policy(): SizingPolicy {
+    return "min"
+  }
+
+  box_sizing(): Partial<BoxSizing> {
+    let {width_policy, height_policy, aspect_ratio} = this.model
+    if (width_policy == "auto")
+      width_policy = this._width_policy()
+    if (height_policy == "auto")
+      height_policy = this._height_policy()
+
     const {sizing_mode} = this.model
-
-    const resolve_aspect = (aspect: number | "auto" | null): number | undefined => {
-      const {width, height} = this.model
-
-      if (aspect == null)
-        return undefined
-      else if (aspect == "auto") {
-        if (width != null && height != null)
-          return width/height
-        else
-          return undefined
-      } else
-        return aspect
-    }
-
-    if (sizing_mode == null) {
-      const {width_policy, height_policy} = this.model
-
-      let width_sizing: WidthSizing
-      if (width_policy == "fixed") {
-        if (this.model.width != null)
-          width_sizing = {width_policy: "fixed", width: this.model.width}
-        else {
-          logger.warn("width must be specified with fixed sizing policy, falling back to auto policy instead")
-          width_sizing = {width_policy: "auto"}
-        }
-      } else if (width_policy == "auto")
-        width_sizing = {width_policy: "auto", width: this.model.width}
-      else
-        width_sizing = {width_policy}
-
-      let height_sizing: HeightSizing
-      if (height_policy == "fixed") {
-        if (this.model.height != null)
-          height_sizing = {height_policy: "fixed", height: this.model.height}
-        else {
-          logger.warn("height must be specified with fixed sizing policy, falling back to auto policy instead")
-          height_sizing = {height_policy: "auto"}
-        }
-      } else if (height_policy == "auto")
-        height_sizing = {height_policy: "auto", height: this.model.height}
-      else
-        height_sizing = {height_policy}
-
-      const aspect = resolve_aspect(this.model.aspect_ratio)
-      return {...width_sizing, ...height_sizing, aspect}
-    } else {
-      if (sizing_mode == "fixed") {
-        const {width, height} = this.model
-        if (width != null && height != null)
-          return {width_policy: "fixed", width, height_policy: "fixed", height}
-        else {
-          logger.warn("width and height must be specified with fixed sizing mode, falling back to auto policy instead")
-          return {width_policy: "auto", width, height_policy: "auto", height}
-        }
-      } else if (sizing_mode == "stretch_both") {
-        return {width_policy: "max", height_policy: "max"}
-      } else {
-        const aspect = resolve_aspect(this.model.aspect_ratio || "auto")
+    if (sizing_mode != null) {
+      if (sizing_mode == "fixed")
+        width_policy = height_policy = "fixed"
+      else if (sizing_mode == "stretch_both")
+        width_policy = height_policy = "max"
+      else {
+        if (aspect_ratio == null)
+          aspect_ratio = "auto"
 
         switch (sizing_mode) {
           case "scale_width":
-            return {width_policy: "max", height_policy: "min", aspect}
+            width_policy = "max"
+            height_policy = "min"
+            break
           case "scale_height":
-            return {width_policy: "min", height_policy: "max", aspect}
+            width_policy = "min"
+            height_policy = "max"
+            break
           case "scale_both":
-            return {width_policy: "max", height_policy: "max", aspect}
+            width_policy = "max"
+            height_policy = "max"
+            break
           default:
             throw new Error("unreachable")
         }
       }
+    }
+
+    const {min_width, min_height, width, height, max_width, max_height} = this.model
+
+    let aspect: number | undefined
+    if (aspect_ratio == null)
+      aspect = undefined
+    else if (aspect_ratio == "auto") {
+      if (width != null && height != null)
+        aspect = width/height
+      else
+        aspect = undefined
+    } else
+      aspect = aspect_ratio
+
+    let margin: Margin | undefined
+    if (this.model.margin != null) {
+      const [top, right, bottom, left] = this.model.margin
+      margin = {top, right, bottom, left}
+    }
+
+    return {
+      width_policy, height_policy, aspect, margin,
+      min_width: min_width!, width: width!, max_width: max_width!,
+      min_height: min_height!, height: height!, max_height: max_height!,
     }
   }
 
@@ -284,8 +275,13 @@ export namespace LayoutDOM {
   export interface Attrs extends Model.Attrs {
     width: number | null
     height: number | null
-    width_policy: SizingPolicy
-    height_policy: SizingPolicy
+    min_width: number | null
+    min_height: number | null
+    max_width: number | null
+    max_height: number | null
+    margin: [number, number, number, number]
+    width_policy: SizingPolicy | "auto"
+    height_policy: SizingPolicy | "auto"
     aspect_ratio: number | "auto"
     sizing_mode: SizingMode | null
     visible: boolean
@@ -296,8 +292,13 @@ export namespace LayoutDOM {
   export interface Props extends Model.Props {
     width: p.Property<number | null>
     height: p.Property<number | null>
-    width_policy: p.Property<SizingPolicy>
-    height_policy: p.Property<SizingPolicy>
+    min_width: p.Property<number | null>
+    min_height: p.Property<number | null>
+    max_width: p.Property<number | null>
+    max_height: p.Property<number | null>
+    margin: p.Property<[number, number, number, number]>
+    width_policy: p.Property<SizingPolicy | "auto">
+    height_policy: p.Property<SizingPolicy | "auto">
     aspect_ratio: p.Property<number | "auto">
     sizing_mode: p.Property<SizingMode>
     visible: p.Property<boolean>
@@ -320,15 +321,20 @@ export abstract class LayoutDOM extends Model {
     this.prototype.type = "LayoutDOM"
 
     this.define({
-      width:         [ p.Number,     null    ],
-      height:        [ p.Number,     null    ],
-      width_policy:  [ p.Any,        "auto"  ],
-      height_policy: [ p.Any,        "auto"  ],
-      aspect_ratio:  [ p.Number,     null    ],
-      sizing_mode:   [ p.SizingMode, null    ],
-      visible:       [ p.Bool,       true    ],
-      disabled:      [ p.Bool,       false   ],
-      css_classes:   [ p.Array,      []      ],
+      width:         [ p.Number,     null         ],
+      height:        [ p.Number,     null         ],
+      min_width:     [ p.Number,     null         ],
+      min_height:    [ p.Number,     null         ],
+      max_width:     [ p.Number,     null         ],
+      max_height:    [ p.Number,     null         ],
+      margin:        [ p.Any,        [0, 0, 0, 0] ],
+      width_policy:  [ p.Any,        "auto"       ],
+      height_policy: [ p.Any,        "auto"       ],
+      aspect_ratio:  [ p.Number,     null         ],
+      sizing_mode:   [ p.SizingMode, null         ],
+      visible:       [ p.Bool,       true         ],
+      disabled:      [ p.Bool,       false        ],
+      css_classes:   [ p.Array,      []           ],
     })
   }
 }

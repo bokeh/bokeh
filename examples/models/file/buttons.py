@@ -54,7 +54,7 @@ widget_box = Column(children=[
     dropdown, dropdown_disabled, dropdown_split,
     checkbox_group, radio_group,
     checkbox_button_group, radio_button_group,
-], spacing=5)
+])
 
 doc = Document()
 doc.add_root(widget_box)

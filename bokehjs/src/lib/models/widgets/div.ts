@@ -1,5 +1,4 @@
 import {Markup, MarkupView} from "./markup"
-import {div} from "core/dom"
 import * as p from "core/properties"
 
 export class DivView extends MarkupView {
@@ -7,12 +6,10 @@ export class DivView extends MarkupView {
 
   render(): void {
     super.render()
-    const content = div()
     if (this.model.render_as_text)
-      content.textContent = this.model.text
+      this.markupEl.textContent = this.model.text
     else
-      content.innerHTML = this.model.text
-    this.markupEl.appendChild(content)
+      this.markupEl.innerHTML = this.model.text
   }
 }
 
@@ -27,7 +24,6 @@ export namespace Div {
 export interface Div extends Div.Attrs {}
 
 export class Div extends Markup {
-
   properties: Div.Props
 
   constructor(attrs?: Partial<Div.Attrs>) {
@@ -43,5 +39,4 @@ export class Div extends Markup {
     })
   }
 }
-
 Div.initClass()

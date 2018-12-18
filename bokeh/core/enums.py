@@ -318,7 +318,7 @@ RoundingFunction = enumeration("round", "nearest", "floor", "rounddown", "ceil",
 SizingMode = enumeration("stretch_both", "scale_width", "scale_height", "scale_both", "fixed")
 
 #: Individual sizing mode policies
-SizingPolicy = enumeration("auto", "fixed", "min", "max")
+SizingPolicy = enumeration("fixed", "fit", "min", "max")
 
 #: Specify different callback policies for the slider widget
 SliderCallbackPolicy = enumeration("continuous", "throttle", "mouseup")

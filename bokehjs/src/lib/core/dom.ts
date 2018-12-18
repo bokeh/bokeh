@@ -187,33 +187,28 @@ export function padding(el: HTMLElement): Sizing {
 export type Size = {width: number, height: number}
 
 export function size(el: HTMLElement): Size {
-  const style = getComputedStyle(el)
+  const rect = el.getBoundingClientRect()
   return {
-    width: num(style.width),
-    height: num(style.height),
+    width: Math.ceil(rect.width),
+    height: Math.ceil(rect.height),
+  }
+}
+
+export function outer_size(el: HTMLElement): Size {
+  const {left, right, top, bottom} = margin(el)
+  const {width, height} = size(el)
+  return {
+    width: Math.ceil(width + left + right),
+    height: Math.ceil(height + top + bottom),
   }
 }
 
 export function position(el: HTMLElement, bbox: BBox): void {
   const {style} = el
-  style.position = "absolute"
   style.left     = `${bbox.left}px`
   style.top      = `${bbox.top}px`
   style.width    = `${bbox.width}px`
   style.height   = `${bbox.height}px`
-}
-
-export function height(el: HTMLElement): number {
-  const margins  = margin(el)
-  const paddings = padding(el)
-  const borders  = border(el)
-
-  const style = getComputedStyle(el)
-  const line_height = parseFloat(style.lineHeight!) || 0
-
-  return margins.top  + margins.bottom  +
-         paddings.top + paddings.bottom +
-         borders.top  + borders.bottom  + line_height
 }
 
 export function children(el: HTMLElement): HTMLElement[] {
@@ -294,5 +289,23 @@ export function undisplayed<T>(el: HTMLElement, fn: () => T): T {
     return fn()
   } finally {
     el.style.display = display
+  }
+}
+
+export function unsized<T>(el: HTMLElement, fn: () => T): T {
+  return sized(el, {}, fn)
+}
+
+export function sized<T>(el: HTMLElement, size: Partial<Size>, fn: () => T): T {
+  const {width, height, position} = el.style
+  el.style.position = "absolute"
+  el.style.width = size.width != null ? `${size.width}px` : ""
+  el.style.height = size.height != null ? `${size.height}px` : ""
+  try {
+    return fn()
+  } finally {
+    el.style.position = position
+    el.style.width = width
+    el.style.height = height
   }
 }

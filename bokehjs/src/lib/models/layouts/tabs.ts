@@ -1,5 +1,5 @@
 import {Grid, LayoutItem} from "core/layout"
-import {div, height, children, position, show, hide} from "core/dom"
+import {div, outer_size, children, position, show, hide} from "core/dom"
 import {Location} from "core/enums"
 import * as p from "core/properties"
 
@@ -27,11 +27,11 @@ export class TabsView extends LayoutDOMView {
     const loc = this.model.tabs_location
 
     this.header = new LayoutItem()
-    const size = Math.max(...children(this.header_el).map(height))
+    const size = Math.max(...children(this.header_el).map((el) => outer_size(el).height))
     if (loc == "above" || loc == "below")
-      this.header.sizing = {width_policy: "max", height_policy: "fixed", height: size}
+      this.header.set_sizing({width_policy: "max", height_policy: "fixed", height: size})
     else
-      this.header.sizing = {width_policy: "fixed", width: size, height_policy: "max"}
+      this.header.set_sizing({width_policy: "fixed", width: size, height_policy: "max"})
 
     let row = 1
     let col = 1
@@ -49,7 +49,7 @@ export class TabsView extends LayoutDOMView {
     })
 
     this.layout = new Grid([header].concat(panels))
-    this.layout.sizing = this.box_sizing()
+    this.layout.set_sizing(this.box_sizing())
   }
 
   update_position(): void {

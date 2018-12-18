@@ -1,3 +1,13 @@
+.bk-clearfix {
+  &:before, &:after {
+    content: "";
+    display: table;
+  }
+  &:after {
+    clear: both;
+  }
+}
+
 .bk-shading {
   position: absolute;
   display: block;
