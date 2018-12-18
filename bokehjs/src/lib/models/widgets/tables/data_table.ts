@@ -7,6 +7,7 @@ const {CellExternalCopyManager} = require("slickgrid/plugins/slick.cellexternalc
 
 import * as p from "core/properties"
 import {uniqueId} from "core/util/string"
+import {isString} from "core/util/types"
 import {any, range} from "core/util/array"
 import {keys} from "core/util/object"
 import {logger} from "core/logging"
@@ -256,16 +257,17 @@ export class DataTableView extends WidgetView {
       if (checkboxSelector != null)
         this.grid.registerPlugin(checkboxSelector)
 
-      if(!options.editable){
+      if (!options.editable){
         const pluginOptions = {
-          dataItemColumnValueExtractor: function(val: any, col: any) {
+          dataItemColumnValueExtractor: function(val: Item, col: TableColumn) {
+            // As defined in this file, Item can contain any type values
             let value: any = val[col.field]
-            if ( typeof value === 'string'){
+            if (isString(value)) {
               value = value.replace(/\n/g, "\\n")
             }
             return value
           },
-          includeHeaderWhenCopying : false,
+          includeHeaderWhenCopying: false,
         }
 
         this.grid.registerPlugin(new CellExternalCopyManager(pluginOptions))
