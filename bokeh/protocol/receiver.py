@@ -1,16 +1,51 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Assemble WebSocket wire message fragments into complete Bokeh Server
 message objects that can be processed.
 
 '''
-from __future__ import absolute_import
 
-import six
-from tornado import gen
-
-from .exceptions import ValidationError
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+import six
+from tornado import gen
+
+# Bokeh imports
+from .exceptions import ValidationError
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'Receiver',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class Receiver(object):
     ''' Receive wire message fragments and assemble complete Bokeh server
@@ -131,3 +166,11 @@ class Receiver(object):
     def _assume_binary(self, fragment):
         if not isinstance(fragment, six.binary_type):
             raise ValidationError("expected binary fragment but received text fragment for %s" % (self._current_consumer.__name__))
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

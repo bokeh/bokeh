@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide a base class for all Bokeh Server Protocol message types.
 
 Boker messages are comprised of a sequence of JSON fragments. Specified as
@@ -37,15 +44,44 @@ monitoring or instrumentation tools.
 The ``content`` fragment is defined by the specific message type.
 
 '''
-from __future__ import absolute_import, print_function
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
 from tornado.escape import json_decode, json_encode
 from tornado import gen
 
+# Bokeh imports
 import bokeh.util.serialization as bkserial
-
 from .exceptions import MessageError, ProtocolError
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'Message',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class Message(object):
     ''' The Message base class encapsulates creating, assembling, and
@@ -314,3 +350,11 @@ class Message(object):
     @property
     def buffers(self):
         return self._buffers
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
