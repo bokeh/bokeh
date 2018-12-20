@@ -8,6 +8,12 @@
 ''' Control global configuration options with environment variables.
 A global settings object that other parts of Bokeh can refer to.
 
+``BOKEH_ALLOW_WS_ORIGIN`` --- List of websocket origins allowed to access bokeh.
+
+  Comma separated list of domains that need to access bokeh websocket interface.
+  This can also be provided using the --allow-websocket-origin parameter.
+
+  Note: This option overrides the --allow-websocket-origin flag
 
 ``BOKEH_BROWSER`` --- What browser to use when opening plots.
 
@@ -118,6 +124,7 @@ A global settings object that other parts of Bokeh can refer to.
 
 .. _webbrowser: https://docs.python.org/2/library/webbrowser.html
 '''
+
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
@@ -205,6 +212,16 @@ class _Settings(object):
             value = False
         else:
             raise ValueError("invalid value %r for boolean property %s%s" % (value, self._prefix, key))
+
+        return value
+
+    def _get_list(self, key, default, dev=None):
+        value = self._get(key)
+
+        if value is None:
+            value = self._dev_or_default(default, dev)
+        else:
+            value = self._get(key, self._dev_or_default(default, dev)).split(',')
 
         return value
 
@@ -379,6 +396,9 @@ class _Settings(object):
 
     def ignore_filename(self):
         return self._get_bool("IGNORE_FILENAME", False)
+
+    def allowed_ws_origin(self, default=None):
+        return self._get_list("ALLOW_WS_ORIGIN", default)
 
 #-----------------------------------------------------------------------------
 # Code

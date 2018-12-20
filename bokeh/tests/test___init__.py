@@ -72,6 +72,28 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
 THE POSSIBILITY OF SUCH DAMAGE.
 
+
+
+
+The BokehJS client library bundles many third party JavaScript libraries. The
+complete set of unique licenses found in BokehJS packages is listed here:
+
+* Apache-2.0
+* AFLv2.1
+* BSD-2-Clause
+* BSD-3-Clause
+* ISC
+* MIT
+* Unlicense
+* WTFPL
+
+A detailed list of specific package licenses may be obtained by executing the
+following commands in the "bokehjs" subdirectory:
+
+    $ npm install
+
+    $ npx license-checker --production --csv
+
 """
 
 #-----------------------------------------------------------------------------
