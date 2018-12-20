@@ -27,7 +27,7 @@ from time import sleep
 from bokeh.layouts import column
 from bokeh.models import ColumnDataSource, DataTable, TableColumn
 from bokeh._testing.util.selenium import copy_table_rows, paste_values
-from bokeh._testing.util.selenium import get_page_element, enter_text_in_textarea
+from bokeh._testing.util.selenium import get_page_element, enter_text_in_cell_with_click_enter
 from bokeh.models.widgets import Div
 
 #-----------------------------------------------------------------------------
@@ -59,12 +59,14 @@ class Test_CopyPaste(object):
         element = get_page_element(page.driver, '#T1')
 
         # Selenium doesn't paste until we write something to the element first
-        enter_text_in_textarea(page.driver, element, 'PASTED:')
+        # textarea works like a cell
+        enter_text_in_cell_with_click_enter(page.driver, element, 'PASTED:')
+
         paste_values(page.driver, element)
 
         result = element.get_attribute('value')
 
         # The textarea now contains the content in the datatable
-        assert result == 'PASTED:\n0\t1\t1\n1\t2\t1\n'
+        assert result == '\nPASTED:\n0\t1\t1\n1\t2\t1\n'
 
         assert page.has_no_console_errors()

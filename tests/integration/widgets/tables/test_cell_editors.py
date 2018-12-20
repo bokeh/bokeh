@@ -23,7 +23,7 @@ import pytest ; pytest
 
 # Bokeh imports
 from bokeh.models import ColumnDataSource, CustomJS, DataTable, IntEditor, NumberEditor, StringEditor, TableColumn
-from bokeh._testing.util.selenium import enter_text_in_cell, get_table_cell, RECORD
+from bokeh._testing.util.selenium import enter_text_in_cell, enter_text_in_cell_with_click_enter, get_table_cell, RECORD
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -298,6 +298,27 @@ class Test_StringEditor(Test_CellEditor_Base):
         # Now double click, enter the text new value and <enter>
         cell = get_table_cell(page.driver, 1, 1)
         enter_text_in_cell(page.driver, cell, "baz")
+
+        # Click row 2 (which triggers callback again so we can inspect the data)
+        cell = get_table_cell(page.driver, 2, 1)
+        cell.click()
+        results = page.results
+        assert results['values'] == ["baz", "bar"]
+
+        assert page.has_no_console_errors()
+
+    def test_editing_updates_source_with_click_enter(self, bokeh_model_page):
+        page = bokeh_model_page(self.table)
+
+        # Click row 1 (which triggers the selection callback)
+        cell = get_table_cell(page.driver, 1, 1)
+        cell.click()
+        results = page.results
+        assert results['values'] == self.values
+
+        # Now double click, enter the text new value and <enter>
+        cell = get_table_cell(page.driver, 1, 1)
+        enter_text_in_cell_with_click_enter(page.driver, cell, "baz")
 
         # Click row 2 (which triggers callback again so we can inspect the data)
         cell = get_table_cell(page.driver, 2, 1)

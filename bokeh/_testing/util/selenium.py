@@ -116,14 +116,14 @@ def enter_text_in_element(driver, element, text, click=1, enter=True):
     actions.send_keys(text)
     actions.perform()
 
-def enter_text_in_textarea(driver, cell, text):
+def enter_text_in_cell(driver, cell, text):
     actions = ActionChains(driver)
     actions.move_to_element(cell)
-    actions.click()
-    actions.send_keys(Keys.CONTROL + text + Keys.ENTER)
+    actions.double_click()
+    actions.send_keys(text + Keys.ENTER)
     actions.perform()
 
-def enter_text_in_cell(driver, cell, text):
+def enter_text_in_cell_with_click_enter(driver, cell, text):
     actions = ActionChains(driver)
     actions.move_to_element(cell)
     actions.click()
@@ -141,7 +141,9 @@ def copy_table_rows(driver, rows):
         actions.move_to_element(row)
         actions.click()
     actions.key_up(Keys.SHIFT)
-    actions.send_keys(Keys.CONTROL, Keys.INSERT)
+    actions.key_down(Keys.CONTROL)
+    actions.send_keys(Keys.INSERT)
+    actions.key_up(Keys.CONTROL)
     #actions.send_keys(Keys.CONTROL, 'c')
     actions.perform()
 

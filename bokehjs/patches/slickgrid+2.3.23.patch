@@ -1,0 +1,901 @@
+patch-package
+new file mode 100644
+--- a/node_modules/slickgrid/package.json
++++ b/node_modules/slickgrid/package.json
+@@ -51,7 +51,7 @@
+     "grid"
+   ],
+   "license": "MIT",
+-  "main": "slick.core.js",
++  "main": "slick.grid.js",
+   "name": "slickgrid",
+   "repository": {
+     "type": "git",
+--- a/node_modules/slickgrid/slick-default-theme.css
++++ b/node_modules/slickgrid/slick-default-theme.css
+@@ -110,7 +110,6 @@ classes should alter those!
+ 
+ .slick-row.loading {
+   opacity: 0.5;
+-  filter: alpha(opacity = 50);
+ }
+ 
+ .slick-cell.invalid {
+--- a/node_modules/slickgrid/slick.grid.css
++++ b/node_modules/slickgrid/slick.grid.css
+@@ -169,7 +169,6 @@ classes should alter those!
+   display: inline-block;
+   background: blue;
+   opacity: 0.15;
+-  filter: alpha(opacity = 15);
+   cursor: move;
+ }
+ 
+@@ -178,7 +177,6 @@ classes should alter those!
+   height: 2px;
+   background: blue;
+   opacity: 0.7;
+-  filter: alpha(opacity = 70);
+ }
+ 
+ .slick-selection {
+--- a/node_modules/slickgrid/controls/slick.columnpicker.js
++++ b/node_modules/slickgrid/controls/slick.columnpicker.js
+@@ -1,3 +1,6 @@
++  "use strict";
++  var $ = require("../slick.jquery");
++  var Slick = require("../slick.core");
+   /***
+    * A control to add a Column Picker (right+click on any column header to reveal the column picker)
+    *
+@@ -25,9 +28,7 @@
+    * @constructor
+    */
+ 
+-'use strict';
+ 
+-(function ($) {
+   function SlickColumnPicker(columns, grid, options) {
+     var _grid = grid;
+     var $list;
+@@ -230,6 +231,6 @@
+     };
+   }
+ 
+-  // Slick.Controls.ColumnPicker
+-  $.extend(true, window, { Slick:{ Controls:{ ColumnPicker:SlickColumnPicker }}});
+-})(jQuery);
++  module.exports = {
++    "ColumnPicker": SlickColumnPicker
++  };
+--- a/node_modules/slickgrid/controls/slick.pager.js
++++ b/node_modules/slickgrid/controls/slick.pager.js
+@@ -1,4 +1,7 @@
+-(function ($) {
++  "use strict";
++  var $ = require("../slick.jquery");
++  var Slick = require("../slick.core");
++
+   function SlickGridPager(dataView, grid, $container, options) {
+     var $status;
+     var _options;
+@@ -149,6 +152,6 @@
+     init();
+   }
+ 
+-  // Slick.Controls.Pager
+-  $.extend(true, window, { Slick:{ Controls:{ Pager:SlickGridPager }}});
+-})(jQuery);
++  module.exports = {
++    "Pager": SlickGridPager
++  };
+--- a/node_modules/slickgrid/lib/jquery.event.drag-2.3.0.js
++++ b/node_modules/slickgrid/lib/jquery.event.drag-2.3.0.js
+@@ -9,7 +9,8 @@
+ // REQUIRES: jquery 1.8 +, , event.drag 2.3.0
+ // TESTED WITH: jQuery 1.8.3, 1.11.2, 2.2.4, and 3.1.0
+ 
+-;(function( $ ) {
++    var $ = require("../slick.jquery");
++
+     // add the jquery instance method
+     $.fn.drag = function( str, arg, opts ){
+         // figure out the event type
+@@ -241,7 +242,7 @@
+                 event.type = type;
+                 // protects originalEvent from side-effects
+                 var noop = function(){};
+-                event.originalEvent = new jQuery.Event(orig.event, {
++                event.originalEvent = new $.Event(orig.event, {
+                     preventDefault: noop,
+                     stopPropagation: noop,
+                     stopImmediatePropagation: noop
+@@ -384,4 +385,3 @@
+ 
+         // share the same special event configuration with related events...
+         $special.draginit = $special.dragstart = $special.dragend = drag;
+-})( jQuery );
+--- a/node_modules/slickgrid/lib/jquery.event.drop-2.3.0.js
++++ b/node_modules/slickgrid/lib/jquery.event.drop-2.3.0.js
+@@ -9,7 +9,7 @@
+ // REQUIRES: jquery 1.8 +, , event.drag 2.3.0
+ // TESTED WITH: jQuery 1.8.3, 1.11.2, 2.2.4, and 3.1.0
+ 
+-;(function($){ // secure $ jQuery alias
++var $ = require("../slick.jquery");
+ 
+ // Events: drop, dropstart, dropend
+ 
+@@ -300,5 +300,3 @@ drop = $.event.special.drop = {
+ 
+ // share the same special event configuration with related events...
+ $special.dropinit = $special.dropstart = $special.dropend = drop;
+-
+-})(jQuery); // confine scope
+--- a/node_modules/slickgrid/plugins/slick.autotooltips.js
++++ b/node_modules/slickgrid/plugins/slick.autotooltips.js
+@@ -1,10 +1,6 @@
+-(function ($) {
+-  // Register namespace
+-  $.extend(true, window, {
+-    "Slick": {
+-      "AutoTooltips": AutoTooltips
+-    }
+-  });
++  "use strict";
++  var $ = require("../slick.jquery");
++  var Slick = require("../slick.core");
+ 
+   /**
+    * AutoTooltips plugin to show/hide tooltips when columns are too narrow to fit content.
+@@ -73,11 +69,14 @@
+         $node.attr("title", ($node.innerWidth() < $node[0].scrollWidth) ? column.name : "");
+       }
+     }
+-    
++
+     // Public API
+     $.extend(this, {
+       "init": init,
+       "destroy": destroy
+     });
+   }
+-})(jQuery);
+\ No newline at end of file
++
++  module.exports = {
++      "AutoTooltips": AutoTooltips
++  };
+--- a/node_modules/slickgrid/plugins/slick.cellcopymanager.js
++++ b/node_modules/slickgrid/plugins/slick.cellcopymanager.js
+@@ -1,11 +1,6 @@
+-(function ($) {
+-  // register namespace
+-  $.extend(true, window, {
+-    "Slick": {
+-      "CellCopyManager": CellCopyManager
+-    }
+-  });
+-
++  "use strict";
++  var $ = require("../slick.jquery");
++  var Slick = require("../slick.core");
+ 
+   function CellCopyManager() {
+     var _grid;
+@@ -85,4 +80,7 @@
+       "onPasteCells": new Slick.Event()
+     });
+   }
+-})(jQuery);
+\ No newline at end of file
++
++  module.exports = {
++      "CellCopyManager": CellCopyManager
++  };
+--- a/node_modules/slickgrid/plugins/slick.cellexternalcopymanager.js
++++ b/node_modules/slickgrid/plugins/slick.cellexternalcopymanager.js
+@@ -1,10 +1,6 @@
+-(function ($) {
+-  // register namespace
+-  $.extend(true, window, {
+-    "Slick": {
+-      "CellExternalCopyManager": CellExternalCopyManager
+-    }
+-  });
+-
++  "use strict";
++  var $ = require("../slick.jquery");
++  var Slick = require("../slick.core");
++  var keyCodes = Slick.keyCode;
+ 
+   function CellExternalCopyManager(options) {
+@@ -462,7 +451,10 @@
+       "onCopyCells": new Slick.Event(),
+       "onCopyCancelled": new Slick.Event(),
+       "onPasteCells": new Slick.Event(),
+       "setIncludeHeaderWhenCopying" : setIncludeHeaderWhenCopying
+     });
+   }
+-})(jQuery);
++
++  module.exports = {
++      "CellExternalCopyManager": CellExternalCopyManager
++  };
+--- a/node_modules/slickgrid/plugins/slick.cellrangedecorator.js
++++ b/node_modules/slickgrid/plugins/slick.cellrangedecorator.js
+@@ -1,10 +1,6 @@
+-(function ($) {
+-  // register namespace
+-  $.extend(true, window, {
+-    "Slick": {
+-      "CellRangeDecorator": CellRangeDecorator
+-    }
+-  });
++  "use strict";
++  var $ = require("../slick.jquery");
++  var Slick = require("../slick.core");
+ 
+   /***
+    * Displays an overlay on top of a given cell range.
+@@ -69,4 +65,7 @@
+       "hide": hide
+     });
+   }
+-})(jQuery);
++
++  module.exports = {
++      "CellRangeDecorator": CellRangeDecorator
++  };
+--- a/node_modules/slickgrid/plugins/slick.cellrangeselector.js
++++ b/node_modules/slickgrid/plugins/slick.cellrangeselector.js
+@@ -1,10 +1,6 @@
+-(function ($) {
+-  // register namespace
+-  $.extend(true, window, {
+-    "Slick": {
+-      "CellRangeSelector": CellRangeSelector
+-    }
+-  });
++  "use strict";
++  var $ = require("../slick.jquery");
++  var Slick = require("../slick.core");
+ 
+   function CellRangeSelector(options) {
+     var _grid;
+@@ -120,4 +116,7 @@
+       "onCellRangeSelected": new Slick.Event()
+     });
+   }
+-})(jQuery);
++
++  module.exports = {
++      "CellRangeSelector": CellRangeSelector
++  };
+--- a/node_modules/slickgrid/plugins/slick.cellselectionmodel.js
++++ b/node_modules/slickgrid/plugins/slick.cellselectionmodel.js
+@@ -1,10 +1,6 @@
+-(function ($) {
+-  // register namespace
+-  $.extend(true, window, {
+-    "Slick": {
+-      "CellSelectionModel": CellSelectionModel
+-    }
+-  });
++  "use strict";
++  var $ = require("../slick.jquery");
++  var Slick = require("../slick.core");
+ 
+   function CellSelectionModel(options) {
+     var _grid;
+@@ -186,4 +182,7 @@
+       "onSelectedRangesChanged": new Slick.Event()
+     });
+   }
+-})(jQuery);
++
++  module.exports = {
++      "CellSelectionModel": CellSelectionModel
++  };
+--- a/node_modules/slickgrid/plugins/slick.checkboxselectcolumn.js
++++ b/node_modules/slickgrid/plugins/slick.checkboxselectcolumn.js
+@@ -1,11 +1,6 @@
+-(function ($) {
+-  // register namespace
+-  $.extend(true, window, {
+-    "Slick": {
+-      "CheckboxSelectColumn": CheckboxSelectColumn
+-    }
+-  });
+-
++  "use strict";
++  var $ = require("../slick.jquery");
++  var Slick = require("../slick.core");
+ 
+   function CheckboxSelectColumn(options) {
+     var _grid;
+@@ -269,4 +264,7 @@
+       "setOptions": setOptions,
+     });
+   }
+-})(jQuery);
+\ No newline at end of file
++
++  module.exports = {
++      "CheckboxSelectColumn": CheckboxSelectColumn
++  };
+--- a/node_modules/slickgrid/plugins/slick.draggablegrouping.js
++++ b/node_modules/slickgrid/plugins/slick.draggablegrouping.js
+@@ -1,3 +1,7 @@
++  "use strict";
++  var $ = require("../slick.jquery");
++  var Slick = require("../slick.core");
++
+ /**
+  *
+  * Draggable Grouping contributed by:  Muthukumar Selvarasu
+@@ -8,15 +12,13 @@
+  *     This plugin provides the Draggable Grouping feature
+  */
+ 
+-(function ($) {
+-  // Register namespace
+-  $.extend(true, window, {
+-    "Slick": {
+-      "DraggableGrouping": DraggableGrouping
+-    }
+-  });
++  /**
++   * DraggableGrouping plugin to show/hide tooltips when columns are too narrow to fit content.
++   * @constructor
++   * @param {boolean} [options.enableForCells=true]        - Enable tooltip for grid cells
++   * @param {boolean} [options.enableForHeaderCells=false] - Enable tooltip for header cells
++   * @param {number}  [options.maxToolTipLength=null]      - The maximum length for a tooltip
+ 
+-  /***
+    * A plugin to add Draggable Grouping feature.
+    *
+    * USAGE:
+@@ -328,4 +330,7 @@
+       "getSetupColumnReorder": setupColumnReorder,
+     });
+   }
+-})(jQuery);
++
++  module.exports = {
++      "DraggableGrouping": DraggableGrouping
++  };
+--- a/node_modules/slickgrid/plugins/slick.headerbuttons.js
++++ b/node_modules/slickgrid/plugins/slick.headerbuttons.js
+@@ -1,13 +1,6 @@
+-(function ($) {
+-  // register namespace
+-  $.extend(true, window, {
+-    "Slick": {
+-      "Plugins": {
+-        "HeaderButtons": HeaderButtons
+-      }
+-    }
+-  });
+-
++  "use strict";
++  var $ = require("../slick.jquery");
++  var Slick = require("../slick.core");
+ 
+   /***
+    * A plugin to add custom buttons to column headers.
+@@ -174,4 +167,7 @@
+       "onCommand": new Slick.Event()
+     });
+   }
+-})(jQuery);
++
++  module.exports = {
++        "HeaderButtons": HeaderButtons
++  };
+--- a/node_modules/slickgrid/plugins/slick.headermenu.js
++++ b/node_modules/slickgrid/plugins/slick.headermenu.js
+@@ -1,13 +1,6 @@
+-(function ($) {
+-  // register namespace
+-  $.extend(true, window, {
+-    "Slick": {
+-      "Plugins": {
+-        "HeaderMenu": HeaderMenu
+-      }
+-    }
+-  });
+-
++  "use strict";
++  var $ = require("../slick.jquery");
++  var Slick = require("../slick.core");
+ 
+   /***
+    * A plugin to add drop-down menus to column headers.
+@@ -293,4 +286,7 @@
+       "onCommand": new Slick.Event()
+     });
+   }
+-})(jQuery);
++
++  module.exports = {
++        "HeaderMenu": HeaderMenu
++  };
+--- a/node_modules/slickgrid/plugins/slick.rowmovemanager.js
++++ b/node_modules/slickgrid/plugins/slick.rowmovemanager.js
+@@ -1,10 +1,6 @@
+-(function ($) {
+-  // register namespace
+-  $.extend(true, window, {
+-    "Slick": {
+-      "RowMoveManager": RowMoveManager
+-    }
+-  });
++  "use strict";
++  var $ = require("../slick.jquery");
++  var Slick = require("../slick.core");
+ 
+   function RowMoveManager(options) {
+     var _grid;
+@@ -135,4 +131,7 @@
+       "destroy": destroy
+     });
+   }
+-})(jQuery);
+\ No newline at end of file
++
++  module.exports = {
++      "RowMoveManager": RowMoveManager
++  };
+--- a/node_modules/slickgrid/plugins/slick.rowselectionmodel.js
++++ b/node_modules/slickgrid/plugins/slick.rowselectionmodel.js
+@@ -1,10 +1,6 @@
+-(function ($) {
+-  // register namespace
+-  $.extend(true, window, {
+-    "Slick": {
+-      "RowSelectionModel": RowSelectionModel
+-    }
+-  });
++  "use strict";
++  var $ = require("../slick.jquery");
++  var Slick = require("../slick.core");
+ 
+   function RowSelectionModel(options) {
+     var _grid;
+@@ -188,4 +184,7 @@
+       "onSelectedRangesChanged": new Slick.Event()
+     });
+   }
+-})(jQuery);
+\ No newline at end of file
++
++  module.exports = {
++      "RowSelectionModel": RowSelectionModel
++  };
+--- a/node_modules/slickgrid/slick.core.js
++++ b/node_modules/slickgrid/slick.core.js
+@@ -1,52 +1,11 @@
++    "use strict";
++
+ /***
+  * Contains core SlickGrid classes.
+  * @module Core
+  * @namespace Slick
+  */
+ 
+-(function ($) {
+-  // register namespace
+-  $.extend(true, window, {
+-    "Slick": {
+-      "Event": Event,
+-      "EventData": EventData,
+-      "EventHandler": EventHandler,
+-      "Range": Range,
+-      "NonDataRow": NonDataItem,
+-      "Group": Group,
+-      "GroupTotals": GroupTotals,
+-      "EditorLock": EditorLock,
+-
+-      /***
+-       * A global singleton editor lock.
+-       * @class GlobalEditorLock
+-       * @static
+-       * @constructor
+-       */
+-      "GlobalEditorLock": new EditorLock(),
+-
+-      "keyCode": {
+-        SPACE: 8,
+-        BACKSPACE: 8,
+-        DELETE: 46,
+-        DOWN: 40,
+-        END: 35,
+-        ENTER: 13,
+-        ESCAPE: 27,
+-        HOME: 36,
+-        INSERT: 45,
+-        LEFT: 37,
+-        PAGE_DOWN: 34,
+-        PAGE_UP: 33,
+-        RIGHT: 39,
+-        TAB: 9,
+-        UP: 38,
+-        A: 65
+-      },
+-      "preClickClassName" : "slick-edit-preclick"
+-    }
+-  });
+-
+   /***
+    * An event object for passing data to event handlers and letting them control propagation.
+    * <p>This is pretty much identical to how W3C and jQuery implement events.</p>
+@@ -489,6 +448,43 @@
+       return (activeEditController ? activeEditController.cancelCurrentEdit() : true);
+     };
+   }
+-})(jQuery);
+ 
++  module.exports = {
++    "Event": Event,
++    "EventData": EventData,
++    "EventHandler": EventHandler,
++    "Range": Range,
++    "NonDataRow": NonDataItem,
++    "Group": Group,
++    "GroupTotals": GroupTotals,
++    "EditorLock": EditorLock,
+ 
++    /***
++     * A global singleton editor lock.
++     * @class GlobalEditorLock
++     * @static
++     * @constructor
++     */
++    "GlobalEditorLock": new EditorLock(),
++
++    "keyCode": {
++      BACKSPACE: 8,
++      DELETE: 46,
++      DOWN: 40,
++      END: 35,
++      ENTER: 13,
++      ESCAPE: 27,
++      ESC: 27,
++      HOME: 36,
++      INSERT: 45,
++      LEFT: 37,
++      PAGE_DOWN: 34,
++      PAGE_UP: 33,
++      RIGHT: 39,
++      TAB: 9,
++      UP: 38,
++      C: 67,
++      V: 86
++    },
++    "preClickClassName" : "slick-edit-preclick"
++  }
+--- a/node_modules/slickgrid/slick.dataview.js
++++ b/node_modules/slickgrid/slick.dataview.js
+@@ -1,18 +1,6 @@
+-(function ($) {
+-  $.extend(true, window, {
+-    Slick: {
+-      Data: {
+-        DataView: DataView,
+-        Aggregators: {
+-          Avg: AvgAggregator,
+-          Min: MinAggregator,
+-          Max: MaxAggregator,
+-          Sum: SumAggregator
+-        }
+-      }
+-    }
+-  });
+-
++  "use strict";
++  var $ = require("./slick.jquery");
++  var Slick = require("./slick.core");
+ 
+   /***
+    * A sample Model implementation.
+@@ -1217,4 +1204,12 @@
+   // TODO:  add more built-in aggregators
+   // TODO:  merge common aggregators in one to prevent needles iterating
+ 
+-})(jQuery);
++  module.exports = {
++    DataView: DataView,
++    Aggregators: {
++      Avg: AvgAggregator,
++      Min: MinAggregator,
++      Max: MaxAggregator,
++      Sum: SumAggregator
++    }
++  };
+--- a/node_modules/slickgrid/slick.editors.js
++++ b/node_modules/slickgrid/slick.editors.js
+@@ -1,25 +1,13 @@
++  "use strict";
++  var $ = require("./slick.jquery");
++  var Slick = require("./slick.core");
++
+ /***
+  * Contains basic SlickGrid editors.
+  * @module Editors
+  * @namespace Slick
+  */
+ 
+-(function ($) {
+-  // register namespace
+-  $.extend(true, window, {
+-    "Slick": {
+-      "Editors": {
+-        "Text": TextEditor,
+-        "Integer": IntegerEditor,
+-        "Float": FloatEditor,
+-        "Date": DateEditor,
+-        "YesNoSelect": YesNoSelectEditor,
+-        "Checkbox": CheckboxEditor,
+-        "PercentComplete": PercentCompleteEditor,
+-        "LongText": LongTextEditor
+-      }
+-    }
+-  });
+ 
+   function TextEditor(args) {
+     var $input;
+@@ -658,5 +646,16 @@
+       e.stopImmediatePropagation();	
+     }	
+   }
+-  
+-})(jQuery);
++
++  module.exports = {
++    Editors: {
++      Text: TextEditor,
++      Integer: IntegerEditor,
++      Float: FloatEditor,
++      Date: DateEditor,
++      YesNoSelect: YesNoSelectEditor,
++      Checkbox: CheckboxEditor,
++      PercentComplete: PercentCompleteEditor,
++      LongText: LongTextEditor
++    }
++  };
+--- a/node_modules/slickgrid/slick.formatters.js
++++ b/node_modules/slickgrid/slick.formatters.js
+@@ -1,28 +1,16 @@
++  "use strict";
++  var Slick = require("./slick.core");
++
+ /***
+  * Contains basic SlickGrid formatters.
+- * 
++ *
+  * NOTE:  These are merely examples.  You will most likely need to implement something more
+  *        robust/extensible/localizable/etc. for your use!
+- * 
++ *
+  * @module Formatters
+  * @namespace Slick
+  */
+ 
+-(function ($) {
+-  // register namespace
+-  $.extend(true, window, {
+-    "Slick": {
+-      "Formatters": {
+-        "PercentComplete": PercentCompleteFormatter,
+-        "PercentCompleteBar": PercentCompleteBarFormatter,
+-        "YesNo": YesNoFormatter,
+-        "Checkmark": CheckmarkFormatter,
+-        "Checkbox": CheckboxFormatter
+-
+-      }
+-    }
+-  });
+-
+   function PercentCompleteFormatter(row, cell, value, columnDef, dataContext) {
+     if (value == null || value === "") {
+       return "-";
+@@ -62,4 +50,13 @@
+   function CheckmarkFormatter(row, cell, value, columnDef, dataContext) {
+     return value ? "<img src='../images/tick.png'>" : "";
+   }
+-})(jQuery);
++
++  module.exports = {
++    Formatters: {
++      PercentComplete: PercentCompleteFormatter,
++      PercentCompleteBar: PercentCompleteBarFormatter,
++      YesNo: YesNoFormatter,
++      Checkmark: CheckmarkFormatter,
++      Checkbox: CheckboxFormatter
++    }
++  };
+--- a/node_modules/slickgrid/slick.grid.js
++++ b/node_modules/slickgrid/slick.grid.js
+@@ -1,3 +1,5 @@
++  "use strict";
++
+ /**
+  * @license
+  * (c) 2009-2016 Michael Leibman
+@@ -16,25 +18,8 @@
+  *     and do proper cleanup.
+  */
+ 
+-// make sure required JavaScript modules are loaded
+-if (typeof jQuery === "undefined") {
+-  throw new Error("SlickGrid requires jquery module to be loaded");
+-}
+-if (!jQuery.fn.drag) {
+-  throw new Error("SlickGrid requires jquery.event.drag module to be loaded");
+-}
+-if (typeof Slick === "undefined") {
+-  throw new Error("slick.core.js not loaded");
+-}
+-
+-
+-(function ($) {
+-  // Slick.Grid
+-  $.extend(true, window, {
+-    Slick: {
+-      Grid: SlickGrid
+-    }
+-  });
++  var $ = require("./slick.jquery");
++  var Slick = require("./slick.core");
+ 
+   // shared across all grids on the page
+   var scrollbarDimensions;
+@@ -53,6 +38,14 @@ if (typeof Slick === "undefined") {
+    * @param {Object}            options     Grid options.
+    **/
+   function SlickGrid(container, data, columns, options) {
++    if (!$.fn.drag) {
++      require('./lib/jquery.event.drag-2.3.0');
++    }
++
++    if (!$.fn.drop) {
++      require('./lib/jquery.event.drop-2.3.0');
++    }
++
+     // settings
+     var defaults = {
+       alwaysShowVerticalScroll: false,
+@@ -222,10 +215,10 @@ if (typeof Slick === "undefined") {
+     // Initialization
+ 
+     function init() {
+-      if (container instanceof jQuery) { 
+-        $container = container; 
+-      } else { 
+-        $container = $(container); 
++      if (container instanceof $) {
++        $container = container;
++      } else {
++        $container = $(container);
+       }
+       if ($container.length < 1) {
+         throw new Error("SlickGrid requires a valid container, " + container + " does not exist in the DOM.");
+@@ -4051,4 +4044,7 @@ if (typeof Slick === "undefined") {
+ 
+     init();
+   }
+-}(jQuery));
++
++  module.exports = {
++    Grid: SlickGrid
++  };
+--- a/node_modules/slickgrid/slick.groupitemmetadataprovider.js
++++ b/node_modules/slickgrid/slick.groupitemmetadataprovider.js
+@@ -1,12 +1,6 @@
+-(function ($) {
+-  $.extend(true, window, {
+-    Slick: {
+-      Data: {
+-        GroupItemMetadataProvider: GroupItemMetadataProvider
+-      }
+-    }
+-  });
+-
++  "use strict";
++  var $ = require("./slick.jquery");
++  var Slick = require("./slick.core");
+ 
+   /***
+    * Provides item metadata for group (Slick.Group) and totals (Slick.Totals) rows produced by the DataView.
+@@ -169,4 +163,7 @@
+       "getTotalsRowMetadata": getTotalsRowMetadata
+     };
+   }
+-})(jQuery);
++
++  module.exports = {
++    GroupItemMetadataProvider: GroupItemMetadataProvider
++  };
+new file mode 100644
+--- /dev/null
++++ b/node_modules/slickgrid/slick.jquery.js
+@@ -0,0 +1 @@
++module.exports = (typeof $ !== "undefined") ? $ : require("jquery");
+--- a/node_modules/slickgrid/slick.remotemodel-yahoo.js
++++ b/node_modules/slickgrid/slick.remotemodel-yahoo.js
+@@ -1,4 +1,7 @@
+-(function ($) {
++  "use strict";
++  var $ = require("./slick.jquery");
++  var Slick = require("./slick.core");
++
+   /***
+    * A sample AJAX data store implementation.
+    * Right now, it's hooked up to load Hackernews stories, but can
+@@ -201,6 +204,6 @@
+     };
+   }
+ 
+-  // Slick.Data.RemoteModel
+-  $.extend(true, window, { Slick: { Data: { RemoteModel: RemoteModel }}});
+-})(jQuery);
++  module.exports = {
++    RemoteModel: RemoteModel
++  };
+--- a/node_modules/slickgrid/slick.remotemodel.js
++++ b/node_modules/slickgrid/slick.remotemodel.js
+@@ -1,4 +1,7 @@
+-(function ($) {
++  "use strict";
++  var $ = require("./slick.jquery");
++  var Slick = require("./slick.core");
++
+   /***
+    * A sample AJAX data store implementation.
+    * Right now, it's hooked up to load search results from Octopart, but can
+@@ -164,6 +167,6 @@
+     };
+   }
+ 
+-  // Slick.Data.RemoteModel
+-  $.extend(true, window, { Slick: { Data: { RemoteModel: RemoteModel }}});
+-})(jQuery);
+\ No newline at end of file
++  module.exports = {
++    RemoteModel: RemoteModel
++  };
+new file mode 100644
+--- /dev/null
++++ b/node_modules/slickgrid/controls/index.js
+@@ -0,0 +1,8 @@
++"use strict";
++
++function __export(m) {
++    for (var p in m) if (!module.exports.hasOwnProperty(p)) module.exports[p] = m[p];
++}
++
++__export(require("./slick.columnpicker"));
++__export(require("./slick.pager"));
+new file mode 100644
+--- /dev/null
++++ b/node_modules/slickgrid/plugins/index.js
+@@ -0,0 +1,18 @@
++"use strict";
++
++function __export(m) {
++    for (var p in m) if (!module.exports.hasOwnProperty(p)) module.exports[p] = m[p];
++}
++
++__export(require("./slick.autotooltips"));
++__export(require("./slick.cellcopymanager"));
++__export(require("./slick.cellexternalcopymanager"));
++__export(require("./slick.cellrangedecorator"));
++__export(require("./slick.cellrangeselector"));
++__export(require("./slick.cellselectionmodel"));
++__export(require("./slick.checkboxselectcolumn"));
++__export(require("./slick.draggablegrouping"));
++__export(require("./slick.headerbuttons"));
++__export(require("./slick.headermenu"));
++__export(require("./slick.rowmovemanager"));
++__export(require("./slick.rowselectionmodel"));
