@@ -1,13 +1,32 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provides the Application, Server, and Session context classes.
 
 '''
-from __future__ import absolute_import
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 log = logging.getLogger(__name__)
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
 from tornado import gen
 
+# Bokeh imports
 from .session import ServerSession
 
 from ..application.application import ServerContext, SessionContext
@@ -15,15 +34,27 @@ from ..document import Document
 from ..protocol.exceptions import ProtocolError
 from ..util.tornado import _CallbackGroup, yield_for_all_futures
 
-class _RequestProxy(object):
-    def __init__(self, request):
-        args_copy = dict(request.arguments)
-        if 'bokeh-protocol-version' in args_copy: del args_copy['bokeh-protocol-version']
-        if 'bokeh-session-id' in args_copy: del args_copy['bokeh-session-id']
-        self._args = args_copy
-    @property
-    def arguments(self):
-        return self._args
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'ApplicationContext',
+    'BokehServerContext',
+    'BokehSessionContext',
+)
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class BokehServerContext(ServerContext):
     def __init__(self, application_context):
@@ -265,3 +296,21 @@ class ApplicationContext(object):
                 yield self._discard_session(session, should_discard_ignoring_block)
 
         raise gen.Return(None)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+class _RequestProxy(object):
+    def __init__(self, request):
+        args_copy = dict(request.arguments)
+        if 'bokeh-protocol-version' in args_copy: del args_copy['bokeh-protocol-version']
+        if 'bokeh-session-id' in args_copy: del args_copy['bokeh-session-id']
+        self._args = args_copy
+    @property
+    def arguments(self):
+        return self._args
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

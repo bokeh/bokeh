@@ -1,15 +1,50 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide a Request handler that lists the application (if more than one)
 or (if only one) redirects to the route of that applications.
 
 '''
-from __future__ import absolute_import, print_function
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 log = logging.getLogger(__name__)
 
-from tornado import gen
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
 
+# Standard library imports
+
+# External imports
+from tornado import gen
 from tornado.web import RequestHandler
+
+# Bokeh imports
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'RootHandler',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class RootHandler(RequestHandler):
     ''' Implements a custom Tornado handler to display the available applications
@@ -30,3 +65,11 @@ class RootHandler(RequestHandler):
             self.redirect(redirect_to)
         else:
             self.render("app_index.html", prefix=prefix, items=sorted(self.applications.keys()))
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

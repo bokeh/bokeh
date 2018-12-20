@@ -1,14 +1,33 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide a request handler that returns a page displaying a document.
 
 '''
-from __future__ import absolute_import, print_function
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 log = logging.getLogger(__name__)
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
 from six.moves.urllib.parse import urlparse
 from tornado import gen
 
+# Bokeh imports
 from bokeh.core.templates import AUTOLOAD_JS
 from bokeh.util.string import encode_utf8
 from bokeh.util.compiler import bundle_all_models
@@ -16,6 +35,22 @@ from bokeh.embed.elements import script_for_render_items
 from bokeh.embed.util import RenderItem
 
 from .session_handler import SessionHandler
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'AutoloadJsHandler',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class AutoloadJsHandler(SessionHandler):
     ''' Implements a custom Tornado handler for the autoload JS chunk
@@ -62,3 +97,11 @@ class AutoloadJsHandler(SessionHandler):
 
         self.set_header("Content-Type", 'application/javascript')
         self.write(encode_utf8(js))
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
