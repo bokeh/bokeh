@@ -1,18 +1,37 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provide a web socket handler for the Bokeh Server application.
 
 '''
-from __future__ import absolute_import, print_function
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 log = logging.getLogger(__name__)
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import codecs
 
+# External imports
 from six.moves.urllib.parse import urlparse
 
 from tornado import gen, locks
 from tornado.websocket import StreamClosedError, WebSocketHandler, WebSocketClosedError
 
+
+# Bokeh imports
 from ..protocol_handler import ProtocolHandler
 from ...protocol import Protocol
 from ...protocol.exceptions import MessageError, ProtocolError, ValidationError
@@ -22,10 +41,21 @@ from ...protocol.receiver import Receiver
 from bokeh.util.session_id import check_session_id_signature
 from bokeh.settings import settings
 
-# This is an undocumented API purely for harvesting low level messages
-# for testing. When needed it will be set by the testing machinery, and
-# should not be used for any other purpose.
-_message_test_port = None
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'WSHandler',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class WSHandler(WebSocketHandler):
     ''' Implements a custom Tornado WebSocketHandler for the Bokeh Server.
@@ -283,3 +313,15 @@ class WSHandler(WebSocketHandler):
     def _protocol_error(self, message):
         log.error("Bokeh Server protocol error: %s, closing connection", message)
         self.close(10001, message)
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+# This is an undocumented API purely for harvesting low level messages
+# for testing. When needed it will be set by the testing machinery, and
+# should not be used for any other purpose.
+_message_test_port = None
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
