@@ -1,27 +1,14 @@
 import {logger} from "core/logging"
+
 import * as p from "core/properties"
 import {empty, label, textarea} from "core/dom"
 
-import {InputWidget, InputWidgetView} from "./input_widget"
+import {TextInput, BaseTextInputView} from "./text_input"
 
-export class TextAreaInputView extends InputWidgetView {
+export class TextAreaInputView extends BaseTextInputView {
   model: TextAreaInput
 
   protected inputEl: HTMLTextAreaElement
-
-  initialize(options: any): void {
-    super.initialize(options)
-    this.render()
-  }
-
-  connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.model.change, () => this.render())
-  }
-
-  css_classes(): string[] {
-    return super.css_classes().concat("bk-widget-form-group")
-  }
 
   render(): void {
     super.render()
@@ -49,28 +36,29 @@ export class TextAreaInputView extends InputWidgetView {
     if (this.model.height)
       this.inputEl.style.height = `${this.model.height - 35}px`
   }
+
   change_input(): void {
-    const value = this.inputEl.value
+    const value = this.inputEl.value;
     logger.debug(`widget/text_input: value = ${value}`)
     this.model.value = value
     super.change_input()
+    console.log('GOT')
   }
+
 }
 
 export namespace TextAreaInput {
-  export interface Attrs extends InputWidget.Attrs {
-    value: string
-    placeholder: string
+  export interface Attrs extends TextInput.Attrs {
     cols: number
     rows: number
     max_length: number
   }
-  export interface Props extends InputWidget.Props {}
+  export interface Props extends TextInput.Props {}
 }
 
 export interface TextAreaInput extends TextAreaInput.Attrs {}
 
-export class TextAreaInput extends InputWidget {
+export class TextAreaInput extends TextInput {
 
   properties: TextAreaInput.Props
 
@@ -83,8 +71,6 @@ export class TextAreaInput extends InputWidget {
     this.prototype.default_view = TextAreaInputView
 
     this.define({
-      value:       [ p.String, "" ],
-      placeholder: [ p.String, "" ],
       cols:        [ p.Number, 20],
       rows:        [ p.Number, 2],
       max_length:  [ p.Number, 500],

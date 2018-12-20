@@ -12,7 +12,7 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import pytest ; pytest
-
+from selenium.webdriver.common.keys import Keys
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -46,7 +46,8 @@ def modify_doc(doc):
     source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
     plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
     plot.add_glyph(source, Circle(x='x', y='y', size=20))
-    plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
+    code = RECORD("data", "s.data")
+    plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=code)))
     text_input = TextAreaInput(cols=20, css_classes=["foo"])
     def cb(attr, old, new):
         foo.append((old, new))
@@ -80,13 +81,8 @@ class Test_TextInput(object):
 
         el = page.driver.find_element_by_class_name('foo')
 
-        enter_text_in_element(page.driver, el, "val1")
+        enter_text_in_element(page.driver, el, "val1" + Keys.TAB)
 
         page.click_custom_action()
-
-
-        # this doens't work... why?
-        # results = page.results
-        # assert results['data']['val'] == ["", "val1"]
-
-        assert foo[-1] == ('', 'val1\n')
+        results = page.results
+        assert results['data']['val'] == ["", "val1"]

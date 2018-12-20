@@ -97,23 +97,10 @@ class TextInput(InputWidget):
     """)
 
 
-class TextAreaInput(InputWidget):
+class TextAreaInput(TextInput):
     ''' Multi-line input widget.
 
     '''
-
-    value = String(default="", help="""
-    Initial or entered text value.
-    """)
-
-    callback = Instance(Callback, help="""
-    A callback to run in the browser whenever the user unfocuses the TextInput
-    widget by hitting Enter or clicking outside of the text box area.
-    """)
-
-    placeholder = String(default="", help="""
-    Placeholder for empty input field
-    """)
 
     cols = Int(default=20, help="""
     Specifies the width of the text area (in average character width). Default: 20

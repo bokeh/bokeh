@@ -4,11 +4,7 @@ import {empty, label, input} from "core/dom"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
 
-export class TextInputView extends InputWidgetView {
-  model: TextInput
-
-  protected inputEl: HTMLInputElement
-
+export class BaseTextInputView extends InputWidgetView {
   initialize(options: any): void {
     super.initialize(options)
     this.render()
@@ -22,6 +18,12 @@ export class TextInputView extends InputWidgetView {
   css_classes(): string[] {
     return super.css_classes().concat("bk-widget-form-group")
   }
+}
+
+export class TextInputView extends BaseTextInputView {
+  model: TextInput
+
+  protected inputEl: HTMLInputElement
 
   render(): void {
     super.render()
@@ -49,11 +51,13 @@ export class TextInputView extends InputWidgetView {
   }
 
   change_input(): void {
-    const value = this.inputEl.value
+    const value = this.inputEl.value;
     logger.debug(`widget/text_input: value = ${value}`)
     this.model.value = value
     super.change_input()
+
   }
+
 }
 
 export namespace TextInput {
