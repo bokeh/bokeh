@@ -1,17 +1,47 @@
-from __future__ import absolute_import, print_function
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import logging
 import json
 
-import bokeh.server.tornado as tornado
+# External imports
 
+# Bokeh imports
 from bokeh.application import Application
 from bokeh.client import pull_session
 from bokeh.server.views.static_handler import StaticHandler
 
 from .utils import ManagedServerLoop, url, http_get
 
+# Module under test
+import bokeh.server.tornado as tornado
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
 logging.basicConfig(level=logging.DEBUG)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def test_default_resources():
     application = Application()
@@ -129,3 +159,15 @@ def test_metadata():
         meta_resp = http_get(server.io_loop, meta_url)
         meta_json = json.loads(meta_resp.buffer.read().decode())
         assert meta_json == {'data': {'name': 'myname', 'value': 'no value'}, 'url': '/'}
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
