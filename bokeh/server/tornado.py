@@ -1,19 +1,37 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provides the Bokeh Server Tornado application.
 
 '''
-from __future__ import absolute_import, print_function
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 log = logging.getLogger(__name__)
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import os
 from pprint import pformat
 
+# External imports
 from tornado import gen
 from tornado.ioloop import PeriodicCallback
 from tornado.web import Application as TornadoApplication
 from tornado.web import StaticFileHandler
 
+# Bokeh imports
 from ..application import Application
 from ..resources import Resources
 from ..settings import settings
@@ -25,6 +43,10 @@ from .urls import per_app_patterns, toplevel_patterns
 from .views.root_handler import RootHandler
 from .views.static_handler import StaticHandler
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
 # Unfortuntely we can't yet use format_docstring to keep these automatically in sync in
 # the class docstring because Python 2 does not allow setting class.__doc__ (works with
 # Bokeh model classes because they are metaclasses)
@@ -35,6 +57,13 @@ DEFAULT_STATS_LOG_FREQ_MS                = 15000
 DEFAULT_UNUSED_LIFETIME_MS               = 15000
 DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES = 20*1024*1024
 
+__all__ = (
+    'BokehTornado',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class BokehTornado(TornadoApplication):
     ''' A Tornado Application used to implement the Bokeh Server.
@@ -512,3 +541,15 @@ class BokehTornado(TornadoApplication):
         log.trace("Running keep alive job")
         for c in self._clients:
             c.send_ping()
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
