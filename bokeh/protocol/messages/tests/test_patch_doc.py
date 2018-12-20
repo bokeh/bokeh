@@ -1,19 +1,46 @@
-from __future__ import absolute_import, print_function
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from json import loads
 
-import pytest
-
+# External imports
 import numpy as np
 
-from bokeh.protocol.messages.patch_doc import process_document_events
-
+# Bokeh imports
 import bokeh.document as document
 from bokeh.model import Model
 from bokeh.models.sources import ColumnDataSource
 from bokeh.core.properties import Int, Instance
 from bokeh.protocol import Protocol
 from bokeh.document.events import ColumnDataChangedEvent, ColumnsPatchedEvent, ColumnsStreamedEvent, ModelChangedEvent, RootAddedEvent, RootRemovedEvent
+
+# Module under test
+from bokeh.protocol.messages.patch_doc import process_document_events
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class AnotherModelInTestPatchDoc(Model):
     bar = Int(1)
@@ -226,3 +253,15 @@ def test_process_document_events_with_buffers_and_use_buffers_false():
     assert len(json['references']) == 0
     assert len(json['events']) == 1
     assert json['events'] == ['junk']
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
