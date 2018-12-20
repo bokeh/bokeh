@@ -29,7 +29,7 @@ from subprocess import PIPE, Popen
 # Tests
 #-----------------------------------------------------------------------------
 
-# If this list changes, then LICENSE.txt should be updated accordingly
+# If this list changes, then bokehjs/LICENSE should be updated accordingly
 LICENSES = [
     'Apache-2.0',
     'AFLv2.1',
@@ -44,7 +44,7 @@ LICENSES = [
 @pytest.mark.codebase
 def test_js_license_set():
     ''' If the current set of JS licenses changes, they should be noted in
-    the LICENSE.txt file.
+    the bokehjs/LICENSE file.
 
     '''
     os.chdir('bokehjs')
