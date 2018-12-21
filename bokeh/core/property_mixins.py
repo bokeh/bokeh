@@ -38,12 +38,6 @@ be replaced with more information specific to each property. The setting
 are exactly ``fill_alpha`` and ``fill_color``. Some situations require a
 different usage, for more information see the docs for |Include|.
 
-.. |Include| replace:: :class:`~bokeh.core.properties.Include`
-
-.. |FillProps| replace:: :class:`~bokeh.core.property_mixins.FillProps`
-.. |LineProps| replace:: :class:`~bokeh.core.property_mixins.LineProps`
-.. |TextProps| replace:: :class:`~bokeh.core.property_mixins.TextProps`
-
 '''
 #-----------------------------------------------------------------------------
 # Boilerplate

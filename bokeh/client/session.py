@@ -97,7 +97,7 @@ def pull_session(session_id=None, url='default', io_loop=None, arguments=None):
 
     If you allow ``pull_session()`` to generate a unique
     ``session_id``, you can obtain the generated ID with the
-    ``id`` property on the returned ``ClientSession``.
+    ``id`` property on the returned |ClientSession|.
 
     Args:
         session_id (string, optional) :
@@ -119,7 +119,7 @@ def pull_session(session_id=None, url='default', io_loop=None, arguments=None):
 
     Returns:
         ClientSession :
-            A new ``ClientSession`` connected to the server
+            A new |ClientSession| connected to the server
 
     '''
 
@@ -147,7 +147,7 @@ def push_session(document, session_id=None, url='default', io_loop=None):
 
     If you allow ``push_session()`` to generate a unique ``session_id``, you
     can obtain the generated ID with the ``id`` property on the returned
-    ``ClientSession``.
+    |ClientSession|.
 
     Args:
         document : (bokeh.document.Document)
@@ -221,7 +221,7 @@ class ClientSession(object):
     ''' Represents a websocket connection to a server-side session.
 
     Each server session stores a Document, which is kept in sync with the
-    corresponding Document for this ``ClientSession`` instance. Updates on
+    corresponding Document for this |ClientSession| instance. Updates on
     either side of the connection will automatically propagate to the other
     side, as long as the connection is open.
 
@@ -235,7 +235,7 @@ class ClientSession(object):
             script = server_session(session_id=mysession.id, url=app_url)
             return render_template("embed.html", script=script, template="Flask")
 
-    If you do not use ``ClientSession`` in this way, it is up to you to ensure
+    If you do not use |ClientSession| in this way, it is up to you to ensure
     that ``session.close()`` is called.
 
     '''
@@ -249,8 +249,8 @@ class ClientSession(object):
 
         The :func:`~bokeh.client.session.push_session` and
         :func:`~bokeh.client.session.pull_session()` functions will construct a
-        ``ClientSession`` and push or pull in one step, so they are a good way to
-        obtain a ``ClientSession``.
+        |ClientSession| and push or pull in one step, so they are a good way to
+        obtain a |ClientSession|.
 
         Args:
             session_id (str) :

@@ -135,7 +135,7 @@ class CoffeeScript(Inline):
             class MyExt(Model):
                 __implementation__ = CoffeeScript(""" <CoffeeScript code> """)
 
-    Note that ``CoffeeScript`` is the default implementation language for
+    Note that |CoffeeScript| is the default implementation language for
     custom model implementations. The following is equivalent to example above:
 
     .. code-block:: python

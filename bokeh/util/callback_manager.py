@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provides ``PropertyCallbackManager`` and ``EventCallbackManager``
+''' Provides |PropertyCallbackManager| and |EventCallbackManager|
 mixin classes for adding ``on_change`` and ``on_event`` callback
 interfaces to classes.
 '''

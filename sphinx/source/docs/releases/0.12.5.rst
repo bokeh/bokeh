@@ -12,11 +12,11 @@ important features and fixes several bugs. Some of the highlights include:
 * Confusing ``--host`` parameter no longer necessary (:bokeh-issue:`5692`)
 * Interactive legends can now control glyph visibility (:bokeh-issue:`2274`,
   :bokeh-issue:`3715`)
-* Many fixes and improvements to ``GMapPlot`` including a new ``gmap``
+* Many fixes and improvements to |GMapPlot| including a new ``gmap``
   function for creating Google Maps plots easily (:bokeh-issue:`2822`,
   :bokeh-issue:`2940`, :bokeh-issue:`3737`, :bokeh-issue:`4835`,
   :bokeh-issue:`5592`, :bokeh-issue:`5826`, :bokeh-issue:`5845`)
-* ``CustomJSTransform`` now available for CDS columns (:bokeh-issue:`5015`)
+* |CustomJSTransform| now available for CDS columns (:bokeh-issue:`5015`)
 * Sophisticated "pivot" example app contributed (:bokeh-issue:`5894`)
 * Themes now work with ``components`` and in Jupyter notebooks
   (:bokeh-issue:`4722`, :bokeh-issue:`4952`, )
@@ -60,7 +60,7 @@ will continue to work with a deprecation warning until that time.
 The ``bokeh.embed.standalone_html_page_for_models`` method has been deprecated
 in place of ``bokeh.embed.file_html``. For details see :bokeh-pull:`5978`.
 
-The ``validate`` keyword argument to ``bokeh.io.save`` has been deprecated.
+The ``validate``| keyword argument to ``bokeh.io.save`` has been deprecated.
 Future usage of ``bokeh.io.save`` will always validate the document before
 outputting a file.
 
@@ -86,7 +86,7 @@ Functions Removed            Modules Removed            Classes Removed
 ============================ ========================== ===================================
 
 The methods ``bokeh.document.add`` and ``push_notebook`` of
-``ColumnDataSource`` have been removed.
+|ColumnDataSource| have been removed.
 
 The ``bokeh.io.output_server`` function has been also been removed.
 Additionally, ``bokeh.io.push`` and other supporting functions or
@@ -95,7 +95,7 @@ removed. This includes any transitive imports of these functions
 from other modules.
 
 Additionally, the property ``bokeh.charts.builder.Builder.sort_legend`` was
-removed, as well as the following properties of ``Plot``
+removed, as well as the following properties of |Plot|
 
 * ``border_fill``
 * ``background_fill``
@@ -134,7 +134,7 @@ The ``abstract`` class decorator was moved from ``models.py`` to
 docstring of any class marked abstract that it is not useful to instantiate
 directly.
 
-The metaclass ``Viewable`` has been renamed to ``MetaModel``.
+The metaclass ``Viewable`` has been renamed to |MetaModel|.
 
 The ``document.py`` module has been split up, and parts that would not be of
 normal interest to most users have been moved to better locations.
@@ -191,8 +191,8 @@ file is generated instead. This mostly affects using ``output_file`` in an
 interactive session which formerly could result in a ``PermissionError``.
 For details see :bokeh-pull:`5942`.
 
-The ``bokeh.io.save`` method will now only accept a ``LayoutDOM`` object and
-no longer a ``Document`` object for its ``obj`` argument. This aligns the
+The ``bokeh.io.save`` method will now only accept a |LayoutDOM| object and
+no longer a |Document| object for its ``obj`` argument. This aligns the
 ``bokeh.io.save`` argument types with ``bokeh.io.show``.
 
 Reorganization of bokeh's examples

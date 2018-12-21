@@ -43,7 +43,7 @@ Color Mappers allow you to encode some data sequence into a palette of colors ba
 
 * ``bokeh.transform.log_cmap``: Similar to ``linear_cmap`` but uses a natual log scale to map the colors.
 
-These mapper functions return a ``DataSpec`` property that can be passed to the color attribute of the glyph. The returned dataspec includes a ``bokeh.transform`` which can be accessed to use the mapper in another context such as to create a ``ColorBar`` as in the example below:
+These mapper functions return a |DataSpec| property that can be passed to the color attribute of the glyph. The returned dataspec includes a ``bokeh.transform`` which can be accessed to use the mapper in another context such as to create a |ColorBar| as in the example below:
 
 .. bokeh-plot:: docs/user_guide/examples/styling_linear_mappers.py
     :source-position: above
@@ -315,7 +315,7 @@ Glyphs
 ------
 
 To style the fill, line, or text properties of a glyph, it is first
-necessary to obtain a specific ``GlyphRenderer``. When using the
+necessary to obtain a specific |GlyphRenderer|. When using the
 |bokeh.plotting| interface, the glyph functions return the renderer:
 
 .. code-block:: python
@@ -325,7 +325,7 @@ necessary to obtain a specific ``GlyphRenderer``. When using the
     <bokeh.models.renderers.GlyphRenderer at 0x106a4c810>
 
 Then, the glyph itself is obtained from the ``.glyph`` attribute of a
-``GlyphRenderer``:
+|GlyphRenderer|:
 
 .. code-block:: python
 
@@ -347,7 +347,6 @@ setting the |selection_glyph| and/or |nonselection_glyph| attributes
 of the |GlyphRenderer| either manually or by passing them to |add_glyph|.
 
 .. |add_glyph| replace:: :func:`~bokeh.models.plots.Plot.add_glyph`
-.. |GlyphRenderer| replace:: :class:`~bokeh.models.renderers.GlyphRenderer`
 .. |selection_glyph| replace:: :attr:`~bokeh.models.renderers.GlyphRenderer.selection_glyph`
 .. |nonselection_glyph| replace:: :attr:`~bokeh.models.renderers.GlyphRenderer.nonselection_glyph`
 
@@ -441,8 +440,8 @@ Axes
 In this section you will learn how to change various visual properties
 of Bokeh plot axes.
 
-To set style attributes on Axis objects, use the |xaxis|, |yaxis|, and
-|axis| methods on |Plot| to first obtain a plot's Axis objects:
+To set style attributes on Axis objects, use the ``xaxis``, ``yaxis``, and
+``axis`` methods on |Plot| to first obtain a plot's Axis objects:
 
 .. code-block:: python
 
@@ -505,7 +504,7 @@ These are configured on the ``.ticker`` property of an axis. With the
 datetime, mercator, linear or log scale) normally happens automatically.
 However, there are cases when more explicit control is useful.
 
-``FixedTicker``
+|FixedTicker|
 '''''''''''''''
 
 This ticker model allows users to specify exact tick locations
@@ -548,7 +547,7 @@ These values are in screen units, and negative values are acceptable.
 Tick Label Formats
 ~~~~~~~~~~~~~~~~~~
 
-The text styling of axis labels is controlled by a ``TickFormatter`` object
+The text styling of axis labels is controlled by a |TickFormatter| object
 configured on the axis' ``formatter`` property. Bokeh uses a number of ticker
 formatters by default in different situations:
 
@@ -566,10 +565,10 @@ To control tick formatting at a finer grained level, use one of the
 
 .. note::
     To replace a tick formatter on an Axis, you must set the ``formatter``
-    property on an actual ``Axis`` object, not on a splattable list. This is
+    property on an actual |Axis| object, not on a splattable list. This is
     why ``p.yaxis[0].formatter``, etc. (with the subscript ``[0]``) is used.
 
-``NumeralTickFormatter``
+|NumeralTickFormatter|
 ''''''''''''''''''''''''
 
 The |NumeralTickFormatter| has a ``format`` property that can be used
@@ -581,7 +580,7 @@ to control the text formatting of axis ticks.
 Many additional formats are available, see the full |NumeralTickFormatter|
 documentation in the :ref:`refguide`.
 
-``PrintfTickFormatter``
+|PrintfTickFormatter|
 '''''''''''''''''''''''
 
 The |PrintfTickFormatter| has a ``format`` property that can be used
@@ -594,7 +593,7 @@ format strings.
 For full details about formats, see the full |PrintfTickFormatter|
 documentation in the :ref:`refguide`.
 
-``FuncTickFormatter``
+|FuncTickFormatter|
 '''''''''''''''''''''
 
 The |FuncTickFormatter| allows arbitrary tick formatting to be performed by
@@ -647,8 +646,8 @@ Grids
 In this section you will learn how to set the visual properties of grid
 lines and grid bands on Bokeh plots.
 
-Similar to the convenience methods for axes, there are |xgrid|, |ygrid|,
-and |grid| methods on |Plot| that can be used to obtain a plot's Grid
+Similar to the convenience methods for axes, there are ``xgrid``, ``ygrid``,
+and ``grid`` methods on |Plot| that can be used to obtain a plot's Grid
 objects:
 
 .. code-block:: python
@@ -884,30 +883,10 @@ spacing, etc. of the legend components:
 .. bokeh-plot:: docs/user_guide/examples/styling_legend_dimensions.py
     :source-position: above
 
-.. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
 .. |select| replace:: :func:`~bokeh.models.plots.Plot.select`
-.. |Title| replace:: :class:`~bokeh.models.annotations.Title`
-.. |Legend| replace:: :class:`~bokeh.models.annotations.Legend`
 
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
 
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 
-.. |Range1d| replace:: :class:`~bokeh.models.ranges.Range1d`
-
 .. |bokeh.models.formatters| replace:: :ref:`bokeh.models.formatters <bokeh.models.formatters>`
-.. |BasicTickFormatter| replace:: :class:`~bokeh.models.formatters.BasicTickFormatter`
-.. |CategoricalTickFormatter| replace:: :class:`~bokeh.models.formatters.CategoricalTickFormatter`
-.. |DatetimeTickFormatter| replace:: :class:`~bokeh.models.formatters.DatetimeTickFormatter`
-.. |FuncTickFormatter| replace:: :class:`~bokeh.models.formatters.FuncTickFormatter`
-.. |LogTickFormatter| replace:: :class:`~bokeh.models.formatters.LogTickFormatter`
-.. |NumeralTickFormatter| replace:: :class:`~bokeh.models.formatters.NumeralTickFormatter`
-.. |PrintfTickFormatter| replace:: :class:`~bokeh.models.formatters.PrintfTickFormatter`
-
-.. |legend| replace:: :class:`~bokeh.plotting.Figure.legend`
-.. |grid|   replace:: :class:`~bokeh.plotting.Figure.grid`
-.. |xgrid|  replace:: :class:`~bokeh.plotting.Figure.xgrid`
-.. |ygrid|  replace:: :class:`~bokeh.plotting.Figure.ygrid`
-.. |axis|   replace:: :class:`~bokeh.plotting.Figure.axis`
-.. |xaxis|  replace:: :class:`~bokeh.plotting.Figure.xaxis`
-.. |yaxis|  replace:: :class:`~bokeh.plotting.Figure.yaxis`

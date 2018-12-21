@@ -90,7 +90,7 @@ class Plot(LayoutDOM):
             name (str) : the name to query on
 
         Also queries on just type can be made simply by supplying the
-        ``Model`` subclass as the single parameter:
+        |Model| subclass as the single parameter:
 
         Args:
             type (Model) : the type to query on
@@ -307,7 +307,7 @@ class Plot(LayoutDOM):
         return g
 
     def add_tile(self, tile_source, **kw):
-        ''' Adds new ``TileRenderer`` into ``Plot.renderers``
+        ''' Adds new |TileRenderer| into ``Plot.renderers``
 
         Args:
             tile_source (TileSource) : a tile source instance which contain tileset configuration

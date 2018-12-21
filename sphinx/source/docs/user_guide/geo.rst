@@ -51,8 +51,8 @@ GeoJSON Data
 with JSON. It describes points, lines and polygons (called Patches in Bokeh) as a
 collection of features. Each feature can also have a set of properties.
 
-Bokeh's ``GeoJSONDataSource`` can be used almost seamlessly in place of Bokeh's
-``ColumnDataSource``. For example:
+Bokeh's |GeoJSONDataSource| can be used almost seamlessly in place of Bokeh's
+|ColumnDataSource|. For example:
 
 .. bokeh-plot:: docs/user_guide/examples/geo_geojson_source.py
     :source-position: above

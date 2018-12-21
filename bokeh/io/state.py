@@ -7,7 +7,7 @@
 ''' Encapsulate implicit state that is useful for Bokeh plotting APIs.
 
 .. note::
-    While ``State`` objects can also be manipulated explicitly, they are
+    While |State| objects can also be manipulated explicitly, they are
     automatically configured when the functions :func:`~bokeh.io.output_file`,
     etc. from :ref:`bokeh.io` are used, so this is not necessary under
     typical usage.
@@ -26,7 +26,7 @@ It is possible to handle the configuration of these things manually, and some
 examples of doing this can be found in ``examples/models`` directory. When
 developing sophisticated applications, it may be necessary or desirable to work
 at this level. However, for general use this would quickly become burdensome.
-This module provides a ``State`` class that encapsulates these objects and
+This module provides a |State| class that encapsulates these objects and
 ensures their proper configuration in many common usage scenarios.
 
 '''
@@ -187,7 +187,7 @@ class State(object):
 
     def reset(self):
         ''' Deactivate all currently active output modes and set ``curdoc()``
-        to a fresh empty ``Document``.
+        to a fresh empty |Document|.
 
         Subsequent calls to ``show()`` will not render until a new output mode
         is activated.

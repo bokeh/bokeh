@@ -70,7 +70,7 @@ class StaticLayoutProvider(LayoutProvider):
 
 def from_networkx(graph, layout_function, **kwargs):
         '''
-        Generate a ``GraphRenderer`` from a ``networkx.Graph`` object and networkx
+        Generate a |GraphRenderer| from a ``networkx.Graph`` object and networkx
         layout function. Any keyword arguments will be passed to the
         layout function.
 
@@ -167,7 +167,7 @@ class GraphHitTestPolicy(Model):
 
 class NodesOnly(GraphHitTestPolicy):
     '''
-    With the ``NodesOnly`` policy, only graph nodes are able to be selected and
+    With the |NodesOnly| policy, only graph nodes are able to be selected and
     inspected. There is no selection or inspection of graph edges.
 
     '''
@@ -176,7 +176,7 @@ class NodesOnly(GraphHitTestPolicy):
 
 class NodesAndLinkedEdges(GraphHitTestPolicy):
     '''
-    With the ``NodesAndLinkedEdges`` policy, inspection or selection of graph
+    With the |NodesAndLinkedEdges| policy, inspection or selection of graph
     nodes will result in the inspection or selection of the node and of the
     linked graph edges. There is no direct selection or inspection of graph
     edges.
@@ -187,7 +187,7 @@ class NodesAndLinkedEdges(GraphHitTestPolicy):
 
 class EdgesAndLinkedNodes(GraphHitTestPolicy):
     '''
-    With the ``EdgesAndLinkedNodes`` policy, inspection or selection of graph
+    With the |EdgesAndLinkedNodes| policy, inspection or selection of graph
     edges will result in the inspection or selection of the edge and of the
     linked graph nodes. There is no direct selection or inspection of graph
     nodes.

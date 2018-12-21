@@ -12,13 +12,13 @@ new features and fixes several bugs. Some of the highlights include:
 
 * Categorical tick labels at all levels may be rotates (:bokeh-issue`7643`)
 
-* New ``CustomJSHover`` for highly customized tooltip fields (:bokeh-issue:`7647`)
+* New |CustomJSHover| for highly customized tooltip fields (:bokeh-issue:`7647`)
 
 * Axes may now have fixed positions inside plots (:bokeh-issue:`113`)
 
 * Small zoom tool enhancements (:bokeh-issue:`3126`, :bokeh-issue:`3125`, :bokeh-issue:`2427`)
 
-* ``MultiLine`` and ``Patches`` now function with categorical ranges (:bokeh-issue:`7462`)
+* |MultiLine| and |Patches| now function with categorical ranges (:bokeh-issue:`7462`)
 
 And several other bug fixes and docs additions. For full details see the
 :bokeh-tree:`CHANGELOG`.
@@ -56,7 +56,7 @@ official Bokeh documentation, no deprecation was given.
 CDS ``column_names`` property
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-``ColumnDataSource`` models had a Bokeh property ``column_names`` for specifying
+|ColumnDataSource| models had a Bokeh property ``column_names`` for specifying
 the list of column names in ``source.data``. This information was duplicative
 and had to be explicitly maintained in a fragile way. It has been replaced by
 read-only properties in both Python and JavaScript that always accurately

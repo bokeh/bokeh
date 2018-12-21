@@ -127,7 +127,7 @@ class Property(PropertyDescriptorFactory):
         return self._sphinx_prop_link()
 
     def make_descriptors(self, base_name):
-        ''' Return a list of ``BasicPropertyDescriptor`` instances to install
+        ''' Return a list of |BasicPropertyDescriptor| instances to install
         on a class, in order to delegate attribute access to this property.
 
         Args:
@@ -136,8 +136,8 @@ class Property(PropertyDescriptorFactory):
         Returns:
             list[BasicPropertyDescriptor]
 
-        The descriptors returned are collected by the ``MetaHasProps``
-        metaclass and added to ``HasProps`` subclasses during class creation.
+        The descriptors returned are collected by the |MetaHasProps|
+        metaclass and added to |HasProps| subclasses during class creation.
         '''
         return [ BasicPropertyDescriptor(base_name, self) ]
 
@@ -377,7 +377,7 @@ class Property(PropertyDescriptorFactory):
 
         Assertions are intended in enforce conditions beyond simple value
         type validation. For instance, this method can be use to assert that
-        the columns of a ``ColumnDataSource`` all collectively have the same
+        the columns of a |ColumnDataSource| all collectively have the same
         length at all times.
 
         Args:
@@ -431,7 +431,7 @@ class PrimitiveProperty(Property):
 
     Example:
 
-        A trivial version of a ``Float`` property might look like:
+        A trivial version of a |Float| property might look like:
 
         .. code-block:: python
 

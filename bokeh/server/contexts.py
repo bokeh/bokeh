@@ -128,7 +128,7 @@ class BokehSessionContext(SessionContext):
 
 class ApplicationContext(object):
     ''' Server-side holder for ``bokeh.application.Application`` plus any associated data.
-        This holds data that's global to all sessions, while ``ServerSession`` holds
+        This holds data that's global to all sessions, while |ServerSession| holds
         data specific to an "instance" of the application.
     '''
 

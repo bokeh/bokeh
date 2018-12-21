@@ -44,7 +44,7 @@ class Options(HasProps):
     ''' Leverage the Bokeh properties type system for specifying and
     validating configuration options.
 
-    Subclasses of ``Options`` specify a set of configuration options
+    Subclasses of |Options| specify a set of configuration options
     using standard Bokeh properties:
 
     .. code-block:: python

@@ -103,7 +103,7 @@ def match(obj, selector, context=None):
 
         { attrname : predicate }
 
-    Where a predicate is constructed from the operators ``EQ``, ``GT``, etc.
+    Where a predicate is constructed from the operators |EQ|, |GT|, etc.
     and is used to compare against values of model attributes named
     ``attrname``.
 
@@ -135,7 +135,7 @@ def match(obj, selector, context=None):
         >>> match(p.title, {'type': Axis})
         False
 
-    There is also a ``'tags'`` attribute that ``Model`` objects have, that
+    There is also a ``'tags'`` attribute that |Model| objects have, that
     is a list of user-supplied values. The ``'tags'`` selector key can be
     used to query against this list of tags. An object matches if any of the
     tags in the selector match any of the tags on the object:
@@ -217,7 +217,7 @@ def match(obj, selector, context=None):
 class OR(object):
     ''' Form disjunctions from other query predicates.
 
-    Construct an ``OR`` expression by making a dict with ``OR`` as the key,
+    Construct an |OR| expression by making a dict with |OR| as the key,
     and a list of other query expressions as the value:
 
     .. code-block:: python
@@ -231,7 +231,7 @@ class OR(object):
 class IN(object):
     ''' Predicate to test if property values are in some collection.
 
-    Construct and ``IN`` predicate as a dict with ``IN`` as the key,
+    Construct and |IN| predicate as a dict with |IN| as the key,
     and a list of values to check against.
 
     .. code-block:: python
@@ -245,7 +245,7 @@ class IN(object):
 class GT(object):
     ''' Predicate to test if property values are greater than some value.
 
-    Construct and ``GT`` predicate as a dict with ``GT`` as the key,
+    Construct and |GT| predicate as a dict with |GT| as the key,
     and a value to compare against.
 
     .. code-block:: python
@@ -259,7 +259,7 @@ class GT(object):
 class LT(object):
     ''' Predicate to test if property values are less than some value.
 
-    Construct and ``LT`` predicate as a dict with ``LT`` as the key,
+    Construct and |LT| predicate as a dict with |LT| as the key,
     and a value to compare against.
 
     .. code-block:: python
@@ -273,7 +273,7 @@ class LT(object):
 class EQ(object):
     ''' Predicate to test if property values are equal to some value.
 
-    Construct and ``EQ`` predicate as a dict with ``EQ`` as the key,
+    Construct and |EQ| predicate as a dict with |EQ| as the key,
     and a value to compare against.
 
     .. code-block:: python
@@ -288,7 +288,7 @@ class GEQ(object):
     ''' Predicate to test if property values are greater than or equal to
     some value.
 
-    Construct and ``GEQ`` predicate as a dict with ``GEQ`` as the key,
+    Construct and |GEQ| predicate as a dict with |GEQ| as the key,
     and a value to compare against.
 
     .. code-block:: python
@@ -303,7 +303,7 @@ class LEQ(object):
     ''' Predicate to test if property values are less than or equal to
     some value.
 
-    Construct and ``LEQ`` predicate as a dict with ``LEQ`` as the key,
+    Construct and |LEQ| predicate as a dict with |LEQ| as the key,
     and a value to compare against.
 
     .. code-block:: python
@@ -317,7 +317,7 @@ class LEQ(object):
 class NEQ(object):
     ''' Predicate to test if property values are unequal to some value.
 
-    Construct and ``NEQ`` predicate as a dict with ``NEQ`` as the key,
+    Construct and |NEQ| predicate as a dict with |NEQ| as the key,
     and a value to compare against.
 
     .. code-block:: python

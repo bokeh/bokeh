@@ -239,20 +239,10 @@ cases of using the |bokeh.plotting| interface.
 
 .. |other languages| replace:: :ref:`other languages <userguide_quickstart_other_languages>`
 
-.. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
-.. |Rect| replace:: :class:`~bokeh.models.glyphs.Rect`
-
 .. |output_file|     replace:: :func:`~bokeh.io.output_file`
 .. |output_notebook| replace:: :func:`~bokeh.io.output_notebook`
 .. |save|            replace:: :func:`~bokeh.io.save`
 .. |show|            replace:: :func:`~bokeh.io.show`
 
 .. |figure|          replace:: :func:`~bokeh.plotting.figure`
-.. |Figure|          replace:: :class:`~bokeh.plotting.Figure`
 .. |Figure.circle|   replace:: :func:`Figure.circle <bokeh.plotting.Figure.circle>`
-
-.. |Bar|        replace:: :func:`~bokeh.plotting.Bar`
-.. |BoxPlot|    replace:: :func:`~bokeh.plotting.BoxPlot`
-.. |Histogram|  replace:: :func:`~bokeh.plotting.Histogram`
-.. |Scatter|    replace:: :func:`~bokeh.plotting.Scatter`
-.. |TimeSeries| replace:: :func:`~bokeh.plotting.TimeSeries`

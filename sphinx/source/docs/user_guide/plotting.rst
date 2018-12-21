@@ -172,7 +172,7 @@ A more realistic example below computes counts per bin using the
     :source-position: above
 
 The above code can be made even simpler by calling the :func:`~bokeh.plotting.figure.Figure.hexbin`
-method of ``Figure``.
+method of |Figure|.
 
 .. _userguide_plotting_patch_glyphs:
 
@@ -531,9 +531,7 @@ The section on adding annotations to plots has moved.  Please see
 .. _axial coordinates: https://www.redblobgames.com/grids/hexagons/#coordinates-axial
 
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
-.. |Figure| replace:: :class:`~bokeh.plotting.figure.Figure`
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
-.. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
 
 .. |annular_wedge|     replace:: :func:`~bokeh.plotting.figure.Figure.annular_wedge`
 .. |annulus|           replace:: :func:`~bokeh.plotting.figure.Figure.annulus`

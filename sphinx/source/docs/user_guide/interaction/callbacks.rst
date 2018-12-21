@@ -29,7 +29,7 @@ CustomJS Callbacks
 ~~~~~~~~~~~~~~~~~~
 
 To supply a snippet of JavaScript code that should be executed (in the
-browser) when some event occurs, use the ``CustomJS`` model:
+browser) when some event occurs, use the |CustomJS| model:
 
 .. code:: python
 
@@ -50,7 +50,7 @@ browser) when some event occurs, use the ``CustomJS`` model:
 
     """)
 
-Note that in addition to the ``code`` property, ``CustomJS`` also accepts
+Note that in addition to the ``code`` property, |CustomJS| also accepts
 an ``args`` property that maps string names to Bokeh models. Any Bokeh
 models that are configured in ``args`` (on the "Python side") will
 automatically be available to the JavaScript code by the corresponding name.
@@ -62,7 +62,7 @@ the callback is attached to) will be available as ``cb_obj``.
 CustomJS for Model Property Events
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-These ``CustomJS`` callbacks can be attached to property change events on
+These |CustomJS| callbacks can be attached to property change events on
 any Bokeh model, using the ``js_on_change`` method of Bokeh models:
 
 .. code:: python
@@ -77,12 +77,12 @@ actually the name of a BokehJS event. The full format for a property
 change event is, e.g. ``"change:start"`` but Bokeh will automatically
 convert any property name into one of these BokehJS change events for you.
 Additionally, some Bokeh models have additional specialized events. For
-example, the ``ColumnDataSource`` also supports ``"patch"`` and ``"stream"``
-events, for executing ``CustomJS`` callbacks whenever the data source is
+example, the |ColumnDataSource| also supports ``"patch"`` and ``"stream"``
+events, for executing |CustomJS| callbacks whenever the data source is
 patched or streamed to.
 
-Below is an example that shows how to attach a ``CustomJS`` callback to a
-``Slider`` widget, so that whenever the slider value updates, the callback
+Below is an example that shows how to attach a |CustomJS| callback to a
+|Slider| widget, so that whenever the slider value updates, the callback
 is executed to update some data:
 
 .. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_js_on_change.py
@@ -121,7 +121,7 @@ class import from the ``bokeh.events`` module
 
 The following code imports ``bokeh.events`` and registers all of the
 available event classes using the ``display_event`` function in order to
-generate the ``CustomJS`` objects. This function is used to update the ``Div``
+generate the |CustomJS| objects. This function is used to update the |Div|
 with the event name (always accessible from the ``event_name``
 attribute) as well as all the other applicable event attributes. The
 result is a plot that when interacted with, displays the corresponding
@@ -133,9 +133,9 @@ event on the right:
 CustomJS for Specialized Events
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In addition to the generic mechanisms described above for adding ``CustomJS``
+In addition to the generic mechanisms described above for adding |CustomJS|
 callbacks to Bokeh models, there are also a some Bokeh models that have a
-``.callback`` property specifically for executing ``CustomJS`` in response
+``.callback`` property specifically for executing |CustomJS| in response
 to specific events or situations.
 
 .. warning::
@@ -195,7 +195,7 @@ a line through that value.
 CustomJS for Hover
 ''''''''''''''''''
 
-The ``HoverTool`` has a callback which comes with two pieces of built-in data: the
+The |HoverTool| has a callback which comes with two pieces of built-in data: the
 `index`, and the `geometry`. The `index` is the indices of any points that the
 hover tool is over.
 
@@ -215,7 +215,7 @@ interactions such as a box zoom, wheel scroll or pan.
 CustomJS with CoffeeScript code
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-It is possible to write the code for ``CustomJS`` callbacks in `CoffeeScript`_.
+It is possible to write the code for |CustomJS| callbacks in `CoffeeScript`_.
 To accomplish this, use the ``from_coffeescript`` class method, which accepts
 the same ``args`` and ``code`` parameters:
 
@@ -238,7 +238,7 @@ JavaScript. To use this functionality you need the PScript library
     It is critical to note that **no python code is ever executed when
     a CustomJS callback is used**. This is true even when the callback is
     supplied as python code to be translated to JavaScript as described in
-    this section. A ``CustomJS`` callback is only executed inside a browser
+    this section. A |CustomJS| callback is only executed inside a browser
     JavaScript interpreter, and can only directly interact JavaScript data
     and functions (e.g., BokehJS models).
 
@@ -298,8 +298,8 @@ to open an URL whenever the user clicks on a circle.
 .. bokeh-plot:: docs/user_guide/examples/interaction_open_url.py
     :source-position: above
 
-Please note that ``OpenURL`` callbacks specifically and only work with
-``TapTool``, and are only invoked when a glyph is hit. That is, they do not
+Please note that |OpenURL| callbacks specifically and only work with
+|TapTool|, and are only invoked when a glyph is hit. That is, they do not
 execute on every tap. If you would like to execute a callback on every
 mouse tap, please see :ref:`userguide_interaction_jscallbacks_customjs_interactions`.
 

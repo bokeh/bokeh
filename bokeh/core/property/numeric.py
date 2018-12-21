@@ -49,7 +49,7 @@ class Interval(ParameterizedProperty):
 
     Args:
         interval_type (numeric property):
-            numeric types for the range, e.g. ``Int``, ``Float``
+            numeric types for the range, e.g. |Int|, |Float|
 
         start (number) :
             A minimum allowable value for the range. Values less than
@@ -178,7 +178,7 @@ class Size(Float):
 class Percent(Float):
     ''' Accept floating point percentage values.
 
-    ``Percent`` can be useful and semantically meaningful for specifying
+    |Percent| can be useful and semantically meaningful for specifying
     things like alpha values and extents.
 
     Args:
@@ -230,7 +230,7 @@ class Percent(Float):
 class Angle(Float):
     ''' Accept floating point angle values.
 
-    ``Angle`` is equivalent to :class:`~bokeh.core.properties.Float` but is
+    |Angle| is equivalent to :class:`~bokeh.core.properties.Float` but is
     provided for cases when it is more semantically meaningful.
 
     Args:

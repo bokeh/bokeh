@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide the ``Application`` class.
+''' Provide the |Application| class.
 
 Application instances are factories for creating new Bokeh Documents.
 
@@ -250,7 +250,7 @@ class ServerContext(with_metaclass(ABCMeta)):
 
     @abstractproperty
     def sessions(self):
-        ''' ``SessionContext`` instances belonging to this application.
+        ''' |SessionContext| instances belonging to this application.
 
         *Subclasses must implement this method.*
 

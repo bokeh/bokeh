@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide a utility class ``CodeRunner`` for use by handlers that execute
+''' Provide a utility class |CodeRunner| for use by handlers that execute
 Python source code.
 
 '''

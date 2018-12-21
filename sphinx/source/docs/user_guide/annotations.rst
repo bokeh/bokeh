@@ -92,9 +92,9 @@ Explicit Index
 ~~~~~~~~~~~~~~
 
 Other times, it may be useful to explicitly tell Bokeh which index into a
-``ColumnDataSource`` should be used when drawing a legend item. In particular,
+|ColumnDataSource| should be used when drawing a legend item. In particular,
 if you want to draw multiple legend items for "multi" glyphs such as
-``MultiLine`` or ``Patches``. This is accomplished by specifying an ``index``
+|MultiLine| or |Patches|. This is accomplished by specifying an ``index``
 for the legend item as shown below.
 
 .. bokeh-plot:: docs/user_guide/examples/plotting_legends_multi_index.py
@@ -139,7 +139,7 @@ Arrows
 to simply highlight plot regions. Arrows are compound annotations, meaning
 that their ``start`` and ``end`` attributes are themselves other |ArrowHead|
 annotations. By default, the |Arrow| annotation is one-sided with the ``end``
-set as an ``OpenHead``-type arrow head (an open-backed wedge style) and the
+set as an |OpenHead|-type arrow head (an open-backed wedge style) and the
 ``start`` property set to ``None``. Double-sided arrows can be created by
 setting both the ``start`` and ``end`` properties as appropriate |ArrowHead|
 subclass instances.
@@ -214,7 +214,7 @@ text, as well as the border and background of the bounding box for the text:
 To create several labels at once, possibly to easily annotate another existing
 glyph, use the |LabelSet| annotation, which is configured with a data
 source, with the ``text`` and ``x`` and ``y`` positions are given as column
-names. ``LabelSet`` objects can also have ``x_offset`` and ``y_offset``,
+names. |LabelSet| objects can also have ``x_offset`` and ``y_offset``,
 which specify a distance in screen space units to offset the label positions
 from ``x`` and ``y``. Finally the render level may be controlled with the
 ``level`` property, to place the label above or underneath other renderers:
@@ -266,23 +266,4 @@ single point would be one common use for the Whisker annotation.
 
 .. |bokeh.plotting| replace:: :ref:`bokeh.plotting <bokeh.plotting>`
 
-.. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
-
-.. |Figure| replace:: :class:`~bokeh.plotting.figure.Figure`
-
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
-
-.. |ColorMapper| replace:: :class:`~bokeh.models.mappers.ColorMapper`
-
-.. |Arrow|         replace:: :class:`~bokeh.models.annotations.Arrow`
-.. |ArrowHead|     replace:: :class:`~bokeh.models.arrow_heads.ArrowHead`
-.. |Band|          replace:: :class:`~bokeh.models.annotations.Band`
-.. |BoxAnnotation| replace:: :class:`~bokeh.models.annotations.BoxAnnotation`
-.. |ColorBar|      replace:: :class:`~bokeh.models.annotations.ColorBar`
-.. |Label|         replace:: :class:`~bokeh.models.annotations.Label`
-.. |LabelSet|      replace:: :class:`~bokeh.models.annotations.LabelSet`
-.. |Legend|        replace:: :class:`~bokeh.models.annotations.Legend`
-.. |Slope|         replace:: :class:`~bokeh.models.annotations.Slope`
-.. |Span|          replace:: :class:`~bokeh.models.annotations.Span`
-.. |Title|         replace:: :class:`~bokeh.models.annotations.Title`
-.. |Whisker|       replace:: :class:`~bokeh.models.annotations.Whisker`

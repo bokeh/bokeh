@@ -55,7 +55,6 @@ Enumerations can be easily documented in Sphinx documentation with the
 
 ----
 
-.. |Enum| replace:: :class:`~bokeh.core.properties.Enum`
 .. |enumeration| replace:: :func:`~bokeh.core.enums.enumeration`
 
 '''
@@ -145,7 +144,7 @@ class Enumeration(object):
     ''' Represent an enumerated collection of values.
 
     .. note::
-        Instances of ``Enumeration`` typically should not be constructed
+        Instances of |Enumeration| typically should not be constructed
         directly. Instead, use the |enumeration| function.
 
     '''

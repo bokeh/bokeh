@@ -88,7 +88,7 @@ export class Surface3dView extends LayoutDOMView
 # We must also create a corresponding JavaScript BokehJS model subclass to
 # correspond to the python Bokeh model subclass. In this case, since we want
 # an element that can position itself in the DOM according to a Bokeh layout,
-# we subclass from ``LayoutDOM``
+# we subclass from |LayoutDOM|
 export class Surface3d extends LayoutDOM
 
   # This is usually boilerplate. In some cases there may not be a view.
@@ -112,8 +112,8 @@ export class Surface3d extends LayoutDOM
 """
 
 # This custom extension model will have a DOM view that should layout-able in
-# Bokeh layouts, so use ``LayoutDOM`` as the base class. If you wanted to create
-# a custom tool, you could inherit from ``Tool``, or from ``Glyph`` if you
+# Bokeh layouts, so use |LayoutDOM| as the base class. If you wanted to create
+# a custom tool, you could inherit from |Tool|, or from |Glyph| if you
 # wanted to create a custom glyph, etc.
 class Surface3d(LayoutDOM):
 

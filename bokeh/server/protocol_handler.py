@@ -52,14 +52,14 @@ class ProtocolHandler(object):
     * ``PUSH-DOC``
     * ``SERVER-INFO-REQ``
 
-    The job of ``ProtocolHandler`` is to direct incoming messages to the right
+    The job of |ProtocolHandler| is to direct incoming messages to the right
     specialized handler for each message type. When the server receives a new
     message on a connection it will call ``handler`` with the message and the
     connection that the message arrived on. Most messages are ultimately
-    handled by the ``ServerSession`` class, but some simpler messages types
-    such as ``SERVER-INFO-REQ`` may be handled directly by ``ProtocolHandler``.
+    handled by the |ServerSession| class, but some simpler messages types
+    such as ``SERVER-INFO-REQ`` may be handled directly by |ProtocolHandler|.
 
-    Any unexpected messages will result in a ``ProtocolError``.
+    Any unexpected messages will result in a |ProtocolError|.
 
     '''
 

@@ -62,7 +62,7 @@ plotting methods which allows you to pass a column's name as a stand in for the 
     p.circle(x='x_values', y='y_values', source=source)
 
 .. note::
-    There is an implicit assumption that all the columns in a given ``ColumnDataSource``
+    There is an implicit assumption that all the columns in a given |ColumnDataSource|
     all have the same length at all times. For this reason, it is usually preferable to
     update the ``.data`` property of a data source "all at once".
 
@@ -165,7 +165,7 @@ For a full example, see :bokeh-tree:`examples/howto/patch_app.py`.
 Transforming Data
 -----------------
 
-We have seen above how data can be added to a ``ColumnDataSource`` to drive
+We have seen above how data can be added to a |ColumnDataSource| to drive
 Bokeh plots. This can include raw data or data that we explicitly transform
 ourselves, for example a column of colors created to control how the Markers
 in a scatter plot should be shaded. It is also possible to specify transforms
@@ -182,7 +182,7 @@ Colors
 
 To perform linear colormapping in the browser, the
 :func:`~bokeh.transform.linear_cmap` function may be used. It accepts the name
-of a ``ColumnDataSource`` column to colormap, a palette (which can be a built-in
+of a |ColumnDataSource| column to colormap, a palette (which can be a built-in
 palette name, or an actual list of colors), and min/max values for the color
 mapping range. The result can be passed to a color property on glyphs:
 
@@ -213,13 +213,13 @@ of :func:`~bokeh.transform.factor_cmap` to colormap those same categories:
 
 .. note::
     The :func:`~bokeh.transform.factor_mark` transform is primarily only useful
-    with the ``scatter`` glyph method, since only the ``Scatter`` glyph can be
+    with the ``scatter`` glyph method, since only the |Scatter| glyph can be
     parameterized by marker type.
 
 CustomJSTransform
 ~~~~~~~~~~~~~~~~~
 
-In addition to built-in transforms above, there is also a ``CustomJSTransform``
+In addition to built-in transforms above, there is also a |CustomJSTransform|
 that allows for specifying arbitrary JavaScript code to perform a transform step
 on ColumnDataSource data. Typically, the ``v_func`` (for "vectorized" function)
 is provided. (Less commonly a scalar equivalent ``func`` may also be needed).
@@ -340,7 +340,7 @@ pass in the JavaScript code as a string to the parameter ``code``:
 Coffeescript
 ''''''''''''
 
-You can also write code for the ``CustomJSFilter`` in `CoffeeScript`_, and
+You can also write code for the |CustomJSFilter| in `CoffeeScript`_, and
 use the ``from_coffeescript`` class method, which accepts the ``code`` parameter:
 
 .. code-block:: python
@@ -361,12 +361,12 @@ sources, but sometimes it is desirable to have similar functionality in
 standalone documents. The :class:`~bokeh.models.sources.AjaxDataSource`
 provides this capability.
 
-The ``AjaxDataSource`` is configured with a URL to a REST endpoint and a
+The |AjaxDataSource| is configured with a URL to a REST endpoint and a
 polling interval. In the browser, the data source will request data from the
 endpoint at the specified interval and update the data locally. Existing
 data may either be replaced entirely, or appended to (up to a configurable
 ``max_size``). The endpoint that is supplied should return a JSON dict that
-matches the standard ``ColumnDataSource`` format:
+matches the standard |ColumnDataSource| format:
 
 .. code-block:: python
 
@@ -375,8 +375,8 @@ matches the standard ``ColumnDataSource`` format:
         'y' : [9, 3, 2, ...]
     }
 
-Otherwise, using an ``AjaxDataSource`` is identical to using a standard
-``ColumnDataSource``:
+Otherwise, using an |AjaxDataSource| is identical to using a standard
+|ColumnDataSource|:
 
 .. code-block:: python
 
@@ -426,16 +426,6 @@ Other Data Types
 Bokeh also has the capability to render network graph data and geographical data.
 For more information about how to set up the data for these types of plots, see
 :ref:`userguide_graph` and :ref:`userguide_geo`.
-
-.. |ColumnDataSource| replace:: :class:`~bokeh.models.sources.ColumnDataSource`
-.. |CDSView| replace:: :class:`~bokeh.models.sources.CDSView`
-.. |Filter| replace:: :class:`~bokeh.models.filters.Filter`
-.. |IndexFilter| replace:: :class:`~bokeh.models.filters.IndexFilter`
-.. |BooleanFilter| replace:: :class:`~bokeh.models.filters.BooleanFilter`
-.. |GroupFilter| replace:: :class:`~bokeh.models.filters.GroupFilter`
-.. |CustomJSFilter| replace:: :class:`~bokeh.models.filters.CustomJSFilter`
-.. |Figure| replace:: :class:`~bokeh.plotting.figure.Figure`
-.. |DataTable| replace:: :class:`~bokeh.models.widgets.tables.DataTable`
 
 .. _CoffeeScript: http://coffeescript.org
 .. _PScript documentation: http://pscript.readthedocs.org

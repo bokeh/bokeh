@@ -46,7 +46,7 @@ def output_file(filename, title="Bokeh Plot", mode="cdn", root_dir=None):
     '''Configure the default output state to generate output saved
     to a file when :func:`show` is called.
 
-    Does not change the current ``Document`` from ``curdoc()``. File and notebook
+    Does not change the current |Document| from ``curdoc()``. File and notebook
     output may be active at the same time, so e.g., this does not clear the
     effects of ``output_notebook()``.
 
@@ -57,7 +57,7 @@ def output_file(filename, title="Bokeh Plot", mode="cdn", root_dir=None):
 
         mode (str, optional) : how to include BokehJS (default: ``'cdn'``)
             One of: ``'inline'``, ``'cdn'``, ``'relative(-dev)'`` or
-            ``'absolute(-dev)'``. See :class:`bokeh.resources.Resources` for more details.
+            ``'absolute(-dev)'``. See :ref:`bokeh.resources` for more details.
 
         root_dir (str, optional) : root directory to use for 'absolute' resources. (default: None)
             This value is ignored for other resource types, e.g. ``INLINE`` or

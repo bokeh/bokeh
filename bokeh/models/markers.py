@@ -25,11 +25,11 @@ The full list of markers built into Bokeh is given below:
 * :class:`~bokeh.models.markers.Triangle`
 * :class:`~bokeh.models.markers.X`
 
-Markers are all subclasses of ``Glyph``. Additionally, they all share the
+Markers are all subclasses of |Glyph|. Additionally, they all share the
 same common interface providing fill and line properties provided by their
-base class ``Marker``. Note that a few glyphs, ``Cross`` and ``X``, only
+base class |Marker|. Note that a few glyphs, |Cross| and |X|, only
 draw lines. For these the fill property values are ignored. Also note that
-the ``Circle`` glyph has some additional properties such as ``radius`` that
+the |Circle| glyph has some additional properties such as ``radius`` that
 other markers do not.
 
 .. autoclass:: Marker
@@ -195,7 +195,7 @@ class Circle(Marker):
         should be given.
 
     .. warning::
-        Note that ``Circle`` glyphs are always drawn as circles on the screen,
+        Note that |Circle| glyphs are always drawn as circles on the screen,
         even in cases where the data space aspect ratio is not 1-1. In all
         cases where radius values are specified, the "distance" for the radius
         is measured along the dimension specified by ``radius_dimension``. If

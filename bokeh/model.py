@@ -304,7 +304,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
         [GlyphRenderer(id='1de4c3df-a83d-480a-899b-fb263d3d5dd9', ...)]
 
     Or simply a convenient way to attach any necessary metadata to a model
-    that can be accessed by ``CustomJS`` callbacks, etc.
+    that can be accessed by |CustomJS| callbacks, etc.
 
     .. note::
         No uniqueness guarantees or other conditions are enforced on any tags
@@ -315,7 +315,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
 
     js_event_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.CustomJS")),
     help="""
-    A mapping of event names to lists of ``CustomJS`` callbacks.
+    A mapping of event names to lists of |CustomJS| callbacks.
 
     Typically, rather then modifying this property directly, callbacks should be
     added using the ``Model.js_on_event`` method:
@@ -333,7 +333,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
     """)
 
     js_property_callbacks = Dict(String, List(Instance("bokeh.models.callbacks.CustomJS")), help="""
-    A mapping of attribute names to lists of ``CustomJS`` callbacks, to be set up on
+    A mapping of attribute names to lists of |CustomJS| callbacks, to be set up on
     BokehJS side when the document is created.
 
     Typically, rather then modifying this property directly, callbacks should be
@@ -401,7 +401,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
 
 
     def js_on_change(self, event, *callbacks):
-        ''' Attach a ``CustomJS`` callback to an arbitrary BokehJS model event.
+        ''' Attach a |CustomJS| callback to an arbitrary BokehJS model event.
 
         On the BokehJS side, change events for model properties have the
         form ``"change:property_name"``. As a convenience, if the event name
@@ -416,7 +416,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
 
         However, there are other kinds of events that can be useful to respond
         to, in addition to property change events. For example to run a
-        callback whenever data is streamed to a ``ColumnDataSource``, use the
+        callback whenever data is streamed to a |ColumnDataSource|, use the
         ``"stream"`` event on the source:
 
         .. code:: python

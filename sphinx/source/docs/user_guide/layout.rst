@@ -32,9 +32,9 @@ Widget boxes
     Widgets are HTML objects like buttons, and dropdown menus. They
     behave slightly differently to plots and and putting them in a widgetbox
     is necessary so that they can all work together. In fact, if you try and
-    put a ``Widget`` in ``Row`` or ``Column`` it will be automatically put
-    into a ``WidgetBox``. As a result, it's a good idea to wrap your own
-    widgets in a ``WidgetBox`` using |widgetbox| as then you can be sure about
+    put a |Widget| in |Row| or |Column| it will be automatically put
+    into a |WidgetBox|. As a result, it's a good idea to wrap your own
+    widgets in a |WidgetBox| using |widgetbox| as then you can be sure about
     how your widgets are getting arranged.
 
 Toolbars
@@ -109,7 +109,7 @@ you can set the option ``merge_tools`` to ``False``.
 
 .. note::
     You cannot use ``None`` with the ``ncols`` argument. It must only be a list
-    of ``Plot`` objects at once.
+    of |Plot| objects at once.
 
 .. bokeh-plot:: docs/user_guide/examples/layout_grid_convenient.py
     :source-position: above

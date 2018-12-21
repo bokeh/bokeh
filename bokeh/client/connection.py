@@ -58,7 +58,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class ClientConnection(object):
-    ''' A Bokeh low-level class used to implement ``ClientSession``; use ``ClientSession`` to connect to the server.
+    ''' A Bokeh low-level class used to implement |ClientSession|; use |ClientSession| to connect to the server.
 
     '''
 

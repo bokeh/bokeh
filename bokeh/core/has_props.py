@@ -190,7 +190,7 @@ class MetaHasProps(type):
 
 def accumulate_from_superclasses(cls, propname):
     ''' Traverse the class hierarchy and accumulate the special sets of names
-    ``MetaHasProps`` stores on classes:
+    |MetaHasProps| stores on classes:
 
     Args:
         name (str) : name of the special attribute to collect.
@@ -213,7 +213,7 @@ def accumulate_from_superclasses(cls, propname):
 
 def accumulate_dict_from_superclasses(cls, propname):
     ''' Traverse the class hierarchy and accumulate the special dicts
-    ``MetaHasProps`` stores on classes:
+    |MetaHasProps| stores on classes:
 
     Args:
         name (str) : name of the special attribute to collect.
@@ -406,7 +406,7 @@ class HasProps(with_metaclass(MetaHasProps, object)):
 
     @classmethod
     def lookup(cls, name):
-        ''' Find the ``PropertyDescriptor`` for a Bokeh property on a class,
+        ''' Find the |PropertyDescriptor| for a Bokeh property on a class,
         given the property name.
 
         Args:
@@ -468,27 +468,27 @@ class HasProps(with_metaclass(MetaHasProps, object)):
 
     @classmethod
     def dataspecs(cls):
-        ''' Collect the names of all ``DataSpec`` properties on this class.
+        ''' Collect the names of all |DataSpec| properties on this class.
 
         This method *always* traverses the class hierarchy and includes
         properties defined on any parent classes.
 
         Returns:
-            set[str] : names of ``DataSpec`` properties
+            set[str] : names of |DataSpec| properties
 
         '''
         return set(cls.dataspecs_with_props().keys())
 
     @classmethod
     def dataspecs_with_props(cls):
-        ''' Collect a dict mapping the names of all ``DataSpec`` properties
+        ''' Collect a dict mapping the names of all |DataSpec| properties
         on this class to the associated properties.
 
         This method *always* traverses the class hierarchy and includes
         properties defined on any parent classes.
 
         Returns:
-            dict[str, DataSpec] : mapping of names and ``DataSpec`` properties
+            dict[str, DataSpec] : mapping of names and |DataSpec| properties
 
         '''
         return accumulate_dict_from_superclasses(cls, "__dataspecs__")

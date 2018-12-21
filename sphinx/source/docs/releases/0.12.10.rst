@@ -20,14 +20,14 @@ The following previous deprecations have been removed:
 * ``app_path`` from functions in ``bokeh.client.session`` and ``bokeh.embed``
 * ``standalone_html_page_for_models`` from ``bokeh.embed``
 * ``'patch'`` and ``'stream'`` event names (use ``'patching'`` and ``'streaming'``)
-* ``webgl``, ``x_mapper_type``, ``y_mapper_type``, and ``tool_events`` from ``Plot``
+* ``webgl``, ``x_mapper_type``, ``y_mapper_type``, and ``tool_events`` from |Plot|
 * Glyphs methods now only accept either all sequence literals, OR all column names
 * ``ResizeTool`` (previously made a no-op) has been removed
 
 New Deprecations
 ~~~~~~~~~~~~~~~~
 
-The boolean ``responsive`` parameter to ``Figure`` and ``bokeh.layouts`` has
+The boolean ``responsive`` parameter to |Figure| and ``bokeh.layouts`` has
 been deprecated. The ``sizing_mode`` enum should be used instead. Use
 ``sizing_mode='fixed'`` for ``responsive=False`` and
 ``sizing_mode='scale_width'`` for ``responsive=True`` instead.
@@ -44,7 +44,7 @@ contains have been moved to ``bokeh.io.notebook``.
 The function ``bokeh.io.set_curdoc`` is now ``bokeh.io.doc.set_curdoc``.
 
 Named color *objects* now live in ``bokeh.colors.named`` instead of directly in
-``bokeh.colors``. Additionally color utilities such as ``NamedColor`` have been
+``bokeh.colors``. Additionally color utilities such as |NamedColor| have been
 moved inside the package, and marked as internal API. Using string names for
 colors works exactly as before.
 

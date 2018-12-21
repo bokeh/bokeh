@@ -78,7 +78,7 @@ class CustomJS(Callback):
 
     @classmethod
     def from_py_func(cls, func):
-        """ Create a ``CustomJS`` instance from a Python function. The
+        """ Create a |CustomJS| instance from a Python function. The
         function is translated to JavaScript using PScript.
         """
         if not isinstance(func, FunctionType):
@@ -98,7 +98,7 @@ class CustomJS(Callback):
 
     @classmethod
     def from_coffeescript(cls, code, args={}):
-        ''' Create a ``CustomJS`` instance from CoffeeScript code.
+        ''' Create a |CustomJS| instance from CoffeeScript code.
 
         '''
         compiled = nodejs_compile(code, lang="coffeescript", file="???")
@@ -119,7 +119,7 @@ class CustomJS(Callback):
     ``args`` are available as parameters that the code can use. Additionally,
     a ``cb_obj`` parameter contains the object that triggered the callback
     and an optional ``cb_data`` parameter that contains any tool-specific data
-    (i.e. mouse coordinates and hovered glyph indices for the ``HoverTool``).
+    (i.e. mouse coordinates and hovered glyph indices for the |HoverTool|).
 
     .. note:: Use ``CustomJS.from_coffeescript()`` for CoffeeScript source code.
 

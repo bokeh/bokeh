@@ -17,8 +17,8 @@ This documentation is broken down into the following sections:
 Overview
 --------
 
-There are many property types defined in the module, for example ``Int`` to
-represent integral values, ``Seq`` to represent sequences (e.g. lists or
+There are many property types defined in the module, for example |Int| to
+represent integral values, |Seq| to represent sequences (e.g. lists or
 tuples, etc.). Properties can also be combined: ``Seq(Float)`` represents
 a sequence of floating point values.
 

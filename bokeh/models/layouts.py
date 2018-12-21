@@ -82,12 +82,12 @@ class LayoutDOM(Model):
 
     ``"scale_width"`` elements will responsively resize to fit to the width available, *while
     maintaining the original aspect ratio*. This is a typical behavior for modern websites. For a
-    ``Plot``, the aspect ratio ``plot_width/plot_height`` is maintained.
+    |Plot|, the aspect ratio ``plot_width/plot_height`` is maintained.
 
     ``"scale_height"`` elements will responsively resize to fit to the height available, *while
-    maintaining the original aspect ratio*. For a ``Plot``, the aspect ratio
+    maintaining the original aspect ratio*. For a |Plot|, the aspect ratio
     ``plot_width/plot_height`` is maintained. A plot with ``"scale_height"`` mode needs
-    to be wrapped in a ``Row`` or ``Column`` to be responsive.
+    to be wrapped in a |Row| or |Column| to be responsive.
 
     ``"scale_both"`` elements will responsively resize to for both the width and height available,
     *while maintaining the original aspect ratio*.

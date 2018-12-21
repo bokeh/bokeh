@@ -62,10 +62,10 @@ def notebook_content(model, notebook_comms_target=None, theme=FromCurdoc):
             the document that is rendered to this notebook div
 
         theme (Theme, optional) :
-            Defaults to the ``Theme`` instance in the current document.
+            Defaults to the |Theme| instance in the current document.
             Setting this to ``None`` uses the default theme or the theme
             already specified in the document. Any other value must be an
-            instance of the ``Theme`` class.
+            instance of the |Theme| class.
 
     Returns:
         script, div, Document

@@ -57,7 +57,7 @@ layout, we subclass from :class:`~bokeh.models.layouts.LayoutDOM`. We also
 added two properties: a :class:`~bokeh.core.properties.String` to configure
 a text message for the readout, and an :class:`~bokeh.core.properties.Instance`
 that can hold a :class:`~bokeh.models.widgets.inputs.Slider`. The JavaScript
-``Slider`` object that corresponds to the Python ``Slider`` will be made
+|Slider| object that corresponds to the Python |Slider| will be made
 available to use.
 
 .. _userguide_extensions_structure_js:
@@ -198,8 +198,8 @@ as a filename. The corresponding file is opened and its contents are compiled
 appropriately according to the file extension.
 
 Otherwise, if the implementation is inline in the class, the language for the
-source code may be explicitly provided by using the classes ``CoffeeScript``,
-``JavaScript``, or ``TypeScript``, e.g.
+source code may be explicitly provided by using the classes |CoffeeScript|,
+|JavaScript|, or |TypeScript|, e.g.
 
 .. code-block:: python
 
@@ -207,7 +207,7 @@ source code may be explicitly provided by using the classes ``CoffeeScript``,
 
         __implementation__ = JavaScript(" <JS code here> ")
 
-Otherwise, if a plain string is given, it is assumed to be ``CoffeeScript``.
+Otherwise, if a plain string is given, it is assumed to be |CoffeeScript|.
 
 .. _userguide_extensions_supplying_external_resources:
 

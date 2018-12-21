@@ -8,7 +8,7 @@ First, a reminder of the distinction between standalone documents and apps:
 
 :ref:`userguide_embed_standalone`
     These are Bokeh documents that are not backed by a Bokeh server. They
-    may have many tools and interactions (e.g. from ``CustomJS`` callbacks)
+    may have many tools and interactions (e.g. from |CustomJS| callbacks)
     but are self-contained HTML, JavaScript, and CSS. They can be
     embedded into other HTML pages as one large document, or as a set of
     sub-components templated individually.
@@ -368,7 +368,7 @@ for BokehJS and load it, if necessary. Using this function it is possible to
 embed a plot by placing this script tag alone in your document.
 
 This function takes a Bokeh model (e.g. a plot) that you want to display, a
-``Resources`` object, and a path to load a script from. Then |autoload_static|
+|Resources| object, and a path to load a script from. Then |autoload_static|
 will return a self-contained ``<script>`` tag, and a block of JavaScript code.
 The JavaScript code should be saved to the path you provided. The ``<script>``
 tag, when it is included in a page, will load and run the saved JavaScript in

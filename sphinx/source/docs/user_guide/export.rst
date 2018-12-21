@@ -108,7 +108,7 @@ runs a snippet of JavaScript and adds a prompt on the page to download the
 plot. It's written to work with Chrome and should work with Firefox in most
 cases.
 
-Alternatively, it's possible to download a SVG plot using the ``SaveTool``, but
+Alternatively, it's possible to download a SVG plot using the |SaveTool|, but
 the toolbar isn't captured though it figures into the plot layout solver
 calculations. It's not great, but a workable option.
 

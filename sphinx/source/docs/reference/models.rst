@@ -9,7 +9,7 @@ These models are accumulated into :class:`~bokeh.document.Document` instances,
 which can be serialized and sent to clients (typically browsers) for display
 or use there.
 
-As a concrete example, consider a column layout with ``Slider`` and ``Select``
+As a concrete example, consider a column layout with |Slider| and |Select|
 widgets, and a plot with some tools, an axis and grid, and a glyph renderer
 for circles. A simplified representation oh this document might look like the
 figure below:

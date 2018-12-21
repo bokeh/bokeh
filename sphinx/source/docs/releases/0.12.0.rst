@@ -63,7 +63,7 @@ or they will not function:
 
     http://googlegeodevelopers.blogspot.mx/2016/06/building-for-scale-updates-to-google.html
 
-All Bokeh ``GMapPlot`` models must have their ``api_key`` property set,
+All Bokeh |GMapPlot| models must have their ``api_key`` property set,
 or they will not function properly. PLEASE NOTE: all previously created
 GMap plots from *any* previous version of Bokeh are affect by this TOS
 change.
@@ -103,14 +103,14 @@ not be avoided:
 ``Plot.title``
 ''''''''''''''
 
-This attribute is now a ``Title`` object. It is no longer possible to set, e.g.
+This attribute is now a |Title| object. It is no longer possible to set, e.g.
 ``p.title = "some text"`` as a string value. Instead, you must do:
 
     p.title.text = "some_text"
 
 It is still possible to pass the `title`` keyword argument a string value
 to ``figure`` and Charts, as a convenience. Additionally all other title
-related properties on ``Plot``, e.g ``title_text_color`` continue to work
+related properties on |Plot|, e.g ``title_text_color`` continue to work
 for now, while issuing deprecation warnings.
 
 ``session.show``

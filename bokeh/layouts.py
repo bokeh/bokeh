@@ -206,7 +206,7 @@ def layout(*args, **kwargs):
             description on :class:`~bokeh.models.layouts.LayoutDOM`.
 
     Returns:
-        Column: A column of ``Row`` layouts of the children, all with the same sizing_mode.
+        Column: A column of |Row| layouts of the children, all with the same sizing_mode.
 
     Examples:
 

@@ -69,7 +69,7 @@ class BokehTornado(TornadoApplication):
 
     Args:
         applications (dict[str,Application] or Application) :
-            A map from paths to ``Application`` instances.
+            A map from paths to |Application| instances.
 
             If the value is a single Application, then the following mapping
             is generated:
@@ -142,7 +142,7 @@ class BokehTornado(TornadoApplication):
             installed.
 
         use_index (bool, optional) :
-            Whether to generate an index of running apps in the ``RootHandler``
+            Whether to generate an index of running apps in the |RootHandler|
             (default: True)
 
         redirect_root (bool, optional) :

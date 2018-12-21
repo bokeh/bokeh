@@ -43,7 +43,7 @@ notation is:
     p = figure(x_range=FactorRange(factors=fruits), ... )
 
 This more explicit for is useful when you want to customize the
-``FactorRange``, e.g. by changing the range or category padding.
+|FactorRange|, e.g. by changing the range or category padding.
 
 Next we can call ``vbar`` with the list of fruit name factors as the ``x``
 coordinate, the bar height as the ``top`` coordinate, and optionally any
@@ -58,7 +58,7 @@ All put together, we see the output:
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_basic.py
     :source-position: above
 
-As usual, the data could also be put into a ``ColumnDataSource`` supplied as
+As usual, the data could also be put into a |ColumnDataSource| supplied as
 the ``source`` parameter to ``vbar`` instead of passing the data directly
 as parameters. Later examples will demonstrate this.
 
@@ -84,14 +84,14 @@ Colors
 Often times we may want to have bars that are shaded some color. This can be
 accomplished in different ways. One way is to supply all the colors up front.
 This can be done by putting all the data, including the colors for each bar,
-in a ``ColumnDataSource``. Then the name of the column containing the colors
+in a |ColumnDataSource|. Then the name of the column containing the colors
 is passed to ``figure`` as the ``color`` (or ``line_color``/``fill_color``)
 arguments. This is shown below:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_colors.py
     :source-position: above
 
-Another way to shade the bars is to use a ``CategoricalColorMapper`` that
+Another way to shade the bars is to use a |CategoricalColorMapper| that
 colormaps the bars inside the browser. There is a function
 :func:`~bokeh.transform.factor_cmap` that makes this simple to do:
 
@@ -418,7 +418,7 @@ The plot below shows such a plot, where the x-axis categories are a list of
 years from 1948 to 2016, and the y-axis categories are the months of the
 years. Each rectangle corresponding to a ``(year, month)`` combination is
 color mapped by the unemployment rate for that month and year. Since the
-unemployment rate is a continuous variable, a ``LinearColorMapper`` is used
+unemployment rate is a continuous variable, a |LinearColorMapper| is used
 to colormap the plot, and is also passed to a color bar to provide a visual
 legend on the right:
 

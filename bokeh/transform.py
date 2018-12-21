@@ -5,7 +5,7 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 ''' Helper functions for applying client-side computations such as
-transformations to data fields or ``ColumnDataSource`` expressions.
+transformations to data fields or |ColumnDataSource| expressions.
 
 '''
 
@@ -52,8 +52,8 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def cumsum(field, include_zero=False):
-    ''' Create a Create a ``DataSpec`` dict to generate a ``CumSum`` expression
-    for a ``ColumnDataSource``.
+    ''' Create a Create a |DataSpec| dict to generate a |CumSum| expression
+    for a |ColumnDataSource|.
 
     Examples:
 
@@ -63,7 +63,7 @@ def cumsum(field, include_zero=False):
                     end_angle=cumsum('angle'),
                     ...)
 
-        will generate a ``CumSum`` expressions that sum the ``"angle"`` column
+        will generate a |CumSum| expressions that sum the ``"angle"`` column
         of a data source. For the ``start_angle`` value, the cumulative sums
         will start with a zero value. For ``start_angle``, no initial zero will
         be added (i.e. the sums will start with the first angle value, and
@@ -73,16 +73,16 @@ def cumsum(field, include_zero=False):
     return expr(CumSum(field=field, include_zero=include_zero))
 
 def dodge(field_name, value, range=None):
-    ''' Create a ``DataSpec`` dict to apply a client-side ``Jitter``
-    transformation to a ``ColumnDataSource`` column.
+    ''' Create a |DataSpec| dict to apply a client-side |Jitter|
+    transformation to a |ColumnDataSource| column.
 
     Args:
-        field_name (str) : a field name to configure ``DataSpec`` with
+        field_name (str) : a field name to configure |DataSpec| with
 
         value (float) : the fixed offset to add to column data
 
         range (Range, optional) : a range to use for computing synthetic
-            coordinates when necessary, e.g. a ``FactorRange`` when the
+            coordinates when necessary, e.g. a |FactorRange| when the
             column data is categorical (default: None)
 
     Returns:
@@ -92,12 +92,12 @@ def dodge(field_name, value, range=None):
     return field(field_name, Dodge(value=value, range=range))
 
 def factor_cmap(field_name, palette, factors, start=0, end=None, nan_color="gray"):
-    ''' Create a ``DataSpec`` dict to apply a client-side
-    ``CategoricalColorMapper`` transformation to a ``ColumnDataSource``
+    ''' Create a |DataSpec| dict to apply a client-side
+    |CategoricalColorMapper| transformation to a |ColumnDataSource|
     column.
 
     Args:
-        field_name (str) : a field name to configure ``DataSpec`` with
+        field_name (str) : a field name to configure |DataSpec| with
 
         palette (seq[color]) : a list of colors to use for colormapping
 
@@ -124,8 +124,8 @@ def factor_cmap(field_name, palette, factors, start=0, end=None, nan_color="gray
                                                     nan_color=nan_color))
 
 def factor_mark(field_name, markers, factors, start=0, end=None):
-    ''' Create a ``DataSpec`` dict to apply a client-side
-    ``CategoricalMarkerMapper`` transformation to a ``ColumnDataSource``
+    ''' Create a |DataSpec| dict to apply a client-side
+    |CategoricalMarkerMapper| transformation to a |ColumnDataSource|
     column.
 
     .. note::
@@ -133,7 +133,7 @@ def factor_mark(field_name, markers, factors, start=0, end=None):
         can be parameterized by glyph type.
 
     Args:
-        field_name (str) : a field name to configure ``DataSpec`` with
+        field_name (str) : a field name to configure |DataSpec| with
 
         markers (seq[string]) : a list of markers to use map to
 
@@ -156,11 +156,11 @@ def factor_mark(field_name, markers, factors, start=0, end=None):
                                                      end=end))
 
 def jitter(field_name, width, mean=0, distribution="uniform", range=None):
-    ''' Create a ``DataSpec`` dict to apply a client-side ``Jitter``
-    transformation to a ``ColumnDataSource`` column.
+    ''' Create a |DataSpec| dict to apply a client-side |Jitter|
+    transformation to a |ColumnDataSource| column.
 
     Args:
-        field_name (str) : a field name to configure ``DataSpec`` with
+        field_name (str) : a field name to configure |DataSpec| with
 
         width (float) : the width of the random distribution to apply
 
@@ -170,7 +170,7 @@ def jitter(field_name, width, mean=0, distribution="uniform", range=None):
             (default: ``"uniform"``)
 
         range (Range, optional) : a range to use for computing synthetic
-            coordinates when necessary, e.g. a ``FactorRange`` when the
+            coordinates when necessary, e.g. a |FactorRange| when the
             column data is categorical (default: None)
 
     Returns:
@@ -183,11 +183,11 @@ def jitter(field_name, width, mean=0, distribution="uniform", range=None):
                                     range=range))
 
 def linear_cmap(field_name, palette, low, high, low_color=None, high_color=None, nan_color="gray"):
-    ''' Create a ``DataSpec`` dict to apply a client-side ``LinearColorMapper``
-    transformation to a ``ColumnDataSource`` column.
+    ''' Create a |DataSpec| dict to apply a client-side |LinearColorMapper|
+    transformation to a |ColumnDataSource| column.
 
     Args:
-        field_name (str) : a field name to configure ``DataSpec`` with
+        field_name (str) : a field name to configure |DataSpec| with
 
         palette (seq[color]) : a list of colors to use for colormapping
 
@@ -217,11 +217,11 @@ def linear_cmap(field_name, palette, low, high, low_color=None, high_color=None,
                                                high_color=high_color))
 
 def log_cmap(field_name, palette, low, high, low_color=None, high_color=None, nan_color="gray"):
-    ''' Create a ``DataSpec`` dict to apply a client-side ``LogColorMapper``
-    transformation to a ``ColumnDataSource`` column.
+    ''' Create a |DataSpec| dict to apply a client-side |LogColorMapper|
+    transformation to a |ColumnDataSource| column.
 
     Args:
-        field_name (str) : a field name to configure ``DataSpec`` with
+        field_name (str) : a field name to configure |DataSpec| with
 
         palette (seq[color]) : a list of colors to use for colormapping
 
@@ -251,8 +251,8 @@ def log_cmap(field_name, palette, low, high, low_color=None, high_color=None, na
                                             high_color=high_color))
 
 def stack(*fields):
-    ''' Create a Create a ``DataSpec`` dict to generate a ``Stack`` expression
-    for a ``ColumnDataSource``.
+    ''' Create a Create a |DataSpec| dict to generate a |Stack| expression
+    for a |ColumnDataSource|.
 
     Examples:
 
@@ -260,20 +260,20 @@ def stack(*fields):
 
             p.vbar(bottom=stack("sales", "marketing"), ...
 
-        will generate a ``Stack`` that sums the ``"sales"`` and ``"marketing"``
+        will generate a |Stack| that sums the ``"sales"`` and ``"marketing"``
         columns of a data source, and use those values as the ``top``
-        coordinate for a ``VBar``.
+        coordinate for a |VBar|.
 
     '''
 
     return expr(Stack(fields=fields))
 
 def transform(field_name, transform):
-    ''' Create a ``DataSpec`` dict to apply an arbitrary client-side
-    ``Transform`` to a ``ColumnDataSource`` column.
+    ''' Create a |DataSpec| dict to apply an arbitrary client-side
+    |Transform| to a |ColumnDataSource| column.
 
     Args:
-        field_name (str) : A field name to configure ``DataSpec`` with
+        field_name (str) : A field name to configure |DataSpec| with
 
         transform (Transform) : A transforms to apply to that field
 

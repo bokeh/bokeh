@@ -7,7 +7,7 @@ Bokeh Version ``0.12.4`` (Jan 2017) is an incremental update that adds a few
 important features and fixes several bugs. Some of the highlights include:
 
 * Efficient binary array protocol. (:bokeh-issue:`2204`)
-* A general mechanism to add ``CustomJS`` callbacks to any property. (:bokeh-issue:`5498`)
+* A general mechanism to add |CustomJS| callbacks to any property. (:bokeh-issue:`5498`)
 * Several fixes to log plots. (:bokeh-issue:`2789`, :bokeh-issue:`3834`, :bokeh-issue:`5389`, :bokeh-issue:`5549`, :bokeh-issue:`5576`)
 * Fixes related to custom extensions. (:bokeh-issue:`5315`, :bokeh-issue:`5590`)
 * Guidance and examples for embedding a Bokeh server directly in standalone scripts, Jupyter notebooks, and Tornado and Flask applications.
@@ -166,12 +166,12 @@ The following class names have been changed to improve intent and clarity
 =================================== ===============================
 old class name                      new class name
 =================================== ===============================
-``PropertyFactory``                 ``PropertyDescriptorFactory``
-``PropertyDescriptor``              ``Property``
-``ParameterizedPropertyDescriptor`` ``ParameterizedProperty``
-``BasicProperty``                   ``BasicPropertyDescriptor``
-``DataSpecProperty``                ``DataSpecPropertyDescriptor``
-``UnitsSpecProperty``               ``UnitsSpecPropertyDescriptor``
+``PropertyFactory``                 |PropertyDescriptorFactory|
+``PropertyDescriptor``              |Property|
+``ParameterizedPropertyDescriptor`` |ParameterizedProperty|
+``BasicProperty``                   |BasicPropertyDescriptor|
+``DataSpecProperty``                |DataSpecPropertyDescriptor|
+``UnitsSpecProperty``               |UnitsSpecPropertyDescriptor|
 =================================== ===============================
 
 The following unused and non-useful properties were removed in this effort:

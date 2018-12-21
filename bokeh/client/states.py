@@ -49,7 +49,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class NOT_YET_CONNECTED(object):
-    ''' The ``ClientConnection`` is not yet connected.
+    ''' The |ClientConnection| is not yet connected.
 
     '''
 
@@ -58,7 +58,7 @@ class NOT_YET_CONNECTED(object):
         yield connection._connect_async()
 
 class CONNECTED_BEFORE_ACK(object):
-    ''' The ``ClientConnection`` connected to a Bokeh server, but has not yet
+    ''' The |ClientConnection| connected to a Bokeh server, but has not yet
     received an ACK from it.
 
     '''
@@ -68,7 +68,7 @@ class CONNECTED_BEFORE_ACK(object):
         yield connection._wait_for_ack()
 
 class CONNECTED_AFTER_ACK(object):
-    ''' The ``ClientConnection`` connected to a Bokeh server, and has
+    ''' The |ClientConnection| connected to a Bokeh server, and has
     received an ACK from it.
 
     '''
@@ -78,7 +78,7 @@ class CONNECTED_AFTER_ACK(object):
         yield connection._handle_messages()
 
 class DISCONNECTED(object):
-    ''' The ``ClientConnection`` was connected to a Bokeh server, but is
+    ''' The |ClientConnection| was connected to a Bokeh server, but is
     now disconnected.
 
     '''
@@ -88,7 +88,7 @@ class DISCONNECTED(object):
         raise gen.Return(None)
 
 class WAITING_FOR_REPLY(object):
-    ''' The ``ClientConnection`` has sent a message to the Bokeh Server which
+    ''' The |ClientConnection| has sent a message to the Bokeh Server which
     should generate a paired reply, and is waiting for the reply.
 
     '''

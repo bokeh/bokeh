@@ -12,10 +12,10 @@ events, interactive downsampling mode activation, widget or tool events, and
 others. The classes in this module represent these different events, so that
 callbacks can be attached and executed when they occur.
 
-It is possible to respond to events with ``CustomJS`` callbacks, which will
+It is possible to respond to events with |CustomJS| callbacks, which will
 function with or without a Bokeh server. This can be accomplished by passing
-and event class, and a ``CustomJS`` model to the
-:func:`~bokeh.model.Model.js_on_event` method. When the ``CustomJS`` is
+and event class, and a |CustomJS| model to the
+:func:`~bokeh.model.Model.js_on_event` method. When the |CustomJS| is
 executed in the browser, its ``cb_obj`` argument will contain the concrete
 event object that triggered the callback.
 
@@ -48,7 +48,7 @@ event object that triggered the callback.
     button.on_event(ButtonClick, callback)
 
 .. note ::
-    There is no throttling of events. Some events such as ``MouseMove``
+    There is no throttling of events. Some events such as |MouseMove|
     may trigger at a very high rate.
 
 '''
@@ -251,7 +251,7 @@ class SelectionGeometry(PlotEvent):
         super(SelectionGeometry, self).__init__(model=model)
 
 class Reset(PlotEvent):
-    ''' Announce a button click event on a plot ``ResetTool``.
+    ''' Announce a button click event on a plot |ResetTool|.
 
     '''
     event_name = "reset"
@@ -379,7 +379,7 @@ class MouseWheel(PointEvent):
 
     .. note::
         By default, Bokeh plots do not prevent default scroll events unless a
-        ``WheelZoomTool`` or ``WheelPanTool`` is active. This may change in
+        |WheelZoomTool| or |WheelPanTool| is active. This may change in
         future releases.
 
     '''

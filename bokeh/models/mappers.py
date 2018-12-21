@@ -69,7 +69,7 @@ class ColorMapper(Mapper):
     palette = Seq(Color, help="""
     A sequence of colors to use as the target palette for mapping.
 
-    This property can also be set as a ``String``, to the name of any of the
+    This property can also be set as a |String|, to the name of any of the
     palettes shown in :ref:`bokeh.palettes`.
     """).accepts(Enum(Palette), lambda pal: getattr(palettes, pal))
 
@@ -145,7 +145,7 @@ class CategoricalMarkerMapper(CategoricalMapper):
     will be mapped to ``default_value``.
 
     .. note::
-        This mappers is primarily only useful with the ``Scatter`` marker
+        This mappers is primarily only useful with the |Scatter| marker
         glyph that be parameterized by marker type.
 
     '''
@@ -214,7 +214,7 @@ class LogColorMapper(ContinuousColorMapper):
        20.09 >= x         : 'blue'    # values > high are clamped
 
     .. warning::
-        The ``LogColorMapper`` only works for images with scalar values that are
+        The |LogColorMapper| only works for images with scalar values that are
         non-negative.
 
     '''

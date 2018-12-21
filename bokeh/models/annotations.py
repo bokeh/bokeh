@@ -340,7 +340,7 @@ class ColorBar(Annotation):
     """)
 
     formatter = Instance(TickFormatter, default=lambda: BasicTickFormatter(), help="""
-    A ``TickFormatter`` to use for formatting the visual appearance of ticks.
+    A |TickFormatter| to use for formatting the visual appearance of ticks.
     """)
 
     major_label_overrides = Dict(Either(Float, String), String, default={}, help="""
@@ -352,8 +352,8 @@ class ColorBar(Annotation):
     A continuous color mapper containing a color palette to render.
 
     .. warning::
-        If the `low` and `high` attributes of the ``ColorMapper`` aren't set, ticks
-        and tick labels won't be rendered. Additionally, if a ``LogTicker`` is
+        If the `low` and `high` attributes of the |ColorMapper| aren't set, ticks
+        and tick labels won't be rendered. Additionally, if a |LogTicker| is
         passed to the `ticker` argument and either or both of the logarithms
         of `low` and `high` values of the color_mapper are non-numeric
         (i.e. `low=0`), the tick and tick labels won't be rendered.
@@ -452,7 +452,7 @@ class Arrow(Annotation):
     """)
 
     start = Instance('.models.arrow_heads.ArrowHead', default=None, help="""
-    Instance of ``ArrowHead``.
+    Instance of |ArrowHead|.
     """)
 
     x_end = NumberSpec(help="""
@@ -469,7 +469,7 @@ class Arrow(Annotation):
     """)
 
     end = Instance('.models.arrow_heads.ArrowHead', default=_DEFAULT_ARROW, help="""
-    Instance of ``ArrowHead``.
+    Instance of |ArrowHead|.
     """)
 
     body_props = Include(LineProps, use_prefix=False, help="""
@@ -634,7 +634,7 @@ class Band(Annotation):
 class Label(TextAnnotation):
     ''' Render a single text label as an annotation.
 
-    ``Label`` will render a single text label at given ``x`` and ``y``
+    |Label| will render a single text label at given ``x`` and ``y``
     coordinates, which can be in either screen (pixel) space, or data (axis
     range) space.
 
@@ -737,9 +737,9 @@ class Label(TextAnnotation):
 class LabelSet(TextAnnotation):
     ''' Render multiple text labels as annotations.
 
-    ``LabelSet`` will render multiple text labels at given ``x`` and ``y``
+    |LabelSet| will render multiple text labels at given ``x`` and ``y``
     coordinates, which can be in either screen (pixel) space, or data (axis
-    range) space. In this case (as opposed to the single ``Label`` model),
+    range) space. In this case (as opposed to the single |Label| model),
     ``x`` and ``y`` can also be the name of a column from a
     :class:`~bokeh.models.sources.ColumnDataSource`, in which case the labels
     will be "vectorized" using coordinate values from the specified columns.
@@ -1072,7 +1072,7 @@ class Whisker(Annotation):
     """)
 
     lower_head = Instance('.models.arrow_heads.ArrowHead', default=_DEFAULT_TEE, help="""
-    Instance of ``ArrowHead``.
+    Instance of |ArrowHead|.
     """)
 
     upper = DistanceSpec(help="""
@@ -1080,7 +1080,7 @@ class Whisker(Annotation):
     """)
 
     upper_head = Instance('.models.arrow_heads.ArrowHead', default=_DEFAULT_TEE, help="""
-    Instance of ``ArrowHead``.
+    Instance of |ArrowHead|.
     """)
 
     base = DistanceSpec(help="""

@@ -161,10 +161,10 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
                 }
 
         theme (Theme, optional) :
-            Defaults to the ``Theme`` instance in the current document.
+            Defaults to the |Theme| instance in the current document.
             Setting this to ``None`` uses the default theme or the theme
             already specified in the document. Any other value must be an
-            instance of the ``Theme`` class.
+            instance of the |Theme| class.
 
     Returns:
         UTF-8 encoded *(script, div[s])* or *(raw_script, plot_info[s])*
@@ -283,10 +283,10 @@ def file_html(models,
             title, bokeh_js, bokeh_css, plot_script, plot_div
 
         theme (Theme, optional) :
-            Defaults to the ``Theme`` instance in the current document.
+            Defaults to the |Theme| instance in the current document.
             Setting this to ``None`` uses the default theme or the theme
             already specified in the document. Any other value must be an
-            instance of the ``Theme`` class.
+            instance of the |Theme| class.
 
         suppress_callback_warning (bool, optional) :
             Normally generating standalone HTML from a Bokeh Document that has
@@ -323,10 +323,10 @@ def json_item(model, target=None, theme=FromCurdoc):
             be supplied in the JavaScript call.
 
         theme (Theme, optional) :
-            Defaults to the ``Theme`` instance in the current document.
+            Defaults to the |Theme| instance in the current document.
             Setting this to ``None`` uses the default theme or the theme
             already specified in the document. Any other value must be an
-            instance of the ``Theme`` class.
+            instance of the |Theme| class.
 
     Returns:
         JSON-like

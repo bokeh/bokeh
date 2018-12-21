@@ -7,7 +7,7 @@ Bokeh Version ``0.12.6`` (Jun 2017) is an incremental update that adds a few
 important features and fixes several bugs. Some of the highlights include:
 
 * Headless, programmatic export of SVG and PNG images (:bokeh-issue:`538`)
-* New annotations ``Band`` and ``Whisker`` for displaying error estimates
+* New annotations |Band| and |Whisker| for displaying error estimates
   (:bokeh-issue:`2352`)
 * Fine-grained sub-element patching for images and other "multi" glyphs
   (:bokeh-issue:`6285`)
@@ -50,10 +50,10 @@ All previous deprecations up to ``0.12.3`` have be removed. Below is the
 complete list of removals.
 
 * Deprecated ``Button.type`` property has been removed.
-* Deprecated ``Legend`` properties: ``legends``, ``legend_margin``,
+* Deprecated |Legend| properties: ``legends``, ``legend_margin``,
   ``legend_padding``, ``legend_spacing`` have been removed.
 * Deprecated ``DatetimeTickFormatter.formats`` property has been removed.
-* ``Tool`` dimensions may not only be specified with enum values.
+* |Tool| dimensions may not only be specified with enum values.
 
 New models for Scales
 ~~~~~~~~~~~~~~~~~~~~~
@@ -74,12 +74,12 @@ Python. This was done to facilitate future work supporting custom,
 user-defined scales.
 
 There is a new Plot validation check to ensure that Scales and Ranges on a
-dimension are compatible. By default, ``Plot`` models are configured with
-``LinearScale`` models which (along with ``LogScale`` models) are compatible
+dimension are compatible. By default, |Plot| models are configured with
+|LinearScale| models which (along with |LogScale| models) are compatible
 with ``Range1d`` and ``DataRange1d`` range models.
 
-One inevitable breaking change is that users employing a ``FactorRange`` in
-the ``bokeh.model`` API will have to specify a ``CategoricalScale`` on the same
+One inevitable breaking change is that users employing a |FactorRange| in
+the ``bokeh.model`` API will have to specify a |CategoricalScale| on the same
 dimension. For example:
 
 .. code-block:: python
@@ -145,7 +145,7 @@ Layout API and behaviour changes
 Layout was previously handled on document level and there was one solver per
 document. This was changed to one solver per root, so document isn't anymore
 responsible for any layout related stuff. All logic and APIs were moved to
-views, specifically to ``LayoutDOM``. For example, if your code relied on
+views, specifically to |LayoutDOM|. For example, if your code relied on
 ``document.resize(width, height)``, then you should use ``view.resize(width, height)``,
 where ``view`` is an associated view of any of ``document``'s root models.
 Views can be obtained through ``Bokeh.index``. To resize all roots use

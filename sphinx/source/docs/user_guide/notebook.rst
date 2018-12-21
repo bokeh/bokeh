@@ -222,7 +222,6 @@ notebook is shown below:
 .. |output_notebook| replace:: :func:`~bokeh.io.output_notebook`
 .. |output_file| replace:: :func:`~bokeh.io.output_file`
 
-.. |ColumnDataSource| replace:: :class:`~bokeh.models.sources.ColumnDataSource`
 .. |push_notebook| replace:: :func:`~bokeh.io.push_notebook`
 .. |show| replace:: :func:`~bokeh.io.show`
 

@@ -57,7 +57,7 @@ __all__ = (
 
 @abstract
 class Transform(Model):
-    ''' Base class for ``Transform`` models that represent a computation
+    ''' Base class for |Transform| models that represent a computation
     to be carried out on the client-side.
 
     JavaScript implementations should implement the following methods:
@@ -87,11 +87,11 @@ class CustomJSTransform(Transform):
 
     @classmethod
     def from_py_func(cls, func, v_func):
-        ''' Create a ``CustomJSTransform`` instance from a pair of Python
+        ''' Create a |CustomJSTransform| instance from a pair of Python
         functions. The function is translated to JavaScript using PScript.
 
         The python functions must have no positional arguments. It's
-        possible to pass Bokeh models (e.g. a ``ColumnDataSource``) as keyword
+        possible to pass Bokeh models (e.g. a |ColumnDataSource|) as keyword
         arguments to the functions.
 
         The ``func`` function namespace will contain the variable ``x`` (the
@@ -164,7 +164,7 @@ class CustomJSTransform(Transform):
 
     @classmethod
     def from_coffeescript(cls, func, v_func, args={}):
-        ''' Create a ``CustomJSTransform`` instance from a pair of CoffeeScript
+        ''' Create a |CustomJSTransform| instance from a pair of CoffeeScript
         snippets. The function bodies are translated to JavaScript functions
         using node and therefore require return statements.
 
@@ -260,8 +260,8 @@ class Dodge(Transform):
     """)
 
     range = Instance("bokeh.models.ranges.Range", help="""
-    When applying ``Dodge`` to categorical data values, the corresponding
-    ``FactorRange`` must be supplied as the ``range`` property.
+    When applying |Dodge| to categorical data values, the corresponding
+    |FactorRange| must be supplied as the ``range`` property.
     """)
 
 
@@ -285,7 +285,7 @@ class Jitter(Transform):
 
     range = Instance("bokeh.models.ranges.Range", help="""
     When applying Jitter to Categorical data values, the corresponding
-    ``FactorRange`` must be supplied as the ``range`` property.
+    |FactorRange| must be supplied as the ``range`` property.
     """)
 
 @abstract
@@ -306,7 +306,7 @@ class Interpolator(Transform):
 
         interp = Interpolator(x=[1, 2, 3, 4, 5], y=[2, 5, 10, 12, 16])
 
-    * or a pair of columns defined in a ``ColumnDataSource`` object:
+    * or a pair of columns defined in a |ColumnDataSource| object:
 
     .. code-block:: python
 
@@ -314,8 +314,8 @@ class Interpolator(Transform):
 
 
     This is the base class and is not intended to end use.  Please see the
-    documentation for the final derived classes (``Jitter``, ``LineraInterpolator``,
-    ``StepInterpolator``) for more information on their specific methods of
+    documentation for the final derived classes (|Jitter|, ``LineraInterpolator``,
+    |StepInterpolator|) for more information on their specific methods of
     interpolation.
 
     '''

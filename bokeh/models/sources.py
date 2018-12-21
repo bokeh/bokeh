@@ -61,7 +61,7 @@ class DataSource(Model):
     '''
 
     selected = Instance(Selection, default=lambda: Selection(), help="""
-    A Selection that indicates selected indices on this ``DataSource``.
+    A Selection that indicates selected indices on this |DataSource|.
     """)
 
     callback = Instance(Callback, help="""
@@ -80,16 +80,16 @@ class ColumnarDataSource(DataSource):
     '''
 
     selection_policy = Instance(SelectionPolicy, default=lambda: UnionRenderers(), help="""
-    An instance of a ``SelectionPolicy`` that determines how selections are set.
+    An instance of a |SelectionPolicy| that determines how selections are set.
     """)
 
 class ColumnDataSource(ColumnarDataSource):
     ''' Maps names of columns to sequences or arrays.
 
-    The ``ColumnDataSource`` is a fundamental data structure of Bokeh. Most
-    plots, data tables, etc. will be driven by a ``ColumnDataSource``.
+    The |ColumnDataSource| is a fundamental data structure of Bokeh. Most
+    plots, data tables, etc. will be driven by a |ColumnDataSource|.
 
-    If the ``ColumnDataSource`` initializer is called with a single argument that
+    If the |ColumnDataSource| initializer is called with a single argument that
     can be any of the following:
 
     * A Python ``dict`` that maps string names to sequences of values, e.g.
@@ -102,7 +102,7 @@ class ColumnDataSource(ColumnarDataSource):
           source = ColumnDataSource(data)
 
     .. note::
-        ``ColumnDataSource`` only creates a shallow copy of ``data``. Use e.g.
+        |ColumnDataSource| only creates a shallow copy of ``data``. Use e.g.
         ``ColumnDataSource(copy.deepcopy(data))`` if initializing from another
         ``ColumnDataSource.data`` object that you want to keep independent.
 
@@ -148,7 +148,7 @@ class ColumnDataSource(ColumnarDataSource):
 
     .. note::
         There is an implicit assumption that all the columns in a given
-        ``ColumnDataSource`` all have the same length at all times. For this
+        |ColumnDataSource| all have the same length at all times. For this
         reason, it is usually preferable to update the ``.data`` property
         of a data source "all at once".
 
@@ -233,7 +233,7 @@ class ColumnDataSource(ColumnarDataSource):
     @staticmethod
     def _data_from_groupby(group):
         ''' Create a ``dict`` of columns from a Pandas ``GroupBy``,
-        suitable for creating a ``ColumnDataSource``.
+        suitable for creating a |ColumnDataSource|.
 
         The data generated is the result of running ``describe``
         on the group.
@@ -282,7 +282,7 @@ class ColumnDataSource(ColumnarDataSource):
     @classmethod
     def from_df(cls, data):
         ''' Create a ``dict`` of columns from a Pandas ``DataFrame``,
-        suitable for creating a ``ColumnDataSource``.
+        suitable for creating a |ColumnDataSource|.
 
         Args:
             data (DataFrame) : data to convert
@@ -296,7 +296,7 @@ class ColumnDataSource(ColumnarDataSource):
     @classmethod
     def from_groupby(cls, data):
         ''' Create a ``dict`` of columns from a Pandas ``GroupBy``,
-        suitable for creating a ``ColumnDataSource``.
+        suitable for creating a |ColumnDataSource|.
 
         The data generated is the result of running ``describe``
         on the group.
@@ -519,7 +519,7 @@ class ColumnDataSource(ColumnarDataSource):
         ''' Efficiently update data source columns at specific locations
 
         If it is only necessary to update a small subset of data in a
-        ``ColumnDataSource``, this method can be used to efficiently update only
+        |ColumnDataSource|, this method can be used to efficiently update only
         the subset, instead of requiring the entire data set to be sent.
 
         This method should be passed a dictionary that maps column names to
@@ -673,7 +673,7 @@ class ColumnDataSource(ColumnarDataSource):
         self.data._patch(self.document, self, patches, setter)
 
 class CDSView(Model):
-    ''' A view into a ``ColumnDataSource`` that represents a row-wise subset.
+    ''' A view into a |ColumnDataSource| that represents a row-wise subset.
 
     '''
 
@@ -682,7 +682,7 @@ class CDSView(Model):
     """)
 
     source = Instance(ColumnarDataSource, help="""
-    The ``ColumnDataSource`` associated with this view. Used to determine
+    The |ColumnDataSource| associated with this view. Used to determine
     the length of the columns.
     """)
 
@@ -693,7 +693,7 @@ class GeoJSONDataSource(ColumnarDataSource):
 
     geojson = JSON(help="""
     GeoJSON that contains features for plotting. Currently
-    ``GeoJSONDataSource`` can only process a ``FeatureCollection`` or
+    |GeoJSONDataSource| can only process a ``FeatureCollection`` or
     ``GeometryCollection``.
     """)
 
@@ -719,12 +719,12 @@ class AjaxDataSource(RemoteSource):
     ''' A data source that can populate columns by making Ajax calls to REST
     endpoints.
 
-    The ``AjaxDataSource`` can be especially useful if you want to make a
+    The |AjaxDataSource| can be especially useful if you want to make a
     standalone document (i.e. not backed by the Bokeh server) that can still
     dynamically update using an existing REST API.
 
     The response from the REST API should match the ``.data`` property of a
-    standard ``ColumnDataSource``, i.e. a JSON dict that maps names to arrays
+    standard |ColumnDataSource|, i.e. a JSON dict that maps names to arrays
     of values:
 
     .. code-block:: python
@@ -734,7 +734,7 @@ class AjaxDataSource(RemoteSource):
             'y' : [9, 3, 2, ...]
         }
 
-    Alternatively, if the REST API returns a different format, a ``CustomJS``
+    Alternatively, if the REST API returns a different format, a |CustomJS|
     callback can be provided to convert the REST response into Bokeh format,
     via the ``adapter`` property of this data source.
 
@@ -752,14 +752,14 @@ class AjaxDataSource(RemoteSource):
     """)
 
     adapter = Instance(CustomJS, help="""
-    A JavaScript callback to adapt raw JSON responses to Bokeh ``ColumnDataSource``
+    A JavaScript callback to adapt raw JSON responses to Bokeh |ColumnDataSource|
     format.
 
     If provided, this callback is executes immediately after the JSON data is
     received, but before appending or replacing data in the data source. The
-    ``CustomJS`` callback will receive the ``AjaxDataSource`` as ``cb_obj`` and
+    |CustomJS| callback will receive the |AjaxDataSource| as ``cb_obj`` and
     will receive the raw JSON response as ``cb_data.response``. The callback
-    code should return a ``data`` object suitable for a Bokeh ``ColumnDataSource``
+    code should return a ``data`` object suitable for a Bokeh |ColumnDataSource|
     (i.e.  a mapping of string column names to arrays of data).
     """)
 

@@ -18,7 +18,7 @@ Hiding Glyphs
 ~~~~~~~~~~~~~
 
 Sometimes it is desirable to be able to hide glyphs by clicking on an entry
-in a ``Legend``. In Bokeh this can be accomplished by setting the legend
+in a |Legend|. In Bokeh this can be accomplished by setting the legend
 ``click_policy`` property to ``"hide"`` as shown in the example below:
 
 .. bokeh-plot:: docs/user_guide/examples/interaction_legend_hide.py

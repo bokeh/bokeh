@@ -96,8 +96,8 @@ class DataSpec(Either):
 
         glyph.x = "pressure"
 
-    Bokeh ``DataSpec`` properties (and subclasses) afford this ease of
-    and consistency of expression. Ultimately, all ``DataSpec`` properties
+    Bokeh |DataSpec| properties (and subclasses) afford this ease of
+    and consistency of expression. Ultimately, all |DataSpec| properties
     resolve to dictionary values, with either a ``"value"`` key, or a
     ``"field"`` key, depending on how it is set.
 
@@ -116,7 +116,7 @@ class DataSpec(Either):
     use-cases may be expressed easily in python, without having to handle
     anything differently, from the user perspective.
 
-    It is worth noting that ``DataSpec`` properties can also be set directly
+    It is worth noting that |DataSpec| properties can also be set directly
     with properly formed dictionary values:
 
     .. code-block:: python
@@ -126,19 +126,19 @@ class DataSpec(Either):
         glyph.x = { 'field': 'pressure' } # same as glyph.x = "pressure"
 
     Setting the property directly as a dict can be useful in certain
-    situations. For instance some ``DataSpec`` subclasses also add a
+    situations. For instance some |DataSpec| subclasses also add a
     ``"units"`` key to the dictionary. This key is often set automatically,
     but the dictionary format provides a direct mechanism to override as
-    necessary. Additionally, ``DataSpec`` can have a ``"transform"`` key,
+    necessary. Additionally, |DataSpec| can have a ``"transform"`` key,
     that specifies a client-side transform that should be applied to any
     fixed or field values before they are uses. As an example, you might want
-    to apply a ``Jitter`` transform to the ``x`` values:
+    to apply a |Jitter| transform to the ``x`` values:
 
     .. code-block:: python
 
         glyph.x = { 'value': 10, 'transform': Jitter(width=0.4) }
 
-    Note that ``DataSpec`` is not normally useful on its own. Typically,
+    Note that |DataSpec| is not normally useful on its own. Typically,
     a model will define properties using one of the sublclasses such
     as :class:`~bokeh.core.properties.NumberSpec` or
     :class:`~bokeh.core.properties.ColorSpec`. For example, a Bokeh
@@ -175,7 +175,7 @@ class DataSpec(Either):
     # TODO (bev) add stricter validation on keys
 
     def make_descriptors(self, base_name):
-        ''' Return a list of ``DataSpecPropertyDescriptor`` instances to
+        ''' Return a list of |DataSpecPropertyDescriptor| instances to
         install on a class, in order to delegate attribute access to this
         property.
 
@@ -185,8 +185,8 @@ class DataSpec(Either):
         Returns:
             list[DataSpecPropertyDescriptor]
 
-        The descriptors returned are collected by the ``MetaHasProps``
-        metaclass and added to ``HasProps`` subclasses during class creation.
+        The descriptors returned are collected by the |MetaHasProps|
+        metaclass and added to |HasProps| subclasses during class creation.
         '''
         return [ DataSpecPropertyDescriptor(base_name, self) ]
 
@@ -270,7 +270,7 @@ class StringSpec(DataSpec):
 class FontSizeSpec(DataSpec):
     ''' A |DataSpec| property that accepts font-size fixed values.
 
-    The ``FontSizeSpec`` property attempts to first interpret string values as
+    The |FontSizeSpec| property attempts to first interpret string values as
     font sizes (i.e. valid CSS length values). Otherwise string values are
     interpreted as field names. For example:
 
@@ -303,7 +303,7 @@ class FontSizeSpec(DataSpec):
 class MarkerSpec(DataSpec):
     ''' A |DataSpec| property that accepts marker types as fixed values.
 
-    The ``MarkerSpec`` property attempts to first interpret string values as
+    The |MarkerSpec| property attempts to first interpret string values as
     marker types. Otherwise string values are interpreted as field names.
     For example:
 
@@ -340,10 +340,10 @@ class UnitsSpec(NumberSpec):
         return "%s(units_default=%r)" % (self.__class__.__name__, self._units_type._default)
 
     def make_descriptors(self, base_name):
-        ''' Return a list of ``PropertyDescriptor`` instances to install on a
+        ''' Return a list of |PropertyDescriptor| instances to install on a
         class, in order to delegate attribute access to this property.
 
-        Unlike simpler property types, ``UnitsSpec`` returns multiple
+        Unlike simpler property types, |UnitsSpec| returns multiple
         descriptors to install. In particular, descriptors for the base
         property as well as the associated units property are returned.
 
@@ -353,8 +353,8 @@ class UnitsSpec(NumberSpec):
         Returns:
             list[PropertyDescriptor]
 
-        The descriptors returned are collected by the ``MetaHasProps``
-        metaclass and added to ``HasProps`` subclasses during class creation.
+        The descriptors returned are collected by the |MetaHasProps|
+        metaclass and added to |HasProps| subclasses during class creation.
         '''
         units_name = base_name + "_units"
         units_props = self._units_type.make_descriptors(units_name)
@@ -420,10 +420,10 @@ class ScreenDistanceSpec(UnitsSpec):
         return super(ScreenDistanceSpec, self).prepare_value(cls, name, value)
 
     def make_descriptors(self, base_name):
-        ''' Return a list of ``PropertyDescriptor`` instances to install on a
+        ''' Return a list of |PropertyDescriptor| instances to install on a
         class, in order to delegate attribute access to this property.
 
-        Unlike simpler property types, ``UnitsSpec`` returns multiple
+        Unlike simpler property types, |UnitsSpec| returns multiple
         descriptors to install. In particular, descriptors for the base
         property as well as the associated units property are returned.
 
@@ -433,8 +433,8 @@ class ScreenDistanceSpec(UnitsSpec):
         Returns:
             list[PropertyDescriptor]
 
-        The descriptors returned are collected by the ``MetaHasProps``
-        metaclass and added to ``HasProps`` subclasses during class creation.
+        The descriptors returned are collected by the |MetaHasProps|
+        metaclass and added to |HasProps| subclasses during class creation.
         '''
         units_props = self._units_type.make_descriptors("unused")
         return [ UnitsSpecPropertyDescriptor(base_name, self, units_props[0]) ]
@@ -471,10 +471,10 @@ class DataDistanceSpec(UnitsSpec):
         return super(DataDistanceSpec, self).prepare_value(cls, name, value)
 
     def make_descriptors(self, base_name):
-        ''' Return a list of ``PropertyDescriptor`` instances to install on a
+        ''' Return a list of |PropertyDescriptor| instances to install on a
         class, in order to delegate attribute access to this property.
 
-        Unlike simpler property types, ``UnitsSpec`` returns multiple
+        Unlike simpler property types, |UnitsSpec| returns multiple
         descriptors to install. In particular, descriptors for the base
         property as well as the associated units property are returned.
 
@@ -484,8 +484,8 @@ class DataDistanceSpec(UnitsSpec):
         Returns:
             list[PropertyDescriptor]
 
-        The descriptors returned are collected by the ``MetaHasProps``
-        metaclass and added to ``HasProps`` subclasses during class creation.
+        The descriptors returned are collected by the |MetaHasProps|
+        metaclass and added to |HasProps| subclasses during class creation.
         '''
         units_props = self._units_type.make_descriptors("unused")
         return [ UnitsSpecPropertyDescriptor(base_name, self, units_props[0]) ]
@@ -503,7 +503,7 @@ class DataDistanceSpec(UnitsSpec):
 class ColorSpec(DataSpec):
     ''' A |DataSpec| property that accepts |Color| fixed values.
 
-    The ``ColorSpec`` property attempts to first interpret string values as
+    The |ColorSpec| property attempts to first interpret string values as
     colors. Otherwise, string values are interpreted as field names. For
     example:
 
@@ -592,7 +592,7 @@ def expr(expression, transform=None):
 
     Args:
         expression (Expression) : a computed expression for a
-            ``DataSpec`` property.
+            |DataSpec| property.
 
         transform (Transform, optional) : a transform to apply (default: None)
 
@@ -615,7 +615,7 @@ def field(name, transform=None):
 
     Args:
         name (str) : name of a data source field to reference for a
-            ``DataSpec`` property.
+            |DataSpec| property.
 
         transform (Transform, optional) : a transform to apply (default: None)
 
@@ -636,7 +636,7 @@ def value(val, transform=None):
     a Bokeh :class:`~bokeh.core.properties.DataSpec` property.
 
     Args:
-        val (any) : a fixed value to specify for a ``DataSpec`` property.
+        val (any) : a fixed value to specify for a |DataSpec| property.
 
         transform (Transform, optional) : a transform to apply (default: None)
 

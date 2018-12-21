@@ -76,7 +76,7 @@ class Renderer(Model):
 
 @abstract
 class DataRenderer(Renderer):
-    ''' An abstract base class for data renderer types (e.g. ``GlyphRenderer``, ``TileRenderer``, ``GraphRenderer``).
+    ''' An abstract base class for data renderer types (e.g. |GlyphRenderer|, |TileRenderer|, |GraphRenderer|).
 
     '''
 
@@ -202,7 +202,7 @@ class GlyphRenderer(DataRenderer):
 
     hover_glyph = Instance(Glyph, help="""
     An optional glyph used for inspected points, e.g., those that are
-    being hovered over by a ``HoverTool``.
+    being hovered over by a |HoverTool|.
     """)
 
     muted_glyph = Instance(Glyph, help="""
@@ -251,27 +251,27 @@ class GraphRenderer(DataRenderer):
     """)
 
     layout_provider = Instance(LayoutProvider, help="""
-    An instance of a ``LayoutProvider`` that supplies the layout of the network
+    An instance of a |LayoutProvider| that supplies the layout of the network
     graph in cartesian space.
     """)
 
     node_renderer = Instance(GlyphRenderer, default=_DEFAULT_NODE_RENDERER, help="""
-    Instance of a ``GlyphRenderer`` containing an ``XYGlyph`` that will be rendered
+    Instance of a |GlyphRenderer| containing an |XYGlyph| that will be rendered
     as the graph nodes.
     """)
 
     edge_renderer = Instance(GlyphRenderer, default=_DEFAULT_EDGE_RENDERER, help="""
-    Instance of a ``GlyphRenderer`` containing an ``MultiLine`` Glyph that will be
+    Instance of a |GlyphRenderer| containing an |MultiLine| Glyph that will be
     rendered as the graph edges.
     """)
 
     selection_policy = Instance(GraphHitTestPolicy, default=lambda: NodesOnly(), help="""
-    An instance of a ``GraphHitTestPolicy`` that provides the logic for selection
+    An instance of a |GraphHitTestPolicy| that provides the logic for selection
     of graph components.
     """)
 
     inspection_policy = Instance(GraphHitTestPolicy, default=lambda: NodesOnly(), help="""
-    An instance of a ``GraphHitTestPolicy`` that provides the logic for inspection
+    An instance of a |GraphHitTestPolicy| that provides the logic for inspection
     of graph components.
     """)
 
@@ -279,7 +279,7 @@ class GraphRenderer(DataRenderer):
 
 @abstract
 class GuideRenderer(Renderer):
-    ''' A base class for all guide renderer types. ``GuideRenderer`` is
+    ''' A base class for all guide renderer types. |GuideRenderer| is
     not generally useful to instantiate on its own.
 
     '''

@@ -28,7 +28,7 @@ As an example, consider the following Python module ``myapp.py``
 
     curdoc().add_root(p)
 
-The a ``ScriptHandler`` configured with this script will modify new Bokeh
+A |ScriptHandler| configured with this script will modify new Bokeh
 Documents by adding an empty plot with a title taken from ``args``.
 
 '''

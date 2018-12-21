@@ -61,7 +61,7 @@ LIGHT_MINIMAL
     p.line(x, y)
     show(p)
 
-as well as the ``Theme`` class that can be used to create new Themes.
+as well as the |Theme| class that can be used to create new Themes.
 
 .. autoclass:: Theme
 

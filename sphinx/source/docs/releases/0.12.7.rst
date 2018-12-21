@@ -14,7 +14,7 @@ important features and fixes several bugs. Some of the highlights include:
   computations, including :class:`~bokeh.models.expressions.Stack`, for
   stacking CDS columns.
 * New module :ref:`bokeh.transform` with helper functions for simplifying
-  ``DataSpec`` expressions, including  :func:`~bokeh.transform.jitter`,
+  |DataSpec| expressions, including  :func:`~bokeh.transform.jitter`,
   :func:`~bokeh.transform.dodge`, :func:`~bokeh.transform.factor_cmap`, etc.
 * Added :func:`~bokeh.plotting.figure.Figure.hbar_stack` and
   :func:`~bokeh.plotting.figure.Figure.vbar_stack` to greatly simplify
@@ -49,10 +49,10 @@ At this point we endeavor to minimize breakage, and to provide managed
 deprecation cycles when things must change. However, in this instance,
 some minor *immediate* breaking changes were unavoidable:
 
-* ``min_interval`` and ``max_interval`` on ``FactorRange`` are now
+* ``min_interval`` and ``max_interval`` on |FactorRange| are now
   given in synthetic coordinate units.
 
-* ``bounds`` on ``FactorRange`` are now given in synthetic coordinate
+* ``bounds`` on |FactorRange| are now given in synthetic coordinate
   units.
 
 New Embed Functions for Bokeh Applications
@@ -83,7 +83,7 @@ The following previously deprecated modules or features have been removed:
 
 * ``HBox`` and ``VBox`` in ``bokeh.layouts``
 
-* ``validate`` keyword argument for ``bokeh.io.save``
+* ``|validate`` keyword argument for ``bokeh.io.save``
 
 New Deprecations
 ~~~~~~~~~~~~~~~~
@@ -93,7 +93,7 @@ two simpler functions :func:`~bokeh.embed.server_document` and
 :func:`~bokeh.embed.server_session` described above.
 
 ``bokeh.models.tools.tool_events`` has been deprecated. Users should instead
-use the ``SelectionGeometry`` event present on ``Plot`` or ``Figure``.
+use the |SelectionGeometry| event present on |Plot| or |Figure|.
 
 ``DynamicImageRenderer`` and ``Plot.add_dyanamic_image`` have been deprecated.
 For GIS-related use-cases built on top of Bokeh, consider using
@@ -119,8 +119,8 @@ TapTool Callback Calling Convention
 The TapTool strayed from usual callback calling convention by passing a glyph
 data source as ``cb_obj``. This has been rectified, and now the tool follows the
 usual convetion: the tool itself is passed as ``cb_obj`` and the data source is
-passed as part of the optional ``cb_data``. Existing usage of ``OpenURL`` is
-unaffected by this change, but any ``CustomJS`` callbacks used with the tap tool
+passed as part of the optional ``cb_data``. Existing usage of |OpenURL| is
+unaffected by this change, but any |CustomJS| callbacks used with the tap tool
 will need to be updated to reflect this change.
 
 DataTable Selection Highlighting Signal
@@ -155,8 +155,8 @@ way:
 
 * All protocol-related code was moved to a new module ``bokeh.protocol``
 
-* The ``Server`` class was split into ``Server`` (no API changes) and a new
-  ``BaseServer`` that can be used when explicit coordination of low level
+* The |Server| class was split into |Server| (no API changes) and a new
+  |BaseServer| that can be used when explicit coordination of low level
   Tornado components is required.
 
 * Missing sections added to reference guide, and docsctring coverage greatly

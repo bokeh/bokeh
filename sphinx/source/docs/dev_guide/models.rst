@@ -52,7 +52,7 @@ The `IntProps` model represents objects that have three integer values,
 from python, and unserialized by BokehJS.
 
 .. note::
-    Technically, ``prop1`` isn't an instance of ``Int``, but ``HasFields`` uses a
+    Technically, ``prop1`` isn't an instance of |Int|, but ``HasFields`` uses a
     metaclass that automatically instantiates `Property` classes when necessary,
     so ``prop1`` and ``prop2`` are equivalent (though independent) properties.
     This is useful for readability; if you don't need to pass any arguments to

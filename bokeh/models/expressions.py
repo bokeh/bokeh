@@ -7,7 +7,7 @@
 ''' Represent array expressions to be computed on the client (browser) side
 by BokehJS.
 
-Expression models are useful as ``DataSpec`` values when it is desired that
+Expression models are useful as |DataSpec| values when it is desired that
 the array values be computed in the browser:
 
 .. code-block:: python
@@ -24,7 +24,7 @@ or using the ``expr`` convenience function:
 
 In this case, the values of the ``x`` coordinates will be computed in the
 browser by the JavaScript implementation of ``some_expression`` using a
-``ColumnDataSource`` as input.
+|ColumnDataSource| as input.
 
 '''
 
@@ -65,7 +65,7 @@ __all__ = (
 
 @abstract
 class Expression(Model):
-    ''' Base class for ``Expression`` models that represent a computation
+    ''' Base class for |Expression| models that represent a computation
     to be carried out on the client-side.
 
     JavaScript implementations should implement the following methods:
@@ -84,12 +84,12 @@ class Expression(Model):
 
 class CumSum(Expression):
     ''' An expression for generating arrays by cumulatively summing a single
-    column from a ``ColumnDataSource``.
+    column from a |ColumnDataSource|.
 
     '''
 
     field = String(help="""
-    The name of a ``ColumnDataSource`` column to cumulatively sum for new values.
+    The name of a |ColumnDataSource| column to cumulatively sum for new values.
     """)
 
     include_zero = Bool(default=False, help="""
@@ -112,7 +112,7 @@ class CumSum(Expression):
 
 class Stack(Expression):
     ''' An expression for generating arrays by summing different columns from
-    a ``ColumnDataSource``.
+    a |ColumnDataSource|.
 
     This expression is useful for implementing stacked bar charts at a low
     level.
@@ -120,7 +120,7 @@ class Stack(Expression):
     '''
 
     fields = Seq(String, default=[], help="""
-    A sequence of fields from a ``ColumnDataSource`` to sum (elementwise). For
+    A sequence of fields from a |ColumnDataSource| to sum (elementwise). For
     example:
 
     .. code-block:: python

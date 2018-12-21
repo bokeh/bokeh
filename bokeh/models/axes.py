@@ -80,7 +80,7 @@ class Axis(GuideRenderer):
     A Ticker to use for computing locations of axis components.
 
     The property may also be passed a sequence of floating point numbers as
-    a shorthand for creating and configuring a ``FixedTicker``, e.g. the
+    a shorthand for creating and configuring a |FixedTicker|, e.g. the
     following code
 
     .. code-block:: python
@@ -103,7 +103,7 @@ class Axis(GuideRenderer):
     """).accepts(Seq(Float), lambda ticks: FixedTicker(ticks=ticks))
 
     formatter = Instance(TickFormatter, help="""
-    A ``TickFormatter`` to use for formatting the visual appearance
+    A |TickFormatter| to use for formatting the visual appearance
     of ticks.
     """)
 
@@ -205,7 +205,7 @@ class ContinuousAxis(Axis):
 
 class LinearAxis(ContinuousAxis):
     ''' An axis that picks nice numbers for tick locations on a
-    linear scale. Configured with a ``BasicTickFormatter`` by default.
+    linear scale. Configured with a |BasicTickFormatter| by default.
 
     '''
     ticker = Override(default=lambda: BasicTicker())
@@ -214,7 +214,7 @@ class LinearAxis(ContinuousAxis):
 
 class LogAxis(ContinuousAxis):
     ''' An axis that picks nice numbers for tick locations on a
-    log scale. Configured with a ``LogTickFormatter`` by default.
+    log scale. Configured with a |LogTickFormatter| by default.
 
     '''
     ticker = Override(default=lambda: LogTicker())
@@ -224,7 +224,7 @@ class LogAxis(ContinuousAxis):
 class CategoricalAxis(Axis):
     ''' An axis that displays ticks and labels for categorical ranges.
 
-    The ``CategoricalAxis`` can handle factor ranges with up to two levels of
+    The |CategoricalAxis| can handle factor ranges with up to two levels of
     nesting, including drawing a separator line between top-level groups of
     factors.
 
@@ -286,8 +286,8 @@ class CategoricalAxis(Axis):
     subgroup_text_font_style = Override(default="bold")
 
 class DatetimeAxis(LinearAxis):
-    ''' A ``LinearAxis`` that picks nice numbers for tick locations on
-    a datetime scale. Configured with a ``DatetimeTickFormatter`` by
+    ''' A |LinearAxis| that picks nice numbers for tick locations on
+    a datetime scale. Configured with a |DatetimeTickFormatter| by
     default.
 
     '''
@@ -298,7 +298,7 @@ class DatetimeAxis(LinearAxis):
 
 class MercatorAxis(LinearAxis):
     ''' An axis that picks nice numbers for tick locations on a
-    Mercator scale. Configured with a ``MercatorTickFormatter`` by default.
+    Mercator scale. Configured with a |MercatorTickFormatter| by default.
 
     Args:
         dimension ('lat' or 'lon', optional) :

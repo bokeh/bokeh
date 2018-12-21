@@ -57,7 +57,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def export_png(obj, filename=None, height=None, width=None, webdriver=None):
-    ''' Export the ``LayoutDOM`` object or document as a PNG.
+    ''' Export the |LayoutDOM| object or document as a PNG.
 
     If the filename is not given, it is derived from the script name
     (e.g. ``/foo/myplot.py`` will create ``/foo/myplot.png``)
@@ -171,7 +171,7 @@ def create_webdriver():
     return webdriver_control.create()
 
 def get_screenshot_as_png(obj, driver=None, **kwargs):
-    ''' Get a screenshot of a ``LayoutDOM`` object.
+    ''' Get a screenshot of a |LayoutDOM| object.
 
     Args:
         obj (LayoutDOM or Document) : a Layout (Row/Column), Plot or Widget

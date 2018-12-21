@@ -161,7 +161,7 @@ class Tap(Gesture):
 
 @abstract
 class Inspection(Gesture):
-    ''' A base class for tools that perform "inspections", e.g. ``HoverTool``.
+    ''' A base class for tools that perform "inspections", e.g. |HoverTool|.
 
     '''
     toggleable = Bool(True, help="""
@@ -218,7 +218,7 @@ class Toolbar(ToolbarBase):
 
     Note that activating a multi-gesture tool will deactivate any other gesture
     tools as appropriate. For example, if a pan tool is set as the active drag,
-    and this property is set to a ``BoxEditTool`` instance, the pan tool will
+    and this property is set to a |BoxEditTool| instance, the pan tool will
     be deactivated (i.e. the multi-gesture tool will take precedence).
     """)
 
@@ -384,7 +384,7 @@ class WheelZoomTool(Scroll):
     """)
 
 class CustomAction(Action):
-    ''' Execute a custom action, e.g. ``CustomJS`` callback when a toolbar
+    ''' Execute a custom action, e.g. |CustomJS| callback when a toolbar
     icon is activated.
 
     Example:
@@ -409,7 +409,7 @@ class CustomAction(Action):
     icon = Image(help="""
     An icon to display in the toolbar.
 
-    The icon can provided as a string filename for an image, a PIL ``Image``
+    The icon can provided as a string filename for an image, a PIL |Image|
     object, or an RGB(A) NumPy array.
     """)
 
@@ -487,13 +487,13 @@ class TapTool(Tap):
     A callback to execute *whenever a glyph is "hit"* by a mouse click
     or tap.
 
-    This is often useful with the  :class:`~bokeh.models.callbacks.OpenURL`
+    This is often useful with the  |OpenURL|
     model to open URLs based on a user clicking or tapping a specific glyph.
 
-    However, it may also be a :class:`~bokeh.models.callbacks.CustomJS`
+    However, it may also be a |CustomJS|
     which can execute arbitrary JavaScript code in response to clicking or
     tapping glyphs. The callback will be executed for each individual glyph
-    that is it hit by a click or tap, and will receive the ``TapTool`` model
+    that is it hit by a click or tap, and will receive the |TapTool| model
     as  ``cb_obj``. The optional ``cb_data`` will have the data source as
     its ``.source`` attribute and the selection geometry as its
     ``.geometries`` attribute.
@@ -707,7 +707,7 @@ class BoxSelectTool(Drag):
     callback = Instance(Callback, help="""
     A callback to run in the browser on completion of drawing a selection box.
     The ``cb_data`` parameter that is available to the Callback code will contain
-    one ``BoxSelectTool``-specific field:
+    one |BoxSelectTool|-specific field:
 
     :geometry: object containing the coordinates of the selection box
     """)
@@ -773,7 +773,7 @@ class LassoSelectTool(Drag):
     callback = Instance(Callback, help="""
     A callback to run in the browser on every selection of a lasso area.
     The ``cb_data`` parameter that is available to the Callback code will contain
-    one ``LassoSelectTool``-specific field:
+    one |LassoSelectTool|-specific field:
 
     :geometry: object containing the coordinates of the lasso area
     """)
@@ -845,7 +845,7 @@ class CustomJSHover(Model):
     * ``indices`` column indices of all currently hovered glyphs
     * ``name`` value of the ``name`` property of the hovered glyph renderer
 
-    If the hover is over a "multi" glyph such as ``Patches`` or ``MultiLine``
+    If the hover is over a "multi" glyph such as |Patches| or |MultiLine|
     then a ``segment_index`` key will also be present.
 
     Finally, the value of the format passed in the tooltip specification is
@@ -881,11 +881,11 @@ class CustomJSHover(Model):
 
     @classmethod
     def from_py_func(cls, code):
-        ''' Create a ``CustomJSHover`` instance from a Python functions. The
+        ''' Create a |CustomJSHover| instance from a Python functions. The
         function is translated to JavaScript using PScript.
 
         The python functions must have no positional arguments. It's
-        possible to pass Bokeh models (e.g. a ``ColumnDataSource``) as keyword
+        possible to pass Bokeh models (e.g. a |ColumnDataSource|) as keyword
         arguments to the functions.
 
         The ``code`` function namespace will contain the variable ``value``
@@ -979,7 +979,7 @@ class CustomJSHover(Model):
     * ``data_y`` data-space y-coordinate of the hovered glyph
     * ``indices`` column indices of all currently hovered glyphs
 
-    If the hover is over a "multi" glyph such as ``Patches`` or ``MultiLine``
+    If the hover is over a "multi" glyph such as |Patches| or |MultiLine|
     then a ``segment_index`` key will also be present.
 
     Finally, the value of the format passed in the tooltip specification is
@@ -1025,7 +1025,7 @@ class HoverTool(Inspection):
             ("total", "@total{$0,0.00}"
         ]
 
-    You can also supply a ``Callback`` to the ``HoverTool``, to build custom
+    You can also supply a |Callback| to the |HoverTool|, to build custom
     interactions on hover. In this case you may want to turn the tooltips
     off by setting ``tooltips=None``.
 
@@ -1071,7 +1071,7 @@ class HoverTool(Inspection):
     callback = Instance(Callback, help="""
     A callback to run in the browser whenever the input's value changes. The
     ``cb_data`` parameter that is available to the Callback code will contain two
-    ``HoverTool`` specific fields:
+    |HoverTool| specific fields:
 
     :index: object containing the indices of the hovered points in the data source
     :geometry: object containing the coordinates of the hover cursor
@@ -1104,7 +1104,7 @@ class HoverTool(Inspection):
         'swatch' to also display a small color swatch.
 
     Field names that begin with ``@`` are associated with columns in a
-    ``ColumnDataSource``. For instance the field name ``"@price"`` will
+    |ColumnDataSource|. For instance the field name ``"@price"`` will
     display values from the ``"price"`` column whenever a hover is triggered.
     If the hover is for the 17th glyph, then the hover tooltip will
     correspondingly display the 17th price value.
@@ -1175,10 +1175,6 @@ class HoverTool(Inspection):
 
     If no formatter is specified for a column name, the default ``"numeral"``
     formatter is assumed.
-
-    .. |NumeralTickFormatter| replace:: :class:`~bokeh.models.formatters.NumeralTickFormatter`
-    .. |DatetimeTickFormatter| replace:: :class:`~bokeh.models.formatters.DatetimeTickFormatter`
-    .. |PrintfTickFormatter| replace:: :class:`~bokeh.models.formatters.PrintfTickFormatter`
 
     """)
 
@@ -1267,7 +1263,7 @@ class EditTool(Gesture):
 
     empty_value = Either(Bool, Int, Float, Date, Datetime, Color, help="""
     Defines the value to insert on non-coordinate columns when a new
-    glyph is inserted into the ``ColumnDataSource`` columns, e.g. when a
+    glyph is inserted into the |ColumnDataSource| columns, e.g. when a
     circle glyph defines 'x', 'y' and 'color' columns, adding a new
     point will add the x and y-coordinates to 'x' and 'y' columns and
     the color column will be filled with the defined empty value.
@@ -1276,7 +1272,7 @@ class EditTool(Gesture):
     custom_icon = Image(help="""
     An icon to display in the toolbar.
 
-    The icon can provided as a string filename for an image, a PIL ``Image``
+    The icon can provided as a string filename for an image, a PIL |Image|
     object, or an RGB(A) NumPy array.
     """)
 
@@ -1288,11 +1284,11 @@ class EditTool(Gesture):
 class BoxEditTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |box_edit_icon|
 
-    Allows drawing, dragging and deleting ``Rect`` glyphs on one or more
-    renderers by editing the underlying ``ColumnDataSource`` data. Like other
+    Allows drawing, dragging and deleting |Rect| glyphs on one or more
+    renderers by editing the underlying |ColumnDataSource| data. Like other
     drawing tools, the renderers that are to be edited must be supplied
     explicitly as a list. When drawing a new box the data will always be added
-    to the ``ColumnDataSource`` on the first supplied renderer.
+    to the |ColumnDataSource| on the first supplied renderer.
 
     The tool will automatically modify the columns on the data source
     corresponding to the ``x``, ``y``, ``width`` and ``height`` values
@@ -1356,10 +1352,10 @@ class PointDrawTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |point_draw_icon|
 
     The PointDrawTool allows adding, dragging and deleting point-like
-    glyphs (of ``XYGlyph`` type) on one or more renderers by editing the
-    underlying ``ColumnDataSource`` data. Like other drawing tools, the
+    glyphs (of |XYGlyph| type) on one or more renderers by editing the
+    underlying |ColumnDataSource| data. Like other drawing tools, the
     renderers that are to be edited must be supplied explicitly as a list.
-    Any newly added points will be inserted on the ``ColumnDataSource`` of
+    Any newly added points will be inserted on the |ColumnDataSource| of
     the first supplied renderer.
 
     The tool will automatically modify the columns on the data source
@@ -1414,8 +1410,8 @@ class PolyDrawTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |poly_draw_icon|
 
     The PolyDrawTool allows drawing, selecting and deleting
-    ``Patches`` and ``MultiLine`` glyphs on one or more renderers by
-    editing the underlying ``ColumnDataSource`` data. Like other drawing
+    |Patches| and |MultiLine| glyphs on one or more renderers by
+    editing the underlying |ColumnDataSource| data. Like other drawing
     tools, the renderers that are to be edited must be supplied
     explicitly as a list.
 
@@ -1425,7 +1421,7 @@ class PolyDrawTool(EditTool, Drag, Tap):
     declared ``empty_value``, when adding a new point.
 
     If a ``vertex_renderer`` with an point-like glyph is supplied the
-    ``PolyDrawTool`` will use it to display the vertices of the
+    |PolyDrawTool| will use it to display the vertices of the
     multi-lines/patches on all supplied renderers. This also enables
     the ability to snap to existing vertices while drawing.
 
@@ -1483,7 +1479,7 @@ class PolyDrawTool(EditTool, Drag, Tap):
 class FreehandDrawTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |freehand_draw_icon|
 
-    Allows freehand drawing of ``Patches`` and ``MultiLine`` glyphs. The glyph
+    Allows freehand drawing of |Patches| and |MultiLine| glyphs. The glyph
     to draw may be defined via the ``renderers`` property.
 
     The tool will automatically modify the columns on the data source
@@ -1524,10 +1520,10 @@ class PolyEditTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |poly_edit_icon|
 
     The PolyEditTool allows editing the vertices of one or more
-    ``Patches`` or ``MultiLine`` glyphs. The glyphs to be edited can
+    |Patches| or |MultiLine| glyphs. The glyphs to be edited can
     be defined via the ``renderers`` property and the renderer for the
     vertices can be defined via the ``vertex_renderer``, which must
-    render a point-like Glyph (of ``XYGlyph`` type).
+    render a point-like Glyph (of |XYGlyph| type).
 
     The tool will automatically modify the columns on the data source
     corresponding to the ``xs`` and ``ys`` values of the glyph. Any

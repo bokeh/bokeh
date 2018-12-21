@@ -457,7 +457,7 @@ of interest to look out for in this example:
 * setting the ``plot_width`` and ``plot_height`` arguments to |figure|
 * customizing plots and other objects by assigning values to their attributes
 * accessing guides and annotations with convenience |Figure| attributes:
-  |legend|, |grid|, |xgrid|, |ygrid|, |axis|, |xaxis|, |yaxis|
+  ``legend``, ``grid``, ``xgrid``, ``ygrid``, ``axis``, ``xaxis``, ``yaxis``
 
 .. bokeh-plot::
     :source-position: above
@@ -586,24 +586,11 @@ Be sure to follow us on Twitter `@bokehplots <Twitter_>`_!
 .. |markers| replace:: :ref:`markers <bokeh.models.markers>`
 
 .. |figure| replace:: :func:`~bokeh.plotting.figure.figure`
-.. |Figure| replace:: :class:`~bokeh.plotting.figure.Figure`
-
-.. |legend| replace:: :class:`~bokeh.plotting.figure.Figure.legend`
-.. |grid|   replace:: :class:`~bokeh.plotting.figure.Figure.grid`
-.. |xgrid|  replace:: :class:`~bokeh.plotting.figure.Figure.xgrid`
-.. |ygrid|  replace:: :class:`~bokeh.plotting.figure.Figure.ygrid`
-.. |axis|   replace:: :class:`~bokeh.plotting.figure.Figure.axis`
-.. |xaxis|  replace:: :class:`~bokeh.plotting.figure.Figure.xaxis`
-.. |yaxis|  replace:: :class:`~bokeh.plotting.figure.Figure.yaxis`
 
 .. |output_file|     replace:: :func:`~bokeh.io.output_file`
 .. |output_notebook| replace:: :func:`~bokeh.io.output_notebook`
 .. |save|            replace:: :func:`~bokeh.io.save`
 .. |show|            replace:: :func:`~bokeh.io.show`
-
-.. |ColumnDataSource| replace:: :class:`~bokeh.models.sources.ColumnDataSource`
-.. |DatetimeAxis|     replace:: :class:`~bokeh.models.axes.DatetimeAxis`
-.. |Line|             replace:: :class:`~bokeh.models.glyphs.Line`
 
 .. |Figure.circle|   replace:: :func:`~bokeh.plotting.figure.Figure.circle`
 .. |Figure.line|     replace:: :func:`~bokeh.plotting.figure.Figure.line`

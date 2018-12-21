@@ -137,20 +137,7 @@ exclude_patterns = ['docs/releases/*']
 
 # This would more properly be done with rst_epilog but something about
 # the combination of this with the bokeh-gallery directive breaks the build
-rst_prolog = """
-.. |Color|              replace:: :py:class:`~bokeh.core.properties.Color`
-.. |DataSpec|           replace:: :py:class:`~bokeh.core.properties.DataSpec`
-.. |Document|           replace:: :py:class:`~bokeh.document.Document`
-.. |HasProps|           replace:: :py:class:`~bokeh.core.has_props.HasProps`
-.. |Model|              replace:: :py:class:`~bokeh.model.Model`
-.. |Property|           replace:: :py:class:`~bokeh.core.property.bases.Property`
-.. |PropertyDescriptor| replace:: :py:class:`~bokeh.core.property.descriptor.PropertyDescriptor`
-.. |PropertyContainer|  replace:: :py:class:`~bokeh.core.property.wrappers.PropertyContainer`
-.. |UnitsSpec|          replace:: :py:class:`~bokeh.core.properties.UnitsSpec`
-
-.. |field|              replace:: :py:func:`~bokeh.core.properties.field`
-.. |value|              replace:: :py:func:`~bokeh.core.properties.value`
-"""
+rst_prolog = open(join(dirname(__file__), '..', 'prolog.rst')).read()
 
 # -- Options for HTML output ---------------------------------------------------
 

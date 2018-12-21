@@ -143,7 +143,7 @@ code to create sessions and documents for all browsers that connect:
     creating a new document, just for that session.
 
 The application code is executed in the Bokeh server every time a new
-connection is made, to create the new Bokeh ``Document`` that will be synced
+connection is made, to create the new Bokeh |Document| that will be synced
 to the browser. The application code also sets up any callbacks that should be
 run whenever properties such as widget values are changes.
 
@@ -390,13 +390,13 @@ JavaScript Callbacks in the Browser
 '''''''''''''''''''''''''''''''''''
 
 Regardless of whether there is a Bokeh Server involved, it is possible to
-create callbacks that execute in the browser, using ``CustomJS`` and other
+create callbacks that execute in the browser, using |CustomJS| and other
 methods. See :ref:`userguide_interaction_jscallbacks` for more detailed
 information and examples.
 
 It is critical to note that **no python code is ever executed when a CustomJS
 callback is used**. This is true even when the call back is supplied as python
-code to be translated to JavaScript. A ``CustomJS`` callback is only executed
+code to be translated to JavaScript. A |CustomJS| callback is only executed
 inside the browser's JavaScript interpreter, and thus can only directly interact
 with JavaScript data and functions (e.g., BokehJS models).
 
@@ -602,7 +602,7 @@ any or all of the following conventionally named functions:
         pass
 
 Additionally, ``on_session_destroyed`` lifecycle hooks may also be defined
-directly on the ``Document`` being served. Since the task of cleaning up after
+directly on the |Document| being served. Since the task of cleaning up after
 a user closes a session is common, e.g. to shut down a database connection,
 this provides an easy route to performing such actions without bundling
 a separate file. To declare such a callback define a function and register

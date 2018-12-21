@@ -119,7 +119,7 @@ class Figure(Plot):
 
     * :func:`~bokeh.plotting.figure.Figure.hexbin`
 
-    In addition to all the ``Figure`` property attributes, the following
+    In addition to all the |Figure| property attributes, the following
     options are also accepted:
 
     .. bokeh-options:: FigureOptions
@@ -830,7 +830,7 @@ Examples:
 
         Returns
             (Glyphrender, DataFrame)
-                A tuple with the ``HexTile`` renderer generated to display the
+                A tuple with the |HexTile| renderer generated to display the
                 binning, and a Pandas ``DataFrame`` with columns ``q``, ``r``,
                 and ``count``, where ``q`` and ``r`` are `axial coordinates`_
                 for a tile, and ``count`` is the associated bin count.
@@ -876,7 +876,7 @@ Examples:
         return (r, bins)
 
     def hbar_stack(self, stackers, **kw):
-        ''' Generate multiple ``HBar`` renderers for levels stacked left to right.
+        ''' Generate multiple |HBar| renderers for levels stacked left to right.
 
         Args:
             stackers (seq[str]) : a list of data source field names to stack
@@ -895,9 +895,9 @@ Examples:
 
         Examples:
 
-            Assuming a ``ColumnDataSource`` named ``source`` with columns
+            Assuming a |ColumnDataSource| named ``source`` with columns
             *2106* and *2017*, then the following call to ``hbar_stack`` will
-            will create two ``HBar`` renderers that stack:
+            will create two |HBar| renderers that stack:
 
             .. code-block:: python
 
@@ -917,7 +917,7 @@ Examples:
         return result
 
     def vbar_stack(self, stackers, **kw):
-        ''' Generate multiple ``VBar`` renderers for levels stacked bottom
+        ''' Generate multiple |VBar| renderers for levels stacked bottom
         to top.
 
         Args:
@@ -937,9 +937,9 @@ Examples:
 
         Examples:
 
-            Assuming a ``ColumnDataSource`` named ``source`` with columns
+            Assuming a |ColumnDataSource| named ``source`` with columns
             *2016* and *2017*, then the following call to ``vbar_stack`` will
-            will create two ``VBar`` renderers that stack:
+            will create two |VBar| renderers that stack:
 
             .. code-block:: python
 
@@ -971,7 +971,7 @@ Examples:
                 for the graph edges. An attempt will be made to convert the object to
                 :class:`~bokeh.models.sources.ColumnDataSource` if needed. If none is supplied, one is created
                 for the user automatically.
-            layout_provider (:class:`~bokeh.models.graphs.LayoutProvider`) : a ``LayoutProvider`` instance to
+            layout_provider (:class:`~bokeh.models.graphs.LayoutProvider`) : a |LayoutProvider| instance to
                 provide the graph coordinates in Cartesian space.
             **kwargs: :ref:`userguide_styling_line_properties` and :ref:`userguide_styling_fill_properties`
         '''

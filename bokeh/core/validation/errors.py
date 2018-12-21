@@ -32,7 +32,7 @@ validation checks.
     is type field.
 
 1007 *(MISSING_MERCATOR_DIMENSION)*
-    ``MercatorTicker`` and ``MercatorTickFormatter``models must have their
+    |MercatorTicker| and |MercatorTickFormatter| models must have their
     ``dimension`` property set to ``'lat'`` or ``'lon'``.
 
 1008 *(REQUIRED_SCALE)*
@@ -44,7 +44,7 @@ validation checks.
     dimension (will result in blank plot).
 
 1010 *(CDSVIEW_SOURCE_DOESNT_MATCH)*
-    A |GlyphRenderer| has a ``CDSView`` whose source doesn't match the ``GlyphRenderer``'s
+    A |GlyphRenderer| has a |CDSView| whose source doesn't match the |GlyphRenderer|'s
     data source.
 
 1011 *(MALFORMED_GRAPH_SOURCE)*
@@ -54,25 +54,25 @@ validation checks.
     Map plots can only support ``Range1d`` types, not data ranges.
 
 1013 *(INCOMPATIBLE_POINT_DRAW_RENDERER)*
-    The ``PointDrawTool`` renderers may only reference ``XYGlyph`` models.
+    The |PointDrawTool| renderers may only reference |XYGlyph| models.
 
 1014 *(INCOMPATIBLE_BOX_EDIT_RENDERER)*
-    The ``BoxEditTool`` renderers may only reference ``Rect`` glyph models.
+    The |BoxEditTool| renderers may only reference |Rect| glyph models.
 
 1015 *(INCOMPATIBLE_POLY_DRAW_RENDERER)*
-    The ``PolyDrawTool`` renderers may only reference ``MultiLine`` and ``Patches`` glyph models.
+    The |PolyDrawTool| renderers may only reference |MultiLine| and |Patches| glyph models.
 
 1016 *(INCOMPATIBLE_POLY_EDIT_RENDERER)*
-    The ``PolyEditTool`` renderers may only reference ``MultiLine`` and ``Patches`` glyph models.
+    The |PolyEditTool| renderers may only reference |MultiLine| and |Patches| glyph models.
 
 1017 *(INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER)*
-    The ``PolyEditTool`` vertex_renderer may only reference ``XYGlyph`` models.
+    The |PolyEditTool| vertex_renderer may only reference |XYGlyph| models.
 
 1018 *(NO_RANGE_TOOL_RANGES)*
-    The ``RangeTool`` must have at least one of ``x_range`` or ``y_range`` configured
+    The |RangeTool| must have at least one of ``x_range`` or ``y_range`` configured
 
 1019 *(DUPLICATE_FACTORS)*
-    ``FactorRange`` must specify a unique list of categorical factors for an axis.
+    |FactorRange| must specify a unique list of categorical factors for an axis.
 
 1020 *(BAD_EXTRA_RANGE_NAME)*
     An extra range name is configured with a name that does not correspond to any range.

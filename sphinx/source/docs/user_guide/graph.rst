@@ -9,7 +9,7 @@ configurable interactions between edges and nodes.
 Edge and Node Renderers
 -----------------------
 
-The key feature of the ``GraphRenderer`` is that it maintains separate
+The key feature of the |GraphRenderer| is that it maintains separate
 sub-GlyphRenderers for the graph nodes and the graph edges. This allows for
 customizing the nodes by modifying the GraphRenderer's ``node_renderer``
 property. It's possible to replace the default Circle node glyph with any
@@ -69,7 +69,7 @@ in the following section.
 Layout Providers
 ----------------
 
-Bokeh uses a separate ``LayoutProvider`` model in order to supply the coordinates
+Bokeh uses a separate |LayoutProvider| model in order to supply the coordinates
 of a graph in Cartesian space. Currently the only built-in provider is the
 :class:`~bokeh.models.graphs.StaticLayoutProvider` model, which contains a
 dictionary of (x,y) coordinates for the nodes.
@@ -119,7 +119,7 @@ Interaction Policies
 
 It's possible to configure the selection or inspection behavior of graphs by
 setting the GraphRenderer's ``selection_policy`` and ``inspection_policy``
-attributes. These policy attributes accept a special ``GraphHitTestPolicy``
+attributes. These policy attributes accept a special |GraphHitTestPolicy|
 model instance.
 
 For example, setting ``selection_policy=NodesAndLinkedEdges()`` will cause

@@ -209,13 +209,13 @@ class ColumnData(Dict):
     ''' Accept a Python dictionary suitable as the ``data`` attribute of a
     :class:`~bokeh.models.sources.ColumnDataSource`.
 
-    This class is a specialization of ``Dict`` that handles efficiently
+    This class is a specialization of |Dict| that handles efficiently
     encoding columns that are NumPy arrays.
 
     '''
 
     def make_descriptors(self, base_name):
-        ''' Return a list of ``ColumnDataPropertyDescriptor`` instances to
+        ''' Return a list of |ColumnDataPropertyDescriptor| instances to
         install on a class, in order to delegate attribute access to this
         property.
 
@@ -225,8 +225,8 @@ class ColumnData(Dict):
         Returns:
             list[ColumnDataPropertyDescriptor]
 
-        The descriptors returned are collected by the ``MetaHasProps``
-        metaclass and added to ``HasProps`` subclasses during class creation.
+        The descriptors returned are collected by the |MetaHasProps|
+        metaclass and added to |HasProps| subclasses during class creation.
         '''
         return [ ColumnDataPropertyDescriptor(base_name, self) ]
 

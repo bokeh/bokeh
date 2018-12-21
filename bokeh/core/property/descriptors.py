@@ -13,7 +13,7 @@ class properties that can automatically validate and serialize their
 values, as well as help provide sophisticated documentation.
 
 A Bokeh property really consist of two parts: a familiar "property"
-portion, such as ``Int``, ``String``, etc., as well as an associated
+portion, such as |Int|, |String|, etc., as well as an associated
 Python descriptor that delegates attribute access to the property instance.
 
 For example, a very simplified definition of a range-like object might
@@ -28,10 +28,10 @@ be:
         start = Float(help="start point")
         end   = Float(help="end point")
 
-When this class is created, the ``MetaHasProps`` metaclass wires up both
-the ``start`` and ``end`` attributes to a ``Float`` property. Then, when
+When this class is created, the |MetaHasProps| metaclass wires up both
+the ``start`` and ``end`` attributes to a |Float| property. Then, when
 a user accesses those attributes, the descriptor delegates all get and
-set operations to the ``Float`` property.
+set operations to the |Float| property.
 
 .. code-block:: python
 
@@ -45,9 +45,9 @@ set operations to the ``Float`` property.
     # is made
     rng.end = [1,2,3]   # ValueError !
 
-More sophisticated properties such as ``DataSpec`` and its subclasses can
+More sophisticated properties such as |DataSpec| and its subclasses can
 exert control over how values are serialized. Consider this example with
-the ``Circle`` glyph and its ``x`` attribute that is a ``NumberSpec``:
+the |Circle| glyph and its ``x`` attribute that is a |NumberSpec|:
 
 .. code-block:: python
 
@@ -135,7 +135,7 @@ class PropertyDescriptor(object):
         self.name = name
 
     def __str__(self):
-        ''' Basic string representation of ``PropertyDescriptor``.
+        ''' Basic string representation of |PropertyDescriptor|.
 
         **Subclasses must implement this to serve their specific needs.**
 
@@ -219,7 +219,7 @@ class PropertyDescriptor(object):
     # on (descriptor, property). Currently this method has to know about
     # various other classes, and that is annoying.
     def add_prop_descriptor_to_class(self, class_name, new_class_attrs, names_with_refs, container_names, dataspecs):
-        ''' ``MetaHasProps`` calls this during class creation as it iterates
+        ''' |MetaHasProps| calls this during class creation as it iterates
         over properties to add, to update its registry of new properties.
 
         The parameters passed in are mutable and this function is expected to
@@ -347,9 +347,9 @@ class PropertyDescriptor(object):
 
     @property
     def has_ref(self):
-        ''' Whether the property can refer to another ``HasProps`` instance.
+        ''' Whether the property can refer to another |HasProps| instance.
 
-        This is typically True for container properties, ``Instance``, etc.
+        This is typically True for container properties, |Instance|, etc.
 
         Raises:
             NotImplementedError
@@ -435,8 +435,8 @@ class PropertyDescriptor(object):
         raise NotImplementedError("Implement _internal_set()")
 
 class BasicPropertyDescriptor(PropertyDescriptor):
-    ''' A ``PropertyDescriptor`` for basic Bokeh properties (e.g, ``Int``,
-    ``String``, ``Float``, etc.) with simple get/set and serialization
+    ''' A |PropertyDescriptor| for basic Bokeh properties (e.g, |Int|,
+    |String|, |Float|, etc.) with simple get/set and serialization
     behavior.
 
     '''
@@ -454,7 +454,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
         self.__doc__ = self.property.__doc__
 
     def __str__(self):
-        ''' Basic string representation of ``BasicPropertyDescriptor``.
+        ''' Basic string representation of |BasicPropertyDescriptor|.
 
         Delegates to ``self.property.__str__``
 
@@ -561,7 +561,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
             del obj._unstable_default_values[self.name]
 
     def class_default(self, cls):
-        ''' Get the default value for a specific subtype of ``HasProps``,
+        ''' Get the default value for a specific subtype of |HasProps|,
         which may not be used for an individual instance.
 
         Args:
@@ -638,7 +638,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
 
     @property
     def has_ref(self):
-        ''' Whether the property can refer to another ``HasProps`` instance.
+        ''' Whether the property can refer to another |HasProps| instance.
 
         For basic properties, delegate to the ``has_ref`` attribute on the
         |Property|.
@@ -670,7 +670,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
 
     def _get(self, obj):
         ''' Internal implementation of instance attribute access for the
-        ``BasicPropertyDescriptor`` getter.
+        |BasicPropertyDescriptor| getter.
 
         If the value has not been explicitly set by a user, return that
         value. Otherwise, return the default.
@@ -916,7 +916,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
 
 
 class ColumnDataPropertyDescriptor(BasicPropertyDescriptor):
-    ''' A ``PropertyDescriptor`` specialized to handling ``ColumnData`` properties.
+    ''' A |PropertyDescriptor| specialized to handling |ColumnData| properties.
 
     '''
 
@@ -973,7 +973,7 @@ class ColumnDataPropertyDescriptor(BasicPropertyDescriptor):
         self._internal_set(obj, value, hint=hint, setter=setter)
 
 class DataSpecPropertyDescriptor(BasicPropertyDescriptor):
-    ''' A ``PropertyDescriptor`` for Bokeh |DataSpec| properties that serialize to
+    ''' A |PropertyDescriptor| for Bokeh |DataSpec| properties that serialize to
     field/value dictionaries.
 
     '''

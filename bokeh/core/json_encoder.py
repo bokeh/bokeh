@@ -26,17 +26,16 @@ In general, functions in this module convert values in the following way:
   data sources inside Bokeh Documents are converted elsewhere, and by default
   use a binary encoded format.
 
-* Bokeh ``Model`` instances are usually serialized elsewhere in the context
+* Bokeh |Model| instances are usually serialized elsewhere in the context
   of an entire Bokeh Document. Models passed trough this interface are
   converted to references.
 
-* ``HasProps`` (that are not Bokeh models) are converted to key/value dicts or
+* |HasProps| (that are not Bokeh models) are converted to key/value dicts or
   all their properties and values.
 
-* ``Color`` instances are converted to CSS color values.
+* :py:class:`~bokeh.colors.color.Color` instances are converted to CSS color values.
 
 .. |serialize_json| replace:: :class:`~bokeh.core.json_encoder.serialize_json`
-.. |BokehJSONEncoder| replace:: :class:`~bokeh.core.json_encoder.BokehJSONEncoder`
 
 '''
 

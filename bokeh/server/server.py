@@ -71,20 +71,20 @@ class BaseServer(object):
 
     * A Tornado ``IOLoop`` to run the Bokeh server machinery.
 
-    * a ``BokehTornado`` Tornado application that defines the Bokeh server
+    * a |BokehTornado| Tornado application that defines the Bokeh server
       machinery.
 
     * a Tornado ``HTTPServer`` to direct HTTP requests
 
-    All three of these components must be passed to ``BaseServer``, which will
-    initialize the ``BokehTornado`` instance on the ``io_loop``. The
+    All three of these components must be passed to |BaseServer|, which will
+    initialize the |BokehTornado| instance on the ``io_loop``. The
     ``http_server`` must have been previously created and initialized with the
-    ``BokehTornado`` instance.
+    |BokehTornado| instance.
 
     '''
 
     def __init__(self, io_loop, tornado_app, http_server):
-        ''' Create a ``BaseServer`` instance.
+        ''' Create a |BaseServer| instance.
 
         Args:
             io_loop (IOLoop) :
@@ -287,20 +287,20 @@ class Server(BaseServer):
 
     * A Tornado ``IOLoop`` to run the Bokeh server machinery.
 
-    * a ``BokehTornado`` Tornado application that defines the Bokeh server
+    * a |BokehTornado| Tornado application that defines the Bokeh server
       machinery.
 
     * a Tornado ``HTTPServer`` to direct HTTP requests
 
-    This high level ``Server`` class has some limitations. In particular, it is
+    This high level |Server| class has some limitations. In particular, it is
     not possible to set an explicit ``io_loop`` and ``num_procs`` other than 1
-    at the same time. To do that, it is necessary to use ``BaseServer`` and
+    at the same time. To do that, it is necessary to use |BaseServer| and
     coordinate the three components above explicitly.
 
     '''
 
     def __init__(self, applications, io_loop=None, http_server_kwargs=None, **kwargs):
-        ''' Create a ``Server`` instance.
+        ''' Create a |Server| instance.
 
         Args:
             applications (dict[str, Application] or Application or callable) :
@@ -316,7 +316,7 @@ class Server(BaseServer):
 
                 As a convenience, a callable may also be provided, in which
                 an Application will be created for it using
-                ``FunctionHandler``.
+                |FunctionHandler|.
 
             io_loop (IOLoop, optional) :
                 An explicit Tornado ``IOLoop`` to run Bokeh Server code on. If
@@ -333,13 +333,13 @@ class Server(BaseServer):
                 If None, no extra arguments are passed (default: None)
 
         Additionally, the following options may be passed to configure the
-        operation of ``Server``:
+        operation of |Server|:
 
         .. bokeh-options:: _ServerOpts
             :module: bokeh.server.server
 
         Any remaining keyword arguments will be passed as-is to
-        ``BokehTornado``.
+        |BokehTornado|.
 
         '''
         log.info("Starting Bokeh server version %s (running on Tornado %s)" % (__version__, tornado.version))

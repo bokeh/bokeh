@@ -60,7 +60,7 @@ __all__ = (
 class DashPattern(Either):
     ''' Accept line dash specifications.
 
-    Express patterns that describe line dashes.  ``DashPattern`` values
+    Express patterns that describe line dashes.  |DashPattern| values
     can be specified in a variety of ways:
 
     * An enum: "solid", "dashed", "dotted", "dotdash", "dashdot"

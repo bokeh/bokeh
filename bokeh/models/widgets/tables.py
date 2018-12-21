@@ -462,7 +462,7 @@ class SelectEditor(CellEditor):
     """)
 
 class PercentEditor(CellEditor):
-    ''' ``IntEditor`` optimized for editing percentages.
+    ''' |IntEditor| optimized for editing percentages.
 
     '''
 

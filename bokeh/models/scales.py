@@ -45,7 +45,7 @@ __all__ = (
 
 @abstract
 class Scale(Transform):
-    ''' Base class for ``Scale`` models that represent an invertible
+    ''' Base class for |Scale| models that represent an invertible
     computation to be carried out on the client-side.
 
     JavaScript implementations should implement the following methods:

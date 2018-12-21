@@ -56,7 +56,7 @@ class Panel(Widget):
 
     child = Instance(LayoutDOM, help="""
     The child widget. If you need more children, use a layout widget,
-    e.g. ``Row`` or ``Column``.
+    e.g. |Row| or |Column|.
     """)
 
     closable = Bool(False, help="""

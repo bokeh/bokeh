@@ -82,7 +82,7 @@ def build_single_handler_application(path, argv=None):
     have any number of handlers to initialize :class:`~bokeh.document.Document`
     objects for new client sessions. However, in many cases only a single
     handler is needed. This function examines the ``path`` provided, and
-    returns an ``Application`` initialized with one of the following handlers:
+    returns an |Application| initialized with one of the following handlers:
 
     * :class:`~bokeh.application.handlers.script.ScriptHandler` when ``path``
       is to a ``.py`` script.
@@ -180,7 +180,7 @@ def build_single_handler_applications(paths, argvs=None):
 @contextlib.contextmanager
 def report_server_init_errors(address=None, port=None, **kwargs):
     ''' A context manager to help print more informative error messages when a
-    ``Server`` cannot be started due to a network problem.
+    |Server| cannot be started due to a network problem.
 
     Args:
         address (str) : network address that the server will be listening on

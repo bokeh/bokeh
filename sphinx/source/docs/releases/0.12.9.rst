@@ -35,12 +35,12 @@ been removed. Bokeh no longer offers or attempts any automatic MPL conversion.
 Table Date Formatter Changes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A regression in ``0.12.7`` caused the ``DateFormatter`` to stop functioning.
+A regression in ``0.12.7`` caused the |DateFormatter| to stop functioning.
 The problem has been fixed, however instead of the previously accepted JQuery
 style formats, the``format`` property now only accepts
 
 * standard `strftime`_ format strings (making it consistent with
-  ``DatetimeTickFormatter``)
+  |DatetimeTickFormatter|)
 * any of the following additional predefined formats names:
 
   ================================================ ================== ===================

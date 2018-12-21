@@ -7,12 +7,12 @@
 ''' Provide a Base class for all Bokeh properties.
 
 Bokeh properties work by contributing Python descriptor objects to
-``HasProps`` classes. These descriptors then delegate attribute access back
+|HasProps| classes. These descriptors then delegate attribute access back
 to the Bokeh property class, which handles validation, serialization, and
 documentation needs.
 
-The ``PropertyDescriptorFactory`` class provides two methods ``autocreate`` and
-``make_descriptors`` that are used by the metaclass ``MetaHasProps`` during
+The |PropertyDescriptorFactory| class provides two methods ``autocreate`` and
+``make_descriptors`` that are used by the metaclass |MetaHasProps| during
 class creation to create and install the necessary descriptors corresponding
 to the declared properties.
 
@@ -83,7 +83,7 @@ class PropertyDescriptorFactory(object):
     ''' Base class for all Bokeh properties.
 
     A Bokeh property really consist of two parts: the familiar "property"
-    portion, such as ``Int``, ``String``, etc., as well as an associated
+    portion, such as |Int|, |String|, etc., as well as an associated
     Python descriptor that delegates attribute access (e.g. ``range.start``)
     to the property instance.
 
@@ -115,7 +115,7 @@ class PropertyDescriptorFactory(object):
 
     @classmethod
     def autocreate(cls):
-        ''' Called by the ``MetaHasProps`` metaclass to create a new instance
+        ''' Called by the |MetaHasProps| metaclass to create a new instance
         of this descriptor when the property is assigned using only the
         property type. For example:
 
@@ -129,7 +129,7 @@ class PropertyDescriptorFactory(object):
         return cls()
 
     def make_descriptors(self, name):
-        ''' Return a list of ``PropertyDescriptor`` instances to install on a
+        ''' Return a list of |PropertyDescriptor| instances to install on a
         class, in order to delegate attribute access to this property.
 
         Args:
@@ -138,10 +138,10 @@ class PropertyDescriptorFactory(object):
         Returns:
             list[PropertyDescriptor]
 
-        The descriptors returned are collected by the ``MetaHasProps``
-        metaclass and added to ``HasProps`` subclasses during class creation.
+        The descriptors returned are collected by the |MetaHasProps|
+        metaclass and added to |HasProps| subclasses during class creation.
 
-        Subclasses of ``PropertyDescriptorFactory`` are responsible for
+        Subclasses of |PropertyDescriptorFactory| are responsible for
         implementing this function to return descriptors specific to their
         needs.
 

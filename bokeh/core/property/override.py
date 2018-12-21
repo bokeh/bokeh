@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide the ``Override`` class, for overriding base class property
+''' Provide the |Override| class, for overriding base class property
 attributes.
 
 .. note::
@@ -48,9 +48,9 @@ class Override(object):
 
     When subclassing a Bokeh Model, it may be desirable to change some of the
     attributes of the property itself, from those on the base class. This is
-    accomplished using the ``Override`` class.
+    accomplished using the |Override| class.
 
-    Currently, ``Override`` can only be use to override the ``default`` value
+    Currently, |Override| can only be use to override the ``default`` value
     for the property.
 
     Keyword Args:

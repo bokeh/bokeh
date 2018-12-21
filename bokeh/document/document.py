@@ -4,10 +4,10 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide the ``Document`` class, which is a container for Bokeh Models to
+''' Provide the |Document| class, which is a container for Bokeh Models to
 be reflected to the client side BokehJS library.
 
-As a concrete example, consider a column layout with ``Slider`` and ``Select``
+As a concrete example, consider a column layout with |Slider| and |Select|
 widgets, and a plot with some tools, an axis and grid, and a glyph renderer
 for circles. A simplified representation oh this document might look like the
 figure below:
@@ -85,7 +85,7 @@ class Document(object):
     etc.) so that they may be reflected into the BokehJS client runtime.
     Because models may refer to other models (e.g., a plot *has* a list of
     renderers), it is not generally useful or meaningful to convert individual
-    models to JSON. Accordingly,  the ``Document`` is thus the smallest unit
+    models to JSON. Accordingly,  the |Document| is thus the smallest unit
     of serialization for Bokeh.
 
     '''
@@ -144,7 +144,7 @@ class Document(object):
 
     @property
     def session_context(self):
-        ''' The ``SessionContext`` for this document.
+        ''' The |SessionContext| for this document.
 
         '''
         return self._session_context
@@ -172,7 +172,7 @@ class Document(object):
 
     @property
     def theme(self):
-        ''' The current ``Theme`` instance affecting models in this Document.
+        ''' The current |Theme| instance affecting models in this Document.
 
         Setting this to ``None`` sets the default theme. (i.e this property
         never returns ``None``.)
@@ -623,7 +623,7 @@ class Document(object):
         .. note::
             ``hold`` only applies to document change events, i.e. setting
             properties on models. It does not apply to events such as
-            ``ButtonClick``, etc.
+            |ButtonClick|, etc.
 
         '''
         if self._hold is not None and self._hold != policy:

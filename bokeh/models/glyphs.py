@@ -36,7 +36,7 @@ The full list of glyphs built into Bokeh is given below:
 * :class:`~bokeh.models.glyphs.Wedge`
 
 All these glyphs share a minimal common interface through their base class
-``Glyph``:
+|Glyph|:
 
 .. autoclass:: Glyph
     :members:
@@ -422,11 +422,11 @@ class HexTile(Glyph):
 class Image(XYGlyph):
     ''' Render images given as scalar data together with a color mapper.
 
-    In addition to the defined model properties, ``Image`` also can accept
+    In addition to the defined model properties, |Image| also can accept
     a keyword argument ``palette`` in place of an explicit ``color_mapper``.
     The value should be a list of colors, or the name of one of the built-in
     palettes in ``bokeh.palettes``. This palette will be used to automatically
-    construct a ``ColorMapper`` model for the ``color_mapper`` property.
+    construct a |ColorMapper| model for the ``color_mapper`` property.
 
     If both ``palette`` and ``color_mapper`` are passed, a ``ValueError``
     exception will be raised. If neither is passed, then the ``Greys9``
@@ -499,7 +499,7 @@ class Image(XYGlyph):
     """)
 
     color_mapper = Instance(ColorMapper, help="""
-    A ``ColorMapper`` to use to map the scalar data from ``image``
+    A |ColorMapper| to use to map the scalar data from ``image``
     into RGBA values for display.
 
     .. note::
@@ -638,7 +638,7 @@ class ImageURL(XYGlyph):
 class Line(XYGlyph):
     ''' Render a single line.
 
-    The ``Line`` glyph is different from most other glyphs in that the vector
+    The |Line| glyph is different from most other glyphs in that the vector
     of values only produces one glyph on the Plot.
 
     '''
@@ -663,7 +663,7 @@ class Line(XYGlyph):
 class MultiLine(Glyph):
     ''' Render several lines.
 
-    The data for the ``MultiLine`` glyph is different in that the vector of
+    The data for the |MultiLine| glyph is different in that the vector of
     values is not a vector of scalars. Rather, it is a "list of lists".
 
     '''
@@ -689,7 +689,7 @@ class MultiLine(Glyph):
 class MultiPolygons(Glyph):
     ''' Render several MultiPolygon.
 
-    Modeled on geoJSON - the data for the ``MultiPolygons`` glyph is
+    Modeled on geoJSON - the data for the |MultiPolygons| glyph is
     different in that the vector of values is not a vector of scalars.
     Rather, it is a "list of lists of lists of lists".
     '''
@@ -704,7 +704,7 @@ class MultiPolygons(Glyph):
     The x-coordinates for all the patches, given as a nested list.
 
     .. note::
-        Each item in ``MultiPolygons`` represents one MultiPolygon and each
+        Each item in |MultiPolygons| represents one MultiPolygon and each
         MultiPolygon is comprised of ``n`` Polygons. Each Polygon is made of
         one exterior ring optionally followed by ``m`` interior rings (holes).
     """)
@@ -713,7 +713,7 @@ class MultiPolygons(Glyph):
     The y-coordinates for all the patches, given as a "list of lists".
 
     .. note::
-        Each item in ``MultiPolygons`` represents one MultiPolygon and each
+        Each item in |MultiPolygons| represents one MultiPolygon and each
         MultiPolygon is comprised of ``n`` Polygons. Each Polygon is made of
         one exterior ring optionally followed by ``m`` interior rings (holes).
     """)
@@ -731,7 +731,7 @@ class Oval(XYGlyph):
 
     This glyph renders ovals using Bezier curves, which are similar,
     but not identical to ellipses. In particular, widths equal to heights
-    will not render circles. Use the ``Ellipse`` glyph for that.
+    will not render circles. Use the |Ellipse| glyph for that.
 
     '''
 
@@ -772,7 +772,7 @@ class Oval(XYGlyph):
 class Patch(XYGlyph):
     ''' Render a single patch.
 
-    The ``Patch`` glyph is different from most other glyphs in that the vector
+    The |Patch| glyph is different from most other glyphs in that the vector
     of values only produces one glyph on the Plot.
 
     '''
@@ -812,7 +812,7 @@ class Patch(XYGlyph):
 class Patches(Glyph):
     ''' Render several patches.
 
-    The data for the ``Patches`` glyph is different in that the vector of
+    The data for the |Patches| glyph is different in that the vector of
     values is not a vector of scalars. Rather, it is a "list of lists".
 
     '''

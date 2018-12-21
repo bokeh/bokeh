@@ -22,11 +22,11 @@ Gestures
 
 :ref:`userguide_tools_actions`
     These  are immediate or modal operations that are only activated when their
-    button in the toolbar is pressed, such as the ``ResetTool``.
+    button in the toolbar is pressed, such as the |ResetTool|.
 
 :ref:`userguide_tools_inspectors`
     These are passive tools that report information or annotate plots in some
-    way, such as the ``HoverTool`` or ``CrosshairTool``.
+    way, such as the |HoverTool| or |CrosshairTool|.
 
 :ref:`userguide_tools_edit`
     These are sophisticated multi-gesture tools that can add, delete, or modify
@@ -74,8 +74,8 @@ to outside of the region where the axis is drawn.
 Specifying Tools
 ----------------
 
-At the lowest ``bokeh.models`` level, tools are added to a ``Plot`` by
-passing instances of ``Tool`` objects to the ``add_tools`` method:
+At the lowest ``bokeh.models`` level, tools are added to a |Plot| by
+passing instances of |Tool| objects to the ``add_tools`` method:
 
 .. code-block:: python
 
@@ -83,8 +83,8 @@ passing instances of ``Tool`` objects to the ``add_tools`` method:
     plot.add_tools(LassoSelectTool())
     plot.add_tools(WheelZoomTool())
 
-This explicit way of adding tools works with any Bokeh ``Plot`` or
-``Plot`` subclass, such as ``Figure``.
+This explicit way of adding tools works with any Bokeh |Plot| or
+|Plot| subclass, such as |Figure|.
 
 Tools can be specified by passing the ``tools`` parameter to the |figure|
 function. The tools parameter accepts a list of tool objects, for instance:
@@ -126,14 +126,15 @@ tools, to be active.
 However it is possible to exert control over which tool is active. At the
 lowest ``bokeh.models`` level, this is accomplished by using the ``active_drag``,
 ``active_inspect``, ``active_scroll``, and ``active_tap`` properties of
-``Toolbar``. These properties can take the following values:
+|Toolbar|. These properties can take the following values:
 
 * ``None`` --- there is no active tool of this kind
 * ``"auto"`` --- Bokeh chooses a tool of this kind to be active (possibly none)
-* a ``Tool`` instance --- Bokeh sets the given tool to be the active tool
+* a |Tool| instance --- Bokeh sets the given tool to be the active tool
 
 Additionally, the ``active_inspect`` tool may accept:
-* A sequence of ``Tool`` instances to be set as the active tools
+
+* A sequence of |Tool| instances to be set as the active tools
 
 As an example:
 
@@ -450,7 +451,7 @@ in data or screen space. These special fields are listed here:
     and ``swatch`` to also display a small color swatch.
 
 Field names that begin with ``@`` are associated with columns in a
-``ColumnDataSource``. For instance the field name ``"@price"`` will display
+|ColumnDataSource|. For instance the field name ``"@price"`` will display
 values from the ``"price"`` column whenever a hover is triggered. If the hover
 is for the 17th glyph, then the hover tooltip will correspondingly display
 the 17th price value.
@@ -544,7 +545,7 @@ Note that format specifications are also compatible with column names that
 have spaces. For example ```@{adjusted close}{($ 0.00 a)}`` applies a format
 to a column named "adjusted close".
 
-The example code below shows explicitly configuring a ``HoverTool`` with
+The example code below shows explicitly configuring a |HoverTool| with
 different formatters for different fields:
 
 .. code-block:: python
@@ -581,7 +582,7 @@ Image Hover
 '''''''''''
 
 The hover tool can be used to inspect image glyphs which may contain
-layers of data in the corresponding ``ColumnDataSource``:
+layers of data in the corresponding |ColumnDataSource|:
 
 .. bokeh-plot:: docs/user_guide/examples/tools_hover_tooltips_image.py
     :source-position: above
@@ -613,7 +614,7 @@ Edit Tools
 ----------
 
 The edit tools provide functionality for drawing and editing glyphs
-client-side by adding, modifying and deleting ``ColumnDataSource``
+client-side by adding, modifying and deleting |ColumnDataSource|
 data.
 
 All the edit tools share a small number of key bindings:
@@ -637,9 +638,9 @@ BoxEditTool
 * name: ``'box_edit'``
 * menu icon: |box_edit_icon|
 
-The BoxEditTool allows drawing, dragging and deleting ``Rect`` glyphs
+The BoxEditTool allows drawing, dragging and deleting |Rect| glyphs
 on one or more renderers by editing the underlying
-``ColumnDataSource`` data. Like other drawing tools, the renderers
+|ColumnDataSource| data. Like other drawing tools, the renderers
 that are to be edited must be supplied explicitly as a list:
 
 .. code-block:: python
@@ -652,7 +653,7 @@ The tool will automatically modify the columns on the data source
 corresponding to the ``x``, ``y``, ``width`` and ``height`` values of
 the glyph. Any additional columns in the data source will be padded
 with the declared ``empty_value``, when adding a new box. When drawing
-a new box the data will always be added to the ``ColumnDataSource`` on
+a new box the data will always be added to the |ColumnDataSource| on
 the first supplied renderer.
 
 It is also often useful to limit the number of elements that can be
@@ -668,7 +669,7 @@ space for the new box being added.
 
 The animation above shows the supported tool actions, highlighting
 mouse actions with a circle around the cursor and key strokes by
-showing the pressed keys. The ``BoxEditTool`` can **Add**, **Move**
+showing the pressed keys. The |BoxEditTool| can **Add**, **Move**
 and **Delete** boxes on plots:
 
 Add box
@@ -705,9 +706,9 @@ FreehandDrawTool
 * name: ``'freehand_draw'``
 * menu icon: |freehand_draw_icon|
 
-The ``FreehandDrawTool`` allows freehand drawing of lines and polygons
-using the ``Patches`` and ``MultiLine`` glyphs, by editing the
-underlying ``ColumnDataSource`` data. Like other drawing tools, the
+The |FreehandDrawTool| allows freehand drawing of lines and polygons
+using the |Patches| and |MultiLine| glyphs, by editing the
+underlying |ColumnDataSource| data. Like other drawing tools, the
 renderers that are to be edited must be supplied explicitly as a
 list:
 
@@ -720,7 +721,7 @@ The tool will automatically modify the columns on the data source
 corresponding to the ``xs`` and ``ys`` values of the glyph. Any
 additional columns in the data source will be padded with the declared
 ``empty_value``, when adding a new point. Any newly added patch or
-multi-line will be inserted on the ``ColumnDataSource`` of the first
+multi-line will be inserted on the |ColumnDataSource| of the first
 supplied renderer.
 
 It is also often useful to limit the number of elements that can be
@@ -736,7 +737,7 @@ queue to make space for the new patch/multi-line being added.
 
 The animation above shows the supported tool actions, highlighting
 mouse actions with a circle around the cursor and key strokes by
-showing the pressed keys. The ``PolyDrawTool`` can **Draw** and
+showing the pressed keys. The |PolyDrawTool| can **Draw** and
 **Delete** patches and multi-lines:
 
 Draw patch/multi-line
@@ -759,9 +760,9 @@ PointDrawTool
 * name: ``'point_draw'``
 * menu icon: |point_draw_icon|
 
-The ``PointDrawTool`` allows adding, dragging and deleting point-like
-glyphs (of ``XYGlyph`` type) on one or more renderers by editing the
-underlying ``ColumnDataSource`` data. Like other drawing tools, the
+The |PointDrawTool| allows adding, dragging and deleting point-like
+glyphs (of |XYGlyph| type) on one or more renderers by editing the
+underlying |ColumnDataSource| data. Like other drawing tools, the
 renderers that are to be edited must be supplied explicitly as a
 list:
 
@@ -775,7 +776,7 @@ The tool will automatically modify the columns on the data source
 corresponding to the ``x`` and ``y`` values of the glyph. Any
 additional columns in the data source will be padded with the declared
 ``empty_value``, when adding a new point. Any newly added points will
-be inserted on the ``ColumnDataSource`` of the first supplied
+be inserted on the |ColumnDataSource| of the first supplied
 renderer.
 
 It is also often useful to limit the number of elements that can be
@@ -825,9 +826,9 @@ PolyDrawTool
 * name: ``'poly_draw'``
 * menu icon: |poly_draw_icon|
 
-The ``PolyDrawTool`` allows drawing, selecting and deleting
-``Patches`` and ``MultiLine`` glyphs on one or more renderers by
-editing the underlying ``ColumnDataSource`` data. Like other drawing
+The |PolyDrawTool| allows drawing, selecting and deleting
+|Patches| and |MultiLine| glyphs on one or more renderers by
+editing the underlying |ColumnDataSource| data. Like other drawing
 tools, the renderers that are to be edited must be supplied explicitly
 as a list.
 
@@ -835,7 +836,7 @@ The tool will automatically modify the columns on the data source
 corresponding to the ``xs`` and ``ys`` values of the glyph. Any
 additional columns in the data source will be padded with the declared
 ``empty_value``, when adding a new point. Any newly added patch or
-multi-line will be inserted on the ``ColumnDataSource`` of the first
+multi-line will be inserted on the |ColumnDataSource| of the first
 supplied renderer.
 
 It is also often useful to limit the number of elements that can be
@@ -856,7 +857,7 @@ ability to snap to existing vertices while drawing.
 
 The animation above shows the supported tool actions, highlighting
 mouse actions with a circle around the cursor and key strokes by
-showing the pressed keys. The ``PolyDrawTool`` can **Add**, **Move**
+showing the pressed keys. The |PolyDrawTool| can **Add**, **Move**
 and **Delete** patches and multi-lines:
 
 Add patch/multi-line
@@ -883,10 +884,10 @@ PolyEditTool
 * menu icon: |poly_edit_icon|
 
 The PolyEditTool allows editing the vertices of one or more
-``Patches`` or ``MultiLine`` glyphs. The glyphs to be edited can
+|Patches| or |MultiLine| glyphs. The glyphs to be edited can
 be defined via the ``renderers`` property and the renderer for the
 vertices can be defined via the ``vertex_renderer``, which must
-render a point-like Glyph (of ``XYGlyph`` type).
+render a point-like Glyph (of |XYGlyph| type).
 
 The tool will automatically modify the columns on the data source
 corresponding to the ``xs`` and ``ys`` values of the glyph. Any
@@ -900,7 +901,7 @@ additional columns in the data source will be padded with the declared
 
 The animation above shows the supported tool actions, highlighting
 mouse actions with a circle around the cursor and key strokes by
-showing the pressed keys. The ``PolyEditTool`` can **Add**, **Move**
+showing the pressed keys. The |PolyEditTool| can **Add**, **Move**
 and **Delete** vertices on existing patches and multi-lines:
 
 Show vertices
@@ -958,16 +959,7 @@ properties on |Plot| objects that control LOD behavior:
     :module: bokeh.models.plots
 
 
-.. |Plot| replace:: :class:`~bokeh.models.plots.Plot`
-
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
-
-.. |HoverTool| replace:: :class:`~bokeh.models.tools.HoverTool`
-.. |CustomJSHover| replace:: :class:`~bokeh.models.tools.CustomJSHover`
-
-.. |NumeralTickFormatter| replace:: :class:`~bokeh.models.formatters.NumeralTickFormatter`
-.. |DatetimeTickFormatter| replace:: :class:`~bokeh.models.formatters.DatetimeTickFormatter`
-.. |PrintfTickFormatter| replace:: :class:`~bokeh.models.formatters.PrintfTickFormatter`
 
 .. |hover_basic| image:: /_images/hover_basic.png
 

@@ -207,7 +207,7 @@ class Message(object):
         Args:
             conn (object) :
                 May be any object with a ``write_message`` method. Typically,
-                a Tornado ``WSHandler`` or ``WebSocketClientConnection``
+                a Tornado |WSHandler| or ``WebSocketClientConnection``
 
             locked (bool) :
 

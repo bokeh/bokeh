@@ -48,7 +48,7 @@ __all__ = (
 
 class Filter(Model):
     ''' A Filter model represents a filtering operation that returns a row-wise subset of
-    data when applied to a ``ColumnDataSource``.
+    data when applied to a |ColumnDataSource|.
     '''
 
     filter = Either(Seq(Int), Seq(Bool), help="""
@@ -62,7 +62,7 @@ class Filter(Model):
         super(Filter, self).__init__(**kw)
 
 class IndexFilter(Filter):
-    ''' An ``IndexFilter`` filters data by returning the subset of data at a given set of indices.
+    ''' An |IndexFilter| filters data by returning the subset of data at a given set of indices.
     '''
 
     indices = Seq(Int, help="""
@@ -76,7 +76,7 @@ class IndexFilter(Filter):
         super(IndexFilter, self).__init__(**kw)
 
 class BooleanFilter(Filter):
-    ''' A ``BooleanFilter`` filters data by returning the subset of data corresponding to indices
+    ''' A |BooleanFilter| filters data by returning the subset of data corresponding to indices
     where the values of the booleans array is True.
     '''
 
@@ -91,7 +91,7 @@ class BooleanFilter(Filter):
         super(BooleanFilter, self).__init__(**kw)
 
 class GroupFilter(Filter):
-    ''' A ``GroupFilter`` represents the rows of a ``ColumnDataSource`` where the values of the categorical
+    ''' A |GroupFilter| represents the rows of a |ColumnDataSource| where the values of the categorical
     column column_name match the group variable.
     '''
 
@@ -123,11 +123,11 @@ class CustomJSFilter(Filter):
 
     @classmethod
     def from_py_func(cls, func):
-        ''' Create a ``CustomJSFilter`` instance from a Python function. The
+        ''' Create a |CustomJSFilter| instance from a Python function. The
         function is translated to JavaScript using PScript.
 
         The ``func`` function namespace will contain the variable ``source``
-        at render time. This will be the data source associated with the ``CDSView``
+        at render time. This will be the data source associated with the |CDSView|
         that this filter is added to.
         '''
         if not isinstance(func, FunctionType):
@@ -159,13 +159,13 @@ class CustomJSFilter(Filter):
 
     @classmethod
     def from_coffeescript(cls, code, args={}):
-        ''' Create a ``CustomJSFilter`` instance from CoffeeScript snippets.
+        ''' Create a |CustomJSFilter| instance from CoffeeScript snippets.
         The function bodies are translated to JavaScript functions using node
         and therefore require return statements.
 
         The ``code`` function namespace will contain the variable ``source``
         at render time. This will be the data source associated with the
-        ``CDSView`` that this filter is added to.
+        |CDSView| that this filter is added to.
         '''
 
         compiled = nodejs_compile(code, lang="coffeescript", file="???")
@@ -184,7 +184,7 @@ class CustomJSFilter(Filter):
     A snippet of JavaScript code to filter data contained in a columnar data source.
     The code is made into the body of a function, and all of of the named objects in
     ``args`` are available as parameters that the code can use. The variable
-    ``source`` will contain the data source that is associated with the ``CDSView`` this
+    ``source`` will contain the data source that is associated with the |CDSView| this
     filter is added to.
 
     The code should either return the indices of the subset or an array of booleans

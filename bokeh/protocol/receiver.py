@@ -50,7 +50,7 @@ class Receiver(object):
     ''' Receive wire message fragments and assemble complete Bokeh server
     message objects.
 
-    On ``MessageError`` or ``ValidationError``, the receiver will reset its
+    On |MessageError| or |ValidationError|, the receiver will reset its
     state and attempt to consume a new message.
 
     The *fragment* received can be either bytes or unicode, depending on

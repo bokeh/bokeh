@@ -61,7 +61,7 @@ class GMap(GMapPlot):
             Configuration specific to a Google Map
 
     In addition to all the Bokeh model property attributes documented below,
-    the ``Figure`` initializer also accepts the following options, which can
+    the |Figure| initializer also accepts the following options, which can
     help simplify configuration:
 
     .. bokeh-options:: GMapFigureOptions

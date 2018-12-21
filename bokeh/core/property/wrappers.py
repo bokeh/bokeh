@@ -158,13 +158,13 @@ class PropertyValueList(PropertyValueContainer, list):
     ''' A list property value container that supports change notifications on
     mutating operations.
 
-    When a Bokeh model has a ``List`` property, the ``PropertyValueLists`` are
-    transparently created to wrap those values. These ``PropertyValueList``
+    When a Bokeh model has a |List| property, the ``PropertyValueLists`` are
+    transparently created to wrap those values. These |PropertyValueList|
     values are subject to normal property validation. If the property type
     ``foo = List(Str)`` then attempting to set ``x.foo[0] = 10`` will raise
     an error.
 
-    Instances of ``PropertyValueList`` can be explicitly created by passing
+    Instances of |PropertyValueList| can be explicitly created by passing
     any object that the standard list initializer accepts, for example:
 
     .. code-block:: python
@@ -268,13 +268,13 @@ class PropertyValueDict(PropertyValueContainer, dict):
     ''' A dict property value container that supports change notifications on
     mutating operations.
 
-    When a Bokeh model has a ``List`` property, the ``PropertyValueLists`` are
-    transparently created to wrap those values. These ``PropertyValueList``
+    When a Bokeh model has a |List| property, the ``PropertyValueLists`` are
+    transparently created to wrap those values. These |PropertyValueList|
     values are subject to normal property validation. If the property type
     ``foo = Dict(Str, Str)`` then attempting to set ``x.foo['bar'] = 10`` will
     raise an error.
 
-    Instances of ``PropertyValueDict`` can be eplicitly created by passing
+    Instances of |PropertyValueDict| can be eplicitly created by passing
     any object that the standard dict initializer accepts, for example:
 
     .. code-block:: python
@@ -397,10 +397,10 @@ class PropertyValueColumnData(PropertyValueDict):
     # don't wrap with notify_owner --- notifies owners explicitly
     def _stream(self, doc, source, new_data, rollover=None, setter=None):
         ''' Internal implementation to handle special-casing stream events
-        on ``ColumnDataSource`` columns.
+        on |ColumnDataSource| columns.
 
         Normally any changes to the ``.data`` dict attribute on a
-        ``ColumnDataSource`` triggers a notification, causing all of the data
+        |ColumnDataSource| triggers a notification, causing all of the data
         to be synchronized between server and clients.
 
         The ``.stream`` method on column data sources exists to provide a
@@ -409,9 +409,9 @@ class PropertyValueColumnData(PropertyValueDict):
         which would needlessly re-send all the data.
 
         To accomplish this, this function bypasses the wrapped methods on
-        ``PropertyValueDict`` and uses the unwrapped versions on the dict
+        |PropertyValueDict| and uses the unwrapped versions on the dict
         superclass directly. It then explicitly makes a notification, adding
-        a special ``ColumnsStreamedEvent`` hint to the message containing
+        a special |ColumnsStreamedEvent| hint to the message containing
         only the small streamed data that BokehJS needs in order to
         efficiently synchronize.
 
@@ -446,10 +446,10 @@ class PropertyValueColumnData(PropertyValueDict):
     # don't wrap with notify_owner --- notifies owners explicitly
     def _patch(self, doc, source, patches, setter=None):
         ''' Internal implementation to handle special-casing patch events
-        on ``ColumnDataSource`` columns.
+        on |ColumnDataSource| columns.
 
         Normally any changes to the ``.data`` dict attribute on a
-        ``ColumnDataSource`` triggers a notification, causing all of the data
+        |ColumnDataSource| triggers a notification, causing all of the data
         to be synchronized between server and clients.
 
         The ``.patch`` method on column data sources exists to provide a
@@ -458,9 +458,9 @@ class PropertyValueColumnData(PropertyValueDict):
         which would needlessly re-send all the data.
 
         To accomplish this, this function bypasses the wrapped methods on
-        ``PropertyValueDict`` and uses the unwrapped versions on the dict
+        |PropertyValueDict| and uses the unwrapped versions on the dict
         superclass directly. It then explicitly makes a notification, adding
-        a special ``ColumnsPatchedEvent`` hint to the message containing
+        a special |ColumnsPatchedEvent| hint to the message containing
         only the small patched data that BokehJS needs in order to efficiently
         synchronize.
 

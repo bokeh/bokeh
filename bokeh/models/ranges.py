@@ -121,11 +121,11 @@ class Range1d(Range):
     min_interval = Either(Float, TimeDelta, default=None, help="""
     The level that the range is allowed to zoom in, expressed as the
     minimum visible interval. If set to ``None`` (default), the minimum
-    interval is not bound. Can be a ``TimeDelta``. """)
+    interval is not bound. Can be a |TimeDelta|. """)
 
     max_interval = Either(Float, TimeDelta, default=None, help="""
     The level that the range is allowed to zoom out, expressed as the
-    maximum visible interval. Can be a ``TimeDelta``. Note that ``bounds`` can
+    maximum visible interval. Can be a |TimeDelta|. Note that ``bounds`` can
     impose an implicit constraint on the maximum interval as well. """)
 
     def __init__(self, *args, **kwargs):
@@ -268,7 +268,7 @@ class FactorRange(Range):
     ''' A Range of values for a categorical dimension.
 
     In addition to supplying ``factors`` as a keyword argument to the
-    ``FactorRange`` initializer, you may also instantiate with a sequence of
+    |FactorRange| initializer, you may also instantiate with a sequence of
     positional arguments:
 
     .. code-block:: python
@@ -416,7 +416,7 @@ class FactorRange(Range):
 
     By default, the bounds will be None, allowing your plot to pan/zoom as far
     as you want. If bounds are 'auto' they will be computed to be the same as
-    the start and end of the ``FactorRange``.
+    the start and end of the |FactorRange|.
     """)
 
     min_interval = Float(default=None, help="""

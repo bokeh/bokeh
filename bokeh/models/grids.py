@@ -45,7 +45,7 @@ __all__ = (
 
 class Grid(GuideRenderer):
     ''' Display horizontal or vertical grid lines at locations
-    given by a supplied ``Ticker``.
+    given by a supplied |Ticker|.
 
     '''
     dimension = Int(0, help="""

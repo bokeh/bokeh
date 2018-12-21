@@ -46,7 +46,7 @@ __all__ = (
 class Any(Property):
     ''' Accept all values.
 
-    The ``Any`` property does not do any validation or transformation.
+    The |Any| property does not do any validation or transformation.
 
     Args:
         default (obj or None, optional) :

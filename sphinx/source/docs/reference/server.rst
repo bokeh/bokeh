@@ -19,7 +19,7 @@ sessions and documents for all clients (typically browsers) that connect:
     creating a new document, just for that session.
 
 The application code is executed in the Bokeh server every time a new
-connection is made, to create the new Bokeh ``Document`` that will be synced
+connection is made, to create the new Bokeh |Document| that will be synced
 to the browser. The application code also sets up any callbacks that should be
 run whenever properties such as widget values are changes.
 
