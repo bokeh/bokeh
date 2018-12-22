@@ -3,13 +3,13 @@
 
 .. Class References
    There are some names with two classes:
-       Name  | Class 1                   | Class 2                       
-       ----- | ------------------------- | ----------------------------- 
-       Color | core.property.color.Color | colors.color.Color            
-       RGB   | core.property.color.RGB   | colors.rgb.RGB                
-       JSON  | core.property.json.JSON   | command.subcommands.json.JSON 
-       Image | models.glyphs.Image       | core.property.visual.Image    
-       Tap   | models.tools.Tap          | events.Tap                    
+       Name  | Class 1                   | Class 2
+       ----- | ------------------------- | -----------------------------
+       Color | core.property.color.Color | colors.color.Color
+       RGB   | core.property.color.RGB   | colors.rgb.RGB
+       JSON  | core.property.json.JSON   | command.subcommands.json.JSON
+       Image | models.glyphs.Image       | core.property.visual.Image
+       Tap   | models.tools.Tap          | events.Tap
    These replacement rules reference classes from the first column, or are left
    commented if unused.
 
