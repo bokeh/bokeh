@@ -84,7 +84,7 @@ export class ArrowView extends AnnotationView {
     // Next we call .clip on all the arrow heads, inside an initial canvas sized
     // rect, to create an "inverted" clip region for the arrow heads
     ctx.beginPath()
-    const {x, y, width, height} = this.plot_view.layout.bbox.rect
+    const {left: x, top: y, width, height} = this.plot_view.layout.bbox.rect
     ctx.rect(x, y, width, height)
     if (this.model.end != null)
       this._arrow_head(ctx, "clip", this.model.end, start, end)

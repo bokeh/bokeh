@@ -1159,4 +1159,12 @@ export class PlotView extends LayoutDOMView {
       }
     }
   }
+
+  serializable_state(): {[key: string]: unknown} {
+    const {children, ...state} = super.serializable_state()
+    const renderers = this.get_renderer_views()
+      .map((view) => view.serializable_state())
+      .filter((item) => "bbox" in item)
+    return {...state, children: [...(children as any), ...renderers]} // XXX
+  }
 }

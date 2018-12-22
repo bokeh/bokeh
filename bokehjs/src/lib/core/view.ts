@@ -50,6 +50,10 @@ export class View extends Signalable() {
     return `${this.model.type}View(${this.id})`
   }
 
+  serializable_state(): {[key: string]: unknown} {
+    return {type: this.model.type}
+  }
+
   get parent(): View | null {
     if (this._parent !== undefined)
       return this._parent

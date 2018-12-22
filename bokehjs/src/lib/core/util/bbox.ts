@@ -47,8 +47,8 @@ export interface IBBox {
 }
 
 export interface IRect {
-  x: number
-  y: number
+  left: number
+  top: number
   width: number
   height: number
 }
@@ -98,13 +98,13 @@ export class BBox implements IBBox {
       this.x1 = x1
       this.y1 = y1
     } else if ("x" in box) {
-      const {x, y, width, height} = box as IRect
+      const {left, top, width, height} = box as IRect
       if (!(width >= 0 && height >= 0))
-        throw new Error(`invalid bbox {x: ${x}, y: ${y}, width: ${width}, height: ${height}}`)
-      this.x0 = x
-      this.y0 = y
-      this.x1 = x + width
-      this.y1 = y + height
+        throw new Error(`invalid bbox {left: ${left}, top: ${top}, width: ${width}, height: ${height}}`)
+      this.x0 = left
+      this.y0 = top
+      this.x1 = left + width
+      this.y1 = top + height
     } else {
       let left: number, right: number
       let top: number, bottom: number
@@ -175,7 +175,7 @@ export class BBox implements IBBox {
   get width(): number { return this.x1 - this.x0 }
   get height(): number { return this.y1 - this.y0 }
 
-  get rect(): IRect { return {x: this.x, y: this.y, width: this.width, height: this.height} }
+  get rect(): IRect { return {left: this.left, top: this.top, width: this.width, height: this.height} }
 
   get h_range(): IRange { return {start: this.x0, end: this.x1} }
   get v_range(): IRange { return {start: this.y0, end: this.y1} }

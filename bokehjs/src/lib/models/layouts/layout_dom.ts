@@ -269,6 +269,14 @@ export abstract class LayoutDOMView extends DOMView {
       return {width: null, height: null}
     })
   }
+
+  serializable_state(): {[key: string]: unknown} {
+    return {
+      ...super.serializable_state(),
+      bbox: this.layout.bbox.rect,
+      children: this.child_views.map((child) => child.serializable_state()),
+    }
+  }
 }
 
 export namespace LayoutDOM {

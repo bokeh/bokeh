@@ -15,8 +15,6 @@ import {values} from "core/util/object"
 import {isString, isArray} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 
-export type LegendBBox = {x: number, y: number, width: number, height: number}
-
 export class LegendView extends AnnotationView {
   model: Legend
   visuals: Legend.Visuals
@@ -38,7 +36,7 @@ export class LegendView extends AnnotationView {
     this.connect(this.model.item_change, () => this.plot_view.request_render())
   }
 
-  compute_legend_bbox(): LegendBBox {
+  compute_legend_bbox(): BBox {
     const legend_names = this.model.get_legend_names()
 
     const {glyph_height, glyph_width} = this.model
@@ -131,12 +129,11 @@ export class LegendView extends AnnotationView {
     } else
       throw new Error("unreachable code")
 
-    return {x: sx, y: sy, width: legend_width, height: legend_height}
+    return new BBox({left: sx, top: sy, width: legend_width, height: legend_height})
   }
 
   interactive_bbox(): BBox {
-    const {x, y, width, height} = this.compute_legend_bbox()
-    return new BBox({x, y, width, height})
+    return this.compute_legend_bbox()
   }
 
   interactive_hit(sx: number, sy: number): boolean {
@@ -169,7 +166,7 @@ export class LegendView extends AnnotationView {
         else
           [w, h] = [this.text_widths[label] + glyph_width + label_standoff, this.max_label_height]
 
-        const bbox = new BBox({x: x1, y: y1, width: w, height: h})
+        const bbox = new BBox({left: x1, top: y1, width: w, height: h})
 
         if (bbox.contains(sx, sy)) {
           switch (this.model.click_policy) {
@@ -219,7 +216,7 @@ export class LegendView extends AnnotationView {
     ctx.restore()
   }
 
-  protected _draw_legend_box(ctx: Context2d, bbox: LegendBBox): void {
+  protected _draw_legend_box(ctx: Context2d, bbox: BBox): void {
     ctx.beginPath()
     ctx.rect(bbox.x, bbox.y, bbox.width, bbox.height)
     this.visuals.background_fill.set_value(ctx)
@@ -230,7 +227,7 @@ export class LegendView extends AnnotationView {
     }
   }
 
-  protected _draw_legend_items(ctx: Context2d, bbox: LegendBBox): void {
+  protected _draw_legend_items(ctx: Context2d, bbox: BBox): void {
     const {glyph_width, glyph_height} = this.model
     const {legend_padding} = this
     const legend_spacing = this.model.spacing
