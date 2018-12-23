@@ -1,0 +1,5 @@
+Plot bbox=[0, 0, 800, 300]
+  CategoricalAxis bbox=[20, 29, 709, 22]
+  CategoricalAxis bbox=[0, 51, 20, 244]
+  ColorBar bbox=[729, 51, 71, 244]
+  Title bbox=[20, 0, 709, 29]

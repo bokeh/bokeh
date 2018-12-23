@@ -1,0 +1,6 @@
+Column bbox=[0, 0, 310, 224]
+  Button bbox=[5, 5, 300, 31]
+  Slider bbox=[5, 46, 300, 35]
+  RadioButtonGroup bbox=[5, 91, 300, 31]
+  Select bbox=[5, 132, 300, 46]
+  Button bbox=[5, 188, 300, 31]

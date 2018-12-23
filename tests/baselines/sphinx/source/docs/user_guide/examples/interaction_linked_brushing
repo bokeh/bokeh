@@ -1,0 +1,10 @@
+Column bbox=[0, 0, 984, 330]
+  ToolbarBox bbox=[0, 0, 984, 30]
+    ProxyToolbar
+  GridBox bbox=[0, 30, 600, 300]
+    Plot bbox=[0, 0, 300, 300]
+      LinearAxis bbox=[24, 276, 271, 24]
+      LinearAxis bbox=[0, 5, 24, 271]
+    Plot bbox=[300, 0, 300, 300]
+      LinearAxis bbox=[31, 276, 264, 24]
+      LinearAxis bbox=[0, 5, 31, 271]

@@ -1,0 +1,3 @@
+Column bbox=[0, 0, 310, 75]
+  Slider bbox=[5, 5, 300, 35]
+  Custom bbox=[0, 45, 200, 30]

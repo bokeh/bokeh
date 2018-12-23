@@ -1,0 +1,4 @@
+Plot bbox=[0, 0, 800, 400]
+  DatetimeAxis bbox=[31, 376, 764, 24]
+  LinearAxis bbox=[0, 29, 31, 347]
+  Title bbox=[31, 0, 764, 29]

@@ -1,0 +1,6 @@
+Plot bbox=[0, 0, 900, 450]
+  LinearAxis bbox=[45, 405, 681, 45]
+  LinearAxis bbox=[0, 29, 45, 376]
+  Legend bbox=[726, 29, 174, 376]
+  Legend bbox=[726, 29, 174, 376]
+  Title bbox=[45, 0, 681, 29]

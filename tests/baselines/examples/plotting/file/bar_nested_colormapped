@@ -1,0 +1,4 @@
+Plot bbox=[0, 0, 600, 350]
+  CategoricalAxis bbox=[18, 295, 577, 55]
+  LinearAxis bbox=[0, 29, 18, 266]
+  Title bbox=[18, 0, 577, 29]

@@ -1,0 +1,7 @@
+Column bbox=[0, 0, 400, 445]
+  Slider bbox=[5, 5, 390, 35]
+  Plot bbox=[0, 45, 400, 400]
+    LinearAxis bbox=[27, 376, 343, 24]
+    LinearAxis bbox=[0, 5, 27, 371]
+    Title bbox=[27, 5, 343, 0]
+    ToolbarPanel bbox=[370, 5, 30, 371]

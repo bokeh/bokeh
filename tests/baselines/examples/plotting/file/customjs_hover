@@ -1,0 +1,5 @@
+Plot bbox=[0, 0, 600, 600]
+  MercatorAxis bbox=[28, 576, 542, 24]
+  MercatorAxis bbox=[0, 5, 28, 571]
+  Title bbox=[28, 5, 542, 0]
+  ToolbarPanel bbox=[570, 5, 30, 571]
