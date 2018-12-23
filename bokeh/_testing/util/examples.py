@@ -21,9 +21,11 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import io
 import os
 from os.path import join, exists, dirname, basename, relpath, splitext, isfile, isdir
 import yaml
+from subprocess import Popen, PIPE
 
 # External imports
 import requests
@@ -138,6 +140,38 @@ class Example(object):
     @property
     def no_diff(self):
         return self.flags & Flags.no_diff
+
+    @property
+    def baseline_path(self):
+        return join("tests", "baselines", relpath(self.path_no_ext, ""))
+
+    @property
+    def has_baseline(self):
+        cmd = ["git", "show", ":%s" % self.baseline_path]
+        proc = Popen(cmd, stdout=PIPE, stderr=PIPE)
+        proc.communicate()
+        return proc.returncode == 0
+
+    def store_baseline(self, baseline):
+        path = self.baseline_path
+        if not exists(dirname(path)):
+            os.makedirs(dirname(path))
+        with io.open(path, "w") as f:
+            f.write(baseline)
+
+    def diff_baseline(self):
+        cmd = ["git", "diff", "--color", "--exit-code", "%s" % self.baseline_path]
+        proc = Popen(cmd, stdout=PIPE, stderr=PIPE)
+        (diff, _) = proc.communicate()
+
+        if proc.returncode == 0:
+            return None
+
+        cmd = ["perl", "/usr/share/doc/git/contrib/diff-highlight/diff-highlight"]
+        proc = Popen(cmd, stdout=PIPE, stderr=PIPE, stdin=PIPE)
+        (diff, _) = proc.communicate(diff)
+
+        return diff.decode("utf-8").strip()
 
     @property
     def img_path_or_url(self):

@@ -170,6 +170,29 @@ def _store_binary(path, data):
     with open(path, "wb") as f:
         f.write(data)
 
+def _create_baseline(items):
+    lines = []
+
+    def descend(items, level):
+        for item in items:
+            type = item["type"]
+
+            bbox = item.get("bbox", None)
+            children = item.get("children", [])
+
+            line = "%s%s" % ("  "*level, type)
+
+            if bbox is not None:
+                line += " bbox=[%s, %s, %s, %s]" % (bbox["left"], bbox["top"], bbox["width"], bbox["height"])
+
+            line += "\n"
+
+            lines.append(line)
+            descend(children, level+1)
+
+    descend(items, 0)
+    return "".join(lines)
+
 def _run_in_browser(example, url):
     start = time.time()
     result = run_in_chrome(url)
@@ -180,6 +203,7 @@ def _run_in_browser(example, url):
     success = result["success"]
     timeout = result["timeout"]
     errors = result["errors"]
+    state = result["state"]
     image = result["image"]
 
     _store_binary(example.img_path, b64decode(image["data"]))
@@ -192,8 +216,33 @@ def _run_in_browser(example, url):
     if pytest.config.option.verbose:
         _print_webengine_output(result)
 
+    has_state = state is not None
+    has_baseline = example.has_baseline
+    baseline_ok = True
+
+    if not has_state:
+        fail("no state data was produced for comparison with the baseline")
+    else:
+        new_baseline = _create_baseline(state)
+        example.store_baseline(new_baseline)
+
+        if not has_baseline:
+            fail("%s baseline doesn't exist" % example.baseline_path)
+        else:
+            result = example.diff_baseline()
+
+            if result is not None:
+                baseline_ok = False
+                fail("BASELINE DOESN'T MATCH (make sure to update baselines before running tests):")
+
+                for line in result.split("\n"):
+                    fail(line)
+
     assert success, "%s failed to load" % example.relpath
     assert no_errors, "%s failed with %d errors" % (example.relpath, len(errors))
+    assert has_state, "%s didn't produce state data" % example.relpath
+    assert has_baseline, "%s doesn't have a baseline" % example.relpath
+    assert baseline_ok, "%s's baseline differs" % example.relpath
 
 
 def _run_example(example):

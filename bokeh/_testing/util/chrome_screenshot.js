@@ -162,6 +162,12 @@ CDP(async function(client) {
     return await Page.captureScreenshot({format: "png", clip: await get_bbox()})
   }
 
+  async function get_state() {
+    const expr = "JSON.stringify(Object.keys(Bokeh.index).map((key) => Bokeh.index[key].serializable_state()))"
+    const result = await evaluate(expr)
+    return result != null ? JSON.parse(result.value) : null
+  }
+
   async function is_idle() {
     const expr = "typeof Bokeh !== 'undefined' && Bokeh.documents.length !== 0 && Bokeh.documents[0].is_idle"
     const result = await evaluate(expr)
@@ -169,12 +175,14 @@ CDP(async function(client) {
   }
 
   async function finish(timeout, success) {
+    let state = null
     let image = null
     if (success) {
+      state = await get_state()
       image = await get_image()
     }
 
-    console.log(JSON.stringify({success, timeout, errors, messages, image}))
+    console.log(JSON.stringify({success, timeout, errors, messages, state, image}))
 
     await client.close()
   }
