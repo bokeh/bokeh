@@ -1,6 +1,6 @@
 Column bbox=[0, 0, 800, 530]
   WidgetBox bbox=[0, 0, 310, 130]
-    Paragraph bbox=[5, 5, 300, 120]
+    Paragraph bbox=[5, 5, 300, 30]
   Row bbox=[0, 130, 700, 100]
     Spacer bbox=[0, 0, 100, 100]
     Plot bbox=[100, 0, 300, 100]

@@ -213,6 +213,7 @@ export class Grid extends Layoutable {
     }
 
     for (let x = 0; x < ncols; x++) {
+      const col = cols[x]
       for (let y = 0; y < nrows; y++) {
         const cell = matrix[y][x]
         const row = rows[y]
@@ -221,6 +222,11 @@ export class Grid extends Layoutable {
             const item = cell.items[i]
             const {top, bottom} = item.layout.sizing.margin
             row.height = max(row.height, top + item.size_hint.height + bottom)
+
+            if (item.layout.has_hfw()) {
+              const hfw_height = top + item.layout.hfw(col.width) + bottom
+              row.height = max(row.height, hfw_height)
+            }
           }
         }
       }
@@ -372,13 +378,17 @@ export class Grid extends Layoutable {
           let height: number
           if (sizing.height_policy == "fixed")
             height = item.size_hint.height
-          else if (sizing.height_policy == "min")
-            height = item.size_hint.height
-          else if (sizing.height_policy == "max" || sizing.height_policy == "fit") {
-            const {top, bottom} = sizing.margin
-            height = item.layout.clip_height(row.height - top - bottom)
-          } else
-            throw new Error("unreachable")
+          else {
+            if (item.layout.has_hfw()) {
+              height = item.layout.hfw(width)
+            } else if (sizing.height_policy == "min")
+              height = item.size_hint.height
+            else if (sizing.height_policy == "max" || sizing.height_policy == "fit") {
+              const {top, bottom} = sizing.margin
+              height = item.layout.clip_height(row.height - top - bottom)
+            } else
+              throw new Error("unreachable")
+          }
 
           let left = col.left
           if (width == col.width)

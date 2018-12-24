@@ -1,6 +1,6 @@
-Column bbox=[0, 0, 984, 755]
+Column bbox=[0, 0, 984, 770]
   Div bbox=[5, 5, 974, 45]
-  Row bbox=[0, 55, 984, 700]
+  Row bbox=[0, 70, 984, 700]
     GridBox bbox=[0, 0, 700, 700]
       Plot bbox=[0, 0, 350, 350]
         LinearAxis bbox=[31, 326, 314, 24]

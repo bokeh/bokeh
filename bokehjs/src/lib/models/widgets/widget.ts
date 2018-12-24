@@ -22,9 +22,15 @@ export class DOMLayout extends Layoutable {
     return true
   }
 
+  // XXX: doesn't preserve aspect
   hfw(width: number): number {
     const {height} = sized(this.el, {width}, () => size(this.el))
     return this.clip_height(height)
+  }
+
+  wfh(height: number): number {
+    const {width} = sized(this.el, {height}, () => size(this.el))
+    return this.clip_width(width)
   }
 }
 

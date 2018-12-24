@@ -14,7 +14,7 @@ import {logger} from "core/logging"
 
 import {TableWidget} from "./table_widget"
 import {Column, TableColumn} from "./table_column"
-import {WidgetView} from "../widget"
+import {DOMLayout, WidgetView} from "../widget"
 import {ColumnDataSource, Index} from "../../sources/column_data_source"
 import {CDSView} from "../../sources/cds_view"
 
@@ -115,6 +115,16 @@ export class DataTableView extends WidgetView {
 
     this.connect(this.model.source.selected.change, () => this.updateSelection())
     this.connect(this.model.source.selected.properties.indices.change, () => this.updateSelection())
+  }
+
+  _update_layout(): void {
+    // XXX: temporary hack just to get sensible table height
+    this.layout = new (class extends DOMLayout {
+      has_hfw(): boolean {
+        return false
+      }
+    })(this.el)
+    this.layout.set_sizing(this.box_sizing())
   }
 
   update_position(): void {

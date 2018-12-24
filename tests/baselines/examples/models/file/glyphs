@@ -1,5 +1,5 @@
 Column bbox=[0, 0, 600, 1297]
-  Paragraph bbox=[5, 5, 300, 15]
+  Paragraph bbox=[5, 5, 300, 30]
   Tabs bbox=[0, 25, 600, 636]
     Plot bbox=[0, 36, 600, 600]
       LinearAxis bbox=[18, 576, 552, 24]

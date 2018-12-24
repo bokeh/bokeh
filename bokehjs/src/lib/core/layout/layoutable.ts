@@ -119,14 +119,32 @@ export abstract class Layoutable {
     this._set_geometry(outer, inner || outer)
   }
 
+  /*
   has_hfw(): boolean {
-    return (this.sizing.width_policy != "fixed" ||
-            this.sizing.height_policy != "fixed") && this.sizing.aspect != null
+    return false
+  }
+
+  hfw(_width: number): number {
+    return 0
+  }
+
+  wfh(_height: number): number {
+    return 0
+  }
+  */
+
+  has_hfw(): boolean {
+    return (this.sizing.width_policy != "fixed" || this.sizing.height_policy != "fixed") && this.sizing.aspect != null
   }
 
   hfw(width: number): number {
     const {aspect} = this.sizing
     return width/aspect!
+  }
+
+  wfh(height: number): number {
+    const {aspect} = this.sizing
+    return height*aspect!
   }
 
   compute(viewport: {width: number | null, height: number | null}): void {
