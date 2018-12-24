@@ -177,6 +177,24 @@ class Dropdown(AbstractButton):
         self.js_on_event(ButtonClick, handler)
         self.js_on_event(MenuItemClick, handler)
 
+    value = String(help="""
+    A private property that used to trigger ``on_click`` event handler.
+
+    .. note:
+        This property is deprecated and left for backwards compatibility. Use
+        ``dropdown.on_click()`` or ``dropdown.js_on_click()`` methods in new code.
+    """)
+
+    default_value = String(help="""
+    A default value to set when a split Dropdown's top button is clicked.
+
+    Setting this property will cause the Dropdown to be rendered as split.
+
+    .. note:
+        This property is deprecated and left for backwards compatibility. Use
+        ``dropdown.on_click()`` or ``dropdown.js_on_click()`` methods in new code.
+    """)
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------

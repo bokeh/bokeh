@@ -16,7 +16,7 @@ export class DropdownView extends AbstractButtonView {
   render(): void {
     super.render()
 
-    if (!this.model.split) {
+    if (!this.model.is_split) {
       this.buttonEl.classList.add("bk-dropdown-toggle")
       this.buttonEl.appendChild(div({class: "bk-caret"}))
     } else {
@@ -78,11 +78,12 @@ export class DropdownView extends AbstractButtonView {
   }
 
   click(): void {
-    if (!this.model.split)
+    if (!this.model.is_split)
       this._toggle_menu()
     else {
       this._hide_menu()
       this.model.trigger_event(new ButtonClick())
+      this.model.value = this.model.default_value
       super.click()
     }
   }
@@ -93,9 +94,10 @@ export class DropdownView extends AbstractButtonView {
     const item = this.model.menu[i]
     if (item != null) {
       const [, value_or_callback] = item
-      if (isString(value_or_callback))
+      if (isString(value_or_callback)) {
         this.model.trigger_event(new MenuItemClick({item: value_or_callback}))
-      else
+        this.model.value = value_or_callback
+      } else
         value_or_callback.execute(this.model, {index: i}) // TODO
     }
   }
@@ -105,6 +107,8 @@ export namespace Dropdown {
   export interface Attrs extends AbstractButton.Attrs {
     split: boolean
     menu: ([string, string | CallbackLike<Dropdown>] | null)[]
+    value: string
+    default_value: string
   }
 
   export interface Props extends AbstractButton.Props {
@@ -127,8 +131,10 @@ export class Dropdown extends AbstractButton {
     this.prototype.default_view = DropdownView
 
     this.define({
-      split: [ p.Boolean, false ],
-      menu:  [ p.Array,   []    ],
+      split:         [ p.Boolean, false ],
+      menu:          [ p.Array,   []    ],
+      value:         [ p.String,  null  ], // deprecated
+      default_value: [ p.String,  null  ], // deprecated
     })
 
     this.override({
@@ -136,6 +142,10 @@ export class Dropdown extends AbstractButton {
     })
 
     this.register(ButtonClick, MenuItemClick)
+  }
+
+  get is_split(): boolean {
+    return this.split || this.default_value != null
   }
 }
 Dropdown.initClass()
