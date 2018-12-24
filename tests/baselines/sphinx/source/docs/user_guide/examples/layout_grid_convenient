@@ -1,5 +1,5 @@
-Column bbox=[0, 0, 984, 530]
-  ToolbarBox bbox=[0, 0, 984, 30]
+Column bbox=[0, 0, 500, 530]
+  ToolbarBox bbox=[0, 0, 500, 30]
     ProxyToolbar
   GridBox bbox=[0, 30, 500, 500]
     Plot bbox=[0, 0, 250, 250]

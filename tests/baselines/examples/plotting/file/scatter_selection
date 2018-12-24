@@ -18,5 +18,5 @@ Column bbox=[0, 0, 984, 755]
         LinearAxis bbox=[31, 326, 314, 24]
         LinearAxis bbox=[0, 29, 31, 297]
         Title bbox=[31, 0, 314, 29]
-    ToolbarBox bbox=[954, 0, 30, 700]
+    ToolbarBox bbox=[700, 0, 30, 700]
       ProxyToolbar
