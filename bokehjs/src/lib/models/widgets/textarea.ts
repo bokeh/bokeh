@@ -38,11 +38,10 @@ export class TextAreaInputView extends BaseTextInputView {
   }
 
   change_input(): void {
-    const value = this.inputEl.value;
+    const value = this.inputEl.value
     logger.debug(`widget/text_input: value = ${value}`)
     this.model.value = value
     super.change_input()
-    console.log('GOT')
   }
 
 }
