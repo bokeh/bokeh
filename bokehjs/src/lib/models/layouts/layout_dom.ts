@@ -185,6 +185,10 @@ export abstract class LayoutDOMView extends DOMView {
         width_policy = height_policy = "fixed"
       else if (sizing_mode == "stretch_both")
         width_policy = height_policy = "max"
+      else if (sizing_mode == "stretch_width")
+        width_policy = "max"
+      else if (sizing_mode == "stretch_height")
+        height_policy = "max"
       else {
         if (aspect_ratio == null)
           aspect_ratio = "auto"

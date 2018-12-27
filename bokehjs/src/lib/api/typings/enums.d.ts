@@ -32,7 +32,7 @@ declare namespace Bokeh {
   export type Aggregation = "sum" | "mean" | "count" | "nunique" | "median" | "min" | "max"
   export type StartEnd = "start" | "end"
   export type SliderCallbackPolicy = "continuous" | "throttle" | "mouseup"
-  export type SizingMode = "stretch_both" | "scale_width" | "scale_height" | "scale_both" | "fixed"
+  export type SizingMode = "stretch_width" | "stretch_height" | "stretch_both" | "scale_width" | "scale_height" | "scale_both" | "fixed"
 
   export type Logo = "normal" | "grey"
   export type HoverMode = "mouse" | "hline" | "vline"

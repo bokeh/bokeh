@@ -86,8 +86,8 @@ export const Distribution: Distribution[] = ["uniform", "normal"]
 export type StepMode = "after" | "before" | "center"
 export const StepMode: StepMode[] = ["after", "before", "center"]
 
-export type SizingMode = "stretch_both" | "scale_width" | "scale_height" | "scale_both" | "fixed"
-export const SizingMode: SizingMode[] = ["stretch_both", "scale_width", "scale_height", "scale_both", "fixed"]
+export type SizingMode = "stretch_width" | "stretch_height" | "stretch_both" | "scale_width" | "scale_height" | "scale_both" | "fixed"
+export const SizingMode: SizingMode[] = ["stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed"]
 
 export type PaddingUnits = "percent" | "absolute"
 export const PaddingUnits: PaddingUnits[] = ["percent", "absolute"]

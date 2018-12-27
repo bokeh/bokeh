@@ -315,7 +315,9 @@ RenderMode = enumeration("canvas", "css")
 RoundingFunction = enumeration("round", "nearest", "floor", "rounddown", "ceil", "roundup")
 
 #: Sizing mode policies
-SizingMode = enumeration("stretch_both", "scale_width", "scale_height", "scale_both", "fixed")
+SizingMode = enumeration("stretch_width", "stretch_height", "stretch_both",
+                         "scale_width", "scale_height", "scale_both",
+                         "fixed")
 
 #: Individual sizing mode policies
 SizingPolicy = enumeration("fixed", "fit", "min", "max")

@@ -183,7 +183,7 @@ class Test_bce(object):
         assert tuple(bce.RoundingFunction) == ("round", "nearest", "floor", "rounddown", "ceil", "roundup")
 
     def test_SizingMode(self):
-        assert tuple(bce.SizingMode) == ("stretch_both", "scale_width", "scale_height", "scale_both", "fixed")
+        assert tuple(bce.SizingMode) == ("stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed")
 
     def test_SliderCallbackPolicy(self):
         assert tuple(bce.SliderCallbackPolicy) == ("continuous", "throttle", "mouseup")
