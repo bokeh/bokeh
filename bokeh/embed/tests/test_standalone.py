@@ -130,6 +130,7 @@ class Test_components(object):
         assert len(scripts) == 1
         assert scripts[0].attrs == {'type': 'text/javascript'}
 
+    @patch('bokeh.embed.util.make_globally_unique_id', new=stable_id)
     def test_div_attrs(self, test_plot):
         script, div = bes.components(test_plot)
         html = bs4.BeautifulSoup(div, "lxml")
@@ -138,8 +139,10 @@ class Test_components(object):
         assert len(divs) == 1
 
         div = divs[0]
-        assert set(div.attrs) == set(['class', 'id'])
+        assert set(div.attrs) == set(['class', 'id', 'data-root-id'])
         assert div.attrs['class'] == ['bk-root']
+        assert div.attrs['id'] == 'ID'
+        assert div.attrs['data-root-id'] == test_plot._id
         assert div.text == ''
 
     def test_script_is_utf8_encoded(self, test_plot):
