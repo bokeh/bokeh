@@ -107,7 +107,7 @@ class CommsHandle(object):
     # internal doc with the event so that it is collected (until a
     # call to push_notebook processes and clear colleted events)
     def _document_model_changed(self, event):
-        if event.model._id in self.doc._all_models:
+        if event.model.id in self.doc._all_models:
             self.doc._trigger_on_change(event)
 
 def install_notebook_hook(notebook_type, load, show_doc, show_app, overwrite=False):
@@ -510,7 +510,7 @@ def show_doc(obj, state, notebook_handle):
     (script, div, cell_doc) = notebook_content(obj, comms_target)
 
     publish_display_data({HTML_MIME_TYPE: div})
-    publish_display_data({JS_MIME_TYPE: script, EXEC_MIME_TYPE: ""}, metadata={EXEC_MIME_TYPE: {"id": obj._id}})
+    publish_display_data({JS_MIME_TYPE: script, EXEC_MIME_TYPE: ""}, metadata={EXEC_MIME_TYPE: {"id": obj.id}})
 
     # Comms handling relies on the fact that the cell_doc returned by
     # notebook copy has models with the same IDs as the original curdoc

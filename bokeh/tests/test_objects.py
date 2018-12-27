@@ -127,10 +127,10 @@ class TestModel(object):
 
     def test_init(self):
         testObject = self.pObjectClass(id='test_id')
-        assert testObject._id == 'test_id'
+        assert testObject.id == 'test_id'
 
         testObject2 = self.pObjectClass()
-        assert testObject2._id is not None
+        assert testObject2.id is not None
 
         assert set(["name", "tags", "js_property_callbacks", "subscribed_events", "js_event_callbacks"]) == testObject.properties()
         assert dict(
@@ -205,8 +205,8 @@ class TestModel(object):
                               foo=42, bar="world")
         json = obj.to_json(include_defaults=True)
         json_string = obj.to_json_string(include_defaults=True)
-        assert { "child" : { "id" : child_obj._id, "type" : "SomeModelToJson" },
-                           "id" : obj._id,
+        assert { "child" : { "id" : child_obj.id, "type" : "SomeModelToJson" },
+                           "id" : obj.id,
                            "name" : None,
                            "tags" : [],
                            'js_property_callbacks': {},
@@ -217,7 +217,7 @@ class TestModel(object):
         assert ('{"bar":"world",' +
                 '"child":{"id":"%s","type":"SomeModelToJson"},' +
                 '"foo":42,"id":"%s","js_event_callbacks":{},"js_property_callbacks":{},' +
-                '"name":null,"subscribed_events":[],"tags":[]}') % (child_obj._id, obj._id) == json_string
+                '"name":null,"subscribed_events":[],"tags":[]}') % (child_obj.id, obj.id) == json_string
 
     def test_no_units_in_json(self):
         from bokeh.models import AnnularWedge
@@ -300,7 +300,7 @@ class TestModel(object):
             child = Instance(Model, lambda: Model())
         obj1 = HasFuncDefaultModel()
         obj2 = HasFuncDefaultModel()
-        assert obj1.child._id != obj2.child._id
+        assert obj1.child.id != obj2.child.id
 
         # 'child' is a default, but it gets included as a
         # non-default because it's unstable.

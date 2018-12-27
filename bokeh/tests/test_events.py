@@ -82,22 +82,22 @@ def test_pinchevent_decode_json():
 def test_event_constructor_button():
     model = Button()
     event = events.Event(model)
-    assert event._model_id == model._id
+    assert event._model_id == model.id
 
 def test_event_constructor_div():
     model = Div()
     event = events.Event(model)
-    assert event._model_id == model._id
+    assert event._model_id == model.id
 
 def test_event_constructor_plot():
     model = Plot()
     event = events.Event(model)
-    assert event._model_id == model._id
+    assert event._model_id == model.id
 
 def test_buttonclick_constructor_button():
     model = Button()
     event = events.ButtonClick(model)
-    assert event._model_id == model._id
+    assert event._model_id == model.id
 
 def test_buttonclick_constructor_div():
     with pytest.raises(ValueError):
@@ -118,7 +118,7 @@ def test_lodstart_constructor_div():
 def test_lodstart_constructor_plot():
     model = Plot()
     event = events.LODStart(model)
-    assert event._model_id == model._id
+    assert event._model_id == model.id
 
 def test_lodend_constructor_button():
     with pytest.raises(ValueError):
@@ -131,7 +131,7 @@ def test_lodend_constructor_div():
 def test_lodend_constructor_plot():
     model = Plot()
     event = events.LODEnd(model)
-    assert event._model_id == model._id
+    assert event._model_id == model.id
 
 
 def test_plotevent_constructor_button():
@@ -145,7 +145,7 @@ def test_plotevent_constructor_div():
 def test_plotevent_constructor_plot():
     model = Plot()
     event = events.PlotEvent(model)
-    assert event._model_id == model._id
+    assert event._model_id == model.id
 
 def test_pointEvent_constructor_plot():
     model = Plot()
@@ -154,7 +154,7 @@ def test_pointEvent_constructor_plot():
     assert event.sy == -2
     assert event.x == 10
     assert event.y == 100
-    assert event._model_id == model._id
+    assert event._model_id == model.id
 
 def test_pointevent_constructor_button():
     with pytest.raises(ValueError):
@@ -172,7 +172,7 @@ def test_pointevent_subclass_constructor_plot():
         assert event.sy == -2
         assert event.x == 10
         assert event.y == 100
-        assert event._model_id == model._id
+        assert event._model_id == model.id
 
 def test_pointevent_subclass_constructor_button():
     model = Button()

@@ -222,8 +222,8 @@ class TestDocument(object):
         d.add_root(m)
         assert len(d.roots) == 1
         assert len(d._all_models) == 2
-        assert d.get_model_by_id(m._id) == m
-        assert d.get_model_by_id(m2._id) == m2
+        assert d.get_model_by_id(m.id) == m
+        assert d.get_model_by_id(m2.id) == m2
         assert d.get_model_by_id("not a valid ID") is None
 
     def test_get_model_by_name(self):
@@ -856,31 +856,31 @@ class TestDocument(object):
         d.add_root(root2)
         assert len(d.roots) == 2
 
-        assert child1._id in d._all_models
-        assert child2._id not in d._all_models
-        assert child3._id not in d._all_models
+        assert child1.id in d._all_models
+        assert child2.id not in d._all_models
+        assert child3.id not in d._all_models
 
         event1 = ModelChangedEvent(d, root1, 'child', root1.child, child3, child3)
         patch1, buffers = process_document_events([event1])
         d.apply_json_patch_string(patch1)
 
-        assert root1.child._id == child3._id
-        assert root1.child.child._id == child2._id
-        assert child1._id in d._all_models
-        assert child2._id in d._all_models
-        assert child3._id in d._all_models
+        assert root1.child.id == child3.id
+        assert root1.child.child.id == child2.id
+        assert child1.id in d._all_models
+        assert child2.id in d._all_models
+        assert child3.id in d._all_models
 
         # put it back how it was before
         event2 = ModelChangedEvent(d, root1, 'child', root1.child, child1, child1)
         patch2, buffers = process_document_events([event2])
         d.apply_json_patch_string(patch2)
 
-        assert root1.child._id == child1._id
+        assert root1.child.id == child1.id
         assert root1.child.child is None
 
-        assert child1._id in d._all_models
-        assert child2._id not in d._all_models
-        assert child3._id not in d._all_models
+        assert child1.id in d._all_models
+        assert child2.id not in d._all_models
+        assert child3.id not in d._all_models
 
     def test_patch_two_properties_at_once(self):
         d = document.Document()

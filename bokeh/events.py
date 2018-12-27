@@ -143,7 +143,7 @@ class Event(with_metaclass(_MetaEvent, object)):
         '''
         self._model_id = None
         if model is not None:
-            self._model_id = model._id
+            self._model_id = model.id
 
     @classmethod
     def decode_json(cls, dct):

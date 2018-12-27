@@ -177,7 +177,7 @@ def server_session(model=None, session_id=None, url="default", relative_urls=Fal
     app_path = _get_app_path(url)
 
     elementid = make_id()
-    modelid = "" if model is None else model._id
+    modelid = "" if model is None else model.id
     src_path = _src_path(url, elementid)
 
     src_path += _process_app_path(app_path)

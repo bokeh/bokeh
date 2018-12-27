@@ -107,7 +107,7 @@ def instantiate_references_json(references_json):
         instance = cls(id=obj_id, _block_events=True)
         if instance is None:
             raise RuntimeError('Error loading model from JSON (type: %s, id: %s)' % (obj_type, obj_id))
-        references[instance._id] = instance
+        references[instance.id] = instance
 
     return references
 

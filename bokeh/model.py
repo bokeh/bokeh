@@ -81,7 +81,7 @@ def collect_models(*input_values):
     queued = []
 
     def queue_one(obj):
-        if obj._id not in ids:
+        if obj.id not in ids:
             queued.append(obj)
 
     for value in input_values:
@@ -89,8 +89,8 @@ def collect_models(*input_values):
 
     while queued:
         obj = queued.pop(0)
-        if obj._id not in ids:
-            ids.add(obj._id)
+        if obj.id not in ids:
+            ids.add(obj.id)
             collected.append(obj)
             _visit_immediate_value_references(obj, queue_one)
 
@@ -262,10 +262,13 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
         default_theme.apply_to_model(self)
 
     def __str__(self):
-        return "%s(id=%r, ...)" % (self.__class__.__name__, getattr(self, "_id", None))
+        return "%s(id=%r, ...)" % (self.__class__.__name__, getattr(self, "id", None))
 
     __repr__ = __str__
 
+    @property
+    def id(self):
+        return self._id
 
     name = String(help="""
     An arbitrary, user-supplied name for this model.
@@ -373,12 +376,12 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
             return {
                 'type'    : self.__view_model__,
                 'subtype' : self.__subtype__,
-                'id'      : self._id,
+                'id'      : self.id,
             }
         else:
             return {
                 'type' : self.__view_model__,
-                'id'   : self._id,
+                'id'   : self.id,
             }
 
     # Public methods ----------------------------------------------------------
@@ -566,7 +569,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
 
         '''
         json_like = self._to_json_like(include_defaults=include_defaults)
-        json_like['id'] = self._id
+        json_like['id'] = self.id
         # serialize_json "fixes" the JSON from _to_json_like by converting
         # all types into plain JSON types # (it converts Model into refs,
         # for example).

@@ -366,8 +366,8 @@ class Document(object):
 
         # Use our existing model instances whenever we have them
         for obj in references.values():
-            if obj._id in self._all_models:
-                references[obj._id] = self._all_models[obj._id]
+            if obj.id in self._all_models:
+                references[obj.id] = self._all_models[obj.id]
 
         # The model being changed isn't always in references so add it in
         for event_json in events_json:
@@ -858,7 +858,7 @@ class Document(object):
         '''
         root_ids = []
         for r in self._roots:
-            root_ids.append(r._id)
+            root_ids.append(r.id)
 
         root_references = self._all_models.values()
 
@@ -1032,11 +1032,11 @@ class Document(object):
         recomputed = {}
         recomputed_by_name = MultiValuedDict()
         for m in new_all_models_set:
-            recomputed[m._id] = m
+            recomputed[m.id] = m
             if m.name is not None:
                 recomputed_by_name.add_value(m.name, m)
         for d in to_detach:
-            self._all_former_model_ids.add(d._id)
+            self._all_former_model_ids.add(d.id)
             d._detach_document()
         for a in to_attach:
             a._attach_document(self)
