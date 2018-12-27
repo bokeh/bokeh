@@ -3,9 +3,11 @@ type SlickGrid = typeof SlickGrid
 
 const {RowSelectionModel} = require("slickgrid/plugins/slick.rowselectionmodel")
 const {CheckboxSelectColumn} = require("slickgrid/plugins/slick.checkboxselectcolumn")
+const {CellExternalCopyManager} = require("slickgrid/plugins/slick.cellexternalcopymanager")
 
 import * as p from "core/properties"
 import {uniqueId} from "core/util/string"
+import {isString} from "core/util/types"
 import {any, range} from "core/util/array"
 import {keys} from "core/util/object"
 import {logger} from "core/logging"
@@ -254,6 +256,20 @@ export class DataTableView extends WidgetView {
       this.grid.setSelectionModel(new RowSelectionModel({selectActiveRow: checkboxSelector == null}))
       if (checkboxSelector != null)
         this.grid.registerPlugin(checkboxSelector)
+
+      const pluginOptions = {
+        dataItemColumnValueExtractor: function(val: Item, col: TableColumn) {
+          // As defined in this file, Item can contain any type values
+          let value: any = val[col.field]
+          if (isString(value)) {
+            value = value.replace(/\n/g, "\\n")
+          }
+          return value
+        },
+        includeHeaderWhenCopying: false,
+      }
+
+      this.grid.registerPlugin(new CellExternalCopyManager(pluginOptions))
 
       this.grid.onSelectedRowsChanged.subscribe((_event: any, args: any) => {
         if (this._in_selection_update) {

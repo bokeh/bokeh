@@ -81,7 +81,7 @@
     "pikaday": "^1.7.0",
     "proj4": "<2.4",
     "request": "^2.88.0",
-    "slickgrid": "https://github.com/bokeh/SlickGrid.git#6c1327b",
+    "slickgrid": "https://github.com/bokeh/SlickGrid.git#d1bd9fa7",
     "spawn-sync": "^2.0.0",
     "sprintf-js": "^1.1.1",
     "timezone": "^1.0.6",
