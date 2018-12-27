@@ -142,7 +142,7 @@ class Test_components(object):
         assert set(div.attrs) == set(['class', 'id', 'data-root-id'])
         assert div.attrs['class'] == ['bk-root']
         assert div.attrs['id'] == 'ID'
-        assert div.attrs['data-root-id'] == test_plot._id
+        assert div.attrs['data-root-id'] == test_plot.id
         assert div.text == ''
 
     def test_script_is_utf8_encoded(self, test_plot):

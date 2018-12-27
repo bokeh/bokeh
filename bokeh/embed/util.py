@@ -241,13 +241,13 @@ class RenderRoots(object):
             else:
                 raise ValueError("root with '%s' name not found" % key)
 
-        return RenderRoot(elementid, root._id, root.name, root.tags)
+        return RenderRoot(elementid, root.id, root.name, root.tags)
 
     def __getattr__(self, key):
         return self.__getitem__(key)
 
     def to_json(self):
-        return OrderedDict([ (root._id, elementid) for root, elementid in self._roots.items() ])
+        return OrderedDict([ (root.id, elementid) for root, elementid in self._roots.items() ])
 
 def standalone_docs_json(models):
     '''
@@ -336,10 +336,10 @@ be used. For more information on building and running Bokeh applications, see:
 def _create_temp_doc(models):
     doc = Document()
     for m in models:
-        doc._all_models[m._id] = m
+        doc._all_models[m.id] = m
         m._temp_document = doc
         for ref in m.references():
-            doc._all_models[ref._id] = ref
+            doc._all_models[ref.id] = ref
             ref._temp_document = doc
     doc._roots = models
     return doc

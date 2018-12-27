@@ -46,7 +46,7 @@ class EventCallbackManager(object):
 
     def _trigger_event(self, event):
         for callback in self._event_callbacks.get(event.event_name,[]):
-            if event._model_id is not None and self._id == event._model_id:
+            if event._model_id is not None and self.id == event._model_id:
                 callback(event)
 
     def _update_event_callbacks(self):

@@ -62,7 +62,7 @@ def test_show_doc_no_server(mock_notebook_content,
     mock_notebook_content.return_value = ["notebook_script", "notebook_div", d]
 
     class Obj(object):
-        _id = None
+        id = None
         def references(self): return []
 
     assert mock__publish_display_data.call_count == 0

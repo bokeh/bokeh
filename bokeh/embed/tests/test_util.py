@@ -509,7 +509,7 @@ class Test_standalone_docs_json_and_render_items(object):
         assert doc['version'] == __version__
         assert len(doc['roots']['root_ids']) == 1
         assert len(doc['roots']['references']) == 1
-        assert doc['roots']['references'] == [{'attributes': {}, 'id': str(p1._id), 'type': 'Model'}]
+        assert doc['roots']['references'] == [{'attributes': {}, 'id': str(p1.id), 'type': 'Model'}]
         assert len(render_items) == 1
 
     def test_passing_doc(self):
@@ -522,7 +522,7 @@ class Test_standalone_docs_json_and_render_items(object):
         assert doc['version'] == __version__
         assert len(doc['roots']['root_ids']) == 1
         assert len(doc['roots']['references']) == 1
-        assert doc['roots']['references'] == [{'attributes': {}, 'id': str(p1._id), 'type': 'Model'}]
+        assert doc['roots']['references'] == [{'attributes': {}, 'id': str(p1.id), 'type': 'Model'}]
         assert len(render_items) == 1
 
     def test_exception_for_missing_doc(self):
