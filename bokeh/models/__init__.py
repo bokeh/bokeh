@@ -48,6 +48,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
+from ..core.property.dataspec import expr, field, value # Legacy API
 from ..model import Model
 
 from .annotations import *
