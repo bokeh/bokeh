@@ -166,6 +166,8 @@ def widgetbox(*args, **kwargs):
     col_children = []
     for item in children:
         if isinstance(item, LayoutDOM):
+            if sizing_mode is not None and _has_auto_sizing(item):
+                item.sizing_mode = sizing_mode
             col_children.append(item)
         else:
             raise ValueError("""Only LayoutDOM items can be inserted into a widget box. Tried to insert: %s of type %s""" % (item, type(item)))

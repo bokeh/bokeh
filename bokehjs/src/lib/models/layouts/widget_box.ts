@@ -2,10 +2,6 @@ import {Column, ColumnView} from "./column"
 
 export class WidgetBoxView extends ColumnView {
   model: WidgetBox
-
-  css_classes(): string[] {
-    return super.css_classes().concat("bk-widgetbox")
-  }
 }
 
 export namespace WidgetBox {
@@ -26,10 +22,6 @@ export class WidgetBox extends Column {
   static initClass(): void {
     this.prototype.type = "WidgetBox"
     this.prototype.default_view = WidgetBoxView
-
-    this.override({
-      spacing: 5,
-    })
   }
 }
 WidgetBox.initClass()

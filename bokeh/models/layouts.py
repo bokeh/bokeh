@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
 from ..core.enums import SizingMode, SizingPolicy, Location, TrackAlign
 from ..core.has_props import abstract
 from ..core.properties import (Bool, Auto, Enum, Int, NonNegativeInt, Float,
-    Instance, List, Seq, Tuple, Dict, String, Either, Struct, Override)
+    Instance, List, Seq, Tuple, Dict, String, Either, Struct)
 from ..core.validation import warning, error
 from ..core.validation.warnings import BOTH_CHILD_AND_ROOT, EMPTY_LAYOUT
 from ..core.validation.errors import (FIXED_SIZING_MODE, FIXED_WIDTH_POLICY,
@@ -350,8 +350,6 @@ class WidgetBox(Column):
     ''' Create a column of bokeh widgets with predefined styling.
 
     '''
-
-    spacing = Override(default=5)
 
 class Panel(Model):
     ''' A single-widget container with title bar and controls.
