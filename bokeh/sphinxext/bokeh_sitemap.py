@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 """ Generate a ``sitemap.txt`` to aid with search indexing.
 
 ``sitemap.txt`` is a plain text list of all the pages in the docs site.
@@ -9,12 +16,45 @@ All that is required to generate the sitemap is to list this module
 configuration file ``conf.py``.
 
 """
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from os.path import join
 
+# External imports
 from sphinx.errors import SphinxError
 from sphinx.util import status_iterator
+
+# Bokeh imports
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'build_finished',
+    'html_page_context',
+    'setup',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 def html_page_context(app, pagename, templatename, context, doctree):
     """ Collect page names for the sitemap as HTML pages are built.
@@ -46,3 +86,11 @@ def setup(app):
     app.connect('html-page-context', html_page_context)
     app.connect('build-finished',    build_finished)
     app.sitemap_links = set()
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

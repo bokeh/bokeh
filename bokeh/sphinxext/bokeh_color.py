@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 """ Document Bokeh color objects.
 
 The ``bokeh-color`` directive generates a color swatch for named colors
@@ -6,14 +13,46 @@ in the ``bokeh.colors`` module:
     .. bokeh-color:: aliceblue
 
 """
-from __future__ import absolute_import, print_function
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
 from docutils import nodes
 
+# Bokeh imports
 from bokeh.colors import named
 
 from .bokeh_directive import BokehDirective
 from .templates import COLOR_DETAIL
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'BokehColorDirective',
+    'setup',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class BokehColorDirective(BokehDirective):
 
@@ -31,3 +70,11 @@ class BokehColorDirective(BokehDirective):
 
 def setup(app):
     app.add_directive_to_domain('py', 'bokeh-color', BokehColorDirective)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
