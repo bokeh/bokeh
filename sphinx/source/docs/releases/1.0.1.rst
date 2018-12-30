@@ -3,7 +3,7 @@
 1.0.1
 =====
 
-Bokeh Version ``1.0.1`` (October 2018) is a minor bugfix release.
+Bokeh Version ``1.0.1`` (October 2018) is a micro bugfix release.
 
 Some of the highlights include:
 
