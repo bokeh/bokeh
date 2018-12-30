@@ -1,15 +1,44 @@
-from __future__ import absolute_import, print_function
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import os
 import tempfile
 
-import pytest
+# External imports
 
+# Bokeh imports
 from bokeh.document import Document
 from bokeh.model import Model
 from bokeh.core.property_mixins import FillProps, LineProps, TextProps
 from bokeh.core.properties import Int, String
+
+# Module under test
 from bokeh.themes import Theme, built_in_themes, DARK_MINIMAL, LIGHT_MINIMAL
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class ThemedModel(Model):
     number = Int(42)
@@ -273,3 +302,15 @@ class TestThemes(object):
         doc.add_root(obj)
         with pytest.raises(ValueError):
             doc.theme = 1337
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

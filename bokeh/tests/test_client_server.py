@@ -1,23 +1,52 @@
-from __future__ import absolute_import, print_function
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
-from mock import patch
-import pytest
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import logging
-import bokeh.document as document
+from mock import patch
 import os
-from bokeh.application import Application
-from bokeh.application.handlers import FunctionHandler
-from bokeh.client import pull_session, push_session, ClientSession
-from bokeh.document import Document
-from bokeh.model import Model
-from bokeh.models import Plot
-from bokeh.core.properties import Int, Instance, Dict, String, Any, DistanceSpec, AngleSpec
-from bokeh.document.events import ModelChangedEvent, TitleChangedEvent
+
+# External imports
 from tornado import gen
 from tornado.httpclient import HTTPError
 
+# Bokeh imports
+from bokeh.application import Application
+from bokeh.application.handlers import FunctionHandler
+from bokeh.client import pull_session, push_session, ClientSession
+import bokeh.document as document
+from bokeh.document import Document
+from bokeh.document.events import ModelChangedEvent, TitleChangedEvent
+from bokeh.core.properties import Int, Instance, Dict, String, Any, DistanceSpec, AngleSpec
+from bokeh.model import Model
+from bokeh.models import Plot
 from bokeh.server.tests.utils import ManagedServerLoop, url, ws_url, http_get, websocket_open
+
+# Module under test
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class AnotherModelInTestClientServer(Model):
     bar = Int(1)
@@ -957,3 +986,15 @@ def test_session_show_adds_obj_to_curdoc_if_necessary(m):
     assert session.document.roots == []
     session.show(p)
     assert session.document.roots == [p]
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

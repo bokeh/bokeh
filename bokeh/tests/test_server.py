@@ -1,11 +1,43 @@
-from __future__ import absolute_import, print_function
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import logging
-from bokeh.server.server import Server
-from bokeh.application import Application
+
+# External imports
 from tornado.ioloop import IOLoop
 
+# Bokeh imports
+from bokeh.application import Application
+
+# Module under test
+from bokeh.server.server import Server
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
 logging.basicConfig(level=logging.DEBUG)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 # test_client_server.py is the test for the main functionality
 # of the server, here we're testing some properties in isolation
@@ -21,3 +53,15 @@ class TestServer(object):
         loop.make_current()
         server = Server(Application(), address='0.0.0.0')
         assert server.address == '0.0.0.0'
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
