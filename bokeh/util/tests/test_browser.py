@@ -1,11 +1,39 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import os
 import sys
 import webbrowser
 
-import pytest
 from mock import patch
 
+# External imports
+
+# Bokeh imports
+
+# Module under test
 import bokeh.util.browser as bub
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
 
 _open_args = None
 
@@ -13,6 +41,10 @@ class _RecordingWebBrowser(object):
     def open(self, *args, **kw):
         global _open_args
         _open_args = args, kw
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def test_get_browser_controller_dummy():
     b = bub.get_browser_controller('none')
@@ -92,3 +124,15 @@ def test_view_args():
 
 def test_NEW_PARAM():
     assert bub.NEW_PARAM == {'tab': 2, 'window': 1}
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

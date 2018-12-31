@@ -1,10 +1,35 @@
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from functools import partial
 
-import pytest
+# External imports
 
+# Bokeh imports
+
+# Module under test
 import bokeh.util.callback_manager as cbm
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
 
 class _GoodPropertyCallback(object):
 
@@ -43,6 +68,43 @@ def _partially_good_property(w, x, y, z):
     pass
 def _just_fine_property(w, x, y, z='default'):
     pass
+
+class _GoodEventCallback(object):
+
+    def __init__(self):
+        self.last_name = None
+        self.last_old = None
+        self.last_new = None
+
+    def __call__(self, event):
+        self.method(event)
+
+    def method(self, event):
+        self.event = event
+
+    def partially_good(self, arg, event):
+        pass
+
+class _BadEventCallback(object):
+
+    def __call__(self):
+        pass
+
+    def method(self):
+        pass
+
+def _good_event(event):
+    pass
+def _bad_event(x,y,z):
+    pass
+def _partially_good_event(arg, event):
+    pass
+def _partially_bad_event(event):
+    pass
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class TestPropertyCallbackManager(object):
 
@@ -207,40 +269,6 @@ class TestPropertyCallbackManager(object):
         assert good2.last_old == 42
         assert good2.last_new == 43
 
-
-class _GoodEventCallback(object):
-
-    def __init__(self):
-        self.last_name = None
-        self.last_old = None
-        self.last_new = None
-
-    def __call__(self, event):
-        self.method(event)
-
-    def method(self, event):
-        self.event = event
-
-    def partially_good(self, arg, event):
-        pass
-
-class _BadEventCallback(object):
-
-    def __call__(self):
-        pass
-
-    def method(self):
-        pass
-
-def _good_event(event):
-    pass
-def _bad_event(x,y,z):
-    pass
-def _partially_good_event(arg, event):
-    pass
-def _partially_bad_event(event):
-    pass
-
 class TestEventCallbackManager(object):
 
     def test_creation(self):
@@ -372,3 +400,15 @@ class TestEventCallbackManager(object):
         bad = _BadEventCallback()
         with pytest.raises(ValueError):
             m.on_event('foo', good.method, bad.method)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
