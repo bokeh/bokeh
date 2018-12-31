@@ -1,3 +1,31 @@
+2018-12-31    1.0.3:
+--------------------
+  * bugfixes:
+    - #7118 [component: bokehjs] Unable to update arrow
+    - #8401 [API: models] Incorrect image import from bokeh.models
+    - #8493 [component: bokehjs] Polydrawtool shows vertices even when not active
+  * features:
+    - #2828 [component: bokehjs] [widgets] Multi-line textinput box?
+    - #7762 [component: bokehjs] Copy & paste from datatable
+    - #8444 [component: bokehjs] Feature request: expose sort_columns in js datatable object
+    - #8502 Support environment variable in addition to --allow-websocket-origin
+  * tasks:
+    - #8372 Extended bad_column_name error 
+    - #8379 [component: examples] Export csv example more useful if you don't have to hard code headers in download.js
+    - #8383 [component: tests] Attempt to enable downstream tests for holoviews
+    - #8384 [component: bokehjs] Feature: add plot's root id to dom so to allow api access to the object
+    - #8472 Boilerplates for bokeh/models
+    - #8476 [component: bokehjs] [typescript] Upgrade to typescript 3.2
+    - #8481 [component: docs] Doc: remove extra "to execute" from embed
+    - #8485 Update sampledata bucket url
+    - #8491 [component: docs] Typo in range_tool example
+    - #8495 [component: tests] Document licenses of included projects
+    - #8506 Boilerplate for bokeh/plotting directory
+    - #8514 Boilerplate for protocol
+    - #8517 Boilerplate for bokeh/server
+    - #8523 Property getter for model.id
+    - #8528 [component: docs] Release notes
+
 2018-11-29    1.0.2:
 --------------------
   * bugfixes:
