@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 '''
 Functions for helping with serialization and deserialization of
 Bokeh objects.
@@ -8,11 +15,20 @@ performance and efficiency. The list of supported dtypes is:
 {binary_array_types}
 
 '''
-from __future__ import absolute_import
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 log = logging.getLogger(__name__)
 
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import base64
 import datetime as dt
 import math
@@ -20,11 +36,17 @@ import sys
 from threading import Lock
 import uuid
 
+# External imports
 import numpy as np
 
+# Bokeh imports
 from ..settings import settings
 from .string import format_docstring
 from .dependencies import import_optional
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
 
 pd = import_optional('pandas')
 
@@ -63,10 +85,29 @@ DT_EPOCH = dt.datetime.utcfromtimestamp(0)
 
 __doc__ = format_docstring(__doc__, binary_array_types="\n".join("* ``np." + str(x) + "``" for x in BINARY_ARRAY_TYPES))
 
-_simple_id = 999
-_simple_id_lock = Lock()
+__all__ = (
+    'array_encoding_disabled',
+    'convert_datetime_array',
+    'convert_datetime_type',
+    'convert_timedelta_type',
+    'decode_base64_dict',
+    'encode_binary_dict',
+    'encode_base64_dict',
+    'is_datetime_type',
+    'is_timedelta_type',
+    'make_globally_unique_id',
+    'make_id',
+    'serialize_array',
+    'transform_array',
+    'transform_array_to_list',
+    'transform_column_source_data',
+    'traverse_data',
+    'transform_series',
+)
 
-_dt_tuple = tuple(DATETIME_TYPES)
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def is_datetime_type(obj):
     ''' Whether an object is any date, time, or datetime type recognized by
@@ -533,3 +574,20 @@ def decode_base64_dict(data):
     if len(data['shape']) > 1:
         array = array.reshape(data['shape'])
     return array
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+_simple_id = 999
+_simple_id_lock = Lock()
+
+_dt_tuple = tuple(DATETIME_TYPES)
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
