@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 """ Thoroughly document Bokeh options classes.
 
 The ``bokeh-options`` directive will automatically document
@@ -28,18 +35,49 @@ the above usage yields the output:
         :module: bokeh.sphinxext.sample
 
 """
-from __future__ import absolute_import, print_function
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import importlib
 import textwrap
 
+# External imports
 from docutils.parsers.rst.directives import unchanged
 
 from sphinx.errors import SphinxError
 
+# Bokeh imports
 from ..util.options import Options
 from .bokeh_directive import BokehDirective, py_sig_re
 from .templates import OPTIONS_DETAIL
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'BokehOptionsDirective',
+    'setup',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class BokehOptionsDirective(BokehDirective):
 
@@ -91,3 +129,11 @@ class BokehOptionsDirective(BokehDirective):
 
 def setup(app):
     app.add_directive_to_domain('py', 'bokeh-options', BokehOptionsDirective)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
