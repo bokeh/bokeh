@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 """ Thoroughly document Bokeh model classes.
 
 The ``bokeh-model`` directive will automatically document
@@ -28,18 +35,49 @@ the above usage yields the output:
         :module: bokeh.sphinxext.sample
 
 """
-from __future__ import absolute_import, print_function
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import importlib
 import json
 
+# External imports
 from docutils.parsers.rst.directives import unchanged
 
 from sphinx.errors import SphinxError
 
+# Bokeh imports
 from ..model import MetaModel
 from .bokeh_directive import BokehDirective, py_sig_re
 from .templates import MODEL_DETAIL
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'BokehModelDirective',
+    'setup',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class BokehModelDirective(BokehDirective):
 
@@ -92,3 +130,11 @@ class BokehModelDirective(BokehDirective):
 
 def setup(app):
     app.add_directive_to_domain('py', 'bokeh-model', BokehModelDirective)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
