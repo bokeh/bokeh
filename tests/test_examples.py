@@ -1,19 +1,19 @@
 from __future__ import absolute_import, print_function
 
 import os
-from os.path import basename
 import time
 import pytest
 import subprocess
 import signal
 
-from os.path import dirname, exists, split
+from os.path import basename, dirname, exists, split
+from base64 import b64decode
 
 import six
 
 from bokeh.server.callbacks import NextTickCallback, PeriodicCallback, TimeoutCallback
 from bokeh._testing.util.images import image_diff
-from bokeh._testing.util.screenshot import get_screenshot
+from bokeh._testing.util.screenshot import run_in_chrome
 
 from bokeh.client import push_session
 from bokeh.command.util import build_single_handler_application
@@ -33,7 +33,7 @@ def test_js_examples(js_example, example, report):
         if not pytest.config.option.no_js:
             warn("skipping bokehjs for %s" % example.relpath)
     else:
-        _assert_snapshot(example, "file://%s" % example.path, 'js')
+        _run_in_browser(example, "file://%s" % example.path)
 
         if example.no_diff:
             warn("skipping image diff for %s" % example.relpath)
@@ -65,7 +65,7 @@ def test_file_examples(file_example, example, report):
         if not pytest.config.option.no_js:
             warn("skipping bokehjs for %s" % example.relpath)
     else:
-        _assert_snapshot(example, "file://%s.html" % example.path_no_ext, 'file')
+        _run_in_browser(example, "file://%s.html" % example.path_no_ext)
 
         if example.no_diff:
             warn("skipping image diff for %s" % example.relpath)
@@ -104,7 +104,7 @@ def test_server_examples(server_example, example, report, bokeh_server):
             warn("skipping bokehjs for %s" % example.relpath)
 
     else:
-        _assert_snapshot(example, "http://localhost:5006/?bokeh-session-id=%s" % session_id, 'server')
+        _run_in_browser(example, "http://localhost:5006/?bokeh-session-id=%s" % session_id)
 
         if example.no_diff:
             warn("skipping image diff for %s" % example.relpath)
@@ -121,13 +121,7 @@ def _get_pdiff(example):
     if not ref:
         warn("reference image %s doesn't exist" % example.ref_url)
     else:
-        ref_dir = dirname(ref_path)
-        if not exists(ref_dir):
-            os.makedirs(ref_dir)
-
-        with open(ref_path, "wb") as f:
-            f.write(ref)
-
+        _store_binary(ref_path, ref)
         trace("saved reference: " + ref_path)
 
         example.pixels = image_diff(diff_path, img_path, ref_path)
@@ -168,30 +162,32 @@ def _print_webengine_output(result):
         for line in error['text'].split("\n"):
             fail(line, label="JS")
 
+def _store_binary(path, data):
+    directory = dirname(path)
+    if not exists(directory):
+        os.makedirs(directory)
 
-def _assert_snapshot(example, url, example_type):
-    screenshot_path = example.img_path
+    with open(path, "wb") as f:
+        f.write(data)
 
-    width = 1000
-    height = 2000 if example_type == 'notebook' else 1000
-
-    local_wait = 100
-    global_wait = 15000
-
+def _run_in_browser(example, url):
     start = time.time()
-    result = get_screenshot(url, screenshot_path, local_wait, global_wait, width, height)
+    result = run_in_chrome(url)
     end = time.time()
 
     info("Example rendered in %s" % white("%.3fs" % (end - start)))
 
-    success = result['success']
-    timeout = result['timeout']
-    errors = result['errors']
+    success = result["success"]
+    timeout = result["timeout"]
+    errors = result["errors"]
+    image = result["image"]
+
+    _store_binary(example.img_path, b64decode(image["data"]))
 
     no_errors = len(errors) == 0
 
     if timeout:
-        warn("%s %s" % (red("TIMEOUT:"), "bokehjs did not finish in %s ms" % global_wait))
+        warn("%s %s" % (red("TIMEOUT:"), "bokehjs did not finish"))
 
     if pytest.config.option.verbose:
         _print_webengine_output(result)

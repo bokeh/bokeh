@@ -57,7 +57,7 @@ jobs:
       addons:
         chrome: stable
       before_script:
-        - google-chrome-stable --no-sandbox --headless --remote-debugging-port=9222 &
+        - google-chrome-stable --no-sandbox --headless --hide-scrollbars --remote-debugging-port=9222 &
       env:
       - GROUP=examples
       - PYTHON=3.5

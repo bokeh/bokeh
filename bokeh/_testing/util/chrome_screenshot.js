@@ -1,20 +1,14 @@
 const CDP = require('chrome-remote-interface')
 
 const path = require('path')
-const fs = require('fs')
-
-const mkdirp = require('mkdirp')
-
-const {max, ceil} = Math
 
 const argv = process.argv.slice(2)
 
 const file = argv[0]
 const is_url = file.startsWith("file://") || file.startsWith("http://") || file.startsWith("https://")
 const url = is_url ? file : `file://${path.resolve(file)}`
-const png = argv[1] || path.basename(file, ".html") + ".png"
-const pause = parseInt(argv[2]) || 100
-const timeout = parseInt(argv[3]) || 15000
+const pause = parseInt(argv[1]) || 100
+const timeout = parseInt(argv[2]) || 15000
 
 /*
 interface CallFrame {
@@ -52,7 +46,7 @@ interface Output {
 process.on('unhandledRejection', (reason, p) => {
   console.error('Unhandled rejection at: ', reason)
   process.exit(1)
-});
+})
 
 function wait(ms) {
   return new Promise(resolve => setTimeout(resolve, ms))
@@ -66,7 +60,12 @@ CDP(async function(client) {
   await Page.enable()
   await Runtime.enable()
 
-  await Emulation.setDeviceMetricsOverride({width: 1000, height: 1000, deviceScaleFactor: 0, mobile: false})
+  await Emulation.setDeviceMetricsOverride({
+    width: 1000,
+    height: 1000,
+    deviceScaleFactor: 0,
+    mobile: false,
+  })
 
   const messages = []
   const errors = []
@@ -107,29 +106,11 @@ CDP(async function(client) {
     }
   })
 
-  async function screenshot() {
-    const {result: {value: margin}} = await Runtime.evaluate({expression: "parseFloat(getComputedStyle(document.body).margin)"})
+  async function evaluate(expression) {
+    const {result, exceptionDetails} = await Runtime.evaluate({expression})
 
-    const {result: {value: width}}  = await Runtime.evaluate({expression: "document.body.scrollWidth"})
-    const {result: {value: height}} = await Runtime.evaluate({expression: "document.body.scrollHeight"})
-
-    const adjust = (value, step=50) => Math.max(ceil(value/step)*step, 1000)
-    const [adjusted_width, adjusted_heigth] = [adjust(width + 2*margin), adjust(height + 2*margin)]
-
-    await Emulation.setDeviceMetricsOverride({width: adjusted_width, height: adjusted_heigth, deviceScaleFactor: 0, mobile: false})
-
-    const image = await Page.captureScreenshot({format: "png"})
-    const buffer = new Buffer(image.data, 'base64')
-    mkdirp.sync(path.dirname(png))
-    fs.writeFileSync(png, buffer, 'base64')
-  }
-
-  async function is_idle() {
-    const script = "typeof Bokeh !== 'undefined' && Bokeh.documents.length !== 0 && Bokeh.documents[0].is_idle"
-    const {result, exceptionDetails} = await Runtime.evaluate({expression: script})
-
-    if (result.type === "boolean")
-      return result.value
+    if (exceptionDetails == null)
+      return result
     else {
       const {text, lineNumber, columnNumber, url, stackTrace} = exceptionDetails
       errors.push({text, url, line: lineNumber+1, col: columnNumber+1, trace: collect_trace(stackTrace)})
@@ -137,16 +118,63 @@ CDP(async function(client) {
     }
   }
 
-  async function finish(timeout, success) {
-    if (success)
-      await screenshot()
+  async function get_bbox() {
+    const expr = `
+      const el = document.body
+      const style = getComputedStyle(el)
+      const width = Math.ceil(parseFloat(style.marginLeft) + el.scrollWidth + parseFloat(style.marginRight))
+      const height = Math.ceil(parseFloat(style.marginTop) + el.scrollHeight + parseFloat(style.marginBottom))
+      JSON.stringify([width, height])
+    `
+    const result = await evaluate(expr)
 
-    console.log(JSON.stringify({
-      success: success,
-      timeout: timeout,
-      errors: errors,
-      messages: messages,
-    }))
+    if (result != null) {
+      const [width, height] = JSON.parse(result.value)
+      return {x: 0, y: 0, width, height, scale: 1}
+    } else
+      return undefined
+  }
+
+  /*
+  async function get_bbox() {
+    const expr = "JSON.stringify(Object.keys(Bokeh.index).map((key) => Bokeh.index[key].el.getBoundingClientRect()))"
+    const result = await evaluate(expr)
+
+    if (result != null) {
+      const bboxes = JSON.parse(result.value)
+      const left = Math.floor(Math.min(...bboxes.map((bbox) => bbox.left)))
+      const top = Math.floor(Math.min(...bboxes.map((bbox) => bbox.top)))
+      const right = Math.ceil(Math.max(...bboxes.map((bbox) => bbox.right)))
+      const bottom = Math.ceil(Math.max(...bboxes.map((bbox) => bbox.bottom)))
+      return {
+        x: left,
+        y: top,
+        width: right - left,
+        height: bottom - top,
+        scale: 1,
+      }
+    } else
+      return undefined
+  }
+  */
+
+  async function get_image() {
+    return await Page.captureScreenshot({format: "png", clip: await get_bbox()})
+  }
+
+  async function is_idle() {
+    const expr = "typeof Bokeh !== 'undefined' && Bokeh.documents.length !== 0 && Bokeh.documents[0].is_idle"
+    const result = await evaluate(expr)
+    return result != null && result.value === true
+  }
+
+  async function finish(timeout, success) {
+    let image = null
+    if (success) {
+      image = await get_image()
+    }
+
+    console.log(JSON.stringify({success, timeout, errors, messages, image}))
 
     await client.close()
   }
