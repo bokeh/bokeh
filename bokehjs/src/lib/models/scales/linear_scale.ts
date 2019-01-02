@@ -47,7 +47,7 @@ export class LinearScale extends Scale {
     return result
   }
 
-  protected _compute_state(): [number, number] {
+  /*protected*/ _compute_state(): [number, number] {
     //
     //  (t1 - t0)       (t1 - t0)
     //  --------- * x - --------- * s0 + t0

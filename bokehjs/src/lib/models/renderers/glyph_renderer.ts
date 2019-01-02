@@ -418,7 +418,7 @@ export class GlyphRenderer extends DataRenderer {
     }
   }
 
-  get_reference_point(field: string | null, value: any): number {
+  get_reference_point(field: string | null, value?: any): number {
     let index = 0
     if (field != null) {
       const data = this.data_source.get_column(field)

@@ -112,7 +112,7 @@ export class DataRange1d extends DataRange {
     return renderers
   }
 
-  protected _compute_plot_bounds(renderers: Renderer[], bounds: Bounds): Rect {
+  /*protected*/ _compute_plot_bounds(renderers: Renderer[], bounds: Bounds): Rect {
     let result = bbox.empty()
 
     for (const r of renderers) {
@@ -149,7 +149,7 @@ export class DataRange1d extends DataRange {
     return result
   }
 
-  protected _compute_min_max(plot_bounds: Bounds, dimension: Dim): [number, number] {
+  /*protected*/ _compute_min_max(plot_bounds: Bounds, dimension: Dim): [number, number] {
     let overall = bbox.empty()
     for (const k in plot_bounds) {
       const v = plot_bounds[k]
@@ -165,7 +165,7 @@ export class DataRange1d extends DataRange {
     return [min, max]
   }
 
-  protected _compute_range(min: number, max: number): [number, number] {
+  /*protected*/ _compute_range(min: number, max: number): [number, number] {
     const range_padding = this.range_padding // XXX: ? 0
 
     let start, end: number

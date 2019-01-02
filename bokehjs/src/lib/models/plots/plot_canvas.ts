@@ -170,7 +170,7 @@ export class PlotView extends LayoutDOMView {
   computed_renderers: Renderer[]
 
   /*protected*/ renderer_views: {[key: string]: RendererView}
-  protected tool_views: {[key: string]: ToolView}
+  /*protected*/ tool_views: {[key: string]: ToolView}
 
   protected range_update_timestamp?: number
 
