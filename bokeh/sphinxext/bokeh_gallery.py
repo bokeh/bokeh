@@ -1,16 +1,55 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 """ Generate a gallery of Bokeh plots from a configuration file.
 
 """
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import json
 from os.path import abspath, dirname, join
 
+# External imports
 from sphinx.errors import SphinxError
 from sphinx.util import copyfile, ensuredir, status_iterator
 
+# Bokeh imports
 from .bokeh_directive import BokehDirective
 from .templates import GALLERY_PAGE
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'BokehGalleryDirective',
+    'env_updated_handler',
+    'setup',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class BokehGalleryDirective(BokehDirective):
 
@@ -78,3 +117,11 @@ def setup(app):
     app.add_config_value('bokeh_gallery_dir', join("docs", "gallery"), 'html')
     app.connect('env-updated', env_updated_handler)
     app.add_directive('bokeh-gallery', BokehGalleryDirective)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

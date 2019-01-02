@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -33,14 +33,14 @@ from ..core.has_props import HasProps
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-__all__ = (
-    'Theme',
-)
-
 # whenever we cache that there's nothing themed for a class, we
 # use this same dict instance, so we don't have a zillion empty
 # dicts in our caches.
 _empty_dict = dict()
+
+__all__ = (
+    'Theme',
+)
 
 #-----------------------------------------------------------------------------
 # General API
