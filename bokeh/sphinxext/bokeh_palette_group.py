@@ -1,10 +1,3 @@
-#-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
-#
-# The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
 """ Generate visual representations of palettes in Bokeh palette groups.
 
 The ``bokeh.palettes`` modules expose attributes such as ``mpl``, ``brewer``,
@@ -23,51 +16,15 @@ Generates the output:
     .. bokeh-palette-group:: mpl
 
 """
+from __future__ import absolute_import
 
-#-----------------------------------------------------------------------------
-# Boilerplate
-#-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
-log = logging.getLogger(__name__)
-
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
-
-# Standard library imports
-
-# External imports
 from docutils import nodes
 from docutils.parsers.rst import Directive
 
 from sphinx.errors import SphinxError
 
-# Bokeh imports
 from .. import palettes as bp
 from .templates import PALETTE_GROUP_DETAIL
-
-#-----------------------------------------------------------------------------
-# Globals and constants
-#-----------------------------------------------------------------------------
-
-__all__ = (
-    'bokeh_palette_group',
-    'BokehPaletteGroupDirective',
-    'CSS',
-    'html_visit_bokeh_palette_group',
-    'JS',
-    'setup',
-)
-
-#-----------------------------------------------------------------------------
-# General API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
 
 CSS = """
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -77,6 +34,7 @@ JS = """
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 """
+
 
 class bokeh_palette_group(nodes.General, nodes.Element):
     pass
@@ -112,11 +70,3 @@ def html_visit_bokeh_palette_group(self, node):
 def setup(app):
     app.add_node(bokeh_palette_group, html=(html_visit_bokeh_palette_group, None))
     app.add_directive('bokeh-palette-group', BokehPaletteGroupDirective)
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------

@@ -1,48 +1,8 @@
-#-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
-#
-# The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Boilerplate
-#-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
-log = logging.getLogger(__name__)
-
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
-
-# Standard library imports
 import sys
 
-# External imports
-
-# Bokeh imports
 from ..application.handlers.code_runner import CodeRunner
 from ..application.handlers.handler import Handler
 from ..io.doc import set_curdoc, curdoc
-
-#-----------------------------------------------------------------------------
-# Globals and constants
-#-----------------------------------------------------------------------------
-
-__all__ = (
-    'ExampleHandler',
-)
-
-#-----------------------------------------------------------------------------
-# General API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
 
 class ExampleHandler(Handler):
     """ A stripped-down handler similar to CodeHandler but that does
@@ -133,11 +93,3 @@ class ExampleHandler(Handler):
     @property
     def error_detail(self):
         return self._runner.error_detail
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------

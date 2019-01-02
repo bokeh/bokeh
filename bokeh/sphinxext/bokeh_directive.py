@@ -1,41 +1,13 @@
-#-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
-#
-# The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
 '''
 
 '''
-
-#-----------------------------------------------------------------------------
-# Boilerplate
-#-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
-log = logging.getLogger(__name__)
-
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
-
-# Standard library imports
 import re
 
-# External imports
 from docutils import nodes
 from docutils.parsers.rst import Directive
 from docutils.statemachine import ViewList
 
 from sphinx.util.nodes import nested_parse_with_titles
-
-# Bokeh imports
-
-#-----------------------------------------------------------------------------
-# Globals and constants
-#-----------------------------------------------------------------------------
 
 # taken from Sphinx autodoc
 py_sig_re = re.compile(
@@ -45,19 +17,6 @@ py_sig_re = re.compile(
            (?:\s* -> \s* (.*))?  #           return annotation
           )? $                   # and nothing more
           ''', re.VERBOSE)
-
-__all__ = (
-    'BokehDirective',
-    'py_sig_re',
-)
-
-#-----------------------------------------------------------------------------
-# General API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
 
 class BokehDirective(Directive):
 
@@ -69,11 +28,3 @@ class BokehDirective(Directive):
         node.document = self.state.document
         nested_parse_with_titles(self.state, result, node)
         return node.children
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------

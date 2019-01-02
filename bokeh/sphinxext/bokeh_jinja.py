@@ -1,10 +1,3 @@
-#-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
-#
-# The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
 """ Automatically document Bokeh Jinja2 templates.
 
 The ``bokeh-jinja`` directive generates useful type information
@@ -19,50 +12,19 @@ model class as an argument::
 
 
 """
+from __future__ import absolute_import, print_function
 
-#-----------------------------------------------------------------------------
-# Boilerplate
-#-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import logging
-log = logging.getLogger(__name__)
-
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
-
-# Standard library imports
 import importlib
 from os.path import basename
 import re
 import textwrap
 
-# External imports
 from sphinx.errors import SphinxError
 
-# Bokeh imports
 from .bokeh_directive import BokehDirective
 from .templates import JINJA_DETAIL
 
-#-----------------------------------------------------------------------------
-# Globals and constants
-#-----------------------------------------------------------------------------
-
 DOCPAT = re.compile(r"\{\#(.+?)\#\}", flags=re.MULTILINE|re.DOTALL)
-
-__all__ = (
-    'BokehJinjaDirective',
-    'setup',
-)
-
-#-----------------------------------------------------------------------------
-# General API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
 
 class BokehJinjaDirective(BokehDirective):
 
@@ -102,11 +64,3 @@ class BokehJinjaDirective(BokehDirective):
 
 def setup(app):
     app.add_directive_to_domain('py', 'bokeh-jinja', BokehJinjaDirective)
-
-#-----------------------------------------------------------------------------
-# Private API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Code
-#-----------------------------------------------------------------------------
