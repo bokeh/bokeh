@@ -7,7 +7,7 @@ import * as p from "core/properties"
 
 import {build_views} from "core/build_views"
 import {DOMView} from "core/dom_view"
-import {SizingPolicy, BoxSizing, Margin, Layoutable} from "core/layout"
+import {SizingPolicy, BoxSizing, Margin, Size, Layoutable} from "core/layout"
 
 export namespace LayoutDOMView {
   export type Options = DOMView.Options & {model: LayoutDOM}
@@ -23,14 +23,15 @@ export abstract class LayoutDOMView extends DOMView {
 
   protected _child_views: {[key: string]: LayoutDOMView}
 
-  protected _on_resize: () => void
+  protected _on_resize?: () => void
+
+  protected _viewport: Partial<Size> = {}
 
   layout: Layoutable
 
   initialize(options: any): void {
     super.initialize(options)
     this.el.style.position = this.is_root ? "relative" : "absolute"
-    this._on_resize = () => this.compute_layout()
     this._child_views = {}
     this.build_child_views()
   }
@@ -46,6 +47,7 @@ export abstract class LayoutDOMView extends DOMView {
     super.connect_signals()
 
     if (this.is_root) {
+      this._on_resize = () => this.resize_layout()
       window.addEventListener("resize", this._on_resize)
     }
 
@@ -56,7 +58,7 @@ export abstract class LayoutDOMView extends DOMView {
   }
 
   disconnect_signals(): void {
-    window.removeEventListener("resize", this._on_resize)
+    window.removeEventListener("resize", this._on_resize!)
     super.disconnect_signals()
   }
 
@@ -109,8 +111,13 @@ export abstract class LayoutDOMView extends DOMView {
     this._has_finished = true
   }
 
+  compute_viewport(): void {
+    this._viewport = this._viewport_size()
+  }
+
   renderTo(element: HTMLElement): void {
     element.appendChild(this.el)
+    this.compute_viewport()
     this.build()
   }
 
@@ -131,12 +138,16 @@ export abstract class LayoutDOMView extends DOMView {
 
   compute_layout(): void {
     const start = Date.now()
-    const viewport = this._viewport_size()
-    this.layout.compute(viewport)
+    this.layout.compute(this._viewport)
     this.update_position()
     this.after_layout()
     logger.debug(`layout computed in ${Date.now() - start} ms`)
     this.notify_finished()
+  }
+
+  resize_layout(): void {
+    this.root.compute_viewport()
+    this.root.compute_layout()
   }
 
   has_finished(): boolean {
@@ -238,7 +249,7 @@ export abstract class LayoutDOMView extends DOMView {
     }
   }
 
-  protected _viewport_size(): {width: number | null, height: number | null} {
+  protected _viewport_size(): Partial<Size> {
     return undisplayed(this.el, () => {
       let measuring: HTMLElement | null = this.el
 
@@ -264,13 +275,13 @@ export abstract class LayoutDOMView extends DOMView {
 
         if (inner_width > 0 || inner_height > 0)
           return {
-            width: inner_width > 0 ? inner_width : null,
-            height: inner_height > 0 ? inner_height : null,
+            width: inner_width > 0 ? inner_width : undefined,
+            height: inner_height > 0 ? inner_height : undefined,
           }
       }
 
       // this element is detached from DOM
-      return {width: null, height: null}
+      return {}
     })
   }
 

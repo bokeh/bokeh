@@ -147,7 +147,7 @@ export abstract class Layoutable {
     return height*aspect!
   }
 
-  compute(viewport: {width: number | null, height: number | null}): void {
+  compute(viewport: Partial<Size>): void {
     const size_hint = this.size_hint()
 
     let width: number
