@@ -1,17 +1,52 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Utilities for checking dependencies
 
 '''
-from importlib import import_module
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+from importlib import import_module
 import shutil
 from subprocess import Popen, PIPE
 
 from packaging.version import Version as V
 
+# External imports
+
+# Bokeh imports
 from ..settings import settings
 
-logger = logging.getLogger(__name__)
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'import_optional',
+    'import_required',
+    'detect_phantomjs',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def import_optional(mod_name):
     ''' Attempt to import an optional dependency.
@@ -31,7 +66,7 @@ def import_optional(mod_name):
         pass
     except Exception:
         msg = "Failed to import optional module `{}`".format(mod_name)
-        logger.exception(msg)
+        log.exception(msg)
 
 def import_required(mod_name, error_msg):
     ''' Attempt to import a required dependency.
@@ -92,3 +127,15 @@ def detect_phantomjs(version='2.1'):
             "npm install -g phantomjs-prebuilt"')
 
     return phantomjs_path
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

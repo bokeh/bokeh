@@ -1,14 +1,53 @@
-from __future__ import absolute_import, print_function
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
 from tornado import gen
 from tornado.ioloop import IOLoop
 
+# Bokeh imports
+
+# Module under test
 from bokeh.util.tornado import yield_for_all_futures
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
 
 @gen.coroutine
 def async_value(value):
     yield gen.moment # this ensures we actually return to the loop
     raise gen.Return(value)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
 
 def test__yield_for_all_futures():
     loop = IOLoop()
@@ -38,3 +77,7 @@ def test__yield_for_all_futures():
     assert 6 == result['value']
 
     loop.close()
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

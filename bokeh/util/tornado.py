@@ -1,20 +1,50 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 """ Internal utils related to Tornado
 
 """
-from __future__ import absolute_import, print_function
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import threading
 from collections import defaultdict
 
-log = logging.getLogger(__name__)
-
 from traceback import format_exception
 
+# External imports
 import six
 from tornado import gen
+
+# Bokeh imports
 from ..util.serialization import make_id
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'yield_for_all_futures',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 @gen.coroutine
 def yield_for_all_futures(result):
@@ -40,6 +70,13 @@ def yield_for_all_futures(result):
 
     raise gen.Return(result)
 
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
 
 class _AsyncPeriodic(object):
     """Like ioloop.PeriodicCallback except the 'func' can be async and
@@ -228,3 +265,7 @@ class _CallbackGroup(object):
     def remove_periodic_callback(self, callback_id):
         """ Removes a callback added with add_periodic_callback."""
         self._execute_remover(callback_id, self._periodic_callback_removers)
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
