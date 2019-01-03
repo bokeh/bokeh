@@ -5,6 +5,8 @@
 
 - path: "examples/custom"
 
+- path: "examples/webgl"
+
 - path: "examples/plotting/file"
   slow: ["choropleth.py"]
   no_diff: ["jitter.py", "categorical_scatter_jitter.py", "linked_brushing.py"]
