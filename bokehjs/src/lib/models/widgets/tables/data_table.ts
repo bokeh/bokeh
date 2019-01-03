@@ -11,10 +11,11 @@ import {isString} from "core/util/types"
 import {any, range} from "core/util/array"
 import {keys} from "core/util/object"
 import {logger} from "core/logging"
+import {HTML} from "core/layout"
 
 import {TableWidget} from "./table_widget"
 import {Column, TableColumn} from "./table_column"
-import {DOMLayout, WidgetView} from "../widget"
+import {WidgetView} from "../widget"
 import {ColumnDataSource, Index} from "../../sources/column_data_source"
 import {CDSView} from "../../sources/cds_view"
 
@@ -119,7 +120,7 @@ export class DataTableView extends WidgetView {
 
   _update_layout(): void {
     // XXX: temporary hack just to get sensible table height
-    this.layout = new (class extends DOMLayout {
+    this.layout = new (class extends HTML {
       has_hfw(): boolean {
         return false
       }

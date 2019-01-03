@@ -44,6 +44,7 @@ __all__ = (
     'Box',
     'Column',
     'GridBox',
+    'HTMLBox',
     'LayoutDOM',
     'Row',
     'Spacer',
@@ -250,6 +251,12 @@ class LayoutDOM(Model):
 
         if not (min_height <= height <= max_height):
             return str(self)
+
+@abstract
+class HTMLBox(LayoutDOM):
+    ''' A component which size is determined by its HTML content.
+
+    '''
 
 class Spacer(LayoutDOM):
     ''' A container for space used to fill an empty spot in a row or column.
