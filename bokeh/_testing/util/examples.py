@@ -169,7 +169,10 @@ class Example(object):
 
         cmd = ["perl", "/usr/share/doc/git/contrib/diff-highlight/diff-highlight"]
         proc = Popen(cmd, stdout=PIPE, stderr=PIPE, stdin=PIPE)
-        (diff, _) = proc.communicate(diff)
+        (hl_diff, _) = proc.communicate(diff)
+
+        if proc.returncode == 0:
+            diff = hl_diff
 
         return diff.decode("utf-8").strip()
 
