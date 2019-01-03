@@ -84,6 +84,8 @@ export class DropdownView extends AbstractButtonView {
       this._hide_menu()
       this.model.trigger_event(new ButtonClick())
       this.model.value = this.model.default_value
+      if (this.model.callback != null)
+        this.model.callback.execute(this.model)
       super.click()
     }
   }
@@ -97,8 +99,15 @@ export class DropdownView extends AbstractButtonView {
       if (isString(value_or_callback)) {
         this.model.trigger_event(new MenuItemClick({item: value_or_callback}))
         this.model.value = value_or_callback
-      } else
+
+        if (this.model.callback != null)
+          this.model.callback.execute(this.model, {index: i, item: value_or_callback})
+      } else {
         value_or_callback.execute(this.model, {index: i}) // TODO
+
+        if (this.model.callback != null)
+          this.model.callback.execute(this.model, {index: i})
+      }
     }
   }
 }

@@ -74,4 +74,4 @@ sliders = column(*sliders)
 
 output_file("line_compare.html", title="line_compare.py example")
 
-show(row(column(sliders, p1), column(p2, p3)))
+show(row(column(sliders), column(p1, p2, p3)))
