@@ -1,13 +1,33 @@
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import base64
 import codecs
 import os
+import random
 
 from mock import patch
-import pytest
 
-import bokeh.util.session_id
+# External imports
+
+# Bokeh imports
 from bokeh.util.string import decode_utf8
 from bokeh.util.session_id import ( generate_session_id,
                                     generate_secret_key,
@@ -16,7 +36,13 @@ from bokeh.util.session_id import ( generate_session_id,
                                     _signature,
                                     _reseed_if_needed,
                                     _base64_encode )
-import random
+
+# Module under test
+import bokeh.util.session_id
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
 
 # decoder for our flavor of base64 that converts to ascii
 # and drops '=' padding
@@ -40,41 +66,9 @@ def _nie():
 
 _MERSENNE_MSG = 'A secure pseudo-random number generator is not available on your system. Falling back to Mersenne Twister.'
 
-class Test__get_sysrandom(object):
-
-    def test_default(self):
-        import random
-        try:
-            random.SystemRandom()
-            expected = True
-        except NotImplementedError:
-            expected = False
-        _random, using_sysrandom = _get_sysrandom()
-        assert using_sysrandom == expected
-
-    @patch('random.SystemRandom', new_callable=_nie)
-    def test_missing_sysrandom_no_secret_key(self, _mock_sysrandom):
-        with pytest.warns(UserWarning) as warns:
-            random, using_sysrandom = _get_sysrandom()
-            assert not using_sysrandom
-            assert len(warns) == 2
-            assert warns[0].message.args[0] == _MERSENNE_MSG
-            assert warns[1].message.args[0] == (
-                'A secure pseudo-random number generator is not available '
-                'and no BOKEH_SECRET_KEY has been set. '
-                'Setting a secret key will mitigate the lack of a secure '
-                'generator.'
-            )
-
-    @patch('random.SystemRandom', new_callable=_nie)
-    def test_missing_sysrandom_with_secret_key(self, _mock_sysrandom):
-        os.environ["BOKEH_SECRET_KEY"] = "foo"
-        with pytest.warns(UserWarning) as warns:
-            random, using_sysrandom = _get_sysrandom()
-            assert not using_sysrandom
-            assert len(warns) == 1
-            assert warns[0].message.args[0] == _MERSENNE_MSG
-        del os.environ["BOKEH_SECRET_KEY"]
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class TestSessionId(object):
     def test_base64_roundtrip(self):
@@ -146,3 +140,51 @@ class TestSessionId(object):
         session_id = generate_session_id(signed=True, secret_key="abc")
         assert check_session_id_signature(session_id, secret_key="abc", signed=True)
         assert check_session_id_signature(decode_utf8(session_id), secret_key="abc", signed=True)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+class Test__get_sysrandom(object):
+
+    def test_default(self):
+        import random
+        try:
+            random.SystemRandom()
+            expected = True
+        except NotImplementedError:
+            expected = False
+        _random, using_sysrandom = _get_sysrandom()
+        assert using_sysrandom == expected
+
+    @patch('random.SystemRandom', new_callable=_nie)
+    def test_missing_sysrandom_no_secret_key(self, _mock_sysrandom):
+        with pytest.warns(UserWarning) as warns:
+            random, using_sysrandom = _get_sysrandom()
+            assert not using_sysrandom
+            assert len(warns) == 2
+            assert warns[0].message.args[0] == _MERSENNE_MSG
+            assert warns[1].message.args[0] == (
+                'A secure pseudo-random number generator is not available '
+                'and no BOKEH_SECRET_KEY has been set. '
+                'Setting a secret key will mitigate the lack of a secure '
+                'generator.'
+            )
+
+    @patch('random.SystemRandom', new_callable=_nie)
+    def test_missing_sysrandom_with_secret_key(self, _mock_sysrandom):
+        os.environ["BOKEH_SECRET_KEY"] = "foo"
+        with pytest.warns(UserWarning) as warns:
+            random, using_sysrandom = _get_sysrandom()
+            assert not using_sysrandom
+            assert len(warns) == 1
+            assert warns[0].message.args[0] == _MERSENNE_MSG
+        del os.environ["BOKEH_SECRET_KEY"]
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

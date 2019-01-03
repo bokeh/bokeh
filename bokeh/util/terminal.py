@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -27,6 +27,25 @@ import sys
 # External imports
 
 # Bokeh imports
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'bright',
+    'dim',
+    'fail',
+    'green',
+    'info',
+    'ok',
+    'red',
+    'trace',
+    'white',
+    'yellow',
+    'warn',
+    'write',
+)
 
 #-----------------------------------------------------------------------------
 # General API

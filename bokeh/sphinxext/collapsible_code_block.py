@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 """ Display code blocks in collapsible sections when outputting
 to HTML.
 
@@ -30,16 +37,50 @@ The inline example code above produces the following output:
     print("Hello, Bokeh!")
 
 """
-from __future__ import absolute_import
 
-from docutils import nodes
-from docutils.parsers.rst.directives import unchanged
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from os.path import basename
 
+# External imports
+from docutils import nodes
+from docutils.parsers.rst.directives import unchanged
+
+# Bokeh imports
 from sphinx.directives.code import CodeBlock
 
 from .templates import CCB_PROLOGUE, CCB_EPILOGUE
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    'collapsible_code_block',
+    'CollapsibleCodeBlock',
+    'html_depart_collapsible_code_block',
+    'html_visit_collapsible_code_block',
+    'setup',
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class collapsible_code_block(nodes.General, nodes.Element):
     pass
@@ -90,3 +131,11 @@ def setup(app):
         )
     )
     app.add_directive('collapsible-code-block', CollapsibleCodeBlock)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

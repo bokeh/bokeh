@@ -1,3 +1,10 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 """ Include Bokeh plots in Sphinx HTML documentation.
 
 For other output types, the placeholder text ``[graph]`` will
@@ -64,14 +71,27 @@ The inline example code above produces the following output:
     show(p)
 
 """
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import ast
 from os import getenv
 from os.path import basename, dirname, join
 import re
 from uuid import uuid4
 
+# External imports
 from docutils import nodes
 from docutils.parsers.rst import Directive, Parser
 from docutils.parsers.rst.directives import choice, flag
@@ -80,6 +100,7 @@ from sphinx.errors import SphinxError
 from sphinx.util import copyfile, ensuredir, status_iterator
 from sphinx.util.nodes import set_source_info
 
+# Bokeh imports
 from ..document import Document
 from ..embed import autoload_static
 from ..model import Model
@@ -89,84 +110,32 @@ from ..util.string import decode_utf8
 from .example_handler import ExampleHandler
 from .templates import PLOT_PAGE
 
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
 docs_cdn = settings.docs_cdn()
 
-# if BOKEH_DOCS_CDN is unset just use default CDN resources
-if docs_cdn is None:
-    resources = Resources(mode="cdn")
+__all__ = (
+    'PlotScriptError',
+    'PlotScriptParser',
+    'BokehPlotDirective',
+    'env_before_read_docs',
+    'builder_inited',
+    'html_page_context',
+    'build_finished',
+    'env_purge_doc',
+    'setup',
+)
 
-else:
-    # "BOKEH_DOCS_CDN=local" is used for building and displaying the docs locally
-    if docs_cdn == "local":
-        resources = Resources(mode="server", root_url="/en/latest/")
-
-    # "BOKEH_DOCS_CDN=test:newthing" is used for building and deploying test docs to
-    # a one-off location "en/newthing" on the docs site
-    elif docs_cdn.startswith("test:"):
-        resources = Resources(mode="server", root_url="/en/%s/" % docs_cdn.split(":")[1])
-
-    # Otherwise assume it is a dev/rc/full release version and use CDN for it
-    else:
-        resources = Resources(mode="cdn", version=docs_cdn)
-
-CODING = re.compile(r"^# -\*- coding: (.*) -\*-$", re.M)
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class PlotScriptError(SphinxError):
     """ Error during script parsing. """
 
     category = 'PlotScript error'
-
-def _process_script(source, filename, env, js_name, use_relative_paths=False):
-    # This is lame, but seems to be required for python 2
-    source = CODING.sub("", source)
-
-    # Explicitly make sure old extensions are not included until a better
-    # automatic mechanism is available
-    Model._clear_extensions()
-
-    # quick and dirty way to inject Google API key
-    if "GOOGLE_API_KEY" in source:
-        GOOGLE_API_KEY = getenv('GOOGLE_API_KEY')
-        if GOOGLE_API_KEY is None:
-            if env.config.bokeh_missing_google_api_key_ok:
-                GOOGLE_API_KEY = "MISSING_API_KEY"
-            else:
-                raise SphinxError("The GOOGLE_API_KEY environment variable is not set. Set GOOGLE_API_KEY to a valid API key, "
-                                  "or set bokeh_missing_google_api_key_ok=True in conf.py to build anyway (with broken GMaps)")
-        run_source = source.replace("GOOGLE_API_KEY", GOOGLE_API_KEY)
-    else:
-        run_source = source
-
-    c = ExampleHandler(source=run_source, filename=filename)
-    d = Document()
-    c.modify_document(d)
-    if c.error:
-        raise PlotScriptError(c.error_detail)
-
-    script_path = None
-    if(use_relative_paths):
-        script_path = join("$REL_PATH$", js_name)
-    else:
-        script_path = join("/scripts", js_name)
-
-    js_path = join(env.bokeh_plot_auxdir, js_name)
-    js, script = autoload_static(d.roots[0], resources, script_path)
-
-    with open(js_path, "w") as f:
-        f.write(js)
-
-    return (script, js, js_path, source)
-
-def _get_file_depth_string(docname):
-    """Get relative path string of file containing directive"""
-    pre_path = ''
-
-    depth = docname.count('/')
-    if depth is None:
-        pre_path = ''
-    else:
-        pre_path = ''.join(['../'] * depth)
-    return pre_path
 
 class PlotScriptParser(Parser):
     """ This Parser recognizes .py files in the Sphinx source tree,
@@ -290,6 +259,10 @@ class BokehPlotDirective(Directive):
 
         return result
 
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
 def env_before_read_docs(app, env, docnames):
     # sort to make sure the custom Python file parser gets to process any plot
     # scripts first, since it will save the plot output for use later.
@@ -356,3 +329,83 @@ def setup(app):
     app.connect('html-page-context',    html_page_context)
     app.connect('build-finished',       build_finished)
     app.connect('env-purge-doc',        env_purge_doc)
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+def _process_script(source, filename, env, js_name, use_relative_paths=False):
+    # This is lame, but seems to be required for python 2
+    source = CODING.sub("", source)
+
+    # Explicitly make sure old extensions are not included until a better
+    # automatic mechanism is available
+    Model._clear_extensions()
+
+    # quick and dirty way to inject Google API key
+    if "GOOGLE_API_KEY" in source:
+        GOOGLE_API_KEY = getenv('GOOGLE_API_KEY')
+        if GOOGLE_API_KEY is None:
+            if env.config.bokeh_missing_google_api_key_ok:
+                GOOGLE_API_KEY = "MISSING_API_KEY"
+            else:
+                raise SphinxError("The GOOGLE_API_KEY environment variable is not set. Set GOOGLE_API_KEY to a valid API key, "
+                                  "or set bokeh_missing_google_api_key_ok=True in conf.py to build anyway (with broken GMaps)")
+        run_source = source.replace("GOOGLE_API_KEY", GOOGLE_API_KEY)
+    else:
+        run_source = source
+
+    c = ExampleHandler(source=run_source, filename=filename)
+    d = Document()
+    c.modify_document(d)
+    if c.error:
+        raise PlotScriptError(c.error_detail)
+
+    script_path = None
+    if(use_relative_paths):
+        script_path = join("$REL_PATH$", js_name)
+    else:
+        script_path = join("/scripts", js_name)
+
+    js_path = join(env.bokeh_plot_auxdir, js_name)
+    js, script = autoload_static(d.roots[0], resources, script_path)
+
+    with open(js_path, "w") as f:
+        f.write(js)
+
+    return (script, js, js_path, source)
+
+def _get_file_depth_string(docname):
+    """Get relative path string of file containing directive"""
+    pre_path = ''
+
+    depth = docname.count('/')
+    if depth is None:
+        pre_path = ''
+    else:
+        pre_path = ''.join(['../'] * depth)
+    return pre_path
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
+
+# if BOKEH_DOCS_CDN is unset just use default CDN resources
+if docs_cdn is None:
+    resources = Resources(mode="cdn")
+
+else:
+    # "BOKEH_DOCS_CDN=local" is used for building and displaying the docs locally
+    if docs_cdn == "local":
+        resources = Resources(mode="server", root_url="/en/latest/")
+
+    # "BOKEH_DOCS_CDN=test:newthing" is used for building and deploying test docs to
+    # a one-off location "en/newthing" on the docs site
+    elif docs_cdn.startswith("test:"):
+        resources = Resources(mode="server", root_url="/en/%s/" % docs_cdn.split(":")[1])
+
+    # Otherwise assume it is a dev/rc/full release version and use CDN for it
+    else:
+        resources = Resources(mode="cdn", version=docs_cdn)
+
+CODING = re.compile(r"^# -\*- coding: (.*) -\*-$", re.M)

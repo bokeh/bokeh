@@ -1,24 +1,48 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 ''' Provides ``PropertyCallbackManager`` and ``EventCallbackManager``
 mixin classes for adding ``on_change`` and ``on_event`` callback
 interfaces to classes.
 '''
-from __future__ import absolute_import
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import logging
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
 from six import string_types
 
+# Bokeh imports
 from ..events import Event
 from ..util.future import get_param_info, format_signature, signature
 
-def _check_callback(callback, fargs, what="Callback functions"):
-    '''Bokeh-internal function to check callback signature'''
-    sig = signature(callback)
-    formatted_args = format_signature(sig)
-    error_msg = what + " must have signature func(%s), got func%s"
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
 
-    all_names, default_values = get_param_info(sig)
+__all__ = (
+    'EventCallbackManager',
+    'PropertyCallbackManager',
+)
 
-    if len(all_names) - len(default_values) != len(fargs):
-        raise ValueError(error_msg % (", ".join(fargs), formatted_args))
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class EventCallbackManager(object):
     ''' A mixin class to provide an interface for registering and
@@ -120,3 +144,26 @@ class PropertyCallbackManager(object):
             self._document._notify_change(self, attr, old, new, hint, setter, invoke)
         else:
             invoke()
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+def _check_callback(callback, fargs, what="Callback functions"):
+    '''Bokeh-internal function to check callback signature'''
+    sig = signature(callback)
+    formatted_args = format_signature(sig)
+    error_msg = what + " must have signature func(%s), got func%s"
+
+    all_names, default_values = get_param_info(sig)
+
+    if len(all_names) - len(default_values) != len(fargs):
+        raise ValueError(error_msg % (", ".join(fargs), formatted_args))
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

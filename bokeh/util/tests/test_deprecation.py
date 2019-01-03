@@ -1,8 +1,41 @@
-import pytest
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 from mock import patch
+
+# External imports
+
+# Bokeh imports
+
+# Module under test
 import bokeh.util.deprecation as dep
 
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
 def foo(): pass
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def test_bad_arg_type():
     for x in [10, True, foo, [], (), {}]:
@@ -59,3 +92,15 @@ def test_since_with_extra(mock_warn):
     assert mock_warn.called
     assert mock_warn.call_args[0] == ("foo was deprecated in Bokeh 1.2.3 and will be removed, use bar instead. baz", dep.BokehDeprecationWarning)
     assert mock_warn.call_args[1] == {'stacklevel': 2}
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

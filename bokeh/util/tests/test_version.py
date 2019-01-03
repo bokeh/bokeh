@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -70,3 +70,7 @@ class Test__base_version_helper(object):
     def test_rc_version_stripped(self):
         assert buv._base_version_helper("0.2.3rc2") == "0.2.3"
         assert buv._base_version_helper("1.2.3rc10") == "1.2.3"
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
