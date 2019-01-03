@@ -38,6 +38,11 @@ This is a meta variable equivalent to the following environment variables:
 
 Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
 
+.. note::
+    When running server examples, the ``BOKEH_RESOURCES`` setting that
+    ``BOKEH_DEV`` sets will cause the page to stop rendering. So you 
+    will need to manually also set ``BOKEH_RESOURCES=server``.
+
 ``BOKEH_DOCS_CDN``
 --------------------
 What version of BokehJS to use when building sphinx docs.
