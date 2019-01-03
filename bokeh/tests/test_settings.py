@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -69,3 +69,7 @@ class Test__get_list(object):
     def test_default(self):
         result = bs.settings._get_list("FOO", None)
         assert result is None
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

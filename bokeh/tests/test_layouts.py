@@ -1,10 +1,42 @@
-import bokeh.layouts as lyt
-import pytest
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from bokeh.core.enums import SizingMode
 from bokeh.plotting import figure
-
 from bokeh.layouts import gridplot
 from bokeh.models import Column, Row, Spacer
+
+# Module under test
+import bokeh.layouts as lyt
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def test_gridplot_merge_tools_flat():
     p1, p2, p3, p4 = figure(), figure(), figure(), figure()
@@ -89,3 +121,15 @@ def test_layout_sizing_mode(sizing_mode):
 
     for p in p1, p2, p3, p4:
         assert p1.sizing_mode == sizing_mode
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

@@ -1,12 +1,37 @@
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import os
 
-import pytest
+# External imports
 
-import bokeh.resources as resources
+# Bokeh imports
 from bokeh.models import Model
 from bokeh.resources import _get_cdn_urls
+
+# Module under test
+import bokeh.resources as resources
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
 
 # if BOKEH_RESOURCES is set many tests in this file fail
 if os.environ.get("BOKEH_RESOURCES"):
@@ -15,6 +40,10 @@ if os.environ.get("BOKEH_RESOURCES"):
 LOG_LEVELS = ['trace', 'debug', 'info', 'warn', 'error', 'fatal']
 
 DEFAULT_LOG_JS_RAW = 'Bokeh.set_log_level("info");'
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 ## Test JSResources
 
@@ -292,3 +321,15 @@ def test_external_js_and_css_resource_ordering():
     # The files should be in the order defined by the lists in CustomModel2 and CustomModel3
     assert r.css_files.index("external_css_3") > r.css_files.index("external_css_2")
     assert r.js_files.index("external_js_3") > r.js_files.index("external_js_2")
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

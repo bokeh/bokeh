@@ -1,15 +1,43 @@
-from __future__ import absolute_import
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
 import copy
 
-import pytest
+# External imports
 from six.moves import xrange
 
+# Bokeh imports
 from bokeh.core.properties import List, String, Instance, Dict, Any, Int
 from bokeh.model import Model
 from bokeh.core.property.wrappers import PropertyValueList, PropertyValueDict
 from bokeh.util.future import with_metaclass
 
+# Module under test
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 def large_plot(n):
     from bokeh.models import (
@@ -587,3 +615,15 @@ class TestDictMutation(TestContainerMutation):
         self._check_mutation(obj, 'foo', mutate,
                              dict(a=1, b=2, c=3),
                              dict(a=1, b=7, c=8))
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------

@@ -1,13 +1,45 @@
-import pytest
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import pytest ; pytest
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
 from bokeh.models import Plot, Button, Div
+
+# Module under test
 from bokeh import events
+
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
 
 concrete_events = set([v for v in globals().values()
                       if isinstance(v,type) and issubclass(v, events.Event) and v.event_name is not None])
 
 point_events = set([v for v in globals().values()
                     if isinstance(v,type) and issubclass(v, events.PointEvent)])
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 class EventCallback(object):
     def __init__(self, attributes=[]):
@@ -246,3 +278,15 @@ def test_pinch_callbacks():
     plot._trigger_event(events.Pinch(plot, **payload))
     assert test_callback.event_name == events.Pinch.event_name
     assert test_callback.payload == payload
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
