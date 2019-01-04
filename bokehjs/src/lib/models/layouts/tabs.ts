@@ -29,9 +29,9 @@ export class TabsView extends LayoutDOMView {
     this.header = new LayoutItem()
     const size = Math.max(...children(this.header_el).map((el) => outer_size(el).height))
     if (loc == "above" || loc == "below")
-      this.header.set_sizing({width_policy: "max", height_policy: "fixed", height: size})
+      this.header.set_sizing({width_policy: "fit", height_policy: "fixed", height: size})
     else
-      this.header.set_sizing({width_policy: "fixed", width: size, height_policy: "max"})
+      this.header.set_sizing({width_policy: "fixed", width: size, height_policy: "fit"})
 
     let row = 1
     let col = 1
