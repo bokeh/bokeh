@@ -108,7 +108,7 @@ class NotebookHandler(CodeHandler):
                 return cell, resources
 
             def __call__(self, nb, resources):
-                self._cell_counter = 1
+                self._cell_counter = 0
                 return self.preprocess(nb,resources)
 
         preprocessors=[StripMagicsProcessor()]
