@@ -85,7 +85,7 @@ class NotebookHandler(CodeHandler):
             """
 
 
-            _magic_pattern = re.compile('^\s*%+\w\w')
+            _magic_pattern = re.compile('^\s*%+\w\w+($|(\s+))')
 
             def strip_magics(self, source):
                 """
