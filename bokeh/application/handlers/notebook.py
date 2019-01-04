@@ -92,20 +92,23 @@ class NotebookHandler(CodeHandler):
                 Given the source of a cell, filter out all cell and line magics.
                 """
                 filtered=[]
-                for line in source.splitlines():
+                for num, line in enumerate(source.splitlines()):
                     if self._magic_pattern.match(line) is None:
                         filtered.append(line)
                     else:
-                        msg = 'Stripping out IPython magic detected on line: %r' % line
-                        log.warn(msg)
+                        msg = 'Stripping out IPython magic detected on line {num} of cell {cell}: {line}' #%r' % line
+                        message = msg.format(num=num, cell=self._cell_counter, line=repr(line))
+                        log.warn(message)
                 return '\n'.join(filtered)
 
             def preprocess_cell(self, cell, resources, index):
                 if cell['cell_type'] == 'code':
+                    self._cell_counter += 1
                     cell['source'] = self.strip_magics(cell['source'])
                 return cell, resources
 
             def __call__(self, nb, resources):
+                self._cell_counter = 1
                 return self.preprocess(nb,resources)
 
         preprocessors=[StripMagicsProcessor()]
