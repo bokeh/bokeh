@@ -84,8 +84,7 @@ class NotebookHandler(CodeHandler):
             out all magics (i.e IPython specific syntax).
             """
 
-
-            _magic_pattern = re.compile('^\s*%+\w\w+($|(\s+))')
+            _magic_pattern = re.compile('^\s*(?P<magic>%+\w\w+)($|(\s+))')
 
             def strip_magics(self, source):
                 """
@@ -93,11 +92,12 @@ class NotebookHandler(CodeHandler):
                 """
                 filtered=[]
                 for line in source.splitlines():
-                    if self._magic_pattern.match(line) is None:
+                    match = self._magic_pattern.match(line)
+                    if match is None:
                         filtered.append(line)
                     else:
-                        msg = 'Stripping out IPython magic detected in code cell {cell}: {line}' #%r' % line
-                        message = msg.format(cell=self._cell_counter, line=repr(line))
+                        msg = 'Stripping out IPython magic {magic} detected in code cell {cell}'
+                        message = msg.format(cell=self._cell_counter, magic=match.group('magic'))
                         log.warn(message)
                 return '\n'.join(filtered)
 
