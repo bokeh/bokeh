@@ -14,11 +14,6 @@ export abstract class BoxView extends LayoutDOMView {
   get child_models(): LayoutDOM[] {
     return this.model.children
   }
-
-  _update_layout(): void {
-    this.layout = new Grid()
-    this.layout.set_sizing(this.box_sizing())
-  }
 }
 
 export namespace Box {

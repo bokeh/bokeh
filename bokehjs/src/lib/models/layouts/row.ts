@@ -1,20 +1,16 @@
 import {Box, BoxView} from "./box"
-import {ColSizing} from "core/layout/grid"
+import {Row as RowLayout, ColSizing} from "core/layout/grid"
 import * as p from "core/properties"
 
 export class RowView extends BoxView {
   model: Row
 
   _update_layout(): void {
-    super._update_layout()
-    this.layout.rows = "fit"
+    const items = this.child_views.map((child) => child.layout)
+    this.layout = new RowLayout(items)
+    this.layout.set_sizing(this.box_sizing())
     this.layout.cols = this.model.cols
     this.layout.spacing = [this.model.spacing, 0]
-
-    const {child_views} = this
-    for (let i = 0; i < child_views.length; i++) {
-      this.layout.items.push({layout: child_views[i].layout, row: 0, col: i})
-    }
   }
 }
 

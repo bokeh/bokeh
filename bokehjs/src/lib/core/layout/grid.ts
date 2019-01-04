@@ -540,17 +540,15 @@ export class Grid extends Layoutable {
 export class Row extends Grid {
   constructor(items: Layoutable[]) {
     super()
-    this.items = items.map((item, i) => {
-      return {layout: item, row: 0, col: i}
-    })
+    this.items = items.map((item, i) => ({layout: item, row: 0, col: i}))
+    this.rows = "fit"
   }
 }
 
 export class Column extends Grid {
   constructor(items: Layoutable[]) {
     super()
-    this.items = items.map((item, i) => {
-      return {layout: item, row: i, col: 0}
-    })
+    this.items = items.map((item, i) => ({layout: item, row: i, col: 0}))
+    this.cols = "fit"
   }
 }
