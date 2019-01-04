@@ -75,11 +75,42 @@ class NotebookHandler(CodeHandler):
 
         if 'filename' not in kwargs:
             raise ValueError('Must pass a filename to NotebookHandler')
+
+
+        class StripMagicsProcessor(nbconvert.preprocessors.Preprocessor):
+            """
+            Preprocessor to convert notebooks to Python source while stripping
+            out all magics (i.e IPython specific syntax).
+            """
+
+            def strip_magics(self, source):
+                """
+                Given the source of a cell, filter out all cell and line magics.
+                """
+                filtered=[]
+                for line in source.splitlines():
+                    if not line.startswith('%'):
+                        filtered.append(line)
+                return '\n'.join(filtered)
+
+            def preprocess_cell(self, cell, resources, index):
+                if cell['cell_type'] == 'code':
+                    cell['source'] = self.strip_magics(cell['source'])
+                return cell, resources
+
+            def __call__(self, nb, resources):
+                return self.preprocess(nb,resources)
+
+        preprocessors=[StripMagicsProcessor()]
         filename = kwargs['filename']
 
         with open(filename) as f:
             nb = nbformat.read(f, nbformat.NO_CONVERT)
             exporter = nbconvert.PythonExporter()
+
+            for preprocessor in preprocessors:
+                exporter.register_preprocessor(preprocessor)
+
             source, _ = exporter.from_notebook_node(nb)
             kwargs['source'] = source
 
