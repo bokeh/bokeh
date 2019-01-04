@@ -96,7 +96,7 @@ class NotebookHandler(CodeHandler):
                     if match is None:
                         filtered.append(line)
                     else:
-                        msg = 'Stripping out IPython magic {magic} detected in code cell {cell}'
+                        msg = 'Stripping out IPython magic {magic} in code cell {cell}'
                         message = msg.format(cell=self._cell_counter, magic=match.group('magic'))
                         log.warn(message)
                 return '\n'.join(filtered)
