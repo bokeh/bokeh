@@ -21,7 +21,6 @@ import pytest ; pytest
 # External imports
 
 # Bokeh imports
-from bokeh.core.enums import SizingMode
 from bokeh.plotting import figure
 from bokeh.layouts import column, row, gridplot, layout
 from bokeh.models import Column, Row, GridBox
