@@ -1,7 +1,7 @@
 import {Models} from "../base"
 import {version as js_version} from "../version"
 import {logger} from "../core/logging"
-import {LODStart, LODEnd} from "core/bokeh_events"
+import {BokehEvent, LODStart, LODEnd} from "core/bokeh_events"
 import {HasProps} from "core/has_props"
 import {Signal0} from "core/signaling"
 import {Ref, is_ref} from "core/util/refs"
@@ -24,20 +24,19 @@ export class EventManager {
   session: ClientSession | null = null
   subscribed_models: Set<string> = new Set()
 
-  constructor(readonly document: any /* Document */) {}
+  constructor(readonly document: Document) {}
 
-  send_event(event: any): void {
-    // Send message to Python via session
+  send_event(event: BokehEvent): void {
     if (this.session != null)
       this.session.send_event(event)
   }
 
-  trigger(event: any): void {
-    for (const model_id of this.subscribed_models.values) {
-      if (event.model_id != null && event.model_id !== model_id)
+  trigger(event: BokehEvent): void {
+    for (const id of this.subscribed_models.values) {
+      if (event.origin != null && event.origin.id !== id)
         continue
-      const model = this.document._all_models[model_id]
-      if (model != null)
+      const model = this.document._all_models[id]
+      if (model != null && model instanceof Model)
         model._process_event(event)
     }
   }
@@ -75,7 +74,7 @@ export class Document {
   protected readonly _init_timestamp: number
   protected _title: string
   protected _roots: Model[]
-  protected _all_models: {[key: string]: HasProps}
+  /*protected*/ _all_models: {[key: string]: HasProps}
   protected _all_models_by_name: MultiDict<HasProps>
   protected _all_models_freeze_count: number
   protected _callbacks: any[]
@@ -133,14 +132,14 @@ export class Document {
   interactive_start(plot: Model): void {
     if (this._interactive_plot == null) {
       this._interactive_plot = plot
-      this._interactive_plot.trigger_event(new LODStart({}))
+      this._interactive_plot.trigger_event(new LODStart())
     }
     this._interactive_timestamp = Date.now()
   }
 
   interactive_stop(plot: Model): void {
     if (this._interactive_plot != null && this._interactive_plot.id === plot.id) {
-      this._interactive_plot.trigger_event(new LODEnd({}))
+      this._interactive_plot.trigger_event(new LODEnd())
     }
     this._interactive_plot = null
     this._interactive_timestamp = null

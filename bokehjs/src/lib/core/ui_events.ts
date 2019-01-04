@@ -11,39 +11,47 @@ import {getDeltaY} from "./util/wheel"
 import {reversed} from "./util/array"
 import {isEmpty} from "./util/object"
 import {isString} from "./util/types"
-import {BokehEvent} from "./bokeh_events"
 import {PlotView} from "../models/plots/plot"
-import {Plot} from "../models/plots/plot"
 import {Toolbar} from "../models/tools/toolbar"
 import {ToolView} from "../models/tools/tool"
+import * as events from "./bokeh_events"
 
 export const is_mobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0
 
-export interface UIEvent {
-  type: string
+export type GestureEvent = {
+  type: "pan" | "panstart" | "panend" | "pinch" | "pinchstart" | "pinchend"
   sx: number
   sy: number
-}
-
-export interface GestureEvent extends UIEvent {
   deltaX: number
   deltaY: number
   scale: number
   shiftKey: boolean
 }
 
-export interface TapEvent extends UIEvent {
+export type TapEvent = {
+  type: "tap" | "doubletap" | "press"
+  sx: number
+  sy: number
   shiftKey: boolean
 }
 
-export interface MoveEvent extends UIEvent {}
+export type MoveEvent = {
+  type: "mousemove" | "mouseenter" | "mouseleave"
+  sx: number
+  sy: number
+}
 
-export interface ScrollEvent extends UIEvent {
+export type ScrollEvent = {
+  type: "wheel"
+  sx: number
+  sy: number
   delta: number
 }
 
-export interface KeyEvent {
-  type: string
+export type UIEvent = GestureEvent | TapEvent | MoveEvent | ScrollEvent
+
+export type KeyEvent = {
+  type: "keyup" | "keydown"
   keyCode: Keys
 }
 
@@ -80,8 +88,7 @@ export class UIEvents implements EventListenerObject {
 
   constructor(readonly plot_view: PlotView,
               readonly toolbar: Toolbar,
-              readonly hit_area: HTMLElement,
-              readonly plot: Plot) {
+              readonly hit_area: HTMLElement) {
     this._configure_hammerjs()
 
     // Mouse & keyboard events not handled through hammerjs
@@ -274,7 +281,7 @@ export class UIEvents implements EventListenerObject {
 
           if (!isEmpty(active_inspectors)) {
             // override event_type to cause inspectors to clear overlays
-            signal = this.move_exit
+            signal = this.move_exit as any // XXX
             event_type = signal.name
           }
 
@@ -333,11 +340,47 @@ export class UIEvents implements EventListenerObject {
   }
 
   protected _trigger_bokeh_event(e: UIEvent): void {
-    const event_cls = BokehEvent.event_class(e)
-    if (event_cls != null)
-      this.plot.trigger_event(event_cls.from_event(e))
-    else
-      logger.debug(`Unhandled event of type ${e.type}`)
+    const ev = (() => {
+      const xscale = this.plot_view.frame.xscales['default']
+      const yscale = this.plot_view.frame.yscales['default']
+
+      const {sx, sy} = e
+      const x = xscale.invert(sx)
+      const y = yscale.invert(sy)
+
+      switch (e.type) {
+        case "wheel":
+          return new events.MouseWheel(sx, sy, x, y, e.delta)
+        case "mousemove":
+          return new events.MouseMove(sx, sy, x, y)
+        case "mouseenter":
+          return new events.MouseEnter(sx, sy, x, y)
+        case "mouseleave":
+          return new events.MouseLeave(sx, sy, x, y)
+        case "tap":
+          return new events.Tap(sx, sy, x, y)
+        case "doubletap":
+          return new events.DoubleTap(sx, sy, x, y)
+        case "press":
+          return new events.Press(sx, sy, x, y)
+        case "pan":
+          return new events.Pan(sx, sy, x, y, e.deltaX, e.deltaY)
+        case "panstart":
+          return new events.PanStart(sx, sy, x, y)
+        case "panend":
+          return new events.PanEnd(sx, sy, x, y)
+        case "pinch":
+          return new events.Pinch(sx, sy, x, y, e.scale)
+        case "pinchstart":
+          return new events.PinchStart(sx, sy, x, y)
+        case "pinchend":
+          return new events.PinchEnd(sx, sy, x, y)
+        default:
+          throw new Error("unreachable")
+      }
+    })()
+
+    this.plot_view.model.trigger_event(ev)
   }
 
   protected _get_sxy(event: TouchEvent | MouseEvent | PointerEvent): {sx: number, sy: number} {
@@ -355,7 +398,7 @@ export class UIEvents implements EventListenerObject {
 
   protected _gesture_event(e: HammerEvent): GestureEvent {
     return {
-      type: e.type,
+      type: e.type as GestureEvent["type"],
       ...this._get_sxy(e.srcEvent),
       deltaX: e.deltaX,
       deltaY: e.deltaY,
@@ -366,22 +409,31 @@ export class UIEvents implements EventListenerObject {
 
   protected _tap_event(e: HammerEvent): TapEvent {
     return {
-      type: e.type,
+      type: e.type as TapEvent["type"],
       ...this._get_sxy(e.srcEvent),
       shiftKey: e.srcEvent.shiftKey,
     }
   }
 
   protected _move_event(e: MouseEvent): MoveEvent {
-    return {type: e.type, ...this._get_sxy(e)}
+    return {
+      type: e.type as MoveEvent["type"],
+      ...this._get_sxy(e),
+    }
   }
 
   protected _scroll_event(e: WheelEvent): ScrollEvent {
-    return {type: e.type, ...this._get_sxy(e), delta: getDeltaY(e)}
+    return {
+      type: e.type as ScrollEvent["type"],
+      ...this._get_sxy(e), delta: getDeltaY(e),
+    }
   }
 
   protected _key_event(e: KeyboardEvent): KeyEvent {
-    return {type: e.type, keyCode: e.keyCode}
+    return {
+      type: e.type as KeyEvent["type"],
+      keyCode: e.keyCode,
+    }
   }
 
   protected _pan_start(e: HammerEvent): void {

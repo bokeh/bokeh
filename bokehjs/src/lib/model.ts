@@ -64,22 +64,18 @@ export class Model extends HasProps {
   }
 
   /*protected*/ _process_event(event: BokehEvent): void {
-    if (event.is_applicable_to(this)) {
-      event = event._customize_event(this)
+    for (const callback of this.js_event_callbacks[event.event_name] || [])
+      callback.execute(event)
 
-      for (const callback of this.js_event_callbacks[event.event_name] || [])
-        callback.execute(event)
-
-      if (this.document != null) {
-        if (this.subscribed_events.some((m) => m == event.event_name))
-          this.document.event_manager.send_event(event)
-      }
-    }
+    if (this.document != null && this.subscribed_events.some((m) => m == event.event_name))
+      this.document.event_manager.send_event(event)
   }
 
   trigger_event(event: BokehEvent): void {
-    if (this.document != null)
-      this.document.event_manager.trigger(event.set_model_id(this.id))
+    if (this.document != null) {
+      event.origin = this
+      this.document.event_manager.trigger(event)
+    }
   }
 
   protected _update_event_callbacks(): void {

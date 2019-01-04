@@ -41,8 +41,6 @@ export class Button extends AbstractButton {
     this.override({
       label: "Button",
     })
-
-    this.register(ButtonClick)
   }
 }
 Button.initClass()

@@ -283,7 +283,7 @@ export class PlotView extends LayoutDOMView {
 
     this.throttled_paint = throttle((() => this.force_paint.emit()), 15)  // TODO (bev) configurable
 
-    this.ui_event_bus = new UIEvents(this, this.model.toolbar, this.canvas_view.events_el, this.model)
+    this.ui_event_bus = new UIEvents(this, this.model.toolbar, this.canvas_view.events_el)
 
     const {title_location, title} = this.model
     if (title_location != null && title != null) {

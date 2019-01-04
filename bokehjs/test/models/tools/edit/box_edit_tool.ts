@@ -225,13 +225,14 @@ describe("BoxEditTool", function(): void {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
       hit_test_stub.returns(null)
 
-      let drag_event = make_gesture_event(300, 300, true)
-      testcase.draw_tool_view._doubletap(drag_event)
+      const tap_event1 = make_tap_event(300, 300, true)
+      testcase.draw_tool_view._doubletap(tap_event1)
       expect(testcase.draw_tool_view._draw_basepoint).to.be.deep.equal([300, 300])
-      drag_event = make_gesture_event(200, 200, true)
-      testcase.draw_tool_view._move(drag_event)
+      const move_event = make_move_event(200, 200)
+      testcase.draw_tool_view._move(move_event)
       expect(testcase.draw_tool_view._draw_basepoint).to.be.deep.equal([300, 300])
-      testcase.draw_tool_view._doubletap(drag_event)
+      const tap_event2 = make_tap_event(200, 200, true)
+      testcase.draw_tool_view._doubletap(tap_event2)
 
       expect(testcase.draw_tool_view._draw_basepoint).to.be.equal(null)
       expect(testcase.data_source.selected.indices).to.be.deep.equal([])
@@ -246,8 +247,8 @@ describe("BoxEditTool", function(): void {
       const testcase = make_testcase()
       testcase.draw_tool_view.model.active = false
 
-      const drag_event = make_gesture_event(300, 300, true)
-      testcase.draw_tool_view._doubletap(drag_event)
+      const tap_event = make_tap_event(300, 300, true)
+      testcase.draw_tool_view._doubletap(tap_event)
       expect(testcase.draw_tool_view._draw_basepoint).to.be.equal(undefined)
     })
   })

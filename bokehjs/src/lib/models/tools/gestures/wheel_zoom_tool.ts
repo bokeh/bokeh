@@ -18,7 +18,7 @@ export class WheelZoomToolView extends GestureToolView {
     else
       delta = -20.0/scale
 
-    this._scroll({type: "mousewheel", sx, sy, delta})
+    this._scroll({type: "wheel", sx, sy, delta})
   }
 
   _scroll(ev: ScrollEvent): void {

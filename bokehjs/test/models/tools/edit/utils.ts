@@ -10,9 +10,9 @@ export function make_tap_event(sx: number, sy: number, shift: boolean = false): 
 }
 
 export function make_move_event(sx: number, sy: number): MoveEvent {
-  return {type: "move", sx, sy}
+  return {type: "mousemove", sx, sy}
 }
 
 export function make_key_event(key: Keys): KeyEvent {
-  return {type: "key", keyCode: key}
+  return {type: "keyup", keyCode: key}
 }

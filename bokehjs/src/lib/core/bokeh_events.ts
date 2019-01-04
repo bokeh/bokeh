@@ -1,79 +1,47 @@
-import {logger} from "./logging"
-import {clone} from "./util/object"
+import {HasProps} from "./has_props"
+import {Geometry} from "./geometry"
+import {Class} from "./class"
 
-const event_classes: {[key: string]: typeof BokehEvent} = {}
+export type JSON = {[key: string]: unknown}
 
-export function register_event_class(event_name: string) {
-  return function(event_cls: typeof BokehEvent) {
-    event_cls.prototype.event_name = event_name
-    event_classes[event_name] = event_cls
+export type EventJSON = {event_name: string, event_values: JSON}
+
+function event(event_name: string) {
+  return function(cls: Class<BokehEvent>) {
+    cls.prototype.event_name = event_name
   }
-}
-
-export function register_with_event(event_cls: typeof BokehEvent, ...models: any[]) {
-  const applicable_models = event_cls.prototype.applicable_models.concat(models)
-  event_cls.prototype.applicable_models = applicable_models
 }
 
 export abstract class BokehEvent {
 
   /* prototype */ event_name: string
-  /* prototype */ applicable_models: any[]
 
-  protected _options: any
-  model_id: string | null = null
+  origin?: HasProps
 
-  constructor(options: any = {}) {
-    this._options = options
-    if (options.model_id != null) {
-      this.model_id = options.model_id
-    }
+  to_json(): EventJSON {
+    const {event_name} = this
+    return {event_name, event_values: this._to_json()}
   }
 
-  set_model_id(id: string): this {
-    this._options.model_id = id
-    this.model_id = id
-    return this
-  }
-
-  is_applicable_to(obj: any): boolean {
-    return this.applicable_models.some((model) => obj instanceof model)
-  }
-
-  static event_class(e: any): any {
-    // Given an event with a type attribute matching the event_name,
-    // return the appropriate BokehEvent class
-    if (e.type) {
-      return event_classes[e.type]
-    } else {
-      logger.warn('BokehEvent.event_class required events with a string type attribute')
-    }
-  }
-
-  toJSON(): object {
-    return {
-      event_name: this.event_name,
-      event_values: clone(this._options),
-    }
-  }
-
-  _customize_event(_model: any): this {
-    return this
+  protected _to_json(): JSON {
+    const {origin} = this
+    return {model_id: origin != null ? origin.id : null}
   }
 }
 
-BokehEvent.prototype.applicable_models = []
-
-@register_event_class("button_click")
+@event("button_click")
 export class ButtonClick extends BokehEvent {}
 
-@register_event_class("menu_item_click")
+@event("menu_item_click")
 export class MenuItemClick extends BokehEvent {
-  item: string
 
-  constructor(options: {item: string, model_id?: string}) {
-    super(options)
-    this.item = options.item
+  constructor(readonly item: string) {
+    super()
+  }
+
+  protected _to_json(): JSON {
+    const {item} = this
+    return {...super._to_json(), item}
   }
 }
 
@@ -81,149 +49,113 @@ export class MenuItemClick extends BokehEvent {
 // DOM events such as keystrokes as well as hammer events and LOD events.
 export abstract class UIEvent extends BokehEvent {}
 
-@register_event_class("lodstart")
+@event("lodstart")
 export class LODStart extends UIEvent {}
 
-@register_event_class("lodend")
+@event("lodend")
 export class LODEnd extends UIEvent {}
 
-@register_event_class("selectiongeometry")
+@event("selectiongeometry")
 export class SelectionGeometry extends UIEvent {
-  geometry: any
-  final: boolean
 
-  constructor(options: any) {
-    super(options)
-    this.geometry = options.geometry
-    this.final = options.final
+  constructor(readonly geometry: Geometry, readonly final: boolean) {
+    super()
+  }
+
+  protected _to_json(): JSON {
+    const {geometry, final} = this
+    return {...super._to_json(), geometry, final}
   }
 }
 
-@register_event_class("reset")
+@event("reset")
 export class Reset extends UIEvent {}
 
-export /* TODO abstract */ class PointEvent extends UIEvent {
+export abstract class PointEvent extends UIEvent {
 
-  sx: number
-  sy: number
-
-  x: number | null
-  y: number | null
-
-  constructor(options: any) {
-    super(options)
-    this.sx = options.sx
-    this.sy = options.sy
-    this.x = null
-    this.y = null
+  constructor(readonly sx: number, readonly sy: number,
+              readonly x: number, readonly y: number) {
+    super()
   }
 
-  static from_event(e: any, model_id: string | null = null): PointEvent {
-    return new this({ sx: e.sx, sy: e.sy, model_id: model_id })
-  }
-
-  _customize_event(plot: any): this {
-    // XXX: plot_view
-    const xscale = plot.frame.xscales['default']
-    const yscale = plot.frame.yscales['default']
-    this.x = xscale.invert(this.sx)
-    this.y = yscale.invert(this.sy)
-    this._options['x'] = this.x
-    this._options['y'] = this.y
-    return this
+  protected _to_json(): JSON {
+    const {sx, sy, x, y} = this
+    return {...super._to_json(), sx, sy, x, y}
   }
 }
 
-@register_event_class("pan")
+@event("pan")
 export class Pan extends PointEvent {
 
-  static from_event(e: any, model_id: string | null = null): Pan {
-    return new this({
-      sx: e.sx,
-      sy: e.sy,
-      delta_x: e.deltaX,
-      delta_y: e.deltaY,
-      direction: e.direction,
-      model_id: model_id,
-    })
+  constructor(readonly sx: number, readonly sy: number,
+              readonly x: number, readonly y: number,
+              readonly delta_x: number, readonly delta_y: number,
+              /*readonly direction: -1 | 1*/) {
+    super(sx, sy, x, y)
   }
 
-  delta_x: number
-  delta_y: number
-
-  constructor(options: any = {}) {
-    super(options)
-    this.delta_x = options.delta_x
-    this.delta_y = options.delta_y
+  protected _to_json(): JSON {
+    const {delta_x, delta_y/*, direction*/} = this
+    return {...super._to_json(), delta_x, delta_y/*, direction*/}
   }
 }
 
-@register_event_class("pinch")
+@event("pinch")
 export class Pinch extends PointEvent {
 
-  static from_event(e: any, model_id: string | null = null): Pinch {
-    return new this({
-      sx: e.sx,
-      sy: e.sy,
-      scale: e.scale,
-      model_id: model_id,
-    })
+  constructor(readonly sx: number, readonly sy: number,
+              readonly x: number, readonly y: number,
+              readonly scale: number) {
+    super(sx, sy, x, y)
   }
 
-  scale: number
-
-  constructor(options: any = {}) {
-    super(options)
-    this.scale = options.scale
+  protected _to_json(): JSON {
+    const {scale} = this
+    return {...super._to_json(), scale}
   }
 }
 
-@register_event_class("wheel")
+@event("wheel")
 export class MouseWheel extends PointEvent {
 
-  static from_event(e: any, model_id: string | null = null): MouseWheel {
-    return new this({
-      sx: e.sx,
-      sy: e.sy,
-      delta: e.delta,
-      model_id: model_id,
-    })
+  constructor(readonly sx: number, readonly sy: number,
+              readonly x: number, readonly y: number,
+              readonly delta: number) {
+    super(sx, sy, x, y)
   }
 
-  delta: number
-
-  constructor(options: any = {}) {
-    super(options)
-    this.delta = options.delta
+  protected _to_json(): JSON {
+    const {delta} = this
+    return {...super._to_json(), delta}
   }
 }
 
-@register_event_class("mousemove")
+@event("mousemove")
 export class MouseMove extends PointEvent {}
 
-@register_event_class("mouseenter")
+@event("mouseenter")
 export class MouseEnter extends PointEvent {}
 
-@register_event_class("mouseleave")
+@event("mouseleave")
 export class MouseLeave extends PointEvent {}
 
-@register_event_class("tap")
+@event("tap")
 export class Tap extends PointEvent {}
 
-@register_event_class("doubletap")
+@event("doubletap")
 export class DoubleTap extends PointEvent {}
 
-@register_event_class("press")
+@event("press")
 export class Press extends PointEvent {}
 
-@register_event_class("panstart")
+@event("panstart")
 export class PanStart extends PointEvent {}
 
-@register_event_class("panend")
+@event("panend")
 export class PanEnd extends PointEvent {}
 
-@register_event_class("pinchstart")
+@event("pinchstart")
 export class PinchStart extends PointEvent {}
 
-@register_event_class("pinchend")
+@event("pinchend")
 export class PinchEnd extends PointEvent {}

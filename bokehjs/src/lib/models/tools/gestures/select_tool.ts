@@ -102,7 +102,7 @@ export abstract class SelectToolView extends GestureToolView {
         throw new Error(`Unrecognized selection geometry type: '${geometry.type}'`)
     }
 
-    this.plot_model.trigger_event(new SelectionGeometry({geometry: g, final: final}))
+    this.plot_model.trigger_event(new SelectionGeometry(g, final))
   }
 }
 

@@ -97,7 +97,7 @@ export class DropdownView extends AbstractButtonView {
     if (item != null) {
       const [, value_or_callback] = item
       if (isString(value_or_callback)) {
-        this.model.trigger_event(new MenuItemClick({item: value_or_callback}))
+        this.model.trigger_event(new MenuItemClick(value_or_callback))
         this.model.value = value_or_callback
 
         if (this.model.callback != null)
@@ -149,8 +149,6 @@ export class Dropdown extends AbstractButton {
     this.override({
       label: "Dropdown",
     })
-
-    this.register(ButtonClick, MenuItemClick)
   }
 
   get is_split(): boolean {

@@ -1,7 +1,8 @@
-import {logger} from "core/logging"
 import {EventManager, ModelChangedEvent} from "document"
 import {Message} from "protocol/message"
 import {ClientConnection} from "./connection"
+import {BokehEvent} from "core/bokeh_events"
+import {logger} from "core/logging"
 
 export class ClientSession {
 
@@ -33,8 +34,8 @@ export class ClientSession {
     this._connection.close()
   }
 
-  send_event(event: any): void {
-    const message = Message.create('EVENT', {}, JSON.stringify(event))
+  send_event(event: BokehEvent): void {
+    const message = Message.create('EVENT', {}, JSON.stringify(event.to_json()))
     this._connection.send(message)
   }
 

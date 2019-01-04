@@ -26,7 +26,6 @@ import {ColumnDataSource} from "../sources/column_data_source"
 import {DataRenderer} from "../renderers/data_renderer"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {Tool} from "../tools/tool"
-import {register_with_event, UIEvent} from 'core/bokeh_events'
 import {DataRange1d} from '../ranges/data_range1d'
 
 import {PlotView} from "./plot_canvas"
@@ -214,8 +213,6 @@ export class Plot extends LayoutDOM {
       border_fill_color: "#ffffff",
       background_fill_color: "#ffffff",
     })
-
-    register_with_event(UIEvent, this)
   }
 
   get width(): number | null {

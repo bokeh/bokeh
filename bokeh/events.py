@@ -171,7 +171,7 @@ class Event(with_metaclass(_MetaEvent, object)):
                 <bokeh.events.Pan object at 0x1040f84a8>
 
         '''
-        if not (('event_name' in dct) and ('event_values' in dct)):
+        if not ('event_name' in dct and 'event_values' in dct):
             return dct
 
         event_name = dct['event_name']
