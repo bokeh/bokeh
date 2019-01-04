@@ -95,6 +95,9 @@ class NotebookHandler(CodeHandler):
                 for line in source.splitlines():
                     if self._magic_pattern.match(line) is None:
                         filtered.append(line)
+                    else:
+                        msg = 'Stripping out IPython magic detected on line: %r' % line
+                        log.warn(msg)
                 return '\n'.join(filtered)
 
             def preprocess_cell(self, cell, resources, index):
