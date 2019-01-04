@@ -22,6 +22,7 @@ notebook code is executed, the Document being modified will be available as
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import re
 import logging
 log = logging.getLogger(__name__)
 
@@ -83,13 +84,16 @@ class NotebookHandler(CodeHandler):
             out all magics (i.e IPython specific syntax).
             """
 
+
+            _magic_pattern = re.compile('^\s*%+\w\w')
+
             def strip_magics(self, source):
                 """
                 Given the source of a cell, filter out all cell and line magics.
                 """
                 filtered=[]
                 for line in source.splitlines():
-                    if not line.startswith('%'):
+                    if self._magic_pattern.match(line) is None:
                         filtered.append(line)
                 return '\n'.join(filtered)
 
