@@ -81,7 +81,10 @@ class NotebookHandler(CodeHandler):
             nb = nbformat.read(f, nbformat.NO_CONVERT)
             exporter = nbconvert.PythonExporter()
             source, _ = exporter.from_notebook_node(nb)
-            kwargs['source'] = source
+
+        source = source.replace('get_ipython().run_cell_magic', '')
+        source = source.replace('get_ipython().run_line_magic', '')
+        kwargs['source'] = source
 
         super(NotebookHandler, self).__init__(*args, **kwargs)
 
