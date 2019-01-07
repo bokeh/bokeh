@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2019, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -31,6 +31,11 @@ from _pytest.mark import matchmark # TODO (bev) non-private API?
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
+
+__all__ = (
+    'pytest_addoption',
+    'pytest_collection_modifyitems',
+)
 
 #-----------------------------------------------------------------------------
 # General API

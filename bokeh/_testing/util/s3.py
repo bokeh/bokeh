@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2019, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -41,6 +41,12 @@ from bokeh.util.terminal import trace, ok, fail
 S3_BUCKET = "bokeh-travis"
 
 S3_URL = "https://s3.amazonaws.com/%s" % S3_BUCKET
+
+__all__ = (
+    'connect_to_s3',
+    'upload_file_to_s3',
+    'upload_file_to_s3_by_job_id',
+)
 
 #-----------------------------------------------------------------------------
 # General API

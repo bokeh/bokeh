@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2019, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -36,6 +36,14 @@ import tempfile
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
+
+__all__ = (
+    'makedirs_ok_if_exists',
+    'TmpDir',
+    'with_directory_contents',
+    'with_temporary_file',
+    'WorkingDir',
+)
 
 #-----------------------------------------------------------------------------
 # General API

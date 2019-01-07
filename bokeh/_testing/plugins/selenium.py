@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2019, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -33,6 +33,12 @@ from selenium import webdriver
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
+
+__all__ = (
+    'driver',
+    'has_no_console_errors',
+    'pytest_report_collectionfinish',
+)
 
 #-----------------------------------------------------------------------------
 # General API

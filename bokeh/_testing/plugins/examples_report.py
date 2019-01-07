@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2019, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -43,6 +43,15 @@ from bokeh.util.terminal import warn
 #-----------------------------------------------------------------------------
 
 _examples = None
+
+__all__ = (
+    'ExamplesTestReport',
+    'get_all_examples',
+    'pytest_generate_tests',
+    'pytest_runtest_call',
+    'pytest_unconfigure',
+    'report',
+)
 
 #-----------------------------------------------------------------------------
 # General API

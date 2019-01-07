@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2019, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -40,6 +40,10 @@ from bokeh.util.terminal import write
 
 pytest_plugins = (
     "bokeh._testing.plugins.log_file",
+)
+
+__all__ = (
+    'bokeh_server',
 )
 
 #-----------------------------------------------------------------------------

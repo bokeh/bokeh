@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2019, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -36,6 +36,31 @@ from bokeh.util.serialization import make_id
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
+
+__all__ = (
+    'alt_click',
+    'ButtonWrapper',
+    'copy_table_rows',
+    'COUNT',
+    'element_to_finish_resizing',
+    'element_to_start_resizing',
+    'enter_text_in_cell',
+    'enter_text_in_cell_with_click_enter',
+    'enter_text_in_element',
+    'get_page_element',
+    'get_table_cell',
+    'get_table_column_cells',
+    'get_table_row',
+    'get_table_selected_rows',
+    'INIT',
+    'paste_values',
+    'RECORD',
+    'RESULTS',
+    'SCROLL',
+    'shift_click',
+    'sort_table_column',
+    'wait_for_canvas_resize',
+)
 
 #-----------------------------------------------------------------------------
 # General API

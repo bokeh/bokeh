@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2019, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
@@ -48,6 +48,12 @@ DEFAULT_PORT = 8000
 HTML_ROOT = os.path.dirname(__file__)
 
 WEBDRIVER = os.environ.get('WEBDRIVER', "<undefined>")
+
+__all__ = (
+    'file_server',
+    'HtmlOnlyHandler',
+    'SimpleWebServer',
+)
 
 #-----------------------------------------------------------------------------
 # General API
