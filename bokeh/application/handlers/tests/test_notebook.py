@@ -55,6 +55,29 @@ class Test_NotebookHandler(object):
 
     # Public methods ----------------------------------------------------------
 
+    def test_runner_strips_line_magics(self):
+        doc = Document()
+        source = nbformat.v4.new_notebook()
+        source.cells.append(nbformat.v4.new_code_cell('%time'))
+        def load(filename):
+            handler = bahn.NotebookHandler(filename=filename)
+            handler.modify_document(doc)
+            assert handler._runner.failed == False
+
+        with_script_contents(source, load)
+
+    def test_runner_strips_cell_magics(self):
+        doc = Document()
+        source = nbformat.v4.new_notebook()
+        code = '%%timeit\n1+1'
+        source.cells.append(nbformat.v4.new_code_cell(code))
+        def load(filename):
+            handler = bahn.NotebookHandler(filename=filename)
+            handler.modify_document(doc)
+            assert handler._runner.failed == False
+
+        with_script_contents(source, load)
+
     def test_runner_uses_source_from_filename(self):
         doc = Document()
         source = nbformat.v4.new_notebook()
