@@ -263,7 +263,7 @@ def collect_examples(config_path):
     list_of_examples = []
 
     with open(config_path, "r") as f:
-        examples = yaml.load(f.read())
+        examples = yaml.safe_load(f.read())
 
     for example in examples:
         path = example["path"]

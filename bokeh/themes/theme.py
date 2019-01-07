@@ -128,7 +128,7 @@ class Theme(object):
         if filename is not None:
             f = open(filename)
             try:
-                json = yaml.load(f)
+                json = yaml.safe_load(f)
                 # empty docs result in None rather than {}, fix it.
                 if json is None:
                     json = {}
