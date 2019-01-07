@@ -10,5 +10,3 @@ function write_hash(file) {
 }
 
 write_hash("package.json")
-
-const chalk = require("chalk")
