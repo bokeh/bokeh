@@ -53,9 +53,15 @@ def test_die(capsys):
     assert out == ""
 
 def test_build_single_handler_application_unknown_file():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError) as e:
         f = tempfile.NamedTemporaryFile(suffix=".bad")
         util.build_single_handler_application(f.name)
+    assert "Expected a '.py' script or '.ipynb' notebook, got: " in str(e)
+
+def test_build_single_handler_application_nonexistent_file():
+    with pytest.raises(ValueError) as e:
+        util.build_single_handler_application("junkjunkjunk")
+    assert "Path for Bokeh server application does not exist: " in str(e)
 
 DIRSTYLE_MAIN_WARNING_COPY = """
 It looks like you might be running the main.py of a directory app directly.
