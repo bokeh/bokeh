@@ -60,9 +60,6 @@ class AbstractSlider(Widget):
         if 'start' in kwargs and 'end' in kwargs:
             if kwargs['start'] == kwargs['end']:
                 raise ValueError("Slider 'start' and 'end' cannot be equal.")
-            if 'callback_policy' in kwargs and 'callback' not in kwargs:
-                raise ValueErrir("Callback policy applies only to JS custom callback")
-
             super(Widget, self).__init__(**kwargs)
 
     title = String(default="", help="""
@@ -104,7 +101,7 @@ class AbstractSlider(Widget):
     The "mouseup" policy is intended for scenarios in which the callback is expensive in time.
 
     .. warning::
-    	Callback policy currently apply to JS callbacks
+    Callback policy currently apply to JS callbacks
     """)
 
     bar_color = Color(default="#e6e6e6", help="""
