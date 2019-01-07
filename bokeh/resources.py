@@ -516,5 +516,8 @@ INLINE = Resources(mode="inline")
 
 __all__ = (
     'CDN',
-    'INLINE'
+    'INLINE',
+    'Resources',
+    'JSResources',
+    'CSSResources',
 )
