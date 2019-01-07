@@ -15,6 +15,8 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
+
+
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -31,8 +33,9 @@ import numbers
 from ...core.has_props import abstract
 from ...core.properties import Bool, Int, Float, String, Date, Enum, Tuple, Instance, Color, Override
 from ...core.enums import SliderCallbackPolicy
-from ...core.validation import error
+from ...core.validation import error, warning
 from ...core.validation.errors import EQUAL_SLIDER_START_END
+from ...core.validation.warnings import SLIDER_CALLBACK_APPLY_TO_CUSTOM_JS
 from ..callbacks import Callback
 from .widget import Widget
 
@@ -112,6 +115,13 @@ class AbstractSlider(Widget):
         if hasattr(self, 'start') and hasattr(self, 'end'):
             if self.start == self.end:
                 return '{!s} with title {!s}'.format(self, self.title)
+
+
+    @warning(SLIDER_CALLBACK_APPLY_TO_CUSTOM_JS)
+    def _check_callback_policy_called_with_js_custom(self):
+        if hasattr(self, 'callback_policy') and not hasattr(self, 'callback'):
+            return 'Callback policy currently apply to JS callbacks'
+
 
 #-----------------------------------------------------------------------------
 # General API
