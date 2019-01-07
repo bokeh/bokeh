@@ -84,7 +84,7 @@ class NotebookHandler(CodeHandler):
             out all magics (i.e IPython specific syntax).
             """
 
-            _magic_pattern = re.compile('^\s*(?P<magic>%+\w\w+)($|(\s+))')
+            _magic_pattern = re.compile('^\s*(?P<magic>%%\w\w+)($|(\s+))')
 
             def strip_magics(self, source):
                 """
@@ -122,6 +122,7 @@ class NotebookHandler(CodeHandler):
                 exporter.register_preprocessor(preprocessor)
 
             source, _ = exporter.from_notebook_node(nb)
+            source = source.replace('get_ipython().run_line_magic', '')
             kwargs['source'] = source
 
         super(NotebookHandler, self).__init__(*args, **kwargs)
