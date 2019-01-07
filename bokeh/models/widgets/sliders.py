@@ -60,7 +60,10 @@ class AbstractSlider(Widget):
         if 'start' in kwargs and 'end' in kwargs:
             if kwargs['start'] == kwargs['end']:
                 raise ValueError("Slider 'start' and 'end' cannot be equal.")
-        super(Widget, self).__init__(**kwargs)
+            if 'callback_policy' in kwargs and 'callback' not in kwargs:
+                raise ValueErrir("Callback policy applies only to JS custom callback")
+
+            super(Widget, self).__init__(**kwargs)
 
     title = String(default="", help="""
     Slider's label.
@@ -99,6 +102,9 @@ class AbstractSlider(Widget):
     * "mouseup": the callback will be executed only once when the slider is released.
 
     The "mouseup" policy is intended for scenarios in which the callback is expensive in time.
+
+    .. warning::
+    	Callback policy currently apply to JS callbacks
     """)
 
     bar_color = Color(default="#e6e6e6", help="""
