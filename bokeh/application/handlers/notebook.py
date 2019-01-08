@@ -22,6 +22,7 @@ notebook code is executed, the Document being modified will be available as
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import re
+import sys
 import logging
 log = logging.getLogger(__name__)
 
@@ -122,6 +123,7 @@ class NotebookHandler(CodeHandler):
 
             source, _ = exporter.from_notebook_node(nb)
             source = source.replace('get_ipython().run_line_magic', '')
+            source = str(source) if sys.version_info.major == 2 else source
             kwargs['source'] = source
 
         super(NotebookHandler, self).__init__(*args, **kwargs)
