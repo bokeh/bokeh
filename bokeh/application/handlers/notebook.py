@@ -124,7 +124,8 @@ class NotebookHandler(CodeHandler):
             source, _ = exporter.from_notebook_node(nb)
             source = source.replace('get_ipython().run_line_magic', '')
             source = source.replace('get_ipython().magic', '')
-            source = str(source) if sys.version_info.major == 2 else source
+            if sys.version_info.major == 2:
+                source = source.replace('# coding: utf-8','')
             kwargs['source'] = source
 
         super(NotebookHandler, self).__init__(*args, **kwargs)
