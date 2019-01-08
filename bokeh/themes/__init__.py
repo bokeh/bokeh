@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -82,7 +81,6 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from . import _caliber, _dark_minimal, _light_minimal
-from .theme import Theme
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -100,6 +98,8 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+from .theme import Theme
 
 CALIBER       = 'caliber'
 LIGHT_MINIMAL = 'light_minimal'

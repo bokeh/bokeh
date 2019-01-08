@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -27,12 +26,6 @@ log = logging.getLogger(__name__)
 # External imports
 
 # Bokeh imports
-from .color import Color
-from .hsl import HSL
-from .rgb import RGB
-
-from . import groups
-from . import named
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -49,6 +42,13 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+from .color import Color
+from .hsl import HSL
+from .rgb import RGB
+
+from . import groups
+from . import named
 
 #-----------------------------------------------------------------------------
 # Dev API

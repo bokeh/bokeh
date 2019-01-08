@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -26,17 +25,24 @@ log = logging.getLogger(__name__)
 # External imports
 
 # Bokeh imports
-from .document import DEFAULT_TITLE ; DEFAULT_TITLE
-from .document import Document ; Document
-from .locking import without_document_lock ; without_document_lock
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+__all__ = (
+    'DEFAULT_TITLE',
+    'Document',
+    'without_document_lock',
+)
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+from .document import DEFAULT_TITLE ; DEFAULT_TITLE
+from .document import Document ; Document
+from .locking import without_document_lock ; without_document_lock
 
 #-----------------------------------------------------------------------------
 # Dev API

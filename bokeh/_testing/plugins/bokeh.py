@@ -1,7 +1,6 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2017, Anaconda, Inc. All rights reserved.
-#
-# Powered by the Bokeh Development Team.
+# Copyright (c) 2012 - 2019, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
@@ -48,6 +47,16 @@ pytest_plugins = (
     "bokeh._testing.plugins.bokeh",
     "bokeh._testing.plugins.file_server",
     "bokeh._testing.plugins.selenium",
+)
+
+__all__ = (
+    'bokeh_app_info',
+    'bokeh_model_page',
+    'bokeh_server_page',
+    'find_free_port',
+    'output_file_url',
+    'single_plot_page',
+    'test_file_path_and_url',
 )
 
 #-----------------------------------------------------------------------------
