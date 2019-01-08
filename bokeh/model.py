@@ -48,6 +48,7 @@ from .util.serialization import make_id
 __all__ = (
     'collect_models',
     'get_class',
+    'Model',
 )
 
 #-----------------------------------------------------------------------------

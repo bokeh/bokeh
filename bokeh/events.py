@@ -79,6 +79,7 @@ from .util.future import with_metaclass
 __all__ = (
     'ButtonClick',
     'DoubleTap',
+    'Event',
     'LODStart',
     'LODEnd',
     'MouseEnter',
