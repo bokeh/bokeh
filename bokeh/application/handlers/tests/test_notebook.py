@@ -19,7 +19,6 @@ import pytest ; pytest
 # Standard library imports
 
 # External imports
-import six
 from packaging import version
 import nbformat
 import nbconvert
@@ -56,7 +55,6 @@ class Test_NotebookHandler(object):
 
     # Public methods ----------------------------------------------------------
 
-    @pytest.mark.skipif(six.PY2, reason="this test doesn't work on Python 2 due to unicode literals")
     def test_runner_strips_line_magics(self):
         doc = Document()
         source = nbformat.v4.new_notebook()
@@ -68,7 +66,6 @@ class Test_NotebookHandler(object):
 
         with_script_contents(source, load)
 
-    @pytest.mark.skipif(six.PY2, reason="this test doesn't work on Python 2 due to unicode literals")
     def test_runner_strips_cell_magics(self):
         doc = Document()
         source = nbformat.v4.new_notebook()
