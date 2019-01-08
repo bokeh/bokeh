@@ -19,7 +19,7 @@ There are five types of tool interactions:
 
 For the first three comprise the category of gesture tools, and only
 one tool for each gesture can be active at any given time. The active
-tool is indicated on the toolbar by a highlight next to to the tool.
+tool is indicated on the toolbar by a highlight next to the tool.
 Actions are immediate or modal operations that are only activated when
 their button in the toolbar is pressed. Inspectors are passive tools that
 merely report information or annotate the plot in some way, and may
@@ -506,7 +506,7 @@ class TapTool(Tap):
     to that glyph.
 
     .. note::
-        This callback does *not* execute on every tap, only when a glyphs is
+        This callback does *not* execute on every tap, only when a glyph is
         "hit". If you would like to execute a callback on every mouse tap,
         please see :ref:`userguide_interaction_jscallbacks_customjs_interactions`.
 
