@@ -1157,7 +1157,7 @@ class HoverTool(Inspection):
         tool.formatters = dict(date="datetime")
 
     will cause format specifications for the "date" column to be interpreted
-    according to the "datetime" formatting scheme. The following schemed are
+    according to the "datetime" formatting scheme. The following schemes are
     available:
 
     :``"numeral"``:
