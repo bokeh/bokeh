@@ -73,6 +73,7 @@ class CodeRunner(object):
         self._code = None
 
         try:
+            source = str(source) if sys.version_info.major == 2 else source
             nodes = ast.parse(source, path)
             self._code = compile(nodes, filename=path, mode='exec', dont_inherit=True)
         except SyntaxError as e:
