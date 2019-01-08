@@ -20,9 +20,11 @@ import pytest ; pytest
 # Standard library imports
 
 # External imports
+import six
 from packaging import version
 import nbformat
 import nbconvert
+
 
 # Bokeh imports
 from bokeh.document import Document
@@ -54,6 +56,31 @@ def with_script_contents(contents, func):
 class Test_NotebookHandler(object):
 
     # Public methods ----------------------------------------------------------
+
+    @pytest.mark.skipif(six.PY2, reason="this test doesn't work on Python 2 due to unicode literals")
+    def test_runner_strips_line_magics(self):
+        doc = Document()
+        source = nbformat.v4.new_notebook()
+        source.cells.append(nbformat.v4.new_code_cell('%time'))
+        def load(filename):
+            handler = bahn.NotebookHandler(filename=filename)
+            handler.modify_document(doc)
+            assert handler._runner.failed == False
+
+        with_script_contents(source, load)
+
+    @pytest.mark.skipif(six.PY2, reason="this test doesn't work on Python 2 due to unicode literals")
+    def test_runner_strips_cell_magics(self):
+        doc = Document()
+        source = nbformat.v4.new_notebook()
+        code = '%%timeit\n1+1'
+        source.cells.append(nbformat.v4.new_code_cell(code))
+        def load(filename):
+            handler = bahn.NotebookHandler(filename=filename)
+            handler.modify_document(doc)
+            assert handler._runner.failed == False
+
+        with_script_contents(source, load)
 
     def test_runner_uses_source_from_filename(self):
         doc = Document()

@@ -22,6 +22,7 @@ notebook code is executed, the Document being modified will be available as
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import re
 import logging
 log = logging.getLogger(__name__)
 
@@ -75,12 +76,53 @@ class NotebookHandler(CodeHandler):
 
         if 'filename' not in kwargs:
             raise ValueError('Must pass a filename to NotebookHandler')
+
+
+        class StripMagicsProcessor(nbconvert.preprocessors.Preprocessor):
+            """
+            Preprocessor to convert notebooks to Python source while stripping
+            out all magics (i.e IPython specific syntax).
+            """
+
+            _magic_pattern = re.compile('^\s*(?P<magic>%%\w\w+)($|(\s+))')
+
+            def strip_magics(self, source):
+                """
+                Given the source of a cell, filter out all cell and line magics.
+                """
+                filtered=[]
+                for line in source.splitlines():
+                    match = self._magic_pattern.match(line)
+                    if match is None:
+                        filtered.append(line)
+                    else:
+                        msg = 'Stripping out IPython magic {magic} in code cell {cell}'
+                        message = msg.format(cell=self._cell_counter, magic=match.group('magic'))
+                        log.warn(message)
+                return '\n'.join(filtered)
+
+            def preprocess_cell(self, cell, resources, index):
+                if cell['cell_type'] == 'code':
+                    self._cell_counter += 1
+                    cell['source'] = self.strip_magics(cell['source'])
+                return cell, resources
+
+            def __call__(self, nb, resources):
+                self._cell_counter = 0
+                return self.preprocess(nb,resources)
+
+        preprocessors=[StripMagicsProcessor()]
         filename = kwargs['filename']
 
         with open(filename) as f:
             nb = nbformat.read(f, nbformat.NO_CONVERT)
             exporter = nbconvert.PythonExporter()
+
+            for preprocessor in preprocessors:
+                exporter.register_preprocessor(preprocessor)
+
             source, _ = exporter.from_notebook_node(nb)
+            source = source.replace('get_ipython().run_line_magic', '')
             kwargs['source'] = source
 
         super(NotebookHandler, self).__init__(*args, **kwargs)
