@@ -26,17 +26,24 @@ log = logging.getLogger(__name__)
 # External imports
 
 # Bokeh imports
-from .document import DEFAULT_TITLE ; DEFAULT_TITLE
-from .document import Document ; Document
-from .locking import without_document_lock ; without_document_lock
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+__all__ = (
+    'DEFAULT_TITLE',
+    'Document',
+    'without_document_lock',
+)
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+from .document import DEFAULT_TITLE ; DEFAULT_TITLE
+from .document import Document ; Document
+from .locking import without_document_lock ; without_document_lock
 
 #-----------------------------------------------------------------------------
 # Dev API

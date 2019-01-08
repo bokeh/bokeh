@@ -31,15 +31,33 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+
+# External imports
+
+# Bokeh imports
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-# __all__ defined at the bottom on the class module
+__all__ = (
+    'ClientSession',
+    'DEFAULT_SESSION_ID',
+    'pull_session',
+    'push_session',
+    'show_session',
+)
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+from .session import ClientSession
+from .session import DEFAULT_SESSION_ID
+from .session import pull_session
+from .session import push_session
+from .session import show_session
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -52,17 +70,3 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
-
-from .session import ClientSession
-from .session import DEFAULT_SESSION_ID
-from .session import pull_session
-from .session import push_session
-from .session import show_session
-
-__all__ = (
-    'ClientSession',
-    'DEFAULT_SESSION_ID',
-    'pull_session',
-    'push_session',
-    'show_session',
-)

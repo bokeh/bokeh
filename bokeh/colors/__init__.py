@@ -27,12 +27,6 @@ log = logging.getLogger(__name__)
 # External imports
 
 # Bokeh imports
-from .color import Color
-from .hsl import HSL
-from .rgb import RGB
-
-from . import groups
-from . import named
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -49,6 +43,13 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+from .color import Color
+from .hsl import HSL
+from .rgb import RGB
+
+from . import groups
+from . import named
 
 #-----------------------------------------------------------------------------
 # Dev API
