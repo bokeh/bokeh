@@ -34,9 +34,16 @@ A global settings object that other parts of Bokeh can refer to.
   - ``BOKEH_PRETTY=true``
   - ``BOKEH_PY_LOG_LEVEL=debug``
   - ``BOKEH_RESOURCES=absolute-dev``
-  - ``BOKEH_SIMPLE_IDS=true``
 
   Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
+
+  .. note::
+    When running server and notebook examples, the ``BOKEH_RESOURCES``
+    setting that ``BOKEH_DEV`` sets will cause rendering problems.
+
+    We recommend manually setting ``BOKEH_RESOURCES`` to ``server``
+    for server work, and ``inline`` for notebooks (other
+    :class:`~bokeh.resources.Resources` settings may also work)
 
 ``BOKEH_DOCS_CDN`` --- What version of BokehJS to use when building sphinx.
 

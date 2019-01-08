@@ -38,9 +38,12 @@ This is a meta variable equivalent to the following environment variables:
 Accepted values are ``yes``/``no``, ``true``/``false`` or ``0``/``1``.
 
 .. note::
-    When running server examples, the ``BOKEH_RESOURCES`` setting that
-    ``BOKEH_DEV`` sets will cause the page to stop rendering. So you
-    will need to manually also set ``BOKEH_RESOURCES=server``.
+    When running server and notebook examples, the ``BOKEH_RESOURCES``
+    setting that ``BOKEH_DEV`` sets will cause rendering problems.
+
+    We recommend manually setting ``BOKEH_RESOURCES`` to ``server``
+    for server work, and ``inline`` for notebooks (other
+    :class:`~bokeh.resources.Resources` settings may also work)
 
 ``BOKEH_DOCS_CDN``
 --------------------
