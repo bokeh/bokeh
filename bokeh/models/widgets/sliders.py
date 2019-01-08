@@ -1,27 +1,29 @@
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Copyright (c) 2012 - 2018, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 ''' Various kinds of slider widgets.
 
 '''
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Boilerplate
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+from __future__ import absolute_import, division, print_function, unicode_literals
+# -----------------------------------------------------------------------------
+# Boilerplate
+# -----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
-
-
 log = logging.getLogger(__name__)
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Imports
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 # Standard library imports
 from datetime import datetime
@@ -33,15 +35,14 @@ import numbers
 from ...core.has_props import abstract
 from ...core.properties import Bool, Int, Float, String, Date, Enum, Tuple, Instance, Color, Override
 from ...core.enums import SliderCallbackPolicy
-from ...core.validation import error, warning
+from ...core.validation import error
 from ...core.validation.errors import EQUAL_SLIDER_START_END
-from ...core.validation.warnings import SLIDER_CALLBACK_APPLY_TO_CUSTOM_JS
 from ..callbacks import Callback
 from .widget import Widget
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Globals and constants
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 __all__ = (
     'AbstractSlider',
@@ -51,9 +52,10 @@ __all__ = (
     'DateRangeSlider',
 )
 
-#-----------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------
 # Dev API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 @abstract
 class AbstractSlider(Widget):
@@ -63,7 +65,7 @@ class AbstractSlider(Widget):
         if 'start' in kwargs and 'end' in kwargs:
             if kwargs['start'] == kwargs['end']:
                 raise ValueError("Slider 'start' and 'end' cannot be equal.")
-        super(Widget, self).__init__(**kwargs)
+            super(Widget, self).__init__(**kwargs)
 
     title = String(default="", help="""
     Slider's label.
@@ -117,15 +119,9 @@ class AbstractSlider(Widget):
                 return '{!s} with title {!s}'.format(self, self.title)
 
 
-    @warning(SLIDER_CALLBACK_APPLY_TO_CUSTOM_JS)
-    def _check_callback_policy_called_with_js_custom(self):
-        if hasattr(self, 'callback_policy') and not hasattr(self, 'callback'):
-            return 'Callback policy currently apply to JS callbacks'
-
-
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 class Slider(AbstractSlider):
     """ Slider-based number selection widget. """
@@ -169,6 +165,7 @@ class RangeSlider(AbstractSlider):
 
     format = Override(default="0[.]00")
 
+
 class DateSlider(AbstractSlider):
     """ Slider-based date selection widget. """
 
@@ -189,6 +186,7 @@ class DateSlider(AbstractSlider):
     """)
 
     format = Override(default="%d %b %Y")
+
 
 class DateRangeSlider(AbstractSlider):
     """ Slider-based date range selection widget. """
@@ -230,10 +228,10 @@ class DateRangeSlider(AbstractSlider):
 
     format = Override(default="%d %b %Y")
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Private API
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Code
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
