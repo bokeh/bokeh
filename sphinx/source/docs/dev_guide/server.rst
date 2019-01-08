@@ -415,8 +415,7 @@ Testing
 To test client-server functionality, use the utilities in
 ``bokeh.server.tests.utils``.
 
-Using |ManagedServerLoop|, you can start up a server instance
-in-process; share ``server.io_loop`` with a client and you can
-test any aspect of the server. Check out the existing tests for
-lots of examples. Anytime you add a new websocket message or http
-endpoint, be sure to add tests!
+Using ``bokeh.server.tests.utils.ManagedServerLoop``, you can start up a server
+instance in-process; share ``server.io_loop`` with a client and you can test
+any aspect of the server. Check out the existing tests for lots of examples.
+Anytime you add a new websocket message or http endpoint, be sure to add tests!

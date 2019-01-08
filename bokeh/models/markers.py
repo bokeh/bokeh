@@ -19,6 +19,7 @@ The full list of markers built into Bokeh is given below:
 * :class:`~bokeh.models.markers.DiamondCross`
 * :class:`~bokeh.models.markers.Hex`
 * :class:`~bokeh.models.markers.InvertedTriangle`
+* :class:`~bokeh.models.markers.Scatter`
 * :class:`~bokeh.models.markers.Square`
 * :class:`~bokeh.models.markers.SquareCross`
 * :class:`~bokeh.models.markers.SquareX`

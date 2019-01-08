@@ -250,7 +250,7 @@ _HTML_REPR = """
 """
 
 class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCallbackManager)):
-    ''' Base class for all objects stored in Bokeh  |Document| instances.
+    ''' Base class for all objects stored in Bokeh |Document| instances.
 
     '''
 

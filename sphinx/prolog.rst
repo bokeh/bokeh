@@ -26,6 +26,7 @@
 .. |NotebookHandler| replace:: :py:class:`~bokeh.application.handlers.notebook.NotebookHandler`
 .. |ScriptHandler| replace:: :py:class:`~bokeh.application.handlers.script.ScriptHandler`
 .. |ServerLifecycleHandler| replace:: :py:class:`~bokeh.application.handlers.server_lifecycle.ServerLifecycleHandler`
+
 .. |ClientConnection| replace:: :py:class:`~bokeh.client.connection.ClientConnection`
 .. |ClientSession| replace:: :py:class:`~bokeh.client.session.ClientSession`
 .. |CONNECTED_AFTER_ACK| replace:: :py:class:`~bokeh.client.states.CONNECTED_AFTER_ACK`
@@ -34,6 +35,7 @@
 .. |NOT_YET_CONNECTED| replace:: :py:class:`~bokeh.client.states.NOT_YET_CONNECTED`
 .. |WAITING_FOR_REPLY| replace:: :py:class:`~bokeh.client.states.WAITING_FOR_REPLY`
 .. |WebSocketClientConnectionWrapper| replace:: :py:class:`~bokeh.client.websocket.WebSocketClientConnectionWrapper`
+
 .. .. |Color| replace:: :py:class:`~bokeh.colors.color.Color`
 .. |black| replace:: :py:class:`~bokeh.colors.groups.black`
 .. |blue| replace:: :py:class:`~bokeh.colors.groups.blue`
@@ -50,6 +52,7 @@
 .. .. |RGB| replace:: :py:class:`~bokeh.colors.rgb.RGB`
 .. |ColorGroup| replace:: :py:class:`~bokeh.colors.util.ColorGroup`
 .. |NamedColor| replace:: :py:class:`~bokeh.colors.util.NamedColor`
+
 .. |Subcommand| replace:: :py:class:`~bokeh.command.subcommand.Subcommand`
 .. |FileOutputSubcommand| replace:: :py:class:`~bokeh.command.subcommands.file_output.FileOutputSubcommand`
 .. |HTML| replace:: :py:class:`~bokeh.command.subcommands.html.HTML`
@@ -61,74 +64,75 @@
 .. |Serve| replace:: :py:class:`~bokeh.command.subcommands.serve.Serve`
 .. |Static| replace:: :py:class:`~bokeh.command.subcommands.static.Static`
 .. |SVG| replace:: :py:class:`~bokeh.command.subcommands.svg.SVG`
+
 .. |Enumeration| replace:: :py:class:`~bokeh.core.enums.Enumeration`
 .. |HasProps| replace:: :py:class:`~bokeh.core.has_props.HasProps`
 .. |MetaHasProps| replace:: :py:class:`~bokeh.core.has_props.MetaHasProps`
 .. |BokehJSONEncoder| replace:: :py:class:`~bokeh.core.json_encoder.BokehJSONEncoder`
-.. |Any| replace:: :py:class:`~bokeh.core.property.any.Any`
-.. |AnyRef| replace:: :py:class:`~bokeh.core.property.any.AnyRef`
-.. |Auto| replace:: :py:class:`~bokeh.core.property.auto.Auto`
-.. |ContainerProperty| replace:: :py:class:`~bokeh.core.property.bases.ContainerProperty`
-.. |DeserializationError| replace:: :py:class:`~bokeh.core.property.bases.DeserializationError`
-.. |ParameterizedProperty| replace:: :py:class:`~bokeh.core.property.bases.ParameterizedProperty`
-.. |PrimitiveProperty| replace:: :py:class:`~bokeh.core.property.bases.PrimitiveProperty`
-.. |Property| replace:: :py:class:`~bokeh.core.property.bases.Property`
-.. |Color| replace:: :py:class:`~bokeh.core.property.color.Color`
-.. .. |RGB| replace:: :py:class:`~bokeh.core.property.color.RGB`
-.. |Array| replace:: :py:class:`~bokeh.core.property.container.Array`
-.. |ColumnData| replace:: :py:class:`~bokeh.core.property.container.ColumnData`
-.. |Dict| replace:: :py:class:`~bokeh.core.property.container.Dict`
-.. |List| replace:: :py:class:`~bokeh.core.property.container.List`
-.. |RelativeDelta| replace:: :py:class:`~bokeh.core.property.container.RelativeDelta`
-.. |Seq| replace:: :py:class:`~bokeh.core.property.container.Seq`
-.. |Tuple| replace:: :py:class:`~bokeh.core.property.container.Tuple`
-.. |AngleSpec| replace:: :py:class:`~bokeh.core.property.dataspec.AngleSpec`
-.. |ColorSpec| replace:: :py:class:`~bokeh.core.property.dataspec.ColorSpec`
-.. |DataDistanceSpec| replace:: :py:class:`~bokeh.core.property.dataspec.DataDistanceSpec`
-.. |DataSpec| replace:: :py:class:`~bokeh.core.property.dataspec.DataSpec`
-.. |DistanceSpec| replace:: :py:class:`~bokeh.core.property.dataspec.DistanceSpec`
-.. |FontSizeSpec| replace:: :py:class:`~bokeh.core.property.dataspec.FontSizeSpec`
-.. |MarkerSpec| replace:: :py:class:`~bokeh.core.property.dataspec.MarkerSpec`
-.. |NumberSpec| replace:: :py:class:`~bokeh.core.property.dataspec.NumberSpec`
-.. |ScreenDistanceSpec| replace:: :py:class:`~bokeh.core.property.dataspec.ScreenDistanceSpec`
-.. |StringSpec| replace:: :py:class:`~bokeh.core.property.dataspec.StringSpec`
-.. |UnitsSpec| replace:: :py:class:`~bokeh.core.property.dataspec.UnitsSpec`
-.. |Date| replace:: :py:class:`~bokeh.core.property.datetime.Date`
-.. |Datetime| replace:: :py:class:`~bokeh.core.property.datetime.Datetime`
-.. |TimeDelta| replace:: :py:class:`~bokeh.core.property.datetime.TimeDelta`
-.. |PropertyDescriptorFactory| replace:: :py:class:`~bokeh.core.property.descriptor_factory.PropertyDescriptorFactory`
-.. |BasicPropertyDescriptor| replace:: :py:class:`~bokeh.core.property.descriptors.BasicPropertyDescriptor`
-.. |ColumnDataPropertyDescriptor| replace:: :py:class:`~bokeh.core.property.descriptors.ColumnDataPropertyDescriptor`
-.. |DataSpecPropertyDescriptor| replace:: :py:class:`~bokeh.core.property.descriptors.DataSpecPropertyDescriptor`
-.. |PropertyDescriptor| replace:: :py:class:`~bokeh.core.property.descriptors.PropertyDescriptor`
-.. |UnitsSpecPropertyDescriptor| replace:: :py:class:`~bokeh.core.property.descriptors.UnitsSpecPropertyDescriptor`
-.. |Either| replace:: :py:class:`~bokeh.core.property.either.Either`
-.. |Enum| replace:: :py:class:`~bokeh.core.property.enum.Enum`
-.. |Include| replace:: :py:class:`~bokeh.core.property.include.Include`
-.. |Instance| replace:: :py:class:`~bokeh.core.property.instance.Instance`
-.. .. |JSON| replace:: :py:class:`~bokeh.core.property.json.JSON`
-.. |Angle| replace:: :py:class:`~bokeh.core.property.numeric.Angle`
-.. |Byte| replace:: :py:class:`~bokeh.core.property.numeric.Byte`
-.. |Interval| replace:: :py:class:`~bokeh.core.property.numeric.Interval`
-.. |Percent| replace:: :py:class:`~bokeh.core.property.numeric.Percent`
-.. |Size| replace:: :py:class:`~bokeh.core.property.numeric.Size`
-.. |Override| replace:: :py:class:`~bokeh.core.property.override.Override`
-.. |Bool| replace:: :py:class:`~bokeh.core.property.primitive.Bool`
-.. |Complex| replace:: :py:class:`~bokeh.core.property.primitive.Complex`
-.. |Float| replace:: :py:class:`~bokeh.core.property.primitive.Float`
-.. |Int| replace:: :py:class:`~bokeh.core.property.primitive.Int`
-.. |String| replace:: :py:class:`~bokeh.core.property.primitive.String`
-.. |Regex| replace:: :py:class:`~bokeh.core.property.regex.Regex`
-.. |validate| replace:: :py:class:`~bokeh.core.property.validation.validate`
-.. |DashPattern| replace:: :py:class:`~bokeh.core.property.visual.DashPattern`
-.. |FontSize| replace:: :py:class:`~bokeh.core.property.visual.FontSize`
-.. .. |Image| replace:: :py:class:`~bokeh.core.property.visual.Image`
-.. |MarkerType| replace:: :py:class:`~bokeh.core.property.visual.MarkerType`
-.. |MinMaxBounds| replace:: :py:class:`~bokeh.core.property.visual.MinMaxBounds`
-.. |PropertyValueColumnData| replace:: :py:class:`~bokeh.core.property.wrappers.PropertyValueColumnData`
-.. |PropertyValueContainer| replace:: :py:class:`~bokeh.core.property.wrappers.PropertyValueContainer`
-.. |PropertyValueDict| replace:: :py:class:`~bokeh.core.property.wrappers.PropertyValueDict`
-.. |PropertyValueList| replace:: :py:class:`~bokeh.core.property.wrappers.PropertyValueList`
+.. |Any| replace:: :py:class:`~bokeh.core.properties.Any`
+.. |AnyRef| replace:: :py:class:`~bokeh.core.properties.AnyRef`
+.. |Auto| replace:: :py:class:`~bokeh.core.properties.Auto`
+.. |ContainerProperty| replace:: :py:class:`~bokeh.core.properties.ContainerProperty`
+.. |DeserializationError| replace:: :py:class:`~bokeh.core.properties.DeserializationError`
+.. |ParameterizedProperty| replace:: :py:class:`~bokeh.core.properties.ParameterizedProperty`
+.. |PrimitiveProperty| replace:: :py:class:`~bokeh.core.properties.PrimitiveProperty`
+.. |Property| replace:: :py:class:`~bokeh.core.properties.bases.Property`
+.. |Color| replace:: :py:class:`~bokeh.core.properties.Color`
+.. .. |RGB| replace:: :py:class:`~bokeh.core.properties.RGB`
+.. |Array| replace:: :py:class:`~bokeh.core.properties.Array`
+.. |ColumnData| replace:: :py:class:`~bokeh.core.properties.ColumnData`
+.. |Dict| replace:: :py:class:`~bokeh.core.properties.Dict`
+.. |List| replace:: :py:class:`~bokeh.core.properties.List`
+.. |RelativeDelta| replace:: :py:class:`~bokeh.core.properties.RelativeDelta`
+.. |Seq| replace:: :py:class:`~bokeh.core.properties.Seq`
+.. |Tuple| replace:: :py:class:`~bokeh.core.properties.Tuple`
+.. |AngleSpec| replace:: :py:class:`~bokeh.core.properties.AngleSpec`
+.. |ColorSpec| replace:: :py:class:`~bokeh.core.properties.ColorSpec`
+.. |DataDistanceSpec| replace:: :py:class:`~bokeh.core.properties.DataDistanceSpec`
+.. |DataSpec| replace:: :py:class:`~bokeh.core.properties.DataSpec`
+.. |DistanceSpec| replace:: :py:class:`~bokeh.core.properties.DistanceSpec`
+.. |FontSizeSpec| replace:: :py:class:`~bokeh.core.properties.FontSizeSpec`
+.. |MarkerSpec| replace:: :py:class:`~bokeh.core.properties.MarkerSpec`
+.. |NumberSpec| replace:: :py:class:`~bokeh.core.properties.NumberSpec`
+.. |ScreenDistanceSpec| replace:: :py:class:`~bokeh.core.properties.ScreenDistanceSpec`
+.. |StringSpec| replace:: :py:class:`~bokeh.core.properties.StringSpec`
+.. |UnitsSpec| replace:: :py:class:`~bokeh.core.properties.UnitsSpec`
+.. |Date| replace:: :py:class:`~bokeh.core.properties.Date`
+.. |Datetime| replace:: :py:class:`~bokeh.core.properties.Datetime`
+.. |TimeDelta| replace:: :py:class:`~bokeh.core.properties.TimeDelta`
+.. |PropertyDescriptorFactory| replace:: :py:class:`~bokeh.core.properties.PropertyDescriptorFactory`
+.. |BasicPropertyDescriptor| replace:: :py:class:`~bokeh.core.properties.BasicPropertyDescriptor`
+.. |ColumnDataPropertyDescriptor| replace:: :py:class:`~bokeh.core.properties.ColumnDataPropertyDescriptor`
+.. |DataSpecPropertyDescriptor| replace:: :py:class:`~bokeh.core.properties.DataSpecPropertyDescriptor`
+.. |PropertyDescriptor| replace:: :py:class:`~bokeh.core.properties.PropertyDescriptor`
+.. |UnitsSpecPropertyDescriptor| replace:: :py:class:`~bokeh.core.properties.UnitsSpecPropertyDescriptor`
+.. |Either| replace:: :py:class:`~bokeh.core.properties.Either`
+.. |Enum| replace:: :py:class:`~bokeh.core.properties.Enum`
+.. |Include| replace:: :py:class:`~bokeh.core.properties.Include`
+.. |Instance| replace:: :py:class:`~bokeh.core.properties.Instance`
+.. .. |JSON| replace:: :py:class:`~bokeh.core.properties.JSON`
+.. |Angle| replace:: :py:class:`~bokeh.core.properties.Angle`
+.. |Byte| replace:: :py:class:`~bokeh.core.properties.Byte`
+.. |Interval| replace:: :py:class:`~bokeh.core.properties.Interval`
+.. |Percent| replace:: :py:class:`~bokeh.core.properties.Percent`
+.. |Size| replace:: :py:class:`~bokeh.core.properties.Size`
+.. |Override| replace:: :py:class:`~bokeh.core.properties.Override`
+.. |Bool| replace:: :py:class:`~bokeh.core.properties.Bool`
+.. |Complex| replace:: :py:class:`~bokeh.core.properties.Complex`
+.. |Float| replace:: :py:class:`~bokeh.core.properties.Float`
+.. |Int| replace:: :py:class:`~bokeh.core.properties.Int`
+.. |String| replace:: :py:class:`~bokeh.core.properties.String`
+.. |Regex| replace:: :py:class:`~bokeh.core.properties.Regex`
+.. |validate| replace:: :py:class:`~bokeh.core.properties.validate`
+.. |DashPattern| replace:: :py:class:`~bokeh.core.properties.DashPattern`
+.. |FontSize| replace:: :py:class:`~bokeh.core.properties.FontSize`
+.. .. |Image| replace:: :py:class:`~bokeh.core.properties.Image`
+.. |MarkerType| replace:: :py:class:`~bokeh.core.properties.MarkerType`
+.. |MinMaxBounds| replace:: :py:class:`~bokeh.core.properties.MinMaxBounds`
+.. |PropertyValueColumnData| replace:: :py:class:`~bokeh.core.properties.PropertyValueColumnData`
+.. |PropertyValueContainer| replace:: :py:class:`~bokeh.core.properties.PropertyValueContainer`
+.. |PropertyValueDict| replace:: :py:class:`~bokeh.core.properties.PropertyValueDict`
+.. |PropertyValueList| replace:: :py:class:`~bokeh.core.properties.PropertyValueList`
 .. |FillProps| replace:: :py:class:`~bokeh.core.property_mixins.FillProps`
 .. |LineProps| replace:: :py:class:`~bokeh.core.property_mixins.LineProps`
 .. |ScalarFillProps| replace:: :py:class:`~bokeh.core.property_mixins.ScalarFillProps`
@@ -143,6 +147,7 @@
 .. |LT| replace:: :py:class:`~bokeh.core.query.LT`
 .. |NEQ| replace:: :py:class:`~bokeh.core.query.NEQ`
 .. |OR| replace:: :py:class:`~bokeh.core.query.OR`
+
 .. |Document| replace:: :py:class:`~bokeh.document.document.Document`
 .. |ColumnDataChangedEvent| replace:: :py:class:`~bokeh.document.events.ColumnDataChangedEvent`
 .. |ColumnsPatchedEvent| replace:: :py:class:`~bokeh.document.events.ColumnsPatchedEvent`
@@ -156,14 +161,12 @@
 .. |SessionCallbackRemoved| replace:: :py:class:`~bokeh.document.events.SessionCallbackRemoved`
 .. |TitleChangedEvent| replace:: :py:class:`~bokeh.document.events.TitleChangedEvent`
 .. |UnlockedDocumentProxy| replace:: :py:class:`~bokeh.document.locking.UnlockedDocumentProxy`
-.. |AnotherModelInTestDocument| replace:: :py:class:`~bokeh.document.tests.setup.AnotherModelInTestDocument`
-.. |ModelThatOverridesName| replace:: :py:class:`~bokeh.document.tests.setup.ModelThatOverridesName`
-.. |ModelWithSpecInTestDocument| replace:: :py:class:`~bokeh.document.tests.setup.ModelWithSpecInTestDocument`
-.. |SomeModelInTestDocument| replace:: :py:class:`~bokeh.document.tests.setup.SomeModelInTestDocument`
+
 .. |FromCurdoc| replace:: :py:class:`~bokeh.embed.util.FromCurdoc`
 .. |RenderItem| replace:: :py:class:`~bokeh.embed.util.RenderItem`
 .. |RenderRoot| replace:: :py:class:`~bokeh.embed.util.RenderRoot`
 .. |RenderRoots| replace:: :py:class:`~bokeh.embed.util.RenderRoots`
+
 .. |ButtonClick| replace:: :py:class:`~bokeh.events.ButtonClick`
 .. |DoubleTap| replace:: :py:class:`~bokeh.events.DoubleTap`
 .. |Event| replace:: :py:class:`~bokeh.events.Event`
@@ -185,9 +188,11 @@
 .. |Reset| replace:: :py:class:`~bokeh.events.Reset`
 .. |SelectionGeometry| replace:: :py:class:`~bokeh.events.SelectionGeometry`
 .. .. |Tap| replace:: :py:class:`~bokeh.events.Tap`
+
 .. |CommsHandle| replace:: :py:class:`~bokeh.io.notebook.CommsHandle`
 .. |State| replace:: :py:class:`~bokeh.io.state.State`
 .. |GridSpec| replace:: :py:class:`~bokeh.layouts.GridSpec`
+
 .. |MetaModel| replace:: :py:class:`~bokeh.model.MetaModel`
 .. |Model| replace:: :py:class:`~bokeh.model.Model`
 .. |Annotation| replace:: :py:class:`~bokeh.models.annotations.Annotation`
@@ -207,11 +212,13 @@
 .. |ToolbarPanel| replace:: :py:class:`~bokeh.models.annotations.ToolbarPanel`
 .. |Tooltip| replace:: :py:class:`~bokeh.models.annotations.Tooltip`
 .. |Whisker| replace:: :py:class:`~bokeh.models.annotations.Whisker`
+
 .. |ArrowHead| replace:: :py:class:`~bokeh.models.arrow_heads.ArrowHead`
 .. |NormalHead| replace:: :py:class:`~bokeh.models.arrow_heads.NormalHead`
 .. |OpenHead| replace:: :py:class:`~bokeh.models.arrow_heads.OpenHead`
 .. |TeeHead| replace:: :py:class:`~bokeh.models.arrow_heads.TeeHead`
 .. |VeeHead| replace:: :py:class:`~bokeh.models.arrow_heads.VeeHead`
+
 .. |Axis| replace:: :py:class:`~bokeh.models.axes.Axis`
 .. |CategoricalAxis| replace:: :py:class:`~bokeh.models.axes.CategoricalAxis`
 .. |ContinuousAxis| replace:: :py:class:`~bokeh.models.axes.ContinuousAxis`
@@ -219,17 +226,21 @@
 .. |LinearAxis| replace:: :py:class:`~bokeh.models.axes.LinearAxis`
 .. |LogAxis| replace:: :py:class:`~bokeh.models.axes.LogAxis`
 .. |MercatorAxis| replace:: :py:class:`~bokeh.models.axes.MercatorAxis`
+
 .. |Callback| replace:: :py:class:`~bokeh.models.callbacks.Callback`
 .. |CustomJS| replace:: :py:class:`~bokeh.models.callbacks.CustomJS`
 .. |OpenURL| replace:: :py:class:`~bokeh.models.callbacks.OpenURL`
+
 .. |CumSum| replace:: :py:class:`~bokeh.models.expressions.CumSum`
 .. |Expression| replace:: :py:class:`~bokeh.models.expressions.Expression`
 .. |Stack| replace:: :py:class:`~bokeh.models.expressions.Stack`
+
 .. |BooleanFilter| replace:: :py:class:`~bokeh.models.filters.BooleanFilter`
 .. |CustomJSFilter| replace:: :py:class:`~bokeh.models.filters.CustomJSFilter`
 .. |Filter| replace:: :py:class:`~bokeh.models.filters.Filter`
 .. |GroupFilter| replace:: :py:class:`~bokeh.models.filters.GroupFilter`
 .. |IndexFilter| replace:: :py:class:`~bokeh.models.filters.IndexFilter`
+
 .. |BasicTickFormatter| replace:: :py:class:`~bokeh.models.formatters.BasicTickFormatter`
 .. |CategoricalTickFormatter| replace:: :py:class:`~bokeh.models.formatters.CategoricalTickFormatter`
 .. |DatetimeTickFormatter| replace:: :py:class:`~bokeh.models.formatters.DatetimeTickFormatter`
@@ -239,6 +250,7 @@
 .. |NumeralTickFormatter| replace:: :py:class:`~bokeh.models.formatters.NumeralTickFormatter`
 .. |PrintfTickFormatter| replace:: :py:class:`~bokeh.models.formatters.PrintfTickFormatter`
 .. |TickFormatter| replace:: :py:class:`~bokeh.models.formatters.TickFormatter`
+
 .. |AnnularWedge| replace:: :py:class:`~bokeh.models.glyphs.AnnularWedge`
 .. |Annulus| replace:: :py:class:`~bokeh.models.glyphs.Annulus`
 .. |Arc| replace:: :py:class:`~bokeh.models.glyphs.Arc`
@@ -266,23 +278,28 @@
 .. |VBar| replace:: :py:class:`~bokeh.models.glyphs.VBar`
 .. |Wedge| replace:: :py:class:`~bokeh.models.glyphs.Wedge`
 .. |XYGlyph| replace:: :py:class:`~bokeh.models.glyphs.XYGlyph`
+
 .. |EdgesAndLinkedNodes| replace:: :py:class:`~bokeh.models.graphs.EdgesAndLinkedNodes`
 .. |GraphHitTestPolicy| replace:: :py:class:`~bokeh.models.graphs.GraphHitTestPolicy`
 .. |LayoutProvider| replace:: :py:class:`~bokeh.models.graphs.LayoutProvider`
 .. |NodesAndLinkedEdges| replace:: :py:class:`~bokeh.models.graphs.NodesAndLinkedEdges`
 .. |NodesOnly| replace:: :py:class:`~bokeh.models.graphs.NodesOnly`
 .. |StaticLayoutProvider| replace:: :py:class:`~bokeh.models.graphs.StaticLayoutProvider`
+
 .. |Grid| replace:: :py:class:`~bokeh.models.grids.Grid`
+
 .. |Box| replace:: :py:class:`~bokeh.models.layouts.Box`
 .. |Column| replace:: :py:class:`~bokeh.models.layouts.Column`
 .. |LayoutDOM| replace:: :py:class:`~bokeh.models.layouts.LayoutDOM`
 .. |Row| replace:: :py:class:`~bokeh.models.layouts.Row`
 .. |Spacer| replace:: :py:class:`~bokeh.models.layouts.Spacer`
 .. |WidgetBox| replace:: :py:class:`~bokeh.models.layouts.WidgetBox`
+
 .. |GMapOptions| replace:: :py:class:`~bokeh.models.map_plots.GMapOptions`
 .. |GMapPlot| replace:: :py:class:`~bokeh.models.map_plots.GMapPlot`
 .. |MapOptions| replace:: :py:class:`~bokeh.models.map_plots.MapOptions`
 .. |MapPlot| replace:: :py:class:`~bokeh.models.map_plots.MapPlot`
+
 .. |CategoricalColorMapper| replace:: :py:class:`~bokeh.models.mappers.CategoricalColorMapper`
 .. |CategoricalMapper| replace:: :py:class:`~bokeh.models.mappers.CategoricalMapper`
 .. |CategoricalMarkerMapper| replace:: :py:class:`~bokeh.models.mappers.CategoricalMarkerMapper`
@@ -291,6 +308,7 @@
 .. |LinearColorMapper| replace:: :py:class:`~bokeh.models.mappers.LinearColorMapper`
 .. |LogColorMapper| replace:: :py:class:`~bokeh.models.mappers.LogColorMapper`
 .. |Mapper| replace:: :py:class:`~bokeh.models.mappers.Mapper`
+
 .. |Asterisk| replace:: :py:class:`~bokeh.models.markers.Asterisk`
 .. |Circle| replace:: :py:class:`~bokeh.models.markers.Circle`
 .. |CircleCross| replace:: :py:class:`~bokeh.models.markers.CircleCross`
@@ -308,24 +326,30 @@
 .. |SquareX| replace:: :py:class:`~bokeh.models.markers.SquareX`
 .. |Triangle| replace:: :py:class:`~bokeh.models.markers.Triangle`
 .. |X| replace:: :py:class:`~bokeh.models.markers.X`
+
 .. |Plot| replace:: :py:class:`~bokeh.models.plots.Plot`
+
 .. |DataRange| replace:: :py:class:`~bokeh.models.ranges.DataRange`
 .. |FactorRange| replace:: :py:class:`~bokeh.models.ranges.FactorRange`
 .. |Range| replace:: :py:class:`~bokeh.models.ranges.Range`
+
 .. |DataRenderer| replace:: :py:class:`~bokeh.models.renderers.DataRenderer`
 .. |GlyphRenderer| replace:: :py:class:`~bokeh.models.renderers.GlyphRenderer`
 .. |GraphRenderer| replace:: :py:class:`~bokeh.models.renderers.GraphRenderer`
 .. |GuideRenderer| replace:: :py:class:`~bokeh.models.renderers.GuideRenderer`
 .. |Renderer| replace:: :py:class:`~bokeh.models.renderers.Renderer`
 .. |TileRenderer| replace:: :py:class:`~bokeh.models.renderers.TileRenderer`
+
 .. |CategoricalScale| replace:: :py:class:`~bokeh.models.scales.CategoricalScale`
 .. |LinearScale| replace:: :py:class:`~bokeh.models.scales.LinearScale`
 .. |LogScale| replace:: :py:class:`~bokeh.models.scales.LogScale`
 .. |Scale| replace:: :py:class:`~bokeh.models.scales.Scale`
+
 .. |IntersectRenderers| replace:: :py:class:`~bokeh.models.selections.IntersectRenderers`
 .. |Selection| replace:: :py:class:`~bokeh.models.selections.Selection`
 .. |SelectionPolicy| replace:: :py:class:`~bokeh.models.selections.SelectionPolicy`
 .. |UnionRenderers| replace:: :py:class:`~bokeh.models.selections.UnionRenderers`
+
 .. |AjaxDataSource| replace:: :py:class:`~bokeh.models.sources.AjaxDataSource`
 .. |CDSView| replace:: :py:class:`~bokeh.models.sources.CDSView`
 .. |ColumnDataSource| replace:: :py:class:`~bokeh.models.sources.ColumnDataSource`
@@ -333,6 +357,7 @@
 .. |DataSource| replace:: :py:class:`~bokeh.models.sources.DataSource`
 .. |GeoJSONDataSource| replace:: :py:class:`~bokeh.models.sources.GeoJSONDataSource`
 .. |RemoteSource| replace:: :py:class:`~bokeh.models.sources.RemoteSource`
+
 .. |AdaptiveTicker| replace:: :py:class:`~bokeh.models.tickers.AdaptiveTicker`
 .. |BasicTicker| replace:: :py:class:`~bokeh.models.tickers.BasicTicker`
 .. |CategoricalTicker| replace:: :py:class:`~bokeh.models.tickers.CategoricalTicker`
@@ -347,12 +372,14 @@
 .. |SingleIntervalTicker| replace:: :py:class:`~bokeh.models.tickers.SingleIntervalTicker`
 .. |Ticker| replace:: :py:class:`~bokeh.models.tickers.Ticker`
 .. |YearsTicker| replace:: :py:class:`~bokeh.models.tickers.YearsTicker`
+
 .. |BBoxTileSource| replace:: :py:class:`~bokeh.models.tiles.BBoxTileSource`
 .. |MercatorTileSource| replace:: :py:class:`~bokeh.models.tiles.MercatorTileSource`
 .. |QUADKEYTileSource| replace:: :py:class:`~bokeh.models.tiles.QUADKEYTileSource`
 .. |TMSTileSource| replace:: :py:class:`~bokeh.models.tiles.TMSTileSource`
 .. |TileSource| replace:: :py:class:`~bokeh.models.tiles.TileSource`
 .. |WMTSTileSource| replace:: :py:class:`~bokeh.models.tiles.WMTSTileSource`
+
 .. |Action| replace:: :py:class:`~bokeh.models.tools.Action`
 .. |BoxEditTool| replace:: :py:class:`~bokeh.models.tools.BoxEditTool`
 .. |BoxSelectTool| replace:: :py:class:`~bokeh.models.tools.BoxSelectTool`
@@ -390,6 +417,7 @@
 .. |WheelZoomTool| replace:: :py:class:`~bokeh.models.tools.WheelZoomTool`
 .. |ZoomInTool| replace:: :py:class:`~bokeh.models.tools.ZoomInTool`
 .. |ZoomOutTool| replace:: :py:class:`~bokeh.models.tools.ZoomOutTool`
+
 .. |CustomJSTransform| replace:: :py:class:`~bokeh.models.transforms.CustomJSTransform`
 .. |Dodge| replace:: :py:class:`~bokeh.models.transforms.Dodge`
 .. |Interpolator| replace:: :py:class:`~bokeh.models.transforms.Interpolator`
@@ -397,6 +425,7 @@
 .. |LinearInterpolator| replace:: :py:class:`~bokeh.models.transforms.LinearInterpolator`
 .. |StepInterpolator| replace:: :py:class:`~bokeh.models.transforms.StepInterpolator`
 .. |Transform| replace:: :py:class:`~bokeh.models.transforms.Transform`
+
 .. |AbstractButton| replace:: :py:class:`~bokeh.models.widgets.buttons.AbstractButton`
 .. |Button| replace:: :py:class:`~bokeh.models.widgets.buttons.Button`
 .. |ButtonLike| replace:: :py:class:`~bokeh.models.widgets.buttons.ButtonLike`
@@ -448,20 +477,24 @@
 .. |TextEditor| replace:: :py:class:`~bokeh.models.widgets.tables.TextEditor`
 .. |TimeEditor| replace:: :py:class:`~bokeh.models.widgets.tables.TimeEditor`
 .. |Widget| replace:: :py:class:`~bokeh.models.widgets.widget.Widget`
+
 .. |Figure| replace:: :py:class:`~bokeh.plotting.figure.Figure`
 .. |FigureOptions| replace:: :py:class:`~bokeh.plotting.figure.FigureOptions`
 .. |GMap| replace:: :py:class:`~bokeh.plotting.gmap.GMap`
 .. |GMapFigureOptions| replace:: :py:class:`~bokeh.plotting.gmap.GMapFigureOptions`
-.. |Protocol| replace:: :py:class:`~bokeh.protocol.__init__.Protocol`
+
+.. |Protocol| replace:: :py:class:`~bokeh.protocol.Protocol`
 .. |MessageError| replace:: :py:class:`~bokeh.protocol.exceptions.MessageError`
 .. |ProtocolError| replace:: :py:class:`~bokeh.protocol.exceptions.ProtocolError`
 .. |ValidationError| replace:: :py:class:`~bokeh.protocol.exceptions.ValidationError`
 .. |Message| replace:: :py:class:`~bokeh.protocol.message.Message`
 .. |Receiver| replace:: :py:class:`~bokeh.protocol.receiver.Receiver`
+
 .. |BaseResources| replace:: :py:class:`~bokeh.resources.BaseResources`
 .. |CSSResources| replace:: :py:class:`~bokeh.resources.CSSResources`
 .. |JSResources| replace:: :py:class:`~bokeh.resources.JSResources`
 .. |Resources| replace:: :py:class:`~bokeh.resources.Resources`
+
 .. |NextTickCallback| replace:: :py:class:`~bokeh.server.callbacks.NextTickCallback`
 .. |PeriodicCallback| replace:: :py:class:`~bokeh.server.callbacks.PeriodicCallback`
 .. |SessionCallback| replace:: :py:class:`~bokeh.server.callbacks.SessionCallback`
@@ -474,7 +507,6 @@
 .. |BaseServer| replace:: :py:class:`~bokeh.server.server.BaseServer`
 .. |Server| replace:: :py:class:`~bokeh.server.server.Server`
 .. |ServerSession| replace:: :py:class:`~bokeh.server.session.ServerSession`
-.. |ManagedServerLoop| replace:: :py:class:`~bokeh.server.tests.utils.ManagedServerLoop`
 .. |BokehTornado| replace:: :py:class:`~bokeh.server.tornado.BokehTornado`
 .. |AutoloadJsHandler| replace:: :py:class:`~bokeh.server.views.autoload_js_handler.AutoloadJsHandler`
 .. |DocHandler| replace:: :py:class:`~bokeh.server.views.doc_handler.DocHandler`
@@ -483,28 +515,9 @@
 .. |SessionHandler| replace:: :py:class:`~bokeh.server.views.session_handler.SessionHandler`
 .. |StaticHandler| replace:: :py:class:`~bokeh.server.views.static_handler.StaticHandler`
 .. |WSHandler| replace:: :py:class:`~bokeh.server.views.ws.WSHandler`
-.. |ColorDocumenter| replace:: :py:class:`~bokeh.sphinxext.bokeh_autodoc.ColorDocumenter`
-.. |EnumDocumenter| replace:: :py:class:`~bokeh.sphinxext.bokeh_autodoc.EnumDocumenter`
-.. |ModelDocumenter| replace:: :py:class:`~bokeh.sphinxext.bokeh_autodoc.ModelDocumenter`
-.. |PropDocumenter| replace:: :py:class:`~bokeh.sphinxext.bokeh_autodoc.PropDocumenter`
-.. |BokehColorDirective| replace:: :py:class:`~bokeh.sphinxext.bokeh_color.BokehColorDirective`
-.. |BokehDirective| replace:: :py:class:`~bokeh.sphinxext.bokeh_directive.BokehDirective`
-.. |BokehEnumDirective| replace:: :py:class:`~bokeh.sphinxext.bokeh_enum.BokehEnumDirective`
-.. |BokehGalleryDirective| replace:: :py:class:`~bokeh.sphinxext.bokeh_gallery.BokehGalleryDirective`
-.. |BokehJinjaDirective| replace:: :py:class:`~bokeh.sphinxext.bokeh_jinja.BokehJinjaDirective`
-.. |BokehModelDirective| replace:: :py:class:`~bokeh.sphinxext.bokeh_model.BokehModelDirective`
-.. |BokehOptionsDirective| replace:: :py:class:`~bokeh.sphinxext.bokeh_options.BokehOptionsDirective`
-.. |BokehPaletteGroupDirective| replace:: :py:class:`~bokeh.sphinxext.bokeh_palette_group.BokehPaletteGroupDirective`
-.. |bokeh_palette_group| replace:: :py:class:`~bokeh.sphinxext.bokeh_palette_group.bokeh_palette_group`
-.. |BokehPlotDirective| replace:: :py:class:`~bokeh.sphinxext.bokeh_plot.BokehPlotDirective`
-.. |PlotScriptError| replace:: :py:class:`~bokeh.sphinxext.bokeh_plot.PlotScriptError`
-.. |PlotScriptParser| replace:: :py:class:`~bokeh.sphinxext.bokeh_plot.PlotScriptParser`
-.. |BokehPropDirective| replace:: :py:class:`~bokeh.sphinxext.bokeh_prop.BokehPropDirective`
-.. |BokehReleases| replace:: :py:class:`~bokeh.sphinxext.bokeh_releases.BokehReleases`
-.. |CollapsibleCodeBlock| replace:: :py:class:`~bokeh.sphinxext.collapsible_code_block.CollapsibleCodeBlock`
-.. |collapsible_code_block| replace:: :py:class:`~bokeh.sphinxext.collapsible_code_block.collapsible_code_block`
-.. |ExampleHandler| replace:: :py:class:`~bokeh.sphinxext.example_handler.ExampleHandler`
-.. |Theme| replace:: :py:class:`~bokeh.themes.theme.Theme`
+
+.. |Theme| replace:: :py:class:`~bokeh.themes.Theme`
+
 .. |DummyWebBrowser| replace:: :py:class:`~bokeh.util.browser.DummyWebBrowser`
 .. |EventCallbackManager| replace:: :py:class:`~bokeh.util.callback_manager.EventCallbackManager`
 .. |PropertyCallbackManager| replace:: :py:class:`~bokeh.util.callback_manager.PropertyCallbackManager`

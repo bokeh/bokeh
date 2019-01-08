@@ -41,6 +41,11 @@ All these glyphs share a minimal common interface through their base class
 .. autoclass:: Glyph
     :members:
 
+Glyphs with `x` and `y` attibutes are subclasses of |XYGlyph|:
+
+.. autoclass:: XYGlyph
+    :members:
+
 '''
 
 #-----------------------------------------------------------------------------

@@ -5,7 +5,7 @@ bokeh.models
 
 .. automodule:: bokeh.models
 
-These models are accumulated into :class:`~bokeh.document.Document` instances,
+These models are accumulated into |Document| instances,
 which can be serialized and sent to clients (typically browsers) for display
 or use there.
 
