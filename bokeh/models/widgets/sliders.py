@@ -99,6 +99,9 @@ class AbstractSlider(Widget):
     * "mouseup": the callback will be executed only once when the slider is released.
 
     The "mouseup" policy is intended for scenarios in which the callback is expensive in time.
+
+    .. warning::
+        Callback policy currently apply to JS callbacks
     """)
 
     bar_color = Color(default="#e6e6e6", help="""
