@@ -1,3 +1,22 @@
+2019-01-09    1.0.4:
+--------------------
+  * bugfixes:
+    - #8558 [py2] Safer alternative fix for unicode notebook issue in python 2
+  * features:
+    - #8513 [notebook] Strip out ipython magics when serving notebooks
+  * tasks:
+    - #8207 Adding/updating boilerplate code
+    - #8525 [component: tests] Don't resize window when running images tests
+    - #8533 [component: build] Remove warning about `gulp build` in prepare.js
+    - #8534 [component: docs] Docs tweak to add note about bokeh_dev and apps
+    - #8541 Pyyaml version is vulnerable to cve-2017-18342
+    - #8543 [component: server] Bad error message for nonexistent bokeh serve target
+    - #8548 [component: docs] Add small documentation to slider callback_policy which only apply to customjs
+    - #8550 [component: docs] Fix-up bokeh_dev docs (follow-up)
+    - #8553 Add model, event, and populate bokeh.models __all__
+    - #8555 [py2] Unicode fix when serving notebooks on python 2
+    - #8556 [component: docs] Correct three minor typos
+
 2018-12-31    1.0.3:
 --------------------
   * bugfixes:
