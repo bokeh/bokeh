@@ -12,7 +12,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
-import sys
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -23,7 +22,6 @@ import sys
 from packaging import version
 import nbformat
 import nbconvert
-
 
 # Bokeh imports
 from bokeh.document import Document
