@@ -12,6 +12,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import pytest ; pytest
 
+import sys
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
@@ -91,9 +92,14 @@ class Test_NotebookHandler(object):
 
         assert result['handler']._runner.path == result['filename']
         if version.parse(nbconvert.__version__) < version.parse("5.4"):
-            assert result['handler']._runner.source == "\n# coding: utf-8\n"
+            expected_source = "\n# coding: utf-8\n"
         else:
-            assert result['handler']._runner.source == "#!/usr/bin/env python\n# coding: utf-8\n"
+            expected_source = "#!/usr/bin/env python\n# coding: utf-8\n"
+
+        if sys.version_info.major == 2:
+            expected_source = expected_source.replace('# coding: utf-8','')
+
+        assert result['handler']._runner.source == expected_source
         assert not doc.roots
 
     def test_missing_filename_raises(self):
