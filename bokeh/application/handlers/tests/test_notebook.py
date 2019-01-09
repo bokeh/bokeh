@@ -96,9 +96,6 @@ class Test_NotebookHandler(object):
         else:
             expected_source = "#!/usr/bin/env python\n# coding: utf-8\n"
 
-        if sys.version_info.major == 2:
-            expected_source = expected_source.replace('# coding: utf-8','')
-
         assert result['handler']._runner.source == expected_source
         assert not doc.roots
 
