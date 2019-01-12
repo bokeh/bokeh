@@ -20,7 +20,7 @@ export class DrawToolView extends GestureToolView
   _pan_start(_ev: GestureEvent): void{
     this.model.source.data = {x: [], y: []}
   }
-  
+
   //this is executed on subsequent mouse/touch moves
   _pan(ev: GestureEvent): void{
     const frame = this.plot_model.frame
@@ -33,7 +33,7 @@ export class DrawToolView extends GestureToolView
     this.model.source.get_array('y').push(y)
     this.model.source.change.emit()
   }
-  
+
   // this is executed then the pan/drag ends
   _pan_end(_ev: GestureEvent):void{}
 }
@@ -41,12 +41,12 @@ export class DrawToolView extends GestureToolView
 export class DrawTool extends GestureTool {
   source: ColumnDataSource
   default_view = DrawToolView
-  
+
   tool_name= "Drag Span"
   icon= "bk-tool-icon-lasso-select"
   event_type= "pan" as "pan"
   default_order= 12
-  
+
   static initClass(): void {
     this.define({
     source: [p.Any],

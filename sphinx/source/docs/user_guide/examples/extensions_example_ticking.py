@@ -17,7 +17,7 @@ export class MyFormatter extends TickFormatter{
     for (let i = 1, len = ticks.length; i < len; i++) {
       formatted.push(`+${(Number(ticks[i])-Number(ticks[0])).toPrecision(2)}`)
     }
-    return formatted 
+    return formatted
   }
 }
 """
