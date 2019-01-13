@@ -126,13 +126,13 @@ export class Grid extends Layoutable {
         row = {policy: row}
       }
 
-      if (row.policy == "auto") {
+      if (row.policy == "auto" || row.policy == "fit") {
         row_auto: for (let x = 0; x < ncols; x++) {
           const cell = matrix[y][x]
           for (let i = 0; i < cell.items.length; i++) {
-            const {sizing} = cell.items[i].layout
+            const {layout, size_hint} = cell.items[i]
 
-            if (sizing.height_policy == "max") {
+            if (layout.sizing.height_policy == "max" || size_hint.height_expanding === true) {
               row = {policy: "max"}
               break row_auto
             }
@@ -168,13 +168,13 @@ export class Grid extends Layoutable {
         col = {policy: col}
       }
 
-      if (col.policy == "auto") {
+      if (col.policy == "auto" || col.policy == "fit") {
         col_auto: for (let y = 0; y < nrows; y++) {
           const cell = matrix[y][x]
           for (let i = 0; i < cell.items.length; i++) {
-            const {sizing} = cell.items[i].layout
+            const {layout, size_hint} = cell.items[i]
 
-            if (sizing.width_policy == "max") {
+            if (layout.sizing.width_policy == "max" || size_hint.width_expanding === true) {
               col = {policy: "max"}
               break col_auto
             }

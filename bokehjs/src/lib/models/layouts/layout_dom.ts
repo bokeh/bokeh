@@ -176,11 +176,11 @@ export abstract class LayoutDOMView extends DOMView {
   }
 
   protected _width_policy(): SizingPolicy {
-    return "min"
+    return "fit"
   }
 
   protected _height_policy(): SizingPolicy {
-    return "min"
+    return "fit"
   }
 
   box_sizing(): Partial<BoxSizing> {

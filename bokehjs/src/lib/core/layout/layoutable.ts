@@ -158,7 +158,11 @@ export abstract class Layoutable {
         width = this.sizing.width != null ? this.sizing.width : size_hint.width
         break
       case "fit":
-        width = viewport.width != null ? viewport.width : size_hint.width
+        //width = viewport.width != null ? viewport.width : size_hint.width
+        if (size_hint.width_expanding === true && viewport.width != null)
+          width = Math.max(viewport.width, size_hint.width)
+        else
+          width = size_hint.width
         break
       case "max":
         if (viewport.width != null)
@@ -167,10 +171,7 @@ export abstract class Layoutable {
           throw new Error("'max' sizing policy requires viewport width to be specified")
         break
       case "min":
-        if (size_hint.width_expanding === true && viewport.width != null)
-          width = Math.max(viewport.width, size_hint.width)
-        else
-          width = size_hint.width
+        width = size_hint.width
         break
       default:
         throw new Error("unrechable")
@@ -181,7 +182,11 @@ export abstract class Layoutable {
         height = this.sizing.height != null ? this.sizing.height : size_hint.height
         break
       case "fit":
-        height = viewport.height != null ? viewport.height : size_hint.height
+        //height = viewport.height != null ? viewport.height : size_hint.height
+        if (size_hint.height_expanding === true && viewport.height != null)
+          height = Math.max(viewport.height, size_hint.height)
+        else
+          height = size_hint.height
         break
       case "max":
         if (viewport.height != null)
@@ -190,10 +195,7 @@ export abstract class Layoutable {
           throw new Error("'max' sizing policy requires viewport height to be specified")
         break
       case "min":
-        if (size_hint.height_expanding === true && viewport.height != null)
-          height = Math.max(viewport.height, size_hint.height)
-        else
-          height = size_hint.height
+        height = size_hint.height
         break
       default:
         throw new Error("unrechable")
