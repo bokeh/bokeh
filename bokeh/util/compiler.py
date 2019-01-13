@@ -296,7 +296,7 @@ def bundle_models(models):
 
     def read_json(name):
         with io.open(join(bokehjs_dir, "js", name + ".json"), encoding="utf-8") as f:
-            return json.loads(f.read())
+            return [mod.replace('\\','/') for mod in json.loads(f.read())]
 
     bundles = ["bokeh", "bokeh-api", "bokeh-widgets", "bokeh-tables", "bokeh-gl"]
     known_modules = set(sum([ read_json(name) for name in bundles ], []))
