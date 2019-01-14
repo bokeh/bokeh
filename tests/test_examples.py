@@ -34,11 +34,7 @@ def test_js_examples(js_example, example, report):
             warn("skipping bokehjs for %s" % example.relpath)
     else:
         _run_in_browser(example, "file://%s" % example.path)
-
-        if example.no_diff:
-            warn("skipping image diff for %s" % example.relpath)
-        else:
-            _get_pdiff(example)
+        _get_pdiff(example)
 
 @pytest.mark.examples
 def test_file_examples(file_example, example, report):
@@ -66,12 +62,7 @@ def test_file_examples(file_example, example, report):
             warn("skipping bokehjs for %s" % example.relpath)
     else:
         _run_in_browser(example, "file://%s.html" % example.path_no_ext)
-
-        if example.no_diff:
-            warn("skipping image diff for %s" % example.relpath)
-        else:
-            _get_pdiff(example)
-
+        _get_pdiff(example)
 
 @pytest.mark.examples
 def test_server_examples(server_example, example, report, bokeh_server):
@@ -105,12 +96,7 @@ def test_server_examples(server_example, example, report, bokeh_server):
 
     else:
         _run_in_browser(example, "http://localhost:5006/?bokeh-session-id=%s" % session_id)
-
-        if example.no_diff:
-            warn("skipping image diff for %s" % example.relpath)
-        else:
-            _get_pdiff(example)
-
+        _get_pdiff(example)
 
 def _get_pdiff(example):
     img_path, ref_path, diff_path = example.img_path, example.ref_path, example.diff_path
@@ -124,13 +110,15 @@ def _get_pdiff(example):
         _store_binary(ref_path, ref)
         trace("saved reference: " + ref_path)
 
-        example.pixels = image_diff(diff_path, img_path, ref_path)
-        if example.pixels != 0:
-            comment = white("%.02f%%" % example.pixels) + " of pixels"
-            warn("generated and reference images differ: %s" % comment)
+        if example.no_diff:
+            warn("skipping image diff for %s" % example.relpath)
         else:
-            ok("generated and reference images match")
-
+            example.pixels = image_diff(diff_path, img_path, ref_path)
+            if example.pixels != 0:
+                comment = white("%.02f%%" % example.pixels) + " of pixels"
+                warn("generated and reference images differ: %s" % comment)
+            else:
+                ok("generated and reference images match")
 
 def _get_path_parts(path):
     parts = []
