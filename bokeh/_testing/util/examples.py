@@ -26,6 +26,7 @@ import os
 from os.path import join, exists, dirname, basename, relpath, splitext, isfile, isdir
 import yaml
 from subprocess import Popen, PIPE
+from base64 import b64decode
 
 # External imports
 import requests
@@ -34,6 +35,7 @@ import requests
 from bokeh._testing.util.git import __version__
 from bokeh._testing.util.s3 import S3_URL, upload_file_to_s3
 from bokeh._testing.util.travis import JOB_ID
+from bokeh._testing.util.images import image_diff
 from bokeh.util.terminal import trace, green
 
 #-----------------------------------------------------------------------------
@@ -70,7 +72,9 @@ class Example(object):
         self._diff_ref = None
         self._upload = False
         self.pixels = 0
-        self._has_ref = False
+        self._has_ref = None
+        self._has_baseline = None
+        self._baseline_ok = True
 
     def __str__(self):
         flags = ["js"       if self.is_js       else "",
@@ -142,15 +146,23 @@ class Example(object):
         return self.flags & Flags.no_diff
 
     @property
+    def baseline_ok(self):
+        return self.has_baseline and self._baseline_ok
+
+    @property
     def baseline_path(self):
         return join("tests", "baselines", relpath(self.path_no_ext, ""))
 
     @property
     def has_baseline(self):
-        cmd = ["git", "show", ":%s" % self.baseline_path]
-        proc = Popen(cmd, stdout=PIPE, stderr=PIPE)
-        proc.communicate()
-        return proc.returncode == 0
+        if self._has_baseline is None:
+            cmd = ["git", "show", ":%s" % self.baseline_path]
+            proc = Popen(cmd, stdout=PIPE, stderr=PIPE)
+            proc.communicate()
+
+            self._has_baseline = proc.returncode == 0
+
+        return self._has_baseline
 
     def store_baseline(self, baseline):
         path = self.baseline_path
@@ -174,6 +186,7 @@ class Example(object):
         if proc.returncode == 0:
             diff = hl_diff
 
+        self._baseline_ok = False
         return diff.decode("utf-8").strip()
 
     @property
@@ -229,13 +242,17 @@ class Example(object):
         return self._has_ref
 
     def fetch_ref(self):
-        response = requests.get(self.ref_url)
+        if self._has_ref is None:
+            response = requests.get(self.ref_url)
+            self._has_ref = response.ok
 
-        if response.ok:
-            self._has_ref = True
-            return response.content
-        else:
-            return None
+            if response.ok:
+                _store_binary(self.ref_path, response.content)
+
+        return self._has_ref
+
+    def store_img(self, img_data):
+        _store_binary(self.img_path, b64decode(img_data))
 
     def upload_imgs(self):
         if isfile(self.img_path):
@@ -248,6 +265,10 @@ class Example(object):
     @property
     def images_differ(self):
         return self.pixels != 0
+
+    def image_diff(self):
+        self.pixels = image_diff(self.diff_path, self.img_path, self.ref_path)
+        return self.pixels
 
 def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=None, skip=None, no_js=None, no_diff=None):
     if path.endswith("*"):
@@ -332,6 +353,14 @@ def collect_examples(config_path):
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+def _store_binary(path, data):
+    directory = dirname(path)
+    if not exists(directory):
+        os.makedirs(directory)
+
+    with open(path, "wb") as f:
+        f.write(data)
 
 #-----------------------------------------------------------------------------
 # Code

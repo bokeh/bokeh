@@ -8,6 +8,9 @@
       .header > .ok {
           color: green;
       }
+      .header > .warn {
+          color: darkorange;
+      }
       .header > .fail {
           color: red;
       }
@@ -47,10 +50,26 @@
             {% endif %}
         {% endfor %}
         </ul>
+        <p>Baseline differences</p>
+        <ul>
+        {% for (example, failed, skipped) in entries %}
+            {% if failed and example.has_baseline and not example.baseline_ok %}
+            <li> <a href="#{{ example.relpath_no_ext }}">{{ example.relpath_no_ext }}</a> </li>
+            {% endif %}
+        {% endfor %}
+        </ul>
+        <p>Baseline missing</p>
+        <ul>
+        {% for (example, failed, skipped) in entries %}
+            {% if failed and not example.has_baseline %}
+            <li> <a href="#{{ example.relpath_no_ext }}">{{ example.relpath_no_ext }}</a> </li>
+            {% endif %}
+        {% endfor %}
+        </ul>
         <p>Failures</p>
         <ul>
         {% for (example, failed, skipped) in entries %}
-            {% if failed %}
+            {% if failed and example.baseline_ok %}
             <li> <a href="#{{ example.relpath_no_ext }}">{{ example.relpath_no_ext }}</a> </li>
             {% endif %}
         {% endfor %}
@@ -78,12 +97,16 @@
               <a name="{{ example.relpath_no_ext }}">{{ example.relpath_no_ext }}</a>
               <a href="#{{ example.relpath_no_ext }}">(link)</a>
               <span class="header">
-                  [{% if failed %}
-                  <span class="fail">example failed to run</span>
-                  {% elif skipped %}
-                  <span class="skip">example skipped</span>
+                  [{% if skipped %}
+                  <span class="skip">skipped</span>
+                  {% elif failed and not example.baseline_ok %}
+                  <span class="fail">bad baseline</span>
+                  {% elif failed and example.baseline_ok %}
+                  <span class="fail">failed to run</span>
+                  {% elif example.images_differ %}
+                  <span class="warn">images differ</span>
                   {% else %}
-                  <span class="ok">example ran</span>
+                  <span class="ok">OK</span>
                   {% endif %}]
               </span>
               <a href="#top">Top</a>
