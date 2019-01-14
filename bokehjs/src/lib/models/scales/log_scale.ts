@@ -53,7 +53,7 @@ export class LogScale extends Scale {
         if (isFinite(_x))
           value = _x*factor + offset
         else
-          value = NaN
+          value = offset
         result[i] = value
       }
     }
