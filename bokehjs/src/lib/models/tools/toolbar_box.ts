@@ -14,7 +14,7 @@ import {ToolbarBase, GestureType} from "./toolbar_base"
 import {ToolProxy} from "./tool_proxy"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
-import {SizeHint, Layoutable} from "core/layout"
+import {LayoutItem} from "core/layout"
 
 export namespace ProxyToolbar {
   export interface Attrs extends ToolbarBase.Attrs {}
@@ -206,16 +206,9 @@ export class ToolbarBoxView extends LayoutDOMView {
   }
 
   _update_layout(): void {
-    this.layout = new class extends Layoutable {
-      size_hint(): SizeHint {
-        const {width, height} = this.sizing as any // XXX
-        return {width, height}
-      }
-    }
+    this.layout = new LayoutItem()
 
-    const {toolbar} = this.model
-
-    if (toolbar.horizontal) {
+    if (this.model.toolbar.horizontal) {
       this.layout.set_sizing({
         width_policy: "fit", width: 100, // XXX: toolbar.tools.length*30 + (toolbar.logo != null ? 25 : 0),
         height_policy: "fixed", height: 30,

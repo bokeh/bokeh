@@ -1,5 +1,7 @@
 import {BBox, CoordinateTransform} from "../util/bbox"
 
+const {min, max} = Math
+
 export type Size = {
   width: number
   height: number
@@ -170,13 +172,13 @@ export abstract class Layoutable {
       case "fit":
         //width = viewport.width != null ? viewport.width : size_hint.width
         if (this.is_width_expanding() && viewport.width != null)
-          width = Math.max(viewport.width, size_hint.width)
+          width = max(viewport.width, size_hint.width)
         else
           width = size_hint.width
         break
       case "max":
         if (viewport.width != null)
-          width = Math.max(viewport.width, size_hint.width)
+          width = max(viewport.width, size_hint.width)
         else
           throw new Error("'max' sizing policy requires viewport width to be specified")
         break
@@ -194,13 +196,13 @@ export abstract class Layoutable {
       case "fit":
         //height = viewport.height != null ? viewport.height : size_hint.height
         if (this.is_height_expanding() && viewport.height != null)
-          height = Math.max(viewport.height, size_hint.height)
+          height = max(viewport.height, size_hint.height)
         else
           height = size_hint.height
         break
       case "max":
         if (viewport.height != null)
-          height = Math.max(viewport.height, size_hint.height)
+          height = max(viewport.height, size_hint.height)
         else
           throw new Error("'max' sizing policy requires viewport height to be specified")
         break
@@ -266,19 +268,11 @@ export abstract class Layoutable {
   }
 
   clip_width(width: number): number {
-    if (this.sizing.min_width != null)
-      width = Math.max(this.sizing.min_width, width)
-    if (this.sizing.max_width != null)
-      width = Math.min(this.sizing.max_width, width)
-    return width
+    return max(this.sizing.min_width, min(width, this.sizing.max_width))
   }
 
   clip_height(height: number): number {
-    if (this.sizing.min_height != null)
-      height = Math.max(this.sizing.min_height, height)
-    if (this.sizing.max_height != null)
-      height = Math.min(this.sizing.max_height, height)
-    return height
+    return max(this.sizing.min_height, min(height, this.sizing.max_height))
   }
 
   clip_size({width, height}: Size): Size {
@@ -304,18 +298,5 @@ export class LayoutItem extends Layoutable {
       height = 0
 
     return {width, height}
-  }
-}
-
-export class FixedLayout extends LayoutItem {
-  readonly sizing: BoxSizing
-
-  constructor(width: number, height: number) {
-    super()
-
-    this.set_sizing({
-      width_policy: "fixed", width,
-      height_policy: "fixed", height,
-    })
   }
 }

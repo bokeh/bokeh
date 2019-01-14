@@ -4,7 +4,7 @@ from bokeh.models import LayoutDOM, Slider
 CODE ="""
 import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
 import {Slider} from "models/widgets/slider"
-import {FixedLayout} from "core/layout/index" // XXX: should be core/layout
+import {LayoutItem} from "core/layout/index" // XXX: should be core/layout
 import * as p from "core/properties"
 
 export class CustomView extends LayoutDOMView {
@@ -19,7 +19,11 @@ export class CustomView extends LayoutDOMView {
   }
 
   _update_layout(): void {
-    this.layout = new FixedLayout(200, 30) // TODO: fit height
+    this.layout = new LayoutItem()
+    this.layout.set_sizing({
+      width_policy: "fixed", width: 200,
+      height_policy: "fixed", height: 30, // TODO: fit height
+    })
   }
 
   render(): void {

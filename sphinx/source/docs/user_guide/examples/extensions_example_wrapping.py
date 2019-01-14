@@ -20,7 +20,7 @@ JS_CODE = """
 
 # These "require" lines are similar to python "import" statements
 import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
-import {FixedLayout} from "core/layout/index" # XXX: should be core/layout
+import {LayoutItem} from "core/layout/index" # XXX: should be core/layout
 import * as p from "core/properties"
 
 # This defines some default options for the Graph3d feature of vis.js
@@ -87,8 +87,11 @@ export class Surface3dView extends LayoutDOMView
     return data
 
   _update_layout: () ->
-    {width, height} = this.model
-    this.layout = new FixedLayout(width, height)
+    this.layout = new LayoutItem()
+    this.layout.set_sizing(this.box_sizing())
+
+  _width_policy: () -> "fixed"
+  _height_policy: () -> "fixed"
 
 Object.defineProperty(Surface3dView.prototype, "child_models", {get: () -> []})
 
