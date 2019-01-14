@@ -89,7 +89,39 @@ export class Grid extends Layoutable {
   }
   */
 
-  size_hint(): SizeHint {
+  is_width_expanding(): boolean {
+    if (super.is_width_expanding())
+      return true
+
+    if (this.sizing.width_policy != "fixed") {
+      const {cols, ncols} = this._state
+      for (let x = 0; x < ncols; x++) {
+        if (cols[x].policy == "flex")
+          return true
+      }
+    }
+
+    return false
+  }
+
+  is_height_expanding(): boolean {
+    if (super.is_height_expanding())
+      return true
+
+    if (this.sizing.height_policy != "fixed") {
+      const {rows, nrows} = this._state
+      for (let y = 0; y < nrows; y++) {
+        if (rows[y].policy == "flex")
+          return true
+      }
+    }
+
+    return false
+  }
+
+  protected _init(): void {
+    super._init()
+
     let nrows = 0
     let ncols = 0
 
@@ -130,9 +162,9 @@ export class Grid extends Layoutable {
         row_auto: for (let x = 0; x < ncols; x++) {
           const cell = matrix[y][x]
           for (let i = 0; i < cell.items.length; i++) {
-            const {layout, size_hint} = cell.items[i]
+            const {layout} = cell.items[i]
 
-            if (layout.sizing.height_policy == "max" || size_hint.height_expanding === true) {
+            if (layout.is_height_expanding()) {
               row = {policy: "max"}
               break row_auto
             }
@@ -172,9 +204,9 @@ export class Grid extends Layoutable {
         col_auto: for (let y = 0; y < nrows; y++) {
           const cell = matrix[y][x]
           for (let i = 0; i < cell.items.length; i++) {
-            const {layout, size_hint} = cell.items[i]
+            const {layout} = cell.items[i]
 
-            if (layout.sizing.width_policy == "max" || size_hint.width_expanding === true) {
+            if (layout.is_width_expanding()) {
               col = {policy: "max"}
               break col_auto
             }
@@ -196,6 +228,27 @@ export class Grid extends Layoutable {
         cols[x] = {align, left, width, policy: "flex", factor: 1}
       else if (col.policy == "flex")
         cols[x] = {align, left, width, policy: "flex", factor: col.factor}
+    }
+
+    const [hspacing, vspacing] =
+      isNumber(this.spacing) ? [this.spacing, this.spacing] : this.spacing
+
+    this._state = {matrix, nrows, ncols, rows, cols, hspacing, vspacing}
+  }
+
+  size_hint(): SizeHint {
+    const {matrix, nrows, ncols, rows, cols, hspacing, vspacing} = this._state
+
+    for (let y = 0; y < nrows; y++) {
+      const row = rows[y]
+      if (row.policy != "fixed")
+        row.height = 0
+    }
+
+    for (let x = 0; x < ncols; x++) {
+      const col = cols[x]
+      if (col.policy != "fixed")
+        col.width = 0
     }
 
     for (let y = 0; y < nrows; y++) {
@@ -232,24 +285,15 @@ export class Grid extends Layoutable {
       }
     }
 
-    const [hspacing, vspacing] =
-      isNumber(this.spacing) ? [this.spacing, this.spacing] : this.spacing
-
     let min_height = 0
-    let height_expanding = false
     for (let y = 0; y < nrows; y++) {
       min_height += rows[y].height
-      if (rows[y].policy == "flex")
-        height_expanding = true
     }
     min_height += (nrows - 1)*vspacing
 
     let min_width = 0
-    let width_expanding = false
     for (let x = 0; x < ncols; x++) {
       min_width += cols[x].width
-      if (cols[x].policy == "flex")
-        width_expanding = true
     }
     min_width += (ncols - 1)*hspacing
 
@@ -265,9 +309,7 @@ export class Grid extends Layoutable {
     else
       width = min_width
 
-    this._state = {matrix, nrows, ncols, rows, cols, hspacing, vspacing}
-
-    return {width, height, width_expanding, height_expanding}
+    return {width, height}
   }
 
   protected _set_geometry(outer: BBox, inner: BBox): void {

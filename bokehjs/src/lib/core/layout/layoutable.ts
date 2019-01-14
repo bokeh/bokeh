@@ -26,8 +26,6 @@ export type SizingPolicy = "fixed" | "fit" | "min" | "max"
 
 export type SizeHint = Size /*& MinSize & MaxSize*/ & {
   inner?: Margin
-  width_expanding?: boolean
-  height_expanding?: boolean
 }
 
 export type Sizing = number | "fit" | "min" | "max"
@@ -94,7 +92,11 @@ export abstract class Layoutable {
       aspect,
       margin: margin != null ? margin : {top: 0, right: 0, bottom: 0, left: 0},
     }
+
+    this._init()
   }
+
+  protected _init(): void {}
 
   constructor() {
     const layout = this
@@ -147,6 +149,14 @@ export abstract class Layoutable {
     return height*aspect!
   }
 
+  is_width_expanding(): boolean {
+    return this.sizing.width_policy == "max"
+  }
+
+  is_height_expanding(): boolean {
+    return this.sizing.height_policy == "max"
+  }
+
   compute(viewport: Partial<Size>): void {
     const size_hint = this.size_hint()
 
@@ -159,7 +169,7 @@ export abstract class Layoutable {
         break
       case "fit":
         //width = viewport.width != null ? viewport.width : size_hint.width
-        if (size_hint.width_expanding === true && viewport.width != null)
+        if (this.is_width_expanding() && viewport.width != null)
           width = Math.max(viewport.width, size_hint.width)
         else
           width = size_hint.width
@@ -183,7 +193,7 @@ export abstract class Layoutable {
         break
       case "fit":
         //height = viewport.height != null ? viewport.height : size_hint.height
-        if (size_hint.height_expanding === true && viewport.height != null)
+        if (this.is_height_expanding() && viewport.height != null)
           height = Math.max(viewport.height, size_hint.height)
         else
           height = size_hint.height
