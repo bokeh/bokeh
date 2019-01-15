@@ -1,10 +1,15 @@
 import {Scale} from "./scale"
+import * as p from "core/properties"
+import {InfinityPosition} from "core/enums"
 import {Arrayable} from "core/types"
 
 export namespace LogScale {
-  export interface Attrs extends Scale.Attrs {}
+  export interface Attrs extends Scale.Attrs {
+    inf: InfinityPosition
+  }
 
-  export interface Props extends Scale.Props {}
+  export interface Props extends Scale.Props {
+  }
 }
 
 export interface LogScale extends LogScale.Attrs {}
@@ -19,6 +24,9 @@ export class LogScale extends Scale {
 
   static initClass(): void {
     this.prototype.type = "LogScale"
+    this.define({
+      inf:       [ p.InfinityPosition, null ],
+    })
   }
 
   compute(x: number): number {
@@ -53,7 +61,20 @@ export class LogScale extends Scale {
         if (isFinite(_x))
           value = _x*factor + offset
         else
-          value = offset
+          switch(this.inf) {
+            case "screen_min": {
+                value = offset
+                break
+            }
+            case "screen_max": {
+                value = 0
+                break
+            }
+            default: {
+                value = NaN
+                break
+            }
+          }
         result[i] = value
       }
     }

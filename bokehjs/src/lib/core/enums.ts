@@ -106,3 +106,6 @@ export const HTTPMethod: HTTPMethod[] = ["POST", "GET"]
 
 export type Logo = "normal" | "grey"
 export const Logo: Logo[] = ["normal", "grey"]
+
+export type InfinityPosition = "screen_min" | "screen_max"
+export const InfinityPosition: InfinityPosition[] = ["screen_min", "screen_max"]

@@ -353,6 +353,7 @@ VerticalAlign = enumeration("top", "middle", "bottom")
 #: Specify a vertical location in plot layouts
 VerticalLocation = enumeration("above", "below")
 
+InfinityPosition = enumeration("screen_min", "screen_max")
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------

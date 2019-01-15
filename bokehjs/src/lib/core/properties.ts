@@ -256,6 +256,8 @@ export class PaddingUnits extends enum_prop("PaddingUnits", enums.PaddingUnits) 
 
 export class StartEnd extends enum_prop("StartEnd", enums.StartEnd) {}
 
+export class InfinityPosition extends enum_prop("InfinityPosition", enums.InfinityPosition) {}
+
 //
 // Units Properties
 //

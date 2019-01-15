@@ -13,6 +13,9 @@
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+from ..core.enums import InfinityPosition
+from ..core.properties import Bool, Dict, Either, Enum, Float, Instance, Seq, String, AnyRef
+
 import logging
 log = logging.getLogger(__name__)
 
@@ -77,7 +80,9 @@ class LogScale(Scale):
     '''
 
     '''
-    pass
+    inf = Enum(InfinityPosition, default=None, help="""
+    screen_min, max
+    """)
 
 class CategoricalScale(LinearScale):
     '''
