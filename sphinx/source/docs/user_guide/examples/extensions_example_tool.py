@@ -9,20 +9,19 @@ output_file('tool.html')
 TS_CODE = """
 import * as p from "core/properties"
 import {GestureTool, GestureToolView} from "models/tools/gestures/gesture_tool"
-import { GestureEvent } from "core/ui_events"
-import { ColumnDataSource } from "models/sources/column_data_source"
+import {GestureEvent} from "core/ui_events"
+import {ColumnDataSource} from "models/sources/column_data_source"
 
-export class DrawToolView extends GestureToolView
-{
-  model:DrawTool
+export class DrawToolView extends GestureToolView {
+  model: DrawTool
 
   //this is executed when the pan/drag event starts
-  _pan_start(_ev: GestureEvent): void{
+  _pan_start(_ev: GestureEvent): void {
     this.model.source.data = {x: [], y: []}
   }
 
   //this is executed on subsequent mouse/touch moves
-  _pan(ev: GestureEvent): void{
+  _pan(ev: GestureEvent): void {
     const frame = this.plot_model.frame
     const {sx, sy} = ev
     if (!frame.bbox.contains(sx,sy)){return}
@@ -35,12 +34,11 @@ export class DrawToolView extends GestureToolView
   }
 
   // this is executed then the pan/drag ends
-  _pan_end(_ev: GestureEvent):void{}
+  _pan_end(_ev: GestureEvent):void {}
 }
 
 export class DrawTool extends GestureTool {
   source: ColumnDataSource
-  default_view = DrawToolView
 
   tool_name= "Drag Span"
   icon= "bk-tool-icon-lasso-select"
@@ -48,11 +46,12 @@ export class DrawTool extends GestureTool {
   default_order= 12
 
   static initClass(): void {
+    this.prototype.default_view = DrawToolView
+    this.prototype.type = "DrawTool"
     this.define({
     source: [p.Any],
     })
   }
-  type = "DrawTool"
 }
 DrawTool.initClass()
 """
