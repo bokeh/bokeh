@@ -19,10 +19,6 @@ A client session has two primary uses:
   (running *in the Bokeh server*) before passing them on to a specific
   viewer.
 
-Note About "External" Applications
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-{warning}
-
 '''
 
 #-----------------------------------------------------------------------------
@@ -344,12 +340,17 @@ class ClientSession(object):
 
         While this method can be used to run Bokeh application code "outside"
         the Bokeh server, this practice is HIGHLY DISCOURAGED for any real
-        use case.
+        use case. This function is intented to facilitate testing ONLY.
 
         '''
-        import warnings
-        if not suppress_warning:
-            warnings.warn(_BOKEH_CLIENT_APP_WARNING_FULL)
+
+        suppress_warning # shut up flake
+
+        from bokeh.util.deprecation import deprecated
+        deprecated("ClientSession.loop_until_closed is deprecated, and will be removed in an eventual 2.0 release. "
+                   "Run Bokeh applications directly on a Bokeh server instead. See:\n\n"
+                   "    https//docs.bokeh.org/en/latest/docs/user_guide/server.html\n")
+
         self._connection.loop_until_closed()
 
     def pull(self):
@@ -489,31 +490,8 @@ class ClientSession(object):
 # Private API
 #-----------------------------------------------------------------------------
 
-_BOKEH_CLIENT_APP_WARNING_BODY = """
-The use of `session.loop_until_closed` and `push_session` to run Bokeh
-application code outside a Bokeh server is **HIGHLY DISCOURAGED** for any real
-use.
-
-Running application code outside a Bokeh server with ``bokeh.client`` in this way
-has (and always will have) several intrinsic drawbacks:
-
-* Fast binary array transport is NOT available! Base64 fallback is much slower
-* All network traffic is DOUBLED due to extra hop between client and server
-* Server *and* client process must be running at ALL TIMES for callbacks to work
-* App code run outside the Bokeh server is NOT SCALABLE behind a load balancer
-
-The ``bokeh.client`` API is recommended to use ONLY for testing, or for customizing
-individual sessions running in a full Bokeh server, before passing on to viewers.
-
-For information about different ways of running apps in a Bokeh server, see:
-
-    http://bokeh.pydata.org/en/latest/docs/user_guide/server.html
-"""
-
-_BOKEH_CLIENT_APP_WARNING_FULL = "\n\n    !!!! PLEASE NOTE !!!!\n" + _BOKEH_CLIENT_APP_WARNING_BODY
-
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
 
-__doc__ = format_docstring(__doc__, warning=_BOKEH_CLIENT_APP_WARNING_BODY)
+__doc__ = format_docstring(__doc__)
