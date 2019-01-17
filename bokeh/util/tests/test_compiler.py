@@ -17,6 +17,9 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import os
+import io
+import json
 from mock import patch
 
 # External imports
@@ -168,6 +171,12 @@ def test_FromFile(mock_open):
 
 def test_exts():
     assert buc.exts == (".coffee", ".ts", ".js", ".css", ".less")
+    
+def test_jsons():
+    for file in os.listdir(os.path.join(buc.bokehjs_dir, "js")):
+        if file.endswith('.json'):
+            with io.open(os.path.join(buc.bokehjs_dir, "js", file), encoding="utf-8") as f:
+                assert all(['\\' not in mod for mod in json.loads(f.read())])
 
 #-----------------------------------------------------------------------------
 # Dev API
