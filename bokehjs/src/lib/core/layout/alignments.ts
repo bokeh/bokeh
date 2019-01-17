@@ -1,4 +1,4 @@
-import {SizeHint, Layoutable} from "./layoutable"
+import {SizeHint, Size, Layoutable} from "./layoutable"
 import {BBox} from "../util/bbox"
 import {Anchor} from "../enums"
 
@@ -7,12 +7,12 @@ export abstract class Stack extends Layoutable {
 }
 
 export class HStack extends Stack {
-  size_hint(): SizeHint {
+  protected _measure(_viewport: Size): SizeHint {
     let width = 0
     let height = 0
 
     for (const child of this.children) {
-      const size_hint = child.size_hint()
+      const size_hint = child.measure({width: 0, height: 0})
       width += size_hint.width
       height = Math.max(height, size_hint.height)
     }
@@ -27,7 +27,7 @@ export class HStack extends Stack {
     let {left} = outer
 
     for (const child of this.children) {
-      const {width} = child.size_hint()
+      const {width} = child.measure({width: 0, height: 0})
       child.set_geometry(new BBox({left, width, top, bottom}))
       left += width
     }
@@ -35,12 +35,12 @@ export class HStack extends Stack {
 }
 
 export class VStack extends Stack {
-  size_hint(): SizeHint {
+  protected _measure(_viewport: Size): SizeHint {
     let width = 0
     let height = 0
 
     for (const child of this.children) {
-      const size_hint = child.size_hint()
+      const size_hint = child.measure({width: 0, height: 0})
       width = Math.max(width, size_hint.width)
       height += size_hint.height
     }
@@ -55,7 +55,7 @@ export class VStack extends Stack {
     let {top} = outer
 
     for (const child of this.children) {
-      const {height} = child.size_hint()
+      const {height} = child.measure({width: 0, height: 0})
       child.set_geometry(new BBox({top, height, left, right}))
       top += height
     }
@@ -69,24 +69,17 @@ export type AnchorItem = {
 }
 
 export class AnchorLayout extends Layoutable {
-
   children: AnchorItem[] = []
 
-  size_hint(): SizeHint {
+  protected _measure(viewport: Size): SizeHint {
     let width = 0
     let height = 0
 
     for (const {layout} of this.children) {
-      const size_hint = layout.size_hint()
+      const size_hint = layout.measure(viewport)
       width = Math.max(width, size_hint.width)
       height = Math.max(height, size_hint.height)
     }
-
-    if (this.sizing.width_policy == "fixed" && this.sizing.width != null)
-      width = this.sizing.width
-
-    if (this.sizing.height_policy == "fixed" && this.sizing.height != null)
-      height = this.sizing.height
 
     return {width, height}
   }
@@ -96,7 +89,7 @@ export class AnchorLayout extends Layoutable {
 
     for (const {layout, anchor, margin} of this.children) {
       const {left, right, top, bottom, hcenter, vcenter} = outer
-      const {width, height} = layout.size_hint()
+      const {width, height} = layout.measure(outer)
 
       let bbox: BBox
       switch (anchor) {

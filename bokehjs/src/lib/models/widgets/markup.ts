@@ -15,7 +15,8 @@ export abstract class MarkupView extends WidgetView {
 
   render(): void {
     super.render()
-    this.markupEl = div({class: "bk-clearfix", style: this.model.style})
+    const style = {...this.model.style, display: "inline-block"}
+    this.markupEl = div({class: "bk-clearfix", style})
     this.el.appendChild(this.markupEl)
   }
 }

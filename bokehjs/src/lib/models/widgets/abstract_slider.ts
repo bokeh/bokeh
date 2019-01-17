@@ -2,12 +2,12 @@ import * as noUiSlider from "nouislider"
 
 import * as p from "core/properties"
 import {Color} from "core/types"
-import {label, div, size, unsized} from "core/dom"
+import {label, div/*, size, unsized*/} from "core/dom"
 import {logger} from "core/logging"
 import {repeat} from "core/util/array"
 import {throttle} from "core/util/callback"
 import {Orientation, SliderCallbackPolicy} from "core/enums"
-import {SizeHint, Layoutable, SizingPolicy} from "core/layout"
+import {/*SizeHint, Layoutable,*/ SizingPolicy} from "core/layout"
 
 import {Widget, WidgetView} from "./widget"
 import {CallbackLike} from "../callbacks/callback"
@@ -69,6 +69,7 @@ export abstract class AbstractSliderView extends WidgetView {
     return this.model.orientation == "horizontal" ? "fixed" : "fit"
   }
 
+  /*
   _update_layout(): void {
     const slider = this
 
@@ -94,6 +95,7 @@ export abstract class AbstractSliderView extends WidgetView {
 
     this.layout.set_sizing(this.box_sizing())
   }
+  */
 
   protected abstract _calc_to(): SliderSpec
 

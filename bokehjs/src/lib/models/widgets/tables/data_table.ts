@@ -11,7 +11,6 @@ import {isString} from "core/util/types"
 import {any, range} from "core/util/array"
 import {keys} from "core/util/object"
 import {logger} from "core/logging"
-import {HTML} from "core/layout"
 
 import {TableWidget} from "./table_widget"
 import {Column, TableColumn} from "./table_column"
@@ -116,16 +115,6 @@ export class DataTableView extends WidgetView {
 
     this.connect(this.model.source.selected.change, () => this.updateSelection())
     this.connect(this.model.source.selected.properties.indices.change, () => this.updateSelection())
-  }
-
-  _update_layout(): void {
-    // XXX: temporary hack just to get sensible table height
-    this.layout = new (class extends HTML {
-      has_hfw(): boolean {
-        return false
-      }
-    })(this.el)
-    this.layout.set_sizing(this.box_sizing())
   }
 
   update_position(): void {

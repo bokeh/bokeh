@@ -7,13 +7,13 @@ import {Range1d} from "../ranges/range1d"
 import {DataRange1d} from "../ranges/data_range1d"
 import {FactorRange} from "../ranges/factor_range"
 
-import {BBox, AnchorLayout} from "core/layout"
+import {BBox, LayoutItem} from "core/layout"
 import {Arrayable} from "core/types"
 
 export type Ranges = {[key: string]: Range}
 export type Scales = {[key: string]: Scale}
 
-export class CartesianFrame extends AnchorLayout {
+export class CartesianFrame extends LayoutItem {
 
   constructor(readonly x_scale: Scale,
               readonly y_scale: Scale,

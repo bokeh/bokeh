@@ -188,6 +188,14 @@ export class SidePanel extends Layoutable {
       this.set_sizing({width_policy: "fixed", height_policy: "max"})
   }
 
+  protected _measure(_viewport: Size): SizeHint {
+    const {width, height} = this.obj.get_size()
+    if (!this.obj.rotate || this.is_horizontal)
+      return {width, height}
+    else
+      return {width: height, height: width}
+  }
+
   size_hint(): SizeHint {
     const {width, height} = this.obj.get_size()
     if (!this.obj.rotate || this.is_horizontal)

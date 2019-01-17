@@ -1,9 +1,9 @@
 import {expect} from "chai"
 
-import {Layoutable, SizeHint} from "core/layout"
+import {Layoutable, Size, SizeHint} from "core/layout"
 
 class SomeLayout extends Layoutable {
-  size_hint(): SizeHint {
+  _measure(_viewport: Size): SizeHint {
     return {width: 100, height: 50}
   }
 }

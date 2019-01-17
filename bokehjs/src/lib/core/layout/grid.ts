@@ -1,9 +1,70 @@
-import {SizeHint, Layoutable} from "./layoutable"
+import {SizeHint, Size, Margin, Layoutable} from "./layoutable"
 import {isNumber, isString, isObject} from "../util/types"
 import {Set} from "core/util/data_structures"
 import {BBox} from "../util/bbox"
+import {sum} from "../util/array"
 
-const {max, round} = Math
+const {min, max, round} = Math
+
+class Matrix<T> {
+  private _matrix: T[][]
+
+  constructor(readonly nrows: number, readonly ncols: number, init: (row: number, col: number) => T) {
+    this._matrix = new Array(nrows)
+    for (let y = 0; y < nrows; y++) {
+      this._matrix[y] = new Array(ncols)
+      for (let x = 0; x < ncols; x++) {
+        this._matrix[y][x] = init(y, x)
+      }
+    }
+  }
+
+  at(row: number, col: number): T {
+    return this._matrix[row][col]
+  }
+}
+
+export class Sizeable implements Size {
+  width: number
+  height: number
+
+  constructor(size?: Partial<Size>) {
+    this.width = size != null && size.width != null ? size.width : 0
+    this.height = size != null && size.height != null ? size.height : 0
+  }
+
+  expandend_to({width, height}: Size): Sizeable {
+    return new Sizeable({
+      width: max(this.width, width),
+      height: max(this.height, height),
+    })
+  }
+
+  expand_to({width, height}: Size): void {
+    this.width = max(this.width, width)
+    this.height = max(this.height, height)
+  }
+
+  narrowed_to({width, height}: Size): Sizeable {
+    return new Sizeable({
+      width: min(this.width, width),
+      height: min(this.height, height),
+    })
+  }
+
+  narrow_to({width, height}: Size): void {
+    this.width = min(this.width, width)
+    this.height = min(this.height, height)
+  }
+
+  grow_by({left, right, top, bottom}: Margin): Sizeable {
+    const width = left + this.width + right
+    const height = top + this.height + bottom
+    return new Sizeable({width, height})
+  }
+}
+
+export type TrackAlign = "start" | "center" | "end"
 
 export type GridItem = {
   layout: Layoutable
@@ -15,24 +76,31 @@ export type GridItem = {
 
 type GridCellItem = {
   layout: Layoutable
+  /*
   size_hint: SizeHint
   outer: BBox
   inner?: BBox
+  */
 }
 
 class GridCell {
   items: GridCellItem[] = []
 }
 
-type Matrix = GridCell[][]
+export type TrackSize = {
+  row_heights: number[]
+  col_widths: number[]
+}
 
-type TrackSpec = {policy: "min" | "fit" | "fixed"} | {policy: "flex", factor: number}
+export type GridSizeHint = {size: Size, size_hints: Matrix<SizeHint[]>} & TrackSize
 
-type RowSpec = {top: number,  height: number, align: TrackAlign} & TrackSpec
-type ColSpec = {left: number, width:  number, align: TrackAlign} & TrackSpec
+type TrackSpec<T> = (({policy: "fixed"} & T) | {policy: "min" | "fit"} | {policy: "flex", factor: number}) & {align: TrackAlign}
+
+type RowSpec = TrackSpec<{height: number}>
+type ColSpec = TrackSpec<{width: number}>
 
 type GridState = {
-  matrix: Matrix
+  matrix: Matrix<GridCell>
   nrows: number
   ncols: number
   rows: RowSpec[]
@@ -41,7 +109,6 @@ type GridState = {
   vspacing: number
 }
 
-export type TrackAlign = "start" | "center" | "end"
 
 export type QuickTrackSizing = "auto" | "fit" | "min" | "max" | number
 
@@ -59,8 +126,6 @@ export type ColSizing =
 
 export class Grid extends Layoutable {
 
-  items: GridItem[] = []
-
   rows: QuickTrackSizing | {[key: number]: RowSizing} = "auto"
   cols: QuickTrackSizing | {[key: number]: ColSizing} = "auto"
 
@@ -70,24 +135,9 @@ export class Grid extends Layoutable {
 
   private _state: GridState
 
-  constructor(items: GridItem[] = []) {
+  constructor(public items: GridItem[] = []) {
     super()
-    this.items = items
   }
-
-  /*
-  has_hfw(): boolean {
-    if (super.has_hfw())
-      return true
-
-    for (const {layout} of this.items) {
-      if (layout.has_hfw())
-        return true
-    }
-
-    return false
-  }
-  */
 
   is_width_expanding(): boolean {
     if (super.is_width_expanding())
@@ -133,17 +183,10 @@ export class Grid extends Layoutable {
     nrows += 1
     ncols += 1
 
-    const matrix: Matrix = new Array(nrows)
-    for (let y = 0; y < nrows; y++) {
-      matrix[y] = new Array(ncols)
-      for (let x = 0; x < ncols; x++) {
-        matrix[y][x] = new GridCell()
-      }
-    }
+    const matrix = new Matrix<GridCell>(nrows, ncols, () => new GridCell())
 
-    for (const {layout, row: y, col: x} of this.items) {
-      const size_hint = layout.size_hint()
-      matrix[y][x].items.push({layout, size_hint, outer: new BBox()})
+    for (const {layout, row, col} of this.items) {
+      matrix.at(row, col).items.push({layout})
     }
 
     const rows: RowSpec[] = new Array(nrows)
@@ -160,7 +203,7 @@ export class Grid extends Layoutable {
 
       if (row.policy == "auto" || row.policy == "fit") {
         row_auto: for (let x = 0; x < ncols; x++) {
-          const cell = matrix[y][x]
+          const cell = matrix.at(y, x)
           for (let i = 0; i < cell.items.length; i++) {
             const {layout} = cell.items[i]
 
@@ -173,19 +216,17 @@ export class Grid extends Layoutable {
       }
 
       const align = row.align || "start"
-      const top = 0
-      const height = 0
 
       if (row.policy == "fixed")
-        rows[y] = {align, top, height: row.height, policy: "fixed"}
+        rows[y] = {align, height: row.height, policy: "fixed"}
       else if (row.policy == "fit")
-        rows[y] = {align, top, height, policy: "fit"}
+        rows[y] = {align, policy: "fit"}
       else if (row.policy == "min" || row.policy == "auto")
-        rows[y] = {align, top, height, policy: "min"}
+        rows[y] = {align, policy: "min"}
       else if (row.policy == "max")
-        rows[y] = {align, top, height, policy: "flex", factor: 1}
+        rows[y] = {align, policy: "flex", factor: 1}
       else if (row.policy == "flex")
-        rows[y] = {align, top, height, policy: "flex", factor: row.factor}
+        rows[y] = {align, policy: "flex", factor: row.factor}
     }
 
     const cols: ColSpec[] = new Array(ncols)
@@ -202,7 +243,7 @@ export class Grid extends Layoutable {
 
       if (col.policy == "auto" || col.policy == "fit") {
         col_auto: for (let y = 0; y < nrows; y++) {
-          const cell = matrix[y][x]
+          const cell = matrix.at(y, x)
           for (let i = 0; i < cell.items.length; i++) {
             const {layout} = cell.items[i]
 
@@ -215,19 +256,17 @@ export class Grid extends Layoutable {
       }
 
       const align = col.align || "start"
-      const left = 0
-      const width = 0
 
       if (col.policy == "fixed")
-        cols[x] = {align, left, width: col.width, policy: "fixed"}
+        cols[x] = {align, width: col.width, policy: "fixed"}
       else if (col.policy == "fit")
-        cols[x] = {align, left, width, policy: "fit"}
+        cols[x] = {align, policy: "fit"}
       else if (col.policy == "min" || col.policy == "auto")
-        cols[x] = {align, left, width, policy: "min"}
+        cols[x] = {align, policy: "min"}
       else if (col.policy == "max")
-        cols[x] = {align, left, width, policy: "flex", factor: 1}
+        cols[x] = {align, policy: "flex", factor: 1}
       else if (col.policy == "flex")
-        cols[x] = {align, left, width, policy: "flex", factor: col.factor}
+        cols[x] = {align, policy: "flex", factor: col.factor}
     }
 
     const [hspacing, vspacing] =
@@ -236,87 +275,273 @@ export class Grid extends Layoutable {
     this._state = {matrix, nrows, ncols, rows, cols, hspacing, vspacing}
   }
 
-  size_hint(): SizeHint {
-    const {matrix, nrows, ncols, rows, cols, hspacing, vspacing} = this._state
+  protected _grid_basis(viewport: Size): TrackSize {
+    const {nrows, ncols, rows, cols, hspacing, vspacing} = this._state
 
+    const row_heights: number[] = new Array(nrows)
+    const col_widths: number[] = new Array(ncols)
+
+    let row_flex = 0
+    let row_fixed_height = 0
     for (let y = 0; y < nrows; y++) {
       const row = rows[y]
-      if (row.policy != "fixed")
-        row.height = 0
+      if (row.policy == "fixed") {
+        row_heights[y] = row.height
+        row_fixed_height += row.height
+      } else {
+        row_heights[y] = Infinity
+        row_flex += row.policy == "flex" ? row.factor : 1
+      }
     }
 
-    for (let x = 0; x < ncols; x++) {
-      const col = cols[x]
-      if (col.policy != "fixed")
-        col.width = 0
-    }
+    if (viewport.height != Infinity) {
+      let available_height = max(viewport.height - row_fixed_height - (nrows - 1)*vspacing, 0)
 
-    for (let y = 0; y < nrows; y++) {
-      for (let x = 0; x < ncols; x++) {
-        const cell = matrix[y][x]
-        const col = cols[x]
-        if (col.policy != "fixed") {
-          for (let i = 0; i < cell.items.length; i++) {
-            const item = cell.items[i]
-            const {left, right} = item.layout.sizing.margin
-            col.width = max(col.width, left + item.size_hint.width + right)
-          }
+      for (let y = 0; y < nrows; y++) {
+        const row = rows[y]
+        const flex = row.policy == "flex" ? row.factor : 1
+        if (row.policy != "fixed") {
+          const height = round(available_height * (flex/row_flex))
+          available_height -= height
+          row_heights[y] = height
+          row_flex -= flex
         }
       }
     }
 
+    let col_flex = 0
+    let col_fixed_width = 0
     for (let x = 0; x < ncols; x++) {
       const col = cols[x]
-      for (let y = 0; y < nrows; y++) {
-        const cell = matrix[y][x]
-        const row = rows[y]
-        if (row.policy != "fixed") {
-          for (let i = 0; i < cell.items.length; i++) {
-            const item = cell.items[i]
-            const {top, bottom} = item.layout.sizing.margin
-            row.height = max(row.height, top + item.size_hint.height + bottom)
+      if (col.policy == "fixed") {
+        col_widths[x] = col.width
+        col_fixed_width += col.width
+      } else {
+        col_widths[x] = Infinity
+        col_flex += col.policy == "flex" ? col.factor : 1
+      }
+    }
 
-            if (item.layout.has_hfw()) {
-              const hfw_height = top + item.layout.hfw(col.width) + bottom
-              row.height = max(row.height, hfw_height)
+    if (viewport.width != Infinity) {
+      let available_width = max(viewport.width - col_fixed_width - (ncols - 1)*hspacing, 0)
+
+      for (let x = 0; x < ncols; x++) {
+        const col = cols[x]
+        const flex = col.policy == "flex" ? col.factor : 1
+        if (col.policy != "fixed") {
+          const width = round(available_width * (flex/col_flex))
+          available_width -= width
+          col_widths[x] = width
+          col_flex -= flex
+        }
+      }
+    }
+
+    return {row_heights, col_widths}
+  }
+
+  protected _measure_cells(viewport: Size): GridSizeHint {
+    const {matrix, nrows, ncols, rows, cols, hspacing, vspacing} = this._state
+
+    const basis = this._grid_basis(viewport)
+    const size_hints = new Matrix<SizeHint[]>(nrows, ncols, () => [])
+    const cell_sizes = new Matrix(nrows, ncols, () => new Sizeable())
+
+    for (let y = 0; y < nrows; y++) {
+      for (let x = 0; x < ncols; x++) {
+        const cell = matrix.at(y, x)
+        for (const {layout} of cell.items) {
+          const cell_viewport = new Sizeable({width: basis.col_widths[x], height: basis.row_heights[y]})
+          const size_hint = layout.measure(cell_viewport.shrink_by(layout.sizing.margin))
+          size_hints.at(y, x).push(size_hint)
+          cell_sizes.at(y, x).expand_to(size_hint)
+        }
+      }
+    }
+
+    const row_heights: number[] = new Array(nrows)
+    for (let y = 0; y < nrows; y++) {
+      const row = rows[y]
+      if (row.policy == "fixed")
+        row_heights[y] = row.height
+      else {
+        let height = 0
+        for (let x = 0; x < ncols; x++) {
+          height = max(height, cell_sizes.at(y, x).height)
+        }
+        row_heights[y] = height
+      }
+    }
+
+    const col_widths: number[] = new Array(ncols)
+    for (let x = 0; x < ncols; x++) {
+      const col = cols[x]
+      if (col.policy == "fixed")
+        col_widths[x] = col.width
+      else {
+        let width = 0
+        for (let y = 0; y < nrows; y++) {
+          width = max(width, cell_sizes.at(y, x).width)
+        }
+        col_widths[x] = width
+      }
+    }
+
+    // adjustment
+
+    const height = sum(row_heights) + (nrows - 1)*vspacing
+    const width = sum(col_widths) + (ncols - 1)*hspacing
+
+    return {size: {height, width}, row_heights, col_widths, size_hints}
+  }
+
+  protected _measure(viewport: Size): SizeHint {
+    const {size} = this._measure_cells(viewport)
+    return size
+
+    /*
+    const constrained_width = viewport.width != Infinity
+    const constrained_height = viewport.height != Infinity
+
+    const size_hint = this._measure_cells(viewport) // {width: Infinity, height: Infinity})
+
+    if (!constrained_width && !constrained_height)
+      return size_hint.size
+    else {
+      //const min_hint = this._measure_cells({width: 0, height: 0})
+
+      //constrained_width && size_hint.width < viewport.width
+
+      let {width, height} = size_hint.size
+
+      if (constrained_width) {
+        const {cols} = this._state
+        for (const col of cols) {
+          if (col.policy == "fit" || col.policy == "flex") {
+            width = viewport.width
+            break
+          }
+        }
+      }
+
+      if (constrained_height) {
+        const {rows} = this._state
+        for (const row of rows) {
+          if (row.policy == "fit" || row.policy == "flex") {
+            height = viewport.height
+            break
+          }
+        }
+      }
+
+      return {width, height}
+    }
+    */
+  }
+
+  /*
+  _distribute_size(viewport: Size, size_hint: GridSizeHint): void {
+    const {nrows, ncols, rows, cols} = this._state
+    const {size, row_heights, col_widths} = size_hint
+
+    if (viewport.width != Infinity) {
+      let available_width = viewport.width - size.width
+
+      if (available_width > 0) {
+        let flex = 0
+        for (let x = 0; x < ncols; x++) {
+          const col = cols[x]
+          if (col.policy == "flex") {
+            available_width += col_widths[x]
+            flex += col.factor
+          }
+        }
+
+        if (flex > 0) {
+          for (let x = 0; x < ncols; x++) {
+            const col = cols[x]
+            if (col.policy == "flex") {
+              const width = max(col_widths[x], round(available_width * (col.factor/flex)))
+              available_width -= width
+              col_widths[x] = width
+              flex -= col.factor
+            }
+          }
+        } else {
+          let nfit = 0
+          for (const col of cols) {
+            if (col.policy == "fit")
+              nfit += 1
+          }
+
+          if (nfit > 0) {
+            for (let x = 0; x < ncols; x++) {
+              const col = cols[x]
+              if (col.policy == "fit") {
+                const width = round(available_width/nfit)
+                available_width -= width
+                col_widths[x] += width
+                nfit -= 1
+              }
             }
           }
         }
       }
     }
 
-    let min_height = 0
-    for (let y = 0; y < nrows; y++) {
-      min_height += rows[y].height
+    if (viewport.height != Infinity) {
+      let available_height = viewport.height - size.height
+
+      if (available_height > 0) {
+        let flex = 0
+        for (let y = 0; y < nrows; y++) {
+          const row = rows[y]
+          if (row.policy == "flex") {
+            available_height += row_heights[y]
+            flex += row.factor
+          }
+        }
+
+        if (flex > 0) {
+          for (let y = 0; y < nrows; y++) {
+            const row = rows[y]
+            if (row.policy == "flex") {
+              const height = max(row_heights[y], round(available_height * (row.factor/flex)))
+              available_height -= height
+              row_heights[y] = height
+              flex -= row.factor
+            }
+          }
+        } else {
+          let nfit = 0
+          for (const row of rows) {
+            if (row.policy == "fit")
+              nfit += 1
+          }
+
+          if (nfit > 0) {
+            for (let y = 0; y < nrows; y++) {
+              const row = rows[y]
+              if (row.policy == "fit") {
+                const height = round(available_height/nfit)
+                available_height -= height
+                row_heights[y] += height
+                nfit -= 1
+              }
+            }
+          }
+        }
+      }
     }
-    min_height += (nrows - 1)*vspacing
-
-    let min_width = 0
-    for (let x = 0; x < ncols; x++) {
-      min_width += cols[x].width
-    }
-    min_width += (ncols - 1)*hspacing
-
-    let height: number
-    if (this.sizing.height_policy == "fixed")
-      height = this.sizing.height != null ? this.sizing.height : min_height
-    else
-      height = min_height
-
-    let width: number
-    if (this.sizing.width_policy == "fixed")
-      width = this.sizing.width != null ? this.sizing.width : min_width
-    else
-      width = min_width
-
-    return {width, height}
   }
+  */
 
   protected _set_geometry(outer: BBox, inner: BBox): void {
     super._set_geometry(outer, inner)
 
     const {matrix, nrows, ncols, rows, cols, hspacing, vspacing} = this._state
 
+    /*
     const {width, height} = outer
 
     let available_width = width
@@ -384,79 +609,61 @@ export class Grid extends Layoutable {
         }
       }
     }
+    */
+
+    const {row_heights, col_widths, size_hints} = this._measure_cells(outer)
+
+    const row_tops: number[] = new Array(nrows)
+    const col_lefts: number[] = new Array(ncols)
 
     for (let y = 0, top = !this.absolute ? 0 : outer.top; y < nrows; y++) {
-      const row = rows[y]
-      row.top = top
-      top += row.height + vspacing
+      row_tops[y] = top
+      top += row_heights[y] + vspacing
     }
 
     for (let x = 0, left = !this.absolute ? 0 : outer.left; x < ncols; x++) {
-      const col = cols[x]
-      col.left = left
-      left += col.width + hspacing
+      col_lefts[x] = left
+      left += col_widths[x] + hspacing
     }
+
+    const geometries = new Matrix<{outer: BBox, inner?: BBox}[]>(nrows, ncols, () => [])
 
     for (let y = 0; y < nrows; y++) {
       const row = rows[y]
       for (let x = 0; x < ncols; x++) {
         const col = cols[x]
-        const cell = matrix[y][x]
+        const cell = matrix.at(y, x)
         for (let i = 0; i < cell.items.length; i++) {
           const item = cell.items[i]
           const {sizing} = item.layout
+          const {width, height} = size_hints.at(y, x)[i]
 
-          let width: number
-          if (sizing.width_policy == "fixed")
-            width = item.size_hint.width
-          else if (sizing.width_policy == "min")
-            width = item.size_hint.width
-          else if (sizing.width_policy == "max" || sizing.width_policy == "fit") {
-            const {left, right} = sizing.margin
-            width = item.layout.clip_width(col.width - left - right)
-          } else
-            throw new Error("unreachable")
-
-          let height: number
-          if (sizing.height_policy == "fixed")
-            height = item.size_hint.height
-          else {
-            if (item.layout.has_hfw()) {
-              height = item.layout.hfw(width)
-            } else if (sizing.height_policy == "min")
-              height = item.size_hint.height
-            else if (sizing.height_policy == "max" || sizing.height_policy == "fit") {
-              const {top, bottom} = sizing.margin
-              height = item.layout.clip_height(row.height - top - bottom)
-            } else
-              throw new Error("unreachable")
-          }
-
-          let left = col.left
-          if (width == col.width)
+          let left = col_lefts[x]
+          if (width == col_widths[x])
             left += sizing.margin.left
           else {
             if (col.align == "start")
               left += sizing.margin.left
             else if (col.align == "center")
-              left += round((col.width - width)/2)
+              left += round((col_widths[x] - width)/2)
             else if (col.align == "end")
-              left += col.width - width
+              left += col_widths[x] - sizing.margin.right - width
           }
 
-          let top = row.top
-          if (height == row.height)
+          let top = row_tops[y]
+          if (height == row_heights[y])
             top += sizing.margin.top
           else {
             if (row.align == "start")
               top += sizing.margin.top
             else if (row.align == "center")
-              top += round((row.height - height)/2)
+              top += round((row_heights[y] - height)/2)
             else if (row.align == "end")
-              top += row.height - sizing.margin.bottom - height
+              top += row_heights[y] - sizing.margin.bottom - height
           }
 
-          item.outer = new BBox({left, top, width, height})
+          const outer = new BBox({left, top, width, height})
+          geometries.at(y, x).push({outer})
         }
       }
     }
@@ -471,22 +678,24 @@ export class Grid extends Layoutable {
       const right_items = new Set<GridCellItem>()
 
       for (let y = 0; y < nrows; y++) {
-        const cell = matrix[y][x]
+        const cell = matrix.at(y, x)
         for (let i = 0; i < cell.items.length; i++) {
           const item = cell.items[i]
+          const size_hint = size_hints.at(y, x)[i]
+          const geometry = geometries.at(y, x)[i]
 
-          if (item.size_hint.inner != null) {
-            if (item.outer.width != col.width) {
+          if (size_hint.inner != null) {
+            if (geometry.outer.width != col_widths[x]) {
               if (col.align == "start") {
-                left = max(left, item.size_hint.inner.left)
+                left = max(left, size_hint.inner.left)
                 left_items.add(item)
               } else if (col.align == "end") {
-                right = max(right, item.size_hint.inner.right)
+                right = max(right, size_hint.inner.right)
                 right_items.add(item)
               }
             } else {
-              left = max(left, item.size_hint.inner.left)
-              right = max(right, item.size_hint.inner.right)
+              left = max(left, size_hint.inner.left)
+              right = max(right, size_hint.inner.right)
               left_items.add(item)
               right_items.add(item)
             }
@@ -495,18 +704,20 @@ export class Grid extends Layoutable {
       }
 
       for (let y = 0; y < nrows; y++) {
-        const cell = matrix[y][x]
+        const cell = matrix.at(y, x)
         for (let i = 0; i < cell.items.length; i++) {
           const item = cell.items[i]
+          const size_hint = size_hints.at(y, x)[i]
+          const geometry = geometries.at(y, x)[i]
 
-          if (item.size_hint.inner != null) {
-            const inner_left = left_items.has(item) ? left : item.size_hint.inner.left
-            const inner_right = right_items.has(item) ? right : item.size_hint.inner.right
+          if (size_hint.inner != null) {
+            const inner_left = left_items.has(item) ? left : size_hint.inner.left
+            const inner_right = right_items.has(item) ? right : size_hint.inner.right
 
-            item.inner = new BBox({
+            geometry.inner = new BBox({
               left: inner_left,
               top: 0,
-              right: item.outer.width - inner_right,
+              right: geometry.outer.width - inner_right,
               bottom: 0,
             })
           }
@@ -524,22 +735,24 @@ export class Grid extends Layoutable {
       const bottom_items = new Set<GridCellItem>()
 
       for (let x = 0; x < ncols; x++) {
-        const cell = matrix[y][x]
+        const cell = matrix.at(y, x)
         for (let i = 0; i < cell.items.length; i++) {
           const item = cell.items[i]
+          const size_hint = size_hints.at(y, x)[i]
+          const geometry = geometries.at(y, x)[i]
 
-          if (item.size_hint.inner != null) {
-            if (item.outer.height != row.height) {
+          if (size_hint.inner != null) {
+            if (geometry.outer.height != row_heights[y]) {
               if (row.align == "start") {
-                top = max(top, item.size_hint.inner.top)
+                top = max(top, size_hint.inner.top)
                 top_items.add(item)
               } else if (row.align == "end") {
-                bottom = max(bottom, item.size_hint.inner.bottom)
+                bottom = max(bottom, size_hint.inner.bottom)
                 bottom_items.add(item)
               }
             } else {
-              top = max(top, item.size_hint.inner.top)
-              bottom = max(bottom, item.size_hint.inner.bottom)
+              top = max(top, size_hint.inner.top)
+              bottom = max(bottom, size_hint.inner.bottom)
               top_items.add(item)
               bottom_items.add(item)
             }
@@ -548,19 +761,21 @@ export class Grid extends Layoutable {
       }
 
       for (let x = 0; x < ncols; x++) {
-        const cell = matrix[y][x]
+        const cell = matrix.at(y, x)
         for (let i = 0; i < cell.items.length; i++) {
           const item = cell.items[i]
+          const size_hint = size_hints.at(y, x)[i]
+          const geometry = geometries.at(y, x)[i]
 
-          if (item.size_hint.inner != null) {
-            const inner_top = top_items.has(item) ? top : item.size_hint.inner.top
-            const inner_bottom = bottom_items.has(item) ? bottom : item.size_hint.inner.bottom
+          if (size_hint.inner != null) {
+            const inner_top = top_items.has(item) ? top : size_hint.inner.top
+            const inner_bottom = bottom_items.has(item) ? bottom : size_hint.inner.bottom
 
-            item.inner = new BBox({
-              left: item.inner!.left,
+            geometry.inner = new BBox({
+              left: geometry.inner!.left,
               top: inner_top,
-              right: item.inner!.right,
-              bottom: item.outer.height - inner_bottom,
+              right: geometry.inner!.right,
+              bottom: geometry.outer.height - inner_bottom,
             })
           }
         }
@@ -569,10 +784,11 @@ export class Grid extends Layoutable {
 
     for (let y = 0; y < nrows; y++) {
       for (let x = 0; x < ncols; x++) {
-        const cell = matrix[y][x]
+        const cell = matrix.at(y, x)
         for (let i = 0; i < cell.items.length; i++) {
           const item = cell.items[i]
-          item.layout.set_geometry(item.outer, item.inner)
+          const geometry = geometries.at(y, x)[i]
+          item.layout.set_geometry(geometry.outer, geometry.inner)
         }
       }
     }

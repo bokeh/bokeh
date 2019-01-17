@@ -27,8 +27,8 @@ import {isArray, isStrictNaN} from "core/util/types"
 import {copy, reversed} from "core/util/array"
 import {values} from "core/util/object"
 import {Context2d, SVGRenderingContext2D} from "core/util/canvas"
-import {BBox, SizeHint, SizingPolicy, Margin, Layoutable} from "core/layout"
-import {HStack, VStack, AnchorLayout} from "core/layout/alignments"
+import {BBox, SizeHint, Size, Sizeable, SizingPolicy, Margin, Layoutable} from "core/layout"
+import {HStack, VStack} from "core/layout/alignments"
 import {SidePanel} from "core/layout/side_panel"
 import {Row, Column} from "core/layout/grid"
 
@@ -70,40 +70,32 @@ export type StateInfo = {
 
 export class PlotLayout extends Layoutable {
 
-  top_panel = new VStack()
-  bottom_panel = new VStack()
-  left_panel = new HStack()
-  right_panel = new HStack()
-  center_panel = new AnchorLayout()
+  top_panel: Layoutable
+  bottom_panel: Layoutable
+  left_panel: Layoutable
+  right_panel: Layoutable
+  center_panel: Layoutable
 
   min_border: Margin = {left: 0, top: 0, right: 0, bottom: 0}
 
-  size_hint(): SizeHint {
-    const left_hint = this.left_panel.size_hint()
+  protected _measure(viewport: Size): SizeHint {
+    const left_hint = this.left_panel.measure({width: 0, height: viewport.height})
     const left = Math.max(left_hint.width, this.min_border.left)
 
-    const right_hint = this.right_panel.size_hint()
+    const right_hint = this.right_panel.measure({width: 0, height: viewport.height})
     const right = Math.max(right_hint.width, this.min_border.right)
 
-    const top_hint = this.top_panel.size_hint()
+    const top_hint = this.top_panel.measure({width: viewport.width, height: 0})
     const top = Math.max(top_hint.height, this.min_border.top)
 
-    const bottom_hint = this.bottom_panel.size_hint()
+    const bottom_hint = this.bottom_panel.measure({width: viewport.width, height: 0})
     const bottom = Math.max(bottom_hint.height, this.min_border.bottom)
 
-    const center = this.center_panel.size_hint()
+    const center_viewport = new Sizeable(viewport).shrink_by({left, right, top, bottom})
+    const center = this.center_panel.measure(center_viewport)
 
-    let width: number
-    if (this.sizing.width_policy == "fixed")
-      width = this.sizing.width!
-    else
-      width = left + center.width + right // this.sizing.width != null)
-
-    let height: number
-    if (this.sizing.height_policy == "fixed")
-      height = this.sizing.height!
-    else
-      height = top + center.height + bottom // this.sizing.height != null)
+    const width = left + center.width + right
+    const height = top + center.height + bottom
 
     return {width, height, inner: {left, right, top, bottom}}
   }
@@ -113,10 +105,10 @@ export class PlotLayout extends Layoutable {
 
     this.center_panel.set_geometry(inner)
 
-    const left_hint = this.left_panel.size_hint()
-    const right_hint = this.right_panel.size_hint()
-    const top_hint = this.top_panel.size_hint()
-    const bottom_hint = this.bottom_panel.size_hint()
+    const left_hint = this.left_panel.measure({width: 0, height: outer.height})
+    const right_hint = this.right_panel.measure({width: 0, height: outer.height})
+    const top_hint = this.top_panel.measure({width: outer.width, height: 0})
+    const bottom_hint = this.bottom_panel.measure({width: outer.width, height: 0})
 
     const {left, top, right, bottom} = inner
 
@@ -324,8 +316,8 @@ export class PlotView extends LayoutDOMView {
 
     this.layout.center_panel = this.frame
     this.layout.center_panel.set_sizing({
-      ...(frame_width  != null ? {width_policy:  "fixed", width:  frame_width } : {width_policy:  "max"}),
-      ...(frame_height != null ? {height_policy: "fixed", height: frame_height} : {height_policy: "max"}),
+      ...(frame_width  != null ? {width_policy:  "fixed", width:  frame_width } : {width_policy:  "fit"}),
+      ...(frame_height != null ? {height_policy: "fixed", height: frame_height} : {height_policy: "fit"}),
     })
 
     type Panels = (Axis | Annotation | Annotation[])[]
@@ -416,11 +408,25 @@ export class PlotView extends LayoutDOMView {
       bottom: this.model.min_border_bottom != null ? this.model.min_border_bottom : min_border,
     }
 
-    this.layout.top_panel.children    = reversed(set_layouts("above", above))
-    this.layout.bottom_panel.children =          set_layouts("below", below)
-    this.layout.left_panel.children   = reversed(set_layouts("left",  left))
-    this.layout.right_panel.children  =          set_layouts("right", right)
-    // this.layout.center_panel.children = TODO
+    const top_panel    = new VStack()
+    const bottom_panel = new VStack()
+    const left_panel   = new HStack()
+    const right_panel  = new HStack()
+
+    top_panel.children    = reversed(set_layouts("above", above))
+    bottom_panel.children =          set_layouts("below", below)
+    left_panel.children   = reversed(set_layouts("left",  left))
+    right_panel.children  =          set_layouts("right", right)
+
+    top_panel.set_sizing({width_policy: "fit", height_policy: "min"/*, min_height: this.layout.min_border.top*/})
+    bottom_panel.set_sizing({width_policy: "fit", height_policy: "min"/*, min_height: this.layout.min_width.bottom*/})
+    left_panel.set_sizing({width_policy: "min", height_policy: "fit"/*, min_width: this.layout.min_width.left*/})
+    right_panel.set_sizing({width_policy: "min", height_policy: "fit"/*, min_width: this.layout.min_width.right*/})
+
+    this.layout.top_panel = top_panel
+    this.layout.bottom_panel = bottom_panel
+    this.layout.left_panel = left_panel
+    this.layout.right_panel = right_panel
   }
 
   get axis_views(): AxisView[] {
@@ -929,7 +935,7 @@ export class PlotView extends LayoutDOMView {
   after_layout(): void {
     super.after_layout()
 
-    this._size_hint = this.layout.size_hint()
+    //this._size_hint = this.layout.size_hint()
 
     this.model.setv({
       inner_width: Math.round(this.frame._width.value),
@@ -968,6 +974,8 @@ export class PlotView extends LayoutDOMView {
   }
 
   protected _needs_layout(): boolean {
+    return true
+    /*
     const size_hint = this.layout.size_hint()
     const {_size_hint} = this
 
@@ -986,6 +994,7 @@ export class PlotView extends LayoutDOMView {
     }
 
     return false
+    */
   }
 
   repaint(): void {

@@ -54,7 +54,7 @@ export class DOMView extends View {
   }
 
   protected _createElement(): HTMLElement {
-    return DOM.createElement(this.tagName, {id: this.id, class: this.css_classes()})
+    return DOM.createElement(this.tagName, {class: this.css_classes()})
   }
 }
 

@@ -203,6 +203,16 @@ export function outer_size(el: HTMLElement): Size {
   }
 }
 
+export function content_size(el: HTMLElement): Size {
+  let width = 0
+  let height = 0
+  for (const child of children(el)) {
+    width = Math.max(width, child.offsetLeft + child.offsetWidth)
+    height = Math.max(height, child.offsetTop + child.offsetHeight)
+  }
+  return {width, height}
+}
+
 export function position(el: HTMLElement, bbox: BBox): void {
   const {style} = el
   style.left     = `${bbox.left}px`

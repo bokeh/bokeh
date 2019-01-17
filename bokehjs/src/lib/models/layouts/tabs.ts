@@ -48,7 +48,7 @@ export class TabsView extends LayoutDOMView {
       return {layout: child_view.layout, row: 1, col: 1}
     })
 
-    this.layout = new Grid([header].concat(panels))
+    this.layout = new Grid([header, ...panels])
     this.layout.set_sizing(this.box_sizing())
   }
 

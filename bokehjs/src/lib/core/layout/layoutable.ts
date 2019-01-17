@@ -113,42 +113,12 @@ export abstract class Layoutable {
     this._vcenter = { get value(): number { return layout.bbox.vcenter } }
   }
 
-  abstract size_hint(): SizeHint
-
   protected _set_geometry(outer: BBox, _inner: BBox): void {
     this._bbox = outer
   }
 
   set_geometry(outer: BBox, inner?: BBox): void {
     this._set_geometry(outer, inner || outer)
-  }
-
-  /*
-  has_hfw(): boolean {
-    return false
-  }
-
-  hfw(_width: number): number {
-    return 0
-  }
-
-  wfh(_height: number): number {
-    return 0
-  }
-  */
-
-  has_hfw(): boolean {
-    return (this.sizing.width_policy != "fixed" || this.sizing.height_policy != "fixed") && this.sizing.aspect != null
-  }
-
-  hfw(width: number): number {
-    const {aspect} = this.sizing
-    return width/aspect!
-  }
-
-  wfh(height: number): number {
-    const {aspect} = this.sizing
-    return height*aspect!
   }
 
   is_width_expanding(): boolean {
@@ -159,94 +129,76 @@ export abstract class Layoutable {
     return this.sizing.height_policy == "max"
   }
 
-  compute(viewport: Partial<Size>): void {
-    const size_hint = this.size_hint()
-
-    let width: number
-    let height: number
-
-    switch (this.sizing.width_policy) {
-      case "fixed":
-        width = this.sizing.width != null ? this.sizing.width : size_hint.width
-        break
-      case "fit":
-        //width = viewport.width != null ? viewport.width : size_hint.width
-        if (this.is_width_expanding() && viewport.width != null)
-          width = max(viewport.width, size_hint.width)
-        else
-          width = size_hint.width
-        break
-      case "max":
-        if (viewport.width != null)
-          width = max(viewport.width, size_hint.width)
-        else
-          throw new Error("'max' sizing policy requires viewport width to be specified")
-        break
-      case "min":
-        width = size_hint.width
-        break
-      default:
-        throw new Error("unrechable")
-    }
-
-    switch (this.sizing.height_policy) {
-      case "fixed":
-        height = this.sizing.height != null ? this.sizing.height : size_hint.height
-        break
-      case "fit":
-        //height = viewport.height != null ? viewport.height : size_hint.height
-        if (this.is_height_expanding() && viewport.height != null)
-          height = max(viewport.height, size_hint.height)
-        else
-          height = size_hint.height
-        break
-      case "max":
-        if (viewport.height != null)
-          height = max(viewport.height, size_hint.height)
-        else
-          throw new Error("'max' sizing policy requires viewport height to be specified")
-        break
-      case "min":
-        height = size_hint.height
-        break
-      default:
-        throw new Error("unrechable")
-    }
-
-    const {width_policy, height_policy, aspect} = this.sizing
+  apply_aspect(viewport: Size, {width, height}: Size): Size {
+    const {aspect} = this.sizing
 
     if (aspect != null) {
-      if (width_policy == "max" && height_policy == "max") {
+      const {width_policy, height_policy} = this.sizing
+
+      if (width_policy != "fixed" && height_policy != "fixed") {
         const w_width = width
         const w_height = width / aspect
 
         const h_width = height * aspect
         const h_height = height
 
-        const {abs} = Math
-        const w_diff = abs(viewport.width! - w_width) + abs(viewport.height! - w_height)
-        const h_diff = abs(viewport.width! - h_width) + abs(viewport.height! - h_height)
+        const w_diff = Math.abs(viewport.width - w_width) + Math.abs(viewport.height - w_height)
+        const h_diff = Math.abs(viewport.width - h_width) + Math.abs(viewport.height - h_height)
 
-        if (w_diff < h_diff) {
+        if (w_diff <= h_diff) {
           width = w_width
           height = w_height
         } else {
           width = h_width
           height = h_height
         }
-      } else if (width_policy == "max") {
-        if (height_policy == "fixed")
-          width = height*aspect
-        else
-          height = width/aspect
-      } else if (height_policy != "max") {
-        if (width_policy == "fixed")
-          height = width/aspect
-        else
-          width = height*aspect
-      }
+      } else if (width_policy != "fixed")
+        height = width/aspect
+      else if (height_policy != "fixed")
+        width = height*aspect
+      else
+        throw new Error("unrechable")
     }
 
+    return {width, height}
+  }
+
+  protected abstract _measure(viewport: Size): SizeHint
+
+  measure(viewport: Size): SizeHint {
+    const {width_policy, height_policy} = this.sizing
+
+    const clipped = this.clip_size(viewport)
+    if (width_policy == "fixed" && this.sizing.width != null)
+      clipped.width = this.sizing.width
+    if (height_policy == "fixed" && this.sizing.height != null)
+      clipped.height = this.sizing.height
+
+    const computed = this._measure(clipped)
+
+    let width: number
+    if (width_policy == "fixed")
+      width = this.sizing.width != null ? this.sizing.width : computed.width
+    else
+      width = computed.width
+
+    let height: number
+    if (height_policy == "fixed")
+      height = this.sizing.height != null ? this.sizing.height : computed.height
+    else
+      height = computed.height
+
+    const size = this.apply_aspect(clipped, {width, height})
+    return {...size, inner: computed.inner}
+  }
+
+  compute(viewport?: Partial<Size>): void {
+    const size_hint = this.measure({
+      width: viewport != null && viewport.width != null ? viewport.width : Infinity,
+      height: viewport != null && viewport.height != null ? viewport.height : Infinity,
+    })
+
+    const {width, height} = size_hint
     const outer = new BBox({left: 0, top: 0, width, height})
 
     let inner: BBox | undefined = undefined
@@ -284,19 +236,10 @@ export abstract class Layoutable {
 }
 
 export class LayoutItem extends Layoutable {
-  size_hint(): SizeHint {
-    let width: number
-    if (this.sizing.width_policy == "fixed" && this.sizing.width != null)
-      width = this.sizing.width
-    else
-      width = 0
-
-    let height: number
-    if (this.sizing.height_policy == "fixed" && this.sizing.height != null)
-      height = this.sizing.height
-    else
-      height = 0
-
-    return {width, height}
+  protected _measure(viewport: Size): SizeHint {
+    return {
+      width: viewport.width != Infinity ? viewport.width : 0,
+      height: viewport.height != Infinity ? viewport.height : 0,
+    }
   }
 }
