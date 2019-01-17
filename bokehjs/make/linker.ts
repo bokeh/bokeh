@@ -328,7 +328,7 @@ export class Module {
     for (const base of this.linker.bases) {
       const path = relative(base, this.file)
       if (!path.startsWith("..")) {
-        return path.replace(/\.js$/, "")
+        return path.replace(/\.js$/, "").replace(/\\/g, "/")
       }
     }
 
