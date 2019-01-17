@@ -228,13 +228,18 @@ the same ``args`` and ``code`` parameters:
 CustomJS with a Python function
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. warning::
+    Support for converting Python to JS is deprecated and all the "from_py_func"
+    functions will be removed in an eventual Bokeh 2.0 release. Use CustomJS
+    classes instead.
+
 A CustomJS callback can also be implemented as a Python function, which
 is then translated to JavaScript using PScript. This makes it easier
 for users to define client-side interactions without having to learn
 JavaScript. To use this functionality you need the PScript library
 (install with ``conda install -c conda-forge pscript`` or ``pip install pscript``).
 
-.. warning::
+.. note::
     It is critical to note that **no python code is ever executed when
     a CustomJS callback is used**. This is true even when the callback is
     supplied as python code to be translated to JavaScript as described in

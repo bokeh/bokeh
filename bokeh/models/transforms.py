@@ -126,6 +126,10 @@ class CustomJSTransform(Transform):
             CustomJSTransform
 
         '''
+        from bokeh.util.deprecation import deprecated
+        deprecated("'from_py_func' is deprecated and will be removed in an eventual 2.0 release. "
+                   "Use CustomJSTransform directly instead.")
+
         if not isinstance(func, FunctionType) or not isinstance(v_func, FunctionType):
             raise ValueError('CustomJSTransform.from_py_func only accepts function objects.')
 

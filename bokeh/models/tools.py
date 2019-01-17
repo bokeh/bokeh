@@ -899,6 +899,10 @@ class CustomJSHover(Model):
             CustomJSHover
 
         '''
+        from bokeh.util.deprecation import deprecated
+        deprecated("'from_py_func' is deprecated and will be removed in an eventual 2.0 release. "
+                   "Use CustomJSHover directly instead.")
+
         if not isinstance(code, FunctionType):
             raise ValueError('CustomJSHover.from_py_func only accepts function objects.')
 
