@@ -11,12 +11,11 @@ import {getDeltaY} from "./util/wheel"
 import {reversed} from "./util/array"
 import {isEmpty} from "./util/object"
 import {isString} from "./util/types"
+import {is_mobile} from "./util/compat"
 import {PlotView} from "../models/plots/plot"
 import {Toolbar} from "../models/tools/toolbar"
 import {ToolView} from "../models/tools/tool"
 import * as events from "./bokeh_events"
-
-export const is_mobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0
 
 export type GestureEvent = {
   type: "pan" | "panstart" | "panend" | "pinch" | "pinchstart" | "pinchend"

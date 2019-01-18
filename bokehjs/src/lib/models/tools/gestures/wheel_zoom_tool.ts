@@ -3,7 +3,7 @@ import {scale_range} from "core/util/zoom"
 import * as p from "core/properties"
 import {GestureEvent, ScrollEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
-import {is_mobile} from "core/ui_events"
+import {is_mobile} from "core/util/compat"
 
 export class WheelZoomToolView extends GestureToolView {
   model: WheelZoomTool

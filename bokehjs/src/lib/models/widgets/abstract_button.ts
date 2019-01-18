@@ -52,7 +52,7 @@ export abstract class AbstractButtonView extends WidgetView {
     const icon = this.model.icon
     if (icon != null) {
       build_views(this.icon_views, [icon], {parent: this})
-      prepend(this.buttonEl, this.icon_views[icon.id].el, nbsp)
+      prepend(this.buttonEl, this.icon_views[icon.id].el, nbsp())
     }
   }
 

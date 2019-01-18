@@ -5,12 +5,13 @@ import * as p from "core/properties"
 import {div, canvas} from "core/dom"
 import {OutputBackend} from "core/enums"
 import {BBox} from "core/util/bbox"
+import {is_ie} from "core/util/compat"
 import {Context2d, SVGRenderingContext2D, fixup_ctx, get_scale_ratio} from "core/util/canvas"
 
 // fixes up a problem with some versions of IE11
 // ref: http://stackoverflow.com/questions/22062313/imagedata-set-in-internetexplorer
-if ((window as any).CanvasPixelArray != null) {
-  (window as any).CanvasPixelArray.prototype.set = function(this: any, arr: any[]): void {
+if (is_ie && typeof CanvasPixelArray !== "undefined") {
+  CanvasPixelArray.prototype.set = function(this: any, arr: any[]): void {
     for (let i = 0; i < this.length; i++) {
       this[i] = arr[i]
     }

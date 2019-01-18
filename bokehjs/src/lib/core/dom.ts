@@ -84,7 +84,9 @@ export const
   ol       = _createElement("ol"),
   li       = _createElement("li")
 
-export const nbsp = document.createTextNode("\u00a0")
+export function nbsp(): Text {
+  return document.createTextNode("\u00a0")
+}
 
 export function removeElement(element: HTMLElement): void {
   const parent = element.parentNode

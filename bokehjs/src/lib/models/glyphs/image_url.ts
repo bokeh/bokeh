@@ -10,7 +10,6 @@ import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
 
 export type CanvasImage = HTMLImageElement
-export const CanvasImage = Image
 
 export interface ImageURLData extends XYGlyphData {
   _url: Arrayable<string>
@@ -60,7 +59,7 @@ export class ImageURLView extends XYGlyphView {
       if (this._url[i] == null)
         continue
 
-      const img = new CanvasImage()
+      const img: CanvasImage = new Image()
       img.onerror = () => {
         if (this.retries[i] > 0) {
           logger.trace(`ImageURL failed to load ${this._url[i]} image, retrying in ${retry_timeout} ms`)
