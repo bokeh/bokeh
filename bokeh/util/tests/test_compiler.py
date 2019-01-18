@@ -171,7 +171,7 @@ def test_FromFile(mock_open):
 
 def test_exts():
     assert buc.exts == (".coffee", ".ts", ".js", ".css", ".less")
-    
+
 def test_jsons():
     for file in os.listdir(os.path.join(buc.bokehjs_dir, "js")):
         if file.endswith('.json'):

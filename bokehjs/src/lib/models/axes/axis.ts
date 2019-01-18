@@ -482,6 +482,13 @@ export class Axis extends GuideRenderer {
   }
 
   get offsets(): [number, number] {
+
+    // If we have a fixed_position then we should respect that exactly and
+    // not apply any offsets (https://github.com/bokeh/bokeh/issues/8552)
+    if (this.fixed_location != null) {
+      return [0, 0]
+    }
+
     const frame = this.plot.plot_canvas.frame
     let [xoff, yoff] = [0, 0]
 
