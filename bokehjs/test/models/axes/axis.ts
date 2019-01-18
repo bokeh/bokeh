@@ -44,6 +44,40 @@ describe("Axis", () => {
     expect(axis.loc).to.equal(10)
   })
 
+  it("should return zero offsets when fixed_location is numeric", () => {
+    const plot = new Plot({
+      x_range: new Range1d({start: 0, end: 10}),
+      y_range: new Range1d({start: 0, end: 10}),
+    })
+    const ticker = new BasicTicker()
+    const formatter = new BasicTickFormatter()
+    const axis = new Axis({
+      ticker,
+      formatter,
+      plot,
+      fixed_location: 5,
+    })
+    expect(axis.offsets).to.deep.equal([0,0])
+  })
+
+  it("should return zero offsets when fixed_location is categorical", () => {
+    const plot = new Plot({
+      x_range: new FactorRange({factors: ["foo", "bar"]}),
+      x_scale: new CategoricalScale(),
+      y_range: new Range1d({start: 0, end: 10}),
+    })
+    const ticker = new BasicTicker()
+    const formatter = new BasicTickFormatter()
+    const axis = new Axis({
+      ticker,
+      formatter,
+      plot,
+      fixed_location: "foo",
+    })
+    axis.add_panel('left')
+    expect(axis.offsets).to.deep.equal([0,0])
+  })
+
   it("loc should return synthetic for categorical fixed_location", () => {
     const plot = new Plot({
       x_range: new FactorRange({factors: ["foo", "bar"]}),
