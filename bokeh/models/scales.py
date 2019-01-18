@@ -80,9 +80,6 @@ class LogScale(Scale):
     '''
 
     '''
-    inf = Enum(InfinityPosition, default=None, help="""
-    screen_min, max
-    """)
 
 class CategoricalScale(LinearScale):
     '''
