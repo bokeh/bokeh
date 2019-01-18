@@ -60,7 +60,7 @@ log = logging.getLogger(__name__)
 # External imports
 
 # Bokeh imports
-from ..core.enums import Anchor, Direction, StepMode
+from ..core.enums import Anchor, Direction, InfinityPosition, StepMode
 from ..core.has_props import abstract
 from ..core.properties import (AngleSpec, Bool, DistanceSpec, Enum, Float, String,
                                Include, Instance, Int, NumberSpec, Override, StringSpec)
@@ -1131,6 +1131,8 @@ class VBar(Glyph):
     x = NumberSpec(help="""
     The x-coordinates of the centers of the vertical bars.
     """)
+
+    inf = Enum(InfinityPosition, default="screen_min")
 
     width = NumberSpec(help="""
     The widths of the vertical bars.

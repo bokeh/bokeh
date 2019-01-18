@@ -1,6 +1,7 @@
 import {Box, BoxView, BoxData} from "./box"
 import {Scale} from "../scales/scale"
 import {Arrayable} from "core/types"
+import {InfinityPosition} from "core/enums"
 import {NumberSpec, DistanceSpec} from "core/vectorization"
 import * as p from "core/properties"
 import {SpatialIndex} from "core/util/spatial"
@@ -55,19 +56,24 @@ export class VBarView extends BoxView {
       if (isFinite(val))
         value = val
       else
-        switch (this.renderer.inf) {
-            case "screen_min": {
+        switch (this.model.inf) {
+          case "screen_min": {
             value = scale.screen_min()
             break
-            }
-            case "screen_max": {
+          }
+          case "screen_max": {
             value = scale.screen_max()
             break
-            }
-            default: {
+          }
+          case null: {
+            value = NaN
+            break
+          }
+          default: {
+            // TODO - Raise an error here?
             value = val
             break
-            }
+          }
         }
       result[i] = value
     }
@@ -107,6 +113,7 @@ export namespace VBar {
     bottom: NumberSpec
     width: DistanceSpec
     top: NumberSpec
+    inf: InfinityPosition
   }
 
   export interface Props extends Box.Props {}
@@ -132,6 +139,7 @@ export class VBar extends Box {
     this.define({
       width:  [ p.DistanceSpec  ],
       top:    [ p.NumberSpec    ],
+      inf:    [ p.InfinityPosition, "screen_min"],
     })
     this.override({
       bottom: 0,
