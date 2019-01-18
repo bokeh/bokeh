@@ -1,7 +1,6 @@
 import {LineMixinVector, FillMixinVector} from "core/property_mixins"
-import {Arrayable} from "core/types"
+import {Arrayable, Area} from "core/types"
 import {Line, Fill} from "core/visuals"
-import {IBBox} from "core/util/bbox"
 import {SpatialIndex} from "core/util/spatial"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
@@ -120,7 +119,7 @@ export abstract class BoxView extends GlyphView {
     return result
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: IBBox, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Area, index: number): void {
     generic_area_legend(this.visuals, ctx, bbox, index)
   }
 }

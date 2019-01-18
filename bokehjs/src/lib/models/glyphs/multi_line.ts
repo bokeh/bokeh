@@ -1,10 +1,9 @@
-import {IBBox} from "core/util/bbox"
 import {SpatialIndex} from "core/util/spatial"
 import {PointGeometry, SpanGeometry} from "core/geometry"
 import {NumberSpec} from "core/vectorization"
 import {LineMixinVector} from "core/property_mixins"
 import {Line} from "core/visuals"
-import {Arrayable} from "core/types"
+import {Arrayable, Area} from "core/types"
 import * as hittest from "core/hittest"
 import {keys} from "core/util/object"
 import {min, max} from "core/util/array"
@@ -144,7 +143,7 @@ export class MultiLineView extends GlyphView {
     return line_interpolation(this.renderer, geometry, x2, y2, x3, y3)
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: IBBox, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Area, index: number): void {
     generic_line_legend(this.visuals, ctx, bbox, index)
   }
 

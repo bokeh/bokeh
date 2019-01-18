@@ -1,59 +1,14 @@
+import {Size, SizeHint, BoxSizing} from "./types"
 import {BBox, CoordinateTransform} from "../util/bbox"
 
 const {min, max} = Math
-
-export type Size = {
-  width: number
-  height: number
-}
-
-export type MinSize = {
-  min_width: number
-  min_height: number
-}
-
-export type MaxSize = {
-  max_width: number
-  max_height: number
-}
-
-export type Margin = {
-  left: number
-  top: number
-  right: number
-  bottom: number
-}
-
-export type SizingPolicy = "fixed" | "fit" | "min" | "max"
-
-export type SizeHint = Size /*& MinSize & MaxSize*/ & {
-  inner?: Margin
-}
-
-export type Sizing = number | "fit" | "min" | "max"
-
-export type BoxSizing = {
-  width_policy: "fixed" | "fit" | "min" | "max"
-  min_width: number
-  width?: number
-  max_width: number
-
-  height_policy: "fixed" | "fit" | "min" | "max"
-  min_height: number
-  height?: number
-  max_height: number
-
-  aspect?: number
-  margin: Margin
-}
 
 export interface ComputedVariable {
   readonly value: number
 }
 
 export abstract class Layoutable {
-
-  protected _bbox: BBox = new BBox({left: 0, top: 0, width: 0, height: 0})
+  protected _bbox: BBox = new BBox()
 
   get bbox(): BBox {
     return this._bbox

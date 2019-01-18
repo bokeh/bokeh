@@ -1,4 +1,5 @@
-import {Size, SizeHint, Layoutable} from "./layoutable"
+import {Size, SizeHint} from "./types"
+import {Layoutable} from "./layoutable"
 
 import {Side} from "../enums"
 import {isString} from "../util/types"

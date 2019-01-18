@@ -1,7 +1,6 @@
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import * as bbox from "core/util/bbox"
-import {IBBox} from "core/util/bbox"
 import * as proj from "core/util/projections"
 import * as visuals from "core/visuals"
 import {Geometry, RectGeometry} from "core/geometry"
@@ -10,11 +9,11 @@ import {View} from "core/view"
 import {Model} from "../../model"
 import {Anchor} from "core/enums"
 import {logger} from "core/logging"
-import {Arrayable} from "core/types"
+import {Arrayable, Area, Rect} from "core/types"
 import {map} from "core/util/arrayable"
 import {extend} from "core/util/object"
 import {isArray, isTypedArray} from "core/util/types"
-import {SpatialIndex, Rect} from "core/util/spatial"
+import {SpatialIndex} from "core/util/spatial"
 import {LineView} from "./line"
 import {Scale} from "../scales/scale"
 import {FactorRange} from "../ranges/factor_range"
@@ -177,7 +176,7 @@ export abstract class GlyphView extends View {
       return map(spt0, (_, i) => Math.abs(spt1[i] - spt0[i]))
   }
 
-  draw_legend_for_index(_ctx: Context2d, _bbox: IBBox, _index: number): void {}
+  draw_legend_for_index(_ctx: Context2d, _bbox: Area, _index: number): void {}
 
   hit_test(geometry: Geometry): hittest.HitTestResult {
     let result = null

@@ -1,4 +1,5 @@
-import {SizeHint, Size, Layoutable} from "./layoutable"
+import {SizeHint, Size} from "./types"
+import {Layoutable} from "./layoutable"
 import {BBox} from "../util/bbox"
 import {Anchor} from "../enums"
 

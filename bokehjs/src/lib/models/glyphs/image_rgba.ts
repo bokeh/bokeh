@@ -1,11 +1,10 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {DistanceSpec, NumberSpec} from "core/vectorization"
-import {Arrayable, TypedArray} from "core/types"
+import {Arrayable, TypedArray, Rect} from "core/types"
 import {Class} from "core/class"
 import * as p from "core/properties"
 import {max, concat} from "core/util/array"
 import {Context2d} from "core/util/canvas"
-import {Rect} from "core/util/spatial"
 
 export interface ImageRGBAData extends XYGlyphData {
   image_data: Arrayable<HTMLCanvasElement>

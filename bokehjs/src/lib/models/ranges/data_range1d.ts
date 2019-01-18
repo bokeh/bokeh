@@ -2,10 +2,10 @@ import {DataRange} from "./data_range"
 import {Renderer} from "../renderers/renderer"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {PaddingUnits, StartEnd} from "core/enums"
+import {Rect} from "core/types"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import * as bbox from "core/util/bbox"
-import {Rect} from "core/util/spatial"
 import {includes} from "core/util/array"
 
 export type Dim = 0 | 1

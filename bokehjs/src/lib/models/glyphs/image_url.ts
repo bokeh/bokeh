@@ -1,13 +1,13 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {DistanceSpec, AngleSpec, StringSpec} from "core/vectorization"
-import {Arrayable} from "core/types"
+import {Arrayable, Rect} from "core/types"
 import {Class} from "core/class"
 import {Anchor} from "core/enums"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {map, min, max} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
-import {Rect, SpatialIndex} from "core/util/spatial"
+import {SpatialIndex} from "core/util/spatial"
 
 export type CanvasImage = HTMLImageElement
 export const CanvasImage = Image

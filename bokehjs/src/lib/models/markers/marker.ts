@@ -4,10 +4,9 @@ import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geom
 import {DistanceSpec, AngleSpec} from "core/vectorization"
 import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
-import {Arrayable} from "core/types"
+import {Arrayable, Area} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
-import {IBBox} from "core/util/bbox"
 import {range} from "core/util/array"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
@@ -148,7 +147,7 @@ export abstract class MarkerView extends XYGlyphView {
     return result
   }
 
-  draw_legend_for_index(ctx: Context2d, {x0, x1, y0, y1}: IBBox, index: number): void {
+  draw_legend_for_index(ctx: Context2d, {x0, x1, y0, y1}: Area, index: number): void {
     // using objects like this seems a little wonky, since the keys are coerced to
     // stings, but it works
     const len = index + 1

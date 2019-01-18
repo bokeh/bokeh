@@ -1,5 +1,4 @@
-import {Rect} from "./spatial"
-import {Arrayable} from "../types"
+import {Arrayable, Rect, Box, Area, Interval} from "../types"
 
 const {min, max} = Math
 
@@ -39,20 +38,6 @@ export function union(a: Rect, b: Rect): Rect {
   }
 }
 
-export interface IBBox {
-  x0: number
-  y0: number
-  x1: number
-  y1: number
-}
-
-export interface IRect {
-  left: number
-  top: number
-  width: number
-  height: number
-}
-
 export type HorizontalPosition =
   {left: number,    width: number} |
   {width: number,   right: number} |
@@ -66,31 +51,26 @@ export type VerticalPosition =
 
 export type Position = HorizontalPosition & VerticalPosition
 
-export interface IRange {
-  start: number
-  end: number
-}
-
 export interface CoordinateTransform {
   compute: (v: number) => number
   v_compute: (vv: Arrayable<number>) => Arrayable<number>
 }
 
-export class BBox implements IBBox {
+export class BBox implements Area {
 
   readonly x0: number
   readonly y0: number
   readonly x1: number
   readonly y1: number
 
-  constructor(box?: IBBox | IRect | Position) {
+  constructor(box?: Area | Box | Position) {
     if (box == null) {
       this.x0 = 0
       this.y0 = 0
       this.x1 = 0
       this.y1 = 0
     } else if ('x0' in box) {
-      const {x0, y0, x1, y1} = box as IBBox
+      const {x0, y0, x1, y1} = box as Area
       if (!(x0 <= x1 && y0 <= y1))
         throw new Error(`invalid bbox {x0: ${x0}, y0: ${y0}, x1: ${x1}, y1: ${y1}}`)
       this.x0 = x0
@@ -98,7 +78,7 @@ export class BBox implements IBBox {
       this.x1 = x1
       this.y1 = y1
     } else if ("x" in box) {
-      const {left, top, width, height} = box as IRect
+      const {left, top, width, height} = box as Box
       if (!(width >= 0 && height >= 0))
         throw new Error(`invalid bbox {left: ${left}, top: ${top}, width: ${width}, height: ${height}}`)
       this.x0 = left
@@ -175,12 +155,12 @@ export class BBox implements IBBox {
   get width(): number { return this.x1 - this.x0 }
   get height(): number { return this.y1 - this.y0 }
 
-  get rect(): IRect { return {left: this.left, top: this.top, width: this.width, height: this.height} }
+  get rect(): Box { return {left: this.left, top: this.top, width: this.width, height: this.height} }
 
-  get h_range(): IRange { return {start: this.x0, end: this.x1} }
-  get v_range(): IRange { return {start: this.y0, end: this.y1} }
+  get h_range(): Interval { return {start: this.x0, end: this.x1} }
+  get v_range(): Interval { return {start: this.y0, end: this.y1} }
 
-  get ranges(): [IRange, IRange] { return [this.h_range, this.v_range] }
+  get ranges(): [Interval, Interval] { return [this.h_range, this.v_range] }
 
   get aspect(): number { return this.width/this.height }
 
@@ -205,7 +185,7 @@ export class BBox implements IBBox {
     return [x, y]
   }
 
-  union(that: IBBox): BBox {
+  union(that: Area): BBox {
     return new BBox({
       x0: min(this.x0, that.x0),
       y0: min(this.y0, that.y0),
@@ -214,7 +194,7 @@ export class BBox implements IBBox {
     })
   }
 
-  equals(that: IBBox): boolean {
+  equals(that: Area): boolean {
     return this.x0 == that.x0 && this.y0 == that.y0 && this.x1 == that.x1 && this.y1 == that.y1
   }
 

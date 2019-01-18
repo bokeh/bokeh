@@ -4,7 +4,7 @@ import {LineMixinVector} from "core/property_mixins"
 import {Line} from "core/visuals"
 import {StepMode} from "core/enums"
 import * as p from "core/properties"
-import {IBBox} from "core/util/bbox"
+import {Area} from "core/types"
 import {Context2d} from "core/util/canvas"
 
 export interface StepData extends XYGlyphData {}
@@ -83,7 +83,7 @@ export class StepView extends XYGlyphView {
     ctx.stroke()
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: IBBox, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Area, index: number): void {
     generic_line_legend(this.visuals, ctx, bbox, index)
   }
 }

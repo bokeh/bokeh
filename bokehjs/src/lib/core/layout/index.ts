@@ -1,5 +1,5 @@
-export {BBox} from "../util/bbox"
-export {Size, Margin, SizingPolicy, Sizing, BoxSizing, SizeHint, Layoutable, LayoutItem} from "./layoutable"
+export {Size, Sizeable, Margin, SizingPolicy, Sizing, BoxSizing, SizeHint} from "./types"
+export {Layoutable, LayoutItem} from "./layoutable"
 export {HStack, VStack, AnchorLayout} from "./alignments"
 export {Grid, Row, Column} from "./grid"
 export {HTML} from "./html"

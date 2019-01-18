@@ -3,10 +3,9 @@ import {generic_line_legend} from "./utils"
 import {DistanceSpec, AngleSpec} from "core/vectorization"
 import {LineMixinVector} from "core/property_mixins"
 import {Line} from "core/visuals"
-import {Arrayable} from "core/types"
+import {Arrayable, Area} from "core/types"
 import {Direction} from "core/enums"
 import * as p from "core/properties"
-import {IBBox} from "core/util/bbox"
 import {Context2d} from "core/util/canvas"
 
 export interface ArcData extends XYGlyphData {
@@ -50,7 +49,7 @@ export class ArcView extends XYGlyphView {
     }
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: IBBox, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Area, index: number): void {
     generic_line_legend(this.visuals, ctx, bbox, index)
   }
 }

@@ -2,7 +2,7 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_area_legend} from "./utils"
 import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
-import {IBBox} from "core/util/bbox"
+import {Area} from "core/types"
 import {Context2d} from "core/util/canvas"
 
 export interface PatchData extends XYGlyphData {}
@@ -57,7 +57,7 @@ export class PatchView extends XYGlyphView {
     }
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: IBBox, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Area, index: number): void {
     generic_area_legend(this.visuals, ctx, bbox, index)
   }
 }

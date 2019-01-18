@@ -1,5 +1,6 @@
-import {SizeHint, Layoutable} from "./layoutable"
-import {sized, content_size, Size} from "../dom"
+import {Size, SizeHint} from "./types"
+import {Layoutable} from "./layoutable"
+import {sized, content_size} from "../dom"
 
 export class HTML extends Layoutable {
 

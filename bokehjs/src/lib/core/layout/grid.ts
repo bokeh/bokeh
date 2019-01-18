@@ -1,10 +1,11 @@
-import {SizeHint, Size, Margin, Layoutable} from "./layoutable"
+import {SizeHint, Size, Sizeable} from "./types"
+import {Layoutable} from "./layoutable"
 import {isNumber, isString, isObject} from "../util/types"
 import {Set} from "core/util/data_structures"
 import {BBox} from "../util/bbox"
 import {sum} from "../util/array"
 
-const {min, max, round} = Math
+const {max, round} = Math
 
 class Matrix<T> {
   private _matrix: T[][]
@@ -21,46 +22,6 @@ class Matrix<T> {
 
   at(row: number, col: number): T {
     return this._matrix[row][col]
-  }
-}
-
-export class Sizeable implements Size {
-  width: number
-  height: number
-
-  constructor(size?: Partial<Size>) {
-    this.width = size != null && size.width != null ? size.width : 0
-    this.height = size != null && size.height != null ? size.height : 0
-  }
-
-  expandend_to({width, height}: Size): Sizeable {
-    return new Sizeable({
-      width: max(this.width, width),
-      height: max(this.height, height),
-    })
-  }
-
-  expand_to({width, height}: Size): void {
-    this.width = max(this.width, width)
-    this.height = max(this.height, height)
-  }
-
-  narrowed_to({width, height}: Size): Sizeable {
-    return new Sizeable({
-      width: min(this.width, width),
-      height: min(this.height, height),
-    })
-  }
-
-  narrow_to({width, height}: Size): void {
-    this.width = min(this.width, width)
-    this.height = min(this.height, height)
-  }
-
-  grow_by({left, right, top, bottom}: Margin): Sizeable {
-    const width = left + this.width + right
-    const height = top + this.height + bottom
-    return new Sizeable({width, height})
   }
 }
 

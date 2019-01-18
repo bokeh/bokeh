@@ -2,10 +2,9 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_line_legend, line_interpolation} from "./utils"
 import {PointGeometry, SpanGeometry} from "core/geometry"
 import {LineMixinVector} from "core/property_mixins"
-import {Arrayable} from "core/types"
+import {Arrayable, Area} from "core/types"
 import * as visuals from "core/visuals"
 import * as hittest from "core/hittest"
-import {IBBox} from "core/util/bbox"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 
@@ -117,7 +116,7 @@ export class LineView extends XYGlyphView {
     return line_interpolation(this.renderer, geometry, x2, y2, x3, y3)
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: IBBox, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Area, index: number): void {
     generic_line_legend(this.visuals, ctx, bbox, index)
   }
 }

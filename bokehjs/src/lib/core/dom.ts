@@ -1,5 +1,5 @@
 import {isBoolean, isString, isArray, isPlainObject} from "./util/types"
-import {BBox} from "./util/bbox"
+import {Size, Box, Extents} from "./types"
 
 export type HTMLAttrs = {[name: string]: any}
 export type HTMLChild = string | HTMLElement | (string | HTMLElement)[]
@@ -148,13 +148,11 @@ export function parent(el: HTMLElement, selector: string): HTMLElement | null {
   return null
 }
 
-export type Sizing = {top: number, bottom: number, left: number, right: number}
-
 function num(value: string | null): number {
   return parseFloat(value!) || 0
 }
 
-export function border(el: HTMLElement): Sizing {
+export function border(el: HTMLElement): Extents {
   const style = getComputedStyle(el)
   return {
     top:    num(style.borderTopWidth),
@@ -164,7 +162,7 @@ export function border(el: HTMLElement): Sizing {
   }
 }
 
-export function margin(el: HTMLElement): Sizing {
+export function margin(el: HTMLElement): Extents {
   const style = getComputedStyle(el)
   return {
     top:    num(style.marginTop),
@@ -174,7 +172,7 @@ export function margin(el: HTMLElement): Sizing {
   }
 }
 
-export function padding(el: HTMLElement): Sizing {
+export function padding(el: HTMLElement): Extents {
   const style = getComputedStyle(el)
   return {
     top:    num(style.paddingTop),
@@ -183,8 +181,6 @@ export function padding(el: HTMLElement): Sizing {
     right:  num(style.paddingRight),
   }
 }
-
-export type Size = {width: number, height: number}
 
 export function size(el: HTMLElement): Size {
   const rect = el.getBoundingClientRect()
@@ -213,12 +209,12 @@ export function content_size(el: HTMLElement): Size {
   return {width, height}
 }
 
-export function position(el: HTMLElement, bbox: BBox): void {
+export function position(el: HTMLElement, box: Box): void {
   const {style} = el
-  style.left     = `${bbox.left}px`
-  style.top      = `${bbox.top}px`
-  style.width    = `${bbox.width}px`
-  style.height   = `${bbox.height}px`
+  style.left     = `${box.left}px`
+  style.top      = `${box.top}px`
+  style.width    = `${box.width}px`
+  style.height   = `${box.height}px`
 }
 
 export function children(el: HTMLElement): HTMLElement[] {

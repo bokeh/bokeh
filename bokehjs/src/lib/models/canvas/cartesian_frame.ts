@@ -7,8 +7,9 @@ import {Range1d} from "../ranges/range1d"
 import {DataRange1d} from "../ranges/data_range1d"
 import {FactorRange} from "../ranges/factor_range"
 
-import {BBox, LayoutItem} from "core/layout"
+import {LayoutItem} from "core/layout"
 import {Arrayable} from "core/types"
+import {BBox} from "core/util/bbox"
 
 export type Ranges = {[key: string]: Range}
 export type Scales = {[key: string]: Scale}
