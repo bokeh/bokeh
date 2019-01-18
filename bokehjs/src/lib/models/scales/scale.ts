@@ -40,6 +40,14 @@ export abstract class Scale extends Transform {
 
   abstract v_invert(sxs: Arrayable<number>): Arrayable<number>
 
+  screen_min(): number {
+    return this.target_range.start
+  }
+
+  screen_max(): number {
+    return 0
+  }
+
   r_compute(x0: number, x1: number): [number, number] {
     if (this.target_range.is_reversed)
       return [this.compute(x1), this.compute(x0)]

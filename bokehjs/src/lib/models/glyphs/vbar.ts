@@ -1,4 +1,5 @@
 import {Box, BoxView, BoxData} from "./box"
+import {Scale} from "../scales/scale"
 import {Arrayable} from "core/types"
 import {NumberSpec, DistanceSpec} from "core/vectorization"
 import * as p from "core/properties"
@@ -46,14 +47,50 @@ export class VBarView extends BoxView {
     return [l, r, t, b]
   }
 
+    protected _handle_infinite_values(vals: Arrayable<number>, scale: Scale): Arrayable<number> {
+    const result = new Float64Array(vals.length)
+    for (let i = 0; i < vals.length; i++) {
+      const val = vals[i]
+      let value: number
+      if (isFinite(val))
+        value = val
+      else
+        switch (this.renderer.inf) {
+            case "screen_min": {
+            value = scale.screen_min()
+            break
+            }
+            case "screen_max": {
+            value = scale.screen_max()
+            break
+            }
+            default: {
+            value = val
+            break
+            }
+        }
+      result[i] = value
+    }
+    return result
+  }
+
   protected _map_data(): void {
-    this.sx = this.renderer.xscale.v_compute(this._x)
+    let sx: Arrayable<number>
+    let stop: Arrayable<number>
+    let sbottom: Arrayable<number>
+
+    sx = this.renderer.xscale.v_compute(this._x)
+    stop = this.renderer.yscale.v_compute(this._top)
+    sbottom = this.renderer.yscale.v_compute(this._bottom)
+
+    this.sx = this._handle_infinite_values(sx, this.renderer.xscale)
     this.sw = this.sdist(this.renderer.xscale, this._x, this._width, "center")
-    this.stop = this.renderer.yscale.v_compute(this._top)
-    this.sbottom = this.renderer.yscale.v_compute(this._bottom)
+    this.stop = this._handle_infinite_values(stop, this.renderer.yscale)
+    this.sbottom = this._handle_infinite_values(sbottom, this.renderer.yscale)
 
     const n = this.sx.length
-    this.sleft = new Float64Array(n)
+      this.sleft = new Float64Array(n)
+
     this.sright = new Float64Array(n)
     for (let i = 0; i < n; i++) {
       this.sleft[i] = this.sx[i] - this.sw[i]/2

@@ -37,10 +37,7 @@ export class LogScale extends Scale {
       value = 0
     else {
       const _x = (Math.log(x) - inter_offset) / inter_factor
-      if (isFinite(_x))
-        value = _x*factor + offset
-      else
-        value = NaN
+      value = _x*factor + offset
     }
 
     return value
@@ -58,23 +55,7 @@ export class LogScale extends Scale {
       for (let i = 0; i < xs.length; i++) {
         const _x = (Math.log(xs[i]) - inter_offset) / inter_factor
         let value: number
-        if (isFinite(_x))
-          value = _x*factor + offset
-        else
-          switch(this.inf) {
-            case "screen_min": {
-                value = offset
-                break
-            }
-            case "screen_max": {
-                value = 0
-                break
-            }
-            default: {
-                value = NaN
-                break
-            }
-          }
+        value = _x*factor + offset
         result[i] = value
       }
     }
