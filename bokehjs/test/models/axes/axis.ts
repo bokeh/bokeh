@@ -58,10 +58,12 @@ describe("Axis", () => {
     const axis = new Axis({
       ticker,
       formatter,
-      plot,
       fixed_location: 5,
     })
-    expect(axis.offsets).to.deep.equal([0,0])
+    plot.add_layout(axis, "left")
+    const plot_view = new plot.default_view({model: plot, parent: null}).build()
+    const axis_view = plot_view.renderer_views[axis.id] as AxisView
+    expect(axis_view.offsets).to.deep.equal([0, 0])
   })
 
   it("should return zero offsets when fixed_location is categorical", () => {
@@ -77,8 +79,10 @@ describe("Axis", () => {
       formatter,
       fixed_location: "foo",
     })
-    axis.add_panel('left')
-    expect(axis.offsets).to.deep.equal([0,0])
+    plot.add_layout(axis, "left")
+    const plot_view = new plot.default_view({model: plot, parent: null}).build()
+    const axis_view = plot_view.renderer_views[axis.id] as AxisView
+    expect(axis_view.offsets).to.deep.equal([0, 0])
   })
 
   it("loc should return synthetic for categorical fixed_location", () => {
@@ -92,7 +96,6 @@ describe("Axis", () => {
     const axis = new Axis({
       ticker,
       formatter,
-      plot,
       fixed_location: "foo",
     })
     plot.add_layout(axis, "left")
