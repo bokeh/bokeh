@@ -1,5 +1,4 @@
-import * as plt from "api/plotting"
-import {Row} from "models/index"
+import {Plotting as plt, Row} from "bokehjs"
 
 export namespace Categorical {
   const dot = () => {

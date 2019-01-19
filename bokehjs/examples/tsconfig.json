@@ -26,5 +26,5 @@
     }
   },
   "include": ["./*/*.ts"],
-  "files": ["../src/lib/api/typings.d.ts"]
+  "files": ["./bokehjs.d.ts", "../src/lib/api/typings.d.ts"]
 }
