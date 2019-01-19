@@ -1,14 +1,10 @@
-namespace Categorical {
-  import plt = Bokeh.Plotting
-  const {Row} = Bokeh
+import * as plt from "api/plotting"
+import {Row} from "models/index"
 
-  console.log(`Bokeh ${Bokeh.version}`)
-  Bokeh.set_log_level("info")
-  Bokeh.settings.dev = true
-
+export namespace Categorical {
   const dot = () => {
     const factors = ["a", "b", "c", "d", "e", "f", "g", "h"]
-    const x =  [50, 40, 65, 10, 25, 37, 80, 60]
+    const x = [50, 40, 65, 10, 25, 37, 80, 60]
 
     const fig = plt.figure({
       title: "Categorical Dot Plot",

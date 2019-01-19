@@ -1,7 +1,4 @@
 {
   "extends": "../tsconfig.json",
-  "files": [
-    "../../src/lib/api/typings.d.ts",
-    "categorical.ts"
-  ]
+  "files": ["categorical.ts"]
 }
