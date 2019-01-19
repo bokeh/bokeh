@@ -20,7 +20,7 @@ def parallel_plot(df, color=None, palette=None):
         color = np.ones(npts)
     if palette is None:
         palette = ['#ff0000']
-    
+
     cmap = LinearColorMapper(high=color.min(),
                              low=color.max(),
                              palette=palette)
@@ -34,7 +34,7 @@ def parallel_plot(df, color=None, palette=None):
                y_range=(0, 1),
                width=1000,
                tools="pan, box_zoom")
-    
+
     # Create x axis ticks from columns contained in dataframe
     fixed_x_ticks = FixedTicker(
         ticks=np.arange(ndims), minor_ticks=[])
@@ -65,16 +65,16 @@ def parallel_plot(df, color=None, palette=None):
 
         p.add_layout(LinearAxis(fixed_location=index, y_range_name=col,
                                 ticker=fixedticks, formatter=tickformatter), 'right')
-    
+
     # create the data renderer ( MultiLine )
     # specify selected and non selected style
     non_selected_line_style = dict(line_color='grey', line_width=0.1, line_alpha=0.5)
-    
+
     selected_line_style = dict(line_color={'field': 'color', 'transform': cmap}, line_width=1)
 
     parallel_renderer = p.multi_line(
         xs="xs", ys="ys", source=data_source, **non_selected_line_style)
-    
+
     # Specifify selection style
     selected_lines = MultiLine(**selected_line_style)
 
