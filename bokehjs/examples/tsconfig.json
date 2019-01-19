@@ -25,5 +25,6 @@
       "*": ["../build/js/tree/*", "../build/js/types/*", "../src/lib/external/*"]
     }
   },
-  "compileOnSave": false
+  "include": ["./*/*.ts"],
+  "files": ["../src/lib/api/typings.d.ts"]
 }
