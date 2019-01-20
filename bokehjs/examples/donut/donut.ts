@@ -1,4 +1,6 @@
-namespace WebBrowserMarketShare {
+import * as Bokeh from "bokehjs"
+
+export namespace WebBrowserMarketShare {
   import plt = Bokeh.Plotting
   const {zip, unzip, sum, cumsum} = Bokeh.LinAlg
 
@@ -63,11 +65,11 @@ namespace WebBrowserMarketShare {
 
   interface BrowserInfo {
     description?: string
-    color?: Bokeh.Color
+    color?: string
     icon?: string
   }
 
-  const info: Bokeh.Map<BrowserInfo> = {
+  const info: {[key: string]: BrowserInfo} = {
     Other: {color: "gray"},
   }
 
@@ -128,15 +130,16 @@ namespace WebBrowserMarketShare {
 
   const tap = new Bokeh.TapTool({
     behavior: "inspect",
-    callback: (ds) => {
-      if (!paused) {
-        const cds = ds as Bokeh.ColumnDataSource
-        const i = cds.inspected['1d'].indices[0]
-        const name = cds.data["names"][i]
-        const share = Bokeh.sprintf("%.02f%%", cds.data["shares"][i])
-        fig.title = `${name}: ${share}`
-      }
-      paused = !paused
+    callback: {
+      execute(_obj, {source: cds}): void {
+        if (!paused) {
+          const i = cds.inspected['1d'].indices[0]
+          const name = cds.data["names"][i]
+          const share = Bokeh.sprintf("%.02f%%", cds.data["shares"][i])
+          fig.title = `${name}: ${share}`
+        }
+        paused = !paused
+      },
     },
   })
   fig.add_tools(tap)

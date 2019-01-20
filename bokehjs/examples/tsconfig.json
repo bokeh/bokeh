@@ -22,9 +22,8 @@
     "types": [],
     "baseUrl": ".",
     "paths": {
-      "*": ["../build/js/tree/*", "../build/js/types/*", "../src/lib/external/*"]
+      "*": ["../build/js/tree/*", "../build/js/types/*"]
     }
   },
-  "include": ["./*/*.ts"],
-  "files": ["./bokehjs.d.ts", "../src/lib/api/typings.d.ts"]
+  "include": ["./*/*.ts", "./bokehjs.d.ts"]
 }

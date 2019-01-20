@@ -1,4 +1,6 @@
-namespace HoverfulScatter {
+import * as Bokeh from "bokehjs"
+
+export namespace HoverfulScatter {
   import plt = Bokeh.Plotting
   const {range, zip} = Bokeh.LinAlg
 
@@ -47,7 +49,7 @@ namespace HoverfulScatter {
     text_font_size: "5pt", text_baseline: "middle", text_align: "center"})
 
   const hover = p.toolbar.select_one(Bokeh.HoverTool)
-  hover.tooltips = (source: Bokeh.DataSource, info: Bokeh.HoverTooltipInfo) => {
+  hover.tooltips = (source, info) => {
     const ds = source as Bokeh.ColumnDataSource
     const div = document.createElement("div")
     div.style.width = "200px"

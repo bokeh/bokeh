@@ -1,4 +1,6 @@
-namespace Charts {
+import * as Bokeh from "bokehjs"
+
+export namespace Charts {
   import plt = Bokeh.Plotting
 
   const pie_data = {

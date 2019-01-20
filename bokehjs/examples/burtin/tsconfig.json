@@ -1,7 +1,4 @@
 {
   "extends": "../tsconfig.json",
-  "files": [
-    "../../src/lib/api/typings.d.ts",
-    "burtin.ts"
-  ]
+  "files": ["./burtin.ts", "../bokehjs.d.ts"]
 }

@@ -1,9 +1,8 @@
-namespace Burtin {
+import * as Bokeh from "bokehjs"
+
+export namespace Burtin {
   import plt = Bokeh.Plotting
   const {range, values} = Bokeh.LinAlg
-
-  import Color = Bokeh.Color
-  import Map = Bokeh.Map
 
   console.log(`Bokeh ${Bokeh.version}`)
   Bokeh.set_log_level("info")
@@ -52,13 +51,13 @@ namespace Burtin {
     gram:         antibiotics.map((row) => row[4]),
   }
 
-  const drug_color: Map<Color> = {
+  const drug_color = {
     Penicillin:   "#0d3362",
     Streptomycin: "#c64737",
     Neomycin:     "black"  ,
   }
 
-  const gram_color: Map<Color> = {
+  const gram_color = {
     positive: "#aeaeb8",
     negative: "#e69584",
   }

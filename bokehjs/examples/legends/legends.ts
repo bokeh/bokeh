@@ -1,4 +1,6 @@
-namespace Legends {
+import * as Bokeh from "bokehjs"
+
+export namespace Legends {
   import plt = Bokeh.Plotting
   import linspace = Bokeh.LinAlg.linspace
 

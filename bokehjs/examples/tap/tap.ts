@@ -1,4 +1,6 @@
-namespace TappyScatter {
+import * as Bokeh from "bokehjs"
+
+export namespace TappyScatter {
   import plt = Bokeh.Plotting
   const {range, zip} = Bokeh.LinAlg
 
@@ -48,14 +50,16 @@ namespace TappyScatter {
 
   const tap = p.toolbar.select_one(Bokeh.TapTool)
   tap.renderers = [circles]
-  tap.callback = (ds: Bokeh.DataSource) => {
-    const indices = ds.selected['1d'].indices
-    if (indices.length == 1)
-      console.log(`Selected index: ${indices[0]}`)
-    else if (indices.length > 1)
-      console.log(`Selected indices: ${indices.join(', ')}`)
-    else
-      console.log("Nothing selected")
+  tap.callback = {
+    execute(_obj, {source}): void {
+      const indices = source.selected['1d'].indices
+      if (indices.length == 1)
+        console.log(`Selected index: ${indices[0]}`)
+      else if (indices.length > 1)
+        console.log(`Selected indices: ${indices.join(', ')}`)
+      else
+        console.log("Nothing selected")
+    },
   }
 
   plt.show(p)
