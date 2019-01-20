@@ -114,6 +114,7 @@ export class ParallelSelectionView extends BoxSelectToolView {
 
         this.connect(this.plot_model.frame.x_ranges[this.model.renderer_select.x_range_name].change,
             () => this._resize_boxes_on_zoom())
+        this.connect(this.cds_select.change, () => this._update_data_selection())
     }
 
     get _box_width(): number {
@@ -274,26 +275,24 @@ export class ParallelSelectionView extends BoxSelectToolView {
             this.cds_select.columns().forEach(key => {
                 this.cds_select.get_array(key).splice((this.ind_active_box as any), 1)
             })
-            this._emit_cds_changes(this.cds_select)
             this._delete_selection_indices(this.ind_active_box)
+            this._emit_cds_changes(this.cds_select)
         }
     }
 
-    _keyup(ev: KeyEvent){
+    _keyup(ev: KeyEvent) {
         if (ev.keyCode == Keys.Esc) {
             const nelems = this.cds_select.get_length()
-            if(nelems != null){
+            if (nelems != null) {
                 this.cds_select.columns().forEach(key => {
                     this.cds_select.get_array(key).splice(0, nelems)
                 })
-                this.selection_indices.splice(0,nelems)
+                this.selection_indices.splice(0, nelems)
                 this._emit_cds_changes(this.cds_select)
-                this._update_data_selection()
             }
             this.plot_view.request_render()
         }
     }
-
 
     _update_data_selection() {
         let selection_indices: number[] = []
@@ -313,17 +312,14 @@ export class ParallelSelectionView extends BoxSelectToolView {
                 indices: find_indices_in(this.ydataT[index], [y0, y1]),
             }
         }))
-        this._update_data_selection()
     }
 
     _update_selection_indices(index: number, [y0, y1]: [number, number]) {
         this.selection_indices[index].indices = find_indices_in(this.ydataT[this.selection_indices[index].data_idx], [y0, y1])
-        this._update_data_selection()
     }
 
     _delete_selection_indices(index: number) {
         this.selection_indices.splice(index, 1)
-        this._update_data_selection()
     }
 
     _make_box_select(xs: number[], [y0, y1]: [number, number]): void {
