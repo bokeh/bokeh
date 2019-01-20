@@ -1,7 +1,7 @@
 import {Model} from "../../model"
 
-export type CallbackLike<T, R = void> = {
-  execute: (obj: T, data?: {[key: string]: unknown}) => R
+export type CallbackLike<Obj, Data = {[key: string]: unknown}, Ret = void> = {
+  execute: (obj: Obj, data?: Data) => Ret
 }
 
 export namespace Callback {

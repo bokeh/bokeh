@@ -3,7 +3,7 @@ import {CallbackLike} from "../../callbacks/callback"
 import * as p from "core/properties"
 import {TapEvent} from "core/ui_events"
 import {PointGeometry} from "core/geometry"
-import {DataSource} from "../../sources/data_source"
+import {ColumnarDataSource} from "../../sources/columnar_data_source"
 
 export class TapToolView extends SelectToolView {
   model: TapTool
@@ -37,12 +37,8 @@ export class TapToolView extends SelectToolView {
           const yscale = frame.yscales[renderers[0].y_range_name]
           const x = xscale.invert(geometry.sx)
           const y = yscale.invert(geometry.sy)
-          const g = {...geometry, x, y}
-          const cb_data: {
-              geometries: PointGeometry & { x: number, y: number }
-              source: DataSource | null,
-          } = { geometries: g, source: sm.source }
-          callback.execute(this.model, cb_data)
+          const data = {geometries: {...geometry, x, y}, source: sm.source}
+          callback.execute(this.model, data)
         }
       }
 
@@ -59,12 +55,8 @@ export class TapToolView extends SelectToolView {
           const yscale = frame.yscales[r.y_range_name]
           const x = xscale.invert(geometry.sx)
           const y = yscale.invert(geometry.sy)
-          const g = {...geometry, x, y}
-          const cb_data: {
-              geometries: PointGeometry & { x: number, y: number }
-              source: DataSource | null,
-          } = { geometries: g, source: sm.source }
-          callback.execute(this.model, cb_data)
+          const data = {geometries: {...geometry, x, y}, source: sm.source}
+          callback.execute(this.model, data)
         }
       }
     }
@@ -74,7 +66,7 @@ export class TapToolView extends SelectToolView {
 export namespace TapTool {
   export interface Attrs extends SelectTool.Attrs {
     behavior: "select" | "inspect"
-    callback: CallbackLike<TapTool> | null
+    callback: CallbackLike<TapTool, {geometries: PointGeometry & {x: number, y: number}, source: ColumnarDataSource}> | null
   }
 
   export interface Props extends SelectTool.Props {}
