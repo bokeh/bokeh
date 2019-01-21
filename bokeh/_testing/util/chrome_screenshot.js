@@ -168,8 +168,14 @@ CDP(async function(client) {
     return result != null ? JSON.parse(result.value) : null
   }
 
+  async function is_ready() {
+    const expr = "typeof Bokeh !== 'undefined'"
+    const result = await evaluate(expr)
+    return result != null && result.value === true
+  }
+
   async function is_idle() {
-    const expr = "typeof Bokeh !== 'undefined' && Bokeh.documents.length !== 0 && Bokeh.documents[0].is_idle"
+    const expr = "Bokeh.documents.length > 0 && Bokeh.documents.every((doc) => doc.is_idle)"
     const result = await evaluate(expr)
     return result != null && result.value === true
   }
@@ -188,7 +194,7 @@ CDP(async function(client) {
   }
 
   Page.loadEventFired(async () => {
-    if (errors.length > 0) {
+    if (errors.length > 0 || !(await is_ready())) {
       await finish(false, false)
       return
     }
