@@ -200,14 +200,15 @@ CDP(async function(client) {
     }
 
     for (let i = 0; i < timeout/pause; i++) {
-      await wait(pause)
       const ret = await is_idle()
 
-      if (ret === false)
+      if (ret === false) {
+        await wait(pause)
         continue
-
-      await finish(false, ret === true)
-      return
+      } else {
+        await finish(false, true)
+        return
+      }
     }
 
     await finish(true, true)
