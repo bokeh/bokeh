@@ -20,7 +20,6 @@ import {Glyph, GlyphRenderer, Axis, Grid, Range, Scale, Tool, Plot, ColumnarData
 import {DOMView} from "../core/dom_view"
 
 import {LayoutDOM} from "models/layouts/layout_dom"
-import {Renderer} from "models/renderers/renderer"
 import {Legend} from "models/annotations/legend"
 
 export {gridplot} from "./gridplot"
@@ -108,18 +107,18 @@ export type FigureAttrs = Omit<Plot.Attrs, "x_range" | "y_range"> & {
 
 export class Figure extends Plot {
 
-  get xgrid(): Grid {
-    return this.center.filter((r: Renderer): r is Grid => r instanceof Grid && r.dimension === 0)[0] // TODO
+  get xgrid(): Grid[] {
+    return this.center.filter((r): r is Grid => r instanceof Grid && r.dimension == 0)
   }
-  get ygrid(): Grid {
-    return this.center.filter((r: Renderer): r is Grid => r instanceof Grid && r.dimension === 1)[0] // TODO
+  get ygrid(): Grid[] {
+    return this.center.filter((r): r is Grid => r instanceof Grid && r.dimension == 1)
   }
 
-  get xaxis(): Axis {
-    return this.below.concat(this.above).filter((r: Renderer): r is Axis => r instanceof Axis)[0] // TODO
+  get xaxis(): Axis[] {
+    return this.below.concat(this.above).filter((r): r is Axis => r instanceof Axis)
   }
-  get yaxis(): Axis {
-    return this.left.concat(this.right).filter((r: Renderer): r is Axis => r instanceof Axis)[0] // TODO
+  get yaxis(): Axis[] {
+    return this.left.concat(this.right).filter((r): r is Axis => r instanceof Axis)
   }
 
   protected _legend: Legend
