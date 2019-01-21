@@ -219,17 +219,17 @@ class LayoutDOM(Model):
     property will always contain a list.
     """).accepts(Seq(String), lambda x: list(x))
 
-    @error(FIXED_SIZING_MODE)
+    @warning(FIXED_SIZING_MODE)
     def _check_fixed_sizing_mode(self):
         if self.sizing_mode == "fixed" and (self.width is None or self.height is None):
             return str(self)
 
-    @error(FIXED_WIDTH_POLICY)
+    @warning(FIXED_WIDTH_POLICY)
     def _check_fixed_width_policy(self):
         if self.width_policy == "fixed" and self.width is None:
             return str(self)
 
-    @error(FIXED_HEIGHT_POLICY)
+    @warning(FIXED_HEIGHT_POLICY)
     def _check_fixed_height_policy(self):
         if self.height_policy == "fixed" and self.height is None:
             return str(self)
