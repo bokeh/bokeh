@@ -1,12 +1,10 @@
 import {sprintf} from "sprintf-js"
 import {Document} from "../document"
 import * as embed from "../embed"
-import {BOKEH_ROOT} from "../embed"
 import * as models from "./models"
 import {HasProps} from "../core/has_props"
 import {Omit} from "../core/types"
 import {Value, Field} from "../core/vectorization"
-import {div} from "../core/dom"
 import {Class} from "../core/class"
 import {Location} from "../core/enums"
 import {StringSpec} from "../core/vectorization"
@@ -554,10 +552,7 @@ export function show(obj: LayoutDOM | LayoutDOM[], target?: HTMLElement | string
     throw new Error("target should be HTMLElement, string selector, $ or null")
   }
 
-  const root = div({class: BOKEH_ROOT})
-  element.appendChild(root)
-
-  return embed.add_document_standalone(doc, root)
+  return embed.add_document_standalone(doc, element)
 }
 
 export function color(r: number, g: number, b: number): string {
