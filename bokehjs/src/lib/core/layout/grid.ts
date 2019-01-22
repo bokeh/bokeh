@@ -312,10 +312,10 @@ export class Grid extends Layoutable {
       for (let x = 0; x < ncols; x++) {
         const cell = matrix.at(y, x)
         for (const {layout} of cell.items) {
-          const cell_viewport = new Sizeable({width: basis.col_widths[x], height: basis.row_heights[y]})
-          const size_hint = layout.measure(cell_viewport.shrink_by(layout.sizing.margin))
+          const cell_viewport = {width: basis.col_widths[x], height: basis.row_heights[y]}
+          const size_hint = layout.measure(cell_viewport)
           size_hints.at(y, x).push(size_hint)
-          cell_sizes.at(y, x).expand_to(size_hint)
+          cell_sizes.at(y, x).expand_to(new Sizeable(size_hint).grow_by(layout.sizing.margin))
         }
       }
     }

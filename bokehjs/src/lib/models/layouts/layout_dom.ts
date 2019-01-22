@@ -98,7 +98,9 @@ export abstract class LayoutDOMView extends DOMView {
 
   update_position(): void {
     this.el.style.display = this.model.visible ? "block" : "none"
-    position(this.el, this.layout.bbox)
+
+    const margin = this.is_root ? this.layout.sizing.margin : undefined
+    position(this.el, this.layout.bbox, margin)
 
     for (const child_view of this.child_views)
       child_view.update_position()

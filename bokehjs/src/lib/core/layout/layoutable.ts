@@ -1,4 +1,4 @@
-import {Size, SizeHint, BoxSizing} from "./types"
+import {Size, Sizeable, SizeHint, BoxSizing} from "./types"
 import {BBox, CoordinateTransform} from "../util/bbox"
 
 const {min, max} = Math
@@ -121,9 +121,10 @@ export abstract class Layoutable {
   protected abstract _measure(viewport: Size): SizeHint
 
   measure(viewport: Size): SizeHint {
-    const {width_policy, height_policy} = this.sizing
+    const {width_policy, height_policy, margin} = this.sizing
 
-    const clipped = this.clip_size(viewport)
+    const shrunk = new Sizeable(viewport).shrink_by(margin)
+    const clipped = this.clip_size(shrunk)
     if (width_policy == "fixed" && this.sizing.width != null)
       clipped.width = this.sizing.width
     if (height_policy == "fixed" && this.sizing.height != null)

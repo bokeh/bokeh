@@ -34,7 +34,7 @@ describe("lib.models.plots.plot", () => {
 
     it("layout should set element style correctly", () => {
       const view = new_plot_view({width: 425, height: 658})
-      const expected_style = "position: relative; display: block; left: 0px; top: 0px; width: 425px; height: 658px;"
+      const expected_style = "position: relative; display: block; left: 0px; top: 0px; width: 425px; height: 658px; margin: 0px 0px 0px 0px;"
       expect(view.el.style.cssText).to.be.equal(expected_style)
     })
 

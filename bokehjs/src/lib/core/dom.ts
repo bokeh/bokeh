@@ -211,12 +211,20 @@ export function content_size(el: HTMLElement): Size {
   return {width, height}
 }
 
-export function position(el: HTMLElement, box: Box): void {
+export function position(el: HTMLElement, box: Box, margin?: Extents): void {
   const {style} = el
-  style.left     = `${box.left}px`
-  style.top      = `${box.top}px`
-  style.width    = `${box.width}px`
-  style.height   = `${box.height}px`
+
+  style.left   = `${box.left}px`
+  style.top    = `${box.top}px`
+  style.width  = `${box.width}px`
+  style.height = `${box.height}px`
+
+  if (margin == null)
+    style.margin = ""
+  else {
+    const {top, right, bottom, left} = margin
+    style.margin = `${top}px ${right}px ${bottom}px ${left}px`
+  }
 }
 
 export function children(el: HTMLElement): HTMLElement[] {
