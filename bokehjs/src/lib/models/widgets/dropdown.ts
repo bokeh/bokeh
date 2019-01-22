@@ -35,7 +35,7 @@ export class DropdownView extends AbstractButtonView {
       if (item == null)
         return div({class: "bk-divider"})
       else {
-        const [label,] = item
+        const label = isString(item) ? item : item[0]
         const el = div({}, label)
         el.addEventListener("click", () => this._item_click(i))
         return el
@@ -95,7 +95,7 @@ export class DropdownView extends AbstractButtonView {
 
     const item = this.model.menu[i]
     if (item != null) {
-      const [, value_or_callback] = item
+      const value_or_callback = isString(item) ? item : item[1]
       if (isString(value_or_callback)) {
         this.model.trigger_event(new MenuItemClick(value_or_callback))
         this.model.value = value_or_callback
@@ -115,14 +115,14 @@ export class DropdownView extends AbstractButtonView {
 export namespace Dropdown {
   export interface Attrs extends AbstractButton.Attrs {
     split: boolean
-    menu: ([string, string | CallbackLike<Dropdown>] | null)[]
+    menu: (string | [string, string | CallbackLike<Dropdown>] | null)[]
     value: string
     default_value: string
   }
 
   export interface Props extends AbstractButton.Props {
     split: p.Property<boolean>
-    menu: p.Property<([string, string | CallbackLike<Dropdown>] | null)[]>
+    menu: p.Property<(string | [string, string | CallbackLike<Dropdown>] | null)[]>
   }
 }
 

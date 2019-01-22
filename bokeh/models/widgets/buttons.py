@@ -154,7 +154,7 @@ class Dropdown(AbstractButton):
     split = Bool(default=False, help="""
     """)
 
-    menu = List(Tuple(String, Either(String, Instance(Callback))), help="""
+    menu = List(Either(String, Tuple(String, Either(String, Instance(Callback)))), help="""
     Button's dropdown menu consisting of entries containing item's text and
     value name. Use ``None`` as a menu separator.
     """)
