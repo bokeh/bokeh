@@ -48,6 +48,7 @@
     "chalk": "^2.4.1",
     "ts-node": "^6.0.3",
     "chrome-remote-interface": "^0.25.5",
+    "devtools-protocol": "^0.0.625481",
     "@types/node": "^8.10.15",
     "@types/mocha": "^5.2.0",
     "@types/chai": "^4.1.3",
