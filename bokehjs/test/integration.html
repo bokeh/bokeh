@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Integration Tests</title>
+    <style>
+      box-sizing: border-box;
+
+      *, *:before, *:after {
+        box-sizing: inherit;
+      }
+
+      *, *:before, *:after {
+        margin: 0;
+        border: 0;
+        padding: 0;
+        background-image: none;
+      }
+    </style>
+    <link rel="stylesheet" href="../build/css/bokeh.css" type="text/css" />
+    <link rel="stylesheet" href="../build/css/bokeh-widgets.css" type="text/css" />
+    <link rel="stylesheet" href="../build/css/bokeh-tables.css" type="text/css" />
+    <script type="text/javascript" src="../build/js/bokeh.js"></script>
+    <script type="text/javascript" src="../build/js/bokeh-api.js"></script>
+    <script type="text/javascript" src="../build/js/bokeh-widgets.js"></script>
+    <script type="text/javascript" src="../build/js/bokeh-tables.js"></script>
+    <script type="text/javascript">
+      Bokeh.settings.dev = true
+    </script>
+    <script type="text/javascript">
+      var require = Bokeh.require
+      var exports = {}
+    </script>
+    <script type="text/javascript">
+
+      const top_level = {description: "top-level", suites: [], tests: []}
+      let stack = [top_level]
+
+      function _describe(description, fn) {
+        const suite = {description, suites: [], tests: []}
+        stack[0].suites.push(suite)
+        stack.unshift(suite)
+        try {
+          fn()
+        } finally {
+          stack.shift()
+        }
+      }
+
+      function _test(description, fn) {
+        stack[0].tests.push({description, fn})
+      }
+
+      async function run_suite(suite) {
+        for (const sub_suite of suite.suites) {
+          await run_suite(sub_suite)
+        }
+
+        for (const {fn} of suite.tests) {
+          await fn()
+        }
+      }
+
+      async function run_all() {
+        await run_suite(top_level)
+      }
+
+      async function run_test(seq) {
+        let current = top_level
+        for (let j = 0; j < seq.length - 1; j++) {
+          current = current.suites[seq[j]]
+        }
+        const {fn} = current.tests[seq[seq.length-1]]
+        await fn()
+      }
+
+      /*
+      const {empty} = require("core/dom")
+      let view = null
+
+      function show(model) {
+        const root = document.getElementById("root")
+
+        if (view != null) {
+          try {
+            view.remove()
+          } finally {
+            delete Bokeh.index[view.model.id]
+            empty(root)
+            view = null
+          }
+        }
+
+        view = new model.default_view({model, parent: null})
+        Bokeh.index[view.model.id] = view
+        view.renderTo(root)
+        return view
+      }
+
+      function run(test) {
+        const [,fn] = test
+        fn(show)
+      }
+      */
+    </script>
+  </head>
+  <body>
+    <script type="text/javascript" src="../build/test/integration.js"></script>
+  </body>
+</html>
