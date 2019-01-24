@@ -208,15 +208,18 @@ export class ToolbarBoxView extends LayoutDOMView {
   _update_layout(): void {
     this.layout = new LayoutItem()
 
-    if (this.model.toolbar.horizontal) {
+    const {toolbar} = this.model
+    const size = toolbar.tools.length*31 + (toolbar.logo != null ? 25 : 0)
+
+    if (toolbar.horizontal) {
       this.layout.set_sizing({
-        width_policy: "fit", width: 100, // XXX: toolbar.tools.length*30 + (toolbar.logo != null ? 25 : 0),
+        width_policy: "fit", min_width: 100, width: size,
         height_policy: "fixed", height: 30,
       })
     } else {
       this.layout.set_sizing({
         width_policy: "fixed", width: 30,
-        height_policy: "fit", height: 100, // XXX: toolbar.tools.length*30 + (toolbar.logo != null ? 25 : 0),
+        height_policy: "fit", min_height: 100, height: size,
       })
     }
   }

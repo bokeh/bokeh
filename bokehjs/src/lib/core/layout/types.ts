@@ -12,6 +12,13 @@ export class Sizeable implements Size {
     this.height = size != null && size.height != null ? size.height : 0
   }
 
+  bounded_to({width, height}: Partial<Size>): Sizeable {
+    return new Sizeable({
+      width: this.width == Infinity && width != null ? width : this.width,
+      height: this.height == Infinity && height != null ? height : this.height,
+    })
+  }
+
   expandend_to({width, height}: Size): Sizeable {
     return new Sizeable({
       width: max(this.width, width),

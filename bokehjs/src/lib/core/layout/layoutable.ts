@@ -121,9 +121,23 @@ export abstract class Layoutable {
   protected abstract _measure(viewport: Size): SizeHint
 
   measure(viewport: Size): SizeHint {
-    const {width_policy, height_policy, margin} = this.sizing
+    //const {width_policy, height_policy, margin} = this.sizing
+    viewport = new Sizeable(viewport).shrink_by(this.sizing.margin)
 
-    const shrunk = new Sizeable(viewport).shrink_by(margin)
+    //if (this.is_width_expanding())
+    /*
+    let width: number
+    if (viewport.width == Infinity) {
+      width = this.sizing.width != null ? this.sizing.width : computed.width
+    } else {
+      if (width_policy == "fixed")
+        width = this.sizing.width != null ? this.sizing.width : computed.width
+      else if (width_policy == "min")
+      else if (width_policy == "fit")
+      else if (width_policy == "max")
+    }
+
+
     const clipped = this.clip_size(shrunk)
     if (width_policy == "fixed" && this.sizing.width != null)
       clipped.width = this.sizing.width
@@ -131,7 +145,12 @@ export abstract class Layoutable {
       clipped.height = this.sizing.height
 
     const computed = this._measure(clipped)
+    */
 
+    const computed = this._measure(viewport)
+    const {width, height} = this.clip_size(computed)
+
+    /*
     let width: number
     if (width_policy == "fixed")
       width = this.sizing.width != null ? this.sizing.width : computed.width
@@ -143,8 +162,9 @@ export abstract class Layoutable {
       height = this.sizing.height != null ? this.sizing.height : computed.height
     else
       height = computed.height
+    */
 
-    const size = this.apply_aspect(clipped, {width, height})
+    const size = this.apply_aspect(viewport, {width, height})
     return {...size, inner: computed.inner}
   }
 
@@ -192,10 +212,56 @@ export abstract class Layoutable {
 }
 
 export class LayoutItem extends Layoutable {
+  /*
+  constructor(readonly measure_fn: (viewport: Size) => Size) {
+    super()
+  }
+  protected _measure(viewport: Size): SizeHint {
+    return this.measure_fn(viewport)
+  }
   protected _measure(viewport: Size): SizeHint {
     return {
-      width: viewport.width != Infinity ? viewport.width : 0,
-      height: viewport.height != Infinity ? viewport.height : 0,
+      width: viewport.width != Infinity ? viewport.width : this.sizing.min_width,
+      height: viewport.height != Infinity ? viewport.height : this.sizing.min_width,
     }
+  }
+  */
+
+  protected _measure(viewport: Size): SizeHint {
+    const {width_policy, height_policy} = this.sizing
+
+    let width: number
+    if (viewport.width == Infinity) {
+      width = this.sizing.width != null ? this.sizing.width : 0
+    } else {
+      if (width_policy == "fixed")
+        width = this.sizing.width != null ? this.sizing.width : 0
+      else if (width_policy == "min")
+        width = this.sizing.width != null ? min(viewport.width, this.sizing.width) : 0
+      else if (width_policy == "fit")
+        width = this.sizing.width != null ? min(viewport.width, this.sizing.width) : viewport.width
+      else if (width_policy == "max")
+        width = this.sizing.width != null ? max(viewport.width, this.sizing.width) : viewport.width
+      else
+        throw new Error("unrechable")
+    }
+
+    let height: number
+    if (viewport.height == Infinity) {
+      height = this.sizing.height != null ? this.sizing.height : 0
+    } else {
+      if (height_policy == "fixed")
+        height = this.sizing.height != null ? this.sizing.height : 0
+      else if (height_policy == "min")
+        height = this.sizing.height != null ? min(viewport.height, this.sizing.height) : 0
+      else if (height_policy == "fit")
+        height = this.sizing.height != null ? min(viewport.height, this.sizing.height) : viewport.height
+      else if (height_policy == "max")
+        height = this.sizing.height != null ? max(viewport.height, this.sizing.height) : viewport.height
+      else
+        throw new Error("unrechable")
+    }
+
+    return {width, height}
   }
 }

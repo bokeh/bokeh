@@ -79,6 +79,11 @@ export class PlotLayout extends Layoutable {
   min_border: Margin = {left: 0, top: 0, right: 0, bottom: 0}
 
   protected _measure(viewport: Size): SizeHint {
+    viewport = {
+      width: (viewport.width == Infinity || this.sizing.width_policy == "fixed") && this.sizing.width != null ? this.sizing.width : viewport.width,
+      height: (viewport.height == Infinity || this.sizing.height_policy == "fixed") && this.sizing.height != null ? this.sizing.height : viewport.height,
+    }
+
     const left_hint = this.left_panel.measure({width: 0, height: viewport.height})
     const left = Math.max(left_hint.width, this.min_border.left)
 

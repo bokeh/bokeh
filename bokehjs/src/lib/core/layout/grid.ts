@@ -35,7 +35,7 @@ export type TrackSize = {
   col_widths: number[]
 }
 
-export type GridSizeHint = {size: Size, size_hints: Matrix<SizeHint[]>} & TrackSize
+export type GridSizeHint = {size: Size/*, size_hints: Matrix<SizeHint[]>*/} & TrackSize
 
 type TrackSpec<T> = (({policy: "fixed"} & T) | {policy: "min" | "fit"} | {policy: "flex", factor: number}) & {align: TrackAlign}
 
@@ -222,6 +222,7 @@ export class Grid extends Layoutable {
     this._state = {matrix, nrows, ncols, rows, cols, hspacing, vspacing}
   }
 
+    /*
   protected _grid_basis(viewport: Size): TrackSize {
     const {nrows, ncols, rows, cols, hspacing, vspacing} = this._state
 
@@ -237,7 +238,8 @@ export class Grid extends Layoutable {
         row_fixed_height += row.height
       } else {
         row_heights[y] = Infinity
-        row_flex += row.policy == "flex" ? row.factor : 1
+        if (row.policy == "flex")
+          row_flex += row.factor
       }
     }
 
@@ -246,12 +248,12 @@ export class Grid extends Layoutable {
 
       for (let y = 0; y < nrows; y++) {
         const row = rows[y]
-        const flex = row.policy == "flex" ? row.factor : 1
-        if (row.policy != "fixed") {
-          const height = round(available_height * (flex/row_flex))
+        //const flex = row.policy == "flex" ? row.factor : 1
+        if (row.policy == "flex") {
+          const height = round(available_height * (row.factor/row_flex))
           available_height -= height
           row_heights[y] = height
-          row_flex -= flex
+          row_flex -= row.factor
         }
       }
     }
@@ -265,7 +267,8 @@ export class Grid extends Layoutable {
         col_fixed_width += col.width
       } else {
         col_widths[x] = Infinity
-        col_flex += col.policy == "flex" ? col.factor : 1
+        if (col.policy == "flex")
+          col_flex += col.factor
       }
     }
 
@@ -274,21 +277,18 @@ export class Grid extends Layoutable {
 
       for (let x = 0; x < ncols; x++) {
         const col = cols[x]
-        const flex = col.policy == "flex" ? col.factor : 1
-        if (col.policy != "fixed") {
-          const width = round(available_width * (flex/col_flex))
+        //const flex = col.policy == "flex" ? col.factor : 1
+        if (col.policy == "flex") {
+          const width = round(available_width * (col.factor/col_flex))
           available_width -= width
           col_widths[x] = width
-          col_flex -= flex
+          col_flex -= col.factor
         }
       }
     }
 
     return {row_heights, col_widths}
   }
-
-  protected _measure_cells(viewport: Size): GridSizeHint {
-    const {matrix, nrows, ncols, rows, cols, hspacing, vspacing} = this._state
 
     const basis = this._grid_basis(viewport)
     const size_hints = new Matrix<SizeHint[]>(nrows, ncols, () => [])
@@ -301,6 +301,21 @@ export class Grid extends Layoutable {
           const cell_viewport = {width: basis.col_widths[x], height: basis.row_heights[y]}
           const size_hint = layout.measure(cell_viewport)
           size_hints.at(y, x).push(size_hint)
+          cell_sizes.at(y, x).expand_to(new Sizeable(size_hint).grow_by(layout.sizing.margin))
+        }
+      }
+    }
+    */
+
+  protected _measure_cells(cell_viewport: (y: number, x: number) => Size): GridSizeHint {
+    const {matrix, nrows, ncols, rows, cols, hspacing, vspacing} = this._state
+
+    const cell_sizes = new Matrix(nrows, ncols, () => new Sizeable())
+    for (let y = 0; y < nrows; y++) {
+      for (let x = 0; x < ncols; x++) {
+        const cell = matrix.at(y, x)
+        for (const {layout} of cell.items) {
+          const size_hint = layout.measure(cell_viewport(y, x))
           cell_sizes.at(y, x).expand_to(new Sizeable(size_hint).grow_by(layout.sizing.margin))
         }
       }
@@ -334,16 +349,98 @@ export class Grid extends Layoutable {
       }
     }
 
-    // adjustment
-
     const height = sum(row_heights) + (nrows - 1)*vspacing
     const width = sum(col_widths) + (ncols - 1)*hspacing
 
-    return {size: {height, width}, row_heights, col_widths, size_hints}
+    return {size: {height, width}, row_heights, col_widths}
+  }
+
+  protected _measure_grid(viewport: Size): GridSizeHint {
+    const {nrows, ncols, rows, cols, hspacing, vspacing} = this._state
+
+    const preferred = this._measure_cells((y: number, x: number) => {
+      const row = rows[y]
+      const col = cols[x]
+      return {
+        width: col.policy == "fixed" ? col.width : Infinity,
+        height: row.policy == "fixed" ? row.height : Infinity,
+      }
+    })
+
+    let available_height: number
+    if (this.sizing.height_policy == "fixed" && this.sizing.height != null)
+      available_height = this.sizing.height
+    else if (viewport.height != Infinity && this.is_height_expanding())
+      available_height = viewport.height
+    else
+      available_height = preferred.size.height
+
+    let height_flex = 0
+    for (let y = 0; y < nrows; y++) {
+      const row = rows[y]
+      if (row.policy != "flex")
+        available_height -= preferred.row_heights[y]
+      else
+        height_flex += row.factor
+    }
+
+    available_height -= (nrows - 1)*vspacing
+
+    if (height_flex != 0 && available_height > 0) {
+      for (let y = 0; y < nrows; y++) {
+        const row = rows[y]
+        if (row.policy == "flex") {
+          const height = round(available_height * (row.factor/height_flex))
+          available_height -= height
+          preferred.row_heights[y] = height
+          height_flex -= row.factor
+        }
+      }
+    }
+
+    let available_width: number
+    if (this.sizing.width_policy == "fixed" && this.sizing.width != null)
+      available_width = this.sizing.width
+    else if (viewport.width != Infinity && this.is_width_expanding())
+      available_width = viewport.width
+    else
+      available_width = preferred.size.width
+
+    let width_flex = 0
+    for (let x = 0; x < ncols; x++) {
+      const col = cols[x]
+      if (col.policy != "flex")
+        available_width -= preferred.col_widths[x]
+      else
+        width_flex += col.factor
+    }
+
+    available_width -= (ncols - 1)*hspacing
+
+    if (width_flex != 0 && available_width > 0) {
+      for (let x = 0; x < ncols; x++) {
+        const col = cols[x]
+        if (col.policy == "flex") {
+          const width = round(available_width * (col.factor/width_flex))
+          available_width -= width
+          preferred.col_widths[x] = width
+          width_flex -= col.factor
+        }
+      }
+    }
+
+    const adjusted = this._measure_cells((y: number, x: number) => {
+      return {
+        width: preferred.col_widths[x],
+        height: preferred.row_heights[y],
+      }
+    })
+
+    return adjusted
   }
 
   protected _measure(viewport: Size): SizeHint {
-    const {size} = this._measure_cells(viewport)
+    const {size} = this._measure_grid(viewport)
     return size
 
     /*
@@ -558,7 +655,18 @@ export class Grid extends Layoutable {
     }
     */
 
-    const {row_heights, col_widths, size_hints} = this._measure_cells(outer)
+    const {row_heights, col_widths} = this._measure_grid(outer)
+    const size_hints = new Matrix<SizeHint[]>(nrows, ncols, () => [])
+
+    for (let y = 0; y < nrows; y++) {
+      for (let x = 0; x < ncols; x++) {
+        const cell = matrix.at(y, x)
+        for (const {layout} of cell.items) {
+          const cell_viewport = {width: col_widths[x], height: row_heights[y]}
+          size_hints.at(y, x).push(layout.measure(cell_viewport))
+        }
+      }
+    }
 
     const row_tops: number[] = new Array(nrows)
     const col_lefts: number[] = new Array(ncols)

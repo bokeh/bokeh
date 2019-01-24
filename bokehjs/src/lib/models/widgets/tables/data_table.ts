@@ -11,6 +11,7 @@ import {isString} from "core/util/types"
 import {any, range} from "core/util/array"
 import {keys} from "core/util/object"
 import {logger} from "core/logging"
+import {LayoutItem} from "core/layout"
 
 import {TableWidget} from "./table_widget"
 import {Column, TableColumn} from "./table_column"
@@ -115,6 +116,11 @@ export class DataTableView extends WidgetView {
 
     this.connect(this.model.source.selected.change, () => this.updateSelection())
     this.connect(this.model.source.selected.properties.indices.change, () => this.updateSelection())
+  }
+
+  _update_layout(): void {
+    this.layout = new LayoutItem()
+    this.layout.set_sizing(this.box_sizing())
   }
 
   update_position(): void {
