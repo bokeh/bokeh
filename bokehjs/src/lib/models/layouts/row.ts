@@ -1,5 +1,5 @@
 import {Box, BoxView} from "./box"
-import {Row as RowLayout, ColSizing, QuickTrackSizing} from "core/layout/grid"
+import {Row as RowLayout, ColsSizing} from "core/layout/grid"
 import * as p from "core/properties"
 
 export class RowView extends BoxView {
@@ -16,11 +16,11 @@ export class RowView extends BoxView {
 
 export namespace Row {
   export interface Attrs extends Box.Attrs {
-    cols: QuickTrackSizing | {[key: number]: ColSizing}
+    cols: ColsSizing
   }
 
   export interface Props extends Box.Props {
-    cols: p.Property<QuickTrackSizing | {[key: number]: ColSizing}>
+    cols: p.Property<ColsSizing>
   }
 }
 

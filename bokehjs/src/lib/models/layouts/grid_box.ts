@@ -1,5 +1,5 @@
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
-import {Grid, RowSizing, ColSizing} from "core/layout/grid"
+import {Grid, RowsSizing, ColsSizing} from "core/layout/grid"
 import * as p from "core/properties"
 
 export class GridBoxView extends LayoutDOMView {
@@ -33,15 +33,15 @@ export class GridBoxView extends LayoutDOMView {
 export namespace GridBox {
   export interface Attrs extends LayoutDOM.Attrs {
     children: [LayoutDOM, number, number][]
-    rows: {[key: number]: RowSizing}
-    cols: {[key: number]: ColSizing}
+    rows: RowsSizing
+    cols: ColsSizing
     spacing: number | [number, number]
   }
 
   export interface Props extends LayoutDOM.Props {
     children: p.Property<[LayoutDOM, number, number][]>
-    rows: p.Property<{[key: number]: RowSizing}>
-    cols: p.Property<{[key: number]: ColSizing}>
+    rows: p.Property<RowsSizing>
+    cols: p.Property<ColsSizing>
     spacing: p.Property<number | [number, number]>
   }
 }

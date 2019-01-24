@@ -67,10 +67,14 @@ export type ColSizing =
     {policy: "flex", factor: number} |
     {policy: "fixed", width: number})  & {align?: TrackAlign})
 
+export type RowsSizing = QuickTrackSizing | {[key: string]: RowSizing}
+
+export type ColsSizing = QuickTrackSizing | {[key: string]: ColSizing}
+
 export class Grid extends Layoutable {
 
-  rows: QuickTrackSizing | {[key: number]: RowSizing} = "auto"
-  cols: QuickTrackSizing | {[key: number]: ColSizing} = "auto"
+  rows: RowsSizing = "auto"
+  cols: ColsSizing = "auto"
 
   spacing: number | [number, number] = 0
 
@@ -134,7 +138,7 @@ export class Grid extends Layoutable {
 
     const rows: RowSpec[] = new Array(nrows)
     for (let y = 0; y < nrows; y++) {
-      let row = isObject(this.rows) ? this.rows[y] : this.rows
+      let row = isObject(this.rows) ? this.rows[y] || this.rows["*"] : this.rows
 
       if (row == null) {
         row = {policy: "auto"}
@@ -176,7 +180,7 @@ export class Grid extends Layoutable {
 
     const cols: ColSpec[] = new Array(ncols)
     for (let x = 0; x < ncols; x++) {
-      let col = isObject(this.cols) ? this.cols[x] : this.cols
+      let col = isObject(this.cols) ? this.cols[x] || this.cols["*"] : this.cols
 
       if (col == null) {
         col = {policy: "auto"}
