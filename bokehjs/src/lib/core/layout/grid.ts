@@ -151,7 +151,7 @@ export class Grid extends Layoutable {
             const {layout} = cell.items[i]
 
             if (layout.is_height_expanding()) {
-              row = {policy: "max"}
+              row = {policy: "max", align: row.align}
               break row_auto
             }
           }
@@ -170,6 +170,8 @@ export class Grid extends Layoutable {
         rows[y] = {align, policy: "flex", factor: 1}
       else if (row.policy == "flex")
         rows[y] = {align, policy: "flex", factor: row.factor}
+      else
+        throw new Error("unrechable")
     }
 
     const cols: ColSpec[] = new Array(ncols)
@@ -191,7 +193,7 @@ export class Grid extends Layoutable {
             const {layout} = cell.items[i]
 
             if (layout.is_width_expanding()) {
-              col = {policy: "max"}
+              col = {policy: "max", align: col.align}
               break col_auto
             }
           }
@@ -210,6 +212,8 @@ export class Grid extends Layoutable {
         cols[x] = {align, policy: "flex", factor: 1}
       else if (col.policy == "flex")
         cols[x] = {align, policy: "flex", factor: col.factor}
+      else
+        throw new Error("unrechable")
     }
 
     const [hspacing, vspacing] =
