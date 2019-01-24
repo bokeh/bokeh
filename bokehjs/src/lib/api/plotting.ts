@@ -1,4 +1,6 @@
+import {Promise} from "es6-promise"
 import {sprintf} from "sprintf-js"
+
 import {Document} from "../document"
 import * as embed from "../embed"
 import * as models from "./models"
@@ -11,7 +13,7 @@ import {StringSpec} from "../core/vectorization"
 import {startsWith} from "../core/util/string"
 import {isEqual} from "../core/util/eq"
 import {any, all, includes} from "../core/util/array"
-import {clone} from "../core/util/object"
+import {clone, values} from "../core/util/object"
 import {isNumber, isString, isArray} from "../core/util/types"
 
 import {Glyph, GlyphRenderer, Axis, Grid, Range, Scale, Tool, Plot, ColumnarDataSource} from "./models"
@@ -529,7 +531,9 @@ export function figure(attributes?: Partial<FigureAttrs>): Figure {
 
 declare var $: any
 
-export function show(obj: LayoutDOM | LayoutDOM[], target?: HTMLElement | string): {[key: string]: DOMView} {
+export function show(obj: LayoutDOM, target?: HTMLElement | string): Promise<DOMView>
+export function show(obj: LayoutDOM[], target?: HTMLElement | string): Promise<DOMView[]>
+export function show(obj: LayoutDOM | LayoutDOM[], target?: HTMLElement | string): Promise<DOMView | DOMView[]> {
   const doc = new Document()
 
   for (const item of isArray(obj) ? obj : [obj])
@@ -552,7 +556,14 @@ export function show(obj: LayoutDOM | LayoutDOM[], target?: HTMLElement | string
     throw new Error("target should be HTMLElement, string selector, $ or null")
   }
 
-  return embed.add_document_standalone(doc, element)
+  const views = values(embed.add_document_standalone(doc, element))
+
+  return new Promise((resolve, _reject) => {
+    if (doc.is_idle)
+      resolve(views)
+    else
+      doc.idle.connect(() => resolve(views))
+  })
 }
 
 export function color(r: number, g: number, b: number): string {
