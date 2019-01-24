@@ -63,7 +63,7 @@ export class GridBox extends LayoutDOM {
       children: [ p.Array,  []     ],
       rows:     [ p.Any,    "auto" ],
       cols:     [ p.Any,    "auto" ],
-      spacing:  [ p.Number, 0      ],
+      spacing:  [ p.Any,    0      ],
     })
   }
 }
