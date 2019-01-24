@@ -1,29 +1,11 @@
 import {SizeHint, Size, Sizeable} from "./types"
 import {Layoutable} from "./layoutable"
 import {isNumber, isString, isObject} from "../util/types"
-import {Set} from "core/util/data_structures"
+import {Set, Matrix} from "core/util/data_structures"
 import {BBox} from "../util/bbox"
 import {sum} from "../util/array"
 
 const {max, round} = Math
-
-class Matrix<T> {
-  private _matrix: T[][]
-
-  constructor(readonly nrows: number, readonly ncols: number, init: (row: number, col: number) => T) {
-    this._matrix = new Array(nrows)
-    for (let y = 0; y < nrows; y++) {
-      this._matrix[y] = new Array(ncols)
-      for (let x = 0; x < ncols; x++) {
-        this._matrix[y][x] = init(y, x)
-      }
-    }
-  }
-
-  at(row: number, col: number): T {
-    return this._matrix[row][col]
-  }
-}
 
 export type TrackAlign = "start" | "center" | "end"
 

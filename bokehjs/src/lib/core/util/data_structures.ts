@@ -1,4 +1,4 @@
-import {difference, copy} from "./array"
+import {difference, copy, min} from "./array"
 import {isEqual} from "./eq"
 import {isArray} from "./types"
 
@@ -142,6 +142,65 @@ export class Set<T> {
   forEach(fn: (value: T, value2: T, set: Set<T>) => void, thisArg?: any): void {
     for (const value of this._values) {
       fn.call(thisArg || this, value, value, this)
+    }
+  }
+}
+
+export namespace Matrix {
+  export type MapFn<T, U> = (value: T, row: number, col: number) => U
+}
+
+export class Matrix<T> {
+  private _matrix: T[][]
+
+  constructor(readonly nrows: number, readonly ncols: number, init: (row: number, col: number) => T) {
+    this._matrix = new Array(nrows)
+    for (let y = 0; y < nrows; y++) {
+      this._matrix[y] = new Array(ncols)
+      for (let x = 0; x < ncols; x++) {
+        this._matrix[y][x] = init(y, x)
+      }
+    }
+  }
+
+  at(row: number, col: number): T {
+    return this._matrix[row][col]
+  }
+
+  map<U>(fn: Matrix.MapFn<T, U>): Matrix<U> {
+    return new Matrix<U>(this.nrows, this.ncols, (row, col) => fn(this.at(row, col), row, col))
+  }
+
+  apply<U>(obj: Matrix<Matrix.MapFn<T, U>> | Matrix.MapFn<T, U>[][]): Matrix<U> {
+    const fn = Matrix.from(obj)
+
+    const {nrows, ncols} = this
+    if (nrows == fn.nrows && ncols == fn.ncols)
+      return new Matrix(nrows, ncols, (row, col) => fn.at(row, col)(this.at(row, col), row, col))
+    else
+      throw new Error("dimensions don't match")
+  }
+
+  to_sparse(): [T, number, number][] {
+    const items: [T, number, number][] = []
+
+    for (let y = 0; y < this.nrows; y++) {
+      for (let x = 0; x < this.ncols; x++) {
+        const value = this._matrix[y][x]
+        items.push([value, y, x])
+      }
+    }
+
+    return items
+  }
+
+  static from<U>(obj: Matrix<U> | U[][]): Matrix<U> {
+    if (obj instanceof Matrix)
+      return obj
+    else {
+      const nrows = obj.length
+      const ncols = min(obj.map((row) => row.length))
+      return new Matrix(nrows, ncols, (row, col) => obj[row][col])
     }
   }
 }
