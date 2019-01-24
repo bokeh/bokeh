@@ -3,12 +3,14 @@ import {DocumentChangedEvent, RootAddedEvent, RootRemovedEvent, TitleChangedEven
 import {HasProps} from "../core/has_props"
 import {DOMView} from "../core/dom_view"
 import {div} from "../core/dom"
-import * as base from "../base"
 import {BOKEH_ROOT} from "./dom"
+
+// A map from the root model IDs to their views.
+export const index: {[key: string]: DOMView} = {}
 
 function _create_view(model: HasProps): DOMView {
   const view = new model.default_view({model: model, parent: null}) as DOMView
-  base.index[model.id] = view
+  index[model.id] = view
   return view
 }
 
@@ -40,7 +42,7 @@ export function add_document_standalone(document: Document, element: HTMLElement
       const view = views[id]
       view.remove()
       delete views[id]
-      delete base.index[id]
+      delete index[id]
     }
   }
 

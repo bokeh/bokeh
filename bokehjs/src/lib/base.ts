@@ -3,8 +3,6 @@ import {clone} from "./core/util/object"
 import {HasProps} from "./core/has_props"
 import {Class} from "./core/class"
 
-export type View = any
-
 export const overrides: {[key: string]: Class<HasProps>} = {}
 const _all_models: {[key: string]: Class<HasProps>} = clone(models) as any
 
@@ -54,9 +52,3 @@ Models.register_models = (models, force = false, errorFn?) => {
 export const register_models = Models.register_models
 
 Models.registered_names = () => Object.keys(_all_models)
-
-// "index" is a map from the toplevel model IDs rendered by
-// embed.ts, to the view objects for those models. It doesn't
-// contain all views, only those explicitly rendered to an element
-// by embed.ts.
-export const index: {[key: string]: View} = {}
