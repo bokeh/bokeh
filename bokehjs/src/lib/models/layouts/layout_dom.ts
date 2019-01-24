@@ -1,4 +1,5 @@
 import {Model} from "../../model"
+import {Color} from "core/types"
 import {Class} from "core/class"
 import {SizingMode} from "core/enums"
 import {empty, position, classes, margin, padding, undisplayed} from "core/dom"
@@ -77,7 +78,11 @@ export abstract class LayoutDOMView extends DOMView {
   }
 
   render(): void {
-    empty(this.el)
+    super.render()
+    empty(this.el) // XXX: this should be in super
+
+    const {background} = this.model
+    this.el.style.backgroundColor = background != null ? background : ""
 
     classes(this.el).clear().add(...this.css_classes())
 
@@ -311,6 +316,7 @@ export namespace LayoutDOM {
     sizing_mode: SizingMode | null
     visible: boolean
     disabled: boolean
+    background: Color | null
     css_classes: string[]
   }
 
@@ -328,6 +334,7 @@ export namespace LayoutDOM {
     sizing_mode: p.Property<SizingMode>
     visible: p.Property<boolean>
     disabled: p.Property<boolean>
+    background: p.Property<Color | null>
     css_classes: p.Property<string[]>
   }
 }
@@ -359,6 +366,7 @@ export abstract class LayoutDOM extends Model {
       sizing_mode:   [ p.SizingMode, null         ],
       visible:       [ p.Bool,       true         ],
       disabled:      [ p.Bool,       false        ],
+      background:    [ p.Color,      null         ],
       css_classes:   [ p.Array,      []           ],
     })
   }

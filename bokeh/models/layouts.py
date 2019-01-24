@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
 from ..core.enums import SizingMode, SizingPolicy, Location, TrackAlign
 from ..core.has_props import abstract
 from ..core.properties import (Bool, Auto, Enum, Int, NonNegativeInt, Float,
-    Instance, List, Seq, Tuple, Dict, String, Either, Struct)
+    Instance, List, Seq, Tuple, Dict, String, Either, Struct, Color)
 from ..core.validation import warning, error
 from ..core.validation.warnings import BOTH_CHILD_AND_ROOT, EMPTY_LAYOUT
 from ..core.validation.errors import (FIXED_SIZING_MODE, FIXED_WIDTH_POLICY,
@@ -208,6 +208,10 @@ class LayoutDOM(Model):
         Component will responsively resize to both the available width and height, while
         maintaining the original or provided aspect ratio.
 
+    """)
+
+    background = Color(default=None, help="""
+    Background color of the component.
     """)
 
     # List in order for in-place changes to trigger changes, ref: https://github.com/bokeh/bokeh/issues/6841
