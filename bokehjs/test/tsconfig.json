@@ -1,23 +1,30 @@
 {
   "compilerOptions": {
     "noImplicitAny": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
     "noImplicitThis": true,
     "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "strictNullChecks": true,
+    "strictBindCallApply": false,
+    "strictFunctionTypes": false,
+    "strictPropertyInitialization": false,
     "alwaysStrict": true,
+    "noErrorTruncation": true,
     "noEmitOnError": false,
-    "declaration": false,
     "module": "commonjs",
     "moduleResolution": "node",
-    "target": "ES5",
-    "lib": ["es5", "dom", "es2015.collection"],
+    "target": "ES6",
+    "lib": ["es6", "dom"],
+    "declaration": false,
+    "sourceMap": false,
+    "importHelpers": false,
+    "experimentalDecorators": true,
     "baseUrl": ".",
     "paths": {
-      "*": ["../build/js/tree/*", "../build/js/types/*", "../src/lib/external/*"]
+      "*": ["../build/js/tree/*", "../build/js/types/*"]
     },
     "outDir": "../build/test"
   },
-  "include": ["./**/*.ts"]
+  "include": ["./**/*.ts", "../src/lib/external/*"]
 }

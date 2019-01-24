@@ -20,8 +20,8 @@
     "sourceMap": false,
     "importHelpers": true,
     "experimentalDecorators": true,
-    "types": ["hammerjs", "googlemaps"],
-    "baseUrl": "."
+    "baseUrl": ".",
+    "types": ["hammerjs", "googlemaps"]
   },
   "include": ["./**/*.ts"]
 }
