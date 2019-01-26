@@ -16,9 +16,8 @@ import {clone, values} from "../core/util/object"
 import {isNumber, isString, isArray} from "../core/util/types"
 
 import {Glyph, GlyphRenderer, Axis, Grid, Range, Scale, Tool, Plot, ColumnarDataSource} from "./models"
-import {DOMView} from "../core/dom_view"
 
-import {LayoutDOM} from "models/layouts/layout_dom"
+import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
 import {Legend} from "models/annotations/legend"
 
 export {gridplot} from "./gridplot"
@@ -530,9 +529,9 @@ export function figure(attributes?: Partial<FigureAttrs>): Figure {
 
 declare var $: any
 
-export function show(obj: LayoutDOM, target?: HTMLElement | string): Promise<DOMView>
-export function show(obj: LayoutDOM[], target?: HTMLElement | string): Promise<DOMView[]>
-export function show(obj: LayoutDOM | LayoutDOM[], target?: HTMLElement | string): Promise<DOMView | DOMView[]> {
+export function show(obj: LayoutDOM, target?: HTMLElement | string): Promise<LayoutDOMView>
+export function show(obj: LayoutDOM[], target?: HTMLElement | string): Promise<LayoutDOMView[]>
+export function show(obj: LayoutDOM | LayoutDOM[], target?: HTMLElement | string): Promise<LayoutDOMView | LayoutDOMView[]> {
   const doc = new Document()
 
   for (const item of isArray(obj) ? obj : [obj])
@@ -555,13 +554,14 @@ export function show(obj: LayoutDOM | LayoutDOM[], target?: HTMLElement | string
     throw new Error("target should be HTMLElement, string selector, $ or null")
   }
 
-  const views = values(embed.add_document_standalone(doc, element))
+  const views = values(embed.add_document_standalone(doc, element)) as LayoutDOMView[] // XXX
 
   return new Promise((resolve, _reject) => {
+    const result = isArray(obj) ? views : views[0]
     if (doc.is_idle)
-      resolve(views)
+      resolve(result)
     else
-      doc.idle.connect(() => resolve(views))
+      doc.idle.connect(() => resolve(result))
   })
 }
 
