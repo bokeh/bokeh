@@ -110,6 +110,8 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
 
             If None, no extra arguments are passed (default: None)
 
+            Added in 1.1
+
     Some parameters are only useful when certain output modes are active:
 
     * The ``browser`` and ``new`` parameters only apply when ``output_file``

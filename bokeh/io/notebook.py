@@ -461,6 +461,8 @@ def show_app(app, state, notebook_url, port=0, server_kwargs=None):
 
             If None, no extra arguments are passed (default: None)
 
+            Added in 1.1
+
     Returns:
         None
 
