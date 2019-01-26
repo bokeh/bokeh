@@ -230,13 +230,13 @@ class ClientSession(object):
 
     .. code-block:: python
 
-        with pull_session(url=app_url) as session:
+        with pull_session(url=app_url) as mysession:
             # customize session here
             script = server_session(session_id=mysession.id, url=app_url)
             return render_template("embed.html", script=script, template="Flask")
 
     If you do not use ``ClientSession`` in this way, it is up to you to ensure
-    that ``session.close()`` is called.
+    that ``mysession.close()`` is called.
 
     '''
 
