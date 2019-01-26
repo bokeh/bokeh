@@ -1,4 +1,3 @@
-import {Promise} from "es6-promise"
 import {sprintf} from "sprintf-js"
 
 import {Document} from "../document"

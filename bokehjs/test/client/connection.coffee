@@ -2,7 +2,6 @@ chai = require "chai"
 chai.use(require "chai-as-promised")
 expect = chai.expect
 child_process = require "child_process"
-{Promise} = require "es6-promise"
 path = require "path"
 net = require "net"
 

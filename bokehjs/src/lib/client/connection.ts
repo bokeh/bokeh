@@ -1,5 +1,3 @@
-import {Promise} from "es6-promise"
-
 import {logger} from "core/logging"
 import {Document} from "document"
 import {Message} from "protocol/message"
