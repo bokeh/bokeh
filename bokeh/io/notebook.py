@@ -457,7 +457,7 @@ def show_app(app, state, notebook_url, port=0, server_kwargs=None):
             on a random dynamic port.
 
         server_kwargs (dict, optional) :
-            Extra arguments passed to :func:`bokeh.server.Server.__init__`
+            Extra arguments passed to :func:`~bokeh.server.Server.__init__`
 
             If None, no extra arguments are passed (default: None)
 

@@ -106,7 +106,7 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
             is passed, the function is to generate the origin URL.
 
         server_kwargs (dict, optional) :
-            Extra arguments passed to :func:`bokeh.server.Server.__init__`
+            Extra arguments passed to :func:`~bokeh.server.Server.__init__`
 
             If None, no extra arguments are passed (default: None)
 
