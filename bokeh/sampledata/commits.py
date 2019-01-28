@@ -56,10 +56,8 @@ def _read_data():
     pd = import_required('pandas', '%s sample data requires Pandas (http://pandas.pydata.org) to be installed' % module)
 
     data = package_csv(module, 'commits.txt.gz', parse_dates=True, header=None, names=['day', 'datetime'], index_col='datetime')
-
-    datetime = pd.to_datetime(data.index, utc=True).tz_convert('US/Central')
-    data.set_index(datetime)
-    data['time'] = datetime.time
+    data.index = pd.to_datetime(data.index, utc=True,).astype('datetime64[ns]').tz_localize('utc').tz_convert('US/Central')
+    data['time'] = data.index.time
 
     return data
 
