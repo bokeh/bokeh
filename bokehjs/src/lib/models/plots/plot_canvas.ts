@@ -382,14 +382,14 @@ export class PlotView extends LayoutDOMView {
             case "above":
             case "below":
               layout = new Row(items)
-              layout.set_sizing({width_policy: "max", height_policy: "min"})
               layout.cols = {1: "min"} // assuming toolbar is last
+              layout.set_sizing({width_policy: "max", height_policy: "min"})
               break
             case "left":
             case "right": {
               layout = new Column(items)
-              layout.set_sizing({width_policy: "min", height_policy: "max"})
               layout.rows = {0: "min"} // assuming toolbar is first
+              layout.set_sizing({width_policy: "min", height_policy: "max"})
               break
             }
             default:
