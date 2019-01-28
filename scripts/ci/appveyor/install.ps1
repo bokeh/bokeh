@@ -4,7 +4,7 @@ function install() {
     conda config --add channels bokeh
     conda config --add channels conda-forge
     conda config --get channels
-    conda update -q conda
+    conda install --yes --quiet $Env:CONDA_REQS
     conda install jinja2 pyyaml
     conda install $(python scripts/deps.py build).split() |  % {"""$_"""}
 }
