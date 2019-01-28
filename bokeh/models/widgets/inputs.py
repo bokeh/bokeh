@@ -227,6 +227,10 @@ class ColorPicker(InputWidget):
     The initial color of the picked color (named or hexadecimal)
     """)
 
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever the current date value changes.
+    """)
+
     def __init__(self, **kwargs):
         if 'color' in kwargs:
             if hasattr(named, kwargs['color']):
@@ -253,6 +257,12 @@ class SpinBox(InputWidget):
 
     high = Float(help="""
     Optional highest allowable value.
+    """)
+
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever the user unfocuses the
+    ``SpinBox`` widget by hitting Enter or clicking outside of the box
+    area.
     """)
 
 #-----------------------------------------------------------------------------
