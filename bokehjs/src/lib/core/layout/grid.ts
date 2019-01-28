@@ -311,8 +311,16 @@ export class Grid extends Layoutable {
     }
     */
 
+  protected _measure_totals(row_heights: number[], col_widths: number[]): Size {
+    const {nrows, ncols, hspacing, vspacing} = this._state
+    return {
+      height: sum(row_heights) + (nrows - 1)*vspacing,
+      width: sum(col_widths) + (ncols - 1)*hspacing,
+    }
+  }
+
   protected _measure_cells(cell_viewport: (y: number, x: number) => Size): GridSizeHint {
-    const {matrix, nrows, ncols, rows, cols, hspacing, vspacing} = this._state
+    const {matrix, nrows, ncols, rows, cols} = this._state
 
     const cell_sizes = new Matrix(nrows, ncols, () => new Sizeable())
     for (let y = 0; y < nrows; y++) {
@@ -353,10 +361,8 @@ export class Grid extends Layoutable {
       }
     }
 
-    const height = sum(row_heights) + (nrows - 1)*vspacing
-    const width = sum(col_widths) + (ncols - 1)*hspacing
-
-    return {size: {height, width}, row_heights, col_widths}
+    const size = this._measure_totals(row_heights, col_widths)
+    return {size, row_heights, col_widths}
   }
 
   protected _measure_grid(viewport: Size): GridSizeHint {
@@ -433,14 +439,23 @@ export class Grid extends Layoutable {
       }
     }
 
-    const adjusted = this._measure_cells((y: number, x: number) => {
+    const {row_heights, col_widths} = this._measure_cells((y: number, x: number) => {
       return {
         width: preferred.col_widths[x],
         height: preferred.row_heights[y],
       }
     })
 
-    return adjusted
+    for (let y = 0; y < nrows; y++) {
+      row_heights[y] = max(row_heights[y], preferred.row_heights[y])
+    }
+
+    for (let x = 0; x < ncols; x++) {
+      col_widths[x] = max(col_widths[x], preferred.col_widths[x])
+    }
+
+    const size = this._measure_totals(row_heights, col_widths)
+    return {size, row_heights, col_widths}
   }
 
   protected _measure(viewport: Size): SizeHint {

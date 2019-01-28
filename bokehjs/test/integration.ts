@@ -36,6 +36,24 @@ const spacer =
   })
 }
 
+describe("Row", () => {
+  it("should allow to expand when child policy is max", async () => {
+    const s0 = spacer("max", "fixed", null, 40)("red")
+    const s1 = spacer("min", "fixed", 120, 30)("green")
+
+    const l = row([s0, s1])
+    await display(l, [300, 300])
+  })
+
+  it("should allow to expand when column policy is max", async () => {
+    const s0 = spacer("fixed", "fixed", 80, 40)("red")
+    const s1 = spacer("fixed", "fixed", 120, 30)("green")
+
+    const l = row([s0, s1], {cols: {0: "max", 1: "min"}})
+    await display(l, [300, 300])
+  })
+})
+
 describe("3x3 GridBox", () => {
   const colors = Matrix.from([
     ["red",  "green",  "blue"   ],
