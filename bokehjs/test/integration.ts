@@ -1,19 +1,13 @@
+import {describe, it, display} from "./framework"
+
 import {LayoutDOM, Row, Column, GridBox, Spacer} from "models/layouts/index"
 import {ToolbarBox} from "models/tools/toolbar_box"
-import {figure, gridplot, show} from "api/plotting"
+import {figure, gridplot, color} from "api/plotting"
 import {Matrix} from "core/util/data_structures"
 import {range} from "core/util/array"
 import {SizingPolicy} from "core/layout"
 import {Color} from "core/types"
 import {Location} from "core/enums"
-import {div} from "core/dom"
-
-function display(obj: LayoutDOM, viewport: [number, number] = [1000, 1000]) {
-  const [width, height] = viewport
-  const el = div({style: {width: `${width}px`, height: `${height}px`}})
-  document.body.appendChild(el)
-  return show(obj, el)
-}
 
 function grid(items: Matrix<LayoutDOM> | LayoutDOM[][], opts?: Partial<GridBox.Attrs>): GridBox {
   const children = Matrix.from(items).to_sparse()
@@ -42,14 +36,14 @@ const spacer =
   })
 }
 
-const colors = Matrix.from([
-  ["red",  "green",  "blue"   ],
-  ["gray", "orange", "fuchsia"],
-  ["aqua", "maroon", "yellow" ],
-])
+describe("3x3 GridBox", () => {
+  const colors = Matrix.from([
+    ["red",  "green",  "blue"   ],
+    ["gray", "orange", "fuchsia"],
+    ["aqua", "maroon", "yellow" ],
+  ])
 
-_describe("3x3 grid, 300px x 300px viewport", () => {
-  _test("fixed spacers 50px x 50px", async () => {
+  it("fixed spacers 50px x 50px", async () => {
     const s0 = spacer("fixed", "fixed", 50, 50)
 
     const items = colors.apply([
@@ -62,7 +56,7 @@ _describe("3x3 grid, 300px x 300px viewport", () => {
     await display(l, [300, 300])
   })
 
-  _test("fixed spacers 50px x 50px, spacing 5px", async () => {
+  it("fixed spacers 50px x 50px, spacing 5px", async () => {
     const s0 = spacer("fixed", "fixed", 50, 50)
 
     const items = colors.apply([
@@ -75,7 +69,7 @@ _describe("3x3 grid, 300px x 300px viewport", () => {
     await display(l, [300, 300])
   })
 
-  _test("fixed spacers 50px x 50px, hspacing 5px, vspacing 10px", async () => {
+  it("fixed spacers 50px x 50px, hspacing 5px, vspacing 10px", async () => {
     const s0 = spacer("fixed", "fixed", 50, 50)
 
     const items = colors.apply([
@@ -88,7 +82,7 @@ _describe("3x3 grid, 300px x 300px viewport", () => {
     await display(l, [300, 300])
   })
 
-  _test("fixed & 1 x-max spacers, c2 auto", async () => {
+  it("fixed and 1 x-max spacers, c2 auto", async () => {
     const s0 = spacer("fixed", "fixed", 50, 50)
     const s1 = spacer("max", "fixed", 50, 50)
 
@@ -102,7 +96,7 @@ _describe("3x3 grid, 300px x 300px viewport", () => {
     await display(l, [300, 300])
   })
 
-  _test("fixed & 2 x-max spacers, c2 auto", async () => {
+  it("fixed and 2 x-max spacers, c2 auto", async () => {
     const s0 = spacer("fixed", "fixed", 50, 50)
     const s1 = spacer("max", "fixed", 50, 50)
 
@@ -116,7 +110,7 @@ _describe("3x3 grid, 300px x 300px viewport", () => {
     await display(l, [300, 300])
   })
 
-  _test("fixed & 2 x-max spacers, c2 flex/2", async () => {
+  it("fixed and 2 x-max spacers, c2 flex=2", async () => {
     const s0 = spacer("fixed", "fixed", 50, 50)
     const s1 = spacer("max", "fixed", 50, 50)
 
@@ -130,7 +124,7 @@ _describe("3x3 grid, 300px x 300px viewport", () => {
     await display(l, [300, 300])
   })
 
-  _test("fixed & 3 x-max spacers, c2 flex/2", async () => {
+  it("fixed and 3 x-max spacers, c2 flex=2", async () => {
     const s0 = spacer("fixed", "fixed", 50, 50)
     const s1 = spacer("max", "fixed", 50, 50)
 
@@ -144,7 +138,7 @@ _describe("3x3 grid, 300px x 300px viewport", () => {
     await display(l, [300, 300])
   })
 
-  _test("fixed & 3 x-max spacers, c2 flex/2:end", async () => {
+  it("fixed and 3 x-max spacers, c2 flex=2 align=end", async () => {
     const s0 = spacer("fixed", "fixed", 50, 50)
     const s1 = spacer("max", "fixed", 50, 50)
 
@@ -158,7 +152,7 @@ _describe("3x3 grid, 300px x 300px viewport", () => {
     await display(l, [300, 300])
   })
 
-  _test("fixed, inconsistent width/height, row/col auto:start", async () => {
+  it("fixed, inconsistent width/height, row/col auto align=start", async () => {
     const s = (width: number, height: number) => spacer("fixed", "fixed", width, height)
 
     const items = colors.apply([
@@ -174,7 +168,7 @@ _describe("3x3 grid, 300px x 300px viewport", () => {
     await display(l, [300, 300])
   })
 
-  _test("fixed, inconsistent width/height, row/col auto:center", async () => {
+  it("fixed, inconsistent width/height, row/col auto align=center", async () => {
     const s = (width: number, height: number) => spacer("fixed", "fixed", width, height)
 
     const items = colors.apply([
@@ -190,7 +184,7 @@ _describe("3x3 grid, 300px x 300px viewport", () => {
     await display(l, [300, 300])
   })
 
-  _test("fixed, inconsistent width/height, row/col auto:end", async () => {
+  it("fixed, inconsistent width/height, row/col auto align=end", async () => {
     const s = (width: number, height: number) => spacer("fixed", "fixed", width, height)
 
     const items = colors.apply([
@@ -207,41 +201,41 @@ _describe("3x3 grid, 300px x 300px viewport", () => {
   })
 })
 
-_describe("Plot", () => {
+describe("Plot", () => {
   const fig = (toolbar_location: Location | null) => {
     const p = figure({width: 200, height: 200, tools: "pan,reset,help", toolbar_location})
     p.circle([0, 5, 10], [0, 5, 10], {size: 10})
     return p
   }
 
-  _test("should allow no toolbar", async () => {
+  it("should allow no toolbar", async () => {
     await display(fig(null), [300, 300])
   })
 
-  _test("should allow toolbar placement above", async () => {
+  it("should allow toolbar placement above", async () => {
     await display(fig("above"), [300, 300])
   })
 
-  _test("should allow toolbar placement below", async () => {
+  it("should allow toolbar placement below", async () => {
     await display(fig("below"), [300, 300])
   })
 
-  _test("should allow toolbar placement left", async () => {
+  it("should allow toolbar placement left", async () => {
     await display(fig("left"), [300, 300])
   })
 
-  _test("should allow toolbar placement right", async () => {
+  it("should allow toolbar placement right", async () => {
     await display(fig("right"), [300, 300])
   })
 
-  _test("should allow fixed frame", async () => {
+  it("should allow fixed frame", async () => {
     const fig = figure({frame_width: 300, frame_height: 300})
     fig.circle([0, 5, 10], [0, 5, 10], {size: 10})
     await display(fig, [500, 500])
   })
 })
 
-_describe("ToolbarBox", () => {
+describe("ToolbarBox", () => {
   const fig = (width: number = 100, height: number = 100) => {
     const p = figure({width, height, tools: "pan,reset,help", toolbar_location: null})
     p.circle([0, 5, 10], [0, 5, 10], {size: 10})
@@ -272,24 +266,24 @@ _describe("ToolbarBox", () => {
     return row([p, tb])
   }
 
-  _test("should allow above placement", async () => {
+  it("should allow placement above a figure", async () => {
     await display(tb_above(), [300, 300])
   })
 
-  _test("should allow below placement", async () => {
+  it("should allow placement below a figure", async () => {
     await display(tb_below(), [300, 300])
   })
 
-  _test("should allow left placement", async () => {
+  it("should allow placement left of a figure", async () => {
     await display(tb_left(),  [300, 300])
   })
 
-  _test("should allow right placement", async () => {
+  it("should allow placement right of a figure", async () => {
     await display(tb_right(), [300, 300])
   })
 })
 
-_describe("gridplot()", function() {
+describe("gridplot()", () => {
   const layout = (toolbar_location: Location | null) => {
     const coeffs = [10**3, 10**6, 10**9]
     const values = (c: number) => range(10).map((v) => c*v)
@@ -309,23 +303,42 @@ _describe("gridplot()", function() {
     return gridplot(figs, {toolbar_location})
   }
 
-  _test("should align axes", async () => {
+  it("should align axes when toolbar_location=null", async () => {
     await display(layout(null), [800, 800])
   })
 
-  _test("should align axes when toolbar_location='above'", async () => {
+  it("should align axes when toolbar_location=above", async () => {
     await display(layout("above"), [800, 800])
   })
 
-  _test("should align axes when toolbar_location='right'", async () => {
+  it("should align axes when toolbar_location=right", async () => {
     await display(layout("right"), [800, 800])
   })
 
-  _test("should align axes when toolbar_location='left'", async () => {
+  it("should align axes when toolbar_location=left", async () => {
     await display(layout("left"), [800, 800])
   })
 
-  _test("should align axes when toolbar_location='below'", async () => {
+  it("should align axes when toolbar_location=below", async () => {
     await display(layout("below"), [800, 800])
+  })
+})
+
+describe("GridBox", () => {
+  it("should allow 20x20 grids of 25x25 px spacers", async () => {
+    const s0 = spacer("fixed", "fixed", 25, 25)
+
+    const ncols = 20
+    const nrows = 20
+
+    const items = new Matrix(nrows, ncols, (row, col) => {
+      const x = 100.0/ncols*col
+      const y = 100.0/nrows*row
+      const [r, g, b] = [Math.floor(50 + 2*x), Math.floor(30 + 2*y), 150]
+      return s0(color(r, g, b))
+    })
+
+    const l = grid(items)
+    await display(l, [600, 600])
   })
 })

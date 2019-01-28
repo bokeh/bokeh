@@ -71,6 +71,10 @@ jobs:
 
     - install: scripts/ci/install.test
       script: scripts/ci/test
+      addons:
+        chrome: stable
+      before_script:
+        - google-chrome-stable --no-sandbox --headless --hide-scrollbars --remote-debugging-port=9222 &
       env:
       - GROUP=js
 
