@@ -30,9 +30,9 @@ from ..core.has_props import abstract
 from ..core.properties import (Bool, Auto, Enum, Int, NonNegativeInt, Float,
     Instance, List, Seq, Tuple, Dict, String, Either, Struct, Color)
 from ..core.validation import warning, error
-from ..core.validation.warnings import BOTH_CHILD_AND_ROOT, EMPTY_LAYOUT
-from ..core.validation.errors import (FIXED_SIZING_MODE, FIXED_WIDTH_POLICY,
-    FIXED_HEIGHT_POLICY, MIN_PREFERRED_MAX_WIDTH, MIN_PREFERRED_MAX_HEIGHT)
+from ..core.validation.warnings import (BOTH_CHILD_AND_ROOT, EMPTY_LAYOUT,
+    FIXED_SIZING_MODE, FIXED_WIDTH_POLICY, FIXED_HEIGHT_POLICY)
+from ..core.validation.errors import MIN_PREFERRED_MAX_WIDTH, MIN_PREFERRED_MAX_HEIGHT
 from ..model import Model
 from .callbacks import Callback
 

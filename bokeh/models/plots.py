@@ -32,9 +32,8 @@ from ..core.properties import Bool, Dict, Enum, Include, Instance, Int, List, Ov
 from ..core.property_mixins import LineProps, FillProps
 from ..core.query import find
 from ..core.validation import error, warning
-from ..core.validation.errors import (BAD_EXTRA_RANGE_NAME, REQUIRED_RANGE, REQUIRED_SCALE,
-    INCOMPATIBLE_SCALE_AND_RANGE, FIXED_SIZING_MODE, FIXED_WIDTH_POLICY, FIXED_HEIGHT_POLICY)
-from ..core.validation.warnings import MISSING_RENDERERS
+from ..core.validation.errors import BAD_EXTRA_RANGE_NAME, REQUIRED_RANGE, REQUIRED_SCALE, INCOMPATIBLE_SCALE_AND_RANGE
+from ..core.validation.warnings import MISSING_RENDERERS, FIXED_SIZING_MODE, FIXED_WIDTH_POLICY, FIXED_HEIGHT_POLICY
 from ..model import Model
 from ..util.string import nice_join
 

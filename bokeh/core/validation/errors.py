@@ -129,11 +129,8 @@ codes = {
     1019: ("DUPLICATE_FACTORS",                                  "FactorRange must specicy a unique list of categorical factors for an axis"),
     1020: ("BAD_EXTRA_RANGE_NAME",                               "An extra range name is configued with a name that does not correspond to any range"),
     1021: ("EQUAL_SLIDER_START_END",                             "Slider 'start' and 'end' cannot be equal"),
-    1022: ("FIXED_SIZING_MODE",                                  "'fixed' sizing mode requires width and height to be set"),
-    1023: ("FIXED_WIDTH_POLICY",                                 "'fixed' width policy requires width to be set"),
-    1024: ("FIXED_HEIGHT_POLICY",                                "'fixed' height policy requires height to be set"),
-    1025: ("MIN_PREFERRED_MAX_WIDTH",                            "expected min_width <= width <= max_width"),
-    1026: ("MIN_PREFERRED_MAX_HEIGHT",                           "expected min_height <= height <= max_height"),
+    1022: ("MIN_PREFERRED_MAX_WIDTH",                            "expected min_width <= width <= max_width"),
+    1023: ("MIN_PREFERRED_MAX_HEIGHT",                           "expected min_height <= height <= max_height"),
     9999: ("EXT",                                                "Custom extension reports error"),
 }
 
