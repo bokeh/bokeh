@@ -47,7 +47,7 @@ __all__ = (
     'MultiSelect',
     'PasswordInput',
     'Select',
-    'SpinBox',
+    'Spinner',
     'TextInput',
     'TextAreaInput'
 )
@@ -223,6 +223,10 @@ class DatePicker(InputWidget):
 class ColorPicker(InputWidget):
     ''' Color picker widget
 
+    .. warning::
+        This widget as a limited support on *Internet Explorer* (it will be dispalyed
+        as a simple text input).
+
     '''
 
     color = Color(default='#000000', help="""
@@ -259,8 +263,8 @@ class ColorPicker(InputWidget):
         super(ColorPicker, self).__init__(**kwargs)
 
 
-class SpinBox(InputWidget):
-    ''' Spinbox widget for numerical inputs
+class Spinner(InputWidget):
+    ''' Spinner widget for numerical inputs
 
     '''
 
