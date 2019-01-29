@@ -9,9 +9,14 @@ export interface ComputedVariable {
 
 export abstract class Layoutable {
   protected _bbox: BBox = new BBox()
+  protected _inner_bbox: BBox = new BBox()
 
   get bbox(): BBox {
     return this._bbox
+  }
+
+  get inner_bbox(): BBox {
+    return this._inner_bbox
   }
 
   _top: ComputedVariable
@@ -68,8 +73,9 @@ export abstract class Layoutable {
     this._vcenter = { get value(): number { return layout.bbox.vcenter } }
   }
 
-  protected _set_geometry(outer: BBox, _inner: BBox): void {
+  protected _set_geometry(outer: BBox, inner: BBox): void {
     this._bbox = outer
+    this._inner_bbox = inner
   }
 
   set_geometry(outer: BBox, inner?: BBox): void {

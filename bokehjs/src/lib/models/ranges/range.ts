@@ -55,13 +55,7 @@ export abstract class Range extends Model {
     this.connect(this.change, () => this._emit_callback())
   }
 
-  reset(): void {
-    /**
-     * This method should be reimplemented by subclasses and ensure that
-     * the callback, if exists, is executed at completion.
-     */
-    this.change.emit()
-  }
+  abstract reset(): void
 
   protected _emit_callback(): void {
     if (this.callback != null) {

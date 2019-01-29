@@ -190,6 +190,10 @@ export class SidePanel extends Layoutable {
   }
 
   protected _measure(_viewport: Size): SizeHint {
+    return this.get_oriented_size()
+  }
+
+  get_oriented_size(): Size {
     const {width, height} = this.obj.get_size()
     if (!this.obj.rotate || this.is_horizontal)
       return {width, height}
@@ -197,12 +201,12 @@ export class SidePanel extends Layoutable {
       return {width: height, height: width}
   }
 
-  size_hint(): SizeHint {
-    const {width, height} = this.obj.get_size()
-    if (!this.obj.rotate || this.is_horizontal)
-      return {width, height}
+  has_size_changed(): boolean {
+    const {width, height} = this.get_oriented_size()
+    if (this.is_horizontal)
+      return this.bbox.height != height
     else
-      return {width: height, height: width}
+      return this.bbox.width != width
   }
 
   get dimension(): 0 | 1 {

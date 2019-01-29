@@ -5,7 +5,7 @@ import {Signal0} from "core/signaling"
 import {Color} from "core/types"
 import {LineJoin, LineCap} from "core/enums"
 import {Place, Location, OutputBackend} from "core/enums"
-import {removeBy} from "core/util/array"
+import {removeBy, concat} from "core/util/array"
 import {values} from "core/util/object"
 import {isArray} from "core/util/types"
 
@@ -278,6 +278,15 @@ export class Plot extends LayoutDOM {
 
   add_tools(...tools: Tool[]): void {
     this.toolbar.tools = this.toolbar.tools.concat(tools)
+  }
+
+  get panels(): (Annotation | Axis | Grid)[] {
+    return this.side_panels.concat(this.center)
+  }
+
+  get side_panels(): (Annotation | Axis)[] {
+    const {above, below, left, right} = this
+    return concat([above, below, left, right])
   }
 }
 Plot.initClass()

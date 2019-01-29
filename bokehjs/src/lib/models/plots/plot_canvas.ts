@@ -14,7 +14,7 @@ import {Axis, AxisView} from "../axes/axis"
 import {ToolbarPanel} from "../annotations/toolbar_panel"
 
 import {Reset} from "core/bokeh_events"
-import {Arrayable, Rect} from "core/types"
+import {Arrayable, Rect, Interval} from "core/types"
 import {Signal0} from "core/signaling"
 import {build_views, remove_views} from "core/build_views"
 import {UIEvents} from "core/ui_events"
@@ -51,8 +51,6 @@ export type WebGLState = {
 let global_gl: WebGLState | null = null
 
 export type FrameBox = [number, number, number, number]
-
-export type Interval = {start: number, end: number}
 
 export type RangeInfo = {
   xrs: {[key: string]: Interval}
@@ -142,10 +140,10 @@ export class PlotView extends LayoutDOMView {
   protected _title: Title
   protected _toolbar: ToolbarPanel
 
-  protected _size_hint: SizeHint
-  protected _outer_box: BBox = new BBox()
-  protected _inner_box: BBox = new BBox()
+  protected _outer_bbox: BBox = new BBox()
+  protected _inner_bbox: BBox = new BBox()
   protected _needs_paint: boolean = true
+  protected _needs_layout: boolean = false
 
   gl?: WebGLState
 
@@ -835,6 +833,20 @@ export class PlotView extends LayoutDOMView {
     this.update_range(null)
   }
 
+  protected _invalidate_layout(): void {
+    const needs_layout = () => {
+      for (const panel of this.model.side_panels) {
+        const view = this.renderer_views[panel.id] as AnnotationView | AxisView
+        if (view.layout.has_size_changed())
+          return true
+      }
+      return false
+    }
+
+    if (needs_layout())
+      this.root.compute_layout()
+  }
+
   build_renderer_views(): void {
     this.computed_renderers = []
 
@@ -880,11 +892,11 @@ export class PlotView extends LayoutDOMView {
 
     for (const name in x_ranges) {
       const rng = x_ranges[name]
-      this.connect(rng.change, () => this.request_paint())
+      this.connect(rng.change, () => {this._needs_layout = true; this.request_paint()})
     }
     for (const name in y_ranges) {
       const rng = y_ranges[name]
-      this.connect(rng.change, () => this.request_paint())
+      this.connect(rng.change, () => {this._needs_layout = true; this.request_paint()})
     }
 
     this.connect(this.model.properties.renderers.change, () => this.build_renderer_views())
@@ -940,7 +952,7 @@ export class PlotView extends LayoutDOMView {
   after_layout(): void {
     super.after_layout()
 
-    //this._size_hint = this.layout.size_hint()
+    this._needs_layout = false
 
     this.model.setv({
       inner_width: Math.round(this.frame._width.value),
@@ -955,17 +967,15 @@ export class PlotView extends LayoutDOMView {
       this.unpause(true)
     }
 
-    const width = this.layout._width.value
-    const height = this.layout._height.value
-
-    if (this._outer_box.width != width || this._outer_box.height != height) {
+    if (!this._outer_bbox.equals(this.layout.bbox)) {
+      const {width, height} = this.layout.bbox
       this.canvas_view.prepare_canvas(width, height)
-      this._outer_box = this.layout.bbox
+      this._outer_bbox = this.layout.bbox
       this._needs_paint = true
     }
 
-    if (!this._inner_box.equals(this.frame.bbox)) {
-      this._inner_box = this.frame.bbox
+    if (!this._inner_bbox.equals(this.frame.inner_bbox)) {
+      this._inner_bbox = this.layout.inner_bbox
       this._needs_paint = true
     }
 
@@ -978,36 +988,10 @@ export class PlotView extends LayoutDOMView {
     }
   }
 
-  protected _needs_layout(): boolean {
-    return true
-    /*
-    const size_hint = this.layout.size_hint()
-    const {_size_hint} = this
-
-    if (_size_hint.width != size_hint.width || _size_hint.height != size_hint.height)
-      return true
-
-    if ((_size_hint.inner != null) != (size_hint.inner != null))
-      return true
-
-    if (_size_hint.inner != null && size_hint.inner != null) {
-      if (_size_hint.inner.left   != size_hint.inner.left  ||
-          _size_hint.inner.right  != size_hint.inner.right ||
-          _size_hint.inner.top    != size_hint.inner.top   ||
-          _size_hint.inner.bottom != size_hint.inner.bottom)
-        return true
-    }
-
-    return false
-    */
-  }
-
   repaint(): void {
-    if (this._needs_layout()) {
-      this._needs_paint = true
-      this.root.compute_layout()
-    } else
-      this.paint()
+    if (this._needs_layout)
+      this._invalidate_layout()
+    this.paint()
   }
 
   paint(): void {
