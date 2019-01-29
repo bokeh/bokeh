@@ -1,6 +1,7 @@
 import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
 import * as plotting from "api/plotting"
 import {div} from "core/dom"
+import {isString} from "core/util/types"
 
 export type Suite = {description: string, suites: Suite[], tests: Test[]}
 export type Test = {description: string, fn: () => Promise<void>, view?: LayoutDOMView, el?: HTMLElement}
@@ -23,20 +24,40 @@ export function it(description: string, fn: () => Promise<void>): void {
   stack[0].tests.push({description, fn})
 }
 
-export async function run_suite(suite: Suite) {
-  for (const sub_suite of suite.suites) {
-    await run_suite(sub_suite)
+export async function run_suite(suite: Suite, grep?: string | RegExp) {
+
+  async function _run_suite(suite: Suite, seq: Suite[]) {
+    for (const sub_suite of suite.suites) {
+      await _run_suite(sub_suite, seq.concat(sub_suite))
+    }
+
+
+    for (const test of suite.tests) {
+      const {fn, description} = test
+
+      if (grep != null) {
+        const descriptions = seq.map((s) => s.description).concat(description)
+
+        if (isString(grep)) {
+          if (!descriptions.some((d) => d.includes(grep)))
+            continue
+        } else {
+          if (!descriptions.some((d) => d.search(grep) != -1))
+            continue
+        }
+      }
+
+      current_test = test
+      await fn()
+      current_test = null
+    }
   }
 
-  for (const test of suite.tests) {
-    current_test = test
-    await test.fn()
-    current_test = null
-  }
+  await _run_suite(suite, [suite])
 }
 
-export async function run_all() {
-  await run_suite(top_level)
+export async function run_all(grep?: string | RegExp) {
+  await run_suite(top_level, grep)
 }
 
 //export type TestResult = {state: any, bbox:
