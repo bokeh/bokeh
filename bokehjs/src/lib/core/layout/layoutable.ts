@@ -113,11 +113,11 @@ export abstract class Layoutable {
           width = h_width
           height = h_height
         }
-      } else if (width_policy != "fixed")
+      } else if (width_policy == "fixed") {
         height = width/aspect
-      else if (height_policy != "fixed")
+      } else if (height_policy == "fixed") {
         width = height*aspect
-      else
+      } else
         throw new Error("unrechable")
     }
 

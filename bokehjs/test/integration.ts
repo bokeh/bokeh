@@ -256,7 +256,85 @@ describe("Plot", () => {
     await display(fig("right"), [300, 300])
   })
 
-  it("should allow fixed frame", async () => {
+  it("should allow fixed x fixed plot", async () => {
+    const p = figure({width_policy: "fixed", width: 200, height_policy: "fixed", height: 200})
+    p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    await display(p, [300, 300])
+  })
+
+  it("should allow max x fixed plot", async () => {
+    const p = figure({width_policy: "max", height_policy: "fixed", height: 200})
+    p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    await display(p, [300, 300])
+  })
+
+  it("should allow fixed x max plot", async () => {
+    const p = figure({width_policy: "fixed", width: 200, height_policy: "max"})
+    p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    await display(p, [300, 300])
+  })
+
+  it("should allow max x max plot", async () => {
+    const p = figure({width_policy: "max", height_policy: "max"})
+    p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    await display(p, [300, 300])
+  })
+
+  it("should allow max x fixed plot, aspect 0.8", async () => {
+    const p = figure({width_policy: "max", height_policy: "fixed", height: 200, aspect_ratio: 0.8})
+    p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    await display(p, [300, 300])
+  })
+
+  it("should allow fixed x max plot, aspect 0.8", async () => {
+    const p = figure({width_policy: "fixed", width: 200, height_policy: "max", aspect_ratio: 0.8})
+    p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    await display(p, [300, 300])
+  })
+
+  it("should allow max x max plot, aspect 0.8", async () => {
+    const p = figure({width_policy: "max", height_policy: "max", aspect_ratio: 0.8})
+    p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    await display(p, [300, 300])
+  })
+
+  it("should allow max x fixed plot, aspect 1.0", async () => {
+    const p = figure({width_policy: "max", height_policy: "fixed", height: 200, aspect_ratio: 1.0})
+    p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    await display(p, [300, 300])
+  })
+
+  it("should allow fixed x max plot, aspect 1.0", async () => {
+    const p = figure({width_policy: "fixed", width: 200, height_policy: "max", aspect_ratio: 1.0})
+    p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    await display(p, [300, 300])
+  })
+
+  it("should allow max x max plot, aspect 1.0", async () => {
+    const p = figure({width_policy: "max", height_policy: "max", aspect_ratio: 1.0})
+    p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    await display(p, [300, 300])
+  })
+
+  it("should allow max x fixed plot, aspect 1.25", async () => {
+    const p = figure({width_policy: "max", height_policy: "fixed", height: 200, aspect_ratio: 1.25})
+    p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    await display(p, [300, 300])
+  })
+
+  it("should allow fixed x max plot, aspect 1.25", async () => {
+    const p = figure({width_policy: "fixed", width: 200, height_policy: "max", aspect_ratio: 1.25})
+    p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    await display(p, [300, 300])
+  })
+
+  it("should allow max x max plot, aspect 1.25", async () => {
+    const p = figure({width_policy: "max", height_policy: "max", aspect_ratio: 1.25})
+    p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    await display(p, [300, 300])
+  })
+
+  it("should allow fixed frame 300px x 300px", async () => {
     const fig = figure({frame_width: 300, frame_height: 300})
     fig.circle([0, 5, 10], [0, 5, 10], {size: 10})
     await display(fig, [500, 500])
