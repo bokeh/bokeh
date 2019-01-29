@@ -7,6 +7,12 @@ export interface ComputedVariable {
   readonly value: number
 }
 
+export type ExtBoxSizing = BoxSizing & {
+  readonly size: Partial<Size>
+  readonly min_size: Size
+  readonly max_size: Size
+}
+
 export abstract class Layoutable {
   protected _bbox: BBox = new BBox()
   protected _inner_bbox: BBox = new BBox()
@@ -28,31 +34,34 @@ export abstract class Layoutable {
   _hcenter: ComputedVariable
   _vcenter: ComputedVariable
 
-  private _sizing: BoxSizing
+  private _sizing: ExtBoxSizing
 
-  get sizing(): BoxSizing {
+  get sizing(): ExtBoxSizing {
     return this._sizing
   }
 
   set_sizing(sizing: Partial<BoxSizing>): void {
-    const {width_policy, height_policy,
-           min_width, max_width, width,
-           min_height, max_height, height,
-           aspect, margin} = sizing
+    const width_policy = sizing.width_policy || "fit"
+    const width = sizing.width
+    const min_width = sizing.min_width != null ? sizing.min_width : 0
+    const max_width = sizing.max_width != null ? sizing.max_width : Infinity
+
+    const height_policy = sizing.height_policy || "fit"
+    const height = sizing.height
+    const min_height = sizing.min_height != null ? sizing.min_height : 0
+    const max_height = sizing.max_height != null ? sizing.max_height : Infinity
+
+    const aspect = sizing.aspect
+    const margin = sizing.margin || {top: 0, right: 0, bottom: 0, left: 0}
 
     this._sizing = {
-      width_policy: width_policy || "fit",
-      min_width: min_width != null ? min_width : 0,
-      width,
-      max_width: max_width != null ? max_width : Infinity,
-
-      height_policy: height_policy || "fit",
-      min_height: min_height != null ? min_height : 0,
-      height,
-      max_height: max_height != null ? max_height : Infinity,
-
+      width_policy, min_width, width, max_width,
+      height_policy, min_height, height, max_height,
       aspect,
-      margin: margin != null ? margin : {top: 0, right: 0, bottom: 0, left: 0},
+      margin,
+      size: {width, height},
+      min_size: {width: min_width, height: min_height},
+      max_size: {width: max_width, height: max_height},
     }
 
     this._init()
@@ -127,57 +136,33 @@ export abstract class Layoutable {
   protected abstract _measure(viewport: Size): SizeHint
 
   measure(viewport: Size): SizeHint {
-    //const {width_policy, height_policy, margin} = this.sizing
-    viewport = new Sizeable(viewport).shrink_by(this.sizing.margin)
-
-    //if (this.is_width_expanding())
-    /*
-    let width: number
-    if (viewport.width == Infinity) {
-      width = this.sizing.width != null ? this.sizing.width : computed.width
-    } else {
-      if (width_policy == "fixed")
-        width = this.sizing.width != null ? this.sizing.width : computed.width
-      else if (width_policy == "min")
-      else if (width_policy == "fit")
-      else if (width_policy == "max")
+    const exact_width = (width: number) => {
+      return this.sizing.width_policy == "fixed" && this.sizing.width != null ? this.sizing.width : width
+    }
+    const exact_height = (height: number) => {
+      return this.sizing.height_policy == "fixed" && this.sizing.height != null ? this.sizing.height : height
     }
 
-
-    const clipped = this.clip_size(shrunk)
-    if (width_policy == "fixed" && this.sizing.width != null)
-      clipped.width = this.sizing.width
-    if (height_policy == "fixed" && this.sizing.height != null)
-      clipped.height = this.sizing.height
-
-    const computed = this._measure(clipped)
-    */
+    viewport = new Sizeable(viewport).shrink_by(this.sizing.margin)
+    viewport = {
+      width: exact_width(viewport.width),
+      height: exact_height(viewport.height),
+    }
 
     const computed = this._measure(viewport)
-    const {width, height} = this.clip_size(computed)
+    const clipped = this.clip_size(computed)
 
-    /*
-    let width: number
-    if (width_policy == "fixed")
-      width = this.sizing.width != null ? this.sizing.width : computed.width
-    else
-      width = computed.width
-
-    let height: number
-    if (height_policy == "fixed")
-      height = this.sizing.height != null ? this.sizing.height : computed.height
-    else
-      height = computed.height
-    */
+    const width = exact_width(clipped.width)
+    const height = exact_height(clipped.height)
 
     const size = this.apply_aspect(viewport, {width, height})
     return {...size, inner: computed.inner}
   }
 
-  compute(viewport?: Partial<Size>): void {
+  compute(viewport: Partial<Size> = {}): void {
     const size_hint = this.measure({
-      width: viewport != null && viewport.width != null ? viewport.width : Infinity,
-      height: viewport != null && viewport.height != null ? viewport.height : Infinity,
+      width: viewport.width != null && this.is_width_expanding() ? viewport.width : Infinity,
+      height: viewport.height != null && this.is_height_expanding() ? viewport.height : Infinity,
     })
 
     const {width, height} = size_hint

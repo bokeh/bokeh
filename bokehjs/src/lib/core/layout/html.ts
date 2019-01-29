@@ -1,4 +1,4 @@
-import {Size, SizeHint} from "./types"
+import {Size, SizeHint, Sizeable} from "./types"
 import {Layoutable} from "./layoutable"
 import {sized, content_size} from "../dom"
 
@@ -9,6 +9,7 @@ export class HTML extends Layoutable {
   }
 
   protected _measure(viewport: Size): SizeHint {
-    return this.clip_size(sized(this.el, viewport, () => content_size(this.el)))
+    const bounded = new Sizeable(viewport).bounded_to(this.sizing.size)
+    return sized(this.el, bounded, () => content_size(this.el))
   }
 }

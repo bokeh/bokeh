@@ -2,12 +2,12 @@ import * as noUiSlider from "nouislider"
 
 import * as p from "core/properties"
 import {Color} from "core/types"
-import {label, div/*, size, unsized*/} from "core/dom"
+import {label, div} from "core/dom"
 import {logger} from "core/logging"
 import {repeat} from "core/util/array"
 import {throttle} from "core/util/callback"
 import {Orientation, SliderCallbackPolicy} from "core/enums"
-import {/*SizeHint, Layoutable,*/ SizingPolicy} from "core/layout"
+import {HTML, SizingPolicy} from "core/layout"
 
 import {Widget, WidgetView} from "./widget"
 import {CallbackLike} from "../callbacks/callback"
@@ -69,33 +69,18 @@ export abstract class AbstractSliderView extends WidgetView {
     return this.model.orientation == "horizontal" ? "fixed" : "fit"
   }
 
-  /*
   _update_layout(): void {
-    const slider = this
-
-    this.layout = new class extends Layoutable {
-      size_hint(): SizeHint {
-        const computed = this.clip_size(unsized(slider.el, () => size(slider.el)))
-
-        let width: number
-        if (this.sizing.width_policy == "fixed")
-          width = this.sizing.width != null ? this.sizing.width : computed.width
-        else
-          width = slider.model.default_size
-
-        let height: number
-        if (this.sizing.height_policy == "fixed")
-          height = this.sizing.height != null ? this.sizing.height : computed.height
-        else
-          height = slider.model.default_size
-
-        return {width, height}
-      }
+    this.layout = new HTML(this.el)
+    const sizing = this.box_sizing()
+    if (this.model.orientation == "horizontal") {
+      if (sizing.width == null)
+        sizing.width = this.model.default_size
+    } else {
+      if (sizing.height == null)
+        sizing.height = this.model.default_size
     }
-
-    this.layout.set_sizing(this.box_sizing())
+    this.layout.set_sizing(sizing)
   }
-  */
 
   protected abstract _calc_to(): SliderSpec
 
