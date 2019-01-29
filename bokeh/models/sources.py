@@ -606,7 +606,7 @@ class ColumnDataSource(ColumnarDataSource):
 
         .. code-block:: python
 
-            dict(foo=[11, 22, 30], bar=[101, 200, 301])
+            dict(foo=[11, 12, 30], bar=[101, 200, 301])
 
         For a more comprehensive complete example, see :bokeh-tree:`examples/howto/patch_app.py`.
 
