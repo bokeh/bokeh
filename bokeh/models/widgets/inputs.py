@@ -21,13 +21,15 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import re
 
 # External imports
 
 # Bokeh imports
 from ...core.has_props import abstract
 from ...core.properties import Date, Either, Float, Instance, Int, List, String, Tuple, Dict, Override, Color
-from ...colors import named
+from ...colors import named, HSL, RGB
+from ...core.enums import NamedColor
 
 from ..callbacks import Callback
 
@@ -233,8 +235,27 @@ class ColorPicker(InputWidget):
 
     def __init__(self, **kwargs):
         if 'color' in kwargs:
-            if hasattr(named, kwargs['color']):
-                kwargs['color'] = getattr(named, kwargs['color']).to_hex()
+            potential_color = kwargs['color']
+            color = None
+
+            if isinstance(potential_color, str):
+                if re.search(r'^#(?:[0-9a-fA-F]{3}){1,2}$', potential_color):  # hex
+                    color = potential_color.upper()
+                elif hasattr(named, potential_color.lower()):  # named
+                    color = getattr(named, potential_color.lower()).to_hex()
+            elif isinstance(potential_color, HSL):  # hsl
+                color = potential_color.to_rgb().to_hex()
+            elif isinstance(potential_color, RGB):  # rgb
+                color = potential_color.to_hex()
+            elif isinstance(potential_color, tuple) and len(potential_color) == 3:  # tuple
+                color = RGB(*potential_color).to_hex()
+
+            if color is None:
+                raise ValueError("expected and element of either String, HSL, RGB or Tuple(r,g,b). " + \
+                                 "String must be a valid hexadecimal color or a named color from this list: " + \
+                                 f"{list(NamedColor)}. got {potential_color}")
+            else:
+                kwargs['color'] = color
         super(ColorPicker, self).__init__(**kwargs)
 
 
