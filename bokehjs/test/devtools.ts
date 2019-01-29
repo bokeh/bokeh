@@ -173,6 +173,7 @@ async function run_tests(): Promise<void> {
       type Suite = {description: string, suites: Suite[], tests: Test[]}
       type Test = {description: string}
       type Result = {state: State, bbox: DOMRect, time: number}
+      const baseline_names = new Set<string>()
       let failures = 0
       async function run({suites, tests}: Suite, parents: Suite[], seq: number[]) {
         for (let i = 0; i < suites.length; i++) {
@@ -224,21 +225,28 @@ async function run_tests(): Promise<void> {
           }
 
           const baseline_name = parents.map((suite) => suite.description).concat(tests[i].description).map(encode).join("__")
-          const baseline_path = path.join("test", "baselines", baseline_name)
 
-          const baseline = create_baseline([result.state])
-          fs.writeFileSync(baseline_path, baseline)
-
-          const existing = load_baseline(baseline_path)
-          if (existing == null) {
-            console.log(`${prefix}no baseline`)
-            failure = true
-          } else if (existing != baseline) {
-            const diff = diff_baseline(baseline_path)
-            console.log(diff)
+          if (baseline_names.has(baseline_name)) {
+            console.log(`${prefix}duplicated description`)
             failure = true
           } else {
+            baseline_names.add(baseline_name)
 
+            const baseline_path = path.join("test", "baselines", baseline_name)
+            const baseline = create_baseline([result.state])
+            fs.writeFileSync(baseline_path, baseline)
+
+            const existing = load_baseline(baseline_path)
+            if (existing == null) {
+              console.log(`${prefix}no baseline`)
+              failure = true
+            } else if (existing != baseline) {
+              const diff = diff_baseline(baseline_path)
+              console.log(diff)
+              failure = true
+            } else {
+
+            }
           }
 
           if (failure)
