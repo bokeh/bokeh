@@ -257,7 +257,7 @@ class ColorPicker(InputWidget):
             if color is None:
                 raise ValueError("expected and element of either String, HSL, RGB or Tuple(r,g,b). " + \
                                  "String must be a valid hexadecimal color or a named color from this list: " + \
-                                 f"{list(NamedColor)}. got {potential_color}")
+                                 "{}. got {}".format(list(NamedColor), potential_color))
             else:
                 kwargs['color'] = color
         super(ColorPicker, self).__init__(**kwargs)
