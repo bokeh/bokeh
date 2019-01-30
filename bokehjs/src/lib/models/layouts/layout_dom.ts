@@ -2,7 +2,7 @@ import {Model} from "../../model"
 import {Color} from "core/types"
 import {Class} from "core/class"
 import {SizingMode} from "core/enums"
-import {empty, position, classes, margin, padding, undisplayed} from "core/dom"
+import {empty, position, classes, extents, undisplayed} from "core/dom"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 
@@ -267,18 +267,18 @@ export abstract class LayoutDOMView extends DOMView {
 
         // we reached <body> element, so use viewport size
         if (measuring == document.body) {
-          const {left, right, top, bottom} = margin(document.body)
-          const width  = document.documentElement!.clientWidth  - left - right
-          const height = document.documentElement!.clientHeight - top  - bottom
+          const {margin: {left, right, top, bottom}} = extents(document.body)
+          const width  = Math.ceil(document.documentElement!.clientWidth  - left - right)
+          const height = Math.ceil(document.documentElement!.clientHeight - top  - bottom)
           return {width, height}
         }
 
         // stop on first element with sensible dimensions
-        const {left, right, top, bottom} = padding(measuring)
+        const {padding: {left, right, top, bottom}} = extents(measuring)
         const {width, height} = measuring.getBoundingClientRect()
 
-        const inner_width = width - left - right
-        const inner_height = height - top - bottom
+        const inner_width = Math.ceil(width - left - right)
+        const inner_height = Math.ceil(height - top - bottom)
 
         if (inner_width > 0 || inner_height > 0)
           return {

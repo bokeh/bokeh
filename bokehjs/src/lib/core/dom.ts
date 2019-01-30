@@ -154,33 +154,33 @@ function num(value: string | null): number {
   return parseFloat(value!) || 0
 }
 
-export function border(el: HTMLElement): Extents {
-  const style = getComputedStyle(el)
-  return {
-    top:    num(style.borderTopWidth),
-    bottom: num(style.borderBottomWidth),
-    left:   num(style.borderLeftWidth),
-    right:  num(style.borderRightWidth),
-  }
+export type ElementExtents = {
+  border: Extents
+  margin: Extents
+  padding: Extents
 }
 
-export function margin(el: HTMLElement): Extents {
+export function extents(el: HTMLElement): ElementExtents  {
   const style = getComputedStyle(el)
   return {
-    top:    num(style.marginTop),
-    bottom: num(style.marginBottom),
-    left:   num(style.marginLeft),
-    right:  num(style.marginRight),
-  }
-}
-
-export function padding(el: HTMLElement): Extents {
-  const style = getComputedStyle(el)
-  return {
-    top:    num(style.paddingTop),
-    bottom: num(style.paddingBottom),
-    left:   num(style.paddingLeft),
-    right:  num(style.paddingRight),
+    border: {
+      top:    num(style.borderTopWidth),
+      bottom: num(style.borderBottomWidth),
+      left:   num(style.borderLeftWidth),
+      right:  num(style.borderRightWidth),
+    },
+    margin: {
+      top:    num(style.marginTop),
+      bottom: num(style.marginBottom),
+      left:   num(style.marginLeft),
+      right:  num(style.marginRight),
+    },
+    padding: {
+      top:    num(style.paddingTop),
+      bottom: num(style.paddingBottom),
+      left:   num(style.paddingLeft),
+      right:  num(style.paddingRight),
+    },
   }
 }
 
@@ -193,7 +193,7 @@ export function size(el: HTMLElement): Size {
 }
 
 export function outer_size(el: HTMLElement): Size {
-  const {left, right, top, bottom} = margin(el)
+  const {margin: {left, right, top, bottom}} = extents(el)
   const {width, height} = size(el)
   return {
     width: Math.ceil(width + left + right),
@@ -202,11 +202,14 @@ export function outer_size(el: HTMLElement): Size {
 }
 
 export function content_size(el: HTMLElement): Size {
+  const {padding} = extents(el)
+  const left = Math.round(padding.left)
+  const top = Math.round(padding.top)
   let width = 0
   let height = 0
   for (const child of children(el)) {
-    width = Math.max(width, child.offsetLeft + child.offsetWidth)
-    height = Math.max(height, child.offsetTop + child.offsetHeight)
+    width = Math.max(width, child.offsetLeft - left + child.offsetWidth)
+    height = Math.max(height, child.offsetTop - top + child.offsetHeight)
   }
   return {width, height}
 }
