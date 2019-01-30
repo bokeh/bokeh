@@ -1,7 +1,7 @@
 import numpy as np
 from bokeh.plotting import figure
-from bokeh.models import Spacer, Paragraph
-from bokeh.layouts import row, column, widgetbox
+from bokeh.models import Paragraph, GridBox
+from bokeh.layouts import column
 from bokeh.io import show
 
 N = 10
@@ -23,14 +23,9 @@ p3.bezier(x, y, x + 0.4, y, x + 0.1, y + 0.2, x - 0.1, y - 0.2)
 p4 = figure(title="Quad (300 x 300)", **options)
 p4.quad(x, x - 0.2, y, y - 0.2)
 
-spacer_1 = Spacer(width=100, height=100)
-spacer_2 = Spacer(width=300, height=100)
-
 paragraph = Paragraph(text="We build up a grid plot manually. Try changing the mode yourself.")
 
-widgets = widgetbox([paragraph])
-row_1 = row([spacer_1, p1, spacer_2])
-row_2 = row([p2, p3, p4])
-layout = column([widgets, row_1, row_2], width_policy="min", height_policy="min")
+grid = GridBox(children=[(p1, 0, 1), (p2, 1, 0), (p3, 1, 1), (p4, 1, 2)])
+layout = column([paragraph, grid])
 
 show(layout)
