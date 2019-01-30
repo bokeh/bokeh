@@ -32,7 +32,7 @@ p = figure(tools="pan,wheel_zoom,zoom_in,zoom_out,reset")
 p.scatter(x, y, radius=np.random.random(size=4000) * 1.5,
           fill_color=colors, fill_alpha=0.6, line_color=None)
 
-div = Div(width=1000)
+div = Div(width=400, height=p.plot_height, height_policy="fixed")
 button = Button(label="Button", button_type="success")
 layout = column(button, row(p, div))
 
@@ -42,19 +42,21 @@ p.js_on_event(events.LODStart, display_event(div))         # Start of LOD displa
 p.js_on_event(events.LODEnd, display_event(div))           # End of LOD display
 
 ## Events with attributes
-point_attributes = ['x','y','sx','sy']                     # Point events
-wheel_attributes = point_attributes+['delta']              # Mouse wheel event
+point_attributes = ['x', 'y', 'sx', 'sy']                  # Point events
+wheel_attributes = point_attributes + ['delta']            # Mouse wheel event
 pan_attributes = point_attributes + ['delta_x', 'delta_y'] # Pan event
 pinch_attributes = point_attributes + ['scale']            # Pinch event
 
-point_events =  [events.Tap, events.DoubleTap, events.Press,
-                 events.MouseMove, events.MouseEnter, events.MouseLeave,
-                 events.PanStart, events.PanEnd, events.PinchStart, events.PinchEnd]
+point_events = [
+    events.Tap, events.DoubleTap, events.Press,
+    events.MouseMove, events.MouseEnter, events.MouseLeave,
+    events.PanStart, events.PanEnd, events.PinchStart, events.PinchEnd,
+]
 
 for event in point_events:
-    p.js_on_event(event,display_event(div, attributes=point_attributes))
+    p.js_on_event(event, display_event(div, attributes=point_attributes))
 
-p.js_on_event(events.MouseWheel, display_event(div,attributes=wheel_attributes))
+p.js_on_event(events.MouseWheel, display_event(div, attributes=wheel_attributes))
 p.js_on_event(events.Pan,        display_event(div, attributes=pan_attributes))
 p.js_on_event(events.Pinch,      display_event(div, attributes=pinch_attributes))
 
