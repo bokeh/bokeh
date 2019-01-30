@@ -53,10 +53,7 @@ export abstract class LayoutDOMView extends DOMView {
       window.addEventListener("resize", this._on_resize)
     }
 
-    this.connect(this.model.properties.sizing_mode.change, () => {
-      this.root.update_layout()
-      this.root.compute_layout()
-    })
+    this.connect(this.model.properties.sizing_mode.change, () => this.invalidate_layout())
   }
 
   disconnect_signals(): void {
@@ -155,6 +152,11 @@ export abstract class LayoutDOMView extends DOMView {
 
   resize_layout(): void {
     this.root.compute_viewport()
+    this.root.compute_layout()
+  }
+
+  invalidate_layout(): void {
+    this.root.update_layout()
     this.root.compute_layout()
   }
 

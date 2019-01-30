@@ -10,7 +10,10 @@ export abstract class MarkupView extends WidgetView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.render())
+    this.connect(this.model.change, () => {
+      this.render()
+      this.root.compute_layout() // XXX: invalidate_layout?
+    })
   }
 
   render(): void {
