@@ -40,7 +40,7 @@ ALL = (
     'STAMEN_TONER_BACKGROUND',
     'STAMEN_TONER_LABELS',
     'get_provider',
-    'ThirdParty'
+    'Vendors'
 )
 
 _CARTO_URLS = {
@@ -86,6 +86,8 @@ class Test_StamenProviders(object):
     def test_attribution(self, name):
         with pytest.deprecated_call():
             p = getattr(bt, name)
+
+        print(p.attribution)
         assert p.attribution == (
             'Map tiles by <a href="https://stamen.com">Stamen Design</a>, '
             'under <a href="https://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. '
@@ -126,15 +128,16 @@ class Test_CartoProviders(object):
             p2 = getattr(bt, name)
         assert p1 is not p2
 
-@pytest.mark.parametrize('name', ['CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA', 'STAMEN_TERRAIN',
-                                  'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER', 'STAMEN_TONER_BACKGROUND',
-                                  'STAMEN_TONER_LABELS',])
+
 @pytest.mark.unit
 class Test_GetProvider(object):
 
+    @pytest.mark.parametrize('name', ['CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA', 'STAMEN_TERRAIN',
+                                      'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER', 'STAMEN_TONER_BACKGROUND',
+                                      'STAMEN_TONER_LABELS', ])
     def test_get_provider(self, name):
-        assert name in bt.ThirdParty
-        enum_member = getattr(bt.ThirdParty, name)
+        assert name in bt.Vendors
+        enum_member = getattr(bt.Vendors, name)
         p1 = bt.get_provider(enum_member)
         p2 = bt.get_provider(name)
         p3 = bt.get_provider(name.lower())
@@ -154,6 +157,11 @@ class Test_GetProvider(object):
         assert default_instance is not new_instance
         assert default_instance.url == new_instance.url
         assert default_instance.attribution == new_instance.attribution
+
+    def test_unknown_vendor(self):
+        with pytest.raises(ValueError):
+            bt.get_provider("This is not a valid tile vendor")
+
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -9,16 +9,16 @@
 
 Attributes:
 
-    ThirdParty
-        Enum listing all available preconfigured tiling services
+    .. bokeh-enum:: Vendors
+        :module: bokeh.tile_providers
 
     get_provider
         Use this function to retrieve an instance of a predefined tile provider.
 
         Args:
-            provider_name (Union[str, ThirdParty])
+            provider_name (Union[str, Vendors])
                 Name of the tile provider to supply.
-                Use tile_providers.ThirdParty enum, or the name of a provider as string
+                Use tile_providers.Vendors enum, or the name of a provider as string
                 
 
         Returns:
@@ -33,8 +33,8 @@ Attributes:
 
             .. code-block:: python
 
-                    >>> from bokeh.tile_providers import get_provider, ThirdParty
-                    >>> get_provider(ThirdParty.CARTODBPOSITRON)
+                    >>> from bokeh.tile_providers import get_provider, Vendors
+                    >>> get_provider(Vendors.CARTODBPOSITRON)
                     <class 'bokeh.models.tiles.WMTSTileSource'>
                     >>> get_provider('CARTODBPOSITRON')
                     <class 'bokeh.models.tiles.WMTSTileSource'>
@@ -158,6 +158,17 @@ from bokeh.core.enums import enumeration
 # Private API
 #-----------------------------------------------------------------------------
 
+# Can be removed in bokeh 2.0
+def _make_deprecated_property(name):
+
+    def deprecated_property_tile(self):
+        from bokeh.util.deprecation import deprecated
+        deprecated(since_or_msg=(1, 1, 0), old=name, new='get_provider(Vendors.%s)' % name)
+        return self.get_provider(provider_name=name)
+    func = property(deprecated_property_tile)
+    return func
+
+
 class _TileProvidersModule(types.ModuleType):
     _CARTO_ATTRIBUTION = (
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors,'
@@ -181,13 +192,20 @@ class _TileProvidersModule(types.ModuleType):
         STAMEN_TONER_LABELS='http://tile.stamen.com/toner-labels/{Z}/{X}/{Y}.png',
     )
 
-    ThirdParty = enumeration('CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA',
-                             'STAMEN_TERRAIN', 'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER',
-                             'STAMEN_TONER_BACKGROUND', 'STAMEN_TONER_LABELS',
-                             case_sensitive=True)
+    _STAMEN_ATTRIBUTION_URLS = dict(
+        STAMEN_TERRAIN='<a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>',
+        STAMEN_TERRAIN_RETINA='<a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>',
+        STAMEN_TONER='<a href="https://www.openstreetmap.org/copyright">ODbL</a>',
+        STAMEN_TONER_BACKGROUND='<a href="https://www.openstreetmap.org/copyright">ODbL</a>',
+        STAMEN_TONER_LABELS='<a href="https://www.openstreetmap.org/copyright">ODbL</a>',
+    )
+
+    Vendors = enumeration('CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA',
+                          'STAMEN_TERRAIN', 'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER',
+                          'STAMEN_TONER_BACKGROUND', 'STAMEN_TONER_LABELS',
+                          case_sensitive=True)
     
-    @staticmethod
-    def get_provider(provider_name):
+    def get_provider(self, provider_name):
         from bokeh.models.tiles import WMTSTileSource
 
         if isinstance(provider_name, WMTSTileSource):
@@ -196,92 +214,28 @@ class _TileProvidersModule(types.ModuleType):
 
         selected_provider = provider_name.upper()
 
-        if selected_provider not in _TileProvidersModule.ThirdParty:
-            raise ValueError('Unknown tile provider {0}'.format(provider_name))
+        if selected_provider not in self.Vendors:
+            raise ValueError('Unknown tile provider %s' % provider_name)
 
-        url = _TileProvidersModule._SERVICE_URLS[selected_provider]
+        url = self._SERVICE_URLS[selected_provider]
         if selected_provider.startswith('CARTO'):
-            attribution = _TileProvidersModule._CARTO_ATTRIBUTION
+            attribution = self._CARTO_ATTRIBUTION
         elif selected_provider.startswith('STAMEN'):
-            attribution = _TileProvidersModule._STAMEN_ATTRIBUTION
+            attribution = self._STAMEN_ATTRIBUTION % self._STAMEN_ATTRIBUTION_URLS[selected_provider]
         else:
-            raise ValueError('Can not retrieve attribution for {0}'.format(selected_provider))
+            raise ValueError('Can not retrieve attribution for %s' % selected_provider)
         return WMTSTileSource(url=url, attribution=attribution)
 
     # Properties --------------------------------------------------------------
 
-    @property
-    def CARTODBPOSITRON(self):
-        from bokeh.util.deprecation import deprecated
-        deprecated(since_or_msg=(1, 1, 0), old='CARTODBPOSITRON', new='get_provider(ThirdParty.CARTODBPOSITRON)')
-        from bokeh.models.tiles import WMTSTileSource
-        return WMTSTileSource(
-            url='https://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-            attribution=self._CARTO_ATTRIBUTION
-        )
-
-    @property
-    def CARTODBPOSITRON_RETINA(self):
-        from bokeh.util.deprecation import deprecated
-        deprecated(since_or_msg=(1, 1, 0), old='CARTODBPOSITRON_RETINA',
-                   new='get_provider(ThirdParty.CARTODBPOSITRON_RETINA)')
-        from bokeh.models.tiles import WMTSTileSource
-        return WMTSTileSource(
-            url='https://tiles.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
-            attribution=self._CARTO_ATTRIBUTION
-        )
-
-    @property
-    def STAMEN_TERRAIN(self):
-        from bokeh.util.deprecation import deprecated
-        deprecated(since_or_msg=(1, 1, 0), old='STAMEN_TERRAIN', new='get_provider(ThirdParty.STAMEN_TERRAIN)')
-        from bokeh.models.tiles import WMTSTileSource
-        return WMTSTileSource(
-            url='http://tile.stamen.com/terrain/{Z}/{X}/{Y}.png',
-            attribution=self._STAMEN_ATTRIBUTION % '<a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>'
-        )
-
-    @property
-    def STAMEN_TERRAIN_RETINA(self):
-        from bokeh.util.deprecation import deprecated
-        deprecated(since_or_msg=(1, 1, 0), old='STAMEN_TERRAIN_RETINA',
-                   new='get_provider(provider.STAMEN_TERRAIN_RETINA)')
-        from bokeh.models.tiles import WMTSTileSource
-        return WMTSTileSource(
-            url='http://tile.stamen.com/terrain/{Z}/{X}/{Y}@2x.png',
-            attribution=self._STAMEN_ATTRIBUTION % '<a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>'
-        )
-
-    @property
-    def STAMEN_TONER(self):
-        from bokeh.util.deprecation import deprecated
-        deprecated(since_or_msg=(1, 1, 0), old='STAMEN_TONER', new='get_provider(ThirdParty.STAMEN_TONER)')
-        from bokeh.models.tiles import WMTSTileSource
-        return WMTSTileSource(
-            url='http://tile.stamen.com/toner/{Z}/{X}/{Y}.png',
-            attribution=self._STAMEN_ATTRIBUTION % '<a href="https://www.openstreetmap.org/copyright">ODbL</a>'
-        )
-
-    @property
-    def STAMEN_TONER_BACKGROUND(self):
-        from bokeh.util.deprecation import deprecated
-        deprecated(since_or_msg=(1, 1, 0), old='STAMEN_TONER_BACKGROUND',
-                   new='get_provider(ThirdParty.STAMEN_TONER_BACKGROUND)')
-        from bokeh.models.tiles import WMTSTileSource
-        return WMTSTileSource(
-            url='http://tile.stamen.com/toner-background/{Z}/{X}/{Y}.png',
-            attribution=self._STAMEN_ATTRIBUTION % '<a href="https://www.openstreetmap.org/copyright">ODbL</a>'
-        )
-
-    @property
-    def STAMEN_TONER_LABELS(self):
-        from bokeh.util.deprecation import deprecated
-        deprecated(since_or_msg=(1, 1, 0), old='STAMEN_TONER_LABELS', new='get_provider(ThirdParty.STAMEN_TONER_LABELS)')
-        from bokeh.models.tiles import WMTSTileSource
-        return WMTSTileSource(
-            url='http://tile.stamen.com/toner-labels/{Z}/{X}/{Y}.png',
-            attribution=self._STAMEN_ATTRIBUTION % '<a href="https://www.openstreetmap.org/copyright">ODbL</a>'
-        )
+    # For bokeh 2.0 these can easily be replaced with their corresponding enum values
+    CARTODBPOSITRON = _make_deprecated_property(Vendors.CARTODBPOSITRON)
+    CARTODBPOSITRON_RETINA = _make_deprecated_property(Vendors.CARTODBPOSITRON_RETINA)
+    STAMEN_TERRAIN = _make_deprecated_property(Vendors.STAMEN_TERRAIN)
+    STAMEN_TERRAIN_RETINA = _make_deprecated_property(Vendors.STAMEN_TERRAIN_RETINA)
+    STAMEN_TONER = _make_deprecated_property(Vendors.STAMEN_TONER)
+    STAMEN_TONER_BACKGROUND = _make_deprecated_property(Vendors.STAMEN_TONER_BACKGROUND)
+    STAMEN_TONER_LABELS = _make_deprecated_property(Vendors.STAMEN_TONER_LABELS)
 
 
 #-----------------------------------------------------------------------------
@@ -299,7 +253,7 @@ _mod.__all__ = (
     'STAMEN_TONER_BACKGROUND',
     'STAMEN_TONER_LABELS',
     'get_provider',
-    'ThirdParty'
+    'Vendors'
 )
 sys.modules['bokeh.tile_providers'] = _mod
-del _mod, sys, types
+del _mod, sys, types, _make_deprecated_property
