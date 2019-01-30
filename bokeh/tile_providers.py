@@ -19,7 +19,6 @@ Attributes:
             provider_name (Union[str, Vendors])
                 Name of the tile provider to supply.
                 Use tile_providers.Vendors enum, or the name of a provider as string
-                
 
         Returns:
             WMTSTileProviderSource: The desired tile provider instance
@@ -204,7 +203,7 @@ class _TileProvidersModule(types.ModuleType):
                           'STAMEN_TERRAIN', 'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER',
                           'STAMEN_TONER_BACKGROUND', 'STAMEN_TONER_LABELS',
                           case_sensitive=True)
-    
+
     def get_provider(self, provider_name):
         from bokeh.models.tiles import WMTSTileSource
 
