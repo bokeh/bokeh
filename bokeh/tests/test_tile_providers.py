@@ -40,7 +40,7 @@ ALL = (
     'STAMEN_TONER_BACKGROUND',
     'STAMEN_TONER_LABELS',
     'get_provider',
-    'Provider'
+    'ThirdParty'
 )
 
 _CARTO_URLS = {
@@ -133,13 +133,21 @@ class Test_CartoProviders(object):
 class Test_GetProvider(object):
 
     def test_get_provider(self, name):
-        assert name in bt.Provider.__members__
-        enum_member = bt.Provider.__members__[name]
+        assert name in bt.ThirdParty
+        enum_member = getattr(bt.ThirdParty, name)
         p1 = bt.get_provider(enum_member)
         p2 = bt.get_provider(name)
         assert isinstance(p1, WMTSTileSource)
         assert isinstance(p2, WMTSTileSource)
         assert p1 is not p2
+
+        with pytest.deprecated_call():
+            # This will not return a WMTSTileSource in bokeh 2.0.0!
+            default_instance = getattr(bt, name)
+        new_instance = bt.get_provider(default_instance)
+        assert default_instance is not new_instance
+        assert default_instance.url == new_instance.url
+        assert default_instance.attribution == new_instance.attribution
 
 #-----------------------------------------------------------------------------
 # Dev API
