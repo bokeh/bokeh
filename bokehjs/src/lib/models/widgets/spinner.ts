@@ -2,6 +2,13 @@ import * as p from "core/properties"
 import {empty, input, label} from 'core/dom'
 import {InputWidget, InputWidgetView} from 'models/widgets/input_widget'
 
+function log10(x: number): number{
+  if (Math.log10) {
+    return Math.log10(x)
+  } else {
+    return Math.log(x) * Math.LOG10E  
+  }
+}
 
 export class SpinnerView extends InputWidgetView {
   model: Spinner
@@ -50,9 +57,19 @@ export class SpinnerView extends InputWidgetView {
   }
 
   change_input(): void {
+    const {step, low} = this.model
     const new_value = Number(this.inputEl.value)
-    this.model.value = Math.min(Math.max(new_value, this.model.low), this.model.high)
+    if(low == null){
+      this.model.value = Number(Math.min(low + step * Math.round((new_value - low) / step),
+        this.model.high).toFixed(log10(1/step)))
+    } else {
+      this.model.value = Number(Math.min(Math.max(Math.round(new_value / step) * step,
+        this.model.low), this.model.high).toFixed(log10(1/step)))
+    }
     if (this.model.value != new_value) {
+      //this is needeed when the current value in the intput is already at bounded value 
+      //and we enter a value outside these bounds. We emit a model change to update 
+      //the input text value
       this.model.change.emit()
     }
     super.change_input()
@@ -60,7 +77,7 @@ export class SpinnerView extends InputWidgetView {
 }
 
 
-export namespace SpinBox {
+export namespace Spinner {
   export interface Attrs extends InputWidget.Attrs {
     value: number
     low: number
@@ -70,12 +87,12 @@ export namespace SpinBox {
   export interface Props extends InputWidget.Props {}
 }
 
-export interface Spinner extends SpinBox.Attrs {}
+export interface Spinner extends Spinner.Attrs {}
 
 export class Spinner extends InputWidget {
 
   static initClass(): void {
-    this.prototype.type = "SpinBox"
+    this.prototype.type = "Spinner"
     this.prototype.default_view = SpinnerView
 
     this.define({
