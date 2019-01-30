@@ -43,7 +43,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="localhost:8888", server_kwargs=None):
+def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="localhost:8888", **kw):
     ''' Immediately display a Bokeh object or application.
 
         :func:`show` may be called multiple times in a single Jupyter notebook
@@ -105,12 +105,8 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
             to generate the full public URL to the bokeh server.  If None
             is passed, the function is to generate the origin URL.
 
-        server_kwargs (dict, optional) :
-            Extra arguments passed to :func:`~bokeh.server.Server.__init__`
-
-            If None, no extra arguments are passed (default: None)
-
-            Added in 1.1
+        Extra keyword arguments are passed to :func:`~bokeh.server.Server.__init__`
+            ``**kw`` is added in 1.1
 
     Some parameters are only useful when certain output modes are active:
 
@@ -144,7 +140,7 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
     # This ugliness is to prevent importing bokeh.application (which would bring
     # in Tornado) just in order to show a non-server object
     if is_application or callable(obj):
-        return run_notebook_hook(state.notebook_type, 'app', obj, state, notebook_url, server_kwargs=server_kwargs)
+        return run_notebook_hook(state.notebook_type, 'app', obj, state, notebook_url, **kw)
 
     return _show_with_state(obj, state, browser, new, notebook_handle=notebook_handle)
 

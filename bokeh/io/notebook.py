@@ -429,7 +429,7 @@ def publish_display_data(*args, **kw):
     from IPython.display import publish_display_data
     return publish_display_data(*args, **kw)
 
-def show_app(app, state, notebook_url, port=0, server_kwargs=None):
+def show_app(app, state, notebook_url, port=0, **kw):
     ''' Embed a Bokeh serer application in a Jupyter Notebook output cell.
 
     Args:
@@ -456,12 +456,8 @@ def show_app(app, state, notebook_url, port=0, server_kwargs=None):
             By default the port is 0, which results in the server listening
             on a random dynamic port.
 
-        server_kwargs (dict, optional) :
-            Extra arguments passed to :func:`~bokeh.server.Server.__init__`
-
-            If None, no extra arguments are passed (default: None)
-
-            Added in 1.1
+        Extra keyword arguments are passed to :func:`~bokeh.server.Server.__init__`
+            ``**kw`` is added in 1.1
 
     Returns:
         None
@@ -479,9 +475,7 @@ def show_app(app, state, notebook_url, port=0, server_kwargs=None):
     else:
         origin = _origin_url(notebook_url)
 
-    if server_kwargs is None:
-        server_kwargs = {}
-    server = Server({"/": app}, io_loop=loop, port=port,  allow_websocket_origin=[origin], **server_kwargs)
+    server = Server({"/": app}, io_loop=loop, port=port,  allow_websocket_origin=[origin], **kw)
 
     server_id = uuid4().hex
     curstate().uuid_to_server[server_id] = server
