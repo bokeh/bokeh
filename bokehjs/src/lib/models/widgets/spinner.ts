@@ -3,8 +3,8 @@ import {empty, input, label} from 'core/dom'
 import {InputWidget, InputWidgetView} from 'models/widgets/input_widget'
 
 
-export class SpinBoxView extends InputWidgetView {
-  model: SpinBox
+export class SpinnerView extends InputWidgetView {
+  model: Spinner
 
   protected inputEl: HTMLInputElement
 
@@ -37,8 +37,6 @@ export class SpinBoxView extends InputWidgetView {
       disabled: this.model.disabled,
       type: "number",
     })
-
-    this.inputEl.append(this.model.value.toString())
     this.inputEl.addEventListener("change", () => this.change_input())
     this.el.appendChild(this.inputEl)
 
@@ -72,13 +70,13 @@ export namespace SpinBox {
   export interface Props extends InputWidget.Props {}
 }
 
-export interface SpinBox extends SpinBox.Attrs {}
+export interface Spinner extends SpinBox.Attrs {}
 
-export class SpinBox extends InputWidget {
+export class Spinner extends InputWidget {
 
   static initClass(): void {
     this.prototype.type = "SpinBox"
-    this.prototype.default_view = SpinBoxView
+    this.prototype.default_view = SpinnerView
 
     this.define({
       value: [p.Number, 0],
@@ -89,4 +87,4 @@ export class SpinBox extends InputWidget {
   }
 }
 
-SpinBox.initClass()
+Spinner.initClass()
