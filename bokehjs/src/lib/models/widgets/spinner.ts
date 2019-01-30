@@ -6,7 +6,7 @@ function log10(x: number): number{
   if (Math.log10) {
     return Math.log10(x)
   } else {
-    return Math.log(x) * Math.LOG10E  
+    return Math.log(x) * Math.LOG10E
   }
 }
 
@@ -59,7 +59,7 @@ export class SpinnerView extends InputWidgetView {
   change_input(): void {
     const {step, low} = this.model
     const new_value = Number(this.inputEl.value)
-    if(low == null){
+    if(low == null) {
       this.model.value = Number(Math.min(low + step * Math.round((new_value - low) / step),
         this.model.high).toFixed(log10(1/step)))
     } else {
@@ -67,8 +67,8 @@ export class SpinnerView extends InputWidgetView {
         this.model.low), this.model.high).toFixed(log10(1/step)))
     }
     if (this.model.value != new_value) {
-      //this is needeed when the current value in the intput is already at bounded value 
-      //and we enter a value outside these bounds. We emit a model change to update 
+      //this is needeed when the current value in the intput is already at bounded value
+      //and we enter a value outside these bounds. We emit a model change to update
       //the input text value
       this.model.change.emit()
     }
