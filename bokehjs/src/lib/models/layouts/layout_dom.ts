@@ -4,6 +4,7 @@ import {Class} from "core/class"
 import {SizingMode} from "core/enums"
 import {empty, position, classes, extents, undisplayed} from "core/dom"
 import {logger} from "core/logging"
+import {isNumber} from "core/util/types"
 import * as p from "core/properties"
 
 import {build_views} from "core/build_views"
@@ -243,11 +244,20 @@ export abstract class LayoutDOMView extends DOMView {
     } else
       aspect = aspect_ratio
 
-    let margin: Margin | undefined
-    if (this.model.margin != null) {
-      const [top, right, bottom, left] = this.model.margin
-      margin = {top, right, bottom, left}
-    }
+    const margin: Margin | undefined = (() => {
+      const {margin} = this.model
+      if (margin == null)
+        return undefined
+      else if (isNumber(margin))
+        return {top: margin, right: margin, bottom: margin, left: margin}
+      else if (margin.length == 2) {
+        const [vertical, horizontal] = margin
+        return {top: vertical, right: horizontal, bottom: vertical, left: horizontal}
+      } else {
+        const [top, right, bottom, left] = margin
+        return {top, right, bottom, left}
+      }
+    })()
 
     return {
       width_policy, height_policy, aspect, margin,
@@ -309,7 +319,7 @@ export namespace LayoutDOM {
     min_height: number | null
     max_width: number | null
     max_height: number | null
-    margin: [number, number, number, number]
+    margin: number | [number, number] | [number, number, number, number]
     width_policy: SizingPolicy | "auto"
     height_policy: SizingPolicy | "auto"
     aspect_ratio: number | "auto"
@@ -327,7 +337,7 @@ export namespace LayoutDOM {
     min_height: p.Property<number | null>
     max_width: p.Property<number | null>
     max_height: p.Property<number | null>
-    margin: p.Property<[number, number, number, number]>
+    margin: p.Property<number | [number, number] | [number, number, number, number]>
     width_policy: p.Property<SizingPolicy | "auto">
     height_policy: p.Property<SizingPolicy | "auto">
     aspect_ratio: p.Property<number | "auto">
