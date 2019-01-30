@@ -1,29 +1,19 @@
-from bokeh.core.properties import String, Instance
-from bokeh.models import LayoutDOM, Slider
+from bokeh.core.properties import String, Instance, Override
+from bokeh.models import HTMLBox, Slider
 
 CODE ="""
-import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
+import {HTMLBox, HTMLBoxView} from "models/layouts/html_box"
 import {Slider} from "models/widgets/slider"
-import {LayoutItem} from "core/layout/index" // XXX: should be core/layout
+import {div} from "core/dom"
 import * as p from "core/properties"
 
-export class CustomView extends LayoutDOMView {
+export class CustomView extends HTMLBoxView {
+
+  private content: HTMLElement
 
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.slider.change, () => this._update_text())
-  }
-
-  get child_models() {
-    return []
-  }
-
-  _update_layout(): void {
-    this.layout = new LayoutItem()
-    this.layout.set_sizing({
-      width_policy: "fixed", width: 200,
-      height_policy: "fixed", height: 30, // TODO: fit height
-    })
   }
 
   render(): void {
@@ -34,28 +24,30 @@ export class CustomView extends LayoutDOMView {
     // current slider value.
     super.render()
 
-    const {style} = this.el
-    style.textAlign = "center"
-    style.fontSize = "1.2em"
-    style.padding = "2px"
-    style.color = "#b88d8e"
-    style["background-color"] = "#2a3153"
+    this.content = div({style: {
+      textAlign: "center",
+      fontSize: "1.2em",
+      padding: "2px",
+      color: "#b88d8e",
+      backgroundColor: "#2a3153",
+    }})
+    this.el.appendChild(this.content)
 
     this._update_text()
   }
 
   private _update_text(): void {
-    this.el.textContent = `${this.model.text}: ${this.model.slider.value}`
+    this.content.textContent = `${this.model.text}: ${this.model.slider.value}`
   }
 }
 
-export namespace LayoutDOM {
-  export interface Attrs extends LayoutDOM.Attrs {
+export namespace Custom {
+  export interface Attrs extends HTMLBox.Attrs {
     text: string
     slider: Slider
   }
 
-  export interface Props extends LayoutDOM.Props {
+  export interface Props extends HTMLBox.Props {
     text: p.Property<string>
     slider: p.Property<Slider>
   }
@@ -63,7 +55,7 @@ export namespace LayoutDOM {
 
 export interface Custom extends Custom.Attrs {}
 
-export class Custom extends LayoutDOM {
+export class Custom extends HTMLBox {
   properties: Custom.Props
 
   constructor(attrs?: Partial<Custom.Attrs>) {
@@ -87,6 +79,10 @@ export class Custom extends LayoutDOM {
       text:   [ p.String ],
       slider: [ p.Any    ],
     })
+
+    this.override({
+      margin: 5,
+    })
   }
 }
 Custom.initClass()
@@ -94,13 +90,15 @@ Custom.initClass()
 
 from bokeh.util.compiler import TypeScript
 
-class Custom(LayoutDOM):
+class Custom(HTMLBox):
 
     __implementation__ = TypeScript(CODE)
 
     text = String(default="Custom text")
 
     slider = Instance(Slider)
+
+    margin = Override(default=5)
 
 from bokeh.io import show
 
