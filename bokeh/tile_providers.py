@@ -194,10 +194,11 @@ class _TileProvidersModule(types.ModuleType):
             # This allows `get_provider(CARTODBPOSITRON)` to work
             return WMTSTileSource(url=provider_name.url, attribution=provider_name.attribution)
 
-        if provider_name not in _TileProvidersModule.ThirdParty:
+        selected_provider = provider_name.upper()
+
+        if selected_provider not in _TileProvidersModule.ThirdParty:
             raise ValueError('Unknown tile provider {0}'.format(provider_name))
 
-        selected_provider = provider_name.upper()
         url = _TileProvidersModule._SERVICE_URLS[selected_provider]
         if selected_provider.startswith('CARTO'):
             attribution = _TileProvidersModule._CARTO_ATTRIBUTION

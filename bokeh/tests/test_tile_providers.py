@@ -137,9 +137,15 @@ class Test_GetProvider(object):
         enum_member = getattr(bt.ThirdParty, name)
         p1 = bt.get_provider(enum_member)
         p2 = bt.get_provider(name)
+        p3 = bt.get_provider(name.lower())
         assert isinstance(p1, WMTSTileSource)
         assert isinstance(p2, WMTSTileSource)
+        assert isinstance(p3, WMTSTileSource)
         assert p1 is not p2
+        assert p2 is not p3
+        assert p1 is not p3
+        assert p1.url == p2.url == p3.url
+        assert p1.attribution == p2.attribution == p3.attribution
 
         with pytest.deprecated_call():
             # This will not return a WMTSTileSource in bokeh 2.0.0!
