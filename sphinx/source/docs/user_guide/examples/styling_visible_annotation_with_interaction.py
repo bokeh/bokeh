@@ -11,7 +11,7 @@ invisible_line = p.line([1, 2, 3], [2, 1, 2], line_color="pink")
 box = BoxAnnotation(left=1.5, right=2.5, fill_color='green', fill_alpha=0.1)
 p.add_layout(box)
 
-# We write coffeescript to link toggle with visible property of box and line
+# We write JavaScript to link toggle with visible property of box and line
 code = '''\
 object.visible = toggle.active
 '''
