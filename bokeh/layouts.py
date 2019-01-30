@@ -310,6 +310,10 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
                         item.plot_width = plot_width
                     if plot_height is not None:
                         item.plot_height = plot_height
+
+                if sizing_mode is not None and _has_auto_sizing(item):
+                    item.sizing_mode = sizing_mode
+
                 items.append((item, y, x))
             else:
                 raise ValueError("Only LayoutDOM items can be inserted into a grid")
@@ -424,7 +428,8 @@ def _create_grid(iterable, sizing_mode, layer=0):
         if isinstance(item, list):
             return_list.append(_create_grid(item, sizing_mode, layer+1))
         elif isinstance(item, LayoutDOM):
-            item.sizing_mode = sizing_mode
+            if sizing_mode is not None and _has_auto_sizing(item):
+                item.sizing_mode = sizing_mode
             return_list.append(item)
         else:
             raise ValueError(
@@ -434,8 +439,6 @@ def _create_grid(iterable, sizing_mode, layer=0):
     if layer % 2 == 0:
         return column(children=return_list, sizing_mode=sizing_mode)
     return row(children=return_list, sizing_mode=sizing_mode)
-
-    return return_list
 
 
 def _chunks(l, ncols):
