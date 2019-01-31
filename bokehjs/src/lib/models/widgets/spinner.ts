@@ -57,15 +57,22 @@ export class SpinnerView extends InputWidgetView {
   }
 
   change_input(): void {
-    const {step, low} = this.model
+    const {step, low, high} = this.model
     const new_value = Number(this.inputEl.value)
-    if(low == null) {
-      this.model.value = Number(Math.min(low + step * Math.round((new_value - low) / step),
-        this.model.high).toFixed(log10(1/step)))
+    let process_value
+    if (low != null) {
+      process_value = low + step * Math.round((new_value - low) / step)
     } else {
-      this.model.value = Number(Math.min(Math.max(Math.round(new_value / step) * step,
-        this.model.low), this.model.high).toFixed(log10(1/step)))
+      process_value = Math.round(new_value / step) * step
     }
+    if (low != null) {
+      process_value = Math.max(process_value, low)
+    }
+    if (high != null) {
+      process_value = Math.min(process_value, high)
+    }
+    this.model.value = Number(process_value.toFixed(log10(1/step)))
+
     if (this.model.value != new_value) {
       //this is needeed when the current value in the intput is already at bounded value
       //and we enter a value outside these bounds. We emit a model change to update
