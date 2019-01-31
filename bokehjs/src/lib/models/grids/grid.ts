@@ -48,7 +48,6 @@ export class GridView extends GuideRendererView {
         const [sx0, sy0] = this.plot_view.map_to_screen(xs[i],   ys[i],   this._x_range_name, this._y_range_name)
         const [sx1, sy1] = this.plot_view.map_to_screen(xs[i+1], ys[i+1], this._x_range_name, this._y_range_name)
         ctx.fillRect(sx0[0], sy0[0], sx1[1] - sx0[0], sy1[1] - sy0[0])
-        ctx.fill()
       }
     }
   }
@@ -227,7 +226,6 @@ export class Grid extends GuideRenderer {
 
     const cmin = cross_range.min
     const cmax = cross_range.max
-
     const coords: [number[][], number[][]] = [[], []]
 
     if (!exclude_ends) {
