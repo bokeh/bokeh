@@ -21,15 +21,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import re
 
 # External imports
 
 # Bokeh imports
 from ...core.has_props import abstract
 from ...core.properties import Date, Either, Float, Instance, Int, List, String, Tuple, Dict, Override, ColorHex
-from ...colors import named, HSL, RGB
-from ...core.enums import NamedColor
 
 from ..callbacks import Callback
 
