@@ -71,7 +71,7 @@ export interface ColorPicker extends ColorPicker.Attrs {}
 export class ColorPicker extends InputWidget {
 
   static initClass(): void {
-    this.prototype.type = "ColorInput"
+    this.prototype.type = "ColorPicker"
     this.prototype.default_view = ColorPickerView
 
     this.define({
