@@ -36,7 +36,7 @@ export abstract class DataSource extends Model {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.properties.selected.change, () => {
+    this.connect(this.selected.change, () => {
       if (this.callback != null)
         this.callback.execute(this)
     })
