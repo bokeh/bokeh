@@ -44,6 +44,7 @@ ALL = (
     'Bool',
     'Byte',
     'Color',
+    'ColorHex',
     'ColorSpec',
     'ColumnData',
     'Complex',
