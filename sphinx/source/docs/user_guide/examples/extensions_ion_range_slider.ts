@@ -4,21 +4,26 @@ import {throttle} from "core/util/callback"
 import * as p from "core/properties"
 
 // HTML construction and manipulation functions
-import {label, input, div} from "core/dom"
+import {label, input} from "core/dom"
+
+import {SliderCallbackPolicy} from "core/enums"
 
 // We will subclass in JavaScript from the same class that was subclassed
 // from in Python
 import {InputWidget, InputWidgetView} from "models/widgets/input_widget"
+
+declare function jQuery(...args: any[]): any
 
 export type SliderData = {from: number, to: number}
 
 // This model will actually need to render things, so we must provide
 // view. The LayoutDOM model has a view already, so we will start with that
 export class IonRangeSliderView extends InputWidgetView {
+  model: IonRangeSlider
 
   private title_el?: HTMLElement
-  private value_el?: HTMLElement
-  private slider_el: HTMLElement
+  private value_el?: HTMLInputElement
+  private slider_el: HTMLInputElement
 
   private callback_wrapper?: () => void
 
@@ -75,12 +80,13 @@ export class IonRangeSliderView extends InputWidgetView {
       to,
       step: this.model.step || (max - min)/50,
       disable: this.model.disabled,
-      onChange: (data) => this.slide(data),
-      onFinish: (data) => this.slidestop(data),
+      onChange: (data: SliderData) => this.slide(data),
+      onFinish: (data: SliderData) => this.slidestop(data),
     }
 
     jQuery(this.slider_el).ionRangeSlider(opts)
-    this.value_el.value = `${from} - ${to}`
+    if (this.value_el != null)
+      this.value_el.value = `${from} - ${to}`
   }
 
   slidestop(_data: SliderData): void {
@@ -96,14 +102,46 @@ export class IonRangeSliderView extends InputWidgetView {
   }
 
   slide({from, to}: SliderData): void {
-    this.value_el.value = `${from} - ${to}`
+    if (this.value_el != null)
+      this.value_el.value = `${from} - ${to}`
+
     this.model.range = [from, to]
+
     if (this.callback_wrapper != null)
       this.callback_wrapper()
   }
 }
 
+export namespace IonRangeSlider {
+  export interface Attrs extends InputWidget.Attrs {
+    range: [number, number]
+    start: number
+    end: number
+    step: number
+    grid: boolean
+    callback_throttle: number
+    callback_policy: SliderCallbackPolicy
+  }
+
+  export interface Props extends InputWidget.Props {
+    range: p.Property<[number, number]>
+    start: p.Property<number>
+    end: p.Property<number>
+    step: p.Property<number>
+    grid: p.Property<boolean>
+    callback_throttle: p.Property<number>
+    callback_policy: p.Property<SliderCallbackPolicy>
+  }
+}
+
+export interface IonRangeSlider extends IonRangeSlider.Attrs {}
+
 export class IonRangeSlider extends InputWidget {
+  properties: IonRangeSlider.Props
+
+  constructor(attrs?: Partial<IonRangeSlider.Attrs>) {
+    super(attrs)
+  }
 
   static initClass(): void {
     // The ``type`` class attribute should generally match exactly the name
