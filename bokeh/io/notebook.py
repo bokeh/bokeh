@@ -166,9 +166,10 @@ def install_notebook_hook(notebook_type, load, show_doc, show_app, overwrite=Fal
             .. code-block:: python
 
                 show_app(
-                    app,         # the Bokeh Application to display
-                    state,       # current bokeh.io "state"
-                    notebook_url # URL to the current active notebook page
+                    app,          # the Bokeh Application to display
+                    state,        # current bokeh.io "state"
+                    notebook_url, # URL to the current active notebook page
+                    **kw          # any backend-specific keywords passed as-is
                 )
 
         overwrite (bool, optional) :
@@ -456,7 +457,7 @@ def show_app(app, state, notebook_url, port=0, **kw):
             By default the port is 0, which results in the server listening
             on a random dynamic port.
 
-        Any additional keyword arguments are passed to :class:`~bokeh.server.Server` (added in version 1.1)
+    Any additional keyword arguments are passed to :class:`~bokeh.server.Server` (added in version 1.1)
 
     Returns:
         None
