@@ -20,7 +20,17 @@ export namespace TileSource {
     initial_resolution: number
   }
 
-  export interface Props extends Model.Props {}
+  export interface Props extends Model.Props {
+    url: p.Property<string>
+    tile_size: p.Property<number>
+    max_zoom: p.Property<number>
+    min_zoom: p.Property<number>
+    extra_url_vars: p.Property<{[key: string]: string}>
+    attribution: p.Property<string>
+    x_origin_offset: p.Property<number>
+    y_origin_offset: p.Property<number>
+    initial_resolution: p.Property<number>
+  }
 }
 
 export interface TileSource extends TileSource.Attrs {}
@@ -60,6 +70,11 @@ export abstract class TileSource extends Model {
     this._normalize_case()
   }
 
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.change, () => this._clear_cache())
+  }
+
   string_lookup_replace(str: string, lookup: {[key: string]: string}): string {
     let result_str = str
     for (const key in lookup) {
@@ -83,6 +98,10 @@ export abstract class TileSource extends Model {
       .replace('{xmax}','{XMAX}')
       .replace('{ymax}','{YMAX}')
     this.url = url
+  }
+
+  protected _clear_cache(): void {
+    this.tiles = {}
   }
 
   tile_xyz_to_key(x: number, y: number, z: number): string {

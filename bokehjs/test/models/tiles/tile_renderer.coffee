@@ -131,6 +131,15 @@ describe "tile sources", ->
         expect(t[0]).to.be.within(3, 4)
         expect(t[1]).to.be.within(3, 4)
 
+    it "should invalidate cache on property change", ->
+      tile_options =
+        url : 'http://mock/{x}/{y}/{z}.png'
+      tile_source = new TileSource(tile_options)
+      tile = {tile_coords: [0, 1, 2]}
+      tile_source.tiles['mock_key'] = tile
+      tile_source.url = 'http://mock/{x}/{y}/{z}.png'
+      expect(tile_source.tiles).to.be.empty
+
   describe "tms tile source", ->
     url = 'http://c.tiles.mapbox.com/v3/examples.map-szwdot65/{Z}/{X}/{Y}.png'
     source = new TMSTileSource({url: url})

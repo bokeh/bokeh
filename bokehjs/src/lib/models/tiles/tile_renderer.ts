@@ -53,6 +53,7 @@ export class TileRendererView extends DataRendererView {
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.request_render())
+    this.connect(this.model.tile_source.change, () => this.request_render())
   }
 
   get_extent(): Extent {
