@@ -35,11 +35,13 @@ import bokeh.core.property.color as bcpc
 ALL = (
     'Color',
     'RGB',
+    'ColorHex',
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
 
 class Test_Color(object):
 
@@ -71,7 +73,7 @@ class Test_Color(object):
         assert not prop.is_valid(1)
         assert not prop.is_valid(0.0)
         assert not prop.is_valid(1.0)
-        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(1.0 + 1.0j)
         assert not prop.is_valid("")
         assert not prop.is_valid(())
         assert not prop.is_valid([])
@@ -121,6 +123,7 @@ class Test_Color(object):
         prop = bcpc.Color()
         assert str(prop) == "Color"
 
+
 class Test_RGB(object):
 
     def test_valid(self):
@@ -136,7 +139,7 @@ class Test_RGB(object):
         assert not prop.is_valid(1)
         assert not prop.is_valid(0.0)
         assert not prop.is_valid(1.0)
-        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(1.0 + 1.0j)
         assert not prop.is_valid("")
         assert not prop.is_valid(())
         assert not prop.is_valid([])
@@ -173,6 +176,20 @@ class Test_RGB(object):
         prop = bcpc.RGB()
         assert str(prop) == "RGB"
 
+
+class Test_ColorHex(object):
+
+    def test_transform(self):
+        prop = bcpc.ColorHex()
+        assert prop.transform('#ff0000') == "#ff0000"
+        assert prop.transform((255, 0, 0)) == "#ff0000"
+        assert prop.transform((255, 0, 0, 0.1)) == "#ff0000"
+        assert prop.transform('red') == "#ff0000"
+        assert prop.transform('RED') == "#ff0000"
+        assert prop.transform('rgba(255, 0, 0, 0.1)') == "#ff0000"
+        assert prop.transform('rgb(255, 0, 0)') == "#ff0000"
+        assert prop.transform(RGB(255, 0, 0)) == "#ff0000"
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
@@ -184,5 +201,6 @@ class Test_RGB(object):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
 
 Test___all__ = verify_all(bcpc, ALL)

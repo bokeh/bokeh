@@ -72,7 +72,7 @@ class Test_ColorPicker(object):
 
         assert page.has_no_console_errors()
 
-    def test_input_value_min_max_step(self, bokeh_model_page):
+    def test_input_value(self, bokeh_model_page):
         colorpicker = ColorPicker(color='red', css_classes=["foo"])
 
         page = bokeh_model_page(colorpicker)
