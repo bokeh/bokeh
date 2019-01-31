@@ -27,7 +27,7 @@ import re
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import Date, Either, Float, Instance, Int, List, String, Tuple, Dict, Override, Color
+from ...core.properties import Date, Either, Float, Instance, Int, List, String, Tuple, Dict, Override, ColorHex
 from ...colors import named, HSL, RGB
 from ...core.enums import NamedColor
 
@@ -229,38 +229,13 @@ class ColorPicker(InputWidget):
 
     '''
 
-    color = Color(default='#000000', help="""
+    color = ColorHex(default='#000000', help="""
     The initial color of the picked color (named or hexadecimal)
     """)
 
     callback = Instance(Callback, help="""
     A callback to run in the browser whenever the current date value changes.
     """)
-
-    def __init__(self, **kwargs):
-        if 'color' in kwargs:
-            potential_color = kwargs['color']
-            color = None
-
-            if isinstance(potential_color, str):
-                if re.search(r'^#(?:[0-9a-fA-F]{3}){1,2}$', potential_color):  # hex
-                    color = potential_color.upper()
-                elif hasattr(named, potential_color.lower()):  # named
-                    color = getattr(named, potential_color.lower()).to_hex()
-            elif isinstance(potential_color, HSL):  # hsl
-                color = potential_color.to_rgb().to_hex()
-            elif isinstance(potential_color, RGB):  # rgb
-                color = potential_color.to_hex()
-            elif isinstance(potential_color, tuple) and len(potential_color) == 3:  # tuple
-                color = RGB(*potential_color).to_hex()
-
-            if color is None:
-                raise ValueError("expected and element of either String, HSL, RGB or Tuple(r,g,b). " + \
-                                 "String must be a valid hexadecimal color or a named color from this list: " + \
-                                 "{}. got {}".format(list(NamedColor), potential_color))
-            else:
-                kwargs['color'] = color
-        super(ColorPicker, self).__init__(**kwargs)
 
 
 class Spinner(InputWidget):
