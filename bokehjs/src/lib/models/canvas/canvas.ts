@@ -6,7 +6,7 @@ import {div, canvas} from "core/dom"
 import {OutputBackend} from "core/enums"
 import {BBox} from "core/util/bbox"
 import {is_ie} from "core/util/compat"
-import {Context2d, SVGRenderingContext2D, fixup_ctx, get_scale_ratio} from "core/util/canvas"
+import {Context2d, fixup_ctx, get_scale_ratio} from "core/util/canvas"
 
 // fixes up a problem with some versions of IE11
 // ref: http://stackoverflow.com/questions/22062313/imagedata-set-in-internetexplorer
@@ -16,6 +16,13 @@ if (is_ie && typeof CanvasPixelArray !== "undefined") {
       this[i] = arr[i]
     }
   }
+}
+
+const canvas2svg = require("canvas2svg")
+
+export type SVGRenderingContext2D = {
+  getSvg(): SVGSVGElement
+  getSerializedSvg(fix_named_entities: boolean): string
 }
 
 export class CanvasView extends DOMView {
@@ -59,7 +66,7 @@ export class CanvasView extends DOMView {
         break
       }
       case "svg": {
-        const ctx = new SVGRenderingContext2D()
+        const ctx = new canvas2svg() as SVGRenderingContext2D
         this._ctx = ctx
         this.canvas_el = this.el.appendChild(ctx.getSvg())
         break

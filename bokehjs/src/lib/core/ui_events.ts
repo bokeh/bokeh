@@ -1,7 +1,7 @@
 import * as Hammer from "hammerjs"
 
 import {Input} from "hammerjs"
-export type HammerEvent = typeof Input
+type HammerEvent = typeof Input
 
 import {Signal} from "./signaling"
 import {DOMView} from "./dom_view"
@@ -83,7 +83,7 @@ export class UIEvents implements EventListenerObject {
   readonly keydown      : UISignal<KeyEvent>     = new Signal(this, 'keydown')
   readonly keyup        : UISignal<KeyEvent>     = new Signal(this, 'keyup')
 
-  protected readonly hammer = new Hammer(this.hit_area)
+  private readonly hammer = new Hammer(this.hit_area)
 
   constructor(readonly plot_view: PlotView,
               readonly toolbar: Toolbar,
@@ -382,7 +382,7 @@ export class UIEvents implements EventListenerObject {
     this.plot_view.model.trigger_event(ev)
   }
 
-  protected _get_sxy(event: TouchEvent | MouseEvent | PointerEvent): {sx: number, sy: number} {
+  private _get_sxy(event: TouchEvent | MouseEvent | PointerEvent): {sx: number, sy: number} {
     // XXX: jsdom doesn't support TouchEvent constructor
     function is_touch(event: TouchEvent | MouseEvent | PointerEvent): event is TouchEvent {
       return typeof TouchEvent !== "undefined" && event instanceof TouchEvent
@@ -395,7 +395,7 @@ export class UIEvents implements EventListenerObject {
     }
   }
 
-  protected _gesture_event(e: HammerEvent): GestureEvent {
+  private _gesture_event(e: HammerEvent): GestureEvent {
     return {
       type: e.type as GestureEvent["type"],
       ...this._get_sxy(e.srcEvent),
@@ -406,7 +406,7 @@ export class UIEvents implements EventListenerObject {
     }
   }
 
-  protected _tap_event(e: HammerEvent): TapEvent {
+  private _tap_event(e: HammerEvent): TapEvent {
     return {
       type: e.type as TapEvent["type"],
       ...this._get_sxy(e.srcEvent),
@@ -414,28 +414,28 @@ export class UIEvents implements EventListenerObject {
     }
   }
 
-  protected _move_event(e: MouseEvent): MoveEvent {
+  private _move_event(e: MouseEvent): MoveEvent {
     return {
       type: e.type as MoveEvent["type"],
       ...this._get_sxy(e),
     }
   }
 
-  protected _scroll_event(e: WheelEvent): ScrollEvent {
+  private _scroll_event(e: WheelEvent): ScrollEvent {
     return {
       type: e.type as ScrollEvent["type"],
       ...this._get_sxy(e), delta: getDeltaY(e),
     }
   }
 
-  protected _key_event(e: KeyboardEvent): KeyEvent {
+  private _key_event(e: KeyboardEvent): KeyEvent {
     return {
       type: e.type as KeyEvent["type"],
       keyCode: e.keyCode,
     }
   }
 
-  protected _pan_start(e: HammerEvent): void {
+  private _pan_start(e: HammerEvent): void {
     const ev = this._gesture_event(e)
     // back out delta to get original center point
     ev.sx -= e.deltaX
@@ -443,75 +443,75 @@ export class UIEvents implements EventListenerObject {
     this._trigger(this.pan_start, ev, e.srcEvent)
   }
 
-  protected _pan(e: HammerEvent): void {
+  private _pan(e: HammerEvent): void {
     this._trigger(this.pan, this._gesture_event(e), e.srcEvent)
   }
 
-  protected _pan_end(e: HammerEvent): void {
+  private _pan_end(e: HammerEvent): void {
     this._trigger(this.pan_end, this._gesture_event(e), e.srcEvent)
   }
 
-  protected _pinch_start(e: HammerEvent): void {
+  private _pinch_start(e: HammerEvent): void {
     this._trigger(this.pinch_start, this._gesture_event(e), e.srcEvent)
   }
 
-  protected _pinch(e: HammerEvent): void {
+  private _pinch(e: HammerEvent): void {
     this._trigger(this.pinch, this._gesture_event(e), e.srcEvent)
   }
 
-  protected _pinch_end(e: HammerEvent): void {
+  private _pinch_end(e: HammerEvent): void {
     this._trigger(this.pinch_end, this._gesture_event(e), e.srcEvent)
   }
 
-  protected _rotate_start(e: HammerEvent): void {
+  private _rotate_start(e: HammerEvent): void {
     this._trigger(this.rotate_start, this._gesture_event(e), e.srcEvent)
   }
 
-  protected _rotate(e: HammerEvent): void {
+  private _rotate(e: HammerEvent): void {
     this._trigger(this.rotate, this._gesture_event(e), e.srcEvent)
   }
 
-  protected _rotate_end(e: HammerEvent): void {
+  private _rotate_end(e: HammerEvent): void {
     this._trigger(this.rotate_end, this._gesture_event(e), e.srcEvent)
   }
 
-  protected _tap(e: HammerEvent): void {
+  private _tap(e: HammerEvent): void {
     this._trigger(this.tap, this._tap_event(e), e.srcEvent)
   }
 
-  protected _doubletap(e: HammerEvent): void {
+  private _doubletap(e: HammerEvent): void {
     // NOTE: doubletap event triggered unconditionally
     const ev = this._tap_event(e)
     this._trigger_bokeh_event(ev)
     this.trigger(this.doubletap, ev)
   }
 
-  protected _press(e: HammerEvent): void {
+  private _press(e: HammerEvent): void {
     this._trigger(this.press, this._tap_event(e), e.srcEvent)
   }
 
-  protected _mouse_enter(e: MouseEvent): void {
+  private _mouse_enter(e: MouseEvent): void {
     this._trigger(this.move_enter, this._move_event(e), e)
   }
 
-  protected _mouse_move(e: MouseEvent): void {
+  private _mouse_move(e: MouseEvent): void {
     this._trigger(this.move, this._move_event(e), e)
   }
 
-  protected _mouse_exit(e: MouseEvent): void {
+  private _mouse_exit(e: MouseEvent): void {
     this._trigger(this.move_exit, this._move_event(e), e)
   }
 
-  protected _mouse_wheel(e: WheelEvent): void {
+  private _mouse_wheel(e: WheelEvent): void {
     this._trigger(this.scroll, this._scroll_event(e), e)
   }
 
-  protected _key_down(e: KeyboardEvent): void {
+  private _key_down(e: KeyboardEvent): void {
     // NOTE: keyup event triggered unconditionally
     this.trigger(this.keydown, this._key_event(e))
   }
 
-  protected _key_up(e: KeyboardEvent): void {
+  private _key_up(e: KeyboardEvent): void {
     // NOTE: keyup event triggered unconditionally
     this.trigger(this.keyup, this._key_event(e))
   }
