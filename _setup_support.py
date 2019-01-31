@@ -41,6 +41,7 @@ BOKEHJSBUILD = join(BOKEHJSROOT, 'build')
 CSS = join(BOKEHJSBUILD, 'css')
 JS = join(BOKEHJSBUILD, 'js')
 SERVER = join(ROOT, 'bokeh/server')
+TSLIB = join(BOKEHJSROOT , 'node_modules/typescript/lib')
 
 # -----------------------------------------------------------------------------
 # Helpers for command line operations
@@ -345,6 +346,7 @@ def install_js():
     '''
     target_jsdir = join(SERVER, 'static', 'js')
     target_cssdir = join(SERVER, 'static', 'css')
+    target_tslibdir = join(SERVER, 'static', 'lib')
 
     STATIC_ASSETS = [
         join(JS,  'bokeh.js'),
@@ -363,6 +365,11 @@ def install_js():
     if exists(target_cssdir):
         shutil.rmtree(target_cssdir)
     shutil.copytree(CSS, target_cssdir)
+
+    if exists(target_tslibdir):
+        shutil.rmtree(target_tslibdir)
+    lib = {"lib.es5.d.ts", "lib.dom.d.ts", "lib.es2015.core.d.ts", "lib.es2015.promise.d.ts"}
+    shutil.copytree(TSLIB, target_tslibdir, ignore=lambda _, files: [ f for f in files if f not in lib ])
 
 # -----------------------------------------------------------------------------
 # Helpers for collecting package data

@@ -12,10 +12,6 @@ include setup.cfg
 include versioneer.py
 include _setup_support.py
 
-# BokehJS Build Junk
-prune bokeh/server/static/js/tree
-prune bokeh/server/static/js/types
-
 # Tests
 recursive-include tests *.py *.ipynb *.jinja *.js *.md *.png
 
