@@ -78,7 +78,7 @@ export class Document {
   protected _all_models_by_name: MultiDict<HasProps>
   protected _all_models_freeze_count: number
   protected _callbacks: any[]
-  protected _idle_roots: WeakMap<Model, boolean>
+  private _idle_roots: WeakMap<Model, boolean>
   protected _interactive_timestamp: number | null
   protected _interactive_plot: Model | null
 

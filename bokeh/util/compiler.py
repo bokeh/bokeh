@@ -80,14 +80,17 @@ class CompilationError(RuntimeError):
     '''
     def __init__(self, error):
         super(CompilationError, self).__init__()
-        self.line = error.get("line")
-        self.column = error.get("column")
-        self.message = error.get("message")
-        self.text = error.get("text")
-        self.annotated = error.get("annotated")
+        if isinstance(error, dict):
+            self.line = error.get("line")
+            self.column = error.get("column")
+            self.message = error.get("message")
+            self.text = error.get("text")
+            self.annotated = error.get("annotated")
+        else:
+            self.text = error
 
     def __str__(self):
-        return self.text
+        return "\n" + self.text.strip()
 
 bokehjs_dir = settings.bokehjsdir()
 nodejs_min_version = (6, 10, 0)
@@ -100,8 +103,18 @@ def npmjs_version():
 
 def nodejs_compile(code, lang="javascript", file=None):
     compilejs_script = join(bokehjs_dir, "js", "compiler.js")
-    output = _run_nodejs([compilejs_script], dict(code=code, lang=lang, file=file))
-    return AttrDict(json.loads(output))
+    output = _run_nodejs([compilejs_script], dict(code=code, lang=lang, file=file, bokehjs_dir=bokehjs_dir))
+    lines = output.split("\n")
+    for i, line in enumerate(lines):
+        if not line.startswith("LOG"):
+            break
+        else:
+            print(line)
+    obj = json.loads("\n".join(lines[i:]))
+    if isinstance(obj, dict):
+        return AttrDict(obj)
+    else:
+        return dict(error=obj)
 
 class Implementation(object):
     ''' Base class for representing Bokeh custom model implementations.
@@ -540,7 +553,7 @@ def _run(app, argv, input=None):
     (stdout, errout) = proc.communicate(input=None if input is None else json.dumps(input).encode())
 
     if proc.returncode != 0:
-        raise RuntimeError(errout)
+        raise RuntimeError(errout.decode('utf-8'))
     else:
         return _crlf_cr_2_lf(stdout.decode('utf-8'))
 

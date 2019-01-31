@@ -92,11 +92,12 @@ var some = require('some/module');
 """, deps=["some/module"])
 
     assert buc.nodejs_compile("""function f(a, b) { eturn a + b; };""", "javascript", "some.js") == \
-        dict(error=dict(
-            line=1,
-            column=26,
-            message="';' expected.",
-            text="some.js:1:26:';' expected."))
+        dict(error=
+            '\x1b[96msome.js\x1b[0m:\x1b[93m1\x1b[0m:\x1b[93m26\x1b[0m - '
+            "\x1b[91merror\x1b[0m\x1b[90m TS1005: \x1b[0m';' expected.\n"
+            '\n'
+            '\x1b[7m1\x1b[0m function f(a, b) { eturn a + b; };\n'
+            '\x1b[7m \x1b[0m \x1b[91m                         ~\x1b[0m\n')
 
 def test_nodejs_compile_less():
     assert buc.nodejs_compile(""".bk-some-style { color: mix(#ff0000, #0000ff, 50%); }""", "less", "some.less") == \

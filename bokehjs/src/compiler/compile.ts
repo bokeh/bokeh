@@ -47,74 +47,173 @@ const mkLessError = (error: any, file?: string) => {
   return {message, line, column, text, extract, annotated}
 }
 
-const mkTypeScriptError = (diagnostic: ts.Diagnostic) => {
-  let {line, character: column} = diagnostic.file!.getLineAndCharacterOfPosition(diagnostic.start!)
-  line += 1
-  column += 1
-  const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n')
-  const text = [diagnostic.file!.fileName, line, column, message].join(":")
-  return {message, line, column, text}
-}
-
 const reply = (data: any) => {
   process.stdout.write(JSON.stringify(data))
   process.stdout.write("\n")
 }
 
-const compile_and_resolve_deps = (input: {code: string, lang: string, file: string}) => {
-  let code: string
+type Files = {[name: string]: string}
 
-  switch (input.lang) {
-    case "coffeescript":
-      try {
-        code = coffee.compile(input.code, {bare: true, shiftLine: true})
-      } catch (error) {
-        return reply({error: mkCoffeescriptError(error, input.file)})
-      }
-      break;
-    case "javascript":
-    case "typescript":
-      code = input.code
-      break;
-    case "less":
-      const options = {
-        paths: [path.dirname(input.file)],
-        compress: true,
-        ieCompat: false,
-      }
-      less.render(input.code, options, (error: any, output: any) => {
-        if (error != null)
-          reply({error: mkLessError(error, input.file)})
-        else
-          reply({code: output.css})
-      })
-      return
-    default:
-      throw new Error(`unsupported input type: ${input.lang}`)
+function compile_typescript(inputs: Files, bokehjs_dir: string): {outputs: Files, error?: string} {
+
+  const options: ts.CompilerOptions = {
+    noImplicitAny: true,
+    noImplicitThis: true,
+    noImplicitReturns: true,
+    noUnusedLocals: true,
+    noUnusedParameters: true,
+    strictNullChecks: true,
+    strictBindCallApply: false,
+    strictFunctionTypes: false,
+    strictPropertyInitialization: false,
+    alwaysStrict: true,
+    noErrorTruncation: true,
+    noEmitOnError: false,
+    module: ts.ModuleKind.CommonJS,
+    moduleResolution: ts.ModuleResolutionKind.NodeJs,
+    target: ts.ScriptTarget.ES5,
+    lib: ["lib.es5.d.ts", "lib.dom.d.ts", "lib.es2015.core.d.ts", "lib.es2015.promise.d.ts"],
+    declaration: false,
+    sourceMap: false,
+    importHelpers: false,
+    experimentalDecorators: true,
+    baseUrl: ".",
+    types: [],
+    paths: {
+      "*": [
+        path.join(bokehjs_dir, "js/tree/*"),
+        path.join(bokehjs_dir, "js/types/*"),
+      ],
+    },
   }
 
+  const host: ts.CompilerHost = {
+    getDefaultLibFileName: () => "lib.d.ts",
+    getDefaultLibLocation: () => {
+      // bokeh/server/static or bokehjs/build
+      if (path.basename(bokehjs_dir) == "static")
+        return path.join(bokehjs_dir, "lib")
+      else
+        return path.join(path.dirname(bokehjs_dir), "node_modules/typescript/lib")
+    },
+    getCurrentDirectory: () => ts.sys.getCurrentDirectory(),
+    getDirectories: (path) => ts.sys.getDirectories(path),
+    getCanonicalFileName: (name) => ts.sys.useCaseSensitiveFileNames ? name : name.toLowerCase(),
+    useCaseSensitiveFileNames: () => ts.sys.useCaseSensitiveFileNames,
+    getNewLine: () => ts.sys.newLine,
+
+    fileExists(name: string): boolean {
+      return inputs[name] != null || ts.sys.fileExists(name)
+    },
+    readFile(name: string): string | undefined {
+      return inputs[name] != null ? inputs[name] : ts.sys.readFile(name)
+    },
+    writeFile(name, content): void {
+      ts.sys.writeFile(name, content)
+    },
+    getSourceFile(name: string, target: ts.ScriptTarget, _onError?: (message: string) => void) {
+      const source = inputs[name] != null ? inputs[name] : ts.sys.readFile(name)
+      return source !== undefined ? ts.createSourceFile(name, source, target) : undefined
+    },
+  }
+
+  const program = ts.createProgram(Object.keys(inputs), options, host)
+
+  const outputs: Files = {}
+  const emitted = program.emit(undefined, (name, output) => outputs[name] = output)
+  const diagnostics = ts.getPreEmitDiagnostics(program).concat(emitted.diagnostics)
+
+  if (diagnostics.length == 0)
+    return {outputs}
+  else {
+    const format_host: ts.FormatDiagnosticsHost = {
+      getCanonicalFileName: (path) => path,
+      getCurrentDirectory: ts.sys.getCurrentDirectory,
+      getNewLine: () => ts.sys.newLine,
+    }
+
+    const error = ts.formatDiagnosticsWithColorAndContext(
+      ts.sortAndDeduplicateDiagnostics(diagnostics), format_host)
+
+    return {outputs, error}
+  }
+}
+
+function compile_javascript(file: string, code: string): {output: string, error?: string} {
   const result = ts.transpileModule(code, {
-    fileName: input.file,
+    fileName: file,
     reportDiagnostics: true,
     compilerOptions: {
-      noEmitOnError: false,
-      noImplicitAny: false,
       target: ts.ScriptTarget.ES5,
       module: ts.ModuleKind.CommonJS,
     },
   })
 
-  if (result.diagnostics != null && result.diagnostics.length > 0) {
-    const diagnostic = result.diagnostics[0]
-    return reply({error: mkTypeScriptError(diagnostic)})
+  const format_host: ts.FormatDiagnosticsHost = {
+    getCanonicalFileName: (path) => path,
+    getCurrentDirectory: ts.sys.getCurrentDirectory,
+    getNewLine: () => ts.sys.newLine,
   }
 
-  code = result.outputText
+  const {outputText, diagnostics} = result
+  if (diagnostics == null || diagnostics.length == 0)
+    return {output: outputText}
+  else {
+    const error = ts.formatDiagnosticsWithColorAndContext(
+      ts.sortAndDeduplicateDiagnostics(diagnostics), format_host)
+    return {output: outputText, error}
+  }
+}
 
-  const source = ts.createSourceFile(input.file, code, ts.ScriptTarget.ES5, true, ts.ScriptKind.JS)
+const compile_and_resolve_deps = (input: {code: string, lang: string, file: string, bokehjs_dir: string}) => {
+  const {file, lang, bokehjs_dir} = input
+  let {code} = input
+
+  let output: string
+  switch (lang) {
+    case "typescript":
+      const result = compile_typescript({[file]: code}, bokehjs_dir)
+
+      if (result.error == null)
+        output = result.outputs[Object.keys(result.outputs)[0]]
+      else
+        return reply({error: result.error})
+      break
+    case "coffeescript":
+      try {
+        code = coffee.compile(code, {bare: true, shiftLine: true})
+      } catch (error) {
+        return reply({error: mkCoffeescriptError(error, file)})
+      }
+    case "javascript": {
+      const result = compile_javascript(file, code)
+      if (result.error == null)
+        output = result.output
+      else
+        return reply({error: result.error})
+      break
+    }
+    case "less":
+      const options = {
+        paths: [path.dirname(file)],
+        compress: true,
+        ieCompat: false,
+      }
+      less.render(code, options, (error: any, output: any) => {
+        if (error != null)
+          reply({error: mkLessError(error, file)})
+        else
+          reply({code: output.css})
+      })
+      return
+    default:
+      throw new Error(`unsupported input type: ${lang}`)
+  }
+
+  const source = ts.createSourceFile(file, output, ts.ScriptTarget.ES5, true, ts.ScriptKind.JS)
   const deps = collect_deps(source)
 
-  return reply({code, deps})
+  return reply({code: output, deps})
 }
 
 if (argv.file != null) {
@@ -122,6 +221,7 @@ if (argv.file != null) {
     code: fs.readFileSync(argv.file, "utf-8"),
     lang: argv.lang || "coffeescript",
     file: argv.file,
+    bokehjs_dir: argv.bokehjs_dir,
   }
   compile_and_resolve_deps(input)
 } else {
