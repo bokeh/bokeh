@@ -22,9 +22,9 @@ import pytest ; pytest
 # External imports
 
 # Bokeh imports
-from bokeh.models import Spinner, ColumnDataSource, Plot, Circle, CustomAction, CustomJS, Range1d
+from bokeh.models import ColorPicker, ColumnDataSource, Plot, Circle, CustomAction, CustomJS, Range1d
 from bokeh.layouts import column
-from bokeh._testing.util.selenium import RECORD, Keys, ActionChains
+from bokeh._testing.util.selenium import RECORD
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -41,37 +41,30 @@ def modify_doc(doc):
 
     plot.add_glyph(source, Circle(x='x', y='y'))
     plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
-    spinner = Spinner(low=-1, high=10, step=0.1, value=4, css_classes=["foo"])
+    colorpicker = ColorPicker(color='red', css_classes=["foo"])
 
     def cb(attr, old, new):
-        source.data['val'] = [old, new]
+        source.data['val'] = [old.lower(), new.lower()]  # ensure lowercase of hexa strings
 
-    spinner.on_change('value', cb)
-    doc.add_root(column(spinner, plot))
+    colorpicker.on_change('color', cb)
+    doc.add_root(column(colorpicker, plot))
     return doc
 
 
-def enter_value_in_spinner(driver, el, value, del_prev=True):
+def enter_value_in_color_picker(driver, el, color):
     input_el = el.find_element_by_tag_name("input")
-    actions = ActionChains(driver)
-    actions.move_to_element(input_el)
-    actions.click()
-    if del_prev:
-        nb_char = len(input_el.get_attribute('value'))
-        actions.send_keys(Keys.END + Keys.BACKSPACE * nb_char)
-    actions.send_keys(str(value))
-    actions.send_keys(Keys.ENTER)
-    actions.perform()
+    driver.execute_script("arguments[0].value = '%s'" % color, input_el)
+    driver.execute_script("arguments[0].dispatchEvent(new Event('change'))", input_el)
 
 
 @pytest.mark.integration
 @pytest.mark.selenium
-class Test_Spinner(object):
+class Test_ColorPicker(object):
 
     def test_displays_title(self, bokeh_model_page):
-        spinner = Spinner(css_classes=["foo"], title="title")
+        colorpicker = ColorPicker(css_classes=["foo"], title="title")
 
-        page = bokeh_model_page(spinner)
+        page = bokeh_model_page(colorpicker)
 
         input_div = page.driver.find_element_by_class_name('foo')
         el = input_div.find_element_by_tag_name("label")
@@ -80,17 +73,14 @@ class Test_Spinner(object):
         assert page.has_no_console_errors()
 
     def test_input_value_min_max_step(self, bokeh_model_page):
-        spinner = Spinner(value=1, low=0, high=10, step=1, css_classes=["foo"])
+        colorpicker = ColorPicker(color='red', css_classes=["foo"])
 
-        page = bokeh_model_page(spinner)
+        page = bokeh_model_page(colorpicker)
 
         input_div = page.driver.find_element_by_class_name('foo')
         el = input_div.find_element_by_tag_name("input")
 
-        assert el.get_attribute('value') == '1'
-        assert el.get_attribute('step') == '1'
-        assert el.get_attribute('max') == '10'
-        assert el.get_attribute('min') == '0'
+        assert el.get_attribute('value') == '#ff0000'
 
         assert page.has_no_console_errors()
 
@@ -99,41 +89,11 @@ class Test_Spinner(object):
 
         el = page.driver.find_element_by_class_name('foo')
 
-        # same value
-        enter_value_in_spinner(page.driver, el, 4)
+        # new value
+        enter_value_in_color_picker(page.driver, el, '#0000ff')
         page.click_custom_action()
         results = page.results
-        assert results['data']['val'] == ["a", "b"]
-
-        # new valid value
-        enter_value_in_spinner(page.driver, el, 5)
-        page.click_custom_action()
-        results = page.results
-        assert results['data']['val'] == [4, 5]
-
-        # new overflow value
-        enter_value_in_spinner(page.driver, el, 11)
-        page.click_custom_action()
-        results = page.results
-        assert results['data']['val'] == [5, 10]
-
-        # new underflow value
-        enter_value_in_spinner(page.driver, el, -2)
-        page.click_custom_action()
-        results = page.results
-        assert results['data']['val'] == [10, -1]
-
-        # new decimal value
-        enter_value_in_spinner(page.driver, el, 5.1)
-        page.click_custom_action()
-        results = page.results
-        assert results['data']['val'] == [-1, 5.1]
-
-        # new decimal value test rounding
-        enter_value_in_spinner(page.driver, el, 5.19)
-        page.click_custom_action()
-        results = page.results
-        assert results['data']['val'] == [5.1, 5.2]
+        assert results['data']['val'] == ['#ff0000', '#0000ff']
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         # assert page.has_no_console_errors()
