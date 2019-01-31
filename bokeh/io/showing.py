@@ -105,8 +105,7 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
             to generate the full public URL to the bokeh server.  If None
             is passed, the function is to generate the origin URL.
 
-        Extra keyword arguments are passed to :func:`~bokeh.server.Server.__init__`
-            ``**kw`` is added in 1.1
+        Any additional keyword arguments are passed to :class:`~bokeh.server.Server` (added in version 1.1)
 
     Some parameters are only useful when certain output modes are active:
 

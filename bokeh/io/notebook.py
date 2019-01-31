@@ -456,8 +456,7 @@ def show_app(app, state, notebook_url, port=0, **kw):
             By default the port is 0, which results in the server listening
             on a random dynamic port.
 
-        Extra keyword arguments are passed to :func:`~bokeh.server.Server.__init__`
-            ``**kw`` is added in 1.1
+        Any additional keyword arguments are passed to :class:`~bokeh.server.Server` (added in version 1.1)
 
     Returns:
         None
