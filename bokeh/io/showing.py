@@ -105,8 +105,6 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
             to generate the full public URL to the bokeh server.  If None
             is passed, the function is to generate the origin URL.
 
-        Any additional keyword arguments are passed to :class:`~bokeh.server.Server` (added in version 1.1)
-
     Some parameters are only useful when certain output modes are active:
 
     * The ``browser`` and ``new`` parameters only apply when ``output_file``
@@ -118,6 +116,9 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
 
     * The ``notebook_url`` parameter only applies when showing Bokeh
       Applications in a Jupyter notebook.
+      
+    * Any additional keyword arguments are passed to :class:`~bokeh.server.Server` when 
+      showing a Bokeh app (added in version 1.1)
 
     Returns:
         When in a Jupyter notebook (with ``output_notebook`` enabled)
