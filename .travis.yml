@@ -60,7 +60,7 @@ jobs:
         - google-chrome-stable --no-sandbox --headless --hide-scrollbars --remote-debugging-port=9222 &
       env:
       - GROUP=examples
-      - PYTHON=3.5
+      - PYTHON=3.6
 
     - install: scripts/ci/install.test
       script: scripts/ci/test
@@ -96,7 +96,7 @@ jobs:
       script: scripts/ci/test
       env:
       - GROUP=unit
-      - PYTHON=3.5
+      - PYTHON=3.6
       - TORNADO=4
       - MINIMAL=1
 
