@@ -76,7 +76,8 @@ The inline example code above produces the following output:
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import logging
+# use the wrapped sphinx logger
+from sphinx.util import logging
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -195,7 +196,6 @@ class BokehPlotDirective(Directive):
     def run(self):
 
         env = self.state.document.settings.env
-        app = env.app
 
         # filename *or* python code content, but not both
         if self.arguments and self.content:
@@ -203,7 +203,7 @@ class BokehPlotDirective(Directive):
 
         # process inline examples here
         if self.content:
-            app.debug("[bokeh-plot] handling inline example in %r", env.docname)
+            log.debug("[bokeh-plot] handling inline example in %r", env.docname)
             source = '\n'.join(self.content)
             # need docname not to look like a path
             docname = env.docname.replace("/", "-")
@@ -222,14 +222,14 @@ class BokehPlotDirective(Directive):
 
             # if it's an "internal" example, the python parser has already handled it
             if example_path in env.bokeh_plot_files:
-                app.debug("[bokeh-plot] handling internal example in %r: %s", env.docname, self.arguments[0])
+                log.debug("[bokeh-plot] handling internal example in %r: %s", env.docname, self.arguments[0])
                 (script, js, js_path, source) = env.bokeh_plot_files[example_path]
                 if(env.config.bokeh_plot_use_relative_paths):
                     script = script.replace('$REL_PATH$', _get_file_depth_string(env.docname) + 'scripts')
 
             # handle examples external to the docs source, e.g. gallery examples
             else:
-                app.debug("[bokeh-plot] handling external example in %r: %s", env.docname, self.arguments[0])
+                log.debug("[bokeh-plot] handling external example in %r: %s", env.docname, self.arguments[0])
                 source = open(self.arguments[0]).read()
                 source = decode_utf8(source)
                 docname = env.docname.replace("/", "-")

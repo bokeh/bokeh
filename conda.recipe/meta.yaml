@@ -53,7 +53,7 @@ test:
     # docs
     - colorcet
     - pygments
-    - sphinx >=1.6
+    - sphinx >=1.8
 
     # tests
     - beautifulsoup4
