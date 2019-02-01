@@ -274,7 +274,8 @@ class CustomModel(object):
                 impl = CoffeeScript(impl)
 
         if isinstance(impl, Inline) and impl.file is None:
-            impl = impl.__class__(impl.code, (self.file or "<string>") + ":" + self.name)
+            file = "%s%s.ts" % (self.file + ":" if self.file else "", self.name)
+            impl = impl.__class__(impl.code, file)
 
         return impl
 
