@@ -25,5 +25,5 @@
       "*": ["../build/js/tree/*", "../build/js/types/*"]
     }
   },
-  "include": ["./*/*.ts", "../src/lib/external/*", "./bokehjs.d.ts"]
+  "include": ["./*/*.ts", "./bokehjs.d.ts"]
 }

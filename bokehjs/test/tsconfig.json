@@ -26,5 +26,5 @@
     },
     "outDir": "../build/test"
   },
-  "include": ["./**/*.ts", "../src/lib/external/*"]
+  "include": ["./**/*.ts"]
 }
