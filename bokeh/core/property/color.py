@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 import re
 
 # External imports
+from six import string_types
 
 # Bokeh imports
 from ... import colors
@@ -133,7 +134,7 @@ class ColorHex(Color):
     '''
 
     def transform(self, value):
-        if isinstance(value, str):
+        if isinstance(value, string_types):
             value = value.lower()
             if value.startswith('rgb'):
                 value = colors.RGB(*[int(val) for val in re.findall("\d+", value)[:3]]).to_hex()
