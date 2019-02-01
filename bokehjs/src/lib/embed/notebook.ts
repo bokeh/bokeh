@@ -7,11 +7,10 @@ import {add_document_standalone} from "./standalone"
 import {DocsJson, RenderItem} from "./json"
 import {_resolve_element, _resolve_root_elements} from "./dom"
 
-
 // This exists to allow the jupyterlab_bokeh extension to store the
 // notebook kernel so that _init_comms can register the comms target.
-// This has to be available at window.Bokeh.embed.kernels in JupyterLab
-export const kernels: {[key: string]: Kernel} = {}
+// This has to be available at window.Bokeh.embed.kernels in JupyterLab.
+export const kernels: {[key: string]: unknown} = {}
 
 function _handle_notebook_comms(this: Document, receiver: Receiver, comm_msg: CommMessage): void {
   if (comm_msg.buffers.length > 0)
@@ -39,7 +38,7 @@ function _init_comms(target: string, doc: Document): void {
     }
   } else if (doc.roots()[0].id in kernels) {
     logger.info(`Registering JupyterLab comms for target ${target}`)
-    const kernel = kernels[doc.roots()[0].id]
+    const kernel = kernels[doc.roots()[0].id] as Kernel
     try {
       kernel.registerCommTarget(target, (comm: Comm) => {
         logger.info(`Registering JupyterLab comms for target ${target}`)

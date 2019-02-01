@@ -28,7 +28,7 @@ export class GMapPlotView extends PlotView {
   protected initial_lat: number
   protected initial_lng: number
 
-  protected map: google.maps.Map
+  private map: google.maps.Map
   protected map_types: any
 
   initialize(options: any): void {
