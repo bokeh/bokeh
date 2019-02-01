@@ -166,7 +166,7 @@ export function simple_prop<T>(name: string, pred: (value: any) => boolean) {
   }
 }
 
-export class Any extends simple_prop<any>("Any", (_x) => true) {}
+export class Any extends simple_prop<any>("Any", () => true) {}
 
 export class Array extends simple_prop<any[]>("Array", (x) => isArray(x) || x instanceof Float64Array) {}
 
@@ -178,14 +178,14 @@ export class Color extends simple_prop<Color>("Color", (x) => (isString(x) && (i
 export class Instance extends simple_prop<HasProps>("Instance", (x) => x.properties != null) {}
 
 // TODO (bev) separate booleans?
-export class Number extends simple_prop<number>("Number", (x) => isNumber(x) || isBoolean(x)) {}
+export class Number extends simple_prop<number>("Number", isNumber) {}
 export const Int = Number
 
 export class Angle extends Number {}
 
 // TODO extend Number instead of copying it's predicate
 //class Percent extends Number("Percent", (x) -> 0 <= x <= 1.0)
-export class Percent extends simple_prop<number>("Percent", (x) => (isNumber(x) || isBoolean(x)) && 0 <= x && x <= 1.0) {}
+export class Percent extends simple_prop<number>("Percent", (x) => isNumber(x) && 0 <= x && x <= 1.0) {}
 
 export class String extends simple_prop<string>("String", isString) {}
 export const FontSize = String
