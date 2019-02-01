@@ -3,20 +3,19 @@ import {Arrayable, Color} from "core/types"
 import * as p from "core/properties"
 
 export namespace ContinuousColorMapper {
-  export interface Attrs extends ColorMapper.Attrs {
-    high: number
-    low: number
-    high_color: Color
-    low_color: Color
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ColorMapper.Props {}
+  export type Props = ColorMapper.Props & {
+    high: p.Property<number>
+    low: p.Property<number>
+    high_color: p.Property<Color>
+    low_color: p.Property<Color>
+  }
 }
 
 export interface ContinuousColorMapper extends ContinuousColorMapper.Attrs {}
 
 export abstract class ContinuousColorMapper extends ColorMapper {
-
   properties: ContinuousColorMapper.Props
 
   constructor(attrs?: Partial<ContinuousColorMapper.Attrs>) {

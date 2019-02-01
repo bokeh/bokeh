@@ -6,15 +6,14 @@ import * as p from "core/properties"
 import {Arrayable} from "core/types"
 
 export namespace CategoricalColorMapper {
-  export interface Attrs extends ColorMapper.Attrs, CategoricalMapper.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ColorMapper.Props {}
+  export type Props = ColorMapper.Props & CategoricalMapper.Props
 }
 
 export interface CategoricalColorMapper extends CategoricalColorMapper.Attrs {}
 
 export class CategoricalColorMapper extends ColorMapper {
-
   properties: CategoricalColorMapper.Props
 
   constructor(attrs?: Partial<CategoricalColorMapper.Attrs>) {

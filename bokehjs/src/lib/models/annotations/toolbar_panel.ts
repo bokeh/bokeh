@@ -57,17 +57,16 @@ export class ToolbarPanelView extends AnnotationView {
 }
 
 export namespace ToolbarPanel {
-  export interface Attrs extends Annotation.Attrs {
-    toolbar: Toolbar
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Annotation.Props {}
+  export type Props = Annotation.Props & {
+    toolbar: p.Property<Toolbar>
+  }
 }
 
 export interface ToolbarPanel extends ToolbarPanel.Attrs {}
 
 export class ToolbarPanel extends Annotation {
-
   properties: ToolbarPanel.Props
 
   constructor(attrs?: Partial<ToolbarPanel.Attrs>) {

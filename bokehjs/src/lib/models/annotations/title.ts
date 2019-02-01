@@ -114,40 +114,34 @@ export class TitleView extends TextAnnotationView {
 }
 
 export namespace Title {
-  // line:border_
-  export interface BorderLine {
-    border_line_color: Color
-    border_line_width: number
-    border_line_alpha: number
-    border_line_join: LineJoin
-    border_line_cap: LineCap
-    border_line_dash: number[]
-    border_line_dash_offset: number
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = TextAnnotation.Props & {
+    text: p.Property<string>
+    text_font: p.Property<string> // XXX: Font
+    text_font_size: p.Property<FontSizeSpec>
+    text_font_style: p.Property<FontStyle>
+    text_color: p.Property<ColorSpec>
+    text_alpha: p.Property<NumberSpec>
+    vertical_align: p.Property<VerticalAlign>
+    align: p.Property<TextAlign>
+    offset: p.Property<number>
+    text_align: p.Property<TextAlign>
+    text_baseline: p.Property<TextBaseline>
+
+    // line:border_
+    border_line_color: p.Property<Color>
+    border_line_width: p.Property<number>
+    border_line_alpha: p.Property<number>
+    border_line_join: p.Property<LineJoin>
+    border_line_cap: p.Property<LineCap>
+    border_line_dash: p.Property<number[]>
+    border_line_dash_offset: p.Property<number>
+
+    // fill:background_
+    background_fill_color: p.Property<Color>
+    background_fill_alpha: p.Property<number>
   }
-
-  // fill:background_
-  export interface BackgroundFill {
-    background_fill_color: Color
-    background_fill_alpha: number
-  }
-
-  export interface Mixins extends BorderLine, BackgroundFill {}
-
-  export interface Attrs extends TextAnnotation.Attrs, Mixins {
-    text: string
-    text_font: string // XXX: Font
-    text_font_size: FontSizeSpec
-    text_font_style: FontStyle
-    text_color: ColorSpec
-    text_alpha: NumberSpec
-    vertical_align: VerticalAlign
-    align: TextAlign
-    offset: number
-    text_align: TextAlign
-    text_baseline: TextBaseline
-  }
-
-  export interface Props extends TextAnnotation.Props {}
 
   export type Visuals = TextAnnotation.Visuals
 }
@@ -155,7 +149,6 @@ export namespace Title {
 export interface Title extends Title.Attrs {}
 
 export class Title extends TextAnnotation {
-
   properties: Title.Props
 
   constructor(attrs?: Partial<Title.Attrs>) {

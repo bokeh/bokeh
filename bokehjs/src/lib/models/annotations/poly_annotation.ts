@@ -1,5 +1,5 @@
 import {Annotation, AnnotationView} from "./annotation"
-import {LineMixinScalar, FillMixinScalar} from "core/property_mixins"
+import {LineScalar, FillScalar} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
 import {SpatialUnits} from "core/enums"
 import {Signal0} from "core/signaling"
@@ -68,19 +68,17 @@ export class PolyAnnotationView extends AnnotationView {
 }
 
 export namespace PolyAnnotation {
-  export interface Mixins extends LineMixinScalar, FillMixinScalar {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends Annotation.Attrs, Mixins {
-    xs: number[]
-    xs_units: SpatialUnits
-    ys: number[]
-    ys_units: SpatialUnits
-    x_range_name: string
-    y_range_name: string
-    screen: boolean
+  export type Props = Annotation.Props & LineScalar & FillScalar & {
+    xs: p.Property<number[]>
+    xs_units: p.Property<SpatialUnits>
+    ys: p.Property<number[]>
+    ys_units: p.Property<SpatialUnits>
+    x_range_name: p.Property<string>
+    y_range_name: p.Property<string>
+    screen: p.Property<boolean>
   }
-
-  export interface Props extends Annotation.Props {}
 
   export type Visuals = Annotation.Visuals & {line: Line, fill: Fill}
 }
@@ -88,7 +86,6 @@ export namespace PolyAnnotation {
 export interface PolyAnnotation extends PolyAnnotation.Attrs {}
 
 export class PolyAnnotation extends Annotation {
-
   properties: PolyAnnotation.Props
 
   data_update: Signal0<this>

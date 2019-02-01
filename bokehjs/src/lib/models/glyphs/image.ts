@@ -1,5 +1,4 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {DistanceSpec, NumberSpec} from "core/vectorization"
 import {ColorMapper} from "../mappers/color_mapper"
 import {LinearColorMapper} from "../mappers/linear_color_mapper"
 import {Class} from "core/class"
@@ -230,16 +229,9 @@ export class ImageView extends XYGlyphView {
 const Greys9 = () => ["#000000", "#252525", "#525252", "#737373", "#969696", "#bdbdbd", "#d9d9d9", "#f0f0f0", "#ffffff"]
 
 export namespace Image {
-  export interface Attrs extends XYGlyph.Attrs {
-    image: NumberSpec
-    dw: DistanceSpec
-    dh: DistanceSpec
-    global_alpha: number
-    dilate: boolean
-    color_mapper: ColorMapper
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends XYGlyph.Props {
+  export type Props = XYGlyph.Props & {
     image: p.NumberSpec
     dw: p.DistanceSpec
     dh: p.DistanceSpec
@@ -248,7 +240,7 @@ export namespace Image {
     color_mapper: p.Property<ColorMapper>
   }
 
-  export interface Visuals extends XYGlyph.Visuals {}
+  export type Visuals = XYGlyph.Visuals
 }
 
 export interface Image extends Image.Attrs {}

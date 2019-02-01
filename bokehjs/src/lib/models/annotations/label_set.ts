@@ -2,7 +2,7 @@ import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
 import {NumberSpec, AngleSpec, StringSpec, ColorSpec} from "core/vectorization"
-import {TextMixinVector} from "core/property_mixins"
+import {TextVector} from "core/property_mixins"
 import {LineJoin, LineCap} from "core/enums"
 import {SpatialUnits} from "core/enums"
 import {div, show, hide} from "core/dom"
@@ -188,40 +188,34 @@ export class LabelSetView extends TextAnnotationView {
 }
 
 export namespace LabelSet {
-  // line:border_ v
-  export interface BorderLine {
-    border_line_color: ColorSpec
-    border_line_width: NumberSpec
-    border_line_alpha: NumberSpec
-    border_line_join: LineJoin
-    border_line_cap: LineCap
-    border_line_dash: number[]
-    border_line_dash_offset: number
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = TextAnnotation.Props & TextVector & {
+    x: p.Property<NumberSpec>
+    y: p.Property<NumberSpec>
+    x_units: p.Property<SpatialUnits>
+    y_units: p.Property<SpatialUnits>
+    text: p.Property<StringSpec>
+    angle: p.Property<AngleSpec>
+    x_offset: p.Property<NumberSpec>
+    y_offset: p.Property<NumberSpec>
+    source: p.Property<ColumnarDataSource>
+    x_range_name: p.Property<string>
+    y_range_name: p.Property<string>
+
+    // line:border_ v
+    border_line_color: p.Property<ColorSpec>
+    border_line_width: p.Property<NumberSpec>
+    border_line_alpha: p.Property<NumberSpec>
+    border_line_join: p.Property<LineJoin>
+    border_line_cap: p.Property<LineCap>
+    border_line_dash: p.Property<number[]>
+    border_line_dash_offset: p.Property<number>
+
+    // fill:background_ v
+    background_fill_color: p.Property<ColorSpec>
+    background_fill_alpha: p.Property<NumberSpec>
   }
-
-  // fill:background_ v
-  export interface BackgroundFill {
-    background_fill_color: ColorSpec
-    background_fill_alpha: NumberSpec
-  }
-
-  export interface Mixins extends TextMixinVector, BorderLine, BackgroundFill {}
-
-  export interface Attrs extends TextAnnotation.Attrs, Mixins {
-    x: NumberSpec
-    y: NumberSpec
-    x_units: SpatialUnits
-    y_units: SpatialUnits
-    text: StringSpec
-    angle: AngleSpec
-    x_offset: NumberSpec
-    y_offset: NumberSpec
-    source: ColumnarDataSource
-    x_range_name: string
-    y_range_name: string
-  }
-
-  export interface Props extends TextAnnotation.Props {}
 
   export type Visuals = TextAnnotation.Visuals
 }
@@ -229,7 +223,6 @@ export namespace LabelSet {
 export interface LabelSet extends LabelSet.Attrs {}
 
 export class LabelSet extends TextAnnotation {
-
   properties: LabelSet.Props
 
   constructor(attrs?: Partial<LabelSet.Attrs>) {

@@ -1,4 +1,5 @@
 import {Renderer, RendererView} from "./renderer"
+import * as p from "core/properties"
 
 export abstract class GuideRendererView extends RendererView {
   model: GuideRenderer
@@ -6,9 +7,9 @@ export abstract class GuideRendererView extends RendererView {
 }
 
 export namespace GuideRenderer {
-  export interface Attrs extends Renderer.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Renderer.Props {}
+  export type Props = Renderer.Props
 
   export type Visuals = Renderer.Visuals
 }
@@ -16,7 +17,6 @@ export namespace GuideRenderer {
 export interface GuideRenderer extends GuideRenderer.Attrs {}
 
 export abstract class GuideRenderer extends Renderer {
-
   properties: GuideRenderer.Props
 
   constructor(attrs?: Partial<GuideRenderer.Attrs>) {

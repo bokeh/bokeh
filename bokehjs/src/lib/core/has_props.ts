@@ -15,12 +15,10 @@ import {ColumnarDataSource} from "models/sources/columnar_data_source"
 import {Document} from "../document"
 
 export module HasProps {
-  export interface Attrs {
-    id: string
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props {
-    id: p.Any
+  export type Props = {
+    id: p.Property<string>
   }
 
   export interface SetOptions {

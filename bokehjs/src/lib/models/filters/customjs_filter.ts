@@ -5,19 +5,18 @@ import {DataSource} from "../sources/data_source"
 import {use_strict} from "core/util/string"
 
 export namespace CustomJSFilter {
-  export interface Attrs extends Filter.Attrs {
-    args: {[key: string]: any}
-    code: string
-    use_strict: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Filter.Props {}
+  export type Props = Filter.Props & {
+    args: p.Property<{[key: string]: any}>
+    code: p.Property<string>
+    use_strict: p.Property<boolean>
+  }
 }
 
 export interface CustomJSFilter extends CustomJSFilter.Attrs {}
 
 export class CustomJSFilter extends Filter {
-
   properties: CustomJSFilter.Props
 
   constructor(attrs?: Partial<CustomJSFilter.Attrs>) {

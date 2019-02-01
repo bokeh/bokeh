@@ -27,18 +27,17 @@ export class ZoomOutToolView extends ActionToolView {
 }
 
 export namespace ZoomOutTool {
-  export interface Attrs extends ActionTool.Attrs {
-    factor: number
-    dimensions: Dimensions
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ActionTool.Props {}
+  export type Props = ActionTool.Props & {
+    factor: p.Property<number>
+    dimensions: p.Property<Dimensions>
+  }
 }
 
 export interface ZoomOutTool extends ZoomOutTool.Attrs {}
 
 export class ZoomOutTool extends ActionTool {
-
   properties: ZoomOutTool.Props
 
   constructor(attrs?: Partial<ZoomOutTool.Attrs>) {
@@ -62,5 +61,4 @@ export class ZoomOutTool extends ActionTool {
     return this._get_dim_tooltip(this.tool_name, this.dimensions)
   }
 }
-
 ZoomOutTool.initClass()

@@ -2,20 +2,19 @@ import {Range} from "./range"
 import * as p from "core/properties"
 
 export namespace Range1d {
-  export interface Attrs extends Range.Attrs {
-    start: number
-    end: number
-    reset_start: number
-    reset_end: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Range.Props {}
+  export type Props = Range.Props & {
+    start: p.Property<number>
+    end: p.Property<number>
+    reset_start: p.Property<number>
+    reset_end: p.Property<number>
+  }
 }
 
 export interface Range1d extends Range1d.Attrs {}
 
 export class Range1d extends Range {
-
   properties: Range1d.Props
 
   constructor(attrs?: Partial<Range1d.Attrs>) {
@@ -68,5 +67,4 @@ export class Range1d extends Range {
       this.change.emit()
   }
 }
-
 Range1d.initClass()

@@ -6,9 +6,9 @@ import * as p from "core/properties"
 import {Arrayable} from "core/types"
 
 export namespace CategoricalMarkerMapper {
-  export interface Attrs extends Mapper.Attrs, CategoricalMapper.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Mapper.Props {}
+  export type Props = Mapper.Props
 }
 
 export interface CategoricalMarkerMapper extends Mapper.Attrs, CategoricalMapper.Attrs {
@@ -17,7 +17,6 @@ export interface CategoricalMarkerMapper extends Mapper.Attrs, CategoricalMapper
 }
 
 export class CategoricalMarkerMapper extends Mapper<string> {
-
   properties: CategoricalMarkerMapper.Props
 
   constructor(attrs?: Partial<CategoricalMarkerMapper.Attrs>) {

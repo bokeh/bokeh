@@ -1,11 +1,11 @@
-import {NumberSpec} from "core/vectorization"
-import {LineMixinVector} from "core/property_mixins"
+import {LineVector} from "core/property_mixins"
 import {Line} from "core/visuals"
 import {Arrayable, Area} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_line_legend} from "./utils"
+import * as p from "core/properties"
 
 // algorithm adapted from http://stackoverflow.com/a/14429749/3406693
 function _cbb(x0: number, y0: number,
@@ -146,30 +146,25 @@ export class BezierView extends GlyphView {
 }
 
 export namespace Bezier {
-  export interface Mixins extends LineMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends Glyph.Attrs, Mixins {
-    x0: NumberSpec
-    y0: NumberSpec
-    x1: NumberSpec
-    y1: NumberSpec
-    cx0: NumberSpec
-    cy0: NumberSpec
-    cx1: NumberSpec
-    cy1: NumberSpec
+  export type Props = Glyph.Props & LineVector & {
+    x0: p.NumberSpec
+    y0: p.NumberSpec
+    x1: p.NumberSpec
+    y1: p.NumberSpec
+    cx0: p.NumberSpec
+    cy0: p.NumberSpec
+    cx1: p.NumberSpec
+    cy1: p.NumberSpec
   }
 
-  export interface Props extends Glyph.Props {}
-
-  export interface Visuals extends Glyph.Visuals {
-    line: Line
-  }
+  export type Visuals = Glyph.Visuals & {line: Line}
 }
 
 export interface Bezier extends Bezier.Attrs {}
 
 export class Bezier extends Glyph {
-
   properties: Bezier.Props
 
   constructor(attrs?: Partial<Bezier.Attrs>) {

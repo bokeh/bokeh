@@ -176,45 +176,37 @@ export class GridView extends GuideRendererView {
 }
 
 export namespace Grid {
-  // line:grid_
-  export interface GridLine {
-    grid_line_color: Color
-    grid_line_width: number
-    grid_line_alpha: number
-    grid_line_join: LineJoin
-    grid_line_cap: LineCap
-    grid_line_dash: number[]
-    grid_line_dash_offset: number
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = GuideRenderer.Props & {
+    bounds: p.Property<[number, number] | "auto">
+    dimension: p.Property<0 | 1>
+    ticker: p.Property<Ticker<any>>
+    x_range_name: p.Property<string>
+    y_range_name: p.Property<string>
+
+    // line:grid_
+    grid_line_color: p.Property<Color>
+    grid_line_width: p.Property<number>
+    grid_line_alpha: p.Property<number>
+    grid_line_join: p.Property<LineJoin>
+    grid_line_cap: p.Property<LineCap>
+    grid_line_dash: p.Property<number[]>
+    grid_line_dash_offset: p.Property<number>
+
+    // line:minor_grid_
+    minor_grid_line_color: p.Property<Color>
+    minor_grid_line_width: p.Property<number>
+    minor_grid_line_alpha: p.Property<number>
+    minor_grid_line_join: p.Property<LineJoin>
+    minor_grid_line_cap: p.Property<LineCap>
+    minor_grid_line_dash: p.Property<number[]>
+    minor_grid_line_dash_offset: p.Property<number>
+
+    // fill:band_
+    fill_color: p.Property<Color>
+    fill_alpha: p.Property<number>
   }
-
-  // line:minor_grid_
-  export interface MinorGridLine {
-    minor_grid_line_color: Color
-    minor_grid_line_width: number
-    minor_grid_line_alpha: number
-    minor_grid_line_join: LineJoin
-    minor_grid_line_cap: LineCap
-    minor_grid_line_dash: number[]
-    minor_grid_line_dash_offset: number
-  }
-
-  // fill:band_
-  export interface BandFill {
-    fill_color: Color
-    fill_alpha: number
-  }
-
-  export interface Mixins extends GridLine, MinorGridLine, BandFill {}
-
-  export interface Attrs extends GuideRenderer.Attrs, Mixins {
-    bounds: [number, number] | "auto"
-    dimension: 0 | 1
-    ticker: Ticker<any>
-    x_range_name: string
-    y_range_name: string
-  }
-
-  export interface Props extends GuideRenderer.Props {}
 
   export type Visuals = GuideRenderer.Visuals & {
     grid_line: Line
@@ -226,7 +218,6 @@ export namespace Grid {
 export interface Grid extends Grid.Attrs {}
 
 export class Grid extends GuideRenderer {
-
   properties: Grid.Props
 
   constructor(attrs?: Partial<Grid.Attrs>) {

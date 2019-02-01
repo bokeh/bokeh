@@ -1,10 +1,9 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {Scale} from "../scales/scale"
-import {LineMixinScalar} from "core/property_mixins"
+import {LineScalar} from "core/property_mixins"
 import {Line} from "core/visuals"
 import {SpatialUnits, RenderMode, Dimension} from "core/enums"
 import {show, hide} from "core/dom"
-import {Color} from "core/types"
 import * as p from "core/properties"
 import {CoordinateTransform} from "core/util/bbox"
 
@@ -108,20 +107,9 @@ export class SpanView extends AnnotationView {
 }
 
 export namespace Span {
-  export interface Mixins extends LineMixinScalar {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends Annotation.Attrs, Mixins {
-    render_mode: RenderMode
-    x_range_name: string
-    y_range_name: string
-    location: number | null
-    location_units: SpatialUnits
-    dimension: Dimension
-    for_hover: boolean
-    computed_location: number | null
-  }
-
-  export interface Props extends Annotation.Props {
+  export type Props = Annotation.Props & LineScalar & {
     render_mode: p.Property<RenderMode>
     x_range_name: p.Property<string>
     y_range_name: p.Property<string>
@@ -130,10 +118,6 @@ export namespace Span {
     dimension: p.Property<Dimension>
     for_hover: p.Property<boolean>
     computed_location: p.Property<number | null>
-
-    line_color: p.Property<Color>
-    line_width: p.Property<number>
-    line_alpha: p.Property<number>
   }
 
   export type Visuals = Annotation.Visuals & {line: Line}
@@ -142,7 +126,6 @@ export namespace Span {
 export interface Span extends Span.Attrs {}
 
 export class Span extends Annotation {
-
   properties: Span.Props
 
   constructor(attrs?: Partial<Span.Attrs>) {

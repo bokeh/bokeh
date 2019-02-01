@@ -4,18 +4,17 @@ import {CDSView} from "../../sources/cds_view"
 import * as p from "core/properties"
 
 export namespace TableWidget {
-  export interface Attrs extends Widget.Attrs {
-    source: ColumnDataSource
-    view: CDSView
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Widget.Props {}
+  export type Props = Widget.Props & {
+    source: p.Property<ColumnDataSource>
+    view: p.Property<CDSView>
+  }
 }
 
 export interface TableWidget extends TableWidget.Attrs {}
 
 export class TableWidget extends Widget {
-
   properties: TableWidget.Props
 
   constructor(attrs?: Partial<TableWidget.Attrs>) {

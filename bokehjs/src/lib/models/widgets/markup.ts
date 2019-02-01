@@ -25,12 +25,12 @@ export abstract class MarkupView extends WidgetView {
 }
 
 export namespace Markup {
-  export interface Attrs extends Widget.Attrs {
-    text: string
-    style: {[key: string]: string}
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Widget.Props {}
+  export type Props = Widget.Props & {
+    text: p.Property<string>
+    style: p.Property<{[key: string]: string}>
+  }
 }
 
 export interface Markup extends Markup.Attrs {}

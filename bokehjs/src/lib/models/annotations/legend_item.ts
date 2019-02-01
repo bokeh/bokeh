@@ -8,19 +8,18 @@ import {logger} from "core/logging"
 import {uniq, includes} from "core/util/array"
 
 export namespace LegendItem {
-  export interface Attrs extends Model.Attrs {
-    label: StringSpec | null
-    renderers: GlyphRenderer[]
-    index: number | null
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Model.Props {}
+  export type Props = Model.Props & {
+    label: p.Property<StringSpec | null>
+    renderers: p.Property<GlyphRenderer[]>
+    index: p.Property<number | null>
+  }
 }
 
 export interface LegendItem extends LegendItem.Attrs {}
 
 export class LegendItem extends Model {
-
   properties: LegendItem.Props
 
   legend: Legend | null

@@ -38,12 +38,9 @@ export class TextInputView extends InputWidgetView {
 }
 
 export namespace TextInput {
-  export interface Attrs extends InputWidget.Attrs {
-    value: string
-    placeholder: string
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends InputWidget.Props {
+  export type Props = InputWidget.Props & {
     value: p.Property<string>
     placeholder: p.Property<string>
   }
@@ -52,7 +49,6 @@ export namespace TextInput {
 export interface TextInput extends TextInput.Attrs {}
 
 export class TextInput extends InputWidget {
-
   properties: TextInput.Props
 
   constructor(attrs?: Partial<TextInput.Attrs>) {
@@ -69,5 +65,4 @@ export class TextInput extends InputWidget {
     })
   }
 }
-
 TextInput.initClass()

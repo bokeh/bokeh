@@ -1,6 +1,7 @@
 import * as numbro from "numbro"
 
 import {AbstractSlider, AbstractSliderView, SliderSpec} from "./abstract_slider"
+import * as p from "core/properties"
 
 export class RangeSliderView extends AbstractSliderView {
   model: RangeSlider
@@ -20,15 +21,14 @@ export class RangeSliderView extends AbstractSliderView {
 }
 
 export namespace RangeSlider {
-  export interface Attrs extends AbstractSlider.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends AbstractSlider.Props {}
+  export type Props = AbstractSlider.Props
 }
 
 export interface RangeSlider extends RangeSlider.Attrs {}
 
 export class RangeSlider extends AbstractSlider {
-
   properties: RangeSlider.Props
 
   constructor(attrs?: Partial<RangeSlider.Attrs>) {
@@ -51,5 +51,4 @@ export class RangeSlider extends AbstractSlider {
     return numbro.format(value, format)
   }
 }
-
 RangeSlider.initClass()

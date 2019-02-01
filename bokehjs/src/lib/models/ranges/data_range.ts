@@ -3,18 +3,17 @@ import {Renderer} from "../renderers/renderer"
 import * as p from "core/properties"
 
 export namespace DataRange {
-  export interface Attrs extends Range.Attrs {
-    names: string[]
-    renderers: Renderer[]
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Range.Props {}
+  export type Props = Range.Props & {
+    names: p.Property<string[]>
+    renderers: p.Property<Renderer[]>
+  }
 }
 
 export interface DataRange extends DataRange.Attrs {}
 
 export abstract class DataRange extends Range {
-
   properties: DataRange.Props
 
   constructor(attrs?: Partial<DataRange.Attrs>) {
@@ -30,5 +29,4 @@ export abstract class DataRange extends Range {
     })
   }
 }
-
 DataRange.initClass()

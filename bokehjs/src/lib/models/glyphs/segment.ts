@@ -1,7 +1,7 @@
 import {PointGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
-import {NumberSpec} from "core/vectorization"
-import {LineMixinVector} from "core/property_mixins"
+import * as p from "core/properties"
+import {LineVector} from "core/property_mixins"
 import {Line} from "core/visuals"
 import {Arrayable, Area} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
@@ -137,26 +137,21 @@ export class SegmentView extends GlyphView {
 }
 
 export namespace Segment {
-  export interface Mixins extends LineMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends Glyph.Attrs, Mixins {
-    x0: NumberSpec
-    y0: NumberSpec
-    x1: NumberSpec
-    y1: NumberSpec
+  export type Props = Glyph.Props & LineVector & {
+    x0: p.NumberSpec
+    y0: p.NumberSpec
+    x1: p.NumberSpec
+    y1: p.NumberSpec
   }
 
-  export interface Props extends Glyph.Props {}
-
-  export interface Visuals extends Glyph.Visuals {
-    line: Line
-  }
+  export type Visuals = Glyph.Visuals & {line: Line}
 }
 
 export interface Segment extends Segment.Attrs {}
 
 export class Segment extends Glyph {
-
   properties: Segment.Props
 
   constructor(attrs?: Partial<Segment.Attrs>) {

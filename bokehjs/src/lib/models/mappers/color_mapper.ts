@@ -39,18 +39,17 @@ export function _uint32_to_rgba(values: Uint32Array): Uint8Array {
 }
 
 export namespace ColorMapper {
-  export interface Attrs extends Mapper.Attrs {
-    palette: (Color | number)[]
-    nan_color: Color
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Mapper.Props {}
+  export type Props = Mapper.Props & {
+    palette: p.Property<(Color | number)[]>
+    nan_color: p.Property<Color>
+  }
 }
 
 export interface ColorMapper extends ColorMapper.Attrs {}
 
 export abstract class ColorMapper extends Mapper<Color> {
-
   properties: ColorMapper.Props
 
   constructor(attrs?: Partial<ColorMapper.Attrs>) {

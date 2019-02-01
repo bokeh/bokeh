@@ -1,8 +1,7 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {Arrayable, Area} from "core/types"
 import {PointGeometry} from "core/geometry"
-import {DistanceSpec} from "core/vectorization"
-import {LineMixinVector, FillMixinVector} from "core/property_mixins"
+import {LineVector, FillVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
@@ -139,28 +138,19 @@ export class AnnulusView extends XYGlyphView {
 }
 
 export namespace Annulus {
-  export interface Mixins extends LineMixinVector, FillMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends XYGlyph.Attrs, Mixins {
-    inner_radius: DistanceSpec
-    outer_radius: DistanceSpec
-  }
-
-  export interface Props extends XYGlyph.Props {
+  export type Props = XYGlyph.Props & LineVector & FillVector & {
     inner_radius: p.DistanceSpec
     outer_radius: p.DistanceSpec
   }
 
-  export interface Visuals extends XYGlyph.Visuals {
-    line: Line
-    fill: Fill
-  }
+  export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill}
 }
 
 export interface Annulus extends Annulus.Attrs {}
 
 export class Annulus extends XYGlyph {
-
   properties: Annulus.Props
 
   constructor(attrs?: Partial<Annulus.Attrs>) {

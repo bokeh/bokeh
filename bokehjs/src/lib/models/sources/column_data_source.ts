@@ -130,11 +130,9 @@ export function patch_to_column(col: Arrayable, patch: [Index, any][], shapes: S
 // the data attribute is a column name, and its value is an array of scalars.
 // Each column should be the same length.
 export namespace ColumnDataSource {
-  export interface Attrs extends ColumnarDataSource.Attrs {
-    data: {[key: string]: Arrayable}
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ColumnarDataSource.Props {
+  export type Props = ColumnarDataSource.Props & {
     data: p.Property<{[key: string]: Arrayable}>
   }
 }
@@ -142,7 +140,6 @@ export namespace ColumnDataSource {
 export interface ColumnDataSource extends ColumnDataSource.Attrs {}
 
 export class ColumnDataSource extends ColumnarDataSource {
-
   properties: ColumnDataSource.Props
 
   constructor(attrs?: Partial<ColumnDataSource.Attrs>) {

@@ -5,6 +5,7 @@ import {MultiLine} from "../../glyphs/multi_line"
 import {Patches} from "../../glyphs/patches"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {PolyTool, PolyToolView} from "./poly_tool"
+import * as p from "core/properties"
 
 export interface HasPolyGlyph {
   glyph: MultiLine | Patches
@@ -223,14 +224,14 @@ export class PolyEditToolView extends PolyToolView {
 }
 
 export namespace PolyEditTool {
-  export interface Attrs extends PolyTool.Attrs {}
-  export interface Props extends PolyTool.Props {}
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = PolyTool.Props
 }
 
 export interface PolyEditTool extends PolyEditTool.Attrs {}
 
 export class PolyEditTool extends PolyTool {
-
   properties: PolyEditTool.Props
 
   constructor(attrs?: Partial<PolyEditTool.Attrs>) {

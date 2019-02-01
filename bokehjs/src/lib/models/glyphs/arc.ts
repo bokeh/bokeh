@@ -1,7 +1,6 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_line_legend} from "./utils"
-import {DistanceSpec, AngleSpec} from "core/vectorization"
-import {LineMixinVector} from "core/property_mixins"
+import {LineVector} from "core/property_mixins"
 import {Line} from "core/visuals"
 import {Arrayable, Area} from "core/types"
 import {Direction} from "core/enums"
@@ -55,31 +54,21 @@ export class ArcView extends XYGlyphView {
 }
 
 export namespace Arc {
-  export interface Mixins extends LineMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends XYGlyph.Attrs, Mixins {
-    direction: Direction
-    radius: DistanceSpec
-    start_angle: AngleSpec
-    end_angle: AngleSpec
-  }
-
-  export interface Props extends XYGlyph.Props {
+  export type Props = XYGlyph.Props & LineVector & {
     direction: p.Property<Direction>
     radius: p.DistanceSpec
     start_angle: p.AngleSpec
     end_angle: p.AngleSpec
   }
 
-  export interface Visuals extends XYGlyph.Visuals {
-    line: Line
-  }
+  export type Visuals = XYGlyph.Visuals & {line: Line}
 }
 
 export interface Arc extends Arc.Attrs {}
 
 export class Arc extends XYGlyph {
-
   properties: Arc.Props
 
   constructor(attrs?: Partial<Arc.Attrs>) {

@@ -238,28 +238,24 @@ export abstract class AbstractSliderView extends WidgetView {
 }
 
 export namespace AbstractSlider {
-  export interface Attrs extends Widget.Attrs {
-    default_size: number
-    title: string
-    show_value: boolean
-    start: any // XXX
-    end: any // XXX
-    value: any // XXX
-    step: number
-    format: string
-    orientation: Orientation
-    direction: "ltr" | "rtl"
-    tooltips: boolean
-    callback: CallbackLike<AbstractSlider> | null
-    callback_throttle: number
-    callback_policy: SliderCallbackPolicy
-    bar_color: Color
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Widget.Props {
+  export type Props = Widget.Props & {
+    default_size: p.Property<number>
+    title: p.Property<string>
+    show_value: p.Property<boolean>
+    start: p.Property<any> // XXX
+    end: p.Property<any> // XXX
+    value: p.Property<any> // XXX
+    step: p.Property<number>
+    format: p.Property<string>
+    orientation: p.Property<Orientation>
+    direction: p.Property<"ltr" | "rtl">
+    tooltips: p.Property<boolean>
     callback: p.Property<CallbackLike<AbstractSlider> | null>
     callback_throttle: p.Property<number>
     callback_policy: p.Property<SliderCallbackPolicy>
+    bar_color: p.Property<Color>
   }
 }
 

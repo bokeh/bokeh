@@ -99,19 +99,18 @@ const DEFAULT_POLY_OVERLAY = () => {
 }
 
 export namespace LassoSelectTool {
-  export interface Attrs extends SelectTool.Attrs {
-    select_every_mousemove: boolean
-    callback: CallbackLike<LassoSelectTool> | null
-    overlay: PolyAnnotation
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends SelectTool.Props {}
+  export type Props = SelectTool.Props & {
+    select_every_mousemove: p.Property<boolean>
+    callback: p.Property<CallbackLike<LassoSelectTool> | null>
+    overlay: p.Property<PolyAnnotation>
+  }
 }
 
 export interface LassoSelectTool extends LassoSelectTool.Attrs {}
 
 export class LassoSelectTool extends SelectTool {
-
   properties: LassoSelectTool.Props
 
   /*override*/ overlay: PolyAnnotation
@@ -137,5 +136,4 @@ export class LassoSelectTool extends SelectTool {
   event_type = "pan" as "pan"
   default_order = 12
 }
-
 LassoSelectTool.initClass()

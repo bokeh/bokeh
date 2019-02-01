@@ -99,23 +99,9 @@ export function map_three_levels(factors: L3Factor[],
 }
 
 export namespace FactorRange {
-  export interface Attrs extends Range.Attrs {
-    factors: Factor[]
-    factor_padding: number
-    subgroup_padding: number
-    group_padding: number
-    range_padding: number
-    range_padding_units: PaddingUnits
-    start: number
-    end: number
+  export type Attrs = p.AttrsOf<Props>
 
-    levels: number
-    mids: [string, string][] | undefined
-    tops: string[] | undefined
-    tops_groups: string[]
-  }
-
-  export interface Props extends Range.Props {
+  export type Props = Range.Props & {
     factors: p.Property<Factor[]>
     factor_padding: p.Property<number>
     subgroup_padding: p.Property<number>
@@ -124,13 +110,17 @@ export namespace FactorRange {
     range_padding_units: p.Property<PaddingUnits>
     start: p.Property<number>
     end: p.Property<number>
+
+    levels: p.Property<number>
+    mids: p.Property<[string, string][] | undefined>
+    tops: p.Property<string[] | undefined>
+    tops_groups: p.Property<string[]>
   }
 }
 
 export interface FactorRange extends FactorRange.Attrs {}
 
 export class FactorRange extends Range {
-
   properties: FactorRange.Props
 
   constructor(attrs?: Partial<FactorRange.Attrs>) {
@@ -268,5 +258,4 @@ export class FactorRange extends Range {
       this.setv({bounds: [start, end]}, {silent: true})
   }
 }
-
 FactorRange.initClass()

@@ -7,10 +7,10 @@ import {isStrictNaN} from "core/util/types"
 import {Arrayable, Area} from "core/types"
 import {PointGeometry} from "core/geometry"
 import {Context2d} from "core/util/canvas"
-import {NumberSpec} from "core/vectorization"
-import {LineMixinVector, FillMixinVector} from "core/property_mixins"
+import {LineVector, FillVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
 import * as hittest from "core/hittest"
+import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 
 export interface PatchesData extends GlyphData {
@@ -233,25 +233,19 @@ export class PatchesView extends GlyphView {
 }
 
 export namespace Patches {
-  export interface Mixins extends LineMixinVector, FillMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends Glyph.Attrs, Mixins {
-    xs: NumberSpec
-    ys: NumberSpec
+  export type Props = Glyph.Props & LineVector & FillVector & {
+    xs: p.NumberSpec
+    ys: p.NumberSpec
   }
 
-  export interface Props extends Glyph.Props {}
-
-  export interface Visuals extends Glyph.Visuals {
-    line: Line
-    fill: Fill
-  }
+  export type Visuals = Glyph.Visuals & {line: Line, fill: Fill}
 }
 
 export interface Patches extends Patches.Attrs {}
 
 export class Patches extends Glyph {
-
   properties: Patches.Props
 
   constructor(attrs?: Partial<Patches.Attrs>) {

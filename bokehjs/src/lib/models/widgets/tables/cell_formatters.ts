@@ -10,9 +10,9 @@ import {isString} from "core/util/types"
 import {Model} from "../../../model"
 
 export namespace CellFormatter {
-  export interface Attrs extends Model.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Model.Props {}
+  export type Props = Model.Props
 }
 
 export interface CellFormatter extends CellFormatter.Attrs {}
@@ -33,13 +33,13 @@ export abstract class CellFormatter extends Model {
 }
 
 export namespace StringFormatter {
-  export interface Attrs extends CellFormatter.Attrs {
-    font_style: FontStyle
-    text_align: TextAlign
-    text_color: Color
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends CellFormatter.Props {}
+  export type Props = CellFormatter.Props & {
+    font_style: p.Property<FontStyle>
+    text_align: p.Property<TextAlign>
+    text_color: p.Property<Color>
+  }
 }
 
 export interface StringFormatter extends StringFormatter.Attrs {}
@@ -85,13 +85,13 @@ export class StringFormatter extends CellFormatter {
 StringFormatter.initClass()
 
 export namespace NumberFormatter {
-  export interface Attrs extends StringFormatter.Attrs {
-    format: string
-    language: string
-    rounding: RoundingFunction
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends StringFormatter.Props {}
+  export type Props = StringFormatter.Props & {
+    format: p.Property<string>
+    language: p.Property<string>
+    rounding: p.Property<RoundingFunction>
+  }
 }
 
 export interface NumberFormatter extends NumberFormatter.Attrs {}
@@ -127,11 +127,11 @@ export class NumberFormatter extends StringFormatter {
 NumberFormatter.initClass()
 
 export namespace BooleanFormatter {
-  export interface Attrs extends CellFormatter.Attrs {
-    icon: string // XXX: enum
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends CellFormatter.Props {}
+  export type Props = CellFormatter.Props & {
+    icon: p.Property<string> // XXX: enum
+  }
 }
 
 export interface BooleanFormatter extends BooleanFormatter.Attrs {}
@@ -158,11 +158,11 @@ export class BooleanFormatter extends CellFormatter {
 BooleanFormatter.initClass()
 
 export namespace DateFormatter {
-  export interface Attrs extends CellFormatter.Attrs {
-    format: string // XXX: enum
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends CellFormatter.Props {}
+  export type Props = CellFormatter.Props & {
+    format: p.Property<string> // XXX: enum
+  }
 }
 
 export interface DateFormatter extends DateFormatter.Attrs {}
@@ -218,11 +218,11 @@ export class DateFormatter extends CellFormatter {
 DateFormatter.initClass()
 
 export namespace HTMLTemplateFormatter {
-  export interface Attrs extends CellFormatter.Attrs {
-    template: string
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends CellFormatter.Props {}
+  export type Props = CellFormatter.Props & {
+    template: p.Property<string>
+  }
 }
 
 export interface HTMLTemplateFormatter extends HTMLTemplateFormatter.Attrs {}

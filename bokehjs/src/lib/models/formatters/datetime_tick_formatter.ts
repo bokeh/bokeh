@@ -50,26 +50,25 @@ const format_order = [
 ]
 
 export namespace DatetimeTickFormatter {
-  export interface Attrs extends TickFormatter.Attrs {
-    microseconds: string[]
-    milliseconds: string[]
-    seconds: string[]
-    minsec: string[]
-    minutes: string[]
-    hourmin: string[]
-    hours: string[]
-    days: string[]
-    months: string[]
-    years: string[]
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends TickFormatter.Props {}
+  export type Props = TickFormatter.Props & {
+    microseconds: p.Property<string[]>
+    milliseconds: p.Property<string[]>
+    seconds: p.Property<string[]>
+    minsec: p.Property<string[]>
+    minutes: p.Property<string[]>
+    hourmin: p.Property<string[]>
+    hours: p.Property<string[]>
+    days: p.Property<string[]>
+    months: p.Property<string[]>
+    years: p.Property<string[]>
+  }
 }
 
 export interface DatetimeTickFormatter extends DatetimeTickFormatter.Attrs {}
 
 export class DatetimeTickFormatter extends TickFormatter {
-
   properties: DatetimeTickFormatter.Props
 
   constructor(attrs?: Partial<DatetimeTickFormatter.Attrs>) {

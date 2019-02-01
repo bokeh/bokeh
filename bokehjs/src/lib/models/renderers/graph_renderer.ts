@@ -84,21 +84,20 @@ export class GraphRendererView extends DataRendererView {
 }
 
 export namespace GraphRenderer {
-  export interface Attrs extends DataRenderer.Attrs {
-    layout_provider: LayoutProvider
-    node_renderer: GlyphRenderer
-    edge_renderer: GlyphRenderer
-    selection_policy: GraphHitTestPolicy
-    inspection_policy: GraphHitTestPolicy
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends DataRenderer.Props {}
+  export type Props = DataRenderer.Props & {
+    layout_provider: p.Property<LayoutProvider>
+    node_renderer: p.Property<GlyphRenderer>
+    edge_renderer: p.Property<GlyphRenderer>
+    selection_policy: p.Property<GraphHitTestPolicy>
+    inspection_policy: p.Property<GraphHitTestPolicy>
+  }
 }
 
 export interface GraphRenderer extends GraphRenderer.Attrs {}
 
 export class GraphRenderer extends DataRenderer {
-
   properties: GraphRenderer.Props
 
   constructor(attrs?: Partial<GraphRenderer.Attrs>) {

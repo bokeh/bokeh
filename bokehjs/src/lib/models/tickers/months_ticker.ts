@@ -30,17 +30,16 @@ function date_range_by_year(start_time: number, end_time: number): Date[] {
 // April, July, and October of each year.
 
 export namespace MonthsTicker {
-  export interface Attrs extends SingleIntervalTicker.Attrs {
-    months: number[]
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends SingleIntervalTicker.Props {}
+  export type Props = SingleIntervalTicker.Props & {
+    months: p.Property<number[]>
+  }
 }
 
 export interface MonthsTicker extends MonthsTicker.Attrs {}
 
 export class MonthsTicker extends SingleIntervalTicker {
-
   properties: MonthsTicker.Props
 
   constructor(attrs?: Partial<MonthsTicker.Attrs>) {
@@ -87,5 +86,4 @@ export class MonthsTicker extends SingleIntervalTicker {
     }
   }
 }
-
 MonthsTicker.initClass()

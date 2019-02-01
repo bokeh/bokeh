@@ -5,18 +5,17 @@ import {range} from "core/util/array"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 
 export namespace GroupFilter {
-  export interface Attrs extends Filter.Attrs {
-    column_name: string
-    group: string
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Filter.Props {}
+  export type Props = Filter.Props & {
+    column_name: p.Property<string>
+    group: p.Property<string>
+  }
 }
 
 export interface GroupFilter extends GroupFilter.Attrs {}
 
 export class GroupFilter extends Filter {
-
   properties: GroupFilter.Props
 
   constructor(attrs?: Partial<GroupFilter.Attrs>) {

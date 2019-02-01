@@ -25,23 +25,22 @@ export type Column = {
 }
 
 export namespace TableColumn {
-  export interface Attrs extends Model.Attrs {
-    field: string
-    title: string
-    width: number
-    formatter: CellFormatter
-    editor: CellEditor
-    sortable: boolean
-    default_sort: "ascending" | "descending"
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Model.Props {}
+  export type Props = Model.Props & {
+    field: p.Property<string>
+    title: p.Property<string>
+    width: p.Property<number>
+    formatter: p.Property<CellFormatter>
+    editor: p.Property<CellEditor>
+    sortable: p.Property<boolean>
+    default_sort: p.Property<"ascending" | "descending">
+  }
 }
 
 export interface TableColumn extends TableColumn.Attrs {}
 
 export class TableColumn extends Model {
-
   properties: TableColumn.Props
 
   constructor(attrs?: Partial<TableColumn.Attrs>) {

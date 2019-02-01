@@ -140,11 +140,11 @@ export abstract class TextAnnotationView extends AnnotationView {
 }
 
 export namespace TextAnnotation {
-  export interface Attrs extends Annotation.Attrs {
-    render_mode: RenderMode
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Annotation.Props {}
+  export type Props = Annotation.Props & {
+    render_mode: p.Property<RenderMode>
+  }
 
   export type Visuals = Annotation.Visuals & {
     text: Text
@@ -156,7 +156,6 @@ export namespace TextAnnotation {
 export interface TextAnnotation extends TextAnnotation.Attrs {}
 
 export abstract class TextAnnotation extends Annotation {
-
   properties: TextAnnotation.Props
 
   constructor(attrs?: Partial<TextAnnotation.Attrs>) {

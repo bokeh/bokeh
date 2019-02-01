@@ -4,18 +4,17 @@ import {Arrayable} from "core/types"
 import * as p from "core/properties"
 
 export namespace CumSum {
-  export interface Attrs extends Expression.Attrs {
-    field: string
-    include_zero: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Expression.Props {}
+  export type Props = Expression.Props & {
+    field: p.Property<string>
+    include_zero: p.Property<boolean>
+  }
 }
 
 export interface CumSum extends CumSum.Attrs {}
 
 export class CumSum extends Expression {
-
   properties: CumSum.Props
 
   constructor(attrs?: Partial<CumSum.Attrs>) {

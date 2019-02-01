@@ -293,59 +293,49 @@ export class LegendView extends AnnotationView {
 }
 
 export namespace Legend {
-  // text:label_
-  export interface LabelText {
-    label_text_font: string
-    label_text_font_size: string
-    label_text_font_style: FontStyle
-    label_text_color: Color
-    label_text_alpha: number
-    label_text_align: TextAlign
-    label_text_baseline: TextBaseline
-    label_text_line_height: number
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = Annotation.Props & {
+    orientation: p.Property<Orientation>
+    location: p.Property<LegendLocation | [number, number]>
+    label_standoff: p.Property<number>
+    glyph_height: p.Property<number>
+    glyph_width: p.Property<number>
+    label_height: p.Property<number>
+    label_width: p.Property<number>
+    margin: p.Property<number>
+    padding: p.Property<number>
+    spacing: p.Property<number>
+    items: p.Property<LegendItem[]>
+    click_policy: p.Property<LegendClickPolicy>
+
+    // text:label_
+    label_text_font: p.Property<string>
+    label_text_font_size: p.Property<string>
+    label_text_font_style: p.Property<FontStyle>
+    label_text_color: p.Property<Color>
+    label_text_alpha: p.Property<number>
+    label_text_align: p.Property<TextAlign>
+    label_text_baseline: p.Property<TextBaseline>
+    label_text_line_height: p.Property<number>
+
+    // fill:inactive_
+    inactive_fill_color: p.Property<Color>
+    inactive_fill_alpha: p.Property<number>
+
+    // line:border_
+    border_line_color: p.Property<Color>
+    border_line_width: p.Property<number>
+    border_line_alpha: p.Property<number>
+    border_line_join: p.Property<LineJoin>
+    border_line_cap: p.Property<LineCap>
+    border_line_dash: p.Property<number[]>
+    border_line_dash_offset: p.Property<number>
+
+    // fill:background_
+    background_fill_color: p.Property<Color>
+    background_fill_alpha: p.Property<number>
   }
-
-  // fill:inactive_
-  export interface InactiveFill {
-    inactive_fill_color: Color
-    inactive_fill_alpha: number
-  }
-
-  // line:border_
-  export interface BorderLine {
-    border_line_color: Color
-    border_line_width: number
-    border_line_alpha: number
-    border_line_join: LineJoin
-    border_line_cap: LineCap
-    border_line_dash: number[]
-    border_line_dash_offset: number
-  }
-
-  // fill:background_
-  export interface BackgroundFill {
-    background_fill_color: Color
-    background_fill_alpha: number
-  }
-
-  export interface Mixins extends LabelText, InactiveFill, BorderLine, BackgroundFill {}
-
-  export interface Attrs extends Annotation.Attrs, Mixins {
-    orientation: Orientation
-    location: LegendLocation | [number, number]
-    label_standoff: number
-    glyph_height: number
-    glyph_width: number
-    label_height: number
-    label_width: number
-    margin: number
-    padding: number
-    spacing: number
-    items: LegendItem[]
-    click_policy: LegendClickPolicy
-  }
-
-  export interface Props extends Annotation.Props {}
 
   export type Visuals = Annotation.Visuals & {
     label_text: Text
@@ -358,7 +348,6 @@ export namespace Legend {
 export interface Legend extends Legend.Attrs {}
 
 export class Legend extends Annotation {
-
   properties: Legend.Props
 
   item_change: Signal0<this>

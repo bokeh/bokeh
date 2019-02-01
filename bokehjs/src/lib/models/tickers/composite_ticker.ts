@@ -8,17 +8,16 @@ import {isEmpty} from "core/util/object"
 // for a given range.
 
 export namespace CompositeTicker {
-  export interface Attrs extends ContinuousTicker.Attrs {
-    tickers: ContinuousTicker[]
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ContinuousTicker.Props {}
+  export type Props = ContinuousTicker.Props & {
+    tickers: p.Property<ContinuousTicker[]>
+  }
 }
 
 export interface CompositeTicker extends CompositeTicker.Attrs {}
 
 export class CompositeTicker extends ContinuousTicker {
-
   properties: CompositeTicker.Props
 
   constructor(attrs?: Partial<CompositeTicker.Attrs>) {
@@ -93,5 +92,4 @@ export class CompositeTicker extends ContinuousTicker {
     return best_ticker.get_ticks_no_defaults(data_low, data_high, cross_loc, desired_n_ticks)
   }
 }
-
 CompositeTicker.initClass()

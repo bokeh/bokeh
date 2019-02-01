@@ -1,9 +1,10 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_area_legend} from "./utils"
-import {LineMixinVector, FillMixinVector} from "core/property_mixins"
+import {LineVector, FillVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
 import {Area} from "core/types"
 import {Context2d} from "core/util/canvas"
+import * as p from "core/properties"
 
 export interface PatchData extends XYGlyphData {}
 
@@ -63,22 +64,16 @@ export class PatchView extends XYGlyphView {
 }
 
 export namespace Patch {
-  export interface Mixins extends LineMixinVector, FillMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends XYGlyph.Attrs, Mixins {}
+  export type Props = XYGlyph.Props & LineVector & FillVector
 
-  export interface Props extends XYGlyph.Props {}
-
-  export interface Visuals extends XYGlyph.Visuals {
-    line: Line
-    fill: Fill
-  }
+  export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill}
 }
 
 export interface Patch extends Patch.Attrs {}
 
 export class Patch extends XYGlyph {
-
   properties: Patch.Props
 
   constructor(attrs?: Partial<Patch.Attrs>) {

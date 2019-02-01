@@ -8,12 +8,9 @@ export abstract class DataRendererView extends RendererView {
 }
 
 export namespace DataRenderer {
-  export interface Attrs extends Renderer.Attrs {
-    x_range_name: string
-    y_range_name: string
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Renderer.Props {
+  export type Props = Renderer.Props & {
     x_range_name: p.Property<string>
     y_range_name: p.Property<string>
   }

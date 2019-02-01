@@ -20,19 +20,18 @@ export class CustomActionView extends ActionToolView {
 }
 
 export namespace CustomAction {
-  export interface Attrs extends ActionTool.Attrs {
-    action_tooltip: string
-    callback: CallbackLike<CustomAction> | null
-    icon: string
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ActionTool.Props {}
+  export type Props = ActionTool.Props & {
+    action_tooltip: p.Property<string>
+    callback: p.Property<CallbackLike<CustomAction> | null>
+    icon: p.Property<string>
+  }
 }
 
 export interface CustomAction extends CustomAction.Attrs {}
 
 export class CustomAction extends ActionTool {
-
   properties: CustomAction.Props
 
   constructor(attrs?: Partial<CustomAction.Attrs>) {
@@ -58,5 +57,4 @@ export class CustomAction extends ActionTool {
     return this.action_tooltip
   }
 }
-
 CustomAction.initClass()

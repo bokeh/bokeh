@@ -107,18 +107,17 @@ export abstract class SelectToolView extends GestureToolView {
 }
 
 export namespace SelectTool {
-  export interface Attrs extends GestureTool.Attrs {
-    renderers: RendererSpec
-    names: string[]
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends GestureTool.Props {}
+  export type Props = GestureTool.Props & {
+    renderers: p.Property<RendererSpec>
+    names: p.Property<string[]>
+  }
 }
 
 export interface SelectTool extends SelectTool.Attrs {}
 
 export abstract class SelectTool extends GestureTool {
-
   properties: SelectTool.Props
 
   constructor(attrs?: Partial<SelectTool.Attrs>) {
@@ -134,5 +133,4 @@ export abstract class SelectTool extends GestureTool {
     })
   }
 }
-
 SelectTool.initClass()

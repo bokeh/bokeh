@@ -172,21 +172,20 @@ const DEFAULT_RANGE_OVERLAY = () => {
 }
 
 export namespace RangeTool {
-  export interface Attrs extends GestureTool.Attrs {
-    x_range: Range1d | null
-    x_interaction: boolean
-    y_range: Range1d | null
-    y_interaction: boolean
-    overlay: BoxAnnotation
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends GestureTool.Props {}
+  export type Props = GestureTool.Props & {
+    x_range: p.Property<Range1d | null>
+    x_interaction: p.Property<boolean>
+    y_range: p.Property<Range1d | null>
+    y_interaction: p.Property<boolean>
+    overlay: p.Property<BoxAnnotation>
+  }
 }
 
 export interface RangeTool extends RangeTool.Attrs {}
 
 export class RangeTool extends GestureTool {
-
   properties: RangeTool.Props
 
   /*override*/ overlay: BoxAnnotation

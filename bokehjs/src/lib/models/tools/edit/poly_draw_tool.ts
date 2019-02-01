@@ -236,18 +236,17 @@ export class PolyDrawToolView extends PolyToolView {
 }
 
 export namespace PolyDrawTool {
-  export interface Attrs extends PolyTool.Attrs {
-    drag: boolean
-    num_objects: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends PolyTool.Props {}
+  export type Props = PolyTool.Props & {
+    drag: p.Property<boolean>
+    num_objects: p.Property<number>
+  }
 }
 
 export interface PolyDrawTool extends PolyDrawTool.Attrs {}
 
 export class PolyDrawTool extends PolyTool {
-
   properties: PolyDrawTool.Props
 
   constructor(attrs?: Partial<PolyDrawTool.Attrs>) {

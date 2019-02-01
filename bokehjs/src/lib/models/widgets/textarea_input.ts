@@ -44,13 +44,9 @@ export class TextAreaInputView extends InputWidgetView {
 }
 
 export namespace TextAreaInput {
-  export interface Attrs extends TextInput.Attrs {
-    cols: number
-    rows: number
-    max_length: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends TextInput.Props {
+  export type Props = TextInput.Props & {
     cols: p.Property<number>
     rows: p.Property<number>
     max_length: p.Property<number>

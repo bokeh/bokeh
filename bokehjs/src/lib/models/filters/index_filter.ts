@@ -6,17 +6,16 @@ import {all} from "core/util/array"
 import {DataSource} from "../sources/data_source"
 
 export namespace IndexFilter {
-  export interface Attrs extends Filter.Attrs {
-    indices: number[] | null
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Filter.Props {}
+  export type Props = Filter.Props & {
+    indices: p.Property<number[] | null>
+  }
 }
 
 export interface IndexFilter extends IndexFilter.Attrs {}
 
 export class IndexFilter extends Filter {
-
   properties: IndexFilter.Props
 
   constructor(attrs?: Partial<IndexFilter.Attrs>) {

@@ -2,17 +2,16 @@ import {MercatorTileSource} from './mercator_tile_source'
 import * as p from "core/properties"
 
 export namespace BBoxTileSource {
-  export interface Attrs extends MercatorTileSource.Attrs {
-    use_latlon: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends MercatorTileSource.Props {}
+  export type Props = MercatorTileSource.Props & {
+    use_latlon: p.Property<boolean>
+  }
 }
 
 export interface BBoxTileSource extends BBoxTileSource.Attrs {}
 
 export class BBoxTileSource extends MercatorTileSource {
-
   properties: BBoxTileSource.Props
 
   constructor(attrs?: Partial<BBoxTileSource.Attrs>) {

@@ -8,6 +8,7 @@ import {includes, repeat} from "./util/array"
 import {map} from "./util/arrayable"
 import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/types"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
+import {Scalar} from "./vectorization"
 
 Signal // XXX: silence TS, because `Signal` appears in declarations due to Signalable
 
@@ -29,6 +30,10 @@ export function isSpec(obj: any): boolean {
 //
 // Property base class
 //
+
+export type AttrsOf<P> = {
+  [K in keyof P]: P[K] extends Property<infer T> ? T : never
+}
 
 export class Property<T> extends Signalable() {
 
@@ -193,7 +198,7 @@ export class Font extends String {}
 //
 
 export function enum_prop<T>(name: string, enum_values: T[]) {
-  return class extends simple_prop(name, (x) => includes(enum_values, x)) {}
+  return class extends simple_prop<T>(name, (x) => includes(enum_values, x)) {}
 }
 
 export class Anchor extends enum_prop("Anchor", enums.LegendLocation) {}
@@ -282,6 +287,8 @@ export function units_prop<Units>(name: string, valid_units: Units[], default_un
 //
 // DataSpec properties
 //
+
+export class ScalarSpec<T> extends Property<Scalar<T>> {}
 
 export class AngleSpec extends units_prop("AngleSpec", enums.AngleUnits, "rad") {
   transform(values: Arrayable): Arrayable {

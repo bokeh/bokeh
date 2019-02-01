@@ -26,11 +26,9 @@ export class ToggleView extends AbstractButtonView {
 }
 
 export namespace Toggle {
-  export interface Attrs extends AbstractButton.Attrs {
-    active: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends AbstractButton.Props {
+  export type Props = AbstractButton.Props & {
     active: p.Property<boolean>
   }
 }

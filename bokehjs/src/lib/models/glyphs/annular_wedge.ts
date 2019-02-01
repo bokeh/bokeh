@@ -1,10 +1,8 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_area_legend} from "./utils"
 import {PointGeometry} from "core/geometry"
-import {DistanceSpec, AngleSpec} from "core/vectorization"
-import {LineMixinVector, FillMixinVector} from "core/property_mixins"
+import {LineVector, FillVector} from "core/property_mixins"
 import {Arrayable, Area} from "core/types"
-import {Direction} from "core/enums"
 import {Line, Fill} from "core/visuals"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
@@ -154,17 +152,9 @@ export class AnnularWedgeView extends XYGlyphView {
 }
 
 export namespace AnnularWedge {
-  export interface Mixins extends LineMixinVector, FillMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends XYGlyph.Attrs, Mixins {
-    direction: Direction
-    inner_radius: DistanceSpec
-    outer_radius: DistanceSpec
-    start_angle: AngleSpec
-    end_angle:  AngleSpec
-  }
-
-  export interface Props extends XYGlyph.Props {
+  export type Props = XYGlyph.Props & LineVector & FillVector & {
     direction: p.Direction
     inner_radius: p.DistanceSpec
     outer_radius: p.DistanceSpec
@@ -172,16 +162,12 @@ export namespace AnnularWedge {
     end_angle: p.AngleSpec
   }
 
-  export interface Visuals extends XYGlyph.Visuals {
-    line: Line
-    fill: Fill
-  }
+  export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill}
 }
 
 export interface AnnularWedge extends AnnularWedge.Attrs {}
 
 export class AnnularWedge extends XYGlyph {
-
   properties: AnnularWedge.Props
 
   constructor(attrs?: Partial<AnnularWedge.Attrs>) {

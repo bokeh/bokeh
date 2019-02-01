@@ -6,14 +6,9 @@ import {Filter} from "../filters/filter"
 import {ColumnarDataSource} from "./columnar_data_source"
 
 export namespace CDSView {
-  export interface Attrs extends Model.Attrs {
-    filters: Filter[]
-    source: ColumnarDataSource
-    indices: number[]
-    indices_map: {[key: string]: number}
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Model.Props {
+  export type Props = Model.Props & {
     filters: p.Property<Filter[]>
     source: p.Property<ColumnarDataSource>
     indices: p.Property<number[]>
@@ -24,7 +19,6 @@ export namespace CDSView {
 export interface CDSView extends CDSView.Attrs {}
 
 export class CDSView extends Model {
-
   properties: CDSView.Props
 
   constructor(attrs?: Partial<CDSView.Attrs>) {

@@ -78,17 +78,16 @@ export class FreehandDrawToolView extends EditToolView {
 }
 
 export namespace FreehandDrawTool {
-  export interface Attrs extends EditTool.Attrs {
-      num_objects: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends EditTool.Props {}
+  export type Props = EditTool.Props & {
+    num_objects: p.Property<number>
+  }
 }
 
 export interface FreehandDrawTool extends FreehandDrawTool.Attrs {}
 
 export class FreehandDrawTool extends EditTool {
-
   properties: FreehandDrawTool.Props
 
   constructor(attrs?: Partial<FreehandDrawTool.Attrs>) {

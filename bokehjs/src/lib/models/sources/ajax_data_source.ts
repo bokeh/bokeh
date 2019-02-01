@@ -5,23 +5,22 @@ import {isFunction} from "core/util/types"
 import * as p from "core/properties"
 
 export namespace AjaxDataSource {
-  export interface Attrs extends RemoteDataSource.Attrs {
-    mode: UpdateMode
-    content_type: string
-    adapter: any
-    http_headers: {[key: string]: string}
-    max_size: number
-    method: HTTPMethod
-    if_modified: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends RemoteDataSource.Props {}
+  export type Props = RemoteDataSource.Props & {
+    mode: p.Property<UpdateMode>
+    content_type: p.Property<string>
+    adapter: p.Property<any>
+    http_headers: p.Property<{[key: string]: string}>
+    max_size: p.Property<number>
+    method: p.Property<HTTPMethod>
+    if_modified: p.Property<boolean>
+  }
 }
 
 export interface AjaxDataSource extends AjaxDataSource.Attrs {}
 
 export class AjaxDataSource extends RemoteDataSource {
-
   properties: AjaxDataSource.Props
 
   constructor(attrs?: Partial<AjaxDataSource.Attrs>) {

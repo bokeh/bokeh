@@ -2,17 +2,17 @@ import {TickSpec} from "./ticker"
 import {BasicTicker} from "./basic_ticker"
 import {SingleIntervalTicker} from "./single_interval_ticker"
 import {last_year_no_later_than, ONE_YEAR} from "./util"
+import * as p from "core/properties"
 
 export namespace YearsTicker {
-  export interface Attrs extends SingleIntervalTicker.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends SingleIntervalTicker.Props {}
+  export type Props = SingleIntervalTicker.Props
 }
 
 export interface YearsTicker extends YearsTicker.Attrs {}
 
 export class YearsTicker extends SingleIntervalTicker {
-
   properties: YearsTicker.Props
 
   constructor(attrs?: Partial<YearsTicker.Attrs>) {
@@ -46,5 +46,4 @@ export class YearsTicker extends SingleIntervalTicker {
     }
   }
 }
-
 YearsTicker.initClass()

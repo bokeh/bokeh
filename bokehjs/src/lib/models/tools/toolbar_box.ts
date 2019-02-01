@@ -1,5 +1,4 @@
 import * as p from "core/properties"
-import {Location} from "core/enums"
 import {logger} from "core/logging"
 import {isString} from "core/util/types"
 import {any, sortBy, includes} from "core/util/array"
@@ -17,15 +16,14 @@ import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {HTML} from "core/layout"
 
 export namespace ProxyToolbar {
-  export interface Attrs extends ToolbarBase.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ToolbarBase.Props {}
+  export type Props = ToolbarBase.Props
 }
 
 export interface ProxyToolbar extends ProxyToolbar.Attrs {}
 
 export class ProxyToolbar extends ToolbarBase {
-
   properties: ProxyToolbar.Props
 
   constructor(attrs?: Partial<ProxyToolbar.Attrs>) {
@@ -223,12 +221,12 @@ export class ToolbarBoxView extends LayoutDOMView {
 }
 
 export namespace ToolbarBox {
-  export interface Attrs extends LayoutDOM.Attrs {
-    toolbar: ToolbarBase
-    toolbar_location: Location
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends LayoutDOM.Props {}
+  export type Props = LayoutDOM.Props & {
+    toolbar: p.Property<ToolbarBase>
+    toolbar_location: p.Location
+  }
 }
 
 export interface ToolbarBox extends ToolbarBox.Attrs {}

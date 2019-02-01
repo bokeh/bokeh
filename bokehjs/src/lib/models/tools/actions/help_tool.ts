@@ -10,18 +10,17 @@ export class HelpToolView extends ActionToolView {
 }
 
 export namespace HelpTool {
-  export interface Attrs extends ActionTool.Attrs {
-    help_tooltip: string
-    redirect: string
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ActionTool.Props {}
+  export type Props = ActionTool.Props & {
+    help_tooltip: p.Property<string>
+    redirect: p.Property<string>
+  }
 }
 
 export interface HelpTool extends HelpTool.Attrs {}
 
 export class HelpTool extends ActionTool {
-
   properties: HelpTool.Props
 
   constructor(attrs?: Partial<HelpTool.Attrs>) {
@@ -45,5 +44,4 @@ export class HelpTool extends ActionTool {
     return this.help_tooltip
   }
 }
-
 HelpTool.initClass()

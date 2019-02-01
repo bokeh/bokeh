@@ -43,12 +43,9 @@ export class CustomView extends HTMLBoxView {
 }
 
 export namespace Custom {
-  export interface Attrs extends HTMLBox.Attrs {
-    text: string
-    slider: Slider
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends HTMLBox.Props {
+  export type Props = HTMLBox.Props & {
     text: p.Property<string>
     slider: p.Property<Slider>
   }

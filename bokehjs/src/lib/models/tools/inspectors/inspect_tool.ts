@@ -8,17 +8,16 @@ export abstract class InspectToolView extends ButtonToolView {
 }
 
 export namespace InspectTool {
-  export interface Attrs extends ButtonTool.Attrs {
-    toggleable: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ButtonTool.Props {}
+  export type Props = ButtonTool.Props & {
+    toggleable: p.Property<boolean>
+  }
 }
 
 export interface InspectTool extends InspectTool.Attrs {}
 
 export abstract class InspectTool extends ButtonTool {
-
   properties: InspectTool.Props
 
   constructor(attrs?: Partial<InspectTool.Attrs>) {
@@ -40,5 +39,4 @@ export abstract class InspectTool extends ButtonTool {
 
   event_type = "move" as "move"
 }
-
 InspectTool.initClass()

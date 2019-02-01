@@ -82,18 +82,17 @@ export class WheelPanToolView extends GestureToolView {
 }
 
 export namespace WheelPanTool {
-  export interface Attrs extends GestureTool.Attrs {
-    dimension: Dimension
-    speed: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends GestureTool.Props {}
+  export type Props = GestureTool.Props & {
+    dimension: p.Property<Dimension>
+    speed: p.Property<number>
+  }
 }
 
 export interface WheelPanTool extends WheelPanTool.Attrs {}
 
 export class WheelPanTool extends GestureTool {
-
   properties: WheelPanTool.Props
 
   constructor(attrs?: Partial<WheelPanTool.Attrs>) {
@@ -122,5 +121,4 @@ export class WheelPanTool extends GestureTool {
     return this._get_dim_tooltip(this.tool_name, this.dimension)
   }
 }
-
 WheelPanTool.initClass()

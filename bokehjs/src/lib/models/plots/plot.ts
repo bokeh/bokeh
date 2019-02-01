@@ -32,97 +32,79 @@ import {PlotView} from "./plot_canvas"
 export {PlotView}
 
 export namespace Plot {
-  // line:outline_
-  export interface OutlineLine {
-    outline_line_color: Color
-    outline_line_width: number
-    outline_line_alpha: number
-    outline_line_join: LineJoin
-    outline_line_cap: LineCap
-    outline_line_dash: number[]
-    outline_line_dash_offset: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  // fill:background_
-  export interface BackgroundFill {
-    background_fill_color: Color
-    background_fill_alpha: number
-  }
-
-  // fill:border_
-  export interface BorderFill {
-    border_fill_color: Color
-    border_fill_alpha: number
-  }
-
-  export interface Mixins extends OutlineLine, BackgroundFill, BorderFill {}
-
-  export interface Attrs extends LayoutDOM.Attrs, Mixins {
-    toolbar: Toolbar
-    toolbar_location: Location | null
-    toolbar_sticky: boolean
-
-    plot_width: number
-    plot_height: number
-
-    frame_width: number
-    frame_height: number
-
-    title: Title | string | null
-    title_location: Location
-
-    h_symmetry: boolean
-    v_symmetry: boolean
-
-    above: (Annotation | Axis)[]
-    below: (Annotation | Axis)[]
-    left: (Annotation | Axis)[]
-    right: (Annotation | Axis)[]
-    center: (Annotation | Grid)[]
-
-    renderers: DataRenderer[]
-
-    x_range: Range
-    extra_x_ranges: {[key: string]: Range}
-    y_range: Range
-    extra_y_ranges: {[key: string]: Range}
-
-    x_scale: Scale
-    y_scale: Scale
-
-    lod_factor: number
-    lod_interval: number
-    lod_threshold: number
-    lod_timeout: number
-
-    hidpi: boolean
-    output_backend: OutputBackend
-
-    min_border: number | null
-    min_border_top: number | null
-    min_border_left: number | null
-    min_border_bottom: number | null
-    min_border_right: number | null
-
-    inner_width: number
-    inner_height: number
-    outer_width: number
-    outer_height: number
-
-    match_aspect: boolean
-    aspect_scale: number
-  }
-
-  export interface Props extends LayoutDOM.Props {
+  export type Props = LayoutDOM.Props & {
+    toolbar: p.Property<Toolbar>
     toolbar_location: p.Property<Location | null>
+    toolbar_sticky: p.Property<boolean>
+
+    plot_width: p.Property<number>
+    plot_height: p.Property<number>
+
+    frame_width: p.Property<number>
+    frame_height: p.Property<number>
+
     title: p.Property<Title | string | null>
+    title_location: p.Property<Location>
+
+    h_symmetry: p.Property<boolean>
+    v_symmetry: p.Property<boolean>
+
     above: p.Property<(Annotation | Axis)[]>
     below: p.Property<(Annotation | Axis)[]>
     left: p.Property<(Annotation | Axis)[]>
     right: p.Property<(Annotation | Axis)[]>
     center: p.Property<(Annotation | Grid)[]>
+
     renderers: p.Property<DataRenderer[]>
+
+    x_range: p.Property<Range>
+    extra_x_ranges: p.Property<{[key: string]: Range}>
+    y_range: p.Property<Range>
+    extra_y_ranges: p.Property<{[key: string]: Range}>
+
+    x_scale: p.Property<Scale>
+    y_scale: p.Property<Scale>
+
+    lod_factor: p.Property<number>
+    lod_interval: p.Property<number>
+    lod_threshold: p.Property<number>
+    lod_timeout: p.Property<number>
+
+    hidpi: p.Property<boolean>
+    output_backend: p.Property<OutputBackend>
+
+    min_border: p.Property<number | null>
+    min_border_top: p.Property<number | null>
+    min_border_left: p.Property<number | null>
+    min_border_bottom: p.Property<number | null>
+    min_border_right: p.Property<number | null>
+
+    inner_width: p.Property<number>
+    inner_height: p.Property<number>
+    outer_width: p.Property<number>
+    outer_height: p.Property<number>
+
+    match_aspect: p.Property<boolean>
+    aspect_scale: p.Property<number>
+
+    // line:outline_
+    outline_line_color: p.Property<Color>
     outline_line_width: p.Property<number>
+    outline_line_alpha: p.Property<number>
+    outline_line_join: p.Property<LineJoin>
+    outline_line_cap: p.Property<LineCap>
+    outline_line_dash: p.Property<number[]>
+    outline_line_dash_offset: p.Property<number>
+
+    // fill:background_
+    background_fill_color: p.Property<Color>
+    background_fill_alpha: p.Property<number>
+
+    // fill:border_
+    border_fill_color: p.Property<Color>
+    border_fill_alpha: p.Property<number>
   }
 
   export type Visuals = visuals.Visuals & {

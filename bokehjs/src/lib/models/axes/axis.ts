@@ -502,84 +502,72 @@ export class AxisView extends GuideRendererView {
 }
 
 export namespace Axis {
-  // line:axis_
-  export interface AxisLine {
-    axis_line_color: Color
-    axis_line_width: number
-    axis_line_alpha: number
-    axis_line_join: LineJoin
-    axis_line_cap: LineCap
-    axis_line_dash: number[]
-    axis_line_dash_offset: number
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = GuideRenderer.Props & {
+    bounds: p.Property<[number, number] | "auto">
+    ticker: p.Property<Ticker<any>> // TODO
+    formatter: p.Property<TickFormatter>
+    x_range_name: p.Property<string>
+    y_range_name: p.Property<string>
+    axis_label: p.Property<string | null>
+    axis_label_standoff: p.Property<number>
+    major_label_standoff: p.Property<number>
+    major_label_orientation: p.Property<TickLabelOrientation | number>
+    major_label_overrides: p.Property<{[key: string]: string}>
+    major_tick_in: p.Property<number>
+    major_tick_out: p.Property<number>
+    minor_tick_in: p.Property<number>
+    minor_tick_out: p.Property<number>
+    fixed_location: p.Property<number | Factor | null>
+
+    // line:axis_
+    axis_line_color: p.Property<Color>
+    axis_line_width: p.Property<number>
+    axis_line_alpha: p.Property<number>
+    axis_line_join: p.Property<LineJoin>
+    axis_line_cap: p.Property<LineCap>
+    axis_line_dash: p.Property<number[]>
+    axis_line_dash_offset: p.Property<number>
+
+    // line:major_tick_
+    major_tick_line_color: p.Property<Color>
+    major_tick_line_width: p.Property<number>
+    major_tick_line_alpha: p.Property<number>
+    major_tick_line_join: p.Property<LineJoin>
+    major_tick_line_cap: p.Property<LineCap>
+    major_tick_line_dash: p.Property<number[]>
+    major_tick_line_dash_offset: p.Property<number>
+
+    // line:minor_tick_
+    minor_tick_line_color: p.Property<Color>
+    minor_tick_line_width: p.Property<number>
+    minor_tick_line_alpha: p.Property<number>
+    minor_tick_line_join: p.Property<LineJoin>
+    minor_tick_line_cap: p.Property<LineCap>
+    minor_tick_line_dash: p.Property<number[]>
+    minor_tick_line_dash_offset: p.Property<number>
+
+    // text:major_label_
+    major_label_text_font: p.Property<string>
+    major_label_text_font_size: p.Property<string>
+    major_label_text_font_style: p.Property<FontStyle>
+    major_label_text_color: p.Property<Color>
+    major_label_text_alpha: p.Property<number>
+    major_label_text_align: p.Property<TextAlign>
+    major_label_text_baseline: p.Property<TextBaseline>
+    major_label_text_line_height: p.Property<number>
+
+    // text:axis_label_
+    axis_label_text_font: p.Property<string>
+    axis_label_text_font_size: p.Property<string>
+    axis_label_text_font_style: p.Property<FontStyle>
+    axis_label_text_color: p.Property<Color>
+    axis_label_text_alpha: p.Property<number>
+    axis_label_text_align: p.Property<TextAlign>
+    axis_label_text_baseline: p.Property<TextBaseline>
+    axis_label_text_line_height: p.Property<number>
   }
-
-  // line:major_tick_
-  export interface MajorTickLine {
-    major_tick_line_color: Color
-    major_tick_line_width: number
-    major_tick_line_alpha: number
-    major_tick_line_join: LineJoin
-    major_tick_line_cap: LineCap
-    major_tick_line_dash: number[]
-    major_tick_line_dash_offset: number
-  }
-
-  // line:minor_tick_
-  export interface MinorTickLine {
-    minor_tick_line_color: Color
-    minor_tick_line_width: number
-    minor_tick_line_alpha: number
-    minor_tick_line_join: LineJoin
-    minor_tick_line_cap: LineCap
-    minor_tick_line_dash: number[]
-    minor_tick_line_dash_offset: number
-  }
-
-  // text:major_label_
-  export interface MajorLabelText {
-    major_label_text_font: string
-    major_label_text_font_size: string
-    major_label_text_font_style: FontStyle
-    major_label_text_color: Color
-    major_label_text_alpha: number
-    major_label_text_align: TextAlign
-    major_label_text_baseline: TextBaseline
-    major_label_text_line_height: number
-  }
-
-  // text:axis_label_
-  export interface AxisLabelText {
-    axis_label_text_font: string
-    axis_label_text_font_size: string
-    axis_label_text_font_style: FontStyle
-    axis_label_text_color: Color
-    axis_label_text_alpha: number
-    axis_label_text_align: TextAlign
-    axis_label_text_baseline: TextBaseline
-    axis_label_text_line_height: number
-  }
-
-  export interface Mixins extends AxisLine, MajorTickLine, MinorTickLine, MajorLabelText, AxisLabelText {}
-
-  export interface Attrs extends GuideRenderer.Attrs, Mixins {
-    bounds: [number, number] | "auto"
-    ticker: Ticker<any> // TODO
-    formatter: TickFormatter
-    x_range_name: string
-    y_range_name: string
-    axis_label: string | null
-    axis_label_standoff: number
-    major_label_standoff: number
-    major_label_orientation: TickLabelOrientation | number
-    major_label_overrides: {[key: string]: string}
-    major_tick_in: number
-    major_tick_out: number
-    minor_tick_in: number
-    minor_tick_out: number
-    fixed_location: number | Factor | null
-  }
-
-  export interface Props extends GuideRenderer.Props {}
 
   export type Visuals = GuideRenderer.Visuals & {
     axis_line: Line
@@ -595,7 +583,6 @@ export interface Axis extends Axis.Attrs {
 }
 
 export class Axis extends GuideRenderer {
-
   properties: Axis.Props
 
   constructor(attrs?: Partial<Axis.Attrs>) {

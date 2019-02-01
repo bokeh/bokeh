@@ -4,18 +4,17 @@ import {range} from "core/util/array"
 import {Extent, Bounds, meters_extent_to_geographic} from "./tile_utils"
 
 export namespace MercatorTileSource {
-  export interface Attrs extends TileSource.Attrs {
-    snap_to_zoom: boolean
-    wrap_around: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends TileSource.Props {}
+  export type Props = TileSource.Props & {
+    snap_to_zoom: p.Property<boolean>
+    wrap_around: p.Property<boolean>
+  }
 }
 
 export interface MercatorTileSource extends MercatorTileSource.Attrs {}
 
 export class MercatorTileSource extends TileSource {
-
   properties: MercatorTileSource.Props
 
   constructor(attrs?: Partial<MercatorTileSource.Attrs>) {

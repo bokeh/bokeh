@@ -139,20 +139,19 @@ export abstract class EditToolView extends GestureToolView {
 }
 
 export namespace EditTool {
-  export interface Attrs extends GestureTool.Attrs {
-    custom_icon: string
-    custom_tooltip: string
-    empty_value: any
-    renderers: GlyphRenderer[]
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends GestureTool.Props {}
+  export type Props = GestureTool.Props & {
+    custom_icon: p.Property<string>
+    custom_tooltip: p.Property<string>
+    empty_value: p.Property<any>
+    renderers: p.Property<GlyphRenderer[]>
+  }
 }
 
 export interface EditTool extends EditTool.Attrs {}
 
 export abstract class EditTool extends GestureTool {
-
   properties: EditTool.Props
 
   constructor(attrs?: Partial<EditTool.Attrs>) {
@@ -178,5 +177,4 @@ export abstract class EditTool extends GestureTool {
     return this.custom_icon || this.icon
   }
 }
-
 EditTool.initClass()

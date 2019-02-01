@@ -1,5 +1,6 @@
 import {ButtonTool, ButtonToolView, ButtonToolButtonView} from "../button_tool"
 import {Signal0} from "core/signaling"
+import * as p from "core/properties"
 
 export class ActionToolButtonView extends ButtonToolButtonView {
   model: ActionTool
@@ -21,15 +22,14 @@ export abstract class ActionToolView extends ButtonToolView {
 }
 
 export namespace ActionTool {
-  export interface Attrs extends ButtonTool.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ButtonTool.Props {}
+  export type Props = ButtonTool.Props
 }
 
 export interface ActionTool extends ActionTool.Attrs {}
 
 export abstract class ActionTool extends ButtonTool {
-
   properties: ActionTool.Props
 
   constructor(attrs?: Partial<ActionTool.Attrs>) {
@@ -44,5 +44,4 @@ export abstract class ActionTool extends ButtonTool {
 
   do = new Signal0<this>(this, "do")
 }
-
 ActionTool.initClass()

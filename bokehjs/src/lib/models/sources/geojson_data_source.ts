@@ -22,11 +22,9 @@ export type GeoData = {
 }
 
 export namespace GeoJSONDataSource {
-  export interface Attrs extends ColumnarDataSource.Attrs {
-    geojson: string
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ColumnarDataSource.Props {
+  export type Props = ColumnarDataSource.Props & {
     geojson: p.Property<string>
   }
 }
@@ -34,7 +32,6 @@ export namespace GeoJSONDataSource {
 export interface GeoJSONDataSource extends GeoJSONDataSource.Attrs {}
 
 export class GeoJSONDataSource extends ColumnarDataSource {
-
   properties: GeoJSONDataSource.Props
 
   constructor(attrs?: Partial<GeoJSONDataSource.Attrs>) {

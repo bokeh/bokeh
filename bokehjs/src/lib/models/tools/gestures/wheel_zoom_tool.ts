@@ -52,20 +52,19 @@ export class WheelZoomToolView extends GestureToolView {
 }
 
 export namespace WheelZoomTool {
-  export interface Attrs extends GestureTool.Attrs {
-    dimensions: Dimensions
-    maintain_focus: boolean
-    zoom_on_axis: boolean
-    speed: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends GestureTool.Props {}
+  export type Props = GestureTool.Props & {
+    dimensions: p.Property<Dimensions>
+    maintain_focus: p.Property<boolean>
+    zoom_on_axis: p.Property<boolean>
+    speed: p.Property<number>
+  }
 }
 
 export interface WheelZoomTool extends WheelZoomTool.Attrs {}
 
 export class WheelZoomTool extends GestureTool {
-
   properties: WheelZoomTool.Props
 
   constructor(attrs?: Partial<WheelZoomTool.Attrs>) {
@@ -95,5 +94,4 @@ export class WheelZoomTool extends GestureTool {
     return this._get_dim_tooltip(this.tool_name, this.dimensions)
   }
 }
-
 WheelZoomTool.initClass()

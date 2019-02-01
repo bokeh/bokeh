@@ -1,5 +1,4 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {DistanceSpec, AngleSpec, StringSpec} from "core/vectorization"
 import {Arrayable, Rect} from "core/types"
 import {Class} from "core/class"
 import {Anchor} from "core/enums"
@@ -221,19 +220,9 @@ export class ImageURLView extends XYGlyphView {
 }
 
 export namespace ImageURL {
-  export interface Attrs extends XYGlyph.Attrs {
-    url: StringSpec
-    anchor: Anchor
-    global_alpha: number
-    angle: AngleSpec
-    w: DistanceSpec
-    h: DistanceSpec
-    dilate: boolean
-    retry_attempts: number
-    retry_timeout: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends XYGlyph.Props {
+  export type Props = XYGlyph.Props & {
     url: p.StringSpec
     anchor: p.Property<Anchor>
     global_alpha: p.Property<number>
@@ -245,7 +234,7 @@ export namespace ImageURL {
     retry_timeout: p.Property<number>
   }
 
-  export interface Visuals extends XYGlyph.Visuals {}
+  export type Visuals = XYGlyph.Visuals
 }
 
 export interface ImageURL extends ImageURL.Attrs {}

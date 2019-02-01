@@ -63,14 +63,14 @@ export abstract class AbstractButtonView extends WidgetView {
 }
 
 export namespace AbstractButton {
-  export interface Attrs extends Widget.Attrs {
-    label: string
-    icon: AbstractIcon
-    button_type: ButtonType
-    callback: CallbackLike<AbstractButton> | null
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Widget.Props {}
+  export type Props = Widget.Props & {
+    label: p.Property<string>
+    icon: p.Property<AbstractIcon>
+    button_type: p.Property<ButtonType>
+    callback: p.Property<CallbackLike<AbstractButton> | null>
+  }
 }
 
 export interface AbstractButton extends AbstractButton.Attrs {}

@@ -14,11 +14,11 @@ export class DivView extends MarkupView {
 }
 
 export namespace Div {
-  export interface Attrs extends Markup.Attrs {
-    render_as_text: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Markup.Props {}
+  export type Props = Markup.Props & {
+    render_as_text: p.Property<boolean>
+  }
 }
 
 export interface Div extends Div.Attrs {}

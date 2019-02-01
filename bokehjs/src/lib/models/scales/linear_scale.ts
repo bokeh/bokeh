@@ -1,16 +1,16 @@
 import {Scale} from "./scale"
 import {Arrayable} from "core/types"
+import * as p from "core/properties"
 
 export namespace LinearScale {
-  export interface Attrs extends Scale.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Scale.Props {}
+  export type Props = Scale.Props
 }
 
 export interface LinearScale extends LinearScale.Attrs {}
 
 export class LinearScale extends Scale {
-
   properties: LinearScale.Props
 
   constructor(attrs?: Partial<LinearScale.Attrs>) {
@@ -64,5 +64,4 @@ export class LinearScale extends Scale {
     return [factor, offset]
   }
 }
-
 LinearScale.initClass()

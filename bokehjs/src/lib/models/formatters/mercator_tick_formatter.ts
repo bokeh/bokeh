@@ -5,17 +5,16 @@ import * as p from "core/properties"
 import {wgs84_mercator} from "core/util/projections"
 
 export namespace MercatorTickFormatter {
-  export interface Attrs extends BasicTickFormatter.Attrs {
-    dimension: LatLon
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends BasicTickFormatter.Props {}
+  export type Props = BasicTickFormatter.Props & {
+    dimension: p.Property<LatLon>
+  }
 }
 
 export interface MercatorTickFormatter extends MercatorTickFormatter.Attrs {}
 
 export class MercatorTickFormatter extends BasicTickFormatter {
-
   properties: MercatorTickFormatter.Props
 
   constructor(attrs?: Partial<MercatorTickFormatter.Attrs>) {

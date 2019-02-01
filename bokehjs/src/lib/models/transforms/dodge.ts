@@ -6,18 +6,17 @@ import {Arrayable} from "core/types"
 import {isNumber, isArrayableOf} from "core/util/types"
 
 export namespace Dodge {
-  export interface Attrs extends Transform.Attrs {
-    value: number
-    range: Range
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Transform.Props {}
+  export type Props = Transform.Props & {
+    value: p.Property<number>
+    range: p.Property<Range>
+  }
 }
 
 export interface Dodge extends Dodge.Attrs {}
 
 export class Dodge extends Transform {
-
   properties: Dodge.Props
 
   constructor(attrs?: Partial<Dodge.Attrs>) {

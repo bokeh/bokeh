@@ -31,11 +31,9 @@ export class RadioButtonGroupView extends ButtonGroupView {
 }
 
 export namespace RadioButtonGroup {
-  export interface Attrs extends ButtonGroup.Attrs {
-    active: number | null
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ButtonGroup.Props {
+  export type Props = ButtonGroup.Props & {
     active: p.Property<number | null>
   }
 }

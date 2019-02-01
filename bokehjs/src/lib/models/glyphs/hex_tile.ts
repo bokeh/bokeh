@@ -3,11 +3,10 @@ import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {PointGeometry, RectGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
-import {LineMixinVector, FillMixinVector} from "core/property_mixins"
+import {LineVector, FillVector} from "core/property_mixins"
 import {Arrayable, Area} from "core/types"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
-import {NumberSpec} from "core/vectorization"
 import {Line, Fill} from "core/visuals"
 
 import {generic_area_legend} from "./utils"
@@ -212,32 +211,21 @@ export class HexTileView extends GlyphView {
 }
 
 export namespace HexTile {
-  export interface Mixins extends LineMixinVector, FillMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends Glyph.Attrs {
-    size: number
-    aspect_scale: number
-    scale: NumberSpec
-    orientation: "pointytop" | "flattop"
-  }
-
-  export interface Props extends Glyph.Props {
-    size: p.Number
-    aspect_scale: p.Number
+  export type Props = Glyph.Props & LineVector & FillVector & {
+    size: p.Property<number>
+    aspect_scale: p.Property<number>
     scale: p.NumberSpec
     orientation: p.Property<"pointytop" | "flattop">
   }
 
-  export interface Visuals extends Glyph.Visuals {
-    line: Line
-    fill: Fill
-  }
+  export type Visuals = Glyph.Visuals & {line: Line, fill: Fill}
 }
 
 export interface HexTile extends HexTile.Attrs { }
 
 export class HexTile extends Glyph {
-
   properties: HexTile.Props
 
   constructor(attrs?: Partial<HexTile.Attrs>) {

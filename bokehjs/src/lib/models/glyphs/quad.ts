@@ -1,8 +1,8 @@
 import {Box, BoxView, BoxData} from "./box"
 import {Arrayable} from "core/types"
-import {NumberSpec} from "core/vectorization"
 import {Anchor} from "core/enums"
 import {SpatialIndex} from "core/util/spatial"
+import * as p from "core/properties"
 
 export interface QuadData extends BoxData {
   _right: Arrayable<number>
@@ -64,22 +64,21 @@ export class QuadView extends BoxView {
 }
 
 export namespace Quad {
-  export interface Attrs extends Box.Attrs {
-    right: NumberSpec
-    bottom: NumberSpec
-    left: NumberSpec
-    top: NumberSpec
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = Box.Props & {
+    right: p.NumberSpec
+    bottom: p.NumberSpec
+    left: p.NumberSpec
+    top: p.NumberSpec
   }
 
-  export interface Props extends Box.Props {}
-
-  export interface Visuals extends Box.Visuals {}
+  export type Visuals = Box.Visuals
 }
 
 export interface Quad extends Quad.Attrs {}
 
 export class Quad extends Box {
-
   properties: Quad.Props
 
   constructor(attrs?: Partial<Quad.Attrs>) {

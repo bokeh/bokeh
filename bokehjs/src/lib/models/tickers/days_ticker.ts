@@ -33,17 +33,16 @@ function date_range_by_month(start_time: number, end_time: number): Date[] {
 // month.
 
 export namespace DaysTicker {
-  export interface Attrs extends SingleIntervalTicker.Attrs {
-    days: number[]
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends SingleIntervalTicker.Props {}
+  export type Props = SingleIntervalTicker.Props & {
+    days: p.Property<number[]>
+  }
 }
 
 export interface DaysTicker extends DaysTicker.Attrs {}
 
 export class DaysTicker extends SingleIntervalTicker {
-
   properties: DaysTicker.Props
 
   constructor(attrs?: Partial<DaysTicker.Attrs>) {
@@ -108,5 +107,4 @@ export class DaysTicker extends SingleIntervalTicker {
     }
   }
 }
-
 DaysTicker.initClass()

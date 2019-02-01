@@ -14,11 +14,11 @@ export class ButtonView extends AbstractButtonView {
 }
 
 export namespace Button {
-  export interface Attrs extends AbstractButton.Attrs {
-    clicks: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends AbstractButton.Props {}
+  export type Props = AbstractButton.Props & {
+    clicks: p.Property<number>
+  }
 }
 
 export interface Button extends Button.Attrs {}

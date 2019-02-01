@@ -8,15 +8,9 @@ import {logger} from "./core/logging"
 import {CallbackLike} from "./models/callbacks/callback"
 
 export namespace Model {
-  export interface Attrs extends HasProps.Attrs {
-    tags: string[]
-    name: string | null
-    js_property_callbacks: {[key: string]: CallbackLike<Model>[]}
-    js_event_callbacks: {[key: string]: CallbackLike<BokehEvent>[]}
-    subscribed_events: string[]
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends HasProps.Props {
+  export type Props = HasProps.Props & {
     tags: p.Property<string[]>
     name: p.Property<string | null>
     js_property_callbacks: p.Property<{[key: string]: CallbackLike<Model>[]}>
@@ -28,7 +22,6 @@ export namespace Model {
 export interface Model extends Model.Attrs {}
 
 export class Model extends HasProps {
-
   properties: Model.Props
 
   constructor(attrs?: Partial<Model.Attrs>) {

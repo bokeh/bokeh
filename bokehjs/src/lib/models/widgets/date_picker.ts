@@ -78,13 +78,13 @@ export class DatePickerView extends InputWidgetView {
 }
 
 export namespace DatePicker {
-  export interface Attrs extends InputWidget.Attrs {
-    value:    string
-    min_date: string
-    max_date: string
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends InputWidget.Props {}
+  export type Props = InputWidget.Props & {
+    value:    p.Property<string>
+    min_date: p.Property<string>
+    max_date: p.Property<string>
+  }
 }
 
 export interface DatePicker extends DatePicker.Attrs {}

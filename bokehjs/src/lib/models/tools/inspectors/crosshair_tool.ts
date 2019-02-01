@@ -36,24 +36,23 @@ export class CrosshairToolView extends InspectToolView {
 }
 
 export namespace CrosshairTool {
-  export interface Attrs extends InspectTool.Attrs {
-    dimensions: Dimensions
-    line_color: Color
-    line_width: number
-    line_alpha: number
+  export type Attrs = p.AttrsOf<Props>
 
-    location_units: SpatialUnits
-    render_mode: RenderMode
-    spans: {width: Span, height: Span}
+  export type Props = InspectTool.Props & {
+    dimensions: p.Property<Dimensions>
+    line_color: p.Property<Color>
+    line_width: p.Property<number>
+    line_alpha: p.Property<number>
+
+    location_units: p.Property<SpatialUnits>
+    render_mode: p.Property<RenderMode>
+    spans: p.Property<{width: Span, height: Span}>
   }
-
-  export interface Props extends InspectTool.Props {}
 }
 
 export interface CrosshairTool extends CrosshairTool.Attrs {}
 
 export class CrosshairTool extends InspectTool {
-
   properties: CrosshairTool.Props
 
   constructor(attrs?: Partial<CrosshairTool.Attrs>) {
@@ -114,5 +113,4 @@ export class CrosshairTool extends InspectTool {
     }
   }
 }
-
 CrosshairTool.initClass()

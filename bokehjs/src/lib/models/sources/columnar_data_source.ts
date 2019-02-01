@@ -15,22 +15,20 @@ import {SelectionPolicy, UnionRenderers} from "../selections/interaction_policy"
 // based data may be supplied directly or be computed from an attribute
 
 export namespace ColumnarDataSource {
-  export interface Attrs extends DataSource.Attrs {
-    selection_policy: SelectionPolicy
-    selection_manager: SelectionManager
-    inspected: Selection
-    _shapes: {[key: string]: Shape | Shape[] | Shape[][] | Shape[][][]}
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends DataSource.Props {
+  export type Props = DataSource.Props & {
     data: p.Property<{[key: string]: Arrayable}> // XXX: this is hack!!!
+    selection_policy: p.Property<SelectionPolicy>
+    selection_manager: p.Property<SelectionManager>
+    inspected: p.Property<Selection>
+    _shapes: p.Property<{[key: string]: Shape | Shape[] | Shape[][] | Shape[][][]}>
   }
 }
 
 export interface ColumnarDataSource extends ColumnarDataSource.Attrs {}
 
 export abstract class ColumnarDataSource extends DataSource {
-
   properties: ColumnarDataSource.Props
 
   data: {[key: string]: Arrayable}

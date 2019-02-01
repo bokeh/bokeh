@@ -18,21 +18,20 @@ export type Scroll = Tool
 export type Tap = Tool
 
 export namespace Toolbar {
-  export interface Attrs extends ToolbarBase.Attrs {
-    active_drag: Drag | "auto"
-    active_inspect: Inspection | Inspection[] | "auto"
-    active_scroll: Scroll | "auto"
-    active_tap: Tap | "auto"
-    active_multi: GestureTool
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ToolbarBase.Props {}
+  export type Props = ToolbarBase.Props & {
+    active_drag: p.Property<Drag | "auto">
+    active_inspect: p.Property<Inspection | Inspection[] | "auto">
+    active_scroll: p.Property<Scroll | "auto">
+    active_tap: p.Property<Tap | "auto">
+    active_multi: p.Property<GestureTool>
+  }
 }
 
 export interface Toolbar extends Toolbar.Attrs {}
 
 export class Toolbar extends ToolbarBase {
-
   properties: Toolbar.Props
 
   constructor(attrs?: Partial<Toolbar.Attrs>) {

@@ -296,22 +296,22 @@ export class DataTableView extends WidgetView {
 }
 
 export namespace DataTable {
-  export interface Attrs extends TableWidget.Attrs {
-    columns: TableColumn[]
-    fit_columns: boolean
-    sortable: boolean
-    reorderable: boolean
-    editable: boolean
-    selectable: boolean | "checkbox"
-    index_position: number | null
-    index_header: string
-    index_width: number
-    scroll_to_selection: boolean
-    header_row: boolean
-    row_height: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends TableWidget.Props {}
+  export type Props = TableWidget.Props & {
+    columns: p.Property<TableColumn[]>
+    fit_columns: p.Property<boolean>
+    sortable: p.Property<boolean>
+    reorderable: p.Property<boolean>
+    editable: p.Property<boolean>
+    selectable: p.Property<boolean | "checkbox">
+    index_position: p.Property<number | null>
+    index_header: p.Property<string>
+    index_width: p.Property<number>
+    scroll_to_selection: p.Property<boolean>
+    header_row: p.Property<boolean>
+    row_height: p.Property<number>
+  }
 }
 
 export interface DataTable extends DataTable.Attrs {}

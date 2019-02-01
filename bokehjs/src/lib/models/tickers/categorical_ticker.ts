@@ -1,5 +1,6 @@
 import {Ticker, TickSpec} from "./ticker"
 import {FactorRange, Factor} from "../ranges/factor_range"
+import * as p from "core/properties"
 
 export interface FactorTickSpec extends TickSpec<Factor> {
   tops: Factor[]
@@ -7,15 +8,14 @@ export interface FactorTickSpec extends TickSpec<Factor> {
 }
 
 export namespace CategoricalTicker {
-  export interface Attrs extends Ticker.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Ticker.Props {}
+  export type Props = Ticker.Props
 }
 
 export interface CategoricalTicker extends CategoricalTicker.Attrs {}
 
 export class CategoricalTicker extends Ticker<Factor> {
-
   properties: CategoricalTicker.Props
 
   constructor(attrs?: Partial<CategoricalTicker.Attrs>) {
@@ -52,5 +52,4 @@ export class CategoricalTicker extends Ticker<Factor> {
     return result
   }
 }
-
 CategoricalTicker.initClass()

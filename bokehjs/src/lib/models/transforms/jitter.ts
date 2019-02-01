@@ -8,21 +8,20 @@ import * as p from "core/properties"
 import * as bokeh_math from "core/util/math"
 
 export namespace Jitter {
-  export interface Attrs extends Transform.Attrs {
-    mean: number
-    width: number
-    distribution: Distribution
-    range: Range
-    previous_values: Arrayable<number>
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Transform.Props {}
+  export type Props = Transform.Props & {
+    mean: p.Property<number>
+    width: p.Property<number>
+    distribution: p.Property<Distribution>
+    range: p.Property<Range>
+    previous_values: p.Property<Arrayable<number>>
+  }
 }
 
 export interface Jitter extends Jitter.Attrs {}
 
 export class Jitter extends Transform {
-
   properties: Jitter.Props
 
   constructor(attrs?: Partial<Jitter.Attrs>) {

@@ -58,17 +58,16 @@ export class ScatterView extends MarkerView {
 }
 
 export namespace Scatter {
-  export interface Attrs extends Marker.Attrs{
-    marker: string
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Marker.Props {}
+  export type Props = Marker.Props & {
+    marker: p.Property<string>
+  }
 }
 
 export interface Scatter extends Scatter.Attrs {}
 
 export abstract class Scatter extends Marker {
-
   properties: Scatter.Props
 
   constructor(attrs?: Partial<Scatter.Attrs>) {

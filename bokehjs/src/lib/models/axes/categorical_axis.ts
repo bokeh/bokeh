@@ -146,51 +146,43 @@ export class CategoricalAxisView extends AxisView {
 }
 
 export namespace CategoricalAxis {
-  // line:separator_
-  export interface SeparatorLine {
-    separator_line_color: Color
-    separator_line_width: number
-    separator_line_alpha: number
-    separator_line_join: LineJoin
-    separator_line_cap: LineCap
-    separator_line_dash: number[]
-    separator_line_dash_offset: number
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = Axis.Props & {
+    ticker: p.Property<CategoricalTicker>
+    formatter: p.Property<CategoricalTickFormatter>
+    group_label_orientation: p.Property<TickLabelOrientation | number>
+    subgroup_label_orientation: p.Property<TickLabelOrientation | number>
+
+    // line:separator_
+    separator_line_color: p.Property<Color>
+    separator_line_width: p.Property<number>
+    separator_line_alpha: p.Property<number>
+    separator_line_join: p.Property<LineJoin>
+    separator_line_cap: p.Property<LineCap>
+    separator_line_dash: p.Property<number[]>
+    separator_line_dash_offset: p.Property<number>
+
+    // text:group_
+    group_text_font: p.Property<string>
+    group_text_font_size: p.Property<string>
+    group_text_font_style: p.Property<FontStyle>
+    group_text_color: p.Property<Color>
+    group_text_alpha: p.Property<number>
+    group_text_align: p.Property<TextAlign>
+    group_text_baseline: p.Property<TextBaseline>
+    group_text_line_height: p.Property<number>
+
+    // text:subgroup_
+    subgroup_text_font: p.Property<string>
+    subgroup_text_font_size: p.Property<string>
+    subgroup_text_font_style: p.Property<FontStyle>
+    subgroup_text_color: p.Property<Color>
+    subgroup_text_alpha: p.Property<number>
+    subgroup_text_align: p.Property<TextAlign>
+    subgroup_text_baseline: p.Property<TextBaseline>
+    subgroup_text_line_height: p.Property<number>
   }
-
-  // text:group_
-  export interface GroupText {
-    group_text_font: string
-    group_text_font_size: string
-    group_text_font_style: FontStyle
-    group_text_color: Color
-    group_text_alpha: number
-    group_text_align: TextAlign
-    group_text_baseline: TextBaseline
-    group_text_line_height: number
-  }
-
-  // text:subgroup_
-  export interface SubgroupText {
-    subgroup_text_font: string
-    subgroup_text_font_size: string
-    subgroup_text_font_style: FontStyle
-    subgroup_text_color: Color
-    subgroup_text_alpha: number
-    subgroup_text_align: TextAlign
-    subgroup_text_baseline: TextBaseline
-    subgroup_text_line_height: number
-  }
-
-  export interface Mixins extends SeparatorLine, GroupText, SubgroupText {}
-
-  export interface Attrs extends Axis.Attrs, Mixins {
-    ticker: CategoricalTicker
-    formatter: CategoricalTickFormatter
-    group_label_orientation: TickLabelOrientation | number
-    subgroup_label_orientation: TickLabelOrientation | number
-  }
-
-  export interface Props extends Axis.Props {}
 
   export type Visuals = Axis.Visuals & {
     separator_line: Line,
@@ -202,7 +194,6 @@ export namespace CategoricalAxis {
 export interface CategoricalAxis extends CategoricalAxis.Attrs {}
 
 export class CategoricalAxis extends Axis {
-
   properties: CategoricalAxis.Props
 
   ticker: CategoricalTicker

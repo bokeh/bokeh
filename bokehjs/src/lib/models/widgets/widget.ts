@@ -1,5 +1,6 @@
 import {HTMLBox, HTMLBoxView} from "../layouts/html_box"
 import {Class} from "core/class"
+import * as p from "core/properties"
 
 export namespace WidgetView {
   export type Options = HTMLBoxView.Options & {model: Widget}
@@ -11,9 +12,9 @@ export abstract class WidgetView extends HTMLBoxView {
 }
 
 export namespace Widget {
-  export interface Attrs extends HTMLBox.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends HTMLBox.Props {}
+  export type Props = HTMLBox.Props
 }
 
 export interface Widget extends Widget.Attrs {}

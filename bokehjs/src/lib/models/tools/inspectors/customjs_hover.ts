@@ -6,18 +6,17 @@ import {use_strict} from "core/util/string"
 declare var exports: {[key: string]: any}
 
 export namespace CustomJSHover {
-  export interface Attrs extends Model.Attrs {
-    args: {[key: string]: any}
-    code: string
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Model.Props {}
+  export type Props = Model.Props & {
+    args: p.Property<{[key: string]: any}>
+    code: p.Property<string>
+  }
 }
 
 export interface CustomJSHover extends CustomJSHover.Attrs {}
 
 export class CustomJSHover extends Model {
-
   properties: CustomJSHover.Props
 
   constructor(attrs?: Partial<CustomJSHover.Attrs>) {

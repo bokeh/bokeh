@@ -5,19 +5,18 @@ import {keys, values} from "core/util/object"
 import {use_strict} from "core/util/string"
 
 export namespace FuncTickFormatter {
-  export interface Attrs extends TickFormatter.Attrs {
-    args: {[key: string]: any}
-    code: string
-    use_strict: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends TickFormatter.Props {}
+  export type Props = TickFormatter.Props & {
+    args: p.Property<{[key: string]: any}>
+    code: p.Property<string>
+    use_strict: p.Property<boolean>
+  }
 }
 
 export interface FuncTickFormatter extends FuncTickFormatter.Attrs {}
 
 export class FuncTickFormatter extends TickFormatter {
-
   properties: FuncTickFormatter.Props
 
   constructor(attrs?: Partial<FuncTickFormatter.Attrs>) {

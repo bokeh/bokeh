@@ -1,8 +1,7 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_area_legend} from "./utils"
 import {PointGeometry} from "core/geometry"
-import {DistanceSpec, AngleSpec} from "core/vectorization"
-import {LineMixinVector, FillMixinVector} from "core/property_mixins"
+import {LineVector, FillVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
 import {Arrayable, Area} from "core/types"
 import {Direction} from "core/enums"
@@ -130,32 +129,21 @@ export class WedgeView extends XYGlyphView {
 }
 
 export namespace Wedge {
-  export interface Mixins extends LineMixinVector, FillMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends XYGlyph.Attrs, Mixins {
-    direction: Direction
-    radius: DistanceSpec
-    start_angle: AngleSpec
-    end_angle: AngleSpec
-  }
-
-  export interface Props extends XYGlyph.Props {
+  export type Props = XYGlyph.Props & LineVector & FillVector & {
     direction: p.Property<Direction>
     radius: p.DistanceSpec
     start_angle: p.AngleSpec
     end_angle: p.AngleSpec
   }
 
-  export interface Visuals extends XYGlyph.Visuals {
-    line: Line
-    fill: Fill
-  }
+  export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill}
 }
 
 export interface Wedge extends Wedge.Attrs {}
 
 export class Wedge extends XYGlyph {
-
   properties: Wedge.Props
 
   constructor(attrs?: Partial<Wedge.Attrs>) {

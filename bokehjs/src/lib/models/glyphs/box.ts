@@ -1,4 +1,4 @@
-import {LineMixinVector, FillMixinVector} from "core/property_mixins"
+import {LineVector, FillVector} from "core/property_mixins"
 import {Arrayable, Area} from "core/types"
 import {Line, Fill} from "core/visuals"
 import {SpatialIndex} from "core/util/spatial"
@@ -8,6 +8,7 @@ import {generic_area_legend} from "./utils"
 import {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
 import {Selection} from "../selections/selection"
+import * as p from "core/properties"
 
 export interface BoxData extends GlyphData {
   _right: Arrayable<number>
@@ -125,22 +126,16 @@ export abstract class BoxView extends GlyphView {
 }
 
 export namespace Box {
-  export interface Mixins extends LineMixinVector, FillMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends Glyph.Attrs, Mixins {}
+  export type Props = Glyph.Props & LineVector & FillVector
 
-  export interface Props extends Glyph.Props {}
-
-  export interface Visuals extends Glyph.Visuals {
-    line: Line
-    fill: Fill
-  }
+  export type Visuals = Glyph.Visuals & {line: Line, fill: Fill}
 }
 
 export interface Box extends Box.Attrs {}
 
 export abstract class Box extends Glyph {
-
   properties: Box.Props
 
   constructor(attrs?: Partial<Box.Attrs>) {

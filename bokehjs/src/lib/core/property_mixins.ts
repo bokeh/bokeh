@@ -2,59 +2,58 @@ import * as p from "./properties"
 import {Color} from "./types"
 import {extend} from "./util/object"
 
-import {Scalar, NumberSpec, StringSpec, ColorSpec} from "core/vectorization"
 import {LineJoin, LineCap, FontStyle, TextAlign, TextBaseline} from "core/enums"
 
-export interface LineMixinScalar {
-  line_color: Scalar<Color>
-  line_width: Scalar<number>
-  line_alpha: Scalar<number>
-  line_join: Scalar<LineJoin>
-  line_cap: Scalar<LineCap>
-  line_dash: Scalar<number[]>
-  line_dash_offset: Scalar<number>
+export interface LineScalar {
+  line_color: p.ScalarSpec<Color | null>
+  line_alpha: p.ScalarSpec<number>
+  line_width: p.ScalarSpec<number>
+  line_join: p.ScalarSpec<LineJoin>
+  line_cap: p.ScalarSpec<LineCap>
+  line_dash: p.ScalarSpec<number[]>
+  line_dash_offset: p.ScalarSpec<number>
 }
 
-export interface FillMixinScalar {
-  fill_color: Scalar<Color>
-  fill_alpha: Scalar<number>
+export interface FillScalar {
+  fill_color: p.ScalarSpec<Color | null>
+  fill_alpha: p.ScalarSpec<number>
 }
 
-export interface TextMixinScalar {
-  text_font: Scalar<string>
-  text_font_size: Scalar<string>
-  text_font_style: Scalar<FontStyle>
-  text_color: Scalar<Color>
-  text_alpha: Scalar<number>
-  text_align: Scalar<TextAlign>
-  text_baseline: Scalar<TextBaseline>
-  text_line_height: Scalar<number>
+export interface TextScalar {
+  text_color: p.ScalarSpec<Color | null>
+  text_alpha: p.ScalarSpec<number>
+  text_font: p.ScalarSpec<string>
+  text_font_size: p.ScalarSpec<string>
+  text_font_style: p.ScalarSpec<FontStyle>
+  text_align: p.ScalarSpec<TextAlign>
+  text_baseline: p.ScalarSpec<TextBaseline>
+  text_line_height: p.ScalarSpec<number>
 }
 
-export interface LineMixinVector {
-  line_color: ColorSpec
-  line_width: NumberSpec
-  line_alpha: NumberSpec
-  line_join: Scalar<LineJoin>
-  line_cap: Scalar<LineCap>
-  line_dash: Scalar<number[]>
-  line_dash_offset: Scalar<number>
+export interface LineVector {
+  line_color: p.ColorSpec
+  line_alpha: p.NumberSpec
+  line_width: p.NumberSpec
+  line_join: p.ScalarSpec<LineJoin>
+  line_cap: p.ScalarSpec<LineCap>
+  line_dash: p.ScalarSpec<number[]>
+  line_dash_offset: p.ScalarSpec<number>
 }
 
-export interface FillMixinVector {
-  fill_color: ColorSpec
-  fill_alpha: NumberSpec
+export interface FillVector {
+  fill_color: p.ColorSpec
+  fill_alpha: p.NumberSpec
 }
 
-export interface TextMixinVector {
-  text_font: Scalar<string>
-  text_font_size: StringSpec
-  text_font_style: Scalar<FontStyle>
-  text_color: ColorSpec
-  text_alpha: NumberSpec
-  text_align: Scalar<TextAlign>
-  text_baseline: Scalar<TextBaseline>
-  text_line_height: Scalar<number>
+export interface TextVector {
+  text_color: p.ColorSpec
+  text_alpha: p.NumberSpec
+  text_font: p.ScalarSpec<string>
+  text_font_size: p.StringSpec
+  text_font_style: p.ScalarSpec<FontStyle>
+  text_align: p.ScalarSpec<TextAlign>
+  text_baseline: p.ScalarSpec<TextBaseline>
+  text_line_height: p.ScalarSpec<number>
 }
 
 function _gen_mixin(mixin: {[key: string]: any}, prefix: string) {

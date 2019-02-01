@@ -4,20 +4,19 @@ import * as p from "core/properties"
 import {isNumber} from "core/util/types"
 
 export namespace BasicTickFormatter {
-  export interface Attrs extends TickFormatter.Attrs {
-    precision: number | "auto"
-    use_scientific: boolean
-    power_limit_high: number
-    power_limit_low: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends TickFormatter.Props {}
+  export type Props = TickFormatter.Props & {
+    precision: p.Property<number | "auto">
+    use_scientific: p.Property<boolean>
+    power_limit_high: p.Property<number>
+    power_limit_low: p.Property<number>
+  }
 }
 
 export interface BasicTickFormatter extends BasicTickFormatter.Attrs {}
 
 export class BasicTickFormatter extends TickFormatter {
-
   properties: BasicTickFormatter.Props
 
   constructor(attrs?: Partial<BasicTickFormatter.Attrs>) {

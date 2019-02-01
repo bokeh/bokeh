@@ -4,17 +4,16 @@ import * as p from "core/properties"
 import {min, findIndex, findLastIndex} from "core/util/array"
 
 export namespace StepInterpolator {
-  export interface Attrs extends Interpolator.Attrs {
-    mode: StepMode
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Interpolator.Props {}
+  export type Props = Interpolator.Props & {
+    mode: p.Property<StepMode>
+  }
 }
 
 export interface StepInterpolator extends StepInterpolator.Attrs {}
 
 export class StepInterpolator extends Interpolator {
-
   properties: StepInterpolator.Props
 
   constructor(attrs?: Partial<StepInterpolator.Attrs>) {

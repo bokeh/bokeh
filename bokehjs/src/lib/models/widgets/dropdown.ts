@@ -113,16 +113,13 @@ export class DropdownView extends AbstractButtonView {
 }
 
 export namespace Dropdown {
-  export interface Attrs extends AbstractButton.Attrs {
-    split: boolean
-    menu: (string | [string, string | CallbackLike<Dropdown>] | null)[]
-    value: string
-    default_value: string
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends AbstractButton.Props {
+  export type Props = AbstractButton.Props & {
     split: p.Property<boolean>
     menu: p.Property<(string | [string, string | CallbackLike<Dropdown>] | null)[]>
+    value: p.Property<string>
+    default_value: p.Property<string>
   }
 }
 

@@ -15,11 +15,9 @@ export class RowView extends BoxView {
 }
 
 export namespace Row {
-  export interface Attrs extends Box.Attrs {
-    cols: ColsSizing
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Box.Props {
+  export type Props = Box.Props & {
     cols: p.Property<ColsSizing>
   }
 }

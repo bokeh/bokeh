@@ -31,12 +31,9 @@ export abstract class InputWidgetView extends WidgetView {
 }
 
 export namespace InputWidget {
-  export interface Attrs extends Widget.Attrs {
-    title: string
-    callback: CallbackLike<InputWidget> | null
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Widget.Props {
+  export type Props = Widget.Props & {
     title: p.Property<string>
     callback: p.Property<CallbackLike<InputWidget> | null>
   }

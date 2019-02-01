@@ -1,5 +1,4 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {DistanceSpec, NumberSpec} from "core/vectorization"
 import {Arrayable, TypedArray, Rect} from "core/types"
 import {Class} from "core/class"
 import * as p from "core/properties"
@@ -153,15 +152,9 @@ export class ImageRGBAView extends XYGlyphView {
 }
 
 export namespace ImageRGBA {
-  export interface Attrs extends XYGlyph.Attrs {
-    image: NumberSpec
-    dw: DistanceSpec
-    dh: DistanceSpec
-    global_alpha: number
-    dilate: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends XYGlyph.Props {
+  export type Props = XYGlyph.Props & {
     image: p.NumberSpec
     dw: p.DistanceSpec
     dh: p.DistanceSpec
@@ -169,7 +162,7 @@ export namespace ImageRGBA {
     dilate: p.Property<boolean>
   }
 
-  export interface Visuals extends XYGlyph.Visuals {}
+  export type Visuals = XYGlyph.Visuals
 }
 
 export interface ImageRGBA extends ImageRGBA.Attrs {}

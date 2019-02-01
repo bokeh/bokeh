@@ -71,20 +71,19 @@ export class PointDrawToolView extends EditToolView {
 }
 
 export namespace PointDrawTool {
-  export interface Attrs extends EditTool.Attrs {
-    add: boolean
-    drag: boolean
-    num_objects: number
-    renderers: (GlyphRenderer & HasXYGlyph)[]
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends EditTool.Props {}
+  export type Props = EditTool.Props & {
+    add: p.Property<boolean>
+    drag: p.Property<boolean>
+    num_objects: p.Property<number>
+    renderers: p.Property<(GlyphRenderer & HasXYGlyph)[]>
+  }
 }
 
 export interface PointDrawTool extends PointDrawTool.Attrs {}
 
 export class PointDrawTool extends EditTool {
-
   properties: PointDrawTool.Props
 
   renderers: (GlyphRenderer & HasXYGlyph)[]

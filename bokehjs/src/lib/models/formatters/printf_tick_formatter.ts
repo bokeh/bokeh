@@ -5,17 +5,16 @@ import {AxisView} from "../axes/axis"
 import * as p from "core/properties"
 
 export namespace PrintfTickFormatter {
-  export interface Attrs extends TickFormatter.Attrs {
-    format: string
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends TickFormatter.Props {}
+  export type Props = TickFormatter.Props & {
+    format: p.Property<string>
+  }
 }
 
 export interface PrintfTickFormatter extends PrintfTickFormatter.Attrs {}
 
 export class PrintfTickFormatter extends TickFormatter {
-
   properties: PrintfTickFormatter.Props
 
   constructor(attrs?: Partial<PrintfTickFormatter.Attrs>) {

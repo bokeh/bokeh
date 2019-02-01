@@ -1,10 +1,11 @@
 import {CenterRotatable, CenterRotatableView, CenterRotatableData} from "./center_rotatable"
 import {PointGeometry} from "core/geometry"
-import {LineMixinVector, FillMixinVector} from "core/property_mixins"
+import {LineVector, FillVector} from "core/property_mixins"
 import * as hittest from "core/hittest"
 import {Area, Rect} from "core/types"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
+import * as p from "core/properties"
 
 export interface EllipseOvalData extends CenterRotatableData {}
 
@@ -134,19 +135,16 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
 }
 
 export namespace EllipseOval {
-  export interface Mixins extends LineMixinVector, FillMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends CenterRotatable.Attrs, Mixins {}
+  export type Props = CenterRotatable.Props & LineVector & FillVector
 
-  export interface Props extends CenterRotatable.Props {}
-
-  export interface Visuals extends CenterRotatable.Visuals {}
+  export type Visuals = CenterRotatable.Visuals
 }
 
 export interface EllipseOval extends EllipseOval.Attrs {}
 
 export abstract class EllipseOval extends CenterRotatable {
-
   properties: EllipseOval.Props
 
   constructor(attrs?: Partial<EllipseOval.Attrs>) {

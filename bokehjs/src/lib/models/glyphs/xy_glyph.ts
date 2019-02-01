@@ -1,6 +1,6 @@
 import {Arrayable} from "core/types"
-import {NumberSpec} from "core/vectorization"
 import {SpatialIndex, IndexedRect} from "core/util/spatial"
+import * as p from "core/properties"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 
 export interface XYGlyphData extends GlyphData {
@@ -43,20 +43,19 @@ export abstract class XYGlyphView extends GlyphView {
 }
 
 export namespace XYGlyph {
-  export interface Attrs extends Glyph.Attrs {
-    x: NumberSpec
-    y: NumberSpec
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = Glyph.Props & {
+    x: p.NumberSpec
+    y: p.NumberSpec
   }
 
-  export interface Props extends Glyph.Props {}
-
-  export interface Visuals extends Glyph.Visuals {}
+  export type Visuals = Glyph.Visuals
 }
 
 export interface XYGlyph extends XYGlyph.Attrs {}
 
 export abstract class XYGlyph extends Glyph {
-
   properties: XYGlyph.Props
 
   constructor(attrs?: Partial<XYGlyph.Attrs>) {

@@ -2,7 +2,7 @@ import {RenderOne} from "./defs"
 import {XYGlyph, XYGlyphView, XYGlyphData} from "../glyphs/xy_glyph"
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {DistanceSpec, AngleSpec} from "core/vectorization"
-import {LineMixinVector, FillMixinVector} from "core/property_mixins"
+import {LineVector, FillVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
 import {Arrayable, Area} from "core/types"
 import * as hittest from "core/hittest"
@@ -167,25 +167,19 @@ export abstract class MarkerView extends XYGlyphView {
 }
 
 export namespace Marker {
-  export interface Mixins extends LineMixinVector, FillMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends XYGlyph.Attrs, Mixins {
-    size: DistanceSpec
-    angle: AngleSpec
+  export type Props = XYGlyph.Props & LineVector & FillVector & {
+    size: p.Property<DistanceSpec>
+    angle: p.Property<AngleSpec>
   }
 
-  export interface Props extends XYGlyph.Props {}
-
-  export interface Visuals extends XYGlyph.Visuals {
-    line: Line
-    fill: Fill
-  }
+  export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill}
 }
 
 export interface Marker extends Marker.Attrs {}
 
 export abstract class Marker extends XYGlyph {
-
   properties: Marker.Props
 
   constructor(attrs?: Partial<Marker.Attrs>) {

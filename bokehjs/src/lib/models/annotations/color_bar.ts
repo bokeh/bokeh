@@ -568,104 +568,88 @@ export class ColorBarView extends AnnotationView {
 }
 
 export namespace ColorBar {
-  // text:major_label_
-  export interface MajorLabelText {
-    major_label_text_font: string
-    major_label_text_font_size: string
-    major_label_text_font_style: FontStyle
-    major_label_text_color: Color
-    major_label_text_alpha: number
-    major_label_text_align: TextAlign
-    major_label_text_baseline: TextBaseline
-    major_label_text_line_height: number
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = Annotation.Props & {
+    location: p.Property<LegendLocation | [number, number]>
+    orientation: p.Property<Orientation>
+    title: p.Property<string>
+    title_standoff: p.Property<number>
+    width: p.Property<number | "auto">
+    height: p.Property<number | "auto">
+    scale_alpha: p.Property<number>
+    ticker: p.Property<ContinuousTicker>
+    formatter: p.Property<TickFormatter>
+    major_label_overrides: p.Property<{[key: string]: string}>
+    color_mapper: p.Property<ContinuousColorMapper>
+    label_standoff: p.Property<number>
+    margin: p.Property<number>
+    padding: p.Property<number>
+    major_tick_in: p.Property<number>
+    major_tick_out: p.Property<number>
+    minor_tick_in: p.Property<number>
+    minor_tick_out: p.Property<number>
+
+    // text:major_label_
+    major_label_text_font: p.Property<string>
+    major_label_text_font_size: p.Property<string>
+    major_label_text_font_style: p.Property<FontStyle>
+    major_label_text_color: p.Property<Color>
+    major_label_text_alpha: p.Property<number>
+    major_label_text_align: p.Property<TextAlign>
+    major_label_text_baseline: p.Property<TextBaseline>
+    major_label_text_line_height: p.Property<number>
+
+    // text:title_
+    title_text_font: p.Property<string>
+    title_text_font_size: p.Property<string>
+    title_text_font_style: p.Property<FontStyle>
+    title_text_color: p.Property<Color>
+    title_text_alpha: p.Property<number>
+    title_text_align: p.Property<TextAlign>
+    title_text_baseline: p.Property<TextBaseline>
+    title_text_line_height: p.Property<number>
+
+    // line:major_tick_
+    major_tick_line_color: p.Property<Color>
+    major_tick_line_width: p.Property<number>
+    major_tick_line_alpha: p.Property<number>
+    major_tick_line_join: p.Property<LineJoin>
+    major_tick_line_cap: p.Property<LineCap>
+    major_tick_line_dash: p.Property<number[]>
+    major_tick_line_dash_offset: p.Property<number>
+
+    // line:minor_tick_
+    minor_tick_line_color: p.Property<Color>
+    minor_tick_line_width: p.Property<number>
+    minor_tick_line_alpha: p.Property<number>
+    minor_tick_line_join: p.Property<LineJoin>
+    minor_tick_line_cap: p.Property<LineCap>
+    minor_tick_line_dash: p.Property<number[]>
+    minor_tick_line_dash_offset: p.Property<number>
+
+    // line:border_
+    border_line_color: p.Property<Color>
+    border_line_width: p.Property<number>
+    border_line_alpha: p.Property<number>
+    border_line_join: p.Property<LineJoin>
+    border_line_cap: p.Property<LineCap>
+    border_line_dash: p.Property<number[]>
+    border_line_dash_offset: p.Property<number>
+
+    // line:bar_
+    bar_line_color: p.Property<Color>
+    bar_line_width: p.Property<number>
+    bar_line_alpha: p.Property<number>
+    bar_line_join: p.Property<LineJoin>
+    bar_line_cap: p.Property<LineCap>
+    bar_line_dash: p.Property<number[]>
+    bar_line_dash_offset: p.Property<number>
+
+    // fill:background_
+    background_fill_color: p.Property<Color>
+    background_fill_alpha: p.Property<number>
   }
-
-  // text:title_
-  export interface TitleText {
-    title_text_font: string
-    title_text_font_size: string
-    title_text_font_style: FontStyle
-    title_text_color: Color
-    title_text_alpha: number
-    title_text_align: TextAlign
-    title_text_baseline: TextBaseline
-    title_text_line_height: number
-  }
-
-  // line:major_tick_
-  export interface MajorTickLine {
-    major_tick_line_color: Color
-    major_tick_line_width: number
-    major_tick_line_alpha: number
-    major_tick_line_join: LineJoin
-    major_tick_line_cap: LineCap
-    major_tick_line_dash: number[]
-    major_tick_line_dash_offset: number
-  }
-
-  // line:minor_tick_
-  export interface MinorTickLine {
-    minor_tick_line_color: Color
-    minor_tick_line_width: number
-    minor_tick_line_alpha: number
-    minor_tick_line_join: LineJoin
-    minor_tick_line_cap: LineCap
-    minor_tick_line_dash: number[]
-    minor_tick_line_dash_offset: number
-  }
-
-  // line:border_
-  export interface BorderLine {
-    border_line_color: Color
-    border_line_width: number
-    border_line_alpha: number
-    border_line_join: LineJoin
-    border_line_cap: LineCap
-    border_line_dash: number[]
-    border_line_dash_offset: number
-  }
-
-  // line:bar_
-  export interface BarLine {
-    bar_line_color: Color
-    bar_line_width: number
-    bar_line_alpha: number
-    bar_line_join: LineJoin
-    bar_line_cap: LineCap
-    bar_line_dash: number[]
-    bar_line_dash_offset: number
-  }
-
-  // fill:background_
-  export interface BackgroundFill {
-    background_fill_color: Color
-    background_fill_alpha: number
-  }
-
-  export interface Mixins extends MajorLabelText, TitleText, MajorTickLine, MinorTickLine, BorderLine, BarLine, BackgroundFill {}
-
-  export interface Attrs extends Annotation.Attrs, Mixins {
-    location: LegendLocation | [number, number]
-    orientation: Orientation
-    title: string
-    title_standoff: number
-    width: number | "auto"
-    height: number | "auto"
-    scale_alpha: number
-    ticker: ContinuousTicker
-    formatter: TickFormatter
-    major_label_overrides: {[key: string]: string}
-    color_mapper: ContinuousColorMapper
-    label_standoff: number
-    margin: number
-    padding: number
-    major_tick_in: number
-    major_tick_out: number
-    minor_tick_in: number
-    minor_tick_out: number
-  }
-
-  export interface Props extends Annotation.Props {}
 
   export type Visuals = Annotation.Visuals & {
     major_label_text: Text
@@ -681,7 +665,6 @@ export namespace ColorBar {
 export interface ColorBar extends ColorBar.Attrs {}
 
 export class ColorBar extends Annotation {
-
   properties: ColorBar.Props
 
   constructor(attrs?: Partial<ColorBar.Attrs>) {

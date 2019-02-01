@@ -417,31 +417,26 @@ export class HoverToolView extends InspectToolView {
 }
 
 export namespace HoverTool {
-  export interface Attrs extends InspectTool.Attrs {
-    tooltips: string | [string, string][] | ((source: ColumnarDataSource, vars: Vars) => HTMLElement)
-    formatters: any // XXX
-    renderers: RendererSpec
-    names: string[]
-    mode: "mouse" | "hline" | "vline"
-    point_policy: "snap_to_data" | "follow_mouse" | "none"
-    line_policy: "prev" | "next" | "nearest" | "interp" | "none"
-    show_arrow: boolean
-    anchor: Anchor
-    attachment: TooltipAttachment
-    callback: CallbackLike<HoverTool> | null
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends InspectTool.Props {
+  export type Props = InspectTool.Props & {
     tooltips: p.Property<string | [string, string][] | ((source: ColumnarDataSource, vars: Vars) => HTMLElement)>
+    formatters: p.Property<any> // XXX
     renderers: p.Property<RendererSpec>
     names: p.Property<string[]>
+    mode: p.Property<"mouse" | "hline" | "vline">
+    point_policy: p.Property<"snap_to_data" | "follow_mouse" | "none">
+    line_policy: p.Property<"prev" | "next" | "nearest" | "interp" | "none">
+    show_arrow: p.Property<boolean>
+    anchor: p.Property<Anchor>
+    attachment: p.Property<TooltipAttachment>
+    callback: p.Property<CallbackLike<HoverTool> | null>
   }
 }
 
 export interface HoverTool extends HoverTool.Attrs {}
 
 export class HoverTool extends InspectTool {
-
   properties: HoverTool.Props
 
   constructor(attrs?: Partial<HoverTool.Attrs>) {
@@ -474,5 +469,4 @@ export class HoverTool extends InspectTool {
   tool_name = "Hover"
   icon = "bk-tool-icon-hover"
 }
-
 HoverTool.initClass()

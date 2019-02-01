@@ -1,8 +1,7 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_line_legend} from "./utils"
-import {LineMixinVector} from "core/property_mixins"
+import {LineVector} from "core/property_mixins"
 import {Line} from "core/visuals"
-import {StepMode} from "core/enums"
 import * as p from "core/properties"
 import {Area} from "core/types"
 import {Context2d} from "core/util/canvas"
@@ -89,23 +88,18 @@ export class StepView extends XYGlyphView {
 }
 
 export namespace Step {
-  export interface Mixins extends LineMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends XYGlyph.Attrs, Mixins {
-    mode: StepMode
+  export type Props = XYGlyph.Props & LineVector & {
+    mode: p.StepMode
   }
 
-  export interface Props extends XYGlyph.Props {}
-
-  export interface Visuals extends XYGlyph.Visuals {
-    line: Line
-  }
+  export type Visuals = XYGlyph.Visuals & {line: Line}
 }
 
 export interface Step extends Step.Attrs {}
 
 export class Step extends XYGlyph {
-
   properties: Step.Props
 
   constructor(attrs?: Partial<Step.Attrs>) {

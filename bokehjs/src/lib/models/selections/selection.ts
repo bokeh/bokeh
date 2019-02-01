@@ -5,16 +5,9 @@ import {merge} from "core/util/object"
 import {Glyph, GlyphView} from "../glyphs/glyph"
 
 export namespace Selection {
-  export interface Attrs extends Model.Attrs {
-    indices: number[]
-    final: boolean
-    line_indices: number[]
-    selected_glyphs: Glyph[]
-    get_view: () => GlyphView | null
-    multiline_indices: {[key: string]: number[]}
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Model.Props {
+  export type Props = Model.Props & {
     indices: p.Property<number[]>
     final: p.Property<boolean>
     line_indices: p.Property<number[]>
@@ -27,7 +20,6 @@ export namespace Selection {
 export interface Selection extends Selection.Attrs {}
 
 export class Selection extends Model {
-
   properties: Selection.Props
 
   constructor(attrs?: Partial<Selection.Attrs>) {

@@ -31,14 +31,9 @@ export class GridBoxView extends LayoutDOMView {
 }
 
 export namespace GridBox {
-  export interface Attrs extends LayoutDOM.Attrs {
-    children: [LayoutDOM, number, number][]
-    rows: RowsSizing
-    cols: ColsSizing
-    spacing: number | [number, number]
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends LayoutDOM.Props {
+  export type Props = LayoutDOM.Props & {
     children: p.Property<[LayoutDOM, number, number][]>
     rows: p.Property<RowsSizing>
     cols: p.Property<ColsSizing>

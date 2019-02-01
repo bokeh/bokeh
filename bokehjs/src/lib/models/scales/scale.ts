@@ -5,18 +5,17 @@ import {Arrayable} from "core/types"
 import * as p from "core/properties"
 
 export namespace Scale {
-  export interface Attrs extends Transform.Attrs {
-    source_range: Range
-    target_range: Range1d
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Transform.Props {}
+  export type Props = Transform.Props & {
+    source_range: p.Property<Range>
+    target_range: p.Property<Range1d>
+  }
 }
 
 export interface Scale extends Scale.Attrs {}
 
 export abstract class Scale extends Transform {
-
   properties: Scale.Props
 
   constructor(attrs?: Partial<Scale.Attrs>) {
@@ -54,5 +53,4 @@ export abstract class Scale extends Transform {
       return [this.invert(sx0), this.invert(sx1)]
   }
 }
-
 Scale.initClass()

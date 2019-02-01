@@ -8,19 +8,9 @@ export interface Tile {
 }
 
 export namespace TileSource {
-  export interface Attrs extends Model.Attrs {
-    url: string
-    tile_size: number
-    max_zoom: number
-    min_zoom: number
-    extra_url_vars: {[key: string]: string}
-    attribution: string
-    x_origin_offset: number
-    y_origin_offset: number
-    initial_resolution: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Model.Props {
+  export type Props = Model.Props & {
     url: p.Property<string>
     tile_size: p.Property<number>
     max_zoom: p.Property<number>
@@ -36,7 +26,6 @@ export namespace TileSource {
 export interface TileSource extends TileSource.Attrs {}
 
 export abstract class TileSource extends Model {
-
   properties: TileSource.Props
 
   constructor(attrs?: Partial<TileSource.Attrs>) {

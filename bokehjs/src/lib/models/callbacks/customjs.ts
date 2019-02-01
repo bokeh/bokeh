@@ -4,19 +4,18 @@ import {keys, values} from "core/util/object"
 import {use_strict} from "core/util/string"
 
 export namespace CustomJS {
-  export interface Attrs extends Callback.Attrs {
-    args: {[key: string]: unknown}
-    code: string
-    use_strict: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Callback.Props {}
+  export type Props = Callback.Props & {
+    args: p.Property<{[key: string]: unknown}>
+    code: p.Property<string>
+    use_strict: p.Property<boolean>
+  }
 }
 
 export interface CustomJS extends CustomJS.Attrs {}
 
 export class CustomJS extends Callback {
-
   properties: CustomJS.Props
 
   constructor(attrs?: Partial<CustomJS.Attrs>) {

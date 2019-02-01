@@ -60,18 +60,20 @@ export class TapToolView extends SelectToolView {
 }
 
 export namespace TapTool {
-  export interface Attrs extends SelectTool.Attrs {
-    behavior: "select" | "inspect"
-    callback: CallbackLike<TapTool, {geometries: PointGeometry & {x: number, y: number}, source: ColumnarDataSource}> | null
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends SelectTool.Props {}
+  export type Props = SelectTool.Props & {
+    behavior: p.Property<"select" | "inspect">
+    callback: p.Property<CallbackLike<TapTool, {
+      geometries: PointGeometry & {x: number, y: number}
+      source: ColumnarDataSource
+    }> | null>
+  }
 }
 
 export interface TapTool extends TapTool.Attrs {}
 
 export class TapTool extends SelectTool {
-
   properties: TapTool.Props
 
   constructor(attrs?: Partial<TapTool.Attrs>) {
@@ -93,5 +95,4 @@ export class TapTool extends SelectTool {
   event_type = "tap" as "tap"
   default_order = 10
 }
-
 TapTool.initClass()

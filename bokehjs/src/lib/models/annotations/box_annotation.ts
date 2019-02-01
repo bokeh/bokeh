@@ -1,10 +1,9 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {Scale} from "../scales/scale"
 import {Signal0} from "core/signaling"
-import {LineMixinScalar, FillMixinScalar} from "core/property_mixins"
+import {LineScalar, FillScalar} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
 import {SpatialUnits, RenderMode} from "core/enums"
-import {Color} from "core/types"
 import {show, hide} from "core/dom"
 import * as p from "core/properties"
 import {BBox, CoordinateTransform} from "core/util/bbox"
@@ -152,27 +151,9 @@ export class BoxAnnotationView extends AnnotationView {
 }
 
 export namespace BoxAnnotation {
-  export interface Mixins extends LineMixinScalar, FillMixinScalar {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends Annotation.Attrs, Mixins {
-    render_mode: RenderMode
-    x_range_name: string
-    y_range_name: string
-    top: number | null
-    top_units: SpatialUnits
-    bottom: number | null
-    bottom_units: SpatialUnits
-    left: number | null
-    left_units: SpatialUnits
-    right: number | null
-    right_units: SpatialUnits
-    screen: boolean
-    ew_cursor: string | null
-    ns_cursor: string | null
-    in_cursor: string | null
-  }
-
-  export interface Props extends Annotation.Props {
+  export type Props = Annotation.Props & LineScalar & FillScalar & {
     render_mode: p.Property<RenderMode>
     x_range_name: p.Property<string>
     y_range_name: p.Property<string>
@@ -184,12 +165,10 @@ export namespace BoxAnnotation {
     left_units: p.Property<SpatialUnits>
     right: p.Property<number | null>
     right_units: p.Property<SpatialUnits>
-
-    line_color: p.Property<Color>
-    line_width: p.Property<number>
-    line_dash:  p.Property<number[]>
-    fill_color: p.Property<Color>
-    fill_alpha: p.Property<number>
+    screen: p.Property<boolean>
+    ew_cursor: p.Property<string | null>
+    ns_cursor: p.Property<string | null>
+    in_cursor: p.Property<string | null>
   }
 
   export type Visuals = Annotation.Visuals & {line: Line, fill: Fill}
@@ -198,7 +177,6 @@ export namespace BoxAnnotation {
 export interface BoxAnnotation extends BoxAnnotation.Attrs {}
 
 export class BoxAnnotation extends Annotation {
-
   properties: BoxAnnotation.Props
 
   constructor(attrs?: Partial<BoxAnnotation.Attrs>) {

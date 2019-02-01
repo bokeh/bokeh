@@ -3,18 +3,17 @@ import {ContinuousTicker} from "./continuous_ticker"
 import * as p from "core/properties"
 
 export namespace FixedTicker {
-  export interface Attrs extends ContinuousTicker.Attrs {
-    ticks: number[]
-    minor_ticks: number[]
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ContinuousTicker.Props {}
+  export type Props = ContinuousTicker.Props & {
+    ticks: p.Property<number[]>
+    minor_ticks: p.Property<number[]>
+  }
 }
 
 export interface FixedTicker extends FixedTicker.Attrs {}
 
 export class FixedTicker extends ContinuousTicker {
-
   properties: FixedTicker.Props
 
   constructor(attrs?: Partial<FixedTicker.Attrs>) {
@@ -46,5 +45,4 @@ export class FixedTicker extends ContinuousTicker {
   max_interval: number = 0
   //
 }
-
 FixedTicker.initClass()

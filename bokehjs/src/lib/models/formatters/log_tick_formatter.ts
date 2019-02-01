@@ -6,17 +6,16 @@ import {logger} from "core/logging"
 import * as p from "core/properties"
 
 export namespace LogTickFormatter {
-  export interface Attrs extends TickFormatter.Attrs {
-    ticker: LogTicker | null
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends TickFormatter.Props {}
+  export type Props = TickFormatter.Props & {
+    ticker: p.Property<LogTicker | null>
+  }
 }
 
 export interface LogTickFormatter extends LogTickFormatter.Attrs {}
 
 export class LogTickFormatter extends TickFormatter {
-
   properties: LogTickFormatter.Props
 
   constructor(attrs?: Partial<LogTickFormatter.Attrs>) {

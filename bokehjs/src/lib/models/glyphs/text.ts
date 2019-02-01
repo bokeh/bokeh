@@ -1,6 +1,5 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {NumberSpec, StringSpec, AngleSpec} from "core/vectorization"
-import {TextMixinVector} from "core/property_mixins"
+import {TextVector} from "core/property_mixins"
 import {PointGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
 import {Arrayable} from "core/types"
@@ -148,26 +147,21 @@ export class TextView extends XYGlyphView {
 }
 
 export namespace Text {
-  export interface Mixins extends TextMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends XYGlyph.Attrs, Mixins {
-    text: StringSpec
-    angle: AngleSpec
-    x_offset: NumberSpec
-    y_offset: NumberSpec
+  export type Props = XYGlyph.Props & TextVector & {
+    text: p.StringSpec
+    angle: p.AngleSpec
+    x_offset: p.NumberSpec
+    y_offset: p.NumberSpec
   }
 
-  export interface Props extends XYGlyph.Props {}
-
-  export interface Visuals extends XYGlyph.Visuals {
-    text: visuals.Text
-  }
+  export type Visuals = XYGlyph.Visuals & {text: visuals.Text}
 }
 
 export interface Text extends Text.Attrs {}
 
 export class Text extends XYGlyph {
-
   properties: Text.Props
 
   constructor(attrs?: Partial<Text.Attrs>) {

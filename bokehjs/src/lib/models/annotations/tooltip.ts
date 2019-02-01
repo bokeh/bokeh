@@ -123,15 +123,9 @@ export class TooltipView extends AnnotationView {
 }
 
 export namespace Tooltip {
-  export interface Attrs extends Annotation.Attrs {
-    attachment: TooltipAttachment
-    inner_only: boolean
-    show_arrow: boolean
-    data: [number, number, HTMLElement][]
-    custom: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Annotation.Props {
+  export type Props = Annotation.Props & {
     attachment: p.Property<TooltipAttachment>
     inner_only: p.Property<boolean>
     show_arrow: p.Property<boolean>
@@ -143,7 +137,6 @@ export namespace Tooltip {
 export interface Tooltip extends Tooltip.Attrs {}
 
 export class Tooltip extends Annotation {
-
   properties: Tooltip.Props
 
   constructor(attrs?: Partial<Tooltip.Attrs>) {

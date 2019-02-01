@@ -166,20 +166,19 @@ const DEFAULT_BOX_OVERLAY = () => {
 }
 
 export namespace BoxZoomTool {
-  export interface Attrs extends GestureTool.Attrs {
-    dimensions: Dimensions
-    overlay: BoxAnnotation
-    match_aspect: boolean
-    origin: "corner" | "center"
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends GestureTool.Props {}
+  export type Props = GestureTool.Props & {
+    dimensions: p.Property<Dimensions>
+    overlay: p.Property<BoxAnnotation>
+    match_aspect: p.Property<boolean>
+    origin: p.Property<"corner" | "center">
+  }
 }
 
 export interface BoxZoomTool extends BoxZoomTool.Attrs {}
 
 export class BoxZoomTool extends GestureTool {
-
   properties: BoxZoomTool.Props
 
   /*override*/ overlay: BoxAnnotation
@@ -209,5 +208,4 @@ export class BoxZoomTool extends GestureTool {
     return this._get_dim_tooltip(this.tool_name, this.dimensions)
   }
 }
-
 BoxZoomTool.initClass()

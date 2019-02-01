@@ -5,23 +5,20 @@ import * as p from "core/properties"
 import {isFunction} from "core/util/types"
 
 export namespace Range {
-  export interface Attrs extends Model.Attrs {
-    bounds: [number, number] | "auto" | null
-    min_interval: number
-    max_interval: number
-    callback?: ((obj: Range) => void) | CustomJS // XXX: Callback
-    plots: Plot[]
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Model.Props {
+  export type Props = Model.Props & {
     bounds: p.Property<[number, number] | "auto" | null>
+    min_interval: p.Property<number>
+    max_interval: p.Property<number>
+    callback: p.Property<((obj: Range) => void) | CustomJS> // XXX: Callback
+    plots: p.Property<Plot[]>
   }
 }
 
 export interface Range extends Range.Attrs {}
 
 export abstract class Range extends Model {
-
   properties: Range.Props
 
   constructor(attrs?: Partial<Range.Attrs>) {
@@ -70,5 +67,4 @@ export abstract class Range extends Model {
     return this.start > this.end
   }
 }
-
 Range.initClass()

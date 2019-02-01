@@ -44,13 +44,9 @@ export abstract class ButtonGroupView extends WidgetView {
 }
 
 export namespace ButtonGroup {
-  export interface Attrs extends Widget.Attrs {
-    labels: string[]
-    button_type: ButtonType
-    callback: CallbackLike<ButtonGroup> | null
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Widget.Props {
+  export type Props = Widget.Props & {
     labels: p.Property<string[]>
     button_type: p.Property<ButtonType>
     callback: p.Property<CallbackLike<ButtonGroup> | null>

@@ -1,7 +1,6 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_line_legend} from "./utils"
-import {DistanceSpec, AngleSpec} from "core/vectorization"
-import {LineMixinVector} from "core/property_mixins"
+import {LineVector} from "core/property_mixins"
 import {Line} from "core/visuals"
 import {Arrayable, Area} from "core/types"
 import * as p from "core/properties"
@@ -64,27 +63,19 @@ export class RayView extends XYGlyphView {
 }
 
 export namespace Ray {
-  export interface Mixins extends LineMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends XYGlyph.Attrs, Mixins {
-    length: DistanceSpec
-    angle: AngleSpec
-  }
-
-  export interface Props extends XYGlyph.Props {
+  export type Props = XYGlyph.Props & LineVector & {
     length: p.DistanceSpec
     angle: p.AngleSpec
   }
 
-  export interface Visuals extends XYGlyph.Visuals {
-    line: Line
-  }
+  export type Visuals = XYGlyph.Visuals & {line: Line}
 }
 
 export interface Ray extends Ray.Attrs {}
 
 export class Ray extends XYGlyph {
-
   properties: Ray.Props
 
   constructor(attrs?: Partial<Ray.Attrs>) {

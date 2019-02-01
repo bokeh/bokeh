@@ -6,17 +6,16 @@ import {isBoolean} from "core/util/types"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 
 export namespace BooleanFilter {
-  export interface Attrs extends Filter.Attrs {
-    booleans: boolean[] | null
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Filter.Props {}
+  export type Props = Filter.Props & {
+    booleans: p.Property<boolean[] | null>
+  }
 }
 
 export interface BooleanFilter extends BooleanFilter.Attrs {}
 
 export class BooleanFilter extends Filter {
-
   properties: BooleanFilter.Props
 
   constructor(attrs?: Partial<BooleanFilter.Attrs>) {

@@ -1,11 +1,11 @@
-import {NumberSpec} from "core/vectorization"
-import {LineMixinVector} from "core/property_mixins"
+import {LineVector} from "core/property_mixins"
 import {Line} from "core/visuals"
 import {Arrayable, Area} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_line_legend} from "./utils"
+import * as p from "core/properties"
 
 // Formula from: http://pomax.nihongoresources.com/pages/bezier/
 //
@@ -95,28 +95,23 @@ export class QuadraticView extends GlyphView {
 }
 
 export namespace Quadratic {
-  export interface Mixins extends LineMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends Glyph.Attrs, Mixins {
-    x0: NumberSpec
-    y0: NumberSpec
-    x1: NumberSpec
-    y1: NumberSpec
-    cx: NumberSpec
-    cy: NumberSpec
+  export type Props = Glyph.Props & LineVector & {
+    x0: p.NumberSpec
+    y0: p.NumberSpec
+    x1: p.NumberSpec
+    y1: p.NumberSpec
+    cx: p.NumberSpec
+    cy: p.NumberSpec
   }
 
-  export interface Props extends Glyph.Props {}
-
-  export interface Visuals extends Glyph.Visuals {
-    line: Line
-  }
+  export type Visuals = Glyph.Visuals & {line: Line}
 }
 
 export interface Quadratic extends Quadratic.Attrs {}
 
 export class Quadratic extends Glyph {
-
   properties: Quadratic.Props
 
   constructor(attrs?: Partial<Quadratic.Attrs>) {

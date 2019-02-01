@@ -12,26 +12,25 @@ export type Dim = 0 | 1
 export type Bounds = {[key: string]: Rect}
 
 export namespace DataRange1d {
-  export interface Attrs extends DataRange.Attrs {
-    start: number
-    end: number
-    range_padding: number
-    range_padding_units: PaddingUnits
-    flipped: boolean
-    follow: StartEnd
-    follow_interval: number
-    default_span: number
+  export type Attrs = p.AttrsOf<Props>
 
-    scale_hint: "log" | "auto"
+  export type Props = DataRange.Props & {
+    start: p.Property<number>
+    end: p.Property<number>
+    range_padding: p.Property<number>
+    range_padding_units: p.Property<PaddingUnits>
+    flipped: p.Property<boolean>
+    follow: p.Property<StartEnd>
+    follow_interval: p.Property<number>
+    default_span: p.Property<number>
+
+    scale_hint: p.Property<"log" | "auto">
   }
-
-  export interface Props extends DataRange.Props {}
 }
 
 export interface DataRange1d extends DataRange1d.Attrs {}
 
 export class DataRange1d extends DataRange {
-
   properties: DataRange1d.Props
 
   constructor(attrs?: Partial<DataRange1d.Attrs>) {
@@ -301,5 +300,4 @@ export class DataRange1d extends DataRange {
     this.change.emit()
   }
 }
-
 DataRange1d.initClass()

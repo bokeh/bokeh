@@ -1,15 +1,13 @@
 import {Annotation} from "./annotation"
 import {Visuals, Line, Fill} from "core/visuals"
-import {LineMixinVector, FillMixinVector} from "core/property_mixins"
+import {LineVector, FillVector} from "core/property_mixins"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 
 export namespace ArrowHead {
-  export interface Attrs extends Annotation.Attrs {
-    size: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Annotation.Props {
+  export type Props = Annotation.Props & {
     size: p.Property<number>
   }
 }
@@ -17,6 +15,7 @@ export namespace ArrowHead {
 export interface ArrowHead extends ArrowHead.Attrs {}
 
 export abstract class ArrowHead extends Annotation {
+  properties: ArrowHead.Props
 
   constructor(attrs?: Partial<ArrowHead.Attrs>) {
     super(attrs)
@@ -44,17 +43,14 @@ export abstract class ArrowHead extends Annotation {
 ArrowHead.initClass()
 
 export namespace OpenHead {
-  export interface Mixins extends LineMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends ArrowHead.Attrs, Mixins {}
-
-  export interface Props extends ArrowHead.Props {}
+  export type Props = ArrowHead.Props & LineVector
 }
 
 export interface OpenHead extends OpenHead.Attrs {}
 
 export class OpenHead extends ArrowHead {
-
   properties: OpenHead.Props
 
   constructor(attrs?: Partial<OpenHead.Attrs>) {
@@ -95,17 +91,14 @@ export class OpenHead extends ArrowHead {
 OpenHead.initClass()
 
 export namespace NormalHead {
-  export interface Mixins extends LineMixinVector, FillMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends ArrowHead.Attrs, Mixins {}
-
-  export interface Props extends ArrowHead.Props {}
+  export type Props = ArrowHead.Props & LineVector & FillVector
 }
 
 export interface NormalHead extends NormalHead.Attrs {}
 
 export class NormalHead extends ArrowHead {
-
   properties: NormalHead.Props
 
   constructor(attrs?: Partial<NormalHead.Attrs>) {
@@ -159,17 +152,14 @@ export class NormalHead extends ArrowHead {
 NormalHead.initClass()
 
 export namespace VeeHead {
-  export interface Mixins extends LineMixinVector, FillMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends ArrowHead.Attrs, Mixins {}
-
-  export interface Props extends ArrowHead.Props {}
+  export type Props = ArrowHead.Props & LineVector & FillVector
 }
 
 export interface VeeHead extends VeeHead.Attrs {}
 
 export class VeeHead extends ArrowHead {
-
   properties: VeeHead.Props
 
   constructor(attrs?: Partial<VeeHead.Attrs>) {
@@ -225,17 +215,14 @@ export class VeeHead extends ArrowHead {
 VeeHead.initClass()
 
 export namespace TeeHead {
-  export interface Mixins extends LineMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends ArrowHead.Attrs, Mixins {}
-
-  export interface Props extends ArrowHead.Props {}
+  export type Props = ArrowHead.Props & LineVector
 }
 
 export interface TeeHead extends TeeHead.Attrs {}
 
 export class TeeHead extends ArrowHead {
-
   properties: TeeHead.Props
 
   constructor(attrs?: Partial<TeeHead.Attrs>) {

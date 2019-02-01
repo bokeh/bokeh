@@ -1,5 +1,5 @@
 import {Annotation, AnnotationView} from "./annotation"
-import {LineMixinScalar} from "core/property_mixins"
+import {LineScalar} from "core/property_mixins"
 import {Line} from "core/visuals"
 import {Color} from "core/types"
 import * as p from "core/properties"
@@ -61,16 +61,9 @@ export class SlopeView extends AnnotationView {
 }
 
 export namespace Slope {
-  export interface Mixins extends LineMixinScalar {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends Annotation.Attrs, Mixins {
-    gradient: number | null
-    y_intercept: number | null
-    x_range_name: string
-    y_range_name: string
-  }
-
-  export interface Props extends Annotation.Props {
+  export type Props = Annotation.Props & LineScalar & {
     gradient: p.Property<number | null>
     y_intercept: p.Property<number | null>
     x_range_name: p.Property<string>
@@ -87,7 +80,6 @@ export namespace Slope {
 export interface Slope extends Slope.Attrs {}
 
 export class Slope extends Annotation {
-
   properties: Slope.Props
 
   constructor(attrs?: Partial<Slope.Attrs>) {

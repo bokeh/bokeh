@@ -1,16 +1,16 @@
 import {findLastIndex} from "core/util/array"
 import {Interpolator} from "./interpolator"
+import * as p from "core/properties"
 
 export namespace LinearInterpolator {
-  export interface Attrs extends Interpolator.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Interpolator.Props {}
+  export type Props = Interpolator.Props
 }
 
 export interface LinearInterpolator extends LinearInterpolator.Attrs {}
 
 export class LinearInterpolator extends Interpolator {
-
   properties: LinearInterpolator.Props
 
   constructor(attrs?: Partial<LinearInterpolator.Attrs>) {

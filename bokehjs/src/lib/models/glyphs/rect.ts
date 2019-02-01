@@ -1,7 +1,7 @@
 import {CenterRotatable, CenterRotatableView, CenterRotatableData} from "./center_rotatable"
 import {generic_area_legend} from "./utils"
 import {PointGeometry, RectGeometry} from "core/geometry"
-import {LineMixinVector, FillMixinVector} from "core/property_mixins"
+import {LineVector, FillVector} from "core/property_mixins"
 import {Arrayable, Area} from "core/types"
 import * as types from "core/types"
 import * as hittest from "core/hittest"
@@ -232,23 +232,18 @@ export class RectView extends CenterRotatableView {
 }
 
 export namespace Rect {
-  export interface Mixins extends LineMixinVector, FillMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends CenterRotatable.Attrs, Mixins {
-    dilate: boolean
-  }
-
-  export interface Props extends CenterRotatable.Props {
+  export type Props = CenterRotatable.Props & LineVector & FillVector & {
     dilate: p.Property<boolean>
   }
 
-  export interface Visuals extends CenterRotatable.Visuals {}
+  export type Visuals = CenterRotatable.Visuals
 }
 
 export interface Rect extends Rect.Attrs {}
 
 export class Rect extends CenterRotatable {
-
   properties: Rect.Props
 
   constructor(attrs?: Partial<Rect.Attrs>) {

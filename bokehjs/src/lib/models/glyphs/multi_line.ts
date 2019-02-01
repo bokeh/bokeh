@@ -1,10 +1,10 @@
 import {SpatialIndex} from "core/util/spatial"
 import {PointGeometry, SpanGeometry} from "core/geometry"
-import {NumberSpec} from "core/vectorization"
-import {LineMixinVector} from "core/property_mixins"
+import {LineVector} from "core/property_mixins"
 import {Line} from "core/visuals"
 import {Arrayable, Area} from "core/types"
 import * as hittest from "core/hittest"
+import * as p from "core/properties"
 import {keys} from "core/util/object"
 import {min, max} from "core/util/array"
 import {isStrictNaN} from "core/util/types"
@@ -157,24 +157,19 @@ export class MultiLineView extends GlyphView {
 }
 
 export namespace MultiLine {
-  export interface Mixins extends LineMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends Glyph.Attrs, Mixins {
-    xs: NumberSpec
-    ys: NumberSpec
+  export type Props = Glyph.Props & LineVector & {
+    xs: p.NumberSpec
+    ys: p.NumberSpec
   }
 
-  export interface Props extends Glyph.Props {}
-
-  export interface Visuals extends Glyph.Visuals {
-    line: Line
-  }
+  export type Visuals = Glyph.Visuals & {line: Line}
 }
 
 export interface MultiLine extends MultiLine.Attrs {}
 
 export class MultiLine extends Glyph {
-
   properties: MultiLine.Props
 
   constructor(attrs?: Partial<MultiLine.Attrs>) {

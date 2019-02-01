@@ -1,16 +1,16 @@
 import {Model} from "../../model"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
+import * as p from "core/properties"
 
 export namespace LayoutProvider {
-  export interface Attrs extends Model.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Model.Props {}
+  export type Props = Model.Props
 }
 
 export interface LayoutProvider extends LayoutProvider.Attrs {}
 
 export abstract class LayoutProvider extends Model {
-
   properties: LayoutProvider.Props
 
   constructor(attrs?: Partial<LayoutProvider.Attrs>) {

@@ -6,13 +6,9 @@ import {Model} from "../../model"
 import {ButtonTool, ButtonToolButtonView} from "./button_tool"
 
 export namespace ToolProxy {
-  export interface Attrs extends Model.Attrs {
-    tools: ButtonTool[]
-    active: boolean
-    disabled: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Model.Props {
+  export type Props = Model.Props & {
     tools: p.Property<ButtonTool[]>
     active: p.Property<boolean>
     disabled: p.Property<boolean>
@@ -22,7 +18,6 @@ export namespace ToolProxy {
 export interface ToolProxy extends ToolProxy.Attrs {}
 
 export class ToolProxy extends Model {
-
   properties: ToolProxy.Props
 
   constructor(attrs?: Partial<ToolProxy.Attrs>) {

@@ -6,20 +6,19 @@ import {includes} from "core/util/array"
 import {isString, isArray} from "core/util/types"
 
 export namespace Interpolator {
-  export interface Attrs extends Transform.Attrs {
-    x: string | number[]
-    y: string | number[]
-    data: ColumnarDataSource | null
-    clip: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Transform.Props {}
+  export type Props = Transform.Props & {
+    x: p.Property<string | number[]>
+    y: p.Property<string | number[]>
+    data: p.Property<ColumnarDataSource | null>
+    clip: p.Property<boolean>
+  }
 }
 
 export interface Interpolator extends Interpolator.Attrs {}
 
 export abstract class Interpolator extends Transform {
-
   properties: Interpolator.Props
 
   constructor(attrs?: Partial<Interpolator.Attrs>) {
