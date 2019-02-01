@@ -23,15 +23,15 @@ pytest_plugins = (
 )
 
 @pytest.mark.examples
-def test_js_examples(js_example, example, report):
+def test_js_examples(js_example, example, config):
     if example.no_js:
-        if not pytest.config.option.no_js:
+        if not config.option.no_js:
             warn("skipping bokehjs for %s" % example.relpath)
     else:
-        _run_in_browser(example, "file://%s" % example.path)
+        _run_in_browser(example, "file://%s" % example.path, config.option.verbose)
 
 @pytest.mark.examples
-def test_file_examples(file_example, example, report):
+def test_file_examples(file_example, example, config):
     (status, duration, out, err) = _run_example(example)
     info("Example run in %s" % white("%.3fs" % duration))
 
@@ -49,13 +49,13 @@ def test_file_examples(file_example, example, report):
     assert status == 0, "%s failed to run (exit code %s)" % (example.relpath, status)
 
     if example.no_js:
-        if not pytest.config.option.no_js:
+        if not config.option.no_js:
             warn("skipping bokehjs for %s" % example.relpath)
     else:
-        _run_in_browser(example, "file://%s.html" % example.path_no_ext)
+        _run_in_browser(example, "file://%s.html" % example.path_no_ext, config.option.verbose)
 
 @pytest.mark.examples
-def test_server_examples(server_example, example, report, bokeh_server):
+def test_server_examples(server_example, example, config, bokeh_server):
     # mitigate some weird interaction isolated to simple ids, py2.7,
     # "push_session" server usage, and TravisCI
     if six.PY2: os.environ['BOKEH_SIMPLE_IDS'] = 'no'
@@ -78,10 +78,10 @@ def test_server_examples(server_example, example, report, bokeh_server):
     push_session(doc, session_id=session_id)
 
     if example.no_js:
-        if not pytest.config.option.no_js:
+        if not config.option.no_js:
             warn("skipping bokehjs for %s" % example.relpath)
     else:
-        _run_in_browser(example, "http://localhost:5006/?bokeh-session-id=%s" % session_id)
+        _run_in_browser(example, "http://localhost:5006/?bokeh-session-id=%s" % session_id, config.option.verbose)
 
 def _get_path_parts(path):
     parts = []
@@ -136,7 +136,7 @@ def _create_baseline(items):
     descend(items, 0)
     return "".join(lines)
 
-def _run_in_browser(example, url):
+def _run_in_browser(example, url, verbose=False):
     start = time.time()
     result = run_in_chrome(url)
     end = time.time()
@@ -154,7 +154,7 @@ def _run_in_browser(example, url):
     if timeout:
         warn("%s %s" % (red("TIMEOUT:"), "bokehjs did not finish"))
 
-    if pytest.config.option.verbose:
+    if verbose:
         _print_webengine_output(result)
 
     assert success, "%s failed to load" % example.relpath

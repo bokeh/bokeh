@@ -51,7 +51,7 @@ __all__ = (
 
 @pytest.fixture(scope='session')
 def bokeh_server(request, log_file):
-    bokeh_port = pytest.config.option.bokeh_port
+    bokeh_port = request.config.option.bokeh_port
 
     cmd = ["python", "-m", "bokeh", "serve"]
     argv = ["--port=%s" % bokeh_port]
