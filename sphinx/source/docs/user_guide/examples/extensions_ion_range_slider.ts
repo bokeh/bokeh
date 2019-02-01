@@ -161,7 +161,7 @@ export class IonRangeSlider extends InputWidget {
       start:             [ p.Number,      0            ],
       end:               [ p.Number,      1            ],
       step:              [ p.Number,      0.1          ],
-      grid:              [ p.Bool,        true         ],
+      grid:              [ p.Boolean,     true         ],
       callback_throttle: [ p.Number,      200          ],
       callback_policy:   [ p.String,      "throttle"   ],
     })

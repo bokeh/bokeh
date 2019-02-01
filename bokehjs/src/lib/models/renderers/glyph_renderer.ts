@@ -403,7 +403,7 @@ export class GlyphRenderer extends DataRenderer {
       nonselection_glyph: [ p.Any,      'auto'   ], // Instance or "auto"
       selection_glyph:    [ p.Any,      'auto'   ], // Instance or "auto"
       muted_glyph:        [ p.Instance           ],
-      muted:              [ p.Bool,     false    ],
+      muted:              [ p.Boolean,  false    ],
     })
   }
 

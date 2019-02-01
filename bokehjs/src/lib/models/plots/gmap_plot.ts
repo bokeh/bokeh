@@ -63,10 +63,10 @@ export class GMapOptions extends MapOptions {
     this.prototype.type = "GMapOptions"
 
     this.define({
-      map_type:      [ p.String, "roadmap" ],
-      scale_control: [ p.Bool,   false     ],
-      styles:        [ p.String            ],
-      tilt:          [ p.Int,    45        ],
+      map_type:      [ p.String,  "roadmap" ],
+      scale_control: [ p.Boolean, false     ],
+      styles:        [ p.String             ],
+      tilt:          [ p.Int,     45        ],
     })
   }
 }

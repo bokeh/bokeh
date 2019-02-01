@@ -192,10 +192,10 @@ export class BoxZoomTool extends GestureTool {
     this.prototype.default_view = BoxZoomToolView
 
     this.define({
-      dimensions:   [ p.Dimensions, "both"            ],
-      overlay:      [ p.Instance, DEFAULT_BOX_OVERLAY ],
-      match_aspect: [ p.Bool,     false               ],
-      origin:       [ p.String,   "corner"            ], // Enum
+      dimensions:   [ p.Dimensions, "both"              ],
+      overlay:      [ p.Instance,   DEFAULT_BOX_OVERLAY ],
+      match_aspect: [ p.Boolean,    false               ],
+      origin:       [ p.String,     "corner"            ], // Enum
     })
   }
 

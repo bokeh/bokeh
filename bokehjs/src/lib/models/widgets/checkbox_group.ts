@@ -72,10 +72,10 @@ export class CheckboxGroup extends Widget {
     this.prototype.default_view = CheckboxGroupView
 
     this.define({
-      active:   [ p.Array, []    ],
-      labels:   [ p.Array, []    ],
-      inline:   [ p.Bool,  false ],
-      callback: [ p.Any          ],
+      active:   [ p.Array,   []    ],
+      labels:   [ p.Array,   []    ],
+      inline:   [ p.Boolean, false ],
+      callback: [ p.Any            ],
     })
   }
 }

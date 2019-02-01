@@ -148,8 +148,8 @@ export class Plot extends LayoutDOM {
       title:             [ p.Any, () => new Title({text: ""})  ], // TODO: p.Either(p.Instance(Title), p.String)
       title_location:    [ p.Location, 'above'                 ],
 
-      h_symmetry:        [ p.Bool,     true                    ],
-      v_symmetry:        [ p.Bool,     false                   ],
+      h_symmetry:        [ p.Boolean,  true                    ],
+      v_symmetry:        [ p.Boolean,  false                   ],
 
       above:             [ p.Array,    []                      ],
       below:             [ p.Array,    []                      ],
@@ -172,7 +172,7 @@ export class Plot extends LayoutDOM {
       lod_threshold:     [ p.Number,   2000                    ],
       lod_timeout:       [ p.Number,   500                     ],
 
-      hidpi:             [ p.Bool,     true                    ],
+      hidpi:             [ p.Boolean,  true                    ],
       output_backend:    [ p.OutputBackend, "canvas"           ],
 
       min_border:        [ p.Number,   5                       ],
@@ -186,7 +186,7 @@ export class Plot extends LayoutDOM {
       outer_width:       [ p.Number                            ],
       outer_height:      [ p.Number                            ],
 
-      match_aspect:      [ p.Bool,     false                   ],
+      match_aspect:      [ p.Boolean,  false                   ],
       aspect_scale:      [ p.Number,   1                       ],
     })
 

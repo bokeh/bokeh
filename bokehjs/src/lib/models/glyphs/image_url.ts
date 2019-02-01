@@ -258,7 +258,7 @@ export class ImageURL extends XYGlyph {
       angle:          [ p.AngleSpec, 0          ],
       w:              [ p.DistanceSpec          ],
       h:              [ p.DistanceSpec          ],
-      dilate:         [ p.Bool,      false      ],
+      dilate:         [ p.Boolean,   false      ],
       retry_attempts: [ p.Number,    0          ],
       retry_timeout:  [ p.Number,    0          ],
     })

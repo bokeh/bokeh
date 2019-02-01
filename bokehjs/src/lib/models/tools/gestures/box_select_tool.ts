@@ -127,7 +127,7 @@ export class BoxSelectTool extends SelectTool {
 
     this.define({
       dimensions:             [ p.Dimensions, "both"              ],
-      select_every_mousemove: [ p.Bool,       false               ],
+      select_every_mousemove: [ p.Boolean,    false               ],
       callback:               [ p.Any                             ],
       overlay:                [ p.Instance,   DEFAULT_BOX_OVERLAY ],
       origin:                 [ p.String,     "corner"            ], // Enum

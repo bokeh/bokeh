@@ -29,7 +29,7 @@ export abstract class InspectTool extends ButtonTool {
     this.prototype.button_view = OnOffButtonView
 
     this.define({
-      toggleable: [ p.Bool, true ],
+      toggleable: [ p.Boolean, true ],
     })
 
     this.override({

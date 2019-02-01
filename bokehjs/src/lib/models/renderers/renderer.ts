@@ -75,7 +75,7 @@ export abstract class Renderer extends Model {
 
     this.define({
       level: [ p.RenderLevel ],
-      visible: [ p.Bool, true ],
+      visible: [ p.Boolean, true ],
     })
   }
 }

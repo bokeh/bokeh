@@ -412,9 +412,9 @@ export class TileRenderer extends DataRenderer {
 
     this.define({
       alpha:          [ p.Number,   1.0              ],
-      smoothing:      [ p.Bool,     true             ],
+      smoothing:      [ p.Boolean,  true             ],
       tile_source:    [ p.Instance, () => new WMTSTileSource() ],
-      render_parents: [ p.Bool,     true             ],
+      render_parents: [ p.Boolean,  true             ],
     })
   }
 

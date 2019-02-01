@@ -170,8 +170,7 @@ export class Any extends simple_prop<any>("Any", () => true) {}
 
 export class Array extends simple_prop<any[]>("Array", (x) => isArray(x) || x instanceof Float64Array) {}
 
-export class Bool extends simple_prop<boolean>("Bool", isBoolean) {}
-export const Boolean = Bool
+export class Boolean extends simple_prop<boolean>("Boolean", isBoolean) {}
 
 export class Color extends simple_prop<Color>("Color", (x) => (isString(x) && (is_svg_color(x.toLowerCase()) || x.substring(0, 1) == "#" || valid_rgb(x)))) {}
 

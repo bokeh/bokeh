@@ -503,7 +503,7 @@ describe("properties module", () => {
   })
 
   describe("Bool", () => {
-    const prop = new p.Bool(new SomeHasProps({a: {value: true}}), 'a')
+    const prop = new p.Boolean(new SomeHasProps({a: {value: true}}), 'a')
 
     it("should be an instance of Property", () => {
       expect(prop).to.be.instanceof(p.Property)

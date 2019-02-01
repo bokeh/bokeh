@@ -27,10 +27,10 @@ export class BasicTickFormatter extends TickFormatter {
     this.prototype.type = 'BasicTickFormatter'
 
     this.define({
-      precision:        [ p.Any,    'auto' ], // TODO (bev) better
-      use_scientific:   [ p.Bool,   true   ],
-      power_limit_high: [ p.Number, 5      ],
-      power_limit_low:  [ p.Number, -3     ],
+      precision:        [ p.Any,     'auto' ], // TODO (bev) better
+      use_scientific:   [ p.Boolean, true   ],
+      power_limit_high: [ p.Number,  5      ],
+      power_limit_low:  [ p.Number,  -3     ],
     })
   }
 

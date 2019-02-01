@@ -360,8 +360,8 @@ export abstract class LayoutDOM extends Model {
       height_policy: [ p.Any,        "auto"       ],
       aspect_ratio:  [ p.Number,     null         ],
       sizing_mode:   [ p.SizingMode, null         ],
-      visible:       [ p.Bool,       true         ],
-      disabled:      [ p.Bool,       false        ],
+      visible:       [ p.Boolean,    true         ],
+      disabled:      [ p.Boolean,    false        ],
       background:    [ p.Color,      null         ],
       css_classes:   [ p.Array,      []           ],
     })

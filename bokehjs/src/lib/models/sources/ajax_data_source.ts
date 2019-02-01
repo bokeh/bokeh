@@ -31,13 +31,13 @@ export class AjaxDataSource extends RemoteDataSource {
     this.prototype.type = 'AjaxDataSource'
 
     this.define({
-      mode:         [ p.String, 'replace'          ],
-      content_type: [ p.String, 'application/json' ],
-      adapter:      [ p.Any                        ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
-      http_headers: [ p.Any,    {}                 ],
-      max_size:     [ p.Number                     ],
-      method:       [ p.String, 'POST'             ], // TODO (bev)  enum?
-      if_modified:  [ p.Bool,   false              ],
+      mode:         [ p.String,  'replace'          ],
+      content_type: [ p.String,  'application/json' ],
+      adapter:      [ p.Any                         ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
+      http_headers: [ p.Any,     {}                 ],
+      max_size:     [ p.Number                      ],
+      method:       [ p.String,  'POST'             ], // TODO (bev)  enum?
+      if_modified:  [ p.Boolean, false              ],
     })
   }
 

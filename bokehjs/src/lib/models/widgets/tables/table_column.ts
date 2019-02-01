@@ -56,7 +56,7 @@ export class TableColumn extends Model {
       width:        [ p.Number,   300                         ],
       formatter:    [ p.Instance, () => new StringFormatter() ],
       editor:       [ p.Instance, () => new StringEditor()    ],
-      sortable:     [ p.Bool,     true                        ],
+      sortable:     [ p.Boolean,  true                        ],
       default_sort: [ p.String,   "ascending"                 ],
     })
   }

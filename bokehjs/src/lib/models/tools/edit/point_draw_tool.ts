@@ -97,9 +97,9 @@ export class PointDrawTool extends EditTool {
     this.prototype.default_view = PointDrawToolView
 
     this.define({
-      add:  [ p.Bool, true ],
-      drag: [ p.Bool, true ],
-      num_objects: [ p.Int, 0 ],
+      add:         [ p.Boolean, true ],
+      drag:        [ p.Boolean, true ],
+      num_objects: [ p.Int,     0    ],
     })
   }
 

@@ -331,18 +331,18 @@ export class DataTable extends TableWidget {
     this.prototype.default_view = DataTableView
 
     this.define({
-      columns:             [ p.Array,  []    ],
-      fit_columns:         [ p.Bool,   true  ],
-      sortable:            [ p.Bool,   true  ],
-      reorderable:         [ p.Bool,   true  ],
-      editable:            [ p.Bool,   false ],
-      selectable:          [ p.Any,    true  ], // boolean or "checkbox"
-      index_position:      [ p.Int,    0     ],
-      index_header:        [ p.String, "#"   ],
-      index_width:         [ p.Int,    40    ],
-      scroll_to_selection: [ p.Bool,   true  ],
-      header_row:          [ p.Bool,   true  ],
-      row_height:          [ p.Int,    25    ],
+      columns:             [ p.Array,   []    ],
+      fit_columns:         [ p.Boolean, true  ],
+      sortable:            [ p.Boolean, true  ],
+      reorderable:         [ p.Boolean, true  ],
+      editable:            [ p.Boolean, false ],
+      selectable:          [ p.Any,     true  ], // boolean or "checkbox"
+      index_position:      [ p.Int,     0     ],
+      index_header:        [ p.String,  "#"   ],
+      index_width:         [ p.Int,     40    ],
+      scroll_to_selection: [ p.Boolean, true  ],
+      header_row:          [ p.Boolean, true  ],
+      row_height:          [ p.Int,     25    ],
     })
 
     this.override({

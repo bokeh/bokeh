@@ -125,7 +125,7 @@ export class LassoSelectTool extends SelectTool {
     this.prototype.default_view = LassoSelectToolView
 
     this.define({
-      select_every_mousemove: [ p.Bool,    true                  ],
+      select_every_mousemove: [ p.Boolean, true                  ],
       callback:               [ p.Any                            ],
       overlay:                [ p.Instance, DEFAULT_POLY_OVERLAY ],
     })

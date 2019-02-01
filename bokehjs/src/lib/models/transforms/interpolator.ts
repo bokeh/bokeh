@@ -29,10 +29,10 @@ export abstract class Interpolator extends Transform {
     this.prototype.type = "Interpolator"
 
     this.define({
-      x:    [ p.Any        ],
-      y:    [ p.Any        ],
-      data: [ p.Any        ],
-      clip: [ p.Bool, true ],
+      x:    [ p.Any           ],
+      y:    [ p.Any           ],
+      data: [ p.Any           ],
+      clip: [ p.Boolean, true ],
     })
   }
 

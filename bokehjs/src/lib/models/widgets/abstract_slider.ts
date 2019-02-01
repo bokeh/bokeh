@@ -274,7 +274,7 @@ export abstract class AbstractSlider extends Widget {
     this.define({
       default_size:      [ p.Number,      300          ],
       title:             [ p.String,      ""           ],
-      show_value:        [ p.Bool,        true         ],
+      show_value:        [ p.Boolean,     true         ],
       start:             [ p.Any                       ],
       end:               [ p.Any                       ],
       value:             [ p.Any                       ],

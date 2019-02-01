@@ -25,8 +25,8 @@ export class MercatorTileSource extends TileSource {
     this.prototype.type = 'MercatorTileSource'
 
     this.define({
-      snap_to_zoom: [ p.Bool, false ],
-      wrap_around:  [ p.Bool, true  ],
+      snap_to_zoom: [ p.Boolean, false ],
+      wrap_around:  [ p.Boolean, true  ],
     })
 
     this.override({

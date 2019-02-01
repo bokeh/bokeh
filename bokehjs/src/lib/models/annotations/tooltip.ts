@@ -149,8 +149,8 @@ export class Tooltip extends Annotation {
 
     this.define({
       attachment: [ p.String, 'horizontal' ], // TODO enum: "horizontal" | "vertical" | "left" | "right" | "above" | "below"
-      inner_only: [ p.Bool,   true         ],
-      show_arrow: [ p.Bool,   true         ],
+      inner_only: [ p.Boolean, true        ],
+      show_arrow: [ p.Boolean, true        ],
     })
 
     this.override({

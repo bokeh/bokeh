@@ -16,8 +16,8 @@ class SubclassWithProps extends HasProps {
 }
 SubclassWithProps.prototype.type = "SubclassWithProps"
 SubclassWithProps.define({
-  foo: [ p.Number, 0    ],
-  bar: [ p.Bool,   true ],
+  foo: [ p.Number,  0    ],
+  bar: [ p.Boolean, true ],
 })
 
 class SubSubclassWithProps extends SubclassWithProps {
@@ -47,7 +47,7 @@ class SubclassWithNumberSpec extends HasProps {
 SubclassWithNumberSpec.prototype.type = "SubclassWithNumberSpec"
 SubclassWithNumberSpec.define({
   foo: [ p.NumberSpec, {field: 'colname'} ],
-  bar: [ p.Bool,       true               ],
+  bar: [ p.Boolean,    true               ],
 })
 
 class SubclassWithDistanceSpec extends HasProps {
@@ -57,7 +57,7 @@ class SubclassWithDistanceSpec extends HasProps {
 SubclassWithDistanceSpec.prototype.type = "SubclassWithDistanceSpec"
 SubclassWithDistanceSpec.define({
   foo: [ p.DistanceSpec, {field: 'colname'} ],
-  bar: [ p.Bool,         true               ],
+  bar: [ p.Boolean,      true               ],
 })
 
 class SubclassWithTransformSpec extends HasProps {
@@ -67,7 +67,7 @@ class SubclassWithTransformSpec extends HasProps {
 SubclassWithTransformSpec.prototype.type = "SubclassWithTransformSpec"
 SubclassWithTransformSpec.define({
   foo: [ p.NumberSpec, {field: 'colname', transform: new TestModel()} ],
-  bar: [ p.Bool,       true               ],
+  bar: [ p.Boolean,    true               ],
 })
 
 class SubclassWithOptionalSpec extends HasProps {
@@ -78,7 +78,7 @@ class SubclassWithOptionalSpec extends HasProps {
 SubclassWithOptionalSpec.prototype.type = "SubclassWithOptionalSpec"
 SubclassWithOptionalSpec.define({
   foo: [ p.NumberSpec, {value: null}      ],
-  bar: [ p.Bool,       true               ],
+  bar: [ p.Boolean,    true               ],
   baz: [ p.NumberSpec, {field: 'colname'} ],
 })
 

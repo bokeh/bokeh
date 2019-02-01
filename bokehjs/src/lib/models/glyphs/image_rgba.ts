@@ -184,7 +184,7 @@ export class ImageRGBA extends XYGlyph {
       dw:           [ p.DistanceSpec       ],
       dh:           [ p.DistanceSpec       ],
       global_alpha: [ p.Number,      1.0   ],
-      dilate:       [ p.Bool,        false ],
+      dilate:       [ p.Boolean,     false ],
     })
   }
 }

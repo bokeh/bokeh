@@ -37,8 +37,8 @@ export class ToolbarViewModel extends Model {
     this.prototype.type = 'ToolbarBase'
 
     this.define({
-      _visible: [p.Bool, null],
-      autohide: [p.Bool, false],
+      _visible: [ p.Boolean, null  ],
+      autohide: [ p.Boolean, false ],
     })
   }
 
@@ -185,7 +185,7 @@ export class ToolbarBase extends Model {
     this.define({
       tools:      [ p.Array,      []       ],
       logo:       [ p.String,     'normal' ], // TODO (bev)
-      autohide:   [ p.Bool,       false    ],
+      autohide:   [ p.Boolean,       false    ],
     })
 
     this.internal({

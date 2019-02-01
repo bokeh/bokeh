@@ -254,7 +254,7 @@ export class Rect extends CenterRotatable {
     this.prototype.type = 'Rect'
     this.prototype.default_view = RectView
     this.define({
-      dilate: [ p.Bool,        false ],
+      dilate: [ p.Boolean, false ],
     })
   }
 }

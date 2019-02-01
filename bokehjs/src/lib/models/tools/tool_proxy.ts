@@ -28,9 +28,9 @@ export class ToolProxy extends Model {
     this.prototype.type = "ToolProxy"
 
     this.define({
-      tools:    [ p.Array, []    ],
-      active:   [ p.Bool,  false ],
-      disabled: [ p.Bool,  false ],
+      tools:    [ p.Array,   []    ],
+      active:   [ p.Boolean, false ],
+      disabled: [ p.Boolean, false ],
     })
   }
 

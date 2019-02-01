@@ -68,10 +68,10 @@ export class RadioGroup extends Widget {
     this.prototype.default_view = RadioGroupView
 
     this.define({
-      active:   [ p.Any,   null  ], // TODO (bev) better type?
-      labels:   [ p.Array, []    ],
-      inline:   [ p.Bool,  false ],
-      callback: [ p.Any          ],
+      active:   [ p.Any,     null  ], // TODO (bev) better type?
+      labels:   [ p.Array,   []    ],
+      inline:   [ p.Boolean, false ],
+      callback: [ p.Any            ],
     })
   }
 }

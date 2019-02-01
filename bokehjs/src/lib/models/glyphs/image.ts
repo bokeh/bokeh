@@ -261,7 +261,7 @@ export class Image extends XYGlyph {
       image:        [ p.NumberSpec       ], // TODO (bev) array spec?
       dw:           [ p.DistanceSpec     ],
       dh:           [ p.DistanceSpec     ],
-      dilate:       [ p.Bool,      false ],
+      dilate:       [ p.Boolean,   false ],
       global_alpha: [ p.Number,    1.0   ],
       color_mapper: [ p.Instance,  () => new LinearColorMapper({palette: Greys9()}) ],
     })
