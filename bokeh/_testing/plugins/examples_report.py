@@ -79,8 +79,10 @@ def pytest_generate_tests(metafunc):
 
         def marks(example):
             result = []
+            if example.is_skip:
+                result.append(pytest.mark.skip(reason="skipping %s" % example.relpath))
             if example.is_xfail and not example.no_js:
-                result.append(pytest.mark.xfail(strict=True))
+                result.append(pytest.mark.xfail(reason="xfail %s" % example.relpath, strict=True))
             return result
 
         if 'js_example' in metafunc.fixturenames:
