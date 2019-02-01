@@ -8,8 +8,9 @@ import {div} from "core/dom"
 import * as p from "core/properties"
 
 export class CustomView extends HTMLBoxView {
+  model: Custom
 
-  private content: HTMLElement
+  private content_el: HTMLElement
 
   connect_signals(): void {
     super.connect_signals()
@@ -24,20 +25,20 @@ export class CustomView extends HTMLBoxView {
     // current slider value.
     super.render()
 
-    this.content = div({style: {
+    this.content_el = div({style: {
       textAlign: "center",
       fontSize: "1.2em",
       padding: "2px",
       color: "#b88d8e",
       backgroundColor: "#2a3153",
     }})
-    this.el.appendChild(this.content)
+    this.el.appendChild(this.content_el)
 
     this._update_text()
   }
 
   private _update_text(): void {
-    this.content.textContent = `${this.model.text}: ${this.model.slider.value}`
+    this.content_el.textContent = `${this.model.text}: ${this.model.slider.value}`
   }
 }
 
