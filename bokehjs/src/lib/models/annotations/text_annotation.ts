@@ -10,6 +10,8 @@ export abstract class TextAnnotationView extends AnnotationView {
   model: TextAnnotation
   visuals: TextAnnotation.Visuals
 
+  readonly rotate: boolean = true
+
   initialize(options: any): void {
     super.initialize(options)
 

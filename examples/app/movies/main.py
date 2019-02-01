@@ -5,7 +5,7 @@ import pandas.io.sql as psql
 import sqlite3 as sql
 
 from bokeh.plotting import figure
-from bokeh.layouts import layout, widgetbox
+from bokeh.layouts import layout, column
 from bokeh.models import ColumnDataSource, Div
 from bokeh.models.widgets import Slider, Select, TextInput
 from bokeh.io import curdoc
@@ -106,7 +106,7 @@ for control in controls:
 
 sizing_mode = 'fixed'  # 'scale_width' also looks nice with this example
 
-inputs = widgetbox(*controls, sizing_mode=sizing_mode)
+inputs = column(*controls, sizing_mode=sizing_mode)
 l = layout([
     [desc],
     [inputs, p],

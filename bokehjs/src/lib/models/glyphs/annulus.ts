@@ -1,12 +1,11 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {Arrayable} from "core/types"
+import {Arrayable, Area} from "core/types"
 import {PointGeometry} from "core/geometry"
 import {DistanceSpec} from "core/vectorization"
 import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
-import {IBBox} from "core/util/bbox"
 import {Context2d} from "core/util/canvas"
 import {is_ie} from "core/util/compat"
 import {Selection} from "../selections/selection"
@@ -120,7 +119,7 @@ export class AnnulusView extends XYGlyphView {
     return hittest.create_hit_test_result_from_hits(hits)
   }
 
-  draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: IBBox, index: number): void {
+  draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Area, index: number): void {
     const len = index + 1
 
     const sx: number[] = new Array(len)

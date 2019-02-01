@@ -93,10 +93,6 @@ class Annotation(Renderer):
 
     '''
 
-    plot = Instance(".models.plots.Plot", help="""
-    The plot to which this annotation is attached.
-    """)
-
     level = Override(default="annotation")
 
 @abstract

@@ -1,5 +1,5 @@
 from bokeh.io import save
-from bokeh.layouts import row, column
+from bokeh.layouts import gridplot
 from bokeh.plotting import figure
 
 pq = [       0,  1,  2,  3,
@@ -62,7 +62,9 @@ f2.hex_tile(fr, fq, line_color="white", fill_color=colors, orientation="flattop"
 f3 = figure(plot_width=300, plot_height=300, match_aspect=True, toolbar_location=None, title="flattop, aspect_scale=0.5")
 f3.hex_tile(fr, fq, line_color="white", fill_color=colors, orientation="flattop", aspect_scale=0.5)
 
-save(column(
-    row(p0, p1, p2, p3),
-    row(f0, f1, f2, f3),
-))
+plots = [
+    [p0, p1, p2, p3],
+    [f0, f1, f2, f3],
+]
+
+save(gridplot(plots, toolbar_location=None))

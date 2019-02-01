@@ -1,4 +1,4 @@
-import {empty, label, select, option} from "core/dom"
+import {select, option} from "core/dom"
 import {isString} from "core/util/types"
 import {Set} from "core/util/data_structures"
 import * as p from "core/properties"
@@ -9,11 +9,6 @@ export class MultiSelectView extends InputWidgetView {
   model: MultiSelect
 
   protected selectEl: HTMLSelectElement
-
-  initialize(options: any): void {
-    super.initialize(options)
-    this.render()
-  }
 
   connect_signals(): void {
     super.connect_signals()
@@ -27,10 +22,6 @@ export class MultiSelectView extends InputWidgetView {
 
   render(): void {
     super.render()
-    empty(this.el)
-
-    const labelEl = label({for: this.model.id}, this.model.title)
-    this.el.appendChild(labelEl)
 
     const options = this.model.options.map((opt) => {
       let value, _label
@@ -44,8 +35,7 @@ export class MultiSelectView extends InputWidgetView {
 
     this.selectEl = select({
       multiple: true,
-      class: "bk-widget-form-input",
-      id: this.model.id,
+      class: "bk-input",
       name: this.model.name,
       disabled: this.model.disabled,
     }, options)
@@ -104,7 +94,6 @@ export namespace MultiSelect {
 export interface MultiSelect extends MultiSelect.Attrs {}
 
 export class MultiSelect extends InputWidget {
-
   properties: MultiSelect.Props
 
   constructor(attrs?: Partial<MultiSelect.Attrs>) {
@@ -122,5 +111,4 @@ export class MultiSelect extends InputWidget {
     })
   }
 }
-
 MultiSelect.initClass()

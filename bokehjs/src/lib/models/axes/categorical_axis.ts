@@ -25,13 +25,13 @@ export class CategoricalAxisView extends AxisView {
   }
 
   protected _draw_group_separators(ctx: Context2d, _extents: Extents, _tick_coords: TickCoords): void {
-    const [range,] = (this.model.ranges as any) as [FactorRange, FactorRange]
-    const [start, end] = this.model.computed_bounds
+    const [range,] = (this.ranges as any) as [FactorRange, FactorRange]
+    const [start, end] = this.computed_bounds
 
     if (!range.tops || range.tops.length < 2 || !this.visuals.separator_line.doit)
       return
 
-    const dim = this.model.dimension
+    const dim = this.dimension
     const alt = (dim + 1) % 2
 
     const coords: Coords = [[], []]
@@ -51,7 +51,7 @@ export class CategoricalAxisView extends AxisView {
       const pt = (range.synthetic(first!) + range.synthetic(last!))/2
       if (pt > start && pt < end) {
         coords[dim].push(pt)
-        coords[alt].push(this.model.loc)
+        coords[alt].push(this.loc)
       }
     }
 
@@ -65,7 +65,7 @@ export class CategoricalAxisView extends AxisView {
     let standoff = extents.tick + this.model.major_label_standoff
     for (let i = 0; i < info.length; i++) {
       const [labels, coords, orient, visuals] = info[i]
-      this._draw_oriented_labels(ctx, labels, coords, orient, this.model.panel.side, standoff, visuals)
+      this._draw_oriented_labels(ctx, labels, coords, orient, this.panel.side, standoff, visuals)
       standoff += extents.tick_label[i]
     }
   }
@@ -75,7 +75,7 @@ export class CategoricalAxisView extends AxisView {
 
     const extents = []
     for (const [labels,, orient, visuals] of info) {
-      const extent = this._oriented_labels_extent(labels, orient, this.model.panel.side, this.model.major_label_standoff, visuals)
+      const extent = this._oriented_labels_extent(labels, orient, this.panel.side, this.model.major_label_standoff, visuals)
       extents.push(extent)
     }
 
@@ -83,27 +83,27 @@ export class CategoricalAxisView extends AxisView {
   }
 
   protected _get_factor_info(): [string[], Coords, Orient | number, Text][] {
-    const [range,] = (this.model.ranges as any) as [FactorRange, FactorRange]
-    const [start, end] = this.model.computed_bounds
-    const loc = this.model.loc
+    const [range,] = (this.ranges as any) as [FactorRange, FactorRange]
+    const [start, end] = this.computed_bounds
+    const loc = this.loc
 
     const ticks = this.model.ticker.get_ticks(start, end, range, loc, {})
-    const coords = this.model.tick_coords
+    const coords = this.tick_coords
 
     const info: [string[], Coords, Orient | number, Text][] = []
 
     if (range.levels == 1) {
       const major = ticks.major as L1Factor[]
-      const labels = this.model.formatter.doFormat(major, this.model)
+      const labels = this.model.formatter.doFormat(major, this)
       info.push([labels, coords.major, this.model.major_label_orientation, this.visuals.major_label_text])
     } else if (range.levels == 2) {
       const major = (ticks.major as L2Factor[]).map((x) => x[1])
-      const labels = this.model.formatter.doFormat(major, this.model)
+      const labels = this.model.formatter.doFormat(major, this)
       info.push([labels, coords.major, this.model.major_label_orientation, this.visuals.major_label_text])
       info.push([ticks.tops as string[], coords.tops, this.model.group_label_orientation, this.visuals.group_text])
     } else if (range.levels == 3) {
       const major = (ticks.major as L3Factor[]).map((x) => x[2])
-      const labels = this.model.formatter.doFormat(major, this.model)
+      const labels = this.model.formatter.doFormat(major, this)
       const mid_labels = ticks.mids.map((x) => x[1])
       info.push([labels, coords.major, this.model.major_label_orientation, this.visuals.major_label_text])
       info.push([mid_labels as string[], coords.mids, this.model.subgroup_label_orientation, this.visuals.subgroup_text])
@@ -112,6 +112,37 @@ export class CategoricalAxisView extends AxisView {
 
     return info
   }
+
+  // {{{ TODO: state
+  get tick_coords(): CategoricalTickCoords {
+    const i = this.dimension
+    const j = (i + 1) % 2
+    const [range,] = (this.ranges as any) as [FactorRange, FactorRange]
+    const [start, end] = this.computed_bounds
+
+    const ticks = this.model.ticker.get_ticks(start, end, range, this.loc, {})
+
+    const coords: CategoricalTickCoords = {
+      major: [[], []],
+      mids:  [[], []],
+      tops:  [[], []],
+      minor: [[], []],
+    }
+
+    coords.major[i] = ticks.major as any
+    coords.major[j] = ticks.major.map((_x) => this.loc)
+
+    if (range.levels == 3)
+      coords.mids[i] = ticks.mids as any
+      coords.mids[j] = ticks.mids.map((_x) => this.loc)
+
+    if (range.levels > 1)
+      coords.tops[i] = ticks.tops as any
+      coords.tops[j] = ticks.tops.map((_x) => this.loc)
+
+    return coords
+  }
+  // }}}
 }
 
 export namespace CategoricalAxis {
@@ -207,35 +238,6 @@ export class CategoricalAxis extends Axis {
       subgroup_text_font_style: "bold",
       subgroup_text_font_size: "8pt",
     })
-  }
-
-  get tick_coords(): CategoricalTickCoords {
-    const i = this.dimension
-    const j = (i + 1) % 2
-    const [range,] = (this.ranges as any) as [FactorRange, FactorRange]
-    const [start, end] = this.computed_bounds
-
-    const ticks = this.ticker.get_ticks(start, end, range, this.loc, {})
-
-    const coords: CategoricalTickCoords = {
-      major: [[], []],
-      mids:  [[], []],
-      tops:  [[], []],
-      minor: [[], []],
-    }
-
-    coords.major[i] = ticks.major as any
-    coords.major[j] = ticks.major.map((_x) => this.loc)
-
-    if (range.levels == 3)
-      coords.mids[i] = ticks.mids as any
-      coords.mids[j] = ticks.mids.map((_x) => this.loc)
-
-    if (range.levels > 1)
-      coords.tops[i] = ticks.tops as any
-      coords.tops[j] = ticks.tops.map((_x) => this.loc)
-
-    return coords
   }
 }
 CategoricalAxis.initClass()

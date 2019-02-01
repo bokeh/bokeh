@@ -56,10 +56,6 @@ that is compiled from several separate ``.less`` files in the BokehJS source
 tree. All CSS classes specifically for Bokeh DOM elements are prefixed with
 the string ``bk-``. For instance some examples are: ``.bk-plot``, ``.bk-toolbar-button``, etc.
 
-Furthermore, BokehJS ships with its own version of `Bootstrap <http://getbootstrap.com>`_.
-To prevent name collisions, the version of Bootstrap CSS that Bokeh uses has
-been entirely prefixed with the prefix ``bk-bs-``.
-
 .. _Chaco: https://github.com/enthought/chaco
 .. _JSFiddle: http://jsfiddle.net/
 .. _Protovis: http://mbostock.github.io/protovis/

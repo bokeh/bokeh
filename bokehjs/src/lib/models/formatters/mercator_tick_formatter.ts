@@ -1,5 +1,5 @@
 import {BasicTickFormatter} from "./basic_tick_formatter"
-import {Axis} from "../axes/axis"
+import {AxisView} from "../axes/axis"
 import {LatLon} from "core/enums"
 import * as p from "core/properties"
 import {wgs84_mercator} from "core/util/projections"
@@ -30,7 +30,7 @@ export class MercatorTickFormatter extends BasicTickFormatter {
     })
   }
 
-  doFormat(ticks: number[], axis: Axis): string[] {
+  doFormat(ticks: number[], axis_view: AxisView): string[] {
     if (this.dimension == null)
       throw new Error("MercatorTickFormatter.dimension not configured")
 
@@ -42,17 +42,17 @@ export class MercatorTickFormatter extends BasicTickFormatter {
 
     if (this.dimension == "lon") {
       for (let i = 0; i < n; i++) {
-        const [lon,] = wgs84_mercator.inverse([ticks[i], axis.loc])
+        const [lon,] = wgs84_mercator.inverse([ticks[i], axis_view.loc])
         proj_ticks[i] = lon
       }
     } else {
       for (let i = 0; i < n; i++) {
-        const [, lat] = wgs84_mercator.inverse([axis.loc, ticks[i]])
+        const [, lat] = wgs84_mercator.inverse([axis_view.loc, ticks[i]])
         proj_ticks[i] = lat
       }
     }
 
-    return super.doFormat(proj_ticks, axis)
+    return super.doFormat(proj_ticks, axis_view)
   }
 }
 MercatorTickFormatter.initClass()

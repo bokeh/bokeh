@@ -1,4 +1,6 @@
-namespace Anscombe {
+import * as Bokeh from "bokehjs"
+
+export namespace Anscombe {
   console.log(`Bokeh ${Bokeh.version}`)
   Bokeh.set_log_level("info")
 

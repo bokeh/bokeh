@@ -2,11 +2,10 @@ import {CenterRotatable, CenterRotatableView, CenterRotatableData} from "./cente
 import {generic_area_legend} from "./utils"
 import {PointGeometry, RectGeometry} from "core/geometry"
 import {LineMixinVector, FillMixinVector} from "core/property_mixins"
-import {Arrayable} from "core/types"
+import {Arrayable, Area} from "core/types"
+import * as types from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
-import * as spatial from "core/util/spatial"
-import {IBBox} from "core/util/bbox"
 import {max} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
@@ -218,11 +217,11 @@ export class RectView extends CenterRotatableView {
     return ddist
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: IBBox, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Area, index: number): void {
     generic_area_legend(this.visuals, ctx, bbox, index)
   }
 
-  protected _bounds({minX, maxX, minY, maxY}: spatial.Rect): spatial.Rect {
+  protected _bounds({minX, maxX, minY, maxY}: types.Rect): types.Rect {
     return {
       minX: minX - this.max_w2,
       maxX: maxX + this.max_w2,

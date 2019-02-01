@@ -3,7 +3,7 @@ import {scale_range} from "core/util/zoom"
 import * as p from "core/properties"
 import {GestureEvent, ScrollEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
-import {is_mobile} from "core/ui_events"
+import {is_mobile} from "core/util/compat"
 
 export class WheelZoomToolView extends GestureToolView {
   model: WheelZoomTool
@@ -18,11 +18,11 @@ export class WheelZoomToolView extends GestureToolView {
     else
       delta = -20.0/scale
 
-    this._scroll({type: "mousewheel", sx, sy, delta})
+    this._scroll({type: "wheel", sx, sy, delta})
   }
 
   _scroll(ev: ScrollEvent): void {
-    const frame = this.plot_model.frame
+    const {frame} = this.plot_view
 
     const hr = frame.bbox.h_range
     const vr = frame.bbox.v_range
@@ -47,7 +47,7 @@ export class WheelZoomToolView extends GestureToolView {
     this.plot_view.update_range(zoom_info, false, true, this.model.maintain_focus)
 
     if (this.model.document != null)
-      this.model.document.interactive_start(this.plot_model.plot)
+      this.model.document.interactive_start(this.plot_model)
   }
 }
 

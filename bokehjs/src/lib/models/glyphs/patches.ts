@@ -1,11 +1,10 @@
-import {IBBox} from "core/util/bbox"
 import {SpatialIndex} from "core/util/spatial"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_area_legend} from "./utils"
 import {min, max, copy, findLastIndex} from "core/util/array"
 import {sum} from "core/util/arrayable"
 import {isStrictNaN} from "core/util/types"
-import {Arrayable} from "core/types"
+import {Arrayable, Area} from "core/types"
 import {PointGeometry} from "core/geometry"
 import {Context2d} from "core/util/canvas"
 import {NumberSpec} from "core/vectorization"
@@ -229,7 +228,7 @@ export class PatchesView extends GlyphView {
     throw new Error("unreachable code")
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: IBBox, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Area, index: number): void {
     generic_area_legend(this.visuals, ctx, bbox, index)
   }
 }

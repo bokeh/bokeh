@@ -1,6 +1,5 @@
 import * as p from "core/properties"
-import {Location, SizingMode} from "core/enums"
-import {empty} from "core/dom"
+import {Location} from "core/enums"
 import {logger} from "core/logging"
 import {isString} from "core/util/types"
 import {any, sortBy, includes} from "core/util/array"
@@ -11,11 +10,11 @@ import {ActionTool} from "./actions/action_tool"
 import {HelpTool} from "./actions/help_tool"
 import {GestureTool} from "./gestures/gesture_tool"
 import {InspectTool} from "./inspectors/inspect_tool"
-import {ToolbarBase, ToolbarBaseView, GestureType} from "./toolbar_base"
+import {ToolbarBase, GestureType} from "./toolbar_base"
 import {ToolProxy} from "./tool_proxy"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
-import {build_views, remove_views} from "core/build_views"
+import {HTML} from "core/layout"
 
 export namespace ProxyToolbar {
   export interface Attrs extends ToolbarBase.Attrs {}
@@ -197,40 +196,29 @@ ProxyToolbar.initClass()
 export class ToolbarBoxView extends LayoutDOMView {
   model: ToolbarBox
 
-  protected _toolbar_views: {[key: string]: ToolbarBaseView}
-
   initialize(options: any): void {
-    super.initialize(options)
     this.model.toolbar.toolbar_location = this.model.toolbar_location
-    this._toolbar_views = {}
-    build_views(this._toolbar_views, [this.model.toolbar], {parent: this})
+    super.initialize(options)
   }
 
-  remove(): void {
-    remove_views(this._toolbar_views)
-    super.remove()
+  get child_models(): LayoutDOM[] {
+    return [this.model.toolbar as any] // XXX
   }
 
-  css_classes(): string[] {
-    return super.css_classes().concat("bk-toolbar-box")
-  }
+  _update_layout(): void {
+    this.layout = new HTML(this.child_views[0].el)
 
-  render(): void {
-    super.render()
+    const {toolbar} = this.model
 
-    const toolbar = this._toolbar_views[this.model.toolbar.id]
-    toolbar.render()
-
-    empty(this.el)
-    this.el.appendChild(toolbar.el)
-  }
-
-  get_width(): number {
-    return this.model.toolbar.vertical ? 30 : null as never
-  }
-
-  get_height(): number {
-    return this.model.toolbar.horizontal ? 30 : null as never
+    if (toolbar.horizontal) {
+      this.layout.set_sizing({
+        width_policy: "fit", min_width: 100, height_policy: "fixed",
+      })
+    } else {
+      this.layout.set_sizing({
+        width_policy: "fixed", height_policy: "fit", min_height: 100,
+      })
+    }
   }
 }
 
@@ -246,7 +234,6 @@ export namespace ToolbarBox {
 export interface ToolbarBox extends ToolbarBox.Attrs {}
 
 export class ToolbarBox extends LayoutDOM {
-
   properties: ToolbarBox.Props
 
   constructor(attrs?: Partial<ToolbarBox.Attrs>) {
@@ -261,23 +248,6 @@ export class ToolbarBox extends LayoutDOM {
       toolbar:          [ p.Instance          ],
       toolbar_location: [ p.Location, "right" ],
     })
-  }
-
-  // XXX: we are overriding LayoutDOM.sizing_mode here. That's a bad
-  // hack, but currently every layoutable is allowed to have its
-  // sizing mode configured, which is wrong. Another example of this
-  // is PlotCanvas which only works with strech_both sizing mode.
-  get sizing_mode(): SizingMode {
-    switch (this.toolbar_location) {
-      case "above":
-      case "below": {
-        return "scale_width"
-      }
-      case "left":
-      case "right": {
-        return "scale_height"
-      }
-    }
   }
 }
 ToolbarBox.initClass()

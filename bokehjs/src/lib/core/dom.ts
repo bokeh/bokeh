@@ -1,4 +1,5 @@
 import {isBoolean, isString, isArray, isPlainObject} from "./util/types"
+import {Size, Box, Extents} from "./types"
 
 export type HTMLAttrs = {[name: string]: any}
 export type HTMLChild = string | HTMLElement | (string | HTMLElement)[]
@@ -83,7 +84,9 @@ export const
   ol       = _createElement("ol"),
   li       = _createElement("li")
 
-export const nbsp = document.createTextNode("\u00a0")
+export function nbsp(): Text {
+  return document.createTextNode("\u00a0")
+}
 
 export function removeElement(element: HTMLElement): void {
   const parent = element.parentNode
@@ -122,13 +125,6 @@ export function hide(element: HTMLElement): void {
   element.style.display = "none"
 }
 
-export function position(element: HTMLElement) {
-  return {
-    top: element.offsetTop,
-    left: element.offsetLeft,
-  }
-}
-
 export function offset(element: HTMLElement) {
   const rect = element.getBoundingClientRect()
   return {
@@ -154,26 +150,141 @@ export function parent(el: HTMLElement, selector: string): HTMLElement | null {
   return null
 }
 
-export type Sizing = {top: number, bottom: number, left: number, right: number}
+function num(value: string | null): number {
+  return parseFloat(value!) || 0
+}
 
-export function margin(el: HTMLElement): Sizing {
+export type ElementExtents = {
+  border: Extents
+  margin: Extents
+  padding: Extents
+}
+
+export function extents(el: HTMLElement): ElementExtents  {
   const style = getComputedStyle(el)
   return {
-    top:    parseFloat(style.marginTop!)    || 0,
-    bottom: parseFloat(style.marginBottom!) || 0,
-    left:   parseFloat(style.marginLeft!)   || 0,
-    right:  parseFloat(style.marginRight!)  || 0,
+    border: {
+      top:    num(style.borderTopWidth),
+      bottom: num(style.borderBottomWidth),
+      left:   num(style.borderLeftWidth),
+      right:  num(style.borderRightWidth),
+    },
+    margin: {
+      top:    num(style.marginTop),
+      bottom: num(style.marginBottom),
+      left:   num(style.marginLeft),
+      right:  num(style.marginRight),
+    },
+    padding: {
+      top:    num(style.paddingTop),
+      bottom: num(style.paddingBottom),
+      left:   num(style.paddingLeft),
+      right:  num(style.paddingRight),
+    },
   }
 }
 
-export function padding(el: HTMLElement): Sizing {
-  const style = getComputedStyle(el)
+export function size(el: HTMLElement): Size {
+  const rect = el.getBoundingClientRect()
   return {
-    top:    parseFloat(style.paddingTop!)    || 0,
-    bottom: parseFloat(style.paddingBottom!) || 0,
-    left:   parseFloat(style.paddingLeft!)   || 0,
-    right:  parseFloat(style.paddingRight!)  || 0,
+    width: Math.ceil(rect.width),
+    height: Math.ceil(rect.height),
   }
+}
+
+export function outer_size(el: HTMLElement): Size {
+  const {margin: {left, right, top, bottom}} = extents(el)
+  const {width, height} = size(el)
+  return {
+    width: Math.ceil(width + left + right),
+    height: Math.ceil(height + top + bottom),
+  }
+}
+
+export function content_size(el: HTMLElement): Size {
+  const {padding} = extents(el)
+  const left = Math.round(padding.left)
+  const top = Math.round(padding.top)
+  let width = 0
+  let height = 0
+  for (const child of children(el)) {
+    width = Math.max(width, child.offsetLeft - left + child.offsetWidth)
+    height = Math.max(height, child.offsetTop - top + child.offsetHeight)
+  }
+  return {width, height}
+}
+
+export function position(el: HTMLElement, box: Box, margin?: Extents): void {
+  const {style} = el
+
+  style.left   = `${box.left}px`
+  style.top    = `${box.top}px`
+  style.width  = `${box.width}px`
+  style.height = `${box.height}px`
+
+  if (margin == null)
+    style.margin = ""
+  else {
+    const {top, right, bottom, left} = margin
+    style.margin = `${top}px ${right}px ${bottom}px ${left}px`
+  }
+}
+
+export function children(el: HTMLElement): HTMLElement[] {
+  return Array.from(el.children) as HTMLElement[]
+}
+
+export class ClassList {
+
+  private readonly classList: DOMTokenList
+
+  constructor(readonly el: HTMLElement) {
+    this.classList = el.classList
+  }
+
+  get values(): string[] {
+    const values = []
+    for (let i = 0; i < this.classList.length; i++) {
+      const item = this.classList.item(i)
+      if (item != null)
+        values.push(item)
+    }
+    return values
+  }
+
+  has(cls: string): boolean {
+    return this.classList.contains(cls)
+  }
+
+  add(...classes: string[]): this {
+    for (const cls of classes)
+      this.classList.add(cls)
+    return this
+  }
+
+  remove(...classes: string[]): this {
+    for (const cls of classes)
+      this.classList.remove(cls)
+    return this
+  }
+
+  clear(): this {
+    this.el.className = ""
+    return this
+  }
+
+  toggle(cls: string, activate?: boolean): this {
+    const add = activate != null ? activate : !this.has(cls)
+    if (add)
+      this.add(cls)
+    else
+      this.remove(cls)
+    return this
+  }
+}
+
+export function classes(el: HTMLElement): ClassList {
+  return new ClassList(el)
 }
 
 export enum Keys {
@@ -188,4 +299,32 @@ export enum Keys {
   Right     = 39,
   Down      = 40,
   Delete    = 46,
+}
+
+export function undisplayed<T>(el: HTMLElement, fn: () => T): T {
+  const {display} = el.style
+  el.style.display = "none"
+  try {
+    return fn()
+  } finally {
+    el.style.display = display
+  }
+}
+
+export function unsized<T>(el: HTMLElement, fn: () => T): T {
+  return sized(el, {}, fn)
+}
+
+export function sized<T>(el: HTMLElement, size: Partial<Size>, fn: () => T): T {
+  const {width, height, position} = el.style
+  el.style.position = "absolute"
+  el.style.width = size.width != null && size.width != Infinity ? `${size.width}px` : ""
+  el.style.height = size.height != null && size.height != Infinity ? `${size.height}px` : ""
+  try {
+    return fn()
+  } finally {
+    el.style.position = position
+    el.style.width = width
+    el.style.height = height
+  }
 }

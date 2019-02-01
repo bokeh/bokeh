@@ -2,11 +2,14 @@ import {Annotation, AnnotationView} from "./annotation"
 import {Toolbar} from "../tools/toolbar"
 import {ToolbarBaseView} from "../tools/toolbar_base"
 import {build_views, remove_views} from "core/build_views"
-import {empty, show, hide} from "core/dom"
+import {empty, position, show, hide} from "core/dom"
+import {Size} from "core/layout"
 import * as p from "core/properties"
 
 export class ToolbarPanelView extends AnnotationView {
   model: ToolbarPanel
+
+  readonly rotate: boolean = true
 
   protected _toolbar_views: {[key: string]: ToolbarBaseView}
 
@@ -31,15 +34,10 @@ export class ToolbarPanelView extends AnnotationView {
       return
     }
 
-    const panel = this.model.panel!
-
     this.el.style.position = "absolute"
-    this.el.style.left = `${panel._left.value}px`
-    this.el.style.top = `${panel._top.value}px`
-    this.el.style.width = `${panel._width.value}px`
-    this.el.style.height = `${panel._height.value}px`
-
     this.el.style.overflow = "hidden"
+
+    position(this.el, this.panel!.bbox)
 
     const toolbar_view = this._toolbar_views[this.model.toolbar.id]
     toolbar_view.render()
@@ -49,8 +47,12 @@ export class ToolbarPanelView extends AnnotationView {
     show(this.el)
   }
 
-  protected _get_size(): number {
-    return 30
+  protected _get_size(): Size {
+    const {tools, logo} = this.model.toolbar
+    return {
+      width: tools.length*30 + (logo != null ? 25 : 0), // TODO: approximate, use a proper layout instead.
+      height: 30,
+    }
   }
 }
 

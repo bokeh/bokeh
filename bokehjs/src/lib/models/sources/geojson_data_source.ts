@@ -9,7 +9,7 @@ import * as p from "core/properties"
 import {Arrayable} from "core/types"
 import {range} from "core/util/array"
 
-export type GeoItem = Point | MultiPoint | LineString | MultiLineString | Polygon | MultiPolygon | GeometryCollection
+type GeoItem = Point | MultiPoint | LineString | MultiLineString | Polygon | MultiPolygon | GeometryCollection
 
 export type GeoData = {
   x: Arrayable<number>
@@ -75,7 +75,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
     return range(0, length).map((_i) => NaN)
   }
 
-  protected _add_properties(item: Feature<GeoItem>, data: GeoData, i: number, item_count: number): void {
+  private _add_properties(item: Feature<GeoItem>, data: GeoData, i: number, item_count: number): void {
     const properties = item.properties || {}
     for (const property in properties) {
       if (!data.hasOwnProperty(property))
@@ -84,7 +84,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
     }
   }
 
-  protected _add_geometry(geometry: GeoItem, data: GeoData, i: number): void {
+  private _add_geometry(geometry: GeoItem, data: GeoData, i: number): void {
 
     function orNaN(v: number | undefined) {
       return v != null ? v : NaN

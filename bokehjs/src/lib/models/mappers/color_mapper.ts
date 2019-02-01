@@ -2,6 +2,7 @@ import {Mapper} from "./mapper"
 import {Factor} from "../ranges/factor_range"
 import * as p from "core/properties"
 import {Arrayable, Color} from "core/types"
+import {isNumber} from "core/util/types"
 
 import {color2hex} from "core/util/color"
 import {is_little_endian} from "core/util/compat"
@@ -10,7 +11,9 @@ export interface RGBAMapper {
   v_compute(xs: Arrayable<number> | Arrayable<Factor>): Uint8Array
 }
 
-export function _convert_color(color: string): number {
+export function _convert_color(color: string | number): number {
+  if (isNumber(color))
+    return color
   if (color[0] != "#")
     color = color2hex(color)
   if (color.length != 9)
@@ -18,7 +21,7 @@ export function _convert_color(color: string): number {
   return parseInt(color.slice(1), 16)
 }
 
-export function _convert_palette(palette: Color[]): Uint32Array {
+export function _convert_palette(palette: (Color | number)[]): Uint32Array {
   const new_palette = new Uint32Array(palette.length)
   for (let i = 0, end = palette.length; i < end; i++)
     new_palette[i] = _convert_color(palette[i])
@@ -37,7 +40,7 @@ export function _uint32_to_rgba(values: Uint32Array): Uint8Array {
 
 export namespace ColorMapper {
   export interface Attrs extends Mapper.Attrs {
-    palette: Color[]
+    palette: (Color | number)[]
     nan_color: Color
   }
 

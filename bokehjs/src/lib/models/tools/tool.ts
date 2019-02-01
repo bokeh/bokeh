@@ -5,21 +5,21 @@ import {min, max} from "core/util/array"
 import {Model} from "../../model"
 import {Renderer} from "../renderers/renderer"
 import {CartesianFrame} from "../canvas/cartesian_frame"
-import {PlotCanvas, PlotCanvasView} from "../plots/plot_canvas"
+import {Plot, PlotView} from "../plots/plot"
+import {Annotation} from "../annotations/annotation"
 import {EventType, GestureEvent, ScrollEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
 
 export abstract class ToolView extends View {
   model: Tool
 
-  plot_view: PlotCanvasView
+  parent: PlotView
 
-  initialize(options: any): void {
-    super.initialize(options)
-    this.plot_view = options.plot_view
+  get plot_view(): PlotView {
+    return this.parent
   }
 
-  get plot_model(): PlotCanvas {
-    return this.plot_view.model
+  get plot_model(): Plot {
+    return this.parent.model
   }
 
   connect_signals(): void {
@@ -72,7 +72,9 @@ export namespace Tool {
   }
 }
 
-export interface Tool extends Tool.Attrs {}
+export interface Tool extends Tool.Attrs {
+  overlay?: Annotation
+}
 
 export abstract class Tool extends Model {
 

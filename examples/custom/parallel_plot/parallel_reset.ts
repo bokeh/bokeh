@@ -1,18 +1,27 @@
 import {ActionTool, ActionToolView} from "models/tools/actions/action_tool"
-import {values} from "core/util/object"
 
 export class ParallelResetToolView extends ActionToolView {
   model: ParallelResetTool
 
   doit(): void {
-    const plot = this.plot_model.plot
-    plot.x_range.reset()
-    plot.y_range.reset()
-    values(plot.extra_y_ranges).forEach(element => element.reset())
+    this.plot_view.reset_range()
   }
 }
 
+export namespace ParallelResetTool {
+  export interface Attrs extends ActionTool.Attrs {}
+
+  export interface Props extends ActionTool.Props {}
+}
+
+export interface ParallelResetTool extends ParallelResetTool.Attrs {}
+
 export class ParallelResetTool extends ActionTool {
+  properties: ParallelResetTool.Props
+
+  constructor(attrs?: Partial<ParallelResetTool.Attrs>) {
+    super(attrs)
+  }
 
   static initClass(): void {
     this.prototype.type = "ParallelResetTool"

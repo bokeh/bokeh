@@ -1,35 +1,36 @@
-import {Canvas, CanvasView} from "../canvas/canvas"
 import {CartesianFrame} from "../canvas/cartesian_frame"
+import {Canvas, CanvasView, SVGRenderingContext2D} from "../canvas/canvas"
 import {Range} from "../ranges/range"
 import {DataRange1d} from "../ranges/data_range1d"
 import {Renderer, RendererView} from "../renderers/renderer"
 import {GlyphRenderer, GlyphRendererView} from "../renderers/glyph_renderer"
-import {LayoutDOM} from "../layouts/layout_dom"
-import {Toolbar} from "../tools/toolbar"
 import {ToolView} from "../tools/tool"
 import {Selection} from "../selections/selection"
+import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {Plot} from "./plot"
+import {Annotation, AnnotationView} from "../annotations/annotation"
+import {Title} from "../annotations/title"
+import {Axis, AxisView} from "../axes/axis"
+import {ToolbarPanel} from "../annotations/toolbar_panel"
 
 import {Reset} from "core/bokeh_events"
-import {Arrayable} from "core/types"
+import {Arrayable, Rect, Interval} from "core/types"
 import {Signal0} from "core/signaling"
 import {build_views, remove_views} from "core/build_views"
 import {UIEvents} from "core/ui_events"
 import {Visuals} from "core/visuals"
-import {DOMView} from "core/dom_view"
-import {LayoutCanvas} from "core/layout/layout_canvas"
-import {hstack, vstack} from "core/layout/alignments"
-import {EQ, LE, GE, Constraint} from "core/layout/solver"
 import {logger} from "core/logging"
-import * as enums from "core/enums"
-import * as p from "core/properties"
-import {Rect} from "core/util/spatial"
+import {Side, RenderLevel} from "core/enums"
 import {throttle} from "core/util/throttle"
-import {isStrictNaN} from "core/util/types"
-import {difference, sortBy, reversed, concat} from "core/util/array"
-import {keys, values} from "core/util/object"
-import {isSizeable, isSizeableView, update_panel_constraints, _view_sizes} from "core/layout/side_panel"
-import {Context2d, SVGRenderingContext2D} from "core/util/canvas"
+import {isArray, isStrictNaN} from "core/util/types"
+import {copy, reversed} from "core/util/array"
+import {values} from "core/util/object"
+import {Context2d} from "core/util/canvas"
+import {SizeHint, Size, Sizeable, SizingPolicy, Margin, Layoutable} from "core/layout"
+import {HStack, VStack} from "core/layout/alignments"
+import {SidePanel} from "core/layout/side_panel"
+import {Row, Column} from "core/layout/grid"
+import {BBox} from "core/util/bbox"
 
 // Notes on WebGL support:
 // Glyps can be rendered into the original 2D canvas, or in a (hidden)
@@ -51,8 +52,6 @@ let global_gl: WebGLState | null = null
 
 export type FrameBox = [number, number, number, number]
 
-export type Interval = {start: number, end: number}
-
 export type RangeInfo = {
   xrs: {[key: string]: Interval}
   yrs: {[key: string]: Interval}
@@ -67,11 +66,81 @@ export type StateInfo = {
   }
 }
 
-export class PlotCanvasView extends DOMView {
-  model: PlotCanvas
+export class PlotLayout extends Layoutable {
+
+  top_panel: Layoutable
+  bottom_panel: Layoutable
+  left_panel: Layoutable
+  right_panel: Layoutable
+  center_panel: Layoutable
+
+  min_border: Margin = {left: 0, top: 0, right: 0, bottom: 0}
+
+  protected _measure(viewport: Size): SizeHint {
+    viewport = new Sizeable(viewport).bounded_to(this.sizing.size)
+
+    const left_hint = this.left_panel.measure({width: 0, height: viewport.height})
+    const left = Math.max(left_hint.width, this.min_border.left)
+
+    const right_hint = this.right_panel.measure({width: 0, height: viewport.height})
+    const right = Math.max(right_hint.width, this.min_border.right)
+
+    const top_hint = this.top_panel.measure({width: viewport.width, height: 0})
+    const top = Math.max(top_hint.height, this.min_border.top)
+
+    const bottom_hint = this.bottom_panel.measure({width: viewport.width, height: 0})
+    const bottom = Math.max(bottom_hint.height, this.min_border.bottom)
+
+    const center_viewport = new Sizeable(viewport).shrink_by({left, right, top, bottom})
+    const center = this.center_panel.measure(center_viewport)
+
+    const width = left + center.width + right
+    const height = top + center.height + bottom
+
+    return {width, height, inner: {left, right, top, bottom}}
+  }
+
+  protected _set_geometry(outer: BBox, inner: BBox): void {
+    super._set_geometry(outer, inner)
+
+    this.center_panel.set_geometry(inner)
+
+    const left_hint = this.left_panel.measure({width: 0, height: outer.height})
+    const right_hint = this.right_panel.measure({width: 0, height: outer.height})
+    const top_hint = this.top_panel.measure({width: outer.width, height: 0})
+    const bottom_hint = this.bottom_panel.measure({width: outer.width, height: 0})
+
+    const {left, top, right, bottom} = inner
+
+    this.top_panel.set_geometry(new BBox({left, right, bottom: top, height: top_hint.height}))
+    this.bottom_panel.set_geometry(new BBox({left, right, top: bottom, height: bottom_hint.height}))
+    this.left_panel.set_geometry(new BBox({top, bottom, right: left, width: left_hint.width}))
+    this.right_panel.set_geometry(new BBox({top, bottom, left: right, width: right_hint.width}))
+  }
+}
+
+export namespace PlotView {
+  export type Options = LayoutDOMView.Options & {model: Plot}
+}
+
+export class PlotView extends LayoutDOMView {
+  model: Plot
   visuals: Plot.Visuals
 
+  layout: PlotLayout
+
+  frame: CartesianFrame
+
+  canvas: Canvas
   canvas_view: CanvasView
+
+  protected _title: Title
+  protected _toolbar: ToolbarPanel
+
+  protected _outer_bbox: BBox = new BBox()
+  protected _inner_bbox: BBox = new BBox()
+  protected _needs_paint: boolean = true
+  protected _needs_layout: boolean = false
 
   gl?: WebGLState
 
@@ -93,20 +162,12 @@ export class PlotCanvasView extends DOMView {
   protected throttled_paint: () => void
   protected ui_event_bus: UIEvents
 
-  protected levels: {[key: string]: {[key: string]: RendererView}}
+  computed_renderers: Renderer[]
+
   /*protected*/ renderer_views: {[key: string]: RendererView}
-  protected tool_views: {[key: string]: ToolView}
+  /*protected*/ tool_views: {[key: string]: ToolView}
 
   protected range_update_timestamp?: number
-
-  // compat, to be removed
-  get frame(): CartesianFrame {
-    return this.model.frame
-  }
-
-  get canvas(): Canvas {
-    return this.model.canvas
-  }
 
   get canvas_overlays(): HTMLElement {
     return this.canvas_view.overlays_el
@@ -120,8 +181,8 @@ export class PlotCanvasView extends DOMView {
     return this._is_paused != null && this._is_paused !== 0
   }
 
-  view_options(): {[key: string]: any} {
-    return {plot_view: this, parent: this}
+  get child_models(): LayoutDOM[] {
+    return []
   }
 
   pause(): void {
@@ -137,9 +198,10 @@ export class PlotCanvasView extends DOMView {
 
     this._is_paused -= 1
     if (this._is_paused == 0 && !no_render)
-      this.request_render()
+      this.request_paint()
   }
 
+  // TODO: this needs to be removed
   request_render(): void {
     this.request_paint()
   }
@@ -153,7 +215,7 @@ export class PlotCanvasView extends DOMView {
     this.clear_state()
     this.reset_range()
     this.reset_selection()
-    this.model.plot.trigger_event(new Reset())
+    this.model.trigger_event(new Reset())
   }
 
   remove(): void {
@@ -164,11 +226,14 @@ export class PlotCanvasView extends DOMView {
     super.remove()
   }
 
-  css_classes(): string[] {
-    return super.css_classes().concat("bk-plot-wrapper")
+  render(): void {
+    super.render()
+
+    this.el.appendChild(this.canvas_view.el)
+    this.canvas_view.render()
   }
 
-  initialize(options: any): void {
+  initialize(options: PlotView.Options): void {
     this.pause()
 
     super.initialize(options)
@@ -177,46 +242,201 @@ export class PlotCanvasView extends DOMView {
     this.state_changed = new Signal0(this, "state_changed")
 
     this.lod_started = false
-    this.visuals = new Visuals(this.model.plot) as any // XXX
+    this.visuals = new Visuals(this.model) as any // XXX
 
     this._initial_state_info = {
-      selection: {},                   // XXX: initial selection?
-      dimensions: {
-        width: this.model.canvas._width.value,
-        height: this.model.canvas._height.value,
-      },
+      selection: {},                      // XXX: initial selection?
+      dimensions: {width: 0, height: 0},  // XXX: initial dimensions
     }
     this.visibility_callbacks = []
 
     this.state = {history: [], index: -1}
 
+    this.canvas = new Canvas({
+      map: this.model.use_map || false,
+      use_hidpi: this.model.hidpi,
+      output_backend: this.model.output_backend,
+    })
+
+    this.frame = new CartesianFrame(
+      this.model.x_scale,
+      this.model.y_scale,
+      this.model.x_range,
+      this.model.y_range,
+      this.model.extra_x_ranges,
+      this.model.extra_y_ranges,
+    )
+
     this.canvas_view = new this.canvas.default_view({model: this.canvas, parent: this}) as CanvasView
-    this.el.appendChild(this.canvas_view.el)
-    this.canvas_view.render()
 
     // If requested, try enabling webgl
-    if (this.model.plot.output_backend == "webgl")
+    if (this.model.output_backend == "webgl")
       this.init_webgl()
 
     this.throttled_paint = throttle((() => this.force_paint.emit()), 15)  // TODO (bev) configurable
 
-    this.ui_event_bus = new UIEvents(this, this.model.toolbar, this.canvas_view.events_el, this.model.plot)
+    this.ui_event_bus = new UIEvents(this, this.model.toolbar, this.canvas_view.events_el)
 
-    this.levels = {}
-    for (const level of enums.RenderLevel) {
-      this.levels[level] = {}
+    const {title_location, title} = this.model
+    if (title_location != null && title != null) {
+      this._title = title instanceof Title ? title : new Title({text: title})
+    }
+
+    const {toolbar_location, toolbar} = this.model
+    if (toolbar_location != null && toolbar != null) {
+      this._toolbar = new ToolbarPanel({toolbar})
+      toolbar.toolbar_location = toolbar_location
     }
 
     this.renderer_views = {}
     this.tool_views = {}
 
-    this.build_levels()
-    this.build_tools()
+    this.build_renderer_views()
+    this.build_tool_views()
 
     this.update_dataranges()
 
     this.unpause(true)
     logger.debug("PlotView initialized")
+  }
+
+  protected _width_policy(): SizingPolicy {
+    return this.model.frame_width == null ? "fixed" : "min"
+  }
+
+  protected _height_policy(): SizingPolicy {
+    return this.model.frame_height == null ? "fixed" : "min"
+  }
+
+  _update_layout(): void {
+    this.layout = new PlotLayout()
+    this.layout.set_sizing(this.box_sizing())
+
+    const {frame_width, frame_height} = this.model
+
+    this.layout.center_panel = this.frame
+    this.layout.center_panel.set_sizing({
+      ...(frame_width  != null ? {width_policy:  "fixed", width:  frame_width } : {width_policy:  "fit"}),
+      ...(frame_height != null ? {height_policy: "fixed", height: frame_height} : {height_policy: "fit"}),
+    })
+
+    type Panels = (Axis | Annotation | Annotation[])[]
+
+    const above: Panels = copy(this.model.above)
+    const below: Panels = copy(this.model.below)
+    const left:  Panels = copy(this.model.left)
+    const right: Panels = copy(this.model.right)
+
+    const get_side = (side: Side): Panels => {
+      switch (side) {
+        case "above": return above
+        case "below": return below
+        case "left":  return left
+        case "right": return right
+      }
+    }
+
+    const {title_location, title} = this.model
+    if (title_location != null && title != null) {
+      get_side(title_location).push(this._title)
+    }
+
+    const {toolbar_location, toolbar} = this.model
+    if (toolbar_location != null && toolbar != null) {
+      const panels = get_side(toolbar_location)
+      let push_toolbar = true
+
+      if (this.model.toolbar_sticky) {
+        for (let i = 0; i < panels.length; i++) {
+          const panel = panels[i]
+          if (panel instanceof Title) {
+            panels[i] = [panel, this._toolbar]
+            push_toolbar = false
+            break
+          }
+        }
+      }
+
+      if (push_toolbar)
+        panels.push(this._toolbar)
+    }
+
+    const set_layout = (side: Side, model: Annotation | Axis): Layoutable => {
+      const view = this.renderer_views[model.id] as AnnotationView | AxisView
+      return view.layout = new SidePanel(side, view)
+    }
+
+    const set_layouts = (side: Side, panels: Panels) => {
+      const layouts: Layoutable[] = []
+      for (const panel of panels) {
+        if (isArray(panel)) {
+          const items = panel.map((subpanel) => set_layout(side, subpanel))
+
+          let layout: Row | Column
+          switch (title_location) {
+            case "above":
+            case "below":
+              layout = new Row(items)
+              layout.cols = {1: "min"} // assuming toolbar is last
+              layout.set_sizing({width_policy: "max", height_policy: "min"})
+              break
+            case "left":
+            case "right": {
+              layout = new Column(items)
+              layout.rows = {0: "min"} // assuming toolbar is first
+              layout.set_sizing({width_policy: "min", height_policy: "max"})
+              break
+            }
+            default:
+              throw new Error("unreachable")
+          }
+
+          layout.absolute = true
+          layouts.push(layout)
+        } else
+          layouts.push(set_layout(side, panel))
+      }
+
+      return layouts
+    }
+
+    const min_border = this.model.min_border != null ? this.model.min_border : 0
+    this.layout.min_border = {
+      left:   this.model.min_border_left   != null ? this.model.min_border_left   : min_border,
+      top:    this.model.min_border_top    != null ? this.model.min_border_top    : min_border,
+      right:  this.model.min_border_right  != null ? this.model.min_border_right  : min_border,
+      bottom: this.model.min_border_bottom != null ? this.model.min_border_bottom : min_border,
+    }
+
+    const top_panel    = new VStack()
+    const bottom_panel = new VStack()
+    const left_panel   = new HStack()
+    const right_panel  = new HStack()
+
+    top_panel.children    = reversed(set_layouts("above", above))
+    bottom_panel.children =          set_layouts("below", below)
+    left_panel.children   = reversed(set_layouts("left",  left))
+    right_panel.children  =          set_layouts("right", right)
+
+    top_panel.set_sizing({width_policy: "fit", height_policy: "min"/*, min_height: this.layout.min_border.top*/})
+    bottom_panel.set_sizing({width_policy: "fit", height_policy: "min"/*, min_height: this.layout.min_width.bottom*/})
+    left_panel.set_sizing({width_policy: "min", height_policy: "fit"/*, min_width: this.layout.min_width.left*/})
+    right_panel.set_sizing({width_policy: "min", height_policy: "fit"/*, min_width: this.layout.min_width.right*/})
+
+    this.layout.top_panel = top_panel
+    this.layout.bottom_panel = bottom_panel
+    this.layout.left_panel = left_panel
+    this.layout.right_panel = right_panel
+  }
+
+  get axis_views(): AxisView[] {
+    const views = []
+    for (const id in this.renderer_views) {
+      const child_view = this.renderer_views[id]
+      if (child_view instanceof AxisView)
+        views.push(child_view)
+    }
+    return views
   }
 
   set_cursor(cursor: string = "default"): void {
@@ -263,7 +483,7 @@ export class PlotCanvasView extends DOMView {
       // Clipping
       gl.enable(gl.SCISSOR_TEST)
       const [sx, sy, w, h] = frame_box
-      const {xview, yview} = this.model.canvas
+      const {xview, yview} = this.canvas_view.bbox
       const vx = xview.compute(sx)
       const vy = yview.compute(sy + h)
       gl.scissor(ratio*vx, ratio*vy, ratio*w, ratio*h) // lower left corner, width, height
@@ -293,13 +513,11 @@ export class PlotCanvasView extends DOMView {
 
   update_dataranges(): void {
     // Update any DataRange1ds here
-    const {frame} = this.model
-
     const bounds: {[key: string]: Rect} = {}
     const log_bounds: {[key: string]: Rect} = {}
 
     let calculate_log_bounds = false
-    for (const r of values(frame.x_ranges).concat(values(frame.y_ranges))) {
+    for (const r of values(this.frame.x_ranges).concat(values(this.frame.y_ranges))) {
       if (r instanceof DataRange1d) {
         if (r.scale_hint == "log")
           calculate_log_bounds = true
@@ -324,11 +542,12 @@ export class PlotCanvasView extends DOMView {
     let follow_enabled = false
     let has_bounds = false
 
+    const {width, height} = this.frame.bbox
     let r: number | undefined
-    if (this.model.plot.match_aspect !== false && this.frame._width.value != 0 && this.frame._height.value != 0)
-      r = (1/this.model.plot.aspect_scale)*(this.frame._width.value/this.frame._height.value)
+    if (this.model.match_aspect !== false && width != 0 && height != 0)
+      r = (1/this.model.aspect_scale)*(width/height)
 
-    for (const xr of values(frame.x_ranges)) {
+    for (const xr of values(this.frame.x_ranges)) {
       if (xr instanceof DataRange1d) {
         const bounds_to_use = xr.scale_hint == "log" ? log_bounds : bounds
         xr.update(bounds_to_use, 0, this.model.id, r)
@@ -340,7 +559,7 @@ export class PlotCanvasView extends DOMView {
         has_bounds = true
     }
 
-    for (const yr of values(frame.y_ranges)) {
+    for (const yr of values(this.frame.y_ranges)) {
       if (yr instanceof DataRange1d) {
         const bounds_to_use = yr.scale_hint == "log" ? log_bounds : bounds
         yr.update(bounds_to_use, 1, this.model.id, r)
@@ -354,10 +573,10 @@ export class PlotCanvasView extends DOMView {
 
     if (follow_enabled && has_bounds) {
       logger.warn('Follow enabled so bounds are unset.')
-      for (const xr of values(frame.x_ranges)) {
+      for (const xr of values(this.frame.x_ranges)) {
         xr.bounds = null
       }
-      for (const yr of values(frame.y_ranges)) {
+      for (const yr of values(this.frame.y_ranges)) {
         yr.bounds = null
       }
     }
@@ -424,7 +643,7 @@ export class PlotCanvasView extends DOMView {
 
   get_selection(): {[key: string]: Selection} {
     const selection: {[key: string]: Selection} = {}
-    for (const renderer of this.model.plot.renderers) {
+    for (const renderer of this.model.renderers) {
       if (renderer instanceof GlyphRenderer) {
         const {selected} = renderer.data_source
         selection[renderer.id] = selected
@@ -434,7 +653,7 @@ export class PlotCanvasView extends DOMView {
   }
 
   update_selection(selection: {[key: string]: Selection} | null): void {
-    for (const renderer of this.model.plot.renderers) {
+    for (const renderer of this.model.renderers) {
       if (!(renderer instanceof GlyphRenderer))
         continue
 
@@ -611,33 +830,53 @@ export class PlotCanvasView extends DOMView {
     this.update_range(null)
   }
 
-  build_levels(): void {
-    const renderer_models = this.model.plot.all_renderers
-
-    // should only bind events on NEW views
-    const old_renderers = keys(this.renderer_views)
-    const new_renderer_views = build_views(this.renderer_views, renderer_models, this.view_options()) as RendererView[]
-    const renderers_to_remove = difference(old_renderers, renderer_models.map((model) => model.id))
-
-    for (const level in this.levels) {
-      for (const id of renderers_to_remove) {
-        delete this.levels[level][id]
+  protected _invalidate_layout(): void {
+    const needs_layout = () => {
+      for (const panel of this.model.side_panels) {
+        const view = this.renderer_views[panel.id] as AnnotationView | AxisView
+        if (view.layout.has_size_changed())
+          return true
       }
+      return false
     }
 
-    for (const view of new_renderer_views) {
-      this.levels[view.model.level][view.model.id] = view
+    if (needs_layout())
+      this.root.compute_layout()
+  }
+
+  build_renderer_views(): void {
+    this.computed_renderers = []
+
+    this.computed_renderers.push(...this.model.above)
+    this.computed_renderers.push(...this.model.below)
+    this.computed_renderers.push(...this.model.left)
+    this.computed_renderers.push(...this.model.right)
+    this.computed_renderers.push(...this.model.center)
+    this.computed_renderers.push(...this.model.renderers)
+
+    if (this._title != null)
+      this.computed_renderers.push(this._title)
+
+    if (this._toolbar != null)
+      this.computed_renderers.push(this._toolbar)
+
+    for (const tool of this.model.toolbar.tools) {
+      if (tool.overlay != null)
+        this.computed_renderers.push(tool.overlay)
+
+      this.computed_renderers.push(...tool.synthetic_renderers)
     }
+
+    build_views(this.renderer_views, this.computed_renderers, {parent: this})
   }
 
   get_renderer_views(): RendererView[] {
-    return this.model.plot.renderers.map((r) => this.levels[r.level][r.id])
+    return this.computed_renderers.map((r) => this.renderer_views[r.id])
   }
 
-  build_tools(): void {
-    const tool_models = this.model.plot.toolbar.tools
-    const new_tool_views = build_views(this.tool_views, tool_models, this.view_options()) as ToolView[]
-
+  build_tool_views(): void {
+    const tool_models = this.model.toolbar.tools
+    const new_tool_views = build_views(this.tool_views, tool_models, {parent: this}) as ToolView[]
     new_tool_views.map((tool_view) => this.ui_event_bus.register_tool(tool_view))
   }
 
@@ -646,21 +885,21 @@ export class PlotCanvasView extends DOMView {
 
     this.connect(this.force_paint, () => this.repaint())
 
-    const {x_ranges, y_ranges} = this.model.frame
+    const {x_ranges, y_ranges} = this.frame
 
     for (const name in x_ranges) {
       const rng = x_ranges[name]
-      this.connect(rng.change, () => this.request_render())
+      this.connect(rng.change, () => {this._needs_layout = true; this.request_paint()})
     }
     for (const name in y_ranges) {
       const rng = y_ranges[name]
-      this.connect(rng.change, () => this.request_render())
+      this.connect(rng.change, () => {this._needs_layout = true; this.request_paint()})
     }
 
-    this.connect(this.model.plot.properties.renderers.change, () => this.build_levels())
-    this.connect(this.model.plot.toolbar.properties.tools.change, () => { this.build_levels(); this.build_tools() })
-    this.connect(this.model.plot.change, () => this.request_render())
-    this.connect(this.model.plot.reset, () => this.reset())
+    this.connect(this.model.properties.renderers.change, () => this.build_renderer_views())
+    this.connect(this.model.toolbar.properties.tools.change, () => { this.build_renderer_views(); this.build_tool_views() })
+    this.connect(this.model.change, () => this.request_paint())
+    this.connect(this.model.reset, () => this.reset())
   }
 
   set_initial_range(): void {
@@ -694,116 +933,82 @@ export class PlotCanvasView extends DOMView {
       logger.warn('could not set initial ranges')
   }
 
-  update_constraints(): void {
-    this.solver.suggest_value(this.frame._width, this.canvas._width.value)
-    this.solver.suggest_value(this.frame._height, this.canvas._height.value)
+  has_finished(): boolean {
+    if (!super.has_finished())
+      return false
 
     for (const id in this.renderer_views) {
       const view = this.renderer_views[id]
-      if (isSizeableView(view) && view.model.panel != null)
-        update_panel_constraints(view)
-    }
-
-    this.solver.update_variables()
-  }
-
-  // XXX: bacause PlotCanvas is NOT a LayoutDOM
-  protected _layout(final: boolean = false): void {
-    this.render()
-
-    if (final) {
-      this.model.plot.setv({
-        inner_width: Math.round(this.frame._width.value),
-        inner_height: Math.round(this.frame._height.value),
-        layout_width: Math.round(this.canvas._width.value),
-        layout_height: Math.round(this.canvas._height.value),
-      }, {no_change: true})
-
-      // XXX: can't be @request_paint(), because it would trigger back-and-forth
-      // layout recomputing feedback loop between plots. Plots are also much more
-      // responsive this way, especially in interactive mode.
-      this.paint()
-    }
-  }
-
-  has_finished(): boolean {
-    if (!super.has_finished()) {
-      return false
-    }
-
-    for (const level in this.levels) {
-      const renderer_views = this.levels[level]
-      for (const id in renderer_views) {
-        const view = renderer_views[id]
-        if (!view.has_finished())
-          return false
-      }
+      if (!view.has_finished())
+        return false
     }
 
     return true
   }
 
-  render(): void {
-    // Set the plot and canvas to the current model's size
-    // This gets called upon solver resize events
-    const width = this.model._width.value
-    const height = this.model._height.value
+  after_layout(): void {
+    super.after_layout()
 
-    this.canvas_view.set_dims([width, height])
-    this.update_constraints()
-    if (this.model.plot.match_aspect !== false && this.frame._width.value != 0 && this.frame._height.value != 0)
+    this._needs_layout = false
+
+    this.model.setv({
+      inner_width: Math.round(this.frame._width.value),
+      inner_height: Math.round(this.frame._height.value),
+      outer_width: Math.round(this.layout._width.value),
+      outer_height: Math.round(this.layout._height.value),
+    }, {no_change: true})
+
+    if (this.model.match_aspect !== false) {
+      this.pause()
       this.update_dataranges()
-
-    // This allows the plot canvas to be positioned around the toolbar
-    this.el.style.position = 'absolute'
-    this.el.style.left     = `${this.model._dom_left.value}px`
-    this.el.style.top      = `${this.model._dom_top.value}px`
-    this.el.style.width    = `${this.model._width.value}px`
-    this.el.style.height   = `${this.model._height.value}px`
-  }
-
-  protected _needs_layout(): boolean {
-    for (const id in this.renderer_views) {
-      const view = this.renderer_views[id]
-      if (isSizeableView(view) && view.model.panel != null) {
-        if (_view_sizes.get(view) != view.get_size())
-          return true
-      }
+      this.unpause(true)
     }
 
-    return false
+    if (!this._outer_bbox.equals(this.layout.bbox)) {
+      const {width, height} = this.layout.bbox
+      this.canvas_view.prepare_canvas(width, height)
+      this._outer_bbox = this.layout.bbox
+      this._needs_paint = true
+    }
+
+    if (!this._inner_bbox.equals(this.frame.inner_bbox)) {
+      this._inner_bbox = this.layout.inner_bbox
+      this._needs_paint = true
+    }
+
+    if (this._needs_paint) {
+      // XXX: can't be this.request_paint(), because it would trigger back-and-forth
+      // layout recomputing feedback loop between plots. Plots are also much more
+      // responsive this way, especially in interactive mode.
+      this._needs_paint = false
+      this.paint()
+    }
   }
 
   repaint(): void {
-    if (this._needs_layout())
-      (this.parent as any).partial_layout() // XXX
-    else
-      this.paint()
+    if (this._needs_layout)
+      this._invalidate_layout()
+    this.paint()
   }
 
   paint(): void {
     if (this.is_paused)
       return
 
-    logger.trace(`PlotCanvas.render() for ${this.model.id}`)
-
-    // Prepare the canvas size, taking HIDPI into account. Note that this may cause a resize
-    // of the canvas, which means that any previous calls to ctx.save() will be undone.
-    this.canvas_view.prepare_canvas()
+    logger.trace(`PlotView.paint() for ${this.model.id}`)
 
     const {document} = this.model
     if (document != null) {
       const interactive_duration = document.interactive_duration()
-      const {plot} = this.model
-      if (interactive_duration >= 0 && interactive_duration < plot.lod_interval) {
+      if (interactive_duration >= 0 && interactive_duration < this.model.lod_interval) {
         setTimeout(() => {
-          if (document.interactive_duration() > plot.lod_timeout) {
-            document.interactive_stop(plot)
+          if (document.interactive_duration() > this.model.lod_timeout) {
+            document.interactive_stop(this.model)
           }
-          this.request_render()
-        }, plot.lod_timeout)
+          this.request_paint()
+        }, this.model.lod_timeout)
       } else
-        document.interactive_stop(plot)
+        document.interactive_stop(this.model)
     }
 
     for (const id in this.renderer_views) {
@@ -814,12 +1019,6 @@ export class PlotCanvasView extends DOMView {
         break
       }
     }
-
-    // TODO (bev) OK this sucks, but the event from the solver update doesn't
-    // reach the frame in time (sometimes) so force an update here for now
-    // (mp) not only that, but models don't know about solver anymore, so
-    // frame can't update its scales.
-    this.model.frame.update_scales()
 
     const {ctx} = this.canvas_view
     const ratio = this.canvas.pixel_ratio
@@ -847,10 +1046,10 @@ export class PlotCanvasView extends DOMView {
       let [x0, y0, w, h] = frame_box
       // XXX: shrink outline region by 1px to make right and bottom lines visible
       // if they are on the edge of the canvas.
-      if (x0 + w == this.canvas._width.value) {
+      if (x0 + w == this.layout._width.value) {
         w -= 1
       }
-      if (y0 + h == this.canvas._height.value) {
+      if (y0 + h == this.layout._height.value) {
         h -= 1
       }
       ctx.strokeRect(x0, y0, w, h)
@@ -859,21 +1058,16 @@ export class PlotCanvasView extends DOMView {
 
     this._paint_levels(ctx, ['image', 'underlay', 'glyph'], frame_box, true)
     this.blit_webgl(ratio)
-    this._paint_levels(ctx, ['annotation'], frame_box, true)
+    this._paint_levels(ctx, ['annotation'], frame_box, false)
     this._paint_levels(ctx, ['overlay'], frame_box, false)
 
     if (this._initial_state_info.range == null)
       this.set_initial_range()
 
     ctx.restore()   // Restore to default state
-
-    if (!this._has_finished) {
-      this._has_finished = true
-      this.notify_finished()
-    }
   }
 
-  protected _paint_levels(ctx: Context2d, levels: string[], clip_region: FrameBox, global_clip: boolean): void {
+  protected _paint_levels(ctx: Context2d, levels: RenderLevel[], clip_region: FrameBox, global_clip: boolean): void {
     ctx.save()
 
     if (global_clip) {
@@ -882,18 +1076,13 @@ export class PlotCanvasView extends DOMView {
       ctx.clip()
     }
 
-    const indices: {[key: string]: number} = {}
-    for (let i = 0; i < this.model.plot.renderers.length; i++) {
-      const renderer = this.model.plot.renderers[i]
-      indices[renderer.id] = i
-    }
-
-    const sortKey = (renderer_view: RendererView) => indices[renderer_view.model.id]
-
     for (const level of levels) {
-      const renderer_views = sortBy(values(this.levels[level]), sortKey)
+      for (const renderer of this.computed_renderers) {
+        if (renderer.level != level)
+          continue
 
-      for (const renderer_view of renderer_views) {
+        const renderer_view = this.renderer_views[renderer.id]
+
         if (!global_clip && renderer_view.needs_clip) {
           ctx.save()
           ctx.beginPath()
@@ -915,7 +1104,7 @@ export class PlotCanvasView extends DOMView {
   protected _map_hook(_ctx: Context2d, _frame_box: FrameBox): void {}
 
   protected _paint_empty(ctx: Context2d, frame_box: FrameBox): void {
-    const [cx, cy, cw, ch] = [0, 0, this.canvas_view.model._width.value, this.canvas_view.model._height.value]
+    const [cx, cy, cw, ch] = [0, 0, this.layout._width.value, this.layout._height.value]
     const [fx, fy, fw, fh] = frame_box
 
     ctx.clearRect(cx, cy, cw, ch)
@@ -933,7 +1122,7 @@ export class PlotCanvasView extends DOMView {
   }
 
   save(name: string): void {
-    switch (this.model.plot.output_backend) {
+    switch (this.model.output_backend) {
       case "canvas":
       case "webgl": {
         const canvas = this.canvas_view.get_canvas_element() as HTMLCanvasElement
@@ -965,192 +1154,12 @@ export class PlotCanvasView extends DOMView {
       }
     }
   }
-}
 
-export class AbovePanel extends LayoutCanvas {
-  static initClass(): void {
-    this.prototype.type = "AbovePanel"
+  serializable_state(): {[key: string]: unknown} {
+    const {children, ...state} = super.serializable_state()
+    const renderers = this.get_renderer_views()
+      .map((view) => view.serializable_state())
+      .filter((item) => "bbox" in item)
+    return {...state, children: [...(children as any), ...renderers]} // XXX
   }
 }
-AbovePanel.initClass()
-
-export class BelowPanel extends LayoutCanvas {
-  static initClass(): void {
-    this.prototype.type = "BelowPanel"
-  }
-}
-BelowPanel.initClass()
-
-export class LeftPanel extends LayoutCanvas {
-  static initClass(): void {
-    this.prototype.type = "LeftPanel"
-  }
-}
-LeftPanel.initClass()
-
-export class RightPanel extends LayoutCanvas {
-  static initClass(): void {
-    this.prototype.type = "RightPanel"
-  }
-}
-RightPanel.initClass()
-
-export namespace PlotCanvas {
-  export interface Attrs extends LayoutDOM.Attrs {
-    plot: Plot
-    toolbar: Toolbar
-    canvas: Canvas
-    frame: CartesianFrame
-  }
-
-  export interface Props extends LayoutDOM.Props {}
-}
-
-export interface PlotCanvas extends PlotCanvas.Attrs {
-  use_map: boolean
-}
-
-export class PlotCanvas extends LayoutDOM {
-
-  properties: PlotCanvas.Props
-
-  constructor(attrs?: Partial<PlotCanvas.Attrs>) {
-    super(attrs)
-  }
-
-  static initClass(): void {
-    this.prototype.type = 'PlotCanvas'
-    this.prototype.default_view = PlotCanvasView
-
-    this.internal({
-      plot:         [ p.Instance ],
-      toolbar:      [ p.Instance ],
-      canvas:       [ p.Instance ],
-      frame:        [ p.Instance ],
-    })
-
-    this.override({
-      // We should find a way to enforce this
-      sizing_mode: 'stretch_both',
-    })
-  }
-
-  frame: CartesianFrame
-  canvas: Canvas
-
-  protected above_panel: AbovePanel
-  protected below_panel: BelowPanel
-  protected left_panel:  LeftPanel
-  protected right_panel: RightPanel
-
-  initialize(): void {
-    super.initialize()
-
-    this.canvas = new Canvas({
-      map: this.use_map != null ? this.use_map : false,
-      use_hidpi: this.plot.hidpi,
-      output_backend: this.plot.output_backend,
-    })
-
-    this.frame = new CartesianFrame({
-      x_range: this.plot.x_range,
-      extra_x_ranges: this.plot.extra_x_ranges,
-      x_scale: this.plot.x_scale,
-      y_range: this.plot.y_range,
-      extra_y_ranges: this.plot.extra_y_ranges,
-      y_scale: this.plot.y_scale,
-    })
-
-    this.above_panel = new AbovePanel()
-    this.below_panel = new BelowPanel()
-    this.left_panel  = new LeftPanel()
-    this.right_panel = new RightPanel()
-
-    logger.debug("PlotCanvas initialized")
-  }
-
-  protected _doc_attached(): void {
-    this.canvas.attach_document(this.document!)
-    this.frame.attach_document(this.document!)
-    this.above_panel.attach_document(this.document!)
-    this.below_panel.attach_document(this.document!)
-    this.left_panel.attach_document(this.document!)
-    this.right_panel.attach_document(this.document!)
-    super._doc_attached()
-    logger.debug("PlotCanvas attached to document")
-  }
-
-  get_layoutable_children(): LayoutDOM[] {
-    const children = [
-      this.above_panel, this.below_panel,
-      this.left_panel, this.right_panel,
-      this.canvas, this.frame,
-    ]
-
-    const collect_panels = (layout_renderers: Renderer[]) => {
-      for (const r of layout_renderers) {
-        if (isSizeable(r) && r.panel != null)
-          children.push(r.panel)
-      }
-    }
-
-    collect_panels(this.plot.above)
-    collect_panels(this.plot.below)
-    collect_panels(this.plot.left)
-    collect_panels(this.plot.right)
-
-    return children as any // XXX: PlotCanvas should be a LayoutCanvas
-  }
-
-  get_constraints(): Constraint[] {
-    return super.get_constraints().concat(this._get_constant_constraints(), this._get_side_constraints())
-  }
-
-  private _get_constant_constraints(): Constraint[] {
-    return [
-      // Set the origin. Everything else is positioned absolutely wrt canvas.
-      EQ(this.canvas._left, 0),
-      EQ(this.canvas._top,  0),
-
-      GE(this.above_panel._top,    [-1, this.canvas._top]        ),
-      EQ(this.above_panel._bottom, [-1, this.frame._top]         ),
-      EQ(this.above_panel._left,   [-1, this.left_panel._right]  ),
-      EQ(this.above_panel._right,  [-1, this.right_panel._left]  ),
-
-      EQ(this.below_panel._top,    [-1, this.frame._bottom]      ),
-      LE(this.below_panel._bottom, [-1, this.canvas._bottom]     ),
-      EQ(this.below_panel._left,   [-1, this.left_panel._right]  ),
-      EQ(this.below_panel._right,  [-1, this.right_panel._left]  ),
-
-      EQ(this.left_panel._top,     [-1, this.above_panel._bottom]),
-      EQ(this.left_panel._bottom,  [-1, this.below_panel._top]   ),
-      GE(this.left_panel._left,    [-1, this.canvas._left]       ),
-      EQ(this.left_panel._right,   [-1, this.frame._left]        ),
-
-      EQ(this.right_panel._top,    [-1, this.above_panel._bottom]),
-      EQ(this.right_panel._bottom, [-1, this.below_panel._top]   ),
-      EQ(this.right_panel._left,   [-1, this.frame._right]       ),
-      LE(this.right_panel._right,  [-1, this.canvas._right]      ),
-
-      EQ(this._top,                        [-1, this.above_panel._bottom]),
-      EQ(this._left,                       [-1, this.left_panel._right]),
-      EQ(this._height, [-1, this._bottom], [-1, this.canvas._bottom], this.below_panel._top),
-      EQ(this._width, [-1, this._right],   [-1, this.canvas._right], this.right_panel._left),
-
-      GE(this._top,                        -this.plot.min_border_top!   ),
-      GE(this._left,                       -this.plot.min_border_left!  ),
-      GE(this._height, [-1, this._bottom], -this.plot.min_border_bottom!),
-      GE(this._width, [-1, this._right],   -this.plot.min_border_right! ),
-    ]
-  }
-
-  private _get_side_constraints(): Constraint[] {
-    const panels = (objs: Renderer[]) => objs.map((obj: any) => obj.panel)
-    const above = vstack(this.above_panel,          panels(this.plot.above))
-    const below = vstack(this.below_panel, reversed(panels(this.plot.below)))
-    const left  = hstack(this.left_panel,           panels(this.plot.left))
-    const right = hstack(this.right_panel, reversed(panels(this.plot.right)))
-    return concat([above, below, left, right])
-  }
-}
-PlotCanvas.initClass()

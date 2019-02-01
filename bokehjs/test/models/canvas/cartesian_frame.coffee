@@ -8,30 +8,27 @@
 {FactorRange} = require("models/ranges/factor_range")
 {Range1d} = require("models/ranges/range1d")
 {Document} = require "document"
-{Variable}  = require("core/layout/solver")
 
 describe "CartesianFrame", ->
 
-  it "should have 6 variables", ->
-    c = new CartesianFrame({x_range: new Range1d({start: 0, end: 1}), y_range: new Range1d({start: 0, end: 1}), x_scale: new LinearScale(), y_scale: new LinearScale()})
-    # These are inherited from LayoutDOM
-    expect(c._top).to.be.an.instanceOf(Variable)
-    expect(c._bottom).to.be.an.instanceOf(Variable)
-    expect(c._left).to.be.an.instanceOf(Variable)
-    expect(c._right).to.be.an.instanceOf(Variable)
-    expect(c._width).to.be.an.instanceOf(Variable)
-    expect(c._height).to.be.an.instanceOf(Variable)
-
   it "should report default scales", ->
-    c = new CartesianFrame({x_range: new Range1d({start: 0, end: 1}), y_range: new Range1d({start: 0, end: 1}), x_scale: new LinearScale(), y_scale: new LinearScale()})
+    frame = new CartesianFrame(
+      new LinearScale(),
+      new LinearScale(),
+      new Range1d({start: 0, end: 1}),
+      new Range1d({start: 0, end: 1}))
 
-    expect(c.xscales.default).to.not.be.undefined
-    expect(c.yscales.default).to.not.be.undefined
+    expect(frame.xscales.default).to.not.be.undefined
+    expect(frame.yscales.default).to.not.be.undefined
 
   describe "_get_scales method", ->
 
     beforeEach ->
-      @frame = new CartesianFrame({x_range: new Range1d(), y_range: new Range1d(), x_scale: new LinearScale(), y_scale: new LinearScale()})
+      @frame = new CartesianFrame(
+        new LinearScale(),
+        new LinearScale(),
+        new Range1d(),
+        new Range1d())
       @frame_range = new Range1d({start: 0, end: 100})
 
     it "should return scale if defined", ->

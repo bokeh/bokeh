@@ -7,8 +7,10 @@ import {logger} from "core/logging"
 import {repeat} from "core/util/array"
 import {throttle} from "core/util/callback"
 import {Orientation, SliderCallbackPolicy} from "core/enums"
+import {HTML, SizingPolicy} from "core/layout"
 
 import {Widget, WidgetView} from "./widget"
+import {CallbackLike} from "../callbacks/callback"
 
 export interface SliderSpec {
   start: number
@@ -20,19 +22,68 @@ export interface SliderSpec {
 export abstract class AbstractSliderView extends WidgetView {
   model: AbstractSlider
 
-  protected sliderEl: noUiSlider.Instance
+  protected sliderEl: HTMLElement
   protected titleEl: HTMLElement
   protected valueEl: HTMLElement
   protected callback_wrapper?: () => void
 
+  private get noUiSlider(): noUiSlider.noUiSlider {
+    return (this.sliderEl as noUiSlider.Instance).noUiSlider
+  }
+
   initialize(options: any): void {
     super.initialize(options)
-    this.render()
+    this._init_callback()
   }
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.render())
+    this.connect(this.model.properties.callback.change,          () => this._init_callback())
+    this.connect(this.model.properties.callback_policy.change,   () => this._init_callback())
+    this.connect(this.model.properties.callback_throttle.change, () => this._init_callback())
+
+    this.connect(this.model.change, () => this.render()) // TODO
+  }
+
+  protected _init_callback(): void {
+    const {callback} = this.model
+    if (callback != null) {
+      const fn = () => callback.execute(this.model)
+
+      switch (this.model.callback_policy) {
+        case 'continuous': {
+          this.callback_wrapper = fn
+          break
+        }
+        case 'throttle': {
+          this.callback_wrapper = throttle(fn, this.model.callback_throttle)
+          break
+        }
+        default:
+          this.callback_wrapper = undefined
+      }
+    }
+  }
+
+  protected _width_policy(): SizingPolicy {
+    return this.model.orientation == "horizontal" ? "fit" : "fixed"
+  }
+
+  protected _height_policy(): SizingPolicy {
+    return this.model.orientation == "horizontal" ? "fixed" : "fit"
+  }
+
+  _update_layout(): void {
+    this.layout = new HTML(this.el)
+    const sizing = this.box_sizing()
+    if (this.model.orientation == "horizontal") {
+      if (sizing.width == null)
+        sizing.width = this.model.default_size
+    } else {
+      if (sizing.height == null)
+        sizing.height = this.model.default_size
+    }
+    this.layout.set_sizing(sizing)
   }
 
   protected abstract _calc_to(): SliderSpec
@@ -43,21 +94,6 @@ export abstract class AbstractSliderView extends WidgetView {
     if (this.sliderEl == null) {
       // XXX: temporary workaround for _render_css()
       super.render()
-    }
-
-    if (this.model.callback != null) {
-      const callback = () => this.model.callback.execute(this.model)
-
-      switch (this.model.callback_policy) {
-        case 'continuous': {
-          this.callback_wrapper = callback
-          break
-        }
-        case 'throttle': {
-          this.callback_wrapper = throttle(callback, this.model.callback_throttle)
-          break
-        }
-      }
     }
 
     const prefix = 'bk-noUi-'
@@ -92,8 +128,8 @@ export abstract class AbstractSliderView extends WidgetView {
         direction: this.model.direction,
       } as any) // XXX: bad typings; no cssPrefix
 
-      this.sliderEl.noUiSlider.on('slide',  (_, __, values) => this._slide(values))
-      this.sliderEl.noUiSlider.on('change', (_, __, values) => this._change(values))
+      this.noUiSlider.on('slide',  (_, __, values) => this._slide(values))
+      this.noUiSlider.on('change', (_, __, values) => this._change(values))
 
       // Add keyboard support
       const keypress = (e: KeyboardEvent): void => {
@@ -115,7 +151,7 @@ export abstract class AbstractSliderView extends WidgetView {
         const pretty = this.model.pretty(value)
         logger.debug(`[slider keypress] value = ${pretty}`)
         this.model.value = value
-        this.sliderEl.noUiSlider.set(value)
+        this.noUiSlider.set(value)
         if (this.valueEl != null)
           this.valueEl.textContent = pretty
         if (this.callback_wrapper != null)
@@ -132,10 +168,10 @@ export abstract class AbstractSliderView extends WidgetView {
         tooltip.style.display = show ? 'block' : ''
       }
 
-      this.sliderEl.noUiSlider.on('start', (_, i) => toggleTooltip(i, true))
-      this.sliderEl.noUiSlider.on('end',   (_, i) => toggleTooltip(i, false))
+      this.noUiSlider.on('start', (_, i) => toggleTooltip(i, true))
+      this.noUiSlider.on('end',   (_, i) => toggleTooltip(i, false))
     } else {
-      this.sliderEl.noUiSlider.updateOptions({
+      this.noUiSlider.updateOptions({
         range: {min: start, max: end},
         start: value,
         step: step,
@@ -203,6 +239,7 @@ export abstract class AbstractSliderView extends WidgetView {
 
 export namespace AbstractSlider {
   export interface Attrs extends Widget.Attrs {
+    default_size: number
     title: string
     show_value: boolean
     start: any // XXX
@@ -213,19 +250,22 @@ export namespace AbstractSlider {
     orientation: Orientation
     direction: "ltr" | "rtl"
     tooltips: boolean
-    callback: any // XXX
+    callback: CallbackLike<AbstractSlider> | null
     callback_throttle: number
     callback_policy: SliderCallbackPolicy
     bar_color: Color
   }
 
-  export interface Props extends Widget.Props {}
+  export interface Props extends Widget.Props {
+    callback: p.Property<CallbackLike<AbstractSlider> | null>
+    callback_throttle: p.Property<number>
+    callback_policy: p.Property<SliderCallbackPolicy>
+  }
 }
 
 export interface AbstractSlider extends AbstractSlider.Attrs {}
 
 export abstract class AbstractSlider extends Widget {
-
   properties: AbstractSlider.Props
 
   constructor(attrs?: Partial<AbstractSlider.Attrs>) {
@@ -236,6 +276,7 @@ export abstract class AbstractSlider extends Widget {
     this.prototype.type = "AbstractSlider"
 
     this.define({
+      default_size:      [ p.Number,      300          ],
       title:             [ p.String,      ""           ],
       show_value:        [ p.Bool,        true         ],
       start:             [ p.Any                       ],
@@ -246,7 +287,7 @@ export abstract class AbstractSlider extends Widget {
       orientation:       [ p.Orientation, "horizontal" ],
       direction:         [ p.Any,         "ltr"        ],
       tooltips:          [ p.Boolean,     true         ],
-      callback:          [ p.Instance                  ],
+      callback:          [ p.Any                       ],
       callback_throttle: [ p.Number,      200          ],
       callback_policy:   [ p.String,      "throttle"   ], // TODO (bev) enum
       bar_color:         [ p.Color,       "#e6e6e6"    ],
@@ -264,5 +305,4 @@ export abstract class AbstractSlider extends Widget {
     return this._formatter(value, this.format)
   }
 }
-
 AbstractSlider.initClass()

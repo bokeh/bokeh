@@ -52,7 +52,7 @@ class TestPanel(object):
         self.panelCls = Panel
 
     def test_expectedprops(self):
-        expected_properties = set(['title', 'child', 'closable'])
+        expected_properties = set(['title', 'child'])
         actual_properties = get_prop_set(self.panelCls)
         assert expected_properties.issubset(actual_properties)
 
@@ -62,7 +62,6 @@ class TestPanel(object):
         assert p1.title == ""
         assert p2.title == ""
         assert p1.child == None
-        assert not p1.closable
 
 
 class TestTabs(object):

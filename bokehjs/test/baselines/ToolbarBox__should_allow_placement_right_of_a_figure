@@ -1,0 +1,7 @@
+Row bbox=[0, 0, 280, 250]
+  Plot bbox=[0, 0, 250, 250]
+    LinearAxis bbox=[24, 226, 221, 24]
+    LinearAxis bbox=[0, 5, 24, 221]
+    Title bbox=[24, 5, 221, 0]
+  ToolbarBox bbox=[250, 0, 30, 117]
+    Toolbar

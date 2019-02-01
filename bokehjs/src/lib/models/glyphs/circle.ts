@@ -3,10 +3,9 @@ import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geom
 import {DistanceSpec, AngleSpec} from "core/vectorization"
 import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
-import {Arrayable} from "core/types"
+import {Arrayable, Area} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
-import {IBBox} from "core/util/bbox"
 import {range} from "core/util/array"
 import {map} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
@@ -245,7 +244,7 @@ export class CircleView extends XYGlyphView {
 
   // circle does not inherit from marker (since it also accepts radius) so we
   // must supply a draw_legend for it  here
-  draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: IBBox, index: number): void {
+  draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Area, index: number): void {
     // using objects like this seems a little wonky, since the keys are coerced to
     // stings, but it works
     const len = index + 1

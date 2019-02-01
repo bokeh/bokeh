@@ -1,7 +1,7 @@
 import * as Hammer from "hammerjs"
 
 import {Input} from "hammerjs"
-export type HammerEvent = typeof Input
+type HammerEvent = typeof Input
 
 import {Signal} from "./signaling"
 import {DOMView} from "./dom_view"
@@ -11,39 +11,46 @@ import {getDeltaY} from "./util/wheel"
 import {reversed} from "./util/array"
 import {isEmpty} from "./util/object"
 import {isString} from "./util/types"
-import {BokehEvent} from "./bokeh_events"
-import {PlotCanvasView} from "../models/plots/plot_canvas"
-import {Plot} from "../models/plots/plot"
+import {is_mobile} from "./util/compat"
+import {PlotView} from "../models/plots/plot"
 import {Toolbar} from "../models/tools/toolbar"
 import {ToolView} from "../models/tools/tool"
+import * as events from "./bokeh_events"
 
-export const is_mobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0
-
-export interface UIEvent {
-  type: string
+export type GestureEvent = {
+  type: "pan" | "panstart" | "panend" | "pinch" | "pinchstart" | "pinchend"
   sx: number
   sy: number
-}
-
-export interface GestureEvent extends UIEvent {
   deltaX: number
   deltaY: number
   scale: number
   shiftKey: boolean
 }
 
-export interface TapEvent extends UIEvent {
+export type TapEvent = {
+  type: "tap" | "doubletap" | "press"
+  sx: number
+  sy: number
   shiftKey: boolean
 }
 
-export interface MoveEvent extends UIEvent {}
+export type MoveEvent = {
+  type: "mousemove" | "mouseenter" | "mouseleave"
+  sx: number
+  sy: number
+}
 
-export interface ScrollEvent extends UIEvent {
+export type ScrollEvent = {
+  type: "wheel"
+  sx: number
+  sy: number
   delta: number
 }
 
-export interface KeyEvent {
-  type: string
+export type UIEvent = GestureEvent | TapEvent | MoveEvent | ScrollEvent
+
+export type KeyEvent = {
+  type: "keyup" | "keydown"
   keyCode: Keys
 }
 
@@ -76,12 +83,11 @@ export class UIEvents implements EventListenerObject {
   readonly keydown      : UISignal<KeyEvent>     = new Signal(this, 'keydown')
   readonly keyup        : UISignal<KeyEvent>     = new Signal(this, 'keyup')
 
-  protected readonly hammer = new Hammer(this.hit_area)
+  private readonly hammer = new Hammer(this.hit_area)
 
-  constructor(readonly plot_view: PlotCanvasView,
+  constructor(readonly plot_view: PlotView,
               readonly toolbar: Toolbar,
-              readonly hit_area: HTMLElement,
-              readonly plot: Plot) {
+              readonly hit_area: HTMLElement) {
     this._configure_hammerjs()
 
     // Mouse & keyboard events not handled through hammerjs
@@ -247,7 +253,7 @@ export class UIEvents implements EventListenerObject {
   }
 
   protected _hit_test_canvas(sx: number, sy: number): boolean {
-    return this.plot_view.canvas.bbox.contains(sx, sy)
+    return this.plot_view.layout.bbox.contains(sx, sy)
   }
 
   _trigger<E extends UIEvent>(signal: UISignal<E>, e: E, srcEvent: Event): void {
@@ -274,7 +280,7 @@ export class UIEvents implements EventListenerObject {
 
           if (!isEmpty(active_inspectors)) {
             // override event_type to cause inspectors to clear overlays
-            signal = this.move_exit
+            signal = this.move_exit as any // XXX
             event_type = signal.name
           }
 
@@ -333,14 +339,50 @@ export class UIEvents implements EventListenerObject {
   }
 
   protected _trigger_bokeh_event(e: UIEvent): void {
-    const event_cls = BokehEvent.event_class(e)
-    if (event_cls != null)
-      this.plot.trigger_event(event_cls.from_event(e))
-    else
-      logger.debug(`Unhandled event of type ${e.type}`)
+    const ev = (() => {
+      const xscale = this.plot_view.frame.xscales['default']
+      const yscale = this.plot_view.frame.yscales['default']
+
+      const {sx, sy} = e
+      const x = xscale.invert(sx)
+      const y = yscale.invert(sy)
+
+      switch (e.type) {
+        case "wheel":
+          return new events.MouseWheel(sx, sy, x, y, e.delta)
+        case "mousemove":
+          return new events.MouseMove(sx, sy, x, y)
+        case "mouseenter":
+          return new events.MouseEnter(sx, sy, x, y)
+        case "mouseleave":
+          return new events.MouseLeave(sx, sy, x, y)
+        case "tap":
+          return new events.Tap(sx, sy, x, y)
+        case "doubletap":
+          return new events.DoubleTap(sx, sy, x, y)
+        case "press":
+          return new events.Press(sx, sy, x, y)
+        case "pan":
+          return new events.Pan(sx, sy, x, y, e.deltaX, e.deltaY)
+        case "panstart":
+          return new events.PanStart(sx, sy, x, y)
+        case "panend":
+          return new events.PanEnd(sx, sy, x, y)
+        case "pinch":
+          return new events.Pinch(sx, sy, x, y, e.scale)
+        case "pinchstart":
+          return new events.PinchStart(sx, sy, x, y)
+        case "pinchend":
+          return new events.PinchEnd(sx, sy, x, y)
+        default:
+          throw new Error("unreachable")
+      }
+    })()
+
+    this.plot_view.model.trigger_event(ev)
   }
 
-  protected _get_sxy(event: TouchEvent | MouseEvent | PointerEvent): {sx: number, sy: number} {
+  private _get_sxy(event: TouchEvent | MouseEvent | PointerEvent): {sx: number, sy: number} {
     // XXX: jsdom doesn't support TouchEvent constructor
     function is_touch(event: TouchEvent | MouseEvent | PointerEvent): event is TouchEvent {
       return typeof TouchEvent !== "undefined" && event instanceof TouchEvent
@@ -353,9 +395,9 @@ export class UIEvents implements EventListenerObject {
     }
   }
 
-  protected _gesture_event(e: HammerEvent): GestureEvent {
+  private _gesture_event(e: HammerEvent): GestureEvent {
     return {
-      type: e.type,
+      type: e.type as GestureEvent["type"],
       ...this._get_sxy(e.srcEvent),
       deltaX: e.deltaX,
       deltaY: e.deltaY,
@@ -364,27 +406,36 @@ export class UIEvents implements EventListenerObject {
     }
   }
 
-  protected _tap_event(e: HammerEvent): TapEvent {
+  private _tap_event(e: HammerEvent): TapEvent {
     return {
-      type: e.type,
+      type: e.type as TapEvent["type"],
       ...this._get_sxy(e.srcEvent),
       shiftKey: e.srcEvent.shiftKey,
     }
   }
 
-  protected _move_event(e: MouseEvent): MoveEvent {
-    return {type: e.type, ...this._get_sxy(e)}
+  private _move_event(e: MouseEvent): MoveEvent {
+    return {
+      type: e.type as MoveEvent["type"],
+      ...this._get_sxy(e),
+    }
   }
 
-  protected _scroll_event(e: WheelEvent): ScrollEvent {
-    return {type: e.type, ...this._get_sxy(e), delta: getDeltaY(e)}
+  private _scroll_event(e: WheelEvent): ScrollEvent {
+    return {
+      type: e.type as ScrollEvent["type"],
+      ...this._get_sxy(e), delta: getDeltaY(e),
+    }
   }
 
-  protected _key_event(e: KeyboardEvent): KeyEvent {
-    return {type: e.type, keyCode: e.keyCode}
+  private _key_event(e: KeyboardEvent): KeyEvent {
+    return {
+      type: e.type as KeyEvent["type"],
+      keyCode: e.keyCode,
+    }
   }
 
-  protected _pan_start(e: HammerEvent): void {
+  private _pan_start(e: HammerEvent): void {
     const ev = this._gesture_event(e)
     // back out delta to get original center point
     ev.sx -= e.deltaX
@@ -392,75 +443,75 @@ export class UIEvents implements EventListenerObject {
     this._trigger(this.pan_start, ev, e.srcEvent)
   }
 
-  protected _pan(e: HammerEvent): void {
+  private _pan(e: HammerEvent): void {
     this._trigger(this.pan, this._gesture_event(e), e.srcEvent)
   }
 
-  protected _pan_end(e: HammerEvent): void {
+  private _pan_end(e: HammerEvent): void {
     this._trigger(this.pan_end, this._gesture_event(e), e.srcEvent)
   }
 
-  protected _pinch_start(e: HammerEvent): void {
+  private _pinch_start(e: HammerEvent): void {
     this._trigger(this.pinch_start, this._gesture_event(e), e.srcEvent)
   }
 
-  protected _pinch(e: HammerEvent): void {
+  private _pinch(e: HammerEvent): void {
     this._trigger(this.pinch, this._gesture_event(e), e.srcEvent)
   }
 
-  protected _pinch_end(e: HammerEvent): void {
+  private _pinch_end(e: HammerEvent): void {
     this._trigger(this.pinch_end, this._gesture_event(e), e.srcEvent)
   }
 
-  protected _rotate_start(e: HammerEvent): void {
+  private _rotate_start(e: HammerEvent): void {
     this._trigger(this.rotate_start, this._gesture_event(e), e.srcEvent)
   }
 
-  protected _rotate(e: HammerEvent): void {
+  private _rotate(e: HammerEvent): void {
     this._trigger(this.rotate, this._gesture_event(e), e.srcEvent)
   }
 
-  protected _rotate_end(e: HammerEvent): void {
+  private _rotate_end(e: HammerEvent): void {
     this._trigger(this.rotate_end, this._gesture_event(e), e.srcEvent)
   }
 
-  protected _tap(e: HammerEvent): void {
+  private _tap(e: HammerEvent): void {
     this._trigger(this.tap, this._tap_event(e), e.srcEvent)
   }
 
-  protected _doubletap(e: HammerEvent): void {
+  private _doubletap(e: HammerEvent): void {
     // NOTE: doubletap event triggered unconditionally
     const ev = this._tap_event(e)
     this._trigger_bokeh_event(ev)
     this.trigger(this.doubletap, ev)
   }
 
-  protected _press(e: HammerEvent): void {
+  private _press(e: HammerEvent): void {
     this._trigger(this.press, this._tap_event(e), e.srcEvent)
   }
 
-  protected _mouse_enter(e: MouseEvent): void {
+  private _mouse_enter(e: MouseEvent): void {
     this._trigger(this.move_enter, this._move_event(e), e)
   }
 
-  protected _mouse_move(e: MouseEvent): void {
+  private _mouse_move(e: MouseEvent): void {
     this._trigger(this.move, this._move_event(e), e)
   }
 
-  protected _mouse_exit(e: MouseEvent): void {
+  private _mouse_exit(e: MouseEvent): void {
     this._trigger(this.move_exit, this._move_event(e), e)
   }
 
-  protected _mouse_wheel(e: WheelEvent): void {
+  private _mouse_wheel(e: WheelEvent): void {
     this._trigger(this.scroll, this._scroll_event(e), e)
   }
 
-  protected _key_down(e: KeyboardEvent): void {
+  private _key_down(e: KeyboardEvent): void {
     // NOTE: keyup event triggered unconditionally
     this.trigger(this.keydown, this._key_event(e))
   }
 
-  protected _key_up(e: KeyboardEvent): void {
+  private _key_up(e: KeyboardEvent): void {
     // NOTE: keyup event triggered unconditionally
     this.trigger(this.keyup, this._key_event(e))
   }

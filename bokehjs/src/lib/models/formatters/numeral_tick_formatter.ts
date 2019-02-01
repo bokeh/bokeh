@@ -1,7 +1,7 @@
 import * as Numbro from "numbro"
 
 import {TickFormatter} from "./tick_formatter"
-import {Axis} from "../axes/axis"
+import {AxisView} from "../axes/axis"
 import {RoundingFunction} from "core/enums"
 import * as p from "core/properties"
 
@@ -50,7 +50,7 @@ export class NumeralTickFormatter extends TickFormatter {
     }
   }
 
-  doFormat(ticks: number[], _axis: Axis): string[] {
+  doFormat(ticks: number[], _axis_view: AxisView): string[] {
     const {format, language, _rounding_fn} = this
     return ticks.map((tick) => Numbro.format(tick, format, language, _rounding_fn))
   }

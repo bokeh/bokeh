@@ -1,5 +1,5 @@
 from bokeh.io import output_file, show
-from bokeh.layouts import widgetbox
+from bokeh.layouts import column
 from bokeh.models import CustomJS, Slider, Div
 
 # NOTE: the JS functions to forvide the format code for strings is found the answer
@@ -40,4 +40,4 @@ callback.args['slider3'] = s3
 
 output_file('slider_callback_policy.html')
 
-show(widgetbox(s1, s2, s3, para))
+show(column(s1, s2, s3, para))

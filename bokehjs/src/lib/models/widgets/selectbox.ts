@@ -1,4 +1,4 @@
-import {empty, label, select, option, optgroup} from "core/dom"
+import {select, option, optgroup} from "core/dom"
 import {isString, isArray} from "core/util/types"
 import {logger} from "core/logging"
 import * as p from "core/properties"
@@ -9,11 +9,6 @@ export class SelectView extends InputWidgetView {
   model: Select
 
   protected selectEl: HTMLSelectElement
-
-  initialize(options: any): void {
-    super.initialize(options)
-    this.render()
-  }
 
   connect_signals(): void {
     super.connect_signals()
@@ -35,10 +30,6 @@ export class SelectView extends InputWidgetView {
 
   render(): void {
     super.render()
-    empty(this.el)
-
-    const labelEl = label({for: this.model.id}, this.model.title)
-    this.el.appendChild(labelEl)
 
     let contents: HTMLElement[]
     if (isArray(this.model.options))
@@ -53,7 +44,7 @@ export class SelectView extends InputWidgetView {
     }
 
     this.selectEl = select({
-      class: "bk-widget-form-input",
+      class: "bk-input",
       id: this.model.id,
       name: this.model.name,
       disabled: this.model.disabled}, contents)
@@ -82,7 +73,6 @@ export namespace Select {
 export interface Select extends Select.Attrs {}
 
 export class Select extends InputWidget {
-
   properties: Select.Props
 
   constructor(attrs?: Partial<Select.Attrs>) {
@@ -99,5 +89,4 @@ export class Select extends InputWidget {
     })
   }
 }
-
 Select.initClass()

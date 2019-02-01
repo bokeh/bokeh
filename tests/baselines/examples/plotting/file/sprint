@@ -1,0 +1,5 @@
+Plot bbox=[0, 0, 1000, 600]
+  LinearAxis bbox=[5, 562, 954, 24]
+  Label bbox=[5, 586, 954, 14]
+  LinearAxis bbox=[959, 37, 41, 525]
+  Title bbox=[5, 0, 954, 37]

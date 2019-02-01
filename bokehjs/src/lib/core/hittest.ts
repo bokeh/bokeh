@@ -1,5 +1,5 @@
+import {Rect} from "./types"
 import {sortBy} from "./util/array"
-import {Rect} from "./util/spatial"
 import {Selection} from "../models/selections/selection"
 
 export type HitTestResult = Selection | null

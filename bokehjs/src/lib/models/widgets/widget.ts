@@ -1,43 +1,24 @@
-import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
+import {HTMLBox, HTMLBoxView} from "../layouts/html_box"
+import {Class} from "core/class"
 
-export abstract class WidgetView extends LayoutDOMView {
+export namespace WidgetView {
+  export type Options = HTMLBoxView.Options & {model: Widget}
+}
+
+export abstract class WidgetView extends HTMLBoxView {
   model: Widget
-
-  css_classes(): string[] {
-    return super.css_classes().concat("bk-widget")
-  }
-
-  render(): void {
-    this._render_classes() // XXX: because no super()
-
-    // LayoutDOMView sets up lots of helpful things, but
-    // it's render method is not suitable for widgets - who
-    // should provide their own.
-    if (this.model.height != null)
-      this.el.style.height = `${this.model.height}px`
-    if (this.model.width != null)
-      this.el.style.width = `${this.model.width}px`
-  }
-
-  get_width(): number {
-    throw new Error("unused")
-  }
-
-  get_height(): number {
-    throw new Error("unused")
-  }
+  default_view: Class<WidgetView, [WidgetView.Options]>
 }
 
 export namespace Widget {
-  export interface Attrs extends LayoutDOM.Attrs {}
+  export interface Attrs extends HTMLBox.Attrs {}
 
-  export interface Props extends LayoutDOM.Props {}
+  export interface Props extends HTMLBox.Props {}
 }
 
 export interface Widget extends Widget.Attrs {}
 
-export abstract class Widget extends LayoutDOM {
-
+export abstract class Widget extends HTMLBox {
   properties: Widget.Props
 
   constructor(attrs?: Partial<Widget.Attrs>) {
@@ -46,7 +27,10 @@ export abstract class Widget extends LayoutDOM {
 
   static initClass(): void {
     this.prototype.type = "Widget"
+
+    this.override({
+      margin: [5, 5, 5, 5],
+    })
   }
 }
-
 Widget.initClass()

@@ -71,9 +71,9 @@ describe "customjs module", ->
       r = new CustomJS({code: "return cb_obj", use_strict: true})
       expect(r.execute('foo')).to.be.equal 'foo'
 
-    it "should return cb_data with value of null if cb_data kwarg is unset", ->
+    it "should return cb_data with default value if cb_data kwarg is unset", ->
       r = new CustomJS({code: "return cb_data", use_strict: true})
-      expect(r.execute('foo')).to.be.equal undefined
+      expect(r.execute('foo')).to.be.deep.equal({})
 
     it "should return cb_data with value of kwarg parameter to execute", ->
       r = new CustomJS({code: "return cb_data", use_strict: true})

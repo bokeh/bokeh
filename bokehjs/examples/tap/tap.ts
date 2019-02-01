@@ -1,17 +1,13 @@
-namespace TappyScatter {
+import * as Bokeh from "bokehjs"
+
+export namespace TappyScatter {
   import plt = Bokeh.Plotting
-  const {range, zip} = Bokeh.LinAlg
+  const {range, zip, Random} = Bokeh.LinAlg
 
   Bokeh.set_log_level("info")
   Bokeh.logger.info(`Bokeh ${Bokeh.version}`)
 
-  const random = (function() {
-    let seed = 1
-    return function() { // Park-Miller LCG
-      seed = (seed*48271) % 2147483647 // 1 <= seed < 2^31 - 1
-      return (seed - 1) / 2147483646
-    }
-  })()
+  const random = new Random(1)
 
   const M = 100
   const xx: number[] = []
@@ -26,7 +22,7 @@ namespace TappyScatter {
 
   const N = xx.length
   const indices = range(N).map((i) => i.toString())
-  const radii = range(N).map((_) => random()*0.4 + 1.7)
+  const radii = range(N).map((_) => random.float()*0.4 + 1.7)
 
   const colors: string[] = []
   for (const [r, g] of zip(xx.map((x) => 50 + 2*x), yy.map((y) => 30 + 2*y)))
@@ -48,14 +44,16 @@ namespace TappyScatter {
 
   const tap = p.toolbar.select_one(Bokeh.TapTool)
   tap.renderers = [circles]
-  tap.callback = (ds: Bokeh.DataSource) => {
-    const indices = ds.selected['1d'].indices
-    if (indices.length == 1)
-      console.log(`Selected index: ${indices[0]}`)
-    else if (indices.length > 1)
-      console.log(`Selected indices: ${indices.join(', ')}`)
-    else
-      console.log("Nothing selected")
+  tap.callback = {
+    execute(_obj, {source}): void {
+      const indices = source.selected['1d'].indices
+      if (indices.length == 1)
+        console.log(`Selected index: ${indices[0]}`)
+      else if (indices.length > 1)
+        console.log(`Selected indices: ${indices.join(', ')}`)
+      else
+        console.log("Nothing selected")
+    },
   }
 
   plt.show(p)

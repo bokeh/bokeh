@@ -1,6 +1,4 @@
 import {Renderer, RendererView} from "./renderer"
-import {Plot} from "../plots/plot"
-import * as p from "core/properties"
 
 export abstract class GuideRendererView extends RendererView {
   model: GuideRenderer
@@ -8,9 +6,7 @@ export abstract class GuideRendererView extends RendererView {
 }
 
 export namespace GuideRenderer {
-  export interface Attrs extends Renderer.Attrs {
-    plot: Plot
-  }
+  export interface Attrs extends Renderer.Attrs {}
 
   export interface Props extends Renderer.Props {}
 
@@ -29,10 +25,6 @@ export abstract class GuideRenderer extends Renderer {
 
   static initClass(): void {
     this.prototype.type = "GuideRenderer"
-
-    this.define({
-      plot: [ p.Instance ],
-    })
 
     this.override({
       level: "overlay",

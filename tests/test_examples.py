@@ -6,18 +6,16 @@ import pytest
 import subprocess
 import signal
 
-from os.path import basename, dirname, exists, split
-from base64 import b64decode
+from os.path import basename, dirname, split
 
 import six
 
 from bokeh.server.callbacks import NextTickCallback, PeriodicCallback, TimeoutCallback
-from bokeh._testing.util.images import image_diff
 from bokeh._testing.util.screenshot import run_in_chrome
 
 from bokeh.client import push_session
 from bokeh.command.util import build_single_handler_application
-from bokeh.util.terminal import trace, info, fail, ok, red, warn, white
+from bokeh.util.terminal import info, fail, ok, red, warn, white
 
 pytest_plugins = (
     "bokeh._testing.plugins.bokeh_server",
@@ -26,25 +24,14 @@ pytest_plugins = (
 
 @pytest.mark.examples
 def test_js_examples(js_example, example, report):
-    if example.is_skip:
-        pytest.skip("skipping %s" % example.relpath)
-
     if example.no_js:
         if not pytest.config.option.no_js:
             warn("skipping bokehjs for %s" % example.relpath)
     else:
         _run_in_browser(example, "file://%s" % example.path)
 
-        if example.no_diff:
-            warn("skipping image diff for %s" % example.relpath)
-        else:
-            _get_pdiff(example)
-
 @pytest.mark.examples
 def test_file_examples(file_example, example, report):
-    if example.is_skip:
-        pytest.skip("skipping %s" % example.relpath)
-
     (status, duration, out, err) = _run_example(example)
     info("Example run in %s" % white("%.3fs" % duration))
 
@@ -67,17 +54,8 @@ def test_file_examples(file_example, example, report):
     else:
         _run_in_browser(example, "file://%s.html" % example.path_no_ext)
 
-        if example.no_diff:
-            warn("skipping image diff for %s" % example.relpath)
-        else:
-            _get_pdiff(example)
-
-
 @pytest.mark.examples
 def test_server_examples(server_example, example, report, bokeh_server):
-    if example.is_skip:
-        pytest.skip("skipping %s" % example.relpath)
-
     # mitigate some weird interaction isolated to simple ids, py2.7,
     # "push_session" server usage, and TravisCI
     if six.PY2: os.environ['BOKEH_SIMPLE_IDS'] = 'no'
@@ -102,35 +80,8 @@ def test_server_examples(server_example, example, report, bokeh_server):
     if example.no_js:
         if not pytest.config.option.no_js:
             warn("skipping bokehjs for %s" % example.relpath)
-
     else:
         _run_in_browser(example, "http://localhost:5006/?bokeh-session-id=%s" % session_id)
-
-        if example.no_diff:
-            warn("skipping image diff for %s" % example.relpath)
-        else:
-            _get_pdiff(example)
-
-
-def _get_pdiff(example):
-    img_path, ref_path, diff_path = example.img_path, example.ref_path, example.diff_path
-    trace("generated image: " + img_path)
-
-    ref = example.fetch_ref()
-
-    if not ref:
-        warn("reference image %s doesn't exist" % example.ref_url)
-    else:
-        _store_binary(ref_path, ref)
-        trace("saved reference: " + ref_path)
-
-        example.pixels = image_diff(diff_path, img_path, ref_path)
-        if example.pixels != 0:
-            comment = white("%.02f%%" % example.pixels) + " of pixels"
-            warn("generated and reference images differ: %s" % comment)
-        else:
-            ok("generated and reference images match")
-
 
 def _get_path_parts(path):
     parts = []
@@ -162,13 +113,28 @@ def _print_webengine_output(result):
         for line in error['text'].split("\n"):
             fail(line, label="JS")
 
-def _store_binary(path, data):
-    directory = dirname(path)
-    if not exists(directory):
-        os.makedirs(directory)
+def _create_baseline(items):
+    lines = []
 
-    with open(path, "wb") as f:
-        f.write(data)
+    def descend(items, level):
+        for item in items:
+            type = item["type"]
+
+            bbox = item.get("bbox", None)
+            children = item.get("children", [])
+
+            line = "%s%s" % ("  "*level, type)
+
+            if bbox is not None:
+                line += " bbox=[%s, %s, %s, %s]" % (bbox["left"], bbox["top"], bbox["width"], bbox["height"])
+
+            line += "\n"
+
+            lines.append(line)
+            descend(children, level+1)
+
+    descend(items, 0)
+    return "".join(lines)
 
 def _run_in_browser(example, url):
     start = time.time()
@@ -180,9 +146,8 @@ def _run_in_browser(example, url):
     success = result["success"]
     timeout = result["timeout"]
     errors = result["errors"]
+    state = result["state"]
     image = result["image"]
-
-    _store_binary(example.img_path, b64decode(image["data"]))
 
     no_errors = len(errors) == 0
 
@@ -193,7 +158,52 @@ def _run_in_browser(example, url):
         _print_webengine_output(result)
 
     assert success, "%s failed to load" % example.relpath
+
+    has_image = image is not None
+    has_state = state is not None
+    has_baseline = example.has_baseline
+    baseline_ok = True
+
+    if not has_state:
+        fail("no state data was produced for comparison with the baseline")
+    else:
+        new_baseline = _create_baseline(state)
+        example.store_baseline(new_baseline)
+
+        if not has_baseline:
+            fail("%s baseline doesn't exist" % example.baseline_path)
+        else:
+            result = example.diff_baseline()
+
+            if result is not None:
+                baseline_ok = False
+                fail("BASELINE DOESN'T MATCH (make sure to update baselines before running tests):")
+
+                for line in result.split("\n"):
+                    fail(line)
+
+    example.store_img(image["data"])
+    ref = example.fetch_ref()
+
+    if not ref:
+        warn("reference image %s doesn't exist" % example.ref_url)
+
+    if example.no_diff:
+        warn("skipping image diff for %s" % example.relpath)
+    elif not has_image:
+        fail("no image data was produced for comparison with the reference image")
+    elif ref:
+        pixels = example.image_diff()
+        if pixels != 0:
+            comment = white("%.02f%%" % pixels) + " of pixels"
+            warn("generated and reference images differ: %s" % comment)
+        else:
+            ok("generated and reference images match")
+
     assert no_errors, "%s failed with %d errors" % (example.relpath, len(errors))
+    assert has_state, "%s didn't produce state data" % example.relpath
+    assert has_baseline, "%s doesn't have a baseline" % example.relpath
+    assert baseline_ok, "%s's baseline differs" % example.relpath
 
 
 def _run_example(example):

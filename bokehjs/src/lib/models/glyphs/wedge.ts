@@ -4,11 +4,10 @@ import {PointGeometry} from "core/geometry"
 import {DistanceSpec, AngleSpec} from "core/vectorization"
 import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
-import {Arrayable} from "core/types"
+import {Arrayable, Area} from "core/types"
 import {Direction} from "core/enums"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
-import {IBBox} from "core/util/bbox"
 import {angle_between} from "core/util/math"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
@@ -111,7 +110,7 @@ export class WedgeView extends XYGlyphView {
     return hittest.create_hit_test_result_from_hits(hits)
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: IBBox, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Area, index: number): void {
     generic_area_legend(this.visuals, ctx, bbox, index)
   }
 

@@ -1,9 +1,9 @@
 import {SelectTool, SelectToolView} from "./select_tool"
+import {CallbackLike} from "../../callbacks/callback"
 import * as p from "core/properties"
 import {TapEvent} from "core/ui_events"
-import {isFunction} from "core/util/types"
 import {PointGeometry} from "core/geometry"
-import {DataSource} from "../../sources/data_source"
+import {ColumnarDataSource} from "../../sources/columnar_data_source"
 
 export class TapToolView extends SelectToolView {
   model: TapTool
@@ -32,20 +32,13 @@ export class TapToolView extends SelectToolView {
         const did_hit = sm.select(r_views, geometry, final, append)
 
         if (did_hit && callback != null) {
-          const frame = this.plot_model.frame
+          const {frame} = this.plot_view
           const xscale = frame.xscales[renderers[0].x_range_name]
           const yscale = frame.yscales[renderers[0].y_range_name]
           const x = xscale.invert(geometry.sx)
           const y = yscale.invert(geometry.sy)
-          const g = {...geometry, x, y}
-          const cb_data: {
-              geometries: PointGeometry & { x: number, y: number }
-              source: DataSource | null,
-          } = { geometries: g, source: sm.source }
-          if (isFunction(callback))
-            callback(this, cb_data)
-          else
-            callback.execute(this, cb_data)
+          const data = {geometries: {...geometry, x, y}, source: sm.source}
+          callback.execute(this.model, data)
         }
       }
 
@@ -57,20 +50,13 @@ export class TapToolView extends SelectToolView {
         const did_hit = sm.inspect(this.plot_view.renderer_views[r.id], geometry)
 
         if (did_hit && callback != null) {
-          const frame = this.plot_model.frame
+          const {frame} = this.plot_view
           const xscale = frame.xscales[r.x_range_name]
           const yscale = frame.yscales[r.y_range_name]
           const x = xscale.invert(geometry.sx)
           const y = yscale.invert(geometry.sy)
-          const g = {...geometry, x, y}
-          const cb_data: {
-              geometries: PointGeometry & { x: number, y: number }
-              source: DataSource | null,
-          } = { geometries: g, source: sm.source }
-          if (isFunction(callback))
-            callback(this, cb_data)
-          else
-            callback.execute(this, cb_data)
+          const data = {geometries: {...geometry, x, y}, source: sm.source}
+          callback.execute(this.model, data)
         }
       }
     }
@@ -80,7 +66,7 @@ export class TapToolView extends SelectToolView {
 export namespace TapTool {
   export interface Attrs extends SelectTool.Attrs {
     behavior: "select" | "inspect"
-    callback: any // XXX
+    callback: CallbackLike<TapTool, {geometries: PointGeometry & {x: number, y: number}, source: ColumnarDataSource}> | null
   }
 
   export interface Props extends SelectTool.Props {}

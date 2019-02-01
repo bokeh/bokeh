@@ -5,7 +5,7 @@ import {use_strict} from "core/util/string"
 
 export namespace CustomJS {
   export interface Attrs extends Callback.Attrs {
-    args: {[key: string]: any}
+    args: {[key: string]: unknown}
     code: string
     use_strict: boolean
   }
@@ -46,7 +46,7 @@ export class CustomJS extends Callback {
     return new Function(...this.names, "cb_obj", "cb_data", "require", "exports", code)
   }
 
-  execute(cb_obj: any, cb_data: {[key: string]: any}): any {
+  execute(cb_obj: unknown, cb_data: {[key: string]: unknown} = {}): unknown {
     return this.func.apply(cb_obj, this.values.concat(cb_obj, cb_data, require, {}))
   }
 }

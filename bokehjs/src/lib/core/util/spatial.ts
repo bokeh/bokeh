@@ -1,7 +1,8 @@
 import FlatBush = require("flatbush")
+
+import {Rect} from "../types"
 import {empty} from "./bbox"
 
-export type Rect = {minX: number, minY: number, maxX: number, maxY: number}
 export type IndexedRect = Rect & {i: number}
 
 export class SpatialIndex {

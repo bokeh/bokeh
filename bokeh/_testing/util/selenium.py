@@ -91,12 +91,12 @@ def alt_click(driver, element):
 
 class ButtonWrapper(object):
     def __init__(self, label, callback):
-        self.id = "button-" + make_id()
-        self.obj = Button(label=label, css_classes=[self.id])
+        self.ref = "button-" + make_id()
+        self.obj = Button(label=label, css_classes=[self.ref])
         self.obj.js_on_event('button_click', callback)
 
     def click(self, driver):
-        button = driver.find_element_by_class_name(self.id)
+        button = driver.find_element_by_css_selector(".%s .bk-btn" % self.ref)
         button.click()
 
 class element_to_start_resizing(object):

@@ -54,7 +54,7 @@ class Test_Select(object):
 
         page = bokeh_model_page(select)
 
-        el = page.driver.find_element_by_css_selector('div.foo label')
+        el = page.driver.find_element_by_css_selector('.foo label')
         assert el.text == "title"
 
         assert page.has_no_console_errors()
@@ -64,10 +64,10 @@ class Test_Select(object):
 
         page = bokeh_model_page(select)
 
-        el = page.driver.find_element_by_css_selector('div.foo label')
+        el = page.driver.find_element_by_css_selector('.foo label')
         assert el.text == ""
 
-        el = page.driver.find_element_by_css_selector('div.foo select')
+        el = page.driver.find_element_by_css_selector('.foo select')
         opts = page.driver.find_elements_by_tag_name('option')
         assert len(opts) == 3
 
@@ -83,10 +83,10 @@ class Test_Select(object):
 
         page = bokeh_model_page(select)
 
-        el = page.driver.find_element_by_css_selector('div.foo label')
+        el = page.driver.find_element_by_css_selector('.foo label')
         assert el.text == ""
 
-        el = page.driver.find_element_by_css_selector('div.foo select')
+        el = page.driver.find_element_by_css_selector('.foo select')
         opts = page.driver.find_elements_by_tag_name('option')
         assert len(opts) == 3
 
@@ -103,10 +103,10 @@ class Test_Select(object):
 
         page = bokeh_model_page(select)
 
-        el = page.driver.find_element_by_css_selector('div.foo label')
+        el = page.driver.find_element_by_css_selector('.foo label')
         assert el.text == ""
 
-        el = page.driver.find_element_by_css_selector('div.foo select')
+        el = page.driver.find_element_by_css_selector('.foo select')
         opts = page.driver.find_elements_by_tag_name('option')
         assert len(opts) == 3
 
@@ -121,10 +121,10 @@ class Test_Select(object):
 
         page = bokeh_model_page(select)
 
-        el = page.driver.find_element_by_css_selector('div.foo label')
+        el = page.driver.find_element_by_css_selector('.foo label')
         assert el.text == ""
 
-        el = page.driver.find_element_by_css_selector('div.foo select')
+        el = page.driver.find_element_by_css_selector('.foo select')
         opts = page.driver.find_elements_by_tag_name('option')
         assert len(opts) == 3
 
@@ -140,10 +140,10 @@ class Test_Select(object):
 
         page = bokeh_model_page(select)
 
-        el = page.driver.find_element_by_css_selector('div.foo label')
+        el = page.driver.find_element_by_css_selector('.foo label')
         assert el.text == ""
 
-        el = page.driver.find_element_by_css_selector('div.foo select')
+        el = page.driver.find_element_by_css_selector('.foo select')
         grps = page.driver.find_elements_by_tag_name('optgroup')
         assert len(grps) == 2
 
@@ -162,10 +162,10 @@ class Test_Select(object):
 
         page = bokeh_model_page(select)
 
-        el = page.driver.find_element_by_css_selector('div.foo label')
+        el = page.driver.find_element_by_css_selector('.foo label')
         assert el.text == ""
 
-        el = page.driver.find_element_by_css_selector('div.foo select')
+        el = page.driver.find_element_by_css_selector('.foo select')
         grps = page.driver.find_elements_by_tag_name('optgroup')
         assert len(grps) == 2
 
@@ -185,10 +185,10 @@ class Test_Select(object):
 
         page = bokeh_model_page(select)
 
-        el = page.driver.find_element_by_css_selector('div.foo label')
+        el = page.driver.find_element_by_css_selector('.foo label')
         assert el.text == ""
 
-        el = page.driver.find_element_by_css_selector('div.foo select')
+        el = page.driver.find_element_by_css_selector('.foo select')
         grps = page.driver.find_elements_by_tag_name('optgroup')
         assert len(grps) == 2
 
@@ -207,10 +207,10 @@ class Test_Select(object):
 
         page = bokeh_model_page(select)
 
-        el = page.driver.find_element_by_css_selector('div.foo label')
+        el = page.driver.find_element_by_css_selector('.foo label')
         assert el.text == ""
 
-        el = page.driver.find_element_by_css_selector('div.foo select')
+        el = page.driver.find_element_by_css_selector('.foo select')
         grps = page.driver.find_elements_by_tag_name('optgroup')
         assert len(grps) == 2
 
@@ -239,10 +239,10 @@ class Test_Select(object):
 
         page = bokeh_server_page(modify_doc)
 
-        el = page.driver.find_element_by_css_selector('div.foo select')
+        el = page.driver.find_element_by_css_selector('.foo select')
         el.click()
 
-        el = page.driver.find_element_by_css_selector('div.foo select option[value="Option 3"]')
+        el = page.driver.find_element_by_css_selector('.foo select option[value="Option 3"]')
         el.click()
 
         page.click_custom_action()
@@ -250,10 +250,10 @@ class Test_Select(object):
         results = page.results
         assert results['data']['val'] == ["", "Option 3"]
 
-        el = page.driver.find_element_by_css_selector('div.foo select')
+        el = page.driver.find_element_by_css_selector('.foo select')
         el.click()
 
-        el = page.driver.find_element_by_css_selector('div.foo select option[value="Option 1"]')
+        el = page.driver.find_element_by_css_selector('.foo select option[value="Option 1"]')
         el.click()
 
         page.click_custom_action()
@@ -270,10 +270,10 @@ class Test_Select(object):
 
         page = bokeh_model_page(select)
 
-        el = page.driver.find_element_by_css_selector('div.foo select')
+        el = page.driver.find_element_by_css_selector('.foo select')
         el.click()
 
-        el = page.driver.find_element_by_css_selector('div.foo select option[value="Option 3"]')
+        el = page.driver.find_element_by_css_selector('.foo select option[value="Option 3"]')
         el.click()
 
         results = page.results
@@ -287,10 +287,10 @@ class Test_Select(object):
 
         page = bokeh_model_page(select)
 
-        el = page.driver.find_element_by_css_selector('div.foo select')
+        el = page.driver.find_element_by_css_selector('.foo select')
         el.click()
 
-        el = page.driver.find_element_by_css_selector('div.foo select option[value="Option 3"]')
+        el = page.driver.find_element_by_css_selector('.foo select option[value="Option 3"]')
         el.click()
 
         results = page.results

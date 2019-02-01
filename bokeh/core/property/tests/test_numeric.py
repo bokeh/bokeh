@@ -36,6 +36,7 @@ ALL = (
     'Angle',
     'Byte',
     'Interval',
+    'NonNegativeInt',
     'Percent',
     'Size',
 )

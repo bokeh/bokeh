@@ -12,11 +12,10 @@ from bokeh.plotting import Figure
 
 class IonRangeSlider(InputWidget):
     # The special class attribute ``__implementation__`` should contain a string
-    # of JavaScript (or CoffeeScript) code that implements the JavaScript side
-    # of the custom extension model or a string name of a JavaScript (or
-    # CoffeeScript) file with the implementation.
+    # of JavaScript, TypeScript or CoffeeScript code that implements the web broser
+    # side of the custom extension model or a string name of a file with the implementation.
 
-    __implementation__ = 'extensions_ion_range_slider.coffee'
+    __implementation__ = 'extensions_ion_range_slider.ts'
     __javascript__ = ["https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js",
                       "https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.1.4/js/ion.rangeSlider.js"]
     __css__ = ["https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.css",

@@ -1,16 +1,12 @@
-import {empty, input, label, div} from "core/dom"
+import {input, label, div, span} from "core/dom"
 import {uniqueId} from "core/util/string"
 import * as p from "core/properties"
 
 import {Widget, WidgetView} from "./widget"
+import {CallbackLike} from "../callbacks/callback"
 
 export class RadioGroupView extends WidgetView {
   model: RadioGroup
-
-  initialize(options: any): void {
-    super.initialize(options)
-    this.render()
-  }
 
   connect_signals(): void {
     super.connect_signals()
@@ -19,44 +15,29 @@ export class RadioGroupView extends WidgetView {
 
   render(): void {
     super.render()
-    empty(this.el)
+
+    const group = div({class: ["bk-input-group", this.model.inline ? "bk-inline" : null]})
+    this.el.appendChild(group)
 
     const name = uniqueId()
-
-    const active = this.model.active
-    const labels = this.model.labels
+    const {active, labels} = this.model
 
     for (let i = 0; i < labels.length; i++) {
-      const text = labels[i]
-
-      const inputEl = input({type: `radio`, name: name, value: `${i}`})
-      inputEl.addEventListener("change", () => this.change_input())
+      const radio = input({type: `radio`, name: name, value: `${i}`})
+      radio.addEventListener("change", () => this.change_active(i))
 
       if (this.model.disabled)
-        inputEl.disabled = true
+        radio.disabled = true
       if (i == active)
-        inputEl.checked = true
+        radio.checked = true
 
-      const labelEl = label({}, inputEl, text)
-      if (this.model.inline) {
-        labelEl.classList.add("bk-bs-radio-inline")
-        this.el.appendChild(labelEl)
-      } else {
-        const divEl = div({class: "bk-bs-radio"}, labelEl)
-        this.el.appendChild(divEl)
-      }
+      const labelEl = label({}, radio, span({}, labels[i]))
+      group.appendChild(labelEl)
     }
   }
 
-  change_input(): void {
-    const radios = this.el.querySelectorAll("input")
-    const active: number[] = []
-    for (let i = 0; i < radios.length; i++) {
-      const radio = radios[i]
-      if (radio.checked)
-        active.push(i)
-    }
-    this.model.active = active[0]
+  change_active(i: number): void {
+    this.model.active = i
     if (this.model.callback != null)
       this.model.callback.execute(this.model)
   }
@@ -67,7 +48,7 @@ export namespace RadioGroup {
     active: number
     labels: string[]
     inline: boolean
-    callback: any // XXX
+    callback: CallbackLike<RadioGroup> | null
   }
 
   export interface Props extends Widget.Props {}
@@ -91,7 +72,7 @@ export class RadioGroup extends Widget {
       active:   [ p.Any,   null  ], // TODO (bev) better type?
       labels:   [ p.Array, []    ],
       inline:   [ p.Bool,  false ],
-      callback: [ p.Instance ],
+      callback: [ p.Any          ],
     })
   }
 }

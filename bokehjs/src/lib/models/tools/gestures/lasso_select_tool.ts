@@ -1,4 +1,5 @@
 import {SelectTool, SelectToolView} from "./select_tool"
+import {CallbackLike} from "../../callbacks/callback"
 import {PolyAnnotation} from "../../annotations/poly_annotation"
 import {PolyGeometry} from "core/geometry"
 import {GestureEvent, KeyEvent} from "core/ui_events"
@@ -37,7 +38,7 @@ export class LassoSelectToolView extends SelectToolView {
 
   _pan(ev: GestureEvent): void {
     const {sx: _sx, sy: _sy} = ev
-    const [sx, sy] = this.plot_model.frame.bbox.clip(_sx, _sy)
+    const [sx, sy] = this.plot_view.frame.bbox.clip(_sx, _sy)
 
     this.data!.sx.push(sx)
     this.data!.sy.push(sy)
@@ -73,7 +74,7 @@ export class LassoSelectToolView extends SelectToolView {
 
   _emit_callback(geometry: PolyGeometry): void {
     const r = this.computed_renderers[0]
-    const frame = this.plot_model.frame
+    const frame = this.plot_view.frame
 
     const xscale = frame.xscales[r.x_range_name]
     const yscale = frame.yscales[r.y_range_name]
@@ -82,7 +83,8 @@ export class LassoSelectToolView extends SelectToolView {
     const y = yscale.v_invert(geometry.sy)
     const g = {x, y, ...geometry}
 
-    this.model.callback.execute(this.model, {geometry: g})
+    if (this.model.callback != null)
+      this.model.callback.execute(this.model, {geometry: g})
   }
 }
 
@@ -103,7 +105,7 @@ const DEFAULT_POLY_OVERLAY = () => {
 export namespace LassoSelectTool {
   export interface Attrs extends SelectTool.Attrs {
     select_every_mousemove: boolean
-    callback: any // XXX
+    callback: CallbackLike<LassoSelectTool> | null
     overlay: PolyAnnotation
   }
 
@@ -116,6 +118,8 @@ export class LassoSelectTool extends SelectTool {
 
   properties: LassoSelectTool.Props
 
+  /*override*/ overlay: PolyAnnotation
+
   constructor(attrs?: Partial<LassoSelectTool.Attrs>) {
     super(attrs)
   }
@@ -127,7 +131,7 @@ export class LassoSelectTool extends SelectTool {
 
     this.define({
       select_every_mousemove: [ p.Bool,    true                  ],
-      callback:               [ p.Instance                       ],
+      callback:               [ p.Any                            ],
       overlay:                [ p.Instance, DEFAULT_POLY_OVERLAY ],
     })
   }

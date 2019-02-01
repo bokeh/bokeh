@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Integration Tests</title>
+    <style>
+      box-sizing: border-box;
+
+      *, *:before, *:after {
+        box-sizing: inherit;
+      }
+
+      *, *:before, *:after {
+        margin: 0;
+        border: 0;
+        padding: 0;
+        background-image: none;
+      }
+    </style>
+    <link rel="stylesheet" href="../build/css/bokeh.css" type="text/css" />
+    <link rel="stylesheet" href="../build/css/bokeh-widgets.css" type="text/css" />
+    <link rel="stylesheet" href="../build/css/bokeh-tables.css" type="text/css" />
+    <script type="text/javascript" src="../build/js/bokeh.js"></script>
+    <script type="text/javascript" src="../build/js/bokeh-api.js"></script>
+    <script type="text/javascript" src="../build/js/bokeh-widgets.js"></script>
+    <script type="text/javascript" src="../build/js/bokeh-tables.js"></script>
+    <script type="text/javascript">
+      Bokeh.settings.dev = true
+    </script>
+    <script type="text/javascript">
+      //var require = Bokeh.require
+      function require(name) {
+        if (name == "./framework")
+          return exports
+        else
+          return Bokeh.require(name)
+      }
+      var exports = {}
+    </script>
+    <script type="text/javascript" src="../build/test/framework.js"></script>
+  </head>
+  <body>
+    <script type="text/javascript" src="../build/test/integration.js"></script>
+  </body>
+</html>

@@ -1,0 +1,5 @@
+Plot bbox=[0, 0, 1000, 600]
+  DatetimeAxis bbox=[31, 568, 939, 32]
+  LinearAxis bbox=[0, 29, 31, 539]
+  Title bbox=[31, 0, 939, 29]
+  ToolbarPanel bbox=[970, 29, 30, 539]

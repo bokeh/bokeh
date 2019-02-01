@@ -1,11 +1,12 @@
 import * as p from "core/properties"
-import {empty, prepend, nbsp, button} from "core/dom"
+import {prepend, nbsp, button} from "core/dom"
 import {build_views, remove_views} from "core/build_views"
 
 import {Widget, WidgetView} from "./widget"
 import {AbstractIcon, AbstractIconView} from "./abstract_icon"
+import {CallbackLike} from "../callbacks/callback"
 
-export type ButtonType = "default" | "primary" | "success" | "warning" | "danger" | "link"
+export type ButtonType = "default" | "primary" | "success" | "warning" | "danger"
 
 export abstract class AbstractButtonView extends WidgetView {
   model: AbstractButton
@@ -17,7 +18,6 @@ export abstract class AbstractButtonView extends WidgetView {
   initialize(options: any): void {
     super.initialize(options)
     this.icon_views = {}
-    this.render()
   }
 
   connect_signals(): void {
@@ -34,31 +34,29 @@ export abstract class AbstractButtonView extends WidgetView {
     return button({
       type: "button",
       disabled: this.model.disabled,
-      class: [`bk-bs-btn`, `bk-bs-btn-${this.model.button_type}`],
+      class: [`bk-btn`, `bk-btn-${this.model.button_type}`],
+      style: {
+        width: "100%",
+        height: "100%",
+      },
     }, ...children)
   }
 
   render(): void {
     super.render()
 
-    empty(this.el)
     this.buttonEl = this._render_button(this.model.label)
-    this.buttonEl.addEventListener("click", (event) => this._button_click(event))
+    this.buttonEl.addEventListener("click", () => this.click())
     this.el.appendChild(this.buttonEl)
 
     const icon = this.model.icon
     if (icon != null) {
       build_views(this.icon_views, [icon], {parent: this})
-      prepend(this.buttonEl, this.icon_views[icon.id].el, nbsp)
+      prepend(this.buttonEl, this.icon_views[icon.id].el, nbsp())
     }
   }
 
-  protected _button_click(event: Event): void {
-    event.preventDefault()
-    this.change_input()
-  }
-
-  change_input(): void {
+  click(): void {
     if (this.model.callback != null)
       this.model.callback.execute(this.model)
   }
@@ -69,7 +67,7 @@ export namespace AbstractButton {
     label: string
     icon: AbstractIcon
     button_type: ButtonType
-    callback: any // XXX
+    callback: CallbackLike<AbstractButton> | null
   }
 
   export interface Props extends Widget.Props {}
@@ -78,7 +76,6 @@ export namespace AbstractButton {
 export interface AbstractButton extends AbstractButton.Attrs {}
 
 export abstract class AbstractButton extends Widget {
-
   properties: AbstractButton.Props
 
   constructor(attrs?: Partial<AbstractButton.Attrs>) {
@@ -92,9 +89,12 @@ export abstract class AbstractButton extends Widget {
       label:       [ p.String, "Button"  ],
       icon:        [ p.Instance          ],
       button_type: [ p.String, "default" ], // TODO (bev)
-      callback:    [ p.Instance          ],
+      callback:    [ p.Any               ],
+    })
+
+    this.override({
+      width: 300,
     })
   }
 }
-
 AbstractButton.initClass()

@@ -1,25 +1,23 @@
 import {sprintf} from "sprintf-js"
+
 import {Document} from "../document"
 import * as embed from "../embed"
-import {BOKEH_ROOT} from "../embed"
 import * as models from "./models"
 import {HasProps} from "../core/has_props"
+import {Omit} from "../core/types"
 import {Value, Field} from "../core/vectorization"
-import {div} from "../core/dom"
 import {Class} from "../core/class"
 import {Location} from "../core/enums"
 import {StringSpec} from "../core/vectorization"
 import {startsWith} from "../core/util/string"
 import {isEqual} from "../core/util/eq"
 import {any, all, includes} from "../core/util/array"
-import {clone} from "../core/util/object"
+import {clone, values} from "../core/util/object"
 import {isNumber, isString, isArray} from "../core/util/types"
 
 import {Glyph, GlyphRenderer, Axis, Grid, Range, Scale, Tool, Plot, ColumnarDataSource} from "./models"
-import {DOMView} from "../core/dom_view"
 
-import {LayoutDOM} from "models/layouts/layout_dom"
-import {Renderer} from "models/renderers/renderer"
+import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
 import {Legend} from "models/annotations/legend"
 
 export {gridplot} from "./gridplot"
@@ -91,54 +89,48 @@ function _with_default<T>(value: T | undefined, default_value: T): T {
 
 export type AxisType = "auto" | "linear" | "datetime" | "log" | null
 
-export interface FigureAttrs {
-  width?: number
-  height?: number
-  x_range?: Range | [number, number] | string[]
-  y_range?: Range | [number, number] | string[]
-  x_axis_type?: AxisType
-  y_axis_type?: AxisType
-  x_axis_label?: string
-  y_axis_label?: string
-  x_minor_ticks?: number | "auto"
-  y_minor_ticks?: number | "auto"
-  tools?: (Tool | ToolName)[] | string
+export type FigureAttrs = Omit<Plot.Attrs, "x_range" | "y_range"> & {
+  x_range: Range | [number, number] | string[]
+  y_range: Range | [number, number] | string[]
+  x_axis_type: AxisType
+  y_axis_type: AxisType
+  x_axis_location: Location
+  y_axis_location: Location
+  x_axis_label: string
+  y_axis_label: string
+  x_minor_ticks: number | "auto"
+  y_minor_ticks: number | "auto"
+  tools: (Tool | ToolName)[] | string
 }
 
 export class Figure extends Plot {
 
-  get xgrid(): Grid {
-    return this.renderers.filter((r: Renderer): r is Grid => r instanceof Grid && r.dimension === 0)[0] // TODO
+  get xgrid(): Grid[] {
+    return this.center.filter((r): r is Grid => r instanceof Grid && r.dimension == 0)
   }
-  get ygrid(): Grid {
-    return this.renderers.filter((r: Renderer): r is Grid => r instanceof Grid && r.dimension === 1)[0] // TODO
+  get ygrid(): Grid[] {
+    return this.center.filter((r): r is Grid => r instanceof Grid && r.dimension == 1)
   }
 
-  get xaxis(): Axis {
-    return this.below.concat(this.above).filter((r: Renderer): r is Axis => r instanceof Axis)[0] // TODO
+  get xaxis(): Axis[] {
+    return this.below.concat(this.above).filter((r): r is Axis => r instanceof Axis)
   }
-  get yaxis(): Axis {
-    return this.left.concat(this.right).filter((r: Renderer): r is Axis => r instanceof Axis)[0] // TODO
+  get yaxis(): Axis[] {
+    return this.left.concat(this.right).filter((r): r is Axis => r instanceof Axis)
   }
 
   protected _legend: Legend
 
-  constructor(attributes: any = {}) {
-    const attrs = clone(attributes)
+  constructor(attrs: Partial<FigureAttrs> = {}) {
+    attrs = {...attrs}
 
     const tools = _with_default(attrs.tools, _default_tools)
     delete attrs.tools
-
-    attrs.x_range = Figure._get_range(attrs.x_range)
-    attrs.y_range = Figure._get_range(attrs.y_range)
 
     const x_axis_type = _with_default(attrs.x_axis_type, "auto")
     const y_axis_type = _with_default(attrs.y_axis_type, "auto")
     delete attrs.x_axis_type
     delete attrs.y_axis_type
-
-    attrs.x_scale = Figure._get_scale(attrs.x_range, x_axis_type)
-    attrs.y_scale = Figure._get_scale(attrs.y_range, y_axis_type)
 
     const x_minor_ticks = attrs.x_minor_ticks != null ? attrs.x_minor_ticks : "auto"
     const y_minor_ticks = attrs.y_minor_ticks != null ? attrs.y_minor_ticks : "auto"
@@ -155,33 +147,25 @@ export class Figure extends Plot {
     delete attrs.x_axis_label
     delete attrs.y_axis_label
 
-    if (attrs.width !== undefined) {
-      if (attrs.plot_width === undefined) {
-        attrs.plot_width = attrs.width
-      } else {
-        throw new Error("both 'width' and 'plot_width' can't be given at the same time")
-      }
-      delete attrs.width
-    }
+    const x_range = Figure._get_range(attrs.x_range)
+    const y_range = Figure._get_range(attrs.y_range)
+    delete attrs.x_range
+    delete attrs.y_range
 
-    if (attrs.height !== undefined) {
-      if (attrs.plot_height === undefined) {
-        attrs.plot_height = attrs.height
-      } else {
-        throw new Error("both 'height' and 'plot_height' can't be given at the same time")
-      }
-      delete attrs.height
-    }
+    const x_scale = attrs.x_scale != null ? attrs.x_scale : Figure._get_scale(x_range, x_axis_type)
+    const y_scale = attrs.y_scale != null ? attrs.y_scale : Figure._get_scale(y_range, y_axis_type)
+    delete attrs.x_scale
+    delete attrs.y_scale
 
-    super(attrs)
+    super({...attrs, x_range, y_range, x_scale, y_scale})
 
-    this._process_axis_and_grid(x_axis_type, x_axis_location, x_minor_ticks, x_axis_label, attrs.x_range, 0)
-    this._process_axis_and_grid(y_axis_type, y_axis_location, y_minor_ticks, y_axis_label, attrs.y_range, 1)
+    this._process_axis_and_grid(x_axis_type, x_axis_location, x_minor_ticks, x_axis_label, x_range, 0)
+    this._process_axis_and_grid(y_axis_type, y_axis_location, y_minor_ticks, y_axis_label, y_range, 1)
 
     this.add_tools(...this._process_tools(tools))
 
-    this._legend = new Legend({plot: this, items: []})
-    this.add_renderers(this._legend)
+    this._legend = new Legend({items: []})
+    this.add_layout(this._legend)
   }
 
   annular_wedge(...args: any[]): GlyphRenderer     { return this._glyph(models.AnnularWedge, "x,y,inner_radius,outer_radius,start_angle,end_angle", args) }
@@ -539,13 +523,15 @@ export class Figure extends Plot {
   }
 }
 
-export function figure(attributes: any = {}) {
+export function figure(attributes?: Partial<FigureAttrs>): Figure {
   return new Figure(attributes)
 }
 
 declare var $: any
 
-export const show = function(obj: LayoutDOM | LayoutDOM[], target?: HTMLElement | string): {[key: string]: DOMView} {
+export function show(obj: LayoutDOM, target?: HTMLElement | string): Promise<LayoutDOMView>
+export function show(obj: LayoutDOM[], target?: HTMLElement | string): Promise<LayoutDOMView[]>
+export function show(obj: LayoutDOM | LayoutDOM[], target?: HTMLElement | string): Promise<LayoutDOMView | LayoutDOMView[]> {
   const doc = new Document()
 
   for (const item of isArray(obj) ? obj : [obj])
@@ -568,10 +554,15 @@ export const show = function(obj: LayoutDOM | LayoutDOM[], target?: HTMLElement 
     throw new Error("target should be HTMLElement, string selector, $ or null")
   }
 
-  const root = div({class: BOKEH_ROOT})
-  element.appendChild(root)
+  const views = values(embed.add_document_standalone(doc, element)) as LayoutDOMView[] // XXX
 
-  return embed.add_document_standalone(doc, root)
+  return new Promise((resolve, _reject) => {
+    const result = isArray(obj) ? views : views[0]
+    if (doc.is_idle)
+      resolve(result)
+    else
+      doc.idle.connect(() => resolve(result))
+  })
 }
 
 export function color(r: number, g: number, b: number): string {

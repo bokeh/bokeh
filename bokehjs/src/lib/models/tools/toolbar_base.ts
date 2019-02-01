@@ -15,7 +15,6 @@ import {HelpTool} from "./actions/help_tool"
 import {ToolProxy} from "./tool_proxy"
 import {InspectTool} from "./inspectors/inspect_tool"
 
-
 export namespace ToolbarViewModel {
   export interface Attrs extends Model.Attrs {
     _visible: boolean
@@ -51,7 +50,6 @@ export class ToolbarViewModel extends Model {
   }
 }
 ToolbarViewModel.initClass()
-
 
 export class ToolbarBaseView extends DOMView {
   model: ToolbarBase
@@ -137,6 +135,14 @@ export class ToolbarBaseView extends DOMView {
       }
     }
   }
+
+  update_layout(): void {}
+
+  update_position(): void {}
+
+  after_layout(): void {
+    this._has_finished = true
+  }
 }
 
 export type GestureType = "pan" | "scroll" | "pinch" | "tap" | "doubletap" | "press" | "rotate" | "move" | "multi"
@@ -172,7 +178,6 @@ export namespace ToolbarBase {
 export interface ToolbarBase extends ToolbarBase.Attrs {}
 
 export class ToolbarBase extends Model {
-
   properties: ToolbarBase.Props
 
   constructor(attrs?: Partial<ToolbarBase.Attrs>) {

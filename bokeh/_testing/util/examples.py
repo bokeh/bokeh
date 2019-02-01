@@ -21,9 +21,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import io
 import os
 from os.path import join, exists, dirname, basename, relpath, splitext, isfile, isdir
 import yaml
+from subprocess import Popen, PIPE
+from base64 import b64decode
 
 # External imports
 import requests
@@ -32,6 +35,7 @@ import requests
 from bokeh._testing.util.git import __version__
 from bokeh._testing.util.s3 import S3_URL, upload_file_to_s3
 from bokeh._testing.util.travis import JOB_ID
+from bokeh._testing.util.images import image_diff
 from bokeh.util.terminal import trace, green
 
 #-----------------------------------------------------------------------------
@@ -56,8 +60,9 @@ class Flags(object):
     notebook = 1 << 3
     slow     = 1 << 4  # example needs a lot of time to run (> 30 s) (e.g. choropleth.py)
     skip     = 1 << 5  # don't run example at all (e.g. notebooks are completely broken)
-    no_js    = 1 << 6  # skip bokehjs and thus image diff (e.g. google maps key issue)
-    no_diff  = 1 << 7  # skip only image diff (e.g. inherent randomness as in jitter)
+    xfail    = 1 << 6  # test is expected to fail, which doesn't fail the test suite
+    no_js    = 1 << 7  # skip bokehjs and thus image diff (e.g. google maps key issue)
+    no_diff  = 1 << 8  # skip only image diff (e.g. inherent randomness as in jitter)
 
 class Example(object):
 
@@ -68,17 +73,23 @@ class Example(object):
         self._diff_ref = None
         self._upload = False
         self.pixels = 0
-        self._has_ref = False
+        self._has_ref = None
+        self._has_baseline = None
+        self._baseline_ok = True
 
     def __str__(self):
-        flags = ["js"       if self.is_js       else "",
-                 "file"     if self.is_file     else "",
-                 "server"   if self.is_server   else "",
-                 "notebook" if self.is_notebook else "",
-                 "slow"     if self.is_slow     else "",
-                 "skip"     if self.is_skip     else "",
-                 "no_js"    if self.no_js       else "",
-                 "no_diff"  if self.no_diff     else ""]
+        flags = [
+            "js"       if self.is_js       else "",
+            "file"     if self.is_file     else "",
+            "server"   if self.is_server   else "",
+            "notebook" if self.is_notebook else "",
+            "slow"     if self.is_slow     else "",
+            "skip"     if self.is_skip     else "",
+            "xfail"    if self.xfail       else "",
+            "no_js"    if self.no_js       else "",
+            "no_diff"  if self.no_diff     else "",
+        ]
+
         return "Example(%r, %s)" % (self.relpath, "|".join(f for f in flags if f))
 
     __repr__ = __str__
@@ -132,12 +143,60 @@ class Example(object):
         return self.flags & Flags.skip
 
     @property
+    def is_xfail(self):
+        return self.flags & Flags.xfail
+
+    @property
     def no_js(self):
         return self.flags & Flags.no_js
 
     @property
     def no_diff(self):
         return self.flags & Flags.no_diff
+
+    @property
+    def baseline_ok(self):
+        return self.has_baseline and self._baseline_ok
+
+    @property
+    def baseline_path(self):
+        return join("tests", "baselines", relpath(self.path_no_ext, ""))
+
+    @property
+    def has_baseline(self):
+        if self._has_baseline is None:
+            cmd = ["git", "show", ":%s" % self.baseline_path]
+            proc = Popen(cmd, stdout=PIPE, stderr=PIPE)
+            proc.communicate()
+
+            self._has_baseline = proc.returncode == 0
+
+        return self._has_baseline
+
+    def store_baseline(self, baseline):
+        path = self.baseline_path
+        if not exists(dirname(path)):
+            os.makedirs(dirname(path))
+        with io.open(path, "w") as f:
+            f.write(baseline)
+
+    def diff_baseline(self):
+        cmd = ["git", "diff", "--color", "--exit-code", "%s" % self.baseline_path]
+        proc = Popen(cmd, stdout=PIPE, stderr=PIPE)
+        (diff, _) = proc.communicate()
+
+        if proc.returncode == 0:
+            return None
+
+        cmd = ["perl", "/usr/share/doc/git/contrib/diff-highlight/diff-highlight"]
+        proc = Popen(cmd, stdout=PIPE, stderr=PIPE, stdin=PIPE)
+        (hl_diff, _) = proc.communicate(diff)
+
+        if proc.returncode == 0:
+            diff = hl_diff
+
+        self._baseline_ok = False
+        return diff.decode("utf-8").strip()
 
     @property
     def img_path_or_url(self):
@@ -192,13 +251,17 @@ class Example(object):
         return self._has_ref
 
     def fetch_ref(self):
-        response = requests.get(self.ref_url)
+        if self._has_ref is None:
+            response = requests.get(self.ref_url)
+            self._has_ref = response.ok
 
-        if response.ok:
-            self._has_ref = True
-            return response.content
-        else:
-            return None
+            if response.ok:
+                _store_binary(self.ref_path, response.content)
+
+        return self._has_ref
+
+    def store_img(self, img_data):
+        _store_binary(self.img_path, b64decode(img_data))
 
     def upload_imgs(self):
         if isfile(self.img_path):
@@ -212,13 +275,17 @@ class Example(object):
     def images_differ(self):
         return self.pixels != 0
 
-def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=None, skip=None, no_js=None, no_diff=None):
+    def image_diff(self):
+        self.pixels = image_diff(self.diff_path, self.img_path, self.ref_path)
+        return self.pixels
+
+def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=None, skip=None, xfail=None, no_js=None, no_diff=None):
     if path.endswith("*"):
         star_path = join(examples_dir, path[:-1])
 
         for name in sorted(os.listdir(star_path)):
             if isdir(join(star_path, name)):
-                add_examples(list_of_examples, join(path[:-1], name), examples_dir, example_type, slow, skip, no_js, no_diff)
+                add_examples(list_of_examples, join(path[:-1], name), examples_dir, example_type, slow, skip, xfail, no_js, no_diff)
 
         return
 
@@ -255,6 +322,9 @@ def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=N
         if skip is not None and (skip == 'all' or orig_name in skip):
             flags |= Flags.skip
 
+        if xfail is not None and (xfail == 'all' or orig_name in xfail):
+            flags |= Flags.xfail
+
         if no_js is not None and (no_js == 'all' or orig_name in no_js):
             flags |= Flags.no_js
 
@@ -280,11 +350,12 @@ def collect_examples(config_path):
 
         slow_status = example.get("slow")
         skip_status = example.get("skip")
+        xfail_status = example.get("xfail")
         no_js_status = example.get("no_js")
         no_diff_status = example.get("no_diff")
 
         add_examples(list_of_examples, path, examples_dir,
-            example_type=example_type, slow=slow_status, skip=skip_status, no_js=no_js_status, no_diff=no_diff_status)
+            example_type=example_type, slow=slow_status, skip=skip_status, xfail=xfail_status, no_js=no_js_status, no_diff=no_diff_status)
 
     return list_of_examples
 
@@ -295,6 +366,14 @@ def collect_examples(config_path):
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+def _store_binary(path, data):
+    directory = dirname(path)
+    if not exists(directory):
+        os.makedirs(directory)
+
+    with open(path, "wb") as f:
+        f.write(data)
 
 #-----------------------------------------------------------------------------
 # Code

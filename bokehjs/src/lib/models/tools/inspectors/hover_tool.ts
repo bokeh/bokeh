@@ -1,9 +1,11 @@
 import {InspectTool, InspectToolView} from "./inspect_tool"
+import {CallbackLike} from "../../callbacks/callback"
 import {Tooltip, TooltipView} from "../../annotations/tooltip"
 import {RendererView} from "../../renderers/renderer"
 import {GlyphRenderer, GlyphRendererView} from "../../renderers/glyph_renderer"
-import {GraphRendererView} from "../../renderers/graph_renderer"
-import {compute_renderers, DataRenderer, RendererSpec} from "../util"
+import {GraphRenderer, GraphRendererView} from "../../renderers/graph_renderer"
+import {DataRenderer} from "../../renderers/data_renderer"
+import {compute_renderers, RendererSpec} from "../util"
 import * as hittest from "core/hittest"
 import {MoveEvent} from "core/ui_events"
 import {replace_placeholders, Vars} from "core/util/templating"
@@ -74,13 +76,13 @@ export class HoverToolView extends InspectToolView {
     for (const r of this.computed_renderers) {
       if (r instanceof GlyphRenderer)
         this.connect(r.data_source.inspect, this._update)
-      else {
+      else if (r instanceof GraphRenderer) {
         this.connect(r.node_renderer.data_source.inspect, this._update)
         this.connect(r.edge_renderer.data_source.inspect, this._update)
       }
     }
 
-    // TODO: this.connect(this.plot_model.plot.properties.renderers.change, () => this._computed_renderers = this._ttmodels = null)
+    // TODO: this.connect(this.plot_model.properties.renderers.change, () => this._computed_renderers = this._ttmodels = null)
     this.connect(this.model.properties.renderers.change, () => this._computed_renderers = this._ttmodels = null)
     this.connect(this.model.properties.names.change,     () => this._computed_renderers = this._ttmodels = null)
     this.connect(this.model.properties.tooltips.change,  () => this._ttmodels = null)
@@ -99,7 +101,7 @@ export class HoverToolView extends InspectToolView {
             show_arrow: this.model.show_arrow,
           })
           ttmodels[r.id] = tooltip
-        } else {
+        } else if (r instanceof GraphRenderer) {
           const tooltip = new Tooltip({
             custom: isString(tooltips) || isFunction(tooltips),
             attachment: this.model.attachment,
@@ -111,7 +113,7 @@ export class HoverToolView extends InspectToolView {
       }
     }
 
-    build_views(this.ttviews, values(ttmodels), {parent: this, plot_view: this.plot_view})
+    build_views(this.ttviews, values(ttmodels), {parent: this.plot_view})
 
     return ttmodels
   }
@@ -119,7 +121,7 @@ export class HoverToolView extends InspectToolView {
   get computed_renderers(): DataRenderer[] {
     if (this._computed_renderers == null) {
       const renderers = this.model.renderers
-      const all_renderers = this.plot_model.plot.renderers
+      const all_renderers = this.plot_model.renderers
       const names = this.model.names
       this._computed_renderers = compute_renderers(renderers, all_renderers, names)
     }
@@ -145,7 +147,7 @@ export class HoverToolView extends InspectToolView {
     if (!this.model.active)
       return
     const {sx, sy} = ev
-    if (!this.plot_model.frame.bbox.contains(sx, sy))
+    if (!this.plot_view.frame.bbox.contains(sx, sy))
       this._clear()
     else
       this._inspect(sx, sy)
@@ -198,7 +200,7 @@ export class HoverToolView extends InspectToolView {
 
     const ds = selection_manager.source
 
-    const frame = this.plot_model.frame
+    const {frame} = this.plot_view
     const {sx, sy} = geometry
     const xscale = frame.xscales[renderer.x_range_name]
     const yscale = frame.yscales[renderer.y_range_name]
@@ -361,7 +363,7 @@ export class HoverToolView extends InspectToolView {
   _emit_callback(geometry: PointGeometry | SpanGeometry): void {
     for (const r of this.computed_renderers) {
       const index = (r as any).data_source.inspected
-      const frame = this.plot_model.frame
+      const {frame} = this.plot_view
 
       const xscale = frame.xscales[r.x_range_name]
       const yscale = frame.yscales[r.y_range_name]
@@ -370,13 +372,7 @@ export class HoverToolView extends InspectToolView {
 
       const g = {x, y, ...geometry}
 
-      const callback = this.model.callback
-      const [obj, data] = [callback, {index: index, geometry: g, renderer: r}]
-
-      if (isFunction(callback))
-        callback(obj, data)
-      else
-        callback.execute(obj, data)
+      this.model.callback!.execute(this.model, {index: index, geometry: g, renderer: r})
     }
   }
 
@@ -451,7 +447,7 @@ export namespace HoverTool {
     show_arrow: boolean
     anchor: Anchor
     attachment: TooltipAttachment
-    callback: any // XXX
+    callback: CallbackLike<HoverTool> | null
   }
 
   export interface Props extends InspectTool.Props {

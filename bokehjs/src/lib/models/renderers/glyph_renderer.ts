@@ -1,10 +1,11 @@
-import {Renderer, RendererView} from "./renderer"
+import {DataRenderer, DataRendererView} from "./data_renderer"
 import {LineView} from "../glyphs/line"
 import {Glyph, GlyphView} from "../glyphs/glyph"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {Scale} from "../scales/scale"
 import {CDSView} from "../sources/cds_view"
 import {Color} from "core/types"
+import {Class} from "core/class"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {indexOf} from "core/util/arrayable"
@@ -36,7 +37,7 @@ const nonselection_defaults: Defaults = {
   line: {},
 }
 
-export class GlyphRendererView extends RendererView {
+export class GlyphRendererView extends DataRendererView {
   model: GlyphRenderer
 
   glyph: GlyphView
@@ -105,7 +106,7 @@ export class GlyphRendererView extends RendererView {
   }
 
   build_glyph_view<T extends Glyph>(model: T): GlyphView {
-    return new model.default_view({model, renderer: this, plot_view: this.plot_view, parent: this}) as GlyphView // XXX
+    return new model.default_view({model, parent: this}) as GlyphView // XXX
   }
 
   connect_signals(): void {
@@ -123,7 +124,7 @@ export class GlyphRendererView extends RendererView {
     this.connect(this.model.properties.view.change, () => this.set_data())
     this.connect(this.model.view.change, () => this.set_data())
 
-    const {x_ranges, y_ranges} = this.plot_model.frame
+    const {x_ranges, y_ranges} = this.plot_view.frame
 
     for (const name in x_ranges) {
       const rng = x_ranges[name]
@@ -171,7 +172,7 @@ export class GlyphRendererView extends RendererView {
     if (this.muted_glyph != null)
       this.muted_glyph.set_visuals(source)
 
-    const {lod_factor} = this.plot_model.plot
+    const {lod_factor} = this.plot_model
     this.decimated = []
     for (let i = 0, end = Math.floor(this.all_indices.length/lod_factor); i < end; i++) {
       this.decimated.push(i*lod_factor)
@@ -253,7 +254,7 @@ export class GlyphRendererView extends RendererView {
       return result
     })())
 
-    const {lod_threshold} = this.plot_model.plot
+    const {lod_threshold} = this.plot_model
     let glyph: GlyphView
     let nonselection_glyph: GlyphView
     let selection_glyph: GlyphView
@@ -366,9 +367,7 @@ export class GlyphRendererView extends RendererView {
 }
 
 export namespace GlyphRenderer {
-  export interface Attrs extends Renderer.Attrs {
-    x_range_name: string
-    y_range_name: string
+  export interface Attrs extends DataRenderer.Attrs {
     data_source: ColumnarDataSource
     view: CDSView
     glyph: Glyph
@@ -379,16 +378,16 @@ export namespace GlyphRenderer {
     muted: boolean
   }
 
-  export interface Props extends Renderer.Props {
+  export interface Props extends DataRenderer.Props {
     view: p.Property<CDSView>
   }
 }
 
 export interface GlyphRenderer extends GlyphRenderer.Attrs {}
 
-export class GlyphRenderer extends Renderer {
-
+export class GlyphRenderer extends DataRenderer {
   properties: GlyphRenderer.Props
+  default_view: Class<GlyphRendererView>
 
   constructor(attrs?: Partial<GlyphRenderer.Attrs>) {
     super(attrs)
@@ -399,8 +398,6 @@ export class GlyphRenderer extends Renderer {
     this.prototype.default_view = GlyphRendererView
 
     this.define({
-      x_range_name:       [ p.String,  'default' ],
-      y_range_name:       [ p.String,  'default' ],
       data_source:        [ p.Instance           ],
       view:               [ p.Instance, () => new CDSView() ],
       glyph:              [ p.Instance           ],
@@ -409,10 +406,6 @@ export class GlyphRenderer extends Renderer {
       selection_glyph:    [ p.Any,      'auto'   ], // Instance or "auto"
       muted_glyph:        [ p.Instance           ],
       muted:              [ p.Bool,     false    ],
-    })
-
-    this.override({
-      level: 'glyph',
     })
   }
 
@@ -425,7 +418,7 @@ export class GlyphRenderer extends Renderer {
     }
   }
 
-  get_reference_point(field: string | null, value: any): number {
+  get_reference_point(field: string | null, value?: any): number {
     let index = 0
     if (field != null) {
       const data = this.data_source.get_column(field)

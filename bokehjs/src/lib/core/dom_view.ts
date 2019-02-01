@@ -1,6 +1,9 @@
-import {View, ViewOptions} from "./view"
-import {Solver} from "./layout/solver"
+import {View} from "./view"
 import * as DOM from "./dom"
+
+export namespace DOMView {
+  export type Options = View.Options
+}
 
 export class DOMView extends View {
 
@@ -8,11 +11,9 @@ export class DOMView extends View {
 
   protected _has_finished: boolean
 
-  protected _solver: Solver
-
   el: HTMLElement
 
-  initialize(options: ViewOptions): void {
+  initialize(options: DOMView.Options): void {
     super.initialize(options)
     this._has_finished = false
     this.el = this._createElement()
@@ -31,13 +32,11 @@ export class DOMView extends View {
     return null
   }
 
-  layout(): void {}
-
   render(): void {}
 
   renderTo(element: HTMLElement): void {
     element.appendChild(this.el)
-    this.layout()
+    this.render()
   }
 
   on_hit?(sx: number, sy: number): boolean
@@ -50,16 +49,12 @@ export class DOMView extends View {
     return DOM.parent(this.el, ".bk-root") || document.body
   }
 
-  get solver(): Solver {
-    return this.is_root ? this._solver : (this.parent as DOMView).solver
-  }
-
   get is_idle(): boolean {
     return this.has_finished()
   }
 
   protected _createElement(): HTMLElement {
-    return DOM.createElement(this.tagName, {id: this.id, class: this.css_classes()})
+    return DOM.createElement(this.tagName, {class: this.css_classes()})
   }
 }
 

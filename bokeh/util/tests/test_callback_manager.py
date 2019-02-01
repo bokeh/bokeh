@@ -22,6 +22,7 @@ from functools import partial
 # External imports
 
 # Bokeh imports
+from bokeh.document import Document
 
 # Module under test
 import bokeh.util.callback_manager as cbm
@@ -294,9 +295,8 @@ class TestEventCallbackManager(object):
         m = cbm.EventCallbackManager()
         p = partial(_partially_bad_event, 'foo')
         m.subscribed_events = []
-        with pytest.raises(ValueError):
-            m.on_event('foo', p)
-        assert len(m._event_callbacks) == 0
+        m.on_event('foo', p)
+        assert len(m._event_callbacks) == 1
 
     def test_on_change_good_partial_method(self):
         m = cbm.EventCallbackManager()
@@ -349,17 +349,15 @@ class TestEventCallbackManager(object):
         m = cbm.EventCallbackManager()
         m.subscribed_events = []
         bad = _BadEventCallback()
-        with pytest.raises(ValueError):
-            m.on_event('foo', bad.method)
-        assert len(m._event_callbacks) == 0
+        m.on_event('foo', bad.method)
+        assert len(m._event_callbacks) == 1
 
     def test_on_change_bad_functor(self):
         m = cbm.EventCallbackManager()
         m.subscribed_events = []
         bad = _BadEventCallback()
-        with pytest.raises(ValueError):
-            m.on_event('foo', bad)
-        assert len(m._event_callbacks) == 0
+        m.on_event('foo', bad)
+        assert len(m._event_callbacks) == 1
 
     def test_on_change_bad_function(self):
         m = cbm.EventCallbackManager()
@@ -397,8 +395,40 @@ class TestEventCallbackManager(object):
         m.subscribed_events = []
         good = _GoodEventCallback()
         bad = _BadEventCallback()
-        with pytest.raises(ValueError):
-            m.on_event('foo', good.method, bad.method)
+        m.on_event('foo', good.method, bad.method)
+        assert len(m._event_callbacks) == 1
+
+    def test__trigger_event_wraps_curdoc(self):
+        # This test is pretty clunky by assures that callbacks triggered by
+        # events use the correct value of curdoc()
+        from bokeh.io.doc import set_curdoc
+        from bokeh.io import curdoc
+        oldcd = curdoc()
+        d1 = Document()
+        d2 = Document()
+        set_curdoc(d1)
+        out = {}
+        def cb():
+            out['curdoc'] = curdoc()
+        m = cbm.EventCallbackManager()
+        m.subscribed_events = []
+        m.on_event('foo', cb)
+        m.id = 10
+        m._document = d2
+
+        assert len(m._event_callbacks) == 1
+        assert m._event_callbacks['foo'] == [cb]
+
+        class ev(object):
+            _model_id = 10
+            event_name = "foo"
+
+        m._trigger_event(ev())
+        assert out['curdoc'] is d2
+
+        set_curdoc(oldcd)
+
+
 
 #-----------------------------------------------------------------------------
 # Dev API

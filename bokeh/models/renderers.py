@@ -80,6 +80,18 @@ class DataRenderer(Renderer):
 
     '''
 
+    level = Override(default="glyph")
+
+    x_range_name = String('default', help="""
+    A particular (named) x-range to use for computing screen locations when
+    rendering glyphs on the plot. If unset, use the default x-range.
+    """)
+
+    y_range_name = String('default', help="""
+    A particular (named) y-range to use for computing screen locations when
+    rendering glyphs on the plot. If unset, use the default y-range.
+    """)
+
 class TileRenderer(DataRenderer):
     '''
 
@@ -96,20 +108,6 @@ class TileRenderer(DataRenderer):
     smoothing = Bool(default=True, help="""
     Enable image smoothing for the rendered tiles.
     """)
-
-    x_range_name = String('default', help="""
-    A particular (named) x-range to use for computing screen
-    locations when rendering glyphs on the plot. If unset, use the
-    default x-range.
-    """)
-
-    y_range_name = String('default', help="""
-    A particular (named) y-range to use for computing screen
-    locations when rendering glyphs on the plot. If unset, use the
-    default y-range.
-    """)
-
-    level = Override(default="underlay")
 
     render_parents = Bool(default=True, help="""
     Flag enable/disable drawing of parent tiles while waiting for new tiles to arrive. Default value is True.
@@ -167,18 +165,6 @@ class GlyphRenderer(DataRenderer):
     initialization.
     """)
 
-    x_range_name = String('default', help="""
-    A particular (named) x-range to use for computing screen
-    locations when rendering glyphs on the plot. If unset, use the
-    default x-range.
-    """)
-
-    y_range_name = String('default', help="""
-    A particular (named) y-range to use for computing screen
-    locations when rendering glyphs on the plot. If unset, use the
-    default y-range.
-    """)
-
     glyph = Instance(Glyph, help="""
     The glyph to render, in conjunction with the supplied data source
     and ranges.
@@ -211,8 +197,6 @@ class GlyphRenderer(DataRenderer):
     muted = Bool(False, help="""
     """)
 
-    level = Override(default="glyph")
-
 _DEFAULT_NODE_RENDERER = lambda: GlyphRenderer(
     glyph=Circle(), data_source=ColumnDataSource(data=dict(index=[]))
 )
@@ -237,18 +221,6 @@ class GraphRenderer(DataRenderer):
             missing.append("Column 'end' is missing in GraphSource.edge_renderer.data_source")
         if missing:
             return " ,".join(missing) + " [%s]" % self
-
-    x_range_name = String('default', help="""
-    A particular (named) x-range to use for computing screen
-    locations when rendering graphs on the plot. If unset, use the
-    default x-range.
-    """)
-
-    y_range_name = String('default', help="""
-    A particular (named) y-range to use for computing screen
-    locations when rendering graphs on the plot. If unset, use the
-    default y-range.
-    """)
 
     layout_provider = Instance(LayoutProvider, help="""
     An instance of a ``LayoutProvider`` that supplies the layout of the network
@@ -275,25 +247,12 @@ class GraphRenderer(DataRenderer):
     of graph components.
     """)
 
-    level = Override(default="glyph")
-
 @abstract
 class GuideRenderer(Renderer):
     ''' A base class for all guide renderer types. ``GuideRenderer`` is
     not generally useful to instantiate on its own.
 
     '''
-
-    plot = Instance(".models.plots.Plot", help="""
-    The plot to which this guide renderer is attached.
-    """)
-
-    def __init__(self, **kwargs):
-        super(GuideRenderer, self).__init__(**kwargs)
-
-        if self.plot is not None:
-            if self not in self.plot.renderers:
-                self.plot.renderers.append(self)
 
     level = Override(default="overlay")
 

@@ -1,0 +1,31 @@
+declare module "chrome-remote-interface" {
+  import {Protocol} from "devtools-protocol/types/protocol"
+  import {ProtocolProxyApi} from "devtools-protocol/types/protocol-proxy-api"
+
+  type DevTools = ProtocolProxyApi.ProtocolApi & {
+    close(): Promise<void>
+
+    Page: ProtocolProxyApi.PageApi & {
+      loadEventFired(): Promise<Protocol.Page.LoadEventFiredEvent>
+    }
+
+    Network: ProtocolProxyApi.NetworkApi & {
+      enable(params?: Protocol.Network.EnableRequest): Promise<void>
+      requestWillBeSent(listener: (params: Protocol.Network.RequestWillBeSentEvent) => void): void
+    }
+
+    Runtime: ProtocolProxyApi.RuntimeApi & {
+      consoleAPICalled(listener: (params: Protocol.Runtime.ConsoleAPICalledEvent) => void): void
+      exceptionThrown(listener: (params: Protocol.Runtime.ExceptionThrownEvent) => void): void
+    }
+
+    Log: ProtocolProxyApi.LogApi & {
+      entryAdded(listener: (params: Protocol.Log.EntryAddedEvent) => void): void
+    }
+  }
+
+  function CDP(callback: (client: DevTools) => void): NodeJS.EventEmitter
+  function CDP(): Promise<DevTools>
+
+  export = CDP
+}

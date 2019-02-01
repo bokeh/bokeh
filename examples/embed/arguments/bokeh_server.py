@@ -16,7 +16,7 @@ in this directory, and navigate to:
 import numpy as np
 
 from bokeh.io import curdoc
-from bokeh.layouts import row, widgetbox
+from bokeh.layouts import row, column
 from bokeh.models import ColumnDataSource
 from bokeh.models.widgets import Slider, TextInput
 from bokeh.plotting import figure
@@ -79,6 +79,6 @@ for w in [offset, amplitude, phase, freq]:
     w.on_change('value', update_data)
 
 # Set up layouts and add to document
-inputs = widgetbox(text, offset, amplitude, phase, freq)
+inputs = column(text, offset, amplitude, phase, freq)
 
 curdoc().add_root(row(inputs, plot, width=800))

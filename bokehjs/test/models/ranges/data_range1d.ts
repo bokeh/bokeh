@@ -1,0 +1,363 @@
+import {expect} from "chai"
+import * as sinon from "sinon"
+
+import {Plot} from "models/plots/plot"
+import {CustomJS} from "models/callbacks/customjs"
+import {DataRange1d} from "models/ranges/data_range1d"
+import {GlyphRenderer} from "models/renderers/glyph_renderer"
+
+describe("datarange1d module", () => {
+
+  describe("default creation", () => {
+    const r = new DataRange1d()
+
+    it("should have start = null", () => {
+      expect(r.start).to.be.null
+    })
+
+    it("should have end = null", () => {
+      expect(r.end).to.be.null
+    })
+
+    // Math.min(null, null) == 0
+    it("should have min = 0", () => {
+      expect(r.min).to.be.equal(0)
+    })
+
+    // Math.max(null, null) == 0
+    it("should have max = 0", () => {
+      expect(r.max).to.be.equal(0)
+    })
+
+    it("should have flipped = false", () => {
+      expect(r.flipped).to.be.equal(false)
+    })
+
+    it("should not be reversed", () => {
+      expect(r.is_reversed).to.be.equal(false)
+    })
+
+    it("should have follow = null", () => {
+      expect(r.follow).to.be.null
+    })
+
+    it("should have follow_interval = null", () => {
+      expect(r.follow_interval).to.be.null
+    })
+
+    it("should have default_span = 2", () => {
+      expect(r.default_span).to.be.equal(2)
+    })
+
+    it("should have no computed_renderers", () => {
+      expect(r.computed_renderers()).to.be.deep.equal([])
+    })
+  })
+
+  describe("explicit bounds=(10,20) creation", () => {
+    const r = new DataRange1d({start: 10, end:20})
+
+    it("should have start = 10", () => {
+      expect(r.start).to.be.equal(10)
+    })
+
+    it("should have end = 20", () => {
+      expect(r.end).to.be.equal(20)
+    })
+
+    it("should have min = 10", () => {
+      expect(r.min).to.be.equal(10)
+    })
+
+    it("should have max = 20", () => {
+      expect(r.max).to.be.equal(20)
+    })
+  })
+
+  describe("explicit inverted bounds=(20,10) creation", () => {
+    const r = new DataRange1d({start: 20, end:10})
+
+    it("should be reversed", () => {
+      expect(r.is_reversed).to.be.equal(true)
+    })
+  })
+
+  describe("reset", () => {
+
+    it("should reset configuration to initial values", () => {
+      const r = new DataRange1d()
+      r.range_padding = 0.2
+      r.range_padding_units = "absolute"
+      r.follow = "end"
+      r.follow_interval = 10
+      r.default_span = 10
+      r.reset()
+      expect(r.range_padding).to.be.equal(0.1)
+      expect(r.range_padding_units).to.be.equal("percent")
+      expect(r.follow).to.be.null
+      expect(r.follow_interval).to.be.null
+      expect(r.default_span).to.be.equal(2)
+    })
+
+    // something must call update(...) to update (start, end)
+    it("should not reset (start, end)", () => {
+      const r = new DataRange1d()
+      r.start = 4
+      r.end = 10
+      r.reset()
+      expect(r.start).to.be.equal(4)
+      expect(r.end).to.be.equal(10)
+    })
+
+    it("should execute callback exactly once", () => {
+      const cb = new CustomJS()
+      const r = new DataRange1d({callback: cb})
+      const spy = sinon.spy(cb, "execute")
+      r.reset()
+      expect(spy.calledOnce).to.be.true
+    })
+  })
+
+  describe("computed_renderers", () => {
+
+    it("should add renderers from one plot", () => {
+      const g1 = new GlyphRenderer()
+      const p1 = new Plot({renderers: [g1]})
+      const r1 = new DataRange1d({plots: [p1]})
+      expect(r1.computed_renderers()).to.be.deep.equal([g1])
+
+      const g2 = new GlyphRenderer()
+      const p2 = new Plot({renderers: [g1, g2]})
+      const r2 = new DataRange1d({plots: [p2]})
+      expect(r2.computed_renderers()).to.be.deep.equal([g1, g2])
+    })
+
+    it("should add renderers from multiple plot", () => {
+      const g1 = new GlyphRenderer()
+      const p1 = new Plot({renderers: [g1]})
+
+      const g2 = new GlyphRenderer()
+      const p2 = new Plot({renderers: [g2]})
+
+      const r = new DataRange1d({plots: [p1, p2]})
+      expect(r.computed_renderers()).to.be.deep.equal([g1, g2])
+    })
+
+    it("should respect user-set renderers", () => {
+      const g1 = new GlyphRenderer()
+      const p1 = new Plot({renderers: [g1]})
+
+      const g2 = new GlyphRenderer()
+      const p2 = new Plot({renderers: [g2]})
+
+      const r = new DataRange1d({plots: [p1, p2], renderers: [g2]})
+      expect(r.computed_renderers()).to.be.deep.equal([g2])
+    })
+  })
+
+  describe("_compute_range", () => {
+
+    it("should use default_span when max=min", () => {
+      const r0 = new DataRange1d()
+      expect(r0._compute_range(3, 3)).to.be.deep.equal([2, 4])
+
+      const r1 = new DataRange1d({default_span: 4})
+      expect(r1._compute_range(3, 3)).to.be.deep.equal([1, 5])
+
+      const r2 = new DataRange1d({default_span: 4, range_padding: 0})
+      expect(r2._compute_range(3, 3)).to.be.deep.equal([1, 5])
+    })
+
+    it("should use default_span as powers of 10 when scale_hint='log'", () => {
+      const r0 = new DataRange1d({scale_hint: "log"})
+      const [a0, b0] = r0._compute_range(100, 100)
+      expect(a0).to.be.closeTo(9.988493699365053, 1e-12)
+      expect(b0).to.be.closeTo(1001.1519555381683, 1e-12)
+
+      const r1 = new DataRange1d({scale_hint: "log", default_span: 4})
+      const [a1, b1] = r1._compute_range(100, 100)
+      expect(a1).to.be.closeTo(0.9988493699365047, 1e-12)
+      expect(b1).to.be.closeTo(10011.519555381703, 1e-12)
+    })
+
+    it("should swap max, min when flipped", () => {
+      const r = new DataRange1d({flipped: true})
+      expect(r._compute_range(3, 3)).to.be.deep.equal([4, 2])
+    })
+
+    it("should follow min when follow=start and not flipped", () => {
+      const r = new DataRange1d({range_padding: 0, follow: "start", follow_interval: 4})
+      expect(r._compute_range(1, 3)).to.be.deep.equal([1, 3])
+      expect(r._compute_range(1, 7)).to.be.deep.equal([1, 5])
+    })
+
+    it("should follow max when follow=start and flipped", () => {
+      const r = new DataRange1d({range_padding: 0, follow: "start", follow_interval: 4, flipped: true})
+      expect(r._compute_range(1, 3)).to.be.deep.equal([3, 1])
+      expect(r._compute_range(1, 7)).to.be.deep.equal([7, 3])
+    })
+
+    it("should follow max when follow=end and not flipped", () => {
+      const r = new DataRange1d({range_padding: 0, follow: "end", follow_interval: 4})
+      expect(r._compute_range(1, 3)).to.be.deep.equal([1, 3])
+      expect(r._compute_range(1, 7)).to.be.deep.equal([3, 7])
+    })
+
+    it("should follow min when follow=end and flipped", () => {
+      const r = new DataRange1d({range_padding: 0, follow: "end", follow_interval: 4, flipped: true})
+      expect(r._compute_range(1, 3)).to.be.deep.equal([3, 1])
+      expect(r._compute_range(1, 7)).to.be.deep.equal([5, 1])
+    })
+
+    it("should apply percentage range_padding", () => {
+      const r0 = new DataRange1d({range_padding: 0.5})
+      expect(r0._compute_range(1, 3)).to.be.deep.equal([0.5, 3.5])
+
+      const r1 = new DataRange1d({range_padding: 0})
+      expect(r1._compute_range(1, 3)).to.be.deep.equal([1, 3])
+    })
+
+    it("should apply absolute range_padding", () => {
+      const r0 = new DataRange1d({range_padding: 0.2, range_padding_units: "absolute"})
+      expect(r0._compute_range(1, 3)).to.be.deep.equal([0.8, 3.2])
+
+      const r1 = new DataRange1d({range_padding: 0, range_padding_units: "absolute"})
+      expect(r1._compute_range(1, 3)).to.be.deep.equal([1, 3])
+    })
+
+    it("should apply range_padding logly when scale_hint='log'", () => {
+      const r0 = new DataRange1d({range_padding: 0.5, scale_hint: "log"})
+      const [a0, b0] = r0._compute_range(0.01, 10)
+      expect(a0).to.be.closeTo(0.0017782794100389264, 1e-12)
+      expect(b0).to.be.closeTo(56.23413251903488, 1e-12)
+
+      const r1 = new DataRange1d({range_padding: 0, scale_hint: "log"})
+      const [a1, b1] = r1._compute_range(0.01, 10)
+      expect(a1).to.be.closeTo(0.01, 1e-12)
+      expect(b1).to.be.closeTo(10, 1e-12)
+
+      const r2 = new DataRange1d({range_padding: 0.5, range_padding_units: "absolute", scale_hint: "log"})
+      const [a2, b2] = r2._compute_range(1, 10)
+      expect(a2).to.be.closeTo(0.5, 1e-12)
+      expect(b2).to.be.closeTo(10.5, 1e-12)
+
+      const r3 = new DataRange1d({range_padding: 0, range_padding_units: "absolute", scale_hint: "log"})
+      const [a3, b3] = r3._compute_range(1, 10)
+      expect(a3).to.be.closeTo(1, 1e-12)
+      expect(b3).to.be.closeTo(10, 1e-12)
+    })
+  })
+
+  describe("_compute_min_max", () => {
+
+    it("should compute max/min for dimension of a single plot_bounds", () => {
+      const r = new DataRange1d()
+      const bds = {
+        1: {minX: 0, maxX: 10, minY: 5, maxY:6},
+      }
+      expect(r._compute_min_max(bds, 0)).to.be.deep.equal([0, 10])
+      expect(r._compute_min_max(bds, 1)).to.be.deep.equal([5, 6])
+    })
+
+    it("should compute max/min for dimension of multiple plot_bounds", () => {
+      const r = new DataRange1d()
+      const bds0 = {
+        1: {minX: 0, maxX: 10, minY: 5, maxY: 6},
+        2: {minX: 0, maxX: 15, minY: 5.5, maxY: 5.6},
+      }
+      expect(r._compute_min_max(bds0, 0)).to.be.deep.equal([0, 15])
+      expect(r._compute_min_max(bds0, 1)).to.be.deep.equal([5, 6])
+
+      const bds1 = {
+        1: {minX: 0, maxX: 10, minY: 5, maxY: 6},
+        2: {minX: 0, maxX: 15, minY: 5.5, maxY: 5.6},
+        3: {minX: -10, maxX: 15, minY: 0, maxY: 2},
+      }
+      expect(r._compute_min_max(bds1, 0)).to.be.deep.equal([-10, 15])
+      expect(r._compute_min_max(bds1, 1)).to.be.deep.equal([0, 6])
+    })
+  })
+
+  describe("_computed_plot_bounds", () => {
+
+    it("should compute bounds from configured renderers", () => {
+      const r = new DataRange1d()
+
+      const g1 = new GlyphRenderer({id: "1"})
+      const g2 = new GlyphRenderer({id: "2"})
+
+      const bds = {
+        1: {minX: 0, maxX: 10, minY: 5, maxY: 6},
+        2: {minX: 0, maxX: 15, minY: 5.5, maxY: 5.6},
+        3: {minX: -10, maxX: 15, minY: 0, maxY: 2},
+      }
+
+      expect(r._compute_plot_bounds([g1], bds)).to.be.deep.equal({minX: 0, maxX: 10, minY: 5, maxY: 6})
+      expect(r._compute_plot_bounds([g1, g2], bds)).to.be.deep.equal({minX: 0, maxX: 15, minY: 5, maxY: 6})
+    })
+  })
+
+  describe("update", () => {
+
+    it("should update its start and end values", () => {
+      const g = new GlyphRenderer({id: "id"})
+      const p = new Plot({renderers: [g]})
+      const r = new DataRange1d({plots: [p]})
+
+      const bds = {
+        id: {minX: -10, maxX: -6, minY: 5, maxY: 6},
+      }
+
+      r.update(bds, 0, "id")
+      expect(r.start).to.be.equal(-10.2)
+    })
+
+    it("should not update its start or end values to NaN when log", () => {
+      const g = new GlyphRenderer({id: "id"})
+      const p = new Plot({renderers: [g]})
+      const r = new DataRange1d({scale_hint: "log", plots: [p]})
+
+      const bds = {
+        id: {minX: Infinity, maxX: -Infinity, minY: 5, maxY: 6},
+      }
+
+      r.update(bds, 0, "id")
+      expect(r.start).not.to.be.NaN
+      expect(r.end).not.to.be.NaN
+    })
+  })
+
+  describe("changing model attribute", () => {
+
+    it("should execute callback once", () => {
+      const cb = new CustomJS()
+      const spy = sinon.spy(cb, "execute")
+      const r = new DataRange1d({callback: cb})
+      expect(spy.called).to.be.false
+      r.start = 15
+      expect(spy.calledOnce).to.be.true
+    })
+  })
+
+  describe("adjust_bounds_for_aspect", () => {
+    it("should preserve y axis when it is larger", () => {
+      const r = new DataRange1d()
+      const bds = r.adjust_bounds_for_aspect({minX: 0, maxX: 1, minY: 0, maxY: 2}, 4)
+
+      expect(bds.minX).to.be.equal(-3.5)
+      expect(bds.maxX).to.be.equal(4.5)
+      expect(bds.minY).to.be.equal(0)
+      expect(bds.maxY).to.be.equal(2)
+    })
+
+    it("should preserve x axis when it is larger", () => {
+      const r = new DataRange1d()
+      const bds = r.adjust_bounds_for_aspect({minX: 0, maxX: 8, minY: 0, maxY: 1}, 4)
+
+      expect(bds.minX).to.be.equal(0)
+      expect(bds.maxX).to.be.equal(8)
+      expect(bds.minY).to.be.equal(-0.5)
+      expect(bds.maxY).to.be.equal(1.5)
+    })
+  })
+})

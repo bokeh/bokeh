@@ -27,10 +27,7 @@ const make_testcase = function(): PolyDrawTestCase {
     y_range: new Range1d({start: -1, end: 1}),
   })
 
-  const plot_view: any = new plot.default_view({model: plot, parent: null})
-  plot_view.layout()
-
-  const plot_canvas_view = plot_view.plot_canvas_view
+  const plot_view: any = new plot.default_view({model: plot, parent: null}).build()
 
   const data = {
     xs: [[0, 0.5, 1], [0, 0.5, 1]],
@@ -51,8 +48,7 @@ const make_testcase = function(): PolyDrawTestCase {
 
   const glyph_renderer_view: any = new glyph_renderer.default_view({
     model: glyph_renderer,
-    plot_view: plot_canvas_view,
-    parent: plot_canvas_view,
+    parent: plot_view,
   })
 
   const draw_tool = new PolyDrawTool({
@@ -61,8 +57,8 @@ const make_testcase = function(): PolyDrawTestCase {
     renderers: [glyph_renderer],
   })
   plot.add_tools(draw_tool)
-  const draw_tool_view = plot_canvas_view.tool_views[draw_tool.id]
-  plot_canvas_view.renderer_views[glyph_renderer.id] = glyph_renderer_view
+  const draw_tool_view = plot_view.tool_views[draw_tool.id]
+  plot_view.renderer_views[glyph_renderer.id] = glyph_renderer_view
   sinon.stub(glyph_renderer_view, "set_data")
 
   return {
@@ -170,11 +166,12 @@ describe("PolyDrawTool", (): void => {
       const testcase = make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
-      const start_event = make_gesture_event(300, 300)
+      const start_event1 = make_tap_event(300, 300)
       hit_test_stub.returns(create_hit_test_result_from_hits([[0, 0]]))
-      testcase.draw_tool_view._tap(start_event)
+      testcase.draw_tool_view._tap(start_event1)
+      const start_event2 = make_gesture_event(300, 300)
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]))
-      testcase.draw_tool_view._pan_start(start_event)
+      testcase.draw_tool_view._pan_start(start_event2)
       const pan_event = make_gesture_event(290, 290)
       testcase.draw_tool_view._pan(pan_event)
       testcase.draw_tool_view._pan_end(pan_event)
@@ -248,7 +245,7 @@ describe("PolyDrawTool", (): void => {
       hit_test_stub.returns(null)
       testcase.draw_tool_view._doubletap(make_tap_event(300, 300))
       testcase.draw_tool_view._tap(make_tap_event(250, 250))
-      testcase.draw_tool_view._move_enter(make_tap_event(0, 0))
+      testcase.draw_tool_view._move_enter(make_move_event(0, 0))
       testcase.draw_tool_view._keyup(make_key_event(Keys.Esc))
 
       const new_xs = [0.04424778761061947, -0.13274336283185842]
@@ -273,8 +270,8 @@ describe("PolyDrawTool", (): void => {
       const testcase = make_testcase()
       testcase.draw_tool_view.model.active = false
 
-      const drag_event = make_gesture_event(300, 300, true)
-      testcase.draw_tool_view._doubletap(drag_event)
+      const tap_event = make_tap_event(300, 300, true)
+      testcase.draw_tool_view._doubletap(tap_event)
       expect(testcase.draw_tool_view._drawing).to.be.equal(false)
     })
   })

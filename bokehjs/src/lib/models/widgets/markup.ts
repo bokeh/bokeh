@@ -1,32 +1,25 @@
 import * as p from "core/properties"
-import {empty, div} from "core/dom"
+import {div} from "core/dom"
 
 import {Widget, WidgetView} from "./widget"
 
-export class MarkupView extends WidgetView {
+export abstract class MarkupView extends WidgetView {
   model: Markup
 
   protected markupEl: HTMLElement
 
-  initialize(options: any): void {
-    super.initialize(options)
-    this.render()
-  }
-
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.render())
+    this.connect(this.model.change, () => {
+      this.render()
+      this.root.compute_layout() // XXX: invalidate_layout?
+    })
   }
 
   render(): void {
     super.render()
-    empty(this.el)
-    const style = {
-      width: `${this.model.width}px`,
-      height: `${this.model.height}px`,
-      ...this.model.style,
-    }
-    this.markupEl = div({style: style})
+    const style = {...this.model.style, display: "inline-block"}
+    this.markupEl = div({class: "bk-clearfix", style})
     this.el.appendChild(this.markupEl)
   }
 }
@@ -42,8 +35,7 @@ export namespace Markup {
 
 export interface Markup extends Markup.Attrs {}
 
-export class Markup extends Widget {
-
+export abstract class Markup extends Widget {
   properties: Markup.Props
 
   constructor(attrs?: Partial<Markup.Attrs>) {
@@ -57,7 +49,10 @@ export class Markup extends Widget {
       text:  [ p.String, '' ],
       style: [ p.Any,    {} ],
     })
+
+    this.override({
+      width: 300,
+    })
   }
 }
-
 Markup.initClass()

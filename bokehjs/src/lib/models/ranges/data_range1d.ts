@@ -2,10 +2,10 @@ import {DataRange} from "./data_range"
 import {Renderer} from "../renderers/renderer"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {PaddingUnits, StartEnd} from "core/enums"
+import {Rect} from "core/types"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import * as bbox from "core/util/bbox"
-import {Rect} from "core/util/spatial"
 import {includes} from "core/util/array"
 
 export type Dim = 0 | 1
@@ -112,7 +112,7 @@ export class DataRange1d extends DataRange {
     return renderers
   }
 
-  protected _compute_plot_bounds(renderers: Renderer[], bounds: Bounds): Rect {
+  /*protected*/ _compute_plot_bounds(renderers: Renderer[], bounds: Bounds): Rect {
     let result = bbox.empty()
 
     for (const r of renderers) {
@@ -149,7 +149,7 @@ export class DataRange1d extends DataRange {
     return result
   }
 
-  protected _compute_min_max(plot_bounds: Bounds, dimension: Dim): [number, number] {
+  /*protected*/ _compute_min_max(plot_bounds: Bounds, dimension: Dim): [number, number] {
     let overall = bbox.empty()
     for (const k in plot_bounds) {
       const v = plot_bounds[k]
@@ -165,7 +165,7 @@ export class DataRange1d extends DataRange {
     return [min, max]
   }
 
-  protected _compute_range(min: number, max: number): [number, number] {
+  /*protected*/ _compute_range(min: number, max: number): [number, number] {
     const range_padding = this.range_padding // XXX: ? 0
 
     let start, end: number
@@ -290,7 +290,7 @@ export class DataRange1d extends DataRange {
 
   reset(): void {
     this.have_updated_interactively = false
-    // change events silenced as PlotCanvasView.update_dataranges triggers property callbacks
+    // change events silenced as PlotView.update_dataranges triggers property callbacks
     this.setv({
       range_padding: this._initial_range_padding,
       range_padding_units: this._initial_range_padding_units,

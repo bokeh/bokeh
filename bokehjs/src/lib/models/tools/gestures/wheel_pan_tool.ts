@@ -19,7 +19,7 @@ export class WheelPanToolView extends GestureToolView {
   }
 
   _update_ranges(factor: number): void {
-    const frame = this.plot_model.frame
+    const {frame} = this.plot_view
 
     const hr = frame.bbox.h_range
     const vr = frame.bbox.v_range
@@ -81,7 +81,7 @@ export class WheelPanToolView extends GestureToolView {
     this.plot_view.update_range(pan_info, false, true)
 
     if (this.model.document != null)
-      this.model.document.interactive_start(this.plot_model.plot)
+      this.model.document.interactive_start(this.plot_model)
   }
 }
 

@@ -221,7 +221,7 @@ Anchor = enumeration(
 AngleUnits = enumeration("deg", "rad")
 
 #: Specify a style for button widgets
-ButtonType = enumeration("default", "primary", "success", "warning", "danger", "link")
+ButtonType = enumeration("default", "primary", "success", "warning", "danger")
 
 #: Specify a named dashing patter for stroking lines
 DashPattern = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")
@@ -315,7 +315,12 @@ RenderMode = enumeration("canvas", "css")
 RoundingFunction = enumeration("round", "nearest", "floor", "rounddown", "ceil", "roundup")
 
 #: Sizing mode policies
-SizingMode = enumeration("stretch_both", "scale_width", "scale_height", "scale_both", "fixed")
+SizingMode = enumeration("stretch_width", "stretch_height", "stretch_both",
+                         "scale_width", "scale_height", "scale_both",
+                         "fixed")
+
+#: Individual sizing mode policies
+SizingPolicy = enumeration("fixed", "fit", "min", "max")
 
 #: Specify different callback policies for the slider widget
 SliderCallbackPolicy = enumeration("continuous", "throttle", "mouseup")
@@ -346,6 +351,12 @@ TooltipAttachment = enumeration("horizontal", "vertical", "left", "right", "abov
 
 #: Specify how a format string for a tooltip field should be interpreted
 TooltipFieldFormatter = enumeration("numeral", "datetime", "printf")
+
+#: Grid track (row/column) alignment (vertical/horizontal) of child items
+TrackAlign = enumeration("start", "center", "end")
+
+#: Grid track (row/column) sizing policies
+TrackPolicy = enumeration("auto", "min", "max", "flex", "fixed")
 
 #: Specify the vertical alignment for rendering text
 VerticalAlign = enumeration("top", "middle", "bottom")

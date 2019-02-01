@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Functions for arranging bokeh Layout objects.
+''' Functions for arranging bokeh layout objects.
 
 '''
 
@@ -25,11 +25,10 @@ log = logging.getLogger(__name__)
 # External imports
 
 # Bokeh imports
-from .core.enums import Location, SizingMode
+from .core.enums import Location
 from .models.tools import ProxyToolbar, ToolbarBox
 from .models.plots import Plot
-from .models.layouts import LayoutDOM, Row, Column, Spacer, WidgetBox
-from .models.widgets import Widget
+from .models.layouts import LayoutDOM, Row, Column, GridBox, WidgetBox
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -42,7 +41,6 @@ __all__ = (
     'layout',
     'row',
     'widgetbox',
-
 )
 
 #-----------------------------------------------------------------------------
@@ -56,7 +54,7 @@ def row(*args, **kwargs):
     Args:
         children (list of :class:`~bokeh.models.layouts.LayoutDOM` ): A list of instances for
             the row. Can be any of the following - :class:`~bokeh.models.plots.Plot`,
-            :class:`~bokeh.models.widgets.widget.Widget`, :class:`~bokeh.models.layouts.WidgetBox`,
+            :class:`~bokeh.models.widgets.widget.Widget`,
             :class:`~bokeh.models.layouts.Row`,
             :class:`~bokeh.models.layouts.Column`,
             :class:`~bokeh.models.tools.ToolbarBox`,
@@ -77,22 +75,20 @@ def row(*args, **kwargs):
         >>> row(children=[widget_box_1, plot_1], sizing_mode='stretch_both')
     """
 
-    sizing_mode = kwargs.pop('sizing_mode', 'fixed')
+    sizing_mode = kwargs.pop('sizing_mode', None)
     children = kwargs.pop('children', None)
 
-    _verify_sizing_mode(sizing_mode)
     children = _handle_children(*args, children=children)
 
     row_children = []
     for item in children:
         if isinstance(item, LayoutDOM):
-            item.sizing_mode = sizing_mode
+            if sizing_mode is not None and _has_auto_sizing(item):
+                item.sizing_mode = sizing_mode
             row_children.append(item)
         else:
-            raise ValueError(
-                """Only LayoutDOM items can be inserted into a row.
-                Tried to insert: %s of type %s""" % (item, type(item))
-            )
+            raise ValueError("""Only LayoutDOM items can be inserted into a row. Tried to insert: %s of type %s""" % (item, type(item)))
+
     return Row(children=row_children, sizing_mode=sizing_mode, **kwargs)
 
 
@@ -103,7 +99,7 @@ def column(*args, **kwargs):
     Args:
         children (list of :class:`~bokeh.models.layouts.LayoutDOM` ): A list of instances for
             the column. Can be any of the following - :class:`~bokeh.models.plots.Plot`,
-            :class:`~bokeh.models.widgets.widget.Widget`, :class:`~bokeh.models.layouts.WidgetBox`,
+            :class:`~bokeh.models.widgets.widget.Widget`,
             :class:`~bokeh.models.layouts.Row`,
             :class:`~bokeh.models.layouts.Column`,
             :class:`~bokeh.models.tools.ToolbarBox`,
@@ -121,35 +117,31 @@ def column(*args, **kwargs):
     Examples:
 
         >>> column([plot_1, plot_2])
-        >>> column(children=[widget_box_1, plot_1], sizing_mode='stretch_both')
+        >>> column(children=[widget_1, plot_1], sizing_mode='stretch_both')
     """
 
-    sizing_mode = kwargs.pop('sizing_mode', 'fixed')
+    sizing_mode = kwargs.pop('sizing_mode', None)
     children = kwargs.pop('children', None)
 
-    _verify_sizing_mode(sizing_mode)
     children = _handle_children(*args, children=children)
 
     col_children = []
     for item in children:
         if isinstance(item, LayoutDOM):
-            item.sizing_mode = sizing_mode
+            if sizing_mode is not None and _has_auto_sizing(item):
+                item.sizing_mode = sizing_mode
             col_children.append(item)
         else:
-            raise ValueError(
-                """Only LayoutDOM items can be inserted into a column.
-                Tried to insert: %s of type %s""" % (item, type(item))
-            )
+            raise ValueError("""Only LayoutDOM items can be inserted into a column. Tried to insert: %s of type %s""" % (item, type(item)))
+
     return Column(children=col_children, sizing_mode=sizing_mode, **kwargs)
 
 
 def widgetbox(*args, **kwargs):
-    """ Create a WidgetBox of Bokeh widgets. Forces all to
-    have the same sizing_mode, which is required for complex layouts to work.
+    """ Create a column of bokeh widgets with predefined styling.
 
     Args:
-        children (list of :class:`~bokeh.models.widgets.widget.Widget` ): A list
-            of widgets for the WidgetBox.
+        children (list of :class:`~bokeh.models.widgets.widget.Widget`): A list of widgets.
 
         sizing_mode (``"fixed"``, ``"stretch_both"``, ``"scale_width"``, ``"scale_height"``, ``"scale_both"`` ): How
             will the items in the layout resize to fill the available space.
@@ -158,7 +150,7 @@ def widgetbox(*args, **kwargs):
             description on :class:`~bokeh.models.layouts.LayoutDOM`.
 
     Returns:
-        WidgetBox: A WidgetBox of Widget instances all with the same sizing_mode.
+        WidgetBox: A column layout of widget instances all with the same ``sizing_mode``.
 
     Examples:
 
@@ -166,34 +158,29 @@ def widgetbox(*args, **kwargs):
         >>> widgetbox(children=[slider], sizing_mode='scale_width')
     """
 
-    sizing_mode = kwargs.pop('sizing_mode', 'fixed')
+    sizing_mode = kwargs.pop('sizing_mode', None)
     children = kwargs.pop('children', None)
 
-    _verify_sizing_mode(sizing_mode)
     children = _handle_children(*args, children=children)
 
-    widget_children = []
+    col_children = []
     for item in children:
-        if isinstance(item, Widget):
-            item.sizing_mode = sizing_mode
-            widget_children.append(item)
+        if isinstance(item, LayoutDOM):
+            if sizing_mode is not None and _has_auto_sizing(item):
+                item.sizing_mode = sizing_mode
+            col_children.append(item)
         else:
-            raise ValueError(
-                """Only Widgets can be inserted into a WidgetBox.
-                Tried to insert: %s of type %s""" % (item, type(item))
-            )
-    return WidgetBox(children=widget_children, sizing_mode=sizing_mode, **kwargs)
+            raise ValueError("""Only LayoutDOM items can be inserted into a widget box. Tried to insert: %s of type %s""" % (item, type(item)))
+    return WidgetBox(children=col_children, sizing_mode=sizing_mode, **kwargs)
 
 
 def layout(*args, **kwargs):
-    """ Create a grid-based arrangement of Bokeh Layout objects. Forces all objects to
-    have the same sizing mode, which is required for complex layouts to work. Returns a nested set
-    of Rows and Columns.
+    """ Create a grid-based arrangement of Bokeh Layout objects.
 
     Args:
         children (list of lists of :class:`~bokeh.models.layouts.LayoutDOM` ): A list of lists of instances
             for a grid layout. Can be any of the following - :class:`~bokeh.models.plots.Plot`,
-            :class:`~bokeh.models.widgets.widget.Widget`, :class:`~bokeh.models.layouts.WidgetBox`,
+            :class:`~bokeh.models.widgets.widget.Widget`,
             :class:`~bokeh.models.layouts.Row`,
             :class:`~bokeh.models.layouts.Column`,
             :class:`~bokeh.models.tools.ToolbarBox`,
@@ -213,24 +200,23 @@ def layout(*args, **kwargs):
         >>> layout([[plot_1, plot_2], [plot_3, plot_4]])
         >>> layout(
                 children=[
-                    [widget_box_1, plot_1],
+                    [widget_1, plot_1],
                     [slider],
-                    [widget_box_2, plot_2, plot_3]
+                    [widget_2, plot_2, plot_3]
                 ],
                 sizing_mode='fixed',
             )
 
     """
-    sizing_mode = kwargs.pop('sizing_mode', 'fixed')
+    sizing_mode = kwargs.pop('sizing_mode', None)
     children = kwargs.pop('children', None)
 
-    _verify_sizing_mode(sizing_mode)
     children = _handle_children(*args, children=children)
 
     # Make the grid
     return _create_grid(children, sizing_mode)
 
-def gridplot(children, sizing_mode='fixed',  toolbar_location='above', ncols=None,
+def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
              plot_width=None, plot_height=None, toolbar_options=None, merge_tools=True):
     ''' Create a grid of plots rendered on separate canvases.
 
@@ -291,9 +277,6 @@ def gridplot(children, sizing_mode='fixed',  toolbar_location='above', ncols=Non
     if toolbar_options is None:
         toolbar_options = {}
 
-    # Integrity checks & set-up
-    _verify_sizing_mode(sizing_mode)
-
     if toolbar_location:
         if not hasattr(Location, toolbar_location):
             raise ValueError("Invalid value of toolbar_location: %s" % toolbar_location)
@@ -310,46 +293,37 @@ def gridplot(children, sizing_mode='fixed',  toolbar_location='above', ncols=Non
 
     # Make the grid
     tools = []
-    rows = []
+    items = []
 
-    for row in children:
-        row_tools = []
-        row_children = []
-        for item in row:
-            if merge_tools:
-                if item is not None:
-                    for plot in item.select(dict(type=Plot)):
-                        row_tools = row_tools + plot.toolbar.tools
-                        plot.toolbar_location = None
+    for y, row in enumerate(children):
+        for x, item in enumerate(row):
             if item is None:
-                width, height = 0, 0
-                for neighbor in row:
-                    if isinstance(neighbor, Plot):
-                        width = neighbor.plot_width
-                        height = neighbor.plot_height
-                        break
-                item = Spacer(width=width, height=height)
-            if isinstance(item, LayoutDOM):
-                item.sizing_mode = sizing_mode
+                continue
+            elif isinstance(item, LayoutDOM):
+                if merge_tools:
+                    for plot in item.select(dict(type=Plot)):
+                        tools += plot.toolbar.tools
+                        plot.toolbar_location = None
+
                 if isinstance(item, Plot):
-                    if plot_width:
+                    if plot_width is not None:
                         item.plot_width = plot_width
-                    if plot_height:
+                    if plot_height is not None:
                         item.plot_height = plot_height
-                row_children.append(item)
+
+                if sizing_mode is not None and _has_auto_sizing(item):
+                    item.sizing_mode = sizing_mode
+
+                items.append((item, y, x))
             else:
-                raise ValueError("Only LayoutDOM items can be inserted into Grid")
-        tools = tools + row_tools
-        rows.append(Row(children=row_children, sizing_mode=sizing_mode))
+                raise ValueError("Only LayoutDOM items can be inserted into a grid")
 
-    grid = Column(children=rows, sizing_mode=sizing_mode)
+    if not merge_tools or not toolbar_location:
+        return GridBox(children=items, sizing_mode=sizing_mode)
 
-    if not merge_tools:
-        return grid
-
-    if toolbar_location:
-        proxy = ProxyToolbar(tools=tools, **toolbar_options)
-        toolbar = ToolbarBox(toolbar=proxy, toolbar_location=toolbar_location)
+    grid = GridBox(children=items)
+    proxy = ProxyToolbar(tools=tools, **toolbar_options)
+    toolbar = ToolbarBox(toolbar=proxy, toolbar_location=toolbar_location)
 
     if toolbar_location == 'above':
         return Column(children=[toolbar, grid], sizing_mode=sizing_mode)
@@ -359,8 +333,6 @@ def gridplot(children, sizing_mode='fixed',  toolbar_location='above', ncols=Non
         return Row(children=[toolbar, grid], sizing_mode=sizing_mode)
     elif toolbar_location == 'right':
         return Row(children=[grid, toolbar], sizing_mode=sizing_mode)
-    else:
-        return grid
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -428,6 +400,9 @@ class GridSpec(object):
 # Private API
 #-----------------------------------------------------------------------------
 
+def _has_auto_sizing(item):
+    return item.sizing_mode is None and item.width_policy == "auto" and item.height_policy == "auto"
+
 def _handle_children(*args, **kwargs):
     children = kwargs.get('children')
 
@@ -446,11 +421,6 @@ def _handle_children(*args, **kwargs):
     return children
 
 
-def _verify_sizing_mode(sizing_mode):
-    if sizing_mode not in SizingMode:
-        raise ValueError("Invalid value of sizing_mode: %s" % sizing_mode)
-
-
 def _create_grid(iterable, sizing_mode, layer=0):
     """Recursively create grid from input lists."""
     return_list = []
@@ -458,7 +428,8 @@ def _create_grid(iterable, sizing_mode, layer=0):
         if isinstance(item, list):
             return_list.append(_create_grid(item, sizing_mode, layer+1))
         elif isinstance(item, LayoutDOM):
-            item.sizing_mode = sizing_mode
+            if sizing_mode is not None and _has_auto_sizing(item):
+                item.sizing_mode = sizing_mode
             return_list.append(item)
         else:
             raise ValueError(
@@ -468,8 +439,6 @@ def _create_grid(iterable, sizing_mode, layer=0):
     if layer % 2 == 0:
         return column(children=return_list, sizing_mode=sizing_mode)
     return row(children=return_list, sizing_mode=sizing_mode)
-
-    return return_list
 
 
 def _chunks(l, ncols):

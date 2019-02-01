@@ -1,5 +1,4 @@
 from bokeh.io import output_file, show
-from bokeh.layouts import widgetbox
 from bokeh.models.widgets import Div
 
 output_file("div.html")
@@ -9,4 +8,4 @@ remaining div arguments are <b>width</b> and <b>height</b>. For this example, th
 are <i>200</i> and <i>100</i> respectively.""",
 width=200, height=100)
 
-show(widgetbox(div))
+show(div)

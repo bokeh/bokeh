@@ -1,9 +1,7 @@
-import * as sinon from "sinon"
-
 import {Arrayable} from "core/types"
 import {Document} from "document"
 import {Range1d} from "models/ranges/range1d"
-import {Plot, PlotView} from "models/plots/plot"
+import {Plot} from "models/plots/plot"
 import {Glyph, GlyphView} from "models/glyphs/glyph"
 import {GlyphRenderer, GlyphRendererView} from "models/renderers/glyph_renderer"
 import {ColumnDataSource} from "models/sources/column_data_source"
@@ -14,38 +12,30 @@ import {CategoricalScale} from "models/scales/categorical_scale"
 import {FactorRange} from "models/ranges/factor_range"
 
 export function create_glyph_renderer_view(glyph: Glyph, data: {[key: string]: Arrayable} = {}): GlyphRendererView {
-  /*
-   * Requires stubbing the canvas and solver before calling.
-   */
   const doc = new Document()
   const plot = new Plot({
     x_range: new Range1d({start: 0, end: 1}),
     y_range: new Range1d({start: 0, end: 1}),
   })
-  const plot_view = new plot.default_view({model: plot, parent: null}) as PlotView
+  const plot_view = new plot.default_view({model: plot, parent: null}).build()
   doc.add_root(plot)
-
-  const plot_canvas_view = plot_view.plot_canvas_view
-  sinon.stub(plot_canvas_view, "update_constraints")
 
   const data_source = new ColumnDataSource({data})
 
-  const glyph_renderer = new GlyphRenderer({
-    glyph,
-    data_source: data_source,
-  })
-
+  const glyph_renderer = new GlyphRenderer({glyph, data_source})
   const glyph_renderer_view = new glyph_renderer.default_view({
     model: glyph_renderer,
-    plot_view: plot_canvas_view,
-    parent: plot_canvas_view,
-  }) as GlyphRendererView
+    parent: plot_view,
+  })
 
   return glyph_renderer_view
 }
 
-export function create_glyph_view(glyph: Glyph, data: {[key: string]: Arrayable} = {}): GlyphView {
-  return create_glyph_renderer_view(glyph, data).glyph /* glyph_view */
+import {HasProps} from "core/has_props"
+export type ViewType<T extends HasProps> = InstanceType<T["default_view"]>
+
+export function create_glyph_view<G extends Glyph>(glyph: G, data: {[key: string]: Arrayable} = {}): ViewType<G> {
+  return create_glyph_renderer_view(glyph, data).glyph /* glyph_view */ as ViewType<G>
 }
 
 export type AxisType = "linear" | "log" | "categorical"

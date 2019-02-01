@@ -1,57 +1,66 @@
 import {TextInput, TextInputView} from "./text_input"
 
-import {empty, ul, li, a, Keys} from "core/dom"
-import {clear_menus} from "core/menus"
+import {empty, show, hide, div, Keys} from "core/dom"
 import * as p from "core/properties"
 
 export class AutocompleteInputView extends TextInputView {
   model: AutocompleteInput
 
-  protected menuEl: HTMLElement
+  protected _open: boolean = false
 
-  connect_signals(): void {
-    super.connect_signals()
-    clear_menus.connect(() => this._clear_menu())
-  }
+  protected menu: HTMLElement
 
   render(): void {
     super.render()
 
-    this.inputEl.classList.add("bk-autocomplete-input")
+    this.input.classList.add("bk-autocomplete-input")
 
-    this.inputEl.addEventListener("keydown", (event) => this._keydown(event))
-    this.inputEl.addEventListener("keyup", (event) => this._keyup(event))
+    this.input.addEventListener("keydown", (event) => this._keydown(event))
+    this.input.addEventListener("keyup", (event) => this._keyup(event))
 
-    this.menuEl = ul({class: "bk-bs-dropdown-menu"})
-    this.menuEl.addEventListener("click", (event) => this._item_click(event))
-    this.el.appendChild(this.menuEl)
+    this.menu = div({class: ["bk-menu", "bk-below"]})
+    this.menu.addEventListener("click", (event) => this._menu_click(event))
+    this.el.appendChild(this.menu)
+    hide(this.menu)
   }
 
-  protected _render_items(completions: string[]): void {
-    empty(this.menuEl)
+  protected _update_completions(completions: string[]): void {
+    empty(this.menu)
 
     for (const text of completions) {
-      const itemEl = li({}, a({data: {text: text}}, text))
-      this.menuEl.appendChild(itemEl)
+      const item = div({}, text)
+      this.menu.appendChild(item)
     }
   }
 
-  protected _open_menu(): void {
-    this.el.classList.add("bk-bs-open")
+  protected _show_menu(): void {
+    if (!this._open) {
+      this._open = true
+      show(this.menu)
+
+      const listener = (event: MouseEvent) => {
+        const {target} = event
+        if (target instanceof HTMLElement && !this.el.contains(target)) {
+          document.removeEventListener("click", listener)
+          this._hide_menu()
+        }
+      }
+      document.addEventListener("click", listener)
+    }
   }
 
-  protected _clear_menu(): void {
-    this.el.classList.remove("bk-bs-open")
+  protected _hide_menu(): void {
+    if (this._open) {
+      this._open = false
+      hide(this.menu)
+    }
   }
 
-  protected _item_click(event: MouseEvent): void {
-    event.preventDefault()
-
-    if (event.target != event.currentTarget) {
-      const el = event.target as HTMLElement
-      const text = el.dataset.text!
-      this.model.value = text
-      //this.inputEl.value = text
+  protected _menu_click(event: MouseEvent): void {
+    if (event.target != event.currentTarget && event.target instanceof Element) {
+      this.input.value = event.target.textContent || ""
+      this.input.focus()
+      this._hide_menu()
     }
   }
 
@@ -60,23 +69,23 @@ export class AutocompleteInputView extends TextInputView {
   _keyup(event: KeyboardEvent): void {
     switch (event.keyCode) {
       case Keys.Enter: {
-        console.log("enter")
+        // TODO
         break
       }
       case Keys.Esc: {
-        this._clear_menu()
+        this._hide_menu()
         break
       }
       case Keys.Up:
       case Keys.Down: {
-        console.log("up/down")
+        // TODO
         break
       }
       default: {
-        const value = this.inputEl.value
+        const value = this.input.value
 
         if (value.length <= 1) {
-          this._clear_menu()
+          this._hide_menu()
           return
         }
 
@@ -86,12 +95,12 @@ export class AutocompleteInputView extends TextInputView {
             completions.push(text)
         }
 
+        this._update_completions(completions)
+
         if (completions.length == 0)
-          this._clear_menu()
-        else {
-          this._render_items(completions)
-          this._open_menu()
-        }
+          this._hide_menu()
+        else
+          this._show_menu()
       }
     }
   }
@@ -102,13 +111,14 @@ export namespace AutocompleteInput {
     completions: string[]
   }
 
-  export interface Props extends TextInput.Props {}
+  export interface Props extends TextInput.Props {
+    completions: p.Property<string[]>
+  }
 }
 
 export interface AutocompleteInput extends AutocompleteInput.Attrs {}
 
 export class AutocompleteInput extends TextInput {
-
   properties: AutocompleteInput.Props
 
   constructor(attrs?: Partial<AutocompleteInput.Attrs>) {
@@ -122,13 +132,6 @@ export class AutocompleteInput extends TextInput {
     this.define({
       completions: [ p.Array, [] ],
     })
-
-    this.internal({
-      active: [p.Boolean, true],
-    })
   }
-
-  active: boolean
 }
-
 AutocompleteInput.initClass()

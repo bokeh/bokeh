@@ -20,8 +20,12 @@ ${license}
   var define;
   return (function(modules, aliases, entry, parent_require) {
     var cache = {};
+    var main;
 
     var require = function(name) {
+      if (name === "bokehjs")
+        return main
+
       var id = aliases[name] != null ? aliases[name] : name;
 
       if (!cache[id]) {
@@ -41,7 +45,7 @@ ${license}
       return cache[id].exports;
     }
 
-    var main = require(entry);
+    main = require(entry);
     main.require = require;
 
     main.register_plugin = function(plugin_modules, plugin_aliases, plugin_entry) {

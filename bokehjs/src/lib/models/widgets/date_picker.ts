@@ -1,6 +1,6 @@
 import {InputWidget, InputWidgetView} from "./input_widget"
 
-import {empty, input, label} from "core/dom"
+import {input} from "core/dom"
 import * as p from "core/properties"
 
 import * as Pikaday from "pikaday"
@@ -42,26 +42,17 @@ Pikaday.prototype.adjustPosition = function(this: Pikaday & {_o: Pikaday.Pikaday
 export class DatePickerView extends InputWidgetView {
   model: DatePicker
 
-  labelEl: HTMLElement
   inputEl: HTMLElement
 
   protected _picker: Pikaday
 
-  css_classes(): string[] {
-    return super.css_classes().concat("bk-widget-form-group")
-  }
-
   render(): void {
-    super.render()
-
     if (this._picker != null)
       this._picker.destroy()
-    empty(this.el)
 
-    this.labelEl = label({}, this.model.title)
-    this.el.appendChild(this.labelEl)
+    super.render()
 
-    this.inputEl = input({type: "text", class: "bk-widget-form-input", disabled: this.model.disabled})
+    this.inputEl = input({type: "text", class: "bk-input", disabled: this.model.disabled})
     this.el.appendChild(this.inputEl)
 
     this._picker = new Pikaday({
@@ -73,7 +64,6 @@ export class DatePickerView extends InputWidgetView {
       onSelect: (date) => this._on_select(date),
     })
 
-    // move date picker's element from body to bk-root
     this._root_element.appendChild(this._picker.el)
   }
 
@@ -100,7 +90,6 @@ export namespace DatePicker {
 export interface DatePicker extends DatePicker.Attrs {}
 
 export class DatePicker extends InputWidget {
-
   properties: DatePicker.Props
 
   constructor(attrs?: Partial<DatePicker.Attrs>) {
@@ -119,5 +108,4 @@ export class DatePicker extends InputWidget {
     })
   }
 }
-
 DatePicker.initClass()

@@ -98,7 +98,7 @@ export class LogScale extends Scale {
     return [start, end]
   }
 
-  protected _compute_state(): [number, number, number, number] {
+  /*protected*/ _compute_state(): [number, number, number, number] {
     const source_start = this.source_range.start
     const source_end   = this.source_range.end
     const target_start = this.target_range.start

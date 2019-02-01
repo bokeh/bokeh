@@ -1,7 +1,7 @@
 import {sprintf} from "sprintf-js"
 import {Palette} from "./palettes"
 import * as palettes from "./palettes"
-import {zip, unzip, sum, cumsum, copy} from "../core/util/array"
+import {zip, unzip, sum, cumsum, copy, transpose} from "../core/util/array"
 import {isArray} from "../core/util/types"
 import {Anchor, TooltipAttachment} from "../core/enums"
 
@@ -52,7 +52,7 @@ export interface ChartOpts {
 }
 
 export interface PieChartData {
-  labels: number[]
+  labels: string[]
   values: number[]
 }
 
@@ -67,7 +67,7 @@ export interface PieChartOpts extends ChartOpts {
 }
 
 export function pie(data: PieChartData, opts: PieChartOpts = {}): Plot {
-  const labels: number[] = []
+  const labels: string[] = []
   const values: number[] = []
 
   for (let i = 0; i < Math.min(data.labels.length, data.values.length); i++) {
@@ -191,7 +191,7 @@ export function pie(data: PieChartData, opts: PieChartOpts = {}): Plot {
   return plot
 }
 
-export type BarChartData = number[][]
+export type BarChartData = (string | number)[][]
 
 export interface BarChartOpts extends ChartOpts {
   stacked?: boolean
@@ -203,17 +203,12 @@ export interface BarChartOpts extends ChartOpts {
 
 export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
   const column_names = data[0]
-  const rows = data.slice(1)
 
-  let columns: number[][] = column_names.map((_) => [])
-  for (const row of rows) {
-    for (let i = 0; i < row.length; i++) {
-      columns[i].push(row[i])
-    }
-  }
+  const row_data = data.slice(1)
+  const col_data = transpose(row_data)
 
-  const labels = columns[0].map((v) => v.toString())
-  columns = columns.slice(1)
+  const labels = col_data[0].map((v) => v.toString())
+  const columns = col_data.slice(1) as number[][]
 
   let yaxis: Axis = new CategoricalAxis()
   let ydr: Range = new FactorRange({factors: labels})

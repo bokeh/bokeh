@@ -84,7 +84,7 @@ class Test_bce(object):
         assert tuple(bce.AngleUnits) == ('deg', 'rad')
 
     def test_ButtonType(self):
-        assert tuple(bce.ButtonType) == ("default", "primary", "success", "warning", "danger", "link")
+        assert tuple(bce.ButtonType) == ("default", "primary", "success", "warning", "danger")
 
     def test_DashPattern(self):
         assert tuple(bce.DashPattern) ==("solid", "dashed", "dotted", "dotdash", "dashdot")
@@ -183,7 +183,7 @@ class Test_bce(object):
         assert tuple(bce.RoundingFunction) == ("round", "nearest", "floor", "rounddown", "ceil", "roundup")
 
     def test_SizingMode(self):
-        assert tuple(bce.SizingMode) == ("stretch_both", "scale_width", "scale_height", "scale_both", "fixed")
+        assert tuple(bce.SizingMode) == ("stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed")
 
     def test_SliderCallbackPolicy(self):
         assert tuple(bce.SliderCallbackPolicy) == ("continuous", "throttle", "mouseup")
@@ -257,6 +257,7 @@ def test_enums_contents():
         'RenderMode',
         'RoundingFunction',
         'SizingMode',
+        'SizingPolicy',
         'SliderCallbackPolicy',
         'SortDirection',
         'SpatialUnits',
@@ -267,6 +268,8 @@ def test_enums_contents():
         'TickLabelOrientation',
         'TooltipAttachment',
         'TooltipFieldFormatter',
+        'TrackAlign',
+        'TrackPolicy',
         'VerticalAlign',
         'VerticalLocation',
     ]

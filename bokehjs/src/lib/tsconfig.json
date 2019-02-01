@@ -15,13 +15,13 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "ES5",
-    "lib": ["es5", "dom", "es2015.core"],
+    "lib": ["es5", "dom", "es2015.core", "es2015.promise"],
     "declaration": true,
     "sourceMap": false,
     "importHelpers": true,
     "experimentalDecorators": true,
-    "types": ["hammerjs", "googlemaps"],
-    "baseUrl": "."
+    "baseUrl": ".",
+    "types": ["hammerjs", "googlemaps"]
   },
   "include": ["./**/*.ts"]
 }

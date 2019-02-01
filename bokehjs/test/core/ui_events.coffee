@@ -15,7 +15,6 @@ dom = require("core/dom")
 {Document} = require("document")
 {Legend} = require("models/annotations/legend")
 {Plot} = require("models/plots/plot")
-{PlotCanvas} = require("models/plots/plot_canvas")
 {Range1d} = require("models/ranges/range1d")
 {Toolbar} = require("models/tools/toolbar")
 {UIEvents} = require "core/ui_events"
@@ -34,9 +33,8 @@ describe "ui_events module", ->
       y_range: new Range1d({start: 0, end: 1})
     })
     doc.add_root(@plot)
-    plot_view = new @plot.default_view({model: @plot, parent: null})
-    @plot_canvas_view = plot_view.plot_canvas_view
-    @ui_events = @plot_canvas_view.ui_event_bus
+    @plot_view = new @plot.default_view({model: @plot, parent: null}).build()
+    @ui_events = @plot_view.ui_event_bus
 
   describe "_trigger method", ->
 
@@ -52,9 +50,9 @@ describe "ui_events module", ->
         @spy_cursor.restore()
 
       beforeEach ->
-        @e = {type: "move"}
+        @e = {type: "mousemove"}
 
-        @spy_cursor = sinon.spy(@plot_canvas_view, "set_cursor")
+        @spy_cursor = sinon.spy(@plot_view, "set_cursor")
 
       it "should trigger move event for active inspectors", ->
         inspector = new CrosshairTool({active: true})
@@ -105,7 +103,7 @@ describe "ui_events module", ->
 
       it "should change cursor on view_renderer with cursor method", ->
         legend = new Legend({click_policy: "mute"})
-        legend_view = new legend.default_view({model: legend, parent: null}) # wrong
+        legend_view = new legend.default_view({model: legend, parent: this.plot_view})
 
         ss = sinon.stub(@ui_events, "_hit_test_renderers").returns(legend_view)
 
@@ -120,7 +118,7 @@ describe "ui_events module", ->
         @plot.add_tools(inspector)
 
         legend = new Legend({click_policy: "mute"})
-        legend_view = new legend.default_view({model: legend, parent: null}) # wrong
+        legend_view = new legend.default_view({model: legend, parent: this.plot_view})
 
         ss = sinon.stub(@ui_events, "_hit_test_renderers").returns(legend_view)
 
@@ -153,7 +151,7 @@ describe "ui_events module", ->
 
       it "should call on_hit method on view renderer if exists", ->
         legend = new Legend({click_policy: "mute"})
-        legend_view = new legend.default_view({model: legend, parent: null}) # wrong
+        legend_view = new legend.default_view({model: legend, parent: this.plot_view})
 
         ss = sinon.stub(@ui_events, "_hit_test_renderers").returns(legend_view)
         on_hit = sinon.stub(legend_view, "on_hit")
@@ -172,7 +170,7 @@ describe "ui_events module", ->
         @stopPropagation.restore()
 
       beforeEach ->
-        @e = {type: "scroll"}
+        @e = {type: "wheel"}
         @srcEvent = new Event("scroll")
 
         @preventDefault = sinon.spy(@srcEvent, "preventDefault")
@@ -230,7 +228,7 @@ describe "ui_events module", ->
       @dom_stub = sinon.stub(dom, "offset").returns({top: 0, left: 0})
       @spy = sinon.spy(@plot, "trigger_event")
 
-    it "_bokify_hammer should trigger event with appropriate coords and model_id", ->
+    it "_bokify_hammer should trigger event with appropriate coords and model id", ->
       e = new Event("tap") # XXX: <- this is not a hammer event
       e.pointerType = "mouse"
       e.srcEvent = {pageX: 100, pageY: 200}
@@ -243,9 +241,9 @@ describe "ui_events module", ->
       expect(bk_event).to.be.instanceof(Tap)
       expect(bk_event.sx).to.be.equal(100)
       expect(bk_event.sy).to.be.equal(200)
-      expect(bk_event.model_id).to.be.equal(@plot.id)
+      expect(bk_event.origin.id).to.be.equal(@plot.id)
 
-    it "_bokify_point_event should trigger event with appropriate coords and model_id", ->
+    it "_bokify_point_event should trigger event with appropriate coords and model id", ->
       e = new Event("mousemove")
       e.pageX = 100
       e.pageY = 200
@@ -258,7 +256,7 @@ describe "ui_events module", ->
       expect(bk_event).to.be.instanceof(MouseMove)
       expect(bk_event.sx).to.be.equal(100)
       expect(bk_event.sy).to.be.equal(200)
-      expect(bk_event.model_id).to.be.equal(@plot.id)
+      expect(bk_event.origin.id).to.be.equal(@plot.id)
 
   describe "_event methods", ->
     ###
@@ -277,7 +275,7 @@ describe "ui_events module", ->
       # The BokehEvent that is triggered by the plot
       @spy_plot = sinon.spy(@plot, "trigger_event")
       # The event is that triggered on UIEvent for tool interactions
-      @spy_uievent = sinon.spy(@plot_canvas_view.ui_event_bus, "trigger")
+      @spy_uievent = sinon.spy(@plot_view.ui_event_bus, "trigger")
 
     it "_tap method should handle tap event", ->
       e = new Event("tap")

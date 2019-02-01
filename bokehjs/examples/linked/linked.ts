@@ -1,4 +1,6 @@
-namespace LinkedBrushingAndPanning {
+import * as Bokeh from "bokehjs"
+
+export namespace LinkedBrushingAndPanning {
   import plt = Bokeh.Plotting
   import linspace = Bokeh.LinAlg.linspace
 

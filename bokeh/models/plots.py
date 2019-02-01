@@ -32,8 +32,8 @@ from ..core.properties import Bool, Dict, Enum, Include, Instance, Int, List, Ov
 from ..core.property_mixins import LineProps, FillProps
 from ..core.query import find
 from ..core.validation import error, warning
-from ..core.validation.errors import  BAD_EXTRA_RANGE_NAME, REQUIRED_RANGE, REQUIRED_SCALE, INCOMPATIBLE_SCALE_AND_RANGE
-from ..core.validation.warnings import MISSING_RENDERERS
+from ..core.validation.errors import BAD_EXTRA_RANGE_NAME, REQUIRED_RANGE, REQUIRED_SCALE, INCOMPATIBLE_SCALE_AND_RANGE
+from ..core.validation.warnings import MISSING_RENDERERS, FIXED_SIZING_MODE, FIXED_WIDTH_POLICY, FIXED_HEIGHT_POLICY
 from ..model import Model
 from ..util.string import nice_join
 
@@ -181,7 +181,8 @@ class Plot(LayoutDOM):
         ''' Splattable list of :class:`~bokeh.models.annotations.Legend` objects.
 
         '''
-        legends = [obj for obj in self.renderers if isinstance(obj, Legend)]
+        panels = self.above + self.below + self.left + self.right + self.center
+        legends = [obj for obj in panels if isinstance(obj, Legend)]
         return _legend_attr_splat(legends)
 
     @property
@@ -193,7 +194,7 @@ class Plot(LayoutDOM):
         return _list_attr_splat(hovers)
 
     def _grid(self, dimension):
-        grid = [obj for obj in self.renderers if isinstance(obj, Grid) and obj.dimension==dimension]
+        grid = [obj for obj in self.center if isinstance(obj, Grid) and obj.dimension == dimension]
         return _list_attr_splat(grid)
 
     @property
@@ -243,15 +244,7 @@ class Plot(LayoutDOM):
                 "Invalid place '%s' specified. Valid place values are: %s" % (place, nice_join(valid_places))
             )
 
-        if hasattr(obj, 'plot'):
-            if obj.plot is not None:
-                raise ValueError("object to be added already has 'plot' attribute set")
-            obj.plot = self
-
-        self.renderers.append(obj)
-
-        if place != 'center':
-            getattr(self, place).append(obj)
+        getattr(self, place).append(obj)
 
     def add_tools(self, *tools):
         ''' Adds tools to the plot.
@@ -266,9 +259,6 @@ class Plot(LayoutDOM):
         for tool in tools:
             if not isinstance(tool, Tool):
                 raise ValueError("All arguments to add_tool must be Tool subclasses.")
-
-            if hasattr(tool, 'overlay'):
-                self.renderers.append(tool.overlay)
 
             self.toolbar.tools.append(tool)
 
@@ -492,25 +482,36 @@ class Plot(LayoutDOM):
     A list of renderers to occupy the area below of the plot.
     """)
 
-    plot_height = Int(600, help="""
-    Total height of the entire plot (including any axes, titles,
-    border padding, etc.)
-
-    .. note::
-        This corresponds directly to the height of the HTML
-        canvas that will be used.
-
+    center = List(Instance(Renderer), help="""
+    A list of renderers to occupy the center area (frame) of the plot.
     """)
 
     plot_width = Int(600, help="""
-    Total width of the entire plot (including any axes, titles,
-    border padding, etc.)
+    The outer width of a plot, including any axes, titles, border padding, etc.
 
     .. note::
-        This corresponds directly to the width of the HTML
-        canvas that will be used.
+        This corresponds directly to the width of the HTML canvas.
 
     """)
+
+    plot_height = Int(600, help="""
+    The outer height of a plot, including any axes, titles, border padding, etc.
+
+    .. note::
+        This corresponds directly to the height of the HTML canvas.
+
+    """)
+
+    frame_width = Int(default=None, help="""
+    The width of a plot frame or the inner width of a plot, excluding any
+    axes, titles, border padding, etc.
+    """)
+
+    frame_height = Int(default=None, help="""
+    The height of a plot frame or the inner height of a plot, excluding any
+    axes, titles, border padding, etc.
+    """)
+
 
     inner_width = Int(readonly=True, help="""
     This is the exact width of the plotting canvas, i.e. the width of
@@ -534,7 +535,7 @@ class Plot(LayoutDOM):
 
     """)
 
-    layout_width = Int(readonly=True, help="""
+    outer_width = Int(readonly=True, help="""
     This is the exact width of the layout, i.e. the height of
     the actual plot, with toolbars etc. Note this is computed in a
     web browser, so this property will work only in backends capable of
@@ -545,7 +546,7 @@ class Plot(LayoutDOM):
 
     """)
 
-    layout_height = Int(readonly=True, help="""
+    outer_height = Int(readonly=True, help="""
     This is the exact height of the layout, i.e. the height of
     the actual plot, with toolbars etc. Note this is computed in a
     web browser, so this property will work only in backends capable of
@@ -689,6 +690,19 @@ class Plot(LayoutDOM):
     .. note::
         This setting only takes effect if ``match_aspect`` is set to ``True``.
     """)
+
+    # XXX: override LayoutDOM's definitions because of plot_{width,height}.
+    @error(FIXED_SIZING_MODE)
+    def _check_fixed_sizing_mode(self):
+        pass
+
+    @error(FIXED_WIDTH_POLICY)
+    def _check_fixed_width_policy(self):
+        pass
+
+    @error(FIXED_HEIGHT_POLICY)
+    def _check_fixed_height_policy(self):
+        pass
 
 #-----------------------------------------------------------------------------
 # Dev API

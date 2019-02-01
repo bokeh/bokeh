@@ -2,8 +2,7 @@ import {CenterRotatable, CenterRotatableView, CenterRotatableData} from "./cente
 import {PointGeometry} from "core/geometry"
 import {LineMixinVector, FillMixinVector} from "core/property_mixins"
 import * as hittest from "core/hittest"
-import {IBBox} from "core/util/bbox"
-import {Rect} from "core/util/spatial"
+import {Area, Rect} from "core/types"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 
@@ -101,7 +100,7 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
     return hittest.create_hit_test_result_from_hits(hits)
   }
 
-  draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: IBBox, index: number): void {
+  draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Area, index: number): void {
     const len = index + 1
 
     const sx: number[] = new Array(len)

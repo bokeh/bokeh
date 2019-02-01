@@ -1,6 +1,6 @@
 import {ActionTool, ActionToolView, ActionToolButtonView} from "./action_tool"
+import {CallbackLike} from "../../callbacks/callback"
 import * as p from "core/properties"
-import {isFunction} from "core/util/types"
 
 export class CustomActionButtonView extends ActionToolButtonView {
   model: CustomAction
@@ -8,25 +8,21 @@ export class CustomActionButtonView extends ActionToolButtonView {
   css_classes(): string[] {
     return super.css_classes().concat("bk-toolbar-button-custom-action")
   }
-
 }
 
 export class CustomActionView extends ActionToolView {
   model: CustomAction
 
   doit(): void {
-    const callback = this.model.callback
-    if (isFunction(callback))
-      callback(this, {})
-    else
-      callback.execute(this, {})
-    }
+    if (this.model.callback != null)
+      this.model.callback.execute(this.model)
+  }
 }
 
 export namespace CustomAction {
   export interface Attrs extends ActionTool.Attrs {
     action_tooltip: string
-    callback: any // XXX
+    callback: CallbackLike<CustomAction> | null
     icon: string
   }
 

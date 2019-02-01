@@ -7,6 +7,7 @@ import {LineJoin, LineCap} from "core/enums"
 import {SpatialUnits} from "core/enums"
 import {div, show, hide} from "core/dom"
 import * as p from "core/properties"
+import {Size} from "core/layout"
 import {Arrayable} from "core/types"
 import {Context2d} from "core/util/canvas"
 
@@ -83,7 +84,7 @@ export class LabelSetView extends TextAnnotationView {
     const xscale = this.plot_view.frame.xscales[this.model.x_range_name]
     const yscale = this.plot_view.frame.yscales[this.model.y_range_name]
 
-    const panel = this.model.panel != null ? this.model.panel : this.plot_view.frame
+    const panel = this.panel != null ? this.panel : this.plot_view.frame
 
     const sx = this.model.x_units == "data" ? xscale.v_compute(this._x) : panel.xview.v_compute(this._x)
     const sy = this.model.y_units == "data" ? yscale.v_compute(this._y) : panel.yview.v_compute(this._y)
@@ -108,24 +109,12 @@ export class LabelSetView extends TextAnnotationView {
     }
   }
 
-  protected _get_size(): number {
+  protected _get_size(): Size {
     const {ctx} = this.plot_view.canvas_view
     this.visuals.text.set_value(ctx)
 
-    switch (this.model.panel!.side) {
-      case "above":
-      case "below": {
-        const height = ctx.measureText(this._text[0]).ascent
-        return height
-      }
-      case "left":
-      case "right": {
-        const {width} = ctx.measureText(this._text[0])
-        return width
-      }
-      default:
-        throw new Error("unreachable code")
-    }
+    const {width, ascent} = ctx.measureText(this._text[0])
+    return {width, height: ascent}
   }
 
   protected _v_canvas_text(ctx: Context2d, i: number, text: string, sx: number, sy: number, angle: number): void {

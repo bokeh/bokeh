@@ -53,7 +53,6 @@ p.xgrid.grid_line_color = None
 p.toolbar_location = None
 
 l = p.legend[0]
-l.plot = None
 p.add_layout(l, 'right')
 l.border_line_color = None
 

@@ -4,8 +4,9 @@ import {Color} from "core/types"
 import {LineJoin, LineCap} from "core/enums"
 import {FontStyle, VerticalAlign, TextAlign, TextBaseline} from "core/enums"
 import {hide} from "core/dom"
-import * as p from "core/properties"
 import {Text} from "core/visuals"
+import {Size} from "core/layout"
+import * as p from "core/properties"
 
 export class TitleView extends TextAnnotationView {
   model: Title
@@ -17,7 +18,7 @@ export class TitleView extends TextAnnotationView {
   }
 
   protected _get_location(): [number, number] {
-    const panel = this.model.panel!
+    const panel = this.panel!
 
     const hmargin = this.model.offset
     const vmargin = 5
@@ -94,20 +95,20 @@ export class TitleView extends TextAnnotationView {
     this.model.text_align = this.model.align
 
     const [sx, sy] = this._get_location()
-    const angle = this.model.panel!.get_label_angle_heuristic('parallel')
+    const angle = this.panel!.get_label_angle_heuristic('parallel')
 
     const draw = this.model.render_mode == 'canvas' ? this._canvas_text.bind(this) : this._css_text.bind(this)
     draw(this.plot_view.canvas_view.ctx, text, sx, sy, angle)
   }
 
-  protected _get_size(): number {
+  protected _get_size(): Size {
     const {text} = this.model
     if (text == null || text.length == 0)
-      return 0
+      return {width: 0, height: 0}
     else {
-      const {ctx} = this.plot_view.canvas_view
-      this.visuals.text.set_value(ctx)
-      return ctx.measureText(text).ascent + 10
+      this.visuals.text.set_value(this.ctx)
+      const {width, ascent} = this.ctx.measureText(text)
+      return {width, height: ascent + 10}
     }
   }
 }

@@ -7,46 +7,23 @@ import {Range1d} from "../ranges/range1d"
 import {DataRange1d} from "../ranges/data_range1d"
 import {FactorRange} from "../ranges/factor_range"
 
-import {LayoutCanvas} from "core/layout/layout_canvas"
-import {Variable} from "core/layout/solver"
+import {LayoutItem} from "core/layout"
 import {Arrayable} from "core/types"
-import * as p from "core/properties"
+import {BBox} from "core/util/bbox"
 
 export type Ranges = {[key: string]: Range}
 export type Scales = {[key: string]: Scale}
 
-export namespace CartesianFrame {
-  export interface Attrs extends LayoutCanvas.Attrs {
-    extra_x_ranges: Ranges
-    extra_y_ranges: Ranges
-    x_range: Range
-    y_range: Range
-    x_scale: Scale
-    y_scale: Scale
-  }
+export class CartesianFrame extends LayoutItem {
 
-  export interface Props extends LayoutCanvas.Props {}
-}
-
-export interface CartesianFrame extends CartesianFrame.Attrs {}
-
-export class CartesianFrame extends LayoutCanvas {
-
-  constructor(attrs?: Partial<CartesianFrame.Attrs>) {
-    super(attrs)
-  }
-
-  static initClass(): void {
-    this.prototype.type = "CartesianFrame"
-
-    this.internal({
-      extra_x_ranges: [ p.Any, {} ],
-      extra_y_ranges: [ p.Any, {} ],
-      x_range:        [ p.Instance ],
-      y_range:        [ p.Instance ],
-      x_scale:        [ p.Instance ],
-      y_scale:        [ p.Instance ],
-    })
+  constructor(readonly x_scale: Scale,
+              readonly y_scale: Scale,
+              readonly x_range: Range,
+              readonly y_range: Range,
+              readonly extra_x_ranges: Ranges = {},
+              readonly extra_y_ranges: Ranges = {}) {
+    super()
+    this._configure_scales()
   }
 
   protected _h_target: Range1d
@@ -57,24 +34,6 @@ export class CartesianFrame extends LayoutCanvas {
 
   protected _xscales: Scales
   protected _yscales: Scales
-
-  initialize(): void {
-    super.initialize()
-    this._configure_scales()
-  }
-
-  connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.change, () => this._configure_scales())
-  }
-
-  get panel(): LayoutCanvas {
-    return this
-  }
-
-  get_editables(): Variable[] {
-    return super.get_editables().concat([this._width, this._height])
-  }
 
   map_to_screen(x: Arrayable<number>, y: Arrayable<number>,
                 x_name: string = "default", y_name: string = "default"): [Arrayable<number>, Arrayable<number>] {
@@ -139,7 +98,7 @@ export class CartesianFrame extends LayoutCanvas {
     this._yscales = this._get_scales(this.y_scale, this._y_ranges, this._v_target)
   }
 
-  update_scales(): void {
+  protected _update_scales(): void {
     this._configure_frame_ranges()
 
     for (const name in this._xscales) {
@@ -151,6 +110,11 @@ export class CartesianFrame extends LayoutCanvas {
       const scale = this._yscales[name]
       scale.target_range = this._v_target
     }
+  }
+
+  protected _set_geometry(outer: BBox, inner: BBox): void {
+    super._set_geometry(outer, inner)
+    this._update_scales()
   }
 
   get x_ranges(): Ranges {
@@ -169,5 +133,3 @@ export class CartesianFrame extends LayoutCanvas {
     return this._yscales
   }
 }
-
-CartesianFrame.initClass()

@@ -44,16 +44,16 @@ below:
 .. code-block:: python
 
     from bokeh.core.properties import String, Instance
-    from bokeh.models import LayoutDOM, Slider
+    from bokeh.models import HTMLBox, Slider
 
-    class Custom(LayoutDOM):
+    class Custom(HTMLBox):
 
         text = String(default="Custom text")
 
         slider = Instance(Slider)
 
 Since we would like to create a custom extension that can participate in DOM
-layout, we subclass from :class:`~bokeh.models.layouts.LayoutDOM`. We also
+layout, we subclass from :class:`~bokeh.models.layouts.HTMLBox`. We also
 added two properties: a :class:`~bokeh.core.properties.String` to configure
 a text message for the readout, and an :class:`~bokeh.core.properties.Instance`
 that can hold a :class:`~bokeh.models.widgets.inputs.Slider`. The JavaScript
@@ -75,64 +75,72 @@ final BokehJS scripts. We will see how to connect this code to custom
 extensions in the next section.
 
 .. note::
-    BokehJS was originally written in `CoffeeScript`_, but is being ported
+    BokehJS was originally written in `CoffeeScript`_, but was ported
     to `TypeScript`_. Accordingly, the guidance here is presented in TypeScript.
     However, custom extensions can be written in CoffeeScript or pure JavaScript
     as well.
 
 .. code-block:: typescript
 
-    import {div, empty} from "core/dom"
+    import {HTMLBox, HTMLBoxView} from "models/layouts/html_box"
+
+    import {div} from "core/dom"
     import * as p from "core/properties"
-    import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
 
-    export class CustomView extends LayoutDOMView {
+    export class CustomView extends HTMLBoxView {
 
-      initialize(options) {
-        super.initialize(options)
-
-        this.render()
+      connect_signals(): void {
+        super.connect_signals()
 
         // Set BokehJS listener so that when the Bokeh slider has a change
-        // event, we can process the new data
-        this.connect(this.model.slider.change, () => this.render())
+        // event, we can process the new data.
+        this.connect(this.model.slider.change, () => {
+          this.render()
+          this.invalidate_layout()
+        })
       }
 
-      render() {
+      render(): void {
         // BokehjS Views create <div> elements by default, accessible as
         // ``this.el``. Many Bokeh views ignore this default <div>, and instead
         // do things like draw to the HTML canvas. In this case though, we change
         // the contents of the <div>, based on the current slider value.
-        empty(this.el)
+        super.render()
+
         this.el.appendChild(div({
           style: {
-            'padding': '2px',
-            'color': '#b88d8e',
-            'background-color': '#2a3153',
+            padding: '2px',
+            color: '#b88d8e',
+            backgroundColor: '#2a3153',
           },
         }, `${this.model.text}: ${this.model.slider.value}`))
       }
     }
 
-    export class Custom extends LayoutDOM {
+    export class Custom extends HTMLBox {
 
-      // If there is an associated view, this is typically boilerplate.
-      default_view = CustomView
+      slider: {value: string}
 
-      // The ``type`` class attribute should generally match exactly the name
-      // of the corresponding Python class.
-      type = "Custom"
+      static initClass(): void {
+        // The ``type`` class attribute should generally match exactly the name
+        // of the corresponding Python class.
+        this.prototype.type = "Custom"
+
+        // If there is an associated view, this is typically boilerplate.
+        this.prototype.default_view = CustomView
+
+        // The this.define() block adds corresponding "properties" to the JS model.
+        // These should normally line up 1-1 with the Python model class. Most property
+        // types have counterparts, e.g. bokeh.core.properties.String will be
+        // ``p.String`` in the JS implementation. Any time the JS type system is not
+        // yet as complete, you can use ``p.Any`` as a "wildcard" property type.
+        this.define({
+          text:   [ p.String ],
+          slider: [ p.Any    ],
+        })
+      }
     }
-
-    // The @define block adds corresponding "properties" to the JS model. These
-    // should normally line up 1-1 with the Python model class. Most property
-    // types have counterparts, e.g. bokeh.core.properties.String will be
-    // ``p.String`` in the JS implementation. Any time the JS type system is not
-    // yet as complete, you can use ``p.Any`` as a "wildcard" property type.
-    Custom.define({
-      text:   [ p.String ],
-      slider: [ p.Any    ],
-    })
+    Custom.initClass()
 
 .. _userguide_extensions_structure_putting_together:
 
@@ -153,9 +161,9 @@ then the complete Python class might look like:
 .. code-block:: python
 
     from bokeh.core.properties import String, Instance
-    from bokeh.models import LayoutDOM, Slider
+    from bokeh.models import HTMLBox, Slider
 
-    class Custom(LayoutDOM):
+    class Custom(HTMLBox):
 
         __implementation__ = "custom.ts"
 

@@ -1,0 +1,5 @@
+Column bbox=[0, 0, 310, 206]
+  Slider bbox=[5, 5, 300, 30]
+  Slider bbox=[5, 45, 300, 30]
+  Slider bbox=[5, 85, 300, 30]
+  Div bbox=[5, 125, 175, 76]

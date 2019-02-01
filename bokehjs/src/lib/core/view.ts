@@ -2,11 +2,13 @@ import {HasProps} from "./has_props"
 import {Signal0, Signal, Signalable} from "./signaling"
 import {uniqueId} from "./util/string"
 
-export interface ViewOptions {
-  id?: string
-  model?: HasProps                  // TODO: this isn't optional
-  parent: View | null
-  connect_signals?: boolean
+export namespace View {
+  export type Options = {
+    id?: string
+    model: HasProps
+    parent: View | null
+    connect_signals?: boolean
+  }
 }
 
 export class View extends Signalable() {
@@ -19,7 +21,7 @@ export class View extends Signalable() {
 
   private _parent: View | null | undefined
 
-  constructor(options: ViewOptions) {
+  constructor(options: View.Options) {
     super()
 
     if (options.model != null)
@@ -36,7 +38,7 @@ export class View extends Signalable() {
       this.connect_signals()
   }
 
-  initialize(_options: ViewOptions): void {}
+  initialize(_options: View.Options): void {}
 
   remove(): void {
     this._parent = undefined
@@ -45,7 +47,11 @@ export class View extends Signalable() {
   }
 
   toString(): string {
-    return  `${this.model.type}View(${this.id})`
+    return `${this.model.type}View(${this.id})`
+  }
+
+  serializable_state(): {[key: string]: unknown} {
+    return {type: this.model.type}
   }
 
   get parent(): View | null {
@@ -63,13 +69,14 @@ export class View extends Signalable() {
     return this.is_root ? this : this.parent!.root
   }
 
+  assert_root(): void {
+    if (!this.is_root)
+      throw new Error(`${this.toString()} is not a root layout`)
+  }
+
   connect_signals(): void {}
 
   disconnect_signals(): void {
     Signal.disconnectReceiver(this)
-  }
-
-  notify_finished(): void {
-    this.root.notify_finished()
   }
 }

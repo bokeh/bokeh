@@ -1,15 +1,15 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {DistanceSpec, AngleSpec, StringSpec} from "core/vectorization"
-import {Arrayable} from "core/types"
+import {Arrayable, Rect} from "core/types"
+import {Class} from "core/class"
 import {Anchor} from "core/enums"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {map, min, max} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
-import {Rect, SpatialIndex} from "core/util/spatial"
+import {SpatialIndex} from "core/util/spatial"
 
 export type CanvasImage = HTMLImageElement
-export const CanvasImage = Image
 
 export interface ImageURLData extends XYGlyphData {
   _url: Arrayable<string>
@@ -59,7 +59,7 @@ export class ImageURLView extends XYGlyphView {
       if (this._url[i] == null)
         continue
 
-      const img = new CanvasImage()
+      const img: CanvasImage = new Image()
       img.onerror = () => {
         if (this.retries[i] > 0) {
           logger.trace(`ImageURL failed to load ${this._url[i]} image, retrying in ${retry_timeout} ms`)
@@ -251,8 +251,8 @@ export namespace ImageURL {
 export interface ImageURL extends ImageURL.Attrs {}
 
 export class ImageURL extends XYGlyph {
-
   properties: ImageURL.Props
+  default_view: Class<ImageURLView>
 
   constructor(attrs?: Partial<ImageURL.Attrs>) {
     super(attrs)

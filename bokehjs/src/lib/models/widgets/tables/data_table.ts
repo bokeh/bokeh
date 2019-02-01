@@ -11,6 +11,7 @@ import {isString} from "core/util/types"
 import {any, range} from "core/util/array"
 import {keys} from "core/util/object"
 import {logger} from "core/logging"
+import {LayoutItem} from "core/layout"
 
 import {TableWidget} from "./table_widget"
 import {Column, TableColumn} from "./table_column"
@@ -115,6 +116,16 @@ export class DataTableView extends WidgetView {
 
     this.connect(this.model.source.selected.change, () => this.updateSelection())
     this.connect(this.model.source.selected.properties.indices.change, () => this.updateSelection())
+  }
+
+  _update_layout(): void {
+    this.layout = new LayoutItem()
+    this.layout.set_sizing(this.box_sizing())
+  }
+
+  update_position(): void {
+    super.update_position()
+    this.grid.resizeCanvas()
   }
 
   updateGrid(): void {
@@ -222,20 +233,11 @@ export class DataTableView extends WidgetView {
       enableCellNavigation: this.model.selectable !== false,
       enableColumnReorder: reorderable,
       forceFitColumns: this.model.fit_columns,
-      autoHeight: (this.model.height as any) == "auto",
       multiColumnSort: this.model.sortable,
       editable: this.model.editable,
       autoEdit: false,
       rowHeight: this.model.row_height,
     }
-
-    if (this.model.width != null)
-      this.el.style.width = `${this.model.width}px`
-    else
-      this.el.style.width = `${this.model.default_width}px`
-
-    if (this.model.height != null && (this.model.height as any) != "auto")
-      this.el.style.height = `${this.model.height}px`
 
     this.data = new DataProvider(this.model.source, this.model.view)
     this.grid = new SlickGrid(this.el, this.data, columns, options)
@@ -318,7 +320,6 @@ export namespace DataTable {
 export interface DataTable extends DataTable.Attrs {}
 
 export class DataTable extends TableWidget {
-
   properties: DataTable.Props
 
   private _sort_columns: any[] = []
@@ -348,11 +349,10 @@ export class DataTable extends TableWidget {
     })
 
     this.override({
+      width: 600,
       height: 400,
     })
   }
-
-  readonly default_width = 600
 
   update_sort_columns(sortCols: any): null {
     this._sort_columns=sortCols.map((x:any) => ({field:x.sortCol.field,sortAsc:x.sortAsc}))

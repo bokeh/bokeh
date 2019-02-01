@@ -1,17 +1,13 @@
-namespace HoverfulScatter {
+import * as Bokeh from "bokehjs"
+
+export namespace HoverfulScatter {
   import plt = Bokeh.Plotting
-  const {range, zip} = Bokeh.LinAlg
+  const {range, zip, Random} = Bokeh.LinAlg
 
   Bokeh.set_log_level("info")
   Bokeh.logger.info(`Bokeh ${Bokeh.version}`)
 
-  const random = (function() {
-    let seed = 1
-    return function() { // Park-Miller LCG
-      seed = (seed*48271) % 2147483647 // 1 <= seed < 2^31 - 1
-      return (seed - 1) / 2147483646
-    }
-  })()
+  const random = new Random(1)
 
   const M = 100
   const xx: number[] = []
@@ -26,7 +22,7 @@ namespace HoverfulScatter {
 
   const N = xx.length
   const indices = range(N).map((i) => i.toString())
-  const radii = range(N).map((_) => random()*0.4 + 1.7)
+  const radii = range(N).map((_) => random.float()*0.4 + 1.7)
 
   const colors: string[] = []
   for (const [r, g] of zip(xx.map((x) => 50 + 2*x), yy.map((y) => 30 + 2*y)))
@@ -47,7 +43,7 @@ namespace HoverfulScatter {
     text_font_size: "5pt", text_baseline: "middle", text_align: "center"})
 
   const hover = p.toolbar.select_one(Bokeh.HoverTool)
-  hover.tooltips = (source: Bokeh.DataSource, info: Bokeh.HoverTooltipInfo) => {
+  hover.tooltips = (source, info) => {
     const ds = source as Bokeh.ColumnDataSource
     const div = document.createElement("div")
     div.style.width = "200px"

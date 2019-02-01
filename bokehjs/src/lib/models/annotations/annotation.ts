@@ -1,22 +1,35 @@
 import {SidePanel} from "core/layout/side_panel"
-import {Side} from "core/enums"
-import * as p from "core/properties"
+import {Size} from "core/layout"
 import * as proj from "core/util/projections"
 import {extend} from "core/util/object"
+import {Context2d} from "core/util/canvas"
 
 import {Renderer, RendererView} from "../renderers/renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
-import {Plot} from "../plots/plot"
 
 export abstract class AnnotationView extends RendererView {
   model: Annotation
 
-  protected _get_size(): number {
+  layout: SidePanel
+
+  get panel(): SidePanel | undefined { // XXX
+    return this.layout
+  }
+
+  get_size(): Size {
+    if (this.model.visible) {
+      const {width, height} = this._get_size()
+      return {width: Math.round(width), height: Math.round(height)}
+    } else
+      return {width: 0, height: 0}
+  }
+
+  protected _get_size(): Size {
     throw new Error("not implemented")
   }
 
-  get_size(): number {
-    return this.model.visible ? Math.round(this._get_size()) : 0
+  get ctx(): Context2d {
+    return this.plot_view.canvas_view.ctx
   }
 
   set_data(source: ColumnarDataSource): void {
@@ -31,23 +44,26 @@ export abstract class AnnotationView extends RendererView {
         [self._xs, self._ys] = proj.project_xsys(self._xs, self._ys)
     }
   }
+
+  get needs_clip(): boolean {
+    return this.layout == null // TODO: change this, when center layout is fully implemented
+  }
+
+  serializable_state(): {[key: string]: unknown} {
+    const state = super.serializable_state()
+    return this.layout == null ? state : {...state, bbox: this.layout.bbox.rect}
+  }
 }
 
 export namespace Annotation {
-  export interface Attrs extends Renderer.Attrs {
-    plot: Plot
-  }
+  export interface Attrs extends Renderer.Attrs {}
 
-  export interface Props extends Renderer.Props {
-    plot: p.Property<Plot>
-  }
+  export interface Props extends Renderer.Props {}
 
   export type Visuals = Renderer.Visuals
 }
 
-export interface Annotation extends Annotation.Attrs {
-  panel?: SidePanel
-}
+export interface Annotation extends Annotation.Attrs {}
 
 export abstract class Annotation extends Renderer {
 
@@ -60,27 +76,9 @@ export abstract class Annotation extends Renderer {
   static initClass(): void {
     this.prototype.type = 'Annotation'
 
-    this.define({
-      plot:  [ p.Instance ],
-    })
-
     this.override({
       level: 'annotation',
     })
-  }
-
-  add_panel(side: Side): void {
-    if (this.panel == null || side !== this.panel.side) {
-      const panel = new SidePanel({side})
-      panel.attach_document(this.document!)
-      this.set_panel(panel)
-    }
-  }
-
-  set_panel(panel: SidePanel): void {
-    this.panel = panel
-    // If the annotation is in a side panel, we need to set level to overlay, so it is visible.
-    this.level = 'overlay'
   }
 }
 Annotation.initClass()

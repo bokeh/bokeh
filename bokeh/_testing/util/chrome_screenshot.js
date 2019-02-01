@@ -162,38 +162,53 @@ CDP(async function(client) {
     return await Page.captureScreenshot({format: "png", clip: await get_bbox()})
   }
 
+  async function get_state() {
+    const expr = "JSON.stringify(Object.keys(Bokeh.index).map((key) => Bokeh.index[key].serializable_state()))"
+    const result = await evaluate(expr)
+    return result != null ? JSON.parse(result.value) : null
+  }
+
+  async function is_ready() {
+    const expr = "typeof Bokeh !== 'undefined'"
+    const result = await evaluate(expr)
+    return result != null && result.value === true
+  }
+
   async function is_idle() {
-    const expr = "typeof Bokeh !== 'undefined' && Bokeh.documents.length !== 0 && Bokeh.documents[0].is_idle"
+    const expr = "Bokeh.documents.length > 0 && Bokeh.documents.every((doc) => doc.is_idle)"
     const result = await evaluate(expr)
     return result != null && result.value === true
   }
 
   async function finish(timeout, success) {
+    let state = null
     let image = null
     if (success) {
+      state = await get_state()
       image = await get_image()
     }
 
-    console.log(JSON.stringify({success, timeout, errors, messages, image}))
+    console.log(JSON.stringify({success, timeout, errors, messages, state, image}))
 
     await client.close()
   }
 
   Page.loadEventFired(async () => {
-    if (errors.length > 0) {
+    if (errors.length > 0 || !(await is_ready())) {
       await finish(false, false)
       return
     }
 
     for (let i = 0; i < timeout/pause; i++) {
-      await wait(pause)
       const ret = await is_idle()
 
-      if (ret === false)
+      if (ret === false) {
+        await wait(pause)
         continue
-
-      await finish(false, ret === true)
-      return
+      } else {
+        await finish(false, true)
+        return
+      }
     }
 
     await finish(true, true)
