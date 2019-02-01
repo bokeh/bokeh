@@ -60,8 +60,9 @@ class Flags(object):
     notebook = 1 << 3
     slow     = 1 << 4  # example needs a lot of time to run (> 30 s) (e.g. choropleth.py)
     skip     = 1 << 5  # don't run example at all (e.g. notebooks are completely broken)
-    no_js    = 1 << 6  # skip bokehjs and thus image diff (e.g. google maps key issue)
-    no_diff  = 1 << 7  # skip only image diff (e.g. inherent randomness as in jitter)
+    xfail    = 1 << 6  # test is expected to fail, which doesn't fail the test suite
+    no_js    = 1 << 7  # skip bokehjs and thus image diff (e.g. google maps key issue)
+    no_diff  = 1 << 8  # skip only image diff (e.g. inherent randomness as in jitter)
 
 class Example(object):
 
@@ -77,14 +78,18 @@ class Example(object):
         self._baseline_ok = True
 
     def __str__(self):
-        flags = ["js"       if self.is_js       else "",
-                 "file"     if self.is_file     else "",
-                 "server"   if self.is_server   else "",
-                 "notebook" if self.is_notebook else "",
-                 "slow"     if self.is_slow     else "",
-                 "skip"     if self.is_skip     else "",
-                 "no_js"    if self.no_js       else "",
-                 "no_diff"  if self.no_diff     else ""]
+        flags = [
+            "js"       if self.is_js       else "",
+            "file"     if self.is_file     else "",
+            "server"   if self.is_server   else "",
+            "notebook" if self.is_notebook else "",
+            "slow"     if self.is_slow     else "",
+            "skip"     if self.is_skip     else "",
+            "xfail"    if self.xfail       else "",
+            "no_js"    if self.no_js       else "",
+            "no_diff"  if self.no_diff     else "",
+        ]
+
         return "Example(%r, %s)" % (self.relpath, "|".join(f for f in flags if f))
 
     __repr__ = __str__
@@ -136,6 +141,10 @@ class Example(object):
     @property
     def is_skip(self):
         return self.flags & Flags.skip
+
+    @property
+    def is_xfail(self):
+        return self.flags & Flags.xfail
 
     @property
     def no_js(self):
@@ -270,13 +279,13 @@ class Example(object):
         self.pixels = image_diff(self.diff_path, self.img_path, self.ref_path)
         return self.pixels
 
-def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=None, skip=None, no_js=None, no_diff=None):
+def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=None, skip=None, xfail=None, no_js=None, no_diff=None):
     if path.endswith("*"):
         star_path = join(examples_dir, path[:-1])
 
         for name in sorted(os.listdir(star_path)):
             if isdir(join(star_path, name)):
-                add_examples(list_of_examples, join(path[:-1], name), examples_dir, example_type, slow, skip, no_js, no_diff)
+                add_examples(list_of_examples, join(path[:-1], name), examples_dir, example_type, slow, skip, xfail, no_js, no_diff)
 
         return
 
@@ -313,6 +322,9 @@ def add_examples(list_of_examples, path, examples_dir, example_type=None, slow=N
         if skip is not None and (skip == 'all' or orig_name in skip):
             flags |= Flags.skip
 
+        if xfail is not None and (xfail == 'all' or orig_name in xfail):
+            flags |= Flags.xfail
+
         if no_js is not None and (no_js == 'all' or orig_name in no_js):
             flags |= Flags.no_js
 
@@ -338,11 +350,12 @@ def collect_examples(config_path):
 
         slow_status = example.get("slow")
         skip_status = example.get("skip")
+        xfail_status = example.get("xfail")
         no_js_status = example.get("no_js")
         no_diff_status = example.get("no_diff")
 
         add_examples(list_of_examples, path, examples_dir,
-            example_type=example_type, slow=slow_status, skip=skip_status, no_js=no_js_status, no_diff=no_diff_status)
+            example_type=example_type, slow=slow_status, skip=skip_status, xfail=xfail_status, no_js=no_js_status, no_diff=no_diff_status)
 
     return list_of_examples
 

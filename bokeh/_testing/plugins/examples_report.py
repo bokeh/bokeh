@@ -77,18 +77,24 @@ def pytest_generate_tests(metafunc):
     if 'example' in metafunc.fixturenames:
         examples = get_all_examples(metafunc.config)
 
+        def marks(example):
+            result = []
+            if example.is_xfail:
+                result.append(pytest.mark.xfail(strict=True))
+            return result
+
         if 'js_example' in metafunc.fixturenames:
-            js_examples = [ e for e in examples if e.is_js ]
-            metafunc.parametrize('js_example,example', zip([ e.path for e in js_examples ], js_examples))
+            params = [ pytest.param(e.path, e, marks=marks(e)) for e in examples if e.is_js ]
+            metafunc.parametrize('js_example,example', params)
         if 'file_example' in metafunc.fixturenames:
-            file_examples = [ e for e in examples if e.is_file ]
-            metafunc.parametrize('file_example,example', zip([ e.path for e in file_examples ], file_examples))
+            params = [ pytest.param(e.path, e, marks=marks(e)) for e in examples if e.is_file ]
+            metafunc.parametrize('file_example,example', params)
         if 'server_example' in metafunc.fixturenames:
-            server_examples = [ e for e in examples if e.is_server ]
-            metafunc.parametrize('server_example,example', zip([ e.path for e in server_examples ], server_examples))
+            params = [ pytest.param(e.path, e, marks=marks(e)) for e in examples if e.is_server ]
+            metafunc.parametrize('server_example,example', params)
         if 'notebook_example' in metafunc.fixturenames:
-            notebook_examples = [ e for e in examples if e.is_notebook ]
-            metafunc.parametrize('notebook_example,example', zip([ e.path for e in notebook_examples ], notebook_examples))
+            params = [ pytest.param(e.path, e, marks=marks(e)) for e in examples if e.is_notebook ]
+            metafunc.parametrize('notebook_example,example', params)
 
 _warned = False
 
