@@ -22,10 +22,14 @@ export interface SliderSpec {
 export abstract class AbstractSliderView extends WidgetView {
   model: AbstractSlider
 
-  protected sliderEl: noUiSlider.Instance
+  protected sliderEl: HTMLElement
   protected titleEl: HTMLElement
   protected valueEl: HTMLElement
   protected callback_wrapper?: () => void
+
+  private get noUiSlider(): noUiSlider.noUiSlider {
+    return (this.sliderEl as noUiSlider.Instance).noUiSlider
+  }
 
   initialize(options: any): void {
     super.initialize(options)
@@ -124,8 +128,8 @@ export abstract class AbstractSliderView extends WidgetView {
         direction: this.model.direction,
       } as any) // XXX: bad typings; no cssPrefix
 
-      this.sliderEl.noUiSlider.on('slide',  (_, __, values) => this._slide(values))
-      this.sliderEl.noUiSlider.on('change', (_, __, values) => this._change(values))
+      this.noUiSlider.on('slide',  (_, __, values) => this._slide(values))
+      this.noUiSlider.on('change', (_, __, values) => this._change(values))
 
       // Add keyboard support
       const keypress = (e: KeyboardEvent): void => {
@@ -147,7 +151,7 @@ export abstract class AbstractSliderView extends WidgetView {
         const pretty = this.model.pretty(value)
         logger.debug(`[slider keypress] value = ${pretty}`)
         this.model.value = value
-        this.sliderEl.noUiSlider.set(value)
+        this.noUiSlider.set(value)
         if (this.valueEl != null)
           this.valueEl.textContent = pretty
         if (this.callback_wrapper != null)
@@ -164,10 +168,10 @@ export abstract class AbstractSliderView extends WidgetView {
         tooltip.style.display = show ? 'block' : ''
       }
 
-      this.sliderEl.noUiSlider.on('start', (_, i) => toggleTooltip(i, true))
-      this.sliderEl.noUiSlider.on('end',   (_, i) => toggleTooltip(i, false))
+      this.noUiSlider.on('start', (_, i) => toggleTooltip(i, true))
+      this.noUiSlider.on('end',   (_, i) => toggleTooltip(i, false))
     } else {
-      this.sliderEl.noUiSlider.updateOptions({
+      this.noUiSlider.updateOptions({
         range: {min: start, max: end},
         start: value,
         step: step,
