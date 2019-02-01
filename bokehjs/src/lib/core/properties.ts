@@ -1,14 +1,14 @@
 import {Signal0, Signal, Signalable} from "./signaling"
 import {HasProps} from "./has_props"  // XXX: only for type purpose
 import * as enums from "./enums"
-import {Arrayable} from "./types"
+import {Arrayable, Color as ColorType} from "./types"
 import {is_svg_color} from "./util/svg_colors"
 import {valid_rgb} from "./util/color"
 import {includes, repeat} from "./util/array"
 import {map} from "./util/arrayable"
 import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/types"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
-import {Scalar} from "./vectorization"
+import {Scalar, Vectorized} from "./vectorization"
 
 Signal // XXX: silence TS, because `Signal` appears in declarations due to Signalable
 
@@ -35,7 +35,7 @@ export type AttrsOf<P> = {
   [K in keyof P]: P[K] extends Property<infer T> ? T : never
 }
 
-export class Property<T> extends Signalable() {
+export abstract class Property<T> extends Signalable() {
 
   spec: {
     value?: any
@@ -172,7 +172,7 @@ export class Array extends simple_prop<any[]>("Array", (x) => isArray(x) || x in
 
 export class Boolean extends simple_prop<boolean>("Boolean", isBoolean) {}
 
-export class Color extends simple_prop<Color>("Color", (x) => (isString(x) && (is_svg_color(x.toLowerCase()) || x.substring(0, 1) == "#" || valid_rgb(x)))) {}
+export class Color extends simple_prop<ColorType>("Color", (x) => (isString(x) && (is_svg_color(x.toLowerCase()) || x.substring(0, 1) == "#" || valid_rgb(x)))) {}
 
 export class Instance extends simple_prop<HasProps>("Instance", (x) => x.properties != null) {}
 
@@ -287,7 +287,9 @@ export function units_prop<Units>(name: string, valid_units: Units[], default_un
 // DataSpec properties
 //
 
-export class ScalarSpec<T> extends Property<Scalar<T>> {}
+export abstract class ScalarSpec<T> extends Property<Scalar<T>> {}
+
+export abstract class DataSpec<T> extends Property<Vectorized<T>> {}
 
 export class AngleSpec extends units_prop("AngleSpec", enums.AngleUnits, "rad") {
   transform(values: Arrayable): Arrayable {
@@ -299,7 +301,7 @@ export class AngleSpec extends units_prop("AngleSpec", enums.AngleUnits, "rad") 
 }
 AngleSpec.prototype.dataspec = true
 
-export class ColorSpec extends Color {}
+export class ColorSpec extends DataSpec<ColorType | null> {}
 ColorSpec.prototype.dataspec = true
 
 export class DistanceSpec extends units_prop("DistanceSpec", enums.SpatialUnits, "data") {}

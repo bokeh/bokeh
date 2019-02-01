@@ -2,7 +2,7 @@ import {Model} from "../../model"
 import {Legend} from "./legend"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
-import {StringSpec, isValue, isField} from "core/vectorization"
+import {isValue, isField} from "core/vectorization"
 import * as p from "core/properties"
 import {logger} from "core/logging"
 import {uniq, includes} from "core/util/array"
@@ -11,7 +11,7 @@ export namespace LegendItem {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
-    label: p.Property<StringSpec | null>
+    label: p.DataSpec<string | null>
     renderers: p.Property<GlyphRenderer[]>
     index: p.Property<number | null>
   }
@@ -94,8 +94,10 @@ export class LegendItem extends Model {
 
   get_labels_list_from_label_prop(): string[] {
     // Always return a list of the labels
-    if (isValue(this.label))
-      return [this.label.value]
+    if (isValue(this.label)) {
+      const {value} = this.label
+      return value != null ? [value] : []
+    }
 
     const field = this.get_field_from_label_prop()
     if (field != null) {

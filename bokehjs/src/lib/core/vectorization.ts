@@ -2,21 +2,21 @@ import {Color} from "./types"
 import {isObject} from "core/util/types"
 import {SpatialUnits, AngleUnits} from "./enums"
 
-export interface Value<T> {
+export type Value<T> = {
   value: T
 }
 
-export interface Field {
+export type Field = {
   field: string
 }
 
-export type Scalar<T> = T | null | Value<T>
+export type Scalar<T> = T | Value<T>
 
-export type Vectorized<T> = T | null | Value<T> | Field
+export type Vectorized<T> = T | Value<T> | Field
 
 export type AngleSpec = Vectorized<number> & { units?: AngleUnits }
 
-export type ColorSpec = Vectorized<Color>
+export type ColorSpec = Vectorized<Color | null>
 
 export type DistanceSpec = Vectorized<number> & { units?: SpatialUnits }
 

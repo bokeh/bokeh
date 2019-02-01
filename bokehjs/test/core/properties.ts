@@ -9,6 +9,8 @@ import {svg_colors} from  "core/util/svg_colors"
 import {Transform} from  "models/transforms/transform"
 import {Expression} from  "models/expressions/expression"
 
+class MyProperty extends p.Property<unknown> {}
+
 class TestTransform extends Transform {
   compute(x: number): number {
     return x+1
@@ -151,46 +153,46 @@ describe("properties module", () => {
 
       it("should set undefined property attr value to null if no default is given", () => {
         const obj = new SomeHasProps({a: {}})
-        new p.Property(obj, 'b')
+        new MyProperty(obj, 'b')
         expect(obj.b).to.be.null
       })
 
       // it("should set undefined property attr value if a default is given", () => {
       //   const obj = new SomeHasProps({a: {}})
-      //   new p.Property(obj, 'b', function(): number { return 10 } )
+      //   new MyProperty(obj, 'b', function(): number { return 10 } )
       //   expect(obj.b).to.be.equal(10)
       // })
 
       // it("should throw an Error for missing specifications", () => {
       //   function fn(): void {
-      //     new p.Property(new SomeHasProps({a: {}}), 'a')
+      //     new MyProperty(new SomeHasProps({a: {}}), 'a')
       //   }
       //   expect(fn).to.throw(Error, /^Invalid property specifier .*, must have exactly one of/)
       // })
 
       // it("should throw an Error for too many specifications", () => {
       //   function fn(): void {
-      //     new p.Property(new SomeHasProps({a: {field: "foo", value:"bar"}}), 'a')
+      //     new MyProperty(new SomeHasProps({a: {field: "foo", value:"bar"}}), 'a')
       //   }
       //   expect(fn).to.throw(Error, /^Invalid property specifier .*, must have exactly one of/)
       // })
 
       it("should throw an Error if a field spec is not a string", () => {
         function fn(): void {
-          new p.Property(new SomeSpecHasProps({a: {field: 10}}), 'a')
+          new MyProperty(new SomeSpecHasProps({a: {field: 10}}), 'a')
         }
         expect(fn).to.throw(Error, /^field value for property '.*' is not a string$/)
       })
 
       it("should set a spec for object attr values", () => {
-        const p1 = new p.Property(new SomeHasProps({a: {field: "foo"}}), 'a')
+        const p1 = new MyProperty(new SomeHasProps({a: {field: "foo"}}), 'a')
         expect(p1.spec).to.be.deep.equal({field: "foo"})
-        const p2 = new p.Property(new SomeHasProps({a: {value: "foo"}}), 'a')
+        const p2 = new MyProperty(new SomeHasProps({a: {value: "foo"}}), 'a')
         expect(p2.spec).to.be.deep.equal({value: "foo"})
       })
 
       it("should set a value spec for non-object attr values", () => {
-        const prop = new p.Property(new SomeHasProps({a: 10}), 'a')
+        const prop = new MyProperty(new SomeHasProps({a: 10}), 'a')
         expect(prop.spec).to.be.deep.equal({value: 10})
       })
 
@@ -198,25 +200,25 @@ describe("properties module", () => {
 
     describe("value", () => {
       it("should return a value if there is a value spec", () => {
-        const p1 = new p.Property(new SomeHasProps(fixed), 'a')
+        const p1 = new MyProperty(new SomeHasProps(fixed), 'a')
         expect(p1.value()).to.be.equal(1)
-        const p2 = new p.Property(new SomeHasProps(spec_value), 'a')
+        const p2 = new MyProperty(new SomeHasProps(spec_value), 'a')
         expect(p2.value()).to.be.equal(2)
       })
 
       it("should return a transformed value if there is a value spec with transform", () => {
-        const prop = new p.Property(new SomeHasProps(spec_value_trans), 'a')
+        const prop = new MyProperty(new SomeHasProps(spec_value_trans), 'a')
         expect(prop.value()).to.be.equal(3)
       })
 
       it("should allow a fixed null value", () => {
-        const prop = new p.Property(new SomeHasProps(spec_value_null), 'a')
+        const prop = new MyProperty(new SomeHasProps(spec_value_null), 'a')
         expect(prop.value()).to.be.null
       })
 
       it("should throw an Error otherwise", () => {
        function fn(): void {
-          const prop = new p.Property(new SomeHasProps(spec_field_only), 'a')
+          const prop = new MyProperty(new SomeHasProps(spec_field_only), 'a')
           prop.value()
        }
         expect(fn).to.throw(Error, "attempted to retrieve property value for property without value specification")
@@ -229,7 +231,7 @@ describe("properties module", () => {
       it("should throw an Error for non data-specs", () => {
         function fn(): void {
           const source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
-          const prop = new p.Property(new SomeHasProps(spec_field), 'a')
+          const prop = new MyProperty(new SomeHasProps(spec_field), 'a')
           prop.array(source)
         }
         expect(fn).to.throw(Error, /attempted to retrieve property array for non-dataspec property/)
@@ -339,7 +341,7 @@ describe("properties module", () => {
 
     describe("init", () => {
       it("should return nothing by default", () => {
-        const prop = new p.Property(new SomeHasProps({a: {value: "foo"}}), 'a')
+        const prop = new MyProperty(new SomeHasProps({a: {value: "foo"}}), 'a')
         expect(prop.init()).to.be.undefined
       })
     })
@@ -361,7 +363,7 @@ describe("properties module", () => {
 
     describe("validate", () => {
       it("should return nothing by default", () => {
-        const prop = new p.Property(new SomeHasProps({a: {value: "foo"}}), 'a')
+        const prop = new MyProperty(new SomeHasProps({a: {value: "foo"}}), 'a')
         expect(prop.validate(undefined)).to.be.undefined
         expect(prop.validate(10)).to.be.undefined
         expect(prop.validate("foo")).to.be.undefined
