@@ -79,7 +79,7 @@ def pytest_generate_tests(metafunc):
 
         def marks(example):
             result = []
-            if example.is_xfail:
+            if example.is_xfail and not example.no_js:
                 result.append(pytest.mark.xfail(strict=True))
             return result
 
