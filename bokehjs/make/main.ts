@@ -1,25 +1,20 @@
 import chalk from "chalk"
-import {argv} from "yargs"
+import yargs = require("yargs")
 
-import {run, log} from "./task"
+const {argv} = yargs.help(false)
 
+import {run, log, task_names} from "./task"
 import "./tasks"
 
 const {_} = argv
 
-let task: string
-switch (_.length) {
-  case 0:
-    task = "default"
-    break
-  case 1:
-    task = _[0]
-    break
-  default:
-    throw new Error("expected one positional argument")
-}
+if (_.length != 0 && _[0] == "help")
+  log("tasks: " + task_names().filter((name) => !name.includes(":")).join(", "))
+else {
+  const tasks = _.length != 0 ? _ : ["default"]
 
-run(task).catch((err) => {
-  log(`${chalk.red("failed:")} ${err.message}`)
-  process.exit(1)
-})
+  run(...tasks).catch((err) => {
+    log(`${chalk.red("failed:")} ${err.message}`)
+    process.exit(1)
+  })
+}
