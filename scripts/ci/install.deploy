@@ -14,7 +14,7 @@ fi
 bash scripts/ci/install
 
 # install all build, test, deploy, and run dependencies
-conda install --yes --quiet `python scripts/deps.py build test run deploy`
+conda install -n testenv --yes --quiet `python scripts/deps.py build test run deploy`
 
 npm install -g npm
 
