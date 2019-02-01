@@ -116,7 +116,7 @@ def show(obj, browser=None, new="tab", notebook_handle=False, notebook_url="loca
 
     * The ``notebook_url`` parameter only applies when showing Bokeh
       Applications in a Jupyter notebook.
- 
+
     * Any additional keyword arguments are passed to :class:`~bokeh.server.Server` when
       showing a Bokeh app (added in version 1.1)
 
