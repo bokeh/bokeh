@@ -31,6 +31,8 @@ else
     wget -nv "https://s3.amazonaws.com/bokeh-travis/${TRAVIS_BUILD_ID}/bokehjs-build.tgz"
     tar xzf bokehjs-build.tgz
 
+    conda index miniconda/conda-bld
+
     popd
 fi
 
