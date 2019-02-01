@@ -166,28 +166,28 @@ export function simple_prop<T>(name: string, pred: (value: any) => boolean) {
   }
 }
 
-export class Any extends simple_prop("Any", (_x) => true) {}
+export class Any extends simple_prop<any>("Any", (_x) => true) {}
 
-export class Array extends simple_prop("Array", (x) => isArray(x) || x instanceof Float64Array) {}
+export class Array extends simple_prop<any[]>("Array", (x) => isArray(x) || x instanceof Float64Array) {}
 
-export class Bool extends simple_prop("Bool", isBoolean) {}
+export class Bool extends simple_prop<boolean>("Bool", isBoolean) {}
 export const Boolean = Bool
 
-export class Color extends simple_prop("Color", (x) => (isString(x) && (is_svg_color(x.toLowerCase()) || x.substring(0, 1) == "#" || valid_rgb(x)))) {}
+export class Color extends simple_prop<Color>("Color", (x) => (isString(x) && (is_svg_color(x.toLowerCase()) || x.substring(0, 1) == "#" || valid_rgb(x)))) {}
 
-export class Instance extends simple_prop("Instance", (x) => x.properties != null) {}
+export class Instance extends simple_prop<HasProps>("Instance", (x) => x.properties != null) {}
 
 // TODO (bev) separate booleans?
-export class Number extends simple_prop("Number", (x) => isNumber(x) || isBoolean(x)) {}
+export class Number extends simple_prop<number>("Number", (x) => isNumber(x) || isBoolean(x)) {}
 export const Int = Number
 
 export class Angle extends Number {}
 
 // TODO extend Number instead of copying it's predicate
 //class Percent extends Number("Percent", (x) -> 0 <= x <= 1.0)
-export class Percent extends simple_prop("Number", (x) => (isNumber(x) || isBoolean(x)) && 0 <= x && x <= 1.0) {}
+export class Percent extends simple_prop<number>("Percent", (x) => (isNumber(x) || isBoolean(x)) && 0 <= x && x <= 1.0) {}
 
-export class String extends simple_prop("String", isString) {}
+export class String extends simple_prop<string>("String", isString) {}
 export const FontSize = String
 
 // TODO (bev) don't think this exists python side
