@@ -52,13 +52,11 @@ def modify_doc(doc):
 
 
 def enter_value_in_spinner(driver, el, value, del_prev=True):
-    input_el = el.find_element_by_tag_name("input")
     actions = ActionChains(driver)
-    actions.move_to_element(input_el)
+    actions.move_to_element(el)
     actions.click()
     if del_prev:
-        nb_char = len(input_el.get_attribute('value'))
-        actions.send_keys(Keys.END + Keys.BACKSPACE * nb_char)
+        actions.key_down(Keys.CONTROL).send_keys('a').key_up(Keys.CONTROL)
     actions.send_keys(str(value))
     actions.send_keys(Keys.ENTER)
     actions.perform()
@@ -68,14 +66,25 @@ def enter_value_in_spinner(driver, el, value, del_prev=True):
 @pytest.mark.selenium
 class Test_Spinner(object):
 
-    def test_displays_title(self, bokeh_model_page):
-        spinner = Spinner(css_classes=["foo"], title="title")
+    def test_display_number_input(self, bokeh_model_page):
+        spinner = Spinner(css_classes=["foo"])
 
         page = bokeh_model_page(spinner)
 
-        input_div = page.driver.find_element_by_class_name('foo')
-        el = input_div.find_element_by_tag_name("label")
+        el = page.driver.find_element_by_css_selector('.foo input')
+        assert el.get_attribute('type') == "number"
+
+        assert page.has_no_console_errors()
+
+    def test_displays_title(self, bokeh_model_page):
+        text_input = Spinner(title="title", css_classes=["foo"])
+
+        page = bokeh_model_page(text_input)
+
+        el = page.driver.find_element_by_css_selector('.foo label')
         assert el.text == "title"
+        el = page.driver.find_element_by_css_selector('.foo input')
+        assert el.get_attribute('type') == "number"
 
         assert page.has_no_console_errors()
 
@@ -84,9 +93,8 @@ class Test_Spinner(object):
 
         page = bokeh_model_page(spinner)
 
-        input_div = page.driver.find_element_by_class_name('foo')
-        el = input_div.find_element_by_tag_name("input")
-
+        el = page.driver.find_element_by_css_selector('.foo input')
+        
         assert el.get_attribute('value') == '1'
         assert el.get_attribute('step') == '1'
         assert el.get_attribute('max') == '10'
@@ -97,7 +105,7 @@ class Test_Spinner(object):
     def test_server_on_change_round_trip(self, bokeh_server_page):
         page = bokeh_server_page(modify_doc)
 
-        el = page.driver.find_element_by_class_name('foo')
+        el = page.driver.find_element_by_css_selector('.foo input')
 
         # same value
         enter_value_in_spinner(page.driver, el, 4)
@@ -147,7 +155,7 @@ class Test_Spinner(object):
 
         page = single_plot_page(column(spinner, plot))
 
-        el = page.driver.find_element_by_class_name('foo')
+        el = page.driver.find_element_by_css_selector('.foo input')
 
         enter_value_in_spinner(page.driver, el, 4)
         results = page.results

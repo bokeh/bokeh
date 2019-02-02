@@ -52,23 +52,35 @@ def modify_doc(doc):
 
 
 def enter_value_in_color_picker(driver, el, color):
-    input_el = el.find_element_by_tag_name("input")
-    driver.execute_script("arguments[0].value = '%s'" % color, input_el)
-    driver.execute_script("arguments[0].dispatchEvent(new Event('change'))", input_el)
+    driver.execute_script("arguments[0].value = '%s'" % color, el)
+    driver.execute_script("arguments[0].dispatchEvent(new Event('change'))", el)
 
 
 @pytest.mark.integration
 @pytest.mark.selenium
 class Test_ColorPicker(object):
 
+    def test_display_color_input(self, bokeh_model_page):
+        colorpicker = ColorPicker(css_classes=["foo"])
+
+        page = bokeh_model_page(colorpicker)
+
+        el = page.driver.find_element_by_css_selector('.foo input')
+        assert el.get_attribute('type') == "color"
+
+        assert page.has_no_console_errors()
+
+
     def test_displays_title(self, bokeh_model_page):
         colorpicker = ColorPicker(css_classes=["foo"], title="title")
 
         page = bokeh_model_page(colorpicker)
 
-        input_div = page.driver.find_element_by_class_name('foo')
-        el = input_div.find_element_by_tag_name("label")
+        el = page.driver.find_element_by_css_selector('.foo label')
         assert el.text == "title"
+        
+        el = page.driver.find_element_by_css_selector('.foo input')
+        assert el.get_attribute('type') == "color"
 
         assert page.has_no_console_errors()
 
@@ -77,9 +89,8 @@ class Test_ColorPicker(object):
 
         page = bokeh_model_page(colorpicker)
 
-        input_div = page.driver.find_element_by_class_name('foo')
-        el = input_div.find_element_by_tag_name("input")
-
+        el = page.driver.find_element_by_css_selector('.foo input')
+        
         assert el.get_attribute('value') == '#ff0000'
 
         assert page.has_no_console_errors()
@@ -87,7 +98,7 @@ class Test_ColorPicker(object):
     def test_server_on_change_round_trip(self, bokeh_server_page):
         page = bokeh_server_page(modify_doc)
 
-        el = page.driver.find_element_by_class_name('foo')
+        el = page.driver.find_element_by_css_selector('.foo input')
 
         # new value
         enter_value_in_color_picker(page.driver, el, '#0000ff')

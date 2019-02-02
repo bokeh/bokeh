@@ -11,7 +11,7 @@ cds = ColumnDataSource(data=dict(x=data[:, 0], y=data[:, 1]))
 p = Figure(x_range=(0, 1), y_range=(0, 1))
 points = p.scatter(x='x', y='y', source=cds)
 
-w = Spinner(title="Glyph size", low=1, high=20, step=1, value=4, width=100)
+w = Spinner(title="Glyph size", low=1, high=20, step=0.1, value=4, width=100)
 cb = CustomJS(args={'points': points}, code="""
 points.glyph.size = cb_obj.value
 """)
