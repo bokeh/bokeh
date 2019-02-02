@@ -29,6 +29,7 @@
     "no-var-keyword": true,
     "no-string-throw": true,
     "no-invalid-template-strings": true,
+    "no-angle-bracket-type-assertion": true,
     "no-string-literal": true,
     "object-literal-shorthand": true,
     "return-type": true,
