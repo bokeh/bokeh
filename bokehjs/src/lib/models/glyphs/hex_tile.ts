@@ -13,7 +13,6 @@ import {Line, Fill} from "core/visuals"
 import {generic_area_legend} from "./utils"
 import {Selection} from "../selections/selection"
 
-
 export interface HexTileData extends GlyphData {
   _q: Arrayable<number>
   _r: Arrayable<number>

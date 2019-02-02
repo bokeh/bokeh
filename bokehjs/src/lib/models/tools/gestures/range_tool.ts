@@ -7,7 +7,6 @@ import {logger} from "core/logging"
 import * as p from "core/properties"
 import {GestureTool, GestureToolView} from "./gesture_tool"
 
-
 const enum Side { None, Left, Right, LeftRight, Bottom, Top, BottomTop, LeftRightBottomTop }
 
 // TODO (bev) This would be better directly with BoxAnnotation, but hard

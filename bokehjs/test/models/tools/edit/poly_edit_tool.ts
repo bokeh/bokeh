@@ -71,7 +71,6 @@ const make_testcase = function(): PolyEditTestCase {
     parent: plot_view,
   })
 
-
   const draw_tool = new PolyEditTool({
     active: true,
     empty_value: "Test",
@@ -123,7 +122,6 @@ describe("PolyEditTool", (): void => {
 
       expect(testcase.data_source.selected.indices).to.be.deep.equal([1])
     })
-
 
     it("should select multiple patches on shift-tap", function() {
       const testcase = make_testcase()

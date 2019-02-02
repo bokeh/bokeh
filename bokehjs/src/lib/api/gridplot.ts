@@ -50,7 +50,6 @@ export function gridplot(children: (LayoutDOM | null)[][], opts: GridPlotOpts = 
     }
   }
 
-
   if (!merge_tools || toolbar_location == null)
     return new GridBox({children: items, sizing_mode})
 

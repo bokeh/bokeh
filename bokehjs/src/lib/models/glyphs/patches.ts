@@ -69,7 +69,6 @@ export class PatchesView extends GlyphView {
     return ds
   }
 
-
   protected _index_data(): SpatialIndex {
     const xss = this._build_discontinuous_object(this._xs as any) // XXX
     const yss = this._build_discontinuous_object(this._ys as any) // XXX

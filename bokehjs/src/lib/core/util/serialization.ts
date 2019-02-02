@@ -194,7 +194,6 @@ export type Shapes = {[key: string]: Shape | Shape[] | Shape[][] | Shape[][][]}
 
 export type EncodedData = {[key: string]: NDArray | Arrayable}
 
-
 function decode_traverse_data(v: any, buffers: [any, any][]): [Arrayable, any] {
   // v is just a regular array of scalars
   if (v.length == 0 || !(isObject(v[0]) || isArray(v[0]))) {

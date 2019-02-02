@@ -59,7 +59,6 @@ describe("Jitter transform module", () => {
     })
   })
 
-
   describe("Jitter with normal", () => {
     const transform = generate_jitter()
     transform.distribution = 'normal'

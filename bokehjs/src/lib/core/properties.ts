@@ -188,7 +188,6 @@ export const FontSize = String
 // TODO (bev) don't think this exists python side
 export class Font extends String {}
 
-
 //
 // Enum properties
 //

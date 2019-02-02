@@ -45,7 +45,6 @@ export function atan2(start: [number, number], end: [number, number]): number {
   return Math.atan2(end[1] - start[1], end[0] - start[0])
 }
 
-
 // http://www2.econ.osaka-u.ac.jp/~tanizaki/class/2013/econome3/13.pdf (Page 432)
 export function rnorm(mu: number, sigma: number): number {
   // Generate a random normal with a mean of 0 and a sigma of 1
