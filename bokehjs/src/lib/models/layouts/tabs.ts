@@ -102,6 +102,10 @@ export class TabsView extends LayoutDOMView {
       hide(child_view.el)
 
     show(child_views[i].el)
+
+    // this is to ensure hidden tabs re-layout correctly, see:
+    // https://github.com/bokeh/bokeh/issues/8614
+    this.rebuild()
   }
 }
 
