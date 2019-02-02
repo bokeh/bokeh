@@ -159,7 +159,7 @@ describe("PolyEditTool", (): void => {
       expect(testcase.data_source.selected.indices).to.be.deep.equal([])
       expect(testcase.data_source.data.xs).to.be.deep.equal([[0, 0.5, 1]])
       expect(testcase.data_source.data.ys).to.be.deep.equal([[0, -0.5, -1]])
-      expect(testcase.data_source.data['z']).to.be.deep.equal([null])
+      expect(testcase.data_source.data.z).to.be.deep.equal([null])
     })
 
     it("should clear selection on escape key", function(): void {

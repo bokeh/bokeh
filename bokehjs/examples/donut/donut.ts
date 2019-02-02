@@ -130,8 +130,8 @@ export namespace WebBrowserMarketShare {
       execute(_obj, {source: cds}): void {
         if (!paused) {
           const i = cds.inspected['1d'].indices[0]
-          const name = cds.data["names"][i]
-          const share = Bokeh.sprintf("%.02f%%", cds.data["shares"][i])
+          const name = cds.data.names[i]
+          const share = Bokeh.sprintf("%.02f%%", cds.data.shares[i])
           fig.title = `${name}: ${share}`
         }
         paused = !paused

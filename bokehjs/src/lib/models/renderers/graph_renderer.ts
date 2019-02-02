@@ -21,8 +21,8 @@ export class GraphRendererView extends DataRendererView {
   initialize(options: any): void {
     super.initialize(options)
 
-    this.xscale = this.plot_view.frame.xscales["default"]
-    this.yscale = this.plot_view.frame.yscales["default"]
+    this.xscale = this.plot_view.frame.xscales.default
+    this.yscale = this.plot_view.frame.yscales.default
 
     this._renderer_views = {}
     ;[this.node_view, this.edge_view] = build_views(this._renderer_views,

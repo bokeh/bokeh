@@ -67,7 +67,7 @@ export function get_formatter(name: string, raw_spec: string, format?: string, f
   }
 
   // otherwise use "numeral" as default
-  return DEFAULT_FORMATTERS["numeral"]
+  return DEFAULT_FORMATTERS.numeral
 
 }
 

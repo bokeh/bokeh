@@ -98,15 +98,15 @@ export namespace Burtin {
   p.annular_wedge(0, 0, inner_radius, rad(df.penicillin),
           angles.map((angle) => -big_angle+angle+5*small_angle),
           angles.map((angle) => -big_angle+angle+6*small_angle),
-          {color: drug_color['Penicillin']})
+          {color: drug_color.Penicillin})
   p.annular_wedge(0, 0, inner_radius, rad(df.streptomycin),
           angles.map((angle) => -big_angle+angle+3*small_angle),
           angles.map((angle) => -big_angle+angle+4*small_angle),
-          {color: drug_color['Streptomycin']})
+          {color: drug_color.Streptomycin})
   p.annular_wedge(0, 0, inner_radius, rad(df.neomycin),
           angles.map((angle) => -big_angle+angle+1*small_angle),
           angles.map((angle) => -big_angle+angle+2*small_angle),
-          {color: drug_color['Neomycin']})
+          {color: drug_color.Neomycin})
 
   // circular axes and lables
   const labels = range(-3, 4).map((v) => 10**v)

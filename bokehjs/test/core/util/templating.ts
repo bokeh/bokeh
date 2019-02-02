@@ -15,17 +15,17 @@ describe("templating module", () => {
     })
 
     it("should have a numeral formatter", () => {
-      const f = tmpl.DEFAULT_FORMATTERS["numeral"]
+      const f = tmpl.DEFAULT_FORMATTERS.numeral
       expect(f(3.123, "$0.00", {})).to.be.equal("$3.12")
     })
 
     it("should have a datetime formatter", () => {
-      const f = tmpl.DEFAULT_FORMATTERS["datetime"]
+      const f = tmpl.DEFAULT_FORMATTERS.datetime
       expect(f(946684800000, "%m/%d/%Y", {})).to.be.equal("01/01/2000")
     })
 
     it("should have a printf formatter", () => {
-      const f = tmpl.DEFAULT_FORMATTERS["printf"]
+      const f = tmpl.DEFAULT_FORMATTERS.printf
       expect(f(23.123456, "%5.3f mu", {})).to.be.equal("23.123 mu")
     })
   })
@@ -70,18 +70,18 @@ describe("templating module", () => {
 
     it("should return numeral formatter for specs not in formatters dict", () => {
       const f = tmpl.get_formatter("x", "@x", "$0.00")
-      expect(f).to.be.equal(tmpl.DEFAULT_FORMATTERS["numeral"])
+      expect(f).to.be.equal(tmpl.DEFAULT_FORMATTERS.numeral)
     })
 
     it("should return formatter from formatters dict when raw_spec is in formatters", () => {
       const f1 = tmpl.get_formatter("x", "@x", "$0.00", {"@x": "numeral"})
-      expect(f1).to.be.equal(tmpl.DEFAULT_FORMATTERS["numeral"])
+      expect(f1).to.be.equal(tmpl.DEFAULT_FORMATTERS.numeral)
 
       const f2 = tmpl.get_formatter("x", "@x", "%5.3f mu", {"@x": "printf"})
-      expect(f2).to.be.equal(tmpl.DEFAULT_FORMATTERS["printf"])
+      expect(f2).to.be.equal(tmpl.DEFAULT_FORMATTERS.printf)
 
       const f3 = tmpl.get_formatter("x", "@x", "%m/%d/%Y", {"@x": "datetime"})
-      expect(f3).to.be.equal(tmpl.DEFAULT_FORMATTERS["datetime"])
+      expect(f3).to.be.equal(tmpl.DEFAULT_FORMATTERS.datetime)
 
       const custom = new CustomJSHover({code:"return format + ' ' + special_vars.special + ' ' + value"})
       const f4 = tmpl.get_formatter("x", "@x", "custom", {"@x": custom})
@@ -91,13 +91,13 @@ describe("templating module", () => {
     // this should be removed ~Bokeh 2.0
     it("should return formatter from formatters dict when name is in formatters", () => {
       const f1 = tmpl.get_formatter("x", "@x", "$0.00", {x: "numeral"})
-      expect(f1).to.be.equal(tmpl.DEFAULT_FORMATTERS["numeral"])
+      expect(f1).to.be.equal(tmpl.DEFAULT_FORMATTERS.numeral)
 
       const f2 = tmpl.get_formatter("x", "@x", "%5.3f mu", {x: "printf"})
-      expect(f2).to.be.equal(tmpl.DEFAULT_FORMATTERS["printf"])
+      expect(f2).to.be.equal(tmpl.DEFAULT_FORMATTERS.printf)
 
       const f3 = tmpl.get_formatter("x", "@x", "%m/%d/%Y", {x: "datetime"})
-      expect(f3).to.be.equal(tmpl.DEFAULT_FORMATTERS["datetime"])
+      expect(f3).to.be.equal(tmpl.DEFAULT_FORMATTERS.datetime)
 
       const custom = new CustomJSHover({code:"return format + ' ' + special_vars.special + ' ' + value"})
       const f4 = tmpl.get_formatter("x", "@x", "custom", {x: custom})

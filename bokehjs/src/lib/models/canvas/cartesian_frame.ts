@@ -44,7 +44,7 @@ export class CartesianFrame extends LayoutItem {
 
   protected _get_ranges(range: Range, extra_ranges?: Ranges): Ranges {
     const ranges: Ranges = {}
-    ranges["default"] = range
+    ranges.default = range
     if (extra_ranges != null) {
       for (const name in extra_ranges)
         ranges[name] = extra_ranges[name]
