@@ -103,7 +103,7 @@ require(["base/js/namespace", "base/js/events"], function (IPython, events) {
     # Second - Run a notebook server at the examples directory
     #
 
-    notebook_port = pytest.config.option.notebook_port
+    notebook_port = request.config.option.notebook_port
 
     env = os.environ.copy()
     env['BOKEH_RESOURCES'] = 'server'

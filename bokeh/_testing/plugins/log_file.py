@@ -44,7 +44,7 @@ def log_file(request):
     with open(request.config.option.log_file, 'w') as f:
         # Clean-out any existing log-file
         f.write("")
-    with open(pytest.config.option.log_file, 'a') as f:
+    with open(request.config.option.log_file, 'a') as f:
         yield f
 
 #-----------------------------------------------------------------------------
