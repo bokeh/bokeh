@@ -262,7 +262,7 @@ export class FactorRange extends Range {
       end += this.range_padding
     }
 
-    this.setv({start: start, end: end, levels: levels}, {silent: silent})
+    this.setv({start, end, levels}, {silent})
 
     if (this.bounds == "auto")
       this.setv({bounds: [start, end]}, {silent: true})

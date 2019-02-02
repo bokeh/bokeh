@@ -145,7 +145,6 @@ describe("properties module", () => {
 
   })
 
-
   describe("Property", () => {
 
     describe("construction", () => {

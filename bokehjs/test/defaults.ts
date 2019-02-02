@@ -93,14 +93,14 @@ function check_matching_defaults(name: string, python_defaults: KV, bokehjs_defa
       if (!isEqual(py_v, js_v)) {
 
         // these two conditionals compare 'foo' and {value: 'foo'}
-        if (isPlainObject(js_v) && 'value' in js_v && isEqual(py_v, js_v['value']))
+        if (isPlainObject(js_v) && 'value' in js_v && isEqual(py_v, js_v.value))
           continue
-        if (isPlainObject(py_v) && 'value' in py_v && isEqual(py_v['value'], js_v))
+        if (isPlainObject(py_v) && 'value' in py_v && isEqual(py_v.value, js_v))
           continue
 
         if (isPlainObject(js_v) && 'attributes' in js_v && isPlainObject(py_v) && 'attributes' in py_v) {
-          if (js_v['type'] === py_v['type']) {
-            check_matching_defaults(`${name}.${k}`, py_v['attributes'] as KV, js_v['attributes'] as KV)
+          if (js_v.type === py_v.type) {
+            check_matching_defaults(`${name}.${k}`, py_v.attributes as KV, js_v.attributes as KV)
             continue
           }
         }

@@ -89,6 +89,6 @@ export class ClientSession {
   }
 
   protected _handle_error(message: Message): void {
-    logger.error(`Unhandled ERROR reply to ${message.reqid()}: ${message.content['text']}`)
+    logger.error(`Unhandled ERROR reply to ${message.reqid()}: ${message.content.text}`)
   }
 }

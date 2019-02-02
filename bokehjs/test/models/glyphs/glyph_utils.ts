@@ -88,6 +88,6 @@ export function set_scales(glyph_view: GlyphView, axis_type: AxisType, reversed:
   glyph_view.renderer.xscale = xscale
   glyph_view.renderer.yscale = yscale
 
-  glyph_view.renderer.plot_view.frame.xscales["default"] = xscale
-  glyph_view.renderer.plot_view.frame.yscales["default"] = yscale
+  glyph_view.renderer.plot_view.frame.xscales.default = xscale
+  glyph_view.renderer.plot_view.frame.yscales.default = yscale
 }

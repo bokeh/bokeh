@@ -132,28 +132,28 @@ export function pie(data: PieChartData, opts: PieChartOpts = {}): Plot {
 
   const source = new ColumnDataSource({
     data: {
-      labels: labels,
-      values: values,
+      labels,
+      values,
       percentages: normalized_values.map((v) => sprintf("%.2f%%", v*100)),
-      start_angles: start_angles,
-      end_angles: end_angles,
-      text_angles: text_angles,
-      colors: colors,
-      text_colors: text_colors,
-      text_cx: text_cx,
-      text_cy: text_cy,
+      start_angles,
+      end_angles,
+      text_angles,
+      colors,
+      text_colors,
+      text_cx,
+      text_cy,
     },
   })
 
   const g1 = new AnnularWedge({
     x: cx, y: cy,
-    inner_radius: inner_radius, outer_radius: outer_radius,
+    inner_radius, outer_radius,
     start_angle: {field: "start_angles"}, end_angle: {field: "end_angles"},
     line_color: null, line_width: 1, fill_color: {field: "colors"},
   })
   const h1 = new AnnularWedge({
     x: cx, y: cy,
-    inner_radius: inner_radius, outer_radius: outer_radius,
+    inner_radius, outer_radius,
     start_angle: {field: "start_angles"}, end_angle: {field: "end_angles"},
     line_color: null, line_width: 1, fill_color: {field: "colors"}, fill_alpha: 0.8,
   })
@@ -255,9 +255,9 @@ export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
         data: {
           left: copy(left),
           right: copy(right),
-          top: top,
-          bottom: bottom,
-          labels: labels,
+          top,
+          bottom,
+          labels,
           values: columns[i],
           columns: columns[i].map((_) => column_names[i+1]),
         },
@@ -290,11 +290,11 @@ export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
 
       const source = new ColumnDataSource({
         data: {
-          left: left,
-          right: right,
-          top: top,
-          bottom: bottom,
-          labels: labels,
+          left,
+          right,
+          top,
+          bottom,
+          labels,
           values: columns[i],
           columns: columns[i].map((_) => column_names[i+1]),
         },
@@ -344,11 +344,11 @@ export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
   }
 
   const hover = new HoverTool({
-    renderers: renderers,
+    renderers,
     tooltips: tooltip,
     point_policy: "snap_to_data",
-    anchor: anchor,
-    attachment: attachment,
+    anchor,
+    attachment,
   })
   plot.add_tools(hover)
 

@@ -67,7 +67,7 @@ export function get_formatter(name: string, raw_spec: string, format?: string, f
   }
 
   // otherwise use "numeral" as default
-  return DEFAULT_FORMATTERS["numeral"]
+  return DEFAULT_FORMATTERS.numeral
 
 }
 
@@ -98,18 +98,10 @@ export function get_value(name: string, data_source: ColumnarDataSource, i: Inde
     if (isArray(data[0])) {
       const row: any = data[i.dim2]
       return row[i.dim1]
-    }
-
-    // inspect flat array
-    else
-      return data[i.flat_index]
-
-  }
-
-  // inspect per-image scalar data
-  else
-    return data
-
+    } else
+      return data[i.flat_index] // inspect flat array
+  } else
+    return data // inspect per-image scalar data
 }
 
 export function replace_placeholders(str: string, data_source: ColumnarDataSource, i: Index, formatters?: Formatters, special_vars: Vars = {}): string {

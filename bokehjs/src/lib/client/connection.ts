@@ -116,7 +116,7 @@ export class ClientConnection {
     return promise.then(
       (message: Message) => {
         if (message.msgtype() === "ERROR")
-          throw new Error(`Error reply ${message.content['text']}`)
+          throw new Error(`Error reply ${message.content.text}`)
         else
           return message
       },
@@ -133,7 +133,7 @@ export class ClientConnection {
       (reply) => {
         if (!('doc' in reply.content))
           throw new Error("No 'doc' field in PULL-DOC-REPLY")
-        return reply.content['doc']
+        return reply.content.doc
       },
       (error) => {
         throw error

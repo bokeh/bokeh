@@ -64,11 +64,7 @@ export class LassoSelectToolView extends SelectToolView {
   }
 
   _do_select(sx: number[], sy: number[], final: boolean, append: boolean): void {
-    const geometry: PolyGeometry = {
-      type: 'poly',
-      sx: sx,
-      sy: sy,
-    }
+    const geometry: PolyGeometry = {type: 'poly', sx, sy}
     this._select(geometry, final, append)
   }
 

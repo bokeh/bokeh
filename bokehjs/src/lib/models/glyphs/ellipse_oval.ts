@@ -67,17 +67,16 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
     if (this.model.properties.width.units == "data"){
       x0 = x - this.max_width
       x1 = x + this.max_width
-    }
-    else{
+    } else {
       sx0 = sx - this.max_width
       sx1 = sx + this.max_width
       ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     }
+
     if (this.model.properties.height.units == "data"){
       y0 = y - this.max_height
       y1 = y + this.max_height
-    }
-    else{
+    } else {
       sy0 = sy - this.max_height
       sy1 = sy + this.max_height
       ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)

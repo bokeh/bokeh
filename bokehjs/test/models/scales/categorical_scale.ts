@@ -11,7 +11,7 @@ describe("categorical_scale module", () => {
 
     function mkscale(): CategoricalScale {
       return new CategoricalScale({
-        source_range: new FactorRange({factors: factors, range_padding: 0}),
+        source_range: new FactorRange({factors, range_padding: 0}),
         target_range: new Range1d({start: 20, end: 80}),
       })
     }

@@ -30,7 +30,6 @@ declare namespace Bokeh.Plotting {
     "reset" |
     "help"
 
-
   function figure(attributes?: IFigure, options?: ModelOpts): Figure
 
   const Figure: { new(attributes?: IFigure, options?: ModelOpts): Figure }

@@ -3,7 +3,6 @@ import {HasProps} from "core/has_props"
 import {Ref} from "core/util/refs"
 import {Index} from "models/sources/column_data_source"
 
-
 export interface ModelChanged {
   kind: "ModelChanged"
   model: Ref
@@ -49,7 +48,6 @@ export interface ColumnsPatched {
 
 export type DocumentChanged =
   ModelChanged | TitleChanged | RootAdded | RootRemoved | ColumnDataChanged | ColumnsStreamed | ColumnsPatched
-
 
 export abstract class DocumentChangedEvent {
   constructor(readonly document: Document) {}

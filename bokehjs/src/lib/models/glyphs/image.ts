@@ -113,7 +113,6 @@ export class ImageView extends XYGlyphView {
     return result
   }
 
-
   protected _set_data(): void {
     if (this.image_data == null || this.image_data.length != this._image.length)
       this.image_data = new Array(this._image.length)

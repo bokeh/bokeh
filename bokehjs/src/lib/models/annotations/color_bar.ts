@@ -545,7 +545,6 @@ export class ColorBarView extends AnnotationView {
 
     const labels = {major: this._format_major_labels(major_coords[i], majors)}
 
-
     const coords: {major: Coords, minor: Coords} = {
       major: [[], []],
       minor: [[], []],

@@ -24,7 +24,7 @@ export class SelectView extends InputWidgetView {
         [value, _label] = el
 
       const selected = this.model.value == value
-      return option({selected: selected, value: value}, _label)
+      return option({selected, value}, _label)
     })
   }
 

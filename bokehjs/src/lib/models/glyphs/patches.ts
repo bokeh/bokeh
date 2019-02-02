@@ -69,7 +69,6 @@ export class PatchesView extends GlyphView {
     return ds
   }
 
-
   protected _index_data(): SpatialIndex {
     const xss = this._build_discontinuous_object(this._xs as any) // XXX
     const yss = this._build_discontinuous_object(this._ys as any) // XXX
@@ -97,10 +96,10 @@ export class PatchesView extends GlyphView {
   }
 
   protected _mask_data(): number[] {
-    const xr = this.renderer.plot_view.frame.x_ranges["default"]
+    const xr = this.renderer.plot_view.frame.x_ranges.default
     const [x0, x1] = [xr.min, xr.max]
 
-    const yr = this.renderer.plot_view.frame.y_ranges["default"]
+    const yr = this.renderer.plot_view.frame.y_ranges.default
     const [y0, y1] = [yr.min, yr.max]
 
     const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])

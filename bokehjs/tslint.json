@@ -23,12 +23,17 @@
       ["Boolean", "Use 'boolean' instead."],
       ["Array<.*>", "Use 'T[]' instead."]
     ],
+    "one-line": [true, "check-catch", "check-finally", "check-else", "check-opne-brace"],
     "object-literal-key-quotes": [true, "as-needed"],
     "semicolon": [true, "never"],
     "no-construct": true,
     "no-var-keyword": true,
     "no-string-throw": true,
     "no-invalid-template-strings": true,
+    "no-angle-bracket-type-assertion": true,
+    "no-consecutive-blank-lines": true,
+    "no-string-literal": true,
+    "object-literal-shorthand": true,
     "return-type": true,
     "no-debugger": true
   }

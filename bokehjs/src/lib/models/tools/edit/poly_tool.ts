@@ -58,7 +58,6 @@ export class PolyToolView extends EditToolView {
   }
 }
 
-
 export namespace PolyTool {
   export interface Attrs extends EditTool.Attrs {
     renderers: (GlyphRenderer & HasPolyGlyph)[]

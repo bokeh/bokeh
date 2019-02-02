@@ -12,7 +12,7 @@ export function get_text_height(font: string): TextMetrics {
   if (cache[font] != null)
     return cache[font]
 
-  const text = span({style: {font: font}}, "Hg")
+  const text = span({style: {font}}, "Hg")
   const block = div({style: {display: "inline-block", width: "1px", height: "0px"}})
 
   const elem = div({}, text, block)

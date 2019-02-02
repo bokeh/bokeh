@@ -59,13 +59,7 @@ export class BoxSelectToolView extends SelectToolView {
   }
 
   _do_select([sx0, sx1]: [number, number], [sy0, sy1]: [number, number], final: boolean, append: boolean = false): void {
-    const geometry: RectGeometry = {
-      type: 'rect',
-      sx0: sx0,
-      sx1: sx1,
-      sy0: sy0,
-      sy1: sy1,
-    }
+    const geometry: RectGeometry = {type: 'rect', sx0, sx1, sy0, sy1}
     this._select(geometry, final, append)
   }
 

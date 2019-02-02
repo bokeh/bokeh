@@ -34,17 +34,14 @@ const make_testcase = function(): PolyDrawTestCase {
     ys: [[0, -0.5, -1], [0, -0.5, -1]],
     z: [null, null],
   }
-  const data_source = new ColumnDataSource({data: data})
+  const data_source = new ColumnDataSource({data})
 
   const glyph = new Patches({
     xs: {field: "xs"},
     ys: {field: "ys"},
   })
 
-  const glyph_renderer: any = new GlyphRenderer({
-    glyph: glyph,
-    data_source: data_source,
-  })
+  const glyph_renderer: any = new GlyphRenderer({glyph, data_source})
 
   const glyph_renderer_view: any = new glyph_renderer.default_view({
     model: glyph_renderer,
@@ -62,9 +59,9 @@ const make_testcase = function(): PolyDrawTestCase {
   sinon.stub(glyph_renderer_view, "set_data")
 
   return {
-    data: data,
-    data_source: data_source,
-    draw_tool_view: draw_tool_view,
+    data,
+    data_source,
+    draw_tool_view,
     glyph_view: glyph_renderer_view.glyph,
   }
 }
@@ -125,7 +122,7 @@ describe("PolyDrawTool", (): void => {
       expect(testcase.data_source.selected.indices).to.be.deep.equal([])
       expect(testcase.data_source.data.xs).to.be.deep.equal([[0, 0.5, 1]])
       expect(testcase.data_source.data.ys).to.be.deep.equal([[0, -0.5, -1]])
-      expect(testcase.data_source.data['z']).to.be.deep.equal([null])
+      expect(testcase.data_source.data.z).to.be.deep.equal([null])
     })
 
     it("should clear selection on escape key", function(): void {
@@ -158,8 +155,8 @@ describe("PolyDrawTool", (): void => {
 
       const xdata = [[0, 0.5, 1], [-0.035398230088495575, 0.4646017699115044, 0.9646017699115044]]
       const ydata = [[0, -0.5, -1], [0.03389830508474576, -0.4661016949152542, -0.9661016949152542]]
-      expect(testcase.data_source.data['xs']).to.be.deep.equal(xdata)
-      expect(testcase.data_source.data['ys']).to.be.deep.equal(ydata)
+      expect(testcase.data_source.data.xs).to.be.deep.equal(xdata)
+      expect(testcase.data_source.data.ys).to.be.deep.equal(ydata)
     })
 
     it("should drag previously selected patch on pan", function(): void {
@@ -180,8 +177,8 @@ describe("PolyDrawTool", (): void => {
                      [-0.035398230088495575, 0.4646017699115044, 0.9646017699115044]]
       const ydata = [[0.03389830508474576, -0.4661016949152542, -0.9661016949152542],
                      [0.03389830508474576, -0.4661016949152542, -0.9661016949152542]]
-      expect(testcase.data_source.data['xs']).to.be.deep.equal(xdata)
-      expect(testcase.data_source.data['ys']).to.be.deep.equal(ydata)
+      expect(testcase.data_source.data.xs).to.be.deep.equal(xdata)
+      expect(testcase.data_source.data.ys).to.be.deep.equal(ydata)
     })
 
     it("should draw patch on doubletap", function(): void {
@@ -197,8 +194,8 @@ describe("PolyDrawTool", (): void => {
       const new_ys = [-0, 0.1694915254237288, 0.3389830508474576]
       const xdata = [[0, 0.5, 1], [0, 0.5, 1], new_xs]
       const ydata = [[0, -0.5, -1], [0, -0.5, -1], new_ys]
-      expect(testcase.data_source.data['xs']).to.be.deep.equal(xdata)
-      expect(testcase.data_source.data['ys']).to.be.deep.equal(ydata)
+      expect(testcase.data_source.data.xs).to.be.deep.equal(xdata)
+      expect(testcase.data_source.data.ys).to.be.deep.equal(ydata)
     })
 
     it("should draw and pop patch on doubletap", function(): void {
@@ -215,8 +212,8 @@ describe("PolyDrawTool", (): void => {
       const new_ys = [-0, 0.1694915254237288, 0.3389830508474576]
       const xdata = [[0, 0.5, 1], new_xs]
       const ydata = [[0, -0.5, -1], new_ys]
-      expect(testcase.data_source.data['xs']).to.be.deep.equal(xdata)
-      expect(testcase.data_source.data['ys']).to.be.deep.equal(ydata)
+      expect(testcase.data_source.data.xs).to.be.deep.equal(xdata)
+      expect(testcase.data_source.data.ys).to.be.deep.equal(ydata)
     })
 
     it("should draw patch despite typed array data", function(): void {
@@ -225,8 +222,8 @@ describe("PolyDrawTool", (): void => {
 
       hit_test_stub.returns(null)
       testcase.draw_tool_view._doubletap(make_tap_event(300, 300))
-      testcase.data_source.data['xs'][2] = Float64Array.from(testcase.data_source.data['xs'][2])
-      testcase.data_source.data['ys'][2] = Float64Array.from(testcase.data_source.data['ys'][2])
+      testcase.data_source.data.xs[2] = Float64Array.from(testcase.data_source.data.xs[2])
+      testcase.data_source.data.ys[2] = Float64Array.from(testcase.data_source.data.ys[2])
       testcase.draw_tool_view._tap(make_tap_event(250, 250))
       testcase.draw_tool_view._doubletap(make_tap_event(200, 200))
 
@@ -234,8 +231,8 @@ describe("PolyDrawTool", (): void => {
       const new_ys = [-0, 0.1694915254237288, 0.3389830508474576]
       const xdata = [[0, 0.5, 1], [0, 0.5, 1], new_xs]
       const ydata = [[0, -0.5, -1], [0, -0.5, -1], new_ys]
-      expect(testcase.data_source.data['xs']).to.be.deep.equal(xdata)
-      expect(testcase.data_source.data['ys']).to.be.deep.equal(ydata)
+      expect(testcase.data_source.data.xs).to.be.deep.equal(xdata)
+      expect(testcase.data_source.data.ys).to.be.deep.equal(ydata)
     })
 
     it("should end draw patch on escape", function(): void {
@@ -252,8 +249,8 @@ describe("PolyDrawTool", (): void => {
       const new_ys = [-0, 0.1694915254237288]
       const xdata = [[0, 0.5, 1], [0, 0.5, 1], new_xs]
       const ydata = [[0, -0.5, -1], [0, -0.5, -1], new_ys]
-      expect(testcase.data_source.data['xs']).to.be.deep.equal(xdata)
-      expect(testcase.data_source.data['ys']).to.be.deep.equal(ydata)
+      expect(testcase.data_source.data.xs).to.be.deep.equal(xdata)
+      expect(testcase.data_source.data.ys).to.be.deep.equal(ydata)
     })
 
     it("should insert empty_value on other columns", function(): void {
@@ -263,7 +260,7 @@ describe("PolyDrawTool", (): void => {
       hit_test_stub.returns(null)
       testcase.draw_tool_view._doubletap(make_tap_event(300, 300))
 
-      expect(testcase.data_source.data['z']).to.be.deep.equal([null, null, "Test"])
+      expect(testcase.data_source.data.z).to.be.deep.equal([null, null, "Test"])
     })
 
     it("should not draw poly on doubletap when tool inactive", function(): void {

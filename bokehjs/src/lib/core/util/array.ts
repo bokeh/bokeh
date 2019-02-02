@@ -179,7 +179,7 @@ export function sortedIndex<T>(array: T[], value: T): number {
 
 export function sortBy<T>(array: T[], key: (item: T) => number): T[] {
   const tmp = array.map((value, index) => {
-    return {value: value, index: index, key: key(value) }
+    return {value, index, key: key(value) }
   })
   tmp.sort((left, right) => {
     const a = left.key

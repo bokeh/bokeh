@@ -557,7 +557,7 @@ export class Document {
     }
     return {
       references: Document._references_json(values(value_refs), false), // include_defaults=false
-      events: events,
+      events,
     }
   }
 
@@ -572,7 +572,7 @@ export class Document {
       version: js_version,
       title: this._title,
       roots: {
-        root_ids: root_ids,
+        root_ids,
         references: Document._references_json(root_references, include_defaults),
       },
     }
@@ -685,10 +685,10 @@ export class Document {
           // XXXX currently still need this first branch, some updates (initial?) go through here
           if (attr === 'data' && model_type === 'ColumnDataSource') {
             const [data, shapes] = decode_column_data(event_json.new, buffers)
-            patched_obj.setv({_shapes: shapes, data: data}, {setter_id: setter_id})
+            patched_obj.setv({_shapes: shapes, data}, {setter_id})
           } else {
             const value = Document._resolve_refs(event_json.new, old_references, new_references)
-            patched_obj.setv({[attr]: value}, {setter_id: setter_id})
+            patched_obj.setv({[attr]: value}, {setter_id})
           }
           break
         }
@@ -713,9 +713,9 @@ export class Document {
           }
           column_source.setv({
             _shapes: shapes,
-            data: data,
+            data,
           }, {
-            setter_id: setter_id,
+            setter_id,
             check_eq: false,
           })
           break

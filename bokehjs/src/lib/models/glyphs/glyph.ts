@@ -256,10 +256,8 @@ export abstract class GlyphView extends View {
           if (yr instanceof FactorRange) {
             self[yname] = map(self[yname], (arr: any) => yr.v_synthetic(arr))
           }
-        }
-
-        // hand standard glyph case
-        else {
+        } else {
+          // hand standard glyph case
           if (xr instanceof FactorRange) {
             self[xname] = xr.v_synthetic(self[xname])
           }
@@ -267,7 +265,6 @@ export abstract class GlyphView extends View {
             self[yname] = yr.v_synthetic(self[yname])
           }
         }
-
       }
     }
 

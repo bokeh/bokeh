@@ -77,7 +77,7 @@ describe("CustomJSFilter", () => {
         }
         return indices;
       `
-      const filter = new CustomJSFilter({code: code, use_strict: true})
+      const filter = new CustomJSFilter({code, use_strict: true})
       expect(filter.compute_indices(cds)).to.be.deep.equal([0, 1])
     })
 
@@ -91,7 +91,7 @@ describe("CustomJSFilter", () => {
         return indices;
       `
       const rng = new Range1d({start: 5, end: 21})
-      const filter = new CustomJSFilter({args: {foo: rng}, code: code, use_strict: true})
+      const filter = new CustomJSFilter({args: {foo: rng}, code, use_strict: true})
       expect(filter.compute_indices(cds)).to.be.deep.equal([4])
     })
   })

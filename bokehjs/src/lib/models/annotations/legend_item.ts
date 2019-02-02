@@ -71,7 +71,6 @@ export class LegendItem extends Model {
     return true
   }
 
-
   initialize(): void {
     super.initialize()
     this.legend = null

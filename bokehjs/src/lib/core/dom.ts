@@ -102,7 +102,6 @@ export function replaceWith(element: HTMLElement, replacement: HTMLElement): voi
   }
 }
 
-
 export function prepend(element: HTMLElement, ...nodes: Node[]): void {
   const first = element.firstChild
   for (const node of nodes) {

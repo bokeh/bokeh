@@ -73,8 +73,8 @@ export abstract class SelectToolView extends GestureToolView {
 
   _emit_selection_event(geometry: Geometry, final: boolean = true): void {
     const {frame} = this.plot_view
-    const xm = frame.xscales['default']
-    const ym = frame.yscales['default']
+    const xm = frame.xscales.default
+    const ym = frame.yscales.default
     let g: any // XXX: Geometry & something
     switch (geometry.type) {
       case 'point': {

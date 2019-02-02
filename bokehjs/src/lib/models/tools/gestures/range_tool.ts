@@ -7,7 +7,6 @@ import {logger} from "core/logging"
 import * as p from "core/properties"
 import {GestureTool, GestureToolView} from "./gesture_tool"
 
-
 const enum Side { None, Left, Right, LeftRight, Bottom, Top, BottomTop, LeftRightBottomTop }
 
 // TODO (bev) This would be better directly with BoxAnnotation, but hard
@@ -229,8 +228,7 @@ export class RangeTool extends GestureTool {
     if (this.x_range == null) {
       this.overlay.left = null
       this.overlay.right = null
-    }
-    else {
+    } else {
       this.overlay.left = this.x_range.start
       this.overlay.right = this.x_range.end
     }
@@ -238,8 +236,7 @@ export class RangeTool extends GestureTool {
     if (this.y_range == null) {
       this.overlay.bottom = null
       this.overlay.top = null
-    }
-    else {
+    } else {
       this.overlay.bottom = this.y_range.start
       this.overlay.top = this.y_range.end
     }

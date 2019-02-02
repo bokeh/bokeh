@@ -10,11 +10,7 @@ export class TapToolView extends SelectToolView {
 
   _tap(ev: TapEvent): void {
     const {sx, sy} = ev
-    const geometry: PointGeometry = {
-      type: 'point',
-      sx: sx,
-      sy: sy,
-    }
+    const geometry: PointGeometry = {type: 'point', sx, sy}
     const append = ev.shiftKey
     this._select(geometry, true, append)
   }

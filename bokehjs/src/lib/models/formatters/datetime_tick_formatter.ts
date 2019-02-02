@@ -176,11 +176,11 @@ export class DatetimeTickFormatter extends TickFormatter {
     for (const fmt of format_order) {
       time_tuple_ndx_for_resol[fmt] = 0
     }
-    time_tuple_ndx_for_resol["seconds"] = 5
-    time_tuple_ndx_for_resol["minsec"] = 4
-    time_tuple_ndx_for_resol["minutes"] = 4
-    time_tuple_ndx_for_resol["hourmin"] = 3
-    time_tuple_ndx_for_resol["hours"] = 3
+    time_tuple_ndx_for_resol.seconds = 5
+    time_tuple_ndx_for_resol.minsec = 4
+    time_tuple_ndx_for_resol.minutes = 4
+    time_tuple_ndx_for_resol.hourmin = 3
+    time_tuple_ndx_for_resol.hours = 3
 
     // As we format each tick, check to see if we are at a boundary of the
     // next higher unit of time.  If so, replace the current format with one

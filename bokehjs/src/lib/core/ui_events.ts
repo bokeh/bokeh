@@ -340,8 +340,8 @@ export class UIEvents implements EventListenerObject {
 
   protected _trigger_bokeh_event(e: UIEvent): void {
     const ev = (() => {
-      const xscale = this.plot_view.frame.xscales['default']
-      const yscale = this.plot_view.frame.yscales['default']
+      const xscale = this.plot_view.frame.xscales.default
+      const yscale = this.plot_view.frame.yscales.default
 
       const {sx, sy} = e
       const x = xscale.invert(sx)

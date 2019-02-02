@@ -87,7 +87,7 @@ describe("Grid", () => {
     })
     const ticker = new BasicTicker()
     const formatter = new BasicTickFormatter()
-    const axis = new Axis({ticker: ticker, formatter: formatter})
+    const axis = new Axis({ticker, formatter})
     plot.add_layout(axis, 'below')
     const grid = new Grid({ticker})
     plot.add_layout(grid, 'center')

@@ -234,7 +234,7 @@ export class Plot extends LayoutDOM {
       let plots = xr.plots
       if (isArray(plots)) {
         plots = plots.concat(this)
-        xr.setv({plots: plots}, {silent: true})
+        xr.setv({plots}, {silent: true})
       }
     }
 
@@ -242,7 +242,7 @@ export class Plot extends LayoutDOM {
       let plots = yr.plots
       if (isArray(plots)) {
         plots = plots.concat(this)
-        yr.setv({plots: plots}, {silent: true})
+        yr.setv({plots}, {silent: true})
       }
     }
   }

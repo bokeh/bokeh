@@ -86,11 +86,11 @@ export abstract class HasProps extends Signalable() {
 
       Object.defineProperty(this.prototype, name, {
         // XXX: don't use tail calls in getters/setters due to https://bugs.webkit.org/show_bug.cgi?id=164306
-        get: function(this: HasProps): any {
+        get(this: HasProps): any {
           const value = this.getv(name)
           return value
         },
-        set: function(this: HasProps, value: any): HasProps {
+        set(this: HasProps, value: any): HasProps {
           this.setv({[name]: value})
           return this
         },
@@ -100,7 +100,7 @@ export abstract class HasProps extends Signalable() {
 
       const [type, default_value, internal] = prop
       const refined_prop = {
-        type: type,
+        type,
         default_value: this._fix_default(default_value, name),
         internal: internal || false,
       }

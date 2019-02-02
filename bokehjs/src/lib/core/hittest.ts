@@ -109,10 +109,6 @@ export function check_2_segments_intersect(
     const x = l0_x0 + (a * (l0_x1 - l0_x0))
     const y = l0_y0 + (a * (l0_y1 - l0_y0))
 
-    return {
-      hit: (a > 0 && a < 1) && (b > 0 && b < 1),
-      x: x,
-      y: y,
-    }
+    return {hit: (a > 0 && a < 1) && (b > 0 && b < 1), x, y}
   }
 }

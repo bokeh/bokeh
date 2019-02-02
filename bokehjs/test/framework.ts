@@ -31,7 +31,6 @@ export async function run_suite(suite: Suite, grep?: string | RegExp) {
       await _run_suite(sub_suite, seq.concat(sub_suite))
     }
 
-
     for (const test of suite.tests) {
       const {fn, description} = test
 

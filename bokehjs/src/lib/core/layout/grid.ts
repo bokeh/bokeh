@@ -52,7 +52,6 @@ type GridState = {
   vspacing: number
 }
 
-
 export type QuickTrackSizing = "auto" | "fit" | "min" | "max" | number
 
 export type RowSizing =

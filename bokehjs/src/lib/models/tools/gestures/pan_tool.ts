@@ -103,23 +103,17 @@ export class PanToolView extends GestureToolView {
     for (const name in xscales) {
       const scale = xscales[name]
       const [start, end] = scale.r_invert(sx0, sx1)
-      xrs[name] = {start: start, end: end}
+      xrs[name] = {start, end}
     }
 
     const yrs: {[key: string]: {start: number, end: number}} = {}
     for (const name in yscales) {
       const scale = yscales[name]
       const [start, end] = scale.r_invert(sy0, sy1)
-      yrs[name] = {start: start, end: end}
+      yrs[name] = {start, end}
     }
 
-    this.pan_info = {
-      xrs: xrs,
-      yrs: yrs,
-      sdx: sdx,
-      sdy: sdy,
-    }
-
+    this.pan_info = {xrs, yrs, sdx, sdy}
     this.plot_view.update_range(this.pan_info, true)
   }
 }

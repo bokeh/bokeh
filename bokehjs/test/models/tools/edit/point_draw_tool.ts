@@ -30,7 +30,7 @@ const make_testcase = function(): PointDrawTestCase {
   const plot_view: any = new plot.default_view({model: plot, parent: null}).build()
 
   const data = {x: [0, 0.5, 1], y: [0, 0.5, 1], z: [null, null, null]}
-  const data_source = new ColumnDataSource({data: data})
+  const data_source = new ColumnDataSource({data})
 
   const glyph = new Circle({
     x: {field: "x"},
@@ -38,10 +38,7 @@ const make_testcase = function(): PointDrawTestCase {
     size: {units: "screen", value: 20},
   })
 
-  const glyph_renderer: any = new GlyphRenderer({
-    glyph: glyph,
-    data_source: data_source,
-  })
+  const glyph_renderer: any = new GlyphRenderer({glyph, data_source})
 
   // Untyped to access GlyphView
   const glyph_renderer_view: any = new glyph_renderer.default_view({
@@ -59,9 +56,9 @@ const make_testcase = function(): PointDrawTestCase {
   plot_view.renderer_views[glyph_renderer.id] = glyph_renderer_view
 
   return {
-    data: data,
-    data_source: data_source,
-    draw_tool_view: draw_tool_view,
+    data,
+    data_source,
+    draw_tool_view,
     glyph_view: glyph_renderer_view.glyph,
   }
 }
@@ -115,8 +112,8 @@ describe("PointDrawTool", (): void => {
       testcase.draw_tool_view._tap(tap_event)
 
       expect(testcase.data_source.selected.indices).to.be.deep.equal([])
-      expect(testcase.data_source.data['x']).to.be.deep.equal([0, 0.5, 1, 0.04424778761061947])
-      expect(testcase.data_source.data['y']).to.be.deep.equal([0, 0.5, 1, 0.3389830508474576])
+      expect(testcase.data_source.data.x).to.be.deep.equal([0, 0.5, 1, 0.04424778761061947])
+      expect(testcase.data_source.data.y).to.be.deep.equal([0, 0.5, 1, 0.3389830508474576])
     })
 
     it("should add and pop point on tap", function() {
@@ -129,8 +126,8 @@ describe("PointDrawTool", (): void => {
       testcase.draw_tool_view._tap(tap_event)
 
       expect(testcase.data_source.selected.indices).to.be.deep.equal([])
-      expect(testcase.data_source.data['x']).to.be.deep.equal([0.5, 1, 0.04424778761061947])
-      expect(testcase.data_source.data['y']).to.be.deep.equal([0.5, 1, 0.3389830508474576])
+      expect(testcase.data_source.data.x).to.be.deep.equal([0.5, 1, 0.04424778761061947])
+      expect(testcase.data_source.data.y).to.be.deep.equal([0.5, 1, 0.3389830508474576])
     })
 
     it("should insert empty_value on other columns", function() {
@@ -141,7 +138,7 @@ describe("PointDrawTool", (): void => {
       const tap_event = make_tap_event(300, 200)
       testcase.draw_tool_view._tap(tap_event)
 
-      expect(testcase.data_source.data['z']).to.be.deep.equal([null, null, null, 'Test'])
+      expect(testcase.data_source.data.z).to.be.deep.equal([null, null, null, 'Test'])
     })
 
     it("should delete selected on delete key", function(): void {
@@ -158,9 +155,9 @@ describe("PointDrawTool", (): void => {
       testcase.draw_tool_view._keyup(keyup_event)
 
       expect(testcase.data_source.selected.indices).to.be.deep.equal([])
-      expect(testcase.data_source.data['x']).to.be.deep.equal([0, 1])
-      expect(testcase.data_source.data['y']).to.be.deep.equal([0, 1])
-      expect(testcase.data_source.data['z']).to.be.deep.equal([null, null])
+      expect(testcase.data_source.data.x).to.be.deep.equal([0, 1])
+      expect(testcase.data_source.data.y).to.be.deep.equal([0, 1])
+      expect(testcase.data_source.data.z).to.be.deep.equal([null, null])
     })
 
     it("should clear selection on escape key", function(): void {
@@ -197,9 +194,9 @@ describe("PointDrawTool", (): void => {
       testcase.draw_tool_view._pan_end(drag_event)
       expect(testcase.draw_tool_view._basepoint).to.be.equal(null)
       expect(testcase.data_source.selected.indices).to.be.deep.equal([])
-      expect(testcase.data_source.data['x']).to.be.deep.equal([0, 0.14601769911504425, 1])
-      expect(testcase.data_source.data['y']).to.be.deep.equal([0, 0.8389830508474576, 1])
-      expect(testcase.data_source.data['z']).to.be.deep.equal([null, null, null])
+      expect(testcase.data_source.data.x).to.be.deep.equal([0, 0.14601769911504425, 1])
+      expect(testcase.data_source.data.y).to.be.deep.equal([0, 0.8389830508474576, 1])
+      expect(testcase.data_source.data.z).to.be.deep.equal([null, null, null])
     })
 
     it("should drag previously selected on pan", function(): void {
@@ -223,9 +220,9 @@ describe("PointDrawTool", (): void => {
       testcase.draw_tool_view._pan_end(drag_event)
       expect(testcase.draw_tool_view._basepoint).to.be.equal(null)
       expect(testcase.data_source.selected.indices).to.be.deep.equal([])
-      expect(testcase.data_source.data['x']).to.be.deep.equal([0, 0.14601769911504425, 1])
-      expect(testcase.data_source.data['y']).to.be.deep.equal([0, 0.8389830508474576, 1])
-      expect(testcase.data_source.data['z']).to.be.deep.equal([null, null, null])
+      expect(testcase.data_source.data.x).to.be.deep.equal([0, 0.14601769911504425, 1])
+      expect(testcase.data_source.data.y).to.be.deep.equal([0, 0.8389830508474576, 1])
+      expect(testcase.data_source.data.z).to.be.deep.equal([null, null, null])
     })
 
     it("should drag all selected points on pan", function(): void {
@@ -249,9 +246,9 @@ describe("PointDrawTool", (): void => {
       testcase.draw_tool_view._pan_end(drag_event)
       expect(testcase.draw_tool_view._basepoint).to.be.equal(null)
       expect(testcase.data_source.selected.indices).to.be.deep.equal([])
-      expect(testcase.data_source.data['x']).to.be.deep.equal([0, 0.14601769911504425, 0.6460176991150443])
-      expect(testcase.data_source.data['y']).to.be.deep.equal([0, 0.8389830508474576, 1.3389830508474576])
-      expect(testcase.data_source.data['z']).to.be.deep.equal([null, null, null])
+      expect(testcase.data_source.data.x).to.be.deep.equal([0, 0.14601769911504425, 0.6460176991150443])
+      expect(testcase.data_source.data.y).to.be.deep.equal([0, 0.8389830508474576, 1.3389830508474576])
+      expect(testcase.data_source.data.z).to.be.deep.equal([null, null, null])
     })
   })
 })
