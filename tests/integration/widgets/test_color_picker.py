@@ -70,7 +70,6 @@ class Test_ColorPicker(object):
 
         assert page.has_no_console_errors()
 
-
     def test_displays_title(self, bokeh_model_page):
         colorpicker = ColorPicker(css_classes=["foo"], title="title")
 
@@ -78,7 +77,7 @@ class Test_ColorPicker(object):
 
         el = page.driver.find_element_by_css_selector('.foo label')
         assert el.text == "title"
-        
+
         el = page.driver.find_element_by_css_selector('.foo input')
         assert el.get_attribute('type') == "color"
 
@@ -90,7 +89,7 @@ class Test_ColorPicker(object):
         page = bokeh_model_page(colorpicker)
 
         el = page.driver.find_element_by_css_selector('.foo input')
-        
+
         assert el.get_attribute('value') == '#ff0000'
 
         assert page.has_no_console_errors()
