@@ -9,7 +9,7 @@ import {TickFormatter} from "models/formatters/tick_formatter"
 export class MyFormatter extends TickFormatter {
   type = "MyFormatter"
 
-  // TickFormatters should implement this method, which accepts a lisst
+  // TickFormatters should implement this method, which accepts a list
   // of numbers (ticks) and returns a list of strings
   doFormat(ticks: string[] | number[]) {
     // format the first tick as-is

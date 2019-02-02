@@ -10,13 +10,15 @@ from bokeh.util.compiler import TypeScript
 TS_CODE = """
 import {Label, LabelView} from "models/annotations/label"
 
+declare const katex: any
+
 export class LatexLabelView extends LabelView {
   model: LatexLabel
 
   render() {
     //--- Start of copied section from ``Label.render`` implementation
 
-    // Here because AngleSpec does units tranform and label doesn't support specs
+    // Here because AngleSpec does units transform and label doesn't support specs
     let angle: number
     switch (this.model.angle_units) {
       case "rad":
@@ -26,7 +28,7 @@ export class LatexLabelView extends LabelView {
         angle = -1 * this.model.angle * Math.PI / 180.0
         break
       default:
-        throw new Error("Unknowned unit")
+        throw new Error("Unknown unit")
     }
     const panel = (this.model.panel != null) ? this.model.panel : this.plot_view.frame
     const xscale = this.plot_view.frame.xscales[this.model.x_range_name]
@@ -55,7 +57,10 @@ export class LatexLabelView extends LabelView {
   }
 }
 
+
+
 export class LatexLabel extends Label {
+  panel?: any
 
   static initClass() {
     this.prototype.type = 'LatexLabel'
@@ -87,7 +92,7 @@ p.line(x, y)
 
 # Note: must set ``render_mode="css"``
 latex = LatexLabel(text="f = \sum_{n=1}^\infty\\frac{-e^{i\pi}}{2^n}!",
-                   x=40, y=445, x_units='screen', y_units='screen',
+                   x=40, y=420, x_units='screen', y_units='screen',
                    render_mode='css', text_font_size='16pt',
                    background_fill_alpha=0)
 

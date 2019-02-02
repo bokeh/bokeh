@@ -22,7 +22,7 @@ export class DrawToolView extends GestureToolView {
 
   //this is executed on subsequent mouse/touch moves
   _pan(ev: GestureEvent): void {
-    const frame = this.plot_model.frame
+    const frame = this.plot_view.frame
     const {sx, sy} = ev
     if (!frame.bbox.contains(sx,sy)){return}
     const x = frame.xscales['default'].invert(sx)
