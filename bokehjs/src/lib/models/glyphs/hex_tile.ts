@@ -61,16 +61,13 @@ export class HexTileView extends GlyphView {
         this._x[i] = size * Math.sqrt(3) * (this._q[i] + this._r[i]/2) / aspect_scale
         this._y[i] = -size * 3/2 * this._r[i]
       }
-    }
-    else {
+    } else {
       for (let i = 0; i < n; i++) {
         this._x[i] = size * 3/2 * this._q[i]
         this._y[i] = -size * Math.sqrt(3) * (this._r[i] + this._q[i]/2) * aspect_scale
       }
     }
-
   }
-
 
   protected _index_data(): SpatialIndex {
     let ysize = this.model.size
@@ -79,10 +76,8 @@ export class HexTileView extends GlyphView {
     if (this.model.orientation == "flattop") {
       [xsize, ysize] = [ysize, xsize]
       ysize *= this.model.aspect_scale
-    }
-    else {
+    } else
       xsize /= this.model.aspect_scale
-    }
 
     const points = []
     for (let i = 0; i < this._x.length; i++) {
@@ -118,9 +113,7 @@ export class HexTileView extends GlyphView {
       const svy = [r,  r2, -r2, -r, -r2, r2]
 
       return [svx, svy]
-    }
-
-    else {
+    } else {
       const rscale = this.renderer.xscale
       const hscale = this.renderer.yscale
 
@@ -133,7 +126,6 @@ export class HexTileView extends GlyphView {
 
       return [svx, svy]
     }
-
   }
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy, svx, svy, _scale}: HexTileData): void {

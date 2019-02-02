@@ -208,15 +208,12 @@ export class DataTableView extends WidgetView {
       const index = this.newIndexColumn()
       // This is to be able to provide negative index behaviour that
       // matches what python users will expect
-      if (index_position == -1) {
+      if (index_position == -1)
         columns.push(index)
-      }
-      else if (index_position < -1) {
+      else if (index_position < -1)
         columns.splice(index_position+1, 0, index)
-      }
-      else {
+      else
         columns.splice(index_position, 0, index)
-      }
     }
 
     let { reorderable } = this.model
