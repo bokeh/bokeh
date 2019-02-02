@@ -59,7 +59,7 @@ export namespace WebBrowserMarketShare {
         shares.push(other)
       }
 
-      data.push({year: year, month: month, browsers: browsers, shares: shares})
+      data.push({year, month, browsers, shares})
     }
   }
 
@@ -75,11 +75,7 @@ export namespace WebBrowserMarketShare {
 
   for (const row of read_csv_from("info")) {
     const [browser, description, color, icon] = row
-    info[browser] = {
-      description: description,
-      color: color,
-      icon: icon,
-    }
+    info[browser] = {description, color, icon}
   }
 
   const fig = plt.figure({
@@ -104,13 +100,13 @@ export namespace WebBrowserMarketShare {
     const half_angles = zip(start_angles, end_angles).map(([start, end]) => (start + end)/2)
     const colors = item.browsers.map((name) => info[name].color)
 
-    fig.wedge({x: 0, y: 0, radius: 1.5, source: source,
+    fig.wedge({x: 0, y: 0, radius: 1.5, source,
          start_angle: start_angles, end_angle: end_angles,
          line_color: "white", line_width: 1, fill_color: colors})
 
     const icons = item.browsers.map((name) => info[name].icon)
     const [x0, y0] = unzip(half_angles.map((angle) => to_cartesian(1.7, angle)))
-    fig.image_url(icons, x0, y0, null, null, {source: source, anchor: "center"})
+    fig.image_url(icons, x0, y0, null, null, {source, anchor: "center"})
 
     const texts = item.shares.map((share) => {
       if (share <= 2.0)
@@ -125,7 +121,7 @@ export namespace WebBrowserMarketShare {
         return 0
     })
     const [x1, y1] = unzip(half_angles.map((angle) => to_cartesian(1.0, angle)))
-    fig.text(x1, y1, texts, {source: source, angle: text_angles, text_align: "center", text_baseline: "middle"})
+    fig.text(x1, y1, texts, {source, angle: text_angles, text_align: "center", text_baseline: "middle"})
   }
 
   const tap = new Bokeh.TapTool({

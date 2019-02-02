@@ -10,7 +10,7 @@ export namespace Stocks {
     // Create plot
     const plot = plt.figure({
       tools: "pan,wheel_zoom,save,reset",
-      title: title,
+      title,
       plot_width: 400,
       plot_height: 400,
       background_fill_color: "#eeeeff",
@@ -31,7 +31,7 @@ export namespace Stocks {
       if (key != 't') {
         i += 1
         plot.line({field: 't'}, {field: key},
-             {source: source, legend: key, line_color: colors[i%6], line_width: 2})
+             {source, legend: key, line_color: colors[i%6], line_width: 2})
       }
     }
 

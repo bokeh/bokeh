@@ -131,20 +131,17 @@ export class BoxZoomToolView extends GestureToolView {
     for (const name in xscales) {
       const scale = xscales[name]
       const [start, end] = scale.r_invert(sx0, sx1)
-      xrs[name] = {start: start, end: end}
+      xrs[name] = {start, end}
     }
 
     const yrs: {[key: string]: {start: number, end: number}} = {}
     for (const name in yscales) {
       const scale = yscales[name]
       const [start, end] = scale.r_invert(sy0, sy1)
-      yrs[name] = {start: start, end: end}
+      yrs[name] = {start, end}
     }
 
-    const zoom_info = {
-      xrs: xrs,
-      yrs: yrs,
-    }
+    const zoom_info = {xrs, yrs}
 
     this.plot_view.push_state('box_zoom', {range: zoom_info})
     this.plot_view.update_range(zoom_info)

@@ -79,10 +79,7 @@ export class MercatorTicker extends BasicTicker {
       }
     }
 
-    return {
-      major: major,
-      minor: minor,
-    }
+    return {major, minor}
   }
 }
 

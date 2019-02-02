@@ -29,17 +29,17 @@ export namespace TappyScatter {
     colors.push(plt.color(r, g, 150))
 
   const source = new Bokeh.ColumnDataSource({
-    data: {x: xx, y: yy, radius: radii, colors: colors },
+    data: {x: xx, y: yy, radius: radii, colors },
   })
 
   const tools = "pan,crosshair,wheel_zoom,box_zoom,reset,tap,save"
 
-  const p = plt.figure({title: "Tappy Scatter", tools: tools})
+  const p = plt.figure({title: "Tappy Scatter", tools})
 
-  const circles = p.circle({field: "x"}, {field: "y"}, {source: source, radius: radii,
+  const circles = p.circle({field: "x"}, {field: "y"}, {source, radius: radii,
               fill_color: colors, fill_alpha: 0.6, line_color: null})
 
-  p.text({field: "x"}, {field: "y"}, indices, {source: source, alpha: 0.5,
+  p.text({field: "x"}, {field: "y"}, indices, {source, alpha: 0.5,
      text_font_size: "5pt", text_baseline: "middle", text_align: "center"})
 
   const tap = p.toolbar.select_one(Bokeh.TapTool)

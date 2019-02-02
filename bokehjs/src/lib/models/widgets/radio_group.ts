@@ -23,7 +23,7 @@ export class RadioGroupView extends WidgetView {
     const {active, labels} = this.model
 
     for (let i = 0; i < labels.length; i++) {
-      const radio = input({type: `radio`, name: name, value: `${i}`})
+      const radio = input({type: `radio`, name, value: `${i}`})
       radio.addEventListener("change", () => this.change_active(i))
 
       if (this.model.disabled)

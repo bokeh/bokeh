@@ -33,7 +33,7 @@ export namespace Anscombe {
   const x = Bokeh.LinAlg.linspace(-0.5, 20.5, 10)
   const y = x.map((v) => v*0.5 + 3.0)
 
-  const lines = new Bokeh.ColumnDataSource({data: {x: x, y: y}})
+  const lines = new Bokeh.ColumnDataSource({data: {x, y}})
 
   const xdr = new Bokeh.Range1d({start: -0.5, end: 20.5})
   const ydr = new Bokeh.Range1d({start: -0.5, end: 20.5})
@@ -42,7 +42,7 @@ export namespace Anscombe {
     const plot = new Bokeh.Plot({
       x_range: xdr,
       y_range: ydr,
-      title: title,
+      title,
       plot_width: 400,
       plot_height: 400,
       background_fill_color: "#F2F2F7",

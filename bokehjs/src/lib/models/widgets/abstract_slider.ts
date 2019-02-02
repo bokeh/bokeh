@@ -120,10 +120,10 @@ export abstract class AbstractSliderView extends WidgetView {
         cssPrefix: prefix,
         range: {min: start, max: end},
         start: value,
-        step: step,
+        step,
         behaviour: this.model.behaviour,
         connect: this.model.connected,
-        tooltips: tooltips,
+        tooltips,
         orientation: this.model.orientation,
         direction: this.model.direction,
       } as any) // XXX: bad typings; no cssPrefix
@@ -174,7 +174,7 @@ export abstract class AbstractSliderView extends WidgetView {
       this.noUiSlider.updateOptions({
         range: {min: start, max: end},
         start: value,
-        step: step,
+        step,
       })
     }
 

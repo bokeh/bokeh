@@ -260,7 +260,7 @@ export class DataTableView extends WidgetView {
         this.grid.registerPlugin(checkboxSelector)
 
       const pluginOptions = {
-        dataItemColumnValueExtractor: function(val: Item, col: TableColumn) {
+        dataItemColumnValueExtractor(val: Item, col: TableColumn) {
           // As defined in this file, Item can contain any type values
           let value: any = val[col.field]
           if (isString(value)) {

@@ -102,7 +102,7 @@ export class NodesOnly extends GraphHitTestPolicy {
 
     // silently set inspected attr to avoid triggering data_source.change event and rerender
     graph_view.node_view.model.data_source.setv({inspected: node_inspection}, {silent: true})
-    graph_view.node_view.model.data_source.inspect.emit([graph_view.node_view, {geometry: geometry}])
+    graph_view.node_view.model.data_source.inspect.emit([graph_view.node_view, {geometry}])
 
     return !node_inspection.is_empty()
   }
@@ -185,7 +185,7 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
 
     //silently set inspected attr to avoid triggering data_source.change event and rerender
     graph_view.edge_view.model.data_source.setv({inspected: edge_inspection}, {silent: true})
-    graph_view.node_view.model.data_source.inspect.emit([graph_view.node_view, {geometry: geometry}])
+    graph_view.node_view.model.data_source.inspect.emit([graph_view.node_view, {geometry}])
 
     return !node_inspection.is_empty()
   }
@@ -264,7 +264,7 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
 
     // silently set inspected attr to avoid triggering data_source.change event and rerender
     graph_view.node_view.model.data_source.setv({inspected: node_inspection}, {silent: true})
-    graph_view.edge_view.model.data_source.inspect.emit([graph_view.edge_view, {geometry: geometry}])
+    graph_view.edge_view.model.data_source.inspect.emit([graph_view.edge_view, {geometry}])
 
     return !edge_inspection.is_empty()
   }

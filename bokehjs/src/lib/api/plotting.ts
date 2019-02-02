@@ -328,7 +328,7 @@ export class Figure extends Plot {
 
     const glyph_renderer = new GlyphRenderer({
       data_source:        source,
-      glyph:              glyph,
+      glyph,
       nonselection_glyph: nsglyph,
       selection_glyph:    sglyph,
       hover_glyph:        hglyph,
@@ -356,7 +356,7 @@ export class Figure extends Plot {
     if (isArray(range)) {
       if (all(range, isString)) {
         const factors = range as string[]
-        return new models.FactorRange({factors: factors})
+        return new models.FactorRange({factors})
       }
       if (range.length == 2) {
         const [start, end] = range as [number, number]

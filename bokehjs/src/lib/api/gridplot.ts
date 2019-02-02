@@ -57,8 +57,8 @@ export function gridplot(children: (LayoutDOM | null)[][], opts: GridPlotOpts = 
   const grid = new GridBox({children: items, sizing_mode})
 
   const toolbar = new ToolbarBox({
-    toolbar: new ProxyToolbar({tools: tools}),
-    toolbar_location: toolbar_location,
+    toolbar: new ProxyToolbar({tools}),
+    toolbar_location,
   })
 
   switch (toolbar_location) {

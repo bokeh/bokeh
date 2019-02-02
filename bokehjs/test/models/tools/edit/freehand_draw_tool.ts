@@ -34,17 +34,14 @@ const make_testcase = function(): FreehandDrawTestCase {
     ys: [[0, -0.5, -1], [0, -0.5, -1]],
     z: [null, null],
   }
-  const data_source = new ColumnDataSource({data: data})
+  const data_source = new ColumnDataSource({data})
 
   const glyph = new Patches({
     xs: {field: "xs"},
     ys: {field: "ys"},
   })
 
-  const glyph_renderer: any = new GlyphRenderer({
-    glyph: glyph,
-    data_source: data_source,
-  })
+  const glyph_renderer: any = new GlyphRenderer({glyph, data_source})
 
   const glyph_renderer_view: any = new glyph_renderer.default_view({
     model: glyph_renderer,
@@ -62,9 +59,9 @@ const make_testcase = function(): FreehandDrawTestCase {
   sinon.stub(glyph_renderer_view, "set_data")
 
   return {
-    data: data,
-    data_source: data_source,
-    draw_tool_view: draw_tool_view,
+    data,
+    data_source,
+    draw_tool_view,
     glyph_view: glyph_renderer_view.glyph,
   }
 }

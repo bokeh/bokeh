@@ -19,7 +19,7 @@ export function get_info(scales: {[key: string]: Scale}, [sxy0, sxy1]: [number, 
   for (const name in scales) {
     const scale = scales[name]
     const [start, end] = scale.r_invert(sxy0, sxy1)
-    info[name] = {start: start, end: end}
+    info[name] = {start, end}
   }
   return info
 }
@@ -62,9 +62,5 @@ export function scale_range(frame: CartesianFrame, factor: number,
   // OK this sucks we can't set factor independently in each direction. It is used
   // for GMap plots, and GMap plots always preserve aspect, so effective the value
   // of 'dimensions' is ignored.
-  return {
-    xrs: xrs,
-    yrs: yrs,
-    factor: factor,
-  }
+  return {xrs, yrs, factor}
 }

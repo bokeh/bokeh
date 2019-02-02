@@ -39,7 +39,7 @@ export class Message {
   static create_header(msgtype: string): Header {
     return {
       msgid:   uniqueId(),
-      msgtype: msgtype,
+      msgtype,
     }
   }
 

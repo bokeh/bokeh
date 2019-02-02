@@ -244,16 +244,9 @@ export class HoverToolView extends InspectToolView {
 
       const vars = {
         index: ii,
-        x:       x,
-        y:       y,
-        sx:      sx,
-        sy:      sy,
-        data_x:  data_x,
-        data_y:  data_y,
-        rx:      rx,
-        ry:      ry,
+        x, y, sx, sy, data_x, data_y, rx, ry,
         indices: indices.line_indices,
-        name:    renderer_view.model.name,
+        name: renderer_view.model.name,
       }
       tooltip.add(rx, ry, this._render_tooltips(ds, ii, vars))
     }
@@ -306,16 +299,10 @@ export class HoverToolView extends InspectToolView {
             index = i
 
           const vars = {
-            index:         index,
+            index, x, y, sx, sy, data_x, data_y,
             segment_index: jj,
-            x:             x,
-            y:             y,
-            sx:            sx,
-            sy:            sy,
-            data_x:        data_x,
-            data_y:        data_y,
-            indices:       indices.multiline_indices,
-            name:          renderer_view.model.name,
+            indices: indices.multiline_indices,
+            name: renderer_view.model.name,
           }
           tooltip.add(rx, ry, this._render_tooltips(ds, index, vars))
         }
@@ -345,15 +332,9 @@ export class HoverToolView extends InspectToolView {
           index = i
 
         const vars = {
-          index:   index,
-          x:       x,
-          y:       y,
-          sx:      sx,
-          sy:      sy,
-          data_x:  data_x,
-          data_y:  data_y,
+          index, x, y, sx, sy, data_x, data_y,
           indices: indices.indices,
-          name:    renderer_view.model.name,
+          name: renderer_view.model.name,
         }
         tooltip.add(rx, ry, this._render_tooltips(ds, index, vars))
       }
@@ -372,7 +353,7 @@ export class HoverToolView extends InspectToolView {
 
       const g = {x, y, ...geometry}
 
-      this.model.callback!.execute(this.model, {index: index, geometry: g, renderer: r})
+      this.model.callback!.execute(this.model, {index, geometry: g, renderer: r})
     }
   }
 

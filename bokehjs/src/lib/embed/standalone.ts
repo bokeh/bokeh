@@ -9,7 +9,7 @@ import {BOKEH_ROOT} from "./dom"
 export const index: {[key: string]: DOMView} = {}
 
 function _create_view(model: HasProps): DOMView {
-  const view = new model.default_view({model: model, parent: null}) as DOMView
+  const view = new model.default_view({model, parent: null}) as DOMView
   index[model.id] = view
   return view
 }

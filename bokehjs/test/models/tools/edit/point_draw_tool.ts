@@ -30,7 +30,7 @@ const make_testcase = function(): PointDrawTestCase {
   const plot_view: any = new plot.default_view({model: plot, parent: null}).build()
 
   const data = {x: [0, 0.5, 1], y: [0, 0.5, 1], z: [null, null, null]}
-  const data_source = new ColumnDataSource({data: data})
+  const data_source = new ColumnDataSource({data})
 
   const glyph = new Circle({
     x: {field: "x"},
@@ -38,10 +38,7 @@ const make_testcase = function(): PointDrawTestCase {
     size: {units: "screen", value: 20},
   })
 
-  const glyph_renderer: any = new GlyphRenderer({
-    glyph: glyph,
-    data_source: data_source,
-  })
+  const glyph_renderer: any = new GlyphRenderer({glyph, data_source})
 
   // Untyped to access GlyphView
   const glyph_renderer_view: any = new glyph_renderer.default_view({
@@ -59,9 +56,9 @@ const make_testcase = function(): PointDrawTestCase {
   plot_view.renderer_views[glyph_renderer.id] = glyph_renderer_view
 
   return {
-    data: data,
-    data_source: data_source,
-    draw_tool_view: draw_tool_view,
+    data,
+    data_source,
+    draw_tool_view,
     glyph_view: glyph_renderer_view.glyph,
   }
 }

@@ -31,7 +31,7 @@ export function embed_item(item: JsonItem, target_id?: string) {
     element.classList.add(BOKEH_ROOT)
 
   const roots: Roots = {[item.root_id]: target_id}
-  const render_item: RenderItem = { roots: roots, docid: doc_id }
+  const render_item: RenderItem = { roots, docid: doc_id }
 
   defer(() => _embed_items(docs_json, [render_item]))
 }

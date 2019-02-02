@@ -36,7 +36,7 @@ const make_testcase = function(): BoxEditTestCase {
     height: [0.3, 0.2, 0.1],
     z: [null, null, null],
   }
-  const data_source = new ColumnDataSource({data: data})
+  const data_source = new ColumnDataSource({data})
 
   const glyph = new Rect({
     x: {field: "x"},
@@ -45,10 +45,7 @@ const make_testcase = function(): BoxEditTestCase {
     height: {field: "height"},
   })
 
-  const glyph_renderer: any = new GlyphRenderer({
-    glyph: glyph,
-    data_source: data_source,
-  })
+  const glyph_renderer: any = new GlyphRenderer({glyph, data_source})
 
   // Untyped to access GlyphView
   const glyph_renderer_view: any = new glyph_renderer.default_view({
@@ -66,9 +63,9 @@ const make_testcase = function(): BoxEditTestCase {
   plot_view.renderer_views[glyph_renderer.id] = glyph_renderer_view
 
   return {
-    data: data,
-    data_source: data_source,
-    draw_tool_view: draw_tool_view,
+    data,
+    data_source,
+    draw_tool_view,
     glyph_view: glyph_renderer_view.glyph,
   }
 }

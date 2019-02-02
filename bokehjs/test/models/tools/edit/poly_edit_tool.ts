@@ -39,7 +39,7 @@ const make_testcase = function(): PolyEditTestCase {
     ys: [[0, -0.5, -1], [0, -0.5, -1]],
     z: [null, null],
   }
-  const data_source = new ColumnDataSource({data: data})
+  const data_source = new ColumnDataSource({data})
   const vertex_source = new ColumnDataSource({data: {x: [], y: []}})
 
   const vertex_glyph = new Circle({
@@ -56,10 +56,7 @@ const make_testcase = function(): PolyEditTestCase {
     data_source: vertex_source,
   })
 
-  const glyph_renderer: any = new GlyphRenderer({
-    glyph: glyph,
-    data_source: data_source,
-  })
+  const glyph_renderer: any = new GlyphRenderer({glyph, data_source})
 
   // Untyped to access GlyphView
   const glyph_renderer_view: any = new glyph_renderer.default_view({
@@ -79,7 +76,7 @@ const make_testcase = function(): PolyEditTestCase {
     active: true,
     empty_value: "Test",
     renderers: [glyph_renderer],
-    vertex_renderer: vertex_renderer,
+    vertex_renderer,
   })
   plot.add_tools(draw_tool)
   const draw_tool_view = plot_view.tool_views[draw_tool.id]
@@ -87,14 +84,14 @@ const make_testcase = function(): PolyEditTestCase {
   plot_view.renderer_views[vertex_renderer.id] = vertex_renderer_view
 
   return {
-    data: data,
-    data_source: data_source,
-    draw_tool_view: draw_tool_view,
+    data,
+    data_source,
+    draw_tool_view,
     glyph_view: glyph_renderer_view.glyph,
-    glyph_renderer: glyph_renderer,
+    glyph_renderer,
     vertex_glyph_view: vertex_renderer_view.glyph,
-    vertex_source: vertex_source,
-    vertex_renderer: vertex_renderer,
+    vertex_source,
+    vertex_renderer,
   }
 }
 

@@ -35,8 +35,8 @@ export class CategoricalTicker extends Ticker<Factor> {
     return {
       major: majors,
       minor: [],
-      tops : tops,
-      mids : mids,
+      tops,
+      mids,
     }
   }
 
