@@ -9,6 +9,7 @@ from bokeh.util.compiler import TypeScript
 
 TS_CODE = """
 import {Label, LabelView} from "models/annotations/label"
+import {CartesianFrame} from "models/canvas/cartesian_frame"
 
 declare const katex: any
 
@@ -57,10 +58,22 @@ export class LatexLabelView extends LabelView {
   }
 }
 
+export namespace LatexLabel {
+  export interface Attrs extends Label.Attrs {
+    panel?: CartesianFrame
+  }
 
+  export interface Props extends Label.Props {}
+}
+
+export interface LatexLabel extends LatexLabel.Attrs {}
 
 export class LatexLabel extends Label {
-  panel?: any
+  properties: LatexLabel.Props
+
+  constructor(attrs?: Partial<LatexLabel.Attrs>) {
+    super(attrs)
+  }
 
   static initClass() {
     this.prototype.type = 'LatexLabel'
