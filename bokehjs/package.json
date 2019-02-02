@@ -28,7 +28,7 @@
     "chai-as-promised": "^7.1.1",
     "del": "^3.0.0",
     "istanbul": "^0.4.5",
-    "uglify-js": "^3.3.25",
+    "terser": "3.14.1",
     "@types/uglify-js": "^3.0.2",
     "uglifycss": "^0.0.29",
     "@types/uglifycss": "^0.0.5",

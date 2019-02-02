@@ -1,4 +1,4 @@
-import * as uglify from "uglify-js"
+import * as terser from "terser"
 import {join, basename} from "path"
 import {argv} from "yargs"
 
@@ -62,15 +62,17 @@ task("scripts:minify", ["scripts:bundle"], async () => {
       },
     }
 
-    const minified = uglify.minify(read(js)!, minify_opts)
+    const minified = terser.minify(read(js)!, minify_opts)
 
     if (minified.error != null) {
       const {error: {message, line, col}} = minified as any
       throw new Error(`${js}:${line-1}:${col}: ${message}`)
     }
 
-    write(min_js, minified.code)
-    write(min_js_map, minified.map)
+    if (minified.code != null)
+      write(min_js, minified.code)
+    if (minified.map != null)
+      write(min_js_map, minified.map)
   }
 
   minify(paths.lib.bokehjs.output)
