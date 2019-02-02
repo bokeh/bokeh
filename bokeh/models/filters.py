@@ -130,6 +130,10 @@ class CustomJSFilter(Filter):
         at render time. This will be the data source associated with the ``CDSView``
         that this filter is added to.
         '''
+        from bokeh.util.deprecation import deprecated
+        deprecated("'from_py_func' is deprecated and will be removed in an eventual 2.0 release. "
+                   "Use CustomJSFilter directly instead.")
+
         if not isinstance(func, FunctionType):
             raise ValueError('CustomJSFilter.from_py_func only accepts function objects.')
 

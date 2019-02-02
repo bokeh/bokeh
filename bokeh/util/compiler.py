@@ -102,6 +102,10 @@ def npmjs_version():
     return _version(_run_npmjs)
 
 def nodejs_compile(code, lang="javascript", file=None):
+    if lang == "coffeescript":
+        from bokeh.util.deprecation import deprecated
+        deprecated("CoffeeScript support is deprecated and will be removed in an eventual 2.0 release. "
+                   "Use JavaScript or TypeScript directly instead.")
     compilejs_script = join(bokehjs_dir, "js", "compiler.js")
     output = _run_nodejs([compilejs_script], dict(code=code, lang=lang, file=file, bokehjs_dir=bokehjs_dir))
     lines = output.split("\n")
@@ -157,6 +161,12 @@ class CoffeeScript(Inline):
             __implementation__ == """ <some coffeescript code> """
 
     '''
+
+    def __init__(self, *args, **kw):
+        from bokeh.util.deprecation import deprecated
+        deprecated("CoffeeScript support is deprecated and will be removed in an eventual 2.0 release. "
+                   "Use JavaScript or TypeScript directly instead.")
+        super(CoffeeScript, self).__init__(*args, **kw)
 
     @property
     def lang(self):

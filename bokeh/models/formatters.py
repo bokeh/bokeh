@@ -323,6 +323,10 @@ class FuncTickFormatter(TickFormatter):
         arguments to the function.
 
         '''
+        from bokeh.util.deprecation import deprecated
+        deprecated("'from_py_func' is deprecated and will be removed in an eventual 2.0 release. "
+                   "Use FuncTickFormatter directly instead.")
+
         if not isinstance(func, FunctionType):
             raise ValueError('CustomJS.from_py_func needs function object.')
         pscript = import_required('pscript',

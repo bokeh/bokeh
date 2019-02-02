@@ -16,11 +16,11 @@ code = '''\
 object.visible = toggle.active
 '''
 
-callback1 = CustomJS.from_coffeescript(code=code, args={})
+callback1 = CustomJS(code=code, args={})
 toggle1 = Toggle(label="Green Box", button_type="success", callback=callback1)
 callback1.args = {'toggle': toggle1, 'object': box}
 
-callback2 = CustomJS.from_coffeescript(code=code, args={})
+callback2 = CustomJS(code=code, args={})
 toggle2 = Toggle(label="Pink Line", button_type="success", callback=callback2)
 callback2.args = {'toggle': toggle2, 'object': invisible_line}
 

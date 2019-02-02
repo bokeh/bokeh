@@ -35,9 +35,6 @@ import bokeh.client.session as bcs
 # General API
 #-----------------------------------------------------------------------------
 
-def test_module_docstring_warning():
-    assert bcs._BOKEH_CLIENT_APP_WARNING_BODY in bcs.__doc__
-
 def test_DEFAULT_SESSION_ID():
     assert bcs.DEFAULT_SESSION_ID == "default"
 
@@ -125,30 +122,6 @@ class Test_ClientSession(object):
         assert mock_force_roundtrip.call_count == 1
         assert mock_force_roundtrip.call_args[0] == ()
         assert mock_force_roundtrip.call_args[1] == {}
-
-    @patch("warnings.warn")
-    @patch("bokeh.client.connection.ClientConnection.loop_until_closed")
-    def test_loop_until_closed(self, mock_loop_until_closed, mock_warn):
-        s = bcs.ClientSession()
-        s.loop_until_closed()
-        assert mock_loop_until_closed.call_count == 1
-        assert mock_loop_until_closed.call_args[0] == ()
-        assert mock_loop_until_closed.call_args[1] == {}
-
-        assert mock_warn.call_count == 1
-        assert mock_warn.call_args[0] == (bcs._BOKEH_CLIENT_APP_WARNING_FULL,)
-        assert mock_warn.call_args[1] == {}
-
-    @patch("warnings.warn")
-    @patch("bokeh.client.connection.ClientConnection.loop_until_closed")
-    def test_loop_until_closed_suppress_warnings(self, mock_loop_until_closed, mock_warn):
-        s = bcs.ClientSession()
-        s.loop_until_closed(True)
-        assert mock_loop_until_closed.call_count == 1
-        assert mock_loop_until_closed.call_args[0] == ()
-        assert mock_loop_until_closed.call_args[1] == {}
-
-        assert mock_warn.call_count == 0
 
     @patch("bokeh.client.connection.ClientConnection.request_server_info")
     def test_request_server_info(self, mock_request_server_info):
