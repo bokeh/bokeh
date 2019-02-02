@@ -1,8 +1,8 @@
 import * as p from "core/properties"
-import {empty, input, label} from 'core/dom'
+import {input} from 'core/dom'
 import {InputWidget, InputWidgetView} from 'models/widgets/input_widget'
 
-function log10(x: number): number{
+function log10(x: number): number {
   if (Math.log10) {
     return Math.log10(x)
   } else {
@@ -13,52 +13,39 @@ function log10(x: number): number{
 export class SpinnerView extends InputWidgetView {
   model: Spinner
 
-  protected inputEl: HTMLInputElement
-
-  initialize(options: any): void {
-    super.initialize(options)
-    this.render()
-  }
+  protected input: HTMLInputElement
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.render())
+    this.connect(this.model.properties.name.change, () => this.input.name = this.model.name || "")
+    this.connect(this.model.properties.low.change, () => this.input.min = this.model.low.toFixed(log10(1 / this.model.step)))
+    this.connect(this.model.properties.high.change, () => this.input.max = this.model.high.toFixed(log10(1 / this.model.step)))
+    this.connect(this.model.properties.step.change, () => this.input.step = this.model.value.toFixed(log10(1 / this.model.step)))
+    this.connect(this.model.properties.value.change, () => this.input.value = this.model.value.toFixed(log10(1 / this.model.step)))
+    this.connect(this.model.properties.disabled.change, () => this.input.disabled = this.model.disabled)
   }
 
   render(): void {
     super.render()
 
-    empty(this.el)
-
-    const labelEl = label({for: this.model.id}, this.model.title)
-    this.el.appendChild(labelEl)
-
-    this.inputEl = input({
-      class: "bk-widget-form-input",
-      id: this.model.id,
+    this.input = input({
+      type: "number",
+      class: "bk-input",
       name: this.model.name,
       min: this.model.low,
       max: this.model.high,
       value: this.model.value,
       step: this.model.step,
       disabled: this.model.disabled,
-      type: "number",
     })
-    this.inputEl.addEventListener("change", () => this.change_input())
-    this.el.appendChild(this.inputEl)
-
-    // TODO - This 35 is a hack we should be able to compute it
-    if (this.model.width)
-      this.inputEl.style.width = `${this.model.width - 35}px`
-
-    // TODO - This 35 is a hack we should be able to compute it
-    if (this.model.height)
-      this.inputEl.style.height = `${this.model.height - 35}px`
+    this.input.addEventListener("change", () => this.change_input())
+    //this.input.addEventListener("input", () => this.change_input())
+    this.el.appendChild(this.input)
   }
 
   change_input(): void {
     const {step, low, high} = this.model
-    const new_value = Number(this.inputEl.value)
+    const new_value = Number(this.input.value)
     let process_value
     if (low != null) {
       process_value = low + step * Math.round((new_value - low) / step)
@@ -71,7 +58,7 @@ export class SpinnerView extends InputWidgetView {
     if (high != null) {
       process_value = Math.min(process_value, high)
     }
-    this.model.value = Number(process_value.toFixed(log10(1/step)))
+    this.model.value = Number(process_value.toFixed(log10(1 / step)))
 
     if (this.model.value != new_value) {
       //this is needeed when the current value in the intput is already at bounded value
@@ -91,12 +78,19 @@ export namespace Spinner {
     high: number
     step: number
   }
-  export interface Props extends InputWidget.Props {}
+  export interface Props extends InputWidget.Props {
+    value: p.Property<number>
+    low: p.Property<number>
+    high: p.Property<number>
+    step: p.Property<number>
+  }
 }
 
 export interface Spinner extends Spinner.Attrs {}
 
 export class Spinner extends InputWidget {
+
+  properties: Spinner.Props
 
   static initClass(): void {
     this.prototype.type = "Spinner"
