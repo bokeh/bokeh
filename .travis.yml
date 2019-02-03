@@ -39,10 +39,11 @@ notifications:
     secure: UYjR/NEuFdHEXwYxaDR3DxQ6dFrHG4vziqp1Fs+EAoI21bo4r/0/ywTU6+jedlUCiahiFrUqDcX1tdM4s5Y/tnatAwZtEaHdVYTNtislN+f/EuutlE/TUeo8VliK4P47rxDGfdLBxCLes6X80q8QEaOFeIyCauoouQ/keRbrLNs=
 
 before_install:
+  # path order is important here, need to find nodejs from testenv
   - export PATH="$HOME/miniconda/bin:$PATH"
-  - export PATH="$HOME/miniconda/envs/testenv/bin:$PATH"
   - export PATH="$HOME/build/bokeh/bokeh/bokehjs/node_modules/phantomjs-prebuilt/lib/phantom/bin:$PATH"
   - export PATH="$HOME/bin:$PATH"
+  - export PATH="$HOME/miniconda/envs/testenv/bin:$PATH"
   - export TRAVIS_COMMIT_MSG="$(git log --format=%B --no-merges -n 1)"
 
 jobs:
