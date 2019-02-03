@@ -5,10 +5,9 @@ import * as embed from "../embed"
 import * as models from "./models"
 import {HasProps} from "../core/has_props"
 import {Omit} from "../core/types"
-import {Value, Field} from "../core/vectorization"
+import {Value, Field, Vectorized} from "../core/vectorization"
 import {Class} from "../core/class"
 import {Location} from "../core/enums"
-import {StringSpec} from "../core/vectorization"
 import {startsWith} from "../core/util/string"
 import {isEqual} from "../core/util/eq"
 import {any, all, includes} from "../core/util/array"
@@ -481,7 +480,7 @@ export class Figure extends Plot {
     return objs
   }
 
-  _process_legend(legend: string | StringSpec | undefined, source: ColumnarDataSource): StringSpec | null {
+  _process_legend(legend: string | Vectorized<string> | undefined, source: ColumnarDataSource): Vectorized<string> | null {
     let legend_item_label = null
     if (legend != null) {
       if (isString(legend)) {
@@ -498,7 +497,7 @@ export class Figure extends Plot {
     return legend_item_label
   }
 
-  _update_legend(legend_item_label: StringSpec, glyph_renderer: GlyphRenderer): void {
+  _update_legend(legend_item_label: Vectorized<string>, glyph_renderer: GlyphRenderer): void {
     let added = false
     for (const item of this._legend.items) {
       if (item.label != null && isEqual(item.label, legend_item_label)) {

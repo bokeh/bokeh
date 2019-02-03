@@ -1,7 +1,6 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
-import {NumberSpec, AngleSpec, StringSpec, ColorSpec} from "core/vectorization"
 import {TextVector} from "core/property_mixins"
 import {LineJoin, LineCap} from "core/enums"
 import {SpatialUnits} from "core/enums"
@@ -191,30 +190,30 @@ export namespace LabelSet {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = TextAnnotation.Props & TextVector & {
-    x: p.Property<NumberSpec>
-    y: p.Property<NumberSpec>
+    x: p.NumberSpec
+    y: p.NumberSpec
     x_units: p.Property<SpatialUnits>
     y_units: p.Property<SpatialUnits>
-    text: p.Property<StringSpec>
-    angle: p.Property<AngleSpec>
-    x_offset: p.Property<NumberSpec>
-    y_offset: p.Property<NumberSpec>
+    text: p.StringSpec
+    angle: p.AngleSpec
+    x_offset: p.NumberSpec
+    y_offset: p.NumberSpec
     source: p.Property<ColumnarDataSource>
     x_range_name: p.Property<string>
     y_range_name: p.Property<string>
 
     // line:border_ v
-    border_line_color: p.Property<ColorSpec>
-    border_line_width: p.Property<NumberSpec>
-    border_line_alpha: p.Property<NumberSpec>
+    border_line_color: p.ColorSpec
+    border_line_width: p.NumberSpec
+    border_line_alpha: p.NumberSpec
     border_line_join: p.Property<LineJoin>
     border_line_cap: p.Property<LineCap>
     border_line_dash: p.Property<number[]>
     border_line_dash_offset: p.Property<number>
 
     // fill:background_ v
-    background_fill_color: p.Property<ColorSpec>
-    background_fill_alpha: p.Property<NumberSpec>
+    background_fill_color: p.ColorSpec
+    background_fill_alpha: p.NumberSpec
   }
 
   export type Visuals = TextAnnotation.Visuals

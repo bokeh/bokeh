@@ -1,7 +1,6 @@
 import {RenderOne} from "./defs"
 import {XYGlyph, XYGlyphView, XYGlyphData} from "../glyphs/xy_glyph"
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
-import {DistanceSpec, AngleSpec} from "core/vectorization"
 import {LineVector, FillVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
 import {Arrayable, Area} from "core/types"
@@ -170,8 +169,8 @@ export namespace Marker {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = XYGlyph.Props & LineVector & FillVector & {
-    size: p.Property<DistanceSpec>
-    angle: p.Property<AngleSpec>
+    size: p.DistanceSpec
+    angle: p.AngleSpec
   }
 
   export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill}

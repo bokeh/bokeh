@@ -1,5 +1,4 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
-import {FontSizeSpec, ColorSpec, NumberSpec} from "core/vectorization"
 import {Color} from "core/types"
 import {LineJoin, LineCap} from "core/enums"
 import {FontStyle, VerticalAlign, TextAlign, TextBaseline} from "core/enums"
@@ -119,10 +118,10 @@ export namespace Title {
   export type Props = TextAnnotation.Props & {
     text: p.Property<string>
     text_font: p.Property<string> // XXX: Font
-    text_font_size: p.Property<FontSizeSpec>
+    text_font_size: p.FontSizeSpec
     text_font_style: p.Property<FontStyle>
-    text_color: p.Property<ColorSpec>
-    text_alpha: p.Property<NumberSpec>
+    text_color: p.ColorSpec
+    text_alpha: p.NumberSpec
     vertical_align: p.Property<VerticalAlign>
     align: p.Property<TextAlign>
     offset: p.Property<number>

@@ -2,7 +2,6 @@ import {Annotation, AnnotationView} from "./annotation"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
 import {ArrowHead, TeeHead} from "./arrow_head"
-import {DistanceSpec} from "core/vectorization"
 import {LineVector} from "core/property_mixins"
 import {Line} from "core/visuals"
 import {Arrayable} from "core/types"
@@ -58,19 +57,19 @@ export class WhiskerView extends AnnotationView {
     const base_view  = dim == "height" ? frame.xview : frame.yview
 
     let _lower_sx
-    if (this.model.lower.units == "data")
+    if (this.model.properties.lower.units == "data")
       _lower_sx = limit_scale.v_compute(this._lower)
     else
       _lower_sx = limit_view.v_compute(this._lower)
 
     let _upper_sx
-    if (this.model.upper.units == "data")
+    if (this.model.properties.upper.units == "data")
       _upper_sx = limit_scale.v_compute(this._upper)
     else
       _upper_sx = limit_view.v_compute(this._upper)
 
     let _base_sx
-    if (this.model.base.units  == "data")
+    if (this.model.properties.base.units  == "data")
       _base_sx  = base_scale.v_compute(this._base)
     else
       _base_sx  = base_view.v_compute(this._base)
@@ -133,11 +132,11 @@ export namespace Whisker {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Annotation.Props & LineVector & {
-    lower: p.Property<DistanceSpec>
+    lower: p.DistanceSpec
     lower_head: p.Property<ArrowHead>
-    upper: p.Property<DistanceSpec>
+    upper: p.DistanceSpec
     upper_head: p.Property<ArrowHead>
-    base: p.Property<DistanceSpec>
+    base: p.DistanceSpec
     dimension: p.Property<Dimension>
     source: p.Property<ColumnarDataSource>
     x_range_name: p.Property<string>
