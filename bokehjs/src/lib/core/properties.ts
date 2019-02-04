@@ -51,9 +51,6 @@ export abstract class Property<T> extends Signalable() {
               readonly attr: string,
               readonly default_value?: (obj: HasProps) => T) {
     super()
-    this.obj = obj
-    this.attr = attr
-    this.default_value = default_value
     this.change = new Signal0(this.obj, "change")
     this._init()
     this.connect(this.change, () => this._init())
