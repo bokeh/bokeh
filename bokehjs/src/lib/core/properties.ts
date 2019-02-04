@@ -154,57 +154,63 @@ export abstract class Property<T> extends Signalable() {
 Property.prototype.dataspec = false
 
 //
-// Simple Properties
+// Primitive Properties
 //
 
-export function simple_prop<T>(name: string, pred: (value: any) => boolean) {
-  return class extends Property<T> {
-    validate(value: any): void {
-      if (!pred(value))
-        throw new Error(`${name} property '${this.attr}' given invalid value: ${valueToString(value)}`)
-    }
-  }
+export class Any extends Property<any> {
+  validator = () => true
 }
 
-export class Any extends simple_prop<any>("Any", () => true) {}
+export class Array extends Property<any[]> {
+  validator = (x: any) => isArray(x) || x instanceof Float64Array
+}
 
-export class Array extends simple_prop<any[]>("Array", (x) => isArray(x) || x instanceof Float64Array) {}
+export class Boolean extends Property<boolean> {
+  validator = isBoolean
+}
 
-export class Boolean extends simple_prop<boolean>("Boolean", isBoolean) {}
+export class Color extends Property<ColorType> {
+  validator = (x: any) => (isString(x) && (is_svg_color(x.toLowerCase()) || x.substring(0, 1) == "#" || valid_rgb(x)))
+}
 
-export class Color extends simple_prop<ColorType>("Color", (x) => (isString(x) && (is_svg_color(x.toLowerCase()) || x.substring(0, 1) == "#" || valid_rgb(x)))) {}
+export class Instance extends Property<HasProps> {
+  validator = (x: any) => x.properties != null
+}
 
-export class Instance extends simple_prop<HasProps>("Instance", (x) => x.properties != null) {}
+export class Number extends Property<number> {
+  validator = isNumber
+}
 
-// TODO (bev) separate booleans?
-export class Number extends simple_prop<number>("Number", isNumber) {}
-export const Int = Number
+export class Int extends Number {}
 
 export class Angle extends Number {}
 
-// TODO extend Number instead of copying it's predicate
-//class Percent extends Number("Percent", (x) -> 0 <= x <= 1.0)
-export class Percent extends simple_prop<number>("Percent", (x) => isNumber(x) && 0 <= x && x <= 1.0) {}
+export class Percent extends Property<number> {
+  validator = (x: any) => isNumber(x) && 0 <= x && x <= 1.0
+}
 
-export class String extends simple_prop<string>("String", isString) {}
-export const FontSize = String
+export class String extends Property<string> {
+  validator = isString
+}
 
-// TODO (bev) don't think this exists python side
-export class Font extends String {}
+export class FontSize extends String {}
+
+export class Font extends String {} // TODO (bev) don't think this exists python side
 
 //
 // Enum properties
 //
 
-export function enum_prop<T>(name: string, enum_values: T[]) {
-  return class extends simple_prop<T>(name, (x) => includes(enum_values, x)) {}
+export abstract class Enum<T> extends Property<T> {
+  enum_values: T[]
+  validator = (value: any) => includes(this.enum_values, value)
 }
 
-export class Anchor extends enum_prop("Anchor", enums.LegendLocation) {}
+export class Anchor extends Enum<enums.Anchor> {}
 
-export class AngleUnits extends enum_prop("AngleUnits", enums.AngleUnits) {}
+export class AngleUnits extends Enum<enums.AngleUnits> {}
 
-export class Direction extends enum_prop("Direction", enums.Direction) {
+export class Direction extends Enum<enums.Direction> {
   transform(values: any): any {
     const result = new Uint8Array(values.length)
     for (let i = 0; i < values.length; i++) {
@@ -217,71 +223,47 @@ export class Direction extends enum_prop("Direction", enums.Direction) {
   }
 }
 
-export class Dimension extends enum_prop("Dimension", enums.Dimension) {}
+export class Dimension extends Enum<enums.Dimension> {}
 
-export class Dimensions extends enum_prop("Dimensions", enums.Dimensions) {}
+export class Dimensions extends Enum<enums.Dimensions> {}
 
-export class FontStyle extends enum_prop("FontStyle", enums.FontStyle) {}
+export class FontStyle extends Enum<enums.FontStyle> {}
 
-export class LatLon extends enum_prop("LatLon", enums.LatLon) {}
+export class LatLon extends Enum<enums.LatLon> {}
 
-export class LineCap extends enum_prop("LineCap", enums.LineCap) {}
+export class LineCap extends Enum<enums.LineCap> {}
 
-export class LineJoin extends enum_prop("LineJoin", enums.LineJoin) {}
+export class LineJoin extends Enum<enums.LineJoin> {}
 
-export class LegendLocation extends enum_prop("LegendLocation", enums.LegendLocation) {}
+export class LegendLocation extends Enum<enums.LegendLocation> {}
 
-export class Location extends enum_prop("Location", enums.Location) {}
+export class Location extends Enum<enums.Location> {}
 
-export class OutputBackend extends enum_prop("OutputBackend", enums.OutputBackend) {}
+export class OutputBackend extends Enum<enums.OutputBackend> {}
 
-export class Orientation extends enum_prop("Orientation", enums.Orientation) {}
+export class Orientation extends Enum<enums.Orientation> {}
 
-export class VerticalAlign extends enum_prop("VerticalAlign", enums.VerticalAlign) {}
+export class VerticalAlign extends Enum<enums.VerticalAlign> {}
 
-export class TextAlign extends enum_prop("TextAlign", enums.TextAlign) {}
+export class TextAlign extends Enum<enums.TextAlign> {}
 
-export class TextBaseline extends enum_prop("TextBaseline", enums.TextBaseline) {}
+export class TextBaseline extends Enum<enums.TextBaseline> {}
 
-export class RenderLevel extends enum_prop("RenderLevel", enums.RenderLevel) {}
+export class RenderLevel extends Enum<enums.RenderLevel> {}
 
-export class RenderMode extends enum_prop("RenderMode", enums.RenderMode) {}
+export class RenderMode extends Enum<enums.RenderMode> {}
 
-export class SizingMode extends enum_prop("SizingMode", enums.SizingMode) {}
+export class SizingMode extends Enum<enums.SizingMode> {}
 
-export class SpatialUnits extends enum_prop("SpatialUnits", enums.SpatialUnits) {}
+export class SpatialUnits extends Enum<enums.SpatialUnits> {}
 
-export class Distribution extends enum_prop("Distribution", enums.Distribution) {}
+export class Distribution extends Enum<enums.Distribution> {}
 
-export class StepMode extends enum_prop("StepMode", enums.StepMode) {}
+export class StepMode extends Enum<enums.StepMode> {}
 
-export class PaddingUnits extends enum_prop("PaddingUnits", enums.PaddingUnits) {}
+export class PaddingUnits extends Enum<enums.PaddingUnits> {}
 
-export class StartEnd extends enum_prop("StartEnd", enums.StartEnd) {}
-
-//
-// Units Properties
-//
-export function units_prop<Units>(name: string, valid_units: Units[], default_units: any) {
-  return class extends Number {
-    init(): void {
-      if (this.spec.units == null)
-        this.spec.units = default_units
-
-      const units = this.spec.units
-      if (!includes(valid_units, units))
-        throw new Error(`${name} units must be one of ${valid_units}, given invalid value: ${units}`)
-    }
-
-    get units(): Units {
-      return this.spec.units as Units
-    }
-
-    set units(units: Units) {
-      this.spec.units = units
-    }
-  }
-}
+export class StartEnd extends Enum<enums.StartEnd> {}
 
 //
 // DataSpec properties
@@ -291,7 +273,34 @@ export abstract class ScalarSpec<T> extends Property<Scalar<T>> {}
 
 export abstract class DataSpec<T> extends Property<Vectorized<T>> {}
 
-export class AngleSpec extends units_prop("AngleSpec", enums.AngleUnits, "rad") {
+export abstract class UnitsSpec<T, Units> extends DataSpec<T> {
+  default_units: Units
+  valid_units: Units[]
+
+  init(): void {
+    if (this.spec.units == null)
+      this.spec.units = this.default_units
+
+    /*
+    const units = this.spec.units
+    if (!includes(this.valid_units, units))
+      throw new Error(`${name} units must be one of ${this.valid_units}, given invalid value: ${units}`)
+    */
+  }
+
+  get units(): Units {
+    return this.spec.units as Units
+  }
+
+  set units(units: Units) {
+    this.spec.units = units
+  }
+}
+
+export class AngleSpec extends UnitsSpec<number, enums.AngleUnits> {
+  default_units = "rad" as "rad"
+  valid_units = enums.AngleUnits
+
   transform(values: Arrayable): Arrayable {
     if (this.spec.units == "deg")
       values = map(values, (x: number) => x * Math.PI/180.0)
@@ -304,17 +313,20 @@ AngleSpec.prototype.dataspec = true
 export class ColorSpec extends DataSpec<ColorType | null> {}
 ColorSpec.prototype.dataspec = true
 
-export class DistanceSpec extends units_prop("DistanceSpec", enums.SpatialUnits, "data") {}
+export class DistanceSpec extends UnitsSpec<number, enums.SpatialUnits> {
+  default_units = "data" as "data"
+  valid_units = enums.SpatialUnits
+}
 DistanceSpec.prototype.dataspec = true
 
-export class FontSizeSpec extends String {}
+export class FontSizeSpec extends DataSpec<string> {}
 FontSizeSpec.prototype.dataspec = true
 
-export class MarkerSpec extends String {}
+export class MarkerSpec extends DataSpec<string> {}
 MarkerSpec.prototype.dataspec = true
 
-export class NumberSpec extends Number {}
+export class NumberSpec extends DataSpec<number> {}
 NumberSpec.prototype.dataspec = true
 
-export class StringSpec extends String {}
+export class StringSpec extends DataSpec<string> {}
 StringSpec.prototype.dataspec = true
