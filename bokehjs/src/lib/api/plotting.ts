@@ -6,6 +6,7 @@ import * as models from "./models"
 import {HasProps} from "../core/has_props"
 import {Omit} from "../core/types"
 import {Value, Field, Vectorized} from "../core/vectorization"
+import {DataSpec} from "../core/properties"
 import {Class} from "../core/class"
 import {Location} from "../core/enums"
 import {startsWith} from "../core/util/string"
@@ -250,7 +251,7 @@ export class Figure extends Plot {
       const prop = cls.prototype.props[name]
 
       if (prop != null) {
-        if (prop.type.prototype.dataspec) {
+        if (prop.type.prototype instanceof DataSpec) {
           if (value != null) {
             if (isArray(value)) {
               let field

@@ -47,8 +47,6 @@ export abstract class Property<T> extends Signalable() {
 
   optional: boolean = false
 
-  dataspec: boolean // prototype
-
   readonly change: Signal0<HasProps>
 
   constructor(readonly obj: HasProps,
@@ -88,31 +86,6 @@ export abstract class Property<T> extends Signalable() {
     return ret
   }
 
-  array(source: ColumnarDataSource): any[] {
-    if (!this.dataspec)
-      throw new Error("attempted to retrieve property array for non-dataspec property")
-
-    let ret: any
-
-    if (this.spec.field != null) {
-      ret = this.transform(source.get_column(this.spec.field))
-      if (ret == null)
-        throw new Error(`attempted to retrieve property array for nonexistent field '${this.spec.field}'`)
-    } else if (this.spec.expr != null) {
-      ret = this.transform(this.spec.expr.v_compute(source))
-    } else {
-      let length = source.get_length()
-      if (length == null)
-        length = 1
-      const value = this.value(false) // don't apply any spec transform
-      ret = repeat(value, length)
-    }
-
-    if (this.spec.transform != null)
-      ret = this.spec.transform.v_compute(ret)
-    return ret
-  }
-
   // ----- private methods
 
   /*protected*/ _init(): void {
@@ -136,8 +109,8 @@ export abstract class Property<T> extends Signalable() {
     else
       this.spec = {value: attr_value}
 
-    if (this.dataspec && this.spec.field != null && !isString(this.spec.field))
-      throw new Error(`field value for property '${attr}' is not a string`)
+    //if (this.dataspec && this.spec.field != null && !isString(this.spec.field))
+    //  throw new Error(`field value for property '${attr}' is not a string`)
 
     if (this.spec.value != null)
       this.validate(this.spec.value)
@@ -150,8 +123,6 @@ export abstract class Property<T> extends Signalable() {
     return `Prop(${this.obj}.${this.attr}, spec: ${valueToString(this.spec)})`
   }
 }
-
-Property.prototype.dataspec = false
 
 //
 // Primitive Properties
@@ -271,7 +242,29 @@ export class StartEnd extends Enum<enums.StartEnd> {}
 
 export abstract class ScalarSpec<T> extends Property<Scalar<T>> {}
 
-export abstract class DataSpec<T> extends Property<Vectorized<T>> {}
+export abstract class DataSpec<T> extends Property<Vectorized<T>> {
+  array(source: ColumnarDataSource): any[] {
+    let ret: any
+
+    if (this.spec.field != null) {
+      ret = this.transform(source.get_column(this.spec.field))
+      if (ret == null)
+        throw new Error(`attempted to retrieve property array for nonexistent field '${this.spec.field}'`)
+    } else if (this.spec.expr != null) {
+      ret = this.transform(this.spec.expr.v_compute(source))
+    } else {
+      let length = source.get_length()
+      if (length == null)
+        length = 1
+      const value = this.value(false) // don't apply any spec transform
+      ret = repeat(value, length)
+    }
+
+    if (this.spec.transform != null)
+      ret = this.spec.transform.v_compute(ret)
+    return ret
+  }
+}
 
 export abstract class UnitsSpec<T, Units> extends DataSpec<T> {
   default_units: Units
@@ -308,25 +301,18 @@ export class AngleSpec extends UnitsSpec<number, enums.AngleUnits> {
     return super.transform(values)
   }
 }
-AngleSpec.prototype.dataspec = true
 
 export class ColorSpec extends DataSpec<ColorType | null> {}
-ColorSpec.prototype.dataspec = true
 
 export class DistanceSpec extends UnitsSpec<number, enums.SpatialUnits> {
   default_units = "data" as "data"
   valid_units = enums.SpatialUnits
 }
-DistanceSpec.prototype.dataspec = true
 
 export class FontSizeSpec extends DataSpec<string> {}
-FontSizeSpec.prototype.dataspec = true
 
 export class MarkerSpec extends DataSpec<string> {}
-MarkerSpec.prototype.dataspec = true
 
 export class NumberSpec extends DataSpec<number> {}
-NumberSpec.prototype.dataspec = true
 
 export class StringSpec extends DataSpec<string> {}
-StringSpec.prototype.dataspec = true

@@ -507,7 +507,7 @@ export abstract class HasProps extends Signalable() {
     const data: {[key: string]: any} = {}
     for (const name in this.properties) {
       const prop = this.properties[name]
-      if (!prop.dataspec)
+      if (!(prop instanceof p.DataSpec))
         continue
       // this skips optional properties like radius for circles
       if (prop.optional && prop.spec.value == null && !(name in this._set_after_defaults))
