@@ -2,13 +2,11 @@ import {Signal0, Signal, Signalable} from "./signaling"
 import {HasProps} from "./has_props"  // XXX: only for type purpose
 import * as enums from "./enums"
 import {Arrayable, Color as ColorType} from "./types"
-import {is_svg_color} from "./util/svg_colors"
-import {valid_rgb} from "./util/color"
 import {includes, repeat} from "./util/array"
 import {map} from "./util/arrayable"
-import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/types"
+import {isNumber, isString, isArray, isPlainObject} from "./util/types"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
-import {Scalar, Vectorized} from "./vectorization"
+import {Scalar, Vector, Dimensional} from "./vectorization"
 
 Signal // XXX: silence TS, because `Signal` appears in declarations due to Signalable
 
@@ -129,27 +127,27 @@ export abstract class Property<T> extends Signalable() {
 //
 
 export class Any extends Property<any> {
-  validator = () => true
+  //validator = () => true
 }
 
 export class Array extends Property<any[]> {
-  validator = (x: any) => isArray(x) || x instanceof Float64Array
+  //validator = (x: any) => isArray(x) || x instanceof Float64Array
 }
 
 export class Boolean extends Property<boolean> {
-  validator = isBoolean
+  //validator = isBoolean
 }
 
 export class Color extends Property<ColorType> {
-  validator = (x: any) => (isString(x) && (is_svg_color(x.toLowerCase()) || x.substring(0, 1) == "#" || valid_rgb(x)))
+  //validator = (x: any) => (isString(x) && (is_svg_color(x.toLowerCase()) || x.substring(0, 1) == "#" || valid_rgb(x)))
 }
 
 export class Instance extends Property<HasProps> {
-  validator = (x: any) => x.properties != null
+  //validator = (x: any) => x.properties != null
 }
 
 export class Number extends Property<number> {
-  validator = isNumber
+  //validator = isNumber
 }
 
 export class Int extends Number {}
@@ -173,8 +171,8 @@ export class Font extends String {} // TODO (bev) don't think this exists python
 //
 
 export abstract class Enum<T> extends Property<T> {
-  enum_values: T[]
-  validator = (value: any) => includes(this.enum_values, value)
+  readonly enum_values: T[]
+  // validator = (value: any) => includes(this.enum_values, value)
 }
 
 export class Anchor extends Enum<enums.Anchor> {}
@@ -240,9 +238,9 @@ export class StartEnd extends Enum<enums.StartEnd> {}
 // DataSpec properties
 //
 
-export abstract class ScalarSpec<T> extends Property<Scalar<T>> {}
+export abstract class ScalarSpec<T, S = Scalar<T>> extends Property<T | S> {}
 
-export abstract class DataSpec<T> extends Property<Vectorized<T>> {
+export abstract class VectorSpec<T, V = Vector<T>> extends Property<T | V> {
   array(source: ColumnarDataSource): any[] {
     let ret: any
 
@@ -266,19 +264,19 @@ export abstract class DataSpec<T> extends Property<Vectorized<T>> {
   }
 }
 
-export abstract class UnitsSpec<T, Units> extends DataSpec<T> {
-  default_units: Units
-  valid_units: Units[]
+export abstract class DataSpec<T> extends VectorSpec<T> {}
+
+export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vector<T>, Units>> {
+  readonly default_units: Units
+  readonly valid_units: Units[]
 
   init(): void {
     if (this.spec.units == null)
       this.spec.units = this.default_units
 
-    /*
     const units = this.spec.units
     if (!includes(this.valid_units, units))
-      throw new Error(`${name} units must be one of ${this.valid_units}, given invalid value: ${units}`)
-    */
+      throw new Error(`units must be one of ${this.valid_units.join(", ")}; got: ${units}`)
   }
 
   get units(): Units {
@@ -291,8 +289,8 @@ export abstract class UnitsSpec<T, Units> extends DataSpec<T> {
 }
 
 export class AngleSpec extends UnitsSpec<number, enums.AngleUnits> {
-  default_units = "rad" as "rad"
-  valid_units = enums.AngleUnits
+  get default_units(): enums.AngleUnits { return "rad" as "rad" }
+  get valid_units(): enums.AngleUnits[] { return enums.AngleUnits }
 
   transform(values: Arrayable): Arrayable {
     if (this.spec.units == "deg")
@@ -305,8 +303,8 @@ export class AngleSpec extends UnitsSpec<number, enums.AngleUnits> {
 export class ColorSpec extends DataSpec<ColorType | null> {}
 
 export class DistanceSpec extends UnitsSpec<number, enums.SpatialUnits> {
-  default_units = "data" as "data"
-  valid_units = enums.SpatialUnits
+  get default_units(): enums.SpatialUnits { return "data" as "data" }
+  get valid_units(): enums.SpatialUnits[] { return enums.SpatialUnits }
 }
 
 export class FontSizeSpec extends DataSpec<string> {}

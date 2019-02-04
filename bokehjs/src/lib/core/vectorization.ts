@@ -1,4 +1,15 @@
-import {isObject} from "core/util/types"
+import {isPlainObject} from "./util/types"
+import {Arrayable} from "./types"
+import {ColumnarDataSource} from "../models/sources/columnar_data_source"
+
+export type Transform<In, Out> = {
+  compute(x: In): Out
+  v_compute(xs: Arrayable<In>): Arrayable<Out>
+}
+
+export type Expression<Out> = {
+  v_compute(source: ColumnarDataSource): Arrayable<Out>
+}
 
 export type Value<T> = {
   value: T
@@ -8,31 +19,24 @@ export type Field = {
   field: string
 }
 
-export type Scalar<T> = T | Value<T>
-
-export type Vectorized<T> = T | Value<T> | Field
-
-/*
-import {Color} from "./types"
-import {SpatialUnits, AngleUnits} from "./enums"
-
-export type AngleSpec = Vectorized<number> & { units?: AngleUnits }
-
-export type ColorSpec = Vectorized<Color | null>
-
-export type DistanceSpec = Vectorized<number> & { units?: SpatialUnits }
-
-export type FontSizeSpec = Vectorized<string>
-
-export type NumberSpec = Vectorized<number>
-
-export type StringSpec = Vectorized<string>
-*/
-
-export function isValue<T>(obj: Scalar<T> | Vectorized<T>): obj is Value<T> {
-  return isObject(obj) && "value" in (obj as any)
+export type Expr<T> = {
+  expr: Expression<T>
 }
 
-export function isField<T>(obj: Vectorized<T>): obj is Field {
-  return isObject(obj) && "field" in (obj as any)
+export type Scalar<T> = Value<T>
+
+export type Vector<T> = Value<T> | Field | Expr<T>
+
+export type Dimensional<T, U> = T & {units?: U}
+
+export type Transformed<T> = {
+  transform?: Transform<T, T>
+}
+
+export function isValue<T>(obj: unknown): obj is Value<T> {
+  return isPlainObject(obj) && "value" in obj
+}
+
+export function isField(obj: unknown): obj is Field {
+  return isPlainObject(obj) && "field" in obj
 }

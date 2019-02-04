@@ -94,7 +94,7 @@ export class LegendItem extends Model {
 
   get_labels_list_from_label_prop(): string[] {
     // Always return a list of the labels
-    if (isValue(this.label)) {
+    if (isValue<string | null>(this.label)) {
       const {value} = this.label
       return value != null ? [value] : []
     }

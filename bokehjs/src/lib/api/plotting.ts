@@ -5,8 +5,8 @@ import * as embed from "../embed"
 import * as models from "./models"
 import {HasProps} from "../core/has_props"
 import {Omit} from "../core/types"
-import {Value, Field, Vectorized} from "../core/vectorization"
-import {DataSpec} from "../core/properties"
+import {Value, Field, Vector} from "../core/vectorization"
+import {VectorSpec} from "../core/properties"
 import {Class} from "../core/class"
 import {Location} from "../core/enums"
 import {startsWith} from "../core/util/string"
@@ -251,7 +251,7 @@ export class Figure extends Plot {
       const prop = cls.prototype.props[name]
 
       if (prop != null) {
-        if (prop.type.prototype instanceof DataSpec) {
+        if (prop.type.prototype instanceof VectorSpec) {
           if (value != null) {
             if (isArray(value)) {
               let field
@@ -481,7 +481,7 @@ export class Figure extends Plot {
     return objs
   }
 
-  _process_legend(legend: string | Vectorized<string> | undefined, source: ColumnarDataSource): Vectorized<string> | null {
+  _process_legend(legend: string | Vector<string> | undefined, source: ColumnarDataSource): Vector<string> | null {
     let legend_item_label = null
     if (legend != null) {
       if (isString(legend)) {
@@ -498,7 +498,7 @@ export class Figure extends Plot {
     return legend_item_label
   }
 
-  _update_legend(legend_item_label: Vectorized<string>, glyph_renderer: GlyphRenderer): void {
+  _update_legend(legend_item_label: Vector<string>, glyph_renderer: GlyphRenderer): void {
     let added = false
     for (const item of this._legend.items) {
       if (item.label != null && isEqual(item.label, legend_item_label)) {
