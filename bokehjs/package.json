@@ -47,6 +47,7 @@
     "btoa": "^1.2.1",
     "chalk": "^2.4.1",
     "ts-node": "^6.0.3",
+    "source-map-support": "0.5.10",
     "chrome-remote-interface": "^0.25.5",
     "devtools-protocol": "^0.0.625481",
     "@types/node": "^8.10.15",
