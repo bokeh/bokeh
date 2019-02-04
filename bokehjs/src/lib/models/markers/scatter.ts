@@ -1,11 +1,11 @@
 import {Marker, MarkerView, MarkerData} from "./marker"
-import {marker_funcs} from "./defs"
+import {marker_funcs, MarkerType} from "./defs"
 import {Arrayable, Area} from "core/types"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 
 export interface ScatterData extends MarkerData {
-  _marker: Arrayable<string>
+  _marker: Arrayable<MarkerType>
 }
 
 export interface ScatterView extends ScatterData {}
@@ -61,13 +61,13 @@ export namespace Scatter {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Marker.Props & {
-    marker: p.Property<string>
+    marker: p.Property<MarkerType>
   }
 }
 
 export interface Scatter extends Scatter.Attrs {}
 
-export abstract class Scatter extends Marker {
+export class Scatter extends Marker {
   properties: Scatter.Props
 
   constructor(attrs?: Partial<Scatter.Attrs>) {

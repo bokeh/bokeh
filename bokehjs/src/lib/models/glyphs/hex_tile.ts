@@ -214,6 +214,8 @@ export namespace HexTile {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Glyph.Props & LineVector & FillVector & {
+    r: p.NumberSpec
+    q: p.NumberSpec
     size: p.Property<number>
     aspect_scale: p.Property<number>
     scale: p.NumberSpec

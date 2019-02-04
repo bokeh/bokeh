@@ -23,7 +23,7 @@ export type L2Mapping = {[key: string]: {value: number, mapping: L1Mapping}}
 export type L3Mapping = {[key: string]: {value: number, mapping: L2Mapping}}
 
 export function map_one_level(factors: L1Factor[], padding: number, offset: number = 0): [L1Mapping, number] {
-  const mapping: {[key: string]: {value: number}} = {}
+  const mapping: L1Mapping = {}
 
   for (let i = 0; i < factors.length; i++) {
     const factor = factors[i]

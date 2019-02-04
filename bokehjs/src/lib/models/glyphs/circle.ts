@@ -3,6 +3,7 @@ import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geom
 import {LineVector, FillVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
 import {Arrayable, Area} from "core/types"
+import {RadiusDimension} from "core/enums"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {range} from "core/util/array"
@@ -267,7 +268,7 @@ export namespace Circle {
     angle: p.AngleSpec
     size: p.DistanceSpec
     radius: p.DistanceSpec // XXX: null
-    radius_dimension: p.Property<"x" | "y" | "max" | "min">
+    radius_dimension: p.Property<RadiusDimension>
   }
 
   export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill}

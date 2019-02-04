@@ -106,3 +106,6 @@ export const HTTPMethod: HTTPMethod[] = ["POST", "GET"]
 
 export type Logo = "normal" | "grey"
 export const Logo: Logo[] = ["normal", "grey"]
+
+export type RadiusDimension = "x" | "y" | "max" | "min"
+export const RadiusDimension: RadiusDimension[] = ["x", "y", "max", "min"]
