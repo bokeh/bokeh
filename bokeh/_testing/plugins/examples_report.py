@@ -159,7 +159,7 @@ class ExamplesTestReport(object):
         # ('tests/examples/test_examples.py', 49, 'test_file_examples[/Users/caged/Dev/bokeh/bokeh/examples/models/file/anscombe.py-exampleN]')
         match = re.search(r'\[(.*?)\]', report.location[2])
         if match is not None:
-            example_path = match.group(1).rsplit('-', 1)[0]
+            example_path = match.group(1).rsplit('-', 2)[0]
             self.entries.append((self.examples[example_path], failed, skipped))
 
             if self.config.option.incremental:
