@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from datetime import datetime
+from datetime import datetime, date
 import numbers
 
 # External imports
@@ -200,6 +200,25 @@ class DateRangeSlider(AbstractSlider):
             d1 = v1
         if isinstance(v2, numbers.Number):
             d2 = datetime.utcfromtimestamp(v2 / 1000)
+        else:
+            d2 = v2
+        return d1, d2    \
+
+    @property
+    def value_as_date(self):
+        ''' Convenience property to retrieve the value tuple as a tuple of
+        datetime objects.
+
+        '''
+        if self.value is None:
+            return None
+        v1, v2 = self.value
+        if isinstance(v1, numbers.Number):
+            d1 = date.fromtimestamp(v1 / 1000)
+        else:
+            d1 = v1
+        if isinstance(v2, numbers.Number):
+            d2 = date.fromtimestamp(v1 / 1000)
         else:
             d2 = v2
         return d1, d2
