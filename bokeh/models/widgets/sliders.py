@@ -218,7 +218,7 @@ class DateRangeSlider(AbstractSlider):
         else:
             d1 = v1
         if isinstance(v2, numbers.Number):
-            d2 = date.fromtimestamp(v1 / 1000)
+            d2 = date.fromtimestamp(v2 / 1000)
         else:
             d2 = v2
         return d1, d2
