@@ -207,7 +207,7 @@ class DateRangeSlider(AbstractSlider):
     @property
     def value_as_date(self):
         ''' Convenience property to retrieve the value tuple as a tuple of
-        datetime objects.
+        date objects.
 
         '''
         if self.value is None:
