@@ -84,7 +84,7 @@ class NotebookHandler(CodeHandler):
             out all magics (i.e IPython specific syntax).
             """
 
-            _magic_pattern = re.compile('^\s*(?P<magic>%%\w\w+)($|(\s+))')
+            _magic_pattern = re.compile(r'^\s*(?P<magic>%%\w\w+)($|(\s+))')
 
             def strip_magics(self, source):
                 """
