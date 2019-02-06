@@ -67,10 +67,10 @@ export namespace HBar {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Box.Props & {
-    left: p.NumberSpec
-    y: p.NumberSpec
+    left: p.CoordinateSpec
+    y: p.CoordinateSpec
     height: p.DistanceSpec
-    right: p.NumberSpec
+    right: p.CoordinateSpec
   }
 
   export type Visuals = Box.Visuals
@@ -91,8 +91,8 @@ export class HBar extends Box {
 
     this.coords([['left', 'y']])
     this.define({
-      height: [ p.DistanceSpec  ],
-      right:  [ p.NumberSpec    ],
+      height: [ p.DistanceSpec   ],
+      right:  [ p.CoordinateSpec ],
     })
     this.override({ left: 0 })
   }

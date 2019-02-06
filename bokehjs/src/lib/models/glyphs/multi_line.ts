@@ -160,8 +160,8 @@ export namespace MultiLine {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Glyph.Props & LineVector & {
-    xs: p.NumberSpec
-    ys: p.NumberSpec
+    xs: p.CoordinateSeqSpec
+    ys: p.CoordinateSeqSpec
   }
 
   export type Visuals = Glyph.Visuals & {line: Line}

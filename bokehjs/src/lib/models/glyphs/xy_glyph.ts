@@ -46,8 +46,8 @@ export namespace XYGlyph {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Glyph.Props & {
-    x: p.NumberSpec
-    y: p.NumberSpec
+    x: p.CoordinateSpec
+    y: p.CoordinateSpec
   }
 
   export type Visuals = Glyph.Visuals

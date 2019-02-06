@@ -149,14 +149,14 @@ export namespace Bezier {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Glyph.Props & LineVector & {
-    x0: p.NumberSpec
-    y0: p.NumberSpec
-    x1: p.NumberSpec
-    y1: p.NumberSpec
-    cx0: p.NumberSpec
-    cy0: p.NumberSpec
-    cx1: p.NumberSpec
-    cy1: p.NumberSpec
+    x0: p.CoordinateSpec
+    y0: p.CoordinateSpec
+    x1: p.CoordinateSpec
+    y1: p.CoordinateSpec
+    cx0: p.CoordinateSpec
+    cy0: p.CoordinateSpec
+    cx1: p.CoordinateSpec
+    cy1: p.CoordinateSpec
   }
 
   export type Visuals = Glyph.Visuals & {line: Line}

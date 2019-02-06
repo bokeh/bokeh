@@ -67,10 +67,10 @@ export namespace VBar {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Box.Props & {
-    x: p.NumberSpec
-    bottom: p.NumberSpec
+    x: p.CoordinateSpec
+    bottom: p.CoordinateSpec
     width: p.DistanceSpec
-    top: p.NumberSpec
+    top: p.CoordinateSpec
   }
 
   export type Visuals = Box.Visuals
@@ -91,8 +91,8 @@ export class VBar extends Box {
 
     this.coords([['x', 'bottom']])
     this.define({
-      width:  [ p.DistanceSpec  ],
-      top:    [ p.NumberSpec    ],
+      width:  [ p.DistanceSpec   ],
+      top:    [ p.CoordinateSpec ],
     })
     this.override({
       bottom: 0,

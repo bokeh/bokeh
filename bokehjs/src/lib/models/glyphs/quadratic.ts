@@ -98,12 +98,12 @@ export namespace Quadratic {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Glyph.Props & LineVector & {
-    x0: p.NumberSpec
-    y0: p.NumberSpec
-    x1: p.NumberSpec
-    y1: p.NumberSpec
-    cx: p.NumberSpec
-    cy: p.NumberSpec
+    x0: p.CoordinateSpec
+    y0: p.CoordinateSpec
+    x1: p.CoordinateSpec
+    y1: p.CoordinateSpec
+    cx: p.CoordinateSpec
+    cy: p.CoordinateSpec
   }
 
   export type Visuals = Glyph.Visuals & {line: Line}

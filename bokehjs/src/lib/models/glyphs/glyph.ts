@@ -370,8 +370,8 @@ export abstract class Glyph extends Model {
 
     const result: any = {}
     for (const [x, y] of coords) {
-      result[x] = [ p.NumberSpec ]
-      result[y] = [ p.NumberSpec ]
+      result[x] = [ p.CoordinateSpec ]
+      result[y] = [ p.CoordinateSpec ]
     }
 
     this.define(result)

@@ -5,6 +5,7 @@ import {Arrayable, Color as ColorType} from "./types"
 import {includes, repeat} from "./util/array"
 import {map} from "./util/arrayable"
 import {isNumber, isString, isArray, isPlainObject} from "./util/types"
+import {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
 import {Scalar, Vector, Dimensional} from "./vectorization"
 
@@ -305,6 +306,10 @@ export class AngleSpec extends UnitsSpec<number, enums.AngleUnits> {
 }
 
 export class ColorSpec extends DataSpec<ColorType | null> {}
+
+export class CoordinateSpec extends DataSpec<number | Factor> {}
+
+export class CoordinateSeqSpec extends DataSpec<number[] | Factor[]> {}
 
 export class DistanceSpec extends UnitsSpec<number, enums.SpatialUnits> {
   get default_units(): enums.SpatialUnits { return "data" as "data" }

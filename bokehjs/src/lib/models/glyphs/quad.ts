@@ -67,10 +67,10 @@ export namespace Quad {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Box.Props & {
-    right: p.NumberSpec
-    bottom: p.NumberSpec
-    left: p.NumberSpec
-    top: p.NumberSpec
+    right: p.CoordinateSpec
+    bottom: p.CoordinateSpec
+    left: p.CoordinateSpec
+    top: p.CoordinateSpec
   }
 
   export type Visuals = Box.Visuals
