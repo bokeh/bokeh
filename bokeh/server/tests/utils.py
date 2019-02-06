@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 
 # External imports
+from tornado import gen
 from tornado.ioloop import IOLoop
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 from tornado.websocket import websocket_connect
@@ -55,6 +56,7 @@ def ws_url(server, prefix=""):
 
 def http_get(io_loop, url):
     result = {}
+    @gen.coroutine
     def handle_request(response):
         result['response'] = response
         io_loop.stop()
@@ -63,12 +65,13 @@ def http_get(io_loop, url):
     assert io_loop is IOLoop.current()
     http_client = AsyncHTTPClient()
     headers = dict()
-    http_client.fetch(url, handle_request, headers=headers)
+    resp = http_client.fetch(url, headers=headers)
+    io_loop.add_future(resp, handle_request)
     io_loop.start()
 
     if 'response' not in result:
         raise RuntimeError("Failed to http get")
-    response = result['response']
+    response = result['response'].result()
     if response.error:
         raise response.error
     else:
@@ -76,6 +79,7 @@ def http_get(io_loop, url):
 
 def websocket_open(io_loop, url, origin=None):
     result = {}
+    @gen.coroutine
     def handle_connection(future):
         result['connection'] = future
         io_loop.stop()
@@ -83,8 +87,8 @@ def websocket_open(io_loop, url, origin=None):
     request = HTTPRequest(url)
     if origin is not None:
         request.headers['Origin'] = origin
-    websocket_connect(request, callback=handle_connection)
-
+    resp = websocket_connect(request)
+    io_loop.add_future(resp, handle_connection)
     io_loop.start()
 
     if 'connection' not in result:
