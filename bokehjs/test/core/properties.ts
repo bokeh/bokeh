@@ -36,7 +36,7 @@ class SomeHasProps extends HasProps {
   a: any
   b: any
 }
-SomeHasProps.define({
+SomeHasProps.define<any>({
   a: [ p.Any ],
   b: [ p.Any ],
 })
@@ -46,7 +46,7 @@ class SomeSpecHasProps extends HasProps {
   a: any
   b: any
 }
-SomeSpecHasProps.define({
+SomeSpecHasProps.define<any>({
   a: [ p.NumberSpec ],
   b: [ p.Any ],
 })

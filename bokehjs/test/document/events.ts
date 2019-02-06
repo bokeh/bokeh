@@ -28,7 +28,7 @@ class TestModelWithRefs extends HasProps {
   static initClass(): void {
     this.prototype.type = 'TestModelWithRefs'
 
-    this.define<TestModel.Props>({
+    this.define<any>({
       foo: [ p.Any, [] ],
     })
   }
