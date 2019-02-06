@@ -34,6 +34,7 @@ export type AttrsOf<P> = {
 }
 
 export abstract class Property<T> extends Signalable() {
+  __value__: T
 
   spec: {
     value?: any
@@ -235,9 +236,15 @@ export class StartEnd extends Enum<enums.StartEnd> {}
 // DataSpec properties
 //
 
-export abstract class ScalarSpec<T, S = Scalar<T>> extends Property<T | S> {}
+export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T | S> {
+  __value__: T
+  __scalar__: S
+}
 
-export abstract class VectorSpec<T, V = Vector<T>> extends Property<T | V> {
+export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Property<T | V> {
+  __value__: T
+  __vector__: V
+
   array(source: ColumnarDataSource): any[] {
     let ret: any
 
