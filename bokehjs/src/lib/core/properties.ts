@@ -34,6 +34,15 @@ export type AttrsOf<P> = {
   [K in keyof P]: P[K] extends Property<infer T> ? T : never
 }
 
+export type DefineOf<P> = {
+  [K in keyof P]: P[K] extends Property<infer T> ? [PropertyConstructor<T>, (T | (() => T))?] : never
+}
+
+export interface PropertyConstructor<T> {
+  new (obj: HasProps, attr: string, default_value?: (obj: HasProps) => T): Property<T>
+  readonly prototype: Property<T>
+}
+
 export abstract class Property<T> extends Signalable() {
   __value__: T
 

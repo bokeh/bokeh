@@ -73,7 +73,8 @@ export abstract class HasProps extends Signalable() {
     }
   }
 
-  static define(obj: any): void {
+  // TODO: don't use Partial<>, but exclude inherited properties
+  static define<T>(obj: Partial<p.DefineOf<T>>): void {
     for (const name in obj) {
       const prop = obj[name]
       if (this.prototype.props[name] != null)
@@ -96,7 +97,7 @@ export abstract class HasProps extends Signalable() {
         enumerable: true,
       })
 
-      const [type, default_value, internal] = prop
+      const [type, default_value, internal] = prop as any
       const refined_prop = {
         type,
         default_value: this._fix_default(default_value, name),
