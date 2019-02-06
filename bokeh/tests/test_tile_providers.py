@@ -22,7 +22,7 @@ import pytest ; pytest
 
 # Bokeh imports
 from bokeh.models.tiles import WMTSTileSource
-from bokeh._testing.util.api import verify_all
+#from bokeh._testing.util.api import verify_all
 
 # Module under test
 import bokeh.tile_providers as bt
@@ -68,7 +68,8 @@ _STAMEN_LIC = {
 # General API
 #-----------------------------------------------------------------------------
 
-Test___all__ = verify_all(bt, ALL)
+# XXX This is commented out until version 2.0 and literals are converted to enums
+# Test___all__ = verify_all(bt, ALL)
 
 @pytest.mark.parametrize('name', [ 'STAMEN_TERRAIN',  'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER', 'STAMEN_TONER_BACKGROUND', 'STAMEN_TONER_LABELS',])
 @pytest.mark.unit
