@@ -42,8 +42,8 @@ export namespace Plot {
     plot_width: p.Property<number>
     plot_height: p.Property<number>
 
-    frame_width: p.Property<number>
-    frame_height: p.Property<number>
+    frame_width: p.Property<number | null>
+    frame_height: p.Property<number | null>
 
     title: p.Property<Title | string | null>
     title_location: p.Property<Location>

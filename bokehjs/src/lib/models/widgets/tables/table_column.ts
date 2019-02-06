@@ -3,6 +3,7 @@ import {CellEditor, StringEditor} from "./cell_editors"
 import {Class} from "core/class"
 import * as p from "core/properties"
 import {uniqueId} from "core/util/string"
+import {Sort} from "core/enums"
 import {View} from "core/view"
 import {Model} from "../../../model"
 
@@ -34,7 +35,7 @@ export namespace TableColumn {
     formatter: p.Property<CellFormatter>
     editor: p.Property<CellEditor>
     sortable: p.Property<boolean>
-    default_sort: p.Property<"ascending" | "descending">
+    default_sort: p.Property<Sort>
   }
 }
 
@@ -57,7 +58,7 @@ export class TableColumn extends Model {
       formatter:    [ p.Instance, () => new StringFormatter() ],
       editor:       [ p.Instance, () => new StringEditor()    ],
       sortable:     [ p.Boolean,  true                        ],
-      default_sort: [ p.String,   "ascending"                 ],
+      default_sort: [ p.Sort,     "ascending"                 ],
     })
   }
 

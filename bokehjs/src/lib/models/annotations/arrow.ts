@@ -169,17 +169,17 @@ export class Arrow extends Annotation {
     this.mixins(['line'])
 
     this.define<Arrow.Props>({
-      x_start:      [ p.NumberSpec,                         ],
-      y_start:      [ p.NumberSpec,                         ],
-      start_units:  [ p.String,      'data'                 ],
-      start:        [ p.Instance,    null                   ],
-      x_end:        [ p.NumberSpec,                         ],
-      y_end:        [ p.NumberSpec,                         ],
-      end_units:    [ p.String,      'data'                 ],
-      end:          [ p.Instance,    () => new OpenHead({}) ],
-      source:       [ p.Instance                            ],
-      x_range_name: [ p.String,      'default'              ],
-      y_range_name: [ p.String,      'default'              ],
+      x_start:      [ p.NumberSpec,                          ],
+      y_start:      [ p.NumberSpec,                          ],
+      start_units:  [ p.SpatialUnits, 'data'                 ],
+      start:        [ p.Instance,     null                   ],
+      x_end:        [ p.NumberSpec,                          ],
+      y_end:        [ p.NumberSpec,                          ],
+      end_units:    [ p.SpatialUnits, 'data'                 ],
+      end:          [ p.Instance,     () => new OpenHead({}) ],
+      source:       [ p.Instance                             ],
+      x_range_name: [ p.String,       'default'              ],
+      y_range_name: [ p.String,       'default'              ],
     })
   }
 }

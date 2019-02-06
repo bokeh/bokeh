@@ -150,7 +150,7 @@ export class Color extends Property<ColorType> {
   //validator = (x: any) => (isString(x) && (is_svg_color(x.toLowerCase()) || x.substring(0, 1) == "#" || valid_rgb(x)))
 }
 
-export class Instance extends Property<HasProps> {
+export class Instance extends Property<any /*HasProps*/> {
   //validator = (x: any) => x.properties != null
 }
 
@@ -183,10 +183,6 @@ export abstract class Enum<T> extends Property<T> {
   // validator = (value: any) => includes(this.enum_values, value)
 }
 
-export class Anchor extends Enum<enums.Anchor> {}
-
-export class AngleUnits extends Enum<enums.AngleUnits> {}
-
 export class Direction extends Enum<enums.Direction> {
   transform(values: any): any {
     const result = new Uint8Array(values.length)
@@ -200,47 +196,49 @@ export class Direction extends Enum<enums.Direction> {
   }
 }
 
+export class AngleUnits extends Enum<enums.AngleUnits> {}
 export class Dimension extends Enum<enums.Dimension> {}
-
 export class Dimensions extends Enum<enums.Dimensions> {}
-
 export class FontStyle extends Enum<enums.FontStyle> {}
-
 export class LatLon extends Enum<enums.LatLon> {}
-
 export class LineCap extends Enum<enums.LineCap> {}
-
 export class LineJoin extends Enum<enums.LineJoin> {}
-
-export class LegendLocation extends Enum<enums.LegendLocation> {}
-
 export class Location extends Enum<enums.Location> {}
-
-export class OutputBackend extends Enum<enums.OutputBackend> {}
-
+export class LegendClickPolicy extends Enum<enums.LegendClickPolicy> {}
+export class LegendLocation extends Enum<enums.LegendLocation> {}
+export class Anchor extends Enum<enums.Anchor> {}
 export class Orientation extends Enum<enums.Orientation> {}
-
-export class VerticalAlign extends Enum<enums.VerticalAlign> {}
-
-export class TextAlign extends Enum<enums.TextAlign> {}
-
-export class TextBaseline extends Enum<enums.TextBaseline> {}
-
+export class OutputBackend extends Enum<enums.OutputBackend> {}
 export class RenderLevel extends Enum<enums.RenderLevel> {}
-
 export class RenderMode extends Enum<enums.RenderMode> {}
-
-export class SizingMode extends Enum<enums.SizingMode> {}
-
+export class Side extends Enum<enums.Side> {}
+export class Place extends Enum<enums.Place> {}
 export class SpatialUnits extends Enum<enums.SpatialUnits> {}
-
-export class Distribution extends Enum<enums.Distribution> {}
-
-export class StepMode extends Enum<enums.StepMode> {}
-
-export class PaddingUnits extends Enum<enums.PaddingUnits> {}
-
 export class StartEnd extends Enum<enums.StartEnd> {}
+export class VerticalAlign extends Enum<enums.VerticalAlign> {}
+export class TextAlign extends Enum<enums.TextAlign> {}
+export class TextBaseline extends Enum<enums.TextBaseline> {}
+export class TickLabelOrientation extends Enum<enums.TickLabelOrientation> {}
+export class TooltipAttachment extends Enum<enums.TooltipAttachment> {}
+export class Distribution extends Enum<enums.Distribution> {}
+export class StepMode extends Enum<enums.StepMode> {}
+export class SizingMode extends Enum<enums.SizingMode> {}
+export class PaddingUnits extends Enum<enums.PaddingUnits> {}
+export class SliderCallbackPolicy extends Enum<enums.SliderCallbackPolicy> {}
+export class RoundingFunction extends Enum<enums.RoundingFunction> {}
+export class UpdateMode extends Enum<enums.UpdateMode> {}
+export class HTTPMethod extends Enum<enums.HTTPMethod> {}
+export class Logo extends Enum<enums.Logo> {}
+export class RadiusDimension extends Enum<enums.RadiusDimension> {}
+export class Sort extends Enum<enums.Sort> {}
+export class ButtonType extends Enum<enums.ButtonType> {}
+export class HexTileOrientation extends Enum<enums.HexTileOrientation> {}
+export class TapBehavior extends Enum<enums.TapBehavior> {}
+export class BoxOrigin extends Enum<enums.BoxOrigin> {}
+export class HoverMode extends Enum<enums.HoverMode> {}
+export class PointPolicy extends Enum<enums.PointPolicy> {}
+export class LinePolicy extends Enum<enums.LinePolicy> {}
+export class MarkerType extends Enum<enums.MarkerType> {}
 
 //
 // DataSpec properties

@@ -603,8 +603,8 @@ export class Axis extends GuideRenderer {
 
     this.define<Axis.Props>({
       bounds:                  [ p.Any,      'auto'       ], // TODO (bev)
-      ticker:                  [ p.Instance, null         ],
-      formatter:               [ p.Instance, null         ],
+      ticker:                  [ p.Instance               ],
+      formatter:               [ p.Instance               ],
       x_range_name:            [ p.String,   'default'    ],
       y_range_name:            [ p.String,   'default'    ],
       axis_label:              [ p.String,   ''           ],

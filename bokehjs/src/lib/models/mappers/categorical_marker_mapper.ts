@@ -4,17 +4,18 @@ import {Mapper} from "./mapper"
 
 import * as p from "core/properties"
 import {Arrayable} from "core/types"
+import {MarkerType} from "core/enums"
 
 export namespace CategoricalMarkerMapper {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Mapper.Props
+  export type Props = Mapper.Props & CategoricalMapper.Props & {
+    markers: p.Property<MarkerType[]>
+    default_value: p.Property<MarkerType>
+  }
 }
 
-export interface CategoricalMarkerMapper extends Mapper.Attrs, CategoricalMapper.Attrs {
-  markers: string[]
-  default_value: string
-}
+export interface CategoricalMarkerMapper extends Mapper.Attrs, CategoricalMapper.Attrs, CategoricalMarkerMapper.Attrs {}
 
 export class CategoricalMarkerMapper extends Mapper<string> {
   properties: CategoricalMarkerMapper.Props
@@ -27,11 +28,11 @@ export class CategoricalMarkerMapper extends Mapper<string> {
     this.prototype.type = "CategoricalMarkerMapper"
 
     this.define<CategoricalMarkerMapper.Props>({
-      factors:       [ p.Array            ],
-      markers:       [ p.Array            ],
-      start:         [ p.Number, 0        ],
-      end:           [ p.Number           ],
-      default_value: [ p.String, "circle" ],
+      factors:       [ p.Array                ],
+      markers:       [ p.Array                ],
+      start:         [ p.Number,     0        ],
+      end:           [ p.Number               ],
+      default_value: [ p.MarkerType, "circle" ],
     })
   }
 
@@ -40,6 +41,5 @@ export class CategoricalMarkerMapper extends Mapper<string> {
     cat_v_compute(xs, this.factors, this.markers, values, this.start, this.end, this.default_value)
     return values
   }
-
 }
 CategoricalMarkerMapper.initClass()

@@ -272,21 +272,21 @@ export abstract class AbstractSlider extends Widget {
     this.prototype.type = "AbstractSlider"
 
     this.define<AbstractSlider.Props>({
-      default_size:      [ p.Number,      300          ],
-      title:             [ p.String,      ""           ],
-      show_value:        [ p.Boolean,     true         ],
-      start:             [ p.Any                       ],
-      end:               [ p.Any                       ],
-      value:             [ p.Any                       ],
-      step:              [ p.Number,      1            ],
-      format:            [ p.String                    ],
-      orientation:       [ p.Orientation, "horizontal" ],
-      direction:         [ p.Any,         "ltr"        ],
-      tooltips:          [ p.Boolean,     true         ],
-      callback:          [ p.Any                       ],
-      callback_throttle: [ p.Number,      200          ],
-      callback_policy:   [ p.String,      "throttle"   ], // TODO (bev) enum
-      bar_color:         [ p.Color,       "#e6e6e6"    ],
+      default_size:      [ p.Number,               300          ],
+      title:             [ p.String,               ""           ],
+      show_value:        [ p.Boolean,              true         ],
+      start:             [ p.Any                                ],
+      end:               [ p.Any                                ],
+      value:             [ p.Any                                ],
+      step:              [ p.Number,               1            ],
+      format:            [ p.String                             ],
+      orientation:       [ p.Orientation,          "horizontal" ],
+      direction:         [ p.Any,                  "ltr"        ],
+      tooltips:          [ p.Boolean,              true         ],
+      callback:          [ p.Any                                ],
+      callback_throttle: [ p.Number,               200          ],
+      callback_policy:   [ p.SliderCallbackPolicy, "throttle"   ], // TODO (bev) enum
+      bar_color:         [ p.Color,                "#e6e6e6"    ],
     })
   }
 

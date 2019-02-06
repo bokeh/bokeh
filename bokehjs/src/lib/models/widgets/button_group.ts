@@ -1,7 +1,7 @@
 import {Widget, WidgetView} from "./widget"
-import {ButtonType} from "./abstract_button"
 import {CallbackLike} from "../callbacks/callback"
 
+import {ButtonType} from "core/enums"
 import {div} from "core/dom"
 import * as p from "core/properties"
 
@@ -66,9 +66,9 @@ export abstract class ButtonGroup extends Widget {
     this.prototype.type = "ButtonGroup"
 
     this.define<ButtonGroup.Props>({
-      labels:      [ p.Array,   []        ],
-      button_type: [ p.String,  "default" ],
-      callback:    [ p.Any                ],
+      labels:      [ p.Array,      []        ],
+      button_type: [ p.ButtonType, "default" ],
+      callback:    [ p.Any                   ],
     })
 
     this.override({

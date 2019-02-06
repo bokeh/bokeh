@@ -3,6 +3,7 @@ import {CallbackLike} from "../../callbacks/callback"
 import * as p from "core/properties"
 import {TapEvent} from "core/ui_events"
 import {PointGeometry} from "core/geometry"
+import {TapBehavior} from "core/enums"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
 
 export class TapToolView extends SelectToolView {
@@ -63,7 +64,7 @@ export namespace TapTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = SelectTool.Props & {
-    behavior: p.Property<"select" | "inspect">
+    behavior: p.Property<TapBehavior>
     callback: p.Property<CallbackLike<TapTool, {
       geometries: PointGeometry & {x: number, y: number}
       source: ColumnarDataSource
@@ -85,8 +86,8 @@ export class TapTool extends SelectTool {
     this.prototype.default_view = TapToolView
 
     this.define<TapTool.Props>({
-      behavior: [ p.String, "select" ], // TODO: Enum("select", "inspect")
-      callback: [ p.Any ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
+      behavior: [ p.TapBehavior, "select" ],
+      callback: [ p.Any                   ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
     })
   }
 

@@ -2,7 +2,7 @@ import {SelectTool, SelectToolView} from "./select_tool"
 import {CallbackLike} from "../../callbacks/callback"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import * as p from "core/properties"
-import {Dimensions} from "core/enums"
+import {Dimensions, BoxOrigin} from "core/enums"
 import {GestureEvent} from "core/ui_events"
 import {RectGeometry} from "core/geometry"
 
@@ -106,7 +106,7 @@ export namespace BoxSelectTool {
     select_every_mousemove: p.Property<boolean>
     callback: p.Property<CallbackLike<BoxSelectTool> | null>
     overlay: p.Property<BoxAnnotation>
-    origin: p.Property<"corner" | "center">
+    origin: p.Property<BoxOrigin>
   }
 }
 
@@ -130,7 +130,7 @@ export class BoxSelectTool extends SelectTool {
       select_every_mousemove: [ p.Boolean,    false               ],
       callback:               [ p.Any                             ],
       overlay:                [ p.Instance,   DEFAULT_BOX_OVERLAY ],
-      origin:                 [ p.String,     "corner"            ], // Enum
+      origin:                 [ p.BoxOrigin,  "corner"            ],
     })
   }
 

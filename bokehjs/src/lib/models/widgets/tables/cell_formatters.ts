@@ -107,9 +107,9 @@ export class NumberFormatter extends StringFormatter {
     this.prototype.type = 'NumberFormatter'
 
     this.define<NumberFormatter.Props>({
-      format:     [ p.String, '0,0'       ], // TODO (bev)
-      language:   [ p.String, 'en'        ], // TODO (bev)
-      rounding:   [ p.String, 'round'     ], // TODO (bev)
+      format:   [ p.String,           '0,0'   ], // TODO (bev)
+      language: [ p.String,           'en'    ], // TODO (bev)
+      rounding: [ p.RoundingFunction, 'round' ], // TODO (bev)
     })
   }
 

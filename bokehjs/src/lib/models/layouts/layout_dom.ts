@@ -326,7 +326,7 @@ export namespace LayoutDOM {
     margin: p.Property<number | [number, number] | [number, number, number, number]>
     width_policy: p.Property<SizingPolicy | "auto">
     height_policy: p.Property<SizingPolicy | "auto">
-    aspect_ratio: p.Property<number | "auto">
+    aspect_ratio: p.Property<number | "auto" | null>
     sizing_mode: p.Property<SizingMode | null>
     visible: p.Property<boolean>
     disabled: p.Property<boolean>
@@ -358,7 +358,7 @@ export abstract class LayoutDOM extends Model {
       margin:        [ p.Any,        [0, 0, 0, 0] ],
       width_policy:  [ p.Any,        "auto"       ],
       height_policy: [ p.Any,        "auto"       ],
-      aspect_ratio:  [ p.Number,     null         ],
+      aspect_ratio:  [ p.Any,        null         ],
       sizing_mode:   [ p.SizingMode, null         ],
       visible:       [ p.Boolean,    true         ],
       disabled:      [ p.Boolean,    false        ],

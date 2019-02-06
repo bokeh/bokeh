@@ -3,7 +3,7 @@ import {BoxAnnotation} from "../../annotations/box_annotation"
 import {CartesianFrame} from "../../canvas/cartesian_frame"
 import * as p from "core/properties"
 import {GestureEvent} from "core/ui_events"
-import {Dimensions} from "core/enums"
+import {Dimensions, BoxOrigin} from "core/enums"
 
 export class BoxZoomToolView extends GestureToolView {
   model: BoxZoomTool
@@ -172,7 +172,7 @@ export namespace BoxZoomTool {
     dimensions: p.Property<Dimensions>
     overlay: p.Property<BoxAnnotation>
     match_aspect: p.Property<boolean>
-    origin: p.Property<"corner" | "center">
+    origin: p.Property<BoxOrigin>
   }
 }
 
@@ -195,7 +195,7 @@ export class BoxZoomTool extends GestureTool {
       dimensions:   [ p.Dimensions, "both"              ],
       overlay:      [ p.Instance,   DEFAULT_BOX_OVERLAY ],
       match_aspect: [ p.Boolean,    false               ],
-      origin:       [ p.String,     "corner"            ], // Enum
+      origin:       [ p.BoxOrigin,  "corner"            ],
     })
   }
 

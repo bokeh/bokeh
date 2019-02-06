@@ -19,7 +19,7 @@ export namespace ToolbarViewModel {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
-    _visible: p.Property<boolean>
+    _visible: p.Property<boolean | null>
     autohide: p.Property<boolean>
   }
 }
@@ -37,13 +37,13 @@ export class ToolbarViewModel extends Model {
     this.prototype.type = 'ToolbarBase'
 
     this.define<ToolbarViewModel.Props>({
-      _visible: [ p.Boolean, null  ],
+      _visible: [ p.Any,     null  ],
       autohide: [ p.Boolean, false ],
     })
   }
 
   get visible(): boolean {
-    return (!this.autohide) ? true: (this._visible == null) ? false: this._visible
+    return (!this.autohide) ? true : (this._visible == null) ? false : this._visible
   }
 }
 ToolbarViewModel.initClass()
@@ -183,9 +183,9 @@ export class ToolbarBase extends Model {
     this.prototype.default_view = ToolbarBaseView
 
     this.define<ToolbarBase.Props>({
-      tools:      [ p.Array,      []       ],
-      logo:       [ p.String,     'normal' ], // TODO (bev)
-      autohide:   [ p.Boolean,       false    ],
+      tools:      [ p.Array,   []       ],
+      logo:       [ p.Logo,    'normal' ], // TODO (bev)
+      autohide:   [ p.Boolean, false    ],
     })
 
     this.internal({

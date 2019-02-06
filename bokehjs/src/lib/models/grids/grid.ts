@@ -232,7 +232,7 @@ export class Grid extends GuideRenderer {
 
     this.define<Grid.Props>({
       bounds:       [ p.Any,     'auto'    ], // TODO (bev)
-      dimension:    [ p.Number,  0         ],
+      dimension:    [ p.Any,     0         ],
       ticker:       [ p.Instance           ],
       x_range_name: [ p.String,  'default' ],
       y_range_name: [ p.String,  'default' ],

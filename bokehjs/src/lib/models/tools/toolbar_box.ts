@@ -1,4 +1,5 @@
 import * as p from "core/properties"
+import {Location} from "core/enums"
 import {logger} from "core/logging"
 import {isString} from "core/util/types"
 import {any, sortBy, includes} from "core/util/array"
@@ -225,7 +226,7 @@ export namespace ToolbarBox {
 
   export type Props = LayoutDOM.Props & {
     toolbar: p.Property<ToolbarBase>
-    toolbar_location: p.Location
+    toolbar_location: p.Property<Location>
   }
 }
 

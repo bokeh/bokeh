@@ -8,6 +8,7 @@ import {Arrayable, Area} from "core/types"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
 import {Line, Fill} from "core/visuals"
+import {HexTileOrientation} from "core/enums"
 
 import {generic_area_legend} from "./utils"
 import {Selection} from "../selections/selection"
@@ -219,7 +220,7 @@ export namespace HexTile {
     size: p.Property<number>
     aspect_scale: p.Property<number>
     scale: p.NumberSpec
-    orientation: p.Property<"pointytop" | "flattop">
+    orientation: p.Property<HexTileOrientation>
   }
 
   export type Visuals = Glyph.Visuals & {line: Line, fill: Fill}
@@ -241,10 +242,10 @@ export class HexTile extends Glyph {
     this.coords([['r', 'q']])
     this.mixins(['line', 'fill'])
     this.define<HexTile.Props>({
-      size:         [ p.Number,     1.0         ],
-      aspect_scale: [ p.Number,     1.0         ],
-      scale:        [ p.NumberSpec, 1.0         ],
-      orientation:  [ p.String,     "pointytop" ],
+      size:         [ p.Number,             1.0         ],
+      aspect_scale: [ p.Number,             1.0         ],
+      scale:        [ p.NumberSpec,         1.0         ],
+      orientation:  [ p.HexTileOrientation, "pointytop" ],
     })
     this.override({ line_color: null })
   }

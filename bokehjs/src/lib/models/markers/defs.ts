@@ -1,4 +1,5 @@
 import {Marker, MarkerView} from "./marker"
+import {MarkerType} from "core/enums"
 import {Class} from "core/class"
 import {Line, Fill} from "core/visuals"
 import {Context2d} from "core/util/canvas"
@@ -308,7 +309,7 @@ export const SquareX          = _mk_model('SquareX',          square_x)
 export const Triangle         = _mk_model('Triangle',         triangle)
 export const X                = _mk_model('X',                x)
 
-export const marker_funcs = {
+export const marker_funcs: {[key in MarkerType]: RenderOne} = {
   asterisk,
   circle,
   circle_cross,
@@ -325,5 +326,3 @@ export const marker_funcs = {
   dash,
   x,
 }
-
-export type MarkerType = keyof typeof marker_funcs

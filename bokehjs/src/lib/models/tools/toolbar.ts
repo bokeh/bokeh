@@ -25,7 +25,7 @@ export namespace Toolbar {
     active_inspect: p.Property<Inspection | Inspection[] | "auto">
     active_scroll: p.Property<Scroll | "auto">
     active_tap: p.Property<Tap | "auto">
-    active_multi: p.Property<GestureTool>
+    active_multi: p.Property<GestureTool | null>
   }
 }
 

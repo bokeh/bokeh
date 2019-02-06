@@ -109,3 +109,37 @@ export const Logo: Logo[] = ["normal", "grey"]
 
 export type RadiusDimension = "x" | "y" | "max" | "min"
 export const RadiusDimension: RadiusDimension[] = ["x", "y", "max", "min"]
+
+export type Sort = "ascending" | "descending"
+export const Sort: Sort[] = ["ascending", "descending"]
+
+export type ButtonType = "default" | "primary" | "success" | "warning" | "danger"
+export const ButtonType: ButtonType[] = ["default", "primary", "success", "warning", "danger"]
+
+export type HexTileOrientation = "pointytop" | "flattop"
+export const HexTileOrientation: HexTileOrientation[] = ["pointytop", "flattop"]
+
+export type TapBehavior = "select" | "inspect"
+export const TapBehavior: TapBehavior[] = ["select", "inspect"]
+
+export type BoxOrigin = "corner" | "center"
+export const BoxOrigin: BoxOrigin[] = ["corner", "center"]
+
+export type HoverMode = "mouse" | "hline" | "vline"
+export const HoverMode: HoverMode[] = ["mouse", "hline", "vline"]
+
+export type PointPolicy = "snap_to_data" | "follow_mouse" | "none"
+export const PointPolicy: PointPolicy[] = ["snap_to_data", "follow_mouse", "none"]
+
+export type LinePolicy = "prev" | "next" | "nearest" | "interp" | "none"
+export const LinePolicy: LinePolicy[] = ["prev", "next", "nearest", "interp", "none"]
+
+export type MarkerType =
+  "asterisk" | "circle" | "circle_cross" | "circle_x" | "cross" |
+  "dash" | "diamond" | "diamond_cross" | "hex" | "inverted_triangle" |
+  "square" | "square_cross" | "square_x" | "triangle" | "x"
+export const MarkerType: MarkerType[] = [
+  "asterisk", "circle", "circle_cross", "circle_x", "cross",
+  "dash", "diamond", "diamond_cross", "hex", "inverted_triangle",
+  "square", "square_cross", "square_x", "triangle", "x",
+]
