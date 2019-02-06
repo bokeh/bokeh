@@ -161,7 +161,7 @@ export abstract class EditTool extends GestureTool {
   static initClass(): void {
     this.prototype.type = "EditTool"
 
-    this.define({
+    this.define<EditTool.Props>({
       custom_icon:    [ p.String,   ],
       custom_tooltip: [ p.String,   ],
       empty_value:    [ p.Any,      ],

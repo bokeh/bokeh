@@ -41,7 +41,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
   static initClass(): void {
     this.prototype.type = 'GeoJSONDataSource'
 
-    this.define({
+    this.define<GeoJSONDataSource.Props>({
       geojson: [ p.Any ], // TODO (bev)
     })
 

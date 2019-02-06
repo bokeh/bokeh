@@ -447,7 +447,7 @@ export class HoverTool extends InspectTool {
     this.prototype.type = "HoverTool"
     this.prototype.default_view = HoverToolView
 
-    this.define({
+    this.define<HoverTool.Props>({
       tooltips: [ p.Any, [
         ["index",         "$index"    ],
         ["data (x, y)",   "($x, $y)"  ],

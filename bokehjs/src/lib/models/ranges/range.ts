@@ -28,7 +28,7 @@ export abstract class Range extends Model {
   static initClass(): void {
     this.prototype.type = "Range"
 
-    this.define({
+    this.define<Range.Props>({
       callback:     [ p.Any ], // TODO: p.Either(p.Instance(Callback), p.Function)
       bounds:       [ p.Any ], // TODO (bev)
       min_interval: [ p.Any ],

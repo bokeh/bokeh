@@ -52,7 +52,7 @@ export class RadioButtonGroup extends ButtonGroup {
     this.prototype.type = "RadioButtonGroup"
     this.prototype.default_view = RadioButtonGroupView
 
-    this.define({
+    this.define<RadioButtonGroup.Props>({
       active: [ p.Any, null ],
     })
   }

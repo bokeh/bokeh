@@ -36,7 +36,7 @@ export abstract class RemoteDataSource extends ColumnDataSource {
   static initClass(): void {
     this.prototype.type = 'RemoteDataSource'
 
-    this.define({
+    this.define<RemoteDataSource.Props>({
       data_url:         [ p.String ],
       polling_interval: [ p.Number ],
     })

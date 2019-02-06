@@ -410,7 +410,7 @@ export class TileRenderer extends DataRenderer {
     this.prototype.type = 'TileRenderer'
     this.prototype.default_view = TileRendererView
 
-    this.define({
+    this.define<TileRenderer.Props>({
       alpha:          [ p.Number,   1.0              ],
       smoothing:      [ p.Boolean,  true             ],
       tile_source:    [ p.Instance, () => new WMTSTileSource() ],

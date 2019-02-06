@@ -24,7 +24,7 @@ export class MercatorTileSource extends TileSource {
   static initClass(): void {
     this.prototype.type = 'MercatorTileSource'
 
-    this.define({
+    this.define<MercatorTileSource.Props>({
       snap_to_zoom: [ p.Boolean, false ],
       wrap_around:  [ p.Boolean, true  ],
     })

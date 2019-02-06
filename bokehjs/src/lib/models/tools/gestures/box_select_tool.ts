@@ -125,7 +125,7 @@ export class BoxSelectTool extends SelectTool {
     this.prototype.type = "BoxSelectTool"
     this.prototype.default_view = BoxSelectToolView
 
-    this.define({
+    this.define<BoxSelectTool.Props>({
       dimensions:             [ p.Dimensions, "both"              ],
       select_every_mousemove: [ p.Boolean,    false               ],
       callback:               [ p.Any                             ],

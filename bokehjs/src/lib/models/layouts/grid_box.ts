@@ -54,7 +54,7 @@ export class GridBox extends LayoutDOM {
     this.prototype.type = "GridBox"
     this.prototype.default_view = GridBoxView
 
-    this.define({
+    this.define<GridBox.Props>({
       children: [ p.Array,  []     ],
       rows:     [ p.Any,    "auto" ],
       cols:     [ p.Any,    "auto" ],

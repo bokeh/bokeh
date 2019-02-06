@@ -57,7 +57,7 @@ export abstract class ColumnarDataSource extends DataSource {
   static initClass(): void {
     this.prototype.type = 'ColumnarDataSource'
 
-    this.define({
+    this.define<ColumnarDataSource.Props>({
       selection_policy: [ p.Instance, () => new UnionRenderers() ],
     })
 

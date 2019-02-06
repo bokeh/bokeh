@@ -162,7 +162,7 @@ export class Annulus extends XYGlyph {
     this.prototype.default_view = AnnulusView
 
     this.mixins(['line', 'fill'])
-    this.define({
+    this.define<Annulus.Props>({
       inner_radius: [ p.DistanceSpec ],
       outer_radius: [ p.DistanceSpec ],
     })

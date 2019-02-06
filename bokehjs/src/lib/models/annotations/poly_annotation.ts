@@ -100,7 +100,7 @@ export class PolyAnnotation extends Annotation {
 
     this.mixins(['line', 'fill'])
 
-    this.define({
+    this.define<PolyAnnotation.Props>({
       xs:           [ p.Array,        []        ],
       xs_units:     [ p.SpatialUnits, 'data'    ],
       ys:           [ p.Array,        []        ],

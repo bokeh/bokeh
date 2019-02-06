@@ -179,7 +179,7 @@ export class ImageRGBA extends XYGlyph {
     this.prototype.type = 'ImageRGBA'
     this.prototype.default_view = ImageRGBAView
 
-    this.define({
+    this.define<ImageRGBA.Props>({
       image:        [ p.NumberSpec         ], // TODO (bev) array spec?
       dw:           [ p.DistanceSpec       ],
       dh:           [ p.DistanceSpec       ],

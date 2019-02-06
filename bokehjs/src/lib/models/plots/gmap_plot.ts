@@ -30,7 +30,7 @@ export class MapOptions extends Model {
   static initClass(): void {
     this.prototype.type = "MapOptions"
 
-    this.define({
+    this.define<MapOptions.Props>({
       lat:  [ p.Number     ],
       lng:  [ p.Number     ],
       zoom: [ p.Number, 12 ],
@@ -62,7 +62,7 @@ export class GMapOptions extends MapOptions {
   static initClass(): void {
     this.prototype.type = "GMapOptions"
 
-    this.define({
+    this.define<GMapOptions.Props>({
       map_type:      [ p.String,  "roadmap" ],
       scale_control: [ p.Boolean, false     ],
       styles:        [ p.String             ],
@@ -100,7 +100,7 @@ export class GMapPlot extends Plot {
     // This seems to be necessary so that everything can initialize.
     // Feels very clumsy, but I'm not sure how the properties system wants
     // to handle something like this situation.
-    this.define({
+    this.define<GMapPlot.Props>({
       map_options: [ p.Instance ],
       api_key:     [ p.String   ],
     })

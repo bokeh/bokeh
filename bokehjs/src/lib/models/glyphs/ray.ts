@@ -87,7 +87,7 @@ export class Ray extends XYGlyph {
     this.prototype.default_view = RayView
 
     this.mixins(['line'])
-    this.define({
+    this.define<Ray.Props>({
       length: [ p.DistanceSpec ],
       angle:  [ p.AngleSpec    ],
     })

@@ -127,7 +127,7 @@ export class AutocompleteInput extends TextInput {
     this.prototype.type = "AutocompleteInput"
     this.prototype.default_view = AutocompleteInputView
 
-    this.define({
+    this.define<AutocompleteInput.Props>({
       completions: [ p.Array, [] ],
     })
   }

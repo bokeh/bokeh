@@ -24,7 +24,7 @@ export class CumSum extends Expression {
   static initClass(): void {
     this.prototype.type = "CumSum"
 
-    this.define({
+    this.define<CumSum.Props>({
       field:        [ p.String         ],
       include_zero: [ p.Boolean, false ],
     })

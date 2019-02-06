@@ -47,7 +47,7 @@ export class ZoomInTool extends ActionTool {
     this.prototype.type = "ZoomInTool"
     this.prototype.default_view = ZoomInToolView
 
-    this.define({
+    this.define<ZoomInTool.Props>({
       factor:     [ p.Percent,    0.1    ],
       dimensions: [ p.Dimensions, "both" ],
     })

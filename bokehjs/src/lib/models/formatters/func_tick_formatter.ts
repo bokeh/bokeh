@@ -26,7 +26,7 @@ export class FuncTickFormatter extends TickFormatter {
   static initClass(): void {
     this.prototype.type = 'FuncTickFormatter'
 
-    this.define({
+    this.define<FuncTickFormatter.Props>({
       args:       [ p.Any,     {}    ], // TODO (bev) better type
       code:       [ p.String,  ''    ],
       use_strict: [ p.Boolean, false ],

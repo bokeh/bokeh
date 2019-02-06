@@ -138,7 +138,7 @@ export class Span extends Annotation {
 
     this.mixins(['line'])
 
-    this.define({
+    this.define<Span.Props>({
       render_mode:    [ p.RenderMode,   'canvas'  ],
       x_range_name:   [ p.String,       'default' ],
       y_range_name:   [ p.String,       'default' ],

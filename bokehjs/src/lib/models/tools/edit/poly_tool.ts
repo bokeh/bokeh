@@ -83,7 +83,7 @@ export class PolyTool extends EditTool {
     this.prototype.type = "PolyTool"
     this.prototype.default_view = PolyToolView
 
-    this.define({
+    this.define<PolyTool.Props>({
       vertex_renderer: [ p.Instance ],
     })
   }

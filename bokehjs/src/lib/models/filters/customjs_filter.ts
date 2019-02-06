@@ -26,7 +26,7 @@ export class CustomJSFilter extends Filter {
   static initClass(): void {
     this.prototype.type = 'CustomJSFilter'
 
-    this.define({
+    this.define<CustomJSFilter.Props>({
       args:       [ p.Any,     {}    ], // TODO (bev) better type
       code:       [ p.String,  ''    ],
       use_strict: [ p.Boolean, false ],

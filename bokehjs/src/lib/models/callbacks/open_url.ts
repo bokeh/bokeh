@@ -23,7 +23,7 @@ export class OpenURL extends Callback {
   static initClass(): void {
     this.prototype.type = 'OpenURL'
 
-    this.define({
+    this.define<OpenURL.Props>({
       url: [ p.String, 'http://' ],
     })
   }

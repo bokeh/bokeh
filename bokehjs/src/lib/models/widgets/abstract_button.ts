@@ -85,7 +85,7 @@ export abstract class AbstractButton extends Widget {
   static initClass(): void {
     this.prototype.type = "AbstractButton"
 
-    this.define({
+    this.define<AbstractButton.Props>({
       label:       [ p.String, "Button"  ],
       icon:        [ p.Instance          ],
       button_type: [ p.String, "default" ], // TODO (bev)

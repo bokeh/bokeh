@@ -37,7 +37,7 @@ export abstract class ContinuousTicker extends Ticker<number> {
   static initClass(): void {
     this.prototype.type = "ContinuousTicker"
 
-    this.define({
+    this.define<ContinuousTicker.Props>({
       num_minor_ticks:   [ p.Number, 5 ],
       desired_num_ticks: [ p.Number, 6 ],
     })

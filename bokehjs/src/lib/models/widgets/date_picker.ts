@@ -100,7 +100,7 @@ export class DatePicker extends InputWidget {
     this.prototype.type = "DatePicker"
     this.prototype.default_view = DatePickerView
 
-    this.define({
+    this.define<DatePicker.Props>({
       // TODO (bev) types
       value:    [ p.Any, new Date().toDateString() ],
       min_date: [ p.Any                            ],

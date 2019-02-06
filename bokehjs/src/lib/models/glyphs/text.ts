@@ -173,7 +173,7 @@ export class Text extends XYGlyph {
     this.prototype.default_view = TextView
 
     this.mixins(['text'])
-    this.define({
+    this.define<Text.Props>({
       text:     [ p.StringSpec, {field: "text"} ],
       angle:    [ p.AngleSpec,  0               ],
       x_offset: [ p.NumberSpec, 0               ],

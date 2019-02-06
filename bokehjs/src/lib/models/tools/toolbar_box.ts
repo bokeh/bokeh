@@ -242,7 +242,7 @@ export class ToolbarBox extends LayoutDOM {
     this.prototype.type = 'ToolbarBox'
     this.prototype.default_view = ToolbarBoxView
 
-    this.define({
+    this.define<ToolbarBox.Props>({
       toolbar:          [ p.Instance          ],
       toolbar_location: [ p.Location, "right" ],
     })

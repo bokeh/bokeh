@@ -168,7 +168,7 @@ export class Arrow extends Annotation {
 
     this.mixins(['line'])
 
-    this.define({
+    this.define<Arrow.Props>({
       x_start:      [ p.NumberSpec,                         ],
       y_start:      [ p.NumberSpec,                         ],
       start_units:  [ p.String,      'data'                 ],

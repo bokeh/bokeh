@@ -92,7 +92,7 @@ export class Slope extends Annotation {
 
     this.mixins(['line'])
 
-    this.define({
+    this.define<Slope.Props>({
       gradient:       [ p.Number,       null      ],
       y_intercept:    [ p.Number,       null      ],
       x_range_name:   [ p.String,       'default' ],

@@ -179,7 +179,7 @@ export class AnnularWedge extends XYGlyph {
     this.prototype.default_view = AnnularWedgeView
 
     this.mixins(['line', 'fill'])
-    this.define({
+    this.define<AnnularWedge.Props>({
       direction:    [ p.Direction,   'anticlock' ],
       inner_radius: [ p.DistanceSpec             ],
       outer_radius: [ p.DistanceSpec             ],

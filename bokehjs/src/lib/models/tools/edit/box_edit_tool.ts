@@ -162,7 +162,7 @@ export class BoxEditTool extends EditTool {
     this.prototype.type = "BoxEditTool"
     this.prototype.default_view = BoxEditToolView
 
-    this.define({
+    this.define<BoxEditTool.Props>({
       dimensions: [ p.Dimensions, "both" ],
       num_objects: [ p.Int, 0 ],
     })

@@ -25,7 +25,7 @@ export class SingleIntervalTicker extends ContinuousTicker {
   static initClass(): void {
     this.prototype.type = "SingleIntervalTicker"
 
-    this.define({
+    this.define<SingleIntervalTicker.Props>({
       interval: [ p.Number ],
     })
   }

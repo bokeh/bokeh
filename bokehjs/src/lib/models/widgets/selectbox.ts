@@ -83,7 +83,7 @@ export class Select extends InputWidget {
     this.prototype.type = "Select"
     this.prototype.default_view = SelectView
 
-    this.define({
+    this.define<Select.Props>({
       value:   [ p.String, '' ],
       options: [ p.Any,    [] ], // TODO (bev) is this used?
     })

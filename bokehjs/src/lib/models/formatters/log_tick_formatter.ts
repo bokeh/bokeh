@@ -25,7 +25,7 @@ export class LogTickFormatter extends TickFormatter {
   static initClass(): void {
     this.prototype.type = 'LogTickFormatter'
 
-    this.define({
+    this.define<LogTickFormatter.Props>({
       ticker: [ p.Instance, null ],
     })
   }

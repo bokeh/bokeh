@@ -169,7 +169,7 @@ export class Band extends Annotation {
 
     this.mixins(['line', 'fill'])
 
-    this.define({
+    this.define<Band.Props>({
       lower:        [ p.DistanceSpec                               ],
       upper:        [ p.DistanceSpec                               ],
       base:         [ p.DistanceSpec                               ],

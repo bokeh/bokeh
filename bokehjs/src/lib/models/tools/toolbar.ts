@@ -42,7 +42,7 @@ export class Toolbar extends ToolbarBase {
     this.prototype.type = 'Toolbar'
     this.prototype.default_view = ToolbarBaseView
 
-    this.define({
+    this.define<Toolbar.Props>({
       active_drag:     [ p.Any, 'auto' ],
       active_inspect:  [ p.Any, 'auto' ],
       active_scroll:   [ p.Any, 'auto' ],

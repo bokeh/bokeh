@@ -40,7 +40,7 @@ export abstract class HasProps extends Signalable() {
     this.prototype.props = {}
     this.prototype.mixins = []
 
-    this.define({
+    this.define<HasProps.Props>({
       id: [ p.Any ],
     })
   }

@@ -25,7 +25,7 @@ export class CustomJS extends Callback {
   static initClass(): void {
     this.prototype.type = 'CustomJS'
 
-    this.define({
+    this.define<CustomJS.Props>({
       args:       [ p.Any,     {}    ], // TODO (bev) better type
       code:       [ p.String,  ''    ],
       use_strict: [ p.Boolean, false ],

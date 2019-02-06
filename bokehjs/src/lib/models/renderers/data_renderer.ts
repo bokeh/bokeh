@@ -30,7 +30,7 @@ export abstract class DataRenderer extends Renderer {
   static initClass(): void {
     this.prototype.type = "DataRenderer"
 
-    this.define({
+    this.define<DataRenderer.Props>({
       x_range_name: [ p.String, 'default' ],
       y_range_name: [ p.String, 'default' ],
     })

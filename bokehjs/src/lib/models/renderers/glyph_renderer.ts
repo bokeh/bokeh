@@ -395,7 +395,7 @@ export class GlyphRenderer extends DataRenderer {
     this.prototype.type = 'GlyphRenderer'
     this.prototype.default_view = GlyphRendererView
 
-    this.define({
+    this.define<GlyphRenderer.Props>({
       data_source:        [ p.Instance           ],
       view:               [ p.Instance, () => new CDSView() ],
       glyph:              [ p.Instance           ],

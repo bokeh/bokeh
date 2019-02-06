@@ -73,7 +73,7 @@ export abstract class Renderer extends Model {
   static initClass(): void {
     this.prototype.type = "Renderer"
 
-    this.define({
+    this.define<Renderer.Props>({
       level: [ p.RenderLevel ],
       visible: [ p.Boolean, true ],
     })

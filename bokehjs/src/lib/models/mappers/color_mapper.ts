@@ -59,7 +59,7 @@ export abstract class ColorMapper extends Mapper<Color> {
   static initClass(): void {
     this.prototype.type = "ColorMapper"
 
-    this.define({
+    this.define<ColorMapper.Props>({
       palette:   [ p.Any           ], // TODO (bev)
       nan_color: [ p.Color, "gray" ],
     })

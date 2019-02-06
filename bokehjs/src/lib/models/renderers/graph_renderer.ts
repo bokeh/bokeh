@@ -108,7 +108,7 @@ export class GraphRenderer extends DataRenderer {
     this.prototype.type = 'GraphRenderer'
     this.prototype.default_view = GraphRendererView
 
-    this.define({
+    this.define<GraphRenderer.Props>({
       layout_provider:    [ p.Instance                              ],
       node_renderer:      [ p.Instance                              ],
       edge_renderer:      [ p.Instance                              ],

@@ -24,7 +24,7 @@ export abstract class ArrowHead extends Annotation {
   static initClass(): void {
     this.prototype.type = 'ArrowHead'
 
-    this.define({
+    this.define<ArrowHead.Props>({
       size: [ p.Number, 25 ],
     })
   }

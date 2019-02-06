@@ -24,7 +24,7 @@ export class Range1d extends Range {
   static initClass(): void {
     this.prototype.type = "Range1d"
 
-    this.define({
+    this.define<Range1d.Props>({
       start:  [ p.Number, 0 ],
       end:    [ p.Number, 1 ],
       reset_start:  [ p.Number ],

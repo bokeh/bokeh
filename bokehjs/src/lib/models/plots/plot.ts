@@ -134,7 +134,7 @@ export class Plot extends LayoutDOM {
 
     this.mixins(["line:outline_", "fill:background_", "fill:border_"])
 
-    this.define({
+    this.define<Plot.Props>({
       toolbar:           [ p.Instance, () => new Toolbar()     ],
       toolbar_location:  [ p.Location, 'right'                 ],
       toolbar_sticky:    [ p.Boolean,  true                    ],

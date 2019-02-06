@@ -25,7 +25,7 @@ export class Filter extends Model {
   static initClass(): void {
     this.prototype.type = 'Filter'
 
-    this.define({
+    this.define<Filter.Props>({
       filter: [ p.Array, null ],
     })
   }

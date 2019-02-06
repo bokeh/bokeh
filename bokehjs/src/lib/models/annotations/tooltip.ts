@@ -147,7 +147,7 @@ export class Tooltip extends Annotation {
     this.prototype.type = 'Tooltip'
     this.prototype.default_view = TooltipView
 
-    this.define({
+    this.define<Tooltip.Props>({
       attachment: [ p.String, 'horizontal' ], // TODO enum: "horizontal" | "vertical" | "left" | "right" | "above" | "below"
       inner_only: [ p.Boolean, true        ],
       show_arrow: [ p.Boolean, true        ],

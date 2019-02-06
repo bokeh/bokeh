@@ -234,7 +234,7 @@ export class LabelSet extends TextAnnotation {
 
     this.mixins(['text', 'line:border_', 'fill:background_'])
 
-    this.define({
+    this.define<LabelSet.Props>({
       x:            [ p.NumberSpec                      ],
       y:            [ p.NumberSpec                      ],
       x_units:      [ p.SpatialUnits, 'data'            ],

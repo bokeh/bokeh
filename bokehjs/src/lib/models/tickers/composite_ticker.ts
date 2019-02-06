@@ -27,7 +27,7 @@ export class CompositeTicker extends ContinuousTicker {
   static initClass(): void {
     this.prototype.type = "CompositeTicker"
 
-    this.define({
+    this.define<CompositeTicker.Props>({
       tickers: [p.Array, [] ],
     })
   }

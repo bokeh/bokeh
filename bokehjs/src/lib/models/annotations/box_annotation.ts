@@ -189,7 +189,7 @@ export class BoxAnnotation extends Annotation {
 
     this.mixins(['line', 'fill'])
 
-    this.define({
+    this.define<BoxAnnotation.Props>({
       render_mode:  [ p.RenderMode,   'canvas'  ],
       x_range_name: [ p.String,       'default' ],
       y_range_name: [ p.String,       'default' ],

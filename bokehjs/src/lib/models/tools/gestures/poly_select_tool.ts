@@ -118,7 +118,7 @@ export class PolySelectTool extends SelectTool {
     this.prototype.type = "PolySelectTool"
     this.prototype.default_view = PolySelectToolView
 
-    this.define({
+    this.define<PolySelectTool.Props>({
       callback:   [ p.Any                            ],
       overlay:    [ p.Instance, DEFAULT_POLY_OVERLAY ],
     })

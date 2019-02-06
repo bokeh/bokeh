@@ -45,7 +45,7 @@ export abstract class Markup extends Widget {
   static initClass(): void {
     this.prototype.type = "Markup"
 
-    this.define({
+    this.define<Markup.Props>({
       text:  [ p.String, '' ],
       style: [ p.Any,    {} ],
     })

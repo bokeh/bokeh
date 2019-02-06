@@ -136,7 +136,7 @@ export class Dropdown extends AbstractButton {
     this.prototype.type = "Dropdown"
     this.prototype.default_view = DropdownView
 
-    this.define({
+    this.define<Dropdown.Props>({
       split:         [ p.Boolean, false ],
       menu:          [ p.Array,   []    ],
       value:         [ p.String,  null  ], // deprecated

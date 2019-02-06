@@ -357,7 +357,7 @@ export class ParallelSelectionTool extends BoxSelectTool {
     this.prototype.type = "ParallelSelectionTool"
     this.prototype.default_view = ParallelSelectionView
 
-    this.define({
+    this.define<ParallelSelectionTool.Props>({
       renderer_select: [ p.Any        ],
       renderer_data:   [ p.Any        ],
       box_width:       [ p.Number, 30 ],

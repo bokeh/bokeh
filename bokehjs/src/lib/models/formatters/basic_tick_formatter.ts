@@ -26,7 +26,7 @@ export class BasicTickFormatter extends TickFormatter {
   static initClass(): void {
     this.prototype.type = 'BasicTickFormatter'
 
-    this.define({
+    this.define<BasicTickFormatter.Props>({
       precision:        [ p.Any,     'auto' ], // TODO (bev) better
       use_scientific:   [ p.Boolean, true   ],
       power_limit_high: [ p.Number,  5      ],

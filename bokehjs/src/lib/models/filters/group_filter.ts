@@ -25,7 +25,7 @@ export class GroupFilter extends Filter {
   static initClass(): void {
     this.prototype.type = 'GroupFilter'
 
-    this.define({
+    this.define<GroupFilter.Props>({
       column_name: [ p.String  ],
       group:       [ p.String  ],
     })

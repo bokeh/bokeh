@@ -213,7 +213,7 @@ export class CategoricalAxis extends Axis {
       "text:subgroup_",
     ])
 
-    this.define({
+    this.define<CategoricalAxis.Props>({
       group_label_orientation:    [ p.Any, "parallel" ], // TODO: p.TickLabelOrientation | p.Number
       subgroup_label_orientation: [ p.Any, "parallel" ], // TODO: p.TickLabelOrientation | p.Number
     })

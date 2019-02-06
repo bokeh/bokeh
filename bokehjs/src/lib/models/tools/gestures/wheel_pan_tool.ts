@@ -103,7 +103,7 @@ export class WheelPanTool extends GestureTool {
     this.prototype.type = 'WheelPanTool'
     this.prototype.default_view = WheelPanToolView
 
-    this.define({
+    this.define<WheelPanTool.Props>({
       dimension: [ p.Dimension, "width" ],
     })
 

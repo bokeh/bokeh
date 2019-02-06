@@ -26,7 +26,7 @@ export class CustomJSHover extends Model {
   static initClass(): void {
     this.prototype.type = 'CustomJSHover'
 
-    this.define({
+    this.define<CustomJSHover.Props>({
       args: [ p.Any,    {} ], // TODO (bev) better type
       code: [ p.String, "" ],
     })

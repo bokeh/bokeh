@@ -367,7 +367,7 @@ export class Legend extends Annotation {
 
     this.mixins(['text:label_', 'fill:inactive_', 'line:border_', 'fill:background_'])
 
-    this.define({
+    this.define<Legend.Props>({
       orientation:      [ p.Orientation,    'vertical'  ],
       location:         [ p.Any,            'top_right' ], // TODO (bev)
       label_standoff:   [ p.Number,         5           ],

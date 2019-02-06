@@ -80,7 +80,7 @@ export class Arc extends XYGlyph {
     this.prototype.default_view = ArcView
 
     this.mixins(['line'])
-    this.define({
+    this.define<Arc.Props>({
       direction:   [ p.Direction,   'anticlock' ],
       radius:      [ p.DistanceSpec             ],
       start_angle: [ p.AngleSpec                ],

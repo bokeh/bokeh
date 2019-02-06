@@ -25,7 +25,7 @@ export class IndexFilter extends Filter {
   static initClass(): void {
     this.prototype.type = 'IndexFilter'
 
-    this.define({
+    this.define<IndexFilter.Props>({
       indices: [ p.Array, null ],
     })
   }

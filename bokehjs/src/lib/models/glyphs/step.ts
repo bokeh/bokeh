@@ -111,7 +111,7 @@ export class Step extends XYGlyph {
     this.prototype.default_view = StepView
 
     this.mixins(['line'])
-    this.define({
+    this.define<Step.Props>({
       mode: [ p.StepMode, "before"],
     })
   }

@@ -191,7 +191,7 @@ export class BoxZoomTool extends GestureTool {
     this.prototype.type = "BoxZoomTool"
     this.prototype.default_view = BoxZoomToolView
 
-    this.define({
+    this.define<BoxZoomTool.Props>({
       dimensions:   [ p.Dimensions, "both"              ],
       overlay:      [ p.Instance,   DEFAULT_BOX_OVERLAY ],
       match_aspect: [ p.Boolean,    false               ],

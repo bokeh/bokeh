@@ -71,7 +71,7 @@ export class CheckboxGroup extends Widget {
     this.prototype.type = "CheckboxGroup"
     this.prototype.default_view = CheckboxGroupView
 
-    this.define({
+    this.define<CheckboxGroup.Props>({
       active:   [ p.Array,   []    ],
       labels:   [ p.Array,   []    ],
       inline:   [ p.Boolean, false ],

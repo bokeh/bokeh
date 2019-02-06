@@ -161,7 +161,7 @@ export class Whisker extends Annotation {
 
     this.mixins(['line'])
 
-    this.define({
+    this.define<Whisker.Props>({
       lower:        [ p.DistanceSpec                    ],
       lower_head:   [ p.Instance,     () => new TeeHead({level: "underlay", size: 10}) ],
       upper:        [ p.DistanceSpec                    ],

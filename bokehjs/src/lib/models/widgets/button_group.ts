@@ -65,7 +65,7 @@ export abstract class ButtonGroup extends Widget {
   static initClass(): void {
     this.prototype.type = "ButtonGroup"
 
-    this.define({
+    this.define<ButtonGroup.Props>({
       labels:      [ p.Array,   []        ],
       button_type: [ p.String,  "default" ],
       callback:    [ p.Any                ],

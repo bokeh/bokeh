@@ -35,7 +35,7 @@ export abstract class TileSource extends Model {
   static initClass(): void {
     this.prototype.type = 'TileSource'
 
-    this.define({
+    this.define<TileSource.Props>({
       url:                [ p.String, ''  ],
       tile_size:          [ p.Number, 256 ],
       max_zoom:           [ p.Number, 30  ],

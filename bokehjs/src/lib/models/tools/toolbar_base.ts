@@ -36,7 +36,7 @@ export class ToolbarViewModel extends Model {
   static initClass(): void {
     this.prototype.type = 'ToolbarBase'
 
-    this.define({
+    this.define<ToolbarViewModel.Props>({
       _visible: [ p.Boolean, null  ],
       autohide: [ p.Boolean, false ],
     })
@@ -182,7 +182,7 @@ export class ToolbarBase extends Model {
     this.prototype.type = 'ToolbarBase'
     this.prototype.default_view = ToolbarBaseView
 
-    this.define({
+    this.define<ToolbarBase.Props>({
       tools:      [ p.Array,      []       ],
       logo:       [ p.String,     'normal' ], // TODO (bev)
       autohide:   [ p.Boolean,       false    ],

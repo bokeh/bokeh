@@ -90,7 +90,7 @@ export class VBar extends Box {
     this.prototype.default_view = VBarView
 
     this.coords([['x', 'bottom']])
-    this.define({
+    this.define<VBar.Props>({
       width:  [ p.DistanceSpec   ],
       top:    [ p.CoordinateSpec ],
     })

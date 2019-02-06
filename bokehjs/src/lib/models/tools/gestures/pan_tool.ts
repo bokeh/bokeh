@@ -139,7 +139,7 @@ export class PanTool extends GestureTool {
     this.prototype.type = "PanTool"
     this.prototype.default_view = PanToolView
 
-    this.define({
+    this.define<PanTool.Props>({
       dimensions: [ p.Dimensions, "both" ],
     })
   }

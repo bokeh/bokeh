@@ -685,7 +685,7 @@ export class ColorBar extends Annotation {
       'fill:background_',
     ])
 
-    this.define({
+    this.define<ColorBar.Props>({
       location:                [ p.Any,         'top_right' ],
       orientation:             [ p.Orientation, 'vertical'  ],
       title:                   [ p.String,                  ],

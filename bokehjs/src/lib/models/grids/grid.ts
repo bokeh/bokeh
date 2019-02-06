@@ -230,7 +230,7 @@ export class Grid extends GuideRenderer {
 
     this.mixins(['line:grid_', 'line:minor_grid_', 'fill:band_'])
 
-    this.define({
+    this.define<Grid.Props>({
       bounds:       [ p.Any,     'auto'    ], // TODO (bev)
       dimension:    [ p.Number,  0         ],
       ticker:       [ p.Instance           ],

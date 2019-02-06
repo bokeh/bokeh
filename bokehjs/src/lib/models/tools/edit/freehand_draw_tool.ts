@@ -98,7 +98,7 @@ export class FreehandDrawTool extends EditTool {
     this.prototype.type = "FreehandDrawTool"
     this.prototype.default_view = FreehandDrawToolView
 
-    this.define({
+    this.define<FreehandDrawTool.Props>({
       num_objects: [ p.Int, 0 ],
     })
   }

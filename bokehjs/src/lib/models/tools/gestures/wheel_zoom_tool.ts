@@ -76,7 +76,7 @@ export class WheelZoomTool extends GestureTool {
 
     this.prototype.default_view = WheelZoomToolView
 
-    this.define({
+    this.define<WheelZoomTool.Props>({
       dimensions:     [ p.Dimensions, "both" ],
       maintain_focus: [ p.Boolean,    true   ],
       zoom_on_axis:   [ p.Boolean,    true   ],

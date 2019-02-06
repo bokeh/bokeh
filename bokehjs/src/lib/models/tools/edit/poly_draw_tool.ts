@@ -257,7 +257,7 @@ export class PolyDrawTool extends PolyTool {
     this.prototype.type = "PolyDrawTool"
     this.prototype.default_view = PolyDrawToolView
 
-    this.define({
+    this.define<PolyDrawTool.Props>({
       drag:        [ p.Boolean, true ],
       num_objects: [ p.Int,     0    ],
     })

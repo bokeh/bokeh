@@ -84,7 +84,7 @@ export class TapTool extends SelectTool {
     this.prototype.type = "TapTool"
     this.prototype.default_view = TapToolView
 
-    this.define({
+    this.define<TapTool.Props>({
       behavior: [ p.String, "select" ], // TODO: Enum("select", "inspect")
       callback: [ p.Any ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
     })

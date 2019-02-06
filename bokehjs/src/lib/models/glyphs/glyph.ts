@@ -374,7 +374,7 @@ export abstract class Glyph extends Model {
       result[y] = [ p.CoordinateSpec ]
     }
 
-    this.define(result)
+    this.define<Glyph.Props>(result)
   }
 }
 Glyph.initClass()

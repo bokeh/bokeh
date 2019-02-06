@@ -26,7 +26,7 @@ export class Dodge extends Transform {
   static initClass(): void {
     this.prototype.type = "Dodge"
 
-    this.define({
+    this.define<Dodge.Props>({
       value: [ p.Number,  0 ],
       range: [ p.Instance   ],
     })

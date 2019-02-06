@@ -116,7 +116,7 @@ export class Label extends TextAnnotation {
 
     this.mixins(['text', 'line:border_', 'fill:background_'])
 
-    this.define({
+    this.define<Label.Props>({
       x:            [ p.Number,                      ],
       x_units:      [ p.SpatialUnits, 'data'         ],
       y:            [ p.Number,                      ],

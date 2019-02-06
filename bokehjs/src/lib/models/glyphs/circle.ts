@@ -288,7 +288,7 @@ export class Circle extends XYGlyph {
     this.prototype.default_view = CircleView
 
     this.mixins(['line', 'fill'])
-    this.define({
+    this.define<Circle.Props>({
       angle:            [ p.AngleSpec,    0                             ],
       size:             [ p.DistanceSpec, { units: "screen", value: 4 } ],
       radius:           [ p.DistanceSpec, null                          ],

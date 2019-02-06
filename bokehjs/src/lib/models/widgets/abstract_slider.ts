@@ -271,7 +271,7 @@ export abstract class AbstractSlider extends Widget {
   static initClass(): void {
     this.prototype.type = "AbstractSlider"
 
-    this.define({
+    this.define<AbstractSlider.Props>({
       default_size:      [ p.Number,      300          ],
       title:             [ p.String,      ""           ],
       show_value:        [ p.Boolean,     true         ],

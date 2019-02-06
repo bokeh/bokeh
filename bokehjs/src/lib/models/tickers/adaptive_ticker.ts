@@ -39,7 +39,7 @@ export class AdaptiveTicker extends ContinuousTicker {
   static initClass(): void {
     this.prototype.type = "AdaptiveTicker"
 
-    this.define({
+    this.define<AdaptiveTicker.Props>({
       base:         [ p.Number, 10.0      ],
       mantissas:    [ p.Array,  [1, 2, 5] ],
       min_interval: [ p.Number, 0.0       ],

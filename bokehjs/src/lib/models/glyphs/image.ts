@@ -257,7 +257,7 @@ export class Image extends XYGlyph {
     this.prototype.type = 'Image'
     this.prototype.default_view = ImageView
 
-    this.define({
+    this.define<Image.Props>({
       image:        [ p.NumberSpec       ], // TODO (bev) array spec?
       dw:           [ p.DistanceSpec     ],
       dh:           [ p.DistanceSpec     ],

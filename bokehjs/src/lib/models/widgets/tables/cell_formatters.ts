@@ -54,7 +54,7 @@ export class StringFormatter extends CellFormatter {
   static initClass(): void {
     this.prototype.type = 'StringFormatter'
 
-    this.define({
+    this.define<StringFormatter.Props>({
       font_style: [ p.FontStyle, "normal" ],
       text_align: [ p.TextAlign, "left"   ],
       text_color: [ p.Color ],
@@ -106,7 +106,7 @@ export class NumberFormatter extends StringFormatter {
   static initClass(): void {
     this.prototype.type = 'NumberFormatter'
 
-    this.define({
+    this.define<NumberFormatter.Props>({
       format:     [ p.String, '0,0'       ], // TODO (bev)
       language:   [ p.String, 'en'        ], // TODO (bev)
       rounding:   [ p.String, 'round'     ], // TODO (bev)
@@ -146,7 +146,7 @@ export class BooleanFormatter extends CellFormatter {
   static initClass(): void {
     this.prototype.type = 'BooleanFormatter'
 
-    this.define({
+    this.define<BooleanFormatter.Props>({
       icon: [ p.String, 'check' ],
     })
   }
@@ -177,7 +177,7 @@ export class DateFormatter extends CellFormatter {
   static initClass(): void {
     this.prototype.type = 'DateFormatter'
 
-    this.define({
+    this.define<DateFormatter.Props>({
       format: [ p.String, 'ISO-8601' ],
     })
   }
@@ -237,7 +237,7 @@ export class HTMLTemplateFormatter extends CellFormatter {
   static initClass(): void {
     this.prototype.type = 'HTMLTemplateFormatter'
 
-    this.define({
+    this.define<HTMLTemplateFormatter.Props>({
       template: [ p.String, '<%= value %>' ],
     })
   }

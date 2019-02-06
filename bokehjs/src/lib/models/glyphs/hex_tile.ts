@@ -240,7 +240,7 @@ export class HexTile extends Glyph {
 
     this.coords([['r', 'q']])
     this.mixins(['line', 'fill'])
-    this.define({
+    this.define<HexTile.Props>({
       size:         [ p.Number,     1.0         ],
       aspect_scale: [ p.Number,     1.0         ],
       scale:        [ p.NumberSpec, 1.0         ],

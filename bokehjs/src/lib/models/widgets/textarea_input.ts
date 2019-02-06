@@ -66,7 +66,7 @@ export class TextAreaInput extends TextInput {
     this.prototype.type = "TextAreaInput"
     this.prototype.default_view = TextAreaInputView
 
-    this.define({
+    this.define<TextAreaInput.Props>({
       cols:       [ p.Number, 20  ],
       rows:       [ p.Number, 2   ],
       max_length: [ p.Number, 500 ],

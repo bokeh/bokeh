@@ -28,7 +28,7 @@ export abstract class InspectTool extends ButtonTool {
     this.prototype.type = "InspectTool"
     this.prototype.button_view = OnOffButtonView
 
-    this.define({
+    this.define<InspectTool.Props>({
       toggleable: [ p.Boolean, true ],
     })
 

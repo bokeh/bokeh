@@ -149,7 +149,7 @@ export class ColumnDataSource extends ColumnarDataSource {
   static initClass(): void {
     this.prototype.type = 'ColumnDataSource'
 
-    this.define({
+    this.define<ColumnDataSource.Props>({
       data: [ p.Any, {} ],
     })
   }

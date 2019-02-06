@@ -155,7 +155,7 @@ export class Wedge extends XYGlyph {
     this.prototype.default_view = WedgeView
 
     this.mixins(['line', 'fill'])
-    this.define({
+    this.define<Wedge.Props>({
       direction:    [ p.Direction,   'anticlock' ],
       radius:       [ p.DistanceSpec             ],
       start_angle:  [ p.AngleSpec                ],

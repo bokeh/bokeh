@@ -51,7 +51,7 @@ export abstract class CenterRotatable extends XYGlyph {
     this.prototype.type = 'CenterRotatable'
 
     this.mixins(['line', 'fill'])
-    this.define({
+    this.define<CenterRotatable.Props>({
       angle:  [ p.AngleSpec,   0     ],
       width:  [ p.DistanceSpec       ],
       height: [ p.DistanceSpec       ],

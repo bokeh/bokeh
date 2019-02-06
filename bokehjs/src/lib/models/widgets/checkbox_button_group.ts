@@ -57,7 +57,7 @@ export class CheckboxButtonGroup extends ButtonGroup {
     this.prototype.type = "CheckboxButtonGroup"
     this.prototype.default_view = CheckboxButtonGroupView
 
-    this.define({
+    this.define<CheckboxButtonGroup.Props>({
       active: [ p.Array, [] ],
     })
   }

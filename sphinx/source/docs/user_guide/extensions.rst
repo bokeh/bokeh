@@ -134,7 +134,7 @@ extensions in the next section.
         // types have counterparts, e.g. bokeh.core.properties.String will be
         // ``p.String`` in the JS implementation. Any time the JS type system is not
         // yet as complete, you can use ``p.Any`` as a "wildcard" property type.
-        this.define({
+        this.define<Custom.Props>({
           text:   [ p.String ],
           slider: [ p.Any    ],
         })

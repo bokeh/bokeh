@@ -601,7 +601,7 @@ export class Axis extends GuideRenderer {
       'text:axis_label_',
     ])
 
-    this.define({
+    this.define<Axis.Props>({
       bounds:                  [ p.Any,      'auto'       ], // TODO (bev)
       ticker:                  [ p.Instance, null         ],
       formatter:               [ p.Instance, null         ],

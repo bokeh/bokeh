@@ -35,7 +35,7 @@ export class Column extends Box {
     this.prototype.type = "Column"
     this.prototype.default_view = ColumnView
 
-    this.define({
+    this.define<Column.Props>({
       rows: [ p.Any, "auto" ],
     })
   }

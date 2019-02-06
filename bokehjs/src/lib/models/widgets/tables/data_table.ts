@@ -330,7 +330,7 @@ export class DataTable extends TableWidget {
     this.prototype.type = 'DataTable'
     this.prototype.default_view = DataTableView
 
-    this.define({
+    this.define<DataTable.Props>({
       columns:             [ p.Array,   []    ],
       fit_columns:         [ p.Boolean, true  ],
       sortable:            [ p.Boolean, true  ],

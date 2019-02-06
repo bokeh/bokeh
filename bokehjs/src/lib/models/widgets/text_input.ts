@@ -59,7 +59,7 @@ export class TextInput extends InputWidget {
     this.prototype.type = "TextInput"
     this.prototype.default_view = TextInputView
 
-    this.define({
+    this.define<TextInput.Props>({
       value:       [ p.String, "" ],
       placeholder: [ p.String, "" ],
     })

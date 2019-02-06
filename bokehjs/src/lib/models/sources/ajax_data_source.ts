@@ -30,7 +30,7 @@ export class AjaxDataSource extends RemoteDataSource {
   static initClass(): void {
     this.prototype.type = 'AjaxDataSource'
 
-    this.define({
+    this.define<AjaxDataSource.Props>({
       mode:         [ p.String,  'replace'          ],
       content_type: [ p.String,  'application/json' ],
       adapter:      [ p.Any                         ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
