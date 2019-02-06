@@ -179,6 +179,46 @@ def test_jsons():
             with io.open(os.path.join(buc.bokehjs_dir, "js", file), encoding="utf-8") as f:
                 assert all(['\\' not in mod for mod in json.loads(f.read())])
 
+def test_inline_extension():
+    from bokeh.io import show
+    from bokeh.models import TickFormatter
+    from bokeh.plotting import figure
+    from bokeh.util.compiler import TypeScript
+
+    TS_CODE = """
+    import {TickFormatter} from "models/formatters/tick_formatter"
+
+    export class TestFormatter extends TickFormatter {
+
+      doFormat(ticks: number[]): string[] {
+        if (ticks.length == 0)
+          return[]
+        else {
+          const formatted = [`${ticks[0]}`]
+          for (let i = 1; i < ticks.length; i++) {
+            const difference = (ticks[i] - ticks[0]).toPrecision(2)
+            formatted.push(`+${difference}}`)
+          }
+          return formatted
+        }
+      }
+
+      static initClass(): void {
+        this.prototype.type = "TestFormatter"
+      }
+    }
+    TestFormatter.initClass()
+    """
+
+    class TestFormatter(TickFormatter):
+
+        __implementation__ = TypeScript(TS_CODE)
+
+    p = figure()
+    p.circle([1, 2, 3, 4, 6], [5, 7, 3, 2, 4])
+    p.xaxis.formatter = TestFormatter()
+    show(p)
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------

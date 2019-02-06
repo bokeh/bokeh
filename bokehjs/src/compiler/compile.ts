@@ -172,7 +172,8 @@ const compile_and_resolve_deps = (input: {code: string, lang: string, file: stri
   let output: string
   switch (lang) {
     case "typescript":
-      const result = compile_typescript({[file]: code}, bokehjs_dir)
+      const inputs = {[file.replace(/\\/g, "/")]: code}
+      const result = compile_typescript(inputs, bokehjs_dir)
 
       if (result.error == null)
         output = result.outputs[Object.keys(result.outputs)[0]]
