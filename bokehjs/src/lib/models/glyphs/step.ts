@@ -4,6 +4,7 @@ import {LineVector} from "core/property_mixins"
 import {Line} from "core/visuals"
 import * as p from "core/properties"
 import {Area} from "core/types"
+import {StepMode} from "core/enums"
 import {Context2d} from "core/util/canvas"
 
 export interface StepData extends XYGlyphData {}
@@ -91,7 +92,7 @@ export namespace Step {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = XYGlyph.Props & LineVector & {
-    mode: p.StepMode
+    mode: p.Property<StepMode>
   }
 
   export type Visuals = XYGlyph.Visuals & {line: Line}

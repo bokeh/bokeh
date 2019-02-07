@@ -3,6 +3,7 @@ import * as p from "./properties"
 import {color2rgba} from "./util/color"
 import {Context2d} from "./util/canvas"
 import {Class} from "./class"
+import {LineJoin, LineCap, FontStyle, TextAlign, TextBaseline} from "./enums"
 
 import {HasProps} from "./has_props"
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
@@ -64,8 +65,8 @@ export class Line extends ContextProperties {
   readonly line_color:       p.ColorSpec
   readonly line_width:       p.NumberSpec
   readonly line_alpha:       p.NumberSpec
-  readonly line_join:        p.LineJoin
-  readonly line_cap:         p.LineCap
+  readonly line_join:        p.Property<LineJoin>
+  readonly line_cap:         p.Property<LineCap>
   readonly line_dash:        p.Array
   readonly line_dash_offset: p.Number
 
@@ -151,11 +152,11 @@ export class Text extends ContextProperties {
 
   readonly text_font:        p.Font
   readonly text_font_size:   p.FontSizeSpec
-  readonly text_font_style:  p.FontStyle
+  readonly text_font_style:  p.Property<FontStyle>
   readonly text_color:       p.ColorSpec
   readonly text_alpha:       p.NumberSpec
-  readonly text_align:       p.TextAlign
-  readonly text_baseline:    p.TextBaseline
+  readonly text_align:       p.Property<TextAlign>
+  readonly text_baseline:    p.Property<TextBaseline>
   readonly text_line_height: p.Number
 
   cache_select(name: string, i: number): any {

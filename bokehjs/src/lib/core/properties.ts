@@ -4,7 +4,8 @@ import * as enums from "./enums"
 import {Arrayable, Color as ColorType} from "./types"
 import {includes, repeat} from "./util/array"
 import {map} from "./util/arrayable"
-import {isNumber, isString, isArray, isPlainObject} from "./util/types"
+import {is_color} from "./util/color"
+import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/types"
 import {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
 import {Scalar, Vector, Dimensional} from "./vectorization"
@@ -79,7 +80,14 @@ export abstract class Property<T> extends Signalable() {
     return values
   }
 
-  validate(_value: any): void {}
+  validate(value: any): void {
+    if (!this.valid(value))
+      throw new Error(`${this.obj.type}.${this.attr} given invalid value: ${valueToString(value)}`)
+  }
+
+  valid(_value: unknown): boolean {
+    return true
+  }
 
   // ----- property accessors
 
@@ -134,40 +142,54 @@ export abstract class Property<T> extends Signalable() {
 // Primitive Properties
 //
 
-export class Any extends Property<any> {
-  //validator = () => true
-}
+export class Any extends Property<any> {}
 
 export class Array extends Property<any[]> {
-  //validator = (x: any) => isArray(x) || x instanceof Float64Array
+  valid(value: unknown): boolean {
+    return isArray(value) || value instanceof Float64Array
+  }
 }
 
 export class Boolean extends Property<boolean> {
-  //validator = isBoolean
+  valid(value: unknown): boolean {
+    return isBoolean(value)
+  }
 }
 
 export class Color extends Property<ColorType> {
-  //validator = (x: any) => (isString(x) && (is_svg_color(x.toLowerCase()) || x.substring(0, 1) == "#" || valid_rgb(x)))
+  valid(value: unknown): boolean {
+    return isString(value) && is_color(value)
+  }
 }
 
 export class Instance extends Property<any /*HasProps*/> {
-  //validator = (x: any) => x.properties != null
+  //valid(value: unknown): boolean { return  value.properties != null }
 }
 
 export class Number extends Property<number> {
-  //validator = isNumber
+  valid(value: unknown): boolean {
+    return isNumber(value)
+  }
 }
 
-export class Int extends Number {}
+export class Int extends Number {
+  valid(value: unknown): boolean {
+    return isNumber(value) && (value | 0) == value
+  }
+}
 
 export class Angle extends Number {}
 
-export class Percent extends Property<number> {
-  validator = (x: any) => isNumber(x) && 0 <= x && x <= 1.0
+export class Percent extends Number {
+  valid(value: unknown): boolean {
+    return isNumber(value) && 0 <= value && value <= 1.0
+  }
 }
 
 export class String extends Property<string> {
-  validator = isString
+  valid(value: unknown): boolean {
+    return isString(value)
+  }
 }
 
 export class FontSize extends String {}
@@ -178,12 +200,27 @@ export class Font extends String {} // TODO (bev) don't think this exists python
 // Enum properties
 //
 
-export abstract class Enum<T> extends Property<T> {
+export abstract class EnumProperty<T extends string> extends Property<T> {
   readonly enum_values: T[]
-  // validator = (value: any) => includes(this.enum_values, value)
+
+  valid(value: unknown): boolean {
+    return isString(value) && includes(this.enum_values, value)
+  }
 }
 
-export class Direction extends Enum<enums.Direction> {
+export function Enum<T extends string>(values: T[]): PropertyConstructor<T> {
+  return class extends EnumProperty<T> {
+    get enum_values(): T[] {
+      return values
+    }
+  }
+}
+
+export class Direction extends EnumProperty<enums.Direction> {
+  get enum_values(): enums.Direction[] {
+    return enums.Direction
+  }
+
   transform(values: any): any {
     const result = new Uint8Array(values.length)
     for (let i = 0; i < values.length; i++) {
@@ -196,49 +233,49 @@ export class Direction extends Enum<enums.Direction> {
   }
 }
 
-export class AngleUnits extends Enum<enums.AngleUnits> {}
-export class Dimension extends Enum<enums.Dimension> {}
-export class Dimensions extends Enum<enums.Dimensions> {}
-export class FontStyle extends Enum<enums.FontStyle> {}
-export class LatLon extends Enum<enums.LatLon> {}
-export class LineCap extends Enum<enums.LineCap> {}
-export class LineJoin extends Enum<enums.LineJoin> {}
-export class Location extends Enum<enums.Location> {}
-export class LegendClickPolicy extends Enum<enums.LegendClickPolicy> {}
-export class LegendLocation extends Enum<enums.LegendLocation> {}
-export class Anchor extends Enum<enums.Anchor> {}
-export class Orientation extends Enum<enums.Orientation> {}
-export class OutputBackend extends Enum<enums.OutputBackend> {}
-export class RenderLevel extends Enum<enums.RenderLevel> {}
-export class RenderMode extends Enum<enums.RenderMode> {}
-export class Side extends Enum<enums.Side> {}
-export class Place extends Enum<enums.Place> {}
-export class SpatialUnits extends Enum<enums.SpatialUnits> {}
-export class StartEnd extends Enum<enums.StartEnd> {}
-export class VerticalAlign extends Enum<enums.VerticalAlign> {}
-export class TextAlign extends Enum<enums.TextAlign> {}
-export class TextBaseline extends Enum<enums.TextBaseline> {}
-export class TickLabelOrientation extends Enum<enums.TickLabelOrientation> {}
-export class TooltipAttachment extends Enum<enums.TooltipAttachment> {}
-export class Distribution extends Enum<enums.Distribution> {}
-export class StepMode extends Enum<enums.StepMode> {}
-export class SizingMode extends Enum<enums.SizingMode> {}
-export class PaddingUnits extends Enum<enums.PaddingUnits> {}
-export class SliderCallbackPolicy extends Enum<enums.SliderCallbackPolicy> {}
-export class RoundingFunction extends Enum<enums.RoundingFunction> {}
-export class UpdateMode extends Enum<enums.UpdateMode> {}
-export class HTTPMethod extends Enum<enums.HTTPMethod> {}
-export class Logo extends Enum<enums.Logo> {}
-export class RadiusDimension extends Enum<enums.RadiusDimension> {}
-export class Sort extends Enum<enums.Sort> {}
-export class ButtonType extends Enum<enums.ButtonType> {}
-export class HexTileOrientation extends Enum<enums.HexTileOrientation> {}
-export class TapBehavior extends Enum<enums.TapBehavior> {}
-export class BoxOrigin extends Enum<enums.BoxOrigin> {}
-export class HoverMode extends Enum<enums.HoverMode> {}
-export class PointPolicy extends Enum<enums.PointPolicy> {}
-export class LinePolicy extends Enum<enums.LinePolicy> {}
-export class MarkerType extends Enum<enums.MarkerType> {}
+export const AngleUnits = Enum(enums.AngleUnits)
+export const Dimension = Enum(enums.Dimension)
+export const Dimensions = Enum(enums.Dimensions)
+export const FontStyle = Enum(enums.FontStyle)
+export const LatLon = Enum(enums.LatLon)
+export const LineCap = Enum(enums.LineCap)
+export const LineJoin = Enum(enums.LineJoin)
+export const Location = Enum(enums.Location)
+export const LegendClickPolicy = Enum(enums.LegendClickPolicy)
+export const LegendLocation = Enum(enums.LegendLocation)
+export const Anchor = Enum(enums.Anchor)
+export const Orientation = Enum(enums.Orientation)
+export const OutputBackend = Enum(enums.OutputBackend)
+export const RenderLevel = Enum(enums.RenderLevel)
+export const RenderMode = Enum(enums.RenderMode)
+export const Side = Enum(enums.Side)
+export const Place = Enum(enums.Place)
+export const SpatialUnits = Enum(enums.SpatialUnits)
+export const StartEnd = Enum(enums.StartEnd)
+export const VerticalAlign = Enum(enums.VerticalAlign)
+export const TextAlign = Enum(enums.TextAlign)
+export const TextBaseline = Enum(enums.TextBaseline)
+export const TickLabelOrientation = Enum(enums.TickLabelOrientation)
+export const TooltipAttachment = Enum(enums.TooltipAttachment)
+export const Distribution = Enum(enums.Distribution)
+export const StepMode = Enum(enums.StepMode)
+export const SizingMode = Enum(enums.SizingMode)
+export const PaddingUnits = Enum(enums.PaddingUnits)
+export const SliderCallbackPolicy = Enum(enums.SliderCallbackPolicy)
+export const RoundingFunction = Enum(enums.RoundingFunction)
+export const UpdateMode = Enum(enums.UpdateMode)
+export const HTTPMethod = Enum(enums.HTTPMethod)
+export const Logo = Enum(enums.Logo)
+export const RadiusDimension = Enum(enums.RadiusDimension)
+export const Sort = Enum(enums.Sort)
+export const ButtonType = Enum(enums.ButtonType)
+export const HexTileOrientation = Enum(enums.HexTileOrientation)
+export const TapBehavior = Enum(enums.TapBehavior)
+export const BoxOrigin = Enum(enums.BoxOrigin)
+export const HoverMode = Enum(enums.HoverMode)
+export const PointPolicy = Enum(enums.PointPolicy)
+export const LinePolicy = Enum(enums.LinePolicy)
+export const MarkerType = Enum(enums.MarkerType)
 
 //
 // DataSpec properties

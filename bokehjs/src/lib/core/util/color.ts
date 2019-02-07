@@ -1,6 +1,10 @@
 import {svg_colors, is_svg_color} from "./svg_colors"
 import {includes} from "./array"
 
+export function is_color(value: string): boolean {
+  return is_svg_color(value.toLowerCase()) || value.substring(0, 1) == "#" || valid_rgb(value)
+}
+
 function _component2hex(v: number | string): string {
   const h = Number(v).toString(16)
   return h.length == 1 ? `0${h}` : h

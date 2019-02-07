@@ -60,7 +60,7 @@ describe("properties module", () => {
     function fn(): void {
       prop.validate(x)
     }
-    expect(fn).to.throw(Error, /property '.*' given invalid value/)
+    expect(fn).to.throw(Error, /given invalid value/)
   }
 
   function enum_validation_errors(prop: any): void {
@@ -358,7 +358,7 @@ describe("properties module", () => {
           expect(prop.validate(x)).to.be.undefined
       })
 
-      it.skip("should throw an Error on other input", () => {
+      it("should throw an Error on other input", () => {
         enum_validation_errors(prop)
       })
     })
@@ -429,7 +429,7 @@ describe("properties module", () => {
         expect(prop.validate(new Float64Array([1,2,3]))).to.be.undefined
       })
 
-      it.skip("should throw an Error on non-array input", () => {
+      it("should throw an Error on non-array input", () => {
         validation_error(prop, true)
         validation_error(prop, 10)
         validation_error(prop, 10.2)
@@ -461,7 +461,7 @@ describe("properties module", () => {
         expect(prop.validate(false)).to.be.undefined
       })
 
-      it.skip("should throw an Error on non-boolean input", () => {
+      it("should throw an Error on non-boolean input", () => {
         validation_error(prop, 10)
         validation_error(prop, 10.2)
         validation_error(prop, "foo")
@@ -521,7 +521,7 @@ describe("properties module", () => {
 
       describe("should throw Error on tuple with bad numerical values", () => {
         for (const bad_tuple of bad_tuples) {
-          it.skip(`${bad_tuple}`, () => {
+          it(`${bad_tuple}`, () => {
             function fn(): void {
               prop.validate(bad_tuple)
             }
@@ -535,7 +535,7 @@ describe("properties module", () => {
           expect(prop.validate(color)).to.be.undefined
       })
 
-      it.skip("should throw an Error on other input", () => {
+      it("should throw an Error on other input", () => {
         validation_error(prop, true)
         validation_error(prop, 10)
         validation_error(prop, 10.2)
@@ -556,12 +556,12 @@ describe("properties module", () => {
     })
 
     describe("validate", () => {
-      it.skip("should return undefined on dimension input", () => {
+      it("should return undefined on dimension input", () => {
         for (const x of enums.Dimension)
           expect(prop.validate(x)).to.be.undefined
       })
 
-      it.skip("should throw an Error on other input", () => {
+      it("should throw an Error on other input", () => {
         enum_validation_errors(prop)
       })
     })
@@ -581,12 +581,12 @@ describe("properties module", () => {
     })
 
     describe("validate", () => {
-      it.skip("should return undefined on direction input", () => {
+      it("should return undefined on direction input", () => {
         expect(prop.validate("clock")).to.be.undefined
         expect(prop.validate("anticlock")).to.be.undefined
       })
 
-      it.skip("should throw an Error on other input", () => {
+      it("should throw an Error on other input", () => {
         enum_validation_errors(prop)
       })
     })
@@ -652,12 +652,12 @@ describe("properties module", () => {
     })
 
     describe("validate", () => {
-      it.skip("should return undefined on font input", () => {
+      it("should return undefined on font input", () => {
         expect(prop.validate("")).to.be.undefined
         expect(prop.validate("helvetica")).to.be.undefined
       })
 
-      it.skip("should throw an Error on non-string input", () => {
+      it("should throw an Error on non-string input", () => {
         validation_error(prop, true)
         validation_error(prop, 10)
         validation_error(prop, 10.2)
@@ -683,12 +683,12 @@ describe("properties module", () => {
     })
 
     describe("validate", () => {
-      it.skip("should return undefined on font style input", () => {
+      it("should return undefined on font style input", () => {
         for (const x of enums.FontStyle)
           expect(prop.validate(x)).to.be.undefined
       })
 
-      it.skip("should throw an Error on other input", () => {
+      it("should throw an Error on other input", () => {
         enum_validation_errors(prop)
       })
     })
@@ -708,7 +708,7 @@ describe("properties module", () => {
     })
 
     describe("validate", () => {
-      it.skip("should return undefined on HasProps", () => {
+      it("should return undefined on HasProps", () => {
         expect(prop.validate(new SomeHasProps({}))).to.be.undefined
       })
 
@@ -737,12 +737,12 @@ describe("properties module", () => {
     })
 
     describe("validate", () => {
-      it.skip("should return undefined on legend location input", () => {
+      it("should return undefined on legend location input", () => {
         for (const x of enums.LegendLocation)
           expect(prop.validate(x)).to.be.undefined
       })
 
-      it.skip("should throw an Error on other input", () => {
+      it("should throw an Error on other input", () => {
         enum_validation_errors(prop)
       })
     })
@@ -762,12 +762,12 @@ describe("properties module", () => {
     })
 
     describe("validate", () => {
-      it.skip("should return undefined on line cap input", () => {
+      it("should return undefined on line cap input", () => {
         for (const x of enums.LineCap)
           expect(prop.validate(x)).to.be.undefined
       })
 
-      it.skip("should throw an Error on other input", () => {
+      it("should throw an Error on other input", () => {
         enum_validation_errors(prop)
       })
     })
@@ -787,12 +787,12 @@ describe("properties module", () => {
     })
 
     describe("validate", () => {
-      it.skip("should return undefined on line join input", () => {
+      it("should return undefined on line join input", () => {
         for (const x of enums.LineJoin)
           expect(prop.validate(x)).to.be.undefined
       })
 
-      it.skip("should throw an Error on other input", () => {
+      it("should throw an Error on other input", () => {
         enum_validation_errors(prop)
       })
     })
@@ -812,12 +812,12 @@ describe("properties module", () => {
     })
 
     describe("validate", () => {
-      it.skip("should return undefined on numeric input", () => {
+      it("should return undefined on numeric input", () => {
         expect(prop.validate(10)).to.be.undefined
         expect(prop.validate(10.2)).to.be.undefined
       })
 
-      it.skip("should throw an Error on non-numeric input", () => {
+      it("should throw an Error on non-numeric input", () => {
         // validation_error(prop, true) // XXX should this succeed?
         validation_error(prop, "foo")
         validation_error(prop, {})
@@ -843,12 +843,12 @@ describe("properties module", () => {
     })
 
     describe("validate", () => {
-      it.skip("should return undefined on orientation input", () => {
+      it("should return undefined on orientation input", () => {
         for (const x of enums.Orientation)
           expect(prop.validate(x)).to.be.undefined
       })
 
-      it.skip("should throw an Error on other input", () => {
+      it("should throw an Error on other input", () => {
         enum_validation_errors(prop)
       })
     })
@@ -868,12 +868,12 @@ describe("properties module", () => {
     })
 
     describe("validate", () => {
-      it.skip("should return undefined on render level input", () => {
+      it("should return undefined on render level input", () => {
         for (const x of enums.RenderLevel)
           expect(prop.validate(x)).to.be.undefined
       })
 
-      it.skip("should throw an Error on other input", () => {
+      it("should throw an Error on other input", () => {
         enum_validation_errors(prop)
       })
     })
@@ -893,12 +893,12 @@ describe("properties module", () => {
     })
 
     describe("validate", () => {
-      it.skip("should return undefined on render mode input", () => {
+      it("should return undefined on render mode input", () => {
         for (const x of enums.RenderMode)
           expect(prop.validate(x)).to.be.undefined
       })
 
-      it.skip("should throw an Error on other input", () => {
+      it("should throw an Error on other input", () => {
         enum_validation_errors(prop)
       })
     })
@@ -918,13 +918,13 @@ describe("properties module", () => {
     })
 
     describe("validate", () => {
-      it.skip("should return undefined on string input", () => {
+      it("should return undefined on string input", () => {
         expect(prop.validate("")).to.be.undefined
         expect(prop.validate("foo")).to.be.undefined
         expect(prop.validate("1")).to.be.undefined
       })
 
-      it.skip("should throw an Error on non-string input", () => {
+      it("should throw an Error on non-string input", () => {
         validation_error(prop, true)
         validation_error(prop, 10)
         validation_error(prop, 10.2)
@@ -950,12 +950,12 @@ describe("properties module", () => {
     })
 
     describe("validate", () => {
-      it.skip("should return undefined on text align input", () => {
+      it("should return undefined on text align input", () => {
         for (const x of enums.TextAlign)
           expect(prop.validate(x)).to.be.undefined
       })
 
-      it.skip("should throw an Error on other input", () => {
+      it("should throw an Error on other input", () => {
         enum_validation_errors(prop)
       })
     })
@@ -975,12 +975,12 @@ describe("properties module", () => {
     })
 
     describe("validate", () => {
-      it.skip("should return undefined on text baseline input", () => {
+      it("should return undefined on text baseline input", () => {
         for (const x of enums.TextBaseline)
           expect(prop.validate(x)).to.be.undefined
       })
 
-      it.skip("should throw an Error on other input", () => {
+      it("should throw an Error on other input", () => {
         enum_validation_errors(prop)
       })
     })
