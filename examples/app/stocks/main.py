@@ -130,7 +130,7 @@ def selection_change(attrname, old, new):
         data = data.iloc[selected, :]
     update_stats(data, t1, t2)
 
-source.on_change('selected', selection_change)
+source.selected.on_change('indices', selection_change)
 
 # set up layout
 widgets = column(ticker1, ticker2, stats)
