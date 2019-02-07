@@ -209,6 +209,7 @@ class DateRangeSlider(AbstractSlider):
         ''' Convenience property to retrieve the value tuple as a tuple of
         date objects.
 
+        Added in version 1.1
         '''
         if self.value is None:
             return None
