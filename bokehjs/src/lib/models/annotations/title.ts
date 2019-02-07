@@ -1,10 +1,9 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
-import {Color} from "core/types"
-import {LineJoin, LineCap} from "core/enums"
 import {FontStyle, VerticalAlign, TextAlign, TextBaseline} from "core/enums"
 import {hide} from "core/dom"
-import {Text} from "core/visuals"
 import {Size} from "core/layout"
+import {Text} from "core/visuals"
+import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 
 export class TitleView extends TextAnnotationView {
@@ -127,20 +126,8 @@ export namespace Title {
     offset: p.Property<number>
     text_align: p.Property<TextAlign>
     text_baseline: p.Property<TextBaseline>
-
-    // line:border_
-    border_line_color: p.Property<Color>
-    border_line_width: p.Property<number>
-    border_line_alpha: p.Property<number>
-    border_line_join: p.Property<LineJoin>
-    border_line_cap: p.Property<LineCap>
-    border_line_dash: p.Property<number[]>
-    border_line_dash_offset: p.Property<number>
-
-    // fill:background_
-    background_fill_color: p.Property<Color>
-    background_fill_alpha: p.Property<number>
-  }
+  } & mixins.BorderLine
+    & mixins.BackgroundFill
 
   export type Visuals = TextAnnotation.Visuals
 }

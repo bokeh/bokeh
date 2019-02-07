@@ -3,11 +3,11 @@ import {Ticker} from "../tickers/ticker"
 import {TickFormatter} from "../formatters/tick_formatter"
 import {Range} from "../ranges/range"
 
+import * as visuals from "core/visuals"
+import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
-import {Arrayable, Color} from "core/types"
-import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap} from "core/enums"
+import {Arrayable} from "core/types"
 import {Side, TickLabelOrientation, SpatialUnits} from "core/enums"
-import {Text, Line} from "core/visuals"
 import {Size} from "core/layout"
 import {SidePanel, Orient} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
@@ -175,7 +175,7 @@ export class AxisView extends GuideRendererView {
     this._draw_oriented_labels(ctx, [this.model.axis_label], coords, 'parallel', this.panel.side, standoff, visuals, "screen")
   }
 
-  protected _draw_ticks(ctx: Context2d, coords: Coords, tin: number, tout: number, visuals: Line): void {
+  protected _draw_ticks(ctx: Context2d, coords: Coords, tin: number, tout: number, visuals: visuals.Line): void {
     if (!visuals.doit)
       return
 
@@ -203,7 +203,7 @@ export class AxisView extends GuideRendererView {
 
   protected _draw_oriented_labels(ctx: Context2d, labels: string[], coords: Coords,
                                   orient: Orient | number, _side: Side, standoff: number,
-                                  visuals: Text, units: SpatialUnits = "data"): void {
+                                  visuals: visuals.Text, units: SpatialUnits = "data"): void {
     if (!visuals.doit || labels.length == 0)
       return
 
@@ -275,7 +275,7 @@ export class AxisView extends GuideRendererView {
   }
 
   protected _oriented_labels_extent(labels: string[], orient: Orient | number,
-                                    side: Side, standoff: number, visuals: Text): number {
+                                    side: Side, standoff: number, visuals: visuals.Text): number {
     if (labels.length == 0)
       return 0
 
@@ -520,61 +520,18 @@ export namespace Axis {
     minor_tick_in: p.Property<number>
     minor_tick_out: p.Property<number>
     fixed_location: p.Property<number | Factor | null>
-
-    // line:axis_
-    axis_line_color: p.Property<Color>
-    axis_line_width: p.Property<number>
-    axis_line_alpha: p.Property<number>
-    axis_line_join: p.Property<LineJoin>
-    axis_line_cap: p.Property<LineCap>
-    axis_line_dash: p.Property<number[]>
-    axis_line_dash_offset: p.Property<number>
-
-    // line:major_tick_
-    major_tick_line_color: p.Property<Color>
-    major_tick_line_width: p.Property<number>
-    major_tick_line_alpha: p.Property<number>
-    major_tick_line_join: p.Property<LineJoin>
-    major_tick_line_cap: p.Property<LineCap>
-    major_tick_line_dash: p.Property<number[]>
-    major_tick_line_dash_offset: p.Property<number>
-
-    // line:minor_tick_
-    minor_tick_line_color: p.Property<Color>
-    minor_tick_line_width: p.Property<number>
-    minor_tick_line_alpha: p.Property<number>
-    minor_tick_line_join: p.Property<LineJoin>
-    minor_tick_line_cap: p.Property<LineCap>
-    minor_tick_line_dash: p.Property<number[]>
-    minor_tick_line_dash_offset: p.Property<number>
-
-    // text:major_label_
-    major_label_text_font: p.Property<string>
-    major_label_text_font_size: p.Property<string>
-    major_label_text_font_style: p.Property<FontStyle>
-    major_label_text_color: p.Property<Color>
-    major_label_text_alpha: p.Property<number>
-    major_label_text_align: p.Property<TextAlign>
-    major_label_text_baseline: p.Property<TextBaseline>
-    major_label_text_line_height: p.Property<number>
-
-    // text:axis_label_
-    axis_label_text_font: p.Property<string>
-    axis_label_text_font_size: p.Property<string>
-    axis_label_text_font_style: p.Property<FontStyle>
-    axis_label_text_color: p.Property<Color>
-    axis_label_text_alpha: p.Property<number>
-    axis_label_text_align: p.Property<TextAlign>
-    axis_label_text_baseline: p.Property<TextBaseline>
-    axis_label_text_line_height: p.Property<number>
-  }
+  } & mixins.AxisLine
+    & mixins.MajorTickLine
+    & mixins.MinorTickLine
+    & mixins.MajorLabelText
+    & mixins.AxisLabelText
 
   export type Visuals = GuideRenderer.Visuals & {
-    axis_line: Line
-    major_tick_line: Line
-    minor_tick_line: Line
-    major_label_text: Text
-    axis_label_text: Text
+    axis_line: visuals.Line
+    major_tick_line: visuals.Line
+    minor_tick_line: visuals.Line
+    major_label_text: visuals.Text
+    axis_label_text: visuals.Text
   }
 }
 

@@ -4,10 +4,10 @@ import {CategoricalTicker} from "../tickers/categorical_ticker"
 import {CategoricalTickFormatter} from "../formatters/categorical_tick_formatter"
 import {FactorRange, Factor, L1Factor, L2Factor, L3Factor} from "../ranges/factor_range"
 
+import * as visuals from "core/visuals"
+import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
-import {Text, Line} from "core/visuals"
-import {Color} from "core/types"
-import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap, TickLabelOrientation} from "core/enums"
+import {TickLabelOrientation} from "core/enums"
 import {Context2d} from "core/util/canvas"
 import {Orient} from "core/layout/side_panel"
 
@@ -82,7 +82,7 @@ export class CategoricalAxisView extends AxisView {
     return extents
   }
 
-  protected _get_factor_info(): [string[], Coords, Orient | number, Text][] {
+  protected _get_factor_info(): [string[], Coords, Orient | number, visuals.Text][] {
     const [range,] = (this.ranges as any) as [FactorRange, FactorRange]
     const [start, end] = this.computed_bounds
     const loc = this.loc
@@ -90,7 +90,7 @@ export class CategoricalAxisView extends AxisView {
     const ticks = this.model.ticker.get_ticks(start, end, range, loc, {})
     const coords = this.tick_coords
 
-    const info: [string[], Coords, Orient | number, Text][] = []
+    const info: [string[], Coords, Orient | number, visuals.Text][] = []
 
     if (range.levels == 1) {
       const major = ticks.major as L1Factor[]
@@ -153,41 +153,14 @@ export namespace CategoricalAxis {
     formatter: p.Property<CategoricalTickFormatter>
     group_label_orientation: p.Property<TickLabelOrientation | number>
     subgroup_label_orientation: p.Property<TickLabelOrientation | number>
-
-    // line:separator_
-    separator_line_color: p.Property<Color>
-    separator_line_width: p.Property<number>
-    separator_line_alpha: p.Property<number>
-    separator_line_join: p.Property<LineJoin>
-    separator_line_cap: p.Property<LineCap>
-    separator_line_dash: p.Property<number[]>
-    separator_line_dash_offset: p.Property<number>
-
-    // text:group_
-    group_text_font: p.Property<string>
-    group_text_font_size: p.Property<string>
-    group_text_font_style: p.Property<FontStyle>
-    group_text_color: p.Property<Color>
-    group_text_alpha: p.Property<number>
-    group_text_align: p.Property<TextAlign>
-    group_text_baseline: p.Property<TextBaseline>
-    group_text_line_height: p.Property<number>
-
-    // text:subgroup_
-    subgroup_text_font: p.Property<string>
-    subgroup_text_font_size: p.Property<string>
-    subgroup_text_font_style: p.Property<FontStyle>
-    subgroup_text_color: p.Property<Color>
-    subgroup_text_alpha: p.Property<number>
-    subgroup_text_align: p.Property<TextAlign>
-    subgroup_text_baseline: p.Property<TextBaseline>
-    subgroup_text_line_height: p.Property<number>
-  }
+  } & mixins.SeparatorLine
+    & mixins.GroupText
+    & mixins.SubGroupText
 
   export type Visuals = Axis.Visuals & {
-    separator_line: Line,
-    group_text: Text,
-    subgroup_text: Text,
+    separator_line: visuals.Line,
+    group_text: visuals.Text,
+    subgroup_text: visuals.Text,
   }
 }
 

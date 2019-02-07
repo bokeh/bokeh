@@ -1,9 +1,8 @@
+import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
 import {Class} from "core/class"
 import {Signal0} from "core/signaling"
-import {Color} from "core/types"
-import {LineJoin, LineCap} from "core/enums"
 import {Place, Location, OutputBackend} from "core/enums"
 import {removeBy, concat} from "core/util/array"
 import {values} from "core/util/object"
@@ -88,24 +87,9 @@ export namespace Plot {
 
     match_aspect: p.Property<boolean>
     aspect_scale: p.Property<number>
-
-    // line:outline_
-    outline_line_color: p.Property<Color>
-    outline_line_width: p.Property<number>
-    outline_line_alpha: p.Property<number>
-    outline_line_join: p.Property<LineJoin>
-    outline_line_cap: p.Property<LineCap>
-    outline_line_dash: p.Property<number[]>
-    outline_line_dash_offset: p.Property<number>
-
-    // fill:background_
-    background_fill_color: p.Property<Color>
-    background_fill_alpha: p.Property<number>
-
-    // fill:border_
-    border_fill_color: p.Property<Color>
-    border_fill_alpha: p.Property<number>
-  }
+  } & mixins.OutlineLine
+    & mixins.BackgroundFill
+    & mixins.BorderFill
 
   export type Visuals = visuals.Visuals & {
     outline_line: visuals.Line

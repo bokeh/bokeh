@@ -1,10 +1,9 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {LegendItem} from "./legend_item"
 import {GlyphRendererView} from "../renderers/glyph_renderer"
-import {Color} from "core/types"
-import {Line, Fill, Text} from "core/visuals"
-import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap} from "core/enums"
 import {Orientation, LegendLocation, LegendClickPolicy} from "core/enums"
+import * as visuals from "core/visuals"
+import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import {Signal0} from "core/signaling"
 import {Size} from "core/layout"
@@ -308,40 +307,16 @@ export namespace Legend {
     spacing: p.Property<number>
     items: p.Property<LegendItem[]>
     click_policy: p.Property<LegendClickPolicy>
-
-    // text:label_
-    label_text_font: p.Property<string>
-    label_text_font_size: p.Property<string>
-    label_text_font_style: p.Property<FontStyle>
-    label_text_color: p.Property<Color>
-    label_text_alpha: p.Property<number>
-    label_text_align: p.Property<TextAlign>
-    label_text_baseline: p.Property<TextBaseline>
-    label_text_line_height: p.Property<number>
-
-    // fill:inactive_
-    inactive_fill_color: p.Property<Color>
-    inactive_fill_alpha: p.Property<number>
-
-    // line:border_
-    border_line_color: p.Property<Color>
-    border_line_width: p.Property<number>
-    border_line_alpha: p.Property<number>
-    border_line_join: p.Property<LineJoin>
-    border_line_cap: p.Property<LineCap>
-    border_line_dash: p.Property<number[]>
-    border_line_dash_offset: p.Property<number>
-
-    // fill:background_
-    background_fill_color: p.Property<Color>
-    background_fill_alpha: p.Property<number>
-  }
+  } & mixins.LabelText
+    & mixins.InactiveFill
+    & mixins.BorderLine
+    & mixins.BackgroundFill
 
   export type Visuals = Annotation.Visuals & {
-    label_text: Text
-    inactive_fill: Fill
-    border_line: Line
-    background_fill: Fill
+    label_text: visuals.Text
+    inactive_fill: visuals.Fill
+    border_line: visuals.Line
+    background_fill: visuals.Fill
   }
 }
 

@@ -1,9 +1,8 @@
 import {GuideRenderer, GuideRendererView} from "../renderers/guide_renderer"
 import {Range} from "../ranges/range"
 import {Ticker} from "../tickers/ticker"
-import {Line, Fill} from "core/visuals"
-import {Color} from "core/types"
-import {LineJoin, LineCap} from "core/enums"
+import * as visuals from "core/visuals"
+import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 import {isArray} from "core/util/types"
@@ -65,7 +64,7 @@ export class GridView extends GuideRendererView {
     this._draw_grid_helper(ctx, this.visuals.minor_grid_line, xs, ys)
   }
 
-  protected _draw_grid_helper(ctx: Context2d, visuals: Line, xs: number[][], ys: number[][]): void {
+  protected _draw_grid_helper(ctx: Context2d, visuals: visuals.Line, xs: number[][], ys: number[][]): void {
     visuals.set_value(ctx)
     for (let i = 0; i < xs.length; i++) {
       const [sx, sy] = this.plot_view.map_to_screen(xs[i], ys[i], this._x_range_name, this._y_range_name)
@@ -184,34 +183,14 @@ export namespace Grid {
     ticker: p.Property<Ticker<any>>
     x_range_name: p.Property<string>
     y_range_name: p.Property<string>
-
-    // line:grid_
-    grid_line_color: p.Property<Color>
-    grid_line_width: p.Property<number>
-    grid_line_alpha: p.Property<number>
-    grid_line_join: p.Property<LineJoin>
-    grid_line_cap: p.Property<LineCap>
-    grid_line_dash: p.Property<number[]>
-    grid_line_dash_offset: p.Property<number>
-
-    // line:minor_grid_
-    minor_grid_line_color: p.Property<Color>
-    minor_grid_line_width: p.Property<number>
-    minor_grid_line_alpha: p.Property<number>
-    minor_grid_line_join: p.Property<LineJoin>
-    minor_grid_line_cap: p.Property<LineCap>
-    minor_grid_line_dash: p.Property<number[]>
-    minor_grid_line_dash_offset: p.Property<number>
-
-    // fill:band_
-    fill_color: p.Property<Color>
-    fill_alpha: p.Property<number>
-  }
+  } & mixins.GridLine
+    & mixins.MinorGridLine
+    & mixins.BandFill
 
   export type Visuals = GuideRenderer.Visuals & {
-    grid_line: Line
-    minor_grid_line: Line
-    band_fill: Fill
+    grid_line: visuals.Line
+    minor_grid_line: visuals.Line
+    band_fill: visuals.Fill
   }
 }
 

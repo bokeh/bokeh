@@ -10,10 +10,10 @@ import {Scale} from "../scales/scale"
 import {LogScale} from "../scales/log_scale"
 import {Range1d} from "../ranges/range1d"
 
-import {Arrayable, Color} from "core/types"
-import {Line, Fill, Text} from "core/visuals"
-import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap} from "core/enums"
+import {Arrayable} from "core/types"
 import {LegendLocation, Orientation} from "core/enums"
+import * as visuals from "core/visuals"
+import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import * as text_util from "core/util/text"
 import {min, max, range, reversed} from "core/util/array"
@@ -589,76 +589,22 @@ export namespace ColorBar {
     major_tick_out: p.Property<number>
     minor_tick_in: p.Property<number>
     minor_tick_out: p.Property<number>
-
-    // text:major_label_
-    major_label_text_font: p.Property<string>
-    major_label_text_font_size: p.Property<string>
-    major_label_text_font_style: p.Property<FontStyle>
-    major_label_text_color: p.Property<Color>
-    major_label_text_alpha: p.Property<number>
-    major_label_text_align: p.Property<TextAlign>
-    major_label_text_baseline: p.Property<TextBaseline>
-    major_label_text_line_height: p.Property<number>
-
-    // text:title_
-    title_text_font: p.Property<string>
-    title_text_font_size: p.Property<string>
-    title_text_font_style: p.Property<FontStyle>
-    title_text_color: p.Property<Color>
-    title_text_alpha: p.Property<number>
-    title_text_align: p.Property<TextAlign>
-    title_text_baseline: p.Property<TextBaseline>
-    title_text_line_height: p.Property<number>
-
-    // line:major_tick_
-    major_tick_line_color: p.Property<Color>
-    major_tick_line_width: p.Property<number>
-    major_tick_line_alpha: p.Property<number>
-    major_tick_line_join: p.Property<LineJoin>
-    major_tick_line_cap: p.Property<LineCap>
-    major_tick_line_dash: p.Property<number[]>
-    major_tick_line_dash_offset: p.Property<number>
-
-    // line:minor_tick_
-    minor_tick_line_color: p.Property<Color>
-    minor_tick_line_width: p.Property<number>
-    minor_tick_line_alpha: p.Property<number>
-    minor_tick_line_join: p.Property<LineJoin>
-    minor_tick_line_cap: p.Property<LineCap>
-    minor_tick_line_dash: p.Property<number[]>
-    minor_tick_line_dash_offset: p.Property<number>
-
-    // line:border_
-    border_line_color: p.Property<Color>
-    border_line_width: p.Property<number>
-    border_line_alpha: p.Property<number>
-    border_line_join: p.Property<LineJoin>
-    border_line_cap: p.Property<LineCap>
-    border_line_dash: p.Property<number[]>
-    border_line_dash_offset: p.Property<number>
-
-    // line:bar_
-    bar_line_color: p.Property<Color>
-    bar_line_width: p.Property<number>
-    bar_line_alpha: p.Property<number>
-    bar_line_join: p.Property<LineJoin>
-    bar_line_cap: p.Property<LineCap>
-    bar_line_dash: p.Property<number[]>
-    bar_line_dash_offset: p.Property<number>
-
-    // fill:background_
-    background_fill_color: p.Property<Color>
-    background_fill_alpha: p.Property<number>
-  }
+  } & mixins.MajorLabelText
+    & mixins.TitleText
+    & mixins.MajorTickLine
+    & mixins.MinorTickLine
+    & mixins.BorderLine
+    & mixins.BarLine
+    & mixins.BackgroundFill
 
   export type Visuals = Annotation.Visuals & {
-    major_label_text: Text
-    title_text: Text
-    major_tick_line: Line
-    minor_tick_line: Line
-    border_line: Line
-    bar_line: Line
-    background_fill: Fill
+    major_label_text: visuals.Text
+    title_text: visuals.Text
+    major_tick_line: visuals.Line
+    minor_tick_line: visuals.Line
+    border_line: visuals.Line
+    bar_line: visuals.Line
+    background_fill: visuals.Fill
   }
 }
 

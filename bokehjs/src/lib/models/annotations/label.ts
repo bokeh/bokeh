@@ -1,10 +1,8 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
-import {TextScalar} from "core/property_mixins"
-import {Color} from "core/types"
-import {LineJoin, LineCap} from "core/enums"
 import {SpatialUnits, AngleUnits} from "core/enums"
 import {hide} from "core/dom"
 import {Size} from "core/layout"
+import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 
 export class LabelView extends TextAnnotationView {
@@ -63,26 +61,7 @@ export class LabelView extends TextAnnotationView {
 }
 
 export namespace Label {
-  // line:border_
-  export interface BorderLine {
-    border_line_color: p.Property<Color>
-    border_line_width: p.Property<number>
-    border_line_alpha: p.Property<number>
-    border_line_join: p.Property<LineJoin>
-    border_line_cap: p.Property<LineCap>
-    border_line_dash: p.Property<number[]>
-    border_line_dash_offset: p.Property<number>
-  }
-
-  // fill:background_
-  export interface BackgorundFill {
-    background_fill_color: p.Property<Color>
-    background_fill_alpha: p.Property<number>
-  }
-
-  export interface Mixins extends TextScalar, BorderLine, BackgorundFill {}
-
-  export type Props = TextAnnotation.Props & Mixins & {
+  export type Props = TextAnnotation.Props & {
     x: p.Property<number>
     x_units: p.Property<SpatialUnits>
     y: p.Property<number>
@@ -94,7 +73,9 @@ export namespace Label {
     y_offset: p.Property<number>
     x_range_name: p.Property<string>
     y_range_name: p.Property<string>
-  }
+  } & mixins.TextScalar
+    & mixins.BorderLine
+    & mixins.BackgroundFill
 
   export type Attrs = p.AttrsOf<Props>
 

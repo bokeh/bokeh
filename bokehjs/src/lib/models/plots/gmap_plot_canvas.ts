@@ -258,7 +258,9 @@ export class GMapPlotView extends PlotView {
     ctx.lineTo(left,    top)
     ctx.closePath()
 
-    ctx.fillStyle = this.model.border_fill_color
-    ctx.fill()
+    if (this.model.border_fill_color != null) {
+      ctx.fillStyle = this.model.border_fill_color
+      ctx.fill()
+    }
   }
 }
