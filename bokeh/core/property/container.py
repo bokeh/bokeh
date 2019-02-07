@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import collections
+from bokeh.util.future import collections_abc # goes away with py2
 
 # External imports
 from six import string_types, iteritems
@@ -94,14 +94,14 @@ class Seq(ContainerProperty):
 
     @classmethod
     def _is_seq(cls, value):
-        return ((isinstance(value, collections.Sequence) or cls._is_seq_like(value)) and
+        return ((isinstance(value, collections_abc.Sequence) or cls._is_seq_like(value)) and
                 not isinstance(value, string_types))
 
     @classmethod
     def _is_seq_like(cls, value):
-        return (isinstance(value, (collections.Container, collections.Sized, collections.Iterable))
+        return (isinstance(value, (collections_abc.Container, collections_abc.Sized, collections_abc.Iterable))
                 and hasattr(value, "__getitem__") # NOTE: this is what makes it disallow set type
-                and not isinstance(value, collections.Mapping))
+                and not isinstance(value, collections_abc.Mapping))
 
     def _new_instance(self, value):
         return value

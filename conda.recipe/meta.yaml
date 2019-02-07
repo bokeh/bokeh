@@ -63,6 +63,7 @@ test:
     - flake8
     - lxml
     - mock
+    - nbconvert >=5.4
     - networkx
     - nodejs >=8.8
     - numba

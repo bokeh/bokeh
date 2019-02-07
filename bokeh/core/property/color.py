@@ -98,12 +98,12 @@ class Color(Either):
 
     def __init__(self, default=None, help=None):
         types = (Enum(enums.NamedColor),
-                 Regex("^#[0-9a-fA-F]{6}$"),
-                 Regex("^rgba\(((25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*,"
-                       "\s*?){2}(25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*,"
-                       "\s*([01]\.?\d*?)\)"),
-                 Regex("^rgb\(((25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*,"
-                       "\s*?){2}(25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*?\)"),
+                 Regex(r"^#[0-9a-fA-F]{6}$"),
+                 Regex(r"^rgba\(((25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*,"
+                       r"\s*?){2}(25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*,"
+                       r"\s*([01]\.?\d*?)\)"),
+                 Regex(r"^rgb\(((25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*,"
+                       r"\s*?){2}(25[0-5]|2[0-4]\d|1\d{1,2}|\d\d?)\s*?\)"),
                  Tuple(Byte, Byte, Byte),
                  Tuple(Byte, Byte, Byte, Percent),
                  RGB)

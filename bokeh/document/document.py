@@ -332,7 +332,7 @@ class Document(object):
     def apply_json_event(self, json):
         event = loads(json, object_hook=Event.decode_json)
         if not isinstance(event, Event):
-            log.warn('Could not decode event json: %s' % json)
+            log.warning('Could not decode event json: %s' % json)
         else:
             for obj in self._subscribed_models[event.event_name]:
                 obj._trigger_event(event)
@@ -385,7 +385,7 @@ class Document(object):
                     if patched_id not in self._all_former_model_ids:
                         raise RuntimeError("Cannot apply patch to %s which is not in the document" % (str(patched_id)))
                     else:
-                        log.warn("Cannot apply patch to %s which is not in the document anymore" % (str(patched_id)))
+                        log.warning("Cannot apply patch to %s which is not in the document anymore" % (str(patched_id)))
                         break
                 patched_obj = self._all_models[patched_id]
                 attr = event_json['attr']
@@ -627,7 +627,7 @@ class Document(object):
 
         '''
         if self._hold is not None and self._hold != policy:
-            log.warn("hold already active with '%s', ignoring '%s'" % (self._hold, policy))
+            log.warning("hold already active with '%s', ignoring '%s'" % (self._hold, policy))
             return
         if policy not in HoldPolicy:
             raise ValueError("Unknown hold policy %r" % policy)

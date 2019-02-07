@@ -41,6 +41,13 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
+# handle collections ABC changes
+try:
+    # only works on python 3.3+ but Bokeh only support python 3.4+
+    import collections.abc as collections_abc # NOQA
+except ImportError:
+    import collections as collections_abc # NOQA
+
 def with_metaclass(meta, *bases):
     """ Add metaclasses in both Python 2 and Python 3.
 

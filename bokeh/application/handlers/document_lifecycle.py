@@ -67,9 +67,9 @@ def _on_session_destroyed(session_context):
         try:
             callback(session_context)
         except Exception as e:
-            log.warn('DocumentLifeCycleHandler on_session_destroyed '
-                     'callback %s failed with following error: %s'
-                     % (callback, e))
+            log.warning('DocumentLifeCycleHandler on_session_destroyed '
+                        'callback %s failed with following error: %s'
+                        % (callback, e))
     if callbacks:
         # If any session callbacks were defined garbage collect after deleting all references
         del callback
