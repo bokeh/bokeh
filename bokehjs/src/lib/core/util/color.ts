@@ -6,6 +6,13 @@ function _component2hex(v: number | string): string {
   return h.length == 1 ? `0${h}` : h
 }
 
+export function rgb2hex(r: number, g: number, b: number): string {
+  const R = _component2hex(r & 0xFF)
+  const G = _component2hex(g & 0xFF)
+  const B = _component2hex(b & 0xFF)
+  return `#${R}${G}${B}`
+}
+
 export function color2hex(color: string): string {
   color = color + ''
   if (color.indexOf('#') == 0)

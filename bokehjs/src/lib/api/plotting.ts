@@ -1,5 +1,3 @@
-import {sprintf} from "sprintf-js"
-
 import {Document} from "../document"
 import * as embed from "../embed"
 import * as models from "./models"
@@ -21,6 +19,7 @@ import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
 import {Legend} from "models/annotations/legend"
 
 export {gridplot} from "./gridplot"
+export {rgb2hex as color} from "../core/util/color"
 
 const _default_tooltips: [string, string][] = [
   ["index",         "$index"    ],
@@ -981,8 +980,4 @@ export function show(obj: LayoutDOM | LayoutDOM[], target?: HTMLElement | string
     else
       doc.idle.connect(() => resolve(result))
   })
-}
-
-export function color(r: number, g: number, b: number): string {
-  return sprintf("#%02x%02x%02x", r, g, b)
 }
