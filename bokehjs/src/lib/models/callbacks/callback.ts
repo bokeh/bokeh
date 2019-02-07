@@ -1,19 +1,19 @@
 import {Model} from "../../model"
+import * as p from "core/properties"
 
 export type CallbackLike<Obj, Data = {[key: string]: unknown}, Ret = void> = {
   execute: (obj: Obj, data?: Data) => Ret
 }
 
 export namespace Callback {
-  export interface Attrs extends Model.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Model.Props {}
+  export type Props = Model.Props
 }
 
 export interface Callback extends Callback.Attrs {}
 
 export abstract class Callback extends Model implements CallbackLike<unknown> {
-
   properties: Callback.Props
 
   constructor(attrs?: Partial<Callback.Attrs>) {

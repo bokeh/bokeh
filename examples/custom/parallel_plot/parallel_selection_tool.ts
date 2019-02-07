@@ -347,17 +347,26 @@ export class ParallelSelectionView extends BoxSelectToolView {
   }
 }
 
-export class ParallelSelectionTool extends BoxSelectTool {
+export namespace ParallelSelectionTool {
+  export type Attrs = p.AttrsOf<Props>
 
-  renderer_select: (GlyphRenderer & HasRectCDS)
-  renderer_data: (GlyphRenderer & HasMultiLineCDS)
-  box_width: number
+  export type Props = BoxSelectTool.Props & {
+    renderer_select: p.Property<GlyphRenderer & HasRectCDS>
+    renderer_data: p.Property<GlyphRenderer & HasMultiLineCDS>
+    box_width: p.Property<number>
+  }
+}
+
+export interface ParallelSelectionTool extends ParallelSelectionTool.Attrs {}
+
+export class ParallelSelectionTool extends BoxSelectTool {
+  properties: ParallelSelectionTool.Props
 
   static initClass(): void {
     this.prototype.type = "ParallelSelectionTool"
     this.prototype.default_view = ParallelSelectionView
 
-    this.define({
+    this.define<ParallelSelectionTool.Props>({
       renderer_select: [ p.Any        ],
       renderer_data:   [ p.Any        ],
       box_width:       [ p.Number, 30 ],

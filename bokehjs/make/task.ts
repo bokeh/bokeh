@@ -14,13 +14,13 @@ export function log(message: string): void {
 
 export type Fn<T> = () => Promise<T>
 
-class Task<T> {
+class Task<T = any> {
   constructor(readonly name: string,
               readonly deps: string[],
               readonly fn?: Fn<T>) {}
 }
 
-const tasks = new Map()
+const tasks = new Map<string, Task>()
 
 export function task<T>(name: string, deps: string[] | Fn<T>, fn?: Fn<T>): void {
   if (!Array.isArray(deps)) {
@@ -36,16 +36,11 @@ export function task_names(): string[] {
   return Array.from(tasks.keys())
 }
 
-export async function run(name: string): Promise<void> {
-  const task = tasks.get(name)
+function resolve_tasks(names: string[]): Task[] {
+  const nodes: Set<Task> = new Set()
+  const edges: [Task, Task][] = []
 
-  if (task == null)
-    throw new Error(`unknown task: ${name}`)
-
-  const nodes: Set<Task<any>> = new Set()
-  const edges: [Task<any>, Task<any>][] = []
-
-  function build_graph(task: Task<any>): void {
+  function build_graph(task: Task): void {
     nodes.add(task)
 
     for (const dep of task.deps) {
@@ -54,15 +49,40 @@ export async function run(name: string): Promise<void> {
         edges.push([task_dep, task]) // before -> after
         build_graph(task_dep)
       } else
-        throw new Error(`unknown task '${chalk.cyan(dep)}' referenced from '${chalk.cyan(name)}'`)
+        throw new Error(`unknown task '${chalk.cyan(dep)}' referenced from '${chalk.cyan(task.name)}'`)
     }
   }
 
-  build_graph(task)
+  for (const name of names) {
+    const [main, sub] = name.split(":", 2)
 
-  const ordered_tasks = toposort(Array.from(nodes), edges)
+    if (main == "*") {
+      const selected = Array.from(tasks.values()).filter((task) => {
+        return task.name.endsWith(`:${sub}`)
+      })
 
-  for (const task of ordered_tasks) {
+      if (selected.length != 0) {
+        for (const task of selected)
+          build_graph(task)
+      } else
+        throw new Error(`empty selection: ${name}`)
+    } else {
+      const task = tasks.get(name)
+
+      if (task != null)
+        build_graph(task)
+      else
+        throw new Error(`unknown task: ${name}`)
+    }
+  }
+
+  return toposort(Array.from(nodes), edges)
+}
+
+export async function run(...names: string[]): Promise<void> {
+  const tasks = resolve_tasks(names)
+
+  for (const task of tasks) {
     if (task.fn == null)
       log(`Finished '${chalk.cyan(task.name)}'`)
     else {

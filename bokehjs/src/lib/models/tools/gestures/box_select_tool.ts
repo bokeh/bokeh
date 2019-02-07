@@ -2,7 +2,7 @@ import {SelectTool, SelectToolView} from "./select_tool"
 import {CallbackLike} from "../../callbacks/callback"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import * as p from "core/properties"
-import {Dimensions} from "core/enums"
+import {Dimensions, BoxOrigin} from "core/enums"
 import {GestureEvent} from "core/ui_events"
 import {RectGeometry} from "core/geometry"
 
@@ -99,21 +99,20 @@ const DEFAULT_BOX_OVERLAY = () => {
 }
 
 export namespace BoxSelectTool {
-  export interface Attrs extends SelectTool.Attrs {
-    dimensions: Dimensions
-    select_every_mousemove: boolean
-    callback: CallbackLike<BoxSelectTool> | null
-    overlay: BoxAnnotation
-    origin: "corner" | "center"
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends SelectTool.Props {}
+  export type Props = SelectTool.Props & {
+    dimensions: p.Property<Dimensions>
+    select_every_mousemove: p.Property<boolean>
+    callback: p.Property<CallbackLike<BoxSelectTool> | null>
+    overlay: p.Property<BoxAnnotation>
+    origin: p.Property<BoxOrigin>
+  }
 }
 
 export interface BoxSelectTool extends BoxSelectTool.Attrs {}
 
 export class BoxSelectTool extends SelectTool {
-
   properties: BoxSelectTool.Props
 
   /*override*/ overlay: BoxAnnotation
@@ -126,12 +125,12 @@ export class BoxSelectTool extends SelectTool {
     this.prototype.type = "BoxSelectTool"
     this.prototype.default_view = BoxSelectToolView
 
-    this.define({
+    this.define<BoxSelectTool.Props>({
       dimensions:             [ p.Dimensions, "both"              ],
-      select_every_mousemove: [ p.Bool,       false               ],
+      select_every_mousemove: [ p.Boolean,    false               ],
       callback:               [ p.Any                             ],
       overlay:                [ p.Instance,   DEFAULT_BOX_OVERLAY ],
-      origin:                 [ p.String,     "corner"            ], // Enum
+      origin:                 [ p.BoxOrigin,  "corner"            ],
     })
   }
 
@@ -144,5 +143,4 @@ export class BoxSelectTool extends SelectTool {
     return this._get_dim_tooltip(this.tool_name, this.dimensions)
   }
 }
-
 BoxSelectTool.initClass()

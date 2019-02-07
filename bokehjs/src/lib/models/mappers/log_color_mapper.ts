@@ -1,21 +1,21 @@
 import {ContinuousColorMapper} from "./continuous_color_mapper"
 import {Arrayable} from "core/types"
 import {min, max} from "core/util/arrayable"
+import * as p from "core/properties"
 
 // Math.log1p() is not supported by any version of IE, so let's use a polyfill based on
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/log1p.
 const log1p = Math.log1p != null ? Math.log1p : (x: number) => Math.log(1 + x)
 
 export namespace LogColorMapper {
-  export interface Attrs extends ContinuousColorMapper.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ContinuousColorMapper.Props {}
+  export type Props = ContinuousColorMapper.Props
 }
 
 export interface LogColorMapper extends LogColorMapper.Attrs {}
 
 export class LogColorMapper extends ContinuousColorMapper {
-
   properties: LogColorMapper.Props
 
   constructor(attrs?: Partial<LogColorMapper.Attrs>) {

@@ -95,18 +95,17 @@ const DEFAULT_POLY_OVERLAY = () => {
 }
 
 export namespace PolySelectTool {
-  export interface Attrs extends SelectTool.Attrs {
-    callback: CallbackLike<PolySelectTool> | null
-    overlay: PolyAnnotation
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends SelectTool.Props {}
+  export type Props = SelectTool.Props & {
+    callback: p.Property<CallbackLike<PolySelectTool> | null>
+    overlay: p.Property<PolyAnnotation>
+  }
 }
 
 export interface PolySelectTool extends PolySelectTool.Attrs {}
 
 export class PolySelectTool extends SelectTool {
-
   properties: PolySelectTool.Props
 
   /*override*/ overlay: PolyAnnotation
@@ -119,7 +118,7 @@ export class PolySelectTool extends SelectTool {
     this.prototype.type = "PolySelectTool"
     this.prototype.default_view = PolySelectToolView
 
-    this.define({
+    this.define<PolySelectTool.Props>({
       callback:   [ p.Any                            ],
       overlay:    [ p.Instance, DEFAULT_POLY_OVERLAY ],
     })
@@ -130,5 +129,4 @@ export class PolySelectTool extends SelectTool {
   event_type = "tap" as "tap"
   default_order = 11
 }
-
 PolySelectTool.initClass()

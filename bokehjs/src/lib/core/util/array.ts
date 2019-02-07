@@ -41,23 +41,44 @@ export function nth<T>(array: T[], index: number): T {
   return array[index >= 0 ? index : array.length + index]
 }
 
-export function zip<A, B>(As: A[], Bs: B[]): [A, B][] {
-  const n = Math.min(As.length, Bs.length)
-  const ABs: [A, B][] = new Array(n)
+export function zip<A, B>(As: A[], Bs: B[]): [A, B][]
+export function zip<A, B, C>(As: A[], Bs: B[], Cs: C[]): [A, B, C][]
+export function zip<T>(...arrays: T[][]): T[][]
+export function zip(...arrays: unknown[][]): unknown[][] {
+  if (arrays.length == 0)
+    return []
+
+  const n = min(arrays.map((a) => a.length))
+  const k = arrays.length
+
+  const result: unknown[][] = new Array(n)
+
   for (let i = 0; i < n; i++) {
-    ABs[i] = [As[i], Bs[i]]
+    result[i] = new Array(k)
+    for (let j = 0; j < k; j++)
+      result[i][j] = arrays[j][i]
   }
-  return ABs
+
+  return result
 }
 
-export function unzip<A, B>(ABs: [A, B][]): [A[], B[]] {
-  const n = ABs.length
-  const As: A[] = new Array(n)
-  const Bs: B[] = new Array(n)
+export function unzip<A, B>(ABs: [A, B][]): [A[], B[]]
+export function unzip<A, B, C>(ABCs: [A, B, C][]): [A[], B[], C[]]
+export function unzip<T>(arrays: T[][]): T[][]
+export function unzip(array: unknown[][]): unknown[][] {
+  const n = array.length
+  const k = min(array.map((a) => a.length))
+
+  const results: unknown[][] = Array(k)
+  for (let j = 0; j < k; j++)
+    results[j] = new Array(n)
+
   for (let i = 0; i < n; i++) {
-    [As[i], Bs[i]] = ABs[i]
+    for (let j = 0; j < k; j++)
+      results[j][i] = array[i][j]
   }
-  return [As, Bs]
+
+  return results
 }
 
 export function range(start: number, stop?: number, step: number = 1): number[] {

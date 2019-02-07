@@ -15,11 +15,9 @@ export class ColumnView extends BoxView {
 }
 
 export namespace Column {
-  export interface Attrs extends Box.Attrs {
-    rows: RowsSizing
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Box.Props {
+  export type Props = Box.Props & {
     rows: p.Property<RowsSizing>
   }
 }
@@ -37,7 +35,7 @@ export class Column extends Box {
     this.prototype.type = "Column"
     this.prototype.default_view = ColumnView
 
-    this.define({
+    this.define<Column.Props>({
       rows: [ p.Any, "auto" ],
     })
   }

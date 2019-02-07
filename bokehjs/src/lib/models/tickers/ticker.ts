@@ -1,4 +1,5 @@
 import {Model} from "../../model"
+import * as p from "core/properties"
 
 export type TickSpec<T> = {
   major: T[]
@@ -19,15 +20,14 @@ export type TickSpec<T> = {
 // and get_max_interval().
 
 export namespace Ticker{
-  export interface Attrs extends Model.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Model.Props {}
+  export type Props = Model.Props
 }
 
 export interface Ticker<T> extends Ticker.Attrs {}
 
 export abstract class Ticker<T> extends Model {
-
   properties: Ticker.Props
 
   constructor(attrs?: Partial<Ticker.Attrs>) {
@@ -41,5 +41,4 @@ export abstract class Ticker<T> extends Model {
   // Generates a nice series of ticks for a given range.
   abstract get_ticks(data_low: number, data_high: number, range: any, cross_loc: any, unused: any): TickSpec<T>
 }
-
 Ticker.initClass()

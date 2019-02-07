@@ -3,6 +3,7 @@ import {Arrayable} from "core/types"
 import {Factor} from "../ranges/factor_range"
 import {findIndex} from "core/util/array"
 import {isString} from "core/util/types"
+import * as p from "core/properties"
 
 export function _cat_equals(a: Arrayable<any>, b: Arrayable<any>): boolean {
   if (a.length != b.length)
@@ -51,13 +52,13 @@ export function cat_v_compute<T>(data: Arrayable<Factor>, factors: string[], tar
 }
 
 export namespace CategoricalMapper {
-  export interface Attrs extends Mapper.Attrs {
-    factors: string[]
-    start: number
-    end: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Mapper.Props {}
+  export type Props = Mapper.Props & {
+    factors: p.Property<string[]>
+    start: p.Property<number>
+    end: p.Property<number>
+  }
 }
 
 export interface CategoricalMapper extends CategoricalMapper.Attrs {}

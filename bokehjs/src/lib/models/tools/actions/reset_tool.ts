@@ -1,4 +1,5 @@
 import {ActionTool, ActionToolView} from "./action_tool"
+import * as p from "core/properties"
 
 export class ResetToolView extends ActionToolView {
   model: ResetTool
@@ -9,15 +10,14 @@ export class ResetToolView extends ActionToolView {
 }
 
 export namespace ResetTool {
-  export interface Attrs extends ActionTool.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ActionTool.Props {}
+  export type Props = ActionTool.Props
 }
 
 export interface ResetTool extends ResetTool.Attrs {}
 
 export class ResetTool extends ActionTool {
-
   properties: ResetTool.Props
 
   constructor(attrs?: Partial<ResetTool.Attrs>) {
@@ -32,5 +32,4 @@ export class ResetTool extends ActionTool {
   tool_name = "Reset"
   icon = "bk-tool-icon-reset"
 }
-
 ResetTool.initClass()

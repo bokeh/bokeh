@@ -34,8 +34,8 @@ export class FontAwesomeIcon extends AbstractIcon
   default_view: FontAwesomeIconView
 
   @define {
-    icon_name: [ p.String, "check" ] # TODO (bev) enum?
-    size:      [ p.Number, 1       ]
-    flip:      [ p.Any             ] # TODO (bev)
-    spin:      [ p.Bool,   false   ]
+    icon_name: [ p.String,  "check" ] # TODO (bev) enum?
+    size:      [ p.Number,  1       ]
+    flip:      [ p.Any              ] # TODO (bev)
+    spin:      [ p.Boolean, false   ]
   }

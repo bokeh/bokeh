@@ -1,6 +1,5 @@
 import {Box, BoxView, BoxData} from "./box"
 import {Arrayable} from "core/types"
-import {NumberSpec, DistanceSpec} from "core/vectorization"
 import * as p from "core/properties"
 import {SpatialIndex} from "core/util/spatial"
 
@@ -65,22 +64,21 @@ export class VBarView extends BoxView {
 }
 
 export namespace VBar {
-  export interface Attrs extends Box.Attrs {
-    x: NumberSpec
-    bottom: NumberSpec
-    width: DistanceSpec
-    top: NumberSpec
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = Box.Props & {
+    x: p.CoordinateSpec
+    bottom: p.CoordinateSpec
+    width: p.DistanceSpec
+    top: p.CoordinateSpec
   }
 
-  export interface Props extends Box.Props {}
-
-  export interface Visuals extends Box.Visuals {}
+  export type Visuals = Box.Visuals
 }
 
 export interface VBar extends VBar.Attrs {}
 
 export class VBar extends Box {
-
   properties: VBar.Props
 
   constructor(attrs?: Partial<VBar.Attrs>) {
@@ -92,9 +90,9 @@ export class VBar extends Box {
     this.prototype.default_view = VBarView
 
     this.coords([['x', 'bottom']])
-    this.define({
-      width:  [ p.DistanceSpec  ],
-      top:    [ p.NumberSpec    ],
+    this.define<VBar.Props>({
+      width:  [ p.DistanceSpec   ],
+      top:    [ p.CoordinateSpec ],
     })
     this.override({
       bottom: 0,

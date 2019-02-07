@@ -1,17 +1,17 @@
 import {TickSpec} from "./ticker"
 import {AdaptiveTicker} from "./adaptive_ticker"
 import {range} from "core/util/array"
+import * as p from "core/properties"
 
 export namespace LogTicker {
-  export interface Attrs extends AdaptiveTicker.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends AdaptiveTicker.Props {}
+  export type Props = AdaptiveTicker.Props
 }
 
 export interface LogTicker extends LogTicker.Attrs {}
 
 export class LogTicker extends AdaptiveTicker {
-
   properties: LogTicker.Props
 
   constructor(attrs?: Partial<LogTicker.Attrs>) {
@@ -91,5 +91,4 @@ export class LogTicker extends AdaptiveTicker {
     }
   }
 }
-
 LogTicker.initClass()

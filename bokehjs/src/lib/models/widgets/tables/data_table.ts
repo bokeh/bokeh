@@ -296,22 +296,22 @@ export class DataTableView extends WidgetView {
 }
 
 export namespace DataTable {
-  export interface Attrs extends TableWidget.Attrs {
-    columns: TableColumn[]
-    fit_columns: boolean
-    sortable: boolean
-    reorderable: boolean
-    editable: boolean
-    selectable: boolean | "checkbox"
-    index_position: number | null
-    index_header: string
-    index_width: number
-    scroll_to_selection: boolean
-    header_row: boolean
-    row_height: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends TableWidget.Props {}
+  export type Props = TableWidget.Props & {
+    columns: p.Property<TableColumn[]>
+    fit_columns: p.Property<boolean>
+    sortable: p.Property<boolean>
+    reorderable: p.Property<boolean>
+    editable: p.Property<boolean>
+    selectable: p.Property<boolean | "checkbox">
+    index_position: p.Property<number | null>
+    index_header: p.Property<string>
+    index_width: p.Property<number>
+    scroll_to_selection: p.Property<boolean>
+    header_row: p.Property<boolean>
+    row_height: p.Property<number>
+  }
 }
 
 export interface DataTable extends DataTable.Attrs {}
@@ -330,19 +330,19 @@ export class DataTable extends TableWidget {
     this.prototype.type = 'DataTable'
     this.prototype.default_view = DataTableView
 
-    this.define({
-      columns:             [ p.Array,  []    ],
-      fit_columns:         [ p.Bool,   true  ],
-      sortable:            [ p.Bool,   true  ],
-      reorderable:         [ p.Bool,   true  ],
-      editable:            [ p.Bool,   false ],
-      selectable:          [ p.Any,    true  ], // boolean or "checkbox"
-      index_position:      [ p.Int,    0     ],
-      index_header:        [ p.String, "#"   ],
-      index_width:         [ p.Int,    40    ],
-      scroll_to_selection: [ p.Bool,   true  ],
-      header_row:          [ p.Bool,   true  ],
-      row_height:          [ p.Int,    25    ],
+    this.define<DataTable.Props>({
+      columns:             [ p.Array,   []    ],
+      fit_columns:         [ p.Boolean, true  ],
+      sortable:            [ p.Boolean, true  ],
+      reorderable:         [ p.Boolean, true  ],
+      editable:            [ p.Boolean, false ],
+      selectable:          [ p.Any,     true  ], // boolean or "checkbox"
+      index_position:      [ p.Int,     0     ],
+      index_header:        [ p.String,  "#"   ],
+      index_width:         [ p.Int,     40    ],
+      scroll_to_selection: [ p.Boolean, true  ],
+      header_row:          [ p.Boolean, true  ],
+      row_height:          [ p.Int,     25    ],
     })
 
     this.override({

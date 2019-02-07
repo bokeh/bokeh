@@ -1,4 +1,5 @@
 import {ActionTool, ActionToolView} from "./action_tool"
+import * as p from "core/properties"
 
 export class SaveToolView extends ActionToolView {
   model: SaveTool
@@ -9,15 +10,14 @@ export class SaveToolView extends ActionToolView {
 }
 
 export namespace SaveTool {
-  export interface Attrs extends ActionTool.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ActionTool.Props {}
+  export type Props = ActionTool.Props
 }
 
 export interface SaveTool extends SaveTool.Attrs {}
 
 export class SaveTool extends ActionTool {
-
   properties: SaveTool.Props
 
   constructor(attrs?: Partial<SaveTool.Attrs>) {
@@ -32,5 +32,4 @@ export class SaveTool extends ActionTool {
   tool_name = "Save"
   icon = "bk-tool-icon-save"
 }
-
 SaveTool.initClass()

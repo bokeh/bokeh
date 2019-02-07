@@ -4,12 +4,9 @@ import {CallbackLike} from "../callbacks/callback"
 import * as p from "core/properties"
 
 export namespace DataSource {
-  export interface Attrs extends Model.Attrs {
-    selected: Selection
-    callback: CallbackLike<DataSource> | null
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Model.Props {
+  export type Props = Model.Props & {
     selected: p.Property<Selection>
     callback: p.Property<CallbackLike<DataSource> | null>
   }
@@ -18,7 +15,6 @@ export namespace DataSource {
 export interface DataSource extends DataSource.Attrs {}
 
 export abstract class DataSource extends Model {
-
   properties: DataSource.Props
 
   constructor(attrs?: Partial<DataSource.Attrs>) {
@@ -28,7 +24,7 @@ export abstract class DataSource extends Model {
   static initClass(): void {
     this.prototype.type = "DataSource"
 
-    this.define({
+    this.define<DataSource.Props>({
       selected: [ p.Instance, () => new Selection() ], // TODO (bev)
       callback: [ p.Any                             ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
     })

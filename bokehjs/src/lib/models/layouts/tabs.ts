@@ -106,17 +106,13 @@ export class TabsView extends LayoutDOMView {
 }
 
 export namespace Tabs {
-  export interface Attrs extends LayoutDOM.Attrs {
-    tabs: Panel[]
-    tabs_location: Location
-    active: number
-    callback: CallbackLike<Tabs> | null
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends LayoutDOM.Props {
+  export type Props = LayoutDOM.Props & {
     tabs: p.Property<Panel[]>
     tabs_location: p.Property<Location>
     active: p.Property<number>
+    callback: p.Property<CallbackLike<Tabs> | null>
   }
 }
 
@@ -133,7 +129,7 @@ export class Tabs extends LayoutDOM {
     this.prototype.type = "Tabs"
     this.prototype.default_view = TabsView
 
-    this.define({
+    this.define<Tabs.Props>({
       tabs:          [ p.Array,    []      ],
       tabs_location: [ p.Location, "above" ],
       active:        [ p.Number,   0       ],
@@ -144,12 +140,12 @@ export class Tabs extends LayoutDOM {
 Tabs.initClass()
 
 export namespace Panel {
-  export interface Attrs extends Model.Attrs {
-    title: string
-    child: LayoutDOM
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Model.Props {}
+  export type Props = Model.Props & {
+    title: p.Property<string>
+    child: p.Property<LayoutDOM>
+  }
 }
 
 export interface Panel extends Panel.Attrs {}
@@ -164,7 +160,7 @@ export class Panel extends Model {
   static initClass(): void {
     this.prototype.type = "Panel"
 
-    this.define({
+    this.define<Panel.Props>({
       title: [ p.String,  "" ],
       child: [ p.Instance    ],
     })

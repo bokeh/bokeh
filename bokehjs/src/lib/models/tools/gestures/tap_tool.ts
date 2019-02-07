@@ -3,6 +3,7 @@ import {CallbackLike} from "../../callbacks/callback"
 import * as p from "core/properties"
 import {TapEvent} from "core/ui_events"
 import {PointGeometry} from "core/geometry"
+import {TapBehavior} from "core/enums"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
 
 export class TapToolView extends SelectToolView {
@@ -60,18 +61,20 @@ export class TapToolView extends SelectToolView {
 }
 
 export namespace TapTool {
-  export interface Attrs extends SelectTool.Attrs {
-    behavior: "select" | "inspect"
-    callback: CallbackLike<TapTool, {geometries: PointGeometry & {x: number, y: number}, source: ColumnarDataSource}> | null
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends SelectTool.Props {}
+  export type Props = SelectTool.Props & {
+    behavior: p.Property<TapBehavior>
+    callback: p.Property<CallbackLike<TapTool, {
+      geometries: PointGeometry & {x: number, y: number}
+      source: ColumnarDataSource
+    }> | null>
+  }
 }
 
 export interface TapTool extends TapTool.Attrs {}
 
 export class TapTool extends SelectTool {
-
   properties: TapTool.Props
 
   constructor(attrs?: Partial<TapTool.Attrs>) {
@@ -82,9 +85,9 @@ export class TapTool extends SelectTool {
     this.prototype.type = "TapTool"
     this.prototype.default_view = TapToolView
 
-    this.define({
-      behavior: [ p.String, "select" ], // TODO: Enum("select", "inspect")
-      callback: [ p.Any ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
+    this.define<TapTool.Props>({
+      behavior: [ p.TapBehavior, "select" ],
+      callback: [ p.Any                   ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
     })
   }
 
@@ -93,5 +96,4 @@ export class TapTool extends SelectTool {
   event_type = "tap" as "tap"
   default_order = 10
 }
-
 TapTool.initClass()

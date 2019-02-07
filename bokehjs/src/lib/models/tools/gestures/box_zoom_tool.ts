@@ -3,7 +3,7 @@ import {BoxAnnotation} from "../../annotations/box_annotation"
 import {CartesianFrame} from "../../canvas/cartesian_frame"
 import * as p from "core/properties"
 import {GestureEvent} from "core/ui_events"
-import {Dimensions} from "core/enums"
+import {Dimensions, BoxOrigin} from "core/enums"
 
 export class BoxZoomToolView extends GestureToolView {
   model: BoxZoomTool
@@ -166,20 +166,19 @@ const DEFAULT_BOX_OVERLAY = () => {
 }
 
 export namespace BoxZoomTool {
-  export interface Attrs extends GestureTool.Attrs {
-    dimensions: Dimensions
-    overlay: BoxAnnotation
-    match_aspect: boolean
-    origin: "corner" | "center"
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends GestureTool.Props {}
+  export type Props = GestureTool.Props & {
+    dimensions: p.Property<Dimensions>
+    overlay: p.Property<BoxAnnotation>
+    match_aspect: p.Property<boolean>
+    origin: p.Property<BoxOrigin>
+  }
 }
 
 export interface BoxZoomTool extends BoxZoomTool.Attrs {}
 
 export class BoxZoomTool extends GestureTool {
-
   properties: BoxZoomTool.Props
 
   /*override*/ overlay: BoxAnnotation
@@ -192,11 +191,11 @@ export class BoxZoomTool extends GestureTool {
     this.prototype.type = "BoxZoomTool"
     this.prototype.default_view = BoxZoomToolView
 
-    this.define({
-      dimensions:   [ p.Dimensions, "both"            ],
-      overlay:      [ p.Instance, DEFAULT_BOX_OVERLAY ],
-      match_aspect: [ p.Bool,     false               ],
-      origin:       [ p.String,   "corner"            ], // Enum
+    this.define<BoxZoomTool.Props>({
+      dimensions:   [ p.Dimensions, "both"              ],
+      overlay:      [ p.Instance,   DEFAULT_BOX_OVERLAY ],
+      match_aspect: [ p.Boolean,    false               ],
+      origin:       [ p.BoxOrigin,  "corner"            ],
     })
   }
 
@@ -209,5 +208,4 @@ export class BoxZoomTool extends GestureTool {
     return this._get_dim_tooltip(this.tool_name, this.dimensions)
   }
 }
-
 BoxZoomTool.initClass()

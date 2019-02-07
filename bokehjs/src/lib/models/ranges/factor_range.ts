@@ -23,7 +23,7 @@ export type L2Mapping = {[key: string]: {value: number, mapping: L1Mapping}}
 export type L3Mapping = {[key: string]: {value: number, mapping: L2Mapping}}
 
 export function map_one_level(factors: L1Factor[], padding: number, offset: number = 0): [L1Mapping, number] {
-  const mapping: {[key: string]: {value: number}} = {}
+  const mapping: L1Mapping = {}
 
   for (let i = 0; i < factors.length; i++) {
     const factor = factors[i]
@@ -99,23 +99,9 @@ export function map_three_levels(factors: L3Factor[],
 }
 
 export namespace FactorRange {
-  export interface Attrs extends Range.Attrs {
-    factors: Factor[]
-    factor_padding: number
-    subgroup_padding: number
-    group_padding: number
-    range_padding: number
-    range_padding_units: PaddingUnits
-    start: number
-    end: number
+  export type Attrs = p.AttrsOf<Props>
 
-    levels: number
-    mids: [string, string][] | undefined
-    tops: string[] | undefined
-    tops_groups: string[]
-  }
-
-  export interface Props extends Range.Props {
+  export type Props = Range.Props & {
     factors: p.Property<Factor[]>
     factor_padding: p.Property<number>
     subgroup_padding: p.Property<number>
@@ -124,13 +110,17 @@ export namespace FactorRange {
     range_padding_units: p.Property<PaddingUnits>
     start: p.Property<number>
     end: p.Property<number>
+
+    levels: p.Property<number>
+    mids: p.Property<[string, string][] | undefined>
+    tops: p.Property<string[] | undefined>
+    tops_groups: p.Property<string[]>
   }
 }
 
 export interface FactorRange extends FactorRange.Attrs {}
 
 export class FactorRange extends Range {
-
   properties: FactorRange.Props
 
   constructor(attrs?: Partial<FactorRange.Attrs>) {
@@ -140,7 +130,7 @@ export class FactorRange extends Range {
   static initClass(): void {
     this.prototype.type = "FactorRange"
 
-    this.define({
+    this.define<FactorRange.Props>({
       factors:             [ p.Array,        []        ],
       factor_padding:      [ p.Number,       0         ],
       subgroup_padding:    [ p.Number,       0.8       ],
@@ -268,5 +258,4 @@ export class FactorRange extends Range {
       this.setv({bounds: [start, end]}, {silent: true})
   }
 }
-
 FactorRange.initClass()

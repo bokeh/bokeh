@@ -138,19 +138,18 @@ export class BoxEditToolView extends EditToolView {
 }
 
 export namespace BoxEditTool {
-  export interface Attrs extends EditTool.Attrs {
-    dimensions: Dimensions
-    num_objects: number
-    renderers: (GlyphRenderer & HasRectCDS)[]
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends EditTool.Props {}
+  export type Props = EditTool.Props & {
+    dimensions: p.Property<Dimensions>
+    num_objects: p.Property<number>
+    renderers: p.Property<(GlyphRenderer & HasRectCDS)[]>
+  }
 }
 
 export interface BoxEditTool extends BoxEditTool.Attrs {}
 
 export class BoxEditTool extends EditTool {
-
   properties: BoxEditTool.Props
 
   renderers: (GlyphRenderer & HasRectCDS)[]
@@ -163,7 +162,7 @@ export class BoxEditTool extends EditTool {
     this.prototype.type = "BoxEditTool"
     this.prototype.default_view = BoxEditToolView
 
-    this.define({
+    this.define<BoxEditTool.Props>({
       dimensions: [ p.Dimensions, "both" ],
       num_objects: [ p.Int, 0 ],
     })

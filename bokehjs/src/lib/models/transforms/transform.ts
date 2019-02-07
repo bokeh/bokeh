@@ -1,16 +1,16 @@
 import {Model} from "../../model"
 import {Arrayable} from "core/types"
+import * as p from "core/properties"
 
 export namespace Transform {
-  export interface Attrs extends Model.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Model.Props {}
+  export type Props = Model.Props
 }
 
 export interface Transform<To = number> extends Transform.Attrs {}
 
 export abstract class Transform<To = number> extends Model {
-
   properties: Transform.Props
 
   constructor(attrs?: Partial<Transform.Attrs>) {

@@ -1,10 +1,8 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
-import {TextMixinScalar} from "core/property_mixins"
-import {Color} from "core/types"
-import {LineJoin, LineCap} from "core/enums"
 import {SpatialUnits, AngleUnits} from "core/enums"
 import {hide} from "core/dom"
 import {Size} from "core/layout"
+import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 
 export class LabelView extends TextAnnotationView {
@@ -63,40 +61,23 @@ export class LabelView extends TextAnnotationView {
 }
 
 export namespace Label {
-  // line:border_
-  export interface BorderLine {
-    border_line_color: Color
-    border_line_width: number
-    border_line_alpha: number
-    border_line_join: LineJoin
-    border_line_cap: LineCap
-    border_line_dash: number[]
-    border_line_dash_offset: number
-  }
+  export type Props = TextAnnotation.Props & {
+    x: p.Property<number>
+    x_units: p.Property<SpatialUnits>
+    y: p.Property<number>
+    y_units: p.Property<SpatialUnits>
+    text: p.Property<string>
+    angle: p.Property<number>
+    angle_units: p.Property<AngleUnits>
+    x_offset: p.Property<number>
+    y_offset: p.Property<number>
+    x_range_name: p.Property<string>
+    y_range_name: p.Property<string>
+  } & mixins.TextScalar
+    & mixins.BorderLine
+    & mixins.BackgroundFill
 
-  // fill:background_
-  export interface BackgorundFill {
-    background_fill_color: Color
-    background_fill_alpha: number
-  }
-
-  export interface Mixins extends TextMixinScalar, BorderLine, BackgorundFill {}
-
-  export interface Attrs extends TextAnnotation.Attrs, Mixins {
-    x: number
-    x_units: SpatialUnits
-    y: number
-    y_units: SpatialUnits
-    text: string
-    angle: number
-    angle_units: AngleUnits
-    x_offset: number
-    y_offset: number
-    x_range_name: string
-    y_range_name: string
-  }
-
-  export interface Props extends TextAnnotation.Props {}
+  export type Attrs = p.AttrsOf<Props>
 
   export type Visuals = TextAnnotation.Visuals
 }
@@ -104,7 +85,6 @@ export namespace Label {
 export interface Label extends Label.Attrs {}
 
 export class Label extends TextAnnotation {
-
   properties: Label.Props
 
   constructor(attrs?: Partial<Label.Attrs>) {
@@ -117,7 +97,7 @@ export class Label extends TextAnnotation {
 
     this.mixins(['text', 'line:border_', 'fill:background_'])
 
-    this.define({
+    this.define<Label.Props>({
       x:            [ p.Number,                      ],
       x_units:      [ p.SpatialUnits, 'data'         ],
       y:            [ p.Number,                      ],

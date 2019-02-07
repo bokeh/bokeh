@@ -4,10 +4,10 @@ import {CategoricalTicker} from "../tickers/categorical_ticker"
 import {CategoricalTickFormatter} from "../formatters/categorical_tick_formatter"
 import {FactorRange, Factor, L1Factor, L2Factor, L3Factor} from "../ranges/factor_range"
 
+import * as visuals from "core/visuals"
+import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
-import {Text, Line} from "core/visuals"
-import {Color} from "core/types"
-import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap, TickLabelOrientation} from "core/enums"
+import {TickLabelOrientation} from "core/enums"
 import {Context2d} from "core/util/canvas"
 import {Orient} from "core/layout/side_panel"
 
@@ -82,7 +82,7 @@ export class CategoricalAxisView extends AxisView {
     return extents
   }
 
-  protected _get_factor_info(): [string[], Coords, Orient | number, Text][] {
+  protected _get_factor_info(): [string[], Coords, Orient | number, visuals.Text][] {
     const [range,] = (this.ranges as any) as [FactorRange, FactorRange]
     const [start, end] = this.computed_bounds
     const loc = this.loc
@@ -90,7 +90,7 @@ export class CategoricalAxisView extends AxisView {
     const ticks = this.model.ticker.get_ticks(start, end, range, loc, {})
     const coords = this.tick_coords
 
-    const info: [string[], Coords, Orient | number, Text][] = []
+    const info: [string[], Coords, Orient | number, visuals.Text][] = []
 
     if (range.levels == 1) {
       const major = ticks.major as L1Factor[]
@@ -146,63 +146,27 @@ export class CategoricalAxisView extends AxisView {
 }
 
 export namespace CategoricalAxis {
-  // line:separator_
-  export interface SeparatorLine {
-    separator_line_color: Color
-    separator_line_width: number
-    separator_line_alpha: number
-    separator_line_join: LineJoin
-    separator_line_cap: LineCap
-    separator_line_dash: number[]
-    separator_line_dash_offset: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  // text:group_
-  export interface GroupText {
-    group_text_font: string
-    group_text_font_size: string
-    group_text_font_style: FontStyle
-    group_text_color: Color
-    group_text_alpha: number
-    group_text_align: TextAlign
-    group_text_baseline: TextBaseline
-    group_text_line_height: number
-  }
-
-  // text:subgroup_
-  export interface SubgroupText {
-    subgroup_text_font: string
-    subgroup_text_font_size: string
-    subgroup_text_font_style: FontStyle
-    subgroup_text_color: Color
-    subgroup_text_alpha: number
-    subgroup_text_align: TextAlign
-    subgroup_text_baseline: TextBaseline
-    subgroup_text_line_height: number
-  }
-
-  export interface Mixins extends SeparatorLine, GroupText, SubgroupText {}
-
-  export interface Attrs extends Axis.Attrs, Mixins {
-    ticker: CategoricalTicker
-    formatter: CategoricalTickFormatter
-    group_label_orientation: TickLabelOrientation | number
-    subgroup_label_orientation: TickLabelOrientation | number
-  }
-
-  export interface Props extends Axis.Props {}
+  export type Props = Axis.Props & {
+    ticker: p.Property<CategoricalTicker>
+    formatter: p.Property<CategoricalTickFormatter>
+    group_label_orientation: p.Property<TickLabelOrientation | number>
+    subgroup_label_orientation: p.Property<TickLabelOrientation | number>
+  } & mixins.SeparatorLine
+    & mixins.GroupText
+    & mixins.SubGroupText
 
   export type Visuals = Axis.Visuals & {
-    separator_line: Line,
-    group_text: Text,
-    subgroup_text: Text,
+    separator_line: visuals.Line,
+    group_text: visuals.Text,
+    subgroup_text: visuals.Text,
   }
 }
 
 export interface CategoricalAxis extends CategoricalAxis.Attrs {}
 
 export class CategoricalAxis extends Axis {
-
   properties: CategoricalAxis.Props
 
   ticker: CategoricalTicker
@@ -222,7 +186,7 @@ export class CategoricalAxis extends Axis {
       "text:subgroup_",
     ])
 
-    this.define({
+    this.define<CategoricalAxis.Props>({
       group_label_orientation:    [ p.Any, "parallel" ], // TODO: p.TickLabelOrientation | p.Number
       subgroup_label_orientation: [ p.Any, "parallel" ], // TODO: p.TickLabelOrientation | p.Number
     })

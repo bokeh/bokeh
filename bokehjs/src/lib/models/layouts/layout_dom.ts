@@ -314,25 +314,9 @@ export abstract class LayoutDOMView extends DOMView {
 }
 
 export namespace LayoutDOM {
-  export interface Attrs extends Model.Attrs {
-    width: number | null
-    height: number | null
-    min_width: number | null
-    min_height: number | null
-    max_width: number | null
-    max_height: number | null
-    margin: number | [number, number] | [number, number, number, number]
-    width_policy: SizingPolicy | "auto"
-    height_policy: SizingPolicy | "auto"
-    aspect_ratio: number | "auto"
-    sizing_mode: SizingMode | null
-    visible: boolean
-    disabled: boolean
-    background: Color | null
-    css_classes: string[]
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Model.Props {
+  export type Props = Model.Props & {
     width: p.Property<number | null>
     height: p.Property<number | null>
     min_width: p.Property<number | null>
@@ -342,8 +326,8 @@ export namespace LayoutDOM {
     margin: p.Property<number | [number, number] | [number, number, number, number]>
     width_policy: p.Property<SizingPolicy | "auto">
     height_policy: p.Property<SizingPolicy | "auto">
-    aspect_ratio: p.Property<number | "auto">
-    sizing_mode: p.Property<SizingMode>
+    aspect_ratio: p.Property<number | "auto" | null>
+    sizing_mode: p.Property<SizingMode | null>
     visible: p.Property<boolean>
     disabled: p.Property<boolean>
     background: p.Property<Color | null>
@@ -364,7 +348,7 @@ export abstract class LayoutDOM extends Model {
   static initClass(): void {
     this.prototype.type = "LayoutDOM"
 
-    this.define({
+    this.define<LayoutDOM.Props>({
       width:         [ p.Number,     null         ],
       height:        [ p.Number,     null         ],
       min_width:     [ p.Number,     null         ],
@@ -374,10 +358,10 @@ export abstract class LayoutDOM extends Model {
       margin:        [ p.Any,        [0, 0, 0, 0] ],
       width_policy:  [ p.Any,        "auto"       ],
       height_policy: [ p.Any,        "auto"       ],
-      aspect_ratio:  [ p.Number,     null         ],
+      aspect_ratio:  [ p.Any,        null         ],
       sizing_mode:   [ p.SizingMode, null         ],
-      visible:       [ p.Bool,       true         ],
-      disabled:      [ p.Bool,       false        ],
+      visible:       [ p.Boolean,    true         ],
+      disabled:      [ p.Boolean,    false        ],
       background:    [ p.Color,      null         ],
       css_classes:   [ p.Array,      []           ],
     })

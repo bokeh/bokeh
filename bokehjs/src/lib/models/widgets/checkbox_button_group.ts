@@ -36,11 +36,9 @@ export class CheckboxButtonGroupView extends ButtonGroupView {
 }
 
 export namespace CheckboxButtonGroup {
-  export interface Attrs extends ButtonGroup.Attrs {
-    active: number[]
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ButtonGroup.Props {
+  export type Props = ButtonGroup.Props & {
     active: p.Property<number[]>
   }
 }
@@ -59,7 +57,7 @@ export class CheckboxButtonGroup extends ButtonGroup {
     this.prototype.type = "CheckboxButtonGroup"
     this.prototype.default_view = CheckboxButtonGroupView
 
-    this.define({
+    this.define<CheckboxButtonGroup.Props>({
       active: [ p.Array, [] ],
     })
   }

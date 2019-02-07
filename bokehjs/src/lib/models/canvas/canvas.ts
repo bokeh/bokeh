@@ -109,20 +109,19 @@ export class CanvasView extends DOMView {
 }
 
 export namespace Canvas {
-  export interface Attrs extends HasProps.Attrs {
-    map: boolean
-    use_hidpi: boolean
-    pixel_ratio: number
-    output_backend: OutputBackend
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends HasProps.Props {}
+  export type Props = HasProps.Props & {
+    map: p.Property<boolean>
+    use_hidpi: p.Property<boolean>
+    pixel_ratio: p.Property<number>
+    output_backend: p.Property<OutputBackend>
+  }
 }
 
 export interface Canvas extends Canvas.Attrs {}
 
 export class Canvas extends HasProps {
-
   properties: Canvas.Props
 
   constructor(attrs?: Partial<Canvas.Attrs>) {

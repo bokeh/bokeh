@@ -14,11 +14,11 @@ export class ButtonView extends AbstractButtonView {
 }
 
 export namespace Button {
-  export interface Attrs extends AbstractButton.Attrs {
-    clicks: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends AbstractButton.Props {}
+  export type Props = AbstractButton.Props & {
+    clicks: p.Property<number>
+  }
 }
 
 export interface Button extends Button.Attrs {}
@@ -34,7 +34,7 @@ export class Button extends AbstractButton {
     this.prototype.type = "Button"
     this.prototype.default_view = ButtonView
 
-    this.define({
+    this.define<Button.Props>({
       clicks: [ p.Number, 0 ], // deprecated
     })
 

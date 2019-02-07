@@ -1,5 +1,6 @@
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {HTML} from "core/layout"
+import * as p from "core/properties"
 
 export namespace HTMLBoxView {
   export type Options = LayoutDOMView.Options & {model: HTMLBox}
@@ -19,9 +20,9 @@ export abstract class HTMLBoxView extends LayoutDOMView {
 }
 
 export namespace HTMLBox {
-  export interface Attrs extends LayoutDOM.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends LayoutDOM.Props {}
+  export type Props = LayoutDOM.Props
 }
 
 export abstract class HTMLBox extends LayoutDOM {

@@ -31,11 +31,9 @@ export class RadioButtonGroupView extends ButtonGroupView {
 }
 
 export namespace RadioButtonGroup {
-  export interface Attrs extends ButtonGroup.Attrs {
-    active: number | null
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ButtonGroup.Props {
+  export type Props = ButtonGroup.Props & {
     active: p.Property<number | null>
   }
 }
@@ -54,7 +52,7 @@ export class RadioButtonGroup extends ButtonGroup {
     this.prototype.type = "RadioButtonGroup"
     this.prototype.default_view = RadioButtonGroupView
 
-    this.define({
+    this.define<RadioButtonGroup.Props>({
       active: [ p.Any, null ],
     })
   }

@@ -1,6 +1,7 @@
 import tz = require("timezone")
 
 import {AbstractSlider, AbstractSliderView, SliderSpec} from "./abstract_slider"
+import * as p from "core/properties"
 
 export class DateRangeSliderView extends AbstractSliderView {
   model: DateRangeSlider
@@ -20,15 +21,14 @@ export class DateRangeSliderView extends AbstractSliderView {
 }
 
 export namespace DateRangeSlider {
-  export interface Attrs extends AbstractSlider.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends AbstractSlider.Props {}
+  export type Props = AbstractSlider.Props
 }
 
 export interface DateRangeSlider extends DateRangeSlider.Attrs {}
 
 export class DateRangeSlider extends AbstractSlider {
-
   properties: DateRangeSlider.Props
 
   constructor(attrs?: Partial<DateRangeSlider.Attrs>) {
@@ -51,5 +51,4 @@ export class DateRangeSlider extends AbstractSlider {
     return tz(value, format)
   }
 }
-
 DateRangeSlider.initClass()

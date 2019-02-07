@@ -332,20 +332,19 @@ export abstract class GlyphView extends View {
 }
 
 export namespace Glyph {
-  export interface Attrs extends Model.Attrs {
-    x_range_name: string
-    y_range_name: string
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = Model.Props & {
+    x_range_name: p.Property<string>
+    y_range_name: p.Property<string>
   }
 
-  export interface Props extends Model.Props {}
-
-  export interface Visuals extends visuals.Visuals {}
+  export type Visuals = visuals.Visuals
 }
 
 export interface Glyph extends Glyph.Attrs {}
 
 export abstract class Glyph extends Model {
-
   properties: Glyph.Props
 
   /* prototype */ _coords: [string, string][]
@@ -371,11 +370,11 @@ export abstract class Glyph extends Model {
 
     const result: any = {}
     for (const [x, y] of coords) {
-      result[x] = [ p.NumberSpec ]
-      result[y] = [ p.NumberSpec ]
+      result[x] = [ p.CoordinateSpec ]
+      result[y] = [ p.CoordinateSpec ]
     }
 
-    this.define(result)
+    this.define<Glyph.Props>(result)
   }
 }
 Glyph.initClass()

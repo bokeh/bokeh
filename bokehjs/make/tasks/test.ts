@@ -31,7 +31,7 @@ function mocha(files: string[]): Promise<void> {
     args = ["node_modules/.bin/istanbul", "cover", _mocha, "--"]
 
   if (argv.debug)
-    args.unshift("debug")
+    args.unshift("--inspect-brk")
 
   if (argv.k)
     args.push("--grep", argv.k)

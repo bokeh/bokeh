@@ -4,17 +4,16 @@ import {get_indices} from "core/util/selection"
 import {replace_placeholders} from "core/util/templating"
 
 export namespace OpenURL {
-  export interface Attrs extends Callback.Attrs {
-    url: string
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Callback.Props {}
+  export type Props = Callback.Props & {
+    url: p.Property<string>
+  }
 }
 
 export interface OpenURL extends OpenURL.Attrs {}
 
 export class OpenURL extends Callback {
-
   properties: OpenURL.Props
 
   constructor(attrs?: Partial<OpenURL.Attrs>) {
@@ -24,7 +23,7 @@ export class OpenURL extends Callback {
   static initClass(): void {
     this.prototype.type = 'OpenURL'
 
-    this.define({
+    this.define<OpenURL.Props>({
       url: [ p.String, 'http://' ],
     })
   }

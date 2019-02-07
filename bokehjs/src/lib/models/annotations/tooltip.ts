@@ -123,15 +123,9 @@ export class TooltipView extends AnnotationView {
 }
 
 export namespace Tooltip {
-  export interface Attrs extends Annotation.Attrs {
-    attachment: TooltipAttachment
-    inner_only: boolean
-    show_arrow: boolean
-    data: [number, number, HTMLElement][]
-    custom: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Annotation.Props {
+  export type Props = Annotation.Props & {
     attachment: p.Property<TooltipAttachment>
     inner_only: p.Property<boolean>
     show_arrow: p.Property<boolean>
@@ -143,7 +137,6 @@ export namespace Tooltip {
 export interface Tooltip extends Tooltip.Attrs {}
 
 export class Tooltip extends Annotation {
-
   properties: Tooltip.Props
 
   constructor(attrs?: Partial<Tooltip.Attrs>) {
@@ -154,10 +147,10 @@ export class Tooltip extends Annotation {
     this.prototype.type = 'Tooltip'
     this.prototype.default_view = TooltipView
 
-    this.define({
-      attachment: [ p.String, 'horizontal' ], // TODO enum: "horizontal" | "vertical" | "left" | "right" | "above" | "below"
-      inner_only: [ p.Bool,   true         ],
-      show_arrow: [ p.Bool,   true         ],
+    this.define<Tooltip.Props>({
+      attachment: [ p.TooltipAttachment, 'horizontal' ],
+      inner_only: [ p.Boolean,           true         ],
+      show_arrow: [ p.Boolean,           true         ],
     })
 
     this.override({

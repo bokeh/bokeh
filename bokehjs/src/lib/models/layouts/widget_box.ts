@@ -1,13 +1,14 @@
 import {Column, ColumnView} from "./column"
+import * as p from "core/properties"
 
 export class WidgetBoxView extends ColumnView {
   model: WidgetBox
 }
 
 export namespace WidgetBox {
-  export interface Attrs extends Column.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Column.Props {}
+  export type Props = Column.Props
 }
 
 export interface WidgetBox extends Column.Attrs {}

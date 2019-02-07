@@ -1,11 +1,9 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
-import {FontSizeSpec, ColorSpec, NumberSpec} from "core/vectorization"
-import {Color} from "core/types"
-import {LineJoin, LineCap} from "core/enums"
 import {FontStyle, VerticalAlign, TextAlign, TextBaseline} from "core/enums"
 import {hide} from "core/dom"
-import {Text} from "core/visuals"
 import {Size} from "core/layout"
+import {Text} from "core/visuals"
+import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 
 export class TitleView extends TextAnnotationView {
@@ -114,40 +112,22 @@ export class TitleView extends TextAnnotationView {
 }
 
 export namespace Title {
-  // line:border_
-  export interface BorderLine {
-    border_line_color: Color
-    border_line_width: number
-    border_line_alpha: number
-    border_line_join: LineJoin
-    border_line_cap: LineCap
-    border_line_dash: number[]
-    border_line_dash_offset: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  // fill:background_
-  export interface BackgroundFill {
-    background_fill_color: Color
-    background_fill_alpha: number
-  }
-
-  export interface Mixins extends BorderLine, BackgroundFill {}
-
-  export interface Attrs extends TextAnnotation.Attrs, Mixins {
-    text: string
-    text_font: string // XXX: Font
-    text_font_size: FontSizeSpec
-    text_font_style: FontStyle
-    text_color: ColorSpec
-    text_alpha: NumberSpec
-    vertical_align: VerticalAlign
-    align: TextAlign
-    offset: number
-    text_align: TextAlign
-    text_baseline: TextBaseline
-  }
-
-  export interface Props extends TextAnnotation.Props {}
+  export type Props = TextAnnotation.Props & {
+    text: p.Property<string>
+    text_font: p.Property<string> // XXX: Font
+    text_font_size: p.FontSizeSpec
+    text_font_style: p.Property<FontStyle>
+    text_color: p.ColorSpec
+    text_alpha: p.NumberSpec
+    vertical_align: p.Property<VerticalAlign>
+    align: p.Property<TextAlign>
+    offset: p.Property<number>
+    text_align: p.Property<TextAlign>
+    text_baseline: p.Property<TextBaseline>
+  } & mixins.BorderLine
+    & mixins.BackgroundFill
 
   export type Visuals = TextAnnotation.Visuals
 }
@@ -155,7 +135,6 @@ export namespace Title {
 export interface Title extends Title.Attrs {}
 
 export class Title extends TextAnnotation {
-
   properties: Title.Props
 
   constructor(attrs?: Partial<Title.Attrs>) {
@@ -168,7 +147,7 @@ export class Title extends TextAnnotation {
 
     this.mixins(['line:border_', 'fill:background_'])
 
-    this.define({
+    this.define<Title.Props>({
       text:            [ p.String,                    ],
       text_font:       [ p.Font,          'helvetica' ],
       text_font_size:  [ p.FontSizeSpec,  '10pt'      ],

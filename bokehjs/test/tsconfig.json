@@ -17,7 +17,7 @@
     "target": "ES6",
     "lib": ["es6", "dom"],
     "declaration": false,
-    "sourceMap": false,
+    "sourceMap": true,
     "importHelpers": false,
     "experimentalDecorators": true,
     "baseUrl": ".",

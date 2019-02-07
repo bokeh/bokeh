@@ -3,11 +3,11 @@ import {Ticker} from "../tickers/ticker"
 import {TickFormatter} from "../formatters/tick_formatter"
 import {Range} from "../ranges/range"
 
+import * as visuals from "core/visuals"
+import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
-import {Arrayable, Color} from "core/types"
-import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap} from "core/enums"
+import {Arrayable} from "core/types"
 import {Side, TickLabelOrientation, SpatialUnits} from "core/enums"
-import {Text, Line} from "core/visuals"
 import {Size} from "core/layout"
 import {SidePanel, Orient} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
@@ -175,7 +175,7 @@ export class AxisView extends GuideRendererView {
     this._draw_oriented_labels(ctx, [this.model.axis_label], coords, 'parallel', this.panel.side, standoff, visuals, "screen")
   }
 
-  protected _draw_ticks(ctx: Context2d, coords: Coords, tin: number, tout: number, visuals: Line): void {
+  protected _draw_ticks(ctx: Context2d, coords: Coords, tin: number, tout: number, visuals: visuals.Line): void {
     if (!visuals.doit)
       return
 
@@ -203,7 +203,7 @@ export class AxisView extends GuideRendererView {
 
   protected _draw_oriented_labels(ctx: Context2d, labels: string[], coords: Coords,
                                   orient: Orient | number, _side: Side, standoff: number,
-                                  visuals: Text, units: SpatialUnits = "data"): void {
+                                  visuals: visuals.Text, units: SpatialUnits = "data"): void {
     if (!visuals.doit || labels.length == 0)
       return
 
@@ -275,7 +275,7 @@ export class AxisView extends GuideRendererView {
   }
 
   protected _oriented_labels_extent(labels: string[], orient: Orient | number,
-                                    side: Side, standoff: number, visuals: Text): number {
+                                    side: Side, standoff: number, visuals: visuals.Text): number {
     if (labels.length == 0)
       return 0
 
@@ -502,91 +502,36 @@ export class AxisView extends GuideRendererView {
 }
 
 export namespace Axis {
-  // line:axis_
-  export interface AxisLine {
-    axis_line_color: Color
-    axis_line_width: number
-    axis_line_alpha: number
-    axis_line_join: LineJoin
-    axis_line_cap: LineCap
-    axis_line_dash: number[]
-    axis_line_dash_offset: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  // line:major_tick_
-  export interface MajorTickLine {
-    major_tick_line_color: Color
-    major_tick_line_width: number
-    major_tick_line_alpha: number
-    major_tick_line_join: LineJoin
-    major_tick_line_cap: LineCap
-    major_tick_line_dash: number[]
-    major_tick_line_dash_offset: number
-  }
-
-  // line:minor_tick_
-  export interface MinorTickLine {
-    minor_tick_line_color: Color
-    minor_tick_line_width: number
-    minor_tick_line_alpha: number
-    minor_tick_line_join: LineJoin
-    minor_tick_line_cap: LineCap
-    minor_tick_line_dash: number[]
-    minor_tick_line_dash_offset: number
-  }
-
-  // text:major_label_
-  export interface MajorLabelText {
-    major_label_text_font: string
-    major_label_text_font_size: string
-    major_label_text_font_style: FontStyle
-    major_label_text_color: Color
-    major_label_text_alpha: number
-    major_label_text_align: TextAlign
-    major_label_text_baseline: TextBaseline
-    major_label_text_line_height: number
-  }
-
-  // text:axis_label_
-  export interface AxisLabelText {
-    axis_label_text_font: string
-    axis_label_text_font_size: string
-    axis_label_text_font_style: FontStyle
-    axis_label_text_color: Color
-    axis_label_text_alpha: number
-    axis_label_text_align: TextAlign
-    axis_label_text_baseline: TextBaseline
-    axis_label_text_line_height: number
-  }
-
-  export interface Mixins extends AxisLine, MajorTickLine, MinorTickLine, MajorLabelText, AxisLabelText {}
-
-  export interface Attrs extends GuideRenderer.Attrs, Mixins {
-    bounds: [number, number] | "auto"
-    ticker: Ticker<any> // TODO
-    formatter: TickFormatter
-    x_range_name: string
-    y_range_name: string
-    axis_label: string | null
-    axis_label_standoff: number
-    major_label_standoff: number
-    major_label_orientation: TickLabelOrientation | number
-    major_label_overrides: {[key: string]: string}
-    major_tick_in: number
-    major_tick_out: number
-    minor_tick_in: number
-    minor_tick_out: number
-    fixed_location: number | Factor | null
-  }
-
-  export interface Props extends GuideRenderer.Props {}
+  export type Props = GuideRenderer.Props & {
+    bounds: p.Property<[number, number] | "auto">
+    ticker: p.Property<Ticker<any>> // TODO
+    formatter: p.Property<TickFormatter>
+    x_range_name: p.Property<string>
+    y_range_name: p.Property<string>
+    axis_label: p.Property<string | null>
+    axis_label_standoff: p.Property<number>
+    major_label_standoff: p.Property<number>
+    major_label_orientation: p.Property<TickLabelOrientation | number>
+    major_label_overrides: p.Property<{[key: string]: string}>
+    major_tick_in: p.Property<number>
+    major_tick_out: p.Property<number>
+    minor_tick_in: p.Property<number>
+    minor_tick_out: p.Property<number>
+    fixed_location: p.Property<number | Factor | null>
+  } & mixins.AxisLine
+    & mixins.MajorTickLine
+    & mixins.MinorTickLine
+    & mixins.MajorLabelText
+    & mixins.AxisLabelText
 
   export type Visuals = GuideRenderer.Visuals & {
-    axis_line: Line
-    major_tick_line: Line
-    minor_tick_line: Line
-    major_label_text: Text
-    axis_label_text: Text
+    axis_line: visuals.Line
+    major_tick_line: visuals.Line
+    minor_tick_line: visuals.Line
+    major_label_text: visuals.Text
+    axis_label_text: visuals.Text
   }
 }
 
@@ -595,7 +540,6 @@ export interface Axis extends Axis.Attrs {
 }
 
 export class Axis extends GuideRenderer {
-
   properties: Axis.Props
 
   constructor(attrs?: Partial<Axis.Attrs>) {
@@ -614,10 +558,10 @@ export class Axis extends GuideRenderer {
       'text:axis_label_',
     ])
 
-    this.define({
+    this.define<Axis.Props>({
       bounds:                  [ p.Any,      'auto'       ], // TODO (bev)
-      ticker:                  [ p.Instance, null         ],
-      formatter:               [ p.Instance, null         ],
+      ticker:                  [ p.Instance               ],
+      formatter:               [ p.Instance               ],
       x_range_name:            [ p.String,   'default'    ],
       y_range_name:            [ p.String,   'default'    ],
       axis_label:              [ p.String,   ''           ],

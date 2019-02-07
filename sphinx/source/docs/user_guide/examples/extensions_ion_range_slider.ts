@@ -113,17 +113,9 @@ export class IonRangeSliderView extends InputWidgetView {
 }
 
 export namespace IonRangeSlider {
-  export interface Attrs extends InputWidget.Attrs {
-    range: [number, number]
-    start: number
-    end: number
-    step: number
-    grid: boolean
-    callback_throttle: number
-    callback_policy: SliderCallbackPolicy
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends InputWidget.Props {
+  export type Props = InputWidget.Props & {
     range: p.Property<[number, number]>
     start: p.Property<number>
     end: p.Property<number>
@@ -156,14 +148,14 @@ export class IonRangeSlider extends InputWidget {
     // types have counterparts, e.g. bokeh.core.properties.String will be
     // p.String in the JS implementation. Where the JS type system is not yet
     // as rich, you can use p.Any as a "wildcard" property type.
-    this.define({
-      range:             [ p.Any,                      ],
-      start:             [ p.Number,      0            ],
-      end:               [ p.Number,      1            ],
-      step:              [ p.Number,      0.1          ],
-      grid:              [ p.Bool,        true         ],
-      callback_throttle: [ p.Number,      200          ],
-      callback_policy:   [ p.String,      "throttle"   ],
+    this.define<IonRangeSlider.Props>({
+      range:             [ p.Any                              ],
+      start:             [ p.Number,               0          ],
+      end:               [ p.Number,               1          ],
+      step:              [ p.Number,               0.1        ],
+      grid:              [ p.Boolean,              true       ],
+      callback_throttle: [ p.Number,               200        ],
+      callback_policy:   [ p.SliderCallbackPolicy, "throttle" ],
     })
   }
 }

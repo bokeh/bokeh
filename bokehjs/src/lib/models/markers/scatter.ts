@@ -1,11 +1,12 @@
 import {Marker, MarkerView, MarkerData} from "./marker"
 import {marker_funcs} from "./defs"
+import {MarkerType} from "core/enums"
 import {Arrayable, Area} from "core/types"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 
 export interface ScatterData extends MarkerData {
-  _marker: Arrayable<string>
+  _marker: Arrayable<MarkerType>
 }
 
 export interface ScatterView extends ScatterData {}
@@ -58,17 +59,16 @@ export class ScatterView extends MarkerView {
 }
 
 export namespace Scatter {
-  export interface Attrs extends Marker.Attrs{
-    marker: string
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Marker.Props {}
+  export type Props = Marker.Props & {
+    marker: p.MarkerSpec
+  }
 }
 
 export interface Scatter extends Scatter.Attrs {}
 
-export abstract class Scatter extends Marker {
-
+export class Scatter extends Marker {
   properties: Scatter.Props
 
   constructor(attrs?: Partial<Scatter.Attrs>) {
@@ -78,8 +78,8 @@ export abstract class Scatter extends Marker {
   static initClass(): void {
     this.prototype.type = 'Scatter'
     this.prototype.default_view = ScatterView
-    this.define({
-      marker: [ p.MarkerSpec , {value: "circle"} ],
+    this.define<Scatter.Props>({
+      marker: [ p.MarkerSpec, {value: "circle"} ],
     })
   }
 }

@@ -1,5 +1,6 @@
 import {Markup, MarkupView} from "./markup"
 import {pre} from "core/dom"
+import * as p from "core/properties"
 
 export class PreTextView extends MarkupView {
   model: PreText
@@ -12,15 +13,14 @@ export class PreTextView extends MarkupView {
 }
 
 export namespace PreText {
-  export interface Attrs extends Markup.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Markup.Props {}
+  export type Props = Markup.Props
 }
 
 export interface PreText extends PreText.Attrs {}
 
 export class PreText extends Markup {
-
   properties: PreText.Props
 
   constructor(attrs?: Partial<PreText.Attrs>) {
@@ -32,5 +32,4 @@ export class PreText extends Markup {
     this.prototype.default_view = PreTextView
   }
 }
-
 PreText.initClass()

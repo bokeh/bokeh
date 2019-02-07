@@ -48,20 +48,19 @@ export class CheckboxGroupView extends WidgetView {
 }
 
 export namespace CheckboxGroup {
-  export interface Attrs extends Widget.Attrs {
-    active: number[]
-    labels: string[]
-    inline: boolean
-    callback: CallbackLike<CheckboxGroup> | null
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Widget.Props {}
+  export type Props = Widget.Props & {
+    active: p.Property<number[]>
+    labels: p.Property<string[]>
+    inline: p.Property<boolean>
+    callback: p.Property<CallbackLike<CheckboxGroup> | null>
+  }
 }
 
 export interface CheckboxGroup extends CheckboxGroup.Attrs {}
 
 export class CheckboxGroup extends Widget {
-
   properties: CheckboxGroup.Props
 
   constructor(attrs?: Partial<CheckboxGroup.Attrs>) {
@@ -72,13 +71,12 @@ export class CheckboxGroup extends Widget {
     this.prototype.type = "CheckboxGroup"
     this.prototype.default_view = CheckboxGroupView
 
-    this.define({
-      active:   [ p.Array, []    ],
-      labels:   [ p.Array, []    ],
-      inline:   [ p.Bool,  false ],
-      callback: [ p.Any          ],
+    this.define<CheckboxGroup.Props>({
+      active:   [ p.Array,   []    ],
+      labels:   [ p.Array,   []    ],
+      inline:   [ p.Boolean, false ],
+      callback: [ p.Any            ],
     })
   }
 }
-
 CheckboxGroup.initClass()

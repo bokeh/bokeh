@@ -1,3 +1,5 @@
+require("source-map-support").install()
+
 # XXX: Patch jsdom/utils before importing main jsdom. Otherwise
 #      HTMLCanvasElement will detect no canvas and make tests
 #      fail with "unable to obtain 2D rendering context".

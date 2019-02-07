@@ -1,9 +1,9 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
-import {DistanceSpec, AngleSpec} from "core/vectorization"
-import {LineMixinVector, FillMixinVector} from "core/property_mixins"
+import {LineVector, FillVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
 import {Arrayable, Area} from "core/types"
+import {RadiusDimension} from "core/enums"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {range} from "core/util/array"
@@ -262,32 +262,21 @@ export class CircleView extends XYGlyphView {
 }
 
 export namespace Circle {
-  export interface Mixins extends LineMixinVector, FillMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends XYGlyph.Attrs, Mixins {
-    angle: AngleSpec
-    size: DistanceSpec
-    radius: DistanceSpec | null
-    radius_dimension: "x" | "y" | "max" | "min"
-  }
-
-  export interface Props extends XYGlyph.Props {
+  export type Props = XYGlyph.Props & LineVector & FillVector & {
     angle: p.AngleSpec
     size: p.DistanceSpec
-    radius: p.DistanceSpec
-    radius_dimension: p.Property<"x" | "y" | "max" | "min">
+    radius: p.DistanceSpec // XXX: null
+    radius_dimension: p.Property<RadiusDimension>
   }
 
-  export interface Visuals extends XYGlyph.Visuals {
-    line: Line
-    fill: Fill
-  }
+  export type Visuals = XYGlyph.Visuals & {line: Line, fill: Fill}
 }
 
 export interface Circle extends Circle.Attrs {}
 
 export class Circle extends XYGlyph {
-
   properties: Circle.Props
 
   constructor(attrs?: Partial<Circle.Attrs>) {
@@ -299,11 +288,11 @@ export class Circle extends XYGlyph {
     this.prototype.default_view = CircleView
 
     this.mixins(['line', 'fill'])
-    this.define({
-      angle:            [ p.AngleSpec,    0                             ],
-      size:             [ p.DistanceSpec, { units: "screen", value: 4 } ],
-      radius:           [ p.DistanceSpec, null                          ],
-      radius_dimension: [ p.String,       'x'                           ],
+    this.define<Circle.Props>({
+      angle:            [ p.AngleSpec,       0                             ],
+      size:             [ p.DistanceSpec,    { units: "screen", value: 4 } ],
+      radius:           [ p.DistanceSpec                                   ], // XXX: null
+      radius_dimension: [ p.RadiusDimension, 'x'                           ],
     })
   }
 

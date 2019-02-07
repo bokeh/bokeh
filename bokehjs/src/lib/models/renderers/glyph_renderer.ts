@@ -367,19 +367,17 @@ export class GlyphRendererView extends DataRendererView {
 }
 
 export namespace GlyphRenderer {
-  export interface Attrs extends DataRenderer.Attrs {
-    data_source: ColumnarDataSource
-    view: CDSView
-    glyph: Glyph
-    hover_glyph: Glyph
-    nonselection_glyph: Glyph | "auto"
-    selection_glyph: Glyph | "auto"
-    muted_glyph: Glyph
-    muted: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends DataRenderer.Props {
+  export type Props = DataRenderer.Props & {
+    data_source: p.Property<ColumnarDataSource>
     view: p.Property<CDSView>
+    glyph: p.Property<Glyph>
+    hover_glyph: p.Property<Glyph>
+    nonselection_glyph: p.Property<Glyph | "auto">
+    selection_glyph: p.Property<Glyph | "auto">
+    muted_glyph: p.Property<Glyph>
+    muted: p.Property<boolean>
   }
 }
 
@@ -397,7 +395,7 @@ export class GlyphRenderer extends DataRenderer {
     this.prototype.type = 'GlyphRenderer'
     this.prototype.default_view = GlyphRendererView
 
-    this.define({
+    this.define<GlyphRenderer.Props>({
       data_source:        [ p.Instance           ],
       view:               [ p.Instance, () => new CDSView() ],
       glyph:              [ p.Instance           ],
@@ -405,7 +403,7 @@ export class GlyphRenderer extends DataRenderer {
       nonselection_glyph: [ p.Any,      'auto'   ], // Instance or "auto"
       selection_glyph:    [ p.Any,      'auto'   ], // Instance or "auto"
       muted_glyph:        [ p.Instance           ],
-      muted:              [ p.Bool,     false    ],
+      muted:              [ p.Boolean,  false    ],
     })
   }
 

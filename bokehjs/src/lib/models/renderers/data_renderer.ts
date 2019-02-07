@@ -8,12 +8,9 @@ export abstract class DataRendererView extends RendererView {
 }
 
 export namespace DataRenderer {
-  export interface Attrs extends Renderer.Attrs {
-    x_range_name: string
-    y_range_name: string
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Renderer.Props {
+  export type Props = Renderer.Props & {
     x_range_name: p.Property<string>
     y_range_name: p.Property<string>
   }
@@ -33,7 +30,7 @@ export abstract class DataRenderer extends Renderer {
   static initClass(): void {
     this.prototype.type = "DataRenderer"
 
-    this.define({
+    this.define<DataRenderer.Props>({
       x_range_name: [ p.String, 'default' ],
       y_range_name: [ p.String, 'default' ],
     })

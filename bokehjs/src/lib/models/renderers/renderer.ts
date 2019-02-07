@@ -51,12 +51,9 @@ export abstract class RendererView extends DOMView {
 }
 
 export namespace Renderer {
-  export interface Attrs extends Model.Attrs {
-    level: RenderLevel
-    visible: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Model.Props {
+  export type Props = Model.Props & {
     level: p.Property<RenderLevel>
     visible: p.Property<boolean>
   }
@@ -67,7 +64,6 @@ export namespace Renderer {
 export interface Renderer extends Renderer.Attrs {}
 
 export abstract class Renderer extends Model {
-
   properties: Renderer.Props
 
   constructor(attrs?: Partial<Renderer.Attrs>) {
@@ -77,9 +73,9 @@ export abstract class Renderer extends Model {
   static initClass(): void {
     this.prototype.type = "Renderer"
 
-    this.define({
+    this.define<Renderer.Props>({
       level: [ p.RenderLevel ],
-      visible: [ p.Bool, true ],
+      visible: [ p.Boolean, true ],
     })
   }
 }

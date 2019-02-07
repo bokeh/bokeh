@@ -2,25 +2,24 @@ import {Model} from "../../model"
 import {Legend} from "./legend"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
-import {StringSpec, isValue, isField} from "core/vectorization"
+import {isValue, isField} from "core/vectorization"
 import * as p from "core/properties"
 import {logger} from "core/logging"
 import {uniq, includes} from "core/util/array"
 
 export namespace LegendItem {
-  export interface Attrs extends Model.Attrs {
-    label: StringSpec | null
-    renderers: GlyphRenderer[]
-    index: number | null
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Model.Props {}
+  export type Props = Model.Props & {
+    label: p.DataSpec<string | null>
+    renderers: p.Property<GlyphRenderer[]>
+    index: p.Property<number | null>
+  }
 }
 
 export interface LegendItem extends LegendItem.Attrs {}
 
 export class LegendItem extends Model {
-
   properties: LegendItem.Props
 
   legend: Legend | null
@@ -32,7 +31,7 @@ export class LegendItem extends Model {
   static initClass(): void {
     this.prototype.type = "LegendItem"
 
-    this.define({
+    this.define<LegendItem.Props>({
       label:     [ p.StringSpec, null ],
       renderers: [ p.Array,      []   ],
       index:     [ p.Number,     null ],
@@ -95,8 +94,10 @@ export class LegendItem extends Model {
 
   get_labels_list_from_label_prop(): string[] {
     // Always return a list of the labels
-    if (isValue(this.label))
-      return [this.label.value]
+    if (isValue<string | null>(this.label)) {
+      const {value} = this.label
+      return value != null ? [value] : []
+    }
 
     const field = this.get_field_from_label_prop()
     if (field != null) {

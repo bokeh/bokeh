@@ -1,4 +1,5 @@
 import {ActionTool, ActionToolView} from "./action_tool"
+import * as p from "core/properties"
 
 export class RedoToolView extends ActionToolView {
   model: RedoTool
@@ -14,15 +15,14 @@ export class RedoToolView extends ActionToolView {
 }
 
 export namespace RedoTool {
-  export interface Attrs extends ActionTool.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ActionTool.Props {}
+  export type Props = ActionTool.Props
 }
 
 export interface RedoTool extends RedoTool.Attrs {}
 
 export class RedoTool extends ActionTool {
-
   properties: RedoTool.Props
 
   constructor(attrs?: Partial<RedoTool.Attrs>) {
@@ -41,5 +41,4 @@ export class RedoTool extends ActionTool {
   tool_name = "Redo"
   icon = "bk-tool-icon-redo"
 }
-
 RedoTool.initClass()

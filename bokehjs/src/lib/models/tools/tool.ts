@@ -63,11 +63,9 @@ export abstract class ToolView extends View {
 }
 
 export namespace Tool {
-  export interface Attrs extends Model.Attrs {
-    active: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Model.Props {
+  export type Props = Model.Props & {
     active: p.Property<boolean>
   }
 }
@@ -77,7 +75,6 @@ export interface Tool extends Tool.Attrs {
 }
 
 export abstract class Tool extends Model {
-
   properties: Tool.Props
 
   constructor(attrs?: Partial<Tool.Attrs>) {
@@ -132,5 +129,4 @@ export abstract class Tool extends Model {
     return [sxlim, sylim]
   }
 }
-
 Tool.initClass()

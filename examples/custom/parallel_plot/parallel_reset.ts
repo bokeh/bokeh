@@ -1,4 +1,5 @@
 import {ActionTool, ActionToolView} from "models/tools/actions/action_tool"
+import * as p from "core/properties"
 
 export class ParallelResetToolView extends ActionToolView {
   model: ParallelResetTool
@@ -9,9 +10,9 @@ export class ParallelResetToolView extends ActionToolView {
 }
 
 export namespace ParallelResetTool {
-  export interface Attrs extends ActionTool.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ActionTool.Props {}
+  export type Props = ActionTool.Props
 }
 
 export interface ParallelResetTool extends ParallelResetTool.Attrs {}

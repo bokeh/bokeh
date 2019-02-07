@@ -56,9 +56,9 @@ export abstract class AnnotationView extends RendererView {
 }
 
 export namespace Annotation {
-  export interface Attrs extends Renderer.Attrs {}
+  export type Attrs = Renderer.Attrs
 
-  export interface Props extends Renderer.Props {}
+  export type Props = Renderer.Props
 
   export type Visuals = Renderer.Visuals
 }
@@ -66,7 +66,6 @@ export namespace Annotation {
 export interface Annotation extends Annotation.Attrs {}
 
 export abstract class Annotation extends Renderer {
-
   properties: Annotation.Props
 
   constructor(attrs?: Partial<Annotation.Attrs>) {

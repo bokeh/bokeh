@@ -59,19 +59,18 @@ export class PolyToolView extends EditToolView {
 }
 
 export namespace PolyTool {
-  export interface Attrs extends EditTool.Attrs {
-    renderers: (GlyphRenderer & HasPolyGlyph)[]
-    vertex_renderer: (GlyphRenderer & HasXYGlyph)
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends EditTool.Props {}
+  export type Props = EditTool.Props & {
+    renderers: p.Property<(GlyphRenderer & HasPolyGlyph)[]>
+    vertex_renderer: p.Property<(GlyphRenderer & HasXYGlyph)>
+  }
 
 }
 
 export interface PolyTool extends PolyTool.Attrs {}
 
 export class PolyTool extends EditTool {
-
   properties: PolyTool.Props
 
   renderers: (GlyphRenderer & HasPolyGlyph)[]
@@ -84,7 +83,7 @@ export class PolyTool extends EditTool {
     this.prototype.type = "PolyTool"
     this.prototype.default_view = PolyToolView
 
-    this.define({
+    this.define<PolyTool.Props>({
       vertex_renderer: [ p.Instance ],
     })
   }

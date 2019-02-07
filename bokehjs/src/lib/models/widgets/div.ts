@@ -14,11 +14,11 @@ export class DivView extends MarkupView {
 }
 
 export namespace Div {
-  export interface Attrs extends Markup.Attrs {
-    render_as_text: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Markup.Props {}
+  export type Props = Markup.Props & {
+    render_as_text: p.Property<boolean>
+  }
 }
 
 export interface Div extends Div.Attrs {}
@@ -34,8 +34,8 @@ export class Div extends Markup {
     this.prototype.type = "Div"
     this.prototype.default_view = DivView
 
-    this.define({
-      render_as_text: [ p.Bool,   false],
+    this.define<Div.Props>({
+      render_as_text: [ p.Boolean, false ],
     })
   }
 }

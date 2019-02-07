@@ -1,4 +1,5 @@
 import {Marker, MarkerView} from "./marker"
+import {MarkerType} from "core/enums"
 import {Class} from "core/class"
 import {Line, Fill} from "core/visuals"
 import {Context2d} from "core/util/canvas"
@@ -297,6 +298,7 @@ export const Asterisk         = _mk_model('Asterisk',         asterisk)
 export const CircleCross      = _mk_model('CircleCross',      circle_cross)
 export const CircleX          = _mk_model('CircleX',          circle_x)
 export const Cross            = _mk_model('Cross',            cross)
+export const Dash             = _mk_model('Dash',             dash)
 export const Diamond          = _mk_model('Diamond',          diamond)
 export const DiamondCross     = _mk_model('DiamondCross',     diamond_cross)
 export const Hex              = _mk_model('Hex',              hex)
@@ -305,14 +307,9 @@ export const Square           = _mk_model('Square',           square)
 export const SquareCross      = _mk_model('SquareCross',      square_cross)
 export const SquareX          = _mk_model('SquareX',          square_x)
 export const Triangle         = _mk_model('Triangle',         triangle)
-export const Dash             = _mk_model('Dash',             dash)
 export const X                = _mk_model('X',                x)
 
-interface FuncsMap {
-  [s: string]: RenderOne
-}
-
-export const marker_funcs: FuncsMap = {
+export const marker_funcs: {[key in MarkerType]: RenderOne} = {
   asterisk,
   circle,
   circle_cross,

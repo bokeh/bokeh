@@ -10,18 +10,17 @@ export class HelpToolView extends ActionToolView {
 }
 
 export namespace HelpTool {
-  export interface Attrs extends ActionTool.Attrs {
-    help_tooltip: string
-    redirect: string
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ActionTool.Props {}
+  export type Props = ActionTool.Props & {
+    help_tooltip: p.Property<string>
+    redirect: p.Property<string>
+  }
 }
 
 export interface HelpTool extends HelpTool.Attrs {}
 
 export class HelpTool extends ActionTool {
-
   properties: HelpTool.Props
 
   constructor(attrs?: Partial<HelpTool.Attrs>) {
@@ -32,7 +31,7 @@ export class HelpTool extends ActionTool {
     this.prototype.type = "HelpTool"
     this.prototype.default_view = HelpToolView
 
-    this.define({
+    this.define<HelpTool.Props>({
       help_tooltip: [ p.String, 'Click the question mark to learn more about Bokeh plot tools.'],
       redirect:     [ p.String, 'https://bokeh.pydata.org/en/latest/docs/user_guide/tools.html#built-in-tools'],
     })
@@ -45,5 +44,4 @@ export class HelpTool extends ActionTool {
     return this.help_tooltip
   }
 }
-
 HelpTool.initClass()

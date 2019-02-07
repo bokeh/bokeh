@@ -2,24 +2,24 @@ import {AxisView} from "./axis"
 import {LinearAxis} from "./linear_axis"
 import {MercatorTickFormatter} from "../formatters/mercator_tick_formatter"
 import {MercatorTicker} from "../tickers/mercator_ticker"
+import * as p from "core/properties"
 
 export class MercatorAxisView extends AxisView {
   model: MercatorAxis
 }
 
 export namespace MercatorAxis {
-  export interface Attrs extends LinearAxis.Attrs {
-    ticker:    MercatorTicker
-    formatter: MercatorTickFormatter
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends LinearAxis.Props {}
+  export type Props = LinearAxis.Props & {
+    ticker:    p.Property<MercatorTicker>
+    formatter: p.Property<MercatorTickFormatter>
+  }
 }
 
 export interface MercatorAxis extends MercatorAxis.Attrs {}
 
 export class MercatorAxis extends LinearAxis {
-
   properties: MercatorAxis.Props
 
   ticker:    MercatorTicker

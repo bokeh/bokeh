@@ -3,6 +3,7 @@ import {CellEditor, StringEditor} from "./cell_editors"
 import {Class} from "core/class"
 import * as p from "core/properties"
 import {uniqueId} from "core/util/string"
+import {Sort} from "core/enums"
 import {View} from "core/view"
 import {Model} from "../../../model"
 
@@ -25,23 +26,22 @@ export type Column = {
 }
 
 export namespace TableColumn {
-  export interface Attrs extends Model.Attrs {
-    field: string
-    title: string
-    width: number
-    formatter: CellFormatter
-    editor: CellEditor
-    sortable: boolean
-    default_sort: "ascending" | "descending"
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Model.Props {}
+  export type Props = Model.Props & {
+    field: p.Property<string>
+    title: p.Property<string>
+    width: p.Property<number>
+    formatter: p.Property<CellFormatter>
+    editor: p.Property<CellEditor>
+    sortable: p.Property<boolean>
+    default_sort: p.Property<Sort>
+  }
 }
 
 export interface TableColumn extends TableColumn.Attrs {}
 
 export class TableColumn extends Model {
-
   properties: TableColumn.Props
 
   constructor(attrs?: Partial<TableColumn.Attrs>) {
@@ -51,14 +51,14 @@ export class TableColumn extends Model {
   static initClass(): void {
     this.prototype.type = 'TableColumn'
 
-    this.define({
+    this.define<TableColumn.Props>({
       field:        [ p.String                                ],
       title:        [ p.String                                ],
       width:        [ p.Number,   300                         ],
       formatter:    [ p.Instance, () => new StringFormatter() ],
       editor:       [ p.Instance, () => new StringEditor()    ],
-      sortable:     [ p.Bool,     true                        ],
-      default_sort: [ p.String,   "ascending"                 ],
+      sortable:     [ p.Boolean,  true                        ],
+      default_sort: [ p.Sort,     "ascending"                 ],
     })
   }
 

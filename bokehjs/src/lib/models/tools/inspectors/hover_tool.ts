@@ -15,7 +15,7 @@ import {color2hex} from "core/util/color"
 import {values, isEmpty} from "core/util/object"
 import {isString, isFunction, isNumber} from "core/util/types"
 import {build_views, remove_views} from "core/build_views"
-import {Anchor, TooltipAttachment} from "core/enums"
+import {HoverMode, PointPolicy, LinePolicy, Anchor, TooltipAttachment} from "core/enums"
 import {Geometry, PointGeometry, SpanGeometry} from "core/geometry"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {ImageIndex} from "../../glyphs/image"
@@ -417,31 +417,26 @@ export class HoverToolView extends InspectToolView {
 }
 
 export namespace HoverTool {
-  export interface Attrs extends InspectTool.Attrs {
-    tooltips: string | [string, string][] | ((source: ColumnarDataSource, vars: Vars) => HTMLElement)
-    formatters: any // XXX
-    renderers: RendererSpec
-    names: string[]
-    mode: "mouse" | "hline" | "vline"
-    point_policy: "snap_to_data" | "follow_mouse" | "none"
-    line_policy: "prev" | "next" | "nearest" | "interp" | "none"
-    show_arrow: boolean
-    anchor: Anchor
-    attachment: TooltipAttachment
-    callback: CallbackLike<HoverTool> | null
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends InspectTool.Props {
+  export type Props = InspectTool.Props & {
     tooltips: p.Property<string | [string, string][] | ((source: ColumnarDataSource, vars: Vars) => HTMLElement)>
+    formatters: p.Property<any> // XXX
     renderers: p.Property<RendererSpec>
     names: p.Property<string[]>
+    mode: p.Property<HoverMode>
+    point_policy: p.Property<PointPolicy>
+    line_policy: p.Property<LinePolicy>
+    show_arrow: p.Property<boolean>
+    anchor: p.Property<Anchor>
+    attachment: p.Property<TooltipAttachment>
+    callback: p.Property<CallbackLike<HoverTool> | null>
   }
 }
 
 export interface HoverTool extends HoverTool.Attrs {}
 
 export class HoverTool extends InspectTool {
-
   properties: HoverTool.Props
 
   constructor(attrs?: Partial<HoverTool.Attrs>) {
@@ -452,27 +447,26 @@ export class HoverTool extends InspectTool {
     this.prototype.type = "HoverTool"
     this.prototype.default_view = HoverToolView
 
-    this.define({
+    this.define<HoverTool.Props>({
       tooltips: [ p.Any, [
         ["index",         "$index"    ],
         ["data (x, y)",   "($x, $y)"  ],
         ["screen (x, y)", "($sx, $sy)"],
       ]],
-      formatters:   [ p.Any,    {}             ],
-      renderers:    [ p.Any,    'auto'         ],
-      names:        [ p.Array,  []             ],
-      mode:         [ p.String, 'mouse'        ], // TODO (bev)
-      point_policy: [ p.String, 'snap_to_data' ], // TODO (bev) "follow_mouse", "none"
-      line_policy:  [ p.String, 'nearest'      ], // TODO (bev) "next", "nearest", "interp", "none"
-      show_arrow:   [ p.Boolean, true          ],
-      anchor:       [ p.String, 'center'       ], // TODO: enum
-      attachment:   [ p.String, 'horizontal'   ], // TODO: enum
-      callback:     [ p.Any                    ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
+      formatters:   [ p.Any,               {}             ],
+      renderers:    [ p.Any,               'auto'         ],
+      names:        [ p.Array,             []             ],
+      mode:         [ p.HoverMode,         'mouse'        ],
+      point_policy: [ p.PointPolicy,       'snap_to_data' ],
+      line_policy:  [ p.LinePolicy,        'nearest'      ],
+      show_arrow:   [ p.Boolean,           true           ],
+      anchor:       [ p.Anchor,            'center'       ],
+      attachment:   [ p.TooltipAttachment, 'horizontal'   ],
+      callback:     [ p.Any                               ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
     })
   }
 
   tool_name = "Hover"
   icon = "bk-tool-icon-hover"
 }
-
 HoverTool.initClass()

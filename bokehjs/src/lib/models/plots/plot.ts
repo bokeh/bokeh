@@ -1,9 +1,8 @@
+import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
 import {Class} from "core/class"
 import {Signal0} from "core/signaling"
-import {Color} from "core/types"
-import {LineJoin, LineCap} from "core/enums"
 import {Place, Location, OutputBackend} from "core/enums"
 import {removeBy, concat} from "core/util/array"
 import {values} from "core/util/object"
@@ -32,98 +31,65 @@ import {PlotView} from "./plot_canvas"
 export {PlotView}
 
 export namespace Plot {
-  // line:outline_
-  export interface OutlineLine {
-    outline_line_color: Color
-    outline_line_width: number
-    outline_line_alpha: number
-    outline_line_join: LineJoin
-    outline_line_cap: LineCap
-    outline_line_dash: number[]
-    outline_line_dash_offset: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  // fill:background_
-  export interface BackgroundFill {
-    background_fill_color: Color
-    background_fill_alpha: number
-  }
-
-  // fill:border_
-  export interface BorderFill {
-    border_fill_color: Color
-    border_fill_alpha: number
-  }
-
-  export interface Mixins extends OutlineLine, BackgroundFill, BorderFill {}
-
-  export interface Attrs extends LayoutDOM.Attrs, Mixins {
-    toolbar: Toolbar
-    toolbar_location: Location | null
-    toolbar_sticky: boolean
-
-    plot_width: number
-    plot_height: number
-
-    frame_width: number
-    frame_height: number
-
-    title: Title | string | null
-    title_location: Location
-
-    h_symmetry: boolean
-    v_symmetry: boolean
-
-    above: (Annotation | Axis)[]
-    below: (Annotation | Axis)[]
-    left: (Annotation | Axis)[]
-    right: (Annotation | Axis)[]
-    center: (Annotation | Grid)[]
-
-    renderers: DataRenderer[]
-
-    x_range: Range
-    extra_x_ranges: {[key: string]: Range}
-    y_range: Range
-    extra_y_ranges: {[key: string]: Range}
-
-    x_scale: Scale
-    y_scale: Scale
-
-    lod_factor: number
-    lod_interval: number
-    lod_threshold: number
-    lod_timeout: number
-
-    hidpi: boolean
-    output_backend: OutputBackend
-
-    min_border: number | null
-    min_border_top: number | null
-    min_border_left: number | null
-    min_border_bottom: number | null
-    min_border_right: number | null
-
-    inner_width: number
-    inner_height: number
-    outer_width: number
-    outer_height: number
-
-    match_aspect: boolean
-    aspect_scale: number
-  }
-
-  export interface Props extends LayoutDOM.Props {
+  export type Props = LayoutDOM.Props & {
+    toolbar: p.Property<Toolbar>
     toolbar_location: p.Property<Location | null>
+    toolbar_sticky: p.Property<boolean>
+
+    plot_width: p.Property<number>
+    plot_height: p.Property<number>
+
+    frame_width: p.Property<number | null>
+    frame_height: p.Property<number | null>
+
     title: p.Property<Title | string | null>
+    title_location: p.Property<Location>
+
+    h_symmetry: p.Property<boolean>
+    v_symmetry: p.Property<boolean>
+
     above: p.Property<(Annotation | Axis)[]>
     below: p.Property<(Annotation | Axis)[]>
     left: p.Property<(Annotation | Axis)[]>
     right: p.Property<(Annotation | Axis)[]>
     center: p.Property<(Annotation | Grid)[]>
+
     renderers: p.Property<DataRenderer[]>
-    outline_line_width: p.Property<number>
-  }
+
+    x_range: p.Property<Range>
+    extra_x_ranges: p.Property<{[key: string]: Range}>
+    y_range: p.Property<Range>
+    extra_y_ranges: p.Property<{[key: string]: Range}>
+
+    x_scale: p.Property<Scale>
+    y_scale: p.Property<Scale>
+
+    lod_factor: p.Property<number>
+    lod_interval: p.Property<number>
+    lod_threshold: p.Property<number>
+    lod_timeout: p.Property<number>
+
+    hidpi: p.Property<boolean>
+    output_backend: p.Property<OutputBackend>
+
+    min_border: p.Property<number | null>
+    min_border_top: p.Property<number | null>
+    min_border_left: p.Property<number | null>
+    min_border_bottom: p.Property<number | null>
+    min_border_right: p.Property<number | null>
+
+    inner_width: p.Property<number>
+    inner_height: p.Property<number>
+    outer_width: p.Property<number>
+    outer_height: p.Property<number>
+
+    match_aspect: p.Property<boolean>
+    aspect_scale: p.Property<number>
+  } & mixins.OutlineLine
+    & mixins.BackgroundFill
+    & mixins.BorderFill
 
   export type Visuals = visuals.Visuals & {
     outline_line: visuals.Line
@@ -152,7 +118,7 @@ export class Plot extends LayoutDOM {
 
     this.mixins(["line:outline_", "fill:background_", "fill:border_"])
 
-    this.define({
+    this.define<Plot.Props>({
       toolbar:           [ p.Instance, () => new Toolbar()     ],
       toolbar_location:  [ p.Location, 'right'                 ],
       toolbar_sticky:    [ p.Boolean,  true                    ],
@@ -166,8 +132,8 @@ export class Plot extends LayoutDOM {
       title:             [ p.Any, () => new Title({text: ""})  ], // TODO: p.Either(p.Instance(Title), p.String)
       title_location:    [ p.Location, 'above'                 ],
 
-      h_symmetry:        [ p.Bool,     true                    ],
-      v_symmetry:        [ p.Bool,     false                   ],
+      h_symmetry:        [ p.Boolean,  true                    ],
+      v_symmetry:        [ p.Boolean,  false                   ],
 
       above:             [ p.Array,    []                      ],
       below:             [ p.Array,    []                      ],
@@ -190,7 +156,7 @@ export class Plot extends LayoutDOM {
       lod_threshold:     [ p.Number,   2000                    ],
       lod_timeout:       [ p.Number,   500                     ],
 
-      hidpi:             [ p.Bool,     true                    ],
+      hidpi:             [ p.Boolean,  true                    ],
       output_backend:    [ p.OutputBackend, "canvas"           ],
 
       min_border:        [ p.Number,   5                       ],
@@ -204,7 +170,7 @@ export class Plot extends LayoutDOM {
       outer_width:       [ p.Number                            ],
       outer_height:      [ p.Number                            ],
 
-      match_aspect:      [ p.Bool,     false                   ],
+      match_aspect:      [ p.Boolean,  false                   ],
       aspect_scale:      [ p.Number,   1                       ],
     })
 

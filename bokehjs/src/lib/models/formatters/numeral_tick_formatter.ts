@@ -6,19 +6,18 @@ import {RoundingFunction} from "core/enums"
 import * as p from "core/properties"
 
 export namespace NumeralTickFormatter {
-  export interface Attrs extends TickFormatter.Attrs {
-    format: string
-    language: string
-    rounding: RoundingFunction
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends TickFormatter.Props {}
+  export type Props = TickFormatter.Props & {
+    format: p.Property<string>
+    language: p.Property<string>
+    rounding: p.Property<RoundingFunction>
+  }
 }
 
 export interface NumeralTickFormatter extends NumeralTickFormatter.Attrs {}
 
 export class NumeralTickFormatter extends TickFormatter {
-
   properties: NumeralTickFormatter.Props
 
   constructor(attrs?: Partial<NumeralTickFormatter.Attrs>) {
@@ -28,11 +27,11 @@ export class NumeralTickFormatter extends TickFormatter {
   static initClass(): void {
     this.prototype.type = 'NumeralTickFormatter'
 
-    this.define({
+    this.define<NumeralTickFormatter.Props>({
       // TODO (bev) all of these could be tightened up
-      format:   [ p.String, '0,0'   ],
-      language: [ p.String, 'en'    ],
-      rounding: [ p.String, 'round' ],
+      format:   [ p.String,           '0,0'   ],
+      language: [ p.String,           'en'    ],
+      rounding: [ p.RoundingFunction, 'round' ],
     })
   }
 

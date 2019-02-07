@@ -1,5 +1,6 @@
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 import {LayoutItem} from "core/layout"
+import * as p from "core/properties"
 
 export class SpacerView extends LayoutDOMView {
   model: Spacer
@@ -15,9 +16,9 @@ export class SpacerView extends LayoutDOMView {
 }
 
 export namespace Spacer {
-  export interface Attrs extends LayoutDOM.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends LayoutDOM.Props {}
+  export type Props = LayoutDOM.Props
 }
 
 export interface Spacer extends Spacer.Attrs {}

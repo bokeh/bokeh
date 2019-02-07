@@ -1,9 +1,8 @@
 import {GuideRenderer, GuideRendererView} from "../renderers/guide_renderer"
 import {Range} from "../ranges/range"
 import {Ticker} from "../tickers/ticker"
-import {Line, Fill} from "core/visuals"
-import {Color} from "core/types"
-import {LineJoin, LineCap} from "core/enums"
+import * as visuals from "core/visuals"
+import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 import {isArray} from "core/util/types"
@@ -65,7 +64,7 @@ export class GridView extends GuideRendererView {
     this._draw_grid_helper(ctx, this.visuals.minor_grid_line, xs, ys)
   }
 
-  protected _draw_grid_helper(ctx: Context2d, visuals: Line, xs: number[][], ys: number[][]): void {
+  protected _draw_grid_helper(ctx: Context2d, visuals: visuals.Line, xs: number[][], ys: number[][]): void {
     visuals.set_value(ctx)
     for (let i = 0; i < xs.length; i++) {
       const [sx, sy] = this.plot_view.map_to_screen(xs[i], ys[i], this._x_range_name, this._y_range_name)
@@ -176,57 +175,28 @@ export class GridView extends GuideRendererView {
 }
 
 export namespace Grid {
-  // line:grid_
-  export interface GridLine {
-    grid_line_color: Color
-    grid_line_width: number
-    grid_line_alpha: number
-    grid_line_join: LineJoin
-    grid_line_cap: LineCap
-    grid_line_dash: number[]
-    grid_line_dash_offset: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  // line:minor_grid_
-  export interface MinorGridLine {
-    minor_grid_line_color: Color
-    minor_grid_line_width: number
-    minor_grid_line_alpha: number
-    minor_grid_line_join: LineJoin
-    minor_grid_line_cap: LineCap
-    minor_grid_line_dash: number[]
-    minor_grid_line_dash_offset: number
-  }
-
-  // fill:band_
-  export interface BandFill {
-    fill_color: Color
-    fill_alpha: number
-  }
-
-  export interface Mixins extends GridLine, MinorGridLine, BandFill {}
-
-  export interface Attrs extends GuideRenderer.Attrs, Mixins {
-    bounds: [number, number] | "auto"
-    dimension: 0 | 1
-    ticker: Ticker<any>
-    x_range_name: string
-    y_range_name: string
-  }
-
-  export interface Props extends GuideRenderer.Props {}
+  export type Props = GuideRenderer.Props & {
+    bounds: p.Property<[number, number] | "auto">
+    dimension: p.Property<0 | 1>
+    ticker: p.Property<Ticker<any>>
+    x_range_name: p.Property<string>
+    y_range_name: p.Property<string>
+  } & mixins.GridLine
+    & mixins.MinorGridLine
+    & mixins.BandFill
 
   export type Visuals = GuideRenderer.Visuals & {
-    grid_line: Line
-    minor_grid_line: Line
-    band_fill: Fill
+    grid_line: visuals.Line
+    minor_grid_line: visuals.Line
+    band_fill: visuals.Fill
   }
 }
 
 export interface Grid extends Grid.Attrs {}
 
 export class Grid extends GuideRenderer {
-
   properties: Grid.Props
 
   constructor(attrs?: Partial<Grid.Attrs>) {
@@ -239,9 +209,9 @@ export class Grid extends GuideRenderer {
 
     this.mixins(['line:grid_', 'line:minor_grid_', 'fill:band_'])
 
-    this.define({
+    this.define<Grid.Props>({
       bounds:       [ p.Any,     'auto'    ], // TODO (bev)
-      dimension:    [ p.Number,  0         ],
+      dimension:    [ p.Any,     0         ],
       ticker:       [ p.Instance           ],
       x_range_name: [ p.String,  'default' ],
       y_range_name: [ p.String,  'default' ],

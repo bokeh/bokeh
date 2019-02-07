@@ -1,13 +1,14 @@
 import {Signal0, Signal, Signalable} from "./signaling"
 import {HasProps} from "./has_props"  // XXX: only for type purpose
 import * as enums from "./enums"
-import {Arrayable} from "./types"
-import {is_svg_color} from "./util/svg_colors"
-import {valid_rgb} from "./util/color"
+import {Arrayable, Color as ColorType} from "./types"
 import {includes, repeat} from "./util/array"
 import {map} from "./util/arrayable"
+import {is_color} from "./util/color"
 import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/types"
+import {Factor/*, OffsetFactor*/} from "../models/ranges/factor_range"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
+import {Scalar, Vector, Dimensional} from "./vectorization"
 
 Signal // XXX: silence TS, because `Signal` appears in declarations due to Signalable
 
@@ -30,7 +31,21 @@ export function isSpec(obj: any): boolean {
 // Property base class
 //
 
-export class Property<T> extends Signalable() {
+export type AttrsOf<P> = {
+  [K in keyof P]: P[K] extends Property<infer T> ? T : never
+}
+
+export type DefineOf<P> = {
+  [K in keyof P]: P[K] extends Property<infer T> ? [PropertyConstructor<T>, (T | (() => T))?] : never
+}
+
+export interface PropertyConstructor<T> {
+  new (obj: HasProps, attr: string, default_value?: (obj: HasProps) => T): Property<T>
+  readonly prototype: Property<T>
+}
+
+export abstract class Property<T> extends Signalable() {
+  __value__: T
 
   spec: {
     value?: any
@@ -42,17 +57,12 @@ export class Property<T> extends Signalable() {
 
   optional: boolean = false
 
-  dataspec: boolean // prototype
-
   readonly change: Signal0<HasProps>
 
   constructor(readonly obj: HasProps,
               readonly attr: string,
               readonly default_value?: (obj: HasProps) => T) {
     super()
-    this.obj = obj
-    this.attr = attr
-    this.default_value = default_value
     this.change = new Signal0(this.obj, "change")
     this._init()
     this.connect(this.change, () => this._init())
@@ -70,7 +80,14 @@ export class Property<T> extends Signalable() {
     return values
   }
 
-  validate(_value: any): void {}
+  validate(value: any): void {
+    if (!this.valid(value))
+      throw new Error(`${this.obj.type}.${this.attr} given invalid value: ${valueToString(value)}`)
+  }
+
+  valid(_value: unknown): boolean {
+    return true
+  }
 
   // ----- property accessors
 
@@ -80,31 +97,6 @@ export class Property<T> extends Signalable() {
     let ret = this.transform([this.spec.value])[0]
     if (this.spec.transform != null && do_spec_transform)
       ret = this.spec.transform.compute(ret)
-    return ret
-  }
-
-  array(source: ColumnarDataSource): any[] {
-    if (!this.dataspec)
-      throw new Error("attempted to retrieve property array for non-dataspec property")
-
-    let ret: any
-
-    if (this.spec.field != null) {
-      ret = this.transform(source.get_column(this.spec.field))
-      if (ret == null)
-        throw new Error(`attempted to retrieve property array for nonexistent field '${this.spec.field}'`)
-    } else if (this.spec.expr != null) {
-      ret = this.transform(this.spec.expr.v_compute(source))
-    } else {
-      let length = source.get_length()
-      if (length == null)
-        length = 1
-      const value = this.value(false) // don't apply any spec transform
-      ret = repeat(value, length)
-    }
-
-    if (this.spec.transform != null)
-      ret = this.spec.transform.v_compute(ret)
     return ret
   }
 
@@ -131,8 +123,8 @@ export class Property<T> extends Signalable() {
     else
       this.spec = {value: attr_value}
 
-    if (this.dataspec && this.spec.field != null && !isString(this.spec.field))
-      throw new Error(`field value for property '${attr}' is not a string`)
+    //if (this.dataspec && this.spec.field != null && !isString(this.spec.field))
+    //  throw new Error(`field value for property '${attr}' is not a string`)
 
     if (this.spec.value != null)
       this.validate(this.spec.value)
@@ -146,61 +138,89 @@ export class Property<T> extends Signalable() {
   }
 }
 
-Property.prototype.dataspec = false
-
 //
-// Simple Properties
+// Primitive Properties
 //
 
-export function simple_prop<T>(name: string, pred: (value: any) => boolean) {
-  return class extends Property<T> {
-    validate(value: any): void {
-      if (!pred(value))
-        throw new Error(`${name} property '${this.attr}' given invalid value: ${valueToString(value)}`)
-    }
+export class Any extends Property<any> {}
+
+export class Array extends Property<any[]> {
+  valid(value: unknown): boolean {
+    return isArray(value) || value instanceof Float64Array
   }
 }
 
-export class Any extends simple_prop("Any", (_x) => true) {}
+export class Boolean extends Property<boolean> {
+  valid(value: unknown): boolean {
+    return isBoolean(value)
+  }
+}
 
-export class Array extends simple_prop("Array", (x) => isArray(x) || x instanceof Float64Array) {}
+export class Color extends Property<ColorType> {
+  valid(value: unknown): boolean {
+    return isString(value) && is_color(value)
+  }
+}
 
-export class Bool extends simple_prop("Bool", isBoolean) {}
-export const Boolean = Bool
+export class Instance extends Property<any /*HasProps*/> {
+  //valid(value: unknown): boolean { return  value.properties != null }
+}
 
-export class Color extends simple_prop("Color", (x) => (isString(x) && (is_svg_color(x.toLowerCase()) || x.substring(0, 1) == "#" || valid_rgb(x)))) {}
+export class Number extends Property<number> {
+  valid(value: unknown): boolean {
+    return isNumber(value)
+  }
+}
 
-export class Instance extends simple_prop("Instance", (x) => x.properties != null) {}
-
-// TODO (bev) separate booleans?
-export class Number extends simple_prop("Number", (x) => isNumber(x) || isBoolean(x)) {}
-export const Int = Number
+export class Int extends Number {
+  valid(value: unknown): boolean {
+    return isNumber(value) && (value | 0) == value
+  }
+}
 
 export class Angle extends Number {}
 
-// TODO extend Number instead of copying it's predicate
-//class Percent extends Number("Percent", (x) -> 0 <= x <= 1.0)
-export class Percent extends simple_prop("Number", (x) => (isNumber(x) || isBoolean(x)) && 0 <= x && x <= 1.0) {}
+export class Percent extends Number {
+  valid(value: unknown): boolean {
+    return isNumber(value) && 0 <= value && value <= 1.0
+  }
+}
 
-export class String extends simple_prop("String", isString) {}
-export const FontSize = String
+export class String extends Property<string> {
+  valid(value: unknown): boolean {
+    return isString(value)
+  }
+}
 
-// TODO (bev) don't think this exists python side
-export class Font extends String {}
+export class FontSize extends String {}
+
+export class Font extends String {} // TODO (bev) don't think this exists python side
 
 //
 // Enum properties
 //
 
-export function enum_prop<T>(name: string, enum_values: T[]) {
-  return class extends simple_prop(name, (x) => includes(enum_values, x)) {}
+export abstract class EnumProperty<T extends string> extends Property<T> {
+  readonly enum_values: T[]
+
+  valid(value: unknown): boolean {
+    return isString(value) && includes(this.enum_values, value)
+  }
 }
 
-export class Anchor extends enum_prop("Anchor", enums.LegendLocation) {}
+export function Enum<T extends string>(values: T[]): PropertyConstructor<T> {
+  return class extends EnumProperty<T> {
+    get enum_values(): T[] {
+      return values
+    }
+  }
+}
 
-export class AngleUnits extends enum_prop("AngleUnits", enums.AngleUnits) {}
+export class Direction extends EnumProperty<enums.Direction> {
+  get enum_values(): enums.Direction[] {
+    return enums.Direction
+  }
 
-export class Direction extends enum_prop("Direction", enums.Direction) {
   transform(values: any): any {
     const result = new Uint8Array(values.length)
     for (let i = 0; i < values.length; i++) {
@@ -213,77 +233,114 @@ export class Direction extends enum_prop("Direction", enums.Direction) {
   }
 }
 
-export class Dimension extends enum_prop("Dimension", enums.Dimension) {}
-
-export class Dimensions extends enum_prop("Dimensions", enums.Dimensions) {}
-
-export class FontStyle extends enum_prop("FontStyle", enums.FontStyle) {}
-
-export class LatLon extends enum_prop("LatLon", enums.LatLon) {}
-
-export class LineCap extends enum_prop("LineCap", enums.LineCap) {}
-
-export class LineJoin extends enum_prop("LineJoin", enums.LineJoin) {}
-
-export class LegendLocation extends enum_prop("LegendLocation", enums.LegendLocation) {}
-
-export class Location extends enum_prop("Location", enums.Location) {}
-
-export class OutputBackend extends enum_prop("OutputBackend", enums.OutputBackend) {}
-
-export class Orientation extends enum_prop("Orientation", enums.Orientation) {}
-
-export class VerticalAlign extends enum_prop("VerticalAlign", enums.VerticalAlign) {}
-
-export class TextAlign extends enum_prop("TextAlign", enums.TextAlign) {}
-
-export class TextBaseline extends enum_prop("TextBaseline", enums.TextBaseline) {}
-
-export class RenderLevel extends enum_prop("RenderLevel", enums.RenderLevel) {}
-
-export class RenderMode extends enum_prop("RenderMode", enums.RenderMode) {}
-
-export class SizingMode extends enum_prop("SizingMode", enums.SizingMode) {}
-
-export class SpatialUnits extends enum_prop("SpatialUnits", enums.SpatialUnits) {}
-
-export class Distribution extends enum_prop("Distribution", enums.Distribution) {}
-
-export class StepMode extends enum_prop("StepMode", enums.StepMode) {}
-
-export class PaddingUnits extends enum_prop("PaddingUnits", enums.PaddingUnits) {}
-
-export class StartEnd extends enum_prop("StartEnd", enums.StartEnd) {}
-
-//
-// Units Properties
-//
-export function units_prop<Units>(name: string, valid_units: Units[], default_units: any) {
-  return class extends Number {
-    init(): void {
-      if (this.spec.units == null)
-        this.spec.units = default_units
-
-      const units = this.spec.units
-      if (!includes(valid_units, units))
-        throw new Error(`${name} units must be one of ${valid_units}, given invalid value: ${units}`)
-    }
-
-    get units(): Units {
-      return this.spec.units as Units
-    }
-
-    set units(units: Units) {
-      this.spec.units = units
-    }
-  }
-}
+export const Anchor = Enum(enums.Anchor)
+export const AngleUnits = Enum(enums.AngleUnits)
+export const BoxOrigin = Enum(enums.BoxOrigin)
+export const ButtonType = Enum(enums.ButtonType)
+export const Dimension = Enum(enums.Dimension)
+export const Dimensions = Enum(enums.Dimensions)
+export const Distribution = Enum(enums.Distribution)
+export const FontStyle = Enum(enums.FontStyle)
+export const HTTPMethod = Enum(enums.HTTPMethod)
+export const HexTileOrientation = Enum(enums.HexTileOrientation)
+export const HoverMode = Enum(enums.HoverMode)
+export const LatLon = Enum(enums.LatLon)
+export const LegendClickPolicy = Enum(enums.LegendClickPolicy)
+export const LegendLocation = Enum(enums.LegendLocation)
+export const LineCap = Enum(enums.LineCap)
+export const LineJoin = Enum(enums.LineJoin)
+export const LinePolicy = Enum(enums.LinePolicy)
+export const Location = Enum(enums.Location)
+export const Logo = Enum(enums.Logo)
+export const MarkerType = Enum(enums.MarkerType)
+export const Orientation = Enum(enums.Orientation)
+export const OutputBackend = Enum(enums.OutputBackend)
+export const PaddingUnits = Enum(enums.PaddingUnits)
+export const Place = Enum(enums.Place)
+export const PointPolicy = Enum(enums.PointPolicy)
+export const RadiusDimension = Enum(enums.RadiusDimension)
+export const RenderLevel = Enum(enums.RenderLevel)
+export const RenderMode = Enum(enums.RenderMode)
+export const RoundingFunction = Enum(enums.RoundingFunction)
+export const Side = Enum(enums.Side)
+export const SizingMode = Enum(enums.SizingMode)
+export const SliderCallbackPolicy = Enum(enums.SliderCallbackPolicy)
+export const Sort = Enum(enums.Sort)
+export const SpatialUnits = Enum(enums.SpatialUnits)
+export const StartEnd = Enum(enums.StartEnd)
+export const StepMode = Enum(enums.StepMode)
+export const TapBehavior = Enum(enums.TapBehavior)
+export const TextAlign = Enum(enums.TextAlign)
+export const TextBaseline = Enum(enums.TextBaseline)
+export const TickLabelOrientation = Enum(enums.TickLabelOrientation)
+export const TooltipAttachment = Enum(enums.TooltipAttachment)
+export const UpdateMode = Enum(enums.UpdateMode)
+export const VerticalAlign = Enum(enums.VerticalAlign)
 
 //
 // DataSpec properties
 //
 
-export class AngleSpec extends units_prop("AngleSpec", enums.AngleUnits, "rad") {
+export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T | S> {
+  __value__: T
+  __scalar__: S
+}
+
+export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Property<T | V> {
+  __value__: T
+  __vector__: V
+
+  array(source: ColumnarDataSource): any[] {
+    let ret: any
+
+    if (this.spec.field != null) {
+      ret = this.transform(source.get_column(this.spec.field))
+      if (ret == null)
+        throw new Error(`attempted to retrieve property array for nonexistent field '${this.spec.field}'`)
+    } else if (this.spec.expr != null) {
+      ret = this.transform(this.spec.expr.v_compute(source))
+    } else {
+      let length = source.get_length()
+      if (length == null)
+        length = 1
+      const value = this.value(false) // don't apply any spec transform
+      ret = repeat(value, length)
+    }
+
+    if (this.spec.transform != null)
+      ret = this.spec.transform.v_compute(ret)
+    return ret
+  }
+}
+
+export abstract class DataSpec<T> extends VectorSpec<T> {}
+
+export abstract class UnitsSpec<T, Units> extends VectorSpec<T, Dimensional<Vector<T>, Units>> {
+  readonly default_units: Units
+  readonly valid_units: Units[]
+
+  init(): void {
+    if (this.spec.units == null)
+      this.spec.units = this.default_units
+
+    const units = this.spec.units
+    if (!includes(this.valid_units, units))
+      throw new Error(`units must be one of ${this.valid_units.join(", ")}; got: ${units}`)
+  }
+
+  get units(): Units {
+    return this.spec.units as Units
+  }
+
+  set units(units: Units) {
+    this.spec.units = units
+  }
+}
+
+export class AngleSpec extends UnitsSpec<number, enums.AngleUnits> {
+  get default_units(): enums.AngleUnits { return "rad" as "rad" }
+  get valid_units(): enums.AngleUnits[] { return enums.AngleUnits }
+
   transform(values: Arrayable): Arrayable {
     if (this.spec.units == "deg")
       values = map(values, (x: number) => x * Math.PI/180.0)
@@ -291,22 +348,22 @@ export class AngleSpec extends units_prop("AngleSpec", enums.AngleUnits, "rad") 
     return super.transform(values)
   }
 }
-AngleSpec.prototype.dataspec = true
 
-export class ColorSpec extends Color {}
-ColorSpec.prototype.dataspec = true
+export class ColorSpec extends DataSpec<ColorType | null> {}
 
-export class DistanceSpec extends units_prop("DistanceSpec", enums.SpatialUnits, "data") {}
-DistanceSpec.prototype.dataspec = true
+export class CoordinateSpec extends DataSpec<number | Factor> {}
 
-export class FontSizeSpec extends String {}
-FontSizeSpec.prototype.dataspec = true
+export class CoordinateSeqSpec extends DataSpec<number[] | Factor[]> {}
 
-export class MarkerSpec extends String {}
-MarkerSpec.prototype.dataspec = true
+export class DistanceSpec extends UnitsSpec<number, enums.SpatialUnits> {
+  get default_units(): enums.SpatialUnits { return "data" as "data" }
+  get valid_units(): enums.SpatialUnits[] { return enums.SpatialUnits }
+}
 
-export class NumberSpec extends Number {}
-NumberSpec.prototype.dataspec = true
+export class FontSizeSpec extends DataSpec<string> {}
 
-export class StringSpec extends String {}
-StringSpec.prototype.dataspec = true
+export class MarkerSpec extends DataSpec<string> {}
+
+export class NumberSpec extends DataSpec<number> {}
+
+export class StringSpec extends DataSpec<string> {}

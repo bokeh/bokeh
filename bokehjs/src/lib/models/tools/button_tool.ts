@@ -40,17 +40,16 @@ export abstract class ButtonToolView extends ToolView {
 }
 
 export namespace ButtonTool {
-  export interface Attrs extends Tool.Attrs {
-    disabled: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Tool.Props {}
+  export type Props = Tool.Props & {
+    disabled: p.Property<boolean>
+  }
 }
 
 export interface ButtonTool extends ButtonTool.Attrs {}
 
 export abstract class ButtonTool extends Tool {
-
   properties: ButtonTool.Props
 
   constructor(attrs?: Partial<ButtonTool.Attrs>) {
@@ -79,5 +78,4 @@ export abstract class ButtonTool extends Tool {
     return this.icon
   }
 }
-
 ButtonTool.initClass()

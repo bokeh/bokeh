@@ -1,16 +1,16 @@
 import {Scale} from "./scale"
 import {Arrayable} from "core/types"
+import * as p from "core/properties"
 
 export namespace LogScale {
-  export interface Attrs extends Scale.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Scale.Props {}
+  export type Props = Scale.Props
 }
 
 export interface LogScale extends LogScale.Attrs {}
 
 export class LogScale extends Scale {
-
   properties: LogScale.Props
 
   constructor(attrs?: Partial<LogScale.Attrs>) {
@@ -123,5 +123,4 @@ export class LogScale extends Scale {
     return [factor, offset, inter_factor, inter_offset]
   }
 }
-
 LogScale.initClass()

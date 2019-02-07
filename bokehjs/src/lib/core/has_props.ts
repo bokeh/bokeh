@@ -15,12 +15,10 @@ import {ColumnarDataSource} from "models/sources/columnar_data_source"
 import {Document} from "../document"
 
 export module HasProps {
-  export interface Attrs {
-    id: string
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props {
-    id: p.Any
+  export type Props = {
+    id: p.Property<string>
   }
 
   export interface SetOptions {
@@ -42,7 +40,7 @@ export abstract class HasProps extends Signalable() {
     this.prototype.props = {}
     this.prototype.mixins = []
 
-    this.define({
+    this.define<HasProps.Props>({
       id: [ p.Any ],
     })
   }
@@ -75,7 +73,8 @@ export abstract class HasProps extends Signalable() {
     }
   }
 
-  static define(obj: any): void {
+  // TODO: don't use Partial<>, but exclude inherited properties
+  static define<T>(obj: Partial<p.DefineOf<T>>): void {
     for (const name in obj) {
       const prop = obj[name]
       if (this.prototype.props[name] != null)
@@ -98,7 +97,7 @@ export abstract class HasProps extends Signalable() {
         enumerable: true,
       })
 
-      const [type, default_value, internal] = prop
+      const [type, default_value, internal] = prop as any
       const refined_prop = {
         type,
         default_value: this._fix_default(default_value, name),
@@ -509,7 +508,7 @@ export abstract class HasProps extends Signalable() {
     const data: {[key: string]: any} = {}
     for (const name in this.properties) {
       const prop = this.properties[name]
-      if (!prop.dataspec)
+      if (!(prop instanceof p.VectorSpec))
         continue
       // this skips optional properties like radius for circles
       if (prop.optional && prop.spec.value == null && !(name in this._set_after_defaults))

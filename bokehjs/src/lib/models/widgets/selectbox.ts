@@ -62,12 +62,12 @@ export class SelectView extends InputWidgetView {
 }
 
 export namespace Select {
-  export interface Attrs extends InputWidget.Attrs {
-    value: string
-    options: (string | [string, string])[] | {[key: string]: (string | [string, string])[]}
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends InputWidget.Props {}
+  export type Props = InputWidget.Props & {
+    value: p.Property<string>
+    options: p.Property<(string | [string, string])[] | {[key: string]: (string | [string, string])[]}>
+  }
 }
 
 export interface Select extends Select.Attrs {}
@@ -83,7 +83,7 @@ export class Select extends InputWidget {
     this.prototype.type = "Select"
     this.prototype.default_view = SelectView
 
-    this.define({
+    this.define<Select.Props>({
       value:   [ p.String, '' ],
       options: [ p.Any,    [] ], // TODO (bev) is this used?
     })

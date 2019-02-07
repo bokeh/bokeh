@@ -119,17 +119,16 @@ export class PanToolView extends GestureToolView {
 }
 
 export namespace PanTool {
-  export interface Attrs extends GestureTool.Attrs {
-    dimensions: Dimensions
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends GestureTool.Props {}
+  export type Props = GestureTool.Props & {
+    dimensions: p.Property<Dimensions>
+  }
 }
 
 export interface PanTool extends PanTool.Attrs {}
 
 export class PanTool extends GestureTool {
-
   properties: PanTool.Props
 
   constructor(attrs?: Partial<PanTool.Attrs>) {
@@ -140,7 +139,7 @@ export class PanTool extends GestureTool {
     this.prototype.type = "PanTool"
     this.prototype.default_view = PanToolView
 
-    this.define({
+    this.define<PanTool.Props>({
       dimensions: [ p.Dimensions, "both" ],
     })
   }
@@ -161,5 +160,4 @@ export class PanTool extends GestureTool {
     }
   }
 }
-
 PanTool.initClass()

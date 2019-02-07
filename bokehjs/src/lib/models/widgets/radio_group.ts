@@ -44,20 +44,19 @@ export class RadioGroupView extends WidgetView {
 }
 
 export namespace RadioGroup {
-  export interface Attrs extends Widget.Attrs {
-    active: number
-    labels: string[]
-    inline: boolean
-    callback: CallbackLike<RadioGroup> | null
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Widget.Props {}
+  export type Props = Widget.Props & {
+    active: p.Property<number>
+    labels: p.Property<string[]>
+    inline: p.Property<boolean>
+    callback: p.Property<CallbackLike<RadioGroup> | null>
+  }
 }
 
 export interface RadioGroup extends RadioGroup.Attrs {}
 
 export class RadioGroup extends Widget {
-
   properties: RadioGroup.Props
 
   constructor(attrs?: Partial<RadioGroup.Attrs>) {
@@ -68,13 +67,12 @@ export class RadioGroup extends Widget {
     this.prototype.type = "RadioGroup"
     this.prototype.default_view = RadioGroupView
 
-    this.define({
-      active:   [ p.Any,   null  ], // TODO (bev) better type?
-      labels:   [ p.Array, []    ],
-      inline:   [ p.Bool,  false ],
-      callback: [ p.Any          ],
+    this.define<RadioGroup.Props>({
+      active:   [ p.Number,        ],
+      labels:   [ p.Array,   []    ],
+      inline:   [ p.Boolean, false ],
+      callback: [ p.Any            ],
     })
   }
 }
-
 RadioGroup.initClass()

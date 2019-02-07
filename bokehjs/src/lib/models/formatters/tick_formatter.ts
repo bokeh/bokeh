@@ -1,15 +1,17 @@
 import {Model} from "../../model"
 import {AxisView} from "../axes/axis"
+import * as p from "core/properties"
 
 export namespace TickFormatter {
-  export interface Attrs extends Model.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Model.Props {}
+  export type Props = Model.Props
 }
 
 export interface TickFormatter extends TickFormatter.Attrs {}
 
 export abstract class TickFormatter extends Model {
+  properties: TickFormatter.Props
 
   constructor(attrs?: Partial<TickFormatter.Attrs>) {
     super(attrs)

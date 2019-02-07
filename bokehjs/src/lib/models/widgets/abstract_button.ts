@@ -1,12 +1,11 @@
 import * as p from "core/properties"
+import {ButtonType} from "core/enums"
 import {prepend, nbsp, button} from "core/dom"
 import {build_views, remove_views} from "core/build_views"
 
 import {Widget, WidgetView} from "./widget"
 import {AbstractIcon, AbstractIconView} from "./abstract_icon"
 import {CallbackLike} from "../callbacks/callback"
-
-export type ButtonType = "default" | "primary" | "success" | "warning" | "danger"
 
 export abstract class AbstractButtonView extends WidgetView {
   model: AbstractButton
@@ -63,14 +62,14 @@ export abstract class AbstractButtonView extends WidgetView {
 }
 
 export namespace AbstractButton {
-  export interface Attrs extends Widget.Attrs {
-    label: string
-    icon: AbstractIcon
-    button_type: ButtonType
-    callback: CallbackLike<AbstractButton> | null
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Widget.Props {}
+  export type Props = Widget.Props & {
+    label: p.Property<string>
+    icon: p.Property<AbstractIcon>
+    button_type: p.Property<ButtonType>
+    callback: p.Property<CallbackLike<AbstractButton> | null>
+  }
 }
 
 export interface AbstractButton extends AbstractButton.Attrs {}
@@ -85,11 +84,11 @@ export abstract class AbstractButton extends Widget {
   static initClass(): void {
     this.prototype.type = "AbstractButton"
 
-    this.define({
-      label:       [ p.String, "Button"  ],
-      icon:        [ p.Instance          ],
-      button_type: [ p.String, "default" ], // TODO (bev)
-      callback:    [ p.Any               ],
+    this.define<AbstractButton.Props>({
+      label:       [ p.String,     "Button"  ],
+      icon:        [ p.Instance              ],
+      button_type: [ p.ButtonType, "default" ], // TODO (bev)
+      callback:    [ p.Any                   ],
     })
 
     this.override({

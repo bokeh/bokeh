@@ -17,15 +17,14 @@ import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
 import {HTML} from "core/layout"
 
 export namespace ProxyToolbar {
-  export interface Attrs extends ToolbarBase.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ToolbarBase.Props {}
+  export type Props = ToolbarBase.Props
 }
 
 export interface ProxyToolbar extends ProxyToolbar.Attrs {}
 
 export class ProxyToolbar extends ToolbarBase {
-
   properties: ProxyToolbar.Props
 
   constructor(attrs?: Partial<ProxyToolbar.Attrs>) {
@@ -223,12 +222,12 @@ export class ToolbarBoxView extends LayoutDOMView {
 }
 
 export namespace ToolbarBox {
-  export interface Attrs extends LayoutDOM.Attrs {
-    toolbar: ToolbarBase
-    toolbar_location: Location
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends LayoutDOM.Props {}
+  export type Props = LayoutDOM.Props & {
+    toolbar: p.Property<ToolbarBase>
+    toolbar_location: p.Property<Location>
+  }
 }
 
 export interface ToolbarBox extends ToolbarBox.Attrs {}
@@ -244,7 +243,7 @@ export class ToolbarBox extends LayoutDOM {
     this.prototype.type = 'ToolbarBox'
     this.prototype.default_view = ToolbarBoxView
 
-    this.define({
+    this.define<ToolbarBox.Props>({
       toolbar:          [ p.Instance          ],
       toolbar_location: [ p.Location, "right" ],
     })

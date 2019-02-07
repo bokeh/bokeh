@@ -8,7 +8,22 @@ import * as p from "./properties"
 
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
 
+export namespace SelectionManager {
+  export type Props = HasProps.Props & {
+    source: p.Property<ColumnarDataSource>
+  }
+
+  export type Attrs = p.AttrsOf<Props>
+}
+
+export interface SelectionManager extends SelectionManager.Attrs {}
+
 export class SelectionManager extends HasProps {
+  properties: SelectionManager.Props
+
+  constructor(attrs?: Partial<SelectionManager.Attrs>) {
+    super(attrs)
+  }
 
   static initClass(): void {
     this.prototype.type = "SelectionManager"
@@ -18,13 +33,7 @@ export class SelectionManager extends HasProps {
     })
   }
 
-  source: ColumnarDataSource
-  inspectors: {[key: string]: Selection}
-
-  initialize(): void {
-    super.initialize()
-    this.inspectors = {}
-  }
+  inspectors: {[key: string]: Selection} = {}
 
   select(renderer_views: RendererView[], geometry: Geometry, final: boolean, append: boolean = false): boolean {
     // divide renderers into glyph_renderers or graph_renderers
@@ -85,5 +94,4 @@ export class SelectionManager extends HasProps {
     return this.inspectors[rmodel.id]
   }
 }
-
 SelectionManager.initClass()

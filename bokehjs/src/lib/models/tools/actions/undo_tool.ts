@@ -1,4 +1,5 @@
 import {ActionTool, ActionToolView} from "./action_tool"
+import * as p from "core/properties"
 
 export class UndoToolView extends ActionToolView {
   model: UndoTool
@@ -14,15 +15,14 @@ export class UndoToolView extends ActionToolView {
 }
 
 export namespace UndoTool {
-  export interface Attrs extends ActionTool.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends ActionTool.Props {}
+  export type Props = ActionTool.Props
 }
 
 export interface UndoTool extends UndoTool.Attrs {}
 
 export class UndoTool extends ActionTool {
-
   properties: UndoTool.Props
 
   constructor(attrs?: Partial<UndoTool.Attrs>) {
@@ -41,5 +41,4 @@ export class UndoTool extends ActionTool {
   tool_name = "Undo"
   icon = "bk-tool-icon-undo"
 }
-
 UndoTool.initClass()

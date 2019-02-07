@@ -10,10 +10,10 @@ import {Scale} from "../scales/scale"
 import {LogScale} from "../scales/log_scale"
 import {Range1d} from "../ranges/range1d"
 
-import {Arrayable, Color} from "core/types"
-import {Line, Fill, Text} from "core/visuals"
-import {FontStyle, TextAlign, TextBaseline, LineJoin, LineCap} from "core/enums"
+import {Arrayable} from "core/types"
 import {LegendLocation, Orientation} from "core/enums"
+import * as visuals from "core/visuals"
+import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import * as text_util from "core/util/text"
 import {min, max, range, reversed} from "core/util/array"
@@ -568,120 +568,49 @@ export class ColorBarView extends AnnotationView {
 }
 
 export namespace ColorBar {
-  // text:major_label_
-  export interface MajorLabelText {
-    major_label_text_font: string
-    major_label_text_font_size: string
-    major_label_text_font_style: FontStyle
-    major_label_text_color: Color
-    major_label_text_alpha: number
-    major_label_text_align: TextAlign
-    major_label_text_baseline: TextBaseline
-    major_label_text_line_height: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  // text:title_
-  export interface TitleText {
-    title_text_font: string
-    title_text_font_size: string
-    title_text_font_style: FontStyle
-    title_text_color: Color
-    title_text_alpha: number
-    title_text_align: TextAlign
-    title_text_baseline: TextBaseline
-    title_text_line_height: number
-  }
-
-  // line:major_tick_
-  export interface MajorTickLine {
-    major_tick_line_color: Color
-    major_tick_line_width: number
-    major_tick_line_alpha: number
-    major_tick_line_join: LineJoin
-    major_tick_line_cap: LineCap
-    major_tick_line_dash: number[]
-    major_tick_line_dash_offset: number
-  }
-
-  // line:minor_tick_
-  export interface MinorTickLine {
-    minor_tick_line_color: Color
-    minor_tick_line_width: number
-    minor_tick_line_alpha: number
-    minor_tick_line_join: LineJoin
-    minor_tick_line_cap: LineCap
-    minor_tick_line_dash: number[]
-    minor_tick_line_dash_offset: number
-  }
-
-  // line:border_
-  export interface BorderLine {
-    border_line_color: Color
-    border_line_width: number
-    border_line_alpha: number
-    border_line_join: LineJoin
-    border_line_cap: LineCap
-    border_line_dash: number[]
-    border_line_dash_offset: number
-  }
-
-  // line:bar_
-  export interface BarLine {
-    bar_line_color: Color
-    bar_line_width: number
-    bar_line_alpha: number
-    bar_line_join: LineJoin
-    bar_line_cap: LineCap
-    bar_line_dash: number[]
-    bar_line_dash_offset: number
-  }
-
-  // fill:background_
-  export interface BackgroundFill {
-    background_fill_color: Color
-    background_fill_alpha: number
-  }
-
-  export interface Mixins extends MajorLabelText, TitleText, MajorTickLine, MinorTickLine, BorderLine, BarLine, BackgroundFill {}
-
-  export interface Attrs extends Annotation.Attrs, Mixins {
-    location: LegendLocation | [number, number]
-    orientation: Orientation
-    title: string
-    title_standoff: number
-    width: number | "auto"
-    height: number | "auto"
-    scale_alpha: number
-    ticker: ContinuousTicker
-    formatter: TickFormatter
-    major_label_overrides: {[key: string]: string}
-    color_mapper: ContinuousColorMapper
-    label_standoff: number
-    margin: number
-    padding: number
-    major_tick_in: number
-    major_tick_out: number
-    minor_tick_in: number
-    minor_tick_out: number
-  }
-
-  export interface Props extends Annotation.Props {}
+  export type Props = Annotation.Props & {
+    location: p.Property<LegendLocation | [number, number]>
+    orientation: p.Property<Orientation>
+    title: p.Property<string>
+    title_standoff: p.Property<number>
+    width: p.Property<number | "auto">
+    height: p.Property<number | "auto">
+    scale_alpha: p.Property<number>
+    ticker: p.Property<ContinuousTicker>
+    formatter: p.Property<TickFormatter>
+    major_label_overrides: p.Property<{[key: string]: string}>
+    color_mapper: p.Property<ContinuousColorMapper>
+    label_standoff: p.Property<number>
+    margin: p.Property<number>
+    padding: p.Property<number>
+    major_tick_in: p.Property<number>
+    major_tick_out: p.Property<number>
+    minor_tick_in: p.Property<number>
+    minor_tick_out: p.Property<number>
+  } & mixins.MajorLabelText
+    & mixins.TitleText
+    & mixins.MajorTickLine
+    & mixins.MinorTickLine
+    & mixins.BorderLine
+    & mixins.BarLine
+    & mixins.BackgroundFill
 
   export type Visuals = Annotation.Visuals & {
-    major_label_text: Text
-    title_text: Text
-    major_tick_line: Line
-    minor_tick_line: Line
-    border_line: Line
-    bar_line: Line
-    background_fill: Fill
+    major_label_text: visuals.Text
+    title_text: visuals.Text
+    major_tick_line: visuals.Line
+    minor_tick_line: visuals.Line
+    border_line: visuals.Line
+    bar_line: visuals.Line
+    background_fill: visuals.Fill
   }
 }
 
 export interface ColorBar extends ColorBar.Attrs {}
 
 export class ColorBar extends Annotation {
-
   properties: ColorBar.Props
 
   constructor(attrs?: Partial<ColorBar.Attrs>) {
@@ -702,7 +631,7 @@ export class ColorBar extends Annotation {
       'fill:background_',
     ])
 
-    this.define({
+    this.define<ColorBar.Props>({
       location:                [ p.Any,         'top_right' ],
       orientation:             [ p.Orientation, 'vertical'  ],
       title:                   [ p.String,                  ],

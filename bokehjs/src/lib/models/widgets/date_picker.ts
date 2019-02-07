@@ -78,13 +78,13 @@ export class DatePickerView extends InputWidgetView {
 }
 
 export namespace DatePicker {
-  export interface Attrs extends InputWidget.Attrs {
-    value:    string
-    min_date: string
-    max_date: string
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends InputWidget.Props {}
+  export type Props = InputWidget.Props & {
+    value:    p.Property<string>
+    min_date: p.Property<string>
+    max_date: p.Property<string>
+  }
 }
 
 export interface DatePicker extends DatePicker.Attrs {}
@@ -100,7 +100,7 @@ export class DatePicker extends InputWidget {
     this.prototype.type = "DatePicker"
     this.prototype.default_view = DatePickerView
 
-    this.define({
+    this.define<DatePicker.Props>({
       // TODO (bev) types
       value:    [ p.Any, new Date().toDateString() ],
       min_date: [ p.Any                            ],

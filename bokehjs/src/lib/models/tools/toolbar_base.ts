@@ -16,13 +16,10 @@ import {ToolProxy} from "./tool_proxy"
 import {InspectTool} from "./inspectors/inspect_tool"
 
 export namespace ToolbarViewModel {
-  export interface Attrs extends Model.Attrs {
-    _visible: boolean
-    autohide: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Model.Props {
-    _visible: p.Property<boolean>
+  export type Props = Model.Props & {
+    _visible: p.Property<boolean | null>
     autohide: p.Property<boolean>
   }
 }
@@ -39,14 +36,14 @@ export class ToolbarViewModel extends Model {
   static initClass(): void {
     this.prototype.type = 'ToolbarBase'
 
-    this.define({
-      _visible: [p.Bool, null],
-      autohide: [p.Bool, false],
+    this.define<ToolbarViewModel.Props>({
+      _visible: [ p.Any,     null  ],
+      autohide: [ p.Boolean, false ],
     })
   }
 
   get visible(): boolean {
-    return (!this.autohide) ? true: (this._visible == null) ? false: this._visible
+    return (!this.autohide) ? true : (this._visible == null) ? false : this._visible
   }
 }
 ToolbarViewModel.initClass()
@@ -148,10 +145,12 @@ export class ToolbarBaseView extends DOMView {
 export type GestureType = "pan" | "scroll" | "pinch" | "tap" | "doubletap" | "press" | "rotate" | "move" | "multi"
 
 export namespace ToolbarBase {
-  export interface Attrs extends Model.Attrs {
-    tools: Tool[]
-    logo: Logo
-    gestures: {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = Model.Props & {
+    tools: p.Property<Tool[]>
+    logo: p.Property<Logo>
+    gestures: p.Property<{
       pan:       { tools: GestureTool[], active: Tool | null },
       scroll:    { tools: GestureTool[], active: Tool | null },
       pinch:     { tools: GestureTool[], active: Tool | null },
@@ -161,16 +160,11 @@ export namespace ToolbarBase {
       rotate:    { tools: GestureTool[], active: Tool | null },
       move:      { tools: GestureTool[], active: Tool | null },
       multi:     { tools: GestureTool[], active: Tool | null },
-    },
-    actions: ActionTool[]
-    inspectors: InspectTool[]
-    help: HelpTool[]
-    toolbar_location: Location
-    autohide: boolean
-  }
-
-  export interface Props extends Model.Props {
-    tools: p.Property<Tool[]>
+    }>,
+    actions: p.Property<ActionTool[]>
+    inspectors: p.Property<InspectTool[]>
+    help: p.Property<HelpTool[]>
+    toolbar_location: p.Property<Location>
     autohide: p.Property<boolean>
   }
 }
@@ -188,10 +182,10 @@ export class ToolbarBase extends Model {
     this.prototype.type = 'ToolbarBase'
     this.prototype.default_view = ToolbarBaseView
 
-    this.define({
-      tools:      [ p.Array,      []       ],
-      logo:       [ p.String,     'normal' ], // TODO (bev)
-      autohide:   [ p.Bool,       false    ],
+    this.define<ToolbarBase.Props>({
+      tools:      [ p.Array,   []       ],
+      logo:       [ p.Logo,    'normal' ], // TODO (bev)
+      autohide:   [ p.Boolean, false    ],
     })
 
     this.internal({

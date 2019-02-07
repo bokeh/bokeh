@@ -78,13 +78,9 @@ export class MultiSelectView extends InputWidgetView {
 }
 
 export namespace MultiSelect {
-  export interface Attrs extends InputWidget.Attrs {
-    value: string[]
-    options: (string | [string, string])[]
-    size: number
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends InputWidget.Props {
+  export type Props = InputWidget.Props & {
     value: p.Property<string[]>
     options: p.Property<(string | [string, string])[]>
     size: p.Property<number>
@@ -104,7 +100,7 @@ export class MultiSelect extends InputWidget {
     this.prototype.type = "MultiSelect"
     this.prototype.default_view = MultiSelectView
 
-    this.define({
+    this.define<MultiSelect.Props>({
       value:   [ p.Array, [] ],
       options: [ p.Array, [] ],
       size:    [ p.Number, 4 ], // 4 is the HTML default

@@ -107,11 +107,9 @@ export class AutocompleteInputView extends TextInputView {
 }
 
 export namespace AutocompleteInput {
-  export interface Attrs extends TextInput.Attrs {
-    completions: string[]
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends TextInput.Props {
+  export type Props = TextInput.Props & {
     completions: p.Property<string[]>
   }
 }
@@ -129,7 +127,7 @@ export class AutocompleteInput extends TextInput {
     this.prototype.type = "AutocompleteInput"
     this.prototype.default_view = AutocompleteInputView
 
-    this.define({
+    this.define<AutocompleteInput.Props>({
       completions: [ p.Array, [] ],
     })
   }

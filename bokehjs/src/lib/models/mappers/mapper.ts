@@ -1,17 +1,17 @@
 import {Transform} from "../transforms/transform"
 import {Factor} from "../ranges/factor_range"
 import {Arrayable} from "core/types"
+import * as p from "core/properties"
 
 export namespace Mapper {
-  export interface Attrs extends Transform.Attrs {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends Transform.Props {}
+  export type Props = Transform.Props
 }
 
 export interface Mapper<T> extends Mapper.Attrs {}
 
 export abstract class Mapper<T> extends Transform<T> {
-
   properties: Mapper.Props
 
   constructor(attrs?: Partial<Mapper.Attrs>) {
@@ -30,5 +30,4 @@ export abstract class Mapper<T> extends Transform<T> {
   abstract v_compute(xs: Arrayable<number> | Arrayable<Factor>): Arrayable<T>
 
 }
-
 Mapper.initClass()

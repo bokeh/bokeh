@@ -387,20 +387,19 @@ export class TileRendererView extends DataRendererView {
 }
 
 export namespace TileRenderer {
-  export interface Attrs extends DataRenderer.Attrs {
-    alpha: number
-    smoothing: boolean
-    tile_source: TileSource
-    render_parents: boolean
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends DataRenderer.Props {}
+  export type Props = DataRenderer.Props & {
+    alpha: p.Property<number>
+    smoothing: p.Property<boolean>
+    tile_source: p.Property<TileSource>
+    render_parents: p.Property<boolean>
+  }
 }
 
 export interface TileRenderer extends TileRenderer.Attrs {}
 
 export class TileRenderer extends DataRenderer {
-
   properties: TileRenderer.Props
 
   constructor(attrs?: Partial<TileRenderer.Attrs>) {
@@ -411,11 +410,11 @@ export class TileRenderer extends DataRenderer {
     this.prototype.type = 'TileRenderer'
     this.prototype.default_view = TileRendererView
 
-    this.define({
+    this.define<TileRenderer.Props>({
       alpha:          [ p.Number,   1.0              ],
-      smoothing:      [ p.Bool,     true             ],
+      smoothing:      [ p.Boolean,  true             ],
       tile_source:    [ p.Instance, () => new WMTSTileSource() ],
-      render_parents: [ p.Bool,     true             ],
+      render_parents: [ p.Boolean,  true             ],
     })
   }
 

@@ -1,12 +1,13 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_line_legend, line_interpolation} from "./utils"
 import {PointGeometry, SpanGeometry} from "core/geometry"
-import {LineMixinVector} from "core/property_mixins"
+import {LineVector} from "core/property_mixins"
 import {Arrayable, Area} from "core/types"
 import * as visuals from "core/visuals"
 import * as hittest from "core/hittest"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
+import * as p from "core/properties"
 
 export interface LineData extends XYGlyphData {}
 
@@ -122,21 +123,16 @@ export class LineView extends XYGlyphView {
 }
 
 export namespace Line {
-  export interface Mixins extends LineMixinVector {}
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Attrs extends XYGlyph.Attrs, Mixins {}
+  export type Props = XYGlyph.Props & LineVector
 
-  export interface Props extends XYGlyph.Props {}
-
-  export interface Visuals extends XYGlyph.Visuals {
-    line: visuals.Line
-  }
+  export type Visuals = XYGlyph.Visuals & {line: visuals.Line}
 }
 
 export interface Line extends Line.Attrs {}
 
 export class Line extends XYGlyph {
-
   properties: Line.Props
 
   constructor(attrs?: Partial<Line.Attrs>) {
