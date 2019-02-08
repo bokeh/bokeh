@@ -7,6 +7,21 @@ Bokeh Version ``1.1.0`` (January 2019) primarily
 Migration Guide
 ---------------
 
+New in 1.1
+~~~~~~~~~~
+
+The ``js_link`` function was added to make it simpler to link two Bokeh model
+properties together:
+
+.. code:: python
+
+    slider.js_link('value', r.glyph, 'radius')
+
+See :ref:`userguide_interaction_linked_properties` for more information.
+
+The ``Slider.value_as_date`` method was added to conveniently retrieve Slider
+values as date objects when appropriate.
+
 Deprecations
 ~~~~~~~~~~~~
 

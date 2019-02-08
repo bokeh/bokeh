@@ -38,6 +38,8 @@ two different |figure| calls.
 .. bokeh-plot:: docs/user_guide/examples/interaction_linked_brushing.py
     :source-position: above
 
+.. _userguide_interaction_linked_properties:
+
 Linked Properties
 ~~~~~~~~~~~~~~~~~
 
