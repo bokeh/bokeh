@@ -400,6 +400,63 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
             self.js_event_callbacks[event].append(callback)
 
 
+    def js_link(self, attr, other, other_attr):
+        ''' Link two Bokeh model properties using JavaScript.
+
+        This is a convenience method that simplifies adding a CustomJS callback
+        to update one Bokeh model property whenever another changes value.
+
+        Args:
+
+            attr (str) :
+                The name of a Bokeh property on this model
+
+            other (Model):
+                A Bokeh model to link to self.attr
+
+            other_attr (str) :
+                The property on ``other`` to link together
+
+        Added in version 1.1
+
+        Raises:
+
+            ValueError
+
+        Examples:
+
+            This code with ``js_link``:
+
+            .. code :: python
+
+                select.js_link('value', plot, 'sizing_mode')
+
+            is equivalent to the following:
+
+            .. code:: python
+
+                from bokeh.models import CustomJS
+                select.js_on_change('value',
+                    CustomJS(args=dict(other=plot),
+                             code="other.sizing_mode = this.value"
+                    )
+                )
+
+        '''
+        if attr not in self.properties():
+            raise ValueError("%r is not a property of self (%r)" % (attr, self))
+
+        if not isinstance(other, Model):
+            raise ValueError("'other' is not a Bokeh model: %r" % other)
+
+        if other_attr not in other.properties():
+            raise ValueError("%r is not a property of other (%r)" % (other_attr, other))
+
+        from bokeh.models.callbacks import CustomJS
+        cb = CustomJS(args=dict(other=other), code="other.%s = this.%s" % (other_attr, attr))
+
+        self.js_on_change(attr, cb)
+
     def js_on_change(self, event, *callbacks):
         ''' Attach a ``CustomJS`` callback to an arbitrary BokehJS model event.
 
