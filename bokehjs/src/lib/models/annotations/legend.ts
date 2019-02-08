@@ -9,7 +9,7 @@ import {Signal0} from "core/signaling"
 import {Size} from "core/layout"
 import {get_text_height} from "core/util/text"
 import {BBox} from "core/util/bbox"
-import {max, all} from "core/util/array"
+import {max, every} from "core/util/array"
 import {values} from "core/util/object"
 import {isString, isArray} from "core/util/types"
 import {Context2d} from "core/util/canvas"
@@ -244,8 +244,8 @@ export class LegendView extends AnnotationView {
 
       const active = (() => { switch (this.model.click_policy) {
         case "none": return true
-        case "hide": return all(item.renderers, r => r.visible)
-        case "mute": return all(item.renderers, r => !r.muted)
+        case "hide": return every(item.renderers, r => r.visible)
+        case "mute": return every(item.renderers, r => !r.muted)
       } })()
 
       for (const label of labels) {

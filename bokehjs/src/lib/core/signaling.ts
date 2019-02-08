@@ -3,7 +3,7 @@
 import {Constructor} from "./class"
 import {Set} from "./util/data_structures"
 import {defer} from "./util/callback"
-import {find, removeBy} from "./util/array"
+import {find, remove_by} from "./util/array"
 
 export type Slot<Args, Sender extends object> = ((args: Args, sender: Sender) => void) | ((args: Args) => void) | (() => void)
 
@@ -202,7 +202,7 @@ function scheduleCleanup(connections: Connection[]): void {
 
 function cleanupDirtySet(): void {
   dirtySet.forEach((connections) => {
-    removeBy(connections, (connection) => connection.signal == null)
+    remove_by(connections, (connection) => connection.signal == null)
   })
   dirtySet.clear()
 }

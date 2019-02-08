@@ -4,7 +4,7 @@
 //     Underscore may be freely distributed under the MIT license.
 
 import {Anything, Arrayable, TypedArray} from "../types"
-import {all} from "./array"
+import {every} from "./array"
 
 const toString = Object.prototype.toString
 
@@ -37,7 +37,7 @@ export function isArray<T>(obj: Anything): obj is T[] {
 }
 
 export function isArrayOf<T>(arr: Anything[], predicate: (item: Anything) => item is T): arr is T[] {
-  return all(arr, predicate)
+  return every(arr, predicate)
 }
 
 export function isArrayableOf<T>(arr: Arrayable, predicate: (item: Anything) => item is T): arr is Arrayable<T> {

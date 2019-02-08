@@ -3,7 +3,7 @@ import {PaddingUnits} from "core/enums"
 import * as p from "core/properties"
 import {Arrayable} from "core/types"
 import {map} from "core/util/arrayable"
-import {all, sum} from "core/util/array"
+import {every, sum} from "core/util/array"
 import {isArray, isNumber, isString} from "core/util/types"
 
 export type L1Factor = string
@@ -228,13 +228,13 @@ export class FactorRange extends Range {
   protected _init(silent: boolean): void {
     let levels: number
     let inside_padding: number
-    if (all(this.factors as any, isString)) {
+    if (every(this.factors as any, isString)) {
       levels = 1;
       [this._mapping, inside_padding] = map_one_level(this.factors as string[], this.factor_padding)
-    } else if (all(this.factors as any, (x) => isArray(x) && x.length == 2 && isString(x[0]) && isString(x[1]))) {
+    } else if (every(this.factors as any, (x) => isArray(x) && x.length == 2 && isString(x[0]) && isString(x[1]))) {
       levels = 2;
       [this._mapping, this.tops, inside_padding] = map_two_levels(this.factors as [string, string][], this.group_padding, this.factor_padding)
-    } else if (all(this.factors as any, (x) => isArray(x) && x.length == 3  && isString(x[0]) && isString(x[1]) && isString(x[2]))) {
+    } else if (every(this.factors as any, (x) => isArray(x) && x.length == 3  && isString(x[0]) && isString(x[1]) && isString(x[2]))) {
       levels = 3;
       [this._mapping, this.tops, this.mids, inside_padding] = map_three_levels(this.factors as [string, string, string][], this.group_padding, this.subgroup_padding, this.factor_padding)
     } else

@@ -6,8 +6,8 @@
 import {randomIn} from "./math"
 import {assert} from "./assert"
 
-import {min, minBy, max, maxBy, sum} from "./arrayable"
-export {min, minBy, max, maxBy, sum}
+import {min, min_by, max, max_by, sum, every, some, find, find_last, find_index, find_last_index, sorted_index} from "./arrayable"
+export {min, min_by, max, max_by, sum, every, some, find, find_last, find_index, find_last_index, sorted_index}
 
 const slice = Array.prototype.slice
 
@@ -137,68 +137,14 @@ export function cumsum(array: number[]): number[] {
 }
 
 export function argmin(array: number[]): number {
-  return minBy(range(array.length), (i) => array[i])
+  return min_by(range(array.length), (i) => array[i])
 }
 
 export function argmax(array: number[]): number {
-  return maxBy(range(array.length), (i) => array[i])
+  return max_by(range(array.length), (i) => array[i])
 }
 
-export function all<T>(array: T[], predicate: (item: T) => boolean): boolean {
-  for (const item of array) {
-    if (!predicate(item))
-      return false
-  }
-  return true
-}
-
-export function any<T>(array: T[], predicate: (item: T) => boolean): boolean {
-  for (const item of array) {
-    if (predicate(item))
-      return true
-  }
-  return false
-}
-
-function findIndexFactory(dir: number) {
-  return function<T>(array: T[], predicate: (item: T) => boolean): number {
-    const length = array.length
-    let index = dir > 0 ? 0 : length - 1
-    for (; index >= 0 && index < length; index += dir) {
-      if (predicate(array[index]))
-        return index
-    }
-    return -1
-  }
-}
-
-export const findIndex = findIndexFactory(1)
-export const findLastIndex = findIndexFactory(-1)
-
-export function find<T>(array: T[], predicate: (item: T) => boolean): T | undefined {
-  const index = findIndex(array, predicate)
-  return index == -1 ? undefined : array[index]
-}
-
-export function findLast<T>(array: T[], predicate: (item: T) => boolean): T | undefined {
-  const index = findLastIndex(array, predicate)
-  return index == -1 ? undefined : array[index]
-}
-
-export function sortedIndex<T>(array: T[], value: T): number {
-  let low = 0
-  let high = array.length
-  while (low < high) {
-    const mid = Math.floor((low + high) / 2)
-    if (array[mid] < value)
-      low = mid + 1
-    else
-      high = mid
-  }
-  return low
-}
-
-export function sortBy<T>(array: T[], key: (item: T) => number): T[] {
+export function sort_by<T>(array: T[], key: (item: T) => number): T[] {
   const tmp = array.map((value, index) => {
     return {value, index, key: key(value) }
   })
@@ -224,7 +170,7 @@ export function uniq<T>(array: T[]): T[] {
   return result
 }
 
-export function uniqBy<T, U>(array: T[], key: (item: T) => U): T[] {
+export function uniq_by<T, U>(array: T[], key: (item: T) => U): T[] {
   const result: T[] = []
   const seen: U[] = []
   for (const value of array) {
@@ -260,7 +206,7 @@ export function difference<T>(array: T[], ...arrays: T[][]): T[] {
   return array.filter((value) => !includes(rest, value))
 }
 
-export function removeBy<T>(array: T[], key: (item: T) => boolean): void {
+export function remove_by<T>(array: T[], key: (item: T) => boolean): void {
   for (let i = 0; i < array.length;) {
     if (key(array[i]))
       array.splice(i, 1)

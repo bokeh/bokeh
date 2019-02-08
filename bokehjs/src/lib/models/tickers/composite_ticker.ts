@@ -1,7 +1,7 @@
 import {TickSpec} from "./ticker"
 import {ContinuousTicker} from "./continuous_ticker"
 import * as p from "core/properties"
-import {argmin, sortedIndex} from "core/util/array"
+import {argmin, sorted_index} from "core/util/array"
 import {isEmpty} from "core/util/object"
 
 // This Ticker takes a collection of Tickers and picks the one most appropriate
@@ -57,8 +57,8 @@ export class CompositeTicker extends ContinuousTicker {
     const data_range = data_high - data_low
     const ideal_interval = this.get_ideal_interval(data_low, data_high, desired_n_ticks)
     const ticker_ndxs = [
-      sortedIndex(this.min_intervals, ideal_interval) - 1,
-      sortedIndex(this.max_intervals, ideal_interval),
+      sorted_index(this.min_intervals, ideal_interval) - 1,
+      sorted_index(this.max_intervals, ideal_interval),
     ]
     const intervals = [
       this.min_intervals[ticker_ndxs[0]],

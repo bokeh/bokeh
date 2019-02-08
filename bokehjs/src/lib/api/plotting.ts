@@ -9,7 +9,7 @@ import {Class} from "../core/class"
 import {Location} from "../core/enums"
 import {startsWith} from "../core/util/string"
 import {isEqual} from "../core/util/eq"
-import {any, all, includes} from "../core/util/array"
+import {some, every, includes} from "../core/util/array"
 import {clone, values} from "../core/util/object"
 import {isNumber, isString, isArray} from "../core/util/types"
 
@@ -713,8 +713,8 @@ export class Figure extends Plot {
     const legend = this._process_legend(attrs.legend, attrs.source)
     delete attrs.legend
 
-    const has_sglyph = any(Object.keys(attrs), key => startsWith(key, "selection_"))
-    const has_hglyph = any(Object.keys(attrs), key => startsWith(key, "hover_"))
+    const has_sglyph = some(Object.keys(attrs), key => startsWith(key, "selection_"))
+    const has_hglyph = some(Object.keys(attrs), key => startsWith(key, "hover_"))
 
     const glyph_ca   = this._pop_colors_and_alpha(cls, attrs)
     const nsglyph_ca = this._pop_colors_and_alpha(cls, attrs, "nonselection_", undefined, 0.1)
@@ -771,7 +771,7 @@ export class Figure extends Plot {
       return range
     }
     if (isArray(range)) {
-      if (all(range, isString)) {
+      if (every(range, isString)) {
         const factors = range as string[]
         return new models.FactorRange({factors})
       }

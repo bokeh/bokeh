@@ -1,7 +1,7 @@
 import {Mapper} from "./mapper"
 import {Arrayable} from "core/types"
 import {Factor} from "../ranges/factor_range"
-import {findIndex} from "core/util/array"
+import {find_index} from "core/util/array"
 import {isString} from "core/util/types"
 import * as p from "core/properties"
 
@@ -38,7 +38,7 @@ export function cat_v_compute<T>(data: Arrayable<Factor>, factors: string[], tar
       if (d.length == 1)
         key = factors.indexOf(d[0])
       else
-        key = findIndex(factors, (x) => _cat_equals(x, d))
+        key = find_index(factors, (x) => _cat_equals(x, d))
     }
 
     let value: T

@@ -77,7 +77,7 @@ export class AdaptiveTicker extends ContinuousTicker {
 
     // An untested optimization.
     //   const ideal_mantissa = ideal_interval / ideal_magnitude
-    //   index = sortedIndex(this.extended_mantissas, ideal_mantissa)
+    //   index = sorted_index(this.extended_mantissas, ideal_mantissa)
     //   candidate_mantissas = this.extended_mantissas[index..index + 1]
     const candidate_mantissas = this.extended_mantissas
 

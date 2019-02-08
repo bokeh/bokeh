@@ -2,7 +2,7 @@ import * as p from "core/properties"
 import {Location} from "core/enums"
 import {logger} from "core/logging"
 import {isString} from "core/util/types"
-import {any, sortBy, includes} from "core/util/array"
+import {some, includes, sort_by} from "core/util/array"
 
 import {Tool} from "./tool"
 import {ButtonTool} from "./button_tool"
@@ -46,13 +46,13 @@ export class ProxyToolbar extends ToolbarBase {
   protected _init_tools(): void {
     for (const tool of this.tools) {
       if (tool instanceof InspectTool) {
-        if (!any(this.inspectors, (t) => t.id == tool.id))
+        if (!some(this.inspectors, (t) => t.id == tool.id))
           this.inspectors = this.inspectors.concat([tool])
       } else if (tool instanceof HelpTool) {
-        if (!any(this.help, (t) => t.id == tool.id))
+        if (!some(this.help, (t) => t.id == tool.id))
           this.help = this.help.concat([tool])
       } else if (tool instanceof ActionTool) {
-        if (!any(this.actions, (t) => t.id == tool.id))
+        if (!some(this.actions, (t) => t.id == tool.id))
           this.actions = this.actions.concat([tool])
       } else if (tool instanceof GestureTool) {
         let event_types: GestureType[]
@@ -74,7 +74,7 @@ export class ProxyToolbar extends ToolbarBase {
           if (multi)
             et = "multi"
 
-          if (!any(this.gestures[et].tools, (t) => t.id == tool.id))
+          if (!some(this.gestures[et].tools, (t) => t.id == tool.id))
             this.gestures[et].tools = this.gestures[et].tools.concat([tool])
         }
       }
@@ -183,7 +183,7 @@ export class ProxyToolbar extends ToolbarBase {
       if (gesture.tools.length == 0)
         continue
 
-      gesture.tools = sortBy(gesture.tools, (tool) => tool.default_order)
+      gesture.tools = sort_by(gesture.tools, (tool) => tool.default_order)
 
       if (!(et == 'pinch' || et == 'scroll' || et == 'multi'))
         gesture.tools[0].active = true

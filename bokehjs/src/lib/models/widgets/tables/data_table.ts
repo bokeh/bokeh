@@ -8,7 +8,7 @@ const {CellExternalCopyManager} = require("slickgrid/plugins/slick.cellexternalc
 import * as p from "core/properties"
 import {uniqueId} from "core/util/string"
 import {isString} from "core/util/types"
-import {any, range} from "core/util/array"
+import {some, range} from "core/util/array"
 import {keys} from "core/util/object"
 import {logger} from "core/logging"
 import {LayoutItem} from "core/layout"
@@ -360,7 +360,7 @@ export class DataTable extends TableWidget {
     if (!this.scroll_to_selection || (selected_indices.length == 0))
       return null
 
-    if (!any(selected_indices, i => grid_range.top <= i && i <= grid_range.bottom)) {
+    if (!some(selected_indices, i => grid_range.top <= i && i <= grid_range.bottom)) {
       return Math.max(0, Math.min(...selected_indices) - 1)
     }
 
