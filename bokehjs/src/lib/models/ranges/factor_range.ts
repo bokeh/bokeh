@@ -12,6 +12,12 @@ export type L3Factor = [string, string, string]
 
 export type Factor = L1Factor | L2Factor | L3Factor
 
+export type L1Factors = Arrayable<L1Factor>
+export type L2Factors = Arrayable<L2Factor>
+export type L3Factors = Arrayable<L3Factor>
+
+export type Factors = L1Factors | L2Factors | L3Factors
+
 export type L1OffsetFactor = [string, number]
 export type L2OffsetFactor = [string, string, number]
 export type L3OffsetFactor = [string, string, string, number]

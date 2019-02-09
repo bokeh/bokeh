@@ -10,10 +10,12 @@ export type TypedArray =
   Uint32Array  | Int32Array   |
   Float32Array | Float64Array
 
-export interface Arrayable<T = Anything> {
+export type Arrayable<T = Anything> = {
   readonly length: number
   [n: number]: T
 }
+
+export type ArrayableOf<T> = T extends any ? Arrayable<T> : never
 
 export type Size = {
   width: number

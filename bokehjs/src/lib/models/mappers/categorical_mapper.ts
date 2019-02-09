@@ -1,7 +1,7 @@
 import {Mapper} from "./mapper"
-import {Arrayable} from "core/types"
-import {Factor} from "../ranges/factor_range"
-import {find_index} from "core/util/array"
+import {Factor, L1Factor, L2Factor, L3Factor} from "../ranges/factor_range"
+import {Arrayable, ArrayableOf} from "core/types"
+import {index_of, find_index} from "core/util/arrayable"
 import {isString} from "core/util/types"
 import * as p from "core/properties"
 
@@ -17,15 +17,15 @@ export function _cat_equals(a: Arrayable<any>, b: Arrayable<any>): boolean {
   return true
 }
 
-export function cat_v_compute<T>(data: Arrayable<Factor>, factors: string[], targets: Arrayable<T>, values: Arrayable<T>,
-  start: number, end: number, extra_value: T): void {
+export function cat_v_compute<T>(data: ArrayableOf<Factor>, factors: ArrayableOf<Factor>,
+    targets: Arrayable<T>, values: Arrayable<T>, start: number, end: number, extra_value: T): void {
 
   for (let i = 0, N = data.length; i < N; i++) {
     let d = data[i]
 
     let key: number
     if (isString(d))
-      key = factors.indexOf(d)
+      key = index_of(factors as Arrayable<L1Factor>, d)
     else {
       if (start != null) {
         if (end != null)
@@ -36,9 +36,9 @@ export function cat_v_compute<T>(data: Arrayable<Factor>, factors: string[], tar
         d = d.slice(0, end) as Factor
 
       if (d.length == 1)
-        key = factors.indexOf(d[0])
+        key = index_of(factors as Arrayable<L1Factor>, d[0])
       else
-        key = find_index(factors, (x) => _cat_equals(x, d))
+        key = find_index(factors as Arrayable<L2Factor | L3Factor>, (x) => _cat_equals(x, d))
     }
 
     let value: T
@@ -55,7 +55,7 @@ export namespace CategoricalMapper {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Mapper.Props & {
-    factors: p.Property<string[]>
+    factors: p.Property<ArrayableOf<Factor>>
     start: p.Property<number>
     end: p.Property<number>
   }

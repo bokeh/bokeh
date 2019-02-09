@@ -1,7 +1,7 @@
 import {Mapper} from "./mapper"
 import {Factor} from "../ranges/factor_range"
 import * as p from "core/properties"
-import {Arrayable, Color} from "core/types"
+import {Arrayable, ArrayableOf, Color} from "core/types"
 import {isNumber} from "core/util/types"
 
 import {color2hex} from "core/util/color"
@@ -65,7 +65,7 @@ export abstract class ColorMapper extends Mapper<Color> {
     })
   }
 
-  v_compute(xs: Arrayable<number> | Arrayable<Factor>): Arrayable<Color> {
+  v_compute(xs: ArrayableOf<number | Factor>): Arrayable<Color> {
     const values: Color[] = new Array(xs.length)
     this._v_compute(xs, values, this.palette, this._colors((c) => c))
     return values
@@ -76,7 +76,7 @@ export abstract class ColorMapper extends Mapper<Color> {
     const palette = _convert_palette(this.palette)
     const colors = this._colors(_convert_color)
     return {
-      v_compute(xs: Arrayable<number> | Arrayable<Factor>): Uint8Array {
+      v_compute(xs: ArrayableOf<number | Factor>): Uint8Array {
         const values = new Uint32Array(xs.length)
         self._v_compute(xs, values, palette, colors)
         return _uint32_to_rgba(values)
@@ -88,7 +88,7 @@ export abstract class ColorMapper extends Mapper<Color> {
     return {nan_color: conv(this.nan_color)}
   }
 
-  protected abstract _v_compute<T>(xs: Arrayable<number> | Arrayable<Factor>, values: Arrayable<T>,
+  protected abstract _v_compute<T>(xs: ArrayableOf<number | Factor>, values: Arrayable<T>,
                                    palette: Arrayable<T>, colors: {nan_color: T}): void
 }
 ColorMapper.initClass()
