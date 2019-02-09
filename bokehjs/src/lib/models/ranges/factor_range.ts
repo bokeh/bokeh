@@ -12,6 +12,8 @@ export type L3Factor = [string, string, string]
 
 export type Factor = L1Factor | L2Factor | L3Factor
 
+export type BoxedFactor = [string] | L2Factor | L3Factor
+
 export type L1Factors = Arrayable<L1Factor>
 export type L2Factors = Arrayable<L2Factor>
 export type L3Factors = Arrayable<L3Factor>
@@ -185,7 +187,7 @@ export class FactorRange extends Range {
     this.change.emit()
   }
 
-  protected _lookup(x: any): number {
+  protected _lookup(x: BoxedFactor): number {
     if (x.length == 1) {
       const m = this._mapping as L1Mapping
       if (!m.hasOwnProperty(x[0])) {
@@ -209,7 +211,7 @@ export class FactorRange extends Range {
   }
 
   // convert a string factor into a synthetic coordinate
-  synthetic(x: number | Factor | OffsetFactor): number {
+  synthetic(x: number | Factor | [string] | OffsetFactor): number {
     if (isNumber(x))
       return x
 
@@ -220,14 +222,14 @@ export class FactorRange extends Range {
     const off = x[x.length-1]
     if (isNumber(off)) {
       offset = off
-      x = x.slice(0, -1) as Factor
+      x = x.slice(0, -1) as BoxedFactor
     }
 
-    return this._lookup(x) + offset
+    return this._lookup(x as BoxedFactor) + offset
   }
 
   // convert an array of string factors into synthetic coordinates
-  v_synthetic(xs: Arrayable<number | Factor | OffsetFactor>): Arrayable<number> {
+  v_synthetic(xs: Arrayable<number | Factor | [string] | OffsetFactor>): Arrayable<number> {
     return map(xs, (x) => this.synthetic(x))
   }
 
