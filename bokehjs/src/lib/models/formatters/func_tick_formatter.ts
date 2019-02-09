@@ -41,7 +41,7 @@ export class FuncTickFormatter extends TickFormatter {
     return values(this.args)
   }
 
-  protected _make_func(): Function {
+  /*protected*/ _make_func(): Function {
     const code = this.use_strict ? use_strict(this.code) : this.code
     return new Function("tick", "index", "ticks", ...this.names, "require", "exports", code)
   }
