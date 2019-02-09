@@ -1,5 +1,4 @@
 import {TickFormatter} from "./tick_formatter"
-import {AxisView} from "../axes/axis"
 import * as p from "core/properties"
 import {isNumber} from "core/util/types"
 
@@ -44,7 +43,7 @@ export class BasicTickFormatter extends TickFormatter {
     return Math.pow(10.0, this.power_limit_high)
   }
 
-  doFormat(ticks: number[], _axis_view: AxisView): string[] {
+  doFormat(ticks: number[], _opts: {loc: number}): string[] {
     if (ticks.length == 0)
       return []
 

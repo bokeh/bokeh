@@ -1,7 +1,6 @@
 import {TickFormatter} from "./tick_formatter"
 import {BasicTickFormatter} from "./basic_tick_formatter"
 import {LogTicker} from "../tickers/log_ticker"
-import {AxisView} from "../axes/axis"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 
@@ -39,7 +38,7 @@ export class LogTickFormatter extends TickFormatter {
       logger.warn("LogTickFormatter not configured with a ticker, using default base of 10 (labels will be incorrect if ticker base is not 10)")
   }
 
-  doFormat(ticks: number[], axis_view: AxisView): string[] {
+  doFormat(ticks: number[], opts: {loc: number}): string[] {
     if (ticks.length == 0)
       return []
 
@@ -56,7 +55,7 @@ export class LogTickFormatter extends TickFormatter {
     }
 
     if (small_interval)
-      return this.basic_formatter.doFormat(ticks, axis_view)
+      return this.basic_formatter.doFormat(ticks, opts)
     else
       return labels
   }

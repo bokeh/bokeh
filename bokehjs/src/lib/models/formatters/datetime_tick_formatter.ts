@@ -2,7 +2,6 @@ import {sprintf} from "sprintf-js"
 import tz = require("timezone")
 
 import {TickFormatter} from "./tick_formatter"
-import {AxisView} from "../axes/axis"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {zip, unzip, sort_by} from "core/util/array"
@@ -148,7 +147,7 @@ export class DatetimeTickFormatter extends TickFormatter {
     }
   }
 
-  doFormat(ticks: number[], _axis_view: AxisView): string[] {
+  doFormat(ticks: number[], _opts: {loc: number}): string[] {
     // In order to pick the right set of labels, we need to determine
     // the resolution of the ticks.  We can do this using a ticker if
     // it's provided, or by computing the resolution from the actual
