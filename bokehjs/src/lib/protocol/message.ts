@@ -1,5 +1,9 @@
 import {uniqueId} from "core/util/string"
 
+export type Socket = {
+  send(data: unknown): void
+}
+
 export interface Header {
   msgid?: string
   msgtype?: string
@@ -38,7 +42,7 @@ export class Message {
 
   static create_header(msgtype: string): Header {
     return {
-      msgid:   uniqueId(),
+      msgid: uniqueId(),
       msgtype,
     }
   }
@@ -53,7 +57,7 @@ export class Message {
       return false
   }
 
-  send(socket: WebSocket): void {
+  send(socket: Socket): void {
     const nb = this.header.num_buffers != null ? this.header.num_buffers : 0
     if (nb > 0)
       throw new Error("BokehJS only supports receiving buffers, not sending")
