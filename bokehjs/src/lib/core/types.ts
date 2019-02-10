@@ -13,6 +13,7 @@ export type TypedArray =
 export type Arrayable<T = Anything> = {
   readonly length: number
   [n: number]: T
+  [Symbol.iterator](): IterableIterator<T>
 }
 
 export type ArrayableOf<T> = T extends any ? Arrayable<T> : never
