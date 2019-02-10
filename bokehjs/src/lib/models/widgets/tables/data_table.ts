@@ -16,7 +16,7 @@ import {LayoutItem} from "core/layout"
 import {TableWidget} from "./table_widget"
 import {Column, TableColumn} from "./table_column"
 import {WidgetView} from "../widget"
-import {ColumnDataSource, Index} from "../../sources/column_data_source"
+import {ColumnDataSource} from "../../sources/column_data_source"
 import {CDSView} from "../../sources/cds_view"
 
 export const DTINDEX_NAME = "__bkdt_internal_index__"
@@ -59,10 +59,8 @@ export class DataProvider {
 
   setField(offset: number, field: string, value: any): void {
     // field assumed never to be internal index name (ctor would throw)
-    const patches: {[key: string]: [Index, any][]} = {}
     const index = this.index[offset]
-    patches[field] =  [ [index, value] ]
-    this.source.patch(patches)
+    this.source.patch({[field]: [[index, value]]})
   }
 
   getItemMetadata(_index: number): any {

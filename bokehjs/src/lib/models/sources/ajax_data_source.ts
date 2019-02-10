@@ -1,7 +1,8 @@
 import {RemoteDataSource} from "./remote_data_source"
+import {CallbackLike} from "../callbacks/callback"
 import {UpdateMode, HTTPMethod} from "core/enums"
+import {Data} from "core/types"
 import {logger} from "core/logging"
-import {isFunction} from "core/util/types"
 import * as p from "core/properties"
 
 export namespace AjaxDataSource {
@@ -10,7 +11,7 @@ export namespace AjaxDataSource {
   export type Props = RemoteDataSource.Props & {
     mode: p.Property<UpdateMode>
     content_type: p.Property<string>
-    adapter: p.Property<any>
+    adapter: p.Property<CallbackLike<AjaxDataSource, {response: Data}, Data> | null>
     http_headers: p.Property<{[key: string]: string}>
     max_size: p.Property<number>
     method: p.Property<HTTPMethod>
@@ -33,7 +34,7 @@ export class AjaxDataSource extends RemoteDataSource {
     this.define<AjaxDataSource.Props>({
       mode:         [ p.UpdateMode, 'replace'          ],
       content_type: [ p.String,     'application/json' ],
-      adapter:      [ p.Any                            ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
+      adapter:      [ p.Any,        null               ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
       http_headers: [ p.Any,         {}                ],
       max_size:     [ p.Number                         ],
       method:       [ p.HTTPMethod,  'POST'            ], // TODO (bev)  enum?
@@ -91,12 +92,9 @@ export class AjaxDataSource extends RemoteDataSource {
       const raw_data = JSON.parse(xhr.responseText)
 
       const {adapter} = this
-      let data: any = {}
+      let data: Data
       if (adapter != null)
-        if (isFunction(adapter))
-          data = adapter(this, {response: raw_data})
-        else
-          data = adapter.execute(this, {response: raw_data})
+        data = adapter.execute(this, {response: raw_data})
       else
         data = raw_data
 

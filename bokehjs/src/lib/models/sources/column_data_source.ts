@@ -54,8 +54,10 @@ export function stream_to_column(col: Arrayable, new_col: Arrayable, rollover?: 
     throw new Error("unsupported array types")
 }
 
+export type Slice = {start?: number, stop?: number, step?: number}
+
 // exported for testing
-export function slice(ind: number | {start?: number, stop?: number, step?: number}, length: number): [number, number, number] {
+export function slice(ind: number | Slice, length: number): [number, number, number] {
   let start: number, step: number, stop: number
 
   if (isNumber(ind)) {
@@ -71,46 +73,54 @@ export function slice(ind: number | {start?: number, stop?: number, step?: numbe
   return [start, stop, step]
 }
 
-export type Index = number | [number, number] | [number, number, number]
+export type Patch = [number, unknown] | [[number, number | Slice] | [number, number | Slice, number | Slice], unknown[]] | [Slice, unknown[]]
+
+export type PatchSet = {[key: string]: Patch[]}
 
 // exported for testing
-export function patch_to_column(col: Arrayable, patch: [Index, any][], shapes: Shape[]): Set<number> {
+export function patch_to_column(col: Arrayable, patch: Patch[], shapes: Shape[]): Set<number> {
   const patched: Set<number> = new Set()
   let patched_range = false
 
-  for (let [ind, value] of patch) {
+  for (const [ind, val] of patch) {
 
     // make the single index case look like the length-3 multi-index case
     let item: Arrayable, shape: Shape
+    let index: [number, number | Slice, number | Slice]
+    let value: unknown[]
     if (isArray(ind)) {
       const [i] = ind
       patched.add(i)
       shape = shapes[i]
       item = col[i]
+      value = val as unknown[]
+
+      // this is basically like NumPy's "newaxis", inserting an empty dimension
+      // makes length 2 and 3 multi-index cases uniform, so that the same code
+      // can handle both
+      if (ind.length === 2) {
+        shape = [1, shape[0]]
+        index = [ind[0], 0, ind[1]]
+      } else
+        index = ind
     } else  {
       if (isNumber(ind)) {
-        value = [value]
+        value = [val]
         patched.add(ind)
-      } else
+      } else {
+        value = val as unknown[]
         patched_range = true
+      }
 
-      ind = [0, 0, ind]
+      index = [0, 0, ind]
       shape = [1, col.length]
       item = col
     }
 
-    // this is basically like NumPy's "newaxis", inserting an empty dimension
-    // makes length 2 and 3 multi-index cases uniform, so that the same code
-    // can handle both
-    if (ind.length === 2) {
-      shape = [1, shape[0]]
-      ind = [ind[0], 0, ind[1]]
-    }
-
     // now this one nested loop handles all cases
     let flat_index = 0
-    const [istart, istop, istep] = slice(ind[1], shape[0])
-    const [jstart, jstop, jstep] = slice(ind[2], shape[1])
+    const [istart, istop, istep] = slice(index[1], shape[0])
+    const [jstart, jstop, jstep] = slice(index[2], shape[1])
 
     for (let i = istart; i < istop; i += istep) {
       for (let j = jstart; j < jstop; j += jstep) {
@@ -195,7 +205,7 @@ export class ColumnDataSource extends ColumnarDataSource {
     }
   }
 
-  patch(patches: {[key: string]: [Index, any][]}, setter_id?: string): void {
+  patch(patches: PatchSet, setter_id?: string): void {
     const {data} = this
     let patched: Set<number> = new Set()
     for (const k in patches) {
