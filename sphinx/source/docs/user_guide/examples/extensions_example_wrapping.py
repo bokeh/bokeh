@@ -8,10 +8,6 @@ from bokeh.io import show
 from bokeh.util.compiler import TypeScript
 
 TS_CODE = """
-// This file contains the JavaScript (CoffeeScript) implementation
-// for a Bokeh custom extension. The "surface3d.py" contains the
-// python counterpart.
-//
 // This custom model wraps one part of the third-party vis.js library:
 //
 //     http://visjs.org/index.html
@@ -22,100 +18,100 @@ TS_CODE = """
 // These "require" lines are similar to python "import" statements
 import * as p from "core/properties"
 import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
-import {LayoutItem} from "core/layout/index" // XXX: should be core/layout
+import {LayoutItem} from "core/layout/index"
 import {ColumnDataSource} from 'models/sources/column_data_source'
 
 declare namespace vis {
-    class Graph3d {
-        constructor(el: HTMLElement, data: object, OPTIONS: object)
-        setData(data: vis.DataSet): any
-    }
-    class DataSet {
-        add(data: any): void
-    }
+  class Graph3d {
+    constructor(el: HTMLElement, data: object, OPTIONS: object)
+    setData(data: vis.DataSet): any
+  }
+  class DataSet {
+    add(data: any): void
+  }
 }
 
 interface HTMLScriptLoader extends HTMLScriptElement {
-    onreadystatechange: any
+  onreadystatechange: any
 }
 
 // This defines some default options for the Graph3d feature of vis.js
 // See: http://visjs.org/graph3d_examples.html for more details.
 const OPTIONS = {
-    width: '600px',
-    height: '600px',
-    style: 'surface',
-    showPerspective: true,
-    showGrid: true,
-    keepAspectRatio: true,
-    verticalRatio: 1.0,
-    legendLabel: 'stuff',
-    cameraPosition: {
-        horizontal: -0.35,
-        vertical: 0.22,
-        distance: 1.8,
-    },
+  width: '600px',
+  height: '600px',
+  style: 'surface',
+  showPerspective: true,
+  showGrid: true,
+  keepAspectRatio: true,
+  verticalRatio: 1.0,
+  legendLabel: 'stuff',
+  cameraPosition: {
+    horizontal: -0.35,
+    vertical: 0.22,
+    distance: 1.8,
+  },
 }
 // To create custom model extensions that will render on to the HTML canvas
 // or into the DOM, we must create a View subclass for the model.
 //
 // In this case we will subclass from the existing BokehJS ``LayoutDOMView``
 export class Surface3dView extends LayoutDOMView {
-    model: Surface3d
-    _graph: vis.Graph3d
+  model: Surface3d
+  _graph: vis.Graph3d
 
-    initialize(options: any) {
-        super.initialize(options)
+  initialize(options: any) {
+    super.initialize(options)
 
-        const url = "https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis.min.js"
-        const script = document.createElement('script') as HTMLScriptLoader
-        script.src = url
-        script.async = false
-        script.onreadystatechange = (script.onload = () => this._init())
-        return document.querySelector("head")!.appendChild(script)
+    const url = "https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis.min.js"
+    const script = document.createElement('script') as HTMLScriptLoader
+    script.src = url
+    script.async = false
+    script.onreadystatechange = (script.onload = () => this._init())
+    return document.querySelector("head")!.appendChild(script)
+  }
+
+  _init() {
+    // Create a new Graph3s using the vis.js API. This assumes the vis.js has
+    // already been loaded (e.g. in a custom app template). In the future Bokeh
+    // models will be able to specify and load external scripts automatically.
+    //
+    // BokehJS Views create <div> elements by default, accessible as this.el.
+    // Many Bokeh views ignore this default <div>, and instead do things like
+    // draw to the HTML canvas. In this case though, we use the <div> to attach
+    // a Graph3d to the DOM.
+    this._graph = new vis.Graph3d(this.el, this.get_data(), OPTIONS)
+
+    // Set a listener so that when the Bokeh data source has a change
+    // event, we can process the new data
+    return this.connect(this.model.data_source.change, () => {
+      return this._graph.setData(this.get_data())
+    })
+  }
+
+  get child_models(): LayoutDOM[] {
+    return []
+  }
+
+  // This is the callback executed when the Bokeh data has an change. Its basic
+  // function is to adapt the Bokeh data source to the vis.js DataSet format.
+  get_data(): vis.DataSet {
+    const data = new vis.DataSet()
+    const source = this.model.data_source
+    for (let i = 0; i < source.get_length()!; i++) {
+      data.add({
+        x: source.get_column(this.model.x)![i],
+        y: source.get_column(this.model.y)![i],
+        z: source.get_column(this.model.z)![i],
+      })
     }
+    return data
+  }
 
-    _init() {
-        // Create a new Graph3s using the vis.js API. This assumes the vis.js has
-        // already been loaded (e.g. in a custom app template). In the future Bokeh
-        // models will be able to specify and load external scripts automatically.
-        //
-        // BokehJS Views create <div> elements by default, accessible as @el. Many
-        // Bokeh views ignore this default <div>, and instead do things like draw
-        // to the HTML canvas. In this case though, we use the <div> to attach a
-        // Graph3d to the DOM.
-        this._graph = new vis.Graph3d(this.el, this.get_data(), OPTIONS)
-
-        // Set a listener so that when the Bokeh data source has a change
-        // event, we can process the new data
-        return this.connect(this.model.data_source.change, () => {
-            return this._graph.setData(this.get_data())
-        })
-    }
-
-    get child_models(): LayoutDOM[] {
-        return []
-    }
-
-    // This is the callback executed when the Bokeh data has an change. Its basic
-    // function is to adapt the Bokeh data source to the vis.js DataSet format.
-    get_data(): vis.DataSet {
-        const data = new vis.DataSet()
-        const source = this.model.data_source
-        for (let i = 0, end = source.get_length()!, asc = 0 <= end; asc ? i < end : i > end; asc ? i++ : i--) {
-            data.add({
-                x: source.get_column(this.model.x)![i],
-                y: source.get_column(this.model.y)![i],
-                z: source.get_column(this.model.z)![i],
-            })
-        }
-        return data
-    }
-
-    _update_layout() {
-        this.layout = new LayoutItem()
-        return this.layout.set_sizing(this.box_sizing())
-    }
+  _update_layout() {
+    this.layout = new LayoutItem()
+    return this.layout.set_sizing(this.box_sizing())
+  }
 
 }
 
@@ -124,49 +120,50 @@ export class Surface3dView extends LayoutDOMView {
 // an element that can position itself in the DOM according to a Bokeh layout,
 // we subclass from ``LayoutDOM``
 export namespace Surface3d {
-    export interface Attrs extends LayoutDOM.Attrs {
-        x: string,
-        y: string,
-        z: string,
-        data_source: ColumnDataSource
-    }
+  export type Attrs = p.AttrsOf<Surface3d.Props>
 
-    export interface Props extends LayoutDOM.Props {}
+  export type Props = LayoutDOM.Props & {
+    x: p.Property<string>,
+    y: p.Property<string>,
+    z: p.Property<string>,
+    data_source: p.Property<ColumnDataSource>
+  }
 }
 
 export interface Surface3d extends Surface3d.Attrs {}
 
 export class Surface3d extends LayoutDOM {
-    properties: Surface3d.Props
+  properties: Surface3d.Props
 
-    constructor(attrs?: Partial<Surface3d.Attrs>) {
-        super(attrs)
-    }
+  constructor(attrs?: Partial<Surface3d.Attrs>) {
+    super(attrs)
+  }
 
-    static initClass() {
+  static initClass() {
 
-        // This is usually boilerplate. In some cases there may not be a view.
-        this.prototype.default_view = Surface3dView
+    // This is usually boilerplate. In some cases there may not be a view.
+    this.prototype.default_view = Surface3dView
 
-        // The ``type`` class attribute should generally match exactly the name
-        // of the corresponding Python class.
-        this.prototype.type = "Surface3d"
+    // The ``type`` class attribute should generally match exactly the name
+    // of the corresponding Python class.
+    this.prototype.type = "Surface3d"
 
-        // The @define block adds corresponding "properties" to the JS model. These
-        // should basically line up 1-1 with the Python model class. Most property
-        // types have counterparts, e.g. ``bokeh.core.properties.String`` will be
-        // ``p.String`` in the JS implementatin. Where the JS type system is not yet
-        // as rich, you can use ``p.Any`` as a "wildcard" property type.
-        this.define({
-            x: [p.String],
-            y: [p.String],
-            z: [p.String],
-            data_source: [p.Instance],
-        })
-    }
+    // The @define block adds corresponding "properties" to the JS model. These
+    // should basically line up 1-1 with the Python model class. Most property
+    // types have counterparts, e.g. ``bokeh.core.properties.String`` will be
+    // ``p.String`` in the JS implementatin. Where the JS type system is not yet
+    // as rich, you can use ``p.Any`` as a "wildcard" property type.
+    this.define<Surface3d.Props>({
+      x:            [p.String],
+      y:            [p.String],
+      z:            [p.String],
+      data_source:  [p.Instance],
+    })
+  }
 }
 Surface3d.initClass()
 """
+
 
 # This custom extension model will have a DOM view that should layout-able in
 # Bokeh layouts, so use ``LayoutDOM`` as the base class. If you wanted to create
@@ -201,12 +198,13 @@ class Surface3d(LayoutDOM):
 
     z = String
 
+
 x = np.arange(0, 300, 10)
 y = np.arange(0, 300, 10)
 xx, yy = np.meshgrid(x, y)
 xx = xx.ravel()
 yy = yy.ravel()
-value = np.sin(xx/50) * np.cos(yy/50) * 50 + 50
+value = np.sin(xx / 50) * np.cos(yy / 50) * 50 + 50
 
 source = ColumnDataSource(data=dict(x=xx, y=yy, z=value))
 
