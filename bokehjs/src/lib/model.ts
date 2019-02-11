@@ -5,7 +5,7 @@ import * as p from "./core/properties"
 import {isString} from "./core/util/types"
 import {isEmpty} from "./core/util/object"
 import {logger} from "./core/logging"
-import {CallbackLike} from "./models/callbacks/callback"
+import {CallbackLike0} from "./models/callbacks/callback"
 
 export namespace Model {
   export type Attrs = p.AttrsOf<Props>
@@ -13,8 +13,8 @@ export namespace Model {
   export type Props = HasProps.Props & {
     tags: p.Property<string[]>
     name: p.Property<string | null>
-    js_property_callbacks: p.Property<{[key: string]: CallbackLike<Model>[]}>
-    js_event_callbacks: p.Property<{[key: string]: CallbackLike<BokehEvent>[]}>
+    js_property_callbacks: p.Property<{[key: string]: CallbackLike0<Model>[]}>
+    js_event_callbacks: p.Property<{[key: string]: CallbackLike0<BokehEvent>[]}>
     subscribed_events: p.Property<string[]>
   }
 }

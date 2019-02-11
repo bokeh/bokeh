@@ -1,9 +1,10 @@
 import {SelectTool, SelectToolView} from "./select_tool"
-import {CallbackLike} from "../../callbacks/callback"
+import {CallbackLike1} from "../../callbacks/callback"
 import {PolyAnnotation} from "../../annotations/poly_annotation"
 import {PolyGeometry} from "core/geometry"
 import {GestureEvent, KeyEvent} from "core/ui_events"
 import {Keys} from "core/dom"
+import {Arrayable} from "core/types"
 import * as p from "core/properties"
 
 export class LassoSelectToolView extends SelectToolView {
@@ -103,7 +104,9 @@ export namespace LassoSelectTool {
 
   export type Props = SelectTool.Props & {
     select_every_mousemove: p.Property<boolean>
-    callback: p.Property<CallbackLike<LassoSelectTool> | null>
+    callback: p.Property<CallbackLike1<LassoSelectTool, {
+      geometry: PolyGeometry & {x: Arrayable<number>, y: Arrayable<number>}
+    }> | null>
     overlay: p.Property<PolyAnnotation>
   }
 }

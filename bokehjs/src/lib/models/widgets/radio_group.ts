@@ -3,7 +3,7 @@ import {uniqueId} from "core/util/string"
 import * as p from "core/properties"
 
 import {Widget, WidgetView} from "./widget"
-import {CallbackLike} from "../callbacks/callback"
+import {CallbackLike0} from "../callbacks/callback"
 
 export class RadioGroupView extends WidgetView {
   model: RadioGroup
@@ -50,7 +50,7 @@ export namespace RadioGroup {
     active: p.Property<number>
     labels: p.Property<string[]>
     inline: p.Property<boolean>
-    callback: p.Property<CallbackLike<RadioGroup> | null>
+    callback: p.Property<CallbackLike0<RadioGroup> | null>
   }
 }
 

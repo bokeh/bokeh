@@ -1,5 +1,5 @@
 import {Widget, WidgetView} from "./widget"
-import {CallbackLike} from "../callbacks/callback"
+import {CallbackLike0} from "../callbacks/callback"
 
 import {label} from "core/dom"
 import * as p from "core/properties"
@@ -35,7 +35,7 @@ export namespace InputWidget {
 
   export type Props = Widget.Props & {
     title: p.Property<string>
-    callback: p.Property<CallbackLike<InputWidget> | null>
+    callback: p.Property<CallbackLike0<InputWidget> | null>
   }
 }
 

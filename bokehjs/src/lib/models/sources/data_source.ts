@@ -1,6 +1,6 @@
 import {Model} from "../../model"
 import {Selection} from "../selections/selection"
-import {CallbackLike} from "../callbacks/callback"
+import {CallbackLike0} from "../callbacks/callback"
 import * as p from "core/properties"
 
 export namespace DataSource {
@@ -8,7 +8,7 @@ export namespace DataSource {
 
   export type Props = Model.Props & {
     selected: p.Property<Selection>
-    callback: p.Property<CallbackLike<DataSource> | null>
+    callback: p.Property<CallbackLike0<DataSource> | null>
   }
 }
 

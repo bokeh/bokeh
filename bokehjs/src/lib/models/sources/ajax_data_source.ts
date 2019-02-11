@@ -1,5 +1,5 @@
 import {RemoteDataSource} from "./remote_data_source"
-import {CallbackLike} from "../callbacks/callback"
+import {CallbackLike1} from "../callbacks/callback"
 import {UpdateMode, HTTPMethod} from "core/enums"
 import {Data} from "core/types"
 import {logger} from "core/logging"
@@ -11,7 +11,7 @@ export namespace AjaxDataSource {
   export type Props = RemoteDataSource.Props & {
     mode: p.Property<UpdateMode>
     content_type: p.Property<string>
-    adapter: p.Property<CallbackLike<AjaxDataSource, {response: Data}, Data> | null>
+    adapter: p.Property<CallbackLike1<AjaxDataSource, {response: Data}, Data> | null>
     http_headers: p.Property<{[key: string]: string}>
     max_size: p.Property<number>
     method: p.Property<HTTPMethod>

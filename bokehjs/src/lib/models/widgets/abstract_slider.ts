@@ -10,7 +10,7 @@ import {Orientation, SliderCallbackPolicy} from "core/enums"
 import {HTML, SizingPolicy} from "core/layout"
 
 import {Widget, WidgetView} from "./widget"
-import {CallbackLike} from "../callbacks/callback"
+import {CallbackLike0} from "../callbacks/callback"
 
 export interface SliderSpec {
   start: number
@@ -252,7 +252,7 @@ export namespace AbstractSlider {
     orientation: p.Property<Orientation>
     direction: p.Property<"ltr" | "rtl">
     tooltips: p.Property<boolean>
-    callback: p.Property<CallbackLike<AbstractSlider> | null>
+    callback: p.Property<CallbackLike0<AbstractSlider> | null>
     callback_throttle: p.Property<number>
     callback_policy: p.Property<SliderCallbackPolicy>
     bar_color: p.Property<Color>
