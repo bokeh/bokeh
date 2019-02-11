@@ -22,7 +22,7 @@ export namespace Toolbar {
 
   export type Props = ToolbarBase.Props & {
     active_drag: p.Property<Drag | "auto">
-    active_inspect: p.Property<Inspection | Inspection[] | "auto">
+    active_inspect: p.Property<Inspection | Inspection[] | "auto" | null>
     active_scroll: p.Property<Scroll | "auto">
     active_tap: p.Property<Tap | "auto">
     active_multi: p.Property<GestureTool | null>
