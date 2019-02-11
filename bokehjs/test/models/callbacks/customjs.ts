@@ -32,7 +32,7 @@ describe("customjs module", () => {
       d.add_root(r)
       const json = d.to_json_string()
       const parsed = JSON.parse(json)
-      parsed['version'] = js_version
+      parsed.version = js_version
       const copy = Document.from_json_string(JSON.stringify(parsed))
       const r_copy = copy.get_model_by_id(r.id)! as CustomJS
       const rng_copy = copy.get_model_by_id(rng.id)! as CustomJS
@@ -101,7 +101,7 @@ describe("customjs module", () => {
       // is reliable in some JS runtimes
       const r = new CustomJS({args: {
           foo4: "foo4", foo5: "foo5", foo6: "foo6",
-          foo1: "foo1", foo2: "foo2", foo3: "foo3"
+          foo1: "foo1", foo2: "foo2", foo3: "foo3",
         }, code: "return foo1 + foo2 + foo3 + foo4 + foo5 + foo6", use_strict: true})
       expect(r.execute({})).to.be.equal("foo1foo2foo3foo4foo5foo6")
     })

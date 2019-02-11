@@ -17,9 +17,9 @@ describe("Legend", () => {
           label: ['l1', 'l2', 'l2', 'l1'],
         },
       })
-      const gr = new GlyphRenderer({'data_source': source})
-      const item_1 = new LegendItem({'label': {'field': 'label'}, 'renderers': [gr]})
-      const item_2 = new LegendItem({'label': {'value': 'l3'}})
+      const gr = new GlyphRenderer({data_source: source})
+      const item_1 = new LegendItem({label: {field: 'label'}, renderers: [gr]})
+      const item_2 = new LegendItem({label: {value: 'l3'}})
 
       const legend = new Legend({
         items: [item_1, item_2],

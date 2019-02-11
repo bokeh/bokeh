@@ -141,46 +141,46 @@ describe("factor_range module", () => {
       it("should evenly map a list of factors starting at 0.5 (with no offset by default)", () => {
         const r0 = map_two_levels([['a', '1']], 0, 0)
         expect(r0[0]).to.deep.equal({
-          a: {value: 0.5, mapping: {'1': {value: 0.5}}}
+          a: {value: 0.5, mapping: {1: {value: 0.5}}},
         })
         expect(r0[1]).to.deep.equal(['a'])
         expect(r0[2]).to.be.equal(0)
 
         const r1 = map_two_levels([['a', '1'], ['a', '2']], 0, 0)
         expect(r1[0]).to.deep.equal({
-          a: {value: 1, mapping: {'1': {value: 0.5}, '2': {value: 1.5}}}
+          a: {value: 1, mapping: {1: {value: 0.5}, 2: {value: 1.5}}},
         })
         expect(r1[1]).to.deep.equal(['a'])
         expect(r1[2]).to.be.equal(0)
 
         const r2 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3']], 0, 0)
         expect(r2[0]).to.deep.equal({
-          a: {value: 1.5, mapping: {'1': {value: 0.5}, '2': {value: 1.5}, '3': {value: 2.5}}}
+          a: {value: 1.5, mapping: {1: {value: 0.5}, 2: {value: 1.5}, 3: {value: 2.5}}},
         })
         expect(r2[1]).to.deep.equal(['a'])
         expect(r2[2]).to.be.equal(0)
 
         const r3 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1']], 0, 0)
         expect(r3[0]).to.deep.equal({
-          a: {value: 1.5, mapping: {'1': {value: 0.5}, '2': {value: 1.5}, '3': {value: 2.5}}},
-          b: {value: 3.5, mapping: {'1': {value: 3.5}}}
+          a: {value: 1.5, mapping: {1: {value: 0.5}, 2: {value: 1.5}, 3: {value: 2.5}}},
+          b: {value: 3.5, mapping: {1: {value: 3.5}}},
         })
         expect(r3[1]).to.deep.equal(['a', 'b'])
         expect(r3[2]).to.be.equal(0)
 
         const r4 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4']], 0, 0)
         expect(r4[0]).to.deep.equal({
-          a: {value: 1.5, mapping: {'1': {value: 0.5}, '2': {value: 1.5}, '3': {value: 2.5}}},
-          b: {value: 4,   mapping: {'1': {value: 3.5}, '4': {value: 4.5}}}
+          a: {value: 1.5, mapping: {1: {value: 0.5}, 2: {value: 1.5}, 3: {value: 2.5}}},
+          b: {value: 4,   mapping: {1: {value: 3.5}, 4: {value: 4.5}}},
         })
         expect(r4[1]).to.deep.equal(['a', 'b'])
         expect(r4[2]).to.be.equal(0)
 
         const r5 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4'], ['c', '0']], 0, 0)
         expect(r5[0]).to.deep.equal({
-          a: {value: 1.5, mapping: {'1': {value: 0.5}, '2': {value: 1.5}, '3': {value: 2.5}}},
-          b: {value: 4,   mapping: {'1': {value: 3.5}, '4': {value: 4.5}}},
-          c: {value: 5.5, mapping: {'0': {value: 5.5}}}
+          a: {value: 1.5, mapping: {1: {value: 0.5}, 2: {value: 1.5}, 3: {value: 2.5}}},
+          b: {value: 4,   mapping: {1: {value: 3.5}, 4: {value: 4.5}}},
+          c: {value: 5.5, mapping: {0: {value: 5.5}}},
         })
         expect(r5[1]).to.deep.equal(['a', 'b', 'c'])
         expect(r5[2]).to.be.equal(0)
@@ -189,46 +189,46 @@ describe("factor_range module", () => {
       it("should also apply an offset if provided", () => {
         const r0 = map_two_levels([['a', '1']], 0, 0, 1)
         expect(r0[0]).to.deep.equal({
-          a: {value: 1.5, mapping: {'1': {value: 1.5}}},
+          a: {value: 1.5, mapping: {1: {value: 1.5}}},
         })
         expect(r0[1]).to.deep.equal(['a'])
         expect(r0[2]).to.be.equal(0)
 
         const r1 = map_two_levels([['a', '1'], ['a', '2']], 0, 0, 1)
         expect(r1[0]).to.deep.equal({
-          a: {value: 2, mapping: {'1': {value: 1.5}, '2': {value: 2.5}}},
+          a: {value: 2, mapping: {1: {value: 1.5}, 2: {value: 2.5}}},
         })
         expect(r1[1]).to.deep.equal(['a'])
         expect(r1[2]).to.be.equal(0)
 
         const r2 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3']], 0, 0, 1)
         expect(r2[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {'1': {value: 1.5}, '2': {value: 2.5}, '3': {value: 3.5}}},
+          a: {value: 2.5, mapping: {1: {value: 1.5}, 2: {value: 2.5}, 3: {value: 3.5}}},
         })
         expect(r2[1]).to.deep.equal(['a'])
         expect(r2[2]).to.be.equal(0)
 
         const r3 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1']], 0, 0, 1)
         expect(r3[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {'1': {value: 1.5}, '2': {value: 2.5}, '3': {value: 3.5}}},
-          b: {value: 4.5, mapping: {'1': {value: 4.5}}},
+          a: {value: 2.5, mapping: {1: {value: 1.5}, 2: {value: 2.5}, 3: {value: 3.5}}},
+          b: {value: 4.5, mapping: {1: {value: 4.5}}},
         })
         expect(r3[1]).to.deep.equal(['a', 'b'])
         expect(r3[2]).to.be.equal(0)
 
         const r4 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4']], 0, 0, 1)
         expect(r4[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {'1': {value: 1.5}, '2': {value: 2.5}, '3': {value: 3.5}}},
-          b: {value: 5  , mapping: {'1': {value: 4.5}, '4': {value: 5.5}}},
+          a: {value: 2.5, mapping: {1: {value: 1.5}, 2: {value: 2.5}, 3: {value: 3.5}}},
+          b: {value: 5  , mapping: {1: {value: 4.5}, 4: {value: 5.5}}},
         })
         expect(r4[1]).to.deep.equal(['a', 'b'])
         expect(r4[2]).to.be.equal(0)
 
         const r5 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4'], ['c', '0']], 0, 0, 1)
         expect(r5[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {'1': {value: 1.5}, '2': {value: 2.5}, '3': {value: 3.5}}},
-          b: {value: 5  , mapping: {'1': {value: 4.5}, '4': {value: 5.5}}},
-          c: {value: 6.5, mapping: {'0': {value: 6.5}}},
+          a: {value: 2.5, mapping: {1: {value: 1.5}, 2: {value: 2.5}, 3: {value: 3.5}}},
+          b: {value: 5  , mapping: {1: {value: 4.5}, 4: {value: 5.5}}},
+          c: {value: 6.5, mapping: {0: {value: 6.5}}},
         })
         expect(r5[1]).to.deep.equal(['a', 'b', 'c'])
         expect(r5[2]).to.be.equal(0)
@@ -240,46 +240,46 @@ describe("factor_range module", () => {
       it("should map a list of factors starting at 0.5 (with no offset by default)", () => {
         const r0 = map_two_levels([['a', '1']], 2, 0)
         expect(r0[0]).to.deep.equal({
-          a: {value: 0.5, mapping: {'1': {value: 0.5}}},
+          a: {value: 0.5, mapping: {1: {value: 0.5}}},
         })
         expect(r0[1]).to.deep.equal(['a'])
         expect(r0[2]).to.be.equal(0)
 
         const r1 = map_two_levels([['a', '1'], ['a', '2']], 2, 0)
         expect(r1[0]).to.deep.equal({
-          a: {value: 1, mapping: {'1': {value: 0.5}, '2': {value: 1.5}}},
+          a: {value: 1, mapping: {1: {value: 0.5}, 2: {value: 1.5}}},
         })
         expect(r1[1]).to.deep.equal(['a'])
         expect(r1[2]).to.be.equal(0)
 
         const r2 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3']], 2, 0)
         expect(r2[0]).to.deep.equal({
-          a: {value: 1.5, mapping: {'1': {value: 0.5}, '2': {value: 1.5}, '3': {value: 2.5}}},
+          a: {value: 1.5, mapping: {1: {value: 0.5}, 2: {value: 1.5}, 3: {value: 2.5}}},
         })
         expect(r2[1]).to.deep.equal(['a'])
         expect(r2[2]).to.be.equal(0)
 
         const r3 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1']], 2, 0)
         expect(r3[0]).to.deep.equal({
-          a: {value: 1.5, mapping: {'1': {value: 0.5}, '2': {value: 1.5}, '3': {value: 2.5}}},
-          b: {value: 5.5, mapping: {'1': {value: 5.5}}},
+          a: {value: 1.5, mapping: {1: {value: 0.5}, 2: {value: 1.5}, 3: {value: 2.5}}},
+          b: {value: 5.5, mapping: {1: {value: 5.5}}},
         })
         expect(r3[1]).to.deep.equal(['a', 'b'])
         expect(r3[2]).to.be.equal(2)
 
         const r4 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4']], 2, 0)
         expect(r4[0]).to.deep.equal({
-          a: {value: 1.5, mapping: {'1': {value: 0.5}, '2': {value: 1.5}, '3': {value: 2.5}}},
-          b: {value: 6,   mapping: {'1': {value: 5.5}, '4': {value: 6.5}}},
+          a: {value: 1.5, mapping: {1: {value: 0.5}, 2: {value: 1.5}, 3: {value: 2.5}}},
+          b: {value: 6,   mapping: {1: {value: 5.5}, 4: {value: 6.5}}},
         })
         expect(r4[1]).to.deep.equal(['a', 'b'])
         expect(r4[2]).to.be.equal(2)
 
         const r5 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4'], ['c', '0']], 2, 0)
         expect(r5[0]).to.deep.equal({
-          a: {value: 1.5, mapping: {'1': {value: 0.5}, '2': {value: 1.5}, '3': {value: 2.5}}},
-          b: {value: 6,   mapping: {'1': {value: 5.5}, '4': {value: 6.5}}},
-          c: {value: 9.5, mapping: {'0': {value: 9.5}}},
+          a: {value: 1.5, mapping: {1: {value: 0.5}, 2: {value: 1.5}, 3: {value: 2.5}}},
+          b: {value: 6,   mapping: {1: {value: 5.5}, 4: {value: 6.5}}},
+          c: {value: 9.5, mapping: {0: {value: 9.5}}},
         })
         expect(r5[1]).to.deep.equal(['a', 'b', 'c'])
         expect(r5[2]).to.be.equal(4)
@@ -288,46 +288,46 @@ describe("factor_range module", () => {
       it("should also apply an offset if provided", () => {
         const r0 = map_two_levels([['a', '1']], 2, 0, 1)
         expect(r0[0]).to.deep.equal({
-          a: {value: 1.5, mapping: {'1': {value: 1.5}}},
+          a: {value: 1.5, mapping: {1: {value: 1.5}}},
         })
         expect(r0[1]).to.deep.equal(['a'])
         expect(r0[2]).to.be.equal(0)
 
         const r1 = map_two_levels([['a', '1'], ['a', '2']], 2, 0, 1)
         expect(r1[0]).to.deep.equal({
-          a: {value: 2, mapping: {'1': {value: 1.5}, '2': {value: 2.5}}},
+          a: {value: 2, mapping: {1: {value: 1.5}, 2: {value: 2.5}}},
         })
         expect(r1[1]).to.deep.equal(['a'])
         expect(r1[2]).to.be.equal(0)
 
         const r2 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3']], 2, 0, 1)
         expect(r2[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {'1': {value: 1.5}, '2': {value: 2.5}, '3': {value: 3.5}}},
+          a: {value: 2.5, mapping: {1: {value: 1.5}, 2: {value: 2.5}, 3: {value: 3.5}}},
         })
         expect(r2[1]).to.deep.equal(['a'])
         expect(r2[2]).to.be.equal(0)
 
         const r3 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1']], 2, 0, 1)
         expect(r3[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {'1': {value: 1.5}, '2': {value: 2.5}, '3': {value: 3.5}}},
-          b: {value: 6.5, mapping: {'1': {value: 6.5}}},
+          a: {value: 2.5, mapping: {1: {value: 1.5}, 2: {value: 2.5}, 3: {value: 3.5}}},
+          b: {value: 6.5, mapping: {1: {value: 6.5}}},
         })
         expect(r3[1]).to.deep.equal(['a', 'b'])
         expect(r3[2]).to.be.equal(2)
 
         const r4 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4']], 2, 0, 1)
         expect(r4[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {'1': {value: 1.5}, '2': {value: 2.5}, '3': {value: 3.5}}},
-          b: {value: 7  , mapping: {'1': {value: 6.5}, '4': {value: 7.5}}},
+          a: {value: 2.5, mapping: {1: {value: 1.5}, 2: {value: 2.5}, 3: {value: 3.5}}},
+          b: {value: 7  , mapping: {1: {value: 6.5}, 4: {value: 7.5}}},
         })
         expect(r4[1]).to.deep.equal(['a', 'b'])
         expect(r4[2]).to.be.equal(2)
 
         const r5 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4'], ['c', '0']], 2, 0, 1)
         expect(r5[0]).to.deep.equal({
-          a: {value: 2.5 , mapping: {'1': {value:  1.5}, '2': {value: 2.5}, '3': {value: 3.5}}},
-          b: {value: 7   , mapping: {'1': {value:  6.5}, '4': {value: 7.5}}},
-          c: {value: 10.5, mapping: {'0': {value: 10.5}}}
+          a: {value: 2.5 , mapping: {1: {value:  1.5}, 2: {value: 2.5}, 3: {value: 3.5}}},
+          b: {value: 7   , mapping: {1: {value:  6.5}, 4: {value: 7.5}}},
+          c: {value: 10.5, mapping: {0: {value: 10.5}}},
         })
         expect(r5[1]).to.deep.equal(['a', 'b', 'c'])
         expect(r5[2]).to.be.equal(4)
@@ -339,46 +339,46 @@ describe("factor_range module", () => {
       it("should map a list of factors starting at 0.5 (with no offset by default)", () => {
         const r0 = map_two_levels([['a', '1']], 0, 1)
         expect(r0[0]).to.deep.equal({
-          a: {value: 0.5, mapping: {'1': {value: 0.5}}},
+          a: {value: 0.5, mapping: {1: {value: 0.5}}},
         })
         expect(r0[1]).to.deep.equal(['a'])
         expect(r0[2]).to.be.equal(0)
 
         const r1 = map_two_levels([['a', '1'], ['a', '2']], 0, 1)
         expect(r1[0]).to.deep.equal({
-          a: {value: 1.5, mapping: {'1': {value: 0.5}, '2': {value: 2.5}}},
+          a: {value: 1.5, mapping: {1: {value: 0.5}, 2: {value: 2.5}}},
         })
         expect(r1[1]).to.deep.equal(['a'])
         expect(r1[2]).to.be.equal(1)
 
         const r2 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3']], 0, 1)
         expect(r2[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {'1': {value: 0.5}, '2': {value: 2.5}, '3': {value: 4.5}}},
+          a: {value: 2.5, mapping: {1: {value: 0.5}, 2: {value: 2.5}, 3: {value: 4.5}}},
         })
         expect(r2[1]).to.deep.equal(['a'])
         expect(r2[2]).to.be.equal(2)
 
         const r3 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1']], 0, 1)
         expect(r3[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {'1': {value: 0.5}, '2': {value: 2.5}, '3': {value: 4.5}}},
-          b: {value: 5.5, mapping: {'1': {value: 5.5}}},
+          a: {value: 2.5, mapping: {1: {value: 0.5}, 2: {value: 2.5}, 3: {value: 4.5}}},
+          b: {value: 5.5, mapping: {1: {value: 5.5}}},
         })
         expect(r3[1]).to.deep.equal(['a', 'b'])
         expect(r3[2]).to.be.equal(2)
 
         const r4 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4']], 0, 1)
         expect(r4[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {'1': {value: 0.5}, '2': {value: 2.5}, '3': {value: 4.5}}},
-          b: {value: 6.5, mapping: {'1': {value: 5.5}, '4': {value: 7.5}}},
+          a: {value: 2.5, mapping: {1: {value: 0.5}, 2: {value: 2.5}, 3: {value: 4.5}}},
+          b: {value: 6.5, mapping: {1: {value: 5.5}, 4: {value: 7.5}}},
         })
         expect(r4[1]).to.deep.equal(['a', 'b'])
         expect(r4[2]).to.be.equal(3)
 
         const r5 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4'], ['c', '0']], 0, 1)
         expect(r5[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {'1': {value: 0.5}, '2': {value: 2.5}, '3': {value: 4.5}}},
-          b: {value: 6.5, mapping: {'1': {value: 5.5}, '4': {value: 7.5}}},
-          c: {value: 8.5, mapping: {'0': {value: 8.5}}},
+          a: {value: 2.5, mapping: {1: {value: 0.5}, 2: {value: 2.5}, 3: {value: 4.5}}},
+          b: {value: 6.5, mapping: {1: {value: 5.5}, 4: {value: 7.5}}},
+          c: {value: 8.5, mapping: {0: {value: 8.5}}},
         })
         expect(r5[1]).to.deep.equal(['a', 'b', 'c'])
         expect(r5[2]).to.be.equal(3)
@@ -387,46 +387,46 @@ describe("factor_range module", () => {
       it("should also apply an offset if provided", () => {
         const r0 = map_two_levels([['a', '1']], 0, 1, 1)
         expect(r0[0]).to.deep.equal({
-          a: {value: 1.5, mapping: {'1': {value: 1.5}}},
+          a: {value: 1.5, mapping: {1: {value: 1.5}}},
         })
         expect(r0[1]).to.deep.equal(['a'])
         expect(r0[2]).to.be.equal(0)
 
         const r1 = map_two_levels([['a', '1'], ['a', '2']], 0, 1, 1)
         expect(r1[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {'1': {value: 1.5}, '2': {value: 3.5}}},
+          a: {value: 2.5, mapping: {1: {value: 1.5}, 2: {value: 3.5}}},
         })
         expect(r1[1]).to.deep.equal(['a'])
         expect(r1[2]).to.be.equal(1)
 
         const r2 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3']], 0, 1, 1)
         expect(r2[0]).to.deep.equal({
-          a: {value: 3.5, mapping: {'1': {value: 1.5}, '2': {value: 3.5}, '3': {value: 5.5}}},
+          a: {value: 3.5, mapping: {1: {value: 1.5}, 2: {value: 3.5}, 3: {value: 5.5}}},
         })
         expect(r2[1]).to.deep.equal(['a'])
         expect(r2[2]).to.be.equal(2)
 
         const r3 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1']], 0, 1, 1)
         expect(r3[0]).to.deep.equal({
-          a: {value: 3.5, mapping: {'1': {value: 1.5}, '2': {value: 3.5}, '3': {value: 5.5}}},
-          b: {value: 6.5, mapping: {'1': {value: 6.5}}},
+          a: {value: 3.5, mapping: {1: {value: 1.5}, 2: {value: 3.5}, 3: {value: 5.5}}},
+          b: {value: 6.5, mapping: {1: {value: 6.5}}},
         })
         expect(r3[1]).to.deep.equal(['a', 'b'])
         expect(r3[2]).to.be.equal(2)
 
         const r4 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4']], 0, 1, 1)
         expect(r4[0]).to.deep.equal({
-          a: {value: 3.5, mapping: {'1': {value: 1.5}, '2': {value: 3.5}, '3': {value: 5.5}}},
-          b: {value: 7.5, mapping: {'1': {value: 6.5}, '4': {value: 8.5}}},
+          a: {value: 3.5, mapping: {1: {value: 1.5}, 2: {value: 3.5}, 3: {value: 5.5}}},
+          b: {value: 7.5, mapping: {1: {value: 6.5}, 4: {value: 8.5}}},
         })
         expect(r4[1]).to.deep.equal(['a', 'b'])
         expect(r4[2]).to.be.equal(3)
 
         const r5 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4'], ['c', '0']], 0, 1, 1)
         expect(r5[0]).to.deep.equal({
-          a: {value: 3.5, mapping: {'1': {value: 1.5}, '2': {value: 3.5}, '3': {value: 5.5}}},
-          b: {value: 7.5, mapping: {'1': {value: 6.5}, '4': {value: 8.5}}},
-          c: {value: 9.5, mapping: {'0': {value: 9.5}}},
+          a: {value: 3.5, mapping: {1: {value: 1.5}, 2: {value: 3.5}, 3: {value: 5.5}}},
+          b: {value: 7.5, mapping: {1: {value: 6.5}, 4: {value: 8.5}}},
+          c: {value: 9.5, mapping: {0: {value: 9.5}}},
         })
         expect(r5[1]).to.deep.equal(['a', 'b', 'c'])
         expect(r5[2]).to.be.equal(3)
@@ -438,46 +438,46 @@ describe("factor_range module", () => {
       it("should map a list of factors starting at 0.5 (with no offset by default)", () => {
         const r0 = map_two_levels([['a', '1']], 2, 1)
         expect(r0[0]).to.deep.equal({
-          a: {value: 0.5, mapping: {'1': {value: 0.5}}},
+          a: {value: 0.5, mapping: {1: {value: 0.5}}},
         })
         expect(r0[1]).to.deep.equal(['a'])
         expect(r0[2]).to.be.equal(0)
 
         const r1 = map_two_levels([['a', '1'], ['a', '2']], 2, 1)
         expect(r1[0]).to.deep.equal({
-          a: {value: 1.5, mapping: {'1': {value: 0.5}, '2': {value: 2.5}}},
+          a: {value: 1.5, mapping: {1: {value: 0.5}, 2: {value: 2.5}}},
         })
         expect(r1[1]).to.deep.equal(['a'])
         expect(r1[2]).to.be.equal(1)
 
         const r2 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3']], 2, 1)
         expect(r2[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {'1': {value: 0.5}, '2': {value: 2.5}, '3': {value: 4.5}}},
+          a: {value: 2.5, mapping: {1: {value: 0.5}, 2: {value: 2.5}, 3: {value: 4.5}}},
         })
         expect(r2[1]).to.deep.equal(['a'])
         expect(r2[2]).to.be.equal(2)
 
         const r3 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1']], 2, 1)
         expect(r3[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {'1': {value: 0.5}, '2': {value: 2.5}, '3': {value: 4.5}}},
-          b: {value: 7.5, mapping: {'1': {value: 7.5}}},
+          a: {value: 2.5, mapping: {1: {value: 0.5}, 2: {value: 2.5}, 3: {value: 4.5}}},
+          b: {value: 7.5, mapping: {1: {value: 7.5}}},
         })
         expect(r3[1]).to.deep.equal(['a', 'b'])
         expect(r3[2]).to.be.equal(4)
 
         const r4 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4']], 2, 1)
         expect(r4[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {'1': {value: 0.5}, '2': {value: 2.5}, '3': {value: 4.5}}},
-          b: {value: 8.5, mapping: {'1': {value: 7.5}, '4': {value: 9.5}}},
+          a: {value: 2.5, mapping: {1: {value: 0.5}, 2: {value: 2.5}, 3: {value: 4.5}}},
+          b: {value: 8.5, mapping: {1: {value: 7.5}, 4: {value: 9.5}}},
         })
         expect(r4[1]).to.deep.equal(['a', 'b'])
         expect(r4[2]).to.be.equal(5)
 
         const r5 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4'], ['c', '0']], 2, 1)
         expect(r5[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {'1': {value: 0.5}, '2': {value: 2.5}, '3': {value: 4.5}}},
-          b: {value: 8.5, mapping: {'1': {value: 7.5}, '4': {value: 9.5}}},
-          c: {value: 12.5, mapping: {'0': {value: 12.5}}},
+          a: {value: 2.5, mapping: {1: {value: 0.5}, 2: {value: 2.5}, 3: {value: 4.5}}},
+          b: {value: 8.5, mapping: {1: {value: 7.5}, 4: {value: 9.5}}},
+          c: {value: 12.5, mapping: {0: {value: 12.5}}},
         })
         expect(r5[1]).to.deep.equal(['a', 'b', 'c'])
         expect(r5[2]).to.be.equal(7)
@@ -486,46 +486,46 @@ describe("factor_range module", () => {
       it("should also apply an offset if provided", () => {
         const r0 = map_two_levels([['a', '1']], 2, 1, 1)
         expect(r0[0]).to.deep.equal({
-          a: {value: 1.5, mapping: {'1': {value: 1.5}}},
+          a: {value: 1.5, mapping: {1: {value: 1.5}}},
         })
         expect(r0[1]).to.deep.equal(['a'])
         expect(r0[2]).to.be.equal(0)
 
         const r1 = map_two_levels([['a', '1'], ['a', '2']], 2, 1, 1)
         expect(r1[0]).to.deep.equal({
-          a: {value: 2.5, mapping: {'1': {value: 1.5}, '2': {value: 3.5}}},
+          a: {value: 2.5, mapping: {1: {value: 1.5}, 2: {value: 3.5}}},
         })
         expect(r1[1]).to.deep.equal(['a'])
         expect(r1[2]).to.be.equal(1)
 
         const r2 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3']], 2, 1, 1)
         expect(r2[0]).to.deep.equal({
-          a: {value: 3.5, mapping: {'1': {value: 1.5}, '2': {value: 3.5}, '3': {value: 5.5}}},
+          a: {value: 3.5, mapping: {1: {value: 1.5}, 2: {value: 3.5}, 3: {value: 5.5}}},
         })
         expect(r2[1]).to.deep.equal(['a'])
         expect(r2[2]).to.be.equal(2)
 
         const r3 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1']], 2, 1, 1)
         expect(r3[0]).to.deep.equal({
-          a: {value: 3.5, mapping: {'1': {value: 1.5}, '2': {value: 3.5}, '3': {value: 5.5}}},
-          b: {value: 8.5, mapping: {'1': {value: 8.5}}},
+          a: {value: 3.5, mapping: {1: {value: 1.5}, 2: {value: 3.5}, 3: {value: 5.5}}},
+          b: {value: 8.5, mapping: {1: {value: 8.5}}},
         })
         expect(r3[1]).to.deep.equal(['a', 'b'])
         expect(r3[2]).to.be.equal(4)
 
         const r4 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4']], 2, 1, 1)
         expect(r4[0]).to.deep.equal({
-          a: {value: 3.5, mapping: {'1': {value: 1.5}, '2': {value: 3.5}, '3': {value: 5.5}}},
-          b: {value: 9.5, mapping: {'1': {value: 8.5}, '4': {value: 10.5}}},
+          a: {value: 3.5, mapping: {1: {value: 1.5}, 2: {value: 3.5}, 3: {value: 5.5}}},
+          b: {value: 9.5, mapping: {1: {value: 8.5}, 4: {value: 10.5}}},
         })
         expect(r4[1]).to.deep.equal(['a', 'b'])
         expect(r4[2]).to.be.equal(5)
 
         const r5 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4'], ['c', '0']], 2, 1, 1)
         expect(r5[0]).to.deep.equal({
-          a: {value: 3.5, mapping: {'1': {value: 1.5}, '2': {value: 3.5}, '3': {value: 5.5}}},
-          b: {value: 9.5, mapping: {'1': {value: 8.5}, '4': {value: 10.5}}},
-          c: {value: 13.5, mapping: {'0': {value: 13.5}}},
+          a: {value: 3.5, mapping: {1: {value: 1.5}, 2: {value: 3.5}, 3: {value: 5.5}}},
+          b: {value: 9.5, mapping: {1: {value: 8.5}, 4: {value: 10.5}}},
+          c: {value: 13.5, mapping: {0: {value: 13.5}}},
         })
         expect(r5[1]).to.deep.equal(['a', 'b', 'c'])
         expect(r5[2]).to.be.equal(7)
@@ -944,7 +944,6 @@ describe("factor_range module", () => {
       })
     })
 
-
     describe("group_padding", () => {
 
       it("should pad all top-level groups", () => {
@@ -978,8 +977,6 @@ describe("factor_range module", () => {
         expect(r.v_synthetic([['A', '1'], ['A', '2'], ['C', '1'], ['D', '2']])).to.deep.equal([0.5, 1.5, 2.6, 3.7])
       })
     })
-
-
 
     describe("synthetic method", () => {
       const r = new FactorRange({factors: [['A', '1'], ['A', '2'], ['C', '1']], group_padding: 0})
@@ -1336,7 +1333,6 @@ describe("factor_range module", () => {
         expect(r.v_synthetic([['A', '1', 'foo'], ['A', '2', 'foo'], ['C', '1', 'foo'], ['D', '2', 'foo']])).to.deep.equal([0.5, 1.5, 2.6, 3.7])
       })
     })
-
 
     describe("synthetic method", () => {
       const r = new FactorRange({factors: [['A', '1', 'foo'], ['A', '1', 'bar'], ['C', '1', 'foo']], group_padding: 0, subgroup_padding: 0})

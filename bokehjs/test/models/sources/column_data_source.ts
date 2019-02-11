@@ -137,7 +137,7 @@ describe("column_data_source module", () => {
         const b = [10, 20, -1, -2, 0, 10]
         const c = [1,2,3,4]
         patch_to_column([a, b, c], [
-          [[0, {start:2,stop:4,step:1}], [100, 101]]
+          [[0, {start:2,stop:4,step:1}], [100, 101]],
         ], [[5], [6], [4]])
         expect(a).to.be.instanceof(Array)
         expect(b).to.be.instanceof(Array)
@@ -147,7 +147,7 @@ describe("column_data_source module", () => {
         expect(c).to.be.deep.equal([1,2,3,4])
 
         patch_to_column([a, b, c], [
-          [[1, {start:2,stop:4,step:1}], [100, 101]]
+          [[1, {start:2,stop:4,step:1}], [100, 101]],
         ], [[5], [6], [4]])
         expect(a).to.be.instanceof(Array)
         expect(b).to.be.instanceof(Array)
@@ -163,7 +163,7 @@ describe("column_data_source module", () => {
           const b = new typ([10, 20, -1, -2, 0, 10])
           const c = new typ([1,2,3,4])
           patch_to_column([a, b, c], [
-            [[0, {start:2,stop:4,step:1}], [100, 101]]
+            [[0, {start:2,stop:4,step:1}], [100, 101]],
           ], [[5], [6], [4]])
           expect(a).to.be.instanceof(typ)
           expect(b).to.be.instanceof(typ)
@@ -173,7 +173,7 @@ describe("column_data_source module", () => {
           expect(c).to.be.deep.equal(new typ([1,2,3,4]))
 
           patch_to_column([a, b, c], [
-            [[1, {start:2,stop:4,step:1}], [100, 101]]
+            [[1, {start:2,stop:4,step:1}], [100, 101]],
           ], [[5], [6], [4]])
           expect(a).to.be.instanceof(typ)
           expect(b).to.be.instanceof(typ)
@@ -189,7 +189,7 @@ describe("column_data_source module", () => {
         const b = new Int32Array([10, 20, -1, -2, 0, 10])
         const c = new Int32Array([1,2,3,4])
         patch_to_column([a, b,c], [
-          [[0, {start:1,stop:5,step:2}], [100, 101]]
+          [[0, {start:1,stop:5,step:2}], [100, 101]],
         ], [[5], [6], [4]])
         expect(a).to.be.instanceof(Int32Array)
         expect(b).to.be.instanceof(Int32Array)
@@ -199,7 +199,7 @@ describe("column_data_source module", () => {
         expect(c).to.be.deep.equal(new Int32Array([1,2,3,4]))
 
         patch_to_column([a, b, c], [
-          [[1, {step:3}], [100, 101]]
+          [[1, {step:3}], [100, 101]],
         ], [[5], [6], [4]])
         expect(a).to.be.instanceof(Int32Array)
         expect(b).to.be.instanceof(Int32Array)
@@ -216,7 +216,7 @@ describe("column_data_source module", () => {
         patch_to_column([a, b, c], [
           [[0, {start:2,stop:4,step:1}], [100, 101]],
           [[1, {stop:2, step:1}], [999, 999]],
-          [[1, 5], [6]]
+          [[1, 5], [6]],
         ], [[5], [6], [4]])
         expect(a).to.be.instanceof(Array)
         expect(b).to.be.instanceof(Array)
@@ -233,7 +233,7 @@ describe("column_data_source module", () => {
         const s = patch_to_column([a, b, c], [
           [[0, {start:2,stop:4,step:1}], [100, 101]],
           [[1, {stop:2, step:1}], [999, 999]],
-          [[1, 5], [6]]
+          [[1, 5], [6]],
         ], [[5], [6], [4]])
         expect(s).to.be.instanceof(Set)
         expect(s.diff(new Set([0,1])).values).to.be.deep.equal([])
@@ -254,7 +254,7 @@ describe("column_data_source module", () => {
         expect(c).to.be.deep.equal([1,2])
 
         patch_to_column([a, b, c], [
-          [[1, {start:0,stop:2,step:1}, {start:0,stop:1,step:1}], [100, 101]]
+          [[1, {start:0,stop:2,step:1}, {start:0,stop:1,step:1}], [100, 101]],
         ], [[2,3], [3,2], [1,2]])
         expect(a).to.be.instanceof(Array)
         expect(b).to.be.instanceof(Array)
@@ -272,7 +272,7 @@ describe("column_data_source module", () => {
                         0, 10])
           const c = new typ([1,2])
           patch_to_column([a, b, c], [
-            [[0, {}, 2], [100, 101]]
+            [[0, {}, 2], [100, 101]],
           ], [[2,3], [3,2], [1,2]])
           expect(a).to.be.instanceof(typ)
           expect(b).to.be.instanceof(typ)
@@ -282,7 +282,7 @@ describe("column_data_source module", () => {
           expect(c).to.be.deep.equal(new typ([1,2]))
 
           patch_to_column([a, b, c], [
-            [[1, {start:0,stop:2,step:1}, {start:0,stop:1,step:1}], [100, 101]]
+            [[1, {start:0,stop:2,step:1}, {start:0,stop:1,step:1}], [100, 101]],
           ], [[2,3], [3,2], [1,2]])
           expect(a).to.be.instanceof(typ)
           expect(b).to.be.instanceof(typ)
@@ -298,7 +298,7 @@ describe("column_data_source module", () => {
         const b = new Int32Array([10, 20, -1, -2, 0, 10])
         const c = new Int32Array([1,2])
         patch_to_column([a, b, c], [
-          [[0, {step:1}, 2], [100, 101]]
+          [[0, {step:1}, 2], [100, 101]],
         ], [[2,3], [3,2], [1,2]])
         expect(a).to.be.instanceof(Int32Array)
         expect(b).to.be.instanceof(Int32Array)
@@ -308,7 +308,7 @@ describe("column_data_source module", () => {
         expect(c).to.be.deep.equal(new Int32Array([1,2]))
 
         patch_to_column([a, b, c], [
-          [[1, {start:0,stop:3,step:2}, {start:0,stop:1,step:1}], [100, 101]]
+          [[1, {start:0,stop:3,step:2}, {start:0,stop:1,step:1}], [100, 101]],
         ], [[2,3], [3,2], [1,2]])
         expect(a).to.be.instanceof(Int32Array)
         expect(b).to.be.instanceof(Int32Array)
@@ -325,7 +325,7 @@ describe("column_data_source module", () => {
         const c = [1,2]
         patch_to_column([a, b, c], [
           [[0, {step:1}, 2], [100, 101]],
-          [[1, {start:0,stop:2,step:1}, {start:0,stop:1,step:1}], [100, 101]]
+          [[1, {start:0,stop:2,step:1}, {start:0,stop:1,step:1}], [100, 101]],
         ], [[2,3], [3,2], [1,2]])
         expect(a).to.be.instanceof(Array)
         expect(b).to.be.instanceof(Array)
@@ -341,7 +341,7 @@ describe("column_data_source module", () => {
         const c = [1,2]
         const s = patch_to_column([a, b, c], [
           [[0, {step:1}, 2], [100, 101]],
-          [[1, {start:0,stop:2,step:1}, {start:0,stop:1,step:1}], [100, 101]]
+          [[1, {start:0,stop:2,step:1}, {start:0,stop:1,step:1}], [100, 101]],
         ], [[2,3], [3,2], [1,2]])
         expect(s).to.be.instanceof(Set)
         expect(s.diff(new Set([0,1])).values).to.be.deep.equal([])

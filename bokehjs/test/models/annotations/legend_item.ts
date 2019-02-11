@@ -127,8 +127,8 @@ describe("LegendItem", () => {
           label: ['foo', 'bar', 'foo', 'bar'],
         },
       })
-      const gr = new GlyphRenderer({'data_source': source})
-      const legend_item = new LegendItem({label: {field: 'label'}, 'renderers': [gr]})
+      const gr = new GlyphRenderer({data_source: source})
+      const legend_item = new LegendItem({label: {field: 'label'}, renderers: [gr]})
       const field = legend_item.get_labels_list_from_label_prop()
       expect(field).to.be.deep.equal(['foo', 'bar'])
     })
@@ -139,21 +139,21 @@ describe("LegendItem", () => {
           x: [10, 20, 30, 40],
         },
       })
-      const gr = new GlyphRenderer({'data_source': source})
-      const legend_item = new LegendItem({label: {field: 'milk'}, 'renderers': [gr]})
+      const gr = new GlyphRenderer({data_source: source})
+      const legend_item = new LegendItem({label: {field: 'milk'}, renderers: [gr]})
       const field = legend_item.get_labels_list_from_label_prop()
       expect(field).to.be.deep.equal(['Invalid field'])
     })
 
     it("should return 'No source found' list if no renderer and field used", () => {
-      const legend_item = new LegendItem({label: {field: 'milk'}, 'renderers': []})
+      const legend_item = new LegendItem({label: {field: 'milk'}, renderers: []})
       const field = legend_item.get_labels_list_from_label_prop()
       expect(field).to.be.deep.equal(['No source found'])
     })
 
     it("should return 'No source found' list if no source on renderer", () => {
       const gr = new GlyphRenderer()
-      const legend_item = new LegendItem({label: {field: 'milk'}, 'renderers': [gr]})
+      const legend_item = new LegendItem({label: {field: 'milk'}, renderers: [gr]})
       const field = legend_item.get_labels_list_from_label_prop()
       expect(field).to.be.deep.equal(['No source found'])
     })

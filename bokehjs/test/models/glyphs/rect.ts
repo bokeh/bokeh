@@ -289,8 +289,8 @@ describe("Rect", () => {
 
           glyph_view.renderer.xscale = xscale
           glyph_view.renderer.yscale = yscale
-          glyph_view.renderer.plot_view.frame.xscales['default'] = xscale
-          glyph_view.renderer.plot_view.frame.yscales['default'] = yscale
+          glyph_view.renderer.plot_view.frame.xscales.default = xscale
+          glyph_view.renderer.plot_view.frame.yscales.default = yscale
           glyph_view.map_data()
 
           const result1 = glyph_view.hit_test({type: "point", sx: 105, sy:   0})!

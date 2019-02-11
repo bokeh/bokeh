@@ -49,13 +49,13 @@ describe("GraphHitTestPolicy", () => {
     node_source = new ColumnDataSource({
       data: {
         index: [10, 20, 30, 40],
-      }
+      },
     })
     edge_source = new ColumnDataSource({
       data: {
         start: [10, 10, 30],
         end: [20, 30, 20],
-      }
+      },
     })
     const node_renderer = new GlyphRenderer({data_source: node_source, glyph: new Circle()})
     const edge_renderer = new GlyphRenderer({data_source: edge_source, glyph: new MultiLine()})
@@ -173,7 +173,7 @@ describe("GraphHitTestPolicy", () => {
 
         policy.do_selection(hit_test_result, gr, true, false)
 
-        expect(edge_source.selected['2d'].indices).to.be.deep.equal({ '0': [ 0 ], '1': [ 0 ] })
+        expect(edge_source.selected['2d'].indices).to.be.deep.equal({ 0: [ 0 ], 1: [ 0 ] })
       })
     })
 
@@ -199,7 +199,7 @@ describe("GraphHitTestPolicy", () => {
         const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, false)
 
         expect(did_hit).to.be.true
-        expect(edge_source.inspected['2d'].indices).to.be.deep.equal({ '0': [ 0 ], '1': [ 0 ] })
+        expect(edge_source.inspected['2d'].indices).to.be.deep.equal({ 0: [ 0 ], 1: [ 0 ] })
       })
     })
   })

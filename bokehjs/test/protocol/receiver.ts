@@ -15,7 +15,6 @@ describe("protocol/receiver module", () => {
       })
     })
 
-
     describe("message with no buffers", () => {
       const r = new Receiver()
 

@@ -33,7 +33,7 @@ describe("customjs module", () => {
       d.add_root(r)
       const json = d.to_json_string()
       const parsed = JSON.parse(json)
-      parsed['version'] = js_version
+      parsed.version = js_version
       const copy = Document.from_json_string(JSON.stringify(parsed))
       const r_copy = copy.get_model_by_id(r.id)! as CustomJSHover
       const rng_copy = copy.get_model_by_id(rng.id)! as CustomJSHover

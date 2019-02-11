@@ -162,7 +162,7 @@ describe("tile sources", () => {
       }
       const tile_source = new AbstractTileSource(tile_options)
       const tile = {tile_coords: [0, 1, 2]}
-      tile_source.tiles['mock_key'] = tile
+      tile_source.tiles.mock_key = tile
       tile_source.url = 'http://mock/{x}/{y}/{z}.png'
       expect(tile_source.tiles).to.be.empty
     })
@@ -170,7 +170,7 @@ describe("tile sources", () => {
 
   describe("tms tile source", () => {
     const url = 'http://c.tiles.mapbox.com/v3/examples.map-szwdot65/{Z}/{X}/{Y}.png'
-    const source = new TMSTileSource({url: url})
+    const source = new TMSTileSource({url})
 
     it("should get tiles for extent correctly", () => {
       T.expect_mercator_tile_counts(source)

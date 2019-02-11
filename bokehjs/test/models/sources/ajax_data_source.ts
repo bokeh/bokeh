@@ -32,18 +32,18 @@ describe("ajax_data_source module", () => {
         const xhr0 = s.prepare_request()
         last(requests).respond(200, {}, '{"foo": [10, 20], "bar": [1, 2]}')
         s.do_load(xhr0, "replace", 10)
-        expect(s.data).to.be.deep.equal({"foo": [10, 20], "bar": [1, 2]})
+        expect(s.data).to.be.deep.equal({foo: [10, 20], bar: [1, 2]})
 
         const xhr1 = s.prepare_request()
         last(requests).respond(200, {}, '{"foo": [100, 200], "bar": [1.1, 2.2]}')
         s.do_load(xhr1, "replace", 10)
-        expect(s.data).to.be.deep.equal({"foo": [100, 200], "bar": [1.1, 2.2]})
+        expect(s.data).to.be.deep.equal({foo: [100, 200], bar: [1.1, 2.2]})
 
         // max size ignored when replacing
         const xhr2 = s.prepare_request()
         last(requests).respond(200, {}, '{"foo": [1000, 2000], "bar": [10.1, 20.2]}')
         s.do_load(xhr2, "replace", 1)
-        expect(s.data).to.be.deep.equal({"foo": [1000, 2000], "bar": [10.1, 20.2]})
+        expect(s.data).to.be.deep.equal({foo: [1000, 2000], bar: [10.1, 20.2]})
       })
 
       it("should append up to max_size", () => {
@@ -53,12 +53,12 @@ describe("ajax_data_source module", () => {
         const xhr0 = s.prepare_request()
         last(requests).respond(200, {}, '{"foo": [10, 20], "bar": [1, 2]}')
         s.do_load(xhr0, "append", 3)
-        expect(s.data).to.be.deep.equal({"foo": [10, 20], "bar": [1, 2]})
+        expect(s.data).to.be.deep.equal({foo: [10, 20], bar: [1, 2]})
 
         const xhr1 = s.prepare_request()
         last(requests).respond(200, {}, '{"foo": [100, 200], "bar": [1.1, 2.2]}')
         s.do_load(xhr1, "append", 3)
-        expect(s.data).to.be.deep.equal({"foo": [20, 100, 200], "bar": [2, 1.1, 2.2]})
+        expect(s.data).to.be.deep.equal({foo: [20, 100, 200], bar: [2, 1.1, 2.2]})
       })
 
       it("should use a CustomJS adapter", () => {
@@ -71,14 +71,14 @@ describe("ajax_data_source module", () => {
           }
           return result
         `
-        const cb = new CustomJS({code: code})
+        const cb = new CustomJS({code})
         const s = new AjaxDataSource({data_url: "http://foo.com", adapter: cb as any}) // XXX
         expect(s.data).to.be.deep.equal({})
 
         const xhr = s.prepare_request()
         last(requests).respond(200, {}, '{"points": [[10, 1], [20, 2]]}')
         s.do_load(xhr, "replace", 10)
-        expect(s.data).to.be.deep.equal({"foo": [10, 20], "bar": [1, 2]})
+        expect(s.data).to.be.deep.equal({foo: [10, 20], bar: [1, 2]})
       })
 
       it("should use a JavaScript function adapter", () => {
@@ -98,7 +98,7 @@ describe("ajax_data_source module", () => {
         const xhr = s.prepare_request()
         last(requests).respond(200, {}, '{"points": [[10, 1], [20, 2]]}')
         s.do_load(xhr, "replace", 10)
-        expect(s.data).to.be.deep.equal({"foo": [10, 20], "bar": [1, 2]})
+        expect(s.data).to.be.deep.equal({foo: [10, 20], bar: [1, 2]})
       })
     })
 

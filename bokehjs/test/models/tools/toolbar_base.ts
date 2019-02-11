@@ -15,7 +15,7 @@ describe("ToolbarBase", () => {
       pan_1 = new PanTool()
       pan_2 = new PanTool()
       toolbar_base = new ToolbarBase()
-      toolbar_base.gestures["pan"].tools = [new PanTool(), new PanTool()]
+      toolbar_base.gestures.pan.tools = [new PanTool(), new PanTool()]
     })
 
     it("should correctly activate tool with currently active tool", () => {
@@ -23,7 +23,7 @@ describe("ToolbarBase", () => {
       toolbar_base._active_change(pan_1)
       expect(pan_1.active).to.be.true
       expect(pan_2.active).to.be.false
-      expect(toolbar_base.gestures["pan"].active).to.be.equal(pan_1)
+      expect(toolbar_base.gestures.pan.active).to.be.equal(pan_1)
     })
 
     it("should correctly deactivate tool", () => {
@@ -35,7 +35,7 @@ describe("ToolbarBase", () => {
       toolbar_base._active_change(pan_1)
       expect(pan_1.active).to.be.false
       expect(pan_2.active).to.be.false
-      expect(toolbar_base.gestures["pan"].active).to.be.null
+      expect(toolbar_base.gestures.pan.active).to.be.null
     })
 
     it("should correctly active tool and deactive currently active one", () => {
@@ -47,7 +47,7 @@ describe("ToolbarBase", () => {
       toolbar_base._active_change(pan_2)
       expect(pan_1.active).to.be.false
       expect(pan_2.active).to.be.true
-      expect(toolbar_base.gestures["pan"].active).to.be.equal(pan_2)
+      expect(toolbar_base.gestures.pan.active).to.be.equal(pan_2)
     })
   })
 })

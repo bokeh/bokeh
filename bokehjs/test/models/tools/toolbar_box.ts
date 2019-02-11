@@ -47,11 +47,11 @@ describe("ProxyToolbar", () => {
 
     it("should have proxied multi tool in gestures", () => {
       const toolbar = new ProxyToolbar({tools:[multi, tap, pan]})
-      expect(toolbar.gestures['multi'].tools.length).to.be.equal(1)
-      expect(toolbar.gestures['multi'].tools[0]).to.be.an.instanceof(ToolProxy)
-      expect(toolbar.gestures['multi'].tools[0].computed_icon).to.be.equal('Multi Tool')
-      expect(((toolbar.gestures['multi'].tools[0]) as any).tools.length).to.be.equal(1) // XXX
-      expect(((toolbar.gestures['multi'].tools[0]) as any).tools[0]).to.be.equal(multi) // XXX
+      expect(toolbar.gestures.multi.tools.length).to.be.equal(1)
+      expect(toolbar.gestures.multi.tools[0]).to.be.an.instanceof(ToolProxy)
+      expect(toolbar.gestures.multi.tools[0].computed_icon).to.be.equal('Multi Tool')
+      expect(((toolbar.gestures.multi.tools[0]) as any).tools.length).to.be.equal(1) // XXX
+      expect(((toolbar.gestures.multi.tools[0]) as any).tools[0]).to.be.equal(multi) // XXX
     })
   })
 
