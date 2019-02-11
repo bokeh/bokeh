@@ -12,16 +12,16 @@
     "alwaysStrict": true,
     "noErrorTruncation": true,
     "noEmitOnError": false,
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "target": "ES5",
-    "lib": ["es5", "dom", "es2015.core", "es2015.promise", "es2015.iterable"],
     "declaration": true,
     "sourceMap": false,
     "importHelpers": true,
     "experimentalDecorators": true,
-    "baseUrl": ".",
-    "types": ["hammerjs", "googlemaps"]
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "ES5",
+    "lib": ["es5", "dom", "es2015.core", "es2015.promise", "es2015.iterable"],
+    "types": ["hammerjs", "googlemaps"],
+    "baseUrl": "."
   },
   "include": ["./**/*.ts"]
 }
