@@ -36,7 +36,7 @@ export class CustomJSHover extends Model {
     return values(this.args)
   }
 
-  protected _make_code(valname: string, formatname: string, varsname: string, fn: string): Function {
+  /*protected*/ _make_code(valname: string, formatname: string, varsname: string, fn: string): Function {
     // this relies on keys(args) and values(args) returning keys and values
     // in the same order
     return new Function(...keys(this.args), valname, formatname, varsname, "require", "exports", use_strict(fn))
