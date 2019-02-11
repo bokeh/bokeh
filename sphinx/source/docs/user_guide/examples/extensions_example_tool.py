@@ -24,9 +24,9 @@ export class DrawToolView extends GestureToolView {
   _pan(ev: GestureEvent): void {
     const frame = this.plot_view.frame
     const {sx, sy} = ev
-    if (!frame.bbox.contains(sx,sy)){return}
-    const x = frame.xscales['default'].invert(sx)
-    const y = frame.yscales['default'].invert(sy)
+    if (!frame.bbox.contains(sx, sy)) {return }
+    const x = frame.xscales.default.invert(sx)
+    const y = frame.yscales.default.invert(sy)
 
     this.model.source.get_array('x').push(x)
     this.model.source.get_array('y').push(y)
@@ -34,36 +34,52 @@ export class DrawToolView extends GestureToolView {
   }
 
   // this is executed then the pan/drag ends
-  _pan_end(_ev: GestureEvent):void {}
+  _pan_end(_ev: GestureEvent): void {}
 }
 
-export class DrawTool extends GestureTool {
-  source: ColumnDataSource
+export namespace DrawTool {
+  export type Attrs = p.AttrsOf<Props>
 
-  tool_name= "Drag Span"
-  icon= "bk-tool-icon-lasso-select"
-  event_type= "pan" as "pan"
-  default_order= 12
+  export type Props = GestureTool.Props & {
+    source: p.Property<ColumnDataSource>
+  }
+}
+
+export interface DrawTool extends DrawTool.Attrs {}
+
+export class DrawTool extends GestureTool {
+  properties: DrawTool.Props
+
+  constructor(attrs?: Partial<DrawTool.Attrs>) {
+    super(attrs)
+  }
+
+  tool_name = "Drag Span"
+  icon = "bk-tool-icon-lasso-select"
+  event_type = "pan" as "pan"
+  default_order = 12
 
   static initClass(): void {
     this.prototype.default_view = DrawToolView
     this.prototype.type = "DrawTool"
-    this.define({
-    source: [p.Any],
+    this.define<DrawTool.Props>({
+      source: [p.Any],
     })
   }
 }
 DrawTool.initClass()
 """
 
+
 class DrawTool(Tool):
     __implementation__ = TypeScript(TS_CODE)
     source = Instance(ColumnDataSource)
 
+
 source = ColumnDataSource(data=dict(x=[], y=[]))
 
-plot = figure(x_range=(0,10), y_range=(0,10), tools=[DrawTool(source=source)])
-plot.title.text ="Drag to draw on the plot"
+plot = figure(x_range=(0, 10), y_range=(0, 10), tools=[DrawTool(source=source)])
+plot.title.text = "Drag to draw on the plot"
 plot.line('x', 'y', source=source)
 
 show(plot)
