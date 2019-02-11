@@ -77,7 +77,7 @@ export class Document {
   /*protected*/ _all_models: {[key: string]: HasProps}
   protected _all_models_by_name: MultiDict<HasProps>
   protected _all_models_freeze_count: number
-  protected _callbacks: any[]
+  protected _callbacks: ((event: DocumentChangedEvent) => void)[]
   private _idle_roots: WeakMap<Model, boolean>
   protected _interactive_timestamp: number | null
   protected _interactive_plot: Model | null
@@ -279,18 +279,18 @@ export class Document {
     return this._all_models_by_name.get_one(name, `Multiple models are named '${name}'`)
   }
 
-  on_change(callback: any): void {
+  on_change(callback: (event: DocumentChangedEvent) => void): void {
     if (!includes(this._callbacks, callback))
       this._callbacks.push(callback)
   }
 
-  remove_on_change(callback: any): void {
+  remove_on_change(callback: (event: DocumentChangedEvent) => void): void {
     const i = this._callbacks.indexOf(callback)
     if (i >= 0)
       this._callbacks.splice(i, 1)
   }
 
-  _trigger_on_change(event: any): void {
+  _trigger_on_change(event: DocumentChangedEvent): void {
     for (const cb of this._callbacks) {
       cb(event)
     }
@@ -634,7 +634,7 @@ export class Document {
     }
   }
 
-  apply_json_patch(patch: Patch, buffers: [any, any][], setter_id?: string): void {
+  apply_json_patch(patch: Patch, buffers: [any, any][] = [], setter_id?: string): void {
     const references_json = patch.references
     const events_json = patch.events
     const references = Document._instantiate_references_json(references_json, this._all_models)
