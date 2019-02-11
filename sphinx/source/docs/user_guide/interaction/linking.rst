@@ -1,7 +1,7 @@
 .. _userguide_interaction_linking:
 
-Linking Plots
--------------
+Linking Behavior
+----------------
 
 It's often useful to link plots to add connected interactivity between plots.
 This section shows an easy way to do it using the |bokeh.plotting| interface.
@@ -38,7 +38,24 @@ two different |figure| calls.
 .. bokeh-plot:: docs/user_guide/examples/interaction_linked_brushing.py
     :source-position: above
 
+.. _userguide_interaction_linked_properties:
 
+Linked Properties
+~~~~~~~~~~~~~~~~~
+
+It is also possible to link values of Bokeh model properties together so that
+they remain synchronized, using the ``js_link`` method. The example below links
+a circle glyph radius to the value of a Slider widget:
+
+.. bokeh-plot:: docs/user_guide/examples/interaction_linked_properties.py
+    :source-position: above
+
+The linking is accomplished in JavaScript, so this method works in standalone
+Bokeh documents, or in Bokeh server applications.
+
+See :ref:`userguide_interaction_widgets` for more information about different
+widgets, and :ref:`userguide_interaction_jscallbacks` for more information about
+creating arbitrary JavaScript callbacks.
 
 .. |figure| replace:: :func:`~bokeh.plotting.figure`
 

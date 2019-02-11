@@ -1,32 +1,21 @@
-import numpy as np
-
-from bokeh.plotting import figure, show, output_file
-from bokeh.layouts import column
-from bokeh.models import CustomJS
-from bokeh.models.widgets import Select
 from bokeh.core.enums import SizingMode
+from bokeh.layouts import column
+from bokeh.models import Select
+from bokeh.plotting import figure, show, output_file
+from bokeh.sampledata.iris import flowers as df
 
-N = 4000
-x = np.random.random(size=N) * 100
-y = np.random.random(size=N) * 100
-radii = np.random.random(size=N) * 1.5
-colors = [
-    "#%02x%02x%02x" % (int(r), int(g), 150) for r, g in zip(50+2*x, 30+2*y)
-]
+colormap = {'setosa': 'red', 'versicolor': 'green', 'virginica': 'blue'}
+colors = [colormap[x] for x in df.species]
 
-TOOLS="hover,crosshair,pan,wheel_zoom,zoom_in,zoom_out,box_zoom,undo,redo,reset,tap,save,box_select,poly_select,lasso_select"
+plot = figure(sizing_mode="fixed")
 
-sizing_mode = "fixed"
+plot.circle(df.petal_length, df.petal_width, color=colors, alpha=0.2, size=10)
 
-select = Select(title="Sizing mode", value=sizing_mode, options=list(SizingMode))
-
-plot = figure(tools=TOOLS, sizing_mode=sizing_mode)
-plot.scatter(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
+select = Select(title="Sizing mode", value="fixed", options=list(SizingMode))
+select.js_link('value', plot, 'sizing_mode')
 
 layout = column(select, plot)
-layout.sizing_mode = "stretch_both"
-
-select.js_on_change('value', CustomJS(args=dict(plot=plot), code="plot.sizing_mode = this.value;"))
+layout.sizing_mode = "stretch_both" # set separately to avoid also setting children
 
 output_file("sizing_mode.html", title="sizing_mode.py example")
 show(layout)
