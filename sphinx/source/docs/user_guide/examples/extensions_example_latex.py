@@ -5,45 +5,79 @@ import numpy as np
 
 from bokeh.models import Label
 from bokeh.plotting import figure, show
+from bokeh.util.compiler import TypeScript
 
-JS_CODE = """
+TS_CODE = """
+import * as p from "core/properties"
 import {Label, LabelView} from "models/annotations/label"
+declare const katex: any
 
-export class LatexLabelView extends LabelView
+export class LatexLabelView extends LabelView {
+  model: LatexLabel
 
-  render: () ->
-    #--- Start of copied section from ``Label.render`` implementation
+  render() {
+    //--- Start of copied section from ``Label.render`` implementation
 
-    # Here because AngleSpec does units tranform and label doesn't support specs
-    switch @model.angle_units
-      when "rad" then angle = -1 * @model.angle
-      when "deg" then angle = -1 * @model.angle * Math.PI/180.0
+    // Here because AngleSpec does units tranform and label doesn't support specs
+    let angle: number
+    switch (this.model.angle_units) {
+      case "rad": {
+        angle = -this.model.angle
+        break
+      }
+      case "deg": {
+        angle = (-this.model.angle * Math.PI) / 180.0
+        break
+      }
+      default:
+        throw new Error("unreachable code")
+    }
 
-    panel = @panel ? @plot_view.frame
+    const panel = this.panel != null ? this.panel : this.plot_view.frame
 
-    xscale = @plot_view.frame.xscales[@model.x_range_name]
-    yscale = @plot_view.frame.yscales[@model.y_range_name]
+    const xscale = this.plot_view.frame.xscales[this.model.x_range_name]
+    const yscale = this.plot_view.frame.yscales[this.model.y_range_name]
 
-    sx = if @model.x_units == "data" then xscale.compute(@model.x) else panel.xview.compute(@model.x)
-    sy = if @model.y_units == "data" then yscale.compute(@model.y) else panel.yview.compute(@model.y)
+    let sx = this.model.x_units == "data" ? xscale.compute(this.model.x) : panel.xview.compute(this.model.x)
+    let sy = this.model.y_units == "data" ? yscale.compute(this.model.y) : panel.yview.compute(this.model.y)
 
-    sx += @model.x_offset
-    sy -= @model.y_offset
+    sx += this.model.x_offset
+    sy -= this.model.y_offset
 
-    #--- End of copied section from ``Label.render`` implementation
+    //--- End of copied section from ``Label.render`` implementation
+    // Must render as superpositioned div (not on canvas) so that KaTex
+    // css can properly style the text
+    this._css_text(this.plot_view.canvas_view.ctx, "", sx, sy, angle)
 
-    # Must render as superpositioned div (not on canvas) so that KaTex
-    # css can properly style the text
-    @_css_text(@plot_view.canvas_view.ctx, "", sx, sy, angle)
+    // ``katex`` is loaded into the global window at runtime
+    // katex.renderToString returns a html ``span`` element
+    return katex.render(this.model.text, this.el, {displayMode: true})
+  }
+}
 
-    # ``katex`` is loaded into the global window at runtime
-    # katex.renderToString returns a html ``span`` element
-    katex.render(@model.text, @el, {displayMode: true})
+export namespace LatexLabel {
+  export type Attrs = p.AttrsOf<Props>
 
-export class LatexLabel extends Label
-  type: 'LatexLabel'
-  default_view: LatexLabelView
+  export type Props = Label.Props
+}
+
+export interface LatexLabel extends LatexLabel.Attrs {}
+
+export class LatexLabel extends Label {
+  properties: LatexLabel.Props
+
+  constructor(attrs?: Partial<LatexLabel.Attrs>) {
+    super(attrs)
+  }
+
+  static initClass() {
+    this.prototype.type = 'LatexLabel'
+    this.prototype.default_view = LatexLabelView
+  }
+}
+LatexLabel.initClass()
 """
+
 
 class LatexLabel(Label):
     """A subclass of the Bokeh built-in `Label` that supports rendering
@@ -57,19 +91,20 @@ class LatexLabel(Label):
     """
     __javascript__ = ["https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.js"]
     __css__ = ["https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.6.0/katex.min.css"]
-    __implementation__ = JS_CODE
+    __implementation__ = TypeScript(TS_CODE)
+
 
 x = np.arange(0.0, 1.0 + 0.01, 0.01)
-y = np.cos(2*2*np.pi*x) + 2
+y = np.cos(2 * 2 * np.pi * x) + 2
 
 p = figure(title="LaTex Demonstration", plot_width=500, plot_height=500)
 p.line(x, y)
 
 # Note: must set ``render_mode="css"``
 latex = LatexLabel(text="f = \sum_{n=1}^\infty\\frac{-e^{i\pi}}{2^n}!",
-                   x=35, y=445, x_units='screen', y_units='screen',
+                   x=40, y=420, x_units='screen', y_units='screen',
                    render_mode='css', text_font_size='16pt',
-                   background_fill_color='#ffffff')
+                   background_fill_alpha=0)
 
 p.add_layout(latex)
 
