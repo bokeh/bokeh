@@ -4,6 +4,7 @@ import os
 import time
 import pytest
 import subprocess
+import platform
 import signal
 
 from os.path import basename, dirname, split
@@ -16,6 +17,8 @@ from bokeh._testing.util.screenshot import run_in_chrome
 from bokeh.client import push_session
 from bokeh.command.util import build_single_handler_application
 from bokeh.util.terminal import info, fail, ok, red, warn, white
+
+is_windows = platform.system() == "Windows"
 
 pytest_plugins = (
     "bokeh._testing.plugins.bokeh_server",
@@ -221,7 +224,7 @@ warnings.filterwarnings("ignore", ".*", UserWarning, "matplotlib.font_manager")
 
 with open(filename, 'rb') as example:
     exec(compile(example.read(), filename, 'exec'))
-""" % example.path
+""" % example.path.replace("\\", "\\\\")
 
     cmd = ["python", "-c", code]
     cwd = dirname(example.path)
@@ -235,11 +238,12 @@ with open(filename, 'rb') as example:
     class Timeout(Exception):
         pass
 
-    def alarm_handler(sig, frame):
-        raise Timeout
+    if not is_windows:
+        def alarm_handler(sig, frame):
+            raise Timeout
 
-    signal.signal(signal.SIGALRM, alarm_handler)
-    signal.alarm(20 if not example.is_slow else 60)
+        signal.signal(signal.SIGALRM, alarm_handler)
+        signal.alarm(20 if not example.is_slow else 60)
 
     start = time.time()
     try:
@@ -249,7 +253,8 @@ with open(filename, 'rb') as example:
         proc.kill()
         status = 'timeout'
     finally:
-        signal.alarm(0)
+        if not is_windows:
+            signal.alarm(0)
     end = time.time()
 
     out = proc.stdout.read().decode("utf-8")
