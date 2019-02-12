@@ -55,16 +55,18 @@ export class ImageURLView extends XYGlyphView {
     this.retries = map(this._url, () => retry_attempts)
 
     for (let i = 0, end = this._url.length; i < end; i++) {
-      if (this._url[i] == null)
+      const url = this._url[i]
+
+      if (url == null || url == "")
         continue
 
       const img: CanvasImage = new Image()
       img.onerror = () => {
         if (this.retries[i] > 0) {
-          logger.trace(`ImageURL failed to load ${this._url[i]} image, retrying in ${retry_timeout} ms`)
-          setTimeout(() => img.src = this._url[i], retry_timeout)
+          logger.trace(`ImageURL failed to load ${url} image, retrying in ${retry_timeout} ms`)
+          setTimeout(() => img.src = url, retry_timeout)
         } else
-          logger.warn(`ImageURL unable to load ${this._url[i]} image after ${retry_attempts} retries`)
+          logger.warn(`ImageURL unable to load ${url} image after ${retry_attempts} retries`)
 
         this.retries[i] -= 1
       }
@@ -72,7 +74,7 @@ export class ImageURLView extends XYGlyphView {
         this.image[i] = img
         this.renderer.request_render()
       }
-      img.src = this._url[i]
+      img.src = url
     }
 
     const w_data = this.model.properties.w.units == "data"

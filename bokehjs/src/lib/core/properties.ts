@@ -367,3 +367,5 @@ export class MarkerSpec extends DataSpec<string> {}
 export class NumberSpec extends DataSpec<number> {}
 
 export class StringSpec extends DataSpec<string> {}
+
+export class NullStringSpec extends DataSpec<string | null> {}
