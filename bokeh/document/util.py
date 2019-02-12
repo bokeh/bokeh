@@ -103,7 +103,7 @@ def instantiate_references_json(references_json):
         obj_type = obj.get('subtype', obj['type'])
 
         cls = get_class(obj_type)
-        instance = cls(id=obj_id, _block_events=True)
+        instance = cls(id=obj_id)
         if instance is None:
             raise RuntimeError('Error loading model from JSON (type: %s, id: %s)' % (obj_type, obj_id))
         references[instance.id] = instance
