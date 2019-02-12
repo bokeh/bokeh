@@ -6,7 +6,7 @@ from bokeh.plotting import figure, save
 from bokeh.layouts import gridplot
 
 coeffs = [10**0, 10**3, 10**6, 10**9]
-V = np.arange(10)
+V = np.arange(10, dtype="int64")
 
 figs = []
 
