@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import io
 import os
-from os.path import join, exists, dirname, basename, relpath, splitext, isfile, isdir
+from os.path import join, exists, dirname, basename, normpath, relpath, splitext, isfile, isdir
 import yaml
 from subprocess import Popen, PIPE
 from base64 import b64decode
@@ -67,7 +67,7 @@ class Flags(object):
 class Example(object):
 
     def __init__(self, path, flags, examples_dir):
-        self.path = path
+        self.path = normpath(path)
         self.flags = flags
         self.examples_dir = examples_dir
         self._diff_ref = None
@@ -177,7 +177,7 @@ class Example(object):
         path = self.baseline_path
         if not exists(dirname(path)):
             os.makedirs(dirname(path))
-        with io.open(path, "w") as f:
+        with io.open(path, "w", newline="\n") as f:
             f.write(baseline)
 
     def diff_baseline(self):
