@@ -375,7 +375,7 @@ class Document(object):
                 if model_id in self._all_models:
                     references[model_id] = self._all_models[model_id]
 
-        initialize_references_json(references_json, references)
+        initialize_references_json(references_json, references, setter)
 
         for event_json in events_json:
 

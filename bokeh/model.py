@@ -254,10 +254,32 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
 
     '''
 
+    def __new__(cls, *args, **kwargs):
+        obj =  super(Model, cls).__new__(cls)
+        obj._id = kwargs.pop("id", make_id())
+        obj._document = None
+        obj._temp_document = None
+        return obj
+
     def __init__(self, **kwargs):
-        self._id = kwargs.pop("id", make_id())
-        self._document = None
-        self._temp_document = None
+
+        # "id" is popped from **kw in __new__, so in an ideal world I don't
+        # think it should be here too. But Python does this, so it is:
+        #
+        # class Foo(object):
+        #     def __new__(cls, *args, **kw):
+        #         obj = super(Foo, cls).__new__(cls)
+        #         obj.bar = kw.pop("bar", 111)
+        #         print("__new__  :", id(kw), kw)
+        #         return obj
+        #     def __init__(self, **kw):
+        #         print("__init__ :", id(kw), kw)
+        #
+        # >>> f = Foo(bar=10)
+        # __new__  : 4405522296 {}
+        # __init__ : 4405522296 {'bar': 10}
+        kwargs.pop("id", None)
+
         super(Model, self).__init__(**kwargs)
         default_theme.apply_to_model(self)
 
