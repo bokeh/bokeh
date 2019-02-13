@@ -215,11 +215,13 @@ class DateRangeSlider(AbstractSlider):
             return None
         v1, v2 = self.value
         if isinstance(v1, numbers.Number):
-            d1 = date.fromtimestamp(v1 / 1000)
+            dt = datetime.utcfromtimestamp(v1 / 1000)
+            d1 = date(*dt.timetuple()[:3])
         else:
             d1 = v1
         if isinstance(v2, numbers.Number):
-            d2 = date.fromtimestamp(v2 / 1000)
+            dt = datetime.utcfromtimestamp(v2 / 1000)
+            d2 = date(*dt.timetuple()[:3])
         else:
             d2 = v2
         return d1, d2
