@@ -1,17 +1,38 @@
 @import "./mixins.less";
 
 .bk-root {
+  // Properties of bk-root itself
   box-sizing: border-box;
+  position: relative;
+  width: auto;
+  height: auto;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 10pt; // 13px/0.8em
 
   *, *:before, *:after {
     box-sizing: inherit;
-  }
-
-  *, *:before, *:after {
     margin: 0;
     border: 0;
     padding: 0;
+    font: inherit;
+    font-size: 100%;
+    vertical-align: baseline;
     background-image: none;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: bold;
+  }
+
+  h1 { font-size: 2.00em; }
+  h2 { font-size: 1.50em; }
+  h3 { font-size: 1.17em; }
+  h4 { font-size: 1.00em; }
+  h5 { font-size: 0.83em; }
+  h6 { font-size: 0.67em; }
+
+  pre {
+    font-family: Courier, monospace;
   }
 
   @import "./main.less";
@@ -19,13 +40,6 @@
   @import "./logo.less";
   @import "./toolbar.less";
   @import "./tooltips.less";
-
-  // Properties of bk-root itself
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 10pt; // 13px/0.8em
-  position: relative;
-  width: auto;
-  height: auto;
 }
 
 /* notebook specific tweaks so no black outline and matching padding
