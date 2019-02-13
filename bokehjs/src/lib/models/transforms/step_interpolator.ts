@@ -1,7 +1,7 @@
 import {Interpolator} from "./interpolator"
 import {StepMode} from "core/enums"
 import * as p from "core/properties"
-import {min, findIndex, findLastIndex} from "core/util/array"
+import {min, find_index, find_last_index} from "core/util/array"
 
 export namespace StepInterpolator {
   export type Attrs = p.AttrsOf<Props>
@@ -44,17 +44,17 @@ export class StepInterpolator extends Interpolator {
     let ind: number
     switch (this.mode) {
       case "after": {
-        ind = findLastIndex(this._x_sorted, num => x >= num)
+        ind = find_last_index(this._x_sorted, num => x >= num)
         break
       }
       case "before": {
-        ind = findIndex(this._x_sorted, num => x <= num)
+        ind = find_index(this._x_sorted, num => x <= num)
         break
       }
       case "center": {
         const diffs = this._x_sorted.map((tx) => Math.abs(tx - x))
         const mdiff = min(diffs)
-        ind = findIndex(diffs, num => mdiff === num)
+        ind = find_index(diffs, num => mdiff === num)
         break
       }
       default:

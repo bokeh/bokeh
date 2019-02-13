@@ -1,5 +1,5 @@
 import {ActionTool, ActionToolView, ActionToolButtonView} from "./action_tool"
-import {CallbackLike} from "../../callbacks/callback"
+import {CallbackLike0} from "../../callbacks/callback"
 import * as p from "core/properties"
 
 export class CustomActionButtonView extends ActionToolButtonView {
@@ -24,7 +24,7 @@ export namespace CustomAction {
 
   export type Props = ActionTool.Props & {
     action_tooltip: p.Property<string>
-    callback: p.Property<CallbackLike<CustomAction> | null>
+    callback: p.Property<CallbackLike0<CustomAction> | null>
     icon: p.Property<string>
   }
 }

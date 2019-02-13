@@ -1,5 +1,5 @@
 import {AbstractButton, AbstractButtonView} from "./abstract_button"
-import {CallbackLike} from "../callbacks/callback"
+import {CallbackLike1} from "../callbacks/callback"
 
 import {ButtonClick, MenuItemClick} from "core/bokeh_events"
 import {div, show, hide} from "core/dom"
@@ -101,12 +101,12 @@ export class DropdownView extends AbstractButtonView {
         this.model.value = value_or_callback
 
         if (this.model.callback != null)
-          this.model.callback.execute(this.model, {index: i, item: value_or_callback})
+          this.model.callback.execute(this.model) // XXX: {index: i, item: value_or_callback})
       } else {
         value_or_callback.execute(this.model, {index: i}) // TODO
 
         if (this.model.callback != null)
-          this.model.callback.execute(this.model, {index: i})
+          this.model.callback.execute(this.model) // XXX: {index: i})
       }
     }
   }
@@ -117,7 +117,7 @@ export namespace Dropdown {
 
   export type Props = AbstractButton.Props & {
     split: p.Property<boolean>
-    menu: p.Property<(string | [string, string | CallbackLike<Dropdown>] | null)[]>
+    menu: p.Property<(string | [string, string | CallbackLike1<Dropdown, {index: number}>] | null)[]>
     value: p.Property<string>
     default_value: p.Property<string>
   }

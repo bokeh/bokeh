@@ -10,10 +10,15 @@ export type TypedArray =
   Uint32Array  | Int32Array   |
   Float32Array | Float64Array
 
-export interface Arrayable<T = Anything> {
+export type Arrayable<T = Anything> = {
   readonly length: number
   [n: number]: T
+  [Symbol.iterator](): IterableIterator<T>
 }
+
+export type ArrayableOf<T> = T extends any ? Arrayable<T> : never
+
+export type Data = {[key: string]: Arrayable<unknown>}
 
 export type Size = {
   width: number

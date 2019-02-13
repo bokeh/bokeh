@@ -3,7 +3,7 @@ import {Factor} from "../ranges/factor_range"
 import {Mapper} from "./mapper"
 
 import * as p from "core/properties"
-import {Arrayable} from "core/types"
+import {Arrayable, ArrayableOf} from "core/types"
 import {MarkerType} from "core/enums"
 
 export namespace CategoricalMarkerMapper {
@@ -36,7 +36,7 @@ export class CategoricalMarkerMapper extends Mapper<string> {
     })
   }
 
-  v_compute(xs: Arrayable<Factor>): Arrayable<string> {
+  v_compute(xs: ArrayableOf<Factor>): Arrayable<string> {
     const values: string[] = new Array(xs.length)
     cat_v_compute(xs, this.factors, this.markers, values, this.start, this.end, this.default_value)
     return values

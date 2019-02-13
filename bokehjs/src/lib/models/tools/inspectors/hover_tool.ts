@@ -1,7 +1,7 @@
 import {InspectTool, InspectToolView} from "./inspect_tool"
-import {CallbackLike} from "../../callbacks/callback"
+import {CallbackLike1} from "../../callbacks/callback"
 import {Tooltip, TooltipView} from "../../annotations/tooltip"
-import {RendererView} from "../../renderers/renderer"
+import {Renderer, RendererView} from "../../renderers/renderer"
 import {GlyphRenderer, GlyphRendererView} from "../../renderers/glyph_renderer"
 import {GraphRenderer, GraphRendererView} from "../../renderers/graph_renderer"
 import {DataRenderer} from "../../renderers/data_renderer"
@@ -430,7 +430,7 @@ export namespace HoverTool {
     show_arrow: p.Property<boolean>
     anchor: p.Property<Anchor>
     attachment: p.Property<TooltipAttachment>
-    callback: p.Property<CallbackLike<HoverTool> | null>
+    callback: p.Property<CallbackLike1<HoverTool, {index: number, geometry: Geometry, renderer: Renderer}> | null>
   }
 }
 

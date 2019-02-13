@@ -16,7 +16,7 @@ export namespace WebBrowserMarketShare {
   }
 
   function read_csv_from(id: string) {
-    const text = document.getElementById(id).innerHTML
+    const text = document.getElementById(id)!.innerHTML
     return text.split("\n")
          .map((line) => line.trim())
          .filter((line) => line.length > 0)
@@ -32,8 +32,8 @@ export namespace WebBrowserMarketShare {
 
   const data: MonthlyShares[] = []
 
-  let _browsers: string[] = null
-  let year: number = null
+  let _browsers: string[] = []
+  let year: number = 0
 
   for (const [head, ...tail] of read_csv_from("data")) {
     const _year = parseInt(head)
@@ -64,13 +64,13 @@ export namespace WebBrowserMarketShare {
   }
 
   interface BrowserInfo {
-    description?: string
-    color?: string
-    icon?: string
+    description: string
+    color: string
+    icon: string
   }
 
   const info: {[key: string]: BrowserInfo} = {
-    Other: {color: "gray"},
+    Other: {color: "gray", description: "", icon: ""},
   }
 
   for (const row of read_csv_from("info")) {
@@ -106,7 +106,7 @@ export namespace WebBrowserMarketShare {
 
     const icons = item.browsers.map((name) => info[name].icon)
     const [x0, y0] = unzip(half_angles.map((angle) => to_cartesian(1.7, angle)))
-    fig.image_url(icons, x0, y0, null, null, {source, anchor: "center"})
+    fig.image_url(icons, x0, y0, NaN, NaN, {source, anchor: "center"})
 
     const texts = item.shares.map((share) => {
       if (share <= 2.0)

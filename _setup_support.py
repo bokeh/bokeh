@@ -369,7 +369,15 @@ def install_js():
     if exists(target_tslibdir):
         shutil.rmtree(target_tslibdir)
     if exists(TSLIB):
-        lib = {"lib.es5.d.ts", "lib.dom.d.ts", "lib.es2015.core.d.ts", "lib.es2015.promise.d.ts"}
+        # keep in sync with bokehjs/src/compiler/compile.ts
+        lib = {
+            "lib.es5.d.ts",
+            "lib.dom.d.ts",
+            "lib.es2015.core.d.ts",
+            "lib.es2015.promise.d.ts",
+            "lib.es2015.symbol.d.ts",
+            "lib.es2015.iterable.d.ts",
+        }
         shutil.copytree(TSLIB, target_tslibdir, ignore=lambda _, files: [ f for f in files if f not in lib ])
 
 # -----------------------------------------------------------------------------

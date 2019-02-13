@@ -1,7 +1,6 @@
 import {sprintf} from "sprintf-js"
 
 import {TickFormatter} from "./tick_formatter"
-import {AxisView} from "../axes/axis"
 import * as p from "core/properties"
 
 export namespace PrintfTickFormatter {
@@ -29,7 +28,7 @@ export class PrintfTickFormatter extends TickFormatter {
     })
   }
 
-  doFormat(ticks: number[], _axis_view: AxisView): string[] {
+  doFormat(ticks: number[], _opts: {loc: number}): string[] {
     return ticks.map((tick) => sprintf(this.format, tick))
   }
 }

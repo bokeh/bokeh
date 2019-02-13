@@ -4,7 +4,7 @@ import {Location} from "core/enums"
 import * as p from "core/properties"
 
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
-import {CallbackLike} from "../callbacks/callback"
+import {CallbackLike0} from "../callbacks/callback"
 import {Model} from "../../model"
 
 export class TabsView extends LayoutDOMView {
@@ -112,7 +112,7 @@ export namespace Tabs {
     tabs: p.Property<Panel[]>
     tabs_location: p.Property<Location>
     active: p.Property<number>
-    callback: p.Property<CallbackLike<Tabs> | null>
+    callback: p.Property<CallbackLike0<Tabs> | null>
   }
 }
 

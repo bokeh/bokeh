@@ -4,7 +4,7 @@ import * as p from "core/properties"
 import {Class} from "core/class"
 import {Signal0} from "core/signaling"
 import {Place, Location, OutputBackend} from "core/enums"
-import {removeBy, concat} from "core/util/array"
+import {remove_by, concat} from "core/util/array"
 import {values} from "core/util/object"
 import {isArray} from "core/util/types"
 
@@ -221,7 +221,7 @@ export class Plot extends LayoutDOM {
   remove_layout(renderer: Annotation | GuideRenderer): void {
 
     const del = (items: (Annotation | GuideRenderer)[]): void => {
-      removeBy(items, (item) => item == renderer)
+      remove_by(items, (item) => item == renderer)
     }
 
     del(this.left)

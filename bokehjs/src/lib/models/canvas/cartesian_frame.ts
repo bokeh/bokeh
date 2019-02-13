@@ -52,7 +52,7 @@ export class CartesianFrame extends LayoutItem {
     return ranges
   }
 
-  protected _get_scales(scale: Scale, ranges: Ranges, frame_range: Range): Scales {
+  /*protected*/ _get_scales(scale: Scale, ranges: Ranges, frame_range: Range): Scales {
     const scales: Scales = {}
 
     for (const name in ranges) {

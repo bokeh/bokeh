@@ -1,6 +1,6 @@
 import {Transform} from "../transforms/transform"
 import {Factor} from "../ranges/factor_range"
-import {Arrayable} from "core/types"
+import {Arrayable, ArrayableOf} from "core/types"
 import * as p from "core/properties"
 
 export namespace Mapper {
@@ -27,7 +27,6 @@ export abstract class Mapper<T> extends Transform<T> {
     throw new Error("mapping single values is not supported")
   }
 
-  abstract v_compute(xs: Arrayable<number> | Arrayable<Factor>): Arrayable<T>
-
+  abstract v_compute(xs: ArrayableOf<number | Factor>): Arrayable<T>
 }
 Mapper.initClass()

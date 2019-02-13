@@ -3,7 +3,7 @@ import {PaddingUnits} from "core/enums"
 import * as p from "core/properties"
 import {Arrayable} from "core/types"
 import {map} from "core/util/arrayable"
-import {all, sum} from "core/util/array"
+import {every, sum} from "core/util/array"
 import {isArray, isNumber, isString} from "core/util/types"
 
 export type L1Factor = string
@@ -11,6 +11,14 @@ export type L2Factor = [string, string]
 export type L3Factor = [string, string, string]
 
 export type Factor = L1Factor | L2Factor | L3Factor
+
+export type BoxedFactor = [string] | L2Factor | L3Factor
+
+export type L1Factors = Arrayable<L1Factor>
+export type L2Factors = Arrayable<L2Factor>
+export type L3Factors = Arrayable<L3Factor>
+
+export type Factors = L1Factors | L2Factors | L3Factors
 
 export type L1OffsetFactor = [string, number]
 export type L2OffsetFactor = [string, string, number]
@@ -179,7 +187,7 @@ export class FactorRange extends Range {
     this.change.emit()
   }
 
-  protected _lookup(x: any): number {
+  protected _lookup(x: BoxedFactor): number {
     if (x.length == 1) {
       const m = this._mapping as L1Mapping
       if (!m.hasOwnProperty(x[0])) {
@@ -203,7 +211,7 @@ export class FactorRange extends Range {
   }
 
   // convert a string factor into a synthetic coordinate
-  synthetic(x: number | Factor | OffsetFactor): number {
+  synthetic(x: number | Factor | [string] | OffsetFactor): number {
     if (isNumber(x))
       return x
 
@@ -214,27 +222,27 @@ export class FactorRange extends Range {
     const off = x[x.length-1]
     if (isNumber(off)) {
       offset = off
-      x = x.slice(0, -1) as Factor
+      x = x.slice(0, -1) as BoxedFactor
     }
 
-    return this._lookup(x) + offset
+    return this._lookup(x as BoxedFactor) + offset
   }
 
   // convert an array of string factors into synthetic coordinates
-  v_synthetic(xs: Arrayable<number | Factor | OffsetFactor>): Arrayable<number> {
+  v_synthetic(xs: Arrayable<number | Factor | [string] | OffsetFactor>): Arrayable<number> {
     return map(xs, (x) => this.synthetic(x))
   }
 
   protected _init(silent: boolean): void {
     let levels: number
     let inside_padding: number
-    if (all(this.factors as any, isString)) {
+    if (every(this.factors as any, isString)) {
       levels = 1;
       [this._mapping, inside_padding] = map_one_level(this.factors as string[], this.factor_padding)
-    } else if (all(this.factors as any, (x) => isArray(x) && x.length == 2 && isString(x[0]) && isString(x[1]))) {
+    } else if (every(this.factors as any, (x) => isArray(x) && x.length == 2 && isString(x[0]) && isString(x[1]))) {
       levels = 2;
       [this._mapping, this.tops, inside_padding] = map_two_levels(this.factors as [string, string][], this.group_padding, this.factor_padding)
-    } else if (all(this.factors as any, (x) => isArray(x) && x.length == 3  && isString(x[0]) && isString(x[1]) && isString(x[2]))) {
+    } else if (every(this.factors as any, (x) => isArray(x) && x.length == 3  && isString(x[0]) && isString(x[1]) && isString(x[2]))) {
       levels = 3;
       [this._mapping, this.tops, this.mids, inside_padding] = map_three_levels(this.factors as [string, string, string][], this.group_padding, this.subgroup_padding, this.factor_padding)
     } else

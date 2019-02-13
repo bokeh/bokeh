@@ -1,5 +1,5 @@
 import {Widget, WidgetView} from "./widget"
-import {CallbackLike} from "../callbacks/callback"
+import {CallbackLike0} from "../callbacks/callback"
 
 import {ButtonType} from "core/enums"
 import {div} from "core/dom"
@@ -49,7 +49,7 @@ export namespace ButtonGroup {
   export type Props = Widget.Props & {
     labels: p.Property<string[]>
     button_type: p.Property<ButtonType>
-    callback: p.Property<CallbackLike<ButtonGroup> | null>
+    callback: p.Property<CallbackLike0<ButtonGroup> | null>
   }
 }
 

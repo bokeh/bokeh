@@ -43,8 +43,8 @@ export namespace TappyScatter {
      text_font_size: "5pt", text_baseline: "middle", text_align: "center"})
 
   const tap = p.toolbar.select_one(Bokeh.TapTool)
-  tap.renderers = [circles]
-  tap.callback = {
+  tap!.renderers = [circles]
+  tap!.callback = {
     execute(_obj, {source}): void {
       const indices = source.selected['1d'].indices
       if (indices.length == 1)

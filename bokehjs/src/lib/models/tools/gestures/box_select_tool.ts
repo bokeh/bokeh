@@ -1,5 +1,5 @@
 import {SelectTool, SelectToolView} from "./select_tool"
-import {CallbackLike} from "../../callbacks/callback"
+import {CallbackLike1} from "../../callbacks/callback"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import * as p from "core/properties"
 import {Dimensions, BoxOrigin} from "core/enums"
@@ -104,7 +104,9 @@ export namespace BoxSelectTool {
   export type Props = SelectTool.Props & {
     dimensions: p.Property<Dimensions>
     select_every_mousemove: p.Property<boolean>
-    callback: p.Property<CallbackLike<BoxSelectTool> | null>
+    callback: p.Property<CallbackLike1<BoxSelectTool, {
+      geometry: RectGeometry & {x0: number, y0: number, x1: number, y1: number}
+    }> | null>
     overlay: p.Property<BoxAnnotation>
     origin: p.Property<BoxOrigin>
   }

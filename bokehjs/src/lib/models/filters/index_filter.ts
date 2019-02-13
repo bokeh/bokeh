@@ -2,7 +2,7 @@ import {Filter} from "./filter"
 import * as p from "core/properties"
 import {logger} from "core/logging"
 import {isInteger} from "core/util/types"
-import {all} from "core/util/array"
+import {every} from "core/util/array"
 import {DataSource} from "../sources/data_source"
 
 export namespace IndexFilter {
@@ -32,7 +32,7 @@ export class IndexFilter extends Filter {
 
   compute_indices(_source: DataSource): number[] | null {
     if (this.indices != null && this.indices.length >= 0) {
-      if (all(this.indices, isInteger))
+      if (every(this.indices, isInteger))
         return this.indices
       else {
         logger.warn(`IndexFilter ${this.id}: indices should be array of integers, defaulting to no filtering`)

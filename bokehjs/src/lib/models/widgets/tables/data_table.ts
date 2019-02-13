@@ -8,7 +8,7 @@ const {CellExternalCopyManager} = require("slickgrid/plugins/slick.cellexternalc
 import * as p from "core/properties"
 import {uniqueId} from "core/util/string"
 import {isString} from "core/util/types"
-import {any, range} from "core/util/array"
+import {some, range} from "core/util/array"
 import {keys} from "core/util/object"
 import {logger} from "core/logging"
 import {LayoutItem} from "core/layout"
@@ -16,7 +16,7 @@ import {LayoutItem} from "core/layout"
 import {TableWidget} from "./table_widget"
 import {Column, TableColumn} from "./table_column"
 import {WidgetView} from "../widget"
-import {ColumnDataSource, Index} from "../../sources/column_data_source"
+import {ColumnDataSource} from "../../sources/column_data_source"
 import {CDSView} from "../../sources/cds_view"
 
 export const DTINDEX_NAME = "__bkdt_internal_index__"
@@ -59,10 +59,8 @@ export class DataProvider {
 
   setField(offset: number, field: string, value: any): void {
     // field assumed never to be internal index name (ctor would throw)
-    const patches: {[key: string]: [Index, any][]} = {}
     const index = this.index[offset]
-    patches[field] =  [ [index, value] ]
-    this.source.patch(patches)
+    this.source.patch({[field]: [[index, value]]})
   }
 
   getItemMetadata(_index: number): any {
@@ -360,7 +358,7 @@ export class DataTable extends TableWidget {
     if (!this.scroll_to_selection || (selected_indices.length == 0))
       return null
 
-    if (!any(selected_indices, i => grid_range.top <= i && i <= grid_range.bottom)) {
+    if (!some(selected_indices, i => grid_range.top <= i && i <= grid_range.bottom)) {
       return Math.max(0, Math.min(...selected_indices) - 1)
     }
 

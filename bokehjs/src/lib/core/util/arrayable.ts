@@ -80,9 +80,9 @@ export function min(array: Arrayable<number>): number {
   return result
 }
 
-export function minBy<T>(array: Arrayable<T>, key: (item: T) => number): T {
+export function min_by<T>(array: Arrayable<T>, key: (item: T) => number): T {
   if (array.length == 0)
-    throw new Error("minBy() called with an empty array")
+    throw new Error("min_by() called with an empty array")
 
   let result = array[0]
   let resultComputed = key(result)
@@ -113,9 +113,9 @@ export function max(array: Arrayable<number>): number {
   return result
 }
 
-export function maxBy<T>(array: Arrayable<T>, key: (item: T) => number): T {
+export function max_by<T>(array: Arrayable<T>, key: (item: T) => number): T {
   if (array.length == 0)
-    throw new Error("maxBy() called with an empty array")
+    throw new Error("max_by() called with an empty array")
 
   let result = array[0]
   let resultComputed = key(result)
@@ -138,4 +138,66 @@ export function sum(array: Arrayable<number>): number {
     result += array[i]
   }
   return result
+}
+
+export function every<T>(array: Arrayable<T>, predicate: (item: T) => boolean): boolean {
+  for (let i = 0, length = array.length; i < length; i++) {
+    if (!predicate(array[i]))
+      return false
+  }
+  return true
+}
+
+export function some<T>(array: Arrayable<T>, predicate: (item: T) => boolean): boolean {
+  for (let i = 0, length = array.length; i < length; i++) {
+    if (predicate(array[i]))
+      return true
+  }
+  return false
+}
+
+export function index_of<T>(array: Arrayable<T>, value: T): number {
+  for (let i = 0, length = array.length; i < length; i++) {
+    if (array[i] === value)
+      return i
+  }
+  return -1
+}
+
+function _find_index(dir: -1 | 1) {
+  return function<T>(array: Arrayable<T>, predicate: (item: T) => boolean): number {
+    const length = array.length
+    let index = dir > 0 ? 0 : length - 1
+    for (; index >= 0 && index < length; index += dir) {
+      if (predicate(array[index]))
+        return index
+    }
+    return -1
+  }
+}
+
+export const find_index = _find_index(1)
+export const find_last_index = _find_index(-1)
+
+export function find<T>(array: Arrayable<T>, predicate: (item: T) => boolean): T | undefined {
+  const index = find_index(array, predicate)
+  return index == -1 ? undefined : array[index]
+}
+
+export function find_last<T>(array: Arrayable<T>, predicate: (item: T) => boolean): T | undefined {
+  const index = find_last_index(array, predicate)
+  return index == -1 ? undefined : array[index]
+}
+
+export function sorted_index<T>(array: Arrayable<T>, value: T): number {
+  let low = 0
+  let high = array.length
+  while (low < high) {
+    const mid = Math.floor((low + high) / 2)
+    if (array[mid] < value)
+      low = mid + 1
+    else
+      high = mid
+  }
+  return low
 }

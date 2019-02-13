@@ -1,7 +1,7 @@
 import {Document, References} from "./document"
 import {HasProps} from "core/has_props"
 import {Ref} from "core/util/refs"
-import {Index} from "models/sources/column_data_source"
+import {PatchSet} from "models/sources/column_data_source"
 
 export interface ModelChanged {
   kind: "ModelChanged"
@@ -43,7 +43,7 @@ export interface ColumnsStreamed {
 export interface ColumnsPatched {
   kind: "ColumnsPatched"
   column_source: Ref
-  patches: {[key: string]: [Index, any][]}
+  patches: PatchSet
 }
 
 export type DocumentChanged =
@@ -100,7 +100,7 @@ export class ColumnsPatchedEvent extends DocumentChangedEvent {
 
   constructor(document: Document,
       readonly column_source: Ref,
-      readonly patches: {[key: string]: [Index, any][]}) {
+      readonly patches: PatchSet) {
     super(document)
   }
 

@@ -1,5 +1,5 @@
 import {SelectTool, SelectToolView} from "./select_tool"
-import {CallbackLike} from "../../callbacks/callback"
+import {CallbackLike1} from "../../callbacks/callback"
 import * as p from "core/properties"
 import {TapEvent} from "core/ui_events"
 import {PointGeometry} from "core/geometry"
@@ -65,7 +65,7 @@ export namespace TapTool {
 
   export type Props = SelectTool.Props & {
     behavior: p.Property<TapBehavior>
-    callback: p.Property<CallbackLike<TapTool, {
+    callback: p.Property<CallbackLike1<TapTool, {
       geometries: PointGeometry & {x: number, y: number}
       source: ColumnarDataSource
     }> | null>

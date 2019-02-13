@@ -5,7 +5,7 @@ import {build_views, remove_views} from "core/build_views"
 
 import {Widget, WidgetView} from "./widget"
 import {AbstractIcon, AbstractIconView} from "./abstract_icon"
-import {CallbackLike} from "../callbacks/callback"
+import {CallbackLike0} from "../callbacks/callback"
 
 export abstract class AbstractButtonView extends WidgetView {
   model: AbstractButton
@@ -68,7 +68,7 @@ export namespace AbstractButton {
     label: p.Property<string>
     icon: p.Property<AbstractIcon>
     button_type: p.Property<ButtonType>
-    callback: p.Property<CallbackLike<AbstractButton> | null>
+    callback: p.Property<CallbackLike0<AbstractButton> | null>
   }
 }
 

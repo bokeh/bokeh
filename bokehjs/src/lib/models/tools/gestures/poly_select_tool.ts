@@ -1,9 +1,10 @@
 import {SelectTool, SelectToolView} from "./select_tool"
-import {CallbackLike} from "../../callbacks/callback"
+import {CallbackLike1} from "../../callbacks/callback"
 import {PolyAnnotation} from "../../annotations/poly_annotation"
 import {PolyGeometry} from "core/geometry"
 import {TapEvent, KeyEvent} from "core/ui_events"
 import {Keys} from "core/dom"
+import {Arrayable} from "core/types"
 import * as p from "core/properties"
 import {copy} from "core/util/array"
 
@@ -98,7 +99,9 @@ export namespace PolySelectTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = SelectTool.Props & {
-    callback: p.Property<CallbackLike<PolySelectTool> | null>
+    callback: p.Property<CallbackLike1<PolySelectTool, {
+      geometry: PolyGeometry & {x: Arrayable<number>, y: Arrayable<number>}
+    }> | null>
     overlay: p.Property<PolyAnnotation>
   }
 }

@@ -1,5 +1,5 @@
 import {Rect} from "./types"
-import {sortBy} from "./util/array"
+import {sort_by} from "./util/array"
 import {Selection} from "../models/selections/selection"
 
 export type HitTestResult = Selection | null
@@ -39,7 +39,7 @@ export function create_empty_hit_test_result(): Selection {
 
 export function create_hit_test_result_from_hits(hits: [number, number][]): Selection {
   const result = new Selection()
-  result.indices = sortBy(hits, ([_i, dist]) => dist).map(([i, _dist]) => i)
+  result.indices = sort_by(hits, ([_i, dist]) => dist).map(([i, _dist]) => i)
   return result
 }
 

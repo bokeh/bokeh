@@ -6,10 +6,11 @@ import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import {Signal0} from "core/signaling"
+import {Class} from "core/class"
 import {Size} from "core/layout"
 import {get_text_height} from "core/util/text"
 import {BBox} from "core/util/bbox"
-import {max, all} from "core/util/array"
+import {max, every} from "core/util/array"
 import {values} from "core/util/object"
 import {isString, isArray} from "core/util/types"
 import {Context2d} from "core/util/canvas"
@@ -244,8 +245,8 @@ export class LegendView extends AnnotationView {
 
       const active = (() => { switch (this.model.click_policy) {
         case "none": return true
-        case "hide": return all(item.renderers, r => r.visible)
-        case "mute": return all(item.renderers, r => !r.muted)
+        case "hide": return every(item.renderers, r => r.visible)
+        case "mute": return every(item.renderers, r => !r.muted)
       } })()
 
       for (const label of labels) {
@@ -324,6 +325,7 @@ export interface Legend extends Legend.Attrs {}
 
 export class Legend extends Annotation {
   properties: Legend.Props
+  default_view: Class<LegendView>
 
   item_change: Signal0<this>
 

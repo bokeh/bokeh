@@ -1,5 +1,4 @@
 import {TickFormatter} from "./tick_formatter"
-import {AxisView} from "../axes/axis"
 import {copy} from "core/util/array"
 import * as p from "core/properties"
 
@@ -22,7 +21,7 @@ export class CategoricalTickFormatter extends TickFormatter {
     this.prototype.type = 'CategoricalTickFormatter'
   }
 
-  doFormat(ticks: string[], _axis_view: AxisView): string[] {
+  doFormat(ticks: string[], _opts: {loc: number}): string[] {
     return copy(ticks)
   }
 }
