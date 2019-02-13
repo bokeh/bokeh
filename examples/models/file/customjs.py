@@ -26,12 +26,7 @@ plot.add_layout(LinearAxis(), 'below')
 plot.add_layout(LinearAxis(), 'left')
 
 customjs = CustomJS(args=dict(source=source), code="""
-  get_indices = require("core/util/selection").get_indices
-  const indices = get_indices(source)
-  const colors = []
-  for (i=0; i<indices.length; i++) {
-    colors.push(source.data['color'][indices[i]])
-  }
+  const colors = source.selected.indices.map((i) => source.data["color"][i])
   window.alert("Selected colors: " + colors)
 """)
 
@@ -45,6 +40,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "customjs.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "Demonstration of custom callback written in CoffeeScript"))
+        f.write(file_html(doc, INLINE, "Demonstration of custom callback written in TypeScript"))
     print("Wrote %s" % filename)
     view(filename)

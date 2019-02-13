@@ -4,6 +4,7 @@
 from bokeh.models import Label
 from bokeh.palettes import Spectral4
 from bokeh.plotting import output_file, figure, show
+from bokeh.util.compiler import TypeScript
 
 import numpy as np
 from scipy.special import jv
@@ -12,42 +13,65 @@ output_file('external_resources.html')
 
 class LatexLabel(Label):
     """A subclass of `Label` with all of the same class attributes except
-    canvas mode isn't supported and DOM manipulation happens in the coffeescript
+    canvas mode isn't supported and DOM manipulation happens in the TypeScript
     superclass implementation that requires setting `render_mode='css'`).
 
     Only the render method of LabelView is overwritten to perform the
     text -> latex (via katex) conversion
     """
-    __javascript__ = ["https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/katex.min.js"]
-    __css__ = ["https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/katex.min.css"]
-    __implementation__ = """
+    __javascript__ = ["https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.js"]
+    __css__ = ["https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css"]
+    __implementation__ = TypeScript("""
 import {Label, LabelView} from "models/annotations/label"
 
-export class LatexLabelView extends LabelView
-  render: () ->
-    # Here because AngleSpec does units tranform and label doesn't support specs
-    switch @model.angle_units
-      when "rad" then angle = -1 * @model.angle
-      when "deg" then angle = -1 * @model.angle * Math.PI/180.0
+declare namespace katex {
+  function render(expression: string, element: HTMLElement, options: {displayMode?: boolean}): void
+}
 
-    panel = @model.panel ? @plot_view.frame
+export class LatexLabelView extends LabelView {
+  model: LatexLabel
 
-    xscale = @plot_view.frame.xscales[@model.x_range_name]
-    yscale = @plot_view.frame.yscales[@model.y_range_name]
+  render(): void {
+    // Here because AngleSpec does units tranform and label doesn't support specs
+    let angle: number
+    switch (this.model.angle_units) {
+      case "rad": {
+        angle = -1 * this.model.angle
+        break
+      }
+      case "deg": {
+        angle = -1 * this.model.angle * Math.PI/180.0
+        break
+      }
+      default:
+        throw new Error("unreachable")
+    }
 
-    sx = if @model.x_units == "data" then xscale.compute(@model.x) else panel.xview.compute(@model.x)
-    sy = if @model.y_units == "data" then yscale.compute(@model.y) else panel.yview.compute(@model.y)
+    const panel = this.panel || this.plot_view.frame
 
-    sx += @model.x_offset
-    sy -= @model.y_offset
+    const xscale = this.plot_view.frame.xscales[this.model.x_range_name]
+    const yscale = this.plot_view.frame.yscales[this.model.y_range_name]
 
-    @_css_text(@plot_view.canvas_view.ctx, "", sx, sy, angle)
-    katex.render(@model.text, @el, {displayMode: true})
+    const {x, y} = this.model
+    let sx = this.model.x_units == "data" ? xscale.compute(x) : panel.xview.compute(x)
+    let sy = this.model.y_units == "data" ? yscale.compute(y) : panel.yview.compute(y)
 
-export class LatexLabel extends Label
-  type: 'LatexLabel'
-  default_view: LatexLabelView
-"""
+    sx += this.model.x_offset
+    sy -= this.model.y_offset
+
+    this._css_text(this.plot_view.canvas_view.ctx, "", sx, sy, angle)
+    katex.render(this.model.text, this.el, {displayMode: true})
+  }
+}
+
+export class LatexLabel extends Label {
+  static initClass(): void {
+    this.prototype.type = "LatexLabel"
+    this.prototype.default_view = LatexLabelView
+  }
+}
+LatexLabel.initClass()
+""")
 
 p = figure(title="LaTex Extension Demonstration", plot_width=800, plot_height=350,
            background_fill_color="#fafafa")

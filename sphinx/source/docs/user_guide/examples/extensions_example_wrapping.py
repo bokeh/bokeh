@@ -15,24 +15,20 @@ TS_CODE = """
 // Making it easy to hook up python data analytics tools (NumPy, SciPy,
 // Pandas, etc.) to web presentations using the Bokeh server.
 
-// These "require" lines are similar to python "import" statements
-import * as p from "core/properties"
 import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
+import {ColumnDataSource} from "models/sources/column_data_source"
 import {LayoutItem} from "core/layout/index"
-import {ColumnDataSource} from 'models/sources/column_data_source'
+import * as p from "core/properties"
 
 declare namespace vis {
   class Graph3d {
     constructor(el: HTMLElement, data: object, OPTIONS: object)
-    setData(data: vis.DataSet): any
+    setData(data: vis.DataSet): void
   }
-  class DataSet {
-    add(data: any): void
-  }
-}
 
-interface HTMLScriptLoader extends HTMLScriptElement {
-  onreadystatechange: any
+  class DataSet {
+    add(data: unknown): void
+  }
 }
 
 // This defines some default options for the Graph3d feature of vis.js
@@ -58,20 +54,21 @@ const OPTIONS = {
 // In this case we will subclass from the existing BokehJS ``LayoutDOMView``
 export class Surface3dView extends LayoutDOMView {
   model: Surface3d
-  _graph: vis.Graph3d
 
-  initialize(options: any) {
+  private _graph: vis.Graph3d
+
+  initialize(options: any): void {
     super.initialize(options)
 
     const url = "https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis.min.js"
-    const script = document.createElement('script') as HTMLScriptLoader
-    script.src = url
+    const script = document.createElement("script")
+    script.onload = () => this._init()
     script.async = false
-    script.onreadystatechange = (script.onload = () => this._init())
-    return document.querySelector("head")!.appendChild(script)
+    script.src = url
+    document.head.appendChild(script)
   }
 
-  _init() {
+  private _init(): void {
     // Create a new Graph3s using the vis.js API. This assumes the vis.js has
     // already been loaded (e.g. in a custom app template). In the future Bokeh
     // models will be able to specify and load external scripts automatically.
@@ -84,13 +81,9 @@ export class Surface3dView extends LayoutDOMView {
 
     // Set a listener so that when the Bokeh data source has a change
     // event, we can process the new data
-    return this.connect(this.model.data_source.change, () => {
-      return this._graph.setData(this.get_data())
+    this.connect(this.model.data_source.change, () => {
+      this._graph.setData(this.get_data())
     })
-  }
-
-  get child_models(): LayoutDOM[] {
-    return []
   }
 
   // This is the callback executed when the Bokeh data has an change. Its basic
@@ -100,19 +93,22 @@ export class Surface3dView extends LayoutDOMView {
     const source = this.model.data_source
     for (let i = 0; i < source.get_length()!; i++) {
       data.add({
-        x: source.get_column(this.model.x)![i],
-        y: source.get_column(this.model.y)![i],
-        z: source.get_column(this.model.z)![i],
+        x: source.data[this.model.x][i],
+        y: source.data[this.model.y][i],
+        z: source.data[this.model.z][i],
       })
     }
     return data
   }
 
-  _update_layout() {
-    this.layout = new LayoutItem()
-    return this.layout.set_sizing(this.box_sizing())
+  get child_models(): LayoutDOM[] {
+    return []
   }
 
+  _update_layout(): void {
+    this.layout = new LayoutItem()
+    this.layout.set_sizing(this.box_sizing())
+  }
 }
 
 // We must also create a corresponding JavaScript BokehJS model subclass to
@@ -120,12 +116,12 @@ export class Surface3dView extends LayoutDOMView {
 // an element that can position itself in the DOM according to a Bokeh layout,
 // we subclass from ``LayoutDOM``
 export namespace Surface3d {
-  export type Attrs = p.AttrsOf<Surface3d.Props>
+  export type Attrs = p.AttrsOf<Props>
 
   export type Props = LayoutDOM.Props & {
-    x: p.Property<string>,
-    y: p.Property<string>,
-    z: p.Property<string>,
+    x: p.Property<string>
+    y: p.Property<string>
+    z: p.Property<string>
     data_source: p.Property<ColumnDataSource>
   }
 }
@@ -140,13 +136,12 @@ export class Surface3d extends LayoutDOM {
   }
 
   static initClass() {
-
-    // This is usually boilerplate. In some cases there may not be a view.
-    this.prototype.default_view = Surface3dView
-
     // The ``type`` class attribute should generally match exactly the name
     // of the corresponding Python class.
     this.prototype.type = "Surface3d"
+
+    // This is usually boilerplate. In some cases there may not be a view.
+    this.prototype.default_view = Surface3dView
 
     // The @define block adds corresponding "properties" to the JS model. These
     // should basically line up 1-1 with the Python model class. Most property
@@ -154,16 +149,15 @@ export class Surface3d extends LayoutDOM {
     // ``p.String`` in the JS implementatin. Where the JS type system is not yet
     // as rich, you can use ``p.Any`` as a "wildcard" property type.
     this.define<Surface3d.Props>({
-      x:            [p.String],
-      y:            [p.String],
-      z:            [p.String],
-      data_source:  [p.Instance],
+      x:            [ p.String   ],
+      y:            [ p.String   ],
+      z:            [ p.String   ],
+      data_source:  [ p.Instance ],
     })
   }
 }
 Surface3d.initClass()
 """
-
 
 # This custom extension model will have a DOM view that should layout-able in
 # Bokeh layouts, so use ``LayoutDOM`` as the base class. If you wanted to create

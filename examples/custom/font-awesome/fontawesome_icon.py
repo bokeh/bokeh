@@ -5,7 +5,7 @@ from named_icon import NamedIcon
 class FontAwesomeIcon(AbstractIcon):
     """ A "stock" icon based on FontAwesome. """
 
-    __implementation__ = "fontawesome_icon.coffee"
+    __implementation__ = "fontawesome_icon.ts"
     __dependencies__ = {"font-awesome": "^4.6.3"}
 
     icon_name = Enum(NamedIcon, default="check", help="""

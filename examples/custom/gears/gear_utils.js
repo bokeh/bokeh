@@ -434,6 +434,6 @@ createIntGearTooth = function(module, teeth, pressureAngle)
 }());
 
 export {
-  createGearTooth as create_gear_tooth,
-  createIntGearTooth as create_internal_gear_tooth
+  createGearTooth as gear_tooth,
+  createIntGearTooth as internal_gear_tooth
 }
