@@ -70,6 +70,12 @@ class ColorDocumenter(ModuleLevelDocumenter):
     def can_document_member(cls, member, membername, isattr, parent):
         return isinstance(member, Color)
 
+    # We don't need/want anything from the actual NamedColor class
+    def add_content(self, more_content, no_docstring=False):
+        pass
+    def get_object_members(self, want_all):
+        return False, []
+
 class EnumDocumenter(ModuleLevelDocumenter):
     directivetype = 'bokeh-enum'
     objtype = 'enum'
