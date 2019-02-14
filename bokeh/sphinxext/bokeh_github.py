@@ -6,8 +6,8 @@
 #-----------------------------------------------------------------------------
 ''' Simplify linking to Bokeh Github resources.
 
-This module proved four new roles that can be uses to easily link
-to various resources in the Bokeh Github repository:
+This module proved four new roles that can be uses to easily link to various
+resources in the Bokeh Github repository:
 
 ``:bokeh-commit:`` : link to a specific commit
 
@@ -20,7 +20,9 @@ to various resources in the Bokeh Github repository:
 Examples
 --------
 
-The following code::
+The following code:
+
+.. code-block:: rest
 
     The repo history shows that :bokeh-commit:`bf19bcb` was made in
     in :bokeh-pull:`1698`, which closed :bokeh-issue:`1694`. This included
@@ -58,10 +60,7 @@ from docutils.parsers.rst.roles import set_classes
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-BOKEH_GH = "https://github.com/bokeh/bokeh"
-
 __all__ = (
-    'BOKEH_GH',
     'bokeh_commit',
     'bokeh_issue',
     'bokeh_pull',
@@ -145,7 +144,6 @@ def bokeh_tree(name, rawtext, text, lineno, inliner, options=None, content=None)
         All of the examples are located in the :bokeh-tree:`examples`
         subdirectory of your Bokeh checkout.
 
-
     Returns 2 part tuple containing list of nodes to insert into the
     document and a list of system messages.  Both are allowed to be
     empty.
@@ -157,14 +155,14 @@ def bokeh_tree(name, rawtext, text, lineno, inliner, options=None, content=None)
     if '-' in tag:
         tag = 'master'
 
-    url = "%s/tree/%s/%s" % (BOKEH_GH, tag, text)
+    url = "%s/tree/%s/%s" % (_BOKEH_GH, tag, text)
     options = options or {}
     set_classes(options)
-    node = nodes.reference(
-        rawtext, text, refuri=url, **options)
+    node = nodes.reference(rawtext, text, refuri=url, **options)
     return [node], []
 
 def setup(app):
+    ''' Required Sphinx extension setup function. '''
     app.add_role('bokeh-commit', bokeh_commit)
     app.add_role('bokeh-issue', bokeh_issue)
     app.add_role('bokeh-pull', bokeh_pull)
@@ -173,6 +171,8 @@ def setup(app):
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+_BOKEH_GH = "https://github.com/bokeh/bokeh"
 
 def _make_gh_link_node(app, rawtext, role, kind, api_type, id, options=None):
     ''' Return a link to a Bokeh Github resource.
@@ -187,7 +187,7 @@ def _make_gh_link_node(app, rawtext, role, kind, api_type, id, options=None):
         options (dict) : options dictionary passed to role function
 
     '''
-    url = "%s/%s/%s" % (BOKEH_GH, api_type, id)
+    url = "%s/%s/%s" % (_BOKEH_GH, api_type, id)
     options = options or {}
     set_classes(options)
     node = nodes.reference(
