@@ -16,6 +16,13 @@ bokeh_autodoc
 
 .. automodule:: bokeh.sphinxext.bokeh_autodoc
 
+.. _bokeh.sphinxext.bokeh_color:
+
+bokeh_color
+-----------
+
+.. automodule:: bokeh.sphinxext.bokeh_color
+
 .. _bokeh.sphinxext.bokeh_enum:
 
 bokeh_enum
@@ -75,7 +82,7 @@ bokeh_prop
 .. _bokeh.sphinxext.bokeh_releases:
 
 bokeh_releases
--------------------
+--------------
 
 .. automodule:: bokeh.sphinxext.bokeh_releases
 
