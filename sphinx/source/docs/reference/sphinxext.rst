@@ -58,6 +58,13 @@ bokeh_model
 
 .. automodule:: bokeh.sphinxext.bokeh_model
 
+.. _bokeh.sphinxext.bokeh_options:
+
+bokeh_options
+-------------
+
+.. automodule:: bokeh.sphinxext.bokeh_options
+
 .. _bokeh.sphinxext.bokeh_palette:
 
 bokeh_palette
