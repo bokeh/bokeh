@@ -1,6 +1,7 @@
 .. data:: {{ name }}
     :module: {{ module }}
     :annotation: = {{ objrepr }}
+    {% if noindex %}:noindex:{% endif %}
 
     {% if doc %}{{ doc|indent(4) }}{% endif %}
 

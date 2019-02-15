@@ -44,6 +44,13 @@ bokeh_github
 
 .. automodule:: bokeh.sphinxext.bokeh_github
 
+.. _bokeh.sphinxext.bokeh_jinja:
+
+bokeh_jinja
+-----------
+
+.. automodule:: bokeh.sphinxext.bokeh_jinja
+
 .. _bokeh.sphinxext.bokeh_model:
 
 bokeh_model
