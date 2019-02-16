@@ -480,6 +480,13 @@ class Serve(Subcommand):
             help    = "One of: %s" % nice_join(SESSION_ID_MODES),
         )),
 
+        ('--index', dict(
+            metavar='INDEX',
+            action  = 'store',
+            default = None,
+            help    = 'Path to a template to use for the site index',
+        )),
+
         ('--disable-index', dict(
             action = 'store_true',
             help    = 'Do not use the default index on the root path',
@@ -564,6 +571,7 @@ class Serve(Subcommand):
                                                               'allow_websocket_origin',
                                                               'num_procs',
                                                               'prefix',
+                                                              'index',
                                                               'keep_alive_milliseconds',
                                                               'check_unused_sessions_milliseconds',
                                                               'unused_session_lifetime_milliseconds',

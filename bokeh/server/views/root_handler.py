@@ -53,6 +53,7 @@ class RootHandler(RequestHandler):
     def initialize(self, *args, **kw):
         self.applications = kw["applications"]
         self.prefix = kw["prefix"]
+        self.index = kw["index"]
         self.use_redirect = kw["use_redirect"]
 
     @gen.coroutine
@@ -63,7 +64,8 @@ class RootHandler(RequestHandler):
             redirect_to = prefix + app_names[0]
             self.redirect(redirect_to)
         else:
-            self.render("app_index.html", prefix=prefix, items=sorted(self.applications.keys()))
+            index = "app_index.html" if self.index is None else self.index
+            self.render(index, prefix=prefix, items=sorted(self.applications.keys()))
 
 #-----------------------------------------------------------------------------
 # Private API

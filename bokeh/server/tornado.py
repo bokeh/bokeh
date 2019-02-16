@@ -145,6 +145,11 @@ class BokehTornado(TornadoApplication):
             Whether to generate an index of running apps in the ``RootHandler``
             (default: True)
 
+        index (str, optional) :
+            Path to a Jinja2 template to serve as the index for "/" if use_index
+            is True. If None, the basic built in app index template is used.
+            (default: None)
+
         redirect_root (bool, optional) :
             When there is only a single running application, whether to
             redirect requests to ``"/"`` to that application automatically
@@ -178,6 +183,7 @@ class BokehTornado(TornadoApplication):
                  use_index=True,
                  redirect_root=True,
                  websocket_max_message_size_bytes=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
+                 index=None,
                  **kwargs):
 
         # This will be set when initialize is called
@@ -193,6 +199,8 @@ class BokehTornado(TornadoApplication):
             prefix = "/" + prefix
 
         self._prefix = prefix
+
+        self._index = index
 
         if keep_alive_milliseconds < 0:
             # 0 means "disable"
@@ -292,6 +300,7 @@ class BokehTornado(TornadoApplication):
                 if use_index:
                     data = {"applications": self._applications,
                             "prefix": self._prefix,
+                            "index": self._index,
                             "use_redirect": redirect_root}
                     prefixed_pat = (self._prefix + p[0],) + p[1:] + (data,)
                     all_patterns.append(prefixed_pat)
@@ -343,6 +352,13 @@ class BokehTornado(TornadoApplication):
 
         '''
         return set(self._applications)
+
+    @property
+    def index(self):
+        ''' Path to a Jinja2 template to serve as the index "/"
+
+        '''
+        return self._index
 
     @property
     def io_loop(self):

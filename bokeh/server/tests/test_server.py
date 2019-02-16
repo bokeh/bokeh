@@ -172,6 +172,14 @@ def test_prefix():
     with ManagedServerLoop(application, prefix="foo") as server:
         assert server.prefix == "foo"
 
+def test_index():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        assert server.index is None
+
+    with ManagedServerLoop(application, index="foo") as server:
+        assert server.index == "foo"
+
 def test_get_sessions():
     application = Application()
     with ManagedServerLoop(application) as server:

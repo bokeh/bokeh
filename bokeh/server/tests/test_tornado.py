@@ -80,6 +80,14 @@ def test_default_resources():
         assert r.root_url == "/foo/bar/"
         assert r.path_versioner == StaticHandler.append_version
 
+def test_index():
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        assert server._tornado.index is None
+
+    with ManagedServerLoop(application, index='foo') as server:
+        assert server._tornado.index == "foo"
+
 def test_prefix():
     application = Application()
     with ManagedServerLoop(application) as server:
