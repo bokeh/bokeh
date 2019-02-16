@@ -1,6 +1,6 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {TooltipAttachment} from "core/enums"
-import {div, show, hide, empty} from "core/dom"
+import {div, display, undisplay, empty} from "core/dom"
 import * as p from "core/properties"
 
 export function compute_side(attachment: TooltipAttachment, sx: number, sy: number, hcenter: number, vcenter: number) {
@@ -25,7 +25,7 @@ export class TooltipView extends AnnotationView {
     super.initialize(options)
     // TODO (bev) really probably need multiple divs
     this.plot_view.canvas_overlays.appendChild(this.el)
-    hide(this.el)
+    undisplay(this.el)
   }
 
   connect_signals(): void {
@@ -47,7 +47,7 @@ export class TooltipView extends AnnotationView {
   protected _draw_tips(): void {
     const {data} = this.model
     empty(this.el)
-    hide(this.el)
+    undisplay(this.el)
 
     if (this.model.custom)
       this.el.classList.add("bk-tooltip-custom")
@@ -78,7 +78,7 @@ export class TooltipView extends AnnotationView {
 
     const arrow_size = 10  // XXX: keep in sync with less
 
-    show(this.el)  // XXX: {offset,client}Width() gives 0 when display="none"
+    display(this.el)  // XXX: {offset,client}Width() gives 0 when display="none"
 
     // slightly confusing: side "left" (for example) is relative to point that
     // is being annotated but CS class "bk-left" is relative to the tooltip itself
@@ -118,7 +118,7 @@ export class TooltipView extends AnnotationView {
       this.el.style.top = `${top}px`
       this.el.style.left = `${left}px`
     } else
-      hide(this.el)
+      undisplay(this.el)
   }
 }
 

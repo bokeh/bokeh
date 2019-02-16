@@ -4,7 +4,7 @@ import {ColumnDataSource} from "../sources/column_data_source"
 import {TextVector} from "core/property_mixins"
 import {LineJoin, LineCap} from "core/enums"
 import {SpatialUnits} from "core/enums"
-import {div, show, hide} from "core/dom"
+import {div, display, undisplay} from "core/dom"
 import * as p from "core/properties"
 import {Size} from "core/layout"
 import {Arrayable} from "core/types"
@@ -93,7 +93,7 @@ export class LabelSetView extends TextAnnotationView {
 
   render(): void {
     if (!this.model.visible && this.model.render_mode == 'css')
-      hide(this.el)
+      undisplay(this.el)
 
     if (!this.model.visible)
       return
@@ -182,7 +182,7 @@ export class LabelSetView extends TextAnnotationView {
       el.style.borderColor = `${this.visuals.border_line.color_value()}`
     }
 
-    show(el)
+    display(el)
   }
 }
 

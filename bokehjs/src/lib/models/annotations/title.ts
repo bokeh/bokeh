@@ -1,6 +1,6 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {FontStyle, VerticalAlign, TextAlign, TextBaseline} from "core/enums"
-import {hide} from "core/dom"
+import {undisplay} from "core/dom"
 import {Size} from "core/layout"
 import {Text} from "core/visuals"
 import * as mixins from "core/property_mixins"
@@ -81,7 +81,7 @@ export class TitleView extends TextAnnotationView {
   render(): void {
     if (!this.model.visible) {
       if (this.model.render_mode == 'css')
-        hide(this.el)
+        undisplay(this.el)
       return
     }
 
