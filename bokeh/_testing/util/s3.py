@@ -56,7 +56,9 @@ def connect_to_s3():
 
     '''
     try:
-        return boto.connect_s3()
+        # calling_format due to https://github.com/boto/boto/issues/2836
+        from boto.s3.connection import OrdinaryCallingFormat
+        return boto.connect_s3(calling_format=OrdinaryCallingFormat())
     except NoAuthHandlerFound:
         fail("Upload was requested but could not connect to S3.")
         fail("This is expected if you are an external contributor submitting a PR to Bokeh.")
