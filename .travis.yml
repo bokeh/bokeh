@@ -17,11 +17,20 @@ filter_secrets: false
 env:
   global:
     - BOTO_CONFIG="/tmp/nowhere"
-    - secure: nLrUq2h59KN3k3hnid+Ub4RHDcVkZyrVmuMLoM6NbwKA0bwpDltaoSg5cj2dzdXKBwvv+3VP38oXLhEGLhVi7kDmyX3ICcza6Usy8zgK3s1NBgl6hFjqaJ7RjCu9OP1I42ThMTLfCQMRrYul7s74sGdZa+HfMCZcl+3Co5IzraI=
-    - secure: oI7Up9HuHSBw8k9LBNC6pLEUJONj+5NeEGFpSLSVXvqPPmyXJZ4qRE/dZ/HxZp6xyBze5GLYmdXXAdhrZyNjmU1ZA0rbBLDWLXuAW8eJm5xAXZ0NRFlHMXMkwvbG9hPTOTFtxKNS4lG/Fo5AXwE4MgT5uzQS4I7HuuNkcZOoInY=
+
+    # AWS_ACCESS_KEY_ID
+    - secure: K4cYsYCIh4TDNmtRjk7x9oqe8Zwy6xRpJjqOvjRCnpkze10E7TN/nyQm4/6Fts5frqxtzxCM83HNNUmXnCTJqH2+A5VojSmLtHug9oaW5XODxvZvm2Tiz8afbOwESp7tdq0ZEJgV12SVevh+o/jgC0ZG5A6PIqNW2SbN7cTEZHc=
+
+    # AWS_SECRET_ACCESS_KEY
+    - secure: VsmEbjZuR7CN7zrLadmmLqrnBLJ5g6txka8H4jUdf2AB7UvzoNYLePQZYADN/zv8fy+q1jGXQNIq8DYr9sdetgNWethOzSpFiBC5AdyBnbO2RjIosY8ZaxcOnj3xYGgv+dF8/g7/QVYJdJCV5hhyAOH0BsczrtmlRDPjXH2S4oA=
+
+    # GOOGLE_API_KEY
     - secure: MAaYB6RV2a9tZ61Olatv52Yi4EqEh+wMkX6y20Ja1yyY3I+2sFT1NZ8ZwPFCKkDdMeSna7z4ROKk3CDMK0JkbUJrqnZgo6Fy7w6GZPcZlzUPrgH04Or0v94upMh2i0lh8wcz88VuR0i+GxnqUsP18W5AJfO/FXmU4VgDAOJfKrQ=
-    - secure: IJrbxdVsjSOsZsmeD3nns1jQqcfY6J1mBbGSAtTHgRBvy1dKaejYg9jfKxaRlxjfSWXROomv0Ig+57wEAhSbxy1GBX52cklcLaY11LhaP6DHaah5eDcZe10Lk/5GxuVQmrJY0CtrrV6Jv2UB87sEqhwB0B5+ZXWOt0vdsHa4yOI=
+
+    # RSUSER
     - secure: pham9rB+qKZJYVBgXzg7I0rYbAo+A3dFbh4+L3rAuJtSQ7BJfYHwD3GIBFT/RAXIkjbEIPxFYygq+em7A9UdLQpcCgFcmrCWeVxCChCJ3lZBReb47i/vUuKgJT5d19vqpgGtQAxgd1gSBl4k6SwkpxWIpqtimVWq1F1JqU3U+6s=
+
+    # RSAPIKEY
     - secure: Lv0s3lMsex6jASQ2/9StOV3MQVtkisIcf/Qk/or9wJqpuGWoMQUCaXkhC+8onYeOaFtznvf60nV4zEUYIWXYWEtUUmI4BjmlLvb+lhOVErqdJ+ihMH1yASHm1v7+9MjNnMGRxtAg0cTtJFbmXWHtYDMylNZ1E7X+ORpXyqer3n4=
 
     # ANACONDA_TOKEN (expires 10/19)
