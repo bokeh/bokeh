@@ -39,7 +39,7 @@ from bokeh.util.terminal import trace, ok, fail
 
 S3_BUCKET = "ci.bokeh.org"
 
-S3_URL = "%s.s3-website-us-east-1.amazonaws.com" % S3_BUCKET
+S3_URL = "https://ci.bokeh.org/"
 
 __all__ = (
     'connect_to_s3',
