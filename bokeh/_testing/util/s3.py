@@ -37,9 +37,9 @@ from bokeh.util.terminal import trace, ok, fail
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-S3_BUCKET = "bokeh-travis"
+S3_BUCKET = "ci.bokeh.org"
 
-S3_URL = "https://s3.amazonaws.com/%s" % S3_BUCKET
+S3_URL = "%s.s3-website-us-east-1.amazonaws.com" % S3_BUCKET
 
 __all__ = (
     'connect_to_s3',
@@ -52,9 +52,9 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def connect_to_s3():
-    """
-    Returns the connection object or None if connection failed.
-    """
+    ''' Return the connection object or None if connection failed.
+
+    '''
     try:
         return boto.connect_s3()
     except NoAuthHandlerFound:
@@ -64,17 +64,17 @@ def connect_to_s3():
         return None
 
 def upload_file_to_s3_by_job_id(file_path, content_type="text/html", extra_message=None):
-    """
-    Uploads a file to bokeh-travis s3 bucket under a job_id folder
-    """
-    s3_filename = join(JOB_ID, file_path)
+    ''' Upload a file to the ci.bokeh.org s3 bucket under a travis/JOB_ID
+
+    '''
+    s3_filename = join("travis", JOB_ID, file_path)
     return upload_file_to_s3(file_path, s3_filename, content_type, extra_message)
 
 
 def upload_file_to_s3(file_path, s3_filename, content_type="text/html", extra_message=None):
-    """
-    Uploads a file to bokeh-travis s3 bucket.
-    """
+    ''' Upload a file to the ci.bokeh.org s3 bucket
+
+    '''
     conn = connect_to_s3()
     upload = conn is not None
 

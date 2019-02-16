@@ -33,7 +33,7 @@ import requests
 
 # Bokeh imports
 from bokeh._testing.util.git import __version__
-from bokeh._testing.util.s3 import S3_URL, upload_file_to_s3
+from bokeh._testing.util.s3 import S3_URL, upload_file_to_s3_by_job_id
 from bokeh._testing.util.travis import JOB_ID
 from bokeh._testing.util.images import image_diff
 from bokeh.util.terminal import trace, green
@@ -199,18 +199,6 @@ class Example(object):
         return diff.decode("utf-8").strip()
 
     @property
-    def img_path_or_url(self):
-        return self.img_path if not self._upload else self.img_url
-
-    @property
-    def ref_path_or_url(self):
-        return self.ref_path if not self._upload else self.ref_url
-
-    @property
-    def diff_path_or_url(self):
-        return self.diff_path if not self._upload else self.diff_url
-
-    @property
     def img_path(self):
         return join(self.imgs_dir, "%s-%s-%s.png" % (self.name, __version__, JOB_ID))
 
@@ -223,28 +211,12 @@ class Example(object):
         return join(self.imgs_dir, "%s-%s-%s-diff-%s.png" % (self.name, __version__, self._diff_ref, JOB_ID))
 
     @property
-    def img_url(self):
-        return join(S3_URL, self.img_url_path)
-
-    @property
     def ref_url(self):
-        return join(S3_URL, self.ref_url_path)
-
-    @property
-    def diff_url(self):
-        return join(S3_URL, self.diff_url_path)
-
-    @property
-    def img_url_path(self):
-        return join(__version__, self.relpath_no_ext) + '.png'
+        return join(S3_URL, "travis", JOB_ID, self.ref_url_path)
 
     @property
     def ref_url_path(self):
         return join(self._diff_ref, self.relpath_no_ext) + '.png'
-
-    @property
-    def diff_url_path(self):
-        return join(__version__, self.relpath_no_ext) + self._diff_ref + '-diff.png'
 
     @property
     def has_ref(self):
@@ -265,11 +237,11 @@ class Example(object):
 
     def upload_imgs(self):
         if isfile(self.img_path):
-            trace("%s Uploading image to S3 to %s" % (green(">>>"), self.img_url_path))
-            upload_file_to_s3(self.img_path, self.img_url_path, "image/png")
+            trace("%s Uploading image to S3 to %s" % (green(">>>"), self.img_path))
+            upload_file_to_s3_by_job_id(self.img_path, "image/png")
         if isfile(self.diff_path):
-            trace("%s Uploading image to S3 to %s" % (green(">>>"), self.diff_url_path))
-            upload_file_to_s3(self.diff_path, self.diff_url_path, "image/png")
+            trace("%s Uploading image to S3 to %s" % (green(">>>"), self.diff_path))
+            upload_file_to_s3_by_job_id(self.diff_path, "image/png")
 
     @property
     def images_differ(self):
