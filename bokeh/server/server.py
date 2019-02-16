@@ -364,6 +364,7 @@ class Server(BaseServer):
         self._port = opts.port
         self._address = opts.address
         self._prefix = opts.prefix
+        self._index = opts.index
 
         if opts.num_procs != 1:
             assert all(app.safe_to_fork for app in applications.values()), (
@@ -389,6 +390,7 @@ class Server(BaseServer):
             tornado_app = BokehTornado(applications,
                                        extra_websocket_origins=extra_websocket_origins,
                                        prefix=self.prefix,
+                                       index=self.index,
                                        websocket_max_message_size_bytes=opts.websocket_max_message_size,
                                        **kwargs)
 
@@ -407,6 +409,13 @@ class Server(BaseServer):
             io_loop = IOLoop.current()
 
         super(Server, self).__init__(io_loop, tornado_app, http_server)
+
+    @property
+    def index(self):
+        ''' A path to a Jinja2 template to use for index at "/"
+
+        '''
+        return self._index
 
     @property
     def prefix(self):
@@ -462,6 +471,10 @@ class _ServerOpts(Options):
 
     prefix = String(default="", help="""
     A URL prefix to use for all Bokeh server paths.
+    """)
+
+    index = String(default=None, help="""
+    A path to a Jinja2 template to use for the index "/"
     """)
 
     allow_websocket_origin = List(String, default=None, help="""

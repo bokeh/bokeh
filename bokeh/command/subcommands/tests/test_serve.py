@@ -182,6 +182,13 @@ def test_args():
             help    = "One of: %s" % nice_join(scserve.SESSION_ID_MODES),
         )),
 
+        ('--index', dict(
+            metavar='INDEX',
+            action  = 'store',
+            default = None,
+            help    = 'Path to a template to use for the site index',
+        )),
+
         ('--disable-index', dict(
             action = 'store_true',
             help    = 'Do not use the default index on the root path',
