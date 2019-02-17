@@ -1,6 +1,6 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {SpatialUnits, AngleUnits} from "core/enums"
-import {hide} from "core/dom"
+import {undisplay} from "core/dom"
 import {Size} from "core/layout"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
@@ -24,7 +24,7 @@ export class LabelView extends TextAnnotationView {
 
   render(): void {
     if (!this.model.visible && this.model.render_mode == 'css')
-      hide(this.el)
+      undisplay(this.el)
 
     if (!this.model.visible)
       return

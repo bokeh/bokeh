@@ -3,7 +3,7 @@ import {Scale} from "../scales/scale"
 import {LineScalar} from "core/property_mixins"
 import {Line} from "core/visuals"
 import {SpatialUnits, RenderMode, Dimension} from "core/enums"
-import {show, hide} from "core/dom"
+import {display, undisplay} from "core/dom"
 import * as p from "core/properties"
 import {CoordinateTransform} from "core/util/bbox"
 
@@ -15,7 +15,7 @@ export class SpanView extends AnnotationView {
     super.initialize(options)
     this.plot_view.canvas_overlays.appendChild(this.el)
     this.el.style.position = "absolute"
-    hide(this.el)
+    undisplay(this.el)
   }
 
   connect_signals(): void {
@@ -35,7 +35,7 @@ export class SpanView extends AnnotationView {
 
   render(): void {
     if (!this.model.visible && this.model.render_mode == 'css')
-      hide(this.el)
+      undisplay(this.el)
 
     if (!this.model.visible)
       return
@@ -46,7 +46,7 @@ export class SpanView extends AnnotationView {
   protected _draw_span(): void {
     const loc = this.model.for_hover ? this.model.computed_location : this.model.location
     if (loc == null) {
-      hide(this.el)
+      undisplay(this.el)
       return
     }
 
@@ -86,7 +86,7 @@ export class SpanView extends AnnotationView {
       this.el.style.height = `${height}px`
       this.el.style.backgroundColor = this.model.properties.line_color.value()
       this.el.style.opacity = this.model.properties.line_alpha.value()
-      show(this.el)
+      display(this.el)
     } else if (this.model.render_mode == "canvas") {
       const {ctx} = this.plot_view.canvas_view
       ctx.save()

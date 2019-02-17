@@ -1,6 +1,6 @@
 import {TextInput, TextInputView} from "./text_input"
 
-import {empty, show, hide, div, Keys} from "core/dom"
+import {empty, display, undisplay, div, Keys} from "core/dom"
 import * as p from "core/properties"
 
 export class AutocompleteInputView extends TextInputView {
@@ -21,7 +21,7 @@ export class AutocompleteInputView extends TextInputView {
     this.menu = div({class: ["bk-menu", "bk-below"]})
     this.menu.addEventListener("click", (event) => this._menu_click(event))
     this.el.appendChild(this.menu)
-    hide(this.menu)
+    undisplay(this.menu)
   }
 
   protected _update_completions(completions: string[]): void {
@@ -36,7 +36,7 @@ export class AutocompleteInputView extends TextInputView {
   protected _show_menu(): void {
     if (!this._open) {
       this._open = true
-      show(this.menu)
+      display(this.menu)
 
       const listener = (event: MouseEvent) => {
         const {target} = event
@@ -52,7 +52,7 @@ export class AutocompleteInputView extends TextInputView {
   protected _hide_menu(): void {
     if (this._open) {
       this._open = false
-      hide(this.menu)
+      undisplay(this.menu)
     }
   }
 

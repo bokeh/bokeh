@@ -1,6 +1,6 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {Text, Line, Fill} from "core/visuals"
-import {show, hide} from "core/dom"
+import {display, undisplay} from "core/dom"
 import {RenderMode} from "core/enums"
 import * as p from "core/properties"
 import {get_text_height} from "core/util/text"
@@ -100,7 +100,7 @@ export abstract class TextAnnotationView extends AnnotationView {
   }
 
   protected _css_text(ctx: Context2d, text: string, sx: number, sy: number, angle: number): void {
-    hide(this.el)
+    undisplay(this.el)
 
     this.visuals.text.set_value(ctx)
     const bbox_dims = this._calculate_bounding_box_dimensions(ctx, text)
@@ -135,7 +135,7 @@ export abstract class TextAnnotationView extends AnnotationView {
     }
 
     this.el.textContent = text
-    show(this.el)
+    display(this.el)
   }
 }
 
