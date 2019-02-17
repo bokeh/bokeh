@@ -4,7 +4,7 @@ import {Signal0} from "core/signaling"
 import {LineScalar, FillScalar} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
 import {SpatialUnits, RenderMode} from "core/enums"
-import {show, hide} from "core/dom"
+import {display, undisplay} from "core/dom"
 import * as p from "core/properties"
 import {BBox, CoordinateTransform} from "core/util/bbox"
 
@@ -23,7 +23,7 @@ export class BoxAnnotationView extends AnnotationView {
     super.initialize(options)
     this.plot_view.canvas_overlays.appendChild(this.el)
     this.el.classList.add("bk-shading")
-    hide(this.el)
+    undisplay(this.el)
   }
 
   connect_signals(): void {
@@ -42,14 +42,14 @@ export class BoxAnnotationView extends AnnotationView {
 
   render(): void {
     if (!this.model.visible && this.model.render_mode == 'css')
-      hide(this.el)
+      undisplay(this.el)
 
     if (!this.model.visible)
       return
 
     // don't render if *all* position are null
     if (this.model.left == null && this.model.right == null && this.model.top == null && this.model.bottom == null) {
-      hide(this.el)
+      undisplay(this.el)
       return
     }
 
@@ -101,7 +101,7 @@ export class BoxAnnotationView extends AnnotationView {
     const ld = this.model.properties.line_dash.value().length < 2 ? "solid" : "dashed"
     this.el.style.borderStyle = ld
 
-    show(this.el)
+    display(this.el)
   }
 
   protected _canvas_box(sleft: number, sright: number, sbottom: number, stop: number): void {

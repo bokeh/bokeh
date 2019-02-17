@@ -2,7 +2,7 @@ import {AbstractButton, AbstractButtonView} from "./abstract_button"
 import {CallbackLike1} from "../callbacks/callback"
 
 import {ButtonClick, MenuItemClick} from "core/bokeh_events"
-import {div, show, hide} from "core/dom"
+import {div, display, undisplay} from "core/dom"
 import * as p from "core/properties"
 import {isString} from "core/util/types"
 
@@ -44,13 +44,13 @@ export class DropdownView extends AbstractButtonView {
 
     this.menu = div({class: ["bk-menu", "bk-below"]}, items)
     this.el.appendChild(this.menu)
-    hide(this.menu)
+    undisplay(this.menu)
   }
 
   protected _show_menu(): void {
     if (!this._open) {
       this._open = true
-      show(this.menu)
+      display(this.menu)
 
       const listener = (event: MouseEvent) => {
         const {target} = event
@@ -66,7 +66,7 @@ export class DropdownView extends AbstractButtonView {
   protected _hide_menu(): void {
     if (this._open) {
       this._open = false
-      hide(this.menu)
+      undisplay(this.menu)
     }
   }
 

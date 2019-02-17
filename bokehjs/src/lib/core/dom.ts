@@ -116,12 +116,20 @@ export function empty(element: HTMLElement): void {
   }
 }
 
-export function show(element: HTMLElement): void {
+export function display(element: HTMLElement): void {
   element.style.display = ""
 }
 
-export function hide(element: HTMLElement): void {
+export function undisplay(element: HTMLElement): void {
   element.style.display = "none"
+}
+
+export function show(element: HTMLElement): void {
+  element.style.visibility = ""
+}
+
+export function hide(element: HTMLElement): void {
+  element.style.visibility = "hidden"
 }
 
 export function offset(element: HTMLElement) {
