@@ -70,7 +70,8 @@ COLOR_DETAIL = _env.get_template("color_detail.html")
 
 ENUM_DETAIL = _env.get_template("enum_detail.rst")
 
-GALLERY_PAGE = _env.get_template("gallery_page.rst")
+GALLERY_PAGE   = _env.get_template("gallery_page.rst")
+GALLERY_DETAIL = _env.get_template("gallery_detail.rst")
 
 JINJA_DETAIL = _env.get_template("jinja_detail.rst")
 
