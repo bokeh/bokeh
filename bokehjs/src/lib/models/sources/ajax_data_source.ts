@@ -54,10 +54,18 @@ export class AjaxDataSource extends RemoteDataSource {
   setup(): void {
     if (!this.initialized) {
       this.initialized = true
-      this.get_data(this.mode)
-      if (this.polling_interval) {
-        const callback = () => this.get_data(this.mode, this.max_size, this.if_modified)
-        this.interval = setInterval(callback, this.polling_interval)
+      if (this.content_type == 'text/event-stream') {
+        logger.info(`Expecting server-sent events. Polling interval is discarded.`)
+        const source = new EventSource(this.data_url)
+        source.onmessage = (event) => {
+          this.load_data(JSON.parse(event.data), this.mode, this.max_size)
+        }
+      } else {
+        this.get_data(this.mode)
+        if (this.polling_interval) {
+          const callback = () => this.get_data(this.mode, this.max_size, this.if_modified)
+          this.interval = setInterval(callback, this.polling_interval)
+        }
       }
     }
   }
@@ -90,30 +98,33 @@ export class AjaxDataSource extends RemoteDataSource {
   do_load(xhr: XMLHttpRequest, mode: UpdateMode, max_size: number): void {
     if (xhr.status === 200) {
       const raw_data = JSON.parse(xhr.responseText)
+      this.load_data(raw_data, mode, max_size)
+    }
+  }
 
-      const {adapter} = this
-      let data: Data
-      if (adapter != null)
-        data = adapter.execute(this, {response: raw_data})
-      else
-        data = raw_data
+  load_data(raw_data: any, mode: UpdateMode, max_size: number): void {
+    const {adapter} = this
+    let data: Data
+    if (adapter != null)
+      data = adapter.execute(this, {response: raw_data})
+    else
+      data = raw_data
 
-      switch (mode) {
-        case "replace": {
-          this.data = data
-          break
+    switch (mode) {
+      case "replace": {
+        this.data = data
+        break
+      }
+      case "append": {
+        const original_data = this.data
+        for (const column of this.columns()) {
+          // XXX: support typed arrays
+          const old_col = Array.from(original_data[column])
+          const new_col = Array.from(data[column])
+          data[column] = old_col.concat(new_col).slice(-max_size)
         }
-        case "append": {
-          const original_data = this.data
-          for (const column of this.columns()) {
-            // XXX: support typed arrays
-            const old_col = Array.from(original_data[column])
-            const new_col = Array.from(data[column])
-            data[column] = old_col.concat(new_col).slice(-max_size)
-          }
-          this.data = data
-          break
-        }
+        this.data = data
+        break
       }
     }
   }

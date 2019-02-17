@@ -775,7 +775,8 @@ class AjaxDataSource(RemoteSource):
     """)
 
     content_type = String(default='application/json', help="""
-    Set the "contentType" parameter for the Ajax request.
+    Set the "contentType" parameter for the Ajax request. Use "text/event-stream"
+    for server-sent events.
     """)
 
     http_headers = Dict(String, String, help="""
