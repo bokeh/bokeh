@@ -33,7 +33,7 @@ import requests
 
 # Bokeh imports
 from bokeh._testing.util.git import __version__
-from bokeh._testing.util.s3 import S3_URL, upload_file_to_s3
+from bokeh._testing.util.s3 import upload_file_to_s3
 from bokeh._testing.util.travis import JOB_ID
 from bokeh._testing.util.images import image_diff
 from bokeh.util.terminal import trace, green
@@ -211,12 +211,16 @@ class Example(object):
         return join(self.imgs_dir, "%s-%s-%s-diff-%s.png" % (self.name, __version__, self._diff_ref, JOB_ID))
 
     @property
-    def ref_url(self):
-        return join(S3_URL, "travis", JOB_ID, self.ref_url_path)
+    def img_url_path(self):
+        return join(__version__, self.relpath_no_ext) + '.png'
 
     @property
     def ref_url_path(self):
         return join(self._diff_ref, self.relpath_no_ext) + '.png'
+
+    @property
+    def diff_url_path(self):
+        return join(__version__, self.relpath_no_ext) + self._diff_ref + '-diff.png'
 
     @property
     def has_ref(self):
@@ -238,10 +242,10 @@ class Example(object):
     def upload_imgs(self):
         if isfile(self.img_path):
             trace("%s Uploading image to S3 to %s" % (green(">>>"), self.img_path))
-            upload_file_to_s3(self.img_path, join(JOB_ID, self.diff_url_path), "image/png")
+            upload_file_to_s3(self.img_path, join("travis", JOB_ID, self.img_url_path), "image/png")
         if isfile(self.diff_path):
             trace("%s Uploading image to S3 to %s" % (green(">>>"), self.diff_path))
-            upload_file_to_s3(self.diff_path, join(JOB_ID, self.diff_url_path), "image/png")
+            upload_file_to_s3(self.diff_path, join("travis", JOB_ID, self.diff_url_path), "image/png")
 
 
     @property
