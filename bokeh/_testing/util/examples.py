@@ -33,7 +33,7 @@ import requests
 
 # Bokeh imports
 from bokeh._testing.util.git import __version__
-from bokeh._testing.util.s3 import S3_URL, upload_file_to_s3_by_job_id
+from bokeh._testing.util.s3 import S3_URL, upload_file_to_s3
 from bokeh._testing.util.travis import JOB_ID
 from bokeh._testing.util.images import image_diff
 from bokeh.util.terminal import trace, green
@@ -238,10 +238,11 @@ class Example(object):
     def upload_imgs(self):
         if isfile(self.img_path):
             trace("%s Uploading image to S3 to %s" % (green(">>>"), self.img_path))
-            upload_file_to_s3_by_job_id(self.img_path, "image/png")
+            upload_file_to_s3(self.img_path, join(JOB_ID, self.diff_url_path), "image/png")
         if isfile(self.diff_path):
             trace("%s Uploading image to S3 to %s" % (green(">>>"), self.diff_path))
-            upload_file_to_s3_by_job_id(self.diff_path, "image/png")
+            upload_file_to_s3(self.diff_path, join(JOB_ID, self.diff_url_path), "image/png")
+
 
     @property
     def images_differ(self):
