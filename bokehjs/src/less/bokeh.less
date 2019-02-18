@@ -2,10 +2,12 @@
 
 .bk-root {
   // Properties of bk-root itself
-  box-sizing: border-box;
   position: relative;
   width: auto;
   height: auto;
+
+  box-sizing: border-box;
+
   font-family: Helvetica, Arial, sans-serif;
   font-size: 10pt; // 13px/0.8em
 
@@ -14,18 +16,14 @@
     margin: 0;
     border: 0;
     padding: 0;
-    vertical-align: baseline;
     background-image: none;
+  }
+
+  // Keep this in sync with core/dom.ts
+  div, span, canvas, link, style, a, p, i, pre, button, label, input, select, option, optgroup, textarea {
     font-family: inherit;
     font-size: 100%;
   }
-
-  h1 { font-size: 2.00em; }
-  h2 { font-size: 1.50em; }
-  h3 { font-size: 1.17em; }
-  h4 { font-size: 1.00em; }
-  h5 { font-size: 0.83em; }
-  h6 { font-size: 0.67em; }
 
   pre {
     font-family: Courier, monospace;
