@@ -33,7 +33,7 @@ import requests
 
 # Bokeh imports
 from bokeh._testing.util.git import __version__
-from bokeh._testing.util.s3 import upload_file_to_s3
+from bokeh._testing.util.s3 import S3_URL, upload_file_to_s3
 from bokeh._testing.util.travis import JOB_ID
 from bokeh._testing.util.images import image_diff
 from bokeh.util.terminal import trace, green
@@ -209,6 +209,10 @@ class Example(object):
     @property
     def diff_path(self):
         return join(self.imgs_dir, "%s-%s-%s-diff-%s.png" % (self.name, __version__, self._diff_ref, JOB_ID))
+
+    @property
+    def ref_url(self):
+        return join(S3_URL, self.ref_url_path)
 
     @property
     def img_url_path(self):
