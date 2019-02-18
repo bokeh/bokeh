@@ -26,7 +26,8 @@
 
 - path: "examples/app"
   type: server
-  skip: ["gapminder", "pivot", "simple_hdf5", "spectrogram", "surface3d", "stocks"]
+  no_diff: ["gapminder", "surface3d"]
+  skip: ["simple_hdf5", "spectrogram", "stocks"]
 
 - path: "examples/integration/*"
   xfail: ["grid_axis_alignment.py", "grid_axis_alignment_nested.py"]
