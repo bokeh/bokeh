@@ -1,4 +1,4 @@
-import {WebDataSource} from "./web_data_source"
+import {RemoteDataSource} from "./remote_data_source"
 import {UpdateMode, HTTPMethod} from "core/enums"
 import {logger} from "core/logging"
 import * as p from "core/properties"
@@ -6,19 +6,18 @@ import * as p from "core/properties"
 export namespace AjaxDataSource {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = WebDataSource.Props & {
+  export type Props = RemoteDataSource.Props & {
     content_type: p.Property<string>
     http_headers: p.Property<{[key: string]: string}>
     max_size: p.Property<number>
     method: p.Property<HTTPMethod>
-    polling_interval: p.Property<number>
     if_modified: p.Property<boolean>
   }
 }
 
 export interface AjaxDataSource extends AjaxDataSource.Attrs {}
 
-export class AjaxDataSource extends WebDataSource {
+export class AjaxDataSource extends RemoteDataSource {
   properties: AjaxDataSource.Props
 
   constructor(attrs?: Partial<AjaxDataSource.Attrs>) {

@@ -41,6 +41,7 @@ pd = import_optional('pandas')
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'ServerSentDataSource',
     'AjaxDataSource',
     'CDSView',
     'ColumnarDataSource',
@@ -698,7 +699,7 @@ class GeoJSONDataSource(ColumnarDataSource):
     """)
 
 @abstract
-class RemoteSource(ColumnDataSource):
+class WebSource(ColumnDataSource):
     ''' Base class for remote column data sources that can update from data
     URLs at prescribed time intervals.
 
@@ -707,12 +708,75 @@ class RemoteSource(ColumnDataSource):
 
     '''
 
+    adapter = Instance(CustomJS, help="""
+    A JavaScript callback to adapt raw JSON responses to Bokeh ``ColumnDataSource``
+    format.
+
+    If provided, this callback is executes immediately after the JSON data is
+    received, but before appending or replacing data in the data source. The
+    ``CustomJS`` callback will receive the ``AjaxDataSource`` as ``cb_obj`` and
+    will receive the raw JSON response as ``cb_data.response``. The callback
+    code should return a ``data`` object suitable for a Bokeh ``ColumnDataSource``
+    (i.e.  a mapping of string column names to arrays of data).
+    """)
+
+    mode = Enum("replace", "append", help="""
+    Whether to append new data to existing data (up to ``max_size``), or to
+    replace existing data entirely.
+    """)
+
     data_url = String(help="""
     A URL to to fetch data from.
     """)
 
+@abstract
+class RemoteSource(WebSource):
+    ''' Base class for remote column data sources that can update from data
+    URLs at prescribed time intervals.
+
+    .. note::
+        This base class is typically not useful to instantiate on its own.
+
+    '''
+
     polling_interval = Int(help="""
     A polling interval (in milliseconds) for updating data source.
+    """)
+
+class ServerSentDataSource(WebSource):
+    ''' A data source that can populate columns by receiving server sent
+    events endpoints.
+    '''
+
+    method = Enum('POST', 'GET', help="""
+    Specify the HTTP method to use for the server sent events request (GET 
+    or POST)
+    """)
+
+    max_size = Int(help="""
+    Maximum size of the data columns. If a new fetch would result in columns
+    larger than ``max_size``, then earlier data is dropped to make room.
+    """)
+
+    if_modified = Bool(False, help="""
+    Whether to include an ``If-Modified-Since`` header in server sentevents
+    requests to the server. If this header is supported by the server, then
+    only new data since the last request will be returned.
+    """)
+
+    content_type = String(default='text/event-source', help="""
+    Set the "contentType" parameter for the request.
+    """)
+
+    http_headers = Dict(String, String, help="""
+    Specify HTTP headers to set for the server sent events request.
+
+    Example:
+
+    .. code-block:: python
+
+        sse_source.headers = { 'x-my-custom-header': 'some value' }
+
     """)
 
 class AjaxDataSource(RemoteSource):
@@ -746,23 +810,6 @@ class AjaxDataSource(RemoteSource):
     Specify the HTTP method to use for the Ajax request (GET or POST)
     """)
 
-    mode = Enum("replace", "append", help="""
-    Whether to append new data to existing data (up to ``max_size``), or to
-    replace existing data entirely.
-    """)
-
-    adapter = Instance(CustomJS, help="""
-    A JavaScript callback to adapt raw JSON responses to Bokeh ``ColumnDataSource``
-    format.
-
-    If provided, this callback is executes immediately after the JSON data is
-    received, but before appending or replacing data in the data source. The
-    ``CustomJS`` callback will receive the ``AjaxDataSource`` as ``cb_obj`` and
-    will receive the raw JSON response as ``cb_data.response``. The callback
-    code should return a ``data`` object suitable for a Bokeh ``ColumnDataSource``
-    (i.e.  a mapping of string column names to arrays of data).
-    """)
-
     max_size = Int(help="""
     Maximum size of the data columns. If a new fetch would result in columns
     larger than ``max_size``, then earlier data is dropped to make room.
@@ -775,8 +822,7 @@ class AjaxDataSource(RemoteSource):
     """)
 
     content_type = String(default='application/json', help="""
-    Set the "contentType" parameter for the Ajax request. Use "text/event-stream"
-    for server-sent events.
+    Set the "contentType" parameter for the Ajax request.
     """)
 
     http_headers = Dict(String, String, help="""
