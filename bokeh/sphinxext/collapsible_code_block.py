@@ -4,10 +4,11 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-""" Display code blocks in collapsible sections when outputting
-to HTML.
+''' Display code blocks in collapsible sections when outputting to HTML.
 
-This directive takes a heading to use for the collapsible code block::
+This directive takes a heading to use for the collapsible code block:
+
+.. code-block:: rest
 
     .. collapsible-code-block:: python
         :heading: Some Code
@@ -35,7 +36,7 @@ The inline example code above produces the following output:
 
     print("Hello, Bokeh!")
 
-"""
+'''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -96,7 +97,7 @@ class CollapsibleCodeBlock(CodeBlock):
         rst_source = self.state_machine.node.document['source']
         rst_filename = basename(rst_source)
 
-        target_id = "%s.ccb-%d" % (rst_filename, env.new_serialno('bokeh-plot'))
+        target_id = "%s.ccb-%d" % (rst_filename, env.new_serialno('ccb'))
         target_id = target_id.replace(".", "-")
         target_node = nodes.target('', '', ids=[target_id])
 
@@ -122,6 +123,7 @@ def html_depart_collapsible_code_block(self, node):
     self.body.append(CCB_EPILOGUE.render())
 
 def setup(app):
+    ''' Required Sphinx extension setup function. '''
     app.add_node(
         collapsible_code_block,
         html=(

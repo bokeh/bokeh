@@ -16,6 +16,13 @@ bokeh_autodoc
 
 .. automodule:: bokeh.sphinxext.bokeh_autodoc
 
+.. _bokeh.sphinxext.bokeh_color:
+
+bokeh_color
+-----------
+
+.. automodule:: bokeh.sphinxext.bokeh_color
+
 .. _bokeh.sphinxext.bokeh_enum:
 
 bokeh_enum
@@ -37,12 +44,26 @@ bokeh_github
 
 .. automodule:: bokeh.sphinxext.bokeh_github
 
+.. _bokeh.sphinxext.bokeh_jinja:
+
+bokeh_jinja
+-----------
+
+.. automodule:: bokeh.sphinxext.bokeh_jinja
+
 .. _bokeh.sphinxext.bokeh_model:
 
 bokeh_model
 -----------
 
 .. automodule:: bokeh.sphinxext.bokeh_model
+
+.. _bokeh.sphinxext.bokeh_options:
+
+bokeh_options
+-------------
+
+.. automodule:: bokeh.sphinxext.bokeh_options
 
 .. _bokeh.sphinxext.bokeh_palette:
 
@@ -75,7 +96,7 @@ bokeh_prop
 .. _bokeh.sphinxext.bokeh_releases:
 
 bokeh_releases
--------------------
+--------------
 
 .. automodule:: bokeh.sphinxext.bokeh_releases
 

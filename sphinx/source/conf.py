@@ -22,7 +22,7 @@ from os.path import abspath, dirname, join
 # -- General configuration -----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
-needs_sphinx = '1.7'
+needs_sphinx = '1.8'
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
@@ -270,7 +270,7 @@ texinfo_documents = [
 
 # intersphinx settings
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/', None),
+    'python': ('https://docs.python.org/3/', None),
     'pandas': ('http://pandas.pydata.org/pandas-docs/stable/', None),
-    'numpy': ('http://docs.scipy.org/doc/numpy/', None)
+    'numpy': ('https://docs.scipy.org/doc/numpy/', None)
 }

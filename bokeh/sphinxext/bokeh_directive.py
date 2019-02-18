@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-'''
+''' Provide a base class and useful functions for Bokeh Sphinx directives.
 
 '''
 
@@ -41,7 +41,7 @@ py_sig_re = re.compile(
     r'''^ ([\w.]*\.)?            # class name(s)
           (\w+)  \s*             # thing name
           (?: \((.*)\)           # optional: arguments
-           (?:\s* -> \s* (.*))?  #           return annotation
+           (?:\s* -> \s* (.*))?  # return annotation
           )? $                   # and nothing more
           ''', re.VERBOSE)
 

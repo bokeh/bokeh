@@ -4,14 +4,15 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-""" Thoroughly document Bokeh options classes.
+''' Thoroughly document Bokeh options classes.
 
-The ``bokeh-options`` directive will automatically document
-all the properties) of a Bokeh Options class.
+The ``bokeh-options`` directive will automatically document all the properties
+of a Bokeh Options class under a heading of "Keyword Args".
 
+This directive takes the name of a Bokeh Options subclass as the argument, and
+its module as an option:
 
-This directive takes the path to a Bokeh model class as an
-argument::
+.. code-block:: rest
 
     .. bokeh-options:: Opts
         :module: bokeh.sphinxext.sample
@@ -19,21 +20,22 @@ argument::
 Examples
 --------
 
-For the following definition of ``bokeh.sphinxext.sample.Opts``::
+For the following definition of ``bokeh.sphinxext.sample.Opts``:
+
+.. code-block:: python
 
     class Opts(Options):
-        ''' This is an Options class '''
+        """ This is an Options class """
 
         host = String(default="localhost", help="a host to connect to")
-        port = Int(default="5890", help="a port to connect to")
-
+        port = Int(default=5890, help="a port to connect to")
 
 the above usage yields the output:
 
     .. bokeh-options:: Opts
         :module: bokeh.sphinxext.sample
 
-"""
+'''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -82,8 +84,7 @@ class BokehOptionsDirective(BokehDirective):
 
     has_content = True
     required_arguments = 1
-    optional_arguments = 2
-
+    optional_arguments = 1
     option_spec = {
         'module': unchanged
     }
@@ -127,6 +128,7 @@ class BokehOptionsDirective(BokehDirective):
         return self._parse(rst_text, "<bokeh-options>")
 
 def setup(app):
+    ''' Required Sphinx extension setup function. '''
     app.add_directive_to_domain('py', 'bokeh-options', BokehOptionsDirective)
 
 #-----------------------------------------------------------------------------

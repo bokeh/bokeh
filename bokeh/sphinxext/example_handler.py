@@ -4,6 +4,9 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
+'''
+
+'''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -45,7 +48,7 @@ __all__ = (
 
 class ExampleHandler(Handler):
     """ A stripped-down handler similar to CodeHandler but that does
-    some appropriate monkeypatching to
+    some appropriate monkeypatching.
 
     """
 
