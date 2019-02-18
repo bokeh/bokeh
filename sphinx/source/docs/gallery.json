@@ -1,7 +1,7 @@
 {
     "details": [
         { "path": "examples/plotting/file/iris.py",                            "name": "iris"                           },
-        { "path": "examples/plotting/file/ridgeplot.py",                       "name": "ridgeplot"                        },
+        { "path": "examples/plotting/file/ridgeplot.py",                       "name": "ridgeplot"                      },
         { "path": "examples/plotting/file/hexbin.py",                          "name": "hexbin"                         },
         { "path": "examples/plotting/file/hex_tile.py",                        "name": "hex_tile"                       },
         { "path": "examples/plotting/file/bar_colormapped.py",                 "name": "bar_colormapped"                },
@@ -43,7 +43,7 @@
         { "path": "examples/plotting/file/markers.py",                         "name": "markers"                        },
         { "path": "examples/plotting/file/burtin.py",                          "name": "burtin"                         },
         { "path": "examples/plotting/file/bar_basic.py",                       "name": "bar_basic"                      },
-        { "path": "examples/plotting/file/stacked_area.py",                    "name": "stacked_area"                         },
+        { "path": "examples/plotting/file/stacked_area.py",                    "name": "stacked_area"                   },
         { "path": "examples/plotting/file/elements.py",                        "name": "elements"                       },
         { "path": "examples/plotting/file/boxplot.py",                         "name": "boxplot"                        },
         { "path": "examples/plotting/file/logplot.py",                         "name": "logaxis"                        }

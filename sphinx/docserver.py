@@ -28,12 +28,7 @@ def welcome():
 @app.route('/en/latest/<path:filename>')
 def send_pic(filename):
     return flask.send_from_directory(
-        os.path.join(_basedir,"sphinx/_build/html/"), filename)
-
-@app.route('/scripts/<path:filename>')
-def send_script(filename):
-    return flask.send_from_directory(
-        os.path.join(_basedir,"sphinx/_build/html/scripts/"), filename)
+        os.path.join(_basedir,"sphinx/build/html/"), filename)
 
 def open_browser():
     # Child process

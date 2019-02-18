@@ -115,9 +115,7 @@ def bokeh_palette(name, rawtext, text, lineno, inliner, options=None, content=No
     return [node], []
 
 def setup(app):
-    ''' Required setup function for Sphinx extensions.
-
-    '''
+    ''' Required Sphinx extension setup function. '''
     app.add_role('bokeh-palette', bokeh_palette)
 
 #-----------------------------------------------------------------------------

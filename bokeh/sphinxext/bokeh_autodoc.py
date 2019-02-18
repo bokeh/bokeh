@@ -4,13 +4,18 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-""" Integrate Bokeh extensions into Sphinx autodoc.
+''' Integrate Bokeh extensions into Sphinx autodoc.
 
-Ensures that autodoc directives such as ``autoclass`` automatically
-use Bokeh-specific directives (e.g., ``bokeh-prop`` and ``bokeh-model``)
-when appropriate.
+Ensures that autodoc directives such as ``autoclass`` automatically make use of
+Bokeh-specific directives when appropriate. The following Bokeh extensions are
+configured:
 
-"""
+* :ref:`bokeh.sphinxext.bokeh_color`
+* :ref:`bokeh.sphinxext.bokeh_enum`
+* :ref:`bokeh.sphinxext.bokeh_model`
+* :ref:`bokeh.sphinxext.bokeh_prop`
+
+'''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -65,6 +70,12 @@ class ColorDocumenter(ModuleLevelDocumenter):
     def can_document_member(cls, member, membername, isattr, parent):
         return isinstance(member, Color)
 
+    # We don't need/want anything from the actual NamedColor class
+    def add_content(self, more_content, no_docstring=False):
+        pass
+    def get_object_members(self, want_all):
+        return False, []
+
 class EnumDocumenter(ModuleLevelDocumenter):
     directivetype = 'bokeh-enum'
     objtype = 'enum'
@@ -94,6 +105,7 @@ class ModelDocumenter(ClassDocumenter):
         return isinstance(member, class_types) and issubclass(member, Model)
 
 def setup(app):
+    ''' Required Sphinx extension setup function. '''
     app.add_autodocumenter(ColorDocumenter)
     app.add_autodocumenter(EnumDocumenter)
     app.add_autodocumenter(PropDocumenter)

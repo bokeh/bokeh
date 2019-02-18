@@ -656,12 +656,13 @@ _ABSTRACT_ADMONITION = '''
 
 '''
 
+# The "../../" is needed for bokeh-plot to construct the correct path to examples
 _EXAMPLE_TEMPLATE = '''
 
     Example
     -------
 
-    .. bokeh-plot:: ../%(path)s
+    .. bokeh-plot:: ../../%(path)s
         :source-position: below
 
 '''

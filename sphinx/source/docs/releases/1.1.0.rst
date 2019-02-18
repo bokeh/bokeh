@@ -3,9 +3,12 @@
 
 Bokeh Version ``1.1.0`` (January 2019) primarily
 
+.. _release-1-1-0-migration:
 
 Migration Guide
 ---------------
+
+.. _release-1-1-0-new:
 
 New in 1.1
 ~~~~~~~~~~
@@ -22,6 +25,8 @@ See :ref:`userguide_interaction_linked_properties` for more information.
 The ``Slider.value_as_date`` method was added to conveniently retrieve Slider
 values as date objects when appropriate.
 
+.. _release-1-1-0-deprecations:
+
 Deprecations
 ~~~~~~~~~~~~
 
@@ -37,3 +42,23 @@ removed in a future 2.0 release:
 
 * Support for "transpiling" Python code to JavaScript. All ``from_py_func``
   methods will be removed. Use JavaScript or Typescript instead.
+
+Changes to bokeh.sphinxext
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order to support a longer term goal of moving Bokeh docs to `ReadTheDocs`_,
+some changes to the ``bokeh-plot`` Sphinx directive were necessary. These are:
+
+* Plot script files are now always placed immediately adjacent to the document
+  they are for, and loaded using relative URLs.
+
+* The config values ``bokeh_plot_pyfile_include_dirs`` and
+  ``bokeh_plot_use_relative_paths`` are no longer needed. Setting them will have
+  no effect (but will not break existing builds). These config values will be
+  removed in a future 2.0 release.
+
+We believe that there are very few users of ``bokeh.sphinxext`` outside the
+project itself, and that these changes will not cause any breakage for any of
+those users. However, please reach out for support if any unforseen issues arise.
+
+.. _ReadTheDocs: https://readthedocs.org
