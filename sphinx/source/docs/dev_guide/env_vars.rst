@@ -82,10 +82,6 @@ locally or deployed to the docs site).
 What version of Bokeh to show when building sphinx docs locally. Useful if it
 is necessary to re-deploy old docs with hotfixes.
 
-``BOKEH_DOCS_CSS_SERVER``
--------------------------
-Where to get the CSS stylesheet from, by default this will be bokehplots.com
-
 ``BOKEH_LOG_LEVEL``
 -------------------
 The BokehJS console logging level to use Valid values are, in order of increasing severity:

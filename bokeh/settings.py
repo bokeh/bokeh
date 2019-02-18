@@ -58,16 +58,6 @@ A global settings object that other parts of Bokeh can refer to.
       This variable is only used when building documentation from the
       development version.
 
-``BOKEH_DOCS_CSS_SERVER`` --- Where to get the CSS stylesheet from.
-
-  By default use CSS from bokehplots.com
-
-  .. note::
-      This variable is only used when building documentation from the
-      development version.
-
-  Set to ``"local"`` to use a locally built dev version of BokehJS.
-
 ``BOKEH_LOG_LEVEL`` --- The BokehJS console logging level to use.
 
   Valid values are, in order of increasing severity:
