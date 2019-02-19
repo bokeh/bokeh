@@ -101,7 +101,7 @@ you can quickly and easily create interactive plots, dashboards, and data
 applications.
 
 Bokeh provides an elegant and concise way to construct versatile graphics while
-delivering **high-performance** interactivity for large or streamed datasets.
+delivering **high-performance** interactivity for large or streaming datasets.
 
 [Interactive gallery](https://bokeh.pydata.org/en/latest/docs/gallery.html)
 ---------------------------------------------------------------------------
