@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
 from .core.enums import Location
 from .models.tools import ProxyToolbar, ToolbarBox
 from .models.plots import Plot
-from .models.layouts import LayoutDOM, Row, Column, GridBox, WidgetBox
+from .models.layouts import LayoutDOM, Row, Column, GridBox, Spacer, WidgetBox
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -40,6 +40,7 @@ __all__ = (
     'GridSpec',
     'layout',
     'row',
+    'Spacer',
     'widgetbox',
 )
 
