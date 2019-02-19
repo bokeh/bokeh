@@ -434,18 +434,16 @@ Here is an example snipped using |server_document|:
 .. code-block:: python
 
     from bokeh.embed import server_document
-    script = server_document("https://demo.bokehplots.com/apps/slider")
+    script = server_document("https://demo.bokeh.org/sliders")
 
 The returned script tag will look something like this:
 
 .. code-block:: html
 
     <script
-        src="https://demo.bokehplots.com/apps/slider/autoload.js?bokeh-autoload-element=d8713a1a-d714-43be-a1c5-48a7a9dece3f&bokeh-app-path=/apps/slider&bokeh-absolute-url=https://demo.bokehplots.com/apps/slider"
-        id="d8713a1a-d714-43be-a1c5-48a7a9dece3f"
-        data-bokeh-model-id=""
-        data-bokeh-doc-id=""
-    ></script>
+        src="https://demo.bokeh.org/sliders/autoload.js?bokeh-autoload-element=1000&bokeh-app-path=/sliders&bokeh-absolute-url=https://demo.bokeh.org/sliders"
+        id="1000">
+    </script>
 
 It can be templated in an HTML page to include the Bokeh application at
 that point.
