@@ -32,12 +32,12 @@ cd ${HOME}
 tar czf conda-bld-noarch.tgz "miniconda/conda-bld/noarch"
 artifacts upload                               \
     --bucket "ci.bokeh.org"                    \
-    --target-paths "builds/${TRAVIS_BUILD_ID}" \
+    --target-paths "travis/${TRAVIS_BUILD_ID}/build" \
     conda-bld-noarch.tgz
 
 # upload the BokehJS build directory for later jobs in this build
 tar czf bokehjs-build.tgz "build/bokeh/bokeh/bokehjs/build"
 artifacts upload                               \
     --bucket "ci.bokeh.org"                    \
-    --target-paths "builds/${TRAVIS_BUILD_ID}" \
+    --target-paths "travis/${TRAVIS_BUILD_ID}/build" \
     bokehjs-build.tgz
