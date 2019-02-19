@@ -520,7 +520,7 @@ but you can see (and interact with) a simple Bokeh server app below:
 
     <div>
     <iframe
-        src="https://demo.bokehplots.com/apps/sliders/#"
+        src="https://demo.bokeh.org/sliders"
         frameborder="0"
         style="overflow:hidden;height:460px;width: 120%;
         -moz-transform: scale(0.85, 0.85);

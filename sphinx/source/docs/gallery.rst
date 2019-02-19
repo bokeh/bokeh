@@ -30,8 +30,8 @@ can be processed to trigger more visual updates.
     <div class="col-sm-4">
       <div class="row">
         <div class="col-sm-6">
-          <a target="_blank" href="//demo.bokehplots.com/apps/movies">
-          <img src="https://bokeh.pydata.org/static/movies_t.png" class="img-responsive img-thumbnail">
+          <a target="_blank" href="//demo.bokeh.org/movies">
+          <img src="https://static.bokeh.org/movies_t.png" class="img-responsive img-thumbnail">
           </a>
         </div>
         <div class="col-sm-6">
@@ -48,8 +48,8 @@ can be processed to trigger more visual updates.
     <div class="col-sm-4">
       <div class="row">
         <div class="col-sm-6">
-          <a target="_blank" href="//demo.bokehplots.com/apps/selection_histogram">
-            <img src="https://bokeh.pydata.org/static/selection_histogram_t.png" class="img-responsive img-thumbnail">
+          <a target="_blank" href="//demo.bokeh.org/selection_histogram">
+            <img src="https://static.bokeh.org/selection_histogram_t.png" class="img-responsive img-thumbnail">
           </a>
         </div>
         <div class="col-sm-6">
@@ -66,8 +66,8 @@ can be processed to trigger more visual updates.
     <div class="col-sm-4">
       <div class="row">
         <div class="col-sm-6">
-          <a target="_blank" href="//demo.bokehplots.com/apps/weather">
-            <img src="https://bokeh.pydata.org/static/weather_t.png" class="img-responsive img-thumbnail">
+          <a target="_blank" href="//demo.bokeh.org/weather">
+            <img src="https://static.bokeh.org/weather_t.png" class="img-responsive img-thumbnail">
           </a>
         </div>
         <div class="col-sm-6">
@@ -88,8 +88,8 @@ can be processed to trigger more visual updates.
     <div class="col-sm-4">
       <div class="row">
         <div class="col-sm-6">
-          <a target="_blank" href="//demo.bokehplots.com/apps/sliders">
-            <img src="https://bokeh.pydata.org/static/sliders_t.png" class="img-responsive img-thumbnail"></img>
+          <a target="_blank" href="//demo.bokeh.org/sliders">
+            <img src="https://static.bokeh.org/sliders_t.png" class="img-responsive img-thumbnail"></img>
           </a>
         </div>
         <div class="col-sm-6">
@@ -106,8 +106,8 @@ can be processed to trigger more visual updates.
     <div class="col-sm-4">
       <div class="row">
         <div class="col-sm-6">
-          <a target="_blank" href="//demo.bokehplots.com/apps/crossfilter">
-            <img src="https://bokeh.pydata.org/static/crossfilter_t.png" class="img-responsive img-thumbnail">
+          <a target="_blank" href="//demo.bokeh.org/crossfilter">
+            <img src="https://static.bokeh.org/crossfilter_t.png" class="img-responsive img-thumbnail">
           </a>
         </div>
         <div class="col-sm-6">
@@ -124,8 +124,8 @@ can be processed to trigger more visual updates.
     <div class="col-sm-4">
       <div class="row">
         <div class="col-sm-6">
-          <a target="_blank" href="//demo.bokehplots.com/apps/gapminder">
-            <img src="https://bokeh.pydata.org/static/gapminder_t.png" class="img-responsive img-thumbnail"></img>
+          <a target="_blank" href="//demo.bokeh.org/gapminder">
+            <img src="https://static.bokeh.org/gapminder_t.png" class="img-responsive img-thumbnail"></img>
           </a>
         </div>
         <div class="col-sm-6">
@@ -146,8 +146,8 @@ can be processed to trigger more visual updates.
     <div class="col-sm-4">
       <div class="row">
         <div class="col-sm-6">
-          <a target="_blank" href="//demo.bokehplots.com/apps/stocks">
-            <img src="https://bokeh.pydata.org/static/stocks_t.png" class="img-responsive img-thumbnail"></img>
+          <a target="_blank" href="//demo.bokeh.org/stocks">
+            <img src="https://static.bokeh.org/stocks_t.png" class="img-responsive img-thumbnail"></img>
           </a>
         </div>
         <div class="col-sm-6">
@@ -164,8 +164,8 @@ can be processed to trigger more visual updates.
     <div class="col-sm-4">
       <div class="row">
         <div class="col-sm-6">
-          <a target="_blank" href="//demo.bokehplots.com/apps/export_csv">
-            <img src="https://bokeh.pydata.org/static/export_csv_t.png" class="img-responsive img-thumbnail">
+          <a target="_blank" href="//demo.bokeh.org/export_csv">
+            <img src="https://static.bokeh.org/export_csv_t.png" class="img-responsive img-thumbnail">
           </a>
         </div>
         <div class="col-sm-6">
@@ -182,8 +182,8 @@ can be processed to trigger more visual updates.
     <div class="col-sm-4">
       <div class="row">
         <div class="col-sm-6">
-          <a target="_blank" href="//demo.bokehplots.com/apps/surface3d">
-            <img src="https://bokeh.pydata.org/static/surface3d_t.png" class="img-responsive img-thumbnail"></img>
+          <a target="_blank" href="//demo.bokeh.org/surface3d">
+            <img src="https://static.bokeh.org/surface3d_t.png" class="img-responsive img-thumbnail"></img>
           </a>
         </div>
         <div class="col-sm-6">
