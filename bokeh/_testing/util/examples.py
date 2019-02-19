@@ -236,7 +236,7 @@ class Example(object):
 
     @property
     def img_url_path(self):
-        return join("travis", JOB_ID, __version__, self.relpath_no_ext) + '.png'
+        return join("travis", "image_refs", __version__, self.relpath_no_ext) + '.png'
 
     @property
     def ref_url_path(self):
@@ -244,7 +244,7 @@ class Example(object):
 
     @property
     def diff_url_path(self):
-        return join("travis", JOB_ID, __version__, self.relpath_no_ext) + self._diff_ref + '-diff.png'
+        return join("travis", "image_refs", __version__, self.relpath_no_ext) + self._diff_ref + '-diff.png'
 
     @property
     def has_ref(self):
