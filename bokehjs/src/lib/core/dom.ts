@@ -207,8 +207,8 @@ export function outer_size(el: HTMLElement): Size {
 
 export function content_size(el: HTMLElement): Size {
   const {padding} = extents(el)
-  const left = Math.round(padding.left)
-  const top = Math.round(padding.top)
+  const left = Math.ceil(padding.left)
+  const top = Math.ceil(padding.top)
   let width = 0
   let height = 0
   for (const child of children(el)) {
