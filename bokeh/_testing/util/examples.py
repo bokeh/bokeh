@@ -199,6 +199,18 @@ class Example(object):
         return diff.decode("utf-8").strip()
 
     @property
+    def img_path_or_url(self):
+        return self.img_path if not self._upload else self.img_url
+
+    @property
+    def ref_path_or_url(self):
+        return self.ref_path if not self._upload else self.ref_url
+
+    @property
+    def diff_path_or_url(self):
+        return self.diff_path if not self._upload else self.diff_url
+
+    @property
     def img_path(self):
         return join(self.imgs_dir, "%s-%s-%s.png" % (self.name, __version__, JOB_ID))
 
@@ -211,8 +223,16 @@ class Example(object):
         return join(self.imgs_dir, "%s-%s-%s-diff-%s.png" % (self.name, __version__, self._diff_ref, JOB_ID))
 
     @property
+    def img_url(self):
+        return join(S3_URL, self.img_url_path)
+
+    @property
     def ref_url(self):
         return join(S3_URL, self.ref_url_path)
+
+    @property
+    def diff_url(self):
+        return join(S3_URL, self.diff_url_path)
 
     @property
     def img_url_path(self):
