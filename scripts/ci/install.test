@@ -24,11 +24,11 @@ else
     pushd ${HOME}
 
     # download the pre-built Bokeh package from the build phase
-    wget -nv "https://s3.amazonaws.com/bokeh-travis/${TRAVIS_BUILD_ID}/conda-bld-noarch.tgz"
+    wget -nv "https://ci.bokeh.org/builds/${TRAVIS_BUILD_ID}/conda-bld-noarch.tgz"
     tar xzf conda-bld-noarch.tgz
 
     # download the previous BokehJS build directory to run tests
-    wget -nv "https://s3.amazonaws.com/bokeh-travis/${TRAVIS_BUILD_ID}/bokehjs-build.tgz"
+    wget -nv "https://ci.bokeh.org/builds/${TRAVIS_BUILD_ID}/bokehjs-build.tgz"
     tar xzf bokehjs-build.tgz
 
     popd
