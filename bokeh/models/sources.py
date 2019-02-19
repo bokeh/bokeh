@@ -700,8 +700,8 @@ class GeoJSONDataSource(ColumnarDataSource):
 
 @abstract
 class WebSource(ColumnDataSource):
-    ''' Base class for remote column data sources that can update from data
-    URLs at prescribed time intervals.
+    ''' Base class for web column data sources that can update from data
+    URLs.
 
     .. note::
         This base class is typically not useful to instantiate on its own.
@@ -718,6 +718,11 @@ class WebSource(ColumnDataSource):
     will receive the raw JSON response as ``cb_data.response``. The callback
     code should return a ``data`` object suitable for a Bokeh ``ColumnDataSource``
     (i.e.  a mapping of string column names to arrays of data).
+    """)
+
+    max_size = Int(help="""
+    Maximum size of the data columns. If a new fetch would result in columns
+    larger than ``max_size``, then earlier data is dropped to make room.
     """)
 
     mode = Enum("replace", "append", help="""
@@ -746,38 +751,8 @@ class RemoteSource(WebSource):
 class ServerSentDataSource(WebSource):
     ''' A data source that can populate columns by receiving server sent
     events endpoints.
+
     '''
-
-    method = Enum('POST', 'GET', help="""
-    Specify the HTTP method to use for the server sent events request (GET 
-    or POST)
-    """)
-
-    max_size = Int(help="""
-    Maximum size of the data columns. If a new fetch would result in columns
-    larger than ``max_size``, then earlier data is dropped to make room.
-    """)
-
-    if_modified = Bool(False, help="""
-    Whether to include an ``If-Modified-Since`` header in server sentevents
-    requests to the server. If this header is supported by the server, then
-    only new data since the last request will be returned.
-    """)
-
-    content_type = String(default='text/event-source', help="""
-    Set the "contentType" parameter for the request.
-    """)
-
-    http_headers = Dict(String, String, help="""
-    Specify HTTP headers to set for the server sent events request.
-
-    Example:
-
-    .. code-block:: python
-
-        sse_source.headers = { 'x-my-custom-header': 'some value' }
-
-    """)
 
 class AjaxDataSource(RemoteSource):
     ''' A data source that can populate columns by making Ajax calls to REST
@@ -808,11 +783,6 @@ class AjaxDataSource(RemoteSource):
 
     method = Enum('POST', 'GET', help="""
     Specify the HTTP method to use for the Ajax request (GET or POST)
-    """)
-
-    max_size = Int(help="""
-    Maximum size of the data columns. If a new fetch would result in columns
-    larger than ``max_size``, then earlier data is dropped to make room.
     """)
 
     if_modified = Bool(False, help="""

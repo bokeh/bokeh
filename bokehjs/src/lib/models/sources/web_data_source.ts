@@ -9,6 +9,7 @@ export namespace WebDataSource {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = ColumnDataSource.Props & {
+    max_size: p.Property<number>
     mode: p.Property<UpdateMode>
     adapter: p.Property<CallbackLike1<WebDataSource, {response: Data}, Data> | null>
     data_url: p.Property<string>
@@ -29,7 +30,7 @@ export abstract class WebDataSource extends ColumnDataSource {
     return column != null ? column : []
   }
 
-  // override this method to setup the connection to the remote source
+  // override this method to setup the connection to the web source
   abstract setup(): void
 
   initialize(): void {
@@ -69,6 +70,7 @@ export abstract class WebDataSource extends ColumnDataSource {
 
     this.define<WebDataSource.Props>({
       mode:             [ p.UpdateMode, 'replace' ],
+      max_size:         [ p.Number                ],
       adapter:          [ p.Any,        null      ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
       data_url:         [ p.String                ],
     })

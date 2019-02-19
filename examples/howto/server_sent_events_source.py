@@ -1,7 +1,8 @@
 import numpy as np
 import json
+from datetime import datetime
 from time import sleep
-from flask import Flask, jsonify, make_response, request, Response
+from flask import Flask, make_response, request, Response
 
 from bokeh.plotting import figure, show, output_file
 from bokeh.models import ServerSentDataSource, CustomJS
@@ -18,19 +19,17 @@ adapter = CustomJS(code="""
     return result
 """)
 
-source = ServerSentDataSource(data_url='http://localhost:5050/data',
-                              mode='append', method='GET', adapter=adapter)
+source = ServerSentDataSource(data_url='http://localhost:5050/data', max_size=100,
+                              mode='append', adapter=adapter)
 
-p = figure(plot_height=300, plot_width=800, background_fill_color="lightgrey",
-           title="Streaming Noisy sin(x) via Ajax")
+p = figure(plot_height=800, plot_width=800, background_fill_color="lightgrey",
+           title="Streaming via Server Sent Events", x_range=[-5,5], y_range=[-5,5])
 p.circle('x', 'y', source=source)
-
-p.x_range.follow = "end"
-p.x_range.follow_interval = 10
 
 # Flask related code
 
 app = Flask(__name__)
+
 
 def crossdomain(f):
     def wrapped_function(*args, **kwargs):
@@ -45,17 +44,20 @@ def crossdomain(f):
         return resp
     return wrapped_function
 
+
 @app.route('/data', methods=['GET', 'OPTIONS'])
 @crossdomain
 def stream():
     def event_stream():
         """No global state used"""
-        t = 0
         while True:
-          t = t + 0.1
-          v = np.sin(t)
-          yield "data: "+json.dumps([[t, v]])+"\n\n"
-          sleep(0.02)
+            t = datetime.now().timestamp()
+            v = np.sin(t*5) + 0.2*np.random.random() + 3
+            x = v*np.sin(t)
+            y = v*np.cos(t)
+            data = [[x, y]]
+            yield "data: "+json.dumps(data)+"\n\n"
+            sleep(0.1)
     resp = Response(event_stream(), mimetype="text/event-stream")
     resp.headers['Cache-Control'] = 'no-cache'
     return resp

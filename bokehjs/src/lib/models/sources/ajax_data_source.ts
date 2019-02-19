@@ -9,7 +9,6 @@ export namespace AjaxDataSource {
   export type Props = RemoteDataSource.Props & {
     content_type: p.Property<string>
     http_headers: p.Property<{[key: string]: string}>
-    max_size: p.Property<number>
     method: p.Property<HTTPMethod>
     if_modified: p.Property<boolean>
   }
@@ -30,7 +29,6 @@ export class AjaxDataSource extends RemoteDataSource {
     this.define<AjaxDataSource.Props>({
       content_type: [ p.String,     'application/json' ],
       http_headers: [ p.Any,         {}                ],
-      max_size:     [ p.Number                         ],
       method:       [ p.HTTPMethod,  'POST'            ], // TODO (bev)  enum?
       if_modified:  [ p.Boolean,     false             ],
     })
