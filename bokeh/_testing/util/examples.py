@@ -236,7 +236,7 @@ class Example(object):
 
     @property
     def img_url_path(self):
-        return join(__version__, self.relpath_no_ext) + '.png'
+        return join("travis", JOB_ID, __version__, self.relpath_no_ext) + '.png'
 
     @property
     def ref_url_path(self):
@@ -244,7 +244,7 @@ class Example(object):
 
     @property
     def diff_url_path(self):
-        return join(__version__, self.relpath_no_ext) + self._diff_ref + '-diff.png'
+        return join("travis", JOB_ID, __version__, self.relpath_no_ext) + self._diff_ref + '-diff.png'
 
     @property
     def has_ref(self):
@@ -266,10 +266,10 @@ class Example(object):
     def upload_imgs(self):
         if isfile(self.img_path):
             trace("%s Uploading image to S3 to %s" % (green(">>>"), self.img_path))
-            upload_file_to_s3(self.img_path, join("travis", JOB_ID, self.img_url_path), "image/png")
+            upload_file_to_s3(self.img_path, self.img_url_path, "image/png")
         if isfile(self.diff_path):
             trace("%s Uploading image to S3 to %s" % (green(">>>"), self.diff_path))
-            upload_file_to_s3(self.diff_path, join("travis", JOB_ID, self.diff_url_path), "image/png")
+            upload_file_to_s3(self.diff_path, self.diff_url_path, "image/png")
 
 
     @property
