@@ -240,7 +240,7 @@ class Example(object):
 
     @property
     def ref_url_path(self):
-        return join(self._diff_ref, self.relpath_no_ext) + '.png'
+        return join("travis", "image_refs", __version__, self._diff_ref, self.relpath_no_ext) + '.png'
 
     @property
     def diff_url_path(self):
