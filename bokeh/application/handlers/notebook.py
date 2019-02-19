@@ -21,8 +21,6 @@ notebook code is executed, the Document being modified will be available as
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import re
-import sys
 import logging
 log = logging.getLogger(__name__)
 
@@ -31,6 +29,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import io
+import re
+import sys
 
 # External imports
 
@@ -114,7 +115,7 @@ class NotebookHandler(CodeHandler):
         preprocessors=[StripMagicsProcessor()]
         filename = kwargs['filename']
 
-        with open(filename) as f:
+        with io.open(filename, encoding="utf-8") as f:
             nb = nbformat.read(f, nbformat.NO_CONVERT)
             exporter = nbconvert.PythonExporter()
 
