@@ -54,6 +54,10 @@ export class Sizeable implements Size {
     const height = max(this.height - top - bottom, 0)
     return new Sizeable({width, height})
   }
+
+  map(fn: (v: number) => number): Sizeable {
+    return new Sizeable({width: fn(this.width), height: fn(this.height)})
+  }
 }
 
 export type Margin = Extents

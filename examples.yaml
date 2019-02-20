@@ -1,5 +1,5 @@
 - path: "examples/models/file"
-  xfail: ["anscombe.py", "sliders.py", "toolbars2.py", "toolbars3.py"]
+  xfail: ["toolbars2.py", "toolbars3.py"]
   slow: ["choropleth.py"]
   no_js: ["maps_cities.py", "maps.py", "trail.py"]
   no_diff: ["graphs.py", "dateaxis.py"]
@@ -9,7 +9,7 @@
 - path: "examples/webgl"
 
 - path: "examples/plotting/file"
-  xfail: ["airports_map.py", "color_sliders.py", "css_classes.py", "scatter_selection.py"]
+  xfail: ["airports_map.py", "scatter_selection.py"]
   slow: ["choropleth.py"]
   no_diff: ["jitter.py", "categorical_scatter_jitter.py", "linked_brushing.py"]
   no_js: ["gmap.py"]
@@ -19,14 +19,14 @@
   skip: all
 
 - path: "examples/howto/layouts"
-  xfail: ["dashboard.py", "words_and_plots.py"]
 
 - path: "examples/embed"
   skip: ["arguments", "autoload_static.py", "custom_server", "json_item.py", "server_session", "simple"]
 
 - path: "examples/app"
   type: server
-  skip: ["gapminder", "pivot", "simple_hdf5", "spectrogram", "surface3d", "stocks"]
+  no_diff: ["gapminder", "surface3d"]
+  skip: ["simple_hdf5", "spectrogram", "stocks"]
 
 - path: "examples/integration/*"
   xfail: ["grid_axis_alignment.py", "grid_axis_alignment_nested.py"]

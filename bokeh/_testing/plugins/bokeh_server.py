@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import os
 import subprocess
 import sys
 import time
@@ -57,8 +58,11 @@ def bokeh_server(request, log_file):
     argv = ["--port=%s" % bokeh_port]
     bokeh_server_url = 'http://localhost:%s' % bokeh_port
 
+    env = os.environ.copy()
+    env['BOKEH_MINIFIED'] = 'false'
+
     try:
-        proc = subprocess.Popen(cmd + argv, stdout=log_file, stderr=log_file)
+        proc = subprocess.Popen(cmd + argv, env=env, stdout=log_file, stderr=log_file)
     except OSError:
         write("Failed to run: %s" % " ".join(cmd + argv))
         sys.exit(1)
