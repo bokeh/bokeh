@@ -66,6 +66,7 @@ export function createElement<T extends keyof HTMLElementTagNameMap>(tag: T,
 export const
   div      = _createElement("div"),
   span     = _createElement("span"),
+  canvas   = _createElement("canvas"),
   link     = _createElement("link"),
   style    = _createElement("style"),
   a        = _createElement("a"),
@@ -78,11 +79,7 @@ export const
   select   = _createElement("select"),
   option   = _createElement("option"),
   optgroup = _createElement("optgroup"),
-  textarea = _createElement("textarea"),
-  canvas   = _createElement("canvas"),
-  ul       = _createElement("ul"),
-  ol       = _createElement("ol"),
-  li       = _createElement("li")
+  textarea = _createElement("textarea")
 
 export function nbsp(): Text {
   return document.createTextNode("\u00a0")
@@ -210,8 +207,8 @@ export function outer_size(el: HTMLElement): Size {
 
 export function content_size(el: HTMLElement): Size {
   const {padding} = extents(el)
-  const left = Math.round(padding.left)
-  const top = Math.round(padding.top)
+  const left = Math.ceil(padding.left)
+  const top = Math.ceil(padding.top)
   let width = 0
   let height = 0
   for (const child of children(el)) {

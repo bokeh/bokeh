@@ -1,17 +1,33 @@
 @import "./mixins.less";
 
 .bk-root {
+  // Properties of bk-root itself
+  position: relative;
+  width: auto;
+  height: auto;
+
   box-sizing: border-box;
+
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 10pt; // 13px/0.8em
 
   *, *:before, *:after {
     box-sizing: inherit;
-  }
-
-  *, *:before, *:after {
     margin: 0;
     border: 0;
     padding: 0;
     background-image: none;
+  }
+
+  // Keep this in sync with core/dom.ts
+  div, span, canvas, link, style, a, p, i, pre, button, label, input, select, option, optgroup, textarea {
+    font-family: inherit;
+    font-size: 100%;
+    line-height: @line-height;
+  }
+
+  pre {
+    font-family: Courier, monospace;
   }
 
   @import "./main.less";
@@ -19,13 +35,6 @@
   @import "./logo.less";
   @import "./toolbar.less";
   @import "./tooltips.less";
-
-  // Properties of bk-root itself
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 10pt; // 13px/0.8em
-  position: relative;
-  width: auto;
-  height: auto;
 }
 
 /* notebook specific tweaks so no black outline and matching padding
