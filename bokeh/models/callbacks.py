@@ -55,13 +55,18 @@ class Callback(Model):
 
 
 class OpenURL(Callback):
-    ''' Open a URL in a new tab or window (browser dependent).
+    ''' Open a URL in a new or current tab or window.
 
     '''
 
     url = String("http://", help="""
     The URL to direct the web browser to. This can be a template string,
     which will be formatted with data from the data source.
+    """)
+    same_tab = Bool(False, help="""
+    Open URL in a new (`False`, default) or current (`True`) tab or window.
+    For `same_tab=False`, whether tab or window will be opened is browser
+    dependent.
     """)
 
 
