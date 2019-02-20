@@ -287,11 +287,9 @@ export class ClientConnection {
 // Returns a promise of a ClientSession
 // The returned promise has a close() method in case you want to close before
 // getting a session; session.close() works too once you have a session.
-export function pull_session(url: string, session_id: string, args_string?: string): Promise<ClientSession> {
-  let connection: ClientConnection
-
+export function pull_session(url?: string, session_id?: string, args_string?: string): Promise<ClientSession> {
   const promise = new Promise<ClientSession>((resolve, reject) => {
-    connection = new ClientConnection(url, session_id, args_string,
+    const connection = new ClientConnection(url, session_id, args_string,
       (session) => {
         try {
           resolve(session)
@@ -306,7 +304,7 @@ export function pull_session(url: string, session_id: string, args_string?: stri
         reject(new Error("Connection was closed before we successfully pulled a session"))
       },
     )
-    return connection.connect().then(
+    connection.connect().then(
       (_) => undefined,
       (error) => {
         logger.error(`Failed to connect to Bokeh server ${error}`)
@@ -315,11 +313,5 @@ export function pull_session(url: string, session_id: string, args_string?: stri
     )
   })
 
-  /*
-  // add a "close" method to the promise... too weird?
-  promise.close = () => {
-    connection.close()
-  }
-  */
   return promise
 }
