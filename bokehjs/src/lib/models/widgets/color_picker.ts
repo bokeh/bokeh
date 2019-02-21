@@ -1,8 +1,7 @@
+import {InputWidget, InputWidgetView} from "models/widgets/input_widget"
+import {Color} from "core/types"
+import {input} from "core/dom"
 import * as p from "core/properties"
-import {input} from 'core/dom'
-import {InputWidget, InputWidgetView} from 'models/widgets/input_widget'
-import {Color} from 'core/types'
-
 
 export class ColorPickerView extends InputWidgetView {
   model: ColorPicker
@@ -37,11 +36,9 @@ export class ColorPickerView extends InputWidgetView {
 }
 
 export namespace ColorPicker {
-  export interface Attrs extends InputWidget.Attrs {
-    color: Color
-  }
+  export type Attrs = p.AttrsOf<Props>
 
-  export interface Props extends InputWidget.Props {
+  export type Props = InputWidget.Props & {
     color: p.Property<Color>
   }
 }
@@ -49,15 +46,18 @@ export namespace ColorPicker {
 export interface ColorPicker extends ColorPicker.Attrs {}
 
 export class ColorPicker extends InputWidget {
-
   properties: ColorPicker.Props
+
+  constructor(attrs?: Partial<ColorPicker.Attrs>) {
+    super(attrs)
+  }
 
   static initClass(): void {
     this.prototype.type = "ColorPicker"
     this.prototype.default_view = ColorPickerView
 
-    this.define({
-      color: [p.Color, "#000000"],
+    this.define<ColorPicker.Props>({
+      color: [ p.Color, "#000000" ],
     })
   }
 }
