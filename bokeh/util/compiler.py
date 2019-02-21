@@ -195,7 +195,7 @@ class JavaScript(Inline):
         .. code-block:: python
 
             class MyExt(Model):
-                __implementation__ = Javacript(""" <JavaScript code> """)
+                __implementation__ = JavaScript(""" <JavaScript code> """)
 
     '''
     @property
@@ -433,7 +433,12 @@ def bundle_all_models():
     key = calc_cache_key()
     bundle = _bundle_cache.get(key, None)
     if bundle is None:
-        _bundle_cache[key] = bundle = bundle_models(Model.model_class_reverse_map.values()) or ""
+        try:
+            _bundle_cache[key] = bundle = bundle_models(Model.model_class_reverse_map.values()) or ""
+        except CompilationError as error:
+            print("Compilation failed:", file=sys.stderr)
+            print(str(error), file=sys.stderr)
+            sys.exit(1)
     return bundle
 
 #-----------------------------------------------------------------------------

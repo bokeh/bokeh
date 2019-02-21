@@ -172,6 +172,19 @@ function compile_javascript(file: string, code: string): {output: string, error?
   }
 }
 
+function rename(p: string, options: {dir?: string, ext?: string}): string {
+  let {dir, name, ext} = path.parse(p)
+  if (options.dir != null)
+    dir = options.dir
+  if (options.ext != null)
+    ext = options.ext
+  return path.format({dir, name, ext})
+}
+
+function normalize(path: string): string {
+  return path.replace(/\\/g, "/")
+}
+
 const compile_and_resolve_deps = (input: {code: string, lang: string, file: string, bokehjs_dir: string}) => {
   const {file, lang, bokehjs_dir} = input
   let {code} = input
@@ -179,11 +192,11 @@ const compile_and_resolve_deps = (input: {code: string, lang: string, file: stri
   let output: string
   switch (lang) {
     case "typescript":
-      const inputs = {[file.replace(/\\/g, "/")]: code}
+      const inputs = {[normalize(file)]: code}
       const result = compile_typescript(inputs, bokehjs_dir)
 
       if (result.error == null)
-        output = result.outputs[Object.keys(result.outputs)[0]]
+        output = result.outputs[normalize(rename(file, {ext: ".js"}))]
       else
         return reply({error: result.error})
       break
@@ -229,7 +242,7 @@ if (argv.file != null) {
     code: fs.readFileSync(argv.file, "utf-8"),
     lang: argv.lang || "coffeescript",
     file: argv.file,
-    bokehjs_dir: argv.bokehjs_dir,
+    bokehjs_dir: argv.bokehjsDir,
   }
   compile_and_resolve_deps(input)
 } else {
