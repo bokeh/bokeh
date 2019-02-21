@@ -349,6 +349,8 @@ export class AngleSpec extends UnitsSpec<number, enums.AngleUnits> {
   }
 }
 
+export class BooleanSpec extends DataSpec<boolean> {}
+
 export class ColorSpec extends DataSpec<ColorType | null> {}
 
 export class CoordinateSpec extends DataSpec<number | Factor> {}

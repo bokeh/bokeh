@@ -32,8 +32,7 @@ export class PolyDrawToolView extends PolyToolView {
     if (point == null)
       return
 
-    let [x, y] = point
-    ;[x, y] = this._snap_to_vertex(ev, x, y)
+    const [x, y] = this._snap_to_vertex(ev, ...point)
 
     const cds = renderer.data_source
     const glyph: any = renderer.glyph

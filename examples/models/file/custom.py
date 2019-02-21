@@ -8,10 +8,11 @@ from bokeh.models.glyphs import Circle
 from bokeh.models import Plot, LinearAxis, ColumnDataSource, PanTool, WheelZoomTool, TapTool
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
+from bokeh.util.compiler import TypeScript
 
 class Popup(Callback):
 
-    __implementation__ = "popup.coffee"
+    __implementation__ = "popup.ts"
 
     message = String("", help="""
     Message to display in a popup window. This can be a template string,
@@ -20,44 +21,70 @@ class Popup(Callback):
 
 class MyPlot(Plot):
 
-    __implementation__ = """
+    __implementation__ = TypeScript("""
 import {Plot, PlotView} from "models/plots/plot"
 import * as p from "core/properties"
 import "./custom.less"
 
-export class MyPlotView extends PlotView
-  render: () ->
-    super()
-    @el.classList.add("bk-my-plot")
+export class MyPlotView extends PlotView {
+  model: MyPlot
 
-    angle = "#{@model.gradient_angle}deg"
+  render(): void {
+    super.render()
+    this.el.classList.add("bk-my-plot")
 
-    offset = 0
-    colors = []
-    step = @model.gradient_step
+    const angle = `${this.model.gradient_angle}deg`
 
-    for color in @model.gradient_colors
-      colors.push("#{color} #{offset}px")
+    let offset = 0
+    const colors = []
+    const step = this.model.gradient_step
+
+    for (const color of this.model.gradient_colors) {
+      colors.push(`${color} ${offset}px`)
       offset += step
-      colors.push("#{color} #{offset}px")
+      colors.push(`${color} ${offset}px`)
+    }
 
-    @el.style.backgroundImage = "repeating-linear-gradient(#{angle}, #{colors.join(', ')})"
-
-export class MyPlot extends Plot
-  type: "MyPlot"
-  default_view: MyPlotView
-
-  @define {
-    gradient_angle:  [ p.Number, 0                      ]
-    gradient_step:   [ p.Number, 20                     ]
-    gradient_colors: [ p.Array,  ["white", "lightgray"] ]
+    this.el.style.backgroundImage = `repeating-linear-gradient(${angle}, ${colors.join(', ')})`
   }
+}
 
-  @override {
-    background_fill_alpha: 0.0
-    border_fill_alpha: 0.0
+export namespace MyPlot {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = Plot.Props & {
+    gradient_angle: p.Property<number>
+    gradient_step: p.Property<number>
+    gradient_colors: p.Property<string[]>
   }
-"""
+}
+
+export interface MyPlot extends MyPlot.Attrs {
+  width: number | null
+  height: number | null
+}
+
+export class MyPlot extends Plot {
+  properties: MyPlot.Props
+
+  static initClass(): void {
+    this.prototype.type = "MyPlot"
+    this.prototype.default_view = MyPlotView
+
+    this.define<MyPlot.Props>({
+      gradient_angle:  [ p.Number, 0                      ],
+      gradient_step:   [ p.Number, 20                     ],
+      gradient_colors: [ p.Array,  ["white", "lightgray"] ],
+    })
+
+    this.override({
+      background_fill_alpha: 0.0,
+      border_fill_alpha: 0.0,
+    })
+  }
+}
+MyPlot.initClass()
+""")
 
     gradient_angle = Float(default=0)
     gradient_step = Float(default=20)
