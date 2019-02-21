@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import Date, Either, Float, Instance, Int, List, String, Tuple, Dict, Override
+from ...core.properties import Date, Either, Float, Instance, Int, List, String, Tuple, Dict, Override, ColorHex
 
 from ..callbacks import Callback
 
@@ -38,11 +38,13 @@ from .widget import Widget
 
 __all__ = (
     'AutocompleteInput',
+    'ColorPicker',
     'DatePicker',
     'InputWidget',
     'MultiSelect',
     'PasswordInput',
     'Select',
+    'Spinner',
     'TextInput',
     'TextAreaInput'
 )
@@ -50,6 +52,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
 
 @abstract
 class InputWidget(Widget):
@@ -78,6 +81,7 @@ class InputWidget(Widget):
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
 
 class TextInput(InputWidget):
     ''' Single-line input widget.
@@ -143,8 +147,8 @@ class Select(InputWidget):
     ''' Single-select widget.
 
     '''
-    options = Either( List(Either(String, Tuple(Either(Int,String), String))),
-        Dict(String, List(Either(String, Tuple(Either(Int,String), String)))), help="""
+    options = Either(List(Either(String, Tuple(Either(Int, String), String))),
+        Dict(String, List(Either(String, Tuple(Either(Int, String), String)))), help="""
     Available selection options. Options may be provided either as a list of
     possible string values, or as a list of tuples, each of the form
     ``(value, label)``. In the latter case, the visible widget text for each
@@ -161,6 +165,7 @@ class Select(InputWidget):
     A callback to run in the browser whenever the current Select dropdown
     value changes.
     """)
+
 
 class MultiSelect(InputWidget):
     ''' Multi-select widget.
@@ -189,6 +194,7 @@ class MultiSelect(InputWidget):
     show less than 3 options.)
     """)
 
+
 class DatePicker(InputWidget):
     ''' Calendar-based date picker widget.
 
@@ -208,6 +214,52 @@ class DatePicker(InputWidget):
 
     callback = Instance(Callback, help="""
     A callback to run in the browser whenever the current date value changes.
+    """)
+
+
+class ColorPicker(InputWidget):
+    ''' Color picker widget
+
+    .. warning::
+        This widget as a limited support on *Internet Explorer* (it will be dispalyed
+        as a simple text input).
+
+    '''
+
+    color = ColorHex(default='#000000', help="""
+    The initial color of the picked color (named or hexadecimal)
+    """)
+
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever the current date value changes.
+    """)
+
+
+class Spinner(InputWidget):
+    ''' Spinner widget for numerical inputs
+
+    '''
+
+    value = Float(default=0, help="""
+    The initial value of the spinner
+    """)
+
+    step = Float(default=1, help="""
+    The step added or substract  to the currect value
+    """)
+
+    low = Float(help="""
+    Optional lowest allowable value.
+    """)
+
+    high = Float(help="""
+    Optional highest allowable value.
+    """)
+
+    callback = Instance(Callback, help="""
+    A callback to run in the browser whenever the user unfocuses the
+    ``SpinBox`` widget by hitting Enter or clicking outside of the box
+    area.
     """)
 
 #-----------------------------------------------------------------------------

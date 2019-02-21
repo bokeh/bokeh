@@ -1,23 +1,28 @@
 declare function require(moduleName: string): any
 
-if (typeof WeakMap !== "function") {
+if (typeof WeakMap === "undefined") {
   require("es6-weak-map/implement")
 }
 
-if (typeof Promise !== "function") {
+if (typeof Promise === "undefined") {
   require("es6-promise").polyfill()
 }
 
+if (typeof Math.log10 === "undefined") {
+  Math.log10 = function(x: number): number {
+    return Math.log(x) * Math.LOG10E
+  }
+}
+
 // ref: https://github.com/bokeh/bokeh/issues/7373
-if (!(Number as any).isInteger) {
-  (Number as any).isInteger = function(value: number): boolean {
+if (typeof Number.isInteger === "undefined") {
+  Number.isInteger = function(value: number): boolean {
     return typeof value === 'number' && isFinite(value) && Math.floor(value) === value
   }
 }
 
-const String_proto = String.prototype as any
-if (!String_proto.repeat) {
-  String_proto.repeat = function(count: number) {
+if (typeof String.prototype.repeat === "undefined") {
+  String.prototype.repeat = function(count: number): string {
     if (this == null) {
       throw new TypeError('can\'t convert ' + this + ' to object')
     }
@@ -60,8 +65,8 @@ if (!String_proto.repeat) {
 }
 
 // Production steps of ECMA-262, Edition 6, 22.1.2.1
-if (!(Array as any).from) {
-  (Array as any).from = (function () {
+if (typeof Array.from === "undefined") {
+  Array.from = (function () {
     const toStr = Object.prototype.toString
     const isCallable = function (fn: any) {
       return typeof fn === 'function' || toStr.call(fn) === '[object Function]'
