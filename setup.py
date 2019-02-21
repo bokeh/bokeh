@@ -12,10 +12,10 @@ Two separate components comprise Bokeh:
 * A JavaScript runtime BokehJS that draws and handles events in browsers
 * Python "bindings" and an optional server for interacting with BokehJS
 
-The BokehJS library is written in a mixture of CoffeeScript, TypeScript, and
-pure JavaScript. This necessitates a "compilation" step to build a complete
-BokehJS from these sources, and this fact makes the Bokeh setup and install
-more complicated than typical pure Python projects.
+The BokehJS library is written in a mixture of TypeScript and pure JavaScript.
+This necessitates a "compilation" step to build a complete BokehJS from these
+sources, and this fact makes the Bokeh setup and install more complicated than
+typical pure Python projects.
 
 In order to build BokehJS, the first step is to make sure that the "npm"
 command is installed. If you are using conda, you can typically just run
