@@ -187,6 +187,7 @@ __all__ = (
     'Bool',
     'Byte',
     'Color',
+    'ColorHex',
     'ColorSpec',
     'ColumnData',
     'Complex',
@@ -245,6 +246,7 @@ from .property.auto import Auto; Auto
 
 from .property.color import Color; Color
 from .property.color import RGB; RGB
+from .property.color import ColorHex; ColorHex
 
 from .property.container import Array; Array
 from .property.container import ColumnData; ColumnData
