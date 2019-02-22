@@ -34,9 +34,9 @@ export class OpenURL extends Callback {
     const open_url = (i: number) => {
       const url = replace_placeholders(this.url, source, i)
       if (this.same_tab)
-        window.open(url)
-      else
         window.location.href = url
+      else
+        window.open(url)
     }
 
     const {selected} = source
