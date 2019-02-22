@@ -13,7 +13,7 @@ export {DocsJson, RenderItem} from "./json"
 export {add_document_standalone, index} from "./standalone"
 export {add_document_from_session} from "./server"
 export {embed_items_notebook, kernels} from "./notebook"
-export {BOKEH_ROOT, inject_css, inject_raw_css} from "./dom"
+export {BOKEH_ROOT} from "./dom"
 
 export type JsonItem = {doc: DocJson, root_id: string, target_id: string}
 interface Roots {[index: string]: string}
