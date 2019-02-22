@@ -28,9 +28,9 @@ DEFAULTS = {
 class Surface3d(LayoutDOM):
 
     # The special class attribute ``__implementation__`` should contain a string
-    # of JavaScript (or CoffeeScript) code that implements the JavaScript side
+    # of JavaScript (or TypeScript) code that implements the JavaScript side
     # of the custom extension model.
-    __implementation__ = "surface3d.coffee"
+    __implementation__ = "surface3d.ts"
 
     # Below are all the "properties" for this model. Bokeh properties are
     # class attributes that define the fields (and their types) that can be

@@ -7,10 +7,10 @@ from bokeh.util.compiler import TypeScript
 output_file('tool.html')
 
 TS_CODE = """
-import * as p from "core/properties"
 import {GestureTool, GestureToolView} from "models/tools/gestures/gesture_tool"
-import {GestureEvent} from "core/ui_events"
 import {ColumnDataSource} from "models/sources/column_data_source"
+import {GestureEvent} from "core/ui_events"
+import * as p from "core/properties"
 
 export class DrawToolView extends GestureToolView {
   model: DrawTool
@@ -22,15 +22,19 @@ export class DrawToolView extends GestureToolView {
 
   //this is executed on subsequent mouse/touch moves
   _pan(ev: GestureEvent): void {
-    const frame = this.plot_view.frame
+    const {frame} = this.plot_view
+
     const {sx, sy} = ev
-    if (!frame.bbox.contains(sx, sy)) {return }
+    if (!frame.bbox.contains(sx, sy))
+      return
+
     const x = frame.xscales.default.invert(sx)
     const y = frame.yscales.default.invert(sy)
 
-    this.model.source.get_array('x').push(x)
-    this.model.source.get_array('y').push(y)
-    this.model.source.change.emit()
+    const {source} = this.model
+    source.get_array("x").push(x)
+    source.get_array("y").push(y)
+    source.change.emit()
   }
 
   // this is executed then the pan/drag ends
@@ -60,10 +64,11 @@ export class DrawTool extends GestureTool {
   default_order = 12
 
   static initClass(): void {
-    this.prototype.default_view = DrawToolView
     this.prototype.type = "DrawTool"
+    this.prototype.default_view = DrawToolView
+
     this.define<DrawTool.Props>({
-      source: [p.Any],
+      source: [ p.Instance ],
     })
   }
 }

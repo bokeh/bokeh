@@ -14,7 +14,7 @@ class Gear(Glyph):
     .. _Wikipedia article for Gear: http://en.wikipedia.org/wiki/Gear
     """
 
-    __implementation__ = "gear.coffee"
+    __implementation__ = "gear.ts"
 
     x = NumberSpec(help="""
     The x-coordinates of the center of the gears.

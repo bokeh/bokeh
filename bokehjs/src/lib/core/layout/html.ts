@@ -13,7 +13,7 @@ export class HTML extends Layoutable {
     return sized(this.el, bounded, () => {
       const content = new Sizeable(content_size(this.el))
       const {border, padding} = extents(this.el)
-      return content.grow_by(border).grow_by(padding)
+      return content.grow_by(border).grow_by(padding).map(Math.ceil)
     })
   }
 }

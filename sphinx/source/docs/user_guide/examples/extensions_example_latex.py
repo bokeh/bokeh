@@ -15,7 +15,7 @@ declare const katex: any
 export class LatexLabelView extends LabelView {
   model: LatexLabel
 
-  render() {
+  render(): void {
     //--- Start of copied section from ``Label.render`` implementation
 
     // Here because AngleSpec does units tranform and label doesn't support specs
@@ -51,7 +51,7 @@ export class LatexLabelView extends LabelView {
 
     // ``katex`` is loaded into the global window at runtime
     // katex.renderToString returns a html ``span`` element
-    return katex.render(this.model.text, this.el, {displayMode: true})
+    katex.render(this.model.text, this.el, {displayMode: true})
   }
 }
 

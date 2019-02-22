@@ -21,8 +21,10 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import re
 
 # External imports
+from six import string_types
 
 # Bokeh imports
 from ... import colors
@@ -34,7 +36,6 @@ from .either import Either
 from .numeric import Byte, Percent
 from .regex import Regex
 
-
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -42,11 +43,13 @@ from .regex import Regex
 __all__ = (
     'Color',
     'RGB',
+    'ColorHex',
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
 
 class RGB(Property):
     ''' Accept colors.RGB values.
@@ -59,6 +62,7 @@ class RGB(Property):
         if not (value is None or isinstance(value, colors.RGB)):
             msg = "" if not detail else "expected RGB value, got %r" % (value,)
             raise ValueError(msg)
+
 
 class Color(Either):
     ''' Accept color values in a variety of ways.
@@ -119,6 +123,28 @@ class Color(Either):
 
     def _sphinx_type(self):
         return self._sphinx_prop_link()
+
+
+class ColorHex(Color):
+    ''' ref Color
+
+    The only difference with Color is it's transform in hexadecimal string
+    when send to javascript side
+
+    '''
+
+    def transform(self, value):
+        if isinstance(value, string_types):
+            value = value.lower()
+            if value.startswith('rgb'):
+                value = colors.RGB(*[int(val) for val in re.findall("\d+", value)[:3]]).to_hex()
+            elif value in enums.NamedColor:
+                value = getattr(colors.named, value).to_hex()
+        elif isinstance(value, tuple):
+            value = colors.RGB(*value).to_hex()
+        else:
+            value = value.to_hex()
+        return value.lower()
 
 #-----------------------------------------------------------------------------
 # Dev API
