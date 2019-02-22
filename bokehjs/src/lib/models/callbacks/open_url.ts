@@ -8,6 +8,7 @@ export namespace OpenURL {
 
   export type Props = Callback.Props & {
     url: p.Property<string>
+    same_tab: p.Property<boolean>
   }
 }
 
@@ -25,13 +26,17 @@ export class OpenURL extends Callback {
 
     this.define<OpenURL.Props>({
       url: [ p.String, 'http://' ],
+      same_tab: [ p.Boolean, false ],
     })
   }
 
   execute(_cb_obj: unknown, {source}: {source: ColumnarDataSource}): void {
     const open_url = (i: number) => {
       const url = replace_placeholders(this.url, source, i)
-      window.open(url)
+      if (this.same_tab)
+        window.location.href = url
+      else
+        window.open(url)
     }
 
     const {selected} = source
