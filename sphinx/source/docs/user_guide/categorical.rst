@@ -343,8 +343,6 @@ Olympic sprinting over many years:
 Scatters
 --------
 
-.. .. bokeh-plot:: docs/user_guide/examples/categorical_scatter.py
-..     :source-position: above
 
 .. _userguide_categorical_scatters_jitter:
 
@@ -361,8 +359,6 @@ between 2012 and 2016, grouped by day of the week. A naive plot of this data
 would result in thousands of points overlapping in a narrow line for each day.
 By using ``jitter`` we can differentiate the points to obtain a useful plot:
 
-.. bokeh-plot:: docs/user_guide/examples/categorical_scatter_jitter.py
-    :source-position: above
 
 .. _userguide_categorical_offsets:
 

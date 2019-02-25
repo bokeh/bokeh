@@ -1,0 +1,17 @@
+# bokeh  # TODO: install from repo
+colorcet
+jinja2
+networkx
+numpy
+packaging
+pandas
+pillow
+pscript
+python-dateutil
+pyyaml
+scipy
+setuptools
+six
+tornado
+
+sphinx

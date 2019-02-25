@@ -72,6 +72,15 @@ from _setup_support import (
     show_help
 )
 
+
+# FIXME: workaround to upgrade ``npm`` since we have ``3.5.2`` in our
+# Docker image and we need at least ``npm>=6.0``
+import os
+os.system('cd ~ ; mkdir bin ; npm install npm')
+os.environ['BOKEH_BUILD_JS'] = '1'
+os.environ['PATH'] = '/home/docs/node_modules/.bin/:{}'.format(os.environ.get('PATH'))
+print(os.environ.get('PATH'))
+
 # immediately bail for ancient pythons
 if sys.version_info[:2] < (2, 7):
     raise RuntimeError("Bokeh requires python >= 2.7")

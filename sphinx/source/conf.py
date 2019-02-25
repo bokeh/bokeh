@@ -274,3 +274,46 @@ intersphinx_mapping = {
     'pandas': ('http://pandas.pydata.org/pandas-docs/stable/', None),
     'numpy': ('https://docs.scipy.org/doc/numpy/', None)
 }
+
+
+import os
+
+# Bokeh uses CDN to serve JS files, but since we are hosting the
+# documentation of the latest release (and/or unrelease version) we
+# want to serve the compiled JS files from Read the Docs servers
+# itself. For this, we build these JS files in RTD server and use
+# ``BOKEH_DOCS_CDN`` to generate the right URLs for these files.
+os.environ['BOKEH_DOCS_CDN'] = 'test:{}'.format(os.environ.get('READTHEDOCS_VERSION'))
+
+# Set the proper ``BOKEH_DOCS_VERSION`` based on the version being
+# built on Read the Docs
+os.environ['BOKEH_DOCS_VERSION'] = os.environ.get('READTHEDOCS_VERSION')
+
+if os.environ.get('READTHEDOCS') == 'True':
+    # Download all the sample data to plot
+    import bokeh
+    bokeh.sampledata.download(progress=False)
+
+# https://github.com/humitos/bokeh/blob/3fce9dff37392156e4c1c2c0ce741899ea9a5261/sphinx/fabfile.py#L46
+# ``version.txt`` is generated on deploying and used from JS when
+# rendering the page FIXME: when this file is requested, it's only
+# done at ``/en/latest/version.txt`` --the URL is harcorded so it
+# doesn't work for versions different than ``latest``
+with open('version.txt', 'w') as fh:
+    fh.write(os.environ.get('READTHEDOCS_VERSION'))
+
+# Create the proper structure to serve CSS and JS files compiled by
+# Bokeh. We can't use ``html_static_path`` here because the URLs are
+# hardcoded to ``static/js`` instead of ``_static/js``, etc
+os.system('mkdir -p bokehJSbuildstatic')
+os.system('cd bokehJSbuildstatic; ln -s ../../../bokehjs/build static')
+
+html_extra_path = [
+    'version.txt',
+    'bokehJSbuildstatic',
+]
+
+bokeh_missing_google_api_key_ok=True
+
+# To deal with ``/scripts/`` URLs
+bokeh_plot_use_relative_paths = True
