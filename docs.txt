@@ -1,4 +1,3 @@
-# bokeh  # TODO: install from repo
 colorcet
 jinja2
 networkx
@@ -14,4 +13,4 @@ setuptools
 six
 tornado
 
-sphinx
+sphinx>1.8
