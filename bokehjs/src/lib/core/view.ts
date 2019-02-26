@@ -1,5 +1,7 @@
 import {HasProps} from "./has_props"
+import {Property} from "./properties"
 import {Signal0, Signal, Signalable} from "./signaling"
+import {isArray} from "./util/types"
 import {uniqueId} from "./util/string"
 
 export namespace View {
@@ -78,5 +80,13 @@ export class View extends Signalable() {
 
   disconnect_signals(): void {
     Signal.disconnectReceiver(this)
+  }
+
+  on_change(property: Property<unknown>, fn: () => void): void
+  on_change(properties: Property<unknown>[], fn: () => void): void
+
+  on_change(properties: Property<unknown> | Property<unknown>[], fn: () => void): void {
+    for (const property of isArray(properties) ? properties : [properties])
+      this.connect(property.change, fn)
   }
 }

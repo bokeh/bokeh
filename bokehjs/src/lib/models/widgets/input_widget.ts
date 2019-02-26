@@ -1,18 +1,19 @@
 import {Widget, WidgetView} from "./widget"
 import {CallbackLike0} from "../callbacks/callback"
 
-import {label} from "core/dom"
+import {div, label} from "core/dom"
 import * as p from "core/properties"
 
 export abstract class InputWidgetView extends WidgetView {
   model: InputWidget
 
-  protected label: HTMLLabelElement
+  protected label_el: HTMLLabelElement
+  protected group_el: HTMLElement
 
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.title.change, () => {
-      this.label.textContent = this.model.title
+      this.label_el.textContent = this.model.title
     })
   }
 
@@ -20,8 +21,10 @@ export abstract class InputWidgetView extends WidgetView {
     super.render()
 
     const {title} = this.model
-    this.label = label({style: {display: title.length == 0 ? "none" : ""}}, title)
-    this.el.appendChild(this.label)
+    this.label_el = label({style: {display: title.length == 0 ? "none" : ""}}, title)
+
+    this.group_el = div({class: "bk-input-group"}, this.label_el)
+    this.el.appendChild(this.group_el)
   }
 
   change_input(): void {

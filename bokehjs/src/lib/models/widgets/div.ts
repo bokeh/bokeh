@@ -7,9 +7,9 @@ export class DivView extends MarkupView {
   render(): void {
     super.render()
     if (this.model.render_as_text)
-      this.markupEl.textContent = this.model.text
+      this.markup_el.textContent = this.model.text
     else
-      this.markupEl.innerHTML = this.model.text
+      this.markup_el.innerHTML = this.model.text
   }
 }
 

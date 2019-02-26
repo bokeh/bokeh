@@ -7,35 +7,35 @@ const {log10, round, min, max} = Math
 export class SpinnerView extends InputWidgetView {
   model: Spinner
 
-  protected input: HTMLInputElement
+  protected input_el: HTMLInputElement
 
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.low.change, () => {
       const {low, step} = this.model
       if (low != null)
-        this.input.min = low.toFixed(log10(1 / step))
+        this.input_el.min = low.toFixed(log10(1 / step))
     })
     this.connect(this.model.properties.high.change, () => {
       const {high, step} = this.model
       if (high != null)
-        this.input.max = high.toFixed(log10(1 / step))
+        this.input_el.max = high.toFixed(log10(1 / step))
     })
     const fn = () => {
       const {value, step} = this.model
-      this.input.step = value.toFixed(log10(1 / step))
+      this.input_el.step = value.toFixed(log10(1 / step))
     }
     this.connect(this.model.properties.step.change, fn)
     this.connect(this.model.properties.value.change, fn)
     this.connect(this.model.properties.disabled.change, () => {
-      this.input.disabled = this.model.disabled
+      this.input_el.disabled = this.model.disabled
     })
   }
 
   render(): void {
     super.render()
 
-    this.input = input({
+    this.input_el = input({
       type: "number",
       class: "bk-input",
       name: this.model.name,
@@ -45,14 +45,14 @@ export class SpinnerView extends InputWidgetView {
       step: this.model.step,
       disabled: this.model.disabled,
     })
-    this.input.addEventListener("change", () => this.change_input())
-    //this.input.addEventListener("input", () => this.change_input())
-    this.el.appendChild(this.input)
+    this.input_el.addEventListener("change", () => this.change_input())
+    //this.input_el.addEventListener("input", () => this.change_input())
+    this.group_el.appendChild(this.input_el)
   }
 
   change_input(): void {
     const {step, low, high} = this.model
-    const new_value = Number(this.input.value)
+    const new_value = Number(this.input_el.value)
 
     let process_value: number
     if (low != null)

@@ -8,7 +8,7 @@ import {InputWidget, InputWidgetView} from "./input_widget"
 export class SelectView extends InputWidgetView {
   model: Select
 
-  protected selectEl: HTMLSelectElement
+  protected select_el: HTMLSelectElement
 
   connect_signals(): void {
     super.connect_signals()
@@ -43,18 +43,18 @@ export class SelectView extends InputWidgetView {
       }
     }
 
-    this.selectEl = select({
+    this.select_el = select({
       class: "bk-input",
       id: this.model.id,
       name: this.model.name,
       disabled: this.model.disabled}, contents)
 
-    this.selectEl.addEventListener("change", () => this.change_input())
-    this.el.appendChild(this.selectEl)
+    this.select_el.addEventListener("change", () => this.change_input())
+    this.group_el.appendChild(this.select_el)
   }
 
   change_input(): void {
-    const value = this.selectEl.value
+    const value = this.select_el.value
     logger.debug(`selectbox: value = ${value}`)
     this.model.value = value
     super.change_input()

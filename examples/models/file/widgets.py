@@ -61,7 +61,7 @@ date_range_slider = DateRangeSlider(value=(date(2016, 1, 1), date(2016, 12, 31))
 
 spinner = Spinner(value=100)
 
-color_picker = ColorPicker(color="red")
+color_picker = ColorPicker(color="red", title="Choose color:")
 
 date_picker = DatePicker(value=date(2017, 8, 1))
 
