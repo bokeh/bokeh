@@ -21,7 +21,7 @@ export class ToggleView extends AbstractButtonView {
   }
 
   protected _update_active(): void {
-    classes(this.buttonEl).toggle("bk-active", this.model.active)
+    classes(this.button_el).toggle("bk-active", this.model.active)
   }
 }
 

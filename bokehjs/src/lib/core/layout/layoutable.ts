@@ -133,9 +133,9 @@ export abstract class Layoutable {
     return {width, height}
   }
 
-  protected abstract _measure(viewport: Size): SizeHint
+  protected abstract _measure(viewport: Sizeable): SizeHint
 
-  measure(viewport: Size): SizeHint {
+  measure(viewport_size: Size): SizeHint {
     const exact_width = (width: number) => {
       return this.sizing.width_policy == "fixed" && this.sizing.width != null ? this.sizing.width : width
     }
@@ -143,11 +143,9 @@ export abstract class Layoutable {
       return this.sizing.height_policy == "fixed" && this.sizing.height != null ? this.sizing.height : height
     }
 
-    viewport = new Sizeable(viewport).shrink_by(this.sizing.margin)
-    viewport = {
-      width: exact_width(viewport.width),
-      height: exact_height(viewport.height),
-    }
+    const viewport = new Sizeable(viewport_size)
+      .shrink_by(this.sizing.margin)
+      .map(exact_width, exact_height)
 
     const computed = this._measure(viewport)
     const clipped = this.clip_size(computed)

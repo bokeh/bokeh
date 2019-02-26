@@ -7,7 +7,7 @@ import {logger} from "core/logging"
 import {repeat} from "core/util/array"
 import {throttle} from "core/util/callback"
 import {Orientation, SliderCallbackPolicy} from "core/enums"
-import {HTML, SizingPolicy} from "core/layout"
+import {ContentBox, SizingPolicy} from "core/layout"
 
 import {Widget, WidgetView} from "./widget"
 import {CallbackLike0} from "../callbacks/callback"
@@ -74,7 +74,7 @@ export abstract class AbstractSliderView extends WidgetView {
   }
 
   _update_layout(): void {
-    this.layout = new HTML(this.el)
+    this.layout = new ContentBox(this.el)
     const sizing = this.box_sizing()
     if (this.model.orientation == "horizontal") {
       if (sizing.width == null)

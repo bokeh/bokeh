@@ -19,10 +19,10 @@ export class Sizeable implements Size {
     })
   }
 
-  expandend_to({width, height}: Size): Sizeable {
+  expanded_to({width, height}: Size): Sizeable {
     return new Sizeable({
-      width: max(this.width, width),
-      height: max(this.height, height),
+      width: width != Infinity ? max(this.width, width) : this.width,
+      height: height != Infinity ? max(this.height, height) : this.height,
     })
   }
 
@@ -55,8 +55,11 @@ export class Sizeable implements Size {
     return new Sizeable({width, height})
   }
 
-  map(fn: (v: number) => number): Sizeable {
-    return new Sizeable({width: fn(this.width), height: fn(this.height)})
+  map(w_fn: (v: number) => number, h_fn?: (v: number) => number): Sizeable {
+    return new Sizeable({
+      width: w_fn(this.width),
+      height: (h_fn != null ? h_fn : w_fn)(this.height),
+    })
   }
 }
 

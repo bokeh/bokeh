@@ -5,7 +5,7 @@ import * as hittest from "core/hittest"
 import {Arrayable} from "core/types"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
-import {get_text_height} from "core/util/text"
+import {measure_font} from "core/util/text"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 
@@ -54,7 +54,7 @@ export class TextView extends XYGlyphView {
         this.visuals.text.set_vectorize(ctx, i)
 
         const font = this.visuals.text.cache_select("font", i)
-        const {height} = get_text_height(font)
+        const {height} = measure_font(font)
         const line_height = this.visuals.text.text_line_height.value()*height
         if (text.indexOf("\n") == -1){
           ctx.fillText(text, 0, 0)

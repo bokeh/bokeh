@@ -1,5 +1,6 @@
-import * as p from "core/properties"
+import {VariadicBox} from "core/layout"
 import {div} from "core/dom"
+import * as p from "core/properties"
 
 import {Widget, WidgetView} from "./widget"
 
@@ -14,6 +15,11 @@ export abstract class MarkupView extends WidgetView {
       this.render()
       this.root.compute_layout() // XXX: invalidate_layout?
     })
+  }
+
+  _update_layout(): void {
+    this.layout = new VariadicBox(this.el)
+    this.layout.set_sizing(this.box_sizing())
   }
 
   render(): void {

@@ -9,7 +9,7 @@ from bokeh.util.compiler import TypeScript
 import numpy as np
 from scipy.special import jv
 
-output_file('external_resources.html')
+output_file('latex_extension.html')
 
 class LatexLabel(Label):
     """A subclass of `Label` with all of the same class attributes except

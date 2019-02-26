@@ -1,4 +1,5 @@
 .bk-btn {
+  height: 100%;
   display: inline-block;
   text-align: center;
   vertical-align: middle;
@@ -96,21 +97,27 @@
 }
 
 .bk-btn-group {
+  height: 100%;
+
   .flex();
   .flex-wrap(nowrap);
   .align-items(center);
   .flex-direction(row);
 
+  & > .bk-btn {
+    .flex-grow(1);
+  }
+
   & > .bk-btn + .bk-btn {
     margin-left: -1px;
   }
 
-  & > .bk-btn:first-child {
+  & > .bk-btn:first-child:not(:last-child) {
     border-bottom-right-radius: 0;
     border-top-right-radius: 0;
   }
 
-  & > .bk-btn:last-child {
+  & > .bk-btn:not(:first-child):last-child {
     border-bottom-left-radius: 0;
     border-top-left-radius: 0;
   }
@@ -136,7 +143,9 @@
 
 .bk-input {
   display: inline-block;
-  height: (@line-height-computed + (@padding-vertical*2) + 2);
+  width: 100%;
+  height: 100%;
+  min-height: (@line-height-computed + (@padding-vertical*2) + 2);
   padding: 0 @padding-horizontal;
   background-color: #fff;
   border: 1px solid #ccc;
@@ -234,11 +243,6 @@ select[multiple], select[size], textarea {
     display: inline-block;
     font-weight: 600;
   }
-}
-
-// XXX: set this in the implementation
-.bk-input {
-  width: 100%;
 }
 
 .bk-input-group {

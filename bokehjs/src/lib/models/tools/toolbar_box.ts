@@ -14,7 +14,7 @@ import {ToolbarBase, GestureType} from "./toolbar_base"
 import {ToolProxy} from "./tool_proxy"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
-import {HTML} from "core/layout"
+import {ContentBox} from "core/layout"
 
 export namespace ProxyToolbar {
   export type Attrs = p.AttrsOf<Props>
@@ -205,7 +205,7 @@ export class ToolbarBoxView extends LayoutDOMView {
   }
 
   _update_layout(): void {
-    this.layout = new HTML(this.child_views[0].el)
+    this.layout = new ContentBox(this.child_views[0].el)
 
     const {toolbar} = this.model
 

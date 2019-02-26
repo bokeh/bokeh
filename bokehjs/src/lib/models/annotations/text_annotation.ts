@@ -3,7 +3,7 @@ import {Text, Line, Fill} from "core/visuals"
 import {display, undisplay} from "core/dom"
 import {RenderMode} from "core/enums"
 import * as p from "core/properties"
-import {get_text_height} from "core/util/text"
+import {measure_font} from "core/util/text"
 import {Context2d} from "core/util/canvas"
 
 export abstract class TextAnnotationView extends AnnotationView {
@@ -33,7 +33,7 @@ export abstract class TextAnnotationView extends AnnotationView {
 
   protected _calculate_text_dimensions(ctx: Context2d, text: string): [number, number] {
     const {width} = ctx.measureText(text)
-    const {height} = get_text_height(this.visuals.text.font_value())
+    const {height} = measure_font(this.visuals.text.font_value())
     return [width, height]
   }
 
