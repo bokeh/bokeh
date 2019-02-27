@@ -7,9 +7,9 @@ export class Sizeable implements Size {
   width: number
   height: number
 
-  constructor(size?: Partial<Size>) {
-    this.width = size != null && size.width != null ? size.width : 0
-    this.height = size != null && size.height != null ? size.height : 0
+  constructor(size: Partial<Size> = {}) {
+    this.width = size.width != null ? size.width : 0
+    this.height = size.height != null ? size.height : 0
   }
 
   bounded_to({width, height}: Partial<Size>): Sizeable {
