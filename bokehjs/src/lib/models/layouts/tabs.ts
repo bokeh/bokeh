@@ -1,5 +1,5 @@
-import {Grid, LayoutItem} from "core/layout"
-import {div, outer_size, children, position, show, hide} from "core/dom"
+import {Grid, Row, Column, ContentBox, Layoutable} from "core/layout"
+import {div, children, position, show, hide} from "core/dom"
 import {Location} from "core/enums"
 import * as p from "core/properties"
 
@@ -10,8 +10,10 @@ import {Model} from "../../model"
 export class TabsView extends LayoutDOMView {
   model: Tabs
 
-  protected header: LayoutItem
+  protected header: Layoutable
   protected header_el: HTMLElement
+  protected headers: Layoutable[]
+  protected headers_el: HTMLElement[]
 
   connect_signals(): void {
     super.connect_signals()
@@ -26,12 +28,19 @@ export class TabsView extends LayoutDOMView {
   _update_layout(): void {
     const loc = this.model.tabs_location
 
-    this.header = new LayoutItem()
-    const size = Math.max(...children(this.header_el).map((el) => outer_size(el).height))
-    if (loc == "above" || loc == "below")
-      this.header.set_sizing({width_policy: "fit", height_policy: "fixed", height: size})
-    else
-      this.header.set_sizing({width_policy: "fixed", width: size, height_policy: "fit"})
+    this.headers = this.headers_el.map((el) => {
+      const layout = new ContentBox(el)
+      layout.set_sizing({width_policy: "fixed", height_policy: "fixed"})
+      return layout
+    })
+
+    if (loc == "above" || loc == "below") {
+      this.header = new Row(this.headers)
+      this.header.set_sizing({width_policy: "fit", height_policy: "fixed"})
+    } else {
+      this.header = new Column(this.headers)
+      this.header.set_sizing({width_policy: "fixed", height_policy: "fit"})
+    }
 
     let row = 1
     let col = 1
@@ -56,6 +65,10 @@ export class TabsView extends LayoutDOMView {
     super.update_position()
 
     position(this.header_el, this.header.bbox)
+    for (let i = 0; i < this.model.tabs.length; i++) {
+      this.headers_el[i].style.position = "absolute" // XXX: do it in position()
+      position(this.headers_el[i], this.headers[i].bbox)
+    }
 
     const {child_views} = this
     for (const child_view of child_views)
@@ -69,13 +82,13 @@ export class TabsView extends LayoutDOMView {
 
     const {active} = this.model
 
-    const headers = this.model.tabs.map((tab, i) => {
-      const el = div({class: i == active ? "bk-active" : null}, tab.title)
+    this.headers_el =  this.model.tabs.map((tab, i) => {
+      const el = div({class: ["bk-tab", i == active ? "bk-active" : null]}, tab.title)
       el.addEventListener("click", () => this.change_active(i))
       return el
     })
 
-    this.header_el = div({class: "bk-tabs-header"}, headers)
+    this.header_el = div({class: "bk-tabs-header"}, this.headers_el)
     this.el.appendChild(this.header_el)
   }
 

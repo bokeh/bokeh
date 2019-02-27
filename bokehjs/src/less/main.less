@@ -19,31 +19,28 @@
 }
 
 .bk-tabs-header {
-  .flex();
-  .flex-direction(row);
+  overflow: hidden;
 
   color: lighten(black, 40%);
   border-bottom: 1px solid lighten(black, 90%);
+}
 
-  overflow: hidden;
+.bk-tab {
+  padding: @padding-vertical @padding-horizontal;
+  border: solid transparent;
+  border-width: 3px 1px 1px 1px;
+  border-radius: @border-radius @border-radius 0 0;
+  white-space: nowrap;
+  cursor: pointer;
 
-  & > * {
-    padding: @padding-vertical @padding-horizontal;
-    border: solid transparent;
-    border-width: 3px 1px 1px 1px;
-    border-radius: @border-radius @border-radius 0 0;
-    white-space: nowrap;
-    cursor: pointer;
+  &:hover {
+    background-color: lighten(black, 95%);
+  }
 
-    &:hover {
-      background-color: lighten(black, 95%);
-    }
-
-    &.bk-active {
-      color: lighten(black, 30%);
-      background-color: white;
-      border-color: lighten(black, 90%);
-      border-bottom-color: transparent;
-    }
+  &.bk-active {
+    color: lighten(black, 30%);
+    background-color: white;
+    border-color: lighten(black, 90%);
+    border-bottom-color: transparent;
   }
 }
