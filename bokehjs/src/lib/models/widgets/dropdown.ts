@@ -17,18 +17,12 @@ export class DropdownView extends AbstractButtonView {
     super.render()
 
     if (!this.model.is_split) {
-      this.buttonEl.classList.add("bk-dropdown-toggle")
-      this.buttonEl.appendChild(div({class: "bk-caret"}))
+      this.button_el.appendChild(div({class: "bk-caret"}))
     } else {
-      const group = div({class: "bk-btn-group"})
-      this.el.appendChild(group)
-
       const caret = this._render_button(div({class: "bk-caret"}))
       caret.classList.add("bk-dropdown-toggle")
       caret.addEventListener("click", () => this._toggle_menu())
-
-      group.appendChild(this.buttonEl)
-      group.appendChild(caret)
+      this.group_el.appendChild(caret)
     }
 
     const items = this.model.menu.map((item, i) => {

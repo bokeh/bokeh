@@ -32,8 +32,8 @@ export class CheckboxGroupView extends WidgetView {
       if (includes(active, i))
         checkbox.checked = true
 
-      const labelEl = label({}, checkbox, span({}, labels[i]))
-      group.appendChild(labelEl)
+      const label_el = label({}, checkbox, span({}, labels[i]))
+      group.appendChild(label_el)
     }
   }
 

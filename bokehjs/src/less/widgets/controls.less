@@ -1,4 +1,5 @@
 .bk-btn {
+  height: 100%;
   display: inline-block;
   text-align: center;
   vertical-align: middle;
@@ -96,21 +97,27 @@
 }
 
 .bk-btn-group {
+  height: 100%;
+
   .flex();
   .flex-wrap(nowrap);
   .align-items(center);
   .flex-direction(row);
 
+  & > .bk-btn {
+    .flex-grow(1);
+  }
+
   & > .bk-btn + .bk-btn {
     margin-left: -1px;
   }
 
-  & > .bk-btn:first-child {
+  & > .bk-btn:first-child:not(:last-child) {
     border-bottom-right-radius: 0;
     border-top-right-radius: 0;
   }
 
-  & > .bk-btn:last-child {
+  & > .bk-btn:not(:first-child):last-child {
     border-bottom-left-radius: 0;
     border-top-left-radius: 0;
   }
@@ -120,23 +127,11 @@
   }
 }
 
-.bk-input-group {
-  .inline-flex();
-  .flex-wrap(nowrap);
-  .align-items(center);
-  .flex-direction(column);
-  &.bk-inline {
-    .flex-direction(row);
-
-    & > *:not(:first-child) {
-      margin-left: 5px;
-    }
-  }
-}
-
 .bk-input {
   display: inline-block;
-  height: (@line-height-computed + (@padding-vertical*2) + 2);
+  width: 100%;
+  .flex-grow(1);
+  min-height: (@line-height-computed + (@padding-vertical*2) + 2);
   padding: 0 @padding-horizontal;
   background-color: #fff;
   border: 1px solid #ccc;
@@ -217,37 +212,38 @@ select[multiple], select[size], textarea {
   }
 }
 
-//
-//
-// Individual widget customizations
-//
-//
-
-.bk-slider {
-  white-space: nowrap;
-
-  label + .bk-slider-value {
-    margin-left: 5px;
-  }
-
-  .bk-slider-value {
-    display: inline-block;
-    font-weight: 600;
-  }
-}
-
-// XXX: set this in the implementation
-.bk-input {
-  width: 100%;
-}
-
 .bk-input-group {
+  width: 100%;
+  height: 100%;
+  .inline-flex();
+  .flex-wrap(nowrap);
+  .align-items(start);
+  .flex-direction(column);
+
   white-space: nowrap;
 
-  & span {
-    // XXX: this is wrong, but at least looks good by default.
-    position: relative;
-    top: -2px;
-    margin-left: 3px;
+  &.bk-inline {
+    .flex-direction(row);
+
+    & > *:not(:first-child) {
+      margin-left: 5px;
+    }
   }
+
+  // XXX: this is horrible, but at least looks good by default
+  input[type="checkbox"], input[type="radio"] {
+    & + span {
+      position: relative;
+      top: -2px;
+      margin-left: 3px;
+    }
+  }
+}
+
+.bk-slider-title {
+  white-space: nowrap;
+}
+
+.bk-slider-value {
+  font-weight: 600;
 }

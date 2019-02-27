@@ -31,8 +31,8 @@ export class RadioGroupView extends WidgetView {
       if (i == active)
         radio.checked = true
 
-      const labelEl = label({}, radio, span({}, labels[i]))
-      group.appendChild(labelEl)
+      const label_el = label({}, radio, span({}, labels[i]))
+      group.appendChild(label_el)
     }
   }
 

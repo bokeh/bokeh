@@ -1,5 +1,5 @@
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
-import {HTML} from "core/layout"
+import {ContentBox} from "core/layout"
 import * as p from "core/properties"
 
 export namespace HTMLBoxView {
@@ -14,7 +14,7 @@ export abstract class HTMLBoxView extends LayoutDOMView {
   }
 
   _update_layout(): void {
-    this.layout = new HTML(this.el)
+    this.layout = new ContentBox(this.el)
     this.layout.set_sizing(this.box_sizing())
   }
 }

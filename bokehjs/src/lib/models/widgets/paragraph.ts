@@ -9,7 +9,7 @@ export class ParagraphView extends MarkupView {
     super.render()
     // This overrides default user-agent styling and helps layout work
     const content = paragraph({style: {margin: 0}}, this.model.text)
-    this.markupEl.appendChild(content)
+    this.markup_el.appendChild(content)
   }
 }
 

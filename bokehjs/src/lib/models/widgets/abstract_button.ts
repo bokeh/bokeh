@@ -1,6 +1,6 @@
 import * as p from "core/properties"
 import {ButtonType} from "core/enums"
-import {prepend, nbsp, button} from "core/dom"
+import {prepend, nbsp, button, div} from "core/dom"
 import {build_views, remove_views} from "core/build_views"
 
 import {Widget, WidgetView} from "./widget"
@@ -12,7 +12,8 @@ export abstract class AbstractButtonView extends WidgetView {
 
   protected icon_views: {[key: string]: AbstractIconView}
 
-  protected buttonEl: HTMLButtonElement
+  protected button_el: HTMLButtonElement
+  protected group_el: HTMLElement
 
   initialize(options: any): void {
     super.initialize(options)
@@ -34,25 +35,23 @@ export abstract class AbstractButtonView extends WidgetView {
       type: "button",
       disabled: this.model.disabled,
       class: [`bk-btn`, `bk-btn-${this.model.button_type}`],
-      style: {
-        width: "100%",
-        height: "100%",
-      },
     }, ...children)
   }
 
   render(): void {
     super.render()
 
-    this.buttonEl = this._render_button(this.model.label)
-    this.buttonEl.addEventListener("click", () => this.click())
-    this.el.appendChild(this.buttonEl)
+    this.button_el = this._render_button(this.model.label)
+    this.button_el.addEventListener("click", () => this.click())
 
     const icon = this.model.icon
     if (icon != null) {
       build_views(this.icon_views, [icon], {parent: this})
-      prepend(this.buttonEl, this.icon_views[icon.id].el, nbsp())
+      prepend(this.button_el, this.icon_views[icon.id].el, nbsp())
     }
+
+    this.group_el = div({class: "bk-btn-group"}, this.button_el)
+    this.el.appendChild(this.group_el)
   }
 
   click(): void {

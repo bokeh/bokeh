@@ -348,7 +348,7 @@ export class ColorBarView extends AnnotationView {
           label_extent = max((major_labels.map((label) => ctx.measureText(label.toString()).width)))
           break
         case "horizontal":
-          label_extent = text_util.get_text_height(this.visuals.major_label_text.font_value()).height
+          label_extent = text_util.measure_font(this.visuals.major_label_text.font_value()).height
           break
         default:
           throw new Error("unreachable code")
@@ -376,7 +376,7 @@ export class ColorBarView extends AnnotationView {
 
   _title_extent(): number {
     const font_value = this.model.title_text_font + " " + this.model.title_text_font_size + " " + this.model.title_text_font_style
-    const title_extent = this.model.title ? text_util.get_text_height(font_value).height + this.model.title_standoff : 0
+    const title_extent = this.model.title ? text_util.measure_font(font_value).height + this.model.title_standoff : 0
     return title_extent
   }
 
