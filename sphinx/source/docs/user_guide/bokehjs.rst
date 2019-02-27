@@ -114,11 +114,14 @@ Python to JavaScript at this level is nearly one-to-one:
     var div = document.getElementById("plot");
     Bokeh.embed.add_document_standalone(doc, div);
 
-Try on Codepen.io: `Codepen inside backtick <http://stackoverflow.com/>`_.
+
+
 The code above generates the following plot:
 
 .. image:: /_images/bokehjs_models.png
     :width: 400px
+
+Try `Simple-Line <https://codepen.io/paddy_mullen/pen/ZPGNRQ/>`_ on Codepen.
 
 .. _userguide_bokehjs_interfaces:
 
@@ -192,8 +195,10 @@ The code above generates the following plot:
 
 .. image:: /_images/bokehjs_plotting.png
     :width: 400px
-
 .. _userguide_bokehjs_interfaces_charts:
+
+Try `Color-Scatter <https://codepen.io/paddy_mullen/pen/droLrO/>`_ on Codepen.
+
 
 ``Bokeh.Charts``
 ~~~~~~~~~~~~~~~~
@@ -260,6 +265,8 @@ function, with the plot it generates shown below:
 
 .. image:: /_images/bokehjs_pie_charts.png
     :width: 100%
+
+Try `Pie-Chart <https://codepen.io/paddy_mullen/pen/VRLNEK/>`_ on Codepen.
 
 .. _userguide_bokehjs_interfaces_charts_bar:
 
@@ -338,6 +345,7 @@ function, with the plot it generates shown below:
 .. image:: /_images/bokehjs_bar_charts.png
     :width: 100%
 
+Try `Bar-Chart <https://codepen.io/paddy_mullen/pen/rRVbKg/>`_ on Codepen.
 
 ``Minimal Complete Example``
 ''''''''''''''''''''''''''''
@@ -402,6 +410,6 @@ and dynamic creation and modification of plots.
 
     ..
 
-Try Minimal-complete-example on Codepen.io: `Codepen minimal complete example backtick <https://codepen.io/paddy_mullen/pen/LaVJPK/>`_.
+Try `Minimal-complete <https://codepen.io/paddy_mullen/pen/LaVJPK/>`_ on Codepen.
 
 
