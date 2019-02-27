@@ -562,3 +562,14 @@ describe("Widgets", () => {
     await display(obj, [500, 300])
   })
 })
+
+describe("Rows of widgets", () => {
+
+  it("should allow different content and fixed height", async () => {
+    const w0 = new TextInput({value: "Widget 1"})
+    const w1 = new TextInput({value: "Widget 2", height: 50})
+    const row = new Row({children: [w0, w1]})
+
+    await display(row, [500, 300])
+  })
+})

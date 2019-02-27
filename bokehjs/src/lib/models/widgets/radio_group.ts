@@ -2,10 +2,10 @@ import {input, label, div, span} from "core/dom"
 import {uniqueId} from "core/util/string"
 import * as p from "core/properties"
 
-import {Widget, WidgetView} from "./widget"
+import {InputGroup, InputGroupView} from "./input_group"
 import {CallbackLike0} from "../callbacks/callback"
 
-export class RadioGroupView extends WidgetView {
+export class RadioGroupView extends InputGroupView {
   model: RadioGroup
 
   connect_signals(): void {
@@ -46,7 +46,7 @@ export class RadioGroupView extends WidgetView {
 export namespace RadioGroup {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Widget.Props & {
+  export type Props = InputGroup.Props & {
     active: p.Property<number>
     labels: p.Property<string[]>
     inline: p.Property<boolean>
@@ -56,7 +56,7 @@ export namespace RadioGroup {
 
 export interface RadioGroup extends RadioGroup.Attrs {}
 
-export class RadioGroup extends Widget {
+export class RadioGroup extends InputGroup {
   properties: RadioGroup.Props
 
   constructor(attrs?: Partial<RadioGroup.Attrs>) {

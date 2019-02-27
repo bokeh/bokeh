@@ -1,4 +1,4 @@
-import {Widget, WidgetView} from "./widget"
+import {InputGroup, InputGroupView} from "./input_group"
 import {CallbackLike0} from "../callbacks/callback"
 
 import {input, label, div, span} from "core/dom"
@@ -6,7 +6,7 @@ import {includes} from "core/util/array"
 import {Set} from "core/util/data_structures"
 import * as p from "core/properties"
 
-export class CheckboxGroupView extends WidgetView {
+export class CheckboxGroupView extends InputGroupView {
   model: CheckboxGroup
 
   connect_signals(): void {
@@ -50,7 +50,7 @@ export class CheckboxGroupView extends WidgetView {
 export namespace CheckboxGroup {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Widget.Props & {
+  export type Props = InputGroup.Props & {
     active: p.Property<number[]>
     labels: p.Property<string[]>
     inline: p.Property<boolean>
@@ -60,7 +60,7 @@ export namespace CheckboxGroup {
 
 export interface CheckboxGroup extends CheckboxGroup.Attrs {}
 
-export class CheckboxGroup extends Widget {
+export class CheckboxGroup extends InputGroup {
   properties: CheckboxGroup.Props
 
   constructor(attrs?: Partial<CheckboxGroup.Attrs>) {

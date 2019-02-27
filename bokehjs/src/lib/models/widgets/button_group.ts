@@ -1,11 +1,11 @@
-import {Widget, WidgetView} from "./widget"
+import {Control, ControlView} from "./control"
 import {CallbackLike0} from "../callbacks/callback"
 
 import {ButtonType} from "core/enums"
 import {div} from "core/dom"
 import * as p from "core/properties"
 
-export abstract class ButtonGroupView extends WidgetView {
+export abstract class ButtonGroupView extends ControlView {
   model: ButtonGroup
 
   protected _buttons: HTMLElement[]
@@ -42,7 +42,7 @@ export abstract class ButtonGroupView extends WidgetView {
 export namespace ButtonGroup {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Widget.Props & {
+  export type Props = Control.Props & {
     labels: p.Property<string[]>
     button_type: p.Property<ButtonType>
     callback: p.Property<CallbackLike0<ButtonGroup> | null>
@@ -51,7 +51,7 @@ export namespace ButtonGroup {
 
 export interface ButtonGroup extends ButtonGroup.Attrs {}
 
-export abstract class ButtonGroup extends Widget {
+export abstract class ButtonGroup extends Control {
   properties: ButtonGroup.Props
 
   constructor(attrs?: Partial<ButtonGroup.Attrs>) {

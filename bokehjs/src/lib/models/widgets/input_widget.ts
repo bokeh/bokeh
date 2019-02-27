@@ -1,10 +1,10 @@
-import {Widget, WidgetView} from "./widget"
+import {Control, ControlView} from "./control"
 import {CallbackLike0} from "../callbacks/callback"
 
 import {div, label} from "core/dom"
 import * as p from "core/properties"
 
-export abstract class InputWidgetView extends WidgetView {
+export abstract class InputWidgetView extends ControlView {
   model: InputWidget
 
   protected label_el: HTMLLabelElement
@@ -36,7 +36,7 @@ export abstract class InputWidgetView extends WidgetView {
 export namespace InputWidget {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Widget.Props & {
+  export type Props = Control.Props & {
     title: p.Property<string>
     callback: p.Property<CallbackLike0<InputWidget> | null>
   }
@@ -44,7 +44,7 @@ export namespace InputWidget {
 
 export interface InputWidget extends InputWidget.Attrs {}
 
-export abstract class InputWidget extends Widget {
+export abstract class InputWidget extends Control {
   properties: InputWidget.Props
 
   constructor(attrs?: Partial<InputWidget.Attrs>) {
