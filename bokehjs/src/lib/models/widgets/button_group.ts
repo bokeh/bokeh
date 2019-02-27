@@ -23,10 +23,6 @@ export abstract class ButtonGroupView extends WidgetView {
       const button = div({
         class: [`bk-btn`, `bk-btn-${this.model.button_type}`],
         disabled: this.model.disabled,
-        style: {
-          width: "100%",
-          height: "100%",
-        },
       }, label)
       button.addEventListener("click", () => this.change_active(i))
       return button

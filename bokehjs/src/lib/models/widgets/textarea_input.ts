@@ -7,23 +7,23 @@ import * as p from "core/properties"
 export class TextAreaInputView extends InputWidgetView {
   model: TextAreaInput
 
-  protected input: HTMLTextAreaElement
+  protected input_el: HTMLTextAreaElement
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.name.change, () => this.input.name = this.model.name || "")
-    this.connect(this.model.properties.value.change, () => this.input.value = this.model.value)
-    this.connect(this.model.properties.disabled.change, () => this.input.disabled = this.model.disabled)
-    this.connect(this.model.properties.placeholder.change, () => this.input.placeholder = this.model.placeholder)
-    this.connect(this.model.properties.rows.change, () => this.input.rows = this.model.rows)
-    this.connect(this.model.properties.cols.change, () => this.input.cols = this.model.cols)
-    this.connect(this.model.properties.max_length.change, () => this.input.maxLength = this.model.max_length)
+    this.connect(this.model.properties.name.change, () => this.input_el.name = this.model.name || "")
+    this.connect(this.model.properties.value.change, () => this.input_el.value = this.model.value)
+    this.connect(this.model.properties.disabled.change, () => this.input_el.disabled = this.model.disabled)
+    this.connect(this.model.properties.placeholder.change, () => this.input_el.placeholder = this.model.placeholder)
+    this.connect(this.model.properties.rows.change, () => this.input_el.rows = this.model.rows)
+    this.connect(this.model.properties.cols.change, () => this.input_el.cols = this.model.cols)
+    this.connect(this.model.properties.max_length.change, () => this.input_el.maxLength = this.model.max_length)
   }
 
   render(): void {
     super.render()
 
-    this.input = textarea({
+    this.input_el = textarea({
       class: "bk-input",
       name: this.model.name,
       disabled: this.model.disabled,
@@ -32,13 +32,13 @@ export class TextAreaInputView extends InputWidgetView {
       rows: this.model.rows,
       maxLength: this.model.max_length,
     })
-    this.input.textContent = this.model.value
-    this.input.addEventListener("change", () => this.change_input())
-    this.el.appendChild(this.input)
+    this.input_el.textContent = this.model.value
+    this.input_el.addEventListener("change", () => this.change_input())
+    this.group_el.appendChild(this.input_el)
   }
 
   change_input(): void {
-    this.model.value = this.input.value
+    this.model.value = this.input_el.value
     super.change_input()
   }
 }

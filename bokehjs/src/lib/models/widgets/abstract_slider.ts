@@ -2,12 +2,11 @@ import * as noUiSlider from "nouislider"
 
 import * as p from "core/properties"
 import {Color} from "core/types"
-import {label, div} from "core/dom"
-import {logger} from "core/logging"
+import {div, span, empty} from "core/dom"
 import {repeat} from "core/util/array"
 import {throttle} from "core/util/callback"
 import {Orientation, SliderCallbackPolicy} from "core/enums"
-import {HTML, SizingPolicy} from "core/layout"
+import {ContentBox, SizingPolicy} from "core/layout"
 
 import {Widget, WidgetView} from "./widget"
 import {CallbackLike0} from "../callbacks/callback"
@@ -22,13 +21,13 @@ export interface SliderSpec {
 export abstract class AbstractSliderView extends WidgetView {
   model: AbstractSlider
 
-  protected sliderEl: HTMLElement
-  protected titleEl: HTMLElement
-  protected valueEl: HTMLElement
+  protected group_el: HTMLElement
+  protected slider_el: HTMLElement
+  protected title_el: HTMLElement
   protected callback_wrapper?: () => void
 
   private get noUiSlider(): noUiSlider.noUiSlider {
-    return (this.sliderEl as noUiSlider.Instance).noUiSlider
+    return (this.slider_el as noUiSlider.Instance).noUiSlider
   }
 
   initialize(options: any): void {
@@ -38,11 +37,21 @@ export abstract class AbstractSliderView extends WidgetView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.callback.change,          () => this._init_callback())
-    this.connect(this.model.properties.callback_policy.change,   () => this._init_callback())
-    this.connect(this.model.properties.callback_throttle.change, () => this._init_callback())
 
-    this.connect(this.model.change, () => this.render()) // TODO
+    const {callback, callback_policy, callback_throttle} = this.model.properties
+    this.on_change([callback, callback_policy, callback_throttle], () => this._init_callback())
+
+    const {start, end, value, step} = this.model.properties
+    this.on_change([start, end, value, step], () => {
+      const {start, end, value, step} = this._calc_to()
+      this.noUiSlider.updateOptions({
+        range: {min: start, max: end},
+        start: value,
+        step,
+      })
+    })
+
+    this.on_change(value, () => this._update_title())
   }
 
   protected _init_callback(): void {
@@ -74,7 +83,7 @@ export abstract class AbstractSliderView extends WidgetView {
   }
 
   _update_layout(): void {
-    this.layout = new HTML(this.el)
+    this.layout = new ContentBox(this.el)
     const sizing = this.box_sizing()
     if (this.model.orientation == "horizontal") {
       if (sizing.width == null)
@@ -86,15 +95,30 @@ export abstract class AbstractSliderView extends WidgetView {
     this.layout.set_sizing(sizing)
   }
 
+  _update_title(): void {
+    empty(this.title_el)
+
+    const hide_header = this.model.title == null || (this.model.title.length == 0 && !this.model.show_value)
+    this.title_el.style.display = hide_header ? "none" : ""
+
+    if (!hide_header) {
+      if (this.model.title.length != 0)
+        this.title_el.textContent = `${this.model.title}: `
+
+      if (this.model.show_value) {
+        const {value} = this._calc_to()
+        const pretty = value.map((v) => this.model.pretty(v)).join(" .. ")
+        this.title_el.appendChild(span({class: "bk-slider-value"}, pretty))
+      }
+    }
+  }
+
   protected abstract _calc_to(): SliderSpec
 
   protected abstract _calc_from(values: number[]): number | number[]
 
   render(): void {
-    if (this.sliderEl == null) {
-      // XXX: temporary workaround for _render_css()
-      super.render()
-    }
+    super.render()
 
     const prefix = 'bk-noUi-'
 
@@ -110,13 +134,10 @@ export abstract class AbstractSliderView extends WidgetView {
     } else
       tooltips = false
 
-    this.el.classList.add("bk-slider")
+    if (this.slider_el == null) {
+      this.slider_el = div() as any
 
-    if (this.sliderEl == null) {
-      this.sliderEl = div() as any
-      this.el.appendChild(this.sliderEl)
-
-      noUiSlider.create(this.sliderEl, {
+      noUiSlider.create(this.slider_el, {
         cssPrefix: prefix,
         range: {min: start, max: end},
         start: value,
@@ -148,22 +169,18 @@ export abstract class AbstractSliderView extends WidgetView {
             return
         }
 
-        const pretty = this.model.pretty(value)
-        logger.debug(`[slider keypress] value = ${pretty}`)
         this.model.value = value
         this.noUiSlider.set(value)
-        if (this.valueEl != null)
-          this.valueEl.textContent = pretty
         if (this.callback_wrapper != null)
           this.callback_wrapper()
       }
 
-      const handle = this.sliderEl.querySelector(`.${prefix}handle`)!
+      const handle = this.slider_el.querySelector(`.${prefix}handle`)!
       handle.setAttribute('tabindex', '0')
       handle.addEventListener('keydown', keypress)
 
       const toggleTooltip = (i: number, show: boolean): void => {
-        const handle = this.sliderEl.querySelectorAll(`.${prefix}handle`)[i]
+        const handle = this.slider_el.querySelectorAll(`.${prefix}handle`)[i]
         const tooltip = handle.querySelector<HTMLElement>(`.${prefix}tooltip`)!
         tooltip.style.display = show ? 'block' : ''
       }
@@ -178,54 +195,32 @@ export abstract class AbstractSliderView extends WidgetView {
       })
     }
 
-    if (this.titleEl != null)
-      this.el.removeChild(this.titleEl)
-    if (this.valueEl != null)
-      this.el.removeChild(this.valueEl)
-
-    if (this.model.title != null) {
-      if (this.model.title.length != 0) {
-        this.titleEl = label({}, `${this.model.title}:`)
-        this.el.insertBefore(this.titleEl, this.sliderEl)
-      }
-
-      if (this.model.show_value) {
-        const pretty = value.map((v) => this.model.pretty(v)).join(" .. ")
-        this.valueEl = div({class: "bk-slider-value"}, pretty)
-        this.el.insertBefore(this.valueEl, this.sliderEl)
-      }
-    }
-
     if (!this.model.disabled) {
-      this.sliderEl.querySelector<HTMLElement>(`.${prefix}connect`)!
-                   .style
-                   .backgroundColor = this.model.bar_color
+      this.slider_el.querySelector<HTMLElement>(`.${prefix}connect`)!
+                    .style
+                    .backgroundColor = this.model.bar_color
     }
 
     if (this.model.disabled)
-      this.sliderEl.setAttribute('disabled', 'true')
+      this.slider_el.setAttribute('disabled', 'true')
     else
-      this.sliderEl.removeAttribute('disabled')
+      this.slider_el.removeAttribute('disabled')
+
+    this.title_el = div({class: "bk-slider-title"})
+    this._update_title()
+
+    this.group_el = div({class: "bk-input-group"}, this.title_el, this.slider_el)
+    this.el.appendChild(this.group_el)
   }
 
   protected _slide(values: number[]): void {
-    const value = this._calc_from(values)
-    const pretty = values.map((v) => this.model.pretty(v)).join(" .. ")
-    logger.debug(`[slider slide] value = ${pretty}`)
-    if (this.valueEl != null)
-      this.valueEl.textContent = pretty
-    this.model.value = value
+    this.model.value = this._calc_from(values)
     if (this.callback_wrapper != null)
       this.callback_wrapper()
   }
 
   protected _change(values: number[]): void {
-    const value = this._calc_from(values)
-    const pretty = values.map((v) => this.model.pretty(v)).join(" .. ")
-    logger.debug(`[slider change] value = ${pretty}`)
-    if (this.valueEl != null)
-      this.valueEl.dataset.value = pretty
-    this.model.value = value
+    this.model.value = this._calc_from(values)
     switch (this.model.callback_policy) {
       case 'mouseup':
       case 'throttle': {

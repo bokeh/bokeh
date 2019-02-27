@@ -14,8 +14,8 @@ from bokeh.models.widgets import (
     CheckboxButtonGroup, RadioButtonGroup,
     TextInput, AutocompleteInput,
     Select, MultiSelect,
-    Slider, RangeSlider, #DateSlider, DateRangeSlider,
-    DatePicker,
+    Slider, RangeSlider, DateSlider, DateRangeSlider,
+    Spinner, ColorPicker, DatePicker,
     Paragraph, Div, PreText,
     DataTable, TableColumn,
     StringFormatter, NumberFormatter,
@@ -25,7 +25,10 @@ from bokeh.plotting import figure
 from bokeh.sampledata.iris import flowers
 from bokeh.sampledata.autompg2 import autompg2 as mpg
 
-button = Button(label="Button (disabled) - still has click event", button_type="primary", disabled=True)
+click_button = Button(label="Button still has click event", button_type="success")
+
+disabled_button = Button(label="Button (disabled) - still has click event", button_type="primary", disabled=True)
+
 toggle = Toggle(label="Toggle button", button_type="success")
 
 menu = [("Item 1", "item_1_value"), ("Item 2", "item_2_value"), None, ("Item 3", "item_3_value")]
@@ -42,7 +45,7 @@ radio_button_group = RadioButtonGroup(labels=["Option 1", "Option 2", "Option 3"
 text_input = TextInput(placeholder="Enter value ...")
 
 completions = ["aaa", "aab", "aac", "baa", "caa"]
-autocomplete_input = AutocompleteInput(placeholder="Enter value ...", completions=completions)
+autocomplete_input = AutocompleteInput(placeholder="Enter value (auto-complete) ...", completions=completions)
 
 select = Select(options=["Option 1", "Option 2", "Option 3"])
 
@@ -52,7 +55,13 @@ slider = Slider(value=10, start=0, end=100, step=0.5)
 
 range_slider = RangeSlider(value=[10, 90], start=0, end=100, step=0.5)
 
-#date_range_slider = DateRangeSlider(value=(date(2016, 1, 1), date(2016, 12, 31)))
+date_slider = DateSlider(value=date(2016, 1, 1), start=date(2015, 1, 1), end=date(2017, 12, 31))
+
+date_range_slider = DateRangeSlider(value=(date(2016, 1, 1), date(2016, 12, 31)), start=date(2015, 1, 1), end=date(2017, 12, 31))
+
+spinner = Spinner(value=100)
+
+color_picker = ColorPicker(color="red", title="Choose color:")
 
 date_picker = DatePicker(value=date(2017, 8, 1))
 
@@ -109,15 +118,15 @@ table = DataTable(source=source, columns=columns, editable=True, width=800)
 widgets = Column(children=[
     Row(children=[
         Column(children=[
-            button, toggle, dropdown, dropdown_split,
+            click_button, disabled_button, toggle, dropdown, dropdown_split,
             checkbox_group, radio_group,
             checkbox_button_group, radio_button_group,
         ]),
         Column(children=[
             text_input, autocomplete_input,
             select, multi_select,
-            slider, range_slider, #date_range_slider,
-            date_picker,
+            slider, range_slider, date_slider, date_range_slider,
+            spinner, color_picker, date_picker,
             paragraph, div, pre_text,
         ]),
         tabs,

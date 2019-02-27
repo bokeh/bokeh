@@ -42,7 +42,7 @@ Pikaday.prototype.adjustPosition = function(this: Pikaday & {_o: Pikaday.Pikaday
 export class DatePickerView extends InputWidgetView {
   model: DatePicker
 
-  inputEl: HTMLElement
+  protected input_el: HTMLInputElement
 
   protected _picker: Pikaday
 
@@ -52,11 +52,11 @@ export class DatePickerView extends InputWidgetView {
 
     super.render()
 
-    this.inputEl = input({type: "text", class: "bk-input", disabled: this.model.disabled})
-    this.el.appendChild(this.inputEl)
+    this.input_el = input({type: "text", class: "bk-input", disabled: this.model.disabled})
+    this.group_el.appendChild(this.input_el)
 
     this._picker = new Pikaday({
-      field: this.inputEl,
+      field: this.input_el,
       defaultDate: new Date(this.model.value),
       setDefaultDate: true,
       minDate: this.model.min_date != null ? new Date(this.model.min_date) : undefined,

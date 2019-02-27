@@ -32,18 +32,18 @@ function color_bar_view(attrs: Partial<ColorBar.Attrs>, place: Place = "center")
 
 describe("ColorBar module", () => {
 
-  let _get_text_height_stub: any
-  let _set_canvas_image_stub: any
+  let _measure_font_stub: sinon.SinonStub
+  let _set_canvas_image_stub: sinon.SinonStub
 
   beforeEach(() => {
-    _get_text_height_stub = sinon.stub(text, "get_text_height", () => {
+    _measure_font_stub = sinon.stub(text, "measure_font", () => {
       return {height: 15, ascent: 10, descent: 5}
     })
     _set_canvas_image_stub = sinon.stub(ColorBarView.prototype as any, '_set_canvas_image') // XXX: protected
   })
 
   afterEach(() => {
-    _get_text_height_stub.restore()
+    _measure_font_stub.restore()
     _set_canvas_image_stub.restore()
   })
 
