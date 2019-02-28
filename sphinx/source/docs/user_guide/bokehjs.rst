@@ -114,8 +114,6 @@ Python to JavaScript at this level is nearly one-to-one:
     var div = document.getElementById("plot");
     Bokeh.embed.add_document_standalone(doc, div);
 
-
-
 The code above generates the following plot:
 
 .. image:: /_images/bokehjs_models.png
@@ -354,7 +352,6 @@ A minimal example follows, demonstrating a proper import of the libraries,
 and dynamic creation and modification of plots.
 
 
-
 .. code-block:: html
 
     <!doctype html>
@@ -411,5 +408,3 @@ and dynamic creation and modification of plots.
     ..
 
 Try `Minimal-complete <https://codepen.io/paddy_mullen/pen/LaVJPK/>`_ on Codepen.
-
-
