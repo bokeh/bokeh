@@ -1,0 +1,60 @@
+.bk-input {
+  display: inline-block;
+  width: 100%;
+  .flex-grow(1);
+  min-height: (@line-height-computed + (@padding-vertical*2) + 2);
+  padding: 0 @padding-horizontal;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: @border-radius;
+
+  @border-focus: #66afe9;
+  @border-focus-faded: fade(@border-focus, 60%);
+  &:focus {
+    border-color: @border-focus;
+    outline: 0;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px @border-focus-faded;
+  }
+
+  .placeholder(#999);
+
+  &[disabled], &[readonly] {
+    cursor: not-allowed;
+    background-color: #eee;
+    opacity: 1;
+  }
+}
+
+select[multiple], select[size], textarea {
+  &.bk-input {
+    height: auto;
+  }
+}
+
+.bk-input-group {
+  width: 100%;
+  height: 100%;
+  .inline-flex();
+  .flex-wrap(nowrap);
+  .align-items(start);
+  .flex-direction(column);
+
+  white-space: nowrap;
+
+  &.bk-inline {
+    .flex-direction(row);
+
+    & > *:not(:first-child) {
+      margin-left: 5px;
+    }
+  }
+
+  // XXX: this is horrible, but at least looks good by default
+  input[type="checkbox"], input[type="radio"] {
+    & + span {
+      position: relative;
+      top: -2px;
+      margin-left: 3px;
+    }
+  }
+}
