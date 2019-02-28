@@ -27,14 +27,15 @@ export class TabsView extends LayoutDOMView {
 
   _update_layout(): void {
     const loc = this.model.tabs_location
+    const vertical = loc == "above" || loc == "below"
 
     this.headers = this.headers_el.map((el) => {
       const layout = new ContentBox(el)
-      layout.set_sizing({width_policy: "fixed", height_policy: "fixed"})
+      layout.set_sizing({width_policy: vertical ? "fixed" : "fit", height_policy: "fixed"})
       return layout
     })
 
-    if (loc == "above" || loc == "below") {
+    if (vertical) {
       this.header = new Row(this.headers)
       this.header.set_sizing({width_policy: "fit", height_policy: "fixed"})
     } else {
@@ -64,6 +65,7 @@ export class TabsView extends LayoutDOMView {
   update_position(): void {
     super.update_position()
 
+    this.header_el.style.position = "absolute" // XXX: do it in position()
     position(this.header_el, this.header.bbox)
     for (let i = 0; i < this.model.tabs.length; i++) {
       this.headers_el[i].style.position = "absolute" // XXX: do it in position()
@@ -88,7 +90,8 @@ export class TabsView extends LayoutDOMView {
       return el
     })
 
-    this.header_el = div({class: "bk-tabs-header"}, this.headers_el)
+    const location = `bk-${this.model.tabs_location}`
+    this.header_el = div({class: ["bk-tabs-header", location]}, this.headers_el)
     this.el.appendChild(this.header_el)
   }
 

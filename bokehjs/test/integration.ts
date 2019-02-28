@@ -1,6 +1,6 @@
 import {describe, it, display} from "./framework"
 
-import {LayoutDOM, Row, Column, GridBox, Spacer} from "models/layouts/index"
+import {LayoutDOM, Row, Column, GridBox, Spacer, Tabs, Panel} from "models/layouts/index"
 import {ToolbarBox} from "models/tools/toolbar_box"
 import {
   Button, Toggle, Dropdown,
@@ -571,5 +571,37 @@ describe("Rows of widgets", () => {
     const row = new Row({children: [w0, w1]})
 
     await display(row, [500, 300])
+  })
+})
+
+describe("Tabs", () => {
+  const panel = (color: string) => {
+    const p = figure({width: 200, height: 200, toolbar_location: null})
+    p.circle([0, 5, 10], [0, 5, 10], {size: 10, color})
+    return new Panel({title: color, child: p})
+  }
+
+  const tabs = (tabs_location: Location) => {
+    return new Tabs({tabs: ["red", "green", "blue"].map(panel), tabs_location})
+  }
+
+  it("should allow tabs header location above", async () => {
+    const obj = tabs("above")
+    await display(obj, [300, 300])
+  })
+
+  it("should allow tabs header location below", async () => {
+    const obj = tabs("below")
+    await display(obj, [300, 300])
+  })
+
+  it("should allow tabs header location left", async () => {
+    const obj = tabs("left")
+    await display(obj, [300, 300])
+  })
+
+  it("should allow tabs header location right", async () => {
+    const obj = tabs("right")
+    await display(obj, [300, 300])
   })
 })
