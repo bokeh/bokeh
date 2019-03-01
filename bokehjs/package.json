@@ -92,6 +92,6 @@
     "build": "node make build",
     "dev-build": "node make dev-build"
   },
-  "main": "build/js/tree/index.js",
+  "main": "build/js/lib/index.js",
   "types": "build/js/types/index.d.ts"
 }

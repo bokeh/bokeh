@@ -46,7 +46,7 @@ function mocha(files: string[]): Promise<void> {
 
   const env = {
     ...process.env,
-    NODE_PATH: paths.build_dir.tree,
+    NODE_PATH: paths.build_dir.lib,
   }
 
   const proc = spawn(process.execPath, args, {stdio: 'inherit', env: env})

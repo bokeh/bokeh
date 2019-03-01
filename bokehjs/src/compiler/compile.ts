@@ -88,7 +88,7 @@ function compile_typescript(inputs: Files, bokehjs_dir: string): {outputs: Files
     baseUrl: ".",
     paths: {
       "*": [
-        path.join(bokehjs_dir, "js/tree/*"),
+        path.join(bokehjs_dir, "js/lib/*"),
         path.join(bokehjs_dir, "js/types/*"),
       ],
     },
