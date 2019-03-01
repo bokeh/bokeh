@@ -111,8 +111,7 @@ Python to JavaScript at this level is nearly one-to-one:
     // add the plot to a document and display it
     var doc = new Bokeh.Document();
     doc.add_root(plot);
-    var div = document.getElementById("plot");
-    Bokeh.embed.add_document_standalone(doc, div);
+    Bokeh.embed.add_document_standalone(doc, document.currentScript.parentElement);
 
 The code above generates the following plot:
 
@@ -352,25 +351,7 @@ A minimal example follows, demonstrating a proper import of the libraries,
 and dynamic creation and modification of plots.
 
 
-.. code-block:: html
-
-    <!doctype html>
-    <html lang="en">
-    <head>
-    <meta charset="utf-8">
-    <title>Complete Example</title>
-    <link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-0.12.5.min.css" type="text/css" />
-    <script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-0.12.5.min.js"></script>
-    <script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-api-0.12.5.min.js"></script>
-    <!-- The order of CSS and JS imports above is important. -->
-    </head>
-
-    <body>
-
-    <button onclick="addPoint()">Add some data!</button><br/>
-
-    <div>
-    <script type="text/javascript">
+.. code-block:: javascript
 
     // arrays to hold data
     var source = new Bokeh.ColumnDataSource({
@@ -389,7 +370,7 @@ and dynamic creation and modification of plots.
 
     // Show the plot, appending it to the end of the current
     // section of the document we are in.
-    Bokeh.Plotting.show(plot,document.currentScript.parentElement);
+    Bokeh.Plotting.show(plot, document.currentScript.parentElement);
 
     function addPoint() {
         // The data can be added, but generally all fields must be the
@@ -399,12 +380,97 @@ and dynamic creation and modification of plots.
         // Also, the DataSource object must be notified when it has changed.
         source.change.emit();
     }
+    ..
 
-    </script>
+.. raw:: html
+
+    <div id="before-html"></div>
+    ..
+
+.. code-block:: html
+
+    <!doctype html>
+    <html lang="en">
+    <head>
+    <meta charset="utf-8">
+    <title>Complete Example</title>
+    <link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-0.12.5.min.css" type="text/css" />
+    <script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-0.12.5.min.js"></script>
+    <script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-api-0.12.5.min.js"></script>
+    <!-- The order of CSS and JS imports above is important. -->
+    </head>
+
+    <body>
+
+    <button onclick="addPoint()">Add some data!</button><br/>
+
+    <div>
     </div>
     </body>
     </html>
 
+    
+
+
+.. raw:: html
+
+    <script>
+	$(function() {
+
+     var HTML = document.querySelector(".highlight-html pre").innerText;
+	$(".highlight-javascript").each(function(iterEl) {
+
+		var el = $(this),
+			//type = el.data("type"),
+			type = "js",
+			codeInside = this.innerText;
+			isCodeInside = codeInside.length,
+			CSS = "",
+			JS = JS = codeInside;
+
+
+		var data = {
+		  title              : "Cool Pen",
+		  description        : "",
+		  html               : HTML,
+		  html_pre_processor : "none",
+		  css                : CSS,
+		  css_pre_processor  : "none",
+		  css_starter        : "neither",
+		  css_prefix_free    : false,
+		  js                 : JS,
+		  js_pre_processor   : "none",
+		  js_modernizr       : false,
+		  js_library         : "",
+		  html_classes       : "",
+		  css_external       : "",
+		  js_external        : "",
+		  template           : true
+		};
+
+		var JSONstring = 
+		  JSON.stringify(data)
+		  // Quotes will screw up the JSON
+		  .replace(/"/g, "&quot;")
+		  .replace(/'/g, "&apos;");
+
+		var form = 
+		  '<form action="https://codepen.io/pen/define" method="POST" target="_blank">' + 
+			'<input type="hidden" name="data" value=\'' + 
+			  JSONstring + 
+			  '\'>' + 
+			'<input type="image" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/t-1/cp-arrow-right.svg" width="40" height="40" value="Create New Pen with Prefilled Data" class="codepen-mover-button">' +
+		  '</form>';
+
+		el.append(form);
+
+	  });
+
+	});
+
+    </script>
+
     ..
+
 
 Try `Minimal-complete <https://codepen.io/paddy_mullen/pen/LaVJPK/>`_ on Codepen.
