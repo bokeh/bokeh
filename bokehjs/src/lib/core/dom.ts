@@ -196,6 +196,13 @@ export function size(el: HTMLElement): Size {
   }
 }
 
+export function scroll_size(el: HTMLElement): Size {
+  return {
+    width: Math.ceil(el.scrollWidth),
+    height: Math.ceil(el.scrollHeight),
+  }
+}
+
 export function outer_size(el: HTMLElement): Size {
   const {margin: {left, right, top, bottom}} = extents(el)
   const {width, height} = size(el)

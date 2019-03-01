@@ -32,6 +32,7 @@ export class ContentBox extends Layoutable {
         case "min":
           return this.content_size.width
         case "fit":
+          return bounds.width
         case "max":
           return Math.max(this.content_size.width, bounds.width)
         default:
@@ -46,6 +47,7 @@ export class ContentBox extends Layoutable {
         case "min":
           return this.content_size.height
         case "fit":
+          return bounds.height
         case "max":
           return Math.max(this.content_size.height, bounds.height)
         default:
