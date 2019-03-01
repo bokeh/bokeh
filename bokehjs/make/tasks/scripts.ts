@@ -11,7 +11,7 @@ import * as paths from "../paths"
 task("scripts:ts", async () => {
   const success = compileTypeScript(join(paths.src_dir.lib, "tsconfig.json"), {
     log,
-    out_dir: {js: paths.build_dir.tree, dts: paths.build_dir.types}
+    out_dir: {js: paths.build_dir.lib, dts: paths.build_dir.types}
   })
 
   if (argv.emitError && !success)
@@ -28,7 +28,7 @@ task("scripts:bundle", ["scripts:compile"], async () => {
     paths.lib.tables.main,
     paths.lib.gl.main,
   ]
-  const bases = [paths.build_dir.tree, './node_modules']
+  const bases = [paths.build_dir.lib, './node_modules']
   const excludes = ["node_modules/moment/moment.js"]
 
   const linker = new Linker({entries, bases, excludes})
