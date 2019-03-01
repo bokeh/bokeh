@@ -1,5 +1,6 @@
-import {Grid, LayoutItem} from "core/layout"
-import {div, outer_size, children, position, show, hide} from "core/dom"
+import {Grid, ContentBox, Layoutable, Sizeable} from "core/layout"
+import {div, position, size, scroll_size, show, hide, undisplay, children} from "core/dom"
+import {sum} from "core/util/array"
 import {Location} from "core/enums"
 import * as p from "core/properties"
 
@@ -10,8 +11,12 @@ import {Model} from "../../model"
 export class TabsView extends LayoutDOMView {
   model: Tabs
 
-  protected header: LayoutItem
+  protected header: Layoutable
+
   protected header_el: HTMLElement
+  protected wrapper_el: HTMLElement
+  protected scroll_el: HTMLElement
+  protected headers_el: HTMLElement
 
   connect_signals(): void {
     super.connect_signals()
@@ -25,13 +30,22 @@ export class TabsView extends LayoutDOMView {
 
   _update_layout(): void {
     const loc = this.model.tabs_location
+    const vertical = loc == "above" || loc == "below"
 
-    this.header = new LayoutItem()
-    const size = Math.max(...children(this.header_el).map((el) => outer_size(el).height))
-    if (loc == "above" || loc == "below")
-      this.header.set_sizing({width_policy: "fit", height_policy: "fixed", height: size})
+    // XXX: this is a hack, this should be handled by "fit" policy in grid layout
+    this.header = new class extends ContentBox {
+      protected _measure(viewport: Sizeable) {
+        const {width, height} = super._measure(viewport)
+        if (vertical)
+          return {width: viewport.width != Infinity ? viewport.width : 0, height}
+        else
+          return {width, height: viewport.height != Infinity ? viewport.height : 0}
+      }
+    }(this.header_el)
+    if (vertical)
+      this.header.set_sizing({width_policy: "fit", height_policy: "fixed"})
     else
-      this.header.set_sizing({width_policy: "fixed", width: size, height_policy: "fit"})
+      this.header.set_sizing({width_policy: "fixed", height_policy: "fit"})
 
     let row = 1
     let col = 1
@@ -55,7 +69,27 @@ export class TabsView extends LayoutDOMView {
   update_position(): void {
     super.update_position()
 
+    this.header_el.style.position = "absolute" // XXX: do it in position()
     position(this.header_el, this.header.bbox)
+
+    const loc = this.model.tabs_location
+    const vertical = loc == "above" || loc == "below"
+
+    const scroll_el_size = size(this.scroll_el)
+    const headers_el_size = scroll_size(this.headers_el)
+    if (vertical) {
+      const {width} = this.header.bbox
+      if (headers_el_size.width > width)
+        this.wrapper_el.style.maxWidth = `${width - scroll_el_size.width}px`
+      else
+        undisplay(this.scroll_el)
+    } else {
+      const {height} = this.header.bbox
+      if (headers_el_size.height > height)
+        this.wrapper_el.style.maxHeight = `${height - scroll_el_size.height}px`
+      else
+        undisplay(this.scroll_el)
+    }
 
     const {child_views} = this
     for (const child_view of child_views)
@@ -69,13 +103,61 @@ export class TabsView extends LayoutDOMView {
 
     const {active} = this.model
 
+    const loc = this.model.tabs_location
+    const vertical = loc == "above" || loc == "below"
+    const location = `bk-${loc}`
+
     const headers = this.model.tabs.map((tab, i) => {
-      const el = div({class: i == active ? "bk-active" : null}, tab.title)
+      const el = div({class: ["bk-tab", i == active ? "bk-active" : null]}, tab.title)
       el.addEventListener("click", () => this.change_active(i))
       return el
     })
+    this.headers_el = div({class: ["bk-headers"]}, headers)
+    this.wrapper_el = div({class: "bk-headers-wrapper"}, this.headers_el)
 
-    this.header_el = div({class: "bk-tabs-header"}, headers)
+    const left_el = div({class: ["bk-btn", "bk-btn-default"], disabled: ""}, div({class: ["bk-caret", "bk-left"]}))
+    const right_el = div({class: ["bk-btn", "bk-btn-default"]}, div({class: ["bk-caret", "bk-right"]}))
+
+    let scroll_index = 0
+    const do_scroll = (dir: "left" | "right") => {
+      return () => {
+        const ntabs = this.model.tabs.length
+
+        if (dir == "left")
+          scroll_index = Math.max(scroll_index - 1, 0)
+        else
+          scroll_index = Math.min(scroll_index + 1, ntabs - 1)
+
+        if (scroll_index == 0)
+          left_el.setAttribute("disabled", "")
+        else
+          left_el.removeAttribute("disabled")
+
+        if (scroll_index == ntabs - 1)
+          right_el.setAttribute("disabled", "")
+        else
+          right_el.removeAttribute("disabled")
+
+        const sizes = children(this.headers_el)
+          .slice(0, scroll_index)
+          .map((el) => el.getBoundingClientRect())
+
+        if (vertical) {
+          const left = -sum(sizes.map((size) => size.width))
+          this.headers_el.style.left = `${left}px`
+        } else {
+          const top = -sum(sizes.map((size) => size.height))
+          this.headers_el.style.top = `${top}px`
+        }
+      }
+    }
+
+    left_el.addEventListener("click", do_scroll("left"))
+    right_el.addEventListener("click", do_scroll("right"))
+
+    this.scroll_el = div({class: "bk-btn-group"}, left_el, right_el)
+
+    this.header_el = div({class: ["bk-tabs-header", location]}, this.scroll_el, this.wrapper_el)
     this.el.appendChild(this.header_el)
   }
 
@@ -91,7 +173,7 @@ export class TabsView extends LayoutDOMView {
   on_active_change(): void {
     const i = this.model.active
 
-    const headers = children(this.header_el)
+    const headers = children(this.headers_el)
     for (const el of headers)
       el.classList.remove("bk-active")
 

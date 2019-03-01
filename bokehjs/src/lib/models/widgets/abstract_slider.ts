@@ -8,7 +8,7 @@ import {throttle} from "core/util/callback"
 import {Orientation, SliderCallbackPolicy} from "core/enums"
 import {ContentBox, SizingPolicy} from "core/layout"
 
-import {Widget, WidgetView} from "./widget"
+import {Control, ControlView} from "./control"
 import {CallbackLike0} from "../callbacks/callback"
 
 export interface SliderSpec {
@@ -18,7 +18,7 @@ export interface SliderSpec {
   step: number
 }
 
-export abstract class AbstractSliderView extends WidgetView {
+export abstract class AbstractSliderView extends ControlView {
   model: AbstractSlider
 
   protected group_el: HTMLElement
@@ -235,7 +235,7 @@ export abstract class AbstractSliderView extends WidgetView {
 export namespace AbstractSlider {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Widget.Props & {
+  export type Props = Control.Props & {
     default_size: p.Property<number>
     title: p.Property<string>
     show_value: p.Property<boolean>
@@ -256,7 +256,7 @@ export namespace AbstractSlider {
 
 export interface AbstractSlider extends AbstractSlider.Attrs {}
 
-export abstract class AbstractSlider extends Widget {
+export abstract class AbstractSlider extends Control {
   properties: AbstractSlider.Props
 
   constructor(attrs?: Partial<AbstractSlider.Attrs>) {

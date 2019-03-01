@@ -1,6 +1,6 @@
 import {describe, it, display} from "./framework"
 
-import {LayoutDOM, Row, Column, GridBox, Spacer} from "models/layouts/index"
+import {LayoutDOM, Row, Column, GridBox, Spacer, Tabs, Panel} from "models/layouts/index"
 import {ToolbarBox} from "models/tools/toolbar_box"
 import {
   Button, Toggle, Dropdown,
@@ -452,71 +452,71 @@ describe("GridBox", () => {
 describe("Widgets", () => {
   it("should allow Button", async () => {
     const obj = new Button({label: "Button 1", button_type: "primary"})
-    await display(obj, [500, 300])
+    await display(obj, [500, 100])
   })
 
   it("should allow Toggle", async () => {
     const obj = new Toggle({label: "Toggle 1", button_type: "primary"})
-    await display(obj, [500, 300])
+    await display(obj, [500, 100])
   })
 
   it("should allow Dropdown", async () => {
     const menu = ["Item 1", "Item 2", null, "Item 3"]
     const obj = new Dropdown({label: "Dropdown 1", button_type: "primary", menu})
-    await display(obj, [500, 300])
+    await display(obj, [500, 100])
   })
 
   it("should allow split Dropdown", async () => {
     const menu = ["Item 1", "Item 2", null, "Item 3"]
     const obj = new Dropdown({label: "Dropdown 2", button_type: "primary", menu, split: true})
-    await display(obj, [500, 300])
+    await display(obj, [500, 100])
   })
 
   it("should allow CheckboxGroup", async () => {
     const obj = new CheckboxGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1]})
-    await display(obj, [500, 300])
+    await display(obj, [500, 100])
   })
 
   it("should allow RadioGroup", async () => {
     const obj = new RadioGroup({labels: ["Option 1", "Option 2", "Option 3"], active: 0})
-    await display(obj, [500, 300])
+    await display(obj, [500, 100])
   })
 
   it("should allow CheckboxButtonGroup", async () => {
     const obj = new CheckboxButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: [0, 1]})
-    await display(obj, [500, 300])
+    await display(obj, [500, 100])
   })
 
   it("should allow RadioButtonGroup", async () => {
     const obj = new RadioButtonGroup({labels: ["Option 1", "Option 2", "Option 3"], active: 0})
-    await display(obj, [500, 300])
+    await display(obj, [500, 100])
   })
 
   it("should allow TextInput", async () => {
     const obj = new TextInput({placeholder: "Enter value ..."})
-    await display(obj, [500, 300])
+    await display(obj, [500, 100])
   })
 
   it("should allow AutocompleteInput", async () => {
     const completions = ["aaa", "aab", "aac", "baa", "caa"]
     const obj = new AutocompleteInput({placeholder: "Enter value ...", completions})
-    await display(obj, [500, 300])
+    await display(obj, [500, 100])
   })
 
   it("should allow Select", async () => {
     const obj = new Select({options: ["Option 1", "Option 2", "Option 3"]})
-    await display(obj, [500, 300])
+    await display(obj, [500, 100])
   })
 
   it("should allow MultiSelect", async () => {
     const options = range(16).map((i) => `Option ${i+1}`)
     const obj = new MultiSelect({options, size: 6})
-    await display(obj, [500, 300])
+    await display(obj, [500, 150])
   })
 
   it("should allow Slider", async () => {
     const obj = new Slider({value: 10, start: 0, end: 100, step: 0.5})
-    await display(obj, [500, 300])
+    await display(obj, [500, 100])
   })
 
   it("should allow DateSlider", async () => {
@@ -525,12 +525,12 @@ describe("Widgets", () => {
       start: Date.UTC(2015, 1, 1),
       end: Date.UTC(2017, 12, 31),
     })
-    await display(obj, [500, 300])
+    await display(obj, [500, 100])
   })
 
   it("should allow RangeSlider", async () => {
     const obj = new RangeSlider({value: [10, 90], start: 0, end: 100, step: 0.5})
-    await display(obj, [500, 300])
+    await display(obj, [500, 100])
   })
 
   it("should allow DateRangeSlider", async () => {
@@ -539,26 +539,69 @@ describe("Widgets", () => {
       start: Date.UTC(2015, 1, 1),
       end: Date.UTC(2017, 12, 31),
     })
-    await display(obj, [500, 300])
+    await display(obj, [500, 100])
   })
 
   it("should allow DatePicker", async () => {
     const obj = new DatePicker({value: new Date(Date.UTC(2017, 8, 1)).toDateString()})
-    await display(obj, [500, 300])
+    await display(obj, [500, 100])
   })
 
   it("should allow Div", async () => {
     const obj = new Div({text: "some <b>text</b>"})
-    await display(obj, [500, 300])
+    await display(obj, [500, 100])
   })
 
   it("should allow Paragraph", async () => {
     const obj = new Paragraph({text: "some text"})
-    await display(obj, [500, 300])
+    await display(obj, [500, 100])
   })
 
   it("should allow PreText", async () => {
     const obj = new PreText({text: "some text"})
-    await display(obj, [500, 300])
+    await display(obj, [500, 100])
+  })
+})
+
+describe("Rows of widgets", () => {
+
+  it("should allow different content and fixed height", async () => {
+    const w0 = new TextInput({value: "Widget 1"})
+    const w1 = new TextInput({value: "Widget 2", height: 50})
+    const row = new Row({children: [w0, w1]})
+
+    await display(row, [500, 100])
+  })
+})
+
+describe("Tabs", () => {
+  const panel = (color: string) => {
+    const p = figure({width: 200, height: 200, toolbar_location: null})
+    p.circle([0, 5, 10], [0, 5, 10], {size: 10, color})
+    return new Panel({title: color, child: p})
+  }
+
+  const tabs = (tabs_location: Location) => {
+    return new Tabs({tabs: ["red", "green", "blue"].map(panel), tabs_location})
+  }
+
+  it("should allow tabs header location above", async () => {
+    const obj = tabs("above")
+    await display(obj, [300, 300])
+  })
+
+  it("should allow tabs header location below", async () => {
+    const obj = tabs("below")
+    await display(obj, [300, 300])
+  })
+
+  it("should allow tabs header location left", async () => {
+    const obj = tabs("left")
+    await display(obj, [300, 300])
+  })
+
+  it("should allow tabs header location right", async () => {
+    const obj = tabs("right")
+    await display(obj, [300, 300])
   })
 })

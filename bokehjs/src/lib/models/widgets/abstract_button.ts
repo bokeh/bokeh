@@ -3,11 +3,11 @@ import {ButtonType} from "core/enums"
 import {prepend, nbsp, button, div} from "core/dom"
 import {build_views, remove_views} from "core/build_views"
 
-import {Widget, WidgetView} from "./widget"
+import {Control, ControlView} from "./control"
 import {AbstractIcon, AbstractIconView} from "./abstract_icon"
 import {CallbackLike0} from "../callbacks/callback"
 
-export abstract class AbstractButtonView extends WidgetView {
+export abstract class AbstractButtonView extends ControlView {
   model: AbstractButton
 
   protected icon_views: {[key: string]: AbstractIconView}
@@ -63,7 +63,7 @@ export abstract class AbstractButtonView extends WidgetView {
 export namespace AbstractButton {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Widget.Props & {
+  export type Props = Control.Props & {
     label: p.Property<string>
     icon: p.Property<AbstractIcon>
     button_type: p.Property<ButtonType>
@@ -73,7 +73,7 @@ export namespace AbstractButton {
 
 export interface AbstractButton extends AbstractButton.Attrs {}
 
-export abstract class AbstractButton extends Widget {
+export abstract class AbstractButton extends Control {
   properties: AbstractButton.Props
 
   constructor(attrs?: Partial<AbstractButton.Attrs>) {

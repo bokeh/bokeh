@@ -1,0 +1,35 @@
+.bk-menu {
+  &.bk-above {
+    bottom: 100%;
+  }
+  &.bk-below {
+    top: 100%;
+  }
+
+  position: absolute;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+
+  cursor: pointer;
+  font-size: @font-size;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: @border-radius;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+
+  & > .bk-divider {
+    height: 1px;
+    margin: ((@line-height-computed / 2) - 1) 0;
+    overflow: hidden;
+    background-color: #e5e5e5;
+  }
+
+  & > :not(.bk-divider) {
+    padding: @padding-vertical @padding-horizontal;
+
+    &:hover {
+      background-color: darken(white, 10%);
+    }
+  }
+}
