@@ -8,7 +8,7 @@ of this CoC is simply a reflection of the community values already evident in pr
 > Please be always kind and courteous. There's never a need to be mean or rude or disrespectful.
 
 If you wish to bring something to the attention of the project team, please contact
-conduct@bokeh.org
+[conduct@bokeh.org](mailto:conduct@bokeh.org)
 
 ## The Longer Version
 
@@ -79,7 +79,7 @@ further defined and clarified by project maintainers.
 ### Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported by contacting the project team at conduct@bokeh.org. All
+reported by contacting the project team at [conduct@bokeh.org](mailto:conduct@bokeh.org). All
 complaints will be reviewed and investigated and any appropriate measures
 will be taken. The project team commits to maintaining confidentiality
 with regard to the reporter of an incident. Further details of specific
