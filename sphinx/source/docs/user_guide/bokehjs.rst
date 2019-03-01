@@ -409,64 +409,61 @@ and dynamic creation and modification of plots.
     </body>
     </html>
 
-    
-
-
 .. raw:: html
 
     <script>
-	$(function() {
+        $(function() {
 
      var HTML = document.querySelector(".highlight-html pre").innerText;
-	$(".highlight-javascript").each(function(iterEl) {
+        $(".highlight-javascript").each(function(iterEl) {
 
-		var el = $(this),
-			//type = el.data("type"),
-			type = "js",
-			codeInside = this.innerText;
-			isCodeInside = codeInside.length,
-			CSS = "",
-			JS = JS = codeInside;
+                var el = $(this),
+                        //type = el.data("type"),
+                        type = "js",
+                        codeInside = this.innerText;
+                        isCodeInside = codeInside.length,
+                        CSS = "",
+                        JS = JS = codeInside;
 
 
-		var data = {
-		  title              : "Cool Pen",
-		  description        : "",
-		  html               : HTML,
-		  html_pre_processor : "none",
-		  css                : CSS,
-		  css_pre_processor  : "none",
-		  css_starter        : "neither",
-		  css_prefix_free    : false,
-		  js                 : JS,
-		  js_pre_processor   : "none",
-		  js_modernizr       : false,
-		  js_library         : "",
-		  html_classes       : "",
-		  css_external       : "",
-		  js_external        : "",
-		  template           : true
-		};
+                var data = {
+                  title              : "Cool Pen",
+                  description        : "",
+                  html               : HTML,
+                  html_pre_processor : "none",
+                  css                : CSS,
+                  css_pre_processor  : "none",
+                  css_starter        : "neither",
+                  css_prefix_free    : false,
+                  js                 : JS,
+                  js_pre_processor   : "none",
+                  js_modernizr       : false,
+                  js_library         : "",
+                  html_classes       : "",
+                  css_external       : "",
+                  js_external        : "",
+                  template           : true
+                };
 
-		var JSONstring = 
-		  JSON.stringify(data)
-		  // Quotes will screw up the JSON
-		  .replace(/"/g, "&quot;")
-		  .replace(/'/g, "&apos;");
+                var JSONstring =
+                  JSON.stringify(data)
+                  // Quotes will screw up the JSON
+                  .replace(/"/g, "&quot;")
+                  .replace(/'/g, "&apos;");
 
-		var form = 
-		  '<form action="https://codepen.io/pen/define" method="POST" target="_blank">' + 
-			'<input type="hidden" name="data" value=\'' + 
-			  JSONstring + 
-			  '\'>' + 
-			'<input type="image" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/t-1/cp-arrow-right.svg" width="40" height="40" value="Create New Pen with Prefilled Data" class="codepen-mover-button">' +
-		  '</form>';
+                var form =
+                  '<form action="https://codepen.io/pen/define" method="POST" target="_blank">' +
+                        '<input type="hidden" name="data" value=\'' +
+                          JSONstring +
+                          '\'>' +
+                        '<input type="image" src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/t-1/cp-arrow-right.svg" width="40" height="40" value="Create New Pen with Prefilled Data" class="codepen-mover-button">' +
+                  '</form>';
 
-		el.append(form);
+                el.append(form);
 
-	  });
+          });
 
-	});
+        });
 
     </script>
 
