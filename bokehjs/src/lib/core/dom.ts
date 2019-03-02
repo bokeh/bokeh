@@ -213,14 +213,14 @@ export function outer_size(el: HTMLElement): Size {
 }
 
 export function content_size(el: HTMLElement): Size {
+  const {left, top} = el.getBoundingClientRect()
   const {padding} = extents(el)
-  const left = Math.ceil(padding.left)
-  const top = Math.ceil(padding.top)
   let width = 0
   let height = 0
   for (const child of children(el)) {
-    width = Math.max(width, child.offsetLeft - left + child.offsetWidth)
-    height = Math.max(height, child.offsetTop - top + child.offsetHeight)
+    const rect = child.getBoundingClientRect()
+    width = Math.max(width, Math.ceil(rect.left - left - padding.left + rect.width))
+    height = Math.max(height, Math.ceil(rect.top - top - padding.top + rect.height))
   }
   return {width, height}
 }
