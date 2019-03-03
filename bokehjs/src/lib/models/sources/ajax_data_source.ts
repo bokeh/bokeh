@@ -1,7 +1,5 @@
 import {RemoteDataSource} from "./remote_data_source"
-import {CallbackLike1} from "../callbacks/callback"
 import {UpdateMode, HTTPMethod} from "core/enums"
-import {Data} from "core/types"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 
@@ -9,11 +7,8 @@ export namespace AjaxDataSource {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = RemoteDataSource.Props & {
-    mode: p.Property<UpdateMode>
     content_type: p.Property<string>
-    adapter: p.Property<CallbackLike1<AjaxDataSource, {response: Data}, Data> | null>
     http_headers: p.Property<{[key: string]: string}>
-    max_size: p.Property<number>
     method: p.Property<HTTPMethod>
     if_modified: p.Property<boolean>
   }
@@ -32,11 +27,8 @@ export class AjaxDataSource extends RemoteDataSource {
     this.prototype.type = 'AjaxDataSource'
 
     this.define<AjaxDataSource.Props>({
-      mode:         [ p.UpdateMode, 'replace'          ],
       content_type: [ p.String,     'application/json' ],
-      adapter:      [ p.Any,        null               ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
       http_headers: [ p.Any,         {}                ],
-      max_size:     [ p.Number                         ],
       method:       [ p.HTTPMethod,  'POST'            ], // TODO (bev)  enum?
       if_modified:  [ p.Boolean,     false             ],
     })
@@ -90,31 +82,7 @@ export class AjaxDataSource extends RemoteDataSource {
   do_load(xhr: XMLHttpRequest, mode: UpdateMode, max_size: number): void {
     if (xhr.status === 200) {
       const raw_data = JSON.parse(xhr.responseText)
-
-      const {adapter} = this
-      let data: Data
-      if (adapter != null)
-        data = adapter.execute(this, {response: raw_data})
-      else
-        data = raw_data
-
-      switch (mode) {
-        case "replace": {
-          this.data = data
-          break
-        }
-        case "append": {
-          const original_data = this.data
-          for (const column of this.columns()) {
-            // XXX: support typed arrays
-            const old_col = Array.from(original_data[column])
-            const new_col = Array.from(data[column])
-            data[column] = old_col.concat(new_col).slice(-max_size)
-          }
-          this.data = data
-          break
-        }
-      }
+      this.load_data(raw_data, mode, max_size)
     }
   }
 
