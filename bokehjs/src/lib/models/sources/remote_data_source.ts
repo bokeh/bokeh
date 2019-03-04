@@ -1,19 +1,18 @@
-import {ColumnDataSource} from "./column_data_source"
+import {WebDataSource} from "./web_data_source"
 import * as p from "core/properties"
 import {Arrayable} from "core/types"
 
 export namespace RemoteDataSource {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = ColumnDataSource.Props & {
-    data_url: p.Property<string>
+  export type Props = WebDataSource.Props & {
     polling_interval: p.Property<number>
   }
 }
 
 export interface RemoteDataSource extends RemoteDataSource.Attrs {}
 
-export abstract class RemoteDataSource extends ColumnDataSource {
+export abstract class RemoteDataSource extends WebDataSource {
   properties: RemoteDataSource.Props
 
   constructor(attrs?: Partial<RemoteDataSource.Attrs>) {
@@ -37,7 +36,6 @@ export abstract class RemoteDataSource extends ColumnDataSource {
     this.prototype.type = 'RemoteDataSource'
 
     this.define<RemoteDataSource.Props>({
-      data_url:         [ p.String ],
       polling_interval: [ p.Number ],
     })
   }
