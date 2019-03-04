@@ -359,6 +359,24 @@ describe("Plot", () => {
     fig.circle([0, 5, 10], [0, 5, 10], {size: 10})
     await display(fig, [500, 500])
   })
+
+  it("should allow fixed frame 200px x 200px in a layout", async () => {
+    const fig0 = figure({frame_width: 200, frame_height: 200})
+    fig0.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    const fig1 = figure({frame_width: 200, frame_height: 200})
+    fig1.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    const row = new Row({children: [fig0, fig1]})
+    await display(row, [600, 300])
+  })
+
+  it("should allow fixed frame 200px x 200px in a layout with a title", async () => {
+    const fig0 = figure({frame_width: 200, frame_height: 200, title: "A title"})
+    fig0.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    const fig1 = figure({frame_width: 200, frame_height: 200})
+    fig1.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    const row = new Row({children: [fig0, fig1]})
+    await display(row, [600, 300])
+  })
 })
 
 describe("ToolbarBox", () => {

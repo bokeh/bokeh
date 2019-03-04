@@ -97,7 +97,12 @@ export class PlotLayout extends Layoutable {
     const width = left + center.width + right
     const height = top + center.height + bottom
 
-    return {width, height, inner: {left, right, top, bottom}}
+    const align = (() => {
+      const {width_policy, height_policy} = this.center_panel.sizing
+      return width_policy != "fixed" && height_policy != "fixed"
+    })()
+
+    return {width, height, inner: {left, right, top, bottom}, align}
   }
 
   protected _set_geometry(outer: BBox, inner: BBox): void {

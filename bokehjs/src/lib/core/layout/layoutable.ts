@@ -154,7 +154,7 @@ export abstract class Layoutable {
     const height = exact_height(clipped.height)
 
     const size = this.apply_aspect(viewport, {width, height})
-    return {...size, inner: computed.inner}
+    return {...computed, ...size}
   }
 
   compute(viewport: Partial<Size> = {}): void {

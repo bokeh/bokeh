@@ -786,8 +786,8 @@ export class Grid extends Layoutable {
           const geometry = geometries.at(y, x)[i]
 
           if (size_hint.inner != null) {
-            const inner_left = left_items.has(item) ? left : size_hint.inner.left
-            const inner_right = right_items.has(item) ? right : size_hint.inner.right
+            const inner_left = size_hint.align !== false && left_items.has(item) ? left : size_hint.inner.left
+            const inner_right = size_hint.align !== false && right_items.has(item) ? right : size_hint.inner.right
 
             geometry.inner = new BBox({
               left: inner_left,
@@ -843,8 +843,8 @@ export class Grid extends Layoutable {
           const geometry = geometries.at(y, x)[i]
 
           if (size_hint.inner != null) {
-            const inner_top = top_items.has(item) ? top : size_hint.inner.top
-            const inner_bottom = bottom_items.has(item) ? bottom : size_hint.inner.bottom
+            const inner_top = size_hint.align !== false && top_items.has(item) ? top : size_hint.inner.top
+            const inner_bottom = size_hint.align !== false && bottom_items.has(item) ? bottom : size_hint.inner.bottom
 
             geometry.inner = new BBox({
               left: geometry.inner!.left,
