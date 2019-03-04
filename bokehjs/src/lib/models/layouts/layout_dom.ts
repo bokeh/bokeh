@@ -70,7 +70,17 @@ export abstract class LayoutDOMView extends DOMView {
       }, 250)
     }
 
-    this.connect(this.model.properties.sizing_mode.change, () => this.invalidate_layout())
+    const p = this.model.properties
+    this.on_change([
+      p.width, p.height,
+      p.min_width, p.min_height,
+      p.max_width, p.max_height,
+      p.margin,
+      p.width_policy, p.height_policy, p.sizing_mode,
+      p.aspect_ratio,
+      p.visible, p.disabled,
+      p.background, p.css_classes,
+    ], () => this.invalidate_layout())
   }
 
   disconnect_signals(): void {
