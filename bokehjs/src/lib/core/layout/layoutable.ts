@@ -254,3 +254,58 @@ export class LayoutItem extends Layoutable {
     return {width, height}
   }
 }
+
+export abstract class ContentLayoutable extends Layoutable {
+
+  /*
+  protected _min_size(): SizeHint {
+    return content_size.expanded_to(this.sizing.min_size)
+    .map(...) // apply fixed size (?)
+  }
+
+  protected _max_size(): SizeHint {
+    return this.sizing.max_size
+  }
+  */
+
+  protected abstract _content_size(): Sizeable
+
+  protected _measure(viewport: Sizeable): SizeHint {
+    const content_size = this._content_size()
+
+    const bounds = viewport.bounded_to(this.sizing.size)
+                           .bounded_to(content_size)
+
+    const width = (() => {
+      switch (this.sizing.width_policy) {
+        case "fixed":
+          return this.sizing.width != null ? this.sizing.width : content_size.width
+        case "min":
+          return content_size.width
+        case "fit":
+          return bounds.width
+        case "max":
+          return Math.max(content_size.width, bounds.width)
+        default:
+          throw new Error("unexpected")
+      }
+    })()
+
+    const height = (() => {
+      switch (this.sizing.height_policy) {
+        case "fixed":
+          return this.sizing.height != null ? this.sizing.height : content_size.height
+        case "min":
+          return content_size.height
+        case "fit":
+          return bounds.height
+        case "max":
+          return Math.max(content_size.height, bounds.height)
+        default:
+          throw new Error("unexpected")
+      }
+    })()
+
+    return {width, height}
+  }
+}
