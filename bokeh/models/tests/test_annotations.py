@@ -430,6 +430,15 @@ def test_Whisker():
         "y_range_name"],
         LINE)
 
+def test_Whisker_and_Band_accept_negative_values():
+    whisker = Whisker(base=-1., lower=-1.5, upper=-0.5)
+    assert whisker.base == -1.
+    assert whisker.lower == -1.5
+    assert whisker.upper == -0.5
+    band = Band(base=-1., lower=-1.5, upper=-0.5)
+    assert band.base == -1.
+    assert band.lower == -1.5
+    assert band.upper == -0.5
 
 def test_can_add_multiple_glyph_renderers_to_legend_item():
     legend_item = LegendItem()

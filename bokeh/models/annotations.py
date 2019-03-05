@@ -30,9 +30,9 @@ from ..core.enums import (AngleUnits, Dimension, FontStyle, LegendClickPolicy, L
                           Orientation, RenderMode, SpatialUnits, VerticalAlign, TextAlign,
                           TooltipAttachment)
 from ..core.has_props import abstract
-from ..core.properties import (Angle, AngleSpec, Auto, Bool, ColorSpec, Datetime, Dict, DistanceSpec, Either,
+from ..core.properties import (Angle, AngleSpec, Auto, Bool, ColorSpec, Datetime, Dict, Either,
                                Enum, Float, FontSizeSpec, Include, Instance, Int, List, NumberSpec, Override,
-                               Seq, String, StringSpec, Tuple, value)
+                               Seq, String, StringSpec, Tuple, UnitsSpec, value)
 from ..core.property_mixins import FillProps, LineProps, TextProps
 from ..core.validation import error
 from ..core.validation.errors import BAD_COLUMN_NAME, NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS
@@ -579,16 +579,15 @@ class Band(Annotation):
     ''' Render a filled area band along a dimension.
 
     '''
-
-    lower = DistanceSpec(help="""
+    lower = UnitsSpec(default=None, units_type=Enum(SpatialUnits), units_default="data", help="""
     The coordinates of the lower portion of the filled area band.
     """)
 
-    upper = DistanceSpec(help="""
+    upper = UnitsSpec(default=None, units_type=Enum(SpatialUnits), units_default="data", help="""
     The coordinates of the upper portion of the filled area band.
     """)
 
-    base = DistanceSpec(help="""
+    base = UnitsSpec(default=None, units_type=Enum(SpatialUnits), units_default="data", help="""
     The orthogonal coordinates of the upper and lower values.
     """)
 
@@ -1063,7 +1062,7 @@ class Whisker(Annotation):
 
     '''
 
-    lower = DistanceSpec(help="""
+    lower = UnitsSpec(default=None, units_type=Enum(SpatialUnits), units_default="data", help="""
     The coordinates of the lower end of the whiskers.
     """)
 
@@ -1071,7 +1070,7 @@ class Whisker(Annotation):
     Instance of ``ArrowHead``.
     """)
 
-    upper = DistanceSpec(help="""
+    upper = UnitsSpec(default=None, units_type=Enum(SpatialUnits), units_default="data", help="""
     The coordinates of the upper end of the whiskers.
     """)
 
@@ -1079,7 +1078,7 @@ class Whisker(Annotation):
     Instance of ``ArrowHead``.
     """)
 
-    base = DistanceSpec(help="""
+    base = UnitsSpec(default=None, units_type=Enum(SpatialUnits), units_default="data", help="""
     The orthogonal coordinates of the upper and lower values.
     """)
 
