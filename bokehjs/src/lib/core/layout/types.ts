@@ -65,7 +65,7 @@ export class Sizeable implements Size {
 
 export type Margin = Extents
 
-export type SizeHint = Size & {inner?: Margin}
+export type SizeHint = Size & {inner?: Margin, align?: boolean}
 
 export type SizingPolicy = "fixed" | "fit" | "min" | "max"
 

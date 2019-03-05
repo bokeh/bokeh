@@ -97,7 +97,12 @@ export class PlotLayout extends Layoutable {
     const width = left + center.width + right
     const height = top + center.height + bottom
 
-    return {width, height, inner: {left, right, top, bottom}}
+    const align = (() => {
+      const {width_policy, height_policy} = this.center_panel.sizing
+      return width_policy != "fixed" && height_policy != "fixed"
+    })()
+
+    return {width, height, inner: {left, right, top, bottom}, align}
   }
 
   protected _set_geometry(outer: BBox, inner: BBox): void {
@@ -352,7 +357,10 @@ export class PlotView extends LayoutDOMView {
         for (let i = 0; i < panels.length; i++) {
           const panel = panels[i]
           if (panel instanceof Title) {
-            panels[i] = [panel, this._toolbar]
+            if (toolbar_location == "above" || toolbar_location == "below")
+              panels[i] = [panel, this._toolbar]
+            else
+              panels[i] = [this._toolbar, panel]
             push_toolbar = false
             break
           }
@@ -363,34 +371,33 @@ export class PlotView extends LayoutDOMView {
         panels.push(this._toolbar)
     }
 
-    const set_layout = (side: Side, model: Annotation | Axis): Layoutable => {
+    const set_layout = (side: Side, model: Annotation | Axis): SidePanel => {
       const view = this.renderer_views[model.id] as AnnotationView | AxisView
       return view.layout = new SidePanel(side, view)
     }
 
     const set_layouts = (side: Side, panels: Panels) => {
+      const horizontal = side == "above" || side == "below"
       const layouts: Layoutable[] = []
+
       for (const panel of panels) {
         if (isArray(panel)) {
-          const items = panel.map((subpanel) => set_layout(side, subpanel))
+          const items = panel.map((subpanel) => {
+            const item = set_layout(side, subpanel)
+            if (subpanel instanceof ToolbarPanel) {
+              const dim = horizontal ? "width_policy" : "height_policy"
+              item.set_sizing({...item.sizing, [dim]: "min"})
+            }
+            return item
+          })
 
           let layout: Row | Column
-          switch (title_location) {
-            case "above":
-            case "below":
-              layout = new Row(items)
-              layout.cols = {1: "min"} // assuming toolbar is last
-              layout.set_sizing({width_policy: "max", height_policy: "min"})
-              break
-            case "left":
-            case "right": {
-              layout = new Column(items)
-              layout.rows = {0: "min"} // assuming toolbar is first
-              layout.set_sizing({width_policy: "min", height_policy: "max"})
-              break
-            }
-            default:
-              throw new Error("unreachable")
+          if (horizontal) {
+            layout = new Row(items)
+            layout.set_sizing({width_policy: "max", height_policy: "min"})
+          } else {
+            layout = new Column(items)
+            layout.set_sizing({width_policy: "min", height_policy: "max"})
           }
 
           layout.absolute = true

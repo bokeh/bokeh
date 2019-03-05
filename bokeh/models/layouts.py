@@ -129,6 +129,11 @@ class LayoutDOM(Model):
         The starting point is the preferred width (if set). The width of the component may
         shrink or grow depending on the parent layout, aspect management and other factors.
 
+    .. note::
+        This is an experimental feature and may change in future. Use it at your
+        own discretion. Prefer using ``sizing_mode`` if this level of control isn't
+        strictly necessary.
+
     """)
 
     height_policy = Either(Auto, Enum(SizingPolicy), default="auto", help="""
@@ -155,6 +160,11 @@ class LayoutDOM(Model):
         Use as much vertical space as possible, not more than the maximum height (if set).
         The starting point is the preferred height (if set). The height of the component may
         shrink or grow depending on the parent layout, aspect management and other factors.
+
+    .. note::
+        This is an experimental feature and may change in future. Use it at your
+        own discretion. Prefer using ``sizing_mode`` if this level of control isn't
+        strictly necessary.
 
     """)
 
@@ -286,15 +296,29 @@ IntOrString = Either(Int, String) # XXX: work around issue #8166
 class GridBox(LayoutDOM):
 
     children = List(Tuple(Instance(LayoutDOM), Int, Int), default=[], help="""
+    A list of children with their associated position in the grid (row, column).
     """)
 
     rows = Either(QuickTrackSizing, Dict(IntOrString, RowSizing), default="auto", help="""
+    Describes how the grid should maintain its rows' heights.
+
+    .. note::
+        This is an experimental feature and may change in future. Use it at your
+        own discretion.
+
     """)
 
     cols = Either(QuickTrackSizing, Dict(IntOrString, ColSizing), default="auto", help="""
+    Describes how the grid should maintain its columns' widths.
+
+    .. note::
+        This is an experimental feature and may change in future. Use it at your
+        own discretion.
+
     """)
 
     spacing = Either(Int, Tuple(Int, Int), default=0, help="""
+    The gap between children (in pixels).
     """)
 
 @abstract
@@ -334,6 +358,7 @@ class Box(LayoutDOM):
     """)
 
     spacing = Int(default=0, help="""
+    The gap between children (in pixels).
     """)
 
 
@@ -345,6 +370,12 @@ class Row(Box):
     '''
 
     cols = Either(QuickTrackSizing, Dict(IntOrString, ColSizing), default="auto", help="""
+    Describes how the component should maintain its columns' widths.
+
+    .. note::
+        This is an experimental feature and may change in future. Use it at your
+        own discretion.
+
     """)
 
 class Column(Box):
@@ -355,6 +386,12 @@ class Column(Box):
     '''
 
     rows = Either(QuickTrackSizing, Dict(IntOrString, RowSizing), default="auto", help="""
+    Describes how the component should maintain its rows' heights.
+
+    .. note::
+        This is an experimental feature and may change in future. Use it at your
+        own discretion.
+
     """)
 
 class WidgetBox(Column):

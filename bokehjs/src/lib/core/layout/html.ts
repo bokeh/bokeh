@@ -1,8 +1,8 @@
-import {Layoutable} from "./layoutable"
+import {Layoutable, ContentLayoutable} from "./layoutable"
 import {Size, SizeHint, Sizeable} from "./types"
 import {size, sized, unsized, content_size, extents} from "../dom"
 
-export class ContentBox extends Layoutable {
+export class ContentBox extends ContentLayoutable {
   private content_size: Sizeable
 
   constructor(el: HTMLElement) {
@@ -10,52 +10,8 @@ export class ContentBox extends Layoutable {
     this.content_size = unsized(el, () => new Sizeable(size(el)))
   }
 
-  /*
-  protected _min_size(): SizeHint {
-    return this.content_size.expanded_to(this.sizing.min_size)
-    .map(...) // apply fixed size (?)
-  }
-
-  protected _max_size(): SizeHint {
-    return this.sizing.max_size
-  }
-  */
-
-  protected _measure(viewport: Sizeable): SizeHint {
-    const bounds = viewport.bounded_to(this.sizing.size)
-                           .bounded_to(this.content_size)
-
-    const width = (() => {
-      switch (this.sizing.width_policy) {
-        case "fixed":
-          return this.sizing.width != null ? this.sizing.width : this.content_size.width
-        case "min":
-          return this.content_size.width
-        case "fit":
-          return bounds.width
-        case "max":
-          return Math.max(this.content_size.width, bounds.width)
-        default:
-          throw new Error("unexpected")
-      }
-    })()
-
-    const height = (() => {
-      switch (this.sizing.height_policy) {
-        case "fixed":
-          return this.sizing.height != null ? this.sizing.height : this.content_size.height
-        case "min":
-          return this.content_size.height
-        case "fit":
-          return bounds.height
-        case "max":
-          return Math.max(this.content_size.height, bounds.height)
-        default:
-          throw new Error("unexpected")
-      }
-    })()
-
-    return {width, height}
+  protected _content_size(): Sizeable {
+    return this.content_size
   }
 }
 

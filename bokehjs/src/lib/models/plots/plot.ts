@@ -45,7 +45,7 @@ export namespace Plot {
     frame_height: p.Property<number | null>
 
     title: p.Property<Title | string | null>
-    title_location: p.Property<Location>
+    title_location: p.Property<Location | null>
 
     h_symmetry: p.Property<boolean>
     v_symmetry: p.Property<boolean>
