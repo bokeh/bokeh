@@ -39,7 +39,7 @@ import bokeh.models.plots as bmp
 #-----------------------------------------------------------------------------
 
 _LEGEND_EMPTY_WARNING = """
-You are attemptings to set `plot.legend.location` on a plot that has zero legends added, this will have no effect.
+You are attempting to set `plot.legend.location` on a plot that has zero legends added, this will have no effect.
 
 Before legend properties can be set, you must add a Legend explicitly, or call a glyph method with the 'legend' parameter set.
 """
