@@ -30,7 +30,7 @@ from ..core.enums import (AngleUnits, Dimension, FontStyle, LegendClickPolicy, L
                           Orientation, RenderMode, SpatialUnits, VerticalAlign, TextAlign,
                           TooltipAttachment)
 from ..core.has_props import abstract
-from ..core.properties import (Angle, AngleSpec, Auto, Bool, ColorSpec, Datetime, Dict, DistanceSpec, Either,
+from ..core.properties import (Angle, AngleSpec, Auto, Bool, ColorSpec, Datetime, Dict, Either,
                                Enum, Float, FontSizeSpec, Include, Instance, Int, List, NumberSpec, Override,
                                Seq, String, StringSpec, Tuple, UnitsSpec, value)
 from ..core.property_mixins import FillProps, LineProps, TextProps
