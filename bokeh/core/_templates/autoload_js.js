@@ -115,16 +115,17 @@ calls it with the rendered model.
   var css_urls = {{ css_urls|json }};
 
   var inline_js = [
+    {%- for css in css_raw %}
     function(Bokeh) {
-      {%- for css in css_raw %}
-        inject_raw_css({{ css }});
-      {%- endfor %}
+      inject_raw_css({{ css }});
     },
+    {%- endfor %}
+    {%- for js in js_raw %}
     function(Bokeh) {
-      {%- for js in js_raw %}
-        {{ js|indent(6) }}
-      {% endfor -%}
-    }
+      {{ js|indent(6) }}
+    },
+    {% endfor -%}
+    function(Bokeh) {} // ensure no trailing comma for IE
   ];
 
   function run_inline_js() {
