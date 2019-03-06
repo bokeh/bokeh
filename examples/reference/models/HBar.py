@@ -12,7 +12,7 @@ source = ColumnDataSource(dict(y=y, right=x,))
 
 plot = Plot(
     title=None, plot_width=300, plot_height=300,
-    h_symmetry=False, v_symmetry=False, min_border=0, toolbar_location=None)
+    min_border=0, toolbar_location=None)
 
 glyph = HBar(y="y", right="right", left=0, height=0.5, fill_color="#b3de69")
 plot.add_glyph(source, glyph)

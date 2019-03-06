@@ -35,6 +35,7 @@ from ..core.validation import error, warning
 from ..core.validation.errors import BAD_EXTRA_RANGE_NAME, REQUIRED_RANGE, REQUIRED_SCALE, INCOMPATIBLE_SCALE_AND_RANGE
 from ..core.validation.warnings import MISSING_RENDERERS, FIXED_SIZING_MODE, FIXED_WIDTH_POLICY, FIXED_HEIGHT_POLICY
 from ..model import Model
+from ..util.deprecation import deprecated
 from ..util.string import nice_join
 
 from .annotations import Legend, Title
@@ -615,15 +616,22 @@ class Plot(LayoutDOM):
     it will override ``min_border``.
     """)
 
-    h_symmetry = Bool(True, help="""
-    Whether the total horizontal padding on both sides of the plot will
-    be made equal (the left or right padding amount, whichever is larger).
-    """)
 
-    v_symmetry = Bool(False, help="""
-    Whether the total vertical padding on both sides of the plot will
-    be made equal (the top or bottom padding amount, whichever is larger).
-    """)
+    @property
+    def h_symmetry(self):
+        deprecated("h_symmetry has been non-functional since before Bokeh 1.0 and will be removed at Bokeh 2.0")
+
+    @h_symmetry.setter
+    def h_symmetry(self, _):
+        deprecated("h_symmetry has been non-functional since before Bokeh 1.0 and will be removed at Bokeh 2.0")
+
+    @property
+    def v_symmetry(self):
+        deprecated("v_symmetry has been non-functional since before Bokeh 1.0 and will be removed at Bokeh 2.0")
+
+    @v_symmetry.setter
+    def v_symmetry(self, _):
+        deprecated("v_symmetry has been non-functional since before Bokeh 1.0 and will be removed at Bokeh 2.0")
 
     lod_factor = Int(10, help="""
     Decimation factor to use when applying level-of-detail decimation.
