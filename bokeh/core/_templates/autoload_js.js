@@ -125,7 +125,7 @@ calls it with the rendered model.
       {{ js|indent(6) }}
     },
     {% endfor -%}
-    function(Bokeh) {}
+    function(Bokeh) {} // ensure no trailing comma for IE
   ];
 
   function run_inline_js() {
