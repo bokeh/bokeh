@@ -1,24 +1,15 @@
 import {spawn} from "child_process"
 import {argv} from "yargs"
-import {join} from "path"
 
 import {task, log, BuildError} from "../task"
 import {compileTypeScript} from "../compiler"
-import {read, write, scan, rename} from "../fs"
 import * as paths from "../paths"
-
-const coffee = require("coffeescript")
 
 task("test:compile", async () => {
   const success = compileTypeScript("./test/tsconfig.json", {log})
 
   if (argv.emitError && !success)
     process.exit(1)
-
-  for (const file of scan("./test", [".coffee"])) {
-    const js = coffee.compile(read(file)!, {bare: true})
-    write(join("./build", rename(file, {ext: ".js"})), js)
-  }
 })
 
 function mocha(files: string[]): Promise<void> {
