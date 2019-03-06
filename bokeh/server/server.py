@@ -161,7 +161,7 @@ class BaseServer(object):
             None
 
         '''
-        self._http.close_all_connections()
+        yield self._http.close_all_connections()
         self._http.stop()
 
     def run_until_shutdown(self):
