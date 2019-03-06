@@ -48,7 +48,7 @@
 
   &[disabled] {
     &, &:hover, &:focus, &:active, &.bk-active {
-      background-color: @background;
+      background-color: darken(desaturate(@background, 30%), 10%);
       border-color: @border;
     }
   }
