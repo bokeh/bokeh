@@ -12,7 +12,7 @@ source = ColumnDataSource(dict(x=x,top=y,))
 
 plot = Plot(
     title=None, plot_width=300, plot_height=300,
-    h_symmetry=False, v_symmetry=False, min_border=0, toolbar_location=None)
+    min_border=0, toolbar_location=None)
 
 glyph = VBar(x="x", top="top", bottom=0, width=0.5, fill_color="#b3de69")
 plot.add_glyph(source, glyph)

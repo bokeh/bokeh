@@ -47,9 +47,6 @@ export namespace Plot {
     title: p.Property<Title | string | null>
     title_location: p.Property<Location | null>
 
-    h_symmetry: p.Property<boolean>
-    v_symmetry: p.Property<boolean>
-
     above: p.Property<(Annotation | Axis)[]>
     below: p.Property<(Annotation | Axis)[]>
     left: p.Property<(Annotation | Axis)[]>
@@ -131,9 +128,6 @@ export class Plot extends LayoutDOM {
 
       title:             [ p.Any, () => new Title({text: ""})  ], // TODO: p.Either(p.Instance(Title), p.String)
       title_location:    [ p.Location, 'above'                 ],
-
-      h_symmetry:        [ p.Boolean,  true                    ],
-      v_symmetry:        [ p.Boolean,  false                   ],
 
       above:             [ p.Array,    []                      ],
       below:             [ p.Array,    []                      ],

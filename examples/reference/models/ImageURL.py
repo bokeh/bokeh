@@ -22,7 +22,7 @@ ydr = Range1d(start=-100, end=200)
 
 plot = Plot(
     title=None, x_range=xdr, y_range=ydr, plot_width=300, plot_height=300,
-    h_symmetry=False, v_symmetry=False, min_border=0, toolbar_location=None)
+    min_border=0, toolbar_location=None)
 
 image1 = ImageURL(url="url", x="x1", y="y1", w="w1", h="h1", anchor="center")
 plot.add_glyph(source, image1)

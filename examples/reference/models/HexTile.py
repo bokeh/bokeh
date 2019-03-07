@@ -10,7 +10,7 @@ source = ColumnDataSource(dict(
 
 plot = Plot(
     title=None, plot_width=300, plot_height=300,
-    h_symmetry=False, v_symmetry=False, min_border=0, toolbar_location=None)
+    min_border=0, toolbar_location=None)
 
 glyph = HexTile(q="q", r="r", size=1, fill_color="#fb9a99", line_color="white")
 plot.add_glyph(source, glyph)

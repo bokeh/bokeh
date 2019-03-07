@@ -14,7 +14,7 @@ source = ColumnDataSource(dict(x=x, y=y, w=w, h=h))
 
 plot = Plot(
     title=None, plot_width=300, plot_height=300,
-    h_symmetry=False, v_symmetry=False, min_border=0, toolbar_location=None)
+    min_border=0, toolbar_location=None)
 
 glyph = Ellipse(x="x", y="y", width="w", height="h", angle=-0.7, fill_color="#cab2d6")
 plot.add_glyph(source, glyph)

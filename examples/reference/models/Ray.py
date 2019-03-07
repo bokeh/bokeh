@@ -13,7 +13,7 @@ source = ColumnDataSource(dict(x=x, y=y, l=l))
 
 plot = Plot(
     title=None, plot_width=300, plot_height=300,
-    h_symmetry=False, v_symmetry=False, min_border=0, toolbar_location=None)
+    min_border=0, toolbar_location=None)
 
 glyph = Ray(x="x", y="y", length="l", angle=-2.0, line_color="#fb8072", line_width=3)
 plot.add_glyph(source, glyph)

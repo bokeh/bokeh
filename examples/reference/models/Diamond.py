@@ -13,7 +13,7 @@ source = ColumnDataSource(dict(x=x, y=y, sizes=sizes))
 
 plot = Plot(
     title=None, plot_width=300, plot_height=300,
-    h_symmetry=False, v_symmetry=False, min_border=0, toolbar_location=None)
+    min_border=0, toolbar_location=None)
 
 glyph = Diamond(x="x", y="y", size="sizes", line_color="#1c9099", line_width=2, fill_color=None)
 plot.add_glyph(source, glyph)
