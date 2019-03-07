@@ -68,6 +68,7 @@ test:
     - nodejs >=8.8
     - numba
     - pandas
+    - phantomjs
     - pillow
     - pytest >=3.3.0
     - pytest-cov >=1.8.1
