@@ -206,6 +206,12 @@ export function difference<T>(array: T[], ...arrays: T[][]): T[] {
   return array.filter((value) => !includes(rest, value))
 }
 
+export function remove_at<T>(array: T[], i: number): T[] {
+  const result = copy(array)
+  result.splice(i, 1)
+  return result
+}
+
 export function remove_by<T>(array: T[], key: (item: T) => boolean): void {
   for (let i = 0; i < array.length;) {
     if (key(array[i]))
