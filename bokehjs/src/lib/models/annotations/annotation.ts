@@ -24,6 +24,13 @@ export abstract class AnnotationView extends RendererView {
       return {width: 0, height: 0}
   }
 
+  connect_signals(): void {
+    super.connect_signals()
+
+    const p = this.model.properties
+    this.on_change(p.visible, () => this.plot_view.request_layout())
+  }
+
   protected _get_size(): Size {
     throw new Error("not implemented")
   }

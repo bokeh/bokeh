@@ -216,6 +216,11 @@ export class PlotView extends LayoutDOMView {
       this.throttled_paint()
   }
 
+  request_layout(): void {
+    this._needs_layout = true
+    this.request_paint()
+  }
+
   reset(): void {
     this.clear_state()
     this.reset_range()
