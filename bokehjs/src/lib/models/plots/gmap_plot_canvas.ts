@@ -4,12 +4,16 @@ import {Context2d} from "core/util/canvas"
 import {GMapPlot} from "./gmap_plot"
 import {PlotView, RangeInfo, FrameBox} from "./plot_canvas"
 
-declare let _bokeh_gmaps_callback: () => void
+declare global {
+  interface Window {
+    _bokeh_gmaps_callback: () => void
+  }
+}
 
 const gmaps_ready = new Signal0({}, "gmaps_ready")
 
 const load_google_api = function(api_key: string): void {
-  _bokeh_gmaps_callback = () => gmaps_ready.emit()
+  window._bokeh_gmaps_callback = () => gmaps_ready.emit()
 
   const script = document.createElement('script')
   script.type = 'text/javascript'
@@ -47,7 +51,7 @@ export class GMapPlotView extends PlotView {
     this.canvas_view.map_el!.style.position = "absolute"
 
     if (typeof google === "undefined" || google.maps == null) {
-      if (typeof _bokeh_gmaps_callback === "undefined") {
+      if (typeof window._bokeh_gmaps_callback === "undefined") {
         load_google_api(this.model.api_key)
       }
       gmaps_ready.connect(() => this.request_render())
