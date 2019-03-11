@@ -54,8 +54,8 @@ export class ToolbarBaseView extends DOMView {
   protected _tool_button_views: {[key: string]: ButtonToolButtonView}
   protected _toolbar_view_model: ToolbarViewModel
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this._tool_button_views = {}
     this._build_tool_button_views()
     this._toolbar_view_model = new ToolbarViewModel({autohide: this.model.autohide})

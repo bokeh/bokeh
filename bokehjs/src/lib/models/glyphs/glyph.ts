@@ -41,8 +41,8 @@ export abstract class GlyphView extends View {
 
   protected _nohit_warned: {[key: string]: boolean} = {}
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
 
     this._nohit_warned = {}
     this.visuals = new visuals.Visuals(this.model)

@@ -40,8 +40,8 @@ export class ColorBarView extends AnnotationView {
 
   protected image: HTMLCanvasElement
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this._set_canvas_image()
   }
 

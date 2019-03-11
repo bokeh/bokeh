@@ -19,8 +19,8 @@ export class BoxAnnotationView extends AnnotationView {
   private sbottom: number
   private stop: number
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.plot_view.canvas_overlays.appendChild(this.el)
     this.el.classList.add("bk-shading")
     undisplay(this.el)

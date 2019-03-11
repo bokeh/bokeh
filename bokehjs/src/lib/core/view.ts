@@ -34,13 +34,13 @@ export class View extends Signalable() {
     this._parent = options.parent
 
     this.id = options.id || uniqueId()
-    this.initialize(options)
+    this.initialize()
 
     if (options.connect_signals !== false)
       this.connect_signals()
   }
 
-  initialize(_options: View.Options): void {}
+  initialize(): void {}
 
   remove(): void {
     this._parent = undefined

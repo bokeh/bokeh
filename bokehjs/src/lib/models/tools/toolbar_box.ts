@@ -195,9 +195,9 @@ ProxyToolbar.initClass()
 export class ToolbarBoxView extends LayoutDOMView {
   model: ToolbarBox
 
-  initialize(options: any): void {
+  initialize(): void {
     this.model.toolbar.toolbar_location = this.model.toolbar_location
-    super.initialize(options)
+    super.initialize()
   }
 
   get child_models(): LayoutDOM[] {

@@ -238,10 +238,10 @@ export class PlotView extends LayoutDOMView {
     this.canvas_view.render()
   }
 
-  initialize(options: PlotView.Options): void {
+  initialize(): void {
     this.pause()
 
-    super.initialize(options)
+    super.initialize()
 
     this.force_paint = new Signal0(this, "force_paint")
     this.state_changed = new Signal0(this, "state_changed")

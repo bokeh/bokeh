@@ -13,8 +13,8 @@ export class ToolbarPanelView extends AnnotationView {
 
   protected _toolbar_views: {[key: string]: ToolbarBaseView}
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.plot_view.canvas_events.appendChild(this.el)
     this._toolbar_views = {}
     build_views(this._toolbar_views, [this.model.toolbar], {parent: this})

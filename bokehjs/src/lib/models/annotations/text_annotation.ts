@@ -12,8 +12,8 @@ export abstract class TextAnnotationView extends AnnotationView {
 
   readonly rotate: boolean = true
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
 
     if (this.model.render_mode == 'css') {
       this.el.classList.add('bk-annotation')

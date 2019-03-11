@@ -60,8 +60,8 @@ export class HoverToolView extends InspectToolView {
 
   protected _computed_renderers: DataRenderer[] | null
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.ttviews = {}
   }
 

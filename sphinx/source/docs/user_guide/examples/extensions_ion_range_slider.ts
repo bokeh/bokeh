@@ -27,8 +27,8 @@ export class IonRangeSliderView extends InputWidgetView {
 
   private callback_wrapper?: () => void
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
 
     const {callback} = this.model
     if (callback != null) {

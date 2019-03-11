@@ -22,14 +22,14 @@ export abstract class CellEditorView extends DOMView {
 
   constructor(options: any) {
     super({model: options.column.model, ...options})
-  }
-
-  initialize(options: any): void {
-    super.initialize(options)
-    this.inputEl = this._createInput()
-    this.defaultValue = null
     this.args = options
     this.render() // XXX: this isn't governed by layout
+  }
+
+  initialize(): void {
+    super.initialize()
+    this.inputEl = this._createInput()
+    this.defaultValue = null
   }
 
   css_classes(): string[] {

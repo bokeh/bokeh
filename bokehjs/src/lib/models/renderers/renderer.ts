@@ -15,8 +15,8 @@ export abstract class RendererView extends DOMView {
 
   parent: PlotView
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.visuals = new visuals.Visuals(this.model)
     this._has_finished = true // XXX: should be in render() but subclasses don't respect super()
   }
