@@ -120,7 +120,8 @@ def html_visit_bokehjs_block(self, node):
     )
 
 def html_depart_bokehjs_block(self, node):
-    self.body.append(BJS_EPILOGUE.render())
+    self.body.append(BJS_EPILOGUE.render(
+        heading=node['heading']))
 
 def setup(app):
     ''' Required Sphinx extension setup function. '''
