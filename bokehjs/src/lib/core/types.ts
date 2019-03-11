@@ -20,6 +20,8 @@ export type ArrayableOf<T> = T extends any ? Arrayable<T> : never
 
 export type Data = {[key: string]: Arrayable<unknown>}
 
+export type Attrs = {[key: string]: unknown}
+
 export type Size = {
   width: number
   height: number
