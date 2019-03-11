@@ -40,7 +40,7 @@ function mocha(files: string[]): Promise<void> {
     NODE_PATH: paths.build_dir.lib,
   }
 
-  const proc = spawn(process.execPath, args, {stdio: 'inherit', env: env})
+  const proc = spawn(process.execPath, args, {stdio: 'inherit', env})
 
   process.once('exit',    () => proc.kill())
   process.once("SIGINT",  () => proc.kill("SIGINT"))

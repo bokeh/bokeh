@@ -11,7 +11,7 @@ import * as paths from "../paths"
 task("scripts:ts", async () => {
   const success = compileTypeScript(join(paths.src_dir.lib, "tsconfig.json"), {
     log,
-    out_dir: {js: paths.build_dir.lib, dts: paths.build_dir.types}
+    out_dir: {js: paths.build_dir.lib, dts: paths.build_dir.types},
   })
 
   if (argv.emitError && !success)
@@ -53,7 +53,7 @@ task("scripts:minify", ["scripts:bundle"], async () => {
 
     const minify_opts = {
       output: {
-        comments: /^!|copyright|license|\(c\)/i
+        comments: /^!|copyright|license|\(c\)/i,
       },
       sourceMap: {
         content: read(js_map)! as any,

@@ -23,11 +23,11 @@ export class Bundle {
               readonly exported: Map<string, number>,
               readonly modules: Module[]) {}
 
-  full_source(name: string) {
+  full_source(name: string): string {
     return `${this.source}\n${convert.generateMapFileComment(name)}\n`
   }
 
-  get module_names() {
+  get module_names(): string[] {
     return Array.from(this.exported.keys())
   }
 
@@ -160,7 +160,7 @@ export class Linker {
         const source_with_sourcemap = mod.source
         const source = combine.removeComments(source_with_sourcemap)
         sources += source
-        sourcemap.addFile({source: source_with_sourcemap, sourceFile: file}, {line: line})
+        sourcemap.addFile({source: source_with_sourcemap, sourceFile: file}, {line})
         line += newlines(source)
 
         const end = `${last ? "" : ","}\n`
