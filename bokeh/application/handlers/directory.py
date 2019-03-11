@@ -176,7 +176,7 @@ class DirectoryHandler(Handler):
         if they are found.
 
         '''
-        if self.failed:
+        if self._lifecycle_handler.failed:
             return
         # Note: we do NOT copy self._theme, which assumes the Theme
         # class is immutable (has no setters)
