@@ -1,11 +1,12 @@
 import {HasProps} from "../has_props"
+import {Attrs} from "../types"
 import {isObject} from "./types"
 
 export interface Ref {
   id: string
   type: string
   subtype?: string
-  attributes?: {[key: string]: any}
+  attributes?: Attrs
 }
 
 // Create a Bokeh reference from a HasProps subclass
@@ -33,7 +34,7 @@ export function create_ref(obj: HasProps): Ref {
 // @note this function does not check that the id and types are valid,
 //   only that the format is correct (all required keys are present)
 //
-export function is_ref(arg: any): arg is Ref {
+export function is_ref(arg: unknown): arg is Ref {
   if (isObject(arg)) {
     const keys = Object.keys(arg).sort()
     if (keys.length == 2)

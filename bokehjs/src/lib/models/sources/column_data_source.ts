@@ -1,6 +1,6 @@
 import {ColumnarDataSource} from "./columnar_data_source"
 import {HasProps} from "core/has_props"
-import {Arrayable} from "core/types"
+import {Arrayable, Attrs, Data} from "core/types"
 import * as p from "core/properties"
 import {Set} from "core/util/data_structures"
 import {Shape, encode_column_data, decode_column_data} from "core/util/serialization"
@@ -170,12 +170,12 @@ export class ColumnDataSource extends ColumnarDataSource {
   }
 
   attributes_as_json(include_defaults: boolean = true, value_to_json = ColumnDataSource._value_to_json): any {
-    const attrs: {[key: string]: any} = {}
+    const attrs: Attrs = {}
     const obj = this.serializable_attributes()
     for (const key of keys(obj)) {
       let value = obj[key]
       if (key === 'data')
-        value = encode_column_data(value, this._shapes)
+        value = encode_column_data(value as Data, this._shapes)
 
       if (include_defaults)
         attrs[key] = value
@@ -192,7 +192,7 @@ export class ColumnDataSource extends ColumnarDataSource {
       return HasProps._value_to_json(key, value, optional_parent_object)
   }
 
-  stream(new_data: {[key: string]: any[]}, rollover?: number, setter_id?: string): void {
+  stream(new_data: Data, rollover?: number, setter_id?: string): void {
     const {data} = this
     for (const k in new_data) {
       data[k] = stream_to_column(data[k], new_data[k], rollover)

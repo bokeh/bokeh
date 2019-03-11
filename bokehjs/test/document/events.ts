@@ -124,7 +124,7 @@ describe("events module", () => {
         attr: "foo",
         new: [m.ref()],
       })
-      const expected_refs: {[key: string]: any} = {}
+      const expected_refs: {[key: string]: HasProps} = {}
       expected_refs[m.id] = m
       expect(refs).to.be.deep.equal(expected_refs)
     })

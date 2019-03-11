@@ -1,4 +1,5 @@
 import {Document, References} from "./document"
+import {Data} from "core/types"
 import {HasProps} from "core/has_props"
 import {Ref} from "core/util/refs"
 import {PatchSet} from "models/sources/column_data_source"
@@ -36,7 +37,7 @@ export interface ColumnDataChanged {
 export interface ColumnsStreamed {
   kind: "ColumnsStreamed"
   column_source: Ref
-  data: {[key: string]: any[]}
+  data: Data
   rollover?: number
 }
 
@@ -77,7 +78,7 @@ export class ModelChangedEvent extends DocumentChangedEvent {
 
     const value = this.new_
     const value_json = HasProps._value_to_json(this.attr, value, this.model)
-    const value_refs: {[key: string]: any}  = {}
+    const value_refs: {[key: string]: HasProps} = {}
     HasProps._value_record_references(value, value_refs, true) // true = recurse
     if (this.model.id in value_refs && this.model !== value) {
       // we know we don't want a whole new copy of the obj we're
@@ -117,7 +118,7 @@ export class ColumnsStreamedEvent extends DocumentChangedEvent {
 
   constructor(document: Document,
       readonly column_source: Ref,
-      readonly data: {[key: string]: any[]},
+      readonly data: Data,
       readonly rollover?: number) {
     super(document)
   }
