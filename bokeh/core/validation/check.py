@@ -40,36 +40,37 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def silence(name, silence=True):
-    ''' Silence named warning on all Bokeh models.
+def silence(warning, silence=True):
+    ''' Silence warning on all Bokeh models.
 
     Args:
-        name (str) : Names of warnings to silence
+        warning (Warning) : Warning to silence
         silence (bool) : Whether or not to silence the warning
 
     Returns:
-        A set containing the names of all silenced warnings
+        A set containing the all silenced warnings
 
-    This function adds or removes names from a set of silencers which
-    is refered to when running ``check_integrity``. If a warning with a particular
-    name is added to the silencers - then it will never be raised.
+    This function adds or removes warnings from a set of silencers which
+    is refered to when running ``check_integrity``. If a warning
+    is added to the silencers - then it will never be raised.
 
     .. code-block:: python
-
-        >>> silence('EMPTY_LAYOUT', True)
-        {'EMPTY_LAYOUT'}
+        >>> from bokeh.core.validation.warnings import EMPTY_LAYOUT
+        >>> silence(EMPTY_LAYOUT, True)
+        {1002}
 
         >>> empty_row = Row
 
         >>> check_integrity([empty_row])
 
     '''
-    if isinstance(name, int):
-        raise ValueError('Input to silence should be name of warning - not code')
+    if not isinstance(warning, int):
+        raise ValueError('Input to silence should be a warning object '
+                         '- not of type {}'.format(type(warning)))
     if silence:
-        __silencers__.add(name)
+        __silencers__.add(warning)
     else:
-        __silencers__.remove(name)
+        __silencers__.remove(warning)
     return __silencers__
 
 
@@ -111,7 +112,7 @@ def check_integrity(models):
 
     for msg in sorted(messages['warning']):
         code, name, desc, obj = msg
-        if name not in __silencers__:
+        if code not in __silencers__:
             log.warning("W-%d (%s): %s: %s" % msg)
 
     # This will be turned on in a future release
