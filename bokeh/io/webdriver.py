@@ -28,10 +28,9 @@ import warnings
 from os.path import devnull
 
 # External imports
-import psutil
 
 # Bokeh imports
-from ..util.dependencies import import_required, detect_phantomjs
+from ..util.dependencies import import_required, detect_phantomjs, import_optional
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -53,14 +52,16 @@ __all__ = (
 
 
 def kill_proc_tree(pid, including_parent=True):
-    parent = psutil.Process(pid)
-    children = parent.children(recursive=True)
-    for child in children:
-        child.kill()
-    psutil.wait_procs(children)
-    if including_parent:
-        parent.kill()
-        parent.wait(5)
+    psutil = import_optional('psutil')
+    if psutil is not None:
+        parent = psutil.Process(pid)
+        children = parent.children(recursive=True)
+        for child in children:
+            child.kill()
+        psutil.wait_procs(children)
+        if including_parent:
+            parent.kill()
+            parent.wait(5)
 
 
 def create_phantomjs_webdriver():
@@ -81,8 +82,7 @@ def terminate_webdriver(driver):
         if driver.service.process:
             if sys.platform == 'win32':
                 kill_proc_tree(driver.service.process.pid, including_parent=False)
-            else:
-                driver.service.process.send_signal(signal.SIGTERM)
+            driver.service.process.send_signal(signal.SIGTERM)
 
     try:
         driver.quit()
