@@ -25,10 +25,10 @@ function mocha(files: string[]): Promise<void> {
     args.unshift("--inspect-brk")
 
   if (argv.k)
-    args.push("--grep", argv.k)
+    args.push("--grep", argv.k as string)
 
   args = args.concat(
-    ["--reporter", argv.reporter || "spec"],
+    ["--reporter", (argv.reporter as string | undefined) || "spec"],
     ["--slow", "5s"],
     ["--exit"],
     ["./build/test/index.js"],

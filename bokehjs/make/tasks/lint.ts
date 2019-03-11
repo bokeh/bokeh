@@ -10,7 +10,7 @@ function lint(dir: string): void {
   const options = {
     rulesDirectory: join(paths.base_dir, "tslint", "rules"),
     formatter: "stylish",
-    fix: argv.fix || false,
+    fix: (argv.fix as boolean | undefined) || false,
   }
 
   const program = Linter.createProgram(join(dir, "tsconfig.json"))

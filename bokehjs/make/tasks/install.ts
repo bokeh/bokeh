@@ -18,8 +18,8 @@ task("install", ["build"], () => {
   // installs js and css
   // note: sets cwd as parent dir so that LICENSE.txt is accessible to setup.py
   const proc = spawn("python", ["setup.py", "--install-js"], {cwd: "../"})
-  proc.stdout.on("data", handleOutput)
-  proc.stderr.on("data", handleOutput)
+  proc.stdout!.on("data", handleOutput)
+  proc.stderr!.on("data", handleOutput)
   return new Promise((resolve, reject) => {
     proc.on("error", reject)
     proc.on("exit", (code) => {
