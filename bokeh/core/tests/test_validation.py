@@ -126,6 +126,32 @@ def test_check_warn(mock_warn, mock_error):
     assert not mock_error.called
     assert mock_warn.called
 
+@patch('bokeh.core.validation.check.log.error')
+@patch('bokeh.core.validation.check.log.warning')
+def test_silence_and_check_warn(mock_warn, mock_error):
+    m = Mod(foo=-10)
+    try:
+        v.silence('EXT:W')  # turn the warning off
+        v.check_integrity([m])
+        assert not mock_error.called
+        assert not mock_warn.called
+    finally:
+        v.silence('EXT:W', False)  # turn the warning back on
+        v.check_integrity([m])
+        assert not mock_error.called
+        assert mock_warn.called
+
+@patch('bokeh.core.validation.check.log.error')
+@patch('bokeh.core.validation.check.log.warning')
+def test_silence_with_bad_name_and_check_warn(mock_warn, mock_error):
+    m = Mod(foo=-10)
+    with pytest.raises(ValueError, match=('Input to silence should be '
+                                          'name of warning - not code')):
+        v.silence(9999)
+    v.check_integrity([m])
+    assert not mock_error.called
+    assert mock_warn.called
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------

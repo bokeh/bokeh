@@ -41,7 +41,7 @@ log = logging.getLogger(__name__)
 # External imports
 
 # Bokeh imports
-from .check import check_integrity
+from .check import check_integrity, silence
 from .decorators import error, warning
 
 #-----------------------------------------------------------------------------
