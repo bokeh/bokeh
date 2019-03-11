@@ -48,7 +48,7 @@ def silence(name, silence=True):
         silence (bool) : Whether or not to silence the warning
 
     Returns:
-        set conatining names of silenced warnings
+        A set containing the names of all silenced warnings
 
     This function adds or removes names from a set of silencers which
     is refered to when running ``check_integrity``. If a warning with a particular
