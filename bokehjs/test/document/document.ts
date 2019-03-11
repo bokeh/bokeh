@@ -6,7 +6,7 @@ import {values, size} from "core/util/object"
 import {Document, DEFAULT_TITLE} from "document"
 import * as ev from "document/events"
 import {version as js_version} from "version"
-import {Models} from "base"
+const {Models} = require("../../js/lib/base")
 import {Model} from "model"
 import * as logging from "core/logging"
 import * as p from "core/properties"
