@@ -1,18 +1,17 @@
-
+.. _userguide_bokehjs:
 
 Developing with JavaScript
 ==========================
 
-In order to create interactive plots and applications in the browser,
-Bokeh has a client-side library, BokehJS, to do all the work of
-drawing and rendering and event handling in a browser. The Bokeh
-Python library, and libraries for such as R, Scala, and Julia, are
-primarily a means to interact with BokehJS conveniently at a high
-level, without needing to explicitly worry about JavaScript or web
-development.  However, BokehJS has its own API, and it is possible to
-do pure JavaScript development using BokehJS directly. Additionally,
-with custom models typically requires interacting with BokehJS
-directly as well.
+In order to create interactive plots and applications in the browser, Bokeh
+has a client-side library, BokehJS, to do all the work of drawing and rendering
+and event handling in a browser. The Bokeh Python library, and libraries for
+:ref:`userguide_quickstart_other_languages` such as R, Scala, and Julia, are
+primarily a means to interact with BokehJS conveniently at a high level,
+without needing to explicitly worry about JavaScript or web development.
+However, BokehJS has its own API, and it is possible to do pure JavaScript
+development using BokehJS directly. Additionally, :ref:`userguide_extensions`
+with custom models typically requires interacting with BokehJS directly as well.
 
 .. warning::
     The BokehJS APIs are new as of version ``0.12`` and may undergo some
@@ -21,18 +20,18 @@ directly as well.
 Obtaining BokehJS
 -----------------
 
-BokehJS is made available via CDN and ``npm``. See the 
-section of the  page for more details.
+BokehJS is made available via CDN and ``npm``. See the :ref:`install_bokehjs`
+section of the :ref:`installation` page for more details.
 
 
-
+.. _userguide_bokehjs_models:
 
 Low Level Models
 ----------------
 
 The low level models for building up plots and applications (e.g. guides
 and glyphs and widgets, etc.) generally match the Bokeh Python models
-exactly. Accordingly, the is a primary resource for
+exactly. Accordingly, the :ref:`refguide` is a primary resource for
 answering questions about BokehJS models, even though it is presented
 from a Python perspective.
 
@@ -120,6 +119,8 @@ The code above generates the following plot:
 .. image:: /_images/bokehjs_models.png
     :width: 400px
 
+.. _userguide_bokehjs_interfaces:
+
 
 Interfaces
 ----------
@@ -134,15 +135,15 @@ These higher level interfaces currently comprise  ``Bokeh.Plotting`` and
     API, in the ``bokeh-api.js`` file, which must be imported in addition
     to ``bokeh.js``.
 
-
+.. _userguide_bokehjs_interfaces_plotting:
 
 ``Bokeh.Plotting``
 ~~~~~~~~~~~~~~~~~~
 
 The JavaScript ``Bokeh.Plotting`` API is a port of the Python
 ``bokeh.plotting`` interface. Accordingly, the information in the
-section of the User Guide can be a useful reference in addition to the
-material here.
+:ref:`userguide_plotting` section of the User Guide can be a useful
+reference in addition to the material here.
 
 Here is an example that is very similar the Python example
 :bokeh-tree:`examples/plotting/file/color_scatter.py`:
@@ -193,6 +194,10 @@ The code above generates the following plot:
 .. image:: /_images/bokehjs_plotting.png
     :width: 400px
 
+.. _userguide_bokehjs_interfaces_charts:
+
+
+
 ``Bokeh.Charts``
 ~~~~~~~~~~~~~~~~
 
@@ -200,7 +205,7 @@ The JavaScript ``Bokeh.Charts`` API is a high-level interface for charting
 that is unique to BokehJS. Currently , there are two high level charts
 supported: ``pie`` and ``bar``.
 
-
+.. _userguide_bokehjs_interfaces_charts_pie:
 
 ``Bokeh.Charts.pie``
 ''''''''''''''''''''
@@ -259,6 +264,8 @@ function, with the plot it generates shown below:
 
 .. image:: /_images/bokehjs_pie_charts.png
     :width: 100%
+
+.. _userguide_bokehjs_interfaces_charts_bar:
 
 ``Bokeh.Charts.bar``
 ''''''''''''''''''''
