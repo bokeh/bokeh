@@ -66,6 +66,11 @@ _env = Environment(loader=FileSystemLoader(_templates_path))
 CCB_PROLOGUE = _env.get_template("collapsible_code_block_prologue.html")
 CCB_EPILOGUE = _env.get_template("collapsible_code_block_epilogue.html")
 
+BJS_PROLOGUE = _env.get_template("bokehjs_block_prologue.html")
+BJS_EPILOGUE = _env.get_template("bokehjs_block_epilogue.html")
+
+
+
 COLOR_DETAIL = _env.get_template("color_detail.html")
 
 ENUM_DETAIL = _env.get_template("enum_detail.rst")

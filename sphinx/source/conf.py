@@ -47,6 +47,7 @@ extensions = [
     'bokeh.sphinxext.bokeh_prop',
     'bokeh.sphinxext.bokeh_releases',
     'bokeh.sphinxext.bokeh_sitemap',
+    'bokeh.sphinxext.bokehjs_block',
     'bokeh.sphinxext.collapsible_code_block',
 ]
 
@@ -107,7 +108,8 @@ bokeh_plot_pyfile_include_dirs = ['docs']
 
 # Whether to allow builds to succeed if a Google API key is not defined and plots
 # containing "GOOGLE_API_KEY" are processed
-bokeh_missing_google_api_key_ok = False
+#bokeh_missing_google_api_key_ok = False
+bokeh_missing_google_api_key_ok = True
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None
