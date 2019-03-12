@@ -74,7 +74,7 @@ def silence(warning, silence=True):
                          '- not of type {}'.format(type(warning)))
     if silence:
         __silencers__.add(warning)
-    else:
+    elif warning in __silencers__:
         __silencers__.remove(warning)
     return __silencers__
 
