@@ -4,8 +4,9 @@ import {TickFormatter} from "../formatters/tick_formatter"
 import {BasicTicker} from "../tickers/basic_ticker"
 import {BasicTickFormatter} from "../formatters/basic_tick_formatter"
 import {ContinuousColorMapper} from "../mappers/continuous_color_mapper"
-import {LinearColorMapper} from "../mappers/linear_color_mapper"
+import {LinearColorMapper, LogColorMapper, EqHistColorMapper} from "../mappers"
 import {LinearScale} from "../scales/linear_scale"
+import {LinearInterpolationScale} from "../scales/linear_interpolation_scale"
 import {Scale} from "../scales/scale"
 import {LogScale} from "../scales/log_scale"
 import {Range1d} from "../ranges/range1d"
@@ -464,12 +465,17 @@ export class ColorBarView extends AnnotationView {
       }),
     }
 
-    switch (this.model.color_mapper.type) {
-      case "LinearColorMapper": return new LinearScale(ranges)
-      case "LogColorMapper":    return new LogScale(ranges)
-      default:
-        unreachable()
-    }
+    const {color_mapper} = this.model
+    if (color_mapper instanceof LinearColorMapper)
+       return new LinearScale(ranges)
+    else if (color_mapper instanceof LogColorMapper)
+       return new LogScale(ranges)
+    else if (color_mapper instanceof EqHistColorMapper) {
+      const {scan_result} = color_mapper
+      // TODO: scan_result = this.model.color_mapper.scan(???)
+      return new LinearInterpolationScale({...ranges, scan_result})
+    } else
+      unreachable()
   }
 
   protected _format_major_labels(initial_labels: number[], major_ticks: Arrayable<number>): string[] {

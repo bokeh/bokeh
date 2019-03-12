@@ -298,3 +298,60 @@ export function sorted_index<T>(array: Arrayable<T>, value: T): number {
   }
   return low
 }
+
+export function bin_counts(data : Arrayable<number>, bin_edges : Arrayable<number>) {
+    const counts = Array(bin_edges.length -1).fill(0)
+    for (let i = 0; i < data.length; i++){
+        const sample = data[i]
+        for (let bin = 0; bin < counts.length; bin++){
+            if(sample > bin_edges[bin] && sample <= bin_edges[bin+1]){
+                counts[bin]+=1
+            }
+        }
+    }
+    return counts
+}
+
+export function interp(pointsToEvaluate: Arrayable<number>, functionValuesX: Arrayable<number>, functionValuesY: Arrayable<number>): Arrayable<number> {
+  const results: number[] = []
+  for (const point of pointsToEvaluate) {
+    let index = leftedgeindex(point, functionValuesX)
+    if (index == functionValuesX.length - 1)
+        index--
+
+    const x0 = functionValuesX[index]
+    const y0 = functionValuesY[index]
+    const x1 = functionValuesX[index + 1]
+    const y1 = functionValuesY[index + 1]
+    results.push(lerp(point, x0, y0, x1, y1))
+  }
+  return results
+}
+
+function lerp(x: number, x0: number, y0: number, x1: number, y1: number): number {
+  const a = (y1 - y0)/(x1 - x0)
+  const b = -a*x0 + y0
+  return a*x + b
+}
+
+function leftedgeindex(point: number, intervals: Arrayable<number>): number {
+  if (point < intervals[0])
+    return 0
+  if (point > intervals[intervals.length - 1])
+    return intervals.length - 1
+  let leftEdgeIndex = 0
+  let rightEdgeIndex = intervals.length - 1
+  while (rightEdgeIndex - leftEdgeIndex != 1) {
+    const indexOfNumberToCompare = leftEdgeIndex + Math.floor((rightEdgeIndex - leftEdgeIndex)/2)
+    if (point >= intervals[indexOfNumberToCompare])
+      leftEdgeIndex = indexOfNumberToCompare
+    else
+      rightEdgeIndex = indexOfNumberToCompare
+  }
+  return leftEdgeIndex
+}
+
+export function norm(array: Arrayable<number>, start: number, end:number): Arrayable<number> {
+  const span = (end - start)
+  return map(array, (x) => (x - start) / span)
+}

@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.has_props import abstract
 from .transforms import Transform
+from ..core.properties import Array, Float
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -31,6 +32,7 @@ __all__ = (
     'LinearScale',
     'LogScale',
     'Scale',
+    'LerpScale'
 )
 
 #-----------------------------------------------------------------------------
@@ -87,6 +89,12 @@ class LogScale(ContinuousScale):
 class CategoricalScale(Scale):
     ''' Represent a scale transformation between a categorical source range and
     continuous target range.
+
+    '''
+    pass
+
+class LerpScale(Scale):
+    '''
 
     '''
     pass
