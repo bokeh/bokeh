@@ -84,7 +84,7 @@ class bokehjs_content(nodes.General, nodes.Element):
 class BokehJSContent(CodeBlock):
 
     option_spec = CodeBlock.option_spec
-    option_spec.update(heading=unchanged)
+    option_spec.update(title=unchanged)
 
     def run(self):
         env = self.state.document.settings.env
@@ -98,7 +98,7 @@ class BokehJSContent(CodeBlock):
 
         node = bokehjs_content()
         node['target_id'] = target_id
-        node['heading'] = self.options.get('heading', "Code")
+        node['title'] = self.options.get('title', "bokehjs example")
 
         cb = CodeBlock.run(self)
         node.setup_child(cb[0])
@@ -110,13 +110,13 @@ def html_visit_bokehjs_content(self, node):
     self.body.append(
         BJS_PROLOGUE.render(
             id=node['target_id'],
-            heading=node['heading']
+            title=node['title']
         )
     )
 
 def html_depart_bokehjs_content(self, node):
     self.body.append(BJS_EPILOGUE.render(
-        heading=node['heading']))
+        title=node['title']))
 
 def setup(app):
     ''' Required Sphinx extension setup function. '''

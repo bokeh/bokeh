@@ -71,7 +71,7 @@ and a line glyph from scratch. Comparison with examples in
 Python to JavaScript at this level is nearly one-to-one:
 
 .. bokehjs-content:: javascript
-    :heading: Bokeh Simple Line
+    :title: Bokeh Simple Line
 
     // create some data and a ColumnDataSource
     var x = Bokeh.LinAlg.linspace(-0.5, 20.5, 10);
@@ -153,7 +153,7 @@ Here is an example that is very similar the Python example
 :bokeh-tree:`examples/plotting/file/color_scatter.py`:
 
 .. bokehjs-content:: javascript
-    :heading: Bokeh Color Scatter
+    :title: Bokeh Color Scatter
 
     var plt = Bokeh.Plotting;
 
@@ -239,7 +239,7 @@ and hover policy. Here is some example code that demonstrates the ``pie``
 function, with the plot it generates shown below:
 
 .. bokehjs-content:: javascript
-    :heading: Bokeh Pie Chart
+    :title: Bokeh Pie Chart
 
     var plt = Bokeh.Plotting;
 
@@ -312,7 +312,7 @@ and hover policy. Here is some example code that demonstrates the ``bar``
 function, with the plot it generates shown below:
 
 .. bokehjs-content:: javascript
-    :heading: Bokeh Bar Chart
+    :title: Bokeh Bar Chart
 
     var plt = Bokeh.Plotting;
 
@@ -354,7 +354,7 @@ A minimal example follows, demonstrating a proper import of the libraries,
 and dynamic creation and modification of plots.
 
 .. bokehjs-content:: javascript
-    :heading: Bokeh Pie Chart
+    :title: Bokeh Pie Chart
 
     // arrays to hold data
     var source = new Bokeh.ColumnDataSource({
