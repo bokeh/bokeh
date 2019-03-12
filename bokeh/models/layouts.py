@@ -412,6 +412,12 @@ class Panel(Model):
     The child widget. If you need more children, use a layout widget, e.g. a ``Column``.
     """)
 
+    closable = Bool(False, help="""
+    Whether this panel is closable or not. If True, an "x" button will appear.
+
+    Closing a panel is equivalent to removing it from its parent container (e.g. tabs).
+    """)
+
 class Tabs(LayoutDOM):
     ''' A panel widget with navigation tabs.
 

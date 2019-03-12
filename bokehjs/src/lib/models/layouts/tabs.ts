@@ -1,6 +1,6 @@
 import {Grid, ContentBox, Layoutable, Sizeable} from "core/layout"
 import {div, position, size, scroll_size, show, hide, undisplay, children} from "core/dom"
-import {sum} from "core/util/array"
+import {sum, remove_at} from "core/util/array"
 import {Location} from "core/enums"
 import * as p from "core/properties"
 
@@ -95,7 +95,9 @@ export class TabsView extends LayoutDOMView {
     for (const child_view of child_views)
       hide(child_view.el)
 
-    show(child_views[this.model.active].el)
+    const tab = child_views[this.model.active]
+    if (tab != null)
+      show(tab.el)
   }
 
   render(): void {
@@ -109,7 +111,23 @@ export class TabsView extends LayoutDOMView {
 
     const headers = this.model.tabs.map((tab, i) => {
       const el = div({class: ["bk-tab", i == active ? "bk-active" : null]}, tab.title)
-      el.addEventListener("click", () => this.change_active(i))
+      el.addEventListener("click", (event) => {
+        if (event.target == event.currentTarget)
+          this.change_active(i)
+      })
+      if (tab.closable) {
+        const close_el = div({class: "bk-close"})
+        close_el.addEventListener("click", (event) => {
+          if (event.target == event.currentTarget) {
+            this.model.tabs = remove_at(this.model.tabs, i)
+
+            const ntabs = this.model.tabs.length
+            if (this.model.active > ntabs - 1)
+              this.model.active = ntabs - 1
+          }
+        })
+        el.appendChild(close_el)
+      }
       return el
     })
     this.headers_el = div({class: ["bk-headers"]}, headers)
@@ -227,6 +245,7 @@ export namespace Panel {
   export type Props = Model.Props & {
     title: p.Property<string>
     child: p.Property<LayoutDOM>
+    closable: p.Property<boolean>
   }
 }
 
@@ -243,8 +262,9 @@ export class Panel extends Model {
     this.prototype.type = "Panel"
 
     this.define<Panel.Props>({
-      title: [ p.String,  "" ],
-      child: [ p.Instance    ],
+      title:    [ p.String,  ""    ],
+      child:    [ p.Instance       ],
+      closable: [ p.Boolean, false ],
     })
   }
 }
