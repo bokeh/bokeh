@@ -125,7 +125,6 @@ The code above generates the following plot:
 
 .. _userguide_bokehjs_interfaces:
 
-
 Interfaces
 ----------
 
