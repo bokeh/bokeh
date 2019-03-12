@@ -521,15 +521,17 @@ class Serve(Subcommand):
             default = None,
             type    = str,
             nargs   = '*',
-            help    =   "Enable live reloading during app development."
-                        "By default it watches all *.py *.html *.css *.yaml files"
-                        "in the app directory tree. Additional files can be passed"
-                        "as arguments."
-                        "NOTE: This setting only works with a single app."
-                        "It also restricts the number of processes to 1.",
+            help    = "Enable live reloading during app development. "
+                      "By default it watches all *.py *.html *.css *.yaml files "
+                      "in the app directory tree. Additional files can be passed "
+                      "as arguments. "
+                      "NOTE: This setting only works with a single app. "
+                      "It also restricts the number of processes to 1. "
+                      "NOTE FOR WINDOWS USERS : this option must be invoked using "
+                      "'python -m bokeh'. If not Tornado will fail to restart the "
+                      "server",
         )),
     )
-
 
     def invoke(self, args):
         '''
@@ -638,15 +640,16 @@ class Serve(Subcommand):
             find_autoreload_targets(args.files[0])
             add_optional_autoreload_files(args.dev)
 
-
         with report_server_init_errors(**server_kwargs):
             server = Server(applications, **server_kwargs)
 
             if args.show:
+
                 # we have to defer opening in browser until we start up the server
                 def show_callback():
                     for route in applications.keys():
                         server.show(route)
+
                 server.io_loop.add_callback(show_callback)
 
             address_string = 'localhost'
@@ -671,6 +674,7 @@ class Serve(Subcommand):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
 
 __doc__ = format_docstring(__doc__,
     DEFAULT_PORT=DEFAULT_SERVER_PORT,
