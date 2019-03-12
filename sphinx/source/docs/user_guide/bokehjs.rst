@@ -1,5 +1,9 @@
 .. _userguide_bokehjs:
 
+.. raw:: html
+   :file: bokehjs_preamble.js
+
+
 Developing with JavaScript
 ==========================
 
