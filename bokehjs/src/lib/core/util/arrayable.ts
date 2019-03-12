@@ -66,6 +66,30 @@ export function map<T, U>(array: Arrayable<T>, fn: (item: T, i: number, array: A
   return result
 }
 
+export function reduce<T>(array: Arrayable<T>, fn: (previous: T, current: T, index: number, array: Arrayable<T>) => T, initial?: T): T {
+  const n = array.length
+
+  if (initial === undefined && n == 0)
+    throw new Error("can't reduce an empty array without an initial value")
+
+  let value: T
+  let i: number
+
+  if (initial === undefined) {
+    value = array[0]
+    i = 1
+  } else {
+    value = initial
+    i = 0
+  }
+
+  for (; i < n; i++) {
+    value = fn(value, array[i], i, array)
+  }
+
+  return value
+}
+
 export function min(array: Arrayable<number>): number {
   let value: number
   let result = Infinity
@@ -140,6 +164,15 @@ export function sum(array: Arrayable<number>): number {
   return result
 }
 
+export function cumsum(array: number[]): number[]
+export function cumsum(array: Arrayable<number>): Arrayable<number>
+
+export function cumsum(array: Arrayable<number>): Arrayable<number> {
+  const result: Arrayable<number> = []
+  reduce(array, (a, b, i) => result[i] = a + b, 0)
+  return result
+}
+
 export function every<T>(array: Arrayable<T>, predicate: (item: T) => boolean): boolean {
   for (let i = 0, length = array.length; i < length; i++) {
     if (!predicate(array[i]))
@@ -200,4 +233,59 @@ export function sorted_index<T>(array: Arrayable<T>, value: T): number {
       high = mid
   }
   return low
+}
+
+export function bin_counts(data: Arrayable<number>, bin_edges: Arrayable<number>): Arrayable<number> {
+  const counts = Array(bin_edges.length - 1).fill(0)
+  for (let i = 0; i < data.length; i++){
+    const sample = data[i]
+    for (let bin = 0; bin < counts.length; bin++) {
+      if (bin_edges[bin] < sample && sample <= bin_edges[bin+1])
+        counts[bin] += 1
+    }
+  }
+  return counts
+}
+
+export function norm(array: Arrayable<number>, start: number, end: number): Arrayable<number> {
+  const span = end - start
+  return map(array, x => (x - start) / span)
+}
+
+export function interpolate(points_to_evaluate: Arrayable<number>,
+    function_values_x: Arrayable<number>, function_values_y: Arrayable<number>): Arrayable<number> {
+  return map(points_to_evaluate, (point) => {
+    let index = left_edge_index(point, function_values_x)
+    if (index == function_values_x.length - 1)
+      index--
+
+    const x0 = function_values_x[index]
+    const y0 = function_values_y[index]
+    const x1 = function_values_x[index+1]
+    const y1 = function_values_y[index+1]
+    return linear_interpolate(point, x0, y0, x1, y1)
+  })
+}
+
+function linear_interpolate(x: number, x0: number, y0: number, x1: number, y1: number): number {
+  const a = (y1 - y0) / (x1 - x0)
+  const b = -a * x0 + y0
+  return a * x + b
+}
+
+function left_edge_index(point: number, intervals: Arrayable<number>): number {
+  if (point < intervals[0])
+    return 0
+  if (point > intervals[intervals.length - 1])
+    return intervals.length - 1
+  let indexOfNumberToCompare
+  let leftEdgeIndex = 0
+  let rightEdgeIndex = intervals.length - 1
+  while (rightEdgeIndex - leftEdgeIndex !== 1) {
+    indexOfNumberToCompare = leftEdgeIndex + Math.floor((rightEdgeIndex - leftEdgeIndex)/2)
+    point >= intervals[indexOfNumberToCompare]
+      ? leftEdgeIndex = indexOfNumberToCompare
+      : rightEdgeIndex = indexOfNumberToCompare
+  }
+  return leftEdgeIndex
 }

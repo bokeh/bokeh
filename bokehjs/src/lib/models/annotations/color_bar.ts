@@ -5,11 +5,8 @@ import {BasicTicker} from "../tickers/basic_ticker"
 import {BasicTickFormatter} from "../formatters/basic_tick_formatter"
 import {ContinuousColorMapper} from "../mappers/continuous_color_mapper"
 import {LinearColorMapper} from "../mappers/linear_color_mapper"
-import {LinearScale} from "../scales/linear_scale"
-import {Scale} from "../scales/scale"
-import {LogScale} from "../scales/log_scale"
 import {Range1d} from "../ranges/range1d"
-
+import {VectorTransform} from "core/vectorization"
 import {Arrayable} from "core/types"
 import {LegendLocation, Orientation} from "core/enums"
 import * as visuals from "core/visuals"
@@ -453,34 +450,15 @@ export class ColorBarView extends AnnotationView {
     return {width, height}
   }
 
-  /*protected*/ _tick_coordinate_scale(scale_length: number): Scale {
+  /*protected*/ _tick_coordinate_scale(scale_length: number): VectorTransform<number> {
     /*
     Creates and returns a scale instance that maps the `color_mapper` range
     (low to high) to a screen space range equal to the length of the ColorBar's
     scale image. The scale is used to calculate the tick coordinates in screen
     coordinates for plotting purposes.
-
-    Note: the type of color_mapper has to match the type of scale (i.e.
-    a LinearColorMapper will require a corresponding LinearScale instance).
     */
-
-    const ranges = {
-      source_range: new Range1d({
-        start: this.model.color_mapper.low,
-        end: this.model.color_mapper.high,
-      }),
-      target_range: new Range1d({
-        start: 0,
-        end: scale_length,
-      }),
-    }
-
-    switch (this.model.color_mapper.type) {
-      case "LinearColorMapper": return new LinearScale(ranges)
-      case "LogColorMapper":    return new LogScale(ranges)
-      default:
-        throw new Error("unreachable code")
-    }
+    const target_range = new Range1d({start: 0, end: scale_length})
+    return this.model.color_mapper.get_scale(target_range)
   }
 
   protected _format_major_labels(initial_labels: number[], major_ticks: Arrayable<number>): string[] {

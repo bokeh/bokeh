@@ -2,10 +2,15 @@ import {isPlainObject} from "./util/types"
 import {Arrayable} from "./types"
 import {ColumnarDataSource} from "../models/sources/columnar_data_source"
 
-export type Transform<In, Out> = {
+export type ScalarTransform<In, Out = In> = {
   compute(x: In): Out
+}
+
+export type VectorTransform<In, Out = In> = {
   v_compute(xs: Arrayable<In>): Arrayable<Out>
 }
+
+export type Transform<In, Out = In> = ScalarTransform<In, Out> & VectorTransform<In, Out>
 
 export type Expression<Out> = {
   v_compute(source: ColumnarDataSource): Arrayable<Out>
