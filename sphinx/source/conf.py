@@ -47,7 +47,7 @@ extensions = [
     'bokeh.sphinxext.bokeh_prop',
     'bokeh.sphinxext.bokeh_releases',
     'bokeh.sphinxext.bokeh_sitemap',
-    'bokeh.sphinxext.bokehjs_block',
+    'bokeh.sphinxext.bokehjs_content',
     'bokeh.sphinxext.collapsible_code_block',
 ]
 

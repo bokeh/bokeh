@@ -4,37 +4,32 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Display code blocks in collapsible sections when outputting to HTML.
+''' Make javascript code blocks also include a live link to codepen.io for instant experiementation.
 
-This directive takes a heading to use for the collapsible code block:
+This directive takes a title to use for the codepen example:
 
 .. code-block:: rest
 
-    .. collapsible-code-block:: python
-        :heading: Some Code
+    .. bokehjs-contnet:: javascript
+        :title: Some Code
 
-        from __future__ import print_function
-
-        print("Hello, Bokeh!")
+        alert('this is called in the codepen');
 
 This directive is identical to the standard ``code-block`` directive
 that Sphinx supplies, with the addition of one new option:
 
-heading : string
-    A heading to put for the collapsible block. Clicking the heading
-    expands or collapses the block
+title : string
+    A title for the codepen.
 
 Examples
 --------
 
 The inline example code above produces the following output:
 
-.. collapsible-code-block:: python
-    :heading: Some Code
+.. bokehjs-content:: javascript
+    :title: Some Code
 
-    from __future__ import print_function
-
-    print("Hello, Bokeh!")
+    alert('this is called in the codepen');
 
 '''
 
@@ -67,10 +62,10 @@ from .templates import BJS_PROLOGUE, BJS_EPILOGUE
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'bokehjs_block',
-    'BokehJSBlock',
-    'html_depart_bokehjs_block',
-    'html_visit_bokehjs_block',
+    'bokehjs_content',
+    'BokehJSBContent',
+    'html_depart_bokehjs_content',
+    'html_visit_bokehjs_content',
     'setup',
 )
 
@@ -82,11 +77,11 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class bokehjs_block(nodes.General, nodes.Element):
+class bokehjs_content(nodes.General, nodes.Element):
     pass
 
 
-class BokehJSBlock(CodeBlock):
+class BokehJSContent(CodeBlock):
 
     option_spec = CodeBlock.option_spec
     option_spec.update(heading=unchanged)
@@ -101,7 +96,7 @@ class BokehJSBlock(CodeBlock):
         target_id = target_id.replace(".", "-")
         target_node = nodes.target('', '', ids=[target_id])
 
-        node = bokehjs_block()
+        node = bokehjs_content()
         node['target_id'] = target_id
         node['heading'] = self.options.get('heading', "Code")
 
@@ -111,7 +106,7 @@ class BokehJSBlock(CodeBlock):
 
         return [target_node, node]
 
-def html_visit_bokehjs_block(self, node):
+def html_visit_bokehjs_content(self, node):
     self.body.append(
         BJS_PROLOGUE.render(
             id=node['target_id'],
@@ -119,20 +114,20 @@ def html_visit_bokehjs_block(self, node):
         )
     )
 
-def html_depart_bokehjs_block(self, node):
+def html_depart_bokehjs_content(self, node):
     self.body.append(BJS_EPILOGUE.render(
         heading=node['heading']))
 
 def setup(app):
     ''' Required Sphinx extension setup function. '''
     app.add_node(
-        bokehjs_block,
+        bokehjs_content,
         html=(
-            html_visit_bokehjs_block,
-            html_depart_bokehjs_block
+            html_visit_bokehjs_content,
+            html_depart_bokehjs_content
         )
     )
-    app.add_directive('bokehjs-block', BokehJSBlock)
+    app.add_directive('bokehjs-content', BokehJSContent)
 
 #-----------------------------------------------------------------------------
 # Private API
