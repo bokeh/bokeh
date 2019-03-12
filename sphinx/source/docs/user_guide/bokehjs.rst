@@ -200,8 +200,6 @@ The code above generates the following plot:
 
 .. _userguide_bokehjs_interfaces_charts:
 
-
-
 ``Bokeh.Charts``
 ~~~~~~~~~~~~~~~~
 
@@ -371,8 +369,8 @@ and dynamic creation and modification of plots.
         line_width: 2
     });
 
-    //Show the plot, appending it to the end of the current
-    //section of the document we are in.
+    // Show the plot, appending it to the end of the current
+    // section of the document we are in.
     Bokeh.Plotting.show(plot, document.currentScript.parentElement);
 
     function addPoint() {
