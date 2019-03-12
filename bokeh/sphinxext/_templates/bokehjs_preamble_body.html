@@ -1,14 +1,42 @@
+<div id="codepen-html">
+<!--
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Complete Example</title>
+
+{{css_block}}
+{{script_block}}
+
+<script>
+//The order of CSS and JS imports above is important.
+</script>
+</head>
+
+<body>
+</body>
+</html>
+-->
+</div>
+
+<!--
+
+<script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-0.12.5.min.js"></script>
+<script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-api-0.12.5.min.js"></script>
+
+-->
 <script>
     $(function() {
-        var reparseArr = function(rawArrStr) {
-            //a bit of a hack, we get strings like "['foo', 'bar']"
-            // this gives us actual arrays
-            var rawStrs = rawArrStr.slice(1, rawArrStr.length-1);
-            var strArr = rawStrs.split(',');
-            var cleanArr = strArr.map(function(x) {return x.slice(1,x.length-1);});
-            return cleanArr;
-        };
-        //var HTML = document.querySelector(".codepen-html").innerHTML;
+        var HTML = "";
+        var htmlEl = document.getElementById("codepen-html");
+        for(var i=0; i < htmlEl.childNodes.length; i++){
+            //nodeType == 8 is the special number for comment nodes
+            if(htmlEl.childNodes[i].nodeType == 8){  
+                HTML = htmlEl.childNodes[i].textContent;
+            }
+        }
+        console.log("HTML", HTML);
         $(".codepen-wrap ").each(function(iterEl) {
                 var el = $(this),
                         type = "js",
@@ -16,16 +44,11 @@
                         isCodeInside = codeInside.length,
                         CSS = "",
                         JS = JS = codeInside;
-            var cssFilesStr = el.attr('data-codepen-cssfiles');
-            var jsFilesStr = el.attr('data-codepen-jsfiles');
-            // var cssExternal = JSON.parse(cssFilesStr);
-            // var jsExternal =  JSON.parse(jsFilesStr);
 
-            var ab = el.attr('data-codepen-jsfiles');
                 var data = {
                   title              : el.attr('data-codepen-title'),
                   description        : "",
-                  //html               : HTML,
+                  html               : HTML,
                   html_pre_processor : "none",
                   css                : CSS,
                   css_pre_processor  : "none",
@@ -36,10 +59,8 @@
                   js_modernizr       : false,
                   js_library         : "",
                   html_classes       : "",
-                    // css_external       : cssExternal,
-                    // js_external        : jsExternal,
-                    css_external       : cssFilesStr,
-                    js_external        : jsFilesStr,
+                  css_external       : "",
+                  js_external        : "",
                   template           : true
                 };
                 var JSONstring =

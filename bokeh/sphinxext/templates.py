@@ -69,6 +69,7 @@ CCB_EPILOGUE = _env.get_template("collapsible_code_block_epilogue.html")
 BJS_PROLOGUE = _env.get_template("bokehjs_content_prologue.html")
 BJS_EPILOGUE = _env.get_template("bokehjs_content_epilogue.html")
 
+BJS_PREAMBLE_BODY = _env.get_template("bokehjs_preamble_body.html")
 
 
 COLOR_DETAIL = _env.get_template("color_detail.html")
