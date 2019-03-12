@@ -9,8 +9,8 @@ import {isString} from "core/util/types"
 export abstract class ButtonToolButtonView extends DOMView {
   model: ButtonTool
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.connect(this.model.change, () => this.render())
     this.el.addEventListener("click", () => this._clicked())
     this.render() // XXX: this isn't governed by layout, for now

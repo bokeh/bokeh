@@ -3,6 +3,7 @@ import {version as js_version} from "../version"
 import {logger} from "../core/logging"
 import {BokehEvent, LODStart, LODEnd} from "core/bokeh_events"
 import {HasProps} from "core/has_props"
+import {Attrs} from "core/types"
 import {Signal0} from "core/signaling"
 import {Ref, is_ref} from "core/util/refs"
 import {decode_column_data} from "core/util/serialization"
@@ -55,8 +56,6 @@ export interface Patch {
   references: Ref[]
   events: DocumentChanged[]
 }
-
-export type Attrs = {[key: string]: any}
 
 export type References = {[key: string]: HasProps}
 
@@ -320,7 +319,7 @@ export class Document {
     return references_json
   }
 
-  static _instantiate_object(obj_id: string, obj_type: string, obj_attrs: {[key: string]: any}): HasProps {
+  static _instantiate_object(obj_id: string, obj_type: string, obj_attrs: Attrs): HasProps {
     const full_attrs = {...obj_attrs, id: obj_id, __deferred__: true}
     const model: Class<HasProps> = Models(obj_type)
     return new model(full_attrs)
@@ -368,16 +367,16 @@ export class Document {
         return v
     }
 
-    function resolve_array(array: any[]) {
-      const results: any[] = []
+    function resolve_array(array: unknown[]) {
+      const results: unknown[] = []
       for (const v of array) {
         results.push(resolve_ref(v))
       }
       return results
     }
 
-    function resolve_dict(dict: {[key: string]: any}) {
-      const resolved: {[key: string]: any} = {}
+    function resolve_dict(dict: {[key: string]: unknown}) {
+      const resolved: {[key: string]: unknown} = {}
       for (const k in dict) {
         const v = dict[k]
         resolved[k] = resolve_ref(v)
@@ -410,7 +409,7 @@ export class Document {
     type Fn = (instance: HasProps, attrs: Attrs, was_new: boolean) => void
     function foreach_depth_first(items: typeof to_update, f: Fn): void {
       const already_started: {[key: string]: boolean} = {}
-      function foreach_value(v: any) {
+      function foreach_value(v: unknown) {
         if (v instanceof HasProps) {
           // note that we ignore instances that aren't updated (not in to_update)
           if (!(v.id in already_started) && v.id in items) {

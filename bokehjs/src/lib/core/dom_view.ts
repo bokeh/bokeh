@@ -13,8 +13,8 @@ export class DOMView extends View {
 
   el: HTMLElement
 
-  initialize(options: DOMView.Options): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this._has_finished = false
     this.el = this._createElement()
   }

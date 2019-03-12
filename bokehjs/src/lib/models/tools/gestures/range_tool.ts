@@ -63,8 +63,8 @@ export class RangeToolView extends GestureToolView {
   private last_dy: number
   private side: Side
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.side = Side.None
     this.model.update_overlay_from_ranges()
   }

@@ -45,9 +45,9 @@ export class TileRendererView extends DataRendererView {
   protected render_timer?: number
   protected prefetch_timer?: number
 
-  initialize(options: any): void {
+  initialize(): void {
     this._tiles = []
-    super.initialize(options)
+    super.initialize()
   }
 
   connect_signals(): void {

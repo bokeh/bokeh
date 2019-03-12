@@ -13,8 +13,8 @@ export class PolySelectToolView extends SelectToolView {
 
   protected data: {sx: number[], sy: number[]}
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.data = {sx: [], sy: []}
   }
 

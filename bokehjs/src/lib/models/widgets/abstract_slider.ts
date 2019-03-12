@@ -30,8 +30,8 @@ export abstract class AbstractSliderView extends ControlView {
     return (this.slider_el as noUiSlider.Instance).noUiSlider
   }
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this._init_callback()
   }
 

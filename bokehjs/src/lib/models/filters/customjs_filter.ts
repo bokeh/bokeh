@@ -8,7 +8,7 @@ export namespace CustomJSFilter {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Filter.Props & {
-    args: p.Property<{[key: string]: any}>
+    args: p.Property<{[key: string]: unknown}>
     code: p.Property<string>
     use_strict: p.Property<boolean>
   }

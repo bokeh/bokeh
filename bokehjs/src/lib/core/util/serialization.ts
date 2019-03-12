@@ -1,4 +1,4 @@
-import {Arrayable, TypedArray} from "../types"
+import {Arrayable, TypedArray, Data} from "../types"
 import {isTypedArray, isArray, isObject} from "./types"
 import {is_little_endian} from "./compat"
 
@@ -187,8 +187,6 @@ export function encode_base64(array: TypedArray, shape?: Shape): NDArray {
   }
   return data
 }
-
-export type Data = {[key: string]: Arrayable}
 
 export type Shapes = {[key: string]: Shape | Shape[] | Shape[][] | Shape[][][]}
 

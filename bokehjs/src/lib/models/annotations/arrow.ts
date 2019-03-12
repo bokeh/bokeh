@@ -21,8 +21,8 @@ export class ArrowView extends AnnotationView {
   protected _x_end: Arrayable<number>
   protected _y_end: Arrayable<number>
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     if (this.model.source == null)
       this.model.source = new ColumnDataSource()
     this.set_data(this.model.source)

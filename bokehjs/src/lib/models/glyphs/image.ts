@@ -44,8 +44,8 @@ export class ImageView extends XYGlyphView {
   protected _width: Arrayable<number>
   protected _height: Arrayable<number>
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.connect(this.model.color_mapper.change, () => this._update_image())
     this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_render())
   }

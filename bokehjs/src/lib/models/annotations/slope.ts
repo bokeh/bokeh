@@ -8,8 +8,8 @@ export class SlopeView extends AnnotationView {
   model: Slope
   visuals: Slope.Visuals
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
   }
 
   connect_signals(): void {

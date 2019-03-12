@@ -10,7 +10,7 @@ function lint(dir: string): void {
   const options = {
     rulesDirectory: join(paths.base_dir, "tslint", "rules"),
     formatter: "stylish",
-    fix: argv.fix || false,
+    fix: (argv.fix as boolean | undefined) || false,
   }
 
   const program = Linter.createProgram(join(dir, "tsconfig.json"))
@@ -34,6 +34,10 @@ function lint(dir: string): void {
   }
 }
 
+task("tslint:make", async () => {
+  lint(paths.make_dir)
+})
+
 task("tslint:lib", async () => {
   lint(paths.src_dir.lib)
 })
@@ -46,4 +50,4 @@ task("tslint:examples", async () => {
   lint(paths.src_dir.examples)
 })
 
-task("tslint", ["tslint:lib", "tslint:test", "tslint:examples"])
+task("tslint", ["tslint:make", "tslint:lib", "tslint:test", "tslint:examples"])

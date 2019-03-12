@@ -15,8 +15,8 @@ export abstract class AbstractButtonView extends ControlView {
   protected button_el: HTMLButtonElement
   protected group_el: HTMLElement
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.icon_views = {}
   }
 

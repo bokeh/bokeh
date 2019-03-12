@@ -41,8 +41,8 @@ export abstract class GlyphView extends View {
 
   protected _nohit_warned: {[key: string]: boolean} = {}
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
 
     this._nohit_warned = {}
     this.visuals = new visuals.Visuals(this.model)
@@ -211,7 +211,7 @@ export abstract class GlyphView extends View {
       for (const k in data) {
         const v = data[k]
         if (k.charAt(0) === '_')
-          data_subset[k] = indices.map((i) => v[i])
+          data_subset[k] = indices.map((i) => (v as any)[i])
         else
           data_subset[k] = v
       }

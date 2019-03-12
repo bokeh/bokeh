@@ -35,10 +35,10 @@ export class GMapPlotView extends PlotView {
   private map: google.maps.Map
   protected map_types: any
 
-  initialize(options: any): void {
+  initialize(): void {
     this.pause()
 
-    super.initialize(options)
+    super.initialize()
 
     this._tiles_loaded = false
     this.zoom_count = 0

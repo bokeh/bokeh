@@ -12,8 +12,8 @@ export class LassoSelectToolView extends SelectToolView {
 
   protected data: {sx: number[], sy: number[]} | null
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.data = null
   }
 

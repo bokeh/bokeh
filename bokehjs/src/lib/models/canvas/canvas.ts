@@ -42,8 +42,8 @@ export class CanvasView extends DOMView {
   events_el: HTMLElement
   map_el: HTMLElement | null
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
 
     this.map_el = this.model.map ? this.el.appendChild(div({class: "bk-canvas-map"})) : null
 

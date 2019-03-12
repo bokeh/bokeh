@@ -9,8 +9,8 @@ export class LabelView extends TextAnnotationView {
   model: Label
   visuals: Label.Visuals
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.visuals.warm_cache()
   }
 

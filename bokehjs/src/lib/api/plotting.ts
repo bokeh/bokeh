@@ -2,7 +2,7 @@ import {Document} from "../document"
 import * as embed from "../embed"
 import * as models from "./models"
 import {HasProps} from "../core/has_props"
-import {Omit, Color} from "../core/types"
+import {Omit, Color, Data, Attrs} from "../core/types"
 import {Value, Field, Vector} from "../core/vectorization"
 import {VectorSpec, ScalarSpec, Property} from "../core/properties"
 import {Class} from "../core/class"
@@ -264,7 +264,7 @@ export class Figure extends Plot {
     start_angle: AnnularWedgeArgs["start_angle"],
     end_angle: AnnularWedgeArgs["end_angle"],
     args?: Partial<AnnularWedgeArgs>): GlyphRenderer
-  annular_wedge(...args: any[]): GlyphRenderer {
+  annular_wedge(...args: unknown[]): GlyphRenderer {
     return this._glyph(models.AnnularWedge, "x,y,inner_radius,outer_radius,start_angle,end_angle", args)
   }
 
@@ -275,7 +275,7 @@ export class Figure extends Plot {
     inner_radius: AnnulusArgs["inner_radius"],
     outer_radius: AnnulusArgs["outer_radius"],
     args?: Partial<AnnulusArgs>): GlyphRenderer
-  annulus(...args: any[]): GlyphRenderer {
+  annulus(...args: unknown[]): GlyphRenderer {
     return this._glyph(models.Annulus, "x,y,inner_radius,outer_radius", args)
   }
 
@@ -287,7 +287,7 @@ export class Figure extends Plot {
     start_angle: ArcArgs["start_angle"],
     end_angle: ArcArgs["end_angle"],
     args?: Partial<ArcArgs>): GlyphRenderer
-  arc(...args: any[]): GlyphRenderer {
+  arc(...args: unknown[]): GlyphRenderer {
     return this._glyph(models.Arc, "x,y,radius,start_angle,end_angle", args)
   }
 
@@ -302,7 +302,7 @@ export class Figure extends Plot {
     cx1: BezierArgs["cx1"],
     cy1: BezierArgs["cy1"],
     args?: Partial<BezierArgs>): GlyphRenderer
-  bezier(...args: any[]): GlyphRenderer {
+  bezier(...args: unknown[]): GlyphRenderer {
     return this._glyph(models.Bezier, "x0,y0,x1,y1,cx0,cy0,cx1,cy1", args)
   }
 
@@ -311,7 +311,7 @@ export class Figure extends Plot {
     x: CircleArgs["x"],
     y: CircleArgs["y"],
     args?: Partial<CircleArgs>): GlyphRenderer
-  circle(...args: any[]): GlyphRenderer {
+  circle(...args: unknown[]): GlyphRenderer {
     return this._glyph(models.Circle, "x,y", args)
   }
 
@@ -322,7 +322,7 @@ export class Figure extends Plot {
     width: EllipseArgs["width"],
     height: EllipseArgs["height"],
     args?: Partial<EllipseArgs>): GlyphRenderer
-  ellipse(...args: any[]): GlyphRenderer {
+  ellipse(...args: unknown[]): GlyphRenderer {
     return this._glyph(models.Ellipse, "x,y,width,height", args)
   }
 
@@ -333,7 +333,7 @@ export class Figure extends Plot {
     right: HBarArgs["right"],
     left: HBarArgs["left"],
     args?: Partial<HBarArgs>): GlyphRenderer
-  hbar(...args: any[]): GlyphRenderer {
+  hbar(...args: unknown[]): GlyphRenderer {
     return this._glyph(models.HBar, "y,height,right,left", args)
   }
 
@@ -342,7 +342,7 @@ export class Figure extends Plot {
     q: HexTileArgs["q"],
     r: HexTileArgs["r"],
     args?: Partial<HexTileArgs>): GlyphRenderer
-  hex_tile(...args: any[]): GlyphRenderer {
+  hex_tile(...args: unknown[]): GlyphRenderer {
     return this._glyph(models.HexTile, "q,r", args)
   }
 
@@ -354,7 +354,7 @@ export class Figure extends Plot {
     dw: ImageArgs["dw"],
     dh: ImageArgs["dh"],
     args?: Partial<ImageArgs>): GlyphRenderer
-  image(...args: any[]): GlyphRenderer {
+  image(...args: unknown[]): GlyphRenderer {
     return this._glyph(models.Image, "color_mapper,image,rows,cols,x,y,dw,dh", args)
   }
 
@@ -366,7 +366,7 @@ export class Figure extends Plot {
     dw: ImageRGBAArgs["dw"],
     dh: ImageRGBAArgs["dh"],
     args?: Partial<ImageRGBAArgs>): GlyphRenderer
-  image_rgba(...args: any[]): GlyphRenderer {
+  image_rgba(...args: unknown[]): GlyphRenderer {
     return this._glyph(models.ImageRGBA, "image,rows,cols,x,y,dw,dh", args)
   }
 
@@ -378,7 +378,7 @@ export class Figure extends Plot {
     w: ImageURLArgs["w"],
     h: ImageURLArgs["h"],
     args?: Partial<ImageURLArgs>): GlyphRenderer
-  image_url(...args: any[]): GlyphRenderer {
+  image_url(...args: unknown[]): GlyphRenderer {
     return this._glyph(models.ImageURL, "url,x,y,w,h", args)
   }
 
@@ -387,7 +387,7 @@ export class Figure extends Plot {
     x: LineArgs["x"],
     y: LineArgs["y"],
     args?: Partial<LineArgs>): GlyphRenderer
-  line(...args: any[]): GlyphRenderer {
+  line(...args: unknown[]): GlyphRenderer {
     return this._glyph(models.Line, "x,y", args)
   }
 
@@ -396,7 +396,7 @@ export class Figure extends Plot {
     xs: MultiLineArgs["xs"],
     ys: MultiLineArgs["ys"],
     args?: Partial<MultiLineArgs>): GlyphRenderer
-  multi_line(...args: any[]): GlyphRenderer {
+  multi_line(...args: unknown[]): GlyphRenderer {
     return this._glyph(models.MultiLine, "xs,ys", args)
   }
 
@@ -405,7 +405,7 @@ export class Figure extends Plot {
     xs: MultiPolygonsArgs["xs"],
     ys: MultiPolygonsArgs["ys"],
     args?: Partial<MultiPolygonsArgs>): GlyphRenderer
-  multi_polygons(...args: any[]): GlyphRenderer {
+  multi_polygons(...args: unknown[]): GlyphRenderer {
     return this._glyph(models.MultiPolygons,"xs,ys", args)
   }
 
@@ -416,7 +416,7 @@ export class Figure extends Plot {
     width: OvalArgs["width"],
     height: OvalArgs["height"],
     args?: Partial<OvalArgs>): GlyphRenderer
-  oval(...args: any[]): GlyphRenderer {
+  oval(...args: unknown[]): GlyphRenderer {
     return this._glyph(models.Oval, "x,y,width,height", args)
   }
 
@@ -425,7 +425,7 @@ export class Figure extends Plot {
     x: PatchArgs["x"],
     y: PatchArgs["y"],
     args?: Partial<PatchArgs>): GlyphRenderer
-  patch(...args: any[]): GlyphRenderer {
+  patch(...args: unknown[]): GlyphRenderer {
     return this._glyph(models.Patch, "x,y", args)
   }
 
@@ -434,7 +434,7 @@ export class Figure extends Plot {
     xs: PatchesArgs["xs"],
     ys: PatchesArgs["ys"],
     args?: Partial<PatchesArgs>): GlyphRenderer
-  patches(...args: any[]): GlyphRenderer {
+  patches(...args: unknown[]): GlyphRenderer {
     return this._glyph(models.Patches, "xs,ys", args)
   }
 
@@ -445,7 +445,7 @@ export class Figure extends Plot {
     bottom: QuadArgs["bottom"],
     top: QuadArgs["top"],
     args?: Partial<QuadArgs>): GlyphRenderer
-  quad(...args: any[]): GlyphRenderer {
+  quad(...args: unknown[]): GlyphRenderer {
     return this._glyph(models.Quad, "left,right,bottom,top", args)
   }
 
@@ -458,7 +458,7 @@ export class Figure extends Plot {
     cx: QuadraticArgs["cx"],
     cy: QuadraticArgs["cy"],
     args?: Partial<QuadraticArgs>): GlyphRenderer
-  quadratic(...args: any[]): GlyphRenderer {
+  quadratic(...args: unknown[]): GlyphRenderer {
     return this._glyph(models.Quadratic, "x0,y0,x1,y1,cx,cy", args)
   }
 
@@ -468,7 +468,7 @@ export class Figure extends Plot {
     y: RayArgs["y"],
     length: RayArgs["length"],
     args?: Partial<RayArgs>): GlyphRenderer
-  ray(...args: any[]): GlyphRenderer {
+  ray(...args: unknown[]): GlyphRenderer {
     return this._glyph(models.Ray, "x,y,length", args)
   }
 
@@ -479,7 +479,7 @@ export class Figure extends Plot {
     width: RectArgs["width"],
     height: RectArgs["height"],
     args?: Partial<RectArgs>): GlyphRenderer
-  rect(...args: any[]): GlyphRenderer {
+  rect(...args: unknown[]): GlyphRenderer {
     return this._glyph(models.Rect, "x,y,width,height", args)
   }
 
@@ -490,7 +490,7 @@ export class Figure extends Plot {
     x1: SegmentArgs["x1"],
     y1: SegmentArgs["y1"],
     args?: Partial<SegmentArgs>): GlyphRenderer
-  segment(...args: any[]): GlyphRenderer {
+  segment(...args: unknown[]): GlyphRenderer {
     return this._glyph(models.Segment, "x0,y0,x1,y1", args)
   }
 
@@ -500,7 +500,7 @@ export class Figure extends Plot {
     y: StepArgs["y"],
     mode: StepArgs["mode"],
     args?: Partial<StepArgs>): GlyphRenderer
-  step(...args: any[]): GlyphRenderer {
+  step(...args: unknown[]): GlyphRenderer {
     return this._glyph(models.Step, "x,y,mode", args)
   }
 
@@ -510,7 +510,7 @@ export class Figure extends Plot {
     y: TextArgs["y"],
     text: TextArgs["text"],
     args?: Partial<TextArgs>): GlyphRenderer
-  text(...args: any[]): GlyphRenderer {
+  text(...args: unknown[]): GlyphRenderer {
     return this._glyph(models.Text, "x,y,text", args)
   }
 
@@ -521,7 +521,7 @@ export class Figure extends Plot {
     top: VBarArgs["top"],
     bottom: VBarArgs["bottom"],
     args?: Partial<VBarArgs>): GlyphRenderer
-  vbar(...args: any[]): GlyphRenderer {
+  vbar(...args: unknown[]): GlyphRenderer {
     return this._glyph(models.VBar, "x,width,top,bottom", args)
   }
 
@@ -533,105 +533,105 @@ export class Figure extends Plot {
     start_angle: WedgeArgs["start_angle"],
     end_angle: WedgeArgs["end_angle"],
     args?: Partial<WedgeArgs>): GlyphRenderer
-  wedge(...args: any[]): GlyphRenderer {
+  wedge(...args: unknown[]): GlyphRenderer {
     return this._glyph(models.Wedge, "x,y,radius,start_angle,end_angle", args)
   }
 
   asterisk(args: Partial<MarkerArgs>): GlyphRenderer
   asterisk(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  asterisk(...args: any[]): GlyphRenderer {
+  asterisk(...args: unknown[]): GlyphRenderer {
     return this._marker(models.Asterisk, args)
   }
 
   circle_cross(args: Partial<MarkerArgs>): GlyphRenderer
   circle_cross(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  circle_cross(...args: any[]): GlyphRenderer {
+  circle_cross(...args: unknown[]): GlyphRenderer {
     return this._marker(models.CircleCross, args)
   }
 
   circle_x(args: Partial<MarkerArgs>): GlyphRenderer
   circle_x(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  circle_x(...args: any[]): GlyphRenderer {
+  circle_x(...args: unknown[]): GlyphRenderer {
     return this._marker(models.CircleX, args)
   }
 
   cross(args: Partial<MarkerArgs>): GlyphRenderer
   cross(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  cross(...args: any[]): GlyphRenderer {
+  cross(...args: unknown[]): GlyphRenderer {
     return this._marker(models.Cross, args)
   }
 
   dash(args: Partial<MarkerArgs>): GlyphRenderer
   dash(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  dash(...args: any[]): GlyphRenderer {
+  dash(...args: unknown[]): GlyphRenderer {
     return this._marker(models.Dash, args)
   }
 
   diamond(args: Partial<MarkerArgs>): GlyphRenderer
   diamond(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  diamond(...args: any[]): GlyphRenderer {
+  diamond(...args: unknown[]): GlyphRenderer {
     return this._marker(models.Diamond, args)
   }
 
   diamond_cross(args: Partial<MarkerArgs>): GlyphRenderer
   diamond_cross(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  diamond_cross(...args: any[]): GlyphRenderer {
+  diamond_cross(...args: unknown[]): GlyphRenderer {
     return this._marker(models.DiamondCross, args)
   }
 
   inverted_triangle(args: Partial<MarkerArgs>): GlyphRenderer
   inverted_triangle(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  inverted_triangle(...args: any[]): GlyphRenderer {
+  inverted_triangle(...args: unknown[]): GlyphRenderer {
     return this._marker(models.InvertedTriangle, args)
   }
 
   square(args: Partial<MarkerArgs>): GlyphRenderer
   square(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  square(...args: any[]): GlyphRenderer {
+  square(...args: unknown[]): GlyphRenderer {
     return this._marker(models.Square, args)
   }
 
   square_cross(args: Partial<MarkerArgs>): GlyphRenderer
   square_cross(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  square_cross(...args: any[]): GlyphRenderer {
+  square_cross(...args: unknown[]): GlyphRenderer {
     return this._marker(models.SquareCross, args)
   }
 
   square_x(args: Partial<MarkerArgs>): GlyphRenderer
   square_x(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  square_x(...args: any[]): GlyphRenderer {
+  square_x(...args: unknown[]): GlyphRenderer {
     return this._marker(models.SquareX, args)
   }
 
   triangle(args: Partial<MarkerArgs>): GlyphRenderer
   triangle(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  triangle(...args: any[]): GlyphRenderer {
+  triangle(...args: unknown[]): GlyphRenderer {
     return this._marker(models.Triangle, args)
   }
 
   x(args: Partial<MarkerArgs>): GlyphRenderer
   x(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): GlyphRenderer
-  x(...args: any[]): GlyphRenderer {
+  x(...args: unknown[]): GlyphRenderer {
     return this._marker(models.X, args)
   }
 
   scatter(args: Partial<ScatterArgs>): GlyphRenderer
   scatter(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<ScatterArgs>): GlyphRenderer
-  scatter(...args: any[]): GlyphRenderer {
+  scatter(...args: unknown[]): GlyphRenderer {
     return this._marker(models.Scatter, args)
   }
 
-  _pop_colors_and_alpha(cls: Class<HasProps>, attrs: {[key: string]: any}, prefix: string = "",
-                        default_color: string = _default_color, default_alpha: number = _default_alpha): {[key: string]: any} {
-    const result: {[key: string]: any} = {}
+  _pop_colors_and_alpha(cls: Class<HasProps>, attrs: Attrs, prefix: string = "",
+                        default_color: Color = _default_color, default_alpha: number = _default_alpha): Attrs {
+    const result: Attrs = {}
 
-    const color = _with_default(attrs[prefix + "color"], default_color)
-    const alpha = _with_default(attrs[prefix + "alpha"], default_alpha)
+    const color = _with_default(attrs[prefix + "color"] as any, default_color)
+    const alpha = _with_default(attrs[prefix + "alpha"] as any, default_alpha)
 
     delete attrs[prefix + "color"]
     delete attrs[prefix + "alpha"]
 
-    const _update_with = function(name: string, default_value: any): void {
+    const _update_with = function(name: string, default_value: unknown): void {
       if (cls.prototype.props[name] != null) {
         result[name] = _with_default(attrs[prefix + name], default_value)
         delete attrs[prefix + name]
@@ -649,7 +649,7 @@ export class Figure extends Plot {
     return result
   }
 
-  _find_uniq_name(data: {[key: string]: any[]}, name: string): string {
+  _find_uniq_name(data: Data, name: string): string {
     let i = 1
     while (true) {
       const new_name = `${name}__${i}`
@@ -661,7 +661,7 @@ export class Figure extends Plot {
     }
   }
 
-  _fixup_values(cls: Class<HasProps>, data: {[key: string]: any}, attrs: {[key: string]: any}): void {
+  _fixup_values(cls: Class<HasProps>, data: Data, attrs: Attrs): void {
     for (const name in attrs) {
       const value = attrs[name]
       const prop = cls.prototype.props[name]
@@ -693,16 +693,16 @@ export class Figure extends Plot {
     }
   }
 
-  _glyph(cls: Class<Glyph>, params_string: string, args: any[]): GlyphRenderer {
+  _glyph(cls: Class<Glyph>, params_string: string, args: unknown[]): GlyphRenderer {
     const params = params_string.split(",")
 
-    let attrs: {[key: string]: any}
+    let attrs: Attrs
     if (args.length == 0) {
       attrs = {}
     } else if (args.length == 1) {
-      attrs = clone(args[0])
+      attrs = clone(args[0] as Attrs)
     } else {
-      attrs = clone(args[args.length - 1])
+      attrs = clone(args[args.length - 1] as Attrs)
 
       for (let i = 0; i < params.length; i++) {
         const param = params[i]
@@ -710,7 +710,11 @@ export class Figure extends Plot {
       }
     }
 
-    const legend = this._process_legend(attrs.legend, attrs.source)
+    const source = attrs.source != null ? (attrs.source as AuxGlyph["source"]) : new models.ColumnDataSource()
+    const data = clone(source.data)
+    delete attrs.source
+
+    const legend = this._process_legend(attrs.legend as AuxGlyph["legend"], source)
     delete attrs.legend
 
     const has_sglyph = some(Object.keys(attrs), key => startsWith(key, "selection_"))
@@ -721,10 +725,6 @@ export class Figure extends Plot {
     const sglyph_ca  = has_sglyph ? this._pop_colors_and_alpha(cls, attrs, "selection_") : {}
     const hglyph_ca  = has_hglyph ? this._pop_colors_and_alpha(cls, attrs, "hover_") : {}
 
-    const source = attrs.source != null ? attrs.source : new models.ColumnDataSource()
-    const data = clone(source.data)
-    delete attrs.source
-
     this._fixup_values(cls, data,   glyph_ca)
     this._fixup_values(cls, data, nsglyph_ca)
     this._fixup_values(cls, data,  sglyph_ca)
@@ -734,7 +734,7 @@ export class Figure extends Plot {
 
     source.data = data
 
-    const _make_glyph = (cls: Class<Glyph>, attrs: any, extra_attrs: any) => {
+    const _make_glyph = (cls: Class<Glyph>, attrs: Attrs, extra_attrs: Attrs) => {
       return new cls({...attrs, ...extra_attrs})
     }
 
@@ -759,7 +759,7 @@ export class Figure extends Plot {
     return glyph_renderer
   }
 
-  _marker(cls: Class<Marker>, args: any[]): GlyphRenderer {
+  _marker(cls: Class<Marker>, args: unknown[]): GlyphRenderer {
     return this._glyph(cls, "x,y", args)
   }
 
@@ -903,7 +903,7 @@ export class Figure extends Plot {
     if (legend != null) {
       if (isString(legend)) {
         legend_item_label = { value: legend }
-        if ((source != null) && (source.columns() != null)) {
+        if (source.columns() != null) {
           if (includes(source.columns(), legend)) {
             legend_item_label = { field: legend }
           }

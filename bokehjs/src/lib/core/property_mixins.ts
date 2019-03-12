@@ -1,5 +1,5 @@
 import * as p from "./properties"
-import {Color} from "./types"
+import {Attrs, Color} from "./types"
 import {extend} from "./util/object"
 import {LineJoin, LineCap, FontStyle, TextAlign, TextBaseline} from "./enums"
 
@@ -81,8 +81,8 @@ export type TextVector = {
   text_line_height: p.ScalarSpec<number>
 }
 
-function _gen_mixin(mixin: {[key: string]: any}, prefix: string) {
-  const result: {[key: string]: any} = {}
+function _gen_mixin(mixin: Attrs, prefix: string): Attrs {
+  const result: Attrs = {}
   for (const name in mixin) {
     const prop = mixin[name]
     result[prefix + name] = prop
@@ -122,8 +122,8 @@ const _text_mixin = {
 
 export const text = (prefix: string = "") => _gen_mixin(_text_mixin, prefix)
 
-export function create(configs: string[]) {
-  const result: {[key: string]: any} = {}
+export function create(configs: string[]): Attrs {
+  const result: Attrs = {}
 
   for (const config of configs) {
     const [kind, prefix] = config.split(":")

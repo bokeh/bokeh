@@ -151,7 +151,7 @@ export class PlotView extends LayoutDOMView {
 
   force_paint: Signal0<this>
   state_changed: Signal0<this>
-  visibility_callbacks: Function[]
+  visibility_callbacks: ((visible: boolean) => void)[]
 
   protected _is_paused?: number
 
@@ -238,10 +238,10 @@ export class PlotView extends LayoutDOMView {
     this.canvas_view.render()
   }
 
-  initialize(options: PlotView.Options): void {
+  initialize(): void {
     this.pause()
 
-    super.initialize(options)
+    super.initialize()
 
     this.force_paint = new Signal0(this, "force_paint")
     this.state_changed = new Signal0(this, "state_changed")
@@ -452,8 +452,9 @@ export class PlotView extends LayoutDOMView {
     this.canvas_view.el.style.cursor = cursor
   }
 
-  set_toolbar_visibility(visible: boolean = true): void {
-    this.visibility_callbacks.forEach((value) => value(visible))
+  set_toolbar_visibility(visible: boolean): void {
+    for (const callback of this.visibility_callbacks)
+      callback(visible)
   }
 
   init_webgl(): void {

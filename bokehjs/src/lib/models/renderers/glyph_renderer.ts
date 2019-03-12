@@ -56,8 +56,8 @@ export class GlyphRendererView extends DataRendererView {
   set_data_timestamp: number
   protected last_dtrender: number
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
 
     const base_glyph = this.model.glyph
     const has_fill = includes(base_glyph.mixins, "fill")

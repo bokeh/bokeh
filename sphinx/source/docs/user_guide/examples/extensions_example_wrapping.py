@@ -57,8 +57,8 @@ export class Surface3dView extends LayoutDOMView {
 
   private _graph: vis.Graph3d
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
 
     const url = "https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis.min.js"
     const script = document.createElement("script")

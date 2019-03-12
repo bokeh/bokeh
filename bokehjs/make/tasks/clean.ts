@@ -1,4 +1,4 @@
-import * as del from "del"
+import del from "del"
 
 import {task} from "../task"
 import {build_dir} from "../paths"

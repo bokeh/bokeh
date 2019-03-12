@@ -21,8 +21,8 @@ export class LabelSetView extends TextAnnotationView {
   protected _x_offset: Arrayable<number>
   protected _y_offset: Arrayable<number>
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
 
     this.set_data(this.model.source)
 

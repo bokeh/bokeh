@@ -21,8 +21,8 @@ export function compute_side(attachment: TooltipAttachment, sx: number, sy: numb
 export class TooltipView extends AnnotationView {
   model: Tooltip
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     // TODO (bev) really probably need multiple divs
     this.plot_view.canvas_overlays.appendChild(this.el)
     undisplay(this.el)

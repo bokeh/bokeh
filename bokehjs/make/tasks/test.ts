@@ -25,10 +25,10 @@ function mocha(files: string[]): Promise<void> {
     args.unshift("--inspect-brk")
 
   if (argv.k)
-    args.push("--grep", argv.k)
+    args.push("--grep", argv.k as string)
 
   args = args.concat(
-    ["--reporter", argv.reporter || "spec"],
+    ["--reporter", (argv.reporter as string | undefined) || "spec"],
     ["--slow", "5s"],
     ["--exit"],
     ["./build/test/index.js"],
@@ -40,7 +40,7 @@ function mocha(files: string[]): Promise<void> {
     NODE_PATH: paths.build_dir.lib,
   }
 
-  const proc = spawn(process.execPath, args, {stdio: 'inherit', env: env})
+  const proc = spawn(process.execPath, args, {stdio: 'inherit', env})
 
   process.once('exit',    () => proc.kill())
   process.once("SIGINT",  () => proc.kill("SIGINT"))
