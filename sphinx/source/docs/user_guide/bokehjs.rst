@@ -1,6 +1,5 @@
 .. _userguide_bokehjs:
 
-.. bokehjs-preamble::
 
 
 Developing with JavaScript
@@ -15,6 +14,8 @@ without needing to explicitly worry about JavaScript or web development.
 However, BokehJS has its own API, and it is possible to do pure JavaScript
 development using BokehJS directly. Additionally, :ref:`userguide_extensions`
 with custom models typically requires interacting with BokehJS directly as well.
+
+.. bokehjs-preamble::
 
 .. warning::
     The BokehJS APIs are new as of version ``0.12`` and may undergo some
