@@ -41,10 +41,10 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def silence(warning, silence=True):
-    ''' Silence warning on all Bokeh models.
+    ''' Silence a particular warning on all Bokeh models.
 
     Args:
-        warning (Warning) : Warning to silence
+        warning (Warning) : Bokeh warning to silence
         silence (bool) : Whether or not to silence the warning
 
     Returns:
@@ -55,13 +55,18 @@ def silence(warning, silence=True):
     is added to the silencers - then it will never be raised.
 
     .. code-block:: python
+
         >>> from bokeh.core.validation.warnings import EMPTY_LAYOUT
-        >>> silence(EMPTY_LAYOUT, True)
+        >>> bokeh.core.validation.silence(EMPTY_LAYOUT, True)
         {1002}
 
-        >>> empty_row = Row
+    To turn a warning back on use the same method but with the silence
+    argument set to false
 
-        >>> check_integrity([empty_row])
+    .. code-block:: python
+
+        >>> bokeh.core.validation.silence(EMPTY_LAYOUT, False)
+        set()
 
     '''
     if not isinstance(warning, int):
