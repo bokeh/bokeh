@@ -29,14 +29,55 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
+__silencers__ = set()
 
 __all__ = (
     'check_integrity',
+    'silence'
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+def silence(warning, silence=True):
+    ''' Silence a particular warning on all Bokeh models.
+
+    Args:
+        warning (Warning) : Bokeh warning to silence
+        silence (bool) : Whether or not to silence the warning
+
+    Returns:
+        A set containing the all silenced warnings
+
+    This function adds or removes warnings from a set of silencers which
+    is refered to when running ``check_integrity``. If a warning
+    is added to the silencers - then it will never be raised.
+
+    .. code-block:: python
+
+        >>> from bokeh.core.validation.warnings import EMPTY_LAYOUT
+        >>> bokeh.core.validation.silence(EMPTY_LAYOUT, True)
+        {1002}
+
+    To turn a warning back on use the same method but with the silence
+    argument set to false
+
+    .. code-block:: python
+
+        >>> bokeh.core.validation.silence(EMPTY_LAYOUT, False)
+        set()
+
+    '''
+    if not isinstance(warning, int):
+        raise ValueError('Input to silence should be a warning object '
+                         '- not of type {}'.format(type(warning)))
+    if silence:
+        __silencers__.add(warning)
+    elif warning in __silencers__:
+        __silencers__.remove(warning)
+    return __silencers__
+
 
 def check_integrity(models):
     ''' Apply validation and integrity checks to a collection of Bokeh models.
@@ -75,7 +116,9 @@ def check_integrity(models):
         log.error("E-%d (%s): %s: %s" % msg)
 
     for msg in sorted(messages['warning']):
-        log.warning("W-%d (%s): %s: %s" % msg)
+        code, name, desc, obj = msg
+        if code not in __silencers__:
+            log.warning("W-%d (%s): %s: %s" % msg)
 
     # This will be turned on in a future release
     # if len(messages['error']) or (len(messages['warning']) and settings.strict()):

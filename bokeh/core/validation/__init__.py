@@ -22,6 +22,18 @@ To assist with diagnosing potential problems, Bokeh performs a validation step
 when outputting a visualization for display. This module contains error and
 warning codes as well as helper functions for defining validation checks.
 
+One use case for warnings is to loudly point users in the right direction
+when they accidentally do something that they probably didn't mean to do - this
+is the case for EMPTY_LAYOUT for instance. Since warnings don't necessarily
+indicate misuse, they are configurable. To silence a warning, use the silence
+function provided.
+
+.. code-block:: python
+
+    >>> from bokeh.core.validation import silence
+    >>> from bokeh.core.validation.warnings import EMPTY_LAYOUT
+    >>> silence(EMPTY_LAYOUT, True)
+
 '''
 
 #-----------------------------------------------------------------------------
@@ -41,7 +53,7 @@ log = logging.getLogger(__name__)
 # External imports
 
 # Bokeh imports
-from .check import check_integrity
+from .check import check_integrity, silence
 from .decorators import error, warning
 
 #-----------------------------------------------------------------------------

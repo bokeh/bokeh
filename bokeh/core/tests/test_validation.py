@@ -126,6 +126,70 @@ def test_check_warn(mock_warn, mock_error):
     assert not mock_error.called
     assert mock_warn.called
 
+@patch('bokeh.core.validation.check.log.error')
+@patch('bokeh.core.validation.check.log.warning')
+def test_silence_and_check_warn(mock_warn, mock_error):
+    from bokeh.core.validation.warnings import EXT
+    m = Mod(foo=-10)
+    try:
+        v.silence(EXT)  # turn the warning off
+        v.check_integrity([m])
+        assert not mock_error.called
+        assert not mock_warn.called
+    finally:
+        v.silence(EXT, False)  # turn the warning back on
+        v.check_integrity([m])
+        assert not mock_error.called
+        assert mock_warn.called
+
+@patch('bokeh.core.validation.check.log.error')
+@patch('bokeh.core.validation.check.log.warning')
+def test_silence_with_bad_input_and_check_warn(mock_warn, mock_error):
+    m = Mod(foo=-10)
+    with pytest.raises(ValueError, match=('Input to silence should be a '
+                                          'warning object')):
+        v.silence('EXT:W')
+    v.check_integrity([m])
+    assert not mock_error.called
+    assert mock_warn.called
+
+@patch('bokeh.core.validation.check.log.error')
+@patch('bokeh.core.validation.check.log.warning')
+def test_silence_warning_already_in_silencers_is_ok(mock_warn, mock_error):
+    from bokeh.core.validation.warnings import EXT
+    m = Mod(foo=-10)
+    try:
+        silencers0= v.silence(EXT)  # turn the warning off
+        silencers1 = v.silence(EXT)  # do it a second time - no-op
+        assert len(silencers0) == 1
+        assert silencers0 == silencers1  # silencers is same as before
+
+        v.check_integrity([m])
+        assert not mock_error.called
+        assert not mock_warn.called
+    finally:
+        v.silence(EXT, False)  # turn the warning back on
+        v.check_integrity([m])
+        assert not mock_error.called
+        assert mock_warn.called
+
+@patch('bokeh.core.validation.check.log.error')
+@patch('bokeh.core.validation.check.log.warning')
+def test_silence_remove_warning_that_is_not_in_silencers_is_ok(mock_warn, mock_error):
+    from bokeh.core.validation.warnings import EXT
+    m = Mod(foo=-10)
+
+    silencers0 = v.silence(EXT)  # turn the warning off
+    assert len(silencers0) == 1
+
+    silencers1 = v.silence(EXT, False)  # turn the warning back on
+    silencers2 = v.silence(EXT, False)  # do it a second time - no-op
+    assert len(silencers1) == 0
+    assert silencers1 == silencers2
+
+    v.check_integrity([m])
+    assert not mock_error.called
+    assert mock_warn.called
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
