@@ -101,7 +101,7 @@ class Test_factor_cmap(object):
         assert t['transform'].palette == ["red", "green"]
         assert t['transform'].factors == ["foo", "bar"]
         assert t['transform'].start == 1
-        assert t['transform'].end is 2
+        assert t['transform'].end == 2
         assert t['transform'].nan_color == "pink"
 
     def test_defaults(self):

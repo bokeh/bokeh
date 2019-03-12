@@ -44,7 +44,7 @@ def test_js_callback():
 
     cb = CustomJS(code="foo();", args=dict(x=3))
     assert 'foo()' in cb.code
-    assert cb.args['x'] is 3
+    assert cb.args['x'] == 3
 
     with raises(AttributeError):  # kwargs not supported
         CustomJS(code="foo();", x=slider)
@@ -64,7 +64,7 @@ def test_py_callback():
         foo()
     cb = CustomJS.from_py_func(cb)
     assert 'foo()' in cb.code
-    assert cb.args['x'] is 4
+    assert cb.args['x'] == 4
 
 #-----------------------------------------------------------------------------
 # Dev API
