@@ -31,6 +31,30 @@ export abstract class ContinuousColorMapper extends ColorMapper {
     })
   }
 
+  protected abstract scan<T>(data: Arrayable<number>, palette: Arrayable<T>): unknown
+
+  protected _v_compute<T>(data: Arrayable<number>, values: Arrayable<T>,
+    palette: Arrayable<T>, colors: {nan_color: T, low_color?: T, high_color?: T}): void {
+
+    const {nan_color} = colors
+    let {low_color, high_color} = colors
+    if (low_color == null)
+      low_color = palette[0]
+    if (high_color == null)
+      high_color = palette[palette.length-1]
+
+    const scan_data = this.scan(data, palette)
+
+    for (let i = 0, end = data.length; i < end; i++) {
+      const d = data[i]
+
+      if (isNaN(d))
+        values[i] = nan_color
+      else
+        values[i] = this.cmap(d, palette, low_color, high_color, scan_data)
+    }
+  }
+
   protected _colors<T>(conv: (c: Color) => T): {nan_color: T, low_color?: T, high_color?: T} {
     return {
       ...super._colors(conv),
@@ -39,6 +63,5 @@ export abstract class ContinuousColorMapper extends ColorMapper {
     }
   }
 
-  protected abstract _v_compute<T>(data: Arrayable<number>, values: Arrayable<T>,
-    palette: Arrayable<T>, colors: {nan_color: T, low_color?: T, high_color?: T}): void
+  protected abstract cmap<T>(d: number, palette: Arrayable<T>, low_color: T, high_color: T, scan_data: any): T
 }

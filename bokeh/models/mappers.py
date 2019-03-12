@@ -55,6 +55,7 @@ __all__ = (
     'ContinuousColorMapper',
     'LinearColorMapper',
     'LogColorMapper',
+    'EqHistColorMapper'
 )
 
 #-----------------------------------------------------------------------------
@@ -245,6 +246,10 @@ class LogColorMapper(ContinuousColorMapper):
         non-negative.
 
     '''
+
+class EqHistColorMapper(ContinuousColorMapper):
+    bins = Int(default=256*256, help="Number of histogram bins")
+
 
 #-----------------------------------------------------------------------------
 # Dev API
