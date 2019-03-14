@@ -37,7 +37,7 @@ export class LogColorMapper extends ContinuousColorMapper {
     const low = this.low != null ? this.low : min(data)
     const high = this.high != null ? this.high : max(data)
     const scale = n / (log1p(high) - log1p(low))  // subtract the low offset
-        
+
     return {high, low, scale}
   }
 
@@ -54,19 +54,19 @@ export class LogColorMapper extends ContinuousColorMapper {
     if (d == scan_data.high) {
       return palette[max_key]
     }
-     
+
     if (d < scan_data.low) {
       return low_color != null ? low_color : palette[0]
     }
-     
+
      // Get the key
      const log = log1p(d) - log1p(scan_data.low)  // subtract the low offset
      let key = Math.floor(log * scan_data.scale)
-     
+
      // Deal with upper bound
      if (key > max_key) {
        key = max_key }
-     
+
      return palette[key]
   }
 }

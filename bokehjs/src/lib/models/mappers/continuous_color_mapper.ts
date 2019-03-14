@@ -46,7 +46,7 @@ export abstract class ContinuousColorMapper extends ColorMapper {
 
       if (isNaN(d))
         values[i] = nan_color
-      else 
+      else
         values[i] = this.cmap(d, palette, low_color, high_color, scan_data)
     }
   }

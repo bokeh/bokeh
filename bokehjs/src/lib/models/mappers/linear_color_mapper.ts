@@ -32,13 +32,13 @@ export class LinearColorMapper extends ContinuousColorMapper {
     protected scan<T>(data: Arrayable<number>, palette: Arrayable<T>) : LinearScanData {
     const low = this.low != null ? this.low : min(data)
     const high = this.high != null ? this.high : max(data)
- 
+
     const norm_factor = 1 / (high - low)
     const normed_interval = 1 / palette.length
- 
+
     return {high, low, norm_factor, normed_interval}
   }
-  
+
   protected cmap<T>(d : number,  palette: Arrayable<T>,  low_color: T,
                     high_color: T, scan_data: LinearScanData) : T {
     // This handles the edge case where d == high, since the code below maps
@@ -48,7 +48,7 @@ export class LinearColorMapper extends ContinuousColorMapper {
     if (d == scan_data.high) {
       return palette[max_key]
     }
- 
+
     const normed_d = (d - scan_data.low) * scan_data.norm_factor
     const key = Math.floor(normed_d / scan_data.normed_interval)
     if (key < 0)
