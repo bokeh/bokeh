@@ -52,14 +52,14 @@ export class LogColorMapper extends ContinuousColorMapper {
 
     if (d > scan_data.high) {
       return high_color != null ? high_color : palette[max_key]
-     }
-     else if (d == scan_data.high) {
-       return palette[max_key]
-     }
+    }
+    else if (d == scan_data.high) {
+      return palette[max_key]
+    }
      
-     if (d < scan_data.low) {
-       return low_color != null ? low_color : palette[0]
-     }
+    if (d < scan_data.low) {
+      return low_color != null ? low_color : palette[0]
+    }
      
      // Get the key
      const log = log1p(d) - log1p(scan_data.low)  // subtract the low offset
