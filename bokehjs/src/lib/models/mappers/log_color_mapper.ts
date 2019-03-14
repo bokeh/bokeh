@@ -33,6 +33,7 @@ export class LogColorMapper extends ContinuousColorMapper {
   }
 
   protected scan<T>(data: Arrayable<number>, palette: Arrayable<T>) : LogScanData {
+    const n = palette.length
     const low = this.low != null ? this.low : min(data)
     const high = this.high != null ? this.high : max(data)
     const scale = n / (log1p(high) - log1p(low))  // subtract the low offset
