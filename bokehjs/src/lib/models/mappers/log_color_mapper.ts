@@ -7,13 +7,11 @@ import * as p from "core/properties"
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/log1p.
 const log1p = Math.log1p != null ? Math.log1p : (x: number) => Math.log(1 + x)
 
-
 export interface LogScanData {
   high: number
   low: number
   scale: number
 }
-
 
 export namespace LogColorMapper {
   export type Attrs = p.AttrsOf<Props>
@@ -35,12 +33,11 @@ export class LogColorMapper extends ContinuousColorMapper {
   }
 
   protected scan<T>(data: Arrayable<number>, palette: Arrayable<T>) : LogScanData {
-    let n = palette.length
     const low = this.low != null ? this.low : min(data)
     const high = this.high != null ? this.high : max(data)
     const scale = n / (log1p(high) - log1p(low))  // subtract the low offset
         
-    return {high:high, low:low, scale:scale}
+    return {high, low, scale}
   }
 
   protected cmap<T>(d : number,  palette: Arrayable<T>,  low_color: T,
@@ -53,7 +50,7 @@ export class LogColorMapper extends ContinuousColorMapper {
     if (d > scan_data.high) {
       return high_color != null ? high_color : palette[max_key]
     }
-    else if (d == scan_data.high) {
+    if (d == scan_data.high) {
       return palette[max_key]
     }
      

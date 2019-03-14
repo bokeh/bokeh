@@ -16,7 +16,6 @@ export interface LinearScanData {
   normed_interval: number
 }
 
-
 export interface LinearColorMapper extends LinearColorMapper.Attrs {}
 
 export class LinearColorMapper extends ContinuousColorMapper {
@@ -37,9 +36,7 @@ export class LinearColorMapper extends ContinuousColorMapper {
     const norm_factor = 1 / (high - low)
     const normed_interval = 1 / palette.length
  
-    return {high:high, low:low,
-            norm_factor:norm_factor,
-            normed_interval:normed_interval}
+    return {high, low, norm_factor, normed_interval}
   }
   
   protected cmap<T>(d : number,  palette: Arrayable<T>,  low_color: T,
