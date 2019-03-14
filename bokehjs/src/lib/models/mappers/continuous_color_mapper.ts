@@ -45,10 +45,9 @@ export abstract class ContinuousColorMapper extends ColorMapper {
     for (let i = 0, end = data.length; i < end; i++) {
       const d = data[i]
 
-      if (isNaN(d)) {
+      if (isNaN(d))
         values[i] = nan_color
-        continue
-      }
+      else 
         values[i] = this.cmap(d, palette, low_color, high_color, scan_data)
     }
   }
