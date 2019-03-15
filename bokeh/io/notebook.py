@@ -259,7 +259,7 @@ def push_notebook(document=None, state=None, handle=None):
     events = list(handle.doc._held_events)
 
     # This is to avoid having an exception raised for attempting to create a
-    # PATCH-DOC with no events. In the notebook, we just want to silenty
+    # PATCH-DOC with no events. In the notebook, we just want to silently
     # ignore calls to push_notebook when there are no new events
     if len(events) == 0:
         return
@@ -431,7 +431,7 @@ def publish_display_data(*args, **kw):
     return publish_display_data(*args, **kw)
 
 def show_app(app, state, notebook_url, port=0, **kw):
-    ''' Embed a Bokeh serer application in a Jupyter Notebook output cell.
+    ''' Embed a Bokeh server application in a Jupyter Notebook output cell.
 
     Args:
         app (Application or callable) :
