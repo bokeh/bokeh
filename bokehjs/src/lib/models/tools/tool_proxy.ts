@@ -4,6 +4,7 @@ import {Signal0} from "core/signaling"
 import {Class} from "core/class"
 import {Model} from "../../model"
 import {ButtonTool, ButtonToolButtonView} from "./button_tool"
+import {InspectTool} from "./inspectors/inspect_tool"
 
 export namespace ToolProxy {
   export type Attrs = p.AttrsOf<Props>
@@ -60,6 +61,11 @@ export class ToolProxy extends Model {
 
   get computed_icon(): string {
     return this.icon
+  }
+
+  get toggleable(): boolean {
+    const tool = this.tools[0]
+    return tool instanceof InspectTool && tool.toggleable
   }
 
   initialize(): void {
