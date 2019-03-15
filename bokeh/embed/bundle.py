@@ -28,6 +28,8 @@ from warnings import warn
 # Bokeh imports
 from ..document.document import Document
 from ..resources import BaseResources
+from ..util.compiler import bundle_models
+from .wrappers import wrap_in_script_tag
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -90,6 +92,17 @@ def bundle_for_objs_and_resources(objs, resources):
     else:
         bokeh_js = None
 
+    models = [ obj.__class__ for obj in _all_objs(objs) ] if objs else None
+    custom_bundle = bundle_models(models)
+
+    if custom_bundle is not None:
+        custom_bundle = wrap_in_script_tag(custom_bundle)
+
+        if bokeh_js is not None:
+            bokeh_js += "\n" + custom_bundle
+        else:
+            bokeh_js = custom_bundle
+
     if css_resources:
         css_resources = deepcopy(css_resources)
         if not use_widgets and "bokeh-widgets" in css_resources.css_components:
@@ -105,6 +118,18 @@ def bundle_for_objs_and_resources(objs, resources):
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+def _all_objs(objs):
+    all_objs = set()
+
+    for obj in objs:
+        if isinstance(obj, Document):
+            for root in obj.roots:
+                all_objs |= root.references()
+        else:
+            all_objs |= obj.references()
+
+    return all_objs
 
 def _any(objs, query):
     ''' Whether any of a collection of objects satisfies a given query predicate

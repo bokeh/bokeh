@@ -410,7 +410,7 @@ def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout
 
     _NOTEBOOK_LOADED = resources
 
-    custom_models_js = bundle_all_models()
+    custom_models_js = bundle_all_models() or ""
 
     nb_js = _loading_js(resources, element_id, custom_models_js, load_timeout, register_mime=True)
     jl_js = _loading_js(resources, element_id, custom_models_js, load_timeout, register_mime=False)
