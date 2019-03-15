@@ -214,6 +214,10 @@ def test_inline_extension():
 
         __implementation__ = TypeScript(TS_CODE)
 
+    class TestFormatter2(TickFormatter):
+
+        __implementation__ = TypeScript("^") # invalid syntax on purpose
+
     p = figure()
     p.circle([1, 2, 3, 4, 6], [5, 7, 3, 2, 4])
     p.xaxis.formatter = TestFormatter()

@@ -88,7 +88,7 @@ def autoload_static(model, resources, script_path):
     with OutputDocumentFor(models):
         (docs_json, [render_item]) = standalone_docs_json_and_render_items([model])
 
-    bundle = bundle_all_models()
+    bundle = bundle_all_models() or ""
     script = script_for_render_items(docs_json, [render_item])
 
     (modelid, elementid) = list(render_item.roots.to_json().items())[0]
@@ -222,7 +222,7 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
     with OutputDocumentFor(models, apply_theme=theme):
         (docs_json, [render_item]) = standalone_docs_json_and_render_items(models)
 
-    script  = bundle_all_models()
+    script  = bundle_all_models() or ""
     script += script_for_render_items(docs_json, [render_item])
     if wrap_script:
         script = wrap_in_script_tag(script)

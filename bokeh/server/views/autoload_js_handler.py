@@ -73,7 +73,7 @@ class AutoloadJsHandler(SessionHandler):
             server_url = None
         resources = self.application.resources(server_url)
 
-        bundle = bundle_all_models()
+        bundle = bundle_all_models() or ""
 
         render_items = [RenderItem(sessionid=session.id, elementid=element_id, use_for_title=False)]
         script = script_for_render_items(None, render_items, app_path=app_path, absolute_url=absolute_url)

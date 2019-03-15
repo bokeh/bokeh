@@ -30,7 +30,6 @@ from ..core.json_encoder import serialize_json
 from ..core.templates import _env, DOC_JS, FILE, MACROS, PLOT_DIV
 from ..document.document import DEFAULT_TITLE
 from ..settings import settings
-from ..util.compiler import bundle_all_models
 from ..util.serialization import make_id
 from ..util.string import encode_utf8, escape
 from .wrappers import wrap_in_onload, wrap_in_safely, wrap_in_script_tag
@@ -101,9 +100,7 @@ def html_page_for_render_items(bundle, docs_json, render_items, title, template=
     json = escape(serialize_json(docs_json), quote=False)
     json = wrap_in_script_tag(json, "application/json", json_id)
 
-    script = bundle_all_models()
-    script += script_for_render_items(json_id, render_items)
-    script = wrap_in_script_tag(script)
+    script = wrap_in_script_tag(script_for_render_items(json_id, render_items))
 
     context = template_variables.copy()
 
