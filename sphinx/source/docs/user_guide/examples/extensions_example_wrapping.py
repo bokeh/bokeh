@@ -17,7 +17,7 @@ TS_CODE = """
 
 import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
 import {ColumnDataSource} from "models/sources/column_data_source"
-import {LayoutItem} from "core/layout/index"
+import {LayoutItem} from "core/layout"
 import * as p from "core/properties"
 
 declare namespace vis {

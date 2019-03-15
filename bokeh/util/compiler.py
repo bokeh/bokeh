@@ -597,7 +597,9 @@ def _bundle_models(custom_models):
                     extra_modules[sig] = True
                     modules.append((sig, code, deps_map))
             else:
-                raise RuntimeError("no such module: %s" % module)
+                index = module + ("" if module.endswith("/") else "/") + "index"
+                if index not in known_modules:
+                    raise RuntimeError("no such module: %s" % module)
 
         return resolved
 
