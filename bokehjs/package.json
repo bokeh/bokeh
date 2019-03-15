@@ -60,16 +60,16 @@
     "convert-source-map": "^1.6.0",
     "@types/convert-source-map": "^1.3.33",
     "request": "^2.88.0",
-    "spawn-sync": "^2.0.0"
-  },
-  "dependencies": {
+    "spawn-sync": "^2.0.0",
     "@types/geojson": "^7946.0.6",
     "@types/googlemaps": "^3.30.18",
     "@types/hammerjs": "^2.0.36",
     "@types/nouislider": "^9.0.4",
     "@types/pikaday": "^1.7.4",
     "@types/proj4": "^2.3.2",
-    "@types/sprintf-js": "^1.1.2",
+    "@types/sprintf-js": "^1.1.2"
+  },
+  "dependencies": {
     "tslib": "^1.9.3",
     "canvas2svg": "https://github.com/bokeh/canvas2svg#v1.0.21",
     "es6-promise": "4.2.6",

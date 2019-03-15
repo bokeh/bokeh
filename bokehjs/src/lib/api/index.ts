@@ -9,6 +9,6 @@ export {Plotting}
 
 export {Document} from "../document"
 
-export {sprintf} from "sprintf-js"
+export {sprintf} from "../core/util/templating"
 
 export * from "./models"

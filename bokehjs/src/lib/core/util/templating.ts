@@ -1,4 +1,4 @@
-import {sprintf} from "sprintf-js"
+import {sprintf as sprintf_js} from "sprintf-js"
 import * as Numbro from "numbro"
 import tz = require("timezone")
 
@@ -9,6 +9,10 @@ import {isNumber, isString, isArray, isTypedArray} from "./types"
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
 import {ImageIndex} from "../../models/glyphs/image"
 import {CustomJSHover} from 'models/tools/inspectors/customjs_hover'
+
+export function sprintf(format: string, ...args: unknown[]): string {
+  return sprintf_js(format, ...args)
+}
 
 export type FormatterType = "numeral" | "printf" | "datetime"
 export type FormatterSpec = CustomJSHover | FormatterType
@@ -132,9 +136,7 @@ export function replace_placeholders(str: string, data_source: ColumnarDataSourc
     // format and escape everything else
     const formatter = get_formatter(name, raw_spec, format, formatters)
     return `${prefix}${escape(formatter(value, format, special_vars))}`
-
   })
 
   return str
-
 }
