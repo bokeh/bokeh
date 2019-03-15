@@ -8,11 +8,6 @@ import {CallbackLike0} from "../callbacks/callback"
 export class RadioGroupView extends InputGroupView {
   model: RadioGroup
 
-  connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.model.change, () => this.render())
-  }
-
   render(): void {
     super.render()
 

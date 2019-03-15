@@ -8,11 +8,6 @@ import * as p from "core/properties"
 export class CheckboxButtonGroupView extends ButtonGroupView {
   model: CheckboxButtonGroup
 
-  connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.model.properties.active.change, () => this._update_active())
-  }
-
   get active(): Set<number> {
     return new Set(this.model.active)
   }

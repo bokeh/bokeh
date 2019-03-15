@@ -9,11 +9,6 @@ import * as p from "core/properties"
 export class CheckboxGroupView extends InputGroupView {
   model: CheckboxGroup
 
-  connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.model.change, () => this.render())
-  }
-
   render(): void {
     super.render()
 

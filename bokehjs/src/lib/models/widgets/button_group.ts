@@ -12,8 +12,11 @@ export abstract class ButtonGroupView extends ControlView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.labels.change,      () => this.render())
-    this.connect(this.model.properties.button_type.change, () => this.render())
+
+    const p = this.model.properties
+    this.on_change(p.button_type, () => this.render())
+    this.on_change(p.labels,      () => this.render())
+    this.on_change(p.active,      () => this._update_active())
   }
 
   render(): void {
@@ -52,7 +55,9 @@ export namespace ButtonGroup {
 export interface ButtonGroup extends ButtonGroup.Attrs {}
 
 export abstract class ButtonGroup extends Control {
-  properties: ButtonGroup.Props
+  properties: ButtonGroup.Props & {
+    active: p.Property<unknown>
+  }
 
   constructor(attrs?: Partial<ButtonGroup.Attrs>) {
     super(attrs)

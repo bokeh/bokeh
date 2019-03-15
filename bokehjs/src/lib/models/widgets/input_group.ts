@@ -3,6 +3,11 @@ import * as p from "core/properties"
 
 export abstract class InputGroupView extends ControlView {
   model: InputGroup
+
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.change, () => this.render())
+  }
 }
 
 export namespace InputGroup {
@@ -14,7 +19,9 @@ export namespace InputGroup {
 export interface InputGroup extends InputGroup.Attrs {}
 
 export abstract class InputGroup extends Control {
-  properties: InputGroup.Props
+  properties: InputGroup.Props & {
+    active: p.Property<unknown>
+  }
 
   constructor(attrs?: Partial<InputGroup.Attrs>) {
     super(attrs)

@@ -5,6 +5,13 @@ import * as p from "core/properties"
 export abstract class ControlView extends WidgetView {
   model: Control
 
+  connect_signals(): void {
+    super.connect_signals()
+
+    const p = this.model.properties
+    this.on_change(p.disabled, () => this.render())
+  }
+
   protected _height_policy(): SizingPolicy {
     return "fixed"
   }
