@@ -1,9 +1,9 @@
-import {sprintf} from "sprintf-js"
 import tz = require("timezone")
 
 import {TickFormatter} from "./tick_formatter"
 import {logger} from "core/logging"
 import * as p from "core/properties"
+import {sprintf} from "core/util/templating"
 import {zip, unzip, sort_by} from "core/util/array"
 import {isFunction} from "core/util/types"
 

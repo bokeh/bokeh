@@ -44,7 +44,7 @@ export class DatePickerView extends InputWidgetView {
 
   protected input_el: HTMLInputElement
 
-  protected _picker: Pikaday
+  private _picker: Pikaday
 
   render(): void {
     if (this._picker != null)
