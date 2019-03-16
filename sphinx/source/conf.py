@@ -48,7 +48,6 @@ extensions = [
     'bokeh.sphinxext.bokeh_releases',
     'bokeh.sphinxext.bokeh_sitemap',
     'bokeh.sphinxext.bokehjs_content',
-    'bokeh.sphinxext.bokehjs_preamble',
     'bokeh.sphinxext.collapsible_code_block',
 ]
 
