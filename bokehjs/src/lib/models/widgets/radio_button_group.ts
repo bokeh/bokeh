@@ -7,11 +7,6 @@ import * as p from "core/properties"
 export class RadioButtonGroupView extends ButtonGroupView {
   model: RadioButtonGroup
 
-  connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.model.properties.active.change, () => this._update_active())
-  }
-
   change_active(i: number): void {
     if (this.model.active !== i) {
       this.model.active = i
