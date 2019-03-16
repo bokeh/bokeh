@@ -15,13 +15,12 @@ export function angle_dist(lhs: number, rhs: number): number {
 }
 
 export function angle_between(mid: number, lhs: number, rhs: number, direction: Direction): boolean {
-  const norm_mid = angle_norm(mid)
   const d = angle_dist(lhs, rhs)
+  if (d == 0)
+    return false
+  const norm_mid = angle_norm(mid)
   const cond = angle_dist(lhs, norm_mid) <= d && angle_dist(norm_mid, rhs) <= d
-  if (direction == Direction.anticlock)
-    return !cond
-  else
-    return cond
+  return (direction == Direction.clock) ? cond : !cond
 }
 
 export function random(): number {
