@@ -20,32 +20,54 @@ ${license}
   var define;
   return (function(modules, aliases, entry, parent_require) {
     var cache = {};
-    var main;
 
-    var require = function(name) {
+    var normalize = function(name) {
+      if (typeof name === "number")
+        return name;
+
       if (name === "bokehjs")
-        return main
+        return entry;
 
-      var id = aliases[name] != null ? aliases[name] : name;
+      var alias = aliases[name]
+      if (alias != null)
+        return alias;
 
-      if (!cache[id]) {
-        if (!modules[id]) {
-          if (parent_require)
-            return parent_require(id)
+      var trailing = name.length > 0 && name[name.lenght-1] === "/";
+      var index = aliases[name + (trailing ? "" : "/") + "index"];
+      if (index != null)
+        return index;
 
-          var err = new Error("Cannot find module '" + name + "'");
-          err.code = 'MODULE_NOT_FOUND';
-          throw err;
-        }
-
-        var module = cache[id] = {exports: {}};
-        modules[id].call(module.exports, require, module, module.exports);
-      }
-
-      return cache[id].exports;
+      return name;
     }
 
-    main = require(entry);
+    var require = function(name) {
+      var mod = cache[name];
+      if (!mod) {
+        var id = normalize(name);
+
+        mod = cache[id];
+        if (!mod) {
+          if (!modules[id]) {
+            if (parent_require)
+              return parent_require(id);
+
+            var err = new Error("Cannot find module '" + name + "'");
+            err.code = 'MODULE_NOT_FOUND';
+            throw err;
+          }
+
+          mod = {exports: {}};
+          cache[id] = mod;
+          cache[name] = mod;
+          modules[id].call(mod.exports, require, mod, mod.exports);
+        } else
+          cache[name] = mod;
+      }
+
+      return mod.exports;
+    }
+
+    var main = require(entry);
     main.require = require;
 
     main.register_plugin = function(plugin_modules, plugin_aliases, plugin_entry) {
