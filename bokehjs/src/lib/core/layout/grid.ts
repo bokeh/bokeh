@@ -132,7 +132,8 @@ export class Grid extends Layoutable {
     const matrix = new Matrix<GridCell>(nrows, ncols, () => new GridCell())
 
     for (const {layout, row, col} of this.items) {
-      matrix.at(row, col).items.push({layout})
+      if (layout.sizing.visible)
+        matrix.at(row, col).items.push({layout})
     }
 
     const rows: RowSpec[] = new Array(nrows)

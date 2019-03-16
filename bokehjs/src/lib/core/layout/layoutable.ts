@@ -53,12 +53,14 @@ export abstract class Layoutable {
 
     const aspect = sizing.aspect
     const margin = sizing.margin || {top: 0, right: 0, bottom: 0, left: 0}
+    const visible = sizing.visible !== false
 
     this._sizing = {
       width_policy, min_width, width, max_width,
       height_policy, min_height, height, max_height,
       aspect,
       margin,
+      visible,
       size: {width, height},
       min_size: {width: min_width, height: min_height},
       max_size: {width: max_width, height: max_height},
@@ -136,6 +138,9 @@ export abstract class Layoutable {
   protected abstract _measure(viewport: Sizeable): SizeHint
 
   measure(viewport_size: Size): SizeHint {
+    if (!this.sizing.visible)
+      return {width: 0, height: 0}
+
     const exact_width = (width: number) => {
       return this.sizing.width_policy == "fixed" && this.sizing.width != null ? this.sizing.width : width
     }

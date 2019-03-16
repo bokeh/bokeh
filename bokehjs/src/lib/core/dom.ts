@@ -327,14 +327,16 @@ export function unsized<T>(el: HTMLElement, fn: () => T): T {
 }
 
 export function sized<T>(el: HTMLElement, size: Partial<Size>, fn: () => T): T {
-  const {width, height, position} = el.style
+  const {width, height, position, display} = el.style
   el.style.position = "absolute"
+  el.style.display = ""
   el.style.width = size.width != null && size.width != Infinity ? `${size.width}px` : "auto"
   el.style.height = size.height != null && size.height != Infinity ? `${size.height}px` : "auto"
   try {
     return fn()
   } finally {
     el.style.position = position
+    el.style.display = display
     el.style.width = width
     el.style.height = height
   }

@@ -84,4 +84,5 @@ export type BoxSizing = {
 
   aspect?: number
   margin: Margin
+  visible: boolean
 }
