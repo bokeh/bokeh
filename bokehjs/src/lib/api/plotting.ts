@@ -206,7 +206,18 @@ export class Figure extends Plot {
     return this.left.concat(this.right).filter((r): r is Axis => r instanceof Axis)
   }
 
-  protected _legend: Legend
+  get legend(): Legend {
+    const legends = this.panels.filter((r): r is Legend => r instanceof Legend)
+
+    if (legends.length == 0) {
+      const legend = new Legend()
+      this.add_layout(legend)
+      return legend
+    } else {
+      const [legend] = legends
+      return legend
+    }
+  }
 
   constructor(attrs: Partial<FigureAttrs> = {}) {
     attrs = {...attrs}
@@ -250,9 +261,6 @@ export class Figure extends Plot {
     this._process_axis_and_grid(y_axis_type, y_axis_location, y_minor_ticks, y_axis_label, y_range, 1)
 
     this.add_tools(...this._process_tools(tools))
-
-    this._legend = new Legend({items: []})
-    this.add_layout(this._legend)
   }
 
   annular_wedge(args: Partial<AnnularWedgeArgs>): GlyphRenderer
@@ -916,8 +924,9 @@ export class Figure extends Plot {
   }
 
   _update_legend(legend_item_label: Vector<string>, glyph_renderer: GlyphRenderer): void {
+    const {legend} = this
     let added = false
-    for (const item of this._legend.items) {
+    for (const item of legend.items) {
       if (item.label != null && isEqual(item.label, legend_item_label)) {
         // XXX: remove this when vectorable properties are refined
         const label = item.label as Value<string> | Field
@@ -935,7 +944,7 @@ export class Figure extends Plot {
     }
     if (!added) {
       const new_item = new models.LegendItem({ label: legend_item_label, renderers: [glyph_renderer] })
-      this._legend.items.push(new_item)
+      legend.items.push(new_item)
     }
   }
 }
