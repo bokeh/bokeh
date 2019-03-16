@@ -51,7 +51,6 @@ from os.path import basename
 # External imports
 from docutils import nodes
 from docutils.parsers.rst.directives import unchanged
-from docutils.parsers.rst import Parser
 # Bokeh imports
 from sphinx.directives.code import CodeBlock
 from .templates import BJS_PROLOGUE, BJS_EPILOGUE,  BJS_PREAMBLE_BODY
@@ -65,7 +64,7 @@ from ..resources import Resources
 
 __all__ = (
     'bokehjs_content',
-    'BokehJSBContent',
+    'BokehJSContent',
     'html_depart_bokehjs_content',
     'html_visit_bokehjs_content',
     'setup',
@@ -90,7 +89,7 @@ class BokehJSContent(CodeBlock):
 
     def run(self):
         env = self.state.document.settings.env
-        
+
         rst_source = self.state_machine.node.document['source']
         rst_filename = basename(rst_source)
 
@@ -112,7 +111,6 @@ class BokehJSContent(CodeBlock):
         node.children.append(cb[0])
         return [target_node, node]
 
-    
 def html_visit_bokehjs_content(self, node):
 
     script_block = ""
