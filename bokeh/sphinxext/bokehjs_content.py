@@ -53,7 +53,7 @@ from docutils import nodes
 from docutils.parsers.rst.directives import unchanged
 # Bokeh imports
 from sphinx.directives.code import CodeBlock
-from .templates import BJS_PROLOGUE, BJS_EPILOGUE,  BJS_PREAMBLE_BODY
+from .templates import BJS_PROLOGUE, BJS_EPILOGUE, BJS_CODEPEN_INIT
 from ..settings import settings
 from ..resources import Resources
 
@@ -104,6 +104,12 @@ class BokehJSContent(CodeBlock):
 
         source_doc = self.state_machine.node.document
         if not hasattr(source_doc, 'bjs_seen'):
+            #we only want to inject the CODEPEN_INIT on one
+            #bokehjs-content block per page, here we check to see if
+            #bjs_seen exists, if not set it to true, and set
+            #node['include_bjs_header'] to true.  This way the
+            #CODEPEN_INIT is only injected once per document (html
+            #page)
             source_doc.bjs_seen = True
             node['include_bjs_header'] = True
         cb = CodeBlock.run(self)
@@ -126,7 +132,9 @@ def html_visit_bokehjs_content(self, node):
         ''' % css_url
 
     if node['include_bjs_header']:
-        self.body.append(BJS_PREAMBLE_BODY.render(
+        #we only want to inject the CODEPEN_INIT on one
+        #bokehjs-content block per page
+        self.body.append(BJS_CODEPEN_INIT.render(
             css_block=css_block,
             script_block=script_block))
 
