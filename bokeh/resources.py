@@ -69,15 +69,12 @@ class BaseResources(object):
 
     def __init__(self, mode='inline', version=None, root_dir=None,
                  minified=True, log_level="info", root_url=None,
-                 path_versioner=None, components=None, extra_js_components=None):
+                 path_versioner=None, components=None):
 
         self._components = components
 
         if hasattr(self, '_js_components'):
             self.js_components = self._js_components
-        if extra_js_components is not None:
-            self.js_components.extend(extra_js_components)
-
         if hasattr(self, '_css_components'):
             self.css_components = self._css_components
 
