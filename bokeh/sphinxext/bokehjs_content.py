@@ -156,7 +156,6 @@ def setup(app):
             html_depart_bokehjs_content
         )
     )
-    #app.add_source_parser('.py', PlotScriptParser)
     app.add_directive('bokehjs-content', BokehJSContent)
 
 #-----------------------------------------------------------------------------
