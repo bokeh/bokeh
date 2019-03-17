@@ -33,13 +33,22 @@ export class TabsView extends LayoutDOMView {
     const vertical = loc == "above" || loc == "below"
 
     // XXX: this is a hack, this should be handled by "fit" policy in grid layout
+    const {scroll_el, headers_el} = this
     this.header = new class extends ContentBox {
       protected _measure(viewport: Sizeable) {
+        const min_headers = 3
+
+        const scroll = size(scroll_el)
+        const headers = children(headers_el).slice(0, min_headers).map((el) => size(el))
+
         const {width, height} = super._measure(viewport)
-        if (vertical)
-          return {width: viewport.width != Infinity ? viewport.width : 0, height}
-        else
-          return {width, height: viewport.height != Infinity ? viewport.height : 0}
+        if (vertical) {
+          const min_width = scroll.width + sum(headers.map((size) => size.width))
+          return {width: viewport.width != Infinity ? viewport.width : min_width, height}
+        } else {
+          const min_height = scroll.height + sum(headers.map((size) => size.height))
+          return {width, height: viewport.height != Infinity ? viewport.height : min_height}
+        }
       }
     }(this.header_el)
     if (vertical)
