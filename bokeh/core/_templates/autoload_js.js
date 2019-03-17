@@ -61,16 +61,24 @@ calls it with the rendered model.
     console.debug("Bokeh: BokehJS not loaded, scheduling load and callback at", now());
     root._bokeh_is_loading = css_urls.length + js_urls.length;
 
+    var _define = window.define;
+
     function on_load() {
       root._bokeh_is_loading--;
       if (root._bokeh_is_loading === 0) {
         console.debug("Bokeh: all BokehJS libraries/stylesheets loaded");
+        if (window.requirejs) {
+          window.define = _define;
+        }
         run_callbacks()
       }
     }
 
     function on_error() {
       console.error("failed to load " + url);
+      if (window.requirejs) {
+        window.define = _define;
+      }
     }
 
     for (var i = 0; i < css_urls.length; i++) {
@@ -85,6 +93,9 @@ calls it with the rendered model.
       document.body.appendChild(element);
     }
 
+    if (window.requirejs && js_urls.length) {
+      window.define = undefined
+    }
     for (var i = 0; i < js_urls.length; i++) {
       var url = js_urls[i];
       var element = document.createElement('script');
