@@ -53,9 +53,9 @@ from docutils import nodes
 from docutils.parsers.rst.directives import unchanged
 # Bokeh imports
 from sphinx.directives.code import CodeBlock
+from ..util.sphinx import get_sphinx_resources
 from .templates import BJS_PROLOGUE, BJS_EPILOGUE, BJS_CODEPEN_INIT
-from ..settings import settings
-from ..resources import Resources
+
 
 
 #-----------------------------------------------------------------------------
@@ -118,7 +118,7 @@ class BokehJSContent(CodeBlock):
         return [target_node, node]
 
 def html_visit_bokehjs_content(self, node):
-
+    resources = get_sphinx_resources(include_bokehjs_api=True)
     script_block = ""
     for js_url in resources.js_files:
         script_block += '''
@@ -165,23 +165,3 @@ def setup(app):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
-docs_cdn = settings.docs_cdn()
-
-# if BOKEH_DOCS_CDN is unset just use default CDN resources
-if docs_cdn is None:
-    resources = Resources(mode="cdn")
-else:
-    # "BOKEH_DOCS_CDN=local" is used for building and displaying the docs locally
-    if docs_cdn == "local":
-        resources = Resources(mode="server", root_url="/en/latest/")
-
-    # "BOKEH_DOCS_CDN=test:newthing" is used for building and deploying test docs to
-    # a one-off location "en/newthing" on the docs site
-    elif docs_cdn.startswith("test:"):
-        resources = Resources(
-            mode="server", root_url="/en/%s/" % docs_cdn.split(":")[1])
-
-    # Otherwise assume it is a dev/rc/full release version and use CDN for it
-    else:
-        resources = Resources(mode="cdn", version=docs_cdn)
-resources.js_components.append("bokeh-api")
