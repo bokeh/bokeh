@@ -78,9 +78,9 @@ export class Line extends ContextProperties {
   }
 
   get doit(): boolean {
-    return !(this.line_color.value() === null ||
-             this.line_alpha.value() == 0     ||
-             this.line_width.value() == 0)
+    return !(this.line_color.spec.value === null ||
+             this.line_alpha.spec.value == 0     ||
+             this.line_width.spec.value == 0)
   }
 
   protected _set_vectorize(ctx: Context2d, i: number): void {
@@ -132,8 +132,8 @@ export class Fill extends ContextProperties {
   }
 
   get doit(): boolean {
-    return !(this.fill_color.value() === null ||
-             this.fill_alpha.value() == 0)
+    return !(this.fill_color.spec.value === null ||
+             this.fill_alpha.spec.value == 0)
   }
 
   protected _set_vectorize(ctx: Context2d, i: number): void {
@@ -201,8 +201,8 @@ export class Text extends ContextProperties {
   }
 
   get doit(): boolean {
-    return !(this.text_color.value() === null ||
-             this.text_alpha.value() == 0)
+    return !(this.text_color.spec.value === null ||
+             this.text_alpha.spec.value == 0)
   }
 
   protected _set_vectorize(ctx: Context2d, i: number): void {
