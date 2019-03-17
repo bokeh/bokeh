@@ -1,11 +1,93 @@
 import {expect} from "chai"
 import {create_glyph_renderer_view} from "../models/glyphs/glyph_utils"
 
-import {Visuals, Fill} from "core/visuals"
+import {Fill, Line, Text, Visuals} from "core/visuals"
 import {ColumnDataSource} from "models/sources/column_data_source"
 import {CDSView} from "models/sources/cds_view"
 import {IndexFilter} from "models/filters/index_filter"
 import {Circle, CircleView} from "models/glyphs/circle"
+import * as text_glyph from "models/glyphs/text"
+
+describe("Fill", () => {
+
+  describe("doit", () => {
+    it("should be false if fill_color is null", () => {
+      const attrs = {fill_alpha: {value: 1}, fill_color: {value: null}}
+      const model = new Circle(attrs)
+      const fill = new Fill(model)
+      expect(fill.doit).to.be.false
+    })
+    it("should be false if fill_alpha is 0", () => {
+      const attrs = {fill_alpha: {value: 0}, fill_color: {value: "red"}}
+      const model = new Circle(attrs)
+      const fill = new Fill(model)
+      expect(fill.doit).to.be.false
+    })
+    it("should be true otherwise", () => {
+      const attrs = {fill_alpha: {value: 1}, fill_color: {value: "red"}}
+      const model = new Circle(attrs)
+      const fill = new Fill(model)
+      expect(fill.doit).to.be.true
+    })
+  })
+
+})
+
+describe("Line", () => {
+
+  describe("doit", () => {
+    it("should be false if line_color is null", () => {
+      const attrs = {line_alpha: {value: 1}, line_color: {value: null}, line_width: {value: 1}}
+      const model = new Circle(attrs)
+      const line = new Line(model)
+      expect(line.doit).to.be.false
+    })
+    it("should be false if line_width is 0", () => {
+      const attrs = {line_alpha: {value: 1}, line_color: {value: "red"}, line_width: {value: 0}}
+      const model = new Circle(attrs)
+      const line = new Line(model)
+      expect(line.doit).to.be.false
+    })
+    it("should be false if line_alpha is 0", () => {
+      const attrs = {line_alpha: {value: 0}, line_color: {value: "red"}, line_width: {value: 1}}
+      const model = new Circle(attrs)
+      const line = new Line(model)
+      expect(line.doit).to.be.false
+    })
+    it("should be true otherwise", () => {
+      const attrs = {line_alpha: {value: 1}, line_color: {value: "red"}, line_width: {value: 1}}
+      const model = new Circle(attrs)
+      const line = new Line(model)
+      expect(line.doit).to.be.true
+    })
+  })
+
+})
+
+describe("Text", () => {
+
+  describe("doit", () => {
+    it("should be false if text_color is null", () => {
+      const attrs = {text_alpha: {value: 1}, text_color: {value: null}}
+      const model = new text_glyph.Text(attrs)
+      const text = new Text(model)
+      expect(text.doit).to.be.false
+    })
+    it("should be false if text_alpha is 0", () => {
+      const attrs = {text_alpha: {value: 0}, text_color: {value: "red"}}
+      const model = new text_glyph.Text(attrs)
+      const text = new Text(model)
+      expect(text.doit).to.be.false
+    })
+    it("should be true otherwise", () => {
+      const attrs = {text_alpha: {value: 1}, text_color: {value: "red"}}
+      const model = new text_glyph.Text(attrs)
+      const text = new Text(model)
+      expect(text.doit).to.be.true
+    })
+  })
+
+})
 
 describe("Visuals", () => {
 
@@ -55,5 +137,6 @@ describe("Visuals", () => {
       (renderer_view.glyph as CircleView).visuals.fill.set_vectorize(ctx, 1)
       expect(ctx.globalAlpha).to.be.equal(1)
     })
+
   })
 })
