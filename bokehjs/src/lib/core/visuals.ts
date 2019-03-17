@@ -12,18 +12,15 @@ export abstract class ContextProperties {
 
   // prototype {
   attrs: string[]
-  do_attr: string
   // }
 
   readonly cache: {[key: string]: any} = {}
-  readonly doit: boolean
+
+  abstract get doit(): boolean
 
   all_indices: number[]
 
   constructor(readonly obj: HasProps, readonly prefix: string = "") {
-    const do_spec = obj.properties[prefix + this.do_attr].spec
-    this.doit = do_spec.value !== null // XXX: can't be `undefined`, see TODOs below.
-
     for (const attr of this.attrs)
       (this as any)[attr] = obj.properties[prefix + attr]
   }
@@ -80,6 +77,12 @@ export class Line extends ContextProperties {
     ctx.setLineDashOffset(this.line_dash_offset.value())
   }
 
+  get doit(): boolean {
+    return !(this.line_color.spec.value === null ||
+             this.line_alpha.spec.value == 0     ||
+             this.line_width.spec.value == 0)
+  }
+
   protected _set_vectorize(ctx: Context2d, i: number): void {
     this.cache_select("line_color", i)
     if (ctx.strokeStyle !== this.cache.line_color)
@@ -117,7 +120,6 @@ export class Line extends ContextProperties {
 }
 
 Line.prototype.attrs = Object.keys(mixins.line())
-Line.prototype.do_attr = "line_color"
 
 export class Fill extends ContextProperties {
 
@@ -127,6 +129,11 @@ export class Fill extends ContextProperties {
   set_value(ctx: Context2d): void {
     ctx.fillStyle   = this.fill_color.value()
     ctx.globalAlpha = this.fill_alpha.value()
+  }
+
+  get doit(): boolean {
+    return !(this.fill_color.spec.value === null ||
+             this.fill_alpha.spec.value == 0)
   }
 
   protected _set_vectorize(ctx: Context2d, i: number): void {
@@ -146,7 +153,6 @@ export class Fill extends ContextProperties {
 }
 
 Fill.prototype.attrs = Object.keys(mixins.fill())
-Fill.prototype.do_attr =  "fill_color"
 
 export class Text extends ContextProperties {
 
@@ -194,6 +200,11 @@ export class Text extends ContextProperties {
     ctx.textBaseline = this.text_baseline.value()
   }
 
+  get doit(): boolean {
+    return !(this.text_color.spec.value === null ||
+             this.text_alpha.spec.value == 0)
+  }
+
   protected _set_vectorize(ctx: Context2d, i: number): void {
     this.cache_select("font", i)
     if (ctx.font !== this.cache.font)
@@ -218,7 +229,6 @@ export class Text extends ContextProperties {
 }
 
 Text.prototype.attrs = Object.keys(mixins.text())
-Text.prototype.do_attr = "text_color"
 
 export class Visuals {
 
