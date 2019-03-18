@@ -33,7 +33,7 @@ export abstract class ContinuousColorMapper extends ColorMapper {
     })
   }
 
-  protected abstract scan<T>(data: Arrayable<number>, palette: Arrayable<T>) : any
+  protected abstract scan<T>(data: Arrayable<number>, palette: Arrayable<T>): unknown
 
   protected _v_compute<T>(data: Arrayable<number>, values: Arrayable<T>,
     palette: Arrayable<T>, colors: {nan_color: T, low_color?: T, high_color?: T}): void {
