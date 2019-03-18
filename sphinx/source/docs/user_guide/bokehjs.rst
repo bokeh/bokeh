@@ -66,10 +66,9 @@ and a line glyph from scratch. Comparison with examples in
 :bokeh-tree:`examples/models` will show that the translation from
 Python to JavaScript at this level is nearly one-to-one:
 
-.. bokehjs-content:: javascript
+.. bokehjs-content::
     :title: Bokeh Simple Line
     :js_file: docs/user_guide/examples/simple_line.js
-    :include_html: true
 
 The code above generates the following plot:
 
@@ -104,7 +103,7 @@ reference in addition to the material here.
 Here is an example that is very similar the Python example
 :bokeh-tree:`examples/plotting/file/color_scatter.py`:
 
-.. bokehjs-content:: javascript
+.. bokehjs-content::
     :title: Bokeh Color Scatter
 
     var plt = Bokeh.Plotting;
@@ -188,7 +187,7 @@ By default, plots created ``Bokeh.Charts.pie`` automatically add a tooltip
 and hover policy. Here is some example code that demonstrates the ``pie``
 function, with the plot it generates shown below:
 
-.. bokehjs-content:: javascript
+.. bokehjs-content::
     :title: Bokeh Pie Chart
 
     var plt = Bokeh.Plotting;
@@ -261,7 +260,7 @@ By default, plots created ``Bokeh.Charts.bar`` automatically add a tooltip
 and hover policy. Here is some example code that demonstrates the ``bar``
 function, with the plot it generates shown below:
 
-.. bokehjs-content:: javascript
+.. bokehjs-content::
     :title: Bokeh Bar Chart
 
     var plt = Bokeh.Plotting;
@@ -303,8 +302,10 @@ function, with the plot it generates shown below:
 A minimal example follows, demonstrating a proper import of the libraries,
 and dynamic creation and modification of plots.
 
-.. bokehjs-content:: javascript
+.. bokehjs-content::
     :title: Bokeh Pie Chart
+    :include_html: true
+    :disable_codepen: true
 
     // arrays to hold data
     var source = new Bokeh.ColumnDataSource({

@@ -10,7 +10,7 @@ This directive takes a title to use for the codepen example:
 
 .. code-block:: rest
 
-    .. bokehjs-contnet:: javascript
+    .. bokehjs-content::
         :title: Some Code
 
         alert('this is called in the codepen');
@@ -20,13 +20,21 @@ that Sphinx supplies, with the addition of one new option:
 
 title : string
     A title for the codepen.
+js_file : string
+    location of javascript source file
+include_html: string
+    if present, this code block will be emitted as a complete HTML template with
+    js inside a script block
+disable_codepen: string
+    if present, this code block will not have a 'try on codepen' button.  Currently
+    necessary when 'include_html' is turned on.
 
 Examples
 --------
 
 The inline example code above produces the following output:
 
-.. bokehjs-content:: javascript
+.. bokehjs-content::
     :title: Some Code
 
     alert('this is called in the codepen');
@@ -46,18 +54,20 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from os.path import basename, dirname, join
+from os.path import basename, join
 # External imports
 from docutils import nodes
 from docutils.parsers.rst.directives import unchanged
-from sphinx.directives.code import CodeBlock
+from six import text_type
+from sphinx.directives.code import CodeBlock, dedent_lines, container_wrapper
+from sphinx.locale import __
+from sphinx.util import logging
+from sphinx.util import parselinenos
 from sphinx.util.nodes import set_source_info
 from sphinx.errors import SphinxError
 # Bokeh imports
 from .util import get_sphinx_resources
 from .templates import BJS_PROLOGUE, BJS_EPILOGUE, BJS_CODEPEN_INIT, BJS_HTML
-from ..settings import settings
-from ..resources import Resources
 from ..util.string import decode_utf8
 
 #-----------------------------------------------------------------------------
@@ -88,11 +98,13 @@ class BokehJSContent(CodeBlock):
 
     has_content = True
     optional_arguments = 1
+    required_arguments = 0
 
     option_spec = CodeBlock.option_spec
     option_spec.update(title=unchanged)
     option_spec.update(js_file=unchanged)
     option_spec.update(include_html=unchanged)
+    option_spec.update(disable_codepen=unchanged)
 
     def get_codeblock_node(self, code, language):
         """this is directly copied from sphinx.directives.code.CodeBlock.run
@@ -112,7 +124,7 @@ class BokehJSContent(CodeBlock):
                 nlines = len(code.split('\n'))
                 hl_lines = parselinenos(linespec, nlines)
                 if any(i >= nlines for i in hl_lines):
-                    logger.warning(__('line number spec is out of range(1-%d): %r') %
+                    log.warning(__('line number spec is out of range(1-%d): %r') %
                                    (nlines, self.options['emphasize-lines']),
                                    location=location)
 
@@ -152,7 +164,6 @@ class BokehJSContent(CodeBlock):
         self.add_name(literal)
 
         return [literal]
-        
 
     def get_code_language(self):
         """
@@ -165,9 +176,8 @@ class BokehJSContent(CodeBlock):
         if js_file and self.content:
             raise SphinxError("bokehjs-content:: directive can't have both js_file and content")
 
-        
         if js_file:
-            log.debug("[bokehjs-content] handling external example in %r: %s", env.docname, self.arguments[0])
+            log.debug("[bokehjs-content] handling external example in %r: %s", env.docname, js_file)
             path = js_file
             if not js_file.startswith("/"):
                 path = join(env.app.srcdir, path)
@@ -177,22 +187,12 @@ class BokehJSContent(CodeBlock):
             path = env.bokeh_plot_auxdir  # code runner just needs any real path
             js_source = '\n'.join(self.content)
 
-        script_block = ""
-        for js_url in resources.js_files:
-            script_block += '''
-            <script type="text/javascript" src="%s"></script>
-            ''' % js_url
-
-        css_block = ""
-        for css_url in resources.css_files:
-            css_block += '''
-            <link rel="stylesheet" href="%s" type="text/css" />
-            ''' % css_url
 
         if self.options.get("include_html", False):
+            resources = get_sphinx_resources(include_bokehjs_api=True)
             html_source = BJS_HTML.render(
-                css_block=css_block,
-                script_block=script_block,
+                css_files=resources.css_files,
+                js_files=resources.js_files,
                 bjs_script=js_source)
             return [html_source, "html"]
         else:
@@ -213,6 +213,7 @@ class BokehJSContent(CodeBlock):
         node['target_id'] = target_id
         node['title'] = self.options.get("title", "bokehjs example")
         node['include_bjs_header'] = False
+        node['disable_codepen'] = self.options.get("disable_codepen", False)
 
         source_doc = self.state_machine.node.document
         if not hasattr(source_doc, 'bjs_seen'):
@@ -224,8 +225,6 @@ class BokehJSContent(CodeBlock):
             #page)
             source_doc.bjs_seen = True
             node['include_bjs_header'] = True
-        # import pdb
-        # pdb.set_trace()
         code_content, language = self.get_code_language()
         cb = self.get_codeblock_node(
             code_content, language)
@@ -234,34 +233,25 @@ class BokehJSContent(CodeBlock):
         return [target_node, node]
 
 def html_visit_bokehjs_content(self, node):
-    resources = get_sphinx_resources(include_bokehjs_api=True)
-    script_block = ""
-    for js_url in resources.js_files:
-        script_block += '''
-        <script type="text/javascript" src="%s"></script>
-        ''' % js_url
-
-    css_block = ""
-    for css_url in resources.css_files:
-        css_block += '''
-        <link rel="stylesheet" href="%s" type="text/css" />
-        ''' % css_url
-
     if node['include_bjs_header']:
         #we only want to inject the CODEPEN_INIT on one
         #bokehjs-content block per page
+        resources = get_sphinx_resources(include_bokehjs_api=True)
         self.body.append(BJS_CODEPEN_INIT.render(
-            css_block=css_block,
-            script_block=script_block))
+            css_files=resources.css_files,
+            js_files=resources.js_files))
 
     self.body.append(
         BJS_PROLOGUE.render(
             id=node['target_id'],
-            title=node['title']))
+            title=node['title'],
+        ))
 
 def html_depart_bokehjs_content(self, node):
     self.body.append(BJS_EPILOGUE.render(
-        title=node['title']))
+        title=node['title'],
+        enable_codepen=not node['disable_codepen']
+    ))
 
 def setup(app):
     ''' Required Sphinx extension setup function. '''

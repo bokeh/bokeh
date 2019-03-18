@@ -1,7 +1,9 @@
   </div>
+   {% if enable_codepen %}
    <form action="https://codepen.io/pen/define" method="POST" target="_blank">
      <input
        value="Try {{ heading }} on CodePen"
        type="submit" class="codepen-open"/>
    </form>
+   {% endif %}
 </div>
