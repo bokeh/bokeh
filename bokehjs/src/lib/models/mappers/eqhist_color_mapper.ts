@@ -53,7 +53,7 @@ export class EqHistColorMapper extends BinnedColorMapper {
       this.prototype.type = "EqHistColorMapper"
 
       this.define<EqHistColorMapper.Props>({
-          bins:       [ p.Int , 256*256],
+         bins:       [ p.Int , 256*256],
       })
   }
 }
