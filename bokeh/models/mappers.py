@@ -221,7 +221,8 @@ class LogColorMapper(ContinuousColorMapper):
     '''
 
 class EqHistColorMapper(ContinuousColorMapper):
-    pass
+    bins = Int(default=256*256, help="Number of histogram bins")
+
 
 #-----------------------------------------------------------------------------
 # Dev API

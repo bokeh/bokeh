@@ -7,7 +7,9 @@ import * as p from "core/properties"
 export namespace EqHistColorMapper {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = BinnedColorMapper.Props
+  export type Props = BinnedColorMapper.Props & {
+      bins: p.Property<number>
+    }
 }
 
 export interface EqHistColorMapper extends EqHistColorMapper.Attrs {}
@@ -25,7 +27,7 @@ export class EqHistColorMapper extends BinnedColorMapper {
         const span = high - low
 
         // Compute bin edges and histogram counts
-        const nbins = 256 * 256
+        const nbins = this.bins
         const bin_edges = linspace(low, high, nbins+1)
         const hist = bin_counts(data, bin_edges)
 
@@ -48,7 +50,11 @@ export class EqHistColorMapper extends BinnedColorMapper {
     }
     
   static initClass(): void {
-    this.prototype.type = "EqHistColorMapper"
+      this.prototype.type = "EqHistColorMapper"
+
+      this.define<EqHistColorMapper.Props>({
+          bins:       [ p.Int , 256*256],
+      })
   }
 }
 EqHistColorMapper.initClass()
