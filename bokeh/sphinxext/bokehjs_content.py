@@ -70,6 +70,14 @@ from .util import get_sphinx_resources
 from .templates import BJS_PROLOGUE, BJS_EPILOGUE, BJS_CODEPEN_INIT, BJS_HTML
 from ..util.string import decode_utf8
 
+if False:
+    # For type annotation
+    #From directives.code.CodeBlock.run
+    from typing import Any, Dict, List, Tuple  # NOQA
+    from sphinx.application import Sphinx  # NOQA
+    from sphinx.config import Config  # NOQA
+
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -107,7 +115,7 @@ class BokehJSContent(CodeBlock):
     option_spec.update(disable_codepen=unchanged)
 
     def get_codeblock_node(self, code, language):
-        """this is directly copied from sphinx.directives.code.CodeBlock.run
+        """this is copied from sphinx.directives.code.CodeBlock.run
 
         it has been changed to accept code and language as an arguments instead
         of reading from self
