@@ -9,7 +9,7 @@ import * as p from "core/properties"
 
 import {build_views} from "core/build_views"
 import {DOMView} from "core/dom_view"
-import {SizingPolicy, BoxSizing, Margin, Size, Layoutable} from "core/layout"
+import {SizingPolicy, BoxSizing, Size, Layoutable} from "core/layout"
 
 export namespace LayoutDOMView {
   export type Options = DOMView.Options & {model: LayoutDOM}
@@ -216,11 +216,11 @@ export abstract class LayoutDOMView extends DOMView {
   }
 
   protected _width_policy(): SizingPolicy {
-    return "fit"
+    return this.model.width != null ? "fixed" : "fit"
   }
 
   protected _height_policy(): SizingPolicy {
-    return "fit"
+    return this.model.height != null ? "fixed" : "fit"
   }
 
   box_sizing(): Partial<BoxSizing> {
@@ -263,41 +263,47 @@ export abstract class LayoutDOMView extends DOMView {
       }
     }
 
-    const {min_width, min_height, width, height, max_width, max_height} = this.model
+    const sizing: Partial<BoxSizing> = {width_policy, height_policy}
 
-    let aspect: number | undefined
-    if (aspect_ratio == null)
-      aspect = undefined
-    else if (aspect_ratio == "auto") {
-      if (width != null && height != null)
-        aspect = width/height
-      else
-        aspect = undefined
-    } else
-      aspect = aspect_ratio
+    const {min_width, min_height} = this.model
+    if (min_width != null)
+      sizing.min_width = min_width
+    if (min_height != null)
+      sizing.min_height = min_height
 
-    const margin: Margin | undefined = (() => {
-      const {margin} = this.model
-      if (margin == null)
-        return undefined
-      else if (isNumber(margin))
-        return {top: margin, right: margin, bottom: margin, left: margin}
+    const {width, height} = this.model
+    if (width != null)
+      sizing.width = width
+    if (height != null)
+      sizing.height = height
+
+    const {max_width, max_height} = this.model
+    if (max_width != null)
+      sizing.max_width = max_width
+    if (max_height != null)
+      sizing.max_height = max_height
+
+    if (aspect_ratio == "auto" && width != null && height != null)
+      sizing.aspect = width/height
+    else if (isNumber(aspect_ratio))
+      sizing.aspect = aspect_ratio
+
+    const {margin} = this.model
+    if (margin != null) {
+      if (isNumber(margin))
+        sizing.margin = {top: margin, right: margin, bottom: margin, left: margin}
       else if (margin.length == 2) {
         const [vertical, horizontal] = margin
-        return {top: vertical, right: horizontal, bottom: vertical, left: horizontal}
+        sizing.margin = {top: vertical, right: horizontal, bottom: vertical, left: horizontal}
       } else {
         const [top, right, bottom, left] = margin
-        return {top, right, bottom, left}
+        sizing.margin = {top, right, bottom, left}
       }
-    })()
-
-    const {visible} = this.model
-
-    return {
-      width_policy, height_policy, aspect, margin, visible,
-      min_width: min_width!, width: width!, max_width: max_width!,
-      min_height: min_height!, height: height!, max_height: max_height!,
     }
+
+    sizing.visible = this.model.visible
+
+    return sizing
   }
 
   protected _viewport_size(): Partial<Size> {

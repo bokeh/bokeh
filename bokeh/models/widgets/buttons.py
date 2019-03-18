@@ -79,8 +79,6 @@ class AbstractButton(Widget, ButtonLike):
     A callback to run in the browser whenever the button is activated.
     """)
 
-    width = Override(default=300)
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------

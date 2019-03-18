@@ -313,11 +313,11 @@ export class PlotView extends LayoutDOMView {
   }
 
   protected _width_policy(): SizingPolicy {
-    return this.model.frame_width == null ? "fixed" : "min"
+    return this.model.frame_width == null ? super._width_policy() : "min"
   }
 
   protected _height_policy(): SizingPolicy {
-    return this.model.frame_height == null ? "fixed" : "min"
+    return this.model.frame_height == null ? super._height_policy() : "min"
   }
 
   _update_layout(): void {

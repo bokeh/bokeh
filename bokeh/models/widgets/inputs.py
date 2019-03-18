@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import Date, Either, Float, Instance, Int, List, String, Tuple, Dict, Override, ColorHex
+from ...core.properties import Date, Either, Float, Instance, Int, List, String, Tuple, Dict, ColorHex
 
 from ..callbacks import Callback
 
@@ -63,8 +63,6 @@ class InputWidget(Widget):
     title = String(default="", help="""
     Widget's label.
     """)
-
-    width = Override(default=300)
 
     @classmethod
     def coerce_value(cls, val):

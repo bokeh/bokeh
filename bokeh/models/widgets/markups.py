@@ -32,7 +32,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import Any, Bool, String, Dict, Override
+from ...core.properties import Any, Bool, String, Dict
 
 from .widget import Widget
 
@@ -66,8 +66,6 @@ class Markup(Widget):
     style = Dict(String, Any, default={}, help="""
     Raw CSS style declaration. Note this may be web browser dependent.
     """)
-
-    width = Override(default=300)
 
 #-----------------------------------------------------------------------------
 # General API

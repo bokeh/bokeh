@@ -58,10 +58,6 @@ export abstract class InputWidget extends Control {
       title:    [ p.String, "" ],
       callback: [ p.Any        ],
     })
-
-    this.override({
-      width: 300,
-    })
   }
 }
 InputWidget.initClass()
