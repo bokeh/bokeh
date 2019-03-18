@@ -55,7 +55,7 @@ from sphinx.util.nodes import set_source_info
 from sphinx.errors import SphinxError
 # Bokeh imports
 from .util import get_sphinx_resources
-from .templates import BJS_PROLOGUE, BJS_EPILOGUE, BJS_CODEPEN_INIT
+from .templates import BJS_PROLOGUE, BJS_EPILOGUE, BJS_CODEPEN_INIT, BJS_HTML
 from ..settings import settings
 from ..resources import Resources
 from ..util.string import decode_utf8
@@ -92,6 +92,7 @@ class BokehJSContent(CodeBlock):
     option_spec = CodeBlock.option_spec
     option_spec.update(title=unchanged)
     option_spec.update(js_file=unchanged)
+    option_spec.update(include_html=unchanged)
 
     def get_codeblock_node(self, code, language):
         """this is directly copied from sphinx.directives.code.CodeBlock.run
@@ -108,7 +109,6 @@ class BokehJSContent(CodeBlock):
         linespec = self.options.get('emphasize-lines')
         if linespec:
             try:
-                
                 nlines = len(code.split('\n'))
                 hl_lines = parselinenos(linespec, nlines)
                 if any(i >= nlines for i in hl_lines):
@@ -162,7 +162,7 @@ class BokehJSContent(CodeBlock):
 
         js_file = self.options.get("js_file", False)
         # js_file *or* js code content, but not both
-        if js_file  and self.content:
+        if js_file and self.content:
             raise SphinxError("bokehjs-content:: directive can't have both js_file and content")
 
         
@@ -171,13 +171,32 @@ class BokehJSContent(CodeBlock):
             path = js_file
             if not js_file.startswith("/"):
                 path = join(env.app.srcdir, path)
-            source = decode_utf8(open(path).read())
+            js_source = decode_utf8(open(path).read())
         else:
             log.debug("[bokehjs-content] handling inline example in %r", env.docname)
             path = env.bokeh_plot_auxdir  # code runner just needs any real path
-            source = '\n'.join(self.content)
-                
-        return [source, "javascript"]
+            js_source = '\n'.join(self.content)
+
+        script_block = ""
+        for js_url in resources.js_files:
+            script_block += '''
+            <script type="text/javascript" src="%s"></script>
+            ''' % js_url
+
+        css_block = ""
+        for css_url in resources.css_files:
+            css_block += '''
+            <link rel="stylesheet" href="%s" type="text/css" />
+            ''' % css_url
+
+        if self.options.get("include_html", False):
+            html_source = BJS_HTML.render(
+                css_block=css_block,
+                script_block=script_block,
+                bjs_script=js_source)
+            return [html_source, "html"]
+        else:
+            return [js_source, "javascript"]
 
 
     def run(self):

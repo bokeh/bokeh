@@ -69,6 +69,7 @@ Python to JavaScript at this level is nearly one-to-one:
 .. bokehjs-content:: javascript
     :title: Bokeh Simple Line
     :js_file: docs/user_guide/examples/simple_line.js
+    :include_html: true
 
 The code above generates the following plot:
 

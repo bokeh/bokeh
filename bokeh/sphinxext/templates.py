@@ -33,6 +33,8 @@ from jinja2 import Environment, FileSystemLoader
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'BJS_CODEPEN_INIT',
+    'BJS_HTML',
     'CCB_PROLOGUE',
     'CCB_EPILOGUE',
     'COLOR_DETAIL',
@@ -70,6 +72,7 @@ BJS_PROLOGUE = _env.get_template("bokehjs_content_prologue.html")
 BJS_EPILOGUE = _env.get_template("bokehjs_content_epilogue.html")
 
 BJS_CODEPEN_INIT = _env.get_template("bokehjs_codepen_init.html")
+BJS_HTML = _env.get_template("bokehjs_html_template.html")
 
 
 COLOR_DETAIL = _env.get_template("color_detail.html")

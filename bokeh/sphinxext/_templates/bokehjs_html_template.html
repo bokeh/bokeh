@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Complete Example</title>
+
+{{css_block}}
+{{script_block}}
+
+<script>
+//The order of CSS and JS imports above is important.
+</script>
+{% if bjs_script %}
+  <script>
+    {{ bjs_script }}
+  </script>
+{% endif %}
+
+</head>
+
+<body>
+</body>
+</html>
