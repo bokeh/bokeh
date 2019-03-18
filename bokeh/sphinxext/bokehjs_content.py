@@ -53,7 +53,7 @@ from docutils import nodes
 from docutils.parsers.rst.directives import unchanged
 # Bokeh imports
 from sphinx.directives.code import CodeBlock
-from ..util.sphinx import get_sphinx_resources
+from .util import get_sphinx_resources
 from .templates import BJS_PROLOGUE, BJS_EPILOGUE, BJS_CODEPEN_INIT
 
 

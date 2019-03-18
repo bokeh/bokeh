@@ -105,7 +105,7 @@ from ..document import Document
 from ..embed import autoload_static
 from ..model import Model
 from ..util.string import decode_utf8
-from ..util.sphinx import get_sphinx_resources
+from .util import get_sphinx_resources
 from .example_handler import ExampleHandler
 
 #-----------------------------------------------------------------------------
