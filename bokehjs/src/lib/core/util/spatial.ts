@@ -21,6 +21,15 @@ export class SpatialIndex {
     }
   }
 
+  protected _normalize(rect: Rect): Rect {
+    let {minX, minY, maxX, maxY} = rect
+    if (minX > maxX)
+      [minX, maxX] = [maxX, minX]
+    if (minY > maxY)
+      [minY, maxY] = [maxY, minY]
+    return {minX, minY, maxX, maxY}
+  }
+
   get bbox(): Rect {
     if (this.index == null)
       return empty()
@@ -34,7 +43,7 @@ export class SpatialIndex {
     if (this.index == null)
       return []
     else {
-      const {minX, minY, maxX, maxY} = rect
+      const {minX, minY, maxX, maxY} = this._normalize(rect)
       const indices = this.index.search(minX, minY, maxX, maxY)
       return indices.map((j) => this.points[j])
     }
