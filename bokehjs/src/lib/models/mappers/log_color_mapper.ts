@@ -43,21 +43,18 @@ export class LogColorMapper extends ContinuousColorMapper {
 
   protected cmap<T>(d : number,  palette: Arrayable<T>,  low_color: T,
                     high_color: T, scan_data: LogScanData) : T {
-    // This handles the edge case where d == high, since the code below maps
-    // values exactly equal to high to palette.length, which is greater than
-    // max_key
     const max_key = palette.length - 1
 
     if (d > scan_data.high) {
       return high_color != null ? high_color : palette[max_key]
     }
-    if (d == scan_data.high) {
+    // This handles the edge case where d == high, since the code below maps
+    // values exactly equal to high to palette.length, which is greater than
+    // max_key
+    if (d == scan_data.high)
       return palette[max_key]
-    }
-
-    if (d < scan_data.low) {
+    else if(d < scan_data.low)
       return low_color != null ? low_color : palette[0]
-    }
 
      // Get the key
      const log = log1p(d) - log1p(scan_data.low)  // subtract the low offset
@@ -65,7 +62,8 @@ export class LogColorMapper extends ContinuousColorMapper {
 
      // Deal with upper bound
      if (key > max_key) {
-       key = max_key }
+       key = max_key
+     }
 
      return palette[key]
   }
