@@ -16,8 +16,8 @@ arounduser interface and experience:
 
 .. _release-0-7-0-migration:
 
-Migration Guide
----------------
+`Migration Guide <releases.html#release-0-7-0-migration>`__
+-----------------------------------------------------------
 
 Additionally, note that the "implicit" plotting interface of plotting.py
 has been deprecated, and will be removed in Bokeh 0.8. In a nutshell,

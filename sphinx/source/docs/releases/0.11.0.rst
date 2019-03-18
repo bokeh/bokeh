@@ -36,8 +36,13 @@ Bokeh Version ``0.11.0`` (Jan 2016) is a large release with many new improvement
 
 * many small bug fixes
 
+.. _release-0-11-0-migration:
+
+`Migration Guide <releases.html#release-0-11-0-migration>`__
+------------------------------------------------------------
+
 Known Issues
-------------
+~~~~~~~~~~~~
 
 Server output in the Jupyter notebook with output_server is currently not
 functioning correctly, and will be fixed in a follow on 0.11.1 release
@@ -47,10 +52,8 @@ of interactions and notebook-based apps without a Bokeh server.
 The Image glyph does not currently work with the Bokeh server, and will be
 fixed in a follow on 0.11.1 release shortly.
 
-.. _release-0-11-0-migration:
-
-Migration Guide
----------------
+Deprecations
+~~~~~~~~~~~~
 
 The previous Flask-based ``bokeh-server`` has been completely removed and
 replaced with the new ``bokeh serve`` based on Tornado and a websocket
