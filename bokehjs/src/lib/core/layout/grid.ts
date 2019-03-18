@@ -406,6 +406,25 @@ export class Grid extends Layoutable {
           height_flex -= row.factor
         }
       }
+    } else if (available_height < 0) {
+      let nadjustable = 0
+      for (let y = 0; y < nrows; y++) {
+        const row = rows[y]
+        if (row.policy != "fixed")
+          nadjustable++
+      }
+
+      let overflow_height = -available_height
+      for (let y = 0; y < nrows; y++) {
+        const row = rows[y]
+        if (row.policy != "fixed") {
+          const height = preferred.row_heights[y]
+          const cutoff = overflow_height/nadjustable
+          preferred.row_heights[y] = max(height - cutoff, 0)
+          overflow_height -= cutoff > height ? height : cutoff
+          nadjustable--
+        }
+      }
     }
 
     let available_width: number
@@ -435,6 +454,25 @@ export class Grid extends Layoutable {
           available_width -= width
           preferred.col_widths[x] = width
           width_flex -= col.factor
+        }
+      }
+    } else if (available_width < 0) {
+      let nadjustable = 0
+      for (let x = 0; x < ncols; x++) {
+        const col = cols[x]
+        if (col.policy != "fixed")
+          nadjustable++
+      }
+
+      let overflow_width = -available_width
+      for (let x = 0; x < ncols; x++) {
+        const col = cols[x]
+        if (col.policy != "fixed") {
+          const width = preferred.col_widths[x]
+          const cutoff = overflow_width/nadjustable
+          preferred.col_widths[x] = max(width - cutoff, 0)
+          overflow_width -= cutoff > width ? width : cutoff
+          nadjustable--
         }
       }
     }
