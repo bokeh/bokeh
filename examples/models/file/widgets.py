@@ -76,7 +76,7 @@ def mk_tab(color):
     plot.scatter(flowers["petal_length"], flowers["petal_width"], color=color, fill_alpha=0.2, size=12)
     return Panel(title="Tab 1: %s" % color.capitalize(), child=plot)
 
-tabs = Tabs(tabs=[mk_tab("red"), mk_tab("green"), mk_tab("blue")], width=400)
+tabs = Tabs(tabs=[mk_tab("red"), mk_tab("green"), mk_tab("blue")])
 
 source = ColumnDataSource(data=mpg)
 columns = [
