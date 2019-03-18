@@ -173,12 +173,8 @@ class BokehJSContent(CodeBlock):
 
         return [literal]
 
-    def get_code_language(self):
-        """
-        This is largely copied from bokeh.sphinxext.bokeh_plot.run
-        """
+    def get_js_source(self):
         env = self.state.document.settings.env
-
         js_file = self.options.get("js_file", False)
         # js_file *or* js code content, but not both
         if js_file and self.content:
@@ -195,7 +191,13 @@ class BokehJSContent(CodeBlock):
             path = env.bokeh_plot_auxdir  # code runner just needs any real path
             js_source = '\n'.join(self.content)
 
+        return js_source
 
+    def get_code_language(self):
+        """
+        This is largely copied from bokeh.sphinxext.bokeh_plot.run
+        """
+        js_source = self.get_js_source()
         if self.options.get("include_html", False):
             resources = get_sphinx_resources(include_bokehjs_api=True)
             html_source = BJS_HTML.render(
@@ -222,6 +224,7 @@ class BokehJSContent(CodeBlock):
         node['title'] = self.options.get("title", "bokehjs example")
         node['include_bjs_header'] = False
         node['disable_codepen'] = self.options.get("disable_codepen", False)
+        node['js_source'] = self.get_js_source()
 
         source_doc = self.state_machine.node.document
         if not hasattr(source_doc, 'bjs_seen'):
@@ -258,7 +261,8 @@ def html_visit_bokehjs_content(self, node):
 def html_depart_bokehjs_content(self, node):
     self.body.append(BJS_EPILOGUE.render(
         title=node['title'],
-        enable_codepen=not node['disable_codepen']
+        enable_codepen=not node['disable_codepen'],
+        js_source=node['js_source']
     ))
 
 def setup(app):

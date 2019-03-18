@@ -70,11 +70,6 @@ Python to JavaScript at this level is nearly one-to-one:
     :title: Bokeh Simple Line
     :js_file: docs/user_guide/examples/simple_line.js
 
-The code above generates the following plot:
-
-.. image:: /_images/bokehjs_models.png
-    :width: 400px
-
 .. _userguide_bokehjs_interfaces:
 
 Interfaces
@@ -142,12 +137,11 @@ Here is an example that is very similar the Python example
     });
 
     // show the plot
-    plt.show(p);
-
-The code above generates the following plot:
-
-.. image:: /_images/bokehjs_plotting.png
-    :width: 400px
+    //plt.show(p);
+    // add the plot to a document and display it
+    var doc = new Bokeh.Document();
+    doc.add_root(p);
+    Bokeh.embed.add_document_standalone(doc, document.currentScript.parentElement);
 
 .. _userguide_bokehjs_interfaces_charts:
 
@@ -213,7 +207,12 @@ function, with the plot it generates shown below:
         slice_labels: "percentages"
     });
 
-    plt.show(plt.gridplot([[p1, p2, p3, p4]]));
+    //plt.show(plt.gridplot([[p1, p2, p3, p4]]));
+    // add the plot to a document and display it
+    var doc = new Bokeh.Document();
+    doc.add_root(plt.gridplot([[p1, p2, p3, p4]]));
+    Bokeh.embed.add_document_standalone(doc, document.currentScript.parentElement);
+
 
 .. image:: /_images/bokehjs_pie_charts.png
     :width: 100%
@@ -291,7 +290,12 @@ function, with the plot it generates shown below:
         stacked: true
     });
 
-    plt.show(plt.gridplot([p1, p2, p3, p4]));
+    //plt.show(plt.gridplot([p1, p2, p3, p4]));
+    // add the plot to a document and display it
+    var doc = new Bokeh.Document();
+    doc.add_root(plt.gridplot([p1, p2, p3, p4]));
+    Bokeh.embed.add_document_standalone(doc, document.currentScript.parentElement);
+
 
 .. image:: /_images/bokehjs_bar_charts.png
     :width: 100%
@@ -335,7 +339,8 @@ and dynamic creation and modification of plots.
         source.change.emit();
     }
 
-    var addDataButton =document.createElement("Button");
+    var addDataButton = document.createElement("Button");
     addDataButton.appendChild(document.createTextNode("Add Some Data!!!"));
-    document.body.prepend(addDataButton);
+    //document.body.prepend(addDataButton);
+    document.currentScript.parentElement.appendChild(addDataButton);
     addDataButton.addEventListener("click", addPoint);

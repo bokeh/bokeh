@@ -1,8 +1,15 @@
 <div id="codepen-html">
+
+
 <!--
 {% include 'bokehjs_html_template.html' %}
 -->
 </div>
+{% for css_file in css_files %}
+<link rel="stylesheet" href="{{css_file}}" type="text/css" />{% endfor %}
+{% for js_file in js_files %}
+<script type="text/javascript" src="{{js_file}}"></script>{% endfor %}
+
 <script>
     $(function() {
         var HTML = "";
