@@ -28,8 +28,8 @@ Additionally, we are pleased to announce `Bokeh joins NumFOCUS Sponsored Project
 
 .. _release-0-12-15-migration:
 
-Migration Guide
----------------
+`Migration Guide <releases.html#release-0-12-15-migration>`__
+-------------------------------------------------------------
 
 DataTable
 ~~~~~~~~~

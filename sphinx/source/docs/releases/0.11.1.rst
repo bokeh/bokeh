@@ -28,8 +28,8 @@ python library.
 
 .. _release-0-11-1-migration:
 
-Migration Guide
----------------
+`Migration Guide <releases.html#release-0-11-1-migration>`__
+------------------------------------------------------------
 
 * Range update callbacks now return the range object as cb_obj (not the plot)
 * Layouts (HBox, VBox, VBoxForm) have been moved from bokeh.models.widgets to

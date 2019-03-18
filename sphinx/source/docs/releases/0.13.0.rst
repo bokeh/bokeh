@@ -15,8 +15,8 @@ And several other bug fixes and docs additions. For full details see the
 
 .. _release-0-13-0-migration:
 
-Migration Guide
----------------
+`Migration Guide <releases.html#release-0-13-0-migration>`__
+------------------------------------------------------------
 
 NOTE: the 0.13.x series is a final series of small releases leading to a
 1.0 release. For more information see the `project roadmap`_.

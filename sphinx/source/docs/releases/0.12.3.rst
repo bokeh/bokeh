@@ -15,8 +15,8 @@ a few new small features and fixes several bugs. Some of the highlights include:
 
 .. _release-0-12-3-migration:
 
-Migration Guide
----------------
+`Migration Guide <releases.html#release-0-12-3-migration>`__
+------------------------------------------------------------
 
 As the project approaches a 1.0 release, it is necessary to make some changes
 to bring interfaces and functionality up to a point that can be maintained

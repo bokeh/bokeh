@@ -23,8 +23,8 @@ And several other bug fixes and docs additions. For full details see the
 
 .. _release-1-0-0-migration:
 
-Migration Guide
----------------
+`Migration Guide <releases.html#release-1-0-0-migration>`__
+-----------------------------------------------------------
 
 Handling of Selections
 ~~~~~~~~~~~~~~~~~~~~~~

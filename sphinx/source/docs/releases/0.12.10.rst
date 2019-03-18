@@ -9,8 +9,8 @@ important features and fixes several bugs. For full details see the
 
 .. _release-0-12-10-migration:
 
-Migration Guide
----------------
+`Migration Guide <releases.html#release-0-12-10-migration>`__
+-------------------------------------------------------------
 
 Deprecations Removed
 ~~~~~~~~~~~~~~~~~~~~
