@@ -47,6 +47,7 @@ __all__ = (
     'ContinuousColorMapper',
     'LinearColorMapper',
     'LogColorMapper',
+    'EqHistColorMapper'
 )
 
 #-----------------------------------------------------------------------------
@@ -218,6 +219,9 @@ class LogColorMapper(ContinuousColorMapper):
         non-negative.
 
     '''
+
+class EqHistColorMapper(ContinuousColorMapper):
+    pass
 
 #-----------------------------------------------------------------------------
 # Dev API
