@@ -1,3 +1,6 @@
+export type Align = "start" | "center" | "end"
+export const Align: Align[] = ["start", "center", "end"]
+
 export type Anchor =
   "top_left"    | "top_center"    | "top_right"    |
   "center_left" | "center"        | "center_right" |

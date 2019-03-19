@@ -211,6 +211,9 @@ def enumeration(*values, **kwargs):
 
     return type(str("Enumeration"), (Enumeration,), attrs)()
 
+#: Alignment (vertical or horizontal) of a child item
+Align = enumeration("start", "center", "end")
+
 #: Specify an anchor position on a box/frame
 Anchor = enumeration(
     "top_left",    "top_center",    "top_right",
@@ -351,9 +354,6 @@ TooltipAttachment = enumeration("horizontal", "vertical", "left", "right", "abov
 
 #: Specify how a format string for a tooltip field should be interpreted
 TooltipFieldFormatter = enumeration("numeral", "datetime", "printf")
-
-#: Grid track (row/column) alignment (vertical/horizontal) of child items
-TrackAlign = enumeration("start", "center", "end")
 
 #: Grid track (row/column) sizing policies
 TrackPolicy = enumeration("auto", "min", "max", "flex", "fixed")

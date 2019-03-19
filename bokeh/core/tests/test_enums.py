@@ -224,6 +224,7 @@ class Test_bce(object):
 # any changes to contents of bce.py easily trackable here
 def test_enums_contents():
     assert [x for x in dir(bce) if x[0].isupper()] == [
+        'Align',
         'Anchor',
         'AngleUnits',
         'ButtonType',
@@ -268,7 +269,6 @@ def test_enums_contents():
         'TickLabelOrientation',
         'TooltipAttachment',
         'TooltipFieldFormatter',
-        'TrackAlign',
         'TrackPolicy',
         'VerticalAlign',
         'VerticalLocation',
