@@ -5,8 +5,7 @@ import {Color} from "core/types"
 import {div, span, empty} from "core/dom"
 import {repeat} from "core/util/array"
 import {throttle} from "core/util/callback"
-import {Orientation, SliderCallbackPolicy} from "core/enums"
-import {ContentBox, SizingPolicy} from "core/layout"
+import {SliderCallbackPolicy} from "core/enums"
 
 import {Control, ControlView} from "./control"
 import {CallbackLike0} from "../callbacks/callback"
@@ -72,27 +71,6 @@ export abstract class AbstractSliderView extends ControlView {
           this.callback_wrapper = undefined
       }
     }
-  }
-
-  protected _width_policy(): SizingPolicy {
-    return this.model.orientation == "horizontal" ? "fit" : "fixed"
-  }
-
-  protected _height_policy(): SizingPolicy {
-    return this.model.orientation == "horizontal" ? "fixed" : "fit"
-  }
-
-  _update_layout(): void {
-    this.layout = new ContentBox(this.el)
-    const sizing = this.box_sizing()
-    if (this.model.orientation == "horizontal") {
-      if (sizing.width == null)
-        sizing.width = this.model.default_size
-    } else {
-      if (sizing.height == null)
-        sizing.height = this.model.default_size
-    }
-    this.layout.set_sizing(sizing)
   }
 
   _update_title(): void {
@@ -236,7 +214,6 @@ export namespace AbstractSlider {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Control.Props & {
-    default_size: p.Property<number>
     title: p.Property<string>
     show_value: p.Property<boolean>
     start: p.Property<any> // XXX
@@ -244,7 +221,6 @@ export namespace AbstractSlider {
     value: p.Property<any> // XXX
     step: p.Property<number>
     format: p.Property<string>
-    orientation: p.Property<Orientation>
     direction: p.Property<"ltr" | "rtl">
     tooltips: p.Property<boolean>
     callback: p.Property<CallbackLike0<AbstractSlider> | null>
@@ -267,7 +243,6 @@ export abstract class AbstractSlider extends Control {
     this.prototype.type = "AbstractSlider"
 
     this.define<AbstractSlider.Props>({
-      default_size:      [ p.Number,               300          ],
       title:             [ p.String,               ""           ],
       show_value:        [ p.Boolean,              true         ],
       start:             [ p.Any                                ],
@@ -275,7 +250,6 @@ export abstract class AbstractSlider extends Control {
       value:             [ p.Any                                ],
       step:              [ p.Number,               1            ],
       format:            [ p.String                             ],
-      orientation:       [ p.Orientation,          "horizontal" ],
       direction:         [ p.Any,                  "ltr"        ],
       tooltips:          [ p.Boolean,              true         ],
       callback:          [ p.Any                                ],

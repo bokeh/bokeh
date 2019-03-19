@@ -55,10 +55,6 @@ export abstract class Markup extends Widget {
       text:  [ p.String, '' ],
       style: [ p.Any,    {} ],
     })
-
-    this.override({
-      width: 300,
-    })
   }
 }
 Markup.initClass()

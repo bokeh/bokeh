@@ -1,5 +1,5 @@
 Column bbox=[0, 0, 830, 448]
-  Div bbox=[5, 5, 820, 38]
+  Div bbox=[5, 5, 800, 38]
   Row bbox=[0, 48, 830, 400]
     GridBox bbox=[0, 0, 800, 400]
       Plot bbox=[0, 0, 400, 400]

@@ -1,4 +1,4 @@
-Row bbox=[0, 0, 710, 400]
+Row bbox=[0, 0, 800, 400]
   Column bbox=[0, 0, 310, 256]
     TextInput bbox=[5, 5, 300, 50]
     Slider bbox=[5, 65, 300, 39]

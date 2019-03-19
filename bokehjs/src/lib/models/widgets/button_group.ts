@@ -71,10 +71,6 @@ export abstract class ButtonGroup extends Control {
       button_type: [ p.ButtonType, "default" ],
       callback:    [ p.Any                   ],
     })
-
-    this.override({
-      width: 300,
-    })
   }
 }
 ButtonGroup.initClass()

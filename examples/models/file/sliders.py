@@ -32,11 +32,13 @@ def color_picker():
     green = color_slider("G", "green")
     blue  = color_slider("B", "blue")
 
-    div = Div(width=100, height=100, style=dict(backgroundColor="rgb(127, 127, 127"))
+    div = Div(width=100, height=100, background="rgb(127, 127, 127)")
 
     cb = CustomJS(args=dict(red=red, green=green, blue=blue, div=div), code="""
-        var color = "rgb(" + red.value + ", " + green.value + ", " + blue.value + ")";
-        div.style = {backgroundColor: color};
+        const r = red.value
+        const g = green.value
+        const b = blue.value
+        div.background = `rgb(${r}, ${g}, ${b})`
     """)
 
     red.callback   = cb

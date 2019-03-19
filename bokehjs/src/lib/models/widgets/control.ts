@@ -1,5 +1,4 @@
 import {Widget, WidgetView} from "./widget"
-import {SizingPolicy} from "core/layout"
 import * as p from "core/properties"
 
 export abstract class ControlView extends WidgetView {
@@ -10,10 +9,6 @@ export abstract class ControlView extends WidgetView {
 
     const p = this.model.properties
     this.on_change(p.disabled, () => this.render())
-  }
-
-  protected _height_policy(): SizingPolicy {
-    return "fixed"
   }
 }
 

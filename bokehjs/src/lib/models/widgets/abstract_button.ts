@@ -89,10 +89,6 @@ export abstract class AbstractButton extends Control {
       button_type: [ p.ButtonType, "default" ], // TODO (bev)
       callback:    [ p.Any                   ],
     })
-
-    this.override({
-      width: 300,
-    })
   }
 }
 AbstractButton.initClass()

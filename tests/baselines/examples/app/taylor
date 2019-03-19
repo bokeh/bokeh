@@ -1,5 +1,5 @@
 Column bbox=[0, 0, 800, 533]
-  Column bbox=[0, 0, 310, 133]
+  Column bbox=[0, 0, 400, 133]
     TextInput bbox=[5, 5, 300, 50]
     Slider bbox=[5, 65, 300, 39]
     PreText bbox=[5, 114, 0, 14]
