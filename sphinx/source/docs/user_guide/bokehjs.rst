@@ -137,11 +137,7 @@ Here is an example that is very similar the Python example
     });
 
     // show the plot
-    //plt.show(p);
-    // add the plot to a document and display it
-    var doc = new Bokeh.Document();
-    doc.add_root(p);
-    Bokeh.embed.add_document_standalone(doc, document.currentScript.parentElement);
+    plt.show(p);
 
 .. _userguide_bokehjs_interfaces_charts:
 
@@ -207,7 +203,6 @@ function, with the plot it generates shown below:
         slice_labels: "percentages"
     });
 
-    //plt.show(plt.gridplot([[p1, p2, p3, p4]]));
     // add the plot to a document and display it
     var doc = new Bokeh.Document();
     doc.add_root(plt.gridplot([[p1, p2, p3, p4]]));
@@ -290,12 +285,7 @@ function, with the plot it generates shown below:
         stacked: true
     });
 
-    //plt.show(plt.gridplot([p1, p2, p3, p4]));
-    // add the plot to a document and display it
-    var doc = new Bokeh.Document();
-    doc.add_root(plt.gridplot([p1, p2, p3, p4]));
-    Bokeh.embed.add_document_standalone(doc, document.currentScript.parentElement);
-
+    plt.show(plt.gridplot([p1, p2, p3, p4]));
 
 .. image:: /_images/bokehjs_bar_charts.png
     :width: 100%
@@ -328,7 +318,7 @@ and dynamic creation and modification of plots.
 
     // Show the plot, appending it to the end of the current
     // section of the document we are in.
-    Bokeh.Plotting.show(plot, document.currentScript.parentElement);
+    Bokeh.Plotting.show(plot);
 
     function addPoint() {
         // The data can be added, but generally all fields must be the
@@ -341,6 +331,5 @@ and dynamic creation and modification of plots.
 
     var addDataButton = document.createElement("Button");
     addDataButton.appendChild(document.createTextNode("Add Some Data!!!"));
-    //document.body.prepend(addDataButton);
     document.currentScript.parentElement.appendChild(addDataButton);
     addDataButton.addEventListener("click", addPoint);

@@ -11,7 +11,23 @@
 <script type="text/javascript" src="{{js_file}}"></script>{% endfor %}
 
 <script>
+    (function () {
+
+        // this monkey patches Plotting.show to insert the plot below
+        // the script block
+
+        var originalPltShow = Bokeh.Plotting.show;
+        var newPlotShow = function(layoutDomObj, target) {
+            if(typeof target === "undefined"){
+                target = document.currentScript.parentElement;
+            }
+            return originalPltShow(layoutDomObj, target);
+        };
+        Bokeh.Plotting.show = newPlotShow;
+    })()
     $(function() {
+
+
         var HTML = "";
         var htmlEl = document.getElementById("codepen-html");
         for(var i=0; i < htmlEl.childNodes.length; i++){
@@ -20,7 +36,6 @@
                 HTML = htmlEl.childNodes[i].textContent;
             }
         }
-        console.log("HTML", HTML);
         $(".codepen-wrap ").each(function(iterEl) {
                 var el = $(this),
                         type = "js",

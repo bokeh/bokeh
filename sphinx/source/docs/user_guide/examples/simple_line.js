@@ -38,7 +38,4 @@ var line = new Bokeh.Line({
 });
 plot.add_glyph(line, source);
 
-// add the plot to a document and display it
-var doc = new Bokeh.Document();
-doc.add_root(plot);
-Bokeh.embed.add_document_standalone(doc, document.currentScript.parentElement);
+Bokeh.Plotting.show(plot);
