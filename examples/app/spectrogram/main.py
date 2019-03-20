@@ -4,8 +4,8 @@ from math import ceil
 import numpy as np
 
 from bokeh.io import curdoc
-from bokeh.layouts import row, column
-from bokeh.models import ColumnDataSource, Slider, Div
+from bokeh.layouts import row #, column
+from bokeh.models import ColumnDataSource, Slider, Div, GridBox
 from bokeh.plotting import figure
 
 import audio
@@ -27,7 +27,7 @@ desc = Div(text=open(filename).read(),
 
 waterfall_renderer = WaterfallRenderer(palette=PALETTE, num_grams=NUM_GRAMS,
                                        gram_length=GRAM_LENGTH, tile_width=TILE_WIDTH)
-waterfall_plot = figure(plot_width=990, plot_height=300, min_border_left=80,
+waterfall_plot = figure(plot_width=1000, plot_height=300,
                         x_range=[0, NUM_GRAMS], y_range=[0, MAX_FREQ_KHZ], **PLOTARGS)
 waterfall_plot.grid.grid_line_color = None
 waterfall_plot.background_fill_color = "#024768"
@@ -102,7 +102,13 @@ curdoc().add_periodic_callback(update, 80)
 
 controls = row(gain, freq)
 
-plots = column(waterfall_plot, row(column(signal_plot, spectrum_plot), eq))
+#plots = column(waterfall_plot, row(column(signal_plot, spectrum_plot), eq))
+plots = GridBox(children=[
+    (waterfall_plot, 0, 0, 1, 2),
+    (signal_plot,    1, 0, 1, 1),
+    (spectrum_plot,  2, 0, 1, 1),
+    (eq,             1, 1, 2, 1),
+])
 
 curdoc().add_root(desc)
 curdoc().add_root(controls)
