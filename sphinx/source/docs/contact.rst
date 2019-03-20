@@ -23,7 +23,7 @@ For up to date announcements and news, be sure to follow us on Twitter
 
 .. _Bokeh GitHub repository: https://github.com/bokeh/bokeh
 .. _Bokeh mailing list: https://groups.google.com/a/anaconda.com/forum/#!forum/bokeh
-.. _donation through NumFOCUS: https://www.flipcause.com/secure/cause_pdetails/MzE5NjE=
+.. _donation through NumFOCUS: https://numfocus.salsalabs.org/donate-to-bokeh/index.html
 .. _Gitter chat channel: https://gitter.im/bokeh/bokeh
 .. _StackOverflow: https://stackoverflow.com
 .. _Twitter: http://twitter.com/BokehPlots

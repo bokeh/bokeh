@@ -43,4 +43,4 @@ please make a `donation through NumFOCUS`_.
 
 .. _Gitter chat channel: https://gitter.im/bokeh/bokeh
 .. _public mailing list: https://groups.google.com/a/anaconda.com/forum/#!forum/bokeh
-.. _donation through NumFOCUS: https://www.flipcause.com/secure/cause_pdetails/MzE5NjE=
+.. _donation through NumFOCUS: https://numfocus.salsalabs.org/donate-to-bokeh/index.html
