@@ -73,7 +73,7 @@ def html_page_for_render_items(bundle, docs_json, render_items, title, template=
             a tuple containing (bokehjs, bokehcss)
 
         docs_json (JSON-like):
-            Serialized Bokeh Documen t
+            Serialized Bokeh Document
 
         render_items (RenderItems)
             Specific items to render from the document and where

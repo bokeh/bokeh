@@ -81,7 +81,7 @@ def OutputDocumentFor(objs, apply_theme=None, always_new=False):
     not possible in three cases:
 
     * If passed a series of models that have no Document at all, a new Document will
-      be created, and all the models will be added as roots. After the context mananger
+      be created, and all the models will be added as roots. After the context manager
       exits, the new Document will continue to be the models' document.
 
     * If passed a subset of Document.roots, then OutputDocumentFor temporarily "re-homes"

@@ -219,7 +219,7 @@ class ColorPicker(InputWidget):
     ''' Color picker widget
 
     .. warning::
-        This widget as a limited support on *Internet Explorer* (it will be dispalyed
+        This widget as a limited support on *Internet Explorer* (it will be displayed
         as a simple text input).
 
     '''
@@ -243,7 +243,7 @@ class Spinner(InputWidget):
     """)
 
     step = Float(default=1, help="""
-    The step added or substract  to the currect value
+    The step added or subtracted to the current value
     """)
 
     low = Float(help="""
