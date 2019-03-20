@@ -1,8 +1,8 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {Arrayable, TypedArray, Rect} from "core/types"
+import {Arrayable, TypedArray} from "core/types"
 import {Class} from "core/class"
 import * as p from "core/properties"
-import {max, concat} from "core/util/array"
+import {concat} from "core/util/array"
 import {Context2d} from "core/util/canvas"
 
 export interface ImageRGBAData extends XYGlyphData {
@@ -16,9 +16,6 @@ export interface ImageRGBAData extends XYGlyphData {
 
   sw: Arrayable<number>
   sh: Arrayable<number>
-
-  max_dw: number
-  max_dh: number
 }
 
 export interface ImageRGBAView extends ImageRGBAData {}
@@ -84,14 +81,6 @@ export class ImageRGBAView extends XYGlyphView {
       image_data.data.set(buf8)
       ctx.putImageData(image_data, 0, 0)
       this.image_data[i] = canvas
-
-      this.max_dw = 0
-      if (this.model.properties.dw.units == "data")
-        this.max_dw = max(this._dw)
-
-      this.max_dh = 0
-      if (this.model.properties.dh.units == "data")
-        this.max_dh = max(this._dh)
     }
   }
 
@@ -141,13 +130,6 @@ export class ImageRGBAView extends XYGlyphView {
     }
 
     ctx.setImageSmoothingEnabled(old_smoothing)
-  }
-
-  bounds(): Rect {
-    const {bbox} = this.index
-    bbox.maxX += this.max_dw
-    bbox.maxY += this.max_dh
-    return bbox
   }
 }
 
