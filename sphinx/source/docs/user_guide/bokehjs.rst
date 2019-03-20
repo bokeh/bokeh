@@ -205,12 +205,10 @@ function, with the plot it generates shown below:
 
     // add the plot to a document and display it
     var doc = new Bokeh.Document();
-    doc.add_root(plt.gridplot([[p1, p2, p3, p4]]));
+    doc.add_root(plt.gridplot(
+                     [[p1, p2, p3, p4]],
+                     {plot_width:250, plot_height:250}));
     Bokeh.embed.add_document_standalone(doc, document.currentScript.parentElement);
-
-
-.. image:: /_images/bokehjs_pie_charts.png
-    :width: 100%
 
 .. _userguide_bokehjs_interfaces_charts_bar:
 
@@ -261,11 +259,11 @@ function, with the plot it generates shown below:
 
     var bar_data = [
         ['City', '2010 Population', '2000 Population'],
-        ['New York City, NY', 8175000, 8008000],
-        ['Los Angeles, CA', 3792000, 3694000],
-        ['Chicago, IL', 2695000, 2896000],
-        ['Houston, TX', 2099000, 1953000],
-        ['Philadelphia, PA', 1526000, 1517000],
+        ['NYC', 8175000, 8008000],
+        ['LA', 3792000, 3694000],
+        ['Chicago', 2695000, 2896000],
+        ['Houston', 2099000, 1953000],
+        ['Philadelphia', 1526000, 1517000],
     ];
 
     var p1 = Bokeh.Charts.bar(bar_data, {
@@ -285,10 +283,7 @@ function, with the plot it generates shown below:
         stacked: true
     });
 
-    plt.show(plt.gridplot([p1, p2, p3, p4]));
-
-.. image:: /_images/bokehjs_bar_charts.png
-    :width: 100%
+    plt.show(plt.gridplot([[p1, p2, p3, p4]], {plot_width:350, plot_height:350}));
 
 ``Minimal Complete Example``
 ''''''''''''''''''''''''''''
