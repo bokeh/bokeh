@@ -243,7 +243,7 @@ class Spinner(InputWidget):
     """)
 
     step = Float(default=1, help="""
-    The step added or subtracted to the correct value
+    The step added or subtracted to the current value
     """)
 
     low = Float(help="""
