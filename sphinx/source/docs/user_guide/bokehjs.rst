@@ -66,58 +66,9 @@ and a line glyph from scratch. Comparison with examples in
 :bokeh-tree:`examples/models` will show that the translation from
 Python to JavaScript at this level is nearly one-to-one:
 
-.. code-block:: javascript
-
-    // create some data and a ColumnDataSource
-    var x = Bokeh.LinAlg.linspace(-0.5, 20.5, 10);
-    var y = x.map(function (v) { return v * 0.5 + 3.0; });
-    var source = new Bokeh.ColumnDataSource({ data: { x: x, y: y } });
-
-    // create some ranges for the plot
-    var xdr = new Bokeh.Range1d({ start: -0.5, end: 20.5 });
-    var ydr = new Bokeh.Range1d({ start: -0.5, end: 20.5 });
-
-    // make the plot
-    var plot = new Bokeh.Plot({
-        title: "BokehJS Plot",
-        x_range: xdr,
-        y_range: ydr,
-        plot_width: 400,
-        plot_height: 400,
-        background_fill_color: "#F2F2F7"
-    });
-
-    // add axes to the plot
-    var xaxis = new Bokeh.LinearAxis({ axis_line_color: null });
-    var yaxis = new Bokeh.LinearAxis({ axis_line_color: null });
-    plot.add_layout(xaxis, "below");
-    plot.add_layout(yaxis, "left");
-
-    // add grids to the plot
-    var xgrid = new Bokeh.Grid({ ticker: xaxis.ticker, dimension: 0 });
-    var ygrid = new Bokeh.Grid({ ticker: yaxis.ticker, dimension: 1 });
-    plot.add_layout(xgrid);
-    plot.add_layout(ygrid);
-
-    // add a Line glyph
-    var line = new Bokeh.Line({
-        x: { field: "x" },
-        y: { field: "y" },
-        line_color: "#666699",
-        line_width: 2
-    });
-    plot.add_glyph(line, source);
-
-    // add the plot to a document and display it
-    var doc = new Bokeh.Document();
-    doc.add_root(plot);
-    var div = document.getElementById("plot");
-    Bokeh.embed.add_document_standalone(doc, div);
-
-The code above generates the following plot:
-
-.. image:: /_images/bokehjs_models.png
-    :width: 400px
+.. bokehjs-content::
+    :title: Bokeh Simple Line
+    :js_file: docs/user_guide/examples/simple_line.js
 
 .. _userguide_bokehjs_interfaces:
 
@@ -147,7 +98,8 @@ reference in addition to the material here.
 Here is an example that is very similar the Python example
 :bokeh-tree:`examples/plotting/file/color_scatter.py`:
 
-.. code-block:: javascript
+.. bokehjs-content::
+    :title: Bokeh Color Scatter
 
     var plt = Bokeh.Plotting;
 
@@ -187,11 +139,6 @@ Here is an example that is very similar the Python example
     // show the plot
     plt.show(p);
 
-The code above generates the following plot:
-
-.. image:: /_images/bokehjs_plotting.png
-    :width: 400px
-
 .. _userguide_bokehjs_interfaces_charts:
 
 ``Bokeh.Charts``
@@ -230,7 +177,8 @@ By default, plots created ``Bokeh.Charts.pie`` automatically add a tooltip
 and hover policy. Here is some example code that demonstrates the ``pie``
 function, with the plot it generates shown below:
 
-.. code-block:: javascript
+.. bokehjs-content::
+    :title: Bokeh Pie Chart
 
     var plt = Bokeh.Plotting;
 
@@ -255,10 +203,12 @@ function, with the plot it generates shown below:
         slice_labels: "percentages"
     });
 
-    plt.show(plt.gridplot([[p1, p2, p3, p4]]));
-
-.. image:: /_images/bokehjs_pie_charts.png
-    :width: 100%
+    // add the plot to a document and display it
+    var doc = new Bokeh.Document();
+    doc.add_root(plt.gridplot(
+                     [[p1, p2, p3, p4]],
+                     {plot_width:250, plot_height:250}));
+    Bokeh.embed.add_document_standalone(doc, document.currentScript.parentElement);
 
 .. _userguide_bokehjs_interfaces_charts_bar:
 
@@ -302,17 +252,18 @@ By default, plots created ``Bokeh.Charts.bar`` automatically add a tooltip
 and hover policy. Here is some example code that demonstrates the ``bar``
 function, with the plot it generates shown below:
 
-.. code-block:: javascript
+.. bokehjs-content::
+    :title: Bokeh Bar Chart
 
     var plt = Bokeh.Plotting;
 
     var bar_data = [
         ['City', '2010 Population', '2000 Population'],
-        ['New York City, NY', 8175000, 8008000],
-        ['Los Angeles, CA', 3792000, 3694000],
-        ['Chicago, IL', 2695000, 2896000],
-        ['Houston, TX', 2099000, 1953000],
-        ['Philadelphia, PA', 1526000, 1517000],
+        ['NYC', 8175000, 8008000],
+        ['LA', 3792000, 3694000],
+        ['Chicago', 2695000, 2896000],
+        ['Houston', 2099000, 1953000],
+        ['Philadelphia', 1526000, 1517000],
     ];
 
     var p1 = Bokeh.Charts.bar(bar_data, {
@@ -332,11 +283,7 @@ function, with the plot it generates shown below:
         stacked: true
     });
 
-    plt.show(plt.gridplot([p1, p2, p3, p4]));
-
-.. image:: /_images/bokehjs_bar_charts.png
-    :width: 100%
-
+    plt.show(plt.gridplot([[p1, p2, p3, p4]], {plot_width:350, plot_height:350}));
 
 ``Minimal Complete Example``
 ''''''''''''''''''''''''''''
@@ -344,25 +291,10 @@ function, with the plot it generates shown below:
 A minimal example follows, demonstrating a proper import of the libraries,
 and dynamic creation and modification of plots.
 
-.. code-block:: html
-
-    <!doctype html>
-    <html lang="en">
-    <head>
-    <meta charset="utf-8">
-    <title>Complete Example</title>
-    <link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-0.12.5.min.css" type="text/css" />
-    <script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-0.12.5.min.js"></script>
-    <script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-api-0.12.5.min.js"></script>
-    <!-- The order of CSS and JS imports above is important. -->
-    </head>
-
-    <body>
-
-    <button onclick="addPoint()">Add some data!</button><br/>
-
-    <div>
-    <script type="text/javascript">
+.. bokehjs-content::
+    :title: Bokeh Pie Chart
+    :include_html: true
+    :disable_codepen: true
 
     // arrays to hold data
     var source = new Bokeh.ColumnDataSource({
@@ -381,7 +313,7 @@ and dynamic creation and modification of plots.
 
     // Show the plot, appending it to the end of the current
     // section of the document we are in.
-    Bokeh.Plotting.show(plot,document.currentScript.parentElement);
+    Bokeh.Plotting.show(plot);
 
     function addPoint() {
         // The data can be added, but generally all fields must be the
@@ -392,7 +324,7 @@ and dynamic creation and modification of plots.
         source.change.emit();
     }
 
-    </script>
-    </div>
-    </body>
-    </html>
+    var addDataButton = document.createElement("Button");
+    addDataButton.appendChild(document.createTextNode("Add Some Data!!!"));
+    document.currentScript.parentElement.appendChild(addDataButton);
+    addDataButton.addEventListener("click", addPoint);

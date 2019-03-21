@@ -104,9 +104,8 @@ from sphinx.util.nodes import set_source_info
 from ..document import Document
 from ..embed import autoload_static
 from ..model import Model
-from ..resources import Resources
-from ..settings import settings
 from ..util.string import decode_utf8
+from .util import get_sphinx_resources
 from .example_handler import ExampleHandler
 
 #-----------------------------------------------------------------------------
@@ -253,6 +252,7 @@ def _process_script(source, filename, env, js_name, use_relative_paths=False):
     if c.error:
         raise RuntimeError(c.error_detail)
 
+    resources = get_sphinx_resources()
     js_path = join(env.bokeh_plot_auxdir, js_name)
     js, script = autoload_static(d.roots[0], resources, js_name)
 
@@ -264,25 +264,4 @@ def _process_script(source, filename, env, js_name, use_relative_paths=False):
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
-
-docs_cdn = settings.docs_cdn()
-
-# if BOKEH_DOCS_CDN is unset just use default CDN resources
-if docs_cdn is None:
-    resources = Resources(mode="cdn")
-
-else:
-    # "BOKEH_DOCS_CDN=local" is used for building and displaying the docs locally
-    if docs_cdn == "local":
-        resources = Resources(mode="server", root_url="/en/latest/")
-
-    # "BOKEH_DOCS_CDN=test:newthing" is used for building and deploying test docs to
-    # a one-off location "en/newthing" on the docs site
-    elif docs_cdn.startswith("test:"):
-        resources = Resources(mode="server", root_url="/en/%s/" % docs_cdn.split(":")[1])
-
-    # Otherwise assume it is a dev/rc/full release version and use CDN for it
-    else:
-        resources = Resources(mode="cdn", version=docs_cdn)
-
 CODING = re.compile(r"^# -\*- coding: (.*) -\*-$", re.M)
