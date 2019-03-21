@@ -4,7 +4,7 @@ import {throttle} from "core/util/callback"
 import * as p from "core/properties"
 
 // HTML construction and manipulation functions
-import {label, input} from "core/dom"
+import {div, input} from "core/dom"
 
 import {SliderCallbackPolicy} from "core/enums"
 
@@ -21,7 +21,6 @@ export type SliderData = {from: number, to: number}
 export class IonRangeSliderView extends InputWidgetView {
   model: IonRangeSlider
 
-  private title_el?: HTMLElement
   private value_el?: HTMLInputElement
   private slider_el: HTMLInputElement
 
@@ -55,17 +54,12 @@ export class IonRangeSliderView extends InputWidgetView {
     super.render()
 
     if (this.model.title != null) {
-      if (this.model.title.length != 0) {
-        this.title_el = label({}, `${this.model.title}: `)
-        this.el.appendChild(this.title_el)
-      }
-
-      this.value_el = input({type: "text", readonly: true})
-      this.el.appendChild(this.value_el)
+      this.value_el = input({type: "text", class: "bk-input", readonly: true, style: {marginBottom: "5px"}})
+      this.group_el.appendChild(this.value_el)
     }
 
-    this.slider_el = input({type: "text", class: "bk-slider"})
-    this.el.appendChild(this.slider_el)
+    this.slider_el = input({type: "text"})
+    this.group_el.appendChild(div({style: {width: "100%"}}, this.slider_el))
 
     // Set up parameters
     const max = this.model.end
