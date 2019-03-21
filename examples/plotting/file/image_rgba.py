@@ -14,7 +14,7 @@ for i in range(N):
         view[i, j, 2] = int(j/N*255)
         view[i, j, 3] = 255
 
-p = figure()
+p = figure(tooltips=[("x", "$x"), ("y", "$y"), ("value", "@image")])
 p.x_range.range_padding = p.y_range.range_padding = 0
 
 # must give a vector of images

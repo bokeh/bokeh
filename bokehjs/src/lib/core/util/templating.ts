@@ -7,7 +7,7 @@ import {escape} from "./string"
 import {isNumber, isString, isArray, isTypedArray} from "./types"
 
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
-import {ImageIndex} from "../../models/glyphs/image"
+import {ImageIndex} from "../../models/glyphs/image_base"
 import {CustomJSHover} from 'models/tools/inspectors/customjs_hover'
 
 export function sprintf(format: string, ...args: unknown[]): string {

@@ -2,6 +2,9 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {Arrayable} from "core/types"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
+import * as hittest from "core/hittest"
+import {Selection} from "../selections/selection"
+import {PointGeometry} from "core/geometry"
 import {SpatialIndex} from "core/util/spatial"
 
 export interface ImageDataBase extends XYGlyphData {
@@ -15,6 +18,13 @@ export interface ImageDataBase extends XYGlyphData {
 
   sw: Arrayable<number>
   sh: Arrayable<number>
+}
+
+export interface ImageIndex {
+  index: number
+  dim1: number
+  dim2: number
+  flat_index: number
 }
 
 export interface ImageBaseView extends ImageDataBase {}
@@ -116,6 +126,34 @@ export class ImageBaseView extends XYGlyphView {
         break
       }
     }
+  }
+
+  _image_index(index : number, x: number, y : number) : ImageIndex {
+    const [l,r,t,b] = this._lrtb(index)
+    const width = this._width[index]
+    const height = this._height[index]
+    const dx = (r - l) / width
+    const dy = (t - b) / height
+    const dim1 = Math.floor((x - l) / dx)
+    const dim2 = Math.floor((y - b) / dy)
+    return {index, dim1, dim2, flat_index: dim2*width + dim1}
+  }
+
+  _hit_point(geometry: PointGeometry) : Selection {
+    const {sx, sy} = geometry
+    const x = this.renderer.xscale.invert(sx)
+    const y = this.renderer.yscale.invert(sy)
+    const bbox = hittest.validate_bbox_coords([x, x], [y, y])
+    const candidates = this.index.indices(bbox)
+    const result = hittest.create_empty_hit_test_result()
+
+    result.image_indices = []
+    for (const index of candidates) {
+      if ((sx != Infinity) && (sy != Infinity)) {
+        result.image_indices.push(this._image_index(index, x,y))
+      }
+    }
+    return result
   }
 
 }
