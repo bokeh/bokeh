@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 # External imports
 
 # Bokeh imports
-from ..core.enums import SizingMode, SizingPolicy, Location, TrackAlign
+from ..core.enums import Align, SizingMode, SizingPolicy, Location
 from ..core.has_props import abstract
 from ..core.properties import (Bool, Auto, Enum, Int, NonNegativeInt, Float,
     Instance, List, Seq, Tuple, Dict, String, Either, Struct, Color)
@@ -220,6 +220,14 @@ class LayoutDOM(Model):
 
     """)
 
+    align = Either(Enum(Align), Tuple(Enum(Align), Enum(Align)), default="start", help="""
+    The alignment point within the parent container.
+
+    This property is useful only if this component is a child element of a layout
+    (e.g. a grid). Self alignment can be overridden by the parent container (e.g.
+    grid track align).
+    """)
+
     background = Color(default=None, help="""
     Background color of the component.
     """)
@@ -279,23 +287,27 @@ class Spacer(LayoutDOM):
 
 QuickTrackSizing = Either(Enum("auto", "min", "max"), Int)
 
+TrackAlign = Either(Auto, Enum(Align))
+
 RowSizing = Either(
     QuickTrackSizing,
-    Struct(policy=Enum("auto", "min", "max"), align=Enum(TrackAlign)),
-    Struct(policy=Enum("fixed"), height=Int, align=Enum(TrackAlign)),
-    Struct(policy=Enum("flex"), factor=Float, align=Enum(TrackAlign)))
+    Struct(policy=Enum("auto", "min", "max"), align=TrackAlign),
+    Struct(policy=Enum("fixed"), height=Int, align=TrackAlign),
+    Struct(policy=Enum("flex"), factor=Float, align=TrackAlign))
 
 ColSizing = Either(
     QuickTrackSizing,
-    Struct(policy=Enum("auto", "min", "max"), align=Enum(TrackAlign)),
-    Struct(policy=Enum("fixed"), width=Int, align=Enum(TrackAlign)),
-    Struct(policy=Enum("flex"), factor=Float, align=Enum(TrackAlign)))
+    Struct(policy=Enum("auto", "min", "max"), align=TrackAlign),
+    Struct(policy=Enum("fixed"), width=Int, align=TrackAlign),
+    Struct(policy=Enum("flex"), factor=Float, align=TrackAlign))
 
 IntOrString = Either(Int, String) # XXX: work around issue #8166
 
 class GridBox(LayoutDOM):
 
-    children = List(Tuple(Instance(LayoutDOM), Int, Int), default=[], help="""
+    children = List(Either(
+        Tuple(Instance(LayoutDOM), Int, Int),
+        Tuple(Instance(LayoutDOM), Int, Int, Int, Int)), default=[], help="""
     A list of children with their associated position in the grid (row, column).
     """)
 

@@ -54,6 +54,8 @@ export abstract class Layoutable {
     const aspect = sizing.aspect
     const margin = sizing.margin || {top: 0, right: 0, bottom: 0, left: 0}
     const visible = sizing.visible !== false
+    const halign = sizing.halign || "start"
+    const valign = sizing.valign || "start"
 
     this._sizing = {
       width_policy, min_width, width, max_width,
@@ -61,6 +63,8 @@ export abstract class Layoutable {
       aspect,
       margin,
       visible,
+      halign,
+      valign,
       size: {width, height},
       min_size: {width: min_width, height: min_height},
       max_size: {width: max_width, height: max_height},

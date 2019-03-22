@@ -21,9 +21,9 @@ export class GridBoxView extends LayoutDOMView {
     this.layout.cols = this.model.cols
     this.layout.spacing = this.model.spacing
 
-    for (const [child, row, col] of this.model.children) {
+    for (const [child, row, col, row_span, col_span] of this.model.children) {
       const child_view = this._child_views[child.id]
-      this.layout.items.push({layout: child_view.layout, row, col})
+      this.layout.items.push({layout: child_view.layout, row, col, row_span, col_span})
     }
 
     this.layout.set_sizing(this.box_sizing())
@@ -34,7 +34,7 @@ export namespace GridBox {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = LayoutDOM.Props & {
-    children: p.Property<[LayoutDOM, number, number][]>
+    children: p.Property<[LayoutDOM, number, number, number?, number?][]>
     rows: p.Property<RowsSizing>
     cols: p.Property<ColsSizing>
     spacing: p.Property<number | [number, number]>

@@ -1,10 +1,10 @@
 import {Model} from "../../model"
 import {Color} from "core/types"
 import {Class} from "core/class"
-import {SizingMode} from "core/enums"
+import {Align, SizingMode} from "core/enums"
 import {empty, position, classes, extents, undisplayed} from "core/dom"
 import {logger} from "core/logging"
-import {isNumber} from "core/util/types"
+import {isNumber, isArray} from "core/util/types"
 import * as p from "core/properties"
 
 import {build_views} from "core/build_views"
@@ -303,6 +303,12 @@ export abstract class LayoutDOMView extends DOMView {
 
     sizing.visible = this.model.visible
 
+    const {align} = this.model
+    if (isArray(align))
+      [sizing.halign, sizing.valign] = align
+    else
+      sizing.halign = sizing.valign = align
+
     return sizing
   }
 
@@ -368,6 +374,7 @@ export namespace LayoutDOM {
     sizing_mode: p.Property<SizingMode | null>
     visible: p.Property<boolean>
     disabled: p.Property<boolean>
+    align: p.Property<Align | [Align, Align]>
     background: p.Property<Color | null>
     css_classes: p.Property<string[]>
   }
@@ -400,6 +407,7 @@ export abstract class LayoutDOM extends Model {
       sizing_mode:   [ p.SizingMode, null         ],
       visible:       [ p.Boolean,    true         ],
       disabled:      [ p.Boolean,    false        ],
+      align:         [ p.Any,        "start"      ],
       background:    [ p.Color,      null         ],
       css_classes:   [ p.Array,      []           ],
     })

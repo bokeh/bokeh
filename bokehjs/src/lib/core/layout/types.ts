@@ -1,3 +1,5 @@
+import {Align} from "../enums"
+
 import {Size, Extents} from "../types"
 export {Size}
 
@@ -85,4 +87,6 @@ export type BoxSizing = {
   aspect?: number
   margin: Margin
   visible: boolean
+  halign: Align
+  valign: Align
 }
