@@ -1,5 +1,5 @@
 import {Grid, ContentBox, Layoutable, Sizeable} from "core/layout"
-import {div, position, size, scroll_size, show, hide, undisplay, children} from "core/dom"
+import {div, position, size, scroll_size, show, hide, display, undisplay, children} from "core/dom"
 import {sum, remove_at} from "core/util/array"
 import {Location} from "core/enums"
 import * as p from "core/properties"
@@ -88,16 +88,22 @@ export class TabsView extends LayoutDOMView {
     const headers_el_size = scroll_size(this.headers_el)
     if (vertical) {
       const {width} = this.header.bbox
-      if (headers_el_size.width > width)
+      if (headers_el_size.width > width) {
         this.wrapper_el.style.maxWidth = `${width - scroll_el_size.width}px`
-      else
+        display(this.scroll_el)
+      } else {
+        this.wrapper_el.style.maxWidth = ""
         undisplay(this.scroll_el)
+      }
     } else {
       const {height} = this.header.bbox
-      if (headers_el_size.height > height)
+      if (headers_el_size.height > height) {
         this.wrapper_el.style.maxHeight = `${height - scroll_el_size.height}px`
-      else
+        display(this.scroll_el)
+      } else {
+        this.wrapper_el.style.maxHeight = ""
         undisplay(this.scroll_el)
+      }
     }
 
     const {child_views} = this
