@@ -34,7 +34,7 @@ from ..core.query import find
 from ..core.validation import error, warning
 from ..core.validation.errors import BAD_EXTRA_RANGE_NAME, REQUIRED_RANGE, REQUIRED_SCALE, INCOMPATIBLE_SCALE_AND_RANGE
 from ..core.validation.warnings import MISSING_RENDERERS, FIXED_SIZING_MODE, FIXED_WIDTH_POLICY, FIXED_HEIGHT_POLICY
-from ..model import Model
+from ..model import Model, collect_filtered_models
 from ..util.deprecation import deprecated
 from ..util.string import nice_join
 
@@ -368,8 +368,9 @@ class Plot(LayoutDOM):
 
     @error(BAD_EXTRA_RANGE_NAME)
     def _check_bad_extra_range_name(self):
-        msg = ""
-        for ref in self.references():
+        msg  = ""
+        filt = lambda x: x is not self and isinstance(x, Plot)
+        for ref in collect_filtered_models(filt, self):
             prop_names = ref.properties()
             bad = []
             if 'x_range_name' in prop_names and 'y_range_name' in prop_names:
