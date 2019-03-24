@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import {ColumnDataSource} from "models/sources/column_data_source"
-import {Stack} from "models/expressions/stack"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {Stack} from "@bokehjs/models/expressions/stack"
 
 describe("Stack", () => {
 

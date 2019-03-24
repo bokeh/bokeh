@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import {MultiSelect} from "models/widgets/multiselect"
+import {MultiSelect} from "@bokehjs/models/widgets/multiselect"
 
 describe("MultiSelect", () => {
 

@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import {IndexFilter} from "models/filters/index_filter"
-import {ColumnDataSource} from "models/sources/column_data_source"
+import {IndexFilter} from "@bokehjs/models/filters/index_filter"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 
 describe("IndexFilter", () => {
 

@@ -1,11 +1,11 @@
 import {expect} from "chai"
 const {stderrTrap} = require('logtrap')
 
-import {Set} from "core/util/data_structures"
-import {set_log_level} from "core/logging"
+import {Set} from "@bokehjs/core/util/data_structures"
+import {set_log_level} from "@bokehjs/core/logging"
 
-import {keys} from "core/util/object"
-import {ColumnDataSource, stream_to_column, slice, patch_to_column} from "models/sources/column_data_source"
+import {keys} from "@bokehjs/core/util/object"
+import {ColumnDataSource, stream_to_column, slice, patch_to_column} from "@bokehjs/models/sources/column_data_source"
 
 describe("column_data_source module", () => {
 

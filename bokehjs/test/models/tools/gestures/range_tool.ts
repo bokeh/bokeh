@@ -1,8 +1,8 @@
 import {expect} from "chai"
 
-import {compute_value, is_near, is_inside, update_range, RangeTool} from "models/tools/gestures/range_tool"
-import {Range1d} from "models/ranges/range1d"
-import {LinearScale} from "models/scales/linear_scale"
+import {compute_value, is_near, is_inside, update_range, RangeTool} from "@bokehjs/models/tools/gestures/range_tool"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {LinearScale} from "@bokehjs/models/scales/linear_scale"
 
 describe("range_tool module", () => {
   const source = {start: 0, end: 10}

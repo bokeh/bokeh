@@ -1,10 +1,10 @@
 import {expect} from "chai"
 import * as sinon from 'sinon'
 
-import {Plot} from "models/plots/plot"
-import {PlotView} from "models/plots/plot"
-import {Range1d} from "models/ranges/range1d"
-import {CustomJS} from "models/callbacks/customjs"
+import {Plot} from "@bokehjs/models/plots/plot"
+import {PlotView} from "@bokehjs/models/plots/plot"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {CustomJS} from "@bokehjs/models/callbacks/customjs"
 
 function new_plot_view(attrs: Partial<Plot.Attrs> = {}): PlotView {
   const plot = new Plot({

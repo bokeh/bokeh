@@ -1,5 +1,5 @@
 import {expect} from "chai"
-import {Signal} from "core/signaling"
+import {Signal} from "@bokehjs/core/signaling"
 
 describe("core/signaling module", () => {
   describe("Signal", () => {

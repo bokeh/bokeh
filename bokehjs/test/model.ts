@@ -1,9 +1,9 @@
 import {expect} from "chai"
 import * as sinon from "sinon"
 
-import {CustomJS} from "models/callbacks/customjs"
-import {Model} from "model"
-import * as p from "core/properties"
+import {CustomJS} from "@bokehjs/models/callbacks/customjs"
+import {Model} from "@bokehjs/model"
+import * as p from "@bokehjs/core/properties"
 
 class SomeModel extends Model {
 

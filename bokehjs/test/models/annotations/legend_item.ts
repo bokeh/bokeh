@@ -1,10 +1,10 @@
 import {expect} from "chai"
 import * as sinon from 'sinon'
 
-import {ColumnDataSource} from "models/sources/column_data_source"
-import {GlyphRenderer} from "models/renderers/glyph_renderer"
-import {LegendItem} from "models/annotations/legend_item"
-import {logger} from "core/logging"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
+import {LegendItem} from "@bokehjs/models/annotations/legend_item"
+import {logger} from "@bokehjs/core/logging"
 
 describe("LegendItem", () => {
 

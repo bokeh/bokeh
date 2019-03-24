@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import {ToolbarBase, ToolbarViewModel} from "models/tools/toolbar_base"
-import {PanTool} from "models/tools/gestures/pan_tool"
+import {ToolbarBase, ToolbarViewModel} from "@bokehjs/models/tools/toolbar_base"
+import {PanTool} from "@bokehjs/models/tools/gestures/pan_tool"
 
 describe("ToolbarBase", () => {
 

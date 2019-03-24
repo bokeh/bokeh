@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import {StepInterpolator} from 'models/transforms/step_interpolator'
-import {ColumnDataSource} from 'models/sources/column_data_source'
+import {StepInterpolator} from '@bokehjs/models/transforms/step_interpolator'
+import {ColumnDataSource} from '@bokehjs/models/sources/column_data_source'
 
 describe("step_interpolator_transform module", () => {
 

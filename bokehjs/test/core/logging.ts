@@ -1,7 +1,7 @@
 import {expect} from "chai"
 const {stdoutTrap} = require('logtrap') // XXX: no typings
 
-import {Logger, logger, set_log_level} from "core/logging"
+import {Logger, logger, set_log_level} from "@bokehjs/core/logging"
 
 describe("logging module", () => {
 

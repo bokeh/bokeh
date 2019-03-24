@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import * as hittest from "core/hittest"
+import * as hittest from "@bokehjs/core/hittest"
 
 describe("hittest module", () => {
 

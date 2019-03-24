@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import {SidePanel} from "core/layout/side_panel"
-import {Size} from "core/layout"
+import {SidePanel} from "@bokehjs/core/layout/side_panel"
+import {Size} from "@bokehjs/core/layout"
 
 function get_size(): Size {
   return {width: 0, height: 0}

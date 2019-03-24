@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import {DateFormatter} from "models/widgets/tables/cell_formatters"
+import {DateFormatter} from "@bokehjs/models/widgets/tables/cell_formatters"
 
 describe("cell_formatters module", () => {
 

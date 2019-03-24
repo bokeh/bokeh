@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import {AdaptiveTicker} from "models/tickers/adaptive_ticker"
-import {CompositeTicker} from "models/tickers/composite_ticker"
+import {AdaptiveTicker} from "@bokehjs/models/tickers/adaptive_ticker"
+import {CompositeTicker} from "@bokehjs/models/tickers/composite_ticker"
 
 describe("CompositeTicker Model", () => {
 

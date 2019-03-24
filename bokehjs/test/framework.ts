@@ -1,7 +1,7 @@
-import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
-import * as plotting from "api/plotting"
-import {div} from "core/dom"
-import {isString} from "core/util/types"
+import {LayoutDOM, LayoutDOMView} from "@bokehjs/models/layouts/layout_dom"
+import * as plotting from "@bokehjs/api/plotting"
+import {div} from "@bokehjs/core/dom"
+import {isString} from "@bokehjs/core/util/types"
 
 export type Suite = {description: string, suites: Suite[], tests: Test[]}
 export type Test = {description: string, fn: () => Promise<void>, view?: LayoutDOMView, el?: HTMLElement}
@@ -91,7 +91,7 @@ export function display(obj: LayoutDOM, viewport: [number, number] = [1000, 1000
 }
 
 /*
-const {empty} = require("core/dom")
+const {empty} = require("@bokehjs/core/dom")
 let view = null
 
 function show(model) {

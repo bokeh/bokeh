@@ -1,10 +1,10 @@
 import {expect} from "chai"
 
-import {Document} from "document"
-import {Tool} from "models/tools/tool"
-import {ZoomOutTool, ZoomOutToolView} from "models/tools/actions/zoom_out_tool"
-import {Range1d} from "models/ranges/range1d"
-import {Plot, PlotView} from "models/plots/plot"
+import {Document} from "@bokehjs/document"
+import {Tool} from "@bokehjs/models/tools/tool"
+import {ZoomOutTool, ZoomOutToolView} from "@bokehjs/models/tools/actions/zoom_out_tool"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {Plot, PlotView} from "@bokehjs/models/plots/plot"
 
 describe("ZoomOutTool", () => {
 

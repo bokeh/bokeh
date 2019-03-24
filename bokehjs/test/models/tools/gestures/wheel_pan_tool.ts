@@ -1,10 +1,10 @@
 import {expect} from "chai"
 
-import {Document} from "document"
-import {Tool} from "models/tools/tool"
-import {WheelPanTool, WheelPanToolView} from "models/tools/gestures/wheel_pan_tool"
-import {Range1d} from "models/ranges/range1d"
-import {Plot, PlotView} from "models/plots/plot"
+import {Document} from "@bokehjs/document"
+import {Tool} from "@bokehjs/models/tools/tool"
+import {WheelPanTool, WheelPanToolView} from "@bokehjs/models/tools/gestures/wheel_pan_tool"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {Plot, PlotView} from "@bokehjs/models/plots/plot"
 
 describe("WheelPanTool", () => {
 

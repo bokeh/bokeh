@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import {LogScale} from "models/scales/log_scale"
-import {Range1d} from "models/ranges/range1d"
+import {LogScale} from "@bokehjs/models/scales/log_scale"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
 
 describe("LogScale module", () => {
 

@@ -39,6 +39,7 @@
     "websocket": "^1.0.28",
     "typescript": "3.3.3",
     "tslint": "^5.13.1",
+    "tsconfig-paths": "^3.8.0",
     "coffeescript": "^2.3.2",
     "less": "^3.9.0",
     "@types/less": "^3.0.0",

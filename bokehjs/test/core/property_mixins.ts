@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import * as mixins from "core/property_mixins"
+import * as mixins from "@bokehjs/core/property_mixins"
 
 describe("property_mixins module", () => {
 

@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import {CategoricalColorMapper} from "models/mappers/categorical_color_mapper"
-import {L2Factor as F2, L3Factor as F3} from "models/ranges/factor_range"
+import {CategoricalColorMapper} from "@bokehjs/models/mappers/categorical_color_mapper"
+import {L2Factor as F2, L3Factor as F3} from "@bokehjs/models/ranges/factor_range"
 
 describe("CategoricalColorMapper module", () => {
 

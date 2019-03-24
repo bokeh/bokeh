@@ -3,16 +3,16 @@ import {expect} from "chai"
 import models_defaults = require("./.generated_defaults/models_defaults.json")
 import widget_defaults = require("./.generated_defaults/widgets_defaults.json")
 
-import {isArray, isPlainObject} from "core/util/types"
-import {difference, concat} from "core/util/array"
-import {keys} from "core/util/object"
-import {isEqual} from "core/util/eq"
+import {isArray, isPlainObject} from "@bokehjs/core/util/types"
+import {difference, concat} from "@bokehjs/core/util/array"
+import {keys} from "@bokehjs/core/util/object"
+import {isEqual} from "@bokehjs/core/util/eq"
 
-const {Models} = require("../js/lib/base")
-import {HasProps} from "core/has_props"
+import {Models} from "@bokehjs/base"
+import {HasProps} from "@bokehjs/core/has_props"
 
-import {Widgets as widget_models} from "models/widgets/main"
-import {Tables as table_models} from "models/widgets/tables/main"
+import {Widgets as widget_models} from "@bokehjs/models/widgets/main"
+import {Tables as table_models} from "@bokehjs/models/widgets/tables/main"
 
 function get_defaults(name: string) {
   const defaults = models_defaults[name] || widget_defaults[name]

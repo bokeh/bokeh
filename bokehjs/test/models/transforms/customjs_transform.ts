@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import {CustomJSTransform} from "models/transforms/customjs_transform"
-import {Range1d} from "models/ranges/range1d"
+import {CustomJSTransform} from "@bokehjs/models/transforms/customjs_transform"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
 
 describe("customjs_transform module", () => {
 

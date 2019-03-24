@@ -1,10 +1,10 @@
 import {expect} from "chai"
 
-import {CustomJSHover} from "models/tools/inspectors/customjs_hover"
+import {CustomJSHover} from "@bokehjs/models/tools/inspectors/customjs_hover"
 
-import {Range1d} from "models/ranges/range1d"
-import {Document} from "document"
-import {version as js_version} from "version"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {Document} from "@bokehjs/document"
+import {version as js_version} from "@bokehjs/version"
 
 describe("customjs module", () => {
 

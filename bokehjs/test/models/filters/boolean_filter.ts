@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import {BooleanFilter} from "models/filters/boolean_filter"
-import {ColumnDataSource} from "models/sources/column_data_source"
+import {BooleanFilter} from "@bokehjs/models/filters/boolean_filter"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 
 describe("BooleanFilter", () => {
 

@@ -1,9 +1,9 @@
 import {expect} from "chai"
 
-import {HasProps} from "core/has_props"
-import * as p from "core/properties"
-import {Document} from "document/document"
-import * as events from "document/events"
+import {HasProps} from "@bokehjs/core/has_props"
+import * as p from "@bokehjs/core/properties"
+import {Document} from "@bokehjs/document/document"
+import * as events from "@bokehjs/document/events"
 
 const EVENTS = [
 //  "ColumnDataChangedEvent", // Not implemented yet

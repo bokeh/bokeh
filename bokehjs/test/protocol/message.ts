@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import {Message} from "protocol/message"
+import {Message} from "@bokehjs/protocol/message"
 
 class MockSock {
   readonly sent: string[] = []
