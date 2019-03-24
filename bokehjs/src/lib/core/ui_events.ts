@@ -83,7 +83,7 @@ export class UIEvents implements EventListenerObject {
   readonly keydown      : UISignal<KeyEvent>     = new Signal(this, 'keydown')
   readonly keyup        : UISignal<KeyEvent>     = new Signal(this, 'keyup')
 
-  private readonly hammer = new Hammer(this.hit_area)
+  private readonly hammer = new Hammer(this.hit_area, {touchAction: 'auto'})
 
   constructor(readonly plot_view: PlotView,
               readonly toolbar: Toolbar,
@@ -323,6 +323,14 @@ export class UIEvents implements EventListenerObject {
           this.trigger(signal, e, active_gesture.id)
         }
         break
+      }
+      case "pan": {
+        var active_gesture = gestures[base_type].active;
+        if (active_gesture != null) {
+          srcEvent.preventDefault();
+          this.trigger(signal, e, active_gesture.id);
+        }
+        break;
       }
       default: {
         const active_gesture = gestures[base_type].active
