@@ -1,7 +1,9 @@
 import chalk from "chalk"
 import * as ts from "typescript"
 
-import {dirname} from "path"
+import {dirname, join, relative} from "path"
+
+import {relativize_modules} from "./transform"
 
 export type Outputs = Map<string, string>
 
@@ -13,6 +15,10 @@ export interface Failure {
 export interface TSOutput {
   outputs?: Outputs
   failure?: Failure
+}
+
+function normalize(path: string): string {
+  return path.replace(/\\/g, "/")
 }
 
 const diagnostics_host: ts.FormatDiagnosticsHost = {
@@ -31,7 +37,32 @@ export function compileFiles(inputs: string[], options: ts.CompilerOptions): TSO
   const program = ts.createProgram(inputs, options) //, host)
 
   const outputs: Outputs = new Map()
-  const emitted = program.emit(undefined, (name, output) => outputs.set(name, output))
+  const write = (name: string, output: string) => {
+    outputs.set(name, output)
+  }
+
+  let transformers: ts.CustomTransformers | undefined
+  const base = options.baseUrl
+  if (base != null) {
+    const relativize_transform = relativize_modules((file, module_path) => {
+      if (!module_path.startsWith(".") && !module_path.startsWith("/")) {
+        const module_file = join(base, module_path)
+        if (ts.sys.fileExists(module_file + ".ts") ||
+            ts.sys.fileExists(join(module_file, "index.ts"))) {
+          const rel_path = normalize(relative(dirname(file), module_file))
+          return rel_path.startsWith(".") ? rel_path : `./${rel_path}`
+        }
+      }
+      return null
+    })
+
+    transformers = {
+      after: [relativize_transform],
+      afterDeclarations: [relativize_transform],
+    }
+  }
+
+  const emitted = program.emit(undefined, write, undefined, false, transformers)
   const diagnostics = ts.getPreEmitDiagnostics(program).concat(emitted.diagnostics)
 
   if (diagnostics.length == 0)

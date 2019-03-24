@@ -3,38 +3,60 @@ export {SourceFile} from "typescript"
 
 import {read} from "./fs"
 
-function kind_of<T extends ts.Node>(node: ts.Node, kind: T["kind"]): node is T {
-  return node.kind === kind
-}
-
-function is_ExpressionStatement(node: ts.Node): node is ts.ExpressionStatement {
-  return kind_of(node, ts.SyntaxKind.ExpressionStatement)
-}
-
-function is_CallExpression(node: ts.Node): node is ts.CallExpression {
-  return kind_of(node, ts.SyntaxKind.CallExpression)
-}
-
-function is_Identifier(node: ts.Node): node is ts.Identifier {
-  return kind_of(node, ts.SyntaxKind.Identifier)
-}
-
-function is_StringLiteral(node: ts.Node): node is ts.StringLiteral {
-  return kind_of(node, ts.SyntaxKind.StringLiteral)
-}
-
 function is_require(node: ts.Node): node is ts.CallExpression {
-  return is_CallExpression(node) &&
-         is_Identifier(node.expression) &&
+  return ts.isCallExpression(node) &&
+         ts.isIdentifier(node.expression) &&
          node.expression.text === "require" &&
          node.arguments.length === 1
+}
+
+export function relativize_modules(relativize: (file: string, module_path: string) => string | null) {
+  function relativize_specifier(source: ts.SourceFile, expr: ts.Expression | undefined): ts.StringLiteral | null {
+    if (expr != null && ts.isStringLiteralLike(expr) && expr.text.length > 0) {
+      const relative = relativize(source.fileName, expr.text)
+      if (relative != null)
+        return ts.createLiteral(relative)
+    }
+
+    return null
+  }
+
+  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    function visit(node: ts.Node): ts.Node {
+      if (ts.isImportDeclaration(node)) {
+        const moduleSpecifier = relativize_specifier(root, node.moduleSpecifier)
+        if (moduleSpecifier != null) {
+          const {decorators, modifiers, importClause} = node
+          return ts.updateImportDeclaration(node, decorators, modifiers, importClause, moduleSpecifier)
+        }
+      }
+      if (ts.isExportDeclaration(node)) {
+        const moduleSpecifier = relativize_specifier(root, node.moduleSpecifier)
+        if (moduleSpecifier != null) {
+          const {decorators, modifiers, exportClause} = node
+          return ts.updateExportDeclaration(node, decorators, modifiers, exportClause, moduleSpecifier)
+        }
+      }
+      if (is_require(node)) {
+        const moduleSpecifier = relativize_specifier(root, node.arguments[0])
+        if (moduleSpecifier != null) {
+          const {expression, typeArguments} = node
+          return ts.updateCall(node, expression, typeArguments, [moduleSpecifier])
+        }
+      }
+
+      return ts.visitEachChild(node, visit, context)
+    }
+
+    return ts.visitNode(root, visit)
+  }
 }
 
 export function collect_deps(source: ts.SourceFile): string[] {
   function traverse(node: ts.Node): void {
     if (is_require(node)) {
       const [arg] = node.arguments
-      if (is_StringLiteral(arg) && arg.text.length > 0)
+      if (ts.isStringLiteral(arg) && arg.text.length > 0)
         deps.push(arg.text)
     }
 
@@ -51,7 +73,7 @@ export function rewrite_deps(source: ts.SourceFile, resolve: (dep: string) => nu
     function visit(node: ts.Node): ts.Node {
       if (is_require(node)) {
         const [arg] = node.arguments
-        if (is_StringLiteral(arg) && arg.text.length > 0) {
+        if (ts.isStringLiteral(arg) && arg.text.length > 0) {
           const dep = arg.text
           const val = resolve(dep)
 
@@ -76,9 +98,9 @@ export function rewrite_deps(source: ts.SourceFile, resolve: (dep: string) => nu
 
 export function remove_use_strict(source: ts.SourceFile): ts.SourceFile {
   const stmts = source.statements.filter((node) => {
-    if (is_ExpressionStatement(node)) {
+    if (ts.isExpressionStatement(node)) {
       const expr = node.expression
-      if (is_StringLiteral(expr) && expr.text == "use strict")
+      if (ts.isStringLiteral(expr) && expr.text == "use strict")
         return false
     }
     return true
@@ -89,11 +111,11 @@ export function remove_use_strict(source: ts.SourceFile): ts.SourceFile {
 
 export function remove_esmodule(source: ts.SourceFile): ts.SourceFile {
   const stmts = source.statements.filter((node) => {
-    if (is_ExpressionStatement(node)) {
+    if (ts.isExpressionStatement(node)) {
       const expr = node.expression
-      if (is_CallExpression(expr) && expr.arguments.length == 3) {
+      if (ts.isCallExpression(expr) && expr.arguments.length == 3) {
         const [, arg] = expr.arguments
-        if (is_StringLiteral(arg) && arg.text == "__esModule")
+        if (ts.isStringLiteral(arg) && arg.text == "__esModule")
           return false
       }
     }
@@ -109,7 +131,7 @@ export function add_json_export(source: ts.SourceFile): ts.SourceFile {
   if (stmts.length != 0) {
     const last = stmts.pop()!
 
-    if (is_ExpressionStatement(last)) {
+    if (ts.isExpressionStatement(last)) {
       const left = ts.createPropertyAccess(ts.createIdentifier("module"), "exports")
       const right = last.expression
       const assign = ts.createStatement(ts.createAssignment(left, right))
