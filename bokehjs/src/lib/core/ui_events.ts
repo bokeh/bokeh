@@ -325,12 +325,12 @@ export class UIEvents implements EventListenerObject {
         break
       }
       case "pan": {
-        var active_gesture = gestures[base_type].active;
+        const active_gesture = gestures[base_type].active
         if (active_gesture != null) {
-          srcEvent.preventDefault();
-          this.trigger(signal, e, active_gesture.id);
+          srcEvent.preventDefault()
+          this.trigger(signal, e, active_gesture.id)
         }
-        break;
+        break
       }
       default: {
         const active_gesture = gestures[base_type].active
