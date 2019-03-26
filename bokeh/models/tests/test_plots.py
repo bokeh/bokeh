@@ -26,7 +26,7 @@ from mock import patch
 from bokeh.core.validation import check_integrity
 from bokeh.plotting import figure
 
-from bokeh.models import GlyphRenderer, Label, Plot, LinearAxis
+from bokeh.models import GlyphRenderer, Label, Plot, LinearAxis, CustomJS
 from bokeh.models.ranges import FactorRange, DataRange1d, Range1d
 from bokeh.models.scales import CategoricalScale, LinearScale, LogScale
 from bokeh.models.tools import PanTool
@@ -182,6 +182,17 @@ class TestPlotValidation(object):
             "E-1020 (BAD_EXTRA_RANGE_NAME): An extra range name is configued with a name that does not correspond to any range: x_range_name='junk' [Grid"
         )
         assert mock_logger.error.call_args[0][0].count("Grid") == 2
+
+        # test whether adding a figure (*and* it's extra ranges)
+        # to another's references doesn't create a false positive
+        p, dep = figure(), figure()
+        dep.extra_x_ranges['foo'] = Range1d()
+        dep.grid.x_range_name="foo"
+        p.x_range.callback = CustomJS(code = "", args = {"dep": dep})
+        assert dep in p.references()
+        with mock.patch('bokeh.core.validation.check.log') as mock_logger:
+            check_integrity([p])
+        assert mock_logger.error.call_count == 0
 
 def test_plot_add_layout_raises_error_if_not_render():
     plot = figure()
