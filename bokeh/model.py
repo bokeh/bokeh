@@ -68,8 +68,12 @@ def collect_filtered_models(discard, *input_values):
     collecting all nested ``Models`` on the go.
 
     Args:
-        discard (Callable[[Model], bool])
-            a callable returning whether to continue down the object's references
+        *discard (Callable[[Model], bool])
+            a callable which accepts a *Model* instance as its single argument
+            and returns a boolean stating whether to discard the instance. The
+            latter means that the instance will not be added to collected
+            models nor will its references be explored.
+
         *input_values (Model)
             Bokeh models to collect other models from
 
@@ -82,17 +86,9 @@ def collect_filtered_models(discard, *input_values):
     collected = []
     queued = []
 
-    queue_one = None
-    if discard is None:
-        def _visitor(obj):
-            if obj.id not in ids:
-                queued.append(obj)
-        queue_one = _visitor
-    else:
-        def _filteredvistor(obj):
-            if obj.id not in ids and not discard(obj):
-                queued.append(obj)
-        queue_one = _filteredvistor
+    def queue_one(obj):
+        if obj.id not in ids and not (callable(discard) and discard(obj)):
+            queued.append(obj)
 
     for value in input_values:
         _visit_value_and_its_immediate_references(value, queue_one)
