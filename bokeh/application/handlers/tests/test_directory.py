@@ -105,6 +105,49 @@ class Test_DirectoryHandler(object):
 
         assert len(doc.roots) == 2
 
+    def test_directory_empty_mainipynb(self):
+        import nbformat
+
+        doc = Document()
+        source = nbformat.v4.new_notebook()
+        result = {}
+        def load(filename):
+            handler = bahd.DirectoryHandler(filename=filename)
+            handler.modify_document(doc)
+            result['handler'] = handler
+            result['filename'] = filename
+            if handler.failed:
+                raise RuntimeError(handler.error)
+
+        with_directory_contents({
+            'main.ipynb': nbformat.writes(source)
+        }, load)
+
+        assert not doc.roots
+
+    def test_directory_mainipynb_adds_roots(self):
+        import nbformat
+
+        doc = Document()
+        source = nbformat.v4.new_notebook()
+        code = script_adds_two_roots('SomeModelInNbTestDirectory',
+                                     'AnotherModelInNbTestDirectory')
+        source.cells.append(nbformat.v4.new_code_cell(code))
+        result = {}
+        def load(filename):
+            handler = bahd.DirectoryHandler(filename=filename)
+            handler.modify_document(doc)
+            result['handler'] = handler
+            result['filename'] = filename
+            if handler.failed:
+                raise RuntimeError(handler.error)
+
+        with_directory_contents({
+            'main.ipynb': nbformat.writes(source)
+        }, load)
+
+        assert len(doc.roots) == 2
+
     def test_directory_has_theme_file(self):
         doc = Document()
         def load(filename):
