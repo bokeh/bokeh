@@ -107,10 +107,9 @@ class DirectoryHandler(Handler):
             raise ValueError("No 'main.py' or 'main.ipynb' in %s" % (src_path))
         self._path = src_path
         self._main = main
-        if main.endswith('.ipynb'):
-            self._main_handler = NotebookHandler(filename=self._main, argv=argv)
-        else:
-            self._main_handler = ScriptHandler(filename=self._main, argv=argv)
+
+        handler = NotebookHandler if main.endswith('.ipynb') else ScriptHandler
+        self._main_handler = handler(filename=self._main, argv=argv)
 
         lifecycle = join(src_path, 'server_lifecycle.py')
         if exists(lifecycle):
