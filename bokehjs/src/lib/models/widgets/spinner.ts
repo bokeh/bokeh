@@ -2,80 +2,56 @@ import {InputWidget, InputWidgetView} from "models/widgets/input_widget"
 import {input} from "core/dom"
 import * as p from "core/properties"
 
-const {log10, round, min, max} = Math
+const {floor} = Math
 
 export class SpinnerView extends InputWidgetView {
   model: Spinner
-
+  protected virtual_min: number | null = null
+  protected virtual_max: number | null = null
   protected input_el: HTMLInputElement
 
-  connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.model.properties.low.change, () => {
-      const {low, step} = this.model
-      if (low != null)
-        this.input_el.min = low.toFixed(log10(1 / step))
-    })
-    this.connect(this.model.properties.high.change, () => {
-      const {high, step} = this.model
-      if (high != null)
-        this.input_el.max = high.toFixed(log10(1 / step))
-    })
-    const fn = () => {
-      const {value, step} = this.model
-      this.input_el.step = value.toFixed(log10(1 / step))
+  compute_virtual_bounds(): void{
+    if(this.model.low){
+      const n_steps = floor((this.model.value-this.model.low)/this.model.step)
+      this.virtual_min = Number((this.model.value - n_steps*this.model.step).toFixed(14))
     }
-    this.connect(this.model.properties.step.change, fn)
-    this.connect(this.model.properties.value.change, fn)
-    this.connect(this.model.properties.disabled.change, () => {
-      this.input_el.disabled = this.model.disabled
-    })
+    if(this.model.high){
+      const n_steps = floor((this.model.high-this.model.value)/this.model.step)
+      this.virtual_max = Number((this.model.value + n_steps*this.model.step).toFixed(14))
+    }
   }
 
   render(): void {
     super.render()
-
+    this.compute_virtual_bounds()
     this.input_el = input({
       type: "number",
       class: "bk-input",
       name: this.model.name,
-      min: this.model.low,
-      max: this.model.high,
+      min: this.virtual_min,
+      max: this.virtual_max,
       value: this.model.value,
       step: this.model.step,
       disabled: this.model.disabled,
     })
     this.input_el.addEventListener("change", () => this.change_input())
-    //this.input_el.addEventListener("input", () => this.change_input())
     this.group_el.appendChild(this.input_el)
   }
 
   change_input(): void {
-    const {step, low, high} = this.model
-    const new_value = Number(this.input_el.value)
-
-    let process_value: number
-    if (low != null)
-      process_value = low + step * round((new_value - low) / step)
-    else
-      process_value = round(new_value / step) * step
-
-    if (low != null)
-      process_value = max(process_value, low)
-
-    if (high != null)
-      process_value = min(process_value, high)
-
-    this.model.value = Number(process_value.toFixed(log10(1 / step)))
-
-    if (this.model.value != new_value) {
-      // this is needed when the current value in the input is already at bounded value
-      // and we enter a value outside these bounds. We emit a model change to update
-      // the input text value.
-      this.model.change.emit()
+    let new_value = Number(this.input_el.value)
+    if(this.model.low && new_value<this.model.low){
+      new_value = this.virtual_min!
+      this.input_el.value = this.input_el.min
     }
+    if(this.model.high && new_value>this.model.high){
+      new_value = this.virtual_max!
+      this.input_el.value = this.input_el.max
+    }
+    this.model.value = new_value
     super.change_input()
   }
+  
 }
 
 export namespace Spinner {
