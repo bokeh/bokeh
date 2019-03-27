@@ -123,7 +123,7 @@ class Test_Spinner(object):
         enter_value_in_spinner(page.driver, el, 11)
         page.click_custom_action()
         results = page.results
-        assert results['data']['val'] == [5, 10]
+        assert results['data']['val'] == [5, 11]
 
         # new underflow value
         enter_value_in_spinner(page.driver, el, -2)
@@ -163,6 +163,6 @@ class Test_Spinner(object):
 
         enter_value_in_spinner(page.driver, el, -5.1)
         results = page.results
-        assert results['value'] == -5
+        assert results['value'] == -5.1
 
         assert page.has_no_console_errors()
