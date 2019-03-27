@@ -393,7 +393,7 @@ describe("ui_events module", () => {
       e.srcEvent = {pageX: 100, pageY: 200, preventDefault() : void {
         assert.ok(true, 'preventDefault ref')
       }}
-      
+
       const pan_tool = new PanTool()
       plot_view.model.add_tools(pan_tool)
 
