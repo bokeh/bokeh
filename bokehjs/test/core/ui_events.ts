@@ -374,8 +374,8 @@ describe("ui_events module", () => {
     it("_pan_start method should handle panstart event", () => {
       const e: any = new Event("panstart") // XXX: not a hammerjs event
       e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200, preventDefault: function() {
-        assert.ok(true, 'preventDefault ref');
+      e.srcEvent = {pageX: 100, pageY: 200, preventDefault() : void {
+        assert.ok(true, 'preventDefault ref')
       }}
 
       const pan_tool = new PanTool()
@@ -390,8 +390,8 @@ describe("ui_events module", () => {
     it("_pan method should handle pan event", () => {
       const e: any = new Event("pan") // XXX: not a hammerjs event
       e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200, preventDefault: function() {
-        assert.ok(true, 'preventDefault ref');
+      e.srcEvent = {pageX: 100, pageY: 200, preventDefault() : void {
+        assert.ok(true, 'preventDefault ref')
       }}
       
       const pan_tool = new PanTool()
@@ -406,8 +406,8 @@ describe("ui_events module", () => {
     it("_pan_end method should handle pan end event", () => {
       const e: any = new Event("panend") // XXX: not a hammerjs event
       e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200, preventDefault: function() {
-        assert.ok(true, 'preventDefault ref');
+      e.srcEvent = {pageX: 100, pageY: 200, preventDefault() : void {
+        assert.ok(true, 'preventDefault ref')
       }}
 
       const pan_tool = new PanTool()
@@ -556,8 +556,8 @@ describe("ui_events module", () => {
 
       const etap: any = new Event("tap") // XXX: not a hammerjs event
       etap.pointerType = "mouse"
-      etap.srcEvent = {pageX: 100, pageY: 200, preventDefault: function() {
-        assert.ok(true, 'preventDefault ref');
+      etap.srcEvent = {pageX: 100, pageY: 200, preventDefault() : void {
+        assert.ok(true, 'preventDefault ref')
       }}
 
       ANY_ui_events._tap(etap)
@@ -565,8 +565,8 @@ describe("ui_events module", () => {
 
       const epan: any = new Event("pan") // XXX: not a hammerjs event
       epan.pointerType = "mouse"
-      epan.srcEvent = {pageX: 100, pageY: 200, preventDefault: function() {
-        assert.ok(true, 'preventDefault ref');
+      epan.srcEvent = {pageX: 100, pageY: 200, preventDefault() : void {
+        assert.ok(true, 'preventDefault ref')
       }}
       ANY_ui_events._pan(epan)
       assert(spy_uievent.calledTwice, "Pan event not triggered")
