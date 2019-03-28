@@ -100,7 +100,7 @@ class Application(object):
         metadata = kwargs.pop('metadata', None)
         if kwargs:
             raise TypeError("Invalid keyword argument: %s" %
-                kwargs.keys()[0])
+                list(kwargs.keys())[0])
         self._static_path = None
         self._handlers = []
         self._metadata = metadata
