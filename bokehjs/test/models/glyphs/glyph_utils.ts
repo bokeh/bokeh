@@ -35,7 +35,7 @@ import {HasProps} from "@bokehjs/core/has_props"
 export type ViewType<T extends HasProps> = InstanceType<T["default_view"]>
 
 export function create_glyph_view<G extends Glyph>(glyph: G, data: {[key: string]: Arrayable} = {}): ViewType<G> {
-  return create_glyph_renderer_view(glyph, data).glyph /* glyph_view */ as ViewType<G>
+  return create_glyph_renderer_view(glyph, data).glyph /* glyph_view */ as unknown as ViewType<G> // XXX: investigate this
 }
 
 export type AxisType = "linear" | "log" | "categorical"
