@@ -12,22 +12,18 @@
   font-family: Helvetica, Arial, sans-serif;
   font-size: 10pt; // 13px/0.8em
 
-  *, *:before, *:after {
+  .bk, .bk:before, .bk:after {
     box-sizing: inherit;
     margin: 0;
     border: 0;
     padding: 0;
     background-image: none;
-  }
-
-  // Keep this in sync with core/dom.ts
-  div, span, canvas, link, style, a, p, i, pre, button, label, input, select, option, optgroup, textarea {
     font-family: inherit;
     font-size: 100%;
     line-height: @line-height;
   }
 
-  pre {
+  pre.bk {
     font-family: Courier, monospace;
   }
 
