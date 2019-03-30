@@ -1,9 +1,9 @@
 import {expect} from "chai"
 
-import {CustomJS} from "models/callbacks/customjs"
-import {Range1d} from "models/ranges/range1d"
-import {Document} from "document"
-import {version as js_version} from "version"
+import {CustomJS} from "@bokehjs/models/callbacks/customjs"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {Document} from "@bokehjs/document"
+import {version as js_version} from "@bokehjs/version"
 
 describe("customjs module", () => {
 

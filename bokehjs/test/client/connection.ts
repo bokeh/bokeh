@@ -10,8 +10,8 @@ import * as net from "net"
 // node.js compat shim for WebSocket
 (global as any).WebSocket = require("websocket").w3cwebsocket
 
-import {pull_session} from "client/connection"
-import {Range1d} from "models/ranges/range1d"
+import {pull_session} from "@bokehjs/client/connection"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
 
 // Promise works in a very annoying way, make it
 // have resolve and reject methods instead

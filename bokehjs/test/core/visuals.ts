@@ -1,12 +1,12 @@
 import {expect} from "chai"
 import {create_glyph_renderer_view} from "../models/glyphs/glyph_utils"
 
-import {Fill, Line, Text, Visuals} from "core/visuals"
-import {ColumnDataSource} from "models/sources/column_data_source"
-import {CDSView} from "models/sources/cds_view"
-import {IndexFilter} from "models/filters/index_filter"
-import {Circle, CircleView} from "models/glyphs/circle"
-import * as text_glyph from "models/glyphs/text"
+import {Fill, Line, Text, Visuals} from "@bokehjs/core/visuals"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {CDSView} from "@bokehjs/models/sources/cds_view"
+import {IndexFilter} from "@bokehjs/models/filters/index_filter"
+import {Circle, CircleView} from "@bokehjs/models/glyphs/circle"
+import * as text_glyph from "@bokehjs/models/glyphs/text"
 
 describe("Fill", () => {
 

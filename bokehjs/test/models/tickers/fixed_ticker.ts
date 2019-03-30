@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import {FixedTicker} from "models/tickers/fixed_ticker"
+import {FixedTicker} from "@bokehjs/models/tickers/fixed_ticker"
 
 describe("FixedTicker Model", () => {
 

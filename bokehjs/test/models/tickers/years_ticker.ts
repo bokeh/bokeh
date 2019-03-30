@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import {YearsTicker} from "models/tickers/years_ticker"
-import {ONE_YEAR} from "models/tickers/util"
+import {YearsTicker} from "@bokehjs/models/tickers/years_ticker"
+import {ONE_YEAR} from "@bokehjs/models/tickers/util"
 
 describe("YearsTicker Model", () => {
 

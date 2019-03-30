@@ -1,49 +1,76 @@
 import chalk from "chalk"
 import * as ts from "typescript"
 
-import {relative, dirname} from "path"
+import {dirname, join, relative} from "path"
 
-export function reportDiagnostics(diagnostics: ReadonlyArray<ts.Diagnostic>): string[] {
-  const errors: string[] = []
+import {relativize_modules} from "./transform"
 
-  for (const diagnostic of diagnostics) {
-    let message = `error TS${diagnostic.code}: ${ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n')}`
+export type Outputs = Map<string, string>
 
-    if (diagnostic.file) {
-      const {line, character} = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start!)
-      const fileName = relative(process.cwd(), diagnostic.file.fileName)
-      const fileMeta = `${fileName}(${line + 1},${character + 1}):`
-      message = `${chalk.red(fileMeta)} ${message}`
-    }
-
-    errors.push(message)
-  }
-
-  return errors
-}
-
-export interface TSProduct {
-  fileName: string
-  data: string
+export interface Failure {
+  count: number
+  text: string
 }
 
 export interface TSOutput {
-  products?: TSProduct[]
-  errors: string[]
+  outputs?: Outputs
+  failure?: Failure
 }
 
-export function compileFiles(fileNames: string[], options: ts.CompilerOptions): TSOutput {
-  const program = ts.createProgram(fileNames, options)
+function normalize(path: string): string {
+  return path.replace(/\\/g, "/")
+}
 
-  const products: TSProduct[] = []
-  const emitResult = program.emit(undefined, (fileName: string, data: string) => {
-    products.push({fileName, data})
-  })
+const diagnostics_host: ts.FormatDiagnosticsHost = {
+  getCanonicalFileName: (path) => path,
+  getCurrentDirectory: ts.sys.getCurrentDirectory,
+  getNewLine: () => ts.sys.newLine,
+}
 
-  const diagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics)
-  const errors = reportDiagnostics(ts.sortAndDeduplicateDiagnostics(diagnostics))
+export function reportDiagnostics(diagnostics: ReadonlyArray<ts.Diagnostic>): Failure {
+  const errors = ts.sortAndDeduplicateDiagnostics(diagnostics)
+  const text = ts.formatDiagnosticsWithColorAndContext(errors, diagnostics_host)
+  return {count: errors.length, text}
+}
 
-  return {products, errors}
+export function compileFiles(inputs: string[], options: ts.CompilerOptions): TSOutput {
+  const program = ts.createProgram(inputs, options) //, host)
+
+  const outputs: Outputs = new Map()
+  const write = (name: string, output: string) => {
+    outputs.set(name, output)
+  }
+
+  let transformers: ts.CustomTransformers | undefined
+  const base = options.baseUrl
+  if (base != null) {
+    const relativize_transform = relativize_modules((file, module_path) => {
+      if (!module_path.startsWith(".") && !module_path.startsWith("/")) {
+        const module_file = join(base, module_path)
+        if (ts.sys.fileExists(module_file + ".ts") ||
+            ts.sys.fileExists(join(module_file, "index.ts"))) {
+          const rel_path = normalize(relative(dirname(file), module_file))
+          return rel_path.startsWith(".") ? rel_path : `./${rel_path}`
+        }
+      }
+      return null
+    })
+
+    transformers = {
+      after: [relativize_transform],
+      afterDeclarations: [relativize_transform],
+    }
+  }
+
+  const emitted = program.emit(undefined, write, undefined, false, transformers)
+  const diagnostics = ts.getPreEmitDiagnostics(program).concat(emitted.diagnostics)
+
+  if (diagnostics.length == 0)
+    return {outputs}
+  else {
+    const failure = reportDiagnostics(diagnostics)
+    return {outputs, failure}
+  }
 }
 
 export type OutDir = string | {js: string, dts: string}
@@ -51,8 +78,7 @@ export type OutDir = string | {js: string, dts: string}
 export function compileProject(tsconfig_path: string, out_dir?: OutDir): TSOutput {
   const config_file = ts.readConfigFile(tsconfig_path, ts.sys.readFile)
   if (config_file.error != null) {
-    const errors = reportDiagnostics([config_file.error])
-    return {errors}
+    return {failure: reportDiagnostics([config_file.error])}
   }
 
   const host: ts.ParseConfigHost = {
@@ -72,8 +98,7 @@ export function compileProject(tsconfig_path: string, out_dir?: OutDir): TSOutpu
 
   const tsconfig = ts.parseJsonConfigFileContent(config_file.config, host, dirname(tsconfig_path), preconfigure)
   if (tsconfig.errors.length != 0) {
-    const errors = reportDiagnostics(tsconfig.errors)
-    return {errors}
+    return {failure: reportDiagnostics(tsconfig.errors)}
   }
 
   return compileFiles(tsconfig.fileNames, tsconfig.options)
@@ -85,18 +110,15 @@ export interface CompileOptions {
 }
 
 export function compileTypeScript(tsconfig: string, options: CompileOptions): boolean {
-  const {products, errors} = compileProject(tsconfig, options.out_dir)
+  const {outputs, failure} = compileProject(tsconfig, options.out_dir)
 
-  for (const error of errors)
-    options.log(error)
-
-  if (errors.length != 0)
-    options.log(`There were ${chalk.red("" + errors.length)} TypeScript errors.`)
-
-  if (products != null) {
-    for (const {fileName, data} of products)
-      ts.sys.writeFile(fileName, data)
+  if (outputs != null) {
+    for (const [file, content] of outputs)
+      ts.sys.writeFile(file, content)
   }
 
-  return errors.length == 0
+  if (failure != null)
+    options.log(`There were ${chalk.red("" + failure.count)} TypeScript errors:\n${failure.text}`)
+
+  return failure == null
 }

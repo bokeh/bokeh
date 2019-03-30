@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import {svg_colors} from "core/util/svg_colors"
+import {svg_colors} from "@bokehjs/core/util/svg_colors"
 
 describe("svg_color module", () => {
 

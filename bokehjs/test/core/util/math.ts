@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import * as math from "core/util/math"
+import * as math from "@bokehjs/core/util/math"
 
 describe("math module", () => {
 

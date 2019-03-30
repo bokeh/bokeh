@@ -1,13 +1,13 @@
 import {expect} from "chai"
 
-import {Axis, AxisView} from "models/axes/axis"
-import {BasicTicker} from "models/tickers/basic_ticker"
-import {BasicTickFormatter} from "models/formatters/basic_tick_formatter"
-import {Plot} from "models/plots/plot"
-import {FactorRange} from "models/ranges/factor_range"
-import {Range1d} from "models/ranges/range1d"
-import {CategoricalScale} from "models/scales/categorical_scale"
-import {Toolbar} from "models/tools/toolbar"
+import {Axis, AxisView} from "@bokehjs/models/axes/axis"
+import {BasicTicker} from "@bokehjs/models/tickers/basic_ticker"
+import {BasicTickFormatter} from "@bokehjs/models/formatters/basic_tick_formatter"
+import {Plot} from "@bokehjs/models/plots/plot"
+import {FactorRange} from "@bokehjs/models/ranges/factor_range"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {CategoricalScale} from "@bokehjs/models/scales/categorical_scale"
+import {Toolbar} from "@bokehjs/models/tools/toolbar"
 
 describe("Axis", () => {
 

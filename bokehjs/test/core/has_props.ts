@@ -1,10 +1,10 @@
 import {expect} from "chai"
 
-import {ColumnDataSource} from "models/sources/column_data_source"
-import {HasProps} from "core/has_props"
-import * as mixins from "core/property_mixins"
-import * as p from "core/properties"
-import {keys, extend} from "core/util/object"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {HasProps} from "@bokehjs/core/has_props"
+import * as mixins from "@bokehjs/core/property_mixins"
+import * as p from "@bokehjs/core/properties"
+import {keys, extend} from "@bokehjs/core/util/object"
 
 class TestModel extends HasProps {}
 TestModel.prototype.type = "TestModel"

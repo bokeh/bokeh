@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import {_convert_color, _convert_palette} from "models/mappers/color_mapper"
+import {_convert_color, _convert_palette} from "@bokehjs/models/mappers/color_mapper"
 
 describe("ColorMapper module", () => {
 

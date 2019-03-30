@@ -2,10 +2,10 @@ import {expect} from "chai"
 import * as sinon from "sinon"
 
 import {create_glyph_view, set_scales} from "./glyph_utils"
-import {Rect, RectView} from "models/glyphs/rect"
-import {LinearScale} from "models/scales/linear_scale"
-import {Range1d} from "models/ranges/range1d"
-import {Geometry} from "core/geometry"
+import {Rect, RectView} from "@bokehjs/models/glyphs/rect"
+import {LinearScale} from "@bokehjs/models/scales/linear_scale"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {Geometry} from "@bokehjs/core/geometry"
 
 describe("Glyph (using Rect as a concrete Glyph)", () => {
 

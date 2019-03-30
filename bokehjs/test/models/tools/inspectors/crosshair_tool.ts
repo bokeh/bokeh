@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import {CrosshairTool} from "models/tools/inspectors/crosshair_tool"
+import {CrosshairTool} from "@bokehjs/models/tools/inspectors/crosshair_tool"
 
 describe("Crosshair Tool", () => {
 

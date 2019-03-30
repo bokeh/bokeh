@@ -1,20 +1,20 @@
 import {expect, assert} from "chai"
 import * as sinon from 'sinon'
 
-import * as dom from "core/dom"
-import {Tap, MouseMove} from "core/bokeh_events"
+import * as dom from "@bokehjs/core/dom"
+import {Tap, MouseMove} from "@bokehjs/core/bokeh_events"
 
-import {CrosshairTool} from "models/tools/inspectors/crosshair_tool"
-import {PanTool} from "models/tools/gestures/pan_tool"
-import {PolySelectTool} from "models/tools/gestures/poly_select_tool"
-import {SelectTool, SelectToolView} from "models/tools/gestures/select_tool"
-import {TapTool} from "models/tools/gestures/tap_tool"
-import {WheelZoomTool} from "models/tools/gestures/wheel_zoom_tool"
+import {CrosshairTool} from "@bokehjs/models/tools/inspectors/crosshair_tool"
+import {PanTool} from "@bokehjs/models/tools/gestures/pan_tool"
+import {PolySelectTool} from "@bokehjs/models/tools/gestures/poly_select_tool"
+import {SelectTool, SelectToolView} from "@bokehjs/models/tools/gestures/select_tool"
+import {TapTool} from "@bokehjs/models/tools/gestures/tap_tool"
+import {WheelZoomTool} from "@bokehjs/models/tools/gestures/wheel_zoom_tool"
 
-import {Legend} from "models/annotations/legend"
-import {Plot, PlotView} from "models/plots/plot"
-import {Range1d} from "models/ranges/range1d"
-import {UIEvents, UIEvent, GestureEvent, TapEvent} from "core/ui_events"
+import {Legend} from "@bokehjs/models/annotations/legend"
+import {Plot, PlotView} from "@bokehjs/models/plots/plot"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {UIEvents, UIEvent, GestureEvent, TapEvent} from "@bokehjs/core/ui_events"
 
 describe("ui_events module", () => {
 

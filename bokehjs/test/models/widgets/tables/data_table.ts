@@ -1,11 +1,11 @@
 import {expect} from "chai"
 
-import {ColumnDataSource} from "models/sources/column_data_source"
-import {CDSView} from "models/sources/cds_view"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {CDSView} from "@bokehjs/models/sources/cds_view"
 
-import {DataProvider, DataTable, DTINDEX_NAME} from "models/widgets/tables/data_table"
+import {DataProvider, DataTable, DTINDEX_NAME} from "@bokehjs/models/widgets/tables/data_table"
 
-import {range} from "core/util/array"
+import {range} from "@bokehjs/core/util/array"
 
 describe("data_table module", () => {
 

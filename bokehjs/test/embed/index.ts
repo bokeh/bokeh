@@ -1,6 +1,6 @@
 import { expect } from "chai"
 
-import * as embed from "embed"
+import * as embed from "@bokehjs/embed"
 
 describe('embed', () => {
   it("should have an empty 'kernels' dict on the embed module", () => {

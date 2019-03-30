@@ -1,10 +1,10 @@
 import {expect} from "chai"
 
-import {CDSView} from "models/sources/cds_view"
-import {ColumnDataSource} from "models/sources/column_data_source"
-import {Filter} from "models/filters/filter"
-import {GroupFilter} from "models/filters/group_filter"
-import * as hittest from "core/hittest"
+import {CDSView} from "@bokehjs/models/sources/cds_view"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {Filter} from "@bokehjs/models/filters/filter"
+import {GroupFilter} from "@bokehjs/models/filters/group_filter"
+import * as hittest from "@bokehjs/core/hittest"
 
 describe("CDSView", () => {
 

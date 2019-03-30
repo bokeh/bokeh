@@ -1,8 +1,8 @@
 import {expect} from "chai"
 
-import {CategoricalMarkerMapper} from "models/mappers/categorical_marker_mapper"
-import {L1Factor as F1, L2Factor as F2, L3Factor as F3} from "models/ranges/factor_range"
-import {MarkerType} from "core/enums"
+import {CategoricalMarkerMapper} from "@bokehjs/models/mappers/categorical_marker_mapper"
+import {L1Factor as F1, L2Factor as F2, L3Factor as F3} from "@bokehjs/models/ranges/factor_range"
+import {MarkerType} from "@bokehjs/core/enums"
 
 type Markers = MarkerType[]
 

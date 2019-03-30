@@ -1,5 +1,5 @@
 import {expect} from "chai"
-import * as arrayable from "core/util/arrayable"
+import * as arrayable from "@bokehjs/core/util/arrayable"
 
 describe("core/util/arrayable module", () => {
 

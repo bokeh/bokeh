@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import * as enums from "core/enums"
+import * as enums from "@bokehjs/core/enums"
 
 describe("enums module", () => {
   it("should have AngleUnits", () => {

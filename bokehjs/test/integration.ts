@@ -1,7 +1,7 @@
 import {describe, it, display} from "./framework"
 
-import {LayoutDOM, Row, Column, GridBox, Spacer, Tabs, Panel} from "models/layouts/index"
-import {ToolbarBox} from "models/tools/toolbar_box"
+import {LayoutDOM, Row, Column, GridBox, Spacer, Tabs, Panel} from "@bokehjs/models/layouts/index"
+import {ToolbarBox} from "@bokehjs/models/tools/toolbar_box"
 import {
   Button, Toggle, Dropdown,
   CheckboxGroup, RadioGroup,
@@ -11,13 +11,13 @@ import {
   Slider, RangeSlider, DateSlider, DateRangeSlider,
   DatePicker,
   Paragraph, Div, PreText,
-} from "models/widgets/index"
-import {figure, gridplot, color} from "api/plotting"
-import {Matrix} from "core/util/data_structures"
-import {range} from "core/util/array"
-import {SizingPolicy} from "core/layout"
-import {Color} from "core/types"
-import {Location} from "core/enums"
+} from "@bokehjs/models/widgets/index"
+import {figure, gridplot, color} from "@bokehjs/api/plotting"
+import {Matrix} from "@bokehjs/core/util/data_structures"
+import {range} from "@bokehjs/core/util/array"
+import {SizingPolicy} from "@bokehjs/core/layout"
+import {Color} from "@bokehjs/core/types"
+import {Location} from "@bokehjs/core/enums"
 
 function grid(items: Matrix<LayoutDOM> | LayoutDOM[][], opts?: Partial<GridBox.Attrs>): GridBox {
   const children = Matrix.from(items).to_sparse()

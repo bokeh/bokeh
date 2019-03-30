@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import {LinearColorMapper} from "models/mappers/linear_color_mapper"
+import {LinearColorMapper} from "@bokehjs/models/mappers/linear_color_mapper"
 
 describe("LinearColorMapper module", () => {
 

@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import * as bbox from "core/util/bbox"
+import * as bbox from "@bokehjs/core/util/bbox"
 
 describe("bbox module", () => {
   describe("empty", () => {

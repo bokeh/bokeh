@@ -1,13 +1,13 @@
 import {expect} from "chai"
 
-import * as p from "core/properties"
-import * as enums from "core/enums"
+import * as p from "@bokehjs/core/properties"
+import * as enums from "@bokehjs/core/enums"
 
-import {HasProps} from  "core/has_props"
-import {ColumnDataSource} from "models/sources/column_data_source"
-import {svg_colors} from  "core/util/svg_colors"
-import {Transform} from  "models/transforms/transform"
-import {Expression} from  "models/expressions/expression"
+import {HasProps} from  "@bokehjs/core/has_props"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {svg_colors} from  "@bokehjs/core/util/svg_colors"
+import {Transform} from  "@bokehjs/models/transforms/transform"
+import {Expression} from  "@bokehjs/models/expressions/expression"
 
 class MyProperty extends p.Property<unknown> {}
 

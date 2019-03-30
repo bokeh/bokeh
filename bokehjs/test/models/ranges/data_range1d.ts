@@ -1,10 +1,10 @@
 import {expect} from "chai"
 import * as sinon from "sinon"
 
-import {Plot} from "models/plots/plot"
-import {CustomJS} from "models/callbacks/customjs"
-import {DataRange1d} from "models/ranges/data_range1d"
-import {GlyphRenderer} from "models/renderers/glyph_renderer"
+import {Plot} from "@bokehjs/models/plots/plot"
+import {CustomJS} from "@bokehjs/models/callbacks/customjs"
+import {DataRange1d} from "@bokehjs/models/ranges/data_range1d"
+import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 
 describe("datarange1d module", () => {
 

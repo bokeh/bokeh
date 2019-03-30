@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import {GeoJSONDataSource} from "models/sources/geojson_data_source"
+import {GeoJSONDataSource} from "@bokehjs/models/sources/geojson_data_source"
 
 describe("geojson_data_source module", () => {
 

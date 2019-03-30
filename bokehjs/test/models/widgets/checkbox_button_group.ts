@@ -1,8 +1,8 @@
 import {expect} from "chai"
 import * as sinon from "sinon"
 
-import {CheckboxButtonGroup} from "models/widgets/checkbox_button_group"
-import {CustomJS} from "models/callbacks/customjs"
+import {CheckboxButtonGroup} from "@bokehjs/models/widgets/checkbox_button_group"
+import {CustomJS} from "@bokehjs/models/callbacks/customjs"
 
 describe("CheckboxButtonGroup", () => {
 

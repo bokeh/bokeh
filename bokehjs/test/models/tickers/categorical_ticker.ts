@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import {CategoricalTicker} from "models/tickers/categorical_ticker"
-import {FactorRange} from "models/ranges/factor_range"
+import {CategoricalTicker} from "@bokehjs/models/tickers/categorical_ticker"
+import {FactorRange} from "@bokehjs/models/ranges/factor_range"
 
 describe("CategoricalTicker Model", () => {
 

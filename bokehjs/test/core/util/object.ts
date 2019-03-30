@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import * as object from "core/util/object"
+import * as object from "@bokehjs/core/util/object"
 
 describe("object module", () => {
 

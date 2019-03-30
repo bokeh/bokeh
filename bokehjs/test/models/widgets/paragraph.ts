@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import {Paragraph} from "models/widgets/paragraph"
+import {Paragraph} from "@bokehjs/models/widgets/paragraph"
 
 describe("Paragraph.View render", () => {
 

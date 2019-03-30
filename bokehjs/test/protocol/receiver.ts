@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import {Message} from "protocol/message"
-import {Receiver} from "protocol/receiver"
+import {Message} from "@bokehjs/protocol/message"
+import {Receiver} from "@bokehjs/protocol/receiver"
 
 describe("protocol/receiver module", () => {
 

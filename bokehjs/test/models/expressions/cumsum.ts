@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import {ColumnDataSource} from "models/sources/column_data_source"
-import {CumSum} from "models/expressions/cumsum"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {CumSum} from "@bokehjs/models/expressions/cumsum"
 
 describe("CumSum", () => {
 

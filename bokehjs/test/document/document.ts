@@ -2,14 +2,14 @@ import {expect} from "chai"
 import * as sinon from "sinon"
 const {stderrTrap} = require('logtrap')
 
-import {values, size} from "core/util/object"
-import {Document, DEFAULT_TITLE} from "document"
-import * as ev from "document/events"
-import {version as js_version} from "version"
-const {Models} = require("../../js/lib/base")
-import {Model} from "model"
-import * as logging from "core/logging"
-import * as p from "core/properties"
+import {values, size} from "@bokehjs/core/util/object"
+import {Document, DEFAULT_TITLE} from "@bokehjs/document"
+import * as ev from "@bokehjs/document/events"
+import {version as js_version} from "@bokehjs/version"
+import {Models} from "@bokehjs/base"
+import {Model} from "@bokehjs/model"
+import * as logging from "@bokehjs/core/logging"
+import * as p from "@bokehjs/core/properties"
 
 namespace AnotherModel {
   export type Attrs = p.AttrsOf<Props>

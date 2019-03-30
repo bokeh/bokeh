@@ -1,5 +1,14 @@
 require("source-map-support").install()
 
+// This reflects test/tsconfig.json rebased on top of build/ directory.
+import * as tsconfig_paths from "tsconfig-paths"
+tsconfig_paths.register({
+  baseUrl: __dirname, // can't user ".", because that would give cwd
+  paths: {
+    "@bokehjs/*": ["../js/lib/*", "../js/types/*"],
+  },
+})
+
 // XXX: Patch jsdom/utils before importing main jsdom. Otherwise
 //      HTMLCanvasElement will detect no canvas and make tests
 //      fail with "unable to obtain 2D rendering context".

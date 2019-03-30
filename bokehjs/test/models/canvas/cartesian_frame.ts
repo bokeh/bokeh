@@ -1,10 +1,10 @@
 import {expect} from "chai"
 
-import {CategoricalScale} from "models/scales/categorical_scale"
-import {LinearScale} from "models/scales/linear_scale"
-import {CartesianFrame} from "models/canvas/cartesian_frame"
-import {FactorRange} from "models/ranges/factor_range"
-import {Range1d} from "models/ranges/range1d"
+import {CategoricalScale} from "@bokehjs/models/scales/categorical_scale"
+import {LinearScale} from "@bokehjs/models/scales/linear_scale"
+import {CartesianFrame} from "@bokehjs/models/canvas/cartesian_frame"
+import {FactorRange} from "@bokehjs/models/ranges/factor_range"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
 
 describe("CartesianFrame", () => {
 

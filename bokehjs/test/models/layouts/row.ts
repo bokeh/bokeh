@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import {Row} from "models/layouts/row"
+import {Row} from "@bokehjs/models/layouts/row"
 
 describe("Row", () => {
   it("should have empty children after initialization", () => {

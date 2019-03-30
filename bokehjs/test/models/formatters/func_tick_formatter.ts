@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import {FuncTickFormatter} from "models/formatters/func_tick_formatter"
-import {Range1d} from "models/ranges/range1d"
+import {FuncTickFormatter} from "@bokehjs/models/formatters/func_tick_formatter"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
 
 describe("func_tick_formatter module", () => {
 

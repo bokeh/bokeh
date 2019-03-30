@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import {SingleIntervalTicker} from "models/tickers/single_interval_ticker"
+import {SingleIntervalTicker} from "@bokehjs/models/tickers/single_interval_ticker"
 
 describe("SingleIntervalTicker Model", () => {
 

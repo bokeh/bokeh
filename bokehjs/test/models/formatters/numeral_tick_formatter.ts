@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import {NumeralTickFormatter} from "models/formatters/numeral_tick_formatter"
+import {NumeralTickFormatter} from "@bokehjs/models/formatters/numeral_tick_formatter"
 
 describe("numeral_tick_formatter module", () => {
 

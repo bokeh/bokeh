@@ -1,11 +1,11 @@
 import {expect} from "chai"
 import * as sinon from "sinon"
 
-import {CustomJS} from "models/callbacks/customjs"
+import {CustomJS} from "@bokehjs/models/callbacks/customjs"
 import {
   FactorRange, map_one_level, map_two_levels,
   L1OffsetFactor, L2OffsetFactor, L3OffsetFactor,
-} from "models/ranges/factor_range"
+} from "@bokehjs/models/ranges/factor_range"
 
 describe("factor_range module", () => {
 

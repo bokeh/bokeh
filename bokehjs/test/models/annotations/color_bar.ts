@@ -1,17 +1,17 @@
 import {expect} from "chai"
 import * as sinon from "sinon"
 
-import {ColorBar, ColorBarView} from 'models/annotations/color_bar'
-import {LinearColorMapper} from "models/mappers/linear_color_mapper"
-import {LinearScale} from "models/scales/linear_scale"
-import {LogColorMapper} from "models/mappers/log_color_mapper"
-import {LogScale} from "models/scales/log_scale"
-import {LogTicker} from "models/tickers/log_ticker"
-import {Viridis} from "api/palettes"
-import {Plot} from "models/plots/plot"
-import {Range1d} from "models/ranges/range1d"
-import {Place} from "core/enums"
-import * as text from "core/util/text"
+import {ColorBar, ColorBarView} from '@bokehjs/models/annotations/color_bar'
+import {LinearColorMapper} from "@bokehjs/models/mappers/linear_color_mapper"
+import {LinearScale} from "@bokehjs/models/scales/linear_scale"
+import {LogColorMapper} from "@bokehjs/models/mappers/log_color_mapper"
+import {LogScale} from "@bokehjs/models/scales/log_scale"
+import {LogTicker} from "@bokehjs/models/tickers/log_ticker"
+import {Viridis} from "@bokehjs/api/palettes"
+import {Plot} from "@bokehjs/models/plots/plot"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {Place} from "@bokehjs/core/enums"
+import * as text from "@bokehjs/core/util/text"
 
 function color_bar_view(attrs: Partial<ColorBar.Attrs>, place: Place = "center"): ColorBarView {
   const plot = new Plot({

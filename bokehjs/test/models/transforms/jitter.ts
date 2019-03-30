@@ -1,11 +1,11 @@
 import {expect} from "chai"
 import * as sinon from "sinon"
 
-import {FactorRange} from "models/ranges/factor_range"
-import {Jitter} from "models/transforms/jitter"
-import * as bokeh_math from "core/util/math"
-import {repeat} from "core/util/array"
-import {sum} from "core/util/arrayable"
+import {FactorRange} from "@bokehjs/models/ranges/factor_range"
+import {Jitter} from "@bokehjs/models/transforms/jitter"
+import * as bokeh_math from "@bokehjs/core/util/math"
+import {repeat} from "@bokehjs/core/util/array"
+import {sum} from "@bokehjs/core/util/arrayable"
 
 describe("Jitter transform module", () => {
 

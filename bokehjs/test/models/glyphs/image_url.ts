@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
 import {create_glyph_view} from "./glyph_utils"
-import {ImageURL} from "models/glyphs/image_url"
+import {ImageURL} from "@bokehjs/models/glyphs/image_url"
 
 describe("ImageURL module", () => {
 

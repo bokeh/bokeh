@@ -23,7 +23,7 @@
     "types": ["node", "mocha"],
     "baseUrl": ".",
     "paths": {
-      "*": ["../build/js/lib/*", "../build/js/types/*"]
+      "@bokehjs/*": ["../build/js/lib/*", "../build/js/types/*"]
     },
     "outDir": "../build/test"
   },

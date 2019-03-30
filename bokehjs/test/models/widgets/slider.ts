@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import {Slider} from "models/widgets/slider"
-import {isInteger} from "core/util/types"
+import {Slider} from "@bokehjs/models/widgets/slider"
+import {isInteger} from "@bokehjs/core/util/types"
 
 describe("SliderView", () => {
 
