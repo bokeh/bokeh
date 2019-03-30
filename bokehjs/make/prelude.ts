@@ -28,6 +28,10 @@ ${license}
       if (name === "bokehjs")
         return entry;
 
+      var prefix = "@bokehjs/"
+      if (name.slice(0, prefix.length) === prefix)
+        name = name.slice(prefix.length)
+
       var alias = aliases[name]
       if (alias != null)
         return alias;
