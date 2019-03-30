@@ -44,8 +44,8 @@ def test_python_execution_with_OO():
 
     imports = []
     for path, _, files in os.walk("bokeh"):
-
-        if "tests" in path: continue
+        if "tests" in path:
+            continue
 
         for file in files:
             if not file.endswith(".py"):
@@ -54,17 +54,17 @@ def test_python_execution_with_OO():
                 continue
 
             if file.endswith("__init__.py"):
-                mod = path.replace("/", ".")
+                mod = path.replace(os.sep, ".")
             else:
-                mod = path.replace("/", ".") + "." + file[:-3]
+                mod = path.replace(os.sep, ".") + "." + file[:-3]
 
             imports.append("import " + mod)
 
     test_env = os.environ.copy()
     test_env['BOKEH_DOCS_MISSING_API_KEY_OK'] = 'yes'
 
-    proc = Popen(["python", "-OO", "-c", ";".join(imports), ''], stdout=PIPE, env=test_env)
-    proc.communicate()
+    proc = Popen(["python", "-OO", "-"], stdout=PIPE, stdin=PIPE, env=test_env)
+    proc.communicate("\n".join(imports).encode("utf-8"))
     proc.wait()
 
     if proc.returncode != 0:
