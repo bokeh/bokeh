@@ -6,19 +6,27 @@ export type HTMLChild = string | HTMLElement | (string | HTMLElement)[]
 
 const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) =>
     (attrs: HTMLAttrs = {}, ...children: HTMLChild[]): HTMLElementTagNameMap[T] => {
+
   const element = document.createElement(tag)
+  element.classList.add("bk")
 
   for (const attr in attrs) {
-    const value = attrs[attr]
+    let value = attrs[attr]
 
     if (value == null || isBoolean(value) && !value)
       continue
 
-    if (attr === "class" && isArray(value)) {
-      for (const cls of (value as string[])) {
-        if (cls != null) element.classList.add(cls)
+    if (attr === "class") {
+      if (isString(value))
+        value = value.split(/\s+/)
+
+      if (isArray(value)) {
+        for (const cls of (value as string[])) {
+          if (cls != null)
+            element.classList.add(cls)
+        }
+        continue
       }
-      continue
     }
 
     if (attr === "style" && isPlainObject(value)) {
@@ -280,7 +288,10 @@ export class ClassList {
   }
 
   clear(): this {
-    this.el.className = ""
+    for (const cls of this.values) {
+      if (cls != "bk")
+        this.classList.remove(cls)
+    }
     return this
   }
 
