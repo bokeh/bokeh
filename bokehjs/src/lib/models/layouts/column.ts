@@ -9,7 +9,7 @@ export class ColumnView extends BoxView {
     const items = this.child_views.map((child) => child.layout)
     this.layout = new ColumnLayout(items)
     this.layout.rows = this.model.rows
-    this.layout.spacing = [0, this.model.spacing]
+    this.layout.spacing = [this.model.spacing, 0]
     this.layout.set_sizing(this.box_sizing())
   }
 }

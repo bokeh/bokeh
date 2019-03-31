@@ -272,7 +272,7 @@ export class Grid extends Layoutable {
         throw new Error("unrechable")
     }
 
-    const [cspacing, rspacing] =
+    const [rspacing, cspacing] =
       isNumber(this.spacing) ? [this.spacing, this.spacing] : this.spacing
 
     this._state = {items, nrows, ncols, rows, cols, rspacing, cspacing}

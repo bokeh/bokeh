@@ -99,7 +99,7 @@ describe("3x3 GridBox", () => {
     await display(l, [300, 300])
   })
 
-  it("fixed spacers 50px x 50px, hspacing 5px, vspacing 10px", async () => {
+  it("fixed spacers 50px x 50px, vspacing 5px, hspacing 10px", async () => {
     const s0 = spacer("fixed", "fixed", 50, 50)
 
     const items = colors.apply([
