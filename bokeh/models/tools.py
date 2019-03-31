@@ -263,7 +263,7 @@ class PanTool(Drag):
 
 DEFAULT_RANGE_OVERLAY = lambda: BoxAnnotation(
     level="overlay",
-    render_mode="css",
+    render_mode="canvas",
     fill_color="lightgrey",
     fill_alpha=0.5,
     line_color="black",
