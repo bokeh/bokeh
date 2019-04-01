@@ -4,8 +4,8 @@ from math import ceil
 import numpy as np
 
 from bokeh.io import curdoc
-from bokeh.layouts import row #, column
-from bokeh.models import ColumnDataSource, Slider, Div, GridBox
+from bokeh.layouts import grid, row, column
+from bokeh.models import ColumnDataSource, Slider, Div
 from bokeh.plotting import figure
 
 import audio
@@ -102,13 +102,7 @@ curdoc().add_periodic_callback(update, 80)
 
 controls = row(gain, freq)
 
-#plots = column(waterfall_plot, row(column(signal_plot, spectrum_plot), eq))
-plots = GridBox(children=[
-    (waterfall_plot, 0, 0, 1, 2),
-    (signal_plot,    1, 0, 1, 1),
-    (spectrum_plot,  2, 0, 1, 1),
-    (eq,             1, 1, 2, 1),
-])
+plots = grid(column(waterfall_plot, row(column(signal_plot, spectrum_plot), eq)))
 
 curdoc().add_root(desc)
 curdoc().add_root(controls)
