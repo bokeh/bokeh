@@ -339,7 +339,7 @@ export class Grid extends Layoutable {
       }
 
       if (size.height > 0) {
-        const rheight = size.height/radjustable.length
+        const rheight = round(size.height/radjustable.length)
         for (const r of radjustable) {
           row_heights[r] = max(row_heights[r], rheight)
         }
@@ -355,7 +355,7 @@ export class Grid extends Layoutable {
       }
 
       if (size.width > 0) {
-        const cwidth = size.width/cadjustable.length
+        const cwidth = round(size.width/cadjustable.length)
         for (const c of cadjustable) {
           col_widths[c] = max(col_widths[c], cwidth)
         }
@@ -420,7 +420,7 @@ export class Grid extends Layoutable {
         const row = rows[y]
         if (row.policy != "fixed") {
           const height = preferred.row_heights[y]
-          const cutoff = overflow_height/nadjustable
+          const cutoff = round(overflow_height/nadjustable)
           preferred.row_heights[y] = max(height - cutoff, 0)
           overflow_height -= cutoff > height ? height : cutoff
           nadjustable--
@@ -470,7 +470,7 @@ export class Grid extends Layoutable {
         const col = cols[x]
         if (col.policy != "fixed") {
           const width = preferred.col_widths[x]
-          const cutoff = overflow_width/nadjustable
+          const cutoff = round(overflow_width/nadjustable)
           preferred.col_widths[x] = max(width - cutoff, 0)
           overflow_width -= cutoff > width ? width : cutoff
           nadjustable--
