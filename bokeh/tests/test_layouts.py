@@ -22,8 +22,8 @@ import pytest ; pytest
 
 # Bokeh imports
 from bokeh.plotting import figure
-from bokeh.layouts import column, row, gridplot, layout
-from bokeh.models import Column, Row, GridBox
+from bokeh.layouts import column, row, gridplot, layout, grid
+from bokeh.models import Column, Row, GridBox, Spacer
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -95,6 +95,71 @@ def test_layout_nested():
         assert isinstance(r, Row)
         for c in r.children:
             assert isinstance(c, Column)
+
+def test_grid():
+    s0 = Spacer()
+    s1 = Spacer()
+    s2 = Spacer()
+    s3 = Spacer()
+    s4 = Spacer()
+    s5 = Spacer()
+    s6 = Spacer()
+
+    g0 = grid([])
+    assert g0.children == []
+
+    g1 = grid(column(s0, row(column(s1, s2, s3, s4, s5), s6)))
+    assert g1.children == [
+        (s0, 0, 0, 1, 2),
+        (s1, 1, 0, 1, 1),
+        (s2, 2, 0, 1, 1),
+        (s3, 3, 0, 1, 1),
+        (s4, 4, 0, 1, 1),
+        (s5, 5, 0, 1, 1),
+        (s6, 1, 1, 5, 1),
+    ]
+
+    g2 = grid([s0, [[s1, s2, s3, s4, s5], s6]])
+    assert g2.children == [
+        (s0, 0, 0, 1, 2),
+        (s1, 1, 0, 1, 1),
+        (s2, 2, 0, 1, 1),
+        (s3, 3, 0, 1, 1),
+        (s4, 4, 0, 1, 1),
+        (s5, 5, 0, 1, 1),
+        (s6, 1, 1, 5, 1),
+    ]
+
+    g3 = grid([s0, s1, s2, s3, s4, s5, s6], ncols=2)
+    assert g3.children == [
+        (s0, 0, 0, 1, 1),
+        (s1, 0, 1, 1, 1),
+        (s2, 1, 0, 1, 1),
+        (s3, 1, 1, 1, 1),
+        (s4, 2, 0, 1, 1),
+        (s5, 2, 1, 1, 1),
+        (s6, 3, 0, 1, 2),
+    ]
+
+    g4 = grid([s0, s1, s2, s3, s4, s5, s6, None], ncols=2)
+    assert g4.children == [
+        (s0, 0, 0, 1, 1),
+        (s1, 0, 1, 1, 1),
+        (s2, 1, 0, 1, 1),
+        (s3, 1, 1, 1, 1),
+        (s4, 2, 0, 1, 1),
+        (s5, 2, 1, 1, 1),
+        (s6, 3, 0, 1, 1),
+    ]
+
+    with pytest.raises(NotImplementedError):
+        grid("""
+        +----+----+----+----+
+        | s1 | s2 | s3 |    |
+        +---------+----+ s4 |
+        |    s5   | s5 |    |
+        +---------+----+----+
+        """)
 
 #-----------------------------------------------------------------------------
 # Dev API
