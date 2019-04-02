@@ -223,7 +223,7 @@ class JSResources(BaseResources):
 
         root_url (str, optional) : URL and port of Bokeh Server to load resources from (default: None)
 
-            If ``None``, absoute URLs based on the default server configuration will
+            If ``None``, absolute URLs based on the default server configuration will
             be generated.
 
             ``root_url`` can also be the empty string, in which case relative URLs,

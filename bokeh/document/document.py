@@ -9,7 +9,7 @@ be reflected to the client side BokehJS library.
 
 As a concrete example, consider a column layout with ``Slider`` and ``Select``
 widgets, and a plot with some tools, an axis and grid, and a glyph renderer
-for circles. A simplified representation oh this document might look like the
+for circles. A simplified representation of this document might look like the
 figure below:
 
 .. figure:: /_images/document.svg

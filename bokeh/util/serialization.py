@@ -8,7 +8,7 @@
 Functions for helping with serialization and deserialization of
 Bokeh objects.
 
-Certain NunPy array dtypes can be serialized to a binary format for
+Certain NumPy array dtypes can be serialized to a binary format for
 performance and efficiency. The list of supported dtypes is:
 
 {binary_array_types}
