@@ -331,6 +331,10 @@ class GridBox(LayoutDOM):
 
     spacing = Either(Int, Tuple(Int, Int), default=0, help="""
     The gap between children (in pixels).
+
+    Either a number, if spacing is the same for both dimensions, or a pair
+    of numbers indicating spacing in the vertical and horizontal dimensions
+    respectively.
     """)
 
 @abstract
