@@ -261,7 +261,7 @@ def make_id():
 def make_globally_unique_id():
     ''' Return a globally unique UUID.
 
-    Some situtations, e.g. id'ing dynamically created Divs in HTML documents,
+    Some situations, e.g. id'ing dynamically created Divs in HTML documents,
     always require globally unique IDs.
 
     Returns:
