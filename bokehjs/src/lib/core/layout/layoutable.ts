@@ -1,7 +1,7 @@
 import {Size, Sizeable, SizeHint, BoxSizing} from "./types"
 import {BBox, CoordinateTransform} from "../util/bbox"
 
-const {min, max} = Math
+const {min, max, round} = Math
 
 export interface ComputedVariable {
   readonly value: number
@@ -113,9 +113,9 @@ export abstract class Layoutable {
 
       if (width_policy != "fixed" && height_policy != "fixed") {
         const w_width = width
-        const w_height = width / aspect
+        const w_height = round(width / aspect)
 
-        const h_width = height * aspect
+        const h_width = round(height * aspect)
         const h_height = height
 
         const w_diff = Math.abs(viewport.width - w_width) + Math.abs(viewport.height - w_height)
@@ -129,9 +129,9 @@ export abstract class Layoutable {
           height = h_height
         }
       } else if (width_policy == "fixed") {
-        height = width/aspect
+        height = round(width/aspect)
       } else if (height_policy == "fixed") {
-        width = height*aspect
+        width = round(height*aspect)
       } else
         throw new Error("unrechable")
     }

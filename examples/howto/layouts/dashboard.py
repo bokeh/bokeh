@@ -1,6 +1,6 @@
 import numpy as np
 
-from bokeh.layouts import layout, column
+from bokeh.layouts import grid, column
 from bokeh.models import CustomJS, Slider, ColumnDataSource
 from bokeh.plotting import figure, output_file, show
 
@@ -87,7 +87,7 @@ def linked_panning():
     s3.circle(x, y3, color="olive", size=8, alpha=0.5)
     return [s1, s2, s3]
 
-l = layout([
+l = grid([
     bollinger(),
     slider(),
     linked_panning(),

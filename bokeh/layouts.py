@@ -21,14 +21,17 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import math
+from collections import namedtuple
 
 # External imports
+from six import string_types
 
 # Bokeh imports
 from .core.enums import Location
 from .models.tools import ProxyToolbar, ToolbarBox
 from .models.plots import Plot
-from .models.layouts import LayoutDOM, Row, Column, GridBox, Spacer, WidgetBox
+from .models.layouts import LayoutDOM, Box, Row, Column, GridBox, Spacer, WidgetBox
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -36,6 +39,7 @@ from .models.layouts import LayoutDOM, Row, Column, GridBox, Spacer, WidgetBox
 
 __all__ = (
     'column',
+    'grid',
     'gridplot',
     'GridSpec',
     'layout',
@@ -334,6 +338,170 @@ def gridplot(children, sizing_mode=None, toolbar_location='above', ncols=None,
         return Row(children=[toolbar, grid], sizing_mode=sizing_mode)
     elif toolbar_location == 'right':
         return Row(children=[grid, toolbar], sizing_mode=sizing_mode)
+
+def grid(children=[], sizing_mode=None, nrows=None, ncols=None):
+    """
+    Conveniently create a grid of layoutable objects.
+
+    Grids are created by using ``GridBox`` model. This gives the most control over
+    the layout of a grid, but is also tedious and may result in unreadable code in
+    practical applications. ``grid()`` function remedies this by reducing the level
+    of control, but in turn providing a more convenient API.
+
+    Supported patterns:
+
+    1. Nested lists of layoutable objects. Assumes the top-level list represents
+       a column and alternates between rows and columns in subsequent nesting
+       levels. One can use ``None`` for padding purpose.
+
+       >>> grid([p1, [[p2, p3], p4]])
+       GridBox(children=[
+           (p1, 0, 0, 1, 2),
+           (p2, 1, 0, 1, 1),
+           (p3, 2, 0, 1, 1),
+           (p4, 1, 1, 2, 1),
+       ])
+
+    2. Nested ``Row`` and ``Column`` instances. Similar to the first pattern, just
+       instead of using nested lists, it uses nested ``Row`` and ``Column`` models.
+       This can be much more readable that the former. Note, however, that only
+       models that don't have ``sizing_mode`` set are used.
+
+       >>> grid(column(p1, row(column(p2, p3), p4)))
+       GridBox(children=[
+           (p1, 0, 0, 1, 2),
+           (p2, 1, 0, 1, 1),
+           (p3, 2, 0, 1, 1),
+           (p4, 1, 1, 2, 1),
+       ])
+
+    3. Flat list of layoutable objects. This requires ``nrows`` and/or ``ncols`` to
+       be set. The input list will be rearranged into a 2D array accordingly. One
+       can use ``None`` for padding purpose.
+
+       >>> grid([p1, p2, p3, p4], ncols=2)
+       GridBox(children=[
+           (p1, 0, 0, 1, 1),
+           (p2, 0, 1, 1, 1),
+           (p3, 1, 0, 1, 1),
+           (p4, 1, 1, 1, 1),
+       ])
+
+    """
+    row = namedtuple("row", ["children"])
+    col = namedtuple("col", ["children"])
+
+    def flatten(layout):
+        Item = namedtuple("Item", ["layout", "r0", "c0", "r1", "c1"])
+        Grid = namedtuple("Grid", ["nrows", "ncols", "items"])
+
+        def gcd(a, b):
+            a, b = abs(a), abs(b)
+            while b != 0:
+                a, b = b, a % b
+            return a
+
+        def lcm(a, *rest):
+            for b in rest:
+                a = (a*b) // gcd(a, b)
+            return a
+
+        nonempty = lambda child: child.nrows != 0 and child.ncols != 0
+
+        def _flatten(layout):
+            if isinstance(layout, row):
+                children = list(filter(nonempty, map(_flatten, layout.children)))
+                if not children:
+                    return Grid(0, 0, [])
+
+                nrows = lcm(*[ child.nrows for child in children ])
+                ncols = sum([ child.ncols for child in children ])
+
+                items = []
+                offset = 0
+                for child in children:
+                    factor = nrows//child.nrows
+
+                    for (layout, r0, c0, r1, c1) in child.items:
+                        items.append((layout, factor*r0, c0 + offset, factor*r1, c1 + offset))
+
+                    offset += child.ncols
+
+                return Grid(nrows, ncols, items)
+            elif isinstance(layout, col):
+                children = list(filter(nonempty, map(_flatten, layout.children)))
+                if not children:
+                    return Grid(0, 0, [])
+
+                nrows = sum([ child.nrows for child in children ])
+                ncols = lcm(*[ child.ncols for child in children ])
+
+                items = []
+                offset = 0
+                for child in children:
+                    factor = ncols//child.ncols
+
+                    for (layout, r0, c0, r1, c1) in child.items:
+                        items.append((layout, r0 + offset, factor*c0, r1 + offset, factor*c1))
+
+                    offset += child.nrows
+
+                return Grid(nrows, ncols, items)
+            else:
+                return Grid(1, 1, [Item(layout, 0, 0, 1, 1)])
+
+        grid = _flatten(layout)
+
+        children = []
+        for (layout, r0, c0, r1, c1) in grid.items:
+            if layout is not None:
+                children.append((layout, r0, c0, r1 - r0, c1 - c0))
+
+        return GridBox(children=children)
+
+    if isinstance(children, list):
+        if nrows is not None or ncols is not None:
+            N = len(children)
+            if ncols is None:
+                ncols = math.ceil(N/nrows)
+            layout = col([ row(children[i:i+ncols]) for i in range(0, N, ncols) ])
+        else:
+            def traverse(children, level=0):
+                if isinstance(children, list):
+                    container = col if level % 2 == 0 else row
+                    return container([ traverse(child, level+1) for child in children ])
+                else:
+                    return children
+
+            layout = traverse(children)
+    elif isinstance(children, LayoutDOM):
+        def is_usable(child):
+            return _has_auto_sizing(child) and child.spacing == 0
+
+        def traverse(item, top_level=False):
+            if isinstance(item, Box) and (top_level or is_usable(item)):
+                container = col if isinstance(item, Column) else row
+                return container(list(map(traverse, item.children)))
+            else:
+                return item
+
+        layout = traverse(children, top_level=True)
+    elif isinstance(children, string_types):
+        raise NotImplementedError
+    else:
+        raise ValueError("expected a list, string or model")
+
+    grid = flatten(layout)
+
+    if sizing_mode is not None:
+        grid.sizing_mode = sizing_mode
+
+        for child in grid.children:
+            layout = child[0]
+            if _has_auto_sizing(layout):
+                layout.sizing_mode = sizing_mode
+
+    return grid
 
 #-----------------------------------------------------------------------------
 # Dev API
