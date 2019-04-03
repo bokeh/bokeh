@@ -92,6 +92,9 @@ def export_png(obj, filename=None, height=None, width=None, webdriver=None):
     if filename is None:
         filename = default_filename("png")
 
+    if image.width == 0 or image.height == 0:
+        raise ValueError("unable to save an empty image")
+
     image.save(filename)
 
     return abspath(filename)
