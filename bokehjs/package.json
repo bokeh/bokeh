@@ -75,6 +75,7 @@
     "canvas2svg": "https://github.com/bokeh/canvas2svg#v1.0.21",
     "es6-promise": "4.2.6",
     "es6-weak-map": "^2.0.2",
+    "es6-map": "^0.1.5",
     "flatbush": "^3.1.1",
     "gloo2": "https://github.com/bokeh/gloo2.git#b41bd5d",
     "hammerjs": "^2.0.4",
