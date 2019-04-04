@@ -7,7 +7,17 @@ import {logger} from "core/logging"
 import * as p from "core/properties"
 import {GestureTool, GestureToolView} from "./gesture_tool"
 
-const enum Side { None, Left, Right, LeftRight, Bottom, Top, BottomTop, LeftRightBottomTop }
+export const enum Side { None, Left, Right, LeftRight, Bottom, Top, BottomTop, LeftRightBottomTop }
+
+export function flip_side(side: Side): Side {
+  switch (side) {
+    case Side.Left:   return Side.Right
+    case Side.Right:  return Side.Left
+    case Side.Bottom: return Side.Top
+    case Side.Top:    return Side.Bottom
+    default:          return side
+  }
+}
 
 // TODO (bev) This would be better directly with BoxAnnotation, but hard
 // to test on a view. Move when "View Models" are implemented
@@ -38,6 +48,13 @@ export function is_inside(sx: number, sy: number, xscale: Scale, yscale: Scale, 
   return result
 }
 
+export function sides_inside(start: number, end: number, range: Range) {
+  let result = 0
+  if (start >= range.start && start <= range.end) result += 1
+  if (end >= range.start && end <= range.end) result += 1
+  return result
+}
+
 export function compute_value(value: number, scale: Scale, sdelta: number, range: Range): number {
   const svalue = scale.compute(value)
   const new_value = scale.invert(svalue+sdelta)
@@ -46,11 +63,37 @@ export function compute_value(value: number, scale: Scale, sdelta: number, range
   return value
 }
 
+export function compute_end_side(end: number, range: Range, side: Side): Side {
+  if (end > range.start) {
+    range.end = end
+    return side
+  } else {
+    range.end = range.start
+    range.start = end
+    return flip_side(side)
+  }
+}
+
+export function compute_start_side(start: number, range: Range, side: Side): Side {
+  if (start < range.end ) {
+    range.start = start
+    return side
+  } else {
+    range.start = range.end
+    range.end = start
+    return flip_side(side)
+  }
+}
+
 export function update_range(range: Range1d, scale: Scale, delta: number, plot_range: Range): void {
   const [sstart, send] = scale.r_compute(range.start, range.end)
   const [start, end] = scale.r_invert(sstart+delta, send+delta)
-  if (start >= plot_range.start && start <= plot_range.end &&
-      end >= plot_range.start && end <= plot_range.end) {
+
+  const initial_sides_inside = sides_inside(range.start, range.end, plot_range)
+  const final_sides_inside = sides_inside(start, end, plot_range)
+
+  // Allow the update as long as the number of sides in-bounds does not decrease
+  if (final_sides_inside >= initial_sides_inside) {
     range.start = start
     range.end = end
   }
@@ -132,19 +175,27 @@ export class RangeToolView extends GestureToolView {
     if (xr != null) {
       if (this.side == Side.LeftRight || this.side == Side.LeftRightBottomTop)
         update_range(xr, xscale, new_dx, frame.x_range)
-      else if (this.side == Side.Left)
-        xr.start = compute_value(xr.start, xscale, new_dx, frame.x_range)
-      else if (this.side == Side.Right)
-        xr.end = compute_value(xr.end, xscale, new_dx, frame.x_range)
+      else if (this.side == Side.Left) {
+        const start = compute_value(xr.start, xscale, new_dx, frame.x_range)
+        this.side = compute_start_side(start, xr, this.side)
+      } else if (this.side == Side.Right) {
+        const end = compute_value(xr.end, xscale, new_dx, frame.x_range)
+        this.side = compute_end_side(end, xr, this.side)
+      }
     }
 
     if (yr != null) {
       if (this.side == Side.BottomTop || this.side == Side.LeftRightBottomTop)
         update_range(yr, yscale, new_dy, frame.y_range)
-      else if (this.side == Side.Bottom)
+      else if (this.side == Side.Bottom) {
         yr.start = compute_value(yr.start, yscale, new_dy, frame.y_range)
-      else if (this.side == Side.Top)
+        const start = compute_value(yr.start, yscale, new_dy, frame.y_range)
+        this.side = compute_start_side(start, yr, this.side)
+      } else if (this.side == Side.Top) {
         yr.end = compute_value(yr.end, yscale, new_dy, frame.y_range)
+        const end = compute_value(yr.end, yscale, new_dy, frame.y_range)
+        this.side = compute_end_side(end, yr, this.side)
+      }
     }
 
     this.last_dx = ev.deltaX
@@ -161,7 +212,7 @@ export class RangeToolView extends GestureToolView {
 const DEFAULT_RANGE_OVERLAY = () => {
   return new BoxAnnotation({
     level: "overlay",
-    render_mode: "css",
+    render_mode: "canvas",
     fill_color: "lightgrey",
     fill_alpha: {value: 0.5},
     line_color: {value: "black"},
