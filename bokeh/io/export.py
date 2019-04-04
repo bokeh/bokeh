@@ -92,6 +92,9 @@ def export_png(obj, filename=None, height=None, width=None, webdriver=None):
     if filename is None:
         filename = default_filename("png")
 
+    if image.width == 0 or image.height == 0:
+        raise ValueError("unable to save an empty image")
+
     image.save(filename)
 
     return abspath(filename)
@@ -287,14 +290,16 @@ def wait_until_render_complete(driver):
     try:
         WebDriverWait(driver, 5, poll_frequency=0.1).until(is_bokeh_render_complete)
     except TimeoutException:
-        log.warning("The webdriver raised a TimeoutException while waiting for \
-                     a 'bokeh:idle' event to signify that the layout has rendered. \
-                     Something may have gone wrong.")
+        log.warning("The webdriver raised a TimeoutException while waiting for "
+                    "a 'bokeh:idle' event to signify that the layout has rendered. "
+                    "Something may have gone wrong.")
     finally:
         browser_logs = driver.get_log('browser')
-        severe_errors = [l for l in browser_logs if l.get('level') == 'SEVERE']
-        if len(severe_errors) > 0:
-            log.warning("There were severe browser errors that may have affected your export: {}".format(severe_errors))
+        messages = [ l.get("message") for l in browser_logs if l.get('level') in ['WARNING', 'ERROR', 'SEVERE'] ]
+        if len(messages) > 0:
+            log.warning("There were browser warnings and/or errors that may have affected your export")
+            for message in messages:
+                log.warning(message)
 
 #-----------------------------------------------------------------------------
 # Private API
