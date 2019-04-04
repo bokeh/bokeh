@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import {compute_value, flip_side, is_near, is_inside, update_range, RangeTool, Side} from "@bokehjs/models/tools/gestures/range_tool"
+import {compute_value, flip_side, is_near, is_inside, update_range, RangeTool, Side, compute_end_side, compute_start_side} from "@bokehjs/models/tools/gestures/range_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {LinearScale} from "@bokehjs/models/scales/linear_scale"
 
@@ -15,7 +15,7 @@ describe("range_tool module", () => {
     })
   }
 
-  describe("flpp_side", () => {
+  describe("flip_side", () => {
     it("should flip left to right", () => {
       expect(flip_side(Side.Left)).to.equal(Side.Right)
     })
@@ -33,7 +33,6 @@ describe("range_tool module", () => {
       expect(flip_side(Side.BottomTop)).to.equal(Side.BottomTop)
       expect(flip_side(Side.LeftRightBottomTop)).to.equal(Side.LeftRightBottomTop)
     })
-
   })
 
   describe("is_near", () => {
@@ -123,6 +122,44 @@ describe("range_tool module", () => {
       const r2 = compute_value(5, scale, -50, range)
       expect(r2).to.be.equal(0)
     })
+  })
+
+  describe("compute_start_side", () => {
+    it("should not flip if new start < end", () => {
+      const r = new Range1d({start: 0, end: 1})
+      const side = compute_start_side(0.5, r, Side.Top)
+      expect(r.start).to.be.equal(0.5)
+      expect(r.end).to.be.equal(1)
+      expect(side).to.be.equal(Side.Top)
+    })
+
+    it("should flip if new start >= end", () => {
+      const r = new Range1d({start: 0, end: 1})
+      const side = compute_start_side(1.5, r, Side.Top)
+      expect(r.end).to.be.equal(1.5)
+      expect(r.start).to.be.equal(1)
+      expect(side).to.be.equal(Side.Bottom)
+    })
+
+  })
+
+  describe("compute_end_side", () => {
+    it("should not flip if new end > start", () => {
+      const r = new Range1d({start: 0, end: 1})
+      const side = compute_end_side(1.5, r, Side.Top)
+      expect(r.start).to.be.equal(0)
+      expect(r.end).to.be.equal(1.5)
+      expect(side).to.be.equal(Side.Top)
+    })
+
+    it("should flip if new end <= start", () => {
+      const r = new Range1d({start: 0, end: 1})
+      const side = compute_end_side(-0.5, r, Side.Top)
+      expect(r.start).to.be.equal(-0.5)
+      expect(r.end).to.be.equal(0)
+      expect(side).to.be.equal(Side.Bottom)
+    })
+
   })
 
   describe("update_range", () => {

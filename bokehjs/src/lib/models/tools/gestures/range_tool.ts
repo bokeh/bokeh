@@ -63,6 +63,28 @@ export function compute_value(value: number, scale: Scale, sdelta: number, range
   return value
 }
 
+export function compute_end_side(end: number, range: Range, side: Side): Side {
+  if (end > range.start) {
+    range.end = end
+    return side
+  } else {
+    range.end = range.start
+    range.start = end
+    return flip_side(side)
+  }
+}
+
+export function compute_start_side(start: number, range: Range, side: Side): Side {
+  if (start < range.end ) {
+    range.start = start
+    return side
+  } else {
+    range.start = range.end
+    range.end = start
+    return flip_side(side)
+  }
+}
+
 export function update_range(range: Range1d, scale: Scale, delta: number, plot_range: Range): void {
   const [sstart, send] = scale.r_compute(range.start, range.end)
   const [start, end] = scale.r_invert(sstart+delta, send+delta)
@@ -155,22 +177,10 @@ export class RangeToolView extends GestureToolView {
         update_range(xr, xscale, new_dx, frame.x_range)
       else if (this.side == Side.Left) {
         const start = compute_value(xr.start, xscale, new_dx, frame.x_range)
-        if (start < xr.end )
-          xr.start = start
-        else {
-          xr.start = xr.end
-          xr.end = start
-          this.side = flip_side(this.side)
-        }
+        this.side = compute_start_side(start, xr, this.side)
       } else if (this.side == Side.Right) {
         const end = compute_value(xr.end, xscale, new_dx, frame.x_range)
-        if (end > xr.start)
-          xr.end = end
-        else {
-          xr.end = xr.start
-          xr.start = end
-          this.side = flip_side(this.side)
-        }
+        this.side = compute_end_side(end, xr, this.side)
       }
     }
 
@@ -180,23 +190,11 @@ export class RangeToolView extends GestureToolView {
       else if (this.side == Side.Bottom) {
         yr.start = compute_value(yr.start, yscale, new_dy, frame.y_range)
         const start = compute_value(yr.start, yscale, new_dy, frame.y_range)
-        if (start < yr.end )
-          yr.start = start
-        else {
-          yr.start = yr.end
-          yr.end = start
-          this.side = flip_side(this.side)
-        }
+        this.side = compute_start_side(start, yr, this.side)
       } else if (this.side == Side.Top) {
         yr.end = compute_value(yr.end, yscale, new_dy, frame.y_range)
         const end = compute_value(yr.end, yscale, new_dy, frame.y_range)
-        if (end > yr.start)
-          yr.end = end
-        else {
-          yr.end = yr.start
-          yr.start = end
-          this.side = flip_side(this.side)
-        }
+        this.side = compute_end_side(end, yr, this.side)
       }
     }
 
