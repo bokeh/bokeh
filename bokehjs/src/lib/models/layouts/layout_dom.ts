@@ -79,8 +79,12 @@ export abstract class LayoutDOMView extends DOMView {
       p.width_policy, p.height_policy, p.sizing_mode,
       p.aspect_ratio,
       p.visible,
-      p.background, p.css_classes,
+      p.background,
     ], () => this.invalidate_layout())
+
+    this.on_change([
+      p.css_classes,
+    ], () => this.invalidate_render())
   }
 
   disconnect_signals(): void {
@@ -167,8 +171,7 @@ export abstract class LayoutDOMView extends DOMView {
 
   rebuild(): void {
     this.build_child_views()
-    this.render()
-    this.invalidate_layout()
+    this.invalidate_render()
   }
 
   compute_layout(): void {
@@ -188,6 +191,11 @@ export abstract class LayoutDOMView extends DOMView {
   invalidate_layout(): void {
     this.root.update_layout()
     this.root.compute_layout()
+  }
+
+  invalidate_render(): void {
+    this.render()
+    this.invalidate_layout()
   }
 
   has_finished(): boolean {
