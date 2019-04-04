@@ -147,7 +147,7 @@ class WSHandler(WebSocketHandler):
     def _async_open(self, session_id, proto_version):
         ''' Perform the specific steps needed to open a connection to a Bokeh session
 
-        Sepcifically, this method coordinates:
+        Specifically, this method coordinates:
 
         * Getting a session for a session ID (creating a new one if needed)
         * Creating a protocol receiver and hander
