@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import {compute_value, is_near, is_inside, update_range, RangeTool} from "@bokehjs/models/tools/gestures/range_tool"
+import {compute_value, flip_side, is_near, is_inside, update_range, RangeTool, Side} from "@bokehjs/models/tools/gestures/range_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {LinearScale} from "@bokehjs/models/scales/linear_scale"
 
@@ -14,6 +14,27 @@ describe("range_tool module", () => {
       target_range: new Range1d(target),
     })
   }
+
+  describe("flpp_side", () => {
+    it("should flip left to right", () => {
+      expect(flip_side(Side.Left)).to.equal(Side.Right)
+    })
+    it("should flip right to left", () => {
+      expect(flip_side(Side.Right)).to.equal(Side.Left)
+    })
+    it("should flip top to bottom", () => {
+      expect(flip_side(Side.Top)).to.equal(Side.Bottom)
+    })
+    it("should flip bottom to top", () => {
+      expect(flip_side(Side.Bottom)).to.equal(Side.Top)
+    })
+    it("should all others to themselves", () => {
+      expect(flip_side(Side.None)).to.equal(Side.None)
+      expect(flip_side(Side.BottomTop)).to.equal(Side.BottomTop)
+      expect(flip_side(Side.LeftRightBottomTop)).to.equal(Side.LeftRightBottomTop)
+    })
+
+  })
 
   describe("is_near", () => {
     const scale = generate_scale()

@@ -7,7 +7,17 @@ import {logger} from "core/logging"
 import * as p from "core/properties"
 import {GestureTool, GestureToolView} from "./gesture_tool"
 
-const enum Side { None, Left, Right, LeftRight, Bottom, Top, BottomTop, LeftRightBottomTop }
+export const enum Side { None, Left, Right, LeftRight, Bottom, Top, BottomTop, LeftRightBottomTop }
+
+export function flip_side(side: Side): Side {
+  switch (side) {
+    case Side.Left:   return Side.Right
+    case Side.Right:  return Side.Left
+    case Side.Bottom: return Side.Top
+    case Side.Top:    return Side.Bottom
+    default:          return side
+  }
+}
 
 // TODO (bev) This would be better directly with BoxAnnotation, but hard
 // to test on a view. Move when "View Models" are implemented
@@ -60,7 +70,7 @@ export function update_range(range: Range1d, scale: Scale, delta: number, plot_r
   const initial_sides_inside = sides_inside(range.start, range.end, plot_range)
   const final_sides_inside = sides_inside(start, end, plot_range)
 
-  // Allow the update as long as the number of sides in-bounds
+  // Allow the update as long as the number of sides in-bounds does not decrease
   if (final_sides_inside >= initial_sides_inside) {
     range.start = start
     range.end = end
@@ -150,7 +160,7 @@ export class RangeToolView extends GestureToolView {
         else {
           xr.start = xr.end
           xr.end = start
-          this.side = Side.Right
+          this.side = flip_side(this.side)
         }
       } else if (this.side == Side.Right) {
         const end = compute_value(xr.end, xscale, new_dx, frame.x_range)
@@ -159,7 +169,7 @@ export class RangeToolView extends GestureToolView {
         else {
           xr.end = xr.start
           xr.start = end
-          this.side = Side.Left
+          this.side = flip_side(this.side)
         }
       }
     }
@@ -175,7 +185,7 @@ export class RangeToolView extends GestureToolView {
         else {
           yr.start = yr.end
           yr.end = start
-          this.side = Side.Top
+          this.side = flip_side(this.side)
         }
       } else if (this.side == Side.Top) {
         yr.end = compute_value(yr.end, yscale, new_dy, frame.y_range)
@@ -185,7 +195,7 @@ export class RangeToolView extends GestureToolView {
         else {
           yr.end = yr.start
           yr.start = end
-          this.side = Side.Bottom
+          this.side = flip_side(this.side)
         }
       }
     }
