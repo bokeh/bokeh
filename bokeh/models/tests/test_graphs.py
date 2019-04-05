@@ -104,7 +104,7 @@ def test_from_networkx_with_sequence_attributes(typ):
     assert renderer.edge_renderer.data_source.data["attr_1"] == [[1, 11], [2, 22]]
     assert renderer.edge_renderer.data_source.data["attr_2"] == [None, 10]
 
-def test_from_networkx_with_sequence_attributes():
+def test_from_networkx_errors_with_mixed_attributes():
     G = nx.Graph()
     G.add_nodes_from([(0, {"attr_1": [1, 2], "attr_2": 10}),
                       (1, {}),
