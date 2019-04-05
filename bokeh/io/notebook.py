@@ -291,7 +291,7 @@ def run_notebook_hook(notebook_type, action, *args, **kw):
         Result of the hook action, as-is
 
     Raises:
-        RunetimeError
+        RuntimeError
             If the hook or specific action is not installed
 
     '''

@@ -99,7 +99,7 @@ def OutputDocumentFor(objs, apply_theme=None, always_new=False):
             a sequence of Models that will be serialized, and need a common document
 
         apply_theme (Theme or FromCurdoc or None, optional):
-            Sets the theme for the doc while inside sith context manager. (default: None)
+            Sets the theme for the doc while inside this context manager. (default: None)
 
             If None, use whatever theme is on the document that is found or created
 

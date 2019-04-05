@@ -185,7 +185,7 @@ class CodeHandler(Handler):
 
     # Private methods ---------------------------------------------------------
 
-    # subclassess must define self._logger_text
+    # subclasses must define self._logger_text
     def _make_io_logger(self, name):
         def logger(*args, **kwargs):
             log.info(self._logger_text , self._runner.path, name)

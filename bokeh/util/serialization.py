@@ -8,7 +8,7 @@
 Functions for helping with serialization and deserialization of
 Bokeh objects.
 
-Certain NunPy array dtypes can be serialized to a binary format for
+Certain NumPy array dtypes can be serialized to a binary format for
 performance and efficiency. The list of supported dtypes is:
 
 {binary_array_types}
@@ -261,7 +261,7 @@ def make_id():
 def make_globally_unique_id():
     ''' Return a globally unique UUID.
 
-    Some situtations, e.g. id'ing dynamically created Divs in HTML documents,
+    Some situations, e.g. id'ing dynamically created Divs in HTML documents,
     always require globally unique IDs.
 
     Returns:

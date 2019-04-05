@@ -377,7 +377,7 @@ def test_PropertyValueList_mutators(mock_notify):
 
     # OK, this is just to get a 100% test coverage inpy3 due to differences in
     # py2 vs py2. The slice methods are only exist in py2. The tests above
-    # exercise all the  cases, this just makes py3 report the non-py3 relevan
+    # exercise all the  cases, this just makes py3 report the non-py3 relevant
     # code as covered.
     try:
         pvl.__setslice__(1,2,3)

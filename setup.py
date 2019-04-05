@@ -22,7 +22,7 @@ command is installed. If you are using conda, you can typically just run
 
     conda install -c bokeh nodejs
 
-Othewise, you can find general instructions for installing NodeJS here:
+Otherwise, you can find general instructions for installing NodeJS here:
 
     https://nodejs.org/en/download/
 

@@ -75,7 +75,7 @@ def parallel_plot(df, color=None, palette=None):
     parallel_renderer = p.multi_line(
         xs="xs", ys="ys", source=data_source, **non_selected_line_style)
 
-    # Specifify selection style
+    # Specify selection style
     selected_lines = MultiLine(**selected_line_style)
 
     # Specify non selection style
