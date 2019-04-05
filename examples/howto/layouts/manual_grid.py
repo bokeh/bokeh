@@ -1,13 +1,14 @@
 import numpy as np
+from bokeh.core.enums import SizingMode
 from bokeh.plotting import figure
-from bokeh.models import Paragraph, GridBox
+from bokeh.models import Paragraph, GridBox, Select
 from bokeh.layouts import column
 from bokeh.io import show
 
 N = 10
 x = np.linspace(0, 4 * np.pi, N)
 y = np.sin(x)
-options = dict(tools="", toolbar_location=None, plot_height=300, plot_width=300)
+options = dict(tools="", toolbar_location=None, plot_height=300, plot_width=300, sizing_mode="fixed")
 
 p1 = figure(title="Line (300 x 100)", **options)
 p1.plot_height = 100
@@ -23,9 +24,15 @@ p3.bezier(x, y, x + 0.4, y, x + 0.1, y + 0.2, x - 0.1, y - 0.2)
 p4 = figure(title="Quad (300 x 300)", **options)
 p4.quad(x, x - 0.2, y, y - 0.2)
 
-paragraph = Paragraph(text="We build up a grid plot manually. Try changing the mode yourself.")
+paragraph = Paragraph(text="We build up a grid plot manually. Try changing the mode of the plots yourself.")
+
+select = Select(title="Sizing mode", value="fixed", options=list(SizingMode), width=300)
+select.js_link('value', p1, 'sizing_mode')
+select.js_link('value', p2, 'sizing_mode')
+select.js_link('value', p3, 'sizing_mode')
+select.js_link('value', p4, 'sizing_mode')
 
 grid = GridBox(children=[(p1, 0, 1), (p2, 1, 0), (p3, 1, 1), (p4, 1, 2)])
-layout = column([paragraph, grid])
+layout = column([paragraph, select, grid])
 
 show(layout)
