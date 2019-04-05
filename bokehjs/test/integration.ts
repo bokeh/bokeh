@@ -150,7 +150,7 @@ describe("3x3 GridBox", () => {
       [s0, s0, s0],
     ])
 
-    const l = grid(items, {cols: {2: {policy: "flex", factor: 2}}})
+    const l = grid(items, {cols: {2: {policy: "max", flex: 2}}})
     await display(l, [300, 300])
   })
 
@@ -164,7 +164,7 @@ describe("3x3 GridBox", () => {
       [s0, s0, s0],
     ])
 
-    const l = grid(items, {cols: {2: {policy: "flex", factor: 2}}})
+    const l = grid(items, {cols: {2: {policy: "max", flex: 2}}})
     await display(l, [300, 300])
   })
 
@@ -178,7 +178,7 @@ describe("3x3 GridBox", () => {
       [s0, s0, s0],
     ])
 
-    const l = grid(items, {cols: {2: {policy: "flex", factor: 2, align: "end"}}})
+    const l = grid(items, {cols: {2: {policy: "max", flex: 2, align: "end"}}})
     await display(l, [300, 300])
   })
 

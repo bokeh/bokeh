@@ -1,5 +1,5 @@
-Column bbox=[0, 0, 600, 660]
-  Select bbox=[5, 5, 590, 50]
+Column bbox=[0, 0, 984, 660]
+  Select bbox=[5, 5, 974, 50]
   Plot bbox=[0, 60, 600, 600]
     LinearAxis bbox=[27, 576, 543, 24]
     LinearAxis bbox=[0, 5, 27, 571]

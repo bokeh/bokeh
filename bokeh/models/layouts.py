@@ -285,21 +285,21 @@ class Spacer(LayoutDOM):
 
     '''
 
-QuickTrackSizing = Either(Enum("auto", "min", "max"), Int)
+QuickTrackSizing = Either(Enum("auto", "min", "fit", "max"), Int)
 
 TrackAlign = Either(Auto, Enum(Align))
 
 RowSizing = Either(
     QuickTrackSizing,
-    Struct(policy=Enum("auto", "min", "max"), align=TrackAlign),
+    Struct(policy=Enum("auto", "min"), align=TrackAlign),
     Struct(policy=Enum("fixed"), height=Int, align=TrackAlign),
-    Struct(policy=Enum("flex"), factor=Float, align=TrackAlign))
+    Struct(policy=Enum("fit", "max"), flex=Float, align=TrackAlign))
 
 ColSizing = Either(
     QuickTrackSizing,
-    Struct(policy=Enum("auto", "min", "max"), align=TrackAlign),
+    Struct(policy=Enum("auto", "min"), align=TrackAlign),
     Struct(policy=Enum("fixed"), width=Int, align=TrackAlign),
-    Struct(policy=Enum("flex"), factor=Float, align=TrackAlign))
+    Struct(policy=Enum("fit", "max"), flex=Float, align=TrackAlign))
 
 IntOrString = Either(Int, String) # XXX: work around issue #8166
 
