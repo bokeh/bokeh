@@ -74,6 +74,8 @@ def from_networkx(graph, layout_function, **kwargs):
         layout function. Any keyword arguments will be passed to the
         layout function.
 
+        Only two dimensional layouts are supported.
+
         Args:
             graph (networkx.Graph) : a networkx graph to render
             layout_function (function or dict) : a networkx layout function or mapping of node keys to positions.
@@ -82,12 +84,17 @@ def from_networkx(graph, layout_function, **kwargs):
         Returns:
             instance (GraphRenderer)
 
-        .. warning::
-            Only two dimensional layouts are currently supported.
+        .. note::
+            Node and edge attributes may be lists or tuples. However, a given
+            attribute must either have *all* lists or tuple values, or *all*
+            scalar values, for nodes or edges it is defined on.
 
         .. warning::
             Node attributes labeled 'index' and edge attributes labeled 'start' or 'end' are ignored.
             If you want to convert these attributes, please re-label them to other names.
+
+        Raises:
+            ValueError
 
         '''
 
@@ -103,9 +110,12 @@ def from_networkx(graph, layout_function, **kwargs):
         node_attr_keys = list(set(node_attr_keys))
 
         for attr_key in node_attr_keys:
-            node_dict[attr_key] = [node_attr[attr_key] if attr_key in node_attr.keys() else None
-                                   for _, node_attr
-                                   in graph.nodes(data=True)]
+            values = [node_attr[attr_key] if attr_key in node_attr.keys() else None
+                      for _, node_attr in graph.nodes(data=True)]
+
+            values = _handle_sublists(values)
+
+            node_dict[attr_key] = values
 
         if 'index' in node_attr_keys:
             from warnings import warn
@@ -121,9 +131,12 @@ def from_networkx(graph, layout_function, **kwargs):
         edge_attr_keys = list(set(edge_attr_keys))
 
         for attr_key in edge_attr_keys:
-            edge_dict[attr_key] = [edge_attr[attr_key] if attr_key in edge_attr.keys() else None
-                                   for _, _, edge_attr
-                                   in graph.edges(data=True)]
+            values = [edge_attr[attr_key] if attr_key in edge_attr.keys() else None
+                      for _, _, edge_attr in graph.edges(data=True)]
+
+            values = _handle_sublists(values)
+
+            edge_dict[attr_key] = values
 
         if 'start' in edge_attr_keys or 'end' in edge_attr_keys:
             from warnings import warn
@@ -199,6 +212,14 @@ class EdgesAndLinkedNodes(GraphHitTestPolicy):
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+def _handle_sublists(values):
+    # if any of the items is non-scalar, they all must be
+    if any(isinstance(x, (list, tuple)) for x in values):
+        if not all(isinstance(x, (list, tuple)) for x in values if x is not None):
+            raise ValueError("Can't mix scalar and non-scalar values for graph attributes")
+        return [[] if x is None else list(x) for x in values]
+    return values
 
 #-----------------------------------------------------------------------------
 # Code
