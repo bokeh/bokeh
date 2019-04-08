@@ -260,6 +260,7 @@ def test_enums_contents():
         'RenderLevel',
         'RenderMode',
         'RoundingFunction',
+        'ServerStatus',
         'SizingMode',
         'SizingPolicy',
         'SliderCallbackPolicy',
