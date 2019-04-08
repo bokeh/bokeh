@@ -5,6 +5,7 @@ import {HoverTool} from "@bokehjs/models/tools/inspectors/hover_tool"
 import {SelectTool, SelectToolView} from "@bokehjs/models/tools/gestures/select_tool"
 import {PanTool} from "@bokehjs/models/tools/gestures/pan_tool"
 import {TapTool} from "@bokehjs/models/tools/gestures/tap_tool"
+import { ServerStatusIndicator } from "@bokehjs/models";
 
 describe("Toolbar", () => {
 
@@ -22,6 +23,17 @@ describe("Toolbar", () => {
     it("should set inspect tools as array on Toolbar.inspector property", () => {
       const toolbar = new Toolbar({tools:[hover_1, hover_2, hover_3]})
       expect(toolbar.inspectors).to.deep.equal([hover_1, hover_2, hover_3])
+    })
+
+    it("should set indicators as array on Toolbar.indicators property", () => {
+      const indicators = [
+        new ServerStatusIndicator(),
+        new ServerStatusIndicator(),
+        new ServerStatusIndicator()
+      ]
+      
+      const toolbar = new Toolbar({indicators})
+      expect(toolbar.inspectors).to.deep.equal(indicators)
     })
 
     it("should have all inspect tools active when active_inspect='auto'", () => {

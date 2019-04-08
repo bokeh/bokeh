@@ -182,6 +182,9 @@ class Test_bce(object):
     def test_RoundingFunction(self):
         assert tuple(bce.RoundingFunction) == ("round", "nearest", "floor", "rounddown", "ceil", "roundup")
 
+    def test_ServerStatus(self):
+        assert tuple(bce.ServerStatus) == ("unknown", "ok", "warning", "errored", "disconnected")
+
     def test_SizingMode(self):
         assert tuple(bce.SizingMode) == ("stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed")
 

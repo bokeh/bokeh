@@ -24,7 +24,9 @@ import re
 # Bokeh imports
 from bokeh.core.enums import MarkerType
 from bokeh.core.properties import value
-from bokeh.models import BoxZoomTool, Circle, ColumnDataSource, LassoSelectTool, Legend, LinearAxis, LogScale, PanTool, ResetTool, Scatter, Title
+from bokeh.models import BoxZoomTool, Circle, ColumnDataSource, LassoSelectTool,
+                         Legend, LinearAxis, LogScale, PanTool, ResetTool,
+                         Scatter, Title, ServerStatusIndicator
 
 # Module under test
 # different import pattern due to figure function shadowing figure.py module
@@ -172,6 +174,16 @@ class TestFigure(object):
         assert len(fig.tools) == len(expected)
         for i, _type in enumerate(expected):
             assert isinstance(fig.tools[i], _type)
+
+    def test_indicators(self):
+        INDICATOR = "server_status"
+        expected = [ServerStatusIndicator]
+        
+        fig = bpf.figure(indicators=INDICATOR)
+        assert len(fig.indicators) == len(expected)
+
+        for i, _type in enumerate(expected):
+            assert isinstance(fig.indicators[i], _type)
 
     def test_plot_fill_props(self):
         p = bpf.figure(background_fill_color='red',
