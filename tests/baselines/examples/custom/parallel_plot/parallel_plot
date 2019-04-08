@@ -1,6 +1,6 @@
 Column bbox=[0, 0, 1000, 629]
   Div bbox=[5, 5, 493, 19]
-  Plot bbox=[0, 0, 1000, 600]
+   Plot bbox=[0, 29, 1000, 600]
     LinearAxis bbox=[5, 576, 965, 24]
     LinearAxis bbox=[5, 5, 0, 571]
     LinearAxis bbox=[970, 5, 0, 571]

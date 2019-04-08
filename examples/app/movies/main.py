@@ -34,7 +34,7 @@ axis_map = {
     "Year": "Year",
 }
 
-desc = Div(text=open(join(dirname(__file__), "description.html")).read(), width=800, sizing_mode="stretch_width")
+desc = Div(text=open(join(dirname(__file__), "description.html")).read(), sizing_mode="stretch_width")
 
 # Create Input controls
 reviews = Slider(title="Minimum number of reviews", value=80, start=10, end=300, step=10)
