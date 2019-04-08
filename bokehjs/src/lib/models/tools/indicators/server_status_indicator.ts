@@ -12,7 +12,12 @@ export class ServerStatusIndicatorView extends IndicatorView {
 
   render(): void {
     empty(this.el)
-    this.el.appendChild(div({class: ["bk-server-status", `bk-server-status_${this.model.status.valueOf()}`]}))
+    this.el.appendChild(
+      div({
+        class: ["bk-server-status", `bk-server-status_${this.model.status.valueOf()}`],
+        title: `${this.model.tooltip_prefix}${this.model.status.valueOf().toUpperCase()}`
+      })
+    )
   }
 }
 
@@ -21,6 +26,7 @@ export namespace ServerStatusIndicator {
   export type Attrs = p.AttrsOf<Props>
   export type Props = Indicator.Props & {
     status: p.EnumProperty<enums.ServerStatus>
+    tooltip_prefix: p.Property<String>
   }
 }
 
@@ -41,6 +47,10 @@ export class ServerStatusIndicator extends Indicator {
   static initClass(): void {
     this.prototype.type = "ServerStatusIndicator"
     this.prototype.default_view = ServerStatusIndicatorView
+
+    this.define<ServerStatusIndicator.Props>({
+      tooltip_prefix: [ p.String, "" ]
+    })
 
     this.internal({
       status: [p.Enum(enums.ServerStatus), "unknown" ]

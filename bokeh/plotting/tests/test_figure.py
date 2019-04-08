@@ -182,10 +182,10 @@ class TestFigure(object):
         expected = [ServerStatusIndicator]
         
         fig = bpf.figure(indicators=INDICATOR)
-        assert len(fig.indicators) == len(expected)
+        assert len(fig.toolbar.indicators) == len(expected)
 
         for i, _type in enumerate(expected):
-            assert isinstance(fig.indicators[i], _type)
+            assert isinstance(fig.toolbar.indicators[i], _type)
 
     def test_plot_fill_props(self):
         p = bpf.figure(background_fill_color='red',

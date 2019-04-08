@@ -18,7 +18,7 @@ import numpy as np
 
 from bokeh.io import curdoc
 from bokeh.layouts import row, column
-from bokeh.models import ColumnDataSource
+from bokeh.models import ColumnDataSource, ServerStatusIndicator
 from bokeh.models.widgets import Slider, TextInput
 from bokeh.plotting import figure
 
@@ -32,7 +32,7 @@ source = ColumnDataSource(data=dict(x=x, y=y))
 # Set up plot
 plot = figure(plot_height=400, plot_width=400, title="my sine wave",
               tools="crosshair,pan,reset,save,wheel_zoom",
-              indicators="server_status",
+              indicators=[ServerStatusIndicator(tooltip_prefix="Bokeh server connection status: ")],
               x_range=[0, 4*np.pi], y_range=[-2.5, 2.5])
 
 plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
