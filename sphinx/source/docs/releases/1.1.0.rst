@@ -3,7 +3,20 @@
 1.1.0
 =====
 
-Bokeh Version ``1.1.0`` (January 2019) primarily
+Bokeh Version ``1.1.0`` (April 2019) is a signiicant release that primarily
+addresses the layout system. More than 50 layout-related issues were closed,
+addressing bugs, missing features, and performance. Other topics of this
+release included:
+
+* Hover tool fixes and features :bokeh-issue:`8742`, :bokeh-issue:`8668`, :bokeh-issue:`7991`
+* Widget improvements :bokeh-issue:`7665`, :bokeh-issue:`8717`, :bokeh-issue:`6822`, :bokeh-issue:`6333`
+* Sphinx extensions more generally useable :bokeh-issue:`5955`
+* Notebook integration work :bokeh-issue:`8583`, :bokeh-issue:`8681`, :bokeh-issue:`8681`, :bokeh-issue:`8733`
+* Live BokehJS examples added to docs :bokeh-issue:`8692`
+* Improved DataTable performance :bokeh-issue:`8227`
+
+And several other bug fixes and docs additions. For full details see the
+:bokeh-tree:`CHANGELOG`.
 
 .. _release-1-1-0-migration:
 

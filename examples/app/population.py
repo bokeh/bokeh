@@ -78,5 +78,5 @@ location.on_change('value', lambda attr, old, new: update())
 
 update()
 
-controls = column(year, location, width=600)
+controls = column(year, location, width=300)
 curdoc().add_root(row(column(pyramid, population), controls))

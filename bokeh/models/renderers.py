@@ -36,7 +36,7 @@ from ..model import Model
 
 from .glyphs import Glyph, Circle, MultiLine
 from .graphs import LayoutProvider, GraphHitTestPolicy, NodesOnly
-from .sources import ColumnDataSource, DataSource, RemoteSource, CDSView
+from .sources import ColumnDataSource, DataSource, WebSource, CDSView
 from .tiles import TileSource, WMTSTileSource
 
 #-----------------------------------------------------------------------------
@@ -134,7 +134,7 @@ class GlyphRenderer(DataRenderer):
     def _check_bad_column_name(self):
         if not self.glyph: return
         if not self.data_source: return
-        if isinstance(self.data_source, RemoteSource): return
+        if isinstance(self.data_source, WebSource): return
         missing_values = set()
         specs = self.glyph.dataspecs()
         for name, item in self.glyph.properties_with_values(include_defaults=False).items():
