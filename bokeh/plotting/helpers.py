@@ -504,7 +504,7 @@ _known_tools = {
     "box_edit": lambda: BoxEditTool(),
     "point_draw": lambda: PointDrawTool(),
     "poly_draw": lambda: PolyDrawTool(),
-    "poly_edit": lambda: PolyEditTool(),
+    "poly_edit": lambda: PolyEditTool()
 }
 
 _known_indicators = {

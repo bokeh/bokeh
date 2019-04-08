@@ -200,7 +200,7 @@ class ToolbarBase(Model):
     """)
 
     indicators = List(Instance(Indicator), help="""
-    A list of (status) indicators to add to the plot.
+    A list of (status) indicators to add to the toolbar.
     """)
 
 class Toolbar(ToolbarBase):

@@ -1022,7 +1022,7 @@ class FigureOptions(Options):
     """)
 
     indicators = Either(String, Seq(Either(String, Instance(Indicator))), default=DEFAULT_INDICATORS, help="""
-    Indicators the plot should start with.
+    Indicators the toolbar should start with.
     """)
 
     x_range = Any(help="""
