@@ -14,6 +14,7 @@ import {ActionTool} from "./actions/action_tool"
 import {HelpTool} from "./actions/help_tool"
 import {ToolProxy} from "./tool_proxy"
 import {InspectTool} from "./inspectors/inspect_tool"
+import {Indicator, IndicatorView} from './indicators/indicator';
 
 export namespace ToolbarViewModel {
   export type Attrs = p.AttrsOf<Props>
@@ -52,12 +53,15 @@ export class ToolbarBaseView extends DOMView {
   model: ToolbarBase
 
   protected _tool_button_views: {[key: string]: ButtonToolButtonView}
+  protected _indicator_views: {[key: string]: IndicatorView}
   protected _toolbar_view_model: ToolbarViewModel
 
   initialize(): void {
     super.initialize()
     this._tool_button_views = {}
     this._build_tool_button_views()
+    this._indicator_views = {}
+    this._build_indicator_views()
     this._toolbar_view_model = new ToolbarViewModel({autohide: this.model.autohide})
   }
 
@@ -79,6 +83,11 @@ export class ToolbarBaseView extends DOMView {
   protected _build_tool_button_views(): void {
     const tools: ButtonTool[] = (this.model._proxied_tools != null ? this.model._proxied_tools : this.model.tools) as any // XXX
     build_views(this._tool_button_views, tools, {parent: this}, (tool) => tool.button_view)
+  }
+
+  protected _build_indicator_views(): void {
+    const indicators: Indicator[] = (this.model.indicators)
+    build_views(this._indicator_views, indicators, {parent: this})
   }
 
   set_visibility(visible: boolean): void {
@@ -125,6 +134,8 @@ export class ToolbarBaseView extends DOMView {
     bars.push(this.model.inspectors.filter((tool) => tool.toggleable).map(el))
     bars.push(this.model.help.map(el))
 
+    bars.push(this.model.indicators.map(indicator => this._indicator_views[indicator.id].el))
+
     for (const bar of bars) {
       if (bar.length !== 0) {
         const el = div({class: 'bk-button-bar'}, bar)
@@ -164,6 +175,7 @@ export namespace ToolbarBase {
     actions: p.Property<ActionTool[]>
     inspectors: p.Property<InspectTool[]>
     help: p.Property<HelpTool[]>
+    indicators: p.Property<Indicator[]>
     toolbar_location: p.Property<Location>
     autohide: p.Property<boolean>
   }
@@ -186,6 +198,7 @@ export class ToolbarBase extends Model {
       tools:      [ p.Array,   []       ],
       logo:       [ p.Logo,    'normal' ], // TODO (bev)
       autohide:   [ p.Boolean, false    ],
+      indicators: [ p.Array,   []       ],
     })
 
     this.internal({

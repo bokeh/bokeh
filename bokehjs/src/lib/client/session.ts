@@ -10,6 +10,10 @@ export class ClientSession {
 
   readonly event_manager: EventManager
 
+  get socket_status() {
+    return this._connection.status;
+  }
+
   constructor(protected readonly _connection: ClientConnection, readonly document: any /*Document*/, readonly id: string) {
     this.document.on_change(this._document_listener)
 

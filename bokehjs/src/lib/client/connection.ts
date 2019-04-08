@@ -3,6 +3,8 @@ import {Document} from "document"
 import {Message} from "protocol/message"
 import {Receiver} from "protocol/receiver"
 import {ClientSession} from "./session"
+import {ServerStatus} from 'core/enums';
+
 
 export const DEFAULT_SERVER_WEBSOCKET_URL = "ws://localhost:5006/ws"
 export const DEFAULT_SESSION_ID = "default"
@@ -20,10 +22,25 @@ export class ClientConnection {
 
   closed_permanently: boolean = false
 
+  protected _status: ServerStatus = 'unknown';
+
+  set status(status: ServerStatus) {
+    this._status = status;
+    document.dispatchEvent(new CustomEvent('bk-connection-status', {
+      bubbles: true, detail: { status }
+    }));
+  }
+
+  get status() {
+    return this._status;
+  }
+
   protected _current_handler: ((message: Message) => void) | null = null
   protected _pending_ack: [(connection: ClientConnection) => void, Rejecter] | null = null // null or [resolve,reject]
   protected _pending_replies: {[key: string]: [(message: Message) => void, Rejecter]} = {} // map reqid to [resolve,reject]
   protected readonly _receiver: Receiver = new Receiver()
+  
+  
 
   constructor(readonly url: string = DEFAULT_SERVER_WEBSOCKET_URL,
               readonly id: string = DEFAULT_SESSION_ID,
@@ -62,6 +79,7 @@ export class ClientConnection {
     } catch (error) {
       logger.error(`websocket creation failed to url: ${this.url}`)
       logger.error(` - ${error}`)
+      this.status = "errored"
       return Promise.reject(error)
     }
   }
@@ -85,18 +103,13 @@ export class ClientConnection {
       // TODO commented code below until we fix reconnection to repull
       // the document when required. Otherwise, we get a lot of
       // confusing errors that are causing trouble when debugging.
-      /*
+      
       if (this.closed_permanently) {
-      */
-        if (!this.closed_permanently)
-          logger.info(`Websocket connection ${this._number} disconnected, will not attempt to reconnect`)
-        return
-      /*
+        logger.info(`Websocket connection ${this._number} disconnected, will not attempt to reconnect`)
       } else {
         logger.debug(`Attempting to reconnect websocket ${this._number}`)
         this.connect()
       }
-      */
     }
     setTimeout(retry, milliseconds)
   }
@@ -192,6 +205,7 @@ export class ClientConnection {
 
   protected _on_open(resolve: (connection: ClientConnection) => void, reject: Rejecter): void {
     logger.info(`Websocket connection ${this._number} is now open`)
+    this.status = "ok"
     this._pending_ack = [resolve, reject]
     this._current_handler = (message: Message) => {
       this._awaiting_ack_handler(message)
@@ -199,8 +213,14 @@ export class ClientConnection {
   }
 
   protected _on_message(event: MessageEvent): void {
-    if (this._current_handler == null)
+
+    let newStatus: ServerStatus = "ok"
+    let initStatus = this.status
+
+    if (this._current_handler == null) {
       logger.error("Got a message with no current handler set")
+      newStatus = "warning"
+    }
 
     try {
       this._receiver.consume(event.data)
@@ -208,8 +228,10 @@ export class ClientConnection {
       this._close_bad_protocol(e.toString())
     }
 
-    if (this._receiver.message == null)
+    if (this._receiver.message == null) {
+      newStatus = "warning"
       return
+    }
 
     const msg = this._receiver.message
 
@@ -218,11 +240,16 @@ export class ClientConnection {
       this._close_bad_protocol(problem)
 
     this._current_handler!(msg)
+
+    if (this.status === initStatus) {
+      this.status = newStatus
+    }
   }
 
   protected _on_close(event: CloseEvent): void {
     logger.info(`Lost websocket ${this._number} connection, ${event.code} (${event.reason})`)
     this.socket = null
+    this.status = "disconnected"
 
     if (this._pending_ack != null) {
       this._pending_ack[1](new Error(`Lost websocket connection, ${event.code} (${event.reason})`))
@@ -248,6 +275,7 @@ export class ClientConnection {
 
   protected _on_error(reject: Rejecter): void {
     logger.debug(`Websocket error on socket ${this._number}`)
+    this.status = "errored"
     reject(new Error("Could not open websocket"))
   }
 
@@ -255,6 +283,7 @@ export class ClientConnection {
     logger.error(`Closing connection: ${detail}`)
     if (this.socket != null)
       this.socket.close(1002, detail) // 1002 = protocol error
+    this.status = "errored"
   }
 
   protected _awaiting_ack_handler(message: Message): void {

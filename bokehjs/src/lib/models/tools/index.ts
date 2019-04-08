@@ -36,3 +36,6 @@ export {Toolbar}           from "./toolbar"
 export {ToolbarBase}       from "./toolbar_base"
 export {ProxyToolbar}      from "./toolbar_box"
 export {ToolbarBox}        from "./toolbar_box"
+
+export {Indicator}         from "./indicators/indicator"
+export {ServerStatusIndicator}  from "./indicators/server_status_indicator"

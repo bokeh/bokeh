@@ -47,7 +47,7 @@ from .ranges import Range, FactorRange, DataRange1d, Range1d
 from .renderers import GlyphRenderer, Renderer, TileRenderer
 from .scales import Scale, CategoricalScale, LinearScale, LogScale
 from .sources import DataSource, ColumnDataSource
-from .tools import Tool, Toolbar, HoverTool
+from .tools import Tool, Toolbar, HoverTool, Indicator
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -262,6 +262,14 @@ class Plot(LayoutDOM):
                 raise ValueError("All arguments to add_tool must be Tool subclasses.")
 
             self.toolbar.tools.append(tool)
+
+    def add_indicators(self, *indicators):
+
+        for indicator in indicators:
+            if not isinstance(indicator, Indicator):
+                raise ValueError("All arguments to add_indicators must be Indicator subclasses.")
+            
+            self.toolbar.indicators.append(indicator)
 
     def add_glyph(self, source_or_glyph, glyph=None, **kw):
         ''' Adds a glyph to the plot with associated data sources and ranges.

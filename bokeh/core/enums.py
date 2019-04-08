@@ -317,6 +317,9 @@ RenderMode = enumeration("canvas", "css")
 #: Specify a policy for  how numbers should be rounded
 RoundingFunction = enumeration("round", "nearest", "floor", "rounddown", "ceil", "roundup")
 
+#: Specify server websocket connection states
+ServerStatus = enumeration("unknown", "ok", "warning", "errored", "disconnected")
+
 #: Sizing mode policies
 SizingMode = enumeration("stretch_width", "stretch_height", "stretch_both",
                          "scale_width", "scale_height", "scale_both",

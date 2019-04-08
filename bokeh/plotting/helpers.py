@@ -43,7 +43,7 @@ from ..models import (
     SaveTool, Range, Range1d, UndoTool, RedoTool, ResetTool, Tool,
     WheelPanTool, WheelZoomTool, ColumnarDataSource, ColumnDataSource,
     LogScale, LinearScale, CategoricalScale, Circle, MultiLine,
-    BoxEditTool, PointDrawTool, PolyDrawTool, PolyEditTool,
+    BoxEditTool, PointDrawTool, PolyDrawTool, PolyEditTool, Indicator, ServerStatusIndicator
 )
 from ..models.markers import Marker
 from ..models.renderers import GlyphRenderer
@@ -504,9 +504,12 @@ _known_tools = {
     "box_edit": lambda: BoxEditTool(),
     "point_draw": lambda: PointDrawTool(),
     "poly_draw": lambda: PolyDrawTool(),
-    "poly_edit": lambda: PolyEditTool()
+    "poly_edit": lambda: PolyEditTool(),
 }
 
+_known_indicators = {
+    "server_status": lambda: ServerStatusIndicator(),
+}
 
 def _tool_from_string(name):
     """ Takes a string and returns a corresponding `Tool` instance. """
@@ -527,6 +530,24 @@ def _tool_from_string(name):
 
         raise ValueError("unexpected tool name '%s', %s tools are %s" % (name, text, nice_join(matches)))
 
+def _indicator_from_string(name):
+    """ Takes a string and returns a corresponding `Indicator` instance. """
+    known_indicators = sorted(_known_indicators.keys())
+
+    if name in known_indicators:
+        indicator_fn = _known_indicators[name]
+
+        if isinstance(indicator_fn, string_types):
+            indicator_fn = _known_indicators[indicator_fn]
+
+        return indicator_fn()
+    else:
+        matches, text = difflib.get_close_matches(name.lower(), known_indicators), "similar"
+
+        if not matches:
+            matches, text = known_indicators, "possible"
+
+        raise ValueError("unexpected indicator name '%s', %s indicators are %s" % (name, text, nice_join(matches)))
 
 def _process_axis_and_grid(plot, axis_type, axis_location, minor_ticks, axis_label, rng, dim):
     axiscls, axiskw = _get_axis_class(axis_type, rng, dim)
@@ -650,6 +671,53 @@ def _process_active_tools(toolbar, tool_map, active_drag, active_inspect, active
     else:
         raise ValueError("Got unknown %r for 'active_tap', which was not a string supplied in 'tools' argument" % active_tap)
 
+
+def _process_indicators_arg(plot, indicators):
+    """ Adds indicators to the plot object
+
+    Args:
+        plot (Plot): instance of a plot object
+        indicators (seq[Indicator or str]|str): list of indicator types or string listing the
+            indicator names. Those are converted using the _indicator_from_string
+            function. I.e.: `server_status`.
+
+    Returns:
+        list of Indicator objects added to plot, map of supplied string names to Indicators
+    """
+    indicator_objs = []
+    indicator_map = {}
+    temp_indicator_str = ""
+    repeated_indicators = []
+
+    if isinstance(indicators, (list, tuple)):
+        for indicator in indicators:
+            if isinstance(indicator, Indicator):
+                indicator_objs.append(indicator)
+            elif isinstance(indicator, string_types):
+                temp_indicator_str += indicator + ','
+            else:
+                raise ValueError("indicator should be a string or an instance of Indicator class")
+        indicators = temp_indicator_str
+
+    for indicator in re.split(r"\s*,\s*", indicators.strip()):
+        # re.split will return empty strings; ignore them.
+        if indicator == "":
+            continue
+
+        indicator_obj = _indicator_from_string(indicator)
+        indicator_objs.append(indicator_obj)
+        indicator_map[indicator] = indicator_obj
+
+    for typename, group in itertools.groupby(
+            sorted(indicator.__class__.__name__ for indicator in indicator_objs)):
+        if len(list(group)) > 1:
+            repeated_indicators.append(typename)
+
+    if repeated_indicators:
+        warnings.warn("%s are being repeated" % ",".join(repeated_indicators))
+
+    return indicator_objs, indicator_map
+    
 def _get_argspecs(glyphclass):
     argspecs = OrderedDict()
     for arg in glyphclass._args:

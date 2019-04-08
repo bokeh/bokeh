@@ -105,6 +105,9 @@ export const RenderMode: RenderMode[] = ["canvas", "css"]
 export type RoundingFunction = "round" | "nearest" | "floor" | "rounddown" | "ceil" | "roundup"
 export const RoundingFunction: RoundingFunction[] = ["round", "nearest", "floor", "rounddown", "ceil", "roundup"]
 
+export type ServerStatus = "unknown" | "ok" | "warning" | "errored" | "disconnected"
+export const ServerStatus: ServerStatus[] = ["unknown", "ok", "warning", "errored", "disconnected"]
+
 export type Side = "above" | "below" | "left" | "right"
 export const Side: Side[] = ["above", "below", "left", "right"]
 

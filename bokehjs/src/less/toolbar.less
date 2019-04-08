@@ -4,6 +4,14 @@
 @buttonWidth: 30px;
 @buttonColor: lightgray;
 
+@statusWidth: 10px;
+@statusHeight: 10px;
+@statusOk: limegreen;
+@statusWarning: darkorange;
+@statusError: crimson;
+@statusDisconnected: gray;
+@statusUnknown: gold;
+
 .bk-toolbar-hidden {
   visibility: hidden;
   opacity: 0;
@@ -118,5 +126,35 @@
   .bk-button-bar + .bk-button-bar:before {
     height: 1px;
     width: 10px;
+  }
+}
+
+.bk-toolbar-status {
+  .flex();
+  .align-items(center);
+  .justify-content(center);
+
+  .bk-server-status {
+    width: @statusWidth;
+    height: @statusHeight;
+    background-color: @statusUnknown;
+    border-radius: 100%;
+    margin: 10px;
+
+    &_ok {
+      background-color: @statusOk;
+    }
+    
+    &_warning {
+      background-color: @statusWarning;
+    }
+    
+    &_error {
+      background-color: @statusError;
+    }
+    
+    &_disconnected {
+      background-color: @statusDisconnected;
+    }
   }
 }

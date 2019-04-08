@@ -46,7 +46,8 @@ from types import FunctionType
 
 # Bokeh imports
 from ..core.enums import (Anchor, Dimension, Dimensions, Location,
-                          TooltipFieldFormatter, TooltipAttachment)
+                          TooltipFieldFormatter, TooltipAttachment,
+                          ServerStatus)
 from ..core.has_props import abstract
 from ..core.properties import (
     Auto, Bool, Color, Date, Datetime, Dict, Either, Enum, Image, Int, Float,
@@ -87,6 +88,7 @@ __all__ = (
     'FreehandDrawTool',
     'HelpTool',
     'HoverTool',
+    'Indicator',
     'Inspection',
     'Gesture',
     'LassoSelectTool',
@@ -101,6 +103,7 @@ __all__ = (
     'ResetTool',
     'SaveTool',
     'Scroll',
+    'ServerStatusIndicator',
     'Tap',
     'TapTool',
     'Tool',
@@ -171,6 +174,12 @@ class Inspection(Gesture):
     """)
 
 @abstract
+class Indicator(Model):
+    ''' A base class for all indicator types.
+
+    '''
+
+@abstract
 class ToolbarBase(Model):
     ''' A base class for different toolbars.
 
@@ -188,6 +197,10 @@ class ToolbarBase(Model):
 
     tools = List(Instance(Tool), help="""
     A list of tools to add to the plot.
+    """)
+
+    indicators = List(Instance(Indicator), help="""
+    A list of (status) indicators to add to the plot.
     """)
 
 class Toolbar(ToolbarBase):
@@ -1577,6 +1590,10 @@ class PolyEditTool(EditTool, Drag, Tap):
             glyph_types = ', '.join(type(renderer.glyph).__name__
                                     for renderer in incompatible_renderers)
             return "%s glyph type(s) found." % glyph_types
+
+class ServerStatusIndicator(Indicator):
+    status = Enum(ServerStatus, default="unknown")
+    
 
 #-----------------------------------------------------------------------------
 # Dev API

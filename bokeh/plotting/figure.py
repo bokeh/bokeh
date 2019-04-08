@@ -28,12 +28,12 @@ from ..core.enums import HorizontalLocation, MarkerType, VerticalLocation
 from ..models import ColumnDataSource, Plot, Title, Tool, GraphRenderer
 from ..models import glyphs as _glyphs
 from ..models import markers as _markers
-from ..models.tools import Drag, Inspection, Scroll, Tap
+from ..models.tools import Drag, Inspection, Scroll, Tap, Indicator
 from ..util.options import Options
 from ..transform import linear_cmap
 from .helpers import (
     _get_range, _get_scale, _process_axis_and_grid, _process_tools_arg,
-    _glyph_function, _process_active_tools, _stack, _graph,
+    _process_indicators_arg, _glyph_function, _process_active_tools, _stack, _graph,
 )
 
 #-----------------------------------------------------------------------------
@@ -41,6 +41,7 @@ from .helpers import (
 #-----------------------------------------------------------------------------
 
 DEFAULT_TOOLS = "pan,wheel_zoom,box_zoom,save,reset,help"
+DEFAULT_INDICATORS = ""
 
 __all__ = (
     'Figure',
@@ -161,6 +162,9 @@ class Figure(Plot):
         tool_objs, tool_map = _process_tools_arg(self, opts.tools, opts.tooltips)
         self.add_tools(*tool_objs)
         _process_active_tools(self.toolbar, tool_map, opts.active_drag, opts.active_inspect, opts.active_scroll, opts.active_tap)
+
+        indicator_objs, indicator_map = _process_indicators_arg(self, opts.indicators)
+        self.add_indicators(*indicator_objs)
 
     annular_wedge = _glyph_function(_glyphs.AnnularWedge)
 
@@ -1015,6 +1019,10 @@ class FigureOptions(Options):
 
     tools = Either(String, Seq(Either(String, Instance(Tool))), default=DEFAULT_TOOLS, help="""
     Tools the plot should start with.
+    """)
+
+    indicators = Either(String, Seq(Either(String, Instance(Indicator))), default=DEFAULT_INDICATORS, help="""
+    Indicators the plot should start with.
     """)
 
     x_range = Any(help="""
