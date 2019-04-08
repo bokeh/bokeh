@@ -11,7 +11,7 @@ plot = figure(sizing_mode="fixed")
 
 plot.circle(df.petal_length, df.petal_width, color=colors, alpha=0.2, size=10)
 
-select = Select(title="Sizing mode", value="fixed", options=list(SizingMode))
+select = Select(title="Sizing mode", value="fixed", options=list(SizingMode), width=300)
 select.js_link('value', plot, 'sizing_mode')
 
 layout = column(select, plot)
