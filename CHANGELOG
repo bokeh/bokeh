@@ -1,3 +1,170 @@
+2019-04-08    1.1.0:
+--------------------
+  * bugfixes:
+    - #3061 [layout] [widgets] Setting responsive for figures in tabs results in buggy tabs
+    - #4393 [layout] If responsive mode is `height_ar`, toolbar box `above` or `below` doesn't work
+    - #4404 [layout] Tabs only work with fixed layout
+    - #4608 [layout] Initialization problem on `scale_width` plots
+    - #4689 [component: bokehjs] Bokehjs charts not respecting plot size
+    - #4830 [layout] Figure.width does not update width
+    - #4917 [layout] Strange widget alignment behavior
+    - #5143 [component: bokehjs] [layout] Tabs not working
+    - #5169 [component: bokehjs] [layout] [widgets] Tabs only renders right when at least one tab contains a figure
+    - #5193 [layout] [widgets] Overlapping plots
+    - #5572 [layout] Subplots vertical axes don't line up
+    - #5722 [component: bokehjs] [layout] Widgets do not work in nested layouts
+    - #5749 [component: bokehjs] [layout] 0.12.4 breaks custom text inputs field length
+    - #6025 [layout] [widgets] Datatables overlapping when in row or gridplot
+    - #6259 [component: bokehjs] [layout] Adding new button widgets results in too-wide buttons
+    - #6333 [component: bokehjs] [widgets] Multiselect freezes ie 11 on change
+    - #6406 [component: bokehjs] Javascript errors when plotting from a columndatasource populated with a pandas dataframe containing column named field
+    - #6417 [component: bokehjs] [layout] Tabs widget cannot contain a figure
+    - #6427 [component: bokehjs] [layout] Textinput not respecting width
+    - #6462 [component: examples] [regression] Npm detection doesn't work on windows (in native console)
+    - #6477 [layout] Vertical axes aren't aligned in `plotting/file/categorical`
+    - #6508 [component: bokehjs] Multiple callbacks for same model call only last callback
+    - #6707 [component: bokehjs] Tap tool on bokeh server does not select data points with a custom callback
+    - #6748 [layout] Dynamically turning on axis label does not resize plot
+    - #6768 [layout] Alignment of plots in a grid
+    - #6822 [widgets] Autocompleteinput does not complete word when option is clicked
+    - #6824 [component: bokehjs] [component: tests] Examples/models/file/dateaxis.py is unreliable
+    - #7004 [component: bokehjs] [component: build] Incorrect module path format when building bokehjs on windows
+    - #7120 [component: bokehjs] [layout] [widgets] Datatable in tab not displaying contents (with minimal example)
+    - #7127 [layout] [widgets] Vertical slider
+    - #7260 [component: bokehjs] [layout] Unsatisfiable constraint when trying to make plot size responsive within panels
+    - #7270 [layout] Plot layout with scale_both, stretch_both, scale_height
+    - #7444 [component: bokehjs] [layout] Table covers other widget when table is on the left
+    - #7454 [component: bokehjs] [layout] Gridplot with sizing_mode="stretch_both"/"scale_both" is totally broken since 0.12.11
+    - #7497 [component: bokehjs] Disappearing toolbar
+    - #7554 [component: bokehjs] [layout] Bokeh layout rows and columns not responsive on scale_width or scale_height
+    - #7766 [component: bokehjs] [layout] Row and column definition gives unexpected layout with option sizing_mode='scale_width'
+    - #7771 [layout] Repaint() in plot_canvas.coffee causing significant lag
+    - #7805 [component: bokehjs] [layout] Bokeh spacer sets height to one pixel with scale_width set
+    - #7933 [component: bokehjs] Different behavior between bokeh and bokehjs with ajaxdatasource
+    - #7981 [component: bokehjs] [widgets] Checkboxbuttongroup and radiobuttongroup can not be disabled
+    - #7991 [component: bokehjs] Hovertool display pops under shaded portion of slider
+    - #8115 [layout] [regression] Stretch_both sizing mode doesn't stretch in 0.13
+    - #8164 [component: bokehjs] Tilerenderer cache is not invalidated when url changes
+    - #8227 [performance] Improve datatable performance
+    - #8290 [component: bokehjs] The "css_classes" attribute on datatable object does not work
+    - #8355 Compiler issue on windows, importing modules is not working because of backslash incompatibility
+    - #8391 [component: bokehjs] "tile cannot extend" systemerror when exporting plot with legend placed outside and above plot area
+    - #8443 [layout] Button groups do not respect the `sizing_mode` or `width` keyword arguments
+    - #8471 [component: bokehjs] [widgets] Updating css_classes on layout elements has no effect
+    - #8484 Whisker does not accept explicit negative values
+    - #8552 [component: bokehjs] Wrong position on catergoricalaxis of extra_y_range
+    - #8585 Typeerror: index is not a valid datetimeindex or periodindex
+    - #8596 [component: bokehjs] [typescript] Bokehjs examples to use in node js or angular
+    - #8599 [component: bokehjs] Grid bands broken when cross grid lines disabled
+    - #8600 [component: bokehjs] Cds callback property not working
+    - #8611 [component: bokehjs] [layout] Bug when the middle area between two tabs is clicked
+    - #8613 Inline ts code failed at compilation on windows (post #8085)
+    - #8614 [layout] Layout broken in hidden tabs after an update
+    - #8622 [layout] [regression] Input widget heights behavior
+    - #8624 [component: bokehjs] Crosshair icon removed from toolbar in gridplots
+    - #8627 [component: server] Issue with bokeh.client after layout pr
+    - #8633 [component: examples] Stocks example is not working properly 
+    - #8638 [component: docs] [layout] Incorrect layout with column of div's with image (1.1.0dev3)
+    - #8639 [widgets] Datatable rows overwrite dropdown menu (1.1.0dev3)
+    - #8643 [layout] [regression] Dashboard.py example not behaving as expected after the layout pr
+    - #8647 [component: tests] Make examples' tests work on windows
+    - #8650 [component: examples] Grid_axis_alignment_no_toolbar is broken in windows (32-bit)
+    - #8653 [widgets] Assume utc in value_as_date
+    - #8654 [layout] Text wrapping in div after layout pr
+    - #8655 [layout] Loading plot in separate jupyterlab tab collapses layout
+    - #8679 [component: bokehjs] Graphs with list values as attributes fail
+    - #8680 [component: examples] [regression] Custom widget in doc strange display in 1.1.0dev6
+    - #8681 [notebook] Autoload_js should load css before javascript
+    - #8686 [component: bokehjs] [component: docs] Bokehjs columndatasource.change property doesn't exist
+    - #8703 [component: docs] Typo in plots.py
+    - #8713 [notebook] [regression] Displaying plot in notebook quickly after output_notebook raises js error
+    - #8719 [component: tests] Tests sometimes fail on appveyor
+    - #8726 [layout] Tabs width set on width of contents - truncating tabs
+    - #8733 [component: bokehjs] [notebook] [regression] Gmap plots not working in the notebook and inline resources
+    - #8737 Windows phantomjs not killed on selenium termination
+    - #8742 [component: bokehjs] Hover tooltip breaks with zero-width wedges
+    - #8746 [component: bokehjs] When line_width is set to 0 the glyph boundaries don't disappear
+    - #8747 [component: bokehjs] Custom extensions cannot import models/widgets/widget
+    - #8762 [component: bokehjs] Tooltips not working for segment on inverted y-axis
+    - #8770 [component: bokehjs] Using range padding with image plots leave lots of empty space
+    - #8777 [component: bokehjs] [layout] Tabs header doesn't update when layout recomputes
+    - #8786 [component: bokehjs] Spinner jumps to low after one click, regardless of step
+    - #8789 [component: tests] Codebase tests fail on windows
+    - #8793 [component: bokehjs] Range tool gets stuck at minimum width
+    - #8794 [component: server] Directoryhandler does not handle ipynb files correctly
+    - #8800 Fixes trying to index dict_keys
+    - #8810 [component: bokehjs] [regression] Es6 map's polyfill isn't installed in phantomjs
+    - #8820 [component: bokehjs] Surface3d example fails to compile
+    - #8821 [component: bokehjs] [layout] Make layout respect aspect ratio with scale_height sizing mode
+  * features:
+    - #4407 [layout] Non-equal proportion split in layouts
+    - #4867 [layout] Don't make space for element if not visible
+    - #5955 [component: docs] Sphinx bokeh_plot extension should work outside project docs
+    - #6173 [component: bokehjs] [widgets] Add numeric input widget
+    - #7498 [component: bokehjs] Bokeh panel(closable=true) doesn't make 'x' appear on the panel title and closable by user
+    - #7675 [component: bokehjs] [widgets] Add color picker and spinbox widgets
+    - #8229 [layout] Add sizing_mode="stretch_width" and "stretch_height"
+    - #8636 Add js_link convenience method
+    - #8660 [component: server] Add --index option to specify site index template
+    - #8663 [API: models] Add support for data source using server-sent events
+    - #8668 [component: bokehjs] Displaying custom data on hover for rgba image
+    - #8671 [API: models] Openurl in current tab
+    - #8700 [component: bokehjs] Make bokehjs importable in nodejs
+    - #8710 [layout] [regression] Add support for spans to grid layout
+  * tasks:
+    - #3340 [component: bokehjs] [layout] Investigate better implementation for toolbar rendering 
+    - #4395 [layout] Investigate / describe performance issues
+    - #4582 [component: tests] [layout] Add a series of screenshot tests for all the layout modes
+    - #4643 [layout] Stop doing two calls to _resize on every resize
+    - #4790 [API: models] [component: bokehjs] Widgets with js api
+    - #5668 [component: bokehjs] [layout] Use box-sizing: border-box for everything under bk-root
+    - #6294 [layout] [performance] Browser rendering extremely slow when many figures in a gridplot
+    - #6461 [component: examples] Make simple_hdf example interesting and attractive
+    - #6513 [component: bokehjs] Add a link to bokehjs package on npmjs.com
+    - #6713 [API: models] [layout] Add visible property to models
+    - #6771 [component: tests] Task: fix-up skipped app examples for examples tests
+    - #7185 [layout] Unify meaning of {layoutcanvas,layoutdom}.{_left,_top,_right,_bottom}
+    - #7451 [API: plotting] [component: bokehjs] Bokehjs typeerror "legend is undefined"
+    - #7864 [component: bokehjs] [typescript] Rewrite bokehjs' tests in typescript
+    - #7875 [component: bokehjs] [typescript] Remove unnecessary usage of any type
+    - #8071 Make error reporting from `export_png()` more robust
+    - #8084 [layout] Improve reliability, performance and feature coverage of the layout
+    - #8187 [regression] Do not include large unrelated files in the repository
+    - #8197 [component: bokehjs] [component: build] Relativize module paths in generated js/d.ts files
+    - #8529 [component: docs] Autoreloader cannot find bokeh on reload
+    - #8566 Tile provider causes "model must be owned by only a single document" error
+    - #8577 [component: server] Delay between autoload.js and websocket request
+    - #8578 [component: examples] Create custom example to plot parallel plot
+    - #8583 Make websocket_max_message_size configurable in notebooks
+    - #8587 [component: build] Pin conda versions with conda_reqs on appveyor too
+    - #8589 [component: docs] [docs] bad number in webpage patch method documentation
+    - #8606 [component: docs] Change use of deprecated sphinx app logger
+    - #8607 Importing abcs from collections is deprecated
+    - #8612 [component: bokehjs] [typescript] Remove type duplication between models' attributes and properties
+    - #8616 [typescript] Finalize typing plotting api and remove old declarations
+    - #8617 [component: tests] Fix pytest's deprecations in examples' tests
+    - #8623 [component: bokehjs] [typescript] Upgrade typescript and minifier, and enable more tslint rules
+    - #8625 [notebook] Use utf-8 encoding to open notebook file
+    - #8628 Daterangeslider returns datetime instead of date
+    - #8642 [component: examples] Manual_grid layout example has lost it's core functionality in layout pr
+    - #8656 [component: bokehjs] [typescript] Rewrite custom extensions in typescript
+    - #8662 [component: build] Use ci.bokeh.org for artifact storage
+    - #8669 [component: docs] Bryanv/demosite url
+    - #8692 [component: docs] Add live codepen links for bokehjs api
+    - #8698 [component: bokehjs] [component: build] Rename bokehjs/build/js/{tree->lib} to match src/
+    - #8708 [component: bokehjs] [component: build] Handlebars security vulnerability - npm won't install
+    - #8712 [API: models] Deprecate plot.{h,v}_symmetry
+    - #8717 [component: bokehjs] Disabled buttons should be gray by default
+    - #8723 Bad_extra_range_name validation can be incorrect
+    - #8725 [layout] Don't warn on empty layouts
+    - #8740 [component: bokehjs] Miscellaneous improvements to bokehjs
+    - #8748 [component: bokehjs] Don't expose external libraries in the public api
+    - #8751 [BEP] [component: build] Update maintainers list
+    - #8771 [component: docs] Updated numfocus donor link
+    - #8802 [component: bokehjs] [component: build] Upgrade to typescript 3.4
+    - #8804 [component: docs] Corrected spelling mistakes
+    - #8805 [layout] Make gridbox.spacing adhere to css argument order
+
 2019-01-09    1.0.4:
 --------------------
   * bugfixes:
