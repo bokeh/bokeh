@@ -2,11 +2,16 @@ import {TextInput, TextInputView} from "./text_input"
 
 import {empty, display, undisplay, div, Keys} from "core/dom"
 import * as p from "core/properties"
+import {clamp} from "core/util/math"
 
 export class AutocompleteInputView extends TextInputView {
   model: AutocompleteInput
 
   protected _open: boolean = false
+
+  protected _last_value: string = ""
+
+  protected _hover_index: number = 0
 
   protected menu: HTMLElement
 
@@ -20,8 +25,17 @@ export class AutocompleteInputView extends TextInputView {
 
     this.menu = div({class: ["bk-menu", "bk-below"]})
     this.menu.addEventListener("click", (event) => this._menu_click(event))
+    this.menu.addEventListener("mouseover", (event) => this._menu_hover(event))
     this.el.appendChild(this.menu)
     undisplay(this.menu)
+  }
+
+  change_input(): void {
+    if (this._open && this.menu.children.length > 0) {
+      this.model.value = this.menu.children[this._hover_index].textContent!
+      this.input_el.focus()
+      this._hide_menu()
+    }
   }
 
   protected _update_completions(completions: string[]): void {
@@ -31,11 +45,16 @@ export class AutocompleteInputView extends TextInputView {
       const item = div({}, text)
       this.menu.appendChild(item)
     }
+    if (completions.length > 0)
+      this.menu.children[0].classList.add('bk-active')
+
   }
 
   protected _show_menu(): void {
     if (!this._open) {
       this._open = true
+      this._hover_index = 0
+      this._last_value = this.model.value
       display(this.menu)
 
       const listener = (event: MouseEvent) => {
@@ -58,9 +77,29 @@ export class AutocompleteInputView extends TextInputView {
 
   protected _menu_click(event: MouseEvent): void {
     if (event.target != event.currentTarget && event.target instanceof Element) {
-      this.input_el.value = event.target.textContent || ""
+      this.model.value = event.target.textContent!
       this.input_el.focus()
       this._hide_menu()
+    }
+  }
+
+  protected _menu_hover(event: MouseEvent): void {
+    if (event.target != event.currentTarget && event.target instanceof Element) {
+      let i = 0
+      for (i = 0; i<this.menu.children.length; i++) {
+        if (this.menu.children[i].textContent! == event.target.textContent!)
+          break
+      }
+      this._bump_hover(i)
+    }
+  }
+
+  protected _bump_hover(new_index: number): void {
+    const n_children = this.menu.children.length
+    if (this._open && n_children > 0) {
+      this.menu.children[this._hover_index].classList.remove('bk-active')
+      this._hover_index = clamp(new_index, 0, n_children-1)
+      this.menu.children[this._hover_index].classList.add('bk-active')
     }
   }
 
@@ -69,16 +108,19 @@ export class AutocompleteInputView extends TextInputView {
   _keyup(event: KeyboardEvent): void {
     switch (event.keyCode) {
       case Keys.Enter: {
-        // TODO
+        this.change_input()
         break
       }
       case Keys.Esc: {
         this._hide_menu()
         break
       }
-      case Keys.Up:
+      case Keys.Up: {
+        this._bump_hover(this._hover_index-1)
+        break
+      }
       case Keys.Down: {
-        // TODO
+        this._bump_hover(this._hover_index+1)
         break
       }
       default: {
