@@ -51,6 +51,7 @@ __all__ = (
     'get_table_column_cells',
     'get_table_row',
     'get_table_selected_rows',
+    'hover_element',
     'INIT',
     'paste_values',
     'RECORD',
@@ -129,6 +130,10 @@ class element_to_finish_resizing(object):
         else:
             self.previous_width = current_width
             return False
+
+def hover_element(driver, element):
+    hover = ActionChains(driver).move_to_element(element)
+    hover.perform()
 
 def enter_text_in_element(driver, element, text, click=1, enter=True):
     actions = ActionChains(driver)
