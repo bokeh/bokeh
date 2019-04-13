@@ -20,6 +20,7 @@ import pytest ; pytest
 import logging
 
 from copy import copy
+import json
 from mock import patch
 
 # External imports
@@ -921,6 +922,26 @@ class TestDocument(object):
         # figure does not automatically add itself to the document
         d.add_root(p1)
         assert len(d.roots) == 1
+
+    def test_event_handles_new_callbacks_in_event_callback(self):
+        from bokeh.models import Button
+        d = document.Document()
+        button1 = Button(label="1")
+        button2 = Button(label="2")
+        def clicked_1():
+            button2.on_click(clicked_2)
+            d.add_root(button2)
+        def clicked_2():
+            pass
+
+        button1.on_click(clicked_1)
+        d.add_root(button1)
+
+        event_json = json.dumps({"event_name":"button_click","event_values":{"model_id":button1.id}})
+        try:
+            d.apply_json_event(event_json)
+        except RuntimeError:
+            pytest.fail("apply_json_event probably did not copy models before modifying")
 
     # TODO test serialize/deserialize with list-and-dict-valued properties
 
