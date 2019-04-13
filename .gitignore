@@ -1,16 +1,12 @@
 *.py[ocd]
 
-# setup.py working directory
+# setup.py things
 /build
+/dist
+/MANIFEST
 
 # sphinx build directory
-/_build
-
-# setup.py dist directory
-/dist
-/doc/build
-/doc/cdoc/build
-/MANIFEST
+/sphinx/build
 
 # Egg metadata
 /*.egg-info
@@ -24,6 +20,7 @@
 # tests/examples
 report.html
 examples.log
+/examples/custom/font-awesome/package-lock.json
 
 # conda build
 /linux-64
@@ -37,6 +34,29 @@ examples.log
 # auto-generated
 /bokeh/LICENSE.txt
 
-# ???
-/record.txt
-/examples/refs
+# dev files
+*.patch
+*.diff
+*.rej
+
+# common editor cruft
+.#*
+[#]*#
+*~
+*$
+*.bak
+.project
+.pydevproject
+.*.sw[nop]
+.sw[nop]
+*.tmp
+
+# compressed / binary files
+*.bz2
+*.bzip2
+*.dmg
+*.gz
+*.iso
+*.tar
+*.tgz
+*.zip
