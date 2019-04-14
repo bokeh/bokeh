@@ -102,6 +102,9 @@ export const RenderLevel: RenderLevel[] = ["image", "underlay", "glyph", "annota
 export type RenderMode = "canvas" | "css"
 export const RenderMode: RenderMode[] = ["canvas", "css"]
 
+export type ResetPolicy = "standard" | "event_only"
+export const ResetPolicy: ResetPolicy[] = ["standard", "event_only"]
+
 export type RoundingFunction = "round" | "nearest" | "floor" | "rounddown" | "ceil" | "roundup"
 export const RoundingFunction: RoundingFunction[] = ["round", "nearest", "floor", "rounddown", "ceil", "roundup"]
 

@@ -117,6 +117,7 @@ __all__ = (
     'Palette',
     'RenderLevel',
     'RenderMode',
+    'ResetPolicy',
     'RoundingFunction',
     'SizingMode',
     'SliderCallbackPolicy',
@@ -313,6 +314,9 @@ RenderLevel = enumeration("image", "underlay", "glyph", "annotation", "overlay")
 
 #: Specify a render mode for renderers that support both Canvas or CSS rendering
 RenderMode = enumeration("canvas", "css")
+
+#: What reset actions should occur on a Plot reset
+ResetPolicy = enumeration("standard", "event_only")
 
 #: Specify a policy for  how numbers should be rounded
 RoundingFunction = enumeration("round", "nearest", "floor", "rounddown", "ceil", "roundup")
