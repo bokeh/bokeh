@@ -187,6 +187,13 @@ to install all of BokehJS JavaScript dependencies:
 This command will install the necessary packages into the ``node_modules``
 subdirectory.
 
+PhantomJS
+~~~~~~~~~
+
+PhantomJS is currently required to exercise some capabilities under test. It
+is available via Conda for some platforms. For other platforms, it may be
+installed via npm with: ``npm install -g phantomjs``.
+
 ----
 
 Typically, these instructions only need to be followed once, when you are
