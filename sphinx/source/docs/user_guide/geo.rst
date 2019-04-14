@@ -42,6 +42,15 @@ underlay.
     Google has its own terms of service for using Google Maps API and any use
     of Bokeh with Google Maps must be within Google's Terms of Service
 
+Also note that Google Maps exert explicit control over aspect ratios at all
+times, which imposes some limitations on ``GMapPlot``:
+
+* Only ``Range1d`` ranges are supported. Attempting to use other range types
+  will result in an error.
+
+* Usage of ``BoxZoomTool`` is incompatible with ``GMapPlot``. Adding a
+  ``BoxZoomTool`` will have no effect.
+
 .. _userguide_geo_geojson_data:
 
 GeoJSON Data

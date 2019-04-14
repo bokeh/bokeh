@@ -59,8 +59,8 @@ __all__ = (
 def export_png(obj, filename=None, height=None, width=None, webdriver=None):
     ''' Export the ``LayoutDOM`` object or document as a PNG.
 
-    If the filename is not given, it is derived from the script name
-    (e.g. ``/foo/myplot.py`` will create ``/foo/myplot.png``)
+    If the filename is not given, it is derived from the script name (e.g.
+    ``/foo/myplot.py`` will create ``/foo/myplot.png``)
 
     Args:
         obj (LayoutDOM or Document) : a Layout (Row/Column), Plot or Widget
@@ -80,6 +80,10 @@ def export_png(obj, filename=None, height=None, width=None, webdriver=None):
 
     Returns:
         filename (str) : the filename where the static file is saved.
+
+    If you would like to access an Image object directly, rather than save a
+    file to disk, use the lower-level :func:`~bokeh.io.export.get_screenshot_as_png`
+    function.
 
     .. warning::
         Responsive sizing_modes may generate layouts with unexpected size and

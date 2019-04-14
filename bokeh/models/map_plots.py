@@ -131,7 +131,14 @@ class GMapPlot(MapPlot):
     e.g. ``(37.123, -122.404)``. It will be automatically converted into the
     web mercator projection to display properly over google maps tiles.
 
-    Please also note that only ``Range1d`` ranges are supported by ``GMapPlot``.
+    Note that Google Maps exert explicit control over aspect ratios at all
+    times, which imposes some limitations on ``GMapPlot``:
+
+    * Only ``Range1d`` ranges are supported. Attempting to use other range
+      types will result in an error.
+
+    * Usage of ``BoxZoomTool`` is incompatible with ``GMapPlot``. Adding a
+      ``BoxZoomTool`` will have no effect.
 
     .. _Google Map: https://www.google.com/maps/
 
