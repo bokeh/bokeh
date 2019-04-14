@@ -1,5 +1,5 @@
 ## Bokeh server for Range Slider
-import pandas as pd
+
 from bokeh.io import curdoc
 from bokeh.layouts import row
 from bokeh.models import ColumnDataSource
