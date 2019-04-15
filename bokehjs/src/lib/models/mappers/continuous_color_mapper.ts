@@ -13,7 +13,9 @@ export namespace ContinuousColorMapper {
   }
 }
 
-export interface ContinuousColorMapper extends ContinuousColorMapper.Attrs {}
+export interface ContinuousColorMapper extends ContinuousColorMapper.Attrs {
+  scan_result: Arrayable<number>
+}
 
 export abstract class ContinuousColorMapper extends ColorMapper {
   properties: ContinuousColorMapper.Props

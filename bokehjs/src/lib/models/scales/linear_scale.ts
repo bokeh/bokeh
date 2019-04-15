@@ -18,7 +18,8 @@ export class LinearScale extends Scale {
   }
 
   static initClass(): void {
-    this.prototype.type = "LinearScale"
+      this.prototype.type = "LinearScale"
+          this.internal({scan_result: [ p.Any ]})
   }
 
   compute(x: number): number {

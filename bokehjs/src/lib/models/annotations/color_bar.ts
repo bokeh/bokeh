@@ -6,6 +6,7 @@ import {BasicTickFormatter} from "../formatters/basic_tick_formatter"
 import {ContinuousColorMapper} from "../mappers/continuous_color_mapper"
 import {LinearColorMapper} from "../mappers/linear_color_mapper"
 import {LinearScale} from "../scales/linear_scale"
+import {LerpScale} from "../scales/lerp_scale"
 import {Scale} from "../scales/scale"
 import {LogScale} from "../scales/log_scale"
 import {Range1d} from "../ranges/range1d"
@@ -473,11 +474,15 @@ export class ColorBarView extends AnnotationView {
         start: 0,
         end: scale_length,
       }),
+        scan_result: this.model.color_mapper.scan_result,
     }
 
     switch (this.model.color_mapper.type) {
       case "LinearColorMapper": return new LinearScale(ranges)
       case "LogColorMapper":    return new LogScale(ranges)
+      case "EqHistColorMapper": {
+        return new LerpScale(ranges)
+      }
       default:
         throw new Error("unreachable code")
     }

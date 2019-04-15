@@ -12,7 +12,9 @@ export namespace EqHistColorMapper {
     }
 }
 
-export interface EqHistColorMapper extends EqHistColorMapper.Attrs {}
+export interface EqHistColorMapper extends EqHistColorMapper.Attrs {
+    scan_result: Arrayable<number>
+}
 
 export class EqHistColorMapper extends ScanningColorMapper {
   properties: EqHistColorMapper.Props
@@ -46,6 +48,7 @@ export class EqHistColorMapper extends ScanningColorMapper {
         const palette_range = linspace(low, high, palette.length+1)
         const norm_interp = interp(palette_range, bin_centers, norm_cdf)
         const result = norm_interp.map(x => low + (x * span))
+        this.scan_result = result
         return result
     }
     
