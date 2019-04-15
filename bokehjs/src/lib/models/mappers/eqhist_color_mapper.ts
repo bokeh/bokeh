@@ -1,4 +1,4 @@
-import {BinnedColorMapper} from "./binned_color_mapper"
+import {ScanningColorMapper} from "./binned_color_mapper"
 import {Arrayable} from "core/types"
 import {min, max, bin_counts, interp} from "core/util/arrayable"
 import {linspace, cumsum, range} from "core/util/array"
@@ -7,14 +7,14 @@ import * as p from "core/properties"
 export namespace EqHistColorMapper {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = BinnedColorMapper.Props & {
+  export type Props = ScanningColorMapper.Props & {
       bins: p.Property<number>
     }
 }
 
 export interface EqHistColorMapper extends EqHistColorMapper.Attrs {}
 
-export class EqHistColorMapper extends BinnedColorMapper {
+export class EqHistColorMapper extends ScanningColorMapper {
   properties: EqHistColorMapper.Props
 
   constructor(attrs?: Partial<EqHistColorMapper.Attrs>) {

@@ -2,23 +2,23 @@ import {ContinuousColorMapper} from "./continuous_color_mapper"
 import {Arrayable} from "core/types"
 import * as p from "core/properties"
 
-export namespace BinnedColorMapper {
+export namespace ScanningColorMapper {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = ContinuousColorMapper.Props
 }
 
-export interface BinnedColorMapper extends BinnedColorMapper.Attrs {}
+export interface ScanningColorMapper extends ScanningColorMapper.Attrs {}
 
-export abstract class BinnedColorMapper extends ContinuousColorMapper {
-  properties: BinnedColorMapper.Props
+export abstract class ScanningColorMapper extends ContinuousColorMapper {
+  properties: ScanningColorMapper.Props
 
-  constructor(attrs?: Partial<BinnedColorMapper.Attrs>) {
+  constructor(attrs?: Partial<ScanningColorMapper.Attrs>) {
     super(attrs)
   }
 
   static initClass(): void {
-    this.prototype.type = "BinnedColorMapper"
+    this.prototype.type = "ScanningColorMapper"
   }
 
     protected cmap<T>(d : number,  palette: Arrayable<T>,  low_color: T,
@@ -43,4 +43,4 @@ export abstract class BinnedColorMapper extends ContinuousColorMapper {
     }
 }
 
-BinnedColorMapper.initClass()
+ScanningColorMapper.initClass()
