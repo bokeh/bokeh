@@ -49,11 +49,8 @@ export class ServerStatusIndicator extends Indicator {
     this.prototype.default_view = ServerStatusIndicatorView
 
     this.define<ServerStatusIndicator.Props>({
-      tooltip_prefix: [ p.String, "" ]
-    })
-
-    this.internal({
-      status: [p.Enum(enums.ServerStatus), "unknown" ]
+      tooltip_prefix: [ p.String,                   ""        ],
+      status:         [ p.Enum(enums.ServerStatus), "unknown" ]
     })
   }
 

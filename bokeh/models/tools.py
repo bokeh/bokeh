@@ -1593,7 +1593,7 @@ class PolyEditTool(EditTool, Drag, Tap):
 
 class ServerStatusIndicator(Indicator):
     status = Enum(ServerStatus, default="unknown")
-    tooltip_prefix = String(default=None, help="""
+    tooltip_prefix = String(default="", help="""
     Prefix for a tooltip that is displayed when hovering over the indicator
     """)
     
