@@ -30,8 +30,7 @@ export namespace ServerStatusIndicator {
   }
 }
 
-export interface ServerStatusIndicator
-       extends ServerStatusIndicator.Attrs { }
+export interface ServerStatusIndicator extends ServerStatusIndicator.Attrs { }
 
 export class ServerStatusIndicator extends Indicator {
   properties: ServerStatusIndicator.Props
@@ -39,8 +38,8 @@ export class ServerStatusIndicator extends Indicator {
   constructor(attrs?: Partial<ServerStatusIndicator.Attrs>) {
     super(attrs)
     
-    window.document.addEventListener('bk-connection-status', (e: CustomEvent) =>  {
-      this.status = e.detail.status as enums.ServerStatus;
+    window.document.addEventListener('bk-connection-status', (e: CustomEvent<enums.ServerStatus>) =>  {
+      this.status = e.detail;
     })
   }
 

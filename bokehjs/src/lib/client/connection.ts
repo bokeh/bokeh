@@ -25,10 +25,10 @@ export class ClientConnection {
   protected _status: ServerStatus = 'unknown';
 
   set status(status: ServerStatus) {
-    this._status = status;
-    document.dispatchEvent(new CustomEvent('bk-connection-status', {
-      bubbles: true, detail: { status }
-    }));
+    this._status = status
+    document.dispatchEvent(new CustomEvent<ServerStatus>('bk-connection-status', {
+      bubbles: true, detail: status
+    }))
   }
 
   get status() {
