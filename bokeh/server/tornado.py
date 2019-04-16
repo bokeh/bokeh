@@ -46,7 +46,7 @@ from .views.static_handler import StaticHandler
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-# Unfortuntely we can't yet use format_docstring to keep these automatically in sync in
+# Unfortunately we can't yet use format_docstring to keep these automatically in sync in
 # the class docstring because Python 2 does not allow setting class.__doc__ (works with
 # Bokeh model classes because they are metaclasses)
 DEFAULT_CHECK_UNUSED_MS                  = 17000
