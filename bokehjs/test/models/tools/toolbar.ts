@@ -33,7 +33,7 @@ describe("Toolbar", () => {
       ]
       
       const toolbar = new Toolbar({indicators})
-      expect(toolbar.inspectors).to.deep.equal(indicators)
+      expect(toolbar.indicators).to.deep.equal(indicators)
     })
 
     it("should have all inspect tools active when active_inspect='auto'", () => {
