@@ -10,6 +10,8 @@ import {SliderCallbackPolicy} from "core/enums"
 import {Control, ControlView} from "./control"
 import {CallbackLike0} from "../callbacks/callback"
 
+const prefix = 'bk-noUi-'
+
 export interface SliderSpec {
   start: number
   end: number
@@ -48,6 +50,11 @@ export abstract class AbstractSliderView extends ControlView {
         start: value,
         step,
       })
+    })
+
+    const {bar_color} = this.model.properties
+    this.on_change(bar_color, () => {
+      this._set_bar_color()
     })
 
     this.on_change(value, () => this._update_title())
@@ -91,14 +98,20 @@ export abstract class AbstractSliderView extends ControlView {
     }
   }
 
+  protected _set_bar_color(): void {
+    if (!this.model.disabled) {
+      this.slider_el.querySelector<HTMLElement>(`.${prefix}connect`)!
+                    .style
+                    .backgroundColor = this.model.bar_color
+    }
+  }
+
   protected abstract _calc_to(): SliderSpec
 
   protected abstract _calc_from(values: number[]): number | number[]
 
   render(): void {
     super.render()
-
-    const prefix = 'bk-noUi-'
 
     const {start, end, value, step} = this._calc_to()
 
@@ -173,11 +186,7 @@ export abstract class AbstractSliderView extends ControlView {
       })
     }
 
-    if (!this.model.disabled) {
-      this.slider_el.querySelector<HTMLElement>(`.${prefix}connect`)!
-                    .style
-                    .backgroundColor = this.model.bar_color
-    }
+    this._set_bar_color()
 
     if (this.model.disabled)
       this.slider_el.setAttribute('disabled', 'true')
