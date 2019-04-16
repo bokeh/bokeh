@@ -2,9 +2,9 @@ import {SizeHint, Size, Sizeable} from "./types"
 import {Extents} from "../types"
 import {Layoutable} from "./layoutable"
 import {Align} from "../enums"
-import {isNumber, isString, isObject} from "../util/types"
+import {isNumber, isString, isPlainObject} from "../util/types"
 import {BBox} from "../util/bbox"
-import {sum} from "../util/array"
+import {sum, some} from "../util/array"
 
 const {max, round} = Math
 
@@ -50,7 +50,7 @@ export type GridSizeHint = {
 
 type TrackAlign = "auto" | Align
 
-type TrackSpec<T> = (({policy: "fixed"} & T) | {policy: "min" | "fit"} | {policy: "flex", factor: number}) & {align: TrackAlign}
+type TrackSpec<T> = (({policy: "fixed"} & T) | {policy: "min"} | {policy: "fit" | "max", flex: number}) & {align: TrackAlign}
 
 type RowSpec = TrackSpec<{height: number}>
 type ColSpec = TrackSpec<{width: number}>
@@ -65,23 +65,21 @@ type GridState = {
   cspacing: number
 }
 
-export type QuickTrackSizing = "auto" | "fit" | "min" | "max" | number
+export type QuickTrackSizing = "auto" | "min" | "fit" | "max" | number
 
 export type RowSizing =
-  QuickTrackSizing |
-  (({policy: "auto" | "fit" | "min" | "max"} |
-    {policy: "flex", factor: number} |
-    {policy: "fixed", height: number}) & {align?: TrackAlign})
+  {policy: "auto" | "min", align?: TrackAlign} |
+  {policy: "fit" | "max", flex?: number, align?: TrackAlign} |
+  {policy: "fixed", height: number, align?: TrackAlign}
 
 export type ColSizing =
-  QuickTrackSizing |
-  (({policy: "auto" | "fit" | "min" | "max"} |
-    {policy: "flex", factor: number} |
-    {policy: "fixed", width: number})  & {align?: TrackAlign})
+  {policy: "auto" | "min", align?: TrackAlign} |
+  {policy: "fit" | "max", flex?: number, align?: TrackAlign} |
+  {policy: "fixed", width: number, align?: TrackAlign}
 
-export type RowsSizing = QuickTrackSizing | {[key: string]: RowSizing}
+export type RowsSizing = QuickTrackSizing | {[key: string]: QuickTrackSizing | RowSizing}
 
-export type ColsSizing = QuickTrackSizing | {[key: string]: ColSizing}
+export type ColsSizing = QuickTrackSizing | {[key: string]: QuickTrackSizing | ColSizing}
 
 type Span = {r0: number, c0: number, r1: number, c1: number}
 
@@ -99,10 +97,6 @@ class Container<T> {
     return this._ncols
   }
 
-  finalize(): void {
-
-  }
-
   add(span: Span, data: T): void {
     const {r1, c1} = span
     this._nrows = max(this._nrows, r1 + 1)
@@ -115,6 +109,16 @@ class Container<T> {
       return span.r0 <= r && r <= span.r1 &&
              span.c0 <= c && c <= span.c1
     })
+    return selected.map(({data}) => data)
+  }
+
+  row(r: number): T[] {
+    const selected = this._items.filter(({span}) => span.r0 <= r && r <= span.r1)
+    return selected.map(({data}) => data)
+  }
+
+  col(c: number): T[] {
+    const selected = this._items.filter(({span}) => span.c0 <= c && c <= span.c1)
     return selected.map(({data}) => data)
   }
 
@@ -152,30 +156,22 @@ export class Grid extends Layoutable {
     if (super.is_width_expanding())
       return true
 
-    if (this.sizing.width_policy != "fixed") {
-      const {cols, ncols} = this._state
-      for (let x = 0; x < ncols; x++) {
-        if (cols[x].policy == "flex")
-          return true
-      }
-    }
+    if (this.sizing.width_policy == "fixed")
+      return false
 
-    return false
+    const {cols} = this._state
+    return some(cols, (col) => col.policy == "max")
   }
 
   is_height_expanding(): boolean {
     if (super.is_height_expanding())
       return true
 
-    if (this.sizing.height_policy != "fixed") {
-      const {rows, nrows} = this._state
-      for (let y = 0; y < nrows; y++) {
-        if (rows[y].policy == "flex")
-          return true
-      }
-    }
+    if (this.sizing.height_policy == "fixed")
+      return false
 
-    return false
+    const {rows} = this._state
+    return some(rows, (row) => row.policy == "max")
   }
 
   protected _init(): void {
@@ -191,84 +187,70 @@ export class Grid extends Layoutable {
         items.add({r0, c0, r1, c1}, layout)
       }
     }
-    items.finalize()
+
     const {nrows, ncols} = items
 
     const rows: RowSpec[] = new Array(nrows)
     for (let y = 0; y < nrows; y++) {
-      let row = isObject(this.rows) ? this.rows[y] || this.rows["*"] : this.rows
+      const row = ((): RowSizing => {
+        const sizing = isPlainObject(this.rows) ? this.rows[y] || this.rows["*"] : this.rows
 
-      if (row == null) {
-        row = {policy: "auto"}
-      } else if (isNumber(row)) {
-        row = {policy: "fixed", height: row}
-      } else if (isString(row)) {
-        row = {policy: row}
-      }
-
-      if (row.policy == "auto" || row.policy == "fit") {
-        row_auto: for (let x = 0; x < ncols; x++) {
-          for (const layout of items.at(y, x)) {
-            if (layout.is_height_expanding()) {
-              row = {policy: "max", align: row.align}
-              break row_auto
-            }
-          }
-        }
-      }
+        if (sizing == null)
+          return {policy: "auto"}
+        else if (isNumber(sizing))
+          return {policy: "fixed", height: sizing}
+        else if (isString(sizing))
+          return {policy: sizing} as RowSizing
+        else
+          return sizing
+      })()
 
       const align = row.align || "auto"
 
       if (row.policy == "fixed")
-        rows[y] = {align, height: row.height, policy: "fixed"}
-      else if (row.policy == "fit")
-        rows[y] = {align, policy: "fit"}
-      else if (row.policy == "min" || row.policy == "auto")
-        rows[y] = {align, policy: "min"}
-      else if (row.policy == "max")
-        rows[y] = {align, policy: "flex", factor: 1}
-      else if (row.policy == "flex")
-        rows[y] = {align, policy: "flex", factor: row.factor}
-      else
+        rows[y] = {policy: "fixed", height: row.height, align}
+      else if (row.policy == "min")
+        rows[y] = {policy: "min", align}
+      else if (row.policy == "fit" || row.policy == "max")
+        rows[y] = {policy: row.policy, flex: row.flex || 1, align}
+      else if (row.policy == "auto") {
+        if (some(items.row(y), (layout) => layout.is_height_expanding()))
+          rows[y] = {policy: "max", flex: 1, align}
+        else
+          rows[y] = {policy: "min", align}
+      } else
         throw new Error("unrechable")
     }
 
     const cols: ColSpec[] = new Array(ncols)
     for (let x = 0; x < ncols; x++) {
-      let col = isObject(this.cols) ? this.cols[x] || this.cols["*"] : this.cols
+      const col = ((): ColSizing => {
+        const sizing = isPlainObject(this.cols) ? this.cols[x] || this.cols["*"] : this.cols
 
-      if (col == null) {
-        col = {policy: "auto"}
-      } else if (isNumber(col)) {
-        col = {policy: "fixed", width: col}
-      } else if (isString(col)) {
-        col = {policy: col}
-      }
-
-      if (col.policy == "auto" || col.policy == "fit") {
-        col_auto: for (let y = 0; y < nrows; y++) {
-          for (const layout of items.at(y, x)) {
-            if (layout.is_width_expanding()) {
-              col = {policy: "max", align: col.align}
-              break col_auto
-            }
-          }
-        }
-      }
+        if (sizing == null)
+          return {policy: "auto"}
+        else if (isNumber(sizing))
+          return {policy: "fixed", width: sizing}
+        else if (isString(sizing))
+          return {policy: sizing} as ColSizing
+        else
+          return sizing
+      })()
 
       const align = col.align || "auto"
 
       if (col.policy == "fixed")
-        cols[x] = {align, width: col.width, policy: "fixed"}
-      else if (col.policy == "fit")
-        cols[x] = {align, policy: "fit"}
-      else if (col.policy == "min" || col.policy == "auto")
-        cols[x] = {align, policy: "min"}
-      else if (col.policy == "max")
-        cols[x] = {align, policy: "flex", factor: 1}
-      else if (col.policy == "flex")
-        cols[x] = {align, policy: "flex", factor: col.factor}
-      else
+        cols[x] = {policy: "fixed", width: col.width, align}
+      else if (col.policy == "min")
+        cols[x] = {policy: "min", align}
+      else if (col.policy == "fit" || col.policy == "max")
+        cols[x] = {policy: col.policy, flex: col.flex || 1, align}
+      else if (col.policy == "auto") {
+        if (some(items.col(x), (layout) => layout.is_width_expanding()))
+          cols[x] = {policy: "max", flex: 1, align}
+        else
+          cols[x] = {policy: "min", align}
+      } else
         throw new Error("unrechable")
     }
 
@@ -389,10 +371,10 @@ export class Grid extends Layoutable {
     let height_flex = 0
     for (let y = 0; y < nrows; y++) {
       const row = rows[y]
-      if (row.policy != "flex")
-        available_height -= preferred.row_heights[y]
+      if (row.policy == "fit" || row.policy == "max")
+        height_flex += row.flex
       else
-        height_flex += row.factor
+        available_height -= preferred.row_heights[y]
     }
 
     available_height -= (nrows - 1)*rspacing
@@ -400,11 +382,11 @@ export class Grid extends Layoutable {
     if (height_flex != 0 && available_height > 0) {
       for (let y = 0; y < nrows; y++) {
         const row = rows[y]
-        if (row.policy == "flex") {
-          const height = round(available_height * (row.factor/height_flex))
+        if (row.policy == "fit" || row.policy == "max") {
+          const height = round(available_height * (row.flex/height_flex))
           available_height -= height
           preferred.row_heights[y] = height
-          height_flex -= row.factor
+          height_flex -= row.flex
         }
       }
     } else if (available_height < 0) {
@@ -439,10 +421,10 @@ export class Grid extends Layoutable {
     let width_flex = 0
     for (let x = 0; x < ncols; x++) {
       const col = cols[x]
-      if (col.policy != "flex")
-        available_width -= preferred.col_widths[x]
+      if (col.policy == "fit" || col.policy == "max")
+        width_flex += col.flex
       else
-        width_flex += col.factor
+        available_width -= preferred.col_widths[x]
     }
 
     available_width -= (ncols - 1)*cspacing
@@ -450,11 +432,11 @@ export class Grid extends Layoutable {
     if (width_flex != 0 && available_width > 0) {
       for (let x = 0; x < ncols; x++) {
         const col = cols[x]
-        if (col.policy == "flex") {
-          const width = round(available_width * (col.factor/width_flex))
+        if (col.policy == "fit" || col.policy == "max") {
+          const width = round(available_width * (col.flex/width_flex))
           available_width -= width
           preferred.col_widths[x] = width
-          width_flex -= col.factor
+          width_flex -= col.flex
         }
       }
     } else if (available_width < 0) {

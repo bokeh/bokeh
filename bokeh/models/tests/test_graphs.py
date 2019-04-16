@@ -65,7 +65,7 @@ def test_from_networkx_method_with_kwargs():
     assert set(gl.keys()) == set([0,1,2,3])
     assert_allclose(gl[0], np.array([2., 0.]), atol=1e-7)
 
-def test_from_networkx_with_attributes():
+def test_from_networkx_with_scalar_attributes():
     G = nx.Graph()
     G.add_nodes_from([(0, {"attr_1": "a", "attr_2": 10}),
                       (1, {"attr_1": "b"}),
@@ -83,6 +83,42 @@ def test_from_networkx_with_attributes():
     assert renderer.edge_renderer.data_source.data["end"] == [1, 2]
     assert renderer.edge_renderer.data_source.data["attr_1"] == ["A", "B"]
     assert renderer.edge_renderer.data_source.data["attr_2"] == [None, 10]
+
+@pytest.mark.parametrize('typ', [list, tuple])
+def test_from_networkx_with_sequence_attributes(typ):
+    G = nx.Graph()
+    G.add_nodes_from([(0, {"attr_1": typ([1, 2]), "attr_2": 10}),
+                      (1, {}),
+                      (2, {"attr_1": typ([3]), "attr_2": 30})])
+    G.add_edges_from([(0, 1, {"attr_1": typ([1, 11])}),
+                      (0, 2, {"attr_1": typ([2, 22]), "attr_2": 10})])
+
+    renderer = from_networkx(G, nx.circular_layout)
+
+    assert renderer.node_renderer.data_source.data["index"] == [0, 1, 2]
+    assert renderer.node_renderer.data_source.data["attr_1"] == [[1, 2], [], [3]]
+    assert renderer.node_renderer.data_source.data["attr_2"] == [10, None, 30]
+
+    assert renderer.edge_renderer.data_source.data["start"] == [0, 0]
+    assert renderer.edge_renderer.data_source.data["end"] == [1, 2]
+    assert renderer.edge_renderer.data_source.data["attr_1"] == [[1, 11], [2, 22]]
+    assert renderer.edge_renderer.data_source.data["attr_2"] == [None, 10]
+
+def test_from_networkx_errors_with_mixed_attributes():
+    G = nx.Graph()
+    G.add_nodes_from([(0, {"attr_1": [1, 2], "attr_2": 10}),
+                      (1, {}),
+                      (2, {"attr_1": 3, "attr_2": 30})])
+
+    with pytest.raises(ValueError):
+        from_networkx(G, nx.circular_layout)
+
+    G = nx.Graph()
+    G.add_edges_from([(0, 1, {"attr_1": [1, 11]}),
+                      (0, 2, {"attr_1": 2, "attr_2": 10})])
+
+    with pytest.raises(ValueError):
+        from_networkx(G, nx.circular_layout)
 
 def test_from_networkx_with_bad_attributes():
     G = nx.Graph()

@@ -58,6 +58,19 @@ Usage is similar to the |save| and |show| functions.
 
 .. image:: /_images/unemployment.png
 
+Image Objects
+~~~~~~~~~~~~~
+
+In case you would like to access an Image object directly in code rather than
+saving the image to a file, you can use the lower-level function
+:func:`~bokeh.io.export.get_screenshot_as_png`.
+
+.. code-block:: python
+
+    from bokeh.io.export import get_screenshot_as_png
+
+    image = get_screenshot_as_png(obj, height=height, width=width, driver=webdriver)
+
 .. _userguide_export_svg:
 
 SVG Generation

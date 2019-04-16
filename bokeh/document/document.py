@@ -334,8 +334,9 @@ class Document(object):
         if not isinstance(event, Event):
             log.warning('Could not decode event json: %s' % json)
         else:
-            for obj in self._subscribed_models[event.event_name]:
-                obj._trigger_event(event)
+            subscribed = self._subscribed_models[event.event_name].copy()
+            for model in subscribed:
+                model._trigger_event(event)
 
     def apply_json_patch(self, patch, setter=None):
         ''' Apply a JSON patch object and process any resulting events.

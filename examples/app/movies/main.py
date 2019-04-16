@@ -34,7 +34,7 @@ axis_map = {
     "Year": "Year",
 }
 
-desc = Div(text=open(join(dirname(__file__), "description.html")).read(), width=800)
+desc = Div(text=open(join(dirname(__file__), "description.html")).read(), sizing_mode="stretch_width")
 
 # Create Input controls
 reviews = Slider(title="Minimum number of reviews", value=80, start=10, end=300, step=10)
@@ -58,7 +58,7 @@ TOOLTIPS=[
     ("$", "@revenue")
 ]
 
-p = figure(plot_height=600, plot_width=700, title="", toolbar_location=None, tooltips=TOOLTIPS)
+p = figure(plot_height=600, plot_width=700, title="", toolbar_location=None, tooltips=TOOLTIPS, sizing_mode="scale_both")
 p.circle(x="x", y="y", source=source, size=7, color="color", line_color=None, fill_alpha="alpha")
 
 
@@ -104,13 +104,12 @@ controls = [reviews, boxoffice, genre, min_year, max_year, oscars, director, cas
 for control in controls:
     control.on_change('value', lambda attr, old, new: update())
 
-sizing_mode = 'fixed'  # 'scale_width' also looks nice with this example
-
-inputs = column(*controls, sizing_mode=sizing_mode)
+inputs = column(*controls, width=320, height=1000)
+inputs.sizing_mode = "fixed"
 l = layout([
     [desc],
     [inputs, p],
-], sizing_mode=sizing_mode)
+], sizing_mode="scale_both")
 
 update()  # initial load of the data
 

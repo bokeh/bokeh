@@ -30,8 +30,8 @@ except (ValueError, TypeError):
     batchid = 1
 
 func = {
-    1 : np.sin,
-    2 : np.cos,
+    1 : np.cos,
+    2 : np.sin,
     3 : np.tan
 }[batchid]
 
