@@ -91,7 +91,7 @@ def parallel_plot(df, color=None, palette=None):
         'x': [], 'y': [], 'width': [], 'height': []
     })
 
-    # add rectange selections
+    # add rectangle selections
     selection_renderer = p.rect(x='x', y='y', width='width', height='height',
                                 source=rect_source,
                                 fill_alpha=0.7, fill_color='#009933')

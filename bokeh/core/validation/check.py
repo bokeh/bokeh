@@ -51,7 +51,7 @@ def silence(warning, silence=True):
         A set containing the all silenced warnings
 
     This function adds or removes warnings from a set of silencers which
-    is refered to when running ``check_integrity``. If a warning
+    is referred to when running ``check_integrity``. If a warning
     is added to the silencers - then it will never be raised.
 
     .. code-block:: python
