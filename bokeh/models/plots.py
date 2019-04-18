@@ -82,7 +82,7 @@ class Plot(LayoutDOM):
 
         Additionally, for compatibility with ``Model.select``, a selector
         dict may be passed as ``selector`` keyword argument, in which case
-        the value of ``kwargs['selector']`` is used for th query.
+        the value of ``kwargs['selector']`` is used for the query.
 
         For convenience, queries on just names can be made by supplying
         the ``name`` string as the single parameter:

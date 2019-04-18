@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide suport modules for testing Bokeh itself.
+''' Provide support modules for testing Bokeh itself.
 
 '''
 
