@@ -1,5 +1,5 @@
 from bokeh.models import ColumnDataSource
-from bokeh.models.widgets import TableColumn, GroupingInfo, SumAggregator, DataCube
+from bokeh.models.widgets import StringFormatter, TableColumn, GroupingInfo, SumAggregator, DataCube
 from bokeh.plotting import output_file, show
 
 source = ColumnDataSource(dict(
@@ -9,10 +9,12 @@ source = ColumnDataSource(dict(
   px=[10, 20, 30, 40, 50, 60, 70],
 ))
 
-target = ColumnDataSource(dict(rows=[], labels=[]))
+target = ColumnDataSource(dict(row_indices=[], labels=[]))
+
+formatter = StringFormatter(font_style='bold')
 
 columns = [
-  TableColumn(field='d2', title='Name', width=80, sortable=False),
+  TableColumn(field='d2', title='Name', width=80, sortable=False, formatter=formatter),
   TableColumn(field='px', title='Price', width=40, sortable=False),
 ]
 

@@ -42,104 +42,81 @@
           
           
             
-              <div class="bk-root" id="24131a25-30cb-4f3b-b430-98d364d682e8" data-root-id="1009"></div>
+              <div class="bk-root" id="8d139ca6-2361-4d02-bd0b-5802c21c8cdd" data-root-id="1011"></div>
             
           
         
       
       
-        <script type="application/json" id="1075">
+        <script type="application/json" id="1069">
           {
-            "916dc481-4647-4517-b498-3dc48e95dcfc": {
+            "dd758b38-f595-468a-8178-385782329022": {
               "roots": {
                 "references": [
                   {
-                    "attributes": {
-                      "field_": "px"
-                    },
-                    "id": "1007",
-                    "type": "SumAggregator"
-                  },
-                  {
-                    "attributes": {},
-                    "id": "1016",
-                    "type": "UnionRenderers"
-                  },
-                  {
                     "attributes": {},
                     "id": "1017",
-                    "type": "Selection"
+                    "type": "StringEditor"
+                  },
+                  {
+                    "attributes": {
+                      "font_style": "bold"
+                    },
+                    "id": "1003",
+                    "type": "StringFormatter"
+                  },
+                  {
+                    "attributes": {},
+                    "id": "1018",
+                    "type": "StringEditor"
                   },
                   {
                     "attributes": {
                       "editor": {
-                        "id": "1011",
+                        "id": "1017",
                         "type": "StringEditor"
                       },
                       "field": "d2",
                       "formatter": {
-                        "id": "1012",
+                        "id": "1003",
                         "type": "StringFormatter"
                       },
                       "sortable": false,
                       "title": "Name",
                       "width": 80
                     },
-                    "id": "1003",
+                    "id": "1004",
                     "type": "TableColumn"
                   },
                   {
                     "attributes": {},
-                    "id": "1018",
-                    "type": "UnionRenderers"
+                    "id": "1019",
+                    "type": "StringFormatter"
                   },
                   {
                     "attributes": {
                       "editor": {
-                        "id": "1013",
+                        "id": "1018",
                         "type": "StringEditor"
                       },
                       "field": "px",
                       "formatter": {
-                        "id": "1014",
+                        "id": "1019",
                         "type": "StringFormatter"
                       },
                       "sortable": false,
                       "title": "Price",
                       "width": 40
                     },
-                    "id": "1004",
+                    "id": "1006",
                     "type": "TableColumn"
                   },
                   {
                     "attributes": {
                       "field_": "px"
                     },
-                    "id": "1005",
+                    "id": "1007",
                     "type": "SumAggregator"
-                  },
-                  {
-                    "attributes": {},
-                    "id": "1011",
-                    "type": "StringEditor"
-                  },
-                  {
-                    "attributes": {
-                      "aggregators": [
-                        {
-                          "id": "1005",
-                          "type": "SumAggregator"
-                        }
-                      ],
-                      "getter": "d0"
-                    },
-                    "id": "1006",
-                    "type": "GroupingInfo"
-                  },
-                  {
-                    "attributes": {},
-                    "id": "1012",
-                    "type": "StringFormatter"
                   },
                   {
                     "attributes": {
@@ -149,7 +126,7 @@
                           "type": "SumAggregator"
                         }
                       ],
-                      "getter": "d1"
+                      "getter": "d0"
                     },
                     "id": "1008",
                     "type": "GroupingInfo"
@@ -157,57 +134,21 @@
                   {
                     "attributes": {},
                     "id": "1013",
-                    "type": "StringEditor"
+                    "type": "Selection"
                   },
                   {
                     "attributes": {
-                      "columns": [
-                        {
-                          "id": "1003",
-                          "type": "TableColumn"
-                        },
-                        {
-                          "id": "1004",
-                          "type": "TableColumn"
-                        }
-                      ],
-                      "grouping": [
-                        {
-                          "id": "1006",
-                          "type": "GroupingInfo"
-                        },
-                        {
-                          "id": "1008",
-                          "type": "GroupingInfo"
-                        }
-                      ],
-                      "source": {
-                        "id": "1001",
-                        "type": "ColumnDataSource"
-                      },
-                      "target": {
-                        "id": "1002",
-                        "type": "ColumnDataSource"
-                      },
-                      "view": {
-                        "id": "1010",
-                        "type": "CDSView"
-                      }
+                      "field_": "px"
                     },
                     "id": "1009",
-                    "type": "DataCube"
-                  },
-                  {
-                    "attributes": {},
-                    "id": "1014",
-                    "type": "StringFormatter"
+                    "type": "SumAggregator"
                   },
                   {
                     "attributes": {
                       "callback": null,
                       "data": {
                         "labels": [],
-                        "rows": []
+                        "row_indices": []
                       },
                       "selected": {
                         "id": "1015",
@@ -220,6 +161,24 @@
                     },
                     "id": "1002",
                     "type": "ColumnDataSource"
+                  },
+                  {
+                    "attributes": {},
+                    "id": "1014",
+                    "type": "UnionRenderers"
+                  },
+                  {
+                    "attributes": {
+                      "aggregators": [
+                        {
+                          "id": "1009",
+                          "type": "SumAggregator"
+                        }
+                      ],
+                      "getter": "d1"
+                    },
+                    "id": "1010",
+                    "type": "GroupingInfo"
                   },
                   {
                     "attributes": {
@@ -263,11 +222,11 @@
                         ]
                       },
                       "selected": {
-                        "id": "1017",
+                        "id": "1013",
                         "type": "Selection"
                       },
                       "selection_policy": {
-                        "id": "1018",
+                        "id": "1014",
                         "type": "UnionRenderers"
                       }
                     },
@@ -276,26 +235,69 @@
                   },
                   {
                     "attributes": {
+                      "columns": [
+                        {
+                          "id": "1004",
+                          "type": "TableColumn"
+                        },
+                        {
+                          "id": "1006",
+                          "type": "TableColumn"
+                        }
+                      ],
+                      "grouping": [
+                        {
+                          "id": "1008",
+                          "type": "GroupingInfo"
+                        },
+                        {
+                          "id": "1010",
+                          "type": "GroupingInfo"
+                        }
+                      ],
                       "source": {
                         "id": "1001",
                         "type": "ColumnDataSource"
+                      },
+                      "target": {
+                        "id": "1002",
+                        "type": "ColumnDataSource"
+                      },
+                      "view": {
+                        "id": "1012",
+                        "type": "CDSView"
                       }
                     },
-                    "id": "1010",
-                    "type": "CDSView"
+                    "id": "1011",
+                    "type": "DataCube"
                   },
                   {
                     "attributes": {},
                     "id": "1015",
                     "type": "Selection"
+                  },
+                  {
+                    "attributes": {},
+                    "id": "1016",
+                    "type": "UnionRenderers"
+                  },
+                  {
+                    "attributes": {
+                      "source": {
+                        "id": "1001",
+                        "type": "ColumnDataSource"
+                      }
+                    },
+                    "id": "1012",
+                    "type": "CDSView"
                   }
                 ],
                 "root_ids": [
-                  "1009"
+                  "1011"
                 ]
               },
               "title": "Bokeh Application",
-              "version": "1.1.1dev1-1-geb4d66af6-dirty"
+              "version": "1.1.1dev1-2-g33c72433a-dirty"
             }
           }
         </script>
@@ -305,8 +307,8 @@
               (function(root) {
                 function embed_document(root) {
                   
-                var docs_json = document.getElementById('1075').textContent;
-                var render_items = [{"docid":"916dc481-4647-4517-b498-3dc48e95dcfc","roots":{"1009":"24131a25-30cb-4f3b-b430-98d364d682e8"}}];
+                var docs_json = document.getElementById('1069').textContent;
+                var render_items = [{"docid":"dd758b38-f595-468a-8178-385782329022","roots":{"1011":"8d139ca6-2361-4d02-bd0b-5802c21c8cdd"}}];
                 root.Bokeh.embed.embed_items(docs_json, render_items);
               
                 }

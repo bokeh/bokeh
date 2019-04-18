@@ -41,7 +41,7 @@ function indentFormatter(formatter?: (...args: any[]) => string, indent?: number
     })
     const formatted = formatter ? formatter(row, cell, value, columnDef, dataContext) : `${value}`
 
-    return `${spacer.outerHTML}${formatted}`
+    return `${spacer.outerHTML}${formatted.replace(/^<div/, '<span').replace(/div>$/, 'span>')}`
   }
 }
 
