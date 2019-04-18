@@ -10,6 +10,7 @@
 # Boilerplate
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
+from sys import executable
 
 import pytest ; pytest
 
@@ -47,7 +48,7 @@ def test_no_client_server_common():
 
     '''
     code = "import sys; %s; sys.exit(1 if any(('bokeh.client' in x or 'bokeh.server' in x) for x in sys.modules.keys()) else 0)"
-    proc = Popen(["python", "-c", code % ";".join(BASIC_IMPORTS)],stdout=PIPE)
+    proc = Popen([executable, "-c", code % ";".join(BASIC_IMPORTS)],stdout=PIPE)
     proc.wait()
     if proc.returncode != 0:
         assert False

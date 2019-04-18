@@ -12,7 +12,7 @@ export type Column = {
   field: string
   name: string
   width?: number
-  formatter?: (...args: any[]) => HTMLElement
+  formatter?: (...args: any[]) => string
   model?: CellEditor
   editor?: Class<View>
   sortable?: boolean

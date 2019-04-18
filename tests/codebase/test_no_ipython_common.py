@@ -10,6 +10,7 @@
 # Boilerplate
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
+from sys import executable
 
 import pytest ; pytest
 
@@ -46,7 +47,7 @@ def test_no_ipython_common():
 
     '''
     proc = Popen([
-        "python", "-c", "import sys; %s; sys.exit(1 if any('IPython' in x for x in sys.modules.keys()) else 0)" % ";".join(BASIC_IMPORTS)
+        executable, "-c", "import sys; %s; sys.exit(1 if any('IPython' in x for x in sys.modules.keys()) else 0)" % ";".join(BASIC_IMPORTS)
     ],stdout=PIPE)
     proc.communicate()
     proc.wait()

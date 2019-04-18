@@ -1,0 +1,338 @@
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+  
+  <head>
+    
+      <meta charset="utf-8">
+      <title>Bokeh Plot</title>
+      
+      
+        
+          
+        <link rel="stylesheet" href="/Users/aubreylmayo/Documents/Jan/bokeh/bokeh/../bokehjs/build/css/bokeh.css" type="text/css" />
+        <link rel="stylesheet" href="/Users/aubreylmayo/Documents/Jan/bokeh/bokeh/../bokehjs/build/css/bokeh-widgets.css" type="text/css" />
+        <link rel="stylesheet" href="/Users/aubreylmayo/Documents/Jan/bokeh/bokeh/../bokehjs/build/css/bokeh-tables.css" type="text/css" />
+        
+        
+          
+        <script type="text/javascript" src="/Users/aubreylmayo/Documents/Jan/bokeh/bokeh/../bokehjs/build/js/bokeh.js"></script>
+        <script type="text/javascript" src="/Users/aubreylmayo/Documents/Jan/bokeh/bokeh/../bokehjs/build/js/bokeh-widgets.js"></script>
+        <script type="text/javascript" src="/Users/aubreylmayo/Documents/Jan/bokeh/bokeh/../bokehjs/build/js/bokeh-tables.js"></script>
+        <script type="text/javascript">
+            Bokeh.set_log_level("debug");
+        </script>
+        <script type="text/javascript">
+            Bokeh.settings.dev = true
+        </script>
+        
+      
+      
+    
+  </head>
+  
+  
+  <body>
+    
+      
+        
+          
+          
+            
+              <div class="bk-root" id="24131a25-30cb-4f3b-b430-98d364d682e8" data-root-id="1009"></div>
+            
+          
+        
+      
+      
+        <script type="application/json" id="1075">
+          {
+            "916dc481-4647-4517-b498-3dc48e95dcfc": {
+              "roots": {
+                "references": [
+                  {
+                    "attributes": {
+                      "field_": "px"
+                    },
+                    "id": "1007",
+                    "type": "SumAggregator"
+                  },
+                  {
+                    "attributes": {},
+                    "id": "1016",
+                    "type": "UnionRenderers"
+                  },
+                  {
+                    "attributes": {},
+                    "id": "1017",
+                    "type": "Selection"
+                  },
+                  {
+                    "attributes": {
+                      "editor": {
+                        "id": "1011",
+                        "type": "StringEditor"
+                      },
+                      "field": "d2",
+                      "formatter": {
+                        "id": "1012",
+                        "type": "StringFormatter"
+                      },
+                      "sortable": false,
+                      "title": "Name",
+                      "width": 80
+                    },
+                    "id": "1003",
+                    "type": "TableColumn"
+                  },
+                  {
+                    "attributes": {},
+                    "id": "1018",
+                    "type": "UnionRenderers"
+                  },
+                  {
+                    "attributes": {
+                      "editor": {
+                        "id": "1013",
+                        "type": "StringEditor"
+                      },
+                      "field": "px",
+                      "formatter": {
+                        "id": "1014",
+                        "type": "StringFormatter"
+                      },
+                      "sortable": false,
+                      "title": "Price",
+                      "width": 40
+                    },
+                    "id": "1004",
+                    "type": "TableColumn"
+                  },
+                  {
+                    "attributes": {
+                      "field_": "px"
+                    },
+                    "id": "1005",
+                    "type": "SumAggregator"
+                  },
+                  {
+                    "attributes": {},
+                    "id": "1011",
+                    "type": "StringEditor"
+                  },
+                  {
+                    "attributes": {
+                      "aggregators": [
+                        {
+                          "id": "1005",
+                          "type": "SumAggregator"
+                        }
+                      ],
+                      "getter": "d0"
+                    },
+                    "id": "1006",
+                    "type": "GroupingInfo"
+                  },
+                  {
+                    "attributes": {},
+                    "id": "1012",
+                    "type": "StringFormatter"
+                  },
+                  {
+                    "attributes": {
+                      "aggregators": [
+                        {
+                          "id": "1007",
+                          "type": "SumAggregator"
+                        }
+                      ],
+                      "getter": "d1"
+                    },
+                    "id": "1008",
+                    "type": "GroupingInfo"
+                  },
+                  {
+                    "attributes": {},
+                    "id": "1013",
+                    "type": "StringEditor"
+                  },
+                  {
+                    "attributes": {
+                      "columns": [
+                        {
+                          "id": "1003",
+                          "type": "TableColumn"
+                        },
+                        {
+                          "id": "1004",
+                          "type": "TableColumn"
+                        }
+                      ],
+                      "grouping": [
+                        {
+                          "id": "1006",
+                          "type": "GroupingInfo"
+                        },
+                        {
+                          "id": "1008",
+                          "type": "GroupingInfo"
+                        }
+                      ],
+                      "source": {
+                        "id": "1001",
+                        "type": "ColumnDataSource"
+                      },
+                      "target": {
+                        "id": "1002",
+                        "type": "ColumnDataSource"
+                      },
+                      "view": {
+                        "id": "1010",
+                        "type": "CDSView"
+                      }
+                    },
+                    "id": "1009",
+                    "type": "DataCube"
+                  },
+                  {
+                    "attributes": {},
+                    "id": "1014",
+                    "type": "StringFormatter"
+                  },
+                  {
+                    "attributes": {
+                      "callback": null,
+                      "data": {
+                        "labels": [],
+                        "rows": []
+                      },
+                      "selected": {
+                        "id": "1015",
+                        "type": "Selection"
+                      },
+                      "selection_policy": {
+                        "id": "1016",
+                        "type": "UnionRenderers"
+                      }
+                    },
+                    "id": "1002",
+                    "type": "ColumnDataSource"
+                  },
+                  {
+                    "attributes": {
+                      "callback": null,
+                      "data": {
+                        "d0": [
+                          "A",
+                          "E",
+                          "E",
+                          "E",
+                          "J",
+                          "L",
+                          "M"
+                        ],
+                        "d1": [
+                          "B",
+                          "D",
+                          "D",
+                          "H",
+                          "K",
+                          "L",
+                          "N"
+                        ],
+                        "d2": [
+                          "C",
+                          "F",
+                          "G",
+                          "H",
+                          "K",
+                          "L",
+                          "O"
+                        ],
+                        "px": [
+                          10,
+                          20,
+                          30,
+                          40,
+                          50,
+                          60,
+                          70
+                        ]
+                      },
+                      "selected": {
+                        "id": "1017",
+                        "type": "Selection"
+                      },
+                      "selection_policy": {
+                        "id": "1018",
+                        "type": "UnionRenderers"
+                      }
+                    },
+                    "id": "1001",
+                    "type": "ColumnDataSource"
+                  },
+                  {
+                    "attributes": {
+                      "source": {
+                        "id": "1001",
+                        "type": "ColumnDataSource"
+                      }
+                    },
+                    "id": "1010",
+                    "type": "CDSView"
+                  },
+                  {
+                    "attributes": {},
+                    "id": "1015",
+                    "type": "Selection"
+                  }
+                ],
+                "root_ids": [
+                  "1009"
+                ]
+              },
+              "title": "Bokeh Application",
+              "version": "1.1.1dev1-1-geb4d66af6-dirty"
+            }
+          }
+        </script>
+        <script type="text/javascript">
+          (function() {
+            var fn = function() {
+              (function(root) {
+                function embed_document(root) {
+                  
+                var docs_json = document.getElementById('1075').textContent;
+                var render_items = [{"docid":"916dc481-4647-4517-b498-3dc48e95dcfc","roots":{"1009":"24131a25-30cb-4f3b-b430-98d364d682e8"}}];
+                root.Bokeh.embed.embed_items(docs_json, render_items);
+              
+                }
+                if (root.Bokeh !== undefined) {
+                  embed_document(root);
+                } else {
+                  var attempts = 0;
+                  var timer = setInterval(function(root) {
+                    if (root.Bokeh !== undefined) {
+                      embed_document(root);
+                      clearInterval(timer);
+                    }
+                    attempts++;
+                    if (attempts > 100) {
+                      console.log("Bokeh: ERROR: Unable to run BokehJS code because BokehJS library is missing");
+                      clearInterval(timer);
+                    }
+                  }, 10, root)
+                }
+              })(window);
+            };
+            if (document.readyState != "loading") fn();
+            else document.addEventListener("DOMContentLoaded", fn);
+          })();
+        </script>
+    
+  </body>
+  
+</html>
