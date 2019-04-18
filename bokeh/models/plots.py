@@ -701,7 +701,7 @@ class Plot(LayoutDOM):
     """)
 
     reset_policy = Enum(ResetPolicy, default="standard", help="""
-    How a plot should respond to being reset. By deafult, that standard actions
+    How a plot should respond to being reset. By deafult, the standard actions
     are to clear any tool state history, return plot ranges to their original
     values, undo all selections, and emit a ``Reset`` event. If customization
     is desired, this property may be set to ``"event_only"``, which will
