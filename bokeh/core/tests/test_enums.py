@@ -179,6 +179,9 @@ class Test_bce(object):
     def test_RenderMode(self):
         assert tuple(bce.RenderMode) == ("canvas", "css")
 
+    def test_ResetPolicy(self):
+        assert tuple(bce.ResetPolicy) == ("standard", "event_only")
+
     def test_RoundingFunction(self):
         assert tuple(bce.RoundingFunction) == ("round", "nearest", "floor", "rounddown", "ceil", "roundup")
 
@@ -256,6 +259,7 @@ def test_enums_contents():
         'Palette',
         'RenderLevel',
         'RenderMode',
+        'ResetPolicy',
         'RoundingFunction',
         'SizingMode',
         'SizingPolicy',

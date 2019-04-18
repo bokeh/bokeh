@@ -3,7 +3,7 @@ import * as visuals from "core/visuals"
 import * as p from "core/properties"
 import {Class} from "core/class"
 import {Signal0} from "core/signaling"
-import {Place, Location, OutputBackend} from "core/enums"
+import {Place, Location, OutputBackend, ResetPolicy} from "core/enums"
 import {remove_by, concat} from "core/util/array"
 import {values} from "core/util/object"
 import {isArray} from "core/util/types"
@@ -84,6 +84,8 @@ export namespace Plot {
 
     match_aspect: p.Property<boolean>
     aspect_scale: p.Property<number>
+
+    reset_policy: p.Property<ResetPolicy>
   } & mixins.OutlineLine
     & mixins.BackgroundFill
     & mixins.BorderFill
@@ -166,6 +168,8 @@ export class Plot extends LayoutDOM {
 
       match_aspect:      [ p.Boolean,  false                   ],
       aspect_scale:      [ p.Number,   1                       ],
+
+      reset_policy:      [ p.ResetPolicy,  "standard"          ],
     })
 
     this.override({
