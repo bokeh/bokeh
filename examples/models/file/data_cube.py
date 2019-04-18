@@ -1,4 +1,5 @@
 from bokeh.models import ColumnDataSource
+from bokeh.models.callbacks import CustomJS
 from bokeh.models.widgets import StringFormatter, TableColumn, GroupingInfo, SumAggregator, DataCube
 from bokeh.plotting import output_file, show
 
@@ -10,6 +11,9 @@ source = ColumnDataSource(dict(
 ))
 
 target = ColumnDataSource(dict(row_indices=[], labels=[]))
+
+callback = CustomJS(code='''console.log('row_indices: %o', this.data.row_indices)''')
+target.js_on_change('data', callback)
 
 formatter = StringFormatter(font_style='bold')
 

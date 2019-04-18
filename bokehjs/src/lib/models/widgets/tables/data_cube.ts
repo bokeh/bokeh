@@ -106,6 +106,7 @@ export class DataCubeProvider extends DataProvider {
   groupingInfos: GroupingInfo[]
   readonly groupingDelimiter: string
   toggledGroupsByLevel: {[key: string]: boolean}[]
+  private rows: (Group | number)[]
   target: ColumnDataSource
 
   constructor(source: ColumnDataSource, view: CDSView, columns: Column[], target: ColumnDataSource) {
@@ -209,21 +210,20 @@ export class DataCubeProvider extends DataProvider {
 
     if (groups.length) {
       this.addTotals(groups)
-      const flattened = this.flattenedGroupedRows(groups)
+      this.rows = this.flattenedGroupedRows(groups)
       this.target.data = {
-        rows: flattened,
-        row_indices: flattened.map((value: Group | number) => value instanceof Group ? value.rows : [value]),
-        labels: flattened.map((value: Group | number) => value instanceof Group ? value.title : labels[value]),
+        row_indices: this.rows.map((value: Group | number) => value instanceof Group ? value.rows : value),
+        labels: this.rows.map((value: Group | number) => value instanceof Group ? value.title : labels[value]),
       }
     }
   }
 
   getLength() {
-    return this.target.data.labels.length
+    return this.rows.length
   }
 
   getItem(i: number) {
-    const item = this.target.data.rows[i]
+    const item = this.rows[i]
     const { source: { data } } = this
 
     return item instanceof Group
@@ -233,7 +233,7 @@ export class DataCubeProvider extends DataProvider {
   }
 
   getItemMetadata(i: number) {
-    const myItem = this.target.data.rows[i]
+    const myItem = this.rows[i]
     const { level } = myItem
     const columns = this.columns.slice(1)
 
