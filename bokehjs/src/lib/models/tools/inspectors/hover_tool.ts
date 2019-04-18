@@ -20,6 +20,8 @@ import {Geometry, PointGeometry, SpanGeometry} from "core/geometry"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {ImageIndex} from "../../glyphs/image_base"
 
+export type TooltipVars = {index: number} & Vars
+
 export function _nearest_line_hit(i: number, geometry: Geometry,
     sx: number, sy: number, dx: number[], dy: number[]): [[number, number], number] {
   const d1 = {x: dx[i], y: dy[i]}
@@ -357,7 +359,7 @@ export class HoverToolView extends InspectToolView {
     }
   }
 
-  _render_tooltips(ds: ColumnarDataSource, i: number | ImageIndex, vars: Vars): HTMLElement {
+  _render_tooltips(ds: ColumnarDataSource, i: number | ImageIndex, vars: TooltipVars): HTMLElement {
     const tooltips = this.model.tooltips
     if (isString(tooltips)) {
       const el = div()
@@ -420,7 +422,7 @@ export namespace HoverTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = InspectTool.Props & {
-    tooltips: p.Property<string | [string, string][] | ((source: ColumnarDataSource, vars: Vars) => HTMLElement)>
+    tooltips: p.Property<string | [string, string][] | ((source: ColumnarDataSource, vars: TooltipVars) => HTMLElement)>
     formatters: p.Property<any> // XXX
     renderers: p.Property<RendererSpec>
     names: p.Property<string[]>
