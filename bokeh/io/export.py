@@ -306,7 +306,7 @@ def wait_until_render_complete(driver):
             if len(messages) > 0:
                 log.warning("There were browser warnings and/or errors that may have affected your export")
                 for message in messages:
-                log.warning(message)
+                    log.warning(message)
 
 #-----------------------------------------------------------------------------
 # Private API
