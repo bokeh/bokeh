@@ -274,6 +274,7 @@ def wait_until_render_complete(driver):
     '''
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.common.exceptions import TimeoutException
+    from selenium.webdriver import Firefox
 
     def is_bokeh_loaded(driver):
         return driver.execute_script('''
@@ -298,12 +299,14 @@ def wait_until_render_complete(driver):
                     "a 'bokeh:idle' event to signify that the layout has rendered. "
                     "Something may have gone wrong.")
     finally:
-        browser_logs = driver.get_log('browser')
-        messages = [ l.get("message") for l in browser_logs if l.get('level') in ['WARNING', 'ERROR', 'SEVERE'] ]
-        if len(messages) > 0:
-            log.warning("There were browser warnings and/or errors that may have affected your export")
-            for message in messages:
-                log.warning(message)
+        # Firefox webdriver does not currently support logs
+        if not isinstance(driver, Firefox):
+            browser_logs = driver.get_log('browser')
+            messages = [ l.get("message") for l in browser_logs if l.get('level') in ['WARNING', 'ERROR', 'SEVERE'] ]
+            if len(messages) > 0:
+                log.warning("There were browser warnings and/or errors that may have affected your export")
+                for message in messages:
+                    log.warning(message)
 
 #-----------------------------------------------------------------------------
 # Private API
