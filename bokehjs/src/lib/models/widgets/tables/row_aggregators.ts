@@ -15,11 +15,12 @@ export namespace RowAggregator {
 
   export type Props = Model.Props & {
     field_: p.Property<string>
-    key:    p.Property<string>
   }
 }
 
-export interface RowAggregator extends RowAggregator.Attrs {}
+export interface RowAggregator extends RowAggregator.Attrs {
+  readonly key: string
+}
 
 export abstract class RowAggregator extends Model {
   properties: RowAggregator.Props
@@ -33,7 +34,6 @@ export abstract class RowAggregator extends Model {
     
     this.define<RowAggregator.Props>({
       field_: [ p.String, '' ],
-      key:    [ p.String, '' ],
     })
   }
 

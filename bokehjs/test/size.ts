@@ -9,7 +9,7 @@ const LIMITS: {[key: string]: number} = {
   // js
   "js/bokeh.min.js":           690,
   "js/bokeh-widgets.min.js":    90,
-  "js/bokeh-tables.min.js":    200,
+  "js/bokeh-tables.min.js":    220,
   "js/bokeh-api.min.js":        75,
   "js/bokeh-gl.min.js":         70,
   // css

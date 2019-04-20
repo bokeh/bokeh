@@ -68,8 +68,6 @@ export namespace GroupingInfo {
     getter:      p.Property<string>
     aggregators: p.Property<RowAggregator[]>
     collapsed:   p.Property<boolean>
-    comparer:    p.Property<(a: { value: any }, b: { value: any }) => number>
-    formatter:   p.Property<(a: any) => string>
   }
 }
 
@@ -85,17 +83,17 @@ export class GroupingInfo extends Model {
   static initClass() {
     this.prototype.type = 'GroupingInfo'
     
-    const defaultComparer = (a: { value: any }, b: { value: any }) => {
+    this.define<GroupingInfo.Props>({
+      getter:      [ p.String,   ''    ],
+      aggregators: [ p.Array,    []    ],
+      collapsed:   [ p.Boolean,  false ],
+    })
+  }
+
+  get comparer(): (a: { value: any }, b: { value: any }) => number {
+    return (a: { value: any }, b: { value: any }): number => {
       return a.value === b.value ? 0 : a.value > b.value ? 1 : -1
     }
-
-    this.define<GroupingInfo.Props>({
-      getter:      [ p.String,   ''                    ],
-      aggregators: [ p.Array,    []                    ],
-      collapsed:   [ p.Boolean,  false                 ],
-      comparer:    [ p.Any,      () => defaultComparer ],
-      formatter:   [ p.Any,      () => ''              ],
-    })
   }
 }
 GroupingInfo.initClass()
@@ -172,7 +170,7 @@ export class DataCubeProvider extends DataProvider {
   }
 
   private addTotals(groups: Group[], level = 0) {
-    const { aggregators, collapsed: groupCollapsed, formatter } = this.groupingInfos[level]
+    const { aggregators, collapsed: groupCollapsed } = this.groupingInfos[level]
     const toggledGroups = this.toggledGroupsByLevel[level]
 
     groups.forEach((group: Group) => {
@@ -185,7 +183,7 @@ export class DataCubeProvider extends DataProvider {
       }
 
       group.collapsed = groupCollapsed !== toggledGroups[group.groupingKey]
-      group.title = formatter ? formatter(group) : group.value
+      group.title = group.value
     })
   }
 
