@@ -77,9 +77,9 @@ class Test_Spinner(object):
         assert page.has_no_console_errors()
 
     def test_displays_title(self, bokeh_model_page):
-        text_input = Spinner(title="title", css_classes=["foo"])
+        spinner = Spinner(title="title", css_classes=["foo"])
 
-        page = bokeh_model_page(text_input)
+        page = bokeh_model_page(spinner)
 
         el = page.driver.find_element_by_css_selector('.foo label')
         assert el.text == "title"
