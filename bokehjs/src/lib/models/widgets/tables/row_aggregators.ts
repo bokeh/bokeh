@@ -29,7 +29,7 @@ export abstract class RowAggregator extends Model {
       super(attrs)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'RowAggregator'
     
     this.define<RowAggregator.Props>({
@@ -46,7 +46,7 @@ RowAggregator.initClass()
 export class AvgAggregator extends RowAggregator {
   readonly key = 'avg'
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'AvgAggregator'
   }
 
@@ -59,7 +59,7 @@ AvgAggregator.initClass()
 export class MinAggregator extends RowAggregator {
   readonly key = 'min'
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'MinAggregator'
   }
 
@@ -72,7 +72,7 @@ MinAggregator.initClass()
 export class MaxAggregator extends RowAggregator {
   readonly key = 'max'
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'MaxAggregator'
   }
 
@@ -85,7 +85,7 @@ MaxAggregator.initClass()
 export class SumAggregator extends RowAggregator {
   readonly key = 'sum'
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'SumAggregator'
   }
 

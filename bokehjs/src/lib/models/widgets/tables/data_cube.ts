@@ -6,12 +6,19 @@ type Group = typeof Group
 
 import * as p from 'core/properties'
 import { span } from 'core/dom'
-import { SlickGrid, DataProvider, DTINDEX_NAME, DataTableView, DataTable } from './data_table'
+import { SlickGrid, DataProvider, DTINDEX_NAME, DataTableView, DataTable, Item } from './data_table'
 import { ColumnDataSource } from '../../sources/column_data_source'
 import { CDSView } from '../../sources/cds_view'
 import { Column } from './table_column'
 import { RowAggregator, GroupTotals } from './row_aggregators'
 import { Model } from 'model'
+
+export type Metadata = {
+  selectable: boolean,
+  focusable: boolean,
+  cssClasses: string,
+  columns: Partial<Column>[],
+}
 
 interface GroupDataContext {
   collapsed: boolean,
@@ -33,7 +40,7 @@ function groupCellFormatter(_row: any, _cell: any, _value: any, _columnDef: Colu
   return `${toggle.outerHTML}${titleElement.outerHTML}`
 }
 
-function indentFormatter(formatter?: (...args: any[]) => string, indent?: number) {
+function indentFormatter(formatter?: (...args: any[]) => string, indent?: number): (...args: any) => string {
   return (row: any, cell: any, value: any, columnDef: Column, dataContext: GroupDataContext) => {
     const spacer = span({
       class: 'slick-group-toggle',
@@ -45,7 +52,7 @@ function indentFormatter(formatter?: (...args: any[]) => string, indent?: number
   }
 }
 
-function handleGridClick(this: SlickGrid, event: EventData, args: { row: number }) {
+function handleGridClick(this: SlickGrid, event: EventData, args: { row: number }): void {
   const item = this.getDataItem(args.row)
 
   if (item instanceof Group && event.target.classList.contains('slick-group-toggle')) {
@@ -80,7 +87,7 @@ export class GroupingInfo extends Model {
     super(attrs)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'GroupingInfo'
     
     this.define<GroupingInfo.Props>({
@@ -122,7 +129,7 @@ export class DataCubeProvider extends DataProvider {
     this.refresh()
   }
 
-  private extractGroups(rows: number[], parentGroup?: Group) {
+  private extractGroups(rows: number[], parentGroup?: Group): Group[] {
     const groups: Group[] = []
     const groupsByValue: Map<any, Group> = new Map()
     const level = parentGroup ? parentGroup.level + 1 : 0
@@ -155,7 +162,7 @@ export class DataCubeProvider extends DataProvider {
     return groups
   }
 
-  private calculateTotals(group: Group, aggregators: RowAggregator[]) {
+  private calculateTotals(group: Group, aggregators: RowAggregator[]): GroupTotals {
     const totals: GroupTotals = { avg: {}, max: {}, min: {}, sum: {} }
     const { source: { data } } = this
     const keys = Object.keys(data)
@@ -163,13 +170,13 @@ export class DataCubeProvider extends DataProvider {
 
     aggregators.forEach((aggregator: RowAggregator) => {
       aggregator.init()
-      items.forEach((item: { [key: string]: any }) => aggregator.accumulate(item))
+      items.forEach((item: Item) => aggregator.accumulate(item))
       aggregator.storeResult(totals)
     })
     return totals
   }
 
-  private addTotals(groups: Group[], level = 0) {
+  private addTotals(groups: Group[], level = 0): void {
     const { aggregators, collapsed: groupCollapsed } = this.groupingInfos[level]
     const toggledGroups = this.toggledGroupsByLevel[level]
 
@@ -187,7 +194,7 @@ export class DataCubeProvider extends DataProvider {
     })
   }
 
-  private flattenedGroupedRows(groups: Group[], level = 0) {
+  private flattenedGroupedRows(groups: Group[], level = 0): (Group | number)[] {
     const rows: (Group | number)[] = []
 
     groups.forEach((group: Group) => {
@@ -202,7 +209,7 @@ export class DataCubeProvider extends DataProvider {
     return rows
   }
 
-  refresh() {
+  refresh(): void {
     const groups = this.extractGroups(this.view.indices)
     const labels = this.source.data[this.columns[0].field]
 
@@ -216,11 +223,11 @@ export class DataCubeProvider extends DataProvider {
     }
   }
 
-  getLength() {
+  getLength(): number {
     return this.rows.length
   }
 
-  getItem(i: number) {
+  getItem(i: number): Item {
     const item = this.rows[i]
     const { source: { data } } = this
 
@@ -230,7 +237,7 @@ export class DataCubeProvider extends DataProvider {
           .reduce((o, c) => ({ ...o, [c]: data[c][item] }), { [DTINDEX_NAME]: item })
   }
 
-  getItemMetadata(i: number) {
+  getItemMetadata(i: number): Metadata | null {
     const myItem = this.rows[i]
     const { level } = myItem
     const columns = this.columns.slice(1)
@@ -239,17 +246,17 @@ export class DataCubeProvider extends DataProvider {
       ? this.groupingInfos[level].aggregators
       : []
 
-    function adapter(column: Column): { formatter?: (...args: any[]) => string | null } {
+    function adapter(column: Column): Partial<Column> {
       const { field: myField, formatter } = column
       const aggregator = aggregators.find(({ field_ }) => field_ === myField)
 
       if (aggregator) {
         const { key } = aggregator
         return {
-          formatter(row: any, cell: any, _value: any, columnDef: any, dataContext: any) {
+          formatter(row: any, cell: any, _value: any, columnDef: any, dataContext: any): string {
             return formatter
               ? formatter(row, cell, dataContext.totals[key][myField], columnDef, dataContext)
-              : null
+              : ''
           },
         }
       }
@@ -266,14 +273,14 @@ export class DataCubeProvider extends DataProvider {
       : null
   }
 
-  collapseGroup(groupingKey: string) {
+  collapseGroup(groupingKey: string): void {
     const level = groupingKey.split(this.groupingDelimiter).length - 1
 
     this.toggledGroupsByLevel[level][groupingKey] = !this.groupingInfos[level].collapsed
     this.refresh()
   }
 
-  expandGroup(groupingKey: string) {
+  expandGroup(groupingKey: string): void {
     const level = groupingKey.split(this.groupingDelimiter).length - 1
 
     this.toggledGroupsByLevel[level][groupingKey] = this.groupingInfos[level].collapsed
@@ -285,7 +292,7 @@ export class DataCubeView extends DataTableView {
   model: DataCube
   provider: DataCubeProvider
 
-  render() {
+  render(): void {
     const options = {
       enableCellNavigation: this.model.selectable !== false,
       enableColumnReorder: false,
@@ -339,7 +346,7 @@ export class DataCube extends DataTable {
     super(attrs)
   }
 
-  static initClass() {
+  static initClass(): void {
     this.prototype.type = 'DataCube'
     this.prototype.default_view = DataCubeView
 
