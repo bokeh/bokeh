@@ -200,5 +200,3 @@ class Test_Slider(object):
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
-
-
