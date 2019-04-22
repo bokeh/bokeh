@@ -5,8 +5,3 @@
 On Windows, the `num_procs=4` argument must be removed from the Server initialisation call on line 34.
 - `tornado_embed.py` run with `python tornado_embed.py`.
 On Windows, the `num_procs=4` argument must be removed from the Server initialisation call on line 47.
-Note: the `static/` end point is reserved for Bokeh resources, as specified in
-[bokeh.server.urls](https://bokeh.pydata.org/en/latest/docs/reference/server/urls.html). In order to
-make your own end point for static resources, add the following to the `extra_patterns` argument,
-replacing `DIR` with the desired directory.
-`(r'/DIR/(.*)', StaticFileHandler, {'path': os.path.normpath(os.path.dirname(__file__) + '/DIR')})`
