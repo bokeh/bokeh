@@ -32,10 +32,6 @@ doc = Document()
 doc.add_root(cube)
 
 if __name__ == '__main__':
-    from bokeh.models.callbacks import CustomJS
-    callback = CustomJS(code="console.log('row_indices: %o', this.data.row_indices)")
-    target.js_on_change('data', callback)
-
     doc.validate()
     filename = "data_cube.html"
     with open(filename, "w") as f:
