@@ -42,4 +42,3 @@ if __name__ == '__main__':
         f.write(file_html(doc, INLINE, "Demonstration of Data Cube with Aggregations"))
     print("Wrote", filename)
     view(filename)
-  

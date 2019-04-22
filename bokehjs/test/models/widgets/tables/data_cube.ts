@@ -8,7 +8,7 @@ import { GroupingInfo, DataCubeProvider, DataCube } from "@bokehjs/models/widget
 import { SumAggregator } from "@bokehjs/models/widgets/tables/row_aggregators"
 
 describe("data_cube module", function() {
-  
+
   describe("DataCube class", function() {
     it("DataCube constructs", function() {
       const dataCube = new DataCube(this.attrs)
@@ -30,7 +30,7 @@ describe("data_cube module", function() {
         new TableColumn({ field: 'color' }),
         new TableColumn({ field: 'width' }),
         new TableColumn({ field: 'value' }),
-      ]      
+      ]
 
       const aggregators = [new SumAggregator({ field_: 'value' })]
       this.grouping = [

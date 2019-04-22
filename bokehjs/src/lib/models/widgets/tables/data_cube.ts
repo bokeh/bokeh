@@ -70,7 +70,7 @@ function handleGridClick(this: SlickGrid, event: EventData, args: { row: number 
 
 export namespace GroupingInfo {
   export type Attrs = p.AttrsOf<Props>
-  
+
   export type Props = Model.Props & {
     getter:      p.Property<string>
     aggregators: p.Property<RowAggregator[]>
@@ -89,7 +89,7 @@ export class GroupingInfo extends Model {
 
   static initClass(): void {
     this.prototype.type = 'GroupingInfo'
-    
+
     this.define<GroupingInfo.Props>({
       getter:      [ p.String,   ''    ],
       aggregators: [ p.Array,    []    ],
