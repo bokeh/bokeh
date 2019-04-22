@@ -30,7 +30,7 @@ import warnings
 # Bokeh imports
 from .. import palettes
 from ..core.has_props import abstract
-from ..core.properties import Color, Either, Enum, Float, Int, MarkerType, Seq, String, Tuple
+from ..core.properties import Color, Either, Enum, Float, HatchPatternType, Int, MarkerType, Seq, String, Tuple
 from ..core.enums import Palette
 from .transforms import Transform
 
@@ -44,6 +44,7 @@ __all__ = (
     'CategoricalMapper',
     'CategoricalColorMapper',
     'CategoricalMarkerMapper',
+    'CategoricalPatternMapper',
     'ContinuousColorMapper',
     'LinearColorMapper',
     'LogColorMapper',
@@ -156,6 +157,25 @@ class CategoricalMarkerMapper(CategoricalMapper):
 
     default_value = MarkerType(default="circle", help="""
     A marker type to use in case an unrecognized factor is passed in to be
+    mapped.
+    """)
+
+class CategoricalPatternMapper(CategoricalMapper):
+    ''' Map categorical factors to hatch fill patterns.
+
+    Values that are passed to this mapper that are not in the factors list
+    will be mapped to ``default_value``.
+
+    Added in version 1.1.1
+
+    '''
+
+    patterns = Seq(HatchPatternType, help="""
+    A sequence of marker types to use as the target for mapping.
+    """)
+
+    default_value = HatchPatternType(default=" ", help="""
+    A hatch pattern to use in case an unrecognized factor is passed in to be
     mapped.
     """)
 

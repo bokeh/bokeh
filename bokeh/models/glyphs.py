@@ -66,7 +66,7 @@ from ..core.enums import Anchor, Direction, StepMode
 from ..core.has_props import abstract
 from ..core.properties import (AngleSpec, Bool, DistanceSpec, Enum, Float, String,
                                Include, Instance, Int, NumberSpec, Override, StringSpec)
-from ..core.property_mixins import FillProps, LineProps, ScalarFillProps, ScalarLineProps, TextProps
+from ..core.property_mixins import FillProps, HatchProps, LineProps, ScalarFillProps, ScalarHatchProps, ScalarLineProps, TextProps
 from ..model import Model
 
 from .mappers import ColorMapper, LinearColorMapper
@@ -362,6 +362,9 @@ class HArea(Glyph):
     The %s values for the patch.
     """)
 
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
+    The %s values for the horizontal bars.
+    """)
 
 class HBar(Glyph):
     ''' Render horizontal bars, given a center coordinate, ``height`` and
@@ -396,6 +399,10 @@ class HBar(Glyph):
     """)
 
     fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the horizontal bars.
+    """)
+
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
     The %s values for the horizontal bars.
     """)
 
@@ -759,6 +766,10 @@ class MultiPolygons(Glyph):
     The %s values for the multipolygons.
     """)
 
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
+    The %s values for the patches.
+    """)
+
 class Oval(XYGlyph):
     ''' Render ovals.
 
@@ -842,6 +853,10 @@ class Patch(XYGlyph):
     The %s values for the patch.
     """)
 
+    hatch_props = Include(ScalarHatchProps, use_prefix=False, help="""
+    The %s values for the patch.
+    """)
+
 class Patches(Glyph):
     ''' Render several patches.
 
@@ -882,6 +897,10 @@ class Patches(Glyph):
     The %s values for the patches.
     """)
 
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
+    The %s values for the patches.
+    """)
+
 class Quad(Glyph):
     ''' Render axis-aligned quads.
 
@@ -915,6 +934,10 @@ class Quad(Glyph):
 
     fill_props = Include(FillProps, use_prefix=False, help="""
     The %s values for the quads.
+    """)
+
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
+    The %s values for the horizontal bars.
     """)
 
 class Quadratic(Glyph):
@@ -1178,6 +1201,10 @@ class VArea(Glyph):
     The %s values for the patch.
     """)
 
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
+    The %s values for the horizontal bars.
+    """)
+
 class VBar(Glyph):
     ''' Render vertical bars, given a center coordinate, width and (top, bottom) coordinates.
 
@@ -1210,6 +1237,10 @@ class VBar(Glyph):
     """)
 
     fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the vertical bars.
+    """)
+
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
     The %s values for the vertical bars.
     """)
 

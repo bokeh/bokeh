@@ -1,7 +1,8 @@
 import * as p from "./properties"
 import {Attrs, Color} from "./types"
 import {extend} from "./util/object"
-import {LineJoin, LineCap, FontStyle, TextAlign, TextBaseline} from "./enums"
+import {LineJoin, LineCap, FontStyle, HatchPatternType, TextAlign, TextBaseline} from "./enums"
+import {Texture} from "models/textures/texture"
 
 export type Line = {
   line_color: p.Property<Color | null>
@@ -16,6 +17,17 @@ export type Line = {
 export type Fill = {
   fill_color: p.Property<Color | null>
   fill_alpha: p.Property<number>
+}
+
+export type HatchPattern = HatchPatternType | string
+
+export type Hatch = {
+  hatch_color: p.Property<Color | null>
+  hatch_alpha: p.Property<number>
+  hatch_scale: p.Property<number>
+  hatch_pattern: p.Property<HatchPattern>
+  hatch_weight: p.Property<number>
+  hatch_extra: p.Property<{[key: string]: Texture}>
 }
 
 export type Text = {
@@ -44,6 +56,15 @@ export type FillScalar = {
   fill_alpha: p.ScalarSpec<number>
 }
 
+export type HatchScalar = {
+  hatch_color: p.ScalarSpec<Color | null>
+  hatch_alpha: p.ScalarSpec<number>
+  hatch_scale: p.ScalarSpec<number>
+  hatch_pattern: p.ScalarSpec<string>
+  hatch_weight: p.ScalarSpec<number>
+  hatch_extra: p.Any
+}
+
 export type TextScalar = {
   text_color: p.ScalarSpec<Color | null>
   text_alpha: p.ScalarSpec<number>
@@ -68,6 +89,14 @@ export type LineVector = {
 export type FillVector = {
   fill_color: p.VectorSpec<Color | null>
   fill_alpha: p.VectorSpec<number>
+}
+
+export type HatchVector = {
+  hatch_color: p.VectorSpec<Color | null>
+  hatch_alpha: p.VectorSpec<number>
+  hatch_scale: p.VectorSpec<number>
+  hatch_pattern: p.VectorSpec<string>
+  hatch_weight: p.VectorSpec<number>
 }
 
 export type TextVector = {
@@ -109,6 +138,17 @@ const _fill_mixin = {
 
 export const fill = (prefix: string = "") => _gen_mixin(_fill_mixin, prefix)
 
+const _hatch_mixin = {
+  hatch_color:   [ p.ColorSpec,  'black' ],
+  hatch_alpha:   [ p.NumberSpec, 1.0     ],
+  hatch_scale:   [ p.NumberSpec, 12.0    ],
+  hatch_pattern: [ p.StringSpec, null    ],
+  hatch_weight:  [ p.NumberSpec, 1.0     ],
+  hatch_extra:   [ p.Any,        {}      ],
+}
+
+export const hatch = (prefix: string = "") => _gen_mixin(_hatch_mixin, prefix)
+
 const _text_mixin = {
   text_font:        [ p.Font,         'helvetica' ],
   text_font_size:   [ p.FontSizeSpec, '12pt'      ],
@@ -129,9 +169,10 @@ export function create(configs: string[]): Attrs {
     const [kind, prefix] = config.split(":")
     let mixin: any
     switch (kind) {
-      case "line": mixin = line; break
-      case "fill": mixin = fill; break
-      case "text": mixin = text; break
+      case "line":  mixin = line;  break
+      case "fill":  mixin = fill;  break
+      case "hatch": mixin = hatch; break
+      case "text":  mixin = text;  break
       default:
         throw new Error(`Unknown property mixin kind '${kind}'`)
     }

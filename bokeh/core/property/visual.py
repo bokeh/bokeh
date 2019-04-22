@@ -48,6 +48,7 @@ from .primitive import String
 __all__ = (
     'DashPattern',
     'FontSize',
+    'HatchPatternType',
     'Image',
     'MinMaxBounds',
     'MarkerType',
@@ -118,6 +119,24 @@ class FontSize(String):
             elif self._font_size_re.match(value) is None:
                 msg = "" if not detail else "%r is not a valid font size value" % value
                 raise ValueError(msg)
+
+class HatchPatternType(Either):
+    ''' Accept built-in fill hatching specifications.
+
+    Accepts either "long" names, e.g. "horizontal-wave" or the single letter
+    abbreviations, e.g. "v"
+
+    '''
+
+    def __init__(self, default=[], help=None):
+        types = Enum(enums.HatchPattern), Enum(enums.HatchPatternAbbreviation)
+        super(HatchPatternType, self).__init__(*types, default=default, help=help)
+
+    def __str__(self):
+        return self.__class__.__name__
+
+    def _sphinx_type(self):
+        return self._sphinx_prop_link()
 
 class Image(Property):
     ''' Accept image file types, e.g PNG, JPEG, TIFF, etc.

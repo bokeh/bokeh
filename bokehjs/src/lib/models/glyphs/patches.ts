@@ -7,8 +7,8 @@ import {isStrictNaN} from "core/util/types"
 import {Arrayable, Area} from "core/types"
 import {PointGeometry} from "core/geometry"
 import {Context2d} from "core/util/canvas"
-import {LineVector, FillVector} from "core/property_mixins"
-import {Line, Fill} from "core/visuals"
+import {LineVector, FillVector, HatchVector} from "core/property_mixins"
+import {Line, Fill, Hatch} from "core/visuals"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
@@ -109,6 +109,24 @@ export class PatchesView extends GlyphView {
     return indices.sort((a, b) => a - b)
   }
 
+  protected _inner_loop(ctx: Context2d, sx: Arrayable<number>, sy: Arrayable<number>, func: (this: Context2d) => void): void {
+    for (let j = 0, end = sx.length; j < end; j++) {
+      if (j == 0) {
+        ctx.beginPath()
+        ctx.moveTo(sx[j], sy[j])
+        continue
+      } else if (isNaN(sx[j] + sy[j])) {
+        ctx.closePath()
+        func.apply(ctx)
+        ctx.beginPath()
+        continue
+      } else
+        ctx.lineTo(sx[j], sy[j])
+    }
+    ctx.closePath()
+    func.call(ctx)
+  }
+
   protected _render(ctx: Context2d, indices: number[], {sxs, sys}: PatchesData): void {
     // this.sxss and this.syss are used by _hit_point and sxc, syc
     // This is the earliest we can build them, and only build them once
@@ -120,44 +138,14 @@ export class PatchesView extends GlyphView {
 
       if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i)
-
-        for (let j = 0, end = sx.length; j < end; j++) {
-          if (j == 0) {
-            ctx.beginPath()
-            ctx.moveTo(sx[j], sy[j])
-            continue
-          } else if (isNaN(sx[j] + sy[j])) {
-            ctx.closePath()
-            ctx.fill()
-            ctx.beginPath()
-            continue
-          } else
-            ctx.lineTo(sx[j], sy[j])
-        }
-
-        ctx.closePath()
-        ctx.fill()
+        this._inner_loop(ctx, sx, sy, ctx.fill)
       }
+
+      this.visuals.hatch.doit2(ctx, i, () => this._inner_loop(ctx, sx, sy, ctx.fill), () => this.renderer.request_render())
 
       if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i)
-
-        for (let j = 0, end = sx.length; j < end; j++) {
-          if (j == 0) {
-            ctx.beginPath()
-            ctx.moveTo(sx[j], sy[j])
-            continue
-          } else if (isNaN(sx[j] + sy[j])) {
-            ctx.closePath()
-            ctx.stroke()
-            ctx.beginPath()
-            continue
-          } else
-            ctx.lineTo(sx[j], sy[j])
-        }
-
-        ctx.closePath()
-        ctx.stroke()
+        this._inner_loop(ctx, sx, sy, ctx.stroke)
       }
     }
   }
@@ -235,12 +223,12 @@ export class PatchesView extends GlyphView {
 export namespace Patches {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Glyph.Props & LineVector & FillVector & {
+  export type Props = Glyph.Props & LineVector & FillVector & HatchVector & {
     xs: p.CoordinateSeqSpec
     ys: p.CoordinateSeqSpec
   }
 
-  export type Visuals = Glyph.Visuals & {line: Line, fill: Fill}
+  export type Visuals = Glyph.Visuals & {line: Line, fill: Fill, hatch: Hatch}
 }
 
 export interface Patches extends Patches.Attrs {}
@@ -257,7 +245,7 @@ export class Patches extends Glyph {
     this.prototype.default_view = PatchesView
 
     this.coords([['xs', 'ys']])
-    this.mixins(['line', 'fill'])
+    this.mixins(['line', 'fill', 'hatch'])
   }
 }
 Patches.initClass()

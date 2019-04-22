@@ -43,6 +43,7 @@ ALL = (
     'expr',
     'field',
     'FontSizeSpec',
+    'HatchPatternSpec',
     'MarkerSpec',
     'NumberSpec',
     'ScreenDistanceSpec',

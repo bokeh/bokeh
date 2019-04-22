@@ -97,6 +97,8 @@ __all__ = (
     'Enumeration',
     'enumeration',
     'FontStyle',
+    'HatchPattern',
+    'HatchPatternAbbreviation',
     'HoldPolicy',
     'HorizontalLocation',
     'JitterRandomDistribution',
@@ -161,7 +163,10 @@ class Enumeration(object):
         return value in self._values
 
     def __str__(self):
-        return "Enumeration(%s)" % ", ".join(self._values)
+        if self._quote:
+            return "Enumeration(%s)" % ", ".join(repr(x) for x in self._values)
+        else:
+            return "Enumeration(%s)" % ", ".join(self._values)
 
     def __len__(self):
         return len(self._values)
@@ -190,6 +195,10 @@ def enumeration(*values, **kwargs):
         case_sensitive (bool, optional) :
             Whether validation should consider case or not (default: True)
 
+        quote (bool, optional):
+            Whther values should be quoted in the string representations
+            (default: False)
+
     Raises:
         ValueError if values empty, if any value is not a string or not unique
 
@@ -208,6 +217,7 @@ def enumeration(*values, **kwargs):
         "_values": list(values),
         "_default": values[0],
         "_case_sensitive": kwargs.get("case_sensitive", True),
+        "_quote": kwargs.get("quote", False),
     })
 
     return type(str("Enumeration"), (Enumeration,), attrs)()
@@ -249,6 +259,54 @@ Direction = enumeration("clock", "anticlock")
 
 #: Specify the font style for rendering text
 FontStyle = enumeration("normal", "italic", "bold", "bold italic")
+
+_hatch_patterns = (
+    (" ",  "blank"),
+    (".",  "dot"),
+    ("o",  "ring"),
+    ("-",  "horizontal_line"),
+    ("|",  "vertical_line"),
+    ("+",  "cross"),
+    ('"',  "horizontal_dash"),
+    (":",  "vertical_dash"),
+    ("@",  "spiral"),
+    ("/",  "right_diagonal_line"),
+    ("\\", "left_diagonal_line"),
+    ("x",  "diagonal_cross"),
+    (",",  "right_diagonal_dash"),
+    ("`",  "left_diagonal_dash"),
+    ("v",  "horizontal_wave"),
+    (">",  "vertical_wave"),
+    ("*",  "criss_cross"),
+)
+
+#: Specify one of the built-in patterns for hatching fills
+HatchPattern = enumeration(*list(zip(*_hatch_patterns))[1])
+
+#: Specify one of the built-in patterns for hatching fills with a one-letter abbreviation
+#:
+#: The abbreviations are mapped as follows:
+#:
+#: .. code-block:: none
+#:
+#:     " "  :  blank
+#:     "."  :  dot
+#:     "o"  :  ring
+#:     "-"  :  horizontal_line
+#:     "|"  :  vertical_line
+#:     "+"  :  cross
+#:     '"'  :  horizontal_dash
+#:     ":"  :  vertical_dash
+#:     "@"  :  spiral
+#:     "/"  :  right_diagonal_line
+#:     "\\" :  left_diagonal_line
+#:     "x"  :  diagonal_cross
+#:     ","  :  right_diagonal_dash
+#:     "`"  :  left_diagonal_dash
+#:     "v"  :  horizontal_wave
+#:     ">"  :  vertical_wave
+#:     "*"  :  criss_cross
+HatchPatternAbbreviation = enumeration(*list(zip(*_hatch_patterns))[0], quote=True)
 
 #: Specify whether events should be combined or collected as-is when a Document hold is in effect
 HoldPolicy = enumeration("combine", "collect")
@@ -349,6 +407,9 @@ TextAlign = enumeration("left", "right", "center")
 
 #: Specify the baseline location for rendering text
 TextBaseline = enumeration("top", "middle", "bottom", "alphabetic", "hanging", "ideographic")
+
+# Specify how textures used as canvas patterns should repeat
+TextureRepetition = enumeration("repeat", "repeat_x", "repeat_y", "no_repeat")
 
 #: Specify how axis tick labels are oriented with respect to the axis
 TickLabelOrientation = enumeration("horizontal", "vertical", "parallel", "normal")

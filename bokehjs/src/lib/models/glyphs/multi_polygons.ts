@@ -6,8 +6,8 @@ import {sum} from "core/util/arrayable"
 import {Arrayable, Area} from "core/types"
 import {PointGeometry} from "core/geometry"
 import {Context2d} from "core/util/canvas"
-import {LineVector, FillVector} from "core/property_mixins"
-import {Line, Fill} from "core/visuals"
+import {LineVector, FillVector, HatchVector} from "core/property_mixins"
+import {Line, Fill, Hatch} from "core/visuals"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
@@ -95,32 +95,45 @@ export class MultiPolygonsView extends GlyphView {
     })
   }
 
+  protected _inner_loop(ctx: Context2d, sx: Arrayable<Arrayable<Arrayable<number>>>, sy: Arrayable<Arrayable<Arrayable<number>>>): void {
+    ctx.beginPath()
+    for (let j = 0, endj = sx.length; j < endj; j++) {
+      for (let k = 0, endk = sx[j].length; k < endk; k++) {
+        const _sx = sx[j][k]
+        const _sy = sy[j][k]
+
+        for (let l = 0, endl = _sx.length; l < endl; l++) {
+          if (l == 0) {
+            ctx.moveTo(_sx[l], _sy[l])
+            continue
+          } else
+            ctx.lineTo(_sx[l], _sy[l])
+        }
+        ctx.closePath()
+      }
+    }
+  }
+
   protected _render(ctx: Context2d, indices: number[], {sxs, sys}: MultiPolygonsData): void {
     if (this.visuals.fill.doit || this.visuals.line.doit) {
 
       for (const i of indices) {
-        ctx.beginPath()
-        for (let j = 0, endj = sxs[i].length; j < endj; j++) {
-          for (let k = 0, endk = sxs[i][j].length; k < endk; k++) {
-            const _sx = sxs[i][j][k]
-            const _sy = sys[i][j][k]
+        const [sx, sy] = [sxs[i], sys[i]]
 
-            for (let l = 0, endl = _sx.length; l < endl; l++) {
-              if (l == 0) {
-                ctx.moveTo(_sx[l], _sy[l])
-                continue
-              } else
-                ctx.lineTo(_sx[l], _sy[l])
-            }
-            ctx.closePath()
-          }
-        }
         if (this.visuals.fill.doit) {
           this.visuals.fill.set_vectorize(ctx, i)
+          this._inner_loop(ctx, sx, sy)
           ctx.fill("evenodd")
         }
+
+        this.visuals.hatch.doit2(ctx, i, () => {
+          this._inner_loop(ctx, sx, sy)
+          ctx.fill("evenodd")
+        }, () => this.renderer.request_render())
+
         if (this.visuals.line.doit) {
           this.visuals.line.set_vectorize(ctx, i)
+          this._inner_loop(ctx, sx, sy)
           ctx.stroke()
         }
       }
@@ -256,12 +269,12 @@ export class MultiPolygonsView extends GlyphView {
 export namespace MultiPolygons {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Glyph.Props & LineVector & FillVector & {
+  export type Props = Glyph.Props & LineVector & FillVector & HatchVector & {
     xs: p.CoordinateSeqSpec
     ys: p.CoordinateSeqSpec
   }
 
-  export type Visuals = Glyph.Visuals & {line: Line, fill: Fill}
+  export type Visuals = Glyph.Visuals & {line: Line, fill: Fill, hatch: Hatch}
 }
 
 export interface MultiPolygons extends MultiPolygons.Attrs {}
@@ -278,7 +291,7 @@ export class MultiPolygons extends Glyph {
     this.prototype.default_view = MultiPolygonsView
 
     this.coords([['xs', 'ys']])
-    this.mixins(['line', 'fill'])
+    this.mixins(['line', 'fill', 'hatch'])
   }
 }
 MultiPolygons.initClass()
