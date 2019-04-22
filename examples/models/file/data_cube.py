@@ -1,7 +1,6 @@
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import ColumnDataSource
-from bokeh.models.callbacks import CustomJS
 from bokeh.models.widgets import StringFormatter, TableColumn, GroupingInfo, SumAggregator, DataCube
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
@@ -14,9 +13,6 @@ source = ColumnDataSource(data=dict(
 ))
 
 target = ColumnDataSource(data=dict(row_indices=[], labels=[]))
-
-callback = CustomJS(code='''console.log('row_indices: %o', this.data.row_indices)''')
-target.js_on_change('data', callback)
 
 formatter = StringFormatter(font_style='bold')
 
@@ -36,6 +32,10 @@ doc = Document()
 doc.add_root(cube)
 
 if __name__ == '__main__':
+    from bokeh.models.callbacks import CustomJS
+    callback = CustomJS(code="console.log('row_indices: %o', this.data.row_indices)")
+    target.js_on_change('data', callback)
+
     doc.validate()
     filename = "data_cube.html"
     with open(filename, "w") as f:
