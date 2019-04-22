@@ -1,5 +1,38 @@
 const {Grid: SlickGrid} = require("slickgrid")
-type SlickGrid = typeof SlickGrid
+
+interface EventData {
+  stopPropagation: () => void
+  isPropagationStopped: () => boolean
+  stopImmediatePropagation: () => void
+  isImmediatePropagationStopped: () => boolean
+}
+
+interface SlickEvent {
+  subscribe: (handler: (this: SlickGrid, e: EventData, args?: any) => any) => void
+  unsubscribe: (handler: (this: SlickGrid, e: EventData, args?: any) => any) => void
+  notify: (args: any, e: EventData, scope?: any) => any
+}
+
+export interface SlickGrid {
+  onSort: SlickEvent
+  onClick: SlickEvent
+  onSelectedRowsChanged: SlickEvent
+
+  registerPlugin: (plugin: object) => void
+  getColumns: () => Column[]
+  getColumnIndex: (id: string) => number
+  getSortColumns: () => Column[],
+  getData: () => any
+  getDataItem: (id: number) => {[key: string]: any}
+  setSelectionModel: (model: object) => void
+  setSelectedRows: (rows: any[]) => void
+
+  render: () => void
+  invalidate: () => void
+  getViewport: () => { top: number, bottom: number, leftPx: number, rightPx: number }
+  resizeCanvas: () => void
+  scrollRowToTop: (row: number) => void
+}
 
 const {RowSelectionModel} = require("slickgrid/plugins/slick.rowselectionmodel")
 const {CheckboxSelectColumn} = require("slickgrid/plugins/slick.checkboxselectcolumn")
@@ -99,8 +132,8 @@ export class DataProvider {
 export class DataTableView extends WidgetView {
   model: DataTable
 
-  private data: DataProvider
-  private grid: SlickGrid
+  protected data: DataProvider
+  protected grid: SlickGrid
 
   protected _in_selection_update = false
   protected _warned_not_reorderable = false

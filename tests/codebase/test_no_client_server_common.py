@@ -19,6 +19,7 @@ import pytest ; pytest
 
 # Standard library imports
 from subprocess import PIPE, Popen
+from sys import executable
 
 # External imports
 
@@ -47,7 +48,7 @@ def test_no_client_server_common():
 
     '''
     code = "import sys; %s; sys.exit(1 if any(('bokeh.client' in x or 'bokeh.server' in x) for x in sys.modules.keys()) else 0)"
-    proc = Popen(["python", "-c", code % ";".join(BASIC_IMPORTS)],stdout=PIPE)
+    proc = Popen([executable, "-c", code % ";".join(BASIC_IMPORTS)],stdout=PIPE)
     proc.wait()
     if proc.returncode != 0:
         assert False
