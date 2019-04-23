@@ -56,7 +56,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def export_png(obj, filename=None, height=None, width=None, webdriver=None):
+def export_png(obj, filename=None, height=None, width=None, webdriver=None, timeout=5):
     ''' Export the ``LayoutDOM`` object or document as a PNG.
 
     If the filename is not given, it is derived from the script name (e.g.
@@ -78,6 +78,9 @@ def export_png(obj, filename=None, height=None, width=None, webdriver=None):
         webdriver (selenium.webdriver) : a selenium webdriver instance to use
             to export the image.
 
+        timeout (int) : the maximum amount of time (in seconds) to wait for
+            Bokeh to initialize (default: 5) (Added in 1.1.1).
+
     Returns:
         filename (str) : the filename where the static file is saved.
 
@@ -91,7 +94,7 @@ def export_png(obj, filename=None, height=None, width=None, webdriver=None):
 
     '''
 
-    image = get_screenshot_as_png(obj, height=height, width=width, driver=webdriver)
+    image = get_screenshot_as_png(obj, height=height, width=width, driver=webdriver, timeout=timeout)
 
     if filename is None:
         filename = default_filename("png")
@@ -103,7 +106,7 @@ def export_png(obj, filename=None, height=None, width=None, webdriver=None):
 
     return abspath(filename)
 
-def export_svgs(obj, filename=None, height=None, width=None, webdriver=None):
+def export_svgs(obj, filename=None, height=None, width=None, webdriver=None, timeout=5):
     ''' Export the SVG-enabled plots within a layout. Each plot will result
     in a distinct SVG file.
 
@@ -125,6 +128,9 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None):
         webdriver (selenium.webdriver) : a selenium webdriver instance to use
             to export the image.
 
+        timeout (int) : the maximum amount of time (in seconds) to wait for
+            Bokeh to initialize (default: 5) (Added in 1.1.1).
+
     Returns:
         filenames (list(str)) : the list of filenames where the SVGs files are
         saved.
@@ -134,7 +140,7 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None):
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    svgs = get_svgs(obj, height=height, width=width, driver=webdriver)
+    svgs = get_svgs(obj, height=height, width=width, driver=webdriver, timeout=timeout)
 
     if len(svgs) == 0:
         log.warning("No SVG Plots were found.")
@@ -177,7 +183,7 @@ def create_webdriver():
     '''
     return webdriver_control.create()
 
-def get_screenshot_as_png(obj, driver=None, **kwargs):
+def get_screenshot_as_png(obj, driver=None, timeout=5, **kwargs):
     ''' Get a screenshot of a ``LayoutDOM`` object.
 
     Args:
@@ -186,6 +192,10 @@ def get_screenshot_as_png(obj, driver=None, **kwargs):
 
         driver (selenium.webdriver) : a selenium webdriver instance to use
             to export the image.
+
+        timeout (int) : the maximum amount of time to wait for initialization.
+            It will be used as a timeout for loading Bokeh, then when waiting for
+            the layout to be rendered.
 
     Returns:
         cropped_image (PIL.Image.Image) : a pillow image loaded from PNG.
@@ -212,7 +222,7 @@ def get_screenshot_as_png(obj, driver=None, **kwargs):
         ## resize for PhantomJS compat
         web_driver.execute_script("document.body.style.width = '100%';")
 
-        wait_until_render_complete(web_driver)
+        wait_until_render_complete(web_driver, timeout)
 
         png = web_driver.get_screenshot_as_png()
 
@@ -223,7 +233,7 @@ def get_screenshot_as_png(obj, driver=None, **kwargs):
 
     return cropped_image
 
-def get_svgs(obj, driver=None, **kwargs):
+def get_svgs(obj, driver=None, timeout=5, **kwargs):
     '''
 
     '''
@@ -236,7 +246,7 @@ def get_svgs(obj, driver=None, **kwargs):
 
         web_driver.get("file:///" + tmp.path)
 
-        wait_until_render_complete(web_driver)
+        wait_until_render_complete(web_driver, timeout)
 
         svgs = web_driver.execute_script(_SVG_SCRIPT)
 
@@ -268,7 +278,7 @@ def get_layout_html(obj, resources=INLINE, **kwargs):
 
     return html
 
-def wait_until_render_complete(driver):
+def wait_until_render_complete(driver, timeout):
     '''
 
     '''
@@ -283,7 +293,7 @@ def wait_until_render_complete(driver):
         ''')
 
     try:
-        WebDriverWait(driver, 5, poll_frequency=0.1).until(is_bokeh_loaded)
+        WebDriverWait(driver, timeout, poll_frequency=0.1).until(is_bokeh_loaded)
     except TimeoutException as e:
         raise_from(RuntimeError('Bokeh was not loaded in time. Something may have gone wrong.'), e)
 
@@ -293,7 +303,7 @@ def wait_until_render_complete(driver):
         return driver.execute_script('return window._bokeh_render_complete;')
 
     try:
-        WebDriverWait(driver, 5, poll_frequency=0.1).until(is_bokeh_render_complete)
+        WebDriverWait(driver, timeout, poll_frequency=0.1).until(is_bokeh_render_complete)
     except TimeoutException:
         log.warning("The webdriver raised a TimeoutException while waiting for "
                     "a 'bokeh:idle' event to signify that the layout has rendered. "
