@@ -78,7 +78,8 @@ def export_png(obj, filename=None, height=None, width=None, webdriver=None, time
         webdriver (selenium.webdriver) : a selenium webdriver instance to use
             to export the image.
 
-        timeout (int) : the maximum amount of time (in seconds) to wait for Bokeh to initialize (default: 5).
+        timeout (int) : the maximum amount of time (in seconds) to wait for
+            Bokeh to initialize (default: 5) (Added in 1.1.1).
 
     Returns:
         filename (str) : the filename where the static file is saved.
@@ -127,7 +128,8 @@ def export_svgs(obj, filename=None, height=None, width=None, webdriver=None, tim
         webdriver (selenium.webdriver) : a selenium webdriver instance to use
             to export the image.
 
-        timeout (int) : the maximum amount of time (in seconds) to wait for Bokeh to initialize (default: 5).
+        timeout (int) : the maximum amount of time (in seconds) to wait for
+            Bokeh to initialize (default: 5) (Added in 1.1.1).
 
     Returns:
         filenames (list(str)) : the list of filenames where the SVGs files are
