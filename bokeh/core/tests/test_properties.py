@@ -60,6 +60,8 @@ ALL = (
     'Float',
     'FontSize',
     'FontSizeSpec',
+    'HatchPatternSpec',
+    'HatchPatternType',
     'Image',
     'Include',
     'Instance',

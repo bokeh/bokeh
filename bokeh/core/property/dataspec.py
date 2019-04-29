@@ -37,7 +37,7 @@ from .either import Either
 from .enum import Enum
 from .instance import Instance
 from .primitive import Float, String
-from .visual import FontSize, MarkerType
+from .visual import FontSize, HatchPatternType, MarkerType
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -52,6 +52,7 @@ __all__ = (
     'expr',
     'field',
     'FontSizeSpec',
+    'HatchPatternSpec',
     'MarkerSpec',
     'NumberSpec',
     'ScreenDistanceSpec',
@@ -299,6 +300,26 @@ class FontSizeSpec(DataSpec):
             if len(value) == 0 or value[0].isdigit() and FontSize._font_size_re.match(value) is None:
                 msg = "" if not detail else "%r is not a valid font size value" % value
                 raise ValueError(msg)
+
+class HatchPatternSpec(DataSpec):
+    ''' A |DataSpec| property that accepts hatch pattern types as fixed values.
+
+    The ``HatchPatternSpec`` property attempts to first interpret string values
+    as hatch pattern types. Otherwise string values are interpreted as field
+    names. For example:
+
+    .. code-block:: python
+
+        m.font_size = "."    # value
+
+        m.font_size = "ring" # value
+
+        m.font_size = "foo"  # field
+
+    '''
+
+    def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
+        super(HatchPatternSpec, self).__init__(key_type, HatchPatternType, default=default, help=help)
 
 class MarkerSpec(DataSpec):
     ''' A |DataSpec| property that accepts marker types as fixed values.

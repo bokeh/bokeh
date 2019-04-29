@@ -31,9 +31,10 @@ from bokeh.core.enums import NamedColor as Color, LineJoin, LineCap
 #-----------------------------------------------------------------------------
 
 # enums
-FILL = ["fill_color", "fill_alpha"]
-LINE = ["line_color", "line_width", "line_alpha", "line_join", "line_cap", "line_dash", "line_dash_offset"]
-TEXT = ["text_font", "text_font_size", "text_font_style", "text_color", "text_alpha", "text_align", "text_baseline", "text_line_height"]
+FILL  = ["fill_color", "fill_alpha"]
+HATCH = ["hatch_color", "hatch_alpha", "hatch_scale", "hatch_pattern", "hatch_weight", "hatch_extra"]
+LINE  = ["line_color", "line_width", "line_alpha", "line_join", "line_cap", "line_dash", "line_dash_offset"]
+TEXT  = ["text_font", "text_font_size", "text_font_style", "text_color", "text_alpha", "text_align", "text_baseline", "text_line_height"]
 
 ANGLE = ["angle", "angle_units"]
 
@@ -60,6 +61,14 @@ def check_properties_existence(model, *props):
 def check_fill_properties(model, prefix="", fill_color=Color.gray, fill_alpha=1.0):
     assert getattr(model, prefix + "fill_color") == fill_color
     assert getattr(model, prefix + "fill_alpha") == fill_alpha
+
+def check_hatch_properties(model, prefix="", hatch_color=Color.black, hatch_alpha=1.0, hatch_pattern=None, hatch_scale=12.0, hatch_weight=1.0, hatch_extra={}):
+    assert getattr(model, prefix + "hatch_color") == hatch_color
+    assert getattr(model, prefix + "hatch_alpha") == hatch_alpha
+    assert getattr(model, prefix + "hatch_pattern") == hatch_pattern
+    assert getattr(model, prefix + "hatch_scale") == hatch_scale
+    assert getattr(model, prefix + "hatch_weight") == hatch_weight
+    assert getattr(model, prefix + "hatch_extra") == hatch_extra
 
 def check_line_properties(model, prefix="", line_color=Color.black, line_width=1.0, line_alpha=1.0):
     assert getattr(model, prefix + "line_color") == line_color

@@ -37,21 +37,27 @@ export class VAreaView extends AreaView {
     return new SpatialIndex(points)
   }
 
+  protected _inner(ctx: Context2d, sx: Arrayable<number>, sy1: Arrayable<number>, sy2: Arrayable<number>, func: (this: Context2d) => void): void {
+    ctx.beginPath()
+    for (let i = 0, end = sy1.length; i < end; i++) {
+      ctx.lineTo(sx[i], sy1[i])
+    }
+    // iterate backwards so that the upper end is below the lower start
+    for (let start = sy2.length-1, i = start; i >= 0; i--) {
+      ctx.lineTo(sx[i], sy2[i])
+    }
+    ctx.closePath()
+    func.call(ctx)
+  }
+
   protected _render(ctx: Context2d, _indices: number[], {sx, sy1, sy2}: VAreaData): void {
+
     if (this.visuals.fill.doit) {
       this.visuals.fill.set_value(ctx)
-
-      for (let i = 0, end = sy1.length; i < end; i++) {
-        ctx.lineTo(sx[i], sy1[i])
-      }
-      // iterate backwards so that the upper end is below the lower start
-      for (let start = sy2.length-1, i = start; i >= 0; i--) {
-        ctx.lineTo(sx[i], sy2[i])
-      }
-
-      ctx.closePath()
-      ctx.fill()
+      this._inner(ctx, sx, sy1, sy2, ctx.fill)
     }
+
+    this.visuals.hatch.doit2(ctx, 0, () => this._inner(ctx, sx, sy1, sy2, ctx.fill), () => this.renderer.request_render())
 
   }
 

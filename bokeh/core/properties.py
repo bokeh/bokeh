@@ -203,6 +203,8 @@ __all__ = (
     'Float',
     'FontSize',
     'FontSizeSpec',
+    'HatchPatternSpec',
+    'HatchPatternType',
     'Image',
     'Include',
     'Instance',
@@ -264,6 +266,7 @@ from .property.dataspec import DistanceSpec; DistanceSpec
 from .property.dataspec import expr; expr
 from .property.dataspec import field; field
 from .property.dataspec import FontSizeSpec; FontSizeSpec
+from .property.dataspec import HatchPatternSpec; HatchPatternSpec
 from .property.dataspec import MarkerSpec; MarkerSpec
 from .property.dataspec import NumberSpec; NumberSpec
 from .property.dataspec import ScreenDistanceSpec; ScreenDistanceSpec
@@ -306,6 +309,7 @@ from .property.struct import Struct; Struct
 
 from .property.visual import DashPattern; DashPattern
 from .property.visual import FontSize; FontSize
+from .property.visual import HatchPatternType; HatchPatternType
 from .property.visual import Image; Image
 from .property.visual import MinMaxBounds; MinMaxBounds
 from .property.visual import MarkerType; MarkerType
