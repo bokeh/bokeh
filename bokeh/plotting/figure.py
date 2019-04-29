@@ -33,7 +33,7 @@ from ..util.options import Options
 from ..transform import linear_cmap
 from .helpers import (
     _get_range, _get_scale, _process_axis_and_grid, _process_tools_arg,
-    _glyph_function, _process_active_tools, _stack, _graph,
+    _glyph_function, _process_active_tools, _single_stack, _double_stack, _graph,
 )
 
 #-----------------------------------------------------------------------------
@@ -78,6 +78,7 @@ class Figure(Plot):
         * :func:`~bokeh.plotting.figure.Figure.diamond`
         * :func:`~bokeh.plotting.figure.Figure.diamond_cross`
         * :func:`~bokeh.plotting.figure.Figure.ellipse`
+        * :func:`~bokeh.plotting.figure.Figure.harea`
         * :func:`~bokeh.plotting.figure.Figure.hbar`
         * :func:`~bokeh.plotting.figure.Figure.hex`
         * :func:`~bokeh.plotting.figure.Figure.hex_tile`
@@ -86,6 +87,7 @@ class Figure(Plot):
         * :func:`~bokeh.plotting.figure.Figure.image_url`
         * :func:`~bokeh.plotting.figure.Figure.inverted_triangle`
         * :func:`~bokeh.plotting.figure.Figure.line`
+        * :func:`~bokeh.plotting.figure.Figure.line_stack`
         * :func:`~bokeh.plotting.figure.Figure.multi_line`
         * :func:`~bokeh.plotting.figure.Figure.multi_polygons`
         * :func:`~bokeh.plotting.figure.Figure.oval`
@@ -102,20 +104,22 @@ class Figure(Plot):
         * :func:`~bokeh.plotting.figure.Figure.step`
         * :func:`~bokeh.plotting.figure.Figure.text`
         * :func:`~bokeh.plotting.figure.Figure.triangle`
+        * :func:`~bokeh.plotting.figure.Figure.varea`
         * :func:`~bokeh.plotting.figure.Figure.vbar`
         * :func:`~bokeh.plotting.figure.Figure.wedge`
         * :func:`~bokeh.plotting.figure.Figure.x`
 
-    As well as a scatter function that can be parameterized by marker type:
+    There is a scatter function that can be parameterized by marker type:
 
     * :func:`~bokeh.plotting.figure.Figure.scatter`
 
-    There are also two specialized methods for stacking bars:
+    There are also specialized methods for stacking bars:
 
-    * :func:`~bokeh.plotting.figure.Figure.hbar_stack`
-    * :func:`~bokeh.plotting.figure.Figure.vbar_stack`
+    * bars: :func:`~bokeh.plotting.figure.Figure.hbar_stack`, :func:`~bokeh.plotting.figure.Figure.vbar_stack`
+    * lines: :func:`~bokeh.plotting.figure.Figure.line_stack`
+    * areas: :func:`~bokeh.plotting.figure.Figure.harea_stack`, :func:`~bokeh.plotting.figure.Figure.varea_stack`
 
-    And one specialized method for making simple hexbin plots:
+    As well as one specialized method for making simple hexbin plots:
 
     * :func:`~bokeh.plotting.figure.Figure.hexbin`
 
@@ -313,6 +317,22 @@ Examples:
         show(plot)
 
 """)
+
+    harea = _glyph_function(_glyphs.HArea, """
+    Examples:
+
+   .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(plot_width=300, plot_height=300)
+        plot.harea(x1=[0, 0, 0], x2=[1, 4, 2], y=[1, 2, 3],
+                      fill_color="#99D594")
+
+        show(plot)
+
+    """)
 
     hbar = _glyph_function(_glyphs.HBar, """
 Examples:
@@ -668,6 +688,22 @@ Examples:
 
 """)
 
+    varea = _glyph_function(_glyphs.VArea, """
+Examples:
+
+   .. bokeh-plot::
+        :source-position: above
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(plot_width=300, plot_height=300)
+        plot.varea(x=[1, 2, 3], y1=[0, 0, 0], y2=[1, 4, 2],
+                   fill_color="#99D594")
+
+        show(plot)
+
+""")
+
     vbar = _glyph_function(_glyphs.VBar, """
 Examples:
 
@@ -875,6 +911,48 @@ Examples:
 
         return (r, bins)
 
+    def harea_stack(self, stackers, **kw):
+        ''' Generate multiple ``HArea`` renderers for levels stacked left
+        to right.
+
+        Args:
+            stackers (seq[str]) : a list of data source field names to stack
+                successively for ``x1`` and ``x2`` harea coordinates.
+
+                Additionally, the ``name`` of the renderer will be set to
+                the value of each successive stacker (this is useful with the
+                special hover variable ``$name``)
+
+        Any additional keyword arguments are passed to each call to ``harea``.
+        If a keyword value is a list or tuple, then each call will get one
+        value from the sequence.
+
+        Returns:
+            list[GlyphRenderer]
+
+        Examples:
+
+            Assuming a ``ColumnDataSource`` named ``source`` with columns
+            *2016* and *2017*, then the following call to ``harea_stack`` will
+            will create two ``HArea`` renderers that stack:
+
+            .. code-block:: python
+
+                p.harea_stack(['2016', '2017'], y='y', color=['blue', 'red'], source=source)
+
+            This is equivalent to the following two separate calls:
+
+            .. code-block:: python
+
+                p.harea(x1=stack(),       x2=stack('2016'),         y='y', color='blue', source=source, name='2016')
+                p.harea(x1=stack('2016'), x2=stack('2016', '2017'), y='y', color='red',  source=source, name='2017')
+
+        '''
+        result = []
+        for kw in _double_stack(stackers, "x1", "x2", **kw):
+            result.append(self.harea(**kw))
+        return result
+
     def hbar_stack(self, stackers, **kw):
         ''' Generate multiple ``HBar`` renderers for levels stacked left to right.
 
@@ -912,8 +990,108 @@ Examples:
 
         '''
         result = []
-        for kw in _stack(stackers, "left", "right", **kw):
+        for kw in _double_stack(stackers, "left", "right", **kw):
             result.append(self.hbar(**kw))
+        return result
+
+    def line_stack(self, x, y, **kw):
+        ''' Generate multiple ``Line`` renderers for lines stacked vertically
+        or horizontally.
+
+        Args:
+            x (seq[str]) :
+
+            y (seq[str]) :
+
+        Additionally, the ``name`` of the renderer will be set to
+        the value of each successive stacker (this is useful with the
+        special hover variable ``$name``)
+
+        Any additional keyword arguments are passed to each call to ``hbar``.
+        If a keyword value is a list or tuple, then each call will get one
+        value from the sequence.
+
+        Returns:
+            list[GlyphRenderer]
+
+        Examples:
+
+            Assuming a ``ColumnDataSource`` named ``source`` with columns
+            *2106* and *2017*, then the following call to ``line_stack`` with
+            stackers for the y-coordinates will will create two ``Line``
+            renderers that stack:
+
+            .. code-block:: python
+
+                p.line_stack(['2016', '2017'], x='x', color=['blue', 'red'], source=source)
+
+            This is equivalent to the following two separate calls:
+
+            .. code-block:: python
+
+                p.line(y=stack('2016'),         x='x', color='blue', source=source, name='2016')
+                p.line(y=stack('2016', '2017'), x='x', color='red',  source=source, name='2017')
+
+        '''
+        if all(isinstance(val, (list, tuple)) for val in (x,y)):
+            raise ValueError("Only one of x or y may be a list of stackers")
+
+        result = []
+
+        if isinstance(y, (list, tuple)):
+            kw['x'] = x
+            for kw in _single_stack(y, "y", **kw):
+                result.append(self.line(**kw))
+            return result
+
+        if isinstance(x, (list, tuple)):
+            kw['y'] = y
+            for kw in _single_stack(x, "x", **kw):
+                result.append(self.line(**kw))
+            return result
+
+        return [self.line(x, y, **kw)]
+
+    def varea_stack(self, stackers, **kw):
+        ''' Generate multiple ``VArea`` renderers for levels stacked bottom
+        to top.
+
+        Args:
+            stackers (seq[str]) : a list of data source field names to stack
+                successively for ``y1`` and ``y1`` varea coordinates.
+
+                Additionally, the ``name`` of the renderer will be set to
+                the value of each successive stacker (this is useful with the
+                special hover variable ``$name``)
+
+        Any additional keyword arguments are passed to each call to ``varea``.
+        If a keyword value is a list or tuple, then each call will get one
+        value from the sequence.
+
+        Returns:
+            list[GlyphRenderer]
+
+        Examples:
+
+            Assuming a ``ColumnDataSource`` named ``source`` with columns
+            *2016* and *2017*, then the following call to ``varea_stack`` will
+            will create two ``VArea`` renderers that stack:
+
+            .. code-block:: python
+
+                p.varea_stack(['2016', '2017'], x='x', color=['blue', 'red'], source=source)
+
+            This is equivalent to the following two separate calls:
+
+            .. code-block:: python
+
+                p.varea(y1=stack(),       y2=stack('2016'),         x='x', color='blue', source=source, name='2016')
+                p.varea(y1=stack('2016'), y2=stack('2016', '2017'), x='x', color='red',  source=source, name='2017')
+
+        '''
+        result = []
+        for kw in _double_stack(stackers, "y1", "y2", **kw):
+            result.append(self.varea(**kw))
         return result
 
     def vbar_stack(self, stackers, **kw):
@@ -952,10 +1130,9 @@ Examples:
                 p.vbar(bottom=stack(),       top=stack('2016'),         x=10, width=0.9, color='blue', source=source, name='2016')
                 p.vbar(bottom=stack('2016'), top=stack('2016', '2017'), x=10, width=0.9, color='red',  source=source, name='2017')
 
-
         '''
         result = []
-        for kw in _stack(stackers, "bottom", "top", **kw):
+        for kw in _double_stack(stackers, "bottom", "top", **kw):
             result.append(self.vbar(**kw))
         return result
 
@@ -967,13 +1144,17 @@ Examples:
                 for the graph nodes. An attempt will be made to convert the object to
                 :class:`~bokeh.models.sources.ColumnDataSource` if needed. If none is supplied, one is created
                 for the user automatically.
+
             edge_source (:class:`~bokeh.models.sources.ColumnDataSource`) : a user-supplied data source
                 for the graph edges. An attempt will be made to convert the object to
                 :class:`~bokeh.models.sources.ColumnDataSource` if needed. If none is supplied, one is created
                 for the user automatically.
+
             layout_provider (:class:`~bokeh.models.graphs.LayoutProvider`) : a ``LayoutProvider`` instance to
                 provide the graph coordinates in Cartesian space.
+
             **kwargs: :ref:`userguide_styling_line_properties` and :ref:`userguide_styling_fill_properties`
+
         '''
         kw = _graph(node_source, edge_source, **kwargs)
         graph_renderer = GraphRenderer(layout_provider=layout_provider, **kw)
