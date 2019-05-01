@@ -222,9 +222,11 @@ export class PlotView extends LayoutDOMView {
   }
 
   reset(): void {
-    this.clear_state()
-    this.reset_range()
-    this.reset_selection()
+    if (this.model.reset_policy == "standard") {
+      this.clear_state()
+      this.reset_range()
+      this.reset_selection()
+    }
     this.model.trigger_event(new Reset())
   }
 

@@ -44,6 +44,10 @@ def modify_doc(doc):
 # Setting num_procs here means we can't touch the IOLoop before now, we must
 # let Server handle that. If you need to explicitly handle IOLoops then you
 # will need to use the lower level BaseServer class.
+# The `static/` end point is reserved for Bokeh resources, as specified in
+# bokeh.server.urls. In order to make your own end point for static resources,
+# add the following to the `extra_patterns` argument, replacing `DIR` with the desired directory.
+# (r'/DIR/(.*)', StaticFileHandler, {'path': os.path.normpath(os.path.dirname(__file__) + '/DIR')})
 server = Server({'/bkapp': modify_doc}, num_procs=4, extra_patterns=[('/', IndexHandler)])
 server.start()
 

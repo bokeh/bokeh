@@ -41,6 +41,7 @@ import bokeh.core.property.visual as bcpv
 ALL = (
     'DashPattern',
     'FontSize',
+    'HatchPatternType',
     'Image',
     'MinMaxBounds',
     'MarkerType',

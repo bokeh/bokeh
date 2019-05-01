@@ -1,113 +1,62 @@
-# Editor temporary/working/backup files #
-#########################################
+*.py[ocd]
+
+# setup.py things
+/build
+/dist
+/MANIFEST
+
+# sphinx build directory
+/sphinx/build
+
+# Egg metadata
+/*.egg-info
+
+# coverage reports
+/.coverage
+
+# ipython files
+**/.ipynb_checkpoints
+
+# tests/examples
+report.html
+examples.log
+/examples/custom/font-awesome/package-lock.json
+
+# conda build
+/linux-64
+/osx-64
+/win-64
+
+# pytest
+/.cache/
+/.pytest_cache/
+
+# auto-generated
+/bokeh/LICENSE.txt
+
+# dev files
+*.patch
+*.diff
+*.rej
+
+# common editor cruft
 .#*
 [#]*#
 *~
 *$
 *.bak
-*.diff
-*.org
 .project
 .pydevproject
-*.rej
-.settings/
 .*.sw[nop]
 .sw[nop]
 *.tmp
-*.coverage.*
-**/screenshots/current*
-**/screenshots/diff*
 
-# Compiled source #
-###################
-*.a
-*.com
-*.class
-*.dll
-*.exe
-*.o
-*.py[ocd]
-*.so
-
-# Packages #
-############
-# it's better to unpack these files and commit the raw source
-# git has its own built in compression methods
-*.7z
+# compressed / binary files
 *.bz2
 *.bzip2
 *.dmg
 *.gz
 *.iso
-*.jar
-*.rar
 *.tar
-*.tbz2
 *.tgz
 *.zip
-
-# Python files #
-################
-# setup.py working directory
-/build
-# sphinx build directory
-/_build
-# setup.py dist directory
-/dist
-/doc/build
-/doc/cdoc/build
-/MANIFEST
-# Egg metadata
-*.egg-info
-# The shelf plugin uses this dir
-./.shelf
-# coverage reports
-.coverage
-# ipython files
-**/.ipynb_checkpoints
-# tests/examples reports
-report.html
-
-# Logs and databases #
-######################
-*.log
-*.sql
-*.sqlite
-
-# Patches #
-###########
-*.patch
-*.diff
-
-# OS generated files #
-######################
-.DS_Store*
-.VolumeIcon.icns
-.fseventsd
-Icon?
-.gdb_history
-ehthumbs.db
-Thumbs.db
-
-# Things specific to this project #
-###################################
-webplot.py
-redis.db
-bokehpids.json
-bokeh.data.*
-bokeh.server.*
-bokeh.sets.*
-remotedata
-target/
-/.idea/
-/.c9/
-
-osx-64
-linux-64
-win-64
-
-/record.txt
-/bokeh/LICENSE.txt
-/examples/refs
-.cache/
-.pytest_cache

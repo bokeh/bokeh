@@ -39,7 +39,7 @@ The script also supports the standard "develop" mode that setuptools offers:
 It can take a few minutes for BokehJS to build, if you are not making changes
 to the BokehJS source code, then you only need to build it once, the first
 time. Subsequence invocations can be made to install the previously built
-BokehJS from the ``bokehjs`` source subdirectoruy with the ``--install-js``
+BokehJS from the ``bokehjs`` source subdirectory with the ``--install-js``
 option, e.g:
 
     python setup.py develop --install-js

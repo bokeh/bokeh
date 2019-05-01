@@ -27,7 +27,7 @@ import warnings
 from six import string_types
 
 # Bokeh imports
-from ..core.enums import Location, OutputBackend
+from ..core.enums import Location, OutputBackend, ResetPolicy
 from ..core.properties import Bool, Dict, Enum, Include, Instance, Int, List, Override, String, Float
 from ..core.property_mixins import LineProps, FillProps
 from ..core.query import find
@@ -82,7 +82,7 @@ class Plot(LayoutDOM):
 
         Additionally, for compatibility with ``Model.select``, a selector
         dict may be passed as ``selector`` keyword argument, in which case
-        the value of ``kwargs['selector']`` is used for th query.
+        the value of ``kwargs['selector']`` is used for the query.
 
         For convenience, queries on just names can be made by supplying
         the ``name`` string as the single parameter:
@@ -706,6 +706,14 @@ class Plot(LayoutDOM):
 
     .. note::
         This setting only takes effect if ``match_aspect`` is set to ``True``.
+    """)
+
+    reset_policy = Enum(ResetPolicy, default="standard", help="""
+    How a plot should respond to being reset. By deafult, the standard actions
+    are to clear any tool state history, return plot ranges to their original
+    values, undo all selections, and emit a ``Reset`` event. If customization
+    is desired, this property may be set to ``"event_only"``, which will
+    suppress all of the actions except the Reset event.
     """)
 
     # XXX: override LayoutDOM's definitions because of plot_{width,height}.

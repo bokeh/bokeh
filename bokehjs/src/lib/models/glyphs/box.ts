@@ -1,6 +1,6 @@
-import {LineVector, FillVector} from "core/property_mixins"
+import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import {Arrayable, Area} from "core/types"
-import {Line, Fill} from "core/visuals"
+import {Line, Fill, Hatch} from "core/visuals"
 import {SpatialIndex} from "core/util/spatial"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
@@ -55,17 +55,28 @@ export abstract class BoxView extends GlyphView {
       if (isNaN(sleft[i] + stop[i] + sright[i] + sbottom[i]))
         continue
 
+      ctx.rect(sleft[i], stop[i], sright[i] - sleft[i], sbottom[i] - stop[i])
+
       if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i)
-        ctx.fillRect(sleft[i], stop[i], sright[i] - sleft[i], sbottom[i] - stop[i])
-      }
-
-      if (this.visuals.line.doit) {
         ctx.beginPath()
         ctx.rect(sleft[i], stop[i], sright[i] - sleft[i], sbottom[i] - stop[i])
+        ctx.fill()
+      }
+
+      this.visuals.hatch.doit2(ctx, i, () => {
+        ctx.beginPath()
+        ctx.rect(sleft[i], stop[i], sright[i] - sleft[i], sbottom[i] - stop[i])
+        ctx.fill()
+      }, () => this.renderer.request_render())
+
+      if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i)
+        ctx.beginPath()
+        ctx.rect(sleft[i], stop[i], sright[i] - sleft[i], sbottom[i] - stop[i])
         ctx.stroke()
       }
+
     }
   }
 
@@ -128,9 +139,9 @@ export abstract class BoxView extends GlyphView {
 export namespace Box {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Glyph.Props & LineVector & FillVector
+  export type Props = Glyph.Props & LineVector & FillVector & HatchVector
 
-  export type Visuals = Glyph.Visuals & {line: Line, fill: Fill}
+  export type Visuals = Glyph.Visuals & {line: Line, fill: Fill, hatch: Hatch}
 }
 
 export interface Box extends Box.Attrs {}
@@ -145,7 +156,7 @@ export abstract class Box extends Glyph {
   static initClass(): void {
     this.prototype.type = "Box"
 
-    this.mixins(['line', 'fill'])
+    this.mixins(['line', 'fill', 'hatch'])
   }
 }
 Box.initClass()

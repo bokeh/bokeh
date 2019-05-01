@@ -1,11 +1,9 @@
+import {AbstractIcon, AbstractIconView} from "models/widgets/abstract_icon"
 import * as p from "core/properties"
-
-import {AbstractIcon} from "models/widgets/abstract_icon"
-import {WidgetView} from "models/widgets/widget"
 
 import "./fontawesome.less"
 
-export class FontAwesomeIconView extends WidgetView {
+export class FontAwesomeIconView extends AbstractIconView {
   model: FontAwesomeIcon
 
   connect_signals(): void {
@@ -17,6 +15,7 @@ export class FontAwesomeIconView extends WidgetView {
     super.render()
 
     this.el.style.display = "inline"
+    this.el.style.verticalAlign = "middle"
     this.el.style.fontSize = `${this.model.size}em`
 
     this.el.classList.add("bk-u-fa")

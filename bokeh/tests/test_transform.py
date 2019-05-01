@@ -21,7 +21,10 @@ import pytest ; pytest
 # External imports
 
 # Bokeh imports
-from bokeh.models import CategoricalColorMapper, CategoricalMarkerMapper, CumSum, Dodge, FactorRange, Jitter, LinearColorMapper, LogColorMapper, Stack
+from bokeh.models import (
+    CategoricalColorMapper, CategoricalMarkerMapper, CategoricalPatternMapper, CumSum, Dodge,
+    FactorRange, Jitter, LinearColorMapper, LogColorMapper, Stack
+)
 from bokeh._testing.util.api import verify_all
 
 # Module under test
@@ -35,6 +38,7 @@ ALL = (
     'cumsum',
     'dodge',
     'factor_cmap',
+    'factor_hatch',
     'factor_mark',
     'jitter',
     'linear_cmap',
@@ -115,6 +119,31 @@ class Test_factor_cmap(object):
         assert t['transform'].start == 0
         assert t['transform'].end is None
         assert t['transform'].nan_color == "gray"
+
+class Test_factor_hatch(object):
+
+    def test_basic(self):
+        t = bt.factor_hatch("foo", ["+", "-"], ["foo", "bar"], start=1, end=2)
+        assert isinstance(t, dict)
+        assert set(t) == {"field", "transform"}
+        assert t['field'] == "foo"
+        assert isinstance(t['transform'], CategoricalPatternMapper)
+        assert t['transform'].patterns == ["+", "-"]
+        assert t['transform'].factors == ["foo", "bar"]
+        assert t['transform'].start == 1
+        assert t['transform'].end == 2
+
+    def test_defaults(self):
+        t = bt.factor_hatch("foo", ["+", "-"], ["foo", "bar"])
+        assert isinstance(t, dict)
+        assert set(t) == {"field", "transform"}
+        assert t['field'] == "foo"
+        assert isinstance(t['transform'], CategoricalPatternMapper)
+        assert t['transform'].patterns == ["+", "-"]
+        assert t['transform'].factors == ["foo", "bar"]
+        assert t['transform'].start == 0
+        assert t['transform'].end is None
+
 
 class Test_factor_mark(object):
 

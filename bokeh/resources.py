@@ -86,7 +86,7 @@ class BaseResources(object):
         self.path_versioner = path_versioner;           del path_versioner
 
         if root_url and not root_url.endswith("/"):
-            log.warning("root_url should end with a /, adding one")
+            # root_url should end with a /, adding one
             root_url = root_url + "/"
         self._root_url = root_url
         if self.mode not in ['inline', 'cdn', 'server', 'server-dev', 'relative', 'relative-dev', 'absolute', 'absolute-dev']:

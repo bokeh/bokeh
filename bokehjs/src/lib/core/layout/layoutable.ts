@@ -1,4 +1,4 @@
-import {Size, Sizeable, SizeHint, BoxSizing} from "./types"
+import {Size, Sizeable, SizeHint, BoxSizing, SizingPolicy} from "./types"
 import {BBox, CoordinateTransform} from "../util/bbox"
 
 const {min, max, round} = Math
@@ -111,29 +111,39 @@ export abstract class Layoutable {
     if (aspect != null) {
       const {width_policy, height_policy} = this.sizing
 
+      const gt = (width: SizingPolicy, height: SizingPolicy) => {
+        const policies = {max: 4, fit: 3, min: 2, fixed: 1}
+        return policies[width] > policies[height]
+      }
+
       if (width_policy != "fixed" && height_policy != "fixed") {
-        const w_width = width
-        const w_height = round(width / aspect)
+        if (width_policy == height_policy) {
+          const w_width = width
+          const w_height = round(width / aspect)
 
-        const h_width = round(height * aspect)
-        const h_height = height
+          const h_width = round(height * aspect)
+          const h_height = height
 
-        const w_diff = Math.abs(viewport.width - w_width) + Math.abs(viewport.height - w_height)
-        const h_diff = Math.abs(viewport.width - h_width) + Math.abs(viewport.height - h_height)
+          const w_diff = Math.abs(viewport.width - w_width) + Math.abs(viewport.height - w_height)
+          const h_diff = Math.abs(viewport.width - h_width) + Math.abs(viewport.height - h_height)
 
-        if (w_diff <= h_diff) {
-          width = w_width
-          height = w_height
+          if (w_diff <= h_diff) {
+            width = w_width
+            height = w_height
+          } else {
+            width = h_width
+            height = h_height
+          }
+        } else if (gt(width_policy, height_policy)) {
+          height = round(width/aspect)
         } else {
-          width = h_width
-          height = h_height
+          width = round(height*aspect)
         }
       } else if (width_policy == "fixed") {
         height = round(width/aspect)
       } else if (height_policy == "fixed") {
         width = round(height*aspect)
-      } else
-        throw new Error("unrechable")
+      }
     }
 
     return {width, height}

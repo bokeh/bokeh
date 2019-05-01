@@ -96,7 +96,40 @@ def get_default_color(plot=None):
 # Private API
 #-----------------------------------------------------------------------------
 
-def _stack(stackers, spec0, spec1, **kw):
+def _single_stack(stackers, spec, **kw):
+    if spec in kw:
+        raise ValueError("Stack property '%s' cannot appear in keyword args" % spec)
+
+    lengths = { len(x) for x in kw.values() if isinstance(x, (list, tuple)) }
+
+    # lengths will be empty if there are no kwargs supplied at all
+    if len(lengths) > 0:
+        if len(lengths) != 1:
+            raise ValueError("Keyword argument sequences for broadcasting must all be the same lengths. Got lengths: %r" % sorted(list(lengths)))
+        if lengths.pop() != len(stackers):
+            raise ValueError("Keyword argument sequences for broadcasting must be the same length as stackers")
+
+    s = []
+
+    _kw = []
+
+    for i, val in enumerate(stackers):
+        d  = {'name': val}
+        s.append(val)
+
+        d[spec] = stack(*s)
+
+        for k, v in kw.items():
+            if isinstance(v, (list, tuple)):
+                d[k] = v[i]
+            else:
+                d[k] = v
+
+        _kw.append(d)
+
+    return _kw
+
+def _double_stack(stackers, spec0, spec1, **kw):
     for name in (spec0, spec1):
         if name in kw:
             raise ValueError("Stack property '%s' cannot appear in keyword args" % name)

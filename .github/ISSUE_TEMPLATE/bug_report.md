@@ -1,11 +1,19 @@
-# READ AND FOLLOW THESE INSTRUCTIONS CAREFULLY
+---
+name: Bug report
+about: Create a report to help us improve
+title: "[BUG]"
+labels: TRIAGE
+assignees: ''
+
+---
+
+### FOLLOW THESE INSTRUCTIONS CAREFULLY
 
 *ISSUES THAT DO NOT CONTAIN NECESSARY INFORMATION MAY BE CLOSED, IMMEDIATELY*
 
-The issue tracker is NOT the place for general support. For questions and
-technical assistance, come ask the [Bokeh mailing list](https://groups.google.com/a/continuum.io/forum/#!forum/bokeh) or join the chat on [Gitter](https://gitter.im/bokeh/bokeh). For feature requests, please provide a detailed description or proposal of the new capability or behavior.
+The issue tracker is NOT the place for general support. For questions and technical assistance, come ask the [Bokeh mailing list](https://groups.google.com/a/continuum.io/forum/#!forum/bokeh) or join the chat on [Gitter](https://gitter.im/bokeh/bokeh).
 
-For defects or deficiencies, please provide ALL OF THE FOLLOWING:
+For defects or deficiencies, please provide *ALL OF THE FOLLOWING*:
 
 #### ALL software version info (bokeh, python, notebook, OS, browser, any other relevant packages)
 
