@@ -53,6 +53,9 @@ from bokeh.models.annotations import (
 def test_Legend():
     legend = Legend()
     assert legend.location == 'top_right'
+    assert legend.orientation == 'vertical'
+    assert legend.title is None
+    assert legend.title_standoff == 5
     assert legend.label_standoff == 5
     assert legend.label_height == 20
     assert legend.label_width == 20
@@ -69,6 +72,8 @@ def test_Legend():
         "visible",
         "location",
         "orientation",
+        "title",
+        "title_standoff",
         "label_standoff",
         "label_height",
         "label_width",
@@ -81,6 +86,7 @@ def test_Legend():
         "level",
         "click_policy"],
         prefix('label_', TEXT),
+        prefix('title_', TEXT),
         prefix('border_', LINE),
         prefix('background_', FILL),
         prefix('inactive_', FILL))

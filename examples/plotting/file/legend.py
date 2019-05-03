@@ -14,6 +14,8 @@ p1.circle(x,   y, legend="sin(x)")
 p1.circle(x, 2*y, legend="2*sin(x)", color="orange")
 p1.circle(x, 3*y, legend="3*sin(x)", color="green")
 
+p1.legend.title = 'Example Title'
+
 p2 = figure(title="Another Legend Example", tools=TOOLS)
 
 p2.circle(x, y, legend="sin(x)")
