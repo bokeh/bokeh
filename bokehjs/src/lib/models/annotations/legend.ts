@@ -373,7 +373,7 @@ export class Legend extends Annotation {
       'text:title_',
       'fill:inactive_',
       'line:border_',
-      'fill:background_'
+      'fill:background_',
     ])
 
     this.define<Legend.Props>({
