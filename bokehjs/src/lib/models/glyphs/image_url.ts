@@ -158,9 +158,6 @@ export class ImageURLView extends XYGlyphView {
       if (isNaN(sx[i] + sy[i] + _angle[i]))
         continue
 
-      if (this.retries[i] == -1)
-        continue
-
       const img = image[i]
 
       if (img == null) {
