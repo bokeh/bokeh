@@ -799,6 +799,25 @@ object directly:
 In this use-case, the location must be specified absolutely. Future releases
 will add additional options for laying out legend positions.
 
+Title
+~~~~~
+
+Legends can have a title, specified by the ``title`` property:
+
+.. code:: python
+
+    plot.legend.title = "Division"
+
+The visual appearance of the legend title is controlled by a collection of
+`Text Properties`_, prefixed with ``title_``. For instance, to set the font
+style of the legend, use ``title_text_font_style``.
+
+The distance to separate the title from the rest of the legend (in pixels)
+is controlled by the ``title_standoff`` property.
+
+.. bokeh-plot:: docs/user_guide/examples/styling_legend_title.py
+    :source-position: above
+
 Orientation
 ~~~~~~~~~~~
 
