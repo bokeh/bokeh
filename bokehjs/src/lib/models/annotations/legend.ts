@@ -166,7 +166,7 @@ export class LegendView extends AnnotationView {
 
       for (const label of labels) {
         const x1 = legend_bbox.x + xoffset
-        const y1 = legend_bbox.y + yoffset
+        const y1 = legend_bbox.y + yoffset + this.title_height
 
         let w: number, h: number
         if (vertical)
