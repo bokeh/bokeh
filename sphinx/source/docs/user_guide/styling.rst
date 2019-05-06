@@ -750,10 +750,6 @@ for every element of the list:
 
     p.legend.label_text_font = "times"
 
-.. note::
-    The examples in this section use NumPy to more easily generate better
-    data suitable for demonstrating legends.
-
 Location
 ~~~~~~~~
 
