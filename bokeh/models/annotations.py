@@ -183,6 +183,22 @@ class Legend(Annotation):
     when they are drawn.
     """)
 
+    title = String(help="""
+    The title text to render.
+    """)
+
+    title_props = Include(TextProps, help="""
+    The %s values for the title text.
+    """)
+
+    title_text_font_size = Override(default={'value': "10pt"})
+
+    title_text_font_style = Override(default="italic")
+
+    title_standoff = Int(5, help="""
+    The distance (in pixels) to separate the title from the legend.
+    """)
+
     border_props = Include(LineProps, help="""
     The %s for the legend border outline.
     """)

@@ -21,6 +21,8 @@ export class LegendView extends AnnotationView {
 
   protected max_label_height: number
   protected text_widths: {[key: string]: number}
+  protected title_height: number
+  protected title_width: number
 
   cursor(_sx: number, _sy: number): string | null {
     return this.model.click_policy == "none" ? null : "pointer"
@@ -54,6 +56,11 @@ export class LegendView extends AnnotationView {
     for (const name of legend_names) {
       this.text_widths[name] = max([ctx.measureText(name).width, label_width])
     }
+
+    this.visuals.title_text.set_value(ctx)
+    this.title_height = this.model.title ? measure_font(this.visuals.title_text.font_value()).height + this.model.title_standoff : 0
+    this.title_width = this.model.title ? ctx.measureText(this.model.title).width : 0
+
     ctx.restore()
 
     const max_label_width = Math.max(max(values(this.text_widths)), 0)
@@ -65,15 +72,16 @@ export class LegendView extends AnnotationView {
 
     let legend_height: number, legend_width: number
     if (this.model.orientation == "vertical") {
-      legend_height = legend_names.length*this.max_label_height + Math.max(legend_names.length - 1, 0)*legend_spacing + 2*legend_padding
-      legend_width = max_label_width + glyph_width + label_standoff + 2*legend_padding
+      legend_height = legend_names.length*this.max_label_height + Math.max(legend_names.length - 1, 0)*legend_spacing + 2*legend_padding + this.title_height
+      legend_width = max([(max_label_width + glyph_width + label_standoff + 2*legend_padding), this.title_width + 2*legend_padding])
     } else {
-      legend_width = 2*legend_padding + Math.max(legend_names.length - 1, 0)*legend_spacing
+      let item_width = 2*legend_padding + Math.max(legend_names.length - 1, 0)*legend_spacing
       for (const name in this.text_widths) {
         const width = this.text_widths[name]
-        legend_width += max([width, label_width]) + glyph_width + label_standoff
+        item_width += max([width, label_width]) + glyph_width + label_standoff
       }
-      legend_height = this.max_label_height + 2*legend_padding
+      legend_width = max([this.title_width + 2*legend_padding, item_width])
+      legend_height = this.max_label_height + this.title_height + 2*legend_padding
     }
 
     const panel = this.panel != null ? this.panel : this.plot_view.frame
@@ -158,7 +166,7 @@ export class LegendView extends AnnotationView {
 
       for (const label of labels) {
         const x1 = legend_bbox.x + xoffset
-        const y1 = legend_bbox.y + yoffset
+        const y1 = legend_bbox.y + yoffset + this.title_height
 
         let w: number, h: number
         if (vertical)
@@ -213,6 +221,10 @@ export class LegendView extends AnnotationView {
     ctx.save()
     this._draw_legend_box(ctx, bbox)
     this._draw_legend_items(ctx, bbox)
+
+    if (this.model.title)
+      this._draw_title(ctx, bbox)
+
     ctx.restore()
   }
 
@@ -251,7 +263,7 @@ export class LegendView extends AnnotationView {
 
       for (const label of labels) {
         const x1 = bbox.x + xoffset
-        const y1 = bbox.y + yoffset
+        const y1 = bbox.y + yoffset + this.title_height
         const x2 = x1 + glyph_width
         const y2 = y1 + glyph_height
 
@@ -283,6 +295,17 @@ export class LegendView extends AnnotationView {
     }
   }
 
+  protected _draw_title(ctx: Context2d, bbox: BBox): void {
+    if (!this.visuals.title_text.doit)
+      return
+
+    ctx.save()
+    ctx.translate(bbox.x0, bbox.y0 + this.title_height)
+    this.visuals.title_text.set_value(ctx)
+    ctx.fillText(this.model.title, this.legend_padding, this.legend_padding-this.model.title_standoff)
+    ctx.restore()
+  }
+
   protected _get_size(): Size {
     const {width, height} = this.compute_legend_bbox()
     return {
@@ -298,6 +321,8 @@ export namespace Legend {
   export type Props = Annotation.Props & {
     orientation: p.Property<Orientation>
     location: p.Property<LegendLocation | [number, number]>
+    title: p.Property<string>,
+    title_standoff: p.Property<number>,
     label_standoff: p.Property<number>
     glyph_height: p.Property<number>
     glyph_width: p.Property<number>
@@ -315,6 +340,7 @@ export namespace Legend {
 
   export type Visuals = Annotation.Visuals & {
     label_text: visuals.Text
+    title_text: visuals.Text
     inactive_fill: visuals.Fill
     border_line: visuals.Line
     background_fill: visuals.Fill
@@ -342,11 +368,19 @@ export class Legend extends Annotation {
     this.prototype.type = 'Legend'
     this.prototype.default_view = LegendView
 
-    this.mixins(['text:label_', 'fill:inactive_', 'line:border_', 'fill:background_'])
+    this.mixins([
+      'text:label_',
+      'text:title_',
+      'fill:inactive_',
+      'line:border_',
+      'fill:background_',
+    ])
 
     this.define<Legend.Props>({
       orientation:      [ p.Orientation,    'vertical'  ],
       location:         [ p.Any,            'top_right' ], // TODO (bev)
+      title:            [ p.String,                     ],
+      title_standoff:   [ p.Number,         5           ],
       label_standoff:   [ p.Number,         5           ],
       glyph_height:     [ p.Number,         20          ],
       glyph_width:      [ p.Number,         20          ],
@@ -369,6 +403,8 @@ export class Legend extends Annotation {
       inactive_fill_alpha: 0.7,
       label_text_font_size: "10pt",
       label_text_baseline: "middle",
+      title_text_font_size: "10pt",
+      title_text_font_style: "italic",
     })
   }
 

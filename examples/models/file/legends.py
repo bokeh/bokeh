@@ -51,6 +51,7 @@ def add_legend(location, orientation, side):
         items=[("line", [line]), ("circle", [circle])],
         location=location, orientation=orientation,
         border_line_color="black",
+        title='Example Title'
     )
     plot.add_layout(legend, side)
 
