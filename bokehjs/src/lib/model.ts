@@ -23,6 +23,7 @@ export interface Model extends Model.Attrs {}
 
 export class Model extends HasProps {
   properties: Model.Props
+  private _js_callbacks: {[key: string]: any[]}
 
   constructor(attrs?: Partial<Model.Attrs>) {
     super(attrs)
@@ -74,13 +75,24 @@ export class Model extends HasProps {
   }
 
   protected _update_property_callbacks(): void {
-    for (const base_evt in this.js_property_callbacks) {
-      const callbacks = this.js_property_callbacks[base_evt]
+    for (const base_evt in this._js_callbacks) {
+      const callbacks = this._js_callbacks[base_evt]
       const [evt, attr=null] = base_evt.split(':')
       for (const cb of callbacks) {
-        console.log(cb)
         const signal = attr != null ? (this.properties as any)[attr][evt] : (this as any)[evt]
-        this.connect(signal, () => cb.execute(this))
+        this.disconnect(signal, cb)
+      }
+    }
+    this._js_callbacks = {};
+	for (const base_evt in this.js_property_callbacks) {
+      const callbacks = this.js_property_callbacks[base_evt]
+      const [evt, attr=null] = base_evt.split(':')
+      this._js_callbacks[base_evt] = []
+      for (const cb of callbacks) {
+        const signal = attr != null ? (this.properties as any)[attr][evt] : (this as any)[evt]
+        const cb_wrapper = () => cb.execute(this)
+        this.connect(signal, cb_wrapper)
+        this._js_callbacks[base_evt].push(cb_wrapper)
       }
     }
   }
