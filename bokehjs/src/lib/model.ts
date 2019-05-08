@@ -84,7 +84,7 @@ export class Model extends HasProps {
       }
     }
     this._js_callbacks = {};
-	for (const base_evt in this.js_property_callbacks) {
+    for (const base_evt in this.js_property_callbacks) {
       const callbacks = this.js_property_callbacks[base_evt]
       const [evt, attr=null] = base_evt.split(':')
       this._js_callbacks[base_evt] = []
