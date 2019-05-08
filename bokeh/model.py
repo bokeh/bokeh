@@ -538,12 +538,14 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
         if event in self.properties():
             event = "change:%s" % event
 
+        old = {k: [cb for cb in cbs] for k, cbs in self.js_property_callbacks.items()}
         if event not in self.js_property_callbacks:
             self.js_property_callbacks[event] = []
         for callback in callbacks:
             if callback in self.js_property_callbacks[event]:
                 continue
             self.js_property_callbacks[event].append(callback)
+        self.trigger('js_property_callbacks', old, self.js_property_callbacks)
 
     def layout(self, side, plot):
         '''
