@@ -83,7 +83,7 @@ export class Model extends HasProps {
         this.disconnect(signal, cb)
       }
     }
-    this._js_callbacks = {};
+    this._js_callbacks = {}
     for (const base_evt in this.js_property_callbacks) {
       const callbacks = this.js_property_callbacks[base_evt]
       const [evt, attr=null] = base_evt.split(':')
