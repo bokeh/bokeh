@@ -43,15 +43,8 @@ export class Model extends HasProps {
   connect_signals(): void {
     super.connect_signals()
 
-    for (const base_evt in this.js_property_callbacks) {
-      const callbacks = this.js_property_callbacks[base_evt]
-      const [evt, attr=null] = base_evt.split(':')
-      for (const cb of callbacks) {
-        const signal = attr != null ? (this.properties as any)[attr][evt] : (this as any)[evt]
-        this.connect(signal, () => cb.execute(this))
-      }
-    }
-
+    this._update_property_callbacks()
+    this.connect(this.properties.js_property_callbacks.change, () => this._update_property_callbacks())
     this.connect(this.properties.js_event_callbacks.change, () => this._update_event_callbacks())
     this.connect(this.properties.subscribed_events.change, () => this._update_event_callbacks())
   }
@@ -78,6 +71,18 @@ export class Model extends HasProps {
       return
     }
     this.document.event_manager.subscribed_models.add(this.id)
+  }
+
+  protected _update_property_callbacks(): void {
+    for (const base_evt in this.js_property_callbacks) {
+      const callbacks = this.js_property_callbacks[base_evt]
+      const [evt, attr=null] = base_evt.split(':')
+      for (const cb of callbacks) {
+        console.log(cb)
+        const signal = attr != null ? (this.properties as any)[attr][evt] : (this as any)[evt]
+        this.connect(signal, () => cb.execute(this))
+      }
+    }
   }
 
   protected _doc_attached(): void {
