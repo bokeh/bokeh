@@ -85,6 +85,14 @@ def test_layout_simple():
         assert isinstance(r, Row)
 
 
+def test_layout_kwargs():
+    p1, p2, p3, p4 = figure(), figure(), figure(), figure()
+
+    grid = layout([[p1, p2], [p3, p4]], sizing_mode='fixed', name='simple')
+
+    assert grid.name == 'simple'
+
+
 def test_layout_nested():
     p1, p2, p3, p4, p5, p6 = figure(), figure(), figure(), figure(), figure(), figure()
 
