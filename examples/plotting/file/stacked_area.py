@@ -21,8 +21,12 @@ x2 = np.hstack((df.index[::-1], df.index))
 p = figure(x_range=(0, N-1), y_range=(0, 800))
 p.grid.minor_grid_line_color = '#eeeeee'
 
-p.patches([x2] * areas.shape[1], [areas[c].values for c in areas],
-          color=colors, alpha=0.8, line_color=None)
+for c, color in zip(areas, colors):
+    p.patch(x2, areas[c].values, legend=c,
+            color=color, alpha=0.8, line_color=None)
+
+# reverse the legend entries to match the stacked order
+p.legend[0].items.reverse()
 
 output_file('stacked_area.html', title='stacked_area.py example')
 
