@@ -381,6 +381,7 @@ def test_Title():
     assert title.text_font_style == 'bold'
     assert title.text_color == '#444444'
     assert title.text_alpha == 1.0
+    assert title.text_line_height == 1.0
     check_fill_properties(title, "background_", None, 1.0)
     check_line_properties(title, "border_", None, 1.0, 1.0)
     check_properties_existence(title, [
@@ -395,6 +396,7 @@ def test_Title():
         "text_font_style",
         "text_color",
         "text_alpha",
+        "text_line_height",
         "render_mode"],
         prefix('border_', LINE),
         prefix('background_', FILL))

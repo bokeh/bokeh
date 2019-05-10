@@ -106,7 +106,7 @@ export class TitleView extends TextAnnotationView {
     else {
       this.visuals.text.set_value(this.ctx)
       const {width, ascent} = this.ctx.measureText(text)
-      return {width, height: ascent + 10}
+      return {width, height: ascent * this.visuals.text.text_line_height.value() + 10}
     }
   }
 }
@@ -121,6 +121,7 @@ export namespace Title {
     text_font_style: p.Property<FontStyle>
     text_color: p.ColorSpec
     text_alpha: p.NumberSpec
+    text_line_height: p.NumberSpec
     vertical_align: p.Property<VerticalAlign>
     align: p.Property<TextAlign>
     offset: p.Property<number>
@@ -148,15 +149,16 @@ export class Title extends TextAnnotation {
     this.mixins(['line:border_', 'fill:background_'])
 
     this.define<Title.Props>({
-      text:            [ p.String,                    ],
-      text_font:       [ p.Font,          'helvetica' ],
-      text_font_size:  [ p.FontSizeSpec,  '10pt'      ],
-      text_font_style: [ p.FontStyle,     'bold'      ],
-      text_color:      [ p.ColorSpec,     '#444444'   ],
-      text_alpha:      [ p.NumberSpec,    1.0         ],
-      vertical_align:  [ p.VerticalAlign, 'bottom'    ],
-      align:           [ p.TextAlign,     'left'      ],
-      offset:          [ p.Number,        0           ],
+      text:             [ p.String,                    ],
+      text_font:        [ p.Font,          'helvetica' ],
+      text_font_size:   [ p.FontSizeSpec,  '10pt'      ],
+      text_font_style:  [ p.FontStyle,     'bold'      ],
+      text_color:       [ p.ColorSpec,     '#444444'   ],
+      text_alpha:       [ p.NumberSpec,    1.0         ],
+      text_line_height: [ p.Number,        1.0         ],
+      vertical_align:   [ p.VerticalAlign, 'bottom'    ],
+      align:            [ p.TextAlign,     'left'      ],
+      offset:           [ p.Number,        0           ],
     })
 
     this.override({
