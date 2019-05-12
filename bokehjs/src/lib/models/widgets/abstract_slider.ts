@@ -42,7 +42,7 @@ export abstract class AbstractSliderView extends ControlView {
     const {callback, callback_policy, callback_throttle} = this.model.properties
     this.on_change([callback, callback_policy, callback_throttle], () => this._init_callback())
 
-    const {start, end, value, step} = this.model.properties
+    const {start, end, value, step, title} = this.model.properties
     this.on_change([start, end, value, step], () => {
       const {start, end, value, step} = this._calc_to()
       this.noUiSlider.updateOptions({
@@ -57,7 +57,7 @@ export abstract class AbstractSliderView extends ControlView {
       this._set_bar_color()
     })
 
-    this.on_change(value, () => this._update_title())
+    this.on_change([value, title], () => this._update_title())
   }
 
   protected _init_callback(): void {
