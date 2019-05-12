@@ -190,3 +190,23 @@ class Test_Slider(object):
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
+
+    def test_server_title_updates(self, bokeh_server_page):
+        def modify_doc(doc):
+            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
+            slider = Slider(start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300)
+            def cb(attr, old, new):
+                slider.title = "baz"
+            slider.on_change('value', cb)
+            doc.add_root(column(slider, plot))
+
+        page = bokeh_server_page(modify_doc)
+
+        drag_slider(page.driver, ".foo", 150)
+
+        sleep(1) # noUiSlider does a transition that takes some time
+
+        assert get_title_text(page.driver, ".foo") == "baz: 6"
+
+        # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
+        #assert page.has_no_console_errors()
