@@ -62,21 +62,23 @@ export abstract class AbstractSliderView extends ControlView {
 
   protected _init_callback(): void {
     const {callback} = this.model
-    if (callback != null) {
-      const fn = () => callback.execute(this.model)
+    const fn = () => {
+      if (callback != null)
+        callback.execute(this.model)
+      this.model.value_throttled = this.model.value
+    }
 
-      switch (this.model.callback_policy) {
-        case 'continuous': {
-          this.callback_wrapper = fn
-          break
-        }
-        case 'throttle': {
-          this.callback_wrapper = throttle(fn, this.model.callback_throttle)
-          break
-        }
-        default:
-          this.callback_wrapper = undefined
+    switch (this.model.callback_policy) {
+      case 'continuous': {
+        this.callback_wrapper = fn
+        break
       }
+      case 'throttle': {
+        this.callback_wrapper = throttle(fn, this.model.callback_throttle)
+        break
+      }
+      default:
+        this.callback_wrapper = undefined
     }
   }
 
@@ -208,6 +210,7 @@ export abstract class AbstractSliderView extends ControlView {
 
   protected _change(values: number[]): void {
     this.model.value = this._calc_from(values)
+    this.model.value_throttled = this.model.value
     switch (this.model.callback_policy) {
       case 'mouseup':
       case 'throttle': {
@@ -228,6 +231,7 @@ export namespace AbstractSlider {
     start: p.Property<any> // XXX
     end: p.Property<any> // XXX
     value: p.Property<any> // XXX
+    value_throttled: p.Property<any> // XXX
     step: p.Property<number>
     format: p.Property<string>
     direction: p.Property<"ltr" | "rtl">
@@ -257,6 +261,7 @@ export abstract class AbstractSlider extends Control {
       start:             [ p.Any                                ],
       end:               [ p.Any                                ],
       value:             [ p.Any                                ],
+      value_throttled:   [ p.Any                                ],
       step:              [ p.Number,               1            ],
       format:            [ p.String                             ],
       direction:         [ p.Any,                  "ltr"        ],
