@@ -108,9 +108,11 @@ callback_ion = CustomJS(args=dict(source=source), code="""
     """)
 
 
-slider = Slider(start=0, end=5, step=0.1, value=1, title="Bokeh Slider - Power", callback=callback_single)
+slider = Slider(start=0, end=5, step=0.1, value=1, title="Bokeh Slider - Power")
+slider.js_on_change('value', callback_single)
+
 ion_range_slider = IonRangeSlider(start=0.01, end=0.99, step=0.01, range=(min(x), max(x)),
-    title='Ion Range Slider - Range', callback=callback_ion, callback_policy='continuous')
+    title='Ion Range Slider - Range', callback_policy='continuous', callback=callback_ion)
 
 layout = column(plot, slider, ion_range_slider)
 show(layout)
