@@ -187,13 +187,17 @@ export class GlyphRendererView extends DataRendererView {
       this.request_render()
   }
 
+  get has_webgl(): boolean {
+    return this.glyph.glglyph != null
+  }
+
   render(): void {
     if (!this.model.visible)
       return
 
     const t0 = Date.now()
 
-    const glsupport = this.glyph.glglyph
+    const glsupport = this.has_webgl
 
     this.glyph.map_data()
     const dtmap = Date.now() - t0
@@ -343,7 +347,7 @@ export class GlyphRendererView extends DataRendererView {
     }
     logger.trace(` - glyph renders finished in  : ${dtrender}ms`)
 
-    return ctx.restore()
+    ctx.restore()
   }
 
   draw_legend(ctx: Context2d, x0: number, x1: number, y0: number, y1: number, field: string | null, label: string, index: number | null): void {
