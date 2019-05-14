@@ -3,7 +3,7 @@
 1.1.0
 =====
 
-Bokeh Version ``1.1.0`` (April 2019) is a signiicant release that primarily
+Bokeh Version ``1.1.0`` (April 2019) is a significant release that primarily
 addresses the layout system. More than 50 layout-related issues were closed,
 addressing bugs, missing features, and performance. Other topics of this
 release included:
