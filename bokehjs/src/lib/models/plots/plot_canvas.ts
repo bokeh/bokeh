@@ -1,5 +1,5 @@
 import {CartesianFrame} from "../canvas/cartesian_frame"
-import {Canvas, CanvasView, SVGRenderingContext2D} from "../canvas/canvas"
+import {Canvas, CanvasView} from "../canvas/canvas"
 import {Range} from "../ranges/range"
 import {DataRange1d} from "../ranges/data_range1d"
 import {Renderer, RendererView} from "../renderers/renderer"
@@ -174,14 +174,6 @@ export class PlotView extends LayoutDOMView {
 
   protected range_update_timestamp?: number
 
-  get canvas_overlays(): HTMLElement {
-    return this.canvas_view.overlays_el
-  }
-
-  get canvas_events(): HTMLElement {
-    return this.canvas_view.events_el
-  }
-
   get is_paused(): boolean {
     return this._is_paused != null && this._is_paused !== 0
   }
@@ -265,7 +257,6 @@ export class PlotView extends LayoutDOMView {
     this.state = {history: [], index: -1}
 
     this.canvas = new Canvas({
-      map: this.model.use_map || false,
       use_hidpi: this.model.hidpi,
       output_backend: this.model.output_backend,
     })
@@ -486,10 +477,10 @@ export class PlotView extends LayoutDOMView {
   prepare_webgl(ratio: number, frame_box: FrameBox): void {
     // Prepare WebGL for a drawing pass
     if (this.gl != null) {
-      const canvas = this.canvas_view.get_canvas_element() as HTMLCanvasElement
       // Sync canvas size
-      this.gl.canvas.width = canvas.width
-      this.gl.canvas.height = canvas.height
+      const {width, height} = this.layout.bbox
+      this.gl.canvas.width = width
+      this.gl.canvas.height = height
       const {ctx: gl} = this.gl
       // Clipping
       gl.enable(gl.SCISSOR_TEST)
@@ -1135,37 +1126,7 @@ export class PlotView extends LayoutDOMView {
   }
 
   save(name: string): void {
-    switch (this.model.output_backend) {
-      case "canvas":
-      case "webgl": {
-        const canvas = this.canvas_view.get_canvas_element() as HTMLCanvasElement
-        if (canvas.msToBlob != null) {
-          const blob = canvas.msToBlob()
-          window.navigator.msSaveBlob(blob, name)
-        } else {
-          const link = document.createElement('a')
-          link.href = canvas.toDataURL('image/png')
-          link.download = name + ".png"
-          link.target = "_blank"
-          link.dispatchEvent(new MouseEvent('click'))
-        }
-        break
-      }
-      case "svg": {
-        const ctx = this.canvas_view._ctx as SVGRenderingContext2D
-        const svg = ctx.getSerializedSvg(true)
-        const svgblob = new Blob([svg], {type:'text/plain'})
-        const downloadLink = document.createElement("a")
-        downloadLink.download = name + ".svg"
-        downloadLink.innerHTML = "Download svg"
-        downloadLink.href = window.URL.createObjectURL(svgblob)
-        downloadLink.onclick = (event) => document.body.removeChild(event.target as HTMLElement)
-        downloadLink.style.display = "none"
-        document.body.appendChild(downloadLink)
-        downloadLink.click()
-        break
-      }
-    }
+    this.canvas_view.save(name)
   }
 
   serializable_state(): {[key: string]: unknown} {

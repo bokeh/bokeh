@@ -11,14 +11,6 @@ export class GridView extends GuideRendererView {
   model: Grid
   visuals: Grid.Visuals
 
-  protected get _x_range_name(): string {
-    return this.model.x_range_name
-  }
-
-  protected get _y_range_name(): string {
-    return this.model.y_range_name
-  }
-
   render(): void {
     if (!this.model.visible)
       return
@@ -47,8 +39,8 @@ export class GridView extends GuideRendererView {
       if (i % 2 != 1)
         continue
 
-      const [sx0, sy0] = this.plot_view.map_to_screen(xs[i],   ys[i],   this._x_range_name, this._y_range_name)
-      const [sx1, sy1] = this.plot_view.map_to_screen(xs[i+1], ys[i+1], this._x_range_name, this._y_range_name)
+      const [sx0, sy0] = this.plot_view.map_to_screen(xs[i],   ys[i],   this.model.x_range_name, this.model.y_range_name)
+      const [sx1, sy1] = this.plot_view.map_to_screen(xs[i+1], ys[i+1], this.model.x_range_name, this.model.y_range_name)
 
       if (this.visuals.band_fill.doit)
         ctx.fillRect(sx0[0], sy0[0], sx1[1] - sx0[0], sy1[1] - sy0[0])
@@ -56,7 +48,6 @@ export class GridView extends GuideRendererView {
       this.visuals.band_hatch.doit2(ctx, i, () => {
         ctx.fillRect(sx0[0], sy0[0], sx1[1] - sx0[0], sy1[1] - sy0[0])
       }, () => this.request_render())
-
     }
   }
 
@@ -77,7 +68,7 @@ export class GridView extends GuideRendererView {
   protected _draw_grid_helper(ctx: Context2d, visuals: visuals.Line, xs: number[][], ys: number[][]): void {
     visuals.set_value(ctx)
     for (let i = 0; i < xs.length; i++) {
-      const [sx, sy] = this.plot_view.map_to_screen(xs[i], ys[i], this._x_range_name, this._y_range_name)
+      const [sx, sy] = this.plot_view.map_to_screen(xs[i], ys[i], this.model.x_range_name, this.model.y_range_name)
       ctx.beginPath()
       ctx.moveTo(Math.round(sx[0]), Math.round(sy[0]))
       for (let i = 1; i < sx.length; i++)
