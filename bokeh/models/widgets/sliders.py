@@ -80,6 +80,8 @@ class AbstractSlider(Widget):
 
     callback = Instance(Callback, help="""
     A callback to run in the browser whenever the current Slider value changes.
+
+    DEPRECATED: use .js_on_change or .on_change with "value" or "value_throttled"
     """)
 
     callback_throttle = Float(default=200, help="""
@@ -87,7 +89,9 @@ class AbstractSlider(Widget):
     """)
 
     callback_policy = Enum(SliderCallbackPolicy, default="throttle", help="""
-    When the callback is initiated. This parameter can take on only one of three options:
+    When the value_throttled property is updated.
+
+    This parameter can take on only one of three options:
 
     * "continuous": the callback will be executed immediately for each movement of the slider
     * "throttle": the callback will be executed at most every ``callback_throttle`` milliseconds.
@@ -95,8 +99,7 @@ class AbstractSlider(Widget):
 
     The "mouseup" policy is intended for scenarios in which the callback is expensive in time.
 
-    .. warning::
-        Callback policy currently apply to JS callbacks
+    Both Python and JS callbacks on "value_throttled" will respect this policy setting.
     """)
 
     bar_color = Color(default="#e6e6e6", help="""
@@ -127,6 +130,10 @@ class Slider(AbstractSlider):
     Initial or selected value.
     """)
 
+    value_throttled = Float(help="""
+    Initial or selected value, throttled according to callback_policy.
+    """)
+
     step = Float(default=1, help="""
     The step between consecutive values.
     """)
@@ -138,6 +145,10 @@ class RangeSlider(AbstractSlider):
 
     value = Tuple(Float, Float, help="""
     Initial or selected range.
+    """)
+
+    value_throttled = Tuple(Float, Float, help="""
+    Initial or selected value, throttled according to callback_policy.
     """)
 
     start = Float(help="""
@@ -159,6 +170,10 @@ class DateSlider(AbstractSlider):
 
     value = Date(help="""
     Initial or selected value.
+    """)
+
+    value_throttled = Date(help="""
+    Initial or selected value, throttled according to callback_policy.
     """)
 
     start = Date(help="""
@@ -221,6 +236,10 @@ class DateRangeSlider(AbstractSlider):
 
     value = Tuple(Date, Date, help="""
     Initial or selected range.
+    """)
+
+    value_throttled = Tuple(Date, Date, help="""
+    Initial or selected value, throttled according to callback_policy.
     """)
 
     start = Date(help="""

@@ -42,31 +42,30 @@ def slider():
         title="Sliders example")
     plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
 
-    callback = CustomJS(args=dict(source=source), code="""
-        var data = source.data;
-        var A = amp.value;
-        var k = freq.value;
-        var phi = phase.value;
-        var B = offset.value;
-        var x = data['x']
-        var y = data['y']
+    amp_slider = Slider(start=0.1, end=10, value=1, step=.1, title="Amplitude")
+    freq_slider = Slider(start=0.1, end=10, value=1, step=.1, title="Frequency")
+    phase_slider = Slider(start=0, end=6.4, value=0, step=.1, title="Phase")
+    offset_slider = Slider(start=-5, end=5, value=0, step=.1, title="Offset")
+
+    callback = CustomJS(args=dict(source=source, amp=amp_slider, freq=freq_slider, phase=phase_slider, offset=offset_slider),
+                        code="""
+        const data = source.data;
+        const A = amp.value;
+        const k = freq.value;
+        const phi = phase.value;
+        const B = offset.value;
+        const x = data['x']
+        const y = data['y']
         for (var i = 0; i < x.length; i++) {
             y[i] = B + A*Math.sin(k*x[i]+phi);
         }
         source.change.emit();
     """)
 
-    amp_slider = Slider(start=0.1, end=10, value=1, step=.1, title="Amplitude", callback=callback, callback_policy='mouseup')
-    callback.args["amp"] = amp_slider
-
-    freq_slider = Slider(start=0.1, end=10, value=1, step=.1, title="Frequency", callback=callback)
-    callback.args["freq"] = freq_slider
-
-    phase_slider = Slider(start=0, end=6.4, value=0, step=.1, title="Phase", callback=callback)
-    callback.args["phase"] = phase_slider
-
-    offset_slider = Slider(start=-5, end=5, value=0, step=.1, title="Offset", callback=callback)
-    callback.args["offset"] = offset_slider
+    amp_slider.js_on_change('value', callback)
+    freq_slider.js_on_change('value', callback)
+    phase_slider.js_on_change('value', callback)
+    offset_slider.js_on_change('value', callback)
 
     widgets = column(amp_slider, freq_slider, phase_slider, offset_slider)
     return [widgets, plot]

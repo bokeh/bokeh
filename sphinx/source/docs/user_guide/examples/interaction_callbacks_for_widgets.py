@@ -23,7 +23,8 @@ callback = CustomJS(args=dict(source=source), code="""
         source.change.emit();
     """)
 
-slider = Slider(start=0.1, end=4, value=1, step=.1, title="power", callback=callback)
+slider = Slider(start=0.1, end=4, value=1, step=.1, title="power")
+slider.js_on_change('value', callback)
 
 layout = column(slider, plot)
 
