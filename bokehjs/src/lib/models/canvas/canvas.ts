@@ -8,6 +8,38 @@ import {BBox} from "core/util/bbox"
 import {Context2d, fixup_ctx, get_scale_ratio} from "core/util/canvas"
 import {bk_canvas, bk_canvas_underlays, bk_canvas_overlays, bk_canvas_events} from "styles/canvas"
 
+// Notes on WebGL support:
+// Glyps can be rendered into the original 2D canvas, or in a (hidden)
+// webgl canvas that we create below. In this way, the rest of bokehjs
+// can keep working as it is, and we can incrementally update glyphs to
+// make them use GL.
+//
+// When the author or user wants to, we try to create a webgl canvas,
+// which is saved on the ctx object that gets passed around during drawing.
+// The presence (and not-being-false) of the this.glcanvas attribute is the
+// marker that we use throughout that determines whether we have gl support.
+
+export type WebGLState = {
+  readonly canvas: HTMLCanvasElement
+  readonly gl: WebGLRenderingContext
+}
+
+const global_webgl: WebGLState | undefined = (() => {
+  // We use a global invisible canvas and gl context. By having a global context,
+  // we avoid the limitation of max 16 contexts that most browsers have.
+  const canvas = document.createElement("canvas")
+  const gl = canvas.getContext("webgl", {premultipliedAlpha: true})
+
+  // If WebGL is available, we store a reference to the gl canvas on
+  // the ctx object, because that's what gets passed everywhere.
+  if (gl != null)
+    return {canvas, gl}
+  else {
+    logger.trace("WebGL is not supported")
+    return undefined
+  }
+})()
+
 const canvas2svg = require("canvas2svg")
 
 type SVGRenderingContext2D = {
@@ -19,6 +51,8 @@ export class CanvasView extends DOMView {
   model: Canvas
 
   bbox: BBox
+
+  webgl?: WebGLState
 
   private _ctx: CanvasRenderingContext2D | SVGRenderingContext2D
 
@@ -43,8 +77,9 @@ export class CanvasView extends DOMView {
     }
 
     switch (this.model.output_backend) {
-      case "canvas":
-      case "webgl": {
+      case "webgl":
+        this.webgl = global_webgl
+      case "canvas": {
         this.canvas_el = canvas({class: bk_canvas, style})
         const ctx = this.canvas_el.getContext('2d')
         if (ctx == null)
