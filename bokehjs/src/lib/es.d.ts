@@ -1,3 +1,9 @@
+// XXX: remove this when https://github.com/microsoft/TypeScript/issues/4586 is fixed
+
+interface Array<T> {
+  constructor: ArrayConstructor
+}
+
 interface Uint8Array {
   constructor: Uint8ArrayConstructor
 }

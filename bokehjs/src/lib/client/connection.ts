@@ -1,5 +1,5 @@
 import {logger} from "core/logging"
-import {Document} from "document"
+import {Document, DocJson} from "document"
 import {Message} from "protocol/message"
 import {Receiver} from "protocol/receiver"
 import {ClientSession} from "./session"
@@ -108,13 +108,13 @@ export class ClientConnection {
   }
 
   send_with_reply(message: Message): Promise<Message> {
-    const promise = new Promise((resolve, reject) => {
+    const promise = new Promise<Message>((resolve, reject) => {
       this._pending_replies[message.msgid()] = [resolve, reject]
       this.send(message)
     })
 
     return promise.then(
-      (message: Message) => {
+      (message) => {
         if (message.msgtype() === "ERROR")
           throw new Error(`Error reply ${message.content.text}`)
         else
@@ -126,7 +126,7 @@ export class ClientConnection {
     )
   }
 
-  protected _pull_doc_json(): Promise<Message> {
+  protected _pull_doc_json(): Promise<DocJson> {
     const message = Message.create("PULL-DOC-REQ", {})
     const promise = this.send_with_reply(message)
     return promise.then(
@@ -152,12 +152,12 @@ export class ClientConnection {
           if (this.closed_permanently)
             logger.debug("Got new document after connection was already closed")
           else {
-            const document = (Document as any).from_json(doc_json)
+            const document = Document.from_json(doc_json)
 
             // Constructing models changes some of their attributes, we deal with that
             // here. This happens when models set attributes during construction
             // or initialization.
-            const patch = (Document as any)._compute_patch_since_json(doc_json, document)
+            const patch = Document._compute_patch_since_json(doc_json, document)
             if (patch.events.length > 0) {
               logger.debug(`Sending ${patch.events.length} changes from model construction back to server`)
               const patch_message = Message.create('PATCH-DOC', {}, patch)

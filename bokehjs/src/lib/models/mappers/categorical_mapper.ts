@@ -5,7 +5,7 @@ import {index_of, find_index} from "core/util/arrayable"
 import {isString} from "core/util/types"
 import * as p from "core/properties"
 
-export function _cat_equals(a: Arrayable<any>, b: Arrayable<any>): boolean {
+export function _cat_equals(a: ArrayLike<unknown>, b: ArrayLike<unknown>): boolean {
   if (a.length != b.length)
     return false
 
