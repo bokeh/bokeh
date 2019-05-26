@@ -22,7 +22,9 @@ clips = [
 
 p = figure(plot_width=900, plot_height=450, toolbar_location=None, tools="")
 p.x_range.range_padding = p.y_range.range_padding = 0
+
 for i, url in enumerate(clips):
     p.vbar(x=i+0.5, top=5, width=0.9, fill_color=None, line_color="black",
            hatch_pattern=dict(value='image'), hatch_extra={"image": ImageURLTexture(url=url)})
+
 show(p)
