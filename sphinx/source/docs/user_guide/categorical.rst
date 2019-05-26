@@ -90,7 +90,7 @@ Often times we may want to have bars that are shaded some color. This can be
 accomplished in different ways. One way is to supply all the colors up front.
 This can be done by putting all the data, including the colors for each bar,
 in a ``ColumnDataSource``. Then the name of the column containing the colors
-is passed to ``figure`` as the ``color`` (or ``line_color``/``fill_color``)
+is passed to ``vbar`` as the ``color`` (or ``line_color``/``fill_color``)
 arguments. This is shown below:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_colors.py
@@ -104,7 +104,7 @@ colormaps the bars inside the browser. There is a function
 
     factor_cmap('fruits', palette=Spectral6, factors=fruits))
 
-This can be passed to ``figure`` in the same way as the column name in the
+This can be passed to ``vbar`` in the same way as the column name in the
 previous example. Putting everything together we obtain the same plot in
 a different way:
 
