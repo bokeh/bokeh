@@ -80,6 +80,11 @@ Fill Properties
 
 .. _userguide_styling_text_properties:
 
+Hatch Properties
+~~~~~~~~~~~~~~~~
+
+.. include:: ../includes/hatch_props.txt
+
 Text Properties
 ~~~~~~~~~~~~~~~
 
@@ -699,13 +704,20 @@ lines are hidden (i.e., their line color is set to ``None``).
 Bands
 ~~~~~
 
-It is also possible to display filled, shaded bands between adjacent
-grid lines. The visual appearance of these bands is controlled by a
-collection of `Fill Properties`_, prefixed with ``band_``. For instance,
-to set the color of grid bands, use ``band_fill_color``. To hide grid
+It is possible to display filled, shaded bands between adjacent grid lines.
+The visual appearance of these bands is controlled by a collection of
+`Fill Properties`_, and `Hatch Properties`_, prefixed with ``band_``. For
+instance, to set the color of grid bands, use ``band_fill_color``. To hide grid
 bands, set their fill color to ``None`` (this is the default).
 
+Here is an example demonstrating bands filled with a solid color:
+
 .. bokeh-plot:: docs/user_guide/examples/styling_grid_band_fill.py
+    :source-position: above
+
+And here is an example demonstrating bands filled with a hatch pattern:
+
+.. bokeh-plot:: docs/user_guide/examples/styling_grid_band_hatch.py
     :source-position: above
 
 .. _userguide_styling_grid_bounds:
