@@ -111,25 +111,22 @@ components when rendered:
 .. bokeh-plot:: docs/user_guide/examples/plotting_line_missing_points.py
     :source-position: above
 
+Stacked Lines
+'''''''''''''
+
+In some instances, it is desirable to stack lines that are aligned on a common
+index (e.g. time series of percentages). The |vline_stack| and |hline_stack|
+convenience methods can be used to accomplish this. Note the these methods
+stack columns from an explicity supplied ``ColumnDataSource`` (see the section
+:ref:`userguide_data` for more information
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_vline_stack.py
+    :source-position: above
+
 .. _userguide_plotting_bars_rects:
 
 Bars and Rectangles
 ~~~~~~~~~~~~~~~~~~~
-
-Rectangles
-''''''''''
-
-To draw *axis aligned* rectangles ("quads") by specifying the ``left``,
-``right``, ``top``, and ``bottom`` positions, use the |quad| glyph function:
-
-.. bokeh-plot:: docs/user_guide/examples/plotting_rectangles.py
-    :source-position: above
-
-To draw arbitrary rectangles by specifying a center point, width, height,
-and angle, use the |rect| glyph function:
-
-.. bokeh-plot:: docs/user_guide/examples/plotting_rectangles_rotated.py
-    :source-position: above
 
 Bars
 ''''
@@ -151,6 +148,34 @@ and left and right endpoints, use the |hbar| glyph function:
 .. bokeh-plot:: docs/user_guide/examples/plotting_hbar.py
     :source-position: above
 
+Stacked Bars
+''''''''''''
+
+It is often desirable to stack bars. This can be accomplished with the
+|vbar_stack| and |hbar_stack| convenience methods. Note the these methods
+stack columns from an explicity supplied ``ColumnDataSource`` (see the section
+:ref:`userguide_data` for more information).
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_hbar_stack.py
+    :source-position: above
+
+More examples of stacked bars can be found in the section
+:ref:`userguide_categorical`.
+
+Rectangles
+''''''''''
+
+To draw *axis aligned* rectangles ("quads") by specifying the ``left``,
+``right``, ``top``, and ``bottom`` positions, use the |quad| glyph function:
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_rectangles.py
+    :source-position: above
+
+To draw arbitrary rectangles by specifying a center point, width, height,
+and angle, use the |rect| glyph function:
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_rectangles_rotated.py
+    :source-position: above
 
 .. userguide_plotting_hex
 
@@ -174,10 +199,40 @@ A more realistic example below computes counts per bin using the
 The above code can be made even simpler by calling the :func:`~bokeh.plotting.figure.Figure.hexbin`
 method of ``Figure``.
 
-.. _userguide_plotting_patch_glyphs:
+.. _userguide_plotting_directed_areas:
 
-Patch Glyphs
-~~~~~~~~~~~~
+Directed Areas
+~~~~~~~~~~~~~~
+
+Directed areas are filled regions between two series that share a common index.
+For instance, a vertical directed area has one `x` coordinate array, and two y
+coordinate arrays, `y1` and `y2`, which will be filled between.
+
+Single Areas
+''''''''''''
+
+A single directed area between two aligned series can be created in the
+vertical direction with |varea| or in the horizontal direction with
+|harea|.
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_varea.py
+    :source-position: above
+
+Stacked Areas
+'''''''''''''
+
+It is often desirable to stack directed areas. This can be accomplished with
+the |varea_stack| and |harea_stack| convenience methods. Note the these methods
+stack columns from an explicity supplied ``ColumnDataSource`` (see the section
+:ref:`userguide_data` for more information.
+
+.. bokeh-plot:: docs/user_guide/examples/plotting_varea_stack.py
+    :source-position: above
+
+.. _userguide_plotting_patch_polygon_glyphs:
+
+Patches and Polygons
+~~~~~~~~~~~~~~~~~~~~
 
 Single Patches
 ''''''''''''''
@@ -548,7 +603,11 @@ The section on adding annotations to plots has moved.  Please see
 .. |diamond|           replace:: :func:`~bokeh.plotting.figure.Figure.diamond`
 .. |diamond_cross|     replace:: :func:`~bokeh.plotting.figure.Figure.diamond_cross`
 .. |ellipse|           replace:: :func:`~bokeh.plotting.figure.Figure.ellipse`
+.. |harea|             replace:: :func:`~bokeh.plotting.figure.Figure.harea`
+.. |harea_stack|       replace:: :func:`~bokeh.plotting.figure.Figure.harea_stack`
 .. |hbar|              replace:: :func:`~bokeh.plotting.figure.Figure.hbar`
+.. |hbar_stack|        replace:: :func:`~bokeh.plotting.figure.Figure.hbar_stack`
+.. |hline_stack|       replace:: :func:`~bokeh.plotting.figure.Figure.hline_stack`
 .. |inverted_triangle| replace:: :func:`~bokeh.plotting.figure.Figure.inverted_triangle`
 .. |image|             replace:: :func:`~bokeh.plotting.figure.Figure.image`
 .. |image_rgba|        replace:: :func:`~bokeh.plotting.figure.Figure.image_rgba`
@@ -569,6 +628,10 @@ The section on adding annotations to plots has moved.  Please see
 .. |square_cross|      replace:: :func:`~bokeh.plotting.figure.Figure.square_cross`
 .. |square_x|          replace:: :func:`~bokeh.plotting.figure.Figure.square_x`
 .. |triangle|          replace:: :func:`~bokeh.plotting.figure.Figure.triangle`
+.. |varea|             replace:: :func:`~bokeh.plotting.figure.Figure.varea`
+.. |varea_stack|       replace:: :func:`~bokeh.plotting.figure.Figure.varea_stack`
 .. |vbar|              replace:: :func:`~bokeh.plotting.figure.Figure.vbar`
+.. |vbar_stack|        replace:: :func:`~bokeh.plotting.figure.Figure.vbar_stack`
+.. |vline_stack|       replace:: :func:`~bokeh.plotting.figure.Figure.vline_stack`
 .. |wedge|             replace:: :func:`~bokeh.plotting.figure.Figure.wedge`
 .. |x|                 replace:: :func:`~bokeh.plotting.figure.Figure.x`

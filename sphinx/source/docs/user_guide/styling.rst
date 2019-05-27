@@ -80,6 +80,11 @@ Fill Properties
 
 .. _userguide_styling_text_properties:
 
+Hatch Properties
+~~~~~~~~~~~~~~~~
+
+.. include:: ../includes/hatch_props.txt
+
 Text Properties
 ~~~~~~~~~~~~~~~
 
@@ -699,13 +704,20 @@ lines are hidden (i.e., their line color is set to ``None``).
 Bands
 ~~~~~
 
-It is also possible to display filled, shaded bands between adjacent
-grid lines. The visual appearance of these bands is controlled by a
-collection of `Fill Properties`_, prefixed with ``band_``. For instance,
-to set the color of grid bands, use ``band_fill_color``. To hide grid
+It is possible to display filled, shaded bands between adjacent grid lines.
+The visual appearance of these bands is controlled by a collection of
+`Fill Properties`_, and `Hatch Properties`_, prefixed with ``band_``. For
+instance, to set the color of grid bands, use ``band_fill_color``. To hide grid
 bands, set their fill color to ``None`` (this is the default).
 
+Here is an example demonstrating bands filled with a solid color:
+
 .. bokeh-plot:: docs/user_guide/examples/styling_grid_band_fill.py
+    :source-position: above
+
+And here is an example demonstrating bands filled with a hatch pattern:
+
+.. bokeh-plot:: docs/user_guide/examples/styling_grid_band_hatch.py
     :source-position: above
 
 .. _userguide_styling_grid_bounds:
@@ -749,10 +761,6 @@ for every element of the list:
 .. code-block:: python
 
     p.legend.label_text_font = "times"
-
-.. note::
-    The examples in this section use NumPy to more easily generate better
-    data suitable for demonstrating legends.
 
 Location
 ~~~~~~~~
@@ -802,6 +810,25 @@ object directly:
 
 In this use-case, the location must be specified absolutely. Future releases
 will add additional options for laying out legend positions.
+
+Title
+~~~~~
+
+Legends can have a title, specified by the ``title`` property:
+
+.. code:: python
+
+    plot.legend.title = "Division"
+
+The visual appearance of the legend title is controlled by a collection of
+`Text Properties`_, prefixed with ``title_``. For instance, to set the font
+style of the legend, use ``title_text_font_style``.
+
+The distance to separate the title from the rest of the legend (in pixels)
+is controlled by the ``title_standoff`` property.
+
+.. bokeh-plot:: docs/user_guide/examples/styling_legend_title.py
+    :source-position: above
 
 Orientation
 ~~~~~~~~~~~

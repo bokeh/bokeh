@@ -314,6 +314,15 @@ export type BandFill = {
   band_fill_alpha: Fill["fill_alpha"]
 }
 
+export type BandHatch = {
+  band_hatch_color: Hatch["hatch_color"]
+  band_hatch_alpha: Hatch["hatch_alpha"]
+  band_hatch_scale: Hatch["hatch_scale"]
+  band_hatch_pattern: Hatch["hatch_pattern"]
+  band_hatch_weight: Hatch["hatch_weight"]
+  band_hatch_extra: Hatch["hatch_extra"]
+}
+
 export type OutlineLine = {
   outline_line_color: Line["line_color"]
   outline_line_alpha: Line["line_alpha"]
