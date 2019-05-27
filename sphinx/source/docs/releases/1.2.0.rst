@@ -39,7 +39,7 @@ and Python callbacks) only according to the ``callback_policy``:
 
 .. code-block:: python
 
-    slider.callback_polich = "mouseup"
+    slider.callback_policy = "mouseup"
 
     # both of these will respect the callback policy now
     slider.js_on_change('value_throttled', ...)
