@@ -69,6 +69,9 @@ freq = Slider(start=1, end=MAX_FREQ, value=MAX_FREQ, step=1, title="Frequency")
 gain = Slider(start=1, end=20, value=1, step=1, title="Gain")
 
 def update():
+    if audio.data['values'] is None:
+        return
+
     signal, spectrum, bins = audio.data['values']
 
     # seems to be a problem with Array property, using List for now
