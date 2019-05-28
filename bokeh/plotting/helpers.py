@@ -279,34 +279,43 @@ def _pop_renderer_args(kwargs):
     return result
 
 
-def _pop_colors_and_alpha(glyphclass, kwargs, prefix="", default_alpha=1.0):
+def _pop_colors_and_alpha(glyphclass, kwargs, prefix="", defaults={},
+                          trait_defaults={}):
     """
     Given a kwargs dict, a prefix, and a default value, looks for different
     color and alpha fields of the given prefix, and fills in the default value
     if it doesn't exist.
     """
     result = dict()
+    defaults, trait_defaults = defaults.copy(), trait_defaults.copy()
 
     # TODO: The need to do this and the complexity of managing this kind of
     # thing throughout the codebase really suggests that we need to have
     # a real stylesheet class, where defaults and Types can declaratively
     # substitute for this kind of imperative logic.
-    color = kwargs.pop(prefix + "color", get_default_color())
-    for argname in ("fill_color", "line_color"):
-        if argname not in glyphclass.properties():
-            continue
-        result[argname] = kwargs.pop(prefix + argname, color)
+    def is_visual(argname):
+        feature = argname.split('_', 1)[0]
+        return feature in ('line', 'fill', 'text')
 
     # NOTE: text fill color should really always default to black, hard coding
     # this here now until the stylesheet solution exists
-    if "text_color" in glyphclass.properties():
-        result["text_color"] = kwargs.pop(prefix + "text_color", "black")
+    if 'text_color' not in defaults:
+        defaults['text_color'] = 'black'
 
-    alpha = kwargs.pop(prefix + "alpha", default_alpha)
-    for argname in ("fill_alpha", "line_alpha", "text_alpha"):
-        if argname not in glyphclass.properties():
-            continue
-        result[argname] = kwargs.pop(prefix + argname, alpha)
+    if 'color' not in trait_defaults:
+        trait_defaults['color'] = kwargs.pop(prefix+'color', get_default_color())
+    if 'alpha' not in trait_defaults:
+        trait_defaults['alpha'] = kwargs.pop(prefix+'alpha', 1.0)
+
+    for argname in filter(is_visual, glyphclass.properties()):
+        prefixed = prefix + argname
+        trait = argname.split('_', 1)[1] if '_' in argname else None
+        if argname in defaults:
+            result[argname] = kwargs.pop(prefixed, defaults[argname])
+        elif trait in trait_defaults:
+            result[argname] = kwargs.pop(prefixed, trait_defaults[trait])
+        elif prefixed in kwargs:
+            result[argname] = kwargs.pop(prefixed)
 
     return result
 
@@ -890,7 +899,7 @@ def _glyph_function(glyphclass, extra_docs=None):
             raise RuntimeError(_GLYPH_SOURCE_MSG % nice_join(incompatible_literal_spec_values, conjuction="and"))
 
         # handle the nonselection glyph, we always set one
-        nsglyph_ca = _pop_colors_and_alpha(glyphclass, kwargs, prefix='nonselection_', default_alpha=0.1)
+        nsglyph_ca = _pop_colors_and_alpha(glyphclass, kwargs, prefix='nonselection_', trait_defaults={'alpha':0.1})
 
         # handle the selection glyph, if any properties were given
         if any(x.startswith('selection_') for x in kwargs):
