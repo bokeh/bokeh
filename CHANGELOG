@@ -1,3 +1,46 @@
+2019-05-27    1.2.0:
+--------------------
+  * bugfixes:
+    - #2259 [component: bokehjs] [widgets] Autocomplete widget not recognizing value change
+    - #6855 [component: bokehjs] Boxselecttool does not work as expected with gmapplot
+    - #7699 [component: bokehjs] [webgl] Mixed canvas and webgl glyphs are painted in wrong z-order
+    - #8103 [component: bokehjs] Rangetool unusable after selection change
+    - #8828 [component: bokehjs] [widgets] [bug] autocompleteinput widget value attribute does not reflect selection
+    - #8835 [component: server] [bug] runtimeerror on adding callbacks after rendering
+    - #8843 [component: bokehjs] [widgets] Bar_color slider not updating
+    - #8849 [component: examples] [bug] color mapping bug in crossfilter example
+    - #8853 [bug] exports do not work with firefox webdriver
+    - #8889 [component: bokehjs] [bug] imageurl selection_glyph raises "typeerror: this.retries is undefined"
+    - #8895 [component: bokehjs] [bug] customjs callbacks added after initialization do not work
+    - #8903 [bug] layout accepts name as keyword arg but doesn't pass to underlying objects
+    - #8909 [component: bokehjs] [widgets] [bug] changing slider widget title property does not update view
+  * features:
+    - #4540 [component: bokehjs] [component: server] Slider callback_policy should work for apps
+    - #6135 [component: bokehjs] Feature request: textures to fill properties?
+    - #6769 [component: bokehjs] [layout] Legend title
+    - #8848 [API: plotting] [component: bokehjs] [feature] stacked areas and lines
+    - #8863 [feature] allow the webdriver timeout to be customized
+  * tasks:
+    - #4665 [component: bokehjs] [component: tests] Add missing widget callback integration tests
+    - #5469 [component: docs] Document that boxzoomtool does not work on gmapplot
+    - #5918 [component: bokehjs] Touch scroll the page when no tools are active
+    - #6516 [component: bokehjs] [widgets]  add selenium tests for slider and rangeslider
+    - #6927 [component: bokehjs] Allow reset tool to only emit reset event, and skip built-in reset code
+    - #7238 [component: docs] Document get_screenshot_as_png better
+    - #8433 [component: build] Clean up .gitignore files across the repository
+    - #8496 "warning:bokeh.resources:root_url should end with a /, adding one" spam
+    - #8571 [component: docs] `scripts/deps.py` does not install phantom_js
+    - #8861 Create readme to explain server_embed usage
+    - #8867 [component: docs] Update tile provider example for "mapping geo data" user guide
+    - #8874 [component: build] Uploading actual releases to conda bokeh/label/dev
+    - #8875 Hatching/stacking follow on work
+    - #8876 [component: bokehjs] [component: build] Fix security vulnerabilities reported by npm audit
+    - #8897 Reference link updated
+    - #8901 [component: examples] [bug] legend order backwards for stacked area plots
+    - #8916 [component: docs] Update 1.1.0.rst
+    - #8930 [component: docs] Docs: fix typo
+    - #8933 [component: docs] Add release notes for 1.2
+
 2019-04-08    1.1.0:
 --------------------
   * bugfixes:
