@@ -94,7 +94,7 @@ REQUIRES = [
     'numpy >=1.7.1',
     'pillow >=4.0',
     'packaging >=16.8',
-    'tornado >=4.3',
+    'tornado >=5',
 ]
 
 # handle the compat difference for futures (meta.yaml handles differently)
