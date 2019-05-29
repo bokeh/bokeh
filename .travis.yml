@@ -42,6 +42,7 @@ branches:
   - "/^\\d+.\\d+.\\d+dev\\d+$/"
   - "/^\\d+.\\d+.\\d+rc\\d+$/"
   - "/^\\d+.\\d+.\\d+$/"
+  - landing-2.0
 
 notifications:
   slack:
