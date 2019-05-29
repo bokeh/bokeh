@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 from bokeh.util.future import collections_abc # goes away with py2
 
 # External imports
-from six import string_types, iteritems
+from six import string_types
 
 # Bokeh imports
 from ...util.serialization import decode_base64_dict, transform_column_source_data
@@ -176,7 +176,7 @@ class Dict(ContainerProperty):
         if json is None:
             return None
         elif isinstance(json, dict):
-            return { self.keys_type.from_json(key, models): self.values_type.from_json(value, models) for key, value in iteritems(json) }
+            return { self.keys_type.from_json(key, models): self.values_type.from_json(value, models) for key, value in json.items() }
         else:
             raise DeserializationError("%s expected a dict or None, got %s" % (self, json))
 
@@ -185,7 +185,7 @@ class Dict(ContainerProperty):
 
         if value is not None:
             if not (isinstance(value, dict) and \
-                    all(self.keys_type.is_valid(key) and self.values_type.is_valid(val) for key, val in iteritems(value))):
+                    all(self.keys_type.is_valid(key) and self.values_type.is_valid(val) for key, val in value.items())):
                 msg = "" if not detail else "expected an element of %s, got %r" % (self, value)
                 raise ValueError(msg)
 

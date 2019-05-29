@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 from importlib import import_module
 
 # External imports
-from six import iteritems, string_types
+from six import string_types
 
 # Bokeh imports
 from .bases import DeserializationError, Property
@@ -95,7 +95,7 @@ class Instance(Property):
             else:
                 attrs = {}
 
-                for name, value in iteritems(json):
+                for name, value in json.items():
                     prop_descriptor = self.instance_type.lookup(name).property
                     attrs[name] = prop_descriptor.from_json(value, models)
 

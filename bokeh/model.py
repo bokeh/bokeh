@@ -26,7 +26,7 @@ from json import loads
 from operator import itemgetter
 
 # External imports
-from six import iteritems, string_types
+from six import string_types
 
 # Bokeh imports
 from .core.json_encoder import serialize_json
@@ -852,7 +852,7 @@ def _visit_value_and_its_immediate_references(obj, visitor):
         for item in obj:
             _visit_value_and_its_immediate_references(item, visitor)
     elif issubclass(typ, dict):
-        for key, value in iteritems(obj):
+        for key, value in obj.items():
             _visit_value_and_its_immediate_references(key, visitor)
             _visit_value_and_its_immediate_references(value, visitor)
     elif issubclass(typ, HasProps):
