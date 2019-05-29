@@ -162,8 +162,6 @@ class BokehTornado(TornadoApplication):
             Set the Tornado ``websocket_max_message_size`` value.
             (default: 20*1024*1024)
 
-            NOTE: This setting has effect ONLY for Tornado>=4.5
-
     Any additional keyword arguments are passed to ``tornado.web.Application``.
     '''
 
