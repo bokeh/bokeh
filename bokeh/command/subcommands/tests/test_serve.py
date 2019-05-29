@@ -232,8 +232,7 @@ def test_args():
          ('--websocket-max-message-size', dict(
             metavar='BYTES',
             action='store',
-            help="Set the Tornado websocket_max_message_size value (defaults "
-                 "to 20MB) NOTE: This setting has effect ONLY for Tornado>=4.5",
+            help="Set the Tornado websocket_max_message_size value (defaults to 20MB)",
             default=20*1024*1024,
             type=int,
         )),

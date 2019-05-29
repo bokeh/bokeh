@@ -105,24 +105,16 @@ class _AsyncPeriodic(object):
         self._started = True
 
         def invoke():
-            # important to start the sleep before starting callback
-            # so any initial time spent in callback "counts against"
-            # the period.
+            # important to start the sleep before starting callback so any initial
+            # time spent in callback "counts against" the period.
             sleep_future = self.sleep()
             result = self._func()
 
-            # This is needed for Tornado >= 4.5 where convert_yielded will no
-            # longer raise BadYieldError on None
             if result is None:
                 return sleep_future
 
-            try:
-                callback_future = gen.convert_yielded(result)
-            except gen.BadYieldError:
-                # result is not a yieldable thing
-                return sleep_future
-            else:
-                return gen.multi([sleep_future, callback_future])
+            callback_future = gen.convert_yielded(result)
+            return gen.multi([sleep_future, callback_future])
 
         def on_done(future):
             if not self._stopped:

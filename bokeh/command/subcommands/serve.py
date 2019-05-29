@@ -530,8 +530,7 @@ class Serve(Subcommand):
         ('--websocket-max-message-size', dict(
             metavar='BYTES',
             action='store',
-            help="Set the Tornado websocket_max_message_size value (defaults "
-                 "to 20MB) NOTE: This setting has effect ONLY for Tornado>=4.5",
+            help="Set the Tornado websocket_max_message_size value (defaults to 20MB)",
             default=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
             type=int,
         )),
