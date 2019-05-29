@@ -3,7 +3,7 @@ import {Arrayable} from "core/types"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 import * as hittest from "core/hittest"
-import {Selection} from "../selections/selection"
+import {Selection, ImageIndex} from "../selections/selection"
 import {PointGeometry} from "core/geometry"
 import {SpatialIndex} from "core/util/spatial"
 
@@ -20,21 +20,7 @@ export interface ImageDataBase extends XYGlyphData {
   sh: Arrayable<number>
 }
 
-export interface ImageIndex {
-  index: number
-  dim1: number
-  dim2: number
-  flat_index: number
-}
-
 export interface ImageBaseView extends ImageDataBase {}
-
-export interface ImageIndex {
-  index: number
-  dim1: number
-  dim2: number
-  flat_index: number
-}
 
 export class ImageBaseView extends XYGlyphView {
   model: ImageBase
