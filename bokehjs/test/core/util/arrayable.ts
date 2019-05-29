@@ -69,4 +69,38 @@ describe("core/util/arrayable module", () => {
     expect(ret6).to.be.instanceof(Float64Array)
     expect(ret6).to.be.deep.equal(Float64Array.of(101, 102))
   })
+
+  it("support head() function", () => {
+    const arr0 = [1, 2, 3]
+
+    const ret0 = arrayable.head(arr0, 0)
+    expect(ret0).to.be.deep.equal([])
+
+    const ret1 = arrayable.head(arr0, 1)
+    expect(ret1).to.be.deep.equal([1])
+
+    const ret2 = arrayable.head(arr0, 2)
+    expect(ret2).to.be.deep.equal([1, 2])
+
+    const ret3 = arrayable.head(arr0, 3)
+    expect(ret3).to.be.deep.equal([1, 2, 3])
+
+    const ret4 = arrayable.head(arr0, 4)
+    expect(ret4).to.be.deep.equal([1, 2, 3])
+
+    const ret5 = arrayable.head(arr0, 5)
+    expect(ret5).to.be.deep.equal([1, 2, 3])
+  })
+
+  it("support filter() function", () => {
+    const arr0 = [1, 2, 3, 4, 5, 6, 7]
+
+    const ret0 = arrayable.filter(arr0, (i) => i % 2 == 0)
+    expect(ret0).to.be.deep.equal([2, 4, 6])
+
+    const arr1 = Float64Array.from(arr0)
+
+    const ret1 = arrayable.filter(arr1, (i) => i % 2 == 0)
+    expect(ret1).to.be.deep.equal(Float64Array.from([2, 4, 6]))
+  })
 })

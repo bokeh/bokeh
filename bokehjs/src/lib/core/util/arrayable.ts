@@ -36,6 +36,10 @@ export function splice<T>(array: Arrayable<T>, start: number, k?: number, ...ite
   return result
 }
 
+export function head<T>(array: Arrayable<T>, n: number): Arrayable<T> {
+  return splice(array, n, array.length - n)
+}
+
 export function insert<T>(array: Arrayable<T>, item: T, i: number): Arrayable<T> {
   return splice(array, i, 0, item)
 }
@@ -57,6 +61,9 @@ export function indexOf<T>(array: Arrayable<T>, item: T): number {
   return -1
 }
 
+export function map<T, U>(array: T[], fn: (item: T, i: number, array: Arrayable<T>) => U): U[]
+export function map<T, U>(array: Arrayable<T>, fn: (item: T, i: number, array: Arrayable<T>) => U): Arrayable<U>
+
 export function map<T, U>(array: Arrayable<T>, fn: (item: T, i: number, array: Arrayable<T>) => U): Arrayable<U> {
   const n = array.length
   const result = new (array.constructor as ArrayableNew)<U>(n)
@@ -64,6 +71,21 @@ export function map<T, U>(array: Arrayable<T>, fn: (item: T, i: number, array: A
     result[i] = fn(array[i], i, array)
   }
   return result
+}
+
+export function filter<T>(array: T[], pred: (item: T, i: number, array: Arrayable<T>) => boolean): T[]
+export function filter<T>(array: Arrayable<T>, pred: (item: T, i: number, array: Arrayable<T>) => boolean): Arrayable<T>
+
+export function filter<T>(array: Arrayable<T>, pred: (item: T, i: number, array: Arrayable<T>) => boolean): Arrayable<T> {
+  const n = array.length
+  const result = new (array.constructor as ArrayableNew)<T>(n)
+  let k = 0
+  for (let i = 0; i < n; i++) {
+    const value = array[i]
+    if (pred(value, i, array))
+      result[k++] = value
+  }
+  return head(result, k)
 }
 
 export function reduce<T>(array: Arrayable<T>, fn: (previous: T, current: T, index: number, array: Arrayable<T>) => T, initial?: T): T {

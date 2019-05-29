@@ -18,7 +18,7 @@ import {build_views, remove_views} from "core/build_views"
 import {HoverMode, PointPolicy, LinePolicy, Anchor, TooltipAttachment} from "core/enums"
 import {Geometry, PointGeometry, SpanGeometry} from "core/geometry"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
-import {ImageIndex} from "../../glyphs/image_base"
+import {ImageIndex} from "../../selections/selection"
 
 export type TooltipVars = {index: number} & Vars
 

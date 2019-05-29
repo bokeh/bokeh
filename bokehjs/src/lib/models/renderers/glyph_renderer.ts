@@ -8,7 +8,7 @@ import {Color} from "core/types"
 import {Class} from "core/class"
 import {logger} from "core/logging"
 import * as p from "core/properties"
-import {indexOf} from "core/util/arrayable"
+import {indexOf, map, filter} from "core/util/arrayable"
 import {difference, includes, range} from "core/util/array"
 import {extend, clone} from "core/util/object"
 import * as hittest from "core/hittest"
@@ -217,46 +217,31 @@ export class GlyphRendererView extends DataRendererView {
     // selected is in full set space
     const {selected} = this.model.data_source
     let selected_full_indices: number[]
-    if (!selected || selected.is_empty()) {
+    if (!selected || selected.is_empty())
       selected_full_indices = []
-    } else {
-      if (this.glyph instanceof LineView && selected.selected_glyph === this.glyph.model) {
+    else {
+      if (this.glyph instanceof LineView && selected.selected_glyph === this.glyph.model)
         selected_full_indices = this.model.view.convert_indices_from_subset(indices)
-      } else {
+      else
         selected_full_indices = selected.indices
-      }
     }
 
     // inspected is in full set space
     const {inspected} = this.model.data_source
     let inspected_full_indices: number[]
-    if (!inspected || (inspected.length === 0)) {
+    if (!inspected || inspected.is_empty())
       inspected_full_indices = []
-    } else {
-      if (inspected['0d'].glyph) {
+    else {
+      if (inspected['0d'].glyph)
         inspected_full_indices = this.model.view.convert_indices_from_subset(indices)
-      } else if (inspected['1d'].indices.length > 0) {
+      else if (inspected['1d'].indices.length > 0)
         inspected_full_indices = inspected['1d'].indices
-      } else {
-        inspected_full_indices = ((() => {
-          const result = []
-          for (const i of Object.keys(inspected["2d"].indices)) {
-            result.push(parseInt(i))
-          }
-          return result
-        })())
-      }
+      else
+        inspected_full_indices = map(Object.keys(inspected["2d"].indices), (i) => parseInt(i))
     }
 
     // inspected is transformed to subset space
-    const inspected_subset_indices: number[] = ((() => {
-      const result = []
-      for (const i of indices) {
-        if (includes(inspected_full_indices, this.all_indices[i]))
-          result.push(i)
-      }
-      return result
-    })())
+    const inspected_subset_indices = filter(indices, (i) => includes(inspected_full_indices, this.all_indices[i]))
 
     const {lod_threshold} = this.plot_model
     let glyph: GlyphView
