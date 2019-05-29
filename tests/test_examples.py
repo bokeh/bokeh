@@ -9,8 +9,6 @@ import signal
 
 from os.path import basename, dirname, split
 
-import six
-
 from bokeh.server.callbacks import NextTickCallback, PeriodicCallback, TimeoutCallback
 from bokeh._testing.util.screenshot import run_in_chrome
 
@@ -59,12 +57,8 @@ def test_file_examples(file_example, example, config, report):
 
 @pytest.mark.examples
 def test_server_examples(server_example, example, config, report, bokeh_server):
-    # mitigate some weird interaction isolated to simple ids, py2.7,
-    # "push_session" server usage, and TravisCI
-    if six.PY2: os.environ['BOKEH_SIMPLE_IDS'] = 'no'
     app = build_single_handler_application(example.path)
     doc = app.create_document()
-    if six.PY2: del os.environ['BOKEH_SIMPLE_IDS']
 
     # remove all next-tick, periodic, and timeout callbacks
     for session_callback in doc.session_callbacks:

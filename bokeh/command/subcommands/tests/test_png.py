@@ -21,7 +21,6 @@ import argparse
 import os
 
 # External imports
-import six
 
 # Bokeh imports
 import bokeh.command.subcommands.png as scpng
@@ -101,10 +100,7 @@ def test_no_script(capsys):
             with pytest.raises(SystemExit):
                 main(["bokeh", "png"])
         out, err = capsys.readouterr()
-        if six.PY2:
-            too_few = "too few arguments"
-        else:
-            too_few = "the following arguments are required: DIRECTORY-OR-SCRIPT"
+        too_few = "the following arguments are required: DIRECTORY-OR-SCRIPT"
         assert err == """usage: bokeh png [-h] [--height HEIGHT] [--width WIDTH] [-o FILENAME]
                  [--args ...]
                  DIRECTORY-OR-SCRIPT [DIRECTORY-OR-SCRIPT ...]
@@ -156,7 +152,6 @@ def test_basic_script_with_output_before(capsys):
 
 @pytest.mark.unit
 @pytest.mark.selenium
-@pytest.mark.skipif(six.PY2, reason="capsysbinary not available on Py2")
 def test_basic_script_with_output_stdout(capsysbinary):
     def run(dirname):
         with WorkingDir(dirname):
