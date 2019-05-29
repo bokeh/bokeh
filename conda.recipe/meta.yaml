@@ -67,7 +67,6 @@ test:
     - nodejs >=8.8
     - numba
     - pandas
-    - pillow
     - psutil
     - pytest
     - pytest-cov >=1.8.1
