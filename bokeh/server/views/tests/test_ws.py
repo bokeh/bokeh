@@ -20,8 +20,7 @@ import pytest ; pytest
 import logging
 
 # External imports
-import six
-from tornado.websocket import StreamClosedError, WebSocketClosedError
+from tornado.websocket import WebSocketClosedError
 
 # Bokeh imports
 from bokeh.util.logconfig import basicConfig
@@ -40,13 +39,11 @@ basicConfig()
 # General API
 #-----------------------------------------------------------------------------
 
-@pytest.mark.skipif(six.PY2, reason="this test doesn't work on Python 2 due to 'fake self' hack.")
-@pytest.mark.parametrize('exc', [StreamClosedError, WebSocketClosedError])
 @pytest.mark.unit
-def test_send_message_raises(caplog, exc):
+def test_send_message_raises(caplog):
     class ExcMessage(object):
         def send(self, handler):
-            raise exc()
+            raise WebSocketClosedError()
     assert len(caplog.records) == 0
     with caplog.at_level(logging.WARN):
         # fake self not great but much easier than setting up a real view
