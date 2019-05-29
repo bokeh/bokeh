@@ -29,7 +29,6 @@ from os.path import abspath, dirname, exists, expanduser, isdir, isfile, join, s
 from sys import stdout
 
 # External imports
-import six
 from six.moves.urllib_parse import urljoin
 
 # Bokeh imports
@@ -156,11 +155,7 @@ def open_csv(filename):
     '''
 
     '''
-    # csv differs in Python 2.x and Python 3.x. Open the file differently in each.
-    if six.PY2:
-        return open(filename, 'rb')
-    else:
-        return open(filename, 'r', newline='', encoding='utf8')
+    return open(filename, 'r', newline='', encoding='utf8')
 
 #-----------------------------------------------------------------------------
 # Private API
