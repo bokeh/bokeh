@@ -27,7 +27,7 @@ import codecs
 from six.moves.urllib.parse import urlparse
 
 from tornado import gen, locks
-from tornado.websocket import StreamClosedError, WebSocketHandler, WebSocketClosedError
+from tornado.websocket import WebSocketHandler, WebSocketClosedError
 
 
 # Bokeh imports
@@ -251,7 +251,7 @@ class WSHandler(WebSocketHandler):
             if _message_test_port is not None:
                 _message_test_port.sent.append(message)
             yield message.send(self)
-        except (WebSocketClosedError, StreamClosedError): # Tornado 4.x may raise StreamClosedError
+        except WebSocketClosedError:
             # on_close() is / will be called anyway
             log.warning("Failed sending message as connection was closed")
         raise gen.Return(None)
