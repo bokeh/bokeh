@@ -686,7 +686,7 @@ def test__server_multiple_processes():
 
 def test__existing_ioloop_with_multiple_processes_exception():
     application = Application()
-    ioloop_instance = IOLoop.instance() ; ioloop_instance # silence flake8
+    ioloop_current = IOLoop.current() ; ioloop_current # silence flake8
     with pytest.raises(RuntimeError):
         with ManagedServerLoop(application, num_procs=3):
             pass
