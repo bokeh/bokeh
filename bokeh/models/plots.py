@@ -35,7 +35,6 @@ from ..core.validation import error, warning
 from ..core.validation.errors import BAD_EXTRA_RANGE_NAME, REQUIRED_RANGE, REQUIRED_SCALE, INCOMPATIBLE_SCALE_AND_RANGE
 from ..core.validation.warnings import MISSING_RENDERERS, FIXED_SIZING_MODE, FIXED_WIDTH_POLICY, FIXED_HEIGHT_POLICY
 from ..model import Model, collect_filtered_models
-from ..util.deprecation import deprecated
 from ..util.string import nice_join
 
 from .annotations import Legend, Title
@@ -616,23 +615,6 @@ class Plot(LayoutDOM):
     to the same value. If an individual border property is explicitly set,
     it will override ``min_border``.
     """)
-
-
-    @property
-    def h_symmetry(self):
-        deprecated("h_symmetry has been non-functional since before Bokeh 1.0 and will be removed at Bokeh 2.0")
-
-    @h_symmetry.setter
-    def h_symmetry(self, _):
-        deprecated("h_symmetry has been non-functional since before Bokeh 1.0 and will be removed at Bokeh 2.0")
-
-    @property
-    def v_symmetry(self):
-        deprecated("v_symmetry has been non-functional since before Bokeh 1.0 and will be removed at Bokeh 2.0")
-
-    @v_symmetry.setter
-    def v_symmetry(self, _):
-        deprecated("v_symmetry has been non-functional since before Bokeh 1.0 and will be removed at Bokeh 2.0")
 
     lod_factor = Int(10, help="""
     Decimation factor to use when applying level-of-detail decimation.
