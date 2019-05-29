@@ -677,7 +677,7 @@ class Serve(Subcommand):
 
         ('--glob', dict(
             action='store_true',
-            help='Process all filenames as globs',
+            help='Process all filename arguments as globs',
         )),
     )
 
