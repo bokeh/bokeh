@@ -28,12 +28,12 @@ from os.path import abspath
 from tempfile import mkstemp
 
 # External imports
+from PIL import Image
 from six import raise_from
 
 # Bokeh imports
 from ..embed import file_html
 from ..resources import INLINE
-from ..util.dependencies import import_required
 from ..util.string import decode_utf8
 from .util import default_filename
 
@@ -205,10 +205,6 @@ def get_screenshot_as_png(obj, driver=None, timeout=5, **kwargs):
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    Image = import_required('PIL.Image',
-                            'To use bokeh.io.export_png you need pillow ' +
-                            '("conda install pillow" or "pip install pillow")')
-
     with _tmp_html() as tmp:
         html = get_layout_html(obj, **kwargs)
         with io.open(tmp.path, mode="w", encoding="utf-8") as file:
