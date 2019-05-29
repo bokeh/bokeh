@@ -1,0 +1,22 @@
+.. _release-2-0-0:
+
+2.0.0
+=====
+
+Bokeh Version ``2.0.0`` (XXXX 2019) is a major milestone of the Bokeh project.
+
+
+
+And several other bug fixes and docs additions. For full details see the
+:bokeh-tree:`CHANGELOG`.
+
+.. _release-2-0-0-migration:
+
+`Migration Guide <releases.html#release-2-0-0-migration>`__
+-----------------------------------------------------------
+
+Plot Symmetry Properties
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The deprecated vestigal properties ``Plot.h_symmetry`` and ``Plot.v_symmetry``
+have been removed. These properties were non-functional for many releases.
