@@ -30,7 +30,7 @@ requirements:
     - pyyaml
     - setuptools
     - six
-    - tornado >=4.3
+    - tornado >=5
     - yaml
 
   run:

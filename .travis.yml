@@ -105,7 +105,7 @@ jobs:
       env:
       - GROUP=unit
       - PYTHON=3.5
-      - TORNADO=4
+      - TORNADO=5
       - MINIMAL=1
 
     - install: scripts/ci/install.test
