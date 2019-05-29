@@ -513,8 +513,6 @@ class _ServerOpts(Options):
 
     websocket_max_message_size = Int(default=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, help="""
     Set the Tornado ``websocket_max_message_size`` value.
-
-    NOTE: This setting has effect ONLY for Tornado>=4.5
     """)
 
 #-----------------------------------------------------------------------------
