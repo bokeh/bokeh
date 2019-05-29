@@ -21,9 +21,10 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from six.moves.urllib.parse import urlparse, quote_plus
+from urllib.parse import quote_plus
 
 # External imports
+from six.moves.urllib.parse import urlparse
 
 # Bokeh imports
 from ..core.templates import AUTOLOAD_TAG, FILE
