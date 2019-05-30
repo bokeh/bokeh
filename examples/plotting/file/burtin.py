@@ -1,9 +1,9 @@
 from collections import OrderedDict
-from math import log, sqrt
 
+from math import log, sqrt
+from io import StringIO
 import numpy as np
 import pandas as pd
-from six.moves import cStringIO as StringIO
 
 from bokeh.plotting import figure, show, output_file
 
