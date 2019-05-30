@@ -25,10 +25,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from urllib.parse import quote_plus
 
 # External imports
-from six.moves.urllib.parse import quote_plus
-
 from tornado import gen
 from tornado.httpclient import HTTPRequest
 from tornado.ioloop import IOLoop

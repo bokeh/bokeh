@@ -20,7 +20,6 @@ import pytest ; pytest
 import copy
 
 # External imports
-from six.moves import xrange
 
 # Bokeh imports
 from bokeh.core.properties import List, String, Instance, Dict, Any, Int
@@ -50,7 +49,7 @@ def large_plot(n):
     col = Column()
     objects = set([col])
 
-    for i in xrange(n):
+    for i in range(n):
         source = ColumnDataSource(data=dict(x=[0, i + 1], y=[0, i + 1]))
         xdr = DataRange1d()
         ydr = DataRange1d()
@@ -136,7 +135,7 @@ class TestCollectModels(object):
         # in a previous implementation, about 400 would blow max
         # recursion depth, so we double that and a little bit,
         # here.
-        for i in xrange(900):
+        for i in range(900):
             model = DeepModel()
             objects.add(model)
             parent.child = model

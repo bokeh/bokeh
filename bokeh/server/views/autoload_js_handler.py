@@ -21,9 +21,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from urllib.parse import urlparse
 
 # External imports
-from six.moves.urllib.parse import urlparse
 from tornado import gen
 
 # Bokeh imports

@@ -25,7 +25,6 @@ import importlib
 
 # External imports
 import pytest
-from six import string_types
 
 # Bokeh imports
 
@@ -47,7 +46,7 @@ def verify_all(module, ALL):
     '''
     class Test___all__(object):
         def test___all__(self):
-            if isinstance(module, string_types):
+            if isinstance(module, str):
                 mod = importlib.import_module(module)
             else:
                 mod = module
@@ -57,7 +56,7 @@ def verify_all(module, ALL):
         @pytest.mark.parametrize('name', ALL)
         @pytest.mark.unit
         def test_contents(self, name):
-            if isinstance(module, string_types):
+            if isinstance(module, str):
                 mod = importlib.import_module(module)
             else:
                 mod = module
