@@ -25,3 +25,8 @@ Plot Symmetry Properties
 
 The deprecated vestigal properties ``Plot.h_symmetry`` and ``Plot.v_symmetry``
 have been removed. These properties were non-functional for many releases.
+
+bokeh.util.future module
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``bokeh.util.future`` module has been removed.

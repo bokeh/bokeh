@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from bokeh.util.future import collections_abc # goes away with py2
+from collections.abc import Sequence
 
 # External imports
 
@@ -391,7 +391,7 @@ def _check_models_or_docs(models):
         models = [models]
 
     # Check for sequence
-    if isinstance(models, collections_abc.Sequence) and all(isinstance(x, (Model, Document)) for x in models):
+    if isinstance(models, Sequence) and all(isinstance(x, (Model, Document)) for x in models):
         input_type_valid = True
 
     if isinstance(models, dict) and \
