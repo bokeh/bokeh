@@ -23,7 +23,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 
 # External imports
-from six import string_types
 
 # Bokeh imports
 from ..core.enums import (AngleUnits, Dimension, FontStyle, LegendClickPolicy, LegendLocation,
@@ -124,7 +123,7 @@ class LegendItem(Model):
     '''
     def __init__(self, *args, **kwargs):
         super(LegendItem, self).__init__(*args, **kwargs)
-        if isinstance(self.label, string_types):
+        if isinstance(self.label, str):
             # Allow convenience of setting label as a string
             self.label = value(self.label)
 

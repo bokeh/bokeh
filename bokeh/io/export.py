@@ -29,7 +29,6 @@ from tempfile import mkstemp
 
 # External imports
 from PIL import Image
-from six import raise_from
 
 # Bokeh imports
 from ..embed import file_html
@@ -291,7 +290,7 @@ def wait_until_render_complete(driver, timeout):
     try:
         WebDriverWait(driver, timeout, poll_frequency=0.1).until(is_bokeh_loaded)
     except TimeoutException as e:
-        raise_from(RuntimeError('Bokeh was not loaded in time. Something may have gone wrong.'), e)
+        raise RuntimeError('Bokeh was not loaded in time. Something may have gone wrong.') from e
 
     driver.execute_script(_WAIT_SCRIPT)
 

@@ -232,8 +232,7 @@ def test_get_sessions():
 # 'sessionid':'NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5'
 sessionid_in_json = re.compile("""["']sessionid["'] *: *["']([^"]+)["']""")
 def extract_sessionid_from_json(html):
-    from six import string_types
-    if not isinstance(html, string_types):
+    if not isinstance(html, str):
         import codecs
         html = codecs.decode(html, 'utf-8')
     match = sessionid_in_json.search(html)
@@ -244,8 +243,7 @@ def extract_sessionid_from_json(html):
 # 'sessionid':'NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5'
 use_for_title_in_json = re.compile("""["']use_for_title["'] *: *(false|true)""")
 def extract_use_for_title_from_json(html):
-    from six import string_types
-    if not isinstance(html, string_types):
+    if not isinstance(html, str):
         import codecs
         html = codecs.decode(html, 'utf-8')
     match = use_for_title_in_json.search(html)
@@ -257,8 +255,7 @@ def autoload_url(server):
         "autoload.js?bokeh-protocol-version=1.0&bokeh-autoload-element=foo"
 
 def resource_files_requested(response, requested=True):
-    from six import string_types
-    if not isinstance(response, string_types):
+    if not isinstance(response, str):
         import codecs
         response = codecs.decode(response, 'utf-8')
     for file in [

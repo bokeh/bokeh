@@ -20,7 +20,6 @@ import pytest ; pytest
 from mock import patch
 
 # External imports
-from six import string_types
 
 # Bokeh imports
 
@@ -48,7 +47,7 @@ class Test_ClientSession(object):
         assert s.connected == False
         assert s.document is None
         assert s._connection._arguments is None
-        assert isinstance(s.id, string_types)
+        assert isinstance(s.id, str)
         assert len(s.id) == 44
 
     def test_creation_with_session_id(self):
@@ -64,7 +63,7 @@ class Test_ClientSession(object):
         assert s.document is None
         assert s._connection._arguments is None
         assert s._connection.url == "wsurl"
-        assert isinstance(s.id, string_types)
+        assert isinstance(s.id, str)
         assert len(s.id) == 44
 
     def test_creation_with_ioloop(self):
@@ -73,7 +72,7 @@ class Test_ClientSession(object):
         assert s.document is None
         assert s._connection._arguments is None
         assert s._connection.io_loop == "io_loop"
-        assert isinstance(s.id, string_types)
+        assert isinstance(s.id, str)
         assert len(s.id) == 44
 
     def test_creation_with_arguments(self):

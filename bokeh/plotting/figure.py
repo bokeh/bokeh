@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 
 # External imports
-from six import string_types
 
 # Bokeh imports
 from ..core.properties import Any, Auto, Either, Enum, Int, List, Seq, Instance, String, Tuple
@@ -147,7 +146,7 @@ class Figure(Plot):
         opts = FigureOptions(kw)
 
         title = kw.get("title", None)
-        if isinstance(title, string_types):
+        if isinstance(title, str):
             kw['title'] = Title(text=title)
 
         super(Figure, self).__init__(*arg, **kw)
@@ -787,7 +786,7 @@ Examples:
         '''
         marker_type = kwargs.pop("marker", "circle")
 
-        if isinstance(marker_type, string_types) and marker_type in _MARKER_SHORTCUTS:
+        if isinstance(marker_type, str) and marker_type in _MARKER_SHORTCUTS:
             marker_type = _MARKER_SHORTCUTS[marker_type]
 
         # The original scatter implementation allowed circle scatters to set a

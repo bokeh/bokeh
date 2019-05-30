@@ -32,7 +32,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 
 # External imports
-from six import class_types
 from sphinx.ext.autodoc import AttributeDocumenter, ClassDocumenter, ModuleLevelDocumenter
 
 # Bokeh imports
@@ -102,7 +101,7 @@ class ModelDocumenter(ClassDocumenter):
 
     @classmethod
     def can_document_member(cls, member, membername, isattr, parent):
-        return isinstance(member, class_types) and issubclass(member, Model)
+        return isinstance(member, type) and issubclass(member, Model)
 
 def setup(app):
     ''' Required Sphinx extension setup function. '''

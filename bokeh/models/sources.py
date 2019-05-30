@@ -232,7 +232,7 @@ class ColumnDataSource(ColumnarDataSource):
             _df.index = pd.Index(_df.index.values, name=index_name)
         _df.reset_index(inplace=True)
 
-        tmp_data = {c: v.values for c, v in _df.iteritems()}
+        tmp_data = {c: v.values for c, v in _df.items()}
 
         new_data = {}
         for k, v in tmp_data.items():
@@ -475,7 +475,7 @@ class ColumnDataSource(ColumnarDataSource):
             newkeys = set(_df.columns)
             index_name = ColumnDataSource._df_index_name(_df)
             newkeys.add(index_name)
-            new_data = dict(_df.iteritems())
+            new_data = dict(_df.items())
             new_data[index_name] = _df.index.values
         else:
             newkeys = set(new_data.keys())

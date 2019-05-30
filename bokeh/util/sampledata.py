@@ -27,10 +27,10 @@ log = logging.getLogger(__name__)
 from os import mkdir, remove
 from os.path import abspath, dirname, exists, expanduser, isdir, isfile, join, splitext
 from sys import stdout
+from urllib.parse import urljoin
+from urllib.request import urlopen
 
 # External imports
-import six
-from six.moves.urllib_parse import urljoin
 
 # Bokeh imports
 
@@ -157,11 +157,7 @@ def open_csv(filename):
     '''
 
     '''
-    # csv differs in Python 2.x and Python 3.x. Open the file differently in each.
-    if six.PY2:
-        return open(filename, 'rb')
-    else:
-        return open(filename, 'r', newline='', encoding='utf8')
+    return open(filename, 'r', newline='', encoding='utf8')
 
 #-----------------------------------------------------------------------------
 # Private API
@@ -188,10 +184,9 @@ def _download_file(base_url, filename, data_dir, progress=True):
     '''
 
     '''
-    # These is actually a somewhat expensive imports that added ~5% to overall
+    # These are actually somewhat expensive imports that added ~5% to overall
     # typical bokeh import times. Since downloading sampledata is not a common
     # action, we defer them to inside this function.
-    from six.moves.urllib.request import urlopen
     from zipfile import ZipFile
 
     file_url = urljoin(base_url, filename)
