@@ -46,12 +46,12 @@ functionality.
 
 .. automodule:: bokeh.util.deprecation
 
-.. _bokeh.util.future:
+.. _bokeh.util.functions:
 
-``bokeh.util.future``
----------------------
+``bokeh.util.functions``
+------------------------
 
-.. automodule:: bokeh.util.future
+.. automodule:: bokeh.util.functions
   :members:
 
 ``bokeh.util.hex``

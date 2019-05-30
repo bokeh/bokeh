@@ -22,12 +22,13 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from inspect import signature
 
 # External imports
 
 # Bokeh imports
 from ..events import Event
-from ..util.future import get_param_info, format_signature, signature
+from ..util.functions import get_param_info
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -177,7 +178,7 @@ def _nargs(fn):
 def _check_callback(callback, fargs, what="Callback functions"):
     '''Bokeh-internal function to check callback signature'''
     sig = signature(callback)
-    formatted_args = format_signature(sig)
+    formatted_args = str(sig)
     error_msg = what + " must have signature func(%s), got func%s"
 
     all_names, default_values = get_param_info(sig)

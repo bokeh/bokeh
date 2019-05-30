@@ -25,7 +25,6 @@ log = logging.getLogger(__name__)
 # External imports
 
 # Bokeh imports
-from ..util.future import with_metaclass
 from .rgb import RGB
 
 #-----------------------------------------------------------------------------
@@ -81,7 +80,7 @@ class _ColorGroupMeta(type):
 # Dev API
 #-----------------------------------------------------------------------------
 
-class ColorGroup(with_metaclass(_ColorGroupMeta)):
+class ColorGroup(metaclass=_ColorGroupMeta):
     ''' Collect a group of named colors into an iterable, indexable group.
 
     '''
