@@ -18,7 +18,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import six
 import warnings
 
 # External imports
@@ -57,7 +56,7 @@ def deprecated(since_or_msg, old=None, new=None, extra=None):
         message = message % dict(old=old, since=since, new=new)
         if extra is not None:
             message += " " + extra.strip()
-    elif isinstance(since_or_msg, six.string_types):
+    elif isinstance(since_or_msg, str):
         if not (old is None and new is None and extra is None):
             raise ValueError("deprecated(message) signature doesn't allow extra arguments")
 

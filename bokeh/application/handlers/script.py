@@ -48,7 +48,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 
 # External imports
-import six
 
 # Bokeh imports
 from .code import CodeHandler
@@ -89,19 +88,8 @@ class ScriptHandler(CodeHandler):
             raise ValueError('Must pass a filename to ScriptHandler')
         filename = kwargs['filename']
 
-        # For Python 3, encoding must be set to utf-8 because:
-        # - when specifying an encoding in `io.open`, it doesn't
-        #   work with Python 2,
-        # - default encoding used by Python 3 `open` statement
-        #   is not 'utf-8' on Windows platform,
-        # - Python 3 `open` ignores le `coding` comment line.
-        # See https://github.com/bokeh/bokeh/pull/8202 for details.
-        if six.PY3:
-            with open(filename, 'r', encoding='utf-8') as f:
-                kwargs['source'] = f.read()
-        else:
-            with open(filename, 'r') as f:
-                kwargs['source'] = f.read()
+        with open(filename, 'r', encoding='utf-8') as f:
+            kwargs['source'] = f.read()
 
         super(ScriptHandler, self).__init__(*args, **kwargs)
 

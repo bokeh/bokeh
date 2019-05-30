@@ -24,7 +24,6 @@ log = logging.getLogger(__name__)
 from bokeh.util.future import collections_abc # goes away with py2
 
 # External imports
-from six import string_types
 
 # Bokeh imports
 from ..core.templates import AUTOLOAD_JS, AUTOLOAD_TAG, FILE, ROOT_DIV, MACROS
@@ -396,7 +395,7 @@ def _check_models_or_docs(models):
         input_type_valid = True
 
     if isinstance(models, dict) and \
-        all(isinstance(x, string_types) for x in models.keys()) and \
+        all(isinstance(x, str) for x in models.keys()) and \
         all(isinstance(x, (Model, Document)) for x in models.values()):
         input_type_valid = True
 

@@ -19,7 +19,6 @@ import pytest ; pytest
 # Standard library imports
 
 # External imports
-from six import string_types
 
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
@@ -44,7 +43,7 @@ Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.movies_data",
 @pytest.mark.sampledata
 def test_movie_path():
     import bokeh.sampledata.movies_data as bsm
-    assert isinstance(bsm.movie_path, string_types)
+    assert isinstance(bsm.movie_path, str)
 
     # don't check detail for external data
 

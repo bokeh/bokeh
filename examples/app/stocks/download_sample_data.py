@@ -1,5 +1,5 @@
 import os
-from six.moves import urllib
+from urllib.request import urlretrieve
 import zipfile
 from bokeh.util.string import encode_utf8
 
@@ -12,7 +12,7 @@ def extract_hosted_zip(data_url, save_dir, exclude_term=None):
     # get the zip file
     try:
         print('Downloading %r to %r' % (data_url, zip_name))
-        zip_name, hdrs = urllib.request.urlretrieve(url=data_url, filename=zip_name)
+        zip_name, hdrs = urlretrieve(url=data_url, filename=zip_name)
         print('Download successfully completed')
     except IOError as e:
         print("Could not successfully retrieve %r" % data_url)
