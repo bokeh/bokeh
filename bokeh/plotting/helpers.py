@@ -32,7 +32,6 @@ import warnings
 # External imports
 import numpy as np
 import sys
-from six import reraise
 
 # Bokeh imports
 from ..models import (
@@ -177,7 +176,7 @@ def _graph(node_source, edge_source, **kwargs):
                 curr_type=str(type(node_source)),
                 err=err.message
             )
-            reraise(ValueError, ValueError(msg), sys.exc_info()[2])
+            raise ValueError(msg).with_traceback(sys.exc_info()[2])
 
     if not isinstance(edge_source, ColumnarDataSource):
         try:
@@ -188,7 +187,7 @@ def _graph(node_source, edge_source, **kwargs):
                 curr_type=str(type(edge_source)),
                 err=err.message
             )
-            reraise(ValueError, ValueError(msg), sys.exc_info()[2])
+            raise ValueError(msg).with_traceback(sys.exc_info()[2])
 
     ## node stuff
     if any(x.startswith('node_selection_') for x in kwargs):
@@ -809,7 +808,7 @@ def _glyph_function(glyphclass, extra_docs=None):
                         curr_type=str(type(source)),
                         err=err.message
                     )
-                    reraise(ValueError, ValueError(msg), sys.exc_info()[2])
+                    raise ValueError(msg).with_traceback(sys.exc_info()[2])
 
                 # update reddered_kws so that others can use the new source
                 kwargs['source'] = source
