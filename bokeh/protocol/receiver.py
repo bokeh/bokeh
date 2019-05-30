@@ -163,7 +163,7 @@ class Receiver(object):
             raise ValidationError("expected text fragment but received binary fragment for %s" % (self._current_consumer.__name__))
 
     def _assume_binary(self, fragment):
-        if not isinstance(fragment, six.binary_type):
+        if not isinstance(fragment, bytes):
             raise ValidationError("expected binary fragment but received text fragment for %s" % (self._current_consumer.__name__))
 
 #-----------------------------------------------------------------------------
