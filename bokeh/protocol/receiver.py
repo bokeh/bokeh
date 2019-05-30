@@ -24,7 +24,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 
 # External imports
-import six
 from tornado import gen
 
 # Bokeh imports
@@ -159,11 +158,11 @@ class Receiver(object):
             self._current_consumer = self._BUFFER_HEADER
 
     def _assume_text(self, fragment):
-        if not isinstance(fragment, six.text_type):
+        if not isinstance(fragment, str):
             raise ValidationError("expected text fragment but received binary fragment for %s" % (self._current_consumer.__name__))
 
     def _assume_binary(self, fragment):
-        if not isinstance(fragment, six.binary_type):
+        if not isinstance(fragment, bytes):
             raise ValidationError("expected binary fragment but received text fragment for %s" % (self._current_consumer.__name__))
 
 #-----------------------------------------------------------------------------

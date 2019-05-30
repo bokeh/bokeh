@@ -27,7 +27,6 @@ import re
 
 # External imports
 import PIL.Image
-from six import string_types
 
 # Bokeh imports
 from .. import enums
@@ -94,7 +93,7 @@ class DashPattern(Either):
     def transform(self, value):
         value = super(DashPattern, self).transform(value)
 
-        if isinstance(value, string_types):
+        if isinstance(value, str):
             try:
                 return self._dash_patterns[value]
             except KeyError:
@@ -112,7 +111,7 @@ class FontSize(String):
     def validate(self, value, detail=True):
         super(FontSize, self).validate(value, detail)
 
-        if isinstance(value, string_types):
+        if isinstance(value, str):
             if len(value) == 0:
                 msg = "" if not detail else "empty string is not a valid font size value"
                 raise ValueError(msg)
@@ -156,7 +155,7 @@ class Image(Property):
 
         valid = False
 
-        if value is None or isinstance(value, (string_types, PIL.Image.Image)):
+        if value is None or isinstance(value, (str, PIL.Image.Image)):
             valid = True
 
         if isinstance(value, np.ndarray):
@@ -174,7 +173,7 @@ class Image(Property):
         if isinstance(value, np.ndarray):
             value = PIL.Image.fromarray(value)
 
-        if isinstance(value, string_types):
+        if isinstance(value, str):
             value = PIL.Image.open(value)
 
         if isinstance(value, PIL.Image.Image):

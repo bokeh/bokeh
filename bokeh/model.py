@@ -26,7 +26,6 @@ from json import loads
 from operator import itemgetter
 
 # External imports
-from six import iteritems, string_types
 
 # Bokeh imports
 from .core.json_encoder import serialize_json
@@ -434,7 +433,7 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
 
     def js_on_event(self, event, *callbacks):
 
-        if not isinstance(event, string_types) and issubclass(event, Event):
+        if not isinstance(event, str) and issubclass(event, Event):
             event = event.event_name
 
         if event not in self.js_event_callbacks:
@@ -852,7 +851,7 @@ def _visit_value_and_its_immediate_references(obj, visitor):
         for item in obj:
             _visit_value_and_its_immediate_references(item, visitor)
     elif issubclass(typ, dict):
-        for key, value in iteritems(obj):
+        for key, value in obj.items():
             _visit_value_and_its_immediate_references(key, visitor)
             _visit_value_and_its_immediate_references(value, visitor)
     elif issubclass(typ, HasProps):

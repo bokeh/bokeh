@@ -3,7 +3,6 @@ import argparse
 import importlib
 import os
 from shutil import rmtree
-from six.moves import input
 import sys
 import textwrap
 import time
