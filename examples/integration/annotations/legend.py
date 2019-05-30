@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from bokeh.io import save
 from bokeh.core.properties import field
 from bokeh.models import ColumnDataSource, Plot, Circle, Legend, LegendItem, Range1d

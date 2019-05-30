@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-from os.path import abspath, dirname, join
-
 #
 # Bokeh documentation build configuration file, created by
 # sphinx-quickstart on Sat Oct 12 23:43:03 2013.
@@ -20,6 +17,7 @@ from os.path import abspath, dirname, join
 #sys.path.insert(0, os.path.abspath('.'))
 
 # -- General configuration -----------------------------------------------------
+from os.path import abspath, dirname, join
 
 # If your documentation needs a minimal Sphinx version, state it here.
 needs_sphinx = '1.8'
