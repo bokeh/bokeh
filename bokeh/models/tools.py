@@ -40,6 +40,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from inspect import signature
 from types import FunctionType
 
 # External imports
@@ -54,7 +55,7 @@ from ..core.properties import (
 )
 from ..util.compiler import nodejs_compile, CompilationError
 from ..util.dependencies import import_required
-from ..util.future import get_param_info, signature
+from ..util.functions import get_param_info
 from ..core.validation import error
 from ..core.validation.errors import (
     INCOMPATIBLE_BOX_EDIT_RENDERER, INCOMPATIBLE_POINT_DRAW_RENDERER,

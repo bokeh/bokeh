@@ -27,7 +27,6 @@ from abc import ABCMeta, abstractmethod
 # External imports
 
 # Bokeh imports
-from bokeh.util.future import with_metaclass
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -45,7 +44,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Subcommand(with_metaclass(ABCMeta)):
+class Subcommand(metaclass=ABCMeta):
     ''' Abstract base class for subcommands
 
     Subclasses should implement an ``invoke(self, args)`` method that accepts

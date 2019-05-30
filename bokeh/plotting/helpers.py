@@ -19,9 +19,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from collections import OrderedDict
-from bokeh.util.future import collections_abc # goes away with py2
-Iterable = collections_abc.Iterable # NOQA
-Sequence = collections_abc.Sequence # NOQA
+from collections.abc import Iterable, Sequence
 
 import difflib
 import itertools

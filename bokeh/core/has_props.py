@@ -35,7 +35,6 @@ from warnings import warn
 # External imports
 
 # Bokeh imports
-from ..util.future import with_metaclass
 from ..util.string import nice_join
 
 from .property.descriptor_factory import PropertyDescriptorFactory
@@ -236,7 +235,7 @@ def accumulate_dict_from_superclasses(cls, propname):
         setattr(cls, cachename, d)
     return cls.__dict__[cachename]
 
-class HasProps(with_metaclass(MetaHasProps, object)):
+class HasProps(object, metaclass=MetaHasProps):
     ''' Base class for all class types that have Bokeh properties.
 
     '''

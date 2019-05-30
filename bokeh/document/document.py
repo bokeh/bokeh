@@ -35,6 +35,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from collections import defaultdict
+from functools import wraps
 from json import loads
 import sys
 
@@ -52,7 +53,6 @@ from ..themes import default as default_theme, built_in_themes
 from ..themes import Theme
 from ..util.callback_manager import _check_callback
 from ..util.datatypes import MultiValuedDict
-from ..util.future import wraps
 from ..util.version import __version__
 
 from .events import ModelChangedEvent, RootAddedEvent, RootRemovedEvent, SessionCallbackAdded, SessionCallbackRemoved, TitleChangedEvent
