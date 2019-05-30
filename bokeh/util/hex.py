@@ -15,8 +15,6 @@ For more information on the concepts employed here, see this informative page
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 

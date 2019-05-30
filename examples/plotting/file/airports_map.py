@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 from bokeh.layouts import column, gridplot
 from bokeh.models import Div, Range1d, WMTSTileSource
 from bokeh.plotting import figure, show
