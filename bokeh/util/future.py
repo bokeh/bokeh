@@ -59,26 +59,6 @@ except ImportError:
 # Code
 #-----------------------------------------------------------------------------
 
-# There is a problem with using @wraps decorator in combination with functools.partial.
-# This issue is not present in Python 3.
-# This redefinition will be triggered only if issue affects user,
-# otherwise regular definition of @wraps will be used.
-#
-# this code snippet was originally posted in following stack overflow discussion:
-# http://stackoverflow.com/a/28752007
-
-from functools import wraps, partial, WRAPPER_ASSIGNMENTS
-
-try:
-    wraps(partial(wraps))(wraps)
-except AttributeError:
-    @wraps(wraps)
-    def wraps(obj, attr_names=WRAPPER_ASSIGNMENTS, wraps=wraps):
-        return wraps(obj, assigned=(name for name in attr_names if hasattr(obj, name)))
-
-del partial, WRAPPER_ASSIGNMENTS
-
-
 # inspect.getargspec and inspect.formatargspec were deprecated in Python 3.5
 # in favor of the newer inspect.signature introspection
 
