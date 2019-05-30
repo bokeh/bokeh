@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from inspect import signature
 from textwrap import dedent
 from types import FunctionType
 
@@ -33,7 +34,7 @@ from ..core.properties import Bool, Dict, Either, Enum, Float, Instance, Seq, St
 from ..model import Model
 from ..util.compiler import nodejs_compile, CompilationError
 from ..util.dependencies import import_required
-from ..util.future import get_param_info, signature
+from ..util.functions import get_param_info
 
 from .sources import ColumnarDataSource
 

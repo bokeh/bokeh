@@ -70,7 +70,6 @@ log = logging.getLogger(__name__)
 # External imports
 
 # Bokeh imports
-from .util.future import with_metaclass
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -125,7 +124,7 @@ class _MetaEvent(type):
 # General API
 #-----------------------------------------------------------------------------
 
-class Event(with_metaclass(_MetaEvent, object)):
+class Event(object, metaclass=_MetaEvent):
     ''' Base class for all Bokeh events.
 
     This base class is not typically useful to instantiate on its own.
