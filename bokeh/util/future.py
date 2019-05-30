@@ -40,13 +40,6 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-# handle collections ABC changes
-try:
-    # only works on python 3.3+ but Bokeh only support python 3.4+
-    import collections.abc as collections_abc # NOQA
-except ImportError:
-    import collections as collections_abc # NOQA
-
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
