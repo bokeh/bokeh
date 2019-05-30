@@ -1,5 +1,3 @@
-from __future__ import division
-
 import numpy as np
 
 from bokeh.core.properties import Instance, String

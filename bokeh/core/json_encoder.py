@@ -43,8 +43,6 @@ In general, functions in this module convert values in the following way:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 

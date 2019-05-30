@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 from bokeh.plotting import figure
 from bokeh.io import save
 
