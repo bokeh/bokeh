@@ -28,7 +28,6 @@ requirements:
     - pyyaml
     - ripgrep
     - setuptools
-    - six
     - tornado >=5
     - yaml
 

@@ -23,7 +23,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 
 # External imports
-from six import string_types
 
 # Bokeh imports
 from ... import colors
@@ -205,7 +204,7 @@ class DataSpec(Either):
             pass
 
         # Check for data source field name
-        if isinstance(val, string_types):
+        if isinstance(val, str):
             return dict(field=val)
 
         # Must be dict, return a new dict
@@ -296,7 +295,7 @@ class FontSizeSpec(DataSpec):
         # We want to preserve existing semantics and be a little more restrictive. This
         # validations makes m.font_size = "" or m.font_size = "6" an error
         super(FontSizeSpec, self).validate(value, detail)
-        if isinstance(value, string_types):
+        if isinstance(value, str):
             if len(value) == 0 or value[0].isdigit() and FontSize._font_size_re.match(value) is None:
                 msg = "" if not detail else "%r is not a valid font size value" % value
                 raise ValueError(msg)
@@ -562,7 +561,7 @@ class ColorSpec(DataSpec):
             True, if the value is a string color literal
 
         '''
-        return isinstance(val, string_types) and \
+        return isinstance(val, str) and \
                ((len(val) == 7 and val[0] == "#") or val in enums.NamedColor)
 
     def to_serializable(self, obj, name, val):
@@ -582,7 +581,7 @@ class ColorSpec(DataSpec):
             return val.to_css()
 
         # Check for data source field name or rgb(a) string
-        if isinstance(val, string_types):
+        if isinstance(val, str):
             if val.startswith(("rgb(", "rgba(")):
                 return val
 

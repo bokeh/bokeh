@@ -23,7 +23,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 
 # External imports
-from six import string_types
 
 # Bokeh imports
 from ..util.future import with_metaclass
@@ -58,7 +57,7 @@ class _ColorGroupMeta(type):
 
     def __getitem__(self, v):
         from . import named
-        if isinstance(v, string_types):
+        if isinstance(v, str):
             if v in self._colors:
                 return getattr(named, v.lower())
             raise KeyError("Color group %r has no color %r" % (self.__class__.__name__, v))

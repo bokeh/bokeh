@@ -22,13 +22,11 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import codecs
+from urllib.parse import urlparse
 
 # External imports
-from six.moves.urllib.parse import urlparse
-
 from tornado import gen, locks
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
-
 
 # Bokeh imports
 from ..protocol_handler import ProtocolHandler

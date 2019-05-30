@@ -25,7 +25,6 @@ import datetime
 import dateutil.parser
 
 # External imports
-from six import string_types
 
 # Bokeh imports
 from ...util.dependencies import import_optional
@@ -63,7 +62,7 @@ class Date(Property):
                 value = datetime.date.fromtimestamp(value)
             except (ValueError, OSError):
                 value = datetime.date.fromtimestamp(value/1000)
-        elif isinstance(value, string_types):
+        elif isinstance(value, str):
             value = dateutil.parser.parse(value).date()
 
         return value
@@ -71,7 +70,7 @@ class Date(Property):
     def validate(self, value, detail=True):
         super(Date, self).validate(value, detail)
 
-        if not (value is None or isinstance(value, (datetime.date,) + string_types + (float,) + bokeh_integer_types)):
+        if not (value is None or isinstance(value, (datetime.date, str, float,) + bokeh_integer_types)):
             msg = "" if not detail else "expected a date, string or timestamp, got %r" % value
             raise ValueError(msg)
 
