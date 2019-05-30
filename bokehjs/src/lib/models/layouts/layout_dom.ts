@@ -359,7 +359,7 @@ export abstract class LayoutDOMView extends DOMView {
   serializable_state(): {[key: string]: unknown} {
     return {
       ...super.serializable_state(),
-      bbox: this.layout.bbox.rect,
+      bbox: this.layout.bbox.box,
       children: this.child_views.map((child) => child.serializable_state()),
     }
   }

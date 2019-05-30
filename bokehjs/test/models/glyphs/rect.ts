@@ -31,7 +31,7 @@ describe("Glyph (using Rect as a concrete Glyph)", () => {
       const glyph_view = create_glyph_view(glyph, data)
       const bounds = glyph_view.bounds()
 
-      expect(bounds).to.be.deep.equal({ minX: 1, minY: -20, maxX: 4, maxY: 30 })
+      expect(bounds).to.be.deep.equal({ x0: 1, y0: -20, x1: 4, y1: 30 })
     })
 
     it("should calculate log bounds based on data values > 0", () => {
@@ -39,7 +39,7 @@ describe("Glyph (using Rect as a concrete Glyph)", () => {
       const glyph_view = create_glyph_view(glyph, data)
       const log_bounds = glyph_view.log_bounds()
 
-      expect(log_bounds).to.be.deep.equal({ minX: 1, minY: 10, maxX: 4, maxY: 30 })
+      expect(log_bounds).to.be.deep.equal({ x0: 1, y0: 10, x1: 4, y1: 30 })
     })
 
     it("should calculate log bounds when NaNs are present", () => {
@@ -47,7 +47,7 @@ describe("Glyph (using Rect as a concrete Glyph)", () => {
       const glyph_view = create_glyph_view(glyph, data)
       const log_bounds = glyph_view.log_bounds()
 
-      expect(log_bounds).to.be.deep.equal({ minX: 1, minY: 10, maxX: 3, maxY: 10 })
+      expect(log_bounds).to.be.deep.equal({ x0: 1, y0: 10, x1: 3, y1: 10 })
     })
 
     it("should hit test rects against an index", () => {
@@ -99,7 +99,7 @@ describe("Rect", () => {
       const glyph_view = create_glyph_view(glyph, data)
       const bounds = glyph_view.bounds()
 
-      expect(bounds).to.be.deep.equal({ minX: -5, minY: -10, maxX: 8, maxY: 13 })
+      expect(bounds).to.be.deep.equal({ x0: -5, y0: -10, x1: 8, y1: 13 })
     })
 
     it("should calculate log bounds based on data including width and height", () => {
@@ -107,7 +107,7 @@ describe("Rect", () => {
       const glyph_view = create_glyph_view(glyph, data)
       const log_bounds = glyph_view.log_bounds()
 
-      expect(log_bounds).to.be.deep.equal({ minX: -4, minY: -9, maxX: 8, maxY: 13 })
+      expect(log_bounds).to.be.deep.equal({ x0: -4, y0: -9, x1: 8, y1: 13 })
     })
 
     it("`_map_data` should correctly map data if width and height units are 'data'", () => {

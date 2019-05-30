@@ -499,7 +499,7 @@ export class AxisView extends GuideRendererView {
   serializable_state(): {[key: string]: unknown} {
     return {
       ...super.serializable_state(),
-      bbox: this.layout.bbox.rect,
+      bbox: this.layout.bbox.box,
     }
   }
 }

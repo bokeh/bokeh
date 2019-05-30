@@ -1,7 +1,7 @@
 import {Marker, MarkerView, MarkerData} from "./marker"
 import {marker_funcs} from "./defs"
 import {MarkerType} from "core/enums"
-import {Arrayable, Area} from "core/types"
+import {Arrayable, Rect} from "core/types"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 
@@ -36,7 +36,7 @@ export class ScatterView extends MarkerView {
     }
   }
 
-  draw_legend_for_index(ctx: Context2d, {x0, x1, y0, y1}: Area, index: number): void {
+  draw_legend_for_index(ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
     // using objects like this seems a little wonky, since the keys are coerced to
     // stings, but it works
     const len = index + 1

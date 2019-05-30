@@ -236,8 +236,8 @@ export function content_size(el: HTMLElement): Size {
 export function position(el: HTMLElement, box: Box, margin?: Extents): void {
   const {style} = el
 
-  style.left   = `${box.left}px`
-  style.top    = `${box.top}px`
+  style.left   = `${box.x}px`
+  style.top    = `${box.y}px`
   style.width  = `${box.width}px`
   style.height = `${box.height}px`
 
