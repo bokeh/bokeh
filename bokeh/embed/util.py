@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from collections import OrderedDict
-from bokeh.util.future import collections_abc # goes away with py2
+from collections.abc import Sequence
 from contextlib import contextmanager
 
 # External imports
@@ -118,7 +118,7 @@ def OutputDocumentFor(objs, apply_theme=None, always_new=False):
     # Note: Comms handling relies on the fact that the new_doc returned
     # has models with the same IDs as they were started with
 
-    if not isinstance(objs, collections_abc.Sequence) or len(objs) == 0 or not all(isinstance(x, Model) for x in objs):
+    if not isinstance(objs, Sequence) or len(objs) == 0 or not all(isinstance(x, Model) for x in objs):
         raise ValueError("OutputDocumentFor expects a sequence of Models")
 
     def finish(): pass
@@ -263,7 +263,7 @@ def standalone_docs_json_and_render_items(models, suppress_callback_warning=Fals
     if isinstance(models, (Model, Document)):
         models = [models]
 
-    if not (isinstance(models, collections_abc.Sequence) and all(isinstance(x, (Model, Document)) for x in models)):
+    if not (isinstance(models, Sequence) and all(isinstance(x, (Model, Document)) for x in models)):
         raise ValueError("Expected a Model, Document, or Sequence of Models or Documents")
 
     if submodel_has_python_callbacks(models) and not suppress_callback_warning:
