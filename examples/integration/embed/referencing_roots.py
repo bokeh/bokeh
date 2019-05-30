@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from bokeh.io import save
 from bokeh.plotting import figure
 

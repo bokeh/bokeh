@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 from math import pi, sin, cos
 
 from bokeh.document import Document

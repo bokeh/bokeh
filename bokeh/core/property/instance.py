@@ -14,8 +14,6 @@ where one Bokeh model refers to another.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 

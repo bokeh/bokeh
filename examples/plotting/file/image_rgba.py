@@ -1,5 +1,3 @@
-from __future__ import division
-
 import numpy as np
 
 from bokeh.plotting import figure, show, output_file
