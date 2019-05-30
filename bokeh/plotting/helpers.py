@@ -32,7 +32,7 @@ import warnings
 # External imports
 import numpy as np
 import sys
-from six import string_types, reraise
+from six import reraise
 
 # Bokeh imports
 from ..models import (
@@ -320,7 +320,7 @@ def _get_legend_item_label(kwargs):
     source = kwargs.get('source')
     legend_item_label = None
     if legend:
-        if isinstance(legend, string_types):
+        if isinstance(legend, str):
             # Do the simple thing first
             legend_item_label = value(legend)
             # But if there's a source - try and do something smart
@@ -371,7 +371,7 @@ def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
             continue
 
         # strings sequences are handled by the dataspec as-is
-        if isinstance(val, string_types):
+        if isinstance(val, str):
             continue
 
         # similarly colorspecs handle color tuple sequences as-is
@@ -438,7 +438,7 @@ def _get_range(range_input):
     if pd and isinstance(range_input, pd.Series):
         range_input = range_input.values
     if isinstance(range_input, (Sequence, np.ndarray)):
-        if all(isinstance(x, string_types) for x in range_input):
+        if all(isinstance(x, str) for x in range_input):
             return FactorRange(factors=list(range_input))
         if len(range_input) == 2:
             try:
@@ -548,7 +548,7 @@ def _tool_from_string(name):
     if name in known_tools:
         tool_fn = _known_tools[name]
 
-        if isinstance(tool_fn, string_types):
+        if isinstance(tool_fn, str):
             tool_fn = _known_tools[tool_fn]
 
         return tool_fn()
@@ -604,7 +604,7 @@ def _process_tools_arg(plot, tools, tooltips=None):
         for tool in tools:
             if isinstance(tool, Tool):
                 tool_objs.append(tool)
-            elif isinstance(tool, string_types):
+            elif isinstance(tool, str):
                 temp_tool_str += tool + ','
             else:
                 raise ValueError("tool should be a string or an instance of Tool class")

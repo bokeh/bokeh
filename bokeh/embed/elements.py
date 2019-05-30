@@ -23,7 +23,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 
 # External imports
-from six import string_types
 
 # Bokeh imports
 from ..core.json_encoder import serialize_json
@@ -123,7 +122,7 @@ def html_page_for_render_items(bundle, docs_json, render_items, title, template=
 
     if template is None:
         template = FILE
-    elif isinstance(template, string_types):
+    elif isinstance(template, str):
         template = _env.from_string("{% extends base %}\n" + template)
 
     html = template.render(context)
@@ -133,7 +132,7 @@ def script_for_render_items(docs_json_or_id, render_items, app_path=None, absolu
     '''
 
     '''
-    if isinstance(docs_json_or_id, string_types):
+    if isinstance(docs_json_or_id, str):
         docs_json = "document.getElementById('%s').textContent" % docs_json_or_id
     else:
         # XXX: encodes &, <, > and ', but not ". This is because " is used a lot in JSON,

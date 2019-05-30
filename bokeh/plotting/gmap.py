@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 
 # External imports
-from six import string_types
 
 # Bokeh imports
 from ..core.enums import HorizontalLocation, VerticalLocation
@@ -86,7 +85,7 @@ class GMap(GMapPlot):
         opts = GMapFigureOptions(kw)
 
         title = kw.get("title", None)
-        if isinstance(title, string_types):
+        if isinstance(title, str):
             kw['title'] = Title(text=title)
 
         super(GMap, self).__init__(x_range=Range1d(), y_range=Range1d(), **kw)

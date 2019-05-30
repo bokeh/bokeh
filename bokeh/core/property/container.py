@@ -24,7 +24,6 @@ log = logging.getLogger(__name__)
 from bokeh.util.future import collections_abc # goes away with py2
 
 # External imports
-from six import string_types
 
 # Bokeh imports
 from ...util.serialization import decode_base64_dict, transform_column_source_data
@@ -95,7 +94,7 @@ class Seq(ContainerProperty):
     @classmethod
     def _is_seq(cls, value):
         return ((isinstance(value, collections_abc.Sequence) or cls._is_seq_like(value)) and
-                not isinstance(value, string_types))
+                not isinstance(value, str))
 
     @classmethod
     def _is_seq_like(cls, value):

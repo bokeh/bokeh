@@ -93,7 +93,6 @@ log = logging.getLogger(__name__)
 from copy import copy
 
 # External imports
-from six import string_types
 
 # Bokeh imports
 from .wrappers import PropertyValueContainer
@@ -1021,7 +1020,7 @@ class DataSpecPropertyDescriptor(BasicPropertyDescriptor):
                     if 'value' in json:
                         json = json['value']
                 except ValueError:
-                    if isinstance(old, string_types) and 'field' in json:
+                    if isinstance(old, str) and 'field' in json:
                         json = json['field']
                 # leave it as a dict if 'old' was a dict
 
