@@ -25,7 +25,6 @@ import copy
 from bokeh.core.properties import List, String, Instance, Dict, Any, Int
 from bokeh.model import Model
 from bokeh.core.property.wrappers import PropertyValueList, PropertyValueDict
-from bokeh.util.future import with_metaclass
 
 # Module under test
 
@@ -101,7 +100,7 @@ class TestMetaModel(object):
         self.metamodel.model_class_reverse_map = self.old_map
 
     def mkclass(self):
-        class Test_Class(with_metaclass(self.metamodel)):
+        class Test_Class(metaclass=self.metamodel):
             foo = 1
         return Test_Class
 

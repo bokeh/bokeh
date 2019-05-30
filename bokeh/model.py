@@ -37,7 +37,6 @@ from .events import Event
 from .themes import default as default_theme
 
 from .util.callback_manager import PropertyCallbackManager, EventCallbackManager
-from .util.future import with_metaclass
 from .util.serialization import make_id
 
 #-----------------------------------------------------------------------------
@@ -272,7 +271,7 @@ _HTML_REPR = """
 </script>
 """
 
-class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCallbackManager)):
+class Model(HasProps, PropertyCallbackManager, EventCallbackManager, metaclass=MetaModel):
     ''' Base class for all objects stored in Bokeh  |Document| instances.
 
     '''

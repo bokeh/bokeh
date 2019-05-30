@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from inspect import signature
 from types import FunctionType
 
 # External imports
@@ -36,7 +37,7 @@ from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
 from ..model import Model
 from ..util.compiler import nodejs_compile, CompilationError
 from ..util.dependencies import import_required
-from ..util.future import get_param_info, signature
+from ..util.functions import get_param_info
 from .tickers import Ticker
 
 #-----------------------------------------------------------------------------
