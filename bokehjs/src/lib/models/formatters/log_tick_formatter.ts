@@ -9,6 +9,7 @@ export namespace LogTickFormatter {
 
   export type Props = TickFormatter.Props & {
     ticker: p.Property<LogTicker | null>
+    use_superscript_exponents: p.Property<boolean>
   }
 }
 
@@ -26,6 +27,7 @@ export class LogTickFormatter extends TickFormatter {
 
     this.define<LogTickFormatter.Props>({
       ticker: [ p.Instance, null ],
+      use_superscript_exponents:   [ p.Boolean, false   ],
     })
   }
 
@@ -43,11 +45,17 @@ export class LogTickFormatter extends TickFormatter {
       return []
 
     const base = this.ticker != null ? this.ticker.base : 10
+    
+    const translate: { [id: string]: string; } = { "0":"⁰", "1":"¹", "2":"²", "3":"³", "4":"⁴", "5":"⁵", "6":"⁶", "7":"⁷", "8":"⁸", "9":"⁹", "+":"⁺", "-":"⁻" }
 
     let small_interval = false
     const labels: string[] = new Array(ticks.length)
     for (let i = 0, end = ticks.length; i < end; i++) {
-      labels[i] = `${base}^${ Math.round(Math.log(ticks[i]) / Math.log(base)) }`
+      if (!this.use_superscript_exponents)
+		labels[i] = `${base}^${Math.round(Math.log(ticks[i]) / Math.log(base))}`
+	  else
+	    labels[i] = `${base}${(Math.round(Math.log(ticks[i]) / Math.log(base))).toString().replace(/[0-9\+\-]/g,  function(match){return translate[match]})}`
+	  
       if (i > 0 && labels[i] == labels[i-1]) {
         small_interval = true
         break

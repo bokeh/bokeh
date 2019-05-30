@@ -283,6 +283,11 @@ class LogTickFormatter(TickFormatter):
     The corresponding ``LogTicker``, used to determine the correct
     base to use. If unset, the formatter will use base 10 as a default.
     """)
+    
+    use_superscript_exponents = Bool(False, help="""
+    Whether to ever display scientific values using exponent superscript.
+    
+    """)
 
 class CategoricalTickFormatter(TickFormatter):
     ''' Display tick values from categorical ranges as string
