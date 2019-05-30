@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 from numpy import pi, arange, sin
 
 from bokeh.util.browser import view
