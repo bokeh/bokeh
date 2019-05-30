@@ -16,7 +16,7 @@ import sys
 from collections import OrderedDict
 from functools import partial
 from itertools import count, groupby
-from six.moves.urllib.request import urlopen, Request
+from urllib.request import urlopen, Request
 
 logging.basicConfig(level=logging.INFO)
 

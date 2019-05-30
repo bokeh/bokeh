@@ -19,7 +19,6 @@ import pytest ; pytest
 # Standard library imports
 
 # External imports
-import six
 
 # Bokeh imports
 from bokeh.document import Document
@@ -62,16 +61,6 @@ class TestCodeHandler(object):
     def test_empty_script(self):
         doc = Document()
         handler = bahc.CodeHandler(source="# This script does nothing", filename="path/to/test_filename")
-        handler.modify_document(doc)
-        if handler.failed:
-            raise RuntimeError(handler.error)
-
-        assert not doc.roots
-
-    @pytest.mark.skipif(six.PY3, reason="this test doesn't have a Python 3 equivalent")
-    def test_exec_and___future___flags(self):
-        doc = Document()
-        handler = bahc.CodeHandler(source="exec(\"print \\\"XXX\\\"\")", filename="path/to/test_filename")
         handler.modify_document(doc)
         if handler.failed:
             raise RuntimeError(handler.error)

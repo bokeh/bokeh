@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # External imports
-from six import iteritems
 
 # Bokeh imports
 from .bases import ParameterizedProperty
@@ -65,7 +64,7 @@ class Struct(ParameterizedProperty):
             return
 
         if isinstance(value, dict) and len(value) <= len(self._fields):
-            for name, type in iteritems(self._fields):
+            for name, type in self._fields.items():
                 if not type.is_valid(value.get(name, None)):
                     break
             else:
