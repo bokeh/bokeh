@@ -27,9 +27,9 @@ log = logging.getLogger(__name__)
 from os import mkdir, remove
 from os.path import abspath, dirname, exists, expanduser, isdir, isfile, join, splitext
 from sys import stdout
+from urllib.parse import urljoin
 
 # External imports
-from six.moves.urllib_parse import urljoin
 
 # Bokeh imports
 
