@@ -27,7 +27,6 @@ log = logging.getLogger(__name__)
 from importlib import import_module
 
 # External imports
-from six import iteritems, string_types
 
 # Bokeh imports
 from .bases import DeserializationError, Property
@@ -51,7 +50,7 @@ class Instance(Property):
 
     '''
     def __init__(self, instance_type, default=None, help=None):
-        if not isinstance(instance_type, (type,) + string_types):
+        if not isinstance(instance_type, (type, str)):
             raise ValueError("expected a type or string, got %s" % instance_type)
 
         from ..has_props import HasProps
@@ -71,7 +70,7 @@ class Instance(Property):
 
     @property
     def instance_type(self):
-        if isinstance(self._instance_type, string_types):
+        if isinstance(self._instance_type, str):
             module, name = self._instance_type.rsplit(".", 1)
             self._instance_type = getattr(import_module(module, "bokeh"), name)
 
@@ -95,7 +94,7 @@ class Instance(Property):
             else:
                 attrs = {}
 
-                for name, value in iteritems(json):
+                for name, value in json.items():
                     prop_descriptor = self.instance_type.lookup(name).property
                     attrs[name] = prop_descriptor.from_json(value, models)
 

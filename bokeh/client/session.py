@@ -34,9 +34,9 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from urllib.parse import quote_plus
 
 # External imports
-from six.moves.urllib.parse import quote_plus
 
 # Bokeh imports
 from ..document import Document

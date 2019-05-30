@@ -31,7 +31,6 @@ from copy import copy
 import types
 
 # External imports
-from six import string_types
 import numpy as np
 
 # Bokeh imports
@@ -340,7 +339,7 @@ class Property(PropertyDescriptorFactory):
                 assert isinstance(result, bool)
 
                 if not result:
-                    if isinstance(msg_or_fn, string_types):
+                    if isinstance(msg_or_fn, str):
                         raise ValueError(msg_or_fn)
                     else:
                         msg_or_fn(obj, name, value)

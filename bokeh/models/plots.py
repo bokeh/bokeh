@@ -24,7 +24,6 @@ log = logging.getLogger(__name__)
 import warnings
 
 # External imports
-from six import string_types
 
 # Bokeh imports
 from ..core.enums import Location, OutputBackend, ResetPolicy
@@ -758,7 +757,7 @@ def _select_helper(args, kwargs):
         arg = args[0]
         if isinstance(arg, dict):
             selector = arg
-        elif isinstance(arg, string_types):
+        elif isinstance(arg, str):
             selector = dict(name=arg)
         elif isinstance(arg, type) and issubclass(arg, Model):
             selector = {"type": arg}

@@ -55,10 +55,10 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from os.path import basename, join
+
 # External imports
 from docutils import nodes
 from docutils.parsers.rst.directives import unchanged
-from six import text_type
 from sphinx.directives.code import CodeBlock, dedent_lines, container_wrapper
 from sphinx.locale import __
 from sphinx.util import logging
@@ -165,7 +165,7 @@ class BokehJSContent(CodeBlock):
             try:
                 literal = container_wrapper(self, literal, caption)
             except ValueError as exc:
-                return [document.reporter.warning(text_type(exc), line=self.lineno)]
+                return [document.reporter.warning(str(exc), line=self.lineno)]
 
         # literal will be note_implicit_target that is linked from caption and numref.
         # when options['name'] is provided, it should be primary ID.

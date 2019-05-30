@@ -21,7 +21,6 @@ import pytest ; pytest
 
 # External imports
 import selenium.webdriver.phantomjs.webdriver
-import six
 
 # Bokeh imports
 
@@ -44,7 +43,6 @@ def test_create_phantomjs_webdriver():
     d = biw.create_phantomjs_webdriver()
     assert isinstance(d, selenium.webdriver.phantomjs.webdriver.WebDriver)
 
-@pytest.mark.skipif(six.PY2, reason="checking service not a reliable indicator on Py2")
 def test_terminate_webdriver():
     d = biw.create_phantomjs_webdriver()
     assert d.service.process is not None

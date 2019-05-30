@@ -23,7 +23,6 @@ from collections import OrderedDict
 # External imports
 import bs4
 from jinja2 import Template
-from six import string_types
 
 # Bokeh imports
 from bokeh.document import Document
@@ -93,11 +92,11 @@ class Test_components(object):
 
         _, divs = bes.components({"Plot 1": plot1, "Plot 2": plot2})
         assert isinstance(divs, dict)
-        assert all(isinstance(x, string_types) for x in divs.keys())
+        assert all(isinstance(x, str) for x in divs.keys())
 
         _, divs = bes.components(OrderedDict([("Plot 1", plot1), ("Plot 2", plot2)]))
         assert isinstance(divs, OrderedDict)
-        assert all(isinstance(x, string_types) for x in divs.keys())
+        assert all(isinstance(x, str) for x in divs.keys())
 
     @patch('bokeh.embed.util.make_globally_unique_id', new_callable=lambda: stable_id)
     def test_plot_dict_returned_when_wrap_plot_info_is_false(self, mock_make_id):
