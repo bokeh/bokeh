@@ -283,6 +283,7 @@ def test_port_not_available():
     finally:
         sock.close()
 
+@pytest.mark.skipif(sys.platform == 'win32', reason="no fcntl on windows")
 def test_actual_port_printed_out():
     from fcntl import fcntl, F_GETFL, F_SETFL
     from os import O_NONBLOCK, read
