@@ -75,7 +75,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 
 # External imports
-from six import string_types
 
 # Bokeh imports
 from .. import colors, palettes
@@ -210,7 +209,7 @@ def enumeration(*values, **kwargs):
         Enumeration
 
     '''
-    if not (values and all(isinstance(value, string_types) and value for value in values)):
+    if not (values and all(isinstance(value, str) and value for value in values)):
         raise ValueError("expected a non-empty sequence of strings, got %s" % values)
 
     if len(values) != len(set(values)):

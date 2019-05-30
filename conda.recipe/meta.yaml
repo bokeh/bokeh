@@ -29,7 +29,6 @@ requirements:
     - python-dateutil
     - pyyaml
     - setuptools
-    - six
     - tornado >=5
     - yaml
 

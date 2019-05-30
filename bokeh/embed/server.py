@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from six.moves.urllib.parse import urlparse, quote_plus
+from urllib.parse import quote_plus, urlparse
 
 # External imports
 

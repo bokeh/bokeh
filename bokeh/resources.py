@@ -34,7 +34,6 @@ import json
 from os.path import basename, join, relpath
 
 # External imports
-from six import string_types
 
 # Bokeh imports
 from . import __version__
@@ -160,7 +159,7 @@ class BaseResources(object):
         for _, cls in sorted(Model.model_class_reverse_map.items(), key=lambda arg: arg[0]):
             external = getattr(cls, resource_attr, None)
 
-            if isinstance(external, string_types):
+            if isinstance(external, str):
                 if external not in external_resources:
                     external_resources.append(external)
             elif isinstance(external, list):
