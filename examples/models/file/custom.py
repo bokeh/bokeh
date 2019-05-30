@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 from bokeh.core.properties import String, Float, Color, List, Override
 from bokeh.document import Document
 from bokeh.embed import file_html
