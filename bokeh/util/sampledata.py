@@ -28,6 +28,7 @@ from os import mkdir, remove
 from os.path import abspath, dirname, exists, expanduser, isdir, isfile, join, splitext
 from sys import stdout
 from urllib.parse import urljoin
+from urllib.request import urlopen
 
 # External imports
 
@@ -182,10 +183,9 @@ def _download_file(base_url, filename, data_dir, progress=True):
     '''
 
     '''
-    # These is actually a somewhat expensive imports that added ~5% to overall
+    # These are actually somewhat expensive imports that added ~5% to overall
     # typical bokeh import times. Since downloading sampledata is not a common
     # action, we defer them to inside this function.
-    from six.moves.urllib.request import urlopen
     from zipfile import ZipFile
 
     file_url = urljoin(base_url, filename)
