@@ -32,7 +32,6 @@ import hmac
 import time
 
 # External imports
-from six import binary_type
 
 # Bokeh imports
 from bokeh.settings import settings
@@ -152,7 +151,7 @@ def _get_sysrandom():
 def _ensure_bytes(secret_key):
     if secret_key is None:
         return None
-    elif isinstance(secret_key, binary_type):
+    elif isinstance(secret_key, bytes):
         return secret_key
     else:
         return codecs.encode(secret_key, 'utf-8')

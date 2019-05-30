@@ -24,7 +24,6 @@ log = logging.getLogger(__name__)
 import numbers
 
 # External imports
-from six import string_types
 
 # Bokeh imports
 from .bases import PrimitiveProperty
@@ -237,7 +236,7 @@ class String(PrimitiveProperty):
             >>> m.prop = [1, 2, 3]  # ValueError !!
 
     '''
-    _underlying_type = string_types
+    _underlying_type = (str,)
 
 #-----------------------------------------------------------------------------
 # Dev API

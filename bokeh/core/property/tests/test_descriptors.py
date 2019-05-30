@@ -20,7 +20,6 @@ import pytest ; pytest
 
 # External imports
 from mock import patch
-import six
 
 # Bokeh imports
 from bokeh.model import Model
@@ -150,7 +149,6 @@ class Test_BasicPropertyDescriptor(object):
             d.__get__(None, None)
         assert str(e.value).endswith("both 'obj' and 'owner' are None, don't know what to do")
 
-    @pytest.mark.skipif(six.PY2, reason="this test doesn't work on Python 2 due to unicode literals")
     def test___set__improper(self):
         class Foo(object): pass
         f = Foo()

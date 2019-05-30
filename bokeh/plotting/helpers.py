@@ -32,7 +32,6 @@ import warnings
 # External imports
 import numpy as np
 import sys
-from six import string_types, reraise
 
 # Bokeh imports
 from ..models import (
@@ -178,7 +177,7 @@ def _graph(node_source, edge_source, **kwargs):
                 curr_type=str(type(node_source)),
                 err=err.message
             )
-            reraise(ValueError, ValueError(msg), sys.exc_info()[2])
+            raise ValueError(msg).with_traceback(sys.exc_info()[2])
 
     if not isinstance(edge_source, ColumnarDataSource):
         try:
@@ -189,7 +188,7 @@ def _graph(node_source, edge_source, **kwargs):
                 curr_type=str(type(edge_source)),
                 err=err.message
             )
-            reraise(ValueError, ValueError(msg), sys.exc_info()[2])
+            raise ValueError(msg).with_traceback(sys.exc_info()[2])
 
     ## node stuff
     if any(x.startswith('node_selection_') for x in kwargs):
@@ -364,7 +363,7 @@ def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
             continue
 
         # strings sequences are handled by the dataspec as-is
-        if isinstance(val, string_types):
+        if isinstance(val, str):
             continue
 
         # similarly colorspecs handle color tuple sequences as-is
@@ -412,7 +411,7 @@ def _find_legend_item(label, legend):
 def _handle_legend_deprecated(label, legend, glyph_renderer):
     deprecated("'legend' keyword is deprecated, use explicit 'legend_label', 'legend_field', or 'legend_group' keywords instead")
 
-    if not isinstance(label, (string_types, dict)):
+    if not isinstance(label, (str, dict)):
         raise ValueError("Bad 'legend' parameter value: %s" % label)
 
     if isinstance(label, dict):
@@ -434,7 +433,7 @@ def _handle_legend_deprecated(label, legend, glyph_renderer):
 
 
 def _handle_legend_field(label, legend, glyph_renderer):
-    if not isinstance(label, string_types):
+    if not isinstance(label, str):
         raise ValueError("legend_field value must be a string")
     label = field(label)
     item = _find_legend_item(label, legend)
@@ -446,7 +445,7 @@ def _handle_legend_field(label, legend, glyph_renderer):
 
 
 def _handle_legend_group(label, legend, glyph_renderer):
-    if not isinstance(label, string_types):
+    if not isinstance(label, str):
         raise ValueError("legend_group value must be a string")
 
     source = glyph_renderer.data_source
@@ -464,7 +463,7 @@ def _handle_legend_group(label, legend, glyph_renderer):
 
 
 def _handle_legend_label(label, legend, glyph_renderer):
-    if not isinstance(label, string_types):
+    if not isinstance(label, str):
         raise ValueError("legend_label value must be a string")
     label = value(label)
     item = _find_legend_item(label, legend)
@@ -499,7 +498,7 @@ def _get_range(range_input):
     if pd and isinstance(range_input, pd.Series):
         range_input = range_input.values
     if isinstance(range_input, (Sequence, np.ndarray)):
-        if all(isinstance(x, string_types) for x in range_input):
+        if all(isinstance(x, str) for x in range_input):
             return FactorRange(factors=list(range_input))
         if len(range_input) == 2:
             try:
@@ -609,7 +608,7 @@ def _tool_from_string(name):
     if name in known_tools:
         tool_fn = _known_tools[name]
 
-        if isinstance(tool_fn, string_types):
+        if isinstance(tool_fn, str):
             tool_fn = _known_tools[tool_fn]
 
         return tool_fn()
@@ -665,7 +664,7 @@ def _process_tools_arg(plot, tools, tooltips=None):
         for tool in tools:
             if isinstance(tool, Tool):
                 tool_objs.append(tool)
-            elif isinstance(tool, string_types):
+            elif isinstance(tool, str):
                 temp_tool_str += tool + ','
             else:
                 raise ValueError("tool should be a string or an instance of Tool class")
@@ -870,7 +869,7 @@ def _glyph_function(glyphclass, extra_docs=None):
                         curr_type=str(type(source)),
                         err=err.message
                     )
-                    reraise(ValueError, ValueError(msg), sys.exc_info()[2])
+                    raise ValueError(msg).with_traceback(sys.exc_info()[2])
 
                 # update reddered_kws so that others can use the new source
                 kwargs['source'] = source

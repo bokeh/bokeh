@@ -29,7 +29,6 @@ from time import sleep
 
 # External imports
 import requests
-import six
 
 # Bokeh imports
 import bokeh.command.subcommands.serve as scserve
@@ -349,7 +348,6 @@ def test_no_glob_by_default_on_filename_if_wildcard_in_quotes():
     assert expected in out
     assert '*' in out
 
-@pytest.mark.skipif(six.PY2, reason="Travis bug causes bad file descriptor")
 def test_glob_flag_on_filename_if_wildcard_in_quotes():
     from fcntl import fcntl, F_GETFL, F_SETFL
     from os import O_NONBLOCK, read
@@ -373,7 +371,7 @@ def test_glob_flag_on_filename_if_wildcard_in_quotes():
         r = requests.get("http://localhost:%d/apply_theme" % (port,))
         assert r.status_code == 200
 
-@pytest.mark.skipif(six.PY2, reason="Travis bug causes bad file descriptor")
+@pytest.mark.skipif(sys.platform == 'win32', reason="no fcntl on windows")
 def test_actual_port_printed_out():
     from fcntl import fcntl, F_GETFL, F_SETFL
     from os import O_NONBLOCK, read
@@ -392,7 +390,6 @@ def test_actual_port_printed_out():
         r = requests.get("http://localhost:%d/" % (port,))
         assert r.status_code == 200
 
-@pytest.mark.skipif(six.PY2, reason="Travis bug causes bad file descriptor")
 def test_websocket_max_message_size_printed_out():
     pat = re.compile(r'Torndado websocket_max_message_size set to 12345')
     with run_bokeh_serve(["--websocket-max-message-size", "12345"]) as p:
@@ -402,7 +399,6 @@ def test_websocket_max_message_size_printed_out():
     if m is None:
         pytest.fail("no matching log line in process output")
 
-@pytest.mark.skipif(six.PY2, reason="Travis bug causes bad file descriptor")
 def test_xsrf_printed_option():
     from fcntl import fcntl, F_GETFL, F_SETFL
     from os import O_NONBLOCK, read
@@ -417,7 +413,6 @@ def test_xsrf_printed_option():
     if m is None:
         pytest.fail("no matching log line in process output")
 
-@pytest.mark.skipif(six.PY2, reason="Travis bug causes bad file descriptor")
 def test_xsrf_printed_envar():
     from fcntl import fcntl, F_GETFL, F_SETFL
     from os import O_NONBLOCK, read
@@ -434,7 +429,6 @@ def test_xsrf_printed_envar():
         pytest.fail("no matching log line in process output")
     os.environ["BOKEH_XSRF_COOKIES"]
 
-@pytest.mark.skipif(six.PY2, reason="Travis bug causes bad file descriptor")
 def test_auth_module_printed():
     from fcntl import fcntl, F_GETFL, F_SETFL
     from os import O_NONBLOCK, read
