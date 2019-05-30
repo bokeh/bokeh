@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from functools import partial
-from six import string_types
 
 # External imports
 
@@ -66,7 +65,7 @@ def _validator(code_or_name, validator_type):
         def wrapper(*args, **kw):
             extra = func(*args, **kw)
             if extra is None: return []
-            if isinstance(code_or_name, string_types):
+            if isinstance(code_or_name, str):
                 code = EXT
                 name = codes[code][0] + ":" + code_or_name
             else:

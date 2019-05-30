@@ -32,7 +32,6 @@ import sys
 
 # External imports
 import hashlib
-import six
 
 # Bokeh imports
 from ..model import Model
@@ -278,7 +277,7 @@ class CustomModel(object):
     def implementation(self):
         impl = self.cls.__implementation__
 
-        if isinstance(impl, six.string_types):
+        if isinstance(impl, str):
             if "\n" not in impl and impl.endswith(exts):
                 impl = FromFile(impl if isabs(impl) else join(self.path, impl))
             else:
