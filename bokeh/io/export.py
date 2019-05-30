@@ -29,7 +29,6 @@ from tempfile import mkstemp
 
 # External imports
 from PIL import Image
-from six import raise_from, b
 
 # Bokeh imports
 from ..embed import file_html
@@ -236,7 +235,7 @@ def get_svgs(obj, driver=None, timeout=5, **kwargs):
     with _tmp_html() as tmp:
         html = get_layout_html(obj, **kwargs)
         with io.open(tmp.path, mode="wb") as file:
-            file.write(b(html))
+            file.write(html.encode('latin-1'))
 
         web_driver = driver if driver is not None else webdriver_control.get()
 
