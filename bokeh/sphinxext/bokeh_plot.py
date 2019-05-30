@@ -75,8 +75,6 @@ The inline example code above produces the following output:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 # use the wrapped sphinx logger
 from sphinx.util import logging
 log = logging.getLogger(__name__)

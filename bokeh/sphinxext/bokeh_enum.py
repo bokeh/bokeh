@@ -44,8 +44,6 @@ the same output above will be generated directly from the following code:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 

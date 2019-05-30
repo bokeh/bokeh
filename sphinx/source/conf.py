@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from bokeh import __version__
 
 # -- General configuration -----------------------------------------------------
+from os.path import abspath, dirname, join
 
 # If your documentation needs a minimal Sphinx version, state it here.
 needs_sphinx = '1.8'
