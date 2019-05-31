@@ -1,11 +1,11 @@
 import {Visuals, Line, Fill, Hatch} from "core/visuals"
 import {Context2d} from "core/util/canvas"
-import {Area} from "core/types"
+import {Rect} from "core/types"
 import {PointGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
 import {GlyphRendererView} from "../renderers/glyph_renderer"
 
-export function generic_line_legend(visuals: Visuals & {line: Line}, ctx: Context2d, {x0, x1, y0, y1}: Area, index: number): void {
+export function generic_line_legend(visuals: Visuals & {line: Line}, ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
   ctx.save()
   ctx.beginPath()
   ctx.moveTo(x0, (y0 + y1) /2)
@@ -17,7 +17,7 @@ export function generic_line_legend(visuals: Visuals & {line: Line}, ctx: Contex
   ctx.restore()
 }
 
-export function generic_area_legend(visuals: {line?: Line, fill: Fill, hatch?: Hatch}, ctx: Context2d, {x0, x1, y0, y1}: Area, index: number): void {
+export function generic_area_legend(visuals: {line?: Line, fill: Fill, hatch?: Hatch}, ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
   const w = Math.abs(x1 - x0)
   const dw = w*0.1
   const h = Math.abs(y1 - y0)

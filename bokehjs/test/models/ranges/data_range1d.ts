@@ -253,7 +253,7 @@ describe("datarange1d module", () => {
     it("should compute max/min for dimension of a single plot_bounds", () => {
       const r = new DataRange1d()
       const bds = {
-        1: {minX: 0, maxX: 10, minY: 5, maxY:6},
+        1: {x0: 0, x1: 10, y0: 5, y1:6},
       }
       expect(r._compute_min_max(bds, 0)).to.be.deep.equal([0, 10])
       expect(r._compute_min_max(bds, 1)).to.be.deep.equal([5, 6])
@@ -262,16 +262,16 @@ describe("datarange1d module", () => {
     it("should compute max/min for dimension of multiple plot_bounds", () => {
       const r = new DataRange1d()
       const bds0 = {
-        1: {minX: 0, maxX: 10, minY: 5, maxY: 6},
-        2: {minX: 0, maxX: 15, minY: 5.5, maxY: 5.6},
+        1: {x0: 0, x1: 10, y0: 5, y1: 6},
+        2: {x0: 0, x1: 15, y0: 5.5, y1: 5.6},
       }
       expect(r._compute_min_max(bds0, 0)).to.be.deep.equal([0, 15])
       expect(r._compute_min_max(bds0, 1)).to.be.deep.equal([5, 6])
 
       const bds1 = {
-        1: {minX: 0, maxX: 10, minY: 5, maxY: 6},
-        2: {minX: 0, maxX: 15, minY: 5.5, maxY: 5.6},
-        3: {minX: -10, maxX: 15, minY: 0, maxY: 2},
+        1: {x0: 0, x1: 10, y0: 5, y1: 6},
+        2: {x0: 0, x1: 15, y0: 5.5, y1: 5.6},
+        3: {x0: -10, x1: 15, y0: 0, y1: 2},
       }
       expect(r._compute_min_max(bds1, 0)).to.be.deep.equal([-10, 15])
       expect(r._compute_min_max(bds1, 1)).to.be.deep.equal([0, 6])
@@ -287,13 +287,13 @@ describe("datarange1d module", () => {
       const g2 = new GlyphRenderer({id: "2"})
 
       const bds = {
-        1: {minX: 0, maxX: 10, minY: 5, maxY: 6},
-        2: {minX: 0, maxX: 15, minY: 5.5, maxY: 5.6},
-        3: {minX: -10, maxX: 15, minY: 0, maxY: 2},
+        1: {x0: 0, x1: 10, y0: 5, y1: 6},
+        2: {x0: 0, x1: 15, y0: 5.5, y1: 5.6},
+        3: {x0: -10, x1: 15, y0: 0, y1: 2},
       }
 
-      expect(r._compute_plot_bounds([g1], bds)).to.be.deep.equal({minX: 0, maxX: 10, minY: 5, maxY: 6})
-      expect(r._compute_plot_bounds([g1, g2], bds)).to.be.deep.equal({minX: 0, maxX: 15, minY: 5, maxY: 6})
+      expect(r._compute_plot_bounds([g1], bds)).to.be.deep.equal({x0: 0, x1: 10, y0: 5, y1: 6})
+      expect(r._compute_plot_bounds([g1, g2], bds)).to.be.deep.equal({x0: 0, x1: 15, y0: 5, y1: 6})
     })
   })
 
@@ -305,7 +305,7 @@ describe("datarange1d module", () => {
       const r = new DataRange1d({plots: [p]})
 
       const bds = {
-        id: {minX: -10, maxX: -6, minY: 5, maxY: 6},
+        id: {x0: -10, x1: -6, y0: 5, y1: 6},
       }
 
       r.update(bds, 0, "id")
@@ -318,7 +318,7 @@ describe("datarange1d module", () => {
       const r = new DataRange1d({scale_hint: "log", plots: [p]})
 
       const bds = {
-        id: {minX: Infinity, maxX: -Infinity, minY: 5, maxY: 6},
+        id: {x0: Infinity, x1: -Infinity, y0: 5, y1: 6},
       }
 
       r.update(bds, 0, "id")
@@ -342,22 +342,22 @@ describe("datarange1d module", () => {
   describe("adjust_bounds_for_aspect", () => {
     it("should preserve y axis when it is larger", () => {
       const r = new DataRange1d()
-      const bds = r.adjust_bounds_for_aspect({minX: 0, maxX: 1, minY: 0, maxY: 2}, 4)
+      const bds = r.adjust_bounds_for_aspect({x0: 0, x1: 1, y0: 0, y1: 2}, 4)
 
-      expect(bds.minX).to.be.equal(-3.5)
-      expect(bds.maxX).to.be.equal(4.5)
-      expect(bds.minY).to.be.equal(0)
-      expect(bds.maxY).to.be.equal(2)
+      expect(bds.x0).to.be.equal(-3.5)
+      expect(bds.x1).to.be.equal(4.5)
+      expect(bds.y0).to.be.equal(0)
+      expect(bds.y1).to.be.equal(2)
     })
 
     it("should preserve x axis when it is larger", () => {
       const r = new DataRange1d()
-      const bds = r.adjust_bounds_for_aspect({minX: 0, maxX: 8, minY: 0, maxY: 1}, 4)
+      const bds = r.adjust_bounds_for_aspect({x0: 0, x1: 8, y0: 0, y1: 1}, 4)
 
-      expect(bds.minX).to.be.equal(0)
-      expect(bds.maxX).to.be.equal(8)
-      expect(bds.minY).to.be.equal(-0.5)
-      expect(bds.maxY).to.be.equal(1.5)
+      expect(bds.x0).to.be.equal(0)
+      expect(bds.x1).to.be.equal(8)
+      expect(bds.y0).to.be.equal(-0.5)
+      expect(bds.y1).to.be.equal(1.5)
     })
   })
 })
