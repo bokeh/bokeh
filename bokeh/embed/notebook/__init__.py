@@ -26,7 +26,6 @@ log = logging.getLogger(__name__)
 from ...core.templates import DOC_NB_JS
 from ...core.json_encoder import serialize_json
 from ...model import Model
-from ...util.string import encode_utf8
 from ..elements import div_for_render_item
 from ..util import FromCurdoc, OutputDocumentFor, standalone_docs_json_and_render_items
 
@@ -93,7 +92,7 @@ def notebook_content(model, notebook_comms_target=None, theme=FromCurdoc):
         render_items=serialize_json([render_item]),
     )
 
-    return encode_utf8(script), encode_utf8(div), new_doc
+    return script, div, new_doc
 
 #-----------------------------------------------------------------------------
 # Private API
