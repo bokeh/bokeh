@@ -25,7 +25,6 @@ from mock import patch
 # External imports
 
 # Bokeh imports
-from bokeh.util.string import decode_utf8
 from bokeh.util.session_id import ( generate_session_id,
                                     generate_secret_key,
                                     check_session_id_signature,
@@ -136,7 +135,7 @@ class TestSessionId(object):
         # originates from #6653
         session_id = generate_session_id(signed=True, secret_key="abc")
         assert check_session_id_signature(session_id, secret_key="abc", signed=True)
-        assert check_session_id_signature(decode_utf8(session_id), secret_key="abc", signed=True)
+        assert check_session_id_signature(session_id, secret_key="abc", signed=True)
 
 #-----------------------------------------------------------------------------
 # Dev API

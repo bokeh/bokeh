@@ -26,7 +26,6 @@ from tornado import gen
 
 # Bokeh imports
 from bokeh.core.templates import AUTOLOAD_JS
-from bokeh.util.string import encode_utf8
 from bokeh.util.compiler import bundle_all_models
 from bokeh.embed.elements import script_for_render_items
 from bokeh.embed.util import RenderItem
@@ -93,7 +92,7 @@ class AutoloadJsHandler(SessionHandler):
         )
 
         self.set_header("Content-Type", 'application/javascript')
-        self.write(encode_utf8(js))
+        self.write(js)
 
 #-----------------------------------------------------------------------------
 # Private API
