@@ -30,7 +30,6 @@ import re
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'escape',
     'format_docstring',
     'indent',
     'nice_join',
@@ -40,33 +39,6 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-# based on `html` stdlib module (3.2+)
-def escape(s, quote=("'", '"')):
-    ''' Perform HTML-safe escaping.
-
-    Replaces special characters "&", "<" and ">" to HTML-safe sequences, and
-    optionally translates quote characters.
-
-    Args:
-        s (str): a string to escape
-
-        quote (seq[str], optional) : which quote characters to replace
-            (default: ("'", '"'))
-
-    Returns:
-        str
-
-    '''
-    s = s.replace("&", "&amp;")
-    s = s.replace("<", "&lt;")
-    s = s.replace(">", "&gt;")
-    if quote:
-        if '"' in quote:
-            s = s.replace('"', "&quot;")
-        if "'" in quote:
-            s = s.replace("'", "&#x27;")
-    return s
 
 def indent(text, n=2, ch=" "):
     ''' Indent all the lines in a given block of text by a specified amount.

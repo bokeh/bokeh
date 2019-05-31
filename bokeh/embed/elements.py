@@ -19,6 +19,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from html import escape
 
 # External imports
 
@@ -28,7 +29,6 @@ from ..core.templates import _env, DOC_JS, FILE, MACROS, PLOT_DIV
 from ..document.document import DEFAULT_TITLE
 from ..settings import settings
 from ..util.serialization import make_id
-from ..util.string import escape
 from .wrappers import wrap_in_onload, wrap_in_safely, wrap_in_script_tag
 
 #-----------------------------------------------------------------------------
