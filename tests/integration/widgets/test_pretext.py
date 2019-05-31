@@ -16,12 +16,12 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from html import escape
 
 # External imports
 
 # Bokeh imports
 from bokeh.models import PreText
-from bokeh.util.string import escape
 
 #-----------------------------------------------------------------------------
 # Tests

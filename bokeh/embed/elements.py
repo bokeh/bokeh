@@ -19,6 +19,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from html import escape
 
 # External imports
 
@@ -28,7 +29,6 @@ from ..core.templates import _env, DOC_JS, FILE, MACROS, PLOT_DIV
 from ..document.document import DEFAULT_TITLE
 from ..settings import settings
 from ..util.serialization import make_id
-from ..util.string import encode_utf8, escape
 from .wrappers import wrap_in_onload, wrap_in_safely, wrap_in_script_tag
 
 #-----------------------------------------------------------------------------
@@ -124,7 +124,7 @@ def html_page_for_render_items(bundle, docs_json, render_items, title, template=
         template = _env.from_string("{% extends base %}\n" + template)
 
     html = template.render(context)
-    return encode_utf8(html)
+    return html
 
 def script_for_render_items(docs_json_or_id, render_items, app_path=None, absolute_url=None):
     '''

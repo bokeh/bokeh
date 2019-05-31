@@ -31,7 +31,6 @@ from PIL import Image
 # Bokeh imports
 from ..embed import file_html
 from ..resources import INLINE
-from ..util.string import decode_utf8
 from .util import default_filename
 
 #-----------------------------------------------------------------------------
@@ -205,7 +204,7 @@ def get_screenshot_as_png(obj, driver=None, timeout=5, **kwargs):
     with _tmp_html() as tmp:
         html = get_layout_html(obj, **kwargs)
         with io.open(tmp.path, mode="w", encoding="utf-8") as file:
-            file.write(decode_utf8(html))
+            file.write(html)
 
         web_driver = driver if driver is not None else webdriver_control.get()
 
@@ -233,7 +232,7 @@ def get_svgs(obj, driver=None, timeout=5, **kwargs):
     with _tmp_html() as tmp:
         html = get_layout_html(obj, **kwargs)
         with io.open(tmp.path, mode="w", encoding="utf-8") as file:
-            file.write(decode_utf8(html))
+            file.write(html)
 
         web_driver = driver if driver is not None else webdriver_control.get()
 
