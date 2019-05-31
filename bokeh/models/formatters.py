@@ -284,10 +284,19 @@ class LogTickFormatter(TickFormatter):
     base to use. If unset, the formatter will use base 10 as a default.
     """)
     
-    use_superscript_exponents = Bool(False, help="""
+    use_superscript_exponents = Bool(False, help='''
     Whether to ever display scientific values using exponent superscript.
     
-    """)
+    Superscript fonts may not be rendered with the same size. Changing the major label
+    font may solve this issue.
+    
+    .. code-block:: python
+    
+        code = """
+        p.axis.major_label_text_font = "sans"
+        """
+    
+    ''')
 
 class CategoricalTickFormatter(TickFormatter):
     ''' Display tick values from categorical ranges as string
