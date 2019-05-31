@@ -33,7 +33,6 @@ import time
 
 # Bokeh imports
 from bokeh.settings import settings
-from bokeh.util.string import encode_utf8
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -112,8 +111,7 @@ def check_session_id_signature(session_id, secret_key=settings.secret_key_bytes(
         expected_signature = _signature(base_id, secret_key)
         # hmac.compare_digest() uses a string compare algorithm that doesn't
         # short-circuit so we don't allow timing analysis
-        # encode_utf8 is used to ensure that strings have same encoding
-        return hmac.compare_digest(encode_utf8(expected_signature), encode_utf8(provided_signature))
+        return hmac.compare_digest(expected_signature, provided_signature)
     else:
         return True
 
