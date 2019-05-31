@@ -23,7 +23,6 @@ log = logging.getLogger(__name__)
 import json
 
 # External imports
-from tornado import gen
 
 # Bokeh imports
 from .session_handler import SessionHandler
@@ -49,8 +48,7 @@ class MetadataHandler(SessionHandler):
 
     '''
 
-    @gen.coroutine
-    def get(self, *args, **kwargs):
+    async def get(self, *args, **kwargs):
         url = self.application_context.url
         userdata = self.application_context.application.metadata
         if callable(userdata):

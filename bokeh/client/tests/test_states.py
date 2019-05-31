@@ -17,7 +17,6 @@ import pytest ; pytest
 # Standard library imports
 
 # External imports
-from tornado import gen
 
 # Bokeh imports
 
@@ -31,15 +30,14 @@ import bokeh.client.states as bcs
 class MockConnection(object):
     def __init__(self, to_pop=None): self._to_pop = to_pop
 
-    def _connect_async(self): raise gen.Return("_connect_async")
-    def _wait_for_ack(self): raise gen.Return("_wait_for_ack")
-    def _handle_messages(self): raise gen.Return("_handle_messages")
-    def _transition(self, arg): raise gen.Return(("_transition", arg))
-    def _transition_to_disconnected(self): raise gen.Return("_transition_to_disconnected")
-    def _next(self): raise gen.Return("_next")
+    def _connect_async(self): return "_connect_async"
+    def _wait_for_ack(self): return "_wait_for_ack"
+    def _handle_messages(self): return "_handle_messages"
+    def _transition(self, arg): return ("_transition", arg)
+    def _transition_to_disconnected(self): return "_transition_to_disconnected"
+    def _next(self): return "_next"
 
-    @gen.coroutine
-    def _pop_message(self): raise gen.Return(self._to_pop)
+    async def _pop_message(self): return self._to_pop
 
 class MockMessage(object):
     header = {'reqid': 'reqid'}

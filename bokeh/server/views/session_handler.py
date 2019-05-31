@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 
 # External imports
-from tornado import gen
 from tornado.web import RequestHandler, HTTPError
 
 # Bokeh imports
@@ -56,8 +55,7 @@ class SessionHandler(RequestHandler):
     def initialize(self, *args, **kw):
         pass
 
-    @gen.coroutine
-    def get_session(self):
+    async def get_session(self):
         session_id = self.get_argument("bokeh-session-id", default=None)
         if session_id is None:
             if self.application.generate_session_ids:
@@ -72,9 +70,9 @@ class SessionHandler(RequestHandler):
             log.error("Session id had invalid signature: %r", session_id)
             raise HTTPError(status_code=403, reason="Invalid session ID")
 
-        session = yield self.application_context.create_session_if_needed(session_id, self.request)
+        session = await self.application_context.create_session_if_needed(session_id, self.request)
 
-        raise gen.Return(session)
+        return session
 
 #-----------------------------------------------------------------------------
 # Private API

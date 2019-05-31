@@ -27,7 +27,6 @@ import pytest
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from tornado import gen
 from tornado.ioloop import IOLoop
 from tornado.web import RequestHandler
 
@@ -96,8 +95,7 @@ def test_file_path_and_url(request, file_server):
 class _ExitHandler(RequestHandler):
     def initialize(self, io_loop):
         self.io_loop = io_loop
-    @gen.coroutine
-    def get(self, *args, **kwargs):
+    async def get(self, *args, **kwargs):
         self.io_loop.stop()
 
 

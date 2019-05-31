@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 
 # External imports
-from tornado import gen
 
 # Bokeh imports
 from .exceptions import ValidationError
@@ -101,8 +100,7 @@ class Receiver(object):
         self._message = None
         self._buf_header = None
 
-    @gen.coroutine
-    def consume(self, fragment):
+    async def consume(self, fragment):
         ''' Consume individual protocol message fragments.
 
         Args:
@@ -113,7 +111,7 @@ class Receiver(object):
 
         '''
         self._current_consumer(fragment)
-        raise gen.Return(self._message)
+        return self._message
 
     def _HEADER(self, fragment):
         self._assume_text(fragment)
