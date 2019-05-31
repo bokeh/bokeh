@@ -34,14 +34,13 @@ from ..util.serialization import make_id
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-__all__ = (
-    'yield_for_all_futures',
-)
+__all__ = ()
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
+<<<<<<< HEAD
 @gen.coroutine
 def yield_for_all_futures(result):
     """ Converts result into a Future by collapsing any futures inside result.
@@ -64,6 +63,8 @@ def yield_for_all_futures(result):
 
     raise gen.Return(result)
 
+=======
+>>>>>>> checkpoint
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------

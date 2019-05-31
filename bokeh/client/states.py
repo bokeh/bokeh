@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 
 # External imports
-from tornado import gen
 
 # Bokeh imports
 
@@ -51,9 +50,8 @@ class NOT_YET_CONNECTED(object):
 
     '''
 
-    @gen.coroutine
-    def run(self, connection):
-        yield connection._connect_async()
+    async def run(self, connection):
+        await connection._connect_async()
 
 class CONNECTED_BEFORE_ACK(object):
     ''' The ``ClientConnection`` connected to a Bokeh server, but has not yet
@@ -61,9 +59,8 @@ class CONNECTED_BEFORE_ACK(object):
 
     '''
 
-    @gen.coroutine
-    def run(self, connection):
-        yield connection._wait_for_ack()
+    async def run(self, connection):
+        await connection._wait_for_ack()
 
 class CONNECTED_AFTER_ACK(object):
     ''' The ``ClientConnection`` connected to a Bokeh server, and has
@@ -71,9 +68,8 @@ class CONNECTED_AFTER_ACK(object):
 
     '''
 
-    @gen.coroutine
-    def run(self, connection):
-        yield connection._handle_messages()
+    async def run(self, connection):
+        await connection._handle_messages()
 
 class DISCONNECTED(object):
     ''' The ``ClientConnection`` was connected to a Bokeh server, but is
@@ -81,9 +77,8 @@ class DISCONNECTED(object):
 
     '''
 
-    @gen.coroutine
-    def run(self, connection):
-        raise gen.Return(None)
+    async def run(self, connection):
+        return None
 
 class WAITING_FOR_REPLY(object):
     ''' The ``ClientConnection`` has sent a message to the Bokeh Server which
@@ -104,16 +99,15 @@ class WAITING_FOR_REPLY(object):
         ''' The request ID of the originating message. '''
         return self._reqid
 
-    @gen.coroutine
-    def run(self, connection):
-        message = yield connection._pop_message()
+    async def run(self, connection):
+        message = await connection._pop_message()
         if message is None:
-            yield connection._transition_to_disconnected()
+            await connection._transition_to_disconnected()
         elif 'reqid' in message.header and message.header['reqid'] == self.reqid:
             self._reply = message
-            yield connection._transition(CONNECTED_AFTER_ACK())
+            await connection._transition(CONNECTED_AFTER_ACK())
         else:
-            yield connection._next()
+            await connection._next()
 
 #-----------------------------------------------------------------------------
 # Private API

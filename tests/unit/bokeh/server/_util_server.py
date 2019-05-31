@@ -18,7 +18,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 
 # External imports
-from tornado import gen
 from tornado.ioloop import IOLoop
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest
 from tornado.websocket import websocket_connect
@@ -54,8 +53,7 @@ def ws_url(server, prefix=""):
 
 def http_get(io_loop, url):
     result = {}
-    @gen.coroutine
-    def handle_request(response):
+    async def handle_request(response):
         result['response'] = response
         io_loop.stop()
 
@@ -77,8 +75,7 @@ def http_get(io_loop, url):
 
 def websocket_open(io_loop, url, origin=None):
     result = {}
-    @gen.coroutine
-    def handle_connection(future):
+    async def handle_connection(future):
         result['connection'] = future
         io_loop.stop()
 

@@ -22,11 +22,9 @@ log = logging.getLogger(__name__)
 import time
 
 # External imports
-from tornado import gen, locks
+from tornado import locks
 
 # Bokeh imports
-from ..util.tornado import yield_for_all_futures
-
 from .callbacks import _DocumentCallbackGroup
 
 #-----------------------------------------------------------------------------
@@ -48,24 +46,23 @@ def _needs_document_lock(func):
        method on ServerSession and transforms it into a coroutine
        if it wasn't already.
     '''
-    @gen.coroutine
-    def _needs_document_lock_wrapper(self, *args, **kwargs):
+    async def _needs_document_lock_wrapper(self, *args, **kwargs):
         # while we wait for and hold the lock, prevent the session
         # from being discarded. This avoids potential weirdness
         # with the session vanishing in the middle of some async
         # task.
         if self.destroyed:
             log.debug("Ignoring locked callback on already-destroyed session.")
-            raise gen.Return(None)
+            return None
         self.block_expiration()
         try:
-            with (yield self._lock.acquire()):
+            with (await self._lock.acquire()):
                 if self._pending_writes is not None:
                     raise RuntimeError("internal class invariant violated: _pending_writes " + \
                                        "should be None if lock is not held")
                 self._pending_writes = []
                 try:
-                    result = yield yield_for_all_futures(func(self, *args, **kwargs))
+                    result = await func(self, *args, **kwargs)
                 finally:
                     # we want to be very sure we reset this or we'll
                     # keep hitting the RuntimeError above as soon as
@@ -73,8 +70,8 @@ def _needs_document_lock(func):
                     pending_writes = self._pending_writes
                     self._pending_writes = None
                 for p in pending_writes:
-                    yield p
-            raise gen.Return(result)
+                    await p
+            return result
         finally:
             self.unblock_expiration()
     return _needs_document_lock_wrapper

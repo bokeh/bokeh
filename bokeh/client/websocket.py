@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 
 # External imports
-from tornado import gen, locks
+from tornado import locks
 from tornado.websocket import WebSocketError
 
 # Bokeh imports
@@ -56,8 +56,7 @@ class WebSocketClientConnectionWrapper(object):
 
     # Internal methods --------------------------------------------------------
 
-    @gen.coroutine
-    def write_message(self, message, binary=False, locked=True):
+    async def write_message(self, message, binary=False, locked=True):
         ''' Write a message to the websocket after obtaining the appropriate
         Bokeh Document lock.
 
@@ -74,11 +73,11 @@ class WebSocketClientConnectionWrapper(object):
 
             future = self._socket.write_message(message, binary)
 
-            # don't yield this future or we're blocking on ourselves!
-            raise gen.Return(future)
+            # don't await this future or we're blocking on ourselves!
+            return future
 
         if locked:
-            with (yield self.write_lock.acquire()):
+            with (await self.write_lock.acquire()):
                 write_message_unlocked()
         else:
             write_message_unlocked()

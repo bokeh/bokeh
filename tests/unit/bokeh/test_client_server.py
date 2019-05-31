@@ -15,13 +15,13 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import asyncio
 import logging
 from mock import patch
 import os
 import sys
 
 # External imports
-from tornado import gen
 from tornado.httpclient import HTTPError
 
 # Bokeh imports
@@ -431,10 +431,9 @@ class TestClientServer(object):
             client_session._loop_until_closed()
             assert not client_session.connected
 
-    @gen.coroutine
-    def async_value(self, value):
-        yield gen.moment # this ensures we actually return to the loop
-        raise gen.Return(value)
+    async def async_value(self, value):
+        await asyncio.sleep(0) # this ensures we actually return to the loop
+        return value
 
     def test_client_session_timeout_async(self):
         application = Application()
@@ -449,15 +448,14 @@ class TestClientServer(object):
             result = DictModel()
             doc.add_root(result)
 
-            @gen.coroutine
-            def cb():
+            async def cb():
                 result.values['a'] = 0
-                result.values['b'] = yield self.async_value(1)
-                result.values['c'] = yield self.async_value(2)
-                result.values['d'] = yield self.async_value(3)
-                result.values['e'] = yield self.async_value(4)
+                result.values['b'] = await self.async_value(1)
+                result.values['c'] = await self.async_value(2)
+                result.values['d'] = await self.async_value(3)
+                result.values['e'] = await self.async_value(4)
                 client_session.close()
-                raise gen.Return(5)
+                return 5
 
             cb_id = doc.add_timeout_callback(cb, 10)
 
@@ -477,15 +475,14 @@ class TestClientServer(object):
             result = DictModel()
             doc.add_root(result)
 
-            @gen.coroutine
-            def cb():
+            async def cb():
                 result.values['a'] = 0
-                result.values['b'] = yield self.async_value(1)
-                result.values['c'] = yield self.async_value(2)
-                result.values['d'] = yield self.async_value(3)
-                result.values['e'] = yield self.async_value(4)
+                result.values['b'] = await self.async_value(1)
+                result.values['c'] = await self.async_value(2)
+                result.values['d'] = await self.async_value(3)
+                result.values['e'] = await self.async_value(4)
                 client_session.close()
-                raise gen.Return(5)
+                return 5
 
             cb_id = doc.add_timeout_callback(cb, 10)
 
@@ -516,17 +513,16 @@ class TestClientServer(object):
 
             result = next(iter(server_session.document.roots))
 
-            @gen.coroutine
-            def cb():
+            async def cb():
                 # we're testing that we can modify the doc and be
                 # "inside" the document lock
                 result.values['a'] = 0
-                result.values['b'] = yield self.async_value(1)
-                result.values['c'] = yield self.async_value(2)
-                result.values['d'] = yield self.async_value(3)
-                result.values['e'] = yield self.async_value(4)
+                result.values['b'] = await self.async_value(1)
+                result.values['c'] = await self.async_value(2)
+                result.values['d'] = await self.async_value(3)
+                result.values['e'] = await self.async_value(4)
                 client_session.close()
-                raise gen.Return(5)
+                return 5
 
             cb_id = server_session.document.add_timeout_callback(cb, 10)
 
@@ -551,15 +547,14 @@ class TestClientServer(object):
             result = DictModel()
             doc.add_root(result)
 
-            @gen.coroutine
-            def cb():
+            async def cb():
                 result.values['a'] = 0
-                result.values['b'] = yield self.async_value(1)
-                result.values['c'] = yield self.async_value(2)
-                result.values['d'] = yield self.async_value(3)
-                result.values['e'] = yield self.async_value(4)
+                result.values['b'] = await self.async_value(1)
+                result.values['c'] = await self.async_value(2)
+                result.values['d'] = await self.async_value(3)
+                result.values['e'] = await self.async_value(4)
                 client_session.close()
-                raise gen.Return(5)
+                return 5
 
             cb_id = doc.add_next_tick_callback(cb)
 
@@ -579,15 +574,14 @@ class TestClientServer(object):
             result = DictModel()
             doc.add_root(result)
 
-            @gen.coroutine
-            def cb():
+            async def cb():
                 result.values['a'] = 0
-                result.values['b'] = yield self.async_value(1)
-                result.values['c'] = yield self.async_value(2)
-                result.values['d'] = yield self.async_value(3)
-                result.values['e'] = yield self.async_value(4)
+                result.values['b'] = await self.async_value(1)
+                result.values['c'] = await self.async_value(2)
+                result.values['d'] = await self.async_value(3)
+                result.values['e'] = await self.async_value(4)
                 client_session.close()
-                raise gen.Return(5)
+                return 5
 
             cb_id = doc.add_next_tick_callback(cb)
 
@@ -618,17 +612,16 @@ class TestClientServer(object):
 
             result = next(iter(server_session.document.roots))
 
-            @gen.coroutine
-            def cb():
+            async def cb():
                 # we're testing that we can modify the doc and be
                 # "inside" the document lock
                 result.values['a'] = 0
-                result.values['b'] = yield self.async_value(1)
-                result.values['c'] = yield self.async_value(2)
-                result.values['d'] = yield self.async_value(3)
-                result.values['e'] = yield self.async_value(4)
+                result.values['b'] = await self.async_value(1)
+                result.values['c'] = await self.async_value(2)
+                result.values['d'] = await self.async_value(3)
+                result.values['e'] = await self.async_value(4)
                 client_session.close()
-                raise gen.Return(5)
+                return 5
 
             cb_id = server_session.document.add_next_tick_callback(cb)
 
@@ -653,15 +646,14 @@ class TestClientServer(object):
             result = DictModel()
             doc.add_root(result)
 
-            @gen.coroutine
-            def cb():
+            async def cb():
                 result.values['a'] = 0
-                result.values['b'] = yield self.async_value(1)
-                result.values['c'] = yield self.async_value(2)
-                result.values['d'] = yield self.async_value(3)
-                result.values['e'] = yield self.async_value(4)
+                result.values['b'] = await self.async_value(1)
+                result.values['c'] = await self.async_value(2)
+                result.values['d'] = await self.async_value(3)
+                result.values['e'] = await self.async_value(4)
                 client_session.close()
-                raise gen.Return(5)
+                return 5
 
             cb_id = doc.add_periodic_callback(cb, 10)
 
@@ -679,15 +671,14 @@ class TestClientServer(object):
             result = DictModel()
             doc.add_root(result)
 
-            @gen.coroutine
-            def cb():
+            async def cb():
                 result.values['a'] = 0
-                result.values['b'] = yield self.async_value(1)
-                result.values['c'] = yield self.async_value(2)
-                result.values['d'] = yield self.async_value(3)
-                result.values['e'] = yield self.async_value(4)
+                result.values['b'] = await self.async_value(1)
+                result.values['c'] = await self.async_value(2)
+                result.values['d'] = await self.async_value(3)
+                result.values['e'] = await self.async_value(4)
                 client_session.close()
-                raise gen.Return(5)
+                return 5
 
             cb_id = doc.add_periodic_callback(cb, 10)
 
@@ -716,17 +707,16 @@ class TestClientServer(object):
 
             result = next(iter(server_session.document.roots))
 
-            @gen.coroutine
-            def cb():
+            async def cb():
                 # we're testing that we can modify the doc and be
                 # "inside" the document lock
                 result.values['a'] = 0
-                result.values['b'] = yield self.async_value(1)
-                result.values['c'] = yield self.async_value(2)
-                result.values['d'] = yield self.async_value(3)
-                result.values['e'] = yield self.async_value(4)
+                result.values['b'] = await self.async_value(1)
+                result.values['c'] = await self.async_value(2)
+                result.values['d'] = await self.async_value(3)
+                result.values['e'] = await self.async_value(4)
                 client_session.close()
-                raise gen.Return(5)
+                return 5
 
             cb_id = server_session.document.add_periodic_callback(cb, 10)
 

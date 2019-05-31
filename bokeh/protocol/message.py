@@ -58,7 +58,6 @@ log = logging.getLogger(__name__)
 
 # External imports
 from tornado.escape import json_decode, json_encode
-from tornado import gen
 
 # Bokeh imports
 import bokeh.util.serialization as bkserial
@@ -198,8 +197,7 @@ class Message(object):
             raise ProtocolError("too many buffers received expecting " + str(self.header['num_buffers']))
         self._buffers.append((buf_header, buf_payload))
 
-    @gen.coroutine
-    def write_buffers(self, conn, locked=True):
+    async def write_buffers(self, conn, locked=True):
         ''' Write any buffer headers and payloads to the given connection.
 
         Args:
@@ -217,10 +215,10 @@ class Message(object):
             raise ValueError("Cannot write_buffers to connection None")
         sent = 0
         for header, payload in self._buffers:
-            yield conn.write_message(header, locked=locked)
-            yield conn.write_message(payload, binary=True, locked=locked)
+            await conn.write_message(header, locked=locked)
+            await conn.write_message(payload, binary=True, locked=locked)
             sent += (len(header) + len(payload))
-        raise gen.Return(sent)
+        return sent
 
     @classmethod
     def create_header(cls, request_id=None):
@@ -242,8 +240,7 @@ class Message(object):
             header['reqid'] = request_id
         return header
 
-    @gen.coroutine
-    def send(self, conn):
+    async def send(self, conn):
         ''' Send the message on the given connection.
 
         Args:
@@ -256,27 +253,27 @@ class Message(object):
         if conn is None:
             raise ValueError("Cannot send to connection None")
 
-        with (yield conn.write_lock.acquire()):
+        with (await conn.write_lock.acquire()):
             sent = 0
 
-            yield conn.write_message(self.header_json, locked=False)
+            await conn.write_message(self.header_json, locked=False)
             sent += len(self.header_json)
 
             # uncomment this to make it a lot easier to reproduce lock-related bugs
-            #yield gen.sleep(0.1)
+            #await asyncio.sleep(0.1)
 
-            yield conn.write_message(self.metadata_json, locked=False)
+            await conn.write_message(self.metadata_json, locked=False)
             sent += len(self.metadata_json)
 
             # uncomment this to make it a lot easier to reproduce lock-related bugs
-            #yield gen.sleep(0.1)
+            #await asyncio.sleep(0.1)
 
-            yield conn.write_message(self.content_json, locked=False)
+            await conn.write_message(self.content_json, locked=False)
             sent += len(self.content_json)
 
-            sent += yield self.write_buffers(conn, locked=False)
+            sent += await self.write_buffers(conn, locked=False)
 
-            raise gen.Return(sent)
+            return sent
 
     @property
     def complete(self):

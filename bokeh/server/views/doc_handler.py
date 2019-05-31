@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 
 # External imports
-from tornado import gen
 from tornado.web import authenticated
 
 # Bokeh imports
@@ -48,9 +47,8 @@ class DocHandler(SessionHandler):
     ''' Implements a custom Tornado handler for document display page
 
     '''
-    @gen.coroutine
     @authenticated
-    def get(self, *args, **kwargs):
+    async def get(self, *args, **kwargs):
         session = yield self.get_session()
         page = server_html_page_for_session(session,
                                             resources=self.application.resources(),

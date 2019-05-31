@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 
 # External imports
-from tornado import gen
 from tornado.web import authenticated, RequestHandler
 
 # Bokeh imports
@@ -55,9 +54,8 @@ class RootHandler(AuthMixin, RequestHandler):
         self.index = kw["index"]
         self.use_redirect = kw["use_redirect"]
 
-    @gen.coroutine
     @authenticated
-    def get(self, *args, **kwargs):
+    async def get(self, *args, **kwargs):
         prefix = "" if self.prefix is None else self.prefix
         if self.use_redirect and len(self.applications) == 1:
             app_names = list(self.applications.keys())

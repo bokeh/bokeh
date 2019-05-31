@@ -15,6 +15,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import asyncio
 from datetime import timedelta
 import logging
 import re
@@ -23,7 +24,6 @@ import sys
 
 # External imports
 import mock
-from tornado import gen
 from tornado.ioloop import PeriodicCallback, IOLoop
 from tornado.httpclient import HTTPError
 from tornado.httpserver import HTTPServer
@@ -49,10 +49,9 @@ from _util_server import ManagedServerLoop, url, ws_url, http_get, websocket_ope
 
 logging.basicConfig(level=logging.DEBUG)
 
-@gen.coroutine
-def async_value(value):
-    yield gen.moment # this ensures we actually return to the loop
-    raise gen.Return(value)
+async def async_value(value):
+    await asyncio.sleep(0) # this ensures we actually return to the loop
+    return value
 
 class HookListModel(Model):
     hooks = List(String)
@@ -94,10 +93,8 @@ class HookTestHandler(Handler):
         self.hooks.append("server_unloaded")
 
     # important to test that this can be async
-    @gen.coroutine
-    def on_session_created(self, session_context):
-        @gen.coroutine
-        def setup_document(doc):
+    async def on_session_created(self, session_context):
+        async def setup_document(doc):
             # session creation hook is allowed to init the document
             # before any modify_document() handlers kick in
             from bokeh.document import DEFAULT_TITLE
@@ -107,11 +104,11 @@ class HookTestHandler(Handler):
             hook_list.hooks.append("session_created")
             doc.add_root(hook_list)
 
-            self.session_creation_async_value = yield async_value(1)
-            self.session_creation_async_value = yield async_value(2)
-            self.session_creation_async_value = yield async_value(3)
+            self.session_creation_async_value = await async_value(1)
+            self.session_creation_async_value = await async_value(2)
+            self.session_creation_async_value = await async_value(3)
 
-        yield session_context.with_locked_document(setup_document)
+        await session_context.with_locked_document(setup_document)
 
         server_context = session_context.server_context
         server_context.add_next_tick_callback(self.on_next_tick_session)
@@ -126,16 +123,14 @@ class HookTestHandler(Handler):
         self.hooks.append("session_created")
 
     # this has to be async too
-    @gen.coroutine
-    def on_session_destroyed(self, session_context):
+    async def on_session_destroyed(self, session_context):
         # this should be no-op'd, because the session is already destroyed
-        @gen.coroutine
-        def shutdown_document(doc):
+        async def shutdown_document(doc):
             doc.roots[0].hooks.append("session_destroyed")
-            self.session_creation_async_value = yield async_value(4)
-            self.session_creation_async_value = yield async_value(5)
-            self.session_creation_async_value = yield async_value(6)
-        yield session_context.with_locked_document(shutdown_document)
+            self.session_creation_async_value = await async_value(4)
+            self.session_creation_async_value = await async_value(5)
+            self.session_creation_async_value = await async_value(6)
+        await session_context.with_locked_document(shutdown_document)
 
         self.hooks.append("session_destroyed")
 
