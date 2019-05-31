@@ -64,7 +64,7 @@ class HtmlOnlyHandler(BaseHTTPRequestHandler):
         """GET method handler."""
         try:
             path = self.path[1:].split('?')[0]
-            html = open(os.path.join(HTML_ROOT, path), 'r', encoding='utf-8')
+            html = open(os.path.join(HTML_ROOT, path), 'r', encoding='latin-1')
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
             self.end_headers()
