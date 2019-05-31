@@ -66,7 +66,6 @@ from sphinx.errors import SphinxError
 # Bokeh imports
 from .util import get_sphinx_resources
 from .templates import BJS_PROLOGUE, BJS_EPILOGUE, BJS_CODEPEN_INIT, BJS_HTML
-from ..util.string import decode_utf8
 
 if False:
     # For type annotation
@@ -183,7 +182,7 @@ class BokehJSContent(CodeBlock):
             path = js_file
             if not js_file.startswith("/"):
                 path = join(env.app.srcdir, path)
-            js_source = decode_utf8(open(path).read())
+            js_source = open(path).read()
         else:
             log.debug("[bokehjs-content] handling inline example in %r", env.docname)
             path = env.bokeh_plot_auxdir  # code runner just needs any real path

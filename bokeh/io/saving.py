@@ -27,7 +27,6 @@ from warnings import warn
 
 # Bokeh imports
 from ..settings import settings
-from ..util.string import decode_utf8
 from .state import curstate
 from .util import default_filename
 
@@ -146,7 +145,7 @@ def _save_helper(obj, filename, resources, title, template):
     html = file_html(obj, resources, title=title, template=template)
 
     with io.open(filename, mode="w", encoding="utf-8") as f:
-        f.write(decode_utf8(html))
+        f.write(html)
 
 #-----------------------------------------------------------------------------
 # Code

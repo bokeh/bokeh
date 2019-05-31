@@ -102,7 +102,6 @@ from sphinx.util.nodes import set_source_info
 from ..document import Document
 from ..embed import autoload_static
 from ..model import Model
-from ..util.string import decode_utf8
 from .util import get_sphinx_resources
 from .example_handler import ExampleHandler
 
@@ -149,7 +148,7 @@ class BokehPlotDirective(Directive):
             path = self.arguments[0]
             if not path.startswith("/"):
                 path = join(env.app.srcdir, path)
-            source = decode_utf8(open(path).read())
+            source = open(path).read()
 
         js_name = "bokeh-plot-%s-external-%s.js" % (uuid4().hex, docname)
 

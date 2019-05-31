@@ -30,3 +30,8 @@ bokeh.util.future module
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``bokeh.util.future`` module has been removed.
+
+bokeh.util.string module
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The `encode_utf8`, `decode_utf8`, and `escape` functions have been removed.
