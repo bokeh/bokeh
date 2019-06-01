@@ -72,6 +72,8 @@ needed:
   removed
 * ``bokeh.models.tools``: methods ``CustomJSHover.from_py_func`` and
   ``CustomJSHover.from_coffeescript`` removed
+* ``bokeh.models.transforms``: methods ``CustomJSTransform.from_py_func`` and
+  ``CustomJSTransform.from_coffeescript`` removed
 * ``bokeh.util.future``: entire module removed.
 * ``bokeh.util.string``: functions ``encode_utf8``, ``decode_utf8``, and ``escape``
   removed
