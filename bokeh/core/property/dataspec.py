@@ -458,7 +458,7 @@ class ScreenDistanceSpec(UnitsSpec):
         return [ UnitsSpecPropertyDescriptor(base_name, self, units_props[0]) ]
 
     def to_serializable(self, obj, name, val):
-        d = super().to_serializable(obj, name, val)
+        d = super(UnitsSpec, self).to_serializable(obj, name, val) # note super special case
         if d is not None and 'units' not in d:
             # d is a PropertyValueDict at this point, we need to convert it to
             # a plain dict if we are going to modify its value, otherwise a
@@ -509,7 +509,7 @@ class DataDistanceSpec(UnitsSpec):
         return [ UnitsSpecPropertyDescriptor(base_name, self, units_props[0]) ]
 
     def to_serializable(self, obj, name, val):
-        d = super().to_serializable(obj, name, val)
+        d = super(UnitsSpec, self).to_serializable(obj, name, val) # note super special case
         if d is not None and 'units' not in d:
             # d is a PropertyValueDict at this point, we need to convert it to
             # a plain dict if we are going to modify its value, otherwise a

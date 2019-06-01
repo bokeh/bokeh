@@ -367,7 +367,7 @@ class PropertyValueColumnData(PropertyValueDict):
     def update(self, *args, **kwargs):
         old = self._saved_copy()
 
-        result = super().update(*args, **kwargs)
+        result = super(PropertyValueDict, self).update(*args, **kwargs) # note super special case
 
         from ...document.events import ColumnDataChangedEvent
 
@@ -429,7 +429,7 @@ class PropertyValueColumnData(PropertyValueDict):
                 data = np.append(self[k], new_data[k])
                 if rollover and len(data) > rollover:
                     data = data[-rollover:]
-                super().__setitem__(k, data)
+                super(PropertyValueDict, self).__setitem__(k, data) # note super special case
             else:
                 L = self[k]
                 L.extend(new_data[k])
