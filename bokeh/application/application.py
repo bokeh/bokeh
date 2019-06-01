@@ -187,7 +187,7 @@ class Application(object):
         for h in self._handlers:
             await h.on_server_loaded(server_context)
 
-    async def on_server_unloaded(self, server_context):
+    def on_server_unloaded(self, server_context):
         ''' Invoked to execute code when the server cleanly exits. (Before
         stopping the server's ``IOLoop``.)
 
@@ -200,7 +200,7 @@ class Application(object):
 
         '''
         for h in self._handlers:
-            await h.on_server_unloaded(server_context)
+            h.on_server_unloaded(server_context)
 
     async def on_session_created(self, session_context):
         ''' Invoked to execute code when a new session is created.
