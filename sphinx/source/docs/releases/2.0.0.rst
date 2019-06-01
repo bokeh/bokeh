@@ -58,12 +58,14 @@ error.
 API Removals
 ~~~~~~~~~~~~
 
-The following modules were previously depreated or were internal and no longer
+The following modules were previously deprecated or were internal and no longer
 needed:
 
-* ``bokeh.client``: ``ClientSession.loop_until_closed`` method removed
-* ``bokeh.models.plots``: ``Plot.h_symmetry`` and ``Plot.v_symmetry``
-  properties removed
+* ``bokeh.client``: method ``ClientSession.loop_until_closed`` removed
+* ``bokeh.models.callbacks``: methods ``CustomJS.from_py_func`` and
+  ``CustomJS.from_coffeescript`` removed
+* ``bokeh.models.plots``: proeprties ``Plot.h_symmetry`` and ``Plot.v_symmetry``
+  removed
 * ``bokeh.util.future``: entire module removed.
-* ``bokeh.util.string``: ``encode_utf8``, ``decode_utf8``, and ``escape``
-  functions removed
+* ``bokeh.util.string``: functions ``encode_utf8``, ``decode_utf8``, and ``escape``
+  removed
