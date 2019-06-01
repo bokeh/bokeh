@@ -116,7 +116,7 @@ class PNG(FileOutputSubcommand):
         '''
         self.driver = create_webdriver()
         try:
-            super(PNG, self).invoke(args)
+            super().invoke(args)
         finally:
             terminate_webdriver(self.driver)
 

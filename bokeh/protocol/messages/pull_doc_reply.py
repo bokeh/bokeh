@@ -59,7 +59,7 @@ class pull_doc_reply_1(Message):
     revision = 1
 
     def __init__(self, header, metadata, content):
-        super(pull_doc_reply_1, self).__init__(header, metadata, content)
+        super().__init__(header, metadata, content)
 
     @classmethod
     def create(cls, request_id, document, **metadata):

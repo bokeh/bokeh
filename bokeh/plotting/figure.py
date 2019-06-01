@@ -147,7 +147,7 @@ class Figure(Plot):
         if isinstance(title, str):
             kw['title'] = Title(text=title)
 
-        super(Figure, self).__init__(*arg, **kw)
+        super().__init__(*arg, **kw)
 
         self.x_range = _get_range(opts.x_range)
         self.y_range = _get_range(opts.y_range)

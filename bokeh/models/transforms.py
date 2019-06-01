@@ -341,7 +341,7 @@ class Interpolator(Transform):
 
     # Define an initialization routine to do some cross checking of input values
     def __init__(self, **kwargs):
-        super(Interpolator, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
 
 class LinearInterpolator(Interpolator):

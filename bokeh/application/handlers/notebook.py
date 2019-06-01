@@ -128,7 +128,7 @@ class NotebookHandler(CodeHandler):
                 source = source.encode('utf-8')
             kwargs['source'] = source
 
-        super(NotebookHandler, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 #-----------------------------------------------------------------------------
 # Private API

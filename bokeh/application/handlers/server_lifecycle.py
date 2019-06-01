@@ -61,7 +61,7 @@ class ServerLifecycleHandler(LifecycleHandler):
                 ``sys.argv`` when the callback code is executed. (default: [])
 
         '''
-        super(ServerLifecycleHandler, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if 'filename' not in kwargs:
             raise ValueError('Must pass a filename to ServerLifecycleHandler')

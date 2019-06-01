@@ -152,7 +152,7 @@ class MetaHasProps(type):
             if "__doc__" in class_dict and class_dict["__doc__"] is not None:
                 class_dict["__doc__"] += _EXAMPLE_TEMPLATE % dict(path=path)
 
-        return super(MetaHasProps, meta_cls).__new__(meta_cls, class_name, bases, class_dict)
+        return super().__new__(meta_cls, class_name, bases, class_dict)
 
     def __init__(cls, class_name, bases, nmspc):
         if class_name == 'HasProps':
@@ -241,7 +241,7 @@ class HasProps(object, metaclass=MetaHasProps):
         '''
 
         '''
-        super(HasProps, self).__init__()
+        super().__init__()
         self._property_values = dict()
         self._unstable_default_values = dict()
         self._unstable_themed_values = dict()
@@ -267,14 +267,14 @@ class HasProps(object, metaclass=MetaHasProps):
         # self.properties() below can be expensive so avoid it
         # if we're just setting a private underscore field
         if name.startswith("_"):
-            super(HasProps, self).__setattr__(name, value)
+            super().__setattr__(name, value)
             return
 
         props = sorted(self.properties())
         descriptor = getattr(self.__class__, name, None)
 
         if name in props or (descriptor is not None and descriptor.fset is not None):
-            super(HasProps, self).__setattr__(name, value)
+            super().__setattr__(name, value)
         else:
             matches, text = difflib.get_close_matches(name.lower(), props), "similar"
 

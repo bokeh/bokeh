@@ -89,7 +89,7 @@ class ScriptHandler(CodeHandler):
         with open(filename, 'r', encoding='utf-8') as f:
             kwargs['source'] = f.read()
 
-        super(ScriptHandler, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 #-----------------------------------------------------------------------------
 # Private API

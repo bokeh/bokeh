@@ -247,7 +247,7 @@ class _SinglePlotPage(_BokehModelPage, _CanvasMixin):
 
     # model may be a layout, but should only contain a single plot
     def __init__(self, model, driver, output_file_url, has_no_console_errors):
-        super(_SinglePlotPage, self).__init__(model, driver, output_file_url, has_no_console_errors)
+        super().__init__(model, driver, output_file_url, has_no_console_errors)
 
         self.canvas = self._driver.find_element_by_tag_name('canvas')
         wait_for_canvas_resize(self.canvas, self._driver)
