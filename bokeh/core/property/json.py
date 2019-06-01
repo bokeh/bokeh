@@ -64,7 +64,7 @@ class JSON(String):
 
     '''
     def validate(self, value, detail=True):
-        super(JSON, self).validate(value, detail)
+        super().validate(value, detail)
 
         if value is None: return
 

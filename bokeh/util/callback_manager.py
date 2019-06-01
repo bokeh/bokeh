@@ -47,7 +47,7 @@ class EventCallbackManager(object):
 
     '''
     def __init__(self, *args, **kw):
-        super(EventCallbackManager, self).__init__(*args, **kw)
+        super().__init__(*args, **kw)
         self._event_callbacks = dict()
 
     def on_event(self, event, *callbacks):
@@ -103,7 +103,7 @@ class PropertyCallbackManager(object):
     '''
 
     def __init__(self, *args, **kw):
-        super(PropertyCallbackManager, self).__init__(*args, **kw)
+        super().__init__(*args, **kw)
         self._callbacks = dict()
 
     def on_change(self, attr, *callbacks):

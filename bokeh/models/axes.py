@@ -305,7 +305,7 @@ class MercatorAxis(LinearAxis):
 
     '''
     def __init__(self, dimension='lat', **kw):
-        super(MercatorAxis, self).__init__(**kw)
+        super().__init__(**kw)
 
         # Just being careful. It would be defeat the purpose for anyone to actually
         # configure this axis with differnet kinds of tickers or formatters.

@@ -57,7 +57,7 @@ class Filter(Model):
         if len(args) == 1 and "filter" not in kw:
             kw["filter"] = args[0]
 
-        super(Filter, self).__init__(**kw)
+        super().__init__(**kw)
 
 class IndexFilter(Filter):
     ''' An ``IndexFilter`` filters data by returning the subset of data at a given set of indices.
@@ -71,7 +71,7 @@ class IndexFilter(Filter):
         if len(args) == 1 and "indices" not in kw:
             kw["indices"] = args[0]
 
-        super(IndexFilter, self).__init__(**kw)
+        super().__init__(**kw)
 
 class BooleanFilter(Filter):
     ''' A ``BooleanFilter`` filters data by returning the subset of data corresponding to indices
@@ -86,7 +86,7 @@ class BooleanFilter(Filter):
         if len(args) == 1 and "booleans" not in kw:
             kw["booleans"] = args[0]
 
-        super(BooleanFilter, self).__init__(**kw)
+        super().__init__(**kw)
 
 class GroupFilter(Filter):
     ''' A ``GroupFilter`` represents the rows of a ``ColumnDataSource`` where the values of the categorical
@@ -106,7 +106,7 @@ class GroupFilter(Filter):
             kw["column_name"] = args[0]
             kw["group"] = args[1]
 
-        super(GroupFilter, self).__init__(**kw)
+        super().__init__(**kw)
 
 class CustomJSFilter(Filter):
     ''' Filter data sources with a custom defined JavaScript function.

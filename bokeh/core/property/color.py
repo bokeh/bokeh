@@ -54,7 +54,7 @@ class RGB(Property):
     '''
 
     def validate(self, value, detail=True):
-        super(RGB, self).validate(value, detail)
+        super().validate(value, detail)
 
         if not (value is None or isinstance(value, colors.RGB)):
             msg = "" if not detail else "expected RGB value, got %r" % (value,)
@@ -108,7 +108,7 @@ class Color(Either):
                  Tuple(Byte, Byte, Byte),
                  Tuple(Byte, Byte, Byte, Percent),
                  RGB)
-        super(Color, self).__init__(*types, default=default, help=help)
+        super().__init__(*types, default=default, help=help)
 
     def __str__(self):
         return self.__class__.__name__

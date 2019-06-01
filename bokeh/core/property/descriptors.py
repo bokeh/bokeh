@@ -446,7 +446,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
             property (Property) : A basic property to create a descriptor for
 
         '''
-        super(BasicPropertyDescriptor, self).__init__(name)
+        super().__init__(name)
         self.property = property
         self.__doc__ = self.property.__doc__
 
@@ -610,7 +610,7 @@ class BasicPropertyDescriptor(PropertyDescriptor):
             None
 
         '''
-        return super(BasicPropertyDescriptor, self).set_from_json(obj,
+        return super().set_from_json(obj,
                                                         self.property.from_json(json, models),
                                                         models, setter)
 
@@ -1022,7 +1022,7 @@ class DataSpecPropertyDescriptor(BasicPropertyDescriptor):
                         json = json['field']
                 # leave it as a dict if 'old' was a dict
 
-        super(DataSpecPropertyDescriptor, self).set_from_json(obj, json, models, setter)
+        super().set_from_json(obj, json, models, setter)
 
 class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
     ''' A ``PropertyDecscriptor`` for Bokeh |UnitsSpec| properties that contribute
@@ -1044,7 +1044,7 @@ class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
                 An associated property to hold units information
 
         '''
-        super(UnitsSpecPropertyDescriptor, self).__init__(name, property)
+        super().__init__(name, property)
         self.units_prop = units_property
 
     def __set__(self, obj, value, setter=None):
@@ -1083,7 +1083,7 @@ class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
 
         '''
         value = self._extract_units(obj, value)
-        super(UnitsSpecPropertyDescriptor, self).__set__(obj, value, setter)
+        super().__set__(obj, value, setter)
 
     def set_from_json(self, obj, json, models=None, setter=None):
         ''' Sets the value of this property from a JSON value.
@@ -1120,7 +1120,7 @@ class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
 
         '''
         json = self._extract_units(obj, json)
-        super(UnitsSpecPropertyDescriptor, self).set_from_json(obj, json, models, setter)
+        super().set_from_json(obj, json, models, setter)
 
     def _extract_units(self, obj, value):
         ''' Internal helper for dealing with units associated units properties

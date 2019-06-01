@@ -57,7 +57,7 @@ class Enum(String):
         default = kwargs.get("default", enum._default)
         help = kwargs.get("help")
 
-        super(Enum, self).__init__(default=default, help=help)
+        super().__init__(default=default, help=help)
 
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(map(repr, self.allowed_values)))
@@ -67,7 +67,7 @@ class Enum(String):
         return self._enum._values
 
     def validate(self, value, detail=True):
-        super(Enum, self).validate(value, detail)
+        super().validate(value, detail)
 
         if not (value is None or value in self._enum):
             msg = "" if not detail else "invalid value: %r; allowed values are %s" % (value, nice_join(self.allowed_values))
