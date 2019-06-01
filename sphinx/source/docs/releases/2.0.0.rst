@@ -55,18 +55,15 @@ The ``ColumnDataSource.data`` property can only be set from plain Python dicts.
 Attempting to set from another CDS, i.e ``s1.data = s2.data``, will raise an
 error.
 
-Plot Symmetry Properties
-~~~~~~~~~~~~~~~~~~~~~~~~
+API Removals
+~~~~~~~~~~~~
 
-The deprecated vestigal properties ``Plot.h_symmetry`` and ``Plot.v_symmetry``
-have been removed. These properties were non-functional for many releases.
+The following modules were previously depreated or were internal and no longer
+needed:
 
-bokeh.util.future module
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-The ``bokeh.util.future`` module has been removed.
-
-bokeh.util.string module
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-The `encode_utf8`, `decode_utf8`, and `escape` functions have been removed.
+* ``bokeh.client``: ``ClientSession.loop_until_closed`` method removed
+* ``bokeh.models.plots``: ``Plot.h_symmetry`` and ``Plot.v_symmetry``
+  properties removed
+* ``bokeh.util.future``: entire module removed.
+* ``bokeh.util.string``: ``encode_utf8``, ``decode_utf8``, and ``escape``
+  functions removed
