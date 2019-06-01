@@ -348,7 +348,7 @@ class Box(LayoutDOM):
         elif len(args) > 0:
             kwargs["children"] = list(args)
 
-        super(Box, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     @warning(EMPTY_LAYOUT)
     def _check_empty_layout(self):

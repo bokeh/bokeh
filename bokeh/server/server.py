@@ -413,7 +413,7 @@ class Server(BaseServer):
         if io_loop is None:
             io_loop = IOLoop.current()
 
-        super(Server, self).__init__(io_loop, tornado_app, http_server)
+        super().__init__(io_loop, tornado_app, http_server)
 
     @property
     def index(self):

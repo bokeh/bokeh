@@ -79,7 +79,7 @@ class ColorMapper(Mapper):
     def __init__(self, palette=None, **kwargs):
         if palette is not None:
             kwargs['palette'] = palette
-        super(ColorMapper, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
 @abstract
 class CategoricalMapper(Mapper):
@@ -129,7 +129,7 @@ class CategoricalColorMapper(CategoricalMapper, ColorMapper):
     '''
 
     def __init__(self, **kwargs):
-        super(CategoricalColorMapper, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         palette = self.palette
         factors = self.factors
         if palette is not None and factors is not None:

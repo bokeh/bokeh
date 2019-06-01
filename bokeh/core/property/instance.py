@@ -57,7 +57,7 @@ class Instance(Property):
 
         self._instance_type = instance_type
 
-        super(Instance, self).__init__(default=default, help=help)
+        super().__init__(default=default, help=help)
 
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, self.instance_type.__name__)
@@ -103,7 +103,7 @@ class Instance(Property):
             raise DeserializationError("%s expected a dict or None, got %s" % (self, json))
 
     def validate(self, value, detail=True):
-        super(Instance, self).validate(value, detail)
+        super().validate(value, detail)
 
         if value is not None:
             if not isinstance(value, self.instance_type):

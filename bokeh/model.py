@@ -251,7 +251,7 @@ class MetaModel(MetaHasProps):
         class_dict["__qualified_model__"] = qualified
 
         # call the parent metaclass to create the new model type
-        newcls = super(MetaModel, meta_cls).__new__(meta_cls, class_name, bases, class_dict)
+        newcls = super().__new__(meta_cls, class_name, bases, class_dict)
 
         # update the mapping of view model names to classes, checking for any duplicates
         # and handling any subtype relationships or custom implementations
@@ -286,7 +286,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager, metaclass=M
     '''
 
     def __new__(cls, *args, **kwargs):
-        obj =  super(Model, cls).__new__(cls)
+        obj =  super().__new__(cls)
         obj._id = kwargs.pop("id", make_id())
         obj._document = None
         obj._temp_document = None
@@ -299,7 +299,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager, metaclass=M
         #
         # class Foo(object):
         #     def __new__(cls, *args, **kw):
-        #         obj = super(Foo, cls).__new__(cls)
+        #         obj = super().__new__(cls)
         #         obj.bar = kw.pop("bar", 111)
         #         print("__new__  :", id(kw), kw)
         #         return obj
@@ -311,7 +311,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager, metaclass=M
         # __init__ : 4405522296 {'bar': 10}
         kwargs.pop("id", None)
 
-        super(Model, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         default_theme.apply_to_model(self)
 
     def __str__(self):
@@ -584,7 +584,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager, metaclass=M
         '''
         if attr not in self.properties():
             raise ValueError("attempted to add a callback on nonexistent %s.%s property" % (self.__class__.__name__, attr))
-        super(Model, self).on_change(attr, *callbacks)
+        super().on_change(attr, *callbacks)
 
     def references(self):
         ''' Returns all ``Models`` that this object has references to.
@@ -710,7 +710,7 @@ class Model(HasProps, PropertyCallbackManager, EventCallbackManager, metaclass=M
                 if dirty['count'] > 0:
                     self._document._invalidate_all_models()
         # chain up to invoke callbacks
-        super(Model, self).trigger(attr, old, new, hint=hint, setter=setter)
+        super().trigger(attr, old, new, hint=hint, setter=setter)
 
     def _attach_document(self, doc):
         ''' Attach a model to a Bokeh |Document|.
