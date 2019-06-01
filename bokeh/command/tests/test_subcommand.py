@@ -71,7 +71,7 @@ def test_base_invoke():
     with pytest.raises(NotImplementedError):
         p = MagicMock()
         obj = _Good(p)
-        super(_Good, obj).invoke("foo")
+        super(_Good, obj).invoke("foo") # note super special case
 
 #-----------------------------------------------------------------------------
 # Code

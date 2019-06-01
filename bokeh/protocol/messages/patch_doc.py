@@ -63,7 +63,7 @@ class patch_doc_1(Message):
     revision = 1
 
     def __init__(self, header, metadata, content):
-        super(patch_doc_1, self).__init__(header, metadata, content)
+        super().__init__(header, metadata, content)
 
     @classmethod
     def create(cls, events, use_buffers=True, **metadata):
