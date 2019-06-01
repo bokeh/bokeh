@@ -120,7 +120,7 @@ class SVG(FileOutputSubcommand):
         '''
         self.driver = create_webdriver()
         try:
-            super(SVG, self).invoke(args)
+            super().invoke(args)
         finally:
             terminate_webdriver(self.driver)
 

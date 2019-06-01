@@ -155,7 +155,7 @@ class DataSpec(Either):
 
     '''
     def __init__(self, key_type, value_type, default, help=None):
-        super(DataSpec, self).__init__(
+        super().__init__(
             String,
             Dict(
                 key_type,
@@ -233,7 +233,7 @@ class NumberSpec(DataSpec):
 
     '''
     def __init__(self, default=None, help=None, key_type=_ExprFieldValueTransform, accept_datetime=True, accept_timedelta=True):
-        super(NumberSpec, self).__init__(key_type, Float, default=default, help=help)
+        super().__init__(key_type, Float, default=default, help=help)
         if accept_timedelta:
             self.accepts(TimeDelta, convert_timedelta_type)
         if accept_datetime:
@@ -256,14 +256,14 @@ class StringSpec(DataSpec):
 
     '''
     def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
-        super(StringSpec, self).__init__(key_type, List(String), default=default, help=help)
+        super().__init__(key_type, List(String), default=default, help=help)
 
     def prepare_value(self, cls, name, value):
         if isinstance(value, list):
             if len(value) != 1:
                 raise TypeError("StringSpec convenience list values must have length 1")
             value = dict(value=value[0])
-        return super(StringSpec, self).prepare_value(cls, name, value)
+        return super().prepare_value(cls, name, value)
 
 class FontSizeSpec(DataSpec):
     ''' A |DataSpec| property that accepts font-size fixed values.
@@ -287,12 +287,12 @@ class FontSizeSpec(DataSpec):
     '''
 
     def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
-        super(FontSizeSpec, self).__init__(key_type, FontSize, default=default, help=help)
+        super().__init__(key_type, FontSize, default=default, help=help)
 
     def validate(self, value, detail=True):
         # We want to preserve existing semantics and be a little more restrictive. This
         # validations makes m.font_size = "" or m.font_size = "6" an error
-        super(FontSizeSpec, self).validate(value, detail)
+        super().validate(value, detail)
         if isinstance(value, str):
             if len(value) == 0 or value[0].isdigit() and FontSize._font_size_re.match(value) is None:
                 msg = "" if not detail else "%r is not a valid font size value" % value
@@ -316,7 +316,7 @@ class HatchPatternSpec(DataSpec):
     '''
 
     def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
-        super(HatchPatternSpec, self).__init__(key_type, HatchPatternType, default=default, help=help)
+        super().__init__(key_type, HatchPatternType, default=default, help=help)
 
 class MarkerSpec(DataSpec):
     ''' A |DataSpec| property that accepts marker types as fixed values.
@@ -336,7 +336,7 @@ class MarkerSpec(DataSpec):
     '''
 
     def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
-        super(MarkerSpec, self).__init__(key_type, MarkerType, default=default, help=help)
+        super().__init__(key_type, MarkerType, default=default, help=help)
 
 
 class UnitsSpec(NumberSpec):
@@ -345,7 +345,7 @@ class UnitsSpec(NumberSpec):
 
     '''
     def __init__(self, default, units_type, units_default, help=None):
-        super(UnitsSpec, self).__init__(default=default, help=help, key_type=_ExprFieldValueTransformUnits)
+        super().__init__(default=default, help=help, key_type=_ExprFieldValueTransformUnits)
         self._units_type = self._validate_type_param(units_type)
         # this is a hack because we already constructed units_type
         self._units_type.validate(units_default)
@@ -379,7 +379,7 @@ class UnitsSpec(NumberSpec):
         return units_props + [ UnitsSpecPropertyDescriptor(base_name, self, units_props[0]) ]
 
     def to_serializable(self, obj, name, val):
-        d = super(UnitsSpec, self).to_serializable(obj, name, val)
+        d = super().to_serializable(obj, name, val)
         if d is not None and 'units' not in d:
             # d is a PropertyValueDict at this point, we need to convert it to
             # a plain dict if we are going to modify its value, otherwise a
@@ -396,7 +396,7 @@ class AngleSpec(UnitsSpec):
 
     '''
     def __init__(self, default=None, units_default="rad", help=None):
-        super(AngleSpec, self).__init__(default=default, units_type=Enum(enums.AngleUnits), units_default=units_default, help=help)
+        super().__init__(default=default, units_type=Enum(enums.AngleUnits), units_default=units_default, help=help)
 
 class DistanceSpec(UnitsSpec):
     ''' A |DataSpec| property that accepts numeric fixed values or strings
@@ -406,7 +406,7 @@ class DistanceSpec(UnitsSpec):
 
     '''
     def __init__(self, default=None, units_default="data", help=None):
-        super(DistanceSpec, self).__init__(default=default, units_type=Enum(enums.SpatialUnits), units_default=units_default, help=help)
+        super().__init__(default=default, units_type=Enum(enums.SpatialUnits), units_default=units_default, help=help)
 
     def prepare_value(self, cls, name, value):
         try:
@@ -414,7 +414,7 @@ class DistanceSpec(UnitsSpec):
                 raise ValueError("Distances must be positive or None!")
         except TypeError:
             pass
-        return super(DistanceSpec, self).prepare_value(cls, name, value)
+        return super().prepare_value(cls, name, value)
 
 class ScreenDistanceSpec(UnitsSpec):
     ''' A |DataSpec| property that accepts numeric fixed values for screen
@@ -427,7 +427,7 @@ class ScreenDistanceSpec(UnitsSpec):
     '''
 
     def __init__(self, default=None, help=None):
-        super(ScreenDistanceSpec, self).__init__(default=default, units_type=Enum(enums.enumeration("screen")), units_default="screen", help=help)
+        super().__init__(default=default, units_type=Enum(enums.enumeration("screen")), units_default="screen", help=help)
 
     def prepare_value(self, cls, name, value):
         try:
@@ -435,7 +435,7 @@ class ScreenDistanceSpec(UnitsSpec):
                 raise ValueError("Distances must be positive or None!")
         except TypeError:
             pass
-        return super(ScreenDistanceSpec, self).prepare_value(cls, name, value)
+        return super().prepare_value(cls, name, value)
 
     def make_descriptors(self, base_name):
         ''' Return a list of ``PropertyDescriptor`` instances to install on a
@@ -458,7 +458,7 @@ class ScreenDistanceSpec(UnitsSpec):
         return [ UnitsSpecPropertyDescriptor(base_name, self, units_props[0]) ]
 
     def to_serializable(self, obj, name, val):
-        d = super(UnitsSpec, self).to_serializable(obj, name, val)
+        d = super(UnitsSpec, self).to_serializable(obj, name, val) # note super special case
         if d is not None and 'units' not in d:
             # d is a PropertyValueDict at this point, we need to convert it to
             # a plain dict if we are going to modify its value, otherwise a
@@ -478,7 +478,7 @@ class DataDistanceSpec(UnitsSpec):
 
     '''
     def __init__(self, default=None, help=None):
-        super(DataDistanceSpec, self).__init__(default=default, units_type=Enum(enums.enumeration("data")), units_default="data", help=help)
+        super().__init__(default=default, units_type=Enum(enums.enumeration("data")), units_default="data", help=help)
 
     def prepare_value(self, cls, name, value):
         try:
@@ -486,7 +486,7 @@ class DataDistanceSpec(UnitsSpec):
                 raise ValueError("Distances must be positive or None!")
         except TypeError:
             pass
-        return super(DataDistanceSpec, self).prepare_value(cls, name, value)
+        return super().prepare_value(cls, name, value)
 
     def make_descriptors(self, base_name):
         ''' Return a list of ``PropertyDescriptor`` instances to install on a
@@ -509,7 +509,7 @@ class DataDistanceSpec(UnitsSpec):
         return [ UnitsSpecPropertyDescriptor(base_name, self, units_props[0]) ]
 
     def to_serializable(self, obj, name, val):
-        d = super(UnitsSpec, self).to_serializable(obj, name, val)
+        d = super(UnitsSpec, self).to_serializable(obj, name, val) # note super special case
         if d is not None and 'units' not in d:
             # d is a PropertyValueDict at this point, we need to convert it to
             # a plain dict if we are going to modify its value, otherwise a
@@ -544,7 +544,7 @@ class ColorSpec(DataSpec):
 
     '''
     def __init__(self, default, help=None, key_type=_ExprFieldValueTransform):
-        super(ColorSpec, self).__init__(key_type, Color, default=default, help=help)
+        super().__init__(key_type, Color, default=default, help=help)
 
     @classmethod
     def isconst(cls, val):
@@ -600,7 +600,7 @@ class ColorSpec(DataSpec):
         if isinstance(value, tuple):
             # TODO (bev) verify that all original floats are integer values?
             value = tuple(int(v) if i < 3 else v for i, v in enumerate(value))
-        return super(ColorSpec, self).prepare_value(cls, name, value)
+        return super().prepare_value(cls, name, value)
 
 # DataSpec helpers ------------------------------------------------------------
 

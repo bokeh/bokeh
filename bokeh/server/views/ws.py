@@ -67,7 +67,7 @@ class WSHandler(WebSocketHandler):
         self.write_lock = locks.Lock()
 
         # Note: tornado_app is stored as self.application
-        super(WSHandler, self).__init__(tornado_app, *args, **kw)
+        super().__init__(tornado_app, *args, **kw)
 
     def initialize(self, application_context, bokeh_websocket_path):
         pass
@@ -260,9 +260,9 @@ class WSHandler(WebSocketHandler):
         '''
         if locked:
             with (yield self.write_lock.acquire()):
-                yield super(WSHandler, self).write_message(message, binary)
+                yield super().write_message(message, binary)
         else:
-            yield super(WSHandler, self).write_message(message, binary)
+            yield super().write_message(message, binary)
 
     def on_close(self):
         ''' Clean up when the connection is closed.

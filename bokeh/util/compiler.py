@@ -77,7 +77,7 @@ class CompilationError(RuntimeError):
 
     '''
     def __init__(self, error):
-        super(CompilationError, self).__init__()
+        super().__init__()
         if isinstance(error, dict):
             self.line = error.get("line")
             self.column = error.get("column")
@@ -164,7 +164,7 @@ class CoffeeScript(Inline):
         from bokeh.util.deprecation import deprecated
         deprecated("CoffeeScript support is deprecated and will be removed in an eventual 2.0 release. "
                    "Use JavaScript or TypeScript directly instead.")
-        super(CoffeeScript, self).__init__(*args, **kw)
+        super().__init__(*args, **kw)
 
     @property
     def lang(self):

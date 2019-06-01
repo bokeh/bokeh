@@ -440,7 +440,7 @@ class PrimitiveProperty(Property):
     _underlying_type = None
 
     def validate(self, value, detail=True):
-        super(PrimitiveProperty, self).validate(value, detail)
+        super().validate(value, detail)
 
         if not (value is None or isinstance(value, self._underlying_type)):
             msg = "" if not detail else "expected a value of type %s, got %s of type %s" % (

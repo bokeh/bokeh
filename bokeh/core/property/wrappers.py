@@ -111,7 +111,7 @@ def notify_owner(func):
             # x[i] = y
             @notify_owner
             def __setitem__(self, i, y):
-                return super(PropertyValueDict, self).__setitem__(i, y)
+                return super().__setitem__(i, y)
 
     The returned wrapped method will have a docstring indicating what
     original method it is wrapping.
@@ -137,7 +137,7 @@ class PropertyValueContainer(object):
     '''
     def __init__(self, *args, **kwargs):
         self._owners = set()
-        super(PropertyValueContainer, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def _register_owner(self, owner, descriptor):
         self._owners.add((owner, descriptor))
@@ -195,7 +195,7 @@ class PropertyValueList(PropertyValueContainer, list):
     '''
 
     def __init__(self, *args, **kwargs):
-        return super(PropertyValueList, self).__init__(*args, **kwargs)
+        return super().__init__(*args, **kwargs)
 
     def _saved_copy(self):
         return list(self)
@@ -203,64 +203,64 @@ class PropertyValueList(PropertyValueContainer, list):
     # delete x[y]
     @notify_owner
     def __delitem__(self, y):
-        return super(PropertyValueList, self).__delitem__(y)
+        return super().__delitem__(y)
 
     # delete x[i:j]
     @notify_owner
     def __delslice__(self, i, j):
         # Note: this is different py2 vs py3, py3 calls __delitem__ with a
         # slice index, and does not have this method at all
-        return super(PropertyValueList, self).__delslice__(i, j)
+        return super().__delslice__(i, j)
 
     # x += y
     @notify_owner
     def __iadd__(self, y):
-        return super(PropertyValueList, self).__iadd__(y)
+        return super().__iadd__(y)
 
     # x *= y
     @notify_owner
     def __imul__(self, y):
-        return super(PropertyValueList, self).__imul__(y)
+        return super().__imul__(y)
 
     # x[i] = y
     @notify_owner
     def __setitem__(self, i, y):
-        return super(PropertyValueList, self).__setitem__(i, y)
+        return super().__setitem__(i, y)
 
     # x[i:j] = y
     @notify_owner
     def __setslice__(self, i, j, y):
         # Note: this is different py2 vs py3, py3 calls __setitem__ with a
         # slice index, and does not have this method at all
-        return super(PropertyValueList, self).__setslice__(i, j, y)
+        return super().__setslice__(i, j, y)
 
     @notify_owner
     def append(self, obj):
-        return super(PropertyValueList, self).append(obj)
+        return super().append(obj)
 
     @notify_owner
     def extend(self, iterable):
-        return super(PropertyValueList, self).extend(iterable)
+        return super().extend(iterable)
 
     @notify_owner
     def insert(self, index, obj):
-        return super(PropertyValueList, self).insert(index, obj)
+        return super().insert(index, obj)
 
     @notify_owner
     def pop(self, index=-1):
-        return super(PropertyValueList, self).pop(index)
+        return super().pop(index)
 
     @notify_owner
     def remove(self, obj):
-        return super(PropertyValueList, self).remove(obj)
+        return super().remove(obj)
 
     @notify_owner
     def reverse(self):
-        return super(PropertyValueList, self).reverse()
+        return super().reverse()
 
     @notify_owner
     def sort(self, **kwargs):
-        return super(PropertyValueList, self).sort(**kwargs)
+        return super().sort(**kwargs)
 
 class PropertyValueDict(PropertyValueContainer, dict):
     ''' A dict property value container that supports change notifications on
@@ -301,7 +301,7 @@ class PropertyValueDict(PropertyValueContainer, dict):
 
     '''
     def __init__(self, *args, **kwargs):
-        return super(PropertyValueDict, self).__init__(*args, **kwargs)
+        return super().__init__(*args, **kwargs)
 
     def _saved_copy(self):
         return dict(self)
@@ -309,32 +309,32 @@ class PropertyValueDict(PropertyValueContainer, dict):
     # delete x[y]
     @notify_owner
     def __delitem__(self, y):
-        return super(PropertyValueDict, self).__delitem__(y)
+        return super().__delitem__(y)
 
     # x[i] = y
     @notify_owner
     def __setitem__(self, i, y):
-        return super(PropertyValueDict, self).__setitem__(i, y)
+        return super().__setitem__(i, y)
 
     @notify_owner
     def clear(self):
-        return super(PropertyValueDict, self).clear()
+        return super().clear()
 
     @notify_owner
     def pop(self, *args):
-        return super(PropertyValueDict, self).pop(*args)
+        return super().pop(*args)
 
     @notify_owner
     def popitem(self):
-        return super(PropertyValueDict, self).popitem()
+        return super().popitem()
 
     @notify_owner
     def setdefault(self, *args):
-        return super(PropertyValueDict, self).setdefault(*args)
+        return super().setdefault(*args)
 
     @notify_owner
     def update(self, *args, **kwargs):
-        return super(PropertyValueDict, self).update(*args, **kwargs)
+        return super().update(*args, **kwargs)
 
 class PropertyValueColumnData(PropertyValueDict):
     ''' A property value container for ColumnData that supports change
@@ -367,7 +367,7 @@ class PropertyValueColumnData(PropertyValueDict):
     def update(self, *args, **kwargs):
         old = self._saved_copy()
 
-        result = super(PropertyValueDict, self).update(*args, **kwargs)
+        result = super(PropertyValueDict, self).update(*args, **kwargs) # note super special case
 
         from ...document.events import ColumnDataChangedEvent
 
@@ -429,7 +429,7 @@ class PropertyValueColumnData(PropertyValueDict):
                 data = np.append(self[k], new_data[k])
                 if rollover and len(data) > rollover:
                     data = data[-rollover:]
-                super(PropertyValueDict, self).__setitem__(k, data)
+                super(PropertyValueDict, self).__setitem__(k, data) # note super special case
             else:
                 L = self[k]
                 L.extend(new_data[k])

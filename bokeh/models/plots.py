@@ -733,7 +733,7 @@ class _legend_attr_splat(_list_attr_splat):
     def __setattr__(self, attr, value):
         if not len(self):
             warnings.warn(_LEGEND_EMPTY_WARNING % attr)
-        return super(_legend_attr_splat, self).__setattr__(attr, value)
+        return super().__setattr__(attr, value)
 
 def _select_helper(args, kwargs):
     """ Allow flexible selector syntax.

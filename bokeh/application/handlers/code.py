@@ -84,7 +84,7 @@ class CodeHandler(Handler):
                 available as ``sys.argv`` when the code executes
 
         '''
-        super(CodeHandler, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if 'source' not in kwargs:
             raise ValueError('Must pass source to CodeHandler')

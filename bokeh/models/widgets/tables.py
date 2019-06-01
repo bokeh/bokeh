@@ -552,7 +552,7 @@ class TableWidget(Widget):
     """)
 
     def __init__(self, **kw):
-        super(TableWidget, self).__init__(**kw)
+        super().__init__(**kw)
         if "view" not in kw:
             self.view = CDSView(source=self.source)
 
