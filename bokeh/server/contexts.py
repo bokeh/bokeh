@@ -90,7 +90,7 @@ class BokehSessionContext(SessionContext):
     def __init__(self, session_id, server_context, document):
         self._document = document
         self._session = None
-        super(BokehSessionContext, self).__init__(server_context,
+        super().__init__(server_context,
                                                   session_id)
         # request arguments used to instantiate this session
         self._request = None

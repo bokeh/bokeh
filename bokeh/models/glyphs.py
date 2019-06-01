@@ -481,7 +481,7 @@ class Image(XYGlyph):
             mapper = LinearColorMapper(palette)
             kwargs['color_mapper'] = mapper
 
-        super(Image, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     # a canonical order for positional args that can be used for any
     # functions derived from this class

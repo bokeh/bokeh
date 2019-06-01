@@ -65,7 +65,7 @@ class Auto(Enum):
 
     '''
     def __init__(self):
-        super(Auto, self).__init__("auto")
+        super().__init__("auto")
 
     def __str__(self):
         return self.__class__.__name__
