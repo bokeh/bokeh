@@ -149,7 +149,7 @@ class GlyphRenderer(DataRenderer):
             return "%s [renderer: %s]" % (", ".join(sorted(missing)), self)
 
     def __init__(self, **kw):
-        super(GlyphRenderer, self).__init__(**kw)
+        super().__init__(**kw)
         if "view" not in kw:
             self.view = CDSView(source=self.data_source)
 

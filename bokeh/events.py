@@ -113,7 +113,7 @@ class _MetaEvent(type):
 
     '''
     def __new__(cls, clsname, bases, attrs):
-        newclass = super(_MetaEvent, cls).__new__(cls, clsname, bases, attrs)
+        newclass = super().__new__(cls, clsname, bases, attrs)
         if newclass.event_name is not None:
             _CONCRETE_EVENT_CLASSES[newclass.event_name] = newclass
         return newclass
@@ -193,7 +193,7 @@ class ButtonClick(Event):
         if model is not None and not isinstance(model, AbstractButton):
             msg ='{clsname} event only applies to button models'
             raise ValueError(msg.format(clsname=self.__class__.__name__))
-        super(ButtonClick, self).__init__(model=model)
+        super().__init__(model=model)
 
 class MenuItemClick(Event):
     ''' Announce a button click event on a Bokeh menu item.
@@ -203,7 +203,7 @@ class MenuItemClick(Event):
 
     def __init__(self, model, item=None):
         self.item = item
-        super(MenuItemClick, self).__init__(model=model)
+        super().__init__(model=model)
 
 class PlotEvent(Event):
     ''' The base class for all events applicable to Plot models.
@@ -215,7 +215,7 @@ class PlotEvent(Event):
         if model is not None and not isinstance(model, Plot):
             msg ='{clsname} event only applies to Plot models'
             raise ValueError(msg.format(clsname=self.__class__.__name__))
-        super(PlotEvent, self).__init__(model=model)
+        super().__init__(model=model)
 
 class LODStart(PlotEvent):
     ''' Announce the start of "interactive level-of-detail" mode on a plot.
@@ -256,7 +256,7 @@ class SelectionGeometry(PlotEvent):
     def __init__(self, model, geometry=None, final=True):
         self.geometry = geometry
         self.final = final
-        super(SelectionGeometry, self).__init__(model=model)
+        super().__init__(model=model)
 
 class Reset(PlotEvent):
     ''' Announce a button click event on a plot ``ResetTool``.
@@ -265,7 +265,7 @@ class Reset(PlotEvent):
     event_name = "reset"
 
     def __init__(self, model):
-        super(Reset, self).__init__(model=model)
+        super().__init__(model=model)
 
 class PointEvent(PlotEvent):
     ''' Base class for UI events associated with a specific (x,y) point.
@@ -288,7 +288,7 @@ class PointEvent(PlotEvent):
         self.sy = sy
         self.x = x
         self.y = y
-        super(PointEvent, self).__init__(model=model)
+        super().__init__(model=model)
 
 class Tap(PointEvent):
     ''' Announce a tap or click event on a Bokeh plot.
@@ -395,7 +395,7 @@ class MouseWheel(PointEvent):
 
     def __init__(self, model, delta=None, **kwargs):
         self.delta = delta
-        super(MouseWheel, self).__init__(model, **kwargs)
+        super().__init__(model, **kwargs)
 
 class Pan(PointEvent):
     ''' Announce a pan event on a Bokeh plot.
@@ -416,7 +416,7 @@ class Pan(PointEvent):
         self.delta_x = delta_x
         self.delta_y = delta_y
         self.direction = direction
-        super(Pan, self).__init__(model, **kwargs)
+        super().__init__(model, **kwargs)
 
 class PanEnd(PointEvent):
     ''' Announce the end of a pan event on a Bokeh plot.
@@ -460,7 +460,7 @@ class Pinch(PointEvent):
 
     def __init__(self, model, scale=None, **kwargs):
         self.scale = scale
-        super(Pinch, self).__init__(model, **kwargs)
+        super().__init__(model, **kwargs)
 
 class PinchEnd(PointEvent):
     ''' Announce the end of a pinch event on a Bokeh plot.

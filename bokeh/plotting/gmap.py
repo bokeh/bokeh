@@ -86,7 +86,7 @@ class GMap(GMapPlot):
         if isinstance(title, str):
             kw['title'] = Title(text=title)
 
-        super(GMap, self).__init__(x_range=Range1d(), y_range=Range1d(), **kw)
+        super().__init__(x_range=Range1d(), y_range=Range1d(), **kw)
 
         xf = MercatorTickFormatter(dimension="lon")
         xt = MercatorTicker(dimension="lon")

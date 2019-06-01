@@ -63,7 +63,7 @@ class error_1(Message):
     revision = 1
 
     def __repr__(self):
-        msg = super(error_1, self).__repr__()
+        msg = super().__repr__()
         msg += " --- "
         msg += self.content['text']
         if "traceback" in self.content:
