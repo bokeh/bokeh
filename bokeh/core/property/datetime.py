@@ -50,10 +50,10 @@ class Date(Property):
 
     '''
     def __init__(self, default=None, help=None):
-        super(Date, self).__init__(default=default, help=help)
+        super().__init__(default=default, help=help)
 
     def transform(self, value):
-        value = super(Date, self).transform(value)
+        value = super().transform(value)
 
         if isinstance(value, (float,) + bokeh_integer_types):
             try:
@@ -66,7 +66,7 @@ class Date(Property):
         return value
 
     def validate(self, value, detail=True):
-        super(Date, self).validate(value, detail)
+        super().validate(value, detail)
 
         if not (value is None or isinstance(value, (datetime.date, str, float,) + bokeh_integer_types)):
             msg = "" if not detail else "expected a date, string or timestamp, got %r" % value
@@ -78,15 +78,15 @@ class Datetime(Property):
     '''
 
     def __init__(self, default=datetime.date.today(), help=None):
-        super(Datetime, self).__init__(default=default, help=help)
+        super().__init__(default=default, help=help)
 
     def transform(self, value):
-        value = super(Datetime, self).transform(value)
+        value = super().transform(value)
         return value
         # Handled by serialization in protocol.py for now
 
     def validate(self, value, detail=True):
-        super(Datetime, self).validate(value, detail)
+        super().validate(value, detail)
 
         datetime_types = (datetime.datetime, datetime.date)
         try:
@@ -117,15 +117,15 @@ class TimeDelta(Property):
     '''
 
     def __init__(self, default=datetime.timedelta(), help=None):
-        super(TimeDelta, self).__init__(default=default, help=help)
+        super().__init__(default=default, help=help)
 
     def transform(self, value):
-        value = super(TimeDelta, self).transform(value)
+        value = super().transform(value)
         return value
         # Handled by serialization in protocol.py for now
 
     def validate(self, value, detail=True):
-        super(TimeDelta, self).validate(value, detail)
+        super().validate(value, detail)
 
         timedelta_types = (datetime.timedelta,)
         try:

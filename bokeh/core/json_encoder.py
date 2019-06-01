@@ -213,7 +213,7 @@ class BokehJSONEncoder(json.JSONEncoder):
                     microseconds=obj.microseconds)
 
         else:
-            return super(BokehJSONEncoder, self).default(obj)
+            return super().default(obj)
 
     def default(self, obj):
         ''' The required ``default`` method for ``JSONEncoder`` subclasses.

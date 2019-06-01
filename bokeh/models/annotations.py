@@ -120,7 +120,7 @@ class LegendItem(Model):
 
     '''
     def __init__(self, *args, **kwargs):
-        super(LegendItem, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if isinstance(self.label, str):
             # Allow convenience of setting label as a string
             self.label = value(self.label)

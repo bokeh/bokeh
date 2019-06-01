@@ -91,8 +91,7 @@ class BokehSessionContext(SessionContext):
         self._document = document
         self._session = None
         self._logout_url = logout_url
-        super(BokehSessionContext, self).__init__(server_context,
-                                                  session_id)
+        super().__init__(server_context, session_id)
         # request arguments used to instantiate this session
         self._request = None
 

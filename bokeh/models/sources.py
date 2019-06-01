@@ -188,7 +188,7 @@ class ColumnDataSource(ColumnarDataSource):
                 raw_data = self._data_from_groupby(raw_data)
             else:
                 raise ValueError("expected a dict or pandas.DataFrame, got %s" % raw_data)
-        super(ColumnDataSource, self).__init__(**kw)
+        super().__init__(**kw)
         self.data.update(raw_data)
 
     @property

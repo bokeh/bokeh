@@ -59,7 +59,7 @@ class HookListModel(Model):
 
 class HookTestHandler(Handler):
     def __init__(self):
-        super(HookTestHandler, self).__init__()
+        super().__init__()
         self.load_count = 0
         self.unload_count = 0
         self.session_creation_async_value = 0
