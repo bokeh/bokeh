@@ -99,7 +99,7 @@ class NextTickCallback(SessionCallback):
             id (str, optional) :
 
         '''
-        super(NextTickCallback, self).__init__(document, callback, id)
+        super().__init__(document, callback, id)
 
     def _copy_with_changed_callback(self, new_callback):
         ''' Dev API used to wrap the callback with decorators. '''
@@ -123,7 +123,7 @@ class PeriodicCallback(SessionCallback):
             id (str, optional) :
 
         '''
-        super(PeriodicCallback, self).__init__(document, callback, id)
+        super().__init__(document, callback, id)
         self._period = period
 
     @property
@@ -156,7 +156,7 @@ class TimeoutCallback(SessionCallback):
             id (str, optional) :
 
         '''
-        super(TimeoutCallback, self).__init__(document, callback, id)
+        super().__init__(document, callback, id)
         self._timeout = timeout
 
     @property

@@ -72,7 +72,7 @@ class _ColorGroupMeta(type):
         from . import named
         if v != "_colors" and v in self._colors:
             return getattr(named, v.lower())
-        return super(_ColorGroupMeta, self).__getattr__(v)
+        return super().__getattr__(v)
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -114,7 +114,7 @@ class NamedColor(RGB):
             self.__all__.append(name)
 
         self.name = name
-        super(NamedColor, self).__init__(r, g, b)
+        super().__init__(r, g, b)
 
     def to_css(self):
         '''

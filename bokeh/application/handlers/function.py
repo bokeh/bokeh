@@ -101,7 +101,7 @@ class FunctionHandler(Handler):
                 modifications in-place.
 
         '''
-        super(FunctionHandler, self).__init__()
+        super().__init__()
 
         _check_callback(func, ('doc',))
 

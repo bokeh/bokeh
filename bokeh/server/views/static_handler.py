@@ -51,7 +51,7 @@ class StaticHandler(StaticFileHandler):
         kw['path'] = settings.bokehjsdir()
 
         # Note: tornado_app is stored as self.application
-        super(StaticHandler, self).__init__(tornado_app, *args, **kw)
+        super().__init__(tornado_app, *args, **kw)
 
     # We aren't using tornado's built-in static_path function
     # because it relies on TornadoApplication's autoconfigured

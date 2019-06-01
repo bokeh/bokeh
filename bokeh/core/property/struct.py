@@ -49,14 +49,14 @@ class Struct(ParameterizedProperty):
         for name, type in fields.items():
             self._fields[name] = self._validate_type_param(type)
 
-        super(Struct, self).__init__(default=default, help=help)
+        super().__init__(default=default, help=help)
 
     @property
     def type_params(self):
         return list(self._fields.values())
 
     def validate(self, value, detail=True):
-        super(Struct, self).validate(value, detail)
+        super().validate(value, detail)
 
         if value is None:
             return
