@@ -51,49 +51,18 @@ def url(server, prefix=""):
 def ws_url(server, prefix=""):
     return "ws://localhost:" + str(server.port) + prefix + "/ws"
 
-def http_get(io_loop, url):
-    result = {}
-    async def handle_request(response):
-        result['response'] = response
-        io_loop.stop()
-
-    # for some reason passing a loop to AsyncHTTPClient is deprecated
-    assert io_loop is IOLoop.current()
+async def http_get(io_loop, url, headers=None):
     http_client = AsyncHTTPClient()
-    headers = dict()
-    resp = http_client.fetch(url, headers=headers)
-    io_loop.add_future(resp, handle_request)
-    io_loop.start()
+    if not headers:
+        headers = dict()
+    return await http_client.fetch(url, headers=headers)
 
-    if 'response' not in result:
-        raise RuntimeError("Failed to http get")
-    response = result['response'].result()
-    if response.error:
-        raise response.error
-    else:
-        return response
-
-def websocket_open(io_loop, url, origin=None):
-    result = {}
-    async def handle_connection(future):
-        result['connection'] = future
-        io_loop.stop()
-
+async def websocket_open(io_loop, url, origin=None):
     request = HTTPRequest(url)
     if origin is not None:
         request.headers['Origin'] = origin
-    resp = websocket_connect(request)
-    io_loop.add_future(resp, handle_connection)
-    io_loop.start()
-
-    if 'connection' not in result:
-        raise RuntimeError("Failed to handle websocket connect")
-    future = result['connection']
-    if future.exception():
-        raise future.exception()
-    else:
-        future.result().close()
-        return None
+    result = await websocket_connect(request)
+    result.close()
 
 # lets us use a current IOLoop with "with"
 # and ensures the server unlistens
@@ -112,7 +81,7 @@ class ManagedServerLoop(object):
         return self._server
     @property
     def io_loop(self):
-        return self.s_server.io_loop
+        return self._server.io_loop
 
 #-----------------------------------------------------------------------------
 # Private API

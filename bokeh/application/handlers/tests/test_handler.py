@@ -52,12 +52,13 @@ class Test_Handler(object):
         with pytest.raises(NotImplementedError):
             h.modify_document("doc")
 
-    def test_default_hooks_return_none(self):
+    @pytest.mark.asyncio
+    async def test_default_hooks_return_none(self):
         h = bahh.Handler()
-        assert h.on_server_loaded("context") is None
-        assert h.on_server_unloaded("context") is None
-        assert h.on_session_created("context") is None
-        assert h.on_session_destroyed("context") is None
+        assert await h.on_server_loaded("context") is None
+        assert await h.on_server_unloaded("context") is None
+        assert await h.on_session_created("context") is None
+        assert await h.on_session_destroyed("context") is None
 
     def test_static_path(self):
         h = bahh.Handler()

@@ -433,7 +433,7 @@ class BokehTornado(TornadoApplication):
             self._ping_job.start()
 
         for context in self._applications.values():
-            context.run_load_hook()
+            self._loop.spawn_callback(context.run_load_hook)
 
     def stop(self, wait=True):
         ''' Stop the Bokeh Server application.
@@ -448,7 +448,7 @@ class BokehTornado(TornadoApplication):
 
         # TODO should probably close all connections and shut down all sessions here
         for context in self._applications.values():
-            context.run_unload_hook()
+            self._loop.spawn_callback(context.run_unload_hook)
 
         self._stats_job.stop()
         if self._mem_job is not None:

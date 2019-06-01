@@ -125,7 +125,7 @@ class Handler(object):
         '''
         raise NotImplementedError("implement modify_document()")
 
-    def on_server_loaded(self, server_context):
+    async def on_server_loaded(self, server_context):
         ''' Execute code when the server is first started.
 
         Subclasses may implement this method to provide for any one-time
@@ -138,7 +138,7 @@ class Handler(object):
         '''
         pass
 
-    def on_server_unloaded(self, server_context):
+    async def on_server_unloaded(self, server_context):
         ''' Execute code when the server cleanly exits. (Before stopping the
         server's ``IOLoop``.)
 
@@ -155,7 +155,7 @@ class Handler(object):
         '''
         pass
 
-    def on_session_created(self, session_context):
+    async def on_session_created(self, session_context):
         ''' Execute code when a new session is created.
 
         Subclasses may implement this method to provide for any per-session
@@ -168,7 +168,7 @@ class Handler(object):
         '''
         pass
 
-    def on_session_destroyed(self, session_context):
+    async def on_session_destroyed(self, session_context):
         ''' Execute code when a session is destroyed.
 
         Subclasses may implement this method to provide for any per-session

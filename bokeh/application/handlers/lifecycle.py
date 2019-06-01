@@ -68,7 +68,7 @@ class LifecycleHandler(Handler):
         # we could support a modify_document function, might be weird though.
         pass
 
-    def on_server_loaded(self, server_context):
+    async def on_server_loaded(self, server_context):
         ''' Execute `on_server_unloaded`` from the configured module (if
         it is defined) when the server is first started.
 
@@ -78,7 +78,7 @@ class LifecycleHandler(Handler):
         '''
         return self._on_server_loaded(server_context)
 
-    def on_server_unloaded(self, server_context):
+    async def on_server_unloaded(self, server_context):
         ''' Execute ``on_server_unloaded`` from the configured module (if
         it is defined) when the server cleanly exits. (Before stopping the
         server's ``IOLoop``.)
@@ -93,7 +93,7 @@ class LifecycleHandler(Handler):
         '''
         return self._on_server_unloaded(server_context)
 
-    def on_session_created(self, session_context):
+    async def on_session_created(self, session_context):
         ''' Execute ``on_session_created`` from the configured module (if
         it is defined) when a new session is created.
 
@@ -103,7 +103,7 @@ class LifecycleHandler(Handler):
         '''
         return self._on_session_created(session_context)
 
-    def on_session_destroyed(self, session_context):
+    async def on_session_destroyed(self, session_context):
         ''' Execute ``on_session_destroyed`` from the configured module (if
         it is defined) when a new session is destroyed.
 

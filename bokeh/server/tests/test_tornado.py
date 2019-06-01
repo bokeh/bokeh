@@ -146,11 +146,12 @@ def test_log_stats():
         session2.close()
         server._tornado._log_stats()
 
-def test_metadata():
+@pytest.mark.asyncio
+async def test_metadata():
     application = Application(metadata=dict(hi="hi", there="there"))
     with ManagedServerLoop(application) as server:
         meta_url = url(server) + 'metadata'
-        meta_resp = http_get(server.io_loop, meta_url)
+        meta_resp = await http_get(server.io_loop, meta_url)
         meta_json = json.loads(meta_resp.buffer.read().decode())
         assert meta_json == {'data': {'hi': 'hi', 'there': 'there'}, 'url': '/'}
 
@@ -161,7 +162,7 @@ def test_metadata():
 
     with ManagedServerLoop(application1) as server:
         meta_url = url(server) + 'metadata'
-        meta_resp = http_get(server.io_loop, meta_url)
+        meta_resp = await http_get(server.io_loop, meta_url)
         meta_json = json.loads(meta_resp.buffer.read().decode())
         assert meta_json == {'data': {'name': 'myname', 'value': 'no value'}, 'url': '/'}
 

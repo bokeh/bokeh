@@ -56,13 +56,13 @@ def _needs_document_lock(func):
             return None
         self.block_expiration()
         try:
-            with (await self._lock.acquire()):
+            with await self._lock.acquire():
                 if self._pending_writes is not None:
                     raise RuntimeError("internal class invariant violated: _pending_writes " + \
                                        "should be None if lock is not held")
                 self._pending_writes = []
                 try:
-                    result = await func(self, *args, **kwargs)
+                    result = func(self, *args, **kwargs)
                 finally:
                     # we want to be very sure we reset this or we'll
                     # keep hitting the RuntimeError above as soon as

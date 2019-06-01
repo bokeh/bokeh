@@ -48,7 +48,7 @@ class DocHandler(SessionHandler):
 
     '''
     async def get(self, *args, **kwargs):
-        session = yield self.get_session()
+        session = await self.get_session()
 
         page = server_html_page_for_session(session,
                                             resources=self.application.resources(),

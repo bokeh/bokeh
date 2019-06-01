@@ -37,18 +37,19 @@ basicConfig()
 # General API
 #-----------------------------------------------------------------------------
 
+@pytest.mark.asyncio
 @pytest.mark.unit
-def test_send_message_raises(caplog):
+async def test_send_message_raises(caplog):
     class ExcMessage(object):
         def send(self, handler):
             raise WebSocketClosedError()
     assert len(caplog.records) == 0
     with caplog.at_level(logging.WARN):
         # fake self not great but much easier than setting up a real view
-        ret = WSHandler.send_message("self", ExcMessage())
+        ret = await WSHandler.send_message("self", ExcMessage())
         assert len(caplog.records) == 1
         assert caplog.text.endswith("Failed sending message as connection was closed\n")
-        assert ret.result() is None
+        assert ret is None
 
 #-----------------------------------------------------------------------------
 # Dev API

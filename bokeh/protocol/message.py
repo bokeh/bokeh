@@ -253,7 +253,7 @@ class Message(object):
         if conn is None:
             raise ValueError("Cannot send to connection None")
 
-        with (await conn.write_lock.acquire()):
+        with await conn.write_lock.acquire():
             sent = 0
 
             await conn.write_message(self.header_json, locked=False)
