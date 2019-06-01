@@ -77,7 +77,7 @@ class WebSocketClientConnectionWrapper(object):
             return future
 
         if locked:
-            with (await self.write_lock.acquire()):
+            with await self.write_lock.acquire():
                 write_message_unlocked()
         else:
             write_message_unlocked()

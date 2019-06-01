@@ -190,7 +190,7 @@ class DirectoryHandler(Handler):
         # This internal handler should never add a template
         self._main_handler.modify_document(doc)
 
-    def on_server_loaded(self, server_context):
+    async def on_server_loaded(self, server_context):
         ''' Execute `on_server_unloaded`` from ``server_lifecycle.py`` (if
         it is defined) when the server is first started.
 
@@ -198,9 +198,9 @@ class DirectoryHandler(Handler):
             server_context (ServerContext) :
 
         '''
-        return self._lifecycle_handler.on_server_loaded(server_context)
+        return await self._lifecycle_handler.on_server_loaded(server_context)
 
-    def on_server_unloaded(self, server_context):
+    async def on_server_unloaded(self, server_context):
         ''' Execute ``on_server_unloaded`` from ``server_lifecycle.py`` (if
         it is defined) when the server cleanly exits. (Before stopping the
         server's ``IOLoop``.)
@@ -214,7 +214,7 @@ class DirectoryHandler(Handler):
 
 
         '''
-        return self._lifecycle_handler.on_server_unloaded(server_context)
+        return await self._lifecycle_handler.on_server_unloaded(server_context)
 
     def on_session_created(self, session_context):
         ''' Execute ``on_session_created`` from ``server_lifecycle.py`` (if

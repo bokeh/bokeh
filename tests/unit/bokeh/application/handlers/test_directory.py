@@ -186,7 +186,8 @@ some.foo = 57
         assert some_model.foo == 2
         assert another_model.bar == 1
 
-    def test_directory_with_server_lifecycle(self):
+    @pytest.mark.asyncio
+    async def test_directory_with_server_lifecycle(self):
         doc = Document()
         result = {}
         def load(filename):
@@ -206,10 +207,10 @@ some.foo = 57
 
         handler = result['handler']
 
-        assert "on_server_loaded" == handler.on_server_loaded(None)
-        assert "on_server_unloaded" == handler.on_server_unloaded(None)
-        assert "on_session_created" == handler.on_session_created(None)
-        assert "on_session_destroyed" == handler.on_session_destroyed(None)
+        assert "on_server_loaded" == await handler.on_server_loaded(None)
+        assert "on_server_unloaded" == await handler.on_server_unloaded(None)
+        assert "on_session_created" == await handler.on_session_created(None)
+        assert "on_session_destroyed" == await handler.on_session_destroyed(None)
 
     def test_directory_with_static(self):
         doc = Document()

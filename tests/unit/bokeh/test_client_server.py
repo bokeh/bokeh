@@ -78,7 +78,8 @@ class TestClientServer(object):
             session.connect()
             assert session.connected
 
-    def test_disconnect_on_error(self):
+    @pytest.mark.asyncio
+    async def test_disconnect_on_error(self):
         application = Application()
         with ManagedServerLoop(application) as server:
             session = ClientSession(session_id='test_disconnect_on_error',
@@ -87,7 +88,7 @@ class TestClientServer(object):
             session.connect()
             assert session.connected
             # send a bogus message using private fields
-            session._connection._socket.write_message(b"xx", binary=True)
+            await session._connection._socket.write_message(b"xx", binary=True)
             # connection should now close on the server side
             # and the client loop should end
             session._loop_until_closed()
@@ -116,98 +117,106 @@ class TestClientServer(object):
             session.close()
             session._loop_until_closed()
 
-    def check_http_gets_fail(self, server):
+    @pytest.mark.asyncio
+    async def check_http_gets_fail(self, server):
         with pytest.raises(HTTPError):
-            http_get(server.io_loop, url(server))
+            await http_get(server.io_loop, url(server))
         with pytest.raises(HTTPError):
-            http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo")
+            await http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo")
 
-    def check_connect_session_fails(self, server, origin):
+    @pytest.mark.asyncio
+    async def check_connect_session_fails(self, server, origin):
         with pytest.raises(HTTPError):
-            websocket_open(server.io_loop,
-                           ws_url(server)+"?bokeh-session-id=foo",
-                           origin=origin)
+            await websocket_open(server.io_loop,
+                                 ws_url(server)+"?bokeh-session-id=foo",
+                                 origin=origin)
 
-    def check_http_gets(self, server):
-        http_get(server.io_loop, url(server))
-        http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo")
+    @pytest.mark.asyncio
+    async def check_http_gets(self, server):
+        await http_get(server.io_loop, url(server))
+        await http_get(server.io_loop, url(server) + "autoload.js?bokeh-autoload-element=foo")
 
-    def check_connect_session(self, server, origin):
-        websocket_open(server.io_loop,
-                       ws_url(server)+"?bokeh-session-id=foo",
-                       origin=origin)
+    @pytest.mark.asyncio
+    async def check_connect_session(self, server, origin):
+        await websocket_open(server.io_loop,
+                             ws_url(server)+"?bokeh-session-id=foo",
+                             origin=origin)
 
-    def check_http_ok_socket_ok(self, server, origin=None):
-        self.check_http_gets(server)
-        self.check_connect_session(server, origin=origin)
+    @pytest.mark.asyncio
+    async def check_http_ok_socket_ok(self, server, origin=None):
+        await self.check_http_gets(server)
+        await self.check_connect_session(server, origin=origin)
 
-    def check_http_ok_socket_blocked(self, server, origin=None):
-        self.check_http_gets(server)
-        self.check_connect_session_fails(server, origin=origin)
+    @pytest.mark.asyncio
+    async def check_http_ok_socket_blocked(self, server, origin=None):
+        await self.check_http_gets(server)
+        await self.check_connect_session_fails(server, origin=origin)
 
-    def check_http_blocked_socket_blocked(self, server, origin=None):
-        self.check_http_gets_fail(server)
-        self.check_connect_session_fails(server, origin=origin)
+    @pytest.mark.asyncio
+    async def check_http_blocked_socket_blocked(self, server, origin=None):
+        await self.check_http_gets_fail(server)
+        await self.check_connect_session_fails(server, origin=origin)
 
-    def test_allow_websocket_origin(self):
+    @pytest.mark.asyncio
+    async def test_allow_websocket_origin(self):
         application = Application()
 
         # allow good origin
         with ManagedServerLoop(application, allow_websocket_origin=["example.com"]) as server:
-            self.check_http_ok_socket_ok(server, origin="http://example.com:80")
+            await self.check_http_ok_socket_ok(server, origin="http://example.com:80")
 
         # allow good origin from environment variable
         with ManagedServerLoop(application) as server:
             os.environ["BOKEH_ALLOW_WS_ORIGIN"] = "example.com"
-            self.check_http_ok_socket_ok(server, origin="http://example.com:80")
+            await self.check_http_ok_socket_ok(server, origin="http://example.com:80")
             del os.environ["BOKEH_ALLOW_WS_ORIGIN"]
 
         # allow good origin with port
         with ManagedServerLoop(application, allow_websocket_origin=["example.com:8080"]) as server:
-            self.check_http_ok_socket_ok(server, origin="http://example.com:8080")
+            await self.check_http_ok_socket_ok(server, origin="http://example.com:8080")
 
         # allow good origin with port from environment variable
         with ManagedServerLoop(application) as server:
             os.environ["BOKEH_ALLOW_WS_ORIGIN"] = "example.com:8080"
-            self.check_http_ok_socket_ok(server, origin="http://example.com:8080")
+            await self.check_http_ok_socket_ok(server, origin="http://example.com:8080")
             del os.environ["BOKEH_ALLOW_WS_ORIGIN"]
 
         # allow good origin header with an implicit 80
         with ManagedServerLoop(application, allow_websocket_origin=["example.com"]) as server:
-            self.check_http_ok_socket_ok(server, origin="http://example.com")
+            await self.check_http_ok_socket_ok(server, origin="http://example.com")
 
         # allow good origin header with an implicit 80
         with ManagedServerLoop(application) as server:
             os.environ["BOKEH_ALLOW_WS_ORIGIN"] = "example.com"
-            self.check_http_ok_socket_ok(server, origin="http://example.com")
+            await self.check_http_ok_socket_ok(server, origin="http://example.com")
             del os.environ["BOKEH_ALLOW_WS_ORIGIN"]
 
         # block non-Host origins by default even if no extra origins specified
         with ManagedServerLoop(application) as server:
-            self.check_http_ok_socket_blocked(server, origin="http://example.com:80")
+            await self.check_http_ok_socket_blocked(server, origin="http://example.com:80")
 
         # block on a garbage Origin header
         with ManagedServerLoop(application) as server:
-            self.check_http_ok_socket_blocked(server, origin="hsdf:::///%#^$#:8080")
+            await self.check_http_ok_socket_blocked(server, origin="hsdf:::///%#^$#:8080")
 
         # block bad origin
         with ManagedServerLoop(application, allow_websocket_origin=["example.com"]) as server:
-            self.check_http_ok_socket_blocked(server, origin="http://foobar.com:80")
+            await self.check_http_ok_socket_blocked(server, origin="http://foobar.com:80")
 
         # block bad origin from environment variable
         with ManagedServerLoop(application) as server:
             os.environ["BOKEH_ALLOW_WS_ORIGIN"] = "example.com"
-            self.check_http_ok_socket_blocked(server, origin="http://foobar.com:80")
+            await self.check_http_ok_socket_blocked(server, origin="http://foobar.com:80")
             del os.environ["BOKEH_ALLOW_WS_ORIGIN"]
 
         # block bad origin port
         with ManagedServerLoop(application, allow_websocket_origin=["example.com:8080"]) as server:
-            self.check_http_ok_socket_blocked(server, origin="http://example.com:8081")
+            await self.check_http_ok_socket_blocked(server, origin="http://example.com:8081")
 
         # block bad origin port from environment variable
         with ManagedServerLoop(application) as server:
             os.environ["BOKEH_ALLOW_WS_ORIGIN"] = "example.com:8080"
-            self.check_http_ok_socket_blocked(server, origin="http://example.com:8081")
+            await self.check_http_ok_socket_blocked(server, origin="http://example.com:8081")
             del os.environ["BOKEH_ALLOW_WS_ORIGIN"]
 
     def test_push_document(self):
@@ -368,7 +377,8 @@ class TestClientServer(object):
             client_session._loop_until_closed()
             assert not client_session.connected
 
-    def test_server_changes_go_to_client(self):
+    @pytest.mark.asyncio
+    async def test_server_changes_go_to_client(self):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -384,7 +394,7 @@ class TestClientServer(object):
 
             def do_add_server_root():
                 server_session.document.add_root(server_root)
-            server_session.with_document_locked(do_add_server_root)
+            await server_session.with_document_locked(do_add_server_root)
 
             def client_has_root():
                 return len(doc.roots) > 0
@@ -397,7 +407,7 @@ class TestClientServer(object):
             # Now try setting title on server side
             def do_set_server_title():
                 server_session.document.title = "Server Title"
-            server_session.with_document_locked(do_set_server_title)
+            await server_session.with_document_locked(do_set_server_title)
 
             def client_title_set():
                 return client_session.document.title != document.DEFAULT_TITLE
@@ -408,7 +418,7 @@ class TestClientServer(object):
             # Now modify a model within the server document
             def do_set_property_on_server():
                 server_root.foo = 57
-            server_session.with_document_locked(do_set_property_on_server)
+            await server_session.with_document_locked(do_set_property_on_server)
 
             # there is no great way to block until the server
             # has applied changes, since patches are sent
@@ -420,7 +430,7 @@ class TestClientServer(object):
 
             def do_remove_server_root():
                 server_session.document.remove_root(server_root)
-            server_session.with_document_locked(do_remove_server_root)
+            await server_session.with_document_locked(do_remove_server_root)
 
             def client_lacks_root():
                 return len(doc.roots) == 0
@@ -432,10 +442,11 @@ class TestClientServer(object):
             assert not client_session.connected
 
     async def async_value(self, value):
-        await asyncio.sleep(0) # this ensures we actually return to the loop
+        asyncio.sleep(0) # this ensures we actually return to the loop
         return value
 
-    def test_client_session_timeout_async(self):
+    @pytest.mark.asyncio
+    async def test_client_session_timeout_async(self):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -467,7 +478,8 @@ class TestClientServer(object):
 
             assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
-    def test_client_session_timeout_async_added_before_push(self):
+    @pytest.mark.asyncio
+    async def test_client_session_timeout_async_added_before_push(self):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -499,7 +511,8 @@ class TestClientServer(object):
 
             assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
-    def test_server_session_timeout_async(self):
+    @pytest.mark.asyncio
+    async def test_server_session_timeout_async(self):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -534,7 +547,8 @@ class TestClientServer(object):
 
             assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
-    def test_client_session_next_tick_async(self):
+    @pytest.mark.asyncio
+    async def test_client_session_next_tick_async(self):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -566,7 +580,8 @@ class TestClientServer(object):
 
             assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
-    def test_client_session_next_tick_async_added_before_push(self):
+    @pytest.mark.asyncio
+    async def test_client_session_next_tick_async_added_before_push(self):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -598,7 +613,8 @@ class TestClientServer(object):
 
             assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
-    def test_server_session_next_tick_async(self):
+    @pytest.mark.asyncio
+    async def test_server_session_next_tick_async(self):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -633,7 +649,8 @@ class TestClientServer(object):
 
             assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
-    def test_client_session_periodic_async(self):
+    @pytest.mark.asyncio
+    async def test_client_session_periodic_async(self):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -663,7 +680,8 @@ class TestClientServer(object):
 
             assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
-    def test_client_session_periodic_async_added_before_push(self):
+    @pytest.mark.asyncio
+    async def test_client_session_periodic_async_added_before_push(self):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -693,7 +711,8 @@ class TestClientServer(object):
 
             assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
-    def test_server_session_periodic_async(self):
+    @pytest.mark.asyncio
+    async def test_server_session_periodic_async(self):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -861,7 +880,8 @@ def test_client_changes_do_not_boomerang(monkeypatch):
         assert not client_session.connected
         server.unlisten() # clean up so next test can run
 
-def test_server_changes_do_not_boomerang(monkeypatch):
+@pytest.mark.asyncio
+async def test_server_changes_do_not_boomerang(monkeypatch):
     application = Application()
     with ManagedServerLoop(application) as server:
         doc = document.Document()
@@ -890,7 +910,7 @@ def test_server_changes_do_not_boomerang(monkeypatch):
         # Now modify the server document
         def do_set_foo_property():
             server_root.foo = 57
-        server_session.with_document_locked(do_set_foo_property)
+        await server_session.with_document_locked(do_set_foo_property)
 
         # there is no great way to block until the server
         # has applied changes, since patches are sent

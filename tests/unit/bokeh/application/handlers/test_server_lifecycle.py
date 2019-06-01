@@ -52,19 +52,22 @@ class Test_ServerLifecycleHandler(object):
 
     # Public methods ----------------------------------------------------------
 
-    def test_empty_lifecycle(self):
+    @pytest.mark.asyncio
+    async def test_empty_lifecycle(self):
         doc = Document()
+        out = {}
         def load(filename):
             handler = bahs.ServerLifecycleHandler(filename=filename)
             handler.modify_document(doc)
-            handler.on_server_loaded(None)
-            handler.on_server_unloaded(None)
-            handler.on_session_created(None)
-            handler.on_session_destroyed(None)
-            if handler.failed:
-                raise RuntimeError(handler.error)
+            out['handler'] = handler
         with_file_contents("# This script does nothing", load)
-
+        handler = out['handler']
+        await handler.on_server_loaded(None)
+        await handler.on_server_unloaded(None)
+        await handler.on_session_created(None)
+        await handler.on_session_destroyed(None)
+        if handler.failed:
+            raise RuntimeError(handler.error)
         assert not doc.roots
 
     def test_lifecycle_bad_syntax(self):
@@ -151,7 +154,8 @@ def on_session_destroyed(a,b):
         assert 'on_session_destroyed must have signature func(session_context)' in handler.error
         assert 'func(a, b)' in handler.error
 
-    def test_calling_lifecycle_hooks(self):
+    @pytest.mark.asyncio
+    async def test_calling_lifecycle_hooks(self):
         result = {}
         def load(filename):
             handler = result['handler'] = bahs.ServerLifecycleHandler(filename=filename)
@@ -160,10 +164,10 @@ def on_session_destroyed(a,b):
         with_file_contents(script_adds_four_handlers, load)
 
         handler = result['handler']
-        assert "on_server_loaded" == handler.on_server_loaded(None)
-        assert "on_server_unloaded" == handler.on_server_unloaded(None)
-        assert "on_session_created" == handler.on_session_created(None)
-        assert "on_session_destroyed" == handler.on_session_destroyed(None)
+        assert "on_server_loaded" == await handler.on_server_loaded(None)
+        assert "on_server_unloaded" == await handler.on_server_unloaded(None)
+        assert "on_session_created" == await handler.on_session_created(None)
+        assert "on_session_destroyed" == await handler.on_session_destroyed(None)
 
     def test_missing_filename_raises(self):
         with pytest.raises(ValueError):

@@ -34,7 +34,7 @@ def pytest_addoption(parser):
         "--report-path", action='store', dest='report_path', metavar='path', default='report.html',
         help='create examples html report file at given path.')
     parser.addoption(
-        "--diff-ref", type=version_from_git, default="FETCH_HEAD",
+        "--diff-ref", type=version_from_git, default="HEAD",
         help="compare generated images against this ref")
     parser.addoption(
         "--incremental", action="store_true", default=False,

@@ -123,16 +123,13 @@ class WSHandler(WebSocketHandler):
             log.error("Session id had invalid signature: %r", session_id)
             raise ProtocolError("Invalid session ID")
 
-        def on_fully_opened(future):
-            e = future.exception()
-            if e is not None:
-                # this isn't really an error (unless we have a
-                # bug), it just means a client disconnected
-                # immediately, most likely.
-                log.debug("Failed to fully open connection %r", e)
-
-        future = self._async_open(session_id)
-        self.application.io_loop.add_future(future, on_fully_opened)
+        try:
+            self.application.io_loop.spawn_callback(self._async_open, session_id)
+        except Exception as e:
+            # this isn't really an error (unless we have a
+            # bug), it just means a client disconnected
+            # immediately, most likely.
+            log.debug("Failed to fully open connection %r", e)
 
     async def _async_open(self, session_id):
         ''' Perform the specific steps needed to open a connection to a Bokeh session
@@ -247,7 +244,7 @@ class WSHandler(WebSocketHandler):
 
         '''
         if locked:
-            with (await self.write_lock.acquire()):
+            with await self.write_lock.acquire():
                 await super().write_message(message, binary)
         else:
             await super().write_message(message, binary)

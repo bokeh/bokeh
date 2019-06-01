@@ -51,7 +51,7 @@ class NOT_YET_CONNECTED(object):
     '''
 
     async def run(self, connection):
-        await connection._connect_async()
+        return await connection._connect_async()
 
 class CONNECTED_BEFORE_ACK(object):
     ''' The ``ClientConnection`` connected to a Bokeh server, but has not yet
@@ -60,7 +60,7 @@ class CONNECTED_BEFORE_ACK(object):
     '''
 
     async def run(self, connection):
-        await connection._wait_for_ack()
+        return await connection._wait_for_ack()
 
 class CONNECTED_AFTER_ACK(object):
     ''' The ``ClientConnection`` connected to a Bokeh server, and has
@@ -69,7 +69,7 @@ class CONNECTED_AFTER_ACK(object):
     '''
 
     async def run(self, connection):
-        await connection._handle_messages()
+        return await connection._handle_messages()
 
 class DISCONNECTED(object):
     ''' The ``ClientConnection`` was connected to a Bokeh server, but is
@@ -102,12 +102,12 @@ class WAITING_FOR_REPLY(object):
     async def run(self, connection):
         message = await connection._pop_message()
         if message is None:
-            await connection._transition_to_disconnected()
+            return await connection._transition_to_disconnected()
         elif 'reqid' in message.header and message.header['reqid'] == self.reqid:
             self._reply = message
-            await connection._transition(CONNECTED_AFTER_ACK())
+            return await connection._transition(CONNECTED_AFTER_ACK())
         else:
-            await connection._next()
+            return await connection._next()
 
 #-----------------------------------------------------------------------------
 # Private API

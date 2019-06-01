@@ -52,7 +52,7 @@ class AutoloadJsHandler(SessionHandler):
 
     '''
     async def get(self, *args, **kwargs):
-        session = yield self.get_session()
+        session = await self.get_session()
 
         element_id = self.get_argument("bokeh-autoload-element", default=None)
         if not element_id:

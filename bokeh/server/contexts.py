@@ -104,7 +104,7 @@ class BokehSessionContext(SessionContext):
             # we have exclusive access
             await func(self._document)
         else:
-            self._session.with_document_locked(func, self._document)
+            await self._session.with_document_locked(func, self._document)
 
     @property
     def destroyed(self):
@@ -165,21 +165,15 @@ class ApplicationContext(object):
     def sessions(self):
         return self._sessions.values()
 
-    def run_load_hook(self):
+    async def run_load_hook(self):
         try:
-            result = self._application.on_server_loaded(self.server_context)
-            if isinstance(result, gen.Future):
-                log.error("on_server_loaded returned a Future; this doesn't make sense "
-                          "because we run this hook before starting the IO loop.")
+            await self._application.on_server_loaded(self.server_context)
         except Exception as e:
             log.error("Error in server loaded hook %r", e, exc_info=True)
 
-    def run_unload_hook(self):
+    async def run_unload_hook(self):
         try:
-            result = self._application.on_server_unloaded(self.server_context)
-            if isinstance(result, gen.Future):
-                log.error("on_server_unloaded returned a Future; this doesn't make sense "
-                          "because we stop the IO loop right away after calling on_server_unloaded.")
+            await self._application.on_server_unloaded(self.server_context)
         except Exception as e:
             log.error("Error in server unloaded hook %r", e, exc_info=True)
 
