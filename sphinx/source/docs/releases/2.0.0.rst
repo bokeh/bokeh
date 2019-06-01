@@ -70,6 +70,8 @@ needed:
   ``FuncTickFormatter.from_coffeescript`` removed
 * ``bokeh.models.plots``: proeprties ``Plot.h_symmetry`` and ``Plot.v_symmetry``
   removed
+* ``bokeh.models.tools``: methods ``CustomJSHover.from_py_func`` and
+  ``CustomJSHover.from_coffeescript`` removed
 * ``bokeh.util.future``: entire module removed.
 * ``bokeh.util.string``: functions ``encode_utf8``, ``decode_utf8``, and ``escape``
   removed
