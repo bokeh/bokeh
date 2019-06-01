@@ -171,9 +171,9 @@ class ApplicationContext(object):
         except Exception as e:
             log.error("Error in server loaded hook %r", e, exc_info=True)
 
-    async def run_unload_hook(self):
+    def run_unload_hook(self):
         try:
-            await self._application.on_server_unloaded(self.server_context)
+            self._application.on_server_unloaded(self.server_context)
         except Exception as e:
             log.error("Error in server unloaded hook %r", e, exc_info=True)
 

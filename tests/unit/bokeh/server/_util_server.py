@@ -79,9 +79,6 @@ class ManagedServerLoop(object):
     def __enter__(self):
         self._server.start()
         return self._server
-    @property
-    def io_loop(self):
-        return self._server.io_loop
 
 #-----------------------------------------------------------------------------
 # Private API

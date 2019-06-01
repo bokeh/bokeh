@@ -88,7 +88,7 @@ class HookTestHandler(Handler):
 
         self.server_periodic_remover = remover
 
-    async def on_server_unloaded(self, server_context):
+    def on_server_unloaded(self, server_context):
         self.unload_count += 1
         self.hooks.append("server_unloaded")
 
@@ -373,8 +373,8 @@ def test__lifecycle_hooks():
                              "timeout_server",
                              "periodic_server",
                              "session_created",
-                             "next_tick_session",
                              "modify",
+                             "next_tick_session",
                              "timeout_session",
                              "periodic_session",
                              "session_destroyed",
