@@ -20,6 +20,15 @@ Minimum Tornado Version
 
 The Bokeh server now requires Tornado 5.0 or higher.
 
+ColumnDataSource Properties
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``ColumnDataSource.selected`` property is now read-only.
+
+The ``ColumnDataSource.data`` property can only be set from plain Python dicts.
+Attempting to set from another CDS, i.e ``s1.data = s2.data``, will raise an
+error.
+
 Plot Symmetry Properties
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
