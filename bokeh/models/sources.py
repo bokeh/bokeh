@@ -59,7 +59,7 @@ class DataSource(Model):
 
     '''
 
-    selected = Instance(Selection, default=lambda: Selection(), help="""
+    selected = Instance(Selection, default=lambda: Selection(), readonly=True, help="""
     A Selection that indicates selected indices on this ``DataSource``.
     """)
 

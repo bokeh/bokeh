@@ -90,9 +90,12 @@ class Property(PropertyDescriptorFactory):
     # This class attribute is controlled by external helper API for validation
     _should_validate = True
 
-    def __init__(self, default=None, help=None, serialized=True, readonly=False):
+    def __init__(self, default=None, help=None, serialized=None, readonly=False):
         # This is how the descriptor is created in the class declaration.
-        self._serialized = False if readonly else serialized
+        if serialized is None:
+            self._serialized = False if readonly else True
+        else:
+            self._serialized = serialized
         self._readonly = readonly
         self._default = default
         self.__doc__ = help
