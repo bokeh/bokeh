@@ -248,10 +248,6 @@ class CustomJSTransform(Transform):
         same length as the input ``xs`` array.
     """)
 
-    use_strict = Bool(default=False, help="""
-    Enables or disables automatic insertion of ``"use strict";`` into ``func`` or ``v_func``.
-    """)
-
 
 class Dodge(Transform):
     ''' Apply either fixed dodge amount to data.
