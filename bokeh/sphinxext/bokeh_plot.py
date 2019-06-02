@@ -208,11 +208,6 @@ def build_finished(app, exception):
 
 def setup(app):
     ''' Required Sphinx extension setup function. '''
-
-    # These two are deprecated and no longer have any effect, to be removed 2.0
-    app.add_config_value('bokeh_plot_pyfile_include_dirs', [], 'html')
-    app.add_config_value('bokeh_plot_use_relative_paths', False, 'html')
-
     app.add_directive('bokeh-plot', BokehPlotDirective)
     app.add_config_value('bokeh_missing_google_api_key_ok', True, 'html')
     app.connect('builder-inited', builder_inited)
