@@ -14,8 +14,8 @@ see the :ref:`userguide_quickstart_install` section of the
 Supported Platforms
 ===================
 
-Bokeh is officially supported (and continuously tested) on CPython versions 2.7
-and 3.5+ only. Other Python versions or implementations may function, possibly
+Bokeh is officially supported (and continuously tested) on CPython versions
+3.5+ only. Other Python versions or implementations may function, possibly
 limited capacity, but no guarantees or support is provided.
 
 .. _install_required:
@@ -33,11 +33,7 @@ For basic usage, have the following libraries installed:
     pillow >=4.0
     python-dateutil >=2.1
     PyYAML >=3.10
-    six >=1.5.2
-    tornado >=4.3
-
-To use the Bokeh server with Python 2.7, you also must install the Futures
-package.
+    tornado >=5
 
 .. _install_optional:
 
