@@ -84,7 +84,7 @@ def terminate_webdriver(driver):
 
     try:
         driver.quit()
-    except (IOError, OSError):  # IOError for Python 2.7
+    except OSError:
         pass
 
 #-----------------------------------------------------------------------------

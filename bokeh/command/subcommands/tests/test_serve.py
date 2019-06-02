@@ -320,7 +320,7 @@ def check_error(args):
     return out
 
 def test_host_not_available():
-    host = str("8.8.8.8") # str cast is for Python 2.7 testing
+    host = "8.8.8.8"
     out = check_error(["--address", host])
     expected = "Cannot start Bokeh server, address %r not available" % host
     assert expected in out

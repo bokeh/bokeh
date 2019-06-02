@@ -38,10 +38,6 @@ requirements:
     - {{ dep.lower() }}
     {% endfor %}
 
-    # meta-package installs futures for 2.7 but not for 3.x
-    # needed in order to be able to build no-arch conda packages
-    - futures-compat
-
 test:
   requires:
     # jinja2 installed by bokeh
