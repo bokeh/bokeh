@@ -50,6 +50,11 @@ class TestColumnDataSource(object):
             ds.selected = Selection()
             assert str(e).endswith("ColumnDataSource.selected is a readonly property")
 
+    def test_selected_serialized(self):
+        ds = bms.ColumnDataSource()
+        prop = ds.lookup('selected')
+        assert prop.serialized == True
+
     def test_init_dict_arg(self):
         data = dict(a=[1], b=[2])
         ds = bms.ColumnDataSource(data)

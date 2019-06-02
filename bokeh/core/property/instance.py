@@ -50,7 +50,7 @@ class Instance(Property):
             (default: False)
 
     '''
-    def __init__(self, instance_type, default=None, help=None, readonly=False):
+    def __init__(self, instance_type, default=None, help=None, readonly=False, serialized=True):
         if not isinstance(instance_type, (type, str)):
             raise ValueError("expected a type or string, got %s" % instance_type)
 
@@ -60,7 +60,7 @@ class Instance(Property):
 
         self._instance_type = instance_type
 
-        super().__init__(default=default, help=help, readonly=readonly)
+        super().__init__(default=default, help=help, readonly=readonly, serialized=True)
 
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, self.instance_type.__name__)
