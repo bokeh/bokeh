@@ -150,8 +150,8 @@ def from_networkx(graph, layout_function, **kwargs):
         edge_source = ColumnDataSource(data=edge_dict)
 
         graph_renderer = GraphRenderer()
-        graph_renderer.node_renderer.data_source.data = node_source.data
-        graph_renderer.edge_renderer.data_source.data = edge_source.data
+        graph_renderer.node_renderer.data_source = node_source
+        graph_renderer.edge_renderer.data_source = edge_source
 
         if callable(layout_function):
             graph_layout = layout_function(graph, **kwargs)
