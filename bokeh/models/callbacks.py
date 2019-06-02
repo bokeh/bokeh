@@ -89,9 +89,6 @@ class CustomJS(Callback):
     a ``cb_obj`` parameter contains the object that triggered the callback
     and an optional ``cb_data`` parameter that contains any tool-specific data
     (i.e. mouse coordinates and hovered glyph indices for the ``HoverTool``).
-
-    .. note:: Use ``CustomJS.from_coffeescript()`` for CoffeeScript source code.
-
     """)
 
 #-----------------------------------------------------------------------------

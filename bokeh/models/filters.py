@@ -132,19 +132,17 @@ class CustomJSFilter(Filter):
 
     Example:
 
-        .. code-block:: javascript
+        .. code-block
 
             code = '''
-            var indices = [];
-            for (var i = 0; i <= source.data['some_column'].length; i++){
+            const indices = []
+            for (var i = 0; i <= source.data['some_column'].length; i++) {
                 if (source.data['some_column'][i] == 'some_value') {
                     indices.push(i)
                 }
             }
-            return indices;
+            return indices
             '''
-
-    .. note:: Use ``CustomJS.from_coffeescript()`` for CoffeeScript source code.
 
     """)
 

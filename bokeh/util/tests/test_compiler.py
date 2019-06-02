@@ -35,48 +35,6 @@ import bokeh.util.compiler as buc
 # General API
 #-----------------------------------------------------------------------------
 
-def test_nodejs_compile_coffeescript():
-    assert buc.nodejs_compile("""(a, b) -> a + b""", "coffeescript", "some.coffee") == \
-        dict(code="""\
-(function (a, b) {
-    return a + b;
-});
-""", deps=[])
-
-    assert buc.nodejs_compile("""some = require 'some/module'""", "coffeescript", "some.coffee") == \
-        dict(code="""\
-var some;
-some = require('some/module');
-""", deps=["some/module"])
-
-    assert buc.nodejs_compile("""(a, b) -> a + b +""", "coffeescript", "some.coffee") == \
-        dict(error=dict(
-            message="unexpected end of input",
-            text="some.coffee:unexpected end of input"))
-
-    assert buc.nodejs_compile("""some = require some/module'""", "coffeescript", "some.coffee") == \
-        dict(error=dict(
-            line=1,
-            column=27,
-            message="missing '",
-            text="some.coffee:1:27:missing '",
-            extract="some = require some/module'",
-            annotated="some.coffee:1:27:missing '\n  some = require some/module'\n                            ^"))
-
-    assert buc.nodejs_compile("""(a, b) -> a + b +""", "coffeescript", "some.coffee") == \
-        dict(error=dict(
-            message="unexpected end of input",
-            text="some.coffee:unexpected end of input"))
-
-    assert buc.nodejs_compile("""some = require some/module'""", "coffeescript", "some.coffee") == \
-        dict(error=dict(
-            line=1,
-            column=27,
-            message="missing '",
-            text="some.coffee:1:27:missing '",
-            extract="some = require some/module'",
-            annotated="some.coffee:1:27:missing '\n  some = require some/module'\n                            ^"))
-
 def test_nodejs_compile_javascript():
     assert buc.nodejs_compile("""function f(a, b) { return a + b; };""", "javascript", "some.js") == \
         dict(code="""\
@@ -123,13 +81,6 @@ def test_Inline():
     assert obj.code == "code"
     assert obj.file == "file"
 
-def test_CoffeeScript():
-    obj = buc.CoffeeScript("code")
-    assert isinstance(obj, buc.Inline)
-    assert obj.code == "code"
-    assert obj.file == None
-    assert obj.lang == "coffeescript"
-
 def test_TypeScript():
     obj = buc.TypeScript("code")
     assert isinstance(obj, buc.Inline)
@@ -153,9 +104,6 @@ def test_Less():
 
 @patch('io.open')
 def test_FromFile(mock_open):
-    obj = buc.FromFile("path.coffee")
-    assert obj.lang == "coffeescript"
-
     obj = buc.FromFile("path.ts")
     assert obj.lang == "typescript"
 
@@ -169,7 +117,7 @@ def test_FromFile(mock_open):
     assert obj.lang == "less"
 
 def test_exts():
-    assert buc.exts == (".coffee", ".ts", ".js", ".css", ".less")
+    assert buc.exts == (".ts", ".js", ".css", ".less")
 
 def test_jsons():
     for file in os.listdir(os.path.join(buc.bokehjs_dir, "js")):

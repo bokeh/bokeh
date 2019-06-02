@@ -45,7 +45,7 @@ necessary for certain optional features:
 
 NodeJS
     Necessary for :ref:`userguide_extensions` or for defining
-    ``CustomJS`` implementations in CoffeeScript or TypeScript.
+    ``CustomJS`` implementations in TypeScript.
 
 Pandas
     Necessary for the `hexbin` function. Additionally, some usage is
