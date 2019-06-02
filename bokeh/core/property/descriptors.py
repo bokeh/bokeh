@@ -93,7 +93,7 @@ from copy import copy
 # External imports
 
 # Bokeh imports
-from .wrappers import PropertyValueContainer
+from .wrappers import PropertyValueColumnData, PropertyValueContainer
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -912,6 +912,14 @@ class BasicPropertyDescriptor(PropertyDescriptor):
             obj.trigger(self.name, old, value, hint, setter)
 
 
+_CDS_SET_FROM_CDS_ERROR = """
+ColumnDataSource.data properties may only be set from plain Python dicts,
+not other ColumnDataSource.data values.
+
+If you need to copy set from one CDS to another, make a shallow copy by
+calling dict: s1.data = dict(s2.data)
+"""
+
 class ColumnDataPropertyDescriptor(BasicPropertyDescriptor):
     ''' A ``PropertyDescriptor`` specialized to handling ``ColumnData`` properties.
 
@@ -959,6 +967,9 @@ class ColumnDataPropertyDescriptor(BasicPropertyDescriptor):
 
         if self.property._readonly:
             raise RuntimeError("%s.%s is a readonly property" % (obj.__class__.__name__, self.name))
+
+        if isinstance(value, PropertyValueColumnData):
+            raise ValueError(_CDS_SET_FROM_CDS_ERROR)
 
         from ...document.events import ColumnDataChangedEvent
 
