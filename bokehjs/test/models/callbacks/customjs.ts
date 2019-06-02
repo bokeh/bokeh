@@ -8,7 +8,7 @@ import {version as js_version} from "@bokehjs/version"
 describe("customjs module", () => {
 
   describe("default creation", () => {
-    const r = new CustomJS({use_strict: true})
+    const r = new CustomJS()
 
     it("should have empty args", () => {
       expect(r.args).to.be.deep.equal({})
@@ -21,7 +21,7 @@ describe("customjs module", () => {
 
   describe("values property", () => {
     const rng = new Range1d()
-    const r = new CustomJS({args: {foo: rng }, use_strict: true})
+    const r = new CustomJS({args: {foo: rng }})
 
     it("should contain the args values", () => {
       expect(r.values).to.be.deep.equal([rng])
@@ -50,19 +50,19 @@ describe("customjs module", () => {
   describe("func property", () => {
 
     it("should return a Function", () => {
-      const r = new CustomJS({use_strict: true})
+      const r = new CustomJS()
       expect(r.func).to.be.an.instanceof(Function)
     })
 
     it("should have code property as function body", () => {
-      const r = new CustomJS({code: "return 10", use_strict: true})
+      const r = new CustomJS({code: "return 10"})
       const f = new Function("cb_obj", "cb_data", "require", "exports", "'use strict';\nreturn 10")
       expect(r.func.toString()).to.be.equal(f.toString())
     })
 
     it("should have values as function args", () => {
       const rng = new Range1d()
-      const r = new CustomJS({args: {foo: rng.ref()}, code: "return 10", use_strict: true})
+      const r = new CustomJS({args: {foo: rng.ref()}, code: "return 10"})
       const f = new Function("foo", "cb_obj", "cb_data", "require", "exports", "'use strict';\nreturn 10")
       expect(r.func.toString()).to.be.equal(f.toString())
     })
@@ -71,27 +71,27 @@ describe("customjs module", () => {
   describe("execute method", () => {
 
     it("should execute the code and return the result", () => {
-      const r = new CustomJS({code: "return 10", use_strict: true})
+      const r = new CustomJS({code: "return 10"})
       expect(r.execute('foo')).to.be.equal(10)
     })
 
     it("should execute the code with args parameters passed", () => {
-      const r = new CustomJS({args: {foo: 5}, code: "return 10 + foo", use_strict: true})
+      const r = new CustomJS({args: {foo: 5}, code: "return 10 + foo"})
       expect(r.execute('foo')).to.be.equal(15)
     })
 
     it("should return the cb_obj passed an args parameter to execute", () => {
-      const r = new CustomJS({code: "return cb_obj", use_strict: true})
+      const r = new CustomJS({code: "return cb_obj"})
       expect(r.execute('foo')).to.be.equal('foo')
     })
 
     it("should return cb_data with default value if cb_data kwarg is unset", () => {
-      const r = new CustomJS({code: "return cb_data", use_strict: true})
+      const r = new CustomJS({code: "return cb_data"})
       expect(r.execute('foo')).to.be.deep.equal({})
     })
 
     it("should return cb_data with value of kwarg parameter to execute", () => {
-      const r = new CustomJS({code: "return cb_data.foo", use_strict: true})
+      const r = new CustomJS({code: "return cb_data.foo"})
       expect(r.execute('foo', {foo: 'bar'})).to.be.equal('bar')
     })
 
@@ -102,7 +102,7 @@ describe("customjs module", () => {
       const r = new CustomJS({args: {
         foo4: "foo4", foo5: "foo5", foo6: "foo6",
         foo1: "foo1", foo2: "foo2", foo3: "foo3",
-      }, code: "return foo1 + foo2 + foo3 + foo4 + foo5 + foo6", use_strict: true})
+      }, code: "return foo1 + foo2 + foo3 + foo4 + foo5 + foo6"})
       expect(r.execute({})).to.be.equal("foo1foo2foo3foo4foo5foo6")
     })
   })
