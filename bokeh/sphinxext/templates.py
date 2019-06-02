@@ -43,7 +43,6 @@ __all__ = (
     'OPTIONS_DETAIL',
     'PALETTE_DETAIL',
     'PALETTE_GROUP_DETAIL',
-    'PLOT_PAGE',
     'PROP_DETAIL',
 )
 
@@ -89,8 +88,6 @@ OPTIONS_DETAIL = _env.get_template("options_detail.rst")
 PALETTE_DETAIL = _env.get_template("palette_detail.html")
 
 PALETTE_GROUP_DETAIL = _env.get_template("palette_group_detail.html")
-
-PLOT_PAGE = _env.get_template("plot_page.rst")
 
 PROP_DETAIL = _env.get_template("prop_detail.rst")
 
