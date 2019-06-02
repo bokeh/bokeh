@@ -85,8 +85,8 @@ export function set_scales(glyph_view: GlyphView, axis_type: AxisType, reversed:
   const xscale = make_scale("x", axis_type, reversed)
   const yscale = make_scale("y", axis_type, reversed)
 
-  glyph_view.renderer.xscale = xscale
-  glyph_view.renderer.yscale = yscale
+  glyph_view.renderer.scope.x_scale = xscale
+  glyph_view.renderer.scope.y_scale = yscale
 
   glyph_view.renderer.plot_view.frame.xscales.default = xscale
   glyph_view.renderer.plot_view.frame.yscales.default = yscale

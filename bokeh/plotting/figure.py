@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.properties import Any, Auto, Either, Enum, Int, List, Seq, Instance, String, Tuple
 from ..core.enums import HorizontalLocation, MarkerType, VerticalLocation
-from ..models import ColumnDataSource, Plot, Title, Tool, GraphRenderer
+from ..models import ColumnDataSource, Plot, Scope, Title, Tool, GraphRenderer
 from ..models import glyphs as _glyphs
 from ..models import markers as _markers
 from ..models.tools import Drag, Inspection, Scroll, Tap
@@ -50,117 +50,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Figure(Plot):
-    ''' Create a new Figure for plotting.
-
-    A subclass of :class:`~bokeh.models.plots.Plot` that simplifies plot
-    creation with default axes, grids, tools, etc.
-
-    Figure objects have many glyph methods that can be used to draw
-    vectorized graphical glyphs:
-
-    .. hlist::
-        :columns: 3
-
-        * :func:`~bokeh.plotting.figure.Figure.annular_wedge`
-        * :func:`~bokeh.plotting.figure.Figure.annulus`
-        * :func:`~bokeh.plotting.figure.Figure.arc`
-        * :func:`~bokeh.plotting.figure.Figure.asterisk`
-        * :func:`~bokeh.plotting.figure.Figure.bezier`
-        * :func:`~bokeh.plotting.figure.Figure.circle`
-        * :func:`~bokeh.plotting.figure.Figure.circle_cross`
-        * :func:`~bokeh.plotting.figure.Figure.circle_x`
-        * :func:`~bokeh.plotting.figure.Figure.cross`
-        * :func:`~bokeh.plotting.figure.Figure.dash`
-        * :func:`~bokeh.plotting.figure.Figure.diamond`
-        * :func:`~bokeh.plotting.figure.Figure.diamond_cross`
-        * :func:`~bokeh.plotting.figure.Figure.ellipse`
-        * :func:`~bokeh.plotting.figure.Figure.harea`
-        * :func:`~bokeh.plotting.figure.Figure.hbar`
-        * :func:`~bokeh.plotting.figure.Figure.hex`
-        * :func:`~bokeh.plotting.figure.Figure.hex_tile`
-        * :func:`~bokeh.plotting.figure.Figure.image`
-        * :func:`~bokeh.plotting.figure.Figure.image_rgba`
-        * :func:`~bokeh.plotting.figure.Figure.image_url`
-        * :func:`~bokeh.plotting.figure.Figure.inverted_triangle`
-        * :func:`~bokeh.plotting.figure.Figure.line`
-        * :func:`~bokeh.plotting.figure.Figure.multi_line`
-        * :func:`~bokeh.plotting.figure.Figure.multi_polygons`
-        * :func:`~bokeh.plotting.figure.Figure.oval`
-        * :func:`~bokeh.plotting.figure.Figure.patch`
-        * :func:`~bokeh.plotting.figure.Figure.patches`
-        * :func:`~bokeh.plotting.figure.Figure.quad`
-        * :func:`~bokeh.plotting.figure.Figure.quadratic`
-        * :func:`~bokeh.plotting.figure.Figure.ray`
-        * :func:`~bokeh.plotting.figure.Figure.rect`
-        * :func:`~bokeh.plotting.figure.Figure.segment`
-        * :func:`~bokeh.plotting.figure.Figure.square`
-        * :func:`~bokeh.plotting.figure.Figure.square_cross`
-        * :func:`~bokeh.plotting.figure.Figure.square_x`
-        * :func:`~bokeh.plotting.figure.Figure.step`
-        * :func:`~bokeh.plotting.figure.Figure.text`
-        * :func:`~bokeh.plotting.figure.Figure.triangle`
-        * :func:`~bokeh.plotting.figure.Figure.varea`
-        * :func:`~bokeh.plotting.figure.Figure.vbar`
-        * :func:`~bokeh.plotting.figure.Figure.wedge`
-        * :func:`~bokeh.plotting.figure.Figure.x`
-
-    There is a scatter function that can be parameterized by marker type:
-
-    * :func:`~bokeh.plotting.figure.Figure.scatter`
-
-    There are also specialized methods for stacking bars:
-
-    * bars: :func:`~bokeh.plotting.figure.Figure.hbar_stack`, :func:`~bokeh.plotting.figure.Figure.vbar_stack`
-    * lines: :func:`~bokeh.plotting.figure.Figure.hline_stack`, :func:`~bokeh.plotting.figure.Figure.vline_stack`
-    * areas: :func:`~bokeh.plotting.figure.Figure.harea_stack`, :func:`~bokeh.plotting.figure.Figure.varea_stack`
-
-    As well as one specialized method for making simple hexbin plots:
-
-    * :func:`~bokeh.plotting.figure.Figure.hexbin`
-
-    In addition to all the ``Figure`` property attributes, the following
-    options are also accepted:
-
-    .. bokeh-options:: FigureOptions
-        :module: bokeh.plotting.figure
-
-    '''
-
-    __subtype__ = "Figure"
-    __view_model__ = "Plot"
-
-    def __init__(self, *arg, **kw):
-
-        if 'plot_width' in kw and 'width' in kw:
-            raise ValueError("Figure called with both 'plot_width' and 'width' supplied, supply only one")
-        if 'plot_height' in kw and 'height' in kw:
-            raise ValueError("Figure called with both 'plot_height' and 'height' supplied, supply only one")
-        if 'height' in kw:
-            kw['plot_height'] = kw.pop('height')
-        if 'width' in kw:
-            kw['plot_width'] = kw.pop('width')
-
-        opts = FigureOptions(kw)
-
-        title = kw.get("title", None)
-        if isinstance(title, str):
-            kw['title'] = Title(text=title)
-
-        super().__init__(*arg, **kw)
-
-        self.x_range = _get_range(opts.x_range)
-        self.y_range = _get_range(opts.y_range)
-
-        self.x_scale = _get_scale(self.x_range, opts.x_axis_type)
-        self.y_scale = _get_scale(self.y_range, opts.y_axis_type)
-
-        _process_axis_and_grid(self, opts.x_axis_type, opts.x_axis_location, opts.x_minor_ticks, opts.x_axis_label, self.x_range, 0)
-        _process_axis_and_grid(self, opts.y_axis_type, opts.y_axis_location, opts.y_minor_ticks, opts.y_axis_label, self.y_range, 1)
-
-        tool_objs, tool_map = _process_tools_arg(self, opts.tools, opts.tooltips)
-        self.add_tools(*tool_objs)
-        _process_active_tools(self.toolbar, tool_map, opts.active_drag, opts.active_inspect, opts.active_scroll, opts.active_tap)
+class GlyphFunctions(object):
 
     annular_wedge = _glyph_function(_glyphs.AnnularWedge)
 
@@ -1234,6 +1124,138 @@ Examples:
         graph_renderer = GraphRenderer(layout_provider=layout_provider, **kw)
         self.renderers.append(graph_renderer)
         return graph_renderer
+
+class Figure(Plot, GlyphFunctions):
+    ''' Create a new Figure for plotting.
+
+    A subclass of :class:`~bokeh.models.plots.Plot` that simplifies plot
+    creation with default axes, grids, tools, etc.
+
+    Figure objects have many glyph methods that can be used to draw
+    vectorized graphical glyphs:
+
+    .. hlist::
+        :columns: 3
+
+        * :func:`~bokeh.plotting.figure.Figure.annular_wedge`
+        * :func:`~bokeh.plotting.figure.Figure.annulus`
+        * :func:`~bokeh.plotting.figure.Figure.arc`
+        * :func:`~bokeh.plotting.figure.Figure.asterisk`
+        * :func:`~bokeh.plotting.figure.Figure.bezier`
+        * :func:`~bokeh.plotting.figure.Figure.circle`
+        * :func:`~bokeh.plotting.figure.Figure.circle_cross`
+        * :func:`~bokeh.plotting.figure.Figure.circle_x`
+        * :func:`~bokeh.plotting.figure.Figure.cross`
+        * :func:`~bokeh.plotting.figure.Figure.dash`
+        * :func:`~bokeh.plotting.figure.Figure.diamond`
+        * :func:`~bokeh.plotting.figure.Figure.diamond_cross`
+        * :func:`~bokeh.plotting.figure.Figure.ellipse`
+        * :func:`~bokeh.plotting.figure.Figure.harea`
+        * :func:`~bokeh.plotting.figure.Figure.hbar`
+        * :func:`~bokeh.plotting.figure.Figure.hex`
+        * :func:`~bokeh.plotting.figure.Figure.hex_tile`
+        * :func:`~bokeh.plotting.figure.Figure.image`
+        * :func:`~bokeh.plotting.figure.Figure.image_rgba`
+        * :func:`~bokeh.plotting.figure.Figure.image_url`
+        * :func:`~bokeh.plotting.figure.Figure.inverted_triangle`
+        * :func:`~bokeh.plotting.figure.Figure.line`
+        * :func:`~bokeh.plotting.figure.Figure.multi_line`
+        * :func:`~bokeh.plotting.figure.Figure.multi_polygons`
+        * :func:`~bokeh.plotting.figure.Figure.oval`
+        * :func:`~bokeh.plotting.figure.Figure.patch`
+        * :func:`~bokeh.plotting.figure.Figure.patches`
+        * :func:`~bokeh.plotting.figure.Figure.quad`
+        * :func:`~bokeh.plotting.figure.Figure.quadratic`
+        * :func:`~bokeh.plotting.figure.Figure.ray`
+        * :func:`~bokeh.plotting.figure.Figure.rect`
+        * :func:`~bokeh.plotting.figure.Figure.segment`
+        * :func:`~bokeh.plotting.figure.Figure.square`
+        * :func:`~bokeh.plotting.figure.Figure.square_cross`
+        * :func:`~bokeh.plotting.figure.Figure.square_x`
+        * :func:`~bokeh.plotting.figure.Figure.step`
+        * :func:`~bokeh.plotting.figure.Figure.text`
+        * :func:`~bokeh.plotting.figure.Figure.triangle`
+        * :func:`~bokeh.plotting.figure.Figure.varea`
+        * :func:`~bokeh.plotting.figure.Figure.vbar`
+        * :func:`~bokeh.plotting.figure.Figure.wedge`
+        * :func:`~bokeh.plotting.figure.Figure.x`
+
+    There is a scatter function that can be parameterized by marker type:
+
+    * :func:`~bokeh.plotting.figure.Figure.scatter`
+
+    There are also specialized methods for stacking bars:
+
+    * bars: :func:`~bokeh.plotting.figure.Figure.hbar_stack`, :func:`~bokeh.plotting.figure.Figure.vbar_stack`
+    * lines: :func:`~bokeh.plotting.figure.Figure.hline_stack`, :func:`~bokeh.plotting.figure.Figure.vline_stack`
+    * areas: :func:`~bokeh.plotting.figure.Figure.harea_stack`, :func:`~bokeh.plotting.figure.Figure.varea_stack`
+
+    As well as one specialized method for making simple hexbin plots:
+
+    * :func:`~bokeh.plotting.figure.Figure.hexbin`
+
+    In addition to all the ``Figure`` property attributes, the following
+    options are also accepted:
+
+    .. bokeh-options:: FigureOptions
+        :module: bokeh.plotting.figure
+
+    '''
+
+    __subtype__ = "Figure"
+    __view_model__ = "Plot"
+
+    def __init__(self, *arg, **kw):
+
+        if 'plot_width' in kw and 'width' in kw:
+            raise ValueError("Figure called with both 'plot_width' and 'width' supplied, supply only one")
+        if 'plot_height' in kw and 'height' in kw:
+            raise ValueError("Figure called with both 'plot_height' and 'height' supplied, supply only one")
+        if 'height' in kw:
+            kw['plot_height'] = kw.pop('height')
+        if 'width' in kw:
+            kw['plot_width'] = kw.pop('width')
+
+        opts = FigureOptions(kw)
+
+        title = kw.get("title", None)
+        if isinstance(title, str):
+            kw['title'] = Title(text=title)
+
+        super().__init__(*arg, **kw)
+
+        self.x_range = _get_range(opts.x_range)
+        self.y_range = _get_range(opts.y_range)
+
+        self.x_scale = _get_scale(self.x_range, opts.x_axis_type)
+        self.y_scale = _get_scale(self.y_range, opts.y_axis_type)
+
+        _process_axis_and_grid(self, opts.x_axis_type, opts.x_axis_location, opts.x_minor_ticks, opts.x_axis_label, self.x_range, 0)
+        _process_axis_and_grid(self, opts.y_axis_type, opts.y_axis_location, opts.y_minor_ticks, opts.y_axis_label, self.y_range, 1)
+
+        tool_objs, tool_map = _process_tools_arg(self, opts.tools, opts.tooltips)
+        self.add_tools(*tool_objs)
+        _process_active_tools(self.toolbar, tool_map, opts.active_drag, opts.active_inspect, opts.active_scroll, opts.active_tap)
+
+    def scope(self, **kwargs):
+        x_range = kwargs.get("x_range", None)
+        y_range = kwargs.get("y_range", None)
+        x_target = kwargs.get("x_target", None)
+        y_target = kwargs.get("y_target", None)
+
+        kwargs["x_range"] = _get_range(x_range)
+        kwargs["y_range"] = _get_range(y_range)
+
+        if x_target is not None:
+            kwargs["x_target"] = _get_range(x_target)
+        if y_target is not None:
+            kwargs["y_target"] = _get_range(y_target)
+
+        return Scope(**kwargs)
+        #return FigureScope(**kwargs)
+
+class FigureScope(Scope, GlyphFunctions):
+    """ """
 
 def figure(**kwargs):
     return Figure(**kwargs)

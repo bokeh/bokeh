@@ -29,7 +29,7 @@ export class WedgeView extends XYGlyphView {
 
   protected _map_data(): void {
     if (this.model.properties.radius.units == "data")
-      this.sradius = this.sdist(this.renderer.xscale, this._x, this._radius)
+      this.sradius = this.sdist(this.renderer.scope.x_scale, this._x, this._radius)
     else
       this.sradius = this._radius
   }
@@ -61,8 +61,8 @@ export class WedgeView extends XYGlyphView {
   protected _hit_point(geometry: PointGeometry): Selection {
     let dist, sx0, sx1, sy0, sy1, x0, x1, y0, y1
     const {sx, sy} = geometry
-    const x = this.renderer.xscale.invert(sx)
-    const y = this.renderer.yscale.invert(sy)
+    const x = this.renderer.scope.x_scale.invert(sx)
+    const y = this.renderer.scope.y_scale.invert(sy)
 
     // check diameter first
     const max_diameter = 2 * this.max_radius
@@ -76,19 +76,19 @@ export class WedgeView extends XYGlyphView {
     } else {
       sx0 = sx - max_diameter
       sx1 = sx + max_diameter
-      ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
+      ;[x0, x1] = this.renderer.scope.x_scale.r_invert(sx0, sx1)
 
       sy0 = sy - max_diameter
       sy1 = sy + max_diameter
-      ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+      ;[y0, y1] = this.renderer.scope.y_scale.r_invert(sy0, sy1)
     }
 
     const candidates = []
 
     for (const i of this.index.indices({x0, x1, y0, y1})) {
       const r2 = Math.pow(this.sradius[i], 2)
-      ;[sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
-      ;[sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i])
+      ;[sx0, sx1] = this.renderer.scope.x_scale.r_compute(x, this._x[i])
+      ;[sy0, sy1] = this.renderer.scope.y_scale.r_compute(y, this._y[i])
       dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
       if (dist <= r2) {
         candidates.push([i, dist])

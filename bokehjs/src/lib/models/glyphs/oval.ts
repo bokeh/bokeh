@@ -17,7 +17,7 @@ export class OvalView extends EllipseOvalView {
     this.sw = new Float64Array(n)
 
     if (this.model.properties.width.units == "data")
-      sw = this.sdist(this.renderer.xscale, this._x, this._width, 'center')
+      sw = this.sdist(this.renderer.scope.x_scale, this._x, this._width, 'center')
     else
       sw = this._width
 
@@ -26,7 +26,7 @@ export class OvalView extends EllipseOvalView {
       this.sw[i] = sw[i] * 0.75
 
     if (this.model.properties.height.units == "data")
-      this.sh = this.sdist(this.renderer.yscale, this._y, this._height, 'center')
+      this.sh = this.sdist(this.renderer.scope.y_scale, this._y, this._height, 'center')
     else
       this.sh = this._height
   }

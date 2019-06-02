@@ -74,8 +74,8 @@ export class SegmentView extends GlyphView {
     const hits = []
     const lw_voffset = 2 // FIXME: Use maximum of segments line_width/2 instead of magic constant 2
 
-    const [x0, x1] = this.renderer.xscale.r_invert(sx-lw_voffset, sx+lw_voffset)
-    const [y0, y1] = this.renderer.yscale.r_invert(sy-lw_voffset, sy+lw_voffset)
+    const [x0, x1] = this.renderer.scope.x_scale.r_invert(sx-lw_voffset, sx+lw_voffset)
+    const [y0, y1] = this.renderer.scope.y_scale.r_invert(sy-lw_voffset, sy+lw_voffset)
     const candidates = this.index.indices({x0, y0, x1, y1})
 
     for (const i of candidates) {
@@ -100,17 +100,17 @@ export class SegmentView extends GlyphView {
     let v1: Arrayable<number>
     let val: number
     if (geometry.direction == 'v') {
-      val = this.renderer.yscale.invert(sy)
+      val = this.renderer.scope.y_scale.invert(sy)
       ;[v0, v1] = [this._y0, this._y1]
     } else {
-      val = this.renderer.xscale.invert(sx)
+      val = this.renderer.scope.x_scale.invert(sx)
       ;[v0, v1] = [this._x0, this._x1]
     }
 
     const hits = []
 
-    const [x0, x1] = this.renderer.xscale.r_invert(hr.start, hr.end)
-    const [y0, y1] = this.renderer.yscale.r_invert(vr.start, vr.end)
+    const [x0, x1] = this.renderer.scope.x_scale.r_invert(hr.start, hr.end)
+    const [y0, y1] = this.renderer.scope.y_scale.r_invert(vr.start, vr.end)
     const candidates = this.index.indices({x0, y0, x1, y1})
 
     for (const i of candidates) {

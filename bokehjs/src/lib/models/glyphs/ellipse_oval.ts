@@ -28,12 +28,12 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
   protected _map_data(): void {
 
     if (this.model.properties.width.units == "data")
-      this.sw = this.sdist(this.renderer.xscale, this._x, this._width, 'center')
+      this.sw = this.sdist(this.renderer.scope.x_scale, this._x, this._width, 'center')
     else
       this.sw = this._width
 
     if (this.model.properties.height.units == "data")
-      this.sh = this.sdist(this.renderer.yscale, this._y, this._height, 'center')
+      this.sh = this.sdist(this.renderer.scope.y_scale, this._y, this._height, 'center')
     else
       this.sh = this._height
   }
@@ -62,8 +62,8 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
     let x0, x1, y0, y1, cond, dist, sx0, sx1, sy0, sy1
 
     const {sx, sy} = geometry
-    const x = this.renderer.xscale.invert(sx)
-    const y = this.renderer.yscale.invert(sy)
+    const x = this.renderer.scope.x_scale.invert(sx)
+    const y = this.renderer.scope.y_scale.invert(sy)
 
     if (this.model.properties.width.units == "data"){
       x0 = x - this.max_width
@@ -71,7 +71,7 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
     } else {
       sx0 = sx - this.max_width
       sx1 = sx + this.max_width
-      ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
+      ;[x0, x1] = this.renderer.scope.x_scale.r_invert(sx0, sx1)
     }
 
     if (this.model.properties.height.units == "data"){
@@ -80,7 +80,7 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
     } else {
       sy0 = sy - this.max_height
       sy1 = sy + this.max_height
-      ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+      ;[y0, y1] = this.renderer.scope.y_scale.r_invert(sy0, sy1)
     }
 
     const candidates = this.index.indices({x0, x1, y0, y1})
@@ -89,8 +89,8 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
     for (const i of candidates) {
       cond = hittest.point_in_ellipse(sx, sy, this._angle[i], this.sh[i]/2, this.sw[i]/2, this.sx[i], this.sy[i])
       if (cond) {
-        [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
-        ;[sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i])
+        [sx0, sx1] = this.renderer.scope.x_scale.r_compute(x, this._x[i]);
+        [sy0, sy1] = this.renderer.scope.y_scale.r_compute(y, this._y[i])
         dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
         hits.push([i, dist])
       }

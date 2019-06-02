@@ -114,10 +114,10 @@ export class MultiLineView extends GlyphView {
     let val: number
     let values: Arrayable<Arrayable<number>>
     if (geometry.direction === 'v') {
-      val = this.renderer.yscale.invert(sy)
+      val = this.renderer.scope.y_scale.invert(sy)
       values = this._ys
     } else {
-      val = this.renderer.xscale.invert(sx)
+      val = this.renderer.scope.x_scale.invert(sx)
       values = this._xs
     }
 

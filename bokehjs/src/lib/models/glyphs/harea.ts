@@ -95,9 +95,9 @@ export class HAreaView extends AreaView {
   }
 
   protected _map_data(): void {
-    this.sx1 = this.renderer.xscale.v_compute(this._x1)
-    this.sx2 = this.renderer.xscale.v_compute(this._x2)
-    this.sy  = this.renderer.yscale.v_compute(this._y)
+    this.sx1 = this.renderer.scope.x_scale.v_compute(this._x1)
+    this.sx2 = this.renderer.scope.x_scale.v_compute(this._x2)
+    this.sy  = this.renderer.scope.y_scale.v_compute(this._y)
   }
 }
 

@@ -1,6 +1,8 @@
 import {CartesianFrame} from "../canvas/cartesian_frame"
 import {Canvas, CanvasView} from "../canvas/canvas"
 import {Range} from "../ranges/range"
+import {Scale} from "../scales/scale"
+import {ScopeView} from "../canvas/scope"
 import {DataRange1d} from "../ranges/data_range1d"
 import {Renderer, RendererView} from "../renderers/renderer"
 import {GlyphRenderer, GlyphRendererView} from "../renderers/glyph_renderer"
@@ -14,7 +16,7 @@ import {Axis, AxisView} from "../axes/axis"
 import {ToolbarPanel} from "../annotations/toolbar_panel"
 
 import {Reset} from "core/bokeh_events"
-import {Arrayable, Rect, Interval} from "core/types"
+import {Rect, Interval} from "core/types"
 import {Signal0} from "core/signaling"
 import {build_views, remove_views} from "core/build_views"
 import /*type*/ {UIEvents} from "core/ui_events"
@@ -23,8 +25,7 @@ import {logger} from "core/logging"
 import {Side, RenderLevel} from "core/enums"
 import {throttle} from "core/util/throttle"
 import {isArray, isStrictNaN} from "core/util/types"
-import {copy, reversed} from "core/util/array"
-import {values} from "core/util/object"
+import {uniq, copy, reversed} from "core/util/array"
 import {Context2d} from "core/util/canvas"
 import {SizeHint, Size, Sizeable, SizingPolicy, Margin, Layoutable} from "core/layout"
 import {HStack, VStack} from "core/layout/alignments"
@@ -35,8 +36,8 @@ import {BBox} from "core/util/bbox"
 export type FrameBox = [number, number, number, number]
 
 export type RangeInfo = {
-  xrs: {[key: string]: Interval}
-  yrs: {[key: string]: Interval}
+  xrs: [Range, [number, number]][]
+  yrs: [Range, [number, number]][]
 }
 
 export type StateInfo = {
@@ -149,8 +150,9 @@ export class PlotView extends LayoutDOMView {
 
   computed_renderers: Renderer[]
 
-  /*protected*/ renderer_views: {[key: string]: RendererView}
-  /*protected*/ tool_views: {[key: string]: ToolView}
+  renderer_views: {[key: string]: RendererView}
+  scope_views: {[key: string]: ScopeView}
+  tool_views: {[key: string]: ToolView}
 
   protected range_update_timestamp?: number
 
@@ -205,6 +207,7 @@ export class PlotView extends LayoutDOMView {
   remove(): void {
     this.ui_event_bus.destroy()
     remove_views(this.renderer_views)
+    remove_views(this.scope_views)
     remove_views(this.tool_views)
     this.canvas_view.remove()
     super.remove()
@@ -246,8 +249,6 @@ export class PlotView extends LayoutDOMView {
       this.model.y_scale,
       this.model.x_range,
       this.model.y_range,
-      this.model.extra_x_ranges,
-      this.model.extra_y_ranges,
     )
 
     this.canvas_view = new this.canvas.default_view({model: this.canvas, parent: this}) as CanvasView
@@ -270,6 +271,7 @@ export class PlotView extends LayoutDOMView {
     }
 
     this.renderer_views = {}
+    this.scope_views = {}
     this.tool_views = {}
 
     this.build_renderer_views()
@@ -487,8 +489,10 @@ export class PlotView extends LayoutDOMView {
     const bounds: {[key: string]: Rect} = {}
     const log_bounds: {[key: string]: Rect} = {}
 
+    const {x_ranges, y_ranges} = this.ranges()
+
     let calculate_log_bounds = false
-    for (const r of values(this.frame.x_ranges).concat(values(this.frame.y_ranges))) {
+    for (const r of x_ranges.concat(y_ranges)) {
       if (r instanceof DataRange1d) {
         if (r.scale_hint == "log")
           calculate_log_bounds = true
@@ -518,7 +522,7 @@ export class PlotView extends LayoutDOMView {
     if (this.model.match_aspect !== false && width != 0 && height != 0)
       r = (1/this.model.aspect_scale)*(width/height)
 
-    for (const xr of values(this.frame.x_ranges)) {
+    for (const xr of x_ranges) {
       if (xr instanceof DataRange1d) {
         const bounds_to_use = xr.scale_hint == "log" ? log_bounds : bounds
         xr.update(bounds_to_use, 0, this.model.id, r)
@@ -530,7 +534,7 @@ export class PlotView extends LayoutDOMView {
         has_bounds = true
     }
 
-    for (const yr of values(this.frame.y_ranges)) {
+    for (const yr of y_ranges) {
       if (yr instanceof DataRange1d) {
         const bounds_to_use = yr.scale_hint == "log" ? log_bounds : bounds
         yr.update(bounds_to_use, 1, this.model.id, r)
@@ -544,20 +548,15 @@ export class PlotView extends LayoutDOMView {
 
     if (follow_enabled && has_bounds) {
       logger.warn('Follow enabled so bounds are unset.')
-      for (const xr of values(this.frame.x_ranges)) {
+      for (const xr of x_ranges) {
         xr.bounds = null
       }
-      for (const yr of values(this.frame.y_ranges)) {
+      for (const yr of y_ranges) {
         yr.bounds = null
       }
     }
 
     this.range_update_timestamp = Date.now()
-  }
-
-  map_to_screen(x: Arrayable<number>, y: Arrayable<number>,
-                x_name: string = "default", y_name: string = "default"): [Arrayable<number>, Arrayable<number>] {
-    return this.frame.map_to_screen(x, y, x_name, y_name)
   }
 
   push_state(type: string, new_info: Partial<StateInfo>): void {
@@ -765,34 +764,105 @@ export class PlotView extends LayoutDOMView {
     return weight
   }
 
-  update_range(range_info: RangeInfo | null,
-               is_panning: boolean = false, is_scrolling: boolean = false, maintain_focus: boolean = true): void {
-    this.pause()
-    const {x_ranges, y_ranges} = this.frame
-    if (range_info == null) {
-      for (const name in x_ranges) {
-        const rng = x_ranges[name]
-        rng.reset()
+  scales(): {x_scales: Scale[], y_scales: Scale[]} {
+    const x_scales: Scale[] = []
+    const y_scales: Scale[] = []
+
+    x_scales.push(this.frame.x_scale)
+    y_scales.push(this.frame.y_scale)
+
+    for (const key in this.scope_views) {
+      const scope_view = this.scope_views[key]
+      x_scales.push(scope_view.x_scale)
+      y_scales.push(scope_view.y_scale)
+    }
+
+    return {x_scales, y_scales}
+  }
+
+  frame_scales(): {x_scales: Scale[], y_scales: Scale[]} {
+    const x_scales: Scale[] = []
+    const y_scales: Scale[] = []
+
+    x_scales.push(this.frame.x_scale)
+    y_scales.push(this.frame.y_scale)
+
+    /*
+    for (const key in this.scope_views) {
+      const scope_view = this.scope_views[key]
+      const {outer} = scope_view.model
+      if (outer == null) {
+        const {x_target, y_target} = scope_view.model
+        if (x_target == null)
+          x_scales.push(scope_view.x_scale)
+        if (y_target == null)
+          y_scales.push(scope_view.y_scale)
       }
-      for (const name in y_ranges) {
-        const rng = y_ranges[name]
-        rng.reset()
+    }
+    */
+    return {x_scales, y_scales}
+  }
+
+  ranges(): {x_ranges: Range[], y_ranges: Range[]} {
+    const {x_scales, y_scales} = this.scales()
+    return {
+      x_ranges: x_scales.map((scale) => scale.source_range),
+      y_ranges: y_scales.map((scale) => scale.source_range),
+    }
+  }
+
+  frame_ranges(): {x_ranges: Range[], y_ranges: Range[]} {
+    const {x_scales, y_scales} = this.frame_scales()
+    return {
+      x_ranges: x_scales.map((scale) => scale.source_range),
+      y_ranges: y_scales.map((scale) => scale.source_range),
+    }
+  }
+
+  update_range_from_screen(range_info: {sxr: {sx0: number, sx1: number}, syr: {sy0: number, sy1: number}} | null,
+      is_panning: boolean = false, is_scrolling: boolean = false, maintain_focus: boolean = true): RangeInfo | null {
+
+    let _range_info: RangeInfo | null = null
+    if (range_info != null) {
+      const {x_scales, y_scales} = this.frame_scales()
+
+      const {sx0, sx1} = range_info.sxr
+      const xrs = x_scales.map((scale): [Range, [number, number]] => [scale.source_range, scale.r_invert(sx0, sx1)])
+
+      const {sy0, sy1} = range_info.syr
+      const yrs = y_scales.map((scale): [Range, [number, number]] => [scale.source_range, scale.r_invert(sy0, sy1)])
+
+      _range_info = {...range_info, xrs, yrs}
+    }
+
+    this.update_range(_range_info, is_panning, is_scrolling, maintain_focus)
+    return _range_info
+  }
+
+  update_range(range_info: RangeInfo | null,
+      is_panning: boolean = false, is_scrolling: boolean = false, maintain_focus: boolean = true): void {
+    this.pause()
+
+    const {x_ranges, y_ranges} = this.frame_ranges()
+    if (range_info == null) {
+      for (const range of x_ranges) {
+        range.reset()
+      }
+      for (const range of y_ranges) {
+        range.reset()
       }
       this.update_dataranges()
     } else {
-      const range_info_iter: [Range, Interval][] = []
-      for (const name in x_ranges) {
-        const rng = x_ranges[name]
-        range_info_iter.push([rng, range_info.xrs[name]])
-      }
-      for (const name in y_ranges) {
-        const rng = y_ranges[name]
-        range_info_iter.push([rng, range_info.yrs[name]])
-      }
+      const ranges = range_info.xrs.concat(range_info.yrs)
+        .map(([range, [start, end]]): [Range, Interval] => [range, {start, end}])
       if (is_scrolling) {
-        this._update_ranges_together(range_info_iter)   // apply interval bounds while keeping aspect
+        this._update_ranges_together(ranges)   // apply interval bounds while keeping aspect
       }
-      this._update_ranges_individually(range_info_iter, is_panning, is_scrolling, maintain_focus)
+      this._update_ranges_individually(ranges, is_panning, is_scrolling, maintain_focus)
+    }
+    for (const key in this.scope_views) {
+      const scope_view = this.scope_views[key]
+      scope_view._configure_scales()
     }
     this.unpause()
   }
@@ -838,6 +908,9 @@ export class PlotView extends LayoutDOMView {
       this.computed_renderers.push(...tool.synthetic_renderers)
     }
 
+    const scopes = uniq(this.computed_renderers.map((renderer) => renderer.scope).filter((scope) => scope != null))
+    build_views(this.scope_views, scopes, {parent: this})
+
     build_views(this.renderer_views, this.computed_renderers, {parent: this})
   }
 
@@ -856,15 +929,13 @@ export class PlotView extends LayoutDOMView {
 
     this.connect(this.force_paint, () => this.repaint())
 
-    const {x_ranges, y_ranges} = this.frame
+    const {x_ranges, y_ranges} = this.ranges()
 
-    for (const name in x_ranges) {
-      const rng = x_ranges[name]
-      this.connect(rng.change, () => {this._needs_layout = true; this.request_paint()})
+    for (const range of x_ranges) {
+      this.connect(range.change, () => {this._needs_layout = true; this.request_paint()})
     }
-    for (const name in y_ranges) {
-      const rng = y_ranges[name]
-      this.connect(rng.change, () => {this._needs_layout = true; this.request_paint()})
+    for (const range of y_ranges) {
+      this.connect(range.change, () => {this._needs_layout = true; this.request_paint()})
     }
 
     this.connect(this.model.properties.renderers.change, () => this.build_renderer_views())
@@ -876,25 +947,25 @@ export class PlotView extends LayoutDOMView {
   set_initial_range(): void {
     // check for good values for ranges before setting initial range
     let good_vals = true
-    const {x_ranges, y_ranges} = this.frame
-    const xrs: {[key: string]: Interval} = {}
-    const yrs: {[key: string]: Interval} = {}
-    for (const name in x_ranges) {
-      const {start, end} = x_ranges[name]
+    const {x_ranges, y_ranges} = this.ranges()
+    const xrs: [Range, [number, number]][] = []
+    const yrs: [Range, [number, number]][] = []
+    for (const range of x_ranges) {
+      const {start, end} = range
       if (start == null || end == null || isStrictNaN(start + end)) {
         good_vals = false
         break
       }
-      xrs[name] = {start, end}
+      xrs.push([range, [start, end]])
     }
     if (good_vals) {
-      for (const name in y_ranges) {
-        const {start, end} = y_ranges[name]
+      for (const range of y_ranges) {
+        const {start, end} = range
         if (start == null || end == null || isStrictNaN(start + end)) {
           good_vals = false
           break
         }
-        yrs[name] = {start, end}
+        yrs.push([range, [start, end]])
       }
     }
     if (good_vals) {
@@ -919,6 +990,11 @@ export class PlotView extends LayoutDOMView {
 
   after_layout(): void {
     super.after_layout()
+
+    for (const key in this.scope_views) {
+      const scope_view = this.scope_views[key]
+      scope_view._configure_scales()
+    }
 
     this._needs_layout = false
 

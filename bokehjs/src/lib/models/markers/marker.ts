@@ -53,12 +53,12 @@ export abstract class MarkerView extends XYGlyphView {
     const hr = this.renderer.plot_view.frame.bbox.h_range
     const sx0 = hr.start - this.max_size
     const sx1 = hr.end + this.max_size
-    const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
+    const [x0, x1] = this.renderer.scope.x_scale.r_invert(sx0, sx1)
 
     const vr = this.renderer.plot_view.frame.bbox.v_range
     const sy0 = vr.start - this.max_size
     const sy1 = vr.end + this.max_size
-    const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+    const [y0, y1] = this.renderer.scope.y_scale.r_invert(sy0, sy1)
 
     return this.index.indices({x0, x1, y0, y1})
   }
@@ -68,11 +68,11 @@ export abstract class MarkerView extends XYGlyphView {
 
     const sx0 = sx - this.max_size
     const sx1 = sx + this.max_size
-    const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
+    const [x0, x1] = this.renderer.scope.x_scale.r_invert(sx0, sx1)
 
     const sy0 = sy - this.max_size
     const sy1 = sy + this.max_size
-    const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+    const [y0, y1] = this.renderer.scope.y_scale.r_invert(sy0, sy1)
 
     const candidates = this.index.indices({x0, x1, y0, y1})
 
@@ -99,13 +99,13 @@ export abstract class MarkerView extends XYGlyphView {
       y1 = bounds.y1
       const sx0 = sx - ms
       const sx1 = sx + ms
-      ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
+      ;[x0, x1] = this.renderer.scope.x_scale.r_invert(sx0, sx1)
     } else {
       x0 = bounds.x0
       x1 = bounds.x1
       const sy0 = sy - ms
       const sy1 = sy + ms
-      ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+      ;[y0, y1] = this.renderer.scope.y_scale.r_invert(sy0, sy1)
     }
 
     const hits = this.index.indices({x0, x1, y0, y1})
@@ -116,8 +116,8 @@ export abstract class MarkerView extends XYGlyphView {
 
   protected _hit_rect(geometry: RectGeometry): Selection {
     const {sx0, sx1, sy0, sy1} = geometry
-    const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
-    const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+    const [x0, x1] = this.renderer.scope.x_scale.r_invert(sx0, sx1)
+    const [y0, y1] = this.renderer.scope.y_scale.r_invert(sy0, sy1)
     const result = hittest.create_empty_hit_test_result()
     result.indices = this.index.indices({x0, x1, y0, y1})
     return result

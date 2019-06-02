@@ -43,12 +43,13 @@ export class ImageBaseView extends XYGlyphView {
     return new SpatialIndex(points)
   }
 
-  _lrtb(i: number): [number, number, number, number]{
-    const xr = this.renderer.xscale.source_range
+  _lrtb(i: number): [number, number, number, number] {
+    const xr = this.renderer.scope.x_scale.source_range
+
     const x1 = this._x[i]
     const x2 = xr.is_reversed ? x1 - this._dw[i] : x1 + this._dw[i]
 
-    const yr = this.renderer.yscale.source_range
+    const yr = this.renderer.scope.y_scale.source_range
     const y1 = this._y[i]
     const y2 = yr.is_reversed ? y1 - this._dh[i] : y1 + this._dh[i]
 
@@ -93,7 +94,7 @@ export class ImageBaseView extends XYGlyphView {
   protected _map_data(): void {
     switch (this.model.properties.dw.units) {
       case "data": {
-        this.sw = this.sdist(this.renderer.xscale, this._x, this._dw, 'edge', this.model.dilate)
+        this.sw = this.sdist(this.renderer.scope.x_scale, this._x, this._dw, 'edge', this.model.dilate)
         break
       }
       case "screen": {
@@ -104,7 +105,7 @@ export class ImageBaseView extends XYGlyphView {
 
     switch (this.model.properties.dh.units) {
       case "data": {
-        this.sh = this.sdist(this.renderer.yscale, this._y, this._dh, 'edge', this.model.dilate)
+        this.sh = this.sdist(this.renderer.scope.y_scale, this._y, this._dh, 'edge', this.model.dilate)
         break
       }
       case "screen": {
@@ -122,17 +123,17 @@ export class ImageBaseView extends XYGlyphView {
     const dy = (t - b) / height
     let dim1 = Math.floor((x - l) / dx)
     let dim2 = Math.floor((y - b) / dy)
-    if (this.renderer.xscale.source_range.is_reversed)
+    if (this.renderer.scope.x_scale.source_range.is_reversed)
       dim1 = width-dim1-1
-    if (this.renderer.yscale.source_range.is_reversed)
+    if (this.renderer.scope.y_scale.source_range.is_reversed)
       dim2 = height-dim2-1
     return {index, dim1, dim2, flat_index: dim2*width + dim1}
   }
 
   _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
-    const x = this.renderer.xscale.invert(sx)
-    const y = this.renderer.yscale.invert(sy)
+    const x = this.renderer.scope.x_scale.invert(sx)
+    const y = this.renderer.scope.y_scale.invert(sy)
     const candidates = this.index.indices({x0: x, x1: x, y0: y, y1: y})
     const result = hittest.create_empty_hit_test_result()
 

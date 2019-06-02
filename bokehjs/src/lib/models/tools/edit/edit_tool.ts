@@ -32,8 +32,8 @@ export abstract class EditToolView extends GestureToolView {
     if (!frame.bbox.contains(sx, sy)) {
       return null
     }
-    const x = frame.xscales[renderer.x_range_name].invert(sx)
-    const y = frame.yscales[renderer.y_range_name].invert(sy)
+    const x = renderer.scope.x_scale.invert(sx)
+    const y = renderer.scope.y_scale.invert(sy)
     return [x, y]
   }
 

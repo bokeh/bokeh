@@ -4,8 +4,7 @@ import * as p from "core/properties"
 import {Class} from "core/class"
 import {Signal0} from "core/signaling"
 import {Place, Location, OutputBackend, ResetPolicy} from "core/enums"
-import {remove_by, concat} from "core/util/array"
-import {values} from "core/util/object"
+import {remove_by, concat, uniq} from "core/util/array"
 import {isArray} from "core/util/types"
 
 import {LayoutDOM} from "../layouts/layout_dom"
@@ -56,9 +55,7 @@ export namespace Plot {
     renderers: p.Property<DataRenderer[]>
 
     x_range: p.Property<Range>
-    extra_x_ranges: p.Property<{[key: string]: Range}>
     y_range: p.Property<Range>
-    extra_y_ranges: p.Property<{[key: string]: Range}>
 
     x_scale: p.Property<Scale>
     y_scale: p.Property<Scale>
@@ -139,10 +136,7 @@ export class Plot extends LayoutDOM {
       renderers:         [ p.Array,    []                      ],
 
       x_range:           [ p.Instance, () => new DataRange1d() ],
-      extra_x_ranges:    [ p.Any,      {}                      ], // TODO (bev)
       y_range:           [ p.Instance, () => new DataRange1d() ],
-      extra_y_ranges:    [ p.Any,      {}                      ], // TODO (bev)
-
       x_scale:           [ p.Instance, () => new LinearScale() ],
       y_scale:           [ p.Instance, () => new LinearScale() ],
 
@@ -199,7 +193,12 @@ export class Plot extends LayoutDOM {
 
     this.reset = new Signal0(this, "reset")
 
-    for (const xr of values(this.extra_x_ranges).concat(this.x_range)) {
+    const scopes = uniq(this.renderers.map((renderer) => renderer.scope).filter((scope) => scope != null))
+
+    const xrs = uniq(scopes.map((scope) => scope.x_range).concat(this.x_range))
+    const yrs = uniq(scopes.map((scope) => scope.y_range).concat(this.y_range))
+
+    for (const xr of xrs) {
       let plots = xr.plots
       if (isArray(plots)) {
         plots = plots.concat(this)
@@ -207,7 +206,7 @@ export class Plot extends LayoutDOM {
       }
     }
 
-    for (const yr of values(this.extra_y_ranges).concat(this.y_range)) {
+    for (const yr of yrs) {
       let plots = yr.plots
       if (isArray(plots)) {
         plots = plots.concat(this)

@@ -81,13 +81,11 @@ export class LabelSetView extends TextAnnotationView {
   }
 
   protected _map_data(): [Arrayable<number>, Arrayable<number>] {
-    const xscale = this.plot_view.frame.xscales[this.model.x_range_name]
-    const yscale = this.plot_view.frame.yscales[this.model.y_range_name]
-
     const panel = this.panel != null ? this.panel : this.plot_view.frame
+    const {x_scale, y_scale} = this.scope
 
-    const sx = this.model.x_units == "data" ? xscale.v_compute(this._x) : panel.xview.v_compute(this._x)
-    const sy = this.model.y_units == "data" ? yscale.v_compute(this._y) : panel.yview.v_compute(this._y)
+    const sx = this.model.x_units == "data" ? x_scale.v_compute(this._x) : panel.xview.v_compute(this._x)
+    const sy = this.model.y_units == "data" ? y_scale.v_compute(this._y) : panel.yview.v_compute(this._y)
 
     return [sx, sy]
   }
@@ -200,8 +198,6 @@ export namespace LabelSet {
     x_offset: p.NumberSpec
     y_offset: p.NumberSpec
     source: p.Property<ColumnarDataSource>
-    x_range_name: p.Property<string>
-    y_range_name: p.Property<string>
 
     // line:border_ v
     border_line_color: p.ColorSpec
@@ -244,8 +240,6 @@ export class LabelSet extends TextAnnotation {
       x_offset:     [ p.NumberSpec,   { value: 0 }      ],
       y_offset:     [ p.NumberSpec,   { value: 0 }      ],
       source:       [ p.Instance,     () => new ColumnDataSource()  ],
-      x_range_name: [ p.String,      'default'          ],
-      y_range_name: [ p.String,      'default'          ],
     })
 
     this.override({

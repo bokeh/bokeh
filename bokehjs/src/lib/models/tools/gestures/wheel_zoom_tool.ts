@@ -36,16 +36,14 @@ export class WheelZoomToolView extends GestureToolView {
     const h_axis = (dims == 'width' || dims == 'both') && hr.start < sx && sx < hr.end
     const v_axis = (dims == 'height' || dims == 'both') && vr.start < sy && sy < vr.end
 
-    if ((!h_axis || !v_axis) && !this.model.zoom_on_axis) {
+    if ((!h_axis || !v_axis) && !this.model.zoom_on_axis)
       return
-    }
 
-    const factor = this.model.speed*ev.delta
-
-    const zoom_info = scale_range(frame, factor, h_axis, v_axis, {x: sx, y: sy})
-
-    this.plot_view.push_state('wheel_zoom', {range: zoom_info})
-    this.plot_view.update_range(zoom_info, false, true, this.model.maintain_focus)
+    const {speed, maintain_focus} = this.model
+    const zoom_info = scale_range(frame.bbox, speed*ev.delta, h_axis, v_axis, {x: sx, y: sy})
+    const range_info = this.plot_view.update_range_from_screen(zoom_info, false, true, maintain_focus)
+    if (range_info != null)
+      this.plot_view.push_state('wheel_zoom', {range: range_info})
 
     if (this.model.document != null)
       this.model.document.interactive_start(this.plot_model)

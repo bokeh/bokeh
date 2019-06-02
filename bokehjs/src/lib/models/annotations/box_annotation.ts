@@ -55,8 +55,7 @@ export class BoxAnnotationView extends AnnotationView {
     }
 
     const {frame} = this.plot_view
-    const xscale = frame.xscales[this.model.x_range_name]
-    const yscale = frame.yscales[this.model.y_range_name]
+    const {x_scale, y_scale} = this.scope
 
     const _calc_dim = (dim: number | null, dim_units: SpatialUnits, scale: Scale, view: CoordinateTransform, frame_extrema: number): number => {
       let sdim
@@ -74,10 +73,10 @@ export class BoxAnnotationView extends AnnotationView {
       return sdim
     }
 
-    this.sleft   = _calc_dim(this.model.left,   this.model.left_units,   xscale, frame.xview, frame._left.value)
-    this.sright  = _calc_dim(this.model.right,  this.model.right_units,  xscale, frame.xview, frame._right.value)
-    this.stop    = _calc_dim(this.model.top,    this.model.top_units,    yscale, frame.yview, frame._top.value)
-    this.sbottom = _calc_dim(this.model.bottom, this.model.bottom_units, yscale, frame.yview, frame._bottom.value)
+    this.sleft   = _calc_dim(this.model.left,   this.model.left_units,   x_scale, frame.xview, frame._left.value)
+    this.sright  = _calc_dim(this.model.right,  this.model.right_units,  x_scale, frame.xview, frame._right.value)
+    this.stop    = _calc_dim(this.model.top,    this.model.top_units,    y_scale, frame.yview, frame._top.value)
+    this.sbottom = _calc_dim(this.model.bottom, this.model.bottom_units, y_scale, frame.yview, frame._bottom.value)
 
     const draw = this.model.render_mode == 'css' ? this._css_box.bind(this) : this._canvas_box.bind(this)
 
@@ -156,8 +155,6 @@ export namespace BoxAnnotation {
 
   export type Props = Annotation.Props & LineScalar & FillScalar & {
     render_mode: p.Property<RenderMode>
-    x_range_name: p.Property<string>
-    y_range_name: p.Property<string>
     top: p.Property<number | null>
     top_units: p.Property<SpatialUnits>
     bottom: p.Property<number | null>
@@ -191,8 +188,6 @@ export class BoxAnnotation extends Annotation {
 
     this.define<BoxAnnotation.Props>({
       render_mode:  [ p.RenderMode,   'canvas'  ],
-      x_range_name: [ p.String,       'default' ],
-      y_range_name: [ p.String,       'default' ],
       top:          [ p.Number,       null      ],
       top_units:    [ p.SpatialUnits, 'data'    ],
       bottom:       [ p.Number,       null      ],

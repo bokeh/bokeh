@@ -46,10 +46,10 @@ export class VBarView extends BoxView {
   }
 
   protected _map_data(): void {
-    this.sx = this.renderer.xscale.v_compute(this._x)
-    this.sw = this.sdist(this.renderer.xscale, this._x, this._width, "center")
-    this.stop = this.renderer.yscale.v_compute(this._top)
-    this.sbottom = this.renderer.yscale.v_compute(this._bottom)
+    this.sx = this.renderer.scope.x_scale.v_compute(this._x)
+    this.sw = this.sdist(this.renderer.scope.x_scale, this._x, this._width, "center")
+    this.stop = this.renderer.scope.y_scale.v_compute(this._top)
+    this.sbottom = this.renderer.scope.y_scale.v_compute(this._bottom)
 
     const n = this.sx.length
     this.sleft = new Float64Array(n)

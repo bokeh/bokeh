@@ -121,8 +121,8 @@ export abstract class BoxView extends GlyphView {
 
   protected _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
-    const x = this.renderer.xscale.invert(sx)
-    const y = this.renderer.yscale.invert(sy)
+    const x = this.renderer.scope.x_scale.invert(sx)
+    const y = this.renderer.scope.y_scale.invert(sy)
 
     const hits = this.index.indices({x0: x, y0: y, x1: x, y1: y})
 
@@ -136,14 +136,14 @@ export abstract class BoxView extends GlyphView {
 
     let hits: number[]
     if (geometry.direction == 'v') {
-      const y = this.renderer.yscale.invert(sy)
+      const y = this.renderer.scope.y_scale.invert(sy)
       const hr = this.renderer.plot_view.frame.bbox.h_range
-      const [x0, x1] = this.renderer.xscale.r_invert(hr.start, hr.end)
+      const [x0, x1] = this.renderer.scope.x_scale.r_invert(hr.start, hr.end)
       hits = this.index.indices({x0, y0: y, x1, y1: y})
     } else {
-      const x = this.renderer.xscale.invert(sx)
+      const x = this.renderer.scope.x_scale.invert(sx)
       const vr = this.renderer.plot_view.frame.bbox.v_range
-      const [y0, y1] = this.renderer.yscale.r_invert(vr.start, vr.end)
+      const [y0, y1] = this.renderer.scope.y_scale.r_invert(vr.start, vr.end)
       hits = this.index.indices({x0: x, y0, x1: x, y1})
     }
 

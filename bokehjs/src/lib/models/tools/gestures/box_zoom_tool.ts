@@ -119,33 +119,19 @@ export class BoxZoomToolView extends GestureToolView {
     this._base_point = null
   }
 
-  _update([sx0, sx1]: [number, number], [sy0, sy1]: [number, number]): void {
+  _update(sxr: [number, number], syr: [number, number]): void {
     // If the viewing window is too small, no-op: it is likely that the user did
     // not intend to make this box zoom and instead was trying to cancel out of the
     // zoom, a la matplotlib's ToolZoom. Like matplotlib, set the threshold at 5 pixels.
+    const [sx0, sx1] = sxr
+    const [sy0, sy1] = syr
     if (Math.abs(sx1 - sx0) <= 5 || Math.abs(sy1 - sy0) <= 5)
       return
 
-    const {xscales, yscales} = this.plot_view.frame
-
-    const xrs: {[key: string]: {start: number, end: number}} = {}
-    for (const name in xscales) {
-      const scale = xscales[name]
-      const [start, end] = scale.r_invert(sx0, sx1)
-      xrs[name] = {start, end}
-    }
-
-    const yrs: {[key: string]: {start: number, end: number}} = {}
-    for (const name in yscales) {
-      const scale = yscales[name]
-      const [start, end] = scale.r_invert(sy0, sy1)
-      yrs[name] = {start, end}
-    }
-
-    const zoom_info = {xrs, yrs}
-
-    this.plot_view.push_state('box_zoom', {range: zoom_info})
-    this.plot_view.update_range(zoom_info)
+    const zoom_info = {sxr: {sx0, sx1}, syr: {sy0, sy1}}
+    const range_info = this.plot_view.update_range_from_screen(zoom_info)
+    if (range_info != null)
+      this.plot_view.push_state('box_zoom', {range: range_info})
   }
 }
 

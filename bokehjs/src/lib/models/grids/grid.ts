@@ -39,8 +39,8 @@ export class GridView extends GuideRendererView {
       if (i % 2 != 1)
         continue
 
-      const [sx0, sy0] = this.plot_view.map_to_screen(xs[i],   ys[i],   this.model.x_range_name, this.model.y_range_name)
-      const [sx1, sy1] = this.plot_view.map_to_screen(xs[i+1], ys[i+1], this.model.x_range_name, this.model.y_range_name)
+      const [sx0, sy0] = this.scope.map_to_screen(xs[i],   ys[i])
+      const [sx1, sy1] = this.scope.map_to_screen(xs[i+1], ys[i+1])
 
       if (this.visuals.band_fill.doit)
         ctx.fillRect(sx0[0], sy0[0], sx1[1] - sx0[0], sy1[1] - sy0[0])
@@ -68,7 +68,7 @@ export class GridView extends GuideRendererView {
   protected _draw_grid_helper(ctx: Context2d, visuals: visuals.Line, xs: number[][], ys: number[][]): void {
     visuals.set_value(ctx)
     for (let i = 0; i < xs.length; i++) {
-      const [sx, sy] = this.plot_view.map_to_screen(xs[i], ys[i], this.model.x_range_name, this.model.y_range_name)
+      const [sx, sy] = this.scope.map_to_screen(xs[i], ys[i])
       ctx.beginPath()
       ctx.moveTo(Math.round(sx[0]), Math.round(sy[0]))
       for (let i = 1; i < sx.length; i++)
@@ -81,11 +81,7 @@ export class GridView extends GuideRendererView {
   ranges(): [Range, Range] {
     const i = this.model.dimension
     const j = (i + 1) % 2
-    const frame = this.plot_view.frame
-    const ranges = [
-      frame.x_ranges[this.model.x_range_name],
-      frame.y_ranges[this.model.y_range_name],
-    ]
+    const {ranges} = this.scope
     return [ranges[i], ranges[j]]
   }
 
@@ -115,11 +111,8 @@ export class GridView extends GuideRendererView {
     } else {
       [start, end] = range_bounds
       for (const axis_view of this.plot_view.axis_views) {
-        if (axis_view.dimension == this.model.dimension
-            && axis_view.model.x_range_name == this.model.x_range_name
-            && axis_view.model.y_range_name == this.model.y_range_name) {
+        if (axis_view.dimension == this.model.dimension && axis_view.scope == this.scope)
           [start, end] = axis_view.computed_bounds
-        }
       }
     }
 
@@ -182,8 +175,6 @@ export namespace Grid {
     bounds: p.Property<[number, number] | "auto">
     dimension: p.Property<0 | 1>
     ticker: p.Property<Ticker<any>>
-    x_range_name: p.Property<string>
-    y_range_name: p.Property<string>
   } & mixins.GridLine
     & mixins.MinorGridLine
     & mixins.BandFill
@@ -215,8 +206,6 @@ export class Grid extends GuideRenderer {
       bounds:       [ p.Any,     'auto'    ], // TODO (bev)
       dimension:    [ p.Any,     0         ],
       ticker:       [ p.Instance           ],
-      x_range_name: [ p.String,  'default' ],
-      y_range_name: [ p.String,  'default' ],
     })
 
     this.override({

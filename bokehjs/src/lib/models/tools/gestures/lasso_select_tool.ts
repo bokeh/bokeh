@@ -71,14 +71,11 @@ export class LassoSelectToolView extends SelectToolView {
   }
 
   _emit_callback(geometry: PolyGeometry): void {
-    const r = this.computed_renderers[0]
-    const frame = this.plot_view.frame
+    const renderer = this.computed_renderers[0]
+    const {x_scale, y_scale} = renderer.scope
 
-    const xscale = frame.xscales[r.x_range_name]
-    const yscale = frame.yscales[r.y_range_name]
-
-    const x = xscale.v_invert(geometry.sx)
-    const y = yscale.v_invert(geometry.sy)
+    const x = x_scale.v_invert(geometry.sx)
+    const y = y_scale.v_invert(geometry.sy)
     const g = {x, y, ...geometry}
 
     if (this.model.callback != null)

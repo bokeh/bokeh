@@ -46,10 +46,10 @@ export class HBarView extends BoxView {
   }
 
   protected _map_data(): void {
-    this.sy = this.renderer.yscale.v_compute(this._y)
-    this.sh = this.sdist(this.renderer.yscale, this._y, this._height, "center")
-    this.sleft = this.renderer.xscale.v_compute(this._left)
-    this.sright = this.renderer.xscale.v_compute(this._right)
+    this.sy = this.renderer.scope.y_scale.v_compute(this._y)
+    this.sh = this.sdist(this.renderer.scope.y_scale, this._y, this._height, "center")
+    this.sleft = this.renderer.scope.x_scale.v_compute(this._left)
+    this.sright = this.renderer.scope.x_scale.v_compute(this._right)
 
     const n = this.sy.length
     this.stop = new Float64Array(n)

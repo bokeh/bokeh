@@ -54,28 +54,13 @@ export class WheelPanToolView extends GestureToolView {
         throw new Error("this shouldn't have happened")
     }
 
-    const {xscales, yscales} = frame
-
-    const xrs: {[key: string]: {start: number, end: number}} = {}
-    for (const name in xscales) {
-      const scale = xscales[name]
-      const [start, end] = scale.r_invert(sx0, sx1)
-      xrs[name] = {start, end}
-    }
-
-    const yrs: {[key: string]: {start: number, end: number}} = {}
-    for (const name in yscales) {
-      const scale = yscales[name]
-      const [start, end] = scale.r_invert(sy0, sy1)
-      yrs[name] = {start, end}
-    }
-
     // OK this sucks we can't set factor independently in each direction. It is used
     // for GMap plots, and GMap plots always preserve aspect, so effective the value
     // of 'dimensions' is ignored.
-    const pan_info = {xrs, yrs, factor}
-    this.plot_view.push_state('wheel_pan', {range: pan_info})
-    this.plot_view.update_range(pan_info, false, true)
+    const pan_info = {sxr: {sx0, sx1}, syr: {sy0, sy1}, factor}
+    const range_info = this.plot_view.update_range_from_screen(pan_info, false, true)
+    if (range_info != null)
+      this.plot_view.push_state('wheel_pan', {range: range_info})
 
     if (this.model.document != null)
       this.model.document.interactive_start(this.plot_model)

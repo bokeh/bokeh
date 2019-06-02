@@ -73,28 +73,28 @@ export abstract class SelectToolView extends GestureToolView {
 
   _emit_selection_event(geometry: Geometry, final: boolean = true): void {
     const {frame} = this.plot_view
-    const xm = frame.xscales.default
-    const ym = frame.yscales.default
+    const xscale = frame.x_scale
+    const yscale = frame.y_scale
     let g: any // XXX: Geometry & something
     switch (geometry.type) {
       case 'point': {
         const {sx, sy} = geometry
-        const x = xm.invert(sx)
-        const y = ym.invert(sy)
+        const x = xscale.invert(sx)
+        const y = yscale.invert(sy)
         g = {...geometry, x, y}
         break
       }
       case 'rect': {
         const {sx0, sx1, sy0, sy1} = geometry
-        const [x0, x1] = xm.r_invert(sx0, sx1)
-        const [y0, y1] = ym.r_invert(sy0, sy1)
+        const [x0, x1] = xscale.r_invert(sx0, sx1)
+        const [y0, y1] = yscale.r_invert(sy0, sy1)
         g = {...geometry, x0, y0, x1, y1}
         break
       }
       case 'poly': {
         const {sx, sy} = geometry
-        const x = xm.v_invert(sx)
-        const y = ym.v_invert(sy)
+        const x = xscale.v_invert(sx)
+        const y = yscale.v_invert(sy)
         g = {...geometry, x, y}
         break
       }

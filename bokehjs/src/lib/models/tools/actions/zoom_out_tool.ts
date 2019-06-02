@@ -16,10 +16,10 @@ export class ZoomOutToolView extends ActionToolView {
     const v_axis = dims == 'height' || dims == 'both'
 
     // zooming out requires a negative factor to scale_range
-    const zoom_info = scale_range(frame, -this.model.factor, h_axis, v_axis)
-
-    this.plot_view.push_state('zoom_out', {range: zoom_info})
-    this.plot_view.update_range(zoom_info, false, true)
+    const zoom_info = scale_range(frame.bbox, -this.model.factor, h_axis, v_axis)
+    const range_info = this.plot_view.update_range_from_screen(zoom_info, false, true)
+    if (range_info != null)
+      this.plot_view.push_state('zoom_out', {range: range_info})
 
     if (this.model.document)
       this.model.document.interactive_start(this.plot_model)

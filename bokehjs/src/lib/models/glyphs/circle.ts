@@ -36,22 +36,22 @@ export class CircleView extends XYGlyphView {
         const rd = this.model.properties.radius_dimension.spec.value
         switch (rd) {
           case "x": {
-            this.sradius = this.sdist(this.renderer.xscale, this._x, this._radius)
+            this.sradius = this.sdist(this.renderer.scope.x_scale, this._x, this._radius)
             break
           }
           case "y": {
-            this.sradius = this.sdist(this.renderer.yscale, this._y, this._radius)
+            this.sradius = this.sdist(this.renderer.scope.y_scale, this._y, this._radius)
             break
           }
           case "max": {
-            const sradius_x = this.sdist(this.renderer.xscale, this._x, this._radius)
-            const sradius_y = this.sdist(this.renderer.yscale, this._y, this._radius)
+            const sradius_x = this.sdist(this.renderer.scope.x_scale, this._x, this._radius)
+            const sradius_y = this.sdist(this.renderer.scope.y_scale, this._y, this._radius)
             this.sradius = map(sradius_x, (s, i) => Math.max(s, sradius_y[i]))
             break
           }
           case "min": {
-            const sradius_x = this.sdist(this.renderer.xscale, this._x, this._radius)
-            const sradius_y = this.sdist(this.renderer.yscale, this._y, this._radius)
+            const sradius_x = this.sdist(this.renderer.scope.x_scale, this._x, this._radius)
+            const sradius_y = this.sdist(this.renderer.scope.y_scale, this._y, this._radius)
             this.sradius = map(sradius_x, (s, i) => Math.min(s, sradius_y[i]))
             break
           }
@@ -72,23 +72,23 @@ export class CircleView extends XYGlyphView {
     if (this._radius != null && this.model.properties.radius.units == "data") {
       const sx0 = hr.start
       const sx1 = hr.end
-      ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
+      ;[x0, x1] = this.renderer.scope.x_scale.r_invert(sx0, sx1)
       x0 -= this.max_radius
       x1 += this.max_radius
 
       const sy0 = vr.start
       const sy1 = vr.end
-      ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+      ;[y0, y1] = this.renderer.scope.y_scale.r_invert(sy0, sy1)
       y0 -= this.max_radius
       y1 += this.max_radius
     } else {
       const sx0 = hr.start - this.max_size
       const sx1 = hr.end + this.max_size
-      ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
+      ;[x0, x1] = this.renderer.scope.x_scale.r_invert(sx0, sx1)
 
       const sy0 = vr.start - this.max_size
       const sy1 = vr.end + this.max_size
-      ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+      ;[y0, y1] = this.renderer.scope.y_scale.r_invert(sy0, sy1)
     }
 
     return this.index.indices({x0, x1, y0, y1})
@@ -116,8 +116,8 @@ export class CircleView extends XYGlyphView {
 
   protected _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
-    const x = this.renderer.xscale.invert(sx)
-    const y = this.renderer.yscale.invert(sy)
+    const x = this.renderer.scope.x_scale.invert(sx)
+    const y = this.renderer.scope.y_scale.invert(sy)
 
     let x0, x1, y0, y1
     if (this._radius != null && this.model.properties.radius.units == "data") {
@@ -129,11 +129,11 @@ export class CircleView extends XYGlyphView {
     } else {
       const sx0 = sx - this.max_size
       const sx1 = sx + this.max_size
-      ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
+      ;[x0, x1] = this.renderer.scope.x_scale.r_invert(sx0, sx1)
 
       const sy0 = sy - this.max_size
       const sy1 = sy + this.max_size
-      ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+      ;[y0, y1] = this.renderer.scope.y_scale.r_invert(sy0, sy1)
     }
 
     const candidates = this.index.indices({x0, x1, y0, y1})
@@ -142,8 +142,8 @@ export class CircleView extends XYGlyphView {
     if (this._radius != null && this.model.properties.radius.units == "data") {
       for (const i of candidates) {
         const r2 = Math.pow(this.sradius[i], 2)
-        const [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
-        const [sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i])
+        const [sx0, sx1] = this.renderer.scope.x_scale.r_compute(x, this._x[i])
+        const [sy0, sy1] = this.renderer.scope.y_scale.r_compute(y, this._y[i])
         const dist = Math.pow(sx0 - sx1, 2) + Math.pow(sy0 - sy1, 2)
         if (dist <= r2) {
           hits.push([i, dist])
@@ -176,12 +176,12 @@ export class CircleView extends XYGlyphView {
       if (this._radius != null && this.model.properties.radius.units == "data") {
         sx0 = sx - this.max_radius
         sx1 = sx + this.max_radius
-        ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
+        ;[x0, x1] = this.renderer.scope.x_scale.r_invert(sx0, sx1)
       } else {
         const ms = this.max_size/2
         sx0 = sx - ms
         sx1 = sx + ms
-        ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
+        ;[x0, x1] = this.renderer.scope.x_scale.r_invert(sx0, sx1)
       }
     } else {
       // use circle bounds instead of current pointer x coordinates
@@ -191,12 +191,12 @@ export class CircleView extends XYGlyphView {
       if (this._radius != null && this.model.properties.radius.units == "data") {
         sy0 = sy - this.max_radius
         sy1 = sy + this.max_radius
-        ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+        ;[y0, y1] = this.renderer.scope.y_scale.r_invert(sy0, sy1)
       } else {
         const ms = this.max_size/2
         sy0 = sy - ms
         sy1 = sy + ms
-        ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+        ;[y0, y1] = this.renderer.scope.y_scale.r_invert(sy0, sy1)
       }
     }
 
@@ -208,8 +208,8 @@ export class CircleView extends XYGlyphView {
 
   protected _hit_rect(geometry: RectGeometry): Selection {
     const {sx0, sx1, sy0, sy1} = geometry
-    const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
-    const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+    const [x0, x1] = this.renderer.scope.x_scale.r_invert(sx0, sx1)
+    const [y0, y1] = this.renderer.scope.y_scale.r_invert(sy0, sy1)
     const result = hittest.create_empty_hit_test_result()
     result.indices = this.index.indices({x0, x1, y0, y1})
     return result

@@ -36,7 +36,7 @@ export class RectView extends CenterRotatableView {
 
   protected _map_data(): void {
     if (this.model.properties.width.units == "data")
-      [this.sw, this.sx0] = this._map_dist_corner_for_data_side_length(this._x, this._width, this.renderer.xscale)
+      [this.sw, this.sx0] = this._map_dist_corner_for_data_side_length(this._x, this._width, this.renderer.scope.x_scale)
     else {
       this.sw = this._width
 
@@ -47,7 +47,7 @@ export class RectView extends CenterRotatableView {
     }
 
     if (this.model.properties.height.units == "data")
-      [this.sh, this.sy1] = this._map_dist_corner_for_data_side_length(this._y, this._height, this.renderer.yscale)
+      [this.sh, this.sy1] = this._map_dist_corner_for_data_side_length(this._y, this._height, this.renderer.scope.y_scale)
     else {
       this.sh = this._height
 
@@ -121,8 +121,8 @@ export class RectView extends CenterRotatableView {
   protected _hit_point(geometry: PointGeometry): Selection {
     let {sx, sy} = geometry
 
-    const x = this.renderer.xscale.invert(sx)
-    const y = this.renderer.yscale.invert(sy)
+    const x = this.renderer.scope.x_scale.invert(sx)
+    const y = this.renderer.scope.y_scale.invert(sy)
 
     const scenter_x = []
     for (let i = 0, end = this.sx0.length; i < end; i++) {
@@ -198,7 +198,7 @@ export class RectView extends CenterRotatableView {
   }
 
   protected _ddist(dim: 0 | 1, spts: Arrayable<number>, spans: Arrayable<number>): Arrayable<number> {
-    const scale = dim == 0 ? this.renderer.xscale : this.renderer.yscale
+    const scale = dim == 0 ? this.renderer.scope.x_scale : this.renderer.scope.y_scale
 
     const spt0 = spts
 

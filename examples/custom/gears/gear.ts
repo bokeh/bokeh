@@ -28,7 +28,7 @@ export class GearView extends XYGlyphView {
   visuals: Gear.Visuals
 
   _map_data(): void {
-    this.smodule = this.sdist(this.renderer.xscale, this._x, this._module, 'edge')
+    this.smodule = this.sdist(this.renderer.scope.x_scale, this._x, this._module, 'edge')
   }
 
   _render(ctx: Context2d, indices: number[],

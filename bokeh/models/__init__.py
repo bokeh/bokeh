@@ -50,6 +50,7 @@ from .annotations import *
 from .arrow_heads import *
 from .axes import *
 from .callbacks import *
+from .canvas import *
 from .expressions import *
 from .filters import *
 from .formatters import *

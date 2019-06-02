@@ -69,10 +69,10 @@ export class MultiPolygonsView extends GlyphView {
   }
 
   protected _mask_data(): number[] {
-    const xr = this.renderer.plot_view.frame.x_ranges.default
+    const xr = this.renderer.scope.x_range
     const [x0, x1] = [xr.min, xr.max]
 
-    const yr = this.renderer.plot_view.frame.y_ranges.default
+    const yr = this.renderer.scope.y_range
     const [y0, y1] = [yr.min, yr.max]
 
     const indices = this.index.indices({x0, x1, y0, y1})
@@ -131,8 +131,8 @@ export class MultiPolygonsView extends GlyphView {
   protected _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
 
-    const x = this.renderer.xscale.invert(sx)
-    const y = this.renderer.yscale.invert(sy)
+    const x = this.renderer.scope.x_scale.invert(sx)
+    const y = this.renderer.scope.y_scale.invert(sy)
 
     const candidates = this.index.indices({x0: x, y0: y, x1: x, y1: y})
     const hole_candidates = this.hole_index.indices({x0: x, y0: y, x1: x, y1: y})
@@ -239,7 +239,7 @@ export class MultiPolygonsView extends GlyphView {
             self[sxname][i][j] = new Array(nk)
             self[syname][i][j] = new Array(nk)
             for (let k = 0; k < nk; k++) {
-              const [sx, sy] = this.map_to_screen(self[xname][i][j][k], self[yname][i][j][k])
+              const [sx, sy] = this.renderer.scope.map_to_screen(self[xname][i][j][k], self[yname][i][j][k])
               self[sxname][i][j][k] = sx
               self[syname][i][j][k] = sy
             }

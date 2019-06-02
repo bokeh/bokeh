@@ -1,4 +1,5 @@
 import {Scale} from "./scale"
+import {DataRange1d} from "../ranges/data_range1d"
 import {Arrayable} from "core/types"
 import * as p from "core/properties"
 
@@ -15,6 +16,14 @@ export class LogScale extends Scale {
 
   constructor(attrs?: Partial<LogScale.Attrs>) {
     super(attrs)
+  }
+
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.source_range.change, () => {
+      if (this.source_range instanceof DataRange1d)
+        this.source_range.scale_hint = "log"
+    })
   }
 
   compute(x: number): number {

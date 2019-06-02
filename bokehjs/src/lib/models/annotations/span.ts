@@ -51,9 +51,7 @@ export class SpanView extends AnnotationView {
     }
 
     const {frame} = this.plot_view
-
-    const xscale = frame.xscales[this.model.x_range_name]
-    const yscale = frame.yscales[this.model.y_range_name]
+    const {x_scale, y_scale} = this.scope
 
     const _calc_dim = (scale: Scale, view: CoordinateTransform): number => {
       if (this.model.for_hover)
@@ -68,13 +66,13 @@ export class SpanView extends AnnotationView {
 
     let height: number, sleft: number, stop: number, width: number
     if (this.model.dimension == 'width') {
-      stop = _calc_dim(yscale, frame.yview)
+      stop = _calc_dim(y_scale, frame.yview)
       sleft = frame._left.value
       width = frame._width.value
       height = this.model.properties.line_width.value()
     } else {
       stop = frame._top.value
-      sleft = _calc_dim(xscale, frame.xview)
+      sleft = _calc_dim(x_scale, frame.xview)
       width = this.model.properties.line_width.value()
       height = frame._height.value
     }
@@ -111,8 +109,6 @@ export namespace Span {
 
   export type Props = Annotation.Props & LineScalar & {
     render_mode: p.Property<RenderMode>
-    x_range_name: p.Property<string>
-    y_range_name: p.Property<string>
     location: p.Property<number | null>
     location_units: p.Property<SpatialUnits>
     dimension: p.Property<Dimension>
@@ -139,8 +135,6 @@ export class Span extends Annotation {
 
     this.define<Span.Props>({
       render_mode:    [ p.RenderMode,   'canvas'  ],
-      x_range_name:   [ p.String,       'default' ],
-      y_range_name:   [ p.String,       'default' ],
       location:       [ p.Number,       null      ],
       location_units: [ p.SpatialUnits, 'data'    ],
       dimension:      [ p.Dimension,    'width'   ],

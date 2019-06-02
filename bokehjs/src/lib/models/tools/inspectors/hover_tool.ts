@@ -204,12 +204,11 @@ export class HoverToolView extends InspectToolView {
 
     const ds = selection_manager.source
 
-    const {frame} = this.plot_view
+    const {x_scale, y_scale} = renderer_view.scope
+
     const {sx, sy} = geometry
-    const xscale = frame.xscales[renderer.x_range_name]
-    const yscale = frame.yscales[renderer.y_range_name]
-    const x = xscale.invert(sx)
-    const y = yscale.invert(sy)
+    const x = x_scale.invert(sx)
+    const y = y_scale.invert(sy)
 
     const glyph = (renderer_view as any).glyph // XXX
 
@@ -223,8 +222,8 @@ export class HoverToolView extends InspectToolView {
       switch (this.model.line_policy) {
         case "interp": { // and renderer.get_interpolation_hit?
           [data_x, data_y] = glyph.get_interpolation_hit(i, geometry)
-          rx = xscale.compute(data_x)
-          ry = yscale.compute(data_y)
+          rx = x_scale.compute(data_x)
+          ry = y_scale.compute(data_y)
           break
         }
         case "prev": {
@@ -274,8 +273,8 @@ export class HoverToolView extends InspectToolView {
           switch (this.model.line_policy) {
             case "interp": { // and renderer.get_interpolation_hit?
               [data_x, data_y] = glyph.get_interpolation_hit(i, j, geometry)
-              rx = xscale.compute(data_x)
-              ry = yscale.compute(data_y)
+              rx = x_scale.compute(data_x)
+              ry = y_scale.compute(data_y)
               break
             }
             case "prev": {
@@ -346,18 +345,16 @@ export class HoverToolView extends InspectToolView {
   }
 
   _emit_callback(geometry: PointGeometry | SpanGeometry): void {
-    for (const r of this.computed_renderers) {
-      const index = (r as any).data_source.inspected
-      const {frame} = this.plot_view
+    for (const renderer of this.computed_renderers) {
+      const index = (renderer as any).data_source.inspected
+      const {x_scale, y_scale} = renderer.scope
 
-      const xscale = frame.xscales[r.x_range_name]
-      const yscale = frame.yscales[r.y_range_name]
-      const x = xscale.invert(geometry.sx)
-      const y = yscale.invert(geometry.sy)
+      const x = x_scale.invert(geometry.sx)
+      const y = y_scale.invert(geometry.sy)
 
       const g = {x, y, ...geometry}
 
-      this.model.callback!.execute(this.model, {index, geometry: g, renderer: r})
+      this.model.callback!.execute(this.model, {index, geometry: g, renderer})
     }
   }
 

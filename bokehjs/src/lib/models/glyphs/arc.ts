@@ -25,7 +25,7 @@ export class ArcView extends XYGlyphView {
 
   protected _map_data(): void {
     if (this.model.properties.radius.units == "data")
-      this.sradius = this.sdist(this.renderer.xscale, this._x, this._radius)
+      this.sradius = this.sdist(this.renderer.scope.x_scale, this._x, this._radius)
     else
       this.sradius = this._radius
   }

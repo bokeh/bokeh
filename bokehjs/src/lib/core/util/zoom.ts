@@ -1,8 +1,6 @@
 import {Interval} from "../types"
 import {clamp} from "./math"
-
-import {CartesianFrame} from "models/canvas/cartesian_frame"
-import {Scale} from "models/scales/scale"
+import {BBox} from "./bbox"
 
 // Module for zoom-related functions
 
@@ -14,20 +12,10 @@ export function scale_highlow(range: Interval, factor: number, center?: number):
   return [x0, x1]
 }
 
-export function get_info(scales: {[key: string]: Scale}, [sxy0, sxy1]: [number, number]): {[key: string]: Interval} {
-  const info: {[key: string]: Interval} = {}
-  for (const name in scales) {
-    const scale = scales[name]
-    const [start, end] = scale.r_invert(sxy0, sxy1)
-    info[name] = {start, end}
-  }
-  return info
-}
-
-export function scale_range(frame: CartesianFrame, factor: number,
+export function scale_range(box: BBox, factor: number,
     h_axis: boolean = true, v_axis: boolean = true, center?: {x: number, y: number}): {
-      xrs: {[key: string]: Interval},
-      yrs: {[key: string]: Interval},
+      sxr: {sx0: number, sx1: number},
+      syr: {sy0: number, sy1: number},
       factor: number,
     } {
   /*
@@ -35,7 +23,7 @@ export function scale_range(frame: CartesianFrame, factor: number,
    * of the form required by ``PlotView.update_range``
    *
    * Parameters:
-   *   frame : CartesianFrame
+   *   box    : BBox
    *   factor : Number
    *   h_axis : Boolean, optional
    *     whether to zoom the horizontal axis (default = true)
@@ -52,15 +40,13 @@ export function scale_range(frame: CartesianFrame, factor: number,
   factor = clamp(factor, -0.9, 0.9)
 
   const hfactor = h_axis ? factor : 0
-  const [sx0, sx1] = scale_highlow(frame.bbox.h_range, hfactor, center != null ? center.x : undefined)
-  const xrs = get_info(frame.xscales, [sx0, sx1])
+  const [sx0, sx1] = scale_highlow(box.h_range, hfactor, center != null ? center.x : undefined)
 
   const vfactor = v_axis ? factor : 0
-  const [sy0, sy1] = scale_highlow(frame.bbox.v_range, vfactor, center != null ? center.y : undefined)
-  const yrs = get_info(frame.yscales, [sy0, sy1])
+  const [sy0, sy1] = scale_highlow(box.v_range, vfactor, center != null ? center.y : undefined)
 
   // OK this sucks we can't set factor independently in each direction. It is used
   // for GMap plots, and GMap plots always preserve aspect, so effective the value
   // of 'dimensions' is ignored.
-  return {xrs, yrs, factor}
+  return {sxr: {sx0, sx1}, syr: {sy0, sy1}, factor}
 }

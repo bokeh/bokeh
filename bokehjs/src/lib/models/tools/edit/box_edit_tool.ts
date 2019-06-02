@@ -41,14 +41,12 @@ export class BoxEditToolView extends EditToolView {
   _set_extent([sx0, sx1]: [number, number], [sy0, sy1]: [number, number],
               append: boolean, emit: boolean = false): void {
     const renderer = this.model.renderers[0]
-    const frame = this.plot_view.frame
     // Type once dataspecs are typed
     const glyph: any = renderer.glyph
     const cds = renderer.data_source
-    const xscale = frame.xscales[renderer.x_range_name]
-    const yscale = frame.yscales[renderer.y_range_name]
-    const [x0, x1] = xscale.r_invert(sx0, sx1)
-    const [y0, y1] = yscale.r_invert(sy0, sy1)
+    const {x_scale, y_scale} = renderer.scope
+    const [x0, x1] = x_scale.r_invert(sx0, sx1)
+    const [y0, y1] = y_scale.r_invert(sy0, sy1)
     const [x, y] = [(x0+x1)/2, (y0+y1)/2]
     const [w, h] = [x1-x0, y1-y0]
     const [xkey, ykey] = [glyph.x.field, glyph.y.field]

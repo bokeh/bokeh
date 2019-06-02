@@ -46,8 +46,8 @@ export class ArrowView extends AnnotationView {
 
     let sx_start, sy_start
     if (this.model.start_units == 'data') {
-      sx_start = frame.xscales[this.model.x_range_name].v_compute(this._x_start)
-      sy_start = frame.yscales[this.model.y_range_name].v_compute(this._y_start)
+      sx_start = this.scope.x_scale.v_compute(this._x_start)
+      sy_start = this.scope.y_scale.v_compute(this._y_start)
     } else {
       sx_start = frame.xview.v_compute(this._x_start)
       sy_start = frame.yview.v_compute(this._y_start)
@@ -55,8 +55,8 @@ export class ArrowView extends AnnotationView {
 
     let sx_end, sy_end
     if (this.model.end_units == 'data') {
-      sx_end = frame.xscales[this.model.x_range_name].v_compute(this._x_end)
-      sy_end = frame.yscales[this.model.y_range_name].v_compute(this._y_end)
+      sx_end = this.scope.x_scale.v_compute(this._x_end)
+      sy_end = this.scope.y_scale.v_compute(this._y_end)
     } else {
       sx_end = frame.xview.v_compute(this._x_end)
       sy_end = frame.yview.v_compute(this._y_end)
@@ -146,8 +146,6 @@ export namespace Arrow {
     end_units: p.Property<SpatialUnits>
     end: p.Property<ArrowHead | null>
     source: p.Property<ColumnarDataSource>
-    x_range_name: p.Property<string>
-    y_range_name: p.Property<string>
   }
 
   export type Visuals = Annotation.Visuals & {line: Line}
@@ -177,8 +175,6 @@ export class Arrow extends Annotation {
       end_units:    [ p.SpatialUnits, 'data'                 ],
       end:          [ p.Instance,     () => new OpenHead({}) ],
       source:       [ p.Instance                             ],
-      x_range_name: [ p.String,       'default'              ],
-      y_range_name: [ p.String,       'default'              ],
     })
   }
 }

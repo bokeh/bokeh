@@ -28,12 +28,12 @@ export class AnnulusView extends XYGlyphView {
 
   protected _map_data(): void {
     if (this.model.properties.inner_radius.units == "data")
-      this.sinner_radius = this.sdist(this.renderer.xscale, this._x, this._inner_radius)
+      this.sinner_radius = this.sdist(this.renderer.scope.x_scale, this._x, this._inner_radius)
     else
       this.sinner_radius = this._inner_radius
 
     if (this.model.properties.outer_radius.units == "data")
-      this.souter_radius = this.sdist(this.renderer.xscale, this._x, this._outer_radius)
+      this.souter_radius = this.sdist(this.renderer.scope.x_scale, this._x, this._outer_radius)
     else
       this.souter_radius = this._outer_radius
   }
@@ -81,8 +81,8 @@ export class AnnulusView extends XYGlyphView {
 
   protected _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
-    const x = this.renderer.xscale.invert(sx)
-    const y = this.renderer.yscale.invert(sy)
+    const x = this.renderer.scope.x_scale.invert(sx)
+    const y = this.renderer.scope.y_scale.invert(sy)
 
     let x0: number, y0: number
     let x1: number, y1: number
@@ -95,11 +95,11 @@ export class AnnulusView extends XYGlyphView {
     } else {
       const sx0 = sx - this.max_outer_radius
       const sx1 = sx + this.max_outer_radius
-      ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
+      ;[x0, x1] = this.renderer.scope.x_scale.r_invert(sx0, sx1)
 
       const sy0 = sy - this.max_outer_radius
       const sy1 = sy + this.max_outer_radius
-      ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+      ;[y0, y1] = this.renderer.scope.y_scale.r_invert(sy0, sy1)
     }
 
     const hits: [number, number][] = []
@@ -107,8 +107,8 @@ export class AnnulusView extends XYGlyphView {
     for (const i of this.index.indices({x0, x1, y0, y1})) {
       const or2 = Math.pow(this.souter_radius[i], 2)
       const ir2 = Math.pow(this.sinner_radius[i], 2)
-      const [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
-      const [sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i])
+      const [sx0, sx1] = this.renderer.scope.x_scale.r_compute(x, this._x[i])
+      const [sy0, sy1] = this.renderer.scope.y_scale.r_compute(y, this._y[i])
       const dist = Math.pow(sx0 - sx1, 2) + Math.pow(sy0 - sy1, 2)
       if (dist <= or2 && dist >= ir2)
         hits.push([i, dist])

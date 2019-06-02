@@ -87,8 +87,8 @@ export class HexTileView extends GlyphView {
   // overriding map_data instead of _map_data because the default automatic mappings
   // for other glyphs (with cartesian coordinates) is not useful
   map_data(): void {
-    [this.sx, this.sy] = this.map_to_screen(this._x, this._y)
-    ;[this.svx, this.svy] = this._get_unscaled_vertices()
+    [this.sx, this.sy] = this.renderer.scope.map_to_screen(this._x, this._y);
+    [this.svx, this.svy] = this._get_unscaled_vertices()
   }
 
   protected _get_unscaled_vertices(): [number[], number[]] {
@@ -96,8 +96,8 @@ export class HexTileView extends GlyphView {
     const aspect_scale = this.model.aspect_scale
 
     if (this.model.orientation == "pointytop") {
-      const rscale = this.renderer.yscale
-      const hscale = this.renderer.xscale
+      const rscale = this.renderer.scope.y_scale
+      const hscale = this.renderer.scope.x_scale
 
       const r = Math.abs(rscale.compute(0) - rscale.compute(size))                               // assumes linear scale
       const h = Math.sqrt(3)/2*Math.abs(hscale.compute(0) - hscale.compute(size)) / aspect_scale // assumes linear scale
@@ -108,8 +108,8 @@ export class HexTileView extends GlyphView {
 
       return [svx, svy]
     } else {
-      const rscale = this.renderer.xscale
-      const hscale = this.renderer.yscale
+      const rscale = this.renderer.scope.x_scale
+      const hscale = this.renderer.scope.y_scale
 
       const r = Math.abs(rscale.compute(0) - rscale.compute(size))                               // assumes linear scale
       const h = Math.sqrt(3)/2*Math.abs(hscale.compute(0) - hscale.compute(size)) * aspect_scale // assumes linear scale
@@ -150,8 +150,8 @@ export class HexTileView extends GlyphView {
 
   protected _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
-    const x = this.renderer.xscale.invert(sx)
-    const y = this.renderer.yscale.invert(sy)
+    const x = this.renderer.scope.x_scale.invert(sx)
+    const y = this.renderer.scope.y_scale.invert(sy)
 
     const candidates = this.index.indices({x0: x, y0: y, x1: x, y1: y})
 
@@ -174,14 +174,14 @@ export class HexTileView extends GlyphView {
 
     let hits: number[]
     if (geometry.direction == 'v') {
-      const y = this.renderer.yscale.invert(sy)
+      const y = this.renderer.scope.y_scale.invert(sy)
       const hr = this.renderer.plot_view.frame.bbox.h_range
-      const [x0, x1] = this.renderer.xscale.r_invert(hr.start, hr.end)
+      const [x0, x1] = this.renderer.scope.x_scale.r_invert(hr.start, hr.end)
       hits = this.index.indices({x0, y0: y, x1, y1: y})
     } else {
-      const x = this.renderer.xscale.invert(sx)
+      const x = this.renderer.scope.x_scale.invert(sx)
       const vr = this.renderer.plot_view.frame.bbox.v_range
-      const [y0, y1] = this.renderer.yscale.r_invert(vr.start, vr.end)
+      const [y0, y1] = this.renderer.scope.y_scale.r_invert(vr.start, vr.end)
       hits = this.index.indices({x0: x, y0, x1: x, y1})
     }
 
@@ -192,8 +192,8 @@ export class HexTileView extends GlyphView {
 
   protected _hit_rect(geometry: RectGeometry): Selection {
     const {sx0, sx1, sy0, sy1} = geometry
-    const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
-    const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+    const [x0, x1] = this.renderer.scope.x_scale.r_invert(sx0, sx1)
+    const [y0, y1] = this.renderer.scope.y_scale.r_invert(sy0, sy1)
     const result = hittest.create_empty_hit_test_result()
     result.indices = this.index.indices({x0, x1, y0, y1})
     return result

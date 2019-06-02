@@ -22,7 +22,7 @@ export class RayView extends XYGlyphView {
 
   protected _map_data(): void {
     if (this.model.properties.length.units == "data")
-      this.slength = this.sdist(this.renderer.xscale, this._x, this._length)
+      this.slength = this.sdist(this.renderer.scope.x_scale, this._x, this._length)
     else
       this.slength = this._length
   }

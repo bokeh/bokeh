@@ -65,15 +65,12 @@ export class BoxSelectToolView extends SelectToolView {
   }
 
   _emit_callback(geometry: RectGeometry): void {
-    const r = this.computed_renderers[0]
-    const frame = this.plot_view.frame
-
-    const xscale = frame.xscales[r.x_range_name]
-    const yscale = frame.yscales[r.y_range_name]
+    const renderer = this.computed_renderers[0]
+    const {x_scale, y_scale} = renderer.scope
 
     const {sx0, sx1, sy0, sy1} = geometry
-    const [x0, x1] = xscale.r_invert(sx0, sx1)
-    const [y0, y1] = yscale.r_invert(sy0, sy1)
+    const [x0, x1] = x_scale.r_invert(sx0, sx1)
+    const [y0, y1] = y_scale.r_invert(sy0, sy1)
 
     const g = {x0, y0, x1, y1, ...geometry}
 

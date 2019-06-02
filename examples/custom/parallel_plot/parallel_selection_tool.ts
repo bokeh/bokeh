@@ -87,12 +87,13 @@ export class ParallelSelectionView extends BoxSelectToolView {
 
     const {frame} = this.plot_view
 
-    const {x_range_name: x_range_name_select, y_range_name: y_range_name_select} = this.model.renderer_select
-    const {x_range_name: x_range_name_data, y_range_name: y_range_name_data} = this.model.renderer_data
+    const renderer_select_view = this.plot_view.renderer_views[this.model.renderer_select.id]
+    const renderer_data_view = this.plot_view.renderer_views[this.model.renderer_data.id]
 
-    if (x_range_name_select == x_range_name_data && y_range_name_select == y_range_name_data) {
-      this.xscale = frame.xscales[x_range_name_select]
-      this.yscale = frame.yscales[y_range_name_select]
+    if (renderer_select_view.scope.x_range == renderer_data_view.scope.x_range &&
+        renderer_select_view.scope.y_range == renderer_data_view.scope.y_range) {
+      this.xscale = renderer_select_view.x_scale
+      this.yscale = renderer_select_view.y_scale
     } else
       throw new Error("selection and data does not share the same ranges")
 
@@ -108,7 +109,7 @@ export class ParallelSelectionView extends BoxSelectToolView {
     this.ydataT = transpose(this.cds_data.get_array(yskey))
     this.selection_indices = []
 
-    this.connect(this.plot_view.frame.x_ranges[this.model.renderer_select.x_range_name].change, () => this._resize_boxes_on_zoom())
+    this.connect(renderer_select_view.scope.x_range.change, () => this._resize_boxes_on_zoom())
     this.connect(this.cds_select.change, () => this._update_data_selection())
   }
 

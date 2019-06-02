@@ -2,7 +2,6 @@ import {DataRenderer, DataRendererView} from "./data_renderer"
 import {GlyphRenderer, GlyphRendererView} from "./glyph_renderer"
 import {LayoutProvider} from "../graphs/layout_provider"
 import {GraphHitTestPolicy, NodesOnly} from "../graphs/graph_hit_test_policy"
-import {Scale} from "../scales/scale"
 import * as p from "core/properties"
 import {build_views} from "core/build_views"
 import {SelectionManager} from "core/selection_manager"
@@ -13,16 +12,10 @@ export class GraphRendererView extends DataRendererView {
   node_view: GlyphRendererView
   edge_view: GlyphRendererView
 
-  xscale: Scale
-  yscale: Scale
-
   protected _renderer_views: {[key: string]: GlyphRendererView}
 
   initialize(): void {
     super.initialize()
-
-    this.xscale = this.plot_view.frame.xscales.default
-    this.yscale = this.plot_view.frame.yscales.default
 
     this._renderer_views = {}
 
@@ -45,25 +38,12 @@ export class GraphRendererView extends DataRendererView {
     this.connect(this.model.edge_renderer.data_source.inspect, () => this.set_data())
     this.connect(this.model.edge_renderer.data_source.change, () => this.set_data())
 
-    const {x_ranges, y_ranges} = this.plot_view.frame
-
-    for (const name in x_ranges) {
-      const rng = x_ranges[name]
-      this.connect(rng.change, () => this.set_data())
-    }
-
-    for (const name in y_ranges) {
-      const rng = y_ranges[name]
-      this.connect(rng.change, () => this.set_data())
-    }
+    const {x_range, y_range} = this.plot_view.frame
+    this.connect(x_range.change, () => this.set_data())
+    this.connect(y_range.change, () => this.set_data())
   }
 
   set_data(request_render: boolean = true): void {
-    // TODO (bev) this is a bit clunky, need to make sure glyphs use the correct ranges when they call
-    // mapping functions on the base Renderer class
-    this.node_view.glyph.model.setv({x_range_name: this.model.x_range_name, y_range_name: this.model.y_range_name}, {silent: true})
-    this.edge_view.glyph.model.setv({x_range_name: this.model.x_range_name, y_range_name: this.model.y_range_name}, {silent: true})
-
     // XXX
     const node_glyph: any = this.node_view.glyph
     ;[node_glyph._x, node_glyph._y] =

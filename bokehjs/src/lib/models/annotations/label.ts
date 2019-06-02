@@ -43,12 +43,10 @@ export class LabelView extends TextAnnotationView {
     }
 
     const panel = this.panel != null ? this.panel : this.plot_view.frame
+    const {x_scale, y_scale} = this.scope
 
-    const xscale = this.plot_view.frame.xscales[this.model.x_range_name]
-    const yscale = this.plot_view.frame.yscales[this.model.y_range_name]
-
-    let sx = this.model.x_units == "data" ? xscale.compute(this.model.x) : panel.xview.compute(this.model.x)
-    let sy = this.model.y_units == "data" ? yscale.compute(this.model.y) : panel.yview.compute(this.model.y)
+    let sx = this.model.x_units == "data" ? x_scale.compute(this.model.x) : panel.xview.compute(this.model.x)
+    let sy = this.model.y_units == "data" ? y_scale.compute(this.model.y) : panel.yview.compute(this.model.y)
 
     sx += this.model.x_offset
     sy -= this.model.y_offset
@@ -69,8 +67,6 @@ export namespace Label {
     angle_units: p.Property<AngleUnits>
     x_offset: p.Property<number>
     y_offset: p.Property<number>
-    x_range_name: p.Property<string>
-    y_range_name: p.Property<string>
   } & mixins.TextScalar
     & mixins.BorderLine
     & mixins.BackgroundFill
@@ -104,8 +100,6 @@ export class Label extends TextAnnotation {
       angle_units:  [ p.AngleUnits,  'rad'           ],
       x_offset:     [ p.Number,      0               ],
       y_offset:     [ p.Number,      0               ],
-      x_range_name: [ p.String,      'default'       ],
-      y_range_name: [ p.String,      'default'       ],
     })
 
     this.override({

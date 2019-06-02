@@ -44,10 +44,10 @@ describe("ZoomOutTool", () => {
       // perform the tool action
       zoom_out_tool_view.doit()
 
-      const hr = plot_view.frame.x_ranges.default
+      const hr = plot_view.frame.x_range
       expect([hr.start, hr.end]).to.be.deep.equal([-1.1, 1.1])
 
-      const vr = plot_view.frame.y_ranges.default
+      const vr = plot_view.frame.y_range
       expect([vr.start, vr.end]).to.be.deep.equal([-1.1, 1.1])
     })
 
@@ -60,10 +60,10 @@ describe("ZoomOutTool", () => {
       // perform the tool action
       zoom_out_tool_view.doit()
 
-      const hr = plot_view.frame.x_ranges.default
+      const hr = plot_view.frame.x_range
       expect([hr.start, hr.end]).to.be.deep.equal([-1.1, 1.1])
 
-      const vr = plot_view.frame.y_ranges.default
+      const vr = plot_view.frame.y_range
       expect([vr.start, vr.end]).to.be.deep.equal([-1.0, 1.0])
     })
 
@@ -76,10 +76,10 @@ describe("ZoomOutTool", () => {
       // perform the tool action
       zoom_out_tool_view.doit()
 
-      const hr = plot_view.frame.x_ranges.default
+      const hr = plot_view.frame.x_range
       expect([hr.start, hr.end]).to.be.deep.equal([-1.0, 1.0])
 
-      const vr = plot_view.frame.y_ranges.default
+      const vr = plot_view.frame.y_range
       expect([vr.start, vr.end]).to.be.deep.equal([-1.1, 1.1])
     })
   })

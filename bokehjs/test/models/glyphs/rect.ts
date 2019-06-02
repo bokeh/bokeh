@@ -287,8 +287,8 @@ describe("Rect", () => {
             target_range: new Range1d({start: 200, end: 0}),
           })
 
-          glyph_view.renderer.xscale = xscale
-          glyph_view.renderer.yscale = yscale
+          glyph_view.renderer.scope.x_scale = xscale
+          glyph_view.renderer.scope.y_scale = yscale
           glyph_view.renderer.plot_view.frame.xscales.default = xscale
           glyph_view.renderer.plot_view.frame.yscales.default = yscale
           glyph_view.map_data()

@@ -1,12 +1,12 @@
 import {DOMView} from "core/dom_view"
 import * as visuals from "core/visuals"
 import {RenderLevel} from "core/enums"
-import {Arrayable} from "core/types"
 import * as p from "core/properties"
 import {Model} from "../../model"
 import {BBox} from "core/util/bbox"
 
 import {Plot, PlotView} from "../plots/plot"
+import {Scope, ScopeView} from "../canvas/scope"
 
 // This shouldn't be a DOMView, but annotations create a mess.
 export abstract class RendererView extends DOMView {
@@ -14,6 +14,11 @@ export abstract class RendererView extends DOMView {
   visuals: Renderer.Visuals
 
   parent: PlotView
+
+  get scope(): ScopeView {
+    const {scope} = this.model
+    return scope != null ? this.parent.scope_views[scope.id] : this.parent.frame
+  }
 
   initialize(): void {
     super.initialize()
@@ -31,10 +36,6 @@ export abstract class RendererView extends DOMView {
 
   request_render(): void {
     this.plot_view.request_render()
-  }
-
-  map_to_screen(x: Arrayable<number>, y: Arrayable<number>): [Arrayable<number>, Arrayable<number>] {
-    return this.plot_view.map_to_screen(x, y, (this.model as any).x_range_name, (this.model as any).y_range_name)
   }
 
   interactive_bbox?(sx: number, sy: number): BBox
@@ -58,6 +59,7 @@ export namespace Renderer {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
+    scope: p.Property<Scope>
     level: p.Property<RenderLevel>
     visible: p.Property<boolean>
   }
@@ -76,6 +78,7 @@ export abstract class Renderer extends Model {
 
   static init_Renderer(): void {
     this.define<Renderer.Props>({
+      scope: [ p.Instance ],
       level: [ p.RenderLevel ],
       visible: [ p.Boolean, true ],
     })
