@@ -98,13 +98,6 @@ all_versions = [x.strip() for x in reversed(f.readlines())]
 # Else, today_fmt is used as the format for a strftime call.
 #today_fmt = '%B %d, %Y'
 
-# List of patterns, relative to source directory, that match files and
-# directories to ignore when looking for source files.
-#
-# NOTE: in these docs all .py script are assumed to be bokeh plot scripts!
-# with bokeh_plot_pyfile_include_dirs set desired folder to look for .py files
-bokeh_plot_pyfile_include_dirs = ['docs']
-
 # Whether to allow builds to succeed if a Google API key is not defined and plots
 # containing "GOOGLE_API_KEY" are processed
 bokeh_missing_google_api_key_ok = False
