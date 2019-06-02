@@ -400,10 +400,6 @@ class FuncTickFormatter(TickFormatter):
             '''
     """)
 
-    use_strict = Bool(default=False, help="""
-    Enables or disables automatic insertion of ``"use strict";`` into ``code``.
-    """)
-
 class DatetimeTickFormatter(TickFormatter):
     ''' A ``TickFormatter`` for displaying datetime values nicely across a
     range of scales.

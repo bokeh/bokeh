@@ -25,6 +25,13 @@ Minimum Tornado Version
 
 The Bokeh server now requires Tornado 5.0 or higher.
 
+"Use Strict" for CustomJS
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``use_strict`` property has been removed from all models that it had been
+on previously. All JavaScript code, e.g. for ``CustomJS`` will always be rendered
+with ``"use_strict"`` added.
+
 Plot Symmetry Properties
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
