@@ -30,10 +30,9 @@ docker build --file docker-tools/Dockerfile-from-source --build-arg BOKEH_VERSIO
 
 ## From local/travis
 
-To build the container for Python 2 or 3:
+To build the container:
 
 ``` shell
-docker build -t bokeh:dev-py2 --build-arg PYTHON=2.7 -f docker-tools/Dockerfile-from-travis .
 docker build -t bokeh:dev-py3 --build-arg PYTHON=3.6 -f docker-tools/Dockerfile-from-travis .
 ```
 
