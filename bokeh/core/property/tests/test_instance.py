@@ -45,6 +45,14 @@ class Test_Instance(object):
         with pytest.raises(TypeError):
             bcpi.Instance()
 
+    def test_serialized(self):
+        prop = bcpi.Instance(_TestModel)
+        assert prop.serialized == True
+
+    def test_readonly(self):
+        prop = bcpi.Instance(_TestModel)
+        assert prop.readonly == False
+
     def test_valid(self):
         prop = bcpi.Instance(_TestModel)
 
