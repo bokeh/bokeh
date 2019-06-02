@@ -25,6 +25,13 @@ Minimum Tornado Version
 
 The Bokeh server now requires Tornado 5.0 or higher.
 
+Bokeh Sphinx Extension
+~~~~~~~~~~~~~~~~~~~~~~
+
+The obsolete Sphinx confiuguration parameters ``bokeh_plot_use_relative_paths``
+and ``bokeh_plot_pyfile_include_dirs`` have been removed. The unused
+``PLOT_PAGE`` template has also been removed.
+
 "Use Strict" for CustomJS
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
