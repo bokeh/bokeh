@@ -210,10 +210,6 @@ class CustomJSFilter(Filter):
 
     """)
 
-    use_strict = Bool(default=False, help="""
-    Enables or disables automatic insertion of ``"use strict";`` into ``code``.
-    """)
-
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
