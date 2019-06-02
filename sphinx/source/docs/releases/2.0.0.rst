@@ -15,6 +15,11 @@ And several other bug fixes and docs additions. For full details see the
 `Migration Guide <releases.html#release-2-0-0-migration>`__
 -----------------------------------------------------------
 
+Minimum Python Version
+~~~~~~~~~~~~~~~~~~~~~~
+
+Bokeh now requires Python 3.5 or higher.
+
 Minimum Tornado Version
 ~~~~~~~~~~~~~~~~~~~~~~~
 
