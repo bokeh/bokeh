@@ -203,7 +203,7 @@ const compile_and_resolve_deps = (input: {code: string, lang: string, file: stri
 if (argv.file != null) {
   const input = {
     code: fs.readFileSync(argv.file as string, "utf-8"),
-    lang: argv.lang as string,
+    lang: (argv.lang as string | undefined) || "typescript",
     file: argv.file as string,
     bokehjs_dir: (argv.bokehjsDir as string | undefined) || "./build", // this is what bokeh.settings defaults to
   }

@@ -241,6 +241,8 @@ class CustomModel(object):
         if isinstance(impl, str):
             if "\n" not in impl and impl.endswith(exts):
                 impl = FromFile(impl if isabs(impl) else join(self.path, impl))
+            else:
+                impl = TypeScript(impl)
 
         if isinstance(impl, Inline) and impl.file is None:
             file = "%s%s.ts" % (self.file + ":" if self.file else "", self.name)
