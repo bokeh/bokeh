@@ -69,6 +69,7 @@ test:
     - pandas
     - psutil
     - pytest
+    - pytest-asyncio
     - pytest-cov >=1.8.1
     - pytest-html
     - pytest-xdist
