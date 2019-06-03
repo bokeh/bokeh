@@ -5,7 +5,6 @@ import {build_views, remove_views} from "core/build_views"
 
 import {Control, ControlView} from "./control"
 import {AbstractIcon, AbstractIconView} from "./abstract_icon"
-import {CallbackLike0} from "../callbacks/callback"
 
 import {bk_btn, bk_btn_group, bk_btn_type} from "styles/buttons"
 
@@ -58,10 +57,7 @@ export abstract class AbstractButtonView extends ControlView {
     this.el.appendChild(this.group_el)
   }
 
-  click(): void {
-    if (this.model.callback != null)
-      this.model.callback.execute(this.model)
-  }
+  click(): void { }
 }
 
 export namespace AbstractButton {
@@ -71,7 +67,6 @@ export namespace AbstractButton {
     label: p.Property<string>
     icon: p.Property<AbstractIcon>
     button_type: p.Property<ButtonType>
-    callback: p.Property<CallbackLike0<AbstractButton> | null>
   }
 }
 
@@ -89,7 +84,6 @@ export abstract class AbstractButton extends Control {
       label:       [ p.String,     "Button"  ],
       icon:        [ p.Instance              ],
       button_type: [ p.ButtonType, "default" ], // TODO (bev)
-      callback:    [ p.Any                   ],
     })
   }
 }

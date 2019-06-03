@@ -61,18 +61,38 @@ The ``ColumnDataSource.data`` property can only be set from plain Python dicts.
 Attempting to set from another CDS, i.e ``s1.data = s2.data``, will raise an
 error.
 
-Plot Symmetry Properties
-~~~~~~~~~~~~~~~~~~~~~~~~
+API Removals
+~~~~~~~~~~~~
 
-The deprecated vestigal properties ``Plot.h_symmetry`` and ``Plot.v_symmetry``
-have been removed. These properties were non-functional for many releases.
+The following modules were previously deprecated or were internal and no longer
+needed:
 
-bokeh.util.future module
-~~~~~~~~~~~~~~~~~~~~~~~~
+* ``bokeh.client``: method ``ClientSession.loop_until_closed`` removed
 
-The ``bokeh.util.future`` module has been removed.
+* ``bokeh.models.callbacks``: methods ``CustomJS.from_py_func`` and
+  ``CustomJS.from_coffeescript`` removed
 
-bokeh.util.string module
-~~~~~~~~~~~~~~~~~~~~~~~~
+* ``bokeh.models.filters``: methods ``CustomJSFilter.from_py_func`` and
+  ``CustomJSFilter.from_coffeescript`` removed
 
-The `encode_utf8`, `decode_utf8`, and `escape` functions have been removed.
+* ``bokeh.models.formatters``: methods ``FuncTickFormatter.from_py_func`` and
+  ``FuncTickFormatter.from_coffeescript`` removed
+
+* ``bokeh.models.plots``: proeprties ``Plot.h_symmetry`` and ``Plot.v_symmetry``
+  removed
+
+* ``bokeh.models.tools``: methods ``CustomJSHover.from_py_func`` and
+  ``CustomJSHover.from_coffeescript`` removed
+
+* ``bokeh.models.transforms``: methods ``CustomJSTransform.from_py_func`` and
+  ``CustomJSTransform.from_coffeescript`` removed
+
+* ``bokeh.models.widgets.buttons``: property ``callback`` removed from all
+   buttons, and ``Dropdown.default_value`` and ``Dropdown.value`` removed
+
+* ``bokeh.util.compiler``: class ``CoffeeScript`` and related code removed
+
+* ``bokeh.util.future``: entire module removed
+
+* ``bokeh.util.string``: functions ``encode_utf8``, ``decode_utf8``, and ``escape``
+  removed
