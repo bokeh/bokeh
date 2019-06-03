@@ -232,12 +232,12 @@ export class GlyphRendererView extends DataRendererView {
     if (!inspected || inspected.is_empty())
       inspected_full_indices = []
     else {
-      if (inspected['0d'].glyph)
+      if (inspected.selected_glyph)
         inspected_full_indices = this.model.view.convert_indices_from_subset(indices)
-      else if (inspected['1d'].indices.length > 0)
-        inspected_full_indices = inspected['1d'].indices
+      else if (inspected.indices.length > 0)
+        inspected_full_indices = inspected.indices
       else
-        inspected_full_indices = map(Object.keys(inspected["2d"].indices), (i) => parseInt(i))
+        inspected_full_indices = map(Object.keys(inspected.multiline_indices), (i) => parseInt(i))
     }
 
     // inspected is transformed to subset space
