@@ -74,12 +74,6 @@ Below is an annotated TypeScript implementation for ``Custom`` and its
 final BokehJS scripts. We will see how to connect this code to custom
 extensions in the next section.
 
-.. note::
-    BokehJS was originally written in `CoffeeScript`_, but was ported
-    to `TypeScript`_. Accordingly, the guidance here is presented in TypeScript.
-    However, custom extensions can be written in CoffeeScript or pure JavaScript
-    as well.
-
 .. code-block:: typescript
 
     import {HTMLBox, HTMLBoxView} from "models/layouts/html_box"
@@ -153,9 +147,8 @@ For built-in Bokeh models, the implementation in BokehJS is automatically
 matched with the corresponding Python model by the build process. In order
 connect JavaScript implementations to Python models, one additional step
 is needed. The Python class should have have a class attribute called
-``__implementation__`` whose value is the TypeScript (or JavaScript or
-CoffeeScript) code that the defines the client-side model as well as any
-optional views.
+``__implementation__`` whose value is the TypeScript (or JavaScript) code
+that the defines the client-side model as well as any optional views.
 
 Assuming the TypeScript code above was saved in a file ``custom.ts``,
 then the complete Python class might look like:
@@ -203,21 +196,19 @@ Specifying Implementation Languages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If the value of ``__implementation__`` is a single line that ends in one of
-the know extensions ``.coffee``, ``.js``, or ``.ts`` then the it is interpreted
-as a filename. The corresponding file is opened and its contents are compiled
-appropriately according to the file extension.
+the know extensions ``.js``, or ``.ts`` then the it is interpretedas a filename.
+The corresponding file is opened and its contents are compiled appropriately
+according to the file extension.
 
 Otherwise, if the implementation is inline in the class, the language for the
-source code may be explicitly provided by using the classes ``CoffeeScript``,
-``JavaScript``, or ``TypeScript``, e.g.
+source code may be explicitly provided by using the classes ``JavaScript``, or
+``TypeScript``, e.g.
 
 .. code-block:: python
 
     class Custom(Model):
 
         __implementation__ = JavaScript(" <JS code here> ")
-
-Otherwise, if a plain string is given, it is assumed to be ``CoffeeScript``.
 
 .. _userguide_extensions_supplying_external_resources:
 
@@ -304,6 +295,5 @@ and improvements to this section for future users.
 :ref:`userguide_extensions_examples_widget`
     Include a third-party JavaScript library in an extension widget.
 
-.. _CoffeeScript: http://coffeescript.org
 .. _KaTeX: https://khan.github.io/KaTeX/
 .. _TypeScript: https://www.typescriptlang.org/

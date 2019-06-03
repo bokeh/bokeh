@@ -47,23 +47,6 @@ def test_js_callback():
     with raises(AttributeError):  # kwargs not supported
         CustomJS(code="foo();", x=slider)
 
-
-def test_py_callback():
-    slider = Slider()
-    foo = None  # fool pyflakes
-
-    def cb(x=slider):
-        foo()
-    cb = CustomJS.from_py_func(cb)
-    assert 'foo()' in cb.code
-    assert cb.args['x'] is slider
-
-    def cb(x=4):
-        foo()
-    cb = CustomJS.from_py_func(cb)
-    assert 'foo()' in cb.code
-    assert cb.args['x'] == 4
-
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
