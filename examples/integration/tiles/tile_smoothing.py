@@ -1,6 +1,6 @@
 from bokeh.layouts import column
 from bokeh.plotting import figure, show, output_file
-from bokeh.tile_providers import get_provider, Vendors
+from bokeh.tile_providers import get_provider, CARTODBPOSITRON
 
 output_file("tile_smoothing.html")
 
@@ -14,7 +14,7 @@ p2.x_range = p1.x_range
 p2.y_range = p1.y_range
 
 # Add smoothed tiles (the default)
-tile_provider = get_provider(Vendors.CARTODBPOSITRON)
+tile_provider = get_provider(CARTODBPOSITRON)
 r1 = p1.add_tile(tile_provider)
 
 # Add non-smoothed tile
