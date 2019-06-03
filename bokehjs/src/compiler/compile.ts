@@ -1,41 +1,10 @@
 import * as fs from "fs"
 import * as path from "path"
 import * as ts from "typescript"
-const coffee = require("coffeescript")
 const less = require("less")
 import {argv} from "yargs"
 
 import * as transforms from "./transforms"
-
-const mkCoffeescriptError = (error: any, file?: string) => {
-  const message = error.message
-
-  if (error.location == null) {
-    const text = [file || "<string>", message].join(":")
-    return {message, text}
-  } else {
-    const location = error.location
-
-    const line = location.first_line + 1
-    const column = location.first_column + 1
-
-    const text = [file || "<string>", line, column, message].join(":")
-
-    let markerLen = 2
-    if (location.first_line === location.last_line)
-        markerLen += location.last_column - location.first_column
-
-    const extract = error.code.split('\n')[line - 1]
-
-    const annotated = [
-      text,
-      "  " + extract,
-      "  " + Array(column).join(' ') + Array(markerLen).join('^'),
-    ].join('\n')
-
-    return {message, line, column, text, extract, annotated}
-  }
-}
 
 const mkLessError = (error: any, file?: string) => {
   const message = error.message
@@ -209,12 +178,6 @@ const compile_and_resolve_deps = (input: {code: string, lang: string, file: stri
       else
         return reply({error: result.error})
       break
-    case "coffeescript":
-      try {
-        code = coffee.compile(code, {bare: true, shiftLine: true})
-      } catch (error) {
-        return reply({error: mkCoffeescriptError(error, file)})
-      }
     case "javascript": {
       const result = compile_javascript(file, code)
       if (result.error == null)
@@ -249,7 +212,7 @@ const compile_and_resolve_deps = (input: {code: string, lang: string, file: stri
 if (argv.file != null) {
   const input = {
     code: fs.readFileSync(argv.file as string, "utf-8"),
-    lang: (argv.lang as string | undefined) || "coffeescript",
+    lang: (argv.lang as string | undefined) || "typescript",
     file: argv.file as string,
     bokehjs_dir: (argv.bokehjsDir as string | undefined) || "./build", // this is what bokeh.settings defaults to
   }

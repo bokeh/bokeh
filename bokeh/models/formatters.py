@@ -20,8 +20,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from inspect import signature
-from types import FunctionType
 
 # External imports
 
@@ -33,9 +31,6 @@ from ..core.properties import Auto, Bool, Dict, Either, Enum, Instance, Int, Lis
 from ..core.validation import error
 from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
 from ..model import Model
-from ..util.compiler import nodejs_compile, CompilationError
-from ..util.dependencies import import_required
-from ..util.functions import get_param_info
 from .tickers import Ticker
 
 #-----------------------------------------------------------------------------
@@ -300,75 +295,6 @@ class FuncTickFormatter(TickFormatter):
         sanitize the user input prior to passing to Bokeh.
 
     '''
-
-    @classmethod
-    def from_py_func(cls, func):
-        ''' Create a ``FuncTickFormatter`` instance from a Python function. The
-        function is translated to JavaScript using PScript. The variable
-        ``tick`` will contain the unformatted tick value and can be expected to
-        be present in the function namespace at render time.
-
-        Example:
-
-        .. code-block:: python
-
-            code = """
-            def ticker():
-                return "{:.0f} + {:.2f}".format(tick, tick % 1)
-            """
-
-        The python function must have no positional arguments. It's
-        possible to pass Bokeh models (e.g. a ``ColumnDataSource``) as keyword
-        arguments to the function.
-
-        '''
-        from bokeh.util.deprecation import deprecated
-        deprecated("'from_py_func' is deprecated and will be removed in an eventual 2.0 release. "
-                   "Use FuncTickFormatter directly instead.")
-
-        if not isinstance(func, FunctionType):
-            raise ValueError('CustomJS.from_py_func needs function object.')
-        pscript = import_required('pscript',
-                                  'To use Python functions for CustomJS, you need PScript ' +
-                                  '("conda install -c conda-forge pscript" or "pip install pscript")')
-        sig = signature(func)
-
-        all_names, default_values = get_param_info(sig)
-
-        if len(all_names) - len(default_values) != 0:
-            raise ValueError("Function `func` may only contain keyword arguments.")
-
-        if default_values and not any(isinstance(value, Model) for value in default_values):
-            raise ValueError("Default value must be a Bokeh Model.")
-
-        func_kwargs = dict(zip(all_names, default_values))
-
-        # Wrap the code attr in a function named `formatter` and call it
-        # with arguments that match the `args` attr
-        code = pscript.py2js(func, 'formatter') + 'return formatter(%s);\n' % ', '.join(all_names)
-
-        return cls(code=code, args=func_kwargs)
-
-    @classmethod
-    def from_coffeescript(cls, code, args={}):
-        ''' Create a FuncTickFormatter instance from a CoffeeScript snippet.
-        The function body is translated to JavaScript using node. The variable
-        ``tick`` will contain the unformatted tick value and can be expected to
-        be present in the code snippet namespace at render time.
-
-        Example:
-
-        .. code-block:: coffeescript
-
-            code = """
-            return Math.floor(tick) + " + " + (tick % 1).toFixed(2)
-            """
-        '''
-        compiled = nodejs_compile(code, lang="coffeescript", file="???")
-        if "error" in compiled:
-            raise CompilationError(compiled.error)
-        else:
-            return cls(code=compiled.code, args=args)
 
     args = Dict(String, AnyRef, help="""
     A mapping of names to Python objects. In particular those can be bokeh's models.

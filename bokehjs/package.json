@@ -38,7 +38,6 @@
     "typescript": "3.5.1",
     "tslint": "^5.16.0",
     "tsconfig-paths": "^3.8.0",
-    "coffeescript": "^2.3.2",
     "less": "^3.9.0",
     "@types/less": "^3.0.0",
     "atob": "^2.1.2",
