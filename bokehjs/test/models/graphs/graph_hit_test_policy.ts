@@ -157,7 +157,7 @@ describe("GraphHitTestPolicy", () => {
       it("should clear edge selections if hit_test_result is empty", () => {
         // create initial inspection to clear
         const initial_selection = create_empty_hit_test_result()
-        initial_selection["2d"].indices = {0: [0, 1], 1: [0]}
+        initial_selection.multiline_indices = {0: [0, 1], 1: [0]}
         edge_source.selected = initial_selection
 
         const hit_test_result = create_empty_hit_test_result()
@@ -173,7 +173,7 @@ describe("GraphHitTestPolicy", () => {
 
         policy.do_selection(hit_test_result, gr, true, false)
 
-        expect(edge_source.selected['2d'].indices).to.be.deep.equal({ 0: [ 0 ], 1: [ 0 ] })
+        expect(edge_source.selected.multiline_indices).to.be.deep.equal({ 0: [ 0 ], 1: [ 0 ] })
       })
     })
 
@@ -182,7 +182,7 @@ describe("GraphHitTestPolicy", () => {
       it("should clear edge inspections if hit_test_result is empty", () => {
         // create initial inspection to clear
         const initial_inspection = create_empty_hit_test_result()
-        initial_inspection["2d"].indices = {0: [0, 1], 1: [0]}
+        initial_inspection.multiline_indices = {0: [0, 1], 1: [0]}
         edge_source.inspected = initial_inspection
 
         const hit_test_result = create_empty_hit_test_result()
@@ -199,7 +199,7 @@ describe("GraphHitTestPolicy", () => {
         const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, false)
 
         expect(did_hit).to.be.true
-        expect(edge_source.inspected['2d'].indices).to.be.deep.equal({ 0: [ 0 ], 1: [ 0 ] })
+        expect(edge_source.inspected.multiline_indices).to.be.deep.equal({ 0: [ 0 ], 1: [ 0 ] })
       })
     })
   })
@@ -210,7 +210,7 @@ describe("GraphHitTestPolicy", () => {
 
       it("should clear node selections if hit_test result is empty", () => {
         const initial_selection = create_empty_hit_test_result()
-        initial_selection["1d"].indices = [0, 1]
+        initial_selection.indices = [0, 1]
         node_source.selected = initial_selection
 
         const hit_test_result = create_empty_hit_test_result()
