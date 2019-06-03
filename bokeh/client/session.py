@@ -332,25 +332,6 @@ class ClientSession(object):
         '''
         self._connection.force_roundtrip()
 
-    def loop_until_closed(self, suppress_warning=False):
-        ''' Execute a blocking loop that runs and executes event callbacks
-        until the connection is closed (e.g. by hitting Ctrl-C).
-
-        While this method can be used to run Bokeh application code "outside"
-        the Bokeh server, this practice is HIGHLY DISCOURAGED for any real
-        use case. This function is intended to facilitate testing ONLY.
-
-        '''
-
-        suppress_warning # shut up flake
-
-        from bokeh.util.deprecation import deprecated
-        deprecated("ClientSession.loop_until_closed is deprecated, and will be removed in an eventual 2.0 release. "
-                   "Run Bokeh applications directly on a Bokeh server instead. See:\n\n"
-                   "    https//docs.bokeh.org/en/latest/docs/user_guide/server.html\n")
-
-        self._connection.loop_until_closed()
-
     def pull(self):
         ''' Pull the server's state and set it as session.document.
 
@@ -465,6 +446,15 @@ class ClientSession(object):
 
     def _handle_patch(self, message):
         message.apply_to_document(self.document, self)
+
+    def _loop_until_closed(self):
+        ''' Execute a blocking loop that runs and executes event callbacks
+        until the connection is closed (e.g. by hitting Ctrl-C).
+
+        This function is intended to facilitate testing ONLY.
+
+        '''
+        self._connection.loop_until_closed()
 
     def _notify_disconnected(self):
         ''' Called by the ClientConnection we are using to notify us of disconnect.
