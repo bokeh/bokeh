@@ -73,20 +73,16 @@ _STAMEN_LIC = {
 @pytest.mark.unit
 class Test_StamenProviders(object):
     def test_type(self, name):
-        with pytest.deprecated_call():
-            p = getattr(bt, name)
-        assert isinstance(p, WMTSTileSource)
+        p = getattr(bt, name)
+        assert isinstance(p, str)
 
     def test_url(self, name):
-        with pytest.deprecated_call():
-            p = getattr(bt, name)
+        p = bt.get_provider(getattr(bt, name))
         assert p.url == _STAMEN_URLS[name]
 
     def test_attribution(self, name):
-        with pytest.deprecated_call():
-            p = getattr(bt, name)
+        p = bt.get_provider(getattr(bt, name))
 
-        print(p.attribution)
         assert p.attribution == (
             'Map tiles by <a href="https://stamen.com">Stamen Design</a>, '
             'under <a href="https://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. '
@@ -95,36 +91,31 @@ class Test_StamenProviders(object):
         ) % _STAMEN_LIC[name]
 
     def test_copies(self, name):
-        with pytest.deprecated_call():
-            p1 = getattr(bt, name)
-            p2 = getattr(bt, name)
+        p1 = bt.get_provider(getattr(bt, name))
+        p2 = bt.get_provider(getattr(bt, name))
         assert p1 is not p2
 
 @pytest.mark.parametrize('name', ['CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA'])
 @pytest.mark.unit
 class Test_CartoProviders(object):
     def test_type(self, name):
-        with pytest.deprecated_call():
-            p = getattr(bt, name)
-        assert isinstance(p, WMTSTileSource)
+        p = getattr(bt, name)
+        assert isinstance(p, str)
 
     def test_url(self, name):
-        with pytest.deprecated_call():
-            p = getattr(bt, name)
+        p = bt.get_provider(getattr(bt, name))
         assert p.url == _CARTO_URLS[name]
 
     def test_attribution(self, name):
-        with pytest.deprecated_call():
-            p = getattr(bt, name)
+        p = bt.get_provider(getattr(bt, name))
         assert p.attribution == (
             '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors,'
             '&copy; <a href="https://cartodb.com/attributions">CartoDB</a>'
         )
 
     def test_copies(self, name):
-        with pytest.deprecated_call():
-            p1 = getattr(bt, name)
-            p2 = getattr(bt, name)
+        p1 = bt.get_provider(getattr(bt, name))
+        p2 = bt.get_provider(getattr(bt, name))
         assert p1 is not p2
 
 
@@ -137,25 +128,22 @@ class Test_GetProvider(object):
     def test_get_provider(self, name):
         assert name in bt.Vendors
         enum_member = getattr(bt.Vendors, name)
+        assert hasattr(bt, name)
+        mod_member = getattr(bt, name)
         p1 = bt.get_provider(enum_member)
         p2 = bt.get_provider(name)
         p3 = bt.get_provider(name.lower())
+        p4 = bt.get_provider(mod_member)
         assert isinstance(p1, WMTSTileSource)
         assert isinstance(p2, WMTSTileSource)
         assert isinstance(p3, WMTSTileSource)
+        assert isinstance(p4, WMTSTileSource)
         assert p1 is not p2
         assert p2 is not p3
-        assert p1 is not p3
-        assert p1.url == p2.url == p3.url
-        assert p1.attribution == p2.attribution == p3.attribution
-
-        with pytest.deprecated_call():
-            # This will not return a WMTSTileSource in bokeh 2.0.0!
-            default_instance = getattr(bt, name)
-        new_instance = bt.get_provider(default_instance)
-        assert default_instance is not new_instance
-        assert default_instance.url == new_instance.url
-        assert default_instance.attribution == new_instance.attribution
+        assert p2 is not p4
+        assert p4 is not p1
+        assert p1.url == p2.url == p3.url == p4.url
+        assert p1.attribution == p2.attribution == p3.attribution == p4.attribution
 
     def test_unknown_vendor(self):
         with pytest.raises(ValueError):

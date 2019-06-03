@@ -155,17 +155,6 @@ from bokeh.core.enums import enumeration
 # Private API
 #-----------------------------------------------------------------------------
 
-# Can be removed in bokeh 2.0
-def _make_deprecated_property(name):
-
-    def deprecated_property_tile(self):
-        from bokeh.util.deprecation import deprecated
-        deprecated(since_or_msg=(1, 1, 0), old=name, new='get_provider(Vendors.%s)' % name)
-        return self.get_provider(provider_name=name)
-    func = property(deprecated_property_tile)
-    return func
-
-
 class _TileProvidersModule(types.ModuleType):
     _CARTO_ATTRIBUTION = (
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors,'
@@ -225,15 +214,13 @@ class _TileProvidersModule(types.ModuleType):
 
     # Properties --------------------------------------------------------------
 
-    # For bokeh 2.0 these can easily be replaced with their corresponding enum values
-    CARTODBPOSITRON = _make_deprecated_property(Vendors.CARTODBPOSITRON)
-    CARTODBPOSITRON_RETINA = _make_deprecated_property(Vendors.CARTODBPOSITRON_RETINA)
-    STAMEN_TERRAIN = _make_deprecated_property(Vendors.STAMEN_TERRAIN)
-    STAMEN_TERRAIN_RETINA = _make_deprecated_property(Vendors.STAMEN_TERRAIN_RETINA)
-    STAMEN_TONER = _make_deprecated_property(Vendors.STAMEN_TONER)
-    STAMEN_TONER_BACKGROUND = _make_deprecated_property(Vendors.STAMEN_TONER_BACKGROUND)
-    STAMEN_TONER_LABELS = _make_deprecated_property(Vendors.STAMEN_TONER_LABELS)
-
+    CARTODBPOSITRON = Vendors.CARTODBPOSITRON
+    CARTODBPOSITRON_RETINA = Vendors.CARTODBPOSITRON_RETINA
+    STAMEN_TERRAIN = Vendors.STAMEN_TERRAIN
+    STAMEN_TERRAIN_RETINA = Vendors.STAMEN_TERRAIN_RETINA
+    STAMEN_TONER = Vendors.STAMEN_TONER
+    STAMEN_TONER_BACKGROUND = Vendors.STAMEN_TONER_BACKGROUND
+    STAMEN_TONER_LABELS = Vendors.STAMEN_TONER_LABELS
 
 #-----------------------------------------------------------------------------
 # Code
@@ -253,4 +240,4 @@ _mod.__all__ = (
     'Vendors'
 )
 sys.modules['bokeh.tile_providers'] = _mod
-del _mod, sys, types, _make_deprecated_property
+del _mod, sys, types
