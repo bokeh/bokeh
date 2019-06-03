@@ -61,10 +61,6 @@ export class LineView extends XYGlyphView {
           * sx (float): screen x coordinate of the point
           * sy (float): screen y coordinate of the point
           * type (str): type of geometry (in this case it's a point)
-      Output:
-        Object with the following keys:
-          * 0d (bool): whether the point hits the glyph or not
-          * 1d (array(int)): array with the indices hit by the point
     */
     const result = hittest.create_empty_hit_test_result()
     const point = {x: geometry.sx, y: geometry.sy}
