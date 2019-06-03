@@ -227,22 +227,21 @@ export class GlyphRendererView extends DataRendererView {
     }
 
     // inspected is in full set space
-    const inspected_full_indices = new Set((() => {
-      const {inspected} = this.model.data_source
-      if (!inspected || inspected.is_empty())
-        return []
-      else {
-        if (inspected['0d'].glyph)
-          return this.model.view.convert_indices_from_subset(indices)
-        else if (inspected['1d'].indices.length > 0)
-          return inspected['1d'].indices
-        else
-          return map(Object.keys(inspected["2d"].indices), (i) => parseInt(i))
-      }
-    })())
+    const {inspected} = this.model.data_source
+    let inspected_full_indices: number[]
+    if (!inspected || inspected.is_empty())
+      inspected_full_indices = []
+    else {
+      if (inspected.selected_glyph)
+        inspected_full_indices = this.model.view.convert_indices_from_subset(indices)
+      else if (inspected.indices.length > 0)
+        inspected_full_indices = inspected.indices
+      else
+        inspected_full_indices = map(Object.keys(inspected.multiline_indices), (i) => parseInt(i))
+    }
 
     // inspected is transformed to subset space
-    const inspected_subset_indices = filter(indices, (i) => inspected_full_indices.has(this.all_indices[i]))
+    const inspected_subset_indices = filter(indices, (i) => includes(inspected_full_indices, this.all_indices[i]))
 
     const {lod_threshold} = this.plot_model
     let glyph: GlyphView

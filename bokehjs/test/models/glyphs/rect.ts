@@ -73,9 +73,9 @@ describe("Glyph (using Rect as a concrete Glyph)", () => {
       const result2 = glyph_view.hit_test(geometry2)!
       const result3 = glyph_view.hit_test(geometry3)!
 
-      expect(result1['1d'].indices).to.be.deep.equal([0])
-      expect(result2['1d'].indices).to.be.deep.equal([1])
-      expect(result3['1d'].indices).to.be.deep.equal([])
+      expect(result1.indices).to.be.deep.equal([0])
+      expect(result2.indices).to.be.deep.equal([1])
+      expect(result3.indices).to.be.deep.equal([])
     })
   })
 })
@@ -206,7 +206,7 @@ describe("Rect", () => {
         const geometry2: Geometry = { type: "point", sx: 195, sy: -10 }
         const geometry3: Geometry = { type: "point", sx: 186, sy:  14 }
 
-        it("should return the indices of the rect that was hit", () => {
+        it("should retu indices of the rect that was hit", () => {
           const data = {x: [60, 100, 140], y: [60, 100, 140]}
           const glyph_view = create_glyph_view(glyph, data)
 
@@ -217,9 +217,9 @@ describe("Rect", () => {
           const result2 = glyph_view.hit_test(geometry2)!
           const result3 = glyph_view.hit_test(geometry3)!
 
-          expect(result1['1d'].indices).to.be.deep.equal([1])
-          expect(result2['1d'].indices).to.be.deep.equal([1])
-          expect(result3['1d'].indices).to.be.deep.equal([])
+          expect(result1.indices).to.be.deep.equal([1])
+          expect(result2.indices).to.be.deep.equal([1])
+          expect(result3.indices).to.be.deep.equal([])
         })
 
         it("should work when width and height units are 'screen'", () => {
@@ -236,9 +236,9 @@ describe("Rect", () => {
           const result2 = glyph_view.hit_test(geometry2)!
           const result3 = glyph_view.hit_test(geometry3)!
 
-          expect(result1['1d'].indices).to.be.deep.equal([])
-          expect(result2['1d'].indices).to.be.deep.equal([1])
-          expect(result3['1d'].indices).to.be.deep.equal([])
+          expect(result1.indices).to.be.deep.equal([])
+          expect(result2.indices).to.be.deep.equal([1])
+          expect(result3.indices).to.be.deep.equal([])
         })
 
         it("should work when rects are rotated", () => {
@@ -260,9 +260,9 @@ describe("Rect", () => {
           const result2 = glyph_view.hit_test(geometry2)!
           const result3 = glyph_view.hit_test(geometry3)!
 
-          expect(result1['1d'].indices).to.be.deep.equal([])
-          expect(result2['1d'].indices).to.be.deep.equal([])
-          expect(result3['1d'].indices).to.be.deep.equal([1])
+          expect(result1.indices).to.be.deep.equal([])
+          expect(result2.indices).to.be.deep.equal([])
+          expect(result3.indices).to.be.deep.equal([1])
         })
 
         it("should work when rects are rotated and axes ranges are very different", () => {
@@ -297,9 +297,9 @@ describe("Rect", () => {
           const result2 = glyph_view.hit_test({type: "point", sx: 105, sy: -20})!
           const result3 = glyph_view.hit_test({type: "point", sx: 91,  sy:  14})!
 
-          expect(result1['1d'].indices).to.be.deep.equal([1])
-          expect(result2['1d'].indices).to.be.deep.equal([])
-          expect(result3['1d'].indices).to.be.deep.equal([1])
+          expect(result1.indices).to.be.deep.equal([1])
+          expect(result2.indices).to.be.deep.equal([])
+          expect(result3.indices).to.be.deep.equal([1])
         })
 
         it("should work when axis is log", () => {
@@ -312,8 +312,8 @@ describe("Rect", () => {
           const result4 = glyph_view.hit_test({type: "point",  sx: 66.666,  sy: 133.333 })!
           const result5 = glyph_view.hit_test({type: "point",  sx: 133.333, sy:  66.666 })!
 
-          expect(result4['1d'].indices).to.be.deep.equal([])
-          expect(result5['1d'].indices).to.be.deep.equal([])
+          expect(result4.indices).to.be.deep.equal([])
+          expect(result5.indices).to.be.deep.equal([])
         })
       })
     })
