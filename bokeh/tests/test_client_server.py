@@ -89,10 +89,10 @@ class TestClientServer(object):
             session._connection._socket.write_message(b"xx", binary=True)
             # connection should now close on the server side
             # and the client loop should end
-            session.loop_until_closed(suppress_warning=True)
+            session._loop_until_closed()
             assert not session.connected
             session.close()
-            session.loop_until_closed(suppress_warning=True)
+            session._loop_until_closed()
             assert not session.connected
 
     def test_connect_with_prefix(self):
@@ -106,14 +106,14 @@ class TestClientServer(object):
             session.connect()
             assert session.connected
             session.close()
-            session.loop_until_closed(suppress_warning=True)
+            session._loop_until_closed()
 
             session = ClientSession(io_loop = server.io_loop,
                                     websocket_url = ws_url(server))
             session.connect()
             assert not session.connected
             session.close()
-            session.loop_until_closed(suppress_warning=True)
+            session._loop_until_closed()
 
     def check_http_gets_fail(self, server):
         with pytest.raises(HTTPError):
@@ -237,7 +237,7 @@ class TestClientServer(object):
             assert results['bar'] == 43
 
             client_session.close()
-            client_session.loop_until_closed(suppress_warning=True)
+            client_session._loop_until_closed()
             assert not client_session.connected
 
     def test_pull_document(self):
@@ -267,7 +267,7 @@ class TestClientServer(object):
             assert results['bar'] == 43
 
             client_session.close()
-            client_session.loop_until_closed(suppress_warning=True)
+            client_session._loop_until_closed()
             assert not client_session.connected
 
     def test_request_server_info(self):
@@ -288,7 +288,7 @@ class TestClientServer(object):
             assert info['version_info']['server'] == __version__
 
             session.close()
-            session.loop_until_closed(suppress_warning=True)
+            session._loop_until_closed()
             assert not session.connected
 
     @pytest.mark.skipif(sys.platform == "win32", reason="uninmportant failure on win")
@@ -316,7 +316,7 @@ class TestClientServer(object):
             assert (expected_pong + 1) == connection._socket.latest_pong
 
             session.close()
-            session.loop_until_closed(suppress_warning=True)
+            session._loop_until_closed()
             assert not session.connected
 
     def test_client_changes_go_to_server(self):
@@ -364,7 +364,7 @@ class TestClientServer(object):
             assert len(server_session.document.roots) == 0
 
             client_session.close()
-            client_session.loop_until_closed(suppress_warning=True)
+            client_session._loop_until_closed()
             assert not client_session.connected
 
     def test_server_changes_go_to_client(self):
@@ -427,7 +427,7 @@ class TestClientServer(object):
             assert len(client_session.document.roots) == 0
 
             client_session.close()
-            client_session.loop_until_closed(suppress_warning=True)
+            client_session._loop_until_closed()
             assert not client_session.connected
 
     @gen.coroutine
@@ -460,7 +460,7 @@ class TestClientServer(object):
 
             cb_id = doc.add_timeout_callback(cb, 10)
 
-            client_session.loop_until_closed(suppress_warning=True)
+            client_session._loop_until_closed()
 
             with pytest.raises(ValueError) as exc:
                 doc.remove_timeout_callback(cb_id)
@@ -493,7 +493,7 @@ class TestClientServer(object):
                                           url=url(server),
                                           io_loop=server.io_loop)
 
-            client_session.loop_until_closed(suppress_warning=True)
+            client_session._loop_until_closed()
 
             with pytest.raises(ValueError) as exc:
                 doc.remove_timeout_callback(cb_id)
@@ -529,7 +529,7 @@ class TestClientServer(object):
 
             cb_id = server_session.document.add_timeout_callback(cb, 10)
 
-            client_session.loop_until_closed(suppress_warning=True)
+            client_session._loop_until_closed()
 
             with pytest.raises(ValueError) as exc:
                 server_session.document.remove_timeout_callback(cb_id)
@@ -562,7 +562,7 @@ class TestClientServer(object):
 
             cb_id = doc.add_next_tick_callback(cb)
 
-            client_session.loop_until_closed(suppress_warning=True)
+            client_session._loop_until_closed()
 
             with pytest.raises(ValueError) as exc:
                 doc.remove_next_tick_callback(cb_id)
@@ -595,7 +595,7 @@ class TestClientServer(object):
                                           url=url(server),
                                           io_loop=server.io_loop)
 
-            client_session.loop_until_closed(suppress_warning=True)
+            client_session._loop_until_closed()
 
             with pytest.raises(ValueError) as exc:
                 doc.remove_next_tick_callback(cb_id)
@@ -631,7 +631,7 @@ class TestClientServer(object):
 
             cb_id = server_session.document.add_next_tick_callback(cb)
 
-            client_session.loop_until_closed(suppress_warning=True)
+            client_session._loop_until_closed()
 
             with pytest.raises(ValueError) as exc:
                 server_session.document.remove_next_tick_callback(cb_id)
@@ -664,7 +664,7 @@ class TestClientServer(object):
 
             cb_id = doc.add_periodic_callback(cb, 10)
 
-            client_session.loop_until_closed(suppress_warning=True)
+            client_session._loop_until_closed()
 
             doc.remove_periodic_callback(cb_id)
 
@@ -695,7 +695,7 @@ class TestClientServer(object):
                                           url=url(server),
                                           io_loop=server.io_loop)
 
-            client_session.loop_until_closed(suppress_warning=True)
+            client_session._loop_until_closed()
 
             doc.remove_periodic_callback(cb_id)
 
@@ -729,7 +729,7 @@ class TestClientServer(object):
 
             cb_id = server_session.document.add_periodic_callback(cb, 10)
 
-            client_session.loop_until_closed(suppress_warning=True)
+            client_session._loop_until_closed()
 
             server_session.document.remove_periodic_callback(cb_id)
 
@@ -811,7 +811,7 @@ class TestClientServer(object):
 
             session.document.on_change(client_on_change)
 
-            session.loop_until_closed(suppress_warning=True)
+            session._loop_until_closed()
 
             assert not session.connected
 
@@ -866,7 +866,7 @@ def test_client_changes_do_not_boomerang(monkeypatch):
         assert got_angry['result'] is None
 
         client_session.close()
-        client_session.loop_until_closed(suppress_warning=True)
+        client_session._loop_until_closed()
         assert not client_session.connected
         server.unlisten() # clean up so next test can run
 
@@ -915,7 +915,7 @@ def test_server_changes_do_not_boomerang(monkeypatch):
         assert got_angry['result'] is None
 
         client_session.close()
-        client_session.loop_until_closed(suppress_warning=True)
+        client_session._loop_until_closed()
         assert not client_session.connected
 
 # this test is because we do the funky serializable_value
@@ -972,7 +972,7 @@ def test_unit_spec_changes_do_not_boomerang(monkeypatch):
         change_to({ 'value' : 59, 'units' : 'screen' }, { 'value' : 30, 'units' : 'deg' })
 
         client_session.close()
-        client_session.loop_until_closed(suppress_warning=True)
+        client_session._loop_until_closed()
         assert not client_session.connected
         server.unlisten() # clean up so next test can run
 
