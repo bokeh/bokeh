@@ -61,14 +61,23 @@ export class ImageURLView extends XYGlyphView {
         continue
 
       const img: CanvasImage = new Image()
+      img.crossOrigin = "anonymous"
       img.onerror = () => {
         if (this.retries[i] > 0) {
+          this.retries[i] -= 1
           logger.trace(`ImageURL failed to load ${url} image, retrying in ${retry_timeout} ms`)
-          setTimeout(() => img.src = url, retry_timeout)
-        } else
+        } else {
           logger.warn(`ImageURL unable to load ${url} image after ${retry_attempts} retries`)
 
-        this.retries[i] -= 1
+          if (img.crossOrigin != null) {
+            logger.warn(`ImageURL attempting to load ${url} without a cross origin policy`)
+            this.retries[i] = retry_attempts
+            img.crossOrigin = null
+          } else
+            return
+        }
+
+        setTimeout(() => img.src = url, retry_timeout)
       }
       img.onload = () => {
         this.image[i] = img

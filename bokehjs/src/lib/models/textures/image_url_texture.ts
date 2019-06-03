@@ -28,6 +28,7 @@ export abstract class ImageURLTexture extends Texture {
   initialize(): void {
     super.initialize()
     this.image = new Image()
+    this.image.crossOrigin = "Anonymous"
     this.image.src = this.url
   }
 

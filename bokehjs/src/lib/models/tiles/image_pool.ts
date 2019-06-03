@@ -6,9 +6,15 @@ export class ImagePool {
 
   protected images: Image[] = []
 
+  private new_image(): Image {
+    const img = new Image()
+    img.crossOrigin = "anonymous"
+    return img
+  }
+
   pop(): Image {
     const img = this.images.pop()
-    return img != null ? img : new Image()
+    return img != null ? img : this.new_image()
   }
 
   push(img: Image | Image[]): void {
