@@ -39,6 +39,13 @@ The ``use_strict`` property has been removed from all models that it had been
 on previously. All JavaScript code, e.g. for ``CustomJS`` will always be rendered
 with ``"use_strict"`` added.
 
+Tile Providers
+~~~~~~~~~~~~~~
+
+The named tile properties in ``tile_providers.py``, e.g ``CARTODBPOSITRON`` now
+return then vendor id for that tile provider. This is can be passed to the
+``get_provider`` method directly to return a new ``TileProvider`` instance.
+
 ColumnDataSource Properties
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
