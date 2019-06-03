@@ -45,22 +45,29 @@ for p in (p1, p2, p3):
 
     lines.extend([l1, l2, l3, l4])
 
-def add_callback(widget, prop):
-    widget.callback = CustomJS(args=dict(widget=widget, lines=lines, prop=prop), code="""
-        for (var i = 0; i < lines.length; i++) {
-            var glyph = lines[i].glyph;
-            glyph[prop] = widget.value;
-        }
-    """)
+def make_callback(widget, prop):
+    return
 
 def make_slider(prop, start, end, value):
     slider = Slider(title=prop, start=start, end=end, value=value)
-    add_callback(slider, prop)
+    cb = CustomJS(args=dict(lines=lines, prop=prop), code="""
+        for (var i = 0; i < lines.length; i++) {
+            const glyph = lines[i].glyph;
+            glyph[prop] = cb_obj.value;
+        }
+    """)
+    slider.js_on_change('value', cb)
     return slider
 
 def make_dropdown(prop, menu):
     dropdown = Dropdown(label=prop, menu=menu)
-    add_callback(dropdown, prop)
+    cb = CustomJS(args=dict(lines=lines, prop=prop), code="""
+        for (var i = 0; i < lines.length; i++) {
+            const glyph = lines[i].glyph;
+            glyph[prop] = cb_obj.item;
+        }
+    """)
+    dropdown.js_on_click(cb)
     return dropdown
 
 sliders = [

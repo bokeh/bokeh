@@ -28,7 +28,7 @@ async function compile() {
   if (argv.file != null) {
     const input = {
       code: argv.code != null ? argv.code as string : read(argv.file as string)!,
-      lang: (argv.lang as string | undefined) || "coffeescript",
+      lang: (argv.lang as string | undefined) || "typescript",
       file: argv.file as string,
       bokehjs_dir: (argv.bokehjsDir as string | undefined) || "./build", // this is what bokeh.settings defaults to
     }
