@@ -38,8 +38,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from inspect import signature
-from types import FunctionType
 
 # External imports
 
@@ -51,9 +49,6 @@ from ..core.properties import (
     Auto, Bool, Color, Date, Datetime, Dict, Either, Enum, Image, Int, Float,
     Percent, Instance, List, Seq, String, Tuple
 )
-from ..util.compiler import nodejs_compile, CompilationError
-from ..util.dependencies import import_required
-from ..util.functions import get_param_info
 from ..core.validation import error
 from ..core.validation.errors import (
     INCOMPATIBLE_BOX_EDIT_RENDERER, INCOMPATIBLE_POINT_DRAW_RENDERER,
@@ -876,89 +871,6 @@ class CustomJSHover(Model):
         sanitize the user input prior to passing to Bokeh.
 
     '''
-
-    @classmethod
-    def from_py_func(cls, code):
-        ''' Create a ``CustomJSHover`` instance from a Python functions. The
-        function is translated to JavaScript using PScript.
-
-        The python functions must have no positional arguments. It is
-        possible to pass Bokeh models (e.g. a ``ColumnDataSource``) as keyword
-        arguments to the functions.
-
-        The ``code`` function namespace will contain the variable ``value``
-        (the untransformed value) at render time as well as ``format`` and
-        ``special_vars`` as described in the class description.
-
-        Args:
-            code (function) : a scalar function to transform a single ``value``
-
-        Returns:
-            CustomJSHover
-
-        '''
-        from bokeh.util.deprecation import deprecated
-        deprecated("'from_py_func' is deprecated and will be removed in an eventual 2.0 release. "
-                   "Use CustomJSHover directly instead.")
-
-        if not isinstance(code, FunctionType):
-            raise ValueError('CustomJSHover.from_py_func only accepts function objects.')
-
-        pscript = import_required('pscript',
-                                  'To use Python functions for CustomJSHover, you need PScript ' +
-                                  '("conda install -c conda-forge pscript" or "pip install pscript")')
-
-        def pscript_compile(code):
-            sig = signature(code)
-
-            all_names, default_values = get_param_info(sig)
-
-            if len(all_names) - len(default_values) != 0:
-                raise ValueError("Function may only contain keyword arguments.")
-
-            if default_values and not any(isinstance(value, Model) for value in default_values):
-                raise ValueError("Default value must be a Bokeh Model.")
-
-            func_kwargs = dict(zip(all_names, default_values))
-
-            # Wrap the code attr in a function named `code` and call it
-            # with arguments that match the `args` attr
-            code = pscript.py2js(code, 'transformer') + 'return transformer(%s);\n' % ', '.join(all_names)
-            return code, func_kwargs
-
-        jsfunc, func_kwargs = pscript_compile(code)
-
-        return cls(code=jsfunc, args=func_kwargs)
-
-    @classmethod
-    def from_coffeescript(cls, code, args={}):
-        ''' Create a CustomJSHover instance from a CoffeeScript snippet. The
-        function bodies are translated to JavaScript functions using node and
-        therefore require return statements.
-
-        The ``code`` snippet namespace will contain the variable ``value`` (the
-        untransformed value) at render time as well as ``special_vars`` and
-        ``format`` as described in the class description.
-
-        Example:
-
-        .. code-block:: coffeescript
-
-            formatter = CustomJSHover.from_coffeescript("return value + " total")
-
-        Args:
-            code (str) :
-                A coffeescript snippet to transform a single ``value`` value
-
-        Returns:
-            CustomJSHover
-
-        '''
-        compiled = nodejs_compile(code, lang="coffeescript", file="???")
-        if "error" in compiled:
-            raise CompilationError(compiled.error)
-
-        return cls(code=compiled.code, args=args)
 
     args = Dict(String, Instance(Model), help="""
     A mapping of names to Bokeh plot objects. These objects are made available

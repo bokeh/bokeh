@@ -212,83 +212,6 @@ interactions such as a box zoom, wheel scroll or pan.
 .. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_range_update.py
     :source-position: above
 
-CustomJS with CoffeeScript code
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-It is possible to write the code for ``CustomJS`` callbacks in `CoffeeScript`_.
-To accomplish this, use the ``from_coffeescript`` class method, which accepts
-the same ``args`` and ``code`` parameters:
-
-.. code:: python
-
-    callback = CustomJS.from_coffeescript(args=dict(p=plot), code="""
-    # coffeescript code here
-    """)
-
-CustomJS with a Python function
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. warning::
-    Support for converting Python to JS is deprecated and all the "from_py_func"
-    functions will be removed in an eventual Bokeh 2.0 release. Use CustomJS
-    classes instead.
-
-A CustomJS callback can also be implemented as a Python function, which
-is then translated to JavaScript using PScript. This makes it easier
-for users to define client-side interactions without having to learn
-JavaScript. To use this functionality you need the PScript library
-(install with ``conda install -c conda-forge pscript`` or ``pip install pscript``).
-
-.. note::
-    It is critical to note that **no python code is ever executed when
-    a CustomJS callback is used**. This is true even when the callback is
-    supplied as python code to be translated to JavaScript as described in
-    this section. A ``CustomJS`` callback is only executed inside a browser
-    JavaScript interpreter, and can only directly interact JavaScript data
-    and functions (e.g., BokehJS models).
-
-For more information about the subset of Python that is supported in
-callbacks, see the `PScript documentation`_.
-
-We recommend using ``window.x`` for variables specific to JavaScript
-to avoid confusion and help static code analysis tools. You can add
-``window`` as an argument to the callback function to help readability
-(and pyflakes), as in the example below.
-
-.. code-block:: python
-
-    from bokeh.layouts import column
-    from bokeh.models import CustomJS, ColumnDataSource, Slider
-    from bokeh.plotting import Figure, output_file, show
-
-    output_file("callback.html")
-
-    x = [x*0.005 for x in range(0, 200)]
-    y = x
-
-    source = ColumnDataSource(data=dict(x=x, y=y))
-
-    plot = Figure(plot_width=400, plot_height=400)
-    plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6)
-
-    def callback(source=source, window=None):
-        data = source.data
-        f = cb_obj.value
-        x, y = data['x'], data['y']
-        for i in range(len(x)):
-            y[i] = window.Math.pow(x[i], f)
-        source.change.emit()
-
-    slider = Slider(start=0.1, end=4, value=1, step=.1, title="power",
-                    callback=CustomJS.from_py_func(callback))
-
-    layout = column(slider, plot)
-
-    show(layout)
-
-.. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_for_widgets.py
-    :source-position: none
-
 OpenURL
 ~~~~~~~
 
@@ -307,6 +230,3 @@ Please note that ``OpenURL`` callbacks specifically and only work with
 ``TapTool``, and are only invoked when a glyph is hit. That is, they do not
 execute on every tap. If you would like to execute a callback on every
 mouse tap, please see :ref:`userguide_interaction_jscallbacks_customjs_interactions`.
-
-.. _CoffeeScript: http://coffeescript.org
-.. _PScript documentation: http://pscript.readthedocs.org

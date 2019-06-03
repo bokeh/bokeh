@@ -19,9 +19,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from inspect import signature
-from textwrap import dedent
-from types import FunctionType
 
 # External imports
 
@@ -30,9 +27,6 @@ from ..core.enums import StepMode, JitterRandomDistribution
 from ..core.has_props import abstract
 from ..core.properties import Bool, Dict, Either, Enum, Float, Instance, Seq, String, AnyRef
 from ..model import Model
-from ..util.compiler import nodejs_compile, CompilationError
-from ..util.dependencies import import_required
-from ..util.functions import get_param_info
 
 from .sources import ColumnarDataSource
 
@@ -61,13 +55,15 @@ class Transform(Model):
 
     JavaScript implementations should implement the following methods:
 
-    .. code-block:: coffeescript
+    .. code-block
 
-        compute: (x) ->
-            # compute the transform of a single value
+        compute(x: number): number {
+            # compute and return the transform of a single value
+        }
 
-        v_compute: (xs) ->
-            # compute the transform of an array of values
+        v_compute(xs: Arrayable<number>): Arrayable<number> {
+            # compute and return the transform of an array of values
+        }
 
     '''
     pass
@@ -83,126 +79,6 @@ class CustomJSTransform(Transform):
         sanitize the user input prior to passing to Bokeh.
 
     '''
-
-    @classmethod
-    def from_py_func(cls, func, v_func):
-        ''' Create a ``CustomJSTransform`` instance from a pair of Python
-        functions. The function is translated to JavaScript using PScript.
-
-        The python functions must have no positional arguments. It's
-        possible to pass Bokeh models (e.g. a ``ColumnDataSource``) as keyword
-        arguments to the functions.
-
-        The ``func`` function namespace will contain the variable ``x`` (the
-        untransformed value) at render time. The ``v_func`` function namespace
-        will contain the variable ``xs`` (the untransformed vector) at render
-        time.
-
-        .. warning::
-            The vectorized function, ``v_func``, must return an array of the
-            same length as the input ``xs`` array.
-
-        Example:
-
-        .. code-block:: python
-
-            def transform():
-                from pscript.stubs import Math
-                return Math.cos(x)
-
-            def v_transform():
-                from pscript.stubs import Math
-                return [Math.cos(x) for x in xs]
-
-            customjs_transform = CustomJSTransform.from_py_func(transform, v_transform)
-
-        Args:
-            func (function) : a scalar function to transform a single ``x`` value
-
-            v_func (function) : a vectorized function to transform a vector ``xs``
-
-        Returns:
-            CustomJSTransform
-
-        '''
-        from bokeh.util.deprecation import deprecated
-        deprecated("'from_py_func' is deprecated and will be removed in an eventual 2.0 release. "
-                   "Use CustomJSTransform directly instead.")
-
-        if not isinstance(func, FunctionType) or not isinstance(v_func, FunctionType):
-            raise ValueError('CustomJSTransform.from_py_func only accepts function objects.')
-
-        pscript = import_required(
-            'pscript',
-            dedent("""\
-                To use Python functions for CustomJSTransform, you need PScript
-                '("conda install -c conda-forge pscript" or "pip install pscript")""")
-            )
-
-        def pscript_compile(func):
-            sig = signature(func)
-
-            all_names, default_values = get_param_info(sig)
-
-            if len(all_names) - len(default_values) != 0:
-                raise ValueError("Function may only contain keyword arguments.")
-
-            if default_values and not any(isinstance(value, Model) for value in default_values):
-                raise ValueError("Default value must be a Bokeh Model.")
-
-            func_kwargs = dict(zip(all_names, default_values))
-
-            # Wrap the code attr in a function named `formatter` and call it
-            # with arguments that match the `args` attr
-            code = pscript.py2js(func, 'transformer') + 'return transformer(%s);\n' % ', '.join(all_names)
-            return code, func_kwargs
-
-        jsfunc, func_kwargs = pscript_compile(func)
-        v_jsfunc, v_func_kwargs = pscript_compile(v_func)
-
-        # Have to merge the function arguments
-        func_kwargs.update(v_func_kwargs)
-
-        return cls(func=jsfunc, v_func=v_jsfunc, args=func_kwargs)
-
-    @classmethod
-    def from_coffeescript(cls, func, v_func, args={}):
-        ''' Create a ``CustomJSTransform`` instance from a pair of CoffeeScript
-        snippets. The function bodies are translated to JavaScript functions
-        using node and therefore require return statements.
-
-        The ``func`` snippet namespace will contain the variable ``x`` (the
-        untransformed value) at render time. The ``v_func`` snippet namespace
-        will contain the variable ``xs`` (the untransformed vector) at render
-        time.
-
-        Example:
-
-        .. code-block:: coffeescript
-
-            func = "return Math.cos(x)"
-            v_func = "return [Math.cos(x) for x in xs]"
-
-            transform = CustomJSTransform.from_coffeescript(func, v_func)
-
-        Args:
-            func (str) : a coffeescript snippet to transform a single ``x`` value
-
-            v_func (str) : a coffeescript snippet function to transform a vector ``xs``
-
-        Returns:
-            CustomJSTransform
-
-        '''
-        compiled = nodejs_compile(func, lang="coffeescript", file="???")
-        if "error" in compiled:
-            raise CompilationError(compiled.error)
-
-        v_compiled = nodejs_compile(v_func, lang="coffeescript", file="???")
-        if "error" in v_compiled:
-            raise CompilationError(v_compiled.error)
-
-        return cls(func=compiled.code, v_func=v_compiled.code, args=args)
 
     args = Dict(String, AnyRef, help="""
     A mapping of names to Python objects. In particular those can be bokeh's models.

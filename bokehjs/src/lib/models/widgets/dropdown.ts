@@ -83,9 +83,6 @@ export class DropdownView extends AbstractButtonView {
     else {
       this._hide_menu()
       this.model.trigger_event(new ButtonClick())
-      this.model.value = this.model.default_value
-      if (this.model.callback != null)
-        this.model.callback.execute(this.model)
       super.click()
     }
   }
@@ -98,15 +95,8 @@ export class DropdownView extends AbstractButtonView {
       const value_or_callback = isString(item) ? item : item[1]
       if (isString(value_or_callback)) {
         this.model.trigger_event(new MenuItemClick(value_or_callback))
-        this.model.value = value_or_callback
-
-        if (this.model.callback != null)
-          this.model.callback.execute(this.model) // XXX: {index: i, item: value_or_callback})
       } else {
         value_or_callback.execute(this.model, {index: i}) // TODO
-
-        if (this.model.callback != null)
-          this.model.callback.execute(this.model) // XXX: {index: i})
       }
     }
   }
@@ -118,8 +108,6 @@ export namespace Dropdown {
   export type Props = AbstractButton.Props & {
     split: p.Property<boolean>
     menu: p.Property<(string | [string, string | CallbackLike1<Dropdown, {index: number}>] | null)[]>
-    value: p.Property<string>
-    default_value: p.Property<string>
   }
 }
 
@@ -138,8 +126,6 @@ export class Dropdown extends AbstractButton {
     this.define<Dropdown.Props>({
       split:         [ p.Boolean, false ],
       menu:          [ p.Array,   []    ],
-      value:         [ p.String         ], // deprecated
-      default_value: [ p.String         ], // deprecated
     })
 
     this.override({
@@ -148,6 +134,6 @@ export class Dropdown extends AbstractButton {
   }
 
   get is_split(): boolean {
-    return this.split || this.default_value != null
+    return this.split
   }
 }
