@@ -66,13 +66,13 @@ class Test_ClientConnection(object):
         assert c._server_info is None
         assert c._arguments == dict(foo="bar")
 
-    def test__versioned_url(self):
+    def test__formatted_url(self):
         c = bcc.ClientConnection(FakeSess(), "wsurl")
-        assert c._versioned_url() == "wsurl?bokeh-protocol-version=1.0&bokeh-session-id=session_id"
+        assert c._formatted_url() == "wsurl?bokeh-session-id=session_id"
 
-    def test__versioned_url_with_arguments(self):
+    def test__formatted_url_with_arguments(self):
         c = bcc.ClientConnection(FakeSess(), "wsurl", arguments=dict(foo="bar"))
-        assert c._versioned_url() == "wsurl?bokeh-protocol-version=1.0&bokeh-session-id=session_id&foo=bar"
+        assert c._formatted_url() == "wsurl?bokeh-session-id=session_id&foo=bar"
 
 #-----------------------------------------------------------------------------
 # Private API

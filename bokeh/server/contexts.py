@@ -301,7 +301,6 @@ class ApplicationContext(object):
 class _RequestProxy(object):
     def __init__(self, request):
         args_copy = dict(request.arguments)
-        if 'bokeh-protocol-version' in args_copy: del args_copy['bokeh-protocol-version']
         if 'bokeh-session-id' in args_copy: del args_copy['bokeh-session-id']
         self._args = args_copy
     @property
