@@ -39,6 +39,14 @@ The ``use_strict`` property has been removed from all models that it had been
 on previously. All JavaScript code, e.g. for ``CustomJS`` will always be rendered
 with ``"use_strict"`` added.
 
+Bokeh Prototcol Versioning
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Bokeh wire protocol messages no longer express any revision, and URLs for
+server sessions no longer specify ``"bokeh-protocol-version"``. It is assumed
+any client and server communicating are the same release version (which has
+always been true in any usage scenario).
+
 Selection Dicts
 ~~~~~~~~~~~~~~~
 
@@ -89,6 +97,9 @@ needed:
 
 * ``bokeh.models.widgets.buttons``: property ``callback`` removed from all
    buttons, and ``Dropdown.default_value`` and ``Dropdown.value`` removed
+
+* ``bokeh.protocol`` entire ``versions`` module removed, ``messages.register``
+  function removed.
 
 * ``bokeh.util.compiler``: class ``CoffeeScript`` and related code removed
 
