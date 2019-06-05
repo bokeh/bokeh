@@ -62,8 +62,8 @@ class Test_ServerLifecycleHandler(object):
             out['handler'] = handler
         with_file_contents("# This script does nothing", load)
         handler = out['handler']
-        await handler.on_server_loaded(None)
-        await handler.on_server_unloaded(None)
+        handler.on_server_loaded(None)
+        handler.on_server_unloaded(None)
         await handler.on_session_created(None)
         await handler.on_session_destroyed(None)
         if handler.failed:
@@ -164,8 +164,8 @@ def on_session_destroyed(a,b):
         with_file_contents(script_adds_four_handlers, load)
 
         handler = result['handler']
-        assert "on_server_loaded" == await handler.on_server_loaded(None)
-        assert "on_server_unloaded" == await handler.on_server_unloaded(None)
+        assert "on_server_loaded" == handler.on_server_loaded(None)
+        assert "on_server_unloaded" == handler.on_server_unloaded(None)
         assert "on_session_created" == await handler.on_session_created(None)
         assert "on_session_destroyed" == await handler.on_session_destroyed(None)
 

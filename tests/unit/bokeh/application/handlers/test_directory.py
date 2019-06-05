@@ -207,8 +207,8 @@ some.foo = 57
 
         handler = result['handler']
 
-        assert "on_server_loaded" == await handler.on_server_loaded(None)
-        assert "on_server_unloaded" == await handler.on_server_unloaded(None)
+        assert "on_server_loaded" == handler.on_server_loaded(None)
+        assert "on_server_unloaded" == handler.on_server_unloaded(None)
         assert "on_session_created" == await handler.on_session_created(None)
         assert "on_session_destroyed" == await handler.on_session_destroyed(None)
 

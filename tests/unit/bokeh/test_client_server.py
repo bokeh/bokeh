@@ -41,7 +41,7 @@ from bokeh.models import Plot
 # Setup
 #-----------------------------------------------------------------------------
 
-from server._util_server import ManagedServerLoop, url, ws_url, http_get, websocket_open
+from server._util_server import url, ws_url, http_get, websocket_open
 
 #-----------------------------------------------------------------------------
 # General API
@@ -66,7 +66,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 class TestClientServer(object):
 
-    def test_minimal_connect_and_disconnect(self):
+    def test_minimal_connect_and_disconnect(self, ManagedServerLoop):
         application = Application()
         with ManagedServerLoop(application) as server:
             # we don't have to start the server because it
@@ -79,7 +79,7 @@ class TestClientServer(object):
             assert session.connected
 
     @pytest.mark.asyncio
-    async def test_disconnect_on_error(self):
+    async def test_disconnect_on_error(self, ManagedServerLoop):
         application = Application()
         with ManagedServerLoop(application) as server:
             session = ClientSession(session_id='test_disconnect_on_error',
@@ -97,7 +97,7 @@ class TestClientServer(object):
             session._loop_until_closed()
             assert not session.connected
 
-    def test_connect_with_prefix(self):
+    def test_connect_with_prefix(self, ManagedServerLoop):
         application = Application()
         with ManagedServerLoop(application, prefix="foo") as server:
             # we don't have to start the server because it
@@ -158,7 +158,7 @@ class TestClientServer(object):
         await self.check_connect_session_fails(server, origin=origin)
 
     @pytest.mark.asyncio
-    async def test_allow_websocket_origin(self):
+    async def test_allow_websocket_origin(self, ManagedServerLoop):
         application = Application()
 
         # allow good origin
@@ -219,7 +219,7 @@ class TestClientServer(object):
             await self.check_http_ok_socket_blocked(server, origin="http://example.com:8081")
             del os.environ["BOKEH_ALLOW_WS_ORIGIN"]
 
-    def test_push_document(self):
+    def test_push_document(self, ManagedServerLoop):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -250,7 +250,7 @@ class TestClientServer(object):
             client_session._loop_until_closed()
             assert not client_session.connected
 
-    def test_pull_document(self):
+    def test_pull_document(self, ManagedServerLoop):
         application = Application()
         def add_roots(doc):
             doc.add_root(AnotherModelInTestClientServer(bar=43))
@@ -280,7 +280,7 @@ class TestClientServer(object):
             client_session._loop_until_closed()
             assert not client_session.connected
 
-    def test_request_server_info(self):
+    def test_request_server_info(self, ManagedServerLoop):
         application = Application()
         with ManagedServerLoop(application) as server:
             session = ClientSession(session_id='test_request_server_info',
@@ -302,7 +302,7 @@ class TestClientServer(object):
             assert not session.connected
 
     @pytest.mark.skipif(sys.platform == "win32", reason="uninmportant failure on win")
-    def test_ping(self):
+    def test_ping(self, ManagedServerLoop):
         application = Application()
         with ManagedServerLoop(application, keep_alive_milliseconds=0) as server:
             session = ClientSession(session_id='test_ping',
@@ -329,7 +329,7 @@ class TestClientServer(object):
             session._loop_until_closed()
             assert not session.connected
 
-    def test_client_changes_go_to_server(self):
+    def test_client_changes_go_to_server(self, ManagedServerLoop):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -378,7 +378,7 @@ class TestClientServer(object):
             assert not client_session.connected
 
     @pytest.mark.asyncio
-    async def test_server_changes_go_to_client(self):
+    async def test_server_changes_go_to_client(self, ManagedServerLoop):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -446,7 +446,7 @@ class TestClientServer(object):
         return value
 
     @pytest.mark.asyncio
-    async def test_client_session_timeout_async(self):
+    async def test_client_session_timeout_async(self, ManagedServerLoop):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -479,7 +479,7 @@ class TestClientServer(object):
             assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
     @pytest.mark.asyncio
-    async def test_client_session_timeout_async_added_before_push(self):
+    async def test_client_session_timeout_async_added_before_push(self, ManagedServerLoop):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -512,7 +512,7 @@ class TestClientServer(object):
             assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
     @pytest.mark.asyncio
-    async def test_server_session_timeout_async(self):
+    async def test_server_session_timeout_async(self, ManagedServerLoop):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -548,7 +548,7 @@ class TestClientServer(object):
             assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
     @pytest.mark.asyncio
-    async def test_client_session_next_tick_async(self):
+    async def test_client_session_next_tick_async(self, ManagedServerLoop):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -581,7 +581,7 @@ class TestClientServer(object):
             assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
     @pytest.mark.asyncio
-    async def test_client_session_next_tick_async_added_before_push(self):
+    async def test_client_session_next_tick_async_added_before_push(self, ManagedServerLoop):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -614,7 +614,7 @@ class TestClientServer(object):
             assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
     @pytest.mark.asyncio
-    async def test_server_session_next_tick_async(self):
+    async def test_server_session_next_tick_async(self, ManagedServerLoop):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -650,7 +650,7 @@ class TestClientServer(object):
             assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
     @pytest.mark.asyncio
-    async def test_client_session_periodic_async(self):
+    async def test_client_session_periodic_async(self, ManagedServerLoop):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -681,7 +681,7 @@ class TestClientServer(object):
             assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
     @pytest.mark.asyncio
-    async def test_client_session_periodic_async_added_before_push(self):
+    async def test_client_session_periodic_async_added_before_push(self, ManagedServerLoop):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -712,7 +712,7 @@ class TestClientServer(object):
             assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
     @pytest.mark.asyncio
-    async def test_server_session_periodic_async(self):
+    async def test_server_session_periodic_async(self, ManagedServerLoop):
         application = Application()
         with ManagedServerLoop(application) as server:
             doc = document.Document()
@@ -745,7 +745,7 @@ class TestClientServer(object):
 
             assert dict(a=0, b=1, c=2, d=3, e=4) == result.values
 
-    def test_lots_of_concurrent_messages(self):
+    def test_lots_of_concurrent_messages(self, ManagedServerLoop):
         application = Application()
         def setup_stuff(doc):
             m1 = AnotherModelInTestClientServer(bar=43, name='m1')
@@ -834,7 +834,7 @@ class TestClientServer(object):
             assert result['server_connection_count'] == 1
             assert result['server_close_code'] is None
 
-def test_client_changes_do_not_boomerang(monkeypatch):
+def test_client_changes_do_not_boomerang(monkeypatch, ManagedServerLoop):
     application = Application()
     with ManagedServerLoop(application) as server:
         doc = document.Document()
@@ -881,7 +881,7 @@ def test_client_changes_do_not_boomerang(monkeypatch):
         server.unlisten() # clean up so next test can run
 
 @pytest.mark.asyncio
-async def test_server_changes_do_not_boomerang(monkeypatch):
+async def test_server_changes_do_not_boomerang(monkeypatch, ManagedServerLoop):
     application = Application()
     with ManagedServerLoop(application) as server:
         doc = document.Document()
@@ -931,7 +931,7 @@ async def test_server_changes_do_not_boomerang(monkeypatch):
 
 # this test is because we do the funky serializable_value
 # tricks with the units specs
-def test_unit_spec_changes_do_not_boomerang(monkeypatch):
+def test_unit_spec_changes_do_not_boomerang(monkeypatch, ManagedServerLoop):
     application = Application()
     with ManagedServerLoop(application) as server:
         doc = document.Document()

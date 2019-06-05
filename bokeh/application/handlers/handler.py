@@ -125,7 +125,7 @@ class Handler(object):
         '''
         raise NotImplementedError("implement modify_document()")
 
-    async def on_server_loaded(self, server_context):
+    def on_server_loaded(self, server_context):
         ''' Execute code when the server is first started.
 
         Subclasses may implement this method to provide for any one-time
@@ -138,7 +138,7 @@ class Handler(object):
         '''
         pass
 
-    async def on_server_unloaded(self, server_context):
+    def on_server_unloaded(self, server_context):
         ''' Execute code when the server cleanly exits. (Before stopping the
         server's ``IOLoop``.)
 

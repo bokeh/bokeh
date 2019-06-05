@@ -4,69 +4,62 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
+''' Define a Pytest plugin to provide a Bokeh server
+
+'''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-import pytest ; pytest
+import logging
+log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from contextlib import contextmanager
 
 # External imports
+import pytest
 
 # Bokeh imports
-
-# Module under test
-import bokeh.application.handlers.handler as bahh
+from bokeh.server.server import Server
 
 #-----------------------------------------------------------------------------
-# Setup
+# Globals and constants
 #-----------------------------------------------------------------------------
+
+pytest_plugins = ()
+
+__all__ = (
+    'ManagedServerLoop',
+)
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
+@pytest.fixture
+def ManagedServerLoop(unused_tcp_port):
+    @contextmanager
+    def msl(application, port=None, **server_kwargs):
+        if port is None:
+            port = unused_tcp_port
+        server = Server(application, port=port, **server_kwargs)
+        try:
+            server.start()
+            yield server
+        finally:
+            server.unlisten()
+            server.stop()
+    return msl
+
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
-
-class Test_Handler(object):
-
-    # Public methods ----------------------------------------------------------
-
-    def test_create(self):
-        h = bahh.Handler()
-        assert h.failed == False
-        assert h.url_path() is None
-        assert h.static_path() is None
-        assert h.error is None
-        assert h.error_detail is None
-
-    def test_modify_document_abstract(self):
-        h = bahh.Handler()
-        with pytest.raises(NotImplementedError):
-            h.modify_document("doc")
-
-    @pytest.mark.asyncio
-    async def test_default_hooks_return_none(self):
-        h = bahh.Handler()
-        assert h.on_server_loaded("context") is None
-        assert h.on_server_unloaded("context") is None
-        assert await h.on_session_created("context") is None
-        assert await h.on_session_destroyed("context") is None
-
-    def test_static_path(self):
-        h = bahh.Handler()
-        assert h.static_path() is None
-        h._static = "path"
-        assert h.static_path() == "path"
-        h._failed = True
-        assert h.static_path() is None
 
 #-----------------------------------------------------------------------------
 # Private API
