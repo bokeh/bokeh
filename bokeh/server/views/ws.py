@@ -112,11 +112,6 @@ class WSHandler(WebSocketHandler):
         '''
         log.info('WebSocket connection opened')
 
-        proto_version = self.get_argument("bokeh-protocol-version", default=None)
-        if proto_version is None:
-            self.close()
-            raise ProtocolError("No bokeh-protocol-version specified")
-
         session_id = self.get_argument("bokeh-session-id", default=None)
         if session_id is None:
             self.close()
@@ -136,11 +131,11 @@ class WSHandler(WebSocketHandler):
                 # immediately, most likely.
                 log.debug("Failed to fully open connection %r", e)
 
-        future = self._async_open(session_id, proto_version)
+        future = self._async_open(session_id)
         self.application.io_loop.add_future(future, on_fully_opened)
 
     @gen.coroutine
-    def _async_open(self, session_id, proto_version):
+    def _async_open(self, session_id):
         ''' Perform the specific steps needed to open a connection to a Bokeh session
 
         Specifically, this method coordinates:
@@ -155,9 +150,6 @@ class WSHandler(WebSocketHandler):
 
                 If no session exists with the given ID, a new session is made
 
-            proto_version (str):
-                The protocol version requested by the connecting client.
-
         Returns:
             None
 
@@ -166,7 +158,7 @@ class WSHandler(WebSocketHandler):
             yield self.application_context.create_session_if_needed(session_id, self.request)
             session = self.application_context.get_session(session_id)
 
-            protocol = Protocol(proto_version)
+            protocol = Protocol()
             self.receiver = Receiver(protocol)
             log.debug("Receiver created for %r", protocol)
 

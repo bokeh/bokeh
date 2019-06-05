@@ -86,7 +86,7 @@ class ProtocolHandler(object):
 
         '''
 
-        handler = self._handlers.get((message.msgtype, message.revision))
+        handler = self._handlers.get(message.msgtype)
 
         if handler is None:
             handler = self._handlers.get(message.msgtype)
