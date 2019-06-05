@@ -21,14 +21,13 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..message import Message
-from . import register
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'server_info_req_1',
+    'server_info_req',
 )
 
 #-----------------------------------------------------------------------------
@@ -39,17 +38,15 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-@register
-class server_info_req_1(Message):
-    ''' Define the ``SERVER-INFO-REQ`` message (revision 1) for requesting a
-    Bokeh server provide information about itself.
+class server_info_req(Message):
+    ''' Define the ``SERVER-INFO-REQ`` message for requesting a Bokeh server
+    provide information about itself.
 
     The ``content`` fragment of for this message is empty.
 
     '''
 
     msgtype   = 'SERVER-INFO-REQ'
-    revision = 1
 
     @classmethod
     def create(cls, **metadata):

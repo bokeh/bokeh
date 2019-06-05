@@ -35,6 +35,8 @@ from bokeh.protocol.messages.patch_doc import process_document_events
 # Setup
 #-----------------------------------------------------------------------------
 
+proto = Protocol()
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -57,7 +59,7 @@ class TestPatchDocument(object):
 
     def test_create_no_events(self):
         with pytest.raises(ValueError):
-            Protocol("1.0").create("PATCH-DOC", [])
+            proto.create("PATCH-DOC", [])
 
     def test_create_multiple_docs(self):
         sample1 = self._sample_doc()
@@ -68,13 +70,13 @@ class TestPatchDocument(object):
         obj2 = next(iter(sample2.roots))
         event2 = ModelChangedEvent(sample2, obj2, 'foo', obj2.foo, 42, 42)
         with pytest.raises(ValueError):
-            Protocol("1.0").create("PATCH-DOC", [event1, event2])
+            proto.create("PATCH-DOC", [event1, event2])
 
     def test_create_model_changed(self):
         sample = self._sample_doc()
         obj = next(iter(sample.roots))
         event = ModelChangedEvent(sample, obj, 'foo', obj.foo, 42, 42)
-        Protocol("1.0").create("PATCH-DOC", [event])
+        proto.create("PATCH-DOC", [event])
 
     def test_create_then_apply_model_changed(self):
         sample = self._sample_doc()
@@ -87,7 +89,7 @@ class TestPatchDocument(object):
         obj = next(iter(sample.roots))
         assert obj.foo == 2
         event = ModelChangedEvent(sample, obj, 'foo', obj.foo, 42, 42)
-        msg = Protocol("1.0").create("PATCH-DOC", [event])
+        msg = proto.create("PATCH-DOC", [event])
 
         copy = document.Document.from_json_string(sample.to_json_string())
         msg.apply_to_document(copy)
@@ -122,40 +124,40 @@ class TestPatchDocument(object):
 
         # Model property changed
         event = ModelChangedEvent(sample, root, 'child', root.child, new_child, new_child)
-        msg = Protocol("1.0").create("PATCH-DOC", [event])
+        msg = proto.create("PATCH-DOC", [event])
         msg.apply_to_document(sample, mock_session)
         assert msg.buffers == []
 
         # RootAdded
         event2 = RootAddedEvent(sample, root)
-        msg2 = Protocol("1.0").create("PATCH-DOC", [event2])
+        msg2 = proto.create("PATCH-DOC", [event2])
         msg2.apply_to_document(sample, mock_session)
         assert msg2.buffers == []
 
         # RootRemoved
         event3 = RootRemovedEvent(sample, root)
-        msg3 = Protocol("1.0").create("PATCH-DOC", [event3])
+        msg3 = proto.create("PATCH-DOC", [event3])
         msg3.apply_to_document(sample, mock_session)
         assert msg3.buffers == []
 
         # ColumnsStreamed
         event4 = ModelChangedEvent(sample, cds, 'data', 10, None, None,
                                    hint=ColumnsStreamedEvent(sample, cds, {"a": [3]}, None, mock_session))
-        msg4 = Protocol("1.0").create("PATCH-DOC", [event4])
+        msg4 = proto.create("PATCH-DOC", [event4])
         msg4.apply_to_document(sample, mock_session)
         assert msg4.buffers == []
 
         # ColumnsPatched
         event5 = ModelChangedEvent(sample, cds, 'data', 10, None, None,
                                    hint=ColumnsPatchedEvent(sample, cds, {"a": [(0, 11)]}))
-        msg5 = Protocol("1.0").create("PATCH-DOC", [event5])
+        msg5 = proto.create("PATCH-DOC", [event5])
         msg5.apply_to_document(sample, mock_session)
         assert msg5.buffers == []
 
         # ColumnDataChanged, use_buffers=False
         event6 = ModelChangedEvent(sample, cds, 'data', {'a': np.array([0., 1.])}, None, None,
                                    hint=ColumnDataChangedEvent(sample, cds))
-        msg6 = Protocol("1.0").create("PATCH-DOC", [event6], use_buffers=False)
+        msg6 = proto.create("PATCH-DOC", [event6], use_buffers=False)
         msg6.apply_to_document(sample, mock_session)
         assert msg6.buffers == []
 
@@ -163,7 +165,7 @@ class TestPatchDocument(object):
         # ColumnDataChanged, use_buffers=True
         event7 = ModelChangedEvent(sample, cds, 'data', {'a': np.array([0., 1.])}, None, None,
                                    hint=ColumnDataChangedEvent(sample, cds))
-        msg7 = Protocol("1.0").create("PATCH-DOC", [event7])
+        msg7 = proto.create("PATCH-DOC", [event7])
         # can't test apply, doc not set up to *receive* binary buffers
         # msg7.apply_to_document(sample, mock_session)
         assert len(msg7.buffers) == 1

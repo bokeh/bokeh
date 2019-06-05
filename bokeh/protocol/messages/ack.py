@@ -21,14 +21,13 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..message import Message
-from . import register
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'ack_1',
+    'ack',
 )
 
 #-----------------------------------------------------------------------------
@@ -39,17 +38,15 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-@register
-class ack_1(Message):
-    ''' Define the ``ACK`` message (revision 1) for acknowledging successful
-    client connection to a Bokeh server.
+class ack(Message):
+    ''' Define the ``ACK`` message for acknowledging successful client
+    connection to a Bokeh server.
 
     The ``content`` fragment of for this message is empty.
 
     '''
 
     msgtype  = 'ACK'
-    revision = 1
 
     @classmethod
     def create(cls, **metadata):
