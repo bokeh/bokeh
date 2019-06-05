@@ -263,7 +263,7 @@ def push_notebook(document=None, state=None, handle=None):
         return
 
     handle.doc._held_events = []
-    msg = Protocol("1.0").create("PATCH-DOC", events)
+    msg = Protocol().create("PATCH-DOC", events)
 
     handle.comms.send(msg.header_json)
     handle.comms.send(msg.metadata_json)

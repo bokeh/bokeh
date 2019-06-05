@@ -30,6 +30,8 @@ from bokeh.protocol import Protocol
 # Setup
 #-----------------------------------------------------------------------------
 
+proto = Protocol()
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -52,11 +54,11 @@ class TestPushDocument(object):
 
     def test_create(self):
         sample = self._sample_doc()
-        Protocol("1.0").create("PUSH-DOC", sample)
+        proto.create("PUSH-DOC", sample)
 
     def test_create_then_parse(self):
         sample = self._sample_doc()
-        msg = Protocol("1.0").create("PUSH-DOC", sample)
+        msg = proto.create("PUSH-DOC", sample)
         copy = document.Document()
         msg.push_to_document(copy)
         assert len(sample.roots) == 2

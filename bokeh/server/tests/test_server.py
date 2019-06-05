@@ -250,7 +250,7 @@ def extract_use_for_title_from_json(html):
 
 def autoload_url(server):
     return url(server) + \
-        "autoload.js?bokeh-protocol-version=1.0&bokeh-autoload-element=foo"
+        "autoload.js?bokeh-autoload-element=foo"
 
 def resource_files_requested(response, requested=True):
     if not isinstance(response, str):
@@ -505,8 +505,7 @@ def test__no_autocreate_session_websocket():
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
 
-        websocket_open(server.io_loop,
-                       ws_url(server) + "?bokeh-protocol-version=1.0")
+        websocket_open(server.io_loop, ws_url(server))
 
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
@@ -552,9 +551,7 @@ def test__use_provided_session_websocket():
         assert 0 == len(sessions)
 
         expected = 'foo'
-        url = ws_url(server) + \
-              "?bokeh-protocol-version=1.0" + \
-              "&bokeh-session-id=" + expected
+        url = ws_url(server) + "?bokeh-session-id=" + expected
         websocket_open(server.io_loop,
                        url)
 
@@ -632,9 +629,7 @@ def test__reject_unsigned_session_websocket():
         assert 0 == len(sessions)
 
         expected = 'foo'
-        url = ws_url(server) + \
-              "?bokeh-protocol-version=1.0" + \
-              "&bokeh-session-id=" + expected
+        url = ws_url(server) + "?bokeh-session-id=" + expected
         websocket_open(server.io_loop,
                        url)
 
