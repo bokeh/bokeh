@@ -124,7 +124,7 @@ class TestClientServer(object):
     def check_connect_session_fails(self, server, origin):
         with pytest.raises(HTTPError):
             websocket_open(server.io_loop,
-                           ws_url(server)+"?bokeh-protocol-version=1.0&bokeh-session-id=foo",
+                           ws_url(server)+"?bokeh-session-id=foo",
                            origin=origin)
 
     def check_http_gets(self, server):
@@ -133,7 +133,7 @@ class TestClientServer(object):
 
     def check_connect_session(self, server, origin):
         websocket_open(server.io_loop,
-                       ws_url(server)+"?bokeh-protocol-version=1.0&bokeh-session-id=foo",
+                       ws_url(server)+"?bokeh-session-id=foo",
                        origin=origin)
 
     def check_http_ok_socket_ok(self, server, origin=None):

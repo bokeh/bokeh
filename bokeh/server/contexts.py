@@ -309,7 +309,6 @@ class _RequestProxy(object):
         self._request = request
 
         arguments = dict(request.arguments)
-        if 'bokeh-protocol-version' in arguments: del arguments['bokeh-protocol-version']
         if 'bokeh-session-id' in arguments: del arguments['bokeh-session-id']
         self._arguments = arguments
 
