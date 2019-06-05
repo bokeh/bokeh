@@ -55,6 +55,7 @@ __all__ = (
     'Band',
     'BoxAnnotation',
     'ColorBar',
+    'Gap',
     'Label',
     'LabelSet',
     'Legend',
@@ -1127,6 +1128,15 @@ class ToolbarPanel(Annotation): # TODO: this shouldn't be an annotation
 
     toolbar = Instance(".models.tools.Toolbar", help="""
     A toolbar to display.
+    """)
+
+class Gap(Annotation):
+    """ A fixed sized spacer between side panel annotations.
+
+    """
+
+    size = Float(help="""
+    The width or height in pixels. The orientation depends on the panel.
     """)
 
 #-----------------------------------------------------------------------------
