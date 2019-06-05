@@ -21,14 +21,13 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..message import Message
-from . import register
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'pull_doc_req_1',
+    'pull_doc_req',
 )
 
 #-----------------------------------------------------------------------------
@@ -39,17 +38,15 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-@register
-class pull_doc_req_1(Message):
-    ''' Define the ``PULL-DOC-REQ`` message (revision 1) for requesting a
-    Bokeh server reply with a new Bokeh Document.
+class pull_doc_req(Message):
+    ''' Define the ``PULL-DOC-REQ`` message for requesting a Bokeh server reply
+    with a new Bokeh Document.
 
     The ``content`` fragment of for this message is empty.
 
     '''
 
     msgtype   = 'PULL-DOC-REQ'
-    revision = 1
 
     @classmethod
     def create(cls, **metadata):

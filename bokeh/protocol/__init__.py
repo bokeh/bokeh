@@ -26,8 +26,17 @@ from tornado.escape import json_decode
 
 # Bokeh imports
 from . import messages
-from . import versions
 from .exceptions import ProtocolError
+from .messages.ack import ack
+from .messages.event import event
+from .messages.ok import ok
+from .messages.patch_doc import patch_doc
+from .messages.pull_doc_req import pull_doc_req
+from .messages.pull_doc_reply import pull_doc_reply
+from .messages.push_doc import push_doc
+from .messages.error import error
+from .messages.server_info_reply import server_info_reply
+from .messages.server_info_req import server_info_req
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -36,6 +45,19 @@ from .exceptions import ProtocolError
 __all__ = (
     'Protocol',
 )
+
+SPEC = {
+    "ACK": ack,
+    "ERROR": error,
+    "EVENT": event,
+    "OK": ok,
+    'PATCH-DOC': patch_doc,
+    'PULL-DOC-REPLY': pull_doc_reply,
+    'PULL-DOC-REQ': pull_doc_req,
+    'PUSH-DOC': push_doc,
+    'SERVER-INFO-REPLY': server_info_reply,
+    'SERVER-INFO-REQ': server_info_req,
+}
 
 #-----------------------------------------------------------------------------
 # General API
@@ -46,25 +68,14 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class Protocol(object):
-    ''' Provide a message factory for a given version of the Bokeh Server
-    message protocol.
-
-    Args:
-        version (str) : a string identifying a protocol version, e.g. "1.0"
+    ''' Provide a message factory for the Bokeh Server message protocol.
 
     '''
-    def __init__(self, version):
-        if version not in versions.spec:
-            raise ProtocolError("Unknown protocol version %r" % version)
-
-        self._version = version
-        self._messages = dict()
-
-        for msgtype, revision in versions.spec[version]:
-            self._messages[msgtype] = messages.index[(msgtype, revision)]
+    def __init__(self):
+        self._messages = SPEC
 
     def __repr__(self):
-        return "Protocol(%r)" % self.version
+        return "Protocol()"
 
     def create(self, msgtype, *args, **kwargs):
         ''' Create a new Message instance for the given type.
@@ -74,7 +85,7 @@ class Protocol(object):
 
         '''
         if msgtype not in self._messages:
-            raise ProtocolError("Unknown message type %r for protocol version %s" % (msgtype, self._version))
+            raise ProtocolError("Unknown message type %r for Bokeh protocol" % msgtype)
         return self._messages[msgtype].create(*args, **kwargs)
 
     def assemble(self, header_json, metadata_json, content_json):
@@ -98,10 +109,6 @@ class Protocol(object):
         return self._messages[header['msgtype']].assemble(
             header_json, metadata_json, content_json
         )
-
-    @property
-    def version(self):
-        return self._version
 
 #-----------------------------------------------------------------------------
 # Private API

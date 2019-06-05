@@ -30,6 +30,8 @@ from bokeh.protocol import Protocol
 # Setup
 #-----------------------------------------------------------------------------
 
+proto = Protocol()
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -51,15 +53,15 @@ class TestPullDocument(object):
         return doc
 
     def test_create_req(self):
-        Protocol("1.0").create("PULL-DOC-REQ")
+        proto.create("PULL-DOC-REQ")
 
     def test_create_reply(self):
         sample = self._sample_doc()
-        Protocol("1.0").create("PULL-DOC-REPLY", 'fakereqid', sample)
+        proto.create("PULL-DOC-REPLY", 'fakereqid', sample)
 
     def test_create_reply_then_parse(self):
         sample = self._sample_doc()
-        msg = Protocol("1.0").create("PULL-DOC-REPLY", 'fakereqid', sample)
+        msg = proto.create("PULL-DOC-REPLY", 'fakereqid', sample)
         copy = document.Document()
         msg.push_to_document(copy)
         assert len(sample.roots) == 2
