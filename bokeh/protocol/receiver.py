@@ -89,7 +89,7 @@ class Receiver(object):
     '''
 
     def __init__(self, protocol):
-        ''' Configure a Receiver with a specific Bokeh protocol version.
+        ''' Configure a Receiver with a specific Bokeh protocol.
 
         Args:
             protocol (Protocol) :

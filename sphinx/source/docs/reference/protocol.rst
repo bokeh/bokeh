@@ -96,11 +96,3 @@ bokeh.protocol.receiver
 
 .. automodule:: bokeh.protocol.receiver
    :members:
-
-.. _bokeh.protocol.versions:
-
-bokeh.protocol.versions
------------------------
-
-.. automodule:: bokeh.protocol.versions
-   :members:
