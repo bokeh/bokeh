@@ -2,11 +2,11 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {Arrayable, Rect} from "core/types"
 import {Class} from "core/class"
 import {Anchor} from "core/enums"
-import {logger} from "core/logging"
 import * as p from "core/properties"
 import {map, min, max} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
+import {ImageLoader} from "core/util/image"
 
 export type CanvasImage = HTMLImageElement
 
@@ -34,7 +34,6 @@ export class ImageURLView extends XYGlyphView {
   model: ImageURL
   visuals: ImageURL.Visuals
 
-  protected retries: Arrayable<number>
   protected _images_rendered = false
 
   initialize(): void {
@@ -52,38 +51,20 @@ export class ImageURLView extends XYGlyphView {
 
     const {retry_attempts, retry_timeout} = this.model
 
-    this.retries = map(this._url, () => retry_attempts)
-
     for (let i = 0, end = this._url.length; i < end; i++) {
       const url = this._url[i]
 
       if (url == null || url == "")
         continue
 
-      const img: CanvasImage = new Image()
-      img.crossOrigin = "anonymous"
-      img.onerror = () => {
-        if (this.retries[i] > 0) {
-          this.retries[i] -= 1
-          logger.trace(`ImageURL failed to load ${url} image, retrying in ${retry_timeout} ms`)
-        } else {
-          logger.warn(`ImageURL unable to load ${url} image after ${retry_attempts} retries`)
-
-          if (img.crossOrigin != null) {
-            logger.warn(`ImageURL attempting to load ${url} without a cross origin policy`)
-            this.retries[i] = retry_attempts
-            img.crossOrigin = null
-          } else
-            return
-        }
-
-        setTimeout(() => img.src = url, retry_timeout)
-      }
-      img.onload = () => {
-        this.image[i] = img
-        this.renderer.request_render()
-      }
-      img.src = url
+      new ImageLoader(url, {
+        loaded: (image) => {
+          this.image[i] = image
+          this.renderer.request_render()
+        },
+        attempts: retry_attempts + 1,
+        timeout: retry_timeout,
+      })
     }
 
     const w_data = this.model.properties.w.units == "data"

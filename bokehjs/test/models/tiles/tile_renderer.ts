@@ -312,7 +312,7 @@ describe("tile sources", () => {
 
     it("should successfully get closest parent tile by xyz", () => {
       const source = new MercatorTileSource()
-      source.tiles[source.tile_xyz_to_key(0, 1, 1)] = {tile_coords: [0, 0, 0]}
+      source.tiles.set(source.tile_xyz_to_key(0, 1, 1), {tile_coords: [0, 0, 0]})
       expect(source.get_closest_parent_by_tile_xyz(0, 3, 2)).to.be.eql([0, 1, 1])
     })
 

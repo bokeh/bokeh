@@ -1,9 +1,8 @@
 import {Model} from "../../model"
-import {ImagePool} from "./image_pool"
 import {Extent, Bounds} from "./tile_utils"
 import * as p from "core/properties"
 
-export interface Tile {
+export type Tile = {
   tile_coords: [number, number, number]
 }
 
@@ -46,14 +45,11 @@ export abstract class TileSource extends Model {
     })
   }
 
-  tiles: {[key: string]: Tile}
-
-  protected pool: ImagePool
+  tiles: Map<string, Tile>
 
   initialize(): void {
     super.initialize()
-    this.tiles = {}
-    this.pool = new ImagePool()
+    this.tiles = new Map()
     this._normalize_case()
   }
 
@@ -88,7 +84,7 @@ export abstract class TileSource extends Model {
   }
 
   protected _clear_cache(): void {
-    this.tiles = {}
+    this.tiles = new Map()
   }
 
   tile_xyz_to_key(x: number, y: number, z: number): string {

@@ -285,7 +285,7 @@ export class MercatorTileSource extends TileSource {
       quadkey = quadkey.substring(0, quadkey.length - 1)
       ;[x, y, z] = this.quadkey_to_tile_xyz(quadkey)
       ;[x, y, z] = this.denormalize_xyz(x, y, z, world_x)
-      if (this.tile_xyz_to_key(x, y, z) in this.tiles)
+      if (this.tiles.has(this.tile_xyz_to_key(x, y, z)))
         return [x, y, z]
     }
     return [0, 0, 0]

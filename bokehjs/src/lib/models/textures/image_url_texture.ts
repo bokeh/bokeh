@@ -1,12 +1,13 @@
 import {Texture} from "./texture"
 import * as p from "core/properties"
 import {Context2d} from 'core/util/canvas'
+import {ImageLoader} from "core/util/image"
 
 export namespace ImageURLTexture {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Texture.Props  & {
-      url: p.Property<string>
+    url: p.Property<string>
   }
 }
 
@@ -27,30 +28,21 @@ export abstract class ImageURLTexture extends Texture {
 
   initialize(): void {
     super.initialize()
-    this.image = new Image()
-    this.image.crossOrigin = "Anonymous"
-    this.image.src = this.url
+    this._loader = new ImageLoader(this.url)
   }
 
   get_pattern(_color: any, _scale: number, _weight: number): (ctx: Context2d) => CanvasPattern | null {
     return (ctx: Context2d): CanvasPattern | null => {
-      if (!this.image.complete) {
+      if (!this._loader.finished) {
         return null
       }
-      return ctx.createPattern(this.image, this.repetition)
+      return ctx.createPattern(this._loader.image, this.repetition)
     }
   }
 
   onload(defer_func: () => void): void {
-    if (this.image.complete) {
-      defer_func()
-    } else {
-      this.image.onload = () => {
-        defer_func()
-      }
-    }
+    this._loader.promise.then(() => defer_func())
   }
 
-  private image: HTMLImageElement
-
+  private _loader: ImageLoader
 }
