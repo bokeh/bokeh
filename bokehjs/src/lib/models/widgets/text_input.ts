@@ -3,6 +3,8 @@ import {InputWidget, InputWidgetView} from "./input_widget"
 import {input} from "core/dom"
 import * as p from "core/properties"
 
+import {bk_input} from "styles/widgets/inputs"
+
 export class TextInputView extends InputWidgetView {
   model: TextInput
 
@@ -21,7 +23,7 @@ export class TextInputView extends InputWidgetView {
 
     this.input_el = input({
       type: "text",
-      class: "bk-input",
+      class: bk_input,
       name: this.model.name,
       value: this.model.value,
       disabled: this.model.disabled,

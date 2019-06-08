@@ -52,6 +52,43 @@ export function relativize_modules(relativize: (file: string, module_path: strin
   }
 }
 
+export function import_css(resolve: (css_path: string) => string | undefined) {
+  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    function visit(node: ts.Node): ts.VisitResult<ts.Node> {
+      if (ts.isImportDeclaration(node)) {
+        const {importClause, moduleSpecifier} = node
+
+        if (ts.isStringLiteralLike(moduleSpecifier)) {
+          const css_path = moduleSpecifier.text
+          if (importClause == null && css_path.endsWith(".css")) {
+            const css = resolve(css_path)
+            if (css != null) {
+              const dom = ts.createTempVariable(undefined)
+              const statements = [
+                ts.createImportDeclaration(
+                  undefined,
+                  undefined,
+                  ts.createImportClause(undefined, ts.createNamespaceImport(dom)),
+                  ts.createStringLiteral("core/dom")),
+                ts.createExpressionStatement(
+                  ts.createCall(
+                    ts.createPropertyAccess(ts.createPropertyAccess(dom, "styles"), "append"),
+                    undefined,
+                    [ts.createStringLiteral(css)])),
+              ]
+              return statements
+            }
+          }
+        }
+      }
+
+      return ts.visitEachChild(node, visit, context)
+    }
+
+    return ts.visitNode(root, visit)
+  }
+}
+
 export function collect_deps(source: ts.SourceFile): string[] {
   function traverse(node: ts.Node): void {
     if (is_require(node)) {

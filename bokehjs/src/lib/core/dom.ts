@@ -352,3 +352,18 @@ export function sized<T>(el: HTMLElement, size: Partial<Size>, fn: () => T): T {
     el.style.height = height
   }
 }
+
+export class StyleSheet {
+  private readonly style: HTMLStyleElement
+
+  constructor() {
+    this.style = style({type: "text/css"})
+    prepend(document.head, this.style)
+  }
+
+  append(css: string): void {
+    this.style.appendChild(document.createTextNode(css))
+  }
+}
+
+export const styles = new StyleSheet()

@@ -220,11 +220,6 @@ If you would like to use BokehJS as a standalone JavaScript library, released
 versions of BokehJS are available for download from CDN at pydata.org, under
 the following naming scheme::
 
-    # CSS files
-    http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.css
-    http://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.css
-    http://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.css
-
     # Javascript files
     http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.js
     http://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.js
@@ -238,12 +233,6 @@ your document. The ``"bokeh-api"`` files are required to use the BokehJS API,
 and must be loaded *after* the core BokehJS library.
 
 As a concrete example, the links for version ``1.0.0`` are:
-
-* http://cdn.pydata.org/bokeh/release/bokeh-1.0.0.min.css
-* http://cdn.pydata.org/bokeh/release/bokeh-widgets-1.0.0.min.css
-* http://cdn.pydata.org/bokeh/release/bokeh-tables-1.0.0.min.css
-
-and
 
 * http://cdn.pydata.org/bokeh/release/bokeh-1.0.0.min.js
 * http://cdn.pydata.org/bokeh/release/bokeh-widgets-1.0.0.min.js

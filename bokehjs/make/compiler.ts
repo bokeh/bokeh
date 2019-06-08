@@ -3,7 +3,9 @@ import * as ts from "typescript"
 
 import {dirname, join, relative} from "path"
 
-import {relativize_modules} from "./transform"
+import {import_css, relativize_modules} from "./transform"
+import {build_dir} from "./paths"
+import {read} from "./fs"
 
 export type Outputs = Map<string, string>
 
@@ -41,7 +43,15 @@ export function compileFiles(inputs: string[], options: ts.CompilerOptions): TSO
     outputs.set(name, output)
   }
 
-  let transformers: ts.CustomTransformers | undefined
+  const transformers: Required<ts.CustomTransformers> = {
+    before: [],
+    after: [],
+    afterDeclarations: [],
+  }
+
+  const css_transform = import_css((css_path) => read(join(build_dir.css, css_path)))
+  transformers.before.push(css_transform)
+
   const base = options.baseUrl
   if (base != null) {
     const relativize_transform = relativize_modules((file, module_path) => {
@@ -56,10 +66,8 @@ export function compileFiles(inputs: string[], options: ts.CompilerOptions): TSO
       return null
     })
 
-    transformers = {
-      after: [relativize_transform],
-      afterDeclarations: [relativize_transform],
-    }
+    transformers.after.push(relativize_transform)
+    transformers.afterDeclarations.push(relativize_transform)
   }
 
   const emitted = program.emit(undefined, write, undefined, false, transformers)

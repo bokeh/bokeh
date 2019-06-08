@@ -7,6 +7,9 @@ import {add_document_standalone} from "./standalone"
 import {DocsJson, RenderItem} from "./json"
 import {_resolve_element, _resolve_root_elements} from "./dom"
 
+import "styles/logo"
+import "styles/notebook"
+
 // This exists to allow the jupyterlab_bokeh extension to store the
 // notebook kernel so that _init_comms can register the comms target.
 // This has to be available at window.Bokeh.embed.kernels in JupyterLab.

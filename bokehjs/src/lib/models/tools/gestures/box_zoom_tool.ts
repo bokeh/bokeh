@@ -4,6 +4,7 @@ import {CartesianFrame} from "../../canvas/cartesian_frame"
 import * as p from "core/properties"
 import {GestureEvent} from "core/ui_events"
 import {Dimensions, BoxOrigin} from "core/enums"
+import {bk_tool_icon_box_zoom} from "styles/icons"
 
 export class BoxZoomToolView extends GestureToolView {
   model: BoxZoomTool
@@ -200,7 +201,7 @@ export class BoxZoomTool extends GestureTool {
   }
 
   tool_name = "Box Zoom"
-  icon = "bk-tool-icon-box-zoom"
+  icon = bk_tool_icon_box_zoom
   event_type = "pan" as "pan"
   default_order = 20
 

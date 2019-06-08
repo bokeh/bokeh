@@ -7,6 +7,7 @@ import {Keys} from "core/dom"
 import {Arrayable} from "core/types"
 import * as p from "core/properties"
 import {copy} from "core/util/array"
+import {bk_tool_icon_polygon_select} from "styles/icons"
 
 export class PolySelectToolView extends SelectToolView {
   model: PolySelectTool
@@ -128,7 +129,7 @@ export class PolySelectTool extends SelectTool {
   }
 
   tool_name = "Poly Select"
-  icon = "bk-tool-icon-polygon-select"
+  icon = bk_tool_icon_polygon_select
   event_type = "tap" as "tap"
   default_order = 11
 }

@@ -5,6 +5,8 @@ import {DOMView} from "core/dom_view"
 import {Model} from "../../../model"
 import {DTINDEX_NAME, Item} from "./data_table"
 
+import {bk_cell_editor} from "styles/widgets/tables"
+
 export abstract class CellEditorView extends DOMView {
   model: CellEditor
 
@@ -33,7 +35,7 @@ export abstract class CellEditorView extends DOMView {
   }
 
   css_classes(): string[] {
-    return super.css_classes().concat("bk-cell-editor")
+    return super.css_classes().concat(bk_cell_editor)
   }
 
   render(): void {

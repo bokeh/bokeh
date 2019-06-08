@@ -7,6 +7,7 @@ import {SpatialUnits, RenderMode} from "core/enums"
 import {display, undisplay} from "core/dom"
 import * as p from "core/properties"
 import {BBox, CoordinateTransform} from "core/util/bbox"
+import {bk_shading} from "styles/annotations"
 
 export const EDGE_TOLERANCE = 2.5
 
@@ -22,7 +23,7 @@ export class BoxAnnotationView extends AnnotationView {
   initialize(): void {
     super.initialize()
     this.plot_view.canvas_overlays.appendChild(this.el)
-    this.el.classList.add("bk-shading")
+    this.el.classList.add(bk_shading)
     undisplay(this.el)
   }
 

@@ -8,7 +8,7 @@ import {Linker} from "../linker"
 import {read, write, rename} from "../fs"
 import * as paths from "../paths"
 
-task("scripts:ts", async () => {
+task("scripts:compile", ["styles:compile"], async () => {
   const success = compileTypeScript(join(paths.src_dir.lib, "tsconfig.json"), {
     log,
     out_dir: {js: paths.build_dir.lib, dts: paths.build_dir.types},
@@ -17,8 +17,6 @@ task("scripts:ts", async () => {
   if (argv.emitError && !success)
     process.exit(1)
 })
-
-task("scripts:compile", ["scripts:ts"])
 
 task("scripts:bundle", ["scripts:compile"], async () => {
   const entries = [
