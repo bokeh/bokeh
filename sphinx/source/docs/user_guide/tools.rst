@@ -527,13 +527,19 @@ strings:
     |PrintfTickFormatter| reference documentation for complete details.
 
 These are supplied by configuring the ``formatters`` property of a hover
-tool. This property maps column names to format schemes. For example, to
-use the ``"datetime"`` scheme for formatting a column ``"close date"``,
+tool. This property maps tooltip variables to format schemes. For example, to
+use the ``"datetime"`` scheme for formatting a column ``"@{close date}"``,
 set the value:
 
 .. code-block:: python
 
-    hover_tool.formatters = { "close date": "datetime"}
+    hover_tool.formatters = { "@{close date}": "datetime"}
+
+Formatters may also be supplied for "special variables" such as ``"$x"``:
+
+.. code-block:: python
+
+    hover_tool.formatters = { "$x": "datetime"}
 
 If no formatter is specified for a column name, the default ``"numeral"``
 formatter is assumed.
@@ -555,9 +561,9 @@ different formatters for different fields:
         ],
 
         formatters={
-            'date'      : 'datetime', # use 'datetime' formatter for 'date' field
-            'adj close' : 'printf',   # use 'printf' formatter for 'adj close' field
-                                      # use default 'numeral' formatter for other fields
+            '@date'        : 'datetime', # use 'datetime' formatter for '@date' field
+            '@{adj close}' : 'printf',   # use 'printf' formatter for '@{adj close}' field
+                                         # use default 'numeral' formatter for other fields
         },
 
         # display a tooltip whenever the cursor is vertically in line with a glyph
