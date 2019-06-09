@@ -64,48 +64,32 @@ describe("templating module", () => {
   describe("get_formatter", () => {
 
     it("should return basic_formatter for null format", () => {
-      const f = tmpl.get_formatter("x", "@x")
+      const f = tmpl.get_formatter("@x")
       expect(f).to.be.equal(tmpl.basic_formatter)
     })
 
     it("should return numeral formatter for specs not in formatters dict", () => {
-      const f = tmpl.get_formatter("x", "@x", "$0.00")
+      const f = tmpl.get_formatter("@x", "$0.00")
       expect(f).to.be.equal(tmpl.DEFAULT_FORMATTERS.numeral)
     })
 
     it("should return formatter from formatters dict when raw_spec is in formatters", () => {
-      const f1 = tmpl.get_formatter("x", "@x", "$0.00", {"@x": "numeral"})
+      const f1 = tmpl.get_formatter("@x", "$0.00", {"@x": "numeral"})
       expect(f1).to.be.equal(tmpl.DEFAULT_FORMATTERS.numeral)
 
-      const f2 = tmpl.get_formatter("x", "@x", "%5.3f mu", {"@x": "printf"})
+      const f2 = tmpl.get_formatter("@x", "%5.3f mu", {"@x": "printf"})
       expect(f2).to.be.equal(tmpl.DEFAULT_FORMATTERS.printf)
 
-      const f3 = tmpl.get_formatter("x", "@x", "%m/%d/%Y", {"@x": "datetime"})
+      const f3 = tmpl.get_formatter("@x", "%m/%d/%Y", {"@x": "datetime"})
       expect(f3).to.be.equal(tmpl.DEFAULT_FORMATTERS.datetime)
 
       const custom = new CustomJSHover({code:"return format + ' ' + special_vars.special + ' ' + value"})
-      const f4 = tmpl.get_formatter("x", "@x", "custom", {"@x": custom})
-      expect(f4(3.123, "custom", {special: 10})).to.be.equal("custom 10 3.123")
-    })
-
-    // this should be removed ~Bokeh 2.0
-    it("should return formatter from formatters dict when name is in formatters", () => {
-      const f1 = tmpl.get_formatter("x", "@x", "$0.00", {x: "numeral"})
-      expect(f1).to.be.equal(tmpl.DEFAULT_FORMATTERS.numeral)
-
-      const f2 = tmpl.get_formatter("x", "@x", "%5.3f mu", {x: "printf"})
-      expect(f2).to.be.equal(tmpl.DEFAULT_FORMATTERS.printf)
-
-      const f3 = tmpl.get_formatter("x", "@x", "%m/%d/%Y", {x: "datetime"})
-      expect(f3).to.be.equal(tmpl.DEFAULT_FORMATTERS.datetime)
-
-      const custom = new CustomJSHover({code:"return format + ' ' + special_vars.special + ' ' + value"})
-      const f4 = tmpl.get_formatter("x", "@x", "custom", {x: custom})
+      const f4 = tmpl.get_formatter("@x", "custom", {"@x": custom})
       expect(f4(3.123, "custom", {special: 10})).to.be.equal("custom 10 3.123")
     })
 
     it("should throw an error on unknown formatter type", () => {
-      expect(() => tmpl.get_formatter("x", "@x", "%5.3f mu", {x: "junk" as any})).to.throw(Error)
+      expect(() => tmpl.get_formatter("@x", "%5.3f mu", {"@x": "junk" as any})).to.throw(Error)
     })
   })
 
@@ -138,34 +122,34 @@ describe("templating module", () => {
     })
 
     it("should return integer indices from columns", () => {
-      const v1 = tmpl.get_value("foo", source, 0, {})
+      const v1 = tmpl.get_value("@foo", source, 0, {})
       expect(v1).to.be.equal(10)
 
-      const v2 = tmpl.get_value("foo", source, 1, {})
+      const v2 = tmpl.get_value("@foo", source, 1, {})
       expect(v2).to.be.equal(1.002)
     })
 
     it("should index flat typed array format for images", () => {
-      const v1 = tmpl.get_value("floats", imsource, imindex1, {})
+      const v1 = tmpl.get_value("@floats", imsource, imindex1, {})
       expect(v1).to.be.equal(5)
 
-      const v2 = tmpl.get_value("floats", imsource, imindex2, {})
+      const v2 = tmpl.get_value("@floats", imsource, imindex2, {})
       expect(v2).to.be.equal(1)
     })
 
     it("should index array of arrays format for images", () => {
-      const v1 = tmpl.get_value("arrs", imsource, imindex1, {})
+      const v1 = tmpl.get_value("@arrs", imsource, imindex1, {})
       expect(v1).to.be.equal(50)
 
-      const v2 = tmpl.get_value("arrs", imsource, imindex2, {})
+      const v2 = tmpl.get_value("@arrs", imsource, imindex2, {})
       expect(v2).to.be.equal(10)
     })
 
     it("should index scalar data format for images", () => {
-      const v1 = tmpl.get_value("labels", imsource, imindex1, {})
+      const v1 = tmpl.get_value("@labels", imsource, imindex1, {})
       expect(v1).to.be.equal('test label')
 
-      const v2 = tmpl.get_value("labels", imsource, imindex2, {})
+      const v2 = tmpl.get_value("@labels", imsource, imindex2, {})
       expect(v2).to.be.equal('test label')
     })
 
@@ -217,7 +201,7 @@ describe("templating module", () => {
     })
 
     it("should throw an error on unrecognized formatters", () => {
-      const fn = () => tmpl.replace_placeholders("stuff @foo{(0.000 %)}", source, 0, {foo: "junk" as any})
+      const fn = () => tmpl.replace_placeholders("stuff @foo{(0.000 %)}", source, 0, {"@foo": "junk" as any})
       expect(fn).to.throw(Error)
     })
 
@@ -232,34 +216,34 @@ describe("templating module", () => {
 
     it("should use the numeral formatter if specified", () => {
       // just picking a random and uniquely numbro format to test with
-      const s1 = tmpl.replace_placeholders("stuff @foo{(0.000 %)}", source, 0, {foo: "numeral"})
+      const s1 = tmpl.replace_placeholders("stuff @foo{(0.000 %)}", source, 0, {"@foo": "numeral"})
       expect(s1).to.be.equal("stuff 1000.000 %")
 
-      const s2 = tmpl.replace_placeholders("stuff @foo{(0.000 %)}", source, 1, {foo: "numeral"})
+      const s2 = tmpl.replace_placeholders("stuff @foo{(0.000 %)}", source, 1, {"@foo": "numeral"})
       expect(s2).to.be.equal("stuff 100.200 %")
     })
 
     it("should use a customjs hover formatter if specified", () => {
       const custom = new CustomJSHover({code:"return format + ' ' + special_vars.special + ' ' + value"})
-      const s = tmpl.replace_placeholders("stuff @foo{custom}", source, 0, {foo: custom}, {special: "vars"})
+      const s = tmpl.replace_placeholders("stuff @foo{custom}", source, 0, {"@foo": custom}, {special: "vars"})
       expect(s).to.be.equal("stuff custom vars 10")
     })
 
     it("should replace field names with tz formatted values with datetime formatter", () => {
       // just picking a random and uniquely tz format to test with
-      const s1 = tmpl.replace_placeholders("stuff @baz{%F %T}", source, 0, {baz: "datetime"})
+      const s1 = tmpl.replace_placeholders("stuff @baz{%F %T}", source, 0, {"@baz": "datetime"})
       expect(s1).to.be.equal("stuff 2017-04-22 19:51:11")
 
-      const s2 = tmpl.replace_placeholders("stuff @baz{%F %T}", source, 1, {baz: "datetime"})
+      const s2 = tmpl.replace_placeholders("stuff @baz{%F %T}", source, 1, {"@baz": "datetime"})
       expect(s2).to.be.equal("stuff 2010-11-22 21:17:51")
     })
 
     it("should replace field names with Sprintf formatted values with printf formatter", () => {
       // just picking a random and uniquely Sprintf formats to test with
-      const s1 = tmpl.replace_placeholders("stuff @foo{%x}", source, 0, {foo: "printf"})
+      const s1 = tmpl.replace_placeholders("stuff @foo{%x}", source, 0, {"@foo": "printf"})
       expect(s1).to.be.equal("stuff a")
 
-      const s2 = tmpl.replace_placeholders("stuff @foo{%0.4f}", source, 1, {foo: "printf"})
+      const s2 = tmpl.replace_placeholders("stuff @foo{%0.4f}", source, 1, {"@foo": "printf"})
       expect(s2).to.be.equal("stuff 1.0020")
     })
 
@@ -269,7 +253,7 @@ describe("templating module", () => {
     })
 
     it("should replace combinations and duplicates", () => {
-      const s = tmpl.replace_placeholders("stuff $foo @foo @foo @foo{(0.000 %)} @baz{%F %T}", source, 0, {baz: "datetime"}, {foo: "special"})
+      const s = tmpl.replace_placeholders("stuff $foo @foo @foo @foo{(0.000 %)} @baz{%F %T}", source, 0, {"@baz": "datetime"}, {foo: "special"})
       expect(s).to.be.equal("stuff special 10 10 1000.000 % 2017-04-22 19:51:11")
     })
 
