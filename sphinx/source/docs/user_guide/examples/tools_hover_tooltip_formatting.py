@@ -34,9 +34,9 @@ p.add_tools(HoverTool(
     ],
 
     formatters={
-        'date'      : 'datetime', # use 'datetime' formatter for 'date' field
-        'adj close' : 'printf',   # use 'printf' formatter for 'adj close' field
-                                  # use default 'numeral' formatter for other fields
+        '@date'        : 'datetime', # use 'datetime' formatter for '@date' field
+        '@{adj close}' : 'printf',   # use 'printf' formatter for '@{adj close}' field
+                                     # use default 'numeral' formatter for other fields
     },
 
     # display a tooltip whenever the cursor is vertically in line with a glyph

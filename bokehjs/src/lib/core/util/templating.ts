@@ -44,18 +44,15 @@ export function basic_formatter(value: unknown, _format: string, _special_vars: 
     return `${value}`  // get strings for categorical types
 }
 
-export function get_formatter(name: string, raw_spec: string, format?: string, formatters?: Formatters): FormatterFunc {
+export function get_formatter(raw_spec: string, format?: string, formatters?: Formatters): FormatterFunc {
   // no format, use default built in formatter
   if (format == null)
     return basic_formatter
 
   // format spec in the formatters dict, use that
-  if (formatters != null && (name in formatters || raw_spec in formatters)) {
+  if (formatters != null && raw_spec in formatters) {
 
-    // some day (Bokeh 2.0) we can get rid of the check for name, and just check the raw spec
-    // keep it now for compatibility but do not demonstrate it anywhere
-    const key: string = raw_spec in formatters ? raw_spec : name
-    const formatter = formatters[key]
+    const formatter = formatters[raw_spec]
 
     if (isString(formatter)) {
       if (formatter in DEFAULT_FORMATTERS)
@@ -71,18 +68,16 @@ export function get_formatter(name: string, raw_spec: string, format?: string, f
 
   // otherwise use "numeral" as default
   return DEFAULT_FORMATTERS.numeral
-
 }
 
-export function get_value(name: string, data_source: ColumnarDataSource, i: Index, special_vars: Vars) {
+function  _get_special_value(name: string, special_vars: Vars) {
+  if (name in special_vars)
+    return special_vars[name]
+  else
+    throw new Error(`Unknown special variable '\$${name}'`)
+}
 
-  if (name[0] == "$") {
-    if (name.substring(1) in special_vars)
-      return special_vars[name.substring(1)]
-    else
-      throw new Error(`Unknown special variable '${name}'`)
-  }
-
+function  _get_column_value(name: string, data_source: ColumnarDataSource, i: Index) {
   const column = data_source.get_column(name)
 
   // missing column
@@ -107,34 +102,43 @@ export function get_value(name: string, data_source: ColumnarDataSource, i: Inde
     return data // inspect per-image scalar data
 }
 
-export function replace_placeholders(str: string, data_source: ColumnarDataSource, i: Index, formatters?: Formatters, special_vars: Vars = {}): string {
+export function get_value(raw_name: string, data_source: ColumnarDataSource, i: Index, special_vars: Vars) {
 
-  // this extracts the $x, @x, @{x} without any trailing {format}
-  const raw_spec = str.replace(/(?:^|[^@])([@|\$](?:\w+|{[^{}]+}))(?:{[^{}]+})?/g, (_match, raw_spec, _format) => `${raw_spec}`)
+  if (raw_name[0] == "$") {
+    const name = raw_name.substring(1)
+    return _get_special_value(name, special_vars)
+  } else {
+    const name = raw_name.substring(1).replace(/[{}]/g, "")
+    return _get_column_value(name, data_source, i)
+  }
+}
+
+export function replace_placeholders(str: string, data_source: ColumnarDataSource, i: Index, formatters?: Formatters, special_vars: Vars = {}): string {
 
   // this handles the special case @$name, replacing it with an @var corresponding to special_vars.name
   str = str.replace(/@\$name/g, (_match) => `@{${special_vars.name}}`)
 
-  // this prepends special vars with "@", e.g "$x" becomes "@$x", so subsequent processing is simpler
-  str = str.replace(/(^|[^\$])\$(\w+)/g, (_match, prefix, name) => `${prefix}@$${name}`)
-
-  str = str.replace(/(^|[^@])@(?:(\$?\w+)|{([^{}]+)})(?:{([^{}]+)})?/g, (_match, prefix, name, long_name, format) => {
-
-    name = long_name != null ? long_name : name
-
-    const value = get_value(name, data_source, i, special_vars)
+  //
+  // (?:\$\w+) - special vars: $x
+  // (?:@\w+) - simple names: @foo
+  // (?:@{(?:[^{}]+)})) - full names: @{one two}
+  //
+  // (?:{([^{}]+)})? - (optional) format for all of the above: @foo{fmt}
+  //
+  str = str.replace(/((?:\$\w+)|(?:@\w+)|(?:@{(?:[^{}]+)}))(?:{([^{}]+)})?/g, (_match, spec, format) => {
+    const value = get_value(spec, data_source, i, special_vars)
 
     // missing value, return ???
     if (value == null)
-      return `${prefix}${escape("???")}`
+      return `${escape("???")}`
 
     // 'safe' format, return the value as-is
     if (format == 'safe')
-      return `${prefix}${value}`
+      return `${value}`
 
     // format and escape everything else
-    const formatter = get_formatter(name, raw_spec, format, formatters)
-    return `${prefix}${escape(formatter(value, format, special_vars))}`
+    const formatter = get_formatter(spec, format, formatters)
+    return `${escape(formatter(value, format, special_vars))}`
   })
 
   return str
