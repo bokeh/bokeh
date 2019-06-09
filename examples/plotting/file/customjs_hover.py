@@ -22,13 +22,13 @@ code = """
 
 p.add_tools(HoverTool(
     tooltips=[
-        ( 'lon',   '@x{custom}' ),
-        ( 'lat',   '@y{custom}' ),
+        ( 'lon', '$x{custom}' ),
+        ( 'lat', '$y{custom}' ),
     ],
 
     formatters={
-        'x' : CustomJSHover(code=code % 0),
-        'y' : CustomJSHover(code=code % 1),
+        '$x' : CustomJSHover(code=code % 0),
+        '$y' : CustomJSHover(code=code % 1),
     }
 ))
 

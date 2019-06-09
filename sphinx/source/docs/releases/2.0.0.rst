@@ -5,8 +5,6 @@
 
 Bokeh Version ``2.0.0`` (XXXX 2019) is a major milestone of the Bokeh project.
 
-
-
 And several other bug fixes and docs additions. For full details see the
 :bokeh-tree:`CHANGELOG`.
 
@@ -24,6 +22,26 @@ Minimum Tornado Version
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 The Bokeh server now requires Tornado 5.0 or higher.
+
+HoverTool Formatters Specification
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously, the ``formatters`` property accepted a CDS column name. For example
+a formatter for a tooltip for ``"@foo`` could be specied with just ``"foo"``:
+
+.. code-block:: python
+
+    hover_tool.formatters = { "foo": "datetime"}   # BAD
+
+Now, the full matching tooltip specification, including the ``"@"``, should
+be used:
+
+.. code-block:: python
+
+    hover_tool.formatters = { "@foo": "datetime"}   # GOOD
+
+This allows tooltip formatters to be used uniformly with both columns, as well
+as "special variables", e.g. ``"$x"``.
 
 Bokeh Sphinx Extension
 ~~~~~~~~~~~~~~~~~~~~~~
