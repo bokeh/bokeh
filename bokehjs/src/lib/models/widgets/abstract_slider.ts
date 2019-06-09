@@ -4,8 +4,6 @@ import * as p from "core/properties"
 import {Color} from "core/types"
 import {div, span, empty} from "core/dom"
 import {repeat} from "core/util/array"
-import {throttle} from "core/util/callback"
-import {SliderCallbackPolicy} from "core/enums"
 
 import {Control, ControlView} from "./control"
 import {CallbackLike0} from "../callbacks/callback"
@@ -25,7 +23,6 @@ export abstract class AbstractSliderView extends ControlView {
   protected group_el: HTMLElement
   protected slider_el: HTMLElement
   protected title_el: HTMLElement
-  protected callback_wrapper?: () => void
 
   private get noUiSlider(): noUiSlider.noUiSlider {
     return (this.slider_el as noUiSlider.Instance).noUiSlider
@@ -33,14 +30,10 @@ export abstract class AbstractSliderView extends ControlView {
 
   initialize(): void {
     super.initialize()
-    this._init_callback()
   }
 
   connect_signals(): void {
     super.connect_signals()
-
-    const {callback, callback_policy, callback_throttle} = this.model.properties
-    this.on_change([callback, callback_policy, callback_throttle], () => this._init_callback())
 
     const {start, end, value, step, title} = this.model.properties
     this.on_change([start, end, value, step], () => {
@@ -58,28 +51,6 @@ export abstract class AbstractSliderView extends ControlView {
     })
 
     this.on_change([value, title], () => this._update_title())
-  }
-
-  protected _init_callback(): void {
-    const {callback} = this.model
-    const fn = () => {
-      if (callback != null)
-        callback.execute(this.model)
-      this.model.value_throttled = this.model.value
-    }
-
-    switch (this.model.callback_policy) {
-      case 'continuous': {
-        this.callback_wrapper = fn
-        break
-      }
-      case 'throttle': {
-        this.callback_wrapper = throttle(fn, this.model.callback_throttle)
-        break
-      }
-      default:
-        this.callback_wrapper = undefined
-    }
   }
 
   _update_title(): void {
@@ -163,9 +134,8 @@ export abstract class AbstractSliderView extends ControlView {
         }
 
         this.model.value = value
+        this.model.value_throttled = this.model.value
         this.noUiSlider.set(value)
-        if (this.callback_wrapper != null)
-          this.callback_wrapper()
       }
 
       const handle = this.slider_el.querySelector(`.${prefix}handle`)!
@@ -204,21 +174,11 @@ export abstract class AbstractSliderView extends ControlView {
 
   protected _slide(values: number[]): void {
     this.model.value = this._calc_from(values)
-    if (this.callback_wrapper != null)
-      this.callback_wrapper()
   }
 
   protected _change(values: number[]): void {
     this.model.value = this._calc_from(values)
     this.model.value_throttled = this.model.value
-    switch (this.model.callback_policy) {
-      case 'mouseup':
-      case 'throttle': {
-        if (this.model.callback != null)
-          this.model.callback.execute(this.model)
-        break
-      }
-    }
   }
 }
 
@@ -238,7 +198,6 @@ export namespace AbstractSlider {
     tooltips: p.Property<boolean>
     callback: p.Property<CallbackLike0<AbstractSlider> | null>
     callback_throttle: p.Property<number>
-    callback_policy: p.Property<SliderCallbackPolicy>
     bar_color: p.Property<Color>
   }
 }
@@ -266,9 +225,6 @@ export abstract class AbstractSlider extends Control {
       format:            [ p.String                             ],
       direction:         [ p.Any,                  "ltr"        ],
       tooltips:          [ p.Boolean,              true         ],
-      callback:          [ p.Any                                ],
-      callback_throttle: [ p.Number,               200          ],
-      callback_policy:   [ p.SliderCallbackPolicy, "throttle"   ], // TODO (bev) enum
       bar_color:         [ p.Color,                "#e6e6e6"    ],
     })
   }
