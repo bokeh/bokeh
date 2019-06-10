@@ -39,9 +39,9 @@ def color_picker():
         div.background = `rgb(${r}, ${g}, ${b})`
     """)
 
-    red.callback   = cb
-    green.callback = cb
-    blue.callback  = cb
+    red.js_on_change('value', cb)
+    green.js_on_change('value', cb)
+    blue.js_on_change('value', cb)
 
     return Row(children=[red, green, blue, div])
 

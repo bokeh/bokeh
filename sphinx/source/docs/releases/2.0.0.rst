@@ -90,8 +90,8 @@ error.
 API Removals
 ~~~~~~~~~~~~
 
-The following modules were previously deprecated or were internal and no longer
-needed:
+The following modules and functions were previously deprecated or were internal
+and no longer needed:
 
 * ``bokeh.client``: method ``ClientSession.loop_until_closed`` removed
 
@@ -115,6 +115,10 @@ needed:
 
 * ``bokeh.models.widgets.buttons``: property ``callback`` removed from all
    buttons, and ``Dropdown.default_value`` and ``Dropdown.value`` removed
+
+* ``bokeh.models.widgets.sliders``: ``callback``, ``callback_throttle`, and
+  ``callback_policy`` removed from all sliders. Use ``value`` for continous
+  updates and ``value_throttled`` for updates only on mouseup.
 
 * ``bokeh.protocol`` entire ``versions`` module removed, ``messages.register``
   function removed.
