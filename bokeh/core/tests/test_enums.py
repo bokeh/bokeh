@@ -205,9 +205,6 @@ class Test_bce(object):
     def test_SizingMode(self):
         assert tuple(bce.SizingMode) == ("stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed")
 
-    def test_SliderCallbackPolicy(self):
-        assert tuple(bce.SliderCallbackPolicy) == ("continuous", "throttle", "mouseup")
-
     def test_SortDirection(self):
         assert tuple(bce.SortDirection) == ("ascending", "descending")
 
@@ -285,7 +282,6 @@ def test_enums_contents():
         'RoundingFunction',
         'SizingMode',
         'SizingPolicy',
-        'SliderCallbackPolicy',
         'SortDirection',
         'SpatialUnits',
         'StartEnd',
