@@ -1,13 +1,14 @@
-const { Aggregators: { Avg, Min, Max, Sum } } = require('slickgrid/slick.dataview')
+const {Aggregators: {Avg, Min, Max, Sum}} = require('slickgrid/slick.dataview')
 
 import * as p from 'core/properties'
-import { Model } from 'model'
+import {Aggregator} from 'external/slickgrid'
+import {Model} from 'model'
 
 export type GroupTotals = {
-  avg: { [field_: string]: number }
-  min: { [field_: string]: number }
-  max: { [field_: string]: number }
-  sum: { [field_: string]: number }
+  avg: {[field_: string]: number}
+  min: {[field_: string]: number}
+  max: {[field_: string]: number}
+  sum: {[field_: string]: number}
 }
 
 export namespace RowAggregator {
@@ -38,59 +39,33 @@ export abstract class RowAggregator extends Model {
   }
 
   abstract init(): void
-  abstract accumulate(item: { [key: string]: any }): void
+  abstract accumulate(item: {[key: string]: any}): void
   abstract storeResult(totals: GroupTotals): void
 }
 RowAggregator.initClass()
 
-export class AvgAggregator extends RowAggregator {
-  readonly key = 'avg'
+function aggregatorFactory(type: string, key: string, {init, accumulate, storeResult}: Aggregator) {
+  return class extends RowAggregator {
+    key = key
 
-  static initClass(): void {
-    this.prototype.type = 'AvgAggregator'
+    static initClass(): void {
+      this.prototype.type = type
+    }
+
+    init = init
+    accumulate = accumulate
+    storeResult = storeResult
   }
-
-  init = new Avg().init
-  accumulate = new Avg().accumulate
-  storeResult = new Avg().storeResult
 }
+
+export class AvgAggregator extends aggregatorFactory('AvgAggregator', 'avg', new Avg()) {}
 AvgAggregator.initClass()
 
-export class MinAggregator extends RowAggregator {
-  readonly key = 'min'
-
-  static initClass(): void {
-    this.prototype.type = 'MinAggregator'
-  }
-
-  init = new Min().init
-  accumulate = new Min().accumulate
-  storeResult = new Min().storeResult
-}
+export class MinAggregator extends aggregatorFactory('MinAggregator', 'min', new Min()) {}
 MinAggregator.initClass()
 
-export class MaxAggregator extends RowAggregator {
-  readonly key = 'max'
-
-  static initClass(): void {
-    this.prototype.type = 'MaxAggregator'
-  }
-
-  init = new Max().init
-  accumulate = new Max().accumulate
-  storeResult = new Max().storeResult
-}
+export class MaxAggregator extends aggregatorFactory('MaxAggregator', 'max', new Max()) {}
 MaxAggregator.initClass()
 
-export class SumAggregator extends RowAggregator {
-  readonly key = 'sum'
-
-  static initClass(): void {
-    this.prototype.type = 'SumAggregator'
-  }
-
-  init = new Sum().init
-  accumulate = new Sum().accumulate
-  storeResult = new Sum().storeResult
-}
+export class SumAggregator extends aggregatorFactory('SumAggregator', 'sum', new Sum()) {}
 SumAggregator.initClass()

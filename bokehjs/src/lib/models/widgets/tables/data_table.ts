@@ -1,43 +1,9 @@
 const {Grid: SlickGrid} = require("slickgrid")
-
-interface EventData {
-  stopPropagation: () => void
-  isPropagationStopped: () => boolean
-  stopImmediatePropagation: () => void
-  isImmediatePropagationStopped: () => boolean
-}
-
-interface SlickEvent {
-  subscribe: (handler: (this: SlickGrid, e: EventData, args?: any) => any) => void
-  unsubscribe: (handler: (this: SlickGrid, e: EventData, args?: any) => any) => void
-  notify: (args: any, e: EventData, scope?: any) => any
-}
-
-export interface SlickGrid {
-  onSort: SlickEvent
-  onClick: SlickEvent
-  onSelectedRowsChanged: SlickEvent
-
-  registerPlugin: (plugin: object) => void
-  getColumns: () => Column[]
-  getColumnIndex: (id: string) => number
-  getSortColumns: () => Column[],
-  getData: () => any
-  getDataItem: (id: number) => {[key: string]: any}
-  setSelectionModel: (model: object) => void
-  setSelectedRows: (rows: any[]) => void
-
-  render: () => void
-  invalidate: () => void
-  getViewport: () => { top: number, bottom: number, leftPx: number, rightPx: number }
-  resizeCanvas: () => void
-  scrollRowToTop: (row: number) => void
-}
-
 const {RowSelectionModel} = require("slickgrid/plugins/slick.rowselectionmodel")
 const {CheckboxSelectColumn} = require("slickgrid/plugins/slick.checkboxselectcolumn")
 const {CellExternalCopyManager} = require("slickgrid/plugins/slick.cellexternalcopymanager")
 
+import {Item, Column, SlickGrid} from "external/slickgrid"
 import * as p from "core/properties"
 import {uniqueId} from "core/util/string"
 import {isString} from "core/util/types"
@@ -47,7 +13,7 @@ import {logger} from "core/logging"
 import {LayoutItem} from "core/layout"
 
 import {TableWidget} from "./table_widget"
-import {Column, TableColumn} from "./table_column"
+import {TableColumn} from "./table_column"
 import {WidgetView} from "../widget"
 import {ColumnDataSource} from "../../sources/column_data_source"
 import {CDSView} from "../../sources/cds_view"
@@ -57,8 +23,6 @@ import {bk_data_table, bk_cell_index, bk_header_index, bk_cell_select} from "sty
 export const DTINDEX_NAME = "__bkdt_internal_index__"
 
 declare var $: any
-
-export type Item = {[key: string]: any}
 
 export class DataProvider {
 
@@ -132,8 +96,8 @@ export class DataProvider {
 export class DataTableView extends WidgetView {
   model: DataTable
 
-  protected data: DataProvider
-  protected grid: SlickGrid
+  private data: DataProvider
+  private grid: SlickGrid
 
   protected _in_selection_update = false
   protected _warned_not_reorderable = false

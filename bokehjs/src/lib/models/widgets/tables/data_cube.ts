@@ -1,17 +1,16 @@
-const { Grid: SlickGrid } = require('slickgrid')
+const {Grid: SlickGrid} = require('slickgrid')
 
-const { EventData, Group } = require('slickgrid/slick.core')
+const {EventData, Group} = require('slickgrid/slick.core')
 type EventData = typeof EventData
-type Group = typeof Group
 
 import * as p from 'core/properties'
-import { span } from 'core/dom'
-import { SlickGrid, DataProvider, DTINDEX_NAME, DataTableView, DataTable, Item } from './data_table'
-import { ColumnDataSource } from '../../sources/column_data_source'
-import { CDSView } from '../../sources/cds_view'
-import { Column } from './table_column'
-import { RowAggregator, GroupTotals } from './row_aggregators'
-import { Model } from 'model'
+import {span} from 'core/dom'
+import {Item, Formatter, Column, SlickGrid, Group} from 'external/slickgrid'
+import {DataProvider, DTINDEX_NAME, DataTableView, DataTable} from './data_table'
+import {ColumnDataSource} from '../../sources/column_data_source'
+import {CDSView} from '../../sources/cds_view'
+import {RowAggregator, GroupTotals} from './row_aggregators'
+import {Model} from 'model'
 
 export type Metadata = {
   selectable: boolean,
@@ -26,7 +25,7 @@ interface GroupDataContext {
   title: string,
 }
 
-function groupCellFormatter(_row: any, _cell: any, _value: any, _columnDef: Column, dataContext: GroupDataContext): string {
+function groupCellFormatter(_row: number, _cell: number, _value: unknown, _columnDef: Column, dataContext: GroupDataContext): string {
   const { collapsed, level, title } = dataContext
 
   const toggle = span({
@@ -40,15 +39,15 @@ function groupCellFormatter(_row: any, _cell: any, _value: any, _columnDef: Colu
   return `${toggle.outerHTML}${titleElement.outerHTML}`
 }
 
-function indentFormatter(formatter?: (...args: any[]) => string, indent?: number): (...args: any) => string {
-  return (row: any, cell: any, value: any, columnDef: Column, dataContext: GroupDataContext) => {
+function indentFormatter(formatter?: Formatter, indent?: number): (...args: any[]) => string|null {
+  return (row: number, cell: number, value: unknown, columnDef: Column, dataContext: Object) => {
     const spacer = span({
       class: 'slick-group-toggle',
       style: { 'margin-left': `${(indent || 0) * 15}px`},
     })
     const formatted = formatter ? formatter(row, cell, value, columnDef, dataContext) : `${value}`
 
-    return `${spacer.outerHTML}${formatted.replace(/^<div/, '<span').replace(/div>$/, 'span>')}`
+    return `${spacer.outerHTML}${formatted && formatted.replace(/^<div/, '<span').replace(/div>$/, 'span>')}`
   }
 }
 
@@ -146,10 +145,10 @@ export class DataCubeProvider extends DataProvider {
           level,
           groupingKey,
         })
-        groups.push(group)
-        groupsByValue.set(value, group)
+        groups.push(group!)
+        groupsByValue.set(value, group!)
       }
-      group.rows.push(row)
+      group!.rows.push(row)
     })
 
     if (level < this.groupingInfos.length - 1) {
@@ -166,7 +165,7 @@ export class DataCubeProvider extends DataProvider {
     const totals: GroupTotals = { avg: {}, max: {}, min: {}, sum: {} }
     const { source: { data } } = this
     const keys = Object.keys(data)
-    const items = group.rows.map((i: number) => keys.reduce((o, c) => ({ ...o, [c]: data[c][i] }), {}))
+    const items = group.rows.map(i => keys.reduce((o, c) => ({ ...o, [c]: data[c][i] }), {}))
 
     aggregators.forEach((aggregator: RowAggregator) => {
       aggregator.init()
@@ -190,7 +189,7 @@ export class DataCubeProvider extends DataProvider {
       }
 
       group.collapsed = groupCollapsed !== toggledGroups[group.groupingKey]
-      group.title = group.value
+      group.title = group.value ? `${group.value}` : null
     })
   }
 
@@ -217,8 +216,8 @@ export class DataCubeProvider extends DataProvider {
       this.addTotals(groups)
       this.rows = this.flattenedGroupedRows(groups)
       this.target.data = {
-        row_indices: this.rows.map((value: Group | number) => value instanceof Group ? value.rows : value),
-        labels: this.rows.map((value: Group | number) => value instanceof Group ? value.title : labels[value]),
+        row_indices: this.rows.map(value => value instanceof Group ? (value as Group).rows : value),
+        labels: this.rows.map(value => value instanceof Group ? (value as Group).title : labels[value as number]),
       }
     }
   }
@@ -229,31 +228,30 @@ export class DataCubeProvider extends DataProvider {
 
   getItem(i: number): Item {
     const item = this.rows[i]
-    const { source: { data } } = this
+    const {source: {data}} = this
 
     return item instanceof Group
-      ? item
+      ? item as Item
       : Object.keys(data)
-          .reduce((o, c) => ({ ...o, [c]: data[c][item] }), { [DTINDEX_NAME]: item })
+          .reduce((o, c) => ({...o, [c]: data[c][item as number]}), {[DTINDEX_NAME]: item})
   }
 
   getItemMetadata(i: number): Metadata | null {
     const myItem = this.rows[i]
-    const { level } = myItem
     const columns = this.columns.slice(1)
 
     const aggregators = myItem instanceof Group
-      ? this.groupingInfos[level].aggregators
+      ? this.groupingInfos[(myItem as Group).level].aggregators
       : []
 
     function adapter(column: Column): Partial<Column> {
-      const { field: myField, formatter } = column
+      const {field: myField, formatter} = column
       const aggregator = aggregators.find(({ field_ }) => field_ === myField)
 
       if (aggregator) {
-        const { key } = aggregator
+        const {key} = aggregator
         return {
-          formatter(row: any, cell: any, _value: any, columnDef: any, dataContext: any): string {
+          formatter(row: number, cell: number, _value: unknown, columnDef: Column, dataContext: Item): string|null {
             return formatter
               ? formatter(row, cell, dataContext.totals[key][myField], columnDef, dataContext)
               : ''
@@ -263,7 +261,7 @@ export class DataCubeProvider extends DataProvider {
       return {}
     }
 
-    return myItem && myItem instanceof Group
+    return myItem instanceof Group
       ? {
         selectable: false,
         focusable: false,
@@ -291,7 +289,8 @@ export class DataCubeProvider extends DataProvider {
 export class DataCubeView extends DataTableView {
   model: DataCube
 
-  protected data: DataCubeProvider
+  private data_: DataCubeProvider
+  private grid_: SlickGrid
 
   render(): void {
     const options = {
@@ -308,24 +307,24 @@ export class DataCubeView extends DataTableView {
     columns[0].formatter = indentFormatter(columns[0].formatter, this.model.grouping.length)
     delete columns[0].editor
 
-    this.data = new DataCubeProvider(
+    this.data_ = new DataCubeProvider(
       this.model.source,
       this.model.view,
       columns,
       this.model.target,
     )
-    this.data.setGrouping(this.model.grouping)
+    this.data_.setGrouping(this.model.grouping)
 
     this.el.style.width = `${this.model.width}px`
 
-    this.grid = new SlickGrid(
+    this.grid_ = new SlickGrid(
       this.el,
-      this.data,
+      this.data_,
       columns,
       options,
     )
 
-    this.grid.onClick.subscribe(handleGridClick)
+    this.grid_.onClick.subscribe(handleGridClick)
   }
 }
 
