@@ -70,7 +70,6 @@ ALL  = (
     'RoundingFunction',
     'SizingMode',
     'SizingPolicy',
-    'SliderCallbackPolicy',
     'SortDirection',
     'SpatialUnits',
     'StartEnd',
@@ -262,9 +261,6 @@ class Test_bce(object):
     def test_SizingMode(self):
         assert tuple(bce.SizingMode) == ("stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed")
 
-    def test_SliderCallbackPolicy(self):
-        assert tuple(bce.SliderCallbackPolicy) == ("continuous", "throttle", "mouseup")
-
     def test_SortDirection(self):
         assert tuple(bce.SortDirection) == ("ascending", "descending")
 
@@ -303,8 +299,59 @@ class Test_bce(object):
 
 # any changes to contents of bce.py easily trackable here
 def test_enums_contents():
-    enums = [x for x in ALL if x != "enumeration"]
-    assert [x for x in dir(bce) if x[0].isupper()] == enums
+    assert [x for x in dir(bce) if x[0].isupper()] == [
+        'Align',
+        'Anchor',
+        'AngleUnits',
+        'ButtonType',
+        'DashPattern',
+        'DateFormat',
+        'DatetimeUnits',
+        'Dimension',
+        'Dimensions',
+        'Direction',
+        'Enumeration',
+        'FontStyle',
+        'HatchPattern',
+        'HatchPatternAbbreviation',
+        'HoldPolicy',
+        'HorizontalLocation',
+        'JitterRandomDistribution',
+        'LatLon',
+        'LegendClickPolicy',
+        'LegendLocation',
+        'LineCap',
+        'LineDash',
+        'LineJoin',
+        'Location',
+        'MapType',
+        'MarkerType',
+        'NamedColor',
+        'NumeralLanguage',
+        'Orientation',
+        'OutputBackend',
+        'PaddingUnits',
+        'Palette',
+        'RenderLevel',
+        'RenderMode',
+        'ResetPolicy',
+        'RoundingFunction',
+        'SizingMode',
+        'SizingPolicy',
+        'SortDirection',
+        'SpatialUnits',
+        'StartEnd',
+        'StepMode',
+        'TextAlign',
+        'TextBaseline',
+        'TextureRepetition',
+        'TickLabelOrientation',
+        'TooltipAttachment',
+        'TooltipFieldFormatter',
+        'TrackPolicy',
+        'VerticalAlign',
+        'VerticalLocation',
+    ]
 
 #-----------------------------------------------------------------------------
 # Private API
