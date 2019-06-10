@@ -194,7 +194,7 @@ class Test_Slider(object):
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         # assert page.has_no_console_errors()
 
-    def test_server_callback_policy_continuous(self, bokeh_server_page):
+    def test_server_callback_value_vs_value_throttled(self, bokeh_server_page):
         junk = dict(v=0, vt=0)
 
         def modify_doc(doc):
@@ -202,41 +202,6 @@ class Test_Slider(object):
             slider = Slider(start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300)
 
             def cbv(attr, old, new): junk['v'] += 1
-            def cbvt(attr, old, new): junk['vt'] += 1
-
-            slider.on_change('value', cbv)
-            slider.on_change('value_throttled', cbvt)
-            doc.add_root(column(slider, plot))
-
-        page = bokeh_server_page(modify_doc)
-
-        drag_slider(page.driver, ".foo", 30, release=False)
-        sleep(1) # noUiSlider does a transition that takes some time
-
-        drag_slider(page.driver, ".foo", 30, release=False)
-        sleep(1) # noUiSlider does a transition that takes some time
-
-        drag_slider(page.driver, ".foo", 30, release=False)
-        sleep(1) # noUiSlider does a transition that takes some time
-
-        drag_slider(page.driver, ".foo", 30, release=True)
-        sleep(1) # noUiSlider does a transition that takes some time
-
-        assert junk['v'] == 4
-        assert junk['vt'] == 4
-
-        # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
-        # assert page.has_no_console_errors()
-
-    def test_server_callback_policy_mouseup(self, bokeh_server_page):
-        junk = dict(v=0, vt=0)
-
-        def modify_doc(doc):
-            plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-            slider = Slider(start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300, callback_policy="mouseup")
-
-            def cbv(attr, old, new): junk['v'] += 1
-
             def cbvt(attr, old, new): junk['vt'] += 1
 
             slider.on_change('value', cbv)

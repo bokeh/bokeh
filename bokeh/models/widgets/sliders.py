@@ -26,11 +26,9 @@ import numbers
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import Bool, Int, Float, String, Date, Enum, Tuple, Instance, Color, Override
-from ...core.enums import SliderCallbackPolicy
+from ...core.properties import Bool, Int, Float, String, Date, Enum, Tuple, Color, Override
 from ...core.validation import error
 from ...core.validation.errors import EQUAL_SLIDER_START_END
-from ..callbacks import Callback
 from .widget import Widget
 
 #-----------------------------------------------------------------------------
@@ -74,30 +72,6 @@ class AbstractSlider(Widget):
     """)
 
     tooltips = Bool(default=True, help="""
-    """)
-
-    callback = Instance(Callback, help="""
-    A callback to run in the browser whenever the current Slider value changes.
-
-    DEPRECATED: use .js_on_change or .on_change with "value" or "value_throttled"
-    """)
-
-    callback_throttle = Float(default=200, help="""
-    Number of milliseconds to pause between callback calls as the slider is moved.
-    """)
-
-    callback_policy = Enum(SliderCallbackPolicy, default="throttle", help="""
-    When the value_throttled property is updated.
-
-    This parameter can take on only one of three options:
-
-    * "continuous": the callback will be executed immediately for each movement of the slider
-    * "throttle": the callback will be executed at most every ``callback_throttle`` milliseconds.
-    * "mouseup": the callback will be executed only once when the slider is released.
-
-    The "mouseup" policy is intended for scenarios in which the callback is expensive in time.
-
-    Both Python and JS callbacks on "value_throttled" will respect this policy setting.
     """)
 
     bar_color = Color(default="#e6e6e6", help="""
