@@ -157,10 +157,6 @@ describe("enums module", () => {
     expect(enums.SizingMode).to.be.deep.equal(["stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed"])
   })
 
-  it("should have SliedrCallbackPolicy", () => {
-    expect(enums.SliderCallbackPolicy).to.be.deep.equal(["continuous", "throttle", "mouseup"])
-  })
-
   it("should have Sort", () => {
     expect(enums.Sort).to.be.deep.equal(["ascending", "descending"])
   })

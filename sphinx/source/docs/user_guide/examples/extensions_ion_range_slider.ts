@@ -1,12 +1,8 @@
-import {throttle} from "core/util/callback"
-
 // The "core/properties" module has all the property types
 import * as p from "core/properties"
 
 // HTML construction and manipulation functions
 import {div, input} from "core/dom"
-
-import {SliderCallbackPolicy} from "core/enums"
 
 // We will subclass in JavaScript from the same class that was subclassed
 // from in Python
@@ -23,28 +19,6 @@ export class IonRangeSliderView extends InputWidgetView {
 
   private value_el?: HTMLInputElement
   private slider_el: HTMLInputElement
-
-  private callback_wrapper?: () => void
-
-  initialize(): void {
-    super.initialize()
-
-    const {callback} = this.model
-    if (callback != null) {
-      const wrapper = () => callback.execute(this.model)
-
-      switch (this.model.callback_policy) {
-        case "continuous": {
-          this.callback_wrapper = wrapper
-          break
-        }
-        case "throttle": {
-          this.callback_wrapper = throttle(wrapper, this.model.callback_throttle)
-          break
-        }
-      }
-    }
-  }
 
   render(): void {
     // BokehJS Views create <div> elements by default, accessible as @el.
@@ -84,15 +58,6 @@ export class IonRangeSliderView extends InputWidgetView {
   }
 
   slidestop(_data: SliderData): void {
-    switch (this.model.callback_policy) {
-      case "mouseup":
-      case "throttle": {
-        const {callback} = this.model
-        if (callback != null)
-          callback.execute(this.model)
-        break
-      }
-    }
   }
 
   slide({from, to}: SliderData): void {
@@ -100,9 +65,6 @@ export class IonRangeSliderView extends InputWidgetView {
       this.value_el.value = `${from} - ${to}`
 
     this.model.range = [from, to]
-
-    if (this.callback_wrapper != null)
-      this.callback_wrapper()
   }
 }
 
@@ -115,8 +77,6 @@ export namespace IonRangeSlider {
     end: p.Property<number>
     step: p.Property<number>
     grid: p.Property<boolean>
-    callback_throttle: p.Property<number>
-    callback_policy: p.Property<SliderCallbackPolicy>
   }
 }
 
@@ -144,8 +104,6 @@ export class IonRangeSlider extends InputWidget {
       end:               [ p.Number,               1          ],
       step:              [ p.Number,               0.1        ],
       grid:              [ p.Boolean,              true       ],
-      callback_throttle: [ p.Number,               200        ],
-      callback_policy:   [ p.SliderCallbackPolicy, "throttle" ],
     })
   }
 }

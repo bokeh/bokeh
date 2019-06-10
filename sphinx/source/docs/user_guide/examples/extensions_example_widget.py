@@ -1,8 +1,7 @@
 """Example implementation of two double ended sliders as extension widgets"""
-from bokeh.core.properties import Float, Instance, Tuple, Bool, Enum
+from bokeh.core.properties import Float, Instance, Tuple, Bool
 from bokeh.models import InputWidget
 from bokeh.models.callbacks import Callback
-from bokeh.core.enums import SliderCallbackPolicy
 
 from bokeh.layouts import column
 from bokeh.models import Slider, CustomJS, ColumnDataSource
@@ -59,19 +58,6 @@ class IonRangeSlider(InputWidget):
     A callback to run in the browser whenever the current Slider value changes.
     """)
 
-    callback_throttle = Float(default=200, help="""
-    Number of microseconds to pause between callback calls as the slider is moved.
-    """)
-
-    callback_policy = Enum(SliderCallbackPolicy, default="throttle", help="""
-    When the callback is initiated. This parameter can take on only one of three options:
-       "continuous": the callback will be executed immediately for each movement of the slider
-       "throttle": the callback will be executed at most every ``callback_throttle`` milliseconds.
-       "mouseup": the callback will be executed only once when the slider is released.
-       The `mouseup` policy is intended for scenarios in which the callback is expensive in time.
-    """)
-
-
 x = [x*0.005 for x in range(2, 198)]
 y = x
 
@@ -112,7 +98,8 @@ slider = Slider(start=0, end=5, step=0.1, value=1, title="Bokeh Slider - Power")
 slider.js_on_change('value', callback_single)
 
 ion_range_slider = IonRangeSlider(start=0.01, end=0.99, step=0.01, range=(min(x), max(x)),
-    title='Ion Range Slider - Range', callback_policy='continuous', callback=callback_ion)
+    title='Ion Range Slider - Range')
+ion_range_slider.js_on_change('range', callback_ion)
 
 layout = column(plot, slider, ion_range_slider)
 show(layout)
