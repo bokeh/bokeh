@@ -27,7 +27,7 @@ export abstract class RowAggregator extends Model {
   properties: RowAggregator.Props
 
   constructor(attrs?: Partial<RowAggregator.Attrs>) {
-      super(attrs)
+    super(attrs)
   }
 
   static initClass(): void {
