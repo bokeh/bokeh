@@ -121,7 +121,6 @@ __all__ = (
     'RoundingFunction',
     'SizingMode',
     'SizingPolicy',
-    'SliderCallbackPolicy',
     'SortDirection',
     'SpatialUnits',
     'StartEnd',
@@ -387,9 +386,6 @@ SizingMode = enumeration("stretch_width", "stretch_height", "stretch_both",
 
 #: Individual sizing mode policies
 SizingPolicy = enumeration("fixed", "fit", "min", "max")
-
-#: Specify different callback policies for the slider widget
-SliderCallbackPolicy = enumeration("continuous", "throttle", "mouseup")
 
 #: Specify sorting directions
 SortDirection = enumeration("ascending", "descending")
