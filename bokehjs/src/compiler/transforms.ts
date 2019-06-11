@@ -1,7 +1,5 @@
 import * as ts from "typescript"
 
-import {read} from "./fs"
-
 function is_require(node: ts.Node): node is ts.CallExpression {
   return ts.isCallExpression(node) &&
          ts.isIdentifier(node.expression) &&
@@ -228,7 +226,7 @@ export function wrap_in_function(source: ts.SourceFile, mod_name: string): ts.So
 }
 
 export function parse_es(file: string, code?: string, target: ts.ScriptTarget = ts.ScriptTarget.ES5): ts.SourceFile {
-  return ts.createSourceFile(file, code != null ? code : read(file)!, target, true, ts.ScriptKind.JS)
+  return ts.createSourceFile(file, code != null ? code : ts.sys.readFile(file)!, target, true, ts.ScriptKind.JS)
 }
 
 export function print_es(source: ts.SourceFile): string {
