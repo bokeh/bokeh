@@ -37,8 +37,6 @@ export class Area extends Glyph {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Area'
-
     this.mixins(['fill', 'hatch'])
   }
 }

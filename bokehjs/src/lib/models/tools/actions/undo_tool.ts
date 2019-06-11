@@ -31,7 +31,6 @@ export class UndoTool extends ActionTool {
   }
 
   static initClass(): void {
-    this.prototype.type = "UndoTool"
     this.prototype.default_view = UndoToolView
 
     this.override({

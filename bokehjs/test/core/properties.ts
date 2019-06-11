@@ -40,7 +40,6 @@ SomeHasProps.define<any>({
   a: [ p.Any ],
   b: [ p.Any ],
 })
-SomeHasProps.prototype.type = 'SomeHasProps'
 
 class SomeSpecHasProps extends HasProps {
   a: any
@@ -50,7 +49,6 @@ SomeSpecHasProps.define<any>({
   a: [ p.NumberSpec ],
   b: [ p.Any ],
 })
-SomeSpecHasProps.prototype.type = 'SomeSpecHasProps'
 
 class DataSpecProperty extends p.DataSpec<number> {}
 

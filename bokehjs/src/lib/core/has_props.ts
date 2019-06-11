@@ -31,13 +31,17 @@ export module HasProps {
   }
 }
 
-export interface HasProps extends HasProps.Attrs {}
+export interface HasProps extends HasProps.Attrs {
+  constructor: Function & {__name__: string}
+}
 
 export abstract class HasProps extends Signalable() {
 
-  static initClass(): void {
-    this.prototype.type = "HasProps"
+  // XXX: setter is only required for backwards compatibility
+  set type(name: string) { this.constructor.__name__ = name }
+  get type(): string     { return this.constructor.__name__ }
 
+  static initClass(): void {
     this.prototype.props = {}
     this.prototype.mixins = []
 
@@ -47,7 +51,6 @@ export abstract class HasProps extends Signalable() {
   }
 
   // {{{ prototype
-  type: string
   default_view: Class<View, [View.Options]>
   props: {[key: string]: {
     type: Class<Property<any>>,  // T

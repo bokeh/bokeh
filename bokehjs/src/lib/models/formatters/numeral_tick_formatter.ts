@@ -24,8 +24,6 @@ export class NumeralTickFormatter extends TickFormatter {
   }
 
   static initClass(): void {
-    this.prototype.type = 'NumeralTickFormatter'
-
     this.define<NumeralTickFormatter.Props>({
       // TODO (bev) all of these could be tightened up
       format:   [ p.String,           '0,0'   ],

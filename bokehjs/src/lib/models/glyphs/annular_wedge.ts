@@ -174,7 +174,6 @@ export class AnnularWedge extends XYGlyph {
   }
 
   static initClass(): void {
-    this.prototype.type = 'AnnularWedge'
     this.prototype.default_view = AnnularWedgeView
 
     this.mixins(['line', 'fill'])

@@ -26,9 +26,4 @@ export abstract class InputGroup extends Control {
   constructor(attrs?: Partial<InputGroup.Attrs>) {
     super(attrs)
   }
-
-  static initClass(): void {
-    this.prototype.type = "InputGroup"
-  }
 }
-InputGroup.initClass()

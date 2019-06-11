@@ -31,7 +31,6 @@ export class Spacer extends LayoutDOM {
   }
 
   static initClass(): void {
-    this.prototype.type = "Spacer"
     this.prototype.default_view = SpacerView
   }
 }

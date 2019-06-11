@@ -26,7 +26,6 @@ export class SaveTool extends ActionTool {
   }
 
   static initClass(): void {
-    this.prototype.type = "SaveTool"
     this.prototype.default_view = SaveToolView
   }
 

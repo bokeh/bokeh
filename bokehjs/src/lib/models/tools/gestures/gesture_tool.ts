@@ -21,12 +21,7 @@ export abstract class GestureTool extends ButtonTool {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "GestureTool"
-  }
-
   button_view = OnOffButtonView
 
   default_order: number
 }
-GestureTool.initClass()

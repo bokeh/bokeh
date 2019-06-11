@@ -150,7 +150,6 @@ export class Wedge extends XYGlyph {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Wedge'
     this.prototype.default_view = WedgeView
 
     this.mixins(['line', 'fill'])

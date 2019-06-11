@@ -247,7 +247,6 @@ export class ImageURL extends XYGlyph {
   }
 
   static initClass(): void {
-    this.prototype.type = 'ImageURL'
     this.prototype.default_view = ImageURLView
 
     this.define<ImageURL.Props>({

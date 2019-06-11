@@ -38,8 +38,6 @@ export class DataRange1d extends DataRange {
   }
 
   static initClass(): void {
-    this.prototype.type = "DataRange1d"
-
     this.define<DataRange1d.Props>({
       start:               [ p.Number                  ],
       end:                 [ p.Number                  ],

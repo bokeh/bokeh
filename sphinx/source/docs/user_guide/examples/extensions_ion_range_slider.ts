@@ -130,10 +130,6 @@ export class IonRangeSlider extends InputWidget {
   }
 
   static initClass(): void {
-    // The ``type`` class attribute should generally match exactly the name
-    // of the corresponding Python class.
-    this.prototype.type = "IonRangeSlider"
-
     // If there is an associated view, this is boilerplate.
     this.prototype.default_view = IonRangeSliderView
 

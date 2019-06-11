@@ -202,12 +202,7 @@ def test_inline_extension():
           return formatted
         }
       }
-
-      static initClass(): void {
-        this.prototype.type = "TestFormatter"
-      }
     }
-    TestFormatter.initClass()
     """
 
     class TestFormatter(TickFormatter):

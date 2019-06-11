@@ -167,7 +167,6 @@ export class AutocompleteInput extends TextInput {
   }
 
   static initClass(): void {
-    this.prototype.type = "AutocompleteInput"
     this.prototype.default_view = AutocompleteInputView
 
     this.define<AutocompleteInput.Props>({

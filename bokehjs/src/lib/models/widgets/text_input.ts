@@ -58,7 +58,6 @@ export class TextInput extends InputWidget {
   }
 
   static initClass(): void {
-    this.prototype.type = "TextInput"
     this.prototype.default_view = TextInputView
 
     this.define<TextInput.Props>({

@@ -25,8 +25,6 @@ export class CategoricalMarkerMapper extends Mapper<string> {
   }
 
   static initClass(): void {
-    this.prototype.type = "CategoricalMarkerMapper"
-
     this.define<CategoricalMarkerMapper.Props>({
       factors:       [ p.Array                ],
       markers:       [ p.Array                ],

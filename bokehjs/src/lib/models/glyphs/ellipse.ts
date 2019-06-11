@@ -29,7 +29,6 @@ export class Ellipse extends EllipseOval {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Ellipse'
     this.prototype.default_view = EllipseView
   }
 }

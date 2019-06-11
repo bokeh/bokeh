@@ -98,7 +98,6 @@ export class HArea extends Area {
   }
 
   static initClass(): void {
-    this.prototype.type = 'HArea'
     this.prototype.default_view = HAreaView
 
     this.define<HArea.Props>({

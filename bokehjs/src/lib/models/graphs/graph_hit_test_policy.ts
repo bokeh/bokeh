@@ -23,10 +23,6 @@ export abstract class GraphHitTestPolicy extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "GraphHitTestPolicy"
-  }
-
   abstract hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult
 
   abstract do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, append: boolean): boolean
@@ -73,10 +69,6 @@ export class NodesOnly extends GraphHitTestPolicy {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'NodesOnly'
-  }
-
   hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {
     return this._hit_test_nodes(geometry, graph_view)
   }
@@ -106,7 +98,6 @@ export class NodesOnly extends GraphHitTestPolicy {
     return !node_inspection.is_empty()
   }
 }
-NodesOnly.initClass()
 
 export namespace NodesAndLinkedEdges {
   export type Attrs = p.AttrsOf<Props>
@@ -121,10 +112,6 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
 
   constructor(attrs?: Partial<NodesAndLinkedEdges.Attrs>) {
     super(attrs)
-  }
-
-  static initClass(): void {
-    this.prototype.type = 'NodesAndLinkedEdges'
   }
 
   hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {
@@ -188,7 +175,6 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
     return !node_inspection.is_empty()
   }
 }
-NodesAndLinkedEdges.initClass()
 
 export namespace EdgesAndLinkedNodes {
   export type Attrs = p.AttrsOf<Props>
@@ -203,10 +189,6 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
 
   constructor(attrs?: Partial<EdgesAndLinkedNodes.Attrs>) {
     super(attrs)
-  }
-
-  static initClass(): void {
-    this.prototype.type = 'EdgesAndLinkedNodes'
   }
 
   hit_test(geometry: Geometry, graph_view: GraphRendererView): HitTestResult {
@@ -266,4 +248,3 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
     return !edge_inspection.is_empty()
   }
 }
-EdgesAndLinkedNodes.initClass()

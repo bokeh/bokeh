@@ -23,8 +23,6 @@ export abstract class ContinuousColorMapper extends ColorMapper {
   }
 
   static initClass(): void {
-    this.prototype.type = "ContinuousColorMapper"
-
     this.define<ContinuousColorMapper.Props>({
       high:       [ p.Number ],
       low:        [ p.Number ],

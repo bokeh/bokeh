@@ -255,8 +255,6 @@ export abstract class AbstractSlider extends Control {
   }
 
   static initClass(): void {
-    this.prototype.type = "AbstractSlider"
-
     this.define<AbstractSlider.Props>({
       title:             [ p.String,               ""           ],
       show_value:        [ p.Boolean,              true         ],

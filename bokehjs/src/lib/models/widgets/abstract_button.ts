@@ -85,8 +85,6 @@ export abstract class AbstractButton extends Control {
   }
 
   static initClass(): void {
-    this.prototype.type = "AbstractButton"
-
     this.define<AbstractButton.Props>({
       label:       [ p.String,     "Button"  ],
       icon:        [ p.Instance              ],

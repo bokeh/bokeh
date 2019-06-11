@@ -20,9 +20,4 @@ export abstract class AbstractIcon extends Model {
   constructor(attrs?: Partial<AbstractIcon.Attrs>) {
     super(attrs)
   }
-
-  static initClass(): void {
-    this.prototype.type = "AbstractIcon"
-  }
 }
-AbstractIcon.initClass()

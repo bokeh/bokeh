@@ -51,7 +51,6 @@ export class GridBox extends LayoutDOM {
   }
 
   static initClass(): void {
-    this.prototype.type = "GridBox"
     this.prototype.default_view = GridBoxView
 
     this.define<GridBox.Props>({

@@ -245,7 +245,6 @@ export class Tabs extends LayoutDOM {
   }
 
   static initClass(): void {
-    this.prototype.type = "Tabs"
     this.prototype.default_view = TabsView
 
     this.define<Tabs.Props>({
@@ -278,8 +277,6 @@ export class Panel extends Model {
   }
 
   static initClass(): void {
-    this.prototype.type = "Panel"
-
     this.define<Panel.Props>({
       title:    [ p.String,  ""    ],
       child:    [ p.Instance       ],

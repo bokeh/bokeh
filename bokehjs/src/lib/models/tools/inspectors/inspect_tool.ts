@@ -25,7 +25,6 @@ export abstract class InspectTool extends ButtonTool {
   }
 
   static initClass(): void {
-    this.prototype.type = "InspectTool"
     this.prototype.button_view = OnOffButtonView
 
     this.define<InspectTool.Props>({

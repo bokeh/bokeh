@@ -230,7 +230,6 @@ export class HexTile extends Glyph {
   }
 
   static initClass(): void {
-    this.prototype.type = 'HexTile'
     this.prototype.default_view = HexTileView
 
     this.coords([['r', 'q']])

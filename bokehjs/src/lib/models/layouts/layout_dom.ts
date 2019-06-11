@@ -400,8 +400,6 @@ export abstract class LayoutDOM extends Model {
   }
 
   static initClass(): void {
-    this.prototype.type = "LayoutDOM"
-
     this.define<LayoutDOM.Props>({
       width:         [ p.Number,     null         ],
       height:        [ p.Number,     null         ],

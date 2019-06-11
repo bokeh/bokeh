@@ -149,9 +149,4 @@ export abstract class EllipseOval extends CenterRotatable {
   constructor(attrs?: Partial<EllipseOval.Attrs>) {
     super(attrs)
   }
-
-  static initClass(): void {
-    this.prototype.type = 'EllipseOval'
-  }
 }
-EllipseOval.initClass()

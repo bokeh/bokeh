@@ -119,7 +119,6 @@ export class Quadratic extends Glyph {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Quadratic'
     this.prototype.default_view = QuadraticView
 
     this.coords([['x0', 'y0'], ['x1', 'y1'], ['cx', 'cy']])

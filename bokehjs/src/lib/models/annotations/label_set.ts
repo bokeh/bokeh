@@ -230,7 +230,6 @@ export class LabelSet extends TextAnnotation {
   }
 
   static initClass(): void {
-    this.prototype.type = 'LabelSet'
     this.prototype.default_view = LabelSetView
 
     this.mixins(['text', 'line:border_', 'fill:background_'])

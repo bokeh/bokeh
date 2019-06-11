@@ -81,7 +81,6 @@ export class Select extends InputWidget {
   }
 
   static initClass(): void {
-    this.prototype.type = "Select"
     this.prototype.default_view = SelectView
 
     this.define<Select.Props>({

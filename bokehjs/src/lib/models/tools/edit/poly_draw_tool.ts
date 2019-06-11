@@ -254,7 +254,6 @@ export class PolyDrawTool extends PolyTool {
   }
 
   static initClass(): void {
-    this.prototype.type = "PolyDrawTool"
     this.prototype.default_view = PolyDrawToolView
 
     this.define<PolyDrawTool.Props>({

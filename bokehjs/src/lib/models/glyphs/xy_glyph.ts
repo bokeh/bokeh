@@ -63,8 +63,6 @@ export abstract class XYGlyph extends Glyph {
   }
 
   static initClass(): void {
-    this.prototype.type = "XYGlyph"
-
     this.coords([['x', 'y']])
   }
 }

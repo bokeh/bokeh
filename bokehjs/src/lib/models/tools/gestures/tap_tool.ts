@@ -83,7 +83,6 @@ export class TapTool extends SelectTool {
   }
 
   static initClass(): void {
-    this.prototype.type = "TapTool"
     this.prototype.default_view = TapToolView
 
     this.define<TapTool.Props>({

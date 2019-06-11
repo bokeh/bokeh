@@ -76,7 +76,6 @@ export class Scatter extends Marker {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Scatter'
     this.prototype.default_view = ScatterView
     this.define<Scatter.Props>({
       marker: [ p.MarkerSpec, {value: "circle"} ],

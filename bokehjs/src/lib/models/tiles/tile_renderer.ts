@@ -407,7 +407,6 @@ export class TileRenderer extends DataRenderer {
   }
 
   static initClass(): void {
-    this.prototype.type = 'TileRenderer'
     this.prototype.default_view = TileRendererView
 
     this.define<TileRenderer.Props>({

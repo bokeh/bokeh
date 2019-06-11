@@ -5,7 +5,7 @@ const coffee = require("coffeescript")
 const less = require("less")
 import {argv} from "yargs"
 
-import {collect_deps} from "./dependencies"
+import {collect_deps, insert_class_name} from "./dependencies"
 
 const mkCoffeescriptError = (error: any, file?: string) => {
   const message = error.message
@@ -124,10 +124,19 @@ function compile_typescript(inputs: Files, bokehjs_dir: string): {outputs: Files
     },
   }
 
+  const transformers: Required<ts.CustomTransformers> = {
+    before: [],
+    after: [],
+    afterDeclarations: [],
+  }
+
+  const class_name_transform = insert_class_name()
+  transformers.before.push(class_name_transform)
+
   const program = ts.createProgram(Object.keys(inputs), options, host)
 
   const outputs: Files = {}
-  const emitted = program.emit(undefined, (name, output) => outputs[name] = output)
+  const emitted = program.emit(undefined, (name, output) => outputs[name] = output, undefined, false, transformers)
   const diagnostics = ts.getPreEmitDiagnostics(program).concat(emitted.diagnostics)
 
   if (diagnostics.length == 0)

@@ -40,7 +40,6 @@ export class CustomAction extends ActionTool {
   }
 
   static initClass(): void {
-    this.prototype.type = "CustomAction"
     this.prototype.default_view = CustomActionView
 
     this.define<CustomAction.Props>({

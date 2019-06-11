@@ -247,7 +247,6 @@ export class RangeTool extends GestureTool {
   }
 
   static initClass(): void {
-    this.prototype.type = "RangeTool"
     this.prototype.default_view = RangeToolView
 
     this.define<RangeTool.Props>({

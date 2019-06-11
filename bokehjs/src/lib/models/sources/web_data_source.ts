@@ -66,8 +66,6 @@ export abstract class WebDataSource extends ColumnDataSource {
   }
 
   static initClass(): void {
-    this.prototype.type = 'WebDataSource'
-
     this.define<WebDataSource.Props>({
       mode:             [ p.UpdateMode, 'replace' ],
       max_size:         [ p.Number                ],

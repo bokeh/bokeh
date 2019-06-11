@@ -108,7 +108,6 @@ export class Step extends XYGlyph {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Step'
     this.prototype.default_view = StepView
 
     this.mixins(['line'])

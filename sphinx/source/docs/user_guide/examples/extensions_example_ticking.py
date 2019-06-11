@@ -17,12 +17,7 @@ export class MyFormatter extends TickFormatter {
     }
     return formatted
   }
-
-  static initClass(): void {
-    this.prototype.type = "MyFormatter"
-  }
 }
-MyFormatter.initClass()
 """
 
 

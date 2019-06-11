@@ -240,7 +240,6 @@ export class PolyEditTool extends PolyTool {
   }
 
   static initClass(): void {
-    this.prototype.type = "PolyEditTool"
     this.prototype.default_view = PolyEditToolView
   }
 

@@ -29,7 +29,6 @@ export class HelpTool extends ActionTool {
   }
 
   static initClass(): void {
-    this.prototype.type = "HelpTool"
     this.prototype.default_view = HelpToolView
 
     this.define<HelpTool.Props>({

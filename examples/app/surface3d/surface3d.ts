@@ -114,11 +114,14 @@ export class Surface3d extends HTMLBox {
     super(attrs)
   }
 
-  static initClass(): void {
-    // The ``type`` class attribute should generally match exactly the name
-    // of the corresponding Python class.
-    this.prototype.type = "Surface3d"
+  // The ``__name__`` class attribute should generally match exactly the name
+  // of the corresponding Python class. Note that if using TypeScript, this
+  // will be automatically filled in during compilation, so except in some
+  // special cases, this shouldn't be generally included manually, to avoid
+  // typos, which would prohibit serialization/deserialization of this model.
+  static __name__ = "Surface3d"
 
+  static initClass(): void {
     // This is usually boilerplate. In some cases there may not be a view.
     this.prototype.default_view = Surface3dView
 

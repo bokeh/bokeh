@@ -157,7 +157,6 @@ export class Annulus extends XYGlyph {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Annulus'
     this.prototype.default_view = AnnulusView
 
     this.mixins(['line', 'fill'])

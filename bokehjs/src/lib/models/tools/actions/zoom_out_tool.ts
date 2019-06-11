@@ -45,7 +45,6 @@ export class ZoomOutTool extends ActionTool {
   }
 
   static initClass(): void {
-    this.prototype.type = "ZoomOutTool"
     this.prototype.default_view = ZoomOutToolView
 
     this.define<ZoomOutTool.Props>({

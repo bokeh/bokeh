@@ -327,7 +327,6 @@ export class DataTable extends TableWidget {
   }
 
   static initClass(): void {
-    this.prototype.type = 'DataTable'
     this.prototype.default_view = DataTableView
 
     this.define<DataTable.Props>({

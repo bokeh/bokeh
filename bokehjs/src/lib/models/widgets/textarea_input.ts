@@ -65,7 +65,6 @@ export class TextAreaInput extends TextInput {
   }
 
   static initClass(): void {
-    this.prototype.type = "TextAreaInput"
     this.prototype.default_view = TextAreaInputView
 
     this.define<TextAreaInput.Props>({

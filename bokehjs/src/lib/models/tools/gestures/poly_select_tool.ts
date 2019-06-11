@@ -119,7 +119,6 @@ export class PolySelectTool extends SelectTool {
   }
 
   static initClass(): void {
-    this.prototype.type = "PolySelectTool"
     this.prototype.default_view = PolySelectToolView
 
     this.define<PolySelectTool.Props>({

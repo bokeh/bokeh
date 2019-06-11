@@ -98,7 +98,6 @@ export class Spinner extends InputWidget {
   }
 
   static initClass(): void {
-    this.prototype.type = "Spinner"
     this.prototype.default_view = SpinnerView
 
     this.define<Spinner.Props>({

@@ -100,7 +100,6 @@ export class DatePicker extends InputWidget {
   }
 
   static initClass(): void {
-    this.prototype.type = "DatePicker"
     this.prototype.default_view = DatePickerView
 
     this.define<DatePicker.Props>({

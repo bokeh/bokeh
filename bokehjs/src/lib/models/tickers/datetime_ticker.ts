@@ -30,8 +30,6 @@ export class DatetimeTicker extends CompositeTicker {
   }
 
   static initClass(): void {
-    this.prototype.type = "DatetimeTicker"
-
     this.override({
       num_minor_ticks: 0,
       tickers: () => [

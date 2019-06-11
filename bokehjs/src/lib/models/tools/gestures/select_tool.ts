@@ -125,8 +125,6 @@ export abstract class SelectTool extends GestureTool {
   }
 
   static initClass(): void {
-    this.prototype.type = "SelectTool"
-
     this.define<SelectTool.Props>({
       renderers: [ p.Any,   'auto' ],
       names:     [ p.Array, []     ],

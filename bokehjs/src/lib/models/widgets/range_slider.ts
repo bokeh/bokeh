@@ -36,7 +36,6 @@ export class RangeSlider extends AbstractSlider {
   }
 
   static initClass(): void {
-    this.prototype.type = "RangeSlider"
     this.prototype.default_view = RangeSliderView
 
     this.override({

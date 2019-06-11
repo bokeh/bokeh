@@ -80,8 +80,6 @@ export abstract class Annotation extends Renderer {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Annotation'
-
     this.override({
       level: 'annotation',
     })

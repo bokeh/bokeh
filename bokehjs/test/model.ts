@@ -12,8 +12,6 @@ class SomeModel extends Model {
   baz: number
 
   static initClass(): void {
-    this.prototype.type = 'SomeModel'
-
     this.define<any>({
       foo: [ p.Number, 2 ],
       bar: [ p.String    ],

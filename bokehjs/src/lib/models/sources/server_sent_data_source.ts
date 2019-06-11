@@ -17,10 +17,6 @@ export class ServerSentDataSource extends WebDataSource {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'ServerSentDataSource'
-  }
-
   protected initialized: boolean = false
 
   destroy(): void {
@@ -37,4 +33,3 @@ export class ServerSentDataSource extends WebDataSource {
     }
   }
 }
-ServerSentDataSource.initClass()

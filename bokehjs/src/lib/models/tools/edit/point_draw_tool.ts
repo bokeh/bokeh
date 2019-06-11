@@ -94,7 +94,6 @@ export class PointDrawTool extends EditTool {
   }
 
   static initClass(): void {
-    this.prototype.type = "PointDrawTool"
     this.prototype.default_view = PointDrawToolView
 
     this.define<PointDrawTool.Props>({

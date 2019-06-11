@@ -191,6 +191,7 @@ export type FigureAttrs = Omit<Plot.Attrs, "x_range" | "y_range"> & {
 }
 
 export class Figure extends Plot {
+  static __name__ = "Plot"
 
   get xgrid(): Grid[] {
     return this.center.filter((r): r is Grid => r instanceof Grid && r.dimension == 0)

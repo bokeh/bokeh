@@ -3,7 +3,7 @@ import * as ts from "typescript"
 
 import {dirname, join, relative} from "path"
 
-import {import_css, relativize_modules} from "./transform"
+import {import_css, relativize_modules, insert_class_name} from "./transform"
 import {build_dir} from "./paths"
 import {read} from "./fs"
 
@@ -51,6 +51,9 @@ export function compileFiles(inputs: string[], options: ts.CompilerOptions): TSO
 
   const css_transform = import_css((css_path) => read(join(build_dir.css, css_path)))
   transformers.before.push(css_transform)
+
+  const class_name_transform = insert_class_name()
+  transformers.before.push(class_name_transform)
 
   const base = options.baseUrl
   if (base != null) {

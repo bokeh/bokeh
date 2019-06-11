@@ -171,7 +171,6 @@ export class Gear extends XYGlyph {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Gear'
     this.prototype.default_view = GearView
 
     this.mixins(['line', 'fill'])

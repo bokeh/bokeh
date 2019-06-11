@@ -92,7 +92,6 @@ export class Label extends TextAnnotation {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Label'
     this.prototype.default_view = LabelView
 
     this.mixins(['text', 'line:border_', 'fill:background_'])

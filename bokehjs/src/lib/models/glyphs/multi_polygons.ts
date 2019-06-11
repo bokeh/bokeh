@@ -274,7 +274,6 @@ export class MultiPolygons extends Glyph {
   }
 
   static initClass(): void {
-    this.prototype.type = 'MultiPolygons'
     this.prototype.default_view = MultiPolygonsView
 
     this.coords([['xs', 'ys']])

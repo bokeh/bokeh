@@ -31,7 +31,6 @@ export class Div extends Markup {
   }
 
   static initClass(): void {
-    this.prototype.type = "Div"
     this.prototype.default_view = DivView
 
     this.define<Div.Props>({
