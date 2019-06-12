@@ -147,32 +147,86 @@ export abstract class AbstractSliderView extends ControlView {
       this.noUiSlider.on('slide',  (_, __, values) => this._slide(values))
       this.noUiSlider.on('change', (_, __, values) => this._change(values))
 
-      // Add keyboard support
-      const keypress = (e: KeyboardEvent): void => {
-        const current = this._calc_to()
-        let value = current.value[0]
-        switch (e.which) {
-          case 37: {
-            value = Math.max(value - step, start)
-            break
+      const handle = this.slider_el.querySelectorAll(`.${prefix}handle`)!
+      if(handle.length==1){
+        // Add single cursor event
+        const keypress = (e: KeyboardEvent): void => {
+          const current = this._calc_to()
+          let value = current.value[0]
+          switch (e.which) {
+            case 37: {
+              value = Math.max(value - step, start)
+              break
+            }
+            case 39: {
+              value = Math.min(value + step, end)
+              break
+            }
+            default:
+              return
           }
-          case 39: {
-            value = Math.min(value + step, end)
-            break
-          }
-          default:
-            return
+
+          this.model.value = value
+          this.noUiSlider.set(value)
+          if (this.callback_wrapper != null)
+            this.callback_wrapper()
         }
-
-        this.model.value = value
-        this.noUiSlider.set(value)
-        if (this.callback_wrapper != null)
-          this.callback_wrapper()
+        handle[0].setAttribute('tabindex', '0')
+        handle[0].addEventListener('keydown', keypress)
       }
+      else if (handle.length==2) {
+        // Add range cursors keyboard events
+        const keypress_lower = (e: KeyboardEvent): void => {
+          const current = this._calc_to()
+          let value = current.value
+          switch (e.which) {
+            case 37: {
+              value[0] = Math.max(value[0] - step, start)
+              break
+            }
+            case 39: {
+              value[0] = Math.min(value[0] + step, value[1])
+              break
+            }
+            default:
+              return
+          }
+        
+          this.model.value = value
+          this.noUiSlider.set(value)
+          this.model.properties.value.change.emit()
+          if (this.callback_wrapper != null)
+            this.callback_wrapper()
+        }
+        const keypress_upper = (e: KeyboardEvent): void => {
+          const current = this._calc_to()
+          let value = current.value
+          switch (e.which) {
+            case 37: {
+              value[1] = Math.max(value[1] - step, value[0])
+              break
+            }
+            case 39: {
+              value[1] = Math.min(value[1] + step, end)
+              break
+            }
+            default:
+              return
+          }
 
-      const handle = this.slider_el.querySelector(`.${prefix}handle`)!
-      handle.setAttribute('tabindex', '0')
-      handle.addEventListener('keydown', keypress)
+          this.model.value = value
+          this.noUiSlider.set(value)
+          this.model.properties.value.change.emit()
+          if (this.callback_wrapper != null)
+            this.callback_wrapper()
+        }
+        const handle_lower = this.slider_el.querySelector(`.${prefix}handle-lower`)!
+        const handle_upper = this.slider_el.querySelector(`.${prefix}handle-upper`)!
+        handle_lower.setAttribute('tabindex', '0')
+        handle_lower.addEventListener('keydown', keypress_lower)
+        handle_upper.setAttribute('tabindex', '1')
+        handle_upper.addEventListener('keydown', keypress_upper)
+      }
 
       const toggleTooltip = (i: number, show: boolean): void => {
         const handle = this.slider_el.querySelectorAll(`.${prefix}handle`)[i]
