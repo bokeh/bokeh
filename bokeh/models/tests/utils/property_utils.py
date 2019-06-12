@@ -77,9 +77,12 @@ def check_line_properties(model, prefix="", line_color=Color.black, line_width=1
     assert getattr(model, prefix + "line_dash") == []
     assert getattr(model, prefix + "line_dash_offset") == 0
 
-def check_text_properties(model, prefix="", font_size='12pt', baseline='bottom', font_style='normal', align="left"):
+def check_text_properties(model, prefix="", font_size='12pt', baseline='bottom', font_style='normal', align="left", scalar=False):
     assert getattr(model, prefix + "text_font") == "helvetica"
-    assert getattr(model, prefix + "text_font_size") == {"value": font_size}
+    if scalar:
+        assert getattr(model, prefix + "text_font_size") == font_size
+    else:
+        assert getattr(model, prefix + "text_font_size") == {"value": font_size}
     assert getattr(model, prefix + "text_font_style") == font_style
     assert getattr(model, prefix + "text_color") == "#444444"
     assert getattr(model, prefix + "text_alpha") == 1.0
