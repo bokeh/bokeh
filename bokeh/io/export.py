@@ -240,7 +240,12 @@ def get_svgs(obj, driver=None, timeout=5, **kwargs):
     with _tmp_html() as tmp:
         html = get_layout_html(obj, **kwargs)
         with io.open(tmp.path, mode="wb") as file:
-            file.write(html.decode('utf-8').encode('utf-8'))
+            
+            try:
+                file.write(html.encode('utf-8'))                    # Python 3
+            except UnicodeDecodeError:
+                file.write(html.decode('utf-8').encode('utf-8'))    # Python 2
+            
 
         web_driver = driver if driver is not None else webdriver_control.get()
 
