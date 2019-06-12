@@ -4,63 +4,75 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide a request handler that returns a page displaying a document.
-
-'''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import logging
-log = logging.getLogger(__name__)
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import re
+from typing import Dict, List
 
 # External imports
-from tornado import gen
+from django.conf.urls import url
+from django.urls.resolvers import URLPattern
+from channels.http import AsgiHandler
 
 # Bokeh imports
-from bokeh.embed.server import server_html_page_for_session
-
-from .session_handler import SessionHandler
+from bokeh.server.contexts import ApplicationContext
+from .consumers import DocConsumer, AutoloadJsConsumer, WSConsumer
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'DocHandler',
+    'RoutingConfiguration',
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
+class RoutingConfiguration(object):
+
+    _http_urlpatterns: List[str] = []
+    _websocket_urlpatterns: List[str] = []
+
+    _prefix = None # "bokehapps"
+
+    def __init__(self, app_contexts: Dict[str, ApplicationContext]):
+
+        for app_name, app_context in app_contexts.items():
+            self._add_new_routing(app_name, app_context)
+
+    def get_http_urlpatterns(self) -> List[URLPattern]:
+        return self._http_urlpatterns + [url(r"", AsgiHandler)]
+
+    def get_websocket_urlpatterns(self) -> List[URLPattern]:
+        return self._websocket_urlpatterns
+
+    def _add_new_routing(self, app_name: str, app_context: ApplicationContext) -> None:
+        kwargs = dict(app_context=app_context)
+
+        def join(*components):
+            return "/".join([ component.strip("/") for component in components if component ])
+
+        def urlpattern(suffix=""):
+            return r"^{}$".format(join(self._prefix or "", re.escape(app_name)) + suffix)
+
+        self._http_urlpatterns.append(url(urlpattern("/"), DocConsumer, kwargs=kwargs))
+        self._http_urlpatterns.append(url(urlpattern("/autoload.js"), AutoloadJsConsumer, kwargs=kwargs))
+        self._websocket_urlpatterns.append(url(urlpattern("/ws"), WSConsumer, kwargs=kwargs))
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
-
-class DocHandler(SessionHandler):
-    ''' Implements a custom Tornado handler for document display page
-
-    '''
-    @gen.coroutine
-    def get(self, *args, **kwargs):
-        session = yield self.get_session()
-        page = server_html_page_for_session(session,
-                                            resources=self.application.resources(),
-                                            title=session.document.title,
-                                            template=session.document.template,
-                                            template_variables=session.document.template_variables)
-
-        self.set_header("Content-Type", 'text/html')
-        self.write(page)
 
 #-----------------------------------------------------------------------------
 # Private API
