@@ -173,12 +173,11 @@ export abstract class AbstractSliderView extends ControlView {
         }
         handle[0].setAttribute('tabindex', '0')
         handle[0].addEventListener('keydown', keypress)
-      }
-      else if (handle.length==2) {
+      } else if (handle.length==2) {
         // Add range cursors keyboard events
         const keypress_lower = (e: KeyboardEvent): void => {
           const current = this._calc_to()
-          let value = current.value
+          const value = current.value
           switch (e.which) {
             case 37: {
               value[0] = Math.max(value[0] - step, start)
@@ -191,7 +190,7 @@ export abstract class AbstractSliderView extends ControlView {
             default:
               return
           }
-        
+
           this.model.value = value
           this.noUiSlider.set(value)
           this.model.properties.value.change.emit()
@@ -200,7 +199,7 @@ export abstract class AbstractSliderView extends ControlView {
         }
         const keypress_upper = (e: KeyboardEvent): void => {
           const current = this._calc_to()
-          let value = current.value
+          const value = current.value
           switch (e.which) {
             case 37: {
               value[1] = Math.max(value[1] - step, value[0])
