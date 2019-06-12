@@ -23,8 +23,6 @@ export class LogTickFormatter extends TickFormatter {
   }
 
   static initClass(): void {
-    this.prototype.type = 'LogTickFormatter'
-
     this.define<LogTickFormatter.Props>({
       ticker: [ p.Instance, null ],
       use_superscript_exponents:   [ p.Boolean, false   ],

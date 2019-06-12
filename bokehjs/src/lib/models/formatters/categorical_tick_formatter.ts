@@ -17,12 +17,7 @@ export class CategoricalTickFormatter extends TickFormatter {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'CategoricalTickFormatter'
-  }
-
   doFormat(ticks: string[], _opts: {loc: number}): string[] {
     return copy(ticks)
   }
 }
-CategoricalTickFormatter.initClass()

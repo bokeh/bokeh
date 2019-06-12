@@ -1,6 +1,6 @@
 {
   "name": "bokehjs",
-  "version": "1.2.0",
+  "version": "1.2.1dev1",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -29,8 +29,6 @@
     "del": "^4.0.0",
     "istanbul": "^0.4.5",
     "terser": "3.17.0",
-    "uglifycss": "^0.0.29",
-    "@types/uglifycss": "^0.0.5",
     "logtrap": "^0.0.1",
     "mocha": "^5.2.0",
     "sinon": "^1.15.4",

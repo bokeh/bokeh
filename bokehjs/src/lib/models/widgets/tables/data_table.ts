@@ -19,6 +19,8 @@ import {WidgetView} from "../widget"
 import {ColumnDataSource} from "../../sources/column_data_source"
 import {CDSView} from "../../sources/cds_view"
 
+import {bk_data_table, bk_cell_index, bk_header_index, bk_cell_select} from "styles/widgets/tables"
+
 export const DTINDEX_NAME = "__bkdt_internal_index__"
 
 declare var $: any
@@ -183,13 +185,13 @@ export class DataTableView extends WidgetView {
       resizable: false,
       selectable: false,
       sortable: true,
-      cssClass: "bk-cell-index",
-      headerCssClass: "bk-header-index",
+      cssClass: bk_cell_index,
+      headerCssClass: bk_header_index,
     }
   }
 
   css_classes(): string[] {
-    return super.css_classes().concat("bk-data-table")
+    return super.css_classes().concat(bk_data_table)
   }
 
   render(): void {
@@ -197,7 +199,7 @@ export class DataTableView extends WidgetView {
     let columns = this.model.columns.map((column) => column.toColumn())
 
     if (this.model.selectable == "checkbox") {
-      checkboxSelector = new CheckboxSelectColumn({cssClass: "bk-cell-select"})
+      checkboxSelector = new CheckboxSelectColumn({cssClass: bk_cell_select})
       columns.unshift(checkboxSelector.getColumnDefinition())
     }
 
@@ -325,7 +327,6 @@ export class DataTable extends TableWidget {
   }
 
   static initClass(): void {
-    this.prototype.type = 'DataTable'
     this.prototype.default_view = DataTableView
 
     this.define<DataTable.Props>({

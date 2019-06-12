@@ -25,8 +25,6 @@ export class CategoricalPatternMapper extends Mapper<string> {
   }
 
   static initClass(): void {
-    this.prototype.type = "CategoricalPatternMapper"
-
     this.define<CategoricalPatternMapper.Props>({
       factors:       [ p.Array                 ],
       patterns:      [ p.Array                 ],

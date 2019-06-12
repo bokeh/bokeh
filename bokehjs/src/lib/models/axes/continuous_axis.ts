@@ -15,9 +15,4 @@ export abstract class ContinuousAxis extends Axis {
   constructor(attrs?: Partial<ContinuousAxis.Attrs>) {
     super(attrs)
   }
-
-  static initClass(): void {
-    this.prototype.type = "ContinuousAxis"
-  }
 }
-ContinuousAxis.initClass()

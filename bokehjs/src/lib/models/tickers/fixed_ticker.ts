@@ -21,8 +21,6 @@ export class FixedTicker extends ContinuousTicker {
   }
 
   static initClass(): void {
-    this.prototype.type = "FixedTicker"
-
     this.define<FixedTicker.Props>({
       ticks: [ p.Array, [] ],
       minor_ticks: [ p.Array, [] ],

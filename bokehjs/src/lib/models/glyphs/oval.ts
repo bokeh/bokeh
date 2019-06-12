@@ -50,7 +50,6 @@ export class Oval extends EllipseOval {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Oval'
     this.prototype.default_view = OvalView
   }
 }

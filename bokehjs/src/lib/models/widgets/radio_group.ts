@@ -5,13 +5,16 @@ import * as p from "core/properties"
 import {InputGroup, InputGroupView} from "./input_group"
 import {CallbackLike0} from "../callbacks/callback"
 
+import {bk_inline} from "styles/mixins"
+import {bk_input_group} from "styles/widgets/inputs"
+
 export class RadioGroupView extends InputGroupView {
   model: RadioGroup
 
   render(): void {
     super.render()
 
-    const group = div({class: ["bk-input-group", this.model.inline ? "bk-inline" : null]})
+    const group = div({class: [bk_input_group, this.model.inline ? bk_inline : null]})
     this.el.appendChild(group)
 
     const name = uniqueId()
@@ -59,7 +62,6 @@ export class RadioGroup extends InputGroup {
   }
 
   static initClass(): void {
-    this.prototype.type = "RadioGroup"
     this.prototype.default_view = RadioGroupView
 
     this.define<RadioGroup.Props>({

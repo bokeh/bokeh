@@ -9,7 +9,7 @@ import {View} from "core/view"
 import {Model} from "../../model"
 import {Anchor} from "core/enums"
 import {logger} from "core/logging"
-import {Arrayable, Area, Rect} from "core/types"
+import {Arrayable, Rect} from "core/types"
 import {map} from "core/util/arrayable"
 import {extend} from "core/util/object"
 import {isArray, isTypedArray} from "core/util/types"
@@ -113,18 +113,18 @@ export abstract class GlyphView extends View {
 
     const positive_x_bbs = this.index.search(bbox.positive_x())
     for (const x of positive_x_bbs) {
-      if (x.minX < bb.minX)
-        bb.minX = x.minX
-      if (x.maxX > bb.maxX)
-        bb.maxX = x.maxX
+      if (x.x0 < bb.x0)
+        bb.x0 = x.x0
+      if (x.x1 > bb.x1)
+        bb.x1 = x.x1
     }
 
     const positive_y_bbs = this.index.search(bbox.positive_y())
     for (const y of positive_y_bbs) {
-      if (y.minY < bb.minY)
-        bb.minY = y.minY
-      if (y.maxY > bb.maxY)
-        bb.maxY = y.maxY
+      if (y.y0 < bb.y0)
+        bb.y0 = y.y0
+      if (y.y1 > bb.y1)
+        bb.y1 = y.y1
     }
 
     return this._bounds(bb)
@@ -176,7 +176,7 @@ export abstract class GlyphView extends View {
       return map(spt0, (_, i) => Math.abs(spt1[i] - spt0[i]))
   }
 
-  draw_legend_for_index(_ctx: Context2d, _bbox: Area, _index: number): void {}
+  draw_legend_for_index(_ctx: Context2d, _bbox: Rect, _index: number): void {}
 
   hit_test(geometry: Geometry): hittest.HitTestResult {
     let result = null
@@ -196,9 +196,8 @@ export abstract class GlyphView extends View {
     const {sx0, sx1, sy0, sy1} = geometry
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-    const bb = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     const result = hittest.create_empty_hit_test_result()
-    result.indices = this.index.indices(bb)
+    result.indices = this.index.indices({x0, x1, y0, y1})
     return result
   }
 
@@ -354,8 +353,6 @@ export abstract class Glyph extends Model {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Glyph'
-
     this.prototype._coords = []
 
     this.internal({

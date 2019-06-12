@@ -19,8 +19,6 @@ export class BBoxTileSource extends MercatorTileSource {
   }
 
   static initClass(): void {
-    this.prototype.type = 'BBoxTileSource'
-
     this.define<BBoxTileSource.Props>({
       use_latlon: [ p.Boolean, false ],
     })

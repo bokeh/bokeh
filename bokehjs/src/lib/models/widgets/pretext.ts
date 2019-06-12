@@ -28,7 +28,6 @@ export class PreText extends Markup {
   }
 
   static initClass(): void {
-    this.prototype.type = "PreText"
     this.prototype.default_view = PreTextView
   }
 }

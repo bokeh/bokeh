@@ -100,12 +100,12 @@ export class ImageURLView extends XYGlyphView {
         ys[n + i] = this._y[i] + this._h[i]
     }
 
-    const minX = min(xs)
-    const maxX = max(xs)
-    const minY = min(ys)
-    const maxY = max(ys)
+    const x0 = min(xs)
+    const x1 = max(xs)
+    const y0 = min(ys)
+    const y1 = max(ys)
 
-    this._bounds_rect = {minX, maxX, minY, maxY}
+    this._bounds_rect = {x0, x1, y0, y1}
   }
 
   has_finished(): boolean {
@@ -247,7 +247,6 @@ export class ImageURL extends XYGlyph {
   }
 
   static initClass(): void {
-    this.prototype.type = 'ImageURL'
     this.prototype.default_view = ImageURLView
 
     this.define<ImageURL.Props>({

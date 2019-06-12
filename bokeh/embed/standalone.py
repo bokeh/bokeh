@@ -116,20 +116,10 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
 
     The returned components assume that BokehJS resources are **already loaded**.
     The html template in which they will be embedded needs to include the following
-    links and scripts tags. The widgets and tables resources are only necessary if
-    the components make use of widgets and tables.
+    scripts tags. The widgets and tables resources are only necessary if the components
+    make use of widgets and tables.
 
     .. code-block:: html
-
-        <link
-            href="http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.css"
-            rel="stylesheet" type="text/css">
-        <link
-            href="http://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.css"
-            rel="stylesheet" type="text/css">
-        <link
-            href="http://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.css"
-            rel="stylesheet" type="text/css">
 
         <script src="http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.js"></script>
         <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.js"></script>

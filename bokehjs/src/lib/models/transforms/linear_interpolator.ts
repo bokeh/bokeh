@@ -17,10 +17,6 @@ export class LinearInterpolator extends Interpolator {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "LinearInterpolator"
-  }
-
   compute(x: number): number {
     this.sort(false)
 
@@ -47,4 +43,3 @@ export class LinearInterpolator extends Interpolator {
     return y1 + (((x-x1) / (x2-x1)) * (y2-y1))
   }
 }
-LinearInterpolator.initClass()

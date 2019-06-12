@@ -39,8 +39,6 @@ export class Selection extends Model {
   }
 
   static initClass(): void {
-    this.prototype.type = "Selection"
-
     this.define<Selection.Props>({
       indices:           [ p.Array,   [] ],
       line_indices:      [ p.Array,   [] ],

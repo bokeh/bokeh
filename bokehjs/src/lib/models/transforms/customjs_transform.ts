@@ -25,8 +25,6 @@ export class CustomJSTransform extends Transform {
   }
 
   static initClass(): void {
-    this.prototype.type = 'CustomJSTransform'
-
     this.define<CustomJSTransform.Props>({
       args:       [ p.Any,    {}     ], // TODO (bev) better type
       func:       [ p.String, ""     ],

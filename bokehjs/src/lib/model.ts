@@ -30,8 +30,6 @@ export class Model extends HasProps {
   }
 
   static initClass(): void {
-    this.prototype.type = "Model"
-
     this.define<Model.Props>({
       tags:                  [ p.Array, [] ],
       name:                  [ p.String    ],

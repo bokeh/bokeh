@@ -5,6 +5,8 @@ import {classes} from "core/dom"
 import {Set} from "core/util/data_structures"
 import * as p from "core/properties"
 
+import {bk_active} from "styles/mixins"
+
 export class CheckboxButtonGroupView extends ButtonGroupView {
   model: CheckboxButtonGroup
 
@@ -25,7 +27,7 @@ export class CheckboxButtonGroupView extends ButtonGroupView {
     const {active} = this
 
     this._buttons.forEach((button, i) => {
-      classes(button).toggle("bk-active", active.has(i))
+      classes(button).toggle(bk_active, active.has(i))
     })
   }
 }
@@ -49,7 +51,6 @@ export class CheckboxButtonGroup extends ButtonGroup {
   }
 
   static initClass(): void {
-    this.prototype.type = "CheckboxButtonGroup"
     this.prototype.default_view = CheckboxButtonGroupView
 
     this.define<CheckboxButtonGroup.Props>({

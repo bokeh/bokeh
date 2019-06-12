@@ -2,7 +2,7 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "models/glyphs/xy_glyph"
 import {generic_area_legend} from "models/glyphs/utils"
 import {isString} from "core/util/types"
 import {Context2d} from "core/util/canvas"
-import {Arrayable, Area} from "core/types"
+import {Arrayable, Rect} from "core/types"
 import {LineVector, FillVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
 import * as p from "core/properties"
@@ -141,7 +141,7 @@ export class GearView extends XYGlyphView {
     }
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Area, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_area_legend(this.visuals, ctx, bbox, index)
   }
 }
@@ -171,7 +171,6 @@ export class Gear extends XYGlyph {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Gear'
     this.prototype.default_view = GearView
 
     this.mixins(['line', 'fill'])

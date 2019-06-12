@@ -9,6 +9,7 @@ import * as p from "core/properties"
 import {Size} from "core/layout"
 import {Arrayable} from "core/types"
 import {Context2d} from "core/util/canvas"
+import {bk_annotation_child} from "styles/annotations"
 
 export class LabelSetView extends TextAnnotationView {
   model: LabelSet
@@ -28,7 +29,7 @@ export class LabelSetView extends TextAnnotationView {
 
     if (this.model.render_mode == 'css') {
       for (let i = 0, end = this._text.length; i < end; i++) {
-        const el = div({class: 'bk-annotation-child', style: {display: "none"}})
+        const el = div({class: bk_annotation_child, style: {display: "none"}})
         this.el.appendChild(el)
       }
     }
@@ -229,7 +230,6 @@ export class LabelSet extends TextAnnotation {
   }
 
   static initClass(): void {
-    this.prototype.type = 'LabelSet'
     this.prototype.default_view = LabelSetView
 
     this.mixins(['text', 'line:border_', 'fill:background_'])

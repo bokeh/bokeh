@@ -3,7 +3,9 @@ import * as ts from "typescript"
 
 import {dirname, join, relative} from "path"
 
-import {relativize_modules} from "./transform"
+import * as transforms from "../src/compiler/transforms"
+import {build_dir} from "./paths"
+import {read} from "./fs"
 
 export type Outputs = Map<string, string>
 
@@ -41,10 +43,21 @@ export function compileFiles(inputs: string[], options: ts.CompilerOptions): TSO
     outputs.set(name, output)
   }
 
-  let transformers: ts.CustomTransformers | undefined
+  const transformers: Required<ts.CustomTransformers> = {
+    before: [],
+    after: [],
+    afterDeclarations: [],
+  }
+
+  const css_transform = transforms.import_css((css_path) => read(join(build_dir.css, css_path)))
+  transformers.before.push(css_transform)
+
+  const class_name_transform = transforms.insert_class_name()
+  transformers.before.push(class_name_transform)
+
   const base = options.baseUrl
   if (base != null) {
-    const relativize_transform = relativize_modules((file, module_path) => {
+    const relativize_transform = transforms.relativize_modules((file, module_path) => {
       if (!module_path.startsWith(".") && !module_path.startsWith("/")) {
         const module_file = join(base, module_path)
         if (ts.sys.fileExists(module_file + ".ts") ||
@@ -56,10 +69,8 @@ export function compileFiles(inputs: string[], options: ts.CompilerOptions): TSO
       return null
     })
 
-    transformers = {
-      after: [relativize_transform],
-      afterDeclarations: [relativize_transform],
-    }
+    transformers.after.push(relativize_transform)
+    transformers.afterDeclarations.push(relativize_transform)
   }
 
   const emitted = program.emit(undefined, write, undefined, false, transformers)

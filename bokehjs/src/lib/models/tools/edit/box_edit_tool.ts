@@ -6,6 +6,7 @@ import {Rect} from "../../glyphs/rect"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {ColumnDataSource} from "../../sources/column_data_source"
 import {EditTool, EditToolView} from "./edit_tool"
+import {bk_tool_icon_box_edit} from "styles/icons"
 
 export interface HasRectCDS {
   glyph: Rect
@@ -159,7 +160,6 @@ export class BoxEditTool extends EditTool {
   }
 
   static initClass(): void {
-    this.prototype.type = "BoxEditTool"
     this.prototype.default_view = BoxEditToolView
 
     this.define<BoxEditTool.Props>({
@@ -169,7 +169,7 @@ export class BoxEditTool extends EditTool {
   }
 
   tool_name = "Box Edit Tool"
-  icon = "bk-tool-icon-box-edit"
+  icon = bk_tool_icon_box_edit
   event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
   default_order = 1
 }

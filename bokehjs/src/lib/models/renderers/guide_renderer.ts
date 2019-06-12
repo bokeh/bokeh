@@ -24,8 +24,6 @@ export abstract class GuideRenderer extends Renderer {
   }
 
   static initClass(): void {
-    this.prototype.type = "GuideRenderer"
-
     this.override({
       level: "overlay",
     })

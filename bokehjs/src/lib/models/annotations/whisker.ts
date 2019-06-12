@@ -156,7 +156,6 @@ export class Whisker extends Annotation {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Whisker'
     this.prototype.default_view = WhiskerView
 
     this.mixins(['line'])

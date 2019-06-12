@@ -31,7 +31,7 @@ export class HAreaView extends AreaView {
       if (isNaN(x1 + x2 + y) || !isFinite(x1 + x2 + y))
         continue
 
-      points.push({minX: Math.min(x1, x2), minY: y, maxX: Math.max(x1, x2), maxY: y, i})
+      points.push({x0: Math.min(x1, x2), y0: y, x1: Math.max(x1, x2), y1: y, i})
     }
 
     return new SpatialIndex(points)
@@ -98,7 +98,6 @@ export class HArea extends Area {
   }
 
   static initClass(): void {
-    this.prototype.type = 'HArea'
     this.prototype.default_view = HAreaView
 
     this.define<HArea.Props>({

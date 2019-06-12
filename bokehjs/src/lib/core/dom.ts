@@ -236,8 +236,8 @@ export function content_size(el: HTMLElement): Size {
 export function position(el: HTMLElement, box: Box, margin?: Extents): void {
   const {style} = el
 
-  style.left   = `${box.left}px`
-  style.top    = `${box.top}px`
+  style.left   = `${box.x}px`
+  style.top    = `${box.y}px`
   style.width  = `${box.width}px`
   style.height = `${box.height}px`
 
@@ -352,3 +352,18 @@ export function sized<T>(el: HTMLElement, size: Partial<Size>, fn: () => T): T {
     el.style.height = height
   }
 }
+
+export class StyleSheet {
+  private readonly style: HTMLStyleElement
+
+  constructor() {
+    this.style = style({type: "text/css"})
+    prepend(document.head, this.style)
+  }
+
+  append(css: string): void {
+    this.style.appendChild(document.createTextNode(css))
+  }
+}
+
+export const styles = new StyleSheet()

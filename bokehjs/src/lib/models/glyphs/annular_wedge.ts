@@ -2,7 +2,7 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_area_legend} from "./utils"
 import {PointGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
-import {Arrayable, Area} from "core/types"
+import {Arrayable, Rect} from "core/types"
 import {Line, Fill} from "core/visuals"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
@@ -108,8 +108,7 @@ export class AnnularWedgeView extends XYGlyphView {
 
     const candidates = []
 
-    const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    for (const i of this.index.indices(bbox)) {
+    for (const i of this.index.indices({x0, x1, y0, y1})) {
       const or2 = Math.pow(this.souter_radius[i], 2)
       const ir2 = Math.pow(this.sinner_radius[i], 2)
       const [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
@@ -132,7 +131,7 @@ export class AnnularWedgeView extends XYGlyphView {
     return hittest.create_hit_test_result_from_hits(hits)
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Area, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_area_legend(this.visuals, ctx, bbox, index)
   }
 
@@ -175,7 +174,6 @@ export class AnnularWedge extends XYGlyph {
   }
 
   static initClass(): void {
-    this.prototype.type = 'AnnularWedge'
     this.prototype.default_view = AnnularWedgeView
 
     this.mixins(['line', 'fill'])

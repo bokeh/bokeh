@@ -5,6 +5,7 @@ import {isArray} from "core/util/types"
 import {MultiLine} from "../../glyphs/multi_line"
 import {Patches} from "../../glyphs/patches"
 import {PolyTool, PolyToolView} from "./poly_tool"
+import {bk_tool_icon_poly_draw} from "styles/icons"
 
 export interface HasPolyGlyph {
   glyph: MultiLine | Patches
@@ -253,7 +254,6 @@ export class PolyDrawTool extends PolyTool {
   }
 
   static initClass(): void {
-    this.prototype.type = "PolyDrawTool"
     this.prototype.default_view = PolyDrawToolView
 
     this.define<PolyDrawTool.Props>({
@@ -263,7 +263,7 @@ export class PolyDrawTool extends PolyTool {
   }
 
   tool_name = "Polygon Draw Tool"
-  icon = "bk-tool-icon-poly-draw"
+  icon = bk_tool_icon_poly_draw
   event_type = ["pan" as "pan", "tap" as "tap", "move" as "move"]
   default_order = 3
 }

@@ -31,9 +31,4 @@ export abstract class HTMLBox extends LayoutDOM {
   constructor(attrs?: Partial<HTMLBox.Attrs>) {
     super(attrs)
   }
-
-  static initClass(): void {
-    this.prototype.type = "HTMLBox"
-  }
 }
-HTMLBox.initClass()

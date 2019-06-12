@@ -26,7 +26,6 @@ export class DatetimeAxis extends LinearAxis {
   }
 
   static initClass(): void {
-    this.prototype.type = "DatetimeAxis"
     this.prototype.default_view = DatetimeAxisView
 
     this.override({

@@ -26,8 +26,6 @@ export class SelectionManager extends HasProps {
   }
 
   static initClass(): void {
-    this.prototype.type = "SelectionManager"
-
     this.internal({
       source: [ p.Any ],
     })

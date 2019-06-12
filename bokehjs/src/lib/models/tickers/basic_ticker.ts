@@ -15,9 +15,4 @@ export class BasicTicker extends AdaptiveTicker {
   constructor(attrs?: Partial<BasicTicker.Attrs>) {
     super(attrs)
   }
-
-  static initClass(): void {
-    this.prototype.type = "BasicTicker"
-  }
 }
-BasicTicker.initClass()

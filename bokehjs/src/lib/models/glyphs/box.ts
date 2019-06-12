@@ -1,5 +1,5 @@
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import {Arrayable, Area} from "core/types"
+import {Arrayable, Rect} from "core/types"
 import {Line, Fill, Hatch} from "core/visuals"
 import {SpatialIndex} from "core/util/spatial"
 import {Context2d} from "core/util/canvas"
@@ -38,10 +38,10 @@ export abstract class BoxView extends GlyphView {
       if (isNaN(l + r + t + b) || !isFinite(l + r + t + b))
         continue
       points.push({
-        minX: Math.min(l, r),
-        minY: Math.min(t, b),
-        maxX: Math.max(r, l),
-        maxY: Math.max(t, b),
+        x0: Math.min(l, r),
+        y0: Math.min(t, b),
+        x1: Math.max(r, l),
+        y1: Math.max(t, b),
         i,
       })
     }
@@ -103,7 +103,7 @@ export abstract class BoxView extends GlyphView {
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
 
-    const hits = this.index.indices({minX: x, minY: y, maxX: x, maxY: y})
+    const hits = this.index.indices({x0: x, y0: y, x1: x, y1: y})
 
     const result = hittest.create_empty_hit_test_result()
     result.indices = hits
@@ -117,13 +117,13 @@ export abstract class BoxView extends GlyphView {
     if (geometry.direction == 'v') {
       const y = this.renderer.yscale.invert(sy)
       const hr = this.renderer.plot_view.frame.bbox.h_range
-      const [minX, maxX] = this.renderer.xscale.r_invert(hr.start, hr.end)
-      hits = this.index.indices({minX, minY: y, maxX, maxY: y})
+      const [x0, x1] = this.renderer.xscale.r_invert(hr.start, hr.end)
+      hits = this.index.indices({x0, y0: y, x1, y1: y})
     } else {
       const x = this.renderer.xscale.invert(sx)
       const vr = this.renderer.plot_view.frame.bbox.v_range
-      const [minY, maxY] = this.renderer.yscale.r_invert(vr.start, vr.end)
-      hits = this.index.indices({minX: x, minY, maxX: x, maxY})
+      const [y0, y1] = this.renderer.yscale.r_invert(vr.start, vr.end)
+      hits = this.index.indices({x0: x, y0, x1: x, y1})
     }
 
     const result = hittest.create_empty_hit_test_result()
@@ -131,7 +131,7 @@ export abstract class BoxView extends GlyphView {
     return result
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Area, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_area_legend(this.visuals, ctx, bbox, index)
   }
 }
@@ -154,8 +154,6 @@ export abstract class Box extends Glyph {
   }
 
   static initClass(): void {
-    this.prototype.type = "Box"
-
     this.mixins(['line', 'fill', 'hatch'])
   }
 }

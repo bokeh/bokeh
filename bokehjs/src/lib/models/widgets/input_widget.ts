@@ -4,6 +4,8 @@ import {CallbackLike0} from "../callbacks/callback"
 import {div, label} from "core/dom"
 import * as p from "core/properties"
 
+import {bk_input_group} from "styles/widgets/inputs"
+
 export abstract class InputWidgetView extends ControlView {
   model: InputWidget
 
@@ -23,7 +25,7 @@ export abstract class InputWidgetView extends ControlView {
     const {title} = this.model
     this.label_el = label({style: {display: title.length == 0 ? "none" : ""}}, title)
 
-    this.group_el = div({class: "bk-input-group"}, this.label_el)
+    this.group_el = div({class: bk_input_group}, this.label_el)
     this.el.appendChild(this.group_el)
   }
 
@@ -52,8 +54,6 @@ export abstract class InputWidget extends Control {
   }
 
   static initClass(): void {
-    this.prototype.type = "InputWidget"
-
     this.define<InputWidget.Props>({
       title:    [ p.String, "" ],
       callback: [ p.Any        ],

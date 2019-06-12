@@ -31,7 +31,7 @@ export class VAreaView extends AreaView {
       if (isNaN(x + y1 + y2) || !isFinite(x + y1 + y2))
         continue
 
-      points.push({minX: x, minY: Math.min(y1, y2), maxX: x, maxY: Math.max(y1, y2), i})
+      points.push({x0: x, y0: Math.min(y1, y2), x1: x, y1: Math.max(y1, y2), i})
     }
 
     return new SpatialIndex(points)
@@ -98,7 +98,6 @@ export class VArea extends Area {
   }
 
   static initClass(): void {
-    this.prototype.type = 'VArea'
     this.prototype.default_view = VAreaView
 
     this.define<VArea.Props>({

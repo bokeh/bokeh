@@ -2,7 +2,7 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_area_legend} from "./utils"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import {Line, Fill, Hatch} from "core/visuals"
-import {Arrayable, Area} from "core/types"
+import {Arrayable, Rect} from "core/types"
 import {Context2d} from "core/util/canvas"
 import * as p from "core/properties"
 
@@ -45,7 +45,7 @@ export class PatchView extends XYGlyphView {
     }
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Area, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_area_legend(this.visuals, ctx, bbox, index)
   }
 }
@@ -68,7 +68,6 @@ export class Patch extends XYGlyph {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Patch'
     this.prototype.default_view = PatchView
 
     this.mixins(['line', 'fill', 'hatch'])

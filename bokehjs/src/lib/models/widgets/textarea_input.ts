@@ -4,6 +4,8 @@ import {InputWidgetView} from "./input_widget"
 import {textarea} from "core/dom"
 import * as p from "core/properties"
 
+import {bk_input} from "styles/widgets/inputs"
+
 export class TextAreaInputView extends InputWidgetView {
   model: TextAreaInput
 
@@ -24,7 +26,7 @@ export class TextAreaInputView extends InputWidgetView {
     super.render()
 
     this.input_el = textarea({
-      class: "bk-input",
+      class: bk_input,
       name: this.model.name,
       disabled: this.model.disabled,
       placeholder: this.model.placeholder,
@@ -63,7 +65,6 @@ export class TextAreaInput extends TextInput {
   }
 
   static initClass(): void {
-    this.prototype.type = "TextAreaInput"
     this.prototype.default_view = TextAreaInputView
 
     this.define<TextAreaInput.Props>({

@@ -1,6 +1,6 @@
 import {LineVector} from "core/property_mixins"
 import {Line} from "core/visuals"
-import {Arrayable, Area} from "core/types"
+import {Arrayable, Rect} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
@@ -109,7 +109,7 @@ export class BezierView extends GlyphView {
 
       const [x0, y0, x1, y1] = _cbb(this._x0[i],  this._y0[i],  this._x1[i],  this._y1[i],
                                     this._cx0[i], this._cy0[i], this._cx1[i], this._cy1[i])
-      points.push({minX: x0, minY: y0, maxX: x1, maxY: y1, i})
+      points.push({x0, y0, x1, y1, i})
     }
 
     return new SpatialIndex(points)
@@ -132,7 +132,7 @@ export class BezierView extends GlyphView {
     }
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Area, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_line_legend(this.visuals, ctx, bbox, index)
   }
 
@@ -172,7 +172,6 @@ export class Bezier extends Glyph {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Bezier'
     this.prototype.default_view = BezierView
 
     this.coords([['x0', 'y0'], ['x1', 'y1'], ['cx0', 'cy0'], ['cx1', 'cy1']])

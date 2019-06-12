@@ -30,7 +30,6 @@ export class LogAxis extends ContinuousAxis {
   }
 
   static initClass(): void {
-    this.prototype.type = "LogAxis"
     this.prototype.default_view = LogAxisView
 
     this.override({

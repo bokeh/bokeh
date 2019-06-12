@@ -1,6 +1,6 @@
 import {LineVector} from "core/property_mixins"
 import {Line} from "core/visuals"
-import {Arrayable, Area} from "core/types"
+import {Arrayable, Rect} from "core/types"
 import {SpatialIndex} from "core/util/spatial"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
@@ -59,7 +59,7 @@ export class QuadraticView extends GlyphView {
       const [x0, x1] = _qbb(this._x0[i], this._cx[i], this._x1[i])
       const [y0, y1] = _qbb(this._y0[i], this._cy[i], this._y1[i])
 
-      points.push({minX: x0, minY: y0, maxX: x1, maxY: y1, i})
+      points.push({x0, y0, x1, y1, i})
     }
 
     return new SpatialIndex(points)
@@ -81,7 +81,7 @@ export class QuadraticView extends GlyphView {
     }
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Area, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_line_legend(this.visuals, ctx, bbox, index)
   }
 
@@ -119,7 +119,6 @@ export class Quadratic extends Glyph {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Quadratic'
     this.prototype.default_view = QuadraticView
 
     this.coords([['x0', 'y0'], ['x1', 'y1'], ['cx', 'cy']])

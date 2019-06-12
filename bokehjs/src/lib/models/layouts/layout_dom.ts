@@ -10,6 +10,7 @@ import * as p from "core/properties"
 import {build_views} from "core/build_views"
 import {DOMView} from "core/dom_view"
 import {SizingPolicy, BoxSizing, Size, Layoutable} from "core/layout"
+import {bk_root} from "styles/root"
 
 export namespace LayoutDOMView {
   export type Options = DOMView.Options & {model: LayoutDOM}
@@ -326,7 +327,7 @@ export abstract class LayoutDOMView extends DOMView {
 
       while (measuring = measuring.parentElement) {
         // .bk-root element doesn't bring any value
-        if (measuring.classList.contains("bk-root"))
+        if (measuring.classList.contains(bk_root))
           continue
 
         // we reached <body> element, so use viewport size
@@ -359,7 +360,7 @@ export abstract class LayoutDOMView extends DOMView {
   serializable_state(): {[key: string]: unknown} {
     return {
       ...super.serializable_state(),
-      bbox: this.layout.bbox.rect,
+      bbox: this.layout.bbox.box,
       children: this.child_views.map((child) => child.serializable_state()),
     }
   }
@@ -399,8 +400,6 @@ export abstract class LayoutDOM extends Model {
   }
 
   static initClass(): void {
-    this.prototype.type = "LayoutDOM"
-
     this.define<LayoutDOM.Props>({
       width:         [ p.Number,     null         ],
       height:        [ p.Number,     null         ],

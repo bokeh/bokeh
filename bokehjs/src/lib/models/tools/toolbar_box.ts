@@ -31,10 +31,6 @@ export class ProxyToolbar extends ToolbarBase {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "ProxyToolbar"
-  }
-
   _proxied_tools: (Tool | ToolProxy)[]
 
   initialize(): void {
@@ -190,7 +186,6 @@ export class ProxyToolbar extends ToolbarBase {
     }
   }
 }
-ProxyToolbar.initClass()
 
 export class ToolbarBoxView extends LayoutDOMView {
   model: ToolbarBox
@@ -240,7 +235,6 @@ export class ToolbarBox extends LayoutDOM {
   }
 
   static initClass(): void {
-    this.prototype.type = 'ToolbarBox'
     this.prototype.default_view = ToolbarBoxView
 
     this.define<ToolbarBox.Props>({

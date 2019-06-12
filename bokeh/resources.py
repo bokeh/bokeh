@@ -325,7 +325,7 @@ class CSSResources(BaseResources):
 
     '''
 
-    _css_components = ["bokeh", "bokeh-widgets", "bokeh-tables"]
+    _css_components = []
 
     # Properties --------------------------------------------------------------
 

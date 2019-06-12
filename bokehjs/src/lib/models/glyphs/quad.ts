@@ -86,7 +86,6 @@ export class Quad extends Box {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Quad'
     this.prototype.default_view = QuadView
 
     this.coords([['right', 'bottom'], ['left', 'top']])

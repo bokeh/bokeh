@@ -2,7 +2,7 @@ import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_area_legend} from "./utils"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import {Fill, Hatch} from "core/visuals"
-import {Area as BBoxArea } from "core/types"
+import {Rect} from "core/types"
 import {Context2d} from "core/util/canvas"
 import * as p from "core/properties"
 
@@ -14,7 +14,7 @@ export abstract class AreaView extends GlyphView {
   model:Area
   visuals: Area.Visuals
 
-  draw_legend_for_index(ctx: Context2d, bbox: BBoxArea, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_area_legend(this.visuals, ctx, bbox, index)
   }
 }
@@ -37,8 +37,6 @@ export class Area extends Glyph {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Area'
-
     this.mixins(['fill', 'hatch'])
   }
 }

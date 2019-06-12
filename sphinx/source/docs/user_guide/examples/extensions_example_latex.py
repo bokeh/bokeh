@@ -71,7 +71,6 @@ export class LatexLabel extends Label {
   }
 
   static initClass() {
-    this.prototype.type = 'LatexLabel'
     this.prototype.default_view = LatexLabelView
   }
 }

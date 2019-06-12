@@ -86,7 +86,6 @@ export class HBar extends Box {
   }
 
   static initClass(): void {
-    this.prototype.type = 'HBar'
     this.prototype.default_view = HBarView
 
     this.coords([['left', 'y']])

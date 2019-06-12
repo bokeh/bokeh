@@ -19,8 +19,6 @@ export abstract class SelectionPolicy extends Model {
   }
 }
 
-SelectionPolicy.prototype.type = "SelectionPolicy"
-
 export class IntersectRenderers extends SelectionPolicy {
 
   hit_test(geometry: Geometry, renderer_views: GlyphRendererView[]): HitTestResult {
@@ -42,8 +40,6 @@ export class IntersectRenderers extends SelectionPolicy {
   }
 }
 
-IntersectRenderers.prototype.type = "IntersectRenderers"
-
 export class UnionRenderers extends SelectionPolicy {
 
   hit_test(geometry: Geometry, renderer_views: GlyphRendererView[]): HitTestResult {
@@ -64,5 +60,3 @@ export class UnionRenderers extends SelectionPolicy {
     }
   }
 }
-
-UnionRenderers.prototype.type = "UnionRenderers"

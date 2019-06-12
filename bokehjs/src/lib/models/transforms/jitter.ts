@@ -29,8 +29,6 @@ export class Jitter extends Transform {
   }
 
   static initClass(): void {
-    this.prototype.type = "Jitter"
-
     this.define<Jitter.Props>({
       mean:         [ p.Number      , 0        ],
       width:        [ p.Number      , 1        ],

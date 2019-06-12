@@ -6,6 +6,7 @@ import {Scale} from '../../scales/scale'
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {GestureTool, GestureToolView} from "./gesture_tool"
+import {bk_tool_icon_range} from "styles/icons"
 
 export const enum Side { None, Left, Right, LeftRight, Bottom, Top, BottomTop, LeftRightBottomTop }
 
@@ -246,7 +247,6 @@ export class RangeTool extends GestureTool {
   }
 
   static initClass(): void {
-    this.prototype.type = "RangeTool"
     this.prototype.default_view = RangeToolView
 
     this.define<RangeTool.Props>({
@@ -293,7 +293,7 @@ export class RangeTool extends GestureTool {
   }
 
   tool_name = "Range Tool"
-  icon = "bk-tool-icon-range"
+  icon = bk_tool_icon_range
   event_type = "pan" as "pan"
   default_order = 1
 }

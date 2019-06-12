@@ -44,8 +44,8 @@ function timeout(ms: number): Promise<void> {
   })
 }
 
-type BBox = {left: number, top: number, width: number, height: number}
-type State = {type: string, bbox?: BBox, children?: State[]}
+type Box = {x: number, y: number, width: number, height: number}
+type State = {type: string, bbox?: Box, children?: State[]}
 
 function create_baseline(items: State[]): string {
   let baseline = ""
@@ -55,8 +55,8 @@ function create_baseline(items: State[]): string {
       baseline += `${"  ".repeat(level)}${type}`
 
       if (bbox != null) {
-        const {left, top, width, height} = bbox
-        baseline += ` bbox=[${left}, ${top}, ${width}, ${height}]`
+        const {x, y, width, height} = bbox
+        baseline += ` bbox=[${x}, ${y}, ${width}, ${height}]`
       }
 
       baseline += "\n"

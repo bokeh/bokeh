@@ -58,7 +58,7 @@ export abstract class AnnotationView extends RendererView {
 
   serializable_state(): {[key: string]: unknown} {
     const state = super.serializable_state()
-    return this.layout == null ? state : {...state, bbox: this.layout.bbox.rect}
+    return this.layout == null ? state : {...state, bbox: this.layout.bbox.box}
   }
 }
 
@@ -80,8 +80,6 @@ export abstract class Annotation extends Renderer {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Annotation'
-
     this.override({
       level: 'annotation',
     })

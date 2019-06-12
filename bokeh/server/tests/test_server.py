@@ -261,7 +261,6 @@ def resource_files_requested(response, requested=True):
         import codecs
         response = codecs.decode(response, 'utf-8')
     for file in [
-        'static/css/bokeh.min.css', 'static/css/bokeh-widgets.min.css',
         'static/js/bokeh.min.js', 'static/js/bokeh-widgets.min.js']:
         if requested:
             assert file in response

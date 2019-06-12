@@ -4,7 +4,6 @@ import * as refs from "@bokehjs/core/util/refs"
 import {HasProps} from "@bokehjs/core/has_props"
 
 class Foo extends HasProps {}
-Foo.prototype.type = "Foo"
 
 describe("refs module", () => {
 

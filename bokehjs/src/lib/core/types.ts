@@ -29,20 +29,13 @@ export type Size = {
 }
 
 export type Box = {
-  left: number
-  top: number
+  x: number
+  y: number
   width: number
   height: number
 }
 
 export type Rect = {
-  minX: number
-  minY: number
-  maxX: number
-  maxY: number
-}
-
-export type Area = {
   x0: number
   y0: number
   x1: number

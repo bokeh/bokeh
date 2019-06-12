@@ -15,6 +15,7 @@ import {isString} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 import {SelectionManager} from "core/selection_manager"
 import {ColumnDataSource} from "../sources/column_data_source"
+import {bk_tile_attribution} from "styles/tiles"
 
 export interface TileData {
   img: Image
@@ -99,7 +100,7 @@ export class TileRendererView extends DataRendererView {
       const offset_bottom = layout._height.value - frame._bottom.value
       const max_width = frame._width.value
       this.attribution_el = div({
-        class: 'bk-tile-attribution',
+        class: bk_tile_attribution,
         style: {
           position: "absolute",
           right: `${offset_right}px`,
@@ -406,7 +407,6 @@ export class TileRenderer extends DataRenderer {
   }
 
   static initClass(): void {
-    this.prototype.type = 'TileRenderer'
     this.prototype.default_view = TileRendererView
 
     this.define<TileRenderer.Props>({

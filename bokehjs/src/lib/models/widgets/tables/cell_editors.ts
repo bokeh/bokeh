@@ -5,6 +5,8 @@ import {DOMView} from "core/dom_view"
 import {Model} from "../../../model"
 import {DTINDEX_NAME, Item} from "./data_table"
 
+import {bk_cell_editor} from "styles/widgets/tables"
+
 export abstract class CellEditorView extends DOMView {
   model: CellEditor
 
@@ -33,7 +35,7 @@ export abstract class CellEditorView extends DOMView {
   }
 
   css_classes(): string[] {
-    return super.css_classes().concat("bk-cell-editor")
+    return super.css_classes().concat(bk_cell_editor)
   }
 
   render(): void {
@@ -128,12 +130,7 @@ export interface CellEditor extends CellEditor.Attrs {}
 
 export abstract class CellEditor extends Model {
   properties: CellEditor.Props
-
-  static initClass(): void {
-    this.prototype.type = "CellEditor"
-  }
 }
-CellEditor.initClass()
 
 export class StringEditorView extends CellEditorView {
   model: StringEditor
@@ -179,7 +176,6 @@ export class StringEditor extends CellEditor {
   properties: StringEditor.Props
 
   static initClass(): void {
-    this.prototype.type = 'StringEditor'
     this.prototype.default_view = StringEditorView
     this.define<StringEditor.Props>({
       completions: [ p.Array, [] ],
@@ -210,7 +206,6 @@ export class TextEditor extends CellEditor {
   properties: TextEditor.Props
 
   static initClass(): void {
-    this.prototype.type = 'TextEditor'
     this.prototype.default_view = TextEditorView
   }
 }
@@ -247,7 +242,6 @@ export class SelectEditor extends CellEditor {
   properties: SelectEditor.Props
 
   static initClass(): void {
-    this.prototype.type = 'SelectEditor'
     this.prototype.default_view = SelectEditorView
     this.define<SelectEditor.Props>({
       options: [ p.Array, [] ],
@@ -278,7 +272,6 @@ export class PercentEditor extends CellEditor {
   properties: PercentEditor.Props
 
   static initClass(): void {
-    this.prototype.type = 'PercentEditor'
     this.prototype.default_view = PercentEditorView
   }
 }
@@ -319,7 +312,6 @@ export class CheckboxEditor extends CellEditor {
   properties: CheckboxEditor.Props
 
   static initClass(): void {
-    this.prototype.type = 'CheckboxEditor'
     this.prototype.default_view = CheckboxEditorView
   }
 }
@@ -377,7 +369,6 @@ export class IntEditor extends CellEditor {
   properties: IntEditor.Props
 
   static initClass(): void {
-    this.prototype.type = 'IntEditor'
     this.prototype.default_view = IntEditorView
     this.define<IntEditor.Props>({
       step: [ p.Number, 1 ],
@@ -438,7 +429,6 @@ export class NumberEditor extends CellEditor {
   properties: NumberEditor.Props
 
   static initClass(): void {
-    this.prototype.type = 'NumberEditor'
     this.prototype.default_view = NumberEditorView
     this.define<NumberEditor.Props>({
       step: [ p.Number, 0.01 ],
@@ -469,7 +459,6 @@ export class TimeEditor extends CellEditor {
   properties: TimeEditor.Props
 
   static initClass(): void {
-    this.prototype.type = 'TimeEditor'
     this.prototype.default_view = TimeEditorView
   }
 }
@@ -547,7 +536,6 @@ export class DateEditor extends CellEditor {
   properties: DateEditor.Props
 
   static initClass(): void {
-    this.prototype.type = 'DateEditor'
     this.prototype.default_view = DateEditorView
   }
 }

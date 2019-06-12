@@ -28,8 +28,6 @@ class AnotherModel extends Model {
   }
 
   static initClass(): void {
-    this.prototype.type = 'AnotherModel'
-
     this.define<AnotherModel.Props>({
       bar: [ p.Number, 1 ],
     })
@@ -57,7 +55,6 @@ class SomeModel extends Model {
   }
 
   static initClass(): void {
-    this.prototype.type = 'SomeModel'
 
     this.define<SomeModel.Props>({
       foo:   [ p.Number, 2 ],
@@ -86,7 +83,6 @@ class SomeModelWithChildren extends Model {
   }
 
   static initClass(): void {
-    this.prototype.type = 'SomeModelWithChildren'
 
     this.define<SomeModelWithChildren.Props>({
       children: [ p.Array, [] ],
@@ -121,7 +117,6 @@ class ModelWithConstructTimeChanges extends Model {
   }
 
   static initClass(): void {
-    this.prototype.type = 'ModelWithConstructTimeChanges'
 
     this.define<ModelWithConstructTimeChanges.Props>({
       foo:   [ p.Number, 2 ],
@@ -161,7 +156,6 @@ class ComplicatedModelWithConstructTimeChanges extends Model {
   }
 
   static initClass(): void {
-    this.prototype.type = 'ComplicatedModelWithConstructTimeChanges'
 
     this.define<ComplicatedModelWithConstructTimeChanges.Props>({
       list_prop:         [ p.Array ],

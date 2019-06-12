@@ -2,7 +2,7 @@ import {CenterRotatable, CenterRotatableView, CenterRotatableData} from "./cente
 import {generic_area_legend} from "./utils"
 import {PointGeometry, RectGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
-import {Arrayable, Area} from "core/types"
+import {Arrayable} from "core/types"
 import {Class} from "core/class"
 import * as types from "core/types"
 import * as hittest from "core/hittest"
@@ -144,8 +144,7 @@ export class RectView extends CenterRotatableView {
 
     const hits = []
 
-    const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    for (const i of this.index.indices(bbox)) {
+    for (const i of this.index.indices({x0, x1, y0, y1})) {
       let height_in: boolean, width_in: boolean
       if (this._angle[i]) {
         const s = Math.sin(-this._angle[i])
@@ -218,16 +217,16 @@ export class RectView extends CenterRotatableView {
     return ddist
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Area, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: types.Rect, index: number): void {
     generic_area_legend(this.visuals, ctx, bbox, index)
   }
 
-  protected _bounds({minX, maxX, minY, maxY}: types.Rect): types.Rect {
+  protected _bounds({x0, x1, y0, y1}: types.Rect): types.Rect {
     return {
-      minX: minX - this.max_w2,
-      maxX: maxX + this.max_w2,
-      minY: minY - this.max_h2,
-      maxY: maxY + this.max_h2,
+      x0: x0 - this.max_w2,
+      x1: x1 + this.max_w2,
+      y0: y0 - this.max_h2,
+      y1: y1 + this.max_h2,
     }
   }
 }
@@ -253,7 +252,6 @@ export class Rect extends CenterRotatable {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Rect'
     this.prototype.default_view = RectView
     this.define<Rect.Props>({
       dilate: [ p.Boolean, false ],
