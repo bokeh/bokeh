@@ -142,7 +142,6 @@ export class Title extends TextAnnotation {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Title'
     this.prototype.default_view = TitleView
 
     this.mixins(['line:border_', 'fill:background_'])

@@ -80,7 +80,6 @@ export class PolyTool extends EditTool {
   }
 
   static initClass(): void {
-    this.prototype.type = "PolyTool"
     this.prototype.default_view = PolyToolView
 
     this.define<PolyTool.Props>({

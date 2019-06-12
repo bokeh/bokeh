@@ -102,7 +102,6 @@ export class ImageRGBA extends ImageBase {
   }
 
   static initClass(): void {
-    this.prototype.type = 'ImageRGBA'
     this.prototype.default_view = ImageRGBAView
   }
 }

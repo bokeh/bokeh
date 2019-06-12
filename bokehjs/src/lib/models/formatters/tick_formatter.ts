@@ -16,10 +16,5 @@ export abstract class TickFormatter extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "TickFormatter"
-  }
-
   abstract doFormat(ticks: string[] | number[], opts: {loc: number}): string[]
 }
-TickFormatter.initClass()

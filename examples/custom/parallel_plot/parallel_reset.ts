@@ -25,7 +25,6 @@ export class ParallelResetTool extends ActionTool {
   }
 
   static initClass(): void {
-    this.prototype.type = "ParallelResetTool"
     this.prototype.default_view = ParallelResetToolView
   }
 

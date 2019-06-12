@@ -16,10 +16,6 @@ export class QUADKEYTileSource extends MercatorTileSource {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = 'QUADKEYTileSource'
-  }
-
   get_image_url(x: number, y: number, z: number): string {
     const image_url = this.string_lookup_replace(this.url, this.extra_url_vars)
     const [wx, wy, wz] = this.tms_to_wmts(x, y, z)
@@ -27,4 +23,3 @@ export class QUADKEYTileSource extends MercatorTileSource {
     return image_url.replace("{Q}", quadKey)
   }
 }
-QUADKEYTileSource.initClass()

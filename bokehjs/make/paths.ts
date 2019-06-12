@@ -21,6 +21,7 @@ export const build_dir = {
 
 export const src_dir = {
   lib: join(base_dir, "src", "lib"),
+  less: join(base_dir, "src", "less"),
   compiler: join(base_dir, "src", "compiler"),
   test: join(base_dir, "test"),
   examples: join(base_dir, "examples"),
@@ -54,13 +55,5 @@ export const css = {
     join(build_dir.css, "bokeh.css"),
     join(build_dir.css, "bokeh-widgets.css"),
     join(build_dir.css, "bokeh-tables.css"),
-  ],
-}
-
-export const less = {
-  sources: [
-    join(base_dir, "src/less/bokeh.less"),
-    join(base_dir, "src/less/bokeh-widgets.less"),
-    join(base_dir, "src/less/bokeh-tables.less"),
   ],
 }

@@ -2,6 +2,8 @@ import {InputWidget, InputWidgetView} from "models/widgets/input_widget"
 import {input} from "core/dom"
 import * as p from "core/properties"
 
+import {bk_input} from "styles/widgets/inputs"
+
 const {abs, floor, log10} = Math
 
 function _get_sig_dig(num: number) : number {
@@ -47,7 +49,7 @@ export class SpinnerView extends InputWidgetView {
 
     this.input_el = input({
       type: "number",
-      class: "bk-input",
+      class: bk_input,
       name: this.model.name,
       min: this.model.low,
       max: this.model.high,
@@ -96,7 +98,6 @@ export class Spinner extends InputWidget {
   }
 
   static initClass(): void {
-    this.prototype.type = "Spinner"
     this.prototype.default_view = SpinnerView
 
     this.define<Spinner.Props>({

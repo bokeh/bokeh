@@ -234,7 +234,6 @@ export class Patches extends Glyph {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Patches'
     this.prototype.default_view = PatchesView
 
     this.coords([['xs', 'ys']])

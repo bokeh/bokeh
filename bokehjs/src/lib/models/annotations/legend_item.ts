@@ -29,8 +29,6 @@ export class LegendItem extends Model {
   }
 
   static initClass(): void {
-    this.prototype.type = "LegendItem"
-
     this.define<LegendItem.Props>({
       label:     [ p.StringSpec, null ],
       renderers: [ p.Array,      []   ],

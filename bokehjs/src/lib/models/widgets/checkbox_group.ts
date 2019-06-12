@@ -6,13 +6,16 @@ import {includes} from "core/util/array"
 import {Set} from "core/util/data_structures"
 import * as p from "core/properties"
 
+import {bk_inline} from "styles/mixins"
+import {bk_input_group} from "styles/widgets/inputs"
+
 export class CheckboxGroupView extends InputGroupView {
   model: CheckboxGroup
 
   render(): void {
     super.render()
 
-    const group = div({class: ["bk-input-group", this.model.inline ? "bk-inline" : null]})
+    const group = div({class: [bk_input_group, this.model.inline ? bk_inline : null]})
     this.el.appendChild(group)
 
     const {active, labels} = this.model
@@ -63,7 +66,6 @@ export class CheckboxGroup extends InputGroup {
   }
 
   static initClass(): void {
-    this.prototype.type = "CheckboxGroup"
     this.prototype.default_view = CheckboxGroupView
 
     this.define<CheckboxGroup.Props>({

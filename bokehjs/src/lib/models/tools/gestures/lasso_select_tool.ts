@@ -6,6 +6,7 @@ import {GestureEvent, KeyEvent} from "core/ui_events"
 import {Keys} from "core/dom"
 import {Arrayable} from "core/types"
 import * as p from "core/properties"
+import {bk_tool_icon_lasso_select} from "styles/icons"
 
 export class LassoSelectToolView extends SelectToolView {
   model: LassoSelectTool
@@ -123,8 +124,6 @@ export class LassoSelectTool extends SelectTool {
   }
 
   static initClass(): void {
-    this.prototype.type = "LassoSelectTool"
-
     this.prototype.default_view = LassoSelectToolView
 
     this.define<LassoSelectTool.Props>({
@@ -135,7 +134,7 @@ export class LassoSelectTool extends SelectTool {
   }
 
   tool_name = "Lasso Select"
-  icon = "bk-tool-icon-lasso-select"
+  icon = bk_tool_icon_lasso_select
   event_type = "pan" as "pan"
   default_order = 12
 }

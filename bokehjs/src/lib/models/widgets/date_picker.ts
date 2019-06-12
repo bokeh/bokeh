@@ -5,6 +5,9 @@ import * as p from "core/properties"
 
 import * as Pikaday from "pikaday"
 
+import {bk_input} from "styles/widgets/inputs"
+import "styles/widgets/pikaday"
+
 Pikaday.prototype.adjustPosition = function(this: Pikaday & {_o: Pikaday.PikadayOptions}): void {
   if (this._o.container)
     return
@@ -22,7 +25,7 @@ Pikaday.prototype.adjustPosition = function(this: Pikaday & {_o: Pikaday.Pikaday
   let left = clientRect.left + window.pageXOffset
   let top = clientRect.bottom + window.pageYOffset
 
-  // adjust left/top origin to bk-root
+  // adjust left/top origin to .bk-root
   left -= this.el.parentElement!.offsetLeft
   top -= this.el.parentElement!.offsetTop
 
@@ -52,7 +55,7 @@ export class DatePickerView extends InputWidgetView {
 
     super.render()
 
-    this.input_el = input({type: "text", class: "bk-input", disabled: this.model.disabled})
+    this.input_el = input({type: "text", class: bk_input, disabled: this.model.disabled})
     this.group_el.appendChild(this.input_el)
 
     this._picker = new Pikaday({
@@ -97,7 +100,6 @@ export class DatePicker extends InputWidget {
   }
 
   static initClass(): void {
-    this.prototype.type = "DatePicker"
     this.prototype.default_view = DatePickerView
 
     this.define<DatePicker.Props>({

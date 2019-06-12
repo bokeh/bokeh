@@ -34,11 +34,6 @@ export abstract class Ticker<T> extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "Ticker"
-  }
-
   // Generates a nice series of ticks for a given range.
   abstract get_ticks(data_low: number, data_high: number, range: any, cross_loc: any, unused: any): TickSpec<T>
 }
-Ticker.initClass()

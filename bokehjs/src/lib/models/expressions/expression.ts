@@ -18,10 +18,6 @@ export abstract class Expression extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "Expression"
-  }
-
   protected _connected: {[key: string]: boolean} = {}
   protected _result: {[key: string]: Arrayable} = {}
 
@@ -49,4 +45,3 @@ export abstract class Expression extends Model {
     return result
   }
 }
-Expression.initClass()

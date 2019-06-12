@@ -1,13 +1,14 @@
 import {resolve, relative, join, dirname, basename, sep} from "path"
 const {_builtinLibs} = require("repl")
 
+import * as ts from "typescript"
+
 import * as combine from "combine-source-map"
 import * as convert from "convert-source-map"
 
 import {read, write, fileExists, directoryExists} from "./fs"
 import {prelude, plugin_prelude} from "./prelude"
-import {parse_es, print_es, collect_deps, rewrite_deps, add_json_export,
-        remove_use_strict, remove_esmodule, wrap_in_function, SourceFile} from "./transform"
+import * as transforms from "../src/compiler/transforms"
 
 const to_obj = <T>(map: Map<string, T>): {[key: string]: T} => {
   const obj = Object.create(null)
@@ -303,12 +304,12 @@ export type Resolver = (dep: string, parent: Module) => string
 export type Canonical = (file: string) => string
 
 export class Module {
-  protected ast: SourceFile
+  protected ast: ts.SourceFile
   readonly deps = new Map<string, string>()
   protected _source: string | null
 
   constructor(readonly file: string, protected readonly linker: Linker) {
-    this.ast = parse_es(file)
+    this.ast = transforms.parse_es(file)
 
     for (const dep of this.collect_deps()) {
       if (!this.linker.ignores.has(dep))
@@ -344,29 +345,29 @@ export class Module {
   }
 
   protected collect_deps(): string[] {
-    return collect_deps(this.ast)
+    return transforms.collect_deps(this.ast)
   }
 
   rewrite_deps(module_map: Map<string, number>): void {
-    this.ast = rewrite_deps(this.ast, (dep) => module_map.get(this.deps.get(dep)!))
+    this.ast = transforms.rewrite_deps(this.ast, (dep) => module_map.get(this.deps.get(dep)!))
   }
 
   transform(): void {
     let {ast} = this
 
     if (this.is_json)
-      ast = add_json_export(ast)
+      ast = transforms.add_json_export(ast)
     else {
-      ast = remove_use_strict(ast)
-      ast = remove_esmodule(ast)
+      ast = transforms.remove_use_strict(ast)
+      ast = transforms.remove_esmodule(ast)
     }
 
-    ast = wrap_in_function(ast, this.canonical)
+    ast = transforms.wrap_in_function(ast, this.canonical)
     this.ast = ast
   }
 
   protected generate_source(): string {
-    const source = print_es(this.ast)
+    const source = transforms.print_es(this.ast)
     return convert.removeMapFileComments(source)
   }
 

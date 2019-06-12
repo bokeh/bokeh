@@ -20,8 +20,6 @@ export abstract class ImageURLTexture extends Texture {
   }
 
   static initClass(): void {
-    this.prototype.type = "ImageURLTexture"
-
     this.define<ImageURLTexture.Props>({
       url: [ p.String ],
     })

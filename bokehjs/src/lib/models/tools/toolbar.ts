@@ -39,7 +39,6 @@ export class Toolbar extends ToolbarBase {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Toolbar'
     this.prototype.default_view = ToolbarBaseView
 
     this.define<Toolbar.Props>({

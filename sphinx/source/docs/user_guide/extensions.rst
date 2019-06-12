@@ -118,14 +118,16 @@ extensions in the next section.
     }
 
     export class Custom extends HTMLBox {
-
       slider: {value: string}
 
-      static initClass(): void {
-        // The ``type`` class attribute should generally match exactly the name
-        // of the corresponding Python class.
-        this.prototype.type = "Custom"
+      // The ``__name__`` class attribute should generally match exactly the name
+      // of the corresponding Python class. Note that if using TypeScript, this
+      // will be automatically filled in during compilation, so except in some
+      // special cases, this shouldn't be generally included manually, to avoid
+      // typos, which would prohibit serialization/deserialization of this model.
+      static __name__ = "Surface3d"
 
+      static initClass(): void {
         // If there is an associated view, this is typically boilerplate.
         this.prototype.default_view = CustomView
 

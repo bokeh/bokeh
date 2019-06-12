@@ -26,8 +26,6 @@ export abstract class Interpolator extends Transform {
   }
 
   static initClass(): void {
-    this.prototype.type = "Interpolator"
-
     this.define<Interpolator.Props>({
       x:    [ p.Any           ],
       y:    [ p.Any           ],

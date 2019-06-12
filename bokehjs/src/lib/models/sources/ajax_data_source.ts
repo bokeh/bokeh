@@ -24,8 +24,6 @@ export class AjaxDataSource extends RemoteDataSource {
   }
 
   static initClass(): void {
-    this.prototype.type = 'AjaxDataSource'
-
     this.define<AjaxDataSource.Props>({
       content_type: [ p.String,     'application/json' ],
       http_headers: [ p.Any,         {}                ],

@@ -1,7 +1,4 @@
 import * as ts from "typescript"
-export {SourceFile} from "typescript"
-
-import {read} from "./fs"
 
 function is_require(node: ts.Node): node is ts.CallExpression {
   return ts.isCallExpression(node) &&
@@ -46,6 +43,83 @@ export function relativize_modules(relativize: (file: string, module_path: strin
       }
 
       return ts.visitEachChild(node, visit, context)
+    }
+
+    return ts.visitNode(root, visit)
+  }
+}
+
+export function import_css(resolve: (css_path: string) => string | undefined) {
+  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    function visit(node: ts.Node): ts.VisitResult<ts.Node> {
+      if (ts.isImportDeclaration(node)) {
+        const {importClause, moduleSpecifier} = node
+
+        if (ts.isStringLiteralLike(moduleSpecifier)) {
+          const css_path = moduleSpecifier.text
+          if (importClause == null && css_path.endsWith(".css")) {
+            const css = resolve(css_path)
+            if (css != null) {
+              const dom = ts.createTempVariable(undefined)
+              const statements = [
+                ts.createImportDeclaration(
+                  undefined,
+                  undefined,
+                  ts.createImportClause(undefined, ts.createNamespaceImport(dom)),
+                  ts.createStringLiteral("core/dom")),
+                ts.createExpressionStatement(
+                  ts.createCall(
+                    ts.createPropertyAccess(ts.createPropertyAccess(dom, "styles"), "append"),
+                    undefined,
+                    [ts.createStringLiteral(css)])),
+              ]
+              return statements
+            }
+          }
+        }
+      }
+
+      return ts.visitEachChild(node, visit, context)
+    }
+
+    return ts.visitNode(root, visit)
+  }
+}
+
+export function insert_class_name() {
+  function has__name__(node: ts.ClassDeclaration): boolean {
+    for (const member of node.members) {
+      if (ts.isPropertyDeclaration(member) && member.name.getText() == "__name__" &&
+          member.modifiers != null && member.modifiers.find((modifier) => modifier.kind == ts.SyntaxKind.StaticKeyword))
+        return true
+    }
+    return false
+  }
+
+  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    function visit(node: ts.Node): ts.VisitResult<ts.Node> {
+      node = ts.visitEachChild(node, visit, context)
+
+      if (ts.isClassDeclaration(node) && node.name != null && !has__name__(node)) {
+        const property = ts.createProperty(
+          undefined,
+          ts.createModifiersFromModifierFlags(ts.ModifierFlags.Static),
+          "__name__",
+          undefined,
+          undefined,
+          ts.createStringLiteral(node.name.text))
+
+        node = ts.updateClassDeclaration(
+          node,
+          node.decorators,
+          node.modifiers,
+          node.name,
+          node.typeParameters,
+          node.heritageClauses,
+          [property, ...node.members])
+      }
+
+      return node
     }
 
     return ts.visitNode(root, visit)
@@ -152,7 +226,7 @@ export function wrap_in_function(source: ts.SourceFile, mod_name: string): ts.So
 }
 
 export function parse_es(file: string, code?: string, target: ts.ScriptTarget = ts.ScriptTarget.ES5): ts.SourceFile {
-  return ts.createSourceFile(file, code != null ? code : read(file)!, target, true, ts.ScriptKind.JS)
+  return ts.createSourceFile(file, code != null ? code : ts.sys.readFile(file)!, target, true, ts.ScriptKind.JS)
 }
 
 export function print_es(source: ts.SourceFile): string {

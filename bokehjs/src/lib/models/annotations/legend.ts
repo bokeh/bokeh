@@ -365,7 +365,6 @@ export class Legend extends Annotation {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Legend'
     this.prototype.default_view = LegendView
 
     this.mixins([

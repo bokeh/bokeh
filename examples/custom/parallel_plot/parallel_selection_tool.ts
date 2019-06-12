@@ -363,7 +363,6 @@ export class ParallelSelectionTool extends BoxSelectTool {
   properties: ParallelSelectionTool.Props
 
   static initClass(): void {
-    this.prototype.type = "ParallelSelectionTool"
     this.prototype.default_view = ParallelSelectionView
 
     this.define<ParallelSelectionTool.Props>({

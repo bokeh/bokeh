@@ -21,8 +21,6 @@ export class Stack extends Expression {
   }
 
   static initClass(): void {
-    this.prototype.type = "Stack"
-
     this.define<Stack.Props>({
       fields: [ p.Array, [] ],
     })

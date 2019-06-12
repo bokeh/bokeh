@@ -33,8 +33,6 @@ export abstract class RemoteDataSource extends WebDataSource {
   }
 
   static initClass(): void {
-    this.prototype.type = 'RemoteDataSource'
-
     this.define<RemoteDataSource.Props>({
       polling_interval: [ p.Number ],
     })

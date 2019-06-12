@@ -114,7 +114,6 @@ export class Image extends ImageBase {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Image'
     this.prototype.default_view = ImageView
 
     this.define<Image.Props>({

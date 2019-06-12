@@ -26,8 +26,6 @@ export class CDSView extends Model {
   }
 
   static initClass(): void {
-    this.prototype.type = 'CDSView'
-
     this.define<CDSView.Props>({
       filters: [ p.Array, [] ],
       source:  [ p.Instance  ],

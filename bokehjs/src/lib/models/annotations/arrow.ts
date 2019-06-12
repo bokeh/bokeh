@@ -163,7 +163,6 @@ export class Arrow extends Annotation {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Arrow'
     this.prototype.default_view = ArrowView
 
     this.mixins(['line'])

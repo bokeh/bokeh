@@ -68,7 +68,6 @@ export class Patch extends XYGlyph {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Patch'
     this.prototype.default_view = PatchView
 
     this.mixins(['line', 'fill', 'hatch'])

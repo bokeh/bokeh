@@ -7,6 +7,7 @@ import {OutputBackend} from "core/enums"
 import {BBox} from "core/util/bbox"
 import {is_ie} from "core/util/compat"
 import {Context2d, fixup_ctx, get_scale_ratio} from "core/util/canvas"
+import {bk_canvas, bk_canvas_map, bk_canvas_overlays, bk_canvas_events} from "styles/canvas"
 
 // fixes up a problem with some versions of IE11
 // ref: http://stackoverflow.com/questions/22062313/imagedata-set-in-internetexplorer
@@ -45,7 +46,7 @@ export class CanvasView extends DOMView {
   initialize(): void {
     super.initialize()
 
-    this.map_el = this.model.map ? this.el.appendChild(div({class: "bk-canvas-map"})) : null
+    this.map_el = this.model.map ? this.el.appendChild(div({class: bk_canvas_map})) : null
 
     const style = {
       position: "absolute",
@@ -58,7 +59,7 @@ export class CanvasView extends DOMView {
     switch (this.model.output_backend) {
       case "canvas":
       case "webgl": {
-        this.canvas_el = this.el.appendChild(canvas({class: "bk-canvas", style}))
+        this.canvas_el = this.el.appendChild(canvas({class: bk_canvas, style}))
         const ctx = this.canvas_el.getContext('2d')
         if (ctx == null)
           throw new Error("unable to obtain 2D rendering context")
@@ -73,8 +74,8 @@ export class CanvasView extends DOMView {
       }
     }
 
-    this.overlays_el = this.el.appendChild(div({class: "bk-canvas-overlays", style}))
-    this.events_el   = this.el.appendChild(div({class: "bk-canvas-events", style}))
+    this.overlays_el = this.el.appendChild(div({class: bk_canvas_overlays, style}))
+    this.events_el   = this.el.appendChild(div({class: bk_canvas_events, style}))
 
     fixup_ctx(this._ctx)
 
@@ -129,7 +130,6 @@ export class Canvas extends HasProps {
   }
 
   static initClass(): void {
-    this.prototype.type = "Canvas"
     this.prototype.default_view = CanvasView
 
     this.internal({

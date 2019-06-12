@@ -112,7 +112,6 @@ export class Plot extends LayoutDOM {
   }
 
   static initClass(): void {
-    this.prototype.type = "Plot"
     this.prototype.default_view = PlotView
 
     this.mixins(["line:outline_", "fill:background_", "fill:border_"])

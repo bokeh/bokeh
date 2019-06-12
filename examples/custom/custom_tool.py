@@ -64,7 +64,6 @@ export class DrawTool extends GestureTool {
   default_order = 12
 
   static initClass(): void {
-    this.prototype.type = "DrawTool"
     this.prototype.default_view = DrawToolView
 
     this.define<DrawTool.Props>({

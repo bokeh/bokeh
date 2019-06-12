@@ -1,122 +1,126 @@
-@toolbarSize: 30px;
+@import "./mixins.less";
 
-@buttonHeight: 30px;
-@buttonWidth: 30px;
-@buttonColor: lightgray;
+.bk-root {
+  @toolbarSize: 30px;
 
-.bk-toolbar-hidden {
-  visibility: hidden;
-  opacity: 0;
-  transition: visibility 0.3s linear,opacity 0.3s linear;
-}
+  @buttonHeight: 30px;
+  @buttonWidth: 30px;
+  @buttonColor: lightgray;
 
-.bk-toolbar, .bk-button-bar {
-  .flex();
-  .flex-wrap(nowrap);
-  .align-items(center);
-  .no-user-select();
-}
+  .bk-toolbar-hidden {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0.3s linear,opacity 0.3s linear;
+  }
 
-.bk-toolbar .bk-logo {
-  .flex-shrink(0);
-}
-
-.bk-toolbar-above, .bk-toolbar-below {
-  .flex-direction(row);
-  .justify-content(flex-end);
-
-  .bk-button-bar {
+  .bk-toolbar, .bk-button-bar {
     .flex();
+    .flex-wrap(nowrap);
+    .align-items(center);
+    .no-user-select();
+  }
+
+  .bk-toolbar .bk-logo {
+    .flex-shrink(0);
+  }
+
+  .bk-toolbar.bk-above, .bk-toolbar.bk-below {
     .flex-direction(row);
+    .justify-content(flex-end);
+
+    .bk-button-bar {
+      .flex();
+      .flex-direction(row);
+    }
+
+    .bk-logo {
+      .order(1);
+      margin-left: 5px;
+      margin-right: 0px;
+    }
   }
 
-  .bk-logo {
-    .order(1);
-    margin-left: 5px;
-    margin-right: 0px;
-  }
-}
-
-.bk-toolbar-left, .bk-toolbar-right {
-  .flex-direction(column);
-  .justify-content(flex-start);
-
-  .bk-button-bar {
-    .flex();
+  .bk-toolbar.bk-left, .bk-toolbar.bk-right {
     .flex-direction(column);
+    .justify-content(flex-start);
+
+    .bk-button-bar {
+      .flex();
+      .flex-direction(column);
+    }
+
+    .bk-logo {
+      .order(0);
+      margin-bottom: 5px;
+      margin-top: 0px;
+    }
   }
 
-  .bk-logo {
-    .order(0);
-    margin-bottom: 5px;
-    margin-top: 0px;
-  }
-}
+  .bk-toolbar-button {
+    width: @buttonWidth;
+    height: @buttonHeight;
 
-.bk-toolbar-button {
-  width: @buttonWidth;
-  height: @buttonHeight;
+    background-size: 60%;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: center center;
 
-  background-size: 60%;
-  background-color: transparent;
-  background-repeat: no-repeat;
-  background-position: center center;
+    &:hover {
+      background-color: #f9f9f9;
+    }
 
-  &:hover {
-    background-color: #f9f9f9;
-  }
+    &:focus {
+      outline: none;
+    }
 
-  &:focus {
-    outline: none;
+    &::-moz-focus-inner {
+      border: 0;
+    }
   }
 
-  &::-moz-focus-inner {
-    border: 0;
+  @activeToolHighlight: #26aae1;
+  @activeToolBorder: 2px solid transparent;
+
+  .toolbar-button-border(@side) {
+    border-@{side}: @activeToolBorder;
+    &.bk-active {
+      border-@{side}-color: @activeToolHighlight;
+    }
   }
-}
 
-@activeToolHighlight: #26aae1;
-@activeToolBorder: 2px solid transparent;
-
-.toolbar-button-border(@side) {
-  border-@{side}: @activeToolBorder;
-  &.bk-active {
-    border-@{side}-color: @activeToolHighlight;
+  .bk-toolbar.bk-above .bk-toolbar-button {
+    .toolbar-button-border(bottom);
   }
-}
 
-.bk-toolbar-above .bk-toolbar-button {
-  .toolbar-button-border(bottom);
-}
+  .bk-toolbar.bk-below .bk-toolbar-button {
+    .toolbar-button-border(top);
+  }
 
-.bk-toolbar-below .bk-toolbar-button {
-  .toolbar-button-border(top);
-}
+  .bk-toolbar.bk-right .bk-toolbar-button {
+    .toolbar-button-border(left);
+  }
 
-.bk-toolbar-right .bk-toolbar-button {
-  .toolbar-button-border(left);
-}
+  .bk-toolbar.bk-left .bk-toolbar-button {
+    .toolbar-button-border(right);
+  }
 
-.bk-toolbar-left .bk-toolbar-button {
-  .toolbar-button-border(right);
-}
-
-.bk-button-bar + .bk-button-bar:before {
-  content: " ";
-  display: inline-block;
-  background-color: @buttonColor;
-}
-
-.bk-toolbar-above, .bk-toolbar-below {
   .bk-button-bar + .bk-button-bar:before {
-    height: 10px;
-    width: 1px;
+    content: " ";
+    display: inline-block;
+    background-color: @buttonColor;
   }
-}
 
-.bk-toolbar-left, .bk-toolbar-right {
-  .bk-button-bar + .bk-button-bar:before {
-    height: 1px;
-    width: 10px;
+  .bk-toolbar.bk-above, .bk-toolbar.bk-below {
+    .bk-button-bar + .bk-button-bar:before {
+      height: 10px;
+      width: 1px;
+    }
+  }
+
+  .bk-toolbar.bk-left, .bk-toolbar.bk-right {
+    .bk-button-bar + .bk-button-bar:before {
+      height: 1px;
+      width: 10px;
+    }
   }
 }

@@ -76,7 +76,6 @@ export class Arc extends XYGlyph {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Arc'
     this.prototype.default_view = ArcView
 
     this.mixins(['line'])

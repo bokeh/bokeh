@@ -140,7 +140,6 @@ export class Line extends XYGlyph {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Line'
     this.prototype.default_view = LineView
 
     this.mixins(['line'])

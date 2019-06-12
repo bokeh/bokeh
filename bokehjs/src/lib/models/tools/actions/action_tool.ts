@@ -36,12 +36,7 @@ export abstract class ActionTool extends ButtonTool {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "ActionTool"
-  }
-
   button_view = ActionToolButtonView
 
   do = new Signal0<this>(this, "do")
 }
-ActionTool.initClass()

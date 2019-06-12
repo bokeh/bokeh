@@ -22,8 +22,6 @@ export abstract class ArrowHead extends Annotation {
   }
 
   static initClass(): void {
-    this.prototype.type = 'ArrowHead'
-
     this.define<ArrowHead.Props>({
       size: [ p.Number, 25 ],
     })
@@ -58,8 +56,6 @@ export class OpenHead extends ArrowHead {
   }
 
   static initClass(): void {
-    this.prototype.type = 'OpenHead'
-
     this.mixins(['line'])
   }
 
@@ -106,8 +102,6 @@ export class NormalHead extends ArrowHead {
   }
 
   static initClass(): void {
-    this.prototype.type = 'NormalHead'
-
     this.mixins(['line', 'fill'])
 
     this.override({
@@ -167,8 +161,6 @@ export class VeeHead extends ArrowHead {
   }
 
   static initClass(): void {
-    this.prototype.type = 'VeeHead'
-
     this.mixins(['line', 'fill'])
 
     this.override({
@@ -230,8 +222,6 @@ export class TeeHead extends ArrowHead {
   }
 
   static initClass(): void {
-    this.prototype.type = 'TeeHead'
-
     this.mixins(['line'])
   }
 

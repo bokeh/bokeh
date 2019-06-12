@@ -2,6 +2,7 @@ import {GestureTool, GestureToolView} from "./gesture_tool"
 import * as p from "core/properties"
 import {GestureEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
+import {bk_tool_icon_pan, bk_tool_icon_xpan, bk_tool_icon_ypan} from "styles/icons"
 
 export class PanToolView extends GestureToolView {
   model: PanTool
@@ -136,7 +137,6 @@ export class PanTool extends GestureTool {
   }
 
   static initClass(): void {
-    this.prototype.type = "PanTool"
     this.prototype.default_view = PanToolView
 
     this.define<PanTool.Props>({
@@ -154,9 +154,9 @@ export class PanTool extends GestureTool {
 
   get icon(): string {
     switch (this.dimensions) {
-      case "both":   return "bk-tool-icon-pan"
-      case "width":  return "bk-tool-icon-xpan"
-      case "height": return "bk-tool-icon-ypan"
+      case "both":   return bk_tool_icon_pan
+      case "width":  return bk_tool_icon_xpan
+      case "height": return bk_tool_icon_ypan
     }
   }
 }

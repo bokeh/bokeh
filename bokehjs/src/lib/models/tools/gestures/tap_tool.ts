@@ -5,6 +5,7 @@ import {TapEvent} from "core/ui_events"
 import {PointGeometry} from "core/geometry"
 import {TapBehavior} from "core/enums"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
+import {bk_tool_icon_tap_select} from "styles/icons"
 
 export class TapToolView extends SelectToolView {
   model: TapTool
@@ -82,7 +83,6 @@ export class TapTool extends SelectTool {
   }
 
   static initClass(): void {
-    this.prototype.type = "TapTool"
     this.prototype.default_view = TapToolView
 
     this.define<TapTool.Props>({
@@ -92,7 +92,7 @@ export class TapTool extends SelectTool {
   }
 
   tool_name = "Tap"
-  icon = "bk-tool-icon-tap-select"
+  icon = bk_tool_icon_tap_select
   event_type = "tap" as "tap"
   default_order = 10
 }

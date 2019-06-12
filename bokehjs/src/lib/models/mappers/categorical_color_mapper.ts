@@ -21,8 +21,6 @@ export class CategoricalColorMapper extends ColorMapper {
   }
 
   static initClass(): void {
-    this.prototype.type = "CategoricalColorMapper"
-
     this.define<CategoricalColorMapper.Props>({
       factors: [ p.Array     ],
       start:   [ p.Number, 0 ],

@@ -21,8 +21,6 @@ export class MercatorTickFormatter extends BasicTickFormatter {
   }
 
   static initClass(): void {
-    this.prototype.type = 'MercatorTickFormatter'
-
     this.define<MercatorTickFormatter.Props>({
       dimension: [ p.LatLon ],
     })

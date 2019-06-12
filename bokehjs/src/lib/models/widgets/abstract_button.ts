@@ -7,6 +7,8 @@ import {Control, ControlView} from "./control"
 import {AbstractIcon, AbstractIconView} from "./abstract_icon"
 import {CallbackLike0} from "../callbacks/callback"
 
+import {bk_btn, bk_btn_group, bk_btn_type} from "styles/buttons"
+
 export abstract class AbstractButtonView extends ControlView {
   model: AbstractButton
 
@@ -34,7 +36,7 @@ export abstract class AbstractButtonView extends ControlView {
     return button({
       type: "button",
       disabled: this.model.disabled,
-      class: [`bk-btn`, `bk-btn-${this.model.button_type}`],
+      class: [bk_btn, bk_btn_type(this.model.button_type)],
     }, ...children)
   }
 
@@ -52,7 +54,7 @@ export abstract class AbstractButtonView extends ControlView {
       prepend(this.button_el, icon_view.el, nbsp())
     }
 
-    this.group_el = div({class: "bk-btn-group"}, this.button_el)
+    this.group_el = div({class: bk_btn_group}, this.button_el)
     this.el.appendChild(this.group_el)
   }
 
@@ -83,8 +85,6 @@ export abstract class AbstractButton extends Control {
   }
 
   static initClass(): void {
-    this.prototype.type = "AbstractButton"
-
     this.define<AbstractButton.Props>({
       label:       [ p.String,     "Button"  ],
       icon:        [ p.Instance              ],

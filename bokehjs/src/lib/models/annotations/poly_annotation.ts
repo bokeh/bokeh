@@ -95,7 +95,6 @@ export class PolyAnnotation extends Annotation {
   }
 
   static initClass(): void {
-    this.prototype.type = "PolyAnnotation"
     this.prototype.default_view = PolyAnnotationView
 
     this.mixins(['line', 'fill'])

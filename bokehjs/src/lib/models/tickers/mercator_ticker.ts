@@ -22,8 +22,6 @@ export class MercatorTicker extends BasicTicker {
   }
 
   static initClass(): void {
-    this.prototype.type = "MercatorTicker"
-
     this.define<MercatorTicker.Props>({
       dimension: [ p.LatLon ],
     })

@@ -8,6 +8,11 @@ import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 import {CallbackLike0} from "../callbacks/callback"
 import {Model} from "../../model"
 
+import {bk_left, bk_right, bk_active, bk_side} from "styles/mixins"
+import {bk_tabs_header, bk_headers, bk_headers_wrapper, bk_tab, bk_close} from "styles/tabs"
+import {bk_btn, bk_btn_default, bk_btn_group} from "styles/buttons"
+import {bk_caret} from "styles/menus"
+
 export class TabsView extends LayoutDOMView {
   model: Tabs
 
@@ -122,16 +127,15 @@ export class TabsView extends LayoutDOMView {
 
     const loc = this.model.tabs_location
     const vertical = loc == "above" || loc == "below"
-    const location = `bk-${loc}`
 
     const headers = this.model.tabs.map((tab, i) => {
-      const el = div({class: ["bk-tab", i == active ? "bk-active" : null]}, tab.title)
+      const el = div({class: [bk_tab, i == active ? bk_active : null]}, tab.title)
       el.addEventListener("click", (event) => {
         if (event.target == event.currentTarget)
           this.change_active(i)
       })
       if (tab.closable) {
-        const close_el = div({class: "bk-close"})
+        const close_el = div({class: bk_close})
         close_el.addEventListener("click", (event) => {
           if (event.target == event.currentTarget) {
             this.model.tabs = remove_at(this.model.tabs, i)
@@ -145,11 +149,11 @@ export class TabsView extends LayoutDOMView {
       }
       return el
     })
-    this.headers_el = div({class: ["bk-headers"]}, headers)
-    this.wrapper_el = div({class: "bk-headers-wrapper"}, this.headers_el)
+    this.headers_el = div({class: [bk_headers]}, headers)
+    this.wrapper_el = div({class: bk_headers_wrapper}, this.headers_el)
 
-    const left_el = div({class: ["bk-btn", "bk-btn-default"], disabled: ""}, div({class: ["bk-caret", "bk-left"]}))
-    const right_el = div({class: ["bk-btn", "bk-btn-default"]}, div({class: ["bk-caret", "bk-right"]}))
+    const left_el = div({class: [bk_btn, bk_btn_default], disabled: ""}, div({class: [bk_caret, bk_left]}))
+    const right_el = div({class: [bk_btn, bk_btn_default]}, div({class: [bk_caret, bk_right]}))
 
     let scroll_index = 0
     const do_scroll = (dir: "left" | "right") => {
@@ -188,9 +192,9 @@ export class TabsView extends LayoutDOMView {
     left_el.addEventListener("click", do_scroll("left"))
     right_el.addEventListener("click", do_scroll("right"))
 
-    this.scroll_el = div({class: "bk-btn-group"}, left_el, right_el)
+    this.scroll_el = div({class: bk_btn_group}, left_el, right_el)
 
-    this.header_el = div({class: ["bk-tabs-header", location]}, this.scroll_el, this.wrapper_el)
+    this.header_el = div({class: [bk_tabs_header, bk_side(loc)]}, this.scroll_el, this.wrapper_el)
     this.el.appendChild(this.header_el)
   }
 
@@ -208,9 +212,9 @@ export class TabsView extends LayoutDOMView {
 
     const headers = children(this.headers_el)
     for (const el of headers)
-      el.classList.remove("bk-active")
+      el.classList.remove(bk_active)
 
-    headers[i].classList.add("bk-active")
+    headers[i].classList.add(bk_active)
 
     const {child_views} = this
     for (const child_view of child_views)
@@ -241,7 +245,6 @@ export class Tabs extends LayoutDOM {
   }
 
   static initClass(): void {
-    this.prototype.type = "Tabs"
     this.prototype.default_view = TabsView
 
     this.define<Tabs.Props>({
@@ -274,8 +277,6 @@ export class Panel extends Model {
   }
 
   static initClass(): void {
-    this.prototype.type = "Panel"
-
     this.define<Panel.Props>({
       title:    [ p.String,  ""    ],
       child:    [ p.Instance       ],

@@ -3,6 +3,8 @@ import {Color} from "core/types"
 import {input} from "core/dom"
 import * as p from "core/properties"
 
+import {bk_input} from "styles/widgets/inputs"
+
 export class ColorPickerView extends InputWidgetView {
   model: ColorPicker
 
@@ -20,7 +22,7 @@ export class ColorPickerView extends InputWidgetView {
 
     this.input_el = input({
       type: "color",
-      class: "bk-input",
+      class: bk_input,
       name: this.model.name,
       value: this.model.color,
       disabled: this.model.disabled,
@@ -53,7 +55,6 @@ export class ColorPicker extends InputWidget {
   }
 
   static initClass(): void {
-    this.prototype.type = "ColorPicker"
     this.prototype.default_view = ColorPickerView
 
     this.define<ColorPicker.Props>({

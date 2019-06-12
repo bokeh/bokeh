@@ -1,110 +1,114 @@
-.bk-tabs-header {
-  .flex();
-  .flex-wrap(nowrap);
-  .align-items(center);
-  overflow: hidden;
+@import "./mixins.less";
 
-  .no-user-select();
-
-  .bk-btn-group {
-    height: auto;
-    margin-right: 5px;
-
-    & > .bk-btn {
-      .flex-grow(0);
-      height: auto;
-      padding: 4px 4px;
-    }
-  }
-
-  .bk-headers-wrapper {
-    .flex-grow(1);
-    overflow: hidden;
-    color: lighten(black, 40%);
-  }
-
-  @border: 1px solid lighten(black, 90%);
-  &.bk-above .bk-headers-wrapper { border-bottom: @border; }
-  &.bk-right .bk-headers-wrapper { border-left:   @border; }
-  &.bk-below .bk-headers-wrapper { border-top:    @border; }
-  &.bk-left  .bk-headers-wrapper { border-right:  @border; }
-
-  &.bk-above, &.bk-below {
-    .flex-direction(row);
-
-    .bk-headers {
-      .flex-direction(row);
-    }
-  }
-  &.bk-left,  &.bk-right {
-    .flex-direction(column);
-
-    .bk-headers {
-      .flex-direction(column);
-    }
-  }
-
-  .bk-headers {
-    position: relative;
+.bk-root {
+  .bk-tabs-header {
     .flex();
     .flex-wrap(nowrap);
     .align-items(center);
-  }
+    overflow: hidden;
 
-  .bk-tab {
-    padding: 4px 8px; // @padding-vertical @padding-horizontal;
-    border: solid transparent;
-    white-space: nowrap;
-    cursor: pointer;
+    .no-user-select();
 
-    &:hover {
-      background-color: lighten(black, 95%);
+    .bk-btn-group {
+      height: auto;
+      margin-right: 5px;
+
+      & > .bk-btn {
+        .flex-grow(0);
+        height: auto;
+        padding: 4px 4px;
+      }
     }
 
-    &.bk-active {
-      color: lighten(black, 30%);
-      background-color: white;
-      border-color: lighten(black, 90%);
+    .bk-headers-wrapper {
+      .flex-grow(1);
+      overflow: hidden;
+      color: lighten(black, 40%);
     }
 
-    .bk-close {
-      margin-left: 10px;
+    @border: 1px solid lighten(black, 90%);
+    &.bk-above .bk-headers-wrapper { border-bottom: @border; }
+    &.bk-right .bk-headers-wrapper { border-left:   @border; }
+    &.bk-below .bk-headers-wrapper { border-top:    @border; }
+    &.bk-left  .bk-headers-wrapper { border-right:  @border; }
+
+    &.bk-above, &.bk-below {
+      .flex-direction(row);
+
+      .bk-headers {
+        .flex-direction(row);
+      }
+    }
+    &.bk-left,  &.bk-right {
+      .flex-direction(column);
+
+      .bk-headers {
+        .flex-direction(column);
+      }
+    }
+
+    .bk-headers {
+      position: relative;
+      .flex();
+      .flex-wrap(nowrap);
+      .align-items(center);
+    }
+
+    .bk-tab {
+      padding: 4px 8px; // @padding-vertical @padding-horizontal;
+      border: solid transparent;
+      white-space: nowrap;
+      cursor: pointer;
+
+      &:hover {
+        background-color: lighten(black, 95%);
+      }
+
+      &.bk-active {
+        color: lighten(black, 30%);
+        background-color: white;
+        border-color: lighten(black, 90%);
+      }
+
+      .bk-close {
+        margin-left: 10px;
+      }
+    }
+
+    &.bk-above .bk-tab {
+      border-width: 3px 1px 0px 1px;
+      border-radius: @border-radius @border-radius 0 0;
+    }
+    &.bk-right .bk-tab {
+      border-width: 1px 3px 1px 0px;
+      border-radius: 0 @border-radius @border-radius 0;
+    }
+    &.bk-below .bk-tab {
+      border-width: 0px 1px 3px 1px;
+      border-radius: 0 0 @border-radius @border-radius;
+    }
+    &.bk-left .bk-tab {
+      border-width: 1px 0px 1px 3px;
+      border-radius: @border-radius 0 0 @border-radius;
     }
   }
 
-  &.bk-above .bk-tab {
-    border-width: 3px 1px 0px 1px;
-    border-radius: @border-radius @border-radius 0 0;
+  .bk-close {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    vertical-align: middle;
+    background-image: url('data:image/svg+xml;utf8,\
+      <svg viewPort="0 0 10 10" version="1.1" xmlns="http://www.w3.org/2000/svg">\
+        <line x1="1" y1="9" x2="9" y2="1" stroke="gray" stroke-width="2"/>\
+        <line x1="1" y1="1" x2="9" y2="9" stroke="gray" stroke-width="2"/>\
+      </svg>');
   }
-  &.bk-right .bk-tab {
-    border-width: 1px 3px 1px 0px;
-    border-radius: 0 @border-radius @border-radius 0;
+  .bk-close:hover {
+    background-image: url('data:image/svg+xml;utf8,\
+      <svg viewPort="0 0 10 10" version="1.1" xmlns="http://www.w3.org/2000/svg">\
+        <line x1="1" y1="9" x2="9" y2="1" stroke="red" stroke-width="2"/>\
+        <line x1="1" y1="1" x2="9" y2="9" stroke="red" stroke-width="2"/>\
+      </svg>');
   }
-  &.bk-below .bk-tab {
-    border-width: 0px 1px 3px 1px;
-    border-radius: 0 0 @border-radius @border-radius;
-  }
-  &.bk-left .bk-tab {
-    border-width: 1px 0px 1px 3px;
-    border-radius: @border-radius 0 0 @border-radius;
-  }
-}
-
-.bk-close {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  vertical-align: middle;
-  background-image: url('data:image/svg+xml;utf8,\
-    <svg viewPort="0 0 10 10" version="1.1" xmlns="http://www.w3.org/2000/svg">\
-      <line x1="1" y1="9" x2="9" y2="1" stroke="gray" stroke-width="2"/>\
-      <line x1="1" y1="1" x2="9" y2="9" stroke="gray" stroke-width="2"/>\
-    </svg>');
-}
-.bk-close:hover {
-  background-image: url('data:image/svg+xml;utf8,\
-    <svg viewPort="0 0 10 10" version="1.1" xmlns="http://www.w3.org/2000/svg">\
-      <line x1="1" y1="9" x2="9" y2="1" stroke="red" stroke-width="2"/>\
-      <line x1="1" y1="1" x2="9" y2="9" stroke="red" stroke-width="2"/>\
-    </svg>');
 }

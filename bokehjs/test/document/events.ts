@@ -19,15 +19,12 @@ const EVENTS = [
 const EMPTY_REFS = {}
 
 class TestModel extends HasProps {}
-TestModel.prototype.type = "TestModel"
 
 class TestModelWithRefs extends HasProps {
 
   foo: any
 
   static initClass(): void {
-    this.prototype.type = 'TestModelWithRefs'
-
     this.define<any>({
       foo: [ p.Any, [] ],
     })

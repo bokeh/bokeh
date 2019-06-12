@@ -353,8 +353,6 @@ export abstract class Glyph extends Model {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Glyph'
-
     this.prototype._coords = []
 
     this.internal({

@@ -17,12 +17,7 @@ export abstract class Transform<To = number> extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "Transform"
-  }
-
   abstract compute(x: number): To
 
   abstract v_compute(xs: Arrayable<number>): Arrayable<To>
 }
-Transform.initClass()

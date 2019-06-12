@@ -61,10 +61,6 @@ export class Custom extends HTMLBox {
   }
 
   static initClass(): void {
-    // The ``type`` class attribute should generally match exactly the name
-    // of the corresponding Python class.
-    this.prototype.type = "Custom"
-
     // If there is an associated view, this is typically boilerplate.
     this.prototype.default_view = CustomView
 
