@@ -63,6 +63,10 @@ from os.path import join
 from shutil import copy
 import sys
 
+# immediately bail on unsupported Python versions
+if sys.version_info[:2] < (3, 5):
+    raise RuntimeError("Bokeh requires python >= 3.5")
+
 from setuptools import find_packages, setup
 
 from _setup_support import (
@@ -128,6 +132,7 @@ setup(
 
     # details needed by setup
     install_requires=REQUIRES,
+    python_requires=">=3.5",
     packages=find_packages(exclude=["scripts*", "tests*"]),
     package_data=get_package_data(),
     entry_points={'console_scripts': ['bokeh = bokeh.__main__:main',], },
