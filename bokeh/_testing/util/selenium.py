@@ -134,8 +134,7 @@ class element_to_finish_resizing(object):
 
 def select_element_and_press_key(driver, element, key, press_number=1):
     actions = ActionChains(driver)
-    actions.move_to_element(element)
-    actions.click()
+    actions.click(element)
     actions.send_keys(key * press_number)
     actions.perform()
 
@@ -194,6 +193,7 @@ def paste_values(driver, el=None):
     # actions.send_keys(Keys.CONTROL, 'v')
     actions.perform()
 
+
 def get_table_column_cells(driver, col):
     result = []
     grid = driver.find_element_by_css_selector('.grid-canvas')
@@ -203,8 +203,10 @@ def get_table_column_cells(driver, col):
         result.append(elt.text)
     return result
 
+
 def get_table_row(driver, row):
     return driver.find_element_by_css_selector('.grid-canvas .slick-row:nth-child(%d)' % row)
+
 
 def get_table_selected_rows(driver):
     result = set()
@@ -216,11 +218,14 @@ def get_table_selected_rows(driver):
             result.add(i)
     return result
 
+
 def get_table_cell(driver, row, col):
     return driver.find_element_by_css_selector('.grid-canvas .slick-row:nth-child(%d) .r%d' % (row, col))
 
+
 def get_page_element(driver, element_selector):
     return driver.find_element_by_css_selector(element_selector)
+
 
 def shift_click(driver, element):
     actions = ActionChains(driver)
@@ -229,10 +234,12 @@ def shift_click(driver, element):
     actions.key_up(Keys.SHIFT)
     actions.perform()
 
+
 def sort_table_column(driver, col, double=False):
     elt = driver.find_element_by_css_selector('.slick-header-columns .slick-header-column:nth-child(%d)' % col)
     elt.click()
     if double: elt.click()
+
 
 def wait_for_canvas_resize(canvas, test_driver):
     '''
