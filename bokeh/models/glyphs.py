@@ -357,7 +357,7 @@ class HArea(Glyph):
     """)
 
     fill_props = Include(ScalarFillProps, use_prefix=False, help="""
-    The %s values for the patch.
+    The %s values for the horizontal directed area.
     """)
 
     hatch_props = Include(HatchProps, use_prefix=False, help="""
@@ -1196,7 +1196,7 @@ class VArea(Glyph):
     """)
 
     fill_props = Include(ScalarFillProps, use_prefix=False, help="""
-    The %s values for the patch.
+    The %s values for the vertical directed area
     """)
 
     hatch_props = Include(HatchProps, use_prefix=False, help="""
