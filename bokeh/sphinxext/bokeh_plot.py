@@ -152,7 +152,10 @@ class BokehPlotDirective(Directive):
 
         js_name = "bokeh-plot-%s-external-%s.js" % (uuid4().hex, docname)
 
-        (script, js, js_path, source) = _process_script(source, path, env, js_name)
+        try:
+            (script, js, js_path, source) = _process_script(source, path, env, js_name)
+        except Exception as e:
+            raise RuntimeError("Sphinx bokeh-plot exception: \n\n%s\n\n Failed on:\n\n %s" % (e,source))
         env.bokeh_plot_files[js_name] = (script, js, js_path, source, dirname(env.docname))
 
         # use the source file name to construct a friendly target_id
