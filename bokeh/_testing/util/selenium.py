@@ -92,6 +92,7 @@ def alt_click(driver, element):
     actions.perform()
 
 class ButtonWrapper(object):
+
     def __init__(self, label, callback):
         self.ref = "button-" + make_id()
         self.obj = Button(label=label, css_classes=[self.ref])
@@ -104,6 +105,7 @@ class ButtonWrapper(object):
 class element_to_start_resizing(object):
     ''' An expectation for checking if an element has started resizing
     '''
+
     def __init__(self, element):
         self.element = element
         self.previous_width = self.element.size['width']
@@ -120,6 +122,7 @@ class element_to_finish_resizing(object):
     ''' An expectation for checking if an element has finished resizing
 
     '''
+
     def __init__(self, element):
         self.element = element
         self.previous_width = self.element.size['width']
@@ -192,7 +195,6 @@ def paste_values(driver, el=None):
     # actions.send_keys(Keys.CONTROL, 'v')
     actions.perform()
 
-
 def get_table_column_cells(driver, col):
     result = []
     grid = driver.find_element_by_css_selector('.grid-canvas')
@@ -202,10 +204,8 @@ def get_table_column_cells(driver, col):
         result.append(elt.text)
     return result
 
-
 def get_table_row(driver, row):
     return driver.find_element_by_css_selector('.grid-canvas .slick-row:nth-child(%d)' % row)
-
 
 def get_table_selected_rows(driver):
     result = set()
@@ -217,14 +217,11 @@ def get_table_selected_rows(driver):
             result.add(i)
     return result
 
-
 def get_table_cell(driver, row, col):
     return driver.find_element_by_css_selector('.grid-canvas .slick-row:nth-child(%d) .r%d' % (row, col))
 
-
 def get_page_element(driver, element_selector):
     return driver.find_element_by_css_selector(element_selector)
-
 
 def shift_click(driver, element):
     actions = ActionChains(driver)
@@ -233,12 +230,10 @@ def shift_click(driver, element):
     actions.key_up(Keys.SHIFT)
     actions.perform()
 
-
 def sort_table_column(driver, col, double=False):
     elt = driver.find_element_by_css_selector('.slick-header-columns .slick-header-column:nth-child(%d)' % col)
     elt.click()
     if double: elt.click()
-
 
 def wait_for_canvas_resize(canvas, test_driver):
     '''

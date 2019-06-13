@@ -35,7 +35,6 @@ pytest_plugins = (
     "bokeh._testing.plugins.bokeh",
 )
 
-
 def drag_slider(driver, css_class, location, distance):
     el = driver.find_element_by_css_selector(css_class)
     handle = el.find_element_by_css_selector('.bk-noUi-handle-' + location)
@@ -46,22 +45,18 @@ def drag_slider(driver, css_class, location, distance):
     actions.release()
     actions.perform()
 
-
 def get_title_text(driver, css_class):
     el = driver.find_element_by_css_selector(css_class)
     return el.find_element_by_css_selector('div.bk-input-group > div.bk-slider-title').text
-
 
 def get_title_value(driver, css_class):
     el = driver.find_element_by_css_selector(css_class)
     return el.find_element_by_css_selector('div.bk-input-group > div > span.bk-slider-value').text
 
-
 def get_bar_color(driver, css_class):
     el = driver.find_element_by_css_selector(css_class)
     bar = el.find_element_by_css_selector('.bk-noUi-connect')
     return bar.value_of_css_property('background-color')
-
 
 @pytest.mark.integration
 @pytest.mark.selenium
@@ -132,7 +127,6 @@ class Test_Slider(object):
         assert get_title_value(page.driver, ".foo") == "5 .. 5"
         select_element_and_press_key(page.driver, handle_upper, Keys.ARROW_RIGHT, press_number=6)
         assert get_title_value(page.driver, ".foo") == "5 .. 10"
-
 
         assert page.has_no_console_errors()
 

@@ -35,7 +35,6 @@ pytest_plugins = (
     "bokeh._testing.plugins.bokeh",
 )
 
-
 def drag_slider(driver, css_class, distance, release=True):
     el = driver.find_element_by_css_selector(css_class)
     handle = el.find_element_by_css_selector('.bk-noUi-handle')
@@ -47,22 +46,18 @@ def drag_slider(driver, css_class, distance, release=True):
         actions.release()
     actions.perform()
 
-
 def get_title_text(driver, css_class):
     el = driver.find_element_by_css_selector(css_class)
     return el.find_element_by_css_selector('div.bk-input-group > div.bk-slider-title').text
-
 
 def get_title_value(driver, css_class):
     el = driver.find_element_by_css_selector(css_class)
     return el.find_element_by_css_selector('div.bk-input-group > div > span.bk-slider-value').text
 
-
 def get_bar_color(driver, css_class):
     el = driver.find_element_by_css_selector(css_class)
     bar = el.find_element_by_css_selector('.bk-noUi-connect')
     return bar.value_of_css_property('background-color')
-
 
 @pytest.mark.integration
 @pytest.mark.selenium
@@ -200,7 +195,6 @@ class Test_Slider(object):
             slider = Slider(start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300)
 
             def cbv(attr, old, new): junk['v'] += 1
-
             def cbvt(attr, old, new): junk['vt'] += 1
 
             slider.on_change('value', cbv)
