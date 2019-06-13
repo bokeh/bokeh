@@ -63,6 +63,10 @@ from os.path import join
 from shutil import copy
 import sys
 
+# immediately bail on unsupported Python versions
+if sys.version_info[:2] < (3, 5):
+    raise RuntimeError("Bokeh requires python >= 3.5")
+
 from setuptools import find_packages, setup
 
 from _setup_support import (
@@ -71,10 +75,6 @@ from _setup_support import (
     install_js, package_files, package_path, ROOT, SERVER, show_bokehjs,
     show_help
 )
-
-# immediately bail for ancient pythons
-if sys.version_info[:2] < (3, 4):
-    raise RuntimeError("Bokeh requires python >= 3.5")
 
 # immediately handle lightweight "python setup.py --install-js"
 if len(sys.argv) == 2 and sys.argv[-1] == '--install-js':
@@ -121,13 +121,14 @@ setup(
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     license='New BSD',
-    author='Anaconda',
-    author_email='info@anaconda.com',
+    maintainer='Bryan Van de Ven',
+    maintainer_email='bryan@bokeh.org',
     url='http://github.com/bokeh/bokeh',
     classifiers=open("classifiers.txt").read().strip().split('\n'),
 
     # details needed by setup
     install_requires=REQUIRES,
+    python_requires=">=3.5",
     packages=find_packages(exclude=["scripts*", "tests*"]),
     package_data=get_package_data(),
     entry_points={'console_scripts': ['bokeh = bokeh.__main__:main',], },
