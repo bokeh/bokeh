@@ -233,7 +233,7 @@ abstract class AbstractBaseSliderView extends ControlView {
 }
 
 export abstract class AbstractSliderView extends AbstractBaseSliderView{
-  
+
   protected _calc_to(): SliderSpec {
     return {
       start: this.model.start,
@@ -272,7 +272,7 @@ export abstract class AbstractRangeSliderView extends AbstractBaseSliderView{
   protected _calc_from(values: number[]): number[] {
     return values
   }
-  
+
   protected _set_keypress_handles(): void{
     const handle_lower = this.slider_el.querySelector(`.${prefix}handle-lower`)!
     const handle_upper = this.slider_el.querySelector(`.${prefix}handle-upper`)!
