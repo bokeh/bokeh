@@ -21,7 +21,7 @@ export interface SliderSpec {
   step: number
 }
 
-export abstract class AbstractSliderView extends ControlView {
+abstract class AbstractBaseSliderView extends ControlView {
   model: AbstractSlider
 
   protected group_el: HTMLElement
@@ -114,6 +114,39 @@ export abstract class AbstractSliderView extends ControlView {
 
   protected abstract _calc_from(values: number[]): number | number[]
 
+  protected abstract _set_keypress_handles(): void
+
+  protected _keypress_handle(e: KeyboardEvent, idx: 0 | 1 = 0): void {
+    const {start, value, end, step} = this._calc_to()
+    const is_range = value.length==2
+    let low = start
+    let high = end
+    if (is_range && idx==0) {
+      high = value[1]
+    } else if (is_range && idx==1) {
+      low = value[0]
+    }
+    switch (e.which) {
+      case 37: {
+        value[idx] = Math.max(value[idx] - step, low)
+        break
+      }
+      case 39: {
+        value[idx] = Math.min(value[idx] + step, high)
+        break
+      }
+      default:
+        return
+    }
+    if (is_range)
+      this.model.properties.value.change.emit()
+    else
+      this.model.value = value[0]
+    this.noUiSlider.set(value)
+    if (this.callback_wrapper != null)
+      this.callback_wrapper()
+  }
+
   render(): void {
     super.render()
 
@@ -147,85 +180,7 @@ export abstract class AbstractSliderView extends ControlView {
       this.noUiSlider.on('slide',  (_, __, values) => this._slide(values))
       this.noUiSlider.on('change', (_, __, values) => this._change(values))
 
-      const handle = this.slider_el.querySelectorAll(`.${prefix}handle`)!
-      if(handle.length==1){
-        // Add single cursor event
-        const keypress = (e: KeyboardEvent): void => {
-          const current = this._calc_to()
-          let value = current.value[0]
-          switch (e.which) {
-            case 37: {
-              value = Math.max(value - step, start)
-              break
-            }
-            case 39: {
-              value = Math.min(value + step, end)
-              break
-            }
-            default:
-              return
-          }
-
-          this.model.value = value
-          this.noUiSlider.set(value)
-          if (this.callback_wrapper != null)
-            this.callback_wrapper()
-        }
-        handle[0].setAttribute('tabindex', '0')
-        handle[0].addEventListener('keydown', keypress)
-      } else if (handle.length==2) {
-        // Add range cursors keyboard events
-        const keypress_lower = (e: KeyboardEvent): void => {
-          const current = this._calc_to()
-          const value = current.value
-          switch (e.which) {
-            case 37: {
-              value[0] = Math.max(value[0] - step, start)
-              break
-            }
-            case 39: {
-              value[0] = Math.min(value[0] + step, value[1])
-              break
-            }
-            default:
-              return
-          }
-
-          this.model.value = value
-          this.noUiSlider.set(value)
-          this.model.properties.value.change.emit()
-          if (this.callback_wrapper != null)
-            this.callback_wrapper()
-        }
-        const keypress_upper = (e: KeyboardEvent): void => {
-          const current = this._calc_to()
-          const value = current.value
-          switch (e.which) {
-            case 37: {
-              value[1] = Math.max(value[1] - step, value[0])
-              break
-            }
-            case 39: {
-              value[1] = Math.min(value[1] + step, end)
-              break
-            }
-            default:
-              return
-          }
-
-          this.model.value = value
-          this.noUiSlider.set(value)
-          this.model.properties.value.change.emit()
-          if (this.callback_wrapper != null)
-            this.callback_wrapper()
-        }
-        const handle_lower = this.slider_el.querySelector(`.${prefix}handle-lower`)!
-        const handle_upper = this.slider_el.querySelector(`.${prefix}handle-upper`)!
-        handle_lower.setAttribute('tabindex', '0')
-        handle_lower.addEventListener('keydown', keypress_lower)
-        handle_upper.setAttribute('tabindex', '1')
-        handle_upper.addEventListener('keydown', keypress_upper)
-      }
+      this._set_keypress_handles()
 
       const toggleTooltip = (i: number, show: boolean): void => {
         const handle = this.slider_el.querySelectorAll(`.${prefix}handle`)[i]
@@ -274,6 +229,57 @@ export abstract class AbstractSliderView extends ControlView {
         break
       }
     }
+  }
+}
+
+export abstract class AbstractSliderView extends AbstractBaseSliderView{
+  
+  protected _calc_to(): SliderSpec {
+    return {
+      start: this.model.start,
+      end: this.model.end,
+      value: [this.model.value],
+      step: this.model.step,
+    }
+  }
+
+  protected _calc_from([value]: number[]): number {
+    if (Number.isInteger(this.model.start) && Number.isInteger(this.model.end) && Number.isInteger(this.model.step))
+      return Math.round(value)
+    else
+      return value
+  }
+
+  protected _set_keypress_handles(): void{
+    // Add single cursor event
+    const handle = this.slider_el.querySelector(`.${prefix}handle`)!
+    handle.setAttribute('tabindex', '0')
+    handle.addEventListener('keydown', (e: KeyboardEvent): void => this._keypress_handle(e))
+  }
+}
+
+export abstract class AbstractRangeSliderView extends AbstractBaseSliderView{
+
+  protected _calc_to(): SliderSpec {
+    return {
+      start: this.model.start,
+      end: this.model.end,
+      value: this.model.value,
+      step: this.model.step,
+    }
+  }
+
+  protected _calc_from(values: number[]): number[] {
+    return values
+  }
+  
+  protected _set_keypress_handles(): void{
+    const handle_lower = this.slider_el.querySelector(`.${prefix}handle-lower`)!
+    const handle_upper = this.slider_el.querySelector(`.${prefix}handle-upper`)!
+    handle_lower.setAttribute('tabindex', '0')
+    handle_lower.addEventListener('keydown', (e: KeyboardEvent): void => this._keypress_handle(e, 0))
+    handle_upper.setAttribute('tabindex', '1')
+    handle_upper.addEventListener('keydown', (e: KeyboardEvent): void => this._keypress_handle(e, 1))
   }
 }
 
