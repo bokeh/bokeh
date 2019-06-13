@@ -64,7 +64,7 @@ def test_Legend():
     assert legend.margin == 10
     assert legend.items == []
     check_line_properties(legend, "border_", "#e5e5e5", 1.0, 0.5)
-    check_text_properties(legend, "label_", "10pt", "middle")
+    check_text_properties(legend, "label_", "10pt", "middle", scalar=True)
     check_fill_properties(legend, "background_", "#ffffff", 0.95)
     check_properties_existence(legend, [
         "visible",
@@ -109,8 +109,8 @@ def test_ColorBar():
     assert color_bar.major_tick_out == 0
     assert color_bar.minor_tick_in == 0
     assert color_bar.minor_tick_out == 0
-    check_text_properties(color_bar, "title_", "10pt", "bottom", "italic")
-    check_text_properties(color_bar, "major_label_", "8pt", "middle", "normal", "center")
+    check_text_properties(color_bar, "title_", "10pt", "bottom", "italic", scalar=True)
+    check_text_properties(color_bar, "major_label_", "8pt", "middle", "normal", "center", scalar=True)
     check_line_properties(color_bar, "major_tick_", "#ffffff")
     check_line_properties(color_bar, "minor_tick_", None)
     check_line_properties(color_bar, "bar_", None)
@@ -255,7 +255,7 @@ def test_Label():
     assert label.render_mode == 'canvas'
     assert label.x_range_name == 'default'
     assert label.y_range_name == 'default'
-    check_text_properties(label)
+    check_text_properties(label, scalar=True)
     check_fill_properties(label, "background_", None, 1.0)
     check_line_properties(label, "border_", None, 1.0, 1.0)
     check_properties_existence(label, [
@@ -375,7 +375,7 @@ def test_Title():
     assert title.align == 'left'
     assert title.offset == 0
     assert title.text_font == 'helvetica'
-    assert title.text_font_size == {'value': '10pt'}
+    assert title.text_font_size == '10pt'
     assert title.text_font_style == 'bold'
     assert title.text_color == '#444444'
     assert title.text_alpha == 1.0

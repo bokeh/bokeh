@@ -10,13 +10,13 @@ json = {
         "Axis": {
             "major_tick_in": 0,
             "major_tick_out": 3,
-            "major_tick_line_alpha": 25,
+            "major_tick_line_alpha": 0.25,
             "major_tick_line_color": "#5B5B5B",
 
-            "minor_tick_line_alpha": 0,
+            "minor_tick_line_alpha": 0.25,
             "minor_tick_line_color": "#5B5B5B",
 
-            "axis_line_alpha": 25,
+            "axis_line_alpha": 1,
             "axis_line_color": "#5B5B5B",
 
             "major_label_text_color": "#5B5B5B",
