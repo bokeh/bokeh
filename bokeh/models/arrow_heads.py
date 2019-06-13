@@ -26,7 +26,8 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.has_props import abstract
 from ..core.properties import Float, Include, Override
-from ..core.property_mixins import FillProps, LineProps
+from ..core.property_mixins import ScalarFillProps, ScalarLineProps
+
 
 from .annotations import Annotation
 
@@ -61,7 +62,8 @@ class OpenHead(ArrowHead):
     The size, in pixels, of the arrow head.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
+    line_props = Include(ScalarLineProps, use_prefix=False, help="""
+
     The %s values for the arrow head outline.
     """)
 
@@ -74,11 +76,11 @@ class NormalHead(ArrowHead):
     The size, in pixels, of the arrow head.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
+    line_props = Include(ScalarLineProps, use_prefix=False, help="""
     The %s values for the arrow head outline.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
+    fill_props = Include(ScalarFillProps, use_prefix=False, help="""
     The %s values for the arrow head interior.
     """)
 
@@ -93,7 +95,7 @@ class TeeHead(ArrowHead):
     The size, in pixels, of the arrow head.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
+    line_props = Include(ScalarLineProps, use_prefix=False, help="""
     The %s values for the arrow head outline.
     """)
 
@@ -106,11 +108,11 @@ class VeeHead(ArrowHead):
     The size, in pixels, of the arrow head.
     """)
 
-    line_props = Include(LineProps, use_prefix=False, help="""
+    line_props = Include(ScalarLineProps, use_prefix=False, help="""
     The %s values for the arrow head outline.
     """)
 
-    fill_props = Include(FillProps, use_prefix=False, help="""
+    fill_props = Include(ScalarFillProps, use_prefix=False, help="""
     The %s values for the arrow head interior.
     """)
 
