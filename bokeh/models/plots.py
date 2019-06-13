@@ -26,7 +26,7 @@ import warnings
 # Bokeh imports
 from ..core.enums import Location, OutputBackend, ResetPolicy
 from ..core.properties import Bool, Dict, Enum, Include, Instance, Int, List, Override, String, Float
-from ..core.property_mixins import LineProps, FillProps
+from ..core.property_mixins import ScalarLineProps, ScalarFillProps
 from ..core.query import find
 from ..core.validation import error, warning
 from ..core.validation.errors import BAD_EXTRA_RANGE_NAME, REQUIRED_RANGE, REQUIRED_SCALE, INCOMPATIBLE_SCALE_AND_RANGE
@@ -434,7 +434,7 @@ class Plot(LayoutDOM):
     will be rotated.
     """)
 
-    outline_props = Include(LineProps, help="""
+    outline_props = Include(ScalarLineProps, help="""
     The %s for the plot border outline.
     """)
 
@@ -555,13 +555,13 @@ class Plot(LayoutDOM):
 
     """)
 
-    background_props = Include(FillProps, help="""
+    background_props = Include(ScalarFillProps, help="""
     The %s for the plot background style.
     """)
 
     background_fill_color = Override(default='#ffffff')
 
-    border_props = Include(FillProps, help="""
+    border_props = Include(ScalarFillProps, help="""
     The %s for the plot border style.
     """)
 
