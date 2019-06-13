@@ -134,8 +134,7 @@ class element_to_finish_resizing(object):
 
 def select_element_and_press_key(driver, element, key, press_number=1):
     actions = ActionChains(driver)
-    actions.click(element)
-    actions.send_keys(key * press_number)
+    actions.send_keys_to_element(element, key * press_number)
     actions.perform()
 
 def hover_element(driver, element):
