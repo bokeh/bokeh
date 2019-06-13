@@ -442,8 +442,6 @@ in data or screen space. These special fields are listed here:
     x-coordinate under the cursor in screen (canvas) space
 :``$sy``:
     y-coordinate under the cursor in screen (canvas) space
-:``$name``:
-    The ``name`` property of the glyph that is hovered over
 :``$color``:
     colors from a data source, with the syntax: ``$color[options]:field_name``.
     The available options are: ``hex`` (to display the color as a hex value),
