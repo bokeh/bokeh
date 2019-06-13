@@ -120,14 +120,19 @@ class Test_Slider(object):
         el = page.driver.find_element_by_css_selector('.foo')
         handle_lower = el.find_element_by_css_selector('.bk-noUi-handle-lower')
         handle_upper = el.find_element_by_css_selector('.bk-noUi-handle-upper')
-        select_element_and_press_key(page.driver, handle_upper, Keys.ARROW_RIGHT, press_number=6)
-        assert get_title_value(page.driver, ".foo") == "1 .. 10"
-        select_element_and_press_key(page.driver, handle_upper, Keys.ARROW_LEFT, press_number=5)
-        assert get_title_value(page.driver, ".foo") == "1 .. 5"
-        select_element_and_press_key(page.driver, handle_lower, Keys.ARROW_LEFT, press_number=2)
+        select_element_and_press_key(page.driver, handle_lower, Keys.ARROW_RIGHT, press_number=1)
+        assert get_title_value(page.driver, ".foo") == "2 .. 5"
+        select_element_and_press_key(page.driver, handle_lower, Keys.ARROW_LEFT, press_number=3)
         assert get_title_value(page.driver, ".foo") == "0 .. 5"
-        select_element_and_press_key(page.driver, handle_upper, Keys.ARROW_LEFT, press_number=6)
-        assert get_title_value(page.driver, ".foo") == "0 .. 0"
+        select_element_and_press_key(page.driver, handle_lower, Keys.ARROW_RIGHT, press_number=11)
+        assert get_title_value(page.driver, ".foo") == "5 .. 5"
+        select_element_and_press_key(page.driver, handle_upper, Keys.ARROW_RIGHT, press_number=1)
+        assert get_title_value(page.driver, ".foo") == "5 .. 6"
+        select_element_and_press_key(page.driver, handle_upper, Keys.ARROW_LEFT, press_number=2)
+        assert get_title_value(page.driver, ".foo") == "5 .. 5"
+        select_element_and_press_key(page.driver, handle_upper, Keys.ARROW_RIGHT, press_number=6)
+        assert get_title_value(page.driver, ".foo") == "5 .. 10"
+
 
         assert page.has_no_console_errors()
 
