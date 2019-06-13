@@ -102,7 +102,7 @@ colormaps the bars inside the browser. There is a function
 
 .. code-block:: python
 
-    factor_cmap('fruits', palette=Spectral6, factors=fruits))
+    factor_cmap('fruits', palette=Spectral6, factors=fruits)
 
 This can be passed to ``vbar`` in the same way as the column name in the
 previous example. Putting everything together we obtain the same plot in
