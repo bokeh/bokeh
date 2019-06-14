@@ -12,4 +12,4 @@ fi
 
 py.test -m "$selector"              \
     --cov=bokeh                     \
-    --cov-config=bokeh/.coveragerc
+    --cov-config=tests/.coveragerc
