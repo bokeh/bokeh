@@ -1,2 +1,2 @@
 [run]
-omit = *tests/*, *sphinxext/*, */_version.py
+omit = *_testing/*, *sphinxext/*, */_version.py
