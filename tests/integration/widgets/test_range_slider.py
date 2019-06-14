@@ -200,11 +200,11 @@ class Test_Slider(object):
         results = page.results
         old, new = results['data']['val']
         assert float(new[0]) == 0
-        
+
         el = page.driver.find_element_by_css_selector('.foo')
         handle = el.find_element_by_css_selector('.bk-noUi-handle-lower')
         select_element_and_press_key(page.driver, handle, Keys.ARROW_RIGHT)
-        
+
         page.click_custom_action()
         results = page.results
         old, new = results['data']['val']
