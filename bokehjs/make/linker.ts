@@ -300,9 +300,6 @@ export class Linker {
   }
 }
 
-export type Resolver = (dep: string, parent: Module) => string
-export type Canonical = (file: string) => string
-
 export class Module {
   protected ast: ts.SourceFile
   readonly deps = new Map<string, string>()
@@ -349,7 +346,8 @@ export class Module {
   }
 
   rewrite_deps(module_map: Map<string, number>): void {
-    this.ast = transforms.rewrite_deps(this.ast, (dep) => module_map.get(this.deps.get(dep)!))
+    const rewrite_deps = transforms.rewrite_deps((dep) => module_map.get(this.deps.get(dep)!))
+    this.ast = transforms.apply(this.ast, rewrite_deps)
   }
 
   transform(): void {
@@ -357,10 +355,6 @@ export class Module {
 
     if (this.is_json)
       ast = transforms.add_json_export(ast)
-    else {
-      ast = transforms.remove_use_strict(ast)
-      ast = transforms.remove_esmodule(ast)
-    }
 
     ast = transforms.wrap_in_function(ast, this.canonical)
     this.ast = ast

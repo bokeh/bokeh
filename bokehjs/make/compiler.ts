@@ -49,15 +49,21 @@ export function compileFiles(inputs: string[], options: ts.CompilerOptions): TSO
     afterDeclarations: [],
   }
 
-  const css_transform = transforms.import_css((css_path) => read(join(build_dir.css, css_path)))
-  transformers.before.push(css_transform)
+  const import_css = transforms.import_css((css_path) => read(join(build_dir.css, css_path)))
+  transformers.before.push(import_css)
 
-  const class_name_transform = transforms.insert_class_name()
-  transformers.before.push(class_name_transform)
+  const insert_class_name = transforms.insert_class_name()
+  transformers.before.push(insert_class_name)
+
+  const remove_use_strict = transforms.remove_use_strict()
+  transformers.after.push(remove_use_strict)
+
+  const remove_esmodule = transforms.remove_esmodule()
+  transformers.after.push(remove_esmodule)
 
   const base = options.baseUrl
   if (base != null) {
-    const relativize_transform = transforms.relativize_modules((file, module_path) => {
+    const relativize_modules = transforms.relativize_modules((file, module_path) => {
       if (!module_path.startsWith(".") && !module_path.startsWith("/")) {
         const module_file = join(base, module_path)
         if (ts.sys.fileExists(module_file + ".ts") ||
@@ -69,8 +75,8 @@ export function compileFiles(inputs: string[], options: ts.CompilerOptions): TSO
       return null
     })
 
-    transformers.after.push(relativize_transform)
-    transformers.afterDeclarations.push(relativize_transform)
+    transformers.after.push(relativize_modules)
+    transformers.afterDeclarations.push(relativize_modules)
   }
 
   const emitted = program.emit(undefined, write, undefined, false, transformers)

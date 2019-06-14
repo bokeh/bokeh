@@ -1,5 +1,10 @@
 import * as ts from "typescript"
 
+export function apply<T extends ts.Node>(node: T, ...transforms: ts.TransformerFactory<T>[]): T {
+  const result = ts.transform(node, transforms)
+  return result.transformed[0]
+}
+
 function is_require(node: ts.Node): node is ts.CallExpression {
   return ts.isCallExpression(node) &&
          ts.isIdentifier(node.expression) &&
@@ -126,6 +131,39 @@ export function insert_class_name() {
   }
 }
 
+export function remove_use_strict() {
+  return (_context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    const statements = root.statements.filter((node) => {
+      if (ts.isExpressionStatement(node)) {
+        const expr = node.expression
+        if (ts.isStringLiteral(expr) && expr.text == "use strict")
+          return false
+      }
+      return true
+    })
+
+    return ts.updateSourceFileNode(root, statements)
+  }
+}
+
+export function remove_esmodule() {
+  return (_context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    const statements = root.statements.filter((node) => {
+      if (ts.isExpressionStatement(node)) {
+        const expr = node.expression
+        if (ts.isCallExpression(expr) && expr.arguments.length == 3) {
+          const [, arg] = expr.arguments
+          if (ts.isStringLiteral(arg) && arg.text == "__esModule")
+            return false
+        }
+      }
+      return true
+    })
+
+    return ts.updateSourceFileNode(root, statements)
+  }
+}
+
 export function collect_deps(source: ts.SourceFile): string[] {
   function traverse(node: ts.Node): void {
     if (is_require(node)) {
@@ -142,8 +180,8 @@ export function collect_deps(source: ts.SourceFile): string[] {
   return deps
 }
 
-export function rewrite_deps(source: ts.SourceFile, resolve: (dep: string) => number | string | undefined): ts.SourceFile {
-  const transformer = <T extends ts.Node>(context: ts.TransformationContext) => (root_node: T) => {
+export function rewrite_deps(resolve: (dep: string) => number | string | undefined) {
+  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
     function visit(node: ts.Node): ts.Node {
       if (is_require(node)) {
         const [arg] = node.arguments
@@ -163,40 +201,8 @@ export function rewrite_deps(source: ts.SourceFile, resolve: (dep: string) => nu
       return ts.visitEachChild(node, visit, context)
     }
 
-    return ts.visitNode(root_node, visit)
+    return ts.visitNode(root, visit)
   }
-
-  const result = ts.transform<ts.SourceFile>(source, [transformer])
-  return result.transformed[0]
-}
-
-export function remove_use_strict(source: ts.SourceFile): ts.SourceFile {
-  const stmts = source.statements.filter((node) => {
-    if (ts.isExpressionStatement(node)) {
-      const expr = node.expression
-      if (ts.isStringLiteral(expr) && expr.text == "use strict")
-        return false
-    }
-    return true
-  })
-
-  return ts.updateSourceFileNode(source, stmts)
-}
-
-export function remove_esmodule(source: ts.SourceFile): ts.SourceFile {
-  const stmts = source.statements.filter((node) => {
-    if (ts.isExpressionStatement(node)) {
-      const expr = node.expression
-      if (ts.isCallExpression(expr) && expr.arguments.length == 3) {
-        const [, arg] = expr.arguments
-        if (ts.isStringLiteral(arg) && arg.text == "__esModule")
-          return false
-      }
-    }
-    return true
-  })
-
-  return ts.updateSourceFileNode(source, stmts)
 }
 
 export function add_json_export(source: ts.SourceFile): ts.SourceFile {
