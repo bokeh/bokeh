@@ -138,10 +138,12 @@ abstract class AbstractBaseSliderView extends ControlView {
       default:
         return
     }
-    if (is_range)
+    if (is_range) {
+      this.model.value = value
       this.model.properties.value.change.emit()
-    else
+    } else {
       this.model.value = value[0]
+    }
     this.noUiSlider.set(value)
     if (this.callback_wrapper != null)
       this.callback_wrapper()
