@@ -21,9 +21,12 @@ task("compiler:build", ["compiler:ts"], async () => {
   const bases = [build_dir.compiler, "./node_modules"]
   const ignores = ["babel-core", "@babel/core"] // XXX: remove together with coffeescript
   const builtins = true
+  const minify = false
+  const cache = join(build_dir.js, "compiler-cache.json")
 
-  const linker = new Linker({entries, bases, ignores, builtins})
+  const linker = new Linker({entries, bases, ignores, builtins, minify, cache})
   const [bundle] = linker.link()
+  linker.store_cache()
 
-  bundle.write(join(build_dir.js, "compiler.js"))
+  bundle.assemble().write(join(build_dir.js, "compiler.js"))
 })

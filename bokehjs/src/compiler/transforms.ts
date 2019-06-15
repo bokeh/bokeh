@@ -54,7 +54,23 @@ export function relativize_modules(relativize: (file: string, module_path: strin
   }
 }
 
-export function import_css(resolve: (css_path: string) => string | undefined) {
+function css_loader(css_text: string): ts.Node[] {
+  const dom = ts.createTempVariable(undefined)
+  return [
+    ts.createImportDeclaration(
+      undefined,
+      undefined,
+      ts.createImportClause(undefined, ts.createNamespaceImport(dom)),
+      ts.createStringLiteral("core/dom")),
+    ts.createExpressionStatement(
+      ts.createCall(
+        ts.createPropertyAccess(ts.createPropertyAccess(dom, "styles"), "append"),
+        undefined,
+        [ts.createStringLiteral(css_text)])),
+  ]
+}
+
+export function import_css(load: (css_path: string) => string | undefined) {
   return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
     function visit(node: ts.Node): ts.VisitResult<ts.Node> {
       if (ts.isImportDeclaration(node)) {
@@ -63,22 +79,9 @@ export function import_css(resolve: (css_path: string) => string | undefined) {
         if (ts.isStringLiteralLike(moduleSpecifier)) {
           const css_path = moduleSpecifier.text
           if (importClause == null && css_path.endsWith(".css")) {
-            const css = resolve(css_path)
-            if (css != null) {
-              const dom = ts.createTempVariable(undefined)
-              const statements = [
-                ts.createImportDeclaration(
-                  undefined,
-                  undefined,
-                  ts.createImportClause(undefined, ts.createNamespaceImport(dom)),
-                  ts.createStringLiteral("core/dom")),
-                ts.createExpressionStatement(
-                  ts.createCall(
-                    ts.createPropertyAccess(ts.createPropertyAccess(dom, "styles"), "append"),
-                    undefined,
-                    [ts.createStringLiteral(css)])),
-              ]
-              return statements
+            const css_text = load(css_path)
+            if (css_text != null) {
+              return css_loader(css_text)
             }
           }
         }
@@ -219,6 +222,10 @@ export function add_json_export(source: ts.SourceFile): ts.SourceFile {
     }
   }
 
+  return source
+}
+
+export function add_css_loader(source: ts.SourceFile): ts.SourceFile {
   return source
 }
 

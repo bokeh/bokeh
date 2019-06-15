@@ -6,6 +6,10 @@ export function scan(path: string,
   return ts.sys.readDirectory(path, extensions, exclude, include, depth).map((p) => normalize(p))
 }
 
+export function glob(...patterns: string[]): string[] {
+  return scan(".", undefined, undefined, patterns)
+}
+
 export const read = ts.sys.readFile
 export const write = ts.sys.writeFile
 

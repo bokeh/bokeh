@@ -8,14 +8,7 @@ export const prelude = `\
 ${license}
  */
 (function(root, factory) {
-//  if(typeof exports === 'object' && typeof module === 'object')
-//    module.exports = factory();
-//  else if(typeof define === 'function' && define.amd)
-//    define("Bokeh", [], factory);
-//  else if(typeof exports === 'object')
-//    exports["Bokeh"] = factory();
-//  else
-    root["Bokeh"] = factory();
+  root["Bokeh"] = factory();
 })(this, function() {
   var define;
   return (function(modules, aliases, entry, parent_require) {
@@ -101,14 +94,7 @@ export const plugin_prelude = `\
 ${license}
  */
 (function(root, factory) {
-//  if(typeof exports === 'object' && typeof module === 'object')
-//    factory(require("Bokeh"));
-//  else if(typeof define === 'function' && define.amd)
-//    define(["Bokeh"], factory);
-//  else if(typeof exports === 'object')
-//    factory(require("Bokeh"));
-//  else
-    factory(root["Bokeh"]);
+  factory(root["Bokeh"]);
 })(this, function(Bokeh) {
   var define;
   return (function(modules, aliases, entry) {
