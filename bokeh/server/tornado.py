@@ -418,9 +418,8 @@ class BokehTornado(TornadoApplication):
                 relative URLs are used (default: None)
 
         '''
-        if absolute_url:
-            return Resources(mode="server", root_url=absolute_url + self._prefix, path_versioner=StaticHandler.append_version)
-        return Resources(mode="server", root_url=self._prefix, path_versioner=StaticHandler.append_version)
+        root_url = absolute_url + self._prefix if absolute_url else self._prefix
+        return Resources(mode="server", root_url=root_url, path_versioner=StaticHandler.append_version)
 
     def start(self):
         ''' Start the Bokeh Server application.
