@@ -10,6 +10,7 @@ export namespace BasicTickFormatter {
     use_scientific: p.Property<boolean>
     power_limit_high: p.Property<number>
     power_limit_low: p.Property<number>
+    use_superscript_exponents: p.Property<boolean>
   }
 }
 
@@ -28,10 +29,13 @@ export class BasicTickFormatter extends TickFormatter {
       use_scientific:   [ p.Boolean, true   ],
       power_limit_high: [ p.Number,  5      ],
       power_limit_low:  [ p.Number,  -3     ],
+      use_superscript_exponents:   [ p.Boolean, false   ],
     })
   }
 
-  protected last_precision: number = 3
+  // Changed to 0 to test use_superscript_exponents
+  // protected last_precision: number = 3
+  protected last_precision: number = 0
 
   get scientific_limit_low(): number {
     return Math.pow(10.0, this.power_limit_low)
@@ -63,10 +67,22 @@ export class BasicTickFormatter extends TickFormatter {
     const labels: string[] = new Array(ticks.length)
     const {precision} = this
 
+    let sci_regexp: RegExp = /^([\+\-\.0-9]+)[eE]\+?([\+\-0-9]+)$/;
+    const translate: { [id: string]: string; } = { 0:"\u2070", 1:"\u00b9", 2:"\u00b2", 3:"\u00b3", 4:"\u2074", 5:"\u2075", 6:"\u2076", 7:"\u2077", 8:"\u2078", 9:"\u2079", "+":"\u207a", "-":"\u207b" };
+
+
     if (precision == null || isNumber(precision)) {
       if (need_sci) {
         for (let i = 0, end = ticks.length; i < end; i++) {
-          labels[i] = ticks[i].toExponential(precision || undefined)
+
+          let s =  ticks[i].toExponential(precision || undefined)
+
+          if (this.use_superscript_exponents) {
+            let sci_match = s.match(sci_regexp);
+            if (sci_match)
+                s = sci_match[1] + "\u00d710" + sci_match[2].replace(/[0-9\+\-]/g,  match => translate[match]);
+          }
+          labels[i] = s;
         }
       } else {
         for (let i = 0, end = ticks.length; i < end; i++) {
@@ -79,7 +95,15 @@ export class BasicTickFormatter extends TickFormatter {
 
         if (need_sci) {
           for (let i = 0, end = ticks.length; i < end; i++) {
-            labels[i] = ticks[i].toExponential(x)
+            let s = ticks[i].toExponential(x)
+            if (this.use_superscript_exponents) {
+              let sci_match = s.match(sci_regexp);
+              if (sci_match)
+                s = sci_match[1] + "\u00d710" + sci_match[2].replace(/[0-9\+\-]/g,  match => translate[match]);
+
+            }
+            labels[i] = s
+
             if (i > 0) {
               if (labels[i] === labels[i-1]) {
                 is_ok = false

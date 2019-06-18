@@ -99,6 +99,20 @@ class BasicTickFormatter(TickFormatter):
         log(x) <= power_limit_low
 
     """)
+    
+    use_superscript_exponents = Bool(False, help='''
+    Whether to ever display scientific values using exponent superscript.
+
+    Superscript fonts may not be rendered with the same size. Changing the major label
+    font may solve this issue.
+
+    .. code-block:: python
+
+        code = """
+        p.axis.major_label_text_font = "sans"
+        """
+
+    ''')
 
 class MercatorTickFormatter(BasicTickFormatter):
     ''' A ``TickFormatter`` for values in WebMercator units.
