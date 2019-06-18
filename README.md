@@ -70,11 +70,11 @@ Bokeh
     </a>
   </td>
 
-  <td>Gitter</td>
+  <td>Support</td>
   <td>
-    <a href="https://gitter.im/bokeh/bokeh?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge">
-    <img src="https://badges.gitter.im/bokeh/bokeh.svg"
-         alt="Chat on the Bokeh Gitter channel" />
+    <a href="https://discourse.bokeh.org">
+    <img src="https://img.shields.io/discourse/https/discourse.bokeh.org/posts.svg"
+         alt="Community Support on discourse.bokeh.org" />
     </a>
   </td>
 </tr>
