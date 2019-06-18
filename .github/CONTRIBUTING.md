@@ -5,7 +5,7 @@ should be made. Please read these guidelines in order to avoid surprises down th
 
 ## Getting Set Up
 
-For information about setting up a development environment, building from source, etc., 
+For information about setting up a development environment, building from source, etc.,
 see the [Developer Guide](https://bokeh.pydata.org/en/latest/docs/dev_guide.html)
 
 ## Choosing something to work on
@@ -22,7 +22,7 @@ and let everybody know that you intend to work on it.
 ## Opening a new issue
 
 1. Avoid duplicate reports. Search [GitHub](https://github.com/bokeh/bokeh/issues) and
-   the [Discourse](https://discourse.bokeh.org) for similar or identical issues. Keyword 
+   the [Discourse](https://discourse.bokeh.org) for similar or identical issues. Keyword
    searches for your error messages are usually effective.
 
 2. The issue may already be resolved. Always try to reproduce the issue using most recent
@@ -30,7 +30,7 @@ and let everybody know that you intend to work on it.
    Bokeh, or even better, by building and installed from the `master` branch.
 
 3. Always include a *minimal*, self-contained, reproducible test case or example. It is not
-   possible to investigate issues that cannot be reproduced. 
+   possible to investigate issues that cannot be reproduced.
 
 4. Include relevant system information. At minimum, you should provide output of:
 
@@ -42,7 +42,7 @@ and let everybody know that you intend to work on it.
 
 6. Include relevant JavaScript console and/or `bokeh serve` logs.
 
-7. If the problem is user interface related, it is *always* good to include a screenshot or 
+7. If the problem is user interface related, it is *always* good to include a screenshot or
    screen video capture.
 
 8. State the expected behavior.
@@ -67,9 +67,9 @@ and let everybody know that you intend to work on it.
    test, please discuss this in the issue.
 
 7. We will review your PR as time permits. Reviewers may comment on your contributions, ask
-   you questions regarding the implementation or request changes. If changes are requested, push 
-   new commits to the existing branch. Do *NOT* rebase, amend, or cherry-pick published commits. 
-   Any of those actions will make us start the review from scratch. If you need updates from `master`, 
+   you questions regarding the implementation or request changes. If changes are requested, push
+   new commits to the existing branch. Do *NOT* rebase, amend, or cherry-pick published commits.
+   Any of those actions will make us start the review from scratch. If you need updates from `master`,
    just merge it into your branch.
 
 ## DOs and DON'Ts
