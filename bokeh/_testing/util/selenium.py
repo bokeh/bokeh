@@ -57,6 +57,7 @@ __all__ = (
     'RECORD',
     'RESULTS',
     'SCROLL',
+    'select_element_and_press_key',
     'shift_click',
     'sort_table_column',
     'wait_for_canvas_resize',
@@ -91,6 +92,7 @@ def alt_click(driver, element):
     actions.perform()
 
 class ButtonWrapper(object):
+
     def __init__(self, label, callback):
         self.ref = "button-" + make_id()
         self.obj = Button(label=label, css_classes=[self.ref])
@@ -103,6 +105,7 @@ class ButtonWrapper(object):
 class element_to_start_resizing(object):
     ''' An expectation for checking if an element has started resizing
     '''
+
     def __init__(self, element):
         self.element = element
         self.previous_width = self.element.size['width']
@@ -119,6 +122,7 @@ class element_to_finish_resizing(object):
     ''' An expectation for checking if an element has finished resizing
 
     '''
+
     def __init__(self, element):
         self.element = element
         self.previous_width = self.element.size['width']
@@ -130,6 +134,11 @@ class element_to_finish_resizing(object):
         else:
             self.previous_width = current_width
             return False
+
+def select_element_and_press_key(driver, element, key, press_number=1):
+    actions = ActionChains(driver)
+    actions.send_keys_to_element(element, key * press_number)
+    actions.perform()
 
 def hover_element(driver, element):
     hover = ActionChains(driver).move_to_element(element)
@@ -173,7 +182,7 @@ def copy_table_rows(driver, rows):
     actions.key_down(Keys.CONTROL)
     actions.send_keys(Keys.INSERT)
     actions.key_up(Keys.CONTROL)
-    #actions.send_keys(Keys.CONTROL, 'c')
+    # actions.send_keys(Keys.CONTROL, 'c')
     actions.perform()
 
 def paste_values(driver, el=None):
@@ -183,7 +192,7 @@ def paste_values(driver, el=None):
     actions.key_down(Keys.SHIFT)
     actions.send_keys(Keys.INSERT)
     actions.key_up(Keys.SHIFT)
-      #actions.send_keys(Keys.CONTROL, 'v')
+    # actions.send_keys(Keys.CONTROL, 'v')
     actions.perform()
 
 def get_table_column_cells(driver, col):

@@ -25,7 +25,7 @@ from time import sleep
 # Bokeh imports
 from bokeh.models import Slider, ColumnDataSource, Plot, Circle, CustomAction, CustomJS, Range1d
 from bokeh.layouts import column
-from bokeh._testing.util.selenium import RECORD, ActionChains
+from bokeh._testing.util.selenium import RECORD, ActionChains, Keys, select_element_and_press_key
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -34,7 +34,6 @@ from bokeh._testing.util.selenium import RECORD, ActionChains
 pytest_plugins = (
     "bokeh._testing.plugins.bokeh",
 )
-
 
 def drag_slider(driver, css_class, distance, release=True):
     el = driver.find_element_by_css_selector(css_class)
@@ -108,6 +107,19 @@ class Test_Slider(object):
 
         assert page.has_no_console_errors()
 
+    def test_keypress_event(self, bokeh_model_page):
+        slider = Slider(start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300)
+        page = bokeh_model_page(slider)
+        el = page.driver.find_element_by_css_selector('.foo')
+        handle = el.find_element_by_css_selector('.bk-noUi-handle')
+        select_element_and_press_key(page.driver, handle, Keys.ARROW_RIGHT, press_number=1)
+        assert float(get_title_value(page.driver, ".foo")) == 2
+        select_element_and_press_key(page.driver, handle, Keys.ARROW_LEFT, press_number=3) # hit lower value and continue
+        assert float(get_title_value(page.driver, ".foo")) == 0
+        select_element_and_press_key(page.driver, handle, Keys.ARROW_RIGHT, press_number=11) # hit higher value and continue
+        assert float(get_title_value(page.driver, ".foo")) == 10
+        assert page.has_no_console_errors()
+
     def test_displays_bar_color(self, bokeh_model_page):
         slider = Slider(start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300, bar_color="red")
 
@@ -134,14 +146,17 @@ class Test_Slider(object):
         assert page.has_no_console_errors()
 
     def test_server_on_change_round_trip(self, bokeh_server_page):
+
         def modify_doc(doc):
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
             plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.add_glyph(source, Circle(x='x', y='y', size=20))
             plot.add_tools(CustomAction(callback=CustomJS(args=dict(s=source), code=RECORD("data", "s.data"))))
             slider = Slider(start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300)
+
             def cb(attr, old, new):
                 source.data['val'] = [old, new]
+
             slider.on_change('value', cb)
             doc.add_root(column(slider, plot))
 
@@ -169,16 +184,28 @@ class Test_Slider(object):
         old, new = results['data']['val']
         assert float(new) == 0
 
+        el = page.driver.find_element_by_css_selector('.foo')
+        handle = el.find_element_by_css_selector('.bk-noUi-handle')
+        select_element_and_press_key(page.driver, handle, Keys.ARROW_RIGHT)
+
+        page.click_custom_action()
+        results = page.results
+        old, new = results['data']['val']
+        assert float(new) == 1
+
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
-        #assert page.has_no_console_errors()
+        # assert page.has_no_console_errors()
 
     def test_server_callback_policy_continuous(self, bokeh_server_page):
         junk = dict(v=0, vt=0)
+
         def modify_doc(doc):
             plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             slider = Slider(start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300)
+
             def cbv(attr, old, new): junk['v'] += 1
             def cbvt(attr, old, new): junk['vt'] += 1
+
             slider.on_change('value', cbv)
             slider.on_change('value_throttled', cbvt)
             doc.add_root(column(slider, plot))
@@ -201,15 +228,19 @@ class Test_Slider(object):
         assert junk['vt'] == 4
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
-        #assert page.has_no_console_errors()
+        # assert page.has_no_console_errors()
 
     def test_server_callback_policy_mouseup(self, bokeh_server_page):
         junk = dict(v=0, vt=0)
+
         def modify_doc(doc):
             plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             slider = Slider(start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300, callback_policy="mouseup")
+
             def cbv(attr, old, new): junk['v'] += 1
+
             def cbvt(attr, old, new): junk['vt'] += 1
+
             slider.on_change('value', cbv)
             slider.on_change('value_throttled', cbvt)
             doc.add_root(column(slider, plot))
@@ -232,14 +263,17 @@ class Test_Slider(object):
         assert junk['vt'] == 1
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
-        #assert page.has_no_console_errors()
+        # assert page.has_no_console_errors()
 
     def test_server_bar_color_updates(self, bokeh_server_page):
+
         def modify_doc(doc):
             plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             slider = Slider(start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300)
+
             def cb(attr, old, new):
                 slider.bar_color = "rgba(255, 255, 0, 1)"
+
             slider.on_change('value', cb)
             doc.add_root(column(slider, plot))
 
@@ -252,14 +286,17 @@ class Test_Slider(object):
         assert get_bar_color(page.driver, ".foo") == "rgba(255, 255, 0, 1)"
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
-        #assert page.has_no_console_errors()
+        # assert page.has_no_console_errors()
 
     def test_server_title_updates(self, bokeh_server_page):
+
         def modify_doc(doc):
             plot = Plot(plot_height=400, plot_width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             slider = Slider(start=0, end=10, value=1, title="bar", css_classes=["foo"], width=300)
+
             def cb(attr, old, new):
                 slider.title = "baz"
+
             slider.on_change('value', cb)
             doc.add_root(column(slider, plot))
 
@@ -272,4 +309,4 @@ class Test_Slider(object):
         assert get_title_text(page.driver, ".foo") == "baz: 6"
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
-        #assert page.has_no_console_errors()
+        # assert page.has_no_console_errors()
