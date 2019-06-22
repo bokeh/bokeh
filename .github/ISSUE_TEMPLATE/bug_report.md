@@ -11,7 +11,7 @@ assignees: ''
 
 *ISSUES THAT DO NOT CONTAIN NECESSARY INFORMATION MAY BE CLOSED, IMMEDIATELY*
 
-The issue tracker is NOT the place for general support. For questions and technical assistance, come join the [Bokeh  Project Discourse](https://discourse.bokeh.org) or try asking the [Gitter chat channel](https://gitter.im/bokeh/bokeh).
+The issue tracker is NOT the place for general support. For questions and technical assistance, come join the [Bokeh  Project Discourse](https://discourse.bokeh.org).
 
 For defects or deficiencies, please provide *ALL OF THE FOLLOWING*:
 
