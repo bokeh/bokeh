@@ -113,7 +113,7 @@ export class LineGLGlyph extends BaseGLGlyph {
 
   protected _scale_aspect: number
 
-  protected I_triangles: Float32Array
+  protected I_triangles: Float32Array | Uint32Array
 
   protected V_position: Float32Array
   protected V_angles: Float32Array
