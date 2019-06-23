@@ -45,7 +45,8 @@ __all__ = (
     'ColumnarDataSource',
     'ColumnDataSource',
     'DataSource',
-    'GeoJSONDataSource'
+    'GeoJSONDataSource',
+    'WebSource'
 )
 
 #-----------------------------------------------------------------------------
