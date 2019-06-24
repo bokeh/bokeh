@@ -34,7 +34,7 @@ Bokeh
 
   <td>PyPI</td>
   <td>
-    <img src="https://badges.bokeh.org/pip-downloads-30-day.svg"
+    <img src="https://img.shields.io/pypi/dm/bokeh.svg"
          alt="PyPI downloads per month" />
   </td>
 </tr>
