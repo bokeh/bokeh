@@ -19,7 +19,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "ES5",
-    "lib": ["es5", "dom", "es2015.core", "es2015.promise", "es2015.iterable"],
+    "lib": ["es2015", "dom"],
     "types": ["hammerjs", "googlemaps"],
     "baseUrl": "."
   },
