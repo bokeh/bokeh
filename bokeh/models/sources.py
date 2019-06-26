@@ -45,7 +45,6 @@ __all__ = (
     'ColumnDataSource',
     'DataSource',
     'GeoJSONDataSource',
-    'RemoteSource',
     'ServerSentDataSource',
     'WebSource',
 )
@@ -741,27 +740,13 @@ class WebSource(ColumnDataSource):
     A URL to to fetch data from.
     """)
 
-@abstract
-class RemoteSource(WebSource):
-    ''' Base class for remote column data sources that can update from data
-    URLs at prescribed time intervals.
-
-    .. note::
-        This base class is typically not useful to instantiate on its own.
-
-    '''
-
-    polling_interval = Int(help="""
-    A polling interval (in milliseconds) for updating data source.
-    """)
-
 class ServerSentDataSource(WebSource):
     ''' A data source that can populate columns by receiving server sent
     events endpoints.
 
     '''
 
-class AjaxDataSource(RemoteSource):
+class AjaxDataSource(WebSource):
     ''' A data source that can populate columns by making Ajax calls to REST
     endpoints.
 
@@ -791,6 +776,10 @@ class AjaxDataSource(RemoteSource):
     A full example can be seen at :bokeh-tree:`examples/howto/ajax_source.py`
 
     '''
+
+    polling_interval = Int(help="""
+    A polling interval (in milliseconds) for updating data source.
+    """)
 
     method = Enum('POST', 'GET', help="""
     Specify the HTTP method to use for the Ajax request (GET or POST)
