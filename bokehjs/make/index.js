@@ -57,7 +57,7 @@ process.on('uncaughtException', function(err) {
   process.exit(1)
 })
 
-register({project: "./make/tsconfig.json", cache: false})
+register({project: "./make/tsconfig.json", cache: false, logError: true})
 
 if (require.main != null)
   require("./main")

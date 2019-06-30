@@ -44,7 +44,7 @@
     "atob": "^2.1.2",
     "btoa": "^1.2.1",
     "chalk": "^2.4.2",
-    "ts-node": "^8.2.0",
+    "ts-node": "^8.3.0",
     "source-map-support": "0.5.10",
     "chrome-remote-interface": "^0.27.1",
     "devtools-protocol": "^0.0.639476",
