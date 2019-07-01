@@ -86,7 +86,7 @@ class BaseResources(object):
         self.path_versioner = path_versioner;           del path_versioner
 
         if root_url and not root_url.endswith("/"):
-            log.warning("root_url should end with a /, adding one")
+            # root_url should end with a /, adding one
             root_url = root_url + "/"
         self._root_url = root_url
         if self.mode not in ['inline', 'cdn', 'server', 'server-dev', 'relative', 'relative-dev', 'absolute', 'absolute-dev']:
@@ -223,7 +223,7 @@ class JSResources(BaseResources):
 
         root_url (str, optional) : URL and port of Bokeh Server to load resources from (default: None)
 
-            If ``None``, absoute URLs based on the default server configuration will
+            If ``None``, absolute URLs based on the default server configuration will
             be generated.
 
             ``root_url`` can also be the empty string, in which case relative URLs,
@@ -325,7 +325,7 @@ class CSSResources(BaseResources):
 
     '''
 
-    _css_components = ["bokeh", "bokeh-widgets", "bokeh-tables"]
+    _css_components = []
 
     # Properties --------------------------------------------------------------
 

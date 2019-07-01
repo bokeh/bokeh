@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 # External imports
 
 # Bokeh imports
-from ..core.enums import SizingMode, SizingPolicy, Location, TrackAlign
+from ..core.enums import Align, SizingMode, SizingPolicy, Location
 from ..core.has_props import abstract
 from ..core.properties import (Bool, Auto, Enum, Int, NonNegativeInt, Float,
     Instance, List, Seq, Tuple, Dict, String, Either, Struct, Color)
@@ -129,6 +129,11 @@ class LayoutDOM(Model):
         The starting point is the preferred width (if set). The width of the component may
         shrink or grow depending on the parent layout, aspect management and other factors.
 
+    .. note::
+        This is an experimental feature and may change in future. Use it at your
+        own discretion. Prefer using ``sizing_mode`` if this level of control isn't
+        strictly necessary.
+
     """)
 
     height_policy = Either(Auto, Enum(SizingPolicy), default="auto", help="""
@@ -155,6 +160,11 @@ class LayoutDOM(Model):
         Use as much vertical space as possible, not more than the maximum height (if set).
         The starting point is the preferred height (if set). The height of the component may
         shrink or grow depending on the parent layout, aspect management and other factors.
+
+    .. note::
+        This is an experimental feature and may change in future. Use it at your
+        own discretion. Prefer using ``sizing_mode`` if this level of control isn't
+        strictly necessary.
 
     """)
 
@@ -208,6 +218,14 @@ class LayoutDOM(Model):
         Component will responsively resize to both the available width and height, while
         maintaining the original or provided aspect ratio.
 
+    """)
+
+    align = Either(Enum(Align), Tuple(Enum(Align), Enum(Align)), default="start", help="""
+    The alignment point within the parent container.
+
+    This property is useful only if this component is a child element of a layout
+    (e.g. a grid). Self alignment can be overridden by the parent container (e.g.
+    grid track align).
     """)
 
     background = Color(default=None, help="""
@@ -267,34 +285,56 @@ class Spacer(LayoutDOM):
 
     '''
 
-QuickTrackSizing = Either(Enum("auto", "min", "max"), Int)
+QuickTrackSizing = Either(Enum("auto", "min", "fit", "max"), Int)
+
+TrackAlign = Either(Auto, Enum(Align))
 
 RowSizing = Either(
     QuickTrackSizing,
-    Struct(policy=Enum("auto", "min", "max"), align=Enum(TrackAlign)),
-    Struct(policy=Enum("fixed"), height=Int, align=Enum(TrackAlign)),
-    Struct(policy=Enum("flex"), factor=Float, align=Enum(TrackAlign)))
+    Struct(policy=Enum("auto", "min"), align=TrackAlign),
+    Struct(policy=Enum("fixed"), height=Int, align=TrackAlign),
+    Struct(policy=Enum("fit", "max"), flex=Float, align=TrackAlign))
 
 ColSizing = Either(
     QuickTrackSizing,
-    Struct(policy=Enum("auto", "min", "max"), align=Enum(TrackAlign)),
-    Struct(policy=Enum("fixed"), width=Int, align=Enum(TrackAlign)),
-    Struct(policy=Enum("flex"), factor=Float, align=Enum(TrackAlign)))
+    Struct(policy=Enum("auto", "min"), align=TrackAlign),
+    Struct(policy=Enum("fixed"), width=Int, align=TrackAlign),
+    Struct(policy=Enum("fit", "max"), flex=Float, align=TrackAlign))
 
 IntOrString = Either(Int, String) # XXX: work around issue #8166
 
 class GridBox(LayoutDOM):
 
-    children = List(Tuple(Instance(LayoutDOM), Int, Int), default=[], help="""
+    children = List(Either(
+        Tuple(Instance(LayoutDOM), Int, Int),
+        Tuple(Instance(LayoutDOM), Int, Int, Int, Int)), default=[], help="""
+    A list of children with their associated position in the grid (row, column).
     """)
 
     rows = Either(QuickTrackSizing, Dict(IntOrString, RowSizing), default="auto", help="""
+    Describes how the grid should maintain its rows' heights.
+
+    .. note::
+        This is an experimental feature and may change in future. Use it at your
+        own discretion.
+
     """)
 
     cols = Either(QuickTrackSizing, Dict(IntOrString, ColSizing), default="auto", help="""
+    Describes how the grid should maintain its columns' widths.
+
+    .. note::
+        This is an experimental feature and may change in future. Use it at your
+        own discretion.
+
     """)
 
     spacing = Either(Int, Tuple(Int, Int), default=0, help="""
+    The gap between children (in pixels).
+
+    Either a number, if spacing is the same for both dimensions, or a pair
+    of numbers indicating spacing in the vertical and horizontal dimensions
+    respectively.
     """)
 
 @abstract
@@ -334,6 +374,7 @@ class Box(LayoutDOM):
     """)
 
     spacing = Int(default=0, help="""
+    The gap between children (in pixels).
     """)
 
 
@@ -345,6 +386,12 @@ class Row(Box):
     '''
 
     cols = Either(QuickTrackSizing, Dict(IntOrString, ColSizing), default="auto", help="""
+    Describes how the component should maintain its columns' widths.
+
+    .. note::
+        This is an experimental feature and may change in future. Use it at your
+        own discretion.
+
     """)
 
 class Column(Box):
@@ -355,6 +402,12 @@ class Column(Box):
     '''
 
     rows = Either(QuickTrackSizing, Dict(IntOrString, RowSizing), default="auto", help="""
+    Describes how the component should maintain its rows' heights.
+
+    .. note::
+        This is an experimental feature and may change in future. Use it at your
+        own discretion.
+
     """)
 
 class WidgetBox(Column):
@@ -373,6 +426,12 @@ class Panel(Model):
 
     child = Instance(LayoutDOM, help="""
     The child widget. If you need more children, use a layout widget, e.g. a ``Column``.
+    """)
+
+    closable = Bool(False, help="""
+    Whether this panel is closable or not. If True, an "x" button will appear.
+
+    Closing a panel is equivalent to removing it from its parent container (e.g. tabs).
     """)
 
 class Tabs(LayoutDOM):

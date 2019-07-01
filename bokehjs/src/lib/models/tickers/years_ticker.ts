@@ -19,10 +19,6 @@ export class YearsTicker extends SingleIntervalTicker {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "YearsTicker"
-  }
-
   protected basic_ticker: BasicTicker
 
   initialize(): void {
@@ -46,4 +42,3 @@ export class YearsTicker extends SingleIntervalTicker {
     }
   }
 }
-YearsTicker.initClass()

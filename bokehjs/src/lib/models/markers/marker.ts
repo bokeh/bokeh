@@ -3,7 +3,7 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "../glyphs/xy_glyph"
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
-import {Arrayable, Area} from "core/types"
+import {Arrayable, Rect} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {range} from "core/util/array"
@@ -60,8 +60,7 @@ export abstract class MarkerView extends XYGlyphView {
     const sy1 = vr.end + this.max_size
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
 
-    const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    return this.index.indices(bbox)
+    return this.index.indices({x0, x1, y0, y1})
   }
 
   protected _hit_point(geometry: PointGeometry): Selection {
@@ -75,8 +74,7 @@ export abstract class MarkerView extends XYGlyphView {
     const sy1 = sy + this.max_size
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
 
-    const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    const candidates = this.index.indices(bbox)
+    const candidates = this.index.indices({x0, x1, y0, y1})
 
     const hits: [number, number][] = []
     for (const i of candidates) {
@@ -91,29 +89,26 @@ export abstract class MarkerView extends XYGlyphView {
 
   protected _hit_span(geometry: SpanGeometry): Selection {
     const {sx, sy} = geometry
-    const {minX, minY, maxX, maxY} = this.bounds()
+    const bounds = this.bounds()
+    const ms = this.max_size/2
     const result = hittest.create_empty_hit_test_result()
 
-    let x0: number, x1: number
-    let y0: number, y1: number
+    let x0, x1, y0, y1
     if (geometry.direction == 'h') {
-      y0 = minY
-      y1 = maxY
-      const ms = this.max_size/2
+      y0 = bounds.y0
+      y1 = bounds.y1
       const sx0 = sx - ms
       const sx1 = sx + ms
       ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     } else {
-      x0 = minX
-      x1 = maxX
-      const ms = this.max_size/2
+      x0 = bounds.x0
+      x1 = bounds.x1
       const sy0 = sy - ms
       const sy1 = sy + ms
       ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
     }
 
-    const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    const hits = this.index.indices(bbox)
+    const hits = this.index.indices({x0, x1, y0, y1})
 
     result.indices = hits
     return result
@@ -123,9 +118,8 @@ export abstract class MarkerView extends XYGlyphView {
     const {sx0, sx1, sy0, sy1} = geometry
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-    const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     const result = hittest.create_empty_hit_test_result()
-    result.indices = this.index.indices(bbox)
+    result.indices = this.index.indices({x0, x1, y0, y1})
     return result
   }
 
@@ -146,7 +140,7 @@ export abstract class MarkerView extends XYGlyphView {
     return result
   }
 
-  draw_legend_for_index(ctx: Context2d, {x0, x1, y0, y1}: Area, index: number): void {
+  draw_legend_for_index(ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
     // using objects like this seems a little wonky, since the keys are coerced to
     // stings, but it works
     const len = index + 1

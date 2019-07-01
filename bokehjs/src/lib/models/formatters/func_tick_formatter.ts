@@ -7,7 +7,7 @@ export namespace FuncTickFormatter {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = TickFormatter.Props & {
-    args: p.Property<{[key: string]: any}>
+    args: p.Property<{[key: string]: unknown}>
     code: p.Property<string>
     use_strict: p.Property<boolean>
   }
@@ -23,8 +23,6 @@ export class FuncTickFormatter extends TickFormatter {
   }
 
   static initClass(): void {
-    this.prototype.type = 'FuncTickFormatter'
-
     this.define<FuncTickFormatter.Props>({
       args:       [ p.Any,     {}    ], // TODO (bev) better type
       code:       [ p.String,  ''    ],

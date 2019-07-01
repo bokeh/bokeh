@@ -1,3 +1,5 @@
+import {Align} from "../enums"
+
 import {Size, Extents} from "../types"
 export {Size}
 
@@ -7,9 +9,9 @@ export class Sizeable implements Size {
   width: number
   height: number
 
-  constructor(size?: Partial<Size>) {
-    this.width = size != null && size.width != null ? size.width : 0
-    this.height = size != null && size.height != null ? size.height : 0
+  constructor(size: Partial<Size> = {}) {
+    this.width = size.width != null ? size.width : 0
+    this.height = size.height != null ? size.height : 0
   }
 
   bounded_to({width, height}: Partial<Size>): Sizeable {
@@ -19,10 +21,10 @@ export class Sizeable implements Size {
     })
   }
 
-  expandend_to({width, height}: Size): Sizeable {
+  expanded_to({width, height}: Size): Sizeable {
     return new Sizeable({
-      width: max(this.width, width),
-      height: max(this.height, height),
+      width: width != Infinity ? max(this.width, width) : this.width,
+      height: height != Infinity ? max(this.height, height) : this.height,
     })
   }
 
@@ -55,14 +57,17 @@ export class Sizeable implements Size {
     return new Sizeable({width, height})
   }
 
-  map(fn: (v: number) => number): Sizeable {
-    return new Sizeable({width: fn(this.width), height: fn(this.height)})
+  map(w_fn: (v: number) => number, h_fn?: (v: number) => number): Sizeable {
+    return new Sizeable({
+      width: w_fn(this.width),
+      height: (h_fn != null ? h_fn : w_fn)(this.height),
+    })
   }
 }
 
 export type Margin = Extents
 
-export type SizeHint = Size & {inner?: Margin}
+export type SizeHint = Size & {inner?: Margin, align?: boolean}
 
 export type SizingPolicy = "fixed" | "fit" | "min" | "max"
 
@@ -81,4 +86,7 @@ export type BoxSizing = {
 
   aspect?: number
   margin: Margin
+  visible: boolean
+  halign: Align
+  valign: Align
 }

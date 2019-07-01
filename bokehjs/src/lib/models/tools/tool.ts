@@ -82,8 +82,6 @@ export abstract class Tool extends Model {
   }
 
   static initClass(): void {
-    this.prototype.type = "Tool"
-
     this.internal({
       active: [ p.Boolean, false ],
     })

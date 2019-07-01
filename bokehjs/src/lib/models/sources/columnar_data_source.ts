@@ -3,7 +3,7 @@ import {Signal, Signal0} from "core/signaling"
 import {logger} from "core/logging"
 import {SelectionManager} from "core/selection_manager"
 import * as p from "core/properties"
-import {Arrayable} from "core/types"
+import {Arrayable, ArrayableNew} from "core/types"
 import {isArray} from "core/util/types"
 import {uniq, range} from "core/util/array"
 import {keys, values} from "core/util/object"
@@ -45,7 +45,7 @@ export abstract class ColumnarDataSource extends DataSource {
   }
 
   _select: Signal0<this>
-  inspect: Signal<any, this> // XXX: <[indices, tool, renderer-view, source, data], this>
+  inspect: Signal<unknown, this> // XXX: <[indices, tool, renderer-view, source, data], this>
 
   streaming: Signal0<this>
   patching: Signal<number[], this>
@@ -55,8 +55,6 @@ export abstract class ColumnarDataSource extends DataSource {
   }
 
   static initClass(): void {
-    this.prototype.type = 'ColumnarDataSource'
-
     this.define<ColumnarDataSource.Props>({
       selection_policy: [ p.Instance, () => new UnionRenderers() ],
     })
@@ -118,7 +116,7 @@ export abstract class ColumnarDataSource extends DataSource {
   clear(): void {
     const empty: {[key: string]: Arrayable} = {}
     for (const col of this.columns()) {
-      empty[col] = new (this.data[col].constructor as any)
+      empty[col] = new (this.data[col].constructor as ArrayableNew)(0)
     }
     this.data = empty
   }

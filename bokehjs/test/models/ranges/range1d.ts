@@ -1,8 +1,8 @@
 import {expect} from "chai"
 import * as sinon from "sinon"
 
-import {CustomJS} from "models/callbacks/customjs"
-import {Range1d} from "models/ranges/range1d"
+import {CustomJS} from "@bokehjs/models/callbacks/customjs"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
 
 describe("range1d module", () => {
 

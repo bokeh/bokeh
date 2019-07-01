@@ -17,7 +17,7 @@ TS_CODE = """
 
 import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
 import {ColumnDataSource} from "models/sources/column_data_source"
-import {LayoutItem} from "core/layout/index"
+import {LayoutItem} from "core/layout"
 import * as p from "core/properties"
 
 declare namespace vis {
@@ -57,8 +57,8 @@ export class Surface3dView extends LayoutDOMView {
 
   private _graph: vis.Graph3d
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
 
     const url = "https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis.min.js"
     const script = document.createElement("script")
@@ -135,11 +135,14 @@ export class Surface3d extends LayoutDOM {
     super(attrs)
   }
 
-  static initClass() {
-    // The ``type`` class attribute should generally match exactly the name
-    // of the corresponding Python class.
-    this.prototype.type = "Surface3d"
+  // The ``__name__`` class attribute should generally match exactly the name
+  // of the corresponding Python class. Note that if using TypeScript, this
+  // will be automatically filled in during compilation, so except in some
+  // special cases, this shouldn't be generally included manually, to avoid
+  // typos, which would prohibit serialization/deserialization of this model.
+  static __name__ = "Surface3d"
 
+  static initClass() {
     // This is usually boilerplate. In some cases there may not be a view.
     this.prototype.default_view = Surface3dView
 

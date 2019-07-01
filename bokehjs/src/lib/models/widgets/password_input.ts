@@ -6,7 +6,7 @@ export class PasswordInputView extends TextInputView {
 
   render(): void {
     super.render()
-    this.input.type = "password"
+    this.input_el.type = "password"
   }
 }
 
@@ -26,7 +26,6 @@ export class PasswordInput extends TextInput {
   }
 
   static initClass(): void {
-    this.prototype.type = "PasswordInput"
     this.prototype.default_view = PasswordInputView
   }
 }

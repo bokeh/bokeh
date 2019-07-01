@@ -23,14 +23,13 @@ export interface Model extends Model.Attrs {}
 
 export class Model extends HasProps {
   properties: Model.Props
+  private _js_callbacks: {[key: string]: (() => void)[]}
 
   constructor(attrs?: Partial<Model.Attrs>) {
     super(attrs)
   }
 
   static initClass(): void {
-    this.prototype.type = "Model"
-
     this.define<Model.Props>({
       tags:                  [ p.Array, [] ],
       name:                  [ p.String    ],
@@ -43,15 +42,8 @@ export class Model extends HasProps {
   connect_signals(): void {
     super.connect_signals()
 
-    for (const base_evt in this.js_property_callbacks) {
-      const callbacks = this.js_property_callbacks[base_evt]
-      const [evt, attr=null] = base_evt.split(':')
-      for (const cb of callbacks) {
-        const signal = attr != null ? (this.properties as any)[attr][evt] : (this as any)[evt]
-        this.connect(signal, () => cb.execute(this))
-      }
-    }
-
+    this._update_property_callbacks()
+    this.connect(this.properties.js_property_callbacks.change, () => this._update_property_callbacks())
     this.connect(this.properties.js_event_callbacks.change, () => this._update_event_callbacks())
     this.connect(this.properties.subscribed_events.change, () => this._update_event_callbacks())
   }
@@ -78,6 +70,30 @@ export class Model extends HasProps {
       return
     }
     this.document.event_manager.subscribed_models.add(this.id)
+  }
+
+  protected _update_property_callbacks(): void {
+    const signal_for = (event: string) => {
+      const [evt, attr=null] = event.split(":")
+      return attr != null ? (this.properties as any)[attr][evt] : (this as any)[evt]
+    }
+
+    for (const event in this._js_callbacks) {
+      const callbacks = this._js_callbacks[event]
+      const signal = signal_for(event)
+      for (const cb of callbacks)
+        this.disconnect(signal, cb)
+    }
+    this._js_callbacks = {}
+
+    for (const event in this.js_property_callbacks) {
+      const callbacks = this.js_property_callbacks[event]
+      const wrappers = callbacks.map((cb) => () => cb.execute(this))
+      this._js_callbacks[event] = wrappers
+      const signal = signal_for(event)
+      for (const cb of wrappers)
+        this.connect(signal, cb)
+    }
   }
 
   protected _doc_attached(): void {

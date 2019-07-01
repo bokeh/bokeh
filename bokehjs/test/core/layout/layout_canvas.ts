@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import {Layoutable, Size, SizeHint} from "core/layout"
+import {Layoutable, Size, SizeHint} from "@bokehjs/core/layout"
 
 class SomeLayout extends Layoutable {
   _measure(_viewport: Size): SizeHint {

@@ -1,9 +1,9 @@
-import {sprintf} from "sprintf-js"
 import tz = require("timezone")
 
 import {TickFormatter} from "./tick_formatter"
 import {logger} from "core/logging"
 import * as p from "core/properties"
+import {sprintf} from "core/util/templating"
 import {zip, unzip, sort_by} from "core/util/array"
 import {isFunction} from "core/util/types"
 
@@ -75,8 +75,6 @@ export class DatetimeTickFormatter extends TickFormatter {
   }
 
   static initClass(): void {
-    this.prototype.type = 'DatetimeTickFormatter'
-
     this.define<DatetimeTickFormatter.Props>({
       microseconds: [ p.Array, ['%fus'] ],
       milliseconds: [ p.Array, ['%3Nms', '%S.%3Ns'] ],

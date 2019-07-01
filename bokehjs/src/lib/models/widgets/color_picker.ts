@@ -3,34 +3,36 @@ import {Color} from "core/types"
 import {input} from "core/dom"
 import * as p from "core/properties"
 
+import {bk_input} from "styles/widgets/inputs"
+
 export class ColorPickerView extends InputWidgetView {
   model: ColorPicker
 
-  protected input: HTMLInputElement
+  protected input_el: HTMLInputElement
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.name.change, () => this.input.name = this.model.name || "")
-    this.connect(this.model.properties.color.change, () => this.input.value = this.model.color)
-    this.connect(this.model.properties.disabled.change, () => this.input.disabled = this.model.disabled)
+    this.connect(this.model.properties.name.change, () => this.input_el.name = this.model.name || "")
+    this.connect(this.model.properties.color.change, () => this.input_el.value = this.model.color)
+    this.connect(this.model.properties.disabled.change, () => this.input_el.disabled = this.model.disabled)
   }
 
   render(): void {
     super.render()
 
-    this.input = input({
+    this.input_el = input({
       type: "color",
-      class: "bk-input",
+      class: bk_input,
       name: this.model.name,
       value: this.model.color,
       disabled: this.model.disabled,
     })
-    this.input.addEventListener("change", () => this.change_input())
-    this.el.appendChild(this.input)
+    this.input_el.addEventListener("change", () => this.change_input())
+    this.group_el.appendChild(this.input_el)
   }
 
   change_input(): void {
-    this.model.color = this.input.value
+    this.model.color = this.input_el.value
     super.change_input()
   }
 }
@@ -53,7 +55,6 @@ export class ColorPicker extends InputWidget {
   }
 
   static initClass(): void {
-    this.prototype.type = "ColorPicker"
     this.prototype.default_view = ColorPickerView
 
     this.define<ColorPicker.Props>({

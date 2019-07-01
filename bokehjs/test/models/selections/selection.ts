@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import {Selection} from "models/selections/selection"
-import * as hittest from "core/hittest"
+import {Selection} from "@bokehjs/models/selections/selection"
+import * as hittest from "@bokehjs/core/hittest"
 
 const some_1d_selection = hittest.create_hit_test_result_from_hits([[4, 1], [5, 2]])
 const other_1d_selection = hittest.create_hit_test_result_from_hits([[0, 1], [1, 2]])

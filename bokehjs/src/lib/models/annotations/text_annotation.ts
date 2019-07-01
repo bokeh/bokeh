@@ -3,8 +3,9 @@ import {Text, Line, Fill} from "core/visuals"
 import {display, undisplay} from "core/dom"
 import {RenderMode} from "core/enums"
 import * as p from "core/properties"
-import {get_text_height} from "core/util/text"
+import {measure_font} from "core/util/text"
 import {Context2d} from "core/util/canvas"
+import {bk_annotation} from "styles/annotations"
 
 export abstract class TextAnnotationView extends AnnotationView {
   model: TextAnnotation
@@ -12,11 +13,11 @@ export abstract class TextAnnotationView extends AnnotationView {
 
   readonly rotate: boolean = true
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
 
     if (this.model.render_mode == 'css') {
-      this.el.classList.add('bk-annotation')
+      this.el.classList.add(bk_annotation)
       this.plot_view.canvas_overlays.appendChild(this.el)
     }
   }
@@ -33,7 +34,7 @@ export abstract class TextAnnotationView extends AnnotationView {
 
   protected _calculate_text_dimensions(ctx: Context2d, text: string): [number, number] {
     const {width} = ctx.measureText(text)
-    const {height} = get_text_height(this.visuals.text.font_value())
+    const {height} = measure_font(this.visuals.text.font_value())
     return [width, height]
   }
 
@@ -163,8 +164,6 @@ export abstract class TextAnnotation extends Annotation {
   }
 
   static initClass(): void {
-    this.prototype.type = "TextAnnotation"
-
     this.define<TextAnnotation.Props>({
       render_mode: [ p.RenderMode, "canvas" ],
     })

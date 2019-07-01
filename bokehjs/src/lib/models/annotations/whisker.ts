@@ -25,8 +25,8 @@ export class WhiskerView extends AnnotationView {
   protected _upper_sx: Arrayable<number>
   protected _upper_sy: Arrayable<number>
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.set_data(this.model.source)
   }
 
@@ -156,7 +156,6 @@ export class Whisker extends Annotation {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Whisker'
     this.prototype.default_view = WhiskerView
 
     this.mixins(['line'])

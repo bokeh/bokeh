@@ -88,7 +88,7 @@ def autoload_static(model, resources, script_path):
     with OutputDocumentFor(models):
         (docs_json, [render_item]) = standalone_docs_json_and_render_items([model])
 
-    bundle = bundle_all_models()
+    bundle = bundle_all_models() or ""
     script = script_for_render_items(docs_json, [render_item])
 
     (modelid, elementid) = list(render_item.roots.to_json().items())[0]
@@ -116,20 +116,10 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
 
     The returned components assume that BokehJS resources are **already loaded**.
     The html template in which they will be embedded needs to include the following
-    links and scripts tags. The widgets and tables resources are only necessary if
-    the components make use of widgets and tables.
+    scripts tags. The widgets and tables resources are only necessary if the components
+    make use of widgets and tables.
 
     .. code-block:: html
-
-        <link
-            href="http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.css"
-            rel="stylesheet" type="text/css">
-        <link
-            href="http://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.css"
-            rel="stylesheet" type="text/css">
-        <link
-            href="http://cdn.pydata.org/bokeh/release/bokeh-tables-x.y.z.min.css"
-            rel="stylesheet" type="text/css">
 
         <script src="http://cdn.pydata.org/bokeh/release/bokeh-x.y.z.min.js"></script>
         <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-x.y.z.min.js"></script>
@@ -222,7 +212,7 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
     with OutputDocumentFor(models, apply_theme=theme):
         (docs_json, [render_item]) = standalone_docs_json_and_render_items(models)
 
-    script  = bundle_all_models()
+    script  = bundle_all_models() or ""
     script += script_for_render_items(docs_json, [render_item])
     if wrap_script:
         script = wrap_in_script_tag(script)

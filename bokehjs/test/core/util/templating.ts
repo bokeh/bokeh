@@ -1,10 +1,10 @@
 import {expect} from "chai"
 
-import * as tmpl from "core/util/templating"
-import {keys} from "core/util/object"
+import * as tmpl from "@bokehjs/core/util/templating"
+import {keys} from "@bokehjs/core/util/object"
 
-import {ColumnDataSource} from "models/sources/column_data_source"
-import {CustomJSHover} from "models/tools/inspectors/customjs_hover"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {CustomJSHover} from "@bokehjs/models/tools/inspectors/customjs_hover"
 
 describe("templating module", () => {
 

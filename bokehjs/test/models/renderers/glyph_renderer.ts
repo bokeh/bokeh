@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import {ColumnDataSource} from "models/sources/column_data_source"
-import {GlyphRenderer} from "models/renderers/glyph_renderer"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 
 describe("GlyphRenderer", () => {
 

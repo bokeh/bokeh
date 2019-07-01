@@ -23,8 +23,6 @@ export abstract class Scale extends Transform {
   }
 
   static initClass(): void {
-    this.prototype.type = "Scale"
-
     this.internal({
       source_range: [ p.Any ],
       target_range: [ p.Any ], // p.Instance(Range1d)

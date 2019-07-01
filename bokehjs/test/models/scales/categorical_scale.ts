@@ -1,8 +1,8 @@
 import {expect} from "chai"
 
-import {CategoricalScale} from "models/scales/categorical_scale"
-import {FactorRange} from "models/ranges/factor_range"
-import {Range1d} from "models/ranges/range1d"
+import {CategoricalScale} from "@bokehjs/models/scales/categorical_scale"
+import {FactorRange} from "@bokehjs/models/ranges/factor_range"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
 
 describe("categorical_scale module", () => {
 

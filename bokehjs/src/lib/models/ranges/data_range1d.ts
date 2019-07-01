@@ -38,8 +38,6 @@ export class DataRange1d extends DataRange {
   }
 
   static initClass(): void {
-    this.prototype.type = "DataRange1d"
-
     this.define<DataRange1d.Props>({
       start:               [ p.Number                  ],
       end:                 [ p.Number                  ],
@@ -125,14 +123,14 @@ export class DataRange1d extends DataRange {
    adjust_bounds_for_aspect(bounds: Rect, ratio: number): Rect {
     const result = bbox.empty()
 
-    let width = bounds.maxX - bounds.minX
+    let width = bounds.x1 - bounds.x0
     if (width <= 0) { width = 1.0 }
 
-    let height = bounds.maxY - bounds.minY
+    let height = bounds.y1 - bounds.y0
     if (height <= 0) { height = 1.0 }
 
-    const xcenter = 0.5*(bounds.maxX + bounds.minX)
-    const ycenter = 0.5*(bounds.maxY + bounds.minY)
+    const xcenter = 0.5*(bounds.x1 + bounds.x0)
+    const ycenter = 0.5*(bounds.y1 + bounds.y0)
 
     if (width < ratio*height) {
       width = ratio*height
@@ -140,10 +138,10 @@ export class DataRange1d extends DataRange {
       height = width/ratio
     }
 
-    result.maxX = xcenter+0.5*width
-    result.minX = xcenter-0.5*width
-    result.maxY = ycenter+0.5*height
-    result.minY = ycenter-0.5*height
+    result.x1 = xcenter+0.5*width
+    result.x0 = xcenter-0.5*width
+    result.y1 = ycenter+0.5*height
+    result.y0 = ycenter-0.5*height
 
     return result
   }
@@ -157,9 +155,9 @@ export class DataRange1d extends DataRange {
 
     let min, max: number
     if (dimension == 0)
-      [min, max] = [overall.minX, overall.maxX]
+      [min, max] = [overall.x0, overall.x1]
     else
-      [min, max] = [overall.minY, overall.maxY]
+      [min, max] = [overall.y0, overall.y1]
 
     return [min, max]
   }

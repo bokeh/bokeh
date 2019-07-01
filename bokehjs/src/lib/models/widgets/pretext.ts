@@ -8,7 +8,7 @@ export class PreTextView extends MarkupView {
   render(): void {
     super.render()
     const content = pre({style: {overflow: "auto"}}, this.model.text)
-    this.markupEl.appendChild(content)
+    this.markup_el.appendChild(content)
   }
 }
 
@@ -28,7 +28,6 @@ export class PreText extends Markup {
   }
 
   static initClass(): void {
-    this.prototype.type = "PreText"
     this.prototype.default_view = PreTextView
   }
 }

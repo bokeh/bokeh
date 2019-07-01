@@ -1,4 +1,4 @@
-import {Arrayable, TypedArray} from "../types"
+import {Arrayable, TypedArray, Data} from "../types"
 import {isTypedArray, isArray, isObject} from "./types"
 import {is_little_endian} from "./compat"
 
@@ -113,11 +113,11 @@ export function process_buffer(specification: BufferSpec, buffers: [any, any][])
   const arr = new (ARRAY_TYPES[specification.dtype])(bytes)
   if (need_swap) {
     if (arr.BYTES_PER_ELEMENT === 2) {
-      swap16(arr)
+      swap16(arr as Int16Array | Uint16Array)
     } else if (arr.BYTES_PER_ELEMENT === 4) {
-      swap32(arr)
+      swap32(arr as Int32Array | Uint32Array | Float32Array)
     } else if (arr.BYTES_PER_ELEMENT === 8) {
-      swap64(arr)
+      swap64(arr as Float64Array)
     }
   }
   return [arr, shape]
@@ -187,8 +187,6 @@ export function encode_base64(array: TypedArray, shape?: Shape): NDArray {
   }
   return data
 }
-
-export type Data = {[key: string]: Arrayable}
 
 export type Shapes = {[key: string]: Shape | Shape[] | Shape[][] | Shape[][][]}
 

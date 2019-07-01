@@ -2,7 +2,7 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {generic_line_legend, line_interpolation} from "./utils"
 import {PointGeometry, SpanGeometry} from "core/geometry"
 import {LineVector} from "core/property_mixins"
-import {Arrayable, Area} from "core/types"
+import {Arrayable, Rect} from "core/types"
 import * as visuals from "core/visuals"
 import * as hittest from "core/hittest"
 import {Context2d} from "core/util/canvas"
@@ -117,7 +117,7 @@ export class LineView extends XYGlyphView {
     return line_interpolation(this.renderer, geometry, x2, y2, x3, y3)
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Area, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_line_legend(this.visuals, ctx, bbox, index)
   }
 }
@@ -140,7 +140,6 @@ export class Line extends XYGlyph {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Line'
     this.prototype.default_view = LineView
 
     this.mixins(['line'])

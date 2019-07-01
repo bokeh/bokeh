@@ -62,10 +62,10 @@ As usual, the data could also be put into a ``ColumnDataSource`` supplied as
 the ``source`` parameter to ``vbar`` instead of passing the data directly
 as parameters. Later examples will demonstrate this.
 
-.. _userguide_categorical_bars_sorting:
+.. _userguide_categorical_bars_sorted:
 
-Sorting
-~~~~~~~
+Sorted
+~~~~~~
 
 Since Bokeh displays bars in the order the factors are given for the range,
 "sorting" bars in a bar plot is identical to sorting the factors for the range.
@@ -76,16 +76,21 @@ to their corresponding counts, causing the bars to be sorted:
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_sorted.py
     :source-position: above
 
-.. _userguide_categorical_bars_colormapped:
+.. _userguide_categorical_bars_filled:
+
+Filled
+~~~~~~~
+
+.. _userguide_categorical_bars_filled_colors:
 
 Colors
-~~~~~~
+''''''
 
 Often times we may want to have bars that are shaded some color. This can be
 accomplished in different ways. One way is to supply all the colors up front.
 This can be done by putting all the data, including the colors for each bar,
 in a ``ColumnDataSource``. Then the name of the column containing the colors
-is passed to ``figure`` as the ``color`` (or ``line_color``/``fill_color``)
+is passed to ``vbar`` as the ``color`` (or ``line_color``/``fill_color``)
 arguments. This is shown below:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_colors.py
@@ -97,83 +102,13 @@ colormaps the bars inside the browser. There is a function
 
 .. code-block:: python
 
-    factor_cmap('fruits', palette=Spectral6, factors=fruits))
+    factor_cmap('fruits', palette=Spectral6, factors=fruits)
 
-This can be passed to ``figure`` in the same way as the column name in the
+This can be passed to ``vbar`` in the same way as the column name in the
 previous example. Putting everything together we obtain the same plot in
 a different way:
 
 .. bokeh-plot:: docs/user_guide/examples/categorical_bar_colormapped.py
-    :source-position: above
-
-
-.. _userguide_categorical_bars_grouped:
-
-Grouped
-~~~~~~~
-
-When creating bar charts, it is often desirable to visually display the
-data according to sub-groups. There are two basic methods that can be used,
-depending on your use case: using nested categorical coordinates, or
-applying vidual dodges.
-
-.. _userguide_categorical_bars_grouped_nested:
-
-Nested Categories
-'''''''''''''''''
-
-If the coordinates of a plot range and data have two or three levels, then
-Bokeh will automatically group the factors on the axis, including a
-hierarchical tick labeling with separators between the groups. In the case
-of bar charts, this results in bars grouped together by the top-level
-factors. This is probably the most common way to achieve grouped bars,
-especially if you are starting from "tidy" data.
-
-The example below shows this approach by creating a single column of
-coordinates that are each 2-tuples of the form ``(fruit, year)``. Accordingly,
-the plot groups the axes by fruit type, with a single call to ``vbar``:
-
-.. bokeh-plot:: docs/user_guide/examples/categorical_bar_nested.py
-    :source-position: above
-
-We can also apply a color mapping, similar to the earlier example. To obtain
-same grouped bar plot of fruits data as above, except with the bars shaded by
-the year, changethe ``vbar`` function call to use ``factor_cmap`` for the
-``fill_color``:
-
-.. code-block:: python
-
-    p.vbar(x='x', top='counts', width=0.9, source=source, line_color="white",
-
-           # use the palette to colormap based on the the x[1:2] values
-           fill_color=factor_cmap('x', palette=palette, factors=years, start=1, end=2))
-
-
-Recall that the factors are of the for ``(fruit, year)``. The ``start=1``
-and ``end=2`` in the call to ``factor_cmap`` select the second part of data
-factors to use when color mapping.
-
-.. bokeh-plot:: docs/user_guide/examples/categorical_bar_nested_colormapped.py
-    :source-position: none
-
-.. _userguide_categorical_bars_grouped_dodged:
-
-Visual Dodge
-''''''''''''
-
-Another method for achieving grouped bars is to explicitly specify a visual
-displacement for the bars. Such a visual offset is also referred to as a
-*dodge*.
-
-In this scenario, our data is not "tidy". Instead a single table with
-rows indexed by factors ``(fruit, year)``, we have separate series for each
-year. We can plot all the year series using separate calls to ``vbar`` but
-since every bar in each group has the same ``fruit`` factor, the bars would
-overlap visually. We can prevent this overlap and distinguish the bars
-visually by using the :func:`~bokeh.transform.dodge` function to provide an
-offset for each different call to ``vbar``:
-
-.. bokeh-plot:: docs/user_guide/examples/categorical_bar_dodged.py
     :source-position: above
 
 .. _userguide_categorical_bars_stacked:
@@ -245,6 +180,89 @@ These can be used to customize different hover tools for each layer:
         ], renderers=[r])
         p.add_tools(hover)
 
+.. _userguide_categorical_bars_grouped:
+
+Grouped
+~~~~~~~
+
+When creating bar charts, it is often desirable to visually display the
+data according to sub-groups. There are two basic methods that can be used,
+depending on your use case: using nested categorical coordinates, or
+applying vidual dodges.
+
+.. _userguide_categorical_bars_grouped_nested:
+
+Nested Categories
+'''''''''''''''''
+
+If the coordinates of a plot range and data have two or three levels, then
+Bokeh will automatically group the factors on the axis, including a
+hierarchical tick labeling with separators between the groups. In the case
+of bar charts, this results in bars grouped together by the top-level
+factors. This is probably the most common way to achieve grouped bars,
+especially if you are starting from "tidy" data.
+
+The example below shows this approach by creating a single column of
+coordinates that are each 2-tuples of the form ``(fruit, year)``. Accordingly,
+the plot groups the axes by fruit type, with a single call to ``vbar``:
+
+.. bokeh-plot:: docs/user_guide/examples/categorical_bar_nested.py
+    :source-position: above
+
+We can also apply a color mapping, similar to the earlier example. To obtain
+same grouped bar plot of fruits data as above, except with the bars shaded by
+the year, changethe ``vbar`` function call to use ``factor_cmap`` for the
+``fill_color``:
+
+.. code-block:: python
+
+    p.vbar(x='x', top='counts', width=0.9, source=source, line_color="white",
+
+           # use the palette to colormap based on the the x[1:2] values
+           fill_color=factor_cmap('x', palette=palette, factors=years, start=1, end=2))
+
+
+Recall that the factors are of the for ``(fruit, year)``. The ``start=1``
+and ``end=2`` in the call to ``factor_cmap`` select the second part of data
+factors to use when color mapping.
+
+.. bokeh-plot:: docs/user_guide/examples/categorical_bar_nested_colormapped.py
+    :source-position: none
+
+.. _userguide_categorical_bars_grouped_dodged:
+
+Visual Dodge
+''''''''''''
+
+Another method for achieving grouped bars is to explicitly specify a visual
+displacement for the bars. Such a visual offset is also referred to as a
+*dodge*.
+
+In this scenario, our data is not "tidy". Instead a single table with
+rows indexed by factors ``(fruit, year)``, we have separate series for each
+year. We can plot all the year series using separate calls to ``vbar`` but
+since every bar in each group has the same ``fruit`` factor, the bars would
+overlap visually. We can prevent this overlap and distinguish the bars
+visually by using the :func:`~bokeh.transform.dodge` function to provide an
+offset for each different call to ``vbar``:
+
+.. bokeh-plot:: docs/user_guide/examples/categorical_bar_dodged.py
+    :source-position: above
+
+.. _userguide_categorical_bars_stacked_and_grouped:
+
+Stacked and Grouped
+~~~~~~~~~~~~~~~~~~~
+
+The above techiques for stacking and grouping may also be used together to
+crate a stacked, grouped bar plot.
+
+Continuing the example above with bars grouped by quarter, we might stack each
+individual bar by region.
+
+.. bokeh-plot:: docs/user_guide/examples/categorical_bar_stacked_grouped.py
+    :source-position: above
+
 .. _userguide_categorical_bars_mixed:
 
 Mixed Factors
@@ -272,20 +290,6 @@ also adds a line (perhaps for a quarterly average) at the coordinates for
 
 This example also demonstrates that other glyphs such as lines also function
 with categorical coordinates.
-
-.. _userguide_categorical_bars_stacked_and_grouped:
-
-Stacked and Grouped
-~~~~~~~~~~~~~~~~~~~
-
-The above techiques for stacking and grouping may also be used together to
-crate a stacked, grouped bar plot.
-
-Continuing the example above with bars grouped by quarter, we might stack each
-individual bar by region.
-
-.. bokeh-plot:: docs/user_guide/examples/categorical_bar_stacked_grouped.py
-    :source-position: above
 
 .. _userguide_categorical_bars_pandas:
 

@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import {ContinuousTicker} from "models/tickers/continuous_ticker"
+import {ContinuousTicker} from "@bokehjs/models/tickers/continuous_ticker"
 
 describe("ContinuousTicker Model", () => {
 

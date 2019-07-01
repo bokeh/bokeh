@@ -1,0 +1,76 @@
+<div id="codepen-html">
+
+
+<!--
+{% include 'bokehjs_html_template.html' %}
+-->
+</div>
+{% for css_file in css_files %}
+<link rel="stylesheet" href="{{css_file}}" type="text/css" />{% endfor %}
+{% for js_file in js_files %}
+<script type="text/javascript" src="{{js_file}}"></script>{% endfor %}
+
+<script>
+    (function () {
+
+        // this monkey patches Plotting.show to insert the plot below
+        // the script block
+
+        var originalPltShow = Bokeh.Plotting.show;
+        var newPlotShow = function(layoutDomObj, target) {
+            if(typeof target === "undefined"){
+                target = document.currentScript.parentElement;
+            }
+            return originalPltShow(layoutDomObj, target);
+        };
+        Bokeh.Plotting.show = newPlotShow;
+    })()
+    $(function() {
+
+
+        var HTML = "";
+        var htmlEl = document.getElementById("codepen-html");
+        for(var i=0; i < htmlEl.childNodes.length; i++){
+            //nodeType == 8 is the special number for comment nodes
+            if(htmlEl.childNodes[i].nodeType == 8){
+                HTML = htmlEl.childNodes[i].textContent;
+            }
+        }
+        $(".codepen-wrap ").each(function(iterEl) {
+                var el = $(this),
+                        type = "js",
+                        codeInside = el.find('.codepen-content')[0].innerText,
+                        isCodeInside = codeInside.length,
+                        CSS = "",
+                        JS = JS = codeInside;
+
+                var data = {
+                  title              : el.attr('data-codepen-title'),
+                  description        : "",
+                  html               : HTML,
+                  html_pre_processor : "none",
+                  css                : CSS,
+                  css_pre_processor  : "none",
+                  css_starter        : "neither",
+                  css_prefix_free    : false,
+                  js                 : JS,
+                  js_pre_processor   : "none",
+                  js_modernizr       : false,
+                  js_library         : "",
+                  html_classes       : "",
+                  css_external       : "",
+                  js_external        : "",
+                  template           : true
+                };
+                var JSONstring =
+                  JSON.stringify(data)
+                  // Quotes will screw up the JSON
+                  .replace(/"/g, "&quot;")
+                  .replace(/'/g, "&apos;");
+                var jsonInput ='<input type="hidden" name="data" value=\'' +
+                          JSONstring + '\'>';
+                el.find('form').append(jsonInput);
+          });
+        });
+
+</script>

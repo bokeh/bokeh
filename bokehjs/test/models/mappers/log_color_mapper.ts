@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import {LogColorMapper} from "models/mappers/log_color_mapper"
+import {LogColorMapper} from "@bokehjs/models/mappers/log_color_mapper"
 
 describe("LogColorMapper module", () => {
 

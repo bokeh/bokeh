@@ -10,8 +10,8 @@ export class TitleView extends TextAnnotationView {
   model: Title
   visuals: Title.Visuals
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.visuals.text = new Text(this.model)
   }
 
@@ -142,7 +142,6 @@ export class Title extends TextAnnotation {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Title'
     this.prototype.default_view = TitleView
 
     this.mixins(['line:border_', 'fill:background_'])

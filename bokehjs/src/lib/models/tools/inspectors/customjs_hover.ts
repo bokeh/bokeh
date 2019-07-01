@@ -3,13 +3,13 @@ import * as p from "core/properties"
 import {keys, values} from "core/util/object"
 import {use_strict} from "core/util/string"
 
-declare var exports: {[key: string]: any}
+declare var exports: {[key: string]: unknown}
 
 export namespace CustomJSHover {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
-    args: p.Property<{[key: string]: any}>
+    args: p.Property<{[key: string]: unknown}>
     code: p.Property<string>
   }
 }
@@ -24,8 +24,6 @@ export class CustomJSHover extends Model {
   }
 
   static initClass(): void {
-    this.prototype.type = 'CustomJSHover'
-
     this.define<CustomJSHover.Props>({
       args: [ p.Any,    {} ], // TODO (bev) better type
       code: [ p.String, "" ],
@@ -42,7 +40,7 @@ export class CustomJSHover extends Model {
     return new Function(...keys(this.args), valname, formatname, varsname, "require", "exports", use_strict(fn))
   }
 
-  format(value: any, format: string, special_vars: {[key: string]: any}): string {
+  format(value: any, format: string, special_vars: {[key: string]: unknown}): string {
     const formatter = this._make_code("value", "format", "special_vars", this.code)
     return formatter(...this.values, value, format, special_vars, require, exports)
   }

@@ -55,6 +55,7 @@ from jinja2 import Environment, FileSystemLoader
 
 # Bokeh imports
 from .handler import Handler
+from .notebook import NotebookHandler
 from .script import ScriptHandler
 from .server_lifecycle import ServerLifecycleHandler
 
@@ -106,7 +107,9 @@ class DirectoryHandler(Handler):
             raise ValueError("No 'main.py' or 'main.ipynb' in %s" % (src_path))
         self._path = src_path
         self._main = main
-        self._main_handler = ScriptHandler(filename=self._main, argv=argv)
+
+        handler = NotebookHandler if main.endswith('.ipynb') else ScriptHandler
+        self._main_handler = handler(filename=self._main, argv=argv)
 
         lifecycle = join(src_path, 'server_lifecycle.py')
         if exists(lifecycle):
@@ -176,7 +179,7 @@ class DirectoryHandler(Handler):
         if they are found.
 
         '''
-        if self.failed:
+        if self._lifecycle_handler.failed:
             return
         # Note: we do NOT copy self._theme, which assumes the Theme
         # class is immutable (has no setters)

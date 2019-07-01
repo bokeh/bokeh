@@ -2,7 +2,7 @@ import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
-import {Arrayable, Area} from "core/types"
+import {Arrayable, Rect} from "core/types"
 import {RadiusDimension} from "core/enums"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
@@ -91,8 +91,7 @@ export class CircleView extends XYGlyphView {
       ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
     }
 
-    const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    return this.index.indices(bbox)
+    return this.index.indices({x0, x1, y0, y1})
   }
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy, sradius}: CircleData): void {
@@ -141,8 +140,7 @@ export class CircleView extends XYGlyphView {
       ;[y0, y1] = [Math.min(y0, y1), Math.max(y0, y1)]
     }
 
-    const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    const candidates = this.index.indices(bbox)
+    const candidates = this.index.indices({x0, x1, y0, y1})
 
     const hits: [number, number][] = []
     if ((this._radius != null) && (this.model.properties.radius.units == "data")) {
@@ -169,22 +167,22 @@ export class CircleView extends XYGlyphView {
   }
 
   protected _hit_span(geometry: SpanGeometry): Selection {
-      let ms, x0, x1, y0, y1
       const {sx, sy} = geometry
-      const {minX, minY, maxX, maxY} = this.bounds()
+      const bounds = this.bounds()
       const result = hittest.create_empty_hit_test_result()
 
+      let x0, x1, y0, y1
       if (geometry.direction == 'h') {
         // use circle bounds instead of current pointer y coordinates
         let sx0, sx1
-        y0 = minY
-        y1 = maxY
+        y0 = bounds.y0
+        y1 = bounds.y1
         if (this._radius != null && this.model.properties.radius.units == "data") {
           sx0 = sx - this.max_radius
           sx1 = sx + this.max_radius
           ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
         } else {
-          ms = this.max_size/2
+          const ms = this.max_size/2
           sx0 = sx - ms
           sx1 = sx + ms
           ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
@@ -192,22 +190,21 @@ export class CircleView extends XYGlyphView {
       } else {
         // use circle bounds instead of current pointer x coordinates
         let sy0, sy1
-        x0 = minX
-        x1 = maxX
+        x0 = bounds.x0
+        x1 = bounds.x1
         if (this._radius != null && this.model.properties.radius.units == "data") {
           sy0 = sy - this.max_radius
           sy1 = sy + this.max_radius
           ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
         } else {
-          ms = this.max_size/2
+          const ms = this.max_size/2
           sy0 = sy - ms
           sy1 = sy + ms
           ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
         }
       }
 
-      const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-      const hits = this.index.indices(bbox)
+      const hits = this.index.indices({x0, x1, y0, y1})
 
       result.indices = hits
       return result
@@ -217,9 +214,8 @@ export class CircleView extends XYGlyphView {
     const {sx0, sx1, sy0, sy1} = geometry
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-    const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
     const result = hittest.create_empty_hit_test_result()
-    result.indices = this.index.indices(bbox)
+    result.indices = this.index.indices({x0, x1, y0, y1})
     return result
   }
 
@@ -244,7 +240,7 @@ export class CircleView extends XYGlyphView {
 
   // circle does not inherit from marker (since it also accepts radius) so we
   // must supply a draw_legend for it  here
-  draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Area, index: number): void {
+  draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Rect, index: number): void {
     // using objects like this seems a little wonky, since the keys are coerced to
     // stings, but it works
     const len = index + 1
@@ -284,7 +280,6 @@ export class Circle extends XYGlyph {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Circle'
     this.prototype.default_view = CircleView
 
     this.mixins(['line', 'fill'])

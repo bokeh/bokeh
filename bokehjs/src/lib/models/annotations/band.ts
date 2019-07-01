@@ -24,8 +24,8 @@ export class BandView extends AnnotationView {
   protected _upper_sx: Arrayable<number>
   protected _upper_sy: Arrayable<number>
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.set_data(this.model.source)
   }
 
@@ -164,7 +164,6 @@ export class Band extends Annotation {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Band'
     this.prototype.default_view = BandView
 
     this.mixins(['line', 'fill'])

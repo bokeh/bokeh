@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import {Column} from "models/layouts/column"
+import {Column} from "@bokehjs/models/layouts/column"
 
 describe("Column", () => {
   it("should have empty children after initialization", () => {

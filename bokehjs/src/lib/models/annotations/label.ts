@@ -9,8 +9,8 @@ export class LabelView extends TextAnnotationView {
   model: Label
   visuals: Label.Visuals
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.visuals.warm_cache()
   }
 
@@ -92,7 +92,6 @@ export class Label extends TextAnnotation {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Label'
     this.prototype.default_view = LabelView
 
     this.mixins(['text', 'line:border_', 'fill:background_'])

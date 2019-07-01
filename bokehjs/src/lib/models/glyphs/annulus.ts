@@ -1,5 +1,5 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {Arrayable, Area} from "core/types"
+import {Arrayable, Rect} from "core/types"
 import {PointGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
 import {Line, Fill} from "core/visuals"
@@ -104,8 +104,7 @@ export class AnnulusView extends XYGlyphView {
 
     const hits: [number, number][] = []
 
-    const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    for (const i of this.index.indices(bbox)) {
+    for (const i of this.index.indices({x0, x1, y0, y1})) {
       const or2 = Math.pow(this.souter_radius[i], 2)
       const ir2 = Math.pow(this.sinner_radius[i], 2)
       const [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
@@ -118,7 +117,7 @@ export class AnnulusView extends XYGlyphView {
     return hittest.create_hit_test_result_from_hits(hits)
   }
 
-  draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Area, index: number): void {
+  draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Rect, index: number): void {
     const len = index + 1
 
     const sx: number[] = new Array(len)
@@ -158,7 +157,6 @@ export class Annulus extends XYGlyph {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Annulus'
     this.prototype.default_view = AnnulusView
 
     this.mixins(['line', 'fill'])

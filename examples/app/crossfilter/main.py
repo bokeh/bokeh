@@ -52,7 +52,7 @@ def create_figure():
 
     c = "#31AADE"
     if color.value != 'None':
-        if len(set(df[color.value])) > N_SIZES:
+        if len(set(df[color.value])) > N_COLORS:
             groups = pd.qcut(df[color.value].values, N_COLORS, duplicates='drop')
         else:
             groups = pd.Categorical(df[color.value])

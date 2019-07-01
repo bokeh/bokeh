@@ -334,7 +334,7 @@ def _process_resources(resources):
     return ""
 
 def _process_session_id(session_id):
-    ''' Return a session ID HTML argument to add to a Bokeh serrver URL
+    ''' Return a session ID HTML argument to add to a Bokeh server URL
 
     Args:
         session_id (str) :

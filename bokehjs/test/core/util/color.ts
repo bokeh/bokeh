@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import {color2rgba} from "core/util/color"
+import {color2rgba} from "@bokehjs/core/util/color"
 
 describe("color module", () => {
 

@@ -29,6 +29,6 @@ mission, please consider making a `donation`_ to support our efforts.
 .. _Anaconda, Inc.: http://anaconda.com
 .. _Core Team: https://github.com/bokeh/bokeh/wiki/BEP-4:-Project-Roles#core-team
 .. _DARPA XDATA Program: https://www.darpa.mil/program/xdata
-.. _donation: https://www.flipcause.com/secure/cause_pdetails/MzE5NjE
+.. _donation: https://numfocus.salsalabs.org/donate-to-bokeh/index.html
 .. _GitHub Contributors Page: https://github.com/bokeh/bokeh/graphs/contributors
 .. _NumFOCUS: https://numfocus.org

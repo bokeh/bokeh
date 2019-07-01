@@ -158,6 +158,16 @@ Tab panes allow multiple plots or layouts to be show in selectable tabs:
 .. bokeh-plot:: docs/user_guide/examples/interaction_tab_panes.py
     :source-position: below
 
+
+TextAreaInput
+~~~~~~~~~~~~~
+
+A widget for collecting multiple lines of text from a user:
+
+.. bokeh-plot:: docs/user_guide/examples/interaction_textareainput.py
+    :source-position: below
+
+
 TextInput
 ~~~~~~~~~
 

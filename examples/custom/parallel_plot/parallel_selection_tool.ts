@@ -82,8 +82,8 @@ export class ParallelSelectionView extends BoxSelectToolView {
     indices: number[]
   }[] //must be synchronize with element of cds_select
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
 
     const {frame} = this.plot_view
 
@@ -363,7 +363,6 @@ export class ParallelSelectionTool extends BoxSelectTool {
   properties: ParallelSelectionTool.Props
 
   static initClass(): void {
-    this.prototype.type = "ParallelSelectionTool"
     this.prototype.default_view = ParallelSelectionView
 
     this.define<ParallelSelectionTool.Props>({

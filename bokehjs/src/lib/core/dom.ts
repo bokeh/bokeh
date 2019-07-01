@@ -6,19 +6,27 @@ export type HTMLChild = string | HTMLElement | (string | HTMLElement)[]
 
 const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) =>
     (attrs: HTMLAttrs = {}, ...children: HTMLChild[]): HTMLElementTagNameMap[T] => {
+
   const element = document.createElement(tag)
+  element.classList.add("bk")
 
   for (const attr in attrs) {
-    const value = attrs[attr]
+    let value = attrs[attr]
 
     if (value == null || isBoolean(value) && !value)
       continue
 
-    if (attr === "class" && isArray(value)) {
-      for (const cls of (value as string[])) {
-        if (cls != null) element.classList.add(cls)
+    if (attr === "class") {
+      if (isString(value))
+        value = value.split(/\s+/)
+
+      if (isArray(value)) {
+        for (const cls of (value as string[])) {
+          if (cls != null)
+            element.classList.add(cls)
+        }
+        continue
       }
-      continue
     }
 
     if (attr === "style" && isPlainObject(value)) {
@@ -196,6 +204,13 @@ export function size(el: HTMLElement): Size {
   }
 }
 
+export function scroll_size(el: HTMLElement): Size {
+  return {
+    width: Math.ceil(el.scrollWidth),
+    height: Math.ceil(el.scrollHeight),
+  }
+}
+
 export function outer_size(el: HTMLElement): Size {
   const {margin: {left, right, top, bottom}} = extents(el)
   const {width, height} = size(el)
@@ -206,14 +221,14 @@ export function outer_size(el: HTMLElement): Size {
 }
 
 export function content_size(el: HTMLElement): Size {
+  const {left, top} = el.getBoundingClientRect()
   const {padding} = extents(el)
-  const left = Math.ceil(padding.left)
-  const top = Math.ceil(padding.top)
   let width = 0
   let height = 0
   for (const child of children(el)) {
-    width = Math.max(width, child.offsetLeft - left + child.offsetWidth)
-    height = Math.max(height, child.offsetTop - top + child.offsetHeight)
+    const rect = child.getBoundingClientRect()
+    width = Math.max(width, Math.ceil(rect.left - left - padding.left + rect.width))
+    height = Math.max(height, Math.ceil(rect.top - top - padding.top + rect.height))
   }
   return {width, height}
 }
@@ -221,8 +236,8 @@ export function content_size(el: HTMLElement): Size {
 export function position(el: HTMLElement, box: Box, margin?: Extents): void {
   const {style} = el
 
-  style.left   = `${box.left}px`
-  style.top    = `${box.top}px`
+  style.left   = `${box.x}px`
+  style.top    = `${box.y}px`
   style.width  = `${box.width}px`
   style.height = `${box.height}px`
 
@@ -273,7 +288,10 @@ export class ClassList {
   }
 
   clear(): this {
-    this.el.className = ""
+    for (const cls of this.values) {
+      if (cls != "bk")
+        this.classList.remove(cls)
+    }
     return this
   }
 
@@ -320,15 +338,32 @@ export function unsized<T>(el: HTMLElement, fn: () => T): T {
 }
 
 export function sized<T>(el: HTMLElement, size: Partial<Size>, fn: () => T): T {
-  const {width, height, position} = el.style
+  const {width, height, position, display} = el.style
   el.style.position = "absolute"
-  el.style.width = size.width != null && size.width != Infinity ? `${size.width}px` : ""
-  el.style.height = size.height != null && size.height != Infinity ? `${size.height}px` : ""
+  el.style.display = ""
+  el.style.width = size.width != null && size.width != Infinity ? `${size.width}px` : "auto"
+  el.style.height = size.height != null && size.height != Infinity ? `${size.height}px` : "auto"
   try {
     return fn()
   } finally {
     el.style.position = position
+    el.style.display = display
     el.style.width = width
     el.style.height = height
   }
 }
+
+export class StyleSheet {
+  private readonly style: HTMLStyleElement
+
+  constructor() {
+    this.style = style({type: "text/css"})
+    prepend(document.head, this.style)
+  }
+
+  append(css: string): void {
+    this.style.appendChild(document.createTextNode(css))
+  }
+}
+
+export const styles = new StyleSheet()

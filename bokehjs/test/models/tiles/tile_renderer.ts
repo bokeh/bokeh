@@ -1,14 +1,14 @@
 import {expect} from "chai"
 
-import {shuffle} from "core/util/array"
-import {TileSource} from "models/tiles/tile_source"
-import {MercatorTileSource} from "models/tiles/mercator_tile_source"
-import {TMSTileSource} from "models/tiles/tms_tile_source"
-import {WMTSTileSource} from "models/tiles/wmts_tile_source"
-import {QUADKEYTileSource} from "models/tiles/quadkey_tile_source"
-import {BBoxTileSource} from "models/tiles/bbox_tile_source"
-import * as tile_utils from "models/tiles/tile_utils"
-import {Extent} from "models/tiles/tile_utils"
+import {shuffle} from "@bokehjs/core/util/array"
+import {TileSource} from "@bokehjs/models/tiles/tile_source"
+import {MercatorTileSource} from "@bokehjs/models/tiles/mercator_tile_source"
+import {TMSTileSource} from "@bokehjs/models/tiles/tms_tile_source"
+import {WMTSTileSource} from "@bokehjs/models/tiles/wmts_tile_source"
+import {QUADKEYTileSource} from "@bokehjs/models/tiles/quadkey_tile_source"
+import {BBoxTileSource} from "@bokehjs/models/tiles/bbox_tile_source"
+import * as tile_utils from "@bokehjs/models/tiles/tile_utils"
+import {Extent} from "@bokehjs/models/tiles/tile_utils"
 
 describe("projection utilities", () => {
 

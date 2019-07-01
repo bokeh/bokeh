@@ -3,36 +3,38 @@ import {InputWidget, InputWidgetView} from "./input_widget"
 import {input} from "core/dom"
 import * as p from "core/properties"
 
+import {bk_input} from "styles/widgets/inputs"
+
 export class TextInputView extends InputWidgetView {
   model: TextInput
 
-  protected input: HTMLInputElement
+  protected input_el: HTMLInputElement
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.name.change, () => this.input.name = this.model.name || "")
-    this.connect(this.model.properties.value.change, () => this.input.value = this.model.value)
-    this.connect(this.model.properties.disabled.change, () => this.input.disabled = this.model.disabled)
-    this.connect(this.model.properties.placeholder.change, () => this.input.placeholder = this.model.placeholder)
+    this.connect(this.model.properties.name.change, () => this.input_el.name = this.model.name || "")
+    this.connect(this.model.properties.value.change, () => this.input_el.value = this.model.value)
+    this.connect(this.model.properties.disabled.change, () => this.input_el.disabled = this.model.disabled)
+    this.connect(this.model.properties.placeholder.change, () => this.input_el.placeholder = this.model.placeholder)
   }
 
   render(): void {
     super.render()
 
-    this.input = input({
+    this.input_el = input({
       type: "text",
-      class: "bk-input",
+      class: bk_input,
       name: this.model.name,
       value: this.model.value,
       disabled: this.model.disabled,
       placeholder: this.model.placeholder,
     })
-    this.input.addEventListener("change", () => this.change_input())
-    this.el.appendChild(this.input)
+    this.input_el.addEventListener("change", () => this.change_input())
+    this.group_el.appendChild(this.input_el)
   }
 
   change_input(): void {
-    this.model.value = this.input.value
+    this.model.value = this.input_el.value
     super.change_input()
   }
 }
@@ -56,7 +58,6 @@ export class TextInput extends InputWidget {
   }
 
   static initClass(): void {
-    this.prototype.type = "TextInput"
     this.prototype.default_view = TextInputView
 
     this.define<TextInput.Props>({

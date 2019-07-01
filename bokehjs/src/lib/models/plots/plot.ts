@@ -3,7 +3,7 @@ import * as visuals from "core/visuals"
 import * as p from "core/properties"
 import {Class} from "core/class"
 import {Signal0} from "core/signaling"
-import {Place, Location, OutputBackend} from "core/enums"
+import {Place, Location, OutputBackend, ResetPolicy} from "core/enums"
 import {remove_by, concat} from "core/util/array"
 import {values} from "core/util/object"
 import {isArray} from "core/util/types"
@@ -45,10 +45,7 @@ export namespace Plot {
     frame_height: p.Property<number | null>
 
     title: p.Property<Title | string | null>
-    title_location: p.Property<Location>
-
-    h_symmetry: p.Property<boolean>
-    v_symmetry: p.Property<boolean>
+    title_location: p.Property<Location | null>
 
     above: p.Property<(Annotation | Axis)[]>
     below: p.Property<(Annotation | Axis)[]>
@@ -87,6 +84,8 @@ export namespace Plot {
 
     match_aspect: p.Property<boolean>
     aspect_scale: p.Property<number>
+
+    reset_policy: p.Property<ResetPolicy>
   } & mixins.OutlineLine
     & mixins.BackgroundFill
     & mixins.BorderFill
@@ -113,7 +112,6 @@ export class Plot extends LayoutDOM {
   }
 
   static initClass(): void {
-    this.prototype.type = "Plot"
     this.prototype.default_view = PlotView
 
     this.mixins(["line:outline_", "fill:background_", "fill:border_"])
@@ -131,9 +129,6 @@ export class Plot extends LayoutDOM {
 
       title:             [ p.Any, () => new Title({text: ""})  ], // TODO: p.Either(p.Instance(Title), p.String)
       title_location:    [ p.Location, 'above'                 ],
-
-      h_symmetry:        [ p.Boolean,  true                    ],
-      v_symmetry:        [ p.Boolean,  false                   ],
 
       above:             [ p.Array,    []                      ],
       below:             [ p.Array,    []                      ],
@@ -172,6 +167,8 @@ export class Plot extends LayoutDOM {
 
       match_aspect:      [ p.Boolean,  false                   ],
       aspect_scale:      [ p.Number,   1                       ],
+
+      reset_policy:      [ p.ResetPolicy,  "standard"          ],
     })
 
     this.override({

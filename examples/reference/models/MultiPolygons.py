@@ -23,7 +23,7 @@ source = ColumnDataSource(dict(xs=xs, ys=ys))
 
 plot = Plot(
     title=None, plot_width=300, plot_height=300,
-    h_symmetry=False, v_symmetry=False, min_border=0, toolbar_location=None)
+    min_border=0, toolbar_location=None)
 
 glyph = MultiPolygons(xs="xs", ys="ys", line_width=2)
 plot.add_glyph(source, glyph)

@@ -69,6 +69,18 @@ class Test_CategoricalColorMapper(object):
         assert list(m.factors) == list(years)
         assert isinstance(m.factors, pd.Index)
 
+class Test_CategoricalPatternMapper(object):
+
+    def test_basic(self):
+        mapper = bmm.CategoricalPatternMapper()
+        check_properties_existence(mapper, [
+            "factors",
+            "patterns",
+            "start",
+            "end",
+            "default_value"],
+        )
+
 class Test_CategoricalMarkerMapper(object):
 
     def test_basic(self):

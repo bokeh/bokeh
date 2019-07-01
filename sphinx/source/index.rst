@@ -79,4 +79,4 @@ the :ref:`devguide`.
     docs/releases
 
 .. _NumFOCUS: https://numfocus.org
-.. _donation: https://www.flipcause.com/secure/cause_pdetails/MzE5NjE=
+.. _donation: https://numfocus.salsalabs.org/donate-to-bokeh/index.html

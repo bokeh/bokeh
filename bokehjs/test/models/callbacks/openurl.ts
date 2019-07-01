@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import {OpenURL} from "models/callbacks/open_url"
+import {OpenURL} from "@bokehjs/models/callbacks/open_url"
 
 describe("OpenURL", () => {
   describe("default creation", () => {

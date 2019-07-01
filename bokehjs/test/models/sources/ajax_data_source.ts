@@ -2,10 +2,10 @@ import {expect} from "chai"
 
 import * as sinon from 'sinon'
 
-import {CustomJS} from "models/callbacks/customjs"
-import {AjaxDataSource} from "models/sources/ajax_data_source"
-import {Data} from "core/types"
-import {last} from "core/util/array"
+import {CustomJS} from "@bokehjs/models/callbacks/customjs"
+import {AjaxDataSource} from "@bokehjs/models/sources/ajax_data_source"
+import {Data} from "@bokehjs/core/types"
+import {last} from "@bokehjs/core/util/array"
 
 describe("ajax_data_source module", () => {
 

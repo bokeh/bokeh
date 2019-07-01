@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 
 from bokeh.plotting import figure
-from bokeh.models import (Range1d, ColumnDataSource, LinearAxis,
+from bokeh.layouts import column
+from bokeh.models import (Range1d, ColumnDataSource, Div, LinearAxis,
                           LinearColorMapper, MultiLine,
                           FixedTicker, BasicTickFormatter, FuncTickFormatter)
 
@@ -75,7 +76,7 @@ def parallel_plot(df, color=None, palette=None):
     parallel_renderer = p.multi_line(
         xs="xs", ys="ys", source=data_source, **non_selected_line_style)
 
-    # Specifify selection style
+    # Specify selection style
     selected_lines = MultiLine(**selected_line_style)
 
     # Specify non selection style
@@ -90,7 +91,7 @@ def parallel_plot(df, color=None, palette=None):
         'x': [], 'y': [], 'width': [], 'height': []
     })
 
-    # add rectange selections
+    # add rectangle selections
     selection_renderer = p.rect(x='x', y='y', width='width', height='height',
                                 source=rect_source,
                                 fill_alpha=0.7, fill_color='#009933')
@@ -110,4 +111,5 @@ if __name__ == '__main__':
     from bokeh.io import show
     df = pd.read_csv("https://raw.githubusercontent.com/bcdunbar/datasets/master/parcoords_data.csv")
     p = parallel_plot(df=df, color=df[df.columns[0]], palette=Viridis256)
-    show(p)
+    div = Div(text="Select up and down column grid lines to define filters. Double click a filter to reset it.")
+    show(column(div, p))

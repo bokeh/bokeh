@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import {MercatorTickFormatter} from "models/formatters/mercator_tick_formatter"
-import {wgs84_mercator} from "core/util/projections"
+import {MercatorTickFormatter} from "@bokehjs/models/formatters/mercator_tick_formatter"
+import {wgs84_mercator} from "@bokehjs/core/util/projections"
 
 describe("mercator_tick_formatter module", () => {
 

@@ -24,18 +24,18 @@ important features and fixes several bugs. Some of the highlights include:
 Many other bugfixes and docs additions are also included. For full details
 see the :bokeh-tree:`CHANGELOG`.
 
+.. _release-0-12-5-migration:
+
+`Migration Guide <releases.html#release-0-12-5-migration>`__
+------------------------------------------------------------
+
 Known Issues
-------------
+~~~~~~~~~~~~
 
 The ClientSession APIs defined in `bokeh.client.session`, such as
 `push_session`, don't currently support the new `on_event` interface for
 UI event callbacks in Bokeh Server application. You may track the issue on
 GitHub (:bokeh-issue:`6092`).
-
-.. _release-0-12-5-migration:
-
-Migration Guide
----------------
 
 As the project approaches a 1.0 release, it is necessary to make some changes
 to bring interfaces and functionality up to a point that can be maintained

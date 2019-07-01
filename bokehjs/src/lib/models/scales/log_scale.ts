@@ -17,10 +17,6 @@ export class LogScale extends Scale {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "LogScale"
-  }
-
   compute(x: number): number {
     const [factor, offset, inter_factor, inter_offset] = this._compute_state()
 
@@ -123,4 +119,3 @@ export class LogScale extends Scale {
     return [factor, offset, inter_factor, inter_offset]
   }
 }
-LogScale.initClass()

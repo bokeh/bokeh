@@ -1,5 +1,5 @@
 import {logger} from "core/logging"
-import {Document} from "document"
+import {Document, DocJson} from "document"
 import {Message} from "protocol/message"
 import {Receiver} from "protocol/receiver"
 import {ClientSession} from "./session"
@@ -108,13 +108,13 @@ export class ClientConnection {
   }
 
   send_with_reply(message: Message): Promise<Message> {
-    const promise = new Promise((resolve, reject) => {
+    const promise = new Promise<Message>((resolve, reject) => {
       this._pending_replies[message.msgid()] = [resolve, reject]
       this.send(message)
     })
 
     return promise.then(
-      (message: Message) => {
+      (message) => {
         if (message.msgtype() === "ERROR")
           throw new Error(`Error reply ${message.content.text}`)
         else
@@ -126,7 +126,7 @@ export class ClientConnection {
     )
   }
 
-  protected _pull_doc_json(): Promise<Message> {
+  protected _pull_doc_json(): Promise<DocJson> {
     const message = Message.create("PULL-DOC-REQ", {})
     const promise = this.send_with_reply(message)
     return promise.then(
@@ -152,12 +152,12 @@ export class ClientConnection {
           if (this.closed_permanently)
             logger.debug("Got new document after connection was already closed")
           else {
-            const document = (Document as any).from_json(doc_json)
+            const document = Document.from_json(doc_json)
 
             // Constructing models changes some of their attributes, we deal with that
             // here. This happens when models set attributes during construction
             // or initialization.
-            const patch = (Document as any)._compute_patch_since_json(doc_json, document)
+            const patch = Document._compute_patch_since_json(doc_json, document)
             if (patch.events.length > 0) {
               logger.debug(`Sending ${patch.events.length} changes from model construction back to server`)
               const patch_message = Message.create('PATCH-DOC', {}, patch)
@@ -287,11 +287,9 @@ export class ClientConnection {
 // Returns a promise of a ClientSession
 // The returned promise has a close() method in case you want to close before
 // getting a session; session.close() works too once you have a session.
-export function pull_session(url: string, session_id: string, args_string?: string): Promise<ClientSession> {
-  let connection: ClientConnection
-
+export function pull_session(url?: string, session_id?: string, args_string?: string): Promise<ClientSession> {
   const promise = new Promise<ClientSession>((resolve, reject) => {
-    connection = new ClientConnection(url, session_id, args_string,
+    const connection = new ClientConnection(url, session_id, args_string,
       (session) => {
         try {
           resolve(session)
@@ -306,7 +304,7 @@ export function pull_session(url: string, session_id: string, args_string?: stri
         reject(new Error("Connection was closed before we successfully pulled a session"))
       },
     )
-    return connection.connect().then(
+    connection.connect().then(
       (_) => undefined,
       (error) => {
         logger.error(`Failed to connect to Bokeh server ${error}`)
@@ -315,11 +313,5 @@ export function pull_session(url: string, session_id: string, args_string?: stri
     )
   })
 
-  /*
-  // add a "close" method to the promise... too weird?
-  promise.close = () => {
-    connection.close()
-  }
-  */
   return promise
 }

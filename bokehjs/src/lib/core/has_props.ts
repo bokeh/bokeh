@@ -1,6 +1,7 @@
 //import {logger} from "./logging"
 import {View} from "./view"
 import {Class} from "./class"
+import {Attrs} from "./types"
 import {Signal0, Signal, Signalable} from "./signaling"
 import * as property_mixins from "./property_mixins"
 import {Ref, is_ref, create_ref} from "./util/refs"
@@ -30,13 +31,17 @@ export module HasProps {
   }
 }
 
-export interface HasProps extends HasProps.Attrs {}
+export interface HasProps extends HasProps.Attrs {
+  constructor: Function & {__name__: string}
+}
 
 export abstract class HasProps extends Signalable() {
 
-  static initClass(): void {
-    this.prototype.type = "HasProps"
+  // XXX: setter is only required for backwards compatibility
+  set type(name: string) { this.constructor.__name__ = name }
+  get type(): string     { return this.constructor.__name__ }
 
+  static initClass(): void {
     this.prototype.props = {}
     this.prototype.mixins = []
 
@@ -46,7 +51,6 @@ export abstract class HasProps extends Signalable() {
   }
 
   // {{{ prototype
-  type: string
   default_view: Class<View, [View.Options]>
   props: {[key: string]: {
     type: Class<Property<any>>,  // T
@@ -121,7 +125,7 @@ export abstract class HasProps extends Signalable() {
   }
 
   static mixin(...names: string[]): void {
-    this.define(property_mixins.create(names))
+    this.define(property_mixins.create(names) as any)
     const mixins = this.prototype.mixins.concat(names)
     this.prototype.mixins = mixins
   }
@@ -159,7 +163,7 @@ export abstract class HasProps extends Signalable() {
 
   protected readonly _set_after_defaults: {[key: string]: boolean} = {}
 
-  constructor(attrs: {[key: string]: any} = {}) {
+  constructor(attrs: Attrs = {}) {
     super()
 
     for (const name in this.props) {
@@ -235,7 +239,7 @@ export abstract class HasProps extends Signalable() {
   // Set a hash of model attributes on the object, firing `"change"`. This is
   // the core primitive operation of a model, updating the data and notifying
   // anyone who needs to know about the change in state. The heart of the beast.
-  private _setv(attrs: {[key: string]: any}, options: HasProps.SetOptions): void {
+  private _setv(attrs: Attrs, options: HasProps.SetOptions): void {
     // Extract attributes and options.
     const check_eq   = options.check_eq
     const silent     = options.silent
@@ -279,7 +283,7 @@ export abstract class HasProps extends Signalable() {
     this._changing = false
   }
 
-  setv(attrs: {[key: string]: any}, options: HasProps.SetOptions = {}): void {
+  setv(attrs: Attrs, options: HasProps.SetOptions = {}): void {
     for (const key in attrs) {
       if (!attrs.hasOwnProperty(key))
         continue
@@ -335,8 +339,8 @@ export abstract class HasProps extends Signalable() {
   // sometimes stick things in attributes that aren't part of the
   // Document's models, subtypes that do that have to remove their
   // extra attributes here.
-  serializable_attributes(): {[key: string]: any} {
-    const attrs: {[key: string]: any} = {}
+  serializable_attributes(): Attrs {
+    const attrs: Attrs = {}
     for (const name in this.attributes) {
       const value = this.attributes[name]
       if (this.attribute_is_serializable(name))
@@ -356,7 +360,7 @@ export abstract class HasProps extends Signalable() {
       }
       return ref_array
     } else if (isPlainObject(value)) {
-      const ref_obj: {[key: string]: unknown} = {}
+      const ref_obj: Attrs = {}
       for (const subkey in value) {
         if (value.hasOwnProperty(subkey))
           ref_obj[subkey] = HasProps._value_to_json(subkey, value[subkey], value)
@@ -370,7 +374,7 @@ export abstract class HasProps extends Signalable() {
   // are included as just references)
   attributes_as_json(include_defaults: boolean = true, value_to_json=HasProps._value_to_json): any {
     const serializable = this.serializable_attributes()
-    const attrs: {[key: string]: any} = {}
+    const attrs: Attrs = {}
     for (const key in serializable) {
       if (serializable.hasOwnProperty(key)) {
         const value = serializable[key]
@@ -408,7 +412,7 @@ export abstract class HasProps extends Signalable() {
   // add all references from 'v' to 'result', if recurse
   // is true then descend into refs, if false only
   // descend into non-refs
-  static _value_record_references(v: any, result: {[key: string]: HasProps}, recurse: boolean): void {
+  static _value_record_references(v: any, result: Attrs, recurse: boolean): void {
     if (v == null) {
     } else if (v instanceof HasProps) {
       if (!(v.id in result)) {
@@ -503,9 +507,9 @@ export abstract class HasProps extends Signalable() {
     }
   }
 
-  materialize_dataspecs(source: ColumnarDataSource): {[key: string]: any} {
+  materialize_dataspecs(source: ColumnarDataSource): {[key: string]: unknown[] | number} {
     // Note: this should be moved to a function separate from HasProps
-    const data: {[key: string]: any} = {}
+    const data: {[key: string]: unknown[] | number} = {}
     for (const name in this.properties) {
       const prop = this.properties[name]
       if (!(prop instanceof p.VectorSpec))
@@ -514,13 +518,14 @@ export abstract class HasProps extends Signalable() {
       if (prop.optional && prop.spec.value == null && !(name in this._set_after_defaults))
         continue
 
-      data[`_${name}`] = prop.array(source)
+      const array = prop.array(source)
+      data[`_${name}`] = array
       // the shapes are indexed by the column name, but when we materialize the dataspec, we should
       // store under the canonical field name, e.g. _image_shape, even if the column name is "foo"
       if (prop.spec.field != null && prop.spec.field in source._shapes)
         data[`_${name}_shape`] = source._shapes[prop.spec.field]
       if (prop instanceof p.DistanceSpec)
-        data[`max_${name}`] = max(data[`_${name}`])
+        data[`max_${name}`] = max(array)
     }
     return data
   }

@@ -2,21 +2,19 @@ import {input, label, div, span} from "core/dom"
 import {uniqueId} from "core/util/string"
 import * as p from "core/properties"
 
-import {Widget, WidgetView} from "./widget"
+import {InputGroup, InputGroupView} from "./input_group"
 import {CallbackLike0} from "../callbacks/callback"
 
-export class RadioGroupView extends WidgetView {
-  model: RadioGroup
+import {bk_inline} from "styles/mixins"
+import {bk_input_group} from "styles/widgets/inputs"
 
-  connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.model.change, () => this.render())
-  }
+export class RadioGroupView extends InputGroupView {
+  model: RadioGroup
 
   render(): void {
     super.render()
 
-    const group = div({class: ["bk-input-group", this.model.inline ? "bk-inline" : null]})
+    const group = div({class: [bk_input_group, this.model.inline ? bk_inline : null]})
     this.el.appendChild(group)
 
     const name = uniqueId()
@@ -31,8 +29,8 @@ export class RadioGroupView extends WidgetView {
       if (i == active)
         radio.checked = true
 
-      const labelEl = label({}, radio, span({}, labels[i]))
-      group.appendChild(labelEl)
+      const label_el = label({}, radio, span({}, labels[i]))
+      group.appendChild(label_el)
     }
   }
 
@@ -46,7 +44,7 @@ export class RadioGroupView extends WidgetView {
 export namespace RadioGroup {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Widget.Props & {
+  export type Props = InputGroup.Props & {
     active: p.Property<number>
     labels: p.Property<string[]>
     inline: p.Property<boolean>
@@ -56,7 +54,7 @@ export namespace RadioGroup {
 
 export interface RadioGroup extends RadioGroup.Attrs {}
 
-export class RadioGroup extends Widget {
+export class RadioGroup extends InputGroup {
   properties: RadioGroup.Props
 
   constructor(attrs?: Partial<RadioGroup.Attrs>) {
@@ -64,7 +62,6 @@ export class RadioGroup extends Widget {
   }
 
   static initClass(): void {
-    this.prototype.type = "RadioGroup"
     this.prototype.default_view = RadioGroupView
 
     this.define<RadioGroup.Props>({

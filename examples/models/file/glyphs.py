@@ -101,7 +101,7 @@ def make_tab(title, glyph):
 
     plot.add_tools(HoverTool())
 
-    tab = Panel(child=plot, title=title)
+    tab = Panel(child=plot, title=title, closable=True)
 
     return tab
 

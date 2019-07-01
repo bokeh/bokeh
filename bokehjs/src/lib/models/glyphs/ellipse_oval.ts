@@ -2,7 +2,7 @@ import {CenterRotatable, CenterRotatableView, CenterRotatableData} from "./cente
 import {PointGeometry} from "core/geometry"
 import {LineVector, FillVector} from "core/property_mixins"
 import * as hittest from "core/hittest"
-import {Area, Rect} from "core/types"
+import {Rect} from "core/types"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import * as p from "core/properties"
@@ -83,8 +83,7 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
       ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
     }
 
-    const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    const candidates = this.index.indices(bbox)
+    const candidates = this.index.indices({x0, x1, y0, y1})
     const hits: [number, number][] = []
 
     for (const i of candidates) {
@@ -100,7 +99,7 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
     return hittest.create_hit_test_result_from_hits(hits)
   }
 
-  draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Area, index: number): void {
+  draw_legend_for_index(ctx: Context2d, {x0, y0, x1, y1}: Rect, index: number): void {
     const len = index + 1
 
     const sx: number[] = new Array(len)
@@ -124,12 +123,12 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
     this._render(ctx, [index], {sx, sy, sw, sh, _angle: [0]} as any) // XXX
   }
 
-  protected _bounds({minX, maxX, minY, maxY}: Rect): Rect {
+  protected _bounds({x0, x1, y0, y1}: Rect): Rect {
     return {
-      minX: minX - this.max_w2,
-      maxX: maxX + this.max_w2,
-      minY: minY - this.max_h2,
-      maxY: maxY + this.max_h2,
+      x0: x0 - this.max_w2,
+      x1: x1 + this.max_w2,
+      y0: y0 - this.max_h2,
+      y1: y1 + this.max_h2,
     }
   }
 }
@@ -150,9 +149,4 @@ export abstract class EllipseOval extends CenterRotatable {
   constructor(attrs?: Partial<EllipseOval.Attrs>) {
     super(attrs)
   }
-
-  static initClass(): void {
-    this.prototype.type = 'EllipseOval'
-  }
 }
-EllipseOval.initClass()

@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import * as ser from "core/util/serialization"
-import {isObject} from "core/util/types"
+import * as ser from "@bokehjs/core/util/serialization"
+import {isObject} from "@bokehjs/core/util/types"
 
 const GOOD_TYPES = [
   Float32Array, Float64Array, Uint8Array, Int8Array,

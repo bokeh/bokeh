@@ -180,7 +180,7 @@ def test_jsons():
                 assert all(['\\' not in mod for mod in json.loads(f.read())])
 
 def test_inline_extension():
-    from bokeh.io import show
+    from bokeh.io import save
     from bokeh.models import TickFormatter
     from bokeh.plotting import figure
     from bokeh.util.compiler import TypeScript
@@ -202,22 +202,21 @@ def test_inline_extension():
           return formatted
         }
       }
-
-      static initClass(): void {
-        this.prototype.type = "TestFormatter"
-      }
     }
-    TestFormatter.initClass()
     """
 
     class TestFormatter(TickFormatter):
 
         __implementation__ = TypeScript(TS_CODE)
 
+    class TestFormatter2(TickFormatter):
+
+        __implementation__ = TypeScript("^") # invalid syntax on purpose
+
     p = figure()
     p.circle([1, 2, 3, 4, 6], [5, 7, 3, 2, 4])
     p.xaxis.formatter = TestFormatter()
-    show(p)
+    save(p)
 
 #-----------------------------------------------------------------------------
 # Dev API

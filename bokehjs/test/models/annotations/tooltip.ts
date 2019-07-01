@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import {compute_side} from "models/annotations/tooltip"
-import {Side} from "core/enums"
+import {compute_side} from "@bokehjs/models/annotations/tooltip"
+import {Side} from "@bokehjs/core/enums"
 
 describe("compute_side", () => {
   for (const side of Side) {

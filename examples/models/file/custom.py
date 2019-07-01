@@ -68,7 +68,6 @@ export class MyPlot extends Plot {
   properties: MyPlot.Props
 
   static initClass(): void {
-    this.prototype.type = "MyPlot"
     this.prototype.default_view = MyPlotView
 
     this.define<MyPlot.Props>({

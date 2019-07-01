@@ -1,6 +1,6 @@
 import {expect} from "chai"
 
-import {Renderer, RendererView} from "models/renderers/renderer"
+import {Renderer, RendererView} from "@bokehjs/models/renderers/renderer"
 
 class SomeRendererView extends RendererView {
   model: SomeRenderer

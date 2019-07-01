@@ -4,11 +4,11 @@ import {generic_area_legend} from "./utils"
 import {min, max, copy, find_last_index} from "core/util/array"
 import {sum} from "core/util/arrayable"
 import {isStrictNaN} from "core/util/types"
-import {Arrayable, Area} from "core/types"
+import {Arrayable, Rect} from "core/types"
 import {PointGeometry} from "core/geometry"
 import {Context2d} from "core/util/canvas"
-import {LineVector, FillVector} from "core/property_mixins"
-import {Line, Fill} from "core/visuals"
+import {LineVector, FillVector, HatchVector} from "core/property_mixins"
+import {Line, Fill, Hatch} from "core/visuals"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
@@ -82,13 +82,7 @@ export class PatchesView extends GlyphView {
         if (xs.length == 0)
           continue
 
-        points.push({
-          minX: min(xs),
-          minY: min(ys),
-          maxX: max(xs),
-          maxY: max(ys),
-          i,
-        })
+        points.push({x0: min(xs), y0: min(ys), x1: max(xs), y1: max(ys), i})
       }
     }
 
@@ -102,11 +96,28 @@ export class PatchesView extends GlyphView {
     const yr = this.renderer.plot_view.frame.y_ranges.default
     const [y0, y1] = [yr.min, yr.max]
 
-    const bbox = hittest.validate_bbox_coords([x0, x1], [y0, y1])
-    const indices = this.index.indices(bbox)
+    const indices = this.index.indices({x0, x1, y0, y1})
 
     // TODO (bev) this should be under test
     return indices.sort((a, b) => a - b)
+  }
+
+  protected _inner_loop(ctx: Context2d, sx: Arrayable<number>, sy: Arrayable<number>, func: (this: Context2d) => void): void {
+    for (let j = 0, end = sx.length; j < end; j++) {
+      if (j == 0) {
+        ctx.beginPath()
+        ctx.moveTo(sx[j], sy[j])
+        continue
+      } else if (isNaN(sx[j] + sy[j])) {
+        ctx.closePath()
+        func.apply(ctx)
+        ctx.beginPath()
+        continue
+      } else
+        ctx.lineTo(sx[j], sy[j])
+    }
+    ctx.closePath()
+    func.call(ctx)
   }
 
   protected _render(ctx: Context2d, indices: number[], {sxs, sys}: PatchesData): void {
@@ -120,44 +131,14 @@ export class PatchesView extends GlyphView {
 
       if (this.visuals.fill.doit) {
         this.visuals.fill.set_vectorize(ctx, i)
-
-        for (let j = 0, end = sx.length; j < end; j++) {
-          if (j == 0) {
-            ctx.beginPath()
-            ctx.moveTo(sx[j], sy[j])
-            continue
-          } else if (isNaN(sx[j] + sy[j])) {
-            ctx.closePath()
-            ctx.fill()
-            ctx.beginPath()
-            continue
-          } else
-            ctx.lineTo(sx[j], sy[j])
-        }
-
-        ctx.closePath()
-        ctx.fill()
+        this._inner_loop(ctx, sx, sy, ctx.fill)
       }
+
+      this.visuals.hatch.doit2(ctx, i, () => this._inner_loop(ctx, sx, sy, ctx.fill), () => this.renderer.request_render())
 
       if (this.visuals.line.doit) {
         this.visuals.line.set_vectorize(ctx, i)
-
-        for (let j = 0, end = sx.length; j < end; j++) {
-          if (j == 0) {
-            ctx.beginPath()
-            ctx.moveTo(sx[j], sy[j])
-            continue
-          } else if (isNaN(sx[j] + sy[j])) {
-            ctx.closePath()
-            ctx.stroke()
-            ctx.beginPath()
-            continue
-          } else
-            ctx.lineTo(sx[j], sy[j])
-        }
-
-        ctx.closePath()
-        ctx.stroke()
+        this._inner_loop(ctx, sx, sy, ctx.stroke)
       }
     }
   }
@@ -168,7 +149,7 @@ export class PatchesView extends GlyphView {
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
 
-    const candidates = this.index.indices({minX: x, minY: y, maxX: x, maxY: y})
+    const candidates = this.index.indices({x0: x, y0: y, x1: x, y1: y})
 
     const hits = []
     for (let i = 0, end = candidates.length; i < end; i++) {
@@ -227,7 +208,7 @@ export class PatchesView extends GlyphView {
     throw new Error("unreachable code")
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Area, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_area_legend(this.visuals, ctx, bbox, index)
   }
 }
@@ -235,12 +216,12 @@ export class PatchesView extends GlyphView {
 export namespace Patches {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Glyph.Props & LineVector & FillVector & {
+  export type Props = Glyph.Props & LineVector & FillVector & HatchVector & {
     xs: p.CoordinateSeqSpec
     ys: p.CoordinateSeqSpec
   }
 
-  export type Visuals = Glyph.Visuals & {line: Line, fill: Fill}
+  export type Visuals = Glyph.Visuals & {line: Line, fill: Fill, hatch: Hatch}
 }
 
 export interface Patches extends Patches.Attrs {}
@@ -253,11 +234,10 @@ export class Patches extends Glyph {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Patches'
     this.prototype.default_view = PatchesView
 
     this.coords([['xs', 'ys']])
-    this.mixins(['line', 'fill'])
+    this.mixins(['line', 'fill', 'hatch'])
   }
 }
 Patches.initClass()

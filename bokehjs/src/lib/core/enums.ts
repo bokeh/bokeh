@@ -1,3 +1,6 @@
+export type Align = "start" | "center" | "end"
+export const Align: Align[] = ["start", "center", "end"]
+
 export type Anchor =
   "top_left"    | "top_center"    | "top_right"    |
   "center_left" | "center"        | "center_right" |
@@ -31,6 +34,18 @@ export const Distribution: Distribution[] = ["uniform", "normal"]
 
 export type FontStyle = "normal" | "italic" | "bold" | "bold italic"
 export const FontStyle: FontStyle[] = ["normal", "italic", "bold", "bold italic"]
+
+export type HatchPatternType =
+  'blank' | 'dot' | 'ring' | 'horizontal_line' | 'vertical_line' | 'cross' | 'horizontal_dash' |
+  'vertical_dash' | 'spiral' | 'right_diagonal_line' | 'left_diagonal_line' | 'diagonal_cross' |
+  'right_diagonal_dash' | 'left_diagonal_dash' | 'horizontal_wave' | 'vertical_wave' | 'criss_cross' |
+  ' ' | '.' | 'o' | '-' | '|' | '+' | '"' | ':' | '@' | '/' | '\\' | 'x' | ',' | '`' | 'v' | '>' | '*'
+export const HatchPatternType: HatchPatternType[] = [
+  'blank', 'dot', 'ring', 'horizontal_line', 'vertical_line', 'cross', 'horizontal_dash',
+  'vertical_dash', 'spiral', 'right_diagonal_line', 'left_diagonal_line', 'diagonal_cross',
+  'right_diagonal_dash', 'left_diagonal_dash', 'horizontal_wave', 'vertical_wave', 'criss_cross',
+  ' ', '.', 'o', '-', '|', '+', '"', ':', '@',  '/', '\\', 'x', ',', '`', 'v', '>', '*',
+]
 
 export type HTTPMethod = "POST" | "GET"
 export const HTTPMethod: HTTPMethod[] = ["POST", "GET"]
@@ -99,6 +114,9 @@ export const RenderLevel: RenderLevel[] = ["image", "underlay", "glyph", "annota
 export type RenderMode = "canvas" | "css"
 export const RenderMode: RenderMode[] = ["canvas", "css"]
 
+export type ResetPolicy = "standard" | "event_only"
+export const ResetPolicy: ResetPolicy[] = ["standard", "event_only"]
+
 export type RoundingFunction = "round" | "nearest" | "floor" | "rounddown" | "ceil" | "roundup"
 export const RoundingFunction: RoundingFunction[] = ["round", "nearest", "floor", "rounddown", "ceil", "roundup"]
 
@@ -131,6 +149,9 @@ export const TextAlign: TextAlign[] = ["left", "right", "center"]
 
 export type TextBaseline = "top" | "middle" | "bottom" | "alphabetic" | "hanging" | "ideographic"
 export const TextBaseline: TextBaseline[] = ["top", "middle", "bottom", "alphabetic", "hanging", "ideographic"]
+
+export type TextureRepetition = "repeat" | "repeat_x" | "repeat_y" | "no_repeat"
+export const TextureRepetition: TextureRepetition[] = ["repeat", "repeat_x", "repeat_y", "no_repeat"]
 
 export type TickLabelOrientation = "vertical" | "horizontal" | "parallel" | "normal"
 export const TickLabelOrientation: TickLabelOrientation[] = ["vertical", "horizontal", "parallel", "normal"]

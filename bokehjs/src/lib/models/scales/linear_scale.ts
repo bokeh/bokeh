@@ -17,10 +17,6 @@ export class LinearScale extends Scale {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "LinearScale"
-  }
-
   compute(x: number): number {
     const [factor, offset] = this._compute_state()
     return factor * x + offset
@@ -64,4 +60,3 @@ export class LinearScale extends Scale {
     return [factor, offset]
   }
 }
-LinearScale.initClass()

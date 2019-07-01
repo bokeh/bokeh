@@ -1,4 +1,4 @@
-import {Widget, WidgetView} from "./widget"
+import {InputGroup, InputGroupView} from "./input_group"
 import {CallbackLike0} from "../callbacks/callback"
 
 import {input, label, div, span} from "core/dom"
@@ -6,18 +6,16 @@ import {includes} from "core/util/array"
 import {Set} from "core/util/data_structures"
 import * as p from "core/properties"
 
-export class CheckboxGroupView extends WidgetView {
-  model: CheckboxGroup
+import {bk_inline} from "styles/mixins"
+import {bk_input_group} from "styles/widgets/inputs"
 
-  connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.model.change, () => this.render())
-  }
+export class CheckboxGroupView extends InputGroupView {
+  model: CheckboxGroup
 
   render(): void {
     super.render()
 
-    const group = div({class: ["bk-input-group", this.model.inline ? "bk-inline" : null]})
+    const group = div({class: [bk_input_group, this.model.inline ? bk_inline : null]})
     this.el.appendChild(group)
 
     const {active, labels} = this.model
@@ -32,8 +30,8 @@ export class CheckboxGroupView extends WidgetView {
       if (includes(active, i))
         checkbox.checked = true
 
-      const labelEl = label({}, checkbox, span({}, labels[i]))
-      group.appendChild(labelEl)
+      const label_el = label({}, checkbox, span({}, labels[i]))
+      group.appendChild(label_el)
     }
   }
 
@@ -50,7 +48,7 @@ export class CheckboxGroupView extends WidgetView {
 export namespace CheckboxGroup {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Widget.Props & {
+  export type Props = InputGroup.Props & {
     active: p.Property<number[]>
     labels: p.Property<string[]>
     inline: p.Property<boolean>
@@ -60,7 +58,7 @@ export namespace CheckboxGroup {
 
 export interface CheckboxGroup extends CheckboxGroup.Attrs {}
 
-export class CheckboxGroup extends Widget {
+export class CheckboxGroup extends InputGroup {
   properties: CheckboxGroup.Props
 
   constructor(attrs?: Partial<CheckboxGroup.Attrs>) {
@@ -68,7 +66,6 @@ export class CheckboxGroup extends Widget {
   }
 
   static initClass(): void {
-    this.prototype.type = "CheckboxGroup"
     this.prototype.default_view = CheckboxGroupView
 
     this.define<CheckboxGroup.Props>({

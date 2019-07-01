@@ -1,10 +1,10 @@
 import {expect} from "chai"
 
-import {Toolbar} from "models/tools/toolbar"
-import {HoverTool} from "models/tools/inspectors/hover_tool"
-import {SelectTool, SelectToolView} from "models/tools/gestures/select_tool"
-import {PanTool} from "models/tools/gestures/pan_tool"
-import {TapTool} from "models/tools/gestures/tap_tool"
+import {Toolbar} from "@bokehjs/models/tools/toolbar"
+import {HoverTool} from "@bokehjs/models/tools/inspectors/hover_tool"
+import {SelectTool, SelectToolView} from "@bokehjs/models/tools/gestures/select_tool"
+import {PanTool} from "@bokehjs/models/tools/gestures/pan_tool"
+import {TapTool} from "@bokehjs/models/tools/gestures/tap_tool"
 
 describe("Toolbar", () => {
 

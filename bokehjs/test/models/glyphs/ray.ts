@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
 import {create_glyph_view, set_scales} from "./glyph_utils"
-import {Ray} from "models/glyphs/ray"
+import {Ray} from "@bokehjs/models/glyphs/ray"
 
 describe("Ray", () => {
 

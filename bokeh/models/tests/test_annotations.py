@@ -53,6 +53,9 @@ from bokeh.models.annotations import (
 def test_Legend():
     legend = Legend()
     assert legend.location == 'top_right'
+    assert legend.orientation == 'vertical'
+    assert legend.title is None
+    assert legend.title_standoff == 5
     assert legend.label_standoff == 5
     assert legend.label_height == 20
     assert legend.label_width == 20
@@ -69,6 +72,8 @@ def test_Legend():
         "visible",
         "location",
         "orientation",
+        "title",
+        "title_standoff",
         "label_standoff",
         "label_height",
         "label_width",
@@ -81,6 +86,7 @@ def test_Legend():
         "level",
         "click_policy"],
         prefix('label_', TEXT),
+        prefix('title_', TEXT),
         prefix('border_', LINE),
         prefix('background_', FILL),
         prefix('inactive_', FILL))
@@ -430,6 +436,15 @@ def test_Whisker():
         "y_range_name"],
         LINE)
 
+def test_Whisker_and_Band_accept_negative_values():
+    whisker = Whisker(base=-1., lower=-1.5, upper=-0.5)
+    assert whisker.base == -1.
+    assert whisker.lower == -1.5
+    assert whisker.upper == -0.5
+    band = Band(base=-1., lower=-1.5, upper=-0.5)
+    assert band.base == -1.
+    assert band.lower == -1.5
+    assert band.upper == -0.5
 
 def test_can_add_multiple_glyph_renderers_to_legend_item():
     legend_item = LegendItem()

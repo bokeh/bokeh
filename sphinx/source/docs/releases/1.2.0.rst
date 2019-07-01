@@ -1,0 +1,94 @@
+.. _release-1-2-0:
+
+1.2.0
+=====
+
+Bokeh Version ``1.2.0`` (May 2019) is a point release that adds some
+interesting new features:
+
+
+* Styling options for fill patterns / hatching :bokeh-issue:`6135`
+* Built-in support for stacked areas and lines :bokeh-issue:`8848`
+* New `title` property for `Legend` :bokeh-issue:`6769`
+* Slider `callback_policy` now works for Bokeh Apps :bokeh-issue:`4540`
+
+And several other bug fixes and docs additions. For full details see the
+:bokeh-tree:`CHANGELOG`.
+
+.. _release-1-2-0-migration:
+
+`Migration Guide <releases.html#release-1-2-0-migration>`__
+-----------------------------------------------------------
+
+New in 1.2
+~~~~~~~~~~
+
+Discourse Site
+''''''''''''''
+
+*The Google Groups mailing list has been retired*. In it's place, there is now
+a `Discourse site for community discussions`_.
+All of the old content from the mailing list has been imported into the Disourse,
+and is searchable.
+
+Callback Policy
+'''''''''''''''
+
+Sliders add a ``value_throttled`` property that is updated (and triggers JS
+and Python callbacks) only according to the ``callback_policy``:
+
+.. code-block:: python
+
+    slider.callback_policy = "mouseup"
+
+    # both of these will respect the callback policy now
+    slider.js_on_change('value_throttled', ...)
+    slider.on_change('value_throttled', ...)
+
+The callbacks above will only execute when the user releases the mouse
+after adjusting a slider.
+
+Note that the `value` property can also still be used to trigger callbacks
+&mdash;they will execute unconditionally on every movement.
+
+The old-style `callback` property still works for JS callbacks, but will be
+removed in Bokeh 2.0 in the near future. The general `js_on_change` and `on_change`
+mothods should be used going forward.
+
+Stacked Areas and Lines
+'''''''''''''''''''''''
+
+New ``varea`` and ``harea`` methods add support for single directed areas
+(filled regions between two series that share a common index). Also added:
+
+* ``varea_stack``
+* ``harea_stack``
+
+for stacking directed areas, and
+
+* ``vline_stack``
+* ``hline_stack``
+
+for stacking lines.
+
+For example:
+
+.. code-block:: python
+
+    colnames = ['y0', 'y1', 'y2', 'y3', 'y4', 'y5', 'y6']
+
+    p.varea_stack(colnames, x='index', color=colors, source=df,
+                legend=[value(x) for x in colnames])
+
+    p.vline_stack(colnames, x='index', color="black", source=df)
+
+Legend Titles
+'''''''''''''
+
+Legends now support displaying a title:
+
+.. code-block:: python
+
+    p.legend.title = "Things"
+
+.. _Discourse site for community discussions: https://discourse.bokeh.org

@@ -14,6 +14,7 @@ The full list of glyphs built into Bokeh is given below:
 * :class:`~bokeh.models.glyphs.Arc`
 * :class:`~bokeh.models.glyphs.Bezier`
 * :class:`~bokeh.models.glyphs.Ellipse`
+* :class:`~bokeh.models.glyphs.HArea`
 * :class:`~bokeh.models.glyphs.HBar`
 * :class:`~bokeh.models.glyphs.HexTile`
 * :class:`~bokeh.models.glyphs.Image`
@@ -32,6 +33,7 @@ The full list of glyphs built into Bokeh is given below:
 * :class:`~bokeh.models.glyphs.Segment`
 * :class:`~bokeh.models.glyphs.Step`
 * :class:`~bokeh.models.glyphs.Text`
+* :class:`~bokeh.models.glyphs.VArea`
 * :class:`~bokeh.models.glyphs.VBar`
 * :class:`~bokeh.models.glyphs.Wedge`
 
@@ -64,7 +66,7 @@ from ..core.enums import Anchor, Direction, StepMode
 from ..core.has_props import abstract
 from ..core.properties import (AngleSpec, Bool, DistanceSpec, Enum, Float, String,
                                Include, Instance, Int, NumberSpec, Override, StringSpec)
-from ..core.property_mixins import FillProps, LineProps, ScalarFillProps, ScalarLineProps, TextProps
+from ..core.property_mixins import FillProps, HatchProps, LineProps, ScalarFillProps, ScalarHatchProps, ScalarLineProps, TextProps
 from ..model import Model
 
 from .mappers import ColorMapper, LinearColorMapper
@@ -80,6 +82,7 @@ __all__ = (
     'Bezier',
     'Ellipse',
     'Glyph',
+    'HArea',
     'HBar',
     'HexTile',
     'Image',
@@ -98,6 +101,7 @@ __all__ = (
     'Segment',
     'Step',
     'Text',
+    'VArea',
     'VBar',
     'Wedge',
     'XYGlyph',
@@ -330,6 +334,38 @@ class Ellipse(XYGlyph):
     The %s values for the ovals.
     """)
 
+class HArea(Glyph):
+    ''' Render a horizontally directed area between two equal length sequences
+    of x-coordinates with the same y-coordinates.
+
+    '''
+
+    __example__ = "examples/reference/models/HArea.py"
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x1', 'x2', 'y')
+
+    x1 = NumberSpec(help="""
+    The x-coordinates for the points of one side of the area.
+    """)
+
+    x2 = NumberSpec(help="""
+    The x-coordinates for the points of the other side of the area.
+    """)
+
+    y = NumberSpec(help="""
+    The y-coordinates for the points of the area.
+    """)
+
+    fill_props = Include(ScalarFillProps, use_prefix=False, help="""
+    The %s values for the patch.
+    """)
+
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
+    The %s values for the horizontal bars.
+    """)
+
 class HBar(Glyph):
     ''' Render horizontal bars, given a center coordinate, ``height`` and
     (``left``, ``right``) coordinates.
@@ -363,6 +399,10 @@ class HBar(Glyph):
     """)
 
     fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the horizontal bars.
+    """)
+
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
     The %s values for the horizontal bars.
     """)
 
@@ -726,6 +766,10 @@ class MultiPolygons(Glyph):
     The %s values for the multipolygons.
     """)
 
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
+    The %s values for the patches.
+    """)
+
 class Oval(XYGlyph):
     ''' Render ovals.
 
@@ -809,6 +853,10 @@ class Patch(XYGlyph):
     The %s values for the patch.
     """)
 
+    hatch_props = Include(ScalarHatchProps, use_prefix=False, help="""
+    The %s values for the patch.
+    """)
+
 class Patches(Glyph):
     ''' Render several patches.
 
@@ -849,6 +897,10 @@ class Patches(Glyph):
     The %s values for the patches.
     """)
 
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
+    The %s values for the patches.
+    """)
+
 class Quad(Glyph):
     ''' Render axis-aligned quads.
 
@@ -882,6 +934,10 @@ class Quad(Glyph):
 
     fill_props = Include(FillProps, use_prefix=False, help="""
     The %s values for the quads.
+    """)
+
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
+    The %s values for the horizontal bars.
     """)
 
 class Quadratic(Glyph):
@@ -1117,6 +1173,38 @@ class Text(XYGlyph):
     The %s values for the text.
     """)
 
+class VArea(Glyph):
+    ''' Render a vertically directed area between two equal length sequences
+    of y-coordinates with the same x-coordinates.
+
+    '''
+
+    __example__ = "examples/reference/models/VArea.py"
+
+    # a canonical order for positional args that can be used for any
+    # functions derived from this class
+    _args = ('x', 'y1', 'y2')
+
+    x = NumberSpec(help="""
+    The x-coordinates for the points of the area.
+    """)
+
+    y1 = NumberSpec(help="""
+    The y-coordinates for the points of one side of the area.
+    """)
+
+    y2 = NumberSpec(help="""
+    The y-coordinates for the points of the other side of the area.
+    """)
+
+    fill_props = Include(ScalarFillProps, use_prefix=False, help="""
+    The %s values for the patch.
+    """)
+
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
+    The %s values for the horizontal bars.
+    """)
+
 class VBar(Glyph):
     ''' Render vertical bars, given a center coordinate, width and (top, bottom) coordinates.
 
@@ -1149,6 +1237,10 @@ class VBar(Glyph):
     """)
 
     fill_props = Include(FillProps, use_prefix=False, help="""
+    The %s values for the vertical bars.
+    """)
+
+    hatch_props = Include(HatchProps, use_prefix=False, help="""
     The %s values for the vertical bars.
     """)
 

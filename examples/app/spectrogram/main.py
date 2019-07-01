@@ -4,7 +4,7 @@ from math import ceil
 import numpy as np
 
 from bokeh.io import curdoc
-from bokeh.layouts import row, column
+from bokeh.layouts import grid, row, column
 from bokeh.models import ColumnDataSource, Slider, Div
 from bokeh.plotting import figure
 
@@ -27,7 +27,7 @@ desc = Div(text=open(filename).read(),
 
 waterfall_renderer = WaterfallRenderer(palette=PALETTE, num_grams=NUM_GRAMS,
                                        gram_length=GRAM_LENGTH, tile_width=TILE_WIDTH)
-waterfall_plot = figure(plot_width=990, plot_height=300, min_border_left=80,
+waterfall_plot = figure(plot_width=1000, plot_height=300,
                         x_range=[0, NUM_GRAMS], y_range=[0, MAX_FREQ_KHZ], **PLOTARGS)
 waterfall_plot.grid.grid_line_color = None
 waterfall_plot.background_fill_color = "#024768"
@@ -69,6 +69,9 @@ freq = Slider(start=1, end=MAX_FREQ, value=MAX_FREQ, step=1, title="Frequency")
 gain = Slider(start=1, end=20, value=1, step=1, title="Gain")
 
 def update():
+    if audio.data['values'] is None:
+        return
+
     signal, spectrum, bins = audio.data['values']
 
     # seems to be a problem with Array property, using List for now
@@ -102,7 +105,7 @@ curdoc().add_periodic_callback(update, 80)
 
 controls = row(gain, freq)
 
-plots = column(waterfall_plot, row(column(signal_plot, spectrum_plot), eq))
+plots = grid(column(waterfall_plot, row(column(signal_plot, spectrum_plot), eq)))
 
 curdoc().add_root(desc)
 curdoc().add_root(controls)

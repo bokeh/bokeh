@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Complete Example</title>
+{% for css_file in css_files %}
+<link rel="stylesheet" href="{{css_file}}" type="text/css" />{% endfor %}
+{% for js_file in js_files %}
+<script type="text/javascript" src="{{js_file}}"></script>{% endfor %}
+
+<script>
+//The order of CSS and JS imports above is important.
+</script>
+{% if bjs_script %}<script>
+{{ bjs_script }}
+</script>{% endif %}
+</head>
+
+<body>
+</body>
+
+</html>

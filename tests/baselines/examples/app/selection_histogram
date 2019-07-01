@@ -1,6 +1,6 @@
 GridBox bbox=[0, 0, 800, 800]
   Plot bbox=[0, 0, 600, 600]
-    Title bbox=[50, 0, 120, 29]
+    Title bbox=[50, 0, 343, 29]
     ToolbarPanel bbox=[393, 0, 175, 30]
   Plot bbox=[600, 0, 200, 600]
     LinearAxis bbox=[10, 568, 159, 32]

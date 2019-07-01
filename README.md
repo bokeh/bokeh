@@ -1,14 +1,18 @@
 Bokeh
 =====
 
-*Bokeh is a fiscally sponsored project of [NumFOCUS](http://numfocus.org), a nonprofit dedicated to supporting the open-source scientific computing community. If you like Bokeh and would like to support our mission, please consider [making a donation](https://www.flipcause.com/secure/cause_pdetails/MzE5NjE=).*
+*Bokeh is a fiscally sponsored project of [NumFOCUS](http://numfocus.org), a nonprofit dedicated to supporting the open-source scientific computing community. If you like Bokeh and would like to support our mission, please consider [making a donation](https://numfocus.salsalabs.org/donate-to-bokeh/index.html).*
 
 <table>
 
 <tr>
   <td>Latest Release</td>
-  <td><img src="https://badge.fury.io/gh/bokeh%2Fbokeh.svg"
-           alt="Latest release version" /></td>
+  <td>
+    <img src="https://badge.fury.io/gh/bokeh%2Fbokeh.svg" alt="Latest release version" />
+    <a href="https://badge.fury.io/js/bokehjs">
+      <img src="https://badge.fury.io/js/bokehjs.svg" alt="npm version">
+    </a>
+  </td>
 
   <td>Conda</td>
   <td>
@@ -30,7 +34,7 @@ Bokeh
 
   <td>PyPI</td>
   <td>
-    <img src="http://badges.bokeh.org/pip-downloads-30-day.svg"
+    <img src="https://img.shields.io/pypi/dm/bokeh.svg"
          alt="PyPI downloads per month" />
   </td>
 </tr>
@@ -66,11 +70,11 @@ Bokeh
     </a>
   </td>
 
-  <td>Gitter</td>
+  <td>Support</td>
   <td>
-    <a href="https://gitter.im/bokeh/bokeh?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge">
-    <img src="https://badges.gitter.im/bokeh/bokeh.svg"
-         alt="Chat on the Bokeh Gitter channel" />
+    <a href="https://discourse.bokeh.org">
+    <img src="https://img.shields.io/discourse/https/discourse.bokeh.org/posts.svg"
+         alt="Community Support on discourse.bokeh.org" />
     </a>
   </td>
 </tr>

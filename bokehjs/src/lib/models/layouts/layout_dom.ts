@@ -1,15 +1,16 @@
 import {Model} from "../../model"
 import {Color} from "core/types"
 import {Class} from "core/class"
-import {SizingMode} from "core/enums"
+import {Align, SizingMode} from "core/enums"
 import {empty, position, classes, extents, undisplayed} from "core/dom"
 import {logger} from "core/logging"
-import {isNumber} from "core/util/types"
+import {isNumber, isArray} from "core/util/types"
 import * as p from "core/properties"
 
 import {build_views} from "core/build_views"
 import {DOMView} from "core/dom_view"
-import {SizingPolicy, BoxSizing, Margin, Size, Layoutable} from "core/layout"
+import {SizingPolicy, BoxSizing, Size, Layoutable} from "core/layout"
+import {bk_root} from "styles/root"
 
 export namespace LayoutDOMView {
   export type Options = DOMView.Options & {model: LayoutDOM}
@@ -27,12 +28,16 @@ export abstract class LayoutDOMView extends DOMView {
 
   protected _on_resize?: () => void
 
+  protected _offset_parent: Element | null = null
+
+  protected _parent_observer?: number
+
   protected _viewport: Partial<Size> = {}
 
   layout: Layoutable
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.el.style.position = this.is_root ? "relative" : "absolute"
     this._child_views = {}
     this.build_child_views()
@@ -51,13 +56,43 @@ export abstract class LayoutDOMView extends DOMView {
     if (this.is_root) {
       this._on_resize = () => this.resize_layout()
       window.addEventListener("resize", this._on_resize)
+
+      this._parent_observer = setInterval(() => {
+        const offset_parent = this.el.offsetParent
+
+        if (this._offset_parent != offset_parent) {
+          this._offset_parent = offset_parent
+
+          if (offset_parent != null) {
+            this.compute_viewport()
+            this.invalidate_layout()
+          }
+        }
+      }, 250)
     }
 
-    this.connect(this.model.properties.sizing_mode.change, () => this.invalidate_layout())
+    const p = this.model.properties
+    this.on_change([
+      p.width, p.height,
+      p.min_width, p.min_height,
+      p.max_width, p.max_height,
+      p.margin,
+      p.width_policy, p.height_policy, p.sizing_mode,
+      p.aspect_ratio,
+      p.visible,
+      p.background,
+    ], () => this.invalidate_layout())
+
+    this.on_change([
+      p.css_classes,
+    ], () => this.invalidate_render())
   }
 
   disconnect_signals(): void {
-    window.removeEventListener("resize", this._on_resize!)
+    if (this._parent_observer != null)
+      clearTimeout(this._parent_observer)
+    if (this._on_resize != null)
+      window.removeEventListener("resize", this._on_resize)
     super.disconnect_signals()
   }
 
@@ -122,6 +157,7 @@ export abstract class LayoutDOMView extends DOMView {
 
   renderTo(element: HTMLElement): void {
     element.appendChild(this.el)
+    this._offset_parent = this.el.offsetParent
     this.compute_viewport()
     this.build()
   }
@@ -136,9 +172,7 @@ export abstract class LayoutDOMView extends DOMView {
 
   rebuild(): void {
     this.build_child_views()
-    this.render()
-    this.root.update_layout()
-    this.root.compute_layout()
+    this.invalidate_render()
   }
 
   compute_layout(): void {
@@ -158,6 +192,11 @@ export abstract class LayoutDOMView extends DOMView {
   invalidate_layout(): void {
     this.root.update_layout()
     this.root.compute_layout()
+  }
+
+  invalidate_render(): void {
+    this.render()
+    this.invalidate_layout()
   }
 
   has_finished(): boolean {
@@ -186,11 +225,11 @@ export abstract class LayoutDOMView extends DOMView {
   }
 
   protected _width_policy(): SizingPolicy {
-    return "fit"
+    return this.model.width != null ? "fixed" : "fit"
   }
 
   protected _height_policy(): SizingPolicy {
-    return "fit"
+    return this.model.height != null ? "fixed" : "fit"
   }
 
   box_sizing(): Partial<BoxSizing> {
@@ -233,39 +272,53 @@ export abstract class LayoutDOMView extends DOMView {
       }
     }
 
-    const {min_width, min_height, width, height, max_width, max_height} = this.model
+    const sizing: Partial<BoxSizing> = {width_policy, height_policy}
 
-    let aspect: number | undefined
-    if (aspect_ratio == null)
-      aspect = undefined
-    else if (aspect_ratio == "auto") {
-      if (width != null && height != null)
-        aspect = width/height
-      else
-        aspect = undefined
-    } else
-      aspect = aspect_ratio
+    const {min_width, min_height} = this.model
+    if (min_width != null)
+      sizing.min_width = min_width
+    if (min_height != null)
+      sizing.min_height = min_height
 
-    const margin: Margin | undefined = (() => {
-      const {margin} = this.model
-      if (margin == null)
-        return undefined
-      else if (isNumber(margin))
-        return {top: margin, right: margin, bottom: margin, left: margin}
+    const {width, height} = this.model
+    if (width != null)
+      sizing.width = width
+    if (height != null)
+      sizing.height = height
+
+    const {max_width, max_height} = this.model
+    if (max_width != null)
+      sizing.max_width = max_width
+    if (max_height != null)
+      sizing.max_height = max_height
+
+    if (aspect_ratio == "auto" && width != null && height != null)
+      sizing.aspect = width/height
+    else if (isNumber(aspect_ratio))
+      sizing.aspect = aspect_ratio
+
+    const {margin} = this.model
+    if (margin != null) {
+      if (isNumber(margin))
+        sizing.margin = {top: margin, right: margin, bottom: margin, left: margin}
       else if (margin.length == 2) {
         const [vertical, horizontal] = margin
-        return {top: vertical, right: horizontal, bottom: vertical, left: horizontal}
+        sizing.margin = {top: vertical, right: horizontal, bottom: vertical, left: horizontal}
       } else {
         const [top, right, bottom, left] = margin
-        return {top, right, bottom, left}
+        sizing.margin = {top, right, bottom, left}
       }
-    })()
-
-    return {
-      width_policy, height_policy, aspect, margin,
-      min_width: min_width!, width: width!, max_width: max_width!,
-      min_height: min_height!, height: height!, max_height: max_height!,
     }
+
+    sizing.visible = this.model.visible
+
+    const {align} = this.model
+    if (isArray(align))
+      [sizing.halign, sizing.valign] = align
+    else
+      sizing.halign = sizing.valign = align
+
+    return sizing
   }
 
   protected _viewport_size(): Partial<Size> {
@@ -274,7 +327,7 @@ export abstract class LayoutDOMView extends DOMView {
 
       while (measuring = measuring.parentElement) {
         // .bk-root element doesn't bring any value
-        if (measuring.classList.contains("bk-root"))
+        if (measuring.classList.contains(bk_root))
           continue
 
         // we reached <body> element, so use viewport size
@@ -307,7 +360,7 @@ export abstract class LayoutDOMView extends DOMView {
   serializable_state(): {[key: string]: unknown} {
     return {
       ...super.serializable_state(),
-      bbox: this.layout.bbox.rect,
+      bbox: this.layout.bbox.box,
       children: this.child_views.map((child) => child.serializable_state()),
     }
   }
@@ -330,6 +383,7 @@ export namespace LayoutDOM {
     sizing_mode: p.Property<SizingMode | null>
     visible: p.Property<boolean>
     disabled: p.Property<boolean>
+    align: p.Property<Align | [Align, Align]>
     background: p.Property<Color | null>
     css_classes: p.Property<string[]>
   }
@@ -346,8 +400,6 @@ export abstract class LayoutDOM extends Model {
   }
 
   static initClass(): void {
-    this.prototype.type = "LayoutDOM"
-
     this.define<LayoutDOM.Props>({
       width:         [ p.Number,     null         ],
       height:        [ p.Number,     null         ],
@@ -362,6 +414,7 @@ export abstract class LayoutDOM extends Model {
       sizing_mode:   [ p.SizingMode, null         ],
       visible:       [ p.Boolean,    true         ],
       disabled:      [ p.Boolean,    false        ],
+      align:         [ p.Any,        "start"      ],
       background:    [ p.Color,      null         ],
       css_classes:   [ p.Array,      []           ],
     })

@@ -1,10 +1,10 @@
 import {expect} from "chai"
 
-import * as zoom from "core/util/zoom"
+import * as zoom from "@bokehjs/core/util/zoom"
 
-import {Range1d} from "models/ranges/range1d"
-import {FactorRange} from "models/ranges/factor_range"
-import {CategoricalScale} from "models/scales/categorical_scale"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {FactorRange} from "@bokehjs/models/ranges/factor_range"
+import {CategoricalScale} from "@bokehjs/models/scales/categorical_scale"
 
 describe("zoom module", () => {
 

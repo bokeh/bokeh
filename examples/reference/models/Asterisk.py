@@ -13,7 +13,7 @@ source = ColumnDataSource(dict(x=x, y=y, sizes=sizes))
 
 plot = Plot(
     title=None, plot_width=300, plot_height=300,
-    h_symmetry=False, v_symmetry=False, min_border=0, toolbar_location=None)
+    min_border=0, toolbar_location=None)
 
 glyph = Asterisk(x="x", y="y", size="sizes", line_color="#f0027f", fill_color=None, line_width=2)
 plot.add_glyph(source, glyph)

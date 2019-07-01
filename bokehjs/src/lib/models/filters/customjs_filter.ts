@@ -8,7 +8,7 @@ export namespace CustomJSFilter {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Filter.Props & {
-    args: p.Property<{[key: string]: any}>
+    args: p.Property<{[key: string]: unknown}>
     code: p.Property<string>
     use_strict: p.Property<boolean>
   }
@@ -24,8 +24,6 @@ export class CustomJSFilter extends Filter {
   }
 
   static initClass(): void {
-    this.prototype.type = 'CustomJSFilter'
-
     this.define<CustomJSFilter.Props>({
       args:       [ p.Any,     {}    ], // TODO (bev) better type
       code:       [ p.String,  ''    ],

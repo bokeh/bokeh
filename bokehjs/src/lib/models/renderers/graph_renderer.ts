@@ -18,8 +18,8 @@ export class GraphRendererView extends DataRendererView {
 
   protected _renderer_views: {[key: string]: GlyphRendererView}
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
 
     this.xscale = this.plot_view.frame.xscales.default
     this.yscale = this.plot_view.frame.yscales.default
@@ -105,7 +105,6 @@ export class GraphRenderer extends DataRenderer {
   }
 
   static initClass(): void {
-    this.prototype.type = 'GraphRenderer'
     this.prototype.default_view = GraphRendererView
 
     this.define<GraphRenderer.Props>({

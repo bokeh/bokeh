@@ -281,9 +281,9 @@ function _mk_model(type: string, f: RenderOne): Class<Marker> {
   view.initClass()
 
   const model = class extends Marker {
+    static __name__ = type
     static initClass(): void {
       this.prototype.default_view = view
-      this.prototype.type = type
     }
   }
   model.initClass()

@@ -19,10 +19,12 @@ import pytest ; pytest
 # Standard library imports
 
 # External imports
+import six
 
 # Bokeh imports
 from bokeh.colors import named
 from bokeh.palettes import __palettes__
+from bokeh._testing.util.api import verify_all
 
 # Module under test
 import bokeh.core.enums as bce
@@ -30,6 +32,62 @@ import bokeh.core.enums as bce
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
+
+ALL  = (
+    'Align',
+    'Anchor',
+    'AngleUnits',
+    'ButtonType',
+    'DashPattern',
+    'DateFormat',
+    'DatetimeUnits',
+    'Dimension',
+    'Dimensions',
+    'Direction',
+    'Enumeration',
+    'enumeration',
+    'FontStyle',
+    'HatchPattern',
+    'HatchPatternAbbreviation',
+    'HoldPolicy',
+    'HorizontalLocation',
+    'JitterRandomDistribution',
+    'LatLon',
+    'LegendClickPolicy',
+    'LegendLocation',
+    'LineCap',
+    'LineDash',
+    'LineJoin',
+    'Location',
+    'MapType',
+    'MarkerType',
+    'NamedColor',
+    'NumeralLanguage',
+    'Orientation',
+    'OutputBackend',
+    'PaddingUnits',
+    'Palette',
+    'RenderLevel',
+    'RenderMode',
+    'ResetPolicy',
+    'RoundingFunction',
+    'SizingMode',
+    'SizingPolicy',
+    'SliderCallbackPolicy',
+    'SortDirection',
+    'SpatialUnits',
+    'StartEnd',
+    'StepMode',
+    'TextAlign',
+    'TextBaseline',
+    'TextureRepetition',
+    'TickLabelOrientation',
+    'TooltipAttachment',
+    'TooltipFieldFormatter',
+    'TrackPolicy',
+    'VerticalAlign',
+    'VerticalLocation',
+)
 
 #-----------------------------------------------------------------------------
 # General API
@@ -59,6 +117,16 @@ class Test_enumeration(object):
         assert str(e) == "Enumeration(foo, bar, baz)"
         assert [x for x in e] == ["foo", "bar", "baz"]
         for x in ["foo", "FOO", "bar", "bAr", "baz", "BAZ"]:
+            assert x in e
+        assert "junk" not in e
+
+    @pytest.mark.skipif(six.PY2, reason="Unimportant uicode silliness, py2 going away soon")
+    def test_quote(self):
+        e = bce.enumeration("foo", "bar", "baz", quote=True)
+        assert isinstance(e, bce.Enumeration)
+        assert str(e) == 'Enumeration("foo", "bar", "baz")' or str(e) == "Enumeration('foo', 'bar', 'baz')"
+        assert [x for x in e] == ["foo", "bar", "baz"]
+        for x in ["foo", "bar", "baz"]:
             assert x in e
         assert "junk" not in e
 
@@ -108,6 +176,16 @@ class Test_bce(object):
 
     def test_FontStyle(self):
         assert tuple(bce.FontStyle) == ('normal', 'italic', 'bold', 'bold italic')
+
+    def test_HatchPattern(self):
+        assert tuple(bce.HatchPattern) == (
+            "blank", "dot", "ring", "horizontal_line", "vertical_line", "cross", "horizontal_dash", "vertical_dash",
+            "spiral", "right_diagonal_line", "left_diagonal_line", "diagonal_cross", "right_diagonal_dash",
+            "left_diagonal_dash", "horizontal_wave", "vertical_wave", "criss_cross"
+        )
+
+    def test_HatchPatternAbbreviation(self):
+        assert tuple(bce.HatchPatternAbbreviation) ==(' ', '.', 'o', '-', '|', '+', '"', ':', '@', '/', '\\', 'x', ',', '`', 'v', '>', '*')
 
     def test_HoldPolicy(self):
         assert tuple(bce.HoldPolicy) == ("combine", "collect")
@@ -179,6 +257,9 @@ class Test_bce(object):
     def test_RenderMode(self):
         assert tuple(bce.RenderMode) == ("canvas", "css")
 
+    def test_ResetPolicy(self):
+        assert tuple(bce.ResetPolicy) == ("standard", "event_only")
+
     def test_RoundingFunction(self):
         assert tuple(bce.RoundingFunction) == ("round", "nearest", "floor", "rounddown", "ceil", "roundup")
 
@@ -206,6 +287,9 @@ class Test_bce(object):
     def test_TextBaseline(self):
         assert tuple(bce.TextBaseline) == ("top", "middle", "bottom", "alphabetic", "hanging", "ideographic")
 
+    def test_TextureRepetition(self):
+        assert tuple(bce.TextureRepetition) == ("repeat", "repeat_x", "repeat_y", "no_repeat")
+
     def test_TickLabelOrientation(self):
         assert tuple(bce.TickLabelOrientation) == ("horizontal", "vertical", "parallel", "normal")
 
@@ -223,56 +307,8 @@ class Test_bce(object):
 
 # any changes to contents of bce.py easily trackable here
 def test_enums_contents():
-    assert [x for x in dir(bce) if x[0].isupper()] == [
-        'Anchor',
-        'AngleUnits',
-        'ButtonType',
-        'DashPattern',
-        'DateFormat',
-        'DatetimeUnits',
-        'Dimension',
-        'Dimensions',
-        'Direction',
-        'Enumeration',
-        'FontStyle',
-        'HoldPolicy',
-        'HorizontalLocation',
-        'JitterRandomDistribution',
-        'LatLon',
-        'LegendClickPolicy',
-        'LegendLocation',
-        'LineCap',
-        'LineDash',
-        'LineJoin',
-        'Location',
-        'MapType',
-        'MarkerType',
-        'NamedColor',
-        'NumeralLanguage',
-        'Orientation',
-        'OutputBackend',
-        'PaddingUnits',
-        'Palette',
-        'RenderLevel',
-        'RenderMode',
-        'RoundingFunction',
-        'SizingMode',
-        'SizingPolicy',
-        'SliderCallbackPolicy',
-        'SortDirection',
-        'SpatialUnits',
-        'StartEnd',
-        'StepMode',
-        'TextAlign',
-        'TextBaseline',
-        'TickLabelOrientation',
-        'TooltipAttachment',
-        'TooltipFieldFormatter',
-        'TrackAlign',
-        'TrackPolicy',
-        'VerticalAlign',
-        'VerticalLocation',
-    ]
+    enums = [x for x in ALL if x != "enumeration"]
+    assert [x for x in dir(bce) if x[0].isupper()] == enums
 
 #-----------------------------------------------------------------------------
 # Private API
@@ -281,3 +317,5 @@ def test_enums_contents():
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+Test___all__ = verify_all(bce, ALL)

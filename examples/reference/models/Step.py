@@ -12,7 +12,7 @@ source = ColumnDataSource(dict(x=x, y1=y, y2=y+2, y3=y+4))
 
 plot = Plot(
     title=None, plot_width=300, plot_height=300,
-    h_symmetry=False, v_symmetry=False, min_border=0, toolbar_location=None)
+    min_border=0, toolbar_location=None)
 
 glyph1 = Step(x="x", y="y1", line_color="#f46d43", mode="before")
 plot.add_glyph(source, glyph1)

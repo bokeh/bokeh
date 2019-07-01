@@ -16,8 +16,8 @@ Many other small bugfixes and docs additions. For full details see the
 
 .. _release-0-12-14-migration:
 
-Migration Guide
----------------
+`Migration Guide <releases.html#release-0-12-14-migration>`__
+-------------------------------------------------------------
 
 Deprecations Removed
 ~~~~~~~~~~~~~~~~~~~~

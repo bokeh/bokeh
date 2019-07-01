@@ -1,17 +1,17 @@
 import {expect} from "chai"
 import * as sinon from "sinon"
 
-import {ColorBar, ColorBarView} from 'models/annotations/color_bar'
-import {LinearColorMapper} from "models/mappers/linear_color_mapper"
-import {LinearScale} from "models/scales/linear_scale"
-import {LogColorMapper} from "models/mappers/log_color_mapper"
-import {LogScale} from "models/scales/log_scale"
-import {LogTicker} from "models/tickers/log_ticker"
-import {Viridis} from "api/palettes"
-import {Plot} from "models/plots/plot"
-import {Range1d} from "models/ranges/range1d"
-import {Place} from "core/enums"
-import * as text from "core/util/text"
+import {ColorBar, ColorBarView} from '@bokehjs/models/annotations/color_bar'
+import {LinearColorMapper} from "@bokehjs/models/mappers/linear_color_mapper"
+import {LinearScale} from "@bokehjs/models/scales/linear_scale"
+import {LogColorMapper} from "@bokehjs/models/mappers/log_color_mapper"
+import {LogScale} from "@bokehjs/models/scales/log_scale"
+import {LogTicker} from "@bokehjs/models/tickers/log_ticker"
+import {Viridis} from "@bokehjs/api/palettes"
+import {Plot} from "@bokehjs/models/plots/plot"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {Place} from "@bokehjs/core/enums"
+import * as text from "@bokehjs/core/util/text"
 
 function color_bar_view(attrs: Partial<ColorBar.Attrs>, place: Place = "center"): ColorBarView {
   const plot = new Plot({
@@ -32,18 +32,18 @@ function color_bar_view(attrs: Partial<ColorBar.Attrs>, place: Place = "center")
 
 describe("ColorBar module", () => {
 
-  let _get_text_height_stub: any
-  let _set_canvas_image_stub: any
+  let _measure_font_stub: sinon.SinonStub
+  let _set_canvas_image_stub: sinon.SinonStub
 
   beforeEach(() => {
-    _get_text_height_stub = sinon.stub(text, "get_text_height", () => {
+    _measure_font_stub = sinon.stub(text, "measure_font", () => {
       return {height: 15, ascent: 10, descent: 5}
     })
     _set_canvas_image_stub = sinon.stub(ColorBarView.prototype as any, '_set_canvas_image') // XXX: protected
   })
 
   afterEach(() => {
-    _get_text_height_stub.restore()
+    _measure_font_stub.restore()
     _set_canvas_image_stub.restore()
   })
 

@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import sys
 import atexit
 import signal
 import warnings
@@ -29,7 +30,7 @@ from os.path import devnull
 # External imports
 
 # Bokeh imports
-from ..util.dependencies import import_required, detect_phantomjs
+from ..util.dependencies import import_required, detect_phantomjs, import_optional
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -49,6 +50,20 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
+
+def kill_proc_tree(pid, including_parent=True):
+    psutil = import_optional('psutil')
+    if psutil is not None:
+        parent = psutil.Process(pid)
+        children = parent.children(recursive=True)
+        for child in children:
+            child.kill()
+        psutil.wait_procs(children)
+        if including_parent:
+            parent.kill()
+            parent.wait(5)
+
+
 def create_phantomjs_webdriver():
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", ".*", UserWarning, "selenium.webdriver.phantomjs.webdriver")
@@ -60,20 +75,24 @@ def create_phantomjs_webdriver():
         phantomjs_path = detect_phantomjs()
         return webdriver.PhantomJS(executable_path=phantomjs_path, service_log_path=devnull)
 
+
 def terminate_webdriver(driver):
     if driver.name == "phantomjs":
         # https://github.com/seleniumhq/selenium/issues/767
         if driver.service.process:
+            if sys.platform == 'win32':
+                kill_proc_tree(driver.service.process.pid, including_parent=False)
             driver.service.process.send_signal(signal.SIGTERM)
 
     try:
         driver.quit()
-    except (IOError, OSError): # IOError for Python 2.7
+    except (IOError, OSError):  # IOError for Python 2.7
         pass
 
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
 
 class _WebdriverState(object):
     '''

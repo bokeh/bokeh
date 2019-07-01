@@ -2,7 +2,7 @@ import {expect} from "chai"
 import * as sinon from "sinon"
 
 import {create_glyph_view} from "./glyph_utils"
-import {Image, ImageView} from "models/glyphs/image"
+import {Image, ImageView} from "@bokehjs/models/glyphs/image"
 
 describe("Image module", () => {
 

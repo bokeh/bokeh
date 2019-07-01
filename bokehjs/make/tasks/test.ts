@@ -1,24 +1,15 @@
 import {spawn} from "child_process"
 import {argv} from "yargs"
-import {join} from "path"
 
 import {task, log, BuildError} from "../task"
 import {compileTypeScript} from "../compiler"
-import {read, write, scan, rename} from "../fs"
 import * as paths from "../paths"
-
-const coffee = require("coffeescript")
 
 task("test:compile", async () => {
   const success = compileTypeScript("./test/tsconfig.json", {log})
 
   if (argv.emitError && !success)
     process.exit(1)
-
-  for (const file of scan("./test", [".coffee"])) {
-    const js = coffee.compile(read(file)!, {bare: true})
-    write(join("./build", rename(file, {ext: ".js"})), js)
-  }
 })
 
 function mocha(files: string[]): Promise<void> {
@@ -34,10 +25,10 @@ function mocha(files: string[]): Promise<void> {
     args.unshift("--inspect-brk")
 
   if (argv.k)
-    args.push("--grep", argv.k)
+    args.push("--grep", argv.k as string)
 
   args = args.concat(
-    ["--reporter", argv.reporter || "spec"],
+    ["--reporter", (argv.reporter as string | undefined) || "spec"],
     ["--slow", "5s"],
     ["--exit"],
     ["./build/test/index.js"],
@@ -46,10 +37,10 @@ function mocha(files: string[]): Promise<void> {
 
   const env = {
     ...process.env,
-    NODE_PATH: paths.build_dir.tree,
+    NODE_PATH: paths.build_dir.lib,
   }
 
-  const proc = spawn(process.execPath, args, {stdio: 'inherit', env: env})
+  const proc = spawn(process.execPath, args, {stdio: 'inherit', env})
 
   process.once('exit',    () => proc.kill())
   process.once("SIGINT",  () => proc.kill("SIGINT"))

@@ -18,10 +18,6 @@ export abstract class Mapper<T> extends Transform<T> {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "Mapper"
-  }
-
   compute(_x: number): never {
     // If it's just a single value, then a mapper doesn't really make sense.
     throw new Error("mapping single values is not supported")
@@ -29,4 +25,3 @@ export abstract class Mapper<T> extends Transform<T> {
 
   abstract v_compute(xs: ArrayableOf<number | Factor>): Arrayable<T>
 }
-Mapper.initClass()

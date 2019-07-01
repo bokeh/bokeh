@@ -8,17 +8,15 @@ import {Linker} from "../linker"
 import {read, write, rename} from "../fs"
 import * as paths from "../paths"
 
-task("scripts:ts", async () => {
+task("scripts:compile", ["styles:compile"], async () => {
   const success = compileTypeScript(join(paths.src_dir.lib, "tsconfig.json"), {
     log,
-    out_dir: {js: paths.build_dir.tree, dts: paths.build_dir.types}
+    out_dir: {js: paths.build_dir.lib, dts: paths.build_dir.types},
   })
 
   if (argv.emitError && !success)
     process.exit(1)
 })
-
-task("scripts:compile", ["scripts:ts"])
 
 task("scripts:bundle", ["scripts:compile"], async () => {
   const entries = [
@@ -28,10 +26,9 @@ task("scripts:bundle", ["scripts:compile"], async () => {
     paths.lib.tables.main,
     paths.lib.gl.main,
   ]
-  const bases = [paths.build_dir.tree, './node_modules']
-  const excludes = ["node_modules/moment/moment.js"]
+  const bases = [paths.build_dir.lib, './node_modules']
 
-  const linker = new Linker({entries, bases, excludes})
+  const linker = new Linker({entries, bases})
   const bundles = linker.link()
 
   const [bokehjs, api, widgets, tables, gl] = bundles
@@ -53,7 +50,7 @@ task("scripts:minify", ["scripts:bundle"], async () => {
 
     const minify_opts = {
       output: {
-        comments: /^!|copyright|license|\(c\)/i
+        comments: /^!|copyright|license|\(c\)/i,
       },
       sourceMap: {
         content: read(js_map)! as any,

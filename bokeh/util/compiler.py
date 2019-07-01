@@ -27,6 +27,7 @@ import os
 from os.path import dirname, join, abspath, exists, isabs
 import re
 from subprocess import Popen, PIPE
+from collections import OrderedDict
 import sys
 
 # External imports
@@ -308,102 +309,7 @@ def set_cache_hook(hook):
     global _CACHING_IMPLEMENTATION
     _CACHING_IMPLEMENTATION = hook
 
-def bundle_models(models):
-    """Create a bundle of `models`. """
-
-    custom_models = _get_custom_models(models)
-    if custom_models is None:
-        return
-
-    exports = []
-    modules = []
-
-    def read_json(name):
-        with io.open(join(bokehjs_dir, "js", name + ".json"), encoding="utf-8") as f:
-            return json.loads(f.read())
-
-    bundles = ["bokeh", "bokeh-api", "bokeh-widgets", "bokeh-tables", "bokeh-gl"]
-    known_modules = set(sum([ read_json(name) for name in bundles ], []))
-    custom_impls = _compile_models(custom_models)
-
-    extra_modules = {}
-
-    def resolve_modules(to_resolve, root):
-        resolved = {}
-        for module in to_resolve:
-            if module.startswith(("./", "../")):
-                def mkpath(module, ext=""):
-                    return abspath(join(root, *module.split("/")) + ext)
-
-                if module.endswith(exts):
-                    path = mkpath(module)
-                    if not exists(path):
-                        raise RuntimeError("no such module: %s" % module)
-                else:
-                    for ext in exts:
-                        path = mkpath(module, ext)
-                        if exists(path):
-                            break
-                    else:
-                        raise RuntimeError("no such module: %s" % module)
-
-                impl = FromFile(path)
-                compiled = nodejs_compile(impl.code, lang=impl.lang, file=impl.file)
-
-                if "error" in compiled:
-                    raise CompilationError(compiled.error)
-
-                if impl.lang == "less":
-                    code = _style_template % dict(css=json.dumps(compiled.code))
-                    deps = []
-                else:
-                    code = compiled.code
-                    deps = compiled.deps
-
-                sig = hashlib.sha256(code.encode('utf-8')).hexdigest()
-                resolved[module] = sig
-
-                deps_map = resolve_deps(deps, dirname(path))
-
-                if sig not in extra_modules:
-                    extra_modules[sig] = True
-                    modules.append((sig, code, deps_map))
-            else:
-                raise RuntimeError("no such module: %s" % module)
-
-        return resolved
-
-    def resolve_deps(deps, root):
-        custom_modules = set(model.module for model in custom_models.values())
-        missing = set(deps) - known_modules - custom_modules
-        return resolve_modules(missing, root)
-
-    for model in custom_models.values():
-        compiled = custom_impls[model.full_name]
-        deps_map = resolve_deps(compiled.deps, model.path)
-
-        exports.append((model.name, model.module))
-        modules.append((model.module, compiled.code, deps_map))
-
-    # sort everything by module name
-    exports = sorted(exports, key=lambda spec: spec[1])
-    modules = sorted(modules, key=lambda spec: spec[0])
-
-    for i, (module, code, deps) in enumerate(modules):
-        for name, ref in deps.items():
-            code = code.replace("""require("%s")""" % name, """require("%s")""" % ref)
-            code = code.replace("""require('%s')""" % name, """require('%s')""" % ref)
-        modules[i] = (module, code)
-
-    sep = ",\n"
-
-    exports = sep.join(_export_template % dict(name=name, module=module) for (name, module) in exports)
-    modules = sep.join(_module_template % dict(module=module, source=code) for (module, code) in modules)
-
-    content = _plugin_template % dict(prelude=_plugin_prelude, exports=exports, modules=modules)
-    return _plugin_umd % dict(content=content)
-
-def calc_cache_key():
+def calc_cache_key(custom_models):
     ''' Generate a key to cache a custom extension implementation with.
 
     There is no metadata other than the Model classes, so this is the only
@@ -413,33 +319,32 @@ def calc_cache_key():
     not ideal but possibly a better solution can be found found later.
 
     '''
-
-    models = Model.model_class_reverse_map.values()
-    custom_model_names = ""
-
-    for cls in models:
-        impl = getattr(cls, "__implementation__", None)
-
-        if impl is not None:
-            model = CustomModel(cls)
-            custom_model_names += model.full_name
-
-    key = hashlib.sha256(custom_model_names.encode('utf-8')).hexdigest()
-    return key
+    model_names = {model.full_name for model in custom_models.values()}
+    encoded_names = ",".join(sorted(model_names)).encode('utf-8')
+    return hashlib.sha256(encoded_names).hexdigest()
 
 _bundle_cache = {}
 
-def bundle_all_models():
-    key = calc_cache_key()
+def bundle_models(models):
+    """Create a bundle of selected `models`. """
+    custom_models = _get_custom_models(models)
+    if custom_models is None:
+        return None
+
+    key = calc_cache_key(custom_models)
     bundle = _bundle_cache.get(key, None)
     if bundle is None:
         try:
-            _bundle_cache[key] = bundle = bundle_models(Model.model_class_reverse_map.values()) or ""
+            _bundle_cache[key] = bundle = _bundle_models(custom_models)
         except CompilationError as error:
             print("Compilation failed:", file=sys.stderr)
             print(str(error), file=sys.stderr)
             sys.exit(1)
     return bundle
+
+def bundle_all_models():
+    """Create a bundle of all models. """
+    return bundle_models(None)
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -595,7 +500,10 @@ _CACHING_IMPLEMENTATION = _model_cache_no_op
 
 def _get_custom_models(models):
     """Returns CustomModels for models with a custom `__implementation__`"""
-    custom_models = {}
+    if models is None:
+        models = Model.model_class_reverse_map.values()
+
+    custom_models = OrderedDict()
     for cls in models:
         impl = getattr(cls, "__implementation__", None)
 
@@ -632,6 +540,98 @@ def _compile_models(custom_models):
         custom_impls[model.full_name] = compiled
 
     return custom_impls
+
+def _bundle_models(custom_models):
+    """ Create a JavaScript bundle with selected `models`. """
+    exports = []
+    modules = []
+
+    def read_json(name):
+        with io.open(join(bokehjs_dir, "js", name + ".json"), encoding="utf-8") as f:
+            return json.loads(f.read())
+
+    bundles = ["bokeh", "bokeh-api", "bokeh-widgets", "bokeh-tables", "bokeh-gl"]
+    known_modules = set(sum([ read_json(name) for name in bundles ], []))
+    custom_impls = _compile_models(custom_models)
+
+    extra_modules = {}
+
+    def resolve_modules(to_resolve, root):
+        resolved = {}
+        for module in to_resolve:
+            if module.startswith(("./", "../")):
+                def mkpath(module, ext=""):
+                    return abspath(join(root, *module.split("/")) + ext)
+
+                if module.endswith(exts):
+                    path = mkpath(module)
+                    if not exists(path):
+                        raise RuntimeError("no such module: %s" % module)
+                else:
+                    for ext in exts:
+                        path = mkpath(module, ext)
+                        if exists(path):
+                            break
+                    else:
+                        raise RuntimeError("no such module: %s" % module)
+
+                impl = FromFile(path)
+                compiled = nodejs_compile(impl.code, lang=impl.lang, file=impl.file)
+
+                if "error" in compiled:
+                    raise CompilationError(compiled.error)
+
+                if impl.lang == "less":
+                    code = _style_template % dict(css=json.dumps(compiled.code))
+                    deps = []
+                else:
+                    code = compiled.code
+                    deps = compiled.deps
+
+                sig = hashlib.sha256(code.encode('utf-8')).hexdigest()
+                resolved[module] = sig
+
+                deps_map = resolve_deps(deps, dirname(path))
+
+                if sig not in extra_modules:
+                    extra_modules[sig] = True
+                    modules.append((sig, code, deps_map))
+            else:
+                index = module + ("" if module.endswith("/") else "/") + "index"
+                if index not in known_modules:
+                    raise RuntimeError("no such module: %s" % module)
+
+        return resolved
+
+    def resolve_deps(deps, root):
+        custom_modules = set(model.module for model in custom_models.values())
+        missing = set(deps) - known_modules - custom_modules
+        return resolve_modules(missing, root)
+
+    for model in custom_models.values():
+        compiled = custom_impls[model.full_name]
+        deps_map = resolve_deps(compiled.deps, model.path)
+
+        exports.append((model.name, model.module))
+        modules.append((model.module, compiled.code, deps_map))
+
+    # sort everything by module name
+    exports = sorted(exports, key=lambda spec: spec[1])
+    modules = sorted(modules, key=lambda spec: spec[0])
+
+    for i, (module, code, deps) in enumerate(modules):
+        for name, ref in deps.items():
+            code = code.replace("""require("%s")""" % name, """require("%s")""" % ref)
+            code = code.replace("""require('%s')""" % name, """require('%s')""" % ref)
+        modules[i] = (module, code)
+
+    sep = ",\n"
+
+    exports = sep.join(_export_template % dict(name=name, module=module) for (name, module) in exports)
+    modules = sep.join(_module_template % dict(module=module, source=code) for (module, code) in modules)
+
+    content = _plugin_template % dict(prelude=_plugin_prelude, exports=exports, modules=modules)
+    return _plugin_umd % dict(content=content)
 
 #-----------------------------------------------------------------------------
 # Code

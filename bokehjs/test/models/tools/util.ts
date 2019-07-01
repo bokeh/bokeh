@@ -1,8 +1,8 @@
 import {expect} from "chai"
 
-import {compute_renderers} from "models/tools/util"
-import {GlyphRenderer} from "models/renderers/glyph_renderer"
-import {GraphRenderer} from "models/renderers/graph_renderer"
+import {compute_renderers} from "@bokehjs/models/tools/util"
+import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
+import {GraphRenderer} from "@bokehjs/models/renderers/graph_renderer"
 
 const g0 = new GlyphRenderer({name: "g0"})
 const g1 = new GlyphRenderer({name: "g1"})

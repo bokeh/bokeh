@@ -19,8 +19,8 @@ footprint, but big in impact" features and several bug fixes including:
 
 .. _release-0-12-2-migration:
 
-Migration Guide
----------------
+`Migration Guide <releases.html#release-0-12-2-migration>`__
+------------------------------------------------------------
 
 Jupyter Notebook output changes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

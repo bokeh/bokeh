@@ -4,7 +4,7 @@ import {throttle} from "core/util/callback"
 import * as p from "core/properties"
 
 // HTML construction and manipulation functions
-import {label, input} from "core/dom"
+import {div, input} from "core/dom"
 
 import {SliderCallbackPolicy} from "core/enums"
 
@@ -21,14 +21,13 @@ export type SliderData = {from: number, to: number}
 export class IonRangeSliderView extends InputWidgetView {
   model: IonRangeSlider
 
-  private title_el?: HTMLElement
   private value_el?: HTMLInputElement
   private slider_el: HTMLInputElement
 
   private callback_wrapper?: () => void
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
 
     const {callback} = this.model
     if (callback != null) {
@@ -55,17 +54,12 @@ export class IonRangeSliderView extends InputWidgetView {
     super.render()
 
     if (this.model.title != null) {
-      if (this.model.title.length != 0) {
-        this.title_el = label({}, `${this.model.title}: `)
-        this.el.appendChild(this.title_el)
-      }
-
-      this.value_el = input({type: "text", readonly: true})
-      this.el.appendChild(this.value_el)
+      this.value_el = input({type: "text", class: "bk-input", readonly: true, style: {marginBottom: "5px"}})
+      this.group_el.appendChild(this.value_el)
     }
 
-    this.slider_el = input({type: "text", class: "bk-slider"})
-    this.el.appendChild(this.slider_el)
+    this.slider_el = input({type: "text"})
+    this.group_el.appendChild(div({style: {width: "100%"}}, this.slider_el))
 
     // Set up parameters
     const max = this.model.end
@@ -136,10 +130,6 @@ export class IonRangeSlider extends InputWidget {
   }
 
   static initClass(): void {
-    // The ``type`` class attribute should generally match exactly the name
-    // of the corresponding Python class.
-    this.prototype.type = "IonRangeSlider"
-
     // If there is an associated view, this is boilerplate.
     this.prototype.default_view = IonRangeSliderView
 

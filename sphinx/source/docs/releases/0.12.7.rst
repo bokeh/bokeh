@@ -34,8 +34,8 @@ important features and fixes several bugs. Some of the highlights include:
 
 .. _release-0-12-7-migration:
 
-Migration Guide
----------------
+`Migration Guide <releases.html#release-0-12-7-migration>`__
+------------------------------------------------------------
 
 Breakage Related to Categoricals Overhaul
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

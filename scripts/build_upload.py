@@ -358,9 +358,9 @@ def upload_cdn(cdn_token, cdn_id, url=RSURL):
 @upload_wrapper('anaconda')
 def upload_anaconda(token, dev):
     if dev:
-        cmd = "anaconda -t %s upload -u bokeh %s -c dev --force --no-progress"
+        cmd = "anaconda -t %s upload -u bokeh %s -l dev --force --no-progress"
     else:
-        cmd = "anaconda -t %s upload -u bokeh %s --force --no-progress"
+        cmd = "anaconda -t %s upload -u bokeh %s -l dev -l main --force --no-progress"
 
     files = glob.glob("/home/travis/miniconda/conda-bld/noarch/bokeh*.tar.bz2")
     for file in files:

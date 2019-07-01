@@ -19,7 +19,7 @@ export class CustomView extends HTMLBoxView {
 
   render(): void {
     // BokehJS Views create <div> elements by default, accessible as ``this.el``.
-    // Many Bokeh views extend this default <div> with additional elemements
+    // Many Bokeh views extend this default <div> with additional elements
     // (e.g. <canvas>), and instead do things like paint on the HTML canvas.
     // In this case though, we change the contents of the <div>, based on the
     // current slider value.
@@ -61,10 +61,6 @@ export class Custom extends HTMLBox {
   }
 
   static initClass(): void {
-    // The ``type`` class attribute should generally match exactly the name
-    // of the corresponding Python class.
-    this.prototype.type = "Custom"
-
     // If there is an associated view, this is typically boilerplate.
     this.prototype.default_view = CustomView
 

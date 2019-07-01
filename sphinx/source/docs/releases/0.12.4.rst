@@ -19,8 +19,8 @@ Many other small bugfixes and docs additions. For full details see the :bokeh-tr
 
 .. _release-0-12-4-migration:
 
-Migration Guide
----------------
+`Migration Guide <releases.html#release-0-12-4-migration>`__
+------------------------------------------------------------
 
 As the project approaches a 1.0 release, it is necessary to make some changes
 to bring interfaces and functionality up to a point that can be maintained

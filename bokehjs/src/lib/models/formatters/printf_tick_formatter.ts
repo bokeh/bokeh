@@ -1,6 +1,5 @@
-import {sprintf} from "sprintf-js"
-
 import {TickFormatter} from "./tick_formatter"
+import {sprintf} from "core/util/templating"
 import * as p from "core/properties"
 
 export namespace PrintfTickFormatter {
@@ -21,8 +20,6 @@ export class PrintfTickFormatter extends TickFormatter {
   }
 
   static initClass(): void {
-    this.prototype.type = 'PrintfTickFormatter'
-
     this.define<PrintfTickFormatter.Props>({
       format: [ p.String, '%s' ],
     })

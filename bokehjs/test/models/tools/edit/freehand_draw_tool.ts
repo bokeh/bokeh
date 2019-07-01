@@ -1,15 +1,15 @@
 import {expect} from "chai"
 import * as sinon from "sinon"
 
-import {Keys} from "core/dom"
-import {create_hit_test_result_from_hits} from "core/hittest"
+import {Keys} from "@bokehjs/core/dom"
+import {create_hit_test_result_from_hits} from "@bokehjs/core/hittest"
 
-import {Patches, PatchesView} from "models/glyphs/patches"
-import {Plot} from "models/plots/plot"
-import {Range1d} from "models/ranges/range1d"
-import {GlyphRenderer} from "models/renderers/glyph_renderer"
-import {ColumnDataSource} from "models/sources/column_data_source"
-import {FreehandDrawTool, FreehandDrawToolView} from "models/tools/edit/freehand_draw_tool"
+import {Patches, PatchesView} from "@bokehjs/models/glyphs/patches"
+import {Plot} from "@bokehjs/models/plots/plot"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {FreehandDrawTool, FreehandDrawToolView} from "@bokehjs/models/tools/edit/freehand_draw_tool"
 
 import {make_gesture_event, make_tap_event, make_key_event, make_move_event} from "./utils"
 

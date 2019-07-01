@@ -8,7 +8,7 @@ export namespace CustomJSTransform {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Transform.Props & {
-    args: p.Property<{[key: string]: any}>
+    args: p.Property<{[key: string]: unknown}>
     func: p.Property<string>
     v_func: p.Property<string>
     use_strict: p.Property<boolean>
@@ -25,8 +25,6 @@ export class CustomJSTransform extends Transform {
   }
 
   static initClass(): void {
-    this.prototype.type = 'CustomJSTransform'
-
     this.define<CustomJSTransform.Props>({
       args:       [ p.Any,    {}     ], // TODO (bev) better type
       func:       [ p.String, ""     ],

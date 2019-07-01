@@ -6,8 +6,8 @@
 import {randomIn} from "./math"
 import {assert} from "./assert"
 
-import {min, min_by, max, max_by, sum, every, some, find, find_last, find_index, find_last_index, sorted_index} from "./arrayable"
-export {min, min_by, max, max_by, sum, every, some, find, find_last, find_index, find_last_index, sorted_index}
+import {map, reduce, min, min_by, max, max_by, sum, cumsum, every, some, find, find_last, find_index, find_last_index, sorted_index} from "./arrayable"
+export {map, reduce, min, min_by, max, max_by, sum, cumsum, every, some, find, find_last, find_index, find_last_index, sorted_index}
 
 const slice = Array.prototype.slice
 
@@ -130,12 +130,6 @@ export function transpose<T>(array: T[][]): T[][] {
   return transposed
 }
 
-export function cumsum(array: number[]): number[] {
-  const result: number[] = []
-  array.reduce((a, b, i) => result[i] = a + b, 0)
-  return result
-}
-
 export function argmin(array: number[]): number {
   return min_by(range(array.length), (i) => array[i])
 }
@@ -204,6 +198,12 @@ export function intersection<T>(array: T[], ...arrays: T[][]): T[] {
 export function difference<T>(array: T[], ...arrays: T[][]): T[] {
   const rest = concat(arrays)
   return array.filter((value) => !includes(rest, value))
+}
+
+export function remove_at<T>(array: T[], i: number): T[] {
+  const result = copy(array)
+  result.splice(i, 1)
+  return result
 }
 
 export function remove_by<T>(array: T[], key: (item: T) => boolean): void {

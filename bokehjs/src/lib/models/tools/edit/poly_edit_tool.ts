@@ -6,6 +6,7 @@ import {Patches} from "../../glyphs/patches"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {PolyTool, PolyToolView} from "./poly_tool"
 import * as p from "core/properties"
+import {bk_tool_icon_poly_edit} from "styles/icons"
 
 export interface HasPolyGlyph {
   glyph: MultiLine | Patches
@@ -239,12 +240,11 @@ export class PolyEditTool extends PolyTool {
   }
 
   static initClass(): void {
-    this.prototype.type = "PolyEditTool"
     this.prototype.default_view = PolyEditToolView
   }
 
   tool_name = "Poly Edit Tool"
-  icon = "bk-tool-icon-poly-edit"
+  icon = bk_tool_icon_poly_edit
   event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
   default_order = 4
 }

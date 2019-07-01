@@ -13,6 +13,17 @@ import {HTMLBox, HTMLBoxView} from "models/layouts/html_box"
 import {ColumnDataSource} from "models/sources/column_data_source"
 import * as p from "core/properties"
 
+declare namespace vis {
+  class Graph3d {
+    constructor(el: HTMLElement, data: object, OPTIONS: object)
+    setData(data: vis.DataSet): void
+  }
+
+  class DataSet {
+    add(data: unknown): void
+  }
+}
+
 // This defines some default options for the Graph3d feature of vis.js
 // See: http://visjs.org/graph3d_examples.html for more details. This
 // JS object should match the Python default value.
@@ -103,11 +114,14 @@ export class Surface3d extends HTMLBox {
     super(attrs)
   }
 
-  static initClass(): void {
-    // The ``type`` class attribute should generally match exactly the name
-    // of the corresponding Python class.
-    this.prototype.type = "Surface3d"
+  // The ``__name__`` class attribute should generally match exactly the name
+  // of the corresponding Python class. Note that if using TypeScript, this
+  // will be automatically filled in during compilation, so except in some
+  // special cases, this shouldn't be generally included manually, to avoid
+  // typos, which would prohibit serialization/deserialization of this model.
+  static __name__ = "Surface3d"
 
+  static initClass(): void {
     // This is usually boilerplate. In some cases there may not be a view.
     this.prototype.default_view = Surface3dView
 
@@ -116,13 +130,13 @@ export class Surface3d extends HTMLBox {
     // types have counterparts, e.g. ``bokeh.core.properties.String`` will be
     // ``p.String`` in the JS implementatin. Where the JS type system is not yet
     // as rich, you can use ``p.Any`` as a "wildcard" property type.
-    this.define {
-      x:           [ p.String           ]
-      y:           [ p.String           ]
-      z:           [ p.String           ]
-      data_source: [ p.Instance         ]
-      options:     [ p.Any,     OPTIONS ]
-    }
+    this.define<Surface3d.Props>({
+      x:           [ p.String           ],
+      y:           [ p.String           ],
+      z:           [ p.String           ],
+      data_source: [ p.Instance         ],
+      options:     [ p.Any,     OPTIONS ],
+    })
   }
 }
 Surface3d.initClass()

@@ -11,8 +11,8 @@ export class SpanView extends AnnotationView {
   model: Span
   visuals: Span.Visuals
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this.plot_view.canvas_overlays.appendChild(this.el)
     this.el.style.position = "absolute"
     undisplay(this.el)
@@ -133,7 +133,6 @@ export class Span extends Annotation {
   }
 
   static initClass(): void {
-    this.prototype.type = 'Span'
     this.prototype.default_view = SpanView
 
     this.mixins(['line'])

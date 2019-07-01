@@ -72,7 +72,10 @@ export class AxisView extends GuideRendererView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.plot_view.request_render())
+    this.connect(this.model.change, () => this.plot_view.request_paint())
+
+    const p = this.model.properties
+    this.on_change(p.visible, () => this.plot_view.request_layout())
   }
 
   get_size(): Size {
@@ -332,7 +335,7 @@ export class AxisView extends GuideRendererView {
   }
 
   compute_labels(ticks: number[]): string[] {
-    const labels = this.model.formatter.doFormat(ticks, this) as any
+    const labels = this.model.formatter.doFormat(ticks, this)
     for (let i = 0; i < ticks.length; i++) {
       if (ticks[i] in this.model.major_label_overrides)
         labels[i] = this.model.major_label_overrides[ticks[i]]
@@ -496,7 +499,7 @@ export class AxisView extends GuideRendererView {
   serializable_state(): {[key: string]: unknown} {
     return {
       ...super.serializable_state(),
-      bbox: this.layout.bbox.rect,
+      bbox: this.layout.bbox.box,
     }
   }
 }
@@ -547,7 +550,6 @@ export class Axis extends GuideRenderer {
   }
 
   static initClass(): void {
-    this.prototype.type = "Axis"
     this.prototype.default_view = AxisView
 
     this.mixins([

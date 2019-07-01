@@ -39,8 +39,13 @@ improvements:
 * New hosted demos at https://demo.bokehplots.com
 * Many small bug fixes
 
+.. _release-0-12-0-migration:
+
+`Migration Guide <releases.html#release-0-12-0-migration>`__
+------------------------------------------------------------
+
 Known Issues
-------------
+~~~~~~~~~~~~
 
 Currently the most reliable sizing modes for layouts are "fixed" and
 "scale_width". Other modes may work, or may produce undesired effects.
@@ -48,11 +53,6 @@ Work on layout is still ongoing. Support for "mixes" sizing modes
 will come in a future release. Additionally, the ``ResizeTool`` does
 not function reliably with responsive layout, and will most likely
 be deprecated in a future release.
-
-.. _release-0-12-0-migration:
-
-Migration Guide
----------------
 
 Google Maps
 ~~~~~~~~~~~

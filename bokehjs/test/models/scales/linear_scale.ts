@@ -1,7 +1,7 @@
 import {expect} from "chai"
 
-import {LinearScale} from "models/scales/linear_scale"
-import {Range1d} from "models/ranges/range1d"
+import {LinearScale} from "@bokehjs/models/scales/linear_scale"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
 
 describe("linear_scale module", () => {
 

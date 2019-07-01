@@ -1,8 +1,8 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 import {Dimensions} from "core/enums"
 import {scale_range} from "core/util/zoom"
-
 import * as p from "core/properties"
+import {bk_tool_icon_zoom_in} from "styles/icons"
 
 export class ZoomInToolView extends ActionToolView {
   model: ZoomInTool
@@ -44,7 +44,6 @@ export class ZoomInTool extends ActionTool {
   }
 
   static initClass(): void {
-    this.prototype.type = "ZoomInTool"
     this.prototype.default_view = ZoomInToolView
 
     this.define<ZoomInTool.Props>({
@@ -54,7 +53,7 @@ export class ZoomInTool extends ActionTool {
   }
 
   tool_name = "Zoom In"
-  icon = "bk-tool-icon-zoom-in"
+  icon = bk_tool_icon_zoom_in
 
   get tooltip(): string {
     return this._get_dim_tooltip(this.tool_name, this.dimensions)

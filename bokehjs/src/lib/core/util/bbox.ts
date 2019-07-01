@@ -1,40 +1,40 @@
-import {Arrayable, Rect, Box, Area, Interval} from "../types"
+import {Arrayable, Rect, Box, Interval} from "../types"
 
 const {min, max} = Math
 
 export function empty(): Rect {
   return {
-    minX:  Infinity,
-    minY:  Infinity,
-    maxX: -Infinity,
-    maxY: -Infinity,
+    x0:  Infinity,
+    y0:  Infinity,
+    x1: -Infinity,
+    y1: -Infinity,
   }
 }
 
 export function positive_x(): Rect {
   return {
-    minX:  Number.MIN_VALUE,
-    minY: -Infinity,
-    maxX:  Infinity,
-    maxY:  Infinity,
+    x0:  Number.MIN_VALUE,
+    y0: -Infinity,
+    x1:  Infinity,
+    y1:  Infinity,
   }
 }
 
 export function positive_y(): Rect {
   return {
-    minX: -Infinity,
-    minY:  Number.MIN_VALUE,
-    maxX:  Infinity,
-    maxY:  Infinity,
+    x0: -Infinity,
+    y0:  Number.MIN_VALUE,
+    x1:  Infinity,
+    y1:  Infinity,
   }
 }
 
 export function union(a: Rect, b: Rect): Rect {
   return {
-    minX: min(a.minX, b.minX),
-    maxX: max(a.maxX, b.maxX),
-    minY: min(a.minY, b.minY),
-    maxY: max(a.maxY, b.maxY),
+    x0: min(a.x0, b.x0),
+    x1: max(a.x1, b.x1),
+    y0: min(a.y0, b.y0),
+    y1: max(a.y1, b.y1),
   }
 }
 
@@ -56,21 +56,21 @@ export interface CoordinateTransform {
   v_compute: (vv: Arrayable<number>) => Arrayable<number>
 }
 
-export class BBox implements Area {
+export class BBox implements Rect {
 
   readonly x0: number
   readonly y0: number
   readonly x1: number
   readonly y1: number
 
-  constructor(box?: Area | Box | Position) {
+  constructor(box?: Rect | Box | Position) {
     if (box == null) {
       this.x0 = 0
       this.y0 = 0
       this.x1 = 0
       this.y1 = 0
     } else if ('x0' in box) {
-      const {x0, y0, x1, y1} = box as Area
+      const {x0, y0, x1, y1} = box as Rect
       if (!(x0 <= x1 && y0 <= y1))
         throw new Error(`invalid bbox {x0: ${x0}, y0: ${y0}, x1: ${x1}, y1: ${y1}}`)
       this.x0 = x0
@@ -78,13 +78,13 @@ export class BBox implements Area {
       this.x1 = x1
       this.y1 = y1
     } else if ("x" in box) {
-      const {left, top, width, height} = box as Box
+      const {x, y, width, height} = box as Box
       if (!(width >= 0 && height >= 0))
-        throw new Error(`invalid bbox {left: ${left}, top: ${top}, width: ${width}, height: ${height}}`)
-      this.x0 = left
-      this.y0 = top
-      this.x1 = left + width
-      this.y1 = top + height
+        throw new Error(`invalid bbox {x: ${x}, y: ${y}, width: ${width}, height: ${height}}`)
+      this.x0 = x
+      this.y0 = y
+      this.x1 = x + width
+      this.y1 = y + height
     } else {
       let left: number, right: number
       let top: number, bottom: number
@@ -137,11 +137,6 @@ export class BBox implements Area {
     return `BBox({left: ${this.left}, top: ${this.top}, width: ${this.width}, height: ${this.height}})`
   }
 
-  get minX(): number { return this.x0 }
-  get minY(): number { return this.y0 }
-  get maxX(): number { return this.x1 }
-  get maxY(): number { return this.y1 }
-
   get left(): number { return this.x0 }
   get top(): number { return this.y0 }
   get right(): number { return this.x1 }
@@ -155,7 +150,8 @@ export class BBox implements Area {
   get width(): number { return this.x1 - this.x0 }
   get height(): number { return this.y1 - this.y0 }
 
-  get rect(): Box { return {left: this.left, top: this.top, width: this.width, height: this.height} }
+  get rect(): Rect { return {x0: this.x0, y0: this.y0, x1: this.x1, y1: this.y1} }
+  get box(): Box { return {x: this.x, y: this.y, width: this.width, height: this.height} }
 
   get h_range(): Interval { return {start: this.x0, end: this.x1} }
   get v_range(): Interval { return {start: this.y0, end: this.y1} }
@@ -185,7 +181,7 @@ export class BBox implements Area {
     return [x, y]
   }
 
-  union(that: Area): BBox {
+  union(that: Rect): BBox {
     return new BBox({
       x0: min(this.x0, that.x0),
       y0: min(this.y0, that.y0),
@@ -194,7 +190,7 @@ export class BBox implements Area {
     })
   }
 
-  equals(that: Area): boolean {
+  equals(that: Rect): boolean {
     return this.x0 == that.x0 && this.y0 == that.y0 && this.x1 == that.x1 && this.y1 == that.y1
   }
 

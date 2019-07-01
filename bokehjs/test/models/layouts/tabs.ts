@@ -1,8 +1,8 @@
 import {expect} from "chai"
 
-import {Panel, Tabs} from "models/layouts/tabs"
-import {Plot} from "models/plots/plot"
-import {Range1d} from "models/ranges/range1d"
+import {Panel, Tabs} from "@bokehjs/models/layouts/tabs"
+import {Plot} from "@bokehjs/models/plots/plot"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
 
 describe("Tabs", () => {
 

@@ -1,5 +1,6 @@
 import {View} from "./view"
 import * as DOM from "./dom"
+import {bk_root} from "styles/root"
 
 export namespace DOMView {
   export type Options = View.Options
@@ -13,8 +14,8 @@ export class DOMView extends View {
 
   el: HTMLElement
 
-  initialize(options: DOMView.Options): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
     this._has_finished = false
     this.el = this._createElement()
   }
@@ -46,7 +47,7 @@ export class DOMView extends View {
   }
 
   protected get _root_element(): HTMLElement {
-    return DOM.parent(this.el, ".bk-root") || document.body
+    return DOM.parent(this.el, `.${bk_root}`) || document.body
   }
 
   get is_idle(): boolean {

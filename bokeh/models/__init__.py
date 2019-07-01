@@ -70,6 +70,7 @@ from .selections import *
 from .sources import *
 from .tickers import *
 from .tiles import *
+from .textures import *
 from .tools import *
 from .transforms import *
 from .widgets import *

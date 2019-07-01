@@ -17,7 +17,7 @@ import {Reset} from "core/bokeh_events"
 import {Arrayable, Rect, Interval} from "core/types"
 import {Signal0} from "core/signaling"
 import {build_views, remove_views} from "core/build_views"
-import {UIEvents} from "core/ui_events"
+import /*type*/ {UIEvents} from "core/ui_events"
 import {Visuals} from "core/visuals"
 import {logger} from "core/logging"
 import {Side, RenderLevel} from "core/enums"
@@ -97,7 +97,12 @@ export class PlotLayout extends Layoutable {
     const width = left + center.width + right
     const height = top + center.height + bottom
 
-    return {width, height, inner: {left, right, top, bottom}}
+    const align = (() => {
+      const {width_policy, height_policy} = this.center_panel.sizing
+      return width_policy != "fixed" && height_policy != "fixed"
+    })()
+
+    return {width, height, inner: {left, right, top, bottom}, align}
   }
 
   protected _set_geometry(outer: BBox, inner: BBox): void {
@@ -146,7 +151,7 @@ export class PlotView extends LayoutDOMView {
 
   force_paint: Signal0<this>
   state_changed: Signal0<this>
-  visibility_callbacks: Function[]
+  visibility_callbacks: ((visible: boolean) => void)[]
 
   protected _is_paused?: number
 
@@ -211,10 +216,17 @@ export class PlotView extends LayoutDOMView {
       this.throttled_paint()
   }
 
+  request_layout(): void {
+    this._needs_layout = true
+    this.request_paint()
+  }
+
   reset(): void {
-    this.clear_state()
-    this.reset_range()
-    this.reset_selection()
+    if (this.model.reset_policy == "standard") {
+      this.clear_state()
+      this.reset_range()
+      this.reset_selection()
+    }
     this.model.trigger_event(new Reset())
   }
 
@@ -233,10 +245,10 @@ export class PlotView extends LayoutDOMView {
     this.canvas_view.render()
   }
 
-  initialize(options: PlotView.Options): void {
+  initialize(): void {
     this.pause()
 
-    super.initialize(options)
+    super.initialize()
 
     this.force_paint = new Signal0(this, "force_paint")
     this.state_changed = new Signal0(this, "state_changed")
@@ -275,6 +287,8 @@ export class PlotView extends LayoutDOMView {
 
     this.throttled_paint = throttle((() => this.force_paint.emit()), 15)  // TODO (bev) configurable
 
+    // XXX: lazy value import to avoid touching window
+    const {UIEvents} = require("core/ui_events")
     this.ui_event_bus = new UIEvents(this, this.model.toolbar, this.canvas_view.events_el)
 
     const {title_location, title} = this.model
@@ -301,11 +315,11 @@ export class PlotView extends LayoutDOMView {
   }
 
   protected _width_policy(): SizingPolicy {
-    return this.model.frame_width == null ? "fixed" : "min"
+    return this.model.frame_width == null ? super._width_policy() : "min"
   }
 
   protected _height_policy(): SizingPolicy {
-    return this.model.frame_height == null ? "fixed" : "min"
+    return this.model.frame_height == null ? super._height_policy() : "min"
   }
 
   _update_layout(): void {
@@ -350,7 +364,10 @@ export class PlotView extends LayoutDOMView {
         for (let i = 0; i < panels.length; i++) {
           const panel = panels[i]
           if (panel instanceof Title) {
-            panels[i] = [panel, this._toolbar]
+            if (toolbar_location == "above" || toolbar_location == "below")
+              panels[i] = [panel, this._toolbar]
+            else
+              panels[i] = [this._toolbar, panel]
             push_toolbar = false
             break
           }
@@ -361,34 +378,33 @@ export class PlotView extends LayoutDOMView {
         panels.push(this._toolbar)
     }
 
-    const set_layout = (side: Side, model: Annotation | Axis): Layoutable => {
+    const set_layout = (side: Side, model: Annotation | Axis): SidePanel => {
       const view = this.renderer_views[model.id] as AnnotationView | AxisView
       return view.layout = new SidePanel(side, view)
     }
 
     const set_layouts = (side: Side, panels: Panels) => {
+      const horizontal = side == "above" || side == "below"
       const layouts: Layoutable[] = []
+
       for (const panel of panels) {
         if (isArray(panel)) {
-          const items = panel.map((subpanel) => set_layout(side, subpanel))
+          const items = panel.map((subpanel) => {
+            const item = set_layout(side, subpanel)
+            if (subpanel instanceof ToolbarPanel) {
+              const dim = horizontal ? "width_policy" : "height_policy"
+              item.set_sizing({...item.sizing, [dim]: "min"})
+            }
+            return item
+          })
 
           let layout: Row | Column
-          switch (title_location) {
-            case "above":
-            case "below":
-              layout = new Row(items)
-              layout.cols = {1: "min"} // assuming toolbar is last
-              layout.set_sizing({width_policy: "max", height_policy: "min"})
-              break
-            case "left":
-            case "right": {
-              layout = new Column(items)
-              layout.rows = {0: "min"} // assuming toolbar is first
-              layout.set_sizing({width_policy: "min", height_policy: "max"})
-              break
-            }
-            default:
-              throw new Error("unreachable")
+          if (horizontal) {
+            layout = new Row(items)
+            layout.set_sizing({width_policy: "max", height_policy: "min"})
+          } else {
+            layout = new Column(items)
+            layout.set_sizing({width_policy: "min", height_policy: "max"})
           }
 
           layout.absolute = true
@@ -443,8 +459,9 @@ export class PlotView extends LayoutDOMView {
     this.canvas_view.el.style.cursor = cursor
   }
 
-  set_toolbar_visibility(visible: boolean = true): void {
-    this.visibility_callbacks.forEach((value) => value(visible))
+  set_toolbar_visibility(visible: boolean): void {
+    for (const callback of this.visibility_callbacks)
+      callback(visible)
   }
 
   init_webgl(): void {
@@ -475,11 +492,7 @@ export class PlotView extends LayoutDOMView {
       // Sync canvas size
       this.gl.canvas.width = canvas.width
       this.gl.canvas.height = canvas.height
-      // Prepare GL for drawing
       const {ctx: gl} = this.gl
-      gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height)
-      gl.clearColor(0, 0, 0, 0)
-      gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT)
       // Clipping
       gl.enable(gl.SCISSOR_TEST)
       const [sx, sy, w, h] = frame_box
@@ -492,9 +505,18 @@ export class PlotView extends LayoutDOMView {
       gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)   // premultipliedAlpha == true
     }
   }
-      //gl.blendFuncSeparate(gl.ONE_MINUS_DST_ALPHA, gl.DST_ALPHA, gl.ONE_MINUS_DST_ALPHA, gl.ONE)  # Without premultipliedAlpha == false
 
-  blit_webgl(ratio: number): void {
+  clear_webgl(): void {
+    if (this.gl != null) {
+      // Prepare GL for drawing
+      const {ctx: gl} = this.gl
+      gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height)
+      gl.clearColor(0, 0, 0, 0)
+      gl.clear(gl.COLOR_BUFFER_BIT || gl.DEPTH_BUFFER_BIT)
+    }
+  }
+
+  blit_webgl(): void {
     // This should be called when the ctx has no state except the HIDPI transform
     const {ctx} = this.canvas_view
     if (this.gl != null) {
@@ -506,6 +528,7 @@ export class PlotView extends LayoutDOMView {
       ctx.drawImage(this.gl.canvas, 0, 0)
       // Set back hidpi transform
       ctx.save()
+      const ratio = this.canvas.pixel_ratio
       ctx.scale(ratio, ratio)
       ctx.translate(0.5, 0.5)
     }
@@ -1039,9 +1062,10 @@ export class PlotView extends LayoutDOMView {
     this._paint_empty(ctx, frame_box)
 
     this.prepare_webgl(ratio, frame_box)
+    this.clear_webgl()
 
-    ctx.save()
     if (this.visuals.outline_line.doit) {
+      ctx.save()
       this.visuals.outline_line.set_value(ctx)
       let [x0, y0, w, h] = frame_box
       // XXX: shrink outline region by 1px to make right and bottom lines visible
@@ -1053,11 +1077,10 @@ export class PlotView extends LayoutDOMView {
         h -= 1
       }
       ctx.strokeRect(x0, y0, w, h)
+      ctx.restore()
     }
-    ctx.restore()
 
     this._paint_levels(ctx, ['image', 'underlay', 'glyph'], frame_box, true)
-    this.blit_webgl(ratio)
     this._paint_levels(ctx, ['annotation'], frame_box, false)
     this._paint_levels(ctx, ['overlay'], frame_box, false)
 
@@ -1068,14 +1091,6 @@ export class PlotView extends LayoutDOMView {
   }
 
   protected _paint_levels(ctx: Context2d, levels: RenderLevel[], clip_region: FrameBox, global_clip: boolean): void {
-    ctx.save()
-
-    if (global_clip) {
-      ctx.beginPath()
-      ctx.rect.apply(ctx, clip_region)
-      ctx.clip()
-    }
-
     for (const level of levels) {
       for (const renderer of this.computed_renderers) {
         if (renderer.level != level)
@@ -1083,22 +1098,22 @@ export class PlotView extends LayoutDOMView {
 
         const renderer_view = this.renderer_views[renderer.id]
 
-        if (!global_clip && renderer_view.needs_clip) {
-          ctx.save()
+        ctx.save()
+        if (global_clip || renderer_view.needs_clip) {
           ctx.beginPath()
-          ctx.rect.apply(ctx, clip_region)
+          ctx.rect(...clip_region)
           ctx.clip()
         }
 
         renderer_view.render()
+        ctx.restore()
 
-        if (!global_clip && renderer_view.needs_clip) {
-          ctx.restore()
+        if (renderer_view.has_webgl) {
+          this.blit_webgl()
+          this.clear_webgl()
         }
       }
     }
-
-    ctx.restore()
   }
 
   protected _map_hook(_ctx: Context2d, _frame_box: FrameBox): void {}

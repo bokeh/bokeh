@@ -4,11 +4,12 @@ import {Set} from "core/util/data_structures"
 import * as p from "core/properties"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
+import {bk_input} from "styles/widgets/inputs"
 
 export class MultiSelectView extends InputWidgetView {
   model: MultiSelect
 
-  protected selectEl: HTMLSelectElement
+  protected select_el: HTMLSelectElement
 
   connect_signals(): void {
     super.connect_signals()
@@ -33,15 +34,15 @@ export class MultiSelectView extends InputWidgetView {
       return option({value}, _label)
     })
 
-    this.selectEl = select({
+    this.select_el = select({
       multiple: true,
-      class: "bk-input",
+      class: bk_input,
       name: this.model.name,
       disabled: this.model.disabled,
     }, options)
 
-    this.selectEl.addEventListener("change", () => this.change_input())
-    this.el.appendChild(this.selectEl)
+    this.select_el.addEventListener("change", () => this.change_input())
+    this.group_el.appendChild(this.select_el)
 
     this.render_selection()
   }
@@ -54,7 +55,7 @@ export class MultiSelectView extends InputWidgetView {
 
     // Note that some browser implementations might not reduce
     // the number of visible options for size <= 3.
-    this.selectEl.size = this.model.size
+    this.select_el.size = this.model.size
   }
 
   change_input(): void {
@@ -73,7 +74,7 @@ export class MultiSelectView extends InputWidgetView {
     // focus remains on <select> and one can seamlessly scroll
     // up/down.
     if (is_focused)
-      this.selectEl.focus()
+      this.select_el.focus()
   }
 }
 
@@ -97,7 +98,6 @@ export class MultiSelect extends InputWidget {
   }
 
   static initClass(): void {
-    this.prototype.type = "MultiSelect"
     this.prototype.default_view = MultiSelectView
 
     this.define<MultiSelect.Props>({

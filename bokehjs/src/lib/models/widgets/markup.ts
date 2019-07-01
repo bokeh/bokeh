@@ -1,12 +1,14 @@
-import * as p from "core/properties"
+import {VariadicBox} from "core/layout"
 import {div} from "core/dom"
+import * as p from "core/properties"
 
 import {Widget, WidgetView} from "./widget"
+import {bk_clearfix} from "styles/clearfix"
 
 export abstract class MarkupView extends WidgetView {
   model: Markup
 
-  protected markupEl: HTMLElement
+  protected markup_el: HTMLElement
 
   connect_signals(): void {
     super.connect_signals()
@@ -16,11 +18,16 @@ export abstract class MarkupView extends WidgetView {
     })
   }
 
+  _update_layout(): void {
+    this.layout = new VariadicBox(this.el)
+    this.layout.set_sizing(this.box_sizing())
+  }
+
   render(): void {
     super.render()
     const style = {...this.model.style, display: "inline-block"}
-    this.markupEl = div({class: "bk-clearfix", style})
-    this.el.appendChild(this.markupEl)
+    this.markup_el = div({class: bk_clearfix, style})
+    this.el.appendChild(this.markup_el)
   }
 }
 
@@ -43,15 +50,9 @@ export abstract class Markup extends Widget {
   }
 
   static initClass(): void {
-    this.prototype.type = "Markup"
-
     this.define<Markup.Props>({
       text:  [ p.String, '' ],
       style: [ p.Any,    {} ],
-    })
-
-    this.override({
-      width: 300,
     })
   }
 }

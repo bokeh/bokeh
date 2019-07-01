@@ -78,7 +78,7 @@ def create_plot(foos, title='', r = 1, y_range=None, period = pi/2, cfoos=None):
             p.line('line_x', 'line_y', color=palette[i], line_width=2, source=sources['lines'])
             p.circle('x', 'y', size=10, line_color=palette[i], color=palette[i], source=sources['floating_point'])
 
-        # draw the circle, radius and circle point realted to foo domain
+        # draw the circle, radius and circle point related to foo domain
         create_circle_glyphs(p, palette[i], sources)
         _sources.append(sources)
 

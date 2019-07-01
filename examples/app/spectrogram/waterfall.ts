@@ -18,8 +18,8 @@ export class WaterfallRendererView extends RendererView {
   private yscale: Scale
   private max_freq: number
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
 
     const N = Math.ceil(this.model.num_grams/this.model.tile_width) + 1
     const [w, h] = [this.model.tile_width, this.model.gram_length]
@@ -129,7 +129,6 @@ export class WaterfallRenderer extends Renderer {
   }
 
   static initClass(): void {
-    this.prototype.type = 'WaterfallRenderer'
     this.prototype.default_view = WaterfallRendererView
 
     this.define<WaterfallRenderer.Props>({

@@ -1,8 +1,8 @@
 import {expect} from "chai"
 
-import {CustomJSFilter} from "models/filters/customjs_filter"
-import {Range1d} from "models/ranges/range1d"
-import {ColumnDataSource} from "models/sources/column_data_source"
+import {CustomJSFilter} from "@bokehjs/models/filters/customjs_filter"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 
 describe("CustomJSFilter", () => {
 

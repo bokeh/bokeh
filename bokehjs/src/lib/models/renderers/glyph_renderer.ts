@@ -8,7 +8,7 @@ import {Color} from "core/types"
 import {Class} from "core/class"
 import {logger} from "core/logging"
 import * as p from "core/properties"
-import {indexOf} from "core/util/arrayable"
+import {indexOf, map, filter} from "core/util/arrayable"
 import {difference, includes, range} from "core/util/array"
 import {extend, clone} from "core/util/object"
 import * as hittest from "core/hittest"
@@ -56,8 +56,8 @@ export class GlyphRendererView extends DataRendererView {
   set_data_timestamp: number
   protected last_dtrender: number
 
-  initialize(options: any): void {
-    super.initialize(options)
+  initialize(): void {
+    super.initialize()
 
     const base_glyph = this.model.glyph
     const has_fill = includes(base_glyph.mixins, "fill")
@@ -187,13 +187,17 @@ export class GlyphRendererView extends DataRendererView {
       this.request_render()
   }
 
+  get has_webgl(): boolean {
+    return this.glyph.glglyph != null
+  }
+
   render(): void {
     if (!this.model.visible)
       return
 
     const t0 = Date.now()
 
-    const glsupport = this.glyph.glglyph
+    const glsupport = this.has_webgl
 
     this.glyph.map_data()
     const dtmap = Date.now() - t0
@@ -213,46 +217,32 @@ export class GlyphRendererView extends DataRendererView {
     // selected is in full set space
     const {selected} = this.model.data_source
     let selected_full_indices: number[]
-    if (!selected || selected.is_empty()) {
+    if (!selected || selected.is_empty())
       selected_full_indices = []
-    } else {
-      if (this.glyph instanceof LineView && selected.selected_glyph === this.glyph.model) {
+    else {
+      if (this.glyph instanceof LineView && selected.selected_glyph === this.glyph.model)
         selected_full_indices = this.model.view.convert_indices_from_subset(indices)
-      } else {
+      else
         selected_full_indices = selected.indices
-      }
     }
 
     // inspected is in full set space
-    const {inspected} = this.model.data_source
-    let inspected_full_indices: number[]
-    if (!inspected || (inspected.length === 0)) {
-      inspected_full_indices = []
-    } else {
-      if (inspected['0d'].glyph) {
-        inspected_full_indices = this.model.view.convert_indices_from_subset(indices)
-      } else if (inspected['1d'].indices.length > 0) {
-        inspected_full_indices = inspected['1d'].indices
-      } else {
-        inspected_full_indices = ((() => {
-          const result = []
-          for (const i of Object.keys(inspected["2d"].indices)) {
-            result.push(parseInt(i))
-          }
-          return result
-        })())
+    const inspected_full_indices = new Set((() => {
+      const {inspected} = this.model.data_source
+      if (!inspected || inspected.is_empty())
+        return []
+      else {
+        if (inspected['0d'].glyph)
+          return this.model.view.convert_indices_from_subset(indices)
+        else if (inspected['1d'].indices.length > 0)
+          return inspected['1d'].indices
+        else
+          return map(Object.keys(inspected["2d"].indices), (i) => parseInt(i))
       }
-    }
+    })())
 
     // inspected is transformed to subset space
-    const inspected_subset_indices: number[] = ((() => {
-      const result = []
-      for (const i of indices) {
-        if (includes(inspected_full_indices, this.all_indices[i]))
-          result.push(i)
-      }
-      return result
-    })())
+    const inspected_subset_indices = filter(indices, (i) => inspected_full_indices.has(this.all_indices[i]))
 
     const {lod_threshold} = this.plot_model
     let glyph: GlyphView
@@ -343,7 +333,7 @@ export class GlyphRendererView extends DataRendererView {
     }
     logger.trace(` - glyph renders finished in  : ${dtrender}ms`)
 
-    return ctx.restore()
+    ctx.restore()
   }
 
   draw_legend(ctx: Context2d, x0: number, x1: number, y0: number, y1: number, field: string | null, label: string, index: number | null): void {
@@ -392,7 +382,6 @@ export class GlyphRenderer extends DataRenderer {
   }
 
   static initClass(): void {
-    this.prototype.type = 'GlyphRenderer'
     this.prototype.default_view = GlyphRendererView
 
     this.define<GlyphRenderer.Props>({

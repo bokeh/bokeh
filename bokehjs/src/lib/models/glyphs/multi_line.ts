@@ -2,7 +2,7 @@ import {SpatialIndex} from "core/util/spatial"
 import {PointGeometry, SpanGeometry} from "core/geometry"
 import {LineVector} from "core/property_mixins"
 import {Line} from "core/visuals"
-import {Arrayable, Area} from "core/types"
+import {Arrayable, Rect} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {keys} from "core/util/object"
@@ -49,10 +49,10 @@ export class MultiLineView extends GlyphView {
           ys.push(y)
       }
 
-      const [minX, maxX] = [min(xs), max(xs)]
-      const [minY, maxY] = [min(ys), max(ys)]
+      const [x0, x1] = [min(xs), max(xs)]
+      const [y0, y1] = [min(ys), max(ys)]
 
-      points.push({minX, minY, maxX, maxY, i})
+      points.push({x0, y0, x1, y1, i})
     }
 
     return new SpatialIndex(points)
@@ -143,7 +143,7 @@ export class MultiLineView extends GlyphView {
     return line_interpolation(this.renderer, geometry, x2, y2, x3, y3)
   }
 
-  draw_legend_for_index(ctx: Context2d, bbox: Area, index: number): void {
+  draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
     generic_line_legend(this.visuals, ctx, bbox, index)
   }
 
@@ -177,7 +177,6 @@ export class MultiLine extends Glyph {
   }
 
   static initClass(): void {
-    this.prototype.type = 'MultiLine'
     this.prototype.default_view = MultiLineView
 
     this.coords([['xs', 'ys']])

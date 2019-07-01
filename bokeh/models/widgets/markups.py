@@ -32,7 +32,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import Any, Bool, String, Dict, Override
+from ...core.properties import Any, Bool, String, Dict
 
 from .widget import Widget
 
@@ -60,14 +60,21 @@ class Markup(Widget):
     '''
 
     text = String(default="", help="""
-    The contents of the widget.
+    The text or HTML contents of the widget.
+
+    .. note::
+        If the HTML content contains elements which size depends on
+        on external, asynchronously loaded resources, the size of
+        the widget may be computed incorrectly. This is in particular
+        an issue with images (``<img>``). To remedy this problem, one
+        either has to set explicit dimensions using CSS properties,
+        HTML attributes or model's ``width`` and ``height`` properties,
+        or inline images' contents using data URIs.
     """)
 
     style = Dict(String, Any, default={}, help="""
     Raw CSS style declaration. Note this may be web browser dependent.
     """)
-
-    width = Override(default=300)
 
 #-----------------------------------------------------------------------------
 # General API

@@ -1,8 +1,8 @@
-import {sprintf} from "sprintf-js"
 import {Palette} from "./palettes"
 import * as palettes from "./palettes"
 import {zip, unzip, sum, cumsum, copy, transpose} from "../core/util/array"
 import {isArray} from "../core/util/types"
+import {sprintf} from "../core/util/templating"
 import {Anchor, TooltipAttachment} from "../core/enums"
 
 import {

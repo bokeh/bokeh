@@ -478,7 +478,7 @@ of interest to look out for in this example:
     # output to static HTML file
     output_file("stocks.html", title="stocks.py example")
 
-    # create a new plot with a a datetime axis type
+    # create a new plot with a datetime axis type
     p = figure(plot_width=800, plot_height=350, x_axis_type="datetime")
 
     # add renderers

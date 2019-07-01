@@ -21,7 +21,6 @@ export class WidgetBox extends Column {
   }
 
   static initClass(): void {
-    this.prototype.type = "WidgetBox"
     this.prototype.default_view = WidgetBoxView
   }
 }

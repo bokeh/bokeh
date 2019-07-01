@@ -1,11 +1,11 @@
 import {expect} from "chai"
 
-import {Axis} from "models/axes/axis"
-import {BasicTicker} from "models/tickers/basic_ticker"
-import {BasicTickFormatter} from "models/formatters/basic_tick_formatter"
-import {Grid, GridView} from "models/grids/grid"
-import {Plot} from "models/plots/plot"
-import {Range1d} from "models/ranges/range1d"
+import {Axis} from "@bokehjs/models/axes/axis"
+import {BasicTicker} from "@bokehjs/models/tickers/basic_ticker"
+import {BasicTickFormatter} from "@bokehjs/models/formatters/basic_tick_formatter"
+import {Grid, GridView} from "@bokehjs/models/grids/grid"
+import {Plot} from "@bokehjs/models/plots/plot"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
 
 describe("Grid", () => {
 

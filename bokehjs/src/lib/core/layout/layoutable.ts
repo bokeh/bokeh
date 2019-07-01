@@ -1,7 +1,7 @@
-import {Size, Sizeable, SizeHint, BoxSizing} from "./types"
+import {Size, Sizeable, SizeHint, BoxSizing, SizingPolicy} from "./types"
 import {BBox, CoordinateTransform} from "../util/bbox"
 
-const {min, max} = Math
+const {min, max, round} = Math
 
 export interface ComputedVariable {
   readonly value: number
@@ -53,12 +53,18 @@ export abstract class Layoutable {
 
     const aspect = sizing.aspect
     const margin = sizing.margin || {top: 0, right: 0, bottom: 0, left: 0}
+    const visible = sizing.visible !== false
+    const halign = sizing.halign || "start"
+    const valign = sizing.valign || "start"
 
     this._sizing = {
       width_policy, min_width, width, max_width,
       height_policy, min_height, height, max_height,
       aspect,
       margin,
+      visible,
+      halign,
+      valign,
       size: {width, height},
       min_size: {width: min_width, height: min_height},
       max_size: {width: max_width, height: max_height},
@@ -105,37 +111,50 @@ export abstract class Layoutable {
     if (aspect != null) {
       const {width_policy, height_policy} = this.sizing
 
+      const gt = (width: SizingPolicy, height: SizingPolicy) => {
+        const policies = {max: 4, fit: 3, min: 2, fixed: 1}
+        return policies[width] > policies[height]
+      }
+
       if (width_policy != "fixed" && height_policy != "fixed") {
-        const w_width = width
-        const w_height = width / aspect
+        if (width_policy == height_policy) {
+          const w_width = width
+          const w_height = round(width / aspect)
 
-        const h_width = height * aspect
-        const h_height = height
+          const h_width = round(height * aspect)
+          const h_height = height
 
-        const w_diff = Math.abs(viewport.width - w_width) + Math.abs(viewport.height - w_height)
-        const h_diff = Math.abs(viewport.width - h_width) + Math.abs(viewport.height - h_height)
+          const w_diff = Math.abs(viewport.width - w_width) + Math.abs(viewport.height - w_height)
+          const h_diff = Math.abs(viewport.width - h_width) + Math.abs(viewport.height - h_height)
 
-        if (w_diff <= h_diff) {
-          width = w_width
-          height = w_height
+          if (w_diff <= h_diff) {
+            width = w_width
+            height = w_height
+          } else {
+            width = h_width
+            height = h_height
+          }
+        } else if (gt(width_policy, height_policy)) {
+          height = round(width/aspect)
         } else {
-          width = h_width
-          height = h_height
+          width = round(height*aspect)
         }
       } else if (width_policy == "fixed") {
-        height = width/aspect
+        height = round(width/aspect)
       } else if (height_policy == "fixed") {
-        width = height*aspect
-      } else
-        throw new Error("unrechable")
+        width = round(height*aspect)
+      }
     }
 
     return {width, height}
   }
 
-  protected abstract _measure(viewport: Size): SizeHint
+  protected abstract _measure(viewport: Sizeable): SizeHint
 
-  measure(viewport: Size): SizeHint {
+  measure(viewport_size: Size): SizeHint {
+    if (!this.sizing.visible)
+      return {width: 0, height: 0}
+
     const exact_width = (width: number) => {
       return this.sizing.width_policy == "fixed" && this.sizing.width != null ? this.sizing.width : width
     }
@@ -143,11 +162,9 @@ export abstract class Layoutable {
       return this.sizing.height_policy == "fixed" && this.sizing.height != null ? this.sizing.height : height
     }
 
-    viewport = new Sizeable(viewport).shrink_by(this.sizing.margin)
-    viewport = {
-      width: exact_width(viewport.width),
-      height: exact_height(viewport.height),
-    }
+    const viewport = new Sizeable(viewport_size)
+      .shrink_by(this.sizing.margin)
+      .map(exact_width, exact_height)
 
     const computed = this._measure(viewport)
     const clipped = this.clip_size(computed)
@@ -156,7 +173,7 @@ export abstract class Layoutable {
     const height = exact_height(clipped.height)
 
     const size = this.apply_aspect(viewport, {width, height})
-    return {...size, inner: computed.inner}
+    return {...computed, ...size}
   }
 
   compute(viewport: Partial<Size> = {}): void {
@@ -252,6 +269,61 @@ export class LayoutItem extends Layoutable {
       else
         throw new Error("unrechable")
     }
+
+    return {width, height}
+  }
+}
+
+export abstract class ContentLayoutable extends Layoutable {
+
+  /*
+  protected _min_size(): SizeHint {
+    return content_size.expanded_to(this.sizing.min_size)
+    .map(...) // apply fixed size (?)
+  }
+
+  protected _max_size(): SizeHint {
+    return this.sizing.max_size
+  }
+  */
+
+  protected abstract _content_size(): Sizeable
+
+  protected _measure(viewport: Sizeable): SizeHint {
+    const content_size = this._content_size()
+
+    const bounds = viewport.bounded_to(this.sizing.size)
+                           .bounded_to(content_size)
+
+    const width = (() => {
+      switch (this.sizing.width_policy) {
+        case "fixed":
+          return this.sizing.width != null ? this.sizing.width : content_size.width
+        case "min":
+          return content_size.width
+        case "fit":
+          return bounds.width
+        case "max":
+          return Math.max(content_size.width, bounds.width)
+        default:
+          throw new Error("unexpected")
+      }
+    })()
+
+    const height = (() => {
+      switch (this.sizing.height_policy) {
+        case "fixed":
+          return this.sizing.height != null ? this.sizing.height : content_size.height
+        case "min":
+          return content_size.height
+        case "fit":
+          return bounds.height
+        case "max":
+          return Math.max(content_size.height, bounds.height)
+        default:
+          throw new Error("unexpected")
+      }
+    })()
 
     return {width, height}
   }

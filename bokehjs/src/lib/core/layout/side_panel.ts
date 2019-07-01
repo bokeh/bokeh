@@ -1,5 +1,5 @@
-import {Size, SizeHint} from "./types"
-import {Layoutable} from "./layoutable"
+import {Size, Sizeable} from "./types"
+import {ContentLayoutable} from "./layoutable"
 
 import {Side} from "../enums"
 import {isString} from "../util/types"
@@ -154,7 +154,7 @@ export interface Panelable {
   rotate?: boolean
 }
 
-export class SidePanel extends Layoutable {
+export class SidePanel extends ContentLayoutable {
 
   protected _dim: 0 | 1
   protected _normals: [number, number]
@@ -189,8 +189,8 @@ export class SidePanel extends Layoutable {
       this.set_sizing({width_policy: "fixed", height_policy: "max"})
   }
 
-  protected _measure(_viewport: Size): SizeHint {
-    return this.get_oriented_size()
+  protected _content_size(): Sizeable {
+    return new Sizeable(this.get_oriented_size())
   }
 
   get_oriented_size(): Size {

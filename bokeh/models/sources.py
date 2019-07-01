@@ -41,6 +41,7 @@ pd = import_optional('pandas')
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'ServerSentDataSource',
     'AjaxDataSource',
     'CDSView',
     'ColumnarDataSource',
@@ -698,7 +699,43 @@ class GeoJSONDataSource(ColumnarDataSource):
     """)
 
 @abstract
-class RemoteSource(ColumnDataSource):
+class WebSource(ColumnDataSource):
+    ''' Base class for web column data sources that can update from data
+    URLs.
+
+    .. note::
+        This base class is typically not useful to instantiate on its own.
+
+    '''
+
+    adapter = Instance(CustomJS, help="""
+    A JavaScript callback to adapt raw JSON responses to Bokeh ``ColumnDataSource``
+    format.
+
+    If provided, this callback is executes immediately after the JSON data is
+    received, but before appending or replacing data in the data source. The
+    ``CustomJS`` callback will receive the ``AjaxDataSource`` as ``cb_obj`` and
+    will receive the raw JSON response as ``cb_data.response``. The callback
+    code should return a ``data`` object suitable for a Bokeh ``ColumnDataSource``
+    (i.e.  a mapping of string column names to arrays of data).
+    """)
+
+    max_size = Int(help="""
+    Maximum size of the data columns. If a new fetch would result in columns
+    larger than ``max_size``, then earlier data is dropped to make room.
+    """)
+
+    mode = Enum("replace", "append", help="""
+    Whether to append new data to existing data (up to ``max_size``), or to
+    replace existing data entirely.
+    """)
+
+    data_url = String(help="""
+    A URL to to fetch data from.
+    """)
+
+@abstract
+class RemoteSource(WebSource):
     ''' Base class for remote column data sources that can update from data
     URLs at prescribed time intervals.
 
@@ -707,13 +744,15 @@ class RemoteSource(ColumnDataSource):
 
     '''
 
-    data_url = String(help="""
-    A URL to to fetch data from.
-    """)
-
     polling_interval = Int(help="""
     A polling interval (in milliseconds) for updating data source.
     """)
+
+class ServerSentDataSource(WebSource):
+    ''' A data source that can populate columns by receiving server sent
+    events endpoints.
+
+    '''
 
 class AjaxDataSource(RemoteSource):
     ''' A data source that can populate columns by making Ajax calls to REST
@@ -744,28 +783,6 @@ class AjaxDataSource(RemoteSource):
 
     method = Enum('POST', 'GET', help="""
     Specify the HTTP method to use for the Ajax request (GET or POST)
-    """)
-
-    mode = Enum("replace", "append", help="""
-    Whether to append new data to existing data (up to ``max_size``), or to
-    replace existing data entirely.
-    """)
-
-    adapter = Instance(CustomJS, help="""
-    A JavaScript callback to adapt raw JSON responses to Bokeh ``ColumnDataSource``
-    format.
-
-    If provided, this callback is executes immediately after the JSON data is
-    received, but before appending or replacing data in the data source. The
-    ``CustomJS`` callback will receive the ``AjaxDataSource`` as ``cb_obj`` and
-    will receive the raw JSON response as ``cb_data.response``. The callback
-    code should return a ``data`` object suitable for a Bokeh ``ColumnDataSource``
-    (i.e.  a mapping of string column names to arrays of data).
-    """)
-
-    max_size = Int(help="""
-    Maximum size of the data columns. If a new fetch would result in columns
-    larger than ``max_size``, then earlier data is dropped to make room.
     """)
 
     if_modified = Bool(False, help="""

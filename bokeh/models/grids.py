@@ -25,11 +25,11 @@ log = logging.getLogger(__name__)
 # External imports
 
 # Bokeh imports
-from ..core.properties import Auto, Either, Float, Include, Instance, Int, Override, String, Tuple
-from ..core.property_mixins import FillProps, LineProps
+from ..core.properties import Auto, Either, Float, Include, Instance, Int, Override, Seq, String, Tuple
+from ..core.property_mixins import ScalarFillProps, ScalarHatchProps, ScalarLineProps
 
 from .renderers import GuideRenderer
-from .tickers import Ticker
+from .tickers import FixedTicker, Ticker
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -78,27 +78,31 @@ class Grid(GuideRenderer):
 
     ticker = Instance(Ticker, help="""
     The Ticker to use for computing locations for the Grid lines.
-    """)
+    """).accepts(Seq(Float), lambda ticks: FixedTicker(ticks=ticks))
 
-    grid_props = Include(LineProps, help="""
+    grid_props = Include(ScalarLineProps, help="""
     The %s of the Grid lines.
     """)
 
     grid_line_color = Override(default='#e5e5e5')
 
-    minor_grid_props = Include(LineProps, help="""
+    minor_grid_props = Include(ScalarLineProps, help="""
     The %s of the minor Grid lines.
     """)
 
     minor_grid_line_color = Override(default=None)
 
-    band_props = Include(FillProps, help="""
+    band_fill_props = Include(ScalarFillProps, use_prefix="band", help="""
     The %s of alternating bands between Grid lines.
     """)
 
     band_fill_alpha = Override(default=0)
 
     band_fill_color = Override(default=None)
+
+    band_hatch_props = Include(ScalarHatchProps, use_prefix="band", help="""
+    The %s of alternating bands between Grid lines.
+    """)
 
     level = Override(default="underlay")
 

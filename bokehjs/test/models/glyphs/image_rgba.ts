@@ -2,7 +2,7 @@ import {expect} from "chai"
 import * as sinon from "sinon"
 
 import {create_glyph_view} from "./glyph_utils"
-import {ImageRGBA, ImageRGBAView} from "models/glyphs/image_rgba"
+import {ImageRGBA, ImageRGBAView} from "@bokehjs/models/glyphs/image_rgba"
 
 describe("ImageRGBA module", () => {
 

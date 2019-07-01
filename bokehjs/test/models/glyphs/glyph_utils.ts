@@ -1,15 +1,15 @@
-import {Arrayable} from "core/types"
-import {Document} from "document"
-import {Range1d} from "models/ranges/range1d"
-import {Plot} from "models/plots/plot"
-import {Glyph, GlyphView} from "models/glyphs/glyph"
-import {GlyphRenderer, GlyphRendererView} from "models/renderers/glyph_renderer"
-import {ColumnDataSource} from "models/sources/column_data_source"
-import {Scale} from "models/scales/scale"
-import {LinearScale} from "models/scales/linear_scale"
-import {LogScale} from "models/scales/log_scale"
-import {CategoricalScale} from "models/scales/categorical_scale"
-import {FactorRange} from "models/ranges/factor_range"
+import {Arrayable} from "@bokehjs/core/types"
+import {Document} from "@bokehjs/document"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {Plot} from "@bokehjs/models/plots/plot"
+import {Glyph, GlyphView} from "@bokehjs/models/glyphs/glyph"
+import {GlyphRenderer, GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {Scale} from "@bokehjs/models/scales/scale"
+import {LinearScale} from "@bokehjs/models/scales/linear_scale"
+import {LogScale} from "@bokehjs/models/scales/log_scale"
+import {CategoricalScale} from "@bokehjs/models/scales/categorical_scale"
+import {FactorRange} from "@bokehjs/models/ranges/factor_range"
 
 export function create_glyph_renderer_view(glyph: Glyph, data: {[key: string]: Arrayable} = {}): GlyphRendererView {
   const doc = new Document()
@@ -31,11 +31,11 @@ export function create_glyph_renderer_view(glyph: Glyph, data: {[key: string]: A
   return glyph_renderer_view
 }
 
-import {HasProps} from "core/has_props"
+import {HasProps} from "@bokehjs/core/has_props"
 export type ViewType<T extends HasProps> = InstanceType<T["default_view"]>
 
 export function create_glyph_view<G extends Glyph>(glyph: G, data: {[key: string]: Arrayable} = {}): ViewType<G> {
-  return create_glyph_renderer_view(glyph, data).glyph /* glyph_view */ as ViewType<G>
+  return create_glyph_renderer_view(glyph, data).glyph /* glyph_view */ as unknown as ViewType<G> // XXX: investigate this
 }
 
 export type AxisType = "linear" | "log" | "categorical"

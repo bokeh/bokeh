@@ -13,12 +13,21 @@ export class SpatialIndex {
       this.index = new FlatBush(points.length)
 
       for (const p of points) {
-        const {minX, minY, maxX, maxY} = p
-        this.index.add(minX, minY, maxX, maxY)
+        const {x0, y0, x1, y1} = p
+        this.index.add(x0, y0, x1, y1)
       }
 
       this.index.finish()
     }
+  }
+
+  protected _normalize(rect: Rect): Rect {
+    let {x0, y0, x1, y1} = rect
+    if (x0 > x1)
+      [x0, x1] = [x1, x0]
+    if (y0 > y1)
+      [y0, y1] = [y1, y0]
+    return {x0, y0, x1, y1}
   }
 
   get bbox(): Rect {
@@ -26,7 +35,7 @@ export class SpatialIndex {
       return empty()
     else {
       const {minX, minY, maxX, maxY} = this.index
-      return {minX, minY, maxX, maxY}
+      return {x0: minX, y0: minY, x1: maxX, y1: maxY}
     }
   }
 
@@ -34,8 +43,8 @@ export class SpatialIndex {
     if (this.index == null)
       return []
     else {
-      const {minX, minY, maxX, maxY} = rect
-      const indices = this.index.search(minX, minY, maxX, maxY)
+      const {x0, y0, x1, y1} = this._normalize(rect)
+      const indices = this.index.search(x0, y0, x1, y1)
       return indices.map((j) => this.points[j])
     }
   }

@@ -1,5 +1,6 @@
 import {ActionTool, ActionToolView} from "./action_tool"
 import * as p from "core/properties"
+import {bk_tool_icon_help} from "styles/icons"
 
 export class HelpToolView extends ActionToolView {
   model: HelpTool
@@ -28,7 +29,6 @@ export class HelpTool extends ActionTool {
   }
 
   static initClass(): void {
-    this.prototype.type = "HelpTool"
     this.prototype.default_view = HelpToolView
 
     this.define<HelpTool.Props>({
@@ -38,7 +38,7 @@ export class HelpTool extends ActionTool {
   }
 
   tool_name = "Help"
-  icon = "bk-tool-icon-help"
+  icon = bk_tool_icon_help
 
   get tooltip(): string {
     return this.help_tooltip

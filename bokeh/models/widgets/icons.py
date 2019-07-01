@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ...core.has_props import abstract
 
-from .widget import Widget
+from ...model import Model
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -46,7 +46,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @abstract
-class AbstractIcon(Widget):
+class AbstractIcon(Model):
     ''' An abstract base class for icon widgets.
 
     '''

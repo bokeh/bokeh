@@ -31,6 +31,11 @@
   -webkit-flex-direction: @direction;
 }
 
+.flex-grow(@grow) {
+  flex-grow: @grow;
+  -webkit-flex-grow: @grow;
+}
+
 .flex-shrink(@shrink) {
   flex-shrink: @shrink;
   -webkit-flex-shrink: @shrink;
@@ -66,4 +71,8 @@
     color: @color;
     opacity: 1;
   }
+}
+
+.bring-to-front() {
+  z-index: 100;
 }

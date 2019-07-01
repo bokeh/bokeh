@@ -24,8 +24,8 @@ and examples.
 
 .. _release-0-10-0-migration:
 
-Migration Guide
----------------
+`Migration Guide <releases.html#release-0-10-0-migration>`__
+------------------------------------------------------------
 
 This release introduced a new, often requested style of chart interface that
 is centered around Pandas DataFrames.  All of "old style" charts in the

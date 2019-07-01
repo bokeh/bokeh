@@ -1,9 +1,9 @@
 import {expect} from "chai"
 
-import {HasProps} from "core/has_props"
-import * as p from "core/properties"
-import {Document} from "document/document"
-import * as events from "document/events"
+import {HasProps} from "@bokehjs/core/has_props"
+import * as p from "@bokehjs/core/properties"
+import {Document} from "@bokehjs/document/document"
+import * as events from "@bokehjs/document/events"
 
 const EVENTS = [
 //  "ColumnDataChangedEvent", // Not implemented yet
@@ -19,15 +19,12 @@ const EVENTS = [
 const EMPTY_REFS = {}
 
 class TestModel extends HasProps {}
-TestModel.prototype.type = "TestModel"
 
 class TestModelWithRefs extends HasProps {
 
   foo: any
 
   static initClass(): void {
-    this.prototype.type = 'TestModelWithRefs'
-
     this.define<any>({
       foo: [ p.Any, [] ],
     })
@@ -124,7 +121,7 @@ describe("events module", () => {
         attr: "foo",
         new: [m.ref()],
       })
-      const expected_refs: {[key: string]: any} = {}
+      const expected_refs: {[key: string]: HasProps} = {}
       expected_refs[m.id] = m
       expect(refs).to.be.deep.equal(expected_refs)
     })

@@ -17,10 +17,10 @@ t = np.linspace(0, 0.1, 100)
 
 code = """
 // cb_data = {geometries: ..., source: ...}
-var v = cb_data.source.selected.get_view();
-if (v) {
-    var color = v.visuals.line.line_color.value();
-    var data = source.data;
+const view = cb_data.source.selected.get_view();
+const data = source.data;
+if (view) {
+    const color = view.model.line_color;
     data['text'] = ['Selected the ' + color + ' line'];
     data['text_color'] = [color];
     source.change.emit();

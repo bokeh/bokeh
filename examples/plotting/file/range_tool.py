@@ -9,7 +9,7 @@ from bokeh.sampledata.stocks import AAPL
 dates = np.array(AAPL['date'], dtype=np.datetime64)
 source = ColumnDataSource(data=dict(date=dates, close=AAPL['adj_close']))
 
-p = figure(plot_height=300, plot_width=800, tools="", toolbar_location=None,
+p = figure(plot_height=300, plot_width=800, tools="xpan", toolbar_location=None,
            x_axis_type="datetime", x_axis_location="above",
            background_fill_color="#efefef", x_range=(dates[1500], dates[2500]))
 

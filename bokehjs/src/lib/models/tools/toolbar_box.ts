@@ -14,7 +14,7 @@ import {ToolbarBase, GestureType} from "./toolbar_base"
 import {ToolProxy} from "./tool_proxy"
 
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
-import {HTML} from "core/layout"
+import {ContentBox} from "core/layout"
 
 export namespace ProxyToolbar {
   export type Attrs = p.AttrsOf<Props>
@@ -29,10 +29,6 @@ export class ProxyToolbar extends ToolbarBase {
 
   constructor(attrs?: Partial<ProxyToolbar.Attrs>) {
     super(attrs)
-  }
-
-  static initClass(): void {
-    this.prototype.type = "ProxyToolbar"
   }
 
   _proxied_tools: (Tool | ToolProxy)[]
@@ -190,14 +186,13 @@ export class ProxyToolbar extends ToolbarBase {
     }
   }
 }
-ProxyToolbar.initClass()
 
 export class ToolbarBoxView extends LayoutDOMView {
   model: ToolbarBox
 
-  initialize(options: any): void {
+  initialize(): void {
     this.model.toolbar.toolbar_location = this.model.toolbar_location
-    super.initialize(options)
+    super.initialize()
   }
 
   get child_models(): LayoutDOM[] {
@@ -205,7 +200,7 @@ export class ToolbarBoxView extends LayoutDOMView {
   }
 
   _update_layout(): void {
-    this.layout = new HTML(this.child_views[0].el)
+    this.layout = new ContentBox(this.child_views[0].el)
 
     const {toolbar} = this.model
 
@@ -240,7 +235,6 @@ export class ToolbarBox extends LayoutDOM {
   }
 
   static initClass(): void {
-    this.prototype.type = 'ToolbarBox'
     this.prototype.default_view = ToolbarBoxView
 
     this.define<ToolbarBox.Props>({

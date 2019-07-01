@@ -22,10 +22,6 @@ export class CategoricalTicker extends Ticker<Factor> {
     super(attrs)
   }
 
-  static initClass(): void {
-    this.prototype.type = "CategoricalTicker"
-  }
-
   get_ticks(start: number, end: number, range: FactorRange, _cross_loc: any, _: any): FactorTickSpec {
     const majors = this._collect(range.factors, range, start, end)
 
@@ -52,4 +48,3 @@ export class CategoricalTicker extends Ticker<Factor> {
     return result
   }
 }
-CategoricalTicker.initClass()

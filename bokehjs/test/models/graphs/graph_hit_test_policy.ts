@@ -1,21 +1,21 @@
 import {expect} from "chai"
 import * as sinon from "sinon"
 
-import {create_hit_test_result_from_hits, create_empty_hit_test_result} from "core/hittest"
+import {create_hit_test_result_from_hits, create_empty_hit_test_result} from "@bokehjs/core/hittest"
 
-import {Selection} from "models/selections/selection"
-import {Plot} from "models/plots/plot"
-import {Range1d} from "models/ranges/range1d"
+import {Selection} from "@bokehjs/models/selections/selection"
+import {Plot} from "@bokehjs/models/plots/plot"
+import {Range1d} from "@bokehjs/models/ranges/range1d"
 
-import {Circle} from "models/glyphs/circle"
-import {MultiLine} from "models/glyphs/multi_line"
-import {NodesOnly, NodesAndLinkedEdges, EdgesAndLinkedNodes} from "models/graphs/graph_hit_test_policy"
-import {LayoutProvider} from "models/graphs/layout_provider"
-import {GlyphRenderer} from "models/renderers/glyph_renderer"
-import {GraphRenderer, GraphRendererView} from "models/renderers/graph_renderer"
-import {ColumnarDataSource} from "models/sources/columnar_data_source"
-import {ColumnDataSource} from "models/sources/column_data_source"
-import {Document} from "document"
+import {Circle} from "@bokehjs/models/glyphs/circle"
+import {MultiLine} from "@bokehjs/models/glyphs/multi_line"
+import {NodesOnly, NodesAndLinkedEdges, EdgesAndLinkedNodes} from "@bokehjs/models/graphs/graph_hit_test_policy"
+import {LayoutProvider} from "@bokehjs/models/graphs/layout_provider"
+import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
+import {GraphRenderer, GraphRendererView} from "@bokehjs/models/renderers/graph_renderer"
+import {ColumnarDataSource} from "@bokehjs/models/sources/columnar_data_source"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {Document} from "@bokehjs/document"
 
 class TrivialLayoutProvider extends LayoutProvider {
 

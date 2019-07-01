@@ -2,42 +2,54 @@ import {InputWidget, InputWidgetView} from "models/widgets/input_widget"
 import {input} from "core/dom"
 import * as p from "core/properties"
 
-const {log10, round, min, max} = Math
+import {bk_input} from "styles/widgets/inputs"
+
+const {abs, floor, log10} = Math
+
+function _get_sig_dig(num: number) : number {
+  let x = abs(Number(String(num).replace(".", ""))) // remove decimal and make positive
+  if (x == 0) return 0
+  while (x != 0 && (x % 10 == 0)) x /= 10 // kill the 0s at the end of n
+
+  return floor(log10(x)) + 1 // get number of digits
+}
 
 export class SpinnerView extends InputWidgetView {
   model: Spinner
 
-  protected input: HTMLInputElement
+  protected input_el: HTMLInputElement
 
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.low.change, () => {
-      const {low, step} = this.model
+      const {low} = this.model
       if (low != null)
-        this.input.min = low.toFixed(log10(1 / step))
+        this.input_el.min = low.toFixed(16)
     })
     this.connect(this.model.properties.high.change, () => {
-      const {high, step} = this.model
+      const {high} = this.model
       if (high != null)
-        this.input.max = high.toFixed(log10(1 / step))
+        this.input_el.max = high.toFixed(16)
     })
-    const fn = () => {
+    this.connect(this.model.properties.step.change,  () => {
+      const {step} = this.model
+      this.input_el.step = step.toFixed(16)
+    })
+    this.connect(this.model.properties.value.change, () => {
       const {value, step} = this.model
-      this.input.step = value.toFixed(log10(1 / step))
-    }
-    this.connect(this.model.properties.step.change, fn)
-    this.connect(this.model.properties.value.change, fn)
+      this.input_el.value = value.toFixed(_get_sig_dig(step))
+    })
     this.connect(this.model.properties.disabled.change, () => {
-      this.input.disabled = this.model.disabled
+      this.input_el.disabled = this.model.disabled
     })
   }
 
   render(): void {
     super.render()
 
-    this.input = input({
+    this.input_el = input({
       type: "number",
-      class: "bk-input",
+      class: bk_input,
       name: this.model.name,
       min: this.model.low,
       max: this.model.high,
@@ -45,28 +57,15 @@ export class SpinnerView extends InputWidgetView {
       step: this.model.step,
       disabled: this.model.disabled,
     })
-    this.input.addEventListener("change", () => this.change_input())
-    //this.input.addEventListener("input", () => this.change_input())
-    this.el.appendChild(this.input)
+    this.input_el.addEventListener("change", () => this.change_input())
+    //this.input_el.addEventListener("input", () => this.change_input())
+    this.group_el.appendChild(this.input_el)
   }
 
   change_input(): void {
-    const {step, low, high} = this.model
-    const new_value = Number(this.input.value)
-
-    let process_value: number
-    if (low != null)
-      process_value = low + step * round((new_value - low) / step)
-    else
-      process_value = round(new_value / step) * step
-
-    if (low != null)
-      process_value = max(process_value, low)
-
-    if (high != null)
-      process_value = min(process_value, high)
-
-    this.model.value = Number(process_value.toFixed(log10(1 / step)))
+    const {step} = this.model
+    const new_value = Number(this.input_el.value)
+    this.model.value = Number(new_value.toFixed(_get_sig_dig(step)))
 
     if (this.model.value != new_value) {
       // this is needed when the current value in the input is already at bounded value
@@ -83,9 +82,9 @@ export namespace Spinner {
 
   export type Props = InputWidget.Props & {
     value: p.Property<number>
-    low: p.Property<number | null>
-    high: p.Property<number | null>
-    step: p.Property<number>
+    low:   p.Property<number | null>
+    high:  p.Property<number | null>
+    step:  p.Property<number>
   }
 }
 
@@ -99,7 +98,6 @@ export class Spinner extends InputWidget {
   }
 
   static initClass(): void {
-    this.prototype.type = "Spinner"
     this.prototype.default_view = SpinnerView
 
     this.define<Spinner.Props>({

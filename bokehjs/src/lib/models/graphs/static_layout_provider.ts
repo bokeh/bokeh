@@ -20,8 +20,6 @@ export class StaticLayoutProvider extends LayoutProvider {
   }
 
   static initClass(): void {
-    this.prototype.type = "StaticLayoutProvider"
-
     this.define<StaticLayoutProvider.Props>({
       graph_layout: [ p.Any, {} ],
     })
