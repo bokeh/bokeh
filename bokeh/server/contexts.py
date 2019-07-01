@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import concurrent.futures
 
 # External imports
 from tornado import gen
@@ -213,11 +212,10 @@ class ApplicationContext(object):
             except Exception as e:
                 log.error("Failed to run session creation hooks %r", e, exc_info=True)
 
-            # using ThreadPoolExecutor create a thread that initializes new session document
+            # using IOLOOP's default Thread executor create a thread to initialize new session document
             try:
-                doc_initializer = concurrent.futures.ThreadPoolExecutor(max_workers=1)
-                doc_initializer.submit(self._application.initialize_document, doc)
-            except concurrent.futures.BrokenExecutor as e:
+                yield self._loop.run_in_executor(None, self._application.initialize_document, doc)
+            except Exception as e:
                 log.error("ThreadExecutor failed to create document for session with ID", session_id, e)
 
             session = ServerSession(session_id, doc, io_loop=self._loop)
