@@ -11,8 +11,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -163,8 +161,6 @@ class BokehTornado(TornadoApplication):
             Set the Tornado ``websocket_max_message_size`` value.
             (default: 20*1024*1024)
 
-            NOTE: This setting has effect ONLY for Tornado>=4.5
-
     Any additional keyword arguments are passed to ``tornado.web.Application``.
     '''
 
@@ -313,7 +309,7 @@ class BokehTornado(TornadoApplication):
         for line in pformat(all_patterns, width=60).split("\n"):
             log.debug("  " + line)
 
-        super(BokehTornado, self).__init__(all_patterns,
+        super().__init__(all_patterns,
                                            websocket_max_message_size=websocket_max_message_size_bytes,
                                            **kwargs)
 

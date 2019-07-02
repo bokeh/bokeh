@@ -8,8 +8,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -46,6 +44,14 @@ class Test_Instance(object):
     def test_init(self):
         with pytest.raises(TypeError):
             bcpi.Instance()
+
+    def test_serialized(self):
+        prop = bcpi.Instance(_TestModel)
+        assert prop.serialized == True
+
+    def test_readonly(self):
+        prop = bcpi.Instance(_TestModel)
+        assert prop.readonly == False
 
     def test_valid(self):
         prop = bcpi.Instance(_TestModel)

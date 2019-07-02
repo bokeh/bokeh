@@ -307,8 +307,6 @@ The default log format is ``"{DEFAULT_LOG_FORMAT}"``
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -530,8 +528,7 @@ class Serve(Subcommand):
         ('--websocket-max-message-size', dict(
             metavar='BYTES',
             action='store',
-            help="Set the Tornado websocket_max_message_size value (defaults "
-                 "to 20MB) NOTE: This setting has effect ONLY for Tornado>=4.5",
+            help="Set the Tornado websocket_max_message_size value (defaults to 20MB)",
             default=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
             type=int,
         )),

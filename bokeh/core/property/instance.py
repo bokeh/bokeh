@@ -14,8 +14,6 @@ where one Bokeh model refers to another.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -27,7 +25,6 @@ log = logging.getLogger(__name__)
 from importlib import import_module
 
 # External imports
-from six import iteritems, string_types
 
 # Bokeh imports
 from .bases import DeserializationError, Property
@@ -47,11 +44,14 @@ __all__ = (
 class Instance(Property):
     ''' Accept values that are instances of |HasProps|.
 
-
+    Args:
+        readonly (bool, optional) :
+            Whether attributes created from this property are read-only.
+            (default: False)
 
     '''
-    def __init__(self, instance_type, default=None, help=None):
-        if not isinstance(instance_type, (type,) + string_types):
+    def __init__(self, instance_type, default=None, help=None, readonly=False, serialized=True):
+        if not isinstance(instance_type, (type, str)):
             raise ValueError("expected a type or string, got %s" % instance_type)
 
         from ..has_props import HasProps
@@ -60,7 +60,7 @@ class Instance(Property):
 
         self._instance_type = instance_type
 
-        super(Instance, self).__init__(default=default, help=help)
+        super().__init__(default=default, help=help, readonly=readonly, serialized=True)
 
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, self.instance_type.__name__)
@@ -71,7 +71,7 @@ class Instance(Property):
 
     @property
     def instance_type(self):
-        if isinstance(self._instance_type, string_types):
+        if isinstance(self._instance_type, str):
             module, name = self._instance_type.rsplit(".", 1)
             self._instance_type = getattr(import_module(module, "bokeh"), name)
 
@@ -95,7 +95,7 @@ class Instance(Property):
             else:
                 attrs = {}
 
-                for name, value in iteritems(json):
+                for name, value in json.items():
                     prop_descriptor = self.instance_type.lookup(name).property
                     attrs[name] = prop_descriptor.from_json(value, models)
 
@@ -106,7 +106,7 @@ class Instance(Property):
             raise DeserializationError("%s expected a dict or None, got %s" % (self, json))
 
     def validate(self, value, detail=True):
-        super(Instance, self).validate(value, detail)
+        super().validate(value, detail)
 
         if value is not None:
             if not isinstance(value, self.instance_type):

@@ -17,7 +17,6 @@
 from ..core.has_props import abstract
 from ..core.properties import Any, Dict, Either, Int, Seq, String
 from ..model import Model
-from ..models.sources import ColumnDataSource
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -146,12 +145,9 @@ def from_networkx(graph, layout_function, **kwargs):
         edge_dict['start'] = [x[0] for x in graph.edges()]
         edge_dict['end'] = [x[1] for x in graph.edges()]
 
-        node_source = ColumnDataSource(data=node_dict)
-        edge_source = ColumnDataSource(data=edge_dict)
-
         graph_renderer = GraphRenderer()
-        graph_renderer.node_renderer.data_source.data = node_source.data
-        graph_renderer.edge_renderer.data_source.data = edge_source.data
+        graph_renderer.node_renderer.data_source.data = node_dict
+        graph_renderer.edge_renderer.data_source.data = edge_dict
 
         if callable(layout_function):
             graph_layout = layout_function(graph, **kwargs)

@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 from calendar import Calendar, day_abbr as day_abbrs, month_name as month_names
 
 from bokeh.layouts import gridplot

@@ -8,8 +8,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -19,7 +17,6 @@ import pytest ; pytest
 # Standard library imports
 
 # External imports
-from six import string_types
 
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
@@ -44,7 +41,7 @@ Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.sample_geojso
 @pytest.mark.sampledata
 def test_geojson():
     import bokeh.sampledata.sample_geojson as bsg
-    assert isinstance(bsg.geojson, string_types)
+    assert isinstance(bsg.geojson, str)
 
 #-----------------------------------------------------------------------------
 # Dev API

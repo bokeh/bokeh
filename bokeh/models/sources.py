@@ -8,8 +8,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -48,7 +46,7 @@ __all__ = (
     'ColumnDataSource',
     'DataSource',
     'GeoJSONDataSource',
-    'RemoteSource',
+    'WebSource'
 )
 
 #-----------------------------------------------------------------------------
@@ -61,7 +59,7 @@ class DataSource(Model):
 
     '''
 
-    selected = Instance(Selection, default=lambda: Selection(), help="""
+    selected = Instance(Selection, default=lambda: Selection(), readonly=True, help="""
     A Selection that indicates selected indices on this ``DataSource``.
     """)
 
@@ -181,7 +179,7 @@ class ColumnDataSource(ColumnarDataSource):
                 raw_data = self._data_from_groupby(raw_data)
             else:
                 raise ValueError("expected a dict or pandas.DataFrame, got %s" % raw_data)
-        super(ColumnDataSource, self).__init__(**kw)
+        super().__init__(**kw)
         self.data.update(raw_data)
 
     @property
@@ -223,7 +221,7 @@ class ColumnDataSource(ColumnarDataSource):
             _df.index = pd.Index(_df.index.values, name=index_name)
         _df.reset_index(inplace=True)
 
-        tmp_data = {c: v.values for c, v in _df.iteritems()}
+        tmp_data = {c: v.values for c, v in _df.items()}
 
         new_data = {}
         for k, v in tmp_data.items():
@@ -466,7 +464,7 @@ class ColumnDataSource(ColumnarDataSource):
             newkeys = set(_df.columns)
             index_name = ColumnDataSource._df_index_name(_df)
             newkeys.add(index_name)
-            new_data = dict(_df.iteritems())
+            new_data = dict(_df.items())
             new_data[index_name] = _df.index.values
         else:
             newkeys = set(new_data.keys())
@@ -734,27 +732,13 @@ class WebSource(ColumnDataSource):
     A URL to to fetch data from.
     """)
 
-@abstract
-class RemoteSource(WebSource):
-    ''' Base class for remote column data sources that can update from data
-    URLs at prescribed time intervals.
-
-    .. note::
-        This base class is typically not useful to instantiate on its own.
-
-    '''
-
-    polling_interval = Int(help="""
-    A polling interval (in milliseconds) for updating data source.
-    """)
-
 class ServerSentDataSource(WebSource):
     ''' A data source that can populate columns by receiving server sent
     events endpoints.
 
     '''
 
-class AjaxDataSource(RemoteSource):
+class AjaxDataSource(WebSource):
     ''' A data source that can populate columns by making Ajax calls to REST
     endpoints.
 
@@ -780,6 +764,10 @@ class AjaxDataSource(RemoteSource):
     A full example can be seen at :bokeh-tree:`examples/howto/ajax_source.py`
 
     '''
+
+    polling_interval = Int(help="""
+    A polling interval (in milliseconds) for updating data source.
+    """)
 
     method = Enum('POST', 'GET', help="""
     Specify the HTTP method to use for the Ajax request (GET or POST)

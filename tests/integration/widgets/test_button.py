@@ -9,8 +9,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -107,20 +105,6 @@ class Test_Button(object):
 
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
-
-    def test_callback_property_executes(self, bokeh_model_page):
-        button = Button(css_classes=['foo'])
-        button.callback = CustomJS(code=RECORD("clicked", "true"))
-
-        page = bokeh_model_page(button)
-
-        button = page.driver.find_element_by_css_selector('.foo .bk-btn')
-        button.click()
-
-        results = page.results
-        assert results == {'clicked': True}
-
-        assert page.has_no_console_errors()
 
     def test_js_on_event_executes(self, bokeh_model_page):
         button = Button(css_classes=['foo'])

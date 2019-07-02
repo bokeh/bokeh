@@ -11,8 +11,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -25,7 +23,6 @@ import math
 from collections import namedtuple
 
 # External imports
-from six import string_types
 
 # Bokeh imports
 from .core.enums import Location
@@ -486,7 +483,7 @@ def grid(children=[], sizing_mode=None, nrows=None, ncols=None):
                 return item
 
         layout = traverse(children, top_level=True)
-    elif isinstance(children, string_types):
+    elif isinstance(children, str):
         raise NotImplementedError
     else:
         raise ValueError("expected a list, string or model")

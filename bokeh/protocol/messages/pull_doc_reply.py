@@ -8,8 +8,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -24,14 +22,13 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..exceptions import ProtocolError
 from ..message import Message
-from . import register
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'pull_doc_reply_1',
+    'pull_doc_reply',
 )
 
 #-----------------------------------------------------------------------------
@@ -42,10 +39,9 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-@register
-class pull_doc_reply_1(Message):
-    ''' Define the ``PULL-DOC-REPLY`` message (revision 1) for replying to
-    Document pull requests from clients
+class pull_doc_reply(Message):
+    ''' Define the ``PULL-DOC-REPLY`` message for replying to Document pull
+    requests from clients
 
     The ``content`` fragment of for this message is has the form:
 
@@ -58,10 +54,9 @@ class pull_doc_reply_1(Message):
     '''
 
     msgtype  = 'PULL-DOC-REPLY'
-    revision = 1
 
     def __init__(self, header, metadata, content):
-        super(pull_doc_reply_1, self).__init__(header, metadata, content)
+        super().__init__(header, metadata, content)
 
     @classmethod
     def create(cls, request_id, document, **metadata):

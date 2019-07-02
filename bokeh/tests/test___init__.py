@@ -8,8 +8,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -22,7 +20,6 @@ from shutil import copy
 import warnings
 
 # External imports
-from six import string_types
 
 # Bokeh imports
 from bokeh._testing.util.api import verify_all
@@ -80,7 +77,7 @@ THE POSSIBILITY OF SUCH DAMAGE.
 Test___all__ = verify_all(b, ALL)
 
 def test___version___type():
-    assert isinstance(b.__version__, string_types)
+    assert isinstance(b.__version__, str)
 
 def test___version___defined():
     assert b.__version__ != 'unknown'

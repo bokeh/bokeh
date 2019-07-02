@@ -15,8 +15,6 @@ other sessions hosted by the server.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -32,11 +30,9 @@ import hmac
 import time
 
 # External imports
-from six import binary_type
 
 # Bokeh imports
 from bokeh.settings import settings
-from bokeh.util.string import encode_utf8
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -115,8 +111,7 @@ def check_session_id_signature(session_id, secret_key=settings.secret_key_bytes(
         expected_signature = _signature(base_id, secret_key)
         # hmac.compare_digest() uses a string compare algorithm that doesn't
         # short-circuit so we don't allow timing analysis
-        # encode_utf8 is used to ensure that strings have same encoding
-        return hmac.compare_digest(encode_utf8(expected_signature), encode_utf8(provided_signature))
+        return hmac.compare_digest(expected_signature, provided_signature)
     else:
         return True
 
@@ -152,7 +147,7 @@ def _get_sysrandom():
 def _ensure_bytes(secret_key):
     if secret_key is None:
         return None
-    elif isinstance(secret_key, binary_type):
+    elif isinstance(secret_key, bytes):
         return secret_key
     else:
         return codecs.encode(secret_key, 'utf-8')

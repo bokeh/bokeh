@@ -8,8 +8,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -27,7 +25,6 @@ from time import sleep
 
 # External imports
 import requests
-import six
 
 # Bokeh imports
 import bokeh.command.subcommands.serve as scserve
@@ -232,8 +229,7 @@ def test_args():
          ('--websocket-max-message-size', dict(
             metavar='BYTES',
             action='store',
-            help="Set the Tornado websocket_max_message_size value (defaults "
-                 "to 20MB) NOTE: This setting has effect ONLY for Tornado>=4.5",
+            help="Set the Tornado websocket_max_message_size value (defaults to 20MB)",
             default=20*1024*1024,
             type=int,
         )),
@@ -273,7 +269,7 @@ def check_error(args):
     return out
 
 def test_host_not_available():
-    host = str("8.8.8.8") # str cast is for Python 2.7 testing
+    host = "8.8.8.8"
     out = check_error(["--address", host])
     expected = "Cannot start Bokeh server, address %r not available" % host
     assert expected in out
@@ -289,7 +285,7 @@ def test_port_not_available():
     finally:
         sock.close()
 
-@pytest.mark.skipif(six.PY2, reason="Travis bug causes bad file descriptor")
+@pytest.mark.skipif(sys.platform == 'win32', reason="no fcntl on windows")
 def test_actual_port_printed_out():
     from fcntl import fcntl, F_GETFL, F_SETFL
     from os import O_NONBLOCK, read
@@ -308,7 +304,6 @@ def test_actual_port_printed_out():
         r = requests.get("http://localhost:%d/" % (port,))
         assert r.status_code == 200
 
-@pytest.mark.skipif(six.PY2, reason="Travis bug causes bad file descriptor")
 def test_websocket_max_message_size_printed_out():
     pat = re.compile(r'Torndado websocket_max_message_size set to 12345')
     with run_bokeh_serve(["--websocket-max-message-size", "12345"]) as p:

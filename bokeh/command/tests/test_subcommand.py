@@ -8,8 +8,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -73,7 +71,7 @@ def test_base_invoke():
     with pytest.raises(NotImplementedError):
         p = MagicMock()
         obj = _Good(p)
-        super(_Good, obj).invoke("foo")
+        super(_Good, obj).invoke("foo") # note super special case
 
 #-----------------------------------------------------------------------------
 # Code

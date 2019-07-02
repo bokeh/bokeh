@@ -8,8 +8,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -20,13 +18,11 @@ import pytest ; pytest
 import copy
 
 # External imports
-from six.moves import xrange
 
 # Bokeh imports
 from bokeh.core.properties import List, String, Instance, Dict, Any, Int
 from bokeh.model import Model
 from bokeh.core.property.wrappers import PropertyValueList, PropertyValueDict
-from bokeh.util.future import with_metaclass
 
 # Module under test
 
@@ -50,7 +46,7 @@ def large_plot(n):
     col = Column()
     objects = set([col])
 
-    for i in xrange(n):
+    for i in range(n):
         source = ColumnDataSource(data=dict(x=[0, i + 1], y=[0, i + 1]))
         xdr = DataRange1d()
         ydr = DataRange1d()
@@ -102,7 +98,7 @@ class TestMetaModel(object):
         self.metamodel.model_class_reverse_map = self.old_map
 
     def mkclass(self):
-        class Test_Class(with_metaclass(self.metamodel)):
+        class Test_Class(metaclass=self.metamodel):
             foo = 1
         return Test_Class
 
@@ -136,7 +132,7 @@ class TestCollectModels(object):
         # in a previous implementation, about 400 would blow max
         # recursion depth, so we double that and a little bit,
         # here.
-        for i in xrange(900):
+        for i in range(900):
             model = DeepModel()
             objects.add(model)
             parent.child = model
@@ -361,7 +357,7 @@ class TestContainerMutation(object):
 class HasListProp(Model):
     foo = List(String)
     def __init__(self, **kwargs):
-        super(HasListProp, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
 class TestListMutation(TestContainerMutation):
 
@@ -495,12 +491,12 @@ class TestListMutation(TestContainerMutation):
 class HasStringDictProp(Model):
     foo = Dict(String, Any)
     def __init__(self, **kwargs):
-        super(HasStringDictProp, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
 class HasIntDictProp(Model):
     foo = Dict(Int, Any)
     def __init__(self, **kwargs):
-        super(HasIntDictProp, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
 class TestDictMutation(TestContainerMutation):
 

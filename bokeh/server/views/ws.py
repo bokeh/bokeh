@@ -11,8 +11,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -22,13 +20,11 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import codecs
+from urllib.parse import urlparse
 
 # External imports
-from six.moves.urllib.parse import urlparse
-
 from tornado import gen, locks
-from tornado.websocket import StreamClosedError, WebSocketHandler, WebSocketClosedError
-
+from tornado.websocket import WebSocketHandler, WebSocketClosedError
 
 # Bokeh imports
 from ..protocol_handler import ProtocolHandler
@@ -71,7 +67,7 @@ class WSHandler(WebSocketHandler):
         self.write_lock = locks.Lock()
 
         # Note: tornado_app is stored as self.application
-        super(WSHandler, self).__init__(tornado_app, *args, **kw)
+        super().__init__(tornado_app, *args, **kw)
 
     def initialize(self, application_context, bokeh_websocket_path):
         pass
@@ -116,11 +112,6 @@ class WSHandler(WebSocketHandler):
         '''
         log.info('WebSocket connection opened')
 
-        proto_version = self.get_argument("bokeh-protocol-version", default=None)
-        if proto_version is None:
-            self.close()
-            raise ProtocolError("No bokeh-protocol-version specified")
-
         session_id = self.get_argument("bokeh-session-id", default=None)
         if session_id is None:
             self.close()
@@ -140,11 +131,11 @@ class WSHandler(WebSocketHandler):
                 # immediately, most likely.
                 log.debug("Failed to fully open connection %r", e)
 
-        future = self._async_open(session_id, proto_version)
+        future = self._async_open(session_id)
         self.application.io_loop.add_future(future, on_fully_opened)
 
     @gen.coroutine
-    def _async_open(self, session_id, proto_version):
+    def _async_open(self, session_id):
         ''' Perform the specific steps needed to open a connection to a Bokeh session
 
         Specifically, this method coordinates:
@@ -159,9 +150,6 @@ class WSHandler(WebSocketHandler):
 
                 If no session exists with the given ID, a new session is made
 
-            proto_version (str):
-                The protocol version requested by the connecting client.
-
         Returns:
             None
 
@@ -170,7 +158,7 @@ class WSHandler(WebSocketHandler):
             yield self.application_context.create_session_if_needed(session_id, self.request)
             session = self.application_context.get_session(session_id)
 
-            protocol = Protocol(proto_version)
+            protocol = Protocol()
             self.receiver = Receiver(protocol)
             log.debug("Receiver created for %r", protocol)
 
@@ -251,7 +239,7 @@ class WSHandler(WebSocketHandler):
             if _message_test_port is not None:
                 _message_test_port.sent.append(message)
             yield message.send(self)
-        except (WebSocketClosedError, StreamClosedError): # Tornado 4.x may raise StreamClosedError
+        except WebSocketClosedError:
             # on_close() is / will be called anyway
             log.warning("Failed sending message as connection was closed")
         raise gen.Return(None)
@@ -264,9 +252,9 @@ class WSHandler(WebSocketHandler):
         '''
         if locked:
             with (yield self.write_lock.acquire()):
-                yield super(WSHandler, self).write_message(message, binary)
+                yield super().write_message(message, binary)
         else:
-            yield super(WSHandler, self).write_message(message, binary)
+            yield super().write_message(message, binary)
 
     def on_close(self):
         ''' Clean up when the connection is closed.

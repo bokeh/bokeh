@@ -8,8 +8,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -18,17 +16,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import inspect
-from textwrap import dedent
-from types import FunctionType
 
 # External imports
 
 # Bokeh imports
 from ..core.properties import Bool, Dict, Either, Int, Seq, String, AnyRef
 from ..model import Model
-from ..util.dependencies import import_required
-from ..util.compiler import nodejs_compile, CompilationError
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -59,7 +52,7 @@ class Filter(Model):
         if len(args) == 1 and "filter" not in kw:
             kw["filter"] = args[0]
 
-        super(Filter, self).__init__(**kw)
+        super().__init__(**kw)
 
 class IndexFilter(Filter):
     ''' An ``IndexFilter`` filters data by returning the subset of data at a given set of indices.
@@ -73,7 +66,7 @@ class IndexFilter(Filter):
         if len(args) == 1 and "indices" not in kw:
             kw["indices"] = args[0]
 
-        super(IndexFilter, self).__init__(**kw)
+        super().__init__(**kw)
 
 class BooleanFilter(Filter):
     ''' A ``BooleanFilter`` filters data by returning the subset of data corresponding to indices
@@ -88,7 +81,7 @@ class BooleanFilter(Filter):
         if len(args) == 1 and "booleans" not in kw:
             kw["booleans"] = args[0]
 
-        super(BooleanFilter, self).__init__(**kw)
+        super().__init__(**kw)
 
 class GroupFilter(Filter):
     ''' A ``GroupFilter`` represents the rows of a ``ColumnDataSource`` where the values of the categorical
@@ -108,7 +101,7 @@ class GroupFilter(Filter):
             kw["column_name"] = args[0]
             kw["group"] = args[1]
 
-        super(GroupFilter, self).__init__(**kw)
+        super().__init__(**kw)
 
 class CustomJSFilter(Filter):
     ''' Filter data sources with a custom defined JavaScript function.
@@ -120,63 +113,6 @@ class CustomJSFilter(Filter):
         sanitize the user input prior to passing to Bokeh.
 
     '''
-
-    @classmethod
-    def from_py_func(cls, func):
-        ''' Create a ``CustomJSFilter`` instance from a Python function. The
-        function is translated to JavaScript using PScript.
-
-        The ``func`` function namespace will contain the variable ``source``
-        at render time. This will be the data source associated with the ``CDSView``
-        that this filter is added to.
-        '''
-        from bokeh.util.deprecation import deprecated
-        deprecated("'from_py_func' is deprecated and will be removed in an eventual 2.0 release. "
-                   "Use CustomJSFilter directly instead.")
-
-        if not isinstance(func, FunctionType):
-            raise ValueError('CustomJSFilter.from_py_func only accepts function objects.')
-
-        pscript = import_required(
-            'pscript',
-            dedent("""\
-                To use Python functions for CustomJSFilter, you need PScript
-                '("conda install -c conda-forge pscript" or "pip install pscript")""")
-            )
-
-        argspec = inspect.getargspec(func)
-
-        default_names = argspec.args
-        default_values = argspec.defaults or []
-
-        if len(default_names) - len(default_values) != 0:
-            raise ValueError("Function may only contain keyword arguments.")
-
-        # should the following be all of the values need to be Models?
-        if default_values and not any(isinstance(value, Model) for value in default_values):
-            raise ValueError("Default value must be a plot object.")
-
-        func_kwargs = dict(zip(default_names, default_values))
-        code = pscript.py2js(func, 'filter') + 'return filter(%s);\n' % ', '.join(default_names)
-
-        return cls(code=code, args=func_kwargs)
-
-    @classmethod
-    def from_coffeescript(cls, code, args={}):
-        ''' Create a ``CustomJSFilter`` instance from CoffeeScript snippets.
-        The function bodies are translated to JavaScript functions using node
-        and therefore require return statements.
-
-        The ``code`` function namespace will contain the variable ``source``
-        at render time. This will be the data source associated with the
-        ``CDSView`` that this filter is added to.
-        '''
-
-        compiled = nodejs_compile(code, lang="coffeescript", file="???")
-        if "error" in compiled:
-            raise CompilationError(compiled.error)
-        else:
-            return cls(code=compiled.code, args=args)
 
     args = Dict(String, AnyRef, help="""
     A mapping of names to Python objects. In particular those can be bokeh's models.
@@ -196,24 +132,18 @@ class CustomJSFilter(Filter):
 
     Example:
 
-        .. code-block:: javascript
+        .. code-block
 
             code = '''
-            var indices = [];
-            for (var i = 0; i <= source.data['some_column'].length; i++){
+            const indices = []
+            for (var i = 0; i <= source.data['some_column'].length; i++) {
                 if (source.data['some_column'][i] == 'some_value') {
                     indices.push(i)
                 }
             }
-            return indices;
+            return indices
             '''
 
-    .. note:: Use ``CustomJS.from_coffeescript()`` for CoffeeScript source code.
-
-    """)
-
-    use_strict = Bool(default=False, help="""
-    Enables or disables automatic insertion of ``"use strict";`` into ``code``.
     """)
 
 #-----------------------------------------------------------------------------

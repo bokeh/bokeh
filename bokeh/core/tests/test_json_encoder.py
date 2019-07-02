@@ -8,8 +8,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -24,7 +22,6 @@ import decimal
 # External imports
 import dateutil.relativedelta as rd
 import numpy as np
-from six import string_types
 
 # Bokeh imports
 from bokeh.colors import RGB
@@ -123,11 +120,11 @@ class TestBokehJSONEncoder(object):
     def test_color(self):
         c = RGB(16, 32, 64)
         assert self.encoder.default(c) == "rgb(16, 32, 64)"
-        assert isinstance(self.encoder.default(c), string_types)
+        assert isinstance(self.encoder.default(c), str)
 
         c = RGB(16, 32, 64, 0.1)
         assert self.encoder.default(c) == "rgba(16, 32, 64, 0.1)"
-        assert isinstance(self.encoder.default(c), string_types)
+        assert isinstance(self.encoder.default(c), str)
 
     def test_slice(self):
         c = slice(2)

@@ -11,8 +11,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -66,7 +64,7 @@ class JSON(String):
 
     '''
     def validate(self, value, detail=True):
-        super(JSON, self).validate(value, detail)
+        super().validate(value, detail)
 
         if value is None: return
 

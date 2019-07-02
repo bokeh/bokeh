@@ -8,8 +8,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -20,7 +18,6 @@ import pytest ; pytest
 
 # External imports
 import mock
-from six import string_types
 
 # Bokeh imports
 from bokeh._version import get_versions
@@ -39,7 +36,7 @@ import bokeh.util.version as buv
 class Test___version__(object):
 
     def test_basic(self):
-        assert isinstance(buv.__version__, string_types)
+        assert isinstance(buv.__version__, str)
         assert buv.__version__ == get_versions()['version']
 
 class Test_base_version(object):

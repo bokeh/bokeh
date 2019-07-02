@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import base64
 from math import pi, sin, cos
 

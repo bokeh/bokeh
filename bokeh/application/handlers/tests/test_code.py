@@ -8,8 +8,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -19,7 +17,6 @@ import pytest ; pytest
 # Standard library imports
 
 # External imports
-import six
 
 # Bokeh imports
 from bokeh.document import Document
@@ -68,16 +65,6 @@ class TestCodeHandler(object):
 
         assert not doc.roots
 
-    @pytest.mark.skipif(six.PY3, reason="this test doesn't have a Python 3 equivalent")
-    def test_exec_and___future___flags(self):
-        doc = Document()
-        handler = bahc.CodeHandler(source="exec(\"print \\\"XXX\\\"\")", filename="path/to/test_filename")
-        handler.modify_document(doc)
-        if handler.failed:
-            raise RuntimeError(handler.error)
-
-        assert not doc.roots
-
     def test_script_adds_roots(self):
         doc = Document()
         handler = bahc.CodeHandler(source=script_adds_two_roots, filename="path/to/test_filename")
@@ -113,7 +100,7 @@ class TestCodeHandler(object):
 
     def test_script_argv(self):
         doc = Document()
-        handler = bahc.CodeHandler(source="""import sys; raise RuntimeError("argv: %r" % sys.argv)""", filename=str("path/to/test_filename")) # str needed for py2.7
+        handler = bahc.CodeHandler(source="""import sys; raise RuntimeError("argv: %r" % sys.argv)""", filename="path/to/test_filename")
         handler.modify_document(doc)
 
         assert handler.error is not None
@@ -121,7 +108,7 @@ class TestCodeHandler(object):
 
         doc = Document()
         handler = bahc.CodeHandler(source="""import sys; raise RuntimeError("argv: %r" % sys.argv)""",
-                                   filename=str("path/to/test_filename"), argv=[10, 20, 30]) # str needed for py2.7
+                                   filename="path/to/test_filename", argv=[10, 20, 30])
         handler.modify_document(doc)
 
         assert handler.error is not None

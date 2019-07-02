@@ -13,8 +13,6 @@ and with options for "auto sizing".
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -138,7 +136,7 @@ class Range1d(Range):
             kwargs['start'] = args[0]
             kwargs['end'] = args[1]
 
-        super(Range1d, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
 
 @abstract
@@ -261,7 +259,7 @@ class DataRange1d(DataRange):
     def __init__(self, *args, **kwargs):
         if kwargs.get('follow') is not None:
             kwargs['bounds'] = None
-        super(DataRange1d, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
 
 class FactorRange(Range):
@@ -444,7 +442,7 @@ class FactorRange(Range):
             raise ValueError("'factors' keyword cannot be used with positional arguments")
         elif args:
             kwargs['factors'] = list(args)
-        super(FactorRange, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     @error(DUPLICATE_FACTORS)
     def _check_duplicate_factors(self):

@@ -19,8 +19,6 @@ updated the Document, it is used to service the user session.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -37,7 +35,6 @@ from tornado import gen
 # Bokeh imports
 from ..document import Document
 from ..settings import settings
-from ..util.future import with_metaclass
 from ..util.tornado import yield_for_all_futures
 
 #-----------------------------------------------------------------------------
@@ -238,7 +235,7 @@ class Application(object):
             yield yield_for_all_futures(result)
         raise gen.Return(None)
 
-class ServerContext(with_metaclass(ABCMeta)):
+class ServerContext(metaclass=ABCMeta):
     ''' A harness for server-specific information and tasks related to
     collections of Bokeh sessions.
 
@@ -360,7 +357,7 @@ class ServerContext(with_metaclass(ABCMeta)):
         '''
         pass
 
-class SessionContext(with_metaclass(ABCMeta)):
+class SessionContext(metaclass=ABCMeta):
     ''' A harness for server-specific information and tasks related to
     Bokeh sessions.
 

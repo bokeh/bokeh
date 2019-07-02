@@ -13,8 +13,6 @@ Mappers (as opposed to scales) are not presumed to be invertible.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -81,7 +79,7 @@ class ColorMapper(Mapper):
     def __init__(self, palette=None, **kwargs):
         if palette is not None:
             kwargs['palette'] = palette
-        super(ColorMapper, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
 @abstract
 class CategoricalMapper(Mapper):
@@ -131,7 +129,7 @@ class CategoricalColorMapper(CategoricalMapper, ColorMapper):
     '''
 
     def __init__(self, **kwargs):
-        super(CategoricalColorMapper, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         palette = self.palette
         factors = self.factors
         if palette is not None and factors is not None:

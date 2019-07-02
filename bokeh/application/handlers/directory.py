@@ -38,8 +38,6 @@ A full directory layout might look like:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -87,7 +85,7 @@ class DirectoryHandler(Handler):
 
             argv (list[str], optional) : a list of string arguments to make available as sys.argv to main.py
         '''
-        super(DirectoryHandler, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         if 'filename' not in kwargs:
             raise ValueError('Must pass a filename to DirectoryHandler')

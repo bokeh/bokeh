@@ -9,8 +9,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -102,32 +100,6 @@ class Test_Toggle(object):
         #assert page.has_no_console_errors()
 
     # XXX (bev) Toggle does not register to process ButtonClick events
-
-    def test_callback_property_executes(self, bokeh_model_page):
-        button = Toggle(css_classes=['foo'])
-        button.callback = CustomJS(code=RECORD("value", "cb_obj.active"))
-
-        page = bokeh_model_page(button)
-
-        button = page.driver.find_element_by_css_selector('.foo .bk-btn')
-        button.click()
-
-        results = page.results
-        assert results == {'value': True}
-
-        button = page.driver.find_element_by_css_selector('.foo .bk-btn')
-        button.click()
-
-        results = page.results
-        assert results == {'value': False}
-
-        button = page.driver.find_element_by_css_selector('.foo .bk-btn')
-        button.click()
-
-        results = page.results
-        assert results == {'value': True}
-
-        assert page.has_no_console_errors()
 
     def test_js_on_click_executes(self, bokeh_model_page):
         button = Toggle(css_classes=['foo'])

@@ -34,8 +34,6 @@ ensures their proper configuration in many common usage scenarios.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -47,7 +45,6 @@ log = logging.getLogger(__name__)
 import os
 
 # External imports
-from six import string_types
 
 # Bokeh imports
 from ..document import Document
@@ -126,7 +123,7 @@ class State(object):
         defined by external notebook hooks that have been installed.
 
         '''
-        if notebook_type is None or not isinstance(notebook_type, string_types):
+        if notebook_type is None or not isinstance(notebook_type, str):
             raise ValueError("Notebook type must be a string")
         self._notebook_type = notebook_type.lower()
 

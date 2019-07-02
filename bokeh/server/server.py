@@ -23,8 +23,6 @@ There are two public classes in this module:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -408,7 +406,7 @@ class Server(BaseServer):
         if io_loop is None:
             io_loop = IOLoop.current()
 
-        super(Server, self).__init__(io_loop, tornado_app, http_server)
+        super().__init__(io_loop, tornado_app, http_server)
 
     @property
     def index(self):
@@ -494,8 +492,6 @@ class _ServerOpts(Options):
 
     websocket_max_message_size = Int(default=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, help="""
     Set the Tornado ``websocket_max_message_size`` value.
-
-    NOTE: This setting has effect ONLY for Tornado>=4.5
     """)
 
 #-----------------------------------------------------------------------------

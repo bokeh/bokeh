@@ -44,8 +44,6 @@ The inline example code above produces the following output:
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -55,10 +53,10 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from os.path import basename, join
+
 # External imports
 from docutils import nodes
 from docutils.parsers.rst.directives import unchanged
-from six import text_type
 from sphinx.directives.code import CodeBlock, dedent_lines, container_wrapper
 from sphinx.locale import __
 from sphinx.util import logging
@@ -68,7 +66,6 @@ from sphinx.errors import SphinxError
 # Bokeh imports
 from .util import get_sphinx_resources
 from .templates import BJS_PROLOGUE, BJS_EPILOGUE, BJS_CODEPEN_INIT, BJS_HTML
-from ..util.string import decode_utf8
 
 if False:
     # For type annotation
@@ -165,7 +162,7 @@ class BokehJSContent(CodeBlock):
             try:
                 literal = container_wrapper(self, literal, caption)
             except ValueError as exc:
-                return [document.reporter.warning(text_type(exc), line=self.lineno)]
+                return [document.reporter.warning(str(exc), line=self.lineno)]
 
         # literal will be note_implicit_target that is linked from caption and numref.
         # when options['name'] is provided, it should be primary ID.
@@ -185,7 +182,7 @@ class BokehJSContent(CodeBlock):
             path = js_file
             if not js_file.startswith("/"):
                 path = join(env.app.srcdir, path)
-            js_source = decode_utf8(open(path).read())
+            js_source = open(path).read()
         else:
             log.debug("[bokehjs-content] handling inline example in %r", env.docname)
             path = env.bokeh_plot_auxdir  # code runner just needs any real path

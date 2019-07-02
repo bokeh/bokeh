@@ -11,8 +11,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -53,7 +51,7 @@ class SessionHandler(RequestHandler):
         self.application_context = kw['application_context']
         self.bokeh_websocket_path = kw['bokeh_websocket_path']
         # Note: tornado_app is stored as self.application
-        super(SessionHandler, self).__init__(tornado_app, *args, **kw)
+        super().__init__(tornado_app, *args, **kw)
 
     def initialize(self, *args, **kw):
         pass

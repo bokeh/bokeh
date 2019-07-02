@@ -12,8 +12,6 @@ options.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -73,7 +71,7 @@ class Options(HasProps):
             if k in kw:
                 props[k] = kw.pop(k)
 
-        super(Options, self).__init__(**props)
+        super().__init__(**props)
 
 #-----------------------------------------------------------------------------
 # Dev API

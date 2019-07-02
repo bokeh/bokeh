@@ -8,8 +8,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -23,7 +21,6 @@ from collections import OrderedDict
 # External imports
 import bs4
 from jinja2 import Template
-from six import string_types
 
 # Bokeh imports
 from bokeh.document import Document
@@ -31,7 +28,6 @@ from bokeh.embed.util import standalone_docs_json
 from bokeh.io import curdoc
 from bokeh.plotting import figure
 from bokeh.resources import CDN, JSResources, CSSResources
-from bokeh.util.string import encode_utf8
 
 # Module under test
 import bokeh.embed.standalone as bes
@@ -93,11 +89,11 @@ class Test_components(object):
 
         _, divs = bes.components({"Plot 1": plot1, "Plot 2": plot2})
         assert isinstance(divs, dict)
-        assert all(isinstance(x, string_types) for x in divs.keys())
+        assert all(isinstance(x, str) for x in divs.keys())
 
         _, divs = bes.components(OrderedDict([("Plot 1", plot1), ("Plot 2", plot2)]))
         assert isinstance(divs, OrderedDict)
-        assert all(isinstance(x, string_types) for x in divs.keys())
+        assert all(isinstance(x, str) for x in divs.keys())
 
     @patch('bokeh.embed.util.make_globally_unique_id', new_callable=lambda: stable_id)
     def test_plot_dict_returned_when_wrap_plot_info_is_false(self, mock_make_id):
@@ -200,7 +196,7 @@ class Test_file_html(object):
         js_resources = JSResources(mode="relative", components=["bokeh"])
         template = Template("<head>{{ bokeh_js }}</head><body></body>")
         output = bes.file_html(test_plot, (js_resources, None), "title", template=template)
-        html = encode_utf8("<head>%s</head><body></body>" % js_resources.render_js())
+        html = "<head>%s</head><body></body>" % js_resources.render_js()
         assert output == html
 
     @patch('bokeh.embed.bundle.warn')
@@ -216,7 +212,7 @@ class Test_file_html(object):
         css_resources = CSSResources(mode="relative", components=["bokeh"])
         template = Template("<head>{{ bokeh_css }}</head><body></body>")
         output = bes.file_html(test_plot, (None, css_resources), "title", template=template)
-        html = encode_utf8("<head>%s</head><body></body>" % css_resources.render_css())
+        html = "<head>%s</head><body></body>" % css_resources.render_css()
         assert output == html
 
     @patch('bokeh.embed.bundle.warn')

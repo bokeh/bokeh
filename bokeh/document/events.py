@@ -15,8 +15,6 @@ for :ref:`bokeh.events`.
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -121,7 +119,7 @@ class DocumentPatchedEvent(DocumentChangedEvent):
         This method will invoke ``receiver._document_patched`` if it exists.
 
         '''
-        super(DocumentPatchedEvent, self).dispatch(receiver)
+        super().dispatch(receiver)
         if hasattr(receiver, '_document_patched'):
             receiver._document_patched(self)
 
@@ -204,7 +202,7 @@ class ModelChangedEvent(DocumentPatchedEvent):
         '''
         if setter is None and isinstance(hint, (ColumnsStreamedEvent, ColumnsPatchedEvent)):
             setter = hint.setter
-        super(ModelChangedEvent, self).__init__(document, setter, callback_invoker)
+        super().__init__(document, setter, callback_invoker)
         self.model = model
         self.attr = attr
         self.old = old
@@ -241,7 +239,7 @@ class ModelChangedEvent(DocumentPatchedEvent):
         exists.
 
         '''
-        super(ModelChangedEvent, self).dispatch(receiver)
+        super().dispatch(receiver)
         if hasattr(receiver, '_document_model_changed'):
             receiver._document_model_changed(self)
 
@@ -330,7 +328,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
 
 
         '''
-        super(ColumnDataChangedEvent, self).__init__(document, setter, callback_invoker)
+        super().__init__(document, setter, callback_invoker)
         self.column_source = column_source
         self.cols = cols
 
@@ -340,7 +338,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
         This method will invoke ``receiver._column_data_changed`` if it exists.
 
         '''
-        super(ColumnDataChangedEvent, self).dispatch(receiver)
+        super().dispatch(receiver)
         if hasattr(receiver, '_column_data_changed'):
             receiver._column_data_changed(self)
 
@@ -422,7 +420,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
                 event. (default: None)
 
         '''
-        super(ColumnsStreamedEvent, self).__init__(document, setter, callback_invoker)
+        super().__init__(document, setter, callback_invoker)
         self.column_source = column_source
 
         if pd and isinstance(data, pd.DataFrame):
@@ -437,7 +435,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
         This method will invoke ``receiver._columns_streamed`` if it exists.
 
         '''
-        super(ColumnsStreamedEvent, self).dispatch(receiver)
+        super().dispatch(receiver)
         if hasattr(receiver, '_columns_streamed'):
             receiver._columns_streamed(self)
 
@@ -506,7 +504,7 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
                 event. (default: None)
 
         '''
-        super(ColumnsPatchedEvent, self).__init__(document, setter, callback_invoker)
+        super().__init__(document, setter, callback_invoker)
         self.column_source = column_source
         self.patches = patches
 
@@ -516,7 +514,7 @@ class ColumnsPatchedEvent(DocumentPatchedEvent):
         This method will invoke ``receiver._columns_patched`` if it exists.
 
         '''
-        super(ColumnsPatchedEvent, self).dispatch(receiver)
+        super().dispatch(receiver)
         if hasattr(receiver, '_columns_patched'):
             receiver._columns_patched(self)
 
@@ -582,7 +580,7 @@ class TitleChangedEvent(DocumentPatchedEvent):
 
 
         '''
-        super(TitleChangedEvent, self).__init__(document, setter, callback_invoker)
+        super().__init__(document, setter, callback_invoker)
         self.title = title
 
     def combine(self, event):
@@ -659,7 +657,7 @@ class RootAddedEvent(DocumentPatchedEvent):
                 event. (default: None)
 
         '''
-        super(RootAddedEvent, self).__init__(document, setter, callback_invoker)
+        super().__init__(document, setter, callback_invoker)
         self.model = model
 
     def generate(self, references, buffers):
@@ -723,7 +721,7 @@ class RootRemovedEvent(DocumentPatchedEvent):
 
 
         '''
-        super(RootRemovedEvent, self).__init__(document, setter, callback_invoker)
+        super().__init__(document, setter, callback_invoker)
         self.model = model
 
     def generate(self, references, buffers):
@@ -773,7 +771,7 @@ class SessionCallbackAdded(DocumentChangedEvent):
                 The callback to add
 
         '''
-        super(SessionCallbackAdded, self).__init__(document)
+        super().__init__(document)
         self.callback = callback
 
     def dispatch(self, receiver):
@@ -783,7 +781,7 @@ class SessionCallbackAdded(DocumentChangedEvent):
         it exists.
 
         '''
-        super(SessionCallbackAdded, self).dispatch(receiver)
+        super().dispatch(receiver)
         if hasattr(receiver, '_session_callback_added'):
             receiver._session_callback_added(self)
 
@@ -805,7 +803,7 @@ class SessionCallbackRemoved(DocumentChangedEvent):
                 The callback to remove
 
         '''
-        super(SessionCallbackRemoved, self).__init__(document)
+        super().__init__(document)
         self.callback = callback
 
     def dispatch(self, receiver):
@@ -815,7 +813,7 @@ class SessionCallbackRemoved(DocumentChangedEvent):
         it exists.
 
         '''
-        super(SessionCallbackRemoved, self).dispatch(receiver)
+        super().dispatch(receiver)
         if hasattr(receiver, '_session_callback_removed'):
             receiver._session_callback_removed(self)
 

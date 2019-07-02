@@ -11,8 +11,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -92,7 +90,7 @@ class BokehSessionContext(SessionContext):
     def __init__(self, session_id, server_context, document):
         self._document = document
         self._session = None
-        super(BokehSessionContext, self).__init__(server_context,
+        super().__init__(server_context,
                                                   session_id)
         # request arguments used to instantiate this session
         self._request = None
@@ -307,7 +305,6 @@ class ApplicationContext(object):
 class _RequestProxy(object):
     def __init__(self, request):
         args_copy = dict(request.arguments)
-        if 'bokeh-protocol-version' in args_copy: del args_copy['bokeh-protocol-version']
         if 'bokeh-session-id' in args_copy: del args_copy['bokeh-session-id']
         self._args = args_copy
     @property

@@ -11,8 +11,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 log = logging.getLogger(__name__)
 
@@ -21,17 +19,15 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from bokeh.util.future import collections_abc # goes away with py2
+from collections.abc import Sequence
 
 # External imports
-from six import string_types
 
 # Bokeh imports
 from ..core.templates import AUTOLOAD_JS, AUTOLOAD_TAG, FILE, ROOT_DIV, MACROS
 from ..document.document import DEFAULT_TITLE, Document
 from ..model import Model
 from ..util.compiler import bundle_all_models
-from ..util.string import encode_utf8
 from .bundle import bundle_for_objs_and_resources
 from .elements import html_page_for_render_items, script_for_render_items
 from .util import FromCurdoc, OutputDocumentFor, standalone_docs_json, standalone_docs_json_and_render_items
@@ -106,7 +102,7 @@ def autoload_static(model, resources, script_path):
         elementid = elementid,
     )
 
-    return encode_utf8(js), encode_utf8(tag)
+    return js, tag
 
 def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
     ''' Return HTML components to embed a Bokeh plot. The data for the plot is
@@ -216,7 +212,7 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
     script += script_for_render_items(docs_json, [render_item])
     if wrap_script:
         script = wrap_in_script_tag(script)
-    script = encode_utf8(script)
+    script = script
 
     def div_for_root(root):
         return ROOT_DIV.render(root=root, macros=MACROS)
@@ -392,11 +388,11 @@ def _check_models_or_docs(models):
         models = [models]
 
     # Check for sequence
-    if isinstance(models, collections_abc.Sequence) and all(isinstance(x, (Model, Document)) for x in models):
+    if isinstance(models, Sequence) and all(isinstance(x, (Model, Document)) for x in models):
         input_type_valid = True
 
     if isinstance(models, dict) and \
-        all(isinstance(x, string_types) for x in models.keys()) and \
+        all(isinstance(x, str) for x in models.keys()) and \
         all(isinstance(x, (Model, Document)) for x in models.values()):
         input_type_valid = True
 

@@ -8,8 +8,6 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import pytest ; pytest
 
 #-----------------------------------------------------------------------------
@@ -60,7 +58,7 @@ class HookListModel(Model):
 
 class HookTestHandler(Handler):
     def __init__(self):
-        super(HookTestHandler, self).__init__()
+        super().__init__()
         self.load_count = 0
         self.unload_count = 0
         self.session_creation_async_value = 0
@@ -231,8 +229,7 @@ def test_get_sessions():
 # 'sessionid':'NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5'
 sessionid_in_json = re.compile("""["']sessionid["'] *: *["']([^"]+)["']""")
 def extract_sessionid_from_json(html):
-    from six import string_types
-    if not isinstance(html, string_types):
+    if not isinstance(html, str):
         import codecs
         html = codecs.decode(html, 'utf-8')
     match = sessionid_in_json.search(html)
@@ -243,8 +240,7 @@ def extract_sessionid_from_json(html):
 # 'sessionid':'NzlNoPfEYJahnPljE34xI0a5RSTaU1Aq1Cx5'
 use_for_title_in_json = re.compile("""["']use_for_title["'] *: *(false|true)""")
 def extract_use_for_title_from_json(html):
-    from six import string_types
-    if not isinstance(html, string_types):
+    if not isinstance(html, str):
         import codecs
         html = codecs.decode(html, 'utf-8')
     match = use_for_title_in_json.search(html)
@@ -253,11 +249,10 @@ def extract_use_for_title_from_json(html):
 
 def autoload_url(server):
     return url(server) + \
-        "autoload.js?bokeh-protocol-version=1.0&bokeh-autoload-element=foo"
+        "autoload.js?bokeh-autoload-element=foo"
 
 def resource_files_requested(response, requested=True):
-    from six import string_types
-    if not isinstance(response, string_types):
+    if not isinstance(response, str):
         import codecs
         response = codecs.decode(response, 'utf-8')
     for file in [
@@ -493,8 +488,7 @@ def test__no_autocreate_session_websocket():
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
 
-        websocket_open(server.io_loop,
-                       ws_url(server) + "?bokeh-protocol-version=1.0")
+        websocket_open(server.io_loop, ws_url(server))
 
         sessions = server.get_sessions('/')
         assert 0 == len(sessions)
@@ -540,9 +534,7 @@ def test__use_provided_session_websocket():
         assert 0 == len(sessions)
 
         expected = 'foo'
-        url = ws_url(server) + \
-              "?bokeh-protocol-version=1.0" + \
-              "&bokeh-session-id=" + expected
+        url = ws_url(server) + "?bokeh-session-id=" + expected
         websocket_open(server.io_loop,
                        url)
 
@@ -620,9 +612,7 @@ def test__reject_unsigned_session_websocket():
         assert 0 == len(sessions)
 
         expected = 'foo'
-        url = ws_url(server) + \
-              "?bokeh-protocol-version=1.0" + \
-              "&bokeh-session-id=" + expected
+        url = ws_url(server) + "?bokeh-session-id=" + expected
         websocket_open(server.io_loop,
                        url)
 
@@ -669,7 +659,7 @@ def test__server_multiple_processes():
 
 def test__existing_ioloop_with_multiple_processes_exception():
     application = Application()
-    ioloop_instance = IOLoop.instance() ; ioloop_instance # silence flake8
+    ioloop_current = IOLoop.current() ; ioloop_current # silence flake8
     with pytest.raises(RuntimeError):
         with ManagedServerLoop(application, num_procs=3):
             pass
