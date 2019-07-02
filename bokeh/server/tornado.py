@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import os
 from pprint import pformat
+import concurrent.futures
 
 # External imports
 from tornado import gen
@@ -317,6 +318,10 @@ class BokehTornado(TornadoApplication):
 
         '''
         self._loop = io_loop
+
+        # set ThreadPoolExecutor as default executor of IOLOOP
+        default_executor = concurrent.futures.ThreadPoolExecutor(max_workers=None)
+        self._loop.set_default_executor(default_executor)
 
         for app_context in self._applications.values():
             app_context._loop = self._loop

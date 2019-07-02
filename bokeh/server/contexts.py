@@ -210,7 +210,11 @@ class ApplicationContext(object):
             except Exception as e:
                 log.error("Failed to run session creation hooks %r", e, exc_info=True)
 
-            self._application.initialize_document(doc)
+            # using IOLOOP's default Thread executor create a thread to initialize new session document
+            try:
+                yield self._loop.run_in_executor(None, self._application.initialize_document, doc)
+            except Exception as e:
+                log.error("ThreadExecutor failed to create document for session with ID", session_id, e)
 
             session = ServerSession(session_id, doc, io_loop=self._loop)
             del self._pending_sessions[session_id]
