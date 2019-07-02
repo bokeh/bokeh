@@ -80,7 +80,7 @@ Bokeh
 </tr>
 
 <tr>
-  <td>Static Analyis</td>
+  <td>Static Analysis</td>
   <td>
     <a href="https://bettercodehub.com/edge/badge/bokeh/bokeh?branch=master">
     <img src="https://bettercodehub.com/edge/badge/bokeh/bokeh?branch=master"
