@@ -185,7 +185,7 @@ abstract class AbstractBaseSliderView extends ControlView {
       this._set_keypress_handles()
 
       const toggleTooltip = (i: number, show: boolean): void => {
-        if (!tooltips) 
+        if (!tooltips)
           return
         const handle = this.slider_el.querySelectorAll(`.${prefix}handle`)[i]
         const tooltip = handle.querySelector<HTMLElement>(`.${prefix}tooltip`)!
