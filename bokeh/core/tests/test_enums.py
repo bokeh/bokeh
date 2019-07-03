@@ -70,7 +70,6 @@ ALL  = (
     'RoundingFunction',
     'SizingMode',
     'SizingPolicy',
-    'SliderCallbackPolicy',
     'SortDirection',
     'SpatialUnits',
     'StartEnd',
