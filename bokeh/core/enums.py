@@ -82,6 +82,7 @@ from .. import colors, palettes
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'Align',
     'Anchor',
     'AngleUnits',
     'ButtonType',
@@ -119,15 +120,18 @@ __all__ = (
     'ResetPolicy',
     'RoundingFunction',
     'SizingMode',
+    'SizingPolicy',
     'SortDirection',
     'SpatialUnits',
     'StartEnd',
     'StepMode',
     'TextAlign',
     'TextBaseline',
+    'TextureRepetition',
     'TickLabelOrientation',
     'TooltipAttachment',
     'TooltipFieldFormatter',
+    'TrackPolicy',
     'VerticalAlign',
     'VerticalLocation',
 )
@@ -401,7 +405,7 @@ TextAlign = enumeration("left", "right", "center")
 #: Specify the baseline location for rendering text
 TextBaseline = enumeration("top", "middle", "bottom", "alphabetic", "hanging", "ideographic")
 
-# Specify how textures used as canvas patterns should repeat
+#: Specify how textures used as canvas patterns should repeat
 TextureRepetition = enumeration("repeat", "repeat_x", "repeat_y", "no_repeat")
 
 #: Specify how axis tick labels are oriented with respect to the axis

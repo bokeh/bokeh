@@ -1,5 +1,6 @@
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import {Arrayable, Rect} from "core/types"
+import {Anchor} from "core/enums"
 import {Line, Fill, Hatch} from "core/visuals"
 import {SpatialIndex} from "core/util/spatial"
 import {Context2d} from "core/util/canvas"
@@ -27,6 +28,26 @@ export interface BoxView extends BoxData {}
 export abstract class BoxView extends GlyphView {
   model: Box
   visuals: Box.Visuals
+
+  get_anchor_point(anchor: Anchor, i: number, _spt: [number, number]): {x: number, y: number} | null {
+    const left = Math.min(this.sleft[i], this.sright[i])
+    const right = Math.max(this.sright[i], this.sleft[i])
+    const top = Math.min(this.stop[i], this.sbottom[i])     // screen coordinates !!!
+    const bottom = Math.max(this.sbottom[i], this.stop[i])  //
+
+    switch (anchor) {
+      case "top_left":      return {x: left,             y: top             }
+      case "top_center":    return {x: (left + right)/2, y: top             }
+      case "top_right":     return {x: right,            y: top             }
+      case "bottom_left":   return {x: left,             y: bottom          }
+      case "bottom_center": return {x: (left + right)/2, y: bottom          }
+      case "bottom_right":  return {x: right,            y: bottom          }
+      case "center_left":   return {x: left,             y: (top + bottom)/2}
+      case "center":        return {x: (left + right)/2, y: (top + bottom)/2}
+      case "center_right":  return {x: right,            y: (top + bottom)/2}
+      default:              return null
+    }
+  }
 
   protected abstract _lrtb(i: number): [number, number, number, number]
 

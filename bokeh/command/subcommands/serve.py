@@ -408,7 +408,28 @@ class Serve(Subcommand):
         ('--args', dict(
             metavar='COMMAND-LINE-ARGS',
             nargs=argparse.REMAINDER,
-            help="Any command line arguments remaining are passed on to the application handler",
+            help="Command line arguments remaining to passed on to the application handler. "
+                 "NOTE: if this argument precedes DIRECTORY-OR-SCRIPT then some other argument, e.g "
+                 "--show, must be placed before the directory or script. ",
+        )),
+
+        ('--dev', dict(
+            metavar ='FILES-TO-WATCH',
+            action  ='store',
+            default = None,
+            type    = str,
+            nargs   = '*',
+            help    = "Enable live reloading during app development. "
+                      "By default it watches all *.py *.html *.css *.yaml files "
+                      "in the app directory tree. Additional files can be passed "
+                      "as arguments."
+                      "NOTE: if this argument precedes DIRECTORY-OR-SCRIPT then some other argument, e.g "
+                      "--show, must be placed before the directory or script. "
+                      "NOTE: This setting only works with a single app. "
+                      "It also restricts the number of processes to 1. "
+                      "NOTE FOR WINDOWS USERS : this option must be invoked using "
+                      "'python -m bokeh'. If not Tornado will fail to restart the "
+                      "server",
         )),
 
         ('--show', dict(
@@ -510,23 +531,6 @@ class Serve(Subcommand):
             help="Set the Tornado websocket_max_message_size value (defaults to 20MB)",
             default=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
             type=int,
-        )),
-
-        ('--dev', dict(
-            metavar ='FILES-TO-WATCH',
-            action  ='store',
-            default = None,
-            type    = str,
-            nargs   = '*',
-            help    = "Enable live reloading during app development. "
-                      "By default it watches all *.py *.html *.css *.yaml files "
-                      "in the app directory tree. Additional files can be passed "
-                      "as arguments. "
-                      "NOTE: This setting only works with a single app. "
-                      "It also restricts the number of processes to 1. "
-                      "NOTE FOR WINDOWS USERS : this option must be invoked using "
-                      "'python -m bokeh'. If not Tornado will fail to restart the "
-                      "server",
         )),
     )
 

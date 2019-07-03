@@ -21,6 +21,7 @@ import pytest ; pytest
 # Bokeh imports
 from bokeh.colors import named
 from bokeh.palettes import __palettes__
+from bokeh._testing.util.api import verify_all
 
 # Module under test
 import bokeh.core.enums as bce
@@ -28,6 +29,61 @@ import bokeh.core.enums as bce
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
+
+ALL  = (
+    'Align',
+    'Anchor',
+    'AngleUnits',
+    'ButtonType',
+    'DashPattern',
+    'DateFormat',
+    'DatetimeUnits',
+    'Dimension',
+    'Dimensions',
+    'Direction',
+    'Enumeration',
+    'enumeration',
+    'FontStyle',
+    'HatchPattern',
+    'HatchPatternAbbreviation',
+    'HoldPolicy',
+    'HorizontalLocation',
+    'JitterRandomDistribution',
+    'LatLon',
+    'LegendClickPolicy',
+    'LegendLocation',
+    'LineCap',
+    'LineDash',
+    'LineJoin',
+    'Location',
+    'MapType',
+    'MarkerType',
+    'NamedColor',
+    'NumeralLanguage',
+    'Orientation',
+    'OutputBackend',
+    'PaddingUnits',
+    'Palette',
+    'RenderLevel',
+    'RenderMode',
+    'ResetPolicy',
+    'RoundingFunction',
+    'SizingMode',
+    'SizingPolicy',
+    'SortDirection',
+    'SpatialUnits',
+    'StartEnd',
+    'StepMode',
+    'TextAlign',
+    'TextBaseline',
+    'TextureRepetition',
+    'TickLabelOrientation',
+    'TooltipAttachment',
+    'TooltipFieldFormatter',
+    'TrackPolicy',
+    'VerticalAlign',
+    'VerticalLocation',
+)
 
 #-----------------------------------------------------------------------------
 # General API
@@ -304,3 +360,5 @@ def test_enums_contents():
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+Test___all__ = verify_all(bce, ALL)
