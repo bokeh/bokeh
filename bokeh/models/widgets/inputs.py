@@ -97,7 +97,13 @@ class TextInput(InputWidget):
     """)
 
     placeholder = String(default="", help="""
-    Placeholder for empty input field
+    Placeholder for empty input field.
+    """)
+    
+    wait_commit = Bool(default=True, help="""
+    Run the callback once the user commits the value in the ``TextInput``
+    (i.e. by pressing Enter or clicking outside the text box area). If False, 
+    the callback is executed everytime the value changes (i.e. as text is being typed).
     """)
 
 
