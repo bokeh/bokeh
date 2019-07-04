@@ -16,7 +16,6 @@ export class TextInputView extends InputWidgetView {
     this.connect(this.model.properties.value.change, () => this.input_el.value = this.model.value)
     this.connect(this.model.properties.disabled.change, () => this.input_el.disabled = this.model.disabled)
     this.connect(this.model.properties.placeholder.change, () => this.input_el.placeholder = this.model.placeholder)
-    this.connect(this.model.properties.wait_commit.change, () => this.input_el.wait_commit = this.model.wait_commit)
   }
 
   render(): void {
@@ -29,7 +28,6 @@ export class TextInputView extends InputWidgetView {
       value: this.model.value,
       disabled: this.model.disabled,
       placeholder: this.model.placeholder,
-      wait_commit: this.model.wait_commit
     })
     if (this.model.wait_commit) {
         this.input_el.addEventListener("change", () => this.change_input())
@@ -70,7 +68,7 @@ export class TextInput extends InputWidget {
     this.define<TextInput.Props>({
       value:       [ p.String, "" ],
       placeholder: [ p.String, "" ],
-      wait_commit:  [ p.Boolean, true ],
+      wait_commit: [ p.Boolean, true ],
     })
   }
 }
