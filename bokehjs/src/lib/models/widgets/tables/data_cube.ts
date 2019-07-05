@@ -5,11 +5,11 @@ type EventData = typeof EventData
 
 import * as p from 'core/properties'
 import {span} from 'core/dom'
-import {Item, Formatter, Column, SlickGrid, Group} from 'external/slickgrid'
+import {Item, Formatter, Column, SlickGrid, Group, GroupTotals} from 'slickgrid'
 import {DataProvider, DTINDEX_NAME, DataTableView, DataTable} from './data_table'
 import {ColumnDataSource} from '../../sources/column_data_source'
 import {CDSView} from '../../sources/cds_view'
-import {RowAggregator, GroupTotals} from './row_aggregators'
+import {RowAggregator} from './row_aggregators'
 import {Model} from 'model'
 
 export type Metadata = {

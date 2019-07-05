@@ -2,7 +2,7 @@ import {CellFormatter, StringFormatter} from "./cell_formatters"
 import {CellEditor, StringEditor} from "./cell_editors"
 
 import * as p from "core/properties"
-import {Column} from "external/slickgrid"
+import {Column} from "slickgrid"
 import {uniqueId} from "core/util/string"
 import {Sort} from "core/enums"
 import {Model} from "../../../model"

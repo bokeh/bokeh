@@ -3,7 +3,7 @@ import {input, textarea, select, option, Keys} from "core/dom"
 
 import {DOMView} from "core/dom_view"
 import {Model} from "../../../model"
-import {Item} from "external/slickgrid"
+import {Item} from "slickgrid"
 import {DTINDEX_NAME} from "./data_table"
 
 import {bk_cell_editor} from "styles/widgets/tables"

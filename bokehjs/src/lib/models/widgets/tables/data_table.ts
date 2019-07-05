@@ -3,7 +3,7 @@ const {RowSelectionModel} = require("slickgrid/plugins/slick.rowselectionmodel")
 const {CheckboxSelectColumn} = require("slickgrid/plugins/slick.checkboxselectcolumn")
 const {CellExternalCopyManager} = require("slickgrid/plugins/slick.cellexternalcopymanager")
 
-import {Item, Column, SlickGrid} from "external/slickgrid"
+import {Item, Column, SlickGrid} from "slickgrid"
 import * as p from "core/properties"
 import {uniqueId} from "core/util/string"
 import {isString} from "core/util/types"
