@@ -1,12 +1,12 @@
-import * as fs from "fs"
+//import license from "../../../LICENSE.txt"
+const license = "TODO"
 
-const license = fs.readFileSync('../LICENSE.txt', 'utf-8')
-                  .trim().split("\n").map((line) => ` * ${line}`).join("\n")
+function comment(text: string): string {
+  return `/*!${"\n"}${text.trim().split("\n").map((line) => ` * ${line}`).join("\n")}${"\n"}*/`
+}
 
 export const prelude = `\
-/*!
-${license}
- */
+${comment(license)}
 (function(root, factory) {
   root["Bokeh"] = factory();
 })(this, function() {
@@ -90,9 +90,7 @@ ${license}
 `
 
 export const plugin_prelude = `\
-/*!
-${license}
- */
+${comment(license)}
 (function(root, factory) {
   factory(root["Bokeh"]);
 })(this, function(Bokeh) {

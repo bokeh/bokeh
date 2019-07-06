@@ -54,6 +54,30 @@ export function relativize_modules(relativize: (file: string, module_path: strin
   }
 }
 
+export function import_txt(load: (txt_path: string) => string | undefined) {
+  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    function visit(node: ts.Node): ts.VisitResult<ts.Node> {
+      if (ts.isImportDeclaration(node)) {
+        const {importClause, moduleSpecifier} = node
+
+        if (ts.isStringLiteralLike(moduleSpecifier)) {
+          const txt_path = moduleSpecifier.text
+          if (txt_path.endsWith(".txt") && importClause != null && importClause.name != null) {
+            const txt_text = load(txt_path)
+            if (txt_text != null) {
+              return ts.createVariableDeclaration(importClause.name, ts.createKeywordTypeNode(ts.SyntaxKind.StringKeyword), ts.createStringLiteral(txt_text))
+            }
+          }
+        }
+      }
+
+      return ts.visitEachChild(node, visit, context)
+    }
+
+    return ts.visitNode(root, visit)
+  }
+}
+
 function css_loader(css_text: string): ts.Node[] {
   const dom = ts.createTempVariable(undefined)
   return [

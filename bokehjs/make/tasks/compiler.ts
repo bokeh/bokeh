@@ -2,8 +2,8 @@ import {join} from "path"
 import {argv} from "yargs"
 
 import {task, log} from "../task"
-import {compileTypeScript} from "../compiler"
-import {Linker} from "../linker"
+import {compileTypeScript} from "@compiler/compiler"
+import {Linker} from "@compiler/linker"
 import {src_dir, build_dir} from "../paths"
 
 task("compiler:ts", async () => {

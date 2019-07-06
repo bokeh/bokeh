@@ -12,7 +12,7 @@
     "alwaysStrict": true,
     "noErrorTruncation": true,
     "noEmitOnError": false,
-    "declaration": false,
+    "declaration": true,
     "sourceMap": false,
     "importHelpers": false,
     "experimentalDecorators": true,

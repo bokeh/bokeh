@@ -1,10 +1,10 @@
-import * as fs from "fs"
 import * as path from "path"
 import * as ts from "typescript"
 const coffee = require("coffeescript")
 const less = require("less")
 import {argv} from "yargs"
 
+import {read} from "./fs"
 import * as transforms from "./transforms"
 
 const mkCoffeescriptError = (error: any, file?: string) => {
@@ -54,9 +54,8 @@ const reply = (data: any) => {
 
 type Files = {[name: string]: string}
 
-function compile_typescript(inputs: Files, bokehjs_dir: string): {outputs: Files, error?: string} {
-
-  const options: ts.CompilerOptions = {
+function compiler_options(bokehjs_dir: string): ts.CompilerOptions {
+  return {
     noImplicitAny: true,
     noImplicitThis: true,
     noImplicitReturns: true,
@@ -93,6 +92,10 @@ function compile_typescript(inputs: Files, bokehjs_dir: string): {outputs: Files
       ],
     },
   }
+}
+
+function compile_typescript(inputs: Files, bokehjs_dir: string): {outputs: Files, error?: string} {
+  const options = compiler_options(bokehjs_dir)
 
   const host: ts.CompilerHost = {
     getDefaultLibFileName: () => "lib.d.ts",
@@ -248,7 +251,7 @@ const compile_and_resolve_deps = (input: {code: string, lang: string, file: stri
 
 if (argv.file != null) {
   const input = {
-    code: fs.readFileSync(argv.file as string, "utf-8"),
+    code: read(argv.file as string)!,
     lang: (argv.lang as string | undefined) || "coffeescript",
     file: argv.file as string,
     bokehjs_dir: (argv.bokehjsDir as string | undefined) || "./build", // this is what bokeh.settings defaults to

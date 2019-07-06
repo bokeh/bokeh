@@ -2,15 +2,16 @@ import {join} from "path"
 import {argv} from "yargs"
 
 import {task, log} from "../task"
-import {rename} from "../fs"
-import {compileTypeScript} from "../compiler"
-import {Linker} from "../linker"
+import {rename} from "@compiler/fs"
+import {compileTypeScript} from "@compiler/compiler"
+import {Linker} from "@compiler/linker"
 import * as paths from "../paths"
 
 task("scripts:compile", ["styles:compile"], async () => {
   const success = compileTypeScript(join(paths.src_dir.lib, "tsconfig.json"), {
     log,
     out_dir: {js: paths.build_dir.lib, dts: paths.build_dir.types},
+    css_dir: paths.build_dir.css,
   })
 
   if (argv.emitError && !success)

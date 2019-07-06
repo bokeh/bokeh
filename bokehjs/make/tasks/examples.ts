@@ -2,7 +2,7 @@ import * as fs from "fs"
 import {join} from "path"
 
 import {task, log} from "../task"
-import {compileTypeScript} from "../compiler"
+import {compileTypeScript} from "@compiler/compiler"
 
 const BASE_DIR = "./examples"
 

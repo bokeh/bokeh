@@ -3,9 +3,16 @@ import * as ts from "typescript"
 
 import {dirname, join, relative} from "path"
 
-import * as transforms from "../src/compiler/transforms"
-import {build_dir} from "./paths"
+import * as transforms from "./transforms"
 import {read} from "./fs"
+
+export type Path = string
+
+export type CompileConfig = {
+  log: (message: string) => void
+  out_dir?: OutDir
+  css_dir?: Path
+}
 
 export type Outputs = Map<string, string>
 
@@ -35,8 +42,9 @@ export function reportDiagnostics(diagnostics: ReadonlyArray<ts.Diagnostic>): Fa
   return {count: errors.length, text}
 }
 
-export function compileFiles(inputs: string[], options: ts.CompilerOptions): TSOutput {
-  const program = ts.createProgram(inputs, options) //, host)
+export function compileFiles(inputs: string[], options: ts.CompilerOptions, config: CompileConfig): TSOutput {
+  const host = ts.createCompilerHost(options)
+  const program = ts.createProgram(inputs, options, host)
 
   const outputs: Outputs = new Map()
   const write = (name: string, output: string) => {
@@ -49,7 +57,14 @@ export function compileFiles(inputs: string[], options: ts.CompilerOptions): TSO
     afterDeclarations: [],
   }
 
-  const import_css = transforms.import_css((css_path) => read(join(build_dir.css, css_path)))
+  const import_txt = transforms.import_txt((txt_path) => read(txt_path))
+  transformers.before.push(import_txt)
+
+  const import_css = transforms.import_css((css_path) => {
+    const {css_dir} = config
+    const resolved_path = css_path.startsWith(".") || css_dir == null ? css_path : join(css_dir, css_path)
+    return read(resolved_path)
+  })
   transformers.before.push(import_css)
 
   const insert_class_name = transforms.insert_class_name()
@@ -66,7 +81,8 @@ export function compileFiles(inputs: string[], options: ts.CompilerOptions): TSO
     const relativize_modules = transforms.relativize_modules((file, module_path) => {
       if (!module_path.startsWith(".") && !module_path.startsWith("/")) {
         const module_file = join(base, module_path)
-        if (ts.sys.fileExists(module_file + ".ts") ||
+        if (ts.sys.fileExists(module_file) ||
+            ts.sys.fileExists(module_file + ".ts") ||
             ts.sys.fileExists(join(module_file, "index.ts"))) {
           const rel_path = normalize(relative(dirname(file), module_file))
           return rel_path.startsWith(".") ? rel_path : `./${rel_path}`
@@ -92,10 +108,10 @@ export function compileFiles(inputs: string[], options: ts.CompilerOptions): TSO
 
 export type OutDir = string | {js: string, dts: string}
 
-export function compileProject(tsconfig_path: string, out_dir?: OutDir): TSOutput {
-  const config_file = ts.readConfigFile(tsconfig_path, ts.sys.readFile)
-  if (config_file.error != null) {
-    return {failure: reportDiagnostics([config_file.error])}
+export function compileProject(tsconfig_path: string, config: CompileConfig): TSOutput {
+  const tsconfig_file = ts.readConfigFile(tsconfig_path, ts.sys.readFile)
+  if (tsconfig_file.error != null) {
+    return {failure: reportDiagnostics([tsconfig_file.error])}
   }
 
   const host: ts.ParseConfigHost = {
@@ -106,6 +122,7 @@ export function compileProject(tsconfig_path: string, out_dir?: OutDir): TSOutpu
   }
 
   let preconfigure: ts.CompilerOptions = {}
+  const {out_dir} = config
   if (out_dir != null) {
     if (typeof out_dir == "string")
       preconfigure = {outDir: out_dir}
@@ -113,21 +130,16 @@ export function compileProject(tsconfig_path: string, out_dir?: OutDir): TSOutpu
       preconfigure = {outDir: out_dir.js, declarationDir: out_dir.dts, declaration: true}
   }
 
-  const tsconfig = ts.parseJsonConfigFileContent(config_file.config, host, dirname(tsconfig_path), preconfigure)
+  const tsconfig = ts.parseJsonConfigFileContent(tsconfig_file.config, host, dirname(tsconfig_path), preconfigure)
   if (tsconfig.errors.length != 0) {
     return {failure: reportDiagnostics(tsconfig.errors)}
   }
 
-  return compileFiles(tsconfig.fileNames, tsconfig.options)
+  return compileFiles(tsconfig.fileNames, tsconfig.options, config)
 }
 
-export interface CompileOptions {
-  log: (message: string) => void
-  out_dir?: OutDir
-}
-
-export function compileTypeScript(tsconfig: string, options: CompileOptions): boolean {
-  const {outputs, failure} = compileProject(tsconfig, options.out_dir)
+export function compileTypeScript(tsconfig: string, config: CompileConfig): boolean {
+  const {outputs, failure} = compileProject(tsconfig, config)
 
   if (outputs != null) {
     for (const [file, content] of outputs)
@@ -135,7 +147,7 @@ export function compileTypeScript(tsconfig: string, options: CompileOptions): bo
   }
 
   if (failure != null)
-    options.log(`There were ${chalk.red("" + failure.count)} TypeScript errors:\n${failure.text}`)
+    config.log(`There were ${chalk.red("" + failure.count)} TypeScript errors:\n${failure.text}`)
 
   return failure == null
 }

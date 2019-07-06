@@ -2,7 +2,7 @@ import {spawn} from "child_process"
 import {argv} from "yargs"
 
 import {task, log, BuildError} from "../task"
-import {compileTypeScript} from "../compiler"
+import {compileTypeScript} from "@compiler/compiler"
 import * as paths from "../paths"
 
 task("test:compile", async () => {

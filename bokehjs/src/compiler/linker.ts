@@ -10,7 +10,7 @@ import * as convert from "convert-source-map"
 
 import {read, write, fileExists, directoryExists, rename} from "./fs"
 import * as preludes from "./prelude"
-import * as transforms from "../src/compiler/transforms"
+import * as transforms from "./transforms"
 
 export function* imap<T, U>(iter: Iterable<T>, fn: (item: T, i: number) => U): Iterable<U> {
   let i = 0
@@ -307,7 +307,7 @@ export class Linker {
           dependency_map: new Map(module.dependency_map),
           dependency_paths: new Map(module.dependency_paths),
         },
-        code
+        code,
       } as ModuleArtifact
       this.cache.set(artifact.module.file, artifact)
     }
