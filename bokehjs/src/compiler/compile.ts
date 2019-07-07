@@ -5,7 +5,7 @@ const less = require("less")
 import {argv} from "yargs"
 
 import {read} from "./sys"
-import {compileFiles, TSOutput} from "./compiler"
+import {compileFiles, TSOutput, reportDiagnostics, Failure} from "./compiler"
 import * as transforms from "./transforms"
 
 const mkCoffeescriptError = (error: any, file?: string) => {
@@ -55,37 +55,17 @@ const reply = (data: any) => {
 
 type Files = {[name: string]: string}
 
-function compiler_options(bokehjs_dir: string): ts.CompilerOptions {
-  return {
-    noImplicitAny: true,
-    noImplicitThis: true,
-    noImplicitReturns: true,
-    noUnusedLocals: true,
-    noUnusedParameters: true,
-    strictNullChecks: true,
-    strictBindCallApply: false,
-    strictFunctionTypes: false,
-    strictPropertyInitialization: false,
-    alwaysStrict: true,
-    noErrorTruncation: true,
-    noEmitOnError: false,
-    declaration: false,
-    sourceMap: false,
-    importHelpers: false,
-    experimentalDecorators: true,
-    module: ts.ModuleKind.CommonJS,
-    moduleResolution: ts.ModuleResolutionKind.NodeJs,
-    target: ts.ScriptTarget.ES5,
-    lib: [
-      "lib.es5.d.ts",
-      "lib.dom.d.ts",
-      "lib.es2015.core.d.ts",
-      "lib.es2015.promise.d.ts",
-      "lib.es2015.symbol.d.ts",
-      "lib.es2015.iterable.d.ts",
-    ],
-    types: [],
-    baseUrl: ".",
+import tsconfig from "./tsconfig"
+
+function compiler_options(bokehjs_dir: string): {options: ts.CompilerOptions, failure?: undefined} | {failure: Failure} {
+  const host: ts.ParseConfigHost = {
+    useCaseSensitiveFileNames: ts.sys.useCaseSensitiveFileNames,
+    readDirectory: ts.sys.readDirectory,
+    fileExists: ts.sys.fileExists,
+    readFile: ts.sys.readFile,
+  }
+
+  const preconfigure: ts.CompilerOptions = {
     paths: {
       "*": [
         path.join(bokehjs_dir, "js/lib/*"),
@@ -93,6 +73,12 @@ function compiler_options(bokehjs_dir: string): ts.CompilerOptions {
       ],
     },
   }
+
+  const {errors, options} = ts.parseJsonConfigFileContent(tsconfig, host, ".", preconfigure)
+  if (errors.length != 0)
+    return {failure: reportDiagnostics(errors)}
+  else
+    return {options}
 }
 
 function compiler_host(inputs: Files, options: ts.CompilerOptions, bokehjs_dir: string): ts.CompilerHost {
@@ -123,10 +109,12 @@ function compiler_host(inputs: Files, options: ts.CompilerOptions, bokehjs_dir: 
 }
 
 function compile_typescript(inputs: Files, bokehjs_dir: string): TSOutput {
-  const options = compiler_options(bokehjs_dir)
-  const host = compiler_host(inputs, options, bokehjs_dir)
+  const tsconfig = compiler_options(bokehjs_dir)
+  if (tsconfig.failure != null)
+    return {failure: tsconfig.failure}
+  const host = compiler_host(inputs, tsconfig.options, bokehjs_dir)
   const config = {log: (text: string) => console.log(text)}
-  return compileFiles(Object.keys(inputs), options, config, host)
+  return compileFiles(Object.keys(inputs), tsconfig.options, config, host)
 }
 
 function compile_javascript(file: string, code: string): {output: string, error?: string} {
