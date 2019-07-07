@@ -8,7 +8,7 @@ import * as terser from "terser"
 import * as combine from "combine-source-map"
 import * as convert from "convert-source-map"
 
-import {read, write, fileExists, directoryExists, rename} from "./fs"
+import {read, write, fileExists, directoryExists, rename} from "./sys"
 import * as preludes from "./prelude"
 import * as transforms from "./transforms"
 

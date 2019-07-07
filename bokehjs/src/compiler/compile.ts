@@ -4,7 +4,7 @@ const coffee = require("coffeescript")
 const less = require("less")
 import {argv} from "yargs"
 
-import {read} from "./fs"
+import {read} from "./sys"
 import * as transforms from "./transforms"
 
 const mkCoffeescriptError = (error: any, file?: string) => {

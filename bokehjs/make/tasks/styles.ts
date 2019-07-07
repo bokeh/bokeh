@@ -4,7 +4,7 @@ import chalk from "chalk"
 import {argv} from "yargs"
 
 import {task, log} from "../task"
-import {scan, read, write, rename} from "@compiler/fs"
+import {scan, read, write, rename} from "@compiler/sys"
 import * as paths from "../paths"
 
 task("styles:compile", async () => {

@@ -4,7 +4,7 @@ import * as ts from "typescript"
 import {dirname, join, relative} from "path"
 
 import * as transforms from "./transforms"
-import {read} from "./fs"
+import {read} from "./sys"
 
 export type Path = string
 

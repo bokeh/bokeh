@@ -2,7 +2,7 @@ import {join} from "path"
 import {argv} from "yargs"
 
 import {task, log} from "../task"
-import {rename} from "@compiler/fs"
+import {rename} from "@compiler/sys"
 import {compileTypeScript} from "@compiler/compiler"
 import {Linker} from "@compiler/linker"
 import * as paths from "../paths"
