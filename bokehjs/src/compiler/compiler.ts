@@ -42,8 +42,7 @@ export function reportDiagnostics(diagnostics: ReadonlyArray<ts.Diagnostic>): Fa
   return {count: errors.length, text}
 }
 
-export function compileFiles(inputs: string[], options: ts.CompilerOptions, config: CompileConfig): TSOutput {
-  const host = ts.createCompilerHost(options)
+export function compileFiles(inputs: string[], options: ts.CompilerOptions, config: CompileConfig, host?: ts.CompilerHost): TSOutput {
   const program = ts.createProgram(inputs, options, host)
 
   const outputs: Outputs = new Map()

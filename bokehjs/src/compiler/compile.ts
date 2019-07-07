@@ -5,6 +5,7 @@ const less = require("less")
 import {argv} from "yargs"
 
 import {read} from "./sys"
+import {compileFiles, TSOutput} from "./compiler"
 import * as transforms from "./transforms"
 
 const mkCoffeescriptError = (error: any, file?: string) => {
@@ -94,11 +95,11 @@ function compiler_options(bokehjs_dir: string): ts.CompilerOptions {
   }
 }
 
-function compile_typescript(inputs: Files, bokehjs_dir: string): {outputs: Files, error?: string} {
-  const options = compiler_options(bokehjs_dir)
+function compiler_host(inputs: Files, options: ts.CompilerOptions, bokehjs_dir: string): ts.CompilerHost {
+  const default_host = ts.createCompilerHost(options)
 
-  const host: ts.CompilerHost = {
-    getDefaultLibFileName: () => "lib.d.ts",
+  return {
+    ...default_host,
     getDefaultLibLocation: () => {
       // bokeh/server/static or bokehjs/build
       if (path.basename(bokehjs_dir) == "static")
@@ -106,56 +107,26 @@ function compile_typescript(inputs: Files, bokehjs_dir: string): {outputs: Files
       else
         return path.join(path.dirname(bokehjs_dir), "node_modules/typescript/lib")
     },
-    getCurrentDirectory: () => ts.sys.getCurrentDirectory(),
-    getDirectories: (path) => ts.sys.getDirectories(path),
-    getCanonicalFileName: (name) => ts.sys.useCaseSensitiveFileNames ? name : name.toLowerCase(),
-    useCaseSensitiveFileNames: () => ts.sys.useCaseSensitiveFileNames,
-    getNewLine: () => ts.sys.newLine,
-
     fileExists(name: string): boolean {
-      return inputs[name] != null || ts.sys.fileExists(name)
+      return inputs[name] != null || default_host.fileExists(name)
     },
     readFile(name: string): string | undefined {
-      return inputs[name] != null ? inputs[name] : ts.sys.readFile(name)
-    },
-    writeFile(name, content): void {
-      ts.sys.writeFile(name, content)
+      return inputs[name] != null ? inputs[name] : default_host.readFile(name)
     },
     getSourceFile(name: string, target: ts.ScriptTarget, _onError?: (message: string) => void) {
-      const source = inputs[name] != null ? inputs[name] : ts.sys.readFile(name)
-      return source !== undefined ? ts.createSourceFile(name, source, target) : undefined
+      if (inputs[name] != null)
+        return ts.createSourceFile(name, inputs[name], target)
+      else
+        return default_host.getSourceFile(name, target, _onError)
     },
   }
+}
 
-  const transformers: Required<ts.CustomTransformers> = {
-    before: [],
-    after: [],
-    afterDeclarations: [],
-  }
-
-  const class_name_transform = transforms.insert_class_name()
-  transformers.before.push(class_name_transform)
-
-  const program = ts.createProgram(Object.keys(inputs), options, host)
-
-  const outputs: Files = {}
-  const emitted = program.emit(undefined, (name, output) => outputs[name] = output, undefined, false, transformers)
-  const diagnostics = ts.getPreEmitDiagnostics(program).concat(emitted.diagnostics)
-
-  if (diagnostics.length == 0)
-    return {outputs}
-  else {
-    const format_host: ts.FormatDiagnosticsHost = {
-      getCanonicalFileName: (path) => path,
-      getCurrentDirectory: ts.sys.getCurrentDirectory,
-      getNewLine: () => ts.sys.newLine,
-    }
-
-    const error = ts.formatDiagnosticsWithColorAndContext(
-      ts.sortAndDeduplicateDiagnostics(diagnostics), format_host)
-
-    return {outputs, error}
-  }
+function compile_typescript(inputs: Files, bokehjs_dir: string): TSOutput {
+  const options = compiler_options(bokehjs_dir)
+  const host = compiler_host(inputs, options, bokehjs_dir)
+  const config = {log: (text: string) => console.log(text)}
+  return compileFiles(Object.keys(inputs), options, config, host)
 }
 
 function compile_javascript(file: string, code: string): {output: string, error?: string} {
@@ -207,10 +178,11 @@ const compile_and_resolve_deps = (input: {code: string, lang: string, file: stri
       const inputs = {[normalize(file)]: code}
       const result = compile_typescript(inputs, bokehjs_dir)
 
-      if (result.error == null)
-        output = result.outputs[normalize(rename(file, {ext: ".js"}))]
-      else
-        return reply({error: result.error})
+      if (result.failure == null) {
+        const js_file = normalize(rename(file, {ext: ".js"}))
+        output = result.outputs!.get(js_file)!
+      } else
+        return reply({error: result.failure})
       break
     case "coffeescript":
       try {
@@ -251,7 +223,7 @@ const compile_and_resolve_deps = (input: {code: string, lang: string, file: stri
 
 if (argv.file != null) {
   const input = {
-    code: read(argv.file as string)!,
+    code: argv.code != null ? argv.code as string : read(argv.file as string)!,
     lang: (argv.lang as string | undefined) || "coffeescript",
     file: argv.file as string,
     bokehjs_dir: (argv.bokehjsDir as string | undefined) || "./build", // this is what bokeh.settings defaults to
