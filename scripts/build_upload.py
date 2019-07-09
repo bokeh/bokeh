@@ -292,8 +292,9 @@ def check_cdn_bucket():
         CDN_BUCKET_NAME = 'cdn.bokeh.org'
         AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
         AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
-        conn = boto.connect_s3(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)
-        bucket = conn.get_bucket(CDN_BUCKET_NAME, calling_format=boto.s3.connection.OrdinaryCallingFormat())
+        conn = boto.connect_s3(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY,
+                               calling_format=boto.s3.connection.OrdinaryCallingFormat())
+        bucket = conn.get_bucket(CDN_BUCKET_NAME)
         return bucket
     except:
         failed("Could NOT retrieve CDN bucket")
