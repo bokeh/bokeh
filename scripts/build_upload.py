@@ -177,7 +177,7 @@ def cdn_upload_s3(local_path, cdn_path, content_type, bucket, binary=False):
     else:
         data = open(local_path).read().encode('utf-8')
     fp = BytesIO(data)
-    key.send_file(fp)
+    key.set_contents_from_file(fp)
 
 def cdn_upload_rs(local_path, cdn_path, content_type, cdn_token, cdn_id, binary=False):
     print(":uploading to CDN: %s" % cdn_path)
