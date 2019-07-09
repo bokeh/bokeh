@@ -20,7 +20,7 @@ from subprocess import Popen, PIPE
 import sys
 
 import boto
-import boto.s3
+import boto.s3.connection, boto.s3.key
 import certifi
 import pycurl
 
