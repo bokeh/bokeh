@@ -14,18 +14,10 @@
 {%- block scripts %}
     {{ super() }}
 
-    <script type="text/javascript" id="documentation_options" data-url_root="./" src="{{ pathto('_static/documentation_options.js', 1) }}"></script>
     <script type="text/javascript" src="{{ pathto('_static/jquery.js', 1) }}"></script>
     <script type="text/javascript" src="{{ pathto('_static/underscore.js', 1) }}"></script>
     <script type="text/javascript" src="{{ pathto('_static/doctools.js', 1) }}"></script>
     <script type="text/javascript" src="{{ pathto('_static/language_data.js', 1) }}"></script>
-
-    {# FIXME: find a way to include this file automatically #}
-    {# Community #}
-    <script type="text/javascript" src="https://assets.readthedocs.org/static/javascript/readthedocs-doc-embed.js"></script>
-
-    {# Corporate #}
-    <script type="text/javascript" src="https://media.readthedocs.com/javascript/readthedocs-doc-embed.js"></script>
 
     <script type="text/javascript" src="{{ pathto('_static/searchtools.js', 1) }}"></script>
 {%- endblock %}
