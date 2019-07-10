@@ -37,6 +37,8 @@
   </script>
   <script src="{{ pathto('_static/' + theme_js, 1) }}"></script>
 
+  {% block scripts %}{% endblock %}
+
   <!-- Favicon
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <link rel="icon" type="image/png" href="{{ pathto('_static/' + theme_favicon, 1) }}">
@@ -120,6 +122,8 @@
     </ul>
   </div>
 </footer>
+
+{% block footer %}{% endblock %}
 
 <!-- Google Analytics -->
 {% include 'ga.html' %}
