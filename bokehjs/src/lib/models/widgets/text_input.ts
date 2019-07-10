@@ -30,18 +30,20 @@ export class TextInputView extends InputWidgetView {
       disabled: this.model.disabled,
       placeholder: this.model.placeholder,
     })
-    this.input_el.addEventListener("change", () => this.change_input_onchange())
-    this.input_el.addEventListener("input",  () => this.change_input_oninput())
+    this.input_el.addEventListener("change", (e: any) => this.change_input(e))
+    this.input_el.addEventListener("input",  (e: any) => this.change_input(e))
     this.group_el.appendChild(this.input_el)
   }
 
-  change_input_onchange(): void {
-    this.model.value = this.input_el.value
-    super.change_input()
-  }
-
-  change_input_oninput(): void {
-    this.model.value_input = this.input_el.value
+  change_input(event?: any): void {
+    if (typeof event !== undefined) {
+      const eventType = event.type;
+      if (eventType == "change") {
+        this.model.value = this.input_el.value
+      } else if (eventType == "input") {
+        this.model.value_input = this.input_el.value
+      }
+    }
     super.change_input()
   }
 }
