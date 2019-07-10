@@ -1,0 +1,69 @@
+{#
+    basic/search.html
+    ~~~~~~~~~~~~~~~~~
+
+    Template for the search page.
+
+    :copyright: Copyright 2007-2019 by the Sphinx team, see AUTHORS.
+    :license: BSD, see LICENSE for details.
+
+    https://github.com/sphinx-doc/sphinx/blob/master/sphinx/themes/basic/search.html
+#}
+{%- extends "layout.html" %}
+{% set title = _('Search') %}
+{%- block scripts %}
+    {{ super() }}
+
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <!-- <script type="text/javascript" src="https://assets.readthedocs.org/static/javascript/readthedocs-doc-embed.js"></script> -->
+
+    <script type="text/javascript" src="{{ pathto('_static/searchtools.js', 1) }}"></script>
+{%- endblock %}
+{% block extrahead %}
+  <script type="text/javascript" src="{{ pathto('searchindex.js', 1) }}" defer></script>
+  {{ super() }}
+{% endblock %}
+{% block body %}
+  <p>This is a my modified template for search.html</p>
+
+  <h1 id="search-documentation">{{ _('Search') }}</h1>
+  <div id="fallback" class="admonition warning">
+  <script type="text/javascript">$('#fallback').hide();</script>
+  <p>
+    {% trans %}Please activate JavaScript to enable the search
+    functionality.{% endtrans %}
+  </p>
+  </div>
+  <p>
+    {% trans %}From here you can search these documents. Enter your search
+    words into the box below and click "search". Note that the search
+    function will automatically search for all of the words. Pages
+    containing fewer words won't appear in the result list.{% endtrans %}
+  </p>
+  <form action="" method="get">
+    <input type="text" name="q" aria-labelledby="search-documentation" value="" />
+    <input type="submit" value="{{ _('search') }}" />
+    <span id="search-progress" style="padding-left: 10px"></span>
+  </form>
+  {% if search_performed %}
+    <h2>{{ _('Search Results') }}</h2>
+    {% if not search_results %}
+      <p>{{ _('Your search did not match any documents. Please make sure that all words are spelled correctly and that you\'ve selected enough categories.') }}</p>
+    {% endif %}
+  {% endif %}
+  <div id="search-results">
+  {% if search_results %}
+    <ul>
+    {% for href, caption, context in search_results %}
+      <li><a href="{{ pathto(item.href) }}">{{ caption }}</a>
+        <div class="context">{{ context|e }}</div>
+      </li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+  </div>
+{% endblock %}
