@@ -19,7 +19,7 @@ popd
 conda build conda.recipe --quiet --no-test --no-anaconda-upload
 
 # if this is an external contributor then the uploads below will fail
-if [[ -z "${SAUCE_USERNAME}" ]]; then
+if [[ -z "${AWS_ACCESS_KEY_ID}" ]]; then
     echo
     echo "SKIPPING BUILD ASSET UPLOAD --- external committer"
     echo

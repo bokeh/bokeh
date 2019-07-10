@@ -19,6 +19,8 @@ import re
 from subprocess import Popen, PIPE
 import sys
 
+import boto
+import boto.s3.connection, boto.s3.key
 import certifi
 import pycurl
 
@@ -40,8 +42,6 @@ except ImportError:
     def red(text):    return text
     def green(text):  return text
     def yellow(text): return text
-
-RSURL = 'https://storage101.iad3.clouddrive.com'
 
 NOT_STARTED = "NOT STARTED"
 STARTED = "STARTED BUT NOT COMPLETED"
@@ -163,10 +163,27 @@ def upload_wrapper(name):
         return wrapper
     return decorator
 
-def cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id, binary=False, url=RSURL):
+def cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id, bucket, binary=False):
+    cdn_upload_rs(local_path, cdn_path, content_type, cdn_token, cdn_id, binary)
+    cdn_upload_s3(local_path, cdn_path, content_type, bucket, binary)
+
+def cdn_upload_s3(local_path, cdn_path, content_type, bucket, binary=False):
     print(":uploading to CDN: %s" % cdn_path)
     if CONFIG.dry_run: return
-    url = url + '/v1/%s/%s' % (cdn_id, cdn_path)
+    key = boto.s3.key.Key(bucket, cdn_path)
+    key.metadata = {'Cache-Control': 'max-age=31536000', 'Content-Type': content_type}
+    if binary:
+        data = open(local_path, "rb").read()
+    else:
+        data = open(local_path).read().encode('utf-8')
+    fp = BytesIO(data)
+    key.set_contents_from_file(fp)
+
+def cdn_upload_rs(local_path, cdn_path, content_type, cdn_token, cdn_id, binary=False):
+    print(":uploading to CDN: %s" % cdn_path)
+    if CONFIG.dry_run: return
+    RSURL = 'https://storage101.iad3.clouddrive.com'
+    url = RSURL + '/v1/%s/bokeh/%s' % (cdn_id, cdn_path)
     c = pycurl.Curl()
     c.setopt(c.CAINFO, certifi.where())
     c.setopt(c.URL, url)
@@ -268,7 +285,22 @@ def check_anaconda_creds():
         failed("Could NOT verify Anaconda credentials")
         abort_checks()
 
-def check_cdn_creds(uservar='RSUSER', keyvar='RSAPIKEY'):
+def check_cdn_bucket():
+    if  CONFIG.dry_run:
+        return "junk"
+    try:
+        CDN_BUCKET_NAME = 'cdn.bokeh.org'
+        AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
+        AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
+        conn = boto.connect_s3(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY,
+                               calling_format=boto.s3.connection.OrdinaryCallingFormat())
+        bucket = conn.get_bucket(CDN_BUCKET_NAME)
+        return bucket
+    except:
+        failed("Could NOT retrieve CDN bucket")
+        abort_checks()
+
+def check_cdn_creds_rs(uservar='RSUSER', keyvar='RSAPIKEY'):
     if  CONFIG.dry_run:
         return "junk", "junk"
     try:
@@ -337,7 +369,7 @@ def build_examples():
 #--------------------------------------
 
 @upload_wrapper('cdn')
-def upload_cdn(cdn_token, cdn_id, url=RSURL):
+def upload_cdn(cdn_token, cdn_id, bucket):
     subdir = 'dev' if V(CONFIG.version).is_prerelease else 'release'
     version = CONFIG.version
 
@@ -345,15 +377,15 @@ def upload_cdn(cdn_token, cdn_id, url=RSURL):
     for name in ('bokeh', 'bokeh-api', 'bokeh-widgets', 'bokeh-tables', 'bokeh-gl'):
         for suffix in ('js', 'min.js'):
             local_path = 'bokehjs/build/js/%s.%s' % (name, suffix)
-            cdn_path = 'bokeh/bokeh/%s/%s-%s.%s' % (subdir, name, version, suffix)
-            cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id, url=url)
+            cdn_path = 'bokeh/%s/%s-%s.%s' % (subdir, name, version, suffix)
+            cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id, bucket)
 
     content_type = "text/css"
     for name in ('bokeh', 'bokeh-widgets', 'bokeh-tables'):
         for suffix in ('css', 'min.css'):
             local_path = 'bokehjs/build/css/%s.%s' % (name, suffix)
-            cdn_path = 'bokeh/bokeh/%s/%s-%s.%s' % (subdir, name, version, suffix)
-            cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id, url=url)
+            cdn_path = 'bokeh/%s/%s-%s.%s' % (subdir, name, version, suffix)
+            cdn_upload(local_path, cdn_path, content_type, cdn_token, cdn_id, bucket)
 
 @upload_wrapper('anaconda')
 def upload_anaconda(token, dev):
@@ -385,10 +417,10 @@ def upload_docs():
     cd("..")
 
 @upload_wrapper('examples')
-def upload_examples(cdn_token, cdn_id, url=RSURL):
+def upload_examples(cdn_token, cdn_id, bucket):
     local_path = "examples-%s.zip" % CONFIG.version
-    cdn_path = 'bokeh/bokeh/examples/%s' % local_path
-    cdn_upload(local_path, cdn_path, 'application/zip', cdn_token, cdn_id, binary=True, url=url)
+    cdn_path = 'bokeh/examples/%s' % local_path
+    cdn_upload(local_path, cdn_path, 'application/zip', cdn_token, cdn_id, bucket, binary=True)
 
 @upload_wrapper('npm')
 def upload_npm():
@@ -439,7 +471,9 @@ if __name__ == '__main__':
 
     anaconda_token = check_anaconda_creds()
 
-    cdn_token, cdn_id = check_cdn_creds()
+    cdn_token, cdn_id = check_cdn_creds_rs()
+
+    bucket = check_cdn_bucket()
 
     # builds ----------------------------------------------------------------
 
@@ -466,7 +500,7 @@ if __name__ == '__main__':
 
     # upload to CDN first -- if this fails, save the trouble of removing
     # useless packages from Anaconda.org and PyPI
-    upload_cdn(cdn_token, cdn_id)
+    upload_cdn(cdn_token, cdn_id, bucket)
 
     upload_anaconda(anaconda_token, V(CONFIG.version).is_prerelease)
 
@@ -479,7 +513,7 @@ if __name__ == '__main__':
     else:
         upload_pypi()
         upload_npm()
-        upload_examples(cdn_token, cdn_id)
+        upload_examples(cdn_token, cdn_id, bucket)
 
     # finish ----------------------------------------------------------------
 
