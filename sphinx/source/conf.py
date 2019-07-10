@@ -188,7 +188,7 @@ html_context = {
         ('Reference', 'reference'),
         ('Releases', 'releases'),
         ('Developer Guide', 'dev_guide'),
-        ('Search', 'search'),
+        ('Search', 'search.html'),
     ),
     'ALL_VERSIONS': all_versions,
 }
