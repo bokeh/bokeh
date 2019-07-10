@@ -23,8 +23,13 @@
 
     <script type="text/javascript" src="{{ pathto('_static/searchtools.js', 1) }}"></script>
 {%- endblock %}
-{% block extrahead %}
-  <script type="text/javascript" src="{{ pathto('searchindex.js', 1) }}" defer></script>
+{% block footer %}
+  <script type="text/javascript">
+    jQuery(function() { Search.loadIndex("{{ pathto('searchindex.js', 1) }}"); });
+  </script>
+  {# this is used when loading the search index using $.ajax fails,
+     such as on Chrome for documents on localhost #}
+  <script type="text/javascript" id="searchindexloader"></script>
   {{ super() }}
 {% endblock %}
 {% block body %}
