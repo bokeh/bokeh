@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import Date, Either, Float, Instance, Int, List, String, Tuple, Dict, ColorHex, Bool
+from ...core.properties import Date, Either, Float, Instance, Int, List, String, Tuple, Dict, ColorHex
 
 from ..callbacks import Callback
 
