@@ -140,6 +140,12 @@ Special Properties
 .. autoclass:: Include
 .. autoclass:: Override
 
+Validation-only Properties
+--------------------------
+
+.. autoclass:: PandasDataFrame
+.. autoclass:: PandasGroupBy
+
 Validation Control
 ------------------
 
@@ -217,6 +223,8 @@ __all__ = (
     'MinMaxBounds',
     'NumberSpec',
     'Override',
+    'PandasDataFrame',
+    'PandasGroupBy',
     'Percent',
     'RGB',
     'Regex',
@@ -296,6 +304,9 @@ from .property.numeric import Percent; Percent
 from .property.numeric import Size; Size
 
 from .property.override import Override ; Override
+
+from .property.pandas import PandasDataFrame ; PandasDataFrame
+from .property.pandas import PandasGroupBy ; PandasGroupBy
 
 from .property.primitive import Bool; Bool
 from .property.primitive import Complex; Complex

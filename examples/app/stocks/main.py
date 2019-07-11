@@ -107,11 +107,12 @@ def ticker2_change(attrname, old, new):
 def update(selected=None):
     t1, t2 = ticker1.value, ticker2.value
 
-    data = get_data(t1, t2)
-    source.data = source.from_df(data[['t1', 't2', 't1_returns', 't2_returns']])
-    source_static.data = source.data
+    df = get_data(t1, t2)
+    data = df[['t1', 't2', 't1_returns', 't2_returns']]
+    source.data = data
+    source_static.data = data
 
-    update_stats(data, t1, t2)
+    update_stats(df, t1, t2)
 
     corr.title.text = '%s returns vs. %s returns' % (t1, t2)
     ts1.title.text, ts2.title.text = t1, t2
