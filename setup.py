@@ -73,13 +73,16 @@ from _setup_support import (
 )
 
 
-# FIXME: workaround to upgrade ``npm`` since we have ``3.5.2`` in our
-# Docker image and we need at least ``npm>=6.0``
+# Workaround to upgrade ``npm`` since Read the Docs build environment have
+# ``3.5.2`` and we need at least ``npm>=6.0``
+# This can be removed once
 import os
 os.system('cd ~ ; mkdir bin ; npm install npm')
-os.environ['BOKEH_BUILD_JS'] = '1'
 os.environ['PATH'] = '/home/docs/node_modules/.bin/:{}'.format(os.environ.get('PATH'))
-print(os.environ.get('PATH'))
+print('PATH: {}'.format(os.environ.get('PATH')))
+
+# Tell Bokeh install script to always build the Javascript files
+os.environ['BOKEH_BUILD_JS'] = '1'
 
 # immediately bail for ancient pythons
 if sys.version_info[:2] < (2, 7):

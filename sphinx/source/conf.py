@@ -279,10 +279,11 @@ intersphinx_mapping = {
 
 import os
 
-# Bokeh uses CDN to serve JS files, but since we are hosting the
-# documentation of the latest release (and/or unrelease version) we
+# Do not use Bokeh CDNs to serve JS files since we are hosting the
+# documentation of the latest release (and/or unrelease version). We
 # want to serve the compiled JS files from Read the Docs servers
-# itself. For this, we build these JS files in RTD server and use
+# itself to match the documentation with the JS version. To accomplish
+# this, we build Bokeh JS files in RTD server and use
 # ``BOKEH_DOCS_CDN`` to generate the right URLs for these files.
 os.environ['BOKEH_DOCS_CDN'] = 'test:{}'.format(os.environ.get('READTHEDOCS_VERSION'))
 
@@ -295,11 +296,9 @@ if os.environ.get('READTHEDOCS') == 'True':
     import bokeh
     bokeh.sampledata.download(progress=False)
 
-# https://github.com/humitos/bokeh/blob/3fce9dff37392156e4c1c2c0ce741899ea9a5261/sphinx/fabfile.py#L46
 # ``version.txt`` is generated on deploying and used from JS when
-# rendering the page FIXME: when this file is requested, it's only
-# done at ``/en/latest/version.txt`` --the URL is harcorded so it
-# doesn't work for versions different than ``latest``
+# rendering the page. Copied from,
+# https://github.com/bokeh/bokeh/blob/662bb52/sphinx/fabfile.py#L46
 with open('version.txt', 'w') as fh:
     fh.write(os.environ.get('READTHEDOCS_VERSION'))
 
@@ -314,6 +313,7 @@ html_extra_path = [
     'bokehJSbuildstatic',
 ]
 
+# Ignore Google API key
 bokeh_missing_google_api_key_ok=True
 
 # To deal with ``/scripts/`` URLs
