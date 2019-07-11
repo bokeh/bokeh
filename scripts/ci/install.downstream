@@ -5,3 +5,5 @@ set -x # echo commands
 
 conda install -n testenv --yes --quiet distributed
 conda install -n testenv --yes --quiet -c pyviz/label/dev holoviews nose
+pip install pandas_bokeh
+pip install geopandas
