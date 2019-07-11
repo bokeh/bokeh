@@ -17,7 +17,7 @@ Bokeh
   <td>Conda</td>
   <td>
     <a href="https://bokeh.pydata.org/en/latest/docs/installation.html">
-    <img src="https://s3.amazonaws.com/pubbadges/bokeh_current.svg"
+    <img src="https://pyviz.org/_static/cache/bokeh_conda_downloads_badge.svg"
          alt="Conda downloads per month" />
     </a>
   </td>
@@ -34,8 +34,10 @@ Bokeh
 
   <td>PyPI</td>
   <td>
+    <a href="https://bokeh.pydata.org/en/latest/docs/installation.html">
     <img src="https://img.shields.io/pypi/dm/bokeh.svg"
          alt="PyPI downloads per month" />
+    </a>
   </td>
 </tr>
 
