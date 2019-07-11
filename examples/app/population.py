@@ -64,8 +64,7 @@ year = Select(title="Year:", value="2010", options=years)
 location = Select(title="Location:", value="World", options=locations)
 
 def update():
-    age =  df[(df.Location == location.value) & (df.Year == int(year.value))]
-    ages.data = ColumnDataSource.from_df(age)
+    ages.data = df[(df.Location == location.value) & (df.Year == int(year.value))]
 
     pop = df[df.Location == location.value].groupby(df.Year).Value.sum()
     new_known = pop[pop.index <= 2010]
