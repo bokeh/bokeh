@@ -60,3 +60,5 @@ examples.log
 *.tar
 *.tgz
 *.zip
+
+/.mypy_cache/
