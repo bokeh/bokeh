@@ -5,7 +5,7 @@ Mapping Geo Data
 
 Bokeh has started adding support for working with Geographical data. There are
 a number of powerful features already available, but we still have more to add.
-Please tell use your use cases through the `mailing list`_ or on `github`_ so that we
+Please tell us your use cases through the `mailing list`_ or on `github`_ so that we
 can continue to build out these features to meet your needs.
 
 .. _userguide_geo_tile_provider_maps:
