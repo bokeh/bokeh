@@ -119,7 +119,6 @@ class BokehJSContent(CodeBlock):
 
         """
 
-        # type: () -> List[nodes.Node]
         document = self.state.document
         location = self.state_machine.get_source_and_line(self.lineno)
 
