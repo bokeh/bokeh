@@ -14,7 +14,8 @@ def load_setup_py_data():
     return data
 
 meta_src = jinja2.Template(open("conda.recipe/meta.yaml").read())
-meta_src = yaml.load(meta_src.render(load_setup_py_data=load_setup_py_data))
+meta_src = yaml.load(meta_src.render(load_setup_py_data=load_setup_py_data),
+                     Loader=yaml.FullLoader)
 
 section = {
     "build"  : meta_src["requirements"]["build"],
