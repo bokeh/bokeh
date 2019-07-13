@@ -32,6 +32,7 @@ import math
 import sys
 from threading import Lock
 import uuid
+from typing import Any, Union, Dict, Optional, Iterable
 
 # External imports
 import numpy as np
@@ -39,13 +40,18 @@ import numpy as np
 # Bokeh imports
 from ..settings import settings
 from .string import format_docstring
-from .dependencies import import_optional
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-pd = import_optional('pandas')
+try:
+    import pandas as pd
+except ImportError:
+    pd = None
+except Exception:
+    msg = "Failed to import optional module `{}`".format("pandas")
+    log.exception(msg)
 
 BINARY_ARRAY_TYPES = set([
     np.dtype(np.float32),
@@ -67,13 +73,17 @@ DATETIME_TYPES = set([
 
 if pd:
     try:
-        _pd_timestamp = pd.Timestamp
-    except AttributeError:
-        _pd_timestamp = pd.tslib.Timestamp
+        from pandas import Timestamp as _pd_timestamp
+    except (ModuleNotFoundError, ImportError):
+        from pandas.tslib import Timestamp as _pd_timestamp
     DATETIME_TYPES.add(_pd_timestamp)
     DATETIME_TYPES.add(pd.Timedelta)
     DATETIME_TYPES.add(pd.Period)
     DATETIME_TYPES.add(type(pd.NaT))
+
+UNION_DATETIME_TYPES = Union[dt.datetime, dt.date, dt.time, np.datetime64,
+                             _pd_timestamp, pd.Timedelta,
+                             pd.Period, pd._libs.tslibs.nattype.NaTType]
 
 NP_EPOCH = np.datetime64(0, 'ms')
 NP_MS_DELTA = np.timedelta64(1, 'ms')
@@ -106,7 +116,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def is_datetime_type(obj):
+def is_datetime_type(obj : Any) -> bool:
     ''' Whether an object is any date, time, or datetime type recognized by
     Bokeh.
 
@@ -119,7 +129,7 @@ def is_datetime_type(obj):
     '''
     return isinstance(obj, _dt_tuple)
 
-def is_timedelta_type(obj):
+def is_timedelta_type(obj : Any) -> bool:
     ''' Whether an object is any timedelta type recognized by Bokeh.
 
     Arg:
@@ -131,7 +141,7 @@ def is_timedelta_type(obj):
     '''
     return isinstance(obj, (dt.timedelta, np.timedelta64))
 
-def convert_timedelta_type(obj):
+def convert_timedelta_type(obj : Union[dt.timedelta, np.timedelta64]) -> Optional[float]:
     ''' Convert any recognized timedelta value to floating point absolute
     milliseconds.
 
@@ -147,7 +157,7 @@ def convert_timedelta_type(obj):
     elif isinstance(obj, np.timedelta64):
         return (obj / NP_MS_DELTA)
 
-def convert_datetime_type(obj):
+def convert_datetime_type(obj: UNION_DATETIME_TYPES) -> Optional[float]:
     ''' Convert any recognized date, time, or datetime value to floating point
     milliseconds since epoch.
 
@@ -190,7 +200,7 @@ def convert_datetime_type(obj):
     elif isinstance(obj, dt.time):
         return (obj.hour * 3600 + obj.minute * 60 + obj.second) * 1000 + obj.microsecond / 1000.
 
-def convert_datetime_array(array):
+def convert_datetime_array(array: np.ndarray) -> np.ndarray:
     ''' Convert NumPy datetime arrays to arrays to milliseconds since epoch.
 
     Args:
@@ -216,7 +226,7 @@ def convert_datetime_array(array):
 
     return array
 
-def make_id():
+def make_id() -> str:
     ''' Return a new unique ID for a Bokeh object.
 
     Normally this function will return simple monotonically increasing integer
@@ -237,7 +247,7 @@ def make_id():
     else:
         return make_globally_unique_id()
 
-def make_globally_unique_id():
+def make_globally_unique_id() -> str:
     ''' Return a globally unique UUID.
 
     Some situations, e.g. id'ing dynamically created Divs in HTML documents,
@@ -249,7 +259,7 @@ def make_globally_unique_id():
     '''
     return str(uuid.uuid4())
 
-def array_encoding_disabled(array):
+def array_encoding_disabled(array: np.ndarray) -> bool:
     ''' Determine whether an array may be binary encoded.
 
     The NumPy array dtypes that can be encoded are:
@@ -271,7 +281,9 @@ array_encoding_disabled.__doc__ = format_docstring(array_encoding_disabled.__doc
                                                    binary_array_types="\n    ".join("* ``np." + str(x) + "``"
                                                                                     for x in BINARY_ARRAY_TYPES))
 
-def transform_array(array, force_list=False, buffers=None):
+def transform_array(array: np.ndarray,
+                    force_list: bool=False,
+                    buffers: Optional[list]=None) -> Union[list, Dict[str, Any]]:
     ''' Transform a NumPy arrays into serialized format
 
     Converts un-serializable dtypes and returns JSON serializable
@@ -306,7 +318,7 @@ def transform_array(array, force_list=False, buffers=None):
 
     return serialize_array(array, force_list=force_list, buffers=buffers)
 
-def transform_array_to_list(array):
+def transform_array_to_list(array: np.ndarray) -> list:
     ''' Transforms a NumPy array into a list of values
 
     Args:
@@ -328,7 +340,9 @@ def transform_array_to_list(array):
         return transformed.tolist()
     return array.tolist()
 
-def transform_series(series, force_list=False, buffers=None):
+def transform_series(series: pd.Series,
+                     force_list: bool=False,
+                     buffers: Optional[list]=None) -> Union[list, Dict[str, Any]]:
     ''' Transforms a Pandas series into serialized form
 
     Args:
@@ -362,7 +376,9 @@ def transform_series(series, force_list=False, buffers=None):
         vals = series.values
     return transform_array(vals, force_list=force_list, buffers=buffers)
 
-def serialize_array(array, force_list=False, buffers=None):
+def serialize_array(array: Union[np.ndarray, np.ma.MaskedArray],
+                    force_list: bool=False,
+                    buffers: Optional[list]=None) -> Union[list, Dict[str, Any]]:
     ''' Transforms a NumPy array into serialized form.
 
     Args:
@@ -399,7 +415,7 @@ def serialize_array(array, force_list=False, buffers=None):
     else:
         return encode_binary_dict(array, buffers)
 
-def traverse_data(obj, use_numpy=True, buffers=None):
+def traverse_data(obj: Iterable, use_numpy: bool=True, buffers: Optional[list]=None) -> list:
     ''' Recursively traverse an object until a flat list is found.
 
     If NumPy is available, the flat list is converted to a numpy array
@@ -434,7 +450,9 @@ def traverse_data(obj, use_numpy=True, buffers=None):
             obj_copy.append(item)
     return obj_copy
 
-def transform_column_source_data(data, buffers=None, cols=None):
+def transform_column_source_data(data: dict,
+                                 buffers: Optional[list]=None,
+                                 cols: Optional[str]=None) -> Dict[str, Union[list, Dict[str, Any]]]:
     ''' Transform ``ColumnSourceData`` data to a serialized format
 
     Args:
@@ -470,7 +488,7 @@ def transform_column_source_data(data, buffers=None, cols=None):
 
     return data_copy
 
-def encode_binary_dict(array, buffers):
+def encode_binary_dict(array: np.ndarray, buffers: list) -> Dict[str, Any]:
     ''' Send a numpy array as an unencoded binary buffer
 
     The encoded format is a dict with the following structure:
@@ -508,7 +526,7 @@ def encode_binary_dict(array, buffers):
         'order'       : sys.byteorder
     }
 
-def encode_base64_dict(array):
+def encode_base64_dict(array: np.ndarray) -> Dict[str, Any]:
     ''' Encode a NumPy array using base64:
 
     The encoded format is a dict with the following structure:
@@ -535,7 +553,7 @@ def encode_base64_dict(array):
         'dtype'        : array.dtype.name
     }
 
-def decode_base64_dict(data):
+def decode_base64_dict(data: dict) -> np.ndarray:
     ''' Decode a base64 encoded array into a NumPy array.
 
     Args:
