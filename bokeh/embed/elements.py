@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 from html import escape
 
 # External imports
+from typing import List, Optional
 
 # Bokeh imports
 from ..core.json_encoder import serialize_json
@@ -29,6 +30,7 @@ from ..core.templates import _env, DOC_JS, FILE, MACROS, PLOT_DIV
 from ..document.document import DEFAULT_TITLE
 from ..settings import settings
 from ..util.serialization import make_id
+from .embed.util import RenderItem
 from .wrappers import wrap_in_onload, wrap_in_safely, wrap_in_script_tag
 
 #-----------------------------------------------------------------------------
@@ -49,7 +51,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-def div_for_render_item(item):
+def div_for_render_item(item: RenderItem) -> str:
     ''' Render an HTML div for a Bokeh render item.
 
     Args:
@@ -126,9 +128,22 @@ def html_page_for_render_items(bundle, docs_json, render_items, title, template=
     html = template.render(context)
     return html
 
-def script_for_render_items(docs_json_or_id, render_items, app_path=None, absolute_url=None):
-    '''
+def script_for_render_items(docs_json_or_id, render_items: List[RenderItem], 
+                            app_path:Optional[str] = None, absolute_url:Optional[str] = None) -> str:
+    ''' Render an script for Bokeh render items.
+    Args:
+        docs_json_or_id:
+            can be None
+        
+        render_items (RenderItems) :
+            Specific items to render from the document and where
 
+        app_path (str, optional) :
+        
+        absolute_url (Theme, optional) :
+
+    Returns:
+        str
     '''
     if isinstance(docs_json_or_id, str):
         docs_json = "document.getElementById('%s').textContent" % docs_json_or_id
