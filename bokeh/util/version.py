@@ -36,6 +36,8 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 
+from typing import Optional, cast
+
 # External imports
 
 # Bokeh imports
@@ -52,13 +54,16 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def base_version():
+def base_version() -> str:
     return _base_version_helper(__version__)
 
-def _base_version_helper(version):
+def _base_version_helper(version: str) -> str:
     import re
     VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)((?:dev|rc).*)?")
-    return VERSION_PAT.search(version).group(1)
+    result = VERSION_PAT.search(version)
+    if result is None:
+        raise RuntimeError("Version {} not found.".format(version))
+    return result.group(1)
 
 #-----------------------------------------------------------------------------
 # Dev API

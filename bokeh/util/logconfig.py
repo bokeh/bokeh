@@ -34,6 +34,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import sys
+from typing import Any, Optional, cast
 
 # External imports
 
@@ -48,11 +49,13 @@ __all__ = (
   'basicConfig',
 )
 
+default_handler = None # type: Optional[logging.Handler]
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-def basicConfig(*args, **kwargs):
+def basicConfig(**kwargs:Any) -> None:
     """
     A logging.basicConfig() wrapper that also undoes the default
     Bokeh-specific configuration.
@@ -60,7 +63,7 @@ def basicConfig(*args, **kwargs):
     if default_handler is not None:
         bokeh_logger.removeHandler(default_handler)
         bokeh_logger.propagate = True
-    return logging.basicConfig(*args, **kwargs)
+    logging.basicConfig(**kwargs)
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -76,11 +79,11 @@ def basicConfig(*args, **kwargs):
 
 TRACE = 9
 logging.addLevelName(TRACE, "TRACE")
-def trace(self, message, *args, **kws):
+def trace(self: Any, message: str, *args: Any, **kws: Any) -> None:
     if self.isEnabledFor(TRACE):
         self._log(TRACE, message, args, **kws)
-logging.Logger.trace = trace
-logging.TRACE = TRACE
+cast(Any, logging).Logger.trace = trace
+cast(Any, logging).TRACE = TRACE
 
 level = settings.py_log_level()
 bokeh_logger = logging.getLogger('bokeh')
@@ -98,5 +101,3 @@ if not (root_logger.handlers or bokeh_logger.handlers):
     # Avoid printing out twice if the root logger is later configured
     # by user.
     bokeh_logger.propagate = False
-else:
-    default_handler = None

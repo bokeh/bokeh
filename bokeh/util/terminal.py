@@ -21,6 +21,8 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import sys
 
+from typing import Tuple, Dict, Optional, Any
+
 # External imports
 
 # Bokeh imports
@@ -53,43 +55,84 @@ try:
     import colorama
     from colorama import Fore, Style
 
-    def bright(text): return "%s%s%s"   % (Style.BRIGHT, text, Style.RESET_ALL)
-    def dim(text):    return "%s%s%s"   % (Style.DIM,    text, Style.RESET_ALL)
-    def red(text):    return "%s%s%s"   % (Fore.RED,     text, Style.RESET_ALL)
-    def green(text):  return "%s%s%s"   % (Fore.GREEN,   text, Style.RESET_ALL)
-    def white(text):  return "%s%s%s%s" % (Fore.WHITE, Style.BRIGHT, text, Style.RESET_ALL)
-    def yellow(text): return "%s%s%s"   % (Fore.YELLOW,  text, Style.RESET_ALL)
+
+    def bright(text: str) -> str:
+        return "%s%s%s" % (Style.BRIGHT, text, Style.RESET_ALL)
+
+
+    def dim(text: str) -> str:
+        return "%s%s%s" % (Style.DIM, text, Style.RESET_ALL)
+
+
+    def red(text: str) -> str:
+        return "%s%s%s" % (Fore.RED, text, Style.RESET_ALL)
+
+
+    def green(text: str) -> str:
+        return "%s%s%s" % (Fore.GREEN, text, Style.RESET_ALL)
+
+
+    def white(text: str) -> str:
+        return "%s%s%s%s" % (Fore.WHITE, Style.BRIGHT, text, Style.RESET_ALL)
+
+
+    def yellow(text: str) -> str:
+        return "%s%s%s" % (Fore.YELLOW, text, Style.RESET_ALL)
+
+
     sys.platform == "win32" and colorama.init()
 
 except ImportError:
-    def bright(text): return text
-    def dim(text):    return text
-    def red(text):    return text
-    def green(text):  return text
-    def white(text):  return text
-    def yellow(text): return text
+    def bright(text: str) -> str:
+        return text
 
-def trace(*values, **kwargs):
+
+    def dim(text: str) -> str:
+        return text
+
+
+    def red(text: str) -> str:
+        return text
+
+
+    def green(text: str) -> str:
+        return text
+
+
+    def white(text: str) -> str:
+        return text
+
+
+    def yellow(text: str) -> str:
+        return text
+
+
+def trace(*values: str, **kwargs: str) -> None:
     pass
 
-def write(*values, **kwargs):
+
+def write(*values: str, **kwargs: str) -> None:
     end = kwargs.get('end', '\n')
     print(*values, end=end)
 
-def fail(msg=None, label="FAIL"):
+
+def fail(msg: str = None, label: str = "FAIL") -> None:
     msg = " " + msg if msg is not None else ""
     write("%s%s" % (red("[%s]" % label), msg))
 
-def info(msg=None, label="INFO"):
-    msg = " " + msg if msg is not None else ""
+
+def info(msg: str = None, label: str = "INFO") -> None:
+    msg = " " + (msg or "")
     write("%s%s" % (white("[%s]" % label), msg))
 
-def ok(msg=None, label="OK"):
-    msg = " " + msg if msg is not None else ""
+
+def ok(msg: Optional[str] = None, label: str = "OK") -> None:
+    msg = " " + (msg or "")
     write("%s%s" % (green("[%s]" % label), msg))
 
-def warn(msg=None, label="WARN"):
-    msg = " " + msg if msg is not None else ""
+
+def warn(msg: Optional[str] = None, label: str = "WARN") -> None:
+    msg = " " + (msg or "")
     write("%s%s" % (yellow("[%s]" % label), msg))
 
 #-----------------------------------------------------------------------------
