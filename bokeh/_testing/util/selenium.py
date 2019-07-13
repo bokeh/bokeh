@@ -144,14 +144,18 @@ def hover_element(driver, element):
     hover = ActionChains(driver).move_to_element(element)
     hover.perform()
 
-def enter_text_in_element(driver, element, text, click=1, enter=True):
+def enter_text_in_element(driver, element, text, click=1, enter=True, mod=None):
     actions = ActionChains(driver)
     actions.move_to_element(element)
     if click == 1: actions.click()
     elif click == 2: actions.double_click()
     if enter:
         text += Keys.ENTER
+    if mod:
+        actions.key_down(mod)
     actions.send_keys(text)
+    if mod:
+        actions.key_up(mod)
     actions.perform()
 
 def enter_text_in_cell(driver, cell, text):
