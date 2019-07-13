@@ -74,7 +74,7 @@ DATETIME_TYPES = set([
 if pd:
     try:
         from pandas import Timestamp as _pd_timestamp
-    except (ModuleNotFoundError, ImportError):
+    except ImportError:
         from pandas.tslib import Timestamp as _pd_timestamp
     DATETIME_TYPES.add(_pd_timestamp)
     DATETIME_TYPES.add(pd.Timedelta)
@@ -83,7 +83,7 @@ if pd:
 
 UNION_DATETIME_TYPES = Union[dt.datetime, dt.date, dt.time, np.datetime64,
                              _pd_timestamp, pd.Timedelta,
-                             pd.Period, pd._libs.tslibs.nattype.NaTType]
+                             pd.Period]
 
 NP_EPOCH = np.datetime64(0, 'ms')
 NP_MS_DELTA = np.timedelta64(1, 'ms')
