@@ -49,6 +49,11 @@ export class DatePickerView extends InputWidgetView {
 
   private _picker: Pikaday
 
+  connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.change, () => this.render())
+  }
+
   render(): void {
     if (this._picker != null)
       this._picker.destroy()
@@ -60,14 +65,22 @@ export class DatePickerView extends InputWidgetView {
 
     this._picker = new Pikaday({
       field: this.input_el,
-      defaultDate: new Date(this.model.value),
+      defaultDate: this._unlocal_date(new Date(this.model.value)),
       setDefaultDate: true,
-      minDate: this.model.min_date != null ? new Date(this.model.min_date) : undefined,
-      maxDate: this.model.max_date != null ? new Date(this.model.max_date) : undefined,
+      minDate: this.model.min_date != null ? this._unlocal_date(new Date(this.model.min_date)) : undefined,
+      maxDate: this.model.max_date != null ? this._unlocal_date(new Date(this.model.max_date)) : undefined,
       onSelect: (date) => this._on_select(date),
     })
 
     this._root_element.appendChild(this._picker.el)
+  }
+
+  _unlocal_date(date: Date): Date {
+    // this sucks but the date comes in as a UTC timestamp and pikaday uses Date's local
+    // timezone-converted representation. We want the date to be as given by the user
+    const datestr = date.toISOString().substr(0, 10)
+    const tup = datestr.split('-')
+    return new Date(Number(tup[0]), Number(tup[1])-1, Number(tup[2]))
   }
 
   _on_select(date: Date): void {
