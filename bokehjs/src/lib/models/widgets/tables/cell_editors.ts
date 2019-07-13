@@ -40,7 +40,7 @@ export abstract class CellEditorView extends DOMView {
 
   render(): void {
     super.render()
-    this.args.container.appendChild(this.el)
+    this.args.container.append(this.el)
     this.el.appendChild(this.inputEl)
     this.renderEditor()
     this.disableNavigation()
