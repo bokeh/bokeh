@@ -19,17 +19,20 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from collections.abc import Sequence
+from typing import Type, Union, Optional, Tuple, Sequence, Dict, Any, cast
 
 # External imports
+from jinja2 import Template
 
 # Bokeh imports
 from ..core.templates import AUTOLOAD_JS, AUTOLOAD_TAG, FILE, ROOT_DIV, MACROS
 from ..document.document import DEFAULT_TITLE, Document
 from ..model import Model
+from ..resources import Resources, JSResources, CSSResources
+from ..themes import Theme
 from .bundle import bundle_for_objs_and_resources, Script
 from .elements import html_page_for_render_items, script_for_render_items
-from .util import FromCurdoc, OutputDocumentFor, standalone_docs_json, standalone_docs_json_and_render_items
+from .util import RenderRoot, FromCurdoc, OutputDocumentFor, standalone_docs_json, standalone_docs_json_and_render_items
 from .wrappers import wrap_in_onload
 
 #-----------------------------------------------------------------------------
@@ -43,11 +46,16 @@ __all__ = (
     'json_item',
 )
 
+ModelLike = Union[Model, Document]
+ModelLikeCollection = Union[Sequence[ModelLike], Dict[str, ModelLike]]
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-def autoload_static(model, resources, script_path):
+ThemeLike = Union[Theme, Type[FromCurdoc]]
+
+def autoload_static(model: Union[Model, Document], resources: Resources, script_path: str) -> Tuple[str, str]:
     ''' Return JavaScript code and a script tag that can be used to embed
     Bokeh Plots.
 
@@ -97,7 +105,8 @@ def autoload_static(model, resources, script_path):
 
     return js, tag
 
-def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
+def components(models: Union[ModelLike, ModelLikeCollection], wrap_script: bool = True,
+               wrap_plot_info: bool = True, theme: ThemeLike = FromCurdoc) -> Tuple[str, Any]:
     ''' Return HTML components to embed a Bokeh plot. The data for the plot is
     stored directly in the returned HTML.
 
@@ -187,7 +196,7 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
 
     # now convert dict to list, saving keys in the same order
     model_keys = None
-    dict_type = None
+    dict_type = dict # type: Type[Dict[Any, Any]]
     if isinstance(models, dict):
         model_keys = models.keys()
         dict_type = models.__class__
@@ -206,7 +215,7 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
 
     script = bundle.scripts(tag=wrap_script)
 
-    def div_for_root(root):
+    def div_for_root(root: RenderRoot) -> str:
         return ROOT_DIV.render(root=root, macros=MACROS)
 
     if wrap_plot_info:
@@ -216,6 +225,7 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
 
     # 3) convert back to the input shape
 
+    result = ... # type: Any
     if was_single_object:
         result = results[0]
     elif model_keys is not None:
@@ -225,14 +235,14 @@ def components(models, wrap_script=True, wrap_plot_info=True, theme=FromCurdoc):
 
     return script, result
 
-def file_html(models,
-              resources,
-              title=None,
-              template=FILE,
-              template_variables={},
-              theme=FromCurdoc,
-              suppress_callback_warning=False,
-              _always_new=False):
+def file_html(models: Union[Model, Document, Sequence[Model]],
+              resources: Union[Resources, Tuple[JSResources, CSSResources]],
+              title: Optional[str] = None,
+              template: Template = FILE,
+              template_variables: Dict[str, Any] = {},
+              theme: ThemeLike = FromCurdoc,
+              suppress_callback_warning: bool = False,
+              _always_new: bool = False) -> str:
     ''' Return an HTML document that embeds Bokeh Model or Document objects.
 
     The data for the plot is stored directly in the returned HTML, with
@@ -276,20 +286,23 @@ def file_html(models,
         UTF-8 encoded HTML
 
     '''
+
+    models_seq = [] # type: Sequence[Model]
     if isinstance(models, Model):
-        models = [models]
+        models_seq = [models]
+    elif isinstance(models, Document):
+        models_seq = models.roots
+    else:
+        models_seq = models
 
-    if isinstance(models, Document):
-        models = models.roots
-
-    with OutputDocumentFor(models, apply_theme=theme, always_new=_always_new) as doc:
-        (docs_json, render_items) = standalone_docs_json_and_render_items(models, suppress_callback_warning=suppress_callback_warning)
-        title = _title_from_models(models, title)
+    with OutputDocumentFor(models_seq, apply_theme=theme, always_new=_always_new) as doc:
+        (docs_json, render_items) = standalone_docs_json_and_render_items(models_seq, suppress_callback_warning=suppress_callback_warning)
+        title = _title_from_models(models_seq, title)
         bundle = bundle_for_objs_and_resources([doc], resources)
         return html_page_for_render_items(bundle, docs_json, render_items, title=title,
                                           template=template, template_variables=template_variables)
 
-def json_item(model, target=None, theme=FromCurdoc):
+def json_item(model: Model, target: Optional[str] = None, theme: ThemeLike = FromCurdoc) -> Any: # TODO: TypedDict?
     ''' Return a JSON block that can be used to embed standalone Bokeh content.
 
     Args:
@@ -369,7 +382,7 @@ def json_item(model, target=None, theme=FromCurdoc):
 # Private API
 #-----------------------------------------------------------------------------
 
-def _check_models_or_docs(models):
+def _check_models_or_docs(models: Union[ModelLike, ModelLikeCollection]) -> ModelLikeCollection:
     '''
 
     '''
@@ -395,7 +408,7 @@ def _check_models_or_docs(models):
 
     return models
 
-def _title_from_models(models, title):
+def _title_from_models(models: Sequence[Union[Model, Document]], title: Optional[str]) -> str:
     # use override title
     if title is not None:
         return title
@@ -406,7 +419,7 @@ def _title_from_models(models, title):
             return p.title
 
     # use title from any model's document
-    for p in models:
+    for p in cast(Sequence[Model], models):
         if p.document is not None:
             return p.document.title
 
