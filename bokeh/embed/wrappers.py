@@ -19,6 +19,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from typing import Optional
 
 # External imports
 
@@ -44,19 +45,19 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-def wrap_in_onload(code):
+def wrap_in_onload(code: str) -> str:
     '''
 
     '''
     return _ONLOAD % dict(code=indent(code, 4))
 
-def wrap_in_safely(code):
+def wrap_in_safely(code: str) -> str:
     '''
 
     '''
     return _SAFELY % dict(code=indent(code, 2))
 
-def wrap_in_script_tag(js, type="text/javascript", id=None):
+def wrap_in_script_tag(js: str, type: str="text/javascript", id: Optional[str]=None) -> str:
     '''
 
     '''
