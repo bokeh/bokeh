@@ -39,7 +39,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def serverdir():
+def serverdir() -> str:
     """ Get the location of the server subpackage
     """
     path = join(ROOT_DIR, 'server')
@@ -48,7 +48,7 @@ def serverdir():
     return path
 
 
-def bokehjsdir(dev=False):
+def bokehjsdir(dev: bool = False) -> str:
     """ Get the location of the bokehjs source files. If dev is True,
     the files in bokehjs/build are preferred. Otherwise uses the files
     in bokeh/server/static.
