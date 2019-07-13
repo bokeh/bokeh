@@ -138,13 +138,13 @@ command at your command prompt to install all the required packages:
 
     .. code-block:: sh
 
-        conda install $(python scripts/deps.py build run).split() | where {$_}
+        conda install $(python scripts/deps.py build run test).split() | where {$_}
 
 * Winows (DOS Command Prompt)
 
     .. code-block:: sh
 
-        for /F "delims=" %i in ('python scripts\deps.py build run') do (conda install %i)
+        for /F "delims=" %i in ('python scripts\deps.py build run test') do (conda install %i)
 
 .. note::
     The ``test`` category has been omitted from the Windows installs above
