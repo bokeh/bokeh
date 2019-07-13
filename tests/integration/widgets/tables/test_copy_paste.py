@@ -60,15 +60,15 @@ class Test_DataTableCopyPaste(object):
         row = get_table_row(page.driver, 2)
         row.click()
 
-        enter_text_in_element(page.driver, row, Keys.CONTROL+ Keys.INSERT, click=0, enter=False)
+        enter_text_in_element(page.driver, row, Keys.INSERT, mod=Keys.CONTROL, click=0, enter=False)
 
         input_el = page.driver.find_element_by_css_selector('.foo')
-        enter_text_in_element(page.driver, input_el, Keys.CONTROL + "v", enter=False)
+        enter_text_in_element(page.driver, input_el, Keys.INSERT, mod=Keys.SHIFT, enter=False)
         sleep(1)
         enter_text_in_element(page.driver, input_el, "")
 
         results = page.results
 
-        assert results['value'] == 'testing junk'
+        assert results['value'] == '1\t2\t1\tbar'
 
         assert page.has_no_console_errors()
