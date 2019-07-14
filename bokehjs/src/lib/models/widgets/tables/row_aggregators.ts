@@ -24,7 +24,10 @@ export abstract class RowAggregator extends Model {
   }
 
   static initClass(): void {
-    this.prototype.type = 'AvgAggregator'
+    this.prototype.type = 'RowAggregator'
+    this.define<RowAggregator.Props>({
+      field_: [ p.String, '' ],
+    })
   }
 
   abstract init(): void
