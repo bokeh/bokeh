@@ -627,7 +627,6 @@ It can be useful to embed the Bokeh Server in a larger Tornado application, or t
 Jupyter notebook, and use the already existing Tornado ``IOloop``.  Here is the
 basis of how to integrate Bokeh in such a scenario:
 
-
 .. code-block:: python
 
    from bokeh.server.server import Server
@@ -651,6 +650,11 @@ can be found in the examples directory:
 * :bokeh-tree:`examples/howto/server_embed/notebook_embed.ipynb`
 * :bokeh-tree:`examples/howto/server_embed/standalone_embed.py`
 * :bokeh-tree:`examples/howto/server_embed/tornado_embed.py`
+
+Also note that most every command line argument for ``bokeh serve`` has a
+corresponding keyword argument to ``Server``. For instance setting the
+--allow-sebsocket-orgin`` command line argument is equivalent to passing
+``allow_websocket_origin`` as a parameter.
 
 .. _userguide_server_bokeh_client:
 
@@ -1075,81 +1079,134 @@ here:
 
     }
 
-.. _userguide_server_deployment_supervisord:
+.. _userguide_server_deployment_security:
 
-Process Control with Supervisord
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Security
+~~~~~~~~
 
-It is often desired to use process control and monitoring tools when
-deploying web applications. One popular such tool is `Supervisor`_, which
-can automatically start and stop process, as well as re-start processes
-if they terminate unexpectedly. Supervisor is configured using INI style
-config files. A sample file that might be used to start a single Bokeh
-Server app is below:
+By default, a Bokeh server will accept any incoming connections on allowed
+websocket origins. If a session ID is specified, and a session with that ID
+already exists on the server, then a connection to that session is made.
+Otherwise, a new session is automatically created and used.
 
-.. code-block:: ini
+If you are deploying an embedded Bokeh app within a large organization or
+to the wider internet, you may want to limit who can initiate sessions, and
+from where. Bokeh has options to restrict session creation.
 
-    ; supervisor config file
+Websocket Origin
+''''''''''''''''
 
-    [unix_http_server]
-    file=/tmp/supervisor.sock   ; (the path to the socket file)
-    chmod=0700                  ; sockef file mode (default 0700)
+When an HTTP request is made to the Bokeh server, it immediately returns a
+script that will initiate a webocket connection, and all subsequent
+commumication happens over the webocket. To reduce the risk of cross-site
+misuse, the bokeh server will only initiate websocket connections from
+origins that are explicitly whitelisted. Requests with Origin headers that
+do not match the whitelist will generate HTTP 403 error responses.
 
-    [supervisord]
-    logfile=/var/log/supervisord.log ; (main log file; default $CWD/supervisord.log)
-    pidfile=/var/run/supervisord.pid ; (supervisord pidfile; default $CWD/supervisord.pid)
-    childlogdir=/var/log/supervisor  ; ('AUTO' child log dir, default $TEMP)
-
-    ; The section below must be in the present for the RPC (supervisorctl/web)
-    ; interface in to function.
-    [rpcinterface:supervisor]
-    supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
-
-    [supervisorctl]
-    serverurl=unix:///tmp/supervisor.sock ; use a unix:// URL for a unix socket
-
-    [program:myapp]
-    command=/path/to/bokeh serve myapp.py
-    directory=/path/to/workdir
-    autostart=false
-    autorestart=true
-    startretries=3
-    numprocs=4
-    process_name=%(program_name)s_%(process_num)02d
-    stderr_logfile=/var/log/myapp.err.log
-    stdout_logfile=/var/log/myapp.out.log
-    user=someuser
-    environment=USER="someuser",HOME="/home/someuser"
-
-The standard location for the supervisor config file varies from system to
-system. Consult the `Supervisor configuration documentation`_ for more
-details. It is also possible to specify a config file explicity. To do this,
-execute:
+By default only ``localhost:5006`` is whitelisted. I.e the following two
+invocations are identical:
 
 .. code-block:: sh
 
-    supervisord -c /path/to/supervisord.conf
+    bokeh serve --show myapp.py
 
-to start the Supervisor process. Then to control processes execute
-``supervisorctl`` commands. For instance to start all processes, run:
-
-.. code-block:: sh
-
-    supervisorctl -c /path/to/supervisord.conf start all
-
-To stop all processes run:
+and
 
 .. code-block:: sh
 
-    supervisorctl -c /path/to/supervisord.conf start all
+    bokeh serve --show --allow-websocket-origin=localhost:5006 myapp.py
 
-And to update the process control after editing the config file, run:
+Both of these will open a browser to the default application URL
+``localhost:5006`` and since ``localhost:5006`` is in the allowed websocket
+origin whitelist, the Bokeh server will create and display a new session.
+
+Now, consider when a Bokeh server is embedded inside another web page, using
+|server_document| or |server_session|. In this instance, the "Origin" header
+for the request to the Bokeh server is the URL of page that has the Bokeh
+content embedded it. For example, if a user navigates to our page at
+``https://acme.com/products``, which has a Bokeh application embedded in it,
+then the origin header reported by the broweer will be ``acme.com``. In this
+instance, we typically want to restict the Bokeh server to honoring *only*
+requests that originate from our ``acme.com`` page, so that other pages cannot
+embed our Bokeh app without our knowledge.
+
+This can be accomplished  by setting the ``--allow-sebsocket-orgin`` command
+line argument:
 
 .. code-block:: sh
 
-    supervisorctl -c /path/to/supervisord.conf update
+    bokeh serve --show --allow-websocket-origin=acme:com myapp.py
 
-.. _userguide_server_scaling:
+This will prevent other sites from embedding our Bokeh application in their
+pages, because requests from users viewing those pages will report a different
+origin than  ``acme.com``, and the Bokeh server will reject them.
+
+.. warning::
+    Bear in mind that this only prevents *other web pages* from surreptitiously
+    embedding our Bokeh app to an audience using standard web browsers. A
+    determined and knowledgeble attacker can spoof Origin headers.
+
+If multiple allowed origins are required, then multiple instances of
+``--allow-sebsocket-orgin`` can be passed on the command line.
+
+It is also possible to configure a Bokeh server to allow any and all connections
+Regardless of origin:
+
+.. code-block:: sh
+
+    bokeh serve --show --allow-websocket-origin='*' myapp.py
+
+This is not recommended outside testing and experimentation.
+
+Signed session IDs
+''''''''''''''''''
+
+By default, the Bokeh server will automatically create new sessions for all
+new requests from allowed websocket origins, even if no session ID is provided.
+When embedding a Bokeh app inside another web application (e.g. Flask, Django),
+we would like ensure that our web application, and *only* our web application,
+is capable of generating proper requests to the Bokeh server. It is possible to
+configure the Bokeh server to only create sessions when a cryptographically
+signed session ID is provided.
+
+To do this, you need to first create a secret for signing session ids with,
+using the ``bokeh secret`` command, e.g.
+
+.. code-block:: sh
+
+    export BOKEH_SECRET_KEY=`bokeh secret`
+
+Then set BOKEH_SIGN_SESSIONS when starting the Bokeh server (and typically
+also set the allowed websocket origin):
+
+.. code-block:: sh
+
+    BOKEH_SIGN_SESSIONS=yes bokeh serve --allow-websocket-origin=acme.com myapp.py
+
+Then in your web application, we explicitly provide (signed) session ids using
+``generate_session_id``:
+
+.. code-block:: python
+
+    from bokeh.util.session_id import generate_session_id
+
+    script = server_session(url='http://localhost:5006/bkapp',
+                            session_id=generate_session_id())
+    return render_template("embed.html", script=script, template="Flask")
+
+Make sure that the ``BOKEH_SECRET_KEY`` environment variable is set (and
+identical) for both the Bokeh server and web app processes (e.g. Flask or
+Django or whatever tool is in use).
+
+.. note::
+
+    Signed session IDs are effectively access tokens. As with any token system,
+    security is predicated on keeping the token a secret. It is also advised to
+    run the Bokeh server behind a proxy that terminates SSL, so that the session
+    ID is transmitted securely to the user's browser.
+
+
+.. _userguide_server_deployment_scaling:
 
 Scaling the server
 ~~~~~~~~~~~~~~~~~~
@@ -1180,3 +1237,6 @@ in :ref:`devguide_server`
 .. _Nginx load balancer documentation: http://nginx.org/en/docs/http/load_balancing.html
 .. _Supervisor: http://supervisord.org
 .. _Supervisor configuration documentation: http://supervisord.org/configuration.html
+
+.. |server_document|  replace:: :func:`~bokeh.embed.server_document`
+.. |server_session|  replace:: :func:`~bokeh.embed.server_session`
