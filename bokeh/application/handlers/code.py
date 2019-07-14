@@ -39,6 +39,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import os
 import sys
+from typing import Optional, Any, Union, List, Dict, Callable
 
 # External imports
 
@@ -72,7 +73,11 @@ class CodeHandler(Handler):
     # to be no-ops, with a warning.
     _io_functions = ['output_notebook', 'output_file', 'show', 'save', 'reset_output']
 
-    def __init__(self, *args, **kwargs):
+    _origin = ""
+    _logger_text = ""
+
+
+    def __init__(self, *args: Union[str, List[str]], **kwargs: Any) -> None:
         '''
 
         Args:
@@ -98,35 +103,36 @@ class CodeHandler(Handler):
 
         self._runner = CodeRunner(source, filename, argv)
 
-        self._loggers = {}
+        self._loggers = {}  # type: Dict[str, Any]
         for f in CodeHandler._io_functions:
             self._loggers[f] = self._make_io_logger(f)
+
 
     # Properties --------------------------------------------------------------
 
     @property
-    def error(self):
+    def error(self) -> Optional[str]:
         ''' If the handler fails, may contain a related error message.
 
         '''
         return self._runner.error
 
     @property
-    def error_detail(self):
+    def error_detail(self) -> Any:
         ''' If the handler fails, may contain a traceback or other details.
 
         '''
         return self._runner.error_detail
 
     @property
-    def failed(self):
+    def failed(self) -> bool:
         ''' ``True`` if the handler failed to modify the doc
 
         '''
         return self._runner.failed
 
     @property
-    def safe_to_fork(self):
+    def safe_to_fork(self) -> bool:
         ''' Whether it is still safe for the Bokeh server to fork new workers.
 
         ``False`` if the code has already been executed.
@@ -136,7 +142,7 @@ class CodeHandler(Handler):
 
     # Public methods ----------------------------------------------------------
 
-    def modify_document(self, doc):
+    def modify_document(self, doc: Any) -> None:
         '''
 
         '''
@@ -161,7 +167,7 @@ class CodeHandler(Handler):
         old_io = self._monkeypatch_io()
 
         try:
-            def post_check():
+            def post_check() -> None:
                 newdoc = curdoc()
                 # script is supposed to edit the doc not replace it
                 if newdoc is not doc:
@@ -171,7 +177,7 @@ class CodeHandler(Handler):
             self._unmonkeypatch_io(old_io)
             set_curdoc(old_doc)
 
-    def url_path(self):
+    def url_path(self) -> Optional[str]:
         ''' The last path component for the basename of the configured filename.
 
         '''
@@ -184,15 +190,15 @@ class CodeHandler(Handler):
     # Private methods ---------------------------------------------------------
 
     # subclasses must define self._logger_text
-    def _make_io_logger(self, name):
-        def logger(*args, **kwargs):
+    def _make_io_logger(self, name: str) -> Callable:
+        def logger(*args:Any, **kwargs:Any) -> None:
             log.info(self._logger_text , self._runner.path, name)
         return logger
 
     # monkeypatching is a little ugly, but in this case there's no reason any legitimate
     # code should be calling these functions, and we're only making a best effort to
     # warn people so no big deal if we fail.
-    def _monkeypatch_io(self):
+    def _monkeypatch_io(self) -> Any:
         import bokeh.io as io
         old = {}
         for f in CodeHandler._io_functions:
@@ -201,7 +207,7 @@ class CodeHandler(Handler):
 
         return old
 
-    def _unmonkeypatch_io(self, old):
+    def _unmonkeypatch_io(self, old: Any) -> None:
         import bokeh.io as io
         for f in old:
             setattr(io, f, old[f])

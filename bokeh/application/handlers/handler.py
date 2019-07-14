@@ -45,7 +45,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-
+from typing import Any, Optional
 # External imports
 
 # Bokeh imports
@@ -73,7 +73,7 @@ class Handler(object):
 
     '''
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         self._failed = False
         self._error = None
         self._error_detail = None
@@ -82,21 +82,21 @@ class Handler(object):
     # Properties --------------------------------------------------------------
 
     @property
-    def error(self):
+    def error(self) -> Any:
         ''' If the handler fails, may contain a related error message.
 
         '''
         return self._error
 
     @property
-    def error_detail(self):
+    def error_detail(self) -> Any:
         ''' If the handler fails, may contain a traceback or other details.
 
         '''
         return self._error_detail
 
     @property
-    def failed(self):
+    def failed(self) -> bool:
         ''' ``True`` if the handler failed to modify the doc
 
         '''
@@ -104,7 +104,7 @@ class Handler(object):
 
     # Public methods ----------------------------------------------------------
 
-    def modify_document(self, doc):
+    def modify_document(self, doc: Any) -> Any:
         ''' Modify an application document in a specified manner.
 
         When a Bokeh server session is initiated, the Bokeh server asks the
@@ -125,7 +125,7 @@ class Handler(object):
         '''
         raise NotImplementedError("implement modify_document()")
 
-    def on_server_loaded(self, server_context):
+    def on_server_loaded(self, server_context: Any) -> None:
         ''' Execute code when the server is first started.
 
         Subclasses may implement this method to provide for any one-time
@@ -138,7 +138,7 @@ class Handler(object):
         '''
         pass
 
-    def on_server_unloaded(self, server_context):
+    def on_server_unloaded(self, server_context:Any) -> None:
         ''' Execute code when the server cleanly exits. (Before stopping the
         server's ``IOLoop``.)
 
@@ -155,7 +155,7 @@ class Handler(object):
         '''
         pass
 
-    def on_session_created(self, session_context):
+    def on_session_created(self, session_context:Any) -> None:
         ''' Execute code when a new session is created.
 
         Subclasses may implement this method to provide for any per-session
@@ -168,7 +168,7 @@ class Handler(object):
         '''
         pass
 
-    def on_session_destroyed(self, session_context):
+    def on_session_destroyed(self, session_context:Any) -> None:
         ''' Execute code when a session is destroyed.
 
         Subclasses may implement this method to provide for any per-session
@@ -180,7 +180,7 @@ class Handler(object):
         '''
         pass
 
-    def static_path(self):
+    def static_path(self) -> Optional[str]:
         ''' Return a path to app-specific static resources, if applicable.
 
         '''
@@ -189,7 +189,7 @@ class Handler(object):
         else:
             return self._static
 
-    def url_path(self):
+    def url_path(self) -> Optional[str]:
         ''' Returns a default URL path, if applicable.
 
         Handlers subclasses may optionally implement this method, to inform

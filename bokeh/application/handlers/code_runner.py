@@ -24,7 +24,7 @@ import os
 import sys
 import traceback
 from types import ModuleType
-
+from typing import List, Optional, Callable, cast
 # External imports
 
 # Bokeh imports
@@ -51,7 +51,7 @@ class CodeRunner(object):
 
     '''
 
-    def __init__(self, source, path, argv):
+    def __init__(self, source: str, path: str, argv: List[str]) -> None:
         '''
 
         Args:
@@ -63,6 +63,7 @@ class CodeRunner(object):
                 as ``sys.argv`` when the code executes
 
         '''
+
         self._permanent_error = None
         self._permanent_error_detail = None
         self.reset_run_errors()
@@ -87,35 +88,35 @@ class CodeRunner(object):
     # Properties --------------------------------------------------------------
 
     @property
-    def error(self):
+    def error(self) -> Optional[str]:
         ''' If code execution fails, may contain a related error message.
 
         '''
         return self._error if self._permanent_error is None else self._permanent_error
 
     @property
-    def error_detail(self):
+    def error_detail(self) -> Optional[str]:
         ''' If code execution fails, may contain a traceback or other details.
 
         '''
         return self._error_detail if self._permanent_error_detail is None else self._permanent_error_detail
 
     @property
-    def failed(self):
+    def failed(self) -> bool:
         ''' ``True`` if code execution failed
 
         '''
         return self._failed or self._code is None
 
     @property
-    def path(self):
+    def path(self) -> str:
         ''' The path that new modules will be configured with.
 
         '''
         return self._path
 
     @property
-    def source(self):
+    def source(self) -> str:
         ''' The configured source code that will be executed when ``run`` is
         called.
 
@@ -124,7 +125,7 @@ class CodeRunner(object):
 
     # Public methods ----------------------------------------------------------
 
-    def new_module(self):
+    def new_module(self) -> Optional[ModuleType]:
         ''' Make a fresh module to run in.
 
         Returns:
@@ -142,7 +143,7 @@ class CodeRunner(object):
 
         return module
 
-    def reset_run_errors(self):
+    def reset_run_errors(self) -> None:
         ''' Clears any transient error conditions from a previous run.
 
         Returns
@@ -150,10 +151,10 @@ class CodeRunner(object):
 
         '''
         self._failed = False
-        self._error = None
-        self._error_detail = None
+        self._error = None  # type: Optional[str]
+        self._error_detail = None  # type: Optional[str]
 
-    def run(self, module, post_check):
+    def run(self, module: ModuleType, post_check: Callable) -> None:
         ''' Execute the configured source code in a module and run any post
         checks.
 
@@ -161,7 +162,7 @@ class CodeRunner(object):
             module (Module) : a module to execute the configured code in.
 
             post_check(callable) : a function that can raise an exception
-                if expected post-conditions are not met after code execution.
+                if expected post-conditions are not met after code execution.+
 
         '''
         try:
@@ -174,7 +175,7 @@ class CodeRunner(object):
             sys.path.insert(0, os.path.dirname(self._path))
             sys.argv = [os.path.basename(self._path)] + self._argv
 
-            exec(self._code, module.__dict__)
+            exec(cast(str, self._code), module.__dict__)
             post_check()
 
         except Exception as e:
