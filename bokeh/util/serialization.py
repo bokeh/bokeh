@@ -37,14 +37,6 @@ from typing import Any, Union, Dict, Optional, Iterable
 # External imports
 import numpy as np
 
-# Bokeh imports
-from ..settings import settings
-from .string import format_docstring
-
-#-----------------------------------------------------------------------------
-# Globals and constants
-#-----------------------------------------------------------------------------
-
 try:
     import pandas as pd
 except ImportError:
@@ -52,6 +44,14 @@ except ImportError:
 except Exception:
     msg = "Failed to import optional module `{}`".format("pandas")
     log.exception(msg)
+
+# Bokeh imports
+from ..settings import settings
+from .string import format_docstring
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
 
 BINARY_ARRAY_TYPES = set([
     np.dtype(np.float32),
@@ -82,8 +82,7 @@ if pd:
     DATETIME_TYPES.add(type(pd.NaT))
 
 UNION_DATETIME_TYPES = Union[dt.datetime, dt.date, dt.time, np.datetime64,
-                             _pd_timestamp, pd.Timedelta,
-                             pd.Period]
+                             _pd_timestamp, pd.Timedelta, pd.Period]
 
 NP_EPOCH = np.datetime64(0, 'ms')
 NP_MS_DELTA = np.timedelta64(1, 'ms')
