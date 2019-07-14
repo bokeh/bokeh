@@ -48,7 +48,6 @@ AvgAggregator.initClass()
 
 const min = new Min()
 export class MinAggregator extends RowAggregator {
-  properties: RowAggregator.Props
   readonly key = 'min'
 
   static initClass(): void {
@@ -63,7 +62,6 @@ MinAggregator.initClass()
 
 const max = new Max()
 export class MaxAggregator extends RowAggregator {
-  properties: RowAggregator.Props
   readonly key = 'max'
 
   static initClass(): void {
@@ -78,7 +76,6 @@ MaxAggregator.initClass()
 
 const sum = new Sum()
 export class SumAggregator extends RowAggregator {
-  properties: RowAggregator.Props
   readonly key = 'sum'
 
   static initClass(): void {
