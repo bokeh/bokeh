@@ -94,6 +94,7 @@ REQUIRES = [
     'pillow >=4.0',
     'packaging >=16.8',
     'tornado >=5',
+    'typing_extensions',
 ]
 
 # if this is just conda-build skimming information, skip all this actual work
