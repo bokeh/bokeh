@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import sys
 
-from typing import Tuple, Dict, Optional, Any
+from typing import Optional
 
 # External imports
 
