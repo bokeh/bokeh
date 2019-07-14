@@ -119,12 +119,17 @@ def closed_issue(issue, after=None):
             return True
     return False
 
+def landing20(issue):
+    """Returns True iff this issue is marked landing-2.0."""
+    labels = issue.get('labels', [])
+    return any(label['name'] == 'landing-2.0' for label in labels)
 
 def relevent_issue(issue, after):
     """Returns True iff this issue is something we should show in the changelog."""
     return (closed_issue(issue, after) and
             issue_completed(issue) and
-            issue_section(issue))
+            issue_section(issue) and
+            not landing20(issue))
 
 
 def relevant_issues(issues, after):
