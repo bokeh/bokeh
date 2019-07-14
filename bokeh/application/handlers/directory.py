@@ -47,6 +47,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from os.path import basename, dirname, exists, join
+from typing import Any, Optional
 
 # External imports
 from jinja2 import Environment, FileSystemLoader
@@ -78,7 +79,7 @@ class DirectoryHandler(Handler):
 
     '''
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         '''
         Keywords:
             filename (str) : a path to an application directory with either "main.py" or "main.ipynb"
@@ -113,9 +114,6 @@ class DirectoryHandler(Handler):
         if exists(lifecycle):
             self._lifecycle = lifecycle
             self._lifecycle_handler = ServerLifecycleHandler(filename=self._lifecycle, argv=argv)
-        else:
-            self._lifecycle = None
-            self._lifecycle_handler = Handler() # no-op handler
 
         self._theme = None
         themeyaml = join(src_path, 'theme.yaml')
@@ -136,28 +134,28 @@ class DirectoryHandler(Handler):
     # Properties --------------------------------------------------------------
 
     @property
-    def error(self):
+    def error(self) -> Optional[str]:
         ''' If the handler fails, may contain a related error message.
 
         '''
         return self._main_handler.error or self._lifecycle_handler.error
 
     @property
-    def error_detail(self):
+    def error_detail(self) -> Optional[str]:
         ''' If the handler fails, may contain a traceback or other details.
 
         '''
         return self._main_handler.error_detail or self._lifecycle_handler.error_detail
 
     @property
-    def failed(self):
+    def failed(self) -> bool:
         ''' ``True`` if the handler failed to modify the doc
 
         '''
         return self._main_handler.failed or self._lifecycle_handler.failed
 
     @property
-    def safe_to_fork(self):
+    def safe_to_fork(self) -> bool:
         ''' Whether it is still safe for the Bokeh server to fork new workers.
 
         ``False`` if the configured code (script, notebook, etc.) has already
@@ -168,7 +166,7 @@ class DirectoryHandler(Handler):
 
     # Public methods ----------------------------------------------------------
 
-    def modify_document(self, doc):
+    def modify_document(self, doc: Any) -> Any:
         ''' Execute the configured ``main.py`` or ``main.ipynb`` to modify the
         document.
 
@@ -190,7 +188,7 @@ class DirectoryHandler(Handler):
         # This internal handler should never add a template
         self._main_handler.modify_document(doc)
 
-    def on_server_loaded(self, server_context):
+    def on_server_loaded(self, server_context: Any) -> Any:
         ''' Execute `on_server_unloaded`` from ``server_lifecycle.py`` (if
         it is defined) when the server is first started.
 
@@ -200,7 +198,7 @@ class DirectoryHandler(Handler):
         '''
         return self._lifecycle_handler.on_server_loaded(server_context)
 
-    def on_server_unloaded(self, server_context):
+    def on_server_unloaded(self, server_context: Any) -> Any:
         ''' Execute ``on_server_unloaded`` from ``server_lifecycle.py`` (if
         it is defined) when the server cleanly exits. (Before stopping the
         server's ``IOLoop``.)
@@ -216,7 +214,7 @@ class DirectoryHandler(Handler):
         '''
         return self._lifecycle_handler.on_server_unloaded(server_context)
 
-    def on_session_created(self, session_context):
+    def on_session_created(self, session_context: Any) -> Any:
         ''' Execute ``on_session_created`` from ``server_lifecycle.py`` (if
         it is defined) when a new session is created.
 
@@ -226,7 +224,7 @@ class DirectoryHandler(Handler):
         '''
         return self._lifecycle_handler.on_session_created(session_context)
 
-    def on_session_destroyed(self, session_context):
+    def on_session_destroyed(self, session_context: Any) -> Any:
         ''' Execute ``on_session_destroyed`` from ``server_lifecycle.py`` (if
         it is defined) when a session is destroyed.
 
@@ -236,7 +234,7 @@ class DirectoryHandler(Handler):
         '''
         return self._lifecycle_handler.on_session_destroyed(session_context)
 
-    def url_path(self):
+    def url_path(self) -> Optional[str]:
         ''' The last path component for the basename of the path to the
         configured directory.
 
