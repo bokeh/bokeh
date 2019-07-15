@@ -34,6 +34,7 @@ export abstract class RowAggregator extends Model {
   abstract accumulate(item: { [key: string]: any }): void
   abstract storeResult(totals: GroupTotals): void
 }
+RowAggregator.initClass()
 
 const avg = new Avg()
 export class AvgAggregator extends RowAggregator {
