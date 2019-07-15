@@ -5,6 +5,8 @@ import * as p from "core/properties"
 import {DOMView} from "core/dom_view"
 import {Logo, Location} from "core/enums"
 import {EventType} from "core/ui_events"
+import {some, every} from "core/util/array"
+import {Set} from "core/util/data_structures"
 import {isString} from "core/util/types"
 import {Model} from "model"
 import {Tool} from "./tool"
@@ -64,7 +66,10 @@ export class ToolbarBaseView extends DOMView {
 
   connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.tools.change, () => this._build_tool_button_views())
+    this.connect(this.model.properties.tools.change, () => {
+      this._build_tool_button_views()
+      this.render()
+    })
     this.connect(this.model.properties.autohide.change, () => {
       this._toolbar_view_model.autohide = this.model.autohide
       this._on_visible_change()
@@ -143,7 +148,19 @@ export class ToolbarBaseView extends DOMView {
   }
 }
 
-export type GestureType = "pan" | "scroll" | "pinch" | "tap" | "doubletap" | "press" | "rotate" | "move" | "multi"
+export type GesturesMap = {
+  pan:       { tools: GestureTool[], active: Tool | null },
+  scroll:    { tools: GestureTool[], active: Tool | null },
+  pinch:     { tools: GestureTool[], active: Tool | null },
+  tap:       { tools: GestureTool[], active: Tool | null },
+  doubletap: { tools: GestureTool[], active: Tool | null },
+  press:     { tools: GestureTool[], active: Tool | null },
+  rotate:    { tools: GestureTool[], active: Tool | null },
+  move:      { tools: GestureTool[], active: Tool | null },
+  multi:     { tools: GestureTool[], active: Tool | null },
+}
+
+export type GestureType = keyof GesturesMap
 
 export namespace ToolbarBase {
   export type Attrs = p.AttrsOf<Props>
@@ -151,17 +168,7 @@ export namespace ToolbarBase {
   export type Props = Model.Props & {
     tools: p.Property<Tool[]>
     logo: p.Property<Logo>
-    gestures: p.Property<{
-      pan:       { tools: GestureTool[], active: Tool | null },
-      scroll:    { tools: GestureTool[], active: Tool | null },
-      pinch:     { tools: GestureTool[], active: Tool | null },
-      tap:       { tools: GestureTool[], active: Tool | null },
-      doubletap: { tools: GestureTool[], active: Tool | null },
-      press:     { tools: GestureTool[], active: Tool | null },
-      rotate:    { tools: GestureTool[], active: Tool | null },
-      move:      { tools: GestureTool[], active: Tool | null },
-      multi:     { tools: GestureTool[], active: Tool | null },
-    }>,
+    gestures: p.Property<GesturesMap>,
     actions: p.Property<ActionTool[]>
     inspectors: p.Property<InspectTool[]>
     help: p.Property<HelpTool[]>
@@ -171,6 +178,20 @@ export namespace ToolbarBase {
 }
 
 export interface ToolbarBase extends ToolbarBase.Attrs {}
+
+function createGestureMap(): GesturesMap {
+  return {
+    pan:       { tools: [], active: null },
+    scroll:    { tools: [], active: null },
+    pinch:     { tools: [], active: null },
+    tap:       { tools: [], active: null },
+    doubletap: { tools: [], active: null },
+    press:     { tools: [], active: null },
+    rotate:    { tools: [], active: null },
+    move:      { tools: [], active: null },
+    multi:     { tools: [], active: null },
+  }
+}
 
 export class ToolbarBase extends Model {
   properties: ToolbarBase.Props
@@ -189,17 +210,7 @@ export class ToolbarBase extends Model {
     })
 
     this.internal({
-      gestures: [ p.Any, () => ({
-        pan:       { tools: [], active: null },
-        scroll:    { tools: [], active: null },
-        pinch:     { tools: [], active: null },
-        tap:       { tools: [], active: null },
-        doubletap: { tools: [], active: null },
-        press:     { tools: [], active: null },
-        rotate:    { tools: [], active: null },
-        move:      { tools: [], active: null },
-        multi:     { tools: [], active: null },
-      })  ],
+      gestures:         [ p.Any,      createGestureMap ],
       actions:          [ p.Array,    []      ],
       inspectors:       [ p.Array,    []      ],
       help:             [ p.Array,    []      ],
@@ -208,6 +219,62 @@ export class ToolbarBase extends Model {
   }
 
   _proxied_tools?: (Tool | ToolProxy)[]
+
+  initialize(): void {
+    super.initialize()
+    this._init_tools()
+  }
+
+  protected _init_tools(): void {
+    // The only purpose of this function is to avoid unnecessary property churning.
+    const tools_changed = function (old_tools: Tool[], new_tools: Tool[]) {
+      if (old_tools.length != new_tools.length) {
+        return true
+      }
+      const new_ids = new Set(new_tools.map(t => t.id))
+      return some(old_tools, t=> !new_ids.has(t.id))
+    }
+    const new_inspectors = this.tools.filter(t => t instanceof InspectTool) as InspectTool[]
+    if (tools_changed(this.inspectors, new_inspectors)) {
+      this.inspectors = new_inspectors
+    }
+    const new_help = this.tools.filter(t => t instanceof HelpTool) as HelpTool[]
+    if (tools_changed(this.help, new_help)) {
+      this.help = new_help
+    }
+    const new_actions = this.tools.filter(t => t instanceof ActionTool) as ActionTool[]
+    if (tools_changed(this.actions, new_actions)) {
+      this.actions = new_actions
+    }
+    const check_event_type = (et: EventType, tool: Tool) => {
+      if (!(et in this.gestures)) {
+        logger.warn(`Toolbar: unknown event type '${et}' for tool: ${tool.type} (${tool.id})`)
+      }
+    }
+    const new_gestures = createGestureMap()
+    for (const tool of this.tools) {
+      if (tool instanceof GestureTool && tool.event_type) {
+        if (isString(tool.event_type)) {
+          new_gestures[tool.event_type].tools.push(tool)
+          check_event_type(tool.event_type, tool)
+        } else {
+          new_gestures.multi.tools.push(tool)
+          for (const et of tool.event_type) {
+            check_event_type(et, tool)
+          }
+        }
+      }
+    }
+    for (const et of Object.keys(new_gestures) as GestureType[]) {
+      const gm = this.gestures[et]
+      if (tools_changed(gm.tools, new_gestures[et].tools)) {
+        gm.tools = new_gestures[et].tools
+      }
+      if (gm.active && every(gm.tools, t => t.id != gm.active!.id)) {
+        gm.active = null
+      }
+    }
+  }
 
   get horizontal(): boolean {
     return this.toolbar_location === "above" || this.toolbar_location === "below"

@@ -1,11 +1,8 @@
 import * as p from "core/properties"
-import {logger} from "core/logging"
-import {isString, isArray} from "core/util/types"
-import {some, sort_by, includes} from "core/util/array"
+import {isArray} from "core/util/types"
+import {sort_by, includes, intersection} from "core/util/array"
 
 import {Tool} from "./tool"
-import {ActionTool} from "./actions/action_tool"
-import {HelpTool} from "./actions/help_tool"
 import {GestureTool} from "./gestures/gesture_tool"
 import {InspectTool} from "./inspectors/inspect_tool"
 
@@ -17,19 +14,39 @@ export type Inspection = Tool
 export type Scroll = Tool
 export type Tap = Tool
 
+type ActiveGestureToolsProps = {
+  active_drag: p.Property<Drag | "auto" | null>
+  active_scroll: p.Property<Scroll | "auto" | null>
+  active_tap: p.Property<Tap | "auto" | null>
+  active_multi: p.Property<GestureTool | null>
+}
+
+type ActiveToolsProps = ActiveGestureToolsProps & {
+  active_inspect: p.Property<Inspection | Inspection[] | "auto" | null>
+}
+
 export namespace Toolbar {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = ToolbarBase.Props & {
-    active_drag: p.Property<Drag | "auto">
-    active_inspect: p.Property<Inspection | Inspection[] | "auto" | null>
-    active_scroll: p.Property<Scroll | "auto">
-    active_tap: p.Property<Tap | "auto">
-    active_multi: p.Property<GestureTool | null>
-  }
+  export type Props = ToolbarBase.Props & ActiveToolsProps
 }
 
 export interface Toolbar extends Toolbar.Attrs {}
+
+const _get_active_attr = (et: string): keyof ActiveGestureToolsProps | null => {
+  switch (et) {
+    case 'tap': return 'active_tap'
+    case 'pan': return 'active_drag'
+    case 'pinch':
+    case 'scroll': return 'active_scroll'
+    case 'multi': return 'active_multi'
+  }
+  return null
+}
+
+const _supports_auto = (et: string) => {
+  return et == 'tap' || et == 'pan'
+}
 
 export class Toolbar extends ToolbarBase {
   properties: Toolbar.Props
@@ -50,66 +67,32 @@ export class Toolbar extends ToolbarBase {
     })
   }
 
-  initialize(): void {
-    super.initialize()
-    this._init_tools()
-  }
-
   connect_signals(): void {
     super.connect_signals()
     this.connect(this.properties.tools.change, () => this._init_tools())
   }
 
   protected _init_tools(): void {
-    for (const tool of this.tools) {
-      if (tool instanceof InspectTool) {
-        if (!some(this.inspectors, (t) => t.id == tool.id)) {
-          this.inspectors = this.inspectors.concat([tool])
-        }
-      } else if (tool instanceof HelpTool) {
-        if (!some(this.help, (t) => t.id == tool.id)) {
-          this.help = this.help.concat([tool])
-        }
-      } else if (tool instanceof ActionTool) {
-        if (!some(this.actions, (t) => t.id == tool.id)) {
-          this.actions = this.actions.concat([tool])
-        }
-      } else if (tool instanceof GestureTool) {
-        let event_types: GestureType[]
-        let multi: boolean
-        if (isString(tool.event_type)) {
-          event_types = [tool.event_type]
-          multi = false
-        } else {
-          event_types = tool.event_type || []
-          multi = true
-        }
-
-        for (let et of event_types) {
-          if (!(et in this.gestures)) {
-            logger.warn(`Toolbar: unknown event type '${et}' for tool: ${tool.type} (${tool.id})`)
-            continue
-          }
-
-          if (multi)
-            et = "multi"
-
-          if (!some(this.gestures[et].tools, (t) => t.id == tool.id))
-            this.gestures[et].tools = this.gestures[et].tools.concat([tool])
-
-          this.connect(tool.properties.active.change, this._active_change.bind(this, tool))
-        }
-      }
-    }
+    super._init_tools()
 
     if (this.active_inspect == 'auto') {
       // do nothing as all tools are active be default
     } else if (this.active_inspect instanceof InspectTool) {
+      let found = false
       for (const inspector of this.inspectors) {
         if (inspector != this.active_inspect)
           inspector.active = false
+        else
+          found = true
+      }
+      if (!found) {
+        this.active_inspect = null
       }
     } else if (isArray(this.active_inspect)) {
+      const active_inspect = intersection(this.active_inspect, this.inspectors)
+      if (active_inspect.length != this.active_inspect.length) {
+        this.active_inspect = active_inspect
+      }
       for (const inspector of this.inspectors) {
         if (!includes(this.active_inspect, inspector))
           inspector.active = false
@@ -127,42 +110,33 @@ export class Toolbar extends ToolbarBase {
         tool.active = true
     }
 
+    // Connecting signals has to be done before changing the active state of the tools.
     for (const et in this.gestures) {
       const gesture = this.gestures[et as GestureType]
 
-      if (gesture.tools.length == 0)
-        continue
-
       gesture.tools = sort_by(gesture.tools, (tool) => tool.default_order)
-
-      if (et == 'tap') {
-        if (this.active_tap == null)
-          continue
-
-        if (this.active_tap == 'auto')
-          _activate_gesture(gesture.tools[0])
-        else
-          _activate_gesture(this.active_tap)
+      for (const tool of gesture.tools) {
+        this.connect(tool.properties.active.change, this._active_change.bind(this, tool))
       }
+    }
 
-      if (et == 'pan') {
-        if (this.active_drag == null)
-          continue
-
-        if (this.active_drag == 'auto')
-          _activate_gesture(gesture.tools[0])
-        else
-          _activate_gesture(this.active_drag)
+    for (const et in this.gestures) {
+      const active_attr = _get_active_attr(et)
+      if (active_attr) {
+        const active_tool = this[active_attr]
+        if (active_tool == 'auto') {
+          const gesture = this.gestures[et as GestureType]
+          if (gesture.tools.length != 0 && _supports_auto(et)) {
+            _activate_gesture(gesture.tools[0])
+          }
+        } else if (active_tool != null) {
+          if (includes(this.tools, active_tool)) {
+            _activate_gesture(active_tool)
+          } else {
+            this[active_attr] = null
+          }
+        }
       }
-
-      if (et == 'pinch' || et == 'scroll') {
-        if (this.active_scroll == null || this.active_scroll == 'auto')
-          continue
-        _activate_gesture(this.active_scroll)
-      }
-
-      if (this.active_multi != null)
-        _activate_gesture(this.active_multi)
     }
   }
 }
