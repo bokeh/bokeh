@@ -1,8 +1,11 @@
+import {PointGeometry} from 'core/geometry'
 import {Arrayable} from "core/types"
 import {Area, AreaView, AreaData} from "./area"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex, IndexedRect} from "core/util/spatial"
+import * as hittest from "core/hittest"
 import * as p from "core/properties"
+import {Selection} from "../selections/selection"
 
 export interface HAreaData extends AreaData {
   _x1: Arrayable<number>
@@ -59,6 +62,28 @@ export class HAreaView extends AreaView {
 
     this.visuals.hatch.doit2(ctx, 0, () => this._inner(ctx, sx1, sx2, sy, ctx.fill), () => this.renderer.request_render())
 
+  }
+
+  protected _hit_point(geometry: PointGeometry): Selection {
+    const result = hittest.create_empty_hit_test_result()
+
+    const L = this.sy.length
+    const sx = new Float64Array(2*L)
+    const sy = new Float64Array(2*L)
+
+    for (let i = 0, end = L; i < end; i++) {
+      sx[i] = this.sx1[i]
+      sy[i] = this.sy[i]
+      sx[L+i] = this.sx2[L-i-1]
+      sy[L+i] = this.sy[L-i-1]
+    }
+
+    if (hittest.point_in_poly(geometry.sx, geometry.sy, sx, sy)) {
+      result.add_to_selected_glyphs(this.model)
+      result.get_view = () => this
+    }
+
+    return result
   }
 
   scenterx(i: number): number {

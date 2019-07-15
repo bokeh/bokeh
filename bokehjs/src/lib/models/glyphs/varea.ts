@@ -1,8 +1,11 @@
+import {PointGeometry} from 'core/geometry'
 import {Arrayable} from "core/types"
 import {Area, AreaView, AreaData} from "./area"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex, IndexedRect} from "core/util/spatial"
+import * as hittest from "core/hittest"
 import * as p from "core/properties"
+import {Selection} from "../selections/selection"
 
 export interface VAreaData extends AreaData {
   _x: Arrayable<number>
@@ -67,6 +70,28 @@ export class VAreaView extends AreaView {
 
   scentery(i: number): number {
     return (this.sy1[i] + this.sy2[i])/2
+  }
+
+  protected _hit_point(geometry: PointGeometry): Selection {
+    const result = hittest.create_empty_hit_test_result()
+
+    const L = this.sx.length
+    const sx = new Float64Array(2*L)
+    const sy = new Float64Array(2*L)
+
+    for (let i = 0, end = L; i < end; i++) {
+      sx[i] = this.sx[i]
+      sy[i] = this.sy1[i]
+      sx[L+i] = this.sx[L-i-1]
+      sy[L+i] = this.sy2[L-i-1]
+    }
+
+    if (hittest.point_in_poly(geometry.sx, geometry.sy, sx, sy)) {
+      result.add_to_selected_glyphs(this.model)
+      result.get_view = () => this
+    }
+
+    return result
   }
 
   protected _map_data(): void {
