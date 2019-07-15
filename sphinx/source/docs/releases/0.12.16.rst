@@ -95,4 +95,4 @@ will not fully render). To require an API be defined (i.e. to restore the
 previous behavior) you can now set ``bokeh_missing_google_api_key_ok = False``
 in the Sphinx config file.
 
-.. _project roadmap: https://bokehplots.com/pages/roadmap.html
+.. _project roadmap: https://bokeh.org/roadmap

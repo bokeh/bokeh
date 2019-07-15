@@ -167,4 +167,4 @@ way:
 
 .. _Custom Extension: https://bokeh.pydata.org/en/latest/docs/user_guide/extensions.html
 .. _GeoViews: http://geo.holoviews.org
-.. _project roadmap: https://bokehplots.com/pages/roadmap.html
+.. _project roadmap: https://bokeh.org/roadmap

@@ -185,4 +185,4 @@ Additionally, the ``HasProps.set`` method has been removed. The name caused
 problems with the Sphinx docs build, and it was an unnecessary duplicate of
 ``HasProps.update`` (which should be used instead).
 
-.. _project roadmap: https://bokehplots.com/pages/roadmap.html
+.. _project roadmap: https://bokeh.org/roadmap

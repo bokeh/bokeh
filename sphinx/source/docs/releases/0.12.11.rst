@@ -45,4 +45,4 @@ hit testing, etc.) is new "screen", where the origin is left-top corner of the
 canvas. This change shouldn't affect users, however it affects custom model
 developers. Follow updated examples for new development patterns.
 
-.. _project roadmap: https://bokehplots.com/pages/roadmap.html
+.. _project roadmap: https://bokeh.org/roadmap

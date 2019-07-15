@@ -408,7 +408,7 @@ web browser to the appropriate address, the default is ``localhost:5006``.
 If you have any problems with the steps here, please `contact the developers`_.
 
 .. _Anaconda: https://anaconda.com/downloads
-.. _contact the developers: https://bokehplots.com/pages/contact.html
+.. _contact the developers: https://bokeh.org
 .. _conda package manager: https://conda.io/docs/intro.html
 .. _conda documentation: https://conda.io/docs/index.html
 .. _Download conda: https://conda.io/docs/download.html

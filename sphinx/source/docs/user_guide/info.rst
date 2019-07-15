@@ -14,16 +14,14 @@ To see ready-made examples of how you might use Bokeh with your own data,
 check out the :ref:`gallery` on the main documentation site, as well as
 the `Bokeh NBViewer Gallery`_.
 
-For questions and technical assistance, come join the `Bokeh mailing list`_,
-or visit the `Gitter chat channel`_.
+For questions and technical assistance, come join the `Bokeh Discourse`_,
 
 Visit the `Bokeh GitHub repository`_ and try the examples.
 
 Be sure to follow us on Twitter `@bokehplots <Twitter_>`_ and `Youtube`_!
 
 .. _Bokeh GitHub repository: https://github.com/bokeh/bokeh
-.. _Bokeh mailing list: https://groups.google.com/a/anaconda.com/forum/#!forum/bokeh
+.. _Bokeh Discourse: https://discourse.bokeh.org
 .. _Bokeh NBViewer Gallery: http://nbviewer.ipython.org/github/bokeh/bokeh-notebooks/blob/master/index.ipynb
-.. _Gitter chat channel: https://gitter.im/bokeh/bokeh
 .. _Twitter: http://twitter.com/BokehPlots
 .. _YouTube: https://www.youtube.com/channel/UCK0rSk29mmg4UT4bIOvPYhw

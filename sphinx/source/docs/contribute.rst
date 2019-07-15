@@ -6,10 +6,9 @@ Contribute
 ##########
 
 We are always looking for contributors, and want to grow the developer base for
-Bokeh. The `Gitter chat channel`_ and the `public mailing list`_ are great
-places to get in touch with core developers, and the :ref:`devguide` is a great
-place to get set up for working on Bokeh. We are eager to assist and mentor
-new contributors.
+Bokeh. The `Discourse`_ is the best place to get in touch with core developers,
+and the :ref:`devguide` is a great place to get set up for working on Bokeh. We
+are eager to assist and mentor new contributors.
 
 * *If you are a developer proficient in R, Julia, Swift, or other languages,
   you can help make Bokeh available to entire new audiences.*
@@ -41,6 +40,5 @@ Of course, we can also use monetary contributions to help with costs associated
 with running the project. If you would like to contribute financially to Bokeh,
 please make a `donation through NumFOCUS`_.
 
-.. _Gitter chat channel: https://gitter.im/bokeh/bokeh
-.. _public mailing list: https://groups.google.com/a/anaconda.com/forum/#!forum/bokeh
+.. _Discourse: https://discourse.bokeh.org
 .. _donation through NumFOCUS: https://numfocus.salsalabs.org/donate-to-bokeh/index.html
