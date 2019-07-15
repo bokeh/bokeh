@@ -40,6 +40,7 @@ __all__ = (
     'AutocompleteInput',
     'ColorPicker',
     'DatePicker',
+    'FileInput',
     'InputWidget',
     'MultiSelect',
     'PasswordInput',
@@ -79,6 +80,38 @@ class InputWidget(Widget):
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+class FileInput(Widget):
+    ''' Present a file-chooser dialog to users and return the contents of a
+    selected file.
+
+    '''
+
+    file = String(default="", readonly=True, help="""
+    A base64-encoded string of the contents of the selected file.
+    """)
+
+    accept = String(default="", help="""
+    Comma-separated list of standard HTML file input filters that restrict what
+    files the user can pick from. Values can be:
+
+    `<file extension>`:
+        Specific file extension(s) (e.g: .gif, .jpg, .png, .doc) are pickable
+
+    `audio/*`:
+        all sound files are pickable
+
+    `video/*`:
+        all video files are pickable
+
+    `image/*`:
+        all image files are pickable
+
+    `<media type>`:
+        A valid `IANA Media Type`_, with no parameters.
+
+    .. _IANA Media Type: https://www.iana.org/assignments/media-types/media-types.xhtml
+    """)
 
 
 class TextInput(InputWidget):

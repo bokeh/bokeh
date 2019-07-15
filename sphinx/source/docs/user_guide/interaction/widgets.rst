@@ -64,8 +64,8 @@ Bokeh provides a simple Button:
 .. bokeh-plot:: docs/user_guide/examples/interaction_button.py
     :source-position: below
 
-Checkbox Button Group
-~~~~~~~~~~~~~~~~~~~~~
+CheckboxButtonGroup
+~~~~~~~~~~~~~~~~~~~
 
 Bokeh also provides a checkbox button group, that can have multiple options
 selected simultaneously:
@@ -73,16 +73,25 @@ selected simultaneously:
 .. bokeh-plot:: docs/user_guide/examples/interaction_checkbox_button_group.py
     :source-position: below
 
-Checkbox Group
-~~~~~~~~~~~~~~
+CheckboxGroup
+~~~~~~~~~~~~~
 
 A standard checkbox:
 
 .. bokeh-plot:: docs/user_guide/examples/interaction_checkbox_group.py
     :source-position: below
 
-Data Table
-~~~~~~~~~~
+ColorPicker
+~~~~~~~~~~~
+
+A widget to allow the user to specify an RGB color value.
+
+.. bokeh-plot:: docs/user_guide/examples/interaction_colorpicker.py
+    :source-position: below
+
+
+DataTable
+~~~~~~~~~
 
 Bokeh provides a sophisticated data table widget based on SlickGrid. Note
 that since the table is configured with a data source object, any plots that
@@ -92,12 +101,20 @@ plot and the table (even in static HTML documents).
 .. bokeh-plot:: docs/user_guide/examples/interaction_data_table.py
     :source-position: below
 
-Dropdown Menu
-~~~~~~~~~~~~~
+DropdownMenu
+~~~~~~~~~~~~
 
 It is also possible to include Dropdown menus:
 
 .. bokeh-plot:: docs/user_guide/examples/interaction_dropdown_menu.py
+    :source-position: below
+
+FileInput
+~~~~~~~~~
+
+A widget allowing users to choose a file and store its contents.
+
+.. bokeh-plot:: docs/user_guide/examples/interaction_fileinput.py
     :source-position: below
 
 MultiSelect
@@ -108,16 +125,16 @@ A multi-select widget to present multiple available options:
 .. bokeh-plot:: docs/user_guide/examples/interaction_multiselect.py
     :source-position: below
 
-Radio Button Group
-~~~~~~~~~~~~~~~~~~
+RadioButtonGroup
+~~~~~~~~~~~~~~~~
 
 A radio button group can have at most one selected button at at time:
 
 .. bokeh-plot:: docs/user_guide/examples/interaction_radio_button_group.py
     :source-position: below
 
-Radio Group
-~~~~~~~~~~~
+RadioGroup
+~~~~~~~~~~
 
 A radio group uses standard radio button appearance:
 
@@ -150,8 +167,8 @@ an initial ``value`` and a ``title``:
 .. bokeh-plot:: docs/user_guide/source_examples/interaction_range_slider.py
     :source-position: below
 
-Tab Panes
-~~~~~~~~~
+Tabs
+~~~~
 
 Tab panes allow multiple plots or layouts to be show in selectable tabs:
 
@@ -176,8 +193,8 @@ A widget for collecting a line of text from a user:
 .. bokeh-plot:: docs/user_guide/examples/interaction_textinput.py
     :source-position: below
 
-Toggle Button
-~~~~~~~~~~~~~
+ToggleButton
+~~~~~~~~~~~~
 
 The toggle button holds an on/off state:
 
