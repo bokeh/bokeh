@@ -291,7 +291,7 @@ def _get_current_commit():
         ['git', 'rev-parse', '--verify', 'HEAD'],
         stdout=subprocess.PIPE,
     )
-    return result.stdout.decode('utf8')
+    return result.stdout.decode('utf8').strip()
 
 def is_tagged_version():
     commit = _get_current_commit()
@@ -300,7 +300,7 @@ def is_tagged_version():
         ['git', 'tag', '--points-at', commit],
         stdout=subprocess.PIPE,
     )
-    tagged = result.stdout.decode('utf8')
+    tagged = result.stdout.decode('utf8').strip()
     print(f'Bokeh tagged version: {tagged}')
     return bool(tagged)
 
