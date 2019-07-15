@@ -74,6 +74,8 @@ ALL = (
     'MinMaxBounds',
     'NumberSpec',
     'Override',
+    'PandasDataFrame',
+    'PandasGroupBy',
     'Percent',
     'RGB',
     'Regex',

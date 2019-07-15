@@ -1,4 +1,5 @@
 import sys
+import platform
 import jinja2
 import yaml
 
@@ -14,7 +15,8 @@ def load_setup_py_data():
     return data
 
 meta_src = jinja2.Template(open("conda.recipe/meta.yaml").read())
-meta_src = yaml.load(meta_src.render(load_setup_py_data=load_setup_py_data))
+meta_src = yaml.load(meta_src.render(load_setup_py_data=load_setup_py_data),
+                     Loader=yaml.FullLoader)
 
 section = {
     "build"  : meta_src["requirements"]["build"],
@@ -29,6 +31,10 @@ for name in sys.argv[1:]:
 
 # bare python unpins python version causing upgrade to latest
 if 'python' in spec: spec.remove('python')
+
+# add double quotes to specs for windows, fixes #9065
+if "windows" in platform.platform().lower():
+    spec = ['"{}"'.format(s) for s in spec]
 
 deps = ""
 deps += " ".join(s for s in spec)

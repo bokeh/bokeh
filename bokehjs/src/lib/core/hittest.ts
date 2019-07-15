@@ -1,9 +1,10 @@
+import {Arrayable} from "./types"
 import {sort_by} from "./util/array"
 import {Selection} from "../models/selections/selection"
 
 export type HitTestResult = Selection | null
 
-export function point_in_poly(x: number, y: number, px: number[], py: number[]): boolean {
+export function point_in_poly(x: number, y: number, px: Arrayable<number>, py: Arrayable<number>): boolean {
   let inside = false
 
   let x1 = px[px.length-1]

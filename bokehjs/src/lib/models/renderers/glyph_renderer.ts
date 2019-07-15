@@ -1,5 +1,8 @@
 import {DataRenderer, DataRendererView} from "./data_renderer"
 import {LineView} from "../glyphs/line"
+import {PatchView} from "../glyphs/patch"
+import {HAreaView} from "../glyphs/harea"
+import {VAreaView} from "../glyphs/varea"
 import {Glyph, GlyphView} from "../glyphs/glyph"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {Scale} from "../scales/scale"
@@ -227,8 +230,8 @@ export class GlyphRendererView extends DataRendererView {
     }
 
     // inspected is in full set space
+    const {inspected} = this.model.data_source
     const inspected_full_indices = new Set((() => {
-      const {inspected} = this.model.data_source
       if (!inspected || inspected.is_empty())
         return []
       else {
@@ -274,6 +277,15 @@ export class GlyphRendererView extends DataRendererView {
           this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices), this.glyph)
         else
           glyph.render(ctx, this.all_indices, this.glyph)
+      } else if (this.glyph instanceof PatchView || this.glyph instanceof HAreaView || this.glyph instanceof VAreaView) {
+        if (inspected.selected_glyphs.length == 0 || this.hover_glyph == null) {
+          glyph.render(ctx, this.all_indices, this.glyph)
+        } else {
+          for (const sglyph of inspected.selected_glyphs) {
+            if (sglyph.id == this.glyph.model.id)
+              this.hover_glyph.render(ctx, this.all_indices, this.glyph)
+          }
+        }
       } else {
         glyph.render(ctx, indices, this.glyph)
         if (this.hover_glyph && inspected_subset_indices.length)

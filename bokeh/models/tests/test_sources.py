@@ -68,6 +68,20 @@ class TestColumnDataSource(object):
         assert [0, 1] == list(ds.data['index'])
         assert set(ds.column_names) - set(df.columns) == set(["index"])
 
+    def test_data_accepts_dataframe_arg(self, pd):
+        data = dict(a=[1, 2], b=[2, 3])
+        df = pd.DataFrame(data)
+        ds = ColumnDataSource()
+        assert ds.data == {}
+        ds.data = df
+        assert set(df.columns).issubset(set(ds.column_names))
+        for key in data.keys():
+            assert isinstance(ds.data[key], np.ndarray)
+            assert list(df[key]) == list(ds.data[key])
+        assert isinstance(ds.data['index'], np.ndarray)
+        assert [0, 1] == list(ds.data['index'])
+        assert set(ds.column_names) - set(df.columns) == set(["index"])
+
     def test_init_dataframe_data_kwarg(self, pd):
         data = dict(a=[1, 2], b=[2, 3])
         df = pd.DataFrame(data)
@@ -92,11 +106,40 @@ class TestColumnDataSource(object):
         assert [0, 1] == list(ds.data['level_0'])
         assert set(ds.column_names) - set(df.columns) == set(["level_0"])
 
+    def test_data_accepts_dataframe_index_named_column(self, pd):
+        data = dict(a=[1, 2], b=[2, 3], index=[4, 5])
+        df = pd.DataFrame(data)
+        ds = ColumnDataSource()
+        assert ds.data == {}
+        ds.data = df
+        assert set(df.columns).issubset(set(ds.column_names))
+        for key in data.keys():
+            assert isinstance(ds.data[key], np.ndarray)
+            assert list(df[key]) == list(ds.data[key])
+        assert isinstance(ds.data['level_0'], np.ndarray)
+        assert [0, 1] == list(ds.data['level_0'])
+        assert set(ds.column_names) - set(df.columns) == set(["level_0"])
+
     def test_init_dataframe_column_categoricalindex(self, pd):
         columns = pd.CategoricalIndex(['a', 'b'])
         data = [[0,2], [1,3]]
         df = pd.DataFrame(columns=columns, data=data)
         ds = ColumnDataSource(data=df)
+        assert set(df.columns).issubset(set(ds.column_names))
+        for key in columns:
+            assert isinstance(ds.data[key], np.ndarray)
+            assert list(df[key]) == list(ds.data[key])
+        assert isinstance(ds.data['index'], np.ndarray)
+        assert [0, 1] == list(ds.data['index'])
+        assert set(ds.column_names) - set(df.columns) == set(["index"])
+
+    def test_data_accepts_dataframe_column_categoricalindex(self, pd):
+        columns = pd.CategoricalIndex(['a', 'b'])
+        data = [[0,2], [1,3]]
+        df = pd.DataFrame(columns=columns, data=data)
+        ds = ColumnDataSource()
+        assert ds.data == {}
+        ds.data = df
         assert set(df.columns).issubset(set(ds.column_names))
         for key in columns:
             assert isinstance(ds.data[key], np.ndarray)
@@ -129,6 +172,20 @@ class TestColumnDataSource(object):
             assert isinstance(ds.data[k2], np.ndarray)
             assert list(s[key]) == list(ds.data[k2])
 
+    def test_data_accepts_groupby_arg(self, pd):
+        from bokeh.sampledata.autompg import autompg as df
+        group = df.groupby(by=['origin', 'cyl'])
+        ds = ColumnDataSource()
+        assert ds.data == {}
+        ds.data = group
+        s = group.describe()
+        assert len(ds.column_names) == 49
+        assert isinstance(ds.data['origin_cyl'], np.ndarray)
+        for key in s.columns.values:
+            k2 = "_".join(key)
+            assert isinstance(ds.data[k2], np.ndarray)
+            assert list(s[key]) == list(ds.data[k2])
+
     def test_init_groupby_data_kwarg(self, pd):
         from bokeh.sampledata.autompg import autompg as df
         group = df.groupby(by=['origin', 'cyl'])
@@ -145,6 +202,20 @@ class TestColumnDataSource(object):
         df = pd.DataFrame({"A": [1, 2, 3, 4] * 2, "B": [10, 20, 30, 40] * 2, "C": range(8)})
         group = df.groupby(['A', [10, 20, 30, 40] * 2])
         ds = ColumnDataSource(data=group)
+        s = group.describe()
+        assert len(ds.column_names) == 17
+        assert isinstance(ds.data['index'], np.ndarray)
+        for key in s.columns.values:
+            k2 = "_".join(key)
+            assert isinstance(ds.data[k2], np.ndarray)
+            assert list(s[key]) == list(ds.data[k2])
+
+    def test_data_accepts_groupby_with_None_subindex_name(self, pd):
+        df = pd.DataFrame({"A": [1, 2, 3, 4] * 2, "B": [10, 20, 30, 40] * 2, "C": range(8)})
+        group = df.groupby(['A', [10, 20, 30, 40] * 2])
+        ds = ColumnDataSource()
+        assert ds.data == {}
+        ds.data = group
         s = group.describe()
         assert len(ds.column_names) == 17
         assert isinstance(ds.data['index'], np.ndarray)

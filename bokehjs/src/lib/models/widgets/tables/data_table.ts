@@ -157,7 +157,7 @@ export class DataTableView extends WidgetView {
 
     const {selected} = this.model.source
 
-    const permuted_indices = selected.indices.map((x: number) => this.data.index.indexOf(x))
+    const permuted_indices = selected.indices.map((x: number) => this.data.index.indexOf(x)).sort()
 
     this._in_selection_update = true
     this.grid.setSelectedRows(permuted_indices)
@@ -274,7 +274,6 @@ export class DataTableView extends WidgetView {
         if (this._in_selection_update) {
           return
         }
-
         this.model.source.selected.indices = args.rows.map((i: number) => this.data.index[i])
       })
 

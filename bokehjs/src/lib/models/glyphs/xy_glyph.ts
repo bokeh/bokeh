@@ -40,6 +40,7 @@ export abstract class XYGlyphView extends GlyphView {
   scentery(i: number): number {
     return this.sy[i]
   }
+
 }
 
 export namespace XYGlyph {

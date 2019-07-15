@@ -3,8 +3,6 @@
 Laying out Plots and Widgets
 ============================
 
-TODO rewrite this
-
 Bokeh includes several layout options for arranging plots and widgets. They aim
 to make it quick to create your interactive data applications. At the heart of
 the layouts are three core objects Row, Column, and . While you can
