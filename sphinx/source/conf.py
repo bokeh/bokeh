@@ -323,7 +323,7 @@ if os.environ.get('READTHEDOCS') == 'True':
 # rendering the page. Copied from,
 # https://github.com/bokeh/bokeh/blob/662bb52/sphinx/fabfile.py#L46
 with open('version.txt', 'w') as fh:
-    fh.write(os.environ.get('READTHEDOCS_VERSION'))
+    fh.write(version)
 
 # Create the proper structure to serve CSS and JS files compiled by
 # Bokeh. We can't use ``html_static_path`` here because the URLs are
