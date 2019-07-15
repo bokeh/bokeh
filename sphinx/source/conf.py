@@ -278,14 +278,36 @@ intersphinx_mapping = {
 
 
 import os
+import subprocess
 
-# Do not use Bokeh CDNs to serve JS files since we are hosting the
-# documentation of the latest release (and/or unrelease version). We
-# want to serve the compiled JS files from Read the Docs servers
-# itself to match the documentation with the JS version. To accomplish
-# this, we build Bokeh JS files in RTD server and use
-# ``BOKEH_DOCS_CDN`` to generate the right URLs for these files.
-os.environ['BOKEH_DOCS_CDN'] = 'test:{}'.format(os.environ.get('READTHEDOCS_VERSION'))
+# Do not use Bokeh CDNs to serve JS files when building latest version
+# of docs (and/or unreleased versions). We want to serve the compiled
+# JS files from Read the Docs servers itself to match the
+# documentation with the JS version. Although, when using a tagged
+# release, we want to use Bokeh CDN.
+def _get_current_commit():
+    result = subprocess.run(
+        ['git', 'rev-parse', '--verify', 'HEAD'],
+        stdout=subprocess.PIPE,
+    )
+    return result.stdout.decode('utf8')
+
+def is_tagged_version():
+    commit = _get_current_commit()
+    result = subprocess.run(
+        ['git', 'tag', '--points-at', commit],
+        stdout=subprocess.PIPE,
+    )
+    tagged = result.stdout.decode('utf8')
+    return bool(tagged)
+
+readthedocs_version = os.environ.get('READTHEDOCS_VERSION')
+if is_tagged_version():
+    # Use Bokeh Resources from CDN
+    os.environ['BOKEH_DOCS_CDN'] = readthedocs_version
+else:
+    # Use Bokeh Resources from Read the Docs
+    os.environ['BOKEH_DOCS_CDN'] = f'test:{readthedocs_version}'
 
 # Set the proper ``BOKEH_DOCS_VERSION`` based on the version being
 # built on Read the Docs
