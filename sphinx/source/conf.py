@@ -312,7 +312,7 @@ else:
 
 # Set the proper ``BOKEH_DOCS_VERSION`` based on the version being
 # built on Read the Docs
-os.environ['BOKEH_DOCS_VERSION'] = os.environ.get('READTHEDOCS_VERSION')
+os.environ['BOKEH_DOCS_VERSION'] = readthedocs_version
 
 if os.environ.get('READTHEDOCS') == 'True':
     # Download all the sample data to plot
@@ -322,8 +322,10 @@ if os.environ.get('READTHEDOCS') == 'True':
 # ``version.txt`` is generated on deploying and used from JS when
 # rendering the page. Copied from,
 # https://github.com/bokeh/bokeh/blob/662bb52/sphinx/fabfile.py#L46
-with open('version.txt', 'w') as fh:
-    fh.write(version)
+# Create only under ``latest`` since it's used to show a Warning Banner
+if readthedocs_version == 'latest':
+    with open('version.txt', 'w') as fh:
+        fh.write(version)
 
 # Create the proper structure to serve CSS and JS files compiled by
 # Bokeh. We can't use ``html_static_path`` here because the URLs are
