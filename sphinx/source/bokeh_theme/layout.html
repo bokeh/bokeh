@@ -28,6 +28,22 @@
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
   <link rel="stylesheet" href="{{ pathto('_static/' + theme_css, 1) }}">
 
+{%- macro css() %}
+    <link rel="stylesheet" href="{{ pathto('_static/' + style, 1) }}" type="text/css" />
+    <link rel="stylesheet" href="{{ pathto('_static/pygments.css', 1) }}" type="text/css" />
+    {%- for css in css_files %}
+      {%- if css|attr("filename") %}
+    {{ css_tag(css) }}
+      {%- else %}
+    <link rel="stylesheet" href="{{ pathto(css, 1) }}" type="text/css" />
+      {%- endif %}
+    {%- endfor %}
+{%- endmacro %}
+
+{%- block css %}
+{{- css() }}
+{%- endblock %}
+
   <!-- Scripts
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
 
@@ -36,6 +52,17 @@
     var _BOKEH_CURRENT_VERSION = "{{ VERSION }}";
   </script>
   <script src="{{ pathto('_static/' + theme_js, 1) }}"></script>
+
+{%- macro script() %}
+  <script type="text/javascript" id="documentation_options" data-url_root="{{ pathto('', 1) }}" src="{{ pathto('_static/documentation_options.js', 1) }}"></script>
+  {%- for js in script_files %}
+  {{ js_tag(js) }}
+  {%- endfor %}
+{%- endmacro %}
+
+{%- block scripts %}
+{{- script() }}
+{%- endblock %}
 
   <!-- Favicon
   –––––––––––––––––––––––––––––––––––––––––––––––––– -->
@@ -120,6 +147,8 @@
     </ul>
   </div>
 </footer>
+
+{% block footer %}{% endblock %}
 
 <!-- Google Analytics -->
 {% include 'ga.html' %}
