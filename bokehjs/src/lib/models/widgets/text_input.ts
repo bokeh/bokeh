@@ -37,7 +37,7 @@ export class TextInputView extends InputWidgetView {
 
   change_input(event?: any): void {
     if (typeof event !== undefined) {
-      const eventType = event.type;
+      const eventType = event.type
       if (eventType == "change") {
         this.model.value = this.input_el.value
       } else if (eventType == "input") {
