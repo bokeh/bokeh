@@ -563,7 +563,7 @@ check out the :ref:`gallery`. To see detailed examples and walkthroughs as
 well as find exercises for learning Bokeh by doing, work through the
 `live Tutorial notebooks`_.
 
-For questions and technical assistance, come join the `Bokeh mailing list`_.
+For questions and technical assistance, come join the `Bokeh Discourse`_.
 
 Visit the `Bokeh GitHub repository`_ and try the examples.
 
@@ -573,7 +573,7 @@ Be sure to follow us on Twitter `@bokehplots <Twitter_>`_!
 .. _Bokeh for R: http://hafen.github.io/rbokeh/
 .. _Bokeh for Scala: https://github.com/bokeh/bokeh-scala
 .. _Bokeh GitHub repository: https://github.com/bokeh/bokeh
-.. _Bokeh mailing list: https://groups.google.com/a/anaconda.com/forum/#!forum/bokeh
+.. _Bokeh Discourse: https://discourse.bokeh.org
 .. _Bokeh NBViewer Gallery: http://nbviewer.ipython.org/github/bokeh/bokeh-notebooks/blob/master/index.ipynb
 .. _live Tutorial notebooks: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb
 .. _Twitter: http://twitter.com/BokehPlots

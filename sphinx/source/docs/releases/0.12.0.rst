@@ -36,7 +36,7 @@ improvements:
   - left aligned title, closer in, by default
   - smaller, italic axes labels
 
-* New hosted demos at https://demo.bokehplots.com
+* New hosted demos at https://demo.bokeh.org
 * Many small bug fixes
 
 .. _release-0-12-0-migration:

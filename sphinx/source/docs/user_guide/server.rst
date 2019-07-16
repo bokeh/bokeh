@@ -809,7 +809,7 @@ local machine.
     We intend to expand this section with more guidance for other tools and
     configurations. If have experience with other web deployment scenarios
     and wish to contribute your knowledge here, please
-    `contact us on the mailing list`_.
+    contact us on https://discourse.bokeh.org
 
 .. _userguide_server_deplyoment_proxy:
 
@@ -1231,7 +1231,6 @@ in :ref:`devguide_server`
 
 .. _Ansible: http://www.ansible.com
 .. _Chef: https://www.chef.io/chef/
-.. _contact us on the mailing list: https://groups.google.com/a/anaconda.com/forum/#!forum/bokeh
 .. _demo.bokeh.org: https://demo.bokeh.org
 .. _HTTPServerRequest: http://www.tornadoweb.org/en/stable/httputil.html#tornado.httputil.HTTPServerRequest
 .. _Nginx load balancer documentation: http://nginx.org/en/docs/http/load_balancing.html

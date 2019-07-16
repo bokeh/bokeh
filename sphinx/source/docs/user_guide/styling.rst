@@ -248,7 +248,6 @@ plot, so you may want to keep them. Plots will only resize down to a minimum of
 100px (height or width) to prevent problems in displaying your plot.
 
 .. _Bokeh GitHub repository: https://github.com/bokeh/bokeh
-.. _Bokeh mailing list: https://groups.google.com/a/anaconda.com/forum/#!forum/bokeh
 
 .. _userguide_styling_plot_title:
 

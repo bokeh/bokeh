@@ -139,4 +139,4 @@ pre-commit hook to run quality tests before allowing a commit, the hook code
 should be updated as above. This change is only expected to affect those who
 are developing the Bokeh codebase.
 
-.. _project roadmap: https://bokehplots.com/pages/roadmap.html
+.. _project roadmap: https://bokeh.org/roadmap

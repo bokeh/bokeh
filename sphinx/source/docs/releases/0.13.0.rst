@@ -63,4 +63,4 @@ to avoid exaggerating corners where connected lines meet at a sharp angle.
 The HTML Canvas ``miterLimit`` property is meant to prevent such issues,
 but it does not appear to be respected by current browsers.
 
-.. _project roadmap: https://bokehplots.com/pages/roadmap.html
+.. _project roadmap: https://bokeh.org/roadmap

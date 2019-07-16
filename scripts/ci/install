@@ -35,10 +35,7 @@ conda config --append channels bokeh
 conda config --get channels
 
 # create and activate test env
-conda create -n testenv --yes --quiet python=${PYTHON} jinja2
-
-# Need pyyaml>=5.1 but it is only only conda for Python>=3.6
-pip install "pyyaml>=5.1"
+conda create -n testenv --yes --quiet python=${PYTHON} jinja2 pyyaml
 
 # conda init / activate unfortunately do not work on TravisCI so this path
 # is added in .travis.yml
