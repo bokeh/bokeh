@@ -176,14 +176,14 @@ html_context = {
         ('Twitter', '//twitter.com/BokehPlots'),
     ),
     'NAV_DOCS': (
-        ('Installation', 'installation'),
-        ('User Guide', 'user_guide'),
-        ('Gallery', 'gallery'),
+        ('Installation', 'docs/installation'),
+        ('User Guide', 'docs/user_guide'),
+        ('Gallery', 'docs/gallery'),
         ('Tutorial', 'https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb'),
-        ('Reference', 'reference'),
-        ('Releases', 'releases'),
-        ('Developer Guide', 'dev_guide'),
-        ('Search', 'search.html'),
+        ('Reference', 'docs/reference'),
+        ('Releases', 'docs/releases'),
+        ('Developer Guide', 'docs/dev_guide'),
+        ('Search', 'search'),
     ),
 }
 

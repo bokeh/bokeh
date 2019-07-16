@@ -92,8 +92,8 @@
       <ul class="navigation-menu show">
         <li class="nav-link more"><a href="{{ pathto('index') }}">{{ version }}</a></li>
         {%- for name, link in NAV_DOCS  %}
-            {% if hasdoc('docs/' + link) %}
-            <li class="nav-link doc-head"><a href="{{ pathto('docs/' + link) }}">{{ name }}</a></li>
+            {% if hasdoc(link) %}
+            <li class="nav-link doc-head"><a href="{{ pathto(link) }}">{{ name }}</a></li>
             {% else %}
             <li class="nav-link doc-head"><a href="{{ link }}">{{ name }}</a></li>
             {% endif %}
