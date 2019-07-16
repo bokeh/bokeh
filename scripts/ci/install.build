@@ -18,7 +18,7 @@ BUILD_DEPS=`python scripts/deps.py build`
 conda install -n testenv --yes --quiet ${BUILD_DEPS}
 
 # Need pyyaml>=5.1 but it is only only conda for Python>=3.6
-pip install "pyyaml>=5.1"
+pip install --upgrade --force-reinstall "pyyaml>=5.1"
 
 
 npm install -g npm
