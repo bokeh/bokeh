@@ -68,7 +68,7 @@ class AutoloadJsHandler(SessionHandler):
         absolute_url = self.get_argument("bokeh-absolute-url", default=None)
 
         if absolute_url:
-            server_url = '{uri.scheme}://{uri.netloc}/'.format(uri=urlparse(absolute_url))
+            server_url = '{uri.scheme}://{uri.netloc}'.format(uri=urlparse(absolute_url))
         else:
             server_url = None
         resources = self.application.resources(server_url)
