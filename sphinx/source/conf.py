@@ -322,14 +322,6 @@ if os.environ.get('READTHEDOCS') == 'True':
     import bokeh
     bokeh.sampledata.download(progress=False)
 
-# ``version.txt`` is generated on deploying and used from JS when
-# rendering the page. Copied from,
-# https://github.com/bokeh/bokeh/blob/662bb52/sphinx/fabfile.py#L46
-# Create only under ``latest`` since it's used to show a Warning Banner
-if readthedocs_version == 'latest':
-    with open('version.txt', 'w') as fh:
-        fh.write(version)
-
 # Create the proper structure to serve CSS and JS files compiled by
 # Bokeh. We can't use ``html_static_path`` here because the URLs are
 # hardcoded to ``static/js`` instead of ``_static/js``, etc
