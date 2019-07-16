@@ -66,7 +66,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'Bokeh'
-copyright = '© Copyright 2015-2018, Anaconda and Bokeh Contributors.'
+copyright = '© Copyright 2015-2019, Anaconda and Bokeh Contributors.'
 
 # Get the standard computed Bokeh version string to use for |version|
 # and |release|
