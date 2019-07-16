@@ -35,7 +35,7 @@ conda config --append channels bokeh
 conda config --get channels
 
 # create and activate test env
-conda create -n testenv --yes --quiet python=${PYTHON} jinja2
+conda create -n testenv --yes --quiet python=${PYTHON} jinja2 pyyaml
 
 # conda init / activate unfortunately do not work on TravisCI so this path
 # is added in .travis.yml
