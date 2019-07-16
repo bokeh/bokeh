@@ -73,13 +73,13 @@ from _setup_support import (
 )
 
 
-# Workaround to upgrade ``npm`` since Read the Docs build environment have
-# ``3.5.2`` and we need at least ``npm>=6.0``
-# This can be removed once
 import os
-os.system('cd ~ ; mkdir bin ; npm install npm')
-os.environ['PATH'] = '/home/docs/node_modules/.bin/:{}'.format(os.environ.get('PATH'))
-print('PATH: {}'.format(os.environ.get('PATH')))
+if os.environ.get('READTHEDOCS') == 'True':
+    # Workaround to upgrade ``npm`` since Read the Docs build environment have
+    # ``3.5.2`` and we need at least ``npm>=6.0``
+    os.system('cd ~ ; mkdir bin ; npm install npm')
+    os.environ['PATH'] = '/home/docs/node_modules/.bin/:{}'.format(os.environ.get('PATH'))
+    print('PATH: {}'.format(os.environ.get('PATH')))
 
 # Tell Bokeh install script to always build the Javascript files
 os.environ['BOKEH_BUILD_JS'] = '1'
