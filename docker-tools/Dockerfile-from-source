@@ -50,9 +50,12 @@ RUN conda build conda.recipe --quiet --no-test --no-anaconda-upload --dirty
 ################################
 FROM frolvlad/alpine-miniconda3 AS install
 COPY --from=build /opt/conda/conda-bld/noarch/ /opt/conda/conda-bld/noarch/
+
+RUN apk add --no-cache \
+    bash
 ## We need a recent conda version for --use-local
-RUN conda install --quiet --yes \
-    conda
+#RUN conda install --quiet --yes \
+    #    conda
 
 RUN conda install --quiet --yes --use-local \
     bokeh \
