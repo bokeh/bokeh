@@ -23,6 +23,7 @@ export class ClientConnection {
   protected _current_handler: ((message: Message) => void) | null = null
   protected _pending_ack: [(connection: ClientConnection) => void, Rejecter] | null = null // null or [resolve,reject]
   protected _pending_replies: {[key: string]: [(message: Message) => void, Rejecter]} = {} // map reqid to [resolve,reject]
+  protected _pending_messages: Message[] = []
   protected readonly _receiver: Receiver = new Receiver()
 
   constructor(readonly url: string = DEFAULT_SERVER_WEBSOCKET_URL,
@@ -166,6 +167,11 @@ export class ClientConnection {
 
             this.session = new ClientSession(this, document, this.id)
 
+            for (const msg of this._pending_messages) {
+              this.session.handle(msg)
+            }
+            this._pending_messages = []
+
             logger.debug("Created a new session from new pulled doc")
             if (this._on_have_session_hook != null) {
               this._on_have_session_hook(this.session)
@@ -262,8 +268,6 @@ export class ClientConnection {
       this._current_handler = (message: Message) => this._steady_state_handler(message)
 
       // Reload any sessions
-      // TODO (havocp) there's a race where we might get a PATCH before
-      // we send and get a reply to our pulls.
       this._repull_session_doc()
 
       if (this._pending_ack != null) {
@@ -279,8 +283,11 @@ export class ClientConnection {
       const promise_funcs = this._pending_replies[message.reqid()]
       delete this._pending_replies[message.reqid()]
       promise_funcs[0](message)
-    } else
-      this.session!.handle(message)
+    } else if (this.session) {
+      this.session.handle(message)
+    } else {
+      this._pending_messages.push(message)
+    }
   }
 }
 
