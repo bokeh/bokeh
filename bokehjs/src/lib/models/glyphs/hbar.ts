@@ -69,7 +69,7 @@ export namespace HBar {
   export type Props = Box.Props & {
     left: p.CoordinateSpec
     y: p.CoordinateSpec
-    height: p.DistanceSpec
+    height: p.NumberSpec
     right: p.CoordinateSpec
   }
 

@@ -69,7 +69,7 @@ export namespace VBar {
   export type Props = Box.Props & {
     x: p.CoordinateSpec
     bottom: p.CoordinateSpec
-    width: p.DistanceSpec
+    width: p.NumberSpec
     top: p.CoordinateSpec
   }
 
