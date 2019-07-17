@@ -12,6 +12,7 @@ const tsconfig = {
     "alwaysStrict": true,
     "noErrorTruncation": true,
     "noEmitOnError": false,
+    "allowJs": false,
     "declaration": true,
     "sourceMap": false,
     "importHelpers": false,
@@ -21,9 +22,10 @@ const tsconfig = {
     "resolveJsonModule": true,
     "target": "ES5",
     "lib": ["es2015", "dom"],
-    "baseUrl": "."
+    "baseUrl": ".",
+    "outDir": "./dist",
   },
-  "include": ["./**/*.ts"]
+  "include": ["./**/*.ts"],
 }
 
 export default tsconfig

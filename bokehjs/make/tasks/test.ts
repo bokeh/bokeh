@@ -2,11 +2,11 @@ import {spawn} from "child_process"
 import {argv} from "yargs"
 
 import {task, log, BuildError} from "../task"
-import {compileTypeScript} from "@compiler/compiler"
+import {compile_typescript} from "@compiler/compiler"
 import * as paths from "../paths"
 
 task("test:compile", async () => {
-  const success = compileTypeScript("./test/tsconfig.json", {log})
+  const success = compile_typescript("./test/tsconfig.json", {log})
 
   if (argv.emitError && !success)
     process.exit(1)

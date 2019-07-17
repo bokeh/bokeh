@@ -3,12 +3,12 @@ import {argv} from "yargs"
 
 import {task, log} from "../task"
 import {rename} from "@compiler/sys"
-import {compileTypeScript} from "@compiler/compiler"
+import {compile_typescript} from "@compiler/compiler"
 import {Linker} from "@compiler/linker"
 import * as paths from "../paths"
 
 task("scripts:compile", ["styles:compile"], async () => {
-  const success = compileTypeScript(join(paths.src_dir.lib, "tsconfig.json"), {
+  const success = compile_typescript(join(paths.src_dir.lib, "tsconfig.json"), {
     log,
     out_dir: {js: paths.build_dir.lib, dts: paths.build_dir.types},
     css_dir: paths.build_dir.css,

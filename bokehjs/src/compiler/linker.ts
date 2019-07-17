@@ -190,6 +190,11 @@ export class Linker {
         this.ignores.add(lib)
     }
 
+    for (const entry of this.entries) {
+      if (!file_exists(entry))
+        throw new Error(`entry path ${entry} doesn't exist or isn't a file`)
+    }
+
     for (const base of this.bases) {
       if (!directoryExists(base))
         throw new Error(`base path ${base} doesn't exist or isn't a directory`)

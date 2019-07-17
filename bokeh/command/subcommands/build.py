@@ -4,85 +4,77 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
+'''
+
+'''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import pytest ; pytest
+import logging
+log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import sys
+from os.path import join
 
 # External imports
 
 # Bokeh imports
-from bokeh import __version__
+from bokeh.settings import settings
+from bokeh.util.compiler import _run_nodejs
 
-# Module under test
-from bokeh.command.bootstrap import main
+from ..subcommand import Subcommand
 
 #-----------------------------------------------------------------------------
-# Setup
+# Globals and constants
 #-----------------------------------------------------------------------------
 
-is_python2 = sys.version_info[0] == 2
+__all__ = (
+    'Build',
+)
 
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
 
-def _assert_version_output(capsys):
-    out, err = capsys.readouterr()
-    if is_python2:
-        err_expected = ("%s\n" % __version__)
-        out_expected = ""
-    else:
-        err_expected = ""
-        out_expected = ("%s\n" % __version__)
-    assert err == err_expected
-    assert out == out_expected
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
+class Build(Subcommand):
+    '''
+
+    '''
+
+    name = "build"
+
+    help = "Manage and build a bokeh extension"
+
+    args = (
+        ("base_dir", dict(
+            metavar="BASE_DIR",
+            type=str,
+            nargs="?",
+            default=".",
+        )),
+    )
+
+    def invoke(self, args):
+        bokehjs_dir = settings.bokehjsdir()
+        print(bokehjs_dir)
+        compiler_script = join(bokehjs_dir, "js", "compiler.js")
+        output = _run_nodejs([compiler_script, "build", "--base-dir", args.base_dir, "--bokehjs-dir", bokehjs_dir])
+        print(output)
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
-
-def test_no_subcommand(capsys):
-    with pytest.raises(SystemExit):
-        main(["bokeh"])
-    out, err = capsys.readouterr()
-    assert err == "ERROR: Must specify subcommand, one of: build, html, info, json, png, sampledata, secret, serve, static or svg\n"
-    assert out == ""
-
-def test_version(capsys):
-    with pytest.raises(SystemExit):
-        main(["bokeh", "--version"])
-    _assert_version_output(capsys)
-
-def test_version_short(capsys):
-    with pytest.raises(SystemExit):
-        main(["bokeh", "-v"])
-    _assert_version_output(capsys)
-
-def test_error(capsys):
-    from bokeh.command.subcommands.info import Info
-    old_invoke = Info.invoke
-    def err(x, y): raise RuntimeError("foo")
-    Info.invoke = err
-    with pytest.raises(SystemExit):
-        main(["bokeh", "info"])
-    out, err = capsys.readouterr()
-    assert err == 'ERROR: foo\n'
-    Info.invoke = old_invoke
 
 #-----------------------------------------------------------------------------
 # Code
