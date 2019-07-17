@@ -17,7 +17,6 @@ RUN git clone --depth=50 https://github.com/bokeh/bokeh.git $BOKEH_SOURCE_DIR
 #Increase build number to force rebuild
 ENV build 0
 WORKDIR $BOKEH_SOURCE_DIR
-#RUN git fetch origin $BOKEH_VERSION
 RUN sh -c 'if [[ ! -z "$BOKEH_VERSION" ]]; then echo Fetching $BOKEH_VERSION; git fetch origin $BOKEH_VERSION; git checkout -f FETCH_HEAD; fi'
 
 ENV CONDA_REQS="conda-build"
@@ -53,19 +52,14 @@ COPY --from=build /opt/conda/conda-bld/noarch/ /opt/conda/conda-bld/noarch/
 
 RUN apk add --no-cache \
     bash
-## We need a recent conda version for --use-local
-#RUN conda install --quiet --yes \
-    #    conda
 
 RUN conda install --quiet --yes --use-local \
     bokeh \
     nodejs
-## Remove the build environment
-#RUN conda remove --yes --name bokeh_build --all
-#
+
 # Clean the conda environment
 RUN conda clean -ay
-#
+
 RUN python3 -c "import tornado; print('tornado version=' + tornado.version)"
 RUN bokeh info
 

@@ -21,9 +21,6 @@ RUN conda install --quiet --yes \
 ARG TORNADO_VERSION
 RUN sh -c 'if [[ ! -z "$TORNADO_VERSION" ]]; then echo Installing old tornado $TORNADO_VERSION; conda install --quiet --yes tornado=$TORNADO_VERSION; conda clean -ay; fi'
 
-# Clean the conda environment
-#RUN conda clean -ay
-
 RUN python -c "import tornado; print('tornado version=' + tornado.version)"
 # Workaround, just calling `bokeh info` crashes
 RUN env BOKEH_RESOURCES=cdn bokeh info
