@@ -7,8 +7,7 @@ RUN chown -R travis /tmp/bokeh
 USER travis
 
 ENV NO_GIT_FETCH=1
-ENV PATH="/home/travis/miniconda/bin/:${PATH}"
-ENV PATH="/home/travis/miniconda/envs/testenv/bin/:${PATH}"
+ENV PATH="/home/travis/miniconda/envs/testenv/bin/:/home/travis/miniconda/bin/:${PATH}"
 ENV CONDA_REQS="conda=4.6.2 conda-build=3.17.8"
 ARG PYTHON
 
