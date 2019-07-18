@@ -15,3 +15,8 @@ ARG PYTHON
 RUN cd /tmp/bokeh && scripts/ci/install.test
 
 RUN rm -rf /tmp/bokeh
+
+# Add some bokeh examples to be run
+ENV BOKEH_EXAMPLE_DIR /root/bokeh_examples
+COPY examples/models $BOKEH_EXAMPLE_DIR/models
+COPY examples/app $BOKEH_EXAMPLE_DIR/app

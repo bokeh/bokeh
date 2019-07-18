@@ -25,6 +25,7 @@ RUN python -c "import tornado; print('tornado version=' + tornado.version)"
 # Workaround, just calling `bokeh info` crashes
 RUN env BOKEH_RESOURCES=cdn bokeh info
 
-#ENV BOKEH_EXAMPLE_DIR bokeh_examples
-#COPY docker_tools/hello_world.py $BOKEH_EXAMPLE_DIR/hello_world.py
-#COPY docker_tools/hello_nodejs.py $BOKEH_EXAMPLE_DIR/hello_nodejs.py
+# Add some bokeh examples to be run
+ENV BOKEH_EXAMPLE_DIR /root/bokeh_examples
+COPY examples/models $BOKEH_EXAMPLE_DIR/models
+COPY examples/app $BOKEH_EXAMPLE_DIR/app
