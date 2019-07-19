@@ -1,5 +1,3 @@
-
-
 from bokeh.plotting import show, output_file
 from bokeh.models import FileInput, Div, CustomJS
 from bokeh.layouts import column
