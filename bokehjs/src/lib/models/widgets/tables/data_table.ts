@@ -1,9 +1,8 @@
-const {Grid: SlickGrid} = require("slickgrid")
 const {RowSelectionModel} = require("slickgrid/plugins/slick.rowselectionmodel")
 const {CheckboxSelectColumn} = require("slickgrid/plugins/slick.checkboxselectcolumn")
 const {CellExternalCopyManager} = require("slickgrid/plugins/slick.cellexternalcopymanager")
 
-import {Item, Column, SlickGrid} from "slickgrid"
+import {Grid as SlickGrid, DataProvider} from "slickgrid"
 import * as p from "core/properties"
 import {uniqueId} from "core/util/string"
 import {isString} from "core/util/types"
@@ -13,7 +12,7 @@ import {logger} from "core/logging"
 import {LayoutItem} from "core/layout"
 
 import {TableWidget} from "./table_widget"
-import {TableColumn} from "./table_column"
+import {TableColumn, ColumnType, Item} from "./table_column"
 import {WidgetView} from "../widget"
 import {ColumnDataSource} from "../../sources/column_data_source"
 import {CDSView} from "../../sources/cds_view"
@@ -24,7 +23,7 @@ export const DTINDEX_NAME = "__bkdt_internal_index__"
 
 declare var $: any
 
-export class DataProvider {
+export class TableDataProvider implements DataProvider<Item> {
 
   readonly index: number[]
 
@@ -96,8 +95,8 @@ export class DataProvider {
 export class DataTableView extends WidgetView {
   model: DataTable
 
-  private data: DataProvider
-  private grid: SlickGrid
+  protected data: TableDataProvider
+  protected grid: SlickGrid<Item>
 
   protected _in_selection_update = false
   protected _warned_not_reorderable = false
@@ -171,7 +170,7 @@ export class DataTableView extends WidgetView {
       this.grid.scrollRowToTop(scroll_index)
   }
 
-  newIndexColumn(): Column {
+  newIndexColumn(): ColumnType {
     return {
       id: uniqueId(),
       name: this.model.index_header,
@@ -233,7 +232,7 @@ export class DataTableView extends WidgetView {
       rowHeight: this.model.row_height,
     }
 
-    this.data = new DataProvider(this.model.source, this.model.view)
+    this.data = new TableDataProvider(this.model.source, this.model.view)
     this.grid = new SlickGrid(this.el, this.data, columns, options)
 
     this.grid.onSort.subscribe((_event: any, args: any) => {

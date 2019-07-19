@@ -1,23 +1,12 @@
-const {Grid: SlickGrid} = require('slickgrid')
-
-const {EventData, Group} = require('slickgrid/slick.core')
-type EventData = typeof EventData
-
 import * as p from 'core/properties'
 import {span} from 'core/dom'
-import {Item, Formatter, Column, SlickGrid, Group, GroupTotals} from 'slickgrid'
-import {DataProvider, DTINDEX_NAME, DataTableView, DataTable} from './data_table'
+import {Formatter, Column, Grid as SlickGrid, Group, GroupTotals, RowMetadata, ColumnMetadata} from 'slickgrid'
+import {TableDataProvider, DTINDEX_NAME, DataTableView, DataTable} from './data_table'
+import {Item} from "./table_column"
 import {ColumnDataSource} from '../../sources/column_data_source'
 import {CDSView} from '../../sources/cds_view'
 import {RowAggregator} from './row_aggregators'
 import {Model} from 'model'
-
-export type Metadata = {
-  selectable: boolean,
-  focusable: boolean,
-  cssClasses: string,
-  columns: Partial<Column>[],
-}
 
 interface GroupDataContext {
   collapsed: boolean,
@@ -25,7 +14,7 @@ interface GroupDataContext {
   title: string,
 }
 
-function groupCellFormatter(_row: number, _cell: number, _value: unknown, _columnDef: Column, dataContext: GroupDataContext): string {
+function groupCellFormatter(_row: number, _cell: number, _value: unknown, _columnDef: Column<Item>, dataContext: GroupDataContext): string {
   const { collapsed, level, title } = dataContext
 
   const toggle = span({
@@ -39,8 +28,8 @@ function groupCellFormatter(_row: number, _cell: number, _value: unknown, _colum
   return `${toggle.outerHTML}${titleElement.outerHTML}`
 }
 
-function indentFormatter(formatter?: Formatter, indent?: number): (...args: any[]) => string|null {
-  return (row: number, cell: number, value: unknown, columnDef: Column, dataContext: Object) => {
+function indentFormatter(formatter?: Formatter<Item>, indent?: number): Formatter<Item> {
+  return (row: number, cell: number, value: unknown, columnDef: Column<Item>, dataContext: Item) => {
     const spacer = span({
       class: 'slick-group-toggle',
       style: { 'margin-left': `${(indent || 0) * 15}px`},
@@ -51,10 +40,10 @@ function indentFormatter(formatter?: Formatter, indent?: number): (...args: any[
   }
 }
 
-function handleGridClick(this: SlickGrid, event: EventData, args: { row: number }): void {
+function handleGridClick(this: SlickGrid<Item>, event: Event, args: { row: number }): void {
   const item = this.getDataItem(args.row)
 
-  if (item instanceof Group && event.target.classList.contains('slick-group-toggle')) {
+  if (item instanceof Group && (event.target as HTMLElement).classList.contains('slick-group-toggle')) {
     if (item.collapsed) {
       this.getData().expandGroup(item.groupingKey)
     } else {
@@ -104,16 +93,16 @@ export class GroupingInfo extends Model {
 }
 GroupingInfo.initClass()
 
-export class DataCubeProvider extends DataProvider {
+export class DataCubeProvider extends TableDataProvider {
 
-  readonly columns: Column[]
+  readonly columns: Column<Item>[]
   groupingInfos: GroupingInfo[]
   readonly groupingDelimiter: string
   toggledGroupsByLevel: {[key: string]: boolean}[]
-  private rows: (Group | number)[]
+  private rows: (Group<number> | number)[]
   target: ColumnDataSource
 
-  constructor(source: ColumnDataSource, view: CDSView, columns: Column[], target: ColumnDataSource) {
+  constructor(source: ColumnDataSource, view: CDSView, columns: Column<Item>[], target: ColumnDataSource) {
     super(source, view)
     this.columns = columns
     this.groupingInfos = []
@@ -128,23 +117,19 @@ export class DataCubeProvider extends DataProvider {
     this.refresh()
   }
 
-  private extractGroups(rows: number[], parentGroup?: Group): Group[] {
-    const groups: Group[] = []
-    const groupsByValue: Map<any, Group> = new Map()
+  private extractGroups(rows: number[], parentGroup?: Group<number>): Group<number>[] {
+    const groups: Group<number>[] = []
+    const groupsByValue: Map<any, Group<number>> = new Map()
     const level = parentGroup ? parentGroup.level + 1 : 0
     const { comparer, getter } = this.groupingInfos[level]
 
-    rows.forEach((row: number) => {
+    rows.forEach((row) => {
       const value = this.source.data[getter][row]
       let group = groupsByValue.get(value)
 
       if (!group) {
         const groupingKey = parentGroup ? `${parentGroup.groupingKey}${this.groupingDelimiter}${value}` : `${value}`
-        group = Object.assign(new Group(), {
-          value,
-          level,
-          groupingKey,
-        })
+        group = Object.assign(new Group(), {value, level, groupingKey}) as any
         groups.push(group!)
         groupsByValue.set(value, group!)
       }
@@ -161,25 +146,25 @@ export class DataCubeProvider extends DataProvider {
     return groups
   }
 
-  private calculateTotals(group: Group, aggregators: RowAggregator[]): GroupTotals {
-    const totals: GroupTotals = { avg: {}, max: {}, min: {}, sum: {} }
+  private calculateTotals(group: Group<number>, aggregators: RowAggregator[]): GroupTotals<number> {
+    const totals: GroupTotals<number> = { avg: {}, max: {}, min: {}, sum: {} } as any
     const { source: { data } } = this
     const keys = Object.keys(data)
     const items = group.rows.map(i => keys.reduce((o, c) => ({ ...o, [c]: data[c][i] }), {}))
 
-    aggregators.forEach((aggregator: RowAggregator) => {
+    aggregators.forEach((aggregator) => {
       aggregator.init()
-      items.forEach((item: Item) => aggregator.accumulate(item))
+      items.forEach((item) => aggregator.accumulate(item))
       aggregator.storeResult(totals)
     })
     return totals
   }
 
-  private addTotals(groups: Group[], level = 0): void {
+  private addTotals(groups: Group<number>[], level = 0): void {
     const { aggregators, collapsed: groupCollapsed } = this.groupingInfos[level]
     const toggledGroups = this.toggledGroupsByLevel[level]
 
-    groups.forEach((group: Group) => {
+    groups.forEach((group) => {
       if (group.groups) {
         this.addTotals(group.groups, level + 1)
       }
@@ -189,14 +174,14 @@ export class DataCubeProvider extends DataProvider {
       }
 
       group.collapsed = groupCollapsed !== toggledGroups[group.groupingKey]
-      group.title = group.value ? `${group.value}` : null
+      group.title = group.value ? `${group.value}` : ""
     })
   }
 
-  private flattenedGroupedRows(groups: Group[], level = 0): (Group | number)[] {
-    const rows: (Group | number)[] = []
+  private flattenedGroupedRows(groups: Group<number>[], level = 0): (Group<number> | number)[] {
+    const rows: (Group<number> | number)[] = []
 
-    groups.forEach((group: Group) => {
+    groups.forEach((group) => {
       rows.push(group)
       if (!group.collapsed) {
         const subRows = group.groups
@@ -210,14 +195,14 @@ export class DataCubeProvider extends DataProvider {
 
   refresh(): void {
     const groups = this.extractGroups(this.view.indices)
-    const labels = this.source.data[this.columns[0].field]
+    const labels = this.source.data[this.columns[0].field!]
 
     if (groups.length) {
       this.addTotals(groups)
       this.rows = this.flattenedGroupedRows(groups)
       this.target.data = {
-        row_indices: this.rows.map(value => value instanceof Group ? (value as Group).rows : value),
-        labels: this.rows.map(value => value instanceof Group ? (value as Group).title : labels[value as number]),
+        row_indices: this.rows.map(value => value instanceof Group ? (value as Group<number>).rows : value),
+        labels: this.rows.map(value => value instanceof Group ? (value as Group<number>).title : labels[value as number]),
       }
     }
   }
@@ -236,25 +221,23 @@ export class DataCubeProvider extends DataProvider {
           .reduce((o, c) => ({...o, [c]: data[c][item as number]}), {[DTINDEX_NAME]: item})
   }
 
-  getItemMetadata(i: number): Metadata | null {
+  getItemMetadata(i: number): RowMetadata<Item> {
     const myItem = this.rows[i]
     const columns = this.columns.slice(1)
 
     const aggregators = myItem instanceof Group
-      ? this.groupingInfos[(myItem as Group).level].aggregators
+      ? this.groupingInfos[(myItem as Group<number>).level].aggregators
       : []
 
-    function adapter(column: Column): Partial<Column> {
+    function adapter(column: Column<Item>): ColumnMetadata<Item> {
       const {field: myField, formatter} = column
       const aggregator = aggregators.find(({ field_ }) => field_ === myField)
 
       if (aggregator) {
         const {key} = aggregator
         return {
-          formatter(row: number, cell: number, _value: unknown, columnDef: Column, dataContext: Item): string|null {
-            return formatter
-              ? formatter(row, cell, dataContext.totals[key][myField], columnDef, dataContext)
-              : ''
+          formatter(row: number, cell: number, _value: unknown, columnDef: Column<Item>, dataContext: Item): string {
+            return formatter ? formatter(row, cell, dataContext.totals[key][myField!], columnDef, dataContext) : ''
           },
         }
       }
@@ -266,9 +249,9 @@ export class DataCubeProvider extends DataProvider {
         selectable: false,
         focusable: false,
         cssClasses: 'slick-group',
-        columns: [{ formatter: groupCellFormatter }, ...columns.map(adapter)],
+        columns: [{ formatter: groupCellFormatter }, ...columns.map(adapter)] as any,
       }
-      : null
+      : {}
   }
 
   collapseGroup(groupingKey: string): void {
@@ -289,8 +272,7 @@ export class DataCubeProvider extends DataProvider {
 export class DataCubeView extends DataTableView {
   model: DataCube
 
-  private data_: DataCubeProvider
-  private grid_: SlickGrid
+  protected data: DataCubeProvider
 
   render(): void {
     const options = {
@@ -307,24 +289,24 @@ export class DataCubeView extends DataTableView {
     columns[0].formatter = indentFormatter(columns[0].formatter, this.model.grouping.length)
     delete columns[0].editor
 
-    this.data_ = new DataCubeProvider(
+    this.data = new DataCubeProvider(
       this.model.source,
       this.model.view,
       columns,
       this.model.target,
     )
-    this.data_.setGrouping(this.model.grouping)
+    this.data.setGrouping(this.model.grouping)
 
     this.el.style.width = `${this.model.width}px`
 
-    this.grid_ = new SlickGrid(
+    this.grid = new SlickGrid(
       this.el,
-      this.data_,
+      this.data,
       columns,
       options,
     )
 
-    this.grid_.onClick.subscribe(handleGridClick)
+    this.grid.onClick.subscribe(handleGridClick)
   }
 }
 

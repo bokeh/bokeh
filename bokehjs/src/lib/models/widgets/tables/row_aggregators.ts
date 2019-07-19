@@ -1,7 +1,7 @@
-const {Aggregators: {Avg, Min, Max, Sum}} = require('slickgrid/slick.dataview')
+import {Data, GroupTotals} from "slickgrid"
+const {Avg, Min, Max, Sum} = Data.Aggregators
 
 import * as p from 'core/properties'
-import {GroupTotals} from 'slickgrid'
 import {Model} from 'model'
 
 export namespace RowAggregator {
@@ -32,7 +32,7 @@ export abstract class RowAggregator extends Model {
 
   abstract init(): void
   abstract accumulate(item: { [key: string]: any }): void
-  abstract storeResult(totals: GroupTotals): void
+  abstract storeResult(totals: GroupTotals<number>): void
 }
 RowAggregator.initClass()
 
