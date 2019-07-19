@@ -34,11 +34,11 @@ export class FileInputView extends WidgetView {
   }
 
   file(e: any): void {
-    var file = e.target.result
-    var file_arr = file.split(",")
+    const file = e.target.result
+    const file_arr = file.split(",")
 
-    var content = file_arr[1]
-    var header = file_arr[0].split(":")[1].split(";")[0]
+    const content = file_arr[1]
+    const header = file_arr[0].split(":")[1].split(";")[0]
 
     this.model.value = content
     this.model.mime_type = header
