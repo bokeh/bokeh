@@ -1,6 +1,5 @@
 <a href="https://bokeh.org">
-  <img src="https://static.bokeh.org/logos/logotype.svg" height="60" width="150" 
-       alt="Bokeh logotype" />
+  <img src="https://static.bokeh.org/logos/logotype.svg" height="60" width="150" alt="Bokeh logotype" />
 </a>
 
 *Bokeh is a fiscally sponsored project of [NumFOCUS](https://numfocus.org), a nonprofit dedicated to supporting the open-source scientific computing community. If you like Bokeh and would like to support our mission, please consider [making a donation](https://numfocus.salsalabs.org/donate-to-bokeh/index.html).*
