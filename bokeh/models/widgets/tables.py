@@ -39,25 +39,31 @@ from .widget import Widget
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'AvgAggregator',
     'BooleanFormatter',
     'CellFormatter',
     'CellEditor',
     'CheckboxEditor',
+    'DataCube',
     'DataTable',
     'DateEditor',
     'DateFormatter',
+    'GroupingInfo',
     'HTMLTemplateFormatter',
     'IntEditor',
+    'MaxAggregator',
+    'MinAggregator',
     'NumberEditor',
     'NumberFormatter',
     'PercentEditor',
     'SelectEditor',
     'StringEditor',
     'StringFormatter',
+    'SumAggregator',
     'TableColumn',
+    'TableWidget',
     'TextEditor',
     'TimeEditor',
-    'TableWidget',
 )
 
 #-----------------------------------------------------------------------------
@@ -75,6 +81,15 @@ class CellEditor(Model):
     ''' Abstract base class for data table's cell editors.
 
     '''
+
+@abstract
+class RowAggregator(Model):
+    ''' Abstract base class for data cube's row formatters.
+
+    '''
+    field_ = String('', help="""
+    Refers to the table column being aggregated
+    """)
 
 #-----------------------------------------------------------------------------
 # General API
@@ -499,6 +514,26 @@ class DateEditor(CellEditor):
 
     '''
 
+class AvgAggregator(RowAggregator):
+    ''' Simple average across multiple rows.
+
+    '''
+
+class MinAggregator(RowAggregator):
+    ''' Smallest value across multiple rows.
+
+    '''
+
+class MaxAggregator(RowAggregator):
+    ''' Largest value across multiple rows.
+
+    '''
+
+class SumAggregator(RowAggregator):
+    ''' Simple sum across multiple rows.
+
+    '''
+
 class TableColumn(Model):
     ''' Table column widget.
 
@@ -637,6 +672,35 @@ class DataTable(TableWidget):
 
     row_height = Int(25, help="""
     The height of each row in pixels.
+    """)
+
+class GroupingInfo(Model):
+    '''Describes how to calculate totals and sub-totals
+    '''
+
+    getter = String('', help="""
+    References the column which generates the unique keys of this sub-total (groupby).
+    """)
+
+    aggregators = List(Instance(RowAggregator), help="""
+    Describes how to aggregate the columns which will populate this sub-total.
+    """)
+
+    collapsed = Bool(False, help="""
+    Whether the corresponding sub-total is expanded or collapsed by default.
+    """)
+
+class DataCube(DataTable):
+    '''Specialized DataTable with collapsing groups, totals, and sub-totals.
+    '''
+
+    grouping = List(Instance(GroupingInfo), help="""
+    Describe what aggregation operations used to define sub-totals and totals
+    """)
+
+    target = Instance(DataSource, help="""
+    Two column datasource (row_indices & labels) describing which rows of the
+    data cubes are expanded or collapsed
     """)
 
 #-----------------------------------------------------------------------------
