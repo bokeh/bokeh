@@ -28,19 +28,30 @@ export class FileInputView extends WidgetView {
 
   load_file(e: any): void {
     const reader = new FileReader()
+    this.model.filename = e.target.files[0].name
     reader.onload = (e) => this.file(e)
     reader.readAsDataURL(e.target.files[0])
   }
 
   file(e: any): void {
-    this.model.file = e.target.result
+    var file = e.target.result
+    var file_arr = file.split(",")
+
+    var content = file_arr[1]
+    var header = file_arr[0].split(":")[1].split(";")[0]
+
+    this.model.value = content
+    this.model.mime_type = header
+
   }
 }
 
 export namespace FileInput {
   export type Attrs = p.AttrsOf<Props>
   export type Props = Widget.Props & {
-    file: p.Property<string>
+    value: p.Property<string>
+    mime_type: p.Property<string>
+    filename: p.Property<string>
     accept: p.Property<string>
   }
 }
@@ -60,8 +71,10 @@ export abstract class FileInput extends Widget {
     this.prototype.default_view = FileInputView
 
     this.define<FileInput.Props>({
-      file:   [ p.String, '' ],
-      accept: [ p.String, '' ],
+      value:     [ p.String, '' ],
+      mime_type: [ p.String, '' ],
+      filename:  [ p.String, '' ],
+      accept:    [ p.String, '' ],
     })
   }
 }
