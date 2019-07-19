@@ -5,7 +5,7 @@ from bokeh.layouts import column
 
 # Set up widgets
 file_input = FileInput(accept=".csv,.json")
-para = Div(text=f"<h1>FileInput Values:</h1><p>filename:<p>b64 value:")
+para = Div(text="<h1>FileInput Values:</h1><p>filename:<p>b64 value:")
 
 # Create CustomJS callback to display file_input attributes on change
 callback = CustomJS(args=dict(para=para, file_input=file_input), code="""
