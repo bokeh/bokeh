@@ -271,7 +271,7 @@ Once Bokeh is installed, check out the [Getting Started](https://bokeh.pydata.or
 
 Documentation
 -------------
-Visit the [Bokeh site](https://bokeh.pydata.org/en/latest) for information and full documentation, or [launch the Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb) to learn about Bokeh in live Jupyter Notebooks.
+Visit the [Bokeh Front Page](https://bokeh.org) for information and [full documentation](https://bokeh.pydata.org), or [launch the Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb) to learn about Bokeh in live Jupyter Notebooks.
 
 Contribute to Bokeh
 -------------------
