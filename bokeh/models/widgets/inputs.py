@@ -87,8 +87,17 @@ class FileInput(Widget):
 
     '''
 
-    file = String(default="", readonly=True, help="""
+    value = String(default="", readonly=True, help="""
     A base64-encoded string of the contents of the selected file.
+    """)
+
+    mime_type = String(default="", readonly=True, help="""
+    The mime type of the selected file.
+    """)
+
+    filename = String(default="", readonly=True, help="""
+    The filename of the selected file.
+    The file path is not included as browsers do not allow access to it.
     """)
 
     accept = String(default="", help="""
