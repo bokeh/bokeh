@@ -1,5 +1,4 @@
-Bokeh
-=====
+<img src="https://static.bokeh.org/logos/logotype.svg" height="50" width="150" />
 
 *Bokeh is a fiscally sponsored project of [NumFOCUS](http://numfocus.org), a nonprofit dedicated to supporting the open-source scientific computing community. If you like Bokeh and would like to support our mission, please consider [making a donation](https://numfocus.salsalabs.org/donate-to-bokeh/index.html).*
 
