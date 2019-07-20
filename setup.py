@@ -127,7 +127,7 @@ setup(
     long_description_content_type="text/markdown",
     license='New BSD',
     author='Bokeh Team',
-    author_email='bryan@bokeh.org',
+    author_email='info@bokeh.org',
     url='http://github.com/bokeh/bokeh',
     classifiers=open("classifiers.txt").read().strip().split('\n'),
 
