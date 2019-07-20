@@ -132,14 +132,20 @@ class TextInput(InputWidget):
     Initial or entered text value.
     """)
 
+    value_input = String(default="", help="""
+    Initial or entered text value that triggers a callback whenever the value changes.
+    """)
+
     callback = Instance(Callback, help="""
     A callback to run in the browser whenever the user unfocuses the
     ``TextInput`` widget by hitting Enter or clicking outside of the text box
     area.
+
+    DEPRECATED: use .js_on_change or .on_change with "value" or "value_input"
     """)
 
     placeholder = String(default="", help="""
-    Placeholder for empty input field
+    Placeholder for empty input field.
     """)
 
 
