@@ -10,15 +10,15 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
+from pathlib import Path
 from os.path import abspath, dirname, join
 
-import bokeh
 from bokeh.settings import bokehjsdir
 
 # Build paths inside the project like this: join(BASE_DIR, ...)
 MODULE_DIR = dirname(abspath(__file__))
 BASE_DIR = dirname(MODULE_DIR)
-
+BASE_PATH = Path(BASE_DIR)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -118,11 +118,5 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [bokehjsdir()]
-
-# Locations of bokeh applications
-BOKEH_APPS_DIRS = [
-    join(dirname(dirname(bokeh.__file__)), "examples", "app"),
-    join(BASE_DIR, "bokeh_apps"),
-]
 
 THEMES_DIR = join(MODULE_DIR, "themes")

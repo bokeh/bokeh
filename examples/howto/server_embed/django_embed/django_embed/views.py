@@ -14,7 +14,15 @@ from bokeh.embed import server_document
 
 from bokeh.sampledata.sea_surface_temperature import sea_surface_temperature
 
-def sea_surface_handler1(doc: Document) -> None:
+from .shape_viewer import shape_viewer
+
+theme = Theme(filename=join(settings.THEMES_DIR, "theme.yaml"))
+
+def shape_viewer_handler(doc: Document) -> None:
+    panel = shape_viewer()
+    panel.server_doc(doc)
+
+def sea_surface_handler(doc: Document) -> None:
     df = sea_surface_temperature.copy()
     source = ColumnDataSource(data=df)
 
@@ -32,20 +40,21 @@ def sea_surface_handler1(doc: Document) -> None:
     slider = Slider(start=0, end=30, value=0, step=1, title="Smoothing by N Days")
     slider.on_change("value", callback)
 
+    doc.theme = theme
     doc.add_root(column(slider, plot))
 
-    doc.theme = Theme(filename=join(settings.THEMES_DIR, "theme.yaml"))
-
-def sea_surface_handler2(doc: Document) -> None:
-    sea_surface_handler1(doc)
+def sea_surface_handler_with_template(doc: Document) -> None:
+    sea_surface_handler(doc)
     doc.template = """
+{% block title %}Embedding a Bokeh Apps In Django{% endblock %}
 {% block preamble %}
 <style>
+.bold { font-weight: bold; }
 </style>
 {% endblock %}
 {% block contents %}
     <div>
-    This Bokeh app below is served by a Django server:
+    This Bokeh app below is served by a <span class="bold">Django</span> server:
     </div>
     {{ super() }}
 {% endblock %}
@@ -53,4 +62,8 @@ def sea_surface_handler2(doc: Document) -> None:
 
 def sea_surface(request: HttpRequest) -> HttpResponse:
     script = server_document(request.build_absolute_uri())
+    return render(request, "embed.html", dict(script=script))
+
+def sea_surface_custom_uri(request: HttpRequest) -> HttpResponse:
+    script = server_document(request._current_scheme_host + "/sea_surface")
     return render(request, "embed.html", dict(script=script))
