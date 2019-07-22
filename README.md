@@ -275,7 +275,7 @@ Visit the [Bokeh Front Page](https://bokeh.org) for information and [full docume
 
 Contribute to Bokeh
 -------------------
-If you would like to contribute to Bokeh, please review the [Developer Guide](https://bokeh.pydata.org/en/latest/docs/dev_guide.html).
+If you would like to contribute to Bokeh, please review the [Developer Guide](https://bokeh.pydata.org/en/latest/docs/dev_guide.html) and say hello on the [`bokeh-dev` chat channel](https://gitter.im/bokeh/bokeh-dev).
 
 Follow us
 ---------
