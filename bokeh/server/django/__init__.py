@@ -10,3 +10,5 @@ import_required("channels", "channels is required by bokeh.server.django")
 
 from .apps import DjangoBokehConfig
 default_app_config = "bokeh.server.django.DjangoBokehConfig"
+
+from .routing import document, autoload, directory
