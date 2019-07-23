@@ -1,3 +1,50 @@
+2019-07-22    1.3.0:
+--------------------
+  * bugfixes:
+    - #8015 [component: bokehjs] [widgets] Bokeh datepicker value format inconsistent
+    - #8403 [component: server] Bokeh charts load very slow with uncaught typeerror: in browser console
+    - #8911 [component: bokehjs] [widgets] Rangeslider stuck when modified by pressing the keyboard arrows
+    - #8915 [component: server] [bug] error in the bokeh --serve documentation
+    - #8921 [component: bokehjs] [widgets] [bug] datatable copy-paste doesn't work with 0s present in a row
+    - #8923 [component: bokehjs] [widgets] [bug] datatable copy-paste doesn't keep the order of rows after sorting
+    - #8934 [component: bokehjs] [widgets] [bug] datepicker displayed value is not updating
+    - #9016 [component: bokehjs] [performance] Inspection indices' filtering is very slow
+    - #9022 [component: bokehjs] [widgets] [bug] "cannot read property 'style' of null" javascript error when moving slider
+    - #9032 [component: bokehjs] [bug] typeerror after replacing tools on a toolbar
+    - #9033 [component: bokehjs] [bug] incompatible definitions of `vbar.width` in bokeh and bokehjs
+    - #9065 [component: docs] [bug] development guide missing `test` argument for conda install and pytest install failure on windows
+    - #9092 [component: server] [bug] double slash before prefix in autoreload.js
+    - #9095 Update docker to work with new conda and bokeh
+  * features:
+    - #6096 [component: bokehjs] [widgets] File open dialog
+    - #8100 [API: models] [widgets] [feature request] option to collapse datatable rows
+    - #8676 [component: bokehjs] Make a bokeh textinput callback responsive as text is typed
+    - #8872 [component: bokehjs] Add hover support for patch, harea, and varea
+    - #8981 [component: bokehjs] [feature] implement hover anchor on more glyphs
+    - #9052 Let source.data accept dataframe
+  * tasks:
+    - #8186 [component: examples] Geojsondatasource not bringing in all attributes
+    - #8919 [component: docs] [component: server] Document signed session usage
+    - #8944 [component: docs] Texturerepetition missing from docs and `all`
+    - #8961 [component: tests] Don't call show in tests
+    - #8987 [component: bokehjs] [component: build] Bump nwmatcher from 1.4.3 to 1.4.4 in /bokehjs
+    - #8994 [component: docs] Docs typo
+    - #8995 [component: docs] Documentation: duplicate $name description
+    - #9039 [component: docs] Fixed analysis
+    - #9044 [component: build] [task] add downstream tests for pandas-bokeh
+    - #9048 [component: build] Upload to s3 cdn in parallel
+    - #9049 [component: docs] [docs] developer notes rendered in live docs
+    - #9050 [component: docs] Typo/misspelling on mapping geo data page[bug]
+    - #9054 [component: build] Fix yamlloadwarning in deps.py
+    - #9060 Color regex needs raw string
+    - #9075 Use sampledata.bokeh.org cdn
+    - #9080 [component: docs] [docs] update links to bokehplots.com, gitter and mailing-list
+    - #9082 [component: build] Exclude landing-2.0 issues from changelog for now
+    - #9099 [component: bokehjs] [widgets] [feature] extend fileinput to return filename and make output clearer
+    - #9102 [component: docs] Docs: update documentation urls in readme
+    - #9103 [component: tests] Update dask test location
+    - #9106 [component: build] [component: docs] Remove dev build installation instructions
+
 2019-05-27    1.2.0:
 --------------------
   * bugfixes:
