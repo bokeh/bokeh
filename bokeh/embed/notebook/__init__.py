@@ -25,12 +25,12 @@ log = logging.getLogger(__name__)
 # External imports
 
 # Bokeh imports
-from ..core.templates import DOC_NB_JS
-from ..core.json_encoder import serialize_json
-from ..model import Model
-from ..util.string import encode_utf8
-from .elements import div_for_render_item
-from .util import FromCurdoc, OutputDocumentFor, standalone_docs_json_and_render_items
+from ...core.templates import DOC_NB_JS
+from ...core.json_encoder import serialize_json
+from ...model import Model
+from ...util.string import encode_utf8
+from ..elements import div_for_render_item
+from ..util import FromCurdoc, OutputDocumentFor, standalone_docs_json_and_render_items
 
 #-----------------------------------------------------------------------------
 # Globals and constants
