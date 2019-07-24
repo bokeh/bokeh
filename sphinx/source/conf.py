@@ -298,43 +298,42 @@ def is_tagged_version():
     print(f'Bokeh tagged version: {tagged}')
     return bool(tagged)
 
-readthedocs_version = os.environ.get('READTHEDOCS_VERSION')
-if is_tagged_version():
-    # Use Bokeh Resources from CDN
-    os.environ['BOKEH_DOCS_CDN'] = readthedocs_version
-else:
-    # Use Bokeh Resources from Read the Docs
-    os.environ['BOKEH_DOCS_CDN'] = f'test:{readthedocs_version}'
-
-bokeh_docs_cdn = os.environ.get('BOKEH_DOCS_CDN')
-print(f'BOKEH_DOCS_CDN: {bokeh_docs_cdn}')
-
-# Set the proper ``BOKEH_DOCS_VERSION`` based on the version being
-# built on Read the Docs
-os.environ['BOKEH_DOCS_VERSION'] = readthedocs_version
-print(f'BOKEH_DOCS_VERSION: {readthedocs_version}')
-
-build_js = os.environ.get('BOKEH_BUILD_JS')
-print(f'BOKEH_BUILD_JS: {build_js}')
-
 if os.environ.get('READTHEDOCS') == 'True':
+    readthedocs_version = os.environ.get('READTHEDOCS_VERSION')
+    if is_tagged_version():
+        # Use Bokeh Resources from CDN
+        os.environ['BOKEH_DOCS_CDN'] = readthedocs_version
+    else:
+        # Use Bokeh Resources from Read the Docs
+        os.environ['BOKEH_DOCS_CDN'] = f'test:{readthedocs_version}'
+
+    bokeh_docs_cdn = os.environ.get('BOKEH_DOCS_CDN')
+    print(f'BOKEH_DOCS_CDN: {bokeh_docs_cdn}')
+
+    # Set the proper ``BOKEH_DOCS_VERSION`` based on the version being
+    # built on Read the Docs
+    os.environ['BOKEH_DOCS_VERSION'] = readthedocs_version
+    print(f'BOKEH_DOCS_VERSION: {readthedocs_version}')
+
+    build_js = os.environ.get('BOKEH_BUILD_JS')
+    print(f'BOKEH_BUILD_JS: {build_js}')
+
     # Download all the sample data to plot
     import bokeh
     bokeh.sampledata.download(progress=False)
 
-# Create the proper structure to serve CSS and JS files compiled by
-# Bokeh. We can't use ``html_static_path`` here because the URLs are
-# hardcoded to ``static/js`` instead of ``_static/js``, etc
-os.system('mkdir -p bokehJSbuildstatic')
-os.system('cd bokehJSbuildstatic; ln -s ../../../bokehjs/build static')
+    # Create the proper structure to serve CSS and JS files compiled by
+    # Bokeh. We can't use ``html_static_path`` here because the URLs are
+    # hardcoded to ``static/js`` instead of ``_static/js``, etc
+    os.system('mkdir -p bokehJSbuildstatic')
+    os.system('cd bokehJSbuildstatic; ln -s ../../../bokehjs/build static')
 
-html_extra_path = [
-    'version.txt',
-    'bokehJSbuildstatic',
-]
+    html_extra_path = [
+        'bokehJSbuildstatic',
+    ]
 
-# Ignore Google API key
-bokeh_missing_google_api_key_ok=True
+    # Ignore Google API key
+    bokeh_missing_google_api_key_ok=True
 
-# To deal with ``/scripts/`` URLs
-bokeh_plot_use_relative_paths = True
+    # To deal with ``/scripts/`` URLs
+    bokeh_plot_use_relative_paths = True
