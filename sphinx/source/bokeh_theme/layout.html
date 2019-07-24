@@ -55,6 +55,8 @@
 {%- endmacro %}
 
 {%- block scripts %}
+  {{- script() }}
+
   <script src="{{ pathto('_static/' + theme_js, 1) }}"></script>
 {%- endblock %}
 
