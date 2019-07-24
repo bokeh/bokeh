@@ -252,7 +252,7 @@ def jsbuild_prompt():
     print(BOKEHJS_BUILD_PROMPT)
     mapping = {"1": True, "2": False}
     # Use an environment variable to avoid prompting to the user
-    value = os.environ.get('BOKEH_BUILD_JS', False) or input("Choice? ")
+    value = os.environ.get("BOKEH_BUILD_JS", "2") or input("Choice? ")
     while value not in mapping:
         print("Input '%s' not understood. Valid choices: 1, 2\n" % value)
         value = input("Choice? ")
