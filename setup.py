@@ -81,8 +81,8 @@ if os.environ.get('READTHEDOCS') == 'True':
     os.environ['PATH'] = '/home/docs/node_modules/.bin/:{}'.format(os.environ.get('PATH'))
     print('PATH: {}'.format(os.environ.get('PATH')))
 
-# Tell Bokeh install script to always build the Javascript files
-os.environ['BOKEH_BUILD_JS'] = '1'
+    # Tell Bokeh install script to always build the Javascript files
+    os.environ['BOKEH_BUILD_JS'] = '1'
 
 # immediately bail for ancient pythons
 if sys.version_info[:2] < (2, 7):
