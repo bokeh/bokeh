@@ -55,12 +55,6 @@
 {%- endmacro %}
 
 {%- block scripts %}
-  <script type="text/javascript">
-   var _BOKEH_CURRENT_VERSION = "{{ VERSION }}";
-  </script>
-
-  {{- script() }}
-
   <script src="{{ pathto('_static/' + theme_js, 1) }}"></script>
 {%- endblock %}
 
