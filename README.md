@@ -1,7 +1,8 @@
-Bokeh
-=====
+<a href="https://bokeh.org">
+  <img src="https://static.bokeh.org/logos/logotype.svg" height="60" width="150" alt="Bokeh logotype" />
+</a>
 
-*Bokeh is a fiscally sponsored project of [NumFOCUS](http://numfocus.org), a nonprofit dedicated to supporting the open-source scientific computing community. If you like Bokeh and would like to support our mission, please consider [making a donation](https://numfocus.salsalabs.org/donate-to-bokeh/index.html).*
+*Bokeh is a fiscally sponsored project of [NumFOCUS](https://numfocus.org), a nonprofit dedicated to supporting the open-source scientific computing community. If you like Bokeh and would like to support our mission, please consider [making a donation](https://numfocus.salsalabs.org/donate-to-bokeh/index.html).*
 
 <table>
 
@@ -270,11 +271,11 @@ Once Bokeh is installed, check out the [Getting Started](https://bokeh.pydata.or
 
 Documentation
 -------------
-Visit the [Bokeh site](https://bokeh.pydata.org/en/latest) for information and full documentation, or [launch the Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb) to learn about Bokeh in live Jupyter Notebooks.
+Visit the [Bokeh Front Page](https://bokeh.org) for information and [full documentation](https://bokeh.pydata.org), or [launch the Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb) to learn about Bokeh in live Jupyter Notebooks.
 
 Contribute to Bokeh
 -------------------
-If you would like to contribute to Bokeh, please review the [Developer Guide](https://bokeh.pydata.org/en/latest/docs/dev_guide.html).
+If you would like to contribute to Bokeh, please review the [Developer Guide](https://bokeh.pydata.org/en/latest/docs/dev_guide.html) and say hello on the [`bokeh-dev` chat channel](https://gitter.im/bokeh/bokeh-dev).
 
 Follow us
 ---------

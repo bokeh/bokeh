@@ -1,29 +1,14 @@
 import {CellFormatter, StringFormatter} from "./cell_formatters"
 import {CellEditor, StringEditor} from "./cell_editors"
-import {Class} from "core/class"
+
 import * as p from "core/properties"
+import {Column} from "slickgrid"
 import {uniqueId} from "core/util/string"
 import {Sort} from "core/enums"
-import {View} from "core/view"
 import {Model} from "../../../model"
 
-export type Column = {
-  id: string
-  field: string
-  name: string
-  width?: number
-  formatter?: (...args: any[]) => HTMLElement
-  model?: CellEditor
-  editor?: Class<View>
-  sortable?: boolean
-  resizable?: boolean
-  selectable?: boolean
-  defaultSortAsc?: boolean
-  behavior?: "select" | "selectAndMove"
-  cannotTriggerInsert?: boolean
-  cssClass?: string
-  headerCssClass?: string
-}
+export type Item = {[key: string]: any}
+export type ColumnType = Column<Item> & {model?: CellEditor}
 
 export namespace TableColumn {
   export type Attrs = p.AttrsOf<Props>
@@ -60,7 +45,7 @@ export class TableColumn extends Model {
     })
   }
 
-  toColumn(): Column {
+  toColumn(): ColumnType {
     return {
       id: uniqueId(),
       field: this.field,

@@ -14,6 +14,7 @@ export class TextInputView extends InputWidgetView {
     super.connect_signals()
     this.connect(this.model.properties.name.change, () => this.input_el.name = this.model.name || "")
     this.connect(this.model.properties.value.change, () => this.input_el.value = this.model.value)
+    this.connect(this.model.properties.value_input.change, () => this.input_el.value = this.model.value_input)
     this.connect(this.model.properties.disabled.change, () => this.input_el.disabled = this.model.disabled)
     this.connect(this.model.properties.placeholder.change, () => this.input_el.placeholder = this.model.placeholder)
   }
@@ -30,11 +31,17 @@ export class TextInputView extends InputWidgetView {
       placeholder: this.model.placeholder,
     })
     this.input_el.addEventListener("change", () => this.change_input())
+    this.input_el.addEventListener("input",  () => this.change_input_oninput())
     this.group_el.appendChild(this.input_el)
   }
 
   change_input(): void {
     this.model.value = this.input_el.value
+    super.change_input()
+  }
+
+  change_input_oninput(): void {
+    this.model.value_input = this.input_el.value
     super.change_input()
   }
 }
@@ -44,6 +51,7 @@ export namespace TextInput {
 
   export type Props = InputWidget.Props & {
     value: p.Property<string>
+    value_input: p.Property<string>
     placeholder: p.Property<string>
   }
 }
@@ -62,6 +70,7 @@ export class TextInput extends InputWidget {
 
     this.define<TextInput.Props>({
       value:       [ p.String, "" ],
+      value_input: [ p.String, "" ],
       placeholder: [ p.String, "" ],
     })
   }

@@ -1,13 +1,10 @@
 import * as p from "core/properties"
 import {Location} from "core/enums"
-import {logger} from "core/logging"
-import {isString} from "core/util/types"
-import {some, includes, sort_by} from "core/util/array"
+import {includes, sort_by} from "core/util/array"
 
 import {Tool} from "./tool"
 import {ButtonTool} from "./button_tool"
 import {ActionTool} from "./actions/action_tool"
-import {HelpTool} from "./actions/help_tool"
 import {GestureTool} from "./gestures/gesture_tool"
 import {InspectTool} from "./inspectors/inspect_tool"
 import {ToolbarBase, GestureType} from "./toolbar_base"
@@ -35,46 +32,7 @@ export class ProxyToolbar extends ToolbarBase {
 
   initialize(): void {
     super.initialize()
-    this._init_tools()
     this._merge_tools()
-  }
-
-  protected _init_tools(): void {
-    for (const tool of this.tools) {
-      if (tool instanceof InspectTool) {
-        if (!some(this.inspectors, (t) => t.id == tool.id))
-          this.inspectors = this.inspectors.concat([tool])
-      } else if (tool instanceof HelpTool) {
-        if (!some(this.help, (t) => t.id == tool.id))
-          this.help = this.help.concat([tool])
-      } else if (tool instanceof ActionTool) {
-        if (!some(this.actions, (t) => t.id == tool.id))
-          this.actions = this.actions.concat([tool])
-      } else if (tool instanceof GestureTool) {
-        let event_types: GestureType[]
-        let multi: boolean
-        if (isString(tool.event_type)) {
-          event_types = [tool.event_type]
-          multi = false
-        } else {
-          event_types = tool.event_type || []
-          multi = true
-        }
-
-        for (let et of event_types) {
-          if (!(et in this.gestures)) {
-            logger.warn(`Toolbar: unknown event type '${et}' for tool: ${tool.type} (${tool.id})`)
-            continue
-          }
-
-          if (multi)
-            et = "multi"
-
-          if (!some(this.gestures[et].tools, (t) => t.id == tool.id))
-            this.gestures[et].tools = this.gestures[et].tools.concat([tool])
-        }
-      }
-    }
   }
 
   protected _merge_tools(): void {

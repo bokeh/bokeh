@@ -43,4 +43,4 @@ of Bokeh is outlined in `Bokeh Enhancement Proposal 2`_.
 
 .. _Bokeh Enhancement Proposal 1: https://github.com/bokeh/bokeh/wiki/BEP-1:-Issues-and-PRs-management
 .. _Bokeh Enhancement Proposal 2: https://github.com/bokeh/bokeh/wiki/BEP-2:-Release-Management
-.. _contact the developers: https://bokehplots.com/pages/contact.html
+.. _contact the developers: https://bokeh.org

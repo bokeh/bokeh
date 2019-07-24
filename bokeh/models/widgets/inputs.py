@@ -87,8 +87,17 @@ class FileInput(Widget):
 
     '''
 
-    file = String(default="", readonly=True, help="""
+    value = String(default="", readonly=True, help="""
     A base64-encoded string of the contents of the selected file.
+    """)
+
+    mime_type = String(default="", readonly=True, help="""
+    The mime type of the selected file.
+    """)
+
+    filename = String(default="", readonly=True, help="""
+    The filename of the selected file.
+    The file path is not included as browsers do not allow access to it.
     """)
 
     accept = String(default="", help="""
@@ -123,14 +132,20 @@ class TextInput(InputWidget):
     Initial or entered text value.
     """)
 
+    value_input = String(default="", help="""
+    Initial or entered text value that triggers a callback whenever the value changes.
+    """)
+
     callback = Instance(Callback, help="""
     A callback to run in the browser whenever the user unfocuses the
     ``TextInput`` widget by hitting Enter or clicking outside of the text box
     area.
+
+    DEPRECATED: use .js_on_change or .on_change with "value" or "value_input"
     """)
 
     placeholder = String(default="", help="""
-    Placeholder for empty input field
+    Placeholder for empty input field.
     """)
 
 

@@ -97,4 +97,4 @@ values of attributes is to use bokehjs' properties system. This change affects
 only creators of custom extensions.
 
 .. _GeoViews: http://geo.holoviews.org
-.. _project roadmap: https://bokehplots.com/pages/roadmap.html
+.. _project roadmap: https://bokeh.org/roadmap
