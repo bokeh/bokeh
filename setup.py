@@ -74,7 +74,7 @@ from _setup_support import (
 )
 
 if os.environ.get('READTHEDOCS') == 'True':
-    from _setup_helpers import upgrade_npm, set_env_to_build_bokehjs
+    from _setup_support import upgrade_npm, set_env_to_build_bokehjs
     upgrade_npm()
     set_env_to_build_bokehjs()
 
