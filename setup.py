@@ -61,6 +61,7 @@ an sdist. They will be ignored, and warning printed.
 '''
 from os.path import join
 from shutil import copy
+import os
 import sys
 
 from setuptools import find_packages, setup
@@ -72,17 +73,10 @@ from _setup_support import (
     show_help
 )
 
-
-import os
 if os.environ.get('READTHEDOCS') == 'True':
-    # Workaround to upgrade ``npm`` since Read the Docs build environment have
-    # ``3.5.2`` and we need at least ``npm>=6.0``
-    os.system('cd ~ ; mkdir bin ; npm install npm')
-    os.environ['PATH'] = '/home/docs/node_modules/.bin/:{}'.format(os.environ.get('PATH'))
-    print('PATH: {}'.format(os.environ.get('PATH')))
-
-    # Tell Bokeh install script to always build the Javascript files
-    os.environ['BOKEH_BUILD_JS'] = '1'
+    from _setup_helpers import upgrade_npm, set_env_to_build_bokehjs
+    upgrade_npm()
+    set_env_to_build_bokehjs()
 
 # immediately bail for ancient pythons
 if sys.version_info[:2] < (2, 7):
