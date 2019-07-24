@@ -289,13 +289,13 @@ def _get_current_commit():
 
 def is_tagged_version():
     commit = _get_current_commit()
-    print(f'Bokeh commit: {commit}')
+    print('Bokeh commit: {commit}'.format(commit=commit))
     result = subprocess.run(
         ['git', 'tag', '--points-at', commit],
         stdout=subprocess.PIPE,
     )
     tagged = result.stdout.decode('utf8').strip()
-    print(f'Bokeh tagged version: {tagged}')
+    print('Bokeh tagged version: {tagged}'.format(tagged=tagged))
     return bool(tagged)
 
 if os.environ.get('READTHEDOCS') == 'True':
@@ -305,18 +305,24 @@ if os.environ.get('READTHEDOCS') == 'True':
         os.environ['BOKEH_DOCS_CDN'] = readthedocs_version
     else:
         # Use Bokeh Resources from Read the Docs
-        os.environ['BOKEH_DOCS_CDN'] = f'test:{readthedocs_version}'
+        os.environ['BOKEH_DOCS_CDN'] = 'test:{readthedocs_version}'.format(
+            readthedocs_version=readthedocs_version,
+        )
 
     bokeh_docs_cdn = os.environ.get('BOKEH_DOCS_CDN')
-    print(f'BOKEH_DOCS_CDN: {bokeh_docs_cdn}')
+    print('BOKEH_DOCS_CDN: {bokeh_docs_cdn}'.format(
+        bokeh_docs_cdn=bokeh_docs_cdn,
+    ))
 
     # Set the proper ``BOKEH_DOCS_VERSION`` based on the version being
     # built on Read the Docs
     os.environ['BOKEH_DOCS_VERSION'] = readthedocs_version
-    print(f'BOKEH_DOCS_VERSION: {readthedocs_version}')
+    print('BOKEH_DOCS_VERSION: {readthedocs_version}'.format(
+        readthedocs_version=readthedocs_version,
+    ))
 
     build_js = os.environ.get('BOKEH_BUILD_JS')
-    print(f'BOKEH_BUILD_JS: {build_js}')
+    print('BOKEH_BUILD_JS: {build_js}'.format(build_js=build_js))
 
     # Download all the sample data to plot
     import bokeh
