@@ -189,7 +189,7 @@ class AutocompleteInput(TextInput):
     """)
 
     min_characters = PositiveInt(default=2, help="""
-
+    The number of characters a user must type before completions are presented.
     """)
 
 
