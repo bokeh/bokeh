@@ -270,9 +270,11 @@ def check_cdn_buckets():
         abort_checks()
 
     buckets = []
-    for bucket_name in ['cdn.bokeh.org', 'cdn-backup.bokeh.org']:
+    for bucket_name, bucket_region in [('cdn.bokeh.org', 'us-east-1'), ('cdn-backup.bokeh.org', 'us-west-2')]:
         try:
-            conn = boto.connect_s3(AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY,
+            conn = boto.connect_s3(bucket_region,
+                                   aws_access_key_id=AWS_ACCESS_KEY_ID,
+                                   aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
                                    calling_format=boto.s3.connection.OrdinaryCallingFormat())
             buckets.append(conn.get_bucket(bucket_name))
         except:
