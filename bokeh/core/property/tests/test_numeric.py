@@ -38,6 +38,7 @@ ALL = (
     'Interval',
     'NonNegativeInt',
     'Percent',
+    'PositiveInt',
     'Size',
 )
 
@@ -233,6 +234,89 @@ class Test_Percent(object):
     def test_str(self):
         prop = bcpn.Percent()
         assert str(prop) == "Percent"
+
+class Test_NonNegativeInt(object):
+
+    def test_valid(self):
+        prop = bcpn.NonNegativeInt()
+
+        assert prop.is_valid(None)
+
+        # TODO (bev) should fail
+        assert prop.is_valid(False)
+        assert prop.is_valid(True)
+
+        assert prop.is_valid(0)
+        assert prop.is_valid(1)
+        assert prop.is_valid(2)
+        assert prop.is_valid(100)
+
+    def test_invalid(self):
+        prop = bcpn.NonNegativeInt()
+
+        assert not prop.is_valid(-1)
+        assert not prop.is_valid(0.0)
+        assert not prop.is_valid(1.0)
+        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid("")
+        assert not prop.is_valid(())
+        assert not prop.is_valid([])
+        assert not prop.is_valid({})
+        assert not prop.is_valid(_TestHasProps())
+        assert not prop.is_valid(_TestModel())
+
+        assert not prop.is_valid(-100)
+        assert not prop.is_valid(-0.001)
+
+    def test_has_ref(self):
+        prop = bcpn.NonNegativeInt()
+        assert not prop.has_ref
+
+    def test_str(self):
+        prop = bcpn.NonNegativeInt()
+        assert str(prop) == "NonNegativeInt"
+
+class Test_PositiveInt(object):
+
+    def test_valid(self):
+        prop = bcpn.PositiveInt()
+
+        assert prop.is_valid(None)
+
+        # TODO (bev) should fail
+        assert prop.is_valid(True)
+
+        assert prop.is_valid(1)
+        assert prop.is_valid(2)
+        assert prop.is_valid(100)
+
+    def test_invalid(self):
+        prop = bcpn.PositiveInt()
+
+        assert not prop.is_valid(False)
+
+        assert not prop.is_valid(-1)
+        assert not prop.is_valid(0)
+        assert not prop.is_valid(0.0)
+        assert not prop.is_valid(1.0)
+        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid("")
+        assert not prop.is_valid(())
+        assert not prop.is_valid([])
+        assert not prop.is_valid({})
+        assert not prop.is_valid(_TestHasProps())
+        assert not prop.is_valid(_TestModel())
+
+        assert not prop.is_valid(-100)
+        assert not prop.is_valid(-0.001)
+
+    def test_has_ref(self):
+        prop = bcpn.PositiveInt()
+        assert not prop.has_ref
+
+    def test_str(self):
+        prop = bcpn.PositiveInt()
+        assert str(prop) == "PositiveInt"
 
 #-----------------------------------------------------------------------------
 # Dev API

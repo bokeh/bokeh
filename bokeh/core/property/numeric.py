@@ -38,6 +38,7 @@ __all__ = (
     'Interval',
     'NonNegativeInt',
     'Percent',
+    'PositiveInt',
     'Size',
 )
 
@@ -53,6 +54,16 @@ class NonNegativeInt(Int):
 
         if not (value is None or value >= 0):
             raise ValueError("expected non-negative integer, got %r" % (value))
+
+class PositiveInt(Int):
+    """ Accept positive integers. """
+
+    def validate(self, value, detail=True):
+        super(PositiveInt, self).validate(value, detail)
+
+        if not (value is None or value > 0):
+            raise ValueError("expected positive integer, got %r" % (value))
+
 
 class Interval(ParameterizedProperty):
     ''' Accept numeric values that are contained within a given interval.
