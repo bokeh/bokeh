@@ -19,12 +19,10 @@ extra:
 
 requirements:
   build:
-    - certifi
     - jinja2
     - nodejs >=8.8
     - numpy
     - packaging
-    - pycurl
     - python
     - python-dateutil
     - pyyaml
