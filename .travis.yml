@@ -27,12 +27,6 @@ env:
     # GOOGLE_API_KEY
     - secure: MAaYB6RV2a9tZ61Olatv52Yi4EqEh+wMkX6y20Ja1yyY3I+2sFT1NZ8ZwPFCKkDdMeSna7z4ROKk3CDMK0JkbUJrqnZgo6Fy7w6GZPcZlzUPrgH04Or0v94upMh2i0lh8wcz88VuR0i+GxnqUsP18W5AJfO/FXmU4VgDAOJfKrQ=
 
-    # RSUSER
-    - secure: pham9rB+qKZJYVBgXzg7I0rYbAo+A3dFbh4+L3rAuJtSQ7BJfYHwD3GIBFT/RAXIkjbEIPxFYygq+em7A9UdLQpcCgFcmrCWeVxCChCJ3lZBReb47i/vUuKgJT5d19vqpgGtQAxgd1gSBl4k6SwkpxWIpqtimVWq1F1JqU3U+6s=
-
-    # RSAPIKEY
-    - secure: Lv0s3lMsex6jASQ2/9StOV3MQVtkisIcf/Qk/or9wJqpuGWoMQUCaXkhC+8onYeOaFtznvf60nV4zEUYIWXYWEtUUmI4BjmlLvb+lhOVErqdJ+ihMH1yASHm1v7+9MjNnMGRxtAg0cTtJFbmXWHtYDMylNZ1E7X+ORpXyqer3n4=
-
     # ANACONDA_TOKEN (expires 10/19)
     - secure: Nshpds3OtTE+RtCes7PNRofBmuCsgblDRYgoqweiI9EEaHypwyATU55XrNxAf1ew5R6gixbod8QohCZ7yzysaCPO0+b2zJmj7gkP+r4RXcsqM5MJr8GnXSAFWQCTgZy4imL/pB7/7FprAmnnJhGxj2CxDnLvc3kPf4Nsu4Ihwt8=
 
