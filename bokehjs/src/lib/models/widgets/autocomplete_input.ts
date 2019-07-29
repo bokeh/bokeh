@@ -127,14 +127,14 @@ export class AutocompleteInputView extends TextInputView {
       default: {
         const value = this.input_el.value
 
-        if (value.length <= 1) {
+        if (value.length < this.model.min_characters) {
           this._hide_menu()
           return
         }
 
         const completions: string[] = []
         for (const text of this.model.completions) {
-          if (text.indexOf(value) != -1)
+          if (text.startsWith(value))
             completions.push(text)
         }
 
@@ -154,6 +154,7 @@ export namespace AutocompleteInput {
 
   export type Props = TextInput.Props & {
     completions: p.Property<string[]>
+    min_characters: p.Property<number>
   }
 }
 
@@ -170,7 +171,8 @@ export class AutocompleteInput extends TextInput {
     this.prototype.default_view = AutocompleteInputView
 
     this.define<AutocompleteInput.Props>({
-      completions: [ p.Array, [] ],
+      completions:    [ p.Array, [] ],
+      min_characters: [ p.Int,   2  ],
     })
   }
 }

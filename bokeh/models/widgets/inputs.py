@@ -26,7 +26,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import Date, Either, Float, Instance, Int, List, String, Tuple, Dict, ColorHex
+from ...core.properties import ColorHex, Date, Dict, Either, Float, Instance, Int, List, PositiveInt, String, Tuple
 
 from ..callbacks import Callback
 
@@ -186,6 +186,10 @@ class AutocompleteInput(TextInput):
     completions = List(String, help="""
     A list of completion strings. This will be used to guide the
     user upon typing the beginning of a desired value.
+    """)
+
+    min_characters = PositiveInt(default=2, help="""
+    The number of characters a user must type before completions are presented.
     """)
 
 
