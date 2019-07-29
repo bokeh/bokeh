@@ -54,7 +54,7 @@ class Test_NotebookHandler(object):
 
     # Public methods ----------------------------------------------------------
 
-    def test_runner_strips_line_magics(self):
+    def test_runner_strips_line_magics(self, ipython):
         doc = Document()
         source = nbformat.v4.new_notebook()
         source.cells.append(nbformat.v4.new_code_cell('%time'))

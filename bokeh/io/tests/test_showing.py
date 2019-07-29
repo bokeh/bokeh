@@ -63,7 +63,7 @@ def test_show_with_explicit_args(mock__show_with_state):
     assert curdoc().roots == []
 
 @patch('bokeh.io.showing.run_notebook_hook')
-def test_show_with_app(mock_run_notebook_hook):
+def test_show_with_app(mock_run_notebook_hook, ipython):
     curstate().reset()
     app = Application()
     output_notebook()
