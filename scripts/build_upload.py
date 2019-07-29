@@ -280,6 +280,7 @@ def check_cdn_buckets():
         except:
             failed("Could NOT connect to CDN bucket %r" % bucket_name)
             abort_checks()
+    return buckets
 
 #--------------------------------------
 #
