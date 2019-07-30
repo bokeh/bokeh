@@ -80,9 +80,6 @@ def test_get_screenshot_as_png_with_glyph():
     png = bie.get_screenshot_as_png(layout)
     assert png.size == (20, 20)
 
-    # a 20x20px image of red pixels
-    #assert png.tobytes() == (b"\xff\x00\x00\xff"*400)
-
     # count 256 red pixels in center area (400 - 20*4 - 16*4)
     data = png.tobytes()
     count = 0
