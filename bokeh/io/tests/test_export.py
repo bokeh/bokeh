@@ -27,7 +27,7 @@ from PIL import Image
 # Bokeh imports
 from bokeh.layouts import row
 from bokeh.models.plots import Plot
-from bokeh.models.ranges import Range1d
+from bokeh.models import ColumnDataSource, Range1d, Rect
 from bokeh.io.webdriver import webdriver_control, terminate_webdriver
 from bokeh.plotting import figure
 from bokeh.resources import Resources
@@ -64,7 +64,31 @@ def test_get_screenshot_as_png():
     png = bie.get_screenshot_as_png(layout)
     assert png.size == (20, 20)
     # a 20x20px image of transparent pixels
-    assert png.tobytes() == ("\x00"*1600).encode()
+    assert png.tobytes() == (b"\x00"*1600)
+
+@pytest.mark.unit
+@pytest.mark.selenium
+def test_get_screenshot_as_png_with_glyph():
+    layout = Plot(x_range=Range1d(0, 1), y_range=Range1d(0, 1),
+                  plot_height=20, plot_width=20, toolbar_location=None,
+                  outline_line_color=None, background_fill_color=None, min_border=2,
+                  border_fill_color="blue", border_fill_alpha=1)
+    glyph = Rect(x="x", y="y", width=2, height=2, fill_color="red", line_color="red")
+    source = ColumnDataSource(data=dict(x=[0.5], y=[0.5]))
+    layout.add_glyph(source, glyph)
+
+    png = bie.get_screenshot_as_png(layout)
+    assert png.size == (20, 20)
+
+    # count 256 red pixels in center area (400 - 20*4 - 16*4)
+    data = png.tobytes()
+    count = 0
+    for x in range(400):
+        if data[x*4:x*4+4] == b"\xff\x00\x00\xff":
+            count += 1
+    assert count == 256
+
+    assert len(data) == 1600
 
 @pytest.mark.unit
 @pytest.mark.selenium
