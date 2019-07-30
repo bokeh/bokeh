@@ -42,11 +42,11 @@ used in docstrings.
 
 The ``bokeh-plot`` directive accepts the following options:
 
-source-position: enum('above', 'below', 'none')
+source-position (enum('above', 'below', 'none')):
     Where to locate the the block of formatted source
     code (if anywhere).
 
-linenos: bool
+linenos (bool):
     Whether to display line numbers along with the source.
 
 Examples

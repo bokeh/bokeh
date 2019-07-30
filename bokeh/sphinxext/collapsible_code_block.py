@@ -20,9 +20,11 @@ This directive takes a heading to use for the collapsible code block:
 This directive is identical to the standard ``code-block`` directive
 that Sphinx supplies, with the addition of one new option:
 
-heading: string
+heading (string):
     A heading to put for the collapsible block. Clicking the heading
-    expands or collapses the block
+    expands or collapses the block.
+
+
 
 Examples
 --------
