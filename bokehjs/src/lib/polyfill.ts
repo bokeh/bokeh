@@ -1,12 +1,8 @@
 declare function require(moduleName: string): any
 
-if (typeof Map === "undefined") {
-  require("es6-map/implement")
-}
-
-if (typeof WeakMap === "undefined") {
-  require("es6-weak-map/implement")
-}
+require("es6-set/implement")
+require("es6-map/implement")
+require("es6-weak-map/implement")
 
 if (typeof Promise === "undefined") {
   require("es6-promise").polyfill()

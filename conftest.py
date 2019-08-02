@@ -1,5 +1,6 @@
 pytest_plugins = (
     "bokeh._testing.plugins.implicit_mark",
+    "bokeh._testing.plugins.ipython",
     "bokeh._testing.plugins.pandas",
 )
 

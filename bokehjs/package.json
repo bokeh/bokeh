@@ -1,6 +1,6 @@
 {
   "name": "bokehjs",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Interactive, novel data visualization",
   "keywords": [
     "bokeh",
@@ -73,6 +73,7 @@
     "es6-promise": "4.2.6",
     "es6-weak-map": "^2.0.2",
     "es6-map": "^0.1.5",
+    "es6-set": "^0.1.5",
     "flatbush": "^3.1.1",
     "gloo2": "https://github.com/bokeh/gloo2.git#b41bd5d",
     "hammerjs": "^2.0.4",
