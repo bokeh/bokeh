@@ -43,7 +43,13 @@ def sea_surface_handler(doc: Document) -> None:
     doc.theme = theme
     doc.add_root(column(slider, plot))
 
-def sea_surface_handler_with_template(doc: Document) -> None:
+def with_request(f):
+    def wrapper(doc):
+        return f(doc, doc.session_context.request)
+    return wrapper
+
+@with_request
+def sea_surface_handler_with_template(doc: Document, request: Any) -> None:
     sea_surface_handler(doc)
     doc.template = """
 {% block title %}Embedding a Bokeh Apps In Django{% endblock %}
@@ -54,11 +60,12 @@ def sea_surface_handler_with_template(doc: Document) -> None:
 {% endblock %}
 {% block contents %}
     <div>
-    This Bokeh app below is served by a <span class="bold">Django</span> server:
+    This Bokeh app below is served by a <span class="bold">Django</span> server for {{ username }}:
     </div>
     {{ super() }}
 {% endblock %}
     """
+    doc.template_variables["username"] = request.user
 
 def sea_surface(request: HttpRequest) -> HttpResponse:
     script = server_document(request.build_absolute_uri())

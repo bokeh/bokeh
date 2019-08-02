@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import json
 import asyncio
-from typing import Optional, List, Set, Dict, NamedTuple, Any
+from typing import Optional, List, Set, Dict, Any
 from urllib.parse import urljoin, urlparse, parse_qs
 
 # External imports
@@ -62,11 +62,15 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-Request = NamedTuple("Request", [("arguments", Dict[str, str])])
-
 class ConsumerHelper(AsyncConsumer):
 
     _prefix = "/"
+
+    @property
+    def request(self) -> "AttrDict":
+        request = AttrDict(self.scope)
+        request["arguments"] = self.arguments
+        return request
 
     @property
     def arguments(self) -> Dict[str, str]:
@@ -96,7 +100,7 @@ class SessionConsumer(AsyncHttpConsumer, ConsumerHelper):
 
     async def _get_session(self) -> ServerSession:
         session_id = generate_session_id(secret_key=None, signed=False)
-        session = await self.application_context.create_session_if_needed(session_id, Request(self.arguments))
+        session = await self.application_context.create_session_if_needed(session_id, self.request)
         return session
 
 class AutoloadJsConsumer(SessionConsumer):
@@ -221,7 +225,7 @@ class WSConsumer(AsyncWebsocketConsumer, ConsumerHelper):
 
     async def _async_open(self, session_id: str, proto_version: str) -> None:
         try:
-            await self.application_context.create_session_if_needed(session_id, Request(self.arguments))
+            await self.application_context.create_session_if_needed(session_id, self.request)
             session = self.application_context.get_session(session_id)
 
             protocol = Protocol(proto_version)
@@ -288,6 +292,14 @@ class AsyncServerConnection(ServerConnection):
         """ Sends a PATCH-DOC message, returning a Future that's completed when it's written out. """
         msg = self.protocol.create('PATCH-DOC', [event])
         await self._socket._send_bokeh_message(msg)
+
+class AttrDict(dict):
+    """ Provide a dict subclass that supports access by named attributes.
+
+    """
+
+    def __getattr__(self, key):
+        return self[key]
 
 #-----------------------------------------------------------------------------
 # Code

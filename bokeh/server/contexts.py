@@ -302,13 +302,23 @@ class ApplicationContext(object):
 
 class _RequestProxy(object):
     def __init__(self, request):
-        args_copy = dict(request.arguments)
-        if 'bokeh-protocol-version' in args_copy: del args_copy['bokeh-protocol-version']
-        if 'bokeh-session-id' in args_copy: del args_copy['bokeh-session-id']
-        self._args = args_copy
+        self._request = request
+
+        arguments = dict(request.arguments)
+        if 'bokeh-protocol-version' in arguments: del arguments['bokeh-protocol-version']
+        if 'bokeh-session-id' in arguments: del arguments['bokeh-session-id']
+        self._arguments = arguments
+
     @property
     def arguments(self):
-        return self._args
+        return self._arguments
+
+    def __getattr__(self, name):
+        if not name.startswith("_"):
+            val = getattr(self._request, name, None)
+            if val is not None:
+                return val
+        return super.__getattr__(name)
 
 #-----------------------------------------------------------------------------
 # Code
