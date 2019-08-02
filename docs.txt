@@ -1,0 +1,16 @@
+colorcet
+jinja2
+networkx
+numpy
+packaging
+pandas
+pillow
+pscript
+python-dateutil
+pyyaml
+scipy
+setuptools
+six
+tornado
+
+sphinx>1.8
