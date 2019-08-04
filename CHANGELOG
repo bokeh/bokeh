@@ -1,3 +1,12 @@
+2019-08-04    1.3.2:
+--------------------
+  * bugfixes:
+    - #9142 [component: build] Compute runtime deps correctly
+  * tasks:
+    - #9101 [component: docs] [bug] wrong option names in sphinxext documentation
+    - #9118 [component: build] Use pypi token to upload releases
+    - #9120 [component: bokehjs] [component: build] Use npm token to publish
+
 2019-07-29    1.3.1:
 --------------------
   * bugfixes:
