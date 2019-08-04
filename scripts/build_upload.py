@@ -374,9 +374,10 @@ def upload_anaconda(token, dev):
 
 @upload_wrapper('pypi')
 def upload_pypi(token):
-    cmd = "twine upload -u @token -p %s dist/bokeh-%s.tar.gz"
-    version = CONFIG.version
-    run(cmd % (token, version), fake_cmd=cmd % ("<hidden>", version))
+    cmd = "twine upload -u @token -p %s %s"
+    files = glob.glob("dist/bokeh*.tar.gz")
+    for file in files:
+        run(cmd % (token, file), fake_cmd=cmd % ("<hidden>", file))
 
 @upload_wrapper('docs')
 def upload_docs():
@@ -439,11 +440,12 @@ if __name__ == '__main__':
         abort_checks()
 
     check_environment_var('ANACONDA_TOKEN', 'access token for Anaconda.org')
-
     anaconda_token = check_anaconda_creds()
 
+    check_environment_var('PYPI_TOKEN', 'access token for PyPI')
     pypi_token = check_pypi_creds()
 
+    check_environment_var('NPM_TOKEN', 'access token for NPM')
     check_npm_creds()
 
     buckets = check_cdn_buckets()
