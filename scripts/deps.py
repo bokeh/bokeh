@@ -6,6 +6,7 @@ import yaml
 
 def load_setup_py_data():
     import os
+    from os.path import abspath, dirname, join
     import setuptools
     os.environ['CONDA_BUILD_STATE'] = 'RENDER'
     data = {}
@@ -13,6 +14,7 @@ def load_setup_py_data():
     def _setup(**kw): data.update(kw)
     setuptools.setup = _setup
     setup_src = open("setup.py").read()
+    sys.path.append(abspath(join(dirname(__file__), "..")))
     exec(setup_src)
     return data
 
