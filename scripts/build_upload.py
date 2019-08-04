@@ -485,8 +485,6 @@ if __name__ == '__main__':
         print(blue("[SKIP] ") + "Not updating PyPI package for pre-releases")
         print(blue("[SKIP] ") + "Not updating NPM package for pre-releases")
         print(blue("[SKIP] ") + "Not updating Examples tarball for pre-releases")
-        upload_pypi(pypi_token) # XXXX TEMP TO TEST PYPI UPLOAD WITH TOKEN
-        upload_npm() # XXXX TEMP TO TEST PYPI UPLOAD WITH TOKEN
     else:
         upload_pypi(pypi_token)
         upload_npm()
