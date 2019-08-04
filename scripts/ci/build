@@ -16,7 +16,7 @@ node make build
 popd
 
 # build a noarch conda package for Bokeh using the just-built BokehJS
-conda build conda.recipe --quiet --no-test --no-anaconda-upload
+conda build conda.recipe --quiet --no-test --no-anaconda-upload --no-verify
 
 # if this is an external contributor then the uploads below will fail
 if [[ -z "${AWS_ACCESS_KEY_ID}" ]]; then
