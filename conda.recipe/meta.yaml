@@ -26,6 +26,7 @@ requirements:
     - python
     - python-dateutil
     - pyyaml
+    - ripgrep
     - setuptools
     - six
     - tornado >=4.3

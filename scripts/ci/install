@@ -11,7 +11,7 @@ fi
 wget -qO- "https://raw.githubusercontent.com/travis-ci/artifacts/master/install" |bash
 
 # install Miniconda
-PYTHON="${PYTHON:-3.6}"
+PYTHON="${PYTHON:-3.7}"
 MINICONDA_FILENAME=Miniconda${PYTHON:0:1}-latest-Linux-x86_64.sh
 if  [ "${NO_INSTALL_CONDA}" != "1" ]; then
     wget -nv "http://repo.continuum.io/miniconda/${MINICONDA_FILENAME}"

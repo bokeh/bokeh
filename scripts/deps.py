@@ -1,17 +1,21 @@
-import sys
+import os
+from os.path import abspath, dirname, join
 import platform
+import sys
+
 import jinja2
+import setuptools
 import yaml
 
+data = {}
+setup_src = open("setup.py").read()
+os.environ['CONDA_BUILD_STATE'] = 'RENDER'
+def _setup(**kw): data.update(kw)
+setuptools.setup = _setup
+sys.path.append(abspath(join(dirname(__file__), "..")))
+exec(setup_src)
 
 def load_setup_py_data():
-    import os
-    import setuptools
-    os.environ['CONDA_BUILD_STATE'] = 'RENDER'
-    data = {}
-
-    def _setup(**kw): data.update(kw)
-    setuptools.setup = _setup
     return data
 
 meta_src = jinja2.Template(open("conda.recipe/meta.yaml").read())
