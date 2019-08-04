@@ -258,6 +258,30 @@ def check_anaconda_creds():
         failed("Could NOT verify Anaconda credentials")
         abort_checks()
 
+def check_pypi_creds():
+    if  CONFIG.dry_run:
+        return "junk"
+    try:
+        token = os.environ['PYPI_TOKEN']
+        # TODO is there a way to actually test that the creds work?
+        passed("Verified PyPI credentials")
+        return token
+    except Exception:
+        failed("Could NOT verify PyPI credentials")
+        abort_checks()
+
+def check_npm_creds():
+    if  CONFIG.dry_run:
+        return "junk"
+    try:
+        token = os.environ['NPM_TOKEN']
+        # TODO is there a way to actually test that the creds work?
+        passed("Verified NPM credentials")
+        return token
+    except Exception:
+        failed("Could NOT verify NPM credentials")
+        abort_checks()
+
 def check_cdn_buckets():
     if  CONFIG.dry_run:
         return "junk"
@@ -349,8 +373,10 @@ def upload_anaconda(token, dev):
         run(cmd % (token, file), fake_cmd=cmd % ("<hidden>", file))
 
 @upload_wrapper('pypi')
-def upload_pypi():
-    run("twine upload dist/bokeh-%s.tar.gz" % CONFIG.version)
+def upload_pypi(token):
+    cmd = "twine upload -u @token -p %s dist/bokeh-%s.tar.gz"
+    version = CONFIG.version
+    run(cmd % (token, version), fake_cmd=cmd % ("<hidden>", version))
 
 @upload_wrapper('docs')
 def upload_docs():
@@ -416,6 +442,10 @@ if __name__ == '__main__':
 
     anaconda_token = check_anaconda_creds()
 
+    pypi_token = check_pypi_creds()
+
+    check_npm_creds()
+
     buckets = check_cdn_buckets()
 
     # builds ----------------------------------------------------------------
@@ -453,8 +483,10 @@ if __name__ == '__main__':
         print(blue("[SKIP] ") + "Not updating PyPI package for pre-releases")
         print(blue("[SKIP] ") + "Not updating NPM package for pre-releases")
         print(blue("[SKIP] ") + "Not updating Examples tarball for pre-releases")
+        upload_pypi(pypi_token) # XXXX TEMP TO TEST PYPI UPLOAD WITH TOKEN
+        upload_npm() # XXXX TEMP TO TEST PYPI UPLOAD WITH TOKEN
     else:
-        upload_pypi()
+        upload_pypi(pypi_token)
         upload_npm()
         upload_examples(buckets)
 
