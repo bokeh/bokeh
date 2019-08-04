@@ -12,6 +12,8 @@ def load_setup_py_data():
 
     def _setup(**kw): data.update(kw)
     setuptools.setup = _setup
+    setup_src = open("setup.py").read()
+    exec(setup_src)
     return data
 
 meta_src = jinja2.Template(open("conda.recipe/meta.yaml").read())
