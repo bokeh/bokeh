@@ -54,7 +54,7 @@ def compute_sha256(data):
     sha256.update(data)
     return sha256.hexdigest()
 
-pinned_template_sha256 = "22c80ab04af3eb44b5be510bedd46c89d6c6d1d73bb3437050b799ee0e2ec044"
+pinned_template_sha256 = "9c3dfd357749b4bc01113597a2a004a31292f55a65e29316580a0a0006f3cfda"
 
 def test_autoload_template_has_changed():
     """This is not really a test but a reminder that if you change the
