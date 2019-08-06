@@ -4,6 +4,7 @@
 from __future__ import print_function
 
 import shutil
+from glob import glob
 from os.path import dirname, exists, join, realpath, relpath
 import os, re, subprocess, sys, time
 
@@ -378,9 +379,9 @@ def install_js():
     if exists(target_tslibdir):
         shutil.rmtree(target_tslibdir)
     if exists(TSLIB):
-        # keep in sync with bokehjs/src/compiler/tsconfig.ts
-        lib = {"lib.es2015.d.ts", "lib.dom.d.ts"}
-        shutil.copytree(TSLIB, target_tslibdir, ignore=lambda _, files: [ f for f in files if f not in lib ])
+        os.mkdir(target_tslibdir)
+        for lib_file in glob(join(TSLIB, "lib.*.d.ts")):
+            shutil.copy(lib_file, target_tslibdir)
 
 # -----------------------------------------------------------------------------
 # Helpers for collecting package data
