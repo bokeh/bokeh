@@ -374,7 +374,7 @@ def upload_anaconda(token, dev):
 
 @upload_wrapper('pypi')
 def upload_pypi(token):
-    cmd = "twine upload -u @token -p %s %s"
+    cmd = "twine upload -u __tokeh__ -p %s %s"
     files = glob.glob("dist/bokeh*.tar.gz")
     for file in files:
         run(cmd % (token, file), fake_cmd=cmd % ("<hidden>", file))
