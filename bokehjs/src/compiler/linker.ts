@@ -231,16 +231,35 @@ export class Linker {
     const print = (module: ModuleInfo) => {
       let ast = module.ast || transforms.parse_es(module.file, module.source)
 
-      const rewrite_deps = transforms.rewrite_deps((dep) => {
-        const module_dep = module.dependencies.get(dep)
-        return module_dep != null ? module_dep.id : undefined
-      })
-      ast = transforms.apply(ast, rewrite_deps)
+      const transformers = []
 
-      if (module.type == "json")
-        ast = transforms.add_json_export(ast)
+      switch (module.type) {
+        case "js": {
+          const remove_use_strict = transforms.remove_use_strict()
+          transformers.push(remove_use_strict)
 
-      ast = transforms.wrap_in_function(ast, module.base_path)
+          const remove_esmodule = transforms.remove_esmodule()
+          transformers.push(remove_esmodule)
+
+          const rewrite_deps = transforms.rewrite_deps((dep) => {
+            const module_dep = module.dependencies.get(dep)
+            return module_dep != null ? module_dep.id : undefined
+          })
+          transformers.push(rewrite_deps)
+          break
+        }
+        case "json": {
+          transformers.push(transforms.add_json_export())
+          break
+        }
+        case "css": {
+          // ???
+          break
+        }
+      }
+
+      transformers.push(transforms.wrap_in_function(module.base_path))
+      ast = transforms.apply(ast, ...transformers)
 
       const source = transforms.print_es(ast)
       return convert.removeMapFileComments(source)

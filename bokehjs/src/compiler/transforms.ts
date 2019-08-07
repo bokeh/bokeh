@@ -232,34 +232,32 @@ export function rewrite_deps(resolve: (dep: string) => number | string | undefin
   }
 }
 
-export function add_json_export(source: ts.SourceFile): ts.SourceFile {
-  const stmts = [...source.statements]
+export function add_json_export() {
+  return (_context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    if (root.statements.length == 1) {
+      const [statement] = root.statements
 
-  if (stmts.length != 0) {
-    const last = stmts.pop()!
-
-    if (ts.isExpressionStatement(last)) {
-      const left = ts.createPropertyAccess(ts.createIdentifier("module"), "exports")
-      const right = last.expression
-      const assign = ts.createStatement(ts.createAssignment(left, right))
-      return ts.updateSourceFileNode(source, [...stmts, assign])
+      if (ts.isExpressionStatement(statement)) {
+        const left = ts.createPropertyAccess(ts.createIdentifier("module"), "exports")
+        const right = statement.expression
+        const assign = ts.createStatement(ts.createAssignment(left, right))
+        return ts.updateSourceFileNode(root, [statement, assign])
+      }
     }
+
+    return root
   }
-
-  return source
 }
 
-export function add_css_loader(source: ts.SourceFile): ts.SourceFile {
-  return source
-}
-
-export function wrap_in_function(source: ts.SourceFile, mod_name: string): ts.SourceFile {
-  const p = (name: string) => ts.createParameter(undefined, undefined, undefined, name)
-  const params = [p("require"), p("module"), p("exports")]
-  const block = ts.createBlock(source.statements, true)
-  const func = ts.createFunctionDeclaration(undefined, undefined, undefined, "_", undefined, params, undefined, block)
-  ts.addSyntheticLeadingComment(func, ts.SyntaxKind.MultiLineCommentTrivia, ` ${mod_name} `, false)
-  return ts.updateSourceFileNode(source, [func])
+export function wrap_in_function(module_name: string) {
+  return (_context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    const p = (name: string) => ts.createParameter(undefined, undefined, undefined, name)
+    const params = [p("require"), p("module"), p("exports")]
+    const block = ts.createBlock(root.statements, true)
+    const func = ts.createFunctionDeclaration(undefined, undefined, undefined, "_", undefined, params, undefined, block)
+    ts.addSyntheticLeadingComment(func, ts.SyntaxKind.MultiLineCommentTrivia, ` ${module_name} `, false)
+    return ts.updateSourceFileNode(root, [func])
+  }
 }
 
 export function parse_es(file: string, code?: string, target: ts.ScriptTarget = ts.ScriptTarget.ES5): ts.SourceFile {
