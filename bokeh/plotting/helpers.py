@@ -188,41 +188,41 @@ def _graph(node_source, edge_source, **kwargs):
 
     ## node stuff
     if any(x.startswith('node_selection_') for x in kwargs):
-        snode_ca = _pop_colors_and_alpha(Circle, kwargs, prefix="node_selection_")
+        snode_ca = _pop_visuals(Circle, kwargs, prefix="node_selection_")
     else:
         snode_ca = None
 
     if any(x.startswith('node_hover_') for x in kwargs):
-        hnode_ca = _pop_colors_and_alpha(Circle, kwargs, prefix="node_hover_")
+        hnode_ca = _pop_visuals(Circle, kwargs, prefix="node_hover_")
     else:
         hnode_ca = None
 
     if any(x.startswith('node_muted_') for x in kwargs):
-        mnode_ca = _pop_colors_and_alpha(Circle, kwargs, prefix="node_muted_")
+        mnode_ca = _pop_visuals(Circle, kwargs, prefix="node_muted_")
     else:
         mnode_ca = None
 
-    nsnode_ca = _pop_colors_and_alpha(Circle, kwargs, prefix="node_nonselection_")
-    node_ca = _pop_colors_and_alpha(Circle, kwargs, prefix="node_")
+    nsnode_ca = _pop_visuals(Circle, kwargs, prefix="node_nonselection_")
+    node_ca = _pop_visuals(Circle, kwargs, prefix="node_")
 
     ## edge stuff
     if any(x.startswith('edge_selection_') for x in kwargs):
-        sedge_ca = _pop_colors_and_alpha(MultiLine, kwargs, prefix="edge_selection_")
+        sedge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_selection_")
     else:
         sedge_ca = None
 
     if any(x.startswith('edge_hover_') for x in kwargs):
-        hedge_ca = _pop_colors_and_alpha(MultiLine, kwargs, prefix="edge_hover_")
+        hedge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_hover_")
     else:
         hedge_ca = None
 
     if any(x.startswith('edge_muted_') for x in kwargs):
-        medge_ca = _pop_colors_and_alpha(MultiLine, kwargs, prefix="edge_muted_")
+        medge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_muted_")
     else:
         medge_ca = None
 
-    nsedge_ca = _pop_colors_and_alpha(MultiLine, kwargs, prefix="edge_nonselection_")
-    edge_ca = _pop_colors_and_alpha(MultiLine, kwargs, prefix="edge_")
+    nsedge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_nonselection_")
+    edge_ca = _pop_visuals(MultiLine, kwargs, prefix="edge_")
 
     ## node stuff
     node_kwargs = {k.lstrip('node_'): v for k, v in kwargs.copy().items() if k.lstrip('node_') in Circle.properties()}
@@ -279,43 +279,74 @@ def _pop_renderer_args(kwargs):
     return result
 
 
-def _pop_colors_and_alpha(glyphclass, kwargs, prefix="", defaults={},
-                          trait_defaults={}):
+def _pop_visuals(glyphclass, props, prefix="", defaults={}, trait_defaults={}):
     """
-    Given a kwargs dict, a prefix, and a default value, looks for different
-    color and alpha fields of the given prefix, and fills in the default value
-    if it doesn't exist.
+    Applies basic cascading logic to deduce properties for a glyph.
+
+    Args:
+        glyphclass :
+            the type of glyph being handled
+
+        props (dict) :
+            Maps property keys, prefixed or not, to their values.
+            Names are '[{prefix}][{feature}_]{trait}', no '_'s in {feature}.
+            Ex: {'fill_color': 'blue', 'selection_line_width': 0.5}
+            Items in `props` get popped if used.
+
+        prefix (str) :
+            Prefix used when accessing `props`. Ex: 'selection_'
+
+        defaults (dict) :
+            Non prefixed fallback, in case prefixed property not in `props`.
+
+        trait_defaults (dict) :
+          Fallback based on '{trait}', in case property not in `defaults`.
+
+    Returns:
+        result (dict) :
+            Resulting properties for the instance
+
+    Notes
+    -----
+    'text_color' feature trait, as well as 'color' and 'alpha' traits, have
+    ultimate defaults in case those can't be deduced.
     """
+    def split_feature_trait(ft):
+        """Feature is up to first '_'. Ex. 'line_color' => ['line', 'color']"""
+        ft = ft.split('_', 1)
+        return ft if len(ft)==2 else ft+[None]
+
+    def is_visual(ft):
+        """Whether a feature trait name is visual"""
+        feature, trait = split_feature_trait(ft)
+        return feature in ('line', 'fill', 'text') and trait is not None
+
     result = dict()
-    defaults, trait_defaults = defaults.copy(), trait_defaults.copy()
+    defaults = {
+        'text_color': 'black'
+        }.update(defaults)
+    trait_defaults = {
+        'color': get_default_color(),
+        'alpha': 1.0
+        }.update(trait_defaults)
+
+    for pname in filter(is_visual, glyphclass.properties()):
+        trait = split_feature_trait(pname)[1]
+        if prefix+pname in props:
+            result[pname] = props.pop(prefix+pname)
+        elif prefix+trait in props: # and pname!='text_color':
+            result[pname] = props[prefix+trait]
+        elif pname in defaults:
+            result[pname] = defaults[pname]
+        elif trait in trait_defaults:
+            result[pname] = trait_defaults[trait]
 
     # TODO: The need to do this and the complexity of managing this kind of
     # thing throughout the codebase really suggests that we need to have
     # a real stylesheet class, where defaults and Types can declaratively
     # substitute for this kind of imperative logic.
-    def is_visual(argname):
-        feature = argname.split('_', 1)[0]
-        return feature in ('line', 'fill', 'text')
-
     # NOTE: text fill color should really always default to black, hard coding
     # this here now until the stylesheet solution exists
-    if 'text_color' not in defaults:
-        defaults['text_color'] = 'black'
-
-    if 'color' not in trait_defaults:
-        trait_defaults['color'] = kwargs.pop(prefix+'color', get_default_color())
-    if 'alpha' not in trait_defaults:
-        trait_defaults['alpha'] = kwargs.pop(prefix+'alpha', 1.0)
-
-    for argname in filter(is_visual, glyphclass.properties()):
-        prefixed = prefix + argname
-        trait = argname.split('_', 1)[1] if '_' in argname else None
-        if argname in defaults:
-            result[argname] = kwargs.pop(prefixed, defaults[argname])
-        elif trait in trait_defaults:
-            result[argname] = kwargs.pop(prefixed, trait_defaults[trait])
-        elif prefixed in kwargs:
-            result[argname] = kwargs.pop(prefixed)
 
     return result
 
@@ -891,31 +922,34 @@ def _glyph_function(glyphclass, extra_docs=None):
             kwargs['global_alpha'] = kwargs['alpha']
 
         # handle the main glyph, need to process literals
-        glyph_ca = _pop_colors_and_alpha(glyphclass, kwargs)
+        glyph_ca = _pop_visuals(glyphclass, kwargs)
         incompatible_literal_spec_values = []
         incompatible_literal_spec_values += _process_sequence_literals(glyphclass, kwargs, source, is_user_source)
         incompatible_literal_spec_values += _process_sequence_literals(glyphclass, glyph_ca, source, is_user_source)
         if incompatible_literal_spec_values:
             raise RuntimeError(_GLYPH_SOURCE_MSG % nice_join(incompatible_literal_spec_values, conjuction="and"))
 
+        # use glyph_ca as default for other glyphs
+        default_ca = glyph_ca
+
         # handle the nonselection glyph, we always set one
-        nsglyph_ca = _pop_colors_and_alpha(glyphclass, kwargs, prefix='nonselection_', trait_defaults={'alpha':0.1})
+        nsglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='nonselection_', defaults=default_ca, trait_defaults={'alpha':0.1})
 
         # handle the selection glyph, if any properties were given
         if any(x.startswith('selection_') for x in kwargs):
-            sglyph_ca = _pop_colors_and_alpha(glyphclass, kwargs, prefix='selection_')
+            sglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='selection_', defaults=default_ca)
         else:
             sglyph_ca = None
 
         # handle the hover glyph, if any properties were given
         if any(x.startswith('hover_') for x in kwargs):
-            hglyph_ca = _pop_colors_and_alpha(glyphclass, kwargs, prefix='hover_')
+            hglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='hover_', defaults=default_ca)
         else:
             hglyph_ca = None
 
         # handle the mute glyph, if any properties were given
         if any(x.startswith('muted_') for x in kwargs):
-            mglyph_ca = _pop_colors_and_alpha(glyphclass, kwargs, prefix='muted_')
+            mglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='muted_', defaults=default_ca)
         else:
             mglyph_ca = None
 
