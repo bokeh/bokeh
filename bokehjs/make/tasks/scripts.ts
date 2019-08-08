@@ -26,7 +26,7 @@ task("scripts:bundle", ["scripts:compile"], async () => {
     entries: packages.map((pkg) => pkg.main),
     bases: [paths.build_dir.lib, "./node_modules"],
     cache: argv.cache !== false ? join(paths.build_dir.js, "cache.json") : undefined,
-    ignores: ["crypto"],
+    externals: ["@jupyter-widgets/base"],
   })
 
   const bundles = linker.link()
