@@ -79,6 +79,7 @@ test:
 
     # examples
     - flask >=1.0
+    - django
     - h5py
     - icalendar
     - ipywidgets

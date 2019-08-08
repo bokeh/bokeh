@@ -161,7 +161,7 @@ def build_single_handler_applications(paths, argvs=None):
 
     '''
     applications = {}
-    argvs = {} or argvs
+    argvs = argvs or {}
 
     for path in paths:
         application = build_single_handler_application(path, argvs.get(path, []))

@@ -4,63 +4,60 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide a request handler that returns a page displaying a document.
-
-'''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import logging
-log = logging.getLogger(__name__)
-
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from importlib import import_module
+from typing import Optional, List
 
 # External imports
-from tornado import gen
+from django.apps import AppConfig
+from django.conf import settings
 
 # Bokeh imports
-from bokeh.embed.server import server_html_page_for_session
-
-from .session_handler import SessionHandler
+from .routing import Routing, RoutingConfiguration
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'DocHandler',
+    'DjangoBokehConfig',
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
+class DjangoBokehConfig(AppConfig):
+
+    name = label = 'bokeh.server.django'
+
+    _routes: Optional[RoutingConfiguration] = None
+
+    @property
+    def bokeh_apps(self) -> List[Routing]:
+        module = settings.ROOT_URLCONF
+        url_conf = import_module(module) if isinstance(module, str) else module
+        return url_conf.bokeh_apps
+
+    @property
+    def routes(self) -> RoutingConfiguration:
+        if self._routes is None:
+            self._routes = RoutingConfiguration(self.bokeh_apps)
+        return self._routes
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
-
-class DocHandler(SessionHandler):
-    ''' Implements a custom Tornado handler for document display page
-
-    '''
-    @gen.coroutine
-    def get(self, *args, **kwargs):
-        session = yield self.get_session()
-        page = server_html_page_for_session(session,
-                                            resources=self.application.resources(),
-                                            title=session.document.title,
-                                            template=session.document.template,
-                                            template_variables=session.document.template_variables)
-
-        self.set_header("Content-Type", 'text/html')
-        self.write(page)
 
 #-----------------------------------------------------------------------------
 # Private API
