@@ -8,7 +8,7 @@ import * as terser from "terser"
 import * as combine from "combine-source-map"
 import * as convert from "convert-source-map"
 
-import {read, write, fileExists, directoryExists, rename} from "./sys"
+import {read, write, file_exists, directory_exists, rename} from "./sys"
 import * as preludes from "./prelude"
 import * as transforms from "./transforms"
 
@@ -196,7 +196,7 @@ export class Linker {
     }
 
     for (const base of this.bases) {
-      if (!directoryExists(base))
+      if (!directory_exists(base))
         throw new Error(`base path ${base} doesn't exist or isn't a directory`)
     }
 
@@ -315,7 +315,7 @@ export class Linker {
 
   load_cache(): void {
     const {cache_path} = this
-    if (cache_path == null || !fileExists(cache_path))
+    if (cache_path == null || !file_exists(cache_path))
       return
 
     this.cache.clear()
@@ -374,14 +374,14 @@ export class Linker {
   protected resolve_relative(dep: string, parent: Parent): string {
     const path = resolve(dirname(parent.file), dep)
 
-    if (fileExists(path))
+    if (file_exists(path))
       return path
 
     const file = path + this.ext
-    const has_file = fileExists(file)
+    const has_file = file_exists(file)
 
     const index = join(path, "index" + this.ext)
-    const has_index = fileExists(index)
+    const has_index = file_exists(index)
 
     if (has_file && has_index)
       throw new Error(`both ${file} and ${index} exist, remove one of them or clean the build and recompile`)
@@ -398,18 +398,18 @@ export class Linker {
       let index = "index" + this.ext
 
       const pkg_path = join(path, "package.json")
-      if (fileExists(pkg_path)) {
+      if (file_exists(pkg_path)) {
         const pkg = JSON.parse(read(pkg_path)!)
         if (pkg.main != null)
           index = pkg.main
       }
 
       let file = join(path, index)
-      if (fileExists(file))
+      if (file_exists(file))
         return file
       else {
         file += this.ext
-        if (fileExists(file))
+        if (file_exists(file))
           return file
       }
 
@@ -420,10 +420,10 @@ export class Linker {
       let path = join(base, dep)
       const file = path + this.ext
 
-      if (fileExists(file))
+      if (file_exists(file))
         return file
 
-      if (directoryExists(path)) {
+      if (directory_exists(path)) {
         const file = resolve_with_index(path)
         if (file != null)
           return file
@@ -440,7 +440,7 @@ export class Linker {
 
           path = join(base_path, "node_modules", dep)
 
-          if (directoryExists(path)) {
+          if (directory_exists(path)) {
             const file = resolve_with_index(path)
             if (file != null)
               return file
