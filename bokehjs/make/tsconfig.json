@@ -18,9 +18,13 @@
     "experimentalDecorators": true,
     "module": "commonjs",
     "moduleResolution": "node",
+    "resolveJsonModule": true,
     "target": "ES2015",
     "lib": ["es2015"],
     "types": ["node"],
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "@compiler/*": ["../src/compiler/*"]
+    }
   }
 }

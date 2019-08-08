@@ -1,21 +1,14 @@
-import * as fs from "fs"
+//import license from "../../../LICENSE.txt"
+const license = "TODO"
 
-const license = fs.readFileSync('../LICENSE.txt', 'utf-8')
-                  .trim().split("\n").map((line) => ` * ${line}`).join("\n")
+function comment(text: string): string {
+  return `/*!${"\n"}${text.trim().split("\n").map((line) => ` * ${line}`).join("\n")}${"\n"}*/`
+}
 
 export const prelude = `\
-/*!
-${license}
- */
+${comment(license)}
 (function(root, factory) {
-//  if(typeof exports === 'object' && typeof module === 'object')
-//    module.exports = factory();
-//  else if(typeof define === 'function' && define.amd)
-//    define("Bokeh", [], factory);
-//  else if(typeof exports === 'object')
-//    exports["Bokeh"] = factory();
-//  else
-    root["Bokeh"] = factory();
+  root["Bokeh"] = factory();
 })(this, function() {
   var define;
   return (function(modules, aliases, entry, parent_require) {
@@ -97,18 +90,9 @@ ${license}
 `
 
 export const plugin_prelude = `\
-/*!
-${license}
- */
+${comment(license)}
 (function(root, factory) {
-//  if(typeof exports === 'object' && typeof module === 'object')
-//    factory(require("Bokeh"));
-//  else if(typeof define === 'function' && define.amd)
-//    define(["Bokeh"], factory);
-//  else if(typeof exports === 'object')
-//    factory(require("Bokeh"));
-//  else
-    factory(root["Bokeh"]);
+  factory(root["Bokeh"]);
 })(this, function(Bokeh) {
   var define;
   return (function(modules, aliases, entry) {

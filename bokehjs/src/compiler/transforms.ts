@@ -1,5 +1,10 @@
 import * as ts from "typescript"
 
+export function apply<T extends ts.Node>(node: T, ...transforms: ts.TransformerFactory<T>[]): T {
+  const result = ts.transform(node, transforms)
+  return result.transformed[0]
+}
+
 function is_require(node: ts.Node): node is ts.CallExpression {
   return ts.isCallExpression(node) &&
          ts.isIdentifier(node.expression) &&
@@ -49,7 +54,47 @@ export function relativize_modules(relativize: (file: string, module_path: strin
   }
 }
 
-export function import_css(resolve: (css_path: string) => string | undefined) {
+export function import_txt(load: (txt_path: string) => string | undefined) {
+  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    function visit(node: ts.Node): ts.VisitResult<ts.Node> {
+      if (ts.isImportDeclaration(node)) {
+        const {importClause, moduleSpecifier} = node
+
+        if (ts.isStringLiteralLike(moduleSpecifier)) {
+          const txt_path = moduleSpecifier.text
+          if (txt_path.endsWith(".txt") && importClause != null && importClause.name != null) {
+            const txt_text = load(txt_path)
+            if (txt_text != null) {
+              return ts.createVariableDeclaration(importClause.name, ts.createKeywordTypeNode(ts.SyntaxKind.StringKeyword), ts.createStringLiteral(txt_text))
+            }
+          }
+        }
+      }
+
+      return ts.visitEachChild(node, visit, context)
+    }
+
+    return ts.visitNode(root, visit)
+  }
+}
+
+function css_loader(css_text: string): ts.Node[] {
+  const dom = ts.createTempVariable(undefined)
+  return [
+    ts.createImportDeclaration(
+      undefined,
+      undefined,
+      ts.createImportClause(undefined, ts.createNamespaceImport(dom)),
+      ts.createStringLiteral("core/dom")),
+    ts.createExpressionStatement(
+      ts.createCall(
+        ts.createPropertyAccess(ts.createPropertyAccess(dom, "styles"), "append"),
+        undefined,
+        [ts.createStringLiteral(css_text)])),
+  ]
+}
+
+export function import_css(load: (css_path: string) => string | undefined) {
   return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
     function visit(node: ts.Node): ts.VisitResult<ts.Node> {
       if (ts.isImportDeclaration(node)) {
@@ -58,22 +103,9 @@ export function import_css(resolve: (css_path: string) => string | undefined) {
         if (ts.isStringLiteralLike(moduleSpecifier)) {
           const css_path = moduleSpecifier.text
           if (importClause == null && css_path.endsWith(".css")) {
-            const css = resolve(css_path)
-            if (css != null) {
-              const dom = ts.createTempVariable(undefined)
-              const statements = [
-                ts.createImportDeclaration(
-                  undefined,
-                  undefined,
-                  ts.createImportClause(undefined, ts.createNamespaceImport(dom)),
-                  ts.createStringLiteral("core/dom")),
-                ts.createExpressionStatement(
-                  ts.createCall(
-                    ts.createPropertyAccess(ts.createPropertyAccess(dom, "styles"), "append"),
-                    undefined,
-                    [ts.createStringLiteral(css)])),
-              ]
-              return statements
+            const css_text = load(css_path)
+            if (css_text != null) {
+              return css_loader(css_text)
             }
           }
         }
@@ -126,6 +158,39 @@ export function insert_class_name() {
   }
 }
 
+export function remove_use_strict() {
+  return (_context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    const statements = root.statements.filter((node) => {
+      if (ts.isExpressionStatement(node)) {
+        const expr = node.expression
+        if (ts.isStringLiteral(expr) && expr.text == "use strict")
+          return false
+      }
+      return true
+    })
+
+    return ts.updateSourceFileNode(root, statements)
+  }
+}
+
+export function remove_esmodule() {
+  return (_context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    const statements = root.statements.filter((node) => {
+      if (ts.isExpressionStatement(node)) {
+        const expr = node.expression
+        if (ts.isCallExpression(expr) && expr.arguments.length == 3) {
+          const [, arg] = expr.arguments
+          if (ts.isStringLiteral(arg) && arg.text == "__esModule")
+            return false
+        }
+      }
+      return true
+    })
+
+    return ts.updateSourceFileNode(root, statements)
+  }
+}
+
 export function collect_deps(source: ts.SourceFile): string[] {
   function traverse(node: ts.Node): void {
     if (is_require(node)) {
@@ -142,8 +207,8 @@ export function collect_deps(source: ts.SourceFile): string[] {
   return deps
 }
 
-export function rewrite_deps(source: ts.SourceFile, resolve: (dep: string) => number | string | undefined): ts.SourceFile {
-  const transformer = <T extends ts.Node>(context: ts.TransformationContext) => (root_node: T) => {
+export function rewrite_deps(resolve: (dep: string) => number | string | undefined) {
+  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
     function visit(node: ts.Node): ts.Node {
       if (is_require(node)) {
         const [arg] = node.arguments
@@ -163,66 +228,36 @@ export function rewrite_deps(source: ts.SourceFile, resolve: (dep: string) => nu
       return ts.visitEachChild(node, visit, context)
     }
 
-    return ts.visitNode(root_node, visit)
+    return ts.visitNode(root, visit)
   }
-
-  const result = ts.transform<ts.SourceFile>(source, [transformer])
-  return result.transformed[0]
 }
 
-export function remove_use_strict(source: ts.SourceFile): ts.SourceFile {
-  const stmts = source.statements.filter((node) => {
-    if (ts.isExpressionStatement(node)) {
-      const expr = node.expression
-      if (ts.isStringLiteral(expr) && expr.text == "use strict")
-        return false
-    }
-    return true
-  })
+export function add_json_export() {
+  return (_context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    if (root.statements.length == 1) {
+      const [statement] = root.statements
 
-  return ts.updateSourceFileNode(source, stmts)
-}
-
-export function remove_esmodule(source: ts.SourceFile): ts.SourceFile {
-  const stmts = source.statements.filter((node) => {
-    if (ts.isExpressionStatement(node)) {
-      const expr = node.expression
-      if (ts.isCallExpression(expr) && expr.arguments.length == 3) {
-        const [, arg] = expr.arguments
-        if (ts.isStringLiteral(arg) && arg.text == "__esModule")
-          return false
+      if (ts.isExpressionStatement(statement)) {
+        const left = ts.createPropertyAccess(ts.createIdentifier("module"), "exports")
+        const right = statement.expression
+        const assign = ts.createStatement(ts.createAssignment(left, right))
+        return ts.updateSourceFileNode(root, [statement, assign])
       }
     }
-    return true
-  })
 
-  return ts.updateSourceFileNode(source, stmts)
-}
-
-export function add_json_export(source: ts.SourceFile): ts.SourceFile {
-  const stmts = [...source.statements]
-
-  if (stmts.length != 0) {
-    const last = stmts.pop()!
-
-    if (ts.isExpressionStatement(last)) {
-      const left = ts.createPropertyAccess(ts.createIdentifier("module"), "exports")
-      const right = last.expression
-      const assign = ts.createStatement(ts.createAssignment(left, right))
-      return ts.updateSourceFileNode(source, [...stmts, assign])
-    }
+    return root
   }
-
-  return source
 }
 
-export function wrap_in_function(source: ts.SourceFile, mod_name: string): ts.SourceFile {
-  const p = (name: string) => ts.createParameter(undefined, undefined, undefined, name)
-  const params = [p("require"), p("module"), p("exports")]
-  const block = ts.createBlock(source.statements, true)
-  const func = ts.createFunctionDeclaration(undefined, undefined, undefined, "_", undefined, params, undefined, block)
-  ts.addSyntheticLeadingComment(func, ts.SyntaxKind.MultiLineCommentTrivia, ` ${mod_name} `, false)
-  return ts.updateSourceFileNode(source, [func])
+export function wrap_in_function(module_name: string) {
+  return (_context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    const p = (name: string) => ts.createParameter(undefined, undefined, undefined, name)
+    const params = [p("require"), p("module"), p("exports")]
+    const block = ts.createBlock(root.statements, true)
+    const func = ts.createFunctionDeclaration(undefined, undefined, undefined, "_", undefined, params, undefined, block)
+    ts.addSyntheticLeadingComment(func, ts.SyntaxKind.MultiLineCommentTrivia, ` ${module_name} `, false)
+    return ts.updateSourceFileNode(root, [func])
+  }
 }
 
 export function parse_es(file: string, code?: string, target: ts.ScriptTarget = ts.ScriptTarget.ES5): ts.SourceFile {

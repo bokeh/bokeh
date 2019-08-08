@@ -1,4 +1,4 @@
-{
+const tsconfig = {
   "compilerOptions": {
     "noImplicitAny": true,
     "noImplicitThis": true,
@@ -12,7 +12,8 @@
     "alwaysStrict": true,
     "noErrorTruncation": true,
     "noEmitOnError": false,
-    "declaration": false,
+    "allowJs": false,
+    "declaration": true,
     "sourceMap": false,
     "importHelpers": false,
     "experimentalDecorators": true,
@@ -21,11 +22,10 @@
     "resolveJsonModule": true,
     "target": "ES5",
     "lib": ["es2015", "dom"],
-    "types": [],
     "baseUrl": ".",
-    "paths": {
-      "*": ["../build/js/lib/*", "../build/js/types/*"]
-    }
+    "outDir": "./dist",
   },
-  "include": ["./*/*.ts", "./bokehjs.d.ts"]
+  "include": ["./**/*.ts"],
 }
+
+export default tsconfig

@@ -8,6 +8,9 @@
 
 The following subcommands are available:
 
+build
+    Manage and build a bokeh extension
+
 html
     Create standalone HTML files for one or more applications
 

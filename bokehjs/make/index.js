@@ -57,7 +57,16 @@ process.on('uncaughtException', function(err) {
   process.exit(1)
 })
 
-register({project: "./make/tsconfig.json", cache: false})
+register({project: "./make/tsconfig.json", cache: false, logError: true})
+
+const tsconfig_paths = require("tsconfig-paths")
+
+tsconfig_paths.register({
+  baseUrl: __dirname,
+  paths: {
+    "@compiler/*": ["../src/compiler/*"],
+  },
+})
 
 if (require.main != null)
   require("./main")
