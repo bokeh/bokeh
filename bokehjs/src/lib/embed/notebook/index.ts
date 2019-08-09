@@ -10,7 +10,10 @@ import {_resolve_element, _resolve_root_elements} from "../dom"
 import "styles/logo"
 import "styles/notebook"
 
-import "./widgets"
+import {register_wrappers} from "./widgets"
+
+if (typeof Jupyter !== "undefined")
+  register_wrappers()
 
 // This exists to allow the jupyterlab_bokeh extension to store the
 // notebook kernel so that _init_comms can register the comms target.

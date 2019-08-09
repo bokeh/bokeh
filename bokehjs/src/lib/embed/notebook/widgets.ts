@@ -16,8 +16,8 @@ type RenderBundle = {
   div: string
 }
 
-import("@jupyter-widgets/base").then((widgets) => {
-  const {DOMWidgetModel, DOMWidgetView} = widgets
+export async function register_wrappers(): Promise<void> {
+  const {DOMWidgetModel, DOMWidgetView} = await import("@jupyter-widgets/base")
 
   class BokehModel extends DOMWidgetModel {
     defaults(): object {
@@ -91,11 +91,9 @@ import("@jupyter-widgets/base").then((widgets) => {
     }
   }
 
-  return {BokehModel, BokehView}
-}).then(({BokehModel, BokehView}) => {
   const global = window as any
   global.require.undef(module_name)
   global.define(module_name, [], function() {
     return {BokehModel, BokehView}
   })
-})
+}
