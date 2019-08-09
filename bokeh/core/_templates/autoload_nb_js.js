@@ -166,17 +166,6 @@
   }
 {% endblock %}
 
-{% block inline_js %}
-require.undef("bokehjs");
-define("bokehjs", [], function() {
-  var nb = Bokeh.require("embed/notebook/widgets");
-  return {
-    BokehModel: nb.BokehModel,
-    BokehView: nb.BokehView
-  };
-});
-{% endblock %}
-
 {% block run_inline_js %}
     if (root.Bokeh !== undefined || force === true) {
       {{ super() }}
