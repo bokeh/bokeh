@@ -169,7 +169,7 @@
 {% block inline_js %}
 require.undef("bokehjs");
 define("bokehjs", [], function() {
-  var nb = Bokeh.require("embed/notebook");
+  var nb = Bokeh.require("embed/notebook/widgets");
   return {
     BokehModel: nb.BokehModel,
     BokehView: nb.BokehView
