@@ -25,7 +25,7 @@ export class BoxZoomToolView extends GestureToolView {
     let vh = Math.abs(base_point[1]-curpoint[1])
 
     const va = vh == 0 ? 0 : vw/vh
-    const [xmod,] = va >= a ? [1, va/a] : [a/va, 1]
+    const [xmod, ] = va >= a ? [1, va/a] : [a/va, 1]
 
     // OK the code blocks below merit some explanation. They do:
     //

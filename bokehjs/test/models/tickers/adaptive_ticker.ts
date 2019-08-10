@@ -25,31 +25,31 @@ describe("AdaptiveTicker Model", () => {
   describe("AdaptiveTicker get_interval method", () => {
 
     it("should use the '1' mantissa", () => {
-      const ticker = new AdaptiveTicker({mantissas: [1,2,5], base: 10})
+      const ticker = new AdaptiveTicker({mantissas: [1, 2, 5], base: 10})
       const interval = ticker.get_interval(0, 1000, 10)
       expect(interval).to.be.equal(100)
     })
 
     it("should use the '2' matissa", () => {
-      const ticker = new AdaptiveTicker({mantissas: [1,2,5], base: 10})
+      const ticker = new AdaptiveTicker({mantissas: [1, 2, 5], base: 10})
       const interval = ticker.get_interval(0, 1000, 5)
       expect(interval).to.be.equal(200)
     })
 
     it("should use the '5' matissa", () => {
-      const ticker = new AdaptiveTicker({mantissas: [1,2,5], base: 10})
+      const ticker = new AdaptiveTicker({mantissas: [1, 2, 5], base: 10})
       const interval = ticker.get_interval(0, 1000, 2)
       expect(interval).to.be.equal(500)
     })
 
     it("should use the min_interval", () => {
-      const ticker = new AdaptiveTicker({mantissas: [1,2,5], base: 10, min_interval: 250})
+      const ticker = new AdaptiveTicker({mantissas: [1, 2, 5], base: 10, min_interval: 250})
       const interval = ticker.get_interval(0, 1000, 10)
       expect(interval).to.be.equal(250)
     })
 
     it("should use the max_interval", () => {
-      const ticker = new AdaptiveTicker({mantissas: [1,2,5], base: 10, max_interval: 50})
+      const ticker = new AdaptiveTicker({mantissas: [1, 2, 5], base: 10, max_interval: 50})
       const interval = ticker.get_interval(0, 1000, 10)
       expect(interval).to.be.equal(50)
     })

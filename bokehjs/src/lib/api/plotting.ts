@@ -415,7 +415,7 @@ export class Figure extends Plot {
     ys: MultiPolygonsArgs["ys"],
     args?: Partial<MultiPolygonsArgs>): GlyphRenderer
   multi_polygons(...args: unknown[]): GlyphRenderer {
-    return this._glyph(models.MultiPolygons,"xs,ys", args)
+    return this._glyph(models.MultiPolygons, "xs,ys", args)
   }
 
   oval(args: Partial<OvalArgs>): GlyphRenderer

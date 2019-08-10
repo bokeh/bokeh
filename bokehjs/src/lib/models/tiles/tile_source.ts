@@ -76,14 +76,14 @@ export abstract class TileSource extends Model {
      * Note: should probably be refactored into subclasses.
      */
     const url = this.url
-      .replace('{x}','{X}')
-      .replace('{y}','{Y}')
-      .replace('{z}','{Z}')
-      .replace('{q}','{Q}')
-      .replace('{xmin}','{XMIN}')
-      .replace('{ymin}','{YMIN}')
-      .replace('{xmax}','{XMAX}')
-      .replace('{ymax}','{YMAX}')
+      .replace('{x}', '{X}')
+      .replace('{y}', '{Y}')
+      .replace('{z}', '{Z}')
+      .replace('{q}', '{Q}')
+      .replace('{xmin}', '{XMIN}')
+      .replace('{ymin}', '{YMIN}')
+      .replace('{xmax}', '{XMAX}')
+      .replace('{ymax}', '{YMAX}')
     this.url = url
   }
 

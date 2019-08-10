@@ -8,19 +8,19 @@ import {LineJoin, LineCap, FontStyle, TextAlign, TextBaseline} from "./enums"
 import {HasProps} from "./has_props"
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
 
-function _horz(ctx: Context2d , h: number, h2: number): void {
+function _horz(ctx: Context2d, h: number, h2: number): void {
   ctx.moveTo(0, h2+0.5)
   ctx.lineTo(h, h2+0.5)
   ctx.stroke()
 }
 
-function _vert(ctx: Context2d , h: number, h2: number): void {
+function _vert(ctx: Context2d, h: number, h2: number): void {
   ctx.moveTo(h2+0.5, 0)
   ctx.lineTo(h2+0.5, h)
   ctx.stroke()
 }
 
-function _x(ctx: Context2d , h: number): void {
+function _x(ctx: Context2d, h: number): void {
   ctx.moveTo(0, h)
   ctx.lineTo(h, 0)
   ctx.stroke()

@@ -34,9 +34,9 @@ describe("protocol/message module", () => {
 
       it("should append a new buffer", () => {
         m.assemble_buffer({msgid: "1"}, 2)
-        expect(m.buffers).to.be.deep.equal([[{msgid: "1"},2]])
+        expect(m.buffers).to.be.deep.equal([[{msgid: "1"}, 2]])
         m.assemble_buffer({msgid: "3"}, 4)
-        expect(m.buffers).to.be.deep.equal([[{msgid: "1"},2], [{msgid: "3"},4]])
+        expect(m.buffers).to.be.deep.equal([[{msgid: "1"}, 2], [{msgid: "3"}, 4]])
       })
 
       it("should raise an error if num_buffers is exceeded", () => {

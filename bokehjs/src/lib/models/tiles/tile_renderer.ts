@@ -284,7 +284,7 @@ export class TileRendererView extends DataRendererView {
     const zoom_level = this.model.tile_source.get_level_by_extent(extent, h, w)
     const tiles = this.model.tile_source.get_tiles_by_extent(extent, zoom_level)
     for (let t = 0, end = Math.min(10, tiles.length); t < end; t++) {
-      const [x, y, z,] = tiles[t]
+      const [x, y, z, ] = tiles[t]
       const children = this.model.tile_source.children_by_tile_xyz(x, y, z)
       for (const c of children) {
         const [cx, cy, cz, cbounds] = c
@@ -341,7 +341,7 @@ export class TileRendererView extends DataRendererView {
     const children = []
 
     for (const t of tiles) {
-      const [x, y, z,] = t
+      const [x, y, z, ] = t
       const key = tile_source.tile_xyz_to_key(x, y, z)
       const tile = tile_source.tiles[key] as TileData
       if (tile != null && tile.loaded) {

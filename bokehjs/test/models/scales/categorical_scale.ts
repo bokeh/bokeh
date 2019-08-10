@@ -158,19 +158,19 @@ describe("categorical_scale module", () => {
         const scale = mkscale()
 
         const values0 = scale.v_compute([
-          ['foo',-0.6], ['foo',-0.5], ['foo',-0.2], ['foo',-0.1], ['foo',0.0], ['foo',0.1], ['foo',0.2], ['foo',0.5], ['foo',0.6],
+          ['foo', -0.6], ['foo', -0.5], ['foo', -0.2], ['foo', -0.1], ['foo', 0.0], ['foo', 0.1], ['foo', 0.2], ['foo', 0.5], ['foo', 0.6],
         ])
-        expect(values0).to.deep.equal(new Float64Array([18,20,26,28,30,32,34,40,42]))
+        expect(values0).to.deep.equal(new Float64Array([18, 20, 26, 28, 30, 32, 34, 40, 42]))
 
         const values1 = scale.v_compute([
-          ['bar',-0.6], ['bar',-0.5], ['bar',-0.2], ['bar',-0.1], ['bar',0.0], ['bar',0.1], ['bar',0.2], ['bar',0.5], ['bar',0.6],
+          ['bar', -0.6], ['bar', -0.5], ['bar', -0.2], ['bar', -0.1], ['bar', 0.0], ['bar', 0.1], ['bar', 0.2], ['bar', 0.5], ['bar', 0.6],
         ])
-        expect(values1).to.deep.equal(new Float64Array([38,40,46,48,50,52,54,60,62]))
+        expect(values1).to.deep.equal(new Float64Array([38, 40, 46, 48, 50, 52, 54, 60, 62]))
 
         const values2 = scale.v_compute([
-          ['baz',-0.6], ['baz',-0.5], ['baz',-0.2], ['baz',-0.1], ['baz',0.0], ['baz',0.1], ['baz',0.2], ['baz',0.5], ['baz',0.6],
+          ['baz', -0.6], ['baz', -0.5], ['baz', -0.2], ['baz', -0.1], ['baz', 0.0], ['baz', 0.1], ['baz', 0.2], ['baz', 0.5], ['baz', 0.6],
         ])
-        expect(values2).to.deep.equal(new Float64Array([58,60,66,68,70,72,74,80,82]))
+        expect(values2).to.deep.equal(new Float64Array([58, 60, 66, 68, 70, 72, 74, 80, 82]))
       })
     })
   })

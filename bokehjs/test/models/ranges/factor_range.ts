@@ -219,7 +219,7 @@ describe("factor_range module", () => {
         const r4 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4']], 0, 0, 1)
         expect(r4[0]).to.deep.equal({
           a: {value: 2.5, mapping: {1: {value: 1.5}, 2: {value: 2.5}, 3: {value: 3.5}}},
-          b: {value: 5  , mapping: {1: {value: 4.5}, 4: {value: 5.5}}},
+          b: {value: 5, mapping: {1: {value: 4.5}, 4: {value: 5.5}}},
         })
         expect(r4[1]).to.deep.equal(['a', 'b'])
         expect(r4[2]).to.be.equal(0)
@@ -227,7 +227,7 @@ describe("factor_range module", () => {
         const r5 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4'], ['c', '0']], 0, 0, 1)
         expect(r5[0]).to.deep.equal({
           a: {value: 2.5, mapping: {1: {value: 1.5}, 2: {value: 2.5}, 3: {value: 3.5}}},
-          b: {value: 5  , mapping: {1: {value: 4.5}, 4: {value: 5.5}}},
+          b: {value: 5, mapping: {1: {value: 4.5}, 4: {value: 5.5}}},
           c: {value: 6.5, mapping: {0: {value: 6.5}}},
         })
         expect(r5[1]).to.deep.equal(['a', 'b', 'c'])
@@ -318,15 +318,15 @@ describe("factor_range module", () => {
         const r4 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4']], 2, 0, 1)
         expect(r4[0]).to.deep.equal({
           a: {value: 2.5, mapping: {1: {value: 1.5}, 2: {value: 2.5}, 3: {value: 3.5}}},
-          b: {value: 7  , mapping: {1: {value: 6.5}, 4: {value: 7.5}}},
+          b: {value: 7, mapping: {1: {value: 6.5}, 4: {value: 7.5}}},
         })
         expect(r4[1]).to.deep.equal(['a', 'b'])
         expect(r4[2]).to.be.equal(2)
 
         const r5 = map_two_levels([['a', '1'], ['a', '2'], ['a', '3'], ['b', '1'], ['b', '4'], ['c', '0']], 2, 0, 1)
         expect(r5[0]).to.deep.equal({
-          a: {value: 2.5 , mapping: {1: {value:  1.5}, 2: {value: 2.5}, 3: {value: 3.5}}},
-          b: {value: 7   , mapping: {1: {value:  6.5}, 4: {value: 7.5}}},
+          a: {value: 2.5, mapping: {1: {value:  1.5}, 2: {value: 2.5}, 3: {value: 3.5}}},
+          b: {value: 7, mapping: {1: {value:  6.5}, 4: {value: 7.5}}},
           c: {value: 10.5, mapping: {0: {value: 10.5}}},
         })
         expect(r5[1]).to.deep.equal(['a', 'b', 'c'])

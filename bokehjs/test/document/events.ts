@@ -48,12 +48,12 @@ describe("events module", () => {
     it("should generate json", () => {
       const d = new Document()
       const m = new TestModel()
-      const evt = new events.ColumnsPatchedEvent(d, m.ref(), {foo: [[1,2]]})
+      const evt = new events.ColumnsPatchedEvent(d, m.ref(), {foo: [[1, 2]]})
       const json = evt.json(EMPTY_REFS)
       expect(json).to.be.deep.equal({
         kind: "ColumnsPatched",
         column_source: m.ref(),
-        patches: {foo: [[1,2]]},
+        patches: {foo: [[1, 2]]},
       })
     })
   })
@@ -62,12 +62,12 @@ describe("events module", () => {
     it("should generate json with rollover", () => {
       const d = new Document()
       const m = new TestModel()
-      const evt = new events.ColumnsStreamedEvent(d, m.ref(), {foo: [1,2], bar: [3,4]}, 10)
+      const evt = new events.ColumnsStreamedEvent(d, m.ref(), {foo: [1, 2], bar: [3, 4]}, 10)
       const json = evt.json(EMPTY_REFS)
       expect(json).to.be.deep.equal({
         kind: "ColumnsStreamed",
         column_source: m.ref(),
-        data: {foo: [1,2], bar: [3,4]},
+        data: {foo: [1, 2], bar: [3, 4]},
         rollover: 10,
       })
     })
@@ -75,12 +75,12 @@ describe("events module", () => {
     it("should generate json without rollover", () => {
       const d = new Document()
       const m = new TestModel()
-      const evt = new events.ColumnsStreamedEvent(d, m.ref(), {foo: [1,2], bar: [3,4]})
+      const evt = new events.ColumnsStreamedEvent(d, m.ref(), {foo: [1, 2], bar: [3, 4]})
       const json = evt.json(EMPTY_REFS)
       expect(json).to.be.deep.equal({
         kind: "ColumnsStreamed",
         column_source: m.ref(),
-        data: {foo: [1,2], bar: [3,4]},
+        data: {foo: [1, 2], bar: [3, 4]},
         rollover: undefined,
       })
     })
@@ -131,13 +131,13 @@ describe("events module", () => {
     it("should delegate generating json to a hint", () =>{
       const d = new Document()
       const m = new TestModel()
-      const hint = new events.ColumnsStreamedEvent(d, m.ref(), {foo: [1,2], bar: [3,4]})
+      const hint = new events.ColumnsStreamedEvent(d, m.ref(), {foo: [1, 2], bar: [3, 4]})
       const evt = new events.ModelChangedEvent(d, m, "foo", 1, 2, undefined, hint)
       const json = evt.json(EMPTY_REFS)
       expect(json).to.be.deep.equal({
         kind: "ColumnsStreamed",
         column_source: m.ref(),
-        data: {foo: [1,2], bar: [3,4]},
+        data: {foo: [1, 2], bar: [3, 4]},
         rollover: undefined,
       })
     })

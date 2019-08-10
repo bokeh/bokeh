@@ -54,7 +54,7 @@ export namespace Burtin {
   const drug_color = {
     Penicillin:   "#0d3362",
     Streptomycin: "#c64737",
-    Neomycin:     "black"  ,
+    Neomycin:     "black",
   }
 
   const gram_color = {

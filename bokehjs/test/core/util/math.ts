@@ -40,11 +40,11 @@ describe("math module", () => {
   describe("atan2", () => {
 
     it("should return the arctangent between 2 (x,y) points", () => {
-      expect(math.atan2([0,0],[0,1])).to.be.closeTo(Math.PI/2, 0.0000001) // vertical up
-      expect(math.atan2([0,0],[0,-1])).to.be.closeTo(-Math.PI/2, 0.0000001) // vertical down
-      expect(math.atan2([0,0],[1,0])).to.be.closeTo(0, 0.0000001) // horizontal right
-      expect(math.atan2([0,0],[-1,0])).to.be.closeTo(Math.PI, 0.0000001) // horizontal left
-      expect(math.atan2([1,1],[2,2])).to.be.closeTo(Math.PI/4, 0.0000001)
+      expect(math.atan2([0, 0], [0, 1])).to.be.closeTo(Math.PI/2, 0.0000001) // vertical up
+      expect(math.atan2([0, 0], [0, -1])).to.be.closeTo(-Math.PI/2, 0.0000001) // vertical down
+      expect(math.atan2([0, 0], [1, 0])).to.be.closeTo(0, 0.0000001) // horizontal right
+      expect(math.atan2([0, 0], [-1, 0])).to.be.closeTo(Math.PI, 0.0000001) // horizontal left
+      expect(math.atan2([1, 1], [2, 2])).to.be.closeTo(Math.PI/4, 0.0000001)
     })
 
   })

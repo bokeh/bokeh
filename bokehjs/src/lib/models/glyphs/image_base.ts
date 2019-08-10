@@ -52,8 +52,8 @@ export class ImageBaseView extends XYGlyphView {
     const y1 = this._y[i]
     const y2 = yr.is_reversed ? y1 - this._dh[i] : y1 + this._dh[i]
 
-    const [l,r] = x1 < x2 ? [x1,x2] : [x2,x1]
-    const [b,t] = y1 < y2 ? [y1,y2] : [y2,y1]
+    const [l, r] = x1 < x2 ? [x1, x2] : [x2, x1]
+    const [b, t] = y1 < y2 ? [y1, y2] : [y2, y1]
     return [l, r, t, b]
   }
 
@@ -115,7 +115,7 @@ export class ImageBaseView extends XYGlyphView {
   }
 
   _image_index(index : number, x: number, y : number) : ImageIndex {
-    const [l,r,t,b] = this._lrtb(index)
+    const [l, r, t, b] = this._lrtb(index)
     const width = this._width[index]
     const height = this._height[index]
     const dx = (r - l) / width
@@ -135,7 +135,7 @@ export class ImageBaseView extends XYGlyphView {
     result.image_indices = []
     for (const index of candidates) {
       if ((sx != Infinity) && (sy != Infinity)) {
-        result.image_indices.push(this._image_index(index, x,y))
+        result.image_indices.push(this._image_index(index, x, y))
       }
     }
     return result

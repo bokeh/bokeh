@@ -68,13 +68,13 @@ describe("Line", () => {
         const ctx = {} as any
         ctx.setLineDash = function (x: number) { ctx.lineDash = x }
         ctx.setLineDashOffset = function (x: number) { ctx.lineDashOffset = x }
-        const attrs = {line_dash: [1,2]} as any
+        const attrs = {line_dash: [1, 2]} as any
         attrs[spec] = {value}
         const model = new Circle(attrs)
         const line = new Line(model)
         line.set_value(ctx)
         expect(ctx[attr]).to.be.equal(value)
-        expect(ctx.lineDash).to.be.deep.equal([1,2])
+        expect(ctx.lineDash).to.be.deep.equal([1, 2])
       })
     }
   })
