@@ -65,7 +65,11 @@
     "@types/hammerjs": "^2.0.36",
     "@types/nouislider": "^9.0.4",
     "@types/proj4": "^2.3.2",
-    "@types/sprintf-js": "^1.1.2"
+    "@types/sprintf-js": "^1.1.2",
+    "eslint": "^5.16.0",
+    "acorn": "^6.2.1",
+    "@typescript-eslint/eslint-plugin": "^1.13.0",
+    "@typescript-eslint/parser": "^1.13.0"
   },
   "dependencies": {
     "tslib": "^1.9.3",
