@@ -160,9 +160,9 @@ export abstract class EditTool extends GestureTool {
 
   static initClass(): void {
     this.define<EditTool.Props>({
-      custom_icon:    [ p.String,   ],
-      custom_tooltip: [ p.String,   ],
-      empty_value:    [ p.Any,      ],
+      custom_icon:    [ p.String    ],
+      custom_tooltip: [ p.String    ],
+      empty_value:    [ p.Any       ],
       renderers:      [ p.Array, [] ],
     })
   }

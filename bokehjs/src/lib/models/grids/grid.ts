@@ -99,7 +99,7 @@ export class GridView extends GuideRendererView {
   }
 
   computed_bounds(): [number, number] {
-    const [range, ] = this.ranges()
+    const [range] = this.ranges()
 
     const user_bounds = this.model.bounds
     const range_bounds = [range.min, range.max]

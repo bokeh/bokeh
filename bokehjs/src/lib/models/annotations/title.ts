@@ -147,7 +147,7 @@ export class Title extends TextAnnotation {
     this.mixins(['line:border_', 'fill:background_'])
 
     this.define<Title.Props>({
-      text:            [ p.String,                    ],
+      text:            [ p.String                     ],
       text_font:       [ p.Font,          'helvetica' ],
       text_font_size:  [ p.FontSizeSpec,  '10pt'      ],
       text_font_style: [ p.FontStyle,     'bold'      ],

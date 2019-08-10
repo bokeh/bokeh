@@ -12,7 +12,7 @@ export class GridBoxView extends LayoutDOMView {
   }
 
   get child_models(): LayoutDOM[] {
-    return this.model.children.map(([child, ]) => child)
+    return this.model.children.map(([child]) => child)
   }
 
   _update_layout(): void {

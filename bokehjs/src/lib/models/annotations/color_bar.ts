@@ -633,7 +633,7 @@ export class ColorBar extends Annotation {
     this.define<ColorBar.Props>({
       location:                [ p.Any,         'top_right' ],
       orientation:             [ p.Orientation, 'vertical'  ],
-      title:                   [ p.String,                  ],
+      title:                   [ p.String                   ],
       title_standoff:          [ p.Number,      2           ],
       width:                   [ p.Any,         'auto'      ],
       height:                  [ p.Any,         'auto'      ],

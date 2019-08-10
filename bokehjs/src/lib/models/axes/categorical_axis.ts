@@ -25,7 +25,7 @@ export class CategoricalAxisView extends AxisView {
   }
 
   protected _draw_group_separators(ctx: Context2d, _extents: Extents, _tick_coords: TickCoords): void {
-    const [range, ] = (this.ranges as any) as [FactorRange, FactorRange]
+    const [range] = (this.ranges as any) as [FactorRange, FactorRange]
     const [start, end] = this.computed_bounds
 
     if (!range.tops || range.tops.length < 2 || !this.visuals.separator_line.doit)
@@ -83,7 +83,7 @@ export class CategoricalAxisView extends AxisView {
   }
 
   protected _get_factor_info(): [string[], Coords, Orient | number, visuals.Text][] {
-    const [range, ] = (this.ranges as any) as [FactorRange, FactorRange]
+    const [range] = (this.ranges as any) as [FactorRange, FactorRange]
     const [start, end] = this.computed_bounds
     const loc = this.loc
 
@@ -117,7 +117,7 @@ export class CategoricalAxisView extends AxisView {
   get tick_coords(): CategoricalTickCoords {
     const i = this.dimension
     const j = (i + 1) % 2
-    const [range, ] = (this.ranges as any) as [FactorRange, FactorRange]
+    const [range] = (this.ranges as any) as [FactorRange, FactorRange]
     const [start, end] = this.computed_bounds
 
     const ticks = this.model.ticker.get_ticks(start, end, range, this.loc, {})

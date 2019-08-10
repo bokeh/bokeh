@@ -14,6 +14,7 @@
   "plugins": ["@typescript-eslint"],
   "extends": [],
   "rules": {
-    "comma-spacing": ["error", {"before": false, "after": true}]
+    "comma-spacing": ["error", {"before": false, "after": true}],
+    "comma-dangle": ["error", "always-multiline"]
   }
 }
