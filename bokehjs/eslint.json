@@ -15,6 +15,7 @@
   "extends": [],
   "rules": {
     "comma-spacing": ["error", {"before": false, "after": true}],
-    "comma-dangle": ["error", "always-multiline"]
+    "comma-dangle": ["error", "always-multiline"],
+    "@typescript-eslint/type-annotation-spacing": ["error"]
   }
 }

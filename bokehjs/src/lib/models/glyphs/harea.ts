@@ -20,7 +20,7 @@ export interface HAreaData extends AreaData {
 export interface HAreaView extends HAreaData {}
 
 export class HAreaView extends AreaView {
-  model:HArea
+  model: HArea
   visuals: HArea.Visuals
 
   protected _index_data(): SpatialIndex {

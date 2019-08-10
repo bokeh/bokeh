@@ -11,7 +11,7 @@ export interface AreaData extends GlyphData {}
 export interface AreaView extends AreaData {}
 
 export abstract class AreaView extends GlyphView {
-  model:Area
+  model: Area
   visuals: Area.Visuals
 
   draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {

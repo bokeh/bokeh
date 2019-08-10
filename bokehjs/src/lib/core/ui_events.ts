@@ -60,28 +60,28 @@ export type UISignal<E> = Signal<{id: string | null, e: E}, UIEvents>
 
 export class UIEvents implements EventListenerObject {
 
-  readonly pan_start    : UISignal<GestureEvent> = new Signal(this, 'pan:start')
-  readonly pan          : UISignal<GestureEvent> = new Signal(this, 'pan')
-  readonly pan_end      : UISignal<GestureEvent> = new Signal(this, 'pan:end')
-  readonly pinch_start  : UISignal<GestureEvent> = new Signal(this, 'pinch:start')
-  readonly pinch        : UISignal<GestureEvent> = new Signal(this, 'pinch')
-  readonly pinch_end    : UISignal<GestureEvent> = new Signal(this, 'pinch:end')
-  readonly rotate_start : UISignal<GestureEvent> = new Signal(this, 'rotate:start')
-  readonly rotate       : UISignal<GestureEvent> = new Signal(this, 'rotate')
-  readonly rotate_end   : UISignal<GestureEvent> = new Signal(this, 'rotate:end')
+  readonly pan_start:    UISignal<GestureEvent> = new Signal(this, 'pan:start')
+  readonly pan:          UISignal<GestureEvent> = new Signal(this, 'pan')
+  readonly pan_end:      UISignal<GestureEvent> = new Signal(this, 'pan:end')
+  readonly pinch_start:  UISignal<GestureEvent> = new Signal(this, 'pinch:start')
+  readonly pinch:        UISignal<GestureEvent> = new Signal(this, 'pinch')
+  readonly pinch_end:    UISignal<GestureEvent> = new Signal(this, 'pinch:end')
+  readonly rotate_start: UISignal<GestureEvent> = new Signal(this, 'rotate:start')
+  readonly rotate:       UISignal<GestureEvent> = new Signal(this, 'rotate')
+  readonly rotate_end:   UISignal<GestureEvent> = new Signal(this, 'rotate:end')
 
-  readonly tap          : UISignal<TapEvent>     = new Signal(this, 'tap')
-  readonly doubletap    : UISignal<TapEvent>     = new Signal(this, 'doubletap')
-  readonly press        : UISignal<TapEvent>     = new Signal(this, 'press')
+  readonly tap:          UISignal<TapEvent>     = new Signal(this, 'tap')
+  readonly doubletap:    UISignal<TapEvent>     = new Signal(this, 'doubletap')
+  readonly press:        UISignal<TapEvent>     = new Signal(this, 'press')
 
-  readonly move_enter   : UISignal<MoveEvent>    = new Signal(this, 'move:enter')
-  readonly move         : UISignal<MoveEvent>    = new Signal(this, 'move')
-  readonly move_exit    : UISignal<MoveEvent>    = new Signal(this, 'move:exit')
+  readonly move_enter:   UISignal<MoveEvent>    = new Signal(this, 'move:enter')
+  readonly move:         UISignal<MoveEvent>    = new Signal(this, 'move')
+  readonly move_exit:    UISignal<MoveEvent>    = new Signal(this, 'move:exit')
 
-  readonly scroll       : UISignal<ScrollEvent>  = new Signal(this, 'scroll')
+  readonly scroll:       UISignal<ScrollEvent>  = new Signal(this, 'scroll')
 
-  readonly keydown      : UISignal<KeyEvent>     = new Signal(this, 'keydown')
-  readonly keyup        : UISignal<KeyEvent>     = new Signal(this, 'keyup')
+  readonly keydown:      UISignal<KeyEvent>     = new Signal(this, 'keydown')
+  readonly keyup:        UISignal<KeyEvent>     = new Signal(this, 'keyup')
 
   private readonly hammer = new Hammer(this.hit_area, {touchAction: 'auto'})
 
