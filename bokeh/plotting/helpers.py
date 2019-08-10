@@ -288,28 +288,33 @@ def _pop_visuals(glyphclass, props, prefix="", defaults={}, trait_defaults={}):
             the type of glyph being handled
 
         props (dict) :
-            Maps property keys, prefixed or not, to their values.
-            Names are '[{prefix}][{feature}_]{trait}', no '_'s in {feature}.
+            Maps properties and prefixed properties to their values.
+            Keys in `props` matching `glyphclass` properties with added `prefix`
+              will get popped, other keys will be ignored.
+            Keys take the form '[{prefix}][{feature}_]{trait}'. Only {feature}
+              must not containt underscores.
+            Keys of the form '{prefix}{trait}' work as lower precedence aliases
+              for all {features}.
             Ex: {'fill_color': 'blue', 'selection_line_width': 0.5}
-            Items in `props` get popped if used.
 
         prefix (str) :
             Prefix used when accessing `props`. Ex: 'selection_'
 
         defaults (dict) :
-            Non prefixed fallback, in case prefixed property not in `props`.
+            Property fallback, in case prefixed property not in `props`.
+            Ex. 'line_width' here may be used for 'selection_line_width'.
 
         trait_defaults (dict) :
-          Fallback based on '{trait}', in case property not in `defaults`.
+            Fallback based on '{trait}', in case property not in `defaults`.
+            Ex. 'width' here may be used for 'selection_line_width'.
 
     Returns:
         result (dict) :
-            Resulting properties for the instance
+            Resulting properties for the instance (no prefixes).
 
-    Notes
-    -----
-    'text_color' feature trait, as well as 'color' and 'alpha' traits, have
-    ultimate defaults in case those can't be deduced.
+    Notes:
+        Feature trait 'text_color', as well as traits 'color' and 'alpha', have
+        ultimate defaults in case those can't be deduced.
     """
     def split_feature_trait(ft):
         """Feature is up to first '_'. Ex. 'line_color' => ['line', 'color']"""
@@ -322,19 +327,15 @@ def _pop_visuals(glyphclass, props, prefix="", defaults={}, trait_defaults={}):
         return feature in ('line', 'fill', 'text') and trait is not None
 
     result = dict()
-    defaults = {
-        'text_color': 'black'
-        }.update(defaults)
-    trait_defaults = {
-        'color': get_default_color(),
-        'alpha': 1.0
-        }.update(trait_defaults)
+    defaults = dict( [('text_color', 'black')] + list(defaults.items()) )
+    trait_defaults = dict( [('color', get_default_color()), ('alpha', 1.0)]
+                          + list(trait_defaults.items()) )
 
     for pname in filter(is_visual, glyphclass.properties()):
         trait = split_feature_trait(pname)[1]
         if prefix+pname in props:
             result[pname] = props.pop(prefix+pname)
-        elif prefix+trait in props: # and pname!='text_color':
+        elif prefix+trait in props:
             result[pname] = props[prefix+trait]
         elif pname in defaults:
             result[pname] = defaults[pname]
