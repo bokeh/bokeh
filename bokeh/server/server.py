@@ -383,6 +383,13 @@ class Server(BaseServer):
             http_server_kwargs = {}
         http_server_kwargs.setdefault('xheaders', opts.use_xheaders)
 
+        if opts.ssl_certfile:
+            log.info("Configuring for SSL termination")
+            import ssl
+            context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+            context.load_cert_chain(certfile=opts.ssl_certfile, keyfile=opts.ssl_keyfile, password=opts.ssl_password)
+            http_server_kwargs['ssl_options'] = context
+
         sockets, self._port = bind_sockets(self.address, self.port)
 
         extra_websocket_origins = create_hosts_whitelist(opts.allow_websocket_origin, self.port)
@@ -490,6 +497,18 @@ class _ServerOpts(Options):
     Whether to have the Bokeh server override the remote IP and URI scheme
     and protocol for all requests with ``X-Real-Ip``, ``X-Forwarded-For``,
     ``X-Scheme``, ``X-Forwarded-Proto`` headers (if they are provided).
+    """)
+
+    ssl_certfile = String(default=None, help="""
+
+    """)
+
+    ssl_keyfile = String(default=None, help="""
+
+    """)
+
+    ssl_password = String(default=None, help="""
+
     """)
 
     websocket_max_message_size = Int(default=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, help="""

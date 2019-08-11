@@ -96,6 +96,8 @@ PLOT_PAGE = _env.get_template("plot_page.rst")
 
 PROP_DETAIL = _env.get_template("prop_detail.rst")
 
+SETTINGS_DETAIL = _env.get_template("settings_detail.rst")
+
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
