@@ -1,4 +1,4 @@
-import {resolve, relative, join, dirname, basename} from "path"
+import {resolve, relative, join, dirname, basename, extname} from "path"
 const {_builtinLibs} = require("repl")
 import * as crypto from "crypto"
 
@@ -21,11 +21,13 @@ export function* imap<T, U>(iter: Iterable<T>, fn: (item: T, i: number) => U): I
 
 export type Path = string
 
-export interface Parent {
+export type Parent = {
   file: Path
 }
 
-export interface ModuleInfo {
+export type ModuleType = "js" | "json" | "css"
+
+export type ModuleInfo = {
   file: Path
   base: Path
   base_path: Path
@@ -33,7 +35,7 @@ export interface ModuleInfo {
   id: number
   hash: string
   changed: boolean
-  type: "js" | "json" | "css"
+  type: ModuleType
   source: string
   ast?: ts.SourceFile
   dependency_paths: Map<string, Path>
@@ -48,7 +50,7 @@ export type ModuleCode = {
   min_map?: string
 }
 
-export interface ModuleArtifact {
+export type ModuleArtifact = {
   module: ModuleInfo
   code: ModuleCode
 }
@@ -229,7 +231,7 @@ export class Linker {
     main_modules.concat(...plugin_models).forEach((module, i) => module.id = i)
 
     const print = (module: ModuleInfo) => {
-      let ast = module.ast || transforms.parse_es(module.file, module.source)
+      let ast = module.ast || this.parse_module(module)
 
       const transformers = []
 
@@ -459,11 +461,23 @@ export class Linker {
       return this.resolve_absolute(dep, parent)
   }
 
+  private parse_module({file, source, type}: {file: Path, source: string, type: ModuleType}): ts.SourceFile {
+    const {ES5, JSON} = ts.ScriptTarget
+    return transforms.parse_es(file, source, type == "json" ? JSON : ES5)
+  }
+
   new_module(file: Path): ModuleInfo {
     const source = read(file)!
     const hash = crypto.createHash("sha256").update(source).digest("hex")
-    const is_json = file.endsWith(".json")
-    const is_css = file.endsWith(".css")
+    const type = (() => {
+      switch (extname(file)) {
+        case ".json": return "json"
+        case ".css": return "css"
+        case ".js": return "js"
+        default:
+          throw new Error(`unsupported extension of ${file}`)
+      }
+    })()
     const [base, base_path, canonical] = ((): [string, string, string | undefined] => {
       const [primary, ...secondary] = this.bases
 
@@ -489,7 +503,7 @@ export class Linker {
 
     const changed = cached == null || cached.module.hash != hash
     if (changed) {
-      ast = transforms.parse_es(file, source)
+      ast = this.parse_module({file, source, type})
 
       const collected = transforms.collect_deps(ast).filter((dep) => !this.ignores.has(dep))
       dependency_paths = new Map(collected.map((dep) => [dep, this.resolve_file(dep, {file})]))
@@ -506,7 +520,7 @@ export class Linker {
       changed,
       source,
       ast,
-      type: is_json ? "json" : (is_css ? "css" : "js"),
+      type,
       dependency_paths,
       dependency_map: new Map(),
       dependencies: new Map(),

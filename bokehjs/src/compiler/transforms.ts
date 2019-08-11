@@ -241,7 +241,7 @@ export function add_json_export() {
         const left = ts.createPropertyAccess(ts.createIdentifier("module"), "exports")
         const right = statement.expression
         const assign = ts.createStatement(ts.createAssignment(left, right))
-        return ts.updateSourceFileNode(root, [statement, assign])
+        return ts.updateSourceFileNode(root, [assign])
       }
     }
 
