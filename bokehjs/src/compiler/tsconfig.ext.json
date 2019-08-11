@@ -1,4 +1,4 @@
-const tsconfig = {
+{
   "compilerOptions": {
     "noImplicitAny": true,
     "noImplicitThis": true,
@@ -23,9 +23,7 @@ const tsconfig = {
     "target": "ES5",
     "lib": ["es2015", "dom"],
     "baseUrl": ".",
-    "outDir": "./dist",
+    "outDir": "./dist"
   },
-  "include": ["./**/*.ts"],
+  "include": ["./**/*.ts"]
 }
-
-export default tsconfig

@@ -27,7 +27,7 @@ function reply(data: unknown): void {
   process.stdout.write("\n")
 }
 
-import tsconfig_json from "./tsconfig"
+import * as tsconfig_json from "./tsconfig.ext.json"
 
 async function build() {
   const base_dir =  argv.baseDir as string
