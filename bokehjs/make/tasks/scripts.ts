@@ -25,7 +25,7 @@ task("scripts:bundle", ["scripts:compile"], async () => {
   const linker = new Linker({
     entries: packages.map((pkg) => pkg.main),
     bases: [paths.build_dir.lib, "./node_modules"],
-    cache: join(paths.build_dir.js, "cache.json"),
+    cache: argv.cache !== false ? join(paths.build_dir.js, "cache.json") : undefined,
   })
 
   const bundles = linker.link()
