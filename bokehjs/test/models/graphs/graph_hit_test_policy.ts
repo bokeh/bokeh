@@ -227,7 +227,7 @@ describe("GraphHitTestPolicy", () => {
         const policy = new EdgesAndLinkedNodes()
         policy.do_selection(hit_test_result, gr, true, false)
 
-        expect(node_source.selected.indices).to.be.deep.equal( [0, 2] )
+        expect(node_source.selected.indices).to.be.deep.equal([0, 2])
       })
     })
 
@@ -253,7 +253,7 @@ describe("GraphHitTestPolicy", () => {
         const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, false)
 
         expect(did_hit).to.be.true
-        expect(node_source.inspected.indices).to.be.deep.equal( [0, 2] )
+        expect(node_source.inspected.indices).to.be.deep.equal([0, 2])
       })
     })
   })

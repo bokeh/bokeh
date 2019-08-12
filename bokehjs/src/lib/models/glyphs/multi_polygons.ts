@@ -51,7 +51,7 @@ export class MultiPolygonsView extends GlyphView {
     const points = []
     for (let i = 0, end = this._xs.length; i < end; i++) {
       for (let j = 0, endj = this._xs[i].length; j < endj; j++) {
-        if (this._xs[i][j].length > 1 ) {
+        if (this._xs[i][j].length > 1) {
           for (let k = 1, endk = this._xs[i][j].length; k < endk; k++) {
             const xs = this._xs[i][j][k]  // only use holes
             const ys = this._ys[i][j][k]  // only use holes

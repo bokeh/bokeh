@@ -175,7 +175,7 @@ describe("Document", () => {
 
   beforeEach(() => {
     date_stub = sinon.stub(Date, 'now')
-    date_stub.onCall(0).returns( 5)
+    date_stub.onCall(0).returns(5)
     date_stub.onCall(1).returns(10)
     date_stub.onCall(2).returns(12)
     date_stub.onCall(3).returns(15)

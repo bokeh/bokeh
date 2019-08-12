@@ -8,7 +8,7 @@ describe("CheckboxButtonGroup", () => {
 
   describe("change_active", () => {
 
-    it( "should add arg to active if not present", () => {
+    it("should add arg to active if not present", () => {
       const g = new CheckboxButtonGroup({active: [0, 2]})
       const view = new g.default_view({model: g, parent: null}).build()
       view.change_active(1)

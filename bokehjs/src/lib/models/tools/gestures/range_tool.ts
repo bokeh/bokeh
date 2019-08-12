@@ -76,7 +76,7 @@ export function compute_end_side(end: number, range: Range, side: Side): Side {
 }
 
 export function compute_start_side(start: number, range: Range, side: Side): Side {
-  if (start < range.end ) {
+  if (start < range.end) {
     range.start = start
     return side
   } else {

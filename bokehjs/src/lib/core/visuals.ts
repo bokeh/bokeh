@@ -37,7 +37,7 @@ function _get_canvas(size: number): HTMLCanvasElement {
 }
 
 export type Color = string
-function create_hatch_canvas(hatch_pattern: mixins.HatchPattern, hatch_color: Color, hatch_scale: number, hatch_weight: number ): HTMLCanvasElement {
+function create_hatch_canvas(hatch_pattern: mixins.HatchPattern, hatch_color: Color, hatch_scale: number, hatch_weight: number): HTMLCanvasElement {
   const h = hatch_scale
   const h2 = h / 2
   const h4 = h2 / 2
@@ -344,7 +344,7 @@ export class Hatch extends ContextProperties {
       this.cache_select("hatch_pattern", i)
       this.cache_select("hatch_weight", i)
       const {hatch_color, hatch_scale, hatch_pattern, hatch_weight, hatch_extra} = this.cache
-      if (hatch_extra != null && hatch_extra.hasOwnProperty(hatch_pattern) ) {
+      if (hatch_extra != null && hatch_extra.hasOwnProperty(hatch_pattern)) {
         const custom = hatch_extra[hatch_pattern]
         this.cache.pattern = custom.get_pattern(hatch_color, hatch_scale, hatch_weight)
       } else {
@@ -361,7 +361,7 @@ export class Hatch extends ContextProperties {
 
   private _try_defer(defer_func: () => void): void {
     const {hatch_pattern, hatch_extra} = this.cache
-    if (hatch_extra != null && hatch_extra.hasOwnProperty(hatch_pattern) ) {
+    if (hatch_extra != null && hatch_extra.hasOwnProperty(hatch_pattern)) {
       const custom = hatch_extra[hatch_pattern]
       custom.onload(defer_func)
     }
