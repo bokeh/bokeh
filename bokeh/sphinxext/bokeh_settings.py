@@ -32,6 +32,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import importlib
+import textwrap
 
 # External imports
 from docutils.parsers.rst.directives import unchanged
@@ -39,7 +40,7 @@ from docutils.parsers.rst.directives import unchanged
 from sphinx.errors import SphinxError
 
 # Bokeh imports
-from ..settings import PrioritizedSetting
+from ..settings import PrioritizedSetting, _Unset
 from .bokeh_directive import BokehDirective, py_sig_re
 from .templates import SETTINGS_DETAIL
 
@@ -88,14 +89,26 @@ class BokehSettingsDirective(BokehDirective):
         if obj is None:
             raise SphinxError("Unable to generate reference docs for %s, no model '%s' in %s" % (obj_name, obj_name, module_name))
 
-        settings = [x.__dict__ for x in obj.__class__.__dict__.values() if isinstance(x, PrioritizedSetting)]
+        settings = []
+        for x in obj.__class__.__dict__.values():
+            if not isinstance(x, PrioritizedSetting):
+                continue
+            # help = [line.strip() for line in x.help.strip().split("\n")]
+            setting = {
+                'name': x.name,
+                'env_var': x.env_var,
+                'type': x.convert_type,
+                'help': textwrap.dedent(x.help),
+                'default': "(Unset)" if x.default is _Unset else repr(x.default),
+                'dev_default': "(Unset)" if x.dev_default is _Unset else repr(x.dev_default),
+            }
+            settings.append(setting)
 
         rst_text = SETTINGS_DETAIL.render(
             name=obj_name,
             module_name=module_name,
             settings=settings
         )
-
         return self._parse(rst_text, "<bokeh-settings>")
 
 def setup(app):

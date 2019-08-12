@@ -7,6 +7,8 @@
 ''' Control global configuration options with environment variables.
 A global settings object that other parts of Bokeh can refer to.
 
+Setting values are always looked up in the following prescribed order:
+
 immediately supplied values
     These are values that are passed to the setting:
 
@@ -65,8 +67,25 @@ implicit defaults
 If no value is obtained after searching all of these locations, then a
 RuntimeError will be raised.
 
+Defined Settings
+~~~~~~~~~~~~~~~~
+
+Settings are accessible on the ``bokeh.settings.settings`` instance, via
+accessor methods. For instance:
+
+.. code-block::
+
+    settings.minified()
+
+Bokeh provides the following defined settings:
+
 .. bokeh-settings:: settings
     :module: bokeh.settings
+
+Additionally, there are a few methods on the ``settings`` object:
+
+.. autoclass:: Settings
+    :members:
 
 '''
 
@@ -210,8 +229,6 @@ def convert_logging(value):
 
     raise ValueError("Cannot convert {} to log level, valid values are: {}".format(value, ", ".join(_log_levels)))
 
-_default_convert = lambda x: x
-
 class _Unset: pass
 
 def is_dev():
@@ -246,7 +263,7 @@ class PrioritizedSetting(object):
     '''
 
     def __init__(self, name, env_var=None, default=_Unset, dev_default=_Unset, convert=None, help=""):
-        self._convert = convert if convert else _default_convert
+        self._convert = convert if convert else convert_str
         self._default = default
         self._dev_default = dev_default
         self._env_var = env_var
@@ -340,6 +357,21 @@ class PrioritizedSetting(object):
     @property
     def dev_default(self):
         return self._dev_default
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def help(self):
+        return self._help
+
+    @property
+    def convert_type(self):
+        if self._convert is convert_str: return "String"
+        if self._convert is convert_bool: return "Bool"
+        if self._convert is convert_logging: return "Log Level"
+        if self._convert is convert_str_seq: return "List[String]"
 
 _config_user_locations = (
     join(expanduser("~"), ".bokeh", "bokeh.yaml"),

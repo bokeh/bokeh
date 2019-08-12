@@ -86,15 +86,15 @@ class TestSettings(object):
         assert ps._parent == bs.settings
 
     def test_types(self):
-        assert bs.settings.ignore_filename._convert == bs.convert_bool
-        assert bs.settings.minified._convert == bs.convert_bool
-        assert bs.settings.perform_document_validation._convert == bs.convert_bool
-        assert bs.settings.simple_ids._convert == bs.convert_bool
-        assert bs.settings.strict._convert == bs.convert_bool
+        assert bs.settings.ignore_filename.convert_type == "Bool"
+        assert bs.settings.minified.convert_type == "Bool"
+        assert bs.settings.perform_document_validation.convert_type == "Bool"
+        assert bs.settings.simple_ids.convert_type == "Bool"
+        assert bs.settings.strict.convert_type == "Bool"
 
-        assert bs.settings.py_log_level._convert == bs.convert_logging
+        assert bs.settings.py_log_level.convert_type == "Log Level"
 
-        assert bs.settings.allowed_ws_origin._convert == bs.convert_str_seq
+        assert bs.settings.allowed_ws_origin.convert_type == "List[String]"
 
         default_typed = set(_expected_settings) - set([
             'ignore_filename',
@@ -107,7 +107,7 @@ class TestSettings(object):
         ])
         for name in default_typed:
             ps = getattr(bs.settings, name)
-            assert ps._convert == bs._default_convert
+            assert ps.convert_type == "String"
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -172,6 +172,14 @@ class TestPrioritizedSetting(object):
     def test_implict_default_converts(self):
         ps = bs.PrioritizedSetting("foo", convert=int, default="10")
         assert ps() == 10
+
+    def test_help(self):
+        ps = bs.PrioritizedSetting("foo", env_var="BOKEH_FOO", default=10, help="bar")
+        assert ps.help == "bar"
+
+    def test_name(self):
+        ps = bs.PrioritizedSetting("foo", env_var="BOKEH_FOO", default=10)
+        assert ps.name == "foo"
 
     def test_default(self):
         ps = bs.PrioritizedSetting("foo", env_var="BOKEH_FOO", default=10)

@@ -1,12 +1,13 @@
 {% for setting in settings %}
 
-.. data:: {{ setting['_name'] }}
-    :annotation: = {{ setting['_env_var'] }}
+.. data:: {{ setting['name'] }}
+    :annotation:
 
-{{ setting['_help']|indent(4) }}
+    * **Type**: {{ setting['type'] }}
+    * **Env var**: ``{{ setting['env_var'] }}``
+    * **Default**: {{ setting['default'] }}
+    * **Dev Default**: {{ setting['dev_default'] }}
+
+    {{ setting['help']|indent(4) }}
 
 {% endfor %}
-
-
-. autoclass:: {{ module_name }}.Settings
-    :members:
