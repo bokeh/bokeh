@@ -11,7 +11,11 @@ ${comment(license)}
   root["Bokeh"] = factory();
 })(this, function() {
   var define;
-  return (function(modules, aliases, entry, parent_require) {
+  var parent_require = typeof require === "function" && require
+  return (function(modules, entry, aliases, externals) {
+    if (aliases === undefined) aliases = {};
+    if (externals === undefined) externals = {};
+
     var cache = {};
 
     var normalize = function(name) {
@@ -45,8 +49,13 @@ ${comment(license)}
         mod = cache[id];
         if (!mod) {
           if (!modules[id]) {
-            if (parent_require)
-              return parent_require(id);
+            if (parent_require && externals[id]) {
+              try {
+                mod = {exports: parent_require(id)};
+                cache[id] = cache[name] = mod;
+                return mod.exports;
+              } catch (e) {}
+            }
 
             var err = new Error("Cannot find module '" + name + "'");
             err.code = 'MODULE_NOT_FOUND';
@@ -54,8 +63,7 @@ ${comment(license)}
           }
 
           mod = {exports: {}};
-          cache[id] = mod;
-          cache[name] = mod;
+          cache[id] = cache[name] = mod;
           modules[id].call(mod.exports, require, mod, mod.exports);
         } else
           cache[name] = mod;
@@ -67,13 +75,20 @@ ${comment(license)}
     var main = require(entry);
     main.require = require;
 
-    main.register_plugin = function(plugin_modules, plugin_aliases, plugin_entry) {
+    main.register_plugin = function(plugin_modules, plugin_entry, plugin_aliases, plugin_externals) {
+      if (plugin_aliases === undefined) plugin_aliases = {};
+      if (plugin_externals === undefined) plugin_externals = {};
+
       for (var name in plugin_modules) {
         modules[name] = plugin_modules[name];
       }
 
       for (var name in plugin_aliases) {
         aliases[name] = plugin_aliases[name];
+      }
+
+      for (var name in plugin_externals) {
+        externals[name] = plugin_externals[name];
       }
 
       var plugin = require(plugin_entry);
@@ -95,9 +110,9 @@ ${comment(license)}
   factory(root["Bokeh"]);
 })(this, function(Bokeh) {
   var define;
-  return (function(modules, aliases, entry) {
+  return (function(modules, entry, aliases, externals) {
     if (Bokeh != null) {
-      return Bokeh.register_plugin(modules, aliases, entry);
+      return Bokeh.register_plugin(modules, entry, aliases, externals);
     } else {
       throw new Error("Cannot find Bokeh. You have to load it prior to loading plugins.");
     }

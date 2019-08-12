@@ -33,6 +33,10 @@ export module HasProps {
 
 export interface HasProps extends HasProps.Attrs {
   constructor: Function & {__name__: string}
+
+  // XXX: this may indicate a bug in the compiler, because --project and
+  // --build disagree whether this is necessary or not (it shouldn't).
+  id: string
 }
 
 export abstract class HasProps extends Signalable() {

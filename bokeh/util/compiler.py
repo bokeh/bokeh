@@ -357,13 +357,6 @@ def bundle_all_models():
 _plugin_umd = \
 """\
 (function(root, factory) {
-//  if(typeof exports === 'object' && typeof module === 'object')
-//    factory(require("Bokeh"));
-//  else if(typeof define === 'function' && define.amd)
-//    define(["Bokeh"], factory);
-//  else if(typeof exports === 'object')
-//    factory(require("Bokeh"));
-//  else
     factory(root["Bokeh"]);
 })(this, function(Bokeh) {
   var define;
@@ -371,12 +364,12 @@ _plugin_umd = \
 });
 """
 
-# XXX: this is the same as bokehjs/src/js/plugin-prelude.js
+# XXX: this is (almost) the same as bokehjs/src/js/plugin-prelude.js
 _plugin_prelude = \
 """\
 (function outer(modules, entry) {
   if (Bokeh != null) {
-    return Bokeh.register_plugin(modules, {}, entry);
+    return Bokeh.register_plugin(modules, entry);
   } else {
     throw new Error("Cannot find Bokeh. You have to load it prior to loading plugins.");
   }

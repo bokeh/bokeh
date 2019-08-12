@@ -31,6 +31,8 @@ from . import TOP_PATH
 # Tests
 #-----------------------------------------------------------------------------
 
+blacklist = {"bokeh.embed.notebook.widgets"}
+
 @pytest.mark.codebase
 def test_python_execution_with_OO():
     ''' Running python with -OO will discard docstrings (__doc__ is None)
@@ -58,6 +60,9 @@ def test_python_execution_with_OO():
                 mod = path.replace(os.sep, ".")
             else:
                 mod = path.replace(os.sep, ".") + "." + file[:-3]
+
+            if mod in blacklist:
+                continue
 
             imports.append("import " + mod)
 

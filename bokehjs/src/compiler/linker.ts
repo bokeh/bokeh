@@ -12,6 +12,8 @@ import {read, write, file_exists, directory_exists, rename} from "./sys"
 import * as preludes from "./prelude"
 import * as transforms from "./transforms"
 
+const cache_version = 1
+
 export function* imap<T, U>(iter: Iterable<T>, fn: (item: T, i: number) => U): Iterable<U> {
   let i = 0
   for (const item of iter) {
@@ -41,6 +43,7 @@ export type ModuleInfo = {
   dependency_paths: Map<string, Path>
   dependency_map: Map<string, number>
   dependencies: Map<string, ModuleInfo>
+  externals: Set<string>
 }
 
 export type ModuleCode = {
@@ -93,14 +96,15 @@ export class Bundle {
     let line = 0
     let sources: string = ""
     const sourcemap = combine.create()
-    const exported = new Map<string, number>()
+    const aliases = new Map<string, number>()
+    const externals = new Map<string, true>()
 
     const newlines = (source: string): number => {
       const result = source.match(/\n/g)
       return result != null ? result.length : 0
     }
 
-    const {entry, artifacts, builtins, prelude, assembly: {prefix, suffix, wrap}} = this
+    const {entry, artifacts, prelude, assembly: {prefix, suffix, wrap}} = this
 
     sources += `${prelude}(${prefix}\n`
     line += newlines(sources)
@@ -109,7 +113,10 @@ export class Bundle {
       const {module} = artifact
 
       if (module.canonical != null)
-        exported.set(module.canonical, module.id)
+        aliases.set(module.canonical, module.id)
+
+      for (const external of module.externals)
+        externals.set(external, true)
 
       const start = wrap(module.id, "")
       sources += start
@@ -126,12 +133,12 @@ export class Bundle {
       line += newlines(end)
     }
 
-    const aliases = JSON.stringify(to_obj(exported))
-    const parent_require = builtins ? `typeof "require" !== "undefined" && require` : "null"
-    sources += `${suffix}, ${aliases}, ${entry.id}, ${parent_require});\n})\n`
+    const aliases_json = JSON.stringify(to_obj(aliases))
+    const externals_json = JSON.stringify(to_obj(externals))
+    sources += `${suffix}, ${entry.id}, ${aliases_json}, ${externals_json});\n})\n`
 
     const source_map = convert.fromBase64(sourcemap.base64()).toObject()
-    return new Artifact(sources, source_map, exported)
+    return new Artifact(sources, source_map, aliases)
   }
 }
 
@@ -160,8 +167,8 @@ export class Artifact {
 export interface LinkerOpts {
   entries: Path[]
   bases?: Path[]
-  excludes?: Path[] // paths: process, but don't include in a bundle
-  ignores?: string[]  // modules: don't process at all
+  excludes?: Path[]    // paths: process, but don't include in a bundle
+  externals?: string[] // modules: delegate to an external require()
   builtins?: boolean
   cache?: Path
   minify?: boolean
@@ -171,7 +178,7 @@ export class Linker {
   readonly entries: Path[]
   readonly bases: Path[]
   readonly excludes: Set<Path>
-  readonly ignores: Set<string>
+  readonly externals: Set<string>
   readonly builtins: boolean
   readonly cache_path?: Path
   readonly cache: Map<Path, ModuleArtifact>
@@ -181,15 +188,15 @@ export class Linker {
     this.entries = opts.entries
     this.bases = (opts.bases || []).map((path) => resolve(path))
     this.excludes = new Set((opts.excludes || []).map((path) => resolve(path)))
-    this.ignores = new Set(opts.ignores || [])
+    this.externals = new Set(opts.externals || [])
     this.builtins = opts.builtins || false
 
     if (this.builtins) {
-      this.ignores.add("module")
-      this.ignores.add("constants")
+      this.externals.add("module")
+      this.externals.add("constants")
 
       for (const lib of _builtinLibs)
-        this.ignores.add(lib)
+        this.externals.add(lib)
     }
 
     for (const entry of this.entries) {
@@ -323,7 +330,12 @@ export class Linker {
     this.cache.clear()
 
     const json = JSON.parse(read(cache_path)!)
-    for (const {module, code} of json) {
+    if (json.version !== cache_version) {
+      console.warn("ignoring cache due to format version mismatch")
+      return
+    }
+
+    for (const {module, code} of json.artifacts) {
       const artifact = {
         module: {
           ...module,
@@ -332,6 +344,7 @@ export class Linker {
           dependencies: new Map(),
           dependency_map: new Map(module.dependency_map),
           dependency_paths: new Map(module.dependency_paths),
+          externals: new Set(module.externals),
         },
         code,
       } as ModuleArtifact
@@ -349,7 +362,7 @@ export class Linker {
     if (this.cache_path == null)
       return
 
-    const serializable = []
+    const artifacts = []
     for (const artifact of this.cache.values()) {
       const module = {...artifact.module}
 
@@ -357,17 +370,18 @@ export class Linker {
       delete module.ast
       delete module.dependencies
 
-      serializable.push({
+      artifacts.push({
         module: {
           ...module,
           dependency_map: [...module.dependency_map.entries()],
           dependency_paths: [...module.dependency_paths.entries()],
+          externals: [...module.externals.values()],
         },
         code: artifact.code,
       })
     }
 
-    const json = JSON.stringify(serializable)
+    const json = JSON.stringify({version: cache_version, artifacts})
     write(this.cache_path, json)
   }
 
@@ -500,15 +514,21 @@ export class Linker {
 
     let ast: ts.SourceFile | undefined
     let dependency_paths: Map<string, Path>
+    let externals: Set<string>
 
     const changed = cached == null || cached.module.hash != hash
     if (changed) {
       ast = this.parse_module({file, source, type})
 
-      const collected = transforms.collect_deps(ast).filter((dep) => !this.ignores.has(dep))
-      dependency_paths = new Map(collected.map((dep) => [dep, this.resolve_file(dep, {file})]))
-    } else
+      const collected = transforms.collect_deps(ast)
+      const filtered = collected.filter((dep) => !this.externals.has(dep))
+
+      dependency_paths = new Map(filtered.map((dep) => [dep, this.resolve_file(dep, {file})]))
+      externals = new Set(collected.filter((dep) => this.externals.has(dep)))
+    } else {
       dependency_paths = cached!.module.dependency_paths
+      externals = cached!.module.externals
+    }
 
     return {
       file,
@@ -524,6 +544,7 @@ export class Linker {
       dependency_paths,
       dependency_map: new Map(),
       dependencies: new Map(),
+      externals,
     }
   }
 

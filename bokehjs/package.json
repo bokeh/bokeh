@@ -89,7 +89,8 @@
     "slickgrid": "https://github.com/bokeh/SlickGrid.git#8e993bf",
     "sprintf-js": "^1.1.2",
     "timezone": "^1.0.22",
-    "underscore.template": "^0.1.7"
+    "underscore.template": "^0.1.7",
+    "@jupyter-widgets/base": "^1.1.10"
   },
   "scripts": {
     "prepare": "node ./prepare.js",

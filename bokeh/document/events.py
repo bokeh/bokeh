@@ -237,8 +237,7 @@ class ModelChangedEvent(DocumentPatchedEvent):
     def dispatch(self, receiver):
         ''' Dispatch handling of this event to a receiver.
 
-        This method will invoke ``receiver._document_model_dhanged`` if it
-        exists.
+        This method will invoke ``receiver._document_model_changed`` if it exists.
 
         '''
         super(ModelChangedEvent, self).dispatch(receiver)
