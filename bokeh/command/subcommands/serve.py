@@ -176,7 +176,7 @@ that is SSL-terminated.
 
 A Bokeh server can also terminate SSL connections directly by specifying the
 path to a single file in PEM format containing the certificate as well as any
-number of CA certificates needed to establish the certificate’s authenticity:
+number of CA certificates needed to establish the certificate's authenticity:
 
 .. code-block:: sh
 
