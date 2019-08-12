@@ -43,7 +43,7 @@ export class ImageBaseView extends XYGlyphView {
     return new SpatialIndex(points)
   }
 
-  _lrtb(i: number) : [number, number, number, number]{
+  _lrtb(i: number): [number, number, number, number]{
     const xr = this.renderer.xscale.source_range
     const x1 = this._x[i]
     const x2 = xr.is_reversed ? x1 - this._dw[i] : x1 + this._dw[i]
@@ -52,8 +52,8 @@ export class ImageBaseView extends XYGlyphView {
     const y1 = this._y[i]
     const y2 = yr.is_reversed ? y1 - this._dh[i] : y1 + this._dh[i]
 
-    const [l,r] = x1 < x2 ? [x1,x2] : [x2,x1]
-    const [b,t] = y1 < y2 ? [y1,y2] : [y2,y1]
+    const [l, r] = x1 < x2 ? [x1, x2] : [x2, x1]
+    const [b, t] = y1 < y2 ? [y1, y2] : [y2, y1]
     return [l, r, t, b]
   }
 
@@ -114,8 +114,8 @@ export class ImageBaseView extends XYGlyphView {
     }
   }
 
-  _image_index(index : number, x: number, y : number) : ImageIndex {
-    const [l,r,t,b] = this._lrtb(index)
+  _image_index(index: number, x: number, y: number): ImageIndex {
+    const [l, r, t, b] = this._lrtb(index)
     const width = this._width[index]
     const height = this._height[index]
     const dx = (r - l) / width
@@ -125,7 +125,7 @@ export class ImageBaseView extends XYGlyphView {
     return {index, dim1, dim2, flat_index: dim2*width + dim1}
   }
 
-  _hit_point(geometry: PointGeometry) : Selection {
+  _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy} = geometry
     const x = this.renderer.xscale.invert(sx)
     const y = this.renderer.yscale.invert(sy)
@@ -135,7 +135,7 @@ export class ImageBaseView extends XYGlyphView {
     result.image_indices = []
     for (const index of candidates) {
       if ((sx != Infinity) && (sy != Infinity)) {
-        result.image_indices.push(this._image_index(index, x,y))
+        result.image_indices.push(this._image_index(index, x, y))
       }
     }
     return result

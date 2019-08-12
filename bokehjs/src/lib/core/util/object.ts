@@ -21,7 +21,7 @@ export function clone<T extends object>(obj: T): T {
   return extend({}, obj) // XXX: can't use {...obj} due to https://github.com/Microsoft/TypeScript/issues/14409
 }
 
-export function merge<T>(obj1: {[key: string] : T[]}, obj2: {[key: string]: T[]}): {[key: string]: T[]} {
+export function merge<T>(obj1: {[key: string]: T[]}, obj2: {[key: string]: T[]}): {[key: string]: T[]} {
   /*
    * Returns an object with the array values for obj1 and obj2 unioned by key.
    */

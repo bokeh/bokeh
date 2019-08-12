@@ -25,7 +25,7 @@ export namespace Stocks {
     plot.add_layout(new Bokeh.Grid({ticker: yaxis.ticker, dimension: 1}))
 
     // Add a line for each entry in the source
-    const colors = ['#aa0000','#00aa00', '#0000aa', '#aaaa00', '#aa00aa', '#00aaaa']
+    const colors = ['#aa0000', '#00aa00', '#0000aa', '#aaaa00', '#aa00aa', '#00aaaa']
     let i = -1
     for (const key in source.data) {
       if (key != 't') {

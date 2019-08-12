@@ -57,12 +57,12 @@ describe("LogScale module", () => {
 
     it("should vector map values logly", () => {
       const scale = mkscale()
-      expect(scale.v_compute([1,10,100,10000])).to.be.deep.equal(new Float64Array([10, 35, 60, 110]))
+      expect(scale.v_compute([1, 10, 100, 10000])).to.be.deep.equal(new Float64Array([10, 35, 60, 110]))
     })
 
     it("should map to a Float64Array", () => {
       const scale = mkscale()
-      expect(scale.v_compute([-1,0,5,10,11])).to.be.instanceof(Float64Array)
+      expect(scale.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(Float64Array)
     })
   })
 

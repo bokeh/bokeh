@@ -138,7 +138,7 @@ export function attach_color(prog: Program, vbo: VertexBuffer & {used?: boolean}
   if (!visual.doit) {
     // Don't draw (draw transparent)
     vbo.used = false
-    prog.set_attribute(att_name, 'vec4', [0,0,0,0])
+    prog.set_attribute(att_name, 'vec4', [0, 0, 0, 0])
   } else if (visual_prop_is_singular(visual, colorname) && visual_prop_is_singular(visual, alphaname)) {
     // Nice and simple; both color and alpha are singular
     vbo.used = false

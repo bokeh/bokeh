@@ -8,19 +8,19 @@ import {LineJoin, LineCap, FontStyle, TextAlign, TextBaseline} from "./enums"
 import {HasProps} from "./has_props"
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
 
-function _horz(ctx: Context2d , h: number, h2: number): void {
+function _horz(ctx: Context2d, h: number, h2: number): void {
   ctx.moveTo(0, h2+0.5)
   ctx.lineTo(h, h2+0.5)
   ctx.stroke()
 }
 
-function _vert(ctx: Context2d , h: number, h2: number): void {
+function _vert(ctx: Context2d, h: number, h2: number): void {
   ctx.moveTo(h2+0.5, 0)
   ctx.lineTo(h2+0.5, h)
   ctx.stroke()
 }
 
-function _x(ctx: Context2d , h: number): void {
+function _x(ctx: Context2d, h: number): void {
   ctx.moveTo(0, h)
   ctx.lineTo(h, 0)
   ctx.stroke()
@@ -37,7 +37,7 @@ function _get_canvas(size: number): HTMLCanvasElement {
 }
 
 export type Color = string
-function create_hatch_canvas(hatch_pattern: mixins.HatchPattern, hatch_color: Color, hatch_scale: number, hatch_weight:number ): HTMLCanvasElement {
+function create_hatch_canvas(hatch_pattern: mixins.HatchPattern, hatch_color: Color, hatch_scale: number, hatch_weight: number ): HTMLCanvasElement {
     const h = hatch_scale
     const h2 = h / 2
     const h4 = h2 / 2
@@ -359,7 +359,7 @@ export class Hatch extends ContextProperties {
     return value
   }
 
-  private _try_defer(defer_func: () => void):void {
+  private _try_defer(defer_func: () => void): void {
     const {hatch_pattern, hatch_extra} = this.cache
     if (hatch_extra != null && hatch_extra.hasOwnProperty(hatch_pattern) ) {
       const custom = hatch_extra[hatch_pattern]

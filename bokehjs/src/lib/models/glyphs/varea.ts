@@ -20,7 +20,7 @@ export interface VAreaData extends AreaData {
 export interface VAreaView extends VAreaData {}
 
 export class VAreaView extends AreaView {
-  model:VArea
+  model: VArea
   visuals: VArea.Visuals
 
   protected _index_data(): SpatialIndex {

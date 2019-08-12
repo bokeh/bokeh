@@ -1,0 +1,21 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": [
+      "./make/tsconfig.json",
+      "./src/lib/tsconfig.json",
+      "./src/compiler/tsconfig.json",
+      "./test/tsconfig.json",
+      "./examples/tsconfig.json"
+    ],
+    "tsconfigRootDir": ".",
+    "sourceType": "module"
+  },
+  "plugins": ["@typescript-eslint"],
+  "extends": [],
+  "rules": {
+    "comma-spacing": ["error", {"before": false, "after": true}],
+    "comma-dangle": ["error", "always-multiline"],
+    "@typescript-eslint/type-annotation-spacing": ["error"]
+  }
+}

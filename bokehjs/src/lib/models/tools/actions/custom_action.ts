@@ -45,7 +45,7 @@ export class CustomAction extends ActionTool {
     this.define<CustomAction.Props>({
       action_tooltip: [ p.String, 'Perform a Custom Action'],
       callback:       [ p.Any                              ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
-      icon:           [ p.String,                          ],
+      icon:           [ p.String                           ],
     })
   }
 

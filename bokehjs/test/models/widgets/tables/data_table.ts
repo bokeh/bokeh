@@ -48,27 +48,27 @@ describe("data_table module", () => {
   describe("DataProvider class", () => {
 
     it("should raise an error if DTINDEX_NAME is in source", () => {
-      const bad = new ColumnDataSource({data: {__bkdt_internal_index__: [0,1,2,10], bar: [3.4, 1.2, 0, -10]}})
+      const bad = new ColumnDataSource({data: {__bkdt_internal_index__: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
       const view = new CDSView({source: bad})
       expect(() => new TableDataProvider(bad, view)).to.throw(Error)
     })
 
     it("should construct an internal index", () => {
-      const source = new ColumnDataSource({data: {index: [0,1,2,10], bar: [3.4, 1.2, 0, -10]}})
+      const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
       const view = new CDSView({source})
       const dp = new TableDataProvider(source, view)
-      expect(dp.index).to.deep.equal([0,1,2,3])
+      expect(dp.index).to.deep.equal([0, 1, 2, 3])
     })
 
     it("should report the data source length", () => {
-      const source = new ColumnDataSource({data: {index: [0,1,2,10], bar: [3.4, 1.2, 0, -10]}})
+      const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
       const view = new CDSView({source})
       const dp = new TableDataProvider(source, view)
       expect(dp.getLength()).to.equal(4)
     })
 
     it("should return items when unsorted", () => {
-      const source = new ColumnDataSource({data: {index: [0,1,2,10], bar: [3.4, 1.2, 0, -10]}})
+      const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
       const view = new CDSView({source})
       const dp = new TableDataProvider(source, view)
 
@@ -79,7 +79,7 @@ describe("data_table module", () => {
     })
 
     it("should return items when sorted", () => {
-      const source = new ColumnDataSource({data: {index: [0,1,2,10], bar: [3.4, 1.2, 0, -10]}})
+      const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
       const view = new CDSView({source})
       const dp = new TableDataProvider(source, view)
       const fake_col = {sortAsc: true, sortCol: {field: "bar"}}
@@ -92,7 +92,7 @@ describe("data_table module", () => {
     })
 
     it("should return fields when unsorted", () => {
-      const source = new ColumnDataSource({data: {index: [0,1,2,10], bar: [3.4, 1.2, 0, -10]}})
+      const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
       const view = new CDSView({source})
       const dp = new TableDataProvider(source, view)
 
@@ -113,7 +113,7 @@ describe("data_table module", () => {
     })
 
     it("should return fields when sorted", () => {
-      const source = new ColumnDataSource({data: {index: [0,1,2,10], bar: [3.4, 1.2, 0, -10]}})
+      const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
       const view = new CDSView({source})
       const dp = new TableDataProvider(source, view)
 
@@ -137,7 +137,7 @@ describe("data_table module", () => {
     })
 
     it("should get all records", () => {
-      const source = new ColumnDataSource({data: {index: [0,1,2,10], bar: [3.4, 1.2, 0, -10]}})
+      const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
       const view = new CDSView({source})
       const dp = new TableDataProvider(source, view)
       expect(dp.getRecords()).to.deep.equal(range(0, dp.getLength()).map((i) => dp.getItem(i)))
@@ -148,48 +148,48 @@ describe("data_table module", () => {
     })
 
     it("should re-order only the index when sorted", () => {
-      const source = new ColumnDataSource({data: {index: [0,1,2,10], bar: [3.4, 1.2, 0, -10]}})
+      const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
       const view = new CDSView({source})
       const dp = new TableDataProvider(source, view)
-      expect(dp.index).to.deep.equal([0,1,2,3])
+      expect(dp.index).to.deep.equal([0, 1, 2, 3])
 
       const fake_col = {sortAsc: true, sortCol: {field: "bar"}}
       dp.sort([fake_col])
-      expect(dp.index).to.deep.equal([3,2,1,0])
-      expect(dp.source.data).to.deep.equal({index: [0,1,2,10], bar: [3.4, 1.2, 0, -10]})
+      expect(dp.index).to.deep.equal([3, 2, 1, 0])
+      expect(dp.source.data).to.deep.equal({index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]})
     })
 
     it("should return null metadata", () => {
-      const source = new ColumnDataSource({data: {index: [0,1,2,10], bar: [3.4, 1.2, 0, -10]}})
+      const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
       const view = new CDSView({source})
       const dp = new TableDataProvider(source, view)
       expect(dp.getItemMetadata(0)).to.be.null
     })
 
     it("should set fields when unsorted", () => {
-      const source = new ColumnDataSource({data: {index: [0,1,2,10], bar: [3.4, 1.2, 0, -10]}})
+      const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
       const view = new CDSView({source})
       const dp = new TableDataProvider(source, view)
 
       dp.setField(0, "index", 10.1)
-      expect(dp.source.data).to.deep.equal({index: [10.1,1,2,10], bar: [3.4, 1.2, 0, -10]})
+      expect(dp.source.data).to.deep.equal({index: [10.1, 1, 2, 10], bar: [3.4, 1.2, 0, -10]})
 
       dp.setField(2, "bar", 100)
-      expect(dp.source.data).to.deep.equal({index: [10.1,1,2,10], bar: [3.4, 1.2, 100, -10]})
+      expect(dp.source.data).to.deep.equal({index: [10.1, 1, 2, 10], bar: [3.4, 1.2, 100, -10]})
     })
 
     it("should set fields when sorted", () => {
-      const source = new ColumnDataSource({data: {index: [0,1,2,10], bar: [3.4, 1.2, 0, -10]}})
+      const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
       const view = new CDSView({source})
       const dp = new TableDataProvider(source, view)
       const fake_col = {sortAsc: true, sortCol: {field: "bar"}}
       dp.sort([fake_col])
 
       dp.setField(0, "index", 10.1)
-      expect(dp.source.data).to.deep.equal({index: [0,1,2,10.1], bar: [3.4, 1.2, 0, -10]})
+      expect(dp.source.data).to.deep.equal({index: [0, 1, 2, 10.1], bar: [3.4, 1.2, 0, -10]})
 
       dp.setField(2, "bar", 100)
-      expect(dp.source.data).to.deep.equal({index: [0,1,2,10.1], bar: [3.4, 100, 0, -10]})
+      expect(dp.source.data).to.deep.equal({index: [0, 1, 2, 10.1], bar: [3.4, 100, 0, -10]})
     })
 
   })

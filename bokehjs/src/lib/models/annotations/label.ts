@@ -97,11 +97,11 @@ export class Label extends TextAnnotation {
     this.mixins(['text', 'line:border_', 'fill:background_'])
 
     this.define<Label.Props>({
-      x:            [ p.Number,                      ],
+      x:            [ p.Number                       ],
       x_units:      [ p.SpatialUnits, 'data'         ],
-      y:            [ p.Number,                      ],
+      y:            [ p.Number                       ],
       y_units:      [ p.SpatialUnits, 'data'         ],
-      text:         [ p.String,                      ],
+      text:         [ p.String                       ],
       angle:        [ p.Angle,       0               ],
       angle_units:  [ p.AngleUnits,  'rad'           ],
       x_offset:     [ p.Number,      0               ],

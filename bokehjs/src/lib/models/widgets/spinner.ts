@@ -6,7 +6,7 @@ import {bk_input} from "styles/widgets/inputs"
 
 const {abs, floor, log10} = Math
 
-function _get_sig_dig(num: number) : number {
+function _get_sig_dig(num: number): number {
   let x = abs(Number(String(num).replace(".", ""))) // remove decimal and make positive
   if (x == 0) return 0
   while (x != 0 && (x % 10 == 0)) x /= 10 // kill the 0s at the end of n

@@ -98,7 +98,7 @@ export function map_three_levels(factors: L3Factor[],
     for (const f1 of submids_order)
       mids_order.push([f0, f1])
     total_subpad += subpad
-    const subtot = sum(tops[f0].map(([f1,]) => submap[f1].value))
+    const subtot = sum(tops[f0].map(([f1]) => submap[f1].value))
     mapping[f0] = {value: subtot/n, mapping: submap}
     suboffset += n + outer_pad + subpad
   }

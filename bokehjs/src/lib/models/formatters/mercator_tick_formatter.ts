@@ -38,7 +38,7 @@ export class MercatorTickFormatter extends BasicTickFormatter {
 
     if (this.dimension == "lon") {
       for (let i = 0; i < n; i++) {
-        const [lon,] = wgs84_mercator.inverse([ticks[i], opts.loc])
+        const [lon] = wgs84_mercator.inverse([ticks[i], opts.loc])
         proj_ticks[i] = lon
       }
     } else {

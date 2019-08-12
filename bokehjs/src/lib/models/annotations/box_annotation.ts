@@ -121,7 +121,7 @@ export class BoxAnnotationView extends AnnotationView {
     ctx.restore()
   }
 
-  interactive_bbox() : BBox {
+  interactive_bbox(): BBox {
     const tol = this.model.properties.line_width.value() + EDGE_TOLERANCE
     return new BBox({
       x0: this.sleft-tol,

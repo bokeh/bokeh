@@ -128,7 +128,7 @@ export class TextView extends XYGlyphView {
     return result
   }
 
-  private _scenterxy(i: number): {x:number, y:number} {
+  private _scenterxy(i: number): {x: number, y: number} {
     const sx0 = this._sxs[i][0][0]
     const sy0 = this._sys[i][0][0]
     const sxc = (this._sxs[i][0][2] + sx0) / 2

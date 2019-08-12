@@ -11,7 +11,7 @@ describe("DaysTicker Model", () => {
   })
 
   it("should configure an interval of (diff)*ONE_DAY with a multiple days", () => {
-    const ticker = new DaysTicker({days: [0,3,6,9]})
+    const ticker = new DaysTicker({days: [0, 3, 6, 9]})
     expect(ticker.interval).to.be.equal(3*ONE_DAY)
   })
 

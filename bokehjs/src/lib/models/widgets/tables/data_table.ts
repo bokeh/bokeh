@@ -346,7 +346,7 @@ export class DataTable extends TableWidget {
   }
 
   update_sort_columns(sortCols: any): null {
-    this._sort_columns=sortCols.map((x:any) => ({field:x.sortCol.field,sortAsc:x.sortAsc}))
+    this._sort_columns=sortCols.map((x: any) => ({field:x.sortCol.field, sortAsc:x.sortAsc}))
     return null
   }
 

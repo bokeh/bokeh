@@ -195,7 +195,7 @@ describe("properties module", () => {
     describe("array", () => {
 
       it("should return an array if there is a value spec", () => {
-        const source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
+        const source = new ColumnDataSource({data: {foo: [0, 1, 2, 3, 10]}})
         const p1 = new DataSpecProperty(new SomeSpecHasProps(fixed), 'a')
         const arr1 = p1.array(source)
         expect(arr1).to.be.instanceof(Array)
@@ -218,7 +218,7 @@ describe("properties module", () => {
       })
 
       it("should return an array if there is a valid expr spec", () => {
-        const source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
+        const source = new ColumnDataSource({data: {foo: [0, 1, 2, 3, 10]}})
         const prop = new DataSpecProperty(new SomeSpecHasProps(spec_expr), 'a')
         const arr = prop.array(source)
         expect(arr).to.be.instanceof(Array)
@@ -231,7 +231,7 @@ describe("properties module", () => {
       })
 
       it("should return an array if there is a valid field spec", () => {
-        const source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
+        const source = new ColumnDataSource({data: {foo: [0, 1, 2, 3, 10]}})
         const prop = new DataSpecProperty(new SomeSpecHasProps(spec_field), 'a')
         const arr = prop.array(source)
         expect(arr).to.be.instanceof(Array)
@@ -244,7 +244,7 @@ describe("properties module", () => {
       })
 
       it("should return an array if there is a valid field spec named 'field'", () => {
-        const source = new ColumnDataSource({data: {field: [0,1,2,3,10]}})
+        const source = new ColumnDataSource({data: {field: [0, 1, 2, 3, 10]}})
         const prop = new DataSpecProperty(new SomeSpecHasProps({a: {field: 'field'}, b: 30}), 'a')
         const arr = prop.array(source)
         expect(arr).to.be.instanceof(Array)
@@ -266,7 +266,7 @@ describe("properties module", () => {
       })
 
       it("should apply a spec transform to a field", () => {
-        const source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
+        const source = new ColumnDataSource({data: {foo: [0, 1, 2, 3, 10]}})
         const prop = new DataSpecProperty(new SomeSpecHasProps(spec_field_trans), 'a')
         const arr = prop.array(source)
         expect(arr).to.be.instanceof(Array)
@@ -279,7 +279,7 @@ describe("properties module", () => {
       })
 
       it("should apply a spec transform to a value array", () => {
-        const source = new ColumnDataSource({data: {foo: [0,1,2,3,10]}})
+        const source = new ColumnDataSource({data: {foo: [0, 1, 2, 3, 10]}})
         const prop = new DataSpecProperty(new SomeSpecHasProps(spec_value_trans), 'a')
         const arr = prop.array(source)
         expect(arr).to.be.instanceof(Array)
@@ -377,7 +377,7 @@ describe("properties module", () => {
 
     describe("validate", () => {
       it("should return undefined on any input", () => {
-        for (const x of [true, null, undefined, 10, 10.2, "foo", [1,2,3], {}, new SomeHasProps()])
+        for (const x of [true, null, undefined, 10, 10.2, "foo", [1, 2, 3], {}, new SomeHasProps()])
           expect(prop.validate(x)).to.be.undefined
       })
     })
@@ -423,8 +423,8 @@ describe("properties module", () => {
     describe("validate", () => {
       it("should return undefined on array input", () => {
         expect(prop.validate([])).to.be.undefined
-        expect(prop.validate([1,2,3])).to.be.undefined
-        expect(prop.validate(new Float64Array([1,2,3]))).to.be.undefined
+        expect(prop.validate([1, 2, 3])).to.be.undefined
+        expect(prop.validate(new Float64Array([1, 2, 3]))).to.be.undefined
       })
 
       it("should throw an Error on non-array input", () => {

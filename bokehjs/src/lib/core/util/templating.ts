@@ -64,7 +64,7 @@ export function get_formatter(name: string, raw_spec: string, format?: string, f
         throw new Error(`Unknown tooltip field formatter type '${formatter}'`)
     }
 
-    return function(value: unknown, format: string, special_vars: Vars) : string {
+    return function(value: unknown, format: string, special_vars: Vars): string {
       return formatter.format(value, format, special_vars)
     }
   }

@@ -1,6 +1,6 @@
 import {TickSpec} from "./ticker"
 import {SingleIntervalTicker} from "./single_interval_ticker"
-import {copy_date,last_month_no_later_than,ONE_DAY} from "./util"
+import {copy_date, last_month_no_later_than, ONE_DAY} from "./util"
 import * as p from "core/properties"
 import {concat} from "core/util/array"
 

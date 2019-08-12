@@ -432,7 +432,7 @@ export class Document {
         }
       }
       for (const k in items) {
-        const [instance,,] = items[k]
+        const [instance,, ] = items[k]
         foreach_value(instance)
       }
     }

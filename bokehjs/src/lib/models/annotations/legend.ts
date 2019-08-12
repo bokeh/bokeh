@@ -378,7 +378,7 @@ export class Legend extends Annotation {
     this.define<Legend.Props>({
       orientation:      [ p.Orientation,    'vertical'  ],
       location:         [ p.Any,            'top_right' ], // TODO (bev)
-      title:            [ p.String,                     ],
+      title:            [ p.String                      ],
       title_standoff:   [ p.Number,         5           ],
       label_standoff:   [ p.Number,         5           ],
       glyph_height:     [ p.Number,         20          ],

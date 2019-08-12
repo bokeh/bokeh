@@ -46,7 +46,7 @@ describe("func_tick_formatter module", () => {
         use_strict: true,
       })
       const labels = formatter.doFormat([0, 0, 0], {loc: 0})
-      expect(labels).to.be.deep.equal([3,3,3])
+      expect(labels).to.be.deep.equal([3, 3, 3])
     })
 
     it("should handle args appropriately", () => {

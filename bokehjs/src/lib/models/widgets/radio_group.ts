@@ -65,7 +65,7 @@ export class RadioGroup extends InputGroup {
     this.prototype.default_view = RadioGroupView
 
     this.define<RadioGroup.Props>({
-      active:   [ p.Number,        ],
+      active:   [ p.Number         ],
       labels:   [ p.Array,   []    ],
       inline:   [ p.Boolean, false ],
       callback: [ p.Any            ],

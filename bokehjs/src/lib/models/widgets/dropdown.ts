@@ -138,8 +138,8 @@ export class Dropdown extends AbstractButton {
     this.define<Dropdown.Props>({
       split:         [ p.Boolean, false ],
       menu:          [ p.Array,   []    ],
-      value:         [ p.String,        ], // deprecated
-      default_value: [ p.String,        ], // deprecated
+      value:         [ p.String         ], // deprecated
+      default_value: [ p.String         ], // deprecated
     })
 
     this.override({

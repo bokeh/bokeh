@@ -6,7 +6,7 @@ import * as lesscss from "less"
 import {compiler_host, parse_tsconfig, default_transformers, compile_files, report_diagnostics, TSOutput, Inputs, Outputs, Path} from "./compiler"
 import * as transforms from "./transforms"
 
-import tsconfig_json from "./tsconfig"
+import * as tsconfig_json from "./tsconfig.ext.json"
 
 export function compile_typescript(base_dir: string, inputs: Inputs, bokehjs_dir: string): {outputs?: Outputs} & TSOutput {
   const preconfigure: ts.CompilerOptions = {

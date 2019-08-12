@@ -40,7 +40,7 @@ export abstract class ImageURLTexture extends Texture {
     }
   }
 
-  onload(defer_func: () => void) : void {
+  onload(defer_func: () => void): void {
     if (this.image.complete) {
       defer_func()
     } else {

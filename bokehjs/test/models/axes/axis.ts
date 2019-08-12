@@ -27,7 +27,7 @@ describe("Axis", () => {
     const plot_view = new plot.default_view({model: plot, parent: null}).build()
     const axis_view = plot_view.renderer_views[axis.id] as AxisView
 
-    expect(axis_view.compute_labels([0,2,4.0,6,8,10])).to.be.deep.equal(["zero", "2", "four", "6", "8", "ten"])
+    expect(axis_view.compute_labels([0, 2, 4.0, 6, 8, 10])).to.be.deep.equal(["zero", "2", "four", "6", "8", "ten"])
   })
 
   it("loc should return numeric fixed_location", () => {

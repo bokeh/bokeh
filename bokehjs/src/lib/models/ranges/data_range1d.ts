@@ -44,7 +44,7 @@ export class DataRange1d extends DataRange {
       range_padding:       [ p.Number,       0.1       ],
       range_padding_units: [ p.PaddingUnits, "percent" ],
       flipped:             [ p.Boolean,      false     ],
-      follow:              [ p.StartEnd,               ],
+      follow:              [ p.StartEnd                ],
       follow_interval:     [ p.Number                  ],
       default_span:        [ p.Number,       2         ],
     })

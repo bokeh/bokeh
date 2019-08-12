@@ -259,7 +259,7 @@ describe("serialization module", () => {
     for (const typ of GOOD_TYPES) {
       it(`should encode ${typ.name} array columns with shapes`, () => {
         const data1 = {a: new typ([1, 2, 3, 4]), b: [10, 20]}
-        const enc1 = ser.encode_column_data(data1, {a: [2,2]})
+        const enc1 = ser.encode_column_data(data1, {a: [2, 2]})
         expect(enc1.b).to.be.deep.equal([10, 20])
         expect(enc1.a).to.be.deep.equal({
           __ndarray__: ser.arrayBufferToBase64(data1.a.buffer),
@@ -268,7 +268,7 @@ describe("serialization module", () => {
         })
 
         const data2 = {a: [new typ([1, 2]), new typ([1, 2])], b: [10, 20]}
-        const enc2 = ser.encode_column_data(data2, {a: [[1,2], [2, 1]]})
+        const enc2 = ser.encode_column_data(data2, {a: [[1, 2], [2, 1]]})
         expect(enc2.b).to.be.deep.equal([10, 20])
         expect(enc2.a).to.be.deep.equal([{
           __ndarray__: ser.arrayBufferToBase64(data2.a[0].buffer),

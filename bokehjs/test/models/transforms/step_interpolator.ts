@@ -42,7 +42,7 @@ describe("step_interpolator_transform module", () => {
       })
 
       it("should map to a Float64Array", () => {
-        expect(transform.v_compute([-1,0,5,10,11])).to.be.instanceof(Float64Array)
+        expect(transform.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(Float64Array)
       })
     })
 
@@ -58,7 +58,7 @@ describe("step_interpolator_transform module", () => {
       })
 
       it("should map to a Float64Array", () => {
-        expect(transform.v_compute([-1,0,5,10,11])).to.be.instanceof(Float64Array)
+        expect(transform.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(Float64Array)
       })
     })
 
@@ -74,7 +74,7 @@ describe("step_interpolator_transform module", () => {
       })
 
       it("should map to a Float64Array", () => {
-        expect(transform.v_compute([-1,0,5,10,11])).to.be.instanceof(Float64Array)
+        expect(transform.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(Float64Array)
       })
     })
   })
@@ -99,7 +99,7 @@ describe("step_interpolator_transform module", () => {
       })
 
       it("should map to a Float64Array", () => {
-        expect(transform.v_compute([-1,0,5,10,11])).to.be.instanceof(Float64Array)
+        expect(transform.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(Float64Array)
       })
     })
 
@@ -115,7 +115,7 @@ describe("step_interpolator_transform module", () => {
       })
 
       it("should map to a Float64Array", () => {
-        expect(transform.v_compute([-1,0,5,10,11])).to.be.instanceof(Float64Array)
+        expect(transform.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(Float64Array)
       })
     })
 
@@ -131,7 +131,7 @@ describe("step_interpolator_transform module", () => {
       })
 
       it("should map to a Float64Array", () => {
-        expect(transform.v_compute([-1,0,5,10,11])).to.be.instanceof(Float64Array)
+        expect(transform.v_compute([-1, 0, 5, 10, 11])).to.be.instanceof(Float64Array)
       })
     })
   })
