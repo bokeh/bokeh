@@ -67,7 +67,7 @@ export namespace Burtin {
   const inner_radius = 90
   const outer_radius = 300 - 10
 
-  const minr = Math.sqrt(Math.log(.001 * 1E4))
+  const minr = Math.sqrt(Math.log(0.001 * 1E4))
   const maxr = Math.sqrt(Math.log(1000 * 1E4))
   const a = (outer_radius - inner_radius) / (minr - maxr)
   const b = inner_radius - a * maxr

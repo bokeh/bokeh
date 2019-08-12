@@ -116,7 +116,7 @@ describe("templating module", () => {
     const imsource = new ColumnDataSource({
       data: {
         arrs: [[[0, 10, 20], [30, 40, 50]]],
-        floats: [[0., 1., 2., 3., 4., 5.]],
+        floats: [[0.0, 1.0, 2.0, 3.0, 4.0, 5.0]],
         labels: ['test label'],
       },
     })

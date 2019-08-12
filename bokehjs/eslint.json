@@ -29,6 +29,7 @@
     }],
     "comma-spacing": ["error", {"before": false, "after": true}],
     "comma-dangle": ["error", "always-multiline"],
-    "@typescript-eslint/type-annotation-spacing": ["error"]
+    "@typescript-eslint/type-annotation-spacing": ["error"],
+    "no-floating-decimal": ["error"]
   }
 }
