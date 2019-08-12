@@ -413,7 +413,7 @@ class Settings(object):
     will build docs that use BokehJS version ``1.4.0rc1`` from CDN.
     """)
 
-    docs_version = PrioritizedSetting("docs_version", "BOKEH_DOCS_CDN", help="""
+    docs_version = PrioritizedSetting("docs_version", "BOKEH_DOCS_CDN", default=None, help="""
     The Bokeh version to stipulate when building the docs.
 
     This setting is necessary to re-deploy existing versions of docs with new
