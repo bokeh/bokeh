@@ -30,6 +30,7 @@
     "brace-style": ["error", "1tbs", {"allowSingleLine": true}],
     "comma-spacing": ["error", {"before": false, "after": true}],
     "comma-dangle": ["error", "always-multiline"],
+    "no-trailing-spaces": ["error"],
     "@typescript-eslint/type-annotation-spacing": ["error"],
     "no-floating-decimal": ["error"]
   }
