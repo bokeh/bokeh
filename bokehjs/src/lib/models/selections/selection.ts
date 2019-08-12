@@ -102,7 +102,7 @@ export class Selection extends Model {
     }
   }
 
-  clear (): void {
+  clear(): void {
     this.final = true
     this.indices = []
     this.line_indices = []
@@ -111,7 +111,7 @@ export class Selection extends Model {
     this.selected_glyphs = []
   }
 
-  is_empty (): boolean {
+  is_empty(): boolean {
     return this.indices.length == 0 && this.line_indices.length == 0 && this.image_indices.length == 0
   }
 
