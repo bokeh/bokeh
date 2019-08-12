@@ -49,8 +49,7 @@ environment variable
 
         BOKEH_MINIFIED=no bokeh serve app.py
 
-    * local user config file
-
+local user config file
     Bokeh will look for a YAML configuration file in the current user's
     home directory ``${HOME}/.bokeh/bokeh.yaml``.
 
