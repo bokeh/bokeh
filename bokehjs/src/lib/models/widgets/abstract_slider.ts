@@ -104,9 +104,8 @@ abstract class AbstractBaseSliderView extends ControlView {
 
   protected _set_bar_color(): void {
     if (!this.model.disabled) {
-      this.slider_el.querySelector<HTMLElement>(`.${prefix}connect`)!
-                    .style
-                    .backgroundColor = this.model.bar_color
+      const connect_el = this.slider_el.querySelector<HTMLElement>(`.${prefix}connect`)!
+      connect_el.style.backgroundColor = this.model.bar_color
     }
   }
 

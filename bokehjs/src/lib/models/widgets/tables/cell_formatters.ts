@@ -177,7 +177,7 @@ export class DateFormatter extends CellFormatter {
     })
   }
 
-   getFormat(): string | undefined {
+  getFormat(): string | undefined {
     // using definitions provided here: https://api.jqueryui.com/datepicker/
     // except not implementing TICKS
     switch (this.format) {

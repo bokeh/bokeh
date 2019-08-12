@@ -36,8 +36,9 @@ task("scripts:bundle", ["scripts:compile"], async () => {
   const min_js = (js: string) => rename(js, {ext: '.min.js'})
 
   function bundle(minified: boolean, outputs: string[]) {
-    bundles.map((bundle) => bundle.assemble(minified))
-           .map((artifact, i) => artifact.write(outputs[i]))
+    bundles
+      .map((bundle) => bundle.assemble(minified))
+      .map((artifact, i) => artifact.write(outputs[i]))
   }
 
   bundle(false, outputs)

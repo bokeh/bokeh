@@ -206,8 +206,8 @@ export class MultiPolygonsView extends GlyphView {
       const sxs = this.sxs[i]
       const sys = this.sys[i]
       for (let j = 0, end = sxs.length; j < end; j++) {
-      if (hittest.point_in_poly(sx, sy, (sxs[j][0] as number[]), (sys[j][0] as number[])))
-        return this._get_snap_coord(sys[j][0])
+        if (hittest.point_in_poly(sx, sy, (sxs[j][0] as number[]), (sys[j][0] as number[])))
+          return this._get_snap_coord(sys[j][0])
       }
     }
 

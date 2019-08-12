@@ -130,7 +130,7 @@ export function replace_placeholders(str: string, data_source: ColumnarDataSourc
 
     // 'safe' format, return the value as-is
     if (format == 'safe')
-     return `${prefix}${value}`
+      return `${prefix}${value}`
 
     // format and escape everything else
     const formatter = get_formatter(name, raw_spec, format, formatters)

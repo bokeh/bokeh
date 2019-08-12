@@ -202,8 +202,8 @@ function decode_traverse_data(v: any, buffers: [any, any][]): [Arrayable, any] {
   const shapes: Shape[] = []
 
   for (const obj of v) {
-    const [arr, shape] = isArray(obj) ? decode_traverse_data(obj, buffers) :
-                                        process_array(obj as NDArray, buffers)
+    const [arr, shape] = isArray(obj) ? decode_traverse_data(obj, buffers)
+                                      : process_array(obj as NDArray, buffers)
     arrays.push(arr)
     shapes.push(shape)
   }

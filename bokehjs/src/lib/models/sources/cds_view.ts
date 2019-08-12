@@ -78,8 +78,9 @@ export class CDSView extends Model {
   }
 
   compute_indices(): void {
-    const indices = this.filters.map((filter) => filter.compute_indices(this.source))
-                                .filter((indices) => indices != null)
+    const indices = this.filters
+      .map((filter) => filter.compute_indices(this.source))
+      .filter((indices) => indices != null)
 
     if (indices.length > 0)
       this.indices = intersection.apply(this, indices)

@@ -74,8 +74,8 @@ describe("customjs module", () => {
   describe("format method", () => {
 
     it("should execute the code and return the result", () => {
-       const r = new CustomJSHover({code: "return format + ' ' + value + ' ' + 10"})
-       expect(r.format(0, "custom", {})).to.be.equal("custom 0 10")
+      const r = new CustomJSHover({code: "return format + ' ' + value + ' ' + 10"})
+      expect(r.format(0, "custom", {})).to.be.equal("custom 0 10")
     })
 
     it("should execute the code with args parameters passed", () => {

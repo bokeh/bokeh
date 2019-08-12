@@ -40,8 +40,8 @@ describe("GraphHitTestPolicy", () => {
     const doc = new Document()
 
     const plot = new Plot({
-       x_range: new Range1d({start: 0, end: 1}),
-       y_range: new Range1d({start: 0, end: 1}),
+      x_range: new Range1d({start: 0, end: 1}),
+      y_range: new Range1d({start: 0, end: 1}),
     })
     doc.add_root(plot)
     const plot_view = new plot.default_view({model: plot, parent: null}).build()

@@ -250,11 +250,11 @@ export class RangeTool extends GestureTool {
     this.prototype.default_view = RangeToolView
 
     this.define<RangeTool.Props>({
-        x_range:       [ p.Instance, null                  ],
-        x_interaction: [ p.Boolean,  true                  ],
-        y_range:       [ p.Instance, null                  ],
-        y_interaction: [ p.Boolean,  true                  ],
-        overlay:       [ p.Instance, DEFAULT_RANGE_OVERLAY ],
+      x_range:       [ p.Instance, null                  ],
+      x_interaction: [ p.Boolean,  true                  ],
+      y_range:       [ p.Instance, null                  ],
+      y_interaction: [ p.Boolean,  true                  ],
+      overlay:       [ p.Instance, DEFAULT_RANGE_OVERLAY ],
     })
 
   }

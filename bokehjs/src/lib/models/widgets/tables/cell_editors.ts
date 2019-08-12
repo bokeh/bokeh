@@ -518,12 +518,14 @@ export class DateEditorView extends CellEditorView {
     return super.position()
   }
 
-  getValue(): any {}
+  getValue(): any {
     //return @$datepicker.datepicker("getDate").getTime()
+  }
 
-  setValue(_val: any): void {}
-}
+  setValue(_val: any): void {
     //@$datepicker.datepicker("setDate", new Date(val))
+  }
+}
 
 export namespace DateEditor {
   export type Attrs = p.AttrsOf<Props>

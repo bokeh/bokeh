@@ -59,7 +59,7 @@ export class TooltipView extends AnnotationView {
 
     for (const [sx, sy, content] of data) {
       if (this.model.inner_only && !frame.bbox.contains(sx, sy))
-          continue
+        continue
 
       const tip = div({}, content)
       this.el.appendChild(tip)

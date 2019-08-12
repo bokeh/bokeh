@@ -39,24 +39,24 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
   }
 
   protected _render(ctx: Context2d, indices: number[], {sx, sy, sw, sh, _angle}: EllipseOvalData): void {
-     for (const i of indices) {
-       if (isNaN(sx[i] + sy[i] + sw[i] + sh[i] + _angle[i]))
-         continue
+    for (const i of indices) {
+      if (isNaN(sx[i] + sy[i] + sw[i] + sh[i] + _angle[i]))
+        continue
 
-       ctx.beginPath()
-       ctx.ellipse(sx[i], sy[i], sw[i]/2.0, sh[i]/2.0, _angle[i], 0, 2 * Math.PI)
+      ctx.beginPath()
+      ctx.ellipse(sx[i], sy[i], sw[i]/2.0, sh[i]/2.0, _angle[i], 0, 2 * Math.PI)
 
-       if (this.visuals.fill.doit) {
-         this.visuals.fill.set_vectorize(ctx, i)
-         ctx.fill()
-       }
+      if (this.visuals.fill.doit) {
+        this.visuals.fill.set_vectorize(ctx, i)
+        ctx.fill()
+      }
 
-       if (this.visuals.line.doit) {
-         this.visuals.line.set_vectorize(ctx, i)
-         ctx.stroke()
-       }
-     }
-   }
+      if (this.visuals.line.doit) {
+        this.visuals.line.set_vectorize(ctx, i)
+        ctx.stroke()
+      }
+    }
+  }
 
   protected _hit_point(geometry: PointGeometry): Selection {
     let x0, x1, y0, y1, cond, dist, sx0, sx1, sy0, sy1
@@ -89,7 +89,7 @@ export abstract class EllipseOvalView extends CenterRotatableView  {
     for (const i of candidates) {
       cond = hittest.point_in_ellipse(sx, sy, this._angle[i], this.sh[i]/2, this.sw[i]/2, this.sx[i], this.sy[i])
       if (cond) {
-         [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
+        [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
         ;[sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i])
         dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
         hits.push([i, dist])

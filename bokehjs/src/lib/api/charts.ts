@@ -311,7 +311,7 @@ export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
   }
 
   if (orientation == "vertical") {
-     [xdr, ydr] = [ydr, xdr]
+    [xdr, ydr] = [ydr, xdr]
     ;[xaxis, yaxis] = [yaxis, xaxis]
     ;[xscale, yscale] = [yscale, xscale]
 
