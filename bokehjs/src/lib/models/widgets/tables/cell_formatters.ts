@@ -112,11 +112,13 @@ export class NumberFormatter extends StringFormatter {
 
   doFormat(row: any, cell: any, value: any, columnDef: any, dataContext: any): string {
     const {format, language} = this
-    const rounding = (() => { switch (this.rounding) {
-      case "round": case "nearest":   return Math.round
-      case "floor": case "rounddown": return Math.floor
-      case "ceil":  case "roundup":   return Math.ceil
-    } })()
+    const rounding = (() => {
+      switch (this.rounding) {
+        case "round": case "nearest":   return Math.round
+        case "floor": case "rounddown": return Math.floor
+        case "ceil":  case "roundup":   return Math.ceil
+      }
+    })()
     value = Numbro.format(value, format, language, rounding)
     return super.doFormat(row, cell, value, columnDef, dataContext)
   }
