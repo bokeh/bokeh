@@ -14,6 +14,18 @@
   "plugins": ["@typescript-eslint"],
   "extends": [],
   "rules": {
+    "indent": ["error", 2, {
+      "SwitchCase": 1,
+      "outerIIFEBody": 1,
+      "ArrayExpression": "first",
+      "ObjectExpression": "first",
+      "ImportDeclaration": "first",
+      "VariableDeclarator": "first",
+      "CallExpression": {"arguments": "first"},
+      "FunctionDeclaration": {"body": 1, "parameters": "off"},
+      "FunctionExpression": {"body": 1, "parameters": "off"},
+      "ignoredNodes": ["ConditionalExpression"]
+    }],
     "comma-spacing": ["error", {"before": false, "after": true}],
     "comma-dangle": ["error", "always-multiline"],
     "@typescript-eslint/type-annotation-spacing": ["error"]
