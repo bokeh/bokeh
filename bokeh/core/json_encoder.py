@@ -147,8 +147,7 @@ def serialize_json(obj, pretty=None, indent=None, **kwargs):
         if name in kwargs:
             raise ValueError("The value of %r is computed internally, overriding is not permissable." % name)
 
-    if pretty is None:
-        pretty = settings.pretty(False)
+    pretty = settings.pretty(pretty)
 
     if pretty:
         separators=(",", ": ")

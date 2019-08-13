@@ -64,15 +64,12 @@ def test_get_browser_controller_value(mock_get):
 def test_get_browser_controller_dummy_with_env(mock_get):
     os.environ['BOKEH_BROWSER'] = "bar"
     bub.get_browser_controller('none')
-    assert mock_get.called
-    assert mock_get.call_args[0] == ("bar",)
-    assert mock_get.call_args[1] == {}
     del os.environ['BOKEH_BROWSER']
 
 @patch('webbrowser.get')
 def test_get_browser_controller_None_with_env(mock_get):
     os.environ['BOKEH_BROWSER'] = "bar"
-    bub.get_browser_controller(None)
+    bub.get_browser_controller()
     assert mock_get.called
     assert mock_get.call_args[0] == ("bar",)
     assert mock_get.call_args[1] == {}
@@ -83,7 +80,7 @@ def test_get_browser_controller_value_with_env(mock_get):
     os.environ['BOKEH_BROWSER'] = "bar"
     bub.get_browser_controller('foo')
     assert mock_get.called
-    assert mock_get.call_args[0] == ("bar",)
+    assert mock_get.call_args[0] == ("foo",)
     assert mock_get.call_args[1] == {}
     del os.environ['BOKEH_BROWSER']
 

@@ -20,10 +20,11 @@ import pytest ; pytest
 from datetime import timedelta
 import logging
 import re
+import ssl
 import sys
-import mock
 
 # External imports
+import mock
 from tornado import gen
 from tornado.ioloop import PeriodicCallback, IOLoop
 from tornado.httpclient import HTTPError
@@ -271,6 +272,22 @@ def test_use_xheaders():
     application = Application()
     with ManagedServerLoop(application, use_xheaders=True) as server:
         assert server._http.xheaders == True
+
+def test_ssl_args_plumbing():
+    with mock.patch.object(ssl, 'SSLContext'):
+        with ManagedServerLoop({}, ssl_certfile="foo") as server:
+            assert server._http.ssl_options.load_cert_chain.call_args[0] == ()
+            assert server._http.ssl_options.load_cert_chain.call_args[1] == dict(certfile='foo', keyfile=None, password=None)
+
+    with mock.patch.object(ssl, 'SSLContext'):
+        with ManagedServerLoop({}, ssl_certfile="foo", ssl_keyfile="baz") as server:
+            assert server._http.ssl_options.load_cert_chain.call_args[0] == ()
+            assert server._http.ssl_options.load_cert_chain.call_args[1] == dict(certfile='foo', keyfile="baz", password=None)
+
+    with mock.patch.object(ssl, 'SSLContext'):
+        with ManagedServerLoop({}, ssl_certfile="foo", ssl_keyfile="baz", ssl_password="bar") as server:
+            assert server._http.ssl_options.load_cert_chain.call_args[0] == ()
+            assert server._http.ssl_options.load_cert_chain.call_args[1] == dict(certfile='foo', keyfile="baz", password="bar")
 
 # This test just maintains basic creation and setup, detailed functionality
 # is exercised by Server tests above

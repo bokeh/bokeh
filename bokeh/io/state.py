@@ -132,7 +132,7 @@ class State(object):
 
     # Public methods ----------------------------------------------------------
 
-    def output_file(self, filename, title="Bokeh Plot", mode="cdn", root_dir=None):
+    def output_file(self, filename, title="Bokeh Plot", mode=None, root_dir=None):
         ''' Configure output to a standalone HTML file.
 
         Calling ``output_file`` not clear the effects of any other calls to

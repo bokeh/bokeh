@@ -83,8 +83,8 @@ def test_args():
         ('--log-level', dict(
             metavar = 'LOG-LEVEL',
             action  = 'store',
-            default = 'info',
-            choices = scserve.LOGLEVELS,
+            default = None,
+            choices = scserve.LOGLEVELS + (None,),
             help    = "One of: %s" % nice_join(scserve.LOGLEVELS),
         )),
 
@@ -102,6 +102,13 @@ def test_args():
             help    = "A filename to write logs to, or None to write to the standard stream (default: None)",
         )),
 
+        ('--use-config', dict(
+            metavar='CONFIG',
+            type=str,
+            help="Use a YAML config file for settings",
+            default=None,
+        )),
+
         ('files', dict(
             metavar='DIRECTORY-OR-SCRIPT',
             nargs='*',
@@ -113,7 +120,7 @@ def test_args():
             metavar='COMMAND-LINE-ARGS',
             nargs=argparse.REMAINDER,
             help="Command line arguments remaining to passed on to the application handler. "
-                 "NOTE: if this argument precedes DIRECTORY-OR-SCRIPT then some other argument, e.g "
+                 "NOTE: if this argument precedes DIRECTORY-OR-SCRIPT then some other argument, e.g. "
                  "--show, must be placed before the directory or script. ",
         )),
 
@@ -193,6 +200,20 @@ def test_args():
         ('--use-xheaders', dict(
             action='store_true',
             help="Prefer X-headers for IP/protocol information",
+        )),
+
+        ('--ssl-certfile', dict(
+            metavar='CERTFILE',
+            action  = 'store',
+            default = None,
+            help    = 'Absolute path to a certificate file for SSL termination',
+        )),
+
+        ('--ssl-keyfile', dict(
+            metavar='KEYFILE',
+            action  = 'store',
+            default = None,
+            help    = 'Absolute path to a private key file for SSL termination',
         )),
 
         ('--session-ids', dict(

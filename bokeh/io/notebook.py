@@ -374,12 +374,13 @@ def load_notebook(resources=None, verbose=False, hide_banner=False, load_timeout
 
     from .. import __version__
     from ..core.templates import NOTEBOOK_LOAD
+    from ..resources import Resources
+    from ..settings import settings
     from ..util.serialization import make_id
-    from ..resources import CDN
     from ..util.compiler import bundle_all_models
 
     if resources is None:
-        resources = CDN
+        resources = Resources(mode=settings.resources())
 
     if not hide_banner:
 

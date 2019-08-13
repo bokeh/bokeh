@@ -65,10 +65,6 @@ def get_browser_controller(browser=None):
             the ``webbrowser`` standard library module. In the value is
             ``None`` then a system default is used.
 
-    .. note::
-        If the environment variable ``BOKEH_BROWSER`` is set, it will take
-        precedence.
-
     Returns:
         controller : a web browser controller
 
