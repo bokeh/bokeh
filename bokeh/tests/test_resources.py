@@ -46,9 +46,9 @@ DEFAULT_LOG_JS_RAW = 'Bokeh.set_log_level("info");'
 
 ## Test JSResources
 
-def test_js_resources_default_mode_is_inline():
+def test_js_resources_default_mode_is_cdn():
     r = resources.JSResources()
-    assert r.mode == "inline"
+    assert r.mode == "cdn"
 
 
 def test_js_resources_inline_has_no_css_resources():
@@ -64,9 +64,9 @@ def test_js_resources_inline_has_no_css_resources():
 
 ## Test CSSResources
 
-def test_css_resources_default_mode_is_inline():
+def test_css_resources_default_mode_is_cdn():
     r = resources.CSSResources()
-    assert r.mode == "inline"
+    assert r.mode == "cdn"
 
 
 def test_inline_css_resources():
@@ -83,7 +83,7 @@ class TestResources(object):
 
     def test_basic(self):
         r = resources.Resources()
-        assert r.mode == "inline"
+        assert r.mode == "cdn"
 
     def test_log_level(self):
         r = resources.Resources()

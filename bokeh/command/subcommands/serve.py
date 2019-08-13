@@ -570,8 +570,14 @@ class Serve(Subcommand):
         '''
 
         '''
-        log_level = settings.py_log_level(args.log_level)
         basicConfig(format=args.log_format, filename=args.log_file)
+
+        # This is a bit of a fudge. We want the default log level for non-server
+        # cases to be None, i.e. don't set a log level. But for the server we
+        # do want to set the log level to INFO if nothing else overrides that.
+        log_level = settings.py_log_level(args.log_level)
+        if log_level is None:
+            log_level = logging.INFO
         logging.getLogger('bokeh').setLevel(log_level)
 
         if args.use_config is not None:

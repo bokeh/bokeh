@@ -502,7 +502,7 @@ class Settings(object):
     Whether JSON strings should be pretty-printed.
     """)
 
-    py_log_level = PrioritizedSetting("py_log_level", "BOKEH_PY_LOG_LEVEL", default="info", dev_default="debug", convert=convert_logging, help="""
+    py_log_level = PrioritizedSetting("py_log_level", "BOKEH_PY_LOG_LEVEL", default="none", dev_default="debug", convert=convert_logging, help="""
     The log level for Python Bokeh code.
 
     Valid values are, in order of increasing severity:

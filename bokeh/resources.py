@@ -67,8 +67,7 @@ class BaseResources(object):
     _default_root_dir = "."
     _default_root_url = DEFAULT_SERVER_HTTP_URL
 
-    # TOOD (bev) remove inline default for 2.0
-    def __init__(self, mode="inline", version=None, root_dir=None,
+    def __init__(self, mode=None, version=None, root_dir=None,
                  minified=None, log_level=None, root_url=None,
                  path_versioner=None, components=None):
 

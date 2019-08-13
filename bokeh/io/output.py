@@ -42,7 +42,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def output_file(filename, title="Bokeh Plot", mode="cdn", root_dir=None):
+def output_file(filename, title="Bokeh Plot", mode=None, root_dir=None):
     '''Configure the default output state to generate output saved
     to a file when :func:`show` is called.
 
