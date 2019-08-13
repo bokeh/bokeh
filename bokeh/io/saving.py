@@ -125,8 +125,8 @@ def _get_save_resources(state, resources, suppress_warning):
     if not suppress_warning:
         warn("save() called but no resources were supplied and output_file(...) was never called, defaulting to resources.CDN")
 
-    from ..resources import CDN
-    return CDN
+    from ..resources import Resources
+    return Resources(mode=settings.resources())
 
 def _get_save_title(state, title, suppress_warning):
     if title is not None:
