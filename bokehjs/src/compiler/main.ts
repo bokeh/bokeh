@@ -8,19 +8,19 @@ import {compile_files, read_tsconfig, parse_tsconfig, is_failed, default_transfo
 import {compile_and_resolve_deps} from "./compile"
 import {Linker} from "./linker"
 
-  async function read_stdin() {
-    const stdin = process.stdin
+async function read_stdin() {
+  const stdin = process.stdin
 
-    stdin.setEncoding("utf-8")
-    stdin.resume()
+  stdin.setEncoding("utf-8")
+  stdin.resume()
 
-    let data = ""
-    for await (const chunk of stdin) {
-      data += chunk
-    }
-
-    return data
+  let data = ""
+  for await (const chunk of stdin) {
+    data += chunk
   }
+
+  return data
+}
 
 function reply(data: unknown): void {
   process.stdout.write(JSON.stringify(data))
@@ -80,8 +80,9 @@ async function build() {
   const min_js = (js: string) => rename(js, {ext: '.min.js'})
 
   function bundle(minified: boolean, outputs: string[]) {
-    bundles.map((bundle) => bundle.assemble(minified))
-           .map((artifact, i) => artifact.write(outputs[i]))
+    bundles
+      .map((bundle) => bundle.assemble(minified))
+      .map((artifact, i) => artifact.write(outputs[i]))
   }
 
   bundle(false, outputs)

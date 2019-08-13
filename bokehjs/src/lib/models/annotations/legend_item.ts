@@ -72,7 +72,7 @@ export class LegendItem extends Model {
     super.initialize()
     this.legend = null
     this.connect(this.change,
-      () => { if (this.legend != null) this.legend.item_change.emit() })
+                 () => { if (this.legend != null) this.legend.item_change.emit() })
 
     // Validate data_sources match
     const data_source_validation = this._check_data_sources_on_renderers()

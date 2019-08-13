@@ -4,70 +4,70 @@ import {Size, Box, Extents} from "./types"
 export type HTMLAttrs = {[name: string]: any}
 export type HTMLChild = string | HTMLElement | (string | HTMLElement)[]
 
-const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) =>
-    (attrs: HTMLAttrs = {}, ...children: HTMLChild[]): HTMLElementTagNameMap[T] => {
+const _createElement = <T extends keyof HTMLElementTagNameMap>(tag: T) => {
+  return (attrs: HTMLAttrs = {}, ...children: HTMLChild[]): HTMLElementTagNameMap[T] => {
+    const element = document.createElement(tag)
+    element.classList.add("bk")
 
-  const element = document.createElement(tag)
-  element.classList.add("bk")
+    for (const attr in attrs) {
+      let value = attrs[attr]
 
-  for (const attr in attrs) {
-    let value = attrs[attr]
+      if (value == null || isBoolean(value) && !value)
+        continue
 
-    if (value == null || isBoolean(value) && !value)
-      continue
+      if (attr === "class") {
+        if (isString(value))
+          value = value.split(/\s+/)
 
-    if (attr === "class") {
-      if (isString(value))
-        value = value.split(/\s+/)
+        if (isArray(value)) {
+          for (const cls of (value as string[])) {
+            if (cls != null)
+              element.classList.add(cls)
+          }
+          continue
+        }
+      }
 
-      if (isArray(value)) {
-        for (const cls of (value as string[])) {
-          if (cls != null)
-            element.classList.add(cls)
+      if (attr === "style" && isPlainObject(value)) {
+        for (const prop in value) {
+          (element.style as any)[prop] = value[prop]
         }
         continue
       }
-    }
 
-    if (attr === "style" && isPlainObject(value)) {
-      for (const prop in value) {
-        (element.style as any)[prop] = value[prop]
+      if (attr === "data" && isPlainObject(value)) {
+        for (const key in value) {
+          element.dataset[key] = value[key] as string | undefined // XXX: attrs needs a better type
+        }
+        continue
       }
-      continue
+
+      element.setAttribute(attr, value)
     }
 
-    if (attr === "data" && isPlainObject(value)) {
-      for (const key in value) {
-        element.dataset[key] = value[key] as string | undefined // XXX: attrs needs a better type
-      }
-      continue
+    function append(child: HTMLElement | string) {
+      if (child instanceof HTMLElement)
+        element.appendChild(child)
+      else if (isString(child))
+        element.appendChild(document.createTextNode(child))
+      else if (child != null && child !== false)
+        throw new Error(`expected an HTMLElement, string, false or null, got ${JSON.stringify(child)}`)
     }
 
-    element.setAttribute(attr, value)
-  }
+    for (const child of children) {
+      if (isArray(child)) {
+        for (const _child of child)
+          append(_child)
+      } else
+        append(child)
+    }
 
-  function append(child: HTMLElement | string) {
-    if (child instanceof HTMLElement)
-      element.appendChild(child)
-    else if (isString(child))
-      element.appendChild(document.createTextNode(child))
-    else if (child != null && child !== false)
-      throw new Error(`expected an HTMLElement, string, false or null, got ${JSON.stringify(child)}`)
+    return element
   }
-
-  for (const child of children) {
-    if (isArray(child)) {
-      for (const _child of child)
-        append(_child)
-    } else
-      append(child)
-  }
-
-  return element
 }
 
-export function createElement<T extends keyof HTMLElementTagNameMap>(tag: T,
-     attrs: HTMLAttrs, ...children: HTMLChild[]): HTMLElementTagNameMap[T] {
+export function createElement<T extends keyof HTMLElementTagNameMap>(
+    tag: T, attrs: HTMLAttrs, ...children: HTMLChild[]): HTMLElementTagNameMap[T] {
   return _createElement(tag)(attrs, ...children)
 }
 

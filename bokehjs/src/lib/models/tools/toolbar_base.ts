@@ -227,7 +227,7 @@ export class ToolbarBase extends Model {
 
   protected _init_tools(): void {
     // The only purpose of this function is to avoid unnecessary property churning.
-    const tools_changed = function (old_tools: Tool[], new_tools: Tool[]) {
+    const tools_changed = function(old_tools: Tool[], new_tools: Tool[]) {
       if (old_tools.length != new_tools.length) {
         return true
       }

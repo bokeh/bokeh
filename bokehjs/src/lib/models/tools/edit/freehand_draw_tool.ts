@@ -65,7 +65,7 @@ export class FreehandDrawToolView extends EditToolView {
     this._select_event(ev, ev.shiftKey, this.model.renderers)
   }
 
- _keyup(ev: KeyEvent): void {
+  _keyup(ev: KeyEvent): void {
     if (!this.model.active || !this._mouse_in_frame)
       return
     for (const renderer of this.model.renderers) {

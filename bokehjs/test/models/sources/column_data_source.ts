@@ -266,10 +266,10 @@ describe("column_data_source module", () => {
       it("should patch typed Arrays to types Arrays", () => {
         for (const typ of [Float32Array, Float64Array, Int32Array]) {
           const a = new typ([1, 2, 3,
-                       4, 5, 6])
+                             4, 5, 6])
           const b = new typ([10, 20,
-                       -1, -2,
-                        0, 10])
+                             -1, -2,
+                             0, 10])
           const c = new typ([1, 2])
           patch_to_column([a, b, c], [
             [[0, {}, 2], [100, 101]],

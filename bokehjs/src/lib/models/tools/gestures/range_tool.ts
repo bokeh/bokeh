@@ -76,7 +76,7 @@ export function compute_end_side(end: number, range: Range, side: Side): Side {
 }
 
 export function compute_start_side(start: number, range: Range, side: Side): Side {
-  if (start < range.end ) {
+  if (start < range.end) {
     range.start = start
     return side
   } else {
@@ -250,11 +250,11 @@ export class RangeTool extends GestureTool {
     this.prototype.default_view = RangeToolView
 
     this.define<RangeTool.Props>({
-        x_range:       [ p.Instance, null                  ],
-        x_interaction: [ p.Boolean,  true                  ],
-        y_range:       [ p.Instance, null                  ],
-        y_interaction: [ p.Boolean,  true                  ],
-        overlay:       [ p.Instance, DEFAULT_RANGE_OVERLAY ],
+      x_range:       [ p.Instance, null                  ],
+      x_interaction: [ p.Boolean,  true                  ],
+      y_range:       [ p.Instance, null                  ],
+      y_interaction: [ p.Boolean,  true                  ],
+      overlay:       [ p.Instance, DEFAULT_RANGE_OVERLAY ],
     })
 
   }

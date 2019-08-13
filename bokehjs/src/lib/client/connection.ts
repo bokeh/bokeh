@@ -89,9 +89,9 @@ export class ClientConnection {
       /*
       if (this.closed_permanently) {
       */
-        if (!this.closed_permanently)
-          logger.info(`Websocket connection ${this._number} disconnected, will not attempt to reconnect`)
-        return
+      if (!this.closed_permanently)
+        logger.info(`Websocket connection ${this._number} disconnected, will not attempt to reconnect`)
+      return
       /*
       } else {
         logger.debug(`Attempting to reconnect websocket ${this._number}`)
@@ -296,7 +296,8 @@ export class ClientConnection {
 // getting a session; session.close() works too once you have a session.
 export function pull_session(url?: string, session_id?: string, args_string?: string): Promise<ClientSession> {
   const promise = new Promise<ClientSession>((resolve, reject) => {
-    const connection = new ClientConnection(url, session_id, args_string,
+    const connection = new ClientConnection(
+      url, session_id, args_string,
       (session) => {
         try {
           resolve(session)

@@ -36,11 +36,13 @@ export namespace TappyScatter {
 
   const p = plt.figure({title: "Tappy Scatter", tools})
 
-  const circles = p.circle({field: "x"}, {field: "y"}, {source, radius: radii,
-              fill_color: colors, fill_alpha: 0.6, line_color: null})
+  const circles = p.circle({field: "x"}, {field: "y"}, {
+    source, radius: radii, fill_color: colors, fill_alpha: 0.6, line_color: null,
+  })
 
-  p.text({field: "x"}, {field: "y"}, indices, {source, alpha: 0.5,
-     text_font_size: "5pt", text_baseline: "middle", text_align: "center"})
+  p.text({field: "x"}, {field: "y"}, indices, {
+    source, alpha: 0.5, text_font_size: "5pt", text_baseline: "middle", text_align: "center",
+  })
 
   const tap = p.toolbar.select_one(Bokeh.TapTool)
   tap!.renderers = [circles]

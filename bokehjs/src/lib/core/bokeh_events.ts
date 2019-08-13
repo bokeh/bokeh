@@ -87,10 +87,10 @@ export abstract class PointEvent extends UIEvent {
 @event("pan")
 export class Pan extends PointEvent {
 
+  /* TODO: direction: -1 | 1 */
   constructor(readonly sx: number, readonly sy: number,
               readonly x: number, readonly y: number,
-              readonly delta_x: number, readonly delta_y: number,
-              /*readonly direction: -1 | 1*/) {
+              readonly delta_x: number, readonly delta_y: number) {
     super(sx, sy, x, y)
   }
 

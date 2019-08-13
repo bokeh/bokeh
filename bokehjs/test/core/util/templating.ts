@@ -113,10 +113,13 @@ describe("templating module", () => {
 
     const source = new ColumnDataSource({data: {foo: [10, 1.002], bar: ["a", "<div>b</div>"], baz: [1492890671885, 1290460671885]}})
 
-    const imsource = new ColumnDataSource({data:
-                                           {arrs: [[[0, 10, 20], [30, 40, 50]]],
-                                            floats: [[0., 1., 2., 3., 4., 5.]],
-                                            labels: ['test label']}})
+    const imsource = new ColumnDataSource({
+      data: {
+        arrs: [[[0, 10, 20], [30, 40, 50]]],
+        floats: [[0.0, 1.0, 2.0, 3.0, 4.0, 5.0]],
+        labels: ['test label'],
+      },
+    })
     const imindex1 = {index: 0, dim1: 2, dim2: 1, flat_index: 5}
     const imindex2 = {index: 0, dim1: 1, dim2: 0, flat_index: 1}
 

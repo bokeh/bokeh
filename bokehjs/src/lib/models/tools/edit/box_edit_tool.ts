@@ -49,7 +49,7 @@ export class BoxEditToolView extends EditToolView {
     const yscale = frame.yscales[renderer.y_range_name]
     const [x0, x1] = xscale.r_invert(sx0, sx1)
     const [y0, y1] = yscale.r_invert(sy0, sy1)
-    const [x, y] = [(x0+x1)/2., (y0+y1)/2.]
+    const [x, y] = [(x0+x1)/2, (y0+y1)/2]
     const [w, h] = [x1-x0, y1-y0]
     const [xkey, ykey] = [glyph.x.field, glyph.y.field]
     const [wkey, hkey] = [glyph.width.field, glyph.height.field]

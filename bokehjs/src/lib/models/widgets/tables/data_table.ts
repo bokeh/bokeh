@@ -245,7 +245,7 @@ export class DataTableView extends WidgetView {
         this._hide_header()
       }
       this.model.update_sort_columns(columns)
-   })
+    })
 
     if (this.model.selectable !== false) {
       this.grid.setSelectionModel(new RowSelectionModel({selectActiveRow: checkboxSelector == null}))

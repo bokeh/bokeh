@@ -184,10 +184,10 @@ describe("properties module", () => {
       })
 
       it("should throw an Error otherwise", () => {
-       function fn(): void {
+        function fn(): void {
           const prop = new MyProperty(new SomeHasProps(spec_field_only), 'a')
           prop.value()
-       }
+        }
         expect(fn).to.throw(Error, "attempted to retrieve property value for property without value specification")
       })
     })
@@ -291,48 +291,48 @@ describe("properties module", () => {
         expect(arr[4]).to.be.equal(6)
       })
 
-    describe("init", () => {
-      it("should return nothing by default", () => {
-        const prop = new MyProperty(new SomeHasProps({a: {value: "foo"}}), 'a')
-        expect(prop.init()).to.be.undefined
-      })
-    })
-
-    describe("transform", () => {
-      it("should be the identity", () => {
-        expect(p.Property.prototype.transform(10)).to.be.equal(10)
-        expect(p.Property.prototype.transform("foo")).to.be.equal("foo")
-        expect(p.Property.prototype.transform(null)).to.be.null
+      describe("init", () => {
+        it("should return nothing by default", () => {
+          const prop = new MyProperty(new SomeHasProps({a: {value: "foo"}}), 'a')
+          expect(prop.init()).to.be.undefined
+        })
       })
 
-      it("should return the same type as passed", () => {
-        const r1 = p.Number.prototype.transform([10, 20, 30])
-        expect(r1).to.be.deep.equal([10, 20, 30])
-        const r2 = p.Number.prototype.transform(new Float64Array([10, 20, 30]))
-        expect(r2).to.be.deep.equal(new Float64Array([10, 20, 30]))
-      })
-    })
+      describe("transform", () => {
+        it("should be the identity", () => {
+          expect(p.Property.prototype.transform(10)).to.be.equal(10)
+          expect(p.Property.prototype.transform("foo")).to.be.equal("foo")
+          expect(p.Property.prototype.transform(null)).to.be.null
+        })
 
-    describe("validate", () => {
-      it("should return nothing by default", () => {
-        const prop = new MyProperty(new SomeHasProps({a: {value: "foo"}}), 'a')
-        expect(prop.validate(undefined)).to.be.undefined
-        expect(prop.validate(10)).to.be.undefined
-        expect(prop.validate("foo")).to.be.undefined
-        expect(prop.validate(null)).to.be.undefined
+        it("should return the same type as passed", () => {
+          const r1 = p.Number.prototype.transform([10, 20, 30])
+          expect(r1).to.be.deep.equal([10, 20, 30])
+          const r2 = p.Number.prototype.transform(new Float64Array([10, 20, 30]))
+          expect(r2).to.be.deep.equal(new Float64Array([10, 20, 30]))
+        })
       })
-    })
 
-    describe("changing the property attribute value", () => {
-      it("should trigger change on the property", () => {
-        const obj = new SomeHasProps({a: {value: "foo"}})
-        const prop = obj.properties.a
-        const stuff = {called: false}
-        prop.change.connect(function fn(): void { stuff.called = true})
-        obj.a = {value: "bar"}
-        expect(stuff.called).to.be.true
+      describe("validate", () => {
+        it("should return nothing by default", () => {
+          const prop = new MyProperty(new SomeHasProps({a: {value: "foo"}}), 'a')
+          expect(prop.validate(undefined)).to.be.undefined
+          expect(prop.validate(10)).to.be.undefined
+          expect(prop.validate("foo")).to.be.undefined
+          expect(prop.validate(null)).to.be.undefined
+        })
       })
-    })
+
+      describe("changing the property attribute value", () => {
+        it("should trigger change on the property", () => {
+          const obj = new SomeHasProps({a: {value: "foo"}})
+          const prop = obj.properties.a
+          const stuff = {called: false}
+          prop.change.connect(function fn(): void { stuff.called = true})
+          obj.a = {value: "bar"}
+          expect(stuff.called).to.be.true
+        })
+      })
 
       it("should update the spec", () => {
         const obj = new SomeHasProps({a: {value: "foo"}})

@@ -113,9 +113,10 @@ export abstract class TileSource extends Model {
 
   get_image_url(x: number, y: number, z: number): string {
     const image_url = this.string_lookup_replace(this.url, this.extra_url_vars)
-    return image_url.replace("{X}", x.toString())
-                    .replace('{Y}', y.toString())
-                    .replace("{Z}", z.toString())
+    return image_url
+      .replace("{X}", x.toString())
+      .replace('{Y}', y.toString())
+      .replace("{Z}", z.toString())
   }
 
   abstract tile_xyz_to_quadkey(x: number, y: number, z: number): string

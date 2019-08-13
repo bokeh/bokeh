@@ -17,10 +17,11 @@ export namespace WebBrowserMarketShare {
 
   function read_csv_from(id: string) {
     const text = document.getElementById(id)!.innerHTML
-    return text.split("\n")
-         .map((line) => line.trim())
-         .filter((line) => line.length > 0)
-         .map((line) => line.split(/, /).map((val) => val.trim()))
+    return text
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0)
+      .map((line) => line.split(/, /).map((val) => val.trim()))
   }
 
   interface MonthlyShares {
@@ -101,8 +102,8 @@ export namespace WebBrowserMarketShare {
     const colors = item.browsers.map((name) => info[name].color)
 
     fig.wedge({x: 0, y: 0, radius: 1.5, source,
-         start_angle: start_angles, end_angle: end_angles,
-         line_color: "white", line_width: 1, fill_color: colors})
+               start_angle: start_angles, end_angle: end_angles,
+               line_color: "white", line_width: 1, fill_color: colors})
 
     const icons = item.browsers.map((name) => info[name].icon)
     const [x0, y0] = unzip(half_angles.map((angle) => to_cartesian(1.7, angle)))

@@ -46,7 +46,7 @@ class DashAtlas {
     // Period is sum of elements
     let period = 0
     for (const v of pattern) {
-       period += v
+      period += v
     }
     // Find all start and end of on-segment only
     const C: number[] = []
@@ -68,8 +68,8 @@ class DashAtlas {
       for (let j = 0, endj = C.length; j < endj; j++) {
         const val = Math.abs(C[j]-x)
         if (val < val_at_index) {
-           index = j; val_at_index = val
-         }
+          index = j; val_at_index = val
+        }
       }
       if ((index % 2) === 0) {
         dash_type = (x <= C[index]) ? +1 : 0
@@ -211,7 +211,7 @@ export class LineGLGlyph extends BaseGLGlyph {
       const chunksize = 64008  // 65536 max. 64008 is divisible by 12
       const chunks: number[][] = []
       for (let i = 0, end = Math.ceil(nvertices/chunksize); i < end; i++) {
-         chunks.push([])
+        chunks.push([])
       }
       for (let i = 0, end = indices.length; i < end; i++) {
         const uint16_index = indices[i] % chunksize
@@ -357,7 +357,7 @@ export class LineGLGlyph extends BaseGLGlyph {
     //
     // Arg, we really need an ndarray thing in JS :/
     for (let i = 0, end = n; i < end; i++) {  // all nodes on the line
-       for (let j = 0; j < 4; j++) {  // the four quad vertices
+      for (let j = 0; j < 4; j++) {  // the four quad vertices
         for (let k = 0; k < 2; k++) {  // xy
           V_position2[((((i*4)+j)-o)*2)+k] = V_position[(i*2)+k]
           V_angles2[(((i*4)+j)*2)+k] = V_angles[(i*2)+k]

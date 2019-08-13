@@ -71,8 +71,8 @@ describe("customjs module", () => {
   describe("execute method", () => {
 
     it("should execute the code and return the result", () => {
-       const r = new CustomJS({code: "return 10", use_strict: true})
-       expect(r.execute('foo')).to.be.equal(10)
+      const r = new CustomJS({code: "return 10", use_strict: true})
+      expect(r.execute('foo')).to.be.equal(10)
     })
 
     it("should execute the code with args parameters passed", () => {
@@ -100,9 +100,9 @@ describe("customjs module", () => {
       // the definition order of keys in a JS object, though it
       // is reliable in some JS runtimes
       const r = new CustomJS({args: {
-          foo4: "foo4", foo5: "foo5", foo6: "foo6",
-          foo1: "foo1", foo2: "foo2", foo3: "foo3",
-        }, code: "return foo1 + foo2 + foo3 + foo4 + foo5 + foo6", use_strict: true})
+        foo4: "foo4", foo5: "foo5", foo6: "foo6",
+        foo1: "foo1", foo2: "foo2", foo3: "foo3",
+      }, code: "return foo1 + foo2 + foo3 + foo4 + foo5 + foo6", use_strict: true})
       expect(r.execute({})).to.be.equal("foo1foo2foo3foo4foo5foo6")
     })
   })

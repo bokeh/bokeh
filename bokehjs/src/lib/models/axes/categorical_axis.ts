@@ -132,13 +132,15 @@ export class CategoricalAxisView extends AxisView {
     coords.major[i] = ticks.major as any
     coords.major[j] = ticks.major.map((_x) => this.loc)
 
-    if (range.levels == 3)
+    if (range.levels == 3) {
       coords.mids[i] = ticks.mids as any
       coords.mids[j] = ticks.mids.map((_x) => this.loc)
+    }
 
-    if (range.levels > 1)
+    if (range.levels > 1) {
       coords.tops[i] = ticks.tops as any
       coords.tops[j] = ticks.tops.map((_x) => this.loc)
+    }
 
     return coords
   }

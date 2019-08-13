@@ -93,44 +93,44 @@ describe("factor_range module", () => {
         expect(r3[1]).to.be.equal(0)
       })
 
-     describe("with positive padding", () => {
+      describe("with positive padding", () => {
 
-      it("should evenly map a list of factors, padded, starting at 0.5 (with no offset by default)", () => {
-        const r0 = map_one_level(['a'], 0.5)
-        expect(r0[0]).to.deep.equal({a: {value: 0.5}})
-        expect(r0[1]).to.be.equal(0)
+        it("should evenly map a list of factors, padded, starting at 0.5 (with no offset by default)", () => {
+          const r0 = map_one_level(['a'], 0.5)
+          expect(r0[0]).to.deep.equal({a: {value: 0.5}})
+          expect(r0[1]).to.be.equal(0)
 
-        const r1 = map_one_level(['a', 'b'], 0.5)
-        expect(r1[0]).to.deep.equal({a: {value: 0.5}, b: {value: 2}})
-        expect(r1[1]).to.be.equal(0.5)
+          const r1 = map_one_level(['a', 'b'], 0.5)
+          expect(r1[0]).to.deep.equal({a: {value: 0.5}, b: {value: 2}})
+          expect(r1[1]).to.be.equal(0.5)
 
-        const r2 = map_one_level(['a', 'b', 'c'], 0.5)
-        expect(r2[0]).to.deep.equal({a: {value: 0.5}, b: {value: 2}, c: {value: 3.5}})
-        expect(r2[1]).to.be.equal(1)
+          const r2 = map_one_level(['a', 'b', 'c'], 0.5)
+          expect(r2[0]).to.deep.equal({a: {value: 0.5}, b: {value: 2}, c: {value: 3.5}})
+          expect(r2[1]).to.be.equal(1)
 
-        const r3 = map_one_level(['a', 'b', 'c', 'd'], 0.5)
-        expect(r3[0]).to.deep.equal({a: {value: 0.5}, b: {value: 2}, c: {value: 3.5}, d: {value: 5}})
-        expect(r3[1]).to.be.equal(1.5)
+          const r3 = map_one_level(['a', 'b', 'c', 'd'], 0.5)
+          expect(r3[0]).to.deep.equal({a: {value: 0.5}, b: {value: 2}, c: {value: 3.5}, d: {value: 5}})
+          expect(r3[1]).to.be.equal(1.5)
+        })
+
+        it("should also apply an offset if provided", () => {
+          const r0 = map_one_level(['a'], 0.5, 1)
+          expect(r0[0]).to.deep.equal({a: {value: 1.5}})
+          expect(r0[1]).to.be.equal(0)
+
+          const r1 = map_one_level(['a', 'b'], 0.5, 1)
+          expect(r1[0]).to.deep.equal({a: {value: 1.5}, b: {value: 3}})
+          expect(r1[1]).to.be.equal(0.5)
+
+          const r2 = map_one_level(['a', 'b', 'c'], 0.5, 1)
+          expect(r2[0]).to.deep.equal({a: {value: 1.5}, b: {value: 3}, c: {value: 4.5}})
+          expect(r2[1]).to.be.equal(1)
+
+          const r3 = map_one_level(['a', 'b', 'c', 'd'], 0.5, 1)
+          expect(r3[0]).to.deep.equal({a: {value: 1.5}, b: {value: 3}, c: {value: 4.5}, d: {value: 6}})
+          expect(r3[1]).to.be.equal(1.5)
+        })
       })
-
-      it("should also apply an offset if provided", () => {
-        const r0 = map_one_level(['a'], 0.5, 1)
-        expect(r0[0]).to.deep.equal({a: {value: 1.5}})
-        expect(r0[1]).to.be.equal(0)
-
-        const r1 = map_one_level(['a', 'b'], 0.5, 1)
-        expect(r1[0]).to.deep.equal({a: {value: 1.5}, b: {value: 3}})
-        expect(r1[1]).to.be.equal(0.5)
-
-        const r2 = map_one_level(['a', 'b', 'c'], 0.5, 1)
-        expect(r2[0]).to.deep.equal({a: {value: 1.5}, b: {value: 3}, c: {value: 4.5}})
-        expect(r2[1]).to.be.equal(1)
-
-        const r3 = map_one_level(['a', 'b', 'c', 'd'], 0.5, 1)
-        expect(r3[0]).to.deep.equal({a: {value: 1.5}, b: {value: 3}, c: {value: 4.5}, d: {value: 6}})
-        expect(r3[1]).to.be.equal(1.5)
-      })
-     })
     })
   })
 

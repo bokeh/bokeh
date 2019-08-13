@@ -2,7 +2,7 @@ import * as ts from "typescript"
 import {parse, format, normalize} from "path"
 
 export function scan(path: string,
-    extensions?: readonly string[], exclude?: readonly string[], include?: readonly string[], depth?: number): string[] {
+                     extensions?: readonly string[], exclude?: readonly string[], include?: readonly string[], depth?: number): string[] {
   return ts.sys.readDirectory(path, extensions, exclude, include, depth).map((p) => normalize(p))
 }
 

@@ -218,7 +218,7 @@ export class DataCubeProvider extends TableDataProvider {
     return item instanceof Group
       ? item as Item
       : Object.keys(data)
-          .reduce((o, c) => ({...o, [c]: data[c][item as number]}), {[DTINDEX_NAME]: item})
+        .reduce((o, c) => ({...o, [c]: data[c][item as number]}), {[DTINDEX_NAME]: item})
   }
 
   getItemMetadata(i: number): RowMetadata<Item> {

@@ -120,7 +120,7 @@ export class DataRange1d extends DataRange {
     return result
   }
 
-   adjust_bounds_for_aspect(bounds: Rect, ratio: number): Rect {
+  adjust_bounds_for_aspect(bounds: Rect, ratio: number): Rect {
     const result = bbox.empty()
 
     let width = bounds.x1 - bounds.x0

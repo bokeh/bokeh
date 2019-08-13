@@ -214,7 +214,7 @@ export class AxisView extends GuideRendererView {
     let xoff, yoff: number
 
     if (units == "screen") {
-       [sxs, sys] = coords
+      [sxs, sys] = coords
       ;[xoff, yoff] = [0, 0]
     } else {
       const [dxs, dys] = coords

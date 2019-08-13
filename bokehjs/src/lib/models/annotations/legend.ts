@@ -255,11 +255,13 @@ export class LegendView extends AnnotationView {
       if (labels.length == 0)
         continue
 
-      const active = (() => { switch (this.model.click_policy) {
-        case "none": return true
-        case "hide": return every(item.renderers, r => r.visible)
-        case "mute": return every(item.renderers, r => !r.muted)
-      } })()
+      const active = (() => {
+        switch (this.model.click_policy) {
+          case "none": return true
+          case "hide": return every(item.renderers, r => r.visible)
+          case "mute": return every(item.renderers, r => !r.muted)
+        }
+      })()
 
       for (const label of labels) {
         const x1 = bbox.x + xoffset

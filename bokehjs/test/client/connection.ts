@@ -177,7 +177,7 @@ describe("ClientSession", function() {
             },
           )
         },
-       )
+      )
     })
     return expect(promise).eventually.to.equal("OK")
   })

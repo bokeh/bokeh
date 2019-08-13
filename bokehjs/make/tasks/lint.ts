@@ -15,6 +15,7 @@ function eslint(dir: string): void {
   })
 
   const report = engine.executeOnFiles([dir])
+  es.CLIEngine.outputFixes(report)
 
   if (report.errorCount != 0) {
     const formatter = engine.getFormatter()

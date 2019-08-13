@@ -167,48 +167,48 @@ export class CircleView extends XYGlyphView {
   }
 
   protected _hit_span(geometry: SpanGeometry): Selection {
-      const {sx, sy} = geometry
-      const bounds = this.bounds()
-      const result = hittest.create_empty_hit_test_result()
+    const {sx, sy} = geometry
+    const bounds = this.bounds()
+    const result = hittest.create_empty_hit_test_result()
 
-      let x0, x1, y0, y1
-      if (geometry.direction == 'h') {
-        // use circle bounds instead of current pointer y coordinates
-        let sx0, sx1
-        y0 = bounds.y0
-        y1 = bounds.y1
-        if (this._radius != null && this.model.properties.radius.units == "data") {
-          sx0 = sx - this.max_radius
-          sx1 = sx + this.max_radius
-          ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
-        } else {
-          const ms = this.max_size/2
-          sx0 = sx - ms
-          sx1 = sx + ms
-          ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
-        }
+    let x0, x1, y0, y1
+    if (geometry.direction == 'h') {
+      // use circle bounds instead of current pointer y coordinates
+      let sx0, sx1
+      y0 = bounds.y0
+      y1 = bounds.y1
+      if (this._radius != null && this.model.properties.radius.units == "data") {
+        sx0 = sx - this.max_radius
+        sx1 = sx + this.max_radius
+        ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
       } else {
-        // use circle bounds instead of current pointer x coordinates
-        let sy0, sy1
-        x0 = bounds.x0
-        x1 = bounds.x1
-        if (this._radius != null && this.model.properties.radius.units == "data") {
-          sy0 = sy - this.max_radius
-          sy1 = sy + this.max_radius
-          ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-        } else {
-          const ms = this.max_size/2
-          sy0 = sy - ms
-          sy1 = sy + ms
-          ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-        }
+        const ms = this.max_size/2
+        sx0 = sx - ms
+        sx1 = sx + ms
+        ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
       }
-
-      const hits = this.index.indices({x0, x1, y0, y1})
-
-      result.indices = hits
-      return result
+    } else {
+      // use circle bounds instead of current pointer x coordinates
+      let sy0, sy1
+      x0 = bounds.x0
+      x1 = bounds.x1
+      if (this._radius != null && this.model.properties.radius.units == "data") {
+        sy0 = sy - this.max_radius
+        sy1 = sy + this.max_radius
+        ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+      } else {
+        const ms = this.max_size/2
+        sy0 = sy - ms
+        sy1 = sy + ms
+        ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+      }
     }
+
+    const hits = this.index.indices({x0, x1, y0, y1})
+
+    result.indices = hits
+    return result
+  }
 
   protected _hit_rect(geometry: RectGeometry): Selection {
     const {sx0, sx1, sy0, sy1} = geometry

@@ -66,19 +66,19 @@ if (typeof String.prototype.repeat === "undefined") {
 
 // Production steps of ECMA-262, Edition 6, 22.1.2.1
 if (typeof Array.from === "undefined") {
-  Array.from = (function () {
+  Array.from = (function() {
     const toStr = Object.prototype.toString
-    const isCallable = function (fn: any) {
+    const isCallable = function(fn: any) {
       return typeof fn === 'function' || toStr.call(fn) === '[object Function]'
     }
-    const toInteger = function (value: any) {
+    const toInteger = function(value: any) {
       const number = Number(value)
       if (isNaN(number)) { return 0 }
       if (number === 0 || !isFinite(number)) { return number }
       return (number > 0 ? 1 : -1) * Math.floor(Math.abs(number))
     }
     const maxSafeInteger = Math.pow(2, 53) - 1
-    const toLength = function (value: any) {
+    const toLength = function(value: any) {
       const len = toInteger(value)
       return Math.min(Math.max(len, 0), maxSafeInteger)
     }

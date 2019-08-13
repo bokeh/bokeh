@@ -15,12 +15,12 @@ import * as text from "@bokehjs/core/util/text"
 
 function color_bar_view(attrs: Partial<ColorBar.Attrs>, place: Place = "center"): ColorBarView {
   const plot = new Plot({
-     x_range: new Range1d({start: 0, end: 1}),
-     y_range: new Range1d({start: 0, end: 1}),
-     frame_width: 500,
-     frame_height: 500,
-     width_policy: "min",
-     height_policy: "min",
+    x_range: new Range1d({start: 0, end: 1}),
+    y_range: new Range1d({start: 0, end: 1}),
+    frame_width: 500,
+    frame_height: 500,
+    width_policy: "min",
+    height_policy: "min",
   })
 
   const color_bar = new ColorBar(attrs)

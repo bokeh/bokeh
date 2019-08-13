@@ -8,21 +8,21 @@ const SQ3 = Math.sqrt(3)
 
 function _one_line(ctx: Context2d, r: number): void {
   ctx.moveTo(-r,  0)
-  ctx.lineTo( r,  0)
+  ctx.lineTo(r,  0)
 }
 
 function _one_x(ctx: Context2d, r: number): void {
   ctx.moveTo(-r,  r)
-  ctx.lineTo( r, -r)
+  ctx.lineTo(r, -r)
   ctx.moveTo(-r, -r)
-  ctx.lineTo( r,  r)
+  ctx.lineTo(r,  r)
 }
 
 function _one_cross(ctx: Context2d, r: number): void {
-  ctx.moveTo( 0,  r)
-  ctx.lineTo( 0, -r)
+  ctx.moveTo(0,  r)
+  ctx.lineTo(0, -r)
   ctx.moveTo(-r,  0)
-  ctx.lineTo( r,  0)
+  ctx.lineTo(r,  0)
 }
 
 function _one_diamond(ctx: Context2d, r: number): void {
@@ -37,12 +37,12 @@ function _one_hex(ctx: Context2d, r: number): void {
   const r2 = r/2
   const h = SQ3*r2
 
-  ctx.moveTo( r,   0)
-  ctx.lineTo( r2, -h)
+  ctx.moveTo(r,   0)
+  ctx.lineTo(r2, -h)
   ctx.lineTo(-r2, -h)
   ctx.lineTo(-r,   0)
   ctx.lineTo(-r2,  h)
-  ctx.lineTo( r2,  h)
+  ctx.lineTo(r2,  h)
   ctx.closePath()
 }
 

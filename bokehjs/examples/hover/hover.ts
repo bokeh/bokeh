@@ -36,11 +36,13 @@ export namespace HoverfulScatter {
 
   const p = plt.figure({title: "Hoverful Scatter", tools})
 
-  p.circle({field: "x"}, {field: "y"}, {source, radius: radii,
-    fill_color: colors, fill_alpha: 0.6, line_color: null})
+  p.circle({field: "x"}, {field: "y"}, {
+    source, radius: radii, fill_color: colors, fill_alpha: 0.6, line_color: null,
+  })
 
-  p.text({field: "x"}, {field: "y"}, indices, {source, alpha: 0.5,
-    text_font_size: "5pt", text_baseline: "middle", text_align: "center"})
+  p.text({field: "x"}, {field: "y"}, indices, {
+    source, alpha: 0.5, text_font_size: "5pt", text_baseline: "middle", text_align: "center",
+  })
 
   const hover = p.toolbar.select_one(Bokeh.HoverTool)
   hover!.tooltips = (source, info) => {
