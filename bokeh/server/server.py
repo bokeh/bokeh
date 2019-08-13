@@ -500,15 +500,15 @@ class _ServerOpts(Options):
     """)
 
     ssl_certfile = String(default=None, help="""
-
+    The path to a certificate file for SSL termination.
     """)
 
     ssl_keyfile = String(default=None, help="""
-
+    The path to a private key file for SSL termination.
     """)
 
     ssl_password = String(default=None, help="""
-
+    A password to decrypt the SSL keyfile, if necessary.
     """)
 
     websocket_max_message_size = Int(default=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, help="""

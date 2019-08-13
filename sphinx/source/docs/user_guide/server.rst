@@ -811,6 +811,33 @@ local machine.
     and wish to contribute your knowledge here, please
     contact us on https://discourse.bokeh.org
 
+.. _userguide_server_deployment_ssl:
+
+SSL Termination
+~~~~~~~~~~~~~~~
+
+A Bokeh server can be configure to terminate SSL connections (i.e. to service
+secure HTTPS and WSS sessions) directly. At a minimum, the ``--ssl-certfile``
+argument must be supplied. The value must be the path to a single file in PEM
+format containing the certificate as well as any number of CA certificates
+needed to establish the certificate's authenticity:
+
+.. code-block:: sh
+
+    bokeh serve --ssl-certfile /path/to/cert.pem
+
+The path to the certificate file may also be supplied by setting the environment
+variable ``BOKEH_SSL_CERTFILE``.
+
+If the private key is stored separately, its location may be supplied by
+setting the ``--ssl-keyfile`` command line argument, or by setting the
+``BOKEH_SSL_KEYFILE`` evironment variable. If a password is required for the
+private key, it should be supplied by setting the ``BOKEH_SSL_PASSWORD``
+environment variable.
+
+Alternativey, you may wish to run a Boekh server behind a proxy, and have the
+proxy terminate SSL. That scenario is described in the next section.
+
 .. _userguide_server_deplyoment_proxy:
 
 Basic Reverse Proxy Setup

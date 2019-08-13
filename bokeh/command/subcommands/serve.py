@@ -186,7 +186,7 @@ Alternatively, the path may also be supplied by setting the environment
 variable ``BOKEH_SSL_CERTFILE``.
 
 If the private key is stored separately, its location may be supplied by
-setting the ``-ssl-keyfile`` command line argument, or by setting the
+setting the ``--ssl-keyfile`` command line argument, or by setting the
 ``BOKEH_SSL_KEYFILE`` evironment variable. If a password is required for the
 private key, it should be supplied by setting the ``BOKEH_SSL_PASSWORD``
 environment variable.
@@ -573,7 +573,7 @@ class Serve(Subcommand):
         basicConfig(format=args.log_format, filename=args.log_file)
 
         # This is a bit of a fudge. We want the default log level for non-server
-        # cases to be None, i.e. don't set a log level. But for the server we
+        # cases to be None, i.e. we don't set a log level. But for the server we
         # do want to set the log level to INFO if nothing else overrides that.
         log_level = settings.py_log_level(args.log_level)
         if log_level is None:

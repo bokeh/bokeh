@@ -555,7 +555,7 @@ class Settings(object):
     """)
 
     ssl_password = PrioritizedSetting("ssl_password", "BOKEH_SSL_PASSWORD", default=None, help="""
-    A password to decrypt the BOKEH_SSL_KEYFILE
+     A password to decrypt the SSL keyfile, if necessary.
     """)
 
     strict = PrioritizedSetting("strict", "BOKEH_STRICT", convert=convert_bool, help="""
