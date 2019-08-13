@@ -275,19 +275,19 @@ def test_use_xheaders():
 
 def test_ssl_args_plumbing():
     with mock.patch.object(ssl, 'SSLContext'):
-        s = server.Server({}, port=0, ssl_certfile="foo")
-        assert s._http.ssl_options.load_cert_chain.call_args[0] == ()
-        assert s._http.ssl_options.load_cert_chain.call_args[1] == dict(certfile='foo', keyfile=None, password=None)
+        with ManagedServerLoop({}, ssl_certfile="foo") as server:
+            assert server._http.ssl_options.load_cert_chain.call_args[0] == ()
+            assert server._http.ssl_options.load_cert_chain.call_args[1] == dict(certfile='foo', keyfile=None, password=None)
 
     with mock.patch.object(ssl, 'SSLContext'):
-        s = server.Server({}, port=0, ssl_certfile="foo", ssl_keyfile="baz")
-        assert s._http.ssl_options.load_cert_chain.call_args[0] == ()
-        assert s._http.ssl_options.load_cert_chain.call_args[1] == dict(certfile='foo', keyfile="baz", password=None)
+        with ManagedServerLoop({}, ssl_certfile="foo", ssl_keyfile="baz") as server:
+            assert server._http.ssl_options.load_cert_chain.call_args[0] == ()
+            assert server._http.ssl_options.load_cert_chain.call_args[1] == dict(certfile='foo', keyfile="baz", password=None)
 
     with mock.patch.object(ssl, 'SSLContext'):
-        s = server.Server({}, port=0, ssl_certfile="foo", ssl_keyfile="baz", ssl_password="bar")
-        assert s._http.ssl_options.load_cert_chain.call_args[0] == ()
-        assert s._http.ssl_options.load_cert_chain.call_args[1] == dict(certfile='foo', keyfile="baz", password="bar")
+        with ManagedServerLoop({}, ssl_certfile="foo", ssl_keyfile="baz", ssl_password="bar") as server:
+            assert server._http.ssl_options.load_cert_chain.call_args[0] == ()
+            assert server._http.ssl_options.load_cert_chain.call_args[1] == dict(certfile='foo', keyfile="baz", password="bar")
 
 # This test just maintains basic creation and setup, detailed functionality
 # is exercised by Server tests above
