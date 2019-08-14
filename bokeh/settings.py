@@ -73,7 +73,7 @@ Defined Settings
 Settings are accessible on the ``bokeh.settings.settings`` instance, via
 accessor methods. For instance:
 
-.. code-block::
+.. code-block:: python
 
     settings.minified()
 
