@@ -292,10 +292,10 @@ def _pop_visuals(glyphclass, props, prefix="", defaults={}, trait_defaults={}):
             Keys in `props` matching `glyphclass` properties with added `prefix`
               will get popped, other keys will be ignored.
             Keys take the form '[{prefix}][{feature}_]{trait}'. Only {feature}
-              must not containt underscores.
+              must not contain underscores.
             Keys of the form '{prefix}{trait}' work as lower precedence aliases
-              for all {features}.
-            Ex: {'fill_color': 'blue', 'selection_line_width': 0.5}
+              for {trait} for all {features}.
+            Ex: {'fill_color': 'blue', 'selection_line_width': 4}
 
         prefix (str) :
             Prefix used when accessing `props`. Ex: 'selection_'
@@ -326,13 +326,15 @@ def _pop_visuals(glyphclass, props, prefix="", defaults={}, trait_defaults={}):
         feature, trait = split_feature_trait(ft)
         return feature in ('line', 'fill', 'text') and trait is not None
 
-    result = dict()
-    defaults = dict( [('text_color', 'black')] + list(defaults.items()) )
-    trait_defaults = dict( [('color', get_default_color()), ('alpha', 1.0)]
-                          + list(trait_defaults.items()) )
+    defaults = defaults.copy()
+    defaults.setdefault('text_color', 'black')
+    trait_defaults = trait_defaults.copy()
+    trait_defaults.setdefault('color', get_default_color())
+    trait_defaults.setdefault('alpha', 1.0)
 
+    result = dict()
     for pname in filter(is_visual, glyphclass.properties()):
-        trait = split_feature_trait(pname)[1]
+        _, trait = split_feature_trait(pname)
         if prefix+pname in props:
             result[pname] = props.pop(prefix+pname)
         elif prefix+trait in props:
@@ -341,13 +343,6 @@ def _pop_visuals(glyphclass, props, prefix="", defaults={}, trait_defaults={}):
             result[pname] = defaults[pname]
         elif trait in trait_defaults:
             result[pname] = trait_defaults[trait]
-
-    # TODO: The need to do this and the complexity of managing this kind of
-    # thing throughout the codebase really suggests that we need to have
-    # a real stylesheet class, where defaults and Types can declaratively
-    # substitute for this kind of imperative logic.
-    # NOTE: text fill color should really always default to black, hard coding
-    # this here now until the stylesheet solution exists
 
     return result
 
@@ -930,27 +925,24 @@ def _glyph_function(glyphclass, extra_docs=None):
         if incompatible_literal_spec_values:
             raise RuntimeError(_GLYPH_SOURCE_MSG % nice_join(incompatible_literal_spec_values, conjuction="and"))
 
-        # use glyph_ca as default for other glyphs
-        default_ca = glyph_ca
-
         # handle the nonselection glyph, we always set one
-        nsglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='nonselection_', defaults=default_ca, trait_defaults={'alpha':0.1})
+        nsglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='nonselection_', defaults=glyph_ca, trait_defaults={'alpha':0.1})
 
         # handle the selection glyph, if any properties were given
         if any(x.startswith('selection_') for x in kwargs):
-            sglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='selection_', defaults=default_ca)
+            sglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='selection_', defaults=glyph_ca)
         else:
             sglyph_ca = None
 
         # handle the hover glyph, if any properties were given
         if any(x.startswith('hover_') for x in kwargs):
-            hglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='hover_', defaults=default_ca)
+            hglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='hover_', defaults=glyph_ca)
         else:
             hglyph_ca = None
 
         # handle the mute glyph, if any properties were given
         if any(x.startswith('muted_') for x in kwargs):
-            mglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='muted_', defaults=default_ca)
+            mglyph_ca = _pop_visuals(glyphclass, kwargs, prefix='muted_', defaults=glyph_ca)
         else:
             mglyph_ca = None
 
