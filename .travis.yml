@@ -66,6 +66,7 @@ jobs:
       env:
       - GROUP=examples
       - PYTHON=3.7.2
+      - EXTRA_CMD=--upload
 
     - install: scripts/ci/install.test
       script: scripts/ci/test

@@ -1,11 +1,11 @@
 import numpy as np
-import pandas as pd
 
 from bokeh.plotting import figure
 from bokeh.layouts import column
 from bokeh.models import (Range1d, ColumnDataSource, Div, LinearAxis,
                           LinearColorMapper, MultiLine,
                           FixedTicker, BasicTickFormatter, FuncTickFormatter)
+from bokeh.sampledata.autompg import autompg_clean as df
 
 from parallel_selection_tool import ParallelSelectionTool
 from parallel_reset import ParallelResetTool
@@ -109,7 +109,9 @@ def parallel_plot(df, color=None, palette=None):
 if __name__ == '__main__':
     from bokeh.palettes import Viridis256
     from bokeh.io import show
-    df = pd.read_csv("https://raw.githubusercontent.com/bcdunbar/datasets/master/parcoords_data.csv")
+    del df['origin']
+    del df['mfr']
+    del df['name']
     p = parallel_plot(df=df, color=df[df.columns[0]], palette=Viridis256)
     div = Div(text="Select up and down column grid lines to define filters. Double click a filter to reset it.")
     show(column(div, p))
