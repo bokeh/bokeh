@@ -331,3 +331,5 @@ The Bokeh project is grateful for [individual contributions](https://numfocus.sa
   </td>
 </tr>
 </table>
+
+If your company uses Bokeh and is able to sponsor the project, please contact <a href="info@bokeh.org">info@bokeh.org</a>
