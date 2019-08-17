@@ -239,20 +239,6 @@ def get_version():
     '''
     return versioneer.get_version()
 
-def upgrade_npm():
-    # Workaround to upgrade ``npm`` since Read the Docs build environment have
-    # ``3.5.2`` and we need at least ``npm>=6.0``
-    os.system('cd ~ ; mkdir bin ; npm install npm')
-    os.environ['PATH'] = '/home/docs/node_modules/.bin/:{}'.format(os.environ.get('PATH'))
-    print('PATH: {}'.format(os.environ.get('PATH')))
-
-def set_env_to_build_bokehjs():
-    # TODO: this can be defined using Environment Variables on Read the Docs
-    # https://docs.readthedocs.io/en/latest/guides/environment-variables.html
-
-    # Tell Bokeh install script to always build the Javascript files
-    os.environ['BOKEH_BUILD_JS'] = '1'
-
 # -----------------------------------------------------------------------------
 # Helpers for operation in the bokehjs dir
 # -----------------------------------------------------------------------------
@@ -266,8 +252,7 @@ def jsbuild_prompt():
     '''
     print(BOKEHJS_BUILD_PROMPT)
     mapping = {"1": True, "2": False}
-    # Use an environment variable to avoid prompting to the user
-    value = os.environ.get("BOKEH_BUILD_JS", "2") or input("Choice? ")
+    value = input("Choice? ")
     while value not in mapping:
         print("Input '%s' not understood. Valid choices: 1, 2\n" % value)
         value = input("Choice? ")

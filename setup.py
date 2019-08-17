@@ -61,7 +61,6 @@ an sdist. They will be ignored, and warning printed.
 '''
 from os.path import join
 from shutil import copy
-import os
 import sys
 
 from setuptools import find_packages, setup
@@ -72,11 +71,6 @@ from _setup_support import (
     install_js, package_files, package_path, ROOT, SERVER, show_bokehjs,
     show_help
 )
-
-if os.environ.get('READTHEDOCS') == 'True':
-    from _setup_support import upgrade_npm, set_env_to_build_bokehjs
-    upgrade_npm()
-    set_env_to_build_bokehjs()
 
 # immediately bail for ancient pythons
 if sys.version_info[:2] < (2, 7):
