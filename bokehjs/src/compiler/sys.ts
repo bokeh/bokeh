@@ -16,7 +16,14 @@ export const write = ts.sys.writeFile
 export const file_exists = ts.sys.fileExists
 export const directory_exists = ts.sys.directoryExists
 
-export function rename(path: string, options: {base?: string, dir?: string, ext?: string}): string {
+export type RenameOptions = {
+  base?: string,
+  dir?: string,
+  name?: (name: string) => string,
+  ext?: string,
+}
+
+export function rename(path: string, options: RenameOptions): string {
   let {dir, name, ext} = parse(path)
   if (options.dir != null) {
     if (options.base != null)
@@ -24,6 +31,8 @@ export function rename(path: string, options: {base?: string, dir?: string, ext?
     else
       dir = options.dir
   }
+  if (options.name != null)
+    name = options.name(name)
   if (options.ext != null)
     ext = options.ext
   return format({dir, name, ext})

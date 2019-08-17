@@ -20,7 +20,7 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "target": "ES5",
+    "target": "ES2015",
     "lib": ["es2015", "dom"],
     "types": ["hammerjs", "googlemaps"],
     "baseUrl": "."
