@@ -288,7 +288,7 @@ def _get_current_commit():
     )
     return result.stdout.decode('utf8').strip()
 
-def git_tagged_version():
+def is_tagged_version():
     commit = _get_current_commit()
     print('Bokeh commit: {commit}'.format(commit=commit))
     result = subprocess.run(
@@ -297,14 +297,13 @@ def git_tagged_version():
     )
     tagged = result.stdout.decode('utf8').strip()
     print('Bokeh tagged version: {tagged}'.format(tagged=tagged))
-    return tagged
+    return bool(tagged)
 
 if os.environ.get('READTHEDOCS') == 'True':
     readthedocs_version = os.environ.get('READTHEDOCS_VERSION')
-    tagged_version = git_tagged_version()
-    if tagged_version:
+    if is_tagged_version():
         # Use Bokeh Resources from CDN
-        os.environ['BOKEH_DOCS_CDN'] = tagged_version
+        os.environ['BOKEH_DOCS_CDN'] = readthedocs_version
     else:
         # Use Bokeh Resources from Read the Docs
         os.environ['BOKEH_DOCS_CDN'] = 'test:{readthedocs_version}'.format(
