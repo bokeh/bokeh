@@ -331,7 +331,3 @@ The Bokeh project is grateful for [individual contributions](https://numfocus.sa
   </td>
 </tr>
 </table>
-
-
-
-
