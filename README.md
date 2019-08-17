@@ -5,7 +5,6 @@
 *Bokeh is a fiscally sponsored project of [NumFOCUS](https://numfocus.org), a nonprofit dedicated to supporting the open-source scientific computing community. If you like Bokeh and would like to support our mission, please consider [making a donation](https://numfocus.salsalabs.org/donate-to-bokeh/index.html).*
 
 <table>
-
 <tr>
   <td>Latest Release</td>
   <td>
@@ -114,7 +113,7 @@ delivering **high-performance** interactivity for large or streamed datasets.
 ---------------------------------------------------------------------------
 
 <p>
-<table cellspacing="20">
+<table cellspacing="10">
 <tr>
 
   <td>
@@ -281,9 +280,58 @@ Follow us
 ---------
 Follow us on Twitter [@bokehplots](https://twitter.com/BokehPlots)
 
-<p align="center">
-  <a href="https://www.numfocus.org/">
-  <img src="https://github.com/bokeh/bokeh/blob/master/sphinx/source/_images/NumFocus_2C_CMYK.svg"
-       alt="NumFocus Logo" width="400"/>
-  </a>
-</p>
+Sponsors
+--------
+
+The Bokeh project is grateful for [individual contributions](https://numfocus.salsalabs.org/donate-to-bokeh/index.html) as well as sponsorship by the organizations and companies below:
+
+<table>
+<tr>
+  <td>
+    <a href="https://www.numfocus.org/">
+    <img src="https://static.bokeh.org/sponsor/numfocus.svg"
+       alt="NumFocus Logo" width="200"/>
+    </a>
+  </td>
+  <td>
+    <a href="https://www.anaconda.com/">
+    <img src="https://static.bokeh.org/sponsor/anaconda.png"
+       alt="Anaconda Logo" width="200"/>
+    </a>
+  </td>
+  <td>
+    <a href="https://www.nvidia.com">
+    <img src="https://static.bokeh.org/sponsor/nvidia.png"
+       alt="NVidia Logo" width="200"/>
+    </a>
+  </td>
+  <td>
+    <a href="https://developer.nvidia.com/rapids">
+    <img src="https://static.bokeh.org/sponsor/rapids.png"
+       alt="Rapids Logo" width="200"/>
+    </a>
+  </td>
+</tr>
+</table>
+
+
+<table align="center">
+<tr>
+  <td>
+    <a href="https://www.quansight.com">
+    <img src="https://static.bokeh.org/sponsor/quansight.png"
+       alt="Quansight Logo" width="100"/>
+    </a>
+  </td>
+  <td>
+    <a href="https://www.rexhomes.com/">
+    <img src="https://static.bokeh.org/sponsor/rex.jpg"
+       alt="Rex Logo" width="100"/>
+    </a>
+  </td>
+</tr>
+</table>
+
+
+
+
