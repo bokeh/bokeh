@@ -1,0 +1,35 @@
+<nav class="navbar navbar-light navbar-expand-lg bg-light bd-navbar fixed-top" id="navbar-main">
+  <a class="navbar-brand" href="{{ pathto('index') }}">
+    <img src="https://static.bokeh.org/logos/logotype.svg" alt="Bokeh" height="30" width="110">
+  </a>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div id="navbar-menu" class="collapse navbar-collapse">
+    <ul id="navbar-main-elements" class="navbar-nav mr-auto">
+      <li class="nav-item">
+          <a class="nav-link" href="{{ pathto('index') }}">Home</a>
+      </li>
+      {% set nav = get_nav_object(maxdepth=1) %}
+      {% for main_nav_item in nav %}
+      <li class="nav-item {% if main_nav_item.active%}active{% endif %}">
+          <a class="nav-link" href="{{ main_nav_item.url }}">{{ main_nav_item.title }}</a>
+      </li>
+      {% endfor %}
+    </ul>
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="https://github.com/bokeh/bokeh" target="_blank" rel="noopener">
+          <span><i class="fab fa-github-alt" style="color:#333;font-size:1rem;line-height:1.25"></i></span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="https://twitter.com/bokehplots" target="_blank" rel="noopener">
+          <span><i class="fab fa-twitter" style="color:#55acee;font-size:1rem;line-height:1.25"></i></span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</nav>

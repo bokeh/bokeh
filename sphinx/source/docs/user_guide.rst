@@ -1,7 +1,34 @@
 .. _userguide:
 
 User Guide
-==========
+##########
+
+.. toctree::
+    :maxdepth: 2
+    :hidden:
+
+    user_guide/quickstart
+    user_guide/concepts
+    user_guide/plotting
+    user_guide/data
+    user_guide/layout
+    user_guide/categorical
+    user_guide/graph
+    user_guide/geo
+    user_guide/tools
+    user_guide/styling
+    user_guide/annotations
+    user_guide/interaction
+    user_guide/server
+    user_guide/notebook
+    user_guide/export
+    user_guide/embed
+    user_guide/cli
+    user_guide/extensions
+    user_guide/compat
+    user_guide/webgl
+    user_guide/bokehjs
+    user_guide/info
 
 This user guide is intended to walk you through many common tasks that
 you might want to accomplish using Bokeh. The guide is arranged by

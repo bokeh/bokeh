@@ -3,6 +3,10 @@
 Installation
 ############
 
+.. toctree::
+    :maxdepth: 2
+    :hidden:
+
 This section provides complete details about Bokeh's required and
 optional dependencies as well as information about how to install
 Bokeh in different situations. To get up and running as fast as possible,

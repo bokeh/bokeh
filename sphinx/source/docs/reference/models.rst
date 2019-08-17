@@ -28,7 +28,8 @@ together with their property attributes, as well as a JSON prototype
 illustrating what a serialized version of the model looks like.
 
 .. toctree::
-   :maxdepth: 3
-   :glob:
+    :maxdepth: 3
+    :hidden:
+    :glob:
 
-   models/*
+    models/*

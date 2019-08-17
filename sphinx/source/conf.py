@@ -50,6 +50,7 @@ extensions = [
     'bokeh.sphinxext.bokeh_sitemap',
     'bokeh.sphinxext.bokehjs_content',
     'bokeh.sphinxext.collapsible_code_block',
+    'bokeh.sphinxext.theme',
 ]
 
 napoleon_include_init_with_doc = True
@@ -158,7 +159,7 @@ rst_prolog = """
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'bokeh_theme'
+html_theme = 'bokeh'
 html_theme_path = ['.']
 
 html_context = {

@@ -3,6 +3,13 @@
 Reference Guide
 ###############
 
+.. toctree::
+    :maxdepth: 2
+    :hidden:
+    :glob:
+
+    reference/*
+
 This section provides the complete public API reference for Bokeh,
 auto-generated from the docstrings in the project source code.
 
