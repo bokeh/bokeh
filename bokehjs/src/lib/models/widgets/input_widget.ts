@@ -53,11 +53,10 @@ export abstract class InputWidget extends Control {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_InputWidget(): void {
     this.define<InputWidget.Props>({
       title:    [ p.String, "" ],
       callback: [ p.Any        ],
     })
   }
 }
-InputWidget.initClass()

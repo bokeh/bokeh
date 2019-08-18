@@ -447,7 +447,7 @@ export class HoverTool extends InspectTool {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_HoverTool(): void {
     this.prototype.default_view = HoverToolView
 
     this.define<HoverTool.Props>({
@@ -472,4 +472,3 @@ export class HoverTool extends InspectTool {
   tool_name = "Hover"
   icon = bk_tool_icon_hover
 }
-HoverTool.initClass()

@@ -25,7 +25,7 @@ export abstract class Interpolator extends Transform {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Interpolator(): void {
     this.define<Interpolator.Props>({
       x:    [ p.Any           ],
       y:    [ p.Any           ],
@@ -102,4 +102,3 @@ export abstract class Interpolator extends Transform {
     this._sorted_dirty = false
   }
 }
-Interpolator.initClass()

@@ -38,7 +38,7 @@ export class Selection extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Selection(): void {
     this.define<Selection.Props>({
       indices:           [ p.Array,   [] ],
       line_indices:      [ p.Array,   [] ],
@@ -134,4 +134,3 @@ export class Selection extends Model {
     this.multiline_indices = merge(other.multiline_indices, this.multiline_indices)
   }
 }
-Selection.initClass()

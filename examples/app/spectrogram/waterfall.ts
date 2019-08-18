@@ -128,7 +128,7 @@ export class WaterfallRenderer extends Renderer {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_WaterfallRenderer(): void {
     this.prototype.default_view = WaterfallRendererView
 
     this.define<WaterfallRenderer.Props>({
@@ -144,4 +144,3 @@ export class WaterfallRenderer extends Renderer {
     })
   }
 }
-WaterfallRenderer.initClass()

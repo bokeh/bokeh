@@ -399,7 +399,7 @@ export abstract class LayoutDOM extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_LayoutDOM(): void {
     this.define<LayoutDOM.Props>({
       width:         [ p.Number,     null         ],
       height:        [ p.Number,     null         ],
@@ -420,4 +420,3 @@ export abstract class LayoutDOM extends Model {
     })
   }
 }
-LayoutDOM.initClass()

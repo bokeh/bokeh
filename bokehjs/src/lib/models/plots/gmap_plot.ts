@@ -27,7 +27,7 @@ export class MapOptions extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_MapOptions(): void {
     this.define<MapOptions.Props>({
       lat:  [ p.Number     ],
       lng:  [ p.Number     ],
@@ -35,7 +35,6 @@ export class MapOptions extends Model {
     })
   }
 }
-MapOptions.initClass()
 
 export namespace GMapOptions {
   export type Attrs = p.AttrsOf<Props>
@@ -57,7 +56,7 @@ export class GMapOptions extends MapOptions {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_GMapOptions(): void {
     this.define<GMapOptions.Props>({
       map_type:      [ p.String,  "roadmap" ],
       scale_control: [ p.Boolean, false     ],
@@ -66,7 +65,6 @@ export class GMapOptions extends MapOptions {
     })
   }
 }
-GMapOptions.initClass()
 
 export namespace GMapPlot {
   export type Attrs = p.AttrsOf<Props>
@@ -89,7 +87,7 @@ export class GMapPlot extends Plot {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_GMapPlot(): void {
     this.prototype.default_view = GMapPlotView
 
     // This seems to be necessary so that everything can initialize.
@@ -113,4 +111,3 @@ export class GMapPlot extends Plot {
       logger.error("api_key is required. See https://developers.google.com/maps/documentation/javascript/get-api-key for more information on how to obtain your own.")
   }
 }
-GMapPlot.initClass()

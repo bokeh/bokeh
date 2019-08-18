@@ -28,7 +28,7 @@ export class Jitter extends Transform {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Jitter(): void {
     this.define<Jitter.Props>({
       mean:         [ p.Number, 0        ],
       width:        [ p.Number, 1        ],
@@ -80,4 +80,3 @@ export class Jitter extends Transform {
     }
   }
 }
-Jitter.initClass()

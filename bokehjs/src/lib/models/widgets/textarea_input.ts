@@ -64,7 +64,7 @@ export class TextAreaInput extends TextInput {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_TextAreaInput(): void {
     this.prototype.default_view = TextAreaInputView
 
     this.define<TextAreaInput.Props>({
@@ -74,4 +74,3 @@ export class TextAreaInput extends TextInput {
     })
   }
 }
-TextAreaInput.initClass()

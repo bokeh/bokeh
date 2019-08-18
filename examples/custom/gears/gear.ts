@@ -170,7 +170,7 @@ export class Gear extends XYGlyph {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Gear(): void {
     this.prototype.default_view = GearView
 
     this.mixins(['line', 'fill'])
@@ -184,4 +184,3 @@ export class Gear extends XYGlyph {
     })
   }
 }
-Gear.initClass()

@@ -142,7 +142,7 @@ export class Surface3d extends LayoutDOM {
   // typos, which would prohibit serialization/deserialization of this model.
   static __name__ = "Surface3d"
 
-  static initClass() {
+  static init_Surface3d() {
     // This is usually boilerplate. In some cases there may not be a view.
     this.prototype.default_view = Surface3dView
 
@@ -159,7 +159,6 @@ export class Surface3d extends LayoutDOM {
     })
   }
 }
-Surface3d.initClass()
 """
 
 # This custom extension model will have a DOM view that should layout-able in

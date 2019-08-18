@@ -74,11 +74,10 @@ export abstract class Renderer extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Renderer(): void {
     this.define<Renderer.Props>({
       level: [ p.RenderLevel ],
       visible: [ p.Boolean, true ],
     })
   }
 }
-Renderer.initClass()

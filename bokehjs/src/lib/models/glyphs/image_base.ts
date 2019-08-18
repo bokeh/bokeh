@@ -166,7 +166,7 @@ export class ImageBase extends XYGlyph {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_ImageBase(): void {
     this.prototype.default_view = ImageBaseView
 
     this.define<ImageBase.Props>({
@@ -178,4 +178,3 @@ export class ImageBase extends XYGlyph {
     })
   }
 }
-ImageBase.initClass()

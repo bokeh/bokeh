@@ -23,7 +23,7 @@ export class CustomJSHover extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_CustomJSHover(): void {
     this.define<CustomJSHover.Props>({
       args: [ p.Any,    {} ], // TODO (bev) better type
       code: [ p.String, "" ],
@@ -46,4 +46,3 @@ export class CustomJSHover extends Model {
   }
 
 }
-CustomJSHover.initClass()

@@ -118,7 +118,7 @@ export class PolySelectTool extends SelectTool {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_PolySelectTool(): void {
     this.prototype.default_view = PolySelectToolView
 
     this.define<PolySelectTool.Props>({
@@ -132,4 +132,3 @@ export class PolySelectTool extends SelectTool {
   event_type = "tap" as "tap"
   default_order = 11
 }
-PolySelectTool.initClass()

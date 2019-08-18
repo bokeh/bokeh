@@ -23,7 +23,7 @@ export abstract class RowAggregator extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_RowAggregator(): void {
     this.prototype.type = 'RowAggregator'
     this.define<RowAggregator.Props>({
       field_: [ p.String, '' ],
@@ -34,13 +34,12 @@ export abstract class RowAggregator extends Model {
   abstract accumulate(item: { [key: string]: any }): void
   abstract storeResult(totals: GroupTotals<number>): void
 }
-RowAggregator.initClass()
 
 const avg = new Avg()
 export class AvgAggregator extends RowAggregator {
   readonly key = 'avg'
 
-  static initClass(): void {
+  static init_AvgAggregator(): void {
     this.prototype.type = 'AvgAggregator'
   }
 
@@ -48,13 +47,12 @@ export class AvgAggregator extends RowAggregator {
   accumulate = avg.accumulate
   storeResult = avg.storeResult
 }
-AvgAggregator.initClass()
 
 const min = new Min()
 export class MinAggregator extends RowAggregator {
   readonly key = 'min'
 
-  static initClass(): void {
+  static init_MinAggregator(): void {
     this.prototype.type = 'MinAggregator'
   }
 
@@ -62,13 +60,12 @@ export class MinAggregator extends RowAggregator {
   accumulate = min.accumulate
   storeResult = min.storeResult
 }
-MinAggregator.initClass()
 
 const max = new Max()
 export class MaxAggregator extends RowAggregator {
   readonly key = 'max'
 
-  static initClass(): void {
+  static init_MaxAggregator(): void {
     this.prototype.type = 'MaxAggregator'
   }
 
@@ -76,13 +73,12 @@ export class MaxAggregator extends RowAggregator {
   accumulate = max.accumulate
   storeResult = max.storeResult
 }
-MaxAggregator.initClass()
 
 const sum = new Sum()
 export class SumAggregator extends RowAggregator {
   readonly key = 'sum'
 
-  static initClass(): void {
+  static init_SumAggregator(): void {
     this.prototype.type = 'SumAggregator'
   }
 
@@ -90,4 +86,3 @@ export class SumAggregator extends RowAggregator {
   accumulate = sum.accumulate
   storeResult = sum.storeResult
 }
-SumAggregator.initClass()

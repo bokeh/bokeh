@@ -28,8 +28,7 @@ export class Paragraph extends Markup {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Paragraph(): void {
     this.prototype.default_view = ParagraphView
   }
 }
-Paragraph.initClass()

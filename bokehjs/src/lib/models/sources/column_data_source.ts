@@ -156,7 +156,7 @@ export class ColumnDataSource extends ColumnarDataSource {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_ColumnDataSource(): void {
     this.define<ColumnDataSource.Props>({
       data: [ p.Any, {} ],
     })
@@ -218,4 +218,3 @@ export class ColumnDataSource extends ColumnarDataSource {
     }
   }
 }
-ColumnDataSource.initClass()

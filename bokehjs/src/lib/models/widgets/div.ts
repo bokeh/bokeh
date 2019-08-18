@@ -30,7 +30,7 @@ export class Div extends Markup {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Div(): void {
     this.prototype.default_view = DivView
 
     this.define<Div.Props>({
@@ -38,4 +38,3 @@ export class Div extends Markup {
     })
   }
 }
-Div.initClass()

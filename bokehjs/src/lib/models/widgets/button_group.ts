@@ -65,7 +65,7 @@ export abstract class ButtonGroup extends Control {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_ButtonGroup(): void {
     this.define<ButtonGroup.Props>({
       labels:      [ p.Array,      []        ],
       button_type: [ p.ButtonType, "default" ],
@@ -73,4 +73,3 @@ export abstract class ButtonGroup extends Control {
     })
   }
 }
-ButtonGroup.initClass()

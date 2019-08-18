@@ -129,7 +129,7 @@ export class IonRangeSlider extends InputWidget {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_IonRangeSlider(): void {
     // If there is an associated view, this is boilerplate.
     this.prototype.default_view = IonRangeSliderView
 
@@ -149,4 +149,3 @@ export class IonRangeSlider extends InputWidget {
     })
   }
 }
-IonRangeSlider.initClass()

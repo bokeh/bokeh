@@ -112,7 +112,7 @@ export class DatePicker extends InputWidget {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_DatePicker(): void {
     this.prototype.default_view = DatePickerView
 
     this.define<DatePicker.Props>({
@@ -123,4 +123,3 @@ export class DatePicker extends InputWidget {
     })
   }
 }
-DatePicker.initClass()

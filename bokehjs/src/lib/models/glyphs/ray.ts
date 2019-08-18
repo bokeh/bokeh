@@ -84,7 +84,7 @@ export class Ray extends XYGlyph {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Ray(): void {
     this.prototype.default_view = RayView
 
     this.mixins(['line'])
@@ -94,4 +94,3 @@ export class Ray extends XYGlyph {
     })
   }
 }
-Ray.initClass()

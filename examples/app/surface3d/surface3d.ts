@@ -121,7 +121,7 @@ export class Surface3d extends HTMLBox {
   // typos, which would prohibit serialization/deserialization of this model.
   static __name__ = "Surface3d"
 
-  static initClass(): void {
+  static init_Surface3d(): void {
     // This is usually boilerplate. In some cases there may not be a view.
     this.prototype.default_view = Surface3dView
 
@@ -139,4 +139,3 @@ export class Surface3d extends HTMLBox {
     })
   }
 }
-Surface3d.initClass()

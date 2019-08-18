@@ -362,7 +362,7 @@ export interface ParallelSelectionTool extends ParallelSelectionTool.Attrs {}
 export class ParallelSelectionTool extends BoxSelectTool {
   properties: ParallelSelectionTool.Props
 
-  static initClass(): void {
+  static init_ParallelSelectionTool(): void {
     this.prototype.default_view = ParallelSelectionView
 
     this.define<ParallelSelectionTool.Props>({
@@ -376,4 +376,3 @@ export class ParallelSelectionTool extends BoxSelectTool {
   //override event_type property define in BoxSelectTool
   event_type: any = ["tap" as "tap", "pan" as "pan", "move" as "move"]
 }
-ParallelSelectionTool.initClass()

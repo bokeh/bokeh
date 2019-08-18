@@ -21,7 +21,7 @@ export class MercatorTileSource extends TileSource {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_MercatorTileSource(): void {
     this.define<MercatorTileSource.Props>({
       snap_to_zoom: [ p.Boolean, false ],
       wrap_around:  [ p.Boolean, true  ],
@@ -312,4 +312,3 @@ export class MercatorTileSource extends TileSource {
     return Math.floor(x / Math.pow(2, z))
   }
 }
-MercatorTileSource.initClass()

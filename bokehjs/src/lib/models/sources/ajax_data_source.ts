@@ -23,7 +23,7 @@ export class AjaxDataSource extends RemoteDataSource {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_AjaxDataSource(): void {
     this.define<AjaxDataSource.Props>({
       content_type: [ p.String,     'application/json' ],
       http_headers: [ p.Any,         {}                ],
@@ -88,4 +88,3 @@ export class AjaxDataSource extends RemoteDataSource {
     logger.error(`Failed to fetch JSON from ${this.data_url} with code ${xhr.status}`)
   }
 }
-AjaxDataSource.initClass()

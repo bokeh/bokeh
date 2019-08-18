@@ -57,7 +57,7 @@ export abstract class ButtonTool extends Tool {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_ButtonTool(): void {
     this.internal({
       disabled:    [ p.Boolean,    false ],
     })
@@ -77,4 +77,3 @@ export abstract class ButtonTool extends Tool {
     return this.icon
   }
 }
-ButtonTool.initClass()

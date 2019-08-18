@@ -20,7 +20,7 @@ export class CategoricalColorMapper extends ColorMapper {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_CategoricalColorMapper(): void {
     this.define<CategoricalColorMapper.Props>({
       factors: [ p.Array     ],
       start:   [ p.Number, 0 ],
@@ -33,4 +33,3 @@ export class CategoricalColorMapper extends ColorMapper {
     cat_v_compute(data, this.factors, palette, values, this.start, this.end, nan_color)
   }
 }
-CategoricalColorMapper.initClass()

@@ -129,7 +129,7 @@ export class Canvas extends HasProps {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Canvas(): void {
     this.prototype.default_view = CanvasView
 
     this.internal({
@@ -140,4 +140,3 @@ export class Canvas extends HasProps {
     })
   }
 }
-Canvas.initClass()

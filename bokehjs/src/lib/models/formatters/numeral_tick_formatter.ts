@@ -23,7 +23,7 @@ export class NumeralTickFormatter extends TickFormatter {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_NumeralTickFormatter(): void {
     this.define<NumeralTickFormatter.Props>({
       // TODO (bev) all of these could be tightened up
       format:   [ p.String,           '0,0'   ],
@@ -51,4 +51,3 @@ export class NumeralTickFormatter extends TickFormatter {
     return ticks.map((tick) => Numbro.format(tick, format, language, _rounding_fn))
   }
 }
-NumeralTickFormatter.initClass()

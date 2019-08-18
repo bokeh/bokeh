@@ -178,7 +178,7 @@ export class CategoricalAxis extends Axis {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_CategoricalAxis(): void {
     this.prototype.default_view = CategoricalAxisView
 
     this.mixins([
@@ -205,4 +205,3 @@ export class CategoricalAxis extends Axis {
     })
   }
 }
-CategoricalAxis.initClass()

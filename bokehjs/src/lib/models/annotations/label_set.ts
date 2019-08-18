@@ -229,7 +229,7 @@ export class LabelSet extends TextAnnotation {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_LabelSet(): void {
     this.prototype.default_view = LabelSetView
 
     this.mixins(['text', 'line:border_', 'fill:background_'])
@@ -254,4 +254,3 @@ export class LabelSet extends TextAnnotation {
     })
   }
 }
-LabelSet.initClass()

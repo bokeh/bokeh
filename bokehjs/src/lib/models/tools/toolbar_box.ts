@@ -192,7 +192,7 @@ export class ToolbarBox extends LayoutDOM {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_ToolbarBox(): void {
     this.prototype.default_view = ToolbarBoxView
 
     this.define<ToolbarBox.Props>({
@@ -201,4 +201,3 @@ export class ToolbarBox extends LayoutDOM {
     })
   }
 }
-ToolbarBox.initClass()

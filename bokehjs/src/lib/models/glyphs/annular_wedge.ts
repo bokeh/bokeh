@@ -173,7 +173,7 @@ export class AnnularWedge extends XYGlyph {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_AnnularWedge(): void {
     this.prototype.default_view = AnnularWedgeView
 
     this.mixins(['line', 'fill'])
@@ -186,4 +186,3 @@ export class AnnularWedge extends XYGlyph {
     })
   }
 }
-AnnularWedge.initClass()

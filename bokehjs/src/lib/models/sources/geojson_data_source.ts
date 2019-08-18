@@ -38,7 +38,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_GeoJSONDataSource(): void {
     this.define<GeoJSONDataSource.Props>({
       geojson: [ p.Any ], // TODO (bev)
     })
@@ -225,4 +225,3 @@ export class GeoJSONDataSource extends ColumnarDataSource {
     return data
   }
 }
-GeoJSONDataSource.initClass()

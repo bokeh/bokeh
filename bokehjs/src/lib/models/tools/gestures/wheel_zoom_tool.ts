@@ -72,7 +72,7 @@ export class WheelZoomTool extends GestureTool {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_WheelZoomTool(): void {
     this.prototype.default_view = WheelZoomToolView
 
     this.define<WheelZoomTool.Props>({
@@ -93,4 +93,3 @@ export class WheelZoomTool extends GestureTool {
     return this._get_dim_tooltip(this.tool_name, this.dimensions)
   }
 }
-WheelZoomTool.initClass()

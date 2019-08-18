@@ -184,7 +184,7 @@ export class BoxAnnotation extends Annotation {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_BoxAnnotation(): void {
     this.prototype.default_view = BoxAnnotationView
 
     this.mixins(['line', 'fill'])
@@ -230,4 +230,3 @@ export class BoxAnnotation extends Annotation {
     this.data_update.emit()
   }
 }
-BoxAnnotation.initClass()

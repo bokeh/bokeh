@@ -33,7 +33,7 @@ export class TableColumn extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_TableColumn(): void {
     this.define<TableColumn.Props>({
       field:        [ p.String                                ],
       title:        [ p.String                                ],
@@ -59,4 +59,3 @@ export class TableColumn extends Model {
     }
   }
 }
-TableColumn.initClass()

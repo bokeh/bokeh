@@ -81,7 +81,7 @@ export abstract class Tool extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Tool(): void {
     this.internal({
       active: [ p.Boolean, false ],
     })
@@ -127,4 +127,3 @@ export abstract class Tool extends Model {
     return [sxlim, sylim]
   }
 }
-Tool.initClass()

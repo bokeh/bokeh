@@ -24,11 +24,10 @@ export class ParallelResetTool extends ActionTool {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_ParallelResetTool(): void {
     this.prototype.default_view = ParallelResetToolView
   }
 
   tool_name = "Reset Zoom"
   icon = "bk-tool-icon-reset"
 }
-ParallelResetTool.initClass()

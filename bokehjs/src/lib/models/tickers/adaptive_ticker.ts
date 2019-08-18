@@ -36,7 +36,7 @@ export class AdaptiveTicker extends ContinuousTicker {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_AdaptiveTicker(): void {
     this.define<AdaptiveTicker.Props>({
       base:         [ p.Number, 10.0      ],
       mantissas:    [ p.Array,  [1, 2, 5] ],
@@ -88,4 +88,3 @@ export class AdaptiveTicker extends ContinuousTicker {
     return clamp(interval, this.get_min_interval(), this.get_max_interval())
   }
 }
-AdaptiveTicker.initClass()

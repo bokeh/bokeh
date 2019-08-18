@@ -100,7 +100,7 @@ export class WheelPanTool extends GestureTool {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_WheelPanTool(): void {
     this.prototype.default_view = WheelPanToolView
 
     this.define<WheelPanTool.Props>({
@@ -121,4 +121,3 @@ export class WheelPanTool extends GestureTool {
     return this._get_dim_tooltip(this.tool_name, this.dimension)
   }
 }
-WheelPanTool.initClass()

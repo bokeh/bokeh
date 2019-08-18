@@ -24,7 +24,7 @@ export class CompositeTicker extends ContinuousTicker {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_CompositeTicker(): void {
     this.define<CompositeTicker.Props>({
       tickers: [p.Array, [] ],
     })
@@ -90,4 +90,3 @@ export class CompositeTicker extends ContinuousTicker {
     return best_ticker.get_ticks_no_defaults(data_low, data_high, cross_loc, desired_n_ticks)
   }
 }
-CompositeTicker.initClass()

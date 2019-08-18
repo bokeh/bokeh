@@ -79,10 +79,9 @@ export abstract class Annotation extends Renderer {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Annotation(): void {
     this.override({
       level: 'annotation',
     })
   }
 }
-Annotation.initClass()

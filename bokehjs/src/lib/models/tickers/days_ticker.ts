@@ -49,7 +49,7 @@ export class DaysTicker extends SingleIntervalTicker {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_DaysTicker(): void {
     this.define<DaysTicker.Props>({
       days: [ p.Array, [] ],
     })
@@ -105,4 +105,3 @@ export class DaysTicker extends SingleIntervalTicker {
     }
   }
 }
-DaysTicker.initClass()

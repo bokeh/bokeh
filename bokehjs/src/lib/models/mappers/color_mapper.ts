@@ -56,7 +56,7 @@ export abstract class ColorMapper extends Mapper<Color> {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_ColorMapper(): void {
     this.define<ColorMapper.Props>({
       palette:   [ p.Any           ], // TODO (bev)
       nan_color: [ p.Color, "gray" ],
@@ -89,4 +89,3 @@ export abstract class ColorMapper extends Mapper<Color> {
   protected abstract _v_compute<T>(xs: ArrayableOf<number | Factor>, values: Arrayable<T>,
                                    palette: Arrayable<T>, colors: {nan_color: T}): void
 }
-ColorMapper.initClass()

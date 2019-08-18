@@ -155,7 +155,7 @@ export class Whisker extends Annotation {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Whisker(): void {
     this.prototype.default_view = WhiskerView
 
     this.mixins(['line'])
@@ -177,4 +177,3 @@ export class Whisker extends Annotation {
     })
   }
 }
-Whisker.initClass()

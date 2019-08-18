@@ -22,7 +22,7 @@ export class RangeSlider extends AbstractSlider {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_RangeSlider(): void {
     this.prototype.default_view = RangeSliderView
 
     this.override({
@@ -37,4 +37,3 @@ export class RangeSlider extends AbstractSlider {
     return numbro.format(value, format)
   }
 }
-RangeSlider.initClass()

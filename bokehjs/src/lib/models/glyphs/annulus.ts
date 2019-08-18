@@ -156,7 +156,7 @@ export class Annulus extends XYGlyph {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Annulus(): void {
     this.prototype.default_view = AnnulusView
 
     this.mixins(['line', 'fill'])
@@ -166,4 +166,3 @@ export class Annulus extends XYGlyph {
     })
   }
 }
-Annulus.initClass()

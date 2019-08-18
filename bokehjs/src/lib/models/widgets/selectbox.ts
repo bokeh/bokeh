@@ -80,7 +80,7 @@ export class Select extends InputWidget {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Select(): void {
     this.prototype.default_view = SelectView
 
     this.define<Select.Props>({
@@ -89,4 +89,3 @@ export class Select extends InputWidget {
     })
   }
 }
-Select.initClass()

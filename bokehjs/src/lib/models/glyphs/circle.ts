@@ -279,7 +279,7 @@ export class Circle extends XYGlyph {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Circle(): void {
     this.prototype.default_view = CircleView
 
     this.mixins(['line', 'fill'])
@@ -296,4 +296,3 @@ export class Circle extends XYGlyph {
     this.properties.radius.optional = true
   }
 }
-Circle.initClass()

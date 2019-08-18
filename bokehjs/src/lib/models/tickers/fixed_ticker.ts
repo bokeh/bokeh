@@ -20,7 +20,7 @@ export class FixedTicker extends ContinuousTicker {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_FixedTicker(): void {
     this.define<FixedTicker.Props>({
       ticks: [ p.Array, [] ],
       minor_ticks: [ p.Array, [] ],
@@ -43,4 +43,3 @@ export class FixedTicker extends ContinuousTicker {
   max_interval: number = 0
   //
 }
-FixedTicker.initClass()

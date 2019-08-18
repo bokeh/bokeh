@@ -123,7 +123,7 @@ export class LassoSelectTool extends SelectTool {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_LassoSelectTool(): void {
     this.prototype.default_view = LassoSelectToolView
 
     this.define<LassoSelectTool.Props>({
@@ -138,4 +138,3 @@ export class LassoSelectTool extends SelectTool {
   event_type = "pan" as "pan"
   default_order = 12
 }
-LassoSelectTool.initClass()

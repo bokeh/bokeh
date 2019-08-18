@@ -23,7 +23,7 @@ export class Dodge extends Transform {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Dodge(): void {
     this.define<Dodge.Props>({
       value: [ p.Number,  0 ],
       range: [ p.Instance   ],
@@ -61,4 +61,3 @@ export class Dodge extends Transform {
     return x + this.value
   }
 }
-Dodge.initClass()

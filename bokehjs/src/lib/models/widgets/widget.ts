@@ -51,7 +51,7 @@ export abstract class Widget extends HTMLBox {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Widget(): void {
     this.define<Widget.Props>({
       orientation:  [ p.Orientation, "horizontal" ],
       default_size: [ p.Number,      300          ],
@@ -62,4 +62,3 @@ export abstract class Widget extends HTMLBox {
     })
   }
 }
-Widget.initClass()

@@ -20,7 +20,7 @@ export class StepInterpolator extends Interpolator {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_StepInterpolator(): void {
     this.define<StepInterpolator.Props>({
       mode: [ p.StepMode, "after"],
     })
@@ -62,4 +62,3 @@ export class StepInterpolator extends Interpolator {
     return ind != -1 ? this._y_sorted[ind] : NaN
   }
 }
-StepInterpolator.initClass()

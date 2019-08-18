@@ -60,7 +60,7 @@ export class Custom extends HTMLBox {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Custom(): void {
     // If there is an associated view, this is typically boilerplate.
     this.prototype.default_view = CustomView
 
@@ -79,7 +79,6 @@ export class Custom extends HTMLBox {
     })
   }
 }
-Custom.initClass()
 """
 
 from bokeh.util.compiler import TypeScript

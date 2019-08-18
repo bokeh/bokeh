@@ -55,7 +55,7 @@ export class Toolbar extends ToolbarBase {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Toolbar(): void {
     this.prototype.default_view = ToolbarBaseView
 
     this.define<Toolbar.Props>({
@@ -140,4 +140,3 @@ export class Toolbar extends ToolbarBase {
     }
   }
 }
-Toolbar.initClass()

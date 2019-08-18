@@ -22,7 +22,7 @@ export class FuncTickFormatter extends TickFormatter {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_FuncTickFormatter(): void {
     this.define<FuncTickFormatter.Props>({
       args:       [ p.Any,     {}    ], // TODO (bev) better type
       code:       [ p.String,  ''    ],
@@ -49,4 +49,3 @@ export class FuncTickFormatter extends TickFormatter {
     return ticks.map((tick, index, ticks) => func(tick, index, ticks, ...this.values, require, {}))
   }
 }
-FuncTickFormatter.initClass()

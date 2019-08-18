@@ -84,7 +84,7 @@ export abstract class AbstractButton extends Control {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_AbstractButton(): void {
     this.define<AbstractButton.Props>({
       label:       [ p.String,     "Button"  ],
       icon:        [ p.Instance              ],
@@ -93,4 +93,3 @@ export abstract class AbstractButton extends Control {
     })
   }
 }
-AbstractButton.initClass()

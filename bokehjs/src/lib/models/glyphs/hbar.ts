@@ -85,7 +85,7 @@ export class HBar extends Box {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_HBar(): void {
     this.prototype.default_view = HBarView
 
     this.coords([['left', 'y']])
@@ -96,4 +96,3 @@ export class HBar extends Box {
     this.override({ left: 0 })
   }
 }
-HBar.initClass()

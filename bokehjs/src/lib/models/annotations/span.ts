@@ -132,7 +132,7 @@ export class Span extends Annotation {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Span(): void {
     this.prototype.default_view = SpanView
 
     this.mixins(['line'])
@@ -156,4 +156,3 @@ export class Span extends Annotation {
     })
   }
 }
-Span.initClass()

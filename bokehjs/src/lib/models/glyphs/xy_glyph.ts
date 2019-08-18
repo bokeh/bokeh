@@ -63,8 +63,7 @@ export abstract class XYGlyph extends Glyph {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_XYGlyph(): void {
     this.coords([['x', 'y']])
   }
 }
-XYGlyph.initClass()

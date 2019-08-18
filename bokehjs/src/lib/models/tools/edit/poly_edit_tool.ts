@@ -239,7 +239,7 @@ export class PolyEditTool extends PolyTool {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_PolyEditTool(): void {
     this.prototype.default_view = PolyEditToolView
   }
 
@@ -248,4 +248,3 @@ export class PolyEditTool extends PolyTool {
   event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
   default_order = 4
 }
-PolyEditTool.initClass()

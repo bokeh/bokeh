@@ -127,7 +127,7 @@ extensions in the next section.
       // typos, which would prohibit serialization/deserialization of this model.
       static __name__ = "Surface3d"
 
-      static initClass(): void {
+      static init_Custom(): void {
         // If there is an associated view, this is typically boilerplate.
         this.prototype.default_view = CustomView
 
@@ -142,7 +142,6 @@ extensions in the next section.
         })
       }
     }
-    Custom.initClass()
 
 .. _userguide_extensions_structure_putting_together:
 

@@ -30,7 +30,7 @@ export class UndoTool extends ActionTool {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_UndoTool(): void {
     this.prototype.default_view = UndoToolView
 
     this.override({
@@ -41,4 +41,3 @@ export class UndoTool extends ActionTool {
   tool_name = "Undo"
   icon = bk_tool_icon_undo
 }
-UndoTool.initClass()

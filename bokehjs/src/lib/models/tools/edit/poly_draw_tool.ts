@@ -253,7 +253,7 @@ export class PolyDrawTool extends PolyTool {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_PolyDrawTool(): void {
     this.prototype.default_view = PolyDrawToolView
 
     this.define<PolyDrawTool.Props>({
@@ -267,4 +267,3 @@ export class PolyDrawTool extends PolyTool {
   event_type = ["pan" as "pan", "tap" as "tap", "move" as "move"]
   default_order = 3
 }
-PolyDrawTool.initClass()
