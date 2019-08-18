@@ -28,7 +28,7 @@ from os.path import abspath
 from tempfile import mkstemp
 
 # External imports
-from six import raise_from, b
+from six import raise_from
 
 # Bokeh imports
 from ..embed import file_html
@@ -239,8 +239,8 @@ def get_svgs(obj, driver=None, timeout=5, **kwargs):
     '''
     with _tmp_html() as tmp:
         html = get_layout_html(obj, **kwargs)
-        with io.open(tmp.path, mode="wb") as file:
-            file.write(b(html))
+        with io.open(tmp.path, mode="w", encoding="utf-8") as file:
+            file.write(decode_utf8(html))
 
         web_driver = driver if driver is not None else webdriver_control.get()
 
