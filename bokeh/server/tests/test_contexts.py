@@ -97,7 +97,7 @@ class TestApplicationContext(object):
         c._sessions = dict(foo=1, bar=2)
         with pytest.raises(bsc.ProtocolError) as e:
             c.get_session("bax")
-        assert str(e).endswith("No such session bax")
+        assert str(e.value).endswith("No such session bax")
 
     def test_create_session_if_needed_new(self):
         app = Application()
@@ -127,7 +127,7 @@ class TestApplicationContext(object):
         r = c.create_session_if_needed("", request=req)
         with pytest.raises(bsc.ProtocolError) as e:
             r.result()
-        assert str(e).endswith("Session ID must not be empty")
+        assert str(e.value).endswith("Session ID must not be empty")
 
 #-----------------------------------------------------------------------------
 # Dev API

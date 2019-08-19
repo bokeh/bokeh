@@ -682,7 +682,7 @@ def test__server_multiple_processes():
             application = Application()
             server.Server(application, num_procs=3, port=0)
 
-        tornado_fp.assert_called_with(3)
+        tornado_fp.assert_called_with(3, mock.ANY)
 
 def test__existing_ioloop_with_multiple_processes_exception():
     application = Application()

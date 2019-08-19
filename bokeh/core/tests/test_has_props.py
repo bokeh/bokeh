@@ -185,10 +185,10 @@ def test_HasProps_set_error():
     c = Child()
     with pytest.raises(AttributeError) as e:
         c.int3 = 10
-    assert str(e).endswith("unexpected attribute 'int3' to Child, similar attributes are int2 or int1")
+    assert str(e.value).endswith("unexpected attribute 'int3' to Child, similar attributes are int2 or int1")
     with pytest.raises(AttributeError) as e:
         c.junkjunk = 10
-    assert str(e).endswith("unexpected attribute 'junkjunk' to Child, possible attributes are ds1, ds2, int1, int2, lst1, lst2 or str2")
+    assert str(e.value).endswith("unexpected attribute 'junkjunk' to Child, possible attributes are ds1, ds2, int1, int2, lst1, lst2 or str2")
 
 
 def test_HasProps_lookup():
