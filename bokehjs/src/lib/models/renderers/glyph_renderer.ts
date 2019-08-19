@@ -393,7 +393,7 @@ export class GlyphRenderer extends DataRenderer {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_GlyphRenderer(): void {
     this.prototype.default_view = GlyphRendererView
 
     this.define<GlyphRenderer.Props>({
@@ -434,4 +434,3 @@ export class GlyphRenderer extends DataRenderer {
     return this.data_source.selection_manager
   }
 }
-GlyphRenderer.initClass()

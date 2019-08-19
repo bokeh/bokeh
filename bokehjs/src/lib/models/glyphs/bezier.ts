@@ -171,11 +171,10 @@ export class Bezier extends Glyph {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Bezier(): void {
     this.prototype.default_view = BezierView
 
     this.coords([['x0', 'y0'], ['x1', 'y1'], ['cx0', 'cy0'], ['cx1', 'cy1']])
     this.mixins(['line'])
   }
 }
-Bezier.initClass()

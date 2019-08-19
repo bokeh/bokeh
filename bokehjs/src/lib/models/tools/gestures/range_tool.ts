@@ -246,7 +246,7 @@ export class RangeTool extends GestureTool {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_RangeTool(): void {
     this.prototype.default_view = RangeToolView
 
     this.define<RangeTool.Props>({
@@ -297,4 +297,3 @@ export class RangeTool extends GestureTool {
   event_type = "pan" as "pan"
   default_order = 1
 }
-RangeTool.initClass()

@@ -24,7 +24,7 @@ export class CategoricalPatternMapper extends Mapper<string> {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_CategoricalPatternMapper(): void {
     this.define<CategoricalPatternMapper.Props>({
       factors:       [ p.Array                 ],
       patterns:      [ p.Array                 ],
@@ -40,4 +40,3 @@ export class CategoricalPatternMapper extends Mapper<string> {
     return values
   }
 }
-CategoricalPatternMapper.initClass()

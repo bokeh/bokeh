@@ -30,7 +30,7 @@ export class RedoTool extends ActionTool {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_RedoTool(): void {
     this.prototype.default_view = RedoToolView
 
     this.override({
@@ -41,4 +41,3 @@ export class RedoTool extends ActionTool {
   tool_name = "Redo"
   icon = bk_tool_icon_redo
 }
-RedoTool.initClass()

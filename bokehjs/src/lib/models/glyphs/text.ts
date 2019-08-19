@@ -168,7 +168,7 @@ export class Text extends XYGlyph {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Text(): void {
     this.prototype.default_view = TextView
 
     this.mixins(['text'])
@@ -180,4 +180,3 @@ export class Text extends XYGlyph {
     })
   }
 }
-Text.initClass()

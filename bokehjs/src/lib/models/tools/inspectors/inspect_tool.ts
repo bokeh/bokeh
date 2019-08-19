@@ -24,7 +24,7 @@ export abstract class InspectTool extends ButtonTool {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_InspectTool(): void {
     this.prototype.button_view = OnOffButtonView
 
     this.define<InspectTool.Props>({
@@ -38,4 +38,3 @@ export abstract class InspectTool extends ButtonTool {
 
   event_type = "move" as "move"
 }
-InspectTool.initClass()

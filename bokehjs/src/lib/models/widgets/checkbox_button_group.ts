@@ -50,7 +50,7 @@ export class CheckboxButtonGroup extends ButtonGroup {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_CheckboxButtonGroup(): void {
     this.prototype.default_view = CheckboxButtonGroupView
 
     this.define<CheckboxButtonGroup.Props>({
@@ -58,4 +58,3 @@ export class CheckboxButtonGroup extends ButtonGroup {
     })
   }
 }
-CheckboxButtonGroup.initClass()

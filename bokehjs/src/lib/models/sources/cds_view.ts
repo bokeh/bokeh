@@ -25,7 +25,7 @@ export class CDSView extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_CDSView(): void {
     this.define<CDSView.Props>({
       filters: [ p.Array, [] ],
       source:  [ p.Instance  ],
@@ -119,4 +119,3 @@ export class CDSView extends Model {
     return indices.map((i) => this.indices[i])
   }
 }
-CDSView.initClass()

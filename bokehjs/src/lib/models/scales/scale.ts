@@ -22,7 +22,7 @@ export abstract class Scale extends Transform {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Scale(): void {
     this.internal({
       source_range: [ p.Any ],
       target_range: [ p.Any ], // p.Instance(Range1d)
@@ -51,4 +51,3 @@ export abstract class Scale extends Transform {
       return [this.invert(sx0), this.invert(sx1)]
   }
 }
-Scale.initClass()

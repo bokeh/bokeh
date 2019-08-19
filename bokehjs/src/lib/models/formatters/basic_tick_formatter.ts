@@ -22,7 +22,7 @@ export class BasicTickFormatter extends TickFormatter {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_BasicTickFormatter(): void {
     this.define<BasicTickFormatter.Props>({
       precision:        [ p.Any,     'auto' ], // TODO (bev) better
       use_scientific:   [ p.Boolean, true   ],
@@ -115,4 +115,3 @@ export class BasicTickFormatter extends TickFormatter {
     return labels
   }
 }
-BasicTickFormatter.initClass()

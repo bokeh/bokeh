@@ -25,8 +25,7 @@ export class PasswordInput extends TextInput {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_PasswordInput(): void {
     this.prototype.default_view = PasswordInputView
   }
 }
-PasswordInput.initClass()

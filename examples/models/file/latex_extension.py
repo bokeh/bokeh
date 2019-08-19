@@ -65,11 +65,10 @@ export class LatexLabelView extends LabelView {
 }
 
 export class LatexLabel extends Label {
-  static initClass(): void {
+  static init_LatexLabel(): void {
     this.prototype.default_view = LatexLabelView
   }
 }
-LatexLabel.initClass()
 """)
 
 p = figure(title="LaTex Extension Demonstration", plot_width=800, plot_height=350,

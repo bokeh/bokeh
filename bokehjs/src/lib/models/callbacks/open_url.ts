@@ -21,7 +21,7 @@ export class OpenURL extends Callback {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_OpenURL(): void {
     this.define<OpenURL.Props>({
       url: [ p.String, 'http://' ],
       same_tab: [ p.Boolean, false ],
@@ -48,4 +48,3 @@ export class OpenURL extends Callback {
     // TODO: multiline_indices: {[key: string]: number[]}
   }
 }
-OpenURL.initClass()

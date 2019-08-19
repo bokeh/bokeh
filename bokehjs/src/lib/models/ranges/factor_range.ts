@@ -135,7 +135,7 @@ export class FactorRange extends Range {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_FactorRange(): void {
     this.define<FactorRange.Props>({
       factors:             [ p.Array,        []        ],
       factor_padding:      [ p.Number,       0         ],
@@ -264,4 +264,3 @@ export class FactorRange extends Range {
       this.setv({bounds: [start, end]}, {silent: true})
   }
 }
-FactorRange.initClass()

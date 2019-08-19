@@ -28,7 +28,7 @@ export class LegendItem extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_LegendItem(): void {
     this.define<LegendItem.Props>({
       label:     [ p.StringSpec, null ],
       renderers: [ p.Array,      []   ],
@@ -117,4 +117,3 @@ export class LegendItem extends Model {
     return []
   }
 }
-LegendItem.initClass()

@@ -21,7 +21,7 @@ export abstract class DataSource extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_DataSource(): void {
     this.define<DataSource.Props>({
       selected: [ p.Instance, () => new Selection() ], // TODO (bev)
       callback: [ p.Any                             ], // TODO: p.Either(p.Instance(Callback), p.Function) ]
@@ -38,4 +38,3 @@ export abstract class DataSource extends Model {
 
   setup?(): void
 }
-DataSource.initClass()

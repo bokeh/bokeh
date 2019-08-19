@@ -25,11 +25,10 @@ export class ResetTool extends ActionTool {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_ResetTool(): void {
     this.prototype.default_view = ResetToolView
   }
 
   tool_name = "Reset"
   icon = bk_tool_icon_reset
 }
-ResetTool.initClass()

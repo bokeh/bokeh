@@ -45,7 +45,7 @@ export abstract class HasProps extends Signalable() {
   set type(name: string) { this.constructor.__name__ = name }
   get type(): string     { return this.constructor.__name__ }
 
-  static initClass(): void {
+  static init_HasProps(): void {
     this.prototype.props = {}
     this.prototype.mixins = []
 
@@ -534,4 +534,3 @@ export abstract class HasProps extends Signalable() {
     return data
   }
 }
-HasProps.initClass()

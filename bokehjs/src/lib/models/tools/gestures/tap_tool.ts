@@ -82,7 +82,7 @@ export class TapTool extends SelectTool {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_TapTool(): void {
     this.prototype.default_view = TapToolView
 
     this.define<TapTool.Props>({
@@ -96,4 +96,3 @@ export class TapTool extends SelectTool {
   event_type = "tap" as "tap"
   default_order = 10
 }
-TapTool.initClass()

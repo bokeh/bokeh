@@ -27,7 +27,7 @@ export abstract class DataRenderer extends Renderer {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_DataRenderer(): void {
     this.define<DataRenderer.Props>({
       x_range_name: [ p.String, 'default' ],
       y_range_name: [ p.String, 'default' ],
@@ -40,4 +40,3 @@ export abstract class DataRenderer extends Renderer {
 
   abstract get_selection_manager(): SelectionManager
 }
-DataRenderer.initClass()

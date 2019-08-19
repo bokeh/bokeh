@@ -22,7 +22,7 @@ export class Slider extends AbstractSlider {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Slider(): void {
     this.prototype.default_view = SliderView
 
     this.override({
@@ -37,4 +37,3 @@ export class Slider extends AbstractSlider {
     return numbro.format(value, format)
   }
 }
-Slider.initClass()

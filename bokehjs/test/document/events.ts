@@ -24,13 +24,12 @@ class TestModelWithRefs extends HasProps {
 
   foo: any
 
-  static initClass(): void {
+  static init_TestModelWithRefs(): void {
     this.define<any>({
       foo: [ p.Any, [] ],
     })
   }
 }
-TestModelWithRefs.initClass()
 
 describe("events module", () => {
 

@@ -136,7 +136,7 @@ export class PanTool extends GestureTool {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_PanTool(): void {
     this.prototype.default_view = PanToolView
 
     this.define<PanTool.Props>({
@@ -160,4 +160,3 @@ export class PanTool extends GestureTool {
     }
   }
 }
-PanTool.initClass()

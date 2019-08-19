@@ -21,7 +21,7 @@ export class LogTickFormatter extends TickFormatter {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_LogTickFormatter(): void {
     this.define<LogTickFormatter.Props>({
       ticker: [ p.Instance, null ],
     })
@@ -58,4 +58,3 @@ export class LogTickFormatter extends TickFormatter {
       return labels
   }
 }
-LogTickFormatter.initClass()

@@ -32,7 +32,7 @@ export abstract class TileSource extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_TileSource(): void {
     this.define<TileSource.Props>({
       url:                [ p.String, ''  ],
       tile_size:          [ p.Number, 256 ],
@@ -135,4 +135,3 @@ export abstract class TileSource extends Model {
 
   abstract normalize_xyz(x: number, y: number, z: number): [number, number, number]
 }
-TileSource.initClass()

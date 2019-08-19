@@ -141,7 +141,7 @@ export class Tooltip extends Annotation {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Tooltip(): void {
     this.prototype.default_view = TooltipView
 
     this.define<Tooltip.Props>({
@@ -168,4 +168,3 @@ export class Tooltip extends Annotation {
     this.data = this.data.concat([[sx, sy, content]])
   }
 }
-Tooltip.initClass()

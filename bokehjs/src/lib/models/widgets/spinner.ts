@@ -97,7 +97,7 @@ export class Spinner extends InputWidget {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Spinner(): void {
     this.prototype.default_view = SpinnerView
 
     this.define<Spinner.Props>({
@@ -108,4 +108,3 @@ export class Spinner extends InputWidget {
     })
   }
 }
-Spinner.initClass()

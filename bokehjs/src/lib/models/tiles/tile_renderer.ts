@@ -406,7 +406,7 @@ export class TileRenderer extends DataRenderer {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_TileRenderer(): void {
     this.prototype.default_view = TileRendererView
 
     this.define<TileRenderer.Props>({
@@ -426,4 +426,3 @@ export class TileRenderer extends DataRenderer {
     return this._selection_manager
   }
 }
-TileRenderer.initClass()

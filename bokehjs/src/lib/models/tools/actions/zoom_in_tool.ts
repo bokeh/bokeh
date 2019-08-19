@@ -43,7 +43,7 @@ export class ZoomInTool extends ActionTool {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_ZoomInTool(): void {
     this.prototype.default_view = ZoomInToolView
 
     this.define<ZoomInTool.Props>({
@@ -59,4 +59,3 @@ export class ZoomInTool extends ActionTool {
     return this._get_dim_tooltip(this.tool_name, this.dimensions)
   }
 }
-ZoomInTool.initClass()

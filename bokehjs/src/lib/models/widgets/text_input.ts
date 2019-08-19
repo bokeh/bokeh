@@ -65,7 +65,7 @@ export class TextInput extends InputWidget {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_TextInput(): void {
     this.prototype.default_view = TextInputView
 
     this.define<TextInput.Props>({
@@ -75,4 +75,3 @@ export class TextInput extends InputWidget {
     })
   }
 }
-TextInput.initClass()

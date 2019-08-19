@@ -93,7 +93,7 @@ export class PointDrawTool extends EditTool {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_PointDrawTool(): void {
     this.prototype.default_view = PointDrawToolView
 
     this.define<PointDrawTool.Props>({
@@ -108,4 +108,3 @@ export class PointDrawTool extends EditTool {
   event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
   default_order = 2
 }
-PointDrawTool.initClass()

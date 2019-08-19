@@ -20,7 +20,7 @@ export class MercatorTickFormatter extends BasicTickFormatter {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_MercatorTickFormatter(): void {
     this.define<MercatorTickFormatter.Props>({
       dimension: [ p.LatLon ],
     })
@@ -51,4 +51,3 @@ export class MercatorTickFormatter extends BasicTickFormatter {
     return super.doFormat(proj_ticks, opts)
   }
 }
-MercatorTickFormatter.initClass()

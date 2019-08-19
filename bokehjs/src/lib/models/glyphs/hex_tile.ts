@@ -229,7 +229,7 @@ export class HexTile extends Glyph {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_HexTile(): void {
     this.prototype.default_view = HexTileView
 
     this.coords([['r', 'q']])
@@ -243,4 +243,3 @@ export class HexTile extends Glyph {
     this.override({ line_color: null })
   }
 }
-HexTile.initClass()

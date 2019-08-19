@@ -233,11 +233,10 @@ export class Patches extends Glyph {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Patches(): void {
     this.prototype.default_view = PatchesView
 
     this.coords([['xs', 'ys']])
     this.mixins(['line', 'fill', 'hatch'])
   }
 }
-Patches.initClass()

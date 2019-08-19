@@ -179,7 +179,7 @@ export abstract class Marker extends XYGlyph {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Marker(): void {
     this.mixins(['line', 'fill'])
     this.define<Marker.Props>({
       size:  [ p.DistanceSpec, { units: "screen", value: 4 } ],
@@ -187,4 +187,3 @@ export abstract class Marker extends XYGlyph {
     })
   }
 }
-Marker.initClass()

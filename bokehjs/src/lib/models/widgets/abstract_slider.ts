@@ -316,7 +316,7 @@ export abstract class AbstractSlider extends Control {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_AbstractSlider(): void {
     this.define<AbstractSlider.Props>({
       title:             [ p.String,               ""           ],
       show_value:        [ p.Boolean,              true         ],
@@ -346,4 +346,3 @@ export abstract class AbstractSlider extends Control {
     return this._formatter(value, this.format)
   }
 }
-AbstractSlider.initClass()

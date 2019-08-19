@@ -22,7 +22,7 @@ export class Filter extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Filter(): void {
     this.define<Filter.Props>({
       filter: [ p.Array, null ],
     })
@@ -45,4 +45,3 @@ export class Filter extends Model {
     }
   }
 }
-Filter.initClass()

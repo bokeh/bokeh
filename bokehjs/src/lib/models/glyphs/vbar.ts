@@ -85,7 +85,7 @@ export class VBar extends Box {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_VBar(): void {
     this.prototype.default_view = VBarView
 
     this.coords([['x', 'bottom']])
@@ -98,4 +98,3 @@ export class VBar extends Box {
     })
   }
 }
-VBar.initClass()

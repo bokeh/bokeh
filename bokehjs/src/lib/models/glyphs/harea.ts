@@ -122,7 +122,7 @@ export class HArea extends Area {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_HArea(): void {
     this.prototype.default_view = HAreaView
 
     this.define<HArea.Props>({
@@ -132,4 +132,3 @@ export class HArea extends Area {
     })
   }
 }
-HArea.initClass()

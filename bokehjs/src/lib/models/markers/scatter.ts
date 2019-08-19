@@ -75,11 +75,10 @@ export class Scatter extends Marker {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Scatter(): void {
     this.prototype.default_view = ScatterView
     this.define<Scatter.Props>({
       marker: [ p.MarkerSpec, {value: "circle"} ],
     })
   }
 }
-Scatter.initClass()

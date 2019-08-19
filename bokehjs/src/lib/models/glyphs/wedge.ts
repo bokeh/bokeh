@@ -149,7 +149,7 @@ export class Wedge extends XYGlyph {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Wedge(): void {
     this.prototype.default_view = WedgeView
 
     this.mixins(['line', 'fill'])
@@ -161,4 +161,3 @@ export class Wedge extends XYGlyph {
     })
   }
 }
-Wedge.initClass()

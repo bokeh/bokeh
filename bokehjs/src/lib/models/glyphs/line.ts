@@ -139,10 +139,9 @@ export class Line extends XYGlyph {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Line(): void {
     this.prototype.default_view = LineView
 
     this.mixins(['line'])
   }
 }
-Line.initClass()

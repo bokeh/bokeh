@@ -107,7 +107,7 @@ export class GraphRenderer extends DataRenderer {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_GraphRenderer(): void {
     this.prototype.default_view = GraphRendererView
 
     this.define<GraphRenderer.Props>({
@@ -123,4 +123,3 @@ export class GraphRenderer extends DataRenderer {
     return this.node_renderer.data_source.selection_manager
   }
 }
-GraphRenderer.initClass()

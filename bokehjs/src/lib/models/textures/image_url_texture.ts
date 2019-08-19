@@ -19,7 +19,7 @@ export abstract class ImageURLTexture extends Texture {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_ImageURLTexture(): void {
     this.define<ImageURLTexture.Props>({
       url: [ p.String ],
     })
@@ -53,4 +53,3 @@ export abstract class ImageURLTexture extends Texture {
   private image: HTMLImageElement
 
 }
-ImageURLTexture.initClass()

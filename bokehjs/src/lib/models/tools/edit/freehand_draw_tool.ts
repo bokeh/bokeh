@@ -95,7 +95,7 @@ export class FreehandDrawTool extends EditTool {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_FreehandDrawTool(): void {
     this.prototype.default_view = FreehandDrawToolView
 
     this.define<FreehandDrawTool.Props>({
@@ -107,4 +107,3 @@ export class FreehandDrawTool extends EditTool {
   event_type = ["pan" as "pan", "tap" as "tap"]
   default_order = 3
 }
-FreehandDrawTool.initClass()

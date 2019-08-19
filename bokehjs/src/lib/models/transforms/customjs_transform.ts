@@ -24,7 +24,7 @@ export class CustomJSTransform extends Transform {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_CustomJSTransform(): void {
     this.define<CustomJSTransform.Props>({
       args:       [ p.Any,    {}     ], // TODO (bev) better type
       func:       [ p.String, ""     ],
@@ -62,4 +62,3 @@ export class CustomJSTransform extends Transform {
     return this.vector_transform(...this.values, xs, require, {})
   }
 }
-CustomJSTransform.initClass()

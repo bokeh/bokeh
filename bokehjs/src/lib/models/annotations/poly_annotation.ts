@@ -94,7 +94,7 @@ export class PolyAnnotation extends Annotation {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_PolyAnnotation(): void {
     this.prototype.default_view = PolyAnnotationView
 
     this.mixins(['line', 'fill'])
@@ -130,4 +130,3 @@ export class PolyAnnotation extends Annotation {
     this.data_update.emit()
   }
 }
-PolyAnnotation.initClass()

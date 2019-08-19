@@ -75,7 +75,7 @@ export class GroupingInfo extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_GroupingInfo(): void {
     this.prototype.type = 'GroupingInfo'
 
     this.define<GroupingInfo.Props>({
@@ -91,7 +91,6 @@ export class GroupingInfo extends Model {
     }
   }
 }
-GroupingInfo.initClass()
 
 export class DataCubeProvider extends TableDataProvider {
 
@@ -328,7 +327,7 @@ export class DataCube extends DataTable {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_DataCube(): void {
     this.prototype.type = 'DataCube'
     this.prototype.default_view = DataCubeView
 
@@ -338,4 +337,3 @@ export class DataCube extends DataTable {
     })
   }
 }
-DataCube.initClass()

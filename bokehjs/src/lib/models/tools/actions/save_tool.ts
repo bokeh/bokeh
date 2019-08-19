@@ -25,11 +25,10 @@ export class SaveTool extends ActionTool {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_SaveTool(): void {
     this.prototype.default_view = SaveToolView
   }
 
   tool_name = "Save"
   icon = bk_tool_icon_save
 }
-SaveTool.initClass()

@@ -60,7 +60,7 @@ export class CrosshairTool extends InspectTool {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_CrosshairTool(): void {
     this.prototype.default_view = CrosshairToolView
 
     this.define<CrosshairTool.Props>({
@@ -113,4 +113,3 @@ export class CrosshairTool extends InspectTool {
     }
   }
 }
-CrosshairTool.initClass()

@@ -31,7 +31,7 @@ export class Row extends Box {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Row(): void {
     this.prototype.default_view = RowView
 
     this.define<Row.Props>({
@@ -39,4 +39,3 @@ export class Row extends Box {
     })
   }
 }
-Row.initClass()

@@ -21,7 +21,7 @@ export class MercatorTicker extends BasicTicker {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_MercatorTicker(): void {
     this.define<MercatorTicker.Props>({
       dimension: [ p.LatLon ],
     })
@@ -79,4 +79,3 @@ export class MercatorTicker extends BasicTicker {
     return {major, minor}
   }
 }
-MercatorTicker.initClass()

@@ -18,7 +18,7 @@ export class BBoxTileSource extends MercatorTileSource {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_BBoxTileSource(): void {
     this.define<BBoxTileSource.Props>({
       use_latlon: [ p.Boolean, false ],
     })
@@ -40,4 +40,3 @@ export class BBoxTileSource extends MercatorTileSource {
       .replace("{YMAX}", ymax.toString())
   }
 }
-BBoxTileSource.initClass()

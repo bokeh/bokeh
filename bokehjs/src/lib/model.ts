@@ -29,7 +29,7 @@ export class Model extends HasProps {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Model(): void {
     this.define<Model.Props>({
       tags:                  [ p.Array, [] ],
       name:                  [ p.String    ],
@@ -122,4 +122,3 @@ export class Model extends HasProps {
     }
   }
 }
-Model.initClass()

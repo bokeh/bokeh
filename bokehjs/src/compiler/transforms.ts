@@ -118,14 +118,34 @@ export function import_css(load: (css_path: string) => string | undefined) {
   }
 }
 
+function is_static(node: ts.Node): boolean {
+  return node.modifiers != null && node.modifiers.find((modifier) => modifier.kind == ts.SyntaxKind.StaticKeyword) != null
+}
+
+export function add_init_class() {
+  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    function visit(node: ts.Node): ts.VisitResult<ts.Node> {
+      node = ts.visitEachChild(node, visit, context)
+
+      if (ts.isClassDeclaration(node) && node.name != null) {
+        const name = `init_${node.name.getText()}`
+
+        if (node.members.find((member) => ts.isMethodDeclaration(member) && member.name.getText() == name && is_static(member)) != null) {
+          const init = ts.createExpressionStatement(ts.createCall(ts.createPropertyAccess(node.name, name), undefined, undefined))
+          return [node, init]
+        }
+      }
+
+      return node
+    }
+
+    return ts.visitNode(root, visit)
+  }
+}
+
 export function insert_class_name() {
   function has__name__(node: ts.ClassDeclaration): boolean {
-    for (const member of node.members) {
-      if (ts.isPropertyDeclaration(member) && member.name.getText() == "__name__" &&
-          member.modifiers != null && member.modifiers.find((modifier) => modifier.kind == ts.SyntaxKind.StaticKeyword))
-        return true
-    }
-    return false
+    return node.members.find((member) => ts.isPropertyDeclaration(member) && member.name.getText() == "__name__" && is_static(member)) != null
   }
 
   return (context: ts.TransformationContext) => (root: ts.SourceFile) => {

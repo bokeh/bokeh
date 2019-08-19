@@ -215,7 +215,7 @@ export class Grid extends GuideRenderer {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Grid(): void {
     this.prototype.default_view = GridView
 
     this.mixins(['line:grid_', 'line:minor_grid_', 'fill:band_', 'hatch:band_'])
@@ -237,4 +237,3 @@ export class Grid extends GuideRenderer {
     })
   }
 }
-Grid.initClass()

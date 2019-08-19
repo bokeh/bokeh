@@ -132,7 +132,7 @@ export class Dropdown extends AbstractButton {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Dropdown(): void {
     this.prototype.default_view = DropdownView
 
     this.define<Dropdown.Props>({
@@ -151,4 +151,3 @@ export class Dropdown extends AbstractButton {
     return this.split || this.default_value != null
   }
 }
-Dropdown.initClass()

@@ -27,13 +27,12 @@ class AnotherModel extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_AnotherModel(): void {
     this.define<AnotherModel.Props>({
       bar: [ p.Number, 1 ],
     })
   }
 }
-AnotherModel.initClass()
 
 Models.register('AnotherModel', AnotherModel)
 
@@ -54,7 +53,7 @@ class SomeModel extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_SomeModel(): void {
 
     this.define<SomeModel.Props>({
       foo:   [ p.Number, 2 ],
@@ -62,7 +61,6 @@ class SomeModel extends Model {
     })
   }
 }
-SomeModel.initClass()
 
 Models.register('SomeModel', SomeModel)
 
@@ -82,14 +80,13 @@ class SomeModelWithChildren extends Model {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_SomeModelWithChildren(): void {
 
     this.define<SomeModelWithChildren.Props>({
       children: [ p.Array, [] ],
     })
   }
 }
-SomeModelWithChildren.initClass()
 
 Models.register('SomeModelWithChildren', SomeModelWithChildren)
 
@@ -116,7 +113,7 @@ class ModelWithConstructTimeChanges extends Model {
     this.child = new AnotherModel()
   }
 
-  static initClass(): void {
+  static init_ModelWithConstructTimeChanges(): void {
 
     this.define<ModelWithConstructTimeChanges.Props>({
       foo:   [ p.Number, 2 ],
@@ -124,7 +121,6 @@ class ModelWithConstructTimeChanges extends Model {
     })
   }
 }
-ModelWithConstructTimeChanges.initClass()
 
 Models.register('ModelWithConstructTimeChanges', ModelWithConstructTimeChanges)
 
@@ -155,7 +151,7 @@ class ComplicatedModelWithConstructTimeChanges extends Model {
     this.dict_of_list_prop = { foo: [new AnotherModel()] }
   }
 
-  static initClass(): void {
+  static init_ComplicatedModelWithConstructTimeChanges(): void {
 
     this.define<ComplicatedModelWithConstructTimeChanges.Props>({
       list_prop:         [ p.Array ],
@@ -165,7 +161,6 @@ class ComplicatedModelWithConstructTimeChanges extends Model {
     })
   }
 }
-ComplicatedModelWithConstructTimeChanges.initClass()
 
 Models.register('ComplicatedModelWithConstructTimeChanges', ComplicatedModelWithConstructTimeChanges)
 

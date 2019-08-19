@@ -49,11 +49,10 @@ export abstract class Markup extends Widget {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Markup(): void {
     this.define<Markup.Props>({
       text:  [ p.String, '' ],
       style: [ p.Any,    {} ],
     })
   }
 }
-Markup.initClass()

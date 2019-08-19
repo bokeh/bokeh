@@ -124,7 +124,7 @@ export class BoxSelectTool extends SelectTool {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_BoxSelectTool(): void {
     this.prototype.default_view = BoxSelectToolView
 
     this.define<BoxSelectTool.Props>({
@@ -145,4 +145,3 @@ export class BoxSelectTool extends SelectTool {
     return this._get_dim_tooltip(this.tool_name, this.dimensions)
   }
 }
-BoxSelectTool.initClass()

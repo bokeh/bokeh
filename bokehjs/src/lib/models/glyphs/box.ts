@@ -174,8 +174,7 @@ export abstract class Box extends Glyph {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_Box(): void {
     this.mixins(['line', 'fill', 'hatch'])
   }
 }
-Box.initClass()

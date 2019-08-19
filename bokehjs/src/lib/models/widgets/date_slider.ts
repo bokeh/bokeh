@@ -22,7 +22,7 @@ export class DateSlider extends AbstractSlider {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_DateSlider(): void {
     this.prototype.default_view = DateSliderView
 
     this.override({
@@ -37,4 +37,3 @@ export class DateSlider extends AbstractSlider {
     return tz(value, format)
   }
 }
-DateSlider.initClass()

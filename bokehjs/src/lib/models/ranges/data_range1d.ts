@@ -37,7 +37,7 @@ export class DataRange1d extends DataRange {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_DataRange1d(): void {
     this.define<DataRange1d.Props>({
       start:               [ p.Number                  ],
       end:                 [ p.Number                  ],
@@ -298,4 +298,3 @@ export class DataRange1d extends DataRange {
     this.change.emit()
   }
 }
-DataRange1d.initClass()

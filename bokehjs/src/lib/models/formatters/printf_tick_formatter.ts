@@ -19,7 +19,7 @@ export class PrintfTickFormatter extends TickFormatter {
     super(attrs)
   }
 
-  static initClass(): void {
+  static init_PrintfTickFormatter(): void {
     this.define<PrintfTickFormatter.Props>({
       format: [ p.String, '%s' ],
     })
@@ -29,4 +29,3 @@ export class PrintfTickFormatter extends TickFormatter {
     return ticks.map((tick) => sprintf(this.format, tick))
   }
 }
-PrintfTickFormatter.initClass()
