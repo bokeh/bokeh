@@ -139,7 +139,7 @@ class Test_Application(object):
         handler2._static = "bar"
         with pytest.raises(RuntimeError) as e:
             a.add(handler2)
-        assert "More than one static path" in str(e)
+        assert "More than one static path" in str(e.value)
 
     @mock.patch('bokeh.document.document.check_integrity')
     def test_application_validates_document_by_default(self, check_integrity):

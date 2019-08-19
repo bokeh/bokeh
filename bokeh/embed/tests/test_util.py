@@ -114,7 +114,7 @@ class Test_OutputDocumentFor_general(object):
         with pytest.raises(ValueError) as e:
             with beu.OutputDocumentFor([]):
                 pass
-        assert str(e).endswith(_ODFERR)
+        assert str(e.value).endswith(_ODFERR)
 
     def test_error_on_mixed_list(self):
         p = Model()
@@ -123,7 +123,7 @@ class Test_OutputDocumentFor_general(object):
         with pytest.raises(ValueError) as e:
             with beu.OutputDocumentFor([p, d]):
                 pass
-        assert str(e).endswith(_ODFERR)
+        assert str(e.value).endswith(_ODFERR)
         assert d.theme is orig_theme
 
     @pytest.mark.parametrize('v', [10, -0,3, "foo", True])
@@ -131,7 +131,7 @@ class Test_OutputDocumentFor_general(object):
         with pytest.raises(ValueError) as e:
             with beu.OutputDocumentFor(v):
                 pass
-        assert str(e).endswith(_ODFERR)
+        assert str(e.value).endswith(_ODFERR)
 
     def test_with_doc_in_child_raises_error(self):
         doc = Document()
@@ -144,7 +144,7 @@ class Test_OutputDocumentFor_general(object):
         with pytest.raises(RuntimeError) as e:
             with beu.OutputDocumentFor([p1, p2]):
                 pass
-            assert "already in a doc" in str(e)
+            assert "already in a doc" in str(e.value)
 
     @patch('bokeh.document.document.check_integrity')
     def test_validates_document_by_default(self, check_integrity, test_plot):

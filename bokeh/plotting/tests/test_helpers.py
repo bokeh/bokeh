@@ -93,19 +93,19 @@ def test__single_stack_raises_when_spec_in_kwargs():
     with pytest.raises(ValueError) as e:
         bph._single_stack(['a', 'b'], 'foo', foo=10)
 
-    assert str(e).endswith("Stack property 'foo' cannot appear in keyword args")
+    assert str(e.value).endswith("Stack property 'foo' cannot appear in keyword args")
 
 def test__single_stack_raises_when_kwargs_list_lengths_differ():
     with pytest.raises(ValueError) as e:
         bph._single_stack(['a', 'b'], 'foo', baz=[1, 2], quux=[3,4,5])
 
-    assert str(e).endswith("Keyword argument sequences for broadcasting must all be the same lengths. Got lengths: [2, 3]")
+    assert str(e.value).endswith("Keyword argument sequences for broadcasting must all be the same lengths. Got lengths: [2, 3]")
 
 def test__single_stack_raises_when_kwargs_list_lengths_and_stackers_lengths_differ():
     with pytest.raises(ValueError) as e:
         bph._single_stack(['a', 'b', 'c'], 'foo',  baz=[1, 2], quux=[3,4])
 
-    assert str(e).endswith("Keyword argument sequences for broadcasting must be the same length as stackers")
+    assert str(e.value).endswith("Keyword argument sequences for broadcasting must be the same length as stackers")
 
 def test__single_stack_broadcast_with_no_kwargs():
     stackers = ['a', 'b', 'c', 'd']
@@ -164,24 +164,24 @@ def test__double_stack_raises_when_spec_in_kwargs():
     with pytest.raises(ValueError) as e:
         bph._double_stack(['a', 'b'], 'foo', 'bar', foo=10)
 
-    assert str(e).endswith("Stack property 'foo' cannot appear in keyword args")
+    assert str(e.value).endswith("Stack property 'foo' cannot appear in keyword args")
 
     with pytest.raises(ValueError) as e:
         bph._double_stack(['a', 'b'], 'foo', 'bar', bar=10)
 
-    assert str(e).endswith("Stack property 'bar' cannot appear in keyword args")
+    assert str(e.value).endswith("Stack property 'bar' cannot appear in keyword args")
 
 def test__double_stack_raises_when_kwargs_list_lengths_differ():
     with pytest.raises(ValueError) as e:
         bph._double_stack(['a', 'b'], 'foo', 'bar', baz=[1, 2], quux=[3,4,5])
 
-    assert str(e).endswith("Keyword argument sequences for broadcasting must all be the same lengths. Got lengths: [2, 3]")
+    assert str(e.value).endswith("Keyword argument sequences for broadcasting must all be the same lengths. Got lengths: [2, 3]")
 
 def test__double_stack_raises_when_kwargs_list_lengths_and_stackers_lengths_differ():
     with pytest.raises(ValueError) as e:
         bph._double_stack(['a', 'b', 'c'], 'foo', 'bar', baz=[1, 2], quux=[3,4])
 
-    assert str(e).endswith("Keyword argument sequences for broadcasting must be the same length as stackers")
+    assert str(e.value).endswith("Keyword argument sequences for broadcasting must be the same length as stackers")
 
 def test__double_stack_broadcast_with_no_kwargs():
     stackers = ['a', 'b', 'c', 'd']
