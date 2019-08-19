@@ -69,7 +69,7 @@ test:
     - pandas
     - pillow
     - psutil
-    - pytest <5.0
+    - pytest
     - pytest-cov >=1.8.1
     - pytest-html
     - pytest-xdist
