@@ -4,6 +4,7 @@ const coffee = require("coffeescript")
 import * as lesscss from "less"
 
 import {compiler_host, parse_tsconfig, default_transformers, compile_files, report_diagnostics, TSOutput, Inputs, Outputs, Path} from "./compiler"
+import {rename} from "./sys"
 import * as transforms from "./transforms"
 
 import * as tsconfig_json from "./tsconfig.ext.json"
@@ -59,15 +60,6 @@ function compile_javascript(file: string, code: string): {output: string, error?
       ts.sortAndDeduplicateDiagnostics(diagnostics), format_host)
     return {output: outputText, error}
   }
-}
-
-function rename(p: string, options: {dir?: string, ext?: string}): string {
-  let {dir, name, ext} = path.parse(p)
-  if (options.dir != null)
-    dir = options.dir
-  if (options.ext != null)
-    ext = options.ext
-  return path.format({dir, name, ext})
 }
 
 function normalize(path: string): string {

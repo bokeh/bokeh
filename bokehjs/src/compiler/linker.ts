@@ -9,10 +9,11 @@ import * as combine from "combine-source-map"
 import * as convert from "convert-source-map"
 
 import {read, write, file_exists, directory_exists, rename} from "./sys"
+import {report_diagnostics} from "./compiler"
 import * as preludes from "./prelude"
 import * as transforms from "./transforms"
 
-const cache_version = 1
+const cache_version = 2
 
 export function* imap<T, U>(iter: Iterable<T>, fn: (item: T, i: number) => U): Iterable<U> {
   let i = 0
@@ -20,6 +21,8 @@ export function* imap<T, U>(iter: Iterable<T>, fn: (item: T, i: number) => U): I
     yield fn(item, i++)
   }
 }
+
+export type Transformers = ts.TransformerFactory<ts.SourceFile>[]
 
 export type Path = string
 
@@ -171,6 +174,7 @@ export interface LinkerOpts {
   externals?: string[] // modules: delegate to an external require()
   builtins?: boolean
   cache?: Path
+  transpile?: boolean
   minify?: boolean
 }
 
@@ -182,6 +186,7 @@ export class Linker {
   readonly builtins: boolean
   readonly cache_path?: Path
   readonly cache: Map<Path, ModuleArtifact>
+  readonly transpile: boolean
   readonly minify: boolean
 
   constructor(opts: LinkerOpts) {
@@ -213,6 +218,7 @@ export class Linker {
     this.cache = new Map()
     this.load_cache()
 
+    this.transpile = opts.transpile != null ? opts.transpile : false
     this.minify = opts.minify != null ? opts.minify : true
   }
 
@@ -237,9 +243,7 @@ export class Linker {
 
     main_modules.concat(...plugin_models).forEach((module, i) => module.id = i)
 
-    const print = (module: ModuleInfo) => {
-      let ast = module.ast || this.parse_module(module)
-
+    const transformers = (module: ModuleInfo): Transformers => {
       const transformers = []
 
       switch (module.type) {
@@ -268,13 +272,17 @@ export class Linker {
       }
 
       transformers.push(transforms.wrap_in_function(module.base_path))
-      ast = transforms.apply(ast, ...transformers)
+      return transformers
+    }
 
+    const print = (module: ModuleInfo): string => {
+      let ast = module.ast || this.parse_module(module)
+      ast = transforms.apply(ast, ...transformers(module))
       const source = transforms.print_es(ast)
       return convert.removeMapFileComments(source)
     }
 
-    const deps_changed = (module: ModuleInfo, cached: ModuleInfo) => {
+    const deps_changed = (module: ModuleInfo, cached: ModuleInfo): boolean => {
       if (module.dependencies.size != cached.dependencies.size)
         return false
 
@@ -476,12 +484,12 @@ export class Linker {
   }
 
   private parse_module({file, source, type}: {file: Path, source: string, type: ModuleType}): ts.SourceFile {
-    const {ES5, JSON} = ts.ScriptTarget
-    return transforms.parse_es(file, source, type == "json" ? JSON : ES5)
+    const {ES2015, JSON} = ts.ScriptTarget
+    return transforms.parse_es(file, source, type == "json" ? JSON : ES2015)
   }
 
   new_module(file: Path): ModuleInfo {
-    const source = read(file)!
+    let source = read(file)!
     const hash = crypto.createHash("sha256").update(source).digest("hex")
     const type = (() => {
       switch (extname(file)) {
@@ -518,6 +526,14 @@ export class Linker {
 
     const changed = cached == null || cached.module.hash != hash
     if (changed) {
+      if (type == "js" && this.transpile) {
+        const {output, error} = transpile(source, ts.ScriptTarget.ES5)
+        if (error)
+          throw new Error(error)
+        else
+          source = output
+      }
+
       ast = this.parse_module({file, source, type})
 
       const collected = transforms.collect_deps(ast)
@@ -528,6 +544,7 @@ export class Linker {
     } else {
       dependency_paths = cached!.module.dependency_paths
       externals = cached!.module.externals
+      source = cached!.module.source
     }
 
     return {
@@ -592,6 +609,25 @@ export class Linker {
     }
 
     return [...reached.values()]
+  }
+}
+
+export function transpile(source: string, target: ts.ScriptTarget, transformers?: Transformers): {output: string, error?: string} {
+  const {outputText: output, diagnostics} = ts.transpileModule(source, {
+    reportDiagnostics: true,
+    compilerOptions: {
+      target,
+      module: ts.ModuleKind.CommonJS,
+      importHelpers: true,
+    },
+    transformers: {after: transformers},
+  })
+
+  if (diagnostics == null || diagnostics.length == 0)
+    return {output}
+  else {
+    const {text} = report_diagnostics(diagnostics)
+    return {output, error: text}
   }
 }
 

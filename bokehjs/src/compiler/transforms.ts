@@ -196,15 +196,15 @@ export function collect_deps(source: ts.SourceFile): string[] {
     if (is_require(node)) {
       const [arg] = node.arguments
       if (ts.isStringLiteral(arg) && arg.text.length > 0)
-        deps.push(arg.text)
+        deps.add(arg.text)
     }
 
     ts.forEachChild(node, traverse)
   }
 
-  const deps: string[] = []
+  const deps = new Set<string>()
   traverse(source)
-  return deps
+  return [...deps]
 }
 
 export function rewrite_deps(resolve: (dep: string) => number | string | undefined) {
@@ -260,7 +260,7 @@ export function wrap_in_function(module_name: string) {
   }
 }
 
-export function parse_es(file: string, code?: string, target: ts.ScriptTarget = ts.ScriptTarget.ES5): ts.SourceFile {
+export function parse_es(file: string, code?: string, target: ts.ScriptTarget = ts.ScriptTarget.ES2015): ts.SourceFile {
   return ts.createSourceFile(file, code != null ? code : ts.sys.readFile(file)!, target, true, ts.ScriptKind.JS)
 }
 
