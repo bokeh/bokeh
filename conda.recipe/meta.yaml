@@ -57,7 +57,6 @@ test:
     - flake8
     - lxml
     - mock
-    - mypy
     - nbconvert >=5.4
     - networkx
     - nodejs >=8.8

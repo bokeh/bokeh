@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# XXX: mypy on 3.5 is way too old to work correctly
+conda install -n testenv -c conda-forge --yes --quiet 'mypy>=0.720'
+
 # XXX: until channels is avialable on conda-forge
 pip install channels
 
