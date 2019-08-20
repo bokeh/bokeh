@@ -38,10 +38,6 @@ branches:
   - "/^\\d+.\\d+.\\d+$/"
   - landing-2.0
 
-notifications:
-  slack:
-    secure: UYjR/NEuFdHEXwYxaDR3DxQ6dFrHG4vziqp1Fs+EAoI21bo4r/0/ywTU6+jedlUCiahiFrUqDcX1tdM4s5Y/tnatAwZtEaHdVYTNtislN+f/EuutlE/TUeo8VliK4P47rxDGfdLBxCLes6X80q8QEaOFeIyCauoouQ/keRbrLNs=
-
 before_install:
   - export PATH="$HOME/miniconda/bin:$PATH"
   - export PATH="$HOME/miniconda/envs/testenv/bin:$PATH"
