@@ -76,8 +76,6 @@ export class GroupingInfo extends Model {
   }
 
   static init_GroupingInfo(): void {
-    this.prototype.type = 'GroupingInfo'
-
     this.define<GroupingInfo.Props>({
       getter:      [ p.String,   ''    ],
       aggregators: [ p.Array,    []    ],
@@ -328,7 +326,6 @@ export class DataCube extends DataTable {
   }
 
   static init_DataCube(): void {
-    this.prototype.type = 'DataCube'
     this.prototype.default_view = DataCubeView
 
     this.define<DataCube.Props>({

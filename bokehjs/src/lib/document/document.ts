@@ -15,7 +15,6 @@ import {isArray, isPlainObject} from "core/util/types"
 import {LayoutDOM} from "models/layouts/layout_dom"
 import {ColumnDataSource} from "models/sources/column_data_source"
 import {ClientSession} from "client/session"
-import {Class} from "core/class"
 import {Model} from "model"
 import {DocumentChanged, DocumentChangedEvent, ModelChanged, ModelChangedEvent, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} from "./events"
 
@@ -321,8 +320,8 @@ export class Document {
 
   static _instantiate_object(obj_id: string, obj_type: string, obj_attrs: Attrs): HasProps {
     const full_attrs = {...obj_attrs, id: obj_id, __deferred__: true}
-    const model: Class<HasProps> = Models(obj_type)
-    return new model(full_attrs)
+    const model = Models(obj_type)
+    return new (model as any)(full_attrs)
   }
 
   // given a JSON representation of all models in a graph, return a

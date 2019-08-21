@@ -70,7 +70,8 @@
     "eslint": "^5.16.0",
     "acorn": "^6.2.1",
     "@typescript-eslint/eslint-plugin": "^1.13.0",
-    "@typescript-eslint/parser": "^1.13.0"
+    "@typescript-eslint/parser": "^1.13.0",
+    "@jupyter-widgets/base": "^1.1.10"
   },
   "dependencies": {
     "tslib": "^1.10.0",
@@ -90,8 +91,7 @@
     "slickgrid": "https://github.com/bokeh/SlickGrid.git#8e993bf",
     "sprintf-js": "^1.1.2",
     "timezone": "^1.0.22",
-    "underscore.template": "^0.1.7",
-    "@jupyter-widgets/base": "^1.1.10"
+    "underscore.template": "^0.1.7"
   },
   "scripts": {
     "prepare": "node ./prepare.js",

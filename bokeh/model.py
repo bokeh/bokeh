@@ -239,19 +239,29 @@ class MetaModel(MetaHasProps):
         # use an explicitly provided view model name if there is one
         if "__view_model__" not in class_dict:
             class_dict["__view_model__"] = class_name
+        if "__view_module__" not in class_dict:
+            class_dict["__view_module__"] = class_dict["__module__"]
+
+        module = class_dict["__view_module__"]
+        model = class_dict.get("__subtype__", class_dict["__view_model__"])
+
+        head = module.split(".")[0]
+        if head == "bokeh" or head == "__main__":
+            qualified = model
+        else:
+            qualified = module + "." + model
+
+        class_dict["__qualified_model__"] = qualified
 
         # call the parent metaclass to create the new model type
         newcls = super(MetaModel, meta_cls).__new__(meta_cls, class_name, bases, class_dict)
 
         # update the mapping of view model names to classes, checking for any duplicates
         # and handling any subtype relationships or custom implementations
-        entry = class_dict.get("__subtype__", class_dict["__view_model__"])
-        if entry in MetaModel.model_class_reverse_map and not hasattr(newcls, "__implementation__"):
-            raise Warning("Duplicate __view_model__ or __subtype__ declaration of '%s' for " \
-                          "class %s.  Previous definition: %s" % \
-                          (entry, class_name,
-                           MetaModel.model_class_reverse_map[entry]))
-        MetaModel.model_class_reverse_map[entry] = newcls
+        if qualified in MetaModel.model_class_reverse_map and not hasattr(newcls, "__implementation__"):
+            raise Warning("Duplicate qualified model declaration of '%s'. Previous definition: %s" % (
+                qualified, MetaModel.model_class_reverse_map[qualified]))
+        MetaModel.model_class_reverse_map[qualified] = newcls
 
         return newcls
 
@@ -418,17 +428,19 @@ class Model(with_metaclass(MetaModel, HasProps, PropertyCallbackManager, EventCa
         Additionally there may be a `subtype` field if this model is a subtype.
 
         '''
+        this = {
+            'type': self.__qualified_model__,
+            'id'  : self.id,
+        }
+
         if "__subtype__" in self.__class__.__dict__:
-            return {
-                'type'    : self.__view_model__,
-                'subtype' : self.__subtype__,
-                'id'      : self.id,
-            }
-        else:
-            return {
-                'type' : self.__view_model__,
-                'id'   : self.id,
-            }
+            # XXX: remove __subtype__ and this garbage at 2.0
+            parts = this["type"].split(".")
+            parts[-1] = self.__view_model__
+            this["type"] = ".".join(parts)
+            this["subtype"] = self.__subtype__
+
+        return this
 
     # Public methods ----------------------------------------------------------
 

@@ -69,7 +69,7 @@ class BaseResources(object):
 
     def __init__(self, mode=None, version=None, root_dir=None,
                  minified=None, log_level=None, root_url=None,
-                 path_versioner=None, components=None):
+                 path_versioner=None, components=None, base_dir=None):
 
         self._components = components
 
@@ -115,6 +115,8 @@ class BaseResources(object):
             server = self._server_urls()
             self.messages.extend(server['messages'])
 
+        self.base_dir = base_dir or bokehjsdir(self.dev)
+
     # Properties --------------------------------------------------------------
 
     @property
@@ -146,10 +148,9 @@ class BaseResources(object):
         return components
 
     def _file_paths(self, kind):
-        bokehjs_dir = bokehjsdir(self.dev)
         minified = ".min" if not self.dev and self.minified else ""
         files = [ "%s%s.%s" % (component, minified, kind) for component in self.components(kind) ]
-        paths = [ join(bokehjs_dir, kind, file) for file in files ]
+        paths = [ join(self.base_dir, kind, file) for file in files ]
         return paths
 
     def _collect_external_resources(self, resource_attr):

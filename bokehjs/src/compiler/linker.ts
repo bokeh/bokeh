@@ -8,7 +8,7 @@ import * as terser from "terser"
 import * as combine from "combine-source-map"
 import * as convert from "convert-source-map"
 
-import {read, write, file_exists, directory_exists, rename} from "./sys"
+import {read, write, file_exists, directory_exists, rename, Path} from "./sys"
 import {report_diagnostics} from "./compiler"
 import * as preludes from "./prelude"
 import * as transforms from "./transforms"
@@ -24,8 +24,6 @@ export function* imap<T, U>(iter: Iterable<T>, fn: (item: T, i: number) => U): I
 
 export type Transformers = ts.TransformerFactory<ts.SourceFile>[]
 
-export type Path = string
-
 export type Parent = {
   file: Path
 }
@@ -37,7 +35,7 @@ export type ModuleInfo = {
   base: Path
   base_path: Path
   canonical?: string
-  id: number
+  id: number | string
   hash: string
   changed: boolean
   type: ModuleType
@@ -72,7 +70,7 @@ const to_obj = <T>(map: Map<string, T>): {[key: string]: T} => {
 export type Assembly = {
   prefix: string
   suffix: string
-  wrap: (id: number, source: string) => string
+  wrap: (id: string, source: string) => string
 }
 
 const dense_assembly: Assembly = {
@@ -99,12 +97,17 @@ export class Bundle {
     let line = 0
     let sources: string = ""
     const sourcemap = combine.create()
-    const aliases = new Map<string, number>()
+    const aliases = new Map<string, number | string>()
     const externals = new Map<string, true>()
 
     const newlines = (source: string): number => {
       const result = source.match(/\n/g)
       return result != null ? result.length : 0
+    }
+
+    const safe_id = (module: ModuleInfo): string => {
+      const {id} = module
+      return typeof id == "number" ? id.toString() : JSON.stringify(id)
     }
 
     const {entry, artifacts, prelude, assembly: {prefix, suffix, wrap}} = this
@@ -121,7 +124,7 @@ export class Bundle {
       for (const external of module.externals)
         externals.set(external, true)
 
-      const start = wrap(module.id, "")
+      const start = wrap(safe_id(module), "")
       sources += start
       line += newlines(start)
 
@@ -138,7 +141,7 @@ export class Bundle {
 
     const aliases_json = JSON.stringify(to_obj(aliases))
     const externals_json = JSON.stringify(to_obj(externals))
-    sources += `${suffix}, ${entry.id}, ${aliases_json}, ${externals_json});\n})\n`
+    sources += `${suffix}, ${safe_id(entry)}, ${aliases_json}, ${externals_json});\n})\n`
 
     const source_map = convert.fromBase64(sourcemap.base64()).toObject()
     return new Artifact(sources, source_map, aliases)
@@ -148,7 +151,7 @@ export class Bundle {
 export class Artifact {
   constructor(readonly source: string,
               readonly sourcemap: object,
-              readonly exported: Map<string, number>) {}
+              readonly exported: Map<string, number | string>) {}
 
   full_source(name: string): string {
     return `${this.source}\n${convert.generateMapFileComment(name)}\n`
@@ -163,7 +166,6 @@ export class Artifact {
     const name = basename(path, ".js")
     write(path, this.full_source(name + ".js.map"))
     write(join(dir, name + ".js.map"), JSON.stringify(this.sourcemap))
-    write(join(dir, name + ".json"), JSON.stringify(this.module_names))
   }
 }
 
@@ -172,10 +174,12 @@ export interface LinkerOpts {
   bases?: Path[]
   excludes?: Path[]    // paths: process, but don't include in a bundle
   externals?: string[] // modules: delegate to an external require()
+  excluded?: (dep: string) => boolean
   builtins?: boolean
   cache?: Path
   transpile?: boolean
   minify?: boolean
+  plugin?: boolean
 }
 
 export class Linker {
@@ -183,17 +187,20 @@ export class Linker {
   readonly bases: Path[]
   readonly excludes: Set<Path>
   readonly externals: Set<string>
+  readonly excluded: (dep: string) => boolean
   readonly builtins: boolean
   readonly cache_path?: Path
   readonly cache: Map<Path, ModuleArtifact>
   readonly transpile: boolean
   readonly minify: boolean
+  readonly plugin: boolean
 
   constructor(opts: LinkerOpts) {
-    this.entries = opts.entries
+    this.entries = opts.entries.map((path) => resolve(path))
     this.bases = (opts.bases || []).map((path) => resolve(path))
     this.excludes = new Set((opts.excludes || []).map((path) => resolve(path)))
     this.externals = new Set(opts.externals || [])
+    this.excluded = opts.excluded || (() => false)
     this.builtins = opts.builtins || false
 
     if (this.builtins) {
@@ -216,10 +223,10 @@ export class Linker {
 
     this.cache_path = opts.cache
     this.cache = new Map()
-    this.load_cache()
 
     this.transpile = opts.transpile != null ? opts.transpile : false
     this.minify = opts.minify != null ? opts.minify : true
+    this.plugin = opts.plugin != null ? opts.plugin : false
   }
 
   link(): Bundle[] {
@@ -234,14 +241,18 @@ export class Linker {
     const main_modules = this.reachable(main, is_excluded)
     const parents = new Set(main_modules)
 
-    const plugin_models: ModuleInfo[][] = []
+    const plugin_modules: ModuleInfo[][] = []
 
     for (const plugin of plugins) {
       const files = this.reachable(plugin, (module) => parents.has(module))
-      plugin_models.push(files)
+      plugin_modules.push(files)
     }
 
-    main_modules.concat(...plugin_models).forEach((module, i) => module.id = i)
+    const all_modules = main_modules.concat(...plugin_modules)
+    if (!this.plugin)
+      all_modules.forEach((module, i) => module.id = i)
+    else
+      all_modules.forEach((module) => module.id = module.hash.slice(0, 10))
 
     const transformers = (module: ModuleInfo): Transformers => {
       const transformers = []
@@ -310,11 +321,14 @@ export class Linker {
       })
     }
 
-    const main_bundle = new Bundle(main, artifacts(main_modules), this.builtins, preludes.prelude, dense_assembly)
+    const main_prelude = !this.plugin ? preludes.prelude : preludes.plugin_prelude
+    const main_assembly = !this.plugin ? dense_assembly : sparse_assembly
+
+    const main_bundle = new Bundle(main, artifacts(main_modules), this.builtins, main_prelude, main_assembly)
 
     const plugin_bundles: Bundle[] = []
     for (let j = 0; j < plugins.length; j++) {
-      const plugin_bundle = new Bundle(plugins[j], artifacts(plugin_models[j]), this.builtins, preludes.plugin_prelude, sparse_assembly)
+      const plugin_bundle = new Bundle(plugins[j], artifacts(plugin_modules[j]), this.builtins, preludes.plugin_prelude, sparse_assembly)
       plugin_bundles.push(plugin_bundle)
     }
 
@@ -395,6 +409,28 @@ export class Linker {
 
   protected readonly ext = ".js"
 
+  resolve_package(dir: string): string | null {
+    let index = "index" + this.ext
+
+    const pkg_path = join(dir, "package.json")
+    if (file_exists(pkg_path)) {
+      const pkg = JSON.parse(read(pkg_path)!)
+      if (pkg.main != null)
+        index = pkg.main
+    }
+
+    let file = join(dir, index)
+    if (file_exists(file))
+      return file
+    else {
+      file += this.ext
+      if (file_exists(file))
+        return file
+    }
+
+    return null
+  }
+
   protected resolve_relative(dep: string, parent: Parent): string {
     const path = resolve(dirname(parent.file), dep)
 
@@ -404,42 +440,23 @@ export class Linker {
     const file = path + this.ext
     const has_file = file_exists(file)
 
-    const index = join(path, "index" + this.ext)
-    const has_index = file_exists(index)
+    if (directory_exists(path)) {
+      const pkg_file = this.resolve_package(path)
+      if (pkg_file != null) {
+        if (!has_file)
+          return pkg_file
+        else
+          throw new Error(`both ${file} and ${pkg_file} exist`)
+      }
+    }
 
-    if (has_file && has_index)
-      throw new Error(`both ${file} and ${index} exist, remove one of them or clean the build and recompile`)
-    else if (has_file)
+    if (has_file)
       return file
-    else if (has_index)
-      return index
     else
       throw new Error(`can't resolve '${dep}' from '${parent.file}'`)
   }
 
   protected resolve_absolute(dep: string, parent: Parent): string {
-    const resolve_with_index = (path: string): string | null => {
-      let index = "index" + this.ext
-
-      const pkg_path = join(path, "package.json")
-      if (file_exists(pkg_path)) {
-        const pkg = JSON.parse(read(pkg_path)!)
-        if (pkg.main != null)
-          index = pkg.main
-      }
-
-      let file = join(path, index)
-      if (file_exists(file))
-        return file
-      else {
-        file += this.ext
-        if (file_exists(file))
-          return file
-      }
-
-      return null
-    }
-
     for (const base of this.bases) {
       let path = join(base, dep)
       const file = path + this.ext
@@ -448,7 +465,7 @@ export class Linker {
         return file
 
       if (directory_exists(path)) {
-        const file = resolve_with_index(path)
+        const file = this.resolve_package(path)
         if (file != null)
           return file
       }
@@ -465,7 +482,7 @@ export class Linker {
           path = join(base_path, "node_modules", dep)
 
           if (directory_exists(path)) {
-            const file = resolve_with_index(path)
+            const file = this.resolve_package(path)
             if (file != null)
               return file
           }
@@ -537,7 +554,7 @@ export class Linker {
       ast = this.parse_module({file, source, type})
 
       const collected = transforms.collect_deps(ast)
-      const filtered = collected.filter((dep) => !this.externals.has(dep))
+      const filtered = collected.filter((dep) => !this.externals.has(dep) && !this.excluded(dep))
 
       dependency_paths = new Map(filtered.map((dep) => [dep, this.resolve_file(dep, {file})]))
       externals = new Set(collected.filter((dep) => this.externals.has(dep)))
@@ -567,7 +584,7 @@ export class Linker {
 
   resolve(files: Path[]): [ModuleInfo[], ModuleInfo[]] {
     const visited = new Map<Path, ModuleInfo>()
-    const pending = files.map((file) => resolve(file))
+    const pending = [...files]
 
     for (;;) {
       const file = pending.shift()

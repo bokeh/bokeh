@@ -1,0 +1,12 @@
+{
+  "name": "examples.app.surface3d",
+  "version": "0.0.1",
+  "description": "Surface 3D example",
+  "license": "BSD-3-Clause",
+  "repository": {},
+  "dependencies": {
+    "bokehjs": "file:../../../bokehjs",
+    "vis-graph3d": "^5.0.1"
+  },
+  "devDependencies": {}
+}

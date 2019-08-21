@@ -9,20 +9,12 @@
 // Making it easy to hook up python data analytics tools (NumPy, SciPy,
 // Pandas, etc.) to web presentations using the Bokeh server.
 
-import {HTMLBox, HTMLBoxView} from "models/layouts/html_box"
-import {ColumnDataSource} from "models/sources/column_data_source"
-import * as p from "core/properties"
+import {HTMLBox, HTMLBoxView} from "@bokehjs/models/layouts/html_box"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import * as p from "@bokehjs/core/properties"
 
-declare namespace vis {
-  class Graph3d {
-    constructor(el: HTMLElement, data: object, OPTIONS: object)
-    setData(data: vis.DataSet): void
-  }
-
-  class DataSet {
-    add(data: unknown): void
-  }
-}
+import {DataSet} from "vis-data"
+import {Graph3d} from "vis-graph3d"
 
 // This defines some default options for the Graph3d feature of vis.js
 // See: http://visjs.org/graph3d_examples.html for more details. This
@@ -43,13 +35,15 @@ const OPTIONS = {
   },
 }
 
+export type Point3d = {id?: string, x: number, y: number, z: number}
+
 // To create custom model extensions that will render on to the HTML canvas or
 // into the DOM, we must create a View subclass for the model. In this case we
 // will subclass from the existing BokehJS ``HTMLBoxView``, corresponding to our.
 export class Surface3dView extends HTMLBoxView {
   model: Surface3d
 
-  private _graph: vis.Graph3d
+  private _graph: Graph3d
 
   render(): void {
     super.render()
@@ -61,7 +55,7 @@ export class Surface3dView extends HTMLBoxView {
     // Bokeh views ignore this default <div>, and instead do things like draw
     // to the HTML canvas. In this case though, we use the <div> to attach a
     // Graph3d to the DOM.
-    this._graph = new vis.Graph3d(this.el, this.get_data(), this.model.options)
+    this._graph = new Graph3d(this.el, this.get_data(), this.model.options)
   }
 
   connect_signals(): void {
@@ -74,8 +68,8 @@ export class Surface3dView extends HTMLBoxView {
   // This is the callback executed when the Bokeh data has an change (e.g. when
   // the server updates the data). It's basic function is simply to adapt the
   // Bokeh data source to the vis.js DataSet format
-  get_data(): vis.DataSet {
-    const data = new vis.DataSet()
+  get_data(): DataSet<Point3d> {
+    const data = new DataSet<Point3d>()
     const source = this.model.data_source
     for (let i = 0; i < source.get_length()!; i++) {
       data.add({
@@ -120,6 +114,8 @@ export class Surface3d extends HTMLBox {
   // special cases, this shouldn't be generally included manually, to avoid
   // typos, which would prohibit serialization/deserialization of this model.
   static __name__ = "Surface3d"
+
+  static __module__ = "surface3d"
 
   static init_Surface3d(): void {
     // This is usually boilerplate. In some cases there may not be a view.

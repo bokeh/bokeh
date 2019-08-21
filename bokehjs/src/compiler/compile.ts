@@ -3,8 +3,8 @@ import * as ts from "typescript"
 const coffee = require("coffeescript")
 import * as lesscss from "less"
 
-import {compiler_host, parse_tsconfig, default_transformers, compile_files, report_diagnostics, TSOutput, Inputs, Outputs, Path} from "./compiler"
-import {rename} from "./sys"
+import {compiler_host, parse_tsconfig, default_transformers, compile_files, report_diagnostics, TSOutput, Inputs, Outputs} from "./compiler"
+import {rename, Path} from "./sys"
 import * as transforms from "./transforms"
 
 import * as tsconfig_json from "./tsconfig.ext.json"

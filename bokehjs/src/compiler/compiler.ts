@@ -4,9 +4,7 @@ import * as ts from "typescript"
 import {basename, dirname, join, relative} from "path"
 
 import * as transforms from "./transforms"
-import {read} from "./sys"
-
-export type Path = string
+import {read, Path} from "./sys"
 
 export type CompileConfig = {
   log?: (message: string) => void

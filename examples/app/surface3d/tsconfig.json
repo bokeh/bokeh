@@ -20,10 +20,16 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "target": "ES2015",
+    "target": "ES5",
     "lib": ["es2015", "dom"],
-    "types": ["node"],
-    "baseUrl": "."
+    "baseUrl": ".",
+    "outDir": "./dist/lib",
+    "paths": {
+      "@bokehjs/*": [
+        "./node_modules/bokehjs/build/js/lib/*",
+        "./node_modules/bokehjs/build/js/types/*"
+      ]
+    }
   },
   "include": ["./**/*.ts"]
 }
