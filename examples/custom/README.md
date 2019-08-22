@@ -8,4 +8,4 @@ to Bokeh. There are some additional examples in other directories:
 
 More detailed documentation on creating custom extensions can be found here:
 
-https://bokeh.pydata.org/en/latest/docs/user_guide/extensions.html
+https://docs.bokeh.org/en/latest/docs/user_guide/extensions.html

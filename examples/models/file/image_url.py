@@ -7,7 +7,7 @@ from bokeh.models.glyphs import ImageURL
 from bokeh.models import ColumnDataSource, Plot, LinearAxis, Grid
 from bokeh.resources import INLINE
 
-url = "https://bokeh.pydata.org/en/latest/_static/images/logo.png"
+url = "https://static.bokeh.org/logos/logo.png"
 N = 5
 
 source = ColumnDataSource(dict(

@@ -55,4 +55,4 @@ times, the Bokeh JS API has been separated into it's own bokeh-api(.min).js
 bundle. For users requiring the JS API, it will be necessary to add the new
 resource to their HTML templates.
 
-.. _LaTeX: https://bokeh.pydata.org/en/latest/docs/user_guide/extensions.html#examples
+.. _LaTeX: https://docs.bokeh.org/en/latest/docs/user_guide/extensions.html#examples

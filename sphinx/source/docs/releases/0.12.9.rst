@@ -87,4 +87,4 @@ there are no longer any guarantees backed by CI testing.
 .. _jupyterlab_bokeh: https://github.com/bokeh/jupyterlab_bokeh
 .. _project roadmap: https://bokeh.org/roadmap
 .. _strftime: http://man7.org/linux/man-pages/man3/strftime.3.html
-.. _testing section: http://bokeh.pydata.org/en/latest/docs/dev_guide/testing.html
+.. _testing section: http://docs.bokeh.org/en/latest/docs/dev_guide/testing.html

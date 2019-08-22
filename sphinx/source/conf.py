@@ -162,7 +162,7 @@ html_theme = 'bokeh_theme'
 html_theme_path = ['.']
 
 html_context = {
-    'SITEMAP_BASE_URL': 'https://bokeh.pydata.org/en/', # Trailing slash is needed
+    'SITEMAP_BASE_URL': 'https://docs.bokeh.org/en/', # Trailing slash is needed
     'DESCRIPTION': 'Bokeh visualization library, documentation site.',
     'AUTHOR': 'Bokeh contributors',
     'VERSION': version,

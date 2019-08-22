@@ -7,11 +7,11 @@ source = ColumnDataSource(data=dict(
     y=[2, 5, 8, 2, 7],
     desc=['A', 'b', 'C', 'd', 'E'],
     imgs=[
-        'https://bokeh.pydata.org/static/snake.jpg',
-        'https://bokeh.pydata.org/static/snake2.png',
-        'https://bokeh.pydata.org/static/snake3D.png',
-        'https://bokeh.pydata.org/static/snake4_TheRevenge.png',
-        'https://bokeh.pydata.org/static/snakebite.jpg'
+        'https://docs.bokeh.org/static/snake.jpg',
+        'https://docs.bokeh.org/static/snake2.png',
+        'https://docs.bokeh.org/static/snake3D.png',
+        'https://docs.bokeh.org/static/snake4_TheRevenge.png',
+        'https://docs.bokeh.org/static/snakebite.jpg'
     ],
     fonts=[
         '<i>italics</i>',

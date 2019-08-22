@@ -94,7 +94,7 @@ will continue to function, while issuing deprecation  warnings. However,
 there are newer functions that should be preferred. The most up-to-date
 guidance for layout going forward is at:
 
-    https://bokeh.pydata.org/en/latest/docs/user_guide/layout.html
+    https://docs.bokeh.org/en/latest/docs/user_guide/layout.html
 
 In most cases it was possible to move forward with a deprecation, for the
 time being, but there are two small hard compatibility breaks that could

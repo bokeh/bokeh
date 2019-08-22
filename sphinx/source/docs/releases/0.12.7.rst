@@ -165,6 +165,6 @@ way:
 * Old cruft code to handle Tornado < 4.3 (which is no longer supported) was
   removed.
 
-.. _Custom Extension: https://bokeh.pydata.org/en/latest/docs/user_guide/extensions.html
+.. _Custom Extension: https://docs.bokeh.org/en/latest/docs/user_guide/extensions.html
 .. _GeoViews: http://geo.holoviews.org
 .. _project roadmap: https://bokeh.org/roadmap
