@@ -217,10 +217,25 @@ describe("geojson_data_source module", () => {
           }
        ]
     }`
-    const geo = new GeoJSONDataSource({geojson})
 
     it("should add the properties to the data", () => {
+      const geo = new GeoJSONDataSource({geojson})
       const expected_data = {x: [102], y: [33], z: [NaN], xs: [[]], ys: [[]], zs: [[]], color: ["pink"], value: [33]}
+      expect(geo.data).to.be.deep.equal(expected_data)
+    })
+
+    it("should convert null property values to NaN", () => {
+      const geojson = `{
+        "type": "FeatureCollection",
+        "features": [
+            { "type": "Feature",
+              "geometry": {"type": "Point", "coordinates": [102, 33]},
+              "properties": {"color": "pink", "value": null}
+            }
+        ]
+      }`
+      const geo = new GeoJSONDataSource({geojson})
+      const expected_data = {x: [102], y: [33], z: [NaN], xs: [[]], ys: [[]], zs: [[]], color: ["pink"], value: [NaN]}
       expect(geo.data).to.be.deep.equal(expected_data)
     })
   })
