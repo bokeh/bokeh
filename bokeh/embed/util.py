@@ -325,12 +325,12 @@ callbacks (i.e. with on_change or on_event). This combination cannot work.
 Only JavaScript callbacks may be used with standalone output. For more
 information on JavaScript callbacks with Bokeh, see:
 
-    http://bokeh.pydata.org/en/latest/docs/user_guide/interaction/callbacks.html
+    http://docs.bokeh.org/en/latest/docs/user_guide/interaction/callbacks.html
 
 Alternatively, to use real Python callbacks, a Bokeh server application may
 be used. For more information on building and running Bokeh applications, see:
 
-    http://bokeh.pydata.org/en/latest/docs/user_guide/server.html
+    http://docs.bokeh.org/en/latest/docs/user_guide/server.html
 """
 
 def _create_temp_doc(models):
