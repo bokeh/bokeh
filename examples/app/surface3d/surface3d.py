@@ -38,7 +38,7 @@ class Surface3d(LayoutDOM):
     # also support type validation. More information about properties in
     # can be found here:
     #
-    #    https://bokeh.pydata.org/en/latest/docs/reference/core.html#bokeh-core-properties
+    #    https://docs.bokeh.org/en/latest/docs/reference/core/properties.html#bokeh-core-properties
 
     # This is a Bokeh ColumnDataSource that can be updated in the Bokeh
     # server by Python code

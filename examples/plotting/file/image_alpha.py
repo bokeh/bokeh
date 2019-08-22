@@ -45,7 +45,7 @@ p2.image_rgba(image=[img], x=0, y=0, dw=10, dh=10, alpha=0.5)
 
 # 3. Adding alpha for the image_url method
 
-url = 'http://bokeh.pydata.org/en/latest/_static/images/logo.png'
+url = 'https://static.bokeh.org/logos/logo.png'
 
 p3 = figure(x_range=(0, 10), y_range=(0, 10))
 # Solid line to show effect of alpha
