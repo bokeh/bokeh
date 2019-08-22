@@ -111,7 +111,7 @@ export class ToolbarBaseView extends DOMView {
 
     if (this.model.logo != null) {
       const gray = this.model.logo === "grey" ? bk_grey : null
-      const logo = a({href: "https://bokeh.pydata.org/", target: "_blank", class: [bk_logo, bk_logo_small, gray]})
+      const logo = a({href: "https://bokeh.org/", target: "_blank", class: [bk_logo, bk_logo_small, gray]})
       this.el.appendChild(logo)
     }
 

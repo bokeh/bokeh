@@ -1,2 +1,2 @@
-Please consult https://bokeh.pydata.org/docs/contributing.html for more
+Please consult https://docs.bokeh.org/en/latest/docs/dev_guide.html for more
 information about contributing to BokehJS.
