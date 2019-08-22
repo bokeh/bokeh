@@ -15,6 +15,7 @@
   "extends": [],
   "rules": {
     "semi": ["error", "never"],
+    "eol-last": ["error", "always"],
     "indent": ["error", 2, {
       "SwitchCase": 1,
       "outerIIFEBody": 1,
