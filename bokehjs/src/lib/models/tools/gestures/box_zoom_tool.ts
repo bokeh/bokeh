@@ -2,7 +2,7 @@ import {GestureTool, GestureToolView} from "./gesture_tool"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import {CartesianFrame} from "../../canvas/cartesian_frame"
 import * as p from "core/properties"
-import {GestureEvent} from "core/ui_events"
+import {PanEvent} from "core/ui_events"
 import {Dimensions, BoxOrigin} from "core/enums"
 import {bk_tool_icon_box_zoom} from "styles/icons"
 
@@ -100,17 +100,17 @@ export class BoxZoomToolView extends GestureToolView {
     return [sx, sy]
   }
 
-  _pan_start(ev: GestureEvent): void {
+  _pan_start(ev: PanEvent): void {
     this._base_point = [ev.sx, ev.sy]
   }
 
-  _pan(ev: GestureEvent): void {
+  _pan(ev: PanEvent): void {
     const curpoint: [number, number] = [ev.sx, ev.sy]
     const [sx, sy] = this._compute_limits(curpoint)
     this.model.overlay.update({left: sx[0], right: sx[1], top: sy[0], bottom: sy[1]})
   }
 
-  _pan_end(ev: GestureEvent): void {
+  _pan_end(ev: PanEvent): void {
     const curpoint: [number, number] = [ev.sx, ev.sy]
     const [sx, sy] = this._compute_limits(curpoint)
     this._update(sx, sy)

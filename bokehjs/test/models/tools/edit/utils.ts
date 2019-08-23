@@ -1,8 +1,8 @@
-import {GestureEvent, TapEvent, MoveEvent, KeyEvent} from "@bokehjs/core/ui_events"
+import {PanEvent, TapEvent, MoveEvent, KeyEvent} from "@bokehjs/core/ui_events"
 import {Keys} from "@bokehjs/core/dom"
 
-export function make_gesture_event(sx: number, sy: number, shift: boolean = false): GestureEvent {
-  return {type: "pan", sx, sy, shiftKey: shift, deltaX: 0, deltaY: 0, scale: 1}
+export function make_pan_event(sx: number, sy: number, shift: boolean = false): PanEvent {
+  return {type: "pan", sx, sy, shiftKey: shift, deltaX: 0, deltaY: 0}
 }
 
 export function make_tap_event(sx: number, sy: number, shift: boolean = false): TapEvent {

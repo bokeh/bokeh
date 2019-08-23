@@ -3,7 +3,7 @@ import {CallbackLike1} from "../../callbacks/callback"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import * as p from "core/properties"
 import {Dimensions, BoxOrigin} from "core/enums"
-import {GestureEvent} from "core/ui_events"
+import {PanEvent} from "core/ui_events"
 import {RectGeometry} from "core/geometry"
 import {bk_tool_icon_box_select} from "styles/icons"
 
@@ -26,12 +26,12 @@ export class BoxSelectToolView extends SelectToolView {
     return this.model._get_dim_limits(base_point, curpoint, frame, dims)
   }
 
-  _pan_start(ev: GestureEvent): void {
+  _pan_start(ev: PanEvent): void {
     const {sx, sy} = ev
     this._base_point = [sx, sy]
   }
 
-  _pan(ev: GestureEvent): void {
+  _pan(ev: PanEvent): void {
     const {sx, sy} = ev
     const curpoint: [number, number] = [sx, sy]
 
@@ -44,7 +44,7 @@ export class BoxSelectToolView extends SelectToolView {
     }
   }
 
-  _pan_end(ev: GestureEvent): void {
+  _pan_end(ev: PanEvent): void {
     const {sx, sy} = ev
     const curpoint: [number, number] = [sx, sy]
 

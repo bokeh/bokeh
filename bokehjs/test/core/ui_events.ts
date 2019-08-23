@@ -14,7 +14,7 @@ import {WheelZoomTool} from "@bokehjs/models/tools/gestures/wheel_zoom_tool"
 import {Legend} from "@bokehjs/models/annotations/legend"
 import {Plot, PlotView} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
-import {UIEvents, UIEvent, GestureEvent, TapEvent} from "@bokehjs/core/ui_events"
+import {UIEvents, UIEvent, PanEvent, TapEvent} from "@bokehjs/core/ui_events"
 
 describe("ui_events module", () => {
 
@@ -239,10 +239,9 @@ describe("ui_events module", () => {
     })
 
     describe("normally propagate other gesture base_types", () => {
-
       let e: UIEvent
       beforeEach(() => {
-        e = {type: "pan", sx: 0, sy: 0, deltaX: 0, deltaY: 0, scale: 1, shiftKey: false}
+        e = {type: "pan", sx: 0, sy: 0, deltaX: 0, deltaY: 0, shiftKey: false}
       })
 
       it("should not trigger event if no active tool", () => {
@@ -540,7 +539,7 @@ describe("ui_events module", () => {
     it("multi-gesture tool should receive multiple events", () => {
       class MultiToolView extends SelectToolView {
         _tap(_e: TapEvent): void {}
-        _pan(_e: GestureEvent): void {}
+        _pan(_e: PanEvent): void {}
       }
 
       class MultiTool extends SelectTool {

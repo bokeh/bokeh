@@ -1,6 +1,6 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import * as p from "core/properties"
-import {GestureEvent} from "core/ui_events"
+import {PanEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
 import {bk_tool_icon_pan, bk_tool_icon_xpan, bk_tool_icon_ypan} from "styles/icons"
 
@@ -20,7 +20,7 @@ export class PanToolView extends GestureToolView {
     sdy: number
   }
 
-  _pan_start(ev: GestureEvent): void {
+  _pan_start(ev: PanEvent): void {
     this.last_dx = 0
     this.last_dy = 0
     const {sx, sy} = ev
@@ -38,14 +38,14 @@ export class PanToolView extends GestureToolView {
       this.model.document.interactive_start(this.plot_model)
   }
 
-  _pan(ev: GestureEvent): void {
+  _pan(ev: PanEvent): void {
     this._update(ev.deltaX, ev.deltaY)
 
     if (this.model.document != null)
       this.model.document.interactive_start(this.plot_model)
   }
 
-  _pan_end(_e: GestureEvent): void {
+  _pan_end(_e: PanEvent): void {
     this.h_axis_only = false
     this.v_axis_only = false
 
