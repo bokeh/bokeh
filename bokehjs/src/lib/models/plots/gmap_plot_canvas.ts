@@ -17,7 +17,7 @@ const load_google_api = function(api_key: string): void {
 
   const script = document.createElement('script')
   script.type = 'text/javascript'
-  script.src = `https://maps.googleapis.com/maps/api/js?key=${api_key}&callback=_bokeh_gmaps_callback`
+  script.src = `https://maps.googleapis.com/maps/api/js?v=3.36&key=${api_key}&callback=_bokeh_gmaps_callback`
   document.body.appendChild(script)
 }
 
