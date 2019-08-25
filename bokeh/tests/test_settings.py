@@ -46,7 +46,9 @@ Test___all__ = verify_all(bs, ALL)
 
 _expected_settings = (
     'allowed_ws_origin',
+    'auth_module',
     'browser',
+    'cookie_secret',
     'docs_cdn',
     'docs_version',
     'ignore_filename',
