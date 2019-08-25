@@ -224,6 +224,20 @@ def test_args():
             help    = "One of: %s" % nice_join(scserve.SESSION_ID_MODES),
         )),
 
+        ('--auth-module', dict(
+            metavar='AUTH_MODULE',
+            action  = 'store',
+            default = None,
+            help    = 'Absolute path to a Python modules that implements auth hooks',
+        )),
+
+        ('--cookie-secret', dict(
+            metavar='COOKIE_SECRET',
+            action  = 'store',
+            default = None,
+            help    = 'Configure to enable getting/setting secure cookies',
+        )),
+
         ('--index', dict(
             metavar='INDEX',
             action  = 'store',

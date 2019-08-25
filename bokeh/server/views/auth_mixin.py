@@ -4,8 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide a request handler that returns a json
-    with metadata information from the application
+''' Provide a web socket handler for the Bokeh Server application.
 
 '''
 
@@ -22,22 +21,18 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import json
 
 # External imports
 from tornado import gen
-from tornado.web import authenticated
 
 # Bokeh imports
-from .auth_mixin import AuthMixin
-from .session_handler import SessionHandler
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'MetadataHandler',
+    'AuthMixin',
 )
 
 #-----------------------------------------------------------------------------
@@ -48,25 +43,36 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class MetadataHandler(SessionHandler, AuthMixin):
-    ''' Implements a custom Tornado handler for document display page
+class AuthMixin(object):
+    '''
 
     '''
 
+    def get_login_url(self):
+        '''
+
+        '''
+        if self.application.get_login_url:
+            return self.application.get_login_url(self)
+        if self.application.login_url:
+            return self.application.login_url
+        raise RuntimeError('login_url or get_login_url() must be supplied when authentication hooks are enabled')
+
+    def get_current_user(self):
+        '''
+
+        '''
+        if self.application.get_user:
+            return self.application.get_user(self)
+        return "default_user"
+
     @gen.coroutine
-    @authenticated
-    def get(self, *args, **kwargs):
-        url = self.application_context.url
-        userdata = self.application_context.application.metadata
-        if callable(userdata):
-            userdata = userdata()
-        if userdata is None:
-            userdata = {}
+    def prepare(self):
+        '''
 
-        metadata = dict(url=url, data=userdata)
-
-        self.set_header("Content-Type", 'application/json')
-        self.write(json.dumps(metadata))
+        '''
+        if self.application.get_user_async:
+            self.current_user = yield self.application.get_user_async(self)
 
 #-----------------------------------------------------------------------------
 # Private API

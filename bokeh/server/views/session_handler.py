@@ -24,9 +24,10 @@ log = logging.getLogger(__name__)
 
 # External imports
 from tornado import gen
-from tornado.web import RequestHandler, HTTPError
+from tornado.web import authenticated, RequestHandler, HTTPError
 
 # Bokeh imports
+from .auth_mixin import AuthMixin
 from bokeh.util.session_id import generate_session_id, check_session_id_signature
 
 #-----------------------------------------------------------------------------
@@ -45,7 +46,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class SessionHandler(RequestHandler):
+class SessionHandler(AuthMixin, RequestHandler):
     ''' Implements a custom Tornado handler for document display page
 
     '''
@@ -59,6 +60,7 @@ class SessionHandler(RequestHandler):
         pass
 
     @gen.coroutine
+    @authenticated
     def get_session(self):
         session_id = self.get_argument("bokeh-session-id", default=None)
         if session_id is None:

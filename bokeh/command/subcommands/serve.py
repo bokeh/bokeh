@@ -246,6 +246,64 @@ The secret key should be set in a ``BOKEH_SECRET_KEY`` environment variable and
 should be a cryptographically random string with at least 256 bits (32 bytes)
 of entropy. The ``bokeh secret`` command can generate new secret keys.
 
+Authentication Options
+~~~~~~~~~~~~~~~~~~~~~~
+
+The Bokeh server can be configured to only allow connections in case there is
+a properly authenticed user. This is accomplished by providing the path to
+a module that implements the necessary functions on the command line:
+
+.. code-block:: sh
+
+    bokeh serve --auth-module=/path/to/auth.py
+
+or by setting the ``BOKEH_AUTH_MODULE`` environment variable.
+
+The module must contain *one* of the following two functions that will return
+the current user (or None):
+
+.. code-block:: python
+
+    def get_user(request_handler):
+        pass
+
+    async def get_user_aync(request_handler):
+        pass
+
+The function is passed the Tornado ``RequestHandler`` and can inspect cookies
+or request headers to determine the authenticated user. If there is no valid
+authenticated user, these functions should return None.
+
+Additionally, the module must specify where to redirect unauthenticate users. It
+must contain either:
+
+* a module attribute ``login_url`` and (optionally) a ``LoginHandler`` class
+* a function definition for ``get_login_url``
+
+.. code-block:: python
+
+    login_url = "..."
+
+    class LoginHandler(RequestHandler):
+        pass
+
+    def get_login_url(request_handler):
+        pass
+
+When a relative ``login_url`` is given, an optional ``LoginHandler`` class may
+also be provided, and it will be installed as a route on the Bokeh server
+automatically.
+
+The ``get_url_function`` function is useful in cases where the login URL must
+vary based on the request, or cookies, etc. It is not possible to specify a
+``LoginHandler`` when ``get_url_function`` is defined.
+
+If no auth module is provided, then a default user will be assumed, and no
+authentication will be required to access Bokeh server endpoints.
+
+.. warning:
+    The contents of the auth module will be executed!
+
 Session Expiration Options
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -530,6 +588,20 @@ class Serve(Subcommand):
             help    = "One of: %s" % nice_join(SESSION_ID_MODES),
         )),
 
+        ('--auth-module', dict(
+            metavar='AUTH_MODULE',
+            action  = 'store',
+            default = None,
+            help    = 'Absolute path to a Python modules that implements auth hooks',
+        )),
+
+        ('--cookie-secret', dict(
+            metavar='COOKIE_SECRET',
+            action  = 'store',
+            default = None,
+            help    = 'Configure to enable getting/setting secure cookies',
+        )),
+
         ('--index', dict(
             metavar='INDEX',
             action  = 'store',
@@ -651,6 +723,10 @@ class Serve(Subcommand):
             die("To sign sessions, the BOKEH_SECRET_KEY environment variable must be set; " +
                 "the `bokeh secret` command can be used to generate a new key.")
 
+        auth_module_path = settings.auth_module(getattr(args, 'auth_module', None))
+        server_kwargs.update(self._process_auth_module(auth_module_path))
+
+        server_kwargs['cookie_secret'] = settings.cookie_secret(getattr(args, 'cookie_secret', None))
         server_kwargs['use_index'] = not args.disable_index
         server_kwargs['redirect_root'] = not args.disable_index_redirect
         server_kwargs['autoreload'] = args.dev is not None
@@ -708,6 +784,38 @@ class Serve(Subcommand):
 
             log.info("Starting Bokeh server with process id: %d" % os.getpid())
             server.run_until_shutdown()
+
+    def _process_auth_module(self, path):
+        '''
+
+        '''
+        if not path:
+            return {}
+
+        try:
+            import importlib.util
+            spec = importlib.util.spec_from_file_location("bokeh.auth", path)
+            m = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(m)
+
+        except ImportError:
+            try:
+                 # python 3.4
+                from importlib.machinery import SourceFileLoader
+                m = SourceFileLoader("module.name", "/path/to/file.py").load_module()
+
+            except ImportError:
+                # python 2
+                import imp
+                m = imp.load_source('module.name', '/path/to/file.py')
+
+        result = {}
+        for name in ('get_user', 'get_user_async', 'login_url', 'get_login_url'):
+            if hasattr(m, name):
+                result[name] = getattr(m, name)
+        if hasattr(m, 'LoginHandler'):
+            result['login_handler'] = getattr(m, 'LoginHandler')
+        return result
 
 #-----------------------------------------------------------------------------
 # Dev API

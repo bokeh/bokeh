@@ -28,7 +28,7 @@ from pprint import pformat
 from tornado import gen
 from tornado.ioloop import PeriodicCallback
 from tornado.web import Application as TornadoApplication
-from tornado.web import StaticFileHandler
+from tornado.web import RequestHandler, StaticFileHandler
 
 # Bokeh imports
 from ..application import Application
@@ -164,6 +164,32 @@ class BokehTornado(TornadoApplication):
 
             NOTE: This setting has effect ONLY for Tornado>=4.5
 
+        index (str, optional):
+            Path to a Jinja2 template to use for the root URL
+
+        login_url (str, optional):
+            URL to redirect unathenticated users to for login
+
+        login_hander (type, optional):
+            A subclass of RequestHandler that will be installed as a route for
+            login_url
+
+            NOTE: login_url must be a relative URL to use login_handler
+
+        get_login_url (callable, optional):
+            A function that accepts a tornado RequestHandler and returns a login
+            URL for unathenticated users.
+
+            NOTE: login_handler cannot be used together with get_login_url
+
+        get_user (callable, optional):
+            A function that accepts a tornado RequestHandler and returns the
+            current authenticated user, or None.
+
+        get_user_async (callable, optional):
+            An async function that accepts a tornado RequestHandler and returns
+            then current authenticated user, or None.
+
     Any additional keyword arguments are passed to ``tornado.web.Application``.
     '''
 
@@ -184,6 +210,11 @@ class BokehTornado(TornadoApplication):
                  redirect_root=True,
                  websocket_max_message_size_bytes=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
                  index=None,
+                 login_url=None,
+                 login_handler=None,
+                 get_login_url=None,
+                 get_user=None,
+                 get_user_async=None,
                  **kwargs):
 
         # This will be set when initialize is called
@@ -249,6 +280,34 @@ class BokehTornado(TornadoApplication):
                      websocket_max_message_size_bytes,
                      websocket_max_message_size_bytes/1024.0**2)
 
+        if get_user and get_user_async:
+            raise ValueError("Only one of get_user or get_user_async should be supplied")
+        self._get_user = get_user
+        self._get_user_async = get_user_async
+
+        if (get_user or get_user_async) and not (login_url or get_login_url):
+            raise ValueError("When user authentication is enabled, one of login_url or get_login_url must be supplied")
+
+        if (get_user or get_user_async) and not (login_url or get_login_url):
+            raise ValueError("If a get_user function is provided, login URL must also be provided")
+        if login_url and get_login_url:
+            raise ValueError("At most one of login_url or get_login_url should be supplied")
+        if login_handler and get_login_url:
+            raise ValueError("LoginHandler cannot be used with get_login_url()")
+        if login_handler and not issubclass(login_handler, RequestHandler):
+            raise ValueError("LoginHandler must be a Tornado RequestHandler")
+        # This just catches some common cases up front, let tornado barf on any others
+        if login_handler and login_url.startswith("http") and login_url.startswith("//"):
+            raise ValueError("LoginHandler can only be used with a relative login_url")
+        self._login_url = login_url
+        self._login_handler = login_handler
+        self._get_login_url = get_login_url
+
+        if self.get_user or self._get_user_async:
+            log.info("User authentication hooks provided (default user enabled)")
+        else:
+            log.info("User authentication hooks NOT provided (default user enabled)")
+
         if extra_websocket_origins is None:
             self._websocket_origins = set()
         else:
@@ -264,6 +323,9 @@ class BokehTornado(TornadoApplication):
             self._applications[k] = ApplicationContext(v,url=k)
 
         extra_patterns = extra_patterns or []
+        if login_handler:
+            extra_patterns.append((login_url, login_handler))
+
         all_patterns = []
         for key, app in applications.items():
             app_patterns = []
@@ -407,6 +469,36 @@ class BokehTornado(TornadoApplication):
 
         '''
         return self._generate_session_ids
+
+    @property
+    def login_url(self):
+        '''
+
+        '''
+        return self._login_url
+
+
+    @property
+    def get_login_url(self):
+        '''
+
+        '''
+        return self._get_login_url
+
+
+    @property
+    def get_user(self):
+        '''
+
+        '''
+        return self._get_user
+
+    @property
+    def get_user_async(self):
+        '''
+
+        '''
+        return self._get_user_async
 
     def resources(self, absolute_url=None):
         ''' Provide a :class:`~bokeh.resources.Resources` that specifies where

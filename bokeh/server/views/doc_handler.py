@@ -24,10 +24,10 @@ log = logging.getLogger(__name__)
 
 # External imports
 from tornado import gen
+from tornado.web import authenticated
 
 # Bokeh imports
 from bokeh.embed.server import server_html_page_for_session
-
 from .session_handler import SessionHandler
 
 #-----------------------------------------------------------------------------
@@ -51,6 +51,7 @@ class DocHandler(SessionHandler):
 
     '''
     @gen.coroutine
+    @authenticated
     def get(self, *args, **kwargs):
         session = yield self.get_session()
         page = server_html_page_for_session(session,
