@@ -82,7 +82,7 @@ test:
     - django
     - h5py
     - icalendar
-    - ipywidgets
+    - ipywidgets [not win]
     - networkx
     - notebook
     - opencv
