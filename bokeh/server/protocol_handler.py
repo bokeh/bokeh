@@ -99,8 +99,10 @@ class ProtocolHandler(object):
         try:
             work = yield handler(message, connection)
         except Exception as e:
-            log.error("error handling message %r: %r", message, e, exc_info=1)
-            log.debug("  message header %r content %r", message.header, message.content, exc_info=1)
+            log.error("error handling message, run server with --log-level=debug"
+                      " to see more information \n message: %r \n error: %r",
+                      message, e, exc_info=True)
+            log.debug("  message header %r content %r", message.header, message.content)
             work = connection.error(message, repr(e))
         raise gen.Return(work)
 
