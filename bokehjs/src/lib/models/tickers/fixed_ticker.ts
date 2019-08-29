@@ -34,7 +34,7 @@ export class FixedTicker extends ContinuousTicker {
     }
   }
 
-  // XXX: whatever, because FixedTicker needs to fullfill the interface somehow
+  // XXX: whatever, because FixedTicker needs to fulfill the interface somehow
   get_interval(_data_low: number, _data_high: number, _desired_n_ticks: number): number {
     return 0
   }

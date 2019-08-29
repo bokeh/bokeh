@@ -781,7 +781,7 @@ Examples:
         .. note::
             When passing ``marker="circle"`` it is also possible to supply a
             ``radius`` value in data-space units. When configuring marker type
-            from a data source column, *all* markers incuding circles may only
+            from a data source column, *all* markers including circles may only
             be configured with ``size`` in screen units.
 
         '''

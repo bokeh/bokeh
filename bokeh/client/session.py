@@ -340,7 +340,7 @@ class ClientSession(object):
 
         While this method can be used to run Bokeh application code "outside"
         the Bokeh server, this practice is HIGHLY DISCOURAGED for any real
-        use case. This function is intented to facilitate testing ONLY.
+        use case. This function is intended to facilitate testing ONLY.
 
         '''
 

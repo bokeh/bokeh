@@ -47,7 +47,7 @@ removed in a future 2.0 release:
 * Support for CoffeeScript in ``CustomJS`` or custom extensions. Use JavaScript
   or Typescript instead.
 
-* Support for ``ClientSession.loop_until_closed``. This function is intented
+* Support for ``ClientSession.loop_until_closed``. This function is intended
   to support testing only, and will be removed from the public API. Bokeh
   applications should be run directly on a Bokeh server.
 
@@ -70,6 +70,6 @@ some changes to the ``bokeh-plot`` Sphinx directive were necessary. These are:
 
 We believe that there are very few users of ``bokeh.sphinxext`` outside the
 project itself, and that these changes will not cause any breakage for any of
-those users. However, please reach out for support if any unforseen issues arise.
+those users. However, please reach out for support if any unforeseen issues arise.
 
 .. _ReadTheDocs: https://readthedocs.org

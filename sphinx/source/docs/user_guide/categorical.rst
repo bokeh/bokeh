@@ -254,7 +254,7 @@ offset for each different call to ``vbar``:
 Stacked and Grouped
 ~~~~~~~~~~~~~~~~~~~
 
-The above techiques for stacking and grouping may also be used together to
+The above techniques for stacking and grouping may also be used together to
 crate a stacked, grouped bar plot.
 
 Continuing the example above with bars grouped by quarter, we might stack each
@@ -377,7 +377,7 @@ We've seen above how categorical locations can be modified by operations like
 *dodge* and *jitter*.  It is also possible to supply an offset to a categorical
 location explicitly. This is done by adding a numeric value to the end of a
 category, e.g. ``["Jan", 0.2]`` is the category "Jan" offset by a value of 0.2.
-For hierachical categories, the value is added at the end of the existing
+For hierarchical categories, the value is added at the end of the existing
 list, e.g. ``["West", "Sales", -0,2]``. Any numeric value at the end of a
 list of categories is always interpreted as an offset.
 

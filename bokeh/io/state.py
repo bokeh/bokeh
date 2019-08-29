@@ -16,7 +16,7 @@ Generating output for Bokeh plots requires coordinating several things:
 
 :class:`~bokeh.document.Document`
     Groups together Bokeh models that may be shared between plots (e.g.,
-    range or data source objects) into one common strucure.
+    range or data source objects) into one common structure.
 
 :class:`~bokeh.resources.Resources`
     Control how JavaScript and CSS for the client library BokehJS are

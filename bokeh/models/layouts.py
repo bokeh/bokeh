@@ -148,7 +148,7 @@ class LayoutDOM(Model):
 
     ``"fit"``
         Use component's preferred height (if set) and allow to fit into the available
-        vertical space withing the minimum and maximum height bounds (if set). Component's
+        vertical space within the minimum and maximum height bounds (if set). Component's
         height neither will be aggressively minimized nor maximized.
 
     ``"min"``

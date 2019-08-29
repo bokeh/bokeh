@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Provide JSON data for co-occurence of characters in Les Miserables.
+''' Provide JSON data for co-occurrence of characters in Les Miserables.
 
 '''
 

@@ -96,7 +96,7 @@ accomplished with the |multi_line| glyph method:
     dimensional list or array of scalar values, it accepts a "list of lists"
     for x and y positions of each line, parameters xs and ys. multi_line
     also expects a scalar value or a list of scalers per each line for
-    parameters such as color, alpha, linewidth, etc. Similarily, a
+    parameters such as color, alpha, linewidth, etc. Similarly, a
     ColumnDataSource may be used consisting of a "list of lists" and a
     lists of scalars where the length of the list of scalars and length of
     lists must match.
@@ -258,7 +258,7 @@ This can be accomplished with the |patches| glyph method:
     dimensional list or array of scalar values, it accepts a "list of lists"
     for x and y positions of each patch, parameters xs and ys. patches
     also expects a scalar value or a list of scalers per each patch for
-    parameters such as color, alpha, linewidth, etc. Similarily, a
+    parameters such as color, alpha, linewidth, etc. Similarly, a
     ColumnDataSource may be used consisting of a "list of lists" and a
     lists of scalars where the length of the list of scalars and length of
     lists must match.
@@ -293,7 +293,7 @@ holes inside each polygon.
     list of x and y positions for the exterior and holes composing each
     polygon. MultiPolygons also expects a scalar value or a list of scalers
     per each item for parameters such as color, alpha, linewidth, etc.
-    Similarily, one can use a ColumnDataSource consisting of a 3 times nested
+    Similarly, one can use a ColumnDataSource consisting of a 3 times nested
     list and a list of scalars where the length of the list of scalars and
     length of the top level list must match.
 

@@ -94,7 +94,7 @@ export abstract class Tool extends Model {
   }
 
   // utility function to return a tool name, modified
-  // by the active dimenions. Used by tools that have dimensions
+  // by the active dimensions. Used by tools that have dimensions
   protected _get_dim_tooltip(name: string, dims: Dimensions): string {
     switch (dims) {
       case "width":  return `${name} (x-axis)`

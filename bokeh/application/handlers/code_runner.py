@@ -167,7 +167,7 @@ class CodeRunner(object):
 
         '''
         try:
-            # Simulate the sys.path behaviour decribed here:
+            # Simulate the sys.path behaviour described here:
             #
             # https://docs.python.org/2/library/sys.html#sys.path
             _cwd = os.getcwd()
