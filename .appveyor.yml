@@ -14,6 +14,7 @@ skip_tags: true
 init:
   - cmd: set PATH=%MINICONDA%;%MINICONDA%\\Scripts;%MINICONDA%\\Library\\bin;%PATH%
   - cmd: echo %path%
+  - cmd: set CONDA_REQS="conda=4.7"
 
 install:
   - powershell .\\scripts\\ci\\appveyor\\install.ps1
