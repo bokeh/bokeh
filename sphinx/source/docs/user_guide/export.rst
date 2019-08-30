@@ -41,9 +41,7 @@ Limitations
 ~~~~~~~~~~~
 
 Responsive sizing_modes may generate layouts with unexpected size and aspect
-ratios. It is recommended to use the default ``fixed`` sizing mode. Also,
-glyphs that are rendered via webgl won't be included in the generated PNG, so
-it's suggested to use the default ``Plot.webgl=True`` attribute.
+ratios. It is recommended to use the default ``fixed`` sizing mode.
 
 Example usage
 ~~~~~~~~~~~~~
