@@ -1,5 +1,4 @@
 import {Tile} from "./tile_source"
-import {ImagePool, Image} from "./image_pool"
 import {Extent, Bounds} from "./tile_utils"
 import {TileSource} from "./tile_source"
 import {WMTSTileSource} from "./wmts_tile_source"
@@ -10,6 +9,7 @@ import {Range} from "../ranges/range"
 import {Range1d} from "../ranges/range1d"
 import {div, removeElement} from "core/dom"
 import * as p from "core/properties"
+import {Image, ImageLoader} from "core/util/image"
 import {includes} from "core/util/array"
 import {isString} from "core/util/types"
 import {Context2d} from "core/util/canvas"
@@ -17,14 +17,11 @@ import {SelectionManager} from "core/selection_manager"
 import {ColumnDataSource} from "../sources/column_data_source"
 import {bk_tile_attribution} from "styles/tiles"
 
-export interface TileData {
-  img: Image
-  tile_coords: [number, number, number]
+export type TileData = Tile & ({img: Image, loaded: true} | {img: undefined, loaded: false}) & {
   normalized_coords: [number, number, number]
   quadkey: string
   cache_key: string
   bounds: Bounds
-  loaded: boolean
   finished: boolean
   x_coord: number
   y_coord: number
@@ -37,7 +34,6 @@ export class TileRendererView extends DataRendererView {
 
   protected _tiles: TileData[]
 
-  protected pool: ImagePool
   protected extent: Extent
   protected initial_extent: Extent
   protected _last_height?: number
@@ -82,7 +78,6 @@ export class TileRendererView extends DataRendererView {
   }
 
   protected _set_data(): void {
-    this.pool = new ImagePool()
     this.extent = this.get_extent()
     this._last_height = undefined
     this._last_width = undefined
@@ -143,31 +138,13 @@ export class TileRendererView extends DataRendererView {
     this._update_attribution()
   }
 
-  protected _on_tile_load(tile_data: TileData, e: Event & {target: Image}): void {
-    tile_data.img = e.target
-    tile_data.loaded = true
-    this.request_render()
-  }
-
-  protected _on_tile_cache_load(tile_data: TileData, e: Event & {target: Image}): void {
-    tile_data.img = e.target
-    tile_data.loaded = true
-    tile_data.finished = true
-    this.notify_finished()
-  }
-
-  protected _on_tile_error(tile_data: TileData): void {
-    tile_data.finished = true
-  }
-
   protected _create_tile(x: number, y: number, z: number, bounds: Bounds, cache_only: boolean = false): void {
     const [nx, ny, nz] = this.model.tile_source.normalize_xyz(x, y, z)
 
-    const img = this.pool.pop()
-    const tile = {
-      img,
-      tile_coords: [x, y, z] as [number, number, number],
-      normalized_coords: [nx, ny, nz] as [number, number, number],
+    const tile: TileData = {
+      img: undefined,
+      tile_coords: [x, y, z],
+      normalized_coords: [nx, ny, nz],
       quadkey: this.model.tile_source.tile_xyz_to_quadkey(x, y, z),
       cache_key: this.model.tile_source.tile_xyz_to_key(x, y, z),
       bounds,
@@ -177,12 +154,23 @@ export class TileRendererView extends DataRendererView {
       y_coord: bounds[3],
     }
 
-    img.onload = cache_only ? this._on_tile_cache_load.bind(this, tile) : this._on_tile_load.bind(this, tile)
-    img.onerror = this._on_tile_error.bind(this, tile)
-    img.alt = ''
-    img.src = this.model.tile_source.get_image_url(nx, ny, nz)
+    const src = this.model.tile_source.get_image_url(nx, ny, nz)
+    new ImageLoader(src, {
+      loaded: (img: Image) => {
+        Object.assign(tile, {img, loaded: true})
 
-    this.model.tile_source.tiles[tile.cache_key] = tile as Tile
+        if (cache_only) {
+          tile.finished = true
+          this.notify_finished()
+        } else
+          this.request_render()
+      },
+      failed() {
+        tile.finished = true
+      },
+    })
+
+    this.model.tile_source.tiles.set(tile.cache_key, tile)
     this._tiles.push(tile)
   }
 
@@ -240,19 +228,19 @@ export class TileRendererView extends DataRendererView {
   }
 
   _draw_tile(tile_key: string): void {
-    const tile_obj = this.model.tile_source.tiles[tile_key] as TileData
-    if (tile_obj != null) {
-      const [[sxmin], [symin]] = this.plot_view.map_to_screen([tile_obj.bounds[0]], [tile_obj.bounds[3]]) as any as [number[], number[]] // XXX: TS #20623
-      const [[sxmax], [symax]] = this.plot_view.map_to_screen([tile_obj.bounds[2]], [tile_obj.bounds[1]]) as any as [number[], number[]] //
+    const tile_data = this.model.tile_source.tiles.get(tile_key) as TileData | undefined
+    if (tile_data != null && tile_data.loaded) {
+      const [[sxmin], [symin]] = this.plot_view.map_to_screen([tile_data.bounds[0]], [tile_data.bounds[3]])
+      const [[sxmax], [symax]] = this.plot_view.map_to_screen([tile_data.bounds[2]], [tile_data.bounds[1]])
       const sw = sxmax - sxmin
       const sh = symax - symin
       const sx = sxmin
       const sy = symin
       const old_smoothing = this.map_canvas.getImageSmoothingEnabled()
       this.map_canvas.setImageSmoothingEnabled(this.model.smoothing)
-      this.map_canvas.drawImage(tile_obj.img, sx, sy, sw, sh)
+      this.map_canvas.drawImage(tile_data.img, sx, sy, sw, sh)
       this.map_canvas.setImageSmoothingEnabled(old_smoothing)
-      tile_obj.finished = true
+      tile_data.finished = true
     }
   }
 
@@ -288,7 +276,7 @@ export class TileRendererView extends DataRendererView {
       const children = this.model.tile_source.children_by_tile_xyz(x, y, z)
       for (const c of children) {
         const [cx, cy, cz, cbounds] = c
-        if (tile_source.tile_xyz_to_key(cx, cy, cz) in tile_source.tiles) {
+        if (tile_source.tiles.has(tile_source.tile_xyz_to_key(cx, cy, cz))) {
           continue
         } else {
           this._create_tile(cx, cy, cz, cbounds, true)
@@ -343,14 +331,14 @@ export class TileRendererView extends DataRendererView {
     for (const t of tiles) {
       const [x, y, z] = t
       const key = tile_source.tile_xyz_to_key(x, y, z)
-      const tile = tile_source.tiles[key] as TileData
+      const tile = tile_source.tiles.get(key) as TileData | undefined
       if (tile != null && tile.loaded) {
         cached.push(key)
       } else {
         if (this.model.render_parents) {
           const [px, py, pz] = tile_source.get_closest_parent_by_tile_xyz(x, y, z)
           const parent_key = tile_source.tile_xyz_to_key(px, py, pz)
-          const parent_tile = tile_source.tiles[parent_key] as TileData
+          const parent_tile = tile_source.tiles.get(parent_key) as TileData | undefined
           if ((parent_tile != null) && parent_tile.loaded && !includes(parents, parent_key)) {
             parents.push(parent_key)
           }
@@ -359,7 +347,7 @@ export class TileRendererView extends DataRendererView {
             for (const [cx, cy, cz] of child_tiles) {
               const child_key = tile_source.tile_xyz_to_key(cx, cy, cz)
 
-              if (child_key in tile_source.tiles)
+              if (tile_source.tiles.has(child_key))
                 children.push(child_key)
             }
           }
