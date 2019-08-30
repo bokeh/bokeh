@@ -200,7 +200,7 @@ def enumeration(*values, **kwargs):
             Whether validation should consider case or not (default: True)
 
         quote (bool, optional):
-            Whther values should be quoted in the string representations
+            Whether values should be quoted in the string representations
             (default: False)
 
     Raises:

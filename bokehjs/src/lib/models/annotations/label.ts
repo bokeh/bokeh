@@ -29,7 +29,7 @@ export class LabelView extends TextAnnotationView {
     if (!this.model.visible)
       return
 
-    // Here because AngleSpec does units tranform and label doesn't support specs
+    // Here because AngleSpec does units transform and label doesn't support specs
     let angle: number
     switch (this.model.angle_units) {
       case "rad": {

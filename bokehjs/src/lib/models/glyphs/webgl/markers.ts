@@ -175,7 +175,7 @@ export abstract class MarkerGLGlyph extends BaseGLGlyph {
     if (this.glyph._angle != null) {
       this.vbo_a.set_data(0, new Float32Array(this.glyph._angle))
     }
-    // Radius is special; some markes allow radius in data-coords instead of screen coords
+    // Radius is special; some markers allow radius in data-coords instead of screen coords
     // @radius tells us that radius is in units, sradius is the pre-calculated screen radius
     if (this.glyph instanceof CircleView && this.glyph._radius != null)
       this.vbo_s.set_data(0, new Float32Array(map(this.glyph.sradius, (s) => s*2)))

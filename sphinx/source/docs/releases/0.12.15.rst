@@ -72,7 +72,7 @@ hit testing of image glyphs.
 
 All code should update to use these new properties. For now *read only*
 access to things like ``selected['1d'].indicies`` will continue to function
-as before for compatibility. However, programmtically *setting* selections
+as before for compatibility. However, programmatically *setting* selections
 must now go through the mode properties, i.e. ``.indices``, ``.line_indices``,
 etc.
 

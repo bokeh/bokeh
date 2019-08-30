@@ -796,7 +796,7 @@ def _glyph_function(glyphclass, extra_docs=None):
 
     def func(self, **kwargs):
 
-        # Convert data source, if necesary
+        # Convert data source, if necessary
         is_user_source = kwargs.get('source', None) is not None
         if is_user_source:
             source = kwargs['source']

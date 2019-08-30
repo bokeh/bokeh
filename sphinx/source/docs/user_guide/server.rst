@@ -653,7 +653,7 @@ can be found in the examples directory:
 
 Also note that most every command line argument for ``bokeh serve`` has a
 corresponding keyword argument to ``Server``. For instance setting the
---allow-sebsocket-orgin`` command line argument is equivalent to passing
+--allow-sebsocket-origin`` command line argument is equivalent to passing
 ``allow_websocket_origin`` as a parameter.
 
 .. _userguide_server_bokeh_client:
@@ -1124,8 +1124,8 @@ Websocket Origin
 ''''''''''''''''
 
 When an HTTP request is made to the Bokeh server, it immediately returns a
-script that will initiate a webocket connection, and all subsequent
-commumication happens over the webocket. To reduce the risk of cross-site
+script that will initiate a websocket connection, and all subsequent
+commumication happens over the websocket. To reduce the risk of cross-site
 misuse, the bokeh server will only initiate websocket connections from
 origins that are explicitly whitelisted. Requests with Origin headers that
 do not match the whitelist will generate HTTP 403 error responses.
@@ -1157,7 +1157,7 @@ instance, we typically want to restict the Bokeh server to honoring *only*
 requests that originate from our ``acme.com`` page, so that other pages cannot
 embed our Bokeh app without our knowledge.
 
-This can be accomplished  by setting the ``--allow-sebsocket-orgin`` command
+This can be accomplished  by setting the ``--allow-sebsocket-origin`` command
 line argument:
 
 .. code-block:: sh
@@ -1174,7 +1174,7 @@ origin than  ``acme.com``, and the Bokeh server will reject them.
     determined and knowledgeble attacker can spoof Origin headers.
 
 If multiple allowed origins are required, then multiple instances of
-``--allow-sebsocket-orgin`` can be passed on the command line.
+``--allow-sebsocket-origin`` can be passed on the command line.
 
 It is also possible to configure a Bokeh server to allow any and all connections
 Regardless of origin:

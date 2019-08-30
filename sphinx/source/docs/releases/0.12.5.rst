@@ -45,7 +45,7 @@ period of deprecation.
 New Deprecations
 ~~~~~~~~~~~~~~~~
 
-**MPL COMPATIBLITY IS DEPRECATED**
+**MPL COMPATIBILITY IS DEPRECATED**
 
 Bokeh's MPL compatibility was implemented using a third-party library that
 only exposes a small fraction of all Matplotlib functionality, and is
