@@ -1,4 +1,6 @@
-function build(){
+set-psdebug -trace 2
+
+function build() {
     npm install -g npm
     Push-Location -Path ".\\bokehjs"
     npm install --no-save --no-progress

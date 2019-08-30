@@ -82,7 +82,6 @@ test:
     - django
     - h5py
     - icalendar
-    - ipywidgets
     - networkx
     - notebook
     - opencv
