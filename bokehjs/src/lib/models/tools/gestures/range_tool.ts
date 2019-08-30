@@ -1,4 +1,4 @@
-import {GestureEvent} from "core/ui_events"
+import {PanEvent} from "core/ui_events"
 import {BoxAnnotation, EDGE_TOLERANCE} from "../../annotations/box_annotation"
 import {Range} from "../../ranges/range"
 import {Range1d} from "../../ranges/range1d"
@@ -121,7 +121,7 @@ export class RangeToolView extends GestureToolView {
       this.connect(this.model.y_range.change, () => this.model.update_overlay_from_ranges())
   }
 
-  _pan_start(ev: GestureEvent): void {
+  _pan_start(ev: PanEvent): void {
     this.last_dx = 0
     this.last_dy = 0
 
@@ -161,7 +161,7 @@ export class RangeToolView extends GestureToolView {
     }
   }
 
-  _pan(ev: GestureEvent): void {
+  _pan(ev: PanEvent): void {
     const frame = this.plot_view.frame
 
     const new_dx = ev.deltaX - this.last_dx
@@ -204,7 +204,7 @@ export class RangeToolView extends GestureToolView {
 
   }
 
-  _pan_end(_ev: GestureEvent): void {
+  _pan_end(_ev: PanEvent): void {
     this.side = Side.None
   }
 

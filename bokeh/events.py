@@ -93,6 +93,9 @@ __all__ = (
     'Pinch',
     'PinchEnd',
     'PinchStart',
+    'Rotate',
+    'RotateEnd',
+    'RotateStart',
     'PlotEvent',
     'PointEvent',
     'Press',
@@ -494,6 +497,56 @@ class PinchStart(PointEvent):
 
     '''
     event_name = 'pinchstart'
+
+class Rotate(PointEvent):
+    ''' Announce a rotate event on a Bokeh plot.
+
+    Attributes:
+        rotation (float) : the rotation that has been done (in deg)
+        sx (float) : x-coordinate of the event in *screen* space
+        sy (float) : y-coordinate of the event in *screen* space
+        x (float) : x-coordinate of the event in *data* space
+        y (float) : y-coordinate of the event in *data* space
+
+    .. note::
+        This event is only applicable for touch-enabled devices.
+
+    '''
+    event_name = 'rotate'
+
+    def __init__(self, model, rotation=None, **kwargs):
+        self.rotation = rotation
+        super(Rotate, self).__init__(model, **kwargs)
+
+class RotateEnd(PointEvent):
+    ''' Announce the end of a rotate event on a Bokeh plot.
+
+    Attributes:
+        sx (float) : x-coordinate of the event in *screen* space
+        sy (float) : y-coordinate of the event in *screen* space
+        x (float) : x-coordinate of the event in *data* space
+        y (float) : y-coordinate of the event in *data* space
+
+    .. note::
+        This event is only applicable for touch-enabled devices.
+
+    '''
+    event_name = 'rotateend'
+
+class RotateStart(PointEvent):
+    ''' Announce the start of a rotate event on a Bokeh plot.
+
+    Attributes:
+        sx (float) : x-coordinate of the event in *screen* space
+        sy (float) : y-coordinate of the event in *screen* space
+        x (float) : x-coordinate of the event in *data* space
+        y (float) : y-coordinate of the event in *data* space
+
+    .. note::
+        This event is only applicable for touch-enabled devices.
+
+    '''
+    event_name = 'rotatestart'
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -115,6 +115,21 @@ export class Pinch extends PointEvent {
   }
 }
 
+@event("rotate")
+export class Rotate extends PointEvent {
+
+  constructor(readonly sx: number, readonly sy: number,
+              readonly x: number, readonly y: number,
+              readonly rotation: number) {
+    super(sx, sy, x, y)
+  }
+
+  protected _to_json(): JSON {
+    const {rotation} = this
+    return {...super._to_json(), rotation}
+  }
+}
+
 @event("wheel")
 export class MouseWheel extends PointEvent {
 
@@ -159,3 +174,9 @@ export class PinchStart extends PointEvent {}
 
 @event("pinchend")
 export class PinchEnd extends PointEvent {}
+
+@event("rotatestart")
+export class RotateStart extends PointEvent {}
+
+@event("rotateend")
+export class RotateEnd extends PointEvent {}

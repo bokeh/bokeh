@@ -1,5 +1,5 @@
 import {Keys} from "core/dom"
-import {UIEvent, GestureEvent, TapEvent, KeyEvent} from "core/ui_events"
+import {UIEvent, PanEvent, TapEvent, KeyEvent} from "core/ui_events"
 import * as p from "core/properties"
 import {isArray} from "core/util/types"
 import {EditTool, EditToolView} from "./edit_tool"
@@ -49,15 +49,15 @@ export class FreehandDrawToolView extends EditToolView {
     this._emit_cds_changes(cds, true, true, emit)
   }
 
-  _pan_start(ev: GestureEvent): void {
+  _pan_start(ev: PanEvent): void {
     this._draw(ev, 'new')
   }
 
-  _pan(ev: GestureEvent): void {
+  _pan(ev: PanEvent): void {
     this._draw(ev, 'add')
   }
 
-  _pan_end(ev: GestureEvent): void {
+  _pan_end(ev: PanEvent): void {
     this._draw(ev, 'add', true)
   }
 

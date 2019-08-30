@@ -4,7 +4,7 @@ import {Rect} from "models/glyphs/rect"
 import {ColumnDataSource} from "models/sources/column_data_source"
 import {GlyphRenderer} from "models/renderers/glyph_renderer"
 import {ColumnarDataSource, MultiLine, Scale} from "models"
-import {MoveEvent, GestureEvent, TapEvent, KeyEvent} from "core/ui_events"
+import {MoveEvent, PanEvent, TapEvent, KeyEvent} from "core/ui_events"
 import {intersection, union, transpose} from "core/util/array"
 import {Keys} from "core/dom"
 
@@ -169,7 +169,7 @@ export class ParallelSelectionView extends BoxSelectToolView {
     this._emit_cds_changes(cds, true, false, false)
   }
 
-  _drag_start(ev: GestureEvent) {
+  _drag_start(ev: PanEvent) {
     //Save y position of the drag start
     if (this.ind_active_box != null) {
       this._base_point = [this.xscale.invert(ev.sx), this.yscale.invert(ev.sy)]
@@ -190,19 +190,19 @@ export class ParallelSelectionView extends BoxSelectToolView {
     }
   }
 
-  _drag(ev: GestureEvent) {
+  _drag(ev: PanEvent) {
     if (this.ind_active_box != null && this._base_point != null) {
       const delta_y = this.yscale.invert(ev.sy) - this._base_point[1]
       this._update_box_ypos(this.ind_active_box, delta_y)
     }
   }
 
-  _drag_stop(_ev: GestureEvent) {
+  _drag_stop(_ev: PanEvent) {
     this._base_point = null
     this._base_box_parameters = null
   }
 
-  _pan_start(ev: GestureEvent) {
+  _pan_start(ev: PanEvent) {
     this.panning = true
     switch (this.selection_mode) {
       case "add": {
@@ -219,7 +219,7 @@ export class ParallelSelectionView extends BoxSelectToolView {
     }
   }
 
-  _pan(ev: GestureEvent) {
+  _pan(ev: PanEvent) {
     switch (this.selection_mode) {
       case "add": {
         super._pan(ev)
@@ -235,7 +235,7 @@ export class ParallelSelectionView extends BoxSelectToolView {
     }
   }
 
-  _pan_end(ev: GestureEvent) {
+  _pan_end(ev: PanEvent) {
     switch (this.selection_mode) {
       case "add": {
         super._pan_end(ev)

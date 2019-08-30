@@ -1,7 +1,7 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import {scale_range} from "core/util/zoom"
 import * as p from "core/properties"
-import {GestureEvent, ScrollEvent} from "core/ui_events"
+import {PinchEvent, ScrollEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
 import {is_mobile} from "core/util/compat"
 import {bk_tool_icon_wheel_zoom} from "styles/icons"
@@ -9,7 +9,7 @@ import {bk_tool_icon_wheel_zoom} from "styles/icons"
 export class WheelZoomToolView extends GestureToolView {
   model: WheelZoomTool
 
-  _pinch(ev: GestureEvent): void {
+  _pinch(ev: PinchEvent): void {
     // TODO (bev) this can probably be done much better
     const {sx, sy, scale} = ev
 

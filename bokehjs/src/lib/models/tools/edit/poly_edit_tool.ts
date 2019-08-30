@@ -1,5 +1,5 @@
 import {Keys} from "core/dom"
-import {GestureEvent, TapEvent, MoveEvent, KeyEvent, UIEvent} from "core/ui_events"
+import {PanEvent, TapEvent, MoveEvent, KeyEvent, UIEvent} from "core/ui_events"
 import {isArray} from "core/util/types"
 import {MultiLine} from "../../glyphs/multi_line"
 import {Patches} from "../../glyphs/patches"
@@ -162,12 +162,12 @@ export class PolyEditToolView extends PolyToolView {
     this._emit_cds_changes(this._selected_renderer.data_source)
   }
 
-  _pan_start(ev: GestureEvent): void {
+  _pan_start(ev: PanEvent): void {
     this._select_event(ev, true, [this.model.vertex_renderer])
     this._basepoint = [ev.sx, ev.sy]
   }
 
-  _pan(ev: GestureEvent): void {
+  _pan(ev: PanEvent): void {
     if (this._basepoint == null)
       return
     this._drag_points(ev, [this.model.vertex_renderer])
@@ -175,7 +175,7 @@ export class PolyEditToolView extends PolyToolView {
       this._selected_renderer.data_source.change.emit()
   }
 
-  _pan_end(ev: GestureEvent): void {
+  _pan_end(ev: PanEvent): void {
     if (this._basepoint == null)
       return
     this._drag_points(ev, [this.model.vertex_renderer])

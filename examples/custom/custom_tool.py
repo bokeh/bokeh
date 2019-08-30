@@ -9,19 +9,19 @@ output_file('custom_tool.html')
 JS_CODE = """
 import {GestureTool, GestureToolView} from "models/tools/gestures/gesture_tool"
 import {ColumnDataSource} from "models/sources/column_data_source"
-import {GestureEvent} from "core/ui_events"
+import {PanEvent} from "core/ui_events"
 import * as p from "core/properties"
 
 export class DrawToolView extends GestureToolView {
   model: DrawTool
 
   // this is executed when the pan/drag event starts
-  _pan_start(_e: GestureEvent): void {
+  _pan_start(_e: PanEvent): void {
     this.model.source.data = {x: [], y: []}
   }
 
   // this is executed on subsequent mouse/touch moves
-  _pan(e: GestureEvent): void {
+  _pan(e: PanEvent): void {
     const {frame} = this.plot_view
 
     const {sx, sy} = e
@@ -38,7 +38,7 @@ export class DrawToolView extends GestureToolView {
   }
 
   // this is executed then the pan/drag ends
-  _pan_end(_e: GestureEvent): void {}
+  _pan_end(_e: PanEvent): void {}
 }
 
 export namespace DrawTool {

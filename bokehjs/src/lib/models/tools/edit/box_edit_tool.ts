@@ -1,5 +1,5 @@
 import {Keys} from "core/dom"
-import {GestureEvent, TapEvent, KeyEvent, UIEvent, MoveEvent} from "core/ui_events"
+import {PanEvent, TapEvent, KeyEvent, UIEvent, MoveEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
 import * as p from "core/properties"
 import {Rect} from "../../glyphs/rect"
@@ -100,7 +100,7 @@ export class BoxEditToolView extends EditToolView {
     this._update_box(ev, false, false)
   }
 
-  _pan_start(ev: GestureEvent): void {
+  _pan_start(ev: PanEvent): void {
     if (ev.shiftKey) {
       if (this._draw_basepoint != null)
         return
@@ -114,7 +114,7 @@ export class BoxEditToolView extends EditToolView {
     }
   }
 
-  _pan(ev: GestureEvent, append: boolean = false, emit: boolean = false): void {
+  _pan(ev: PanEvent, append: boolean = false, emit: boolean = false): void {
     if (ev.shiftKey) {
       if (this._draw_basepoint == null)
         return
@@ -126,7 +126,7 @@ export class BoxEditToolView extends EditToolView {
     }
   }
 
-  _pan_end(ev: GestureEvent): void {
+  _pan_end(ev: PanEvent): void {
     this._pan(ev, false, true)
     if (ev.shiftKey) {
       this._draw_basepoint = null

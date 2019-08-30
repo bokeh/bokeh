@@ -11,7 +11,7 @@ import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {PolyDrawTool, PolyDrawToolView} from "@bokehjs/models/tools/edit/poly_draw_tool"
 
-import {make_gesture_event, make_tap_event, make_move_event, make_key_event} from "./utils"
+import {make_pan_event, make_tap_event, make_move_event, make_key_event} from "./utils"
 
 export interface PolyDrawTestCase {
   data: {[key: string]: (number[] | null)[]}
@@ -147,9 +147,9 @@ describe("PolyDrawTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]))
-      const start_event = make_gesture_event(300, 300)
+      const start_event = make_pan_event(300, 300)
       testcase.draw_tool_view._pan_start(start_event)
-      const pan_event = make_gesture_event(290, 290)
+      const pan_event = make_pan_event(290, 290)
       testcase.draw_tool_view._pan(pan_event)
       testcase.draw_tool_view._pan_end(pan_event)
 
@@ -166,10 +166,10 @@ describe("PolyDrawTool", (): void => {
       const start_event1 = make_tap_event(300, 300)
       hit_test_stub.returns(create_hit_test_result_from_hits([[0, 0]]))
       testcase.draw_tool_view._tap(start_event1)
-      const start_event2 = make_gesture_event(300, 300)
+      const start_event2 = make_pan_event(300, 300)
       hit_test_stub.returns(create_hit_test_result_from_hits([[1, 0]]))
       testcase.draw_tool_view._pan_start(start_event2)
-      const pan_event = make_gesture_event(290, 290)
+      const pan_event = make_pan_event(290, 290)
       testcase.draw_tool_view._pan(pan_event)
       testcase.draw_tool_view._pan_end(pan_event)
 
