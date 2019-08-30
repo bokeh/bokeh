@@ -11,7 +11,7 @@ additional dependencies. These dependencies can be installed via conda:
 
 .. code-block:: sh
 
-    conda install selenium phantomjs pillow
+    conda install selenium phantomjs
 
 Alternatively, you can install phantomjs from npm via
 
