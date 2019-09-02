@@ -297,7 +297,7 @@ class BokehTornado(TornadoApplication):
         if login_handler and not issubclass(login_handler, RequestHandler):
             raise ValueError("LoginHandler must be a Tornado RequestHandler")
         # This just catches some common cases up front, let tornado barf on any others
-        if login_handler and (login_url.startswith("http") or login_url.startswith("//")):
+        if login_handler and (login_url.startswith("http:") or login_url.startswith("https:") or login_url.startswith("//")):
             raise ValueError("LoginHandler can only be used with a relative login_url")
         self._login_url = login_url
         self._login_handler = login_handler
