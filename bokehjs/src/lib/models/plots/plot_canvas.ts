@@ -469,9 +469,7 @@ export class PlotView extends LayoutDOMView {
     // we avoid the limitation of max 16 contexts that most browsers have.
     if (global_gl == null) {
       const canvas = document.createElement('canvas')
-
-      const opts: WebGLContextAttributes = {premultipliedAlpha: true}
-      const ctx = canvas.getContext("webgl", opts) || canvas.getContext("experimental-webgl", opts)
+      const ctx = canvas.getContext("webgl", {premultipliedAlpha: true})
 
       // If WebGL is available, we store a reference to the gl canvas on
       // the ctx object, because that's what gets passed everywhere.
