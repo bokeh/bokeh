@@ -652,8 +652,8 @@ can be found in the examples directory:
 * :bokeh-tree:`examples/howto/server_embed/tornado_embed.py`
 
 Also note that most every command line argument for ``bokeh serve`` has a
-corresponding keyword argument to ``Server``. For instance setting the
---allow-sebsocket-origin`` command line argument is equivalent to passing
+corresponding keyword argument to ``Server``. For instance, setting the
+`--allow-websocket-origin` command line argument is equivalent to passing
 ``allow_websocket_origin`` as a parameter.
 
 .. _userguide_server_bokeh_client:
@@ -1157,7 +1157,7 @@ instance, we typically want to restict the Bokeh server to honoring *only*
 requests that originate from our ``acme.com`` page, so that other pages cannot
 embed our Bokeh app without our knowledge.
 
-This can be accomplished  by setting the ``--allow-sebsocket-origin`` command
+This can be accomplished  by setting the ``--allow-websocket-origin`` command
 line argument:
 
 .. code-block:: sh
@@ -1174,7 +1174,7 @@ origin than  ``acme.com``, and the Bokeh server will reject them.
     determined and knowledgeble attacker can spoof Origin headers.
 
 If multiple allowed origins are required, then multiple instances of
-``--allow-sebsocket-origin`` can be passed on the command line.
+``--allow-websocket-origin`` can be passed on the command line.
 
 It is also possible to configure a Bokeh server to allow any and all connections
 Regardless of origin:
