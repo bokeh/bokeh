@@ -35,7 +35,7 @@
     "yargs": "^13.2.2",
     "jsdom": "^9.8.3",
     "websocket": "^1.0.28",
-    "typescript": "3.5.1",
+    "typescript": "3.6.2",
     "tslint": "^5.16.0",
     "tsconfig-paths": "^3.8.0",
     "coffeescript": "^2.3.2",
@@ -73,7 +73,7 @@
     "@typescript-eslint/parser": "^1.13.0"
   },
   "dependencies": {
-    "tslib": "^1.9.3",
+    "tslib": "^1.10.0",
     "canvas2svg": "https://github.com/bokeh/canvas2svg#v1.0.21",
     "es5-ext": "^0.10.50",
     "es6-promise": "4.2.6",
