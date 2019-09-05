@@ -83,6 +83,20 @@ Otherwise, You can see an index of all running applications at the server root:
 This index can be disabled with the ``--disable-index`` option, and the redirect
 behavior can be disabled with the ``--disable-index-redirect`` option.
 
+Another way to run multiple applications is using glob notation to indicate
+that all the files matching a particular pattern should be served.
+
+.. code-block:: sh
+
+    bokeh serve *.py
+
+Note that when the filename is wrapped in quotes, the  ``--glob`` flag turns on
+glob parsing.
+
+.. code-block:: sh
+
+    bokeh serve '*.py' --glob
+
 Application Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
