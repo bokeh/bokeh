@@ -327,6 +327,7 @@ log = logging.getLogger(__name__)
 import argparse
 from fnmatch import fnmatch
 import os
+from glob import glob
 
 # External imports
 from tornado.autoreload import watch
@@ -564,6 +565,11 @@ class Serve(Subcommand):
             default=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
             type=int,
         )),
+
+        ('--glob', dict(
+            action='store_true',
+            help='Process all filenames as globs',
+        )),
     )
 
     def invoke(self, args):
@@ -588,8 +594,15 @@ class Serve(Subcommand):
         # even if Tornado is not installed
         from bokeh.server.server import Server
 
-        argvs = { f : args.args for f in args.files}
-        applications = build_single_handler_applications(args.files, argvs)
+        files = []
+        for f in args.files:
+            if args.glob and '*' in f:
+                files.extend(glob(f))
+            else:
+                files.append(f)
+
+        argvs = { f : args.args for f in files}
+        applications = build_single_handler_applications(files, argvs)
 
         if len(applications) == 0:
             # create an empty application by default

@@ -258,6 +258,11 @@ def test_args():
             default=20*1024*1024,
             type=int,
         )),
+
+        ('--glob', dict(
+            action='store_true',
+            help='Process all filenames as globs',
+        )),
     )
 
 
