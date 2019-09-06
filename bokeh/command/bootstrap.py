@@ -51,6 +51,7 @@ import argparse
 # Bokeh imports
 from bokeh import __version__
 from bokeh.util.string import nice_join
+from bokeh.settings import settings
 
 from .util import die
 from . import subcommands
@@ -113,7 +114,10 @@ def main(argv):
     try:
         ret = args.invoke(args)
     except Exception as e:
-        die("ERROR: " + str(e))
+        if settings.dev:
+            raise
+        else:
+            die("ERROR: " + str(e))
 
     if ret is False:
         sys.exit(1)
