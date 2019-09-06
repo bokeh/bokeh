@@ -90,14 +90,14 @@ that all the files matching a particular pattern should be served.
 
     bokeh serve *.py
 
-Command line shells will normally expand the "*.py" automatically. However,
+Command line shells will normally expand the ``*.py`` automatically. However,
 if you are starting a Bokeh server programmatically, then filename arguments
 with globs may not be expanded by the shell. In situations like this, the
 ``--glob`` flag may be used to make the Bokeh server explicitly perform globbing:
 
 .. code-block:: python
 
-    subprocess.call(["bokeh", "serve", "--glob", "*py"])
+    subprocess.call(["bokeh", "serve", "--glob", "*.py"])
 
 Application Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~
