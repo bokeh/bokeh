@@ -29,7 +29,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from abc import ABCMeta, abstractmethod, abstractproperty
+from abc import ABCMeta, abstractmethod
 
 # External imports
 from tornado import gen
@@ -248,7 +248,8 @@ class ServerContext(with_metaclass(ABCMeta)):
 
     # Properties --------------------------------------------------------------
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def sessions(self):
         ''' ``SessionContext`` instances belonging to this application.
 
@@ -377,7 +378,8 @@ class SessionContext(with_metaclass(ABCMeta)):
 
     # Properties --------------------------------------------------------------
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def destroyed(self):
         ''' If ``True``, the session has been discarded and cannot be used.
 
