@@ -258,6 +258,11 @@ def test_args():
             default=20*1024*1024,
             type=int,
         )),
+
+        ('--glob', dict(
+            action='store_true',
+            help='Process all filenames as globs',
+        )),
     )
 
 
@@ -309,6 +314,40 @@ def test_port_not_available():
         assert expected in out
     finally:
         sock.close()
+
+def test_no_glob_by_default_on_filename_if_wildcard_in_quotes():
+    import os.path
+
+    here = os.path.abspath(os.path.dirname(__file__))
+    path = os.path.join(here, 'apps', '*.py')
+    out = check_error([path])
+    expected = "ERROR: Path for Bokeh server application does not exist:"
+    assert expected in out
+    assert '*' in out
+
+@pytest.mark.skipif(six.PY2, reason="Travis bug causes bad file descriptor")
+def test_glob_flag_on_filename_if_wildcard_in_quotes():
+    from fcntl import fcntl, F_GETFL, F_SETFL
+    from os import O_NONBLOCK, read
+    import os.path
+
+    pat = re.compile(r'Bokeh app running at: http://localhost:(\d+)/line_on_off')
+    m = None
+    here = os.path.abspath(os.path.dirname(__file__))
+    path = os.path.join(here, 'apps', '*.py')
+
+    with run_bokeh_serve(["--port", "0", "--glob", path]) as p:
+        flags = fcntl(p.stdout, F_GETFL)
+        fcntl(p.stdout, F_SETFL, flags | O_NONBLOCK)
+        sleep(2)
+        o = read(p.stdout.fileno(), 100*1024)
+        m = pat.search(o.decode())
+        if m is None:
+            pytest.fail("no matching log line in process output")
+        port = int(m.group(1))
+        assert port > 0
+        r = requests.get("http://localhost:%d/apply_theme" % (port,))
+        assert r.status_code == 200
 
 @pytest.mark.skipif(six.PY2, reason="Travis bug causes bad file descriptor")
 def test_actual_port_printed_out():

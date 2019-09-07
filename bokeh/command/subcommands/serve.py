@@ -83,6 +83,22 @@ Otherwise, You can see an index of all running applications at the server root:
 This index can be disabled with the ``--disable-index`` option, and the redirect
 behavior can be disabled with the ``--disable-index-redirect`` option.
 
+Another way to run multiple applications is using glob notation to indicate
+that all the files matching a particular pattern should be served.
+
+.. code-block:: sh
+
+    bokeh serve *.py
+
+Command line shells will normally expand the ``*.py`` automatically. However,
+if you are starting a Bokeh server programmatically, then filename arguments
+with globs may not be expanded by the shell. In situations like this, the
+``--glob`` flag may be used to make the Bokeh server explicitly perform globbing:
+
+.. code-block:: python
+
+    subprocess.call(["bokeh", "serve", "--glob", "*.py"])
+
 Application Configuration
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -327,6 +343,7 @@ log = logging.getLogger(__name__)
 import argparse
 from fnmatch import fnmatch
 import os
+from glob import glob
 
 # External imports
 from tornado.autoreload import watch
@@ -564,6 +581,11 @@ class Serve(Subcommand):
             default=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
             type=int,
         )),
+
+        ('--glob', dict(
+            action='store_true',
+            help='Process all filenames as globs',
+        )),
     )
 
     def invoke(self, args):
@@ -588,8 +610,15 @@ class Serve(Subcommand):
         # even if Tornado is not installed
         from bokeh.server.server import Server
 
-        argvs = { f : args.args for f in args.files}
-        applications = build_single_handler_applications(args.files, argvs)
+        files = []
+        for f in args.files:
+            if args.glob:
+                files.extend(glob(f))
+            else:
+                files.append(f)
+
+        argvs = { f : args.args for f in files}
+        applications = build_single_handler_applications(files, argvs)
 
         if len(applications) == 0:
             # create an empty application by default
