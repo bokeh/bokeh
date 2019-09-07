@@ -397,6 +397,7 @@ from bokeh.application import Application
 from bokeh.resources import DEFAULT_SERVER_PORT
 from bokeh.util.logconfig import basicConfig
 from bokeh.util.string import nice_join, format_docstring
+from bokeh.server.auth_provider import AuthModule, NullAuth
 from bokeh.server.tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES
 from bokeh.settings import settings
 
@@ -727,7 +728,10 @@ class Serve(Subcommand):
                 "the `bokeh secret` command can be used to generate a new key.")
 
         auth_module_path = settings.auth_module(getattr(args, 'auth_module', None))
-        server_kwargs.update(self._process_auth_module(auth_module_path))
+        if auth_module_path:
+            server_kwargs['auth_provider'] = AuthModule(auth_module_path)
+        else:
+            server_kwargs['auth_provider'] = NullAuth()
 
         server_kwargs['cookie_secret'] = settings.cookie_secret(getattr(args, 'cookie_secret', None))
         server_kwargs['use_index'] = not args.disable_index
@@ -787,40 +791,6 @@ class Serve(Subcommand):
 
             log.info("Starting Bokeh server with process id: %d" % os.getpid())
             server.run_until_shutdown()
-
-    def _process_auth_module(self, path):
-        '''
-
-        '''
-        if not path:
-            return {}
-
-        try:
-            import importlib.util
-            spec = importlib.util.spec_from_file_location("bokeh.auth", path)
-            m = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(m)
-
-        except ImportError:
-            try:
-                 # python 3.4
-                from importlib.machinery import SourceFileLoader
-                m = SourceFileLoader("module.name", "/path/to/file.py").load_module()
-
-            except ImportError:
-                # python 2
-                import imp
-                m = imp.load_source('module.name', '/path/to/file.py')
-
-        result = {}
-        for name in ('get_user', 'get_user_async', 'login_url', 'get_login_url', 'logout_url', 'get_logout_url'):
-            if hasattr(m, name):
-                result[name] = getattr(m, name)
-        if hasattr(m, 'LoginHandler'):
-            result['login_handler'] = getattr(m, 'LoginHandler')
-        if hasattr(m, 'LogoutHandler'):
-            result['logout_handler'] = getattr(m, 'LogoutHandler')
-        return result
 
 #-----------------------------------------------------------------------------
 # Dev API
