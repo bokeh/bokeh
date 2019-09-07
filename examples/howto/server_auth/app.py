@@ -18,8 +18,7 @@ import numpy as np
 
 from bokeh.io import curdoc
 from bokeh.layouts import row, column
-from bokeh.models import ColumnDataSource
-from bokeh.models.widgets import Slider, TextInput
+from bokeh.models import Button, ColumnDataSource, CustomJS, Slider, TextInput
 from bokeh.plotting import figure
 
 # Set up data
@@ -43,7 +42,8 @@ offset = Slider(title="offset", value=0.0, start=-5.0, end=5.0, step=0.1)
 amplitude = Slider(title="amplitude", value=1.0, start=-5.0, end=5.0, step=0.1)
 phase = Slider(title="phase", value=0.0, start=0.0, end=2*np.pi)
 freq = Slider(title="frequency", value=1.0, start=0.1, end=5.1, step=0.1)
-
+logout = Button(label="logout")
+logout.js_on_click(CustomJS(code="window.location.href='/logout'"))
 
 # Set up callbacks
 def update_title(attrname, old, new):
@@ -70,7 +70,7 @@ for w in [offset, amplitude, phase, freq]:
 
 
 # Set up layouts and add to document
-inputs = column(text, offset, amplitude, phase, freq)
+inputs = column(text, offset, amplitude, phase, freq, logout)
 
 curdoc().add_root(row(inputs, plot, width=800))
 curdoc().title = "Sliders"

@@ -3,7 +3,7 @@ from tornado.web import RequestHandler
 
 # could also define async_get_user
 def get_user(request_handler):
-    return request_handler.get_secure_cookie("user")
+    return request_handler.get_cookie("user")
 
 # could also define get_login_url func (but give up LoginHandler)
 login_url = "/login"
@@ -36,6 +36,16 @@ class LoginHandler(RequestHandler):
 
     def set_current_user(self, user):
         if user:
-            self.set_secure_cookie("user", tornado.escape.json_encode(user))
+            self.set_cookie("user", tornado.escape.json_encode(user))
         else:
             self.clear_cookie("user")
+
+# could also define get_login_url func (but give up LogoutHandler)
+logout_url = "/logout"
+
+# optional logout handler at logout_url
+class LogoutHandler(RequestHandler):
+
+    def get(self):
+        self.clear_cookie("user")
+        self.redirect(self.get_argument("next", "/"))

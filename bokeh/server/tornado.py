@@ -213,6 +213,9 @@ class BokehTornado(TornadoApplication):
                  login_url=None,
                  login_handler=None,
                  get_login_url=None,
+                 logout_url=None,
+                 logout_handler=None,
+                 get_logout_url=None,
                  get_user=None,
                  get_user_async=None,
                  **kwargs):
@@ -293,7 +296,7 @@ class BokehTornado(TornadoApplication):
         if login_url and get_login_url:
             raise ValueError("At most one of login_url or get_login_url should be supplied")
         if login_handler and get_login_url:
-            raise ValueError("LoginHandler cannot be used with get_login_url()")
+            raise ValueError("LoginHandler cannot be used with a get_login_url() function")
         if login_handler and not issubclass(login_handler, RequestHandler):
             raise ValueError("LoginHandler must be a Tornado RequestHandler")
         # This just catches some common cases up front, let tornado barf on any others
@@ -302,6 +305,19 @@ class BokehTornado(TornadoApplication):
         self._login_url = login_url
         self._login_handler = login_handler
         self._get_login_url = get_login_url
+
+        if logout_url and get_logout_url:
+            raise ValueError("At most one of logout_url or get_logout_url should be supplied")
+        if logout_handler and get_logout_url:
+            raise ValueError("LogoutHandler cannot be used with get_logout_url() function")
+        if logout_handler and not issubclass(logout_handler, RequestHandler):
+            raise ValueError("LoginHandler must be a Tornado RequestHandler")
+        # This just catches some common cases up front, let tornado barf on any others
+        if logout_handler and (logout_url.startswith("http:") or logout_url.startswith("https:") or logout_url.startswith("//")):
+            raise ValueError("LogoutHandler can only be used with a relative login_url")
+        self._logout_url = logout_url
+        self._logout_handler = logout_handler
+        self._get_logout_url = get_logout_url
 
         if self.get_user or self._get_user_async:
             log.info("User authentication hooks provided (default user enabled)")
@@ -325,6 +341,8 @@ class BokehTornado(TornadoApplication):
         extra_patterns = extra_patterns or []
         if login_handler:
             extra_patterns.append((login_url, login_handler))
+        if logout_handler:
+            extra_patterns.append((logout_url, logout_handler))
 
         all_patterns = []
         for key, app in applications.items():

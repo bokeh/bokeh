@@ -294,9 +294,12 @@ When a relative ``login_url`` is given, an optional ``LoginHandler`` class may
 also be provided, and it will be installed as a route on the Bokeh server
 automatically.
 
-The ``get_url_function`` function is useful in cases where the login URL must
+The ``get_login_url`` function is useful in cases where the login URL must
 vary based on the request, or cookies, etc. It is not possible to specify a
 ``LoginHandler`` when ``get_url_function`` is defined.
+
+Analogous to the login options, option ``logout_url``,  ``get_logout_url``,
+and ``LogoutHandler`` values may be define and endopoint for logging users out.
 
 If no auth module is provided, then a default user will be assumed, and no
 authentication will be required to access Bokeh server endpoints.
@@ -810,11 +813,13 @@ class Serve(Subcommand):
                 m = imp.load_source('module.name', '/path/to/file.py')
 
         result = {}
-        for name in ('get_user', 'get_user_async', 'login_url', 'get_login_url'):
+        for name in ('get_user', 'get_user_async', 'login_url', 'get_login_url', 'logout_url', 'get_logout_url'):
             if hasattr(m, name):
                 result[name] = getattr(m, name)
         if hasattr(m, 'LoginHandler'):
             result['login_handler'] = getattr(m, 'LoginHandler')
+        if hasattr(m, 'LogoutHandler'):
+            result['logout_handler'] = getattr(m, 'LogoutHandler')
         return result
 
 #-----------------------------------------------------------------------------
