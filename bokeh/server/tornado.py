@@ -257,9 +257,9 @@ class BokehTornado(TornadoApplication):
                      websocket_max_message_size_bytes,
                      websocket_max_message_size_bytes/1024.0**2)
 
-        self._auth_provider = auth_provider
+        self.auth_provider = auth_provider
 
-        if self.get_user or self.get_user_async:
+        if self.auth_provider.get_user or self.auth_provider.get_user_async:
             log.info("User authentication hooks provided (no default user)")
         else:
             log.info("User authentication hooks NOT provided (default user enabled)")
@@ -279,7 +279,7 @@ class BokehTornado(TornadoApplication):
             self._applications[k] = ApplicationContext(v,url=k)
 
         extra_patterns = extra_patterns or []
-        extra_patterns.extend(self._auth_provider.endpoints)
+        extra_patterns.extend(self.auth_provider.endpoints)
 
         all_patterns = []
         for key, app in applications.items():
@@ -424,36 +424,6 @@ class BokehTornado(TornadoApplication):
 
         '''
         return self._generate_session_ids
-
-    @property
-    def login_url(self):
-        '''
-
-        '''
-        return self._auth_provider.login_url
-
-
-    @property
-    def get_login_url(self):
-        '''
-
-        '''
-        return self._auth_provider.get_login_url
-
-
-    @property
-    def get_user(self):
-        '''
-
-        '''
-        return self._auth_provider.get_user
-
-    @property
-    def get_user_async(self):
-        '''
-
-        '''
-        return self._auth_provider.get_user_async
 
     def resources(self, absolute_url=None):
         ''' Provide a :class:`~bokeh.resources.Resources` that specifies where

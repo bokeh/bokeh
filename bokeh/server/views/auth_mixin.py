@@ -52,18 +52,18 @@ class AuthMixin(object):
         '''
 
         '''
-        if self.application.get_login_url:
-            return self.application.get_login_url(self)
-        if self.application.login_url:
-            return self.application.login_url
+        if self.application.auth_provider.get_login_url:
+            return self.application.auth_provider.get_login_url(self)
+        if self.application.auth_provider.login_url:
+            return self.application.auth_provider.login_url
         raise RuntimeError('login_url or get_login_url() must be supplied when authentication hooks are enabled')
 
     def get_current_user(self):
         '''
 
         '''
-        if self.application.get_user:
-            return self.application.get_user(self)
+        if self.application.auth_provider.get_user:
+            return self.application.auth_provider.get_user(self)
         return "default_user"
 
     @gen.coroutine
@@ -71,8 +71,8 @@ class AuthMixin(object):
         '''
 
         '''
-        if self.application.get_user_async:
-            self.current_user = yield self.application.get_user_async(self)
+        if self.application.auth_provider.get_user_async:
+            self.current_user = yield self.application.auth_provider.get_user_async(self)
 
 #-----------------------------------------------------------------------------
 # Private API

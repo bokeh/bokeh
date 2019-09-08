@@ -1,4 +1,4 @@
-'''
+''' Provide a hook for supplying authorization mechanisms to a Bokeh server.
 
 '''
 
@@ -39,47 +39,131 @@ __all__ = (
 
 # TODO (bev) make this an ABC but wait until Bokeh 2 / drop Python 2.7
 class AuthProvider(object):
-    '''
+    ''' Abstract base class for implementing authorization hooks.
 
-        login_url (str, optional):
-            URL to redirect unathenticated users to for login
+    Subclasses must supply one of: ``get_user`` or ``get_user_async``.
 
-        login_hander (type, optional):
-            A subclass of RequestHandler that will be installed as a route for
-            login_url
+    Subclasses must also supply one of ``login_url`` or ``get_login_url``.
 
-            NOTE: login_url must be a relative URL to use login_handler
+    Optionally, if ``login_url`` provides a relative URL, then ``login_handler``
+    may also be supplied.
 
-        get_login_url (callable, optional):
-            A function that accepts a tornado RequestHandler and returns a login
-            URL for unathenticated users.
-
-            NOTE: login_handler cannot be used together with get_login_url
-
-        get_user (callable, optional):
-            A function that accepts a tornado RequestHandler and returns the
-            current authenticated user, or None.
-
-        get_user_async (callable, optional):
-            An async function that accepts a tornado RequestHandler and returns
-            then current authenticated user, or None
+    The properties ``logout_url``, ``get_logout_url`` and ``get_logout_hander``
+    are analogous to the corresponding login properties, and all optional.
 
     '''
 
     def __init__(self):
-        '''
-
-        '''
         self._validate()
 
     @property
     def endpoints(self):
+        ''' URL patterns for login/logout endpoints.
+
+        '''
         endpoints = []
         if self.login_handler:
             endpoints.append((self.login_url, self.login_handler))
         if self.logout_handler:
             endpoints.append((self.logout_url, self.logout_handler))
         return endpoints
+
+        @property
+        def get_login_url(self):
+            ''' A function that computes a URL to redirect unathenticated users
+            to for login.
+
+            This proprty may return None, if a ``login_url`` is supplied
+            instead.
+
+            If a function is returned, it should accept a ``RequestHandler``
+            and return a login URL for unathenticated users.
+
+            '''
+            pass
+
+        @property
+        def get_logout_url(self):
+            ''' A function that computes a URL to redirect athenticated users
+            to for logout.
+
+            This proprty may return None.
+
+            If a function is returned, it should accept a ``RequestHandler``
+            and return a logout URL for unathenticated users.
+
+            '''
+            pass
+
+        @property
+        def get_user(self):
+            ''' A function to get the current authenticated user.
+
+            This property may return None, if a ``get_user_async`` function is
+            supplied instead.
+
+            If a function is returned, it should accept a ``RequestHandler``
+            and return the current authenticated user.
+
+            '''
+            pass
+
+        @property
+        def get_user_async(self):
+            ''' An aysnc function to get the current authenticated user.
+
+            This property may return None, if a ``get_user`` function is supplied
+            instead.
+
+            If a function is returned, it should accept a ``RequestHandler``
+            and return the current authenticated user.
+
+            '''
+            pass
+
+        @property
+        def login_hander(self):
+            ''' A request handler class for a login page.
+
+            This property may return None, if ``login_url`` is supplied
+            instead.
+
+            If a class is returned, it must be a subclass of RequestHandler,
+            which will used for the endpoint specified by ``logout_url``
+
+            '''
+            pass
+
+        @property
+        def login_url(self):
+            ''' A URL to redirect unathenticated users to for login.
+
+            This proprty may return None, if a ``get_login_url`` function is
+            supplied instead.
+
+            '''
+            pass
+
+        @property
+        def logout_hander(self):
+            ''' A request handler class for a logout page.
+
+            This property may return None.
+
+            If a class is returned, it must be a subclass of RequestHandler,
+            which will used for the endpoint specified by ``logout_url``
+
+            '''
+            pass
+
+        @property
+        def logout_url(self):
+            ''' A URL to redirect unathenticated users to for logout.
+
+            This proprty may return None.
+
+            '''
+            pass
 
     def _validate(self):
         if self.get_user and self.get_user_async:
@@ -97,7 +181,7 @@ class AuthProvider(object):
         if self.login_handler and not issubclass(self.login_handler, RequestHandler):
             raise ValueError("LoginHandler must be a Tornado RequestHandler")
         # This just catches some common cases up front, let tornado barf on any others
-        if self.login_url and not _probably_relative_url(self.login_url):
+        if self.login_url and not probably_relative_url(self.login_url):
             raise ValueError("LoginHandler can only be used with a relative login_url")
 
         if self.logout_url and self.get_logout_url:
@@ -107,11 +191,27 @@ class AuthProvider(object):
         if self.logout_handler and not issubclass(self.logout_handler, RequestHandler):
             raise ValueError("LoginHandler must be a Tornado RequestHandler")
         # This just catches some common cases up front, let tornado barf on any others
-        if self.logout_url and not _probably_relative_url(self.logout_url):
+        if self.logout_url and not probably_relative_url(self.logout_url):
             raise ValueError("LogoutHandler can only be used with a relative login_url")
 
 class AuthModule(AuthProvider):
-    '''
+    ''' An AuthProvider configured from a Python module.
+
+    The following properties return the corresponding values from the module if
+    they exist, or None otherwise:
+
+    * ``get_login_url``,
+    * ``get_logout_url``
+    * ``get_user``
+    * ``get_user_async``
+    * ``login_url``
+    * ``logout_url``
+
+    The ``login_handler`` property will return a ``LoginHandler`` class from the
+    module, or None otherwise.
+
+    The ``logout_handler`` property will return a ``LogoutHandler`` class from
+    the module, or None otherwise.
 
     '''
 
@@ -156,7 +256,9 @@ class AuthModule(AuthProvider):
         return getattr(self._module, 'LogoutHandler', None)
 
 class NullAuth(AuthProvider):
-    '''
+    ''' A default no-auth AuthProvider.
+
+    All of the properties of this provider return None.
 
     '''
     @property
@@ -196,7 +298,13 @@ class NullAuth(AuthProvider):
 #-----------------------------------------------------------------------------
 
 def load_auth_module(module_path):
-    '''
+    ''' Load a Python source file at a given path as a module.
+
+    Arguments:
+        module_path (str): path to a Python source file
+
+    Returns
+        module
 
     '''
     try:
@@ -218,12 +326,21 @@ def load_auth_module(module_path):
 
     return module
 
+def probably_relative_url(url):
+    ''' Return True if a URL is not one of the common absolute URL formats.
+
+    Arguments:
+        url (str): a URL string
+
+    Returns
+        bool
+
+    '''
+    return not (url.startswith("http:") or url.startswith("https:") or url.startswith("//"))
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
-
-def _probably_relative_url(url):
-    return not (url.startswith("http:") or url.startswith("https:") or url.startswith("//"))
 
 #-----------------------------------------------------------------------------
 # Code
