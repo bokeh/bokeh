@@ -22,7 +22,6 @@ from tornado.web import RequestHandler
 
 # Bokeh imports
 
-
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -48,8 +47,8 @@ class AuthProvider(object):
     Optionally, if ``login_url`` provides a relative URL, then ``login_handler``
     may also be supplied.
 
-    The properties ``logout_url``, ``get_logout_url`` and ``get_logout_hander``
-    are analogous to the corresponding login properties, and all optional.
+    The properties ``logout_url`` and ``get_logout_hander`` are analogous to
+    the corresponding login properties, and are optional.
 
     '''
 
@@ -78,19 +77,6 @@ class AuthProvider(object):
 
             If a function is returned, it should accept a ``RequestHandler``
             and return a login URL for unathenticated users.
-
-            '''
-            pass
-
-        @property
-        def get_logout_url(self):
-            ''' A function that computes a URL to redirect athenticated users
-            to for logout.
-
-            This proprty may return None.
-
-            If a function is returned, it should accept a ``RequestHandler``
-            and return a logout URL for unathenticated users.
 
             '''
             pass
@@ -180,17 +166,11 @@ class AuthProvider(object):
             raise ValueError("LoginHandler cannot be used with a get_login_url() function")
         if self.login_handler and not issubclass(self.login_handler, RequestHandler):
             raise ValueError("LoginHandler must be a Tornado RequestHandler")
-        # This just catches some common cases up front, let tornado barf on any others
         if self.login_url and not probably_relative_url(self.login_url):
             raise ValueError("LoginHandler can only be used with a relative login_url")
 
-        if self.logout_url and self.get_logout_url:
-            raise ValueError("At most one of logout_url or get_logout_url should be supplied")
-        if self.logout_handler and self.get_logout_url:
-            raise ValueError("LogoutHandler cannot be used with get_logout_url() function")
         if self.logout_handler and not issubclass(self.logout_handler, RequestHandler):
-            raise ValueError("LoginHandler must be a Tornado RequestHandler")
-        # This just catches some common cases up front, let tornado barf on any others
+            raise ValueError("LogoutHandler must be a Tornado RequestHandler")
         if self.logout_url and not probably_relative_url(self.logout_url):
             raise ValueError("LogoutHandler can only be used with a relative login_url")
 
@@ -201,7 +181,6 @@ class AuthModule(AuthProvider):
     they exist, or None otherwise:
 
     * ``get_login_url``,
-    * ``get_logout_url``
     * ``get_user``
     * ``get_user_async``
     * ``login_url``
@@ -248,10 +227,6 @@ class AuthModule(AuthProvider):
         return getattr(self._module, 'logout_url', None)
 
     @property
-    def get_logout_url(self):
-        return getattr(self._module, 'get_logout_url', None)
-
-    @property
     def logout_handler(self):
         return getattr(self._module, 'LogoutHandler', None)
 
@@ -283,10 +258,6 @@ class NullAuth(AuthProvider):
 
     @property
     def logout_url(self):
-        return None
-
-    @property
-    def get_logout_url(self):
         return None
 
     @property

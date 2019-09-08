@@ -417,7 +417,7 @@ class Settings(object):
     A path to a Python modules that implements user authentication functions for
     the Bokeh server.
 
-    .. warning:
+    .. warning::
         The contents of this module will be executed!
 
     """)

@@ -276,7 +276,7 @@ class BokehTornado(TornadoApplication):
         # Wrap applications in ApplicationContext
         self._applications = dict()
         for k,v in applications.items():
-            self._applications[k] = ApplicationContext(v,url=k)
+            self._applications[k] = ApplicationContext(v, url=k, logout_url=self.auth_provider.logout_url)
 
         extra_patterns = extra_patterns or []
         extra_patterns.extend(self.auth_provider.endpoints)

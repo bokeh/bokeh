@@ -40,10 +40,10 @@ class LoginHandler(RequestHandler):
         else:
             self.clear_cookie("user")
 
-# could also define get_login_url func (but give up LogoutHandler)
+# optional logout_url, available as curdoc().session_context.logout_url
 logout_url = "/logout"
 
-# optional logout handler at logout_url
+# optional logout handler for logout_url
 class LogoutHandler(RequestHandler):
 
     def get(self):
