@@ -450,10 +450,10 @@ base_serve_args = (
     )),
 
     ('--use-config', dict(
-        metavar='CONFIG',
-        type=str,
-        help="Use a YAML config file for settings",
-        default=None,
+        metavar = 'CONFIG',
+        type    = str,
+        help    = "Use a YAML config file for settings",
+        default = None,
     )),
 
 )
@@ -478,18 +478,18 @@ class Serve(Subcommand):
 
     args = base_serve_args + (
         ('files', dict(
-            metavar='DIRECTORY-OR-SCRIPT',
-            nargs='*',
-            help="The app directories or scripts to serve (serve empty document if not specified)",
-            default=None,
+            metavar = 'DIRECTORY-OR-SCRIPT',
+            nargs   = '*',
+            help    = "The app directories or scripts to serve (serve empty document if not specified)",
+            default = None,
         )),
 
         ('--args', dict(
-            metavar='COMMAND-LINE-ARGS',
-            nargs=argparse.REMAINDER,
-            help="Command line arguments remaining to passed on to the application handler. "
-                 "NOTE: if this argument precedes DIRECTORY-OR-SCRIPT then some other argument, e.g. "
-                 "--show, must be placed before the directory or script. ",
+            metavar = 'COMMAND-LINE-ARGS',
+            nargs   = argparse.REMAINDER,
+            help    = "Command line arguments remaining to passed on to the application handler. "
+                      "NOTE: if this argument precedes DIRECTORY-OR-SCRIPT then some other argument, e.g. "
+                      "--show, must be placed before the directory or script. ",
         )),
 
         ('--dev', dict(
@@ -501,7 +501,7 @@ class Serve(Subcommand):
             help    = "Enable live reloading during app development. "
                       "By default it watches all *.py *.html *.css *.yaml files "
                       "in the app directory tree. Additional files can be passed "
-                      "as arguments."
+                      "as arguments. "
                       "NOTE: if this argument precedes DIRECTORY-OR-SCRIPT then some other argument, e.g "
                       "--show, must be placed before the directory or script. "
                       "NOTE: This setting only works with a single app. "
@@ -512,80 +512,80 @@ class Serve(Subcommand):
         )),
 
         ('--show', dict(
-            action='store_true',
-            help="Open server app(s) in a browser",
+            action = 'store_true',
+            help   = "Open server app(s) in a browser",
         )),
 
         ('--allow-websocket-origin', dict(
-            metavar='HOST[:PORT]',
-            action='append',
-            type=str,
-            help="Public hostnames which may connect to the Bokeh websocket",
+            metavar = 'HOST[:PORT]',
+            action  = 'append',
+            type    = str,
+            help    = "Public hostnames which may connect to the Bokeh websocket",
         )),
 
         ('--prefix', dict(
-            metavar='PREFIX',
-            type=str,
-            help="URL prefix for Bokeh server URLs",
-            default=None,
+            metavar = 'PREFIX',
+            type    = str,
+            help    = "URL prefix for Bokeh server URLs",
+            default = None,
         )),
 
         ('--keep-alive', dict(
-            metavar='MILLISECONDS',
-            type=int,
-            help="How often to send a keep-alive ping to clients, 0 to disable.",
-            default=None,
+            metavar = 'MILLISECONDS',
+            type    = int,
+            help    = "How often to send a keep-alive ping to clients, 0 to disable.",
+            default = None,
         )),
 
         ('--check-unused-sessions', dict(
-            metavar='MILLISECONDS',
-            type=int,
-            help="How often to check for unused sessions",
-            default=None,
+            metavar = 'MILLISECONDS',
+            type    = int,
+            help    = "How often to check for unused sessions",
+            default = None,
         )),
 
         ('--unused-session-lifetime', dict(
-            metavar='MILLISECONDS',
-            type=int,
-            help="How long unused sessions last",
-            default=None,
+            metavar = 'MILLISECONDS',
+            type    = int,
+            help    = "How long unused sessions last",
+            default = None,
         )),
 
         ('--stats-log-frequency', dict(
-            metavar='MILLISECONDS',
-            type=int,
-            help="How often to log stats",
-            default=None,
+            metavar = 'MILLISECONDS',
+            type    = int,
+            help    = "How often to log stats",
+            default = None,
         )),
 
         ('--mem-log-frequency', dict(
-            metavar='MILLISECONDS',
-            type=int,
-            help="How often to log memory usage information",
-            default=None,
+            metavar = 'MILLISECONDS',
+            type    = int,
+            help    = "How often to log memory usage information",
+            default = None,
         )),
 
         ('--use-xheaders', dict(
-            action='store_true',
-            help="Prefer X-headers for IP/protocol information",
+            action = 'store_true',
+            help   = "Prefer X-headers for IP/protocol information",
         )),
 
         ('--ssl-certfile', dict(
-            metavar='CERTFILE',
+            metavar = 'CERTFILE',
             action  = 'store',
             default = None,
             help    = 'Absolute path to a certificate file for SSL termination',
         )),
 
         ('--ssl-keyfile', dict(
-            metavar='KEYFILE',
+            metavar = 'KEYFILE',
             action  = 'store',
             default = None,
             help    = 'Absolute path to a private key file for SSL termination',
         )),
 
         ('--session-ids', dict(
-            metavar='MODE',
+            metavar = 'MODE',
             action  = 'store',
             default = None,
             choices = SESSION_ID_MODES,
@@ -593,21 +593,21 @@ class Serve(Subcommand):
         )),
 
         ('--auth-module', dict(
-            metavar='AUTH_MODULE',
+            metavar = 'AUTH_MODULE',
             action  = 'store',
             default = None,
             help    = 'Absolute path to a Python modules that implements auth hooks',
         )),
 
         ('--cookie-secret', dict(
-            metavar='COOKIE_SECRET',
+            metavar = 'COOKIE_SECRET',
             action  = 'store',
             default = None,
             help    = 'Configure to enable getting/setting secure cookies',
         )),
 
         ('--index', dict(
-            metavar='INDEX',
+            metavar = 'INDEX',
             action  = 'store',
             default = None,
             help    = 'Path to a template to use for the site index',
@@ -615,30 +615,30 @@ class Serve(Subcommand):
 
         ('--disable-index', dict(
             action = 'store_true',
-            help    = 'Do not use the default index on the root path',
+            help   = 'Do not use the default index on the root path',
         )),
 
         ('--disable-index-redirect', dict(
             action = 'store_true',
-            help    = 'Do not redirect to running app from root path',
+            help   = 'Do not redirect to running app from root path',
         )),
 
         ('--num-procs', dict(
-            metavar='N',
-            action='store',
-            help="Number of worker processes for an app. Using "
-                 "0 will autodetect number of cores (defaults to 1)",
-            default=1,
-            type=int,
+            metavar = 'N',
+            action  = 'store',
+            help    = "Number of worker processes for an app. Using "
+                      "0 will autodetect number of cores (defaults to 1)",
+            default = 1,
+            type    = int,
         )),
 
         ('--websocket-max-message-size', dict(
-            metavar='BYTES',
-            action='store',
-            help="Set the Tornado websocket_max_message_size value (defaults "
-                 "to 20MB) NOTE: This setting has effect ONLY for Tornado>=4.5",
-            default=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
-            type=int,
+            metavar = 'BYTES',
+            action  = 'store',
+            help    = "Set the Tornado websocket_max_message_size value (defaults "
+                      "to 20MB) NOTE: This setting has effect ONLY for Tornado>=4.5",
+            default = DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
+            type    = int,
         )),
     )
 
