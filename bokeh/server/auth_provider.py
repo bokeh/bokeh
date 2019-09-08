@@ -67,89 +67,89 @@ class AuthProvider(object):
             endpoints.append((self.logout_url, self.logout_handler))
         return endpoints
 
-        @property
-        def get_login_url(self):
-            ''' A function that computes a URL to redirect unathenticated users
-            to for login.
+    @property
+    def get_login_url(self):
+        ''' A function that computes a URL to redirect unathenticated users
+        to for login.
 
-            This proprty may return None, if a ``login_url`` is supplied
-            instead.
+        This proprty may return None, if a ``login_url`` is supplied
+        instead.
 
-            If a function is returned, it should accept a ``RequestHandler``
-            and return a login URL for unathenticated users.
+        If a function is returned, it should accept a ``RequestHandler``
+        and return a login URL for unathenticated users.
 
-            '''
-            pass
+        '''
+        pass
 
-        @property
-        def get_user(self):
-            ''' A function to get the current authenticated user.
+    @property
+    def get_user(self):
+        ''' A function to get the current authenticated user.
 
-            This property may return None, if a ``get_user_async`` function is
-            supplied instead.
+        This property may return None, if a ``get_user_async`` function is
+        supplied instead.
 
-            If a function is returned, it should accept a ``RequestHandler``
-            and return the current authenticated user.
+        If a function is returned, it should accept a ``RequestHandler``
+        and return the current authenticated user.
 
-            '''
-            pass
+        '''
+        pass
 
-        @property
-        def get_user_async(self):
-            ''' An aysnc function to get the current authenticated user.
+    @property
+    def get_user_async(self):
+        ''' An aysnc function to get the current authenticated user.
 
-            This property may return None, if a ``get_user`` function is supplied
-            instead.
+        This property may return None, if a ``get_user`` function is supplied
+        instead.
 
-            If a function is returned, it should accept a ``RequestHandler``
-            and return the current authenticated user.
+        If a function is returned, it should accept a ``RequestHandler``
+        and return the current authenticated user.
 
-            '''
-            pass
+        '''
+        pass
 
-        @property
-        def login_hander(self):
-            ''' A request handler class for a login page.
+    @property
+    def login_hander(self):
+        ''' A request handler class for a login page.
 
-            This property may return None, if ``login_url`` is supplied
-            instead.
+        This property may return None, if ``login_url`` is supplied
+        instead.
 
-            If a class is returned, it must be a subclass of RequestHandler,
-            which will used for the endpoint specified by ``logout_url``
+        If a class is returned, it must be a subclass of RequestHandler,
+        which will used for the endpoint specified by ``logout_url``
 
-            '''
-            pass
+        '''
+        pass
 
-        @property
-        def login_url(self):
-            ''' A URL to redirect unathenticated users to for login.
+    @property
+    def login_url(self):
+        ''' A URL to redirect unathenticated users to for login.
 
-            This proprty may return None, if a ``get_login_url`` function is
-            supplied instead.
+        This proprty may return None, if a ``get_login_url`` function is
+        supplied instead.
 
-            '''
-            pass
+        '''
+        pass
 
-        @property
-        def logout_hander(self):
-            ''' A request handler class for a logout page.
+    @property
+    def logout_hander(self):
+        ''' A request handler class for a logout page.
 
-            This property may return None.
+        This property may return None.
 
-            If a class is returned, it must be a subclass of RequestHandler,
-            which will used for the endpoint specified by ``logout_url``
+        If a class is returned, it must be a subclass of RequestHandler,
+        which will used for the endpoint specified by ``logout_url``
 
-            '''
-            pass
+        '''
+        pass
 
-        @property
-        def logout_url(self):
-            ''' A URL to redirect unathenticated users to for logout.
+    @property
+    def logout_url(self):
+        ''' A URL to redirect unathenticated users to for logout.
 
-            This proprty may return None.
+        This proprty may return None.
 
-            '''
-            pass
+        '''
+        pass
 
     def _validate(self):
         if self.get_user and self.get_user_async:
