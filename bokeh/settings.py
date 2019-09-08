@@ -583,6 +583,17 @@ class Settings(object):
     See the :class:`~bokeh.resources.Resources` class reference for full details.
     """)
 
+    xsrf_cookies = PrioritizedSetting("xsrf_cookies", "BOKEH_XSRF_COOKIES", default=False, convert=convert_bool, help="""
+    Whether to enable Tornado XSRF cookie protetion on the Bokeh server. This
+    is only applicable when also using an auth module or custom handlers. See
+
+    https://www.tornadoweb.org/en/stable/guide/security.html#cross-site-request-forgery-protection
+
+    for more information about XSRF protection in Tornado. All PUT, POST, and
+    DELETE handlers will need to be appropriately instrumented when this setting
+    is active.
+    """)
+
     # Non-settings methods
 
     def bokehjsdir(self):

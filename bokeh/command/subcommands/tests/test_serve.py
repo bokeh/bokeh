@@ -231,6 +231,14 @@ def test_args():
             help    = 'Absolute path to a Python modules that implements auth hooks',
         )),
 
+        ('--enable-xsrf-cookies', dict(
+            action  = 'store_true',
+            default = False,
+            help    = 'Whether to enable Tornado support for XSRF cookies. All '
+                      'PUT, POST, or DELETE handlers must be properly instrumented '
+                      'when this setting is enabled.'
+        )),
+
         ('--cookie-secret', dict(
             metavar = 'COOKIE_SECRET',
             action  = 'store',

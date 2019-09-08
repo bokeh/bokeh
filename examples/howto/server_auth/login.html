@@ -64,6 +64,7 @@
 <body>
     <div class="wrap">
         <form class="login-form" action="/login" method="post">
+            {% module xsrf_form_html() %}
             <div class="form-header">
                 <h3><img src="https://static.bokeh.org/logos/logotype.svg"></h3>
                 <p> Login to access your application</p>

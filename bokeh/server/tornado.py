@@ -192,6 +192,7 @@ class BokehTornado(TornadoApplication):
                  websocket_max_message_size_bytes=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
                  index=None,
                  auth_provider=NullAuth(),
+                 xsrf_cookies=False,
                  **kwargs):
 
         # This will be set when initialize is called
@@ -263,6 +264,10 @@ class BokehTornado(TornadoApplication):
             log.info("User authentication hooks provided (no default user)")
         else:
             log.info("User authentication hooks NOT provided (default user enabled)")
+
+        kwargs['xsrf_cookies'] = xsrf_cookies
+        if xsrf_cookies:
+            log.info("XSRF cookie protection enabled")
 
         if extra_websocket_origins is None:
             self._websocket_origins = set()

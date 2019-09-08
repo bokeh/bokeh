@@ -69,6 +69,7 @@ _expected_settings = (
     'ssl_password',
     'strict',
     'version',
+    'xsrf_cookies',
 )
 
 class TestSettings(object):
@@ -93,6 +94,7 @@ class TestSettings(object):
         assert bs.settings.perform_document_validation.convert_type == "Bool"
         assert bs.settings.simple_ids.convert_type == "Bool"
         assert bs.settings.strict.convert_type == "Bool"
+        assert bs.settings.xsrf_cookies.convert_type == "Bool"
 
         assert bs.settings.py_log_level.convert_type == "Log Level"
 
@@ -105,7 +107,8 @@ class TestSettings(object):
             'simple_ids',
             'strict',
             'py_log_level',
-            'allowed_ws_origin'
+            'allowed_ws_origin',
+            'xsrf_cookies',
         ])
         for name in default_typed:
             ps = getattr(bs.settings, name)

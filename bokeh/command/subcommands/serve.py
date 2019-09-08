@@ -307,6 +307,15 @@ authentication will be required to access Bokeh server endpoints.
 .. warning:
     The contents of the auth module will be executed!
 
+Bokeh can also enable the use of Tornado's XFRF cookie protection. To turn this
+feature on, use the ``--enable-xsrf-cookies`` option, or set the environment
+variable ``BOKEH_XSRF_COOKIES=yes``. If this setting is enabled, any PUT, POST,
+or DELETE operations on custom or login handlers must be instrumented properly
+in order to function. Typically, this means adding the ``xsrf_form_html()``
+module to HTML form submissions templates. For full details, see:
+
+    https://www.tornadoweb.org/en/stable/guide/security.html#cross-site-request-forgery-protection
+
 Session Expiration Options
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -599,6 +608,14 @@ class Serve(Subcommand):
             help    = 'Absolute path to a Python modules that implements auth hooks',
         )),
 
+        ('--enable-xsrf-cookies', dict(
+            action  = 'store_true',
+            default = False,
+            help    = 'Whether to enable Tornado support for XSRF cookies. All '
+                      'PUT, POST, or DELETE handlers must be properly instrumented '
+                      'when this setting is enabled.'
+        )),
+
         ('--cookie-secret', dict(
             metavar = 'COOKIE_SECRET',
             action  = 'store',
@@ -733,6 +750,7 @@ class Serve(Subcommand):
         else:
             server_kwargs['auth_provider'] = NullAuth()
 
+        server_kwargs['xsrf_cookies'] = settings.xsrf_cookies(getattr(args, 'enable_xsrf_cookies', False))
         server_kwargs['cookie_secret'] = settings.cookie_secret(getattr(args, 'cookie_secret', None))
         server_kwargs['use_index'] = not args.disable_index
         server_kwargs['redirect_root'] = not args.disable_index_redirect
