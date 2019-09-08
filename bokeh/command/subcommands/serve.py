@@ -274,8 +274,8 @@ The function is passed the Tornado ``RequestHandler`` and can inspect cookies
 or request headers to determine the authenticated user. If there is no valid
 authenticated user, these functions should return None.
 
-Additionally, the module must specify where to redirect unauthenticate users. It
-must contain either:
+Additionally, the module must specify where to redirect unauthenticated users.
+It must contain either:
 
 * a module attribute ``login_url`` and (optionally) a ``LoginHandler`` class
 * a function definition for ``get_login_url``
@@ -304,7 +304,7 @@ values may be define and endopoint for logging users out.
 If no auth module is provided, then a default user will be assumed, and no
 authentication will be required to access Bokeh server endpoints.
 
-.. warning:
+.. warning::
     The contents of the auth module will be executed!
 
 Bokeh can also enable the use of Tornado's XFRF cookie protection. To turn this

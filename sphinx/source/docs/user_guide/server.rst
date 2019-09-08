@@ -8,6 +8,10 @@ Running a Bokeh Server
 Purpose
 -------
 
+The purpose of the Bokeh server is to make it easy for python users to create
+interactive web applications that can connect front-end UI events to real,
+running Python code.
+
 The architecture of Bokeh is such that high-level "model objects"
 (representing things like plots, ranges, axes, glyphs, etc.) are created
 in Python, and then converted to a JSON format that is consumed by the
@@ -902,8 +906,9 @@ similar to this:
     }
 
 Be careful that the file permissions of the Bokeh resources are accessible to
-whatever user account is running the Nginx server process. Alternatively, you can copy the resources
-to a global static directory during your deployment process.
+whatever user account is running the Nginx server process. Alternatively, you
+can copy the resources to a global static directory during your deployment
+process.
 
 Apache
 ''''''
@@ -1106,6 +1111,91 @@ here:
 
     }
 
+.. _userguide_server_deployment_auth:
+
+Authentication
+~~~~~~~~~~~~~~
+
+The Bokeh server itself does not have any facilities for authentication or
+authorization. However, the Bokeh server can be configured with and "Auth
+Provider" that hooks in to Tornado's underlying capabilities. For background
+information, see the Tornado docs for `Authentication and security`_. The rest
+of this section assume some familiarity with that material.
+
+Auth Module
+'''''''''''
+
+The Bokeh server can be configured to only allow connections in case there is
+a properly authenticed user. This is accomplished by providing the path to
+a module that implements the necessary functions on the command line:
+
+.. code-block:: sh
+
+    bokeh serve --auth-module=/path/to/auth.py
+
+or by setting the ``BOKEH_AUTH_MODULE`` environment variable.
+
+The module must contain *one* of the following two functions that will return
+the current user (or None):
+
+.. code-block:: python
+
+    def get_user(request_handler):
+        pass
+
+    async def get_user_aync(request_handler):
+        pass
+
+The function is passed the Tornado ``RequestHandler`` and can inspect cookies
+or request headers to determine the authenticated user. If there is no valid
+authenticated user, these functions should return None.
+
+Additionally, the module must specify where to redirect unauthenticated users.
+It must contain either:
+
+* a module attribute ``login_url`` and (optionally) a ``LoginHandler`` class
+* a function definition for ``get_login_url``
+
+.. code-block:: python
+
+    login_url = "..."
+
+    class LoginHandler(RequestHandler):
+        pass
+
+    def get_login_url(request_handler):
+        pass
+
+When a relative ``login_url`` is given, an optional ``LoginHandler`` class may
+also be provided, and it will be installed as a route on the Bokeh server
+automatically.
+
+The ``get_login_url`` function is useful in cases where the login URL must
+vary based on the request, or cookies, etc. It is not possible to specify a
+``LoginHandler`` when ``get_url_function`` is defined.
+
+Analogous to the login options, optional ``logout_url`` and ``LogoutHandler``
+values may be define and endopoint for logging users out.
+
+If no auth module is provided, then a default user will be assumed, and no
+authentication will be required to access Bokeh server endpoints.
+
+.. warning::
+    The contents of the auth module will be executed!
+
+Secure Cookies
+''''''''''''''
+
+If you want to use Tornado's `set_secure_cookie`_ and `get_secure_cookie`_
+functions in your auth module, a cookie secret must be set. This can be
+accomplished with the ``BOKEH_COOKIE_SECRET`` environment variable. e.g.
+
+.. code-block:: sh
+
+    export BOKEH_COOKIE_SECRET=<cookie secret value>
+
+The value should be a long, random sequence of bytes
+
 .. _userguide_server_deployment_security:
 
 Security
@@ -1232,6 +1322,22 @@ Django or whatever tool is in use).
     run the Bokeh server behind a proxy that terminates SSL, so that the session
     ID is transmitted securely to the user's browser.
 
+XSRF Cookies
+''''''''''''
+
+Bokeh can enable the use of Tornado's cross-site request forgery protection
+protection. To turn this feature on, use the ``--enable-xsrf-cookies`` option,
+or set the environment variable ``BOKEH_XSRF_COOKIES=yes``. If this setting is
+enabled, any PUT, POST, or DELETE operations on custom or login handlers must be
+instrumented properly in order to function. Typically, this means adding the
+code:
+
+.. code-block:: html
+
+    {% module xsrf_form_html() %}
+
+to all HTML form submissions templates. For full details, see the Tornado
+documentation on `XSRF Cookies`_.
 
 .. _userguide_server_deployment_scaling:
 
@@ -1256,13 +1362,12 @@ Now that you are familiar with the concepts of :ref:`userguide_server`, you
 may be interested in learning more about the internals of the Bokeh server
 in :ref:`devguide_server`
 
-.. _Ansible: http://www.ansible.com
-.. _Chef: https://www.chef.io/chef/
+.. _Authentication and security: https://www.tornadoweb.org/en/stable/guide/security.html
 .. _demo.bokeh.org: https://demo.bokeh.org
-.. _HTTPServerRequest: http://www.tornadoweb.org/en/stable/httputil.html#tornado.httputil.HTTPServerRequest
+.. _get_secure_cookie: https://www.tornadoweb.org/en/stable/web.html#tornado.web.RequestHandler.get_secure_cookie
 .. _Nginx load balancer documentation: http://nginx.org/en/docs/http/load_balancing.html
-.. _Supervisor: http://supervisord.org
-.. _Supervisor configuration documentation: http://supervisord.org/configuration.html
+.. _set_secure_cookie: https://www.tornadoweb.org/en/stable/web.html#tornado.web.RequestHandler.set_secure_cookie
+.. _XSRF Cookies:  https://www.tornadoweb.org/en/stable/guide/security.html#cross-site-request-forgery-protection
 
 .. |server_document|  replace:: :func:`~bokeh.embed.server_document`
 .. |server_session|  replace:: :func:`~bokeh.embed.server_session`
