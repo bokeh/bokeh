@@ -21,6 +21,7 @@ from os.path import isfile
 from tornado.web import RequestHandler
 
 # Bokeh imports
+from ..util.serialization import make_globally_unique_id
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -276,9 +277,10 @@ def load_auth_module(module_path):
         module
 
     '''
+    module_name ="bokeh.auth_" + make_globally_unique_id().replace('-', '')
     try:
         import importlib.util
-        spec = importlib.util.spec_from_file_location("bokeh.auth", module_path)
+        spec = importlib.util.spec_from_file_location(module_name, module_path)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
 
@@ -286,12 +288,12 @@ def load_auth_module(module_path):
         try:
             # python 3.4
             from importlib.machinery import SourceFileLoader
-            module = SourceFileLoader("module.name", module_path).load_module()
+            module = SourceFileLoader(module_name, module_path).load_module()
 
         except ImportError:
             # python 2
             import imp
-            module = imp.load_source('module.name', module_path)
+            module = imp.load_source(module_name, module_path)
 
     return module
 
