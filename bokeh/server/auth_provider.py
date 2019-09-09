@@ -195,7 +195,7 @@ class AuthModule(AuthProvider):
 
     def __init__(self, module_path):
         if not isfile(module_path):
-            raise ValueError()
+            raise ValueError("no file exists at module_path: %r" % module_path)
 
         self._module = load_auth_module(module_path)
 
@@ -304,7 +304,7 @@ def probably_relative_url(url):
         url (str): a URL string
 
     Returns
-        bool
+        booprobably_relative_urll
 
     '''
     return not url.startswith(("http://", "https://", "//"))
