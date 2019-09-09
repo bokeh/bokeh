@@ -307,7 +307,7 @@ def probably_relative_url(url):
         bool
 
     '''
-    return not (url.startswith("http:") or url.startswith("https:") or url.startswith("//"))
+    return not url.startswith(("http://", "https://", "//"))
 
 #-----------------------------------------------------------------------------
 # Private API
