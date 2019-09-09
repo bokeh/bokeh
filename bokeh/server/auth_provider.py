@@ -158,8 +158,6 @@ class AuthProvider(object):
         if (self.get_user or self.get_user_async) and not (self.login_url or self.get_login_url):
             raise ValueError("When user authentication is enabled, one of login_url or get_login_url must be supplied")
 
-        if (self.get_user or self.get_user_async) and not (self.login_url or self.get_login_url):
-            raise ValueError("If a get_user function is provided, login URL must also be provided")
         if self.login_url and self.get_login_url:
             raise ValueError("At most one of login_url or get_login_url should be supplied")
         if self.login_handler and self.get_login_url:
