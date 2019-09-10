@@ -304,7 +304,7 @@ def probably_relative_url(url):
         url (str): a URL string
 
     Returns
-        booprobably_relative_urll
+        bool
 
     '''
     return not url.startswith(("http://", "https://", "//"))

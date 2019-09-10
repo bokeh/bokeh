@@ -17,14 +17,15 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import logging
 import json
+import logging
 
 # External imports
 
 # Bokeh imports
 from bokeh.application import Application
 from bokeh.client import pull_session
+from bokeh.server.auth_provider import NullAuth
 from bokeh.server.views.static_handler import StaticHandler
 
 from .utils import ManagedServerLoop, url, http_get
@@ -96,6 +97,23 @@ def test_prefix():
     for prefix in ["foo", "/foo", "/foo/", "foo/"]:
         with ManagedServerLoop(application, prefix=prefix) as server:
             assert server._tornado.prefix == "/foo"
+
+def test_xsrf_cookies():
+    bt = tornado.BokehTornado(applications={})
+    assert not bt.settings['xsrf_cookies']
+
+    bt = tornado.BokehTornado(applications={}, xsrf_cookies=True)
+    assert bt.settings['xsrf_cookies']
+
+def test_auth_provider():
+    bt = tornado.BokehTornado(applications={})
+    assert isinstance(bt.auth_provider, NullAuth)
+
+    class FakeAuth(object):
+        get_user = "get_user"
+        endpoints = []
+    bt = tornado.BokehTornado(applications={}, auth_provider=FakeAuth)
+    assert bt.auth_provider is FakeAuth
 
 def test_websocket_max_message_size_bytes():
     app = Application()

@@ -235,6 +235,11 @@ class LogoutHandler(RequestHandler): pass
 
 
 class TestAuthModule_validation(object):
+    def test_no_file(self):
+        with pytest.raises(ValueError) as e:
+            bsa.AuthModule("junkjunkjunk")
+            assert str(e).startswith("no file exists at module_path:")
+
     def test_both_user(self):
         def func(filename):
             with pytest.raises(ValueError) as e:

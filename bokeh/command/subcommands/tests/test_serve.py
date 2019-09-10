@@ -19,6 +19,8 @@ import pytest ; pytest
 # Standard library imports
 import argparse
 import contextlib
+import os
+from os.path import join, split
 import re
 import socket
 import subprocess
@@ -358,6 +360,54 @@ def test_websocket_max_message_size_printed_out():
         sleep(2)
     o, e = p.communicate()
     m = pat.search(o.decode())
+    if m is None:
+        pytest.fail("no matching log line in process output")
+
+@pytest.mark.skipif(six.PY2, reason="Travis bug causes bad file descriptor")
+def test_xsrf_printed_option():
+    from fcntl import fcntl, F_GETFL, F_SETFL
+    from os import O_NONBLOCK, read
+    pat = re.compile(r'XSRF cookie protection enabled')
+    m = None
+    with run_bokeh_serve(["--enable-xsrf-cookies"]) as p:
+        flags = fcntl(p.stdout, F_GETFL)
+        fcntl(p.stdout, F_SETFL, flags | O_NONBLOCK)
+        sleep(2)
+        o = read(p.stdout.fileno(), 100*1024)
+        m = pat.search(o.decode())
+    if m is None:
+        pytest.fail("no matching log line in process output")
+
+@pytest.mark.skipif(six.PY2, reason="Travis bug causes bad file descriptor")
+def test_xsrf_printed_envar():
+    from fcntl import fcntl, F_GETFL, F_SETFL
+    from os import O_NONBLOCK, read
+    pat = re.compile(r'XSRF cookie protection enabled')
+    m = None
+    os.environ["BOKEH_XSRF_COOKIES"] = "yes"
+    with run_bokeh_serve(["--enable-xsrf-cookies"]) as p:
+        flags = fcntl(p.stdout, F_GETFL)
+        fcntl(p.stdout, F_SETFL, flags | O_NONBLOCK)
+        sleep(2)
+        o = read(p.stdout.fileno(), 100*1024)
+        m = pat.search(o.decode())
+    if m is None:
+        pytest.fail("no matching log line in process output")
+    os.environ["BOKEH_XSRF_COOKIES"]
+
+@pytest.mark.skipif(six.PY2, reason="Travis bug causes bad file descriptor")
+def test_auth_module_printed():
+    from fcntl import fcntl, F_GETFL, F_SETFL
+    from os import O_NONBLOCK, read
+    pat = re.compile(r'User authentication hooks provided \(no default user\)')
+    m = None
+    with run_bokeh_serve(["--auth-module", join(split(__file__)[0], "_dummy_auth.py")]) as p:
+        flags = fcntl(p.stdout, F_GETFL)
+        fcntl(p.stdout, F_SETFL, flags | O_NONBLOCK)
+        sleep(2)
+        o = read(p.stdout.fileno(), 100*1024)
+        print(o.decode())
+        m = pat.search(o.decode())
     if m is None:
         pytest.fail("no matching log line in process output")
 
