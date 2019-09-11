@@ -97,7 +97,7 @@ class AuthProvider(object):
 
     @property
     def get_user_async(self):
-        ''' An aysnc function to get the current authenticated user.
+        ''' An async function to get the current authenticated user.
 
         This property may return None, if a ``get_user`` function is supplied
         instead.
