@@ -605,7 +605,7 @@ class Serve(Subcommand):
             metavar = 'AUTH_MODULE',
             action  = 'store',
             default = None,
-            help    = 'Absolute path to a Python modules that implements auth hooks',
+            help    = 'Absolute path to a Python module that implements auth hooks',
         )),
 
         ('--enable-xsrf-cookies', dict(
