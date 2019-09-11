@@ -1336,7 +1336,7 @@ code:
 
     {% module xsrf_form_html() %}
 
-to all HTML form submissions templates. For full details, see the Tornado
+to all HTML form submission templates. For full details, see the Tornado
 documentation on `XSRF Cookies`_.
 
 .. _userguide_server_deployment_scaling:
