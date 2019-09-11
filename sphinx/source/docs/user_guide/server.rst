@@ -1126,7 +1126,7 @@ Auth Module
 '''''''''''
 
 The Bokeh server can be configured to only allow connections in case there is
-a properly authenticed user. This is accomplished by providing the path to
+a properly authenticated user. This is accomplished by providing the path to
 a module that implements the necessary functions on the command line:
 
 .. code-block:: sh
