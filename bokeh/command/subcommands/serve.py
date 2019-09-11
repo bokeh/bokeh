@@ -299,7 +299,7 @@ vary based on the request, or cookies, etc. It is not possible to specify a
 ``LoginHandler`` when ``get_url_function`` is defined.
 
 Analogous to the login options, optional ``logout_url`` and ``LogoutHandler``
-values may be define and endopoint for logging users out.
+values may be define an endpoint for logging users out.
 
 If no auth module is provided, then a default user will be assumed, and no
 authentication will be required to access Bokeh server endpoints.
