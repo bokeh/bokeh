@@ -73,7 +73,7 @@ class AuthProvider(object):
         ''' A function that computes a URL to redirect unathenticated users
         to for login.
 
-        This proprty may return None, if a ``login_url`` is supplied
+        This property may return None, if a ``login_url`` is supplied
         instead.
 
         If a function is returned, it should accept a ``RequestHandler``
