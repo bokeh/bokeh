@@ -36,6 +36,7 @@ from ..resources import Resources
 from ..settings import settings
 from ..util.dependencies import import_optional
 
+from .auth_provider import NullAuth
 from .contexts import ApplicationContext
 from .connection import ServerConnection
 from .urls import per_app_patterns, toplevel_patterns
@@ -164,6 +165,12 @@ class BokehTornado(TornadoApplication):
 
             NOTE: This setting has effect ONLY for Tornado>=4.5
 
+        index (str, optional):
+            Path to a Jinja2 template to use for the root URL
+
+        auth_provider (AuthProvider, optional):
+            An AuthProvider instance
+
     Any additional keyword arguments are passed to ``tornado.web.Application``.
     '''
 
@@ -184,6 +191,8 @@ class BokehTornado(TornadoApplication):
                  redirect_root=True,
                  websocket_max_message_size_bytes=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
                  index=None,
+                 auth_provider=NullAuth(),
+                 xsrf_cookies=False,
                  **kwargs):
 
         # This will be set when initialize is called
@@ -249,6 +258,17 @@ class BokehTornado(TornadoApplication):
                      websocket_max_message_size_bytes,
                      websocket_max_message_size_bytes/1024.0**2)
 
+        self.auth_provider = auth_provider
+
+        if self.auth_provider.get_user or self.auth_provider.get_user_async:
+            log.info("User authentication hooks provided (no default user)")
+        else:
+            log.info("User authentication hooks NOT provided (default user enabled)")
+
+        kwargs['xsrf_cookies'] = xsrf_cookies
+        if xsrf_cookies:
+            log.info("XSRF cookie protection enabled")
+
         if extra_websocket_origins is None:
             self._websocket_origins = set()
         else:
@@ -261,9 +281,11 @@ class BokehTornado(TornadoApplication):
         # Wrap applications in ApplicationContext
         self._applications = dict()
         for k,v in applications.items():
-            self._applications[k] = ApplicationContext(v,url=k)
+            self._applications[k] = ApplicationContext(v, url=k, logout_url=self.auth_provider.logout_url)
 
         extra_patterns = extra_patterns or []
+        extra_patterns.extend(self.auth_provider.endpoints)
+
         all_patterns = []
         for key, app in applications.items():
             app_patterns = []

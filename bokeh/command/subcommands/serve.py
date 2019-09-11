@@ -262,6 +262,76 @@ The secret key should be set in a ``BOKEH_SECRET_KEY`` environment variable and
 should be a cryptographically random string with at least 256 bits (32 bytes)
 of entropy. The ``bokeh secret`` command can generate new secret keys.
 
+Authentication Options
+~~~~~~~~~~~~~~~~~~~~~~
+
+The Bokeh server can be configured to only allow connections in case there is
+a properly authenticated user. This is accomplished by providing the path to
+a module that implements the necessary functions on the command line:
+
+.. code-block:: sh
+
+    bokeh serve --auth-module=/path/to/auth.py
+
+or by setting the ``BOKEH_AUTH_MODULE`` environment variable.
+
+The module must contain *one* of the following two functions that will return
+the current user (or None):
+
+.. code-block:: python
+
+    def get_user(request_handler):
+        pass
+
+    async def get_user_async(request_handler):
+        pass
+
+The function is passed the Tornado ``RequestHandler`` and can inspect cookies
+or request headers to determine the authenticated user. If there is no valid
+authenticated user, these functions should return None.
+
+Additionally, the module must specify where to redirect unauthenticated users.
+It must contain either:
+
+* a module attribute ``login_url`` and (optionally) a ``LoginHandler`` class
+* a function definition for ``get_login_url``
+
+.. code-block:: python
+
+    login_url = "..."
+
+    class LoginHandler(RequestHandler):
+        pass
+
+    def get_login_url(request_handler):
+        pass
+
+When a relative ``login_url`` is given, an optional ``LoginHandler`` class may
+also be provided, and it will be installed as a route on the Bokeh server
+automatically.
+
+The ``get_login_url`` function is useful in cases where the login URL must
+vary based on the request, or cookies, etc. It is not possible to specify a
+``LoginHandler`` when ``get_url_function`` is defined.
+
+Analogous to the login options, optional ``logout_url`` and ``LogoutHandler``
+values may be define an endpoint for logging users out.
+
+If no auth module is provided, then a default user will be assumed, and no
+authentication will be required to access Bokeh server endpoints.
+
+.. warning::
+    The contents of the auth module will be executed!
+
+Bokeh can also enable the use of Tornado's XFRF cookie protection. To turn this
+feature on, use the ``--enable-xsrf-cookies`` option, or set the environment
+variable ``BOKEH_XSRF_COOKIES=yes``. If this setting is enabled, any PUT, POST,
+or DELETE operations on custom or login handlers must be instrumented properly
+in order to function. Typically, this means adding the ``xsrf_form_html()``
+module to HTML form submissions templates. For full details, see:
+
+    https://www.tornadoweb.org/en/stable/guide/security.html#cross-site-request-forgery-protection
+
 Session Expiration Options
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -353,6 +423,7 @@ from bokeh.application import Application
 from bokeh.resources import DEFAULT_SERVER_PORT
 from bokeh.util.logconfig import basicConfig
 from bokeh.util.string import nice_join, format_docstring
+from bokeh.server.auth_provider import AuthModule, NullAuth
 from bokeh.server.tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES
 from bokeh.settings import settings
 
@@ -405,10 +476,10 @@ base_serve_args = (
     )),
 
     ('--use-config', dict(
-        metavar='CONFIG',
-        type=str,
-        help="Use a YAML config file for settings",
-        default=None,
+        metavar = 'CONFIG',
+        type    = str,
+        help    = "Use a YAML config file for settings",
+        default = None,
     )),
 
 )
@@ -433,18 +504,18 @@ class Serve(Subcommand):
 
     args = base_serve_args + (
         ('files', dict(
-            metavar='DIRECTORY-OR-SCRIPT',
-            nargs='*',
-            help="The app directories or scripts to serve (serve empty document if not specified)",
-            default=None,
+            metavar = 'DIRECTORY-OR-SCRIPT',
+            nargs   = '*',
+            help    = "The app directories or scripts to serve (serve empty document if not specified)",
+            default = None,
         )),
 
         ('--args', dict(
-            metavar='COMMAND-LINE-ARGS',
-            nargs=argparse.REMAINDER,
-            help="Command line arguments remaining to passed on to the application handler. "
-                 "NOTE: if this argument precedes DIRECTORY-OR-SCRIPT then some other argument, e.g. "
-                 "--show, must be placed before the directory or script. ",
+            metavar = 'COMMAND-LINE-ARGS',
+            nargs   = argparse.REMAINDER,
+            help    = "Command line arguments remaining to passed on to the application handler. "
+                      "NOTE: if this argument precedes DIRECTORY-OR-SCRIPT then some other argument, e.g. "
+                      "--show, must be placed before the directory or script. ",
         )),
 
         ('--dev', dict(
@@ -456,7 +527,7 @@ class Serve(Subcommand):
             help    = "Enable live reloading during app development. "
                       "By default it watches all *.py *.html *.css *.yaml files "
                       "in the app directory tree. Additional files can be passed "
-                      "as arguments."
+                      "as arguments. "
                       "NOTE: if this argument precedes DIRECTORY-OR-SCRIPT then some other argument, e.g "
                       "--show, must be placed before the directory or script. "
                       "NOTE: This setting only works with a single app. "
@@ -467,88 +538,110 @@ class Serve(Subcommand):
         )),
 
         ('--show', dict(
-            action='store_true',
-            help="Open server app(s) in a browser",
+            action = 'store_true',
+            help   = "Open server app(s) in a browser",
         )),
 
         ('--allow-websocket-origin', dict(
-            metavar='HOST[:PORT]',
-            action='append',
-            type=str,
-            help="Public hostnames which may connect to the Bokeh websocket",
+            metavar = 'HOST[:PORT]',
+            action  = 'append',
+            type    = str,
+            help    = "Public hostnames which may connect to the Bokeh websocket",
         )),
 
         ('--prefix', dict(
-            metavar='PREFIX',
-            type=str,
-            help="URL prefix for Bokeh server URLs",
-            default=None,
+            metavar = 'PREFIX',
+            type    = str,
+            help    = "URL prefix for Bokeh server URLs",
+            default = None,
         )),
 
         ('--keep-alive', dict(
-            metavar='MILLISECONDS',
-            type=int,
-            help="How often to send a keep-alive ping to clients, 0 to disable.",
-            default=None,
+            metavar = 'MILLISECONDS',
+            type    = int,
+            help    = "How often to send a keep-alive ping to clients, 0 to disable.",
+            default = None,
         )),
 
         ('--check-unused-sessions', dict(
-            metavar='MILLISECONDS',
-            type=int,
-            help="How often to check for unused sessions",
-            default=None,
+            metavar = 'MILLISECONDS',
+            type    = int,
+            help    = "How often to check for unused sessions",
+            default = None,
         )),
 
         ('--unused-session-lifetime', dict(
-            metavar='MILLISECONDS',
-            type=int,
-            help="How long unused sessions last",
-            default=None,
+            metavar = 'MILLISECONDS',
+            type    = int,
+            help    = "How long unused sessions last",
+            default = None,
         )),
 
         ('--stats-log-frequency', dict(
-            metavar='MILLISECONDS',
-            type=int,
-            help="How often to log stats",
-            default=None,
+            metavar = 'MILLISECONDS',
+            type    = int,
+            help    = "How often to log stats",
+            default = None,
         )),
 
         ('--mem-log-frequency', dict(
-            metavar='MILLISECONDS',
-            type=int,
-            help="How often to log memory usage information",
-            default=None,
+            metavar = 'MILLISECONDS',
+            type    = int,
+            help    = "How often to log memory usage information",
+            default = None,
         )),
 
         ('--use-xheaders', dict(
-            action='store_true',
-            help="Prefer X-headers for IP/protocol information",
+            action = 'store_true',
+            help   = "Prefer X-headers for IP/protocol information",
         )),
 
         ('--ssl-certfile', dict(
-            metavar='CERTFILE',
+            metavar = 'CERTFILE',
             action  = 'store',
             default = None,
             help    = 'Absolute path to a certificate file for SSL termination',
         )),
 
         ('--ssl-keyfile', dict(
-            metavar='KEYFILE',
+            metavar = 'KEYFILE',
             action  = 'store',
             default = None,
             help    = 'Absolute path to a private key file for SSL termination',
         )),
 
         ('--session-ids', dict(
-            metavar='MODE',
+            metavar = 'MODE',
             action  = 'store',
             default = None,
             choices = SESSION_ID_MODES,
             help    = "One of: %s" % nice_join(SESSION_ID_MODES),
         )),
 
+        ('--auth-module', dict(
+            metavar = 'AUTH_MODULE',
+            action  = 'store',
+            default = None,
+            help    = 'Absolute path to a Python module that implements auth hooks',
+        )),
+
+        ('--enable-xsrf-cookies', dict(
+            action  = 'store_true',
+            default = False,
+            help    = 'Whether to enable Tornado support for XSRF cookies. All '
+                      'PUT, POST, or DELETE handlers must be properly instrumented '
+                      'when this setting is enabled.'
+        )),
+
+        ('--cookie-secret', dict(
+            metavar = 'COOKIE_SECRET',
+            action  = 'store',
+            default = None,
+            help    = 'Configure to enable getting/setting secure cookies',
+        )),
+
         ('--index', dict(
-            metavar='INDEX',
+            metavar = 'INDEX',
             action  = 'store',
             default = None,
             help    = 'Path to a template to use for the site index',
@@ -556,30 +649,30 @@ class Serve(Subcommand):
 
         ('--disable-index', dict(
             action = 'store_true',
-            help    = 'Do not use the default index on the root path',
+            help   = 'Do not use the default index on the root path',
         )),
 
         ('--disable-index-redirect', dict(
             action = 'store_true',
-            help    = 'Do not redirect to running app from root path',
+            help   = 'Do not redirect to running app from root path',
         )),
 
         ('--num-procs', dict(
-            metavar='N',
-            action='store',
-            help="Number of worker processes for an app. Using "
-                 "0 will autodetect number of cores (defaults to 1)",
-            default=1,
-            type=int,
+            metavar = 'N',
+            action  = 'store',
+            help    = "Number of worker processes for an app. Using "
+                      "0 will autodetect number of cores (defaults to 1)",
+            default = 1,
+            type    = int,
         )),
 
         ('--websocket-max-message-size', dict(
-            metavar='BYTES',
-            action='store',
-            help="Set the Tornado websocket_max_message_size value (defaults "
-                 "to 20MB) NOTE: This setting has effect ONLY for Tornado>=4.5",
-            default=DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
-            type=int,
+            metavar = 'BYTES',
+            action  = 'store',
+            help    = "Set the Tornado websocket_max_message_size value (defaults "
+                      "to 20MB) NOTE: This setting has effect ONLY for Tornado>=4.5",
+            default = DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
+            type    = int,
         )),
 
         ('--glob', dict(
@@ -680,6 +773,14 @@ class Serve(Subcommand):
             die("To sign sessions, the BOKEH_SECRET_KEY environment variable must be set; " +
                 "the `bokeh secret` command can be used to generate a new key.")
 
+        auth_module_path = settings.auth_module(getattr(args, 'auth_module', None))
+        if auth_module_path:
+            server_kwargs['auth_provider'] = AuthModule(auth_module_path)
+        else:
+            server_kwargs['auth_provider'] = NullAuth()
+
+        server_kwargs['xsrf_cookies'] = settings.xsrf_cookies(getattr(args, 'enable_xsrf_cookies', False))
+        server_kwargs['cookie_secret'] = settings.cookie_secret(getattr(args, 'cookie_secret', None))
         server_kwargs['use_index'] = not args.disable_index
         server_kwargs['redirect_root'] = not args.disable_index_redirect
         server_kwargs['autoreload'] = args.dev is not None

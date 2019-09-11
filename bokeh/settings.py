@@ -413,6 +413,15 @@ class Settings(object):
     A comma-separated list of allowed websocket origins for Bokeh server applications.
     """)
 
+    auth_module = PrioritizedSetting("auth_module", "BOKEH_AUTH_MODULE", default=None, help="""
+    A path to a Python modules that implements user authentication functions for
+    the Bokeh server.
+
+    .. warning::
+        The contents of this module will be executed!
+
+    """)
+
     browser = PrioritizedSetting("browser", "BOKEH_BROWSER", default=None, dev_default="none", help="""
     The default browser that Bokeh should use to show documents with.
 
@@ -420,6 +429,12 @@ class Settings(object):
     standard library webbrowser_ module.
 
     .. _webbrowser: https://docs.python.org/2/library/webbrowser.html
+    """)
+
+    cookie_secret = PrioritizedSetting("cookie_secret", "BOKEH_COOKIE_SECRET", default=None, help="""
+    Configure the ``cookie_secret`` setting in Tornado. This value is required
+    if you use ``get_secure_cookie`` or ``set_secure_cookie``.  It should be a
+    long, random sequence of bytes
     """)
 
     docs_cdn = PrioritizedSetting("docs_cdn", "BOKEH_DOCS_CDN", default=None, help="""
@@ -555,7 +570,7 @@ class Settings(object):
     """)
 
     ssl_password = PrioritizedSetting("ssl_password", "BOKEH_SSL_PASSWORD", default=None, help="""
-     A password to decrypt the SSL keyfile, if necessary.
+    A password to decrypt the SSL keyfile, if necessary.
     """)
 
     strict = PrioritizedSetting("strict", "BOKEH_STRICT", convert=convert_bool, help="""
@@ -566,6 +581,17 @@ class Settings(object):
     What version of BokehJS to use with CDN resources.
 
     See the :class:`~bokeh.resources.Resources` class reference for full details.
+    """)
+
+    xsrf_cookies = PrioritizedSetting("xsrf_cookies", "BOKEH_XSRF_COOKIES", default=False, convert=convert_bool, help="""
+    Whether to enable Tornado XSRF cookie protection on the Bokeh server. This
+    is only applicable when also using an auth module or custom handlers. See
+
+    https://www.tornadoweb.org/en/stable/guide/security.html#cross-site-request-forgery-protection
+
+    for more information about XSRF protection in Tornado. All PUT, POST, and
+    DELETE handlers will need to be appropriately instrumented when this setting
+    is active.
     """)
 
     # Non-settings methods
