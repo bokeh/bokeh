@@ -8,7 +8,7 @@ Running a Bokeh Server
 Purpose
 -------
 
-The purpose of the Bokeh server is to make it easy for python users to create
+The purpose of the Bokeh server is to make it easy for Python users to create
 interactive web applications that can connect front-end UI events to real,
 running Python code.
 
