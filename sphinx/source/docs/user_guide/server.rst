@@ -1117,7 +1117,7 @@ Authentication
 ~~~~~~~~~~~~~~
 
 The Bokeh server itself does not have any facilities for authentication or
-authorization. However, the Bokeh server can be configured with and "Auth
+authorization. However, the Bokeh server can be configured with an "Auth
 Provider" that hooks in to Tornado's underlying capabilities. For background
 information, see the Tornado docs for `Authentication and security`_. The rest
 of this section assume some familiarity with that material.
