@@ -1143,7 +1143,7 @@ the current user (or None):
     def get_user(request_handler):
         pass
 
-    async def get_user_aync(request_handler):
+    async def get_user_async(request_handler):
         pass
 
 The function is passed the Tornado ``RequestHandler`` and can inspect cookies
