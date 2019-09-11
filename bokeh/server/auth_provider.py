@@ -123,7 +123,7 @@ class AuthProvider(object):
 
     @property
     def login_url(self):
-        ''' A URL to redirect unathenticated users to for login.
+        ''' A URL to redirect unauthenticated users to for login.
 
         This proprty may return None, if a ``get_login_url`` function is
         supplied instead.
