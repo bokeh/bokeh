@@ -41,7 +41,6 @@ pd = import_optional('pandas')
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'ServerSentDataSource',
     'AjaxDataSource',
     'CDSView',
     'ColumnarDataSource',
@@ -49,6 +48,8 @@ __all__ = (
     'DataSource',
     'GeoJSONDataSource',
     'RemoteSource',
+    'ServerSentDataSource',
+    'WebSource',
 )
 
 #-----------------------------------------------------------------------------
