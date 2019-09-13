@@ -40,6 +40,7 @@ def test_cmap_generator_function():
     assert pal.inferno(256) == pal.Inferno256
     assert pal.gray(256) == pal.Greys256
     assert pal.grey(256) == pal.Greys256
+    assert pal.turbo(256) == pal.Turbo256
 
 def test_palettes_immutability():
     Magma7 = pal.Magma7[:]
@@ -51,6 +52,10 @@ def test_all_palettes___palettes__():
 
 def test_palettes_dir():
     assert 'viridis' in dir(pal)
+    assert 'cividis' in dir(pal)
+    assert 'magma' in dir(pal)
+    assert 'inferno' in dir(pal)
+    assert 'turbo' in dir(pal)
     assert not '__new__' in dir(pal)
 
 #-----------------------------------------------------------------------------
