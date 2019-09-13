@@ -1158,7 +1158,6 @@ class _PalettesModule(_types.ModuleType):
             "Plasma"  : self.Plasma,
             "Viridis" : self.Viridis,
             "Cividis" : self.Cividis,
-            "Turbo"   : self.Turbo,
         }
 
     def colorblind(self):
