@@ -397,7 +397,6 @@ def test_websocket_max_message_size_printed_out():
     if m is None:
         pytest.fail("no matching log line in process output")
 
-@pytest.mark.skipif(six.PY2, reason="Travis bug causes bad file descriptor")
 def test_xsrf_printed_option():
     from fcntl import fcntl, F_GETFL, F_SETFL
     from os import O_NONBLOCK, read
@@ -412,7 +411,6 @@ def test_xsrf_printed_option():
     if m is None:
         pytest.fail("no matching log line in process output")
 
-@pytest.mark.skipif(six.PY2, reason="Travis bug causes bad file descriptor")
 def test_xsrf_printed_envar():
     from fcntl import fcntl, F_GETFL, F_SETFL
     from os import O_NONBLOCK, read
@@ -429,7 +427,6 @@ def test_xsrf_printed_envar():
         pytest.fail("no matching log line in process output")
     os.environ["BOKEH_XSRF_COOKIES"]
 
-@pytest.mark.skipif(six.PY2, reason="Travis bug causes bad file descriptor")
 def test_auth_module_printed():
     from fcntl import fcntl, F_GETFL, F_SETFL
     from os import O_NONBLOCK, read

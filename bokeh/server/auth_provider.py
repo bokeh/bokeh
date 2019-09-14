@@ -15,6 +15,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import importlib.util
 from os.path import isfile
 
 # External imports
@@ -278,23 +279,9 @@ def load_auth_module(module_path):
 
     '''
     module_name ="bokeh.auth_" + make_globally_unique_id().replace('-', '')
-    try:
-        import importlib.util
-        spec = importlib.util.spec_from_file_location(module_name, module_path)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-
-    except ImportError:
-        try:
-            # python 3.4
-            from importlib.machinery import SourceFileLoader
-            module = SourceFileLoader(module_name, module_path).load_module()
-
-        except ImportError:
-            # python 2
-            import imp
-            module = imp.load_source(module_name, module_path)
-
+    spec = importlib.util.spec_from_file_location(module_name, module_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
     return module
 
 def probably_relative_url(url):

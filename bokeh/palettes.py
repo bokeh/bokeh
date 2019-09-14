@@ -343,7 +343,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import sys as _sys
 import types as _types
-from typing import List, Dict
+from typing import Dict, List
 
 # External imports
 
@@ -398,9 +398,9 @@ PaletteMap = Dict[str, PaletteCollection]
 
 class _PalettesModule(_types.ModuleType):
 
-    __all__ = [] # type: List[str]
+    __file__ = __file__ # type: str
 
-    # Properties --------------------------------------------------------------
+    __all__ = [] # type: List[str]
 
     @property
     def __palettes__(self) -> List[str]:
@@ -409,8 +409,6 @@ class _PalettesModule(_types.ModuleType):
             name = name + "_" if name[-1].isdigit() else name
             __palettes__ += [ name + str(index) for index in sorted(palettes.keys()) ]
         return __palettes__
-
-    # Public methods ----------------------------------------------------------
 
     @property
     def YlGn3(self) -> Palette:
@@ -1599,33 +1597,6 @@ class _PalettesModule(_types.ModuleType):
             '#a91501', '#a61401', '#a31201', '#a01101', '#9d1001', '#9a0e01', '#970d01', '#940c01', '#910b01', '#8e0a01', '#8b0901', '#870801',
             '#840701', '#810602', '#7d0502', '#7a0402']
 
-    def Category10_3(self):  return self.Category10_10[:3]
-    def Category10_4(self):  return self.Category10_10[:4]
-    def Category10_5(self):  return self.Category10_10[:5]
-    def Category10_6(self):  return self.Category10_10[:6]
-    def Category10_7(self):  return self.Category10_10[:7]
-    def Category10_8(self):  return self.Category10_10[:8]
-    def Category10_9(self):  return self.Category10_10[:9]
-    def Category10_10(self): return ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
-
-    def Category20_3(self):  return self.Category20_20[:3]
-    def Category20_4(self):  return self.Category20_20[:4]
-    def Category20_5(self):  return self.Category20_20[:5]
-    def Category20_6(self):  return self.Category20_20[:6]
-    def Category20_7(self):  return self.Category20_20[:7]
-    def Category20_8(self):  return self.Category20_20[:8]
-    def Category20_9(self):  return self.Category20_20[:9]
-    def Category20_10(self): return self.Category20_20[:10]
-    def Category20_11(self): return self.Category20_20[:11]
-    def Category20_12(self): return self.Category20_20[:12]
-    def Category20_13(self): return self.Category20_20[:13]
-    def Category20_14(self): return self.Category20_20[:14]
-    def Category20_15(self): return self.Category20_20[:15]
-    def Category20_16(self): return self.Category20_20[:16]
-    def Category20_17(self): return self.Category20_20[:17]
-    def Category20_18(self): return self.Category20_20[:18]
-    def Category20_19(self): return self.Category20_20[:19]
-    def Category20_20(self):
     @property
     def Category10_3(self) -> Palette:
         return self.Category10_10[:3]
@@ -1960,6 +1931,9 @@ class _PalettesModule(_types.ModuleType):
     @property
     def Viridis(self) -> PaletteCollection:
         return { 3: self.Viridis3,  4: self.Viridis4,  5: self.Viridis5,  6: self.Viridis6,  7: self.Viridis7,  8: self.Viridis8,  9: self.Viridis9,  10: self.Viridis10,  11: self.Viridis11, 256: self.Viridis256 } # NOQA
+    @property
+    def Cividis(self) -> PaletteCollection:
+        return { 3: self.Cividis3,  4: self.Cividis4,  5: self.Cividis5,  6: self.Cividis6,  7: self.Cividis7,  8: self.Cividis8,  9: self.Cividis9,  10: self.Cividis10,  11: self.Cividis11, 256: self.Cividis256 } # NOQA
     @property
     def Turbo(self) -> PaletteCollection:
         return { 3: self.Turbo3,    4: self.Turbo4,    5: self.Turbo5,    6: self.Turbo6,    7: self.Turbo7,    8: self.Turbo8,    9: self.Turbo9,    10: self.Turbo10,    11: self.Turbo11,   256: self.Turbo256 } # NOQA
@@ -2353,7 +2327,7 @@ class _PalettesModule(_types.ModuleType):
 #-----------------------------------------------------------------------------
 
 # need to explicitly transfer the docstring for Sphinx docs to build correctly
-_mod = _PalettesModule(str('bokeh.palettes'))
+_mod = _PalettesModule('bokeh.palettes')
 _mod.__doc__ = __doc__
 _mod.__all__ = dir(_mod)
 _sys.modules['bokeh.palettes'] = _mod
