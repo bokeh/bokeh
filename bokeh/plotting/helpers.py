@@ -332,7 +332,7 @@ def _pop_visuals(glyphclass, props, prefix="", defaults={}, trait_defaults={}):
     trait_defaults.setdefault('color', get_default_color())
     trait_defaults.setdefault('alpha', 1.0)
 
-    result = dict()
+    result, traits = dict(), set()
     for pname in filter(is_visual, glyphclass.properties()):
         _, trait = split_feature_trait(pname)
         if prefix+pname in props:
@@ -343,6 +343,9 @@ def _pop_visuals(glyphclass, props, prefix="", defaults={}, trait_defaults={}):
             result[pname] = defaults[pname]
         elif trait in trait_defaults:
             result[pname] = trait_defaults[trait]
+        traits.add(trait)
+    for trait in traits:
+        props.pop(prefix+trait, None)
 
     return result
 
